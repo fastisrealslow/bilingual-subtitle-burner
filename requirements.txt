@@ -1,0 +1,16 @@
+# bilingual-subtitle-burner 依赖
+#
+# 安装：
+#   pip install -r requirements.txt
+# 注意：faster-whisper 1.0.3 会锁定 av<13，缺少 ffmpeg 开发库时编译失败，
+#       因此固定 >=1.1.0，并建议用 --only-binary 安装：
+#   pip install --only-binary=:all: "faster-whisper>=1.1.0"
+#
+# 系统依赖（需自行安装，不在 pip 内）：
+#   ffmpeg  —— 切片、转码、截帧（brew install ffmpeg / apt install ffmpeg）
+#   yt-dlp  —— 视频采集（可 pip 安装，见下）
+
+faster-whisper>=1.1.0
+yt-dlp>=2024.0.0
+Pillow>=10.0.0
+requests>=2.31.0

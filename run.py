@@ -27,7 +27,7 @@ run.py — 视频金句短片全流水线主控
 
 环境变量：
   SILICONFLOW_API_KEY   必填
-  SILICONFLOW_MODEL     可选，默认 Qwen/Qwen3-32B
+  SILICONFLOW_MODEL     可选，默认 Qwen/Qwen3-8B
   WHISPER_MODEL         可选，默认 auto（优先 large-v3，fallback small）
 """
 
@@ -46,9 +46,13 @@ ROOT = Path(__file__).parent
 STEPS_DIR = ROOT / "steps"
 OUTPUT_ROOT = ROOT / "output" / "jobs"
 
-WHISPER_LARGE_V3 = Path.home() / ".cache/whisper/large-v3"
-WHISPER_MEDIUM   = Path.home() / ".cache/whisper/medium"
-WHISPER_SMALL    = Path.home() / ".cache/whisper/small"
+# 本地缓存目录（跨平台）：优先 ~/.cache/whisper/<model>/model.bin，
+# 找不到则退回 faster-whisper 模型名（首次运行自动从 HuggingFace 下载）。
+WHISPER_CACHE    = Path.home() / ".cache/whisper"
+WHISPER_LARGE_V3 = WHISPER_CACHE / "large-v3"
+WHISPER_MEDIUM   = WHISPER_CACHE / "medium"
+WHISPER_SMALL    = WHISPER_CACHE / "small"
+WHISPER_BASE     = WHISPER_CACHE / "base"
 
 STEPS = [1, 2, 3, 4, 5, 6, 7, 8]
 STEP_NAMES = {
@@ -64,43 +68,66 @@ STEP_NAMES = {
 
 # ── 工具函数 ──────────────────────────────────────────────────────────────────
 
-def detect_whisper_model() -> str:
-    """自动选择可用的 Whisper 模型（优先级：large-v3 > medium > small）"""
-    env_model = os.environ.get("WHISPER_MODEL", "").strip()
-    if env_model and Path(env_model).exists():
-        return env_model
-
-    # large-v3: 约 3.09GB，但容器 cgroup 4GB 限制下无法运行
-    # medium: 约 1.53GB，加载时约 1.8GB RSS，在 4GB 限制内
-    # small: 约 488MB，最保险
-
-    # 检查 cgroup 内存限制
-    cgroup_limit = float('inf')
+def _available_mem_bytes() -> float:
+    """估算可用内存（容器取 cgroup 限制，本地取物理内存）"""
+    # 1) 容器 cgroup 限制
     for p in ['/sys/fs/cgroup/memory/memory.limit_in_bytes', '/sys/fs/cgroup/memory.max']:
         try:
             v = open(p).read().strip()
             if v.isdigit():
-                cgroup_limit = int(v)
-                break
+                lim = int(v)
+                # cgroup v2 无限制时为 'max'；数值过大视为无限制
+                if lim < 1 << 62:
+                    return float(lim)
         except Exception:
             pass
+    # 2) 本地物理内存
+    try:
+        return os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+    except Exception:
+        return float('inf')
 
+
+def detect_whisper_model() -> str:
+    """
+    自动选择可用的 Whisper 模型。
+    优先级：large-v3 > medium > small > base。
+    - 先看环境变量 WHISPER_MODEL（路径或模型名均可）
+    - 再看本地缓存 ~/.cache/whisper/<model>/model.bin
+    - 都没有时，根据可用内存选一个 faster-whisper 模型名（首次运行自动下载）
+    """
+    env_model = os.environ.get("WHISPER_MODEL", "").strip()
+    if env_model:
+        # 路径存在就用路径；否则当作模型名交给 faster-whisper
+        return env_model
+
+    mem = _available_mem_bytes()
+
+    # 1) 本地已缓存的模型目录
     lv3_bin = WHISPER_LARGE_V3 / "model.bin"
     if lv3_bin.exists() and lv3_bin.stat().st_size > 2_900_000_000:
-        # large-v3 加载需要约 3.5GB，只在 cgroup 限制 >= 6GB 时使用
-        if cgroup_limit >= 6 * 1024 ** 3:
+        if mem >= 6 * 1024 ** 3:
             return str(WHISPER_LARGE_V3)
-        else:
-            print(f"[run] large-v3 存在但 cgroup 内存限制 {cgroup_limit//1024**3}GB 不足，跳过", flush=True)
+        print(f"[run] large-v3 已缓存但可用内存 {mem/1024**3:.1f}GB 不足 6GB，降级", flush=True)
 
     med_bin = WHISPER_MEDIUM / "model.bin"
     if med_bin.exists() and med_bin.stat().st_size > 1_400_000_000:
         return str(WHISPER_MEDIUM)
-
-    if WHISPER_SMALL.exists():
+    if (WHISPER_SMALL / "model.bin").exists():
         return str(WHISPER_SMALL)
+    if (WHISPER_BASE / "model.bin").exists():
+        return str(WHISPER_BASE)
 
-    raise RuntimeError("找不到可用的 Whisper 模型，请先下载 small 或 medium")
+    # 2) 本地无缓存 → 返回 faster-whisper 模型名，首次运行自动下载
+    #    根据内存选择（>=6GB 用 large-v3，>=3GB 用 medium，否则 small）
+    if mem >= 6 * 1024 ** 3:
+        chosen = "large-v3"
+    elif mem >= 3 * 1024 ** 3:
+        chosen = "medium"
+    else:
+        chosen = "small"
+    print(f"[run] 本地无缓存模型，将自动下载 faster-whisper '{chosen}'（可用内存 {mem/1024**3:.1f}GB）", flush=True)
+    return chosen
 
 
 def load_state(job_dir: Path) -> dict:
@@ -178,6 +205,9 @@ def main():
     parser.add_argument("--speaker", default="演讲者", help="说话人姓名")
     parser.add_argument("--speaker-desc", default="",
                         help="主讲人外貌描述，如'穿黑色西装的中年男性'，提高封面识别准确度")
+    parser.add_argument("--speaker-color", default="auto",
+                        choices=["auto", "blue", "other"],
+                        help="主讲人西装颜色系（封面识别用）：blue=启用零费用颜色规则；other=直接vision；auto=从--speaker-desc推断")
     parser.add_argument("--channel", default="价值投资讲堂", help="频道/栏目名")
     parser.add_argument("--top-n", type=int, default=5, help="输出金句条数")
     parser.add_argument("--language", default="auto",
@@ -187,6 +217,8 @@ def main():
                         choices=["auto", "zh2en", "en2zh", "none"],
                         help="翻译方向（auto=根据语言自动判断，none=不翻译）")
     parser.add_argument("--no-subtitle", action="store_true", help="不烧录字幕")
+    parser.add_argument("--vertical", action="store_true",
+                        help="输出竖屏 9:16（适配手机端短视频）")
 
     parser.add_argument("--cookies", default=None,
                         help="Cookie 文件路径（B站/抖音等需要登录的平台）")
@@ -260,7 +292,7 @@ def main():
 
     env = {
         "SILICONFLOW_API_KEY": api_key,
-        "SILICONFLOW_MODEL": os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen2.5-72B-Instruct"),
+        "SILICONFLOW_MODEL": os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-8B"),
     }
     if args.cookies:
         env["COOKIES_FILE"] = args.cookies
@@ -290,7 +322,8 @@ def main():
         if is_done(job_dir, 2) and not args.force:
             print(f"\n[Step 2] ✅ 已完成，跳过", flush=True)
         else:
-            asr_lang = [] if args.language == "auto" else ["--language", args.language]
+            # auto 时显式传 auto，让 transcribe.py 真正自动检测（而不是退到默认值）
+            asr_lang = ["--language", args.language]
             run_step(
                 [sys.executable, str(ROOT / "scripts" / "transcribe.py"),
                  "--input", str(raw_video),
@@ -370,6 +403,7 @@ def main():
         else:
             bi_args = ["--bilingual", str(bilingual)] if bilingual.exists() else []
             sub_args = ["--no-subtitle"] if args.no_subtitle else []
+            vert_args = ["--vertical"] if args.vertical else []
             run_step(
                 [sys.executable, str(ROOT / "scripts" / "clip.py"),
                  "--video", str(raw_video),
@@ -378,7 +412,8 @@ def main():
                  *bi_args,
                  "--output-dir", str(clips_dir),
                  "--srt-lang", srt_lang,
-                 *sub_args],
+                 *sub_args,
+                 *vert_args],
                 "clip", env=env,
             )
             mark_done(job_dir, 6)
@@ -395,7 +430,8 @@ def main():
                  "--manifest", str(manifest),
                  "--clips-dir", str(clips_dir),
                  "--raw-video", str(raw_video),
-                 "--speaker", args.speaker]
+                 "--speaker", args.speaker,
+                 "--speaker-color", args.speaker_color]
                  + (["--speaker-desc", args.speaker_desc] if args.speaker_desc else []),
                 "cover", env=env,
             )

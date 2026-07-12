@@ -29,7 +29,7 @@ highlight.py — 从字幕中自动识别"金句/高能片段"并打分排序
 
 环境变量：
   SILICONFLOW_API_KEY  （必填）
-  SILICONFLOW_MODEL    （可选，默认 Qwen/Qwen3-32B）
+  SILICONFLOW_MODEL    （可选，默认 Qwen/Qwen3-8B）
   SPEAKER_NAME         （可选，说话人名字，用于标题生成，默认"演讲者"）
 """
 
@@ -45,7 +45,7 @@ import requests
 
 # ── 常量 ──────────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL = "Qwen/Qwen2.5-72B-Instruct"
+DEFAULT_MODEL = "Qwen/Qwen3-8B"
 MIN_CLIP_SEC = 20       # 金句片段最短时长
 MAX_CLIP_SEC = 180      # 金句片段最长时长
 CONTEXT_PAD_SEC = 2.0   # 前后各加多少秒 padding
@@ -275,10 +275,29 @@ def score_highlights(paragraphs: List[Dict], api_key: str, model: str,
     SPEAKER_STARTERS = ["我", "咱们", "其实", "那个时候", "当时", "所以", "然后",
                         "坦白", "说实话", "我觉得", "我们", "这个", "对于"]
 
+    # 英文主持人特征（针对英文视频，如帕伯莱英语访谈）
+    HOST_EN_STRONG = [
+        "thank you for joining", "welcome to", "my question is",
+        "i want to ask you", "could you tell us", "let me ask you",
+        "my next question", "i'd like to ask", "can you talk about",
+    ]
+    HOST_EN_STARTERS = ["so my question", "and my question", "question for you"]
+
     def is_host_dominated(text: str) -> bool:
         if not text:
             return False
-        # 包含明显主持人套语（高精度）
+        low = text.lower()
+        # ── 英文主持人套语（高精度）──
+        for pat in HOST_EN_STRONG + HOST_EN_STARTERS:
+            if pat in low:
+                return True
+        # 英文：高密度的第二人称提问（you/your 远多于 i/my，且含问号）
+        if "?" in text:
+            you_cnt = low.count(" you") + low.count("your ")
+            i_cnt = low.count(" i ") + low.count("my ")
+            if you_cnt >= 2 and you_cnt > i_cnt * 2:
+                return True
+        # ── 中文主持人套语（高精度）──
         for pat in HOST_STRONG:
             if pat in text:
                 return True

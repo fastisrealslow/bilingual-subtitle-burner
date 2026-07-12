@@ -55,7 +55,7 @@ def srt_filter(srt_path: str, start_sec: float, end_sec: float, srt_lang: str = 
     result = []
     new_idx = 1
     for m in SRT_RE.finditer(content):
-        _, sh, sms, eh, ems, text = m.groups()
+        orig_idx, sh, sms, eh, ems, text = m.groups()
         s = ts2sec(sh, sms); e = ts2sec(eh, ems)
         if e <= start_sec or s >= end_sec:
             continue
@@ -63,7 +63,8 @@ def srt_filter(srt_path: str, start_sec: float, end_sec: float, srt_lang: str = 
         ne = min(end_sec - start_sec, e - start_sec)
         src_text = " ".join(line.strip() for line in text.strip().splitlines())
         entry = {
-            "index": new_idx,
+            "index": new_idx,               # 切片内重新编号（仅用于 ASS 顺序）
+            "orig_index": int(orig_idx),    # 全片 SRT 原始编号（用于与 bilingual 对齐）
             "start_sec": ns, "end_sec": ne,
             "start": sec2srt(ns), "end": sec2srt(ne),
             "zh": src_text if srt_lang == "zh" else "",
@@ -86,27 +87,40 @@ def merge_translation(entries: list, bilingual_path: str, full_start_sec: float,
     with open(bilingual_path, encoding="utf-8") as f:
         bi = json.load(f)
 
+    fill_field = "en" if srt_lang == "zh" else "zh"
+
+    # 主方案：按原始 SRT 编号 (orig_index ↔ bilingual.index) 精确对齐，不依赖时间戳
+    idx_map = {}
+    for b in bi:
+        if "index" in b:
+            idx_map[int(b["index"])] = b.get(fill_field, "")
+
+    # 兜底方案：时间戳映射（仅当编号对不上时使用）
     def bi_ts2sec(ts: str) -> float:
         ts = ts.replace(",", ".")
         p = ts.split(":")
         return int(p[0]) * 3600 + int(p[1]) * 60 + float(p[2])
 
-    # 建立 相对时间戳 → 翻译文本 映射
-    trans_map = {}
-    fill_field = "en" if srt_lang == "zh" else "zh"
+    ts_map = {}
     for b in bi:
         abs_start = bi_ts2sec(b["start"])
         rel_start = abs_start - full_start_sec
-        trans_map[round(rel_start, 1)] = b.get(fill_field, "")
+        ts_map[round(rel_start, 1)] = b.get(fill_field, "")
 
     for e in entries:
-        key = round(e["start_sec"], 1)
-        val = trans_map.get(key, "")
+        val = ""
+        # 1) 优先用原始编号精确匹配
+        oi = e.get("orig_index")
+        if oi is not None and oi in idx_map:
+            val = idx_map[oi]
+        # 2) 编号未命中 → 时间戳精确匹配
         if not val:
-            # 模糊匹配：2秒内最近的
-            closest = min(trans_map.keys(), key=lambda k: abs(k - e["start_sec"]), default=None)
-            if closest is not None and abs(closest - e["start_sec"]) < 2.0:
-                val = trans_map[closest]
+            val = ts_map.get(round(e["start_sec"], 1), "")
+        # 3) 再不行 → 2 秒内最近的时间戳
+        if not val and ts_map:
+            closest = min(ts_map.keys(), key=lambda k: abs(k - e["start_sec"]))
+            if abs(closest - e["start_sec"]) < 2.0:
+                val = ts_map[closest]
         e[fill_field] = val
     return entries
 
@@ -219,6 +233,10 @@ def main():
     parser.add_argument("--srt-lang", default="zh", choices=["zh", "en"],
                         help="SRT 里的语言：zh（中文视频）或 en（英文视频）")
     parser.add_argument("--no-subtitle", action="store_true")
+    parser.add_argument("--vertical", action="store_true",
+                        help="输出竖屏 9:16（1080×1920，适配手机端短视频）；原视频居中，上下模糊背景填充")
+    parser.add_argument("--vertical-size", default="1080x1920",
+                        help="竖屏画布尺寸，默认 1080x1920")
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir)
@@ -232,6 +250,13 @@ def main():
     # 获取视频分辨率
     vw, vh = get_video_size(args.video)
     print(f"[clip] 视频分辨率: {vw}×{vh}", flush=True)
+
+    # 竖屏画布尺寸（字幕按此尺寸适配）
+    if args.vertical:
+        cw, ch = map(int, args.vertical_size.split("x"))
+        print(f"[clip] 竖屏模式，画布: {cw}×{ch}", flush=True)
+    else:
+        cw, ch = vw, vh
     print(f"[clip] 共 {len(manifest)} 条待切片", flush=True)
 
     results = []
@@ -255,21 +280,48 @@ def main():
              "-c:v", "libx264", "-crf", "18", "-preset", "fast",
              "-c:a", "aac", clip_video])
 
+        # 竖屏转换滤镜：原视频等比缩放到画布宽，居中；背景用放大模糊的自身填充
+        def vertical_vf(sub_filter: str = "") -> str:
+            bg = f"scale={cw}:{ch}:force_original_aspect_ratio=increase,crop={cw}:{ch},boxblur=20:5"
+            fg = f"scale={cw}:-2:force_original_aspect_ratio=decrease"
+            base = (f"[0:v]{bg}[bg];"
+                    f"[0:v]{fg}[fg];"
+                    f"[bg][fg]overlay=(W-w)/2:(H-h)/2[v]")
+            if sub_filter:
+                return base + f";[v]{sub_filter}[vout]"
+            return base + ";[v]null[vout]"
+
         if args.no_subtitle:
-            import shutil
-            shutil.copy(clip_video, out_mp4)
+            if args.vertical:
+                run(["ffmpeg", "-y", "-i", clip_video,
+                     "-filter_complex", vertical_vf(),
+                     "-map", "[vout]", "-map", "0:a?",
+                     "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                     "-c:a", "aac", "-b:a", "128k", out_mp4])
+            else:
+                import shutil
+                shutil.copy(clip_video, out_mp4)
         else:
             entries = srt_filter(args.srt, start, end, args.srt_lang)
             if args.bilingual:
                 entries = merge_translation(entries, args.bilingual, start, args.srt_lang)
 
             ass_path = str(tmp_dir / f"{rank:02d}.ass")
-            make_ass(entries, ass_path, vw, vh)
+            # 字幕按最终画布尺寸生成（竖屏时用 cw×ch）
+            make_ass(entries, ass_path, cw, ch)
+            ass_esc = ass_path.replace("\\", "/").replace(":", "\\:")
 
-            run(["ffmpeg", "-y", "-i", clip_video,
-                 "-vf", f"ass={ass_path}",
-                 "-c:v", "libx264", "-crf", "18", "-preset", "fast",
-                 "-c:a", "aac", "-b:a", "128k", out_mp4])
+            if args.vertical:
+                run(["ffmpeg", "-y", "-i", clip_video,
+                     "-filter_complex", vertical_vf(f"ass={ass_esc}"),
+                     "-map", "[vout]", "-map", "0:a?",
+                     "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                     "-c:a", "aac", "-b:a", "128k", out_mp4])
+            else:
+                run(["ffmpeg", "-y", "-i", clip_video,
+                     "-vf", f"ass={ass_path}",
+                     "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                     "-c:a", "aac", "-b:a", "128k", out_mp4])
 
         size = Path(out_mp4).stat().st_size / 1024 / 1024
         print(f"✅ [{rank:02d}] → {out_mp4} ({size:.1f}MB)", flush=True)

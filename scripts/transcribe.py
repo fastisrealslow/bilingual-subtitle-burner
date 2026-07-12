@@ -29,7 +29,8 @@ def main():
     parser.add_argument("--input", required=True, help="输入视频或音频文件路径")
     parser.add_argument("--output", required=True, help="输出 SRT 路径")
     parser.add_argument("--model", default="base", help="模型大小: tiny/base/small/medium/large-v3")
-    parser.add_argument("--language", default="en", help="源语言，默认 en")
+    parser.add_argument("--language", default="zh",
+                        help="源语言，默认 zh（中文）。传 auto 或空字符串则自动检测")
     parser.add_argument("--compute-type", default="int8", help="int8 / int8_float16 / float16 / float32")
     parser.add_argument("--device", default="cpu", help="cpu 或 cuda")
     args = parser.parse_args()
@@ -41,10 +42,12 @@ def main():
     print(f"[transcribe] 加载模型 {args.model} (device={args.device}, compute={args.compute_type}) ...")
     model = WhisperModel(args.model, device=args.device, compute_type=args.compute_type)
 
-    print(f"[transcribe] 开始转写: {args.input}")
+    # language 为 auto / 空字符串时传 None，让 whisper 自动检测语言
+    lang = None if args.language in ("auto", "", None) else args.language
+    print(f"[transcribe] 开始转写: {args.input} (language={lang or 'auto-detect'})")
     segments, info = model.transcribe(
         args.input,
-        language=args.language,
+        language=lang,
         vad_filter=True,
         vad_parameters=dict(min_silence_duration_ms=500),
     )

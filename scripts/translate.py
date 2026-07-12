@@ -12,7 +12,7 @@ translate.py — 通用字幕翻译，支持中→英 / 英→中两个方向。
 
 环境变量：
   SILICONFLOW_API_KEY  （必填）
-  SILICONFLOW_MODEL    （可选，默认 Qwen/Qwen3-32B）
+  SILICONFLOW_MODEL    （可选，默认 Qwen/Qwen3-8B）
   SILICONFLOW_BASE_URL （可选，默认 https://api.siliconflow.cn/v1）
 """
 import argparse
@@ -164,7 +164,7 @@ def main():
     if not api_key:
         print("[translate] 缺少 SILICONFLOW_API_KEY", file=sys.stderr)
         sys.exit(1)
-    model = (os.environ.get("SILICONFLOW_MODEL") or "").strip() or "Qwen/Qwen2.5-72B-Instruct"
+    model = (os.environ.get("SILICONFLOW_MODEL") or "").strip() or "Qwen/Qwen3-8B"
     base_url = (os.environ.get("SILICONFLOW_BASE_URL") or "").strip() or "https://api.siliconflow.cn/v1"
     print(f"[translate] 模型={model}  方向={args.direction}  接口={base_url}", flush=True)
 

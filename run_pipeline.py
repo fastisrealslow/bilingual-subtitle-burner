@@ -50,7 +50,9 @@ def run(cmd, **kw):
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    print("[⚠️ DEPRECATED] run_pipeline.py 已废弃，请改用统一入口 run.py"
+          "（支持断点续跑 / 封面 / 上传素材包）。", file=sys.stderr, flush=True)
+    parser = argparse.ArgumentParser(description="[DEPRECATED] 请改用 run.py")
     parser.add_argument("--video", required=True)
     parser.add_argument("--output-dir", default="./output")
     parser.add_argument("--speaker", default="李录")
@@ -69,7 +71,7 @@ def main():
     env = {
         **os.environ,
         "SILICONFLOW_API_KEY": api_key,
-        "SILICONFLOW_MODEL": os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-32B"),
+        "SILICONFLOW_MODEL": os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-8B"),
     }
 
     out = Path(args.output_dir)

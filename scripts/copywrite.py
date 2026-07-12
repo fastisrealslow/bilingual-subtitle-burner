@@ -28,7 +28,7 @@ from typing import List, Dict
 import requests
 
 
-DEFAULT_MODEL = "Qwen/Qwen2.5-72B-Instruct"
+DEFAULT_MODEL = "Qwen/Qwen3-8B"
 
 
 def strip_think(text: str) -> str:
@@ -130,6 +130,8 @@ def main():
     parser.add_argument("--output", required=True, help="输出 manifest.json 路径")
     parser.add_argument("--speaker", default="演讲者")
     parser.add_argument("--channel", default="价值投资讲堂")
+    parser.add_argument("--concurrency", type=int, default=4,
+                        help="文案生成并发数（默认 4）")
     args = parser.parse_args()
 
     api_key = (os.environ.get("SILICONFLOW_API_KEY") or "").strip()
@@ -143,13 +145,12 @@ def main():
     with open(args.highlights, encoding="utf-8") as f:
         highlights = json.load(f)
 
-    manifest = []
-    for h in highlights:
+    def build_item(h: Dict) -> Dict:
         print(f"[copywrite] 生成第 {h['rank']} 条文案...", flush=True)
         copy = generate_copy(h, speaker, channel, api_key, model, base_url)
-
         safe_title = re.sub(r'[\\/:*?"<>|]', '_', copy.get("title", f"clip_{h['rank']}")).strip()[:40]
-        manifest.append({
+        print(f"  [{h['rank']}] 标题：{copy.get('title', '')} | 标签：{copy.get('tags', [])}", flush=True)
+        return {
             "rank": h["rank"],
             "score": h["score"],
             "title": copy.get("title", ""),
@@ -163,10 +164,17 @@ def main():
             "video_filename": f"{h['rank']:02d}_{safe_title}.mp4",
             "transcript_zh": h.get("transcript_zh", ""),
             "reason": h.get("reason", ""),
-        })
-        print(f"  标题：{copy.get('title', '')}", flush=True)
-        print(f"  标签：{copy.get('tags', [])}", flush=True)
-        time.sleep(0.5)  # 避免频繁请求
+        }
+
+    # 并发生成（call_llm 内部已有指数退避重试，无需 sleep 限速），最后按 rank 保序
+    workers = max(1, min(args.concurrency, len(highlights) or 1))
+    if workers > 1 and len(highlights) > 1:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            manifest = list(ex.map(build_item, highlights))
+    else:
+        manifest = [build_item(h) for h in highlights]
+    manifest.sort(key=lambda x: x["rank"])
 
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
     with open(args.output, "w", encoding="utf-8") as f:

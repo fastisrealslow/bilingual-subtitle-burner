@@ -19,7 +19,7 @@ pipeline.py — 金句短片全流程主控
 
 环境变量：
   SILICONFLOW_API_KEY  （必填）
-  SILICONFLOW_MODEL    （可选，默认 Qwen/Qwen3-32B）
+  SILICONFLOW_MODEL    （可选，默认 Qwen/Qwen3-8B）
   SPEAKER_NAME         （可选，会被 --speaker 覆盖）
   CHANNEL_NAME         （可选）
 """
@@ -41,7 +41,9 @@ def run(cmd: list, **kw):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="金句短片全流程")
+    print("[⚠️ DEPRECATED] pipeline.py 已废弃，请改用统一入口 run.py"
+          "（支持断点续跑 / 封面 / 上传素材包）。", file=sys.stderr, flush=True)
+    parser = argparse.ArgumentParser(description="[DEPRECATED] 金句短片全流程，请改用 run.py")
     parser.add_argument("--video", required=True, help="完整视频文件路径")
     parser.add_argument("--output-dir", default="./output")
     parser.add_argument("--speaker", default="演讲者", help="说话人名，如帕伯莱")
@@ -61,7 +63,7 @@ def main():
 
     env = {**os.environ,
            "SILICONFLOW_API_KEY": api_key,
-           "SILICONFLOW_MODEL": (os.environ.get("SILICONFLOW_MODEL") or "Qwen/Qwen3-32B"),
+           "SILICONFLOW_MODEL": (os.environ.get("SILICONFLOW_MODEL") or "Qwen/Qwen3-8B"),
            "SPEAKER_NAME": args.speaker,
            "CHANNEL_NAME": args.channel}
 

@@ -98,11 +98,33 @@ def image_brightness(path: str) -> float:
 
 
 
+# 颜色关键词 → speaker_color 映射（从 --speaker-desc 推断）
+COLOR_KEYWORDS = {
+    "blue": ["蓝", "藏青", "青", "navy", "blue"],
+    # 以下颜色目前无专用阈值，会直接走 vision（speaker_color=other）
+    "other": ["灰", "白", "黑", "红", "绿", "黄", "gray", "grey", "white", "black", "red"],
+}
+
+
+def infer_speaker_color(speaker_desc: str) -> str:
+    """从主讲人外貌描述推断西装颜色系；无法判断时返回 'auto'。"""
+    if not speaker_desc:
+        return "auto"
+    d = speaker_desc.lower()
+    # 蓝色系优先（有专用阈值）
+    if any(k in d for k in COLOR_KEYWORDS["blue"]):
+        return "blue"
+    if any(k in d for k in COLOR_KEYWORDS["other"]):
+        return "other"
+    return "auto"
+
+
 def classify_frame_by_color(img_path: str,
                              speaker_color: str = "blue") -> tuple[str, float]:
     """
     纯颜色规则识别帧中主要人物，零 API 费用。
-    speaker_color: "blue"（深蓝/藏青西装）| "gray" | "other"
+    仅当 speaker_color=='blue'（深蓝/藏青西装）时启用专用阈值判断；
+    其他颜色系统一返回"不确定"，交给 vision LLM 裁定。
     返回 (classification, confidence)
     classification: "主讲人" | "主持人" | "双人" | "不确定"
     """
@@ -221,7 +243,7 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
 def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: float,
                            speaker: str, api_key: str, vision_model: str,
                            tmp_dir: str, sample_interval: float = 3.0,
-                           speaker_desc: str = "") -> str | None:
+                           speaker_desc: str = "", speaker_color: str = "auto") -> str | None:
     """
     从原始视频在金句时间段内每 sample_interval 秒截一帧，
     用 vision LLM 识别哪帧是主讲人大特写，返回最佳帧路径。
@@ -248,20 +270,20 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     if not frame_paths:
         return None
 
-    # ── 第一步：纯颜色规则筛选（零费用）──
-    speaker_color = "blue"  # 默认主讲人穿深蓝/藏青西装；可通过 speaker_desc 判断
-    if speaker_desc:
-        desc_lower = speaker_desc.lower()
-        if any(w in desc_lower for w in ["灰", "白", "黑", "红", "绿", "黄"]):
-            speaker_color = "other"  # 非蓝色系，退到 vision
-
-    rule_results = []
-    for fp in frame_paths:
-        cls, conf = classify_frame_by_color(fp, speaker_color)
-        rule_results.append((cls, conf, fp))
-
-    speaker_frames = [(cls, conf, fp) for cls, conf, fp in rule_results if cls == "主讲人"]
-    uncertain_frames = [(cls, conf, fp) for cls, conf, fp in rule_results if cls == "不确定"]
+    # ── 第一步：颜色规则筛选（零费用，仅蓝色系启用）──
+    # speaker_color 由外部传入（auto 时已在 main 里从 speaker_desc 推断）
+    # 非 blue 系（other/auto-未知）时直接跳过规则，全部交给 vision
+    if speaker_color != "blue":
+        print(f"[cover]   speaker_color={speaker_color}，跳过颜色规则，直接用 vision 识别", flush=True)
+        speaker_frames = []
+        uncertain_frames = [("不确定", 0.0, fp) for fp in frame_paths]
+    else:
+        rule_results = []
+        for fp in frame_paths:
+            cls, conf = classify_frame_by_color(fp, speaker_color)
+            rule_results.append((cls, conf, fp))
+        speaker_frames = [(cls, conf, fp) for cls, conf, fp in rule_results if cls == "主讲人"]
+        uncertain_frames = [(cls, conf, fp) for cls, conf, fp in rule_results if cls == "不确定"]
 
     # 有颜色规则确认的主讲人帧，直接选清晰度最高的
     if speaker_frames:
@@ -373,6 +395,9 @@ def main():
                         help="截帧间隔秒数（默认3秒）")
     parser.add_argument("--speaker-desc", default="",
                         help="主讲人外貌描述，如'穿黑色西装的中年男性'，可选，提高识别准确度")
+    parser.add_argument("--speaker-color", default="auto",
+                        choices=["auto", "blue", "other"],
+                        help="主讲人西装颜色系：blue=启用零费用颜色规则；other=直接走vision；auto=从--speaker-desc推断")
     args = parser.parse_args()
 
     api_key = os.environ.get("SILICONFLOW_API_KEY", "").strip()
@@ -387,6 +412,13 @@ def main():
     w, h = map(int, args.size.split("x"))
     tmp_dir = clips_dir / "_tmp_cover"
     tmp_dir.mkdir(exist_ok=True)
+
+    # 确定主讲人西装颜色系：显式 --speaker-color 优先，否则从 --speaker-desc 推断
+    speaker_color = args.speaker_color
+    if speaker_color == "auto":
+        speaker_color = infer_speaker_color(args.speaker_desc)
+    print(f"[cover] 主讲人={args.speaker} 颜色系={speaker_color}"
+          + ("（启用零费用颜色规则）" if speaker_color == "blue" else "（直接用 vision 识别）"), flush=True)
 
     for item in manifest:
         rank = item["rank"]
@@ -412,6 +444,7 @@ def main():
             tmp_dir=str(tmp_dir),
             sample_interval=args.sample_interval,
             speaker_desc=args.speaker_desc,
+            speaker_color=speaker_color,
         )
 
         if not best_frame:
