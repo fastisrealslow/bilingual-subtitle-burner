@@ -21,7 +21,7 @@ import urllib.request
 from pathlib import Path
 
 try:
-    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageStat
 except ImportError:
     print("[cover] 缺少 Pillow", file=sys.stderr)
     sys.exit(1)
@@ -79,11 +79,9 @@ def image_sharpness(path: str) -> float:
     try:
         img = Image.open(path).convert("L").resize((160, 90))
         sharp = img.filter(ImageFilter.FIND_EDGES)
-        pixels = list(sharp.getdata())
-        if not pixels:
-            return 0.0
-        mean = sum(pixels) / len(pixels)
-        return sum((p - mean) ** 2 for p in pixels) / len(pixels)
+        stat = ImageStat.Stat(sharp)
+        # 方差 = stddev^2，越大越清晰
+        return stat.stddev[0] ** 2
     except Exception:
         return 0.0
 
@@ -91,8 +89,7 @@ def image_sharpness(path: str) -> float:
 def image_brightness(path: str) -> float:
     try:
         img = Image.open(path).convert("L").resize((160, 90))
-        pixels = list(img.getdata())
-        return sum(pixels) / len(pixels) if pixels else 128.0
+        return ImageStat.Stat(img).mean[0]
     except Exception:
         return 128.0
 
@@ -295,6 +292,11 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     if not uncertain_frames:
         return None  # 全是主持人/双人，兜底由外层处理
 
+    # 无 key 时无法调 vision，直接返回 None 让外层退到中间帧兜底
+    if not api_key:
+        print("[cover]   无 API key，跳过 vision 识别，交由外层兜底", flush=True)
+        return None
+
     print(f"[cover]   共截取 {len(frame_paths)} 帧，发送给 vision 模型识别...", flush=True)
 
     # 每次最多发 6 帧（避免 token 超限）
@@ -401,9 +403,6 @@ def main():
     args = parser.parse_args()
 
     api_key = os.environ.get("SILICONFLOW_API_KEY", "").strip()
-    if not api_key:
-        print("[cover] 缺少 SILICONFLOW_API_KEY", file=sys.stderr)
-        sys.exit(1)
 
     clips_dir = Path(args.clips_dir)
     with open(args.manifest, encoding="utf-8") as f:
@@ -419,6 +418,11 @@ def main():
         speaker_color = infer_speaker_color(args.speaker_desc)
     print(f"[cover] 主讲人={args.speaker} 颜色系={speaker_color}"
           + ("（启用零费用颜色规则）" if speaker_color == "blue" else "（直接用 vision 识别）"), flush=True)
+
+    # 非 blue 系需要 vision LLM，此时才强制要求 key；blue 规则无需 key（无法命中时退到中间帧兜底）
+    if speaker_color != "blue" and not api_key:
+        print("[cover] 缺少 SILICONFLOW_API_KEY（非 blue 颜色系需要 vision 识别）", file=sys.stderr)
+        sys.exit(1)
 
     for item in manifest:
         rank = item["rank"]

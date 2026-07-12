@@ -274,9 +274,9 @@ def main():
         clip_video = str(tmp_dir / f"{rank:02d}_raw.mp4")
         out_mp4 = str(out_dir / f"{rank:02d}_{safe}.mp4")
 
-        # 切割片段
+        # 切割片段（用秒数传给 ffmpeg，避免 SRT 的逗号时间戳格式不兼容）
         run(["ffmpeg", "-y", "-i", args.video,
-             "-ss", start_hms, "-to", end_hms,
+             "-ss", f"{float(start):.3f}", "-to", f"{float(end):.3f}",
              "-c:v", "libx264", "-crf", "18", "-preset", "fast",
              "-c:a", "aac", clip_video])
 
