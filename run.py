@@ -503,14 +503,19 @@ def main():
             # 一律再烧一层双语会与原字幕重叠糊成一片，所以先探测再决定怎么烧。
             if not args.no_subtitle and not args.no_sub_probe:
                 probe = probe_burned_subs(raw_video, job_dir, env)
-                action = probe.get("action", "")
+                # 决策在 subprobe.json 的 "decision" 子对象里，不在顶层。
+                # 之前这里读的是 probe.get("action")，恒为空——探测跑了、
+                # 决策也打印了，但从没传给切片，等于整段是死代码。抽帧才发现：
+                # 判了 skip_subtitle 的片子照样被烧上字幕，与原生硬字幕重影。
+                decision = probe.get("decision") or {}
+                action = decision.get("action", "")
                 if action == "skip_subtitle":
                     print("[run] 原片已有清楚双语硬字幕，不再烧字幕", flush=True)
                     sub_args = ["--no-subtitle"]
                 elif action == "burn_zh_only":
                     print("[run] 原片仅有英文硬字幕，只补中文并上移避让", flush=True)
                     sub_args += ["--sub-mode", "zh_only"]
-                    avoid = probe.get("avoid_top_ratio")
+                    avoid = decision.get("avoid_top_ratio")
                     if avoid:
                         sub_args += ["--avoid-top-ratio", str(avoid)]
 
