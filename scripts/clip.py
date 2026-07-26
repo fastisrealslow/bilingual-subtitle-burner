@@ -154,10 +154,19 @@ def wrap_text(t: str, max_chars: int, is_cjk: bool = False) -> str:
         return r"\N".join(lines)
 
 
-def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height: int = 346):
+def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height: int = 346,
+             sub_mode: str = "bilingual", avoid_top_ratio: float | None = None):
     """
     生成 ASS 字幕：英文在上，中文在下。
     按实际分辨率设置 PlayRes，字号按比例适配。
+
+    sub_mode:
+        bilingual —— 中英双语（原片无硬字幕时）
+        zh_only   —— 只烧中文（原片已有英文硬字幕，避免英文重复堆叠）
+
+    avoid_top_ratio:
+        原片硬字幕顶部在画面高度的占比（0~1）。传入后，新字幕会被
+        抬到该位置之上，不去遮挡原字幕。
     """
     # 参考 1920×1080：EN=36, ZH=46 → 640×346 对应 ~12, ~15
     # 实测感觉太小，用 20 / 26
@@ -169,7 +178,22 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     is_vertical = video_height > video_width
     safe_ratio = 0.16 if is_vertical else 0.06
     margin_bottom_zh = max(12, int(video_height * safe_ratio))   # 中文距底边
+
+    # 原片已有硬字幕时，把我们的字幕整体抬到它上面。
+    # MarginV 是“距底边”，所以需要的余量 = 画面高 × (1 - 字幕顶部占比) + 间隙。
+    if avoid_top_ratio is not None and 0 < avoid_top_ratio < 1:
+        gap = max(8, int(video_height * 0.02))
+        needed = int(video_height * (1.0 - avoid_top_ratio)) + gap
+        if needed > margin_bottom_zh:
+            margin_bottom_zh = needed
+
     margin_bottom_en = margin_bottom_zh + zh_size * 2 + 8        # 英文在中文上方
+
+    # 抬得太高会顶到画面中心甚至遮住人脸，封顶在 55% 高度处
+    cap = int(video_height * 0.55)
+    if margin_bottom_en > cap:
+        margin_bottom_en = cap
+        margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_size * 2 - 8))
 
     # 英文折行最大字符数（字体约 en_size/2 px 宽）
     en_wrap = max(20, int(video_width * 38 / 640))
@@ -200,7 +224,8 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         end = e["end_sec"]
         en_t = wrap_text(e.get("en", "").strip(), en_wrap, is_cjk=False)
         zh_t = wrap_text(e.get("zh", "").strip(), zh_wrap, is_cjk=True)
-        if en_t:
+        # zh_only：原片已有英文硬字幕，再烧一遍英文只会重复且拥挤
+        if en_t and sub_mode != "zh_only":
             lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,0,,{en_t}")
         if zh_t:
             lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,0,,{zh_t}")
@@ -238,6 +263,11 @@ def main():
     parser.add_argument("--srt-lang", default="zh", choices=["zh", "en"],
                         help="SRT 里的语言：zh（中文视频）或 en（英文视频）")
     parser.add_argument("--no-subtitle", action="store_true")
+    parser.add_argument("--sub-mode", default="bilingual",
+                        choices=["bilingual", "zh_only"],
+                        help="bilingual=烧中英双语；zh_only=只烧中文（原片已有英文硬字幕）")
+    parser.add_argument("--avoid-top-ratio", type=float, default=None,
+                        help="原片硬字幕顶部在画面高度的占比，传入后新字幕会抬到其上方避让")
     parser.add_argument("--vertical", action="store_true",
                         help="输出竖屏 9:16（1080×1920，适配手机端短视频）；原视频居中，上下模糊背景填充")
     parser.add_argument("--vertical-size", default="1080x1920",
@@ -313,7 +343,8 @@ def main():
 
             ass_path = str(tmp_dir / f"{rank:02d}.ass")
             # 字幕按最终画布尺寸生成（竖屏时用 cw×ch）
-            make_ass(entries, ass_path, cw, ch)
+            make_ass(entries, ass_path, cw, ch,
+                     sub_mode=args.sub_mode, avoid_top_ratio=args.avoid_top_ratio)
             ass_esc = ass_path.replace("\\", "/").replace(":", "\\:")
 
             if args.vertical:
