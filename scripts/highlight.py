@@ -231,14 +231,25 @@ def score_highlights(paragraphs: List[Dict], api_key: str, model: str,
         ]
         user_msg = "\n".join(lines_msg)
         print(f"[highlight] 评分第 {batch_start//BATCH + 1} 批（段落 {batch_start+1}~{batch_start+len(batch)}）...", flush=True)
-        content = call_llm(
-            [{"role": "system", "content": SYSTEM_PROMPT},
-             {"role": "user", "content": user_msg}],
-            api_key, model, base_url
-        )
+
+        # 模型偶尔会返回空内容或不含 JSON 数组的闲聊，重试一次就能好，
+        # 比直接丢掉整批段落便宜得多。
+        content = ""
+        json_match = None
+        for attempt in range(3):
+            content = call_llm(
+                [{"role": "system", "content": SYSTEM_PROMPT},
+                 {"role": "user", "content": user_msg}],
+                api_key, model, base_url
+            )
+            json_match = re.search(r"\[.*\]", content, re.DOTALL)
+            if json_match:
+                break
+            print(f"[highlight] ⚠️  第 {attempt+1} 次未返回 JSON 数组"
+                  f"（返回：{(content or '(空)')[:120]}），重试...", file=sys.stderr)
+            time.sleep(2 * (attempt + 1))
 
         # 解析 JSON
-        json_match = re.search(r"\[.*\]", content, re.DOTALL)
         if json_match:
             try:
                 scored = json.loads(json_match.group())
@@ -261,6 +272,15 @@ def score_highlights(paragraphs: List[Dict], api_key: str, model: str,
                         })
             except json.JSONDecodeError:
                 print(f"[highlight] 解析失败: {content[:200]}", file=sys.stderr)
+
+    # 打分全军覆没时必须喊出来。实测过一次偶发抽风：同样的输入，
+    # 上一轮返回空、下一轮正常出 2 条。若静默当作「无金句」处理，
+    # 无人值守的定时任务会“成功”但产出 0 个片段，很难发现。
+    if not all_scored:
+        raise RuntimeError(
+            "金句打分未得到任何结果（模型返回空或格式不可解析）。"
+            "这通常是接口偶发异常，重跑本步即可；若持续出现请检查模型名与余额。"
+        )
 
     # 过滤主持人为主的段落（speaker_ratio < 0.5 说明主讲人发言不足一半）
     filtered = [x for x in all_scored if x.get("speaker_ratio", 1.0) >= 0.5]

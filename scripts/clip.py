@@ -44,6 +44,30 @@ def sec2ass(s: float) -> str:
     return f"{h}:{m:02d}:{sec:05.2f}"
 
 
+def detect_srt_lang(srt_path: str) -> str:
+    """
+    从 SRT 内容反推语种。
+
+    srt_lang 填反了不会报错：英文字幕会被同时当成中文行渲染，
+    成片上两行都是英文，下面那行还按中文宽度硬切出 “ot / hers.”
+    这种断词。实际踩过，所以在源头做一次校验。
+    """
+    try:
+        with open(srt_path, encoding="utf-8-sig") as f:
+            raw = f.read(20000)
+    except OSError:
+        return ""
+    # 去掉序号行和时间轴行，只看正文
+    body = "\n".join(
+        ln for ln in raw.splitlines()
+        if ln.strip() and not ln.strip().isdigit() and "-->" not in ln
+    )
+    if not body.strip():
+        return ""
+    cjk = sum(1 for ch in body if "\u4e00" <= ch <= "\u9fff")
+    return "zh" if cjk >= max(4, len(body) * 0.05) else "en"
+
+
 def srt_filter(srt_path: str, start_sec: float, end_sec: float, srt_lang: str = "zh") -> list:
     """
     从全片 SRT 提取时间段内字幕，时间戳相对化。
@@ -268,11 +292,21 @@ def main():
                         help="bilingual=烧中英双语；zh_only=只烧中文（原片已有英文硬字幕）")
     parser.add_argument("--avoid-top-ratio", type=float, default=None,
                         help="原片硬字幕顶部在画面高度的占比，传入后新字幕会抬到其上方避让")
+    parser.add_argument("--auto-lang", action="store_true", default=True,
+                        help="根据 SRT 实际内容校正 --srt-lang（默认开启）")
     parser.add_argument("--vertical", action="store_true",
                         help="输出竖屏 9:16（1080×1920，适配手机端短视频）；原视频居中，上下模糊背景填充")
     parser.add_argument("--vertical-size", default="1080x1920",
                         help="竖屏画布尺寸，默认 1080x1920")
     args = parser.parse_args()
+
+    if args.auto_lang:
+        detected = detect_srt_lang(args.srt)
+        if detected and detected != args.srt_lang:
+            print(f"[clip] ⚠️  --srt-lang 声明为 {args.srt_lang}，但 SRT 内容看起来是 "
+                  f"{detected}，已自动改按 {detected} 处理（否则两行字幕会都是同一种语言）",
+                  file=sys.stderr)
+            args.srt_lang = detected
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
