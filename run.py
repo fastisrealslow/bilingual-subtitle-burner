@@ -130,6 +130,48 @@ def detect_whisper_model() -> str:
     return chosen
 
 
+def detect_lang_from_srt(srt_path: Path) -> str:
+    """从转写出的 SRT 反推片源语言，让 --language auto 真正生效。"""
+    try:
+        raw = srt_path.read_text(encoding="utf-8-sig")[:20000]
+    except OSError:
+        return ""
+    body = "\n".join(
+        ln for ln in raw.splitlines()
+        if ln.strip() and not ln.strip().isdigit() and "-->" not in ln
+    )
+    if not body.strip():
+        return ""
+    cjk = sum(1 for ch in body if "\u4e00" <= ch <= "\u9fff")
+    return "zh" if cjk >= max(4, len(body) * 0.05) else "en"
+
+
+def probe_burned_subs(video: Path, job_dir: Path, env: dict) -> dict:
+    """
+    跑硬字幕探测，把结果缓存到 job 目录。
+
+    探测失败不能阻断整条流水线——它只是优化字幕摆位的参考，
+    拿不到就退回默认的烧中英双语。
+    """
+    out = job_dir / "subprobe.json"
+    if out.exists():
+        try:
+            return json.loads(out.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            pass
+    try:
+        subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "detect_burned_subs.py"),
+             "--video", str(video), "--out", str(out)],
+            check=True, env={**os.environ, **(env or {})}, timeout=600,
+        )
+        return json.loads(out.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"[run] ⚠️  硬字幕探测未完成（{e}），按默认烧中英双语处理",
+              file=sys.stderr)
+        return {}
+
+
 def load_state(job_dir: Path) -> dict:
     state_file = job_dir / "state.json"
     if state_file.exists():
@@ -217,6 +259,8 @@ def main():
                         choices=["auto", "zh2en", "en2zh", "none"],
                         help="翻译方向（auto=根据语言自动判断，none=不翻译）")
     parser.add_argument("--no-subtitle", action="store_true", help="不烧录字幕")
+    parser.add_argument("--no-sub-probe", action="store_true",
+                        help="跳过原片硬字幕探测，一律按烧中英双语处理")
     # ── 上传相关 ──
     parser.add_argument("--do-upload", action="store_true",
                         help="Step 8 实际上传到 B站（需 --bili-cookies / BILI_COOKIES）")
@@ -299,8 +343,8 @@ def main():
     manifest   = job_dir / "manifest.json"
     meta_file  = job_dir / "meta.json"
 
-    # 语言推断
-    lang = args.language if args.language != "auto" else "zh"  # 默认中文，ASR 完成后可更新
+    # 语言推断（auto 先给个暂定值，Step 2 转写完会用字幕内容真正定下来）
+    lang = args.language if args.language != "auto" else "zh"
     srt_lang = args.srt_lang or ("zh" if lang == "zh" else "en")
 
     # 翻译方向推断
@@ -361,6 +405,20 @@ def main():
                 "transcribe", env=env,
             )
             mark_done(job_dir, 2)
+
+    # 转写产物落地后，用它把 auto 真正定下来。
+    # 以前 auto 一律先当中文，注释写着「ASR 完成后可更新」但并没有实现，
+    # 于是英文片源会被当成中文源，同一段英文同时填进中英两行，成片作废。
+    if args.language == "auto" and full_srt.exists():
+        detected = detect_lang_from_srt(full_srt)
+        if detected:
+            lang = detected
+            if not args.srt_lang:
+                srt_lang = detected
+            if args.direction == "auto":
+                direction = "zh2en" if detected == "zh" else "en2zh"
+            print(f"[run] 识别到片源语言：{detected}"
+                  f"（字幕语言={srt_lang}，翻译方向={direction}）", flush=True)
 
     # ══════════════════════════════════════════════════════════════════════════
     # Step 3: 翻译
@@ -430,6 +488,22 @@ def main():
             bi_args = ["--bilingual", str(bilingual)] if bilingual.exists() else []
             sub_args = ["--no-subtitle"] if args.no_subtitle else []
             vert_args = ["--vertical"] if args.vertical else []
+
+            # 搜来的素材情况各异：有的干净，有的已带英文硬字幕，有的中英都有。
+            # 一律再烧一层双语会与原字幕重叠糊成一片，所以先探测再决定怎么烧。
+            if not args.no_subtitle and not args.no_sub_probe:
+                probe = probe_burned_subs(raw_video, job_dir, env)
+                action = probe.get("action", "")
+                if action == "skip_subtitle":
+                    print("[run] 原片已有清楚双语硬字幕，不再烧字幕", flush=True)
+                    sub_args = ["--no-subtitle"]
+                elif action == "burn_zh_only":
+                    print("[run] 原片仅有英文硬字幕，只补中文并上移避让", flush=True)
+                    sub_args += ["--sub-mode", "zh_only"]
+                    avoid = probe.get("avoid_top_ratio")
+                    if avoid:
+                        sub_args += ["--avoid-top-ratio", str(avoid)]
+
             run_step(
                 [sys.executable, str(ROOT / "scripts" / "clip.py"),
                  "--video", str(raw_video),

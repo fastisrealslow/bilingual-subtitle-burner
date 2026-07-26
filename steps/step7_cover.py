@@ -359,6 +359,81 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     return best_path
 
 
+# 行首禁则：这些字符不能出现在行首，否则排版看着很脏
+_NO_LINE_START = "，。！？、；：」』）】》,.!?;:)]}’”"
+
+
+def _segment(text: str) -> list:
+    """把标题切成不应该被拆开的最小单元。
+
+    jieba 在就按词切，不在就退化成逐字（英文按空格），
+    不让分词库成为硬依赖。
+    """
+    try:
+        import jieba
+        units = [u for u in jieba.lcut(text) if u]
+    except ImportError:
+        units, buf = [], ""
+        for ch in text:
+            if ord(ch) > 127:          # CJK 逐字可断
+                if buf:
+                    units.append(buf); buf = ""
+                units.append(ch)
+            elif ch == " ":
+                if buf:
+                    units.append(buf); buf = ""
+            else:
+                buf += ch              # 英文单词不拆
+        if buf:
+            units.append(buf)
+
+    # 把紧跟在后的禁则标点粘回前一个单元，防止它被抛到下行行首
+    merged = []
+    for u in units:
+        if merged and u and all(c in _NO_LINE_START for c in u):
+            merged[-1] += u
+        else:
+            merged.append(u)
+    return merged
+
+
+def wrap_title(title: str, measure, max_px: float) -> list:
+    """按真实宽度折行，不劈词，并尽量把各行长度拉均。
+
+    ``measure`` 是一个 ``str -> 像素宽度`` 的回调（通常包 PIL 的
+    ``draw.textlength``），这样本函数不绑定具体字体实现，好测。
+
+    均衡的意义：贪心换行会得到“很长的一行 + 小尾巴”，既难看也更
+    容易造成奇怪的断处。先用贪心算出最少行数 n，再在 n 行的前提下
+    把每行目标宽度降到 总宽/n，重新排一遍。
+    """
+    units = _segment(title)
+    if not units:
+        return [title]
+
+    def greedy(limit: float) -> list:
+        lines, cur = [], ""
+        for u in units:
+            trial = cur + u
+            if cur and measure(trial) > limit:
+                lines.append(cur)
+                cur = u
+            else:
+                cur = trial
+        if cur:
+            lines.append(cur)
+        return lines
+
+    lines = greedy(max_px)
+    n = len(lines)
+    if n <= 1:
+        return lines
+
+    # 以 总宽/n 为目标重排；只有在行数没变多时才采纳
+    balanced = greedy(measure(title) / n * 1.05)
+    return balanced if len(balanced) <= n else lines
+
+
 def make_cover(frame_path: str, title: str, speaker: str,
                output_path: str, target_size: tuple = (1280, 720)):
     img = Image.open(frame_path).convert("RGB")
@@ -367,7 +442,7 @@ def make_cover(frame_path: str, title: str, speaker: str,
 
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw_overlay = ImageDraw.Draw(overlay)
-    grad_height = int(h * 0.55)
+    grad_height = int(h * 0.55)  # noqa: E501  (以下渐变遮罩逻辑不变)
     for i in range(grad_height):
         alpha = int(200 * (i / grad_height))
         y = h - grad_height + i
@@ -377,21 +452,29 @@ def make_cover(frame_path: str, title: str, speaker: str,
     img = Image.alpha_composite(img, overlay).convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    # 标题折行
-    max_width_chars = 14
-    title_lines = []
-    line = ""
-    for ch in title:
-        line += ch
-        width_est = sum(2 if ord(c) > 127 else 1 for c in line)
-        if width_est >= max_width_chars * 2:
-            title_lines.append(line)
-            line = ""
-    if line:
-        title_lines.append(line)
-
+    # 标题折行。
+    #
+    # 旧版是“逐字累加 + 固定 14 字估宽”，两个毛病：
+    #   1. 不看真实字体度量，宽度估不准；
+    #   2. 贪心填满第一行，会把词从中间劈开。实测出现过
+    #      “大选后全面买入的反常 / 识逻辑！”——把“反常识”劈成两截。
+    #
+    # 现在：真实字体宽度 + jieba 词边界 + 行数均衡 + 行首禁则。
     title_font_size = max(36, w // 22)
     title_font = find_font(title_font_size)
+    max_line_px = w - 100          # 左右各留 50px 安全边
+
+    def _measure(s: str) -> float:
+        return draw.textlength(s, font=title_font)
+
+    title_lines = wrap_title(title, _measure, max_line_px)
+
+    # 行数太多就缩字号重排，宁可小一点也不要堆成四行遮住画面
+    while len(title_lines) > 3 and title_font_size > 28:
+        title_font_size -= 4
+        title_font = find_font(title_font_size)
+        title_lines = wrap_title(title, _measure, max_line_px)
+
     line_height = title_font_size + 10
     total_height = len(title_lines) * line_height
     title_y = h - total_height - 50

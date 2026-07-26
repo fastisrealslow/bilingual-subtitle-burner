@@ -31,6 +31,9 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import platform_rules as PR  # noqa: E402
+
 UPLOAD_URL = "https://creator.douyin.com/creator-micro/content/upload"
 
 
@@ -116,7 +119,7 @@ def upload_one(page, video: Path, title: str, tags: list, timeout_ms: int = 1800
     try:
         title_box.click()
         title_box.fill("")
-        title_box.type(title[:55], delay=20)
+        title_box.type(title[:PR.DOUYIN_TITLE_MAX], delay=20)
     except Exception as e:
         print(f"[douyin]   ⚠ 标题填写异常: {e}", flush=True)
 
@@ -189,6 +192,26 @@ def main():
         else:
             print(f"[douyin] ⚠ [{entry.get('rank')}] 找不到成片，跳过", flush=True)
     print(f"[douyin] 待上传成片：{len(ready)} 条", flush=True)
+
+    # 发布前体检。拖到真上传才发现字段超限/时长超标，代价太大，
+    # 所以干跑和真跑都先跑一遍。抖音网页发布与开放平台 API 的审核逻辑一致，
+    # 所以直接拿官方 API 的字段限制当基准。
+    print("[douyin] ── 发布前体检 ──", flush=True)
+    blocked = 0
+    for entry, v in ready:
+        rank = entry.get("rank")
+        t, tw = PR.clean_title(entry.get("title", ""), "douyin")
+        tg, gw = PR.clean_tags(entry.get("tags", []), "douyin")
+        vw = PR.validate_video(str(v), "douyin")
+        entry["title"] = t
+        entry["tags"] = tg
+        PR.report(tw + gw + vw, f"[{rank:02d}] 抖音")
+        if vw:
+            blocked += 1
+    if blocked:
+        print(f"[douyin] ⚠ {blocked} 条成片存在规格问题，上传可能被退回", flush=True)
+    else:
+        print("[douyin] ✅ 字段与规格体检通过", flush=True)
 
     if not args.do_upload:
         print("[douyin] 干跑模式（未加 --do-upload）：仅校验，不上传。", flush=True)

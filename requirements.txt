@@ -15,6 +15,12 @@ yt-dlp>=2024.0.0
 Pillow>=10.0.0
 requests>=2.31.0
 
+# 繁转简：Whisper 对中文源常输出繁体（实测台湾财经视频出「公佈」「調到了」），
+# 而 B站/抖音受众以简体为主，统一转一道。
+zhconv>=1.4.3
+# 封面标题按词折行，避免把「反常识」从中间劈开。缺失时会退化成逐字折行。
+jieba>=0.42.1
+
 # ── 上传相关（可选，按需安装）──
 # B站自动上传（step8 --do-upload）：
 #   pip install biliup            # 或 biliupload；也可用 biliup-rs 二进制

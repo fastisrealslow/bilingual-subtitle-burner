@@ -32,40 +32,40 @@ from datetime import datetime
 from pathlib import Path
 
 
-# B站分区建议（关键词匹配）
-BILI_PARTITION_RULES = [
-    (["投资", "股票", "巴菲特", "价值", "基金", "港股", "A股"], 208, "股市"),
-    (["财经", "经济", "GDP", "通胀", "美联储"], 207, "财经资讯"),
-    (["科技", "AI", "人工智能", "芯片", "新能源"], 188, "科技"),
-    (["创业", "商业", "企业家", "CEO"], 207, "财经资讯"),
-]
+# 字段阀值、分区表、繁简转换统一放在 platform_rules，避免多处硬编码不一致。
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import platform_rules as PR  # noqa: E402
 
-
-def suggest_partition(title: str, desc: str = "") -> tuple:
-    text = title + desc
-    for keywords, tid, name in BILI_PARTITION_RULES:
-        if any(kw in text for kw in keywords):
-            return tid, name
-    return 201, "知识"  # 默认
+suggest_partition = PR.suggest_partition
 
 
 def make_biliup_toml(title: str, desc: str, tags: list, cover: str,
-                     video_path: str, tid: int) -> str:
-    """生成 biliup 配置文件内容"""
-    tags_str = ",".join(tags[:10])  # B站最多10个标签
+                     video_path: str, tid: int, source: str = "",
+                     copyright_type: int = 2) -> str:
+    """生成 biliup 配置文件内容。
+
+    两个踩过的坑：
+    - ``source`` 必须是真实来源平台 + 链接。早期版本写的是“金句精选”
+      这种栅目名，转载稿会被判来源标注不清。
+    - ``no_reprint``（禁止转载）只对自制稿成立。自己就是转载还挂禁止转载
+      是自相矛盾的，转载稿必须置 0。
+    """
+    tags_str = ",".join(tags)
     cover_line = f'cover = "{cover}"' if cover else '# cover = "cover.jpg"'
-    desc_safe = desc[:2000].replace('"""', '""')
+    desc_safe = desc.replace('"""', '""')
+    src_line = f'source = "{source}"' if source else '# source 缺失！转载稿必填'
     return f"""# biliup 配置文件 - 自动生成
 # 使用方法: biliup upload video.mp4 --config biliup.toml
 
 [upload]
-title = "{title[:80]}"
+title = "{title}"
 desc = \"\"\"{desc_safe}\"\"\"
 tid = {tid}
 tag = "{tags_str}"
 {cover_line}
-source = "金句精选"
-no_reprint = 1
+copyright = {copyright_type}
+{src_line}
+no_reprint = {0 if copyright_type == 2 else 1}
 open_elec = 0
 """
 
@@ -102,15 +102,25 @@ def upload_bilibili(cli: list, video: Path, cover: str, title: str, desc: str,
     兼容 biliup-rs 与 biliupload 两种 CLI 的参数风格。
     copyright_type: 1=自制, 2=转载（搬运国外视频应用 2 并注明来源）
     """
-    tags_str = ",".join(tags[:10]) or "投资,价值投资"
+    # 提交前把字段修合规。超限直接报错会让整条流水线在最后一步白跑。
+    title, w1 = PR.clean_title(title, "bilibili")
+    tags, w2 = PR.clean_tags(tags, "bilibili")
+    if len(desc) > PR.BILI_DESC_MAX:
+        w2.append(f"简介 {len(desc)} 字超上限 {PR.BILI_DESC_MAX}，已截断")
+        desc = desc[:PR.BILI_DESC_MAX]
+    if copyright_type == 2 and not source:
+        w2.append("copyright=2（转载）但 source 为空，很可能被审核退回")
+    PR.report(w1 + w2, "B 站投稿字段")
+
+    tags_str = ",".join(tags) or "投资,价值投资"
     is_rs = cli[0].endswith("biliup") or cli[0].endswith("biliupR") or "-m" in cli
     is_pip = cli[0].endswith("biliupload")
 
     if is_pip:
         # biliupload upload <video> --title ... --tid ... --tag ... [--cover] [--copyright] [--source]
         cmd = cli + ["upload", str(video),
-                     "--title", title[:80],
-                     "--desc", desc[:2000],
+                     "--title", title,
+                     "--desc", desc,
                      "--tid", str(tid),
                      "--tag", tags_str,
                      "--copyright", str(copyright_type)]
@@ -126,8 +136,8 @@ def upload_bilibili(cli: list, video: Path, cover: str, title: str, desc: str,
         if cookies:
             pre += ["-u", cookies]
         cmd = pre + ["upload", str(video),
-                     "--title", title[:80],
-                     "--desc", desc[:2000],
+                     "--title", title,
+                     "--desc", desc,
                      "--tid", str(tid),
                      "--tag", tags_str,
                      "--copyright", str(copyright_type)]
@@ -153,6 +163,34 @@ def upload_bilibili(cli: list, video: Path, cover: str, title: str, desc: str,
     except Exception as e:
         print(f"[upload]   ❌ 上传异常: {e}", flush=True)
         return False
+
+
+# GitHub Actions runner 是海外 IP，大概率走不了境内 bda2 线路，而是落到
+# bupfetch（qn/kodo/gcs）。单线路失败率不低，所以依次试备用线路。
+BILI_LINE_FALLBACKS = ["", "qn", "ws", "bda2"]
+
+
+def upload_bilibili_with_retry(cli: list, video: Path, cover: str, title: str,
+                               desc: str, tags: list, tid: int, cookies: str,
+                               copyright_type: int = 2, source: str = "",
+                               line: str = "", max_attempts: int = 3) -> bool:
+    """带线路降级的上传。用户显式指定了 --bili-line 就只试该线路。"""
+    lines = [line] if line else BILI_LINE_FALLBACKS
+    lines = lines[:max_attempts]
+
+    for i, ln in enumerate(lines, 1):
+        label = ln or "自动测速"
+        print(f"[upload]   尝试 {i}/{len(lines)}（线路={label}）", flush=True)
+        if upload_bilibili(cli, video, cover, title, desc, tags, tid, cookies,
+                           copyright_type, source, ln):
+            return True
+        if i < len(lines):
+            wait = 10 * i
+            print(f"[upload]   等 {wait}s 后换线路重试", flush=True)
+            time.sleep(wait)
+
+    print(f"[upload]   ❌ {len(lines)} 条线路全部失败，放弃本条", flush=True)
+    return False
 
 
 def main():
@@ -204,7 +242,13 @@ def main():
         title = item.get("title", f"clip_{rank}")
         desc = item.get("desc", item.get("copywrite", ""))
         tags = item.get("tags", [args.speaker, args.channel, "价值投资"])
-        safe = re.sub(r'[\\/:*?"<>|]', '_', title).strip()[:40]
+        safe = PR.safe_filename(title)
+
+        # 标题/标签先过一道规范化（繁转简 + 限长 + 去重），让素材包里的
+        # info.json、biliup.toml、Markdown 清单与真正提交的字段一致。
+        title, _tw = PR.clean_title(title, "bilibili")
+        tags, _gw = PR.clean_tags(tags, "bilibili")
+        PR.report(_tw + _gw, f"[{rank:02d}] 字段")
 
         # 找视频文件
         mp4_files = list(clips_dir.glob(f"{rank:02d}_*.mp4"))
@@ -229,16 +273,29 @@ def main():
         if cover_file:
             dst_cover = sub_dir / "cover.jpg"
             shutil.copy2(cover_file, dst_cover)
+            # 压成 16:9 JPG 并控在 2MB 内，就地覆盖
+            fixed, _cw = PR.normalize_cover(str(dst_cover), str(dst_cover))
+            PR.report(_cw, f"[{rank:02d}] 封面")
             cover_str = "cover.jpg"
 
         # 推断分区
         tid, partition_name = suggest_partition(title, desc)
 
-        # 完整简介（包含片段信息）
-        full_desc = f"{desc}\n\n" if desc else ""
-        full_desc += f"片段时间：{item.get('clip_start', '')}～{item.get('clip_end', '')}\n"
-        full_desc += f"来源：{args.channel}\n"
-        full_desc += f"主讲：{args.speaker}"
+        # 完整简介。转载来源声明由 build_desc 强制拼上，B 站公约明确
+        # “未经授权添加的翻译字幕不属于自制”，本流水线只能走转载。
+        body = desc
+        if args.speaker:
+            body = f"{body}\n\n主讲：{args.speaker}" if body else f"主讲：{args.speaker}"
+        clip_range = (f"{item.get('clip_start', '')}～{item.get('clip_end', '')}"
+                      if item.get("clip_start") else "")
+        full_desc, _dw = PR.build_desc(
+            body=body,
+            source=args.source or args.channel,
+            full_title=item.get("title", title),
+            clip_range=clip_range,
+            platform="bilibili",
+        )
+        PR.report(_dw, f"[{rank:02d}] 简介")
 
         # info.json
         info = {
@@ -264,6 +321,8 @@ def main():
             cover=cover_str,
             video_path="video.mp4",
             tid=tid,
+            source=args.source or args.channel,
+            copyright_type=args.copyright,
         )
         with open(sub_dir / "biliup.toml", "w", encoding="utf-8") as f:
             f.write(toml_content)
@@ -335,9 +394,10 @@ def main():
         cover = "cover.jpg" if (sub_dir / "cover.jpg").exists() else ""
         # 在素材子目录内执行，便于 cover 相对路径
         cwd = os.getcwd()
+        success = False   # chdir 失败时也得有值，不能让 finally 后面撞 UnboundLocal
         try:
             os.chdir(sub_dir)
-            success = upload_bilibili(
+            success = upload_bilibili_with_retry(
                 cli=cli,
                 video=Path("video.mp4"),
                 cover=cover,
@@ -347,9 +407,13 @@ def main():
                 tid=entry["tid"],
                 cookies=bili_cookies if not str(cli[0]).endswith("biliupload") else "",
                 copyright_type=args.copyright,
-                source=args.source,
+                source=args.source or args.channel,
                 line=args.line,
             )
+        except Exception as e:
+            # 单条失败不能拖死剩下的稿子
+            print(f"[upload]   ❌ [{entry['rank']:02d}] 上传环节异常：{e}", flush=True)
+            success = False
         finally:
             os.chdir(cwd)
 

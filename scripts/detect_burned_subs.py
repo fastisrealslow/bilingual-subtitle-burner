@@ -278,11 +278,20 @@ def decide(band: dict, vis: dict) -> dict:
     legible = bool(vis.get("legible", True))
     top = band.get("top_ratio")
 
-    if has_zh and has_en and legible:
+    # 看不清就不能当成现成字幕用。实测碰到过：视频里图表的轴标签
+    # （如 "recessions"）会被当成字幕，且返回 legible=False。这种情况
+    # 无论它是图表文字还是真糊了的字幕，我们自己烧一层都是有价值的，
+    # 只要避开该区域就行。
+    if not legible:
+        return {"action": "burn_bilingual",
+                "reason": "检测到文字但不清楚（可能是图表标注），照常烧中英双语并避让",
+                "avoid_top_ratio": top}
+
+    if has_zh and has_en:
         return {"action": "skip_subtitle",
                 "reason": "原片已有清晰的中英双语硬字幕，无需再烧",
                 "avoid_top_ratio": top}
-    if has_zh and legible:
+    if has_zh:
         return {"action": "skip_subtitle",
                 "reason": "原片已有清晰中文硬字幕，目标平台以中文为主，直接沿用",
                 "avoid_top_ratio": top}
