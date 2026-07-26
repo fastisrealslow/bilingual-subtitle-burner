@@ -163,8 +163,13 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     # 实测感觉太小，用 20 / 26
     en_size = max(14, int(video_width * 20 / 640))
     zh_size = max(18, int(video_width * 26 / 640))
-    margin_bottom_zh = 12   # 中文距底边
-    margin_bottom_en = 12 + zh_size * 2 + 8   # 英文在中文上方
+    # 底边距按画面高度按比例计算，不能写死绝对像素：
+    #   竖屏(9:16)上传到抖音/B站后，底部约 15% 会被文案、账号、
+    #   右侧按钮栏等平台 UI 遮挡，字幕必须抬高到安全区以上。
+    is_vertical = video_height > video_width
+    safe_ratio = 0.16 if is_vertical else 0.06
+    margin_bottom_zh = max(12, int(video_height * safe_ratio))   # 中文距底边
+    margin_bottom_en = margin_bottom_zh + zh_size * 2 + 8        # 英文在中文上方
 
     # 英文折行最大字符数（字体约 en_size/2 px 宽）
     en_wrap = max(20, int(video_width * 38 / 640))

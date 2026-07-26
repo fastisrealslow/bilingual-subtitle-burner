@@ -311,6 +311,10 @@ def main():
     env = {
         "SILICONFLOW_API_KEY": api_key,
         "SILICONFLOW_MODEL": os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-8B"),
+        # 翻译单独用更强的模型：免费模型在断句字幕上会产生幻觉（详见 translate.py）
+        "SILICONFLOW_TRANSLATE_MODEL": os.environ.get(
+            "SILICONFLOW_TRANSLATE_MODEL", "deepseek-ai/DeepSeek-V3"
+        ),
     }
     if args.cookies:
         env["COOKIES_FILE"] = args.cookies

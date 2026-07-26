@@ -72,6 +72,8 @@ jobs:
       SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
       SILICONFLOW_BASE_URL: "https://api.siliconflow.cn/v1"
       SILICONFLOW_MODEL: "Qwen/Qwen3-8B"
+      # 翻译单独用 DeepSeek-V3：免费模型在被切开的字幕上会自行补全名人名句造成幻觉
+      SILICONFLOW_TRANSLATE_MODEL: "deepseek-ai/DeepSeek-V3"
       # ── 上传登录态（由 workflow 写入文件后再引用路径）──
       BILI_COOKIES: "${{ github.workspace }}/secrets/bili_cookies.json"
       DOUYIN_COOKIES: "${{ github.workspace }}/secrets/douyin_cookies.json"

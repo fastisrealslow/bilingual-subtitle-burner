@@ -43,7 +43,11 @@ SYSTEM_EN2ZH = (
     "你是专业的字幕翻译，把英文口语访谈翻译成自然、地道、口语化的简体中文。"
     "要求：1) 忠实原意，语气自然，符合中文表达习惯；"
     "2) 保持每条字幕独立，不要合并或拆分；3) 不要添加解释、注释或原文；"
-    "4) 保留人名、专有名词的通用译法。"
+    "4) 保留人名、专有名词的通用译法；"
+    "5) 【最重要】字幕是按时间轴切开的，一句话常常被拆到相邻几条里，"
+    "单条看起来可能不完整。你只能翻译该条实际出现的文字，"
+    "严禁根据常识、名人名句或上下文自行补全句子、补充原文没有的信息，"
+    "也不要把下一条的内容提前翻译到这一条。原文残缺就译成对应的残缺中文。"
 )
 
 
@@ -164,7 +168,15 @@ def main():
     if not api_key:
         print("[translate] 缺少 SILICONFLOW_API_KEY", file=sys.stderr)
         sys.exit(1)
-    model = (os.environ.get("SILICONFLOW_MODEL") or "").strip() or "Qwen/Qwen3-8B"
+    # 翻译对准确性要求最高，允许单独指定模型。
+    # 实测：免费的 Qwen/Qwen3-8B 在“一句话被切成多条字幕”时会自行补全名人名句
+    # 而产生幻觉，且会把 patient 误译为“患者”；DeepSeek-V3 能正确处理。
+    # 优先级：SILICONFLOW_TRANSLATE_MODEL > SILICONFLOW_MODEL > 默认值
+    model = (
+        (os.environ.get("SILICONFLOW_TRANSLATE_MODEL") or "").strip()
+        or (os.environ.get("SILICONFLOW_MODEL") or "").strip()
+        or "deepseek-ai/DeepSeek-V3"
+    )
     base_url = (os.environ.get("SILICONFLOW_BASE_URL") or "").strip() or "https://api.siliconflow.cn/v1"
     print(f"[translate] 模型={model}  方向={args.direction}  接口={base_url}", flush=True)
 
