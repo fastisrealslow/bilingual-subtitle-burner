@@ -228,10 +228,24 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
         with urllib.request.urlopen(req, timeout=60) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             text = data["choices"][0]["message"]["content"].strip()
+            used = (data.get("usage") or {}).get("prompt_tokens", "?")
             # 提取 JSON
             match = re.search(r"\[.*?\]", text, re.DOTALL)
             if match:
                 return json.loads(match.group())
+            # 调用成功但拿不到结果 —— 必须告警，不能静默失败。
+            # 这种情况图片 token 已经扣费，但没有任何产出。
+            # 典型原因：模型名已下架被平台转到纯文本模型，根本看不了图。
+            print(
+                f"[cover] \u26a0\ufe0f vision 模型 {model} 返回无法解析的内容"
+                f"\uff08已消耗 {used} input tokens\uff09。"
+                f"请确认该模型支持图片输入且仍在售。",
+                file=sys.stderr,
+            )
+            if text:
+                print(f"[cover]   原始返回：{text[:200]}", file=sys.stderr)
+            else:
+                print("[cover]   原始返回为空（纯文本模型收到图片时的典型表现）", file=sys.stderr)
     except Exception as e:
         print(f"[cover] vision LLM 调用失败: {e}", file=sys.stderr)
     return []
@@ -252,6 +266,7 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
 
     frame_paths = []
     frame_times = []
+    dropped = []  # 记录被亮度过滤掉的帧，便于全部被过滤时诊断
     t = sample_start
     idx = 0
     while t <= sample_end:
@@ -261,10 +276,23 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
             if 40 <= b <= 230:  # 过滤过暗过亮帧
                 frame_paths.append(path)
                 frame_times.append(t)
+            else:
+                dropped.append(b)
         t += sample_interval
         idx += 1
 
     if not frame_paths:
+        # 不能静默返回：否则 vision 根本没被调用，日志里却只看到
+        # “vision 未返回有效帧”，会让人误以为是模型或 API 的问题。
+        if dropped:
+            print(
+                f"[cover]   ⚠️ 共 {len(dropped)} 帧全被亮度过滤（阈值 40~230，"
+                f"实测 {min(dropped):.0f}~{max(dropped):.0f}），vision 未被调用。"
+                f"若素材本身偏暗，请放宽阈值。",
+                flush=True,
+            )
+        else:
+            print("[cover]   ⚠️ 未能从原视频截出任何帧，vision 未被调用。", flush=True)
         return None
 
     # ── 第一步：颜色规则筛选（零费用，仅蓝色系启用）──
@@ -391,8 +419,12 @@ def main():
     parser.add_argument("--raw-video", required=True, help="原始完整视频路径")
     parser.add_argument("--speaker", default="演讲者")
     parser.add_argument("--size", default="1280x720")
-    parser.add_argument("--vision-model", default="Qwen/Qwen2.5-VL-72B-Instruct",
-                        help="Vision 模型（需支持图片输入）")
+    # 注意：旧默认值 Qwen/Qwen2.5-VL-72B-Instruct 已从硅基流动下架。
+    # 平台会静默把请求转到 Qwen/Qwen3.5-9B（纯文本模型），
+    # 结果是：图片照样计入 input token 扣费，但模型根本看不到图，
+    # 返回空内容→ 退回兜底截帧。实测这一项占了总花费的 97%，产出为零。
+    parser.add_argument("--vision-model", default="Qwen/Qwen3-VL-8B-Instruct",
+                        help="Vision 模型（必须支持图片输入，建议 Qwen3-VL 系列）")
     parser.add_argument("--sample-interval", type=float, default=3.0,
                         help="截帧间隔秒数（默认3秒）")
     parser.add_argument("--speaker-desc", default="",

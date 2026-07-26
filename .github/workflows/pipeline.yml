@@ -74,6 +74,9 @@ jobs:
       SILICONFLOW_MODEL: "Qwen/Qwen3-8B"
       # 翻译单独用 DeepSeek-V3：免费模型在被切开的字幕上会自行补全名人名句造成幻觉
       SILICONFLOW_TRANSLATE_MODEL: "deepseek-ai/DeepSeek-V3"
+      # 封面选帧必须用支持图片输入的模型。旧值 Qwen2.5-VL-72B 已下架，
+      # 平台会静默转到纯文本模型：图片照常扣费但读不出内容。
+      SILICONFLOW_VISION_MODEL: "Qwen/Qwen3-VL-8B-Instruct"
       # ── 上传登录态（由 workflow 写入文件后再引用路径）──
       BILI_COOKIES: "${{ github.workspace }}/secrets/bili_cookies.json"
       DOUYIN_COOKIES: "${{ github.workspace }}/secrets/douyin_cookies.json"
@@ -81,6 +84,12 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
+
+      - name: 校验模型是否仍在售
+        # 硅基流动下架模型时不报错，而是静默转到其它模型，可能照常扣费却无有效产出。
+        # 这里只告警不阻断（不加 --strict），避免定时任务因单个模型变动全部停摆。
+        continue-on-error: true
+        run: python3 scripts/check_models.py
 
       - name: 安装 Python
         uses: actions/setup-python@v5

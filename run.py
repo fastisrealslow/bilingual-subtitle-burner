@@ -311,6 +311,10 @@ def main():
     env = {
         "SILICONFLOW_API_KEY": api_key,
         "SILICONFLOW_MODEL": os.environ.get("SILICONFLOW_MODEL", "Qwen/Qwen3-8B"),
+        # 封面选帧需要真正的视觉模型；填纯文本模型会照常扣图片 token 却读不出东西
+        "SILICONFLOW_VISION_MODEL": os.environ.get(
+            "SILICONFLOW_VISION_MODEL", "Qwen/Qwen3-VL-8B-Instruct"
+        ),
         # 翻译单独用更强的模型：免费模型在断句字幕上会产生幻觉（详见 translate.py）
         "SILICONFLOW_TRANSLATE_MODEL": os.environ.get(
             "SILICONFLOW_TRANSLATE_MODEL", "deepseek-ai/DeepSeek-V3"
@@ -453,7 +457,9 @@ def main():
                  "--clips-dir", str(clips_dir),
                  "--raw-video", str(raw_video),
                  "--speaker", args.speaker,
-                 "--speaker-color", args.speaker_color]
+                 "--speaker-color", args.speaker_color,
+                 # 视觉模型可用环境变量覆盖，便于平台下架旧模型时快速切换
+                 "--vision-model", env.get("SILICONFLOW_VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"]
                  + (["--speaker-desc", args.speaker_desc] if args.speaker_desc else []),
                 "cover", env=env,
             )
