@@ -110,12 +110,16 @@ jobs:
         env:
           # 通过 env 传递，避免多行/特殊字符在 shell 内联时被解析破坏
           YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+          YOUTUBE_COOKIES_B64: ${{ secrets.YOUTUBE_COOKIES_B64 }}
           BILI_COOKIES_JSON: ${{ secrets.BILI_COOKIES_JSON }}
           DOUYIN_COOKIES_JSON: ${{ secrets.DOUYIN_COOKIES_JSON }}
         run: |
           mkdir -p secrets
-          # YouTube cookies（突破数据中心 IP 反爬，Netscape 格式）
-          if [ -n "$YOUTUBE_COOKIES" ]; then
+          # YouTube cookies（支持两种存储：明文 Netscape 或 base64 编码后的 Netscape）
+          if [ -n "$YOUTUBE_COOKIES_B64" ]; then
+            printf '%s' "$YOUTUBE_COOKIES_B64" | base64 -d > secrets/youtube_cookies.txt
+            echo "有 YouTube cookies (base64 decoded)"
+          elif [ -n "$YOUTUBE_COOKIES" ]; then
             printf '%s' "$YOUTUBE_COOKIES" > secrets/youtube_cookies.txt
             echo "有 YouTube cookies"
           fi
