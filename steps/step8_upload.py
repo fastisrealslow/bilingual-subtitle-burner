@@ -22,8 +22,12 @@ B站分区建议：
 
 import argparse
 import json
+import os
 import re
 import shutil
+import subprocess
+import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -66,14 +70,114 @@ open_elec = 0
 """
 
 
+def find_biliup() -> list | None:
+    """定位可用的 B站上传 CLI，返回命令前缀数组。优先 biliup-rs（biliup 二进制），其次 biliupload。"""
+    import shutil as _sh
+    # biliup-rs 的可执行名也叫 biliup；优先环境变量指定路径
+    env_bin = (os.environ.get("BILIUP_BIN") or "").strip()
+    if env_bin and Path(env_bin).exists():
+        return [env_bin]
+    for name in ("biliup", "biliupR"):
+        p = _sh.which(name)
+        if p:
+            return [p]
+    # biliupload （pip 包，纯 Python）
+    p = _sh.which("biliupload")
+    if p:
+        return [p]
+    # 作为模块调用兑底
+    try:
+        import biliup  # noqa
+        return [sys.executable, "-m", "biliup"]
+    except ImportError:
+        pass
+    return None
+
+
+def upload_bilibili(cli: list, video: Path, cover: str, title: str, desc: str,
+                    tags: list, tid: int, cookies: str, copyright_type: int = 2,
+                    source: str = "", line: str = "") -> bool:
+    """调用 biliup CLI 上传单个视频到 B站。返回是否成功。
+
+    兼容 biliup-rs 与 biliupload 两种 CLI 的参数风格。
+    copyright_type: 1=自制, 2=转载（搬运国外视频应用 2 并注明来源）
+    """
+    tags_str = ",".join(tags[:10]) or "投资,价值投资"
+    is_rs = cli[0].endswith("biliup") or cli[0].endswith("biliupR") or "-m" in cli
+    is_pip = cli[0].endswith("biliupload")
+
+    if is_pip:
+        # biliupload upload <video> --title ... --tid ... --tag ... [--cover] [--copyright] [--source]
+        cmd = cli + ["upload", str(video),
+                     "--title", title[:80],
+                     "--desc", desc[:2000],
+                     "--tid", str(tid),
+                     "--tag", tags_str,
+                     "--copyright", str(copyright_type)]
+        if cover:
+            cmd += ["--cover", cover]
+        if copyright_type == 2 and source:
+            cmd += ["--source", source]
+        if line:
+            cmd += ["--line", line]
+    else:
+        # biliup-rs: biliup -u cookies.json upload <video> --title ... --tid ... --tag ... [--cover]
+        pre = list(cli)
+        if cookies:
+            pre += ["-u", cookies]
+        cmd = pre + ["upload", str(video),
+                     "--title", title[:80],
+                     "--desc", desc[:2000],
+                     "--tid", str(tid),
+                     "--tag", tags_str,
+                     "--copyright", str(copyright_type)]
+        if cover:
+            cmd += ["--cover", cover]
+        if copyright_type == 2 and source:
+            cmd += ["--source", source]
+        if line:
+            cmd += ["--line", line]
+
+    print(f"[upload]   ▶ 上传中: {title[:40]}...", flush=True)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+        if r.returncode == 0:
+            print(f"[upload]   ✅ B站上传成功", flush=True)
+            return True
+        print(f"[upload]   ❌ B站上传失败 (code={r.returncode})", flush=True)
+        print(f"[upload]      stderr: {(r.stderr or '')[-500:]}", flush=True)
+        return False
+    except subprocess.TimeoutExpired:
+        print(f"[upload]   ❌ 上传超时", flush=True)
+        return False
+    except Exception as e:
+        print(f"[upload]   ❌ 上传异常: {e}", flush=True)
+        return False
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Step 8: 素材包打包 + 上传清单")
+    parser = argparse.ArgumentParser(description="Step 8: 素材包打包 + B站自动上传")
     parser.add_argument("--job-dir", required=True)
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--clips-dir", required=True)
     parser.add_argument("--speaker", default="演讲者")
     parser.add_argument("--channel", default="价值投资讲堂")
+    # ── 真实上传开关 ──
+    parser.add_argument("--do-upload", action="store_true",
+                        help="实际调用 biliup 上传到 B站（不加则只生成素材包）")
+    parser.add_argument("--bili-cookies", default="",
+                        help="B站 cookies.json 路径（biliup-rs 登录产物）；也可由 BILI_COOKIES 环境变量指定")
+    parser.add_argument("--copyright", type=int, default=2, choices=[1, 2],
+                        help="1=自制 2=转载（搬运国外视频默认 2）")
+    parser.add_argument("--source", default="",
+                        help="转载来源（copyright=2 时必填，如原 YouTube 链接）")
+    parser.add_argument("--line", default="", help="B站上传线路 bda2/ws/qn/tx 等")
+    parser.add_argument("--upload-interval", type=int, default=30,
+                        help="多条上传间隔秒数（防风控）")
     args = parser.parse_args()
+
+    # cookies 优先用参数，其次环境变量
+    bili_cookies = args.bili_cookies or (os.environ.get("BILI_COOKIES") or "").strip()
 
     job_dir = Path(args.job_dir)
     clips_dir = Path(args.clips_dir)
@@ -205,6 +309,65 @@ def main():
     print(f"\n[upload] 素材包: {pkg_dir}", flush=True)
     print(f"[upload] 上传清单: {job_dir / 'upload_list.md'}", flush=True)
     print(f"[upload] 共 {len(upload_list)} 条视频准备就绪", flush=True)
+
+    # ───── 真实上传阶段（仅 --do-upload） ─────
+    if not args.do_upload:
+        print("[upload] 未开启 --do-upload，仅生成素材包（不上传）。", flush=True)
+        return
+
+    print("\n[upload] ========== 开始 B站自动上传 ==========", flush=True)
+    if not bili_cookies or not Path(bili_cookies).exists():
+        print(f"[upload] ❌ 未找到 B站 cookies（--bili-cookies / BILI_COOKIES）：{bili_cookies!r}", flush=True)
+        print("[upload]    请先用 `biliup login` 扫码登录生成 cookies.json，并存入 GitHub Secrets。", flush=True)
+        sys.exit(2)
+
+    cli = find_biliup()
+    if not cli:
+        print("[upload] ❌ 未找到 biliup / biliupload CLI。请 `pip install biliup` 或安装 biliup-rs。", flush=True)
+        sys.exit(3)
+    print(f"[upload] 使用上传器: {' '.join(cli)}", flush=True)
+
+    ok, fail = 0, 0
+    results = []
+    for i, entry in enumerate(upload_list):
+        sub_dir = Path(entry["package_dir"])
+        video = sub_dir / "video.mp4"
+        cover = "cover.jpg" if (sub_dir / "cover.jpg").exists() else ""
+        # 在素材子目录内执行，便于 cover 相对路径
+        cwd = os.getcwd()
+        try:
+            os.chdir(sub_dir)
+            success = upload_bilibili(
+                cli=cli,
+                video=Path("video.mp4"),
+                cover=cover,
+                title=entry["title"],
+                desc=entry["desc"],
+                tags=entry["tags"],
+                tid=entry["tid"],
+                cookies=bili_cookies if not str(cli[0]).endswith("biliupload") else "",
+                copyright_type=args.copyright,
+                source=args.source,
+                line=args.line,
+            )
+        finally:
+            os.chdir(cwd)
+
+        results.append({"rank": entry["rank"], "title": entry["title"], "uploaded": success})
+        if success:
+            ok += 1
+        else:
+            fail += 1
+        # 防风控间隔
+        if i < len(upload_list) - 1 and args.upload_interval > 0:
+            time.sleep(args.upload_interval)
+
+    # 上传结果存档
+    with open(job_dir / "upload_result.json", "w", encoding="utf-8") as f:
+        json.dump({"ok": ok, "fail": fail, "results": results}, f, ensure_ascii=False, indent=2)
+    print(f"\n[upload] ========== B站上传完成：成功 {ok} / 失败 {fail} ==========", flush=True)
+    if fail > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

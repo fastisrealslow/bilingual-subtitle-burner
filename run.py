@@ -217,6 +217,24 @@ def main():
                         choices=["auto", "zh2en", "en2zh", "none"],
                         help="翻译方向（auto=根据语言自动判断，none=不翻译）")
     parser.add_argument("--no-subtitle", action="store_true", help="不烧录字幕")
+    # ── 上传相关 ──
+    parser.add_argument("--do-upload", action="store_true",
+                        help="Step 8 实际上传到 B站（需 --bili-cookies / BILI_COOKIES）")
+    parser.add_argument("--bili-cookies", default=None,
+                        help="B站 cookies.json 路径；默认读 BILI_COOKIES 环境变量")
+    parser.add_argument("--copyright", type=int, default=2, choices=[1, 2],
+                        help="B站稿件类型 1=自制 2=转载（搬运国外视频默认 2）")
+    parser.add_argument("--source", default="",
+                        help="转载来源（copyright=2 必填，如原 YouTube 链接）")
+    parser.add_argument("--bili-line", default="", help="B站上传线路 bda2/ws/qn/tx")
+    parser.add_argument("--upload-interval", type=int, default=30,
+                        help="多条上传间隔秒数（防风控）")
+    parser.add_argument("--douyin", action="store_true",
+                        help="Step 8 之后额外运行抖音上传（Playwright，风控风险高）")
+    parser.add_argument("--do-douyin-upload", action="store_true",
+                        help="抖音实际上传（不加则只干跑校验）")
+    parser.add_argument("--douyin-cookies", default=None,
+                        help="抖音 cookie 文件路径；默认读 DOUYIN_COOKIES 环境变量")
     parser.add_argument("--vertical", action="store_true",
                         help="输出竖屏 9:16（适配手机端短视频）")
 
@@ -444,16 +462,41 @@ def main():
         if is_done(job_dir, 8) and not args.force:
             print(f"\n[Step 8] ✅ 已完成，跳过", flush=True)
         else:
-            run_step(
-                [sys.executable, str(STEPS_DIR / "step8_upload.py"),
-                 "--job-dir", str(job_dir),
-                 "--manifest", str(manifest),
-                 "--clips-dir", str(clips_dir),
-                 "--speaker", args.speaker,
-                 "--channel", args.channel],
-                "upload", env=env,
-            )
+            step8_cmd = [sys.executable, str(STEPS_DIR / "step8_upload.py"),
+                         "--job-dir", str(job_dir),
+                         "--manifest", str(manifest),
+                         "--clips-dir", str(clips_dir),
+                         "--speaker", args.speaker,
+                         "--channel", args.channel]
+            if args.do_upload:
+                step8_cmd += ["--do-upload",
+                              "--copyright", str(args.copyright),
+                              "--upload-interval", str(args.upload_interval)]
+                if args.bili_cookies:
+                    step8_cmd += ["--bili-cookies", args.bili_cookies]
+                if args.source:
+                    step8_cmd += ["--source", args.source]
+                elif args.copyright == 2 and args.url:
+                    # 转载稿默认以原始 URL 作为来源
+                    step8_cmd += ["--source", args.url]
+                if args.bili_line:
+                    step8_cmd += ["--line", args.bili_line]
+            run_step(step8_cmd, "upload", env=env)
             mark_done(job_dir, 8)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # Step 9: 抖音上传（可选，独立于主 STEPS，仅 --douyin 触发）
+    # ══════════════════════════════════════════════════════════════════════════
+    if args.douyin:
+        step9_cmd = [sys.executable, str(STEPS_DIR / "step9_douyin.py"),
+                     "--job-dir", str(job_dir),
+                     "--upload-interval", str(max(args.upload_interval, 60)),
+                     "--top-n", str(args.top_n)]
+        if args.do_douyin_upload:
+            step9_cmd += ["--do-upload"]
+        if args.douyin_cookies:
+            step9_cmd += ["--douyin-cookies", args.douyin_cookies]
+        run_step(step9_cmd, "douyin", env=env)
 
     # ── 汇总 ──────────────────────────────────────────────────────────────────
     print(f"\n{'='*60}", flush=True)

@@ -1,0 +1,225 @@
+name: 双语投资短视频流水线
+
+# 触发方式：
+#   1) 手动触发（workflow_dispatch）：在 Actions 页面填 URL 等参数，立即跑一条
+#   2) 定时触发（schedule）：按 cron 从仓库 queue.txt 里取任务批量跑
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "视频 URL（YouTube/B站等 yt-dlp 支持的平台）"
+        required: true
+        type: string
+      speaker:
+        description: "说话人姓名（如 李录 / 帕伯莱）"
+        required: false
+        default: "价值投资人"
+        type: string
+      channel:
+        description: "频道/栏目名"
+        required: false
+        default: "价值投资讲堂"
+        type: string
+      language:
+        description: "源语言 auto/en/zh"
+        required: false
+        default: "auto"
+        type: choice
+        options: ["auto", "en", "zh"]
+      direction:
+        description: "翻译方向 auto/en2zh/zh2en/none"
+        required: false
+        default: "en2zh"
+        type: choice
+        options: ["auto", "en2zh", "zh2en", "none"]
+      top_n:
+        description: "输出金句条数"
+        required: false
+        default: "5"
+        type: string
+      whisper_model:
+        description: "Whisper 模型（CPU 建议 small/medium）"
+        required: false
+        default: "small"
+        type: choice
+        options: ["tiny", "base", "small", "medium", "large-v3"]
+      do_upload_bili:
+        description: "是否实际上传到 B站"
+        required: false
+        default: false
+        type: boolean
+      do_upload_douyin:
+        description: "是否实际上传到抖音（数据中心 IP 风控风险高）"
+        required: false
+        default: false
+        type: boolean
+
+  # 定时：默认每天 UTC 22:00（= 北京时间次日 06:00）。按需修改。
+  schedule:
+    - cron: "0 22 * * *"
+
+# 避免多次触发并发跑坏登录态
+concurrency:
+  group: video-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      # ── 翻译引擎（SiliconFlow 硅基流动）──
+      SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+      SILICONFLOW_BASE_URL: "https://api.siliconflow.cn/v1"
+      SILICONFLOW_MODEL: "Qwen/Qwen3-8B"
+      # ── 上传登录态（由 workflow 写入文件后再引用路径）──
+      BILI_COOKIES: "${{ github.workspace }}/secrets/bili_cookies.json"
+      DOUYIN_COOKIES: "${{ github.workspace }}/secrets/douyin_cookies.json"
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"   # 抖音 Playwright 需 <=3.12
+          cache: "pip"
+
+      - name: 安装系统依赖（ffmpeg）
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: 安装 Python 依赖
+        run: |
+          python -m pip install --upgrade pip
+          # faster-whisper 用二进制轮子，避免 av 编译失败
+          pip install --only-binary=:all: "faster-whisper>=1.1.0"
+          pip install -r requirements.txt
+          # B站上传器（纯 Python CLI）
+          pip install biliup || pip install biliupload || true
+
+      - name: 安装抖音依赖（仅在需要时）
+        if: ${{ github.event.inputs.do_upload_douyin == 'true' }}
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: 写入登录态 Secrets 到文件
+        env:
+          # 通过 env 传递，避免多行/特殊字符在 shell 内联时被解析破坏
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+          BILI_COOKIES_JSON: ${{ secrets.BILI_COOKIES_JSON }}
+          DOUYIN_COOKIES_JSON: ${{ secrets.DOUYIN_COOKIES_JSON }}
+        run: |
+          mkdir -p secrets
+          # YouTube cookies（突破数据中心 IP 反爬，Netscape 格式）
+          if [ -n "$YOUTUBE_COOKIES" ]; then
+            printf '%s' "$YOUTUBE_COOKIES" > secrets/youtube_cookies.txt
+            echo "有 YouTube cookies"
+          fi
+          # B站 cookies.json（biliup 登录产物）
+          if [ -n "$BILI_COOKIES_JSON" ]; then
+            printf '%s' "$BILI_COOKIES_JSON" > secrets/bili_cookies.json
+            echo "有 B站 cookies"
+          fi
+          # 抖音 cookie（storage_state 或列表）
+          if [ -n "$DOUYIN_COOKIES_JSON" ]; then
+            printf '%s' "$DOUYIN_COOKIES_JSON" > secrets/douyin_cookies.json
+            echo "有抖音 cookies"
+          fi
+
+      - name: 运行流水线（手动触发）
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          IN_URL: ${{ github.event.inputs.url }}
+          IN_SPEAKER: ${{ github.event.inputs.speaker }}
+          IN_CHANNEL: ${{ github.event.inputs.channel }}
+          IN_LANG: ${{ github.event.inputs.language }}
+          IN_DIR: ${{ github.event.inputs.direction }}
+          IN_TOPN: ${{ github.event.inputs.top_n }}
+          IN_WMODEL: ${{ github.event.inputs.whisper_model }}
+          IN_DO_BILI: ${{ github.event.inputs.do_upload_bili }}
+          IN_DO_DOUYIN: ${{ github.event.inputs.do_upload_douyin }}
+        run: |
+          set -e
+          COOKIE_ARG=""
+          [ -f secrets/youtube_cookies.txt ] && COOKIE_ARG="--cookies secrets/youtube_cookies.txt"
+
+          ARGS=(--url "$IN_URL" --speaker "$IN_SPEAKER" --channel "$IN_CHANNEL" \
+                --language "$IN_LANG" --direction "$IN_DIR" --top-n "$IN_TOPN" \
+                --whisper-model "$IN_WMODEL" --vertical)
+          [ -n "$COOKIE_ARG" ] && ARGS+=(--cookies secrets/youtube_cookies.txt)
+
+          if [ "$IN_DO_BILI" = "true" ]; then
+            ARGS+=(--do-upload --bili-cookies secrets/bili_cookies.json --copyright 2 --source "$IN_URL")
+          fi
+          if [ "$IN_DO_DOUYIN" = "true" ]; then
+            ARGS+=(--douyin --do-douyin-upload --douyin-cookies secrets/douyin_cookies.json)
+          fi
+
+          python run.py "${ARGS[@]}"
+
+      - name: 运行流水线（定时触发，读 queue.txt）
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          set -e
+          if [ ! -f queue.txt ]; then
+            echo "未找到 queue.txt，跳过定时任务。"
+            exit 0
+          fi
+          COOKIE_ARG=""
+          [ -f secrets/youtube_cookies.txt ] && COOKIE_ARG="--cookies secrets/youtube_cookies.txt"
+
+          # queue.txt 每行一个 URL；# 开头为注释；处理后移到 queue_done.txt
+          touch queue_done.txt
+          while IFS= read -r line || [ -n "$line" ]; do
+            case "$line" in
+              ""|\#*) continue ;;
+            esac
+            echo "==== 处理队列任务: $line ===="
+            python run.py \
+              --url "$line" \
+              --speaker "价值投资人" \
+              --channel "价值投资讲堂" \
+              --language auto \
+              --direction en2zh \
+              --top-n 5 \
+              --whisper-model small \
+              --vertical \
+              $COOKIE_ARG \
+              --do-upload --bili-cookies secrets/bili_cookies.json --copyright 2 --source "$line" \
+              || echo "该任务失败，继续下一条"
+            echo "$line" >> queue_done.txt
+          done < queue.txt
+
+      - name: 上传产物到 Artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-output-${{ github.run_id }}
+          path: |
+            output/**/*.mp4
+            output/**/upload_list.md
+            output/**/upload_list.json
+            output/**/upload_result.json
+            output/**/douyin_result.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: 提交队列进度（定时任务）
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          if [ -f queue_done.txt ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            # 从 queue.txt 移除已完成行
+            if [ -f queue.txt ]; then
+              grep -vxFf queue_done.txt queue.txt > queue.tmp || true
+              mv queue.tmp queue.txt
+            fi
+            git add queue.txt queue_done.txt || true
+            git commit -m "chore: 更新队列进度 [skip ci]" || echo "无变更"
+            git push || echo "推送失败（可能无权限，忽略）"
+          fi
