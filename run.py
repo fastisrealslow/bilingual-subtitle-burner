@@ -420,6 +420,16 @@ def main():
             print(f"[run] 识别到片源语言：{detected}"
                   f"（字幕语言={srt_lang}，翻译方向={direction}）", flush=True)
 
+            # 中文源要多走一道繁转简。Whisper 对台湾/香港片源经常输出繁体
+            # （实测出“公佈”“調到了”），不转就会直接烧进画面。
+            if detected == "zh":
+                try:
+                    sys.path.insert(0, str(ROOT / "scripts"))
+                    from platform_rules import simplify_srt
+                    simplify_srt(str(full_srt))
+                except Exception as e:
+                    print(f"[run] ⚠ 繁简转换跳过：{e}", flush=True)
+
     # ══════════════════════════════════════════════════════════════════════════
     # Step 3: 翻译
     # ══════════════════════════════════════════════════════════════════════════

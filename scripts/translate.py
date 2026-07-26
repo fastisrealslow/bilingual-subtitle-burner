@@ -73,7 +73,19 @@ def strip_think(text: str) -> str:
     return text.strip()
 
 
-def chat(messages, api_key, model, base_url, temperature=0.3, max_retries=4):
+# 翻译降级链。实测发现硅基流动的限流是**分模型**的：DeepSeek-V3 持续返回
+# 429（System is too busy）的同一时刻，Qwen3-8B 完全正常。热门免费模型拥堵
+# 是常态，而定时任务是无人值守的，只做退避不换模型等于把整条流水线
+# 绑在一个拥堵端点上。顺序尝试，哪个能用用哪个。
+FALLBACK_MODELS = [
+    "Qwen/Qwen3-8B",
+    "Qwen/Qwen2.5-7B-Instruct",
+    "THUDM/glm-4-9b-chat",
+]
+
+
+def _once(messages, api_key, model, base_url, temperature, max_retries):
+    """对单一模型做带退避的重试。持续限流返回 None，交由上层换模型。"""
     url = f"{base_url.rstrip('/')}/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {"model": model, "messages": messages, "temperature": temperature,
@@ -88,13 +100,27 @@ def chat(messages, api_key, model, base_url, temperature=0.3, max_retries=4):
         if resp.status_code == 200:
             return strip_think(resp.json()["choices"][0]["message"]["content"])
         elif resp.status_code in (429, 500, 502, 503):
-            wait = 2 ** attempt
-            print(f"[translate] {resp.status_code} 限流/波动，{wait}s 后重试", file=sys.stderr)
+            wait = min(2 ** attempt, 30)
+            print(f"[translate] {model} {resp.status_code} 限流/波动，{wait}s 后重试",
+                  file=sys.stderr)
             time.sleep(wait)
         else:
             print(f"[translate] 错误 {resp.status_code}: {resp.text[:500]}", file=sys.stderr)
             resp.raise_for_status()
-    raise RuntimeError("硅基流动多次重试仍失败")
+    return None
+
+
+def chat(messages, api_key, model, base_url, temperature=0.3, max_retries=4):
+    chain = [model] + [m for m in FALLBACK_MODELS if m != model]
+    for i, m in enumerate(chain):
+        out = _once(messages, api_key, m, base_url, temperature, max_retries)
+        if out is not None:
+            if i > 0:
+                print(f"[translate] ✓ 已降级到 {m}", file=sys.stderr)
+            return out
+        if i + 1 < len(chain):
+            print(f"[translate] {m} 持续不可用，换 {chain[i+1]}", file=sys.stderr)
+    raise RuntimeError(f"硅基流动全部模型均不可用（已试：{', '.join(chain)}）")
 
 
 def translate_batch(texts: List[str], api_key, model, base_url, direction="zh2en") -> List[str]:

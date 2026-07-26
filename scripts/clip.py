@@ -196,6 +196,10 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     # 实测感觉太小，用 20 / 26
     en_size = max(14, int(video_width * 20 / 640))
     zh_size = max(18, int(video_width * 26 / 640))
+    en_outline = max(2, round(en_size / 12))
+    zh_outline = max(2, round(zh_size / 12))
+    en_shadow = max(1, round(en_size / 26))
+    zh_shadow = max(1, round(zh_size / 26))
     # 底边距按画面高度按比例计算，不能写死绝对像素：
     #   竖屏(9:16)上传到抖音/B站后，底部约 15% 会被文案、账号、
     #   右侧按钮栏等平台 UI 遮挡，字幕必须抬高到安全区以上。
@@ -234,10 +238,14 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
         "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
         # Alignment=2：底部居中；MarginV 控制距底边距离
+        # 描边和阴影必须跟着字号缩放。原来写死 Outline=1、Shadow=0，在 1080
+        # 宽的竖屏画布上只有 1 像素——抽帧核对时发现，遇到白色 PPT/图表这类
+        # 亮背景，白字配 1px 黑边直接糊成一片，整句读不出来。现在描边按字号
+        # 的 1/12 走并补一层投影，亮底暗底都能压住。
         f"Style: EN,Arial,{en_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
-        f"-1,0,0,0,100,100,0,0,1,1,0,2,10,10,{margin_bottom_en},1",
+        f"-1,0,0,0,100,100,0,0,1,{en_outline},{en_shadow},2,10,10,{margin_bottom_en},1",
         f"Style: ZH,Microsoft YaHei,{zh_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
-        f"-1,0,0,0,100,100,0,0,1,1,0,2,10,10,{margin_bottom_zh},1",
+        f"-1,0,0,0,100,100,0,0,1,{zh_outline},{zh_shadow},2,10,10,{margin_bottom_zh},1",
         "",
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",

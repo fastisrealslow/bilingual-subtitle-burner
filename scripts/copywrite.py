@@ -84,6 +84,26 @@ SYSTEM_PROMPT = """\
 标题、简介、标签一律用**简体中文**，不要用繁体。"""
 
 
+def _force_simplified(d: Dict, protect=None) -> Dict:
+    """把模型返回的文案强制转成简体。
+
+    提示词里已经写了“一律用简体中文”，但实测不管用：处理台湾财经
+    视频时，模型会跟着原文语言走，输出“美國經濟衰退的兩個指標”
+    “價值投資”这类繁体。提示词是软约束，这里做硬约束。
+
+    演讲者名要放进保护词表——实测频道名「股乾爹」会被转成「股干爹」。
+    """
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from platform_rules import to_simplified
+    except ImportError:
+        return d
+    d["title"] = to_simplified(str(d.get("title", "")), protect)
+    d["desc"] = to_simplified(str(d.get("desc", "")), protect)
+    d["tags"] = [to_simplified(str(t), protect) for t in (d.get("tags") or [])]
+    return d
+
+
 def generate_copy(highlight: Dict, speaker: str, channel: str,
                   api_key: str, model: str, base_url: str) -> Dict:
     en = highlight.get("transcript_en", "")[:500]
@@ -124,11 +144,12 @@ LLM建议标题（参考）：{suggested}
     json_match = re.search(r"\{.*\}", content, re.DOTALL)
     if json_match:
         try:
-            return json.loads(json_match.group())
+            return _force_simplified(json.loads(json_match.group()), [speaker])
         except json.JSONDecodeError:
             pass
     # 降级：返回建议标题
-    return {"title": suggested, "desc": zh[:150], "tags": [speaker, "价值投资"]}
+    return _force_simplified(
+        {"title": suggested, "desc": zh[:150], "tags": [speaker, "价值投资"]}, [speaker])
 
 
 def main():

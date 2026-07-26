@@ -43,15 +43,31 @@ _BAD_FILENAME = re.compile(r'[\\/:*?"<>|\n\r\t]')
 # ====================================================================
 # 繁 → 简
 # ====================================================================
-def to_simplified(text: str) -> str:
-    """繁体转简体。zhconv 缺失时原样返回，不让它成为流水线的硬依赖。"""
+def to_simplified(text: str, protect=None) -> str:
+    """繁体转简体。zhconv 缺失时原样返回，不让它成为流水线的硬依赖。
+
+    ``protect`` 是不参与转换的专有名词列表。这个参数不是可有可无的：
+    实测频道名「股乾爹」会被通用规则转成「股干爹」——「乾爹→干爹」在
+    一般文本里没错，但它是个品牌名，改了就是错字。人名、频道名、书名
+    这类专名都得原样留住，所以先挖坑占位、转换完再填回去。
+    """
     if not text:
         return text
     try:
         import zhconv
     except ImportError:
         return text
-    return zhconv.convert(text, "zh-cn")
+    terms = [t for t in (protect or []) if t and t in text]
+    # 占位符用私有区字符，正常文案里不会出现，也不会被 zhconv 改写。
+    holders = {}
+    for i, t in enumerate(sorted(terms, key=len, reverse=True)):
+        h = f"\ue000{i}\ue001"
+        holders[h] = t
+        text = text.replace(t, h)
+    text = zhconv.convert(text, "zh-cn")
+    for h, t in holders.items():
+        text = text.replace(h, t)
+    return text
 
 
 def simplify_srt(path: str) -> int:
