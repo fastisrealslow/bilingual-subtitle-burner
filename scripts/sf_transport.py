@@ -11,6 +11,7 @@ Response API the call sites use, so wiring a call site up is a one-word change.
 """
 import json as _json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -23,10 +24,32 @@ def _ca_args():
     return ["--cacert", ca] if ca and os.path.exists(ca) else []
 
 
+class Headers(dict):
+    """HTTP 头大小写不敏感。``Retry-After`` / ``retry-after`` 都得取得到。"""
+
+    def __init__(self, pairs=None):
+        super().__init__()
+        for k, v in (pairs or {}).items() if isinstance(pairs, dict) else (pairs or []):
+            self[k] = v
+
+    def __setitem__(self, key, value):
+        super().__setitem__(str(key).lower(), value)
+
+    def __getitem__(self, key):
+        return super().__getitem__(str(key).lower())
+
+    def __contains__(self, key):
+        return super().__contains__(str(key).lower())
+
+    def get(self, key, default=None):
+        return super().get(str(key).lower(), default)
+
+
 class Response:
-    def __init__(self, status_code: int, text: str):
+    def __init__(self, status_code: int, text: str, headers=None):
         self.status_code = status_code
         self.text = text
+        self.headers = headers if isinstance(headers, Headers) else Headers(headers)
 
     def json(self):
         return _json.loads(self.text)
@@ -40,21 +63,55 @@ class TransportError(RuntimeError):
     pass
 
 
+class TransportTimeout(TransportError):
+    """curl 没在时限内返回。
+
+    单独一个类型是因为超时的重试语义和连接失败不同：服务端很可能已经处理完
+    并计了费，只是响应没能回来。上层据此把超时的重试次数压得更保守。
+    """
+
+
+def _parse_headers(raw: str) -> Headers:
+    """解析 curl ``-D`` 转储的响应头。重定向会有多个头块，取最后一块。"""
+    block = [b for b in re.split(r"\r?\n\r?\n", raw or "") if b.strip()]
+    headers = Headers()
+    if not block:
+        return headers
+    for line in block[-1].splitlines():
+        name, sep, value = line.partition(":")
+        if sep:
+            headers[name.strip()] = value.strip()
+    return headers
+
+
 def _run(cmd, timeout):
     if not shutil.which("curl"):
         raise TransportError("curl 不可用，无法访问 SiliconFlow")
+    hdr_fd, hdr_path = tempfile.mkstemp(prefix="sf_hdr_", suffix=".txt")
+    os.close(hdr_fd)
     try:
-        p = subprocess.run(cmd, capture_output=True, text=True,
-                           timeout=timeout + 30)
-    except subprocess.TimeoutExpired as e:
-        raise TransportError(f"curl 超时（{timeout}s）") from e
+        try:
+            p = subprocess.run(cmd + ["-D", hdr_path], capture_output=True,
+                               text=True, timeout=timeout + 30)
+        except subprocess.TimeoutExpired as e:
+            raise TransportTimeout(f"curl 超时（{timeout}s）") from e
+        try:
+            with open(hdr_path, "r", encoding="utf-8", errors="replace") as fh:
+                headers = _parse_headers(fh.read())
+        except OSError:
+            headers = Headers()
+    finally:
+        try:
+            os.unlink(hdr_path)
+        except OSError:
+            pass
     out = p.stdout
     marker = "\n__SF_HTTP_"
     if marker not in out:
         raise TransportError(
             f"curl rc={p.returncode}: {(p.stderr or '')[:300]}")
     body, _, tail = out.rpartition(marker)
-    return Response(int(tail.strip("_ \n")), body)
+    return Response(int(tail.strip("_ \n")), body, headers)
 
 
 def _base(headers, timeout):

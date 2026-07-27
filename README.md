@@ -55,10 +55,23 @@ python produce.py --source ./raw/munger.mp4 --slug munger-dual --dual
 | `--no-vlm` | 封面跳过 VLM 校验，只按几何规则选帧 |
 | `--strict-highlights` | 金句门槛忽略环境变量放宽，只认代码里的下限 |
 | `--out` | 产物根目录，默认 `deliver/` |
+| `--llm-cache-dir` / `--no-llm-cache` | LLM/VLM 响应缓存目录（默认 `.llm_cache/`）/ 关掉缓存 |
+| `--llm-max-retries` | SiliconFlow 可重试错误的重试次数，默认 3 |
+| `--download-max-retries` / `--download-backoff-sec` | yt-dlp 下载的外层重试次数与退避基数 |
+
+阶段顺序：
+
+```
+input → transcribe → highlight → title → cover → translate → assemble → manifest
+                                          ▲
+                          封面阈值判定排在翻译之前：翻译是主要开销，
+                          挑不出合格封面就在花钱之前退出
+```
 
 **退出码**：`0` 成功 / `1` 配置错误 / `2` 内容质量不达标 / `3` 外部依赖失败。
 退 2 表示这条片源挑不出够格的金句或封面 —— 是刻意拒绝硬出，重试没有意义。
-各阶段的拒绝原因见 [`docs/pipeline.md`](docs/pipeline.md)。
+SiliconFlow 的 400/401/402/403 归到退 1：改密钥或充值，自动重试没有用。
+各阶段的拒绝原因、缓存与重试策略见 [`docs/pipeline.md`](docs/pipeline.md)。
 
 ### CI 用法
 

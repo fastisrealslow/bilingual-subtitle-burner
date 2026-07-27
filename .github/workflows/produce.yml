@@ -130,6 +130,20 @@ jobs:
           pip install --upgrade yt-dlp
           yt-dlp --version
 
+      # LLM/VLM 响应缓存。一条片源失败后重跑（封面不达标、ffmpeg 崩了、
+      # 下载超时），前面已经付过钱的调用直接命中，不用重发。
+      # 主键带 run id 是因为 actions/cache 的条目不可覆盖：不带 run id 的话
+      # 第一次存完就永远不再更新，缓存不会随重跑长大。跨 run 复用靠
+      # restore-keys 逐级回退到同 slug、再回退到全局最新的那份。
+      - name: 挂载 LLM 响应缓存
+        uses: actions/cache@v4
+        with:
+          path: .llm_cache
+          key: llm-cache-${{ matrix.job.slug }}-${{ github.run_id }}
+          restore-keys: |
+            llm-cache-${{ matrix.job.slug }}-
+            llm-cache-
+
       - name: 出片
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
