@@ -145,14 +145,33 @@ def _cache_path(key: str) -> Path:
     return _cfg.cache_dir / key[:2] / f"{key}.json"
 
 
+def _warn_corrupt(path: Path, why: str) -> None:
+    # 坏缓存回落成实发请求是对的，但必须留痕：静默兜底会让「缓存目录整个坏掉」
+    # 表现成一次莫名其妙变贵的重跑，没人查得出来。
+    print(f"[llm-cache] 缓存文件损坏（{why}）：{path}；改为实发一次请求，成功后覆写",
+          file=sys.stderr, flush=True)
+
+
 def _read_cache(key: str):
     path = _cache_path(key)
     try:
-        envelope = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+        raw = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None                       # 未命中，不是损坏
+    except OSError as e:
+        _warn_corrupt(path, f"读不出来：{e}")
+        return None
+    try:
+        envelope = json.loads(raw)
+    except ValueError as e:
+        _warn_corrupt(path, f"不是合法 JSON：{e}")
+        return None
+    if not isinstance(envelope, dict):
+        _warn_corrupt(path, "顶层不是对象")
         return None
     response = envelope.get("response")
     if response is None:
+        _warn_corrupt(path, "缺少 response 字段")
         return None
     return sf_transport.Response(
         200, json.dumps(response, ensure_ascii=False),

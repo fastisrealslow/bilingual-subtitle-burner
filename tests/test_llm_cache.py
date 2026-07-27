@@ -177,6 +177,94 @@ def test_cache_file_records_written_at_and_model(cache, monkeypatch):
     assert files[0].stem == envelope["key"]
 
 
+@pytest.mark.parametrize("corrupt", [
+    "{ 截断的",                                  # 不是合法 JSON
+    "",                                          # 空文件（磁盘写到一半断电）
+    '["顶层是数组"]',                            # 合法 JSON 但结构不对
+    '{"key": "x", "endpoint": "y"}',             # 是对象但没有 response
+])
+def test_corrupt_cache_file_falls_back_to_a_real_call(cache, monkeypatch,
+                                                      capsys, corrupt):
+    """缓存文件坏了要回落去实发一次，不能把整条流水线炸掉。
+
+    但也不能静默兜底：必须记日志说明是哪个文件坏了，并且拿到成功响应后覆写它，
+    否则同一个坏文件会在后续每次重跑里反复触发实发请求。
+    """
+    counting_transport(monkeypatch, [ok()])
+    sf_client.post(URL, json=BODY)
+    path = next(iter(cache.rglob("*.json")))
+    path.write_text(corrupt, encoding="utf-8")
+
+    calls = counting_transport(monkeypatch, [ok()])
+    resp = sf_client.post(URL, json=BODY)
+
+    assert resp.json() == PAYLOAD
+    assert len(calls) == 1, "缓存文件损坏时没有回落到真实请求"
+
+    err = capsys.readouterr().err
+    assert "损坏" in err and str(path) in err, "缓存损坏必须记日志，不允许静默兜底"
+
+    # 坏文件被这次的成功响应覆写，下一次就该正常命中
+    assert json.loads(path.read_text(encoding="utf-8"))["response"] == PAYLOAD
+    exploding_transport(monkeypatch)
+    assert sf_client.post(URL, json=BODY).json() == PAYLOAD
+
+
+# ── 三个调用点都走缓存层 ─────────────────────────────────────────────────────
+
+def test_all_three_siliconflow_call_sites_share_the_cache(cache, tmp_path,
+                                                          monkeypatch):
+    """highlight、translate、封面 VLM 三处都必须经过 sf_client，谁绕过去直连
+    ``sf_transport`` 这条就红 —— 将来新加调用点忘了走缓存，靠这条拦住。
+
+    判据不是「有没有发请求」（transport 打了桩，绕过去也一样能发），而是缓存
+    统计：三次都该记成 miss+write，第二轮三次都该命中且传输层一次都不被碰。
+    """
+    import highlight
+    import step7_cover
+    import translate
+
+    frame = tmp_path / "frame.jpg"
+    frame.write_bytes(b"\xff\xd8\xff\xe0 fake jpeg bytes")
+    vlm_payload = {
+        "choices": [{"message": {"content":
+                     '[{"frame": 1, "person": "主讲人", "cover_score": 8}]'}}],
+        "usage": {"prompt_tokens": 10},
+    }
+
+    calls = []
+
+    def fake_post(url, headers=None, json=None, data=None, files=None,
+                  timeout=120):
+        calls.append(url)
+        # 封面 VLM 走 data= 原始字节，另外两处走 json=
+        return ok(vlm_payload if data is not None else PAYLOAD)
+
+    monkeypatch.setattr(sf_transport, "post", fake_post)
+
+    def run_all():
+        return (
+            highlight.call_llm([{"role": "user", "content": "挑金句"}],
+                               "sk-test", "Qwen/Qwen3-8B", "https://x/v1"),
+            translate.chat([{"role": "user", "content": "翻译"}],
+                           "sk-test", "deepseek-ai/DeepSeek-V3", "https://x/v1"),
+            step7_cover.call_vision_llm("sk-test", "Qwen/Qwen3-VL-8B-Instruct",
+                                        [str(frame)], "芒格"),
+        )
+
+    first = run_all()
+    assert first[2] == [{"frame": 1, "person": "主讲人", "cover_score": 8}]
+    assert len(calls) == 3
+    stats = sf_client.cache_stats()
+    assert stats["misses"] == 3, "有调用点绕过了缓存层（没记 miss）"
+    assert stats["writes"] == 3, "有调用点的响应没有写进缓存"
+
+    # 第二轮必须全部命中：传输层换成「一被调用就炸」
+    exploding_transport(monkeypatch)
+    assert run_all() == first
+    assert sf_client.cache_stats()["hits"] == 3, "有调用点第二轮没命中缓存"
+
+
 # ── 开关 ─────────────────────────────────────────────────────────────────────
 
 def test_no_cache_flag_always_issues_the_request(cache, monkeypatch):
