@@ -297,13 +297,15 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         if needed > margin_bottom_zh:
             margin_bottom_zh = needed
 
-    margin_bottom_en = margin_bottom_zh + zh_size * 2 + 8        # 英文在中文上方
+    # 中文一行的实际占高（含行距），用来给英文行让位
+    zh_line_h = int(zh_size * 1.25)
+    margin_bottom_en = margin_bottom_zh + zh_line_h * 2 + 8       # 英文在中文上方
 
     # 抬得太高会顶到画面中心甚至遮住人脸，封顶在 55% 高度处
     cap = int(video_height * 0.55)
     if margin_bottom_en > cap:
         margin_bottom_en = cap
-        margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_size * 2 - 8))
+        margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_line_h * 2 - 8))
 
     # 英文折行最大字符数（字体约 en_size/2 px 宽）
     en_wrap = max(20, int(video_width * 38 / 640))
@@ -338,9 +340,18 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         end = e["end_sec"]
         en_t = wrap_text(e.get("en", "").strip(), en_wrap, is_cjk=False)
         zh_t = wrap_text(e.get("zh", "").strip(), zh_wrap, is_cjk=True)
+        # 英文行按这一条中文实际折了几行来让位。样式里的 MarginV 只能按固定
+        # 行数算，中文折到 3 行时（长句里没有可断的标点就会发生，实测 57 字
+        # 一条）整块往上顶，直接盖住英文行，「英文在上中文在下」的版式反过来。
+        # ASS 的 Dialogue 支持逐条覆盖 MarginV，用它按条修正。
+        zh_lines = zh_t.count(r"\N") + 1 if zh_t else 0
+        en_margin = margin_bottom_en
+        if zh_lines > 2:
+            en_margin = min(cap, margin_bottom_zh + zh_line_h * zh_lines + 8)
         # zh_only：原片已有英文硬字幕，再烧一遍英文只会重复且拥挤
         if en_t and sub_mode != "zh_only":
-            lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,0,,{en_t}")
+            lines.append(
+                f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,{en_margin},,{en_t}")
         if zh_t:
             lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,0,,{zh_t}")
 
