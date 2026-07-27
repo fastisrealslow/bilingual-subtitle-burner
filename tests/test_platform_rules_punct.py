@@ -24,6 +24,20 @@ def test_unpaired_closing_quote_left_alone():
     assert n("复利”") == "复利”"
 
 
+def test_paired_straight_quotes_in_cjk_become_corner_brackets():
+    # 模型写中文时常直接敲 ASCII 双引号，烧进字幕就是中文里夹半角引号
+    assert n('而不是说"这是我听过的最烂的主意"。') == "而不是说「这是我听过的最烂的主意」。"
+
+
+def test_odd_straight_quotes_left_alone():
+    # 半角双引号左右同形，只能按次序配对；数量为奇数说明有一半被截断了
+    assert n('中文里一个落单的"引号') == '中文里一个落单的"引号'
+
+
+def test_straight_quotes_in_pure_english_left_alone():
+    assert n('He said "no" and left.') == 'He said "no" and left.'
+
+
 def test_existing_corner_brackets_untouched():
     assert n("「安全边际」和『复利』") == "「安全边际」和『复利』"
 

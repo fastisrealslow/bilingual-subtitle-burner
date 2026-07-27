@@ -173,6 +173,27 @@ def _curly_to_corner(text: str) -> str:
     return "".join(out)
 
 
+def _straight_to_corner(text: str) -> str:
+    """中文语境下成对的半角双引号转「」。
+
+    模型写中文时经常直接敲 ASCII 双引号，烧进字幕就是
+    `而不是说"这是我听过的最烂的主意"。` 这种中文里夹半角引号的排版。
+    半角双引号左右同形，只能按出现次序配对，所以数量为奇数（有一半被
+    截断了）时整段不动 —— 与 _curly_to_corner 的"配不上对就不转"一致。
+    """
+    if '"' not in text or not re.search(rf"[{_CJK}]", text):
+        return text
+    if text.count('"') % 2:
+        return text
+    n = [0]
+
+    def swap(_m: re.Match) -> str:
+        n[0] += 1
+        return "「" if n[0] % 2 else "」"
+
+    return re.sub(r'"', swap, text)
+
+
 def normalize_cjk_punctuation(text: str) -> str:
     """规范化中文文案里的标点。
 
@@ -192,7 +213,7 @@ def normalize_cjk_punctuation(text: str) -> str:
 
     text = _PROTECTED.sub(_stash, text)
 
-    text = _curly_to_corner(text)
+    text = _curly_to_corner(_straight_to_corner(text))
 
     # 半角转全角：仅当标点紧挨着中文时才转，避免动到残留的英文缩写
     def _to_full(m: re.Match) -> str:

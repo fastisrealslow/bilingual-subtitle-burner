@@ -235,6 +235,24 @@ def _wrap_cjk(t: str, max_chars: int) -> list:
     return best
 
 
+def normalize_zh(t: str) -> str:
+    """中文字幕在折行前过一遍标点规范化。
+
+    step8 的 clean_title 只管标题，字幕这条路径从来没规范化过：模型译文里
+    的半角引号会原样烧进画面，成片上出现 `"这是我听过的最烂的主意"` 这种
+    中文里夹半角引号的排版。platform_rules 已经有现成规则，直接复用。
+    缺依赖时原样返回，不能让字幕烧录因为一个标点模块挂掉。
+    """
+    if not t:
+        return t
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from platform_rules import normalize_cjk_punctuation
+    except ImportError:
+        return t
+    return normalize_cjk_punctuation(t)
+
+
 def wrap_text(t: str, max_chars: int, is_cjk: bool = False) -> str:
     """自动折行"""
     if not t:
@@ -340,7 +358,7 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         s = e["start_sec"]
         end = e["end_sec"]
         en_t = wrap_text(e.get("en", "").strip(), en_wrap, is_cjk=False)
-        zh_t = wrap_text(e.get("zh", "").strip(), zh_wrap, is_cjk=True)
+        zh_t = wrap_text(normalize_zh(e.get("zh", "").strip()), zh_wrap, is_cjk=True)
         # 英文行按这一条中文实际折了几行来让位。样式里的 MarginV 只能按固定
         # 行数算，两头都出问题：折到 3 行时（长句里没有可断的标点就会发生，
         # 实测 56 字一条）中文块往上顶穿英文行，「英文在上中文在下」的版式
