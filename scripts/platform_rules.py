@@ -173,6 +173,39 @@ def _curly_to_corner(text: str) -> str:
     return "".join(out)
 
 
+def _promote_outer_white_brackets(text: str) -> str:
+    """把没有嵌套在其他引号里的 ``『』`` 提回外层的 ``「」``。
+
+    分层规范是外层「」内层『』，但有两条路径会在最外层直接产出『』：
+    ``_curly_to_corner`` 把单弯引号 ‘’ 一律映射成『』（不看深度），以及模型
+    自己就在译文最外层写『』（DeepSeek-V3 的「他只说『不行』」实测烧进过成片）。
+    这里在配对完成后统一兜一次：只有配得上对、且闭合时不落在任何引号内部的
+    『』才提升；嵌套在「」里的保持『』不动，落单的原样留着。
+    """
+    if "『" not in text:
+        return text
+
+    stack: list[int] = []
+    promote: list[tuple[int, int]] = []
+    for i, ch in enumerate(text):
+        if ch in "「『":
+            stack.append(i)
+        elif ch in "」』":
+            if not stack:
+                continue
+            j = stack.pop()
+            # 括号类型要对得上，且弹出后栈空 —— 说明这一对在最外层
+            if not stack and text[j] == "『" and ch == "』":
+                promote.append((j, i))
+
+    if not promote:
+        return text
+    out = list(text)
+    for j, i in promote:
+        out[j], out[i] = "「", "」"
+    return "".join(out)
+
+
 def _straight_to_corner(text: str) -> str:
     """中文语境下成对的半角双引号转「」。
 
@@ -213,7 +246,8 @@ def normalize_cjk_punctuation(text: str) -> str:
 
     text = _PROTECTED.sub(_stash, text)
 
-    text = _curly_to_corner(_straight_to_corner(text))
+    text = _promote_outer_white_brackets(
+        _curly_to_corner(_straight_to_corner(text)))
 
     # 半角转全角：仅当标点紧挨着中文时才转，避免动到残留的英文缩写
     def _to_full(m: re.Match) -> str:

@@ -1,0 +1,119 @@
+# 出片流水线与拒绝码
+
+`produce.py` 把「一个视频源」跑成「一条 3 分钟带双语字幕的成片 + 两张封面」。
+这份文档说明各阶段做了什么、在什么条件下会拒绝出片，以及拒绝时怎么排查。
+
+## 阶段
+
+| # | 阶段 | 做什么 | 产物 |
+| --- | --- | --- | --- |
+| 1 | `input` | URL 走 yt-dlp；`file://` 和本地路径直接用 | `_tmp/<slug>/source.mp4` |
+| 2 | `transcribe` | faster-whisper `base` 转写（CI 上不用 large-v3，太慢） | `_tmp/<slug>/transcript.srt` |
+| 3 | `highlight` | Qwen3-8B 打分挑金句 → 切点吸附到句子边界 → **过出片门槛** | `_tmp/<slug>/quotes.json` |
+| 4 | `translate` | DeepSeek-V3 翻译选中窗口内的字幕 → 中文标点归一化 | `_tmp/<slug>/quotes_zh.<translator>.json` |
+| 5 | `assemble` | 切三段 → 各自烧双语字幕 → concat | `deliver/<slug>/final.mp4` |
+| 6 | `cover` | 选帧（几何规则 + Qwen3-VL 校验）→ 渲染两版封面 | `deliver/<slug>/cover_16x9.jpg`、`cover_9x16.jpg` |
+| 7 | `title` | 15 字以内标题（`--title-override` 可跳过） | 写进 meta.json |
+| 8 | `manifest` | 汇总时长、seg 结构、模型版本、commit、SHA256 | `deliver/<slug>/meta.json` |
+
+只有第 3、4、6、7 步会调 SiliconFlow。
+
+## 退出码
+
+| 码 | 含义 | 该怎么办 |
+| --- | --- | --- |
+| `0` | 成功 | — |
+| `1` | 参数 / 配置错误 | 缺 `SILICONFLOW_API_KEY`、slug 非法、片源不存在、缺 ffmpeg/yt-dlp |
+| `2` | **内容质量不达标** | 这条片源挑不出够格的金句或封面。不是 bug，是拒绝硬出 |
+| `3` | 外部依赖失败 | SiliconFlow 5xx / 全模型不可用、yt-dlp 下载失败、ffmpeg 非零退出 |
+
+退 2 和退 3 要分清楚：**退 2 重试没有意义**（换片源或放宽阈值），退 3 通常重试就好。
+
+## 拒绝原因（退出码 2）
+
+拒绝时会往 stderr 打一行结构化 JSON，便于 CI 里直接 grep。
+
+### highlight
+
+```json
+{"stage": "highlight", "reason": "insufficient_duration", "actual_sec": 87, "threshold_sec": 150, "selected": 3}
+```
+
+| `reason` | 触发条件 | 默认阈值 |
+| --- | --- | --- |
+| `insufficient_quotes` | 时长达标的金句条数不够 | `MIN_QUOTES = 3` |
+| `insufficient_duration` | 前 3 段拼起来不到 2.5 分钟 | `MIN_TOTAL_SEC = 150` |
+| `empty_transcript` | 转写结果为空 | — |
+
+单段时长下限 `MIN_QUOTE_SEC = 15`：更短的片段先被筛掉，再去数条数。
+总时长按**真正会拼进成片的那三段**算，不是全部候选之和 —— 拿候选池凑数没有意义。
+
+阈值可用环境变量覆盖：
+
+```bash
+HIGHLIGHT_MIN_TOTAL_SEC=120 HIGHLIGHT_MIN_QUOTES=2 HIGHLIGHT_MIN_QUOTE_SEC=10 python produce.py ...
+```
+
+`--strict-highlights` 会**忽略这些环境变量**，只认代码里的下限。CI 上建议一直带着，
+免得有人为了让流水线变绿偷偷把阈值调松。
+
+### cover
+
+```json
+{"stage": "cover", "reason": "no_frame_passed_vlm", "rejected": 9, "threshold": 5, "min_cover_score": 6}
+```
+
+| `reason` | 触发条件 |
+| --- | --- |
+| `no_frame_passed_vlm` | Qwen3-VL 判定不合格的候选帧超过 5 个，且没有任何合格帧 |
+| `no_frame_meets_geometry` | `--no-vlm` 路径下没有一帧满足几何规则 |
+
+几何规则三条（`--no-vlm` 时是唯一标准，走 VLM 时是送审前的预筛）：
+
+1. 最大正脸框面积 ≥ 整帧的 5%（`MIN_FACE_AREA_RATIO`）
+2. 人脸中心落在画面上 60%（`FACE_TOP_RATIO`）—— 下方要留给标题条
+3. 人脸不压在四角水印区（`WATERMARK_MARGIN = 12%`）
+
+VLM 路径下，判定不合格的帧连同原因会写进 `meta.json` 的 `cover_vlm_rejections`，
+即使最终出片成功也会保留，便于回查选帧质量。走 `--no-vlm` 时 `cover_vlm_passed=false`。
+
+## meta.json
+
+```jsonc
+{
+  "slug": "munger-2023",
+  "title": "芒格谈耐心",
+  "source_url": "https://...",
+  "duration_sec": 178.4,
+  "resolution": "854x480",
+  "segment_count": 3,
+  "segments": [
+    { "index": 1, "rank": 1, "score": 9.2,
+      "source_start_sec": 189.31, "source_end_sec": 245.0,
+      "duration_sec": 55.69, "cues": 14, "reason": "..." }
+  ],
+  "models": {
+    "transcribe": "faster-whisper/base",
+    "highlight": "Qwen/Qwen3-8B",
+    "translate": "deepseek-ai/DeepSeek-V3",
+    "translator": "deepseek-v3",
+    "vision": "Qwen/Qwen3-VL-8B-Instruct"
+  },
+  "cover_vlm_passed": true,
+  "cover_vlm_rejections": [],
+  "commit": "<GITHUB_SHA 或 local>",
+  "sha256": { "final.mp4": "…", "cover_16x9.jpg": "…", "cover_9x16.jpg": "…" }
+}
+```
+
+## 中文标点
+
+所有中文译文都过一遍 `platform_rules.normalize_cjk_punctuation`：
+
+- 弯引号 / 半角引号 → 直角引号
+- 中文语境下的半角标点 → 全角
+- **外层 `『』` → `「」`**，嵌套在 `「」` 里的 `『』` 保持不变
+
+分层规范是**外层 `「」`，内层 `『』`**。DeepSeek-V3 的译文经常在最外层直接写
+`他只说『不行』`，这一道会把它纠正成 `他只说「不行」`。
+覆盖用例见 `tests/test_punct_double_quotes.py`。
