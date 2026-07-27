@@ -32,10 +32,11 @@ import re
 import subprocess
 import sys
 import tempfile
-import urllib.request
 
 import numpy as np
 from PIL import Image
+
+import sf_transport
 
 API_BASE = (os.environ.get("SILICONFLOW_BASE_URL") or "").strip() or "https://api.siliconflow.cn/v1"
 DEFAULT_VISION = os.environ.get("SILICONFLOW_VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"
@@ -222,24 +223,18 @@ def ask_vision(api_key: str, model: str, crops: list[str]) -> dict:
     }).encode()
 
     try:
-        import requests
-        r = requests.post(f"{API_BASE}/chat/completions",
-                          headers={"Authorization": f"Bearer {api_key}",
-                                   "Content-Type": "application/json"},
-                          data=payload, timeout=120)
-        if r.status_code != 200:
-            # 400 最常见的原因是图片尺寸不达下限，写清楚便于定位
-            print(f"[probe] ⚠️ 视觉接口 HTTP {r.status_code}：{r.text[:200]}",
-                  file=sys.stderr)
-            return {}
-        data = r.json()
-    except ImportError:
-        req = urllib.request.Request(
-            f"{API_BASE}/chat/completions", data=payload,
-            headers={"Authorization": f"Bearer {api_key}",
-                     "Content-Type": "application/json"}, method="POST")
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            data = json.loads(resp.read().decode())
+        r = sf_transport.post(f"{API_BASE}/chat/completions",
+                              headers={"Authorization": f"Bearer {api_key}"},
+                              data=payload, timeout=120)
+    except sf_transport.TransportError as e:
+        print(f"[probe] ⚠️ 视觉接口不可达：{e}", file=sys.stderr)
+        return {}
+    if r.status_code != 200:
+        # 400 最常见的原因是图片尺寸不达下限，写清楚便于定位
+        print(f"[probe] ⚠️ 视觉接口 HTTP {r.status_code}：{r.text[:200]}",
+              file=sys.stderr)
+        return {}
+    data = r.json()
 
     txt = (data.get("choices") or [{}])[0].get("message", {}).get("content", "") or ""
     used = (data.get("usage") or {}).get("total_tokens", "?")
@@ -267,9 +262,25 @@ def decide(band: dict, vis: dict) -> dict:
     目标平台是 B 站/抖音，中文观众为主，所以"中文可读"是硬要求，
     英文只是锦上添花。
     """
-    if not band.get("found") or not vis.get("is_subtitle"):
+    if not band.get("found"):
         return {"action": "burn_bilingual",
                 "reason": "未检测到原生硬字幕，按常规烧中英双语",
+                "avoid_top_ratio": None}
+
+    if not vis:
+        # 视觉模型没给出结果（--no-vision、无凭证、或接口报错）。
+        # 此时把条带位置一并丢掉是错的：实测 munger_real / zh_buffett
+        # 两条素材都有真硬字幕，本地分析也准确定位到了，却因为拿不到语种
+        # 判断而按「无硬字幕」处理，新字幕直接压在原字幕上糊成一片。
+        # 语种不知道就保守烧双语，但位置必须避让。
+        return {"action": "burn_bilingual",
+                "reason": "本地分析发现疑似字幕条带，但视觉模型不可用、语种未知，"
+                          "保守烧中英双语并避让该区域",
+                "avoid_top_ratio": band.get("top_ratio")}
+
+    if not vis.get("is_subtitle"):
+        return {"action": "burn_bilingual",
+                "reason": "条带经视觉模型判定不是字幕，按常规烧中英双语",
                 "avoid_top_ratio": None}
 
     langs = [str(x) for x in (vis.get("languages") or [])]
