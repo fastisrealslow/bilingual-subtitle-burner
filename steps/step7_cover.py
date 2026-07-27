@@ -829,14 +829,24 @@ def choose_cover_strategy(src_size: tuple, target_size: tuple) -> str:
 
 
 def _face_focus_x(frame_path: str, src_size: tuple) -> float | None:
-    """人脸中心的横坐标（源图坐标系）；检不到脸或尺寸对不上时返回 None。
+    """人脸中心的横坐标（源图坐标系）；没有可采信的人脸时返回 None。
 
     复用候选帧预筛那套 haar 级联检测，不额外引入依赖。
+
+    只有脸大到过 ``MIN_FACE_AREA_RATIO``（即预筛用的「脸占比 ≥5%」）才采信：
+    haar 级联在背景上误检小方块是常事。实测 partner.mp4 第 1200s 那帧
+    （crop=854:340:0:70，芒格在偏右、左边一尊青铜半身像）检出的最大框是
+    43x43、占画面仅 0.64%，那是铜像上的斑块；照它对齐会把裁切窗口拽到最左，
+    芒格被推到成品 86% 的位置、脑袋侧边切掉，而居中窗口能让他落在 65%。
+    讲话人的脸本来就该是大的（该帧真脸约 220px 宽、占比 14%），
+    这个门槛既有现成的语义又不用再发明一个数。
     """
     box = largest_face_box(frame_path)
     if box is None:
         return None
-    _, (fx, fy, fw, fh), (dw, dh) = box
+    ratio, (fx, fy, fw, fh), (dw, dh) = box
+    if ratio < MIN_FACE_AREA_RATIO:
+        return None
     if dw <= 0 or dh <= 0:
         return None
     # 检测走的是磁盘上的原图，若调用方已对图像做过变换则按比例换算回来

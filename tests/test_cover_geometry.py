@@ -112,8 +112,12 @@ def test_fit_branch_keeps_the_whole_circle(circle_frame):
 
 # ── 裁切窗口对准人脸 ─────────────────────────────────────────────────────────
 
-def _face(x, w=120):
-    return (0.05, (x, 40, w, w), SRC_SIZE)
+def _face(x, w=220):
+    """打桩一个 largest_face_box 结果；占比按真实定义算，好让门槛真的生效。
+
+    默认 220px 见方 ≈ 14%，是实测帧里芒格真脸的量级。
+    """
+    return (w * w / float(SRC_SIZE[0] * SRC_SIZE[1]), (x, 40, w, w), SRC_SIZE)
 
 
 def test_crop_follows_face_to_the_left(monkeypatch, circle_frame):
@@ -141,6 +145,27 @@ def test_crop_window_stays_inside_the_image(monkeypatch, circle_frame, face_x):
         SRC_SIZE, LANDSCAPE, C._face_focus_x(circle_frame, SRC_SIZE))
     assert 0 <= left < right <= SRC_SIZE[0]
     assert 0 <= top < bottom <= SRC_SIZE[1]
+
+
+def test_tiny_false_positive_is_ignored(monkeypatch, circle_frame):
+    """haar 在背景上误检的小方块不许劫持构图。
+
+    数据来自实测帧 partner.mp4 第 1200s（crop=854:340:0:70）：检出的最大框是
+    43x43、占比 0.64%，那是左边青铜半身像上的斑块，不是芒格的脸。照它对齐
+    会把窗口拽到最左，芒格被推到成品 86% 的位置且脑袋侧边被切掉。
+    """
+    monkeypatch.setattr(C, "largest_face_box",
+                        lambda p: (0.00637, (204, 195, 43, 43), SRC_SIZE))
+    assert C._face_focus_x(circle_frame, SRC_SIZE) is None
+    box = C.cover_crop_box(SRC_SIZE, LANDSCAPE,
+                           C._face_focus_x(circle_frame, SRC_SIZE))
+    assert box == C.cover_crop_box(SRC_SIZE, LANDSCAPE) == (125, 0, 729, 340)
+
+
+def test_face_above_threshold_is_still_honored(monkeypatch, circle_frame):
+    """加了门槛也不能把对准人脸这个功能整个废掉。"""
+    monkeypatch.setattr(C, "largest_face_box", lambda p: _face(700))
+    assert C._face_focus_x(circle_frame, SRC_SIZE) == pytest.approx(810.0)
 
 
 def test_no_face_falls_back_to_center(monkeypatch, circle_frame):
