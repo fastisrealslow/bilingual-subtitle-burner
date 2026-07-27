@@ -670,7 +670,7 @@ def test_plan_cue_placements_records_every_cue(tmp_path, monkeypatch):
 def test_plan_cue_placements_falls_back_per_cue(tmp_path, monkeypatch, capsys):
     """探不到的那条单独回落到 96，探到的那条照常按检测值走。"""
     results = iter([(None, "no_text_rows：31 个亮行没有一行像文字"
-                           "（文字感最高 0.17，阈值 0.35）"), (330, "")])
+                           "（文字感最高 0.17，阈值 0.25）"), (330, "")])
     monkeypatch.setattr(produce.HP, "probe_cue_band",
                         lambda *a, **k: next(results))
     got = produce.plan_cue_placements(
@@ -883,23 +883,28 @@ QUOTE_TOP, QUOTE_BOTTOM = 330, 400          # 后 6s：大字号引言板，两�
 
 
 def _make_two_height_source(path: Path) -> None:
-    """两条带都画成 2px 亮 / 6px 暗的竖条纹，而不是实心白块。
+    """两条带都画成竖条纹，而不是实心白块。
 
-    实心白块过不了探测器的文字感闸门 —— 那正是闸门存在的意义：源片里
-    y=240 那片 120px 厚的 B-roll 亮画面就是被当成字幕带才闯出 CI run
-    30269220766 的。条纹的行统计与实测真字幕对得上（亮占比 14%/19%，
-    文字感 1.00，实测源片 219.7s 那条带是 10% / 1.15），而条带的上下沿仍
-    钉在常量上，下面按像素比对的断言照旧成立。
+    实心白块过不了探测器的文字感闸门 —— 那正是闸门存在的意义：白纸上的
+    印刷面、过曝的墙面都是实心亮面，源片 y=240 那片 120px 厚的 B-roll 亮
+    画面就是被当成字幕带才闯出 CI run 30269220766 的。
+
+    两条带的条纹疏密各按自己那一档的实测值调（文字感恒为 亮条宽的倒数×2）：
+      - 对白带 2/8   → 1.00，实测源片 t=221 的小字号对白带是 0.96
+      - 引言板 6/24  → 0.33，实测源片 t=290 的大字号引言板是 0.31
+    条带的上下沿仍钉在常量上，下面按像素比对的断言照旧成立。
     """
+    def region(top, bottom, x0, x1, period, on):
+        return (f"between(Y\\,{top}\\,{bottom - 1})*between(X\\,{x0}\\,{x1})"
+                f"*lt(mod(X\\,{period})\\,{on})")
+
     band = (f"if(lt(T\\,6)\\,"
-            f" between(Y\\,{DIALOG_TOP}\\,{DIALOG_BOTTOM - 1})"
-            f"*between(X\\,180\\,673)\\,"
-            f" between(Y\\,{QUOTE_TOP}\\,{QUOTE_BOTTOM - 1})"
-            f"*between(X\\,100\\,753))")
+            f" {region(DIALOG_TOP, DIALOG_BOTTOM, 180, 673, 8, 2)}\\,"
+            f" {region(QUOTE_TOP, QUOTE_BOTTOM, 100, 753, 24, 6)})")
     subprocess.run(
         ["ffmpeg", "-y", "-f", "lavfi", "-i",
          f"color=c=black:s=854x480:d=12,"
-         f"geq=lum='16+239*{band}*lt(mod(X\\,8)\\,2)':cb=128:cr=128",
+         f"geq=lum='16+239*{band}':cb=128:cr=128",
          "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-shortest",
          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "10",
          "-c:a", "aac", str(path)],

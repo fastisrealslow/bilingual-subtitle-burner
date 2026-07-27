@@ -1,11 +1,12 @@
 """scripts/hardsub_probe.py：逐条 cue 定位源片硬字幕带的上沿。
 
 合成帧覆盖判据的边界（干净背景 / 整行白 / 上半部分的台标 / 多行文字块 /
-B-roll 亮画面 / 过厚的带），外加一条真跑 ffmpeg 的抽帧路径。
+B-roll 亮画面 / 白纸印刷面 / 彩色实景 / 过厚的带），外加一条真跑 ffmpeg 的
+抽帧路径。
 
-合成的「文字」一律画成细条纹而不是实心块：实心块在行统计上和 B-roll 的亮
-画面一模一样，正是 CI run 30269220766 里被当成字幕带的那种东西。条纹的行
-统计与实测源片对得上（见 ``hardsub_probe.MIN_TEXTNESS`` 的注释）。
+合成的「文字」一律画成条纹而不是实心块，条纹的疏密按实测源片调：实心块在
+行统计上和 B-roll 的亮画面一模一样，正是 CI run 30269220766 里被当成字幕带
+的那种东西。各处引用的实测数值见 ``hardsub_probe`` 里两组阈值的注释。
 """
 
 import shutil
@@ -23,26 +24,39 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import hardsub_probe as HP                       # noqa: E402
 
 HAS_FFMPEG = shutil.which("ffmpeg") is not None
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 W, H = 854, 480
 
 
 def frame(path: Path, boxes, bg: int = 24, solid=(), period: int = 8,
-          on: int = 2) -> str:
+          on: int = 2, colored=()) -> str:
     """造一张灰底帧。
 
-    ``boxes`` 是 (y0, y1, x0, x1) 的**文字块**：填成 ``on`` 亮 / ``period-on``
-    暗的竖条纹，文字感≈1.0，和实测真字幕的 0.8~1.2 同一档。
-    ``solid`` 同样的四元组，但填实心亮块 —— 用来模拟 B-roll 亮画面。
+    ``boxes`` 是 (y0, y1, x0, x1) 或 (y0, y1, x0, x1, period, on) 的**文字块**：
+    填成 ``on`` 亮 / ``period-on`` 暗的竖条纹。条纹的文字感恒为 ``2 / on``，
+    所以 on=2 得 1.0（对上实测小字号对白带的 0.96），on=6 得 0.33（对上实测
+    大字号引言板的 0.31），on=13 得 0.15（对上实测白纸印刷面的 0.14）。
+    ``solid`` 同样的四元组，填实心亮块 —— 用来模拟 B-roll 亮画面。
+    ``colored`` 填条纹，但每 4 根亮条里有 1 根是强偏色的：白像素占比 75%、
+    平均彩度 25，对上实测的彩色实景（钞票 88%/13.3、栏杆 91%/22.3）。
     """
-    a = np.full((H, W), bg, np.uint8)
+    a = np.full((H, W, 3), bg, np.uint8)
     for y0, y1, x0, x1 in solid:
         a[y0:y1, x0:x1] = 255
-    for y0, y1, x0, x1 in boxes:
+    for box in boxes:
+        y0, y1, x0, x1 = box[:4]
+        p, k = box[4:] if len(box) > 4 else (period, on)
+        for x in range(x0, x1):
+            if (x - x0) % p < k:
+                a[y0:y1, x] = 255
+    for y0, y1, x0, x1 in colored:
+        lit = 0
         for x in range(x0, x1):
             if (x - x0) % period < on:
-                a[y0:y1, x] = 255
+                # (255, 255, 155) 的亮度 244 仍在 BRIGHT_LUMA 之上，彩度 100
+                a[y0:y1, x] = (255, 255, 155) if lit % 4 == 0 else 255
+                lit += 1
     Image.fromarray(a).save(path)
     return str(path)
 
@@ -80,6 +94,54 @@ def test_textness_holds_up_when_there_is_barely_any_text():
 
 def test_all_dark_rows_have_no_textness():
     assert HP.row_textness(np.zeros((3, W), bool)).tolist() == [0.0, 0.0, 0.0]
+
+
+def test_band_textness_is_weighted_by_bright_pixels_not_by_row(tmp_path):
+    """整带的文字感必须按亮像素加权，不能逐行取均值。
+
+    实测 t=560 那张「手按计算器 + 摊开的财务报表」：报表纸是实心亮面，可它
+    的字距边缘凑得出零星几行高分行，逐行取均值是 0.80，按亮像素加权才如实
+    反映主体（0.16）。这里造同样的形状 —— 一大片实心亮面加两行细纹边缘。
+    """
+    a = np.zeros((24, W), bool)
+    a[6:18, 100:700] = True              # 实心纸面：跳变 2 / 行
+    for y in (0, 1, 2, 21, 22, 23):      # 字距边缘：跳变很多，亮像素很少
+        a[y, 100:700:6] = True
+
+    rows = HP.row_textness(a)
+    by_row = rows[a.any(axis=1)].mean()
+    assert by_row > HP.MIN_TEXTNESS, "逐行均值被两行细纹拽过了线，正是要避开的"
+    assert HP.band_textness(a) < HP.MIN_TEXTNESS
+
+
+def test_whiteness_separates_hardsub_white_from_colourful_scenery():
+    """真字幕的亮像素近乎无彩，实景的亮像素带着明显彩度。
+
+    占比和均值这两个条件缺一不可，各有一类只有它拦得住的实景：
+      - t=350 办公室亮块：每个像素的彩度都压在「算白」的门槛之下，白像素
+        占比 99% 照样过线，是平均彩度 9.5 把它拦下来的。
+      - t=80 亮块：绝大多数像素确实是白的，平均彩度只有 3.5，是白像素占比
+        98%（差 1 个百分点）把它拦下来的。
+    """
+    white = np.tile(np.array([255, 255, 255], np.int16), (1, 50, 1))
+    scene = np.tile(np.array([255, 180, 90], np.int16), (1, 50, 1))
+    office = np.tile(np.array([255, 245, 235], np.int16), (1, 50, 1))
+    speckled = white.copy()
+    speckled[0, 0] = (255, 55, 55)       # 50 个里混进 1 个强偏色的
+    lit = np.ones((1, 50), bool)
+
+    for region, expect_pass in ((white, True), (scene, False),
+                                (office, False), (speckled, False)):
+        chroma = region.max(axis=2) - region.min(axis=2)
+        ratio, mean = HP.band_whiteness(chroma, lit)
+        passed = (ratio >= HP.MIN_WHITE_PIXEL_RATIO
+                  and mean < HP.MAX_MEAN_CHROMA)
+        assert passed is expect_pass, f"白度判成了 {ratio:.0%} / {mean:.1f}"
+
+
+def test_whiteness_of_a_region_without_bright_pixels_is_zero():
+    assert HP.band_whiteness(np.zeros((2, 2), np.int16),
+                             np.zeros((2, 2), bool)) == (0.0, 0.0)
 
 
 # ── 单帧定位 ──────────────────────────────────────────────────────────────────
@@ -160,6 +222,70 @@ def test_a_wide_gap_does_not_glue_two_unrelated_regions_together(tmp_path):
     """空隙 40 行时不许并成一条 —— 并了顶边就会被拽到上面那块去。"""
     f = frame(tmp_path / "k.png", [(300, 330, 60, 700), (370, 400, 180, 674)])
     assert HP.scan_band(f).top_y == 370
+
+
+def test_a_large_font_quote_board_is_still_detected(tmp_path):
+    """防阈值回调的锁：大字号引言板的文字感只有 0.33，必须仍被检出。
+
+    实测 t=290 的爱因斯坦 B-roll 上压着两行大字号硬字幕，第二行
+    y=342~363（21 行）整带文字感 0.31、白像素占比 100%、平均彩度 2.0。
+    大字号笔画粗，单位亮像素摊到的跳变本来就比小字号少 —— 只拿小字号对白带
+    （0.96）标定再把阈值提到 0.35，这一整块板就会被漏掉，中文正好压上去。
+    """
+    f = frame(tmp_path / "big.png", [(342, 363, 120, 730, 24, 6)])
+    scan = HP.scan_band(f)
+
+    assert scan.top_y == 342, f"大字号引言板被判成了 {scan.reject}：{scan.detail}"
+    # 夹具确实落在实测那一档，不是靠画得比真板子更「像文字」蒙混过关
+    bw = np.asarray(Image.open(f).convert("L"))[342:363] >= HP.BRIGHT_LUMA
+    assert 0.28 <= HP.band_textness(bw) <= 0.38
+
+
+def test_printed_text_on_white_paper_is_rejected(tmp_path):
+    """白度过得了、文字感过不了：实测 t=560 摊开的财务报表。
+
+    报表纸上的印刷数字白像素占比 100%、平均彩度 2.8~6.4，白度闸门拦不住，
+    但纸面是实心亮面，整带文字感只有 0.06~0.16。
+
+    这里照实测的形状造：几条实心纸面，中间夹着字距留出的细纹。细纹那几行
+    逐行看确实像文字，能被选进候选带 —— 整带按亮像素加权才 0.16。
+    """
+    f = frame(tmp_path / "paper.png",
+              [(308, 312, 120, 700), (320, 324, 120, 700),
+               (332, 336, 120, 700)],
+              solid=[(300, 308, 120, 700), (312, 320, 120, 700),
+                     (324, 332, 120, 700)])
+    scan = HP.scan_band(f)
+
+    assert scan.top_y is None
+    assert scan.reject == "band_not_texty"
+    assert "整带文字感" in scan.detail
+
+
+def test_colourful_scenery_is_rejected_even_when_it_looks_texty(tmp_path):
+    """文字感过得了、白度过不了：实测的钞票 / 城市夜景 / 栏杆。
+
+    这些实景的亮像素带着明显彩度（白像素占比 88%~91%、平均彩度 13~22），
+    而硬字幕的白字近乎无彩。条纹画得和真字幕一样细，只有颜色不同。
+    """
+    f = frame(tmp_path / "scene.png", [], colored=[(300, 340, 120, 700)])
+    scan = HP.scan_band(f)
+
+    assert scan.top_y is None
+    assert scan.reject == "band_not_white"
+    assert "平均彩度" in scan.detail
+
+
+def test_the_two_gates_are_orthogonal(tmp_path):
+    """两道闸各挡一类假阳性，谁也替不了谁 —— 所以必须同时成立。"""
+    paper = HP.scan_band(frame(
+        tmp_path / "p2.png",
+        [(308, 312, 120, 700), (320, 324, 120, 700), (332, 336, 120, 700)],
+        solid=[(300, 308, 120, 700), (312, 320, 120, 700),
+               (324, 332, 120, 700)]))
+    scene = HP.scan_band(frame(tmp_path / "s2.png", [],
+                               colored=[(300, 340, 120, 700)]))
+    assert (paper.reject, scene.reject) == ("band_not_texty", "band_not_white")
 
 
 def test_a_band_topping_out_above_the_midline_is_rejected(tmp_path):
@@ -254,24 +380,32 @@ def test_extract_cue_frames_honours_the_frame_budget(tmp_path):
 # ── 真跑 ffmpeg：两种高度的硬字幕带 ───────────────────────────────────────────
 
 def make_two_height_source(path: Path) -> None:
-    """前 6s 小字号一行在 y=412，后 6s 大字号两行在 y=330 / y=372。
+    """前 6s 小字号一行在 y=412，后 6s 大字号两行在 y=330 / y=362。
 
-    用常规字重的混排文本而不是加粗全大写：加粗大字号的笔画粗到跟实心块
-    差不多（实测文字感只有 0.10~0.40），那不是真实硬字幕的样子 —— 实测
-    源片的字幕行是 0.8~1.2，常规字重描黑边的渲染结果正落在这一档。
+    照 PR #6 的原样用 DejaVuSans-Bold 的全大写文本 —— 源片 t=290 那块引言板
+    确实是加粗全大写。只有两处按实测改：
+
+      - 字号 44 → 30。实测那两行字形各占 19 / 21 行（y=314~333、y=342~363），
+        44 号在 480 高的画面上要占 46 行，是真板子的两倍多。粗一倍的笔画把
+        整带文字感从实测的 0.31 压到 0.18，比白纸印刷面（≤0.16）还低，那不
+        是「大字号硬字幕」而是「实心亮面」。30 号量出来是 0.28，对得上。
+      - 补 borderw=2 的黑边。硬字幕都是描边的，源片也是。
+
+    两行之间隔 32px（实测是 9 行），仍在合并容忍度之内，整块 y=330~384 也在
+    厚度上限之下。
     """
     subprocess.run(
         ["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i",
          f"color=c=0x181818:s={W}x{H}:d=12,"
-         f"drawtext=fontfile={FONT}:text='Patience is not a virtue, it is a "
-         f"discipline':fontsize=24:fontcolor=white:borderw=2:bordercolor=black:"
+         f"drawtext=fontfile={FONT}:text='PATIENCE IS NOT A VIRTUE':"
+         f"fontsize=24:fontcolor=white:borderw=2:bordercolor=black:"
          f"x=(w-text_w)/2:y=412:enable='lt(t\\,6)',"
-         f"drawtext=fontfile={FONT}:text='Everything should be made as "
-         f"simple':fontsize=30:fontcolor=white:borderw=2:bordercolor=black:"
-         f"x=(w-text_w)/2:y=330:enable='gte(t\\,6)',"
-         f"drawtext=fontfile={FONT}:text='as possible, but not simpler':"
+         f"drawtext=fontfile={FONT}:text='EVERYTHING SHOULD BE MADE AS SIMPLE':"
          f"fontsize=30:fontcolor=white:borderw=2:bordercolor=black:"
-         f"x=(w-text_w)/2:y=372:enable='gte(t\\,6)'",
+         f"x=(w-text_w)/2:y=330:enable='gte(t\\,6)',"
+         f"drawtext=fontfile={FONT}:text='AS POSSIBLE':"
+         f"fontsize=30:fontcolor=white:borderw=2:bordercolor=black:"
+         f"x=(w-text_w)/2:y=362:enable='gte(t\\,6)'",
          "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-shortest",
          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "8",
          "-c:a", "aac", str(path)],
