@@ -34,7 +34,7 @@ def test_dispatch_builds_single_job():
     })
     assert jobs == [{"source": "https://example.com/v", "slug": "munger",
                      "title_override": "", "translator": "deepseek-v3",
-                     "dual": "false"}]
+                     "dual": "false", "cover_time_sec": ""}]
 
 
 def test_dispatch_dual_bool_becomes_string():
@@ -105,3 +105,39 @@ def test_matrix_is_json_serializable_for_fromjson(tmp_path):
     write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
     jobs = plan_matrix.build({"EVENT": "push"}, tmp_path)
     assert json.loads(json.dumps(jobs, ensure_ascii=False)) == jobs
+
+
+# ── 手动封面时间点 ──────────────────────────────────────────────────────────
+
+def test_cover_time_sec_defaults_to_empty(tmp_path):
+    write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["cover_time_sec"] == ""
+
+
+def test_cover_time_sec_passes_through_from_sources(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "cover_time_sec": 96.0})
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["cover_time_sec"] == "96.0"
+
+
+def test_cover_time_sec_passes_through_from_dispatch():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_COVER_TIME_SEC": "96",
+    })
+    assert jobs[0]["cover_time_sec"] == "96"
+
+
+def test_non_numeric_cover_time_sec_raises(tmp_path):
+    # 写错了要在 plan 阶段就拦下，不能等 runner 跑到最后一步才炸
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "cover_time_sec": "第96秒"})
+    with pytest.raises(ValueError, match="cover_time_sec"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+def test_negative_cover_time_sec_raises(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "cover_time_sec": -5})
+    with pytest.raises(ValueError, match="cover_time_sec"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)

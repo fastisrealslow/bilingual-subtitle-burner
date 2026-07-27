@@ -32,6 +32,18 @@ def normalize(raw: dict, origin: str) -> dict:
     if isinstance(dual, str):
         dual = dual.strip().lower() == "true"
 
+    # 手动封面时间点。matrix 里走字符串（空串 = 不指定），但「写了个非数字」
+    # 要在 plan 阶段就验出来，否则得等 40 分钟的 runner 跑到最后一步才炸。
+    cover_time = str(raw.get("cover_time_sec") or "").strip()
+    if cover_time:
+        try:
+            valid = float(cover_time) >= 0
+        except ValueError:
+            valid = False
+        if not valid:
+            raise ValueError(
+                f"{origin}: cover_time_sec={cover_time!r} 无效，应为非负秒数")
+
     return {
         "source": source,
         "slug": slug,
@@ -39,6 +51,7 @@ def normalize(raw: dict, origin: str) -> dict:
         "translator": translator,
         # matrix 里统一成字符串，YAML 侧只做 "$DUAL" = "true" 的比较
         "dual": "true" if dual else "false",
+        "cover_time_sec": cover_time,
     }
 
 
@@ -49,6 +62,7 @@ def from_dispatch(env: dict) -> list:
         "title_override": env.get("IN_TITLE"),
         "translator": env.get("IN_TRANSLATOR") or DEFAULT_TRANSLATOR,
         "dual": env.get("IN_DUAL"),
+        "cover_time_sec": env.get("IN_COVER_TIME_SEC"),
     }, "workflow_dispatch")]
 
 
