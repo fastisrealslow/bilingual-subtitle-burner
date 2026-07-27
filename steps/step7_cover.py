@@ -271,6 +271,45 @@ def sample_frame_times(clip_start_sec: float, clip_end_sec: float,
     return [lo + step * (i + 0.5) for i in range(count)]
 
 
+def frame_passes_vlm(person: str, cover_score) -> bool:
+    """VLM 判定一帧能否做封面：必须是主讲人本人，且封面分不低于阈值。
+
+    自动选帧和手动钉帧（``--cover-time-sec``）共用这一条判定，
+    免得两条路径各写一套、门槛悄悄跑偏。
+    """
+    try:
+        score = float(cover_score)
+    except (TypeError, ValueError):
+        return False
+    return person == "主讲人" and score >= MIN_VLM_PASS_SCORE
+
+
+def verify_frame_person(api_key: str, model: str, frame_path: str, speaker: str,
+                        speaker_desc: str = "") -> dict | None:
+    """把单独一帧送 VLM 做人物识别 + 封面分判定。
+
+    给手动钉帧用：钉帧只该覆盖「选哪一帧」，不该顺带把人物校验也跳过 ——
+    钉错时间点会静默产出「别人的脸 + 本人角标」的封面（CI run 30281699063
+    就是这样把爱因斯坦的资料照当成芒格发了出去）。
+
+    返回 ``{"person", "cover_score", "reason", "passed"}``；
+    VLM 没有返回可用结果时返回 ``None``，由调用方按外部依赖失败处理
+    —— 校验不了绝不等于校验通过。
+    """
+    results = call_vision_llm(api_key, model, [frame_path], speaker, speaker_desc)
+    if not results:
+        return None
+    r = results[0]
+    person = r.get("person", "")
+    score = r.get("cover_score", 0)
+    return {
+        "person": person,
+        "cover_score": score,
+        "reason": r.get("reason", ""),
+        "passed": frame_passes_vlm(person, score),
+    }
+
+
 def reject_cover(reason: str, **fields) -> None:
     """打印结构化拒绝原因到 stderr 并以 EXIT_QUALITY 退出。"""
     payload = {"stage": "cover", "reason": reason, **fields}
@@ -608,7 +647,7 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
                 t = batch_times[frame_idx]
                 print(f"[cover]   帧 t={t:.1f}s: {person}, 封面分={score}, {reason}", flush=True)
 
-                if person != "主讲人" or score < MIN_VLM_PASS_SCORE:
+                if not frame_passes_vlm(person, score):
                     rejections.append({"time_sec": round(t, 1), "person": person,
                                        "cover_score": score, "reason": reason})
                     continue

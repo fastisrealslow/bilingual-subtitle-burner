@@ -53,6 +53,8 @@ python produce.py --source ./raw/munger.mp4 --slug munger-dual --dual
 | `--translator` | `deepseek-v3`（默认）或 `claude-sonnet-4.6` |
 | `--dual` | 两个翻译都跑，产出 `compare_grid.jpg` |
 | `--no-vlm` | 封面跳过 VLM 校验，只按几何规则选帧 |
+| `--cover-time-sec` | 手动钉死封面帧时间点（秒），跳过人脸预筛和候选采样。钉下的帧**仍要过 VLM 人物校验** |
+| `--cover-allow-unverified` | 放行未经 VLM 人物核验的钉帧封面（默认关闭），打开后日志会打醒目告警 |
 | `--strict-highlights` | 金句门槛忽略环境变量放宽，只认代码里的下限 |
 | `--out` | 产物根目录，默认 `deliver/` |
 | `--llm-cache-dir` / `--no-llm-cache` | LLM/VLM 响应缓存目录（默认仓库根 `.llm_cache/`）/ 关掉缓存全部实发 |
@@ -163,6 +165,36 @@ yt-dlp 自带的 20s。实测同一个 archive.org 源连拉三次，首字节�
 | `SILICONFLOW_API_KEY` | 全部 LLM / VLM 调用（金句打分、翻译、标题、封面校验） |
 
 `ANTHROPIC_API_KEY` **不要**配进 CI —— Claude 翻译路径保留着，但只在本地手动跑时用。
+
+### 术语表（投资领域专有名词）
+
+通用模型对投资圈的人名靠猜：实测 DeepSeek-V3 把
+`NOW, THE OTHER HALF OF THAT QUESTION I LEAVE FOR MR. BUFFETT` 译成了
+「这问题的另一半我留给**巴特勒**先生回答」—— Buffett 被音译成了「巴特勒」。
+
+仓库根的 [`glossary.json`](glossary.json) 是对照表，翻译时整表注入系统提示词，
+中→英、英→中两个方向都注入。
+
+**加词**：往 `terms` 下任意一个分组里加一条 `"英文": "中文"` 即可 ——
+
+```json
+{
+  "terms": {
+    "people": {
+      "Buffett": "巴菲特",
+      "Klarman": "克拉曼"
+    }
+  }
+}
+```
+
+分组名（`people` / `firms` / `concepts`）只为好读，注入时会拍平成一张表，
+想加新分组直接加就行。渲染时长词排在前面，`Warren Buffett` 不会被 `Buffett`
+截胡。
+
+改表**会自动改变翻译提示词，进而改变 LLM 缓存键**，不会命中改词之前的旧译文
+（`tests/test_translate_glossary.py` 锁死了这一点）。表读不到时只打告警、
+按无术语表翻译，不会把整条流水线停掉。
 
 ### 成本估算
 

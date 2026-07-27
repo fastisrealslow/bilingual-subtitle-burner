@@ -28,7 +28,7 @@
 
 选帧和阈值判定不依赖译文，所以整块提到 `translate` 之前；只有「把标题烧到帧上」
 真的依赖 `title`，那一步留在原位拆成 `cover-render`。`--cover-time-sec` 手动钉帧
-那条路径同样提前 —— 时间点截不出帧也该早点知道。**阈值和拒绝条件一个都没动，
+那条路径同样提前 —— 时间点截不出帧、或钉下的帧过不了人物校验，都该早点知道。**阈值和拒绝条件一个都没动，
 只改了顺序。**
 
 ## 健壮性：缓存与重试
@@ -131,6 +131,23 @@ HIGHLIGHT_MIN_TOTAL_SEC=120 HIGHLIGHT_MIN_QUOTES=2 HIGHLIGHT_MIN_QUOTE_SEC=10 py
 | --- | --- |
 | `no_frame_passed_vlm` | Qwen3-VL 判定不合格的候选帧超过 5 个，且没有任何合格帧 |
 | `no_frame_meets_geometry` | `--no-vlm` 路径下没有一帧满足几何规则 |
+| `pinned_frame_rejected` | `--cover-time-sec` 钉下的帧未通过 VLM 人物校验（不是 `--speaker` 本人，或封面分低于 6） |
+
+### 钉帧只覆盖选帧，不覆盖闸门
+
+`--cover-time-sec` 早先连人物校验一起跳过，于是钉错时间点会**静默出片**：
+CI run 30281699063（`munger_chain`，`--cover-time-sec 287`）产出的封面是
+爱因斯坦的一张黑板资料照，却压着「查理·芒格」的角标，还发了 Release。
+
+现在钉下的帧照样送 `call_vision_llm`，和自动选帧共用同一条判定
+（`frame_passes_vlm`：必须是主讲人本人且封面分 ≥ `MIN_VLM_PASS_SCORE`）。
+判定不过退 2 并给出 `pinned_frame_rejected`，带上被钉的时间点、VLM 的人物
+判定与理由；VLM 给不出判定时退 3（`pinned_frame_verification_unavailable`）
+—— 校验不了不等于校验通过。
+
+确实要用未经核验的帧，必须显式加 `--cover-allow-unverified`（默认关闭），
+此时 stdout/stderr 都会打出「封面帧未经 VLM 人物核验」的告警，
+`meta.json` 里记 `cover_verification: "skipped"`。
 
 几何规则三条（`--no-vlm` 时是唯一标准，走 VLM 时是送审前的预筛）：
 

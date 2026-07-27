@@ -468,7 +468,8 @@ def _translate_claude(texts: list, model: str) -> list:
     numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(texts))
     prompt = ("把下列英文字幕逐条翻译成简体中文，保持条数和编号一致，"
               "每行一条，只输出「编号. 译文」，不要任何解释。\n"
-              "中文引号一律用直角引号，外层「」内层『』。\n\n" + numbered)
+              "中文引号一律用直角引号，外层「」内层『』。"
+              + TR.glossary_block("en2zh") + "\n\n" + numbered)
     try:
         resp = client.messages.create(
             model=model, max_tokens=8000,
@@ -625,11 +626,74 @@ def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
 
 # ── 6. 封面 ───────────────────────────────────────────────────────────────────
 
+UNVERIFIED_COVER_WARNING = (
+    "⚠️ 已开启 --cover-allow-unverified：封面帧未经 VLM 人物核验，"
+    "产出的封面可能不是 --speaker 指定的人物，请人工确认后再发布。"
+)
+
+
+def verify_pinned_frame(frame: str, cover_time_sec: float, speaker: str,
+                        api_key: str, no_vlm: bool, allow_unverified: bool,
+                        report: dict) -> None:
+    """把 ``--cover-time-sec`` 钉下的帧送 VLM 复核人物与封面分，不过就退 2。
+
+    走的是自动选帧同一套 ``call_vision_llm`` + ``frame_passes_vlm``，
+    阈值只有 ``MIN_VLM_PASS_SCORE`` 一处定义。
+    """
+    if allow_unverified or no_vlm:
+        why = "--cover-allow-unverified" if allow_unverified else "--no-vlm"
+        log("cover", UNVERIFIED_COVER_WARNING)
+        print(f"[cover] {UNVERIFIED_COVER_WARNING}（触发开关：{why}）",
+              file=sys.stderr, flush=True)
+        report["cover_verification"] = "skipped"
+        report["cover_unverified_reason"] = why
+        return
+
+    if not api_key:
+        die(EXIT_CONFIG, "cover", "missing_siliconflow_api_key",
+            detail="钉帧同样要过 VLM 人物校验，需要 SILICONFLOW_API_KEY；"
+                   "确实要跳过校验请显式加 --cover-allow-unverified")
+    try:
+        verdict = COVER.verify_frame_person(api_key, VISION_MODEL, frame, speaker)
+    except sf_client.FatalHTTPError as e:
+        die_fatal_http("cover", e)
+    except RuntimeError as e:
+        die(EXIT_API, "cover", "vision_call_failed", detail=str(e))
+
+    if verdict is None:
+        # 校验不了不等于校验通过：这是外部依赖故障，不能顺势出片。
+        die(EXIT_API, "cover", "pinned_frame_verification_unavailable",
+            detail="VLM 未返回可用的人物判定结果，无法核验钉下的封面帧",
+            cover_time_sec=round(cover_time_sec, 2))
+
+    report["cover_verification"] = "vlm"
+    report["cover_vlm_person"] = verdict["person"]
+    report["cover_vlm_score"] = verdict["cover_score"]
+    report["cover_vlm_reason"] = verdict["reason"]
+    if not verdict["passed"]:
+        die(EXIT_QUALITY, "cover", "pinned_frame_rejected",
+            detail=f"--cover-time-sec 钉下的帧未通过 VLM 人物校验："
+                   f"画面里是「{verdict['person']}」，"
+                   f"而 --speaker 是「{speaker}」",
+            cover_time_sec=round(cover_time_sec, 2),
+            speaker=speaker,
+            vlm_person=verdict["person"],
+            vlm_cover_score=verdict["cover_score"],
+            vlm_reason=verdict["reason"],
+            min_cover_score=COVER.MIN_VLM_PASS_SCORE,
+            hint="请换一个时间点；确认这帧就是要的画面时，"
+                 "可加 --cover-allow-unverified 显式放行（封面将不经人物核验）")
+    report["cover_vlm_passed"] = True
+    log("cover", f"钉帧 t={cover_time_sec:.1f}s 通过 VLM 校验："
+                 f"{verdict['person']}，封面分={verdict['cover_score']}")
+
+
 def select_cover_frame(video: Path, quotes: list, speaker: str, work: Path,
                        api_key: str, no_vlm: bool,
                        cover_time_sec: float | None = None,
                        candidates: int = COVER.DEFAULT_COVER_CANDIDATES,
-                       cover_crop: str | None = None) -> tuple[str, dict]:
+                       cover_crop: str | None = None,
+                       allow_unverified: bool = False) -> tuple[str, dict]:
     """选出封面帧并过阈值判定。挑不出合格帧时由 cover 侧退 2。
 
     这一步**故意排在翻译之前**：它是全流程里唯一一个会在末尾把整条片子否掉的
@@ -639,8 +703,14 @@ def select_cover_frame(video: Path, quotes: list, speaker: str, work: Path,
 
     有些片源天生挑不出合格封面 —— 解说式剪辑用的是原声 + 素材空镜，全片
     没有主讲人正脸，自动选帧只会挑到不相干的素材人物，冒充主讲人属于误导。
-    ``cover_time_sec`` 就是给这种源片的人工出口：钉死一个时间点，人脸预筛
-    和 VLM 校验全部跳过 —— 这条路径同样提前，截不出帧也要早点知道。
+    ``cover_time_sec`` 就是给这种源片的人工出口：钉死一个时间点，跳过人脸
+    预筛和候选采样 —— 这条路径同样提前，截不出帧也要早点知道。
+
+    钉帧只覆盖**选哪一帧**，不覆盖**质量闸门**：钉下的帧照样送 VLM 做人物
+    识别与封面分判定，判定不过就按内容质量拒绝退 2。早先钉帧连校验一起跳，
+    结果钉错时间点会静默出片 —— CI run 30281699063 把爱因斯坦的黑板资料照
+    配上「查理·芒格」的角标发了 Release。要跳过校验必须显式给
+    ``allow_unverified``。
 
     ``cover_crop`` 切掉源片底部烧死的英文硬字幕，选帧和出图共用同一个裁切。
     """
@@ -658,10 +728,12 @@ def select_cover_frame(video: Path, quotes: list, speaker: str, work: Path,
             die(EXIT_CONFIG, "cover", "manual_frame_extract_failed",
                 detail="--cover-time-sec 指定的时间点截不出帧，请确认它在片长范围内",
                 cover_time_sec=cover_time_sec)
-        log("cover", f"手动指定封面帧 t={cover_time_sec:.1f}s（跳过人脸预筛与 VLM 校验）")
+        log("cover", f"手动指定封面帧 t={cover_time_sec:.1f}s（跳过人脸预筛与候选采样）")
         report["cover_source"] = "manual"
         report["cover_time_sec"] = round(cover_time_sec, 2)
         report["cover_vlm_passed"] = False
+        verify_pinned_frame(frame, cover_time_sec, speaker, api_key, no_vlm,
+                            allow_unverified, report)
     elif no_vlm:
         report["cover_source"] = "auto"
         frame = COVER.pick_best_frame_geometric(
@@ -990,10 +1062,15 @@ def parse_args(argv=None):
                         f"（默认 {COVER.DEFAULT_COVER_CANDIDATES}）")
     p.add_argument("--cover-time-sec", type=cover_time_sec_arg, default=None,
                    metavar="SEC[,SEC...]",
-                   help="手动指定封面帧时间点（秒），跳过人脸预筛和 VLM 校验。"
+                   help="手动指定封面帧时间点（秒），跳过人脸预筛和候选采样。"
                         "用于全片没有主讲人正脸的解说式剪辑/空镜素材片。"
-                        "多集时给逗号分隔的多个值，一集一个，按集顺序对应，"
-                        "个数必须与实际产出集数相等")
+                        "钉下的帧仍会送 VLM 做人物校验，判定不是 --speaker "
+                        "本人就退 2。多集时给逗号分隔的多个值，一集一个，"
+                        "按集顺序对应，个数必须与实际产出集数相等")
+    p.add_argument("--cover-allow-unverified", action="store_true",
+                   help="放行未经 VLM 人物核验的钉帧封面（默认关闭）。"
+                        "只在确认过画面内容时用；打开后日志会打醒目告警，"
+                        "产出的封面有张冠李戴的风险")
     p.add_argument("--cover-crop", default=None, metavar="W:H:X:Y",
                    help="封面选帧时先裁切，格式同 ffmpeg 的 crop 滤镜（W:H:X:Y）。"
                         "用于裁掉源片底部烧死的英文硬字幕等干扰区域，"
@@ -1142,7 +1219,8 @@ def main(argv=None) -> int:
         cover_frame, cover_report = select_cover_frame(
             video, quotes, args.speaker, ep_work, api_key, args.no_vlm,
             cover_times[index - 1] if cover_times else None,
-            args.cover_candidates, args.cover_crop)
+            args.cover_candidates, args.cover_crop,
+            args.cover_allow_unverified)
 
         translators = ([args.translator] if not args.dual
                        else sorted(TRANSLATORS,

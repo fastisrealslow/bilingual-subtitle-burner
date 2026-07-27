@@ -213,23 +213,33 @@ def test_sha256_and_meta_structure(tmp_path):
 # 有些源片天生没有合格的人物封面帧：解说式剪辑是原声 + 素材空镜，全片没有
 # 主讲人正脸，自动选帧再怎么调也只会挑到不相干的素材人物。
 
-def test_cover_time_sec_skips_face_filter_and_vlm(tmp_path, monkeypatch):
+def pass_verdict(*a, **k):
+    return {"person": "主讲人", "cover_score": 8, "reason": "正面特写",
+            "passed": True}
+
+
+def stub_extract(monkeypatch, grabbed=None):
+    def fake_extract(video, t, out, crop=None):
+        if grabbed is not None:
+            grabbed["t"] = t
+        Path(out).write_bytes(b"jpeg")
+        return True
+
+    monkeypatch.setattr(produce.COVER, "extract_frame", fake_extract)
+
+
+def test_cover_time_sec_skips_face_filter_and_candidate_sampling(tmp_path,
+                                                                 monkeypatch):
     def boom(*a, **k):
         raise AssertionError("手动指定封面时不该再走自动选帧")
 
     monkeypatch.setattr(produce.COVER, "pick_best_frame_vision", boom)
     monkeypatch.setattr(produce.COVER, "pick_best_frame_geometric", boom)
     monkeypatch.setattr(produce.COVER, "filter_frames_by_face", boom)
-    monkeypatch.setattr(produce.COVER, "call_vision_llm", boom)
+    monkeypatch.setattr(produce.COVER, "verify_frame_person", pass_verdict)
 
     grabbed = {}
-
-    def fake_extract(video, t, out, crop=None):
-        grabbed["t"] = t
-        Path(out).write_bytes(b"jpeg")
-        return True
-
-    monkeypatch.setattr(produce.COVER, "extract_frame", fake_extract)
+    stub_extract(monkeypatch, grabbed)
 
     _, report = produce.select_cover_frame(
         Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
@@ -238,18 +248,166 @@ def test_cover_time_sec_skips_face_filter_and_vlm(tmp_path, monkeypatch):
     assert grabbed["t"] == 96.0
     assert report["cover_source"] == "manual"
     assert report["cover_time_sec"] == 96.0
-    assert report["cover_vlm_passed"] is False
 
 
-def test_cover_time_sec_works_without_api_key(tmp_path, monkeypatch):
-    # 手动路径不调 VLM，就不该再强制要求 SILICONFLOW_API_KEY
-    monkeypatch.setattr(produce.COVER, "extract_frame",
-                        lambda v, t, o, crop=None: (Path(o).write_bytes(b"jpeg"), True)[1])
+# ── 钉帧仍要过 VLM 人物校验 ─────────────────────────────────────────────────
+# CI run 30281699063：--cover-time-sec 287 钉在一张爱因斯坦的黑板资料照上，
+# 旧代码连人物校验一起跳过，于是「查理·芒格」的角标压在别人脸上发了 Release。
+# 钉帧只该覆盖选帧，不该覆盖质量闸门。
+
+def test_pinned_frame_still_goes_through_vlm(tmp_path, monkeypatch):
+    stub_extract(monkeypatch)
+    seen = {}
+
+    def fake_verify(api_key, model, frame, speaker, speaker_desc=""):
+        seen.update(api_key=api_key, frame=frame, speaker=speaker)
+        return pass_verdict()
+
+    monkeypatch.setattr(produce.COVER, "verify_frame_person", fake_verify)
 
     _, report = produce.select_cover_frame(
         Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
-        api_key="", no_vlm=False, cover_time_sec=96.0)
+        "sk-test", no_vlm=False, cover_time_sec=96.0)
+
+    assert seen["speaker"] == "芒格"
+    assert seen["api_key"] == "sk-test"
+    assert seen["frame"].endswith("manual_cover.jpg")
+    assert report["cover_verification"] == "vlm"
+    assert report["cover_vlm_passed"] is True
+    assert report["cover_vlm_score"] == 8
+
+
+def test_pinned_frame_rejected_by_vlm_exits_two(tmp_path, monkeypatch, capsys):
+    """钉到别人脸上时必须退 2，绝不允许硬出。"""
+    stub_extract(monkeypatch)
+    monkeypatch.setattr(
+        produce.COVER, "verify_frame_person",
+        lambda *a, **k: {"person": "其他", "cover_score": 3,
+                         "reason": "画面是爱因斯坦的黑板资料照，非主讲人",
+                         "passed": False})
+
+    with pytest.raises(SystemExit) as e:
+        produce.select_cover_frame(
+            Path("v.mp4"), quotes_for([(0.0, 60.0)]), "查理·芒格",
+            tmp_path / "work", "sk-test", no_vlm=False, cover_time_sec=287.0)
+
+    assert e.value.code == produce.EXIT_QUALITY
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "pinned_frame_rejected"
+    assert payload["cover_time_sec"] == 287.0
+    assert payload["speaker"] == "查理·芒格"
+    assert payload["vlm_person"] == "其他"
+    assert payload["vlm_cover_score"] == 3
+    assert "爱因斯坦" in payload["vlm_reason"]
+
+
+def test_pinned_frame_below_score_threshold_exits_two(tmp_path, monkeypatch,
+                                                      capsys):
+    """人物对但封面分不达标，同样按内容质量拒绝。"""
+    stub_extract(monkeypatch)
+    monkeypatch.setattr(
+        produce.COVER, "verify_frame_person",
+        lambda *a, **k: {"person": "主讲人",
+                         "cover_score": produce.COVER.MIN_VLM_PASS_SCORE - 1,
+                         "reason": "侧面且严重虚焦", "passed": False})
+
+    with pytest.raises(SystemExit) as e:
+        produce.select_cover_frame(
+            Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
+            "sk-test", no_vlm=False, cover_time_sec=287.0)
+
+    assert e.value.code == produce.EXIT_QUALITY
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "pinned_frame_rejected"
+    assert payload["min_cover_score"] == produce.COVER.MIN_VLM_PASS_SCORE
+
+
+def test_pinned_frame_verification_unavailable_exits_three(tmp_path, monkeypatch,
+                                                           capsys):
+    """VLM 给不出判定是外部故障，不能顺势当成校验通过。"""
+    stub_extract(monkeypatch)
+    monkeypatch.setattr(produce.COVER, "verify_frame_person",
+                        lambda *a, **k: None)
+
+    with pytest.raises(SystemExit) as e:
+        produce.select_cover_frame(
+            Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
+            "sk-test", no_vlm=False, cover_time_sec=287.0)
+
+    assert e.value.code == produce.EXIT_API
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "pinned_frame_verification_unavailable"
+
+
+def test_pinned_frame_without_api_key_is_a_config_error(tmp_path, monkeypatch,
+                                                        capsys):
+    """钉帧要过校验，就不能再当作「不需要 key」的路径静默放行。"""
+    stub_extract(monkeypatch)
+
+    with pytest.raises(SystemExit) as e:
+        produce.select_cover_frame(
+            Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
+            api_key="", no_vlm=False, cover_time_sec=96.0)
+
+    assert e.value.code == produce.EXIT_CONFIG
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "missing_siliconflow_api_key"
+    assert "--cover-allow-unverified" in payload["detail"]
+
+
+def test_allow_unverified_lets_a_rejected_frame_through_with_a_warning(
+        tmp_path, monkeypatch, capsys):
+    """显式逃生开关：放行，但必须打醒目告警。"""
+    stub_extract(monkeypatch)
+
+    def boom(*a, **k):
+        raise AssertionError("显式放行时不该再调 VLM")
+
+    monkeypatch.setattr(produce.COVER, "verify_frame_person", boom)
+
+    _, report = produce.select_cover_frame(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
+        api_key="", no_vlm=False, cover_time_sec=287.0, allow_unverified=True)
+
     assert report["cover_source"] == "manual"
+    assert report["cover_verification"] == "skipped"
+    assert report["cover_unverified_reason"] == "--cover-allow-unverified"
+    assert report["cover_vlm_passed"] is False
+
+    out = capsys.readouterr()
+    assert "未经 VLM 人物核验" in out.out
+    assert "未经 VLM 人物核验" in out.err
+
+
+def test_allow_unverified_defaults_to_off(tmp_path, monkeypatch):
+    """逃生开关默认必须是关的，不能变成事实上的默认行为。"""
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
+    assert args.cover_allow_unverified is False
+
+    stub_extract(monkeypatch)
+    called = {"n": 0}
+
+    def counting_verify(*a, **k):
+        called["n"] += 1
+        return pass_verdict()
+
+    monkeypatch.setattr(produce.COVER, "verify_frame_person", counting_verify)
+    produce.select_cover_frame(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
+        "sk-test", no_vlm=False, cover_time_sec=96.0)
+    assert called["n"] == 1
+
+
+def test_no_vlm_with_a_pinned_frame_warns_about_being_unverified(
+        tmp_path, monkeypatch, capsys):
+    stub_extract(monkeypatch)
+
+    _, report = produce.select_cover_frame(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
+        api_key="", no_vlm=True, cover_time_sec=96.0)
+
+    assert report["cover_unverified_reason"] == "--no-vlm"
+    assert "未经 VLM 人物核验" in capsys.readouterr().err
 
 
 def test_cover_time_sec_out_of_range_exits_one(tmp_path, monkeypatch, capsys):
@@ -340,6 +498,7 @@ def test_cover_crop_reaches_manual_extract(tmp_path, monkeypatch):
         return True
 
     monkeypatch.setattr(produce.COVER, "extract_frame", fake_extract)
+    monkeypatch.setattr(produce.COVER, "verify_frame_person", pass_verdict)
     _, report = produce.select_cover_frame(
         Path("v.mp4"), quotes_for([(0.0, 60.0)]), "芒格", tmp_path / "work",
         "sk-test", no_vlm=False, cover_time_sec=96.0,

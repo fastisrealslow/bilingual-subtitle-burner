@@ -20,6 +20,7 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 from typing import List, Dict
 
 import sf_client
@@ -48,6 +49,68 @@ SYSTEM_EN2ZH = (
     "严禁根据常识、名人名句或上下文自行补全句子、补充原文没有的信息，"
     "也不要把下一条的内容提前翻译到这一条。原文残缺就译成对应的残缺中文。"
 )
+
+
+# ── 投资领域术语表 ──────────────────────────────────────────────────────────
+# 通用模型对投资圈的人名靠猜：实测 DeepSeek-V3 把
+# "I LEAVE FOR MR. BUFFETT" 译成了「我留给巴特勒先生」。频道做的是价值投资
+# 内容，把巴菲特的名字译错是硬伤，所以把对照表直接钉进提示词。
+
+GLOSSARY_PATH = Path(__file__).resolve().parent.parent / "glossary.json"
+
+_glossary_cache: Dict[str, str] | None = None
+
+
+def load_glossary(path=None) -> Dict[str, str]:
+    """读 ``glossary.json``，把分组拍平成 ``{英文: 中文}``。
+
+    表读不到不该让整条流水线停下来 —— 没有术语表的翻译只是可能译错人名，
+    比直接不出片好。但必须留痕，否则「怎么又译成巴特勒了」查不出原因。
+    """
+    global _glossary_cache
+    if path is None and _glossary_cache is not None:
+        return _glossary_cache
+
+    p = Path(path) if path is not None else GLOSSARY_PATH
+    try:
+        raw = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"[translate] ⚠️ 术语表 {p} 读取失败（{e}），本次翻译不注入术语约束",
+              file=sys.stderr)
+        raw = {}
+
+    flat: Dict[str, str] = {}
+    for group in (raw.get("terms") or {}).values():
+        if isinstance(group, dict):
+            flat.update(group)
+
+    if path is None:
+        _glossary_cache = flat
+    return flat
+
+
+def glossary_block(direction: str, terms: Dict[str, str] | None = None) -> str:
+    """把术语表渲染成注入提示词的那段文本；表为空时返回空串。
+
+    长词排在前面，模型照着从上往下看时先撞上 "Warren Buffett" 这种更具体的
+    条目，不会先被 "Buffett" 截胡。
+    """
+    terms = load_glossary() if terms is None else terms
+    if not terms:
+        return ""
+    items = sorted(terms.items(), key=lambda kv: (-len(kv[0]), kv[0]))
+    if direction == "zh2en":
+        lines = "\n".join(f"- {zh} → {en}" for en, zh in items)
+        return ("\nMandatory terminology (investment domain). Render these "
+                "exactly as given, do not invent alternatives:\n" + lines)
+    lines = "\n".join(f"- {en} → {zh}" for en, zh in items)
+    return ("\n投资领域专有名词对照表（强制）：下列词一律按此译法输出，"
+            "不得音译成别的名字，也不得自创译名。\n" + lines)
+
+
+def system_prompt(direction: str) -> str:
+    base = SYSTEM_ZH2EN if direction == "zh2en" else SYSTEM_EN2ZH
+    return base + glossary_block(direction)
 
 
 def parse_srt(path: str) -> List[Dict]:
@@ -118,15 +181,14 @@ def chat(messages, api_key, model, base_url, temperature=0.3):
 
 def translate_batch(texts: List[str], api_key, model, base_url, direction="zh2en") -> List[str]:
     numbered = "\n".join(f"{i+1}. {t}" for i, t in enumerate(texts))
+    system = system_prompt(direction)
     if direction == "zh2en":
-        system = SYSTEM_ZH2EN
         user = (
             "Translate each Chinese subtitle line below into English. "
             "Keep the numbering, one line per item, format: 'N. translation'. "
             "Output only the translated lines, nothing else.\n\n" + numbered
         )
     else:
-        system = SYSTEM_EN2ZH
         user = (
             "把下面每一条英文字幕翻译成中文。严格保持编号，每条一行，"
             "格式为「序号. 译文」，只输出译文行，不要输出英文原文或其它内容。\n\n" + numbered
@@ -157,7 +219,7 @@ def translate_all(texts: List[str], api_key, model, base_url, batch_size=20, dir
                     translate_all(batch[half:], api_key, model, base_url, half, direction)
                 )
             else:
-                system = SYSTEM_ZH2EN if direction == "zh2en" else SYSTEM_EN2ZH
+                system = system_prompt(direction)
                 prompt = ("Translate to English, output only the translation:\n"
                           if direction == "zh2en"
                           else "只把这句英文翻成中文，只输出译文：\n")
