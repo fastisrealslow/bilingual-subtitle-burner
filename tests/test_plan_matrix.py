@@ -34,7 +34,7 @@ def test_dispatch_builds_single_job():
     })
     assert jobs == [{"source": "https://example.com/v", "slug": "munger",
                      "title_override": "", "translator": "deepseek-v3",
-                     "dual": "false", "cover_time_sec": ""}]
+                     "dual": "false", "cover_time_sec": "", "cover_crop": ""}]
 
 
 def test_dispatch_dual_bool_becomes_string():
@@ -140,4 +140,36 @@ def test_negative_cover_time_sec_raises(tmp_path):
     write_sources(tmp_path, "a.json",
                   {"source": "u", "slug": "s", "cover_time_sec": -5})
     with pytest.raises(ValueError, match="cover_time_sec"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+# ── 封面裁切 ────────────────────────────────────────────────────────────────
+
+def test_cover_crop_defaults_to_empty(tmp_path):
+    write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["cover_crop"] == ""
+
+
+def test_cover_crop_passes_through_from_sources(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "cover_crop": "854:396:0:0"})
+    assert plan_matrix.build({"EVENT": "push"},
+                             tmp_path)[0]["cover_crop"] == "854:396:0:0"
+
+
+def test_cover_crop_passes_through_from_dispatch():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_COVER_CROP": "854:396:0:0",
+    })
+    assert jobs[0]["cover_crop"] == "854:396:0:0"
+
+
+@pytest.mark.parametrize("bad", ["854x396", "854:396:0", "854:396:0:0:0",
+                                 "-1:396:0:0", "宽:高:0:0"])
+def test_malformed_cover_crop_raises(tmp_path, bad):
+    # 写错了要在 plan 阶段就拦下，不能等 runner 跑到最后一步才炸
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "cover_crop": bad})
+    with pytest.raises(ValueError, match="cover_crop"):
         plan_matrix.build({"EVENT": "push"}, tmp_path)

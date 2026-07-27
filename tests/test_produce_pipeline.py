@@ -233,7 +233,7 @@ def test_cover_time_sec_skips_face_filter_and_vlm(tmp_path, monkeypatch):
 
     grabbed = {}
 
-    def fake_extract(video, t, out):
+    def fake_extract(video, t, out, crop=None):
         grabbed["t"] = t
         Path(out).write_bytes(b"jpeg")
         return True
@@ -255,7 +255,7 @@ def test_cover_time_sec_works_without_api_key(tmp_path, monkeypatch):
     # 手动路径不调 VLM，就不该再强制要求 SILICONFLOW_API_KEY
     _stub_cover_render(monkeypatch)
     monkeypatch.setattr(produce.COVER, "extract_frame",
-                        lambda v, t, o: (Path(o).write_bytes(b"jpeg"), True)[1])
+                        lambda v, t, o, crop=None: (Path(o).write_bytes(b"jpeg"), True)[1])
 
     report = produce.make_covers(
         Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
@@ -266,7 +266,7 @@ def test_cover_time_sec_works_without_api_key(tmp_path, monkeypatch):
 
 def test_cover_time_sec_out_of_range_exits_one(tmp_path, monkeypatch, capsys):
     _stub_cover_render(monkeypatch)
-    monkeypatch.setattr(produce.COVER, "extract_frame", lambda v, t, o: False)
+    monkeypatch.setattr(produce.COVER, "extract_frame", lambda v, t, o, crop=None: False)
 
     with pytest.raises(SystemExit) as e:
         produce.make_covers(
@@ -344,6 +344,104 @@ def test_cover_flags_default_to_auto():
     args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
     assert args.cover_time_sec is None
     assert args.cover_candidates == produce.COVER.DEFAULT_COVER_CANDIDATES
+    assert args.cover_crop is None
+
+
+# ── 封面裁切 ────────────────────────────────────────────────────────────────
+# 源片底部烧死的英文硬字幕不裁就会留在成品封面上。
+
+def test_cover_crop_reaches_manual_extract(tmp_path, monkeypatch):
+    _stub_cover_render(monkeypatch)
+    seen = {}
+
+    def fake_extract(video, t, out, crop=None):
+        seen["crop"] = crop
+        Path(out).write_bytes(b"jpeg")
+        return True
+
+    monkeypatch.setattr(produce.COVER, "extract_frame", fake_extract)
+    report = produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=False,
+        cover_time_sec=96.0, cover_crop="854:396:0:0")
+
+    assert seen["crop"] == "854:396:0:0"
+    assert report["cover_crop"] == "854:396:0:0"
+
+
+@pytest.mark.parametrize("picker,no_vlm", [
+    ("pick_best_frame_geometric", True),
+    ("pick_best_frame_vision", False),
+])
+def test_cover_crop_reaches_both_pickers(tmp_path, monkeypatch, picker, no_vlm):
+    # 候选帧和成品封面必须共用同一个 crop，否则预筛看到的不是最终画面
+    _stub_cover_render(monkeypatch)
+    frame = tmp_path / "picked.jpg"
+    frame.write_bytes(b"jpeg")
+    seen = {}
+
+    def fake_pick(**kw):
+        seen.update(kw)
+        return str(frame)
+
+    monkeypatch.setattr(produce.COVER, picker, fake_pick)
+    produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=no_vlm,
+        cover_crop="854:396:0:0")
+    assert seen["crop"] == "854:396:0:0"
+
+
+def test_cover_crop_defaults_to_none_in_report(tmp_path, monkeypatch):
+    _stub_cover_render(monkeypatch)
+    frame = tmp_path / "picked.jpg"
+    frame.write_bytes(b"jpeg")
+    monkeypatch.setattr(produce.COVER, "pick_best_frame_geometric",
+                        lambda **k: str(frame))
+
+    report = produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=True)
+    assert report["cover_crop"] is None
+
+
+def test_cli_accepts_cover_crop():
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s",
+                               "--cover-crop", "854:396:0:0"])
+    assert args.cover_crop == "854:396:0:0"
+
+
+@pytest.mark.parametrize("bad", ["854x396", "854:396:0", "854:396:0:0:0",
+                                 "-1:396:0:0", "宽:高:0:0"])
+def test_malformed_cover_crop_exits_one(monkeypatch, capsys, bad):
+    monkeypatch.setenv("SILICONFLOW_API_KEY", "sk-test")
+    with pytest.raises(SystemExit) as e:
+        produce.main(["--source", "x.mp4", "--slug", "s", "--cover-crop", bad])
+
+    assert e.value.code == produce.EXIT_CONFIG
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "invalid_cover_crop"
+    assert "W:H:X:Y" in payload["detail"]
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_records_cover_crop(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"cover_crop": "854:396:0:0", "files": {}}, "deepseek-v3", "芒格")
+    assert json.loads(meta_path.read_text(encoding="utf-8"))["cover_crop"] == "854:396:0:0"
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_cover_crop_is_null_when_not_given(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"files": {}}, "deepseek-v3", "芒格")
+    assert json.loads(meta_path.read_text(encoding="utf-8"))["cover_crop"] is None
 
 
 @pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")

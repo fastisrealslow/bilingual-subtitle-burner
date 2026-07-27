@@ -64,12 +64,15 @@ def _find_ffmpeg() -> str:
 _FFMPEG = _find_ffmpeg()
 
 
-def extract_frame(video: str, time_sec: float, output: str) -> bool:
-    r = subprocess.run(
-        [_FFMPEG, "-y", "-ss", str(max(0, time_sec)), "-i", video,
-         "-vframes", "1", "-q:v", "2", output],
-        capture_output=True
-    )
+def extract_frame(video: str, time_sec: float, output: str,
+                  crop: str | None = None) -> bool:
+    """截一帧。``crop`` 是 ffmpeg crop 滤镜的 ``W:H:X:Y``，用于切掉源片
+    底部烧死的英文硬字幕等干扰区域。"""
+    cmd = [_FFMPEG, "-y", "-ss", str(max(0, time_sec)), "-i", video]
+    if crop:
+        cmd += ["-vf", f"crop={crop}"]
+    cmd += ["-vframes", "1", "-q:v", "2", output]
+    r = subprocess.run(cmd, capture_output=True)
     return r.returncode == 0 and os.path.exists(output) and os.path.getsize(output) > 1000
 
 
@@ -329,17 +332,19 @@ def frame_geometry_verdict(img_path: str,
 def pick_best_frame_geometric(raw_video: str, clip_start_sec: float,
                               clip_end_sec: float, tmp_dir: str,
                               candidates: int = DEFAULT_COVER_CANDIDATES,
-                              report: dict | None = None) -> str:
+                              report: dict | None = None,
+                              crop: str | None = None) -> str:
     """不调 VLM，只按几何规则挑封面帧；一帧都不合格就退 EXIT_QUALITY。
 
-    ``--no-vlm`` 路径。合格帧里取清晰度最高的那张。
+    ``--no-vlm`` 路径。合格帧里取清晰度最高的那张。候选帧和成品封面必须用
+    同一个 ``crop``，否则会出现「预筛看的是带硬字幕的画面、成品却是裁过的」。
     """
     passed: list[tuple[float, str, float]] = []   # (清晰度, 路径, 时间)
     rejections: list[dict] = []
     for idx, t in enumerate(sample_frame_times(clip_start_sec, clip_end_sec,
                                                candidates)):
         path = os.path.join(tmp_dir, f"gframe_{idx:03d}.jpg")
-        if extract_frame(raw_video, t, path):
+        if extract_frame(raw_video, t, path, crop):
             b = image_brightness(path)
             if not (40 <= b <= 230):
                 rejections.append({"time_sec": round(t, 1),
@@ -501,7 +506,8 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
                            tmp_dir: str,
                            candidates: int = DEFAULT_COVER_CANDIDATES,
                            speaker_desc: str = "", speaker_color: str = "auto",
-                           report: dict | None = None) -> str | None:
+                           report: dict | None = None,
+                           crop: str | None = None) -> str | None:
     """
     从原始视频在金句时间段内均匀截 ``candidates`` 帧，
     用 vision LLM 识别哪帧是主讲人大特写，返回最佳帧路径。
@@ -510,6 +516,8 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     ``cover_vlm_rejections``，供 produce.py 写进 meta.json。
     VLM 判定不合格的候选超过 ``MAX_VLM_REJECTIONS`` 且没有任何合格帧时，
     直接退 EXIT_QUALITY —— 这条片子就是挑不出封面，不要硬凑。
+
+    ``crop`` 会应用到所有候选帧，保证人脸预筛和 VLM 看到的就是成品封面。
     """
     frame_paths = []
     frame_times = []
@@ -517,7 +525,7 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     for idx, t in enumerate(sample_frame_times(clip_start_sec, clip_end_sec,
                                                candidates)):
         path = os.path.join(tmp_dir, f"vframe_{idx:03d}.jpg")
-        if extract_frame(raw_video, t, path):
+        if extract_frame(raw_video, t, path, crop):
             b = image_brightness(path)
             if 40 <= b <= 230:  # 过滤过暗过亮帧
                 frame_paths.append(path)
