@@ -18,6 +18,7 @@ DEFAULT_TRANSLATOR = "deepseek-v3"
 COVER_CROP_RE = re.compile(r"^\d+:\d+:\d+:\d+$")
 SUB_MODES = ("both", "zh-only")
 DEFAULT_SUB_MODE = "both"
+SUB_MARGIN_V_AUTO = "auto"
 
 
 def normalize(raw: dict, origin: str) -> dict:
@@ -60,10 +61,18 @@ def normalize(raw: dict, origin: str) -> dict:
         raise ValueError(
             f"{origin}: sub_mode={sub_mode!r} 无效，可选 {list(SUB_MODES)}")
 
+    # auto 让 produce.py 逐条 cue 探测源片硬字幕带位置各自摆位，给整数则钉死。
     sub_margin_v = str(raw.get("sub_margin_v") or "").strip()
-    if sub_margin_v and not re.fullmatch(r"\d+", sub_margin_v):
+    if sub_margin_v and sub_margin_v != SUB_MARGIN_V_AUTO \
+            and not re.fullmatch(r"\d+", sub_margin_v):
         raise ValueError(
-            f"{origin}: sub_margin_v={sub_margin_v!r} 无效，应为非负整数像素")
+            f"{origin}: sub_margin_v={sub_margin_v!r} 无效，"
+            f"应为 {SUB_MARGIN_V_AUTO} 或非负整数像素")
+
+    sub_avoid_gap = str(raw.get("sub_avoid_gap") or "").strip()
+    if sub_avoid_gap and not re.fullmatch(r"\d+", sub_avoid_gap):
+        raise ValueError(
+            f"{origin}: sub_avoid_gap={sub_avoid_gap!r} 无效，应为非负整数像素")
 
     return {
         "source": source,
@@ -77,6 +86,7 @@ def normalize(raw: dict, origin: str) -> dict:
         "speaker": str(raw.get("speaker") or ""),
         "sub_mode": sub_mode,
         "sub_margin_v": sub_margin_v,
+        "sub_avoid_gap": sub_avoid_gap,
     }
 
 
@@ -92,6 +102,7 @@ def from_dispatch(env: dict) -> list:
         "speaker": env.get("IN_SPEAKER"),
         "sub_mode": env.get("IN_SUB_MODE"),
         "sub_margin_v": env.get("IN_SUB_MARGIN_V"),
+        "sub_avoid_gap": env.get("IN_SUB_AVOID_GAP"),
     }, "workflow_dispatch")]
 
 

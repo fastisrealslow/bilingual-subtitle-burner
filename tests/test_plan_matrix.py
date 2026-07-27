@@ -35,7 +35,8 @@ def test_dispatch_builds_single_job():
     assert jobs == [{"source": "https://example.com/v", "slug": "munger",
                      "title_override": "", "translator": "deepseek-v3",
                      "dual": "false", "cover_time_sec": "", "cover_crop": "",
-                     "speaker": "", "sub_mode": "both", "sub_margin_v": ""}]
+                     "speaker": "", "sub_mode": "both", "sub_margin_v": "",
+                     "sub_avoid_gap": ""}]
 
 
 def test_dispatch_dual_bool_becomes_string():
@@ -231,9 +232,36 @@ def test_invalid_sub_mode_raises(tmp_path):
         plan_matrix.build({"EVENT": "push"}, tmp_path)
 
 
-@pytest.mark.parametrize("bad", ["96px", "-96", "9.6"])
+@pytest.mark.parametrize("bad", ["96px", "-96", "9.6", "AUTO", "auto96"])
 def test_malformed_sub_margin_v_raises(tmp_path, bad):
     write_sources(tmp_path, "a.json",
                   {"source": "u", "slug": "s", "sub_margin_v": bad})
     with pytest.raises(ValueError, match="sub_margin_v"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+def test_sub_margin_v_auto_passes_through(tmp_path):
+    """auto 是 produce.py 的默认挡，plan 阶段不能把它当成非法值拦下。"""
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "sub_mode": "zh-only",
+                   "sub_margin_v": "auto", "sub_avoid_gap": 32})
+    job = plan_matrix.build({"EVENT": "push"}, tmp_path)[0]
+    assert job["sub_margin_v"] == "auto"
+    assert job["sub_avoid_gap"] == "32"
+
+
+def test_sub_avoid_gap_passes_through_from_dispatch():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_SUB_MARGIN_V": "auto", "IN_SUB_AVOID_GAP": "18",
+    })
+    assert jobs[0]["sub_margin_v"] == "auto"
+    assert jobs[0]["sub_avoid_gap"] == "18"
+
+
+@pytest.mark.parametrize("bad", ["24px", "-24", "2.4", "auto"])
+def test_malformed_sub_avoid_gap_raises(tmp_path, bad):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "sub_avoid_gap": bad})
+    with pytest.raises(ValueError, match="sub_avoid_gap"):
         plan_matrix.build({"EVENT": "push"}, tmp_path)

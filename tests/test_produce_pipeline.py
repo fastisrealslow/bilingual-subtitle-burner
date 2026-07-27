@@ -177,7 +177,8 @@ def test_assemble_concats_three_segments(tmp_path):
 
     quotes = quotes_for([(0.0, 15.0), (20.0, 35.0), (40.0, 55.0)])
     final = tmp_path / "out" / "final.mp4"
-    segs = produce.assemble(video, srt, bilingual, quotes, tmp_path, final)
+    segs, placements = produce.assemble(
+        video, srt, bilingual, quotes, tmp_path, final)
 
     assert final.is_file() and final.stat().st_size > 0
     assert [s["index"] for s in segs] == [1, 2, 3]
@@ -540,7 +541,9 @@ def test_both_mode_still_burns_bilingual(tmp_path, monkeypatch):
 def test_cli_sub_mode_defaults_to_both():
     args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
     assert args.sub_mode == "both"
-    assert args.sub_margin_v == produce.DEFAULT_SUB_MARGIN_V
+    # 默认改成自动挡：固定值躲不开源片大字号引言板那种更高的硬字幕
+    assert args.sub_margin_v == produce.SUB_MARGIN_V_AUTO
+    assert args.sub_avoid_gap == produce.DEFAULT_SUB_AVOID_GAP
 
 
 def test_cli_accepts_zh_only():
@@ -637,3 +640,325 @@ def test_zh_only_burns_above_the_sources_hardsub_band(tmp_path):
     band = slice(HARDSUB_TOP, HARDSUB_BOTTOM)
     assert np.abs(burned[band] - base[band]).max() <= 2
     assert base[band].max() >= 200      # 带子本身确实是白的
+
+
+# ── sub_margin_v=auto：逐条 cue 探测硬字幕带，各自避让 ───────────────────────
+# run 30263406353 的成片目视：固定 MarginV=96 贴着对白那条带摆，00:45 处源片
+# 换成了大字号两行引言板（位置明显更高），中文行正好糊在它第二行上。
+
+def test_auto_margin_v_reproduces_the_measured_default():
+    """480 高、上沿 408、间隙 24 —— 正是 PR #5 那个 96 的来路。"""
+    assert produce.auto_margin_v(480, 408, 24) == produce.DEFAULT_SUB_MARGIN_V
+
+
+def test_auto_margin_v_lifts_higher_for_the_quote_board():
+    """引言板上沿抬到 330，摆位得跟着抬到 174，不能还留在 96。"""
+    assert produce.auto_margin_v(480, 330, 24) == 174
+
+
+def test_auto_margin_v_honours_the_gap():
+    assert produce.auto_margin_v(480, 408, 0) == 72
+    assert produce.auto_margin_v(480, 408, 40) == 112
+
+
+def test_auto_margin_v_falls_back_when_nothing_detected():
+    assert produce.auto_margin_v(480, None, 24) == produce.DEFAULT_SUB_MARGIN_V
+    assert produce.auto_margin_v(480, None, 999) == produce.DEFAULT_SUB_MARGIN_V
+
+
+def _cues(spans):
+    return [{"start_sec": a, "end_sec": b} for a, b in spans]
+
+
+def test_plan_cue_placements_records_every_cue(tmp_path, monkeypatch):
+    tops = {0: 408, 1: 330}
+    seen = []
+
+    def fake(video, a, b, tmp, **kw):
+        seen.append((a, b))
+        return tops[len(seen) - 1]
+
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top", fake)
+    got = produce.plan_cue_placements(
+        Path("v.mp4"), 480, _cues([(0.0, 3.0), (3.0, 6.0)]),
+        clip_start=100.0, gap=24, tmp_dir=tmp_path / "probe")
+
+    # 探测要回到源片的绝对时间，cue 里存的是切片内相对时间
+    assert seen == [(100.0, 103.0), (103.0, 106.0)]
+    assert [p["cue_index"] for p in got] == [1, 2]
+    assert [p["hardsub_top_y"] for p in got] == [408, 330]
+    assert [p["margin_v"] for p in got] == [96, 174]
+    assert [p["fallback"] for p in got] == [False, False]
+
+
+def test_plan_cue_placements_falls_back_per_cue(tmp_path, monkeypatch, capsys):
+    """探不到的那条单独回落到 96，探到的那条照常按检测值走。"""
+    tops = iter([None, 330])
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top",
+                        lambda *a, **k: next(tops))
+    got = produce.plan_cue_placements(
+        Path("v.mp4"), 480, _cues([(0.0, 3.0), (3.0, 6.0)]),
+        clip_start=0.0, gap=24, tmp_dir=tmp_path / "probe")
+
+    assert got[0] == {"cue_index": 1, "source_start_sec": 0.0,
+                      "source_end_sec": 3.0, "hardsub_top_y": None,
+                      "margin_v": produce.DEFAULT_SUB_MARGIN_V,
+                      "fallback": True}
+    assert got[1]["margin_v"] == 174 and got[1]["fallback"] is False
+    # 回落必须在日志里说清楚，不能静默
+    assert "未探到硬字幕带" in capsys.readouterr().out
+
+
+def test_auto_refuses_to_push_the_zh_line_above_the_midline(
+        tmp_path, monkeypatch, capsys):
+    """检测把画面主体当成文字（上沿报到 200）时不硬出，退 2。"""
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top", lambda *a, **k: 200)
+
+    with pytest.raises(SystemExit) as e:
+        produce.plan_cue_placements(
+            Path("v.mp4"), 480, _cues([(0.0, 3.0), (3.0, 6.0)]),
+            clip_start=10.0, gap=24, tmp_dir=tmp_path / "probe")
+
+    assert e.value.code == produce.EXIT_QUALITY
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "auto_sub_margin_v_above_midline"
+    assert payload["stage"] == "assemble"
+    # JSON 里要能直接看出是哪一条、检测到了什么、算出了多少
+    assert payload["cue_index"] == 1
+    assert payload["cue_source_start_sec"] == 10.0
+    assert payload["hardsub_top_y"] == 200
+    assert payload["margin_v"] == 304
+    assert payload["video_height"] == 480
+    assert payload["sub_avoid_gap"] == 24
+
+
+def test_the_measured_default_stays_below_the_midline(tmp_path, monkeypatch):
+    """回归保护：408 这个实测上沿绝不能被新的闸门拦住。"""
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top", lambda *a, **k: 408)
+    got = produce.plan_cue_placements(
+        Path("v.mp4"), 480, _cues([(0.0, 3.0)]),
+        clip_start=0.0, gap=24, tmp_dir=tmp_path / "probe")
+    assert got[0]["margin_v"] == produce.DEFAULT_SUB_MARGIN_V
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_integer_sub_margin_v_never_probes(tmp_path, monkeypatch):
+    """给整数时行为与 PR #5 逐字一致：一帧都不抽，MarginV 全片钉死。"""
+    video = tmp_path / "src.mp4"
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=gray:s=854x480:d=6",
+         "-c:v", "libx264", "-preset", "ultrafast", str(video)],
+        check=True, capture_output=True)
+
+    def boom(*a, **k):
+        raise AssertionError("给了整数还去探测源片")
+
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top", boom)
+    seen = _captured_make_ass(monkeypatch, tmp_path)
+    srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
+    segs, placements = produce.assemble(
+        video, srt, bilingual, quotes, tmp_path, tmp_path / "out" / "final.mp4",
+        sub_mode="zh-only", sub_margin_v=110)
+
+    assert seen["zh_margin_v"] == 110
+    assert placements == []
+    ass = Path(seen["path"]).read_text(encoding="utf-8-sig")
+    zh = [ln for ln in ass.splitlines() if ln.startswith("Dialogue: ")]
+    assert zh[0].split(",", 8)[7] == "110"
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_both_mode_never_probes(tmp_path, monkeypatch):
+    """默认 both 不该被自动挡带上：它不抬字幕，也就不用探测。"""
+    video = tmp_path / "src.mp4"
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=gray:s=854x480:d=6",
+         "-c:v", "libx264", "-preset", "ultrafast", str(video)],
+        check=True, capture_output=True)
+
+    def boom(*a, **k):
+        raise AssertionError("both 模式去探测源片了")
+
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top", boom)
+    srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
+    segs, placements = produce.assemble(
+        video, srt, bilingual, quotes, tmp_path, tmp_path / "out" / "final.mp4",
+        sub_margin_v=produce.SUB_MARGIN_V_AUTO)
+    assert placements == []
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_auto_writes_per_cue_margins_into_the_ass(tmp_path, monkeypatch):
+    """两条 cue 探到不同高度时，ASS 里两行 Dialogue 的 MarginV 必须不同。"""
+    video = tmp_path / "src.mp4"
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=gray:s=854x480:d=12",
+         "-c:v", "libx264", "-preset", "ultrafast", str(video)],
+        check=True, capture_output=True)
+
+    srt = write_srt(tmp_path / "t.srt", [(0.0, 4.0, "Simple is hard."),
+                                        (4.0, 8.0, "As simple as possible.")])
+    entries = produce.HL.parse_srt(str(srt))
+    bilingual = tmp_path / "bi.json"
+    bilingual.write_text(json.dumps(
+        [{"index": e["index"], "start": e["start"], "end": e["end"],
+          "en": e["text"], "zh": f"简单很难{e['index']}"} for e in entries],
+        ensure_ascii=False), encoding="utf-8")
+
+    tops = iter([408, 330])
+    monkeypatch.setattr(produce.HP, "probe_cue_band_top",
+                        lambda *a, **k: next(tops))
+    seen = _captured_make_ass(monkeypatch, tmp_path)
+    segs, placements = produce.assemble(
+        video, srt, bilingual, quotes_for([(0.0, 8.0)]), tmp_path,
+        tmp_path / "out" / "final.mp4", sub_mode="zh-only",
+        sub_margin_v=produce.SUB_MARGIN_V_AUTO)
+
+    assert [p["margin_v"] for p in placements] == [96, 174]
+    ass = Path(seen["path"]).read_text(encoding="utf-8-sig")
+    zh = [ln for ln in ass.splitlines() if ",ZH," in ln]
+    assert [ln.split(",", 8)[7] for ln in zh] == ["96", "174"]
+
+
+def test_cli_accepts_auto():
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s",
+                               "--sub-mode", "zh-only",
+                               "--sub-margin-v", "auto",
+                               "--sub-avoid-gap", "30"])
+    assert args.sub_margin_v == produce.SUB_MARGIN_V_AUTO
+    assert args.sub_avoid_gap == 30
+
+
+@pytest.mark.parametrize("bad", ["", "AUTO", "auto96", "-4", "96px", "9.6"])
+def test_cli_rejects_malformed_sub_margin_v(bad):
+    with pytest.raises(SystemExit):
+        produce.parse_args(["--source", "v.mp4", "--slug", "s",
+                            "--sub-margin-v", bad])
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_records_auto_and_the_per_cue_placements(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    placements = [{"cue_index": 1, "source_start_sec": 0.0,
+                   "source_end_sec": 3.0, "hardsub_top_y": 408,
+                   "margin_v": 96, "fallback": False},
+                  {"cue_index": 2, "source_start_sec": 198.9,
+                   "source_end_sec": 202.0, "hardsub_top_y": 330,
+                   "margin_v": 174, "fallback": False}]
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"files": {}}, "deepseek-v3", "芒格", "zh-only",
+        produce.SUB_MARGIN_V_AUTO, 24, placements)
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    assert meta["sub_margin_v"] == "auto"
+    assert meta["sub_avoid_gap"] == 24
+    assert meta["sub_placements"] == placements
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_defaults_carry_no_placements(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"files": {}}, "deepseek-v3", "芒格")
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    assert meta["sub_avoid_gap"] == produce.DEFAULT_SUB_AVOID_GAP
+    assert meta["sub_placements"] == []
+
+
+# ── 真跑 ffmpeg：一条源片里两种高度的硬字幕带 ─────────────────────────────────
+# 固定 MarginV 的天花板只有在「源片硬字幕高度会变」的素材上才暴露得出来。
+# 这条造一条前后两段硬字幕高度不同的源片，走 auto 真烧，然后数像素。
+
+DIALOG_TOP, DIALOG_BOTTOM = 408, 456        # 前 6s：常规对白，小字号一行
+QUOTE_TOP, QUOTE_BOTTOM = 330, 400          # 后 6s：大字号引言板，两行
+
+
+def _make_two_height_source(path: Path) -> None:
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i",
+         f"color=c=black:s=854x480:d=12,"
+         f"drawbox=x=180:y={DIALOG_TOP}:w=494:h={DIALOG_BOTTOM - DIALOG_TOP}:"
+         f"color=white:t=fill:enable='lt(t\\,6)',"
+         f"drawbox=x=100:y={QUOTE_TOP}:w=654:h={QUOTE_BOTTOM - QUOTE_TOP}:"
+         f"color=white:t=fill:enable='gte(t\\,6)'",
+         "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-shortest",
+         "-c:v", "libx264", "-preset", "ultrafast", "-crf", "10",
+         "-c:a", "aac", str(path)],
+        check=True, capture_output=True)
+
+
+def _luma_at(video: Path, t: float, out: Path):
+    import numpy as np
+    from PIL import Image
+    subprocess.run(["ffmpeg", "-y", "-ss", f"{t:.2f}", "-i", str(video),
+                    "-vframes", "1", str(out)], check=True, capture_output=True)
+    return np.asarray(Image.open(out).convert("L")).astype(int)
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_auto_avoids_two_different_hardsub_heights_in_one_source(tmp_path):
+    import numpy as np
+
+    video = tmp_path / "src.mp4"
+    _make_two_height_source(video)
+
+    srt = write_srt(tmp_path / "t.srt", [(0.0, 5.5, "Patience is a weapon."),
+                                        (6.0, 11.5, "As simple as possible.")])
+    entries = produce.HL.parse_srt(str(srt))
+    bilingual = tmp_path / "bi.json"
+    bilingual.write_text(json.dumps(
+        [{"index": e["index"], "start": e["start"], "end": e["end"],
+          "en": e["text"], "zh": "凡事应尽可能简单"} for e in entries],
+        ensure_ascii=False), encoding="utf-8")
+
+    final = tmp_path / "out" / "final.mp4"
+    segs, placements = produce.assemble(
+        video, srt, bilingual, quotes_for([(0.0, 6.0), (6.0, 12.0)]),
+        tmp_path, final, sub_mode="zh-only",
+        sub_margin_v=produce.SUB_MARGIN_V_AUTO,
+        sub_avoid_gap=produce.DEFAULT_SUB_AVOID_GAP)
+
+    # 探测各自报出了自己那一段的上沿，摆位跟着分开
+    assert [p["hardsub_top_y"] for p in placements] == [DIALOG_TOP, QUOTE_TOP]
+    assert [p["margin_v"] for p in placements] == [96, 174]
+
+    # final.mp4 = 两段各 6s 拼起来，取各段中间那一帧
+    zh_bottoms = {}
+    for name, t, band_top, band_bottom in (
+            ("dialog", 2.0, DIALOG_TOP, DIALOG_BOTTOM),
+            ("quote", 8.0, QUOTE_TOP, QUOTE_BOTTOM)):
+        burned = _luma_at(final, t, tmp_path / f"burned_{name}.png")
+        base = _luma_at(video, t, tmp_path / f"base_{name}.png")
+
+        # 1) 中文确实烧上去了，而且整块都在这一段自己那条硬字幕带上方
+        zh_rows = [y for y in range(band_top) if (burned[y] >= 200).any()]
+        assert zh_rows, f"{name} 段画面里找不到中文字幕"
+        assert max(zh_rows) < band_top, \
+            f"{name} 段中文压到了 y={max(zh_rows)}，硬字幕带上沿是 {band_top}"
+        zh_bottoms[name] = max(zh_rows)
+
+        # 2) 这一段的硬字幕带一个像素都没被盖到。
+        # 这里比「亮/不亮」的二值掩码而不是直接卡 maxdiff：中文是白字描黑边，
+        # 压到白带上必然把 255 的像素拽到 0 附近，二值必翻；而 h264 在白框尖角
+        # 处的振铃只有几个像素的 ±4，翻不动 200 这道线。实测引言板那条带
+        # （y=330，宽 654）在右上角 x=752~753 就有 2 个像素差 4，位置离中文块
+        # （y=280~300，居中）十万八千里，卡 maxdiff<=2 会被这种噪声误伤。
+        band = slice(band_top, band_bottom)
+        assert base[band].max() >= 200, f"{name} 段的硬字幕带本身不是白的"
+        diff = np.abs(burned[band] - base[band])
+        assert ((burned[band] >= 200) == (base[band] >= 200)).all(), \
+            f"{name} 段的硬字幕带被中文盖到了（有像素跨过了亮度分界）"
+        # 再把一道量级：真被字压上是 ±200 的量级，不可能只有个位数
+        assert diff.max() <= 8, \
+            f"{name} 段硬字幕带出现了不像量化噪声的改动 maxdiff={diff.max()}"
+        assert diff.mean() < 0.1, \
+            f"{name} 段硬字幕带整体被改动了 meandiff={diff.mean():.4f}"
+
+    # 3) 两段的中文摆在不同高度 —— 这正是固定 MarginV 做不到的事
+    assert zh_bottoms["quote"] < zh_bottoms["dialog"] - 40, \
+        f"两段中文落在了几乎相同的高度 {zh_bottoms}，动态避让没生效"
