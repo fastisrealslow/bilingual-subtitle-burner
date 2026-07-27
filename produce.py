@@ -401,9 +401,14 @@ def plan_cue_placements(video: Path, video_height: int, cues: list,
 
     cue 的时间戳是切片内相对时间，探测要回到源片，所以统一加 ``clip_start``。
 
-    抬得过头一律不硬出：中文块底边跑到画面上半部分，说明要么源片硬字幕异常
-    高，要么检测把画面主体当成了文字。这时候烧出来的成片只会是字幕骑在讲者
-    脸上，按退出码约定退 2 让人来看，比闷头出一条废片强。
+    探测器自己把不可信的结果（不像文字、带太厚、上沿越过中线）报成「没探到」，
+    这里就回落到固定默认值，并把没过哪道闸、实测值多少写进日志 —— 回落可以，
+    闷声回落不行。
+
+    真探到了一条可信的带、避让却仍会把中文顶到画面上半部分，才退 2：那说明
+    源片硬字幕的位置本身就没法躲，烧出来只会是字幕骑在讲者脸上，按退出码约定
+    让人来看，比闷头出一条废片强。CI run 30269220766 走的不是这条路 —— 那次是
+    把 y=240 的 B-roll 亮画面当成了字幕带，现在会被文字感闸门挡在探测阶段。
     """
     tmp_dir.mkdir(parents=True, exist_ok=True)
     placements = []
@@ -411,10 +416,10 @@ def plan_cue_placements(video: Path, video_height: int, cues: list,
         idx = first_index + offset
         a = clip_start + c["start_sec"]
         b = clip_start + c["end_sec"]
-        top_y = HP.probe_cue_band_top(str(video), a, b, str(tmp_dir),
-                                      prefix=f"cue{idx:03d}")
+        top_y, note = HP.probe_cue_band(str(video), a, b, str(tmp_dir),
+                                        prefix=f"cue{idx:03d}")
         margin_v = auto_margin_v(video_height, top_y, gap)
-        if margin_v > video_height // 2:
+        if top_y is not None and margin_v > video_height // 2:
             die(EXIT_QUALITY, "assemble", "auto_sub_margin_v_above_midline",
                 detail="自动避让算出的 MarginV 会把中文顶到画面上半部分，拒绝硬出。"
                        "改用固定的 --sub-margin-v 指定摆位，或确认源片硬字幕带位置",
@@ -434,8 +439,8 @@ def plan_cue_placements(video: Path, video_height: int, cues: list,
             "fallback": top_y is None,
         })
         if top_y is None:
-            log("assemble", f"cue#{idx} {a:.1f}~{b:.1f}s 未探到硬字幕带，"
-                            f"回落到默认 MarginV={margin_v}")
+            log("assemble", f"cue#{idx} {a:.1f}~{b:.1f}s 未探到可信硬字幕带，"
+                            f"回落到默认 MarginV={margin_v}；理由：{note}")
         else:
             log("assemble", f"cue#{idx} {a:.1f}~{b:.1f}s 硬字幕带上沿 y={top_y}"
                             f" → MarginV={margin_v}（间隙 {gap}）")

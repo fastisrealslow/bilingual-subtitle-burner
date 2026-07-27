@@ -652,9 +652,9 @@ def test_plan_cue_placements_records_every_cue(tmp_path, monkeypatch):
 
     def fake(video, a, b, tmp, **kw):
         seen.append((a, b))
-        return tops[len(seen) - 1]
+        return tops[len(seen) - 1], ""
 
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top", fake)
+    monkeypatch.setattr(produce.HP, "probe_cue_band", fake)
     got = produce.plan_cue_placements(
         Path("v.mp4"), 480, _cues([(0.0, 3.0), (3.0, 6.0)]),
         clip_start=100.0, gap=24, tmp_dir=tmp_path / "probe")
@@ -669,9 +669,10 @@ def test_plan_cue_placements_records_every_cue(tmp_path, monkeypatch):
 
 def test_plan_cue_placements_falls_back_per_cue(tmp_path, monkeypatch, capsys):
     """探不到的那条单独回落到 96，探到的那条照常按检测值走。"""
-    tops = iter([None, 330])
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top",
-                        lambda *a, **k: next(tops))
+    results = iter([(None, "no_text_rows：31 个亮行没有一行像文字"
+                           "（文字感最高 0.17，阈值 0.35）"), (330, "")])
+    monkeypatch.setattr(produce.HP, "probe_cue_band",
+                        lambda *a, **k: next(results))
     got = produce.plan_cue_placements(
         Path("v.mp4"), 480, _cues([(0.0, 3.0), (3.0, 6.0)]),
         clip_start=0.0, gap=24, tmp_dir=tmp_path / "probe")
@@ -682,13 +683,21 @@ def test_plan_cue_placements_falls_back_per_cue(tmp_path, monkeypatch, capsys):
                       "fallback": True}
     assert got[1]["margin_v"] == 174 and got[1]["fallback"] is False
     # 回落必须在日志里说清楚，不能静默
-    assert "未探到硬字幕带" in capsys.readouterr().out
+    # 回落必须在日志里说清楚，不能静默：既要说是回落，也要说没过哪道闸
+    out = capsys.readouterr().out
+    assert "未探到可信硬字幕带" in out
+    assert "no_text_rows" in out and "文字感最高 0.17" in out
 
 
 def test_auto_refuses_to_push_the_zh_line_above_the_midline(
         tmp_path, monkeypatch, capsys):
-    """检测把画面主体当成文字（上沿报到 200）时不硬出，退 2。"""
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top", lambda *a, **k: 200)
+    """探到了可信的带、但避让确实做不到时才退 2。
+
+    上沿 250 过得了探测器那几道闸（在中线之下），可是配上 24 的间隙，
+    中文块就会被顶到画面上半部分 —— 这是源片硬字幕位置本身没法躲，
+    不是探测误判，所以拒绝硬出。加上文字感闸门之后这条路极罕见。
+    """
+    monkeypatch.setattr(produce.HP, "probe_cue_band", lambda *a, **k: (250, ""))
 
     with pytest.raises(SystemExit) as e:
         produce.plan_cue_placements(
@@ -702,15 +711,34 @@ def test_auto_refuses_to_push_the_zh_line_above_the_midline(
     # JSON 里要能直接看出是哪一条、检测到了什么、算出了多少
     assert payload["cue_index"] == 1
     assert payload["cue_source_start_sec"] == 10.0
-    assert payload["hardsub_top_y"] == 200
-    assert payload["margin_v"] == 304
+    assert payload["hardsub_top_y"] == 250
+    assert payload["margin_v"] == 254
     assert payload["video_height"] == 480
     assert payload["sub_avoid_gap"] == 24
 
 
+def test_an_untrusted_probe_falls_back_instead_of_exiting_two(
+        tmp_path, monkeypatch, capsys):
+    """探测器报「没探到」时一律回落，哪怕回落值本身越过了中线。
+
+    退 2 是留给「探到了可信的带、避让确实做不到」的。探测器都没给出位置，
+    再拿它去拒绝硬出就是把误判升级成停产 —— CI run 30269220766 正是如此。
+    这里的画面只有 160 高，中线 80，默认的 96 反而在中线之上。
+    """
+    monkeypatch.setattr(produce.HP, "probe_cue_band",
+                        lambda *a, **k: (None, "no_text_rows：一行都不像文字"))
+    got = produce.plan_cue_placements(
+        Path("v.mp4"), 160, _cues([(0.0, 3.0)]),
+        clip_start=0.0, gap=24, tmp_dir=tmp_path / "probe")
+
+    assert got[0]["fallback"] is True
+    assert got[0]["margin_v"] == produce.DEFAULT_SUB_MARGIN_V
+    assert "no_text_rows：一行都不像文字" in capsys.readouterr().out
+
+
 def test_the_measured_default_stays_below_the_midline(tmp_path, monkeypatch):
     """回归保护：408 这个实测上沿绝不能被新的闸门拦住。"""
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top", lambda *a, **k: 408)
+    monkeypatch.setattr(produce.HP, "probe_cue_band", lambda *a, **k: (408, ""))
     got = produce.plan_cue_placements(
         Path("v.mp4"), 480, _cues([(0.0, 3.0)]),
         clip_start=0.0, gap=24, tmp_dir=tmp_path / "probe")
@@ -729,7 +757,7 @@ def test_integer_sub_margin_v_never_probes(tmp_path, monkeypatch):
     def boom(*a, **k):
         raise AssertionError("给了整数还去探测源片")
 
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top", boom)
+    monkeypatch.setattr(produce.HP, "probe_cue_band", boom)
     seen = _captured_make_ass(monkeypatch, tmp_path)
     srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
     segs, placements = produce.assemble(
@@ -755,7 +783,7 @@ def test_both_mode_never_probes(tmp_path, monkeypatch):
     def boom(*a, **k):
         raise AssertionError("both 模式去探测源片了")
 
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top", boom)
+    monkeypatch.setattr(produce.HP, "probe_cue_band", boom)
     srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
     segs, placements = produce.assemble(
         video, srt, bilingual, quotes, tmp_path, tmp_path / "out" / "final.mp4",
@@ -781,8 +809,8 @@ def test_auto_writes_per_cue_margins_into_the_ass(tmp_path, monkeypatch):
           "en": e["text"], "zh": f"简单很难{e['index']}"} for e in entries],
         ensure_ascii=False), encoding="utf-8")
 
-    tops = iter([408, 330])
-    monkeypatch.setattr(produce.HP, "probe_cue_band_top",
+    tops = iter([(408, ""), (330, "")])
+    monkeypatch.setattr(produce.HP, "probe_cue_band",
                         lambda *a, **k: next(tops))
     seen = _captured_make_ass(monkeypatch, tmp_path)
     segs, placements = produce.assemble(
@@ -855,13 +883,23 @@ QUOTE_TOP, QUOTE_BOTTOM = 330, 400          # 后 6s：大字号引言板，两�
 
 
 def _make_two_height_source(path: Path) -> None:
+    """两条带都画成 2px 亮 / 6px 暗的竖条纹，而不是实心白块。
+
+    实心白块过不了探测器的文字感闸门 —— 那正是闸门存在的意义：源片里
+    y=240 那片 120px 厚的 B-roll 亮画面就是被当成字幕带才闯出 CI run
+    30269220766 的。条纹的行统计与实测真字幕对得上（亮占比 14%/19%，
+    文字感 1.00，实测源片 219.7s 那条带是 10% / 1.15），而条带的上下沿仍
+    钉在常量上，下面按像素比对的断言照旧成立。
+    """
+    band = (f"if(lt(T\\,6)\\,"
+            f" between(Y\\,{DIALOG_TOP}\\,{DIALOG_BOTTOM - 1})"
+            f"*between(X\\,180\\,673)\\,"
+            f" between(Y\\,{QUOTE_TOP}\\,{QUOTE_BOTTOM - 1})"
+            f"*between(X\\,100\\,753))")
     subprocess.run(
         ["ffmpeg", "-y", "-f", "lavfi", "-i",
          f"color=c=black:s=854x480:d=12,"
-         f"drawbox=x=180:y={DIALOG_TOP}:w=494:h={DIALOG_BOTTOM - DIALOG_TOP}:"
-         f"color=white:t=fill:enable='lt(t\\,6)',"
-         f"drawbox=x=100:y={QUOTE_TOP}:w=654:h={QUOTE_BOTTOM - QUOTE_TOP}:"
-         f"color=white:t=fill:enable='gte(t\\,6)'",
+         f"geq=lum='16+239*{band}*lt(mod(X\\,8)\\,2)':cb=128:cr=128",
          "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-shortest",
          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "10",
          "-c:a", "aac", str(path)],
