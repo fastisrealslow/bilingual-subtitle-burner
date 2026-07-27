@@ -468,7 +468,8 @@ def _translate_claude(texts: list, model: str) -> list:
     numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(texts))
     prompt = ("把下列英文字幕逐条翻译成简体中文，保持条数和编号一致，"
               "每行一条，只输出「编号. 译文」，不要任何解释。\n"
-              "中文引号一律用直角引号，外层「」内层『』。\n\n" + numbered)
+              "中文引号一律用直角引号，外层「」内层『』。"
+              + TR.glossary_block("en2zh") + "\n\n" + numbered)
     try:
         resp = client.messages.create(
             model=model, max_tokens=8000,
