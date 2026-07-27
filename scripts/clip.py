@@ -341,12 +341,13 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         en_t = wrap_text(e.get("en", "").strip(), en_wrap, is_cjk=False)
         zh_t = wrap_text(e.get("zh", "").strip(), zh_wrap, is_cjk=True)
         # 英文行按这一条中文实际折了几行来让位。样式里的 MarginV 只能按固定
-        # 行数算，中文折到 3 行时（长句里没有可断的标点就会发生，实测 57 字
-        # 一条）整块往上顶，直接盖住英文行，「英文在上中文在下」的版式反过来。
-        # ASS 的 Dialogue 支持逐条覆盖 MarginV，用它按条修正。
+        # 行数算，两头都出问题：折到 3 行时（长句里没有可断的标点就会发生，
+        # 实测 56 字一条）中文块往上顶穿英文行，「英文在上中文在下」的版式
+        # 反过来；只有 1 行时又白留一行的空，英文被顶到画面中段骑在讲者
+        # 下巴上。ASS 的 Dialogue 支持逐条覆盖 MarginV，按实际行数算。
         zh_lines = zh_t.count(r"\N") + 1 if zh_t else 0
         en_margin = margin_bottom_en
-        if zh_lines > 2:
+        if zh_lines:
             en_margin = min(cap, margin_bottom_zh + zh_line_h * zh_lines + 8)
         # zh_only：原片已有英文硬字幕，再烧一遍英文只会重复且拥挤
         if en_t and sub_mode != "zh_only":

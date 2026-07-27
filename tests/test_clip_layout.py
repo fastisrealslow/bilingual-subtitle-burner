@@ -44,10 +44,15 @@ def test_three_line_chinese_does_not_push_over_the_english(tmp_path):
     assert en["margin_v"] >= zh_style["margin_v"] + 3 * zh_style["size"]
 
 
-def test_short_chinese_keeps_the_style_margin(tmp_path):
-    """中文不折行时不该额外抬高英文——逐条 MarginV 应与样式一致。"""
+def test_single_line_chinese_does_not_leave_a_blank_row(tmp_path):
+    """样式按固定 2 行预留，中文只有 1 行时英文被顶到画面中段骑在讲者脸上。
+    逐条 MarginV 必须按实际 1 行算，比样式值低一个行高。"""
     ass = build(SHORT_ZH, tmp_path)
-    assert dialogues(ass)["EN"]["margin_v"] == styles(ass)["EN"]["margin_v"]
+    zh_style, en_style = styles(ass)["ZH"], styles(ass)["EN"]
+    en = dialogues(ass)["EN"]
+    assert dialogues(ass)["ZH"]["text"].count(r"\N") == 0       # 确实是 1 行
+    assert en["margin_v"] < en_style["margin_v"]
+    assert en["margin_v"] >= zh_style["margin_v"] + zh_style["size"]
 
 
 def test_english_margin_never_exceeds_the_half_screen_cap(tmp_path):
