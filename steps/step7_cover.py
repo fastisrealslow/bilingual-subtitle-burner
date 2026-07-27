@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-import sf_transport  # noqa: E402
+import sf_client  # noqa: E402
 
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageStat
@@ -470,12 +470,11 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
     }).encode("utf-8")
 
     try:
-        resp = sf_transport.post(
+        resp = sf_client.post(
             "https://api.siliconflow.cn/v1/chat/completions",
             headers={"Authorization": f"Bearer {api_key}"},
-            data=payload, timeout=60,
+            data=payload, timeout=60, tag="cover",
         )
-        resp.raise_for_status()
         data = resp.json()
         text = data["choices"][0]["message"]["content"].strip()
         used = (data.get("usage") or {}).get("prompt_tokens", "?")
@@ -496,6 +495,10 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
             print(f"[cover]   原始返回：{text[:200]}", file=sys.stderr)
         else:
             print("[cover]   原始返回为空（纯文本模型收到图片时的典型表现）", file=sys.stderr)
+    except (sf_client.FatalHTTPError, sf_client.RetriesExhausted):
+        # 鉴权/余额/连续 5xx 是外部故障，不是“这条片子挑不出封面”。
+        # 咽下去会让它伪装成质量拒绝（退 2），把真实原因藏起来。
+        raise
     except Exception as e:
         print(f"[cover] vision LLM 调用失败: {e}", file=sys.stderr)
     return []

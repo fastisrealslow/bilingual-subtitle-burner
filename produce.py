@@ -3,8 +3,14 @@
 
     python produce.py --source <URL 或本地路径> --slug <output-slug>
 
-流水线共八步：取源 → 转写 → 挑金句 → 翻译 → 拼片烧字幕 → 封面 → 标题 → manifest。
-所有 LLM/VLM 调用都走 SiliconFlow（``scripts/sf_transport``，curl 子进程）。
+流水线共九步：取源 → 转写 → 挑金句 → **封面选帧** → 翻译 → 拼片烧字幕 →
+标题 → 封面出图 → manifest。
+
+封面选帧排在翻译**之前**：它是唯一一个会把整条片子否掉的后置闸门，留在最后
+就意味着每次退 2 都先把翻译的钱花光。烧标题那步依赖标题，仍留在 title 之后。
+
+所有 LLM/VLM 调用都走 SiliconFlow，经 ``scripts/sf_client``（磁盘缓存 + 分类
+重试）落到 ``scripts/sf_transport``（curl 子进程）。
 
 退出码
 ------
@@ -18,10 +24,12 @@ import argparse
 import hashlib
 import json
 import os
+import random
 import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -31,7 +39,7 @@ for _sub in ("scripts", "steps"):
 import hardsub_probe as HP                   # noqa: E402
 import highlight as HL                       # noqa: E402
 import platform_rules as PR                  # noqa: E402
-import sf_transport                          # noqa: E402
+import sf_client                             # noqa: E402
 import step7_cover as COVER                  # noqa: E402
 import translate as TR                       # noqa: E402
 from clip import make_ass, srt_filter        # noqa: E402
@@ -71,10 +79,51 @@ DEFAULT_SUB_MARGIN_V_ARG = SUB_MARGIN_V_AUTO
 DEFAULT_SUB_AVOID_GAP = 24
 
 
+# yt-dlp 外层重试。archive.org 的 HTTP 500 是间歇性的（CI run 30263087066 就是
+# 这么退 3 的，原样重跑就过），无人值守时不重试等于白跑一趟。
+DEFAULT_LLM_CACHE_DIR = ROOT / sf_client.DEFAULT_CACHE_DIRNAME
+
+DEFAULT_DOWNLOAD_RETRIES = 3
+DEFAULT_DOWNLOAD_BACKOFF_SEC = 5.0
+DOWNLOAD_BACKOFF_CAP_SEC = 60.0
+# 重试也变不出来的：源不存在、URL 根本不是 yt-dlp 认得的东西
+# 408/429 不在里面：那两个是「稍后再来」，值得重试
+DOWNLOAD_FATAL_RE = re.compile(
+    r"HTTP Error (400|401|403|404|410)\b|404: Not Found"
+    r"|Unsupported URL|is not a valid URL"
+    r"|Video unavailable|This video is private|Incomplete YouTube ID",
+    re.IGNORECASE)
+
+# 流水线阶段顺序。封面选帧夹在 highlight 和 translate 之间是这次改动的重点，
+# 所以整张表在开跑时就打进日志，跑到哪一步一眼可见。
+STAGE_ORDER = [
+    ("input", "取源（yt-dlp / 本地文件）"),
+    ("transcribe", "faster-whisper 转写"),
+    ("highlight", "挑金句（LLM）"),
+    ("cover-select", "封面选帧 + 阈值判定（VLM）— 故意排在翻译之前"),
+    ("translate", "翻译（LLM，主要开销）"),
+    ("assemble", "切片烧字幕 + concat"),
+    ("title", "起标题（LLM）"),
+    ("cover-render", "封面烧标题出图"),
+    ("manifest", "汇总 meta.json"),
+]
+
+
 # ── 基础设施 ──────────────────────────────────────────────────────────────────
 
 def log(stage: str, msg: str) -> None:
     print(f"[{stage}] {msg}", flush=True)
+
+
+def log_stage_plan() -> None:
+    names = " → ".join(name for name, _ in STAGE_ORDER)
+    log("stage", f"阶段顺序：{names}")
+
+
+def stage(name: str) -> None:
+    order = [n for n, _ in STAGE_ORDER]
+    log("stage", f"{order.index(name) + 1}/{len(order)} {name} —— "
+                 f"{dict(STAGE_ORDER)[name]}")
 
 
 def die(code: int, stage: str, reason: str, **fields) -> None:
@@ -82,6 +131,11 @@ def die(code: int, stage: str, reason: str, **fields) -> None:
     payload = {"stage": stage, "reason": reason, **fields}
     print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
     sys.exit(code)
+
+
+def die_fatal_http(stage: str, e) -> None:
+    """SiliconFlow 的不可重试失败：退出码由 sf_client 按语义定，原样带上状态码。"""
+    die(e.exit_code, stage, e.reason, http_status=e.status_code, detail=e.detail)
 
 
 def run(cmd: list, stage: str) -> None:
@@ -131,7 +185,53 @@ def is_url(source: str) -> bool:
 
 # ── 1. 取源 ───────────────────────────────────────────────────────────────────
 
-def resolve_source(source: str, work: Path) -> Path:
+def download_is_fatal(output: str) -> bool:
+    """区分「重试也没用」和「值得重试」。
+
+    404 / 非法 URL 重试多少次都是同一个结果，纯属浪费无人值守的那 40 分钟；
+    5xx、超时、连接重置则大概率是对端抖动，原样重跑就过。判不出来的按可重试
+    处理 —— 多试两次的代价远小于白跑一趟。
+    """
+    return bool(DOWNLOAD_FATAL_RE.search(output or ""))
+
+
+def download_source(source: str, out: Path, retries: int,
+                    backoff_sec: float) -> None:
+    """带外层退避重试的 yt-dlp 下载。
+
+    yt-dlp 自己的 ``--retries`` / ``--fragment-retries`` 只覆盖单个 HTTP 请求
+    和分片，整次调用被 archive.org 的 500 顶回来时它就直接退了，所以外面还要
+    再包一层。
+    """
+    cmd = ["yt-dlp", "-f", "bv*[height<=720]+ba/b[height<=720]/b",
+           "--merge-output-format", "mp4",
+           "--retries", "5", "--fragment-retries", "5",
+           "-o", str(out), source]
+    last = ""
+    for attempt in range(1, retries + 1):
+        log("input", f"yt-dlp 下载 {source}（第 {attempt}/{retries} 次）")
+        p = subprocess.run([str(c) for c in cmd], capture_output=True, text=True)
+        if p.returncode == 0:
+            return
+        last = ((p.stderr or "") + (p.stdout or "")).strip()
+        print(last[-2000:], file=sys.stderr, flush=True)
+        if download_is_fatal(last):
+            die(EXIT_CONFIG, "input", "source_unavailable",
+                detail="片源不存在或 URL 不受支持，重试没有意义",
+                source=source, returncode=p.returncode, output=last[-500:])
+        if attempt == retries:
+            break
+        wait = min(backoff_sec * (2 ** (attempt - 1)), DOWNLOAD_BACKOFF_CAP_SEC)
+        wait += random.uniform(0, wait * 0.25)
+        log("input", f"下载失败（rc={p.returncode}），{wait:.1f}s 后重试")
+        time.sleep(wait)
+    die(EXIT_API, "input", "download_failed", source=source,
+        attempts=retries, output=last[-500:])
+
+
+def resolve_source(source: str, work: Path,
+                   retries: int = DEFAULT_DOWNLOAD_RETRIES,
+                   backoff_sec: float = DEFAULT_DOWNLOAD_BACKOFF_SEC) -> Path:
     """URL 走 yt-dlp，``file://`` 和本地路径直接用。"""
     if source.startswith("file://"):
         source = source[len("file://"):]
@@ -147,9 +247,7 @@ def resolve_source(source: str, work: Path) -> Path:
         die(EXIT_CONFIG, "input", "yt_dlp_not_installed", source=source)
 
     out = work / "source.mp4"
-    log("input", f"yt-dlp 下载 {source}")
-    run(["yt-dlp", "-f", "bv*[height<=720]+ba/b[height<=720]/b",
-         "--merge-output-format", "mp4", "-o", str(out), source], "input")
+    download_source(source, out, retries, backoff_sec)
     if not out.is_file():
         die(EXIT_API, "input", "download_produced_no_file", source=source)
     return out
@@ -184,8 +282,13 @@ def pick_quotes(srt: Path, work: Path, speaker: str, total_dur: float,
     paragraphs = HL.merge_into_paragraphs(entries, gap_sec=3.0, max_sec=90.0)
     log("highlight", f"{len(entries)} 条字幕 → {len(paragraphs)} 个段落")
 
-    quotes = HL.score_highlights(paragraphs, api_key, HIGHLIGHT_MODEL,
-                                 base_url, speaker=speaker, top_n=10)
+    try:
+        quotes = HL.score_highlights(paragraphs, api_key, HIGHLIGHT_MODEL,
+                                     base_url, speaker=speaker, top_n=10)
+    except sf_client.FatalHTTPError as e:
+        die_fatal_http("highlight", e)
+    except RuntimeError as e:
+        die(EXIT_API, "highlight", "siliconflow_unavailable", detail=str(e))
     quotes = HL.align_clips(quotes, entries, total_dur)
     quotes = HL.enforce_quote_thresholds(quotes, want=SEGMENTS, strict=strict)
 
@@ -224,6 +327,8 @@ def translate_windows(srt: Path, quotes: list, work: Path, translator: str,
         try:
             zh_list = TR.translate_all([e["text"] for e in picked], api_key,
                                        model, base_url, direction="en2zh")
+        except sf_client.FatalHTTPError as e:
+            die_fatal_http("translate", e)
         except RuntimeError as e:
             die(EXIT_API, "translate", "siliconflow_unavailable", detail=str(e))
 
@@ -414,17 +519,22 @@ def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
 
 # ── 6. 封面 ───────────────────────────────────────────────────────────────────
 
-def make_covers(video: Path, quotes: list, title: str, speaker: str,
-                out_dir: Path, work: Path, api_key: str,
-                no_vlm: bool, cover_time_sec: float | None = None,
-                candidates: int = COVER.DEFAULT_COVER_CANDIDATES,
-                cover_crop: str | None = None) -> dict:
-    """选帧 + 出 16:9 / 9:16 两张封面。挑不出合格帧时由 cover 侧退 2。
+def select_cover_frame(video: Path, quotes: list, speaker: str, work: Path,
+                       api_key: str, no_vlm: bool,
+                       cover_time_sec: float | None = None,
+                       candidates: int = COVER.DEFAULT_COVER_CANDIDATES,
+                       cover_crop: str | None = None) -> tuple[str, dict]:
+    """选出封面帧并过阈值判定。挑不出合格帧时由 cover 侧退 2。
+
+    这一步**故意排在翻译之前**：它是全流程里唯一一个会在末尾把整条片子否掉的
+    质量闸门，留在最后就意味着每次退 2 都先把翻译的钱花光、把成片也烧完
+    （CI run 30259127265 / 30260691746 就是这么白跑的）。烧标题那步依赖标题，
+    留在原位；选帧和阈值判定不依赖译文，提前。
 
     有些片源天生挑不出合格封面 —— 解说式剪辑用的是原声 + 素材空镜，全片
     没有主讲人正脸，自动选帧只会挑到不相干的素材人物，冒充主讲人属于误导。
     ``cover_time_sec`` 就是给这种源片的人工出口：钉死一个时间点，人脸预筛
-    和 VLM 校验全部跳过。
+    和 VLM 校验全部跳过 —— 这条路径同样提前，截不出帧也要早点知道。
 
     ``cover_crop`` 切掉源片底部烧死的英文硬字幕，选帧和出图共用同一个裁切。
     """
@@ -464,6 +574,8 @@ def make_covers(video: Path, quotes: list, title: str, speaker: str,
                 api_key=api_key, vision_model=VISION_MODEL,
                 tmp_dir=str(tmp), candidates=candidates, report=report,
                 crop=cover_crop)
+        except sf_client.FatalHTTPError as e:
+            die_fatal_http("cover", e)
         except RuntimeError as e:
             die(EXIT_API, "cover", "vision_call_failed", detail=str(e))
         if not frame:
@@ -476,6 +588,15 @@ def make_covers(video: Path, quotes: list, title: str, speaker: str,
                 rejections=rejections[:20],
                 hint=COVER.NO_COVER_HINT)
 
+    report["cover_source_frame"] = os.path.basename(frame)
+    report.setdefault("cover_vlm_passed", not no_vlm)
+    report.setdefault("cover_vlm_rejections", [])
+    return frame, report
+
+
+def render_covers(frame: str, title: str, speaker: str, out_dir: Path,
+                  report: dict) -> dict:
+    """把标题烧上已选定的帧，出 16:9 / 9:16 两张图。标题来自 title 这一步。"""
     out_dir.mkdir(parents=True, exist_ok=True)
     covers = {}
     for name, size in (("cover_16x9.jpg", (1280, 720)),
@@ -484,10 +605,6 @@ def make_covers(video: Path, quotes: list, title: str, speaker: str,
         COVER.make_cover(frame, title, speaker, str(path), size)
         covers[name] = path
         log("cover", f"→ {path}")
-
-    report["cover_source_frame"] = os.path.basename(frame)
-    report.setdefault("cover_vlm_passed", not no_vlm)
-    report.setdefault("cover_vlm_rejections", [])
     report["files"] = covers
     return report
 
@@ -508,6 +625,8 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
     try:
         raw = HL.call_llm([{"role": "user", "content": prompt}],
                           api_key, HIGHLIGHT_MODEL, base_url)
+    except sf_client.FatalHTTPError as e:
+        die_fatal_http("title", e)
     except RuntimeError as e:
         log("title", f"模型不可用（{e}），退到金句建议标题")
         raw = quotes[0].get("title_suggestion", "") or speaker
@@ -649,6 +768,31 @@ def parse_args(argv=None):
                         f"留的像素间隙（默认 {DEFAULT_SUB_AVOID_GAP}，即 854x480 "
                         f"源片上 480-408+24=96 那个实测默认值的来源）。"
                         f"给大了中文会往画面中段爬，给小了两层字会贴在一起")
+    p.add_argument("--llm-cache-dir", default=str(DEFAULT_LLM_CACHE_DIR),
+                   metavar="DIR",
+                   help=f"LLM/VLM 响应的磁盘缓存目录（默认仓库根 "
+                        f"{sf_client.DEFAULT_CACHE_DIRNAME}/）。键是 "
+                        f"sha256(模型名+端点+规范化请求体)，晚期失败重跑时"
+                        f"前面已付费的调用直接命中，一次都不重发")
+    p.add_argument("--no-llm-cache", action="store_true",
+                   help="关闭 LLM/VLM 响应缓存，所有调用一律实发")
+    p.add_argument("--llm-max-retries", type=int,
+                   default=sf_client.DEFAULT_MAX_RETRIES, metavar="N",
+                   help=f"单个 SiliconFlow 请求最多尝试几次（含首次，默认 "
+                        f"{sf_client.DEFAULT_MAX_RETRIES}）。429/5xx 和连接失败才"
+                        f"退避重试；400/401/402/403 一次都不重试。客户端超时最多"
+                        f"只试 {sf_client.TIMEOUT_MAX_ATTEMPTS} 次 —— 服务端可能"
+                        f"已处理并计费")
+    p.add_argument("--download-retries", type=int,
+                   default=DEFAULT_DOWNLOAD_RETRIES, metavar="N",
+                   help=f"yt-dlp 下载最多尝试几次（含首次，默认 "
+                        f"{DEFAULT_DOWNLOAD_RETRIES}）。5xx / 超时 / 连接重置会"
+                        f"退避重试，404 和非法 URL 直接失败")
+    p.add_argument("--download-backoff-sec", type=float,
+                   default=DEFAULT_DOWNLOAD_BACKOFF_SEC, metavar="SEC",
+                   help=f"yt-dlp 重试的退避基数秒，逐次翻倍，单次上限 "
+                        f"{DOWNLOAD_BACKOFF_CAP_SEC:.0f}s"
+                        f"（默认 {DEFAULT_DOWNLOAD_BACKOFF_SEC:.0f}）")
     p.add_argument("--strict-highlights", action="store_true",
                    help="金句门槛忽略环境变量放宽，只认代码里的下限")
     p.add_argument("--speaker", default="演讲者", help="说话人名字，用于打分和封面")
@@ -682,18 +826,36 @@ def main(argv=None) -> int:
     out_dir = Path(args.out).resolve() / args.slug
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    video = resolve_source(args.source, work)
+    sf_client.configure(cache_dir=args.llm_cache_dir,
+                        cache_enabled=not args.no_llm_cache,
+                        max_retries=args.llm_max_retries)
+    log_stage_plan()
+
+    stage("input")
+    video = resolve_source(args.source, work, args.download_retries,
+                           args.download_backoff_sec)
+    stage("transcribe")
     srt = transcribe(video, work, args.language)
+    stage("highlight")
     quotes = pick_quotes(srt, work, args.speaker, probe_duration(video),
                          api_key, base_url, args.strict_highlights)
+
+    # 翻译之前先过封面这道闸门：挑不出合格封面的片子在这里退 2，
+    # 翻译和拼片的钱一分都不花。
+    stage("cover-select")
+    cover_frame, cover_report = select_cover_frame(
+        video, quotes, args.speaker, work, api_key, args.no_vlm,
+        args.cover_time_sec, args.cover_candidates, args.cover_crop)
 
     translators = ([args.translator] if not args.dual
                    else sorted(TRANSLATORS, key=lambda t: t != args.translator))
 
     finals: dict = {}
     for t in translators:
+        stage("translate")
         bilingual = translate_windows(srt, quotes, work, t, api_key, base_url)
         name = "final.mp4" if t == args.translator else f"final_{t}.mp4"
+        stage("assemble")
         segs, placements = assemble(video, srt, bilingual, quotes, work,
                                     out_dir / name, args.sub_mode,
                                     args.sub_margin_v, args.sub_avoid_gap)
@@ -701,22 +863,25 @@ def main(argv=None) -> int:
         if t == args.translator:
             primary_segs, primary_placements = segs, placements
 
+    stage("title")
     title = make_title(quotes, args.speaker, api_key, base_url,
                        args.title_override)
     log("title", title)
 
-    covers = make_covers(video, quotes, title, args.speaker, out_dir, work,
-                         api_key, args.no_vlm, args.cover_time_sec,
-                         args.cover_candidates, args.cover_crop)
+    stage("cover-render")
+    covers = render_covers(cover_frame, title, args.speaker, out_dir,
+                           cover_report)
 
     if args.dual and len(finals) > 1:
         build_compare_grid(finals, out_dir / "compare_grid.jpg")
 
+    stage("manifest")
     write_meta(out_dir, args.slug, title, args.source,
                out_dir / "final.mp4", primary_segs, covers,
                args.translator, args.speaker, args.sub_mode, args.sub_margin_v,
                args.sub_avoid_gap, primary_placements)
 
+    sf_client.log_cache_stats()
     log("done", f"产物 → {out_dir}")
     return EXIT_OK
 
