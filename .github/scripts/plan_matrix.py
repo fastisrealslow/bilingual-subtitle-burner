@@ -37,17 +37,19 @@ def normalize(raw: dict, origin: str) -> dict:
     if isinstance(dual, str):
         dual = dual.strip().lower() == "true"
 
-    # 手动封面时间点。matrix 里走字符串（空串 = 不指定），但「写了个非数字」
-    # 要在 plan 阶段就验出来，否则得等 40 分钟的 runner 跑到最后一步才炸。
+    # 手动封面时间点，多集时逗号分隔一集一个。matrix 里走字符串（空串 = 不指定），
+    # 但「写了个非数字」要在 plan 阶段就验出来，否则得等 40 分钟的 runner 跑到
+    # 最后一步才炸。个数与集数是否匹配由 produce.py 按实际产出集数核。
     cover_time = str(raw.get("cover_time_sec") or "").strip()
     if cover_time:
         try:
-            valid = float(cover_time) >= 0
+            valid = all(float(p) >= 0 for p in cover_time.split(","))
         except ValueError:
             valid = False
         if not valid:
             raise ValueError(
-                f"{origin}: cover_time_sec={cover_time!r} 无效，应为非负秒数")
+                f"{origin}: cover_time_sec={cover_time!r} 无效，"
+                f"应为非负秒数，多集时用逗号分隔")
 
     # 封面裁切（切掉源片烧死的英文硬字幕）。同样在 plan 阶段验格式。
     cover_crop = str(raw.get("cover_crop") or "").strip()

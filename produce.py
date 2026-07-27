@@ -945,6 +945,22 @@ def sub_margin_v_arg(raw: str) -> int | str:
         f"{raw!r} 无效，应为 {SUB_MARGIN_V_AUTO} 或非负整数像素")
 
 
+def cover_time_sec_arg(raw: str) -> list[float]:
+    """``--cover-time-sec`` 接一个或多个非负秒数，逗号分隔，一集一个。"""
+    parts = [p.strip() for p in raw.split(",")]
+    values = []
+    for p in parts:
+        try:
+            v = float(p)
+        except ValueError:
+            raise argparse.ArgumentTypeError(
+                f"{raw!r} 无效，应为逗号分隔的非负秒数，一集一个（如 287 或 287,412）")
+        if v < 0:
+            raise argparse.ArgumentTypeError(f"{raw!r} 无效，秒数不能为负")
+        values.append(v)
+    return values
+
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="produce.py",
@@ -972,9 +988,12 @@ def parse_args(argv=None):
                    help=f"封面候选帧数量，在金句时长上均匀取样，避开首尾各 "
                         f"{COVER.EDGE_MARGIN_SEC:.0f}s"
                         f"（默认 {COVER.DEFAULT_COVER_CANDIDATES}）")
-    p.add_argument("--cover-time-sec", type=float, default=None,
+    p.add_argument("--cover-time-sec", type=cover_time_sec_arg, default=None,
+                   metavar="SEC[,SEC...]",
                    help="手动指定封面帧时间点（秒），跳过人脸预筛和 VLM 校验。"
-                        "用于全片没有主讲人正脸的解说式剪辑/空镜素材片")
+                        "用于全片没有主讲人正脸的解说式剪辑/空镜素材片。"
+                        "多集时给逗号分隔的多个值，一集一个，按集顺序对应，"
+                        "个数必须与实际产出集数相等")
     p.add_argument("--cover-crop", default=None, metavar="W:H:X:Y",
                    help="封面选帧时先裁切，格式同 ffmpeg 的 crop 滤镜（W:H:X:Y）。"
                         "用于裁掉源片底部烧死的英文硬字幕等干扰区域，"
@@ -1052,11 +1071,13 @@ def main(argv=None) -> int:
                    "两者只能选一个",
             episodes=args.episodes)
 
-    if args.episodes > 1 and args.cover_time_sec is not None:
+    cover_times = args.cover_time_sec or []
+    if args.episodes > 1 and len(cover_times) == 1:
         die(EXIT_CONFIG, "config", "cover_time_with_multiple_episodes",
-            detail="--cover-time-sec 钉的是单个时间点，多集下每集片段不同，"
-                   "同一帧未必落在第 2 集里，两者只能选一个",
-            episodes=args.episodes, cover_time_sec=args.cover_time_sec)
+            detail="一个时间点不能给多集共用：每集片段不同，同一帧未必落在第 2 集"
+                   "里，复用还会让两集出一模一样的封面。请给逗号分隔的多个值，"
+                   "一集一个，按集顺序对应",
+            episodes=args.episodes, cover_time_sec=cover_times)
 
     if args.cover_crop and not COVER_CROP_RE.fullmatch(args.cover_crop):
         die(EXIT_CONFIG, "config", "invalid_cover_crop",
@@ -1096,6 +1117,16 @@ def main(argv=None) -> int:
                                    probe_duration(video), api_key, base_url,
                                    args.strict_highlights, args.episodes)
 
+    # 实际集数可能少于 --episodes 请求数（源不够时不凑数），所以钉帧个数要跟
+    # 真正产出的组数核，而不是跟请求数核。核在翻译之前，免得白花钱。
+    if cover_times and len(cover_times) != len(groups):
+        die(EXIT_CONFIG, "config", "cover_time_count_mismatch",
+            detail=f"--cover-time-sec 给了 {len(cover_times)} 个时间点，"
+                   f"实际产出 {len(groups)} 集（源不够时会少于 --episodes "
+                   f"请求的 {args.episodes} 集），必须一集一个、个数相等",
+            cover_time_sec=cover_times, episodes=len(groups),
+            episodes_requested=args.episodes)
+
     queue_episodes = []
     for index, quotes in enumerate(groups, 1):
         ep_dir = episode_dir(out_dir, index, args.episodes)
@@ -1110,7 +1141,8 @@ def main(argv=None) -> int:
         stage("cover-select")
         cover_frame, cover_report = select_cover_frame(
             video, quotes, args.speaker, ep_work, api_key, args.no_vlm,
-            args.cover_time_sec, args.cover_candidates, args.cover_crop)
+            cover_times[index - 1] if cover_times else None,
+            args.cover_candidates, args.cover_crop)
 
         translators = ([args.translator] if not args.dual
                        else sorted(TRANSLATORS,
