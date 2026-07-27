@@ -37,15 +37,17 @@ def test_all_frames_rejected_falls_back_to_full_list(blank_frame):
     assert kept_p == paths and kept_t == times
 
 
-def test_qualifying_frames_are_kept_and_others_dropped(monkeypatch):
-    ratios = {"a.jpg": 0.0, "b.jpg": 0.12, "c.jpg": 0.01, "d.jpg": 0.05}
+def test_faceless_frames_are_dropped(monkeypatch):
+    # 候选够多时，没脸的帧一定要丢：a 是 0%，不该出现在送 vision 的名单里
+    ratios = {f"q{i}.jpg": 0.12 for i in range(C.FALLBACK_KEEP)}
+    ratios["a.jpg"] = 0.0
     monkeypatch.setattr(C, "largest_face_ratio", lambda p: ratios[p])
     monkeypatch.setattr(C, "_get_face_cascade", lambda: object())
 
-    kept_p, kept_t = C.filter_frames_by_face(list(ratios), [1.0, 2.0, 3.0, 4.0])
-    # 阈值是 ≥5%，d 刚好卡在线上要保留，c 的 1% 要丢掉
-    assert kept_p == ["b.jpg", "d.jpg"]
-    assert kept_t == [2.0, 4.0]
+    paths = list(ratios)
+    kept_p, _ = C.filter_frames_by_face(paths, [float(i) for i in range(len(paths))])
+    assert "a.jpg" not in kept_p
+    assert len(kept_p) == C.FALLBACK_KEEP
 
 
 def test_filter_is_noop_without_opencv(monkeypatch):
@@ -100,9 +102,14 @@ def test_frames_without_any_face_still_fall_back_to_full_list(monkeypatch):
     assert C.filter_frames_by_face(paths, times) == (paths, times)
 
 
-def test_qualifying_frames_win_over_fallback(monkeypatch):
-    ratios = {"a.jpg": 0.04, "b.jpg": 0.09, "c.jpg": 0.04}
+def test_single_qualifying_frame_is_topped_up_with_runners_up(monkeypatch):
+    # 只有 1 帧过线时不能只送这 1 帧：vision 没得挑，只能矮子里拔将军。
+    # 过线的 b 必须在，剩下的按脸大小补齐到 FALLBACK_KEEP，仍按时间序。
+    ratios = {"a.jpg": 0.04, "b.jpg": 0.09, "c.jpg": 0.03,
+              "d.jpg": 0.02, "e.jpg": 0.0}
     monkeypatch.setattr(C, "largest_face_ratio", lambda p: ratios[p])
     monkeypatch.setattr(C, "_get_face_cascade", lambda: object())
-    assert C.filter_frames_by_face(list(ratios), [1.0, 2.0, 3.0]) == \
-        (["b.jpg"], [2.0])
+
+    kept_p, kept_t = C.filter_frames_by_face(list(ratios), [1.0, 2.0, 3.0, 4.0, 5.0])
+    assert kept_p == ["a.jpg", "b.jpg", "c.jpg", "d.jpg"]   # e 没脸，仍然丢掉
+    assert kept_t == [1.0, 2.0, 3.0, 4.0]

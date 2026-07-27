@@ -242,11 +242,22 @@ def filter_frames_by_face(frame_paths: list[str], frame_times: list[float],
     scored = [(largest_face_ratio(p), p, t) for p, t in zip(frame_paths, frame_times)]
     elapsed = time.time() - t0
 
-    kept = [(p, t) for r, p, t in scored if r >= min_ratio]
+    kept = [s for s in scored if s[0] >= min_ratio]
     if kept:
+        # 达标帧太少就按脸大小补齐到 FALLBACK_KEEP。以 B-roll 为主的片源里
+        # 常常 47 帧只有 1 帧过线，vision 拿到唯一候选只能矮子里拔将军（实测
+        # 选出一张自评 1 分、"完全不适合"的路人合影）。预筛是为了省调用，
+        # 不是为了把候选池砍到没得挑。
+        if len(kept) < FALLBACK_KEEP:
+            chosen = {s[1] for s in kept}
+            extra = sorted((s for s in scored if s[0] > 0 and s[1] not in chosen),
+                           key=lambda s: -s[0])
+            kept += extra[:FALLBACK_KEEP - len(kept)]
+        kept.sort(key=lambda s: s[2])   # 送给 vision 的帧必须仍按时间排序
         print(f"[cover]   人脸预筛：{len(frame_paths)} 帧 → {len(kept)} 帧"
-              f"（脸占比 ≥{min_ratio:.0%}，耗时 {elapsed:.1f}s）", flush=True)
-        return [p for p, _ in kept], [t for _, t in kept]
+              f"（脸占比 ≥{min_ratio:.0%}，不足 {FALLBACK_KEEP} 帧按脸大小补齐，"
+              f"耗时 {elapsed:.1f}s）", flush=True)
+        return [s[1] for s in kept], [s[2] for s in kept]
 
     # 中景机位的说话人在 854 宽的片源里脸只占 4% 左右（实测一条 60 帧的
     # 片源 44 帧检出正脸、最大占比 0.047），整条片子全卡在阈值下方一点。
