@@ -41,7 +41,7 @@ import sys
 import time
 from typing import List, Dict
 
-import sf_transport
+import sf_client
 
 # ── 常量 ──────────────────────────────────────────────────────────────────────
 
@@ -139,28 +139,18 @@ def strip_code_fence(text: str) -> str:
     return re.sub(r"\n?```\s*$", "", t).strip()
 
 
-def call_llm(messages, api_key, model, base_url, max_retries=4):
+def call_llm(messages, api_key, model, base_url):
+    """经 ``sf_client`` 发起调用：命中缓存直接返回，失败按状态码分类重试。"""
     url = f"{base_url.rstrip('/')}/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {"model": model, "messages": messages, "temperature": 0.3,
                 "stream": False, "enable_thinking": False}
-    for attempt in range(max_retries):
-        try:
-            resp = sf_transport.post(url, headers=headers, json=payload, timeout=180)
-        except sf_transport.TransportError as e:
-            print(f"[highlight] 请求异常 {e}，{2**attempt}s 后重试", file=sys.stderr)
-            time.sleep(2 ** attempt)
-            continue
-        if resp.status_code == 200:
-            return strip_think(resp.json()["choices"][0]["message"]["content"])
-        elif resp.status_code in (429, 500, 502, 503):
-            wait = 2 ** attempt
-            print(f"[highlight] {resp.status_code} 限流，{wait}s 后重试", file=sys.stderr)
-            time.sleep(wait)
-        else:
-            print(f"[highlight] 错误 {resp.status_code}: {resp.text[:300]}", file=sys.stderr)
-            resp.raise_for_status()
-    raise RuntimeError("LLM 多次重试失败")
+    try:
+        resp = sf_client.post(url, headers=headers, json=payload, timeout=180,
+                              tag="highlight")
+    except sf_client.RetriesExhausted as e:
+        raise RuntimeError(f"LLM 多次重试失败：{e.detail}") from e
+    return strip_think(resp.json()["choices"][0]["message"]["content"])
 
 
 # ── SRT 解析 ──────────────────────────────────────────────────────────────────

@@ -20,10 +20,9 @@ import json
 import os
 import re
 import sys
-import time
 from typing import List, Dict
 
-import sf_transport
+import sf_client
 
 SRT_BLOCK_RE = re.compile(
     r"(\d+)\s*\n(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})\s*\n(.*?)(?=\n\n|\Z)",
@@ -84,36 +83,30 @@ FALLBACK_MODELS = [
 ]
 
 
-def _once(messages, api_key, model, base_url, temperature, max_retries):
-    """对单一模型做带退避的重试。持续限流返回 None，交由上层换模型。"""
+def _once(messages, api_key, model, base_url, temperature):
+    """对单一模型发一次（``sf_client`` 内部按分类退避重试）。
+
+    重试到上限仍不行就返回 None，交由上层换模型；鉴权 / 余额 / 请求体这类
+    换模型也救不了的失败直接往上抛。
+    """
     url = f"{base_url.rstrip('/')}/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {"model": model, "messages": messages, "temperature": temperature,
                "stream": False, "enable_thinking": False}
-    for attempt in range(max_retries):
-        try:
-            resp = sf_transport.post(url, headers=headers, json=payload, timeout=120)
-        except sf_transport.TransportError as e:
-            print(f"[translate] 请求异常 {e}，{2**attempt}s 后重试", file=sys.stderr)
-            time.sleep(2 ** attempt)
-            continue
-        if resp.status_code == 200:
-            return strip_think(resp.json()["choices"][0]["message"]["content"])
-        elif resp.status_code in (429, 500, 502, 503):
-            wait = min(2 ** attempt, 30)
-            print(f"[translate] {model} {resp.status_code} 限流/波动，{wait}s 后重试",
-                  file=sys.stderr)
-            time.sleep(wait)
-        else:
-            print(f"[translate] 错误 {resp.status_code}: {resp.text[:500]}", file=sys.stderr)
-            resp.raise_for_status()
-    return None
+    try:
+        resp = sf_client.post(url, headers=headers, json=payload, timeout=120,
+                              tag="translate")
+    except sf_client.RetriesExhausted as e:
+        print(f"[translate] {model} 重试 {e.attempts} 次仍失败：{e.detail}",
+              file=sys.stderr)
+        return None
+    return strip_think(resp.json()["choices"][0]["message"]["content"])
 
 
-def chat(messages, api_key, model, base_url, temperature=0.3, max_retries=4):
+def chat(messages, api_key, model, base_url, temperature=0.3):
     chain = [model] + [m for m in FALLBACK_MODELS if m != model]
     for i, m in enumerate(chain):
-        out = _once(messages, api_key, m, base_url, temperature, max_retries)
+        out = _once(messages, api_key, m, base_url, temperature)
         if out is not None:
             if i > 0:
                 print(f"[translate] ✓ 已降级到 {m}", file=sys.stderr)

@@ -11,6 +11,7 @@ Response API the call sites use, so wiring a call site up is a one-word change.
 """
 import json as _json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -23,10 +24,45 @@ def _ca_args():
     return ["--cacert", ca] if ca and os.path.exists(ca) else []
 
 
+class Headers(dict):
+    """大小写不敏感的响应头。``Retry-After`` 的大小写各家网关并不统一。"""
+
+    def __init__(self, pairs=None):
+        super().__init__()
+        for k, v in dict(pairs or {}).items():
+            self[k] = v
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key.lower(), value)
+
+    def __getitem__(self, key):
+        return super().__getitem__(key.lower())
+
+    def __contains__(self, key):
+        return super().__contains__(key.lower())
+
+    def get(self, key, default=None):
+        return super().get(key.lower(), default)
+
+
+def parse_header_block(dump: str) -> Headers:
+    """解析 curl ``-D`` 落盘的响应头，只取最后一段（跟随重定向后的那次）。"""
+    blocks = [b for b in re.split(r"\r?\n\r?\n", dump) if b.strip()]
+    headers = Headers()
+    if not blocks:
+        return headers
+    for line in blocks[-1].splitlines()[1:]:
+        name, sep, value = line.partition(":")
+        if sep:
+            headers[name.strip()] = value.strip()
+    return headers
+
+
 class Response:
-    def __init__(self, status_code: int, text: str):
+    def __init__(self, status_code: int, text: str, headers=None):
         self.status_code = status_code
         self.text = text
+        self.headers = headers if isinstance(headers, Headers) else Headers(headers)
 
     def json(self):
         return _json.loads(self.text)
@@ -40,21 +76,35 @@ class TransportError(RuntimeError):
     pass
 
 
+class TransportTimeout(TransportError):
+    """客户端侧超时。服务端可能已经处理并计费，重试要比普通失败更保守。"""
+
+
 def _run(cmd, timeout):
     if not shutil.which("curl"):
         raise TransportError("curl 不可用，无法访问 SiliconFlow")
+    # 响应头单独落盘：429 的 Retry-After 要拿来算退避，混进 stdout 会污染响应体。
+    fd, hdr_path = tempfile.mkstemp(prefix="sf_hdr_", suffix=".txt")
+    os.close(fd)
     try:
-        p = subprocess.run(cmd, capture_output=True, text=True,
-                           timeout=timeout + 30)
-    except subprocess.TimeoutExpired as e:
-        raise TransportError(f"curl 超时（{timeout}s）") from e
-    out = p.stdout
-    marker = "\n__SF_HTTP_"
-    if marker not in out:
-        raise TransportError(
-            f"curl rc={p.returncode}: {(p.stderr or '')[:300]}")
-    body, _, tail = out.rpartition(marker)
-    return Response(int(tail.strip("_ \n")), body)
+        try:
+            p = subprocess.run(cmd + ["-D", hdr_path], capture_output=True,
+                               text=True, timeout=timeout + 30)
+        except subprocess.TimeoutExpired as e:
+            raise TransportTimeout(f"curl 超时（{timeout}s）") from e
+        out = p.stdout
+        marker = "\n__SF_HTTP_"
+        if marker not in out:
+            detail = f"curl rc={p.returncode}: {(p.stderr or '')[:300]}"
+            # 28 = curl 自己的 --max-time 到点，语义同子进程超时
+            raise (TransportTimeout if p.returncode == 28
+                   else TransportError)(detail)
+        body, _, tail = out.rpartition(marker)
+        with open(hdr_path, encoding="utf-8", errors="replace") as fh:
+            headers = parse_header_block(fh.read())
+        return Response(int(tail.strip("_ \n")), body, headers)
+    finally:
+        os.unlink(hdr_path)
 
 
 def _base(headers, timeout):

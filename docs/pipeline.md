@@ -7,16 +7,80 @@
 
 | # | 阶段 | 做什么 | 产物 |
 | --- | --- | --- | --- |
-| 1 | `input` | URL 走 yt-dlp；`file://` 和本地路径直接用 | `_tmp/<slug>/source.mp4` |
+| 1 | `input` | URL 走 yt-dlp（带退避重试）；`file://` 和本地路径直接用 | `_tmp/<slug>/source.mp4` |
 | 2 | `transcribe` | faster-whisper `base` 转写（CI 上不用 large-v3，太慢） | `_tmp/<slug>/transcript.srt` |
 | 3 | `highlight` | Qwen3-8B 打分挑金句 → 切点吸附到句子边界 → **过出片门槛** | `_tmp/<slug>/quotes.json` |
-| 4 | `translate` | DeepSeek-V3 翻译选中窗口内的字幕 → 中文标点归一化 | `_tmp/<slug>/quotes_zh.<translator>.json` |
-| 5 | `assemble` | 切三段 → 各自烧双语字幕 → concat | `deliver/<slug>/final.mp4` |
-| 6 | `cover` | 选帧（几何规则 + Qwen3-VL 校验）→ 渲染两版封面 | `deliver/<slug>/cover_16x9.jpg`、`cover_9x16.jpg` |
+| 4 | `cover-select` | 选帧（几何规则 + Qwen3-VL 校验）→ **过封面门槛** | `_tmp/<slug>/cover_tmp/` 里的选中帧 |
+| 5 | `translate` | DeepSeek-V3 翻译选中窗口内的字幕 → 中文标点归一化 | `_tmp/<slug>/quotes_zh.<translator>.json` |
+| 6 | `assemble` | 切三段 → 各自烧双语字幕 → concat | `deliver/<slug>/final.mp4` |
 | 7 | `title` | 15 字以内标题（`--title-override` 可跳过） | 写进 meta.json |
-| 8 | `manifest` | 汇总时长、seg 结构、模型版本、commit、SHA256 | `deliver/<slug>/meta.json` |
+| 8 | `cover-render` | 把标题烧到第 4 步选中的帧上，出两版封面 | `deliver/<slug>/cover_16x9.jpg`、`cover_9x16.jpg` |
+| 9 | `manifest` | 汇总时长、seg 结构、模型版本、commit、SHA256 | `deliver/<slug>/meta.json` |
 
-只有第 3、4、6、7 步会调 SiliconFlow。
+只有第 3、4、5、7 步会调 SiliconFlow。开跑时日志里会先打一行完整阶段顺序，
+每进一步再打一行 `[stage] N/9 …`，跑到哪一步一眼可见。
+
+### 为什么 `cover-select` 在 `translate` 前面
+
+封面门槛是全流程里唯一一个会在后段把整条片子否掉的闸门。它原本排在最后，
+于是每次退 2 都是**先把翻译的钱花光、成片也烧完**，再告诉你这条片子不能出
+（CI run 30259127265、30260691746 就是这么白跑的）。
+
+选帧和阈值判定不依赖译文，所以整块提到 `translate` 之前；只有「把标题烧到帧上」
+真的依赖 `title`，那一步留在原位拆成 `cover-render`。`--cover-time-sec` 手动钉帧
+那条路径同样提前 —— 时间点截不出帧也该早点知道。**阈值和拒绝条件一个都没动，
+只改了顺序。**
+
+## 健壮性：缓存与重试
+
+无人值守跑的时候，两件事最贵：**白跑一趟**，和**为同一份结果付两次钱**。
+
+### LLM/VLM 响应缓存
+
+所有 SiliconFlow 调用都经 `scripts/sf_client`，落到既有的 `scripts/sf_transport`
+（curl 子进程）。缓存键是 `sha256(模型名 + 端点 + 规范化请求体)`，值是完整响应
+JSON，落在仓库根 `.llm_cache/`：
+
+- 命中直接返回，**一个请求都不发**；跑完打一行命中/未命中计数
+- **只缓存成功响应**。把失败缓存下来，重跑会永远卡在同一个错误上
+- 缓存文件带 `written_at` 和 `model`，排查时不用猜是哪一次写的
+- `--llm-cache-dir DIR` 改目录，`--no-llm-cache` 关掉
+
+这一层包住 highlight、translate、封面 VLM 三处。晚期失败重跑时，前面已完成的
+付费调用一次都不用重发。CI 里 `produce.yml` 用 `actions/cache` 把 `.llm_cache/`
+按 slug 挂上，跨 run 复用。
+
+### 重试分类
+
+盲目重试只会把真实原因拖到超时之后才暴露，所以按状态码分：
+
+| 分类 | 状态码 / 情形 | 行为 |
+| --- | --- | --- |
+| 可重试 | 429、500、502、503、504、连接失败、超时、响应体空或非 JSON | 指数退避 + 抖动后重试 |
+| 不可重试 | 400 请求体有问题、401/403 鉴权、402 余额不足 | 立即失败，退 1 |
+| 不可重试 | 其它意外状态码（404 之类） | 立即失败，退 3 |
+
+- 429 优先**尊重 `Retry-After`**，秒数和 HTTP 日期两种格式都解析；没有该头才退避
+- 单次退避上限 30s，一个请求的**累计退避上限 60s**
+- 尝试次数由 `--llm-max-retries` 配（含首次，默认 3）
+- **超时更保守**：客户端超时时服务端可能已经算完并计了费，再发一遍就是花两份钱
+  买一份结果，所以超时把上限压到 2 次，并在日志里写明原因
+
+不可重试的失败会往 stderr 打结构化 JSON，带上 `http_status` 和 `reason`：
+
+```json
+{"stage": "translate", "reason": "insufficient_balance", "http_status": 402, "detail": "…"}
+```
+
+### yt-dlp 下载重试
+
+archive.org 的 `HTTP Error 500` 是间歇性的（CI run 30263087066 就这么退 3 了，
+原样重跑就过）。现在外层带退避重试（`--download-retries`，默认 3；
+`--download-backoff-sec` 配退避基数），同时给 yt-dlp 自己带上 `--retries` 和
+`--fragment-retries`。
+
+404、私有视频、非法 URL 属于「重试也变不出来」，直接退 1（片源问题）；5xx、
+超时、连接重置以及判不出来的错误按可重试处理。
 
 ## 退出码
 

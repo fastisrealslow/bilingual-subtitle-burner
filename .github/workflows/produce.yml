@@ -130,6 +130,17 @@ jobs:
           pip install --upgrade yt-dlp
           yt-dlp --version
 
+      # 同一条素材失败重跑时，前面已经付过钱的 LLM/VLM 调用直接命中缓存。
+      # key 带 run_id 保证每次都会回写，restore-keys 逐级回退到同 slug 的上一次。
+      - name: 复用 LLM 响应缓存
+        uses: actions/cache@v4
+        with:
+          path: .llm_cache
+          key: llm-cache-${{ matrix.job.slug }}-${{ github.run_id }}
+          restore-keys: |
+            llm-cache-${{ matrix.job.slug }}-
+            llm-cache-
+
       - name: 出片
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
