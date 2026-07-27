@@ -458,3 +458,182 @@ def test_meta_records_manual_cover_source(tmp_path):
     assert meta["cover_source"] == "manual"
     assert meta["cover_time_sec"] == 96.0
     assert meta["models"]["vision"] is None      # 手动路径没调 vision
+
+
+# ── zh-only：只烧中文，压在源片硬字幕上方 ────────────────────────────────────
+# CI run 30261816842 的成片抽帧目视：源片自带的英文硬字幕 + 我们烧的 EN + ZH
+# 三层叠在一起，完全没法看。源片那条英文直接当英文轨用就够了。
+
+def _assemble_fixture(tmp_path, video):
+    srt = write_srt(tmp_path / "t.srt", [(0.0, 5.0, "Patience is not a virtue.")])
+    entries = produce.HL.parse_srt(str(srt))
+    bilingual = tmp_path / "bi.json"
+    bilingual.write_text(json.dumps(
+        [{"index": e["index"], "start": e["start"], "end": e["end"],
+          "en": e["text"], "zh": "耐心不是美德"} for e in entries],
+        ensure_ascii=False), encoding="utf-8")
+    return srt, bilingual, quotes_for([(0.0, 5.0)])
+
+
+def _captured_make_ass(monkeypatch, tmp_path):
+    """拦下 make_ass 的入参，同时仍然写出真 ASS 供后续步骤使用。"""
+    seen = {}
+    real = produce.make_ass
+
+    def spy(cues, path, **kw):
+        seen.update(kw)
+        seen["path"] = path
+        return real(cues, path, **kw)
+
+    monkeypatch.setattr(produce, "make_ass", spy)
+    return seen
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_zh_only_drops_the_english_track_from_the_ass(tmp_path, monkeypatch):
+    video = tmp_path / "src.mp4"
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=gray:s=854x480:d=6",
+         "-c:v", "libx264", "-preset", "ultrafast", str(video)],
+        check=True, capture_output=True)
+
+    seen = _captured_make_ass(monkeypatch, tmp_path)
+    srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
+    produce.assemble(video, srt, bilingual, quotes, tmp_path,
+                     tmp_path / "out" / "final.mp4",
+                     sub_mode="zh-only", sub_margin_v=110)
+
+    assert seen["sub_mode"] == "zh_only"
+    assert seen["zh_margin_v"] == 110
+    ass = Path(seen["path"]).read_text(encoding="utf-8-sig")
+    zh = [ln for ln in ass.splitlines() if ln.startswith("Dialogue: ")]
+    assert zh and all(",ZH," in ln for ln in zh)
+    assert not any(",EN," in ln for ln in zh)
+    assert zh[0].split(",", 8)[7] == "110"
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_both_mode_still_burns_bilingual(tmp_path, monkeypatch):
+    """回归保护：默认 both 的产出必须和改动前一模一样。"""
+    video = tmp_path / "src.mp4"
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=gray:s=854x480:d=6",
+         "-c:v", "libx264", "-preset", "ultrafast", str(video)],
+        check=True, capture_output=True)
+
+    seen = _captured_make_ass(monkeypatch, tmp_path)
+    srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
+    produce.assemble(video, srt, bilingual, quotes, tmp_path,
+                     tmp_path / "out" / "final.mp4")
+
+    assert seen["sub_mode"] == "bilingual"
+    assert seen["zh_margin_v"] is None
+    ass = Path(seen["path"]).read_text(encoding="utf-8-sig")
+    dialogues = [ln for ln in ass.splitlines() if ln.startswith("Dialogue: ")]
+    assert any(",EN," in ln for ln in dialogues)
+    assert any(",ZH," in ln for ln in dialogues)
+    # 改动前中文逐条 MarginV 就是 0（沿用样式值），不能被新分支改掉
+    zh = next(ln for ln in dialogues if ",ZH," in ln)
+    assert zh.split(",", 8)[7] == "0"
+
+
+def test_cli_sub_mode_defaults_to_both():
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
+    assert args.sub_mode == "both"
+    assert args.sub_margin_v == produce.DEFAULT_SUB_MARGIN_V
+
+
+def test_cli_accepts_zh_only():
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s",
+                               "--sub-mode", "zh-only", "--sub-margin-v", "110"])
+    assert args.sub_mode == "zh-only"
+    assert args.sub_margin_v == 110
+
+
+def test_cli_rejects_unknown_sub_mode():
+    with pytest.raises(SystemExit):
+        produce.parse_args(["--source", "v.mp4", "--slug", "s",
+                            "--sub-mode", "zh_only"])
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_records_sub_mode(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"files": {}}, "deepseek-v3", "芒格", "zh-only", 110)
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    assert meta["sub_mode"] == "zh-only"
+    assert meta["sub_margin_v"] == 110
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_defaults_to_both(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"files": {}}, "deepseek-v3", "芒格")
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    assert meta["sub_mode"] == "both"
+    assert meta["sub_margin_v"] == produce.DEFAULT_SUB_MARGIN_V
+
+
+# ── 真跑 ffmpeg：中文必须落在源片硬字幕带之上 ────────────────────────────────
+# 单看 ASS 文本只能证明 MarginV 写对了，证明不了 libass 渲出来的像素真的躲开了
+# 那条带子。这条测试造一个 854x480、y=408~456 有白色硬字幕带的源片，烧完之后
+# 直接数像素。
+
+HARDSUB_TOP, HARDSUB_BOTTOM = 408, 456
+
+
+def _make_hardsubbed_source(path: Path) -> None:
+    """造一个自带「烧死的英文硬字幕」的源片：底部一条白带。"""
+    subprocess.run(
+        ["ffmpeg", "-y",
+         "-f", "lavfi", "-i",
+         f"color=c=black:s=854x480:d=6,"
+         f"drawbox=x=180:y={HARDSUB_TOP}:w=494:"
+         f"h={HARDSUB_BOTTOM - HARDSUB_TOP}:color=white:t=fill",
+         "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-shortest",
+         "-c:v", "libx264", "-preset", "ultrafast", "-crf", "10",
+         "-c:a", "aac", str(path)],
+        check=True, capture_output=True)
+
+
+def _luma(video: Path, out: Path):
+    import numpy as np
+    from PIL import Image
+    subprocess.run(["ffmpeg", "-y", "-ss", "2", "-i", str(video),
+                    "-vframes", "1", str(out)], check=True, capture_output=True)
+    return np.asarray(Image.open(out).convert("L")).astype(int)
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_zh_only_burns_above_the_sources_hardsub_band(tmp_path):
+    import numpy as np
+
+    video = tmp_path / "src.mp4"
+    _make_hardsubbed_source(video)
+
+    srt, bilingual, quotes = _assemble_fixture(tmp_path, video)
+    final = tmp_path / "out" / "final.mp4"
+    produce.assemble(video, srt, bilingual, quotes, tmp_path, final,
+                     sub_mode="zh-only",
+                     sub_margin_v=produce.DEFAULT_SUB_MARGIN_V)
+
+    burned = _luma(final, tmp_path / "burned.png")
+    base = _luma(video, tmp_path / "base.png")
+
+    # 1) 中文确实烧上去了，而且整块都在硬字幕带上方
+    zh_rows = [y for y in range(HARDSUB_TOP) if (burned[y] >= 200).any()]
+    assert zh_rows, "zh-only 模式下画面里找不到中文字幕"
+    assert max(zh_rows) < 400, f"中文压到了 y={max(zh_rows)}，离硬字幕带太近"
+
+    # 2) 源片自带的那条硬字幕带一个像素都没被盖到（留 2 的量给 h264 量化误差）
+    band = slice(HARDSUB_TOP, HARDSUB_BOTTOM)
+    assert np.abs(burned[band] - base[band]).max() <= 2
+    assert base[band].max() >= 200      # 带子本身确实是白的

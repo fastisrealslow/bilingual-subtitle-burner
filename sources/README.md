@@ -16,7 +16,9 @@
   "slug": "munger-2023",
   "title_override": "芒格谈耐心",
   "translator": "deepseek-v3",
-  "dual": false
+  "dual": false,
+  "speaker": "查理·芒格",
+  "sub_mode": "zh-only"
 }
 ```
 
@@ -38,6 +40,9 @@
 | `dual` | ❌ | `false` | 两个翻译都跑，额外产出 `compare_grid.jpg` 对比拼图 |
 | `cover_time_sec` | ❌ | `""` | 手动钉死封面帧的时间点（秒），跳过人脸预筛和 VLM 校验。留空走自动选帧 |
 | `cover_crop` | ❌ | `""` | 封面选帧裁切 `W:H:X:Y`（同 ffmpeg 的 crop 滤镜），留空不裁 |
+| `speaker` | ❌ | `""` | 说话人名字，用于金句打分和封面左上角红标。留空用 `produce.py` 的默认值「演讲者」 |
+| `sub_mode` | ❌ | `both` | `both` 烧中英双语；`zh-only` 只烧中文，源片自带的英文硬字幕当英文轨用 |
+| `sub_margin_v` | ❌ | `""` | `zh-only` 时中文距底边的像素。留空用默认 `96` |
 
 ### 什么时候需要 `cover_time_sec`
 
@@ -55,12 +60,26 @@
 先用播放器量出字幕带的上沿 y，再按 `宽:上沿y:0:0` 填。例如 854x480 的源片、
 英文字幕落在 y=408 以下，填 `854:396:0:0`（留一点余量）。
 
+### 什么时候需要 `sub_mode: zh-only`
+
+很多源片自带烧死的英文硬字幕。默认 `both` 会在它之上再烧一层 EN + 一层 ZH，
+同一屏三层文字互相压字，成片没法看。`zh-only` 只烧中文，并把它抬到源片那条
+硬字幕的正上方 —— 源片自带的英文直接当英文轨用，出来是一行中文 + 一行英文。
+
+摆位靠 `sub_margin_v`（中文距画面底边的像素）。先用播放器量出硬字幕带的上沿
+y，`sub_margin_v = 画面高 - 上沿y + 间隙`。默认值 `96` 就是这么来的：854x480
+的源片、硬字幕带落在 y=408~456，`480-408=72`，再留 24px 间隙。
+
+`sub_mode` 只管成片字幕，封面上的那条硬字幕要另外用 `cover_crop` 裁掉，两个
+字段通常一起填。
+
 ## 约束
 
 - **`slug` 全局唯一**。重复的话两个 job 会抢同一个 artifact 名字，`plan_matrix.py` 会直接报错拦下。
 - `translator` 只能是上表里的两个值，写错会在 `plan` 阶段失败，不会浪费 40 分钟的 runner。
 - `cover_time_sec` 写了非数字或负数同样在 `plan` 阶段就失败。
 - `cover_crop` 不是 `W:H:X:Y` 四个非负整数时同样在 `plan` 阶段就失败。
+- `sub_mode` 只能是 `both` 或 `zh-only`，`sub_margin_v` 必须是非负整数，写错同样在 `plan` 阶段就失败。
 - 缺 `source` 或 `slug` 同样在 `plan` 阶段就失败。
 
 ## 本地校验

@@ -16,6 +16,8 @@ SOURCES_DIR = ROOT / "sources"
 TRANSLATORS = ("deepseek-v3", "claude-sonnet-4.6")
 DEFAULT_TRANSLATOR = "deepseek-v3"
 COVER_CROP_RE = re.compile(r"^\d+:\d+:\d+:\d+$")
+SUB_MODES = ("both", "zh-only")
+DEFAULT_SUB_MODE = "both"
 
 
 def normalize(raw: dict, origin: str) -> dict:
@@ -52,6 +54,17 @@ def normalize(raw: dict, origin: str) -> dict:
         raise ValueError(
             f"{origin}: cover_crop={cover_crop!r} 无效，应为 W:H:X:Y（同 ffmpeg crop 滤镜）")
 
+    # 字幕语种。zh-only 用于源片自带英文硬字幕的情况，只烧中文避免叠字。
+    sub_mode = str(raw.get("sub_mode") or DEFAULT_SUB_MODE).strip()
+    if sub_mode not in SUB_MODES:
+        raise ValueError(
+            f"{origin}: sub_mode={sub_mode!r} 无效，可选 {list(SUB_MODES)}")
+
+    sub_margin_v = str(raw.get("sub_margin_v") or "").strip()
+    if sub_margin_v and not re.fullmatch(r"\d+", sub_margin_v):
+        raise ValueError(
+            f"{origin}: sub_margin_v={sub_margin_v!r} 无效，应为非负整数像素")
+
     return {
         "source": source,
         "slug": slug,
@@ -61,6 +74,9 @@ def normalize(raw: dict, origin: str) -> dict:
         "dual": "true" if dual else "false",
         "cover_time_sec": cover_time,
         "cover_crop": cover_crop,
+        "speaker": str(raw.get("speaker") or ""),
+        "sub_mode": sub_mode,
+        "sub_margin_v": sub_margin_v,
     }
 
 
@@ -73,6 +89,9 @@ def from_dispatch(env: dict) -> list:
         "dual": env.get("IN_DUAL"),
         "cover_time_sec": env.get("IN_COVER_TIME_SEC"),
         "cover_crop": env.get("IN_COVER_CROP"),
+        "speaker": env.get("IN_SPEAKER"),
+        "sub_mode": env.get("IN_SUB_MODE"),
+        "sub_margin_v": env.get("IN_SUB_MARGIN_V"),
     }, "workflow_dispatch")]
 
 
