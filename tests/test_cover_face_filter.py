@@ -75,3 +75,34 @@ def test_ratio_is_computed_against_frame_area(tmp_path, monkeypatch):
     monkeypatch.setattr(C, "_get_face_cascade", lambda: FakeCascade())
     # 40*50 / (200*100) = 0.1
     assert C.largest_face_ratio(path) == pytest.approx(0.1)
+
+
+def test_below_threshold_frames_fall_back_to_top_faces(monkeypatch):
+    # 854 宽的中景机位实测最大脸占比只有 ~4.7%，整条片子都卡在 5% 下方，
+    # 「全部送 vision」等于白付预筛的 CPU 一分钱不省
+    ratios = {f"f{i}.jpg": 0.04 - i * 0.001 for i in range(20)}
+    monkeypatch.setattr(C, "largest_face_ratio", lambda p: ratios[p])
+    monkeypatch.setattr(C, "_get_face_cascade", lambda: object())
+
+    paths = list(ratios)
+    times = [float(i) for i in range(len(paths))]
+    kept_p, kept_t = C.filter_frames_by_face(paths, times)
+
+    assert len(kept_p) == C.FALLBACK_KEEP
+    assert set(kept_p) == set(paths[:C.FALLBACK_KEEP])   # 脸最大的前 N 帧
+    assert kept_t == sorted(kept_t)                      # 仍按时间序送 vision
+
+
+def test_frames_without_any_face_still_fall_back_to_full_list(monkeypatch):
+    monkeypatch.setattr(C, "largest_face_ratio", lambda p: 0.0)
+    monkeypatch.setattr(C, "_get_face_cascade", lambda: object())
+    paths, times = ["a.jpg", "b.jpg", "c.jpg"], [1.0, 2.0, 3.0]
+    assert C.filter_frames_by_face(paths, times) == (paths, times)
+
+
+def test_qualifying_frames_win_over_fallback(monkeypatch):
+    ratios = {"a.jpg": 0.04, "b.jpg": 0.09, "c.jpg": 0.04}
+    monkeypatch.setattr(C, "largest_face_ratio", lambda p: ratios[p])
+    monkeypatch.setattr(C, "_get_face_cascade", lambda: object())
+    assert C.filter_frames_by_face(list(ratios), [1.0, 2.0, 3.0]) == \
+        (["b.jpg"], [2.0])

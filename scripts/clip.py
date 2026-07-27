@@ -152,15 +152,97 @@ def merge_translation(entries: list, bilingual_path: str, full_start_sec: float,
 # ── ASS 字幕生成 ──────────────────────────────────────────────────────────────
 # 视频实际分辨率 640×346，PlayRes 按实际设置，字号按比例
 
+# 中文行首禁则：这些标点不能出现在行首，必须跟着上一行走
+LINE_START_FORBIDDEN = "。，、！？；：）」』】》”’%…·"
+
+
+def _cjk_units(t: str) -> list:
+    """把一行中文切成不该被拆开的最小单元。
+
+    jieba 在就按词切，不在就退化成「CJK 逐字可断、英文单词不拆」，
+    与 step7_cover._segment 同一套降级策略，不让分词库成为硬依赖。
+    """
+    try:
+        import jieba
+        units = [u for u in jieba.lcut(t) if u]
+    except ImportError:
+        units, buf = [], ""
+        for ch in t:
+            if ord(ch) > 127:
+                if buf:
+                    units.append(buf)
+                    buf = ""
+                units.append(ch)
+            elif ch == " ":
+                if buf:
+                    units.append(buf)
+                    buf = ""
+            else:
+                buf += ch
+        if buf:
+            units.append(buf)
+
+    # 禁则标点粘回前一个单元，免得被抛到下一行行首
+    merged = []
+    for u in units:
+        if merged and all(c in LINE_START_FORBIDDEN for c in u):
+            merged[-1] += u
+        else:
+            merged.append(u)
+    return merged
+
+
+def _wrap_cjk(t: str, max_chars: int) -> list:
+    """中文折行：按词边界断开，行数取最少，再把各行长度拉均。
+
+    定长硬切有三个毛病：把 22 字的句子切成 21 + 1，末行只剩一个「。」；
+    从词中间劈开（实测烧出过「…是因为把价 / 格波动当成了…」）；中英混排
+    时连英文单词也照劈（「Empire S / tate Manufacturin / g Survey」）。
+    step7_cover.wrap_title 早就为封面标题解决过同一个问题，字幕这边套同
+    一套规则。
+    """
+    units = _cjk_units(t)
+    if not units:
+        return [t]
+
+    def greedy(limit: float) -> list:
+        lines, cur = [], ""
+        for u in units:
+            if cur and len(cur) + len(u) > limit:
+                lines.append(cur)
+                cur = u
+            else:
+                cur += u
+        if cur:
+            lines.append(cur)
+        return lines
+
+    lines = greedy(max_chars)
+    n = len(lines)
+    if n <= 1:
+        return lines
+
+    # 贪心会填出「满满一行 + 小尾巴」。在 [总长/n, max_chars] 里搜出仍能排成
+    # n 行的最小行宽，据此重排。理论值 总长/n 通常落在某个词中间，直接拿它当
+    # 目标会多出一行、均衡整个失效，所以只能逐格试。上限仍是 max_chars，不能
+    # 为了均衡冒溢出风险。
+    best = lines
+    for limit in range(max(-(-len(t) // n), max(len(u) for u in units)), max_chars + 1):
+        cand = greedy(limit)
+        if len(cand) <= n:
+            best = cand
+            break
+    return best
+
+
 def wrap_text(t: str, max_chars: int, is_cjk: bool = False) -> str:
     """自动折行"""
     if not t:
         return ""
     if is_cjk:
-        # 中文：按字数折行
         if len(t) <= max_chars:
             return t
-        return r"\N".join(t[i:i+max_chars] for i in range(0, len(t), max_chars))
+        return r"\N".join(_wrap_cjk(t, max_chars))
     else:
         # 英文：按词折行
         if len(t) <= max_chars:

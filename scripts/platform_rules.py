@@ -70,17 +70,16 @@ def to_simplified(text: str, protect=None) -> str:
     return text
 
 
-def simplify_srt(path: str) -> int:
-    """就地把 SRT 的字幕正文转成简体，返回改动的行数。
+def normalize_srt(path: str) -> int:
+    """就地规范 SRT 正文（繁转简 + 中文标点），返回改动的行数。
 
     只动正文：序号行和 ``-->`` 时间码行原样保留，避免破坏时间轴。
-    """
-    try:
-        import zhconv  # noqa: F401
-    except ImportError:
-        print("[rules] 未安装 zhconv，跳过繁简转换")
-        return 0
 
+    标点走的是标题/简介同一个 :func:`normalize_cjk_punctuation`。Whisper 对
+    中文源输出的半全角是随机的，实测同一条字幕烧出「有所不为,才能有所为。」
+    ——半角逗号后不带空白，字距比全角句号窄一截，成片上看着像漏了个字。
+    字幕是成片里字号最大的文字，没道理只规范标题。
+    """
     with open(path, "r", encoding="utf-8") as f:
         lines = f.read().split("\n")
 
@@ -91,7 +90,7 @@ def simplify_srt(path: str) -> int:
         if not s or "-->" in s or s.isdigit():
             out.append(ln)
             continue
-        conv = to_simplified(ln)
+        conv = normalize_cjk_punctuation(to_simplified(ln))
         if conv != ln:
             changed += 1
         out.append(conv)
@@ -99,7 +98,7 @@ def simplify_srt(path: str) -> int:
     if changed:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(out))
-    print(f"[rules] 繁简转换：{path} 改动 {changed} 行")
+    print(f"[rules] 字幕规范化：{path} 改动 {changed} 行")
     return changed
 
 
@@ -313,8 +312,15 @@ def build_desc(body: str, source: str = "", full_title: str = "",
 
 
 def safe_filename(name: str, maxlen: int = 40) -> str:
-    """清掉非法字符，截断，避免空名。"""
-    n = _BAD_FILENAME.sub("", to_simplified(str(name or "").strip()))
+    """清掉非法字符，截断，避免空名。
+
+    标点必须跟 clean_title 走同一套：OpenCC 的 t2s 会把「」按简体习惯
+    改写成 “”，只做 to_simplified 的话素材包目录名和 upload_list 里是
+    弯引号，而 manifest / 封面 / 切片文件名里是直角引号，同一条视频两种
+    引号，看着像出了两版。
+    """
+    n = _BAD_FILENAME.sub(
+        "", normalize_cjk_punctuation(to_simplified(str(name or "").strip())))
     n = re.sub(r"\s+", " ", n).strip()[:maxlen].strip()
     return n or "video"
 

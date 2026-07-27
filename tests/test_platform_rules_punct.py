@@ -155,3 +155,62 @@ def test_build_desc_normalises_body_but_keeps_source_url():
 def test_build_desc_keeps_paragraph_breaks():
     desc, _ = R.build_desc("正文", source="https://youtu.be/abc")
     assert "\n\n" in desc
+
+
+# ── 文件名与标题必须用同一套标点 ──────────────────────────────────────────────
+
+def test_safe_filename_keeps_corner_brackets():
+    # OpenCC 的 t2s 会把「」按简体习惯改写成 “”，素材包目录名不能因此
+    # 跟 manifest / 封面 / 切片文件名用上两种引号
+    assert R.safe_filename("达利欧：为什么说「护城河」重要") == \
+        "达利欧：为什么说「护城河」重要"
+
+
+def test_safe_filename_matches_clean_title_punctuation():
+    raw = '芒格:“耐心”不是美德,而是入场券?'
+    assert R.safe_filename(raw) == R.clean_title(raw)[0]
+
+
+def test_safe_filename_still_truncates_and_never_empty():
+    assert len(R.safe_filename("巴" * 80)) == 40
+    assert R.safe_filename("") == "video"
+
+
+# ── 字幕正文也要规范标点 ─────────────────────────────────────────────────────
+
+SRT_SAMPLE = """1
+00:00:01,000 --> 00:00:03,000
+有所不为,才能有所为。
+
+2
+00:00:03,000 --> 00:00:05,000
+他說,通貨膨脹是因?經濟放緩是果
+"""
+
+
+def test_normalize_srt_converts_halfwidth_punctuation(tmp_path):
+    p = tmp_path / "full.srt"
+    p.write_text(SRT_SAMPLE, encoding="utf-8")
+    R.normalize_srt(str(p))
+    body = [ln for ln in p.read_text(encoding="utf-8").splitlines()
+            if ln.strip() and "-->" not in ln and not ln.strip().isdigit()]
+    assert "有所不为，才能有所为。" in body
+    # 时间码行本身就带半角逗号，只能看正文
+    assert not any("," in ln or "?" in ln for ln in body), body
+
+
+def test_normalize_srt_keeps_timecodes_and_indexes(tmp_path):
+    p = tmp_path / "full.srt"
+    p.write_text(SRT_SAMPLE, encoding="utf-8")
+    R.normalize_srt(str(p))
+    out = p.read_text(encoding="utf-8")
+    assert "00:00:01,000 --> 00:00:03,000" in out
+    assert "00:00:03,000 --> 00:00:05,000" in out
+    assert out.splitlines()[0] == "1"
+
+
+def test_normalize_srt_still_simplifies(tmp_path):
+    p = tmp_path / "full.srt"
+    p.write_text(SRT_SAMPLE, encoding="utf-8")
+    R.normalize_srt(str(p))
+    assert "他说，通货膨胀是因？经济放缓是果" in p.read_text(encoding="utf-8")

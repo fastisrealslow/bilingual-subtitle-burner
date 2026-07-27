@@ -406,20 +406,29 @@ def snap_end(end_sec: float, entries: List[Dict],
     return end_sec
 
 
-def resolve_overlaps(bounds: List[tuple]) -> List[tuple]:
+def resolve_overlaps(bounds: List[tuple],
+                     min_sec: float = MIN_CLIP_SEC) -> List[tuple]:
     """相邻片段重叠时按中点切开。输入输出均为 (start, end) 列表。
 
     扩展后重叠会让两条短视频出现同一段画面，观感上像是重复投稿。
+
+    中点是默认切法，但对贴着片尾的片段是错的：它的 end 已经顶到片长，
+    被切掉的头没地方补回来，align_clips 里刚保住的 min_sec 又被打掉
+    （实测切出 10s 的废片）。这种情况把重叠区多让给后一条——前一条
+    本来就长，让得起。
     """
     order = sorted(range(len(bounds)), key=lambda i: bounds[i][0])
     out = list(bounds)
     for a, b in zip(order, order[1:]):
         a_start, a_end = out[a]
         b_start, b_end = out[b]
-        if a_end > b_start:
-            mid = (a_end + b_start) / 2
-            out[a] = (a_start, max(a_start, mid))
-            out[b] = (min(b_end, mid), b_end)
+        if a_end <= b_start:
+            continue
+        cut = (a_end + b_start) / 2
+        if b_end - cut < min_sec:
+            cut = min(max(a_start + min_sec, min(cut, b_end - min_sec)), a_end)
+        out[a] = (a_start, max(a_start, cut))
+        out[b] = (min(b_end, cut), b_end)
     return out
 
 
@@ -440,12 +449,16 @@ def align_clips(items: List[Dict], entries: List[Dict], total_duration: float,
 
         if end - start < min_sec:
             end = min(limit, start + min_sec)
+        # 片尾的金句往后没地方可扩（end 已经贴着片长），此时必须往前借，
+        # 否则会剪出 2 秒的废片。
+        if end - start < min_sec:
+            start = max(0.0, end - min_sec)
         if end - start > max_sec:
             end = start + max_sec
         bounds.append((start, end))
 
     result = []
-    for item, (start, end) in zip(items, resolve_overlaps(bounds)):
+    for item, (start, end) in zip(items, resolve_overlaps(bounds, min_sec)):
         result.append({
             **item,
             "clip_start": sec2hms(start),

@@ -177,6 +177,7 @@ def classify_frame_by_color(img_path: str,
 # haar 级联在本地过一遍，只把「有正脸且脸够大」的帧送上去。
 
 MIN_FACE_AREA_RATIO = 0.05   # 最大人脸框面积 / 帧面积，低于此视为脸太小做不了封面
+FALLBACK_KEEP = 6            # 无帧达标时改按脸大小取前 N 帧，而不是把全部帧都送上去
 
 _face_cascade = None
 _face_cascade_loaded = False
@@ -236,23 +237,30 @@ def filter_frames_by_face(frame_paths: list[str], frame_times: list[float],
         return frame_paths, frame_times
 
     t0 = time.time()
-    kept_paths, kept_times = [], []
-    for path, t in zip(frame_paths, frame_times):
-        ratio = largest_face_ratio(path)
-        if ratio >= min_ratio:
-            kept_paths.append(path)
-            kept_times.append(t)
+    scored = [(largest_face_ratio(p), p, t) for p, t in zip(frame_paths, frame_times)]
     elapsed = time.time() - t0
 
-    if not kept_paths:
-        print(f"[cover]   人脸预筛：{len(frame_paths)} 帧无一满足"
-              f"「有正脸且脸占比 ≥{min_ratio:.0%}」，回退为全部送 vision"
-              f"（耗时 {elapsed:.1f}s）", flush=True)
-        return frame_paths, frame_times
+    kept = [(p, t) for r, p, t in scored if r >= min_ratio]
+    if kept:
+        print(f"[cover]   人脸预筛：{len(frame_paths)} 帧 → {len(kept)} 帧"
+              f"（脸占比 ≥{min_ratio:.0%}，耗时 {elapsed:.1f}s）", flush=True)
+        return [p for p, _ in kept], [t for _, t in kept]
 
-    print(f"[cover]   人脸预筛：{len(frame_paths)} 帧 → {len(kept_paths)} 帧"
-          f"（脸占比 ≥{min_ratio:.0%}，耗时 {elapsed:.1f}s）", flush=True)
-    return kept_paths, kept_times
+    # 中景机位的说话人在 854 宽的片源里脸只占 4% 左右（实测一条 60 帧的
+    # 片源 44 帧检出正脸、最大占比 0.047），整条片子全卡在阈值下方一点。
+    # 此时"全部送 vision"等于白付一遍预筛的 CPU 又一分钱没省，改成按脸
+    # 大小取前几帧——排序信息本来就已经算出来了。
+    ranked = sorted((s for s in scored if s[0] > 0), key=lambda s: -s[0])[:FALLBACK_KEEP]
+    if ranked:
+        ranked.sort(key=lambda s: s[2])   # 送给 vision 的帧必须仍按时间排序
+        print(f"[cover]   人脸预筛：{len(frame_paths)} 帧无一满足"
+              f"「脸占比 ≥{min_ratio:.0%}」（最大 {max(r for r, _, _ in scored):.1%}），"
+              f"改取脸最大的 {len(ranked)} 帧送 vision（耗时 {elapsed:.1f}s）", flush=True)
+        return [p for _, p, _ in ranked], [t for _, _, t in ranked]
+
+    print(f"[cover]   人脸预筛：{len(frame_paths)} 帧未检出任何正脸，"
+          f"回退为全部送 vision（耗时 {elapsed:.1f}s）", flush=True)
+    return frame_paths, frame_times
 
 
 def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
@@ -493,7 +501,12 @@ def wrap_title(title: str, measure, max_px: float) -> list:
 
     均衡的意义：贪心换行会得到“很长的一行 + 小尾巴”，既难看也更
     容易造成奇怪的断处。先用贪心算出最少行数 n，再在 n 行的前提下
-    把每行目标宽度降到 总宽/n，重新排一遍。
+    把每行目标宽度压到最小，重新排一遍。
+
+    “最小”只能搜，不能算：词边界是离散的，总宽/n 这个理论值通常正好
+    落在某个词的中间，一排就多出一行，于是均衡整个被放弃。实测标题
+    “股乾爹：「耐心」不是美德，而是这门生意的入场券？”就这样烧成了
+    20 字 + 4 字，而 13 + 11 明明排得下。二分几轮的代价可以忽略。
     """
     units = _segment(title)
     if not units:
@@ -517,9 +530,17 @@ def wrap_title(title: str, measure, max_px: float) -> list:
     if n <= 1:
         return lines
 
-    # 以 总宽/n 为目标重排；只有在行数没变多时才采纳
-    balanced = greedy(measure(title) / n * 1.05)
-    return balanced if len(balanced) <= n else lines
+    # 在 [总宽/n, max_px] 里二分出仍能排成 n 行的最小行宽
+    lo, hi = measure(title) / n, max_px
+    best = lines
+    for _ in range(24):
+        mid = (lo + hi) / 2
+        cand = greedy(mid)
+        if len(cand) <= n:
+            best, hi = cand, mid
+        else:
+            lo = mid
+    return best
 
 
 def make_cover(frame_path: str, title: str, speaker: str,
