@@ -769,10 +769,122 @@ def wrap_title(title: str, measure, max_px: float) -> list:
     return best
 
 
+# ── 出图几何 ─────────────────────────────────────────────────────────────────
+# 旧版直接 `img.resize(target_size)` 是非等比硬拉伸。源帧被 --cover-crop 切过
+# 之后宽高比常常远离目标：实测切出来是 854x340（2.51），而目标 1280x720 是
+# 1.778、1080x1920 是 0.5625。竖版封面因此把人脸拽成极细长，人物明显变形。
+#
+# 改成两条分支，都严格保持几何比例：
+#   cover —— 等比放大后居中裁切，画面填满、无黑边，但会切掉边缘；
+#   fit   —— 等比缩放到完整装进目标，居中贴在「同帧放大 + 高斯模糊」的背景上。
+#
+# 阈值 COVER_MIN_RETAIN_RATIO：按比例填满目标后，源图在两个方向上还能保留多少。
+# 定在 60% 是因为：留得多说明只是修边，裁掉的基本是背景，走 cover 观感最好；
+# 一旦某个方向只剩三成，裁切就会把主体（人脸、肩线）连带切掉，而且相当于
+# 把一条 191px 宽的窄条硬放大到 1080，糊成一团。那种情况宁可留虚化边框。
+# 实测：854x340 → 1280x720 保留 71% 宽 / 100% 高，走 cover；
+#       854x340 → 1080x1920 只保留 22% 宽，走 fit。
+COVER_MIN_RETAIN_RATIO = 0.60
+
+# 背景虚化半径相对目标短边的比例。太小盖不住背景细节、看着像重影，
+# 太大则整块糊成色块、失去与前景的呼应。
+FIT_BACKGROUND_BLUR_RATIO = 0.04
+
+
+def cover_crop_box(src_size: tuple, target_size: tuple,
+                   focus_x: float | None = None) -> tuple:
+    """源图坐标系里「与目标同比例的最大矩形」裁切窗口 ``(l, t, r, b)``。
+
+    ``focus_x`` 是希望水平对齐的点（一般是人脸中心）；给 None 时取图像正中。
+    窗口一定夹在图像边界内。
+    """
+    sw, sh = src_size
+    tw, th = target_size
+    if sw * th > sh * tw:          # 源图比目标更宽 → 高度用满，横向裁
+        cw, ch = max(1, round(sh * tw / th)), sh
+    else:                          # 源图比目标更高 → 宽度用满，纵向裁
+        cw, ch = sw, max(1, round(sw * th / tw))
+    cw, ch = min(cw, sw), min(ch, sh)
+
+    cx = sw / 2 if focus_x is None else float(focus_x)
+    left = int(round(cx - cw / 2))
+    left = max(0, min(left, sw - cw))
+    top = max(0, (sh - ch) // 2)
+    return (left, top, left + cw, top + ch)
+
+
+def choose_cover_strategy(src_size: tuple, target_size: tuple) -> str:
+    """返回该源图应走的出图策略：``"cover"`` 或 ``"fit"``。
+
+    抽成纯函数是为了能单独断言分支判定，不必真去生成图片。
+    """
+    sw, sh = src_size
+    if sw <= 0 or sh <= 0:
+        return "fit"
+    left, top, right, bottom = cover_crop_box(src_size, target_size)
+    if (right - left) / sw >= COVER_MIN_RETAIN_RATIO and \
+       (bottom - top) / sh >= COVER_MIN_RETAIN_RATIO:
+        return "cover"
+    return "fit"
+
+
+def _face_focus_x(frame_path: str, src_size: tuple) -> float | None:
+    """人脸中心的横坐标（源图坐标系）；没有可采信的人脸时返回 None。
+
+    复用候选帧预筛那套 haar 级联检测，不额外引入依赖。
+
+    只有脸大到过 ``MIN_FACE_AREA_RATIO``（即预筛用的「脸占比 ≥5%」）才采信：
+    haar 级联在背景上误检小方块是常事。实测 partner.mp4 第 1200s 那帧
+    （crop=854:340:0:70，芒格在偏右、左边一尊青铜半身像）检出的最大框是
+    43x43、占画面仅 0.64%，那是铜像上的斑块；照它对齐会把裁切窗口拽到最左，
+    芒格被推到成品 86% 的位置、脑袋侧边切掉，而居中窗口能让他落在 65%。
+    讲话人的脸本来就该是大的（该帧真脸约 220px 宽、占比 14%），
+    这个门槛既有现成的语义又不用再发明一个数。
+    """
+    box = largest_face_box(frame_path)
+    if box is None:
+        return None
+    ratio, (fx, fy, fw, fh), (dw, dh) = box
+    if ratio < MIN_FACE_AREA_RATIO:
+        return None
+    if dw <= 0 or dh <= 0:
+        return None
+    # 检测走的是磁盘上的原图，若调用方已对图像做过变换则按比例换算回来
+    return (fx + fw / 2) * (src_size[0] / float(dw))
+
+
+def fit_to_target(img, target_size: tuple):
+    """等比缩放到完整装进目标，居中贴在同帧放大虚化的背景上。
+
+    不裁掉任何主体，也不改变几何比例；空出来的部分由背景填，避免黑边。
+    """
+    tw, th = target_size
+    bg = img.crop(cover_crop_box(img.size, target_size)).resize(
+        target_size, Image.LANCZOS)
+    radius = max(1, int(min(tw, th) * FIT_BACKGROUND_BLUR_RATIO))
+    bg = bg.filter(ImageFilter.GaussianBlur(radius))
+
+    sw, sh = img.size
+    scale = min(tw / sw, th / sh)
+    fw = max(1, min(tw, round(sw * scale)))
+    fh = max(1, min(th, round(sh * scale)))
+    bg.paste(img.resize((fw, fh), Image.LANCZOS), ((tw - fw) // 2, (th - fh) // 2))
+    return bg
+
+
+def render_geometry(frame_path: str, target_size: tuple):
+    """把源帧变成恰好 ``target_size`` 的底图，全程不改变几何比例。"""
+    img = Image.open(frame_path).convert("RGB")
+    if choose_cover_strategy(img.size, target_size) == "cover":
+        box = cover_crop_box(img.size, target_size,
+                             _face_focus_x(frame_path, img.size))
+        return img.crop(box).resize(target_size, Image.LANCZOS)
+    return fit_to_target(img, target_size)
+
+
 def make_cover(frame_path: str, title: str, speaker: str,
                output_path: str, target_size: tuple = (1280, 720)):
-    img = Image.open(frame_path).convert("RGB")
-    img = img.resize(target_size, Image.LANCZOS)
+    img = render_geometry(frame_path, target_size)
     w, h = img.size
 
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
