@@ -100,9 +100,21 @@ def _run(cmd, timeout):
             raise (TransportTimeout if p.returncode == 28
                    else TransportError)(detail)
         body, _, tail = out.rpartition(marker)
+        raw_status = tail.strip("_ \n")
+        status = int(raw_status) if raw_status.isdigit() else 0
+        # -w 的标记是 curl 写在 stdout 尾巴上的，连接被重置、SSL 握手失败时它
+        # 照样会写出来（http_code 为 000），所以「标记缺失」那条守卫拦不住这类
+        # 失败。必须再看 curl 自己的退出码：非零就是压根没拿到响应，属于传输层
+        # 失败，得让 sf_client 走退避重试，而不是当成一个 status_code=0 的响应
+        # 被判成致命错误。真实的 HTTP 错误状态（500 等）rc 为 0，照旧原样返回。
+        if p.returncode != 0 or status <= 0:
+            detail = (f"curl rc={p.returncode}，http_code={raw_status or '无'}: "
+                      f"{(p.stderr or '')[:300]}")
+            raise (TransportTimeout if p.returncode == 28
+                   else TransportError)(detail)
         with open(hdr_path, encoding="utf-8", errors="replace") as fh:
             headers = parse_header_block(fh.read())
-        return Response(int(tail.strip("_ \n")), body, headers)
+        return Response(status, body, headers)
     finally:
         os.unlink(hdr_path)
 

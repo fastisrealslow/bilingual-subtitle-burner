@@ -264,7 +264,13 @@ def _post_with_retries(url, headers, json_body, data, files, timeout, tag):
             status = resp.status_code
             if status in FATAL_STATUS:
                 raise _fatal(status, resp.text)
-            if status == 200:
+            if status < 100:
+                # 不是 HTTP 状态码（curl 拿不到响应时 %{http_code} 是 000）。
+                # 传输层理应已经抛异常，这里是兜底：一次网络抖动不该被判成致命。
+                last, last_status = f"传输层未拿到响应（status={status}）", None
+                print(f"[{tag}] 连接失败：{last}", file=sys.stderr, flush=True)
+                wait = backoff_delay(attempt)
+            elif status == 200:
                 try:
                     return resp, resp.json()
                 except ValueError:
