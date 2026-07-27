@@ -11,6 +11,88 @@
 - 封面自动选取（颜色规则识别主讲人，零 API 费用）
 - B站上传素材包生成
 
+## 一键出片
+
+`produce.py` 把「一个视频源」一路跑到「一条 3 分钟成片 + 两张封面」，中间不需要人盯着。
+下面这些是 `run.py` 分步流程之外的另一条入口，两者共用 `scripts/` 里的同一批模块。
+
+```bash
+python produce.py --source <URL 或本地路径> --slug <output-slug>
+```
+
+产物固定落在 `deliver/<slug>/`：
+
+```
+deliver/<slug>/
+├── final.mp4          # 三段金句拼成的成片，双语字幕已烧进画面
+├── cover_16x9.jpg     # B站封面
+├── cover_9x16.jpg     # 抖音/竖版封面
+└── meta.json          # 标题、seg 结构、时长、模型版本、commit、SHA256
+```
+
+### 本地用法
+
+```bash
+export SILICONFLOW_API_KEY=sk-xxxxxxxx
+
+# 最简：一条 YouTube / archive.org 链接
+python produce.py --source "https://www.youtube.com/watch?v=xxxx" --slug munger-2023
+
+# 本地文件 + 手写标题 + 跳过封面的 VLM 校验（只按几何规则选帧，零 VLM 费用）
+python produce.py --source ./raw/munger.mp4 --slug munger-2023 \
+    --title-override "芒格谈耐心" --no-vlm
+
+# 两个翻译都跑，额外出一张上下对比拼图 compare_grid.jpg
+python produce.py --source ./raw/munger.mp4 --slug munger-dual --dual
+```
+
+常用参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `--translator` | `deepseek-v3`（默认）或 `claude-sonnet-4.6` |
+| `--dual` | 两个翻译都跑，产出 `compare_grid.jpg` |
+| `--no-vlm` | 封面跳过 VLM 校验，只按几何规则选帧 |
+| `--strict-highlights` | 金句门槛忽略环境变量放宽，只认代码里的下限 |
+| `--out` | 产物根目录，默认 `deliver/` |
+
+**退出码**：`0` 成功 / `1` 配置错误 / `2` 内容质量不达标 / `3` 外部依赖失败。
+退 2 表示这条片源挑不出够格的金句或封面 —— 是刻意拒绝硬出，重试没有意义。
+各阶段的拒绝原因见 [`docs/pipeline.md`](docs/pipeline.md)。
+
+### CI 用法
+
+`.github/workflows/produce.yml` 两种触发方式：
+
+1. **手动**：Actions 页面选「一键出片」，填 `source_url` + `slug` 即可
+2. **批量**：往 `sources/` 里 push 一个 JSON，每条任务用 matrix 并发出片，
+   schema 见 [`sources/README.md`](sources/README.md)
+
+产物走 workflow Artifacts（`deliver-<slug>`，留存 90 天）。跑挂时会额外上传 `_tmp/`
+里的转写、金句、译文，方便回查是哪一步不达标。
+
+### Secrets 配置
+
+仓库 Settings → Secrets and variables → Actions，只需要一项：
+
+| Secret | 用途 |
+| --- | --- |
+| `SILICONFLOW_API_KEY` | 全部 LLM / VLM 调用（金句打分、翻译、标题、封面校验） |
+
+`ANTHROPIC_API_KEY` **不要**配进 CI —— Claude 翻译路径保留着，但只在本地手动跑时用。
+
+### 成本估算
+
+单条 3 分钟成片（约 10 分钟片源）：
+
+| 路径 | 每条约 |
+| --- | --- |
+| DeepSeek-V3（默认） | **¥0.03** |
+| Claude Sonnet 4.6 | **¥0.42** |
+
+转写在本地 / runner 上跑 faster-whisper `base`，不计费。封面 VLM 校验是第二大头，
+`--no-vlm` 可以整块省掉。
+
 ## 快速开始
 
 ### 环境准备

@@ -1,0 +1,128 @@
+name: 一键出片
+
+# 触发方式：
+#   1) workflow_dispatch：填一条 URL，立刻出一条成片
+#   2) push sources/*.json：每个 json 一条任务，用 matrix 并发出片
+on:
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: "视频 URL 或本地路径（yt-dlp 支持的平台 / archive.org）"
+        required: true
+        type: string
+      slug:
+        description: "产物目录名（deliver/<slug>/）"
+        required: true
+        type: string
+      title_override:
+        description: "标题（留空则让模型起，15 字以内）"
+        required: false
+        default: ""
+        type: string
+      translator:
+        description: "翻译模型"
+        required: false
+        default: "deepseek-v3"
+        type: choice
+        options: ["deepseek-v3", "claude-sonnet-4.6"]
+      dual:
+        description: "两个翻译都跑并出对比拼图"
+        required: false
+        default: false
+        type: boolean
+
+  push:
+    paths:
+      - "sources/*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  # 把两种触发方式收敛成同一份 matrix，产出环节只写一遍
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: build
+        name: 汇总出片任务
+        env:
+          EVENT: ${{ github.event_name }}
+          IN_SOURCE: ${{ inputs.source_url }}
+          IN_SLUG: ${{ inputs.slug }}
+          IN_TITLE: ${{ inputs.title_override }}
+          IN_TRANSLATOR: ${{ inputs.translator }}
+          IN_DUAL: ${{ inputs.dual }}
+        run: python3 .github/scripts/plan_matrix.py
+
+  produce:
+    needs: plan
+    if: needs.plan.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false      # 一条片源挂掉不该带走其他几条
+      matrix:
+        job: ${{ fromJSON(needs.plan.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # fonts-noto-cjk 必装：缺了 CJK 字体，字幕和封面标题会烧成一排豆腐块
+      - name: 安装 ffmpeg 与中文字体
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-noto-cjk
+          fc-cache -f
+
+      - name: 安装 Python 依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 安装 yt-dlp
+        run: |
+          pip install --upgrade yt-dlp
+          yt-dlp --version
+
+      - name: 出片
+        env:
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+          SOURCE: ${{ matrix.job.source }}
+          SLUG: ${{ matrix.job.slug }}
+          TITLE_OVERRIDE: ${{ matrix.job.title_override }}
+          TRANSLATOR: ${{ matrix.job.translator }}
+          DUAL: ${{ matrix.job.dual }}
+        run: |
+          set -euo pipefail
+          args=(--source "$SOURCE" --slug "$SLUG" --translator "$TRANSLATOR")
+          [ -n "$TITLE_OVERRIDE" ] && args+=(--title-override "$TITLE_OVERRIDE")
+          [ "$DUAL" = "true" ] && args+=(--dual)
+          python produce.py "${args[@]}"
+
+      - name: 上传成片
+        uses: actions/upload-artifact@v4
+        with:
+          name: deliver-${{ matrix.job.slug }}
+          path: deliver/${{ matrix.job.slug }}/
+          retention-days: 90
+          if-no-files-found: error
+
+      # 失败时把中间产物带出来：转写、金句、译文都在 _tmp/ 里，
+      # 没有它们就只能靠日志猜是哪一步不达标
+      - name: 失败时上传中间产物
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-${{ matrix.job.slug }}
+          path: _tmp/
+          retention-days: 14
+          if-no-files-found: ignore

@@ -181,6 +181,13 @@ def classify_frame_by_color(img_path: str,
 MIN_FACE_AREA_RATIO = 0.05   # 最大人脸框面积 / 帧面积，低于此视为脸太小做不了封面
 FALLBACK_KEEP = 6            # 无帧达标时改按脸大小取前 N 帧，而不是把全部帧都送上去
 
+# 封面出片门槛。挑不出合格帧时宁可不出片，也不要拿一张路人合影当封面。
+EXIT_QUALITY = 2
+MIN_VLM_PASS_SCORE = 6       # vision 自评封面分低于此视为不合格
+MAX_VLM_REJECTIONS = 5       # 不合格候选超过这个数就判定这条片子挑不出封面
+FACE_TOP_RATIO = 0.6         # 人脸中心必须落在画面上 60%，否则字幕条会压到脸
+WATERMARK_MARGIN = 0.12      # 四角水印区边长占比，人脸压在这里会被水印遮住
+
 _face_cascade = None
 _face_cascade_loaded = False
 
@@ -225,6 +232,113 @@ def largest_face_ratio(img_path: str) -> float:
     except Exception as e:
         print(f"[cover]   ⚠️ 人脸检测异常({e})，该帧按无脸处理", file=sys.stderr)
         return 0.0
+
+
+def reject_cover(reason: str, **fields) -> None:
+    """打印结构化拒绝原因到 stderr 并以 EXIT_QUALITY 退出。"""
+    payload = {"stage": "cover", "reason": reason, **fields}
+    print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
+    sys.exit(EXIT_QUALITY)
+
+
+def largest_face_box(img_path: str):
+    """返回 ``(占比, (x, y, w, h), (W, H))``；无脸或检测不可用时返回 ``None``。"""
+    cascade = _get_face_cascade()
+    if cascade is None:
+        return None
+    try:
+        import cv2
+        img = cv2.imread(img_path)
+        if img is None:
+            return None
+        h, w = img.shape[:2]
+        if not h or not w:
+            return None
+        gray = cv2.equalizeHist(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
+        faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+        if len(faces) == 0:
+            return None
+        fx, fy, fw, fh = max(faces, key=lambda f: f[2] * f[3])
+        return (fw * fh) / float(w * h), (int(fx), int(fy), int(fw), int(fh)), (w, h)
+    except Exception as e:
+        print(f"[cover]   ⚠️ 人脸检测异常({e})，该帧按无脸处理", file=sys.stderr)
+        return None
+
+
+def frame_geometry_verdict(img_path: str,
+                           min_ratio: float = MIN_FACE_AREA_RATIO
+                           ) -> tuple[bool, str, float]:
+    """纯几何规则判定一帧能不能做封面。
+
+    三条：脸够大、脸中心落在画面上 ``FACE_TOP_RATIO``（下方要留给标题条）、
+    脸不压在四角水印区。返回 ``(是否合格, 原因, 脸占比)``。
+    """
+    box = largest_face_box(img_path)
+    if box is None:
+        return False, "no_face", 0.0
+    ratio, (fx, fy, fw, fh), (w, h) = box
+    if ratio < min_ratio:
+        return False, f"face_too_small({ratio:.1%}<{min_ratio:.0%})", ratio
+
+    cy = fy + fh / 2
+    if cy > h * FACE_TOP_RATIO:
+        return False, f"face_too_low({cy / h:.0%}>{FACE_TOP_RATIO:.0%})", ratio
+
+    mx, my = w * WATERMARK_MARGIN, h * WATERMARK_MARGIN
+    in_x = fx < mx or (fx + fw) > (w - mx)
+    in_y = fy < my or (fy + fh) > (h - my)
+    if in_x and in_y:
+        return False, "face_in_watermark_corner", ratio
+    return True, "ok", ratio
+
+
+def pick_best_frame_geometric(raw_video: str, clip_start_sec: float,
+                              clip_end_sec: float, tmp_dir: str,
+                              sample_interval: float = 3.0,
+                              report: dict | None = None) -> str:
+    """不调 VLM，只按几何规则挑封面帧；一帧都不合格就退 EXIT_QUALITY。
+
+    ``--no-vlm`` 路径。合格帧里取清晰度最高的那张。
+    """
+    duration = clip_end_sec - clip_start_sec
+    t = clip_start_sec + duration * 0.1
+    sample_end = clip_end_sec - duration * 0.1
+
+    passed: list[tuple[float, str, float]] = []   # (清晰度, 路径, 时间)
+    rejections: list[dict] = []
+    idx = 0
+    while t <= sample_end:
+        path = os.path.join(tmp_dir, f"gframe_{idx:03d}.jpg")
+        if extract_frame(raw_video, t, path):
+            b = image_brightness(path)
+            if not (40 <= b <= 230):
+                rejections.append({"time_sec": round(t, 1),
+                                   "reason": f"brightness({b:.0f})"})
+            else:
+                ok, why, ratio = frame_geometry_verdict(path)
+                if ok:
+                    passed.append((image_sharpness(path), path, t))
+                else:
+                    rejections.append({"time_sec": round(t, 1), "reason": why,
+                                       "face_ratio": round(ratio, 4)})
+        t += sample_interval
+        idx += 1
+
+    if report is not None:
+        report["cover_vlm_passed"] = False
+        report["cover_geometric_rejections"] = rejections
+
+    if not passed:
+        reject_cover("no_frame_meets_geometry",
+                     detail="没有满足条件的封面帧（几何规则）",
+                     candidates=len(rejections), rejections=rejections[:20])
+
+    best = max(passed, key=lambda s: s[0])
+    if report is not None:
+        report["cover_frame_time_sec"] = round(best[2], 1)
+    print(f"[cover]   几何规则命中 {len(passed)} 帧，选清晰度最高帧 "
+          f"t={best[2]:.1f}s", flush=True)
+    return best[1]
 
 
 def filter_frames_by_face(frame_paths: list[str], frame_times: list[float],
@@ -356,10 +470,16 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
 def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: float,
                            speaker: str, api_key: str, vision_model: str,
                            tmp_dir: str, sample_interval: float = 3.0,
-                           speaker_desc: str = "", speaker_color: str = "auto") -> str | None:
+                           speaker_desc: str = "", speaker_color: str = "auto",
+                           report: dict | None = None) -> str | None:
     """
     从原始视频在金句时间段内每 sample_interval 秒截一帧，
     用 vision LLM 识别哪帧是主讲人大特写，返回最佳帧路径。
+
+    ``report`` 给进来时会被填上 ``cover_vlm_passed`` 和
+    ``cover_vlm_rejections``，供 produce.py 写进 meta.json。
+    VLM 判定不合格的候选超过 ``MAX_VLM_REJECTIONS`` 且没有任何合格帧时，
+    直接退 EXIT_QUALITY —— 这条片子就是挑不出封面，不要硬凑。
     """
     duration = clip_end_sec - clip_start_sec
     # 在 20%~80% 范围内采样，避开片头片尾
@@ -436,6 +556,8 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     BATCH = 6
     best_score = -1
     best_path = None
+    best_time = None
+    rejections: list[dict] = []
 
     for b_start in range(0, len(frame_paths), BATCH):
         batch_paths = frame_paths[b_start:b_start + BATCH]
@@ -453,13 +575,32 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
                 t = batch_times[frame_idx]
                 print(f"[cover]   帧 t={t:.1f}s: {person}, 封面分={score}, {reason}", flush=True)
 
-                if score > best_score:
-                    # 额外加权：清晰度
-                    sharpness = image_sharpness(batch_paths[frame_idx])
-                    adjusted = score + sharpness / 5000  # 清晰度权重较小
-                    if adjusted > best_score:
-                        best_score = adjusted
-                        best_path = batch_paths[frame_idx]
+                if person != "主讲人" or score < MIN_VLM_PASS_SCORE:
+                    rejections.append({"time_sec": round(t, 1), "person": person,
+                                       "cover_score": score, "reason": reason})
+                    continue
+
+                # 额外加权：清晰度
+                sharpness = image_sharpness(batch_paths[frame_idx])
+                adjusted = score + sharpness / 5000  # 清晰度权重较小
+                if adjusted > best_score:
+                    best_score = adjusted
+                    best_path = batch_paths[frame_idx]
+                    best_time = t
+
+    if report is not None:
+        report["cover_vlm_passed"] = best_path is not None
+        report["cover_vlm_rejections"] = rejections
+        if best_time is not None:
+            report["cover_frame_time_sec"] = round(best_time, 1)
+
+    if best_path is None and len(rejections) > MAX_VLM_REJECTIONS:
+        reject_cover("no_frame_passed_vlm",
+                     detail="没有满足条件的封面帧（VLM 校验全部不合格）",
+                     rejected=len(rejections),
+                     threshold=MAX_VLM_REJECTIONS,
+                     min_cover_score=MIN_VLM_PASS_SCORE,
+                     rejections=rejections[:20])
 
     return best_path
 
@@ -633,6 +774,8 @@ def main():
     parser.add_argument("--speaker-color", default="auto",
                         choices=["auto", "blue", "other"],
                         help="主讲人西装颜色系：blue=启用零费用颜色规则；other=直接走vision；auto=从--speaker-desc推断")
+    parser.add_argument("--no-vlm", action="store_true",
+                        help="跳过 VLM 校验，只按几何规则选帧（脸≥5%%、位于画面上60%%、避开水印区）")
     args = parser.parse_args()
 
     api_key = os.environ.get("SILICONFLOW_API_KEY", "").strip()
@@ -653,7 +796,9 @@ def main():
           + ("（启用零费用颜色规则）" if speaker_color == "blue" else "（直接用 vision 识别）"), flush=True)
 
     # 非 blue 系需要 vision LLM，此时才强制要求 key；blue 规则无需 key（无法命中时退到中间帧兜底）
-    if speaker_color != "blue" and not api_key:
+    if args.no_vlm:
+        print("[cover] --no-vlm：跳过 VLM 校验，只按几何规则选帧", flush=True)
+    elif speaker_color != "blue" and not api_key:
         print("[cover] 缺少 SILICONFLOW_API_KEY（非 blue 颜色系需要 vision 识别）", file=sys.stderr)
         sys.exit(1)
 
@@ -671,18 +816,27 @@ def main():
 
         print(f"[cover] [{rank:02d}] 在原始视频 {clip_start_sec:.0f}s~{clip_end_sec:.0f}s 段截帧识别...", flush=True)
 
-        best_frame = pick_best_frame_vision(
-            raw_video=args.raw_video,
-            clip_start_sec=clip_start_sec,
-            clip_end_sec=clip_end_sec,
-            speaker=args.speaker,
-            api_key=api_key,
-            vision_model=args.vision_model,
-            tmp_dir=str(tmp_dir),
-            sample_interval=args.sample_interval,
-            speaker_desc=args.speaker_desc,
-            speaker_color=speaker_color,
-        )
+        if args.no_vlm:
+            best_frame = pick_best_frame_geometric(
+                raw_video=args.raw_video,
+                clip_start_sec=clip_start_sec,
+                clip_end_sec=clip_end_sec,
+                tmp_dir=str(tmp_dir),
+                sample_interval=args.sample_interval,
+            )
+        else:
+            best_frame = pick_best_frame_vision(
+                raw_video=args.raw_video,
+                clip_start_sec=clip_start_sec,
+                clip_end_sec=clip_end_sec,
+                speaker=args.speaker,
+                api_key=api_key,
+                vision_model=args.vision_model,
+                tmp_dir=str(tmp_dir),
+                sample_interval=args.sample_interval,
+                speaker_desc=args.speaker_desc,
+                speaker_color=speaker_color,
+            )
 
         if not best_frame:
             # 兜底：取片段中间帧

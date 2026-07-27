@@ -1,0 +1,107 @@
+"""Actions 出片任务汇总（.github/scripts/plan_matrix.py）。
+
+配置错误要在 plan 阶段就拦下来，而不是等 40 分钟的 runner 跑到一半才炸。
+"""
+
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+_spec = importlib.util.spec_from_file_location(
+    "plan_matrix", ROOT / ".github" / "scripts" / "plan_matrix.py")
+plan_matrix = importlib.util.module_from_spec(_spec)
+sys.modules["plan_matrix"] = plan_matrix
+_spec.loader.exec_module(plan_matrix)
+
+
+def write_sources(tmp_path, name, payload):
+    (tmp_path / name).write_text(json.dumps(payload, ensure_ascii=False),
+                                 encoding="utf-8")
+    return tmp_path
+
+
+# ── workflow_dispatch ───────────────────────────────────────────────────────
+
+def test_dispatch_builds_single_job():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch",
+        "IN_SOURCE": "https://example.com/v", "IN_SLUG": "munger",
+        "IN_TITLE": "", "IN_TRANSLATOR": "deepseek-v3", "IN_DUAL": "false",
+    })
+    assert jobs == [{"source": "https://example.com/v", "slug": "munger",
+                     "title_override": "", "translator": "deepseek-v3",
+                     "dual": "false"}]
+
+
+def test_dispatch_dual_bool_becomes_string():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_DUAL": "true",
+    })
+    assert jobs[0]["dual"] == "true"
+    assert jobs[0]["translator"] == "deepseek-v3"      # 默认值补齐
+
+
+def test_dispatch_missing_slug_raises():
+    with pytest.raises(ValueError, match="source 和 slug"):
+        plan_matrix.build({"EVENT": "workflow_dispatch",
+                           "IN_SOURCE": "u", "IN_SLUG": ""})
+
+
+# ── push sources/*.json ─────────────────────────────────────────────────────
+
+def test_single_object_source_file(tmp_path):
+    write_sources(tmp_path, "a.json", {"source": "u1", "slug": "one"})
+    jobs = plan_matrix.build({"EVENT": "push"}, tmp_path)
+    assert len(jobs) == 1
+    assert jobs[0]["slug"] == "one"
+    assert jobs[0]["dual"] == "false"
+
+
+def test_array_source_file_expands_to_matrix(tmp_path):
+    write_sources(tmp_path, "batch.json", [
+        {"source": "u1", "slug": "one"},
+        {"source": "u2", "slug": "two", "dual": True, "title_override": "标题"},
+    ])
+    jobs = plan_matrix.build({"EVENT": "push"}, tmp_path)
+    assert [j["slug"] for j in jobs] == ["one", "two"]
+    assert jobs[1]["dual"] == "true"
+    assert jobs[1]["title_override"] == "标题"
+
+
+def test_multiple_files_are_merged_in_name_order(tmp_path):
+    write_sources(tmp_path, "b.json", {"source": "u2", "slug": "two"})
+    write_sources(tmp_path, "a.json", {"source": "u1", "slug": "one"})
+    jobs = plan_matrix.build({"EVENT": "push"}, tmp_path)
+    assert [j["slug"] for j in jobs] == ["one", "two"]
+
+
+def test_duplicate_slug_raises(tmp_path):
+    # 同名 slug 会让两个 job 抢同一个 artifact
+    write_sources(tmp_path, "a.json", [
+        {"source": "u1", "slug": "dup"},
+        {"source": "u2", "slug": "dup"},
+    ])
+    with pytest.raises(ValueError, match="slug 重复"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+def test_invalid_translator_raises(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "translator": "gpt-4"})
+    with pytest.raises(ValueError, match="translator"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+def test_empty_sources_dir_yields_empty_matrix(tmp_path):
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path) == []
+
+
+def test_matrix_is_json_serializable_for_fromjson(tmp_path):
+    write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
+    jobs = plan_matrix.build({"EVENT": "push"}, tmp_path)
+    assert json.loads(json.dumps(jobs, ensure_ascii=False)) == jobs

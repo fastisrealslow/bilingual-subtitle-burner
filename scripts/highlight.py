@@ -55,6 +55,66 @@ SENTENCE_END_PUNCT = "。！？；、.!?;"
 SENTENCE_WINDOW_SEC = 8.0   # 找句末标点的最大搜索范围，超出就不再外扩
 BOUNDARY_MARGIN_SEC = 0.3   # 吸附后两端各留的呼吸余量
 
+# 出片门槛。模型偶尔只能挑出一两段勉强及格的内容，硬凑成片比不出片更糟，
+# 所以达不到就退 2 让调用方（produce.py / CI）停下来，而不是接着往下渲染。
+EXIT_QUALITY = 2
+MIN_TOTAL_SEC = 150     # 成片总时长下限
+MIN_QUOTES = 3          # 可用金句条数下限
+MIN_QUOTE_SEC = 15      # 单段时长下限
+
+
+# ── 出片门槛 ──────────────────────────────────────────────────────────────────
+
+def reject(stage: str, reason: str, **fields) -> None:
+    """打印结构化拒绝原因到 stderr 并以 EXIT_QUALITY 退出。"""
+    payload = {"stage": stage, "reason": reason, **fields}
+    print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
+    sys.exit(EXIT_QUALITY)
+
+
+def threshold(name: str, default: float, strict: bool = False) -> float:
+    """读取阈值。``strict`` 时忽略环境变量，只认代码里的下限。"""
+    if strict:
+        return default
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        print(f"[highlight] {name}={raw!r} 不是数字，按默认值 {default}",
+              file=sys.stderr, flush=True)
+        return default
+
+
+def enforce_quote_thresholds(highlights: List[Dict], want: int = 0,
+                             strict: bool = False) -> List[Dict]:
+    """按门槛筛选金句，不达标直接退 EXIT_QUALITY。
+
+    先丢掉过短的片段，再检查条数，最后按 rank 取前 ``want`` 段核总时长
+    —— 总时长要按真正会拼进成片的那几段算，拿全部候选去凑数没有意义。
+    """
+    min_quote_sec = threshold("HIGHLIGHT_MIN_QUOTE_SEC", MIN_QUOTE_SEC, strict)
+    min_quotes = int(threshold("HIGHLIGHT_MIN_QUOTES", MIN_QUOTES, strict))
+    min_total_sec = threshold("HIGHLIGHT_MIN_TOTAL_SEC", MIN_TOTAL_SEC, strict)
+
+    def dur(h: Dict) -> float:
+        return float(h.get("clip_duration_sec") or h.get("duration_sec") or 0)
+
+    kept = [h for h in highlights if dur(h) >= min_quote_sec]
+    if len(kept) < min_quotes:
+        reject("highlight", "insufficient_quotes",
+               actual_count=len(kept), threshold_count=min_quotes,
+               min_quote_sec=min_quote_sec, candidates=len(highlights))
+
+    selected = sorted(kept, key=lambda h: h.get("rank", 0))[:want or len(kept)]
+    total = sum(dur(h) for h in selected)
+    if total < min_total_sec:
+        reject("highlight", "insufficient_duration",
+               actual_sec=round(total, 1), threshold_sec=min_total_sec,
+               selected=len(selected))
+    return selected
+
 
 # ── LLM 调用 ──────────────────────────────────────────────────────────────────
 
@@ -496,6 +556,10 @@ def main():
     parser.add_argument("--top-n", type=int, default=10, help="输出前N个金句，默认10")
     parser.add_argument("--total-duration", type=float, default=0,
                         help="视频总时长（秒），用于 padding 计算")
+    parser.add_argument("--segments", type=int, default=0,
+                        help="核总时长时只算前 N 段，0 表示全部")
+    parser.add_argument("--strict-highlights", action="store_true",
+                        help="忽略环境变量对门槛的放宽，只认代码里的下限")
     args = parser.parse_args()
 
     api_key = (os.environ.get("SILICONFLOW_API_KEY") or "").strip()
@@ -531,6 +595,10 @@ def main():
 
     # 切点对齐句子边界
     highlights = align_clips(highlights, srt_entries, total_dur)
+
+    # 出片门槛：不达标就退 2，不硬凑
+    highlights = enforce_quote_thresholds(
+        highlights, want=args.segments, strict=args.strict_highlights)
 
     # 输出
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)

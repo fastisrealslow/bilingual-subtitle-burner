@@ -11,8 +11,9 @@ def test_double_curly_quotes_become_corner_brackets():
     assert n("他说“价值投资”很重要") == "他说「价值投资」很重要"
 
 
-def test_single_curly_quotes_become_white_corner_brackets():
-    assert n("所谓‘安全边际’") == "所谓『安全边际』"
+def test_single_curly_quotes_become_corner_brackets_at_top_level():
+    # ‘’ 先映射成『』，最外层再提升回「」（见 test_punct_double_quotes.py）
+    assert n("所谓‘安全边际’") == "所谓「安全边际」"
 
 
 def test_nested_quotes_outer_corner_inner_white():
@@ -39,7 +40,8 @@ def test_straight_quotes_in_pure_english_left_alone():
 
 
 def test_existing_corner_brackets_untouched():
-    assert n("「安全边际」和『复利』") == "「安全边际」和『复利』"
+    # 最外层的『复利』要提升成「复利」；「安全边际」已经是外层形式，不动
+    assert n("「安全边际」和『复利』") == "「安全边际」和「复利」"
 
 
 # ── 半角 → 全角 ─────────────────────────────────────────────────────────────
