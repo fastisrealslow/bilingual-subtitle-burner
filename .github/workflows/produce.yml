@@ -35,6 +35,11 @@ on:
         required: false
         default: ""
         type: string
+      cover_crop:
+        description: "封面裁切 W:H:X:Y（同 ffmpeg crop 滤镜），留空不裁。用于切掉源片底部烧死的英文硬字幕，如 854:396:0:0"
+        required: false
+        default: ""
+        type: string
 
   push:
     paths:
@@ -62,6 +67,7 @@ jobs:
           IN_TRANSLATOR: ${{ inputs.translator }}
           IN_DUAL: ${{ inputs.dual }}
           IN_COVER_TIME_SEC: ${{ inputs.cover_time_sec }}
+          IN_COVER_CROP: ${{ inputs.cover_crop }}
         run: python3 .github/scripts/plan_matrix.py
 
   produce:
@@ -108,12 +114,14 @@ jobs:
           TRANSLATOR: ${{ matrix.job.translator }}
           DUAL: ${{ matrix.job.dual }}
           COVER_TIME_SEC: ${{ matrix.job.cover_time_sec }}
+          COVER_CROP: ${{ matrix.job.cover_crop }}
         run: |
           set -euo pipefail
           args=(--source "$SOURCE" --slug "$SLUG" --translator "$TRANSLATOR")
           [ -n "$TITLE_OVERRIDE" ] && args+=(--title-override "$TITLE_OVERRIDE")
           [ "$DUAL" = "true" ] && args+=(--dual)
           [ -n "$COVER_TIME_SEC" ] && args+=(--cover-time-sec "$COVER_TIME_SEC")
+          [ -n "$COVER_CROP" ] && args+=(--cover-crop "$COVER_CROP")
           python produce.py "${args[@]}"
 
       - name: 上传成片

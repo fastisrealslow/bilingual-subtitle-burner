@@ -67,7 +67,7 @@ def test_reject_cover_exits_two_with_structured_reason(capsys):
 
 
 def test_geometric_picker_rejects_when_no_frame_qualifies(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "frame_geometry_verdict",
                         lambda p, **k: (False, "no_face", 0.0))
@@ -82,7 +82,7 @@ def test_geometric_picker_rejects_when_no_frame_qualifies(monkeypatch, tmp_path,
 
 
 def test_geometric_picker_returns_sharpest_passing_frame(monkeypatch, tmp_path):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "frame_geometry_verdict",
                         lambda p, **k: (True, "ok", 0.09))
@@ -100,7 +100,7 @@ def test_geometric_picker_returns_sharpest_passing_frame(monkeypatch, tmp_path):
 
 
 def test_vlm_path_rejects_after_too_many_failures(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "filter_frames_by_face", lambda p, t, **k: (p, t))
     # 每帧都被判为主持人，累计 6 张 > MAX_VLM_REJECTIONS
@@ -125,7 +125,7 @@ def test_vlm_path_rejects_after_too_many_failures(monkeypatch, tmp_path, capsys)
 
 
 def test_vlm_path_records_rejections_even_when_a_frame_passes(monkeypatch, tmp_path):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "image_sharpness", lambda p: 1000.0)
     monkeypatch.setattr(COVER, "filter_frames_by_face", lambda p, t, **k: (p, t))
@@ -183,7 +183,7 @@ def test_sampling_degenerate_zero_length_clip():
 
 
 def test_vision_path_samples_full_candidate_pool(monkeypatch, tmp_path):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "image_sharpness", lambda p: 1000.0)
     seen = {}
@@ -208,7 +208,7 @@ def test_vision_path_samples_full_candidate_pool(monkeypatch, tmp_path):
 # ── 退出码 2 的报错要可操作 ─────────────────────────────────────────────────
 
 def test_rejection_payload_carries_actionable_hint(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "filter_frames_by_face", lambda p, t, **k: (p, t))
     monkeypatch.setattr(COVER, "call_vision_llm",
@@ -230,7 +230,7 @@ def test_rejection_payload_carries_actionable_hint(monkeypatch, tmp_path, capsys
 
 
 def test_geometric_rejection_also_carries_hint(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o, crop=None: True)
     monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
     monkeypatch.setattr(COVER, "frame_geometry_verdict",
                         lambda p, **k: (False, "no_face", 0.0))

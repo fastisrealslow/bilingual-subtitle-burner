@@ -7,6 +7,7 @@
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCES_DIR = ROOT / "sources"
 TRANSLATORS = ("deepseek-v3", "claude-sonnet-4.6")
 DEFAULT_TRANSLATOR = "deepseek-v3"
+COVER_CROP_RE = re.compile(r"^\d+:\d+:\d+:\d+$")
 
 
 def normalize(raw: dict, origin: str) -> dict:
@@ -44,6 +46,12 @@ def normalize(raw: dict, origin: str) -> dict:
             raise ValueError(
                 f"{origin}: cover_time_sec={cover_time!r} 无效，应为非负秒数")
 
+    # 封面裁切（切掉源片烧死的英文硬字幕）。同样在 plan 阶段验格式。
+    cover_crop = str(raw.get("cover_crop") or "").strip()
+    if cover_crop and not COVER_CROP_RE.fullmatch(cover_crop):
+        raise ValueError(
+            f"{origin}: cover_crop={cover_crop!r} 无效，应为 W:H:X:Y（同 ffmpeg crop 滤镜）")
+
     return {
         "source": source,
         "slug": slug,
@@ -52,6 +60,7 @@ def normalize(raw: dict, origin: str) -> dict:
         # matrix 里统一成字符串，YAML 侧只做 "$DUAL" = "true" 的比较
         "dual": "true" if dual else "false",
         "cover_time_sec": cover_time,
+        "cover_crop": cover_crop,
     }
 
 
@@ -63,6 +72,7 @@ def from_dispatch(env: dict) -> list:
         "translator": env.get("IN_TRANSLATOR") or DEFAULT_TRANSLATOR,
         "dual": env.get("IN_DUAL"),
         "cover_time_sec": env.get("IN_COVER_TIME_SEC"),
+        "cover_crop": env.get("IN_COVER_CROP"),
     }, "workflow_dispatch")]
 
 
