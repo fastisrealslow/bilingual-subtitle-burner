@@ -269,6 +269,7 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     sub_mode:
         bilingual —— 中英双语（原片无硬字幕时）
         zh_only   —— 只烧中文（原片已有英文硬字幕，避免英文重复堆叠）
+        en_only   —— 只烧英文（原片已有中文硬字幕，补一层英文即成双语）
 
     avoid_top_ratio:
         原片硬字幕顶部在画面高度的占比（0~1）。传入后，新字幕会被
@@ -345,10 +346,16 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         # 实测 56 字一条）中文块往上顶穿英文行，「英文在上中文在下」的版式
         # 反过来；只有 1 行时又白留一行的空，英文被顶到画面中段骑在讲者
         # 下巴上。ASS 的 Dialogue 支持逐条覆盖 MarginV，按实际行数算。
+        if sub_mode == "en_only":
+            zh_t = ""
         zh_lines = zh_t.count(r"\N") + 1 if zh_t else 0
         en_margin = margin_bottom_en
         if zh_lines:
             en_margin = min(cap, margin_bottom_zh + zh_line_h * zh_lines + 8)
+        elif sub_mode == "en_only":
+            # 没有中文行时英文就该占最底下那一排。仍按 margin_bottom_en 摆
+            # 会在字幕与画面底边之间空出两行高的洞，英文孤零零悬在讲者胸口。
+            en_margin = margin_bottom_zh
         # zh_only：原片已有英文硬字幕，再烧一遍英文只会重复且拥挤
         if en_t and sub_mode != "zh_only":
             lines.append(
