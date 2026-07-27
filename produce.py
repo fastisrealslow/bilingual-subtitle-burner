@@ -322,18 +322,38 @@ def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
 
 def make_covers(video: Path, quotes: list, title: str, speaker: str,
                 out_dir: Path, work: Path, api_key: str,
-                no_vlm: bool) -> dict:
-    """选帧 + 出 16:9 / 9:16 两张封面。挑不出合格帧时由 cover 侧退 2。"""
+                no_vlm: bool, cover_time_sec: float | None = None,
+                candidates: int = COVER.DEFAULT_COVER_CANDIDATES) -> dict:
+    """选帧 + 出 16:9 / 9:16 两张封面。挑不出合格帧时由 cover 侧退 2。
+
+    有些片源天生挑不出合格封面 —— 解说式剪辑用的是原声 + 素材空镜，全片
+    没有主讲人正脸，自动选帧只会挑到不相干的素材人物，冒充主讲人属于误导。
+    ``cover_time_sec`` 就是给这种源片的人工出口：钉死一个时间点，人脸预筛
+    和 VLM 校验全部跳过。
+    """
     report: dict = {}
     tmp = work / "cover_tmp"
     tmp.mkdir(parents=True, exist_ok=True)
     q = quotes[0]
 
-    if no_vlm:
+    if cover_time_sec is not None:
+        frame = str(tmp / "manual_cover.jpg")
+        if not COVER.extract_frame(str(video), cover_time_sec, frame):
+            die(EXIT_CONFIG, "cover", "manual_frame_extract_failed",
+                detail="--cover-time-sec 指定的时间点截不出帧，请确认它在片长范围内",
+                cover_time_sec=cover_time_sec)
+        log("cover", f"手动指定封面帧 t={cover_time_sec:.1f}s（跳过人脸预筛与 VLM 校验）")
+        report["cover_source"] = "manual"
+        report["cover_time_sec"] = round(cover_time_sec, 2)
+        report["cover_vlm_passed"] = False
+    elif no_vlm:
+        report["cover_source"] = "auto"
         frame = COVER.pick_best_frame_geometric(
             raw_video=str(video), clip_start_sec=q["clip_start_sec"],
-            clip_end_sec=q["clip_end_sec"], tmp_dir=str(tmp), report=report)
+            clip_end_sec=q["clip_end_sec"], tmp_dir=str(tmp),
+            candidates=candidates, report=report)
     else:
+        report["cover_source"] = "auto"
         if not api_key:
             die(EXIT_CONFIG, "cover", "missing_siliconflow_api_key",
                 detail="VLM 校验需要 SILICONFLOW_API_KEY，或改用 --no-vlm")
@@ -342,13 +362,18 @@ def make_covers(video: Path, quotes: list, title: str, speaker: str,
                 raw_video=str(video), clip_start_sec=q["clip_start_sec"],
                 clip_end_sec=q["clip_end_sec"], speaker=speaker,
                 api_key=api_key, vision_model=VISION_MODEL,
-                tmp_dir=str(tmp), report=report)
+                tmp_dir=str(tmp), candidates=candidates, report=report)
         except RuntimeError as e:
             die(EXIT_API, "cover", "vision_call_failed", detail=str(e))
         if not frame:
+            rejections = report.get("cover_vlm_rejections", [])
             die(EXIT_QUALITY, "cover", "no_frame_passed_vlm",
                 detail="没有满足条件的封面帧",
-                rejections=report.get("cover_vlm_rejections", [])[:20])
+                candidates_evaluated=len(rejections),
+                best_score=max((r.get("cover_score", 0) for r in rejections),
+                               default=0),
+                rejections=rejections[:20],
+                hint=COVER.NO_COVER_HINT)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     covers = {}
@@ -417,6 +442,8 @@ def write_meta(out_dir: Path, slug: str, title: str, source: str,
         "cover_vlm_passed": bool(covers.get("cover_vlm_passed")),
         "cover_vlm_rejections": covers.get("cover_vlm_rejections", []),
         "cover_source_frame": covers.get("cover_source_frame"),
+        "cover_source": covers.get("cover_source", "auto"),
+        "cover_time_sec": covers.get("cover_time_sec"),
         "commit": os.environ.get("GITHUB_SHA", "local"),
         "sha256": {name: sha256(p) for name, p in files.items() if Path(p).is_file()},
     }
@@ -470,6 +497,14 @@ def parse_args(argv=None):
     p.add_argument("--out", default="deliver", help="产物根目录（默认 deliver/）")
     p.add_argument("--no-vlm", action="store_true",
                    help="封面跳过 VLM 校验，只按几何规则选帧")
+    p.add_argument("--cover-candidates", type=int,
+                   default=COVER.DEFAULT_COVER_CANDIDATES,
+                   help=f"封面候选帧数量，在金句时长上均匀取样，避开首尾各 "
+                        f"{COVER.EDGE_MARGIN_SEC:.0f}s"
+                        f"（默认 {COVER.DEFAULT_COVER_CANDIDATES}）")
+    p.add_argument("--cover-time-sec", type=float, default=None,
+                   help="手动指定封面帧时间点（秒），跳过人脸预筛和 VLM 校验。"
+                        "用于全片没有主讲人正脸的解说式剪辑/空镜素材片")
     p.add_argument("--strict-highlights", action="store_true",
                    help="金句门槛忽略环境变量放宽，只认代码里的下限")
     p.add_argument("--speaker", default="演讲者", help="说话人名字，用于打分和封面")
@@ -519,7 +554,8 @@ def main(argv=None) -> int:
     log("title", title)
 
     covers = make_covers(video, quotes, title, args.speaker, out_dir, work,
-                         api_key, args.no_vlm)
+                         api_key, args.no_vlm, args.cover_time_sec,
+                         args.cover_candidates)
 
     if args.dual and len(finals) > 1:
         build_compare_grid(finals, out_dir / "compare_grid.jpg")

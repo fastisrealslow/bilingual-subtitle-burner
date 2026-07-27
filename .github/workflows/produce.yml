@@ -30,6 +30,11 @@ on:
         required: false
         default: false
         type: boolean
+      cover_time_sec:
+        description: "手动指定封面帧时间点（秒），留空则自动选帧。用于全片没有主讲人正脸的解说式剪辑"
+        required: false
+        default: ""
+        type: string
 
   push:
     paths:
@@ -56,6 +61,7 @@ jobs:
           IN_TITLE: ${{ inputs.title_override }}
           IN_TRANSLATOR: ${{ inputs.translator }}
           IN_DUAL: ${{ inputs.dual }}
+          IN_COVER_TIME_SEC: ${{ inputs.cover_time_sec }}
         run: python3 .github/scripts/plan_matrix.py
 
   produce:
@@ -101,11 +107,13 @@ jobs:
           TITLE_OVERRIDE: ${{ matrix.job.title_override }}
           TRANSLATOR: ${{ matrix.job.translator }}
           DUAL: ${{ matrix.job.dual }}
+          COVER_TIME_SEC: ${{ matrix.job.cover_time_sec }}
         run: |
           set -euo pipefail
           args=(--source "$SOURCE" --slug "$SLUG" --translator "$TRANSLATOR")
           [ -n "$TITLE_OVERRIDE" ] && args+=(--title-override "$TITLE_OVERRIDE")
           [ "$DUAL" = "true" ] && args+=(--dual)
+          [ -n "$COVER_TIME_SEC" ] && args+=(--cover-time-sec "$COVER_TIME_SEC")
           python produce.py "${args[@]}"
 
       - name: 上传成片

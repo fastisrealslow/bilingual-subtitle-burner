@@ -113,3 +113,23 @@ def test_single_qualifying_frame_is_topped_up_with_runners_up(monkeypatch):
     kept_p, kept_t = C.filter_frames_by_face(list(ratios), [1.0, 2.0, 3.0, 4.0, 5.0])
     assert kept_p == ["a.jpg", "b.jpg", "c.jpg", "d.jpg"]   # e 没脸，仍然丢掉
     assert kept_t == [1.0, 2.0, 3.0, 4.0]
+
+
+def test_fallback_keeps_top_eight_faces():
+    # run 30259127265：预筛失败后只送了 1 帧给 vision，vision 没得挑。
+    # 预筛是为了省调用，不是为了把候选池砍到没得挑。
+    assert C.FALLBACK_KEEP >= 8
+
+
+def test_below_threshold_fallback_sends_top_eight_of_a_full_pool(monkeypatch):
+    # 24 帧候选全部卡在 5% 下方时，要送脸最大的 8 帧，而不是只送 1 帧
+    ratios = {f"f{i:02d}.jpg": 0.044 - i * 0.001 for i in range(24)}
+    monkeypatch.setattr(C, "largest_face_ratio", lambda p: ratios[p])
+    monkeypatch.setattr(C, "_get_face_cascade", lambda: object())
+
+    paths = list(ratios)
+    kept_p, kept_t = C.filter_frames_by_face(paths, [float(i) for i in range(24)])
+
+    assert len(kept_p) == 8
+    assert set(kept_p) == set(paths[:8])   # 脸最大的 8 帧
+    assert kept_t == sorted(kept_t)        # 仍按时间序送 vision

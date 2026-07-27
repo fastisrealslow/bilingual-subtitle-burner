@@ -206,3 +206,157 @@ def test_sha256_and_meta_structure(tmp_path):
     assert meta["cover_vlm_rejections"] == [{"reason": "no_face"}]
     assert meta["commit"]
     assert len(meta["sha256"]["final.mp4"]) == 64
+
+
+# ── 手动指定封面时间点 ──────────────────────────────────────────────────────
+# 有些源片天生没有合格的人物封面帧：解说式剪辑是原声 + 素材空镜，全片没有
+# 主讲人正脸，自动选帧再怎么调也只会挑到不相干的素材人物。
+
+def _stub_cover_render(monkeypatch):
+    """把出图这一步换成写占位文件，避免依赖字体和真实帧。"""
+    def fake_make_cover(frame, title, speaker, path, size):
+        Path(path).write_bytes(b"jpeg")
+
+    monkeypatch.setattr(produce.COVER, "make_cover", fake_make_cover)
+
+
+def test_cover_time_sec_skips_face_filter_and_vlm(tmp_path, monkeypatch):
+    _stub_cover_render(monkeypatch)
+
+    def boom(*a, **k):
+        raise AssertionError("手动指定封面时不该再走自动选帧")
+
+    monkeypatch.setattr(produce.COVER, "pick_best_frame_vision", boom)
+    monkeypatch.setattr(produce.COVER, "pick_best_frame_geometric", boom)
+    monkeypatch.setattr(produce.COVER, "filter_frames_by_face", boom)
+    monkeypatch.setattr(produce.COVER, "call_vision_llm", boom)
+
+    grabbed = {}
+
+    def fake_extract(video, t, out):
+        grabbed["t"] = t
+        Path(out).write_bytes(b"jpeg")
+        return True
+
+    monkeypatch.setattr(produce.COVER, "extract_frame", fake_extract)
+
+    report = produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=False,
+        cover_time_sec=96.0)
+
+    assert grabbed["t"] == 96.0
+    assert report["cover_source"] == "manual"
+    assert report["cover_time_sec"] == 96.0
+    assert report["cover_vlm_passed"] is False
+
+
+def test_cover_time_sec_works_without_api_key(tmp_path, monkeypatch):
+    # 手动路径不调 VLM，就不该再强制要求 SILICONFLOW_API_KEY
+    _stub_cover_render(monkeypatch)
+    monkeypatch.setattr(produce.COVER, "extract_frame",
+                        lambda v, t, o: (Path(o).write_bytes(b"jpeg"), True)[1])
+
+    report = produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", api_key="", no_vlm=False,
+        cover_time_sec=96.0)
+    assert report["cover_source"] == "manual"
+
+
+def test_cover_time_sec_out_of_range_exits_one(tmp_path, monkeypatch, capsys):
+    _stub_cover_render(monkeypatch)
+    monkeypatch.setattr(produce.COVER, "extract_frame", lambda v, t, o: False)
+
+    with pytest.raises(SystemExit) as e:
+        produce.make_covers(
+            Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+            tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=False,
+            cover_time_sec=99999.0)
+
+    assert e.value.code == produce.EXIT_CONFIG
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "manual_frame_extract_failed"
+
+
+def test_auto_path_records_cover_source_auto(tmp_path, monkeypatch):
+    _stub_cover_render(monkeypatch)
+    frame = tmp_path / "picked.jpg"
+    frame.write_bytes(b"jpeg")
+    monkeypatch.setattr(produce.COVER, "pick_best_frame_geometric",
+                        lambda **k: str(frame))
+
+    report = produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=True)
+    assert report["cover_source"] == "auto"
+
+
+def test_cover_candidates_is_passed_through_to_picker(tmp_path, monkeypatch):
+    _stub_cover_render(monkeypatch)
+    frame = tmp_path / "picked.jpg"
+    frame.write_bytes(b"jpeg")
+    seen = {}
+
+    def fake_pick(**kw):
+        seen.update(kw)
+        return str(frame)
+
+    monkeypatch.setattr(produce.COVER, "pick_best_frame_vision", fake_pick)
+    produce.make_covers(
+        Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+        tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=False,
+        cover_time_sec=None, candidates=32)
+    assert seen["candidates"] == 32
+
+
+def test_vlm_failure_in_produce_carries_hint(tmp_path, monkeypatch, capsys):
+    _stub_cover_render(monkeypatch)
+
+    def no_frame(**kw):
+        kw["report"]["cover_vlm_rejections"] = [
+            {"time_sec": 631.1, "person": "双人", "cover_score": 4,
+             "reason": "均在背景中"}]
+        return None
+
+    monkeypatch.setattr(produce.COVER, "pick_best_frame_vision", no_frame)
+
+    with pytest.raises(SystemExit) as e:
+        produce.make_covers(
+            Path("v.mp4"), quotes_for([(0.0, 60.0)]), "标题", "芒格",
+            tmp_path / "out", tmp_path / "work", "sk-test", no_vlm=False)
+
+    assert e.value.code == produce.EXIT_QUALITY
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "no_frame_passed_vlm"
+    assert payload["best_score"] == 4
+    assert "--cover-time-sec" in payload["hint"]
+
+
+def test_cli_exposes_cover_flags():
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s",
+                               "--cover-time-sec", "96", "--cover-candidates", "30"])
+    assert args.cover_time_sec == 96.0
+    assert args.cover_candidates == 30
+
+
+def test_cover_flags_default_to_auto():
+    args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
+    assert args.cover_time_sec is None
+    assert args.cover_candidates == produce.COVER.DEFAULT_COVER_CANDIDATES
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="需要 ffmpeg/ffprobe")
+def test_meta_records_manual_cover_source(tmp_path):
+    final = tmp_path / "final.mp4"
+    final.write_bytes(b"stub")
+    meta_path = produce.write_meta(
+        tmp_path, "munger", "标题", "https://example.com/v", final, [],
+        {"cover_source": "manual", "cover_time_sec": 96.0,
+         "cover_vlm_passed": False, "files": {}},
+        "deepseek-v3", "芒格")
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    assert meta["cover_source"] == "manual"
+    assert meta["cover_time_sec"] == 96.0
+    assert meta["models"]["vision"] is None      # 手动路径没调 vision

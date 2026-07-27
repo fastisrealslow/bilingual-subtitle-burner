@@ -36,11 +36,19 @@
 | `title_override` | ❌ | `""` | 留空则让模型起一个 15 字以内的标题 |
 | `translator` | ❌ | `deepseek-v3` | `deepseek-v3` 或 `claude-sonnet-4.6`（后者需要 `ANTHROPIC_API_KEY`，CI 里没注入） |
 | `dual` | ❌ | `false` | 两个翻译都跑，额外产出 `compare_grid.jpg` 对比拼图 |
+| `cover_time_sec` | ❌ | `""` | 手动钉死封面帧的时间点（秒），跳过人脸预筛和 VLM 校验。留空走自动选帧 |
+
+### 什么时候需要 `cover_time_sec`
+
+解说式剪辑（主讲人原声 + 素材空镜）全片可能根本没有主讲人的正脸。这种源片
+自动选帧只会挑到不相干的素材人物，拿它冒充主讲人属于误导，所以出片会直接
+退 2 而不是硬凑。此时用 `cover_time_sec` 指定一个能表意的空镜时间点即可。
 
 ## 约束
 
 - **`slug` 全局唯一**。重复的话两个 job 会抢同一个 artifact 名字，`plan_matrix.py` 会直接报错拦下。
 - `translator` 只能是上表里的两个值，写错会在 `plan` 阶段失败，不会浪费 40 分钟的 runner。
+- `cover_time_sec` 写了非数字或负数同样在 `plan` 阶段就失败。
 - 缺 `source` 或 `slug` 同样在 `plan` 阶段就失败。
 
 ## 本地校验

@@ -3,7 +3,7 @@
 step7_cover.py — 封面生成（Step 7）
 
 策略：
-  1. 从【原始视频】在金句时间段内均匀截取 N 帧（每2秒一帧）
+  1. 从【原始视频】在金句时间段内均匀截取 N 帧（默认 24，避开首尾各 3 秒）
   2. 调用 LLM vision 逐帧识别哪帧是主讲人（根据外貌特征描述）的大特写
   3. 选 LLM 认定是主讲人且清晰度最高的帧
   4. 叠加渐变遮罩 + 标题文字 + 说话人标签
@@ -179,7 +179,7 @@ def classify_frame_by_color(img_path: str,
 # haar 级联在本地过一遍，只把「有正脸且脸够大」的帧送上去。
 
 MIN_FACE_AREA_RATIO = 0.05   # 最大人脸框面积 / 帧面积，低于此视为脸太小做不了封面
-FALLBACK_KEEP = 6            # 无帧达标时改按脸大小取前 N 帧，而不是把全部帧都送上去
+FALLBACK_KEEP = 8            # 无帧达标时改按脸大小取前 N 帧，而不是把全部帧都送上去
 
 # 封面出片门槛。挑不出合格帧时宁可不出片，也不要拿一张路人合影当封面。
 EXIT_QUALITY = 2
@@ -187,6 +187,17 @@ MIN_VLM_PASS_SCORE = 6       # vision 自评封面分低于此视为不合格
 MAX_VLM_REJECTIONS = 5       # 不合格候选超过这个数就判定这条片子挑不出封面
 FACE_TOP_RATIO = 0.6         # 人脸中心必须落在画面上 60%，否则字幕条会压到脸
 WATERMARK_MARGIN = 0.12      # 四角水印区边长占比，人脸压在这里会被水印遮住
+
+# 候选帧池。旧版按固定 3s 间隔采样，一条 66s 的金句段扣掉首尾只剩十几个点，
+# 亮度过滤再砍一刀，实测只剩 5 帧进人脸预筛 —— MAX_VLM_REJECTIONS=5 这条
+# 「不合格超过 5 个才拒」的门槛根本凑不满，等于没设。改成按张数均匀取样。
+DEFAULT_COVER_CANDIDATES = 24
+EDGE_MARGIN_SEC = 3.0        # 片头片尾各避开 3s，那里通常是转场和黑帧
+
+NO_COVER_HINT = (
+    "该源片可能没有合格的人物封面帧（常见于解说式剪辑/空镜素材片）。"
+    "可用 --cover-time-sec <秒> 手动指定，或加 --no-vlm 走纯几何兜底。"
+)
 
 _face_cascade = None
 _face_cascade_loaded = False
@@ -232,6 +243,29 @@ def largest_face_ratio(img_path: str) -> float:
     except Exception as e:
         print(f"[cover]   ⚠️ 人脸检测异常({e})，该帧按无脸处理", file=sys.stderr)
         return 0.0
+
+
+def sample_frame_times(clip_start_sec: float, clip_end_sec: float,
+                       count: int = DEFAULT_COVER_CANDIDATES,
+                       margin: float = EDGE_MARGIN_SEC) -> list[float]:
+    """在 ``[start+margin, end-margin]`` 上均匀取 ``count`` 个时间点。
+
+    取的是每格的中点而不是端点，这样首尾两张也离边界有半格，不会踩到
+    刚好卡在 margin 上的转场。片段短到装不下两侧 margin 时按比例收窄，
+    实在收不动就退化成整段中点一张。
+    """
+    count = max(1, int(count))
+    span = clip_end_sec - clip_start_sec
+    if span <= 0:
+        return [clip_start_sec]
+
+    m = margin if span > margin * 2 else span * 0.1
+    lo, hi = clip_start_sec + m, clip_end_sec - m
+    if hi <= lo:
+        return [clip_start_sec + span / 2]
+
+    step = (hi - lo) / count
+    return [lo + step * (i + 0.5) for i in range(count)]
 
 
 def reject_cover(reason: str, **fields) -> None:
@@ -294,20 +328,16 @@ def frame_geometry_verdict(img_path: str,
 
 def pick_best_frame_geometric(raw_video: str, clip_start_sec: float,
                               clip_end_sec: float, tmp_dir: str,
-                              sample_interval: float = 3.0,
+                              candidates: int = DEFAULT_COVER_CANDIDATES,
                               report: dict | None = None) -> str:
     """不调 VLM，只按几何规则挑封面帧；一帧都不合格就退 EXIT_QUALITY。
 
     ``--no-vlm`` 路径。合格帧里取清晰度最高的那张。
     """
-    duration = clip_end_sec - clip_start_sec
-    t = clip_start_sec + duration * 0.1
-    sample_end = clip_end_sec - duration * 0.1
-
     passed: list[tuple[float, str, float]] = []   # (清晰度, 路径, 时间)
     rejections: list[dict] = []
-    idx = 0
-    while t <= sample_end:
+    for idx, t in enumerate(sample_frame_times(clip_start_sec, clip_end_sec,
+                                               candidates)):
         path = os.path.join(tmp_dir, f"gframe_{idx:03d}.jpg")
         if extract_frame(raw_video, t, path):
             b = image_brightness(path)
@@ -321,8 +351,6 @@ def pick_best_frame_geometric(raw_video: str, clip_start_sec: float,
                 else:
                     rejections.append({"time_sec": round(t, 1), "reason": why,
                                        "face_ratio": round(ratio, 4)})
-        t += sample_interval
-        idx += 1
 
     if report is not None:
         report["cover_vlm_passed"] = False
@@ -331,7 +359,8 @@ def pick_best_frame_geometric(raw_video: str, clip_start_sec: float,
     if not passed:
         reject_cover("no_frame_meets_geometry",
                      detail="没有满足条件的封面帧（几何规则）",
-                     candidates=len(rejections), rejections=rejections[:20])
+                     candidates_evaluated=len(rejections),
+                     rejections=rejections[:20], hint=NO_COVER_HINT)
 
     best = max(passed, key=lambda s: s[0])
     if report is not None:
@@ -469,11 +498,12 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
 
 def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: float,
                            speaker: str, api_key: str, vision_model: str,
-                           tmp_dir: str, sample_interval: float = 3.0,
+                           tmp_dir: str,
+                           candidates: int = DEFAULT_COVER_CANDIDATES,
                            speaker_desc: str = "", speaker_color: str = "auto",
                            report: dict | None = None) -> str | None:
     """
-    从原始视频在金句时间段内每 sample_interval 秒截一帧，
+    从原始视频在金句时间段内均匀截 ``candidates`` 帧，
     用 vision LLM 识别哪帧是主讲人大特写，返回最佳帧路径。
 
     ``report`` 给进来时会被填上 ``cover_vlm_passed`` 和
@@ -481,17 +511,11 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     VLM 判定不合格的候选超过 ``MAX_VLM_REJECTIONS`` 且没有任何合格帧时，
     直接退 EXIT_QUALITY —— 这条片子就是挑不出封面，不要硬凑。
     """
-    duration = clip_end_sec - clip_start_sec
-    # 在 20%~80% 范围内采样，避开片头片尾
-    sample_start = clip_start_sec + duration * 0.1
-    sample_end = clip_end_sec - duration * 0.1
-
     frame_paths = []
     frame_times = []
     dropped = []  # 记录被亮度过滤掉的帧，便于全部被过滤时诊断
-    t = sample_start
-    idx = 0
-    while t <= sample_end:
+    for idx, t in enumerate(sample_frame_times(clip_start_sec, clip_end_sec,
+                                               candidates)):
         path = os.path.join(tmp_dir, f"vframe_{idx:03d}.jpg")
         if extract_frame(raw_video, t, path):
             b = image_brightness(path)
@@ -500,8 +524,6 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
                 frame_times.append(t)
             else:
                 dropped.append(b)
-        t += sample_interval
-        idx += 1
 
     if not frame_paths:
         # 不能静默返回：否则 vision 根本没被调用，日志里却只看到
@@ -597,10 +619,14 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
     if best_path is None and len(rejections) > MAX_VLM_REJECTIONS:
         reject_cover("no_frame_passed_vlm",
                      detail="没有满足条件的封面帧（VLM 校验全部不合格）",
+                     candidates_evaluated=len(frame_paths),
+                     best_score=max((r["cover_score"] for r in rejections),
+                                    default=0),
                      rejected=len(rejections),
                      threshold=MAX_VLM_REJECTIONS,
                      min_cover_score=MIN_VLM_PASS_SCORE,
-                     rejections=rejections[:20])
+                     rejections=rejections[:20],
+                     hint=NO_COVER_HINT)
 
     return best_path
 
@@ -767,8 +793,10 @@ def main():
     # 返回空内容→ 退回兜底截帧。实测这一项占了总花费的 97%，产出为零。
     parser.add_argument("--vision-model", default="Qwen/Qwen3-VL-8B-Instruct",
                         help="Vision 模型（必须支持图片输入，建议 Qwen3-VL 系列）")
-    parser.add_argument("--sample-interval", type=float, default=3.0,
-                        help="截帧间隔秒数（默认3秒）")
+    parser.add_argument("--cover-candidates", type=int,
+                        default=DEFAULT_COVER_CANDIDATES,
+                        help=f"候选帧数量，在金句时长上均匀取样"
+                             f"（默认 {DEFAULT_COVER_CANDIDATES}）")
     parser.add_argument("--speaker-desc", default="",
                         help="主讲人外貌描述，如'穿黑色西装的中年男性'，可选，提高识别准确度")
     parser.add_argument("--speaker-color", default="auto",
@@ -822,7 +850,7 @@ def main():
                 clip_start_sec=clip_start_sec,
                 clip_end_sec=clip_end_sec,
                 tmp_dir=str(tmp_dir),
-                sample_interval=args.sample_interval,
+                candidates=args.cover_candidates,
             )
         else:
             best_frame = pick_best_frame_vision(
@@ -833,7 +861,7 @@ def main():
                 api_key=api_key,
                 vision_model=args.vision_model,
                 tmp_dir=str(tmp_dir),
-                sample_interval=args.sample_interval,
+                candidates=args.cover_candidates,
                 speaker_desc=args.speaker_desc,
                 speaker_color=speaker_color,
             )

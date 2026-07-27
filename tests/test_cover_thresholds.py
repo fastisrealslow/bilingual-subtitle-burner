@@ -92,8 +92,8 @@ def test_geometric_picker_returns_sharpest_passing_frame(monkeypatch, tmp_path):
 
     report = {}
     best = COVER.pick_best_frame_geometric("v.mp4", 0, 60, str(tmp_path),
-                                           sample_interval=10, report=report)
-    # 采样窗口 6~54s、步长 10 → 5 帧，末帧清晰度最高
+                                           candidates=5, report=report)
+    # 5 个候选，末帧清晰度最高
     assert best.endswith("gframe_004.jpg")
     assert report["cover_vlm_passed"] is False
     assert report["cover_geometric_rejections"] == []
@@ -113,7 +113,7 @@ def test_vlm_path_rejects_after_too_many_failures(monkeypatch, tmp_path, capsys)
     with pytest.raises(SystemExit) as e:
         COVER.pick_best_frame_vision(
             "v.mp4", 0, 100, "芒格", "sk-test", "Qwen/Qwen3-VL-8B-Instruct",
-            str(tmp_path), sample_interval=10, speaker_color="other",
+            str(tmp_path), candidates=10, speaker_color="other",
             report=report)
     assert e.value.code == COVER.EXIT_QUALITY
 
@@ -141,8 +141,104 @@ def test_vlm_path_records_rejections_even_when_a_frame_passes(monkeypatch, tmp_p
     report = {}
     best = COVER.pick_best_frame_vision(
         "v.mp4", 0, 60, "芒格", "sk-test", "Qwen/Qwen3-VL-8B-Instruct",
-        str(tmp_path), sample_interval=10, speaker_color="other", report=report)
+        str(tmp_path), candidates=10, speaker_color="other", report=report)
 
     assert best is not None
     assert report["cover_vlm_passed"] is True
     assert report["cover_vlm_rejections"]      # 不合格的帧照样留档
+
+
+# ── 候选帧池 ────────────────────────────────────────────────────────────────
+# run 30259127265：只采了 5 帧、预筛后只剩 1 帧送 vision，MAX_VLM_REJECTIONS=5
+# 这条「不合格超过 5 个才拒」的门槛根本凑不满，等于没设。
+
+def test_default_candidate_pool_is_at_least_24():
+    assert COVER.DEFAULT_COVER_CANDIDATES >= 24
+
+
+def test_sampling_yields_requested_count_within_margins():
+    times = COVER.sample_frame_times(100.0, 200.0, 24)
+    assert len(times) == 24
+    # 首尾各避开 3s 的转场/黑帧区
+    assert times[0] >= 100.0 + COVER.EDGE_MARGIN_SEC
+    assert times[-1] <= 200.0 - COVER.EDGE_MARGIN_SEC
+    assert times == sorted(times)
+
+
+def test_sampling_is_uniform():
+    times = COVER.sample_frame_times(0.0, 120.0, 12)
+    gaps = [b - a for a, b in zip(times, times[1:])]
+    assert max(gaps) - min(gaps) < 1e-9
+
+
+def test_sampling_survives_clip_shorter_than_two_margins():
+    # 4s 的片段装不下两侧各 3s 的 margin，不能返回空列表
+    times = COVER.sample_frame_times(10.0, 14.0, 24)
+    assert len(times) == 24
+    assert all(10.0 <= t <= 14.0 for t in times)
+
+
+def test_sampling_degenerate_zero_length_clip():
+    assert COVER.sample_frame_times(5.0, 5.0, 24) == [5.0]
+
+
+def test_vision_path_samples_full_candidate_pool(monkeypatch, tmp_path):
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
+    monkeypatch.setattr(COVER, "image_sharpness", lambda p: 1000.0)
+    seen = {}
+
+    def spy(paths, times, **kw):
+        seen["n"] = len(paths)
+        return paths, times
+
+    monkeypatch.setattr(COVER, "filter_frames_by_face", spy)
+    monkeypatch.setattr(COVER, "call_vision_llm",
+                        lambda key, model, paths, speaker, desc="": [
+                            {"frame": 1, "person": "主讲人", "cover_score": 9,
+                             "reason": "好"}])
+
+    COVER.pick_best_frame_vision(
+        "v.mp4", 0, 200, "芒格", "sk-test", "Qwen/Qwen3-VL-8B-Instruct",
+        str(tmp_path), speaker_color="other")
+
+    assert seen["n"] == COVER.DEFAULT_COVER_CANDIDATES
+
+
+# ── 退出码 2 的报错要可操作 ─────────────────────────────────────────────────
+
+def test_rejection_payload_carries_actionable_hint(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
+    monkeypatch.setattr(COVER, "filter_frames_by_face", lambda p, t, **k: (p, t))
+    monkeypatch.setattr(COVER, "call_vision_llm",
+                        lambda key, model, paths, speaker, desc="": [
+                            {"frame": i + 1, "person": "双人", "cover_score": 4,
+                             "reason": "两位人物均在背景中"} for i in range(len(paths))])
+
+    with pytest.raises(SystemExit):
+        COVER.pick_best_frame_vision(
+            "v.mp4", 0, 200, "芒格", "sk-test", "Qwen/Qwen3-VL-8B-Instruct",
+            str(tmp_path), candidates=8, speaker_color="other")
+
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "no_frame_passed_vlm"
+    assert payload["candidates_evaluated"] == 8
+    assert payload["best_score"] == 4
+    assert "--cover-time-sec" in payload["hint"]
+    assert "--no-vlm" in payload["hint"]
+
+
+def test_geometric_rejection_also_carries_hint(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(COVER, "extract_frame", lambda v, t, o: True)
+    monkeypatch.setattr(COVER, "image_brightness", lambda p: 120)
+    monkeypatch.setattr(COVER, "frame_geometry_verdict",
+                        lambda p, **k: (False, "no_face", 0.0))
+
+    with pytest.raises(SystemExit):
+        COVER.pick_best_frame_geometric("v.mp4", 0, 60, str(tmp_path),
+                                        candidates=8)
+
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["candidates_evaluated"] == 8
+    assert "--cover-time-sec" in payload["hint"]
