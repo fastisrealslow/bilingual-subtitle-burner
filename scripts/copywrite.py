@@ -113,6 +113,38 @@ def _normalize_copy(d: Dict, protect=None) -> Dict:
     return d
 
 
+def parse_copy_json(content: str) -> Dict:
+    """从模型回复里取出 {title, desc, tags}，容忍值里夹着英文双引号。
+
+    模型写中文引语时常直接打 ASCII 双引号（「他只说"不"」），这在 JSON 里
+    提前闭合了字符串，json.loads 必然失败。之前这里静默走降级分支，5 条文案
+    里 4 条退回了建议标题，日志上看不出任何异常。所以先按标准 JSON 解，解不
+    动再按「下一个键名」为锚点逐字段抠出来。
+    """
+    m = re.search(r"\{.*\}", content, re.DOTALL)
+    if not m:
+        return {}
+    blob = m.group()
+    try:
+        d = json.loads(blob)
+        if isinstance(d, dict):
+            return d
+    except json.JSONDecodeError:
+        pass
+
+    def field(name, nxt):
+        mm = re.search(rf'"{name}"\s*:\s*"(.*?)"\s*,\s*"{nxt}"\s*:', blob, re.DOTALL)
+        return mm.group(1).strip() if mm else ""
+
+    title = field("title", "desc")
+    desc = field("desc", "tags")
+    tags_m = re.search(r'"tags"\s*:\s*\[(.*?)\]', blob, re.DOTALL)
+    tags = re.findall(r'"([^"]+)"', tags_m.group(1)) if tags_m else []
+    if not title:
+        return {}
+    return {"title": title, "desc": desc, "tags": tags}
+
+
 def generate_copy(highlight: Dict, speaker: str, channel: str,
                   api_key: str, model: str, base_url: str) -> Dict:
     en = highlight.get("transcript_en", "")[:500]
@@ -143,19 +175,18 @@ LLM建议标题（参考）：{suggested}
   "desc": "...",
   "tags": ["...", "..."]
 }}
-只输出 JSON，不要其他文字。"""
+只输出 JSON，不要其他文字。文案里需要引用时一律用「」，不要用英文双引号。"""
 
     content = call_llm(
         [{"role": "system", "content": SYSTEM_PROMPT},
          {"role": "user", "content": user_msg}],
         api_key, model, base_url
     )
-    json_match = re.search(r"\{.*\}", content, re.DOTALL)
-    if json_match:
-        try:
-            return _normalize_copy(json.loads(json_match.group()), [speaker])
-        except json.JSONDecodeError:
-            pass
+    parsed = parse_copy_json(content)
+    if parsed:
+        return _normalize_copy(parsed, [speaker])
+    print(f"[copywrite] ⚠️  文案 JSON 不可解析，降级用建议标题：{content[:150]}",
+          file=sys.stderr)
     # 降级：返回建议标题
     return _normalize_copy(
         {"title": suggested, "desc": zh[:150], "tags": [speaker, "价值投资"]}, [speaker])
