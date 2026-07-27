@@ -74,6 +74,12 @@ def normalize(raw: dict, origin: str) -> dict:
         raise ValueError(
             f"{origin}: sub_avoid_gap={sub_avoid_gap!r} 无效，应为非负整数像素")
 
+    # 一次出几集。空串 = 用 produce.py 的默认值 1。0 和负数在这里就拦下来。
+    episodes = str(raw.get("episodes") or "").strip()
+    if episodes and not (re.fullmatch(r"\d+", episodes) and int(episodes) >= 1):
+        raise ValueError(
+            f"{origin}: episodes={episodes!r} 无效，应为不小于 1 的整数")
+
     return {
         "source": source,
         "slug": slug,
@@ -87,6 +93,7 @@ def normalize(raw: dict, origin: str) -> dict:
         "sub_mode": sub_mode,
         "sub_margin_v": sub_margin_v,
         "sub_avoid_gap": sub_avoid_gap,
+        "episodes": episodes,
     }
 
 
@@ -103,6 +110,7 @@ def from_dispatch(env: dict) -> list:
         "sub_mode": env.get("IN_SUB_MODE"),
         "sub_margin_v": env.get("IN_SUB_MARGIN_V"),
         "sub_avoid_gap": env.get("IN_SUB_AVOID_GAP"),
+        "episodes": env.get("IN_EPISODES"),
     }, "workflow_dispatch")]
 
 

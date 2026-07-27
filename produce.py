@@ -30,6 +30,7 @@ import shutil
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -61,6 +62,21 @@ HIGHLIGHT_MODEL = "Qwen/Qwen3-8B"
 WHISPER_MODEL = "base"          # large-v3 在 CI runner 上太慢
 SEGMENTS = 3                    # 成片由三段金句拼成
 TITLE_MAX_CHARS = 15
+
+# ── 多集 ─────────────────────────────────────────────────────────────────────
+# --episodes N 时下载和转写只做一次，highlight 挑 N 组互不重叠的片段，
+# 每集各自走 选帧 → 翻译 → 烧字幕 → 标题 → 封面。
+DEFAULT_EPISODES = 1
+QUEUE_SCHEMA = 1
+QUEUE_NAME = "queue.json"
+RELEASE_TAG_PREFIX = "clips-"
+# queue.json 里的 urls 要能直接点开下载，仓库名在 CI 里由 GITHUB_REPOSITORY 给，
+# 本地跑没有这个变量时回落到本仓库。
+DEFAULT_REPO = "fastisrealslow/bilingual-subtitle-burner"
+DEFAULT_SERVER_URL = "https://github.com"
+# 投稿标签：说话人 + 两个固定的领域标签。不额外问模型 —— 多一次调用换三个
+# 词不划算，用户在投稿框里改一个字的成本更低。
+BASE_TAGS = ("价值投资", "投资思维")
 
 # --cover-crop 的取值格式，与 ffmpeg crop 滤镜一致：W:H:X:Y
 COVER_CROP_RE = re.compile(r"^\d+:\d+:\d+:\d+$")
@@ -272,9 +288,75 @@ def transcribe(video: Path, work: Path, language: str) -> Path:
 
 # ── 3. 挑金句 ─────────────────────────────────────────────────────────────────
 
-def pick_quotes(srt: Path, work: Path, speaker: str, total_dur: float,
-                api_key: str, base_url: str, strict: bool) -> list:
-    """LLM 打分挑金句 → 切点对齐 → 过出片门槛。不达标由 highlight 退 2。"""
+def clip_duration(q: dict) -> float:
+    return float(q.get("clip_duration_sec") or q.get("duration_sec") or 0)
+
+
+def overlaps_any(q: dict, spans: list) -> bool:
+    s, e = q["clip_start_sec"], q["clip_end_sec"]
+    return any(e > a and s < b for a, b in spans)
+
+
+def group_episodes(quotes: list, episodes: int = DEFAULT_EPISODES,
+                   strict: bool = False) -> list:
+    """把候选金句切成 N 组互不重叠的片段组，每组仍要过现有的出片门槛。
+
+    第一组直接交给 ``HL.enforce_quote_thresholds`` —— 单集路径必须逐字沿用
+    原来的判定和拒绝理由，不达标照旧退 2。后续每组按 rank 顺序贪心取满
+    ``SEGMENTS`` 段，跳过与已选片段重叠的候选。
+
+    源不够时不凑数：填不满一组、或这一组总时长不够，就在这里停下，能出几组
+    算几组。候选是按 rank 排的，第一组填不满往后只会更差，所以停在第一个
+    不合格的组上。
+    """
+    first = HL.enforce_quote_thresholds(quotes, want=SEGMENTS, strict=strict)
+    groups = [first]
+    if episodes <= 1:
+        return groups
+
+    min_quote_sec = HL.threshold("HIGHLIGHT_MIN_QUOTE_SEC", HL.MIN_QUOTE_SEC,
+                                 strict)
+    min_quotes = int(HL.threshold("HIGHLIGHT_MIN_QUOTES", HL.MIN_QUOTES, strict))
+    min_total_sec = HL.threshold("HIGHLIGHT_MIN_TOTAL_SEC", HL.MIN_TOTAL_SEC,
+                                 strict)
+
+    used = [(q["clip_start_sec"], q["clip_end_sec"]) for q in first]
+    pool = [q for q in sorted(quotes, key=lambda h: h.get("rank", 0))
+            if all(q is not f for f in first) and clip_duration(q) >= min_quote_sec]
+
+    while len(groups) < episodes:
+        group, spans = [], list(used)
+        for q in pool:
+            if len(group) >= SEGMENTS:
+                break
+            if overlaps_any(q, spans):
+                continue
+            group.append(q)
+            spans.append((q["clip_start_sec"], q["clip_end_sec"]))
+
+        if len(group) < max(SEGMENTS, min_quotes):
+            log("highlight", f"第 {len(groups) + 1} 集只凑得出 {len(group)} 段"
+                             f"（需要 {max(SEGMENTS, min_quotes)} 段），源不够，不凑数")
+            break
+        total = sum(clip_duration(q) for q in group)
+        if total < min_total_sec:
+            log("highlight", f"第 {len(groups) + 1} 集合计 {total:.0f}s "
+                             f"不足 {min_total_sec:.0f}s，源不够，不凑数")
+            break
+
+        groups.append(group)
+        used = spans
+        pool = [q for q in pool if all(q is not g for g in group)]
+    return groups
+
+
+def pick_quote_groups(srt: Path, work: Path, speaker: str, total_dur: float,
+                      api_key: str, base_url: str, strict: bool,
+                      episodes: int = DEFAULT_EPISODES) -> list:
+    """LLM 打分挑金句 → 切点对齐 → 过出片门槛 → 切成 N 组。
+
+    不达标由 highlight 退 2。返回片段组列表，长度 ≤ ``episodes``。
+    """
     entries = HL.parse_srt(str(srt))
     if not entries:
         die(EXIT_QUALITY, "highlight", "empty_transcript", srt=str(srt))
@@ -284,20 +366,31 @@ def pick_quotes(srt: Path, work: Path, speaker: str, total_dur: float,
 
     try:
         quotes = HL.score_highlights(paragraphs, api_key, HIGHLIGHT_MODEL,
-                                     base_url, speaker=speaker, top_n=10)
+                                     base_url, speaker=speaker,
+                                     top_n=max(10, SEGMENTS * episodes))
     except sf_client.FatalHTTPError as e:
         die_fatal_http("highlight", e)
     except RuntimeError as e:
         die(EXIT_API, "highlight", "siliconflow_unavailable", detail=str(e))
     quotes = HL.align_clips(quotes, entries, total_dur)
-    quotes = HL.enforce_quote_thresholds(quotes, want=SEGMENTS, strict=strict)
+    groups = group_episodes(quotes, episodes, strict)
 
-    out = work / "quotes.json"
-    out.write_text(json.dumps(quotes, ensure_ascii=False, indent=2),
-                   encoding="utf-8")
-    total = sum(q["clip_duration_sec"] for q in quotes)
-    log("highlight", f"选中 {len(quotes)} 段，合计 {total:.0f}s → {out}")
-    return quotes
+    for i, group in enumerate(groups, 1):
+        out = work / ("quotes.json" if i == 1 else f"quotes_{episode_id(i)}.json")
+        out.write_text(json.dumps(group, ensure_ascii=False, indent=2),
+                       encoding="utf-8")
+        total = sum(q["clip_duration_sec"] for q in group)
+        log("highlight", f"第 {i} 集选中 {len(group)} 段，合计 {total:.0f}s → {out}")
+    if episodes > 1:
+        log("highlight", f"要 {episodes} 集，实际能出 {len(groups)} 集")
+    return groups
+
+
+def pick_quotes(srt: Path, work: Path, speaker: str, total_dur: float,
+                api_key: str, base_url: str, strict: bool) -> list:
+    """单集路径：只取第一组片段。"""
+    return pick_quote_groups(srt, work, speaker, total_dur, api_key, base_url,
+                             strict)[0]
 
 
 # ── 4. 翻译 ───────────────────────────────────────────────────────────────────
@@ -689,6 +782,123 @@ def write_meta(out_dir: Path, slug: str, title: str, source: str,
     return path
 
 
+# ── 9. queue.json ─────────────────────────────────────────────────────────────
+
+def episode_id(index: int) -> str:
+    return f"ep{index:02d}"
+
+
+def release_tag(slug: str) -> str:
+    return f"{RELEASE_TAG_PREFIX}{slug}"
+
+
+def episode_dir(out_dir: Path, index: int, episodes: int) -> Path:
+    """单集仍然直接落在 ``deliver/<slug>/``，多集才分 ``ep01/`` 子目录。
+
+    单集的产物路径是既有契约（artifact、README、手动核片都按它来），不因为
+    加了多集就挪窝。
+    """
+    return out_dir if episodes <= 1 else out_dir / episode_id(index)
+
+
+def release_asset_names(index: int) -> dict:
+    """Release 上的扁平文件名 —— 一个 tag 下所有集的资产平铺在一起。"""
+    eid = episode_id(index)
+    return {"video": f"{eid}.mp4",
+            "cover_16x9": f"{eid}_cover_16x9.jpg",
+            "cover_9x16": f"{eid}_cover_9x16.jpg"}
+
+
+def episode_tags(speaker: str) -> list:
+    return [speaker, *BASE_TAGS]
+
+
+def episode_desc(speaker: str, title: str, source_url: str) -> str:
+    """可直接粘进投稿框的简介，末尾带原视频出处。"""
+    return (f"{speaker}：{title}\n\n"
+            f"本片剪自{speaker}的原始访谈，中文字幕为本频道翻译制作，"
+            f"未改动讲话内容。\n"
+            f"原视频出处：{source_url}")
+
+
+def queue_entry(index: int, title: str, final: Path, segs: list) -> dict:
+    """把一集的产物收成 build_queue 要的那条记录。
+
+    成片缺失时不炸：write_meta 对 sha256 也是同样的容忍。
+    """
+    starts = [s["source_start_sec"] for s in segs] or [0.0]
+    ends = [s["source_end_sec"] for s in segs] or [0.0]
+    return {
+        "index": index,
+        "title": title,
+        "duration_sec": round(probe_duration(final), 2) if final.is_file() else 0.0,
+        "source_start_sec": min(starts),
+        "source_end_sec": max(ends),
+        "cue_count": sum(s["cues"] for s in segs),
+        "sha256": sha256(final) if final.is_file() else "",
+    }
+
+
+def build_queue(slug: str, source_url: str, speaker: str, episodes: list,
+                generated_at: datetime | None = None,
+                commit: str | None = None, repo: str | None = None,
+                server_url: str | None = None) -> dict:
+    """把每集的元数据汇总成 ``queue.json``（规格第一章的 schema）。
+
+    ``episodes`` 每项需要 ``index / title / duration_sec / source_start_sec /
+    source_end_sec / cue_count / sha256``。``scheduled_date`` 从生成日 +1 天
+    起顺序每天一条。
+    """
+    now = generated_at or datetime.now(timezone.utc)
+    repo = repo or (os.environ.get("GITHUB_REPOSITORY") or "").strip() or DEFAULT_REPO
+    server = (server_url
+              or (os.environ.get("GITHUB_SERVER_URL") or "").strip()
+              or DEFAULT_SERVER_URL).rstrip("/")
+    tag = release_tag(slug)
+    base = f"{server}/{repo}/releases/download/{tag}"
+
+    items = []
+    for ep in episodes:
+        index = ep["index"]
+        files = release_asset_names(index)
+        items.append({
+            "index": index,
+            "id": episode_id(index),
+            "title": ep["title"],
+            "duration_sec": round(float(ep["duration_sec"]), 2),
+            "source_start_sec": round(float(ep["source_start_sec"]), 2),
+            "source_end_sec": round(float(ep["source_end_sec"]), 2),
+            "cue_count": int(ep["cue_count"]),
+            "tags": episode_tags(speaker),
+            "desc": episode_desc(speaker, ep["title"], source_url),
+            "files": files,
+            "urls": {k: f"{base}/{v}" for k, v in files.items()},
+            "sha256": {"video": ep["sha256"]},
+            "scheduled_date": (now + timedelta(days=index)).date().isoformat(),
+            "status": "pending",
+            "publish": {"bilibili": None, "douyin": None},
+        })
+
+    return {
+        "schema": QUEUE_SCHEMA,
+        "slug": slug,
+        "source_url": source_url,
+        "speaker": speaker,
+        "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "commit": commit or os.environ.get("GITHUB_SHA", "local"),
+        "release_tag": tag,
+        "episodes": items,
+    }
+
+
+def write_queue(out_dir: Path, queue: dict) -> Path:
+    path = out_dir / QUEUE_NAME
+    path.write_text(json.dumps(queue, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8")
+    log("manifest", f"→ {path}")
+    return path
+
+
 def build_compare_grid(finals: dict, out_path: Path) -> None:
     """--dual：把两个译本的同一时刻各截一帧，上下拼成对比图。"""
     from PIL import Image
@@ -740,6 +950,12 @@ def parse_args(argv=None):
                    choices=sorted(TRANSLATORS), help="翻译模型（默认 deepseek-v3）")
     p.add_argument("--dual", action="store_true",
                    help="两个翻译都跑，额外产出对比拼图")
+    p.add_argument("--episodes", type=int, default=DEFAULT_EPISODES, metavar="N",
+                   help=f"一次出几集（默认 {DEFAULT_EPISODES}）。下载和转写只做一次，"
+                        f"highlight 挑 N 组互不重叠的片段，每集各自选帧/翻译/"
+                        f"烧字幕/起标题/出封面。源不够时不凑数，能出几集就几集，"
+                        f"实际集数写进 queue.json；N>1 时产物落在 "
+                        f"deliver/<slug>/ep01/、ep02/…")
     p.add_argument("--out", default="deliver", help="产物根目录（默认 deliver/）")
     p.add_argument("--no-vlm", action="store_true",
                    help="封面跳过 VLM 校验，只按几何规则选帧")
@@ -813,6 +1029,16 @@ def main(argv=None) -> int:
         die(EXIT_CONFIG, "config", "invalid_slug",
             detail="slug 只允许字母、数字、点、下划线和短横线", slug=args.slug)
 
+    if args.episodes < 1:
+        die(EXIT_CONFIG, "config", "invalid_episodes",
+            detail="--episodes 至少为 1", episodes=args.episodes)
+
+    if args.episodes > 1 and args.dual:
+        die(EXIT_CONFIG, "config", "dual_with_multiple_episodes",
+            detail="--dual 是单集的译本对比工具，多集下产物含义不清，"
+                   "两者只能选一个",
+            episodes=args.episodes)
+
     if args.cover_crop and not COVER_CROP_RE.fullmatch(args.cover_crop):
         die(EXIT_CONFIG, "config", "invalid_cover_crop",
             detail="--cover-crop 格式应为 W:H:X:Y（四个非负整数，同 ffmpeg crop 滤镜），"
@@ -842,52 +1068,73 @@ def main(argv=None) -> int:
     stage("transcribe")
     srt = transcribe(video, work, args.language)
     stage("highlight")
-    quotes = pick_quotes(srt, work, args.speaker, probe_duration(video),
-                         api_key, base_url, args.strict_highlights)
+    if args.episodes <= 1:
+        groups = [pick_quotes(srt, work, args.speaker, probe_duration(video),
+                              api_key, base_url, args.strict_highlights)]
+    else:
+        groups = pick_quote_groups(srt, work, args.speaker,
+                                   probe_duration(video), api_key, base_url,
+                                   args.strict_highlights, args.episodes)
 
-    # 翻译之前先过封面这道闸门：挑不出合格封面的片子在这里退 2，
-    # 翻译和拼片的钱一分都不花。
-    stage("cover-select")
-    cover_frame, cover_report = select_cover_frame(
-        video, quotes, args.speaker, work, api_key, args.no_vlm,
-        args.cover_time_sec, args.cover_candidates, args.cover_crop)
+    queue_episodes = []
+    for index, quotes in enumerate(groups, 1):
+        ep_dir = episode_dir(out_dir, index, args.episodes)
+        ep_dir.mkdir(parents=True, exist_ok=True)
+        ep_work = work if args.episodes <= 1 else work / episode_id(index)
+        ep_work.mkdir(parents=True, exist_ok=True)
+        if args.episodes > 1:
+            log("episode", f"第 {index}/{len(groups)} 集 → {ep_dir}")
 
-    translators = ([args.translator] if not args.dual
-                   else sorted(TRANSLATORS, key=lambda t: t != args.translator))
+        # 翻译之前先过封面这道闸门：挑不出合格封面的片子在这里退 2，
+        # 翻译和拼片的钱一分都不花。
+        stage("cover-select")
+        cover_frame, cover_report = select_cover_frame(
+            video, quotes, args.speaker, ep_work, api_key, args.no_vlm,
+            args.cover_time_sec, args.cover_candidates, args.cover_crop)
 
-    finals: dict = {}
-    for t in translators:
-        stage("translate")
-        bilingual = translate_windows(srt, quotes, work, t, api_key, base_url)
-        name = "final.mp4" if t == args.translator else f"final_{t}.mp4"
-        stage("assemble")
-        segs, placements = assemble(video, srt, bilingual, quotes, work,
-                                    out_dir / name, args.sub_mode,
-                                    args.sub_margin_v, args.sub_avoid_gap)
-        finals[t] = out_dir / name
-        if t == args.translator:
-            primary_segs, primary_placements = segs, placements
+        translators = ([args.translator] if not args.dual
+                       else sorted(TRANSLATORS,
+                                   key=lambda t: t != args.translator))
 
-    stage("title")
-    title = make_title(quotes, args.speaker, api_key, base_url,
-                       args.title_override)
-    log("title", title)
+        finals: dict = {}
+        for t in translators:
+            stage("translate")
+            bilingual = translate_windows(srt, quotes, ep_work, t, api_key,
+                                          base_url)
+            name = "final.mp4" if t == args.translator else f"final_{t}.mp4"
+            stage("assemble")
+            segs, placements = assemble(video, srt, bilingual, quotes, ep_work,
+                                        ep_dir / name, args.sub_mode,
+                                        args.sub_margin_v, args.sub_avoid_gap)
+            finals[t] = ep_dir / name
+            if t == args.translator:
+                primary_segs, primary_placements = segs, placements
 
-    stage("cover-render")
-    covers = render_covers(cover_frame, title, args.speaker, out_dir,
-                           cover_report)
+        stage("title")
+        title = make_title(quotes, args.speaker, api_key, base_url,
+                           args.title_override)
+        log("title", title)
 
-    if args.dual and len(finals) > 1:
-        build_compare_grid(finals, out_dir / "compare_grid.jpg")
+        stage("cover-render")
+        covers = render_covers(cover_frame, title, args.speaker, ep_dir,
+                               cover_report)
 
-    stage("manifest")
-    write_meta(out_dir, args.slug, title, args.source,
-               out_dir / "final.mp4", primary_segs, covers,
-               args.translator, args.speaker, args.sub_mode, args.sub_margin_v,
-               args.sub_avoid_gap, primary_placements)
+        if args.dual and len(finals) > 1:
+            build_compare_grid(finals, ep_dir / "compare_grid.jpg")
+
+        stage("manifest")
+        final = ep_dir / "final.mp4"
+        write_meta(ep_dir, args.slug, title, args.source,
+                   final, primary_segs, covers, args.translator,
+                   args.speaker, args.sub_mode, args.sub_margin_v,
+                   args.sub_avoid_gap, primary_placements)
+        queue_episodes.append(queue_entry(index, title, final, primary_segs))
+
+    write_queue(out_dir, build_queue(args.slug, args.source, args.speaker,
+                                     queue_episodes))
 
     sf_client.log_cache_stats()
-    log("done", f"产物 → {out_dir}")
+    log("done", f"{len(groups)} 集产物 → {out_dir}")
     return EXIT_OK
 
 
