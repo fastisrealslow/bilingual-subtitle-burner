@@ -41,14 +41,19 @@ import sys
 import time
 from typing import List, Dict
 
-import requests
+import sf_transport
 
 # ── 常量 ──────────────────────────────────────────────────────────────────────
 
 DEFAULT_MODEL = "Qwen/Qwen3-8B"
 MIN_CLIP_SEC = 20       # 金句片段最短时长
 MAX_CLIP_SEC = 180      # 金句片段最长时长
-CONTEXT_PAD_SEC = 2.0   # 前后各加多少秒 padding
+
+# 切点对齐：段落是按停顿合并出来的，起止点经常落在半句话中间，
+# 剪出来的片段开头是残句。改为把切点吸附到最近的句末标点上。
+SENTENCE_END_PUNCT = "。！？；、.!?;"
+SENTENCE_WINDOW_SEC = 8.0   # 找句末标点的最大搜索范围，超出就不再外扩
+BOUNDARY_MARGIN_SEC = 0.3   # 吸附后两端各留的呼吸余量
 
 
 # ── LLM 调用 ──────────────────────────────────────────────────────────────────
@@ -57,7 +62,21 @@ def strip_think(text: str) -> str:
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
     if "</think>" in text:
         text = text.split("</think>")[-1]
-    return text.strip()
+    return strip_code_fence(text.strip())
+
+
+def strip_code_fence(text: str) -> str:
+    """剥掉 ```json … ``` 围栏。
+
+    调用方是用 re.search(r"\\[.*\\]") 抓 JSON 数组的，围栏本身不会让它失配，
+    但收尾的 ``` 会被贪婪匹配吞进去导致 json.loads 报错。实测 DeepSeek/Claude
+    都会时不时给整段回复套围栏。
+    """
+    t = text.strip()
+    if not t.startswith("```"):
+        return t
+    t = re.sub(r"^```[a-zA-Z0-9_-]*\s*\n?", "", t)
+    return re.sub(r"\n?```\s*$", "", t).strip()
 
 
 def call_llm(messages, api_key, model, base_url, max_retries=4):
@@ -67,8 +86,8 @@ def call_llm(messages, api_key, model, base_url, max_retries=4):
                 "stream": False, "enable_thinking": False}
     for attempt in range(max_retries):
         try:
-            resp = requests.post(url, headers=headers, json=payload, timeout=180)
-        except requests.RequestException as e:
+            resp = sf_transport.post(url, headers=headers, json=payload, timeout=180)
+        except sf_transport.TransportError as e:
             print(f"[highlight] 请求异常 {e}，{2**attempt}s 后重试", file=sys.stderr)
             time.sleep(2 ** attempt)
             continue
@@ -353,32 +372,116 @@ def score_highlights(paragraphs: List[Dict], api_key: str, model: str,
     return top
 
 
-# ── 时间戳扩展（padding）─────────────────────────────────────────────────────
+# ── 切点对齐句子边界 ─────────────────────────────────────────────────────────
 
-def expand_clip(item: Dict, total_duration: float,
-                pad_sec: float = CONTEXT_PAD_SEC,
+# 句末标点后面还可能挂着引号/括号，剥掉再判断
+_TRAILING_CLOSERS = "\"'」』）)》】]}”’ "
+
+
+def ends_sentence(text: str) -> bool:
+    """这条字幕是否以句末标点收尾。"""
+    t = (text or "").rstrip().rstrip(_TRAILING_CLOSERS).rstrip()
+    return bool(t) and t[-1] in SENTENCE_END_PUNCT
+
+
+def _entry_text(entry: Dict) -> str:
+    return entry.get("text") or entry.get("en") or entry.get("zh") or ""
+
+
+def snap_start(start_sec: float, entries: List[Dict],
+               window_sec: float = SENTENCE_WINDOW_SEC) -> float:
+    """把起点向前吸附到最近一个句末标点之后的第一条字幕。
+
+    找不到（窗口内全是半句）时原样返回，绝不无限外扩 —— 无边界地往前找
+    会把整段前情都卷进来，比开头是残句更糟。
+    """
+    for i in range(len(entries) - 1, -1, -1):
+        e = entries[i]
+        if e["end_sec"] > start_sec + 1e-6:
+            continue
+        if start_sec - e["end_sec"] > window_sec:
+            break
+        if ends_sentence(_entry_text(e)):
+            # 标点之后的第一条字幕就是新句子的开头
+            return entries[i + 1]["start_sec"] if i + 1 < len(entries) else e["end_sec"]
+    return start_sec
+
+
+def snap_end(end_sec: float, entries: List[Dict],
+             window_sec: float = SENTENCE_WINDOW_SEC) -> float:
+    """把终点向后吸附到最近一个句末标点所在字幕的结束时间。"""
+    for e in entries:
+        if e["end_sec"] < end_sec - 1e-6:
+            continue
+        if e["end_sec"] - end_sec > window_sec:
+            break
+        if ends_sentence(_entry_text(e)):
+            return e["end_sec"]
+    return end_sec
+
+
+def resolve_overlaps(bounds: List[tuple],
+                     min_sec: float = MIN_CLIP_SEC) -> List[tuple]:
+    """相邻片段重叠时按中点切开。输入输出均为 (start, end) 列表。
+
+    扩展后重叠会让两条短视频出现同一段画面，观感上像是重复投稿。
+
+    中点是默认切法，但对贴着片尾的片段是错的：它的 end 已经顶到片长，
+    被切掉的头没地方补回来，align_clips 里刚保住的 min_sec 又被打掉
+    （实测切出 10s 的废片）。这种情况把重叠区多让给后一条——前一条
+    本来就长，让得起。
+    """
+    order = sorted(range(len(bounds)), key=lambda i: bounds[i][0])
+    out = list(bounds)
+    for a, b in zip(order, order[1:]):
+        a_start, a_end = out[a]
+        b_start, b_end = out[b]
+        if a_end <= b_start:
+            continue
+        cut = (a_end + b_start) / 2
+        if b_end - cut < min_sec:
+            cut = min(max(a_start + min_sec, min(cut, b_end - min_sec)), a_end)
+        out[a] = (a_start, max(a_start, cut))
+        out[b] = (min(b_end, cut), b_end)
+    return out
+
+
+def align_clips(items: List[Dict], entries: List[Dict], total_duration: float,
+                window_sec: float = SENTENCE_WINDOW_SEC,
+                margin_sec: float = BOUNDARY_MARGIN_SEC,
                 min_sec: float = MIN_CLIP_SEC,
-                max_sec: float = MAX_CLIP_SEC) -> Dict:
-    """给金句前后加 padding，保证时长在合理范围内"""
-    start = max(0.0, item["start_sec"] - pad_sec)
-    end = min(total_duration, item["end_sec"] + pad_sec)
+                max_sec: float = MAX_CLIP_SEC) -> List[Dict]:
+    """把金句切点对齐到句子边界，加余量、限时长、去重叠。"""
+    limit = total_duration if total_duration > 0 else float("inf")
 
-    # 若太短，往后延伸
-    if end - start < min_sec:
-        end = min(total_duration, start + min_sec)
+    bounds = []
+    for item in items:
+        start = snap_start(item["start_sec"], entries, window_sec) - margin_sec
+        end = snap_end(item["end_sec"], entries, window_sec) + margin_sec
+        start = max(0.0, min(start, limit))
+        end = max(start, min(end, limit))
 
-    # 若太长，从后截
-    if end - start > max_sec:
-        end = start + max_sec
+        if end - start < min_sec:
+            end = min(limit, start + min_sec)
+        # 片尾的金句往后没地方可扩（end 已经贴着片长），此时必须往前借，
+        # 否则会剪出 2 秒的废片。
+        if end - start < min_sec:
+            start = max(0.0, end - min_sec)
+        if end - start > max_sec:
+            end = start + max_sec
+        bounds.append((start, end))
 
-    return {
-        **item,
-        "clip_start": sec2hms(start),
-        "clip_end": sec2hms(end),
-        "clip_start_sec": start,
-        "clip_end_sec": end,
-        "clip_duration_sec": end - start,
-    }
+    result = []
+    for item, (start, end) in zip(items, resolve_overlaps(bounds, min_sec)):
+        result.append({
+            **item,
+            "clip_start": sec2hms(start),
+            "clip_end": sec2hms(end),
+            "clip_start_sec": start,
+            "clip_end_sec": end,
+            "clip_duration_sec": end - start,
+        })
+    return result
 
 
 # ── 主入口 ────────────────────────────────────────────────────────────────────
@@ -426,8 +529,8 @@ def main():
     highlights = score_highlights(paragraphs, api_key, model, base_url,
                                   speaker=speaker, top_n=args.top_n)
 
-    # 加 padding
-    highlights = [expand_clip(h, total_dur) for h in highlights]
+    # 切点对齐句子边界
+    highlights = align_clips(highlights, srt_entries, total_dur)
 
     # 输出
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)

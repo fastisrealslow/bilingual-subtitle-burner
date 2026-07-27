@@ -97,9 +97,31 @@ jobs:
           python-version: "3.12"   # 抖音 Playwright 需 <=3.12
           cache: "pip"
 
-      - name: 安装系统依赖（ffmpeg）
+      - name: 安装中文字体
+        # 烧字幕的 ASS 样式指定 Noto Sans CJK SC。runner 默认不带中文字体，
+        # 缺字体时 libass 会静默回退到 DejaVu，中文全部渲染成豆腐块，
+        # 而 ffmpeg 退出码仍是 0 —— 所以这里探测不到就直接失败。
         run: |
           sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
+          sudo fc-cache -fv
+          fc-list | grep -i "Noto Sans CJK SC" || (echo "Noto Sans CJK SC missing" && exit 1)
+
+      - name: 缓存 Whisper / HF / torch 模型
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/whisper
+            ~/.cache/huggingface
+            ~/.cache/torch
+          # 模型体积随 whisper 档位变化，换档位要换缓存；定时触发没有
+          # inputs，与 queue 分支里写死的 small 对齐。
+          key: ${{ runner.os }}-models-${{ github.event.inputs.whisper_model || 'small' }}-v1
+          restore-keys: |
+            ${{ runner.os }}-models-
+
+      - name: 安装系统依赖（ffmpeg）
+        run: |
           sudo apt-get install -y ffmpeg
 
       - name: 安装 Python 依赖

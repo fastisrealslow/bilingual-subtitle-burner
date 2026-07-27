@@ -17,8 +17,11 @@ import re
 import subprocess
 import sys
 import tempfile
-import urllib.request
+import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import sf_transport  # noqa: E402
 
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageStat
@@ -170,6 +173,109 @@ def classify_frame_by_color(img_path: str,
     except Exception:
         return "不确定", 0.0
 
+# ── 人脸预筛 ──────────────────────────────────────────────────────────────────
+# vision 调用是整条流水线最贵、最慢的一步（单条约 5 分钟）。候选帧里有相当
+# 一部分是空镜、PPT、背影，既做不了封面又照样按图片计费。先用 OpenCV 的
+# haar 级联在本地过一遍，只把「有正脸且脸够大」的帧送上去。
+
+MIN_FACE_AREA_RATIO = 0.05   # 最大人脸框面积 / 帧面积，低于此视为脸太小做不了封面
+FALLBACK_KEEP = 6            # 无帧达标时改按脸大小取前 N 帧，而不是把全部帧都送上去
+
+_face_cascade = None
+_face_cascade_loaded = False
+
+
+def _get_face_cascade():
+    """惰性加载 haar 级联；OpenCV 缺失或模型文件读不到时返回 None。"""
+    global _face_cascade, _face_cascade_loaded
+    if _face_cascade_loaded:
+        return _face_cascade
+    _face_cascade_loaded = True
+    try:
+        import cv2
+        path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        cascade = cv2.CascadeClassifier(path)
+        if cascade.empty():
+            print(f"[cover]   ⚠️ haar 级联加载失败（{path}），跳过人脸预筛", file=sys.stderr)
+            return None
+        _face_cascade = cascade
+    except ImportError:
+        print("[cover]   ⚠️ 未安装 opencv-python-headless，跳过人脸预筛", file=sys.stderr)
+    return _face_cascade
+
+
+def largest_face_ratio(img_path: str) -> float:
+    """返回该帧最大正脸框面积占整帧的比例；无脸或检测不可用时返回 0。"""
+    cascade = _get_face_cascade()
+    if cascade is None:
+        return 0.0
+    try:
+        import cv2
+        img = cv2.imread(img_path)
+        if img is None:
+            return 0.0
+        h, w = img.shape[:2]
+        if not h or not w:
+            return 0.0
+        gray = cv2.equalizeHist(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
+        faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+        if len(faces) == 0:
+            return 0.0
+        return max(fw * fh for _, _, fw, fh in faces) / float(w * h)
+    except Exception as e:
+        print(f"[cover]   ⚠️ 人脸检测异常({e})，该帧按无脸处理", file=sys.stderr)
+        return 0.0
+
+
+def filter_frames_by_face(frame_paths: list[str], frame_times: list[float],
+                          min_ratio: float = MIN_FACE_AREA_RATIO
+                          ) -> tuple[list[str], list[float]]:
+    """筛掉没有正脸或脸太小的帧。
+
+    一帧都不合格时返回原样 —— 宁可多花钱也不能让封面这一步空手而归，
+    级联对侧脸、戴眼镜、低分辨率素材本来就会漏检。
+    """
+    if not frame_paths or _get_face_cascade() is None:
+        return frame_paths, frame_times
+
+    t0 = time.time()
+    scored = [(largest_face_ratio(p), p, t) for p, t in zip(frame_paths, frame_times)]
+    elapsed = time.time() - t0
+
+    kept = [s for s in scored if s[0] >= min_ratio]
+    if kept:
+        # 达标帧太少就按脸大小补齐到 FALLBACK_KEEP。以 B-roll 为主的片源里
+        # 常常 47 帧只有 1 帧过线，vision 拿到唯一候选只能矮子里拔将军（实测
+        # 选出一张自评 1 分、"完全不适合"的路人合影）。预筛是为了省调用，
+        # 不是为了把候选池砍到没得挑。
+        if len(kept) < FALLBACK_KEEP:
+            chosen = {s[1] for s in kept}
+            extra = sorted((s for s in scored if s[0] > 0 and s[1] not in chosen),
+                           key=lambda s: -s[0])
+            kept += extra[:FALLBACK_KEEP - len(kept)]
+        kept.sort(key=lambda s: s[2])   # 送给 vision 的帧必须仍按时间排序
+        print(f"[cover]   人脸预筛：{len(frame_paths)} 帧 → {len(kept)} 帧"
+              f"（脸占比 ≥{min_ratio:.0%}，不足 {FALLBACK_KEEP} 帧按脸大小补齐，"
+              f"耗时 {elapsed:.1f}s）", flush=True)
+        return [s[1] for s in kept], [s[2] for s in kept]
+
+    # 中景机位的说话人在 854 宽的片源里脸只占 4% 左右（实测一条 60 帧的
+    # 片源 44 帧检出正脸、最大占比 0.047），整条片子全卡在阈值下方一点。
+    # 此时"全部送 vision"等于白付一遍预筛的 CPU 又一分钱没省，改成按脸
+    # 大小取前几帧——排序信息本来就已经算出来了。
+    ranked = sorted((s for s in scored if s[0] > 0), key=lambda s: -s[0])[:FALLBACK_KEEP]
+    if ranked:
+        ranked.sort(key=lambda s: s[2])   # 送给 vision 的帧必须仍按时间排序
+        print(f"[cover]   人脸预筛：{len(frame_paths)} 帧无一满足"
+              f"「脸占比 ≥{min_ratio:.0%}」（最大 {max(r for r, _, _ in scored):.1%}），"
+              f"改取脸最大的 {len(ranked)} 帧送 vision（耗时 {elapsed:.1f}s）", flush=True)
+        return [p for _, p, _ in ranked], [t for _, _, t in ranked]
+
+    print(f"[cover]   人脸预筛：{len(frame_paths)} 帧未检出任何正脸，"
+          f"回退为全部送 vision（耗时 {elapsed:.1f}s）", flush=True)
+    return frame_paths, frame_times
+
+
 def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
                     speaker: str, speaker_desc: str = "") -> list[dict]:
     """
@@ -215,37 +321,33 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
         "temperature": 0.1,
     }).encode("utf-8")
 
-    req = urllib.request.Request(
-        "https://api.siliconflow.cn/v1/chat/completions",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            text = data["choices"][0]["message"]["content"].strip()
-            used = (data.get("usage") or {}).get("prompt_tokens", "?")
-            # 提取 JSON
-            match = re.search(r"\[.*?\]", text, re.DOTALL)
-            if match:
-                return json.loads(match.group())
-            # 调用成功但拿不到结果 —— 必须告警，不能静默失败。
-            # 这种情况图片 token 已经扣费，但没有任何产出。
-            # 典型原因：模型名已下架被平台转到纯文本模型，根本看不了图。
-            print(
-                f"[cover] \u26a0\ufe0f vision 模型 {model} 返回无法解析的内容"
-                f"\uff08已消耗 {used} input tokens\uff09。"
-                f"请确认该模型支持图片输入且仍在售。",
-                file=sys.stderr,
-            )
-            if text:
-                print(f"[cover]   原始返回：{text[:200]}", file=sys.stderr)
-            else:
-                print("[cover]   原始返回为空（纯文本模型收到图片时的典型表现）", file=sys.stderr)
+        resp = sf_transport.post(
+            "https://api.siliconflow.cn/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            data=payload, timeout=60,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        text = data["choices"][0]["message"]["content"].strip()
+        used = (data.get("usage") or {}).get("prompt_tokens", "?")
+        # 提取 JSON
+        match = re.search(r"\[.*?\]", text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        # 调用成功但拿不到结果 —— 必须告警，不能静默失败。
+        # 这种情况图片 token 已经扣费，但没有任何产出。
+        # 典型原因：模型名已下架被平台转到纯文本模型，根本看不了图。
+        print(
+            f"[cover] \u26a0\ufe0f vision 模型 {model} 返回无法解析的内容"
+            f"\uff08已消耗 {used} input tokens\uff09。"
+            f"请确认该模型支持图片输入且仍在售。",
+            file=sys.stderr,
+        )
+        if text:
+            print(f"[cover]   原始返回：{text[:200]}", file=sys.stderr)
+        else:
+            print("[cover]   原始返回为空（纯文本模型收到图片时的典型表现）", file=sys.stderr)
     except Exception as e:
         print(f"[cover] vision LLM 调用失败: {e}", file=sys.stderr)
     return []
@@ -325,7 +427,10 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
         print("[cover]   无 API key，跳过 vision 识别，交由外层兜底", flush=True)
         return None
 
-    print(f"[cover]   共截取 {len(frame_paths)} 帧，发送给 vision 模型识别...", flush=True)
+    # 送 vision 之前先本地筛掉没有正脸的帧
+    frame_paths, frame_times = filter_frames_by_face(frame_paths, frame_times)
+
+    print(f"[cover]   共 {len(frame_paths)} 帧，发送给 vision 模型识别...", flush=True)
 
     # 每次最多发 6 帧（避免 token 超限）
     BATCH = 6
@@ -405,7 +510,12 @@ def wrap_title(title: str, measure, max_px: float) -> list:
 
     均衡的意义：贪心换行会得到“很长的一行 + 小尾巴”，既难看也更
     容易造成奇怪的断处。先用贪心算出最少行数 n，再在 n 行的前提下
-    把每行目标宽度降到 总宽/n，重新排一遍。
+    把每行目标宽度压到最小，重新排一遍。
+
+    “最小”只能搜，不能算：词边界是离散的，总宽/n 这个理论值通常正好
+    落在某个词的中间，一排就多出一行，于是均衡整个被放弃。实测标题
+    “股乾爹：「耐心」不是美德，而是这门生意的入场券？”就这样烧成了
+    20 字 + 4 字，而 13 + 11 明明排得下。二分几轮的代价可以忽略。
     """
     units = _segment(title)
     if not units:
@@ -429,9 +539,17 @@ def wrap_title(title: str, measure, max_px: float) -> list:
     if n <= 1:
         return lines
 
-    # 以 总宽/n 为目标重排；只有在行数没变多时才采纳
-    balanced = greedy(measure(title) / n * 1.05)
-    return balanced if len(balanced) <= n else lines
+    # 在 [总宽/n, max_px] 里二分出仍能排成 n 行的最小行宽
+    lo, hi = measure(title) / n, max_px
+    best = lines
+    for _ in range(24):
+        mid = (lo + hi) / 2
+        cand = greedy(mid)
+        if len(cand) <= n:
+            best, hi = cand, mid
+        else:
+            lo = mid
+    return best
 
 
 def make_cover(frame_path: str, title: str, speaker: str,

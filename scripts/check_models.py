@@ -19,7 +19,8 @@ import argparse
 import json
 import os
 import sys
-import urllib.request
+
+import sf_transport
 
 API_BASE = (os.environ.get("SILICONFLOW_BASE_URL") or "").strip() or "https://api.siliconflow.cn/v1"
 
@@ -30,15 +31,9 @@ VISION_HINT = "Qwen/Qwen3-VL-8B-Instruct"
 def fetch_available(api_key: str) -> set:
     url = f"{API_BASE}/models"
     headers = {"Authorization": f"Bearer {api_key}"}
-    # 优先用 requests（它会遵守 HTTPS_PROXY，本地代理环境下才走得通），
-    # 拿不到就回退到标准库 urllib，避免新增硬依赖。
-    try:
-        import requests  # noqa: PLC0415
-        data = requests.get(url, headers=headers, timeout=60).json()
-    except ImportError:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+    resp = sf_transport.get(url, headers=headers, timeout=60)
+    resp.raise_for_status()
+    data = resp.json()
     return {m["id"] for m in data.get("data", [])}
 
 

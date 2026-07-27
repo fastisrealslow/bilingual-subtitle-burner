@@ -25,7 +25,7 @@ import sys
 import time
 from typing import List, Dict
 
-import requests
+import sf_transport
 
 
 DEFAULT_MODEL = "Qwen/Qwen3-8B"
@@ -45,8 +45,8 @@ def call_llm(messages, api_key, model, base_url, max_retries=4):
                 "stream": False, "enable_thinking": False}
     for attempt in range(max_retries):
         try:
-            resp = requests.post(url, headers=headers, json=payload, timeout=120)
-        except requests.RequestException as e:
+            resp = sf_transport.post(url, headers=headers, json=payload, timeout=120)
+        except sf_transport.TransportError as e:
             print(f"[copywrite] 请求异常 {e}，重试", file=sys.stderr)
             time.sleep(2 ** attempt); continue
         if resp.status_code == 200:
@@ -84,24 +84,65 @@ SYSTEM_PROMPT = """\
 标题、简介、标签一律用**简体中文**，不要用繁体。"""
 
 
-def _force_simplified(d: Dict, protect=None) -> Dict:
-    """把模型返回的文案强制转成简体。
+def _normalize_copy(d: Dict, protect=None) -> Dict:
+    """把模型返回的文案强制转成简体，并规范化中文标点。
 
     提示词里已经写了“一律用简体中文”，但实测不管用：处理台湾财经
     视频时，模型会跟着原文语言走，输出“美國經濟衰退的兩個指標”
     “價值投資”这类繁体。提示词是软约束，这里做硬约束。
 
     演讲者名要放进保护词表——实测频道名「股乾爹」会被转成「股干爹」。
+
+    标点规范化必须在这里做，不能只留给 step8。manifest.json 的 title
+    同时被 step6（切片文件名）和 step7（烧进封面图）直接读走，两处都
+    绕过了 step8 的 clean_title，模型返回的弯引号和半角标点会原样出现
+    在封面上。
     """
     try:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        from platform_rules import to_simplified
+        from platform_rules import to_simplified, normalize_cjk_punctuation
     except ImportError:
         return d
-    d["title"] = to_simplified(str(d.get("title", "")), protect)
-    d["desc"] = to_simplified(str(d.get("desc", "")), protect)
+
+    def fix(s: str) -> str:
+        return normalize_cjk_punctuation(to_simplified(s, protect))
+
+    d["title"] = fix(str(d.get("title", "")))
+    d["desc"] = fix(str(d.get("desc", "")))
     d["tags"] = [to_simplified(str(t), protect) for t in (d.get("tags") or [])]
     return d
+
+
+def parse_copy_json(content: str) -> Dict:
+    """从模型回复里取出 {title, desc, tags}，容忍值里夹着英文双引号。
+
+    模型写中文引语时常直接打 ASCII 双引号（「他只说"不"」），这在 JSON 里
+    提前闭合了字符串，json.loads 必然失败。之前这里静默走降级分支，5 条文案
+    里 4 条退回了建议标题，日志上看不出任何异常。所以先按标准 JSON 解，解不
+    动再按「下一个键名」为锚点逐字段抠出来。
+    """
+    m = re.search(r"\{.*\}", content, re.DOTALL)
+    if not m:
+        return {}
+    blob = m.group()
+    try:
+        d = json.loads(blob)
+        if isinstance(d, dict):
+            return d
+    except json.JSONDecodeError:
+        pass
+
+    def field(name, nxt):
+        mm = re.search(rf'"{name}"\s*:\s*"(.*?)"\s*,\s*"{nxt}"\s*:', blob, re.DOTALL)
+        return mm.group(1).strip() if mm else ""
+
+    title = field("title", "desc")
+    desc = field("desc", "tags")
+    tags_m = re.search(r'"tags"\s*:\s*\[(.*?)\]', blob, re.DOTALL)
+    tags = re.findall(r'"([^"]+)"', tags_m.group(1)) if tags_m else []
+    if not title:
+        return {}
+    return {"title": title, "desc": desc, "tags": tags}
 
 
 def generate_copy(highlight: Dict, speaker: str, channel: str,
@@ -134,21 +175,20 @@ LLM建议标题（参考）：{suggested}
   "desc": "...",
   "tags": ["...", "..."]
 }}
-只输出 JSON，不要其他文字。"""
+只输出 JSON，不要其他文字。文案里需要引用时一律用「」，不要用英文双引号。"""
 
     content = call_llm(
         [{"role": "system", "content": SYSTEM_PROMPT},
          {"role": "user", "content": user_msg}],
         api_key, model, base_url
     )
-    json_match = re.search(r"\{.*\}", content, re.DOTALL)
-    if json_match:
-        try:
-            return _force_simplified(json.loads(json_match.group()), [speaker])
-        except json.JSONDecodeError:
-            pass
+    parsed = parse_copy_json(content)
+    if parsed:
+        return _normalize_copy(parsed, [speaker])
+    print(f"[copywrite] ⚠️  文案 JSON 不可解析，降级用建议标题：{content[:150]}",
+          file=sys.stderr)
     # 降级：返回建议标题
-    return _force_simplified(
+    return _normalize_copy(
         {"title": suggested, "desc": zh[:150], "tags": [speaker, "价值投资"]}, [speaker])
 
 

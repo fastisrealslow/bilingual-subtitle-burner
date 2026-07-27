@@ -152,15 +152,115 @@ def merge_translation(entries: list, bilingual_path: str, full_start_sec: float,
 # ── ASS 字幕生成 ──────────────────────────────────────────────────────────────
 # 视频实际分辨率 640×346，PlayRes 按实际设置，字号按比例
 
+# 中文行首禁则：这些标点不能出现在行首，必须跟着上一行走
+LINE_START_FORBIDDEN = "。，、！？；：）」』】》”’%…·"
+
+
+def _cjk_units(t: str) -> list:
+    """把一行中文切成不该被拆开的最小单元。
+
+    jieba 在就按词切，不在就退化成「CJK 逐字可断、英文单词不拆」，
+    与 step7_cover._segment 同一套降级策略，不让分词库成为硬依赖。
+    """
+    try:
+        import jieba
+        units = [u for u in jieba.lcut(t) if u]
+    except ImportError:
+        units, buf = [], ""
+        for ch in t:
+            if ord(ch) > 127:
+                if buf:
+                    units.append(buf)
+                    buf = ""
+                units.append(ch)
+            elif ch == " ":
+                if buf:
+                    units.append(buf)
+                    buf = ""
+            else:
+                buf += ch
+        if buf:
+            units.append(buf)
+
+    # 禁则标点粘回前一个单元，免得被抛到下一行行首
+    merged = []
+    for u in units:
+        if merged and all(c in LINE_START_FORBIDDEN for c in u):
+            merged[-1] += u
+        else:
+            merged.append(u)
+    return merged
+
+
+def _wrap_cjk(t: str, max_chars: int) -> list:
+    """中文折行：按词边界断开，行数取最少，再把各行长度拉均。
+
+    定长硬切有三个毛病：把 22 字的句子切成 21 + 1，末行只剩一个「。」；
+    从词中间劈开（实测烧出过「…是因为把价 / 格波动当成了…」）；中英混排
+    时连英文单词也照劈（「Empire S / tate Manufacturin / g Survey」）。
+    step7_cover.wrap_title 早就为封面标题解决过同一个问题，字幕这边套同
+    一套规则。
+    """
+    units = _cjk_units(t)
+    if not units:
+        return [t]
+
+    def greedy(limit: float) -> list:
+        lines, cur = [], ""
+        for u in units:
+            if cur and len(cur) + len(u) > limit:
+                lines.append(cur)
+                cur = u
+            else:
+                cur += u
+        if cur:
+            lines.append(cur)
+        return lines
+
+    lines = greedy(max_chars)
+    n = len(lines)
+    if n <= 1:
+        return lines
+
+    # 贪心会填出「满满一行 + 小尾巴」。在 [总长/n, max_chars] 里搜出仍能排成
+    # n 行的最小行宽，据此重排。理论值 总长/n 通常落在某个词中间，直接拿它当
+    # 目标会多出一行、均衡整个失效，所以只能逐格试。上限仍是 max_chars，不能
+    # 为了均衡冒溢出风险。
+    best = lines
+    for limit in range(max(-(-len(t) // n), max(len(u) for u in units)), max_chars + 1):
+        cand = greedy(limit)
+        if len(cand) <= n:
+            best = cand
+            break
+    return best
+
+
+def normalize_zh(t: str) -> str:
+    """中文字幕在折行前过一遍标点规范化。
+
+    step8 的 clean_title 只管标题，字幕这条路径从来没规范化过：模型译文里
+    的半角引号会原样烧进画面，成片上出现 `"这是我听过的最烂的主意"` 这种
+    中文里夹半角引号的排版。platform_rules 已经有现成规则，直接复用。
+    缺依赖时原样返回，不能让字幕烧录因为一个标点模块挂掉。
+    """
+    if not t:
+        return t
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from platform_rules import normalize_cjk_punctuation
+    except ImportError:
+        return t
+    return normalize_cjk_punctuation(t)
+
+
 def wrap_text(t: str, max_chars: int, is_cjk: bool = False) -> str:
     """自动折行"""
     if not t:
         return ""
     if is_cjk:
-        # 中文：按字数折行
         if len(t) <= max_chars:
             return t
-        return r"\N".join(t[i:i+max_chars] for i in range(0, len(t), max_chars))
+        return r"\N".join(_wrap_cjk(t, max_chars))
     else:
         # 英文：按词折行
         if len(t) <= max_chars:
@@ -187,6 +287,7 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     sub_mode:
         bilingual —— 中英双语（原片无硬字幕时）
         zh_only   —— 只烧中文（原片已有英文硬字幕，避免英文重复堆叠）
+        en_only   —— 只烧英文（原片已有中文硬字幕，补一层英文即成双语）
 
     avoid_top_ratio:
         原片硬字幕顶部在画面高度的占比（0~1）。传入后，新字幕会被
@@ -215,13 +316,15 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         if needed > margin_bottom_zh:
             margin_bottom_zh = needed
 
-    margin_bottom_en = margin_bottom_zh + zh_size * 2 + 8        # 英文在中文上方
+    # 中文一行的实际占高（含行距），用来给英文行让位
+    zh_line_h = int(zh_size * 1.25)
+    margin_bottom_en = margin_bottom_zh + zh_line_h * 2 + 8       # 英文在中文上方
 
     # 抬得太高会顶到画面中心甚至遮住人脸，封顶在 55% 高度处
     cap = int(video_height * 0.55)
     if margin_bottom_en > cap:
         margin_bottom_en = cap
-        margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_size * 2 - 8))
+        margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_line_h * 2 - 8))
 
     # 英文折行最大字符数（字体约 en_size/2 px 宽）
     en_wrap = max(20, int(video_width * 38 / 640))
@@ -244,7 +347,7 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         # 的 1/12 走并补一层投影，亮底暗底都能压住。
         f"Style: EN,Arial,{en_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
         f"-1,0,0,0,100,100,0,0,1,{en_outline},{en_shadow},2,10,10,{margin_bottom_en},1",
-        f"Style: ZH,Microsoft YaHei,{zh_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
+        f"Style: ZH,Noto Sans CJK SC,{zh_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
         f"-1,0,0,0,100,100,0,0,1,{zh_outline},{zh_shadow},2,10,10,{margin_bottom_zh},1",
         "",
         "[Events]",
@@ -255,10 +358,26 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         s = e["start_sec"]
         end = e["end_sec"]
         en_t = wrap_text(e.get("en", "").strip(), en_wrap, is_cjk=False)
-        zh_t = wrap_text(e.get("zh", "").strip(), zh_wrap, is_cjk=True)
+        zh_t = wrap_text(normalize_zh(e.get("zh", "").strip()), zh_wrap, is_cjk=True)
+        # 英文行按这一条中文实际折了几行来让位。样式里的 MarginV 只能按固定
+        # 行数算，两头都出问题：折到 3 行时（长句里没有可断的标点就会发生，
+        # 实测 56 字一条）中文块往上顶穿英文行，「英文在上中文在下」的版式
+        # 反过来；只有 1 行时又白留一行的空，英文被顶到画面中段骑在讲者
+        # 下巴上。ASS 的 Dialogue 支持逐条覆盖 MarginV，按实际行数算。
+        if sub_mode == "en_only":
+            zh_t = ""
+        zh_lines = zh_t.count(r"\N") + 1 if zh_t else 0
+        en_margin = margin_bottom_en
+        if zh_lines:
+            en_margin = min(cap, margin_bottom_zh + zh_line_h * zh_lines + 8)
+        elif sub_mode == "en_only":
+            # 没有中文行时英文就该占最底下那一排。仍按 margin_bottom_en 摆
+            # 会在字幕与画面底边之间空出两行高的洞，英文孤零零悬在讲者胸口。
+            en_margin = margin_bottom_zh
         # zh_only：原片已有英文硬字幕，再烧一遍英文只会重复且拥挤
         if en_t and sub_mode != "zh_only":
-            lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,0,,{en_t}")
+            lines.append(
+                f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,{en_margin},,{en_t}")
         if zh_t:
             lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,0,,{zh_t}")
 
