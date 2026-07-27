@@ -214,3 +214,25 @@ def test_normalize_srt_still_simplifies(tmp_path):
     p.write_text(SRT_SAMPLE, encoding="utf-8")
     R.normalize_srt(str(p))
     assert "他说，通货膨胀是因？经济放缓是果" in p.read_text(encoding="utf-8")
+
+
+def test_sentence_final_punctuation_after_a_latin_word():
+    """「…是不是Recession?」实测烧进了成片：句末问号前面是拉丁字母，
+    「紧挨中文才转」那条规则漏掉它，一句中文里混着半角问号。"""
+    assert R.normalize_cjk_punctuation(
+        "我们现在身处的2022年到底是不是Recession?"
+    ) == "我们现在身处的2022年到底是不是Recession？"
+    assert R.normalize_cjk_punctuation(
+        "Eric Enstrom以及Steven Sharp,"
+    ) == "Eric Enstrom以及Steven Sharp，"
+
+
+def test_english_only_line_keeps_halfwidth():
+    """句末规则只对含中文的句子生效，纯英文行不能被改。"""
+    for t in ["Are we headed for a recession?", "Cheap is not enough!"]:
+        assert R.normalize_cjk_punctuation(t) == t
+
+
+def test_sentence_final_rule_does_not_touch_urls_or_numbers():
+    for t in ["详见 https://a.com/b?c=1", "涨幅 3.5%"]:
+        assert R.normalize_cjk_punctuation(t) == t

@@ -201,6 +201,13 @@ def normalize_cjk_punctuation(text: str) -> str:
     text = re.sub(
         rf"(?<=[{_CJK}])[,;:?!()]|[,;:?!()](?=[{_CJK}])", _to_full, text)
 
+    # 中文句子以英文词收尾时，句末标点漏掉了转换：上面那条规则要求标点紧挨
+    # 中文，而「…到底是不是Recession?」里问号前面是拉丁字母、后面没有字符。
+    # 实测这条烧进了成片，一句中文里混着半角问号。整句含中文就按中文句子处理
+    # 结尾那一个标点；受保护片段此时已被占位，不会误伤 URL 或小数。
+    if re.search(rf"[{_CJK}]", text):
+        text = re.sub(r"[,;:?!]$", _to_full, text)
+
     text = _fold_repeats(text)
 
     # 全角标点两侧不留空格；中英文之间保留一个空格
