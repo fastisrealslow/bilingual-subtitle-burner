@@ -20,6 +20,11 @@ requests>=2.31.0
 zhconv>=1.4.3
 # 封面标题按词折行，避免把「反常识」从中间劈开。缺失时会退化成逐字折行。
 jieba>=0.42.1
+# 封面选帧前的人脸预筛（step7）：haar 级联本地过一遍，只把有正脸的帧送 vision。
+# headless 版不拉 libGL 等 GUI 依赖，CI runner 上装得动。缺失时自动跳过预筛。
+# 必须锁 <5：OpenCV 5.0 移除了 cv2.CascadeClassifier，且 cv2/data 里不再随包
+# 附带 haarcascade_*.xml，装上 5.x 会让预筛静默退化成「全部帧都送 vision」。
+opencv-python-headless>=4.8.0,<5
 
 # ── 上传相关（可选，按需安装）──
 # B站自动上传（step8 --do-upload）：

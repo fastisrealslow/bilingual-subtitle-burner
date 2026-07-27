@@ -115,7 +115,7 @@ def burn_bilingual(video_path: str, bilingual_json: str, output_path: str):
         "Style: EN,Arial,36,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
         "-1,0,0,0,100,100,0,0,1,2,1,2,20,20,100,1",
         # ZH: 大字，底部
-        "Style: ZH,Microsoft YaHei,46,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
+        "Style: ZH,Noto Sans CJK SC,46,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
         "-1,0,0,0,100,100,0,0,1,2,1,2,20,20,20,1",
         "",
         "[Events]",

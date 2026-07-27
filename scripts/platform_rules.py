@@ -104,6 +104,120 @@ def simplify_srt(path: str) -> int:
 
 
 # ====================================================================
+# 中文标点规范化
+# ====================================================================
+# 半角 → 全角。翻译模型给回来的中文里半角标点混得很随机，同一条简介里
+# 「，」和「,」并存，看着就像机翻。
+_HALF_TO_FULL = {",": "，", ";": "；", ":": "：", "?": "？", "!": "！",
+                 "(": "（", ")": "）"}
+
+_CJK = r"一-鿿㐀-䶿぀-ヿ"
+
+# URL 正文允许的字符。不能用 ``\S+``：中文和 URL 之间往往不加空格
+# （``…&list=1,建议配合…``），贪婪匹配会把后面整句中文都吞进保护区，
+# 那句里的半角标点就再也转不成全角了。这里遇到中文或全角标点即停。
+# 末尾的 ``,.;:!?`` 不算 URL 的一部分（``见 https://a.com,然后…`` 里那个逗号
+# 是句子的，要转全角），靠回溯把它吐出来。
+_URL_BODY = rf"[^\s{_CJK}，。！？；：、（）「」『』“”‘’]+(?<![,.;:!?])"
+
+# 不参与转换的片段：URL、邮箱、数字（千分位/小数/比例/时间）、纯英文词组。
+# 这些里面的半角标点是有语义的，转成全角就成了错字：
+# ``https://a.com/b?c=1`` 变 ``https：//a.com/b？c=1``、``1,234.5`` 变 ``1，234.5``。
+_PROTECTED = re.compile(
+    r"""(?:
+        [a-zA-Z][a-zA-Z0-9+.\-]*:// """ + _URL_BODY + r"""    # URL（含协议）
+      | www\. """ + _URL_BODY + r"""                          # URL（省略协议）
+      | [\w.\-+]+@[\w.\-]+\.\w+             # 邮箱
+      | \d+(?:[,:.]\d+)+%?                  # 1,234.56 / 12:30 / 3.5
+      | [A-Za-z]+(?:[,:;?!()][ ]?[A-Za-z]+)+  # 英文片段内的半角标点
+    )""",
+    re.VERBOSE,
+)
+
+
+def _fold_repeats(text: str) -> str:
+    """折叠重复标点。省略号是唯一被扶正的例外，其余一律只留一个。"""
+    text = re.sub(r"。{3,}|\.{3,}(?![a-zA-Z0-9/])|、{3,}", "……", text)
+    text = re.sub(r"…{2,}", "……", text)
+    text = re.sub(r"([！？，；：。])\1+", r"\1", text)
+    text = re.sub(r"!{2,}", "！", text)
+    text = re.sub(r"\?{2,}", "？", text)
+    # 叹号问号混排（？！！ / !?）一律只留第一个
+    text = re.sub(r"([！？])[！？!?]+", r"\1", text)
+    return text
+
+
+def _curly_to_corner(text: str) -> str:
+    """弯引号转直角引号，成对匹配；嵌套时外层「」内层『』。
+
+    只有配得上对的才转。落单的引号（常见于被截断的文案）原样留着，
+    强行替换会得到一个没有下引号的「，比弯引号还难看。
+    """
+    depth = 0
+    out = []
+    for ch in text:
+        if ch == "“":       # “
+            out.append("『" if depth else "「")
+            depth += 1
+        elif ch == "”":     # ”
+            if depth:
+                depth -= 1
+                out.append("』" if depth else "」")
+            else:
+                out.append(ch)
+        elif ch == "‘":     # ‘
+            out.append("『")
+        elif ch == "’":     # ’
+            out.append("』")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def normalize_cjk_punctuation(text: str) -> str:
+    """规范化中文文案里的标点。
+
+    做四件事：弯引号转直角引号、中文语境下半角标点转全角、重复标点折叠、
+    中英文之间只留一个空格。URL / 邮箱 / 数字 / 英文片段整段跳过转换。
+    """
+    if not text:
+        return text
+
+    # 先把受保护片段挖出来占位，避免后续规则误伤
+    holders: dict[str, str] = {}
+
+    def _stash(m: re.Match) -> str:
+        h = f"{len(holders)}"
+        holders[h] = m.group()
+        return h
+
+    text = _PROTECTED.sub(_stash, text)
+
+    text = _curly_to_corner(text)
+
+    # 半角转全角：仅当标点紧挨着中文时才转，避免动到残留的英文缩写
+    def _to_full(m: re.Match) -> str:
+        return _HALF_TO_FULL[m.group()]
+
+    text = re.sub(
+        rf"(?<=[{_CJK}])[,;:?!()]|[,;:?!()](?=[{_CJK}])", _to_full, text)
+
+    text = _fold_repeats(text)
+
+    # 全角标点两侧不留空格；中英文之间保留一个空格
+    # 只吃空格/制表符，不吃换行 —— 简介正文是多行的，折行不能被抹平
+    text = re.sub(r"[ \t]+([，。！？；：、）」』])", r"\1", text)
+    text = re.sub(r"([，。！？；：、（「『])[ \t]+", r"\1", text)
+    text = re.sub(rf"(?<=[{_CJK}])[ \t]+(?=[A-Za-z0-9])", " ", text)
+    text = re.sub(rf"(?<=[A-Za-z0-9])[ \t]+(?=[{_CJK}])", " ", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
+
+    for h, original in holders.items():
+        text = text.replace(h, original)
+    return text.strip()
+
+
+# ====================================================================
 # 标题 / 标签 / 简介
 # ====================================================================
 def clean_title(title: str, platform: str = "bilibili") -> tuple[str, list[str]]:
@@ -112,7 +226,7 @@ def clean_title(title: str, platform: str = "bilibili") -> tuple[str, list[str]]
     硬上限强制截断；软上限只告警，因为完整标题会被放进简介首行兜住。
     """
     warns: list[str] = []
-    t = to_simplified(str(title or "").strip())
+    t = normalize_cjk_punctuation(to_simplified(str(title or "").strip()))
     t = re.sub(r"\s+", " ", t)
 
     hard = BILI_TITLE_HARD_MAX if platform == "bilibili" else DOUYIN_TITLE_MAX
@@ -170,10 +284,10 @@ def build_desc(body: str, source: str = "", full_title: str = "",
 
     # 完整标题兜在首行，弥补标题被展示截断
     if full_title and len(full_title) > BILI_TITLE_SOFT_MAX:
-        parts.append(full_title)
+        parts.append(normalize_cjk_punctuation(full_title))
 
     if body:
-        parts.append(to_simplified(str(body).strip()))
+        parts.append(normalize_cjk_punctuation(to_simplified(str(body).strip())))
 
     if clip_range:
         parts.append(f"片段时间：{clip_range}")

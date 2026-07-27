@@ -78,7 +78,7 @@ def burn_ass(ch_video, entries, out_mp4):
         "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
         "Style: EN,Arial,36,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
         "-1,0,0,0,100,100,0,0,1,2,1,2,20,20,100,1",
-        "Style: ZH,Microsoft YaHei,46,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
+        "Style: ZH,Noto Sans CJK SC,46,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
         "-1,0,0,0,100,100,0,0,1,2,1,2,20,20,20,1",
         "", "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",

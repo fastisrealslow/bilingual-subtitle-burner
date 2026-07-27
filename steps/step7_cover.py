@@ -17,6 +17,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
@@ -169,6 +170,90 @@ def classify_frame_by_color(img_path: str,
             return "不确定", 0.0
     except Exception:
         return "不确定", 0.0
+
+# ── 人脸预筛 ──────────────────────────────────────────────────────────────────
+# vision 调用是整条流水线最贵、最慢的一步（单条约 5 分钟）。候选帧里有相当
+# 一部分是空镜、PPT、背影，既做不了封面又照样按图片计费。先用 OpenCV 的
+# haar 级联在本地过一遍，只把「有正脸且脸够大」的帧送上去。
+
+MIN_FACE_AREA_RATIO = 0.05   # 最大人脸框面积 / 帧面积，低于此视为脸太小做不了封面
+
+_face_cascade = None
+_face_cascade_loaded = False
+
+
+def _get_face_cascade():
+    """惰性加载 haar 级联；OpenCV 缺失或模型文件读不到时返回 None。"""
+    global _face_cascade, _face_cascade_loaded
+    if _face_cascade_loaded:
+        return _face_cascade
+    _face_cascade_loaded = True
+    try:
+        import cv2
+        path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        cascade = cv2.CascadeClassifier(path)
+        if cascade.empty():
+            print(f"[cover]   ⚠️ haar 级联加载失败（{path}），跳过人脸预筛", file=sys.stderr)
+            return None
+        _face_cascade = cascade
+    except ImportError:
+        print("[cover]   ⚠️ 未安装 opencv-python-headless，跳过人脸预筛", file=sys.stderr)
+    return _face_cascade
+
+
+def largest_face_ratio(img_path: str) -> float:
+    """返回该帧最大正脸框面积占整帧的比例；无脸或检测不可用时返回 0。"""
+    cascade = _get_face_cascade()
+    if cascade is None:
+        return 0.0
+    try:
+        import cv2
+        img = cv2.imread(img_path)
+        if img is None:
+            return 0.0
+        h, w = img.shape[:2]
+        if not h or not w:
+            return 0.0
+        gray = cv2.equalizeHist(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
+        faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+        if len(faces) == 0:
+            return 0.0
+        return max(fw * fh for _, _, fw, fh in faces) / float(w * h)
+    except Exception as e:
+        print(f"[cover]   ⚠️ 人脸检测异常({e})，该帧按无脸处理", file=sys.stderr)
+        return 0.0
+
+
+def filter_frames_by_face(frame_paths: list[str], frame_times: list[float],
+                          min_ratio: float = MIN_FACE_AREA_RATIO
+                          ) -> tuple[list[str], list[float]]:
+    """筛掉没有正脸或脸太小的帧。
+
+    一帧都不合格时返回原样 —— 宁可多花钱也不能让封面这一步空手而归，
+    级联对侧脸、戴眼镜、低分辨率素材本来就会漏检。
+    """
+    if not frame_paths or _get_face_cascade() is None:
+        return frame_paths, frame_times
+
+    t0 = time.time()
+    kept_paths, kept_times = [], []
+    for path, t in zip(frame_paths, frame_times):
+        ratio = largest_face_ratio(path)
+        if ratio >= min_ratio:
+            kept_paths.append(path)
+            kept_times.append(t)
+    elapsed = time.time() - t0
+
+    if not kept_paths:
+        print(f"[cover]   人脸预筛：{len(frame_paths)} 帧无一满足"
+              f"「有正脸且脸占比 ≥{min_ratio:.0%}」，回退为全部送 vision"
+              f"（耗时 {elapsed:.1f}s）", flush=True)
+        return frame_paths, frame_times
+
+    print(f"[cover]   人脸预筛：{len(frame_paths)} 帧 → {len(kept_paths)} 帧"
+          f"（脸占比 ≥{min_ratio:.0%}，耗时 {elapsed:.1f}s）", flush=True)
+    return kept_paths, kept_times
+
 
 def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
                     speaker: str, speaker_desc: str = "") -> list[dict]:
@@ -325,7 +410,10 @@ def pick_best_frame_vision(raw_video: str, clip_start_sec: float, clip_end_sec: 
         print("[cover]   无 API key，跳过 vision 识别，交由外层兜底", flush=True)
         return None
 
-    print(f"[cover]   共截取 {len(frame_paths)} 帧，发送给 vision 模型识别...", flush=True)
+    # 送 vision 之前先本地筛掉没有正脸的帧
+    frame_paths, frame_times = filter_frames_by_face(frame_paths, frame_times)
+
+    print(f"[cover]   共 {len(frame_paths)} 帧，发送给 vision 模型识别...", flush=True)
 
     # 每次最多发 6 帧（避免 token 超限）
     BATCH = 6

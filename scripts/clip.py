@@ -244,7 +244,7 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         # 的 1/12 走并补一层投影，亮底暗底都能压住。
         f"Style: EN,Arial,{en_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
         f"-1,0,0,0,100,100,0,0,1,{en_outline},{en_shadow},2,10,10,{margin_bottom_en},1",
-        f"Style: ZH,Microsoft YaHei,{zh_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
+        f"Style: ZH,Noto Sans CJK SC,{zh_size},&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,"
         f"-1,0,0,0,100,100,0,0,1,{zh_outline},{zh_shadow},2,10,10,{margin_bottom_zh},1",
         "",
         "[Events]",
