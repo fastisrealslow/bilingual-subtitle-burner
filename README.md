@@ -53,6 +53,8 @@ python produce.py --source ./raw/munger.mp4 --slug munger-dual --dual
 | `--translator` | `deepseek-v3`（默认）或 `claude-sonnet-4.6` |
 | `--dual` | 两个翻译都跑，产出 `compare_grid.jpg` |
 | `--no-vlm` | 封面跳过 VLM 校验，只按几何规则选帧 |
+| `--cover-time-sec` | 手动钉死封面帧时间点（秒），跳过人脸预筛和候选采样。钉下的帧**仍要过 VLM 人物校验** |
+| `--cover-allow-unverified` | 放行未经 VLM 人物核验的钉帧封面（默认关闭），打开后日志会打醒目告警 |
 | `--strict-highlights` | 金句门槛忽略环境变量放宽，只认代码里的下限 |
 | `--out` | 产物根目录，默认 `deliver/` |
 | `--llm-cache-dir` / `--no-llm-cache` | LLM/VLM 响应缓存目录（默认仓库根 `.llm_cache/`）/ 关掉缓存全部实发 |

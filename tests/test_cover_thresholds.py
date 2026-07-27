@@ -242,3 +242,52 @@ def test_geometric_rejection_also_carries_hint(monkeypatch, tmp_path, capsys):
     payload = json.loads(capsys.readouterr().err.strip())
     assert payload["candidates_evaluated"] == 8
     assert "--cover-time-sec" in payload["hint"]
+
+
+# ── 钉帧的人物校验 ──────────────────────────────────────────────────────────
+# 自动选帧和 --cover-time-sec 必须共用同一条判定，阈值只有一处定义。
+
+@pytest.mark.parametrize("person,score,expected", [
+    ("主讲人", COVER.MIN_VLM_PASS_SCORE, True),
+    ("主讲人", COVER.MIN_VLM_PASS_SCORE - 1, False),
+    ("主持人", 10, False),
+    ("双人", 10, False),
+    ("其他", 10, False),
+    ("主讲人", None, False),
+    ("主讲人", "n/a", False),
+])
+def test_frame_passes_vlm_matches_the_documented_gate(person, score, expected):
+    assert COVER.frame_passes_vlm(person, score) is expected
+
+
+def test_verify_frame_person_reports_the_vlm_verdict(monkeypatch):
+    sent = {}
+
+    def fake_call(api_key, model, paths, speaker, speaker_desc=""):
+        sent.update(paths=paths, speaker=speaker, model=model)
+        return [{"frame": 1, "person": "其他", "cover_score": 2,
+                 "reason": "画面里是黑板前的另一个人"}]
+
+    monkeypatch.setattr(COVER, "call_vision_llm", fake_call)
+    v = COVER.verify_frame_person("sk", "vlm-1", "pinned.jpg", "查理·芒格")
+
+    assert sent["paths"] == ["pinned.jpg"]
+    assert sent["speaker"] == "查理·芒格"
+    assert v["person"] == "其他"
+    assert v["cover_score"] == 2
+    assert v["passed"] is False
+
+
+def test_verify_frame_person_passes_a_good_frame(monkeypatch):
+    monkeypatch.setattr(
+        COVER, "call_vision_llm",
+        lambda *a, **k: [{"frame": 1, "person": "主讲人",
+                          "cover_score": COVER.MIN_VLM_PASS_SCORE,
+                          "reason": "正面特写"}])
+    assert COVER.verify_frame_person("sk", "vlm-1", "f.jpg", "芒格")["passed"]
+
+
+def test_verify_frame_person_returns_none_when_vlm_says_nothing(monkeypatch):
+    # 拿不到判定 ≠ 判定通过，交由调用方按外部依赖失败处理
+    monkeypatch.setattr(COVER, "call_vision_llm", lambda *a, **k: [])
+    assert COVER.verify_frame_person("sk", "vlm-1", "f.jpg", "芒格") is None
