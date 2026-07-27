@@ -18,8 +18,10 @@ import subprocess
 import sys
 import tempfile
 import time
-import urllib.request
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import sf_transport  # noqa: E402
 
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageStat
@@ -308,37 +310,33 @@ def call_vision_llm(api_key: str, model: str, frame_paths: list[str],
         "temperature": 0.1,
     }).encode("utf-8")
 
-    req = urllib.request.Request(
-        "https://api.siliconflow.cn/v1/chat/completions",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            text = data["choices"][0]["message"]["content"].strip()
-            used = (data.get("usage") or {}).get("prompt_tokens", "?")
-            # 提取 JSON
-            match = re.search(r"\[.*?\]", text, re.DOTALL)
-            if match:
-                return json.loads(match.group())
-            # 调用成功但拿不到结果 —— 必须告警，不能静默失败。
-            # 这种情况图片 token 已经扣费，但没有任何产出。
-            # 典型原因：模型名已下架被平台转到纯文本模型，根本看不了图。
-            print(
-                f"[cover] \u26a0\ufe0f vision 模型 {model} 返回无法解析的内容"
-                f"\uff08已消耗 {used} input tokens\uff09。"
-                f"请确认该模型支持图片输入且仍在售。",
-                file=sys.stderr,
-            )
-            if text:
-                print(f"[cover]   原始返回：{text[:200]}", file=sys.stderr)
-            else:
-                print("[cover]   原始返回为空（纯文本模型收到图片时的典型表现）", file=sys.stderr)
+        resp = sf_transport.post(
+            "https://api.siliconflow.cn/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            data=payload, timeout=60,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        text = data["choices"][0]["message"]["content"].strip()
+        used = (data.get("usage") or {}).get("prompt_tokens", "?")
+        # 提取 JSON
+        match = re.search(r"\[.*?\]", text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        # 调用成功但拿不到结果 —— 必须告警，不能静默失败。
+        # 这种情况图片 token 已经扣费，但没有任何产出。
+        # 典型原因：模型名已下架被平台转到纯文本模型，根本看不了图。
+        print(
+            f"[cover] \u26a0\ufe0f vision 模型 {model} 返回无法解析的内容"
+            f"\uff08已消耗 {used} input tokens\uff09。"
+            f"请确认该模型支持图片输入且仍在售。",
+            file=sys.stderr,
+        )
+        if text:
+            print(f"[cover]   原始返回：{text[:200]}", file=sys.stderr)
+        else:
+            print("[cover]   原始返回为空（纯文本模型收到图片时的典型表现）", file=sys.stderr)
     except Exception as e:
         print(f"[cover] vision LLM 调用失败: {e}", file=sys.stderr)
     return []

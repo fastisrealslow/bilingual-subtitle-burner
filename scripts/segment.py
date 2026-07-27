@@ -24,7 +24,7 @@ import sys
 import time
 from typing import List, Dict, Any
 
-import requests
+import sf_transport
 
 
 # ── SRT 解析 ─────────────────────────────────────────────────────────────────
@@ -102,8 +102,8 @@ def call_llm(messages: List[Dict], api_key: str, model: str, base_url: str,
     }
     for attempt in range(max_retries):
         try:
-            resp = requests.post(url, headers=headers, json=payload, timeout=180)
-        except requests.RequestException as e:
+            resp = sf_transport.post(url, headers=headers, json=payload, timeout=180)
+        except sf_transport.TransportError as e:
             print(f"[segment] 请求异常 {e}，{2**attempt}s 后重试", file=sys.stderr)
             time.sleep(2 ** attempt)
             continue

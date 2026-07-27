@@ -21,7 +21,7 @@ transcribe_api.py — 用硅基流动 SenseVoice API 转写，分段上传拼接
 """
 import argparse, json, math, os, re, subprocess, sys, time, tempfile
 from pathlib import Path
-import requests
+import sf_transport
 
 API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
 API_URL = "https://api.siliconflow.cn/v1/audio/transcriptions"
@@ -61,7 +61,7 @@ def extract_segment(src: str, start: float, duration: float, dst: str):
 
 def transcribe_segment(audio_path: str, lang: str = "zh") -> str:
     with open(audio_path, "rb") as f:
-        resp = requests.post(
+        resp = sf_transport.post(
             API_URL,
             headers={"Authorization": f"Bearer {API_KEY}"},
             files={"file": ("audio.mp3", f, "audio/mpeg")},

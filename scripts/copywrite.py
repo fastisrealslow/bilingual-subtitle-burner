@@ -25,7 +25,7 @@ import sys
 import time
 from typing import List, Dict
 
-import requests
+import sf_transport
 
 
 DEFAULT_MODEL = "Qwen/Qwen3-8B"
@@ -45,8 +45,8 @@ def call_llm(messages, api_key, model, base_url, max_retries=4):
                 "stream": False, "enable_thinking": False}
     for attempt in range(max_retries):
         try:
-            resp = requests.post(url, headers=headers, json=payload, timeout=120)
-        except requests.RequestException as e:
+            resp = sf_transport.post(url, headers=headers, json=payload, timeout=120)
+        except sf_transport.TransportError as e:
             print(f"[copywrite] 请求异常 {e}，重试", file=sys.stderr)
             time.sleep(2 ** attempt); continue
         if resp.status_code == 200:
