@@ -115,6 +115,24 @@ def test_connection_failure_is_retried(client, monkeypatch):
     assert len(calls) == 2
 
 
+def test_status_zero_is_treated_as_transport_failure(client, monkeypatch):
+    """curl 拿不到响应时 %{http_code} 是 000，这不是 HTTP 状态，不能判致命。"""
+    calls = transport(monkeypatch, sf_transport.Response(0, ""))
+
+    with pytest.raises(sf_client.RetriesExhausted) as e:
+        sf_client.post(URL, json=BODY)
+
+    assert len(calls) == 3, "传输层失败应当重试到上限"
+    assert len(client) == 2, "每次重试前都要退避"
+    assert e.value.status_code is None
+
+
+def test_status_zero_recovers_on_retry(client, monkeypatch):
+    calls = transport(monkeypatch, sf_transport.Response(0, ""), resp(200, PAYLOAD))
+    assert sf_client.post(URL, json=BODY).json() == PAYLOAD
+    assert len(calls) == 2
+
+
 def test_empty_body_is_retried(client, monkeypatch):
     calls = transport(monkeypatch, sf_transport.Response(200, ""),
                       resp(200, PAYLOAD))
