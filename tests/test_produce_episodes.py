@@ -53,6 +53,7 @@ class Harness:
         self.stages = []
         self.titles = []
         self.assembled = []
+        self.cover_times = []
 
 
 @pytest.fixture
@@ -77,8 +78,10 @@ def harness(tmp_path, monkeypatch):
                        encoding="utf-8")
         return srt
 
-    def fake_cover_select(*a, **k):
+    def fake_cover_select(video, quotes, speaker, work, api_key, no_vlm,
+                          cover_time_sec=None, *a, **k):
         h.calls["cover_select"] += 1
+        h.cover_times.append(cover_time_sec)
         return "frame.jpg", {"files": {}, "cover_source": "auto"}
 
     def fake_translate(srt, quotes, work, translator, *a, **k):
@@ -304,18 +307,72 @@ def test_dual_with_multiple_episodes_is_refused(harness, capsys):
 
 
 def test_cover_time_sec_with_multiple_episodes_is_refused(harness, capsys):
-    """钉死的时间点未必落在第 2 集的片段里，两集共用一张封面是错的。"""
+    """一个时间点不能给多集共用：两集会出一模一样的封面，而且那一帧未必落在
+    第 2 集的片段里。要多集钉帧就得逗号分隔给够。"""
     with pytest.raises(SystemExit) as e:
         produce.main(["--source", "s.mp4", "--slug", "munger",
                       "--episodes", "2", "--cover-time-sec", "287"])
     assert e.value.code == produce.EXIT_CONFIG
     payload = json.loads(capsys.readouterr().err.strip())
     assert payload["reason"] == "cover_time_with_multiple_episodes"
+    assert "逗号分隔" in payload["detail"]
+    assert harness.calls["cover_select"] == 0
 
 
 def test_cover_time_sec_is_fine_for_a_single_episode(harness):
     produce.main(["--source", "s.mp4", "--slug", "munger",
                   "--cover-time-sec", "287"])
+    assert harness.cover_times == [287.0]
+
+
+# ── 逐集钉帧：全片没有合格人物封面帧的源片，多集也得有逃生口 ────────────────
+# CI run 30280589894（芒格源，episodes=2）人脸预筛只剩 4 帧且全挤在片尾爆炸
+# 特效混剪里，VLM 全拒退 2。这种源必须能手动钉帧，一集一个。
+
+def test_cover_time_sec_list_maps_one_value_per_episode(harness):
+    produce.main(["--source", "s.mp4", "--slug", "munger",
+                  "--episodes", "2", "--cover-time-sec", "287,412"])
+    assert harness.cover_times == [287.0, 412.0]
+
+
+def test_cover_time_sec_count_must_match_the_actual_episode_count(harness,
+                                                                  capsys):
+    """实际集数可能少于请求集数（源不够不凑数），个数要跟真正产出的核。"""
+    harness.set_candidates(even_spans(4))       # 只够出 1 集
+    with pytest.raises(SystemExit) as e:
+        produce.main(["--source", "s.mp4", "--slug", "munger",
+                      "--episodes", "2", "--cover-time-sec", "287,412"])
+    assert e.value.code == produce.EXIT_CONFIG
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "cover_time_count_mismatch"
+    assert payload["episodes"] == 1 and payload["episodes_requested"] == 2
+    assert harness.calls["cover_select"] == 0
+    assert harness.calls["translate"] == 0
+
+
+def test_too_many_cover_times_for_a_single_episode_is_refused(harness, capsys):
+    with pytest.raises(SystemExit) as e:
+        produce.main(["--source", "s.mp4", "--slug", "munger",
+                      "--cover-time-sec", "287,412"])
+    assert e.value.code == produce.EXIT_CONFIG
+    assert json.loads(capsys.readouterr().err.strip())["reason"] == \
+        "cover_time_count_mismatch"
+
+
+def test_no_cover_time_sec_leaves_every_episode_on_auto(harness):
+    produce.main(["--source", "s.mp4", "--slug", "munger", "--episodes", "2"])
+    assert harness.cover_times == [None, None]
+
+
+def test_cover_time_sec_parses_a_comma_separated_list():
+    assert produce.cover_time_sec_arg("287") == [287.0]
+    assert produce.cover_time_sec_arg(" 287 , 412.5 ") == [287.0, 412.5]
+
+
+@pytest.mark.parametrize("raw", ["第96秒", "287,", "287,abc", "-5", "287,-5"])
+def test_invalid_cover_time_sec_is_rejected_by_the_parser(raw):
+    with pytest.raises(produce.argparse.ArgumentTypeError):
+        produce.cover_time_sec_arg(raw)
 
 
 def test_cli_episodes_defaults_to_one():
@@ -341,6 +398,19 @@ def test_group_episodes_rejects_a_group_that_is_too_short():
     """后 3 段各 20s，合计 60s 达不到 150s 的成片下限 → 只出 1 集。"""
     spans = even_spans(3) + [(1000.0, 1020.0), (1030.0, 1050.0),
                              (1060.0, 1080.0)]
+    groups = produce.group_episodes(aligned(spans), episodes=2, strict=True)
+    assert len(groups) == 1
+
+
+def test_group_episodes_rejects_a_group_with_too_few_segments():
+    """段数闸门是独立承重的，不能靠时长闸门顺带兜住。
+
+    后两段各 80s、合计 160s，时长闸门（150s）放行，但只有 2 段、不足
+    SEGMENTS=3。段数闸门一失效这组就会被当成正常一集发出去 —— 那正是「凑数
+    硬出」。生产里这道闸门真的在拦（CI run 30280589894 打出「第 2 集只凑得出
+    2 段」）。
+    """
+    spans = even_spans(3) + [(1000.0, 1080.0), (1090.0, 1170.0)]
     groups = produce.group_episodes(aligned(spans), episodes=2, strict=True)
     assert len(groups) == 1
 

@@ -317,7 +317,7 @@ def test_vlm_failure_in_produce_carries_hint(tmp_path, monkeypatch, capsys):
 def test_cli_exposes_cover_flags():
     args = produce.parse_args(["--source", "v.mp4", "--slug", "s",
                                "--cover-time-sec", "96", "--cover-candidates", "30"])
-    assert args.cover_time_sec == 96.0
+    assert args.cover_time_sec == [96.0]
     assert args.cover_candidates == 30
 
 
