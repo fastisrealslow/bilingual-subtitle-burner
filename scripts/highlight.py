@@ -62,7 +62,21 @@ def strip_think(text: str) -> str:
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
     if "</think>" in text:
         text = text.split("</think>")[-1]
-    return text.strip()
+    return strip_code_fence(text.strip())
+
+
+def strip_code_fence(text: str) -> str:
+    """剥掉 ```json … ``` 围栏。
+
+    调用方是用 re.search(r"\\[.*\\]") 抓 JSON 数组的，围栏本身不会让它失配，
+    但收尾的 ``` 会被贪婪匹配吞进去导致 json.loads 报错。实测 DeepSeek/Claude
+    都会时不时给整段回复套围栏。
+    """
+    t = text.strip()
+    if not t.startswith("```"):
+        return t
+    t = re.sub(r"^```[a-zA-Z0-9_-]*\s*\n?", "", t)
+    return re.sub(r"\n?```\s*$", "", t).strip()
 
 
 def call_llm(messages, api_key, model, base_url, max_retries=4):
