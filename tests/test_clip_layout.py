@@ -68,3 +68,25 @@ def test_zh_only_mode_emits_no_english_line(tmp_path):
 def test_chinese_style_is_noto_cjk(tmp_path):
     ass = build(SHORT_ZH, tmp_path)
     assert "Style: ZH,Noto Sans CJK SC," in ass
+
+
+# ── zh_margin_v：钉死中文摆位 ────────────────────────────────────────────────
+# 源片自带烧死的英文硬字幕时，中文要坐在那条字幕带的正上方，比例推算的
+# 安全区在这里说了不算。
+
+def test_zh_margin_v_pins_the_chinese_dialogue_margin(tmp_path):
+    ass = build(SHORT_ZH, tmp_path, sub_mode="zh_only", zh_margin_v=96)
+    assert dialogues(ass)["ZH"]["margin_v"] == 96
+    assert styles(ass)["ZH"]["margin_v"] == 96
+
+
+def test_zh_margin_v_survives_the_half_screen_cap(tmp_path):
+    # 封顶只该管英文行；中文一旦被量准了就不能再被 clamp 回去
+    ass = build(LONG_ZH * 2, tmp_path, sub_mode="zh_only", zh_margin_v=96)
+    assert dialogues(ass)["ZH"]["margin_v"] == 96
+
+
+def test_without_zh_margin_v_dialogue_defers_to_the_style(tmp_path):
+    # MarginV=0 表示沿用样式值，是改动前的既有行为
+    ass = build(SHORT_ZH, tmp_path)
+    assert dialogues(ass)["ZH"]["margin_v"] == 0

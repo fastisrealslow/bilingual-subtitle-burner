@@ -279,7 +279,8 @@ def wrap_text(t: str, max_chars: int, is_cjk: bool = False) -> str:
 
 
 def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height: int = 346,
-             sub_mode: str = "bilingual", avoid_top_ratio: float | None = None):
+             sub_mode: str = "bilingual", avoid_top_ratio: float | None = None,
+             zh_margin_v: int | None = None):
     """
     生成 ASS 字幕：英文在上，中文在下。
     按实际分辨率设置 PlayRes，字号按比例适配。
@@ -292,6 +293,10 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     avoid_top_ratio:
         原片硬字幕顶部在画面高度的占比（0~1）。传入后，新字幕会被
         抬到该位置之上，不去遮挡原字幕。
+
+    zh_margin_v:
+        中文行距底边的绝对像素。调用方已经量过源片硬字幕带的位置时用它钉死
+        摆位，比例推算出的安全区和 0.55 高度封顶都不再参与。
     """
     # 参考 1920×1080：EN=36, ZH=46 → 640×346 对应 ~12, ~15
     # 实测感觉太小，用 20 / 26
@@ -316,6 +321,9 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         if needed > margin_bottom_zh:
             margin_bottom_zh = needed
 
+    if zh_margin_v is not None:
+        margin_bottom_zh = max(0, zh_margin_v)
+
     # 中文一行的实际占高（含行距），用来给英文行让位
     zh_line_h = int(zh_size * 1.25)
     margin_bottom_en = margin_bottom_zh + zh_line_h * 2 + 8       # 英文在中文上方
@@ -324,7 +332,12 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     cap = int(video_height * 0.55)
     if margin_bottom_en > cap:
         margin_bottom_en = cap
-        margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_line_h * 2 - 8))
+        if zh_margin_v is None:
+            margin_bottom_zh = min(margin_bottom_zh, max(12, cap - zh_line_h * 2 - 8))
+
+    # Dialogue 的 MarginV=0 表示沿用样式值。钉死摆位时逐条写出来，抽帧核对
+    # 叠字问题时能直接从 ASS 上读出每一条落在哪，不用回去反推样式。
+    zh_dialogue_margin = margin_bottom_zh if zh_margin_v is not None else 0
 
     # 英文折行最大字符数（字体约 en_size/2 px 宽）
     en_wrap = max(20, int(video_width * 38 / 640))
@@ -379,7 +392,8 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
             lines.append(
                 f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,{en_margin},,{en_t}")
         if zh_t:
-            lines.append(f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,0,,{zh_t}")
+            lines.append(
+                f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,{zh_dialogue_margin},,{zh_t}")
 
     with open(ass_path, "w", encoding="utf-8-sig") as f:
         f.write("\n".join(lines))

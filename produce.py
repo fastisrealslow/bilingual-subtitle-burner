@@ -56,6 +56,13 @@ TITLE_MAX_CHARS = 15
 # --cover-crop 的取值格式，与 ffmpeg crop 滤镜一致：W:H:X:Y
 COVER_CROP_RE = re.compile(r"^\d+:\d+:\d+:\d+$")
 
+# --sub-mode 的取值 → scripts/clip.make_ass 的 sub_mode
+SUB_MODES = {"both": "bilingual", "zh-only": "zh_only"}
+DEFAULT_SUB_MODE = "both"
+# zh-only 时中文行距底边的默认像素。854x480 的芒格源片自带英文硬字幕落在
+# y=408~456，上沿距底边 480-408=72px，再留 24px 间隙让中文不贴着它 → 96。
+DEFAULT_SUB_MARGIN_V = 96
+
 
 # ── 基础设施 ──────────────────────────────────────────────────────────────────
 
@@ -268,8 +275,13 @@ def _translate_claude(texts: list, model: str) -> list:
 # ── 5. 拼片 ───────────────────────────────────────────────────────────────────
 
 def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
-             work: Path, out_path: Path) -> list:
-    """切三段 → 各自烧双语字幕 → concat 成 final.mp4。返回 seg 结构。"""
+             work: Path, out_path: Path, sub_mode: str = DEFAULT_SUB_MODE,
+             sub_margin_v: int = DEFAULT_SUB_MARGIN_V) -> list:
+    """切三段 → 各自烧字幕 → concat 成 final.mp4。返回 seg 结构。
+
+    ``sub_mode='zh-only'`` 时只烧中文，并把它抬到 ``sub_margin_v`` 指定的高度：
+    源片自带的英文硬字幕直接当英文轨用，不再叠自己的一层。
+    """
     w, h = probe_size(video)
     seg_dir = work / "segments"
     seg_dir.mkdir(parents=True, exist_ok=True)
@@ -291,7 +303,8 @@ def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
             c["zh"] = zh_by_index.get(c.get("orig_index"), "")
         ass = seg_dir / f"seg{i:02d}.ass"
         make_ass(cues, str(ass), video_width=w, video_height=h,
-                 sub_mode="bilingual")
+                 sub_mode=SUB_MODES[sub_mode],
+                 zh_margin_v=sub_margin_v if sub_mode == "zh-only" else None)
 
         burned = seg_dir / f"seg{i:02d}.mp4"
         run(["ffmpeg", "-y", "-i", raw, "-vf", f"ass={ass}",
@@ -431,7 +444,8 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
 
 def write_meta(out_dir: Path, slug: str, title: str, source: str,
                final: Path, segs: list, covers: dict, translator: str,
-               speaker: str) -> Path:
+               speaker: str, sub_mode: str = DEFAULT_SUB_MODE,
+               sub_margin_v: int = DEFAULT_SUB_MARGIN_V) -> Path:
     files = {"final.mp4": final, **covers.get("files", {})}
     meta = {
         "slug": slug,
@@ -442,6 +456,8 @@ def write_meta(out_dir: Path, slug: str, title: str, source: str,
         "resolution": "x".join(str(v) for v in probe_size(final)),
         "segments": segs,
         "segment_count": len(segs),
+        "sub_mode": sub_mode,
+        "sub_margin_v": sub_margin_v,
         "models": {
             "transcribe": f"faster-whisper/{WHISPER_MODEL}",
             "highlight": HIGHLIGHT_MODEL,
@@ -520,6 +536,14 @@ def parse_args(argv=None):
                    help="封面选帧时先裁切，格式同 ffmpeg 的 crop 滤镜（W:H:X:Y）。"
                         "用于裁掉源片底部烧死的英文硬字幕等干扰区域，"
                         "例如 854x480 的源片用 854:396:0:0 只保留上方 396px")
+    p.add_argument("--sub-mode", default=DEFAULT_SUB_MODE, choices=sorted(SUB_MODES),
+                   help="烧字幕的语种：both 中英双语（默认）；zh-only 只烧中文，"
+                        "把源片自带的英文硬字幕当英文轨用，避免三层叠字")
+    p.add_argument("--sub-margin-v", type=int, default=DEFAULT_SUB_MARGIN_V,
+                   metavar="N",
+                   help=f"zh-only 时中文行距底边的像素，用来坐在源片硬字幕带上方"
+                        f"（默认 {DEFAULT_SUB_MARGIN_V}：854x480 源片的硬字幕带上沿在 "
+                        f"y=408，距底边 72px，再留 24px 间隙）。both 模式下不生效")
     p.add_argument("--strict-highlights", action="store_true",
                    help="金句门槛忽略环境变量放宽，只认代码里的下限")
     p.add_argument("--speaker", default="演讲者", help="说话人名字，用于打分和封面")
@@ -565,7 +589,8 @@ def main(argv=None) -> int:
     for t in translators:
         bilingual = translate_windows(srt, quotes, work, t, api_key, base_url)
         name = "final.mp4" if t == args.translator else f"final_{t}.mp4"
-        segs = assemble(video, srt, bilingual, quotes, work, out_dir / name)
+        segs = assemble(video, srt, bilingual, quotes, work, out_dir / name,
+                        args.sub_mode, args.sub_margin_v)
         finals[t] = out_dir / name
         if t == args.translator:
             primary_segs = segs
@@ -583,7 +608,7 @@ def main(argv=None) -> int:
 
     write_meta(out_dir, args.slug, title, args.source,
                out_dir / "final.mp4", primary_segs, covers,
-               args.translator, args.speaker)
+               args.translator, args.speaker, args.sub_mode, args.sub_margin_v)
 
     log("done", f"产物 → {out_dir}")
     return EXIT_OK

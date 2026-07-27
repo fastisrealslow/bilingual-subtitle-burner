@@ -34,7 +34,8 @@ def test_dispatch_builds_single_job():
     })
     assert jobs == [{"source": "https://example.com/v", "slug": "munger",
                      "title_override": "", "translator": "deepseek-v3",
-                     "dual": "false", "cover_time_sec": "", "cover_crop": ""}]
+                     "dual": "false", "cover_time_sec": "", "cover_crop": "",
+                     "speaker": "", "sub_mode": "both", "sub_margin_v": ""}]
 
 
 def test_dispatch_dual_bool_becomes_string():
@@ -172,4 +173,67 @@ def test_malformed_cover_crop_raises(tmp_path, bad):
     write_sources(tmp_path, "a.json",
                   {"source": "u", "slug": "s", "cover_crop": bad})
     with pytest.raises(ValueError, match="cover_crop"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+# ── speaker / 字幕语种 ──────────────────────────────────────────────────────
+# 封面左上角的红标一直显示默认的「演讲者」，就是因为 workflow 没暴露 speaker。
+
+def test_speaker_defaults_to_empty(tmp_path):
+    write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
+    # 空串 = 不传 --speaker，由 produce.py 自己兜底
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["speaker"] == ""
+
+
+def test_speaker_passes_through_from_sources(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "speaker": "查理·芒格"})
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["speaker"] == "查理·芒格"
+
+
+def test_speaker_passes_through_from_dispatch():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_SPEAKER": "查理·芒格",
+    })
+    assert jobs[0]["speaker"] == "查理·芒格"
+
+
+def test_sub_mode_defaults_to_both(tmp_path):
+    write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
+    jobs = plan_matrix.build({"EVENT": "push"}, tmp_path)
+    assert jobs[0]["sub_mode"] == "both"
+    assert jobs[0]["sub_margin_v"] == ""
+
+
+def test_sub_mode_passes_through_from_sources(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "sub_mode": "zh-only",
+                   "sub_margin_v": 110})
+    job = plan_matrix.build({"EVENT": "push"}, tmp_path)[0]
+    assert job["sub_mode"] == "zh-only"
+    assert job["sub_margin_v"] == "110"
+
+
+def test_sub_mode_passes_through_from_dispatch():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_SUB_MODE": "zh-only", "IN_SUB_MARGIN_V": "96",
+    })
+    assert jobs[0]["sub_mode"] == "zh-only"
+    assert jobs[0]["sub_margin_v"] == "96"
+
+
+def test_invalid_sub_mode_raises(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "sub_mode": "zh_only"})
+    with pytest.raises(ValueError, match="sub_mode"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+@pytest.mark.parametrize("bad", ["96px", "-96", "9.6"])
+def test_malformed_sub_margin_v_raises(tmp_path, bad):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "sub_margin_v": bad})
+    with pytest.raises(ValueError, match="sub_margin_v"):
         plan_matrix.build({"EVENT": "push"}, tmp_path)

@@ -40,6 +40,22 @@ on:
         required: false
         default: ""
         type: string
+      speaker:
+        description: "说话人名字，用于金句打分和封面左上角红标。留空用 produce.py 的默认值"
+        required: false
+        default: ""
+        type: string
+      sub_mode:
+        description: "烧字幕语种：both 中英双语；zh-only 只烧中文（源片自带英文硬字幕时用，避免叠字）"
+        required: false
+        default: "both"
+        type: choice
+        options: ["both", "zh-only"]
+      sub_margin_v:
+        description: "zh-only 时中文距底边的像素，用来坐在源片硬字幕带上方。留空用默认 96（854x480 源片实测）"
+        required: false
+        default: ""
+        type: string
 
   push:
     paths:
@@ -68,6 +84,9 @@ jobs:
           IN_DUAL: ${{ inputs.dual }}
           IN_COVER_TIME_SEC: ${{ inputs.cover_time_sec }}
           IN_COVER_CROP: ${{ inputs.cover_crop }}
+          IN_SPEAKER: ${{ inputs.speaker }}
+          IN_SUB_MODE: ${{ inputs.sub_mode }}
+          IN_SUB_MARGIN_V: ${{ inputs.sub_margin_v }}
         run: python3 .github/scripts/plan_matrix.py
 
   produce:
@@ -115,6 +134,9 @@ jobs:
           DUAL: ${{ matrix.job.dual }}
           COVER_TIME_SEC: ${{ matrix.job.cover_time_sec }}
           COVER_CROP: ${{ matrix.job.cover_crop }}
+          SPEAKER: ${{ matrix.job.speaker }}
+          SUB_MODE: ${{ matrix.job.sub_mode }}
+          SUB_MARGIN_V: ${{ matrix.job.sub_margin_v }}
         run: |
           set -euo pipefail
           args=(--source "$SOURCE" --slug "$SLUG" --translator "$TRANSLATOR")
@@ -122,6 +144,9 @@ jobs:
           [ "$DUAL" = "true" ] && args+=(--dual)
           [ -n "$COVER_TIME_SEC" ] && args+=(--cover-time-sec "$COVER_TIME_SEC")
           [ -n "$COVER_CROP" ] && args+=(--cover-crop "$COVER_CROP")
+          [ -n "$SPEAKER" ] && args+=(--speaker "$SPEAKER")
+          [ -n "$SUB_MODE" ] && args+=(--sub-mode "$SUB_MODE")
+          [ -n "$SUB_MARGIN_V" ] && args+=(--sub-margin-v "$SUB_MARGIN_V")
           python produce.py "${args[@]}"
 
       - name: 上传成片
