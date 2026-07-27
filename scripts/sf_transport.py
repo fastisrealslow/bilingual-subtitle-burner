@@ -101,4 +101,14 @@ def post(url, headers=None, json=None, data=None, files=None, timeout=120):
         body = data.decode("utf-8")
     else:
         body = data or ""
-    return _run(_base(hdrs, timeout) + ["--data-binary", body, url], timeout)
+    # 封面打分会把 base64 图片塞进请求体，几百 KB 的 argv 直接 E2BIG
+    # （OSError: [Errno 7] Argument list too long），所以走临时文件。
+    with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8",
+                                     delete=False) as fh:
+        fh.write(body)
+        body_path = fh.name
+    try:
+        return _run(_base(hdrs, timeout) + ["--data-binary", f"@{body_path}", url],
+                    timeout)
+    finally:
+        os.unlink(body_path)
