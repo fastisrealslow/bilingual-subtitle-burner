@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parent
 for _sub in ("scripts", "steps"):
     sys.path.insert(0, str(ROOT / _sub))
 
+import hardsub_probe as HP                   # noqa: E402
 import highlight as HL                       # noqa: E402
 import platform_rules as PR                  # noqa: E402
 import sf_transport                          # noqa: E402
@@ -62,6 +63,12 @@ DEFAULT_SUB_MODE = "both"
 # zh-only 时中文行距底边的默认像素。854x480 的芒格源片自带英文硬字幕落在
 # y=408~456，上沿距底边 480-408=72px，再留 24px 间隙让中文不贴着它 → 96。
 DEFAULT_SUB_MARGIN_V = 96
+# --sub-margin-v 的自动挡：逐条 cue 探测源片硬字幕带，各自算摆位。
+SUB_MARGIN_V_AUTO = "auto"
+DEFAULT_SUB_MARGIN_V_ARG = SUB_MARGIN_V_AUTO
+# 中文块底边与源片硬字幕带上沿之间留的间隙。24 就是 96 那个默认值的来源
+# （480 - 408 + 24），自动挡沿用同一个手感。
+DEFAULT_SUB_AVOID_GAP = 24
 
 
 # ── 基础设施 ──────────────────────────────────────────────────────────────────
@@ -274,22 +281,83 @@ def _translate_claude(texts: list, model: str) -> list:
 
 # ── 5. 拼片 ───────────────────────────────────────────────────────────────────
 
+def auto_margin_v(video_height: int, hardsub_top_y: int | None,
+                  gap: int = DEFAULT_SUB_AVOID_GAP) -> int:
+    """把探到的硬字幕带上沿翻译成 MarginV（距底边像素）。探不到就回落到默认值。"""
+    if hardsub_top_y is None:
+        return DEFAULT_SUB_MARGIN_V
+    return video_height - hardsub_top_y + gap
+
+
+def plan_cue_placements(video: Path, video_height: int, cues: list,
+                        clip_start: float, gap: int, tmp_dir: Path,
+                        first_index: int = 1) -> list:
+    """逐条 cue 探测源片硬字幕带，算出各自的 MarginV。
+
+    cue 的时间戳是切片内相对时间，探测要回到源片，所以统一加 ``clip_start``。
+
+    抬得过头一律不硬出：中文块底边跑到画面上半部分，说明要么源片硬字幕异常
+    高，要么检测把画面主体当成了文字。这时候烧出来的成片只会是字幕骑在讲者
+    脸上，按退出码约定退 2 让人来看，比闷头出一条废片强。
+    """
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    placements = []
+    for offset, c in enumerate(cues):
+        idx = first_index + offset
+        a = clip_start + c["start_sec"]
+        b = clip_start + c["end_sec"]
+        top_y = HP.probe_cue_band_top(str(video), a, b, str(tmp_dir),
+                                      prefix=f"cue{idx:03d}")
+        margin_v = auto_margin_v(video_height, top_y, gap)
+        if margin_v > video_height // 2:
+            die(EXIT_QUALITY, "assemble", "auto_sub_margin_v_above_midline",
+                detail="自动避让算出的 MarginV 会把中文顶到画面上半部分，拒绝硬出。"
+                       "改用固定的 --sub-margin-v 指定摆位，或确认源片硬字幕带位置",
+                cue_index=idx,
+                cue_source_start_sec=round(a, 2),
+                cue_source_end_sec=round(b, 2),
+                hardsub_top_y=top_y,
+                margin_v=margin_v,
+                video_height=video_height,
+                sub_avoid_gap=gap)
+        placements.append({
+            "cue_index": idx,
+            "source_start_sec": round(a, 2),
+            "source_end_sec": round(b, 2),
+            "hardsub_top_y": top_y,
+            "margin_v": margin_v,
+            "fallback": top_y is None,
+        })
+        if top_y is None:
+            log("assemble", f"cue#{idx} {a:.1f}~{b:.1f}s 未探到硬字幕带，"
+                            f"回落到默认 MarginV={margin_v}")
+        else:
+            log("assemble", f"cue#{idx} {a:.1f}~{b:.1f}s 硬字幕带上沿 y={top_y}"
+                            f" → MarginV={margin_v}（间隙 {gap}）")
+    return placements
+
+
 def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
              work: Path, out_path: Path, sub_mode: str = DEFAULT_SUB_MODE,
-             sub_margin_v: int = DEFAULT_SUB_MARGIN_V) -> list:
-    """切三段 → 各自烧字幕 → concat 成 final.mp4。返回 seg 结构。
+             sub_margin_v: int | str = DEFAULT_SUB_MARGIN_V,
+             sub_avoid_gap: int = DEFAULT_SUB_AVOID_GAP) -> tuple:
+    """切三段 → 各自烧字幕 → concat 成 final.mp4。返回 ``(segs, placements)``。
 
-    ``sub_mode='zh-only'`` 时只烧中文，并把它抬到 ``sub_margin_v`` 指定的高度：
-    源片自带的英文硬字幕直接当英文轨用，不再叠自己的一层。
+    ``sub_mode='zh-only'`` 时只烧中文，并把它抬到源片硬字幕带上方：源片自带的
+    英文硬字幕直接当英文轨用，不再叠自己的一层。
+
+    ``sub_margin_v='auto'`` 逐条 cue 探测硬字幕带位置各自摆位；给整数则全片
+    钉死在那个值上。
     """
     w, h = probe_size(video)
+    auto = sub_mode == "zh-only" and sub_margin_v == SUB_MARGIN_V_AUTO
     seg_dir = work / "segments"
     seg_dir.mkdir(parents=True, exist_ok=True)
 
     bi = json.loads(bilingual.read_text(encoding="utf-8"))
     zh_by_index = {e["index"]: e.get("zh", "") for e in bi}
 
-    segs, parts = [], []
+    segs, parts, placements = [], [], []
     for i, q in enumerate(quotes, 1):
         start, end = q["clip_start_sec"], q["clip_end_sec"]
         raw = seg_dir / f"seg{i:02d}_raw.mp4"
@@ -301,10 +369,20 @@ def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
         cues = srt_filter(str(srt), start, end, srt_lang="en")
         for c in cues:
             c["zh"] = zh_by_index.get(c.get("orig_index"), "")
+
+        if auto:
+            seg_placements = plan_cue_placements(
+                video, h, cues, start, sub_avoid_gap,
+                seg_dir / f"seg{i:02d}_probe", first_index=len(placements) + 1)
+            for c, p in zip(cues, seg_placements):
+                c["zh_margin_v"] = p["margin_v"]
+            placements.extend(seg_placements)
+
         ass = seg_dir / f"seg{i:02d}.ass"
         make_ass(cues, str(ass), video_width=w, video_height=h,
                  sub_mode=SUB_MODES[sub_mode],
-                 zh_margin_v=sub_margin_v if sub_mode == "zh-only" else None)
+                 zh_margin_v=(DEFAULT_SUB_MARGIN_V if auto else
+                              sub_margin_v if sub_mode == "zh-only" else None))
 
         burned = seg_dir / f"seg{i:02d}.mp4"
         run(["ffmpeg", "-y", "-i", raw, "-vf", f"ass={ass}",
@@ -331,7 +409,7 @@ def assemble(video: Path, srt: Path, bilingual: Path, quotes: list,
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", listing,
          "-c", "copy", out_path], "assemble")
     log("assemble", f"→ {out_path}")
-    return segs
+    return segs, placements
 
 
 # ── 6. 封面 ───────────────────────────────────────────────────────────────────
@@ -445,7 +523,9 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
 def write_meta(out_dir: Path, slug: str, title: str, source: str,
                final: Path, segs: list, covers: dict, translator: str,
                speaker: str, sub_mode: str = DEFAULT_SUB_MODE,
-               sub_margin_v: int = DEFAULT_SUB_MARGIN_V) -> Path:
+               sub_margin_v: int | str = DEFAULT_SUB_MARGIN_V,
+               sub_avoid_gap: int = DEFAULT_SUB_AVOID_GAP,
+               sub_placements: list | None = None) -> Path:
     files = {"final.mp4": final, **covers.get("files", {})}
     meta = {
         "slug": slug,
@@ -458,6 +538,10 @@ def write_meta(out_dir: Path, slug: str, title: str, source: str,
         "segment_count": len(segs),
         "sub_mode": sub_mode,
         "sub_margin_v": sub_margin_v,
+        "sub_avoid_gap": sub_avoid_gap,
+        # auto 挡逐条 cue 的摆位依据，事后核对叠字问题时直接看这里，
+        # 不用回去重跑探测
+        "sub_placements": sub_placements or [],
         "models": {
             "transcribe": f"faster-whisper/{WHISPER_MODEL}",
             "highlight": HIGHLIGHT_MODEL,
@@ -508,6 +592,17 @@ def build_compare_grid(finals: dict, out_path: Path) -> None:
 
 # ── 入口 ──────────────────────────────────────────────────────────────────────
 
+def sub_margin_v_arg(raw: str) -> int | str:
+    """``--sub-margin-v`` 接 ``auto`` 或非负整数像素。"""
+    s = raw.strip()
+    if s == SUB_MARGIN_V_AUTO:
+        return SUB_MARGIN_V_AUTO
+    if re.fullmatch(r"\d+", s):
+        return int(s)
+    raise argparse.ArgumentTypeError(
+        f"{raw!r} 无效，应为 {SUB_MARGIN_V_AUTO} 或非负整数像素")
+
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="produce.py",
@@ -539,11 +634,21 @@ def parse_args(argv=None):
     p.add_argument("--sub-mode", default=DEFAULT_SUB_MODE, choices=sorted(SUB_MODES),
                    help="烧字幕的语种：both 中英双语（默认）；zh-only 只烧中文，"
                         "把源片自带的英文硬字幕当英文轨用，避免三层叠字")
-    p.add_argument("--sub-margin-v", type=int, default=DEFAULT_SUB_MARGIN_V,
+    p.add_argument("--sub-margin-v", type=sub_margin_v_arg,
+                   default=DEFAULT_SUB_MARGIN_V_ARG, metavar="auto|N",
+                   help=f"zh-only 时中文行距底边的像素，用来坐在源片硬字幕带上方。"
+                        f"auto（默认）逐条 cue 探测源片该时段硬字幕带的上沿，各自"
+                        f"抬到它上方 —— 源片的硬字幕高度并非恒定，大字号引言板明显"
+                        f"更高，全片一个固定值必然撞上其中一种。给整数则全片钉死在"
+                        f"该值（{DEFAULT_SUB_MARGIN_V} 是 854x480 源片对白带的实测"
+                        f"值：上沿 y=408，距底边 72px，再留 24px 间隙）。"
+                        f"both 模式下不生效")
+    p.add_argument("--sub-avoid-gap", type=int, default=DEFAULT_SUB_AVOID_GAP,
                    metavar="N",
-                   help=f"zh-only 时中文行距底边的像素，用来坐在源片硬字幕带上方"
-                        f"（默认 {DEFAULT_SUB_MARGIN_V}：854x480 源片的硬字幕带上沿在 "
-                        f"y=408，距底边 72px，再留 24px 间隙）。both 模式下不生效")
+                   help=f"--sub-margin-v auto 时，中文块底边与源片硬字幕带上沿之间"
+                        f"留的像素间隙（默认 {DEFAULT_SUB_AVOID_GAP}，即 854x480 "
+                        f"源片上 480-408+24=96 那个实测默认值的来源）。"
+                        f"给大了中文会往画面中段爬，给小了两层字会贴在一起")
     p.add_argument("--strict-highlights", action="store_true",
                    help="金句门槛忽略环境变量放宽，只认代码里的下限")
     p.add_argument("--speaker", default="演讲者", help="说话人名字，用于打分和封面")
@@ -589,11 +694,12 @@ def main(argv=None) -> int:
     for t in translators:
         bilingual = translate_windows(srt, quotes, work, t, api_key, base_url)
         name = "final.mp4" if t == args.translator else f"final_{t}.mp4"
-        segs = assemble(video, srt, bilingual, quotes, work, out_dir / name,
-                        args.sub_mode, args.sub_margin_v)
+        segs, placements = assemble(video, srt, bilingual, quotes, work,
+                                    out_dir / name, args.sub_mode,
+                                    args.sub_margin_v, args.sub_avoid_gap)
         finals[t] = out_dir / name
         if t == args.translator:
-            primary_segs = segs
+            primary_segs, primary_placements = segs, placements
 
     title = make_title(quotes, args.speaker, api_key, base_url,
                        args.title_override)
@@ -608,7 +714,8 @@ def main(argv=None) -> int:
 
     write_meta(out_dir, args.slug, title, args.source,
                out_dir / "final.mp4", primary_segs, covers,
-               args.translator, args.speaker, args.sub_mode, args.sub_margin_v)
+               args.translator, args.speaker, args.sub_mode, args.sub_margin_v,
+               args.sub_avoid_gap, primary_placements)
 
     log("done", f"产物 → {out_dir}")
     return EXIT_OK

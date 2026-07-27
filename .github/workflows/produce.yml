@@ -52,7 +52,12 @@ on:
         type: choice
         options: ["both", "zh-only"]
       sub_margin_v:
-        description: "zh-only 时中文距底边的像素，用来坐在源片硬字幕带上方。留空用默认 96（854x480 源片实测）"
+        description: "zh-only 时中文怎么坐在源片硬字幕带上方：auto 逐条 cue 探测该时段硬字幕带的上沿各自避让（源片大字号引言板位置更高，固定值躲不开）；也可填整数把全片钉死在该像素。留空用 produce.py 默认 auto"
+        required: false
+        default: ""
+        type: string
+      sub_avoid_gap:
+        description: "sub_margin_v=auto 时，中文块底边与源片硬字幕带上沿之间留的像素间隙。留空用默认 24"
         required: false
         default: ""
         type: string
@@ -87,6 +92,7 @@ jobs:
           IN_SPEAKER: ${{ inputs.speaker }}
           IN_SUB_MODE: ${{ inputs.sub_mode }}
           IN_SUB_MARGIN_V: ${{ inputs.sub_margin_v }}
+          IN_SUB_AVOID_GAP: ${{ inputs.sub_avoid_gap }}
         run: python3 .github/scripts/plan_matrix.py
 
   produce:
@@ -137,6 +143,7 @@ jobs:
           SPEAKER: ${{ matrix.job.speaker }}
           SUB_MODE: ${{ matrix.job.sub_mode }}
           SUB_MARGIN_V: ${{ matrix.job.sub_margin_v }}
+          SUB_AVOID_GAP: ${{ matrix.job.sub_avoid_gap }}
         run: |
           set -euo pipefail
           args=(--source "$SOURCE" --slug "$SLUG" --translator "$TRANSLATOR")
@@ -147,6 +154,7 @@ jobs:
           [ -n "$SPEAKER" ] && args+=(--speaker "$SPEAKER")
           [ -n "$SUB_MODE" ] && args+=(--sub-mode "$SUB_MODE")
           [ -n "$SUB_MARGIN_V" ] && args+=(--sub-margin-v "$SUB_MARGIN_V")
+          [ -n "$SUB_AVOID_GAP" ] && args+=(--sub-avoid-gap "$SUB_AVOID_GAP")
           python produce.py "${args[@]}"
 
       - name: 上传成片

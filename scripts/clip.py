@@ -297,6 +297,8 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
     zh_margin_v:
         中文行距底边的绝对像素。调用方已经量过源片硬字幕带的位置时用它钉死
         摆位，比例推算出的安全区和 0.55 高度封顶都不再参与。
+        单条 cue 还能用 ``entries[i]['zh_margin_v']`` 覆盖它 —— 源片硬字幕
+        的高度并非全片恒定（大字号引言板明显更高），逐条摆位才躲得开。
     """
     # 参考 1920×1080：EN=36, ZH=46 → 640×346 对应 ~12, ~15
     # 实测感觉太小，用 20 / 26
@@ -380,6 +382,9 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
         if sub_mode == "en_only":
             zh_t = ""
         zh_lines = zh_t.count(r"\N") + 1 if zh_t else 0
+        per_cue = e.get("zh_margin_v")
+        zh_margin = (zh_dialogue_margin if per_cue is None
+                     else max(0, int(per_cue)))
         en_margin = margin_bottom_en
         if zh_lines:
             en_margin = min(cap, margin_bottom_zh + zh_line_h * zh_lines + 8)
@@ -393,7 +398,7 @@ def make_ass(entries: list, ass_path: str, video_width: int = 640, video_height:
                 f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},EN,,0,0,{en_margin},,{en_t}")
         if zh_t:
             lines.append(
-                f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,{zh_dialogue_margin},,{zh_t}")
+                f"Dialogue: 0,{sec2ass(s)},{sec2ass(end)},ZH,,0,0,{zh_margin},,{zh_t}")
 
     with open(ass_path, "w", encoding="utf-8-sig") as f:
         f.write("\n".join(lines))
