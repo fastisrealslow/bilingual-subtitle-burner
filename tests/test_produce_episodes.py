@@ -330,6 +330,36 @@ def test_group_episodes_rejects_a_group_that_is_too_short():
     assert len(groups) == 1
 
 
+def test_group_episodes_rejects_a_group_with_too_few_segments():
+    """时长够、段数不够，同样不出 —— 这一条只可能由段数闸门拦下。
+
+    后 2 段各 80s，合计 160s 越过了 150s 的时长下限，时长闸门放行；但 SEGMENTS
+    要求 3 段。段数闸门一旦失效，这个 2 段的组就会被当成正常一集发出去。
+    """
+    spans = even_spans(3) + [(1000.0, 1080.0), (1100.0, 1180.0)]
+    later = aligned(spans)[3:]
+    # 前提：这一组确实过得了时长闸门，所以下面的拒绝只可能来自段数闸门
+    assert len(later) < produce.SEGMENTS
+    assert sum(q["clip_duration_sec"] for q in later) >= produce.HL.MIN_TOTAL_SEC
+
+    groups = produce.group_episodes(aligned(spans), episodes=2, strict=True)
+    assert len(groups) == 1
+
+
+def test_group_episodes_never_picks_a_segment_below_the_minimum():
+    """短于 MIN_QUOTE_SEC 的候选不能被后面的集捡走。
+
+    rank 5 只有 10s。把它算进来第二集照样是 3 段、合计 170s，段数和时长两道闸门
+    都拦不住 —— 只有候选池的最短片段过滤能挡住它。
+    """
+    spans = even_spans(3) + [(1000.0, 1080.0), (1100.0, 1110.0),
+                             (1200.0, 1280.0), (1300.0, 1380.0)]
+    groups = produce.group_episodes(aligned(spans), episodes=2, strict=True)
+
+    assert len(groups) == 2
+    assert min(q["clip_duration_sec"] for q in groups[1]) >= produce.HL.MIN_QUOTE_SEC
+
+
 def test_group_episodes_skips_overlapping_candidates():
     """与已用片段重叠的候选不能被第二集捡走 —— 两条片子会出现同一段画面。"""
     # rank 4 落在第一集的两段之间，跨着它们；rank 5~7 在源片后段，干净可用

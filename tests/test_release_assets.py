@@ -97,6 +97,17 @@ def test_missing_product_exits_one(tmp_path, capsys):
     assert "缺少产物" in capsys.readouterr().err
 
 
+def test_files_missing_a_key_exits_one(tmp_path, capsys):
+    """queue 里少一个 files 键就退 1 —— 漏传的封面在手机页上就是个 404 按钮。"""
+    q = make_delivery(tmp_path, ["ep01"], per_episode_dirs=True)
+    queue = json.loads(q.read_text(encoding="utf-8"))
+    del queue["episodes"][0]["files"]["cover_9x16"]
+    q.write_text(json.dumps(queue, ensure_ascii=False), encoding="utf-8")
+
+    assert RA.main(["--queue", str(q), "--out", str(tmp_path / "_r")]) == 1
+    assert "cover_9x16" in capsys.readouterr().err
+
+
 def test_missing_queue_exits_one(tmp_path, capsys):
     assert RA.main(["--queue", str(tmp_path / "nope.json"),
                     "--out", str(tmp_path / "_r")]) == 1

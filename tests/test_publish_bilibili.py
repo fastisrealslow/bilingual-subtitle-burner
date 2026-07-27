@@ -10,6 +10,7 @@ secret 不存在。这里只测参数拼装，以及最要紧的一条：cookie 
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -145,6 +146,24 @@ def test_missing_video_is_refused(tmp_path):
         PB.episode_files(q, queue["episodes"][0])
 
 
+def test_missing_cover_is_refused(tmp_path):
+    """B 站投稿必须带封面，缺了要在调 biliup 之前就报错。"""
+    q = make_delivery(tmp_path)
+    (tmp_path / "deliver" / "munger" / "ep01" / "cover_16x9.jpg").unlink()
+    queue = json.loads(q.read_text(encoding="utf-8"))
+    with pytest.raises(PB.ConfigError, match="找不到封面"):
+        PB.episode_files(q, queue["episodes"][0])
+
+
+def test_missing_queue_file_exits_one(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv(PB.COOKIE_ENV, str(cookie_file(tmp_path)))
+    missing = tmp_path / "nope.json"
+
+    assert PB.main(["--queue", str(missing),
+                    "--episode", "ep01"]) == PB.EXIT_CONFIG
+    assert "nope.json" in capsys.readouterr().err
+
+
 # ── dry-run 一次都不投稿 ────────────────────────────────────────────────────
 
 def test_dry_run_prints_the_command_and_uploads_nothing(
@@ -160,3 +179,43 @@ def test_dry_run_prints_the_command_and_uploads_nothing(
     assert PB.main(["--queue", str(q), "--episode", "ep01",
                     "--dry-run"]) == PB.EXIT_OK
     assert "biliup" in capsys.readouterr().out
+
+
+# ── 真投那条路径的退出码（biliup 全程是桩，不会发出任何请求）────────────────
+
+def ready(tmp_path, monkeypatch, returncode):
+    """把 biliup 换成一个只记参数、返回指定退出码的桩。"""
+    monkeypatch.setenv(PB.COOKIE_ENV, str(cookie_file(tmp_path)))
+    monkeypatch.setattr(PB.shutil, "which", lambda name: f"/usr/bin/{name}")
+    seen = []
+    monkeypatch.setattr(PB.subprocess, "run",
+                        lambda cmd: (seen.append(cmd),
+                                     SimpleNamespace(returncode=returncode))[1])
+    return make_delivery(tmp_path), seen
+
+
+def test_biliup_is_not_installed_exits_one(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv(PB.COOKIE_ENV, str(cookie_file(tmp_path)))
+    monkeypatch.setattr(PB.shutil, "which", lambda name: None)
+
+    def boom(*a, **k):
+        raise AssertionError("没装 biliup 还是把它调起来了")
+
+    monkeypatch.setattr(PB.subprocess, "run", boom)
+    q = make_delivery(tmp_path)
+
+    assert PB.main(["--queue", str(q), "--episode", "ep01"]) == PB.EXIT_CONFIG
+    assert "biliup" in capsys.readouterr().err
+
+
+def test_biliup_failure_is_an_api_error(tmp_path, monkeypatch):
+    """biliup 退非零 → 退 3（外部 API 失败），不能当成投稿成功。"""
+    q, seen = ready(tmp_path, monkeypatch, returncode=7)
+    assert PB.main(["--queue", str(q), "--episode", "ep01"]) == PB.EXIT_API
+    assert seen and seen[0][0] == "biliup"
+
+
+def test_biliup_success_exits_zero(tmp_path, monkeypatch):
+    q, seen = ready(tmp_path, monkeypatch, returncode=0)
+    assert PB.main(["--queue", str(q), "--episode", "ep01"]) == PB.EXIT_OK
+    assert len(seen) == 1
