@@ -61,13 +61,19 @@ on:
         required: false
         default: ""
         type: string
+      episodes:
+        description: "一次出几集。下载和转写只做一次，highlight 挑 N 组互不重叠的片段。源不够时不凑数，能出几集就几集。留空用默认 1"
+        required: false
+        default: ""
+        type: string
 
   push:
     paths:
       - "sources/*.json"
 
+# 发 Release、把站点索引提交回仓库都要写权限
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   # 把两种触发方式收敛成同一份 matrix，产出环节只写一遍
@@ -93,6 +99,7 @@ jobs:
           IN_SUB_MODE: ${{ inputs.sub_mode }}
           IN_SUB_MARGIN_V: ${{ inputs.sub_margin_v }}
           IN_SUB_AVOID_GAP: ${{ inputs.sub_avoid_gap }}
+          IN_EPISODES: ${{ inputs.episodes }}
         run: python3 .github/scripts/plan_matrix.py
 
   produce:
@@ -100,13 +107,20 @@ jobs:
     if: needs.plan.outputs.matrix != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      # secrets 上下文用不了在 step 的 if 里，这里先落成 'true' / 'false'。
+      # BILIBILI_COOKIES 目前不存在 → 恒为 'false' → 投稿那步永远跳过。
+      BILIBILI_ENABLED: ${{ secrets.BILIBILI_COOKIES != '' }}
     strategy:
       fail-fast: false      # 一条片源挂掉不该带走其他几条
       matrix:
         job: ${{ fromJSON(needs.plan.outputs.matrix) }}
 
     steps:
+      # 站点索引那步要 rebase 到 main 再推，浅克隆 rebase 不了
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -155,6 +169,7 @@ jobs:
           SUB_MODE: ${{ matrix.job.sub_mode }}
           SUB_MARGIN_V: ${{ matrix.job.sub_margin_v }}
           SUB_AVOID_GAP: ${{ matrix.job.sub_avoid_gap }}
+          EPISODES: ${{ matrix.job.episodes }}
         run: |
           set -euo pipefail
           args=(--source "$SOURCE" --slug "$SLUG" --translator "$TRANSLATOR")
@@ -166,6 +181,7 @@ jobs:
           [ -n "$SUB_MODE" ] && args+=(--sub-mode "$SUB_MODE")
           [ -n "$SUB_MARGIN_V" ] && args+=(--sub-margin-v "$SUB_MARGIN_V")
           [ -n "$SUB_AVOID_GAP" ] && args+=(--sub-avoid-gap "$SUB_AVOID_GAP")
+          [ -n "$EPISODES" ] && args+=(--episodes "$EPISODES")
           python produce.py "${args[@]}"
 
       - name: 上传成片
@@ -186,3 +202,79 @@ jobs:
           path: _tmp/
           retention-days: 14
           if-no-files-found: ignore
+
+      # ── 发布：Release 直链是手机页唯一的下载来源 ──────────────────────────
+      # artifact 要登录才能下，手机上没法用；Release 资产公开仓库免登录、
+      # 原样 mp4、不打 zip。
+      - name: 准备 Release 资产
+        env:
+          SLUG: ${{ matrix.job.slug }}
+        run: |
+          set -euo pipefail
+          python scripts/release_assets.py \
+            --queue "deliver/$SLUG/queue.json" \
+            --out _release --notes _release_notes.md
+
+      - name: 发布 Release（同名 asset 覆盖）
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLUG: ${{ matrix.job.slug }}
+        run: |
+          set -euo pipefail
+          TAG="clips-$SLUG"
+          # 重跑时 tag 已经在了：改正文而不是重建，再 --clobber 覆盖同名 asset
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TAG" --notes-file _release_notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file _release_notes.md
+          fi
+          gh release upload "$TAG" _release/* --clobber
+
+      # 手机页读的是仓库里的静态 index.json，不打 GitHub API（未登录
+      # 60 次/小时/IP 会被限流）
+      - name: 合并进站点索引并提交
+        if: github.ref == 'refs/heads/main'
+        env:
+          SLUG: ${{ matrix.job.slug }}
+        run: |
+          set -euo pipefail
+          python scripts/update_site_index.py \
+            --queue "deliver/$SLUG/queue.json" \
+            --index site/data/index.json
+          if git diff --quiet -- site/data/index.json; then
+            echo "索引没有变化，不提交"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/index.json
+          git commit -m "chore(site): 更新 $SLUG 的发布索引"
+          # matrix 里几条 job 会同时往 main 上推，撞车就 rebase 重试
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "推送失败（第 $i 次），重试"
+            sleep $((i * 5))
+          done
+          exit 1
+
+      # B 站投稿：预留接口，默认关闭。BILIBILI_COOKIES 这个 secret 目前不存在，
+      # 所以这一步永远跳过 —— 用户的决定是先手动投稿。
+      # （secrets 上下文不能直接写在 step 的 if 里，先在 job 级 env 落成字符串）
+      - name: 投稿 B 站（默认关闭）
+        if: env.BILIBILI_ENABLED == 'true'
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+          SLUG: ${{ matrix.job.slug }}
+        run: |
+          set -euo pipefail
+          pip install biliup
+          python - <<'PY' > /tmp/episodes.txt
+          import json, os
+          q = json.load(open(f"deliver/{os.environ['SLUG']}/queue.json", encoding="utf-8"))
+          print("\n".join(ep["id"] for ep in q["episodes"]))
+          PY
+          while read -r ep; do
+            [ -n "$ep" ] || continue
+            python scripts/publish_bilibili.py \
+              --queue "deliver/$SLUG/queue.json" --episode "$ep"
+          done < /tmp/episodes.txt

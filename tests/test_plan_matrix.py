@@ -36,7 +36,7 @@ def test_dispatch_builds_single_job():
                      "title_override": "", "translator": "deepseek-v3",
                      "dual": "false", "cover_time_sec": "", "cover_crop": "",
                      "speaker": "", "sub_mode": "both", "sub_margin_v": "",
-                     "sub_avoid_gap": ""}]
+                     "sub_avoid_gap": "", "episodes": ""}]
 
 
 def test_dispatch_dual_bool_becomes_string():
@@ -264,4 +264,34 @@ def test_malformed_sub_avoid_gap_raises(tmp_path, bad):
     write_sources(tmp_path, "a.json",
                   {"source": "u", "slug": "s", "sub_avoid_gap": bad})
     with pytest.raises(ValueError, match="sub_avoid_gap"):
+        plan_matrix.build({"EVENT": "push"}, tmp_path)
+
+
+# ── --episodes N ────────────────────────────────────────────────────────────
+
+def test_episodes_passes_through_from_sources(tmp_path):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "episodes": 3})
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["episodes"] == "3"
+
+
+def test_episodes_passes_through_from_dispatch():
+    jobs = plan_matrix.build({
+        "EVENT": "workflow_dispatch", "IN_SOURCE": "u", "IN_SLUG": "s",
+        "IN_EPISODES": "4",
+    })
+    assert jobs[0]["episodes"] == "4"
+
+
+def test_episodes_defaults_to_empty_string(tmp_path):
+    """留空表示用 produce.py 的默认 1，YAML 侧据此决定加不加 --episodes。"""
+    write_sources(tmp_path, "a.json", {"source": "u", "slug": "s"})
+    assert plan_matrix.build({"EVENT": "push"}, tmp_path)[0]["episodes"] == ""
+
+
+@pytest.mark.parametrize("bad", ["0", "-1", "2.5", "两集", "3集"])
+def test_malformed_episodes_raises(tmp_path, bad):
+    write_sources(tmp_path, "a.json",
+                  {"source": "u", "slug": "s", "episodes": bad})
+    with pytest.raises(ValueError, match="episodes"):
         plan_matrix.build({"EVENT": "push"}, tmp_path)
