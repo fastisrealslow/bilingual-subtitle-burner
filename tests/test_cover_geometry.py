@@ -18,16 +18,20 @@ PORTRAIT = (1080, 1920)
 CIRCLE_D = 200                 # 源图上正圆的直径
 
 
-@pytest.fixture
-def circle_frame(tmp_path):
+def _make_circle_frame(tmp_path, size, name="circle.jpg"):
     """深色底 + 居中的白色正圆，用来测量出图后有没有被拉扁。"""
-    img = Image.new("RGB", SRC_SIZE, (20, 20, 20))
-    cx, cy = SRC_SIZE[0] / 2, SRC_SIZE[1] / 2
+    img = Image.new("RGB", size, (20, 20, 20))
+    cx, cy = size[0] / 2, size[1] / 2
     r = CIRCLE_D / 2
     ImageDraw.Draw(img).ellipse([cx - r, cy - r, cx + r, cy + r], fill=(255, 255, 255))
-    path = str(tmp_path / "circle.jpg")
+    path = str(tmp_path / name)
     img.save(path, "JPEG", quality=95)
     return path
+
+
+@pytest.fixture
+def circle_frame(tmp_path):
+    return _make_circle_frame(tmp_path, SRC_SIZE)
 
 
 def _white_bbox_aspect(img):
@@ -41,9 +45,11 @@ def _white_bbox_aspect(img):
 
 # ── 分支判定 ─────────────────────────────────────────────────────────────────
 
-def test_landscape_uses_cover_branch():
-    # 854x340 填满 1280x720 后仍保留约 71% 宽、100% 高，两个方向都过 60%
-    assert C.choose_cover_strategy(SRC_SIZE, LANDSCAPE) == "cover"
+def test_landscape_uses_fit_branch_to_avoid_cutting_the_speaker():
+    # 防「切脸」回归：线上 run 30292972089 的两张横版封面就是栽在这里。
+    # 854x340 填满 1280x720 要丢掉 29% 宽度，而讲话人是偏右的侧脸、检不出人脸，
+    # 居中裁切窗口 (125,0,729,340) 直接把脸切掉一半。保留 71% < 85% → 必须走 fit。
+    assert C.choose_cover_strategy(SRC_SIZE, LANDSCAPE) == "fit"
 
 
 def test_portrait_uses_fit_branch():
@@ -55,12 +61,17 @@ def test_same_aspect_uses_cover_branch():
     assert C.choose_cover_strategy((640, 360), LANDSCAPE) == "cover"
 
 
+def test_near_target_aspect_still_uses_cover_branch():
+    # 提高阈值不能把 cover 分支废掉：未裁切的 16:9 源帧出 16:9 封面保留 100%，
+    # 仍要走 cover，不能平白多出虚化边。
+    assert C.choose_cover_strategy((1920, 1080), LANDSCAPE) == "cover"
+
+
 def test_retain_ratio_threshold_is_the_boundary():
-    # 恰好保留 60% 宽度：854 * 0.6 ≈ 512 宽的窗口 → 源图宽 = 720/0.6 * (16/9)…
-    # 直接按定义构造：目标 1:1，源图 100x60 → 窗口 60x60，保留 60% 宽
-    assert C.choose_cover_strategy((100, 60), (500, 500)) == "cover"
+    # 按定义构造：目标 1:1，源图 100x85 → 窗口 85x85，恰好保留 85% 宽
+    assert C.choose_cover_strategy((100, 85), (500, 500)) == "cover"
     # 再窄一点就掉到阈值下方
-    assert C.choose_cover_strategy((110, 60), (500, 500)) == "fit"
+    assert C.choose_cover_strategy((100, 84), (500, 500)) == "fit"
 
 
 # ── 输出尺寸 + 反形变 ────────────────────────────────────────────────────────
@@ -87,11 +98,22 @@ def _fit_foreground(img):
     return img.crop((x, y, x + fw, y + fh))
 
 
-def test_circle_stays_circular_on_cover_branch(circle_frame):
-    """反形变断言：正圆出图后长宽比必须仍接近 1。"""
-    img = C.render_geometry(circle_frame, LANDSCAPE)
+def test_circle_stays_circular_on_cover_branch(tmp_path):
+    """反形变断言：正圆出图后长宽比必须仍接近 1。
+
+    源帧取比例已接近目标的 1920x1080，这一档仍走 cover。
+    """
+    frame = _make_circle_frame(tmp_path, (1920, 1080), "circle_169.jpg")
+    img = C.render_geometry(frame, LANDSCAPE)
     assert img.size == LANDSCAPE
     assert _white_bbox_aspect(img) == pytest.approx(1.0, abs=0.06)
+
+
+def test_circle_stays_circular_on_landscape_fit_branch(circle_frame):
+    """同上，854x340 出横版封面现在走 fit（避免切脸），照样不许变形。"""
+    img = C.render_geometry(circle_frame, LANDSCAPE)
+    assert img.size == LANDSCAPE
+    assert _white_bbox_aspect(_fit_foreground(img)) == pytest.approx(1.0, abs=0.06)
 
 
 def test_circle_stays_circular_on_fit_branch(circle_frame):
