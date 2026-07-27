@@ -140,6 +140,57 @@ def test_single_line_retry_prompt_also_carries_the_glossary(monkeypatch):
     assert all("Buffett → 巴菲特" in s for s in seen)
 
 
+# ── 语音识别专名纠错说明 ────────────────────────────────────────────────────
+# 根因在 ASR 不在翻译：whisper 把音频听成 "Mr. Butler"。换模型（base→Butler、
+# small→Bob、medium→Bowman）和加 hotwords 都实测无效，只有在翻译提示词里补这段
+# 说明才有效（仅术语表 5/5 仍错，补上后 5/5 修正）。措辞收紧过实测 0/5 失效，
+# 所以这里逐字锁死关键句，防止后续「顺手润色」把效果改没了。
+
+def test_en2zh_prompt_carries_both_the_glossary_and_the_asr_note():
+    prompt = TR.system_prompt("en2zh")
+    assert "Buffett → 巴菲特" in prompt, "对照表必须在"
+    assert "英文原文来自语音识别" in prompt
+    assert "把 Buffett 听成 Butler、Bob、Buffet" in prompt
+    assert "按对照表的正确译名输出，不要照着听错的拼写音译" in prompt
+
+
+def test_asr_note_comes_after_the_glossary_so_it_can_refer_back_to_it():
+    prompt = TR.system_prompt("en2zh")
+    assert prompt.index("Buffett → 巴菲特") < prompt.index("英文原文来自语音识别")
+
+
+def test_zh2en_prompt_carries_an_equivalent_asr_note():
+    prompt = TR.system_prompt("zh2en")
+    assert "巴菲特 → Buffett" in prompt, "对照表必须在"
+    assert "automatic speech recognition" in prompt
+    assert "terminology table" in prompt, "说明必须引用对照表"
+    assert prompt.index("巴菲特 → Buffett") < prompt.index("automatic speech recognition")
+
+
+def test_asr_note_is_dropped_when_there_is_no_glossary_to_refer_to(monkeypatch):
+    # 说明通篇在讲「按对照表输出」，没有表时注入它只会让模型自由发挥
+    monkeypatch.setattr(TR, "load_glossary", lambda path=None: {})
+    assert TR.system_prompt("en2zh") == TR.SYSTEM_EN2ZH
+    assert TR.system_prompt("zh2en") == TR.SYSTEM_ZH2EN
+
+
+def test_translate_batch_actually_sends_the_asr_note(monkeypatch):
+    """真正发出去的 system 消息里必须带纠错说明，不能只是函数能生成。"""
+    sent = {}
+
+    def fake_chat(messages, *a, **k):
+        sent["messages"] = messages
+        return "1. 这问题的另一半我留给巴菲特先生回答"
+
+    monkeypatch.setattr(TR, "chat", fake_chat)
+    # 真实生产 ASR 文本：whisper 把 BUFFETT 听成了 BUTLER
+    TR.translate_batch(
+        ["NOW, THE OTHER HALF OF THAT QUESTION I LEAVE FOR MR. BUTLER"],
+        "sk", "deepseek-ai/DeepSeek-V3", "https://x/v1", direction="en2zh")
+
+    assert "英文原文来自语音识别" in sent["messages"][0]["content"]
+
+
 # ── 缓存键跟着术语表变 ──────────────────────────────────────────────────────
 # 提示词变了而缓存键不变，就会命中改词之前那批错译文 —— 改表等于没改。
 
@@ -161,6 +212,22 @@ def test_cache_key_changes_when_a_single_term_is_edited():
     edited = TR.glossary_block("en2zh", {"Buffett": "巴菲特", "moat": "护城河"})
     assert (sf_client.cache_key(URL, body_with(base))
             != sf_client.cache_key(URL, body_with(edited)))
+
+
+def test_cache_key_changes_when_the_asr_note_is_added():
+    """缓存键是整个请求体的 sha256，补了纠错说明就不该命中只有术语表时的旧译文。"""
+    glossary_only = TR.SYSTEM_EN2ZH + TR.glossary_block("en2zh")
+    with_note = TR.system_prompt("en2zh")
+    assert glossary_only != with_note, "纠错说明没进提示词"
+    assert (sf_client.cache_key(URL, body_with(glossary_only))
+            != sf_client.cache_key(URL, body_with(with_note)))
+
+
+def test_cache_key_changes_when_the_asr_note_wording_is_edited():
+    # 措辞对效果敏感，改一个字也必须重译，不能沿用旧措辞下的译文
+    tweaked = TR.system_prompt("en2zh").replace("可能被听错", "也许被听错")
+    assert (sf_client.cache_key(URL, body_with(TR.system_prompt("en2zh")))
+            != sf_client.cache_key(URL, body_with(tweaked)))
 
 
 def test_cache_key_is_stable_for_an_unchanged_glossary():

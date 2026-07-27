@@ -108,9 +108,40 @@ def glossary_block(direction: str, terms: Dict[str, str] | None = None) -> str:
             "不得音译成别的名字，也不得自创译名。\n" + lines)
 
 
+# ── 语音识别专名纠错说明 ────────────────────────────────────────────────────
+# 「巴特勒先生」的根因在**语音识别**，不在翻译：faster-whisper 把音频听成了
+# "Mr. Butler"，翻译只是忠实地把错的输入译对了。实测换模型无效（base→Butler、
+# small→Bob、medium→Bowman，没一个听对），加 initial_prompt / hotwords 也无效
+# （只影响开头，长音频走到 154s 已被前文上下文冲掉，且会把分段变粗）。
+# 只有在翻译提示词里明说「原文来自 ASR、专名可能被听错」才有效：用真实生产
+# ASR 文本实测，仅术语表时 5/5 仍输出「巴特勒」，补上这段后 5/5 修正为「巴菲特」。
+# 措辞对效果敏感 —— 收紧后实测 0/5 失效，改动前先复测。
+
+ASR_NOTE_EN2ZH = (
+    "\n注意：英文原文来自语音识别，专有名词可能被听错（例如把 Buffett 听成 "
+    "Butler、Bob、Buffet）。当某个人名/机构名在语境上明显应当是对照表里的词时，"
+    "按对照表的正确译名输出，不要照着听错的拼写音译。"
+)
+
+ASR_NOTE_ZH2EN = (
+    "\nNote: the Chinese source text comes from automatic speech recognition, "
+    "so proper nouns may have been misheard (for example 巴菲特 transcribed as "
+    "巴特勒, 巴布 or 巴菲). When a person or organisation name is clearly, from "
+    "the context, one of the entries in the terminology table above, output the "
+    "correct form from that table instead of transliterating the misheard spelling."
+)
+
+
+def asr_note(direction: str) -> str:
+    """语音识别专名纠错说明；术语表为空时不注入（说明本身要引用对照表）。"""
+    if not load_glossary():
+        return ""
+    return ASR_NOTE_ZH2EN if direction == "zh2en" else ASR_NOTE_EN2ZH
+
+
 def system_prompt(direction: str) -> str:
     base = SYSTEM_ZH2EN if direction == "zh2en" else SYSTEM_EN2ZH
-    return base + glossary_block(direction)
+    return base + glossary_block(direction) + asr_note(direction)
 
 
 def parse_srt(path: str) -> List[Dict]:
