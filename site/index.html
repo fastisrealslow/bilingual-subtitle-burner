@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#ffffff">
+<title>投稿清单</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>投稿清单</h1>
+  <p class="updated" id="updated"></p>
+</header>
+
+<main id="main">
+  <section class="block" id="today-block" hidden>
+    <h2 class="block-title" id="today-title">今天该发这条</h2>
+    <div id="today"></div>
+  </section>
+
+  <section class="block" id="upcoming-block" hidden>
+    <h2 class="block-title">待发列表</h2>
+    <div id="upcoming"></div>
+  </section>
+
+  <section class="block" id="past-block" hidden>
+    <details id="past-details">
+      <summary class="summary">
+        <span>往期</span>
+        <span class="summary-count" id="past-count"></span>
+      </summary>
+      <div id="past"></div>
+    </details>
+  </section>
+
+  <div class="notice" id="notice" hidden></div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<template id="card-tpl">
+  <article class="card">
+    <div class="thumb">
+      <img alt="" loading="lazy" decoding="async">
+      <span class="thumb-fallback">暂无封面</span>
+      <span class="badge duration"></span>
+    </div>
+    <div class="body">
+      <p class="date"></p>
+      <h3 class="title"></h3>
+      <p class="meta"></p>
+      <a class="btn btn-download" target="_blank" rel="noopener">下载视频</a>
+      <div class="copy-row">
+        <button type="button" class="btn btn-ghost" data-copy="title">复制标题</button>
+        <button type="button" class="btn btn-ghost" data-copy="tags">复制标签</button>
+        <button type="button" class="btn btn-ghost" data-copy="desc">复制简介</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>
