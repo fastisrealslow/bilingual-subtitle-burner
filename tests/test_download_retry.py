@@ -143,18 +143,71 @@ def test_ytdlp_gets_its_own_retry_flags(tmp_path, monkeypatch, no_sleep):
     assert cmd[cmd.index("--fragment-retries") + 1] == "5"
 
 
+def test_socket_timeout_is_passed_to_ytdlp(tmp_path, monkeypatch, no_sleep):
+    cmds = runner(monkeypatch, [Result(0)])
+    produce.download_source("https://x/y", tmp_path / "s.mp4", 3, 5.0)
+
+    cmd = cmds[0]
+    assert cmd[cmd.index("--socket-timeout") + 1] == "120"
+
+
+def test_socket_timeout_override_reaches_ytdlp(tmp_path, monkeypatch, no_sleep):
+    cmds = runner(monkeypatch, [Result(0)])
+    produce.download_source("https://x/y", tmp_path / "s.mp4", 3, 5.0, 45)
+
+    cmd = cmds[0]
+    assert cmd[cmd.index("--socket-timeout") + 1] == "45"
+
+
+def test_socket_timeout_default_is_well_clear_of_observed_latency():
+    """archive.org 首字节实测 13.8s，yt-dlp 自带的 20s 只剩 6s 余量。"""
+    assert produce.DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC >= 120
+
+
+def test_backoff_sequence_is_ten_twenty_forty_then_capped(tmp_path, monkeypatch,
+                                                          no_sleep):
+    monkeypatch.setattr(produce.random, "uniform", lambda a, b: 0.0)
+    runner(monkeypatch, [Result(1, FIVE_HUNDRED)])
+
+    with pytest.raises(SystemExit):
+        produce.download_source("https://x/y", tmp_path / "s.mp4", 6,
+                                produce.DEFAULT_DOWNLOAD_BACKOFF_SEC)
+
+    assert no_sleep == [10.0, 20.0, 40.0, 60.0, 60.0]
+
+
 def test_cli_exposes_download_knobs():
     args = produce.parse_args(["--source", "v.mp4", "--slug", "s",
                                "--download-retries", "7",
-                               "--download-backoff-sec", "2.5"])
+                               "--download-backoff-sec", "2.5",
+                               "--download-socket-timeout", "45"])
     assert args.download_retries == 7
     assert args.download_backoff_sec == 2.5
+    assert args.download_socket_timeout == 45.0
 
 
 def test_download_knobs_have_conservative_defaults():
     args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
     assert args.download_retries == produce.DEFAULT_DOWNLOAD_RETRIES
     assert args.download_backoff_sec == produce.DEFAULT_DOWNLOAD_BACKOFF_SEC
+    assert (args.download_socket_timeout
+            == produce.DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC)
+    assert produce.DEFAULT_DOWNLOAD_RETRIES == 5
+    assert produce.DEFAULT_DOWNLOAD_BACKOFF_SEC == 10.0
+    assert produce.DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC == 120.0
+
+
+def test_resolve_source_forwards_the_socket_timeout(tmp_path, monkeypatch):
+    seen = {}
+
+    def fake_download(source, out, retries, backoff_sec, socket_timeout_sec):
+        seen["timeout"] = socket_timeout_sec
+        out.write_bytes(b"x")
+
+    monkeypatch.setattr(produce.shutil, "which", lambda name: "/usr/bin/yt-dlp")
+    monkeypatch.setattr(produce, "download_source", fake_download)
+    produce.resolve_source("https://x/y", tmp_path, 3, 5.0, 90)
+    assert seen["timeout"] == 90
 
 
 def test_local_source_never_touches_yt_dlp(tmp_path, monkeypatch):

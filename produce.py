@@ -99,9 +99,12 @@ DEFAULT_SUB_AVOID_GAP = 24
 # 这么退 3 的，原样重跑就过），无人值守时不重试等于白跑一趟。
 DEFAULT_LLM_CACHE_DIR = ROOT / sf_client.DEFAULT_CACHE_DIRNAME
 
-DEFAULT_DOWNLOAD_RETRIES = 3
-DEFAULT_DOWNLOAD_BACKOFF_SEC = 5.0
+DEFAULT_DOWNLOAD_RETRIES = 5
+DEFAULT_DOWNLOAD_BACKOFF_SEC = 10.0
 DOWNLOAD_BACKOFF_CAP_SEC = 60.0
+# yt-dlp 默认 20s：实测 archive.org 首字节能到 13.8s、整体只有 60~156 KB/s，
+# 20s 必然偶发误杀（CI run 30274189811、30279507775 都是 read timeout=20.0s）。
+DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC = 120.0
 # 重试也变不出来的：源不存在、URL 根本不是 yt-dlp 认得的东西
 # 408/429 不在里面：那两个是「稍后再来」，值得重试
 DOWNLOAD_FATAL_RE = re.compile(
@@ -211,8 +214,10 @@ def download_is_fatal(output: str) -> bool:
     return bool(DOWNLOAD_FATAL_RE.search(output or ""))
 
 
-def download_source(source: str, out: Path, retries: int,
-                    backoff_sec: float) -> None:
+def download_source(
+        source: str, out: Path, retries: int, backoff_sec: float,
+        socket_timeout_sec: float = DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC,
+) -> None:
     """带外层退避重试的 yt-dlp 下载。
 
     yt-dlp 自己的 ``--retries`` / ``--fragment-retries`` 只覆盖单个 HTTP 请求
@@ -222,6 +227,7 @@ def download_source(source: str, out: Path, retries: int,
     cmd = ["yt-dlp", "-f", "bv*[height<=720]+ba/b[height<=720]/b",
            "--merge-output-format", "mp4",
            "--retries", "5", "--fragment-retries", "5",
+           "--socket-timeout", f"{socket_timeout_sec:g}",
            "-o", str(out), source]
     last = ""
     for attempt in range(1, retries + 1):
@@ -247,7 +253,9 @@ def download_source(source: str, out: Path, retries: int,
 
 def resolve_source(source: str, work: Path,
                    retries: int = DEFAULT_DOWNLOAD_RETRIES,
-                   backoff_sec: float = DEFAULT_DOWNLOAD_BACKOFF_SEC) -> Path:
+                   backoff_sec: float = DEFAULT_DOWNLOAD_BACKOFF_SEC,
+                   socket_timeout_sec: float =
+                   DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC) -> Path:
     """URL 走 yt-dlp，``file://`` 和本地路径直接用。"""
     if source.startswith("file://"):
         source = source[len("file://"):]
@@ -263,7 +271,7 @@ def resolve_source(source: str, work: Path,
         die(EXIT_CONFIG, "input", "yt_dlp_not_installed", source=source)
 
     out = work / "source.mp4"
-    download_source(source, out, retries, backoff_sec)
+    download_source(source, out, retries, backoff_sec, socket_timeout_sec)
     if not out.is_file():
         die(EXIT_API, "input", "download_produced_no_file", source=source)
     return out
@@ -1014,6 +1022,11 @@ def parse_args(argv=None):
                    help=f"yt-dlp 重试的退避基数秒，逐次翻倍，单次上限 "
                         f"{DOWNLOAD_BACKOFF_CAP_SEC:.0f}s"
                         f"（默认 {DEFAULT_DOWNLOAD_BACKOFF_SEC:.0f}）")
+    p.add_argument("--download-socket-timeout", type=float,
+                   default=DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC, metavar="SEC",
+                   help=f"yt-dlp 单个 socket 读写的超时秒数（默认 "
+                        f"{DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC:.0f}）。archive.org "
+                        f"首字节实测能到 14s，yt-dlp 自带的 20s 会把活着的源判死")
     p.add_argument("--strict-highlights", action="store_true",
                    help="金句门槛忽略环境变量放宽，只认代码里的下限")
     p.add_argument("--speaker", default="演讲者", help="说话人名字，用于打分和封面")
@@ -1038,6 +1051,12 @@ def main(argv=None) -> int:
             detail="--dual 是单集的译本对比工具，多集下产物含义不清，"
                    "两者只能选一个",
             episodes=args.episodes)
+
+    if args.episodes > 1 and args.cover_time_sec is not None:
+        die(EXIT_CONFIG, "config", "cover_time_with_multiple_episodes",
+            detail="--cover-time-sec 钉的是单个时间点，多集下每集片段不同，"
+                   "同一帧未必落在第 2 集里，两者只能选一个",
+            episodes=args.episodes, cover_time_sec=args.cover_time_sec)
 
     if args.cover_crop and not COVER_CROP_RE.fullmatch(args.cover_crop):
         die(EXIT_CONFIG, "config", "invalid_cover_crop",
@@ -1064,7 +1083,8 @@ def main(argv=None) -> int:
 
     stage("input")
     video = resolve_source(args.source, work, args.download_retries,
-                           args.download_backoff_sec)
+                           args.download_backoff_sec,
+                           args.download_socket_timeout)
     stage("transcribe")
     srt = transcribe(video, work, args.language)
     stage("highlight")
