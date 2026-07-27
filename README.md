@@ -57,7 +57,8 @@ python produce.py --source ./raw/munger.mp4 --slug munger-dual --dual
 | `--out` | 产物根目录，默认 `deliver/` |
 | `--llm-cache-dir` / `--no-llm-cache` | LLM/VLM 响应缓存目录（默认仓库根 `.llm_cache/`）/ 关掉缓存全部实发 |
 | `--llm-max-retries` | 单个 SiliconFlow 请求最多尝试几次（含首次，默认 `3`） |
-| `--download-retries` / `--download-backoff-sec` | yt-dlp 下载的尝试次数（默认 `3`）与退避基数秒（默认 `5`） |
+| `--download-retries` / `--download-backoff-sec` | yt-dlp 下载的尝试次数（默认 `5`）与退避基数秒（默认 `10`） |
+| `--download-socket-timeout` | yt-dlp 单个 socket 读写超时秒数（默认 `120`） |
 
 **退出码**：`0` 成功 / `1` 配置错误 / `2` 内容质量不达标 / `3` 外部依赖失败。
 退 2 表示这条片源挑不出够格的金句或封面 —— 是刻意拒绝硬出，重试没有意义。
@@ -128,8 +129,15 @@ SiliconFlow 的失败按状态码分类，不是一律重试：
 ### 下载重试
 
 yt-dlp 自己的 `--retries` / `--fragment-retries` 只覆盖单个 HTTP 请求和分片，整次调用
-被 archive.org 的 500 顶回来时它直接就退了，所以外面还包了一层：默认最多 3 次，退避基数
-5s 逐次翻倍，单次上限 60s。
+被 archive.org 的 500 顶回来时它直接就退了，所以外面还包了一层：默认最多 5 次
+（`--download-retries`），退避基数 10s（`--download-backoff-sec`）逐次翻倍，单次上限 60s
+—— 也就是 10s → 20s → 40s → 60s → 60s，另加不超过 25% 的抖动。
+
+socket 超时用 `--socket-timeout` 显式钉到 **120s**（`--download-socket-timeout`），不用
+yt-dlp 自带的 20s。实测同一个 archive.org 源连拉三次，首字节分别是 13.77s / 3.61s /
+2.02s，速度只有 60~156 KB/s，一个 63.7 MB 的源光下载就要约 9 分钟 —— 20s 离 13.8s 只剩
+6s 余量，源明明活着也会被判死（CI run 30274189811、30279507775 都是
+`dn601208.us.archive.org` read timeout=20.0s，重试 3 次后退 3）。
 
 源不存在或 URL 根本不受支持（`400` `401` `403` `404` `410`、`Unsupported URL`、
 `Video unavailable`、私有视频）直接退 1，不重试 —— 重试也变不出一个不存在的视频。

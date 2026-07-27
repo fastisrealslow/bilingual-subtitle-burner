@@ -303,6 +303,21 @@ def test_dual_with_multiple_episodes_is_refused(harness, capsys):
     assert payload["reason"] == "dual_with_multiple_episodes"
 
 
+def test_cover_time_sec_with_multiple_episodes_is_refused(harness, capsys):
+    """钉死的时间点未必落在第 2 集的片段里，两集共用一张封面是错的。"""
+    with pytest.raises(SystemExit) as e:
+        produce.main(["--source", "s.mp4", "--slug", "munger",
+                      "--episodes", "2", "--cover-time-sec", "287"])
+    assert e.value.code == produce.EXIT_CONFIG
+    payload = json.loads(capsys.readouterr().err.strip())
+    assert payload["reason"] == "cover_time_with_multiple_episodes"
+
+
+def test_cover_time_sec_is_fine_for_a_single_episode(harness):
+    produce.main(["--source", "s.mp4", "--slug", "munger",
+                  "--cover-time-sec", "287"])
+
+
 def test_cli_episodes_defaults_to_one():
     args = produce.parse_args(["--source", "v.mp4", "--slug", "s"])
     assert args.episodes == produce.DEFAULT_EPISODES == 1
