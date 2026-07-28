@@ -40,6 +40,19 @@ class ConfigError(Exception):
     """投稿前就能发现的问题：缺 cookie、缺文件、集号不存在。"""
 
 
+class ConfigErrorArgumentParser(argparse.ArgumentParser):
+    """把 argparse 的用法错误归到 EXIT_CONFIG，不沿用它默认的退 2。
+
+    退 2 在本仓库的退出码表里是「内容质量不达标，拒绝硬出」，敲错 flag 退 2 会
+    被照着那条结论误读。``-h`` 走 argparse 自己的 ``exit()``，仍退 0。
+    """
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        print(f"{self.prog}: error: {message}", file=sys.stderr, flush=True)
+        sys.exit(EXIT_CONFIG)
+
+
 def find_episode(queue: dict, episode_id: str) -> dict:
     for ep in queue.get("episodes", []):
         if ep.get("id") == episode_id:
@@ -92,7 +105,7 @@ def build_upload_args(episode: dict, video: Path, cover: Path,
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(
+    p = ConfigErrorArgumentParser(
         prog="publish_bilibili.py",
         description="从 queue.json 取一集投到 B 站（预留接口，默认关闭）")
     p.add_argument("--queue", required=True, help="queue.json 路径")
