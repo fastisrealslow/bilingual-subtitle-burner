@@ -139,10 +139,44 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 安装 yt-dlp
+      # yt-dlp 自 2025.11.12 起，解 YouTube 的 n 签名挑战需要一个外部 JavaScript
+      # 运行时（官方叫 EJS），少了它只能看到极少数格式，-f 表达式匹配不上就退成
+      # 「Requested format is not available」—— CI run 30347884807 就是这么挂的，
+      # cookies 完全正常，日志里先出现的是 "n challenge solving failed"。
+      #
+      # 缺的是两件东西，两个 extra 各管一件（`pip install yt-dlp` 裸装两件都没有）：
+      #   [default] → yt-dlp-ejs，挑战求解脚本包
+      #   [deno]    → deno 运行时本体，装进 venv 的 bin/，yt-dlp 自动从 PATH 认出来
+      # 用 pip 的 [deno] 而不是 denoland/setup-deno：少一个 action、版本由 yt-dlp
+      # 自己的下限约束（deno>=2.6.6），且和上面 setup-python 的 pip 缓存共用一套。
+      # runner 预装的 Node 是 20.x，低于 EJS 要求的 22.0.0，指望不上。
+      # 不需要任何 --extractor-args：deno 是默认启用的运行时，装上即生效。
+      - name: 安装 yt-dlp 与 EJS 依赖
         run: |
-          pip install --upgrade yt-dlp
+          pip install --upgrade "yt-dlp[default,deno]"
           yt-dlp --version
+
+      # 自检放在取源之前，缺件当场退非零。否则要等跑到 1/9 input 才炸，
+      # 那时候已经付过一遍 runner 时间了。
+      # `yt-dlp -v --simulate` 不带 URL 就会打完 debug 头再报「缺参数」，
+      # 拿诊断信息不用碰网络、也不碰 YouTube。
+      - name: 自检 EJS 运行时
+        run: |
+          set -euo pipefail
+          deno --version || {
+            echo "自检失败：deno 不在 PATH 上，pip 的 [deno] extra 没装成" >&2
+            exit 1
+          }
+          out="$(yt-dlp -v --simulate 2>&1 || true)"
+          echo "$out" | grep -E '^\[debug\] (JS runtimes|Optional libraries)' || true
+          echo "$out" | grep -qE '^\[debug\] JS runtimes: .*deno-[0-9]' || {
+            echo "自检失败：yt-dlp 没认出可用的 deno 运行时，n 挑战会解不开" >&2
+            exit 1
+          }
+          echo "$out" | grep -q 'yt_dlp_ejs-' || {
+            echo "自检失败：yt-dlp-ejs 求解脚本包没装上" >&2
+            exit 1
+          }
 
       # YouTube 在数据中心 IP 上一律回「Sign in to confirm you're not a bot」，
       # runner 也是数据中心 IP，所以取源必须带登录态。凭据存在 YOUTUBE_COOKIES_B64

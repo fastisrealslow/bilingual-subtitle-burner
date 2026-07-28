@@ -11,6 +11,12 @@
 #   yt-dlp  —— 视频采集（可 pip 安装，见下）
 
 faster-whisper>=1.1.0
+# 取 YouTube 源时裸装这一行不够：yt-dlp 自 2025.11.12 起要靠 EJS（外部 JS 运行时
+# + 求解脚本）解 n 签名挑战，缺了只能看到极少数格式，取源退成「Requested format
+# is not available」。补装：
+#   pip install --upgrade "yt-dlp[default,deno]"
+# [default] 带 yt-dlp-ejs 求解脚本，[deno] 带运行时本体（约 100MB，只跑测试的话
+# 用不着）。produce.yml 的「安装 yt-dlp 与 EJS 依赖」那步装的就是这个。
 yt-dlp>=2024.0.0
 Pillow>=10.0.0
 requests>=2.31.0

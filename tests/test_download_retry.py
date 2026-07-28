@@ -35,6 +35,12 @@ def no_sleep(monkeypatch):
     return slept
 
 
+@pytest.fixture(autouse=True)
+def height_ok(monkeypatch):
+    """默认让 360p 保底闸门放行；专门测保底的用例自己再覆盖一遍。"""
+    monkeypatch.setattr(produce, "probe_height", lambda p: 480)
+
+
 def runner(monkeypatch, results):
     """按顺序吐 subprocess 结果，返回真实执行到的命令列表。"""
     cmds = []
@@ -45,6 +51,11 @@ def runner(monkeypatch, results):
 
     monkeypatch.setattr(produce.subprocess, "run", fake_run)
     return cmds
+
+
+def downloads(cmds):
+    """只数下载尝试：失败时补跑的 --list-formats 诊断不算一次重试。"""
+    return [c for c in cmds if "--list-formats" not in c]
 
 
 # ── 值得重试 ─────────────────────────────────────────────────────────────────
@@ -67,7 +78,7 @@ def test_http_500_gives_up_with_exit_three(tmp_path, monkeypatch, no_sleep,
                                 3, 5.0)
 
     assert e.value.code == produce.EXIT_API
-    assert len(cmds) == 3
+    assert len(downloads(cmds)) == 3
     payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
     assert payload["reason"] == "download_failed"
     assert payload["attempts"] == 3
@@ -131,7 +142,7 @@ def test_retry_count_is_configurable(tmp_path, monkeypatch, no_sleep):
     cmds = runner(monkeypatch, [Result(1, FIVE_HUNDRED)])
     with pytest.raises(SystemExit):
         produce.download_source("https://x/y", tmp_path / "s.mp4", 5, 0.1)
-    assert len(cmds) == 5
+    assert len(downloads(cmds)) == 5
 
 
 def test_ytdlp_gets_its_own_retry_flags(tmp_path, monkeypatch, no_sleep):
