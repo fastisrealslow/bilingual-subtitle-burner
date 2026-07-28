@@ -81,7 +81,8 @@
       duration: formatDuration(ep.duration_sec),
       status: text(ep.status) || "pending",
       video: text(urls.video),
-      cover: text(urls.cover_16x9)
+      cover16: text(urls.cover_16x9),
+      cover9: text(urls.cover_9x16)
     };
   }
 
@@ -173,8 +174,8 @@
 
     var img = node.querySelector("img");
     var fallback = node.querySelector(".thumb-fallback");
-    if (ep.cover) {
-      img.src = ep.cover;
+    if (ep.cover16) {
+      img.src = ep.cover16;
       img.alt = ep.title + " 封面";
       fallback.hidden = true;
       img.addEventListener("error", function () {
@@ -208,6 +209,23 @@
       dl.setAttribute("aria-disabled", "true");
       dl.textContent = "暂无视频直链";
     }
+
+    var covers = {
+      "16x9": { url: ep.cover16, label: "横版" },
+      "9x16": { url: ep.cover9, label: "竖版" }
+    };
+
+    Array.prototype.forEach.call(node.querySelectorAll("[data-cover]"), function (btn) {
+      var item = covers[btn.getAttribute("data-cover")];
+      if (item.url) {
+        btn.href = item.url;
+      } else {
+        btn.removeAttribute("href");
+        btn.classList.add("is-disabled");
+        btn.setAttribute("aria-disabled", "true");
+        btn.textContent = item.label + " · 暂无";
+      }
+    });
 
     var payload = {
       title: { value: ep.title, label: "标题" },
