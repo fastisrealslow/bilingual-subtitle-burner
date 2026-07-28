@@ -164,6 +164,18 @@ body {
   pointer-events: none;
 }
 
+.row-label {
+  margin: 12px 0 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.cover-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .copy-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -182,11 +194,14 @@ body {
 
 .btn-ghost:active { background: #eceef1; }
 
-.btn-ghost:disabled {
+.btn-ghost:disabled,
+.btn-ghost.is-disabled {
   color: #62686f;
   background: #f2f3f5;
   cursor: default;
 }
+
+.btn-ghost.is-disabled { pointer-events: none; }
 
 .btn-ghost.copied {
   border-color: var(--accent);
