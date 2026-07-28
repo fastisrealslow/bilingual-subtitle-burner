@@ -148,6 +148,10 @@ jobs:
       # runner 也是数据中心 IP，所以取源必须带登录态。凭据存在 YOUTUBE_COOKIES_B64
       # 这个 secret 里（老的 pipeline.yml 用的就是它）。
       #
+      # 两个 secret 都接：YOUTUBE_COOKIES_B64 优先，其次 YOUTUBE_COOKIES。后者装的是
+      # cookies.txt 全文原样 —— 手上没有命令行时，全选复制、粘进 GitHub 网页的
+      # secret 输入框即可，不用先在本地跑 base64。两个都空着就照旧不带 cookies 取源。
+      #
       # 落到 $RUNNER_TEMP 而不是仓库里的 secrets/：工作区里的文件会被 git add
       # 连带提交，失败时还会被「上传中间产物」那步打包带出去。
       #
