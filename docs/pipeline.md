@@ -114,9 +114,18 @@ archive.org 的 `HTTP Error 500` 是间歇性的（CI run 30263087066 就这么�
 **命令行参数错误一律退 1，不退 2。** argparse 默认把用法错误退 2，会和「内容质量
 不达标」撞号 —— 敲错一个 flag，照上表读出来的结论是「换片源」。带退出码约定的入口
 （`produce.py`、`scripts/highlight.py`、`scripts/publish_bilibili.py`、
-`steps/step7_cover.py`）都用 `ConfigErrorArgumentParser` 覆盖了 argparse 的
-`error()` 改走退 1，同时保留 argparse 原本「哪个参数错了」的文案。`-h/--help`
-仍退 0。
+`steps/step7_cover.py`、`scripts/prune_releases.py`）都用
+`ConfigErrorArgumentParser` 覆盖了 argparse 的 `error()` 改走退 1，同时保留
+argparse 原本「哪个参数错了」的文案。`-h/--help` 仍退 0。
+
+这个类有两种写法：出片链路那三个（`produce.py`、`highlight.py`、
+`step7_cover.py`）要把失败写成各自既有的结构化 JSON，各留一份；只打纯文本的
+`publish_bilibili.py` 和 `prune_releases.py` 共用 `scripts/cli_exit.py`。
+
+`scripts/prune_releases.py` 不在上面那张表里，它有自己的一套：**0** 成功（含
+dry-run 和「没有需要清理的 Release」）、**1** 参数或输入有误、索引和仓库对不上、
+Release 没删掉、**2** Release 都删了但有 tag ref 没清干净（需要人工收尾）。它的
+2 撞的是「去收拾残留的空 ref」这条结论，同样不该被敲错的 flag 触发。
 
 ## 拒绝原因（退出码 2）
 

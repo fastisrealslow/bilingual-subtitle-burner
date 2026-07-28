@@ -25,15 +25,19 @@ Release 还在仓库里占空间。这个脚本负责收尾：把 ``clips-`` 开
 
 退出码：0 成功 / 1 输入有误、状态异常或 Release 没删掉 /
 2 Release 都删了但有 tag 没清干净（需要人工收尾）
+
+命令行参数错误算「输入有误」，退 1。argparse 默认把用法错误退 2，会和上面的
+「有 tag 需要人工收尾」撞号 —— 敲错一个 flag，照退出码表读出来的结论是「去仓库
+里收拾残留的空 ref」，而其实一个删除请求都没发出去。
 """
 
-import argparse
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
+from cli_exit import EXIT_CONFIG, ConfigErrorArgumentParser
 from update_site_index import (RELEASE_TAG_PREFIX, batch_of, load_index,
                                release_tag)
 
@@ -147,9 +151,11 @@ def human_size(size: int) -> str:
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(
+    p = ConfigErrorArgumentParser(
         prog="prune_releases.py",
-        description="删掉已经不在 site/data/index.json 里的批次 Release")
+        description="删掉已经不在 site/data/index.json 里的批次 Release",
+        epilog="退出码：0 成功 / 1 参数或输入有误、Release 没删掉 / "
+               "2 Release 已删但有 tag 需要人工收尾")
     p.add_argument("--index", required=True, help="site/data/index.json 路径")
     p.add_argument("--repo", default=None,
                    help="owner/name，默认用 gh 当前仓库")
@@ -160,7 +166,7 @@ def main(argv=None) -> int:
     index_path = Path(args.index)
     if not index_path.is_file():
         print(f"[prune] 找不到 {index_path}", file=sys.stderr)
-        return 1
+        return EXIT_CONFIG
 
     try:
         index = load_index(index_path)
@@ -169,7 +175,7 @@ def main(argv=None) -> int:
             r.update(release_detail(r["tag"], args.repo))
     except (ValueError, GhError, json.JSONDecodeError) as e:
         print(f"[prune] {e}", file=sys.stderr)
-        return 1
+        return EXIT_CONFIG
 
     if not orphans:
         print("[prune] 没有需要清理的 Release")

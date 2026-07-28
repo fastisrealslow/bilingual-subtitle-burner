@@ -15,7 +15,6 @@ cookie 缺失时**明确报错**而不是静默跳过：真到了开自动投稿
 退出码：0 成功 / 1 配置错误（缺 cookie、缺产物、集号不存在）/ 3 biliup 失败
 """
 
-import argparse
 import json
 import os
 import shutil
@@ -23,8 +22,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from cli_exit import EXIT_CONFIG, ConfigErrorArgumentParser
+
 EXIT_OK = 0
-EXIT_CONFIG = 1
 EXIT_API = 3
 
 # 财经商业。B 站分区 id，投稿时可在网页端改，这里给个不会被打回的默认值。
@@ -38,19 +38,6 @@ COOKIE_ENV = "BILIBILI_COOKIES"
 
 class ConfigError(Exception):
     """投稿前就能发现的问题：缺 cookie、缺文件、集号不存在。"""
-
-
-class ConfigErrorArgumentParser(argparse.ArgumentParser):
-    """把 argparse 的用法错误归到 EXIT_CONFIG，不沿用它默认的退 2。
-
-    退 2 在本仓库的退出码表里是「内容质量不达标，拒绝硬出」，敲错 flag 退 2 会
-    被照着那条结论误读。``-h`` 走 argparse 自己的 ``exit()``，仍退 0。
-    """
-
-    def error(self, message):
-        self.print_usage(sys.stderr)
-        print(f"{self.prog}: error: {message}", file=sys.stderr, flush=True)
-        sys.exit(EXIT_CONFIG)
 
 
 def find_episode(queue: dict, episode_id: str) -> dict:
