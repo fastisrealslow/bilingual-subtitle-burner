@@ -9,6 +9,10 @@ bot」，GitHub runner 也是数据中心 IP，所以取源必须带登录态。
 （``YOUTUBE_COOKIES_B64`` 优先，其次明文 ``YOUTUBE_COOKIES``），不走命令行 ——
 命令行参数会进 ``ps`` 和日志。
 
+明文那个槽位是给「手上没有命令行」的人留的：``cookies.txt`` 全选复制，直接粘进
+GitHub 网页的 secret 输入框即可，不用先在本地跑 ``base64``。代价是粘贴会带进一些
+伤（BOM、CRLF、首尾空行），这些在落盘前统一抹掉 —— 见 ``normalize_cookie_text``。
+
 三条硬规则：
 
 1. **不静默降级**：secret 配了但 base64 解不开、或解出来不是合法 Netscape 格式，
@@ -52,9 +56,13 @@ NETSCAPE_FIELDS = 7
 HTTPONLY_PREFIX = "#HttpOnly_"
 EXPIRES_RE = re.compile(r"^\d*(?:\.\d+)?$")
 
+# UTF-8 BOM。记事本另存、部分浏览器扩展导出都会在开头带上它，带着它第一行就配不上
+# NETSCAPE_HEADER_RE，报错会变成「第一行不是文件头」，看不出真实原因是一个隐形字符。
+BOM = "\ufeff"
+
 HOWTO = ("浏览器装 “Get cookies.txt LOCALLY” 扩展 → 登录 YouTube → 导出 "
-         "youtube.com 的 Netscape 格式 cookies → `base64 -w0 cookies.txt` "
-         f"的结果存进 {B64_ENV}（或把全文原样存进 {PLAIN_ENV}）。")
+         f"youtube.com 的 Netscape 格式 cookies → 全文原样粘进 {PLAIN_ENV}"
+         f"（不需要命令行），或 `base64 -w0 cookies.txt` 的结果存进 {B64_ENV}。")
 
 
 class CookiesError(Exception):
@@ -89,6 +97,27 @@ def decode_secret(raw: str) -> str:
         raise CookiesError(
             f"{B64_ENV} 解出来的不是 UTF-8 文本（{e.reason}），"
             "多半是把二进制文件或别的 secret 编进去了") from e
+
+
+def normalize_cookie_text(text: str) -> str:
+    """抹掉复制粘贴带进来的伤，只抹不可能掩盖「真的不合法」的那几种。
+
+    只做三件事：去 BOM、换行统一成 LF、去掉首尾的空行。这三种伤都是**整行之外**
+    的东西，抹掉它们不会让一个非法的 jar 变合法 —— 字段个数、分隔符、时间戳该错
+    的照样错。
+
+    反过来，畸形的 cookie 行一概不修：补字段、把空格猜成制表符之类的「修复」会
+    把一份内容存疑的凭据放行，而它到了 yt-dlp 那里才炸，报错里带的是会话令牌。
+    """
+    if text.startswith(BOM):
+        text = text[len(BOM):]
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    lines = text.split("\n")
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return "\n".join(lines)
 
 
 def validate_netscape(text: str) -> tuple[int, int]:
@@ -169,14 +198,61 @@ def append_github_env(github_env: Path, out: Path) -> None:
         f.write(f"{COOKIES_ENV}={out}\n")
 
 
+def is_valid_netscape(text: str) -> bool:
+    """``validate_netscape`` 的判断式版本，用在需要「先试试」的地方。"""
+    try:
+        validate_netscape(text)
+    except CookiesError:
+        return False
+    return True
+
+
+def rescue_base64_in_plain_slot(text: str) -> str | None:
+    """明文槽位里塞了 base64 时救一把；不像 base64 或救不出来返回 ``None``。
+
+    仲裁标准故意定得很硬：**解出来必须本身就是一份合法的 Netscape jar**，才认定
+    「他是把 base64 粘错槽位了」。所以这个分支不可能误伤合法明文 —— 合法明文在
+    调用点已经先校验通过、根本走不到这里；退一步说，合法 jar 必然以 ``#`` 打头的
+    文件头起步，而 ``#`` 不在 base64 字母表里，``validate=True`` 那一步就先拒了。
+
+    救出来照样要在日志里点明用错了 secret：这次能跑通，下次换个人来看就说不清这
+    两个 secret 各该存什么了。
+    """
+    try:
+        blob = base64.b64decode("".join(text.split()), validate=True)
+        decoded = normalize_cookie_text(blob.decode("utf-8"))
+    except (binascii.Error, ValueError, UnicodeDecodeError):
+        return None
+    return decoded if is_valid_netscape(decoded) else None
+
+
+def load_plain_secret(raw: str) -> str:
+    """明文槽位：归一化后原样用；只有在它不合法、且确实是 base64 时才解码。
+
+    救不出来时返回归一化后的原文，让调用点的 ``validate_netscape`` 去报那条带行号
+    的准确错误 —— 这里自己造一句「不是 Netscape 格式」的话，行号就丢了。
+    """
+    text = normalize_cookie_text(raw)
+    if is_valid_netscape(text):
+        return text
+    rescued = rescue_base64_in_plain_slot(text)
+    if rescued is None:
+        return text
+    print(f"[cookies] ⚠️ {PLAIN_ENV} 里装的是 base64，不是 Netscape 全文 —— "
+          f"已按 base64 解开继续，但 secret 用错了：base64 该存进 {B64_ENV}，"
+          f"{PLAIN_ENV} 存的是 cookies.txt 全文原样。",
+          file=sys.stderr, flush=True)
+    return rescued
+
+
 def load_secret() -> tuple[str, str] | None:
     """读 secret，返回 ``(文本, 来源变量名)``；两个都没配返回 ``None``。"""
     raw_b64 = os.environ.get(B64_ENV) or ""
     if raw_b64.strip():
-        return decode_secret(raw_b64), B64_ENV
+        return normalize_cookie_text(decode_secret(raw_b64)), B64_ENV
     raw_plain = os.environ.get(PLAIN_ENV) or ""
     if raw_plain.strip():
-        return raw_plain, PLAIN_ENV
+        return load_plain_secret(raw_plain), PLAIN_ENV
     return None
 
 

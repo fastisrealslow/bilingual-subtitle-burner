@@ -5,7 +5,7 @@ bot」，GitHub runner 也是数据中心 IP。凭据早就存在 ``YOUTUBE_COOK
 secret 里，但只有老的 ``pipeline.yml`` 接了，当前在用的 ``produce.yml`` 没接 ——
 凭据有，链路没通。
 
-这里锁四件事：
+这里锁五件事：
 
 1. **不静默降级**：解码失败、格式非法、``COOKIES_FILE`` 指向的文件不存在，一律
    退 1，绝不退化成不带 cookies 去下载。
@@ -15,6 +15,9 @@ secret 里，但只有老的 ``pipeline.yml`` 接了，当前在用的 ``produce
    后的内容不在遮蔽范围内。所以校验报错、yt-dlp 输出回显都不许带出 cookie 值。
 4. **不落进工作区**：工作区里的文件会被 ``git add`` 连带提交，也会被
    ``upload-artifact`` 打包带出去（失败时整个 ``_tmp/`` 都上传）。
+5. **明文槽位容忍粘贴伤但不掩盖非法**：``YOUTUBE_COOKIES`` 是给「手上没有命令行」
+   的人留的，全文粘进网页输入框即可。BOM、CRLF、首尾空行要抹掉，畸形 cookie 行
+   一概不修 —— 「修」出来的凭据到 yt-dlp 那里才炸，报错里带的是会话令牌。
 
 一律打桩，不真的下载 YouTube 视频。
 """
@@ -175,7 +178,113 @@ def test_rejection_message_points_at_the_offending_line_number():
     assert "第 3 行" in str(e.value)
 
 
-# ── 3. 落盘：权限、位置 ─────────────────────────────────────────────────────
+# ── 3. 明文槽位：容忍粘贴伤，但不掩盖非法 ──────────────────────────────────
+
+BOM = "\ufeff"
+# 网页输入框里粘贴会带进来的几种伤，每一种单独一条 case
+PASTE_DAMAGE = {
+    "BOM-开头": BOM + GOOD,
+    "CRLF-换行": GOOD.replace("\n", "\r\n"),
+    "孤立-CR-换行": GOOD.replace("\n", "\r"),
+    "首尾空行": "\n\n" + GOOD + "\n\n",
+    "首尾空白行": "  \n\t\n" + GOOD + "\n   \n",
+    "全都赶上了": BOM + "\r\n" + GOOD.replace("\n", "\r\n") + "  \r\n",
+}
+
+
+def test_clean_text_is_left_alone():
+    """没伤的全文不许被动手脚，只有末尾那个换行由落盘环节补。"""
+    assert YC.normalize_cookie_text(GOOD) + "\n" == GOOD
+
+
+@pytest.mark.parametrize("name", sorted(PASTE_DAMAGE))
+def test_paste_damage_is_normalized_away(name):
+    assert YC.normalize_cookie_text(PASTE_DAMAGE[name]) + "\n" == GOOD
+
+
+@pytest.mark.parametrize("name", sorted(PASTE_DAMAGE))
+def test_damaged_paste_still_validates(name):
+    """归一化之后必须还能过校验 —— 否则「容忍」只是嘴上说说。"""
+    text = YC.normalize_cookie_text(PASTE_DAMAGE[name])
+    assert YC.validate_netscape(text) == (2, 2)
+
+
+def test_bom_would_break_it_without_normalizing():
+    """反向证明这一步不是摆设：BOM 是隐形字符，不抹掉时校验直接不认文件头。"""
+    with pytest.raises(YC.CookiesError):
+        YC.validate_netscape(BOM + GOOD)
+
+
+def test_normalized_file_is_loadable_by_a_real_cookie_jar(tmp_path):
+    """终局判据：受伤的粘贴过一遍归一化，标准库的 MozillaCookieJar 认得。
+
+    只看自家校验器会漏掉「校验器和真实消费方口径不一致」这种错。
+    """
+    from http.cookiejar import MozillaCookieJar
+    out = tmp_path / "c.txt"
+    YC.write_cookies_file(out, YC.normalize_cookie_text(PASTE_DAMAGE["全都赶上了"]))
+    jar = MozillaCookieJar(str(out))
+    jar.load()
+    # 标准库把 `#HttpOnly_` 当注释跳过（yt-dlp / curl 认它是数据行），所以只剩一条
+    assert [c.name for c in jar] == ["SAPISID"]
+
+
+@pytest.mark.parametrize("name", sorted(BROKEN))
+def test_normalizing_never_repairs_a_malformed_jar(name):
+    """畸形行一概不修：空格分隔、字段个数不对，归一化之后照样该拒。"""
+    with pytest.raises(YC.CookiesError):
+        YC.validate_netscape(YC.normalize_cookie_text(BROKEN[name]))
+
+
+def test_normalizing_does_not_touch_tabs_inside_lines():
+    """把行内制表符也一起「规范」掉的话，合法 jar 会被自己弄坏。"""
+    assert "\t" in YC.normalize_cookie_text(GOOD.replace("\n", "\r\n"))
+
+
+def test_plain_slot_takes_the_text_verbatim():
+    assert YC.load_plain_secret(GOOD) + "\n" == GOOD
+
+
+def test_base64_in_the_plain_slot_is_rescued(capsys):
+    """他把 base64 粘错了槽位：解开继续，但要在日志里点名说清用错了。
+
+    直接报「不是 Netscape 格式」的话，他会去检查 cookies.txt 本身 —— 而那份文件
+    没问题，问题只是粘进了另一个 secret。
+    """
+    assert YC.load_plain_secret(b64(GOOD)) + "\n" == GOOD
+    warned = capsys.readouterr().err
+    assert YC.PLAIN_ENV in warned and YC.B64_ENV in warned
+    assert SECRET_VALUE not in warned
+
+
+def test_rescue_cannot_misfire_on_genuine_netscape_text():
+    """合法明文永远走不进 base64 分支 —— 文件头那个 `#` 就不在 base64 字母表里。"""
+    assert YC.rescue_base64_in_plain_slot(GOOD) is None
+    for name, body in BROKEN.items():
+        if body.lstrip().startswith("#"):
+            assert YC.rescue_base64_in_plain_slot(body) is None, name
+
+
+@pytest.mark.parametrize("blob,why", [
+    (b64("随便一段不是 cookies 的文本\n"), "解得开但不是 Netscape"),
+    (base64.b64encode(b"\xff\xfe\x00binary").decode(), "解出来不是 UTF-8"),
+    ("QUJDRA", "长度不是 4 的倍数"),
+    ("YWJj=", "填充位置不对"),
+])
+def test_rescue_only_accepts_a_real_jar(blob, why):
+    """仲裁标准是「解出来本身就是合法 jar」，达不到就当没这回事。"""
+    assert YC.rescue_base64_in_plain_slot(blob) is None, why
+
+
+def test_unrescuable_plain_text_keeps_the_precise_error(capsys):
+    """救不出来时报的还是那条带行号的错，不许被一句「不是 base64」盖掉。"""
+    with pytest.raises(YC.CookiesError) as e:
+        YC.validate_netscape(YC.load_plain_secret(BROKEN["空格分隔"]))
+    assert "第 2 行" in str(e.value)
+    assert SECRET_VALUE not in str(e.value) + capsys.readouterr().err
+
+
+# ── 4. 落盘：权限、位置 ─────────────────────────────────────────────────────
 
 def test_written_file_is_owner_only(tmp_path):
     out = tmp_path / "sub" / "c.txt"
@@ -232,7 +341,7 @@ def test_runner_temp_layout_is_accepted(tmp_path, monkeypatch):
     YC.guard_outside_workspace(root / "_temp" / "youtube_cookies.txt")
 
 
-# ── 4. 脚本入口 ────────────────────────────────────────────────────────────
+# ── 5. 脚本入口 ────────────────────────────────────────────────────────────
 
 def run_script(tmp_path, monkeypatch, out=None, github_env=True, **env):
     for k, v in env.items():
@@ -267,17 +376,106 @@ def test_b64_secret_is_written_and_exported(tmp_path, monkeypatch, capsys):
     assert SECRET_VALUE not in capsys.readouterr().out
 
 
-def test_plaintext_secret_is_the_fallback(tmp_path, monkeypatch):
-    """老的 pipeline.yml 支持明文和 base64 两种存法，这里沿用。"""
-    rc, out, _ = run_script(tmp_path, monkeypatch, **{YC.PLAIN_ENV: GOOD})
-    assert rc == 0 and out.read_text() == GOOD
+def test_plaintext_secret_is_the_fallback(tmp_path, monkeypatch, capsys):
+    """明文槽位走完整条链路：落盘、导出 COOKIES_FILE、600、日志点名来源。"""
+    rc, out, genv = run_script(tmp_path, monkeypatch, **{YC.PLAIN_ENV: GOOD})
+    assert rc == 0
+    assert out.read_text() == GOOD
+    assert stat.S_IMODE(out.stat().st_mode) == 0o600
+    assert genv.read_text().strip() == f"{YC.COOKIES_ENV}={out}"
+    said = capsys.readouterr().out
+    assert YC.PLAIN_ENV in said              # 得看得出这次用的是哪个 secret
+    assert SECRET_VALUE not in said
 
 
-def test_b64_wins_over_plaintext(tmp_path, monkeypatch):
+def test_the_log_names_which_secret_was_used(tmp_path, monkeypatch, capsys):
+    """两个槽位打出来的来源必须不同，否则日志里看不出他改的是哪个 secret 生效了。"""
+    sources = {}
+    for name, value in ((YC.B64_ENV, b64(GOOD)), (YC.PLAIN_ENV, GOOD)):
+        monkeypatch.delenv(YC.B64_ENV, raising=False)
+        monkeypatch.delenv(YC.PLAIN_ENV, raising=False)
+        home = tmp_path / name
+        home.mkdir()
+        run_script(home, monkeypatch, **{name: value})
+        sources[name] = capsys.readouterr().out
+    assert YC.B64_ENV in sources[YC.B64_ENV]
+    assert sources[YC.PLAIN_ENV].count(YC.B64_ENV) == 0
+
+
+def test_b64_wins_over_plaintext(tmp_path, monkeypatch, capsys):
     other = GOOD.replace("SAPISID", "APISID")
     rc, out, _ = run_script(tmp_path, monkeypatch,
                             **{YC.B64_ENV: b64(other), YC.PLAIN_ENV: GOOD})
     assert rc == 0 and out.read_text() == other
+    assert YC.B64_ENV in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("empty,why", [
+    ("", "secret 没配时 GitHub 把 env 展开成空串"),
+    ("   \n", "只有空白也算没配"),
+])
+def test_empty_b64_falls_through_to_plaintext(tmp_path, monkeypatch, capsys,
+                                              empty, why):
+    """B64 槽位空着不算「配了」—— 否则他只填明文那个就会撞上一句 base64 解码失败。
+
+    GitHub 对不存在的 secret 是展开成空串，所以这条是默认路径而不是边角情况。
+    """
+    rc, out, _ = run_script(tmp_path, monkeypatch,
+                            **{YC.B64_ENV: empty, YC.PLAIN_ENV: GOOD})
+    assert rc == 0, why
+    assert out.read_text() == GOOD
+    assert YC.PLAIN_ENV in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("name", sorted(PASTE_DAMAGE))
+def test_damaged_paste_goes_through_the_script(tmp_path, monkeypatch, capsys,
+                                               name):
+    """粘贴伤要在落盘前抹掉：写出去的文件得是干净的 LF、不带 BOM。"""
+    rc, out, genv = run_script(tmp_path, monkeypatch,
+                               **{YC.PLAIN_ENV: PASTE_DAMAGE[name]})
+    assert rc == 0
+    assert out.read_text(encoding="utf-8") == GOOD
+    assert "\r" not in out.read_text(encoding="utf-8")
+    assert genv.read_text().strip() == f"{YC.COOKIES_ENV}={out}"
+    assert SECRET_VALUE not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("name",
+                         sorted(n for n in BROKEN if BROKEN[n].strip()))
+def test_malformed_plaintext_exits_config_and_writes_nothing(
+        tmp_path, monkeypatch, capsys, name):
+    """畸形明文照样退 1：容忍粘贴伤不等于容忍畸形 jar。
+
+    「空内容」不在这里 —— 空 secret 是「没配」，走的是退 0 那条路。
+    """
+    rc, out, genv = run_script(tmp_path, monkeypatch,
+                               **{YC.PLAIN_ENV: BROKEN[name]})
+    assert rc == YC.EXIT_CONFIG
+    assert rc != 0
+    assert not out.exists()
+    assert genv.read_text() == ""
+    captured = capsys.readouterr()
+    assert SECRET_VALUE not in captured.err + captured.out
+
+
+def test_base64_pasted_into_the_plain_slot_still_works(tmp_path, monkeypatch,
+                                                       capsys):
+    """粘错槽位不该报「不是 Netscape 格式」—— 那会让他去查一份没问题的文件。"""
+    rc, out, genv = run_script(tmp_path, monkeypatch,
+                               **{YC.PLAIN_ENV: b64(GOOD)})
+    assert rc == 0
+    assert out.read_text() == GOOD
+    assert genv.read_text().strip() == f"{YC.COOKIES_ENV}={out}"
+    captured = capsys.readouterr()
+    warned = captured.err
+    assert YC.B64_ENV in warned and YC.PLAIN_ENV in warned
+    assert SECRET_VALUE not in captured.err + captured.out
+
+
+def test_plain_slot_holding_real_text_never_warns(tmp_path, monkeypatch, capsys):
+    """反向断言：正常粘全文时不许冒出「你用错 secret 了」这句话。"""
+    run_script(tmp_path, monkeypatch, **{YC.PLAIN_ENV: GOOD})
+    assert capsys.readouterr().err == ""
 
 
 @pytest.mark.parametrize("secret,why", [
@@ -322,7 +520,7 @@ def test_usage_error_exits_config_not_quality(capsys):
     assert "--nonsense" in capsys.readouterr().err
 
 
-# ── 5. produce.py 取源：读 COOKIES_FILE ────────────────────────────────────
+# ── 6. produce.py 取源：读 COOKIES_FILE ────────────────────────────────────
 
 def test_no_cookies_env_is_explicit_in_the_log(monkeypatch, capsys):
     assert produce.cookies_file_from_env() is None
@@ -378,7 +576,7 @@ def test_invalid_cookies_never_degrades_to_downloading_without_them(
     assert e.value.code == produce.EXIT_CONFIG
 
 
-# ── 6. yt-dlp 命令行 ───────────────────────────────────────────────────────
+# ── 7. yt-dlp 命令行 ───────────────────────────────────────────────────────
 
 class Result:
     def __init__(self, returncode, stderr=""):
@@ -445,7 +643,7 @@ def test_resolve_source_forwards_env_cookies(tmp_path, monkeypatch):
     assert seen["cookies"] == f
 
 
-# ── 7. 登录墙：两种情况两个 reason ─────────────────────────────────────────
+# ── 8. 登录墙：两种情况两个 reason ─────────────────────────────────────────
 
 def test_bot_wall_with_cookies_reads_as_expired_credentials(
         tmp_path, monkeypatch, no_sleep, capsys):
@@ -541,7 +739,7 @@ def test_transient_failures_still_retry_with_cookies(tmp_path, monkeypatch,
     assert "--cookies" in cmds[1]
 
 
-# ── 8. yt-dlp 输出回显不许带出 cookie ─────────────────────────────────────
+# ── 9. yt-dlp 输出回显不许带出 cookie ─────────────────────────────────────
 
 # yt-dlp 解析 cookies 失败时打的是 repr：制表符成了字面的 \t
 YTDLP_COOKIE_LEAK = (
@@ -587,7 +785,7 @@ def test_scrubber_leaves_ordinary_text_alone():
     assert produce.scrub_cookie_material(plain) == plain
 
 
-# ── 9. workflow 接线（静态核对，不跑 act）─────────────────────────────────
+# ── 10. workflow 接线（静态核对，不跑 act）─────────────────────────────────
 
 @pytest.fixture(scope="module")
 def produce_yml() -> str:
