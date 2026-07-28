@@ -130,6 +130,35 @@ DOWNLOAD_LOGIN_RE = re.compile(
 COOKIE_RECORD_RE = re.compile(r"(?m)^.*?(?:(?:\t|\\t).*?){5,}$")
 COOKIE_REDACTED = "<已擦除疑似 cookie 记录的一行>"
 
+# format 降级链。之前是一条硬表达式 `bv*[height<=720]+ba/b[height<=720]/b`：
+# 匹配不上就直接退 3（CI run 30347884807），而末尾那个裸 `b` 又意味着真降级了也
+# 没有任何日志。拆成显式的阶梯，每一级各跑一次 yt-dlp，降级时打日志说明上一级
+# 为什么没中。
+#
+# 只在「格式不可用」这一种失败上往下走一级：500、超时那类是网络问题，同一级重试
+# 就好，换表达式没用还要多花四倍时间。
+FORMAT_LADDER = (
+    ("bv*[height<=720]+ba/b[height<=720]",
+     "≤720p：分离流优先，退而取 ≤720p 单文件（首选，与改动前一致）"),
+    ("bv*[height<=1080]+ba/b[height<=1080]",
+     "放宽上限到 ≤1080p"),
+    ("bv*+ba",
+     "不限高：任意最佳视频流 + 最佳音频流"),
+    ("b",
+     "任意单文件流（最后一级）"),
+)
+FORMAT_UNAVAILABLE_RE = re.compile(
+    r"Requested format is not available"
+    r"|No video formats found"
+    r"|requested format is not available",
+    re.IGNORECASE)
+# 保底：拿到的片子低于这个高度就当取源失败，不许悄悄拿 144p 往下走出片。
+# 已交付的芒格两集是 854x480，480p 够用，360p 是底线。
+MIN_SOURCE_HEIGHT = 360
+# 失败诊断里 `yt-dlp --list-formats` 输出的截断长度。整表能有几十行，
+# 留够看清有哪些高度就行。
+LIST_FORMATS_DIAG_CHARS = 4000
+
 # 流水线阶段顺序。封面选帧夹在 highlight 和 translate 之间是这次改动的重点，
 # 所以整张表在开跑时就打进日志，跑到哪一步一眼可见。
 STAGE_ORDER = [
@@ -195,6 +224,26 @@ def probe_duration(path: Path) -> float:
         return float(r.stdout.strip())
     except ValueError:
         return 0.0
+
+
+def probe_height(path: Path) -> int:
+    """片子的画面高度；读不出来返回 0。
+
+    判保底阈值用的是**实际文件**而不是 yt-dlp 报的 format 元数据 —— 元数据在
+    分离流合并、或者 n 挑战解一半的情况下会缺 height，信不得。
+
+    没有复用 :func:`probe_size`：它读不出来时回落到 ``(854, 480)``，那个默认值
+    对排版是合理的，对保底闸门却是致命的 —— 一个坏文件会被当成 480p 放过去。
+    """
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=height",
+         "-of", "default=nw=1:nk=1", str(path)],
+        capture_output=True, text=True)
+    try:
+        return int(float(r.stdout.strip().splitlines()[0]))
+    except (ValueError, IndexError):
+        return 0
 
 
 def probe_size(path: Path) -> tuple[int, int]:
@@ -273,12 +322,69 @@ def cookies_file_from_env() -> Path | None:
     return path
 
 
-def download_source(
-        source: str, out: Path, retries: int, backoff_sec: float,
-        socket_timeout_sec: float = DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC,
-        cookies: Path | None = None,
-) -> None:
-    """带外层退避重试的 yt-dlp 下载。
+def format_is_unavailable(output: str) -> bool:
+    """yt-dlp 说「你要的格式没有」—— 该往降级链下一级走，重试同一级没意义。"""
+    return bool(FORMAT_UNAVAILABLE_RE.search(output))
+
+
+def list_formats_diagnostic(
+        source: str, socket_timeout_sec: float, cookies: Path | None) -> str:
+    """取源失败时补跑一次 ``--list-formats``，把可用格式留进诊断。
+
+    不这么做的话，`Requested format is not available` 只能靠再开一轮 CI 才知道
+    到底有哪些格式可用，太贵。
+
+    只列不下载。cookies **路径**会进日志（便于确认用的是哪份凭据），内容不会：
+    输出照样过一遍 ``scrub_cookie_material``，且不开 ``--verbose`` /
+    ``--print-traffic``。
+    """
+    cmd = ["yt-dlp", "--list-formats",
+           "--socket-timeout", f"{socket_timeout_sec:g}"]
+    if cookies is not None:
+        cmd += ["--cookies", str(cookies)]
+    cmd += [source]
+    log("input", "补跑 yt-dlp --list-formats 看源站到底给了哪些格式"
+                 + (f"（带 cookies：{cookies}）" if cookies is not None
+                    else "（不带 cookies）"))
+    try:
+        p = subprocess.run([str(c) for c in cmd], capture_output=True, text=True)
+    except OSError as e:
+        return f"<--list-formats 跑不起来：{e}>"
+    # 留尾巴而不是留头：格式表在输出末尾，前面的 warning 在各次下载尝试里已经打过。
+    text = scrub_cookie_material(
+        ((p.stdout or "") + (p.stderr or "")).strip())[-LIST_FORMATS_DIAG_CHARS:]
+    print(f"[input] --list-formats（rc={p.returncode}）:\n{text}",
+          file=sys.stderr, flush=True)
+    return text or f"<--list-formats 没有输出，rc={p.returncode}>"
+
+
+def enforce_min_source_height(out: Path, source: str, fmt: str,
+                              level: int) -> None:
+    """保底闸门：低于 360p 就当取源失败退 3，不许悄悄拿 144p 往下走出片。"""
+    height = probe_height(out)
+    if height <= 0:
+        die(EXIT_API, "input", "source_probe_failed", source=source,
+            format_expr=fmt,
+            detail="ffprobe 读不出画面高度：文件可能没下全，或者根本不是视频。"
+                   "验不了清晰度就不往下走")
+    if height < MIN_SOURCE_HEIGHT:
+        die(EXIT_API, "input", "source_resolution_too_low", source=source,
+            format_expr=fmt, height=height, min_height=MIN_SOURCE_HEIGHT,
+            detail=f"取到的片子只有 {height}p，低于 {MIN_SOURCE_HEIGHT}p 下限。"
+                   "宁可退出也不拿这个清晰度出片 —— 大概率是 EJS 缺件导致高码率"
+                   "格式全都不可见，先修取源环境再重跑")
+    log("input", f"取源完成：{height}p（降级链第 {level} 级 `{fmt}`，"
+                 f"下限 {MIN_SOURCE_HEIGHT}p）")
+
+
+def _download_one_format(
+        source: str, out: Path, fmt: str, retries: int, backoff_sec: float,
+        socket_timeout_sec: float, cookies: Path | None) -> tuple[str, str]:
+    """用一条 format 表达式下载，带退避重试。
+
+    返回 ``(结果, 最后一次输出)``，结果是 ``ok`` / ``format_unavailable`` /
+    ``exhausted``。登录墙和「片源不存在」直接在这里退出 —— 换 format 表达式对
+    那两种一样没用。
 
     yt-dlp 自己的 ``--retries`` / ``--fragment-retries`` 只覆盖单个 HTTP 请求
     和分片，整次调用被 archive.org 的 500 顶回来时它就直接退了，所以外面还要
@@ -288,7 +394,7 @@ def download_source(
     ``--cookies``，不开 ``--verbose`` / ``--print-traffic`` —— 那两个会把请求头
     连 Cookie 一起打出来。
     """
-    cmd = ["yt-dlp", "-f", "bv*[height<=720]+ba/b[height<=720]/b",
+    cmd = ["yt-dlp", "-f", fmt,
            "--merge-output-format", "mp4",
            "--retries", "5", "--fragment-retries", "5",
            "--socket-timeout", f"{socket_timeout_sec:g}"]
@@ -300,7 +406,7 @@ def download_source(
         log("input", f"yt-dlp 下载 {source}（第 {attempt}/{retries} 次）")
         p = subprocess.run([str(c) for c in cmd], capture_output=True, text=True)
         if p.returncode == 0:
-            return
+            return "ok", last
         last = scrub_cookie_material(
             ((p.stderr or "") + (p.stdout or "")).strip())
         print(last[-2000:], file=sys.stderr, flush=True)
@@ -321,14 +427,55 @@ def download_source(
             die(EXIT_CONFIG, "input", "source_unavailable",
                 detail="片源不存在或 URL 不受支持，重试没有意义",
                 source=source, returncode=p.returncode, output=last[-500:])
+        # 同一条表达式再问一遍不会多出格式来，直接交给降级链下一级
+        if format_is_unavailable(last):
+            return "format_unavailable", last
         if attempt == retries:
             break
         wait = min(backoff_sec * (2 ** (attempt - 1)), DOWNLOAD_BACKOFF_CAP_SEC)
         wait += random.uniform(0, wait * 0.25)
         log("input", f"下载失败（rc={p.returncode}），{wait:.1f}s 后重试")
         time.sleep(wait)
+    return "exhausted", last
+
+
+def download_source(
+        source: str, out: Path, retries: int, backoff_sec: float,
+        socket_timeout_sec: float = DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC,
+        cookies: Path | None = None,
+) -> None:
+    """沿 ``FORMAT_LADDER`` 逐级放宽 format 要求下载，每级各带退避重试。
+
+    降级只在「格式不可用」时发生，且每次降级都打日志说明上一级为什么没中；
+    真正拿到文件后再用 :func:`enforce_min_source_height` 卡 360p 保底。
+    """
+    total = len(FORMAT_LADDER)
+    last = ""
+    tried = []
+    for level, (fmt, why) in enumerate(FORMAT_LADDER, start=1):
+        if level == 1:
+            log("input", f"format 降级链 1/{total}：`{fmt}`（{why}）")
+        else:
+            prev_fmt = FORMAT_LADDER[level - 2][0]
+            log("input", f"format 降级链 {level}/{total}：`{fmt}`（{why}）"
+                         f"—— 上一级 `{prev_fmt}` 没有匹配到可用格式")
+        tried.append(fmt)
+        outcome, last = _download_one_format(
+            source, out, fmt, retries, backoff_sec, socket_timeout_sec, cookies)
+        if outcome == "ok":
+            enforce_min_source_height(out, source, fmt, level)
+            return
+        if outcome == "format_unavailable":
+            continue
+        break
+    if len(tried) == total and format_is_unavailable(last):
+        log("input", f"降级链 {total} 级全部没有匹配到可用格式")
+    diagnostic = list_formats_diagnostic(source, socket_timeout_sec, cookies)
+    # tried 是**实际**试过的几级，不是整张表：网络问题会停在第一级，
+    # 报成「四级都试过了」会把排查方向带偏。
     die(EXIT_API, "input", "download_failed", source=source,
-        attempts=retries, output=last[-500:])
+        attempts=retries, output=last[-500:], formats_tried=tried,
+        available_formats=diagnostic)
 
 
 def resolve_source(source: str, work: Path,

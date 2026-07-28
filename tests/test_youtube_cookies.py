@@ -592,6 +592,12 @@ def no_sleep(monkeypatch):
     return slept
 
 
+@pytest.fixture(autouse=True)
+def height_ok(monkeypatch):
+    """默认让 360p 保底闸门放行 —— 这个文件测的是凭据，不是清晰度。"""
+    monkeypatch.setattr(produce, "probe_height", lambda p: 480)
+
+
 def runner(monkeypatch, results):
     cmds = []
 
