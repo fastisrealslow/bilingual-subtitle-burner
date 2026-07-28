@@ -100,6 +100,40 @@ archive.org 的 `HTTP Error 500` 是间歇性的（CI run 30263087066 就这么�
 404、私有视频、非法 URL 属于「重试也变不出来」，直接退 1（片源问题）；5xx、
 超时、连接重置以及判不出来的错误按可重试处理。
 
+### YouTube 登录态
+
+数据中心 IP 上的 yt-dlp 一律被 YouTube 回 `Sign in to confirm you're not a bot`，
+换 `player_client`（`tv` / `ios` / `mweb` / `android_vr` / `web_embedded`）全都挡，
+升级 yt-dlp 也不解决 —— GitHub runner 就是数据中心 IP，所以取源必须带登录态。
+
+`produce.yml` 的「准备 YouTube 登录态」那步把 `YOUTUBE_COOKIES_B64` 这个 secret
+（没有则回落到明文 `YOUTUBE_COOKIES`）交给 `scripts/youtube_cookies.py`，解码 →
+校验 Netscape 格式 → 写到 `$RUNNER_TEMP/youtube_cookies.txt`（0600），再把路径
+以 `COOKIES_FILE` 写进 `$GITHUB_ENV`；`produce.py` 读到就给 yt-dlp 带
+`--cookies`。变量名沿用 `steps/step1_fetch.py` 早就在读的 `COOKIES_FILE`。
+
+**不静默降级**，三种情况分得清：
+
+| 情况 | 结果 |
+| --- | --- |
+| secret 没配 | 不带 cookies 继续，日志里写明「非 YouTube 源不受影响」 |
+| secret 配了但解不开 / 不是合法 Netscape 格式 | 退 1，绝不退化成不带 cookies 去下载 |
+| 带了 cookies 仍被登录墙挡 | 退 1，`reason` 是 `youtube_credentials_expired` |
+
+没带 cookies 被挡是 `youtube_login_required`（去配 secret），带了还被挡是
+`youtube_credentials_expired`（去换 secret）—— 两个 reason 分开，才看得出该做哪件
+事。登录墙一律不重试，重试只是把无人值守的 40 分钟烧掉。
+
+cookies 内容不进日志：GitHub 的 secret masking 只遮蔽 secret **原文**，base64
+解码后的内容不在遮蔽范围内。所以格式校验的报错只带行号和计数，回显 yt-dlp 输出
+之前先擦掉疑似 cookie 记录的整行（yt-dlp 拒绝一个格式不对的 cookies 文件时，会把
+出错那一行原样打出来），也不开 `--verbose` / `--print-traffic` 和 `set -x`。
+
+cookies 文件落在 `$RUNNER_TEMP` 而不是仓库工作区：工作区里的文件会被 `git add`
+连带提交，失败时还会被「上传中间产物」那步打包进 artifact。老的 `pipeline.yml`
+写的是仓库里的 `secrets/`，正是这个问题，且它 `base64 -d` 不看返回值 —— 解码失败
+会静默留下一个截断的文件。
+
 ## 退出码
 
 | 码 | 含义 | 该怎么办 |

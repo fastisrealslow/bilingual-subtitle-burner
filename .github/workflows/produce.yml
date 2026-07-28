@@ -144,6 +144,29 @@ jobs:
           pip install --upgrade yt-dlp
           yt-dlp --version
 
+      # YouTube 在数据中心 IP 上一律回「Sign in to confirm you're not a bot」，
+      # runner 也是数据中心 IP，所以取源必须带登录态。凭据存在 YOUTUBE_COOKIES_B64
+      # 这个 secret 里（老的 pipeline.yml 用的就是它）。
+      #
+      # 落到 $RUNNER_TEMP 而不是仓库里的 secrets/：工作区里的文件会被 git add
+      # 连带提交，失败时还会被「上传中间产物」那步打包带出去。
+      #
+      # secret 原文由 env 传给脚本，不在 shell 里内联、也不开 set -x：GitHub 的
+      # secret masking 只遮蔽 secret 原文，base64 解码后的内容不在遮蔽范围内。
+      #
+      # 脚本在真的写了 cookies 时才往 $GITHUB_ENV 追加 COOKIES_FILE=<路径>，
+      # 下面「出片」那步据此判断「没配」还是「配坏了」。解不开或格式非法直接退 1，
+      # 不会退化成不带 cookies 去下载。
+      - name: 准备 YouTube 登录态
+        env:
+          YOUTUBE_COOKIES_B64: ${{ secrets.YOUTUBE_COOKIES_B64 }}
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          set -euo pipefail
+          python scripts/youtube_cookies.py \
+            --out "$RUNNER_TEMP/youtube_cookies.txt" \
+            --github-env "$GITHUB_ENV"
+
       # 同一条素材失败重跑时，前面已经付过钱的 LLM/VLM 调用直接命中缓存。
       # key 带 run_id 保证每次都会回写，restore-keys 逐级回退到同 slug 的上一次。
       - name: 复用 LLM 响应缓存
@@ -155,6 +178,9 @@ jobs:
             llm-cache-${{ matrix.job.slug }}-
             llm-cache-
 
+      # COOKIES_FILE 不在这张 env 表里：它由上面「准备 YouTube 登录态」那步写进
+      # $GITHUB_ENV，只有真的落了 cookies 文件才会有。这里写死一个路径的话，
+      # secret 没配时 produce.py 会把「文件不存在」当成配坏了，直接退 1。
       - name: 出片
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}

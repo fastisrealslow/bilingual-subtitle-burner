@@ -200,7 +200,8 @@ def test_download_knobs_have_conservative_defaults():
 def test_resolve_source_forwards_the_socket_timeout(tmp_path, monkeypatch):
     seen = {}
 
-    def fake_download(source, out, retries, backoff_sec, socket_timeout_sec):
+    def fake_download(source, out, retries, backoff_sec, socket_timeout_sec,
+                      cookies=None):
         seen["timeout"] = socket_timeout_sec
         out.write_bytes(b"x")
 

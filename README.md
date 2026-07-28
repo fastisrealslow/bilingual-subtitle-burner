@@ -145,6 +145,19 @@ yt-dlp 自带的 20s。实测同一个 archive.org 源连拉三次，首字节�
 `Video unavailable`、私有视频）直接退 1，不重试 —— 重试也变不出一个不存在的视频。
 `408` 和 `429` 不在这个名单里，那两个是「稍后再来」，值得重试。
 
+### YouTube 登录态
+
+数据中心 IP（GitHub runner 就是）上的 yt-dlp 一律被 YouTube 回
+`Sign in to confirm you're not a bot`，换 `player_client` 和升级 yt-dlp 都不解决，
+所以 YouTube 源必须带 cookies。`produce.yml` 把 `YOUTUBE_COOKIES_B64` 这个 secret
+交给 `scripts/youtube_cookies.py` 解码校验后写进 `$RUNNER_TEMP`（不落工作区，
+0600），路径以 `COOKIES_FILE` 传给 `produce.py`。
+
+secret 没配可以继续（archive.org、本地文件不需要登录态）；配了但解不开或格式非法
+一律退 1，**不会**退化成不带 cookies 去下载。带了 cookies 还被挡 =
+`youtube_credentials_expired`（凭据过期，去换 secret），没带被挡 =
+`youtube_login_required`（去配 secret）。详见 `docs/pipeline.md`。
+
 ### CI 用法
 
 `.github/workflows/produce.yml` 两种触发方式：

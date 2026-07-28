@@ -43,6 +43,7 @@ import platform_rules as PR                  # noqa: E402
 import sf_client                             # noqa: E402
 import step7_cover as COVER                  # noqa: E402
 import translate as TR                       # noqa: E402
+import youtube_cookies as YC                 # noqa: E402
 from clip import make_ass, srt_filter        # noqa: E402
 
 EXIT_OK = 0
@@ -112,6 +113,22 @@ DOWNLOAD_FATAL_RE = re.compile(
     r"|Unsupported URL|is not a valid URL"
     r"|Video unavailable|This video is private|Incomplete YouTube ID",
     re.IGNORECASE)
+# YouTube 的登录墙。数据中心 IP（GitHub runner 就是）一律吃这一句，换
+# player_client（tv / ios / mweb / android_vr / web_embedded）都挡，重试无用。
+# 带没带 cookies 决定了这句话的意思完全不同，所以单独拎出来分类。
+DOWNLOAD_LOGIN_RE = re.compile(
+    r"Sign in to confirm you.{0,3}re not a bot"
+    r"|Sign in to confirm your age"
+    r"|Use --cookies-from-browser or --cookies"
+    r"|Please sign in",
+    re.IGNORECASE)
+# yt-dlp 解析 cookies 文件失败时会把出错那一行**原样**打进 stderr，那一行就是
+# 会话令牌。GitHub 的 secret masking 只遮蔽 secret 原文，base64 解码后的内容不在
+# 遮蔽范围内，所以回显 yt-dlp 输出之前自己先擦一遍。
+# 判据是「一行里有 5 个以上分隔符」：Netscape 记录是 7 字段 6 个制表符，yt-dlp 报
+# 错时打的是 repr，制表符成了字面的 \t，两种都盖住。
+COOKIE_RECORD_RE = re.compile(r"(?m)^.*?(?:(?:\t|\\t).*?){5,}$")
+COOKIE_REDACTED = "<已擦除疑似 cookie 记录的一行>"
 
 # 流水线阶段顺序。封面选帧夹在 highlight 和 translate 之间是这次改动的重点，
 # 所以整张表在开跑时就打进日志，跑到哪一步一眼可见。
@@ -214,29 +231,92 @@ def download_is_fatal(output: str) -> bool:
     return bool(DOWNLOAD_FATAL_RE.search(output or ""))
 
 
+def download_needs_login(output: str) -> bool:
+    """是不是被 YouTube 的登录墙挡回来了。重试和换 player_client 都没用。"""
+    return bool(DOWNLOAD_LOGIN_RE.search(output or ""))
+
+
+def scrub_cookie_material(text: str) -> str:
+    """擦掉输出里疑似 cookie 记录的整行，再打进日志。"""
+    return COOKIE_RECORD_RE.sub(COOKIE_REDACTED, text or "")
+
+
+def cookies_file_from_env() -> Path | None:
+    """``COOKIES_FILE`` 指到哪就必须能用，配了但坏了一律退 1。
+
+    绝不降级成「不带 cookies 再试一次」：YouTube 对没登录态的请求回的是登录墙，
+    那句话和「片源不存在」长得一样，真实原因（凭据配坏了）就被埋掉了。
+
+    没配这个变量是合法状态 —— archive.org、本地文件这些源不需要登录态 ——
+    但要在日志里说清楚，别让人以为凭据生效了。
+    """
+    raw = (os.environ.get(YC.COOKIES_ENV) or "").strip()
+    if not raw:
+        log("input", f"未配置 YouTube 凭据（{YC.COOKIES_ENV} 为空），本次不带 "
+                     "cookies；archive.org、本地文件等非 YouTube 源不受影响")
+        return None
+
+    path = Path(raw).expanduser()
+    if not path.is_file():
+        die(EXIT_CONFIG, "input", "cookies_file_missing", cookies_file=str(path),
+            detail=f"{YC.COOKIES_ENV} 指向的 cookies 文件不存在。配了凭据就必须"
+                   "能用，这里不退化成不带 cookies 去下载")
+    try:
+        records, domains = YC.validate_netscape(
+            path.read_text(encoding="utf-8", errors="replace"))
+    except YC.CookiesError as e:
+        # str(e) 只含行号和计数，不含文件内容 —— 见 scripts/youtube_cookies.py
+        die(EXIT_CONFIG, "input", "cookies_file_invalid",
+            cookies_file=str(path), detail=str(e))
+    log("input", f"带 YouTube cookies：{path}（{records} 条记录、"
+                 f"{domains} 个域名）")
+    return path
+
+
 def download_source(
         source: str, out: Path, retries: int, backoff_sec: float,
         socket_timeout_sec: float = DEFAULT_DOWNLOAD_SOCKET_TIMEOUT_SEC,
+        cookies: Path | None = None,
 ) -> None:
     """带外层退避重试的 yt-dlp 下载。
 
     yt-dlp 自己的 ``--retries`` / ``--fragment-retries`` 只覆盖单个 HTTP 请求
     和分片，整次调用被 archive.org 的 500 顶回来时它就直接退了，所以外面还要
     再包一层。
+
+    ``cookies`` 给的是 Netscape cookies 文件路径（YouTube 登录态）。这里只传
+    ``--cookies``，不开 ``--verbose`` / ``--print-traffic`` —— 那两个会把请求头
+    连 Cookie 一起打出来。
     """
     cmd = ["yt-dlp", "-f", "bv*[height<=720]+ba/b[height<=720]/b",
            "--merge-output-format", "mp4",
            "--retries", "5", "--fragment-retries", "5",
-           "--socket-timeout", f"{socket_timeout_sec:g}",
-           "-o", str(out), source]
+           "--socket-timeout", f"{socket_timeout_sec:g}"]
+    if cookies is not None:
+        cmd += ["--cookies", str(cookies)]
+    cmd += ["-o", str(out), source]
     last = ""
     for attempt in range(1, retries + 1):
         log("input", f"yt-dlp 下载 {source}（第 {attempt}/{retries} 次）")
         p = subprocess.run([str(c) for c in cmd], capture_output=True, text=True)
         if p.returncode == 0:
             return
-        last = ((p.stderr or "") + (p.stdout or "")).strip()
+        last = scrub_cookie_material(
+            ((p.stderr or "") + (p.stdout or "")).strip())
         print(last[-2000:], file=sys.stderr, flush=True)
+        if download_needs_login(last):
+            if cookies is not None:
+                die(EXIT_CONFIG, "input", "youtube_credentials_expired",
+                    detail="带了 YouTube cookies 仍被登录墙挡回：凭据已过期或"
+                           "失效，重新导出 cookies 并更新 "
+                           f"{YC.B64_ENV} 这个 Actions secret；重试和换 "
+                           "player_client 都没有用",
+                    source=source, cookies_file=str(cookies),
+                    returncode=p.returncode, output=last[-500:])
+            die(EXIT_CONFIG, "input", "youtube_login_required",
+                detail="YouTube 要求登录，而本次没有带 cookies：给仓库配 "
+                       f"{YC.B64_ENV}（base64 后的 Netscape cookies）再重跑",
+                source=source, returncode=p.returncode, output=last[-500:])
         if download_is_fatal(last):
             die(EXIT_CONFIG, "input", "source_unavailable",
                 detail="片源不存在或 URL 不受支持，重试没有意义",
@@ -271,7 +351,8 @@ def resolve_source(source: str, work: Path,
         die(EXIT_CONFIG, "input", "yt_dlp_not_installed", source=source)
 
     out = work / "source.mp4"
-    download_source(source, out, retries, backoff_sec, socket_timeout_sec)
+    download_source(source, out, retries, backoff_sec, socket_timeout_sec,
+                    cookies=cookies_file_from_env())
     if not out.is_file():
         die(EXIT_API, "input", "download_produced_no_file", source=source)
     return out

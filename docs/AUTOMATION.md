@@ -42,19 +42,27 @@ YouTube 视频 URL
 | Secret 名称            | 必填 | 说明 |
 |------------------------|------|------|
 | `SILICONFLOW_API_KEY`  | ✅    | 硅基流动 API Key（翻译/金句/文案/封面 VLM 都要用）。无此 key 第 3-5 步会失败 |
-| `YOUTUBE_COOKIES`      | 建议 | YouTube cookies（Netscape 格式全文）。突破数据中心 IP 反爬，很多视频不带会下载失败 |
+| `YOUTUBE_COOKIES_B64`  | YouTube 源必填 | YouTube cookies（Netscape 格式全文的 base64）。数据中心 IP 不带一律被挡 |
+| `YOUTUBE_COOKIES`      | 可选 | 同上，明文 Netscape 全文。两个都配时 `_B64` 优先 |
 | `BILI_COOKIES_JSON`    | 上B站必填 | B站登录 cookie（`biliup login` 生成的 `cookies.json` 全文） |
 | `DOUYIN_COOKIES_JSON`  | 上抖音必填 | 抖音 cookie（Playwright storage_state JSON 或 cookie 列表全文） |
 
-> 所有 cookie 都由工作流写进 `secrets/` 目录（已 `.gitignore`，绝不入库），运行结束即销毁。
+> 老的 `pipeline.yml` 把 cookie 写进仓库里的 `secrets/` 目录（靠 `.gitignore` 兜着）。
+> 当前在用的 `produce.yml` 改写到 `$RUNNER_TEMP`（0600）—— 工作区里的文件会被
+> `git add` 连带提交，失败时还会被「上传中间产物」那步打进 artifact。
 
 ### 2.1 如何拿到 `SILICONFLOW_API_KEY`
 登录 https://siliconflow.cn → API 密钥 → 新建 → 复制。免费模型 `Qwen/Qwen3-8B` 够用，
 付费兜底可切 `deepseek-ai/DeepSeek-V3`（改工作流 `SILICONFLOW_MODEL` 即可）。
 
-### 2.2 如何拿到 `YOUTUBE_COOKIES`
+### 2.2 如何拿到 `YOUTUBE_COOKIES_B64`
 浏览器装 “Get cookies.txt LOCALLY” 扩展 → 登录 YouTube → 导出 `youtube.com` 的
-Netscape 格式 cookies → 把**文件全文**粘进 Secret。
+Netscape 格式 cookies → `base64 -w0 cookies.txt` → 把输出粘进 Secret。
+（`YOUTUBE_COOKIES` 则是把**文件全文**原样粘进去，不编码。）
+
+导出的第一行 `# Netscape HTTP Cookie File` 必须保留，字段分隔必须是制表符 ——
+被编辑器换成空格、或者存成 JSON 都会在取源前被拦下并退 1。cookies 会过期，
+出片报 `youtube_credentials_expired` 就是让你重新导出一份。
 
 ### 2.3 如何拿到 `BILI_COOKIES_JSON`
 本地装 biliup 并扫码登录一次：
@@ -127,7 +135,7 @@ Actions 页面 → 选 “双语投资短视频流水线” → **Run workflow**
 |------|------|
 | **GitHub Actions 免费额度** | 公开仓库 Actions 完全免费；私有仓库每月 2000 分钟。Whisper 转写是耗时大头 |
 | **Whisper CPU 速度** | Actions 无 GPU，`small` 约实时的 2-4 倍耗时；长视频建议先切短或用 `small` |
-| **YouTube 反爬** | 数据中心 IP 常被限制，务必配 `YOUTUBE_COOKIES`；仍可能偶发失败 |
+| **YouTube 反爬** | 数据中心 IP 一律被挡（`Sign in to confirm you're not a bot`），必须配 `YOUTUBE_COOKIES_B64`；换 `player_client`、升级 yt-dlp 都不解决 |
 | **抖音风控** | 数据中心 IP + 无法扫码 → 极易失败/触发验证码。失败请改在本地/家用 IP 跑 step9 |
 | **B站转载规范** | 搬运国外视频请用 `copyright=2`（转载）并注明来源，避免违规 |
 | **版权** | 搬运他人视频存在版权风险，请自行确认授权/合理使用边界 |
