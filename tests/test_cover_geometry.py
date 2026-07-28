@@ -89,9 +89,12 @@ def _fit_foreground(img):
 
     背景是同一帧放大后虚化的，白色图形在背景里也会亮起来，
     直接量整图的白色包围盒会把背景一起量进去。
+
+    缩放倍数问模块要（竖版会额外放大人脸带），不在这里重算一遍 ——
+    重算一遍就等于把被测逻辑抄进测试，改错了两边一起错。
     """
     tw, th = img.size
-    scale = min(tw / SRC_SIZE[0], th / SRC_SIZE[1])
+    scale = C.fit_scale(SRC_SIZE, (tw, th))
     fw = min(tw, round(SRC_SIZE[0] * scale))
     fh = min(th, round(SRC_SIZE[1] * scale))
     x, y = (tw - fw) // 2, (th - fh) // 2
@@ -124,12 +127,16 @@ def test_circle_stays_circular_on_fit_branch(circle_frame):
 
 
 def test_fit_branch_keeps_the_whole_circle(circle_frame):
-    """fit 分支不许裁掉主体：圆的直径应按等比缩放比例整体保留。"""
+    """fit 分支不许裁掉居中的主体：圆的直径应按等比缩放比例整体保留。
+
+    竖版现在会把人脸带再放大一档（见 PORTRAIT_ZOOM_KEEP_WIDTH），被裁掉的
+    只能是两侧的边角，画面正中的主体一个像素都不许少。
+    """
     fg = _fit_foreground(C.render_geometry(circle_frame, PORTRAIT))
-    scale = min(PORTRAIT[0] / SRC_SIZE[0], PORTRAIT[1] / SRC_SIZE[1])
     left, _, right, _ = fg.convert("L").point(
         lambda v: 255 if v > 160 else 0).getbbox()
-    assert (right - left) == pytest.approx(CIRCLE_D * scale, rel=0.05)
+    assert (right - left) == pytest.approx(
+        CIRCLE_D * C.fit_scale(SRC_SIZE, PORTRAIT), rel=0.05)
 
 
 # ── 裁切窗口对准人脸 ─────────────────────────────────────────────────────────
