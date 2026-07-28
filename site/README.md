@@ -6,11 +6,11 @@
 
 ```
 site/
-  index.html                 页面骨架
-  style.css                  样式
-  app.js                     原生 JS，无框架、无 CDN 依赖
-  data/index.json            唯一数据源（CI 会覆盖成真数据）
-  assets/sample_cover_*.jpg  示例封面，仅供本地预览
+  index.html                    页面骨架
+  style.css                     样式
+  app.js                        原生 JS，无框架、无 CDN 依赖
+  data/index.json               唯一数据源（CI 会覆盖成真数据）
+  covers/<slug>/<id>_16x9.jpg   封面，CI 提交（派生目录，别手工放东西）
 ```
 
 ## 本地预览
@@ -36,15 +36,30 @@ python3 -m http.server 8000
 | Root directory | 留空（仓库根） |
 | Environment variables | 无 |
 
-保存后每次 `main` 有提交就会自动重新部署。CI 把新 Release 的集数合并进 `site/data/index.json` 并提交后，页面会自动刷新。
+保存后每次 `main` 有提交就会自动重新部署。CI 把新 Release 的集数合并进 `site/data/index.json`、把该批次的封面写进 `site/covers/` 并提交后，页面会自动刷新。
 
 ## 数据契约
 
-`data/index.json` 见规格第二章：
+`data/index.json` 见 [`spec/publish_chain.md`](../spec/publish_chain.md) 第二章：
 
 ```json
 { "schema": 1, "updated_at": "…", "episodes": [ { "…episode…", "slug": "…", "speaker": "…" } ] }
 ```
+
+**封面走站内相对路径，视频走 Release 绝对地址**（契约第三章）：
+
+```json
+"urls": {
+  "video":      "https://github.com/<repo>/releases/download/clips-<slug>/ep01.mp4",
+  "cover_16x9": "covers/<slug>/ep01_16x9.jpg"
+}
+```
+
+Release 资产地址会 302 到 `release-assets.githubusercontent.com` 并带
+`Content-Disposition: attachment`，大陆 iPhone 上封面经常加载不出来，所以封面改由本站同源托管。
+视频太大不进仓库，仍旧只在 Release 上。
+
+`urls.cover_16x9` 仍是 `http` 绝对地址的旧记录照常显示，不用迁移。
 
 页面对数据做了容错，以下情况都不会白屏：
 

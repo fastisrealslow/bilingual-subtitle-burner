@@ -231,7 +231,10 @@ jobs:
           gh release upload "$TAG" _release/* --clobber
 
       # 手机页读的是仓库里的静态 index.json，不打 GitHub API（未登录
-      # 60 次/小时/IP 会被限流）
+      # 60 次/小时/IP 会被限流）。
+      # 封面 jpg 一并提交进 site/covers/：Release 资产地址会 302 到
+      # release-assets.githubusercontent.com，大陆 iPhone 上经常加载不出来，
+      # 同源走 Cloudflare CDN 才稳。视频太大，仍旧只在 Release 上。
       - name: 合并进站点索引并提交
         if: github.ref == 'refs/heads/main'
         env:
@@ -240,15 +243,18 @@ jobs:
           set -euo pipefail
           python scripts/update_site_index.py \
             --queue "deliver/$SLUG/queue.json" \
-            --index site/data/index.json
-          if git diff --quiet -- site/data/index.json; then
-            echo "索引没有变化，不提交"
-            exit 0
-          fi
+            --index site/data/index.json \
+            --site-root site
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/data/index.json
-          git commit -m "chore(site): 更新 $SLUG 的发布索引"
+          # -A 才能把回收掉的孤儿封面记成删除；covers/ 首次运行时还不存在
+          mkdir -p site/covers
+          git add -A site/data/index.json site/covers
+          if git diff --cached --quiet; then
+            echo "索引和封面都没有变化，不提交"
+            exit 0
+          fi
+          git commit -m "chore(site): 更新 $SLUG 的发布索引与封面"
           # matrix 里几条 job 会同时往 main 上推，撞车就 rebase 重试
           for i in 1 2 3 4 5; do
             git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
