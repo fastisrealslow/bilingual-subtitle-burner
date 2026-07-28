@@ -36,7 +36,7 @@ on:
         default: ""
         type: string
       cover_crop:
-        description: "封面裁切 W:H:X:Y（同 ffmpeg crop 滤镜），留空不裁。用于切掉源片底部烧死的英文硬字幕，如 854:396:0:0"
+        description: "封面裁切 W:H:X:Y（同 ffmpeg crop 滤镜）。用于切掉源片底部烧死的英文硬字幕，如 854:396:0:0。留空时 input 阶段会自动侦测左右分屏访谈并给出默认裁切（只留主讲人那半）；填了就以这里为准。分屏但认不出哪半是主讲人时按 split_screen_indeterminate 退 3，这时必须在这里显式填"
         required: false
         default: ""
         type: string

@@ -41,6 +41,7 @@ import hardsub_probe as HP                   # noqa: E402
 import highlight as HL                       # noqa: E402
 import platform_rules as PR                  # noqa: E402
 import sf_client                             # noqa: E402
+import step1_split_screen as SPLIT           # noqa: E402
 import step7_cover as COVER                  # noqa: E402
 import translate as TR                       # noqa: E402
 import youtube_cookies as YC                 # noqa: E402
@@ -503,6 +504,66 @@ def resolve_source(source: str, work: Path,
     if not out.is_file():
         die(EXIT_API, "input", "download_produced_no_file", source=source)
     return out
+
+
+def detect_cover_crop(video: Path, work: Path,
+                      explicit_crop: str | None) -> tuple[str | None, dict]:
+    """input 阶段末尾侦测分屏访谈，返回 ``(默认 cover_crop, 诊断)``。
+
+    **显式优先**：``--cover-crop`` 非空时一帧都不抽，原样透传，诊断里记明跳过。
+
+    侦测到分屏但认不出主讲人半区就退 3。绝不猜「被访者一般在右边」—— 猜错等于
+    把采访者的脸配上主讲人的角标发出去（NVD-m9seDe4 那批 7 集封面全废就是没人
+    裁切，猜错方向只会从「两个人都在」变成「人错了」，一样不可撤回）。
+    """
+    if explicit_crop:
+        log("input", f"显式指定了 cover_crop={explicit_crop}，跳过分屏自动侦测")
+        return None, {"skipped": "explicit_cover_crop",
+                      "explicit_cover_crop": explicit_crop}
+
+    try:
+        verdict = SPLIT.detect_from_video(
+            str(video), str(work / "split_probe"), probe_duration(video))
+    except SPLIT.DetectorUnavailable as e:
+        # 片子是好的，只是我们瞎了：这时候「照旧不裁」会把分屏源片静默出成废封面。
+        die(EXIT_API, "input", "split_screen_detector_unavailable",
+            detail=f"分屏侦测器不可用，无法判断源片是否分屏访谈：{e}",
+            hint="装上 opencv-python-headless（<5），或显式传 cover_crop 绕过侦测")
+
+    if not verdict["split_screen"]:
+        log("input", f"非分屏源片：{verdict['detail']}")
+        return None, verdict
+
+    if not verdict["crop"]:
+        die(EXIT_API, "input", "split_screen_indeterminate",
+            detail=verdict["detail"], checks=verdict["checks"],
+            hint="请在 workflow 里显式填 cover_crop=W:H:X:Y 指定主讲人所在的半区")
+
+    log("input", f"自动分屏裁切 cover_crop={verdict['crop']}（{verdict['detail']}）")
+    return verdict["crop"], verdict
+
+
+def write_input_meta(work: Path, slug: str, source: str,
+                     auto_cover_crop: str | None, explicit_crop: str | None,
+                     detection: dict) -> Path:
+    """input 阶段的中间产物：下游读 ``auto_cover_crop`` 当默认裁切。
+
+    失败时 ``_tmp/`` 会被 workflow 整包带出来，分屏判定的每个数值都在
+    ``split_screen_detection.checks`` 里，不用回去重跑侦测。
+    """
+    path = work / "input.meta.json"
+    path.write_text(json.dumps({
+        "slug": slug,
+        "source": source,
+        "cover_crop": explicit_crop,
+        "auto_cover_crop": auto_cover_crop,
+        "cover_crop_source": ("explicit" if explicit_crop
+                              else "auto_split_screen" if auto_cover_crop
+                              else None),
+        "split_screen_detection": detection,
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
+    log("input", f"→ {path}")
+    return path
 
 
 # ── 2. 转写 ───────────────────────────────────────────────────────────────────
@@ -1070,7 +1131,8 @@ def write_meta(out_dir: Path, slug: str, title: str, source: str,
                speaker: str, sub_mode: str = DEFAULT_SUB_MODE,
                sub_margin_v: int | str = DEFAULT_SUB_MARGIN_V,
                sub_avoid_gap: int = DEFAULT_SUB_AVOID_GAP,
-               sub_placements: list | None = None) -> Path:
+               sub_placements: list | None = None,
+               auto_cover_crop: str | None = None) -> Path:
     files = {"final.mp4": final, **covers.get("files", {})}
     meta = {
         "slug": slug,
@@ -1100,6 +1162,13 @@ def write_meta(out_dir: Path, slug: str, title: str, source: str,
         "cover_source": covers.get("cover_source", "auto"),
         "cover_time_sec": covers.get("cover_time_sec"),
         "cover_crop": covers.get("cover_crop"),
+        # 裁切是人填的还是分屏侦测给的：封面出岔时先看这一栏
+        "auto_cover_crop": auto_cover_crop,
+        "cover_crop_source": ("auto_split_screen"
+                              if auto_cover_crop
+                              and covers.get("cover_crop") == auto_cover_crop
+                              else "explicit" if covers.get("cover_crop")
+                              else None),
         "commit": os.environ.get("GITHUB_SHA", "local"),
         "sha256": {name: sha256(p) for name, p in files.items() if Path(p).is_file()},
     }
@@ -1335,7 +1404,9 @@ def parse_args(argv=None):
     p.add_argument("--cover-crop", default=None, metavar="W:H:X:Y",
                    help="封面选帧时先裁切，格式同 ffmpeg 的 crop 滤镜（W:H:X:Y）。"
                         "用于裁掉源片底部烧死的英文硬字幕等干扰区域，"
-                        "例如 854x480 的源片用 854:396:0:0 只保留上方 396px")
+                        "例如 854x480 的源片用 854:396:0:0 只保留上方 396px。"
+                        "留空时 input 阶段会侦测左右分屏访谈并自动给一个默认值，"
+                        "填了就以这里为准（显式优先）")
     p.add_argument("--sub-mode", default=DEFAULT_SUB_MODE, choices=sorted(SUB_MODES),
                    help="烧字幕的语种：both 中英双语（默认）；zh-only 只烧中文，"
                         "把源片自带的英文硬字幕当英文轨用，避免三层叠字")
@@ -1444,6 +1515,11 @@ def main(argv=None) -> int:
     video = resolve_source(args.source, work, args.download_retries,
                            args.download_backoff_sec,
                            args.download_socket_timeout)
+    auto_crop, detection = detect_cover_crop(video, work, args.cover_crop)
+    write_input_meta(work, args.slug, args.source, auto_crop, args.cover_crop,
+                     detection)
+    # 显式优先：args.cover_crop 非空时 auto_crop 恒为 None，这里不会盖掉它
+    cover_crop = args.cover_crop or auto_crop
     stage("transcribe")
     srt = transcribe(video, work, args.language)
     stage("highlight")
@@ -1479,7 +1555,7 @@ def main(argv=None) -> int:
         cover_frame, cover_report = select_cover_frame(
             video, quotes, args.speaker, ep_work, api_key, args.no_vlm,
             cover_times[index - 1] if cover_times else None,
-            args.cover_candidates, args.cover_crop,
+            args.cover_candidates, cover_crop,
             args.cover_allow_unverified)
 
         translators = ([args.translator] if not args.dual
@@ -1517,7 +1593,7 @@ def main(argv=None) -> int:
         write_meta(ep_dir, args.slug, title, args.source,
                    final, primary_segs, covers, args.translator,
                    args.speaker, args.sub_mode, args.sub_margin_v,
-                   args.sub_avoid_gap, primary_placements)
+                   args.sub_avoid_gap, primary_placements, auto_crop)
         queue_episodes.append(queue_entry(index, title, final, primary_segs))
 
     write_queue(out_dir, build_queue(args.slug, args.source, args.speaker,
