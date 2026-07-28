@@ -794,6 +794,110 @@ COVER_MIN_RETAIN_RATIO = 0.85
 # 太大则整块糊成色块、失去与前景的呼应。
 FIT_BACKGROUND_BLUR_RATIO = 0.04
 
+# 竖版 fit 分支里人脸带横向仍要保留的源宽比例。
+#
+# 854x340 的源帧按 fit 装进 1080x1920，人脸带只有 430px 高、占画面 22.4%，
+# 在抖音信息流里就是「一大片虚化 + 中间一条细人脸」。要让主体变大只有等比
+# 放大一条路，而等比放大必然横向溢出、要裁掉一些源宽 —— 这个数就是裁多少。
+#
+# 2/3 表示放大 1.5 倍、两侧各裁掉 16.7%：实测 partner.mp4 第 1200s 那帧
+# （crop=854:340:0:70，芒格的头在源图 x≈470~690）居中窗口是 [142, 712]，
+# 头完整保留；再往上加到 1.75 倍窗口收到 [183, 671]，右半张脸就被切掉了。
+# 人脸带因此从 22.4% 提到 33.6%。
+#
+# 窗口一律居中，不走 _face_focus_x：haar 在这份素材上不可信，同一帧检出的
+# 最大框是 (198,9,164,164)、占比 9.3%（高于 MIN_FACE_AREA_RATIO 的 5%，
+# 门槛拦不住），实际是背景写字楼窗格的误检。照它对齐会把窗口拽成 [0, 570]，
+# 芒格被切掉一半 —— 放大幅度越大，认错主体的代价越大，所以这里只居中。
+PORTRAIT_ZOOM_KEEP_WIDTH = 2 / 3
+
+
+# ── 平台安全区 ───────────────────────────────────────────────────────────────
+# 出图尺寸不等于平台真正显示的尺寸，两边都会再裁一刀：
+#
+#   抖音信息流对 1080x1920 的竖图只显示中间 1080x1464，上下各切掉 228px。
+#   B站官方推荐 16:10，1280x720 要变成 1146x717 得左右各切掉 64px。
+#
+# 旧排版把角标钉在 y=20、标题起笔在 x=40，两个都落在被切掉的那一圈里：竖版
+# 在抖音上只剩虚化背景加中间一条人脸，横版第一个字会被啃掉。所以文字与角标
+# 的位置一律从下面这个安全区推出来，不再从画面边缘推。
+#
+# 比例而不是绝对像素，是为了让 --size 传别的分辨率时同样成立。
+PORTRAIT_SAFE_INSET_RATIO = 240 / 1920    # 上下各收 240px（比抖音实切的 228 再紧 12px）
+LANDSCAPE_SAFE_INSET_RATIO = 80 / 1280    # 左右各收 80px（比 16:10 实切的 64 再紧 16px）
+
+# B站信息流会在封面下沿压自己的东西：左下角一枚分区标签，右下角时长。标题正好
+# 排在左下角，等于每张横版封面的第一行都被标签盖掉一块。把下沿这条带子整个让
+# 出来，标题上提到它之上 —— 顺带也躲开了右下角的时长。
+LANDSCAPE_CHROME_BAND_RATIO = 0.17        # 720 上是 122px
+
+# 排版内边距，都相对安全区（不是画面边缘）算。
+TITLE_SIDE_MARGIN = 40
+TITLE_BOTTOM_MARGIN = 50
+TAG_MARGIN_X = 24
+TAG_MARGIN_Y = 20
+TITLE_SHADOW = 2                          # 标题描边偏移，量包围盒时要算进去
+
+
+def platform_safe_area(target_size: tuple) -> tuple:
+    """该出图尺寸下「平台一定看得见」的矩形 ``(l, t, r, b)``。"""
+    tw, th = target_size
+    if th > tw:
+        inset = round(th * PORTRAIT_SAFE_INSET_RATIO)
+        return (0, inset, tw, th - inset)
+    inset = round(tw * LANDSCAPE_SAFE_INSET_RATIO)
+    return (inset, 0, tw - inset, th)
+
+
+def platform_chrome_zone(target_size: tuple) -> tuple | None:
+    """平台自己要占用、我们不能往里放东西的矩形；竖版没有这种带子时返回 None。"""
+    tw, th = target_size
+    if th > tw:
+        return None
+    return (0, th - round(th * LANDSCAPE_CHROME_BAND_RATIO), tw, th)
+
+
+class CoverSafeAreaError(RuntimeError):
+    """出图后测出有元素越出安全区。带 ``violations`` 明细，供调用方退 2。"""
+
+    def __init__(self, target_size: tuple, violations: list):
+        self.target_size = tuple(target_size)
+        self.violations = violations
+        super().__init__("；".join(
+            f"{v['element']} 包围盒 {v['box']} 越出{v['limit_name']} {v['limit']}"
+            for v in violations))
+
+
+def safe_area_violations(boxes: dict, target_size: tuple) -> list:
+    """逐个元素比对安全区与平台占位带，返回越界明细（全在界内时是空表）。
+
+    ``boxes`` 是 ``{元素名: (l, t, r, b)}``，坐标就是实际画上去的像素位置。
+    """
+    safe = platform_safe_area(target_size)
+    chrome = platform_chrome_zone(target_size)
+    out = []
+    for name, box in boxes.items():
+        l, t, r, b = (round(v) for v in box)
+        if l < safe[0] or t < safe[1] or r > safe[2] or b > safe[3]:
+            out.append({"element": name, "box": (l, t, r, b),
+                        "limit_name": "安全区", "limit": safe})
+        elif chrome and r > chrome[0] and b > chrome[1] \
+                and l < chrome[2] and t < chrome[3]:
+            out.append({"element": name, "box": (l, t, r, b),
+                        "limit_name": "平台占位带", "limit": chrome})
+    return out
+
+
+def assert_cover_in_safe_area(boxes: dict, target_size: tuple) -> None:
+    """出图自检闸门：任何文字或角标越界就抛 ``CoverSafeAreaError``。
+
+    这一步宁可失败也不能放行 —— 一张标题被平台切掉的封面发出去是不可撤回的，
+    而重跑一次的成本只是几秒钟出图（这步不花 API 钱）。
+    """
+    violations = safe_area_violations(boxes, target_size)
+    if violations:
+        raise CoverSafeAreaError(target_size, violations)
+
 
 def cover_crop_box(src_size: tuple, target_size: tuple,
                    focus_x: float | None = None) -> tuple:
@@ -857,10 +961,33 @@ def _face_focus_x(frame_path: str, src_size: tuple) -> float | None:
     return (fx + fw / 2) * (src_size[0] / float(dw))
 
 
-def fit_to_target(img, target_size: tuple):
-    """等比缩放到完整装进目标，居中贴在同帧放大虚化的背景上。
+def fit_zoom(target_size: tuple) -> float:
+    """fit 分支要额外放大多少倍。竖版放大人脸带，横版保持原样。
 
-    不裁掉任何主体，也不改变几何比例；空出来的部分由背景填，避免黑边。
+    横版不放大是因为它本来就没有「主体太小」的问题：854x340 装进 1280x720
+    的人脸带已经有 510px 高、占了 71%。
+    """
+    tw, th = target_size
+    return 1 / PORTRAIT_ZOOM_KEEP_WIDTH if th > tw else 1.0
+
+
+def fit_scale(src_size: tuple, target_size: tuple) -> float:
+    """fit 分支实际用的缩放倍数（两个方向同一个数，所以不可能形变）。
+
+    上限钉在「铺满目标」：再大就只是把已经填满的画面继续往外裁，没有意义。
+    """
+    sw, sh = src_size
+    tw, th = target_size
+    base = min(tw / sw, th / sh)
+    return min(base * fit_zoom(target_size), max(tw / sw, th / sh))
+
+
+def fit_to_target(img, target_size: tuple):
+    """等比缩放后居中贴在同帧放大虚化的背景上。
+
+    横版按「完整装进目标」缩放，一个像素都不裁；竖版额外放大 ``fit_zoom``
+    倍再居中裁掉横向溢出，让人脸带占满更多画面。两个方向共用同一个缩放倍数，
+    所以无论走哪条路几何比例都不变。
     """
     tw, th = target_size
     bg = img.crop(cover_crop_box(img.size, target_size)).resize(
@@ -869,10 +996,15 @@ def fit_to_target(img, target_size: tuple):
     bg = bg.filter(ImageFilter.GaussianBlur(radius))
 
     sw, sh = img.size
-    scale = min(tw / sw, th / sh)
-    fw = max(1, min(tw, round(sw * scale)))
-    fh = max(1, min(th, round(sh * scale)))
-    bg.paste(img.resize((fw, fh), Image.LANCZOS), ((tw - fw) // 2, (th - fh) // 2))
+    scale = fit_scale(img.size, target_size)
+    fg = img.resize((max(1, round(sw * scale)), max(1, round(sh * scale))),
+                    Image.LANCZOS)
+    fw, fh = fg.size
+    if fw > tw or fh > th:
+        left, top = max(0, (fw - tw) // 2), max(0, (fh - th) // 2)
+        fg = fg.crop((left, top, left + min(fw, tw), top + min(fh, th)))
+        fw, fh = fg.size
+    bg.paste(fg, ((tw - fw) // 2, (th - fh) // 2))
     return bg
 
 
@@ -887,7 +1019,8 @@ def render_geometry(frame_path: str, target_size: tuple):
 
 
 def make_cover(frame_path: str, title: str, speaker: str,
-               output_path: str, target_size: tuple = (1280, 720)):
+               output_path: str, target_size: tuple = (1280, 720)) -> dict:
+    """烧标题出图，返回 ``{元素名: 包围盒}``；有元素越界则抛 ``CoverSafeAreaError``。"""
     img = render_geometry(frame_path, target_size)
     w, h = img.size
 
@@ -911,9 +1044,16 @@ def make_cover(frame_path: str, title: str, speaker: str,
     #      “大选后全面买入的反常 / 识逻辑！”——把“反常识”劈成两截。
     #
     # 现在：真实字体宽度 + jieba 词边界 + 行数均衡 + 行首禁则。
+    #
+    # 左右边界和落底位置都从 platform_safe_area 推，不再从画面边缘推 ——
+    # 边缘那一圈会被平台裁掉。
+    safe_l, safe_t, safe_r, safe_b = platform_safe_area(target_size)
+    chrome = platform_chrome_zone(target_size)
+    title_bottom = (chrome[1] if chrome else safe_b) - TITLE_BOTTOM_MARGIN
+
     title_font_size = max(36, w // 22)
     title_font = find_font(title_font_size)
-    max_line_px = w - 100          # 左右各留 50px 安全边
+    max_line_px = (safe_r - safe_l) - 2 * (TITLE_SIDE_MARGIN + TITLE_SHADOW)
 
     def _measure(s: str) -> float:
         return draw.textlength(s, font=title_font)
@@ -926,24 +1066,43 @@ def make_cover(frame_path: str, title: str, speaker: str,
         title_font = find_font(title_font_size)
         title_lines = wrap_title(title, _measure, max_line_px)
 
+    # 先按 (0, 0) 起笔量一遍真实墨水框，再整体平移到「左边贴安全区内边距、
+    # 底边贴 title_bottom」。用字号估高度会差出十几像素，正好卡在闸门上。
     line_height = title_font_size + 10
-    total_height = len(title_lines) * line_height
-    title_y = h - total_height - 50
+    ink = [draw.textbbox((0, i * line_height), line, font=title_font)
+           for i, line in enumerate(title_lines)]
+    dx = safe_l + TITLE_SIDE_MARGIN - min(b[0] for b in ink)
+    dy = title_bottom - max(b[3] for b in ink)
 
-    for i, line in enumerate(title_lines):
-        ty = title_y + i * line_height
-        for dx, dy in [(-2, -2), (2, -2), (-2, 2), (2, 2)]:
-            draw.text((40 + dx, ty + dy), line, font=title_font, fill=(0, 0, 0, 200))
-        draw.text((40, ty), line, font=title_font, fill=(255, 255, 255))
+    boxes: dict = {}
+    for i, (line, box) in enumerate(zip(title_lines, ink)):
+        tx, ty = dx, dy + i * line_height
+        for ox, oy in [(-1, -1), (1, -1), (-1, 1), (1, 1)]:
+            draw.text((tx + ox * TITLE_SHADOW, ty + oy * TITLE_SHADOW), line,
+                      font=title_font, fill=(0, 0, 0, 200))
+        draw.text((tx, ty), line, font=title_font, fill=(255, 255, 255))
+        boxes[f"标题第{i + 1}行"] = (box[0] + dx - TITLE_SHADOW,
+                                  box[1] + dy - TITLE_SHADOW,
+                                  box[2] + dx + TITLE_SHADOW,
+                                  box[3] + dy + TITLE_SHADOW)
 
-    tag_font = find_font(max(22, w // 40))
+    tag_font_size = max(22, w // 40)
+    tag_font = find_font(tag_font_size)
     tag_text = f" {speaker} "
-    tag_w = len(tag_text) * (w // 40) + 20
-    tag_h = max(22, w // 40) + 16
-    draw.rectangle([24, 20, 24 + tag_w, 20 + tag_h], fill=(180, 0, 0))
-    draw.text((32, 26), tag_text.strip(), font=tag_font, fill=(255, 255, 255))
+    tag_l, tag_t = safe_l + TAG_MARGIN_X, safe_t + TAG_MARGIN_Y
+    tag_r = tag_l + draw.textlength(tag_text, font=tag_font) + 16
+    tag_b = tag_t + tag_font_size + 16
+    # 画到 r-1/b-1：draw.rectangle 两端都含，减一才和 textbbox 的左闭右开一致，
+    # 报出去的包围盒才是同一套约定
+    draw.rectangle([tag_l, tag_t, tag_r - 1, tag_b - 1], fill=(180, 0, 0))
+    draw.text((tag_l + 8, tag_t + 6), tag_text.strip(), font=tag_font,
+              fill=(255, 255, 255))
+    boxes["角标"] = (tag_l, tag_t, tag_r, tag_b)
 
+    # 闸门在落盘之前：越界就一个字节都不写，不给「先出图再说」留后门。
+    assert_cover_in_safe_area(boxes, target_size)
     img.save(output_path, "JPEG", quality=90)
+    return boxes
 
 
 def main():
@@ -1040,7 +1199,12 @@ def main():
             extract_frame(args.raw_video, mid, fallback_path)
             best_frame = fallback_path
 
-        make_cover(best_frame, title, args.speaker, cover_path, (w, h))
+        try:
+            make_cover(best_frame, title, args.speaker, cover_path, (w, h))
+        except CoverSafeAreaError as e:
+            reject_cover("cover_text_outside_safe_area",
+                         detail="封面文字/角标越出平台安全区，拒绝出图",
+                         target_size=[w, h], violations=e.violations)
         print(f"[cover] ✅ [{rank:02d}] → {rank:02d}_cover.jpg", flush=True)
 
     import shutil

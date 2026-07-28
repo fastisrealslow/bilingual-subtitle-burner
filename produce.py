@@ -774,13 +774,24 @@ def select_cover_frame(video: Path, quotes: list, speaker: str, work: Path,
 
 def render_covers(frame: str, title: str, speaker: str, out_dir: Path,
                   report: dict) -> dict:
-    """把标题烧上已选定的帧，出 16:9 / 9:16 两张图。标题来自 title 这一步。"""
+    """把标题烧上已选定的帧，出 16:9 / 9:16 两张图。标题来自 title 这一步。
+
+    出图后逐个量文字与角标的包围盒，越出平台安全区就按内容质量拒绝退 2 ——
+    抖音会切掉竖版上下各 228px、B站会切掉横版左右各 64px 并在左下角压分区
+    标签，字被切掉的封面发出去是不可撤回的，而这一步重跑不花 API 钱。
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
     covers = {}
     for name, size in (("cover_16x9.jpg", (1280, 720)),
                        ("cover_9x16.jpg", (1080, 1920))):
         path = out_dir / name
-        COVER.make_cover(frame, title, speaker, str(path), size)
+        try:
+            COVER.make_cover(frame, title, speaker, str(path), size)
+        except COVER.CoverSafeAreaError as e:
+            die(EXIT_QUALITY, "cover", "cover_text_outside_safe_area",
+                detail="封面文字/角标越出平台安全区，拒绝出图",
+                cover=name, target_size=list(size), title=title,
+                violations=e.violations)
         covers[name] = path
         log("cover", f"→ {path}")
     report["files"] = covers
