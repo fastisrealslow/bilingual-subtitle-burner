@@ -1,20 +1,36 @@
-"""段数闸门的守卫测试：把「不允许硬出」这条铁律钉在阈值的边界上。
+"""段数闸门的**边界守卫**：把「不允许硬出」这条铁律钉在阈值的正负一格上。
 
-闸门分三段，这个文件按这三段组织：
+## 这个文件负责什么（和隔壁三个文件的分工）
 
-1. **CLI 闸门**（``produce.main``）—— ``--episodes`` 非正整数退 1
-   （``invalid_episodes``），非整数由 argparse 自己拦，都不许静默当成 1。
-2. **单集/首组闸门**（``HL.enforce_quote_thresholds``）—— 先按
+段数闸门有四个测试文件，分工按「问什么问题」切，不按「测哪个函数」切：
+
+* ``test_highlight_thresholds.py`` —— 单集闸门 ``HL.enforce_quote_thresholds``
+  的基本行为，以及环境变量放松 / ``strict`` 收紧那套开关。
+* ``test_produce_episodes.py`` —— 多集出片的**功能回归**：目录布局、阶段顺序、
+  每集各自的标题与 meta、``queue.json`` 的 schema、``--cover-time-sec`` 的
+  逐集映射。闸门在这里只是顺带被撞到。
+* ``test_episode_gate.py`` —— 闸门的**行为契约**：走 ``produce.main`` 的端到端
+  拒绝语义、拒绝理由 JSON 里的字段、「凑不齐就整批退 2、一集都不出」、闸门必须
+  在花钱的阶段之前触发。回答「拒绝的时候会发生什么」。
+* **本文件** —— 闸门的**边界**：每条阈值的「减一 / 恰好等于 / 加一」三档参数化，
+  ``--episodes`` 这个 CLI 入参本身的校验，以及函数层的不变量（每组恰好
+  ``SEGMENTS`` 段、集与集之间不复用素材）。回答「界线画在哪一格」。
+
+**新增用例前先按这个分工挑文件。**只测拒绝侧是不够的 —— 那样把闸门改严一格
+（``>=`` 改成 ``>``）跑出来还是绿的，所以这里的每条边界都必须同时有「减一拒绝」
+和「恰好等于放行」两侧。反过来，端到端只跑一遍拒绝就够了，不必在这里重跑。
+
+## 闸门本身分三段，下面的小节按这三段排
+
+1. **CLI 闸门**（``produce.main`` / ``produce.parse_args``）—— ``--episodes``
+   非正整数退 1（``invalid_episodes``），非整数由 argparse 自己拦，都不许静默
+   当成 1 集。
+2. **单集 / 首组闸门**（``HL.enforce_quote_thresholds``）—— 先按
    ``MIN_QUOTE_SEC`` 丢掉过短的段，再核可用条数 ``MIN_QUOTES``，最后只拿
    真正会拼进成片的前 ``want`` 段核 ``MIN_TOTAL_SEC``。任何一条不过就退 2。
 3. **多集闸门**（``produce.group_episodes``）—— 首组走上面那套，后续每组按
    rank 贪心取满 ``SEGMENTS`` 段，跳过与已选片段重叠的候选，每组各自再核一遍
-   段数和总时长。
-
-每条阈值都用「恰好等于 / 减一 / 加一」三档参数化覆盖，边界减一必须是拒绝、
-恰好等于必须放行 —— 只测拒绝侧的话，把闸门改严一格是测不出来的。
-
-已知偏差见文件末尾 ``铁律：凑不齐请求集数必须整批退 2`` 一节。
+   段数和总时长；凑不齐请求的集数就整批退 2。
 """
 
 import json
@@ -67,31 +83,19 @@ def two_episode_pool(second_durs):
     return quotes
 
 
-def episodes_produced(quotes, episodes):
-    """实际产出的集数；闸门以退 2 拒绝整批时返回 ``None``。
-
-    多集闸门当前是「少出几集再退 0」，铁律要求的是「整批退 2」（见文件末尾那
-    节）。下面几条边界用例关心的是「不合格的那一集有没有被产出」，这个问题在两
-    种行为下答案一样，所以用这个包装把差异吸收掉 —— 免得铁律修好那天，本该继续
-    守住边界的用例反倒要跟着改。
-    """
-    try:
-        return len(produce.group_episodes(quotes, episodes=episodes,
-                                          strict=True))
-    except SystemExit as e:
-        assert e.code == produce.EXIT_QUALITY
-        return None
+def refuses(quotes, episodes):
+    """凑不齐就整批退 2 —— 断言拒绝，并把拒绝理由交给调用方核。"""
+    with pytest.raises(SystemExit) as e:
+        produce.group_episodes(quotes, episodes=episodes, strict=True)
+    assert e.value.code == produce.EXIT_QUALITY
 
 
-# ── 阈值常量本身不许被调松 ──────────────────────────────────────────────────
+# ── 退出码常量 ──────────────────────────────────────────────────────────────
+# 四条阈值和 EXIT_QUALITY 由 test_episode_gate.py::test_thresholds_are_unchanged
+# 钉死，这里不重复。EXIT_CONFIG 只有下面的 CLI 小节用得上，就放在这。
 
-def test_gate_constants_are_pinned():
-    """下面所有边界用例都是照这几个数算出来的，改常量必须先改这里。"""
-    assert produce.SEGMENTS == 3
-    assert HL.MIN_QUOTES == 3
-    assert HL.MIN_QUOTE_SEC == 15
-    assert HL.MIN_TOTAL_SEC == 150
-    assert HL.EXIT_QUALITY == produce.EXIT_QUALITY == 2
+def test_exit_config_is_one():
+    """``--episodes`` 的入参错误算配置错，退 1，不能和内容质量拒绝混成一码。"""
     assert produce.EXIT_CONFIG == 1
 
 
@@ -239,21 +243,14 @@ def test_total_duration_counts_only_the_segments_that_ship(capsys):
     assert payload["selected"] == produce.SEGMENTS
 
 
-def test_first_group_is_trimmed_to_exactly_segments():
-    """候选再多，首组也只拿 SEGMENTS 段，多拿等于把别集的素材吃掉。"""
-    got = HL.enforce_quote_thresholds(chain([60.0] * 12),
-                                      want=produce.SEGMENTS, strict=True)
-    assert [q["rank"] for q in got] == [1, 2, 3]
+# 首组「候选再多也只拿 SEGMENTS 段」由
+# test_highlight_thresholds.py::test_passing_set_is_returned_trimmed_to_want 覆盖。
 
 
 # ── 3. 多集闸门：每集段数、每集各自过阈值、集间不复用 ────────────────────────
-
-def test_every_episode_gets_exactly_segments_quotes():
-    """每集恰好 SEGMENTS 段，不多不少。"""
-    groups = produce.group_episodes(chain([60.0] * 9), episodes=3, strict=True)
-    assert len(groups) == 3
-    assert [len(g) for g in groups] == [produce.SEGMENTS] * 3
-
+# 「恰好 SEGMENTS×N 段时每组都填满」由
+# test_episode_gate.py::test_exactly_enough_at_the_unit_level_fills_every_group
+# 覆盖（那条还额外钉死了 rank 的排布），这里只测它没覆盖的「候选有富余」一侧。
 
 def test_surplus_candidates_do_not_inflate_an_episode():
     """候选远多于需要时，也不能把多的塞进某一集。"""
@@ -274,7 +271,7 @@ def test_second_episode_segment_count_boundary(extra, ok):
     """
     quotes = two_episode_pool([80.0] * extra)
     if not ok:
-        assert episodes_produced(quotes, 2) in (None, 1)
+        refuses(quotes, 2)
         return
     groups = produce.group_episodes(quotes, episodes=2, strict=True)
     assert len(groups) == 2
@@ -293,7 +290,7 @@ def test_second_episode_min_quote_sec_boundary(dur, ok):
     """
     quotes = two_episode_pool([70.0, 70.0, float(dur)])
     if not ok:
-        assert episodes_produced(quotes, 2) in (None, 1)
+        refuses(quotes, 2)
         return
     groups = produce.group_episodes(quotes, episodes=2, strict=True)
     assert len(groups) == 2
@@ -310,7 +307,7 @@ def test_second_episode_min_total_sec_boundary(total, ok):
     """第 2 集的总时长下限：差一秒就不能算一集。"""
     quotes = two_episode_pool([50.0, 50.0, float(total) - 100.0])
     if not ok:
-        assert episodes_produced(quotes, 2) in (None, 1)
+        refuses(quotes, 2)
         return
     groups = produce.group_episodes(quotes, episodes=2, strict=True)
     assert len(groups) == 2
@@ -348,47 +345,41 @@ def test_episode_spans_are_pairwise_disjoint():
             assert not (b > c and a < d), f"{(a, b)} 与 {(c, d)} 重叠"
 
 
-def test_single_episode_path_returns_one_group_of_segments():
-    """``--episodes 1`` 候选再多也只出一组，且就是首组那 SEGMENTS 段。"""
-    groups = produce.group_episodes(chain([60.0] * 9), episodes=1, strict=True)
-    assert len(groups) == 1
-    assert [q["rank"] for q in groups[0]] == [1, 2, 3]
+# ``episodes=1`` 只出一组，由
+# test_produce_episodes.py::test_group_episodes_default_returns_exactly_one_group
+# 覆盖（默认值就是 1，走的是同一条 ``episodes <= 1`` 分支）。
 
 
-# ── 端到端：跑完整条流水线，核产出的集数与段数 ──────────────────────────────
+# ── 端到端：只留其它文件没在成品层面核过的那两条 ────────────────────────────
+# 「素材够就出满 N 集」「集间不复用素材」由 test_episode_gate.py 的
+# test_exactly_enough_segments_passes / test_passing_episodes_never_share_a_segment
+# 端到端核过了，这里不重跑。
 
-def test_enough_material_delivers_exactly_the_requested_episodes(harness):  # noqa: F811
-    """素材刚好够 3 集（9 段 × 60s）→ 正常出 3 集，每集 SEGMENTS 段。"""
+def test_every_delivered_episode_carries_exactly_segments(harness):  # noqa: F811
+    """每集的 meta.json 都要写着 SEGMENTS 段 —— 在成品层面核「不多不少」。
+
+    上面那些用例核的是 ``group_episodes`` 的返回值；这条核的是真的落到
+    ``deliver/<slug>/epNN/meta.json`` 里的段数。分组之后到写 meta 之间还有一段
+    路，某一集被悄悄削掉一段的话只有这里看得见。
+    """
     harness.set_candidates([(i * 70.0, i * 70.0 + 60.0) for i in range(9)])
     assert produce.main(["--source", "s.mp4", "--slug", "munger",
                          "--episodes", "3"]) == 0
 
-    queue = json.loads((Path("deliver") / "munger" / "queue.json")
-                       .read_text(encoding="utf-8"))
-    assert [ep["id"] for ep in queue["episodes"]] == ["ep01", "ep02", "ep03"]
     for eid in ("ep01", "ep02", "ep03"):
         meta = json.loads((Path("deliver") / "munger" / eid /
                            "meta.json").read_text(encoding="utf-8"))
-        assert meta["segment_count"] == produce.SEGMENTS
+        assert meta["segment_count"] == produce.SEGMENTS, f"{eid} 段数不对"
 
 
-def test_delivered_episodes_do_not_reuse_source_material(harness):  # noqa: F811
-    """端到端核一遍：queue.json 里三集的源区间两两不重叠。"""
-    harness.set_candidates([(i * 70.0, i * 70.0 + 60.0) for i in range(9)])
-    produce.main(["--source", "s.mp4", "--slug", "munger", "--episodes", "3"])
+def test_first_group_failure_keeps_the_single_episode_reason(harness, capsys):  # noqa: F811
+    """连首组都凑不出时，拒绝理由必须还是单集那套 ``insufficient_quotes``。
 
-    queue = json.loads((Path("deliver") / "munger" / "queue.json")
-                       .read_text(encoding="utf-8"))
-    spans = [(ep["source_start_sec"], ep["source_end_sec"])
-             for ep in queue["episodes"]]
-    assert len(spans) == len(set(spans)) == 3
-    for i, (a, b) in enumerate(spans):
-        for c, d in spans[i + 1:]:
-            assert not (b > c and a < d), f"{(a, b)} 与 {(c, d)} 重叠"
-
-
-def test_no_group_at_all_is_a_quality_rejection(harness, capsys):  # noqa: F811
-    """一组都凑不出来 → 退 2，且选帧/翻译/拼片一分钱不花。"""
+    首组是直接交给 ``HL.enforce_quote_thresholds`` 的，多集路径不能把它的拒绝
+    理由改写成 ``insufficient_episode_quotes`` —— 运维靠这个词区分「源片整体不
+    行」和「只是撑不起这么多集」。退 2 本身由 test_episode_gate.py 覆盖，这里
+    只钉理由。
+    """
     harness.set_candidates([(0.0, 60.0), (70.0, 130.0)])
     with pytest.raises(SystemExit) as e:
         produce.main(["--source", "s.mp4", "--slug", "munger",
@@ -397,53 +388,31 @@ def test_no_group_at_all_is_a_quality_rejection(harness, capsys):  # noqa: F811
     payload = rejection(capsys)
     assert payload["stage"] == "highlight"
     assert payload["reason"] == "insufficient_quotes"
-    assert harness.calls["cover_select"] == 0
-    assert harness.calls["translate"] == 0
-    assert harness.calls["assemble"] == 0
 
 
 # ── 铁律：凑不齐请求集数必须整批退 2 ────────────────────────────────────────
-# 已知偏差。当前 main 的 group_episodes 在填不满一组时 break 掉，返回 M<N 组
-# 再退 0（源码注释写的是「能出几组算几组」），main() 也没有把 len(groups) 和
-# args.episodes 核过。下游按 --episodes N 排了 N 天档期，静默回 M<N 集会被当成
-# 正常结果收下 —— 按项目铁律这也是一种硬出。
+# 这一节原先是 5 条 strict xfail —— 写的时候 group_episodes 还是「填不满就 break
+# 掉、返回 M<N 组再退 0」，所以只能把铁律要求的行为挂起来等修复。PR #21 已经把
+# 它改成整批退 2，标记随之摘掉。
 #
-# 这几条按铁律要求的行为写，用 strict xfail 挂着：修好之后它们会 XPASS，
-# strict=True 会让 CI 变红，提醒把标记删掉。不在这个 PR 里改生产代码。
-IRON_RULE = ("已知偏差：group_episodes 凑不齐请求集数时少出几集再退 0，"
-             "铁律要求整批退 2（EXIT_QUALITY）")
+# 摘标记时顺带做了去重：「差一段 / 只够 2 集 / 只够 1 集」这三档和请求集数超过
+# 素材上限那条，都被 test_episode_gate.py 里更严的版本覆盖了（那边连拒绝理由的
+# 字段和「一集都没落盘」都核了）。剩下这条是那批里唯一独有的场景。
 
+def test_a_short_episode_is_refused_rather_than_dropped(harness, capsys):  # noqa: F811
+    """第 2 集**时长够、段数不够** → 退 2，不是只出 1 集。
 
-@pytest.mark.xfail(reason=IRON_RULE, strict=True)
-@pytest.mark.parametrize("usable", [
-    produce.SEGMENTS * 3 - 1,       # 差一段就够 3 集
-    produce.SEGMENTS * 2,           # 只够 2 集
-    produce.SEGMENTS,               # 只够 1 集
-])
-def test_one_short_of_the_boundary_refuses_instead_of_dropping_episodes(usable):
-    """素材差一点点 → 应当退 2，而不是少出几集。"""
-    with pytest.raises(SystemExit) as e:
-        produce.group_episodes(chain([60.0] * usable), episodes=3, strict=True)
-    assert e.value.code == produce.EXIT_QUALITY
-
-
-@pytest.mark.xfail(reason=IRON_RULE, strict=True)
-def test_requesting_more_episodes_than_the_source_supports_refuses(harness):  # noqa: F811
-    """请求集数超过素材上限 → 应当退 2，且不产出任何一集。"""
-    harness.set_candidates([(i * 70.0, i * 70.0 + 60.0) for i in range(4)])
-    with pytest.raises(SystemExit) as e:
-        produce.main(["--source", "s.mp4", "--slug", "munger",
-                      "--episodes", "3"])
-    assert e.value.code == produce.EXIT_QUALITY
-    assert harness.calls["assemble"] == 0
-
-
-@pytest.mark.xfail(reason=IRON_RULE, strict=True)
-def test_a_short_episode_is_refused_rather_than_dropped(harness):  # noqa: F811
-    """第 2 集只凑得出 2 段（时长够、段数不够）→ 应当退 2，不是只出 1 集。"""
+    后两段各 80s，合计 160s 已经过了 150s 的时长闸门 —— 唯一能拦住它的是段数
+    闸门。test_episode_gate.py 那几条端到端用的是 60s 等长段，两条闸门会同时
+    触发，兜不住「段数闸门被摘掉」这种改动。
+    """
     harness.set_candidates([(0.0, 60.0), (70.0, 130.0), (140.0, 200.0),
                             (1000.0, 1080.0), (1090.0, 1170.0)])
     with pytest.raises(SystemExit) as e:
         produce.main(["--source", "s.mp4", "--slug", "munger",
                       "--episodes", "2"])
     assert e.value.code == produce.EXIT_QUALITY
+    payload = rejection(capsys)
+    assert payload["reason"] == "insufficient_episode_quotes"
+    assert payload["actual_count"] == 2 and payload["episode"] == 2
+    assert harness.calls["assemble"] == 0
