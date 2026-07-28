@@ -15,7 +15,8 @@
     pastCount: document.getElementById("past-count"),
     notice: document.getElementById("notice"),
     toast: document.getElementById("toast"),
-    tpl: document.getElementById("card-tpl")
+    tpl: document.getElementById("card-tpl"),
+    saveTipTpl: document.getElementById("save-tip-tpl")
   };
 
   function text(v) {
@@ -165,7 +166,10 @@
 
   function buildCard(ep, hero) {
     var node = els.tpl.content.firstElementChild.cloneNode(true);
-    if (hero) node.classList.add("hero");
+    if (hero) {
+      node.classList.add("hero");
+      node.querySelector(".body").appendChild(els.saveTipTpl.content.cloneNode(true));
+    }
 
     var img = node.querySelector("img");
     var fallback = node.querySelector(".thumb-fallback");
