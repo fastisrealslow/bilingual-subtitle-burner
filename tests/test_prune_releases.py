@@ -9,10 +9,17 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import prune_releases as PR                        # noqa: E402
+
+# 这个脚本自己的三档语义。两个 1 是**两件事**，只是恰好共用一个码：
+# 删不掉 Release 多半是 token 权限问题，和敲错 flag 没关系。
+EXIT_STALE_TAG = 2          # Release 都删了，但有 tag ref 没清掉，要人工收尾
+EXIT_DELETE_FAILED = 1      # Release 删除请求失败，立刻停手
 
 
 def gh_404(path):
@@ -373,6 +380,118 @@ def test_without_repo_the_rest_paths_use_ghs_placeholders(tmp_path,
         f"repos/{{owner}}/{{repo}}/releases/{gh.ids['clips-partner']}",
         "repos/{owner}/{repo}/git/refs/tags/clips-partner"]
     assert not any("--repo" in call for call in gh.calls)
+
+
+# ── 参数错误的归类 ──────────────────────────────────────────────────────────
+# argparse 默认把用法错误退 2，而这个脚本的 2 是「有 tag 要人工收尾」。
+
+USAGE_ERRORS = [
+    # --index 拼错时 argparse 先报「缺必需参数」，指的还是 --index，不是错字
+    pytest.param(["--idnex", "site/data/index.json"], "--index",
+                 id="拼错-index"),
+    pytest.param([], "--index", id="缺必需参数"),
+    pytest.param(["--index", "x", "--excute"], "--excute", id="拼错-execute"),
+    pytest.param(["--index", "x", "--repo"], "--repo", id="repo-缺取值"),
+]
+
+
+@pytest.mark.parametrize("argv,needle", USAGE_ERRORS)
+def test_usage_error_exits_config(argv, needle, capsys):
+    with pytest.raises(SystemExit) as e:
+        PR.main(argv)
+    assert e.value.code == PR.EXIT_CONFIG
+    # 退出码对了还不够：得看得出是哪个参数惹的祸，否则等于静默失败
+    assert needle in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("argv,needle", USAGE_ERRORS)
+def test_usage_error_is_not_mistaken_for_a_stale_tag(argv, needle, capsys):
+    """反向断言：绝不能退 2。
+
+    退 2 在这个脚本里是「Release 都删了、还剩空 tag ref 要人工收拾」。敲错一个
+    flag 报出那个码，人就会跑去仓库里找根本不存在的残留。
+    """
+    with pytest.raises(SystemExit) as e:
+        PR.main(argv)
+    capsys.readouterr()
+    assert e.value.code != EXIT_STALE_TAG
+
+
+def test_a_usage_error_never_reaches_github(monkeypatch, capsys):
+    """参数还没解析成功，一个 gh 调用都不该发出去。"""
+    def boom(args):
+        raise AssertionError(f"参数错误不该调 gh：{args}")
+
+    monkeypatch.setattr(PR, "run_gh", boom)
+    with pytest.raises(SystemExit) as e:
+        PR.main(["--index", "x", "--excute"])
+    assert e.value.code == PR.EXIT_CONFIG
+    capsys.readouterr()
+
+
+@pytest.mark.parametrize("flag", ["-h", "--help"])
+def test_help_exits_zero_and_is_not_an_error(flag, capsys):
+    """``-h`` 走 argparse 自己的 ``exit()``，不该被覆盖顺手改掉。"""
+    with pytest.raises(SystemExit) as e:
+        PR.main([flag])
+    assert e.value.code == 0
+
+    captured = capsys.readouterr()
+    assert "--index" in captured.out and "--execute" in captured.out
+    assert captured.err == ""
+
+
+def test_usage_error_and_stale_tag_no_longer_share_a_code(tmp_path, monkeypatch,
+                                                          capsys):
+    """撞号的正面对照：同一个脚本的两种失败必须给出不同的码。"""
+    index = write_index(tmp_path, "live")
+
+    gh = install(monkeypatch, THREE)
+    gh.fails["repos/o/n/git/refs/tags/clips-partner"] = PR.GhError(
+        "gh api 失败（退出码 1）：HTTP 403: Forbidden", "HTTP 403: Forbidden\n")
+    stale = PR.main(["--index", str(index), "--repo", "o/n", "--execute"])
+
+    with pytest.raises(SystemExit) as e:
+        PR.main(["--index", str(index), "--excute"])
+    usage = e.value.code
+    capsys.readouterr()
+
+    assert stale == EXIT_STALE_TAG
+    assert usage == PR.EXIT_CONFIG
+    assert usage != stale
+
+
+def test_the_three_outcomes_keep_their_own_codes(tmp_path, monkeypatch,
+                                                 capsys):
+    """三档语义一条都不许被这次改动带偏。
+
+    dry-run 退 0；Release 删不掉退 1 且立刻停手；tag 删不掉退 2 且继续处理后面
+    的孤儿。上面各自有专门的用例，这条把三个码摆在一起，防的是「改一个码顺手
+    把另一个也改了」这种整体走形。
+    """
+    index = write_index(tmp_path, "live")
+
+    dry = install(monkeypatch, THREE)
+    assert PR.main(["--index", str(index)]) == 0
+    assert dry.api_deletes == []
+
+    rel = install(monkeypatch, THREE)
+    rel.fails[f"repos/o/n/releases/{rel.ids['clips-partner']}"] = PR.GhError(
+        "gh api 失败（退出码 1）：HTTP 401", "HTTP 401: Requires authentication\n")
+    assert PR.main(["--index", str(index), "--repo", "o/n",
+                    "--execute"]) == EXIT_DELETE_FAILED
+    assert rel.deleted == ["clips-partner"]        # 第一个就停手
+    assert set(rel.releases) == set(THREE)
+
+    tag = install(monkeypatch, THREE)
+    tag.fails["repos/o/n/git/refs/tags/clips-partner"] = PR.GhError(
+        "gh api 失败（退出码 1）：HTTP 403", "HTTP 403: Forbidden\n")
+    assert PR.main(["--index", str(index), "--repo", "o/n",
+                    "--execute"]) == EXIT_STALE_TAG
+    # 前一个 tag 失败没有拦住后一个孤儿
+    assert tag.deleted == ["clips-partner", "clips-chain"]
+    assert tag.deleted_tag_refs == ["clips-partner", "clips-chain"]
+    capsys.readouterr()
 
 
 def test_human_size_formats_each_unit():

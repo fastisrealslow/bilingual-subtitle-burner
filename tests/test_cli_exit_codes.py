@@ -8,9 +8,15 @@ argparse 默认把用法错误退 2。本仓库的 2 是 ``EXIT_QUALITY`` 的专
 更自相矛盾的是同一个参数的两种错法给两个码：``--episodes 2.5`` 由 argparse
 拦下退 2，``--episodes 0`` 由 ``produce.main`` 自己拦下退 1。
 
-四个带退出码约定的入口都用 ``ConfigErrorArgumentParser`` 覆盖了 argparse 的
+带退出码约定的入口都用 ``ConfigErrorArgumentParser`` 覆盖了 argparse 的
 ``error()``：``produce.py`` / ``scripts/highlight.py`` /
-``scripts/publish_bilibili.py`` / ``steps/step7_cover.py``。
+``scripts/publish_bilibili.py`` / ``steps/step7_cover.py`` /
+``scripts/prune_releases.py``。
+
+``prune_releases.py`` 撞的是另一个 2 —— 它的退出码表里 2 是「Release 都删了但有
+tag 没清干净，需要人工收尾」。敲错 flag 退 2 会被读成「去仓库里收拾残留的空
+ref」，而其实一个删除请求都没发出去。它自己那三档语义由
+``test_prune_releases.py`` 守着，这里只核跨入口的一致性。
 
 本文件锁三件事：
 
@@ -30,6 +36,7 @@ import pytest
 
 import highlight as HL
 import produce
+import prune_releases as PR
 import publish_bilibili as PB
 import step7_cover as COVER
 
@@ -43,9 +50,9 @@ def test_config_and_quality_codes_are_distinct():
     assert produce.EXIT_CONFIG != produce.EXIT_QUALITY
 
 
-@pytest.mark.parametrize("mod", [produce, HL, PB, COVER])
+@pytest.mark.parametrize("mod", [produce, HL, PB, COVER, PR])
 def test_every_entry_module_agrees_on_config_code(mod):
-    """四个入口对「配置错 = 1」的理解必须一致，不能各写各的。"""
+    """带退出码约定的入口对「配置错 = 1」的理解必须一致，不能各写各的。"""
     assert mod.EXIT_CONFIG == 1
 
 
@@ -194,9 +201,9 @@ def run_cli(mod, argv, monkeypatch):
 
     ``highlight`` 和 ``step7_cover`` 的 ``main()`` 不收 argv，直接读
     ``sys.argv``，所以这里改 ``sys.argv`` 而不是传参。参数解析在任何外部调用
-    之前，所以到不了 API key 检查那一步。
+    之前，所以到不了 API key 检查那一步（``prune_releases`` 同理，到不了 gh）。
     """
-    if mod is PB:
+    if mod in (PB, PR):
         return mod.main(argv)
     monkeypatch.setattr(sys, "argv", [mod.__name__ + ".py"] + argv)
     return mod.main()
@@ -206,6 +213,7 @@ def run_cli(mod, argv, monkeypatch):
     pytest.param(HL, "--srt", id="highlight"),
     pytest.param(PB, "--queue", id="publish_bilibili"),
     pytest.param(COVER, "--manifest", id="step7_cover"),
+    pytest.param(PR, "--index", id="prune_releases"),
 ])
 def test_other_entrypoints_exit_config_on_usage_error(mod, needle,
                                                       monkeypatch, capsys):
@@ -216,7 +224,7 @@ def test_other_entrypoints_exit_config_on_usage_error(mod, needle,
     assert needle in capsys.readouterr().err
 
 
-@pytest.mark.parametrize("mod", [HL, PB, COVER])
+@pytest.mark.parametrize("mod", [HL, PB, COVER, PR])
 def test_other_entrypoints_help_exits_ok(mod, monkeypatch, capsys):
     with pytest.raises(SystemExit) as e:
         run_cli(mod, ["-h"], monkeypatch)
