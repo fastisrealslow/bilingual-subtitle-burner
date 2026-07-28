@@ -125,10 +125,20 @@ archive.org 的 `HTTP Error 500` 是间歇性的（CI run 30263087066 就这么�
 | --- | --- | --- |
 | `insufficient_quotes` | 时长达标的金句条数不够 | `MIN_QUOTES = 3` |
 | `insufficient_duration` | 前 3 段拼起来不到 2.5 分钟 | `MIN_TOTAL_SEC = 150` |
+| `insufficient_episode_quotes` | `--episodes N` 时第 k 集凑不满 3 段 | `SEGMENTS = 3` |
+| `insufficient_episode_duration` | `--episodes N` 时第 k 集总时长不够 | `MIN_TOTAL_SEC = 150` |
 | `empty_transcript` | 转写结果为空 | — |
 
 单段时长下限 `MIN_QUOTE_SEC = 15`：更短的片段先被筛掉，再去数条数。
 总时长按**真正会拼进成片的那三段**算，不是全部候选之和 —— 拿候选池凑数没有意义。
+
+### 段数闸门（`--episodes N`）
+
+`--episodes N` 是**全有或全无**：N 集里有任意一集凑不出合格片段，整批退 2，
+一集都不出。少出集看着像「省着用」，实际是另一种硬出 —— 调用方按 N 排好了 N 天的
+发布档期，静默回 M<N 集会被下游当成正常结果收下。带 `insufficient_episode_*`
+的两个 `reason` 里有 `episode`（卡在第几集）、`episodes_ready`（已凑齐几集）和
+`episodes_requested`，够定位是源片太短还是集数要得太多。
 
 阈值可用环境变量覆盖：
 

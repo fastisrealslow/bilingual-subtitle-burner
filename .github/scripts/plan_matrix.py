@@ -39,7 +39,7 @@ def normalize(raw: dict, origin: str) -> dict:
 
     # 手动封面时间点，多集时逗号分隔一集一个。matrix 里走字符串（空串 = 不指定），
     # 但「写了个非数字」要在 plan 阶段就验出来，否则得等 40 分钟的 runner 跑到
-    # 最后一步才炸。个数与集数是否匹配由 produce.py 按实际产出集数核。
+    # 最后一步才炸。个数与集数是否匹配由 produce.py 核。
     cover_time = str(raw.get("cover_time_sec") or "").strip()
     if cover_time:
         try:

@@ -31,7 +31,7 @@ on:
         default: false
         type: boolean
       cover_time_sec:
-        description: "手动指定封面帧时间点（秒），留空则自动选帧。用于全片没有主讲人正脸的解说式剪辑。多集时用逗号分隔，一集一个按顺序对应（如 287,412），个数须等于实际产出集数"
+        description: "手动指定封面帧时间点（秒），留空则自动选帧。用于全片没有主讲人正脸的解说式剪辑。多集时用逗号分隔，一集一个按顺序对应（如 287,412），个数须等于集数"
         required: false
         default: ""
         type: string
@@ -62,7 +62,7 @@ on:
         default: ""
         type: string
       episodes:
-        description: "一次出几集。下载和转写只做一次，highlight 挑 N 组互不重叠的片段。源不够时不凑数，能出几集就几集。留空用默认 1"
+        description: "一次出几集。下载和转写只做一次，highlight 挑 N 组互不重叠的片段。源撑不起这个集数就整批退 2，不会少出几集。留空用默认 1"
         required: false
         default: ""
         type: string

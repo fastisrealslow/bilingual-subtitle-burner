@@ -313,9 +313,10 @@ def group_episodes(quotes: list, episodes: int = DEFAULT_EPISODES,
     原来的判定和拒绝理由，不达标照旧退 2。后续每组按 rank 顺序贪心取满
     ``SEGMENTS`` 段，跳过与已选片段重叠的候选。
 
-    源不够时不凑数：填不满一组、或这一组总时长不够，就在这里停下，能出几组
-    算几组。候选是按 rank 排的，第一组填不满往后只会更差，所以停在第一个
-    不合格的组上。
+    源撑不起请求的集数就整批退 2，不静默少出几集：调用方按 ``--episodes N``
+    排了 N 天的发布档期，悄悄回 M<N 集下游只会当成正常结果收下，等于换个方式
+    硬出。候选是按 rank 排的，某一组填不满往后只会更差，所以在第一个不合格的
+    组上就退，不再往下试。
     """
     first = HL.enforce_quote_thresholds(quotes, want=SEGMENTS, strict=strict)
     groups = [first]
@@ -342,15 +343,22 @@ def group_episodes(quotes: list, episodes: int = DEFAULT_EPISODES,
             group.append(q)
             spans.append((q["clip_start_sec"], q["clip_end_sec"]))
 
-        if len(group) < max(SEGMENTS, min_quotes):
-            log("highlight", f"第 {len(groups) + 1} 集只凑得出 {len(group)} 段"
-                             f"（需要 {max(SEGMENTS, min_quotes)} 段），源不够，不凑数")
-            break
+        need = max(SEGMENTS, min_quotes)
+        if len(group) < need:
+            die(EXIT_QUALITY, "highlight", "insufficient_episode_quotes",
+                detail=f"第 {len(groups) + 1} 集只凑得出 {len(group)} 段"
+                       f"（需要 {need} 段），源撑不起 {episodes} 集，不凑数",
+                episode=len(groups) + 1, episodes_requested=episodes,
+                episodes_ready=len(groups), actual_count=len(group),
+                threshold_count=need, min_quote_sec=min_quote_sec)
         total = sum(clip_duration(q) for q in group)
         if total < min_total_sec:
-            log("highlight", f"第 {len(groups) + 1} 集合计 {total:.0f}s "
-                             f"不足 {min_total_sec:.0f}s，源不够，不凑数")
-            break
+            die(EXIT_QUALITY, "highlight", "insufficient_episode_duration",
+                detail=f"第 {len(groups) + 1} 集合计 {total:.0f}s 不足 "
+                       f"{min_total_sec:.0f}s，源撑不起 {episodes} 集，不凑数",
+                episode=len(groups) + 1, episodes_requested=episodes,
+                episodes_ready=len(groups), actual_sec=round(total, 1),
+                threshold_sec=min_total_sec)
 
         groups.append(group)
         used = spans
@@ -363,7 +371,8 @@ def pick_quote_groups(srt: Path, work: Path, speaker: str, total_dur: float,
                       episodes: int = DEFAULT_EPISODES) -> list:
     """LLM 打分挑金句 → 切点对齐 → 过出片门槛 → 切成 N 组。
 
-    不达标由 highlight 退 2。返回片段组列表，长度 ≤ ``episodes``。
+    不达标由 highlight 退 2。返回的片段组恰好 ``episodes`` 组 —— 凑不齐不返回
+    短列表，而是在 ``group_episodes`` 里就退 2。
     """
     entries = HL.parse_srt(str(srt))
     if not entries:
@@ -390,7 +399,7 @@ def pick_quote_groups(srt: Path, work: Path, speaker: str, total_dur: float,
         total = sum(q["clip_duration_sec"] for q in group)
         log("highlight", f"第 {i} 集选中 {len(group)} 段，合计 {total:.0f}s → {out}")
     if episodes > 1:
-        log("highlight", f"要 {episodes} 集，实际能出 {len(groups)} 集")
+        log("highlight", f"{episodes} 集片段全部凑齐")
     return groups
 
 
@@ -1060,9 +1069,8 @@ def parse_args(argv=None):
     p.add_argument("--episodes", type=int, default=DEFAULT_EPISODES, metavar="N",
                    help=f"一次出几集（默认 {DEFAULT_EPISODES}）。下载和转写只做一次，"
                         f"highlight 挑 N 组互不重叠的片段，每集各自选帧/翻译/"
-                        f"烧字幕/起标题/出封面。源不够时不凑数，能出几集就几集，"
-                        f"实际集数写进 queue.json；N>1 时产物落在 "
-                        f"deliver/<slug>/ep01/、ep02/…")
+                        f"烧字幕/起标题/出封面。源撑不起 N 集就整批退 2，不会"
+                        f"少出几集；N>1 时产物落在 deliver/<slug>/ep01/、ep02/…")
     p.add_argument("--out", default="deliver", help="产物根目录（默认 deliver/）")
     p.add_argument("--no-vlm", action="store_true",
                    help="封面跳过 VLM 校验，只按几何规则选帧")
@@ -1077,7 +1085,7 @@ def parse_args(argv=None):
                         "用于全片没有主讲人正脸的解说式剪辑/空镜素材片。"
                         "钉下的帧仍会送 VLM 做人物校验，判定不是 --speaker "
                         "本人就退 2。多集时给逗号分隔的多个值，一集一个，"
-                        "按集顺序对应，个数必须与实际产出集数相等")
+                        "按集顺序对应，个数必须与 --episodes 相等")
     p.add_argument("--cover-allow-unverified", action="store_true",
                    help="放行未经 VLM 人物核验的钉帧封面（默认关闭）。"
                         "只在确认过画面内容时用；打开后日志会打醒目告警，"
@@ -1205,13 +1213,12 @@ def main(argv=None) -> int:
                                    probe_duration(video), api_key, base_url,
                                    args.strict_highlights, args.episodes)
 
-    # 实际集数可能少于 --episodes 请求数（源不够时不凑数），所以钉帧个数要跟
-    # 真正产出的组数核，而不是跟请求数核。核在翻译之前，免得白花钱。
+    # 走到这里 groups 一定凑齐了请求的集数（凑不齐已在 highlight 退 2）。
+    # 钉帧个数核在翻译之前，免得白花钱。
     if cover_times and len(cover_times) != len(groups):
         die(EXIT_CONFIG, "config", "cover_time_count_mismatch",
             detail=f"--cover-time-sec 给了 {len(cover_times)} 个时间点，"
-                   f"实际产出 {len(groups)} 集（源不够时会少于 --episodes "
-                   f"请求的 {args.episodes} 集），必须一集一个、个数相等",
+                   f"实际要出 {len(groups)} 集，必须一集一个、个数相等",
             cover_time_sec=cover_times, episodes=len(groups),
             episodes_requested=args.episodes)
 
