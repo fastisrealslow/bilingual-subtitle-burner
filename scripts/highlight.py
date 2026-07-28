@@ -55,6 +55,8 @@ SENTENCE_END_PUNCT = "。！？；、.!?;"
 SENTENCE_WINDOW_SEC = 8.0   # 找句末标点的最大搜索范围，超出就不再外扩
 BOUNDARY_MARGIN_SEC = 0.3   # 吸附后两端各留的呼吸余量
 
+EXIT_CONFIG = 1         # 参数 / 配置错误
+
 # 出片门槛。模型偶尔只能挑出一两段勉强及格的内容，硬凑成片比不出片更糟，
 # 所以达不到就退 2 让调用方（produce.py / CI）停下来，而不是接着往下渲染。
 EXIT_QUALITY = 2
@@ -70,6 +72,21 @@ def reject(stage: str, reason: str, **fields) -> None:
     payload = {"stage": stage, "reason": reason, **fields}
     print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
     sys.exit(EXIT_QUALITY)
+
+
+class ConfigErrorArgumentParser(argparse.ArgumentParser):
+    """把 argparse 的用法错误归到退 1，不沿用它默认的退 2。
+
+    退 2 是本文件里「金句不达标，拒绝硬出」的专用码，敲错 flag 不该和它撞号。
+    ``-h`` 走 argparse 自己的 ``exit()``，不经过这里，仍退 0。
+    """
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        payload = {"stage": "config", "reason": "invalid_arguments",
+                   "detail": f"{self.prog}: error: {message}"}
+        print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
+        sys.exit(EXIT_CONFIG)
 
 
 def threshold(name: str, default: float, strict: bool = False) -> float:
@@ -537,7 +554,8 @@ def align_clips(items: List[Dict], entries: List[Dict], total_duration: float,
 # ── 主入口 ────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="从字幕自动识别金句片段并打分")
+    parser = ConfigErrorArgumentParser(
+        prog="highlight.py", description="从字幕自动识别金句片段并打分")
     parser.add_argument("--srt", required=True, help="英文 SRT 文件路径（全片）")
     parser.add_argument("--bilingual", default=None,
                         help="双语 JSON 路径（translate.py 输出），有则合并中文")

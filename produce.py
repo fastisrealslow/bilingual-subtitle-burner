@@ -1053,8 +1053,22 @@ def cover_time_sec_arg(raw: str) -> list[float]:
     return values
 
 
+class ConfigErrorArgumentParser(argparse.ArgumentParser):
+    """把 argparse 的用法错误归到退 1，不沿用它默认的退 2。
+
+    退 2 在本仓库专指「内容质量不达标，拒绝硬出」，文档写明重试没有意义、该换
+    片源。敲错一个 flag 也退 2 的话，照着那条结论读出来就是「换片源吧」。
+    ``-h``/``--version`` 走 argparse 自己的 ``exit()``，不经过这里，仍退 0。
+    """
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        die(EXIT_CONFIG, "config", "invalid_arguments",
+            detail=f"{self.prog}: error: {message}")
+
+
 def parse_args(argv=None):
-    p = argparse.ArgumentParser(
+    p = ConfigErrorArgumentParser(
         prog="produce.py",
         description="一键出片：视频源 → deliver/<slug>/{final.mp4, cover_*.jpg, meta.json}",
         formatter_class=argparse.RawDescriptionHelpFormatter,

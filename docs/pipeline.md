@@ -105,11 +105,18 @@ archive.org 的 `HTTP Error 500` 是间歇性的（CI run 30263087066 就这么�
 | 码 | 含义 | 该怎么办 |
 | --- | --- | --- |
 | `0` | 成功 | — |
-| `1` | 参数 / 配置错误 | 缺 `SILICONFLOW_API_KEY`、slug 非法、片源不存在、缺 ffmpeg/yt-dlp |
+| `1` | 参数 / 配置错误 | 命令行参数不合法（拼错 flag、类型不对、缺必需参数）、缺 `SILICONFLOW_API_KEY`、slug 非法、片源不存在、缺 ffmpeg/yt-dlp |
 | `2` | **内容质量不达标** | 这条片源挑不出够格的金句或封面。不是 bug，是拒绝硬出 |
 | `3` | 外部依赖失败 | SiliconFlow 5xx / 全模型不可用、yt-dlp 下载失败、ffmpeg 非零退出 |
 
 退 2 和退 3 要分清楚：**退 2 重试没有意义**（换片源或放宽阈值），退 3 通常重试就好。
+
+**命令行参数错误一律退 1，不退 2。** argparse 默认把用法错误退 2，会和「内容质量
+不达标」撞号 —— 敲错一个 flag，照上表读出来的结论是「换片源」。带退出码约定的入口
+（`produce.py`、`scripts/highlight.py`、`scripts/publish_bilibili.py`、
+`steps/step7_cover.py`）都用 `ConfigErrorArgumentParser` 覆盖了 argparse 的
+`error()` 改走退 1，同时保留 argparse 原本「哪个参数错了」的文案。`-h/--help`
+仍退 0。
 
 ## 拒绝原因（退出码 2）
 

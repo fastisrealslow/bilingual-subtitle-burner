@@ -129,12 +129,16 @@ def test_non_positive_episodes_is_a_config_error(raw, no_pipeline, capsys):
 
 @pytest.mark.parametrize("raw", ["2.5", "abc", "", " ", "3x", "1e2", "3,4"])
 def test_non_integer_episodes_is_refused_by_the_parser(raw, capsys):
-    """非整数由 argparse 拦下 —— 关键是它不能被解析成某个数字继续往下跑。"""
+    """非整数由 argparse 拦下 —— 关键是它不能被解析成某个数字继续往下跑。
+
+    退出码得和上面 ``--episodes 0`` 那条走同一个 EXIT_CONFIG：同一个参数的两种
+    错法给两个码（argparse 默认退 2）是自相矛盾，详见
+    ``test_cli_exit_codes.py``。
+    """
     with pytest.raises(SystemExit) as e:
         produce.parse_args(["--source", "v.mp4", "--slug", "s",
                             "--episodes", raw])
-    # argparse 的用法错误固定退 2，和 EXIT_QUALITY 撞号；这里只能核 stderr
-    assert e.value.code != 0
+    assert e.value.code == produce.EXIT_CONFIG
     assert "--episodes" in capsys.readouterr().err
 
 

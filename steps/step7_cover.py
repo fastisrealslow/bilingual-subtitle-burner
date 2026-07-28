@@ -184,6 +184,8 @@ def classify_frame_by_color(img_path: str,
 MIN_FACE_AREA_RATIO = 0.05   # 最大人脸框面积 / 帧面积，低于此视为脸太小做不了封面
 FALLBACK_KEEP = 8            # 无帧达标时改按脸大小取前 N 帧，而不是把全部帧都送上去
 
+EXIT_CONFIG = 1              # 参数 / 配置错误
+
 # 封面出片门槛。挑不出合格帧时宁可不出片，也不要拿一张路人合影当封面。
 EXIT_QUALITY = 2
 MIN_VLM_PASS_SCORE = 6       # vision 自评封面分低于此视为不合格
@@ -315,6 +317,21 @@ def reject_cover(reason: str, **fields) -> None:
     payload = {"stage": "cover", "reason": reason, **fields}
     print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
     sys.exit(EXIT_QUALITY)
+
+
+class ConfigErrorArgumentParser(argparse.ArgumentParser):
+    """把 argparse 的用法错误归到退 1，不沿用它默认的退 2。
+
+    退 2 是本文件里「挑不出合格封面帧，拒绝硬出」的专用码，敲错 flag 不该和它
+    撞号。``-h`` 走 argparse 自己的 ``exit()``，不经过这里，仍退 0。
+    """
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        payload = {"stage": "config", "reason": "invalid_arguments",
+                   "detail": f"{self.prog}: error: {message}"}
+        print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
+        sys.exit(EXIT_CONFIG)
 
 
 def largest_face_box(img_path: str):
@@ -1106,7 +1123,9 @@ def make_cover(frame_path: str, title: str, speaker: str,
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Step 7: 封面生成（vision 识别主讲人）")
+    parser = ConfigErrorArgumentParser(
+        prog="step7_cover.py",
+        description="Step 7: 封面生成（vision 识别主讲人）")
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--clips-dir", required=True)
     parser.add_argument("--raw-video", required=True, help="原始完整视频路径")
