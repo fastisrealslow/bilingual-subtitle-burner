@@ -28,12 +28,13 @@ sys.path.insert(0, str(ROOT))
 
 import produce                                   # noqa: E402
 
-from test_produce_episodes import (               # noqa: E402
+
+# harness 是 test_produce_episodes 里那套把外部依赖全换成计数器的 fixture。
+# 直接复用它，闸门测试才和多集回归测试跑在同一套替身上。import 进来就是注册，
+# 看着没人引用也不能删。
+from test_produce_episodes import (               # noqa: E402,F401
     aligned, deliver, even_spans, harness, read_queue,
 )
-
-# 让 flake8/pytest 都看得见这个 fixture 是被用到的
-__all__ = ["harness"]
 
 
 # ── 工具 ────────────────────────────────────────────────────────────────────
