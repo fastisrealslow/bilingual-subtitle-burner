@@ -232,6 +232,9 @@ jobs:
 
       # 手机页读的是仓库里的静态 index.json，不打 GitHub API（未登录
       # 60 次/小时/IP 会被限流）
+      #
+      # 合并的同时会把超出保留窗口的旧批次整批下架 —— 同一段素材换个 slug 重跑
+      # 时，页面上不会同时挂着两批重复内容。见 spec/publish_chain.md。
       - name: 合并进站点索引并提交
         if: github.ref == 'refs/heads/main'
         env:
@@ -256,6 +259,17 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
+
+      # 下架只把条目从 index.json 里摘掉，Release 还在占空间。这里只报账不动手：
+      # 删 Release 不可逆，要真删就在本地跑同一条命令加 --execute。
+      - name: 列出可清理的陈旧 Release（dry-run）
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git pull --rebase --autostash origin main
+          python scripts/prune_releases.py --index site/data/index.json
 
       # B 站投稿：预留接口，默认关闭。BILIBILI_COOKIES 这个 secret 目前不存在，
       # 所以这一步永远跳过 —— 用户的决定是先手动投稿。
