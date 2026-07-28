@@ -3,7 +3,9 @@
 两件事必须钉死：
 1. ``--episodes 1``（默认）的行为和加这个开关之前逐字一致 —— 产物还落在
    ``deliver/<slug>/``，阶段顺序、每一步的调用次数都不变。
-2. N>1 时下载和转写只做一次，片段组互不重叠，源不够就少出几集而不是凑数。
+2. N>1 时下载和转写只做一次，片段组互不重叠，源撑不起请求的集数就整批退 2
+   —— 少出集和凑数一样属于硬出。段数闸门本身的守卫见
+   ``test_episode_gate.py``。
 """
 
 import json
@@ -253,13 +255,18 @@ def test_episodes_do_not_overlap(harness):
             assert not (b > c and a < d), f"{(a, b)} 与 {(c, d)} 重叠"
 
 
-def test_short_source_yields_fewer_episodes_without_padding(harness):
-    """只有 4 段候选：够第一集的 3 段，第二集只剩 1 段 —— 不凑数，只出 1 集。"""
+def test_short_source_is_refused_instead_of_yielding_fewer_episodes(harness,
+                                                                   capsys):
+    """只有 4 段候选：够第一集的 3 段，第二集只剩 1 段 —— 整批退 2，不少出集。"""
     harness.set_candidates(even_spans(4))
-    assert produce.main(["--source", "s.mp4", "--slug", "munger",
-                         "--episodes", "3"]) == 0
-    assert len(read_queue()["episodes"]) == 1
-    assert harness.calls["assemble"] == 1
+    with pytest.raises(SystemExit) as e:
+        produce.main(["--source", "s.mp4", "--slug", "munger",
+                      "--episodes", "3"])
+    assert e.value.code == produce.EXIT_QUALITY
+    assert json.loads(capsys.readouterr().err.strip())["reason"] == \
+        "insufficient_episode_quotes"
+    assert harness.calls["assemble"] == 0
+    assert not (deliver() / "queue.json").exists()
 
 
 def test_no_group_at_all_is_a_quality_rejection(harness, capsys):
@@ -335,17 +342,15 @@ def test_cover_time_sec_list_maps_one_value_per_episode(harness):
     assert harness.cover_times == [287.0, 412.0]
 
 
-def test_cover_time_sec_count_must_match_the_actual_episode_count(harness,
-                                                                  capsys):
-    """实际集数可能少于请求集数（源不够不凑数），个数要跟真正产出的核。"""
-    harness.set_candidates(even_spans(4))       # 只够出 1 集
+def test_cover_time_sec_count_must_match_the_episode_count(harness, capsys):
+    """钉帧个数要和集数相等，多给也不行，且要在花钱的阶段之前拦住。"""
     with pytest.raises(SystemExit) as e:
         produce.main(["--source", "s.mp4", "--slug", "munger",
-                      "--episodes", "2", "--cover-time-sec", "287,412"])
+                      "--episodes", "2", "--cover-time-sec", "287,412,500"])
     assert e.value.code == produce.EXIT_CONFIG
     payload = json.loads(capsys.readouterr().err.strip())
     assert payload["reason"] == "cover_time_count_mismatch"
-    assert payload["episodes"] == 1 and payload["episodes_requested"] == 2
+    assert payload["episodes"] == 2 and payload["episodes_requested"] == 2
     assert harness.calls["cover_select"] == 0
     assert harness.calls["translate"] == 0
 
@@ -388,21 +393,22 @@ def test_group_episodes_splits_by_rank():
     assert [[q["rank"] for q in g] for g in groups] == [[1, 2, 3], [4, 5, 6]]
 
 
-def test_group_episodes_stops_when_the_pool_runs_out():
-    groups = produce.group_episodes(aligned(even_spans(5)), episodes=3,
-                                    strict=True)
-    assert len(groups) == 1
+def test_group_episodes_refuses_when_the_pool_runs_out():
+    with pytest.raises(SystemExit) as e:
+        produce.group_episodes(aligned(even_spans(5)), episodes=3, strict=True)
+    assert e.value.code == produce.EXIT_QUALITY
 
 
-def test_group_episodes_rejects_a_group_that_is_too_short():
-    """后 3 段各 20s，合计 60s 达不到 150s 的成片下限 → 只出 1 集。"""
+def test_group_episodes_refuses_a_group_that_is_too_short():
+    """后 3 段各 20s，合计 60s 达不到 150s 的成片下限 → 整批退 2。"""
     spans = even_spans(3) + [(1000.0, 1020.0), (1030.0, 1050.0),
                              (1060.0, 1080.0)]
-    groups = produce.group_episodes(aligned(spans), episodes=2, strict=True)
-    assert len(groups) == 1
+    with pytest.raises(SystemExit) as e:
+        produce.group_episodes(aligned(spans), episodes=2, strict=True)
+    assert e.value.code == produce.EXIT_QUALITY
 
 
-def test_group_episodes_rejects_a_group_with_too_few_segments():
+def test_group_episodes_refuses_a_group_with_too_few_segments():
     """段数闸门是独立承重的，不能靠时长闸门顺带兜住。
 
     后两段各 80s、合计 160s，时长闸门（150s）放行，但只有 2 段、不足
@@ -411,8 +417,9 @@ def test_group_episodes_rejects_a_group_with_too_few_segments():
     2 段」）。
     """
     spans = even_spans(3) + [(1000.0, 1080.0), (1090.0, 1170.0)]
-    groups = produce.group_episodes(aligned(spans), episodes=2, strict=True)
-    assert len(groups) == 1
+    with pytest.raises(SystemExit) as e:
+        produce.group_episodes(aligned(spans), episodes=2, strict=True)
+    assert e.value.code == produce.EXIT_QUALITY
 
 
 def test_group_episodes_skips_overlapping_candidates():
