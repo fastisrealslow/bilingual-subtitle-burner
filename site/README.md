@@ -42,8 +42,17 @@ python3 -m http.server 8000
 `data/index.json` 见规格第二章：
 
 ```json
-{ "schema": 1, "updated_at": "…", "episodes": [ { "…episode…", "slug": "…", "speaker": "…" } ] }
+{ "schema": 1, "updated_at": "…", "episodes": [
+  { "…episode…", "slug": "…", "speaker": "…",
+    "batch_at": "2026-07-27T12:00:00Z", "release_tag": "clips-…" } ] }
 ```
+
+`slug` 相同的几条是同一个批次（一次出片运行），`batch_at` 是这批的生成时间，
+`release_tag` 是它对应的 Release。页面不读这两个字段，它们是给下架逻辑用的。
+
+CI 每次合并新批次时只保留最近 3 个批次，更早的整批从这个文件里移出，所以同一段
+素材换个 slug 重跑不会在页面上留下两批重复内容。保留策略、判定新旧的依据、以及
+陈旧 Release 怎么清理，见 [`spec/publish_chain.md`](../spec/publish_chain.md)。
 
 页面对数据做了容错，以下情况都不会白屏：
 
