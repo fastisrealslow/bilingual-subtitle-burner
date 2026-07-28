@@ -83,7 +83,27 @@ python scripts/prune_releases.py --index site/data/index.json --execute
 4. **对不上就报错。** 索引引用了一个不存在的 Release，说明索引和仓库已经不
    一致，这时候「谁是孤儿」不可信 —— 直接非零退出，不接着删别的。
 
-删除时带 `--cleanup-tag`：留下空 tag 的话，下一轮判定又会把它当成孤儿。
+### 删除走两条 REST 调用
+
+删除**不用** `gh release delete --cleanup-tag`：同一个环境、同一个 token 下那条
+子命令会 `HTTP 401: Requires authentication`，直接打 REST 却能过。所以每个孤儿
+按顺序发两条：
+
+```
+DELETE /repos/{owner}/{repo}/releases/{release_id}    # 认 databaseId，不认 tag 名
+DELETE /repos/{owner}/{repo}/git/refs/tags/{tag}      # 留下空 tag 下轮又会被当成孤儿
+```
+
+`release_id` 从 `gh release view --json databaseId` 拿，和读资产大小是同一次调用。
+`gh api` 没有 `--repo`，不传 `--repo` 时靠 `{owner}/{repo}` 占位符落到当前仓库。
+
+两步的失败分开归类：
+
+| 情况 | 处理 | 退出码 |
+| --- | --- | --- |
+| Release 删除失败 | 立刻停手，不再删后面的 —— 多半是 token 权限问题，后面只会同样失败 | 1 |
+| tag ref 删除失败 | 警告到 stderr，继续处理后面的孤儿 —— 占空间的 Release 已经删掉了，剩个空 ref 是收尾问题，不是整体失败 | 2 |
+| tag ref 本来就不存在（404） | 不算错，目标状态已经达成 | 0 |
 
 每个将删/已删的 Release 都会打印 tag、资产总大小、创建时间：
 
