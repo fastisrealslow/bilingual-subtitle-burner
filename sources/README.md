@@ -39,7 +39,7 @@
 | `translator` | ❌ | `deepseek-v3` | `deepseek-v3` 或 `claude-sonnet-4.6`（后者需要 `ANTHROPIC_API_KEY`，CI 里没注入） |
 | `dual` | ❌ | `false` | 两个翻译都跑，额外产出 `compare_grid.jpg` 对比拼图 |
 | `cover_time_sec` | ❌ | `""` | 手动钉死封面帧的时间点（秒），跳过人脸预筛和 VLM 校验。留空走自动选帧 |
-| `cover_crop` | ❌ | `""` | 封面选帧裁切 `W:H:X:Y`（同 ffmpeg 的 crop 滤镜），留空不裁 |
+| `cover_crop` | ❌ | `""` | 封面选帧裁切 `W:H:X:Y`（同 ffmpeg 的 crop 滤镜）。留空时 `input` 阶段自动侦测左右分屏访谈并给出默认值，非分屏则不裁 |
 | `speaker` | ❌ | `""` | 说话人名字，用于金句打分和封面左上角红标。留空用 `produce.py` 的默认值「演讲者」 |
 | `sub_mode` | ❌ | `both` | `both` 烧中英双语；`zh-only` 只烧中文，源片自带的英文硬字幕当英文轨用 |
 | `sub_margin_v` | ❌ | `""` | `zh-only` 时中文距底边的像素，或 `auto` 逐条 cue 自动避让。留空用 `produce.py` 默认 `auto` |
@@ -60,6 +60,22 @@
 
 先用播放器量出字幕带的上沿 y，再按 `宽:上沿y:0:0` 填。例如 854x480 的源片、
 英文字幕落在 y=408 以下，填 `854:396:0:0`（留一点余量）。
+
+### 分屏访谈：留空就好，`input` 阶段会自己算
+
+Zoom / Riverside 录的远程访谈是左右分屏，一半采访者一半主讲人。整张烧成封面的
+话两个人各占一半，主讲人的脸小到看不清（帕伯莱那条 `NVD-m9seDe4` 就这么废掉了
+7 集封面）。`cover_crop` 留空时 `input` 阶段会沿片长抽 5 帧做纯本地的人脸侦测，
+判定是固定机位的左右分屏后，把主讲人那半连同实测的上下黑边高度算成默认
+`W:H:X:Y` 交给已有的选帧通路 —— 720p 的分屏典型值是 `640:460:640:130`。
+
+判成分屏但**认不出哪半是主讲人**时（两半势均力敌，或者主讲人簇中心落在画宽
+40%–60% 的正中带说明分割线判错了）按 `split_screen_indeterminate` 退 3，不会猜
+一个方向硬出。这时按上面的规则手填 `cover_crop`，填了就完全跳过侦测。
+
+裁切到底是人填的还是侦测给的，记在 `meta.json` 的 `cover_crop_source`
+（`explicit` / `auto_split_screen` / `null`），逐帧的观测量记在
+`_tmp/<slug>/input.meta.json`。
 
 ### 什么时候需要 `sub_mode: zh-only`
 
