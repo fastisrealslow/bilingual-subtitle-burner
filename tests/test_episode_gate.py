@@ -15,6 +15,15 @@
 
 阈值一个都不许在这里改：所有 ``group_episodes`` 直调都带 ``strict=True``，
 只认代码里的下限，免得环境变量把闸门调松了测试还是绿的。
+
+## 和 test_segment_gate_guards.py 的分工
+
+**本文件管「拒绝的时候会发生什么」**：走 ``produce.main`` 的端到端拒绝语义、
+拒绝理由 JSON 里的字段、一集都不许落盘、闸门必须在花钱的阶段之前触发。
+
+**``test_segment_gate_guards.py`` 管「界线画在哪一格」**：每条阈值的
+「减一 / 恰好等于 / 加一」三档参数化、``--episodes`` 这个 CLI 入参本身的校验、
+函数层的不变量。新增用例前先按这条界线挑文件，别两边各写一套。
 """
 
 import json
@@ -140,14 +149,22 @@ def test_downgrading_the_episode_count_is_not_an_option(harness):
 
 
 def test_group_episodes_never_returns_fewer_groups_than_requested():
-    """函数层的契约：要么恰好 N 组，要么抛 SystemExit —— 没有短列表这种返回。"""
-    for count in range(0, produce.SEGMENTS * 3 + 1):
+    """函数层的契约：要么恰好 N 组，要么抛 SystemExit —— 没有短列表这种返回。
+
+    候选段数从 0 一路扫到 SEGMENTS×3，每一档都钉死该走哪条路：不满
+    SEGMENTS×3 段就分不出 3 组互不重叠的片段，必须拒绝。只写「不是短列表就行」
+    是不够的 —— 那样靠复用素材硬凑出 3 组照样算通过。
+    """
+    enough = produce.SEGMENTS * 3
+    for count in range(0, enough + 1):
         try:
             groups = produce.group_episodes(aligned(even_spans(count)),
                                             episodes=3, strict=True)
         except SystemExit as e:
+            assert count < enough, f"{count} 段候选够分 3 组，不该拒绝"
             assert e.code == produce.EXIT_QUALITY
         else:
+            assert count == enough, f"{count} 段候选凑不出 3 组，却没有拒绝"
             assert len(groups) == 3, f"{count} 段候选返回了 {len(groups)} 组"
 
 
