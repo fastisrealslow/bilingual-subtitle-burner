@@ -208,6 +208,33 @@ def test_title_residue_is_valid_accepts_clean_natural_title_directly():
             f"标题「{good}」本身干净自然，不应被判定为不合法")
 
 
+def test_safe_fallback_falls_to_final_deterministic_phrase_when_base_itself_invalid(monkeypatch):
+    """title_suggestion 剥完编造数字后本身留下孤立引号（安全标题内部的 base
+    也不合法）——必须落到 ``_FINAL_SAFE_TITLE_PHRASE`` 拼出的最终确定性兜底，
+    不能返回静默截断的片段或空字符串。
+
+    这条专门用来杀掉"最终兜底改成返回空字符串/静默截断"一类变异：如果
+    兜底被换成 ``base[:4]`` 这种跟原内容强相关的截断，本例的最终标题会
+    变成「帕伯莱：「』」而不是固定短语拼出的「帕伯莱谈投资」，断言会失败。
+    """
+    def fake_call_llm(messages, api_key, model, base_url):
+        return "帕伯莱谈投资中的『300%』与亏损"
+
+    monkeypatch.setattr(produce.HL, "call_llm", fake_call_llm)
+    quotes = _quotes("帕伯莱谈投资中的亏损，通篇没有出现任何具体数字")
+    # title_suggestion 剥完自己带的编造数字「40%」后，恰好只剩讲者名+孤立
+    # 引号「』的亏损」——逼 _safe_fallback_title 内部也走到最终兜底分支。
+    quotes[0]["title_suggestion"] = "「40%』的亏损"
+    title = produce.make_title(quotes, "帕伯莱", "key", "http://x", None)
+
+    assert title == "帕伯莱" + produce._FINAL_SAFE_TITLE_PHRASE, (
+        f"最终标题「{title}」不是最终确定性兜底短语拼出的结果，疑似兜底逻辑"
+        f"被换成了静默截断或空字符串")
+    assert title, "最终标题不能是空字符串"
+    assert _no_empty_paired_symbols(title)
+    assert "帕伯莱" in title
+
+
 def test_title_residue_is_valid_rejects_too_short_residue_after_speaker_removed():
     """去掉讲者名和标点后剩余有效内容过短（几乎没剩信息量）要被拒绝。"""
     speaker = "帕伯莱"
