@@ -1340,6 +1340,10 @@ def _has_empty_paired_symbol(text: str) -> bool:
     for left, right in _PAIRED_BRACKETS:
         if (left + right) in text:
             return True
+    # 英文直引号/单引号左右同形，相邻的两个就是空壳（"" 或 ''）。
+    for ch in _SYMMETRIC_QUOTE_CHARS:
+        if (ch + ch) in text:
+            return True
     return False
 
 
