@@ -15,7 +15,7 @@ on:
         required: true
         type: string
       title_override:
-        description: "标题（留空则让模型起，15 字以内）"
+        description: "标题（留空则让模型起；手写时上限 20 字，超过直接退 1）"
         required: false
         default: ""
         type: string
@@ -79,6 +79,9 @@ jobs:
   # 把两种触发方式收敛成同一份 matrix，产出环节只写一遍
   plan:
     runs-on: ubuntu-latest
+    # 只跑 plan_matrix.py 汇总任务，正常秒级完成。不加上限就走 GitHub 默认
+    # 的 360 分钟，kickoff 脚本卡住要白等 6 小时。
+    timeout-minutes: 10
     outputs:
       matrix: ${{ steps.build.outputs.matrix }}
     steps:
@@ -110,6 +113,19 @@ jobs:
     # 原来的 40 分钟会在编码中途被 GitHub 强杀（run 30904624471 即如此）。
     # 与 pipeline.yml 保持一致，留足余量。
     timeout-minutes: 300
+    # 按 slug 区分的并发组：同一 slug 的两次出片任务排队而不是重叠，避免
+    # 双方同时 `gh release upload --clobber` 覆盖同名 asset、同时改
+    # site/data/index.json，后完成的盖掉先完成的、索引指向错批 mp4。
+    # 不同 slug 之间必须仍能并行（push sources/*.json 那条 matrix 路径
+    # 依赖跨 slug 并行），所以放在 job 级并引用 matrix，不用 workflow
+    # 顶层的单一固定组名。cancel-in-progress 必须是 false：取消正在跑的
+    # 任务会白扔掉已经付过的下载/转写/LLM 开销，只能排队等待。
+    # job 级 concurrency 允许引用 matrix 上下文，见 GitHub 官方文档
+    # https://docs.github.com/actions/writing-workflows/choosing-what-your-workflow-does/control-the-concurrency-of-workflows-and-jobs
+    # 的 Allowed expression contexts 表：github/inputs/vars/needs/strategy/matrix。
+    concurrency:
+      group: produce-${{ matrix.job.slug }}
+      cancel-in-progress: false
     env:
       # secrets 上下文用不了在 step 的 if 里，这里先落成 'true' / 'false'。
       # BILIBILI_COOKIES 目前不存在 → 恒为 'false' → 投稿那步永远跳过。
@@ -319,12 +335,24 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site/data/index.json
           git commit -m "chore(site): 更新 $SLUG 的发布索引"
-          # matrix 里几条 job 会同时往 main 上推，撞车就 rebase 重试
-          for i in 1 2 3 4 5; do
+          # matrix 路径下不同 slug 的几条 job 会同时往 main 上推（produce 级的
+          # 并发保护只按 slug 隔离，不同 slug 仍会并行推），撞车就 rebase 重试。
+          # 旧值 5 次、固定递增（i*5）累计最多只等 75 秒：单 job 时冲突概率低够用，
+          # 但 matrix 多 job 同时推时可能不够。改成 10 次、递增上限 30 秒，
+          # 累计最多等 5+10+15+20+25+30+30+30+30+30=225 秒（约 3.75 分钟），
+          # 比旧值重试次数和总递增时长各提升 3 倍，不至于卡住过久：
+          for i in 1 2 3 4 5 6 7 8 9 10; do
             git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
             echo "推送失败（第 $i 次），重试"
-            sleep $((i * 5))
+            sleep $(( i * 5 < 30 ? i * 5 : 30 ))
           done
+          # 重试耗尽仍失败：成片与 Release 已经发布成功（前面的步骤已完成），
+          # 失败的只是站点索引提交。仍需 exit 1（索引没更新等于站点看不到，
+          # 必须算失败），但一定要说清楚真实情况，避免看日志的人以为整批都没出来。
+          echo "::error::成片与 Release 已发布成功（tag clips-$SLUG），仅站点索引提交失败！" \
+            "$SLUG 在 site/data/index.json 里的条目未更新，手机页暂时看不到这批。" \
+            "补救办法：1) 重跑本步（重新 run job 或重跑当次 workflow）；" \
+            "2) 或在本地直接跑 python scripts/update_site_index.py --queue deliver/$SLUG/queue.json --index site/data/index.json 后提交推送。"
           exit 1
 
       # 下架只把条目从 index.json 里摘掉，Release 还在占空间。这里只报账不动手：

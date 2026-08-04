@@ -65,12 +65,17 @@ WHISPER_MODEL = "base"          # large-v3 在 CI runner 上太慢
 SEGMENTS = 3                    # 成片由三段金句拼成
 
 # ── 标题（问题2、4：词边界截断 + 必含讲者名 + 避重） ──
-# TITLE_MAX_CHARS 从过去的“硬字符上限”改为“软上限＋词边界截断”的基准值：
-# steps/step7_cover.py 的 TITLE_FONT_SIZE_PX=90 实测出 1080 安全区宽度下
-# 每行至少装 11 个汉字、两行实测上限约 20 个汉字（jieba 分词边界会让实际可
-# 装下的字数比理论值稍小），这里留出安全余量。讲者名会占掉开头几个字，
-# 所以软目标比硬上限再保守一点。
-TITLE_MAX_CHARS = 15             # 保留旧名字与旧行为兼容（--title-override 的硬上限）
+# TITLE_OVERRIDE_MAX_CHARS 是 --title-override 的硬上限：超过就在参数校验阶段
+# fail fast 退 1（配置参数错），不再等到封面渲染阶段撞 TitleOverflowError 退 2。
+# 取值 20 的依据：steps/step7_cover.py 的 TITLE_FONT_SIZE_PX=90 实测出 1080
+# 安全区宽度下每行至少装 11 个汉字（含标点/数字能装更多），两行实测上限约 20
+# 个汉字（竖版 max_line_px=996、横版 1036，jieba 分词边界会让实际可装下的字数
+# 比理论值稍小）。旧值 15 是单行时代遗留，对两行新渲染器偏紧，会砍掉本来放得
+# 下的内容。
+# 旧名字 TITLE_MAX_CHARS 保留并指向新常量，不留第二个互相矛盾的死常量——新代码
+# 一律用 TITLE_OVERRIDE_MAX_CHARS。
+TITLE_OVERRIDE_MAX_CHARS = 20
+TITLE_MAX_CHARS = TITLE_OVERRIDE_MAX_CHARS    # 兼容旧名字，语义等同于上面这个
 TITLE_SOFT_TARGET_CHARS = 18     # 模型生成时的软目标长度，匹配新渲染器的两行容量
 TITLE_HARD_MAX_CHARS = 24        # 词边界截断的绝对上限，允许标点/数字比汉字稍宽的余量
 TITLE_DEDUPE_RETRY = 1           # 标题与同批重复或缺讲者名时重试的次数
@@ -1789,6 +1794,17 @@ def main(argv=None) -> int:
             detail="--cover-crop 格式应为 W:H:X:Y（四个非负整数，同 ffmpeg crop 滤镜），"
                    "例如 854:396:0:0",
             cover_crop=args.cover_crop)
+
+    # --title-override 超长就在参数校验阶段 fail fast 退 1（配置参数错），
+    # 不能等到付过下载/转写的开销、跑到封面渲染阶段才撞
+    # COVER.TitleOverflowError 退 2。校验用字符数（len），与
+    # _truncate_at_word_boundary / TitleOverflowError 的计量口径一致。
+    if args.title_override and len(args.title_override) > TITLE_OVERRIDE_MAX_CHARS:
+        die(EXIT_CONFIG, "config", "title_override_too_long",
+            detail=f"--title-override 共 {len(args.title_override)} 字，"
+                   f"超过上限 {TITLE_OVERRIDE_MAX_CHARS} 字，请缩短后重试",
+            arg="--title-override", value=args.title_override,
+            length=len(args.title_override), max_chars=TITLE_OVERRIDE_MAX_CHARS)
 
     api_key = (os.environ.get("SILICONFLOW_API_KEY") or "").strip()
     base_url = ((os.environ.get("SILICONFLOW_BASE_URL") or "").strip()
