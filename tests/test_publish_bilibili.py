@@ -160,3 +160,233 @@ def test_dry_run_prints_the_command_and_uploads_nothing(
     assert PB.main(["--queue", str(q), "--episode", "ep01",
                     "--dry-run"]) == PB.EXIT_OK
     assert "biliup" in capsys.readouterr().out
+
+
+# ── 投稿上限校验（缺口五）───────────────────────────────────────────────
+
+def test_parse_max_episodes_blank_falls_back_to_default():
+    assert PB.parse_max_episodes("") == PB.DEFAULT_MAX_EPISODES
+    assert PB.parse_max_episodes(None) == PB.DEFAULT_MAX_EPISODES
+
+
+def test_parse_max_episodes_default_is_one():
+    # 用户明确要求：默认先只投一集。这个断言存在的意义就是为了在有人把
+    # DEFAULT_MAX_EPISODES 改大时把测试靠红。
+    assert PB.DEFAULT_MAX_EPISODES == 1
+
+
+def test_parse_max_episodes_accepts_positive_integer_strings():
+    assert PB.parse_max_episodes("3") == 3
+    assert PB.parse_max_episodes("  7 ") == 7
+
+
+@pytest.mark.parametrize("raw", ["0", "-1", "-7"])
+def test_parse_max_episodes_rejects_non_positive(raw):
+    with pytest.raises(PB.ConfigError, match="不允许静默当成"):
+        PB.parse_max_episodes(raw)
+
+
+@pytest.mark.parametrize("raw", ["abc", "1.5", "one", "7集", "inf"])
+def test_parse_max_episodes_rejects_non_integers(raw):
+    with pytest.raises(PB.ConfigError, match="必须是整数"):
+        PB.parse_max_episodes(raw)
+
+
+# ── 幂等：已投过的集直接跳过 ────────────────────────────────────────
+
+def sample_index(slug="munger", entries=None):
+    return {"episodes": entries or []}
+
+
+def test_already_published_returns_none_when_no_matching_record():
+    index = sample_index(entries=[
+        {"slug": "munger", "id": "ep01", "publish": {"bilibili": None}}])
+    assert PB.already_published(index, "munger", "ep02") is None
+    assert PB.already_published(index, "other-slug", "ep01") is None
+
+
+def test_already_published_returns_none_when_publish_field_empty():
+    index = sample_index(entries=[
+        {"slug": "munger", "id": "ep01", "publish": {"bilibili": None}},
+        {"slug": "munger", "id": "ep02"},  # 没 publish 字段也得算未投过
+    ])
+    assert PB.already_published(index, "munger", "ep01") is None
+    assert PB.already_published(index, "munger", "ep02") is None
+
+
+def test_already_published_returns_marker_when_present():
+    index = sample_index(entries=[
+        {"slug": "munger", "id": "ep01",
+         "publish": {"bilibili": "BV1abFAKE001"}}])
+    assert PB.already_published(index, "munger", "ep01") == "BV1abFAKE001"
+
+
+def test_main_skips_already_published_episode_without_touching_cookies(
+        tmp_path, monkeypatch, capsys):
+    # 故意不设定 cookie 环境变量——还能跳过就证明幂等检查在 cookie 解析之前。
+    monkeypatch.delenv(PB.COOKIE_ENV, raising=False)
+    q = make_delivery(tmp_path)
+
+    index_path = tmp_path / "index.json"
+    index_path.write_text(json.dumps({
+        "episodes": [{"slug": "munger", "id": "ep01",
+                      "publish": {"bilibili": "BV1abFAKE001"}}]
+    }, ensure_ascii=False), encoding="utf-8")
+
+    rc = PB.main(["--queue", str(q), "--episode", "ep01",
+                  "--index", str(index_path)])
+    assert rc == PB.EXIT_OK
+    out = capsys.readouterr().out
+    assert "已投过" in out and "跳过" in out
+
+
+def test_main_does_not_skip_when_not_yet_published(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv(PB.COOKIE_ENV, str(cookie_file(tmp_path)))
+    q = make_delivery(tmp_path)
+
+    index_path = tmp_path / "index.json"
+    index_path.write_text(json.dumps({
+        "episodes": [{"slug": "munger", "id": "ep01", "publish": {}}]
+    }, ensure_ascii=False), encoding="utf-8")
+
+    def boom(*a, **k):
+        raise AssertionError("不该真调 biliup")
+
+    monkeypatch.setattr(PB.subprocess, "run", boom)
+
+    rc = PB.main(["--queue", str(q), "--episode", "ep01",
+                  "--index", str(index_path), "--dry-run"])
+    assert rc == PB.EXIT_OK
+    assert "biliup" in capsys.readouterr().out
+
+
+# ── bvid 提取：摸得到就用，摸不到诚实说摸不到 ──────────────────────
+
+def test_extract_bvid_finds_a_valid_bvid_in_noisy_output():
+    text = "投稿成功！稿件地址：https://www.bilibili.com/video/BV1abFAKE001\n"
+    assert PB.extract_bvid(text) == "BV1abFAKE001"
+
+
+def test_extract_bvid_returns_none_when_absent():
+    assert PB.extract_bvid("投稿成功，但输出里啥都没有") is None
+
+
+def test_extract_bvid_never_fabricates_from_empty_string():
+    assert PB.extract_bvid("") is None
+
+
+# ── 投稿结果写回索引，其余字段保留 ──────────────────────────────
+
+def test_record_publish_result_updates_matching_entry_and_preserves_rest(
+        tmp_path):
+    index_path = tmp_path / "index.json"
+    index_path.write_text(json.dumps({
+        "updated_at": "2020-01-01T00:00:00Z",
+        "episodes": [
+            {"slug": "munger", "id": "ep01", "title": "标题一",
+             "status": "delivered", "publish": {"bilibili": None}},
+            {"slug": "munger", "id": "ep02", "title": "标题二",
+             "status": "delivered", "publish": {"bilibili": None}},
+        ],
+    }, ensure_ascii=False), encoding="utf-8")
+
+    ok = PB.record_publish_result(index_path, "munger", "ep01",
+                                   "BV1abFAKE001")
+    assert ok is True
+
+    data = json.loads(index_path.read_text(encoding="utf-8"))
+    ep1, ep2 = data["episodes"]
+    assert ep1["publish"]["bilibili"] == "BV1abFAKE001"
+    assert ep1["status"] == "published"
+    assert ep1["title"] == "标题一"  # 其余字段不受影响
+    assert ep2["publish"]["bilibili"] is None  # 没动别的集
+    assert data["updated_at"] != "2020-01-01T00:00:00Z"  # 时间戳被刷新
+
+
+def test_record_publish_result_returns_false_when_index_missing(tmp_path):
+    missing = tmp_path / "nope.json"
+    assert PB.record_publish_result(missing, "munger", "ep01",
+                                     "BV1abFAKE001") is False
+
+
+def test_record_publish_result_returns_false_when_entry_not_found(tmp_path):
+    index_path = tmp_path / "index.json"
+    index_path.write_text(json.dumps({"episodes": []}), encoding="utf-8")
+    assert PB.record_publish_result(index_path, "munger", "ep01",
+                                     "BV1abFAKE001") is False
+
+
+def test_main_writes_bvid_back_to_index_on_success(tmp_path, monkeypatch):
+    monkeypatch.setenv(PB.COOKIE_ENV, str(cookie_file(tmp_path)))
+    q = make_delivery(tmp_path)
+
+    index_path = tmp_path / "index.json"
+    index_path.write_text(json.dumps({
+        "episodes": [{"slug": "munger", "id": "ep01", "status": "delivered",
+                      "publish": {"bilibili": None}}]
+    }, ensure_ascii=False), encoding="utf-8")
+
+    class FakeResult:
+        returncode = 0
+        stdout = "投稿成功 https://www.bilibili.com/video/BV1abFAKE002\n"
+        stderr = ""
+
+    monkeypatch.setattr(PB.shutil, "which", lambda name: "/usr/bin/biliup")
+    monkeypatch.setattr(PB.subprocess, "run", lambda *a, **k: FakeResult())
+
+    rc = PB.main(["--queue", str(q), "--episode", "ep01",
+                  "--index", str(index_path)])
+    assert rc == PB.EXIT_OK
+
+    data = json.loads(index_path.read_text(encoding="utf-8"))
+    assert data["episodes"][0]["publish"]["bilibili"] == "BV1abFAKE002"
+    assert data["episodes"][0]["status"] == "published"
+
+
+def test_main_warns_but_still_records_when_bvid_cannot_be_found(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv(PB.COOKIE_ENV, str(cookie_file(tmp_path)))
+    q = make_delivery(tmp_path)
+
+    index_path = tmp_path / "index.json"
+    index_path.write_text(json.dumps({
+        "episodes": [{"slug": "munger", "id": "ep01", "status": "delivered",
+                      "publish": {"bilibili": None}}]
+    }, ensure_ascii=False), encoding="utf-8")
+
+    class FakeResult:
+        returncode = 0
+        stdout = "投稿完成，但没有链接\n"
+        stderr = ""
+
+    monkeypatch.setattr(PB.shutil, "which", lambda name: "/usr/bin/biliup")
+    monkeypatch.setattr(PB.subprocess, "run", lambda *a, **k: FakeResult())
+
+    rc = PB.main(["--queue", str(q), "--episode", "ep01",
+                  "--index", str(index_path)])
+    assert rc == PB.EXIT_OK
+    assert "摸到" in capsys.readouterr().err
+
+    data = json.loads(index_path.read_text(encoding="utf-8"))
+    assert data["episodes"][0]["publish"]["bilibili"].startswith(
+        "published-no-bvid-")
+
+
+def test_error_messages_never_contain_cookie_content(tmp_path, monkeypatch):
+    """缺口四回归：不管走哪条报错路径，异常文案里绝不能出现凭据内容。
+
+    这里故意在环境变量里塞一个「看起来像真凭据」的假字面量，确认它不会被
+    原样拼进任何 ConfigError 文案（现有报错设计只提到路径/变量名，不提取
+    文件内容，所以这条断言应当恒成立；写成测试是为了防止未来有人手滑在
+    某条报错分支里 f-string 拼了 cookie 内容进去）。
+    """
+    fake_secret = "SESSDATA=fake-not-a-real-cookie;bili_jct=also-fake-9999"
+    monkeypatch.setenv(PB.COOKIE_ENV, fake_secret)  # 故意传一个不是路径的假货
+
+    with pytest.raises(PB.ConfigError) as exc_info:
+        PB.resolve_cookies()
+
+    assert fake_secret not in str(exc_info.value)
+    assert "SESSDATA" not in str(exc_info.value)
+    assert "bili_jct" not in str(exc_info.value)
