@@ -74,6 +74,7 @@ TITLE_MAX_CHARS = 15             # 保留旧名字与旧行为兼容（--title-o
 TITLE_SOFT_TARGET_CHARS = 18     # 模型生成时的软目标长度，匹配新渲染器的两行容量
 TITLE_HARD_MAX_CHARS = 24        # 词边界截断的绝对上限，允许标点/数字比汉字稍宽的余量
 TITLE_DEDUPE_RETRY = 1           # 标题与同批重复或缺讲者名时重试的次数
+TITLE_NUMBER_RETRY = 1           # 标题含溯源不到（疑似编造）的数字时重试的次数
 
 # ── 多集 ─────────────────────────────────────────────────────────────────────
 # --episodes N 时下载和转写只做一次，highlight 挑 N 组互不重叠的片段，
@@ -1158,14 +1159,161 @@ def _truncate_at_word_boundary(title: str, max_chars: int) -> str:
     return title[:max_chars]
 
 
+# ── 数字溯源（问题：新标题会给原文没有的数字编数字） ────────────────────────
+# prompt 只是软约束，模型仍可能编数字，所以必须在代码层做确定性校验：
+# 抽取标题里所有"数字表达"（阿拉伯数字/百分比/倍数），规范化后逐个检查
+# 是否能在喂给模型的原文 joined 里找到对应表达（同样规范化）。中文数字
+# 与阿拉伯数字要能双向匹配（原文"三倍"、标题"3倍"算命中；反之亦然）。
+#
+# 支持范围（详见 /tmp/claude_code_output_num.md）：
+#   - 纯阿拉伯数字 / 纯中文数字（一二三四五六七八九十百千万亿，含"两"）；
+#   - 百分数："40%""40％""百分之四十"（三种写法互相等价）；
+#   - 倍数："3倍""三倍"互相等价；
+#   - 数字+单位（元/美元/年/岁/次等）参与比对时单位被忽略，只比数值本身。
+# 不支持："几十""数倍"这类模糊表达（本来就不是具体数字，无需溯源）；
+# 大写中文数字（壹贰叁…）不支持，原文/标题目前都不会用到。
+_CN_DIGIT = {"零": 0, "〇": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4,
+             "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+_CN_UNIT = {"十": 10, "百": 100, "千": 1000}
+_CN_BIG_UNIT = {"万": 10000, "亿": 100000000}
+_CN_NUM_CHARS = "".join(_CN_DIGIT) + "".join(_CN_UNIT) + "".join(_CN_BIG_UNIT)
+
+# 数字表达核心：阿拉伯数字（含小数）或连续中文数字字符
+_NUM_CORE = r"(?:\d+(?:\.\d+)?|[" + _CN_NUM_CHARS + r"]+)"
+# 完整数字表达：百分之X / X% / X倍 / 纯数字（可带单位后缀，单位不参与取值）
+_NUMBER_EXPR_RE = re.compile(
+    r"百分之" + _NUM_CORE
+    + r"|" + _NUM_CORE + r"(?:%|％|倍|美元|元|万元|块钱|年|岁|次)?")
+_HAS_DIGIT_OR_PERCENT_RE = re.compile(r"[0-9]|%|％")
+
+
+def _cn_digits_to_int(s: str) -> float | None:
+    """把一段连续中文数字字符（不含"百分之"前缀/"倍"等后缀）转成数值。
+
+    转不了（比如混入了非数字字符）返回 None。
+    """
+    if not s:
+        return None
+    if s.isdigit():
+        return float(s)
+    total = 0
+    section = 0
+    num = 0
+    ok = False
+    for ch in s:
+        if ch in _CN_DIGIT:
+            num = _CN_DIGIT[ch]
+            ok = True
+        elif ch in _CN_UNIT:
+            unit = _CN_UNIT[ch]
+            section += (num or 1) * unit
+            num = 0
+            ok = True
+        elif ch in _CN_BIG_UNIT:
+            unit = _CN_BIG_UNIT[ch]
+            section = (section + num) * unit
+            total += section
+            section = 0
+            num = 0
+            ok = True
+        else:
+            return None
+    total += section + num
+    return float(total) if ok else None
+
+
+def _core_to_value(core: str) -> float | None:
+    """数字核心（阿拉伯或中文）转成 float，转不了返回 None。"""
+    if re.match(r"^\d+(\.\d+)?$", core):
+        return float(core)
+    return _cn_digits_to_int(core)
+
+
+def _extract_number_tokens(text: str) -> set:
+    """从文本抽取所有数字表达，规范化成可比对的 canonical token 集合。
+
+    canonical 前缀区分语义（避免"40%"误判等于"40倍"或裸数字"40"）：
+      PCT:<value>  百分数
+      X:<value>    倍数
+      N:<value>    其余带/不带单位的数字
+    """
+    tokens = set()
+    if not text:
+        return tokens
+    for m in _NUMBER_EXPR_RE.finditer(text):
+        raw = m.group()
+        if raw.startswith("百分之"):
+            val = _core_to_value(raw[3:])
+            if val is not None:
+                tokens.add(f"PCT:{val}")
+            continue
+        if raw.endswith("%") or raw.endswith("％"):
+            val = _core_to_value(raw[:-1])
+            if val is not None:
+                tokens.add(f"PCT:{val}")
+            continue
+        if raw.endswith("倍"):
+            val = _core_to_value(raw[:-1])
+            if val is not None:
+                tokens.add(f"X:{val}")
+            continue
+        core = re.match(r"^" + _NUM_CORE, raw).group()
+        val = _core_to_value(core)
+        if val is not None:
+            tokens.add(f"N:{val}")
+    return tokens
+
+
+def _title_has_digit_or_percent(title: str) -> bool:
+    """标题里是否出现任意阿拉伯数字或百分号（不含中文数字）。
+
+    用于最终兜底断言／降级路径：原文完全没有数字时，安全标题不应该带
+    任何阿拉伯数字或 %。
+    """
+    return bool(_HAS_DIGIT_OR_PERCENT_RE.search(title or ""))
+
+
+def _fabricated_number_tokens(title: str, joined: str) -> set:
+    """标题里在原文 joined 中溯源不到的数字 token（判定为编造）。"""
+    title_tokens = _extract_number_tokens(title)
+    if not title_tokens:
+        return set()
+    source_tokens = _extract_number_tokens(joined)
+    return title_tokens - source_tokens
+
+
+def _strip_fabricated_numbers(title: str, fabricated: set) -> str:
+    """从标题里去掉溯源不到的数字片段，返回去除后的文本（未做词边界截断）。
+
+    这是重试后仍编造时的第一道确定性降级：只删掉编造的数字片段本身，
+    优先保留标题其余内容；调用方在此基础上还会再检查讲者名等硬约束。
+    """
+    def _replace(m: re.Match) -> str:
+        raw = m.group()
+        tokens = _extract_number_tokens(raw)
+        return "" if tokens & fabricated else raw
+
+    stripped = _NUMBER_EXPR_RE.sub(_replace, title)
+    # 清掉数字被删空后可能留下的碎标点/空隙（如"背后的%杠杆率"→"背后的杠杆率"）
+    stripped = re.sub(r"[，,、\s]{2,}", "，", stripped)
+    stripped = re.sub(r"^[，,、\s]+|[，,、\s]+$", "", stripped)
+    return stripped
+
+
 def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
                override: str, previous_titles: list | None = None) -> str:
-    """成片标题：必须含讲者名、含具体信息、与同批已出标题不重复、不硬截断。
+    """成片标题：必须含讲者名、含具体信息、与同批已出标题不重复、不硬截断、不编数字。
 
-    ``--title-override`` 优先，其次问模型，最后退到建议标题。生成后校验
-    讲者名是否出现、是否与 ``previous_titles`` 撞题，缺失时最多重试
-    ``TITLE_DEDUPE_RETRY`` 次；仍不满足要求就在标题前确定性地补上讲者名，
-    不允许静默产出一个不含讲者名的标题。
+    ``--title-override`` 优先，其次问模型，最后退到建议标题。生成后依次校验：
+    讲者名是否出现、是否与 ``previous_titles`` 撞题（缺失时最多重试
+    ``TITLE_DEDUPE_RETRY`` 次），以及标题里的数字是否都能在原文 ``joined``
+    里溯源到（溯源不到时最多重试 ``TITLE_NUMBER_RETRY`` 次）。
+
+    数字校验重试后仍编造：不 exit，走确定性降级——先尝试只删掉编造的数字
+    片段，删完仍不满足约束（比如讲者名被连带删掉、或删空了）就整体退回到
+    基于 ``quotes[0]["title_suggestion"]`` 拼出的安全标题。降级不是为了让
+    这条内容过质量关，只是标题措辞层面的确定性兜底，不允许因为编了个数字
+    就让整批其它集也跟着退 2。
     """
     previous_titles = previous_titles or []
 
@@ -1186,8 +1334,10 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
             f"硬性要求：\n"
             f"1. 标题必须以「{speaker}」这个名字开头作为关键词，格式类似"
             f"「{speaker}：具体主张」或「{speaker}谈XXX」；\n"
-            f"2. 必须包含具体信息（数字、公司名、反直觉的具体主张），"
-            f"不要写「{speaker}的智慧」「{speaker}之道」这类空话；\n"
+            f"2. 只有当发言内容里确实出现某个数字、百分比、公司名时，才可以把"
+            f"它写进标题；发言内容里没有数字时，严禁虚构任何数字、百分比、"
+            f"金额、年份、回报率——改用反直觉的观点表述或具体的事物/公司名称"
+            f"来提供信息量，不要写「{speaker}的智慧」「{speaker}之道」这类空话；\n"
             f"3. 全文不超过 {TITLE_SOFT_TARGET_CHARS} 个字，不要书名号，不要引号；\n"
             f"4. 只输出标题本身，不要解释。\n"
             f"{avoid}{extra}\n发言内容：\n{joined}")
@@ -1204,6 +1354,19 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
         cleaned = PR.normalize_cjk_punctuation(
             PR.to_simplified(raw.strip().splitlines()[0] if raw.strip() else speaker))
         return re.sub(r'^[「『"\']+|[」』"\']+$', "", cleaned).strip()
+
+    def _safe_fallback_title() -> str:
+        """不含编造数字的确定性安全标题：讲者名 + 金句建议标题，再兜底剥数字。"""
+        suggestion = quotes[0].get("title_suggestion", "") or ""
+        base = suggestion if _title_contains_speaker(suggestion, speaker) else (
+            f"{speaker}：{suggestion}" if suggestion else speaker)
+        base = PR.normalize_cjk_punctuation(PR.to_simplified(base))
+        fabricated = _fabricated_number_tokens(base, joined)
+        if fabricated:
+            base = _strip_fabricated_numbers(base, fabricated) or speaker
+        if not _title_contains_speaker(base, speaker):
+            base = f"{speaker}：{base}" if base and base != speaker else speaker
+        return base
 
     title = _call(_build_prompt())
     attempts = 0
@@ -1222,8 +1385,38 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
     # 确定性地把讲者名钉在开头，保证硬性要求 100% 满足。
     if not _title_contains_speaker(title, speaker):
         title = f"{speaker}：{title}" if title else speaker
-
     title = title or speaker
+
+    # 数字溯源校验：prompt 只是软约束，模型仍可能编数字，代码层再拦一道。
+    fabricated = _fabricated_number_tokens(title, joined)
+    number_attempts = 0
+    while fabricated and number_attempts < TITLE_NUMBER_RETRY:
+        number_attempts += 1
+        # 只把标题里「确实溯源不到」的那几个数字片段（原文用字，非规范化
+        # 后的 token）报给模型，反馈要看得懂、对得上标题原文。
+        bad_spans = [m.group() for m in _NUMBER_EXPR_RE.finditer(title)
+                     if _extract_number_tokens(m.group()) & fabricated]
+        shown = "、".join(dict.fromkeys(bad_spans)) or "、".join(fabricated)
+        extra = (f"上一次生成的标题里的数字「{shown}」在原文中不存在，"
+                 f"禁止编造数字，请重新生成，只允许使用发言内容里确实出现过的数字。")
+        title = _call(_build_prompt(extra))
+        if not _title_contains_speaker(title, speaker):
+            title = f"{speaker}：{title}" if title else speaker
+        title = title or speaker
+        fabricated = _fabricated_number_tokens(title, joined)
+
+    if fabricated:
+        # 重试后仍编造：确定性降级，不 exit，不让整批跑挂掉。
+        # 第一步只删掉编造的数字片段，尽量保留模型原本的措辞。
+        stripped = _strip_fabricated_numbers(title, fabricated)
+        if stripped and _title_contains_speaker(stripped, speaker) and \
+                not _fabricated_number_tokens(stripped, joined):
+            title = stripped
+        else:
+            # 删完不满足讲者名等约束，或删不干净：整体退回安全标题。
+            title = _safe_fallback_title()
+        log("title", f"标题含溯源不到的数字，已确定性降级为「{title}」")
+
     return _truncate_at_word_boundary(title, TITLE_HARD_MAX_CHARS)
 
 
