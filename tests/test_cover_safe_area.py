@@ -66,10 +66,14 @@ def test_portrait_has_no_chrome_band():
 
 # ── 包围盒计算 ───────────────────────────────────────────────────────────────
 
-def _assert_box_hugs(mask, box, name, tol=3, pad=8):
+def _assert_box_hugs(mask, box, name, tol=4, pad=8):
     """报出来的盒子必须紧贴 ``mask`` 里的墨：里面贴四边，外面一圈干净。
 
     量错一套坐标，闸门再严也是在校验虚构，所以这条要独立验。
+
+    tol 从 3 调到 4：换成 Noto Sans CJK SC（修复问题3的字体面选择）后，
+    个别汉字（如“耐”）的左侧字身间距比之前默认的 JP 面大 1px，
+    这是字体本身的 glyph 度量差异，不是包围盒计算逻辑错了。
     """
     l, t, r, b = (round(v) for v in box)
     inner = mask.crop((l, t, r, b))
@@ -124,8 +128,10 @@ def test_tag_box_tracks_a_longer_speaker(frame, tmp_path):
 
 @pytest.mark.parametrize("target", [LANDSCAPE, PORTRAIT])
 def test_rendered_cover_lands_inside_the_safe_area(frame, tmp_path, target):
+    # 固定字号下 TITLE 这个长度的标题会换行成 2 行（之前“缩字号塞一行”时只有 1 行），
+    # 这正是问题1 要求的行为：字号不因标题长短而变，长了就换行。
     boxes, _ = _render(frame, tmp_path, target)
-    assert set(boxes) == {"标题第1行", "角标"}
+    assert set(boxes) == {"标题第1行", "标题第2行", "角标"}
     assert C.safe_area_violations(boxes, target) == []
 
 
@@ -173,11 +179,30 @@ def test_assert_raises_with_every_offending_element():
 
 def test_make_cover_refuses_and_writes_nothing_when_text_overflows(
         monkeypatch, frame, tmp_path):
-    """闸门在落盘之前：越界时一个字节都不许写出去。"""
+    """闸门在落盘之前：越界时一个字节都不许写出去。
+
+    安全区被撑成 10x10 后行宽预算变成负数，固定字号下任何标题都会先触发
+    TitleOverflowError（行数超限）而不是 CoverSafeAreaError —— 因为现在标题
+    不会为了塞进安全区而偷偷缩字号，换行判定在安全区坐标计算之前。
+    这个新异常同样是“落盘前拒绝”语义，下面 out.exists() 断言不变。
+    """
     monkeypatch.setattr(C, "platform_safe_area", lambda _s: (0, 0, 10, 10))
     out = tmp_path / "cover.jpg"
-    with pytest.raises(C.CoverSafeAreaError):
+    with pytest.raises(C.TitleOverflowError):
         C.make_cover(frame, TITLE, SPEAKER, str(out), LANDSCAPE)
+    assert not out.exists()
+
+
+def test_make_cover_still_raises_safe_area_error_for_non_title_overflow(
+        frame, tmp_path):
+    """安全区闸门不能被标题超行检查换掉：角标（非标题）越界仍要报
+    CoverSafeAreaError。讲者名故意写得很长，让角标背景块撞出安全区右沿，
+    但标题本身短得一行就能装下，不会触发 TitleOverflowError。
+    """
+    out = tmp_path / "cover.jpg"
+    with pytest.raises(C.CoverSafeAreaError) as e:
+        C.make_cover(frame, "耐心", "查理" * 40, str(out), LANDSCAPE)
+    assert [v["element"] for v in e.value.violations] == ["角标"]
     assert not out.exists()
 
 
