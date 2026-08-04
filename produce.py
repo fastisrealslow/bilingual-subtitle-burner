@@ -80,6 +80,10 @@ TITLE_SOFT_TARGET_CHARS = 18     # 模型生成时的软目标长度，匹配新
 TITLE_HARD_MAX_CHARS = 24        # 词边界截断的绝对上限，允许标点/数字比汉字稍宽的余量
 TITLE_DEDUPE_RETRY = 1           # 标题与同批重复或缺讲者名时重试的次数
 TITLE_NUMBER_RETRY = 1           # 标题含溯源不到（疑似编造）的数字时重试的次数
+# 最终确定性兜底短语：剥离/安全标题都不合法时的最后一道兜底（拼在讲者名
+# 后面，如"帕伯莱谈投资"）。它不含标点/括号/数字，永远能通过
+# _title_residue_is_valid，保证有一个硬编码的、已知合法的兜底。
+_FINAL_SAFE_TITLE_PHRASE = "谈投资"
 
 # ── 多集 ─────────────────────────────────────────────────────────────────────
 # --episodes N 时下载和转写只做一次，highlight 挑 N 组互不重叠的片段，
@@ -1291,7 +1295,8 @@ def _strip_fabricated_numbers(title: str, fabricated: set) -> str:
     """从标题里去掉溯源不到的数字片段，返回去除后的文本（未做词边界截断）。
 
     这是重试后仍编造时的第一道确定性降级：只删掉编造的数字片段本身，
-    优先保留标题其余内容；调用方在此基础上还会再检查讲者名等硬约束。
+    优先保留标题其余内容；调用方在此基础上还会再检查讲者名等硬约束，
+    以及下面的 ``_title_residue_is_valid`` 残留物合法性校验。
     """
     def _replace(m: re.Match) -> str:
         raw = m.group()
@@ -1305,6 +1310,96 @@ def _strip_fabricated_numbers(title: str, fabricated: set) -> str:
     return stripped
 
 
+# ── 剥离/降级结果的残留物合法性校验（真实 CI run 30908623000 复现的缺陷） ──
+# _strip_fabricated_numbers 只管删掉编造数字本身，不管删完之后留下的壳
+# 好不好看。真实事故：模型给「帕伯莱谈投资中的『40%』与亏损」，"40%"在
+# 原文里溯源不到，删完变成「帕伯莱谈投资中的『』与亏损」——一对空引号被
+# 当成合法标题放行，烧进了 ep01 封面。
+#
+# 这里不试图用正则把残留物"修补"成通顺句子（修补出来的措辞不可控，
+# 越描越可能出现新的怪异组合），而是只做「洁净度」判定：干净就用，
+# 不干净就整体废弃、退回安全标题。
+#
+# 中文引号规范：外层「」，内层『』（见 scripts/platform_rules.py 的
+# _promote_outer_white_brackets），这里的成对符号表也要认识这两种。
+_PAIRED_BRACKETS = [
+    ("「", "」"), ("『", "』"), ("（", "）"), ("(", ")"),
+    ("《", "》"), ("【", "】"), ("\u201c", "\u201d"), ("\u2018", "\u2019"),
+]
+# 英文直引号/单引号左右同形，只能整体统计"是否有落单的半角引号"，
+# 不能按开闭符区分（下面单独处理）。
+_SYMMETRIC_QUOTE_CHARS = ('"', "'")
+# 悬挂/连续标点：结尾挂着连接词或标点、或同一个标点连续出现，都是明显
+# 没删干净的残留信号。
+_DANGLING_TAIL_RE = re.compile(r"[的与和及、，,：:；;]$")
+_REPEATED_PUNCT_RE = re.compile(r"([，,、；;：:])\1")
+
+
+def _has_empty_paired_symbol(text: str) -> bool:
+    """成对符号紧挨着组成空壳（如「」『』（）()《》【】""''）。"""
+    for left, right in _PAIRED_BRACKETS:
+        if (left + right) in text:
+            return True
+    return False
+
+
+def _has_unbalanced_bracket_or_quote(text: str) -> bool:
+    """成对符号左右数量不一致，说明剥离只吃掉了一半，留下孤立的单个符号。"""
+    for left, right in _PAIRED_BRACKETS:
+        if left == right:
+            continue
+        if text.count(left) != text.count(right):
+            return True
+    for ch in _SYMMETRIC_QUOTE_CHARS:
+        if text.count(ch) % 2 != 0:
+            return True
+    return False
+
+
+def _has_dangling_or_repeated_punctuation(text: str) -> bool:
+    """结尾悬着"的/与/："等连接词或标点，或标点连续重复（"，，"之类）。"""
+    if _DANGLING_TAIL_RE.search(text):
+        return True
+    if _REPEATED_PUNCT_RE.search(text):
+        return True
+    return False
+
+
+def _title_residue_is_valid(title: str, speaker: str) -> bool:
+    """剥离/降级结果的残留物合法性校验：干净且自然才能采用，否则退安全标题。
+
+    至少覆盖：
+      1. 不允许出现空的成对括号/引号壳（「」『』（）()《》【】""''）；
+      2. 不允许出现不成对的孤立括号/引号（剥离只吃掉一半的情况）；
+      3. 不允许结尾悬挂"的/与/："等连接词/标点，也不允许标点连续重复；
+      4. 去掉讲者名和标点后剩余的有效内容不能过短（几乎没剩下信息量）。
+
+    任何一项不通过就判定为不合法，调用方应放弃剥离结果，退回安全标题。
+    """
+    if not title:
+        return False
+    if _has_empty_paired_symbol(title):
+        return False
+    if _has_unbalanced_bracket_or_quote(title):
+        return False
+    if _has_dangling_or_repeated_punctuation(title):
+        return False
+    # 去掉讲者名（含其可拆分的子片段）和所有标点/括号/空白后，看还剩多少
+    # 有效字符——几乎没剩内容说明标题被剥空了，只是碰巧没留下明显的空壳。
+    residue = title
+    if speaker:
+        residue = residue.replace(speaker, "")
+        for part in re.split(r"[·・\s]+", speaker):
+            if part:
+                residue = residue.replace(part, "")
+    residue = re.sub(
+        r"[「」『』（）()《》【】\"'\u201c\u201d\u2018\u2019"
+        r"，,。.！!？?、；;：:\s]", "", residue)
+    if len(residue) < 2:
+        return False
+    return True
+
+
 def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
                override: str, previous_titles: list | None = None) -> str:
     """成片标题：必须含讲者名、含具体信息、与同批已出标题不重复、不硬截断、不编数字。
@@ -1315,10 +1410,13 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
     里溯源到（溯源不到时最多重试 ``TITLE_NUMBER_RETRY`` 次）。
 
     数字校验重试后仍编造：不 exit，走确定性降级——先尝试只删掉编造的数字
-    片段，删完仍不满足约束（比如讲者名被连带删掉、或删空了）就整体退回到
-    基于 ``quotes[0]["title_suggestion"]`` 拼出的安全标题。降级不是为了让
-    这条内容过质量关，只是标题措辞层面的确定性兜底，不允许因为编了个数字
-    就让整批其它集也跟着退 2。
+    片段，删完仍不满足约束（比如讲者名被连带删掉、删空了、或留下空引号壳
+    等不合法残留物，见 ``_title_residue_is_valid``）就整体退回到基于
+    ``quotes[0]["title_suggestion"]`` 拼出的安全标题；安全标题本身也过同一
+    道合法性校验，连它都不合法时落到 ``_FINAL_SAFE_TITLE_PHRASE`` 兜底的
+    固定短语，保证任何情况下产出的标题都合法、可渲染、不含空壳。降级不是
+    为了让这条内容过质量关，只是标题措辞层面的确定性兜底，不允许因为编了
+    个数字就让整批其它集也跟着退 2。
     """
     previous_titles = previous_titles or []
 
@@ -1361,16 +1459,28 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
         return re.sub(r'^[「『"\']+|[」』"\']+$', "", cleaned).strip()
 
     def _safe_fallback_title() -> str:
-        """不含编造数字的确定性安全标题：讲者名 + 金句建议标题，再兜底剥数字。"""
+        """不含编造数字的确定性安全标题：讲者名 + 金句建议标题，再兜底剥数字。
+
+        产出同样要经过 ``_title_residue_is_valid`` 这道残留物合法性校验——
+        金句建议标题本身也可能带着模型编的数字、剥完也可能留下空壳。连它都
+        不合法时落到 ``_FINAL_SAFE_TITLE_PHRASE`` 兜底，绝不把不合法标题往
+        下传给封面渲染。
+        """
         suggestion = quotes[0].get("title_suggestion", "") or ""
         base = suggestion if _title_contains_speaker(suggestion, speaker) else (
             f"{speaker}：{suggestion}" if suggestion else speaker)
         base = PR.normalize_cjk_punctuation(PR.to_simplified(base))
         fabricated = _fabricated_number_tokens(base, joined)
         if fabricated:
-            base = _strip_fabricated_numbers(base, fabricated) or speaker
+            stripped = _strip_fabricated_numbers(base, fabricated)
+            base = stripped if stripped else speaker
         if not _title_contains_speaker(base, speaker):
             base = f"{speaker}：{base}" if base and base != speaker else speaker
+        if (_fabricated_number_tokens(base, joined)
+                or not _title_residue_is_valid(base, speaker)):
+            # 金句建议标题本身不干净（编数字、剥完留空壳等）：不做任何正则
+            # 修补，直接落到最终确定性兜底短语，它是硬编码的、已知合法的。
+            base = f"{speaker}{_FINAL_SAFE_TITLE_PHRASE}"
         return base
 
     title = _call(_build_prompt())
@@ -1412,13 +1522,19 @@ def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
 
     if fabricated:
         # 重试后仍编造：确定性降级，不 exit，不让整批跑挂掉。
-        # 第一步只删掉编造的数字片段，尽量保留模型原本的措辞。
+        # 第一步只删掉编造的数字片段，尽量保留模型原本的措辞——但只有
+        # 剥完的结果干净且自然（讲者名还在、数字确实清干净、也没有留下
+        # 空引号壳/孤立引号/悬挂标点等不合法残留物）才采用；任何一项不
+        # 满足都不去尝试用正则"修补"，直接整体退回安全标题——安全标题
+        # 自身也过同一道校验，兜到确定性的最终兜底短语为止。
         stripped = _strip_fabricated_numbers(title, fabricated)
         if stripped and _title_contains_speaker(stripped, speaker) and \
-                not _fabricated_number_tokens(stripped, joined):
+                not _fabricated_number_tokens(stripped, joined) and \
+                _title_residue_is_valid(stripped, speaker):
             title = stripped
         else:
-            # 删完不满足讲者名等约束，或删不干净：整体退回安全标题。
+            # 删完不满足讲者名等约束，或删不干净、留下不合法残留物：
+            # 整体退回安全标题。
             title = _safe_fallback_title()
         log("title", f"标题含溯源不到的数字，已确定性降级为「{title}」")
 
