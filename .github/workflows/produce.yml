@@ -106,7 +106,10 @@ jobs:
     needs: plan
     if: needs.plan.outputs.matrix != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    # 一批出 7 集、源片可能长达 1.5 小时以上（下载 + 转写 + 7 次编码），
+    # 原来的 40 分钟会在编码中途被 GitHub 强杀（run 30904624471 即如此）。
+    # 与 pipeline.yml 保持一致，留足余量。
+    timeout-minutes: 300
     env:
       # secrets 上下文用不了在 step 的 if 里，这里先落成 'true' / 'false'。
       # BILIBILI_COOKIES 目前不存在 → 恒为 'false' → 投稿那步永远跳过。
