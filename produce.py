@@ -63,7 +63,17 @@ VISION_MODEL = "Qwen/Qwen3-VL-8B-Instruct"
 HIGHLIGHT_MODEL = "Qwen/Qwen3-8B"
 WHISPER_MODEL = "base"          # large-v3 在 CI runner 上太慢
 SEGMENTS = 3                    # 成片由三段金句拼成
-TITLE_MAX_CHARS = 15
+
+# ── 标题（问题2、4：词边界截断 + 必含讲者名 + 避重） ──
+# TITLE_MAX_CHARS 从过去的“硬字符上限”改为“软上限＋词边界截断”的基准值：
+# steps/step7_cover.py 的 TITLE_FONT_SIZE_PX=90 实测出 1080 安全区宽度下
+# 每行至少装 11 个汉字、两行实测上限约 20 个汉字（jieba 分词边界会让实际可
+# 装下的字数比理论值稍小），这里留出安全余量。讲者名会占掉开头几个字，
+# 所以软目标比硬上限再保守一点。
+TITLE_MAX_CHARS = 15             # 保留旧名字与旧行为兼容（--title-override 的硬上限）
+TITLE_SOFT_TARGET_CHARS = 18     # 模型生成时的软目标长度，匹配新渲染器的两行容量
+TITLE_HARD_MAX_CHARS = 24        # 词边界截断的绝对上限，允许标点/数字比汉字稍宽的余量
+TITLE_DEDUPE_RETRY = 1           # 标题与同批重复或缺讲者名时重试的次数
 
 # ── 多集 ─────────────────────────────────────────────────────────────────────
 # --episodes N 时下载和转写只做一次，highlight 挑 N 组互不重叠的片段，
@@ -1106,30 +1116,115 @@ def render_covers(frame: str, title: str, speaker: str, out_dir: Path,
 
 # ── 7. 标题 ───────────────────────────────────────────────────────────────────
 
+def _title_contains_speaker(title: str, speaker: str) -> bool:
+    """讲者名必须在标题里出现——判定用「去标点后是否包含」，不要求逐字符前缀。
+
+    讲者名可能是「沃伦·巴菲特」这种带间隔号的全名，模型有时只提「巴菲特」，
+    所以既接受完整讲者名子串，也接受讲者名里最长的连续中文片段（去掉间隔号/
+    书名号等符号后按最长子串比对）。
+    """
+    if not speaker:
+        return True
+    if speaker in title:
+        return True
+    # 去掉常见分隔符后，取最长的连续字母数字/汉字片段做子串比对
+    # （「沃伦·巴菲特」→ 取「巴菲特」「沃伦」两段，任一段出现在标题里就算数）。
+    parts = [p for p in re.split(r"[·・\s]+", speaker) if p]
+    return any(p and p in title for p in parts)
+
+
+def _truncate_at_word_boundary(title: str, max_chars: int) -> str:
+    """按词边界截断到 ``max_chars`` 以内，绝不砍在词中间。
+
+    复用 steps/step7_cover.py 里已经在用的 jieba 分词（``COVER._segment``），
+    逐个词单元往回收缩，直到总字数不超过上限；单个词本身就超过上限时才允许
+    在那个词内部截断（否则一个超长复合词会导致永远截不到目标长度）。
+    """
+    if len(title) <= max_chars:
+        return title
+    units = COVER._segment(title)
+    kept, total = [], 0
+    for u in units:
+        if total + len(u) > max_chars:
+            break
+        kept.append(u)
+        total += len(u)
+    result = "".join(kept).rstrip("，。！？、；：,.!?;: ")
+    if result:
+        return result
+    # 极端情况：第一个词单元本身就超过 max_chars（比如没有标点的超长专有名词），
+    # 词边界规则在这里已经保护不了，只能整体截断——但这只发生在单个词本身
+    # 超限的边界情况，不是常规路径。
+    return title[:max_chars]
+
+
 def make_title(quotes: list, speaker: str, api_key: str, base_url: str,
-               override: str) -> str:
-    """15 字以内的成片标题。``--title-override`` 优先，其次问模型，最后退到建议标题。"""
+               override: str, previous_titles: list | None = None) -> str:
+    """成片标题：必须含讲者名、含具体信息、与同批已出标题不重复、不硬截断。
+
+    ``--title-override`` 优先，其次问模型，最后退到建议标题。生成后校验
+    讲者名是否出现、是否与 ``previous_titles`` 撞题，缺失时最多重试
+    ``TITLE_DEDUPE_RETRY`` 次；仍不满足要求就在标题前确定性地补上讲者名，
+    不允许静默产出一个不含讲者名的标题。
+    """
+    previous_titles = previous_titles or []
+
     if override:
-        return PR.normalize_cjk_punctuation(override.strip())[:TITLE_MAX_CHARS]
+        cleaned = PR.normalize_cjk_punctuation(override.strip())
+        return _truncate_at_word_boundary(cleaned, TITLE_HARD_MAX_CHARS)
 
     joined = "\n".join(q.get("transcript_zh") or q.get("transcript_en", "")
                        for q in quotes)[:1500]
-    prompt = (f"下面是{speaker}的三段发言。起一个中文标题，"
-              f"不超过 {TITLE_MAX_CHARS} 个字，不要书名号，不要引号，"
-              f"只输出标题本身。\n\n{joined}")
-    try:
-        raw = HL.call_llm([{"role": "user", "content": prompt}],
-                          api_key, HIGHLIGHT_MODEL, base_url)
-    except sf_client.FatalHTTPError as e:
-        die_fatal_http("title", e)
-    except RuntimeError as e:
-        log("title", f"模型不可用（{e}），退到金句建议标题")
-        raw = quotes[0].get("title_suggestion", "") or speaker
 
-    title = PR.normalize_cjk_punctuation(
-        PR.to_simplified(raw.strip().splitlines()[0] if raw.strip() else speaker))
-    title = re.sub(r'^[「『"\']+|[」』"\']+$', "", title).strip()
-    return title[:TITLE_MAX_CHARS] or speaker
+    def _build_prompt(extra: str = "") -> str:
+        avoid = ""
+        if previous_titles:
+            avoid = ("本批次已经用过的标题（不要与它们话题重复，换一个角度）：\n"
+                     + "\n".join(f"- {t}" for t in previous_titles) + "\n\n")
+        return (
+            f"下面是{speaker}的三段发言。起一个中文标题，用于短视频封面。\n"
+            f"硬性要求：\n"
+            f"1. 标题必须以「{speaker}」这个名字开头作为关键词，格式类似"
+            f"「{speaker}：具体主张」或「{speaker}谈XXX」；\n"
+            f"2. 必须包含具体信息（数字、公司名、反直觉的具体主张），"
+            f"不要写「{speaker}的智慧」「{speaker}之道」这类空话；\n"
+            f"3. 全文不超过 {TITLE_SOFT_TARGET_CHARS} 个字，不要书名号，不要引号；\n"
+            f"4. 只输出标题本身，不要解释。\n"
+            f"{avoid}{extra}\n发言内容：\n{joined}")
+
+    def _call(prompt: str) -> str:
+        try:
+            raw = HL.call_llm([{"role": "user", "content": prompt}],
+                              api_key, HIGHLIGHT_MODEL, base_url)
+        except sf_client.FatalHTTPError as e:
+            die_fatal_http("title", e)
+        except RuntimeError as e:
+            log("title", f"模型不可用（{e}），退到金句建议标题")
+            raw = f"{speaker}：" + (quotes[0].get("title_suggestion", "") or "")
+        cleaned = PR.normalize_cjk_punctuation(
+            PR.to_simplified(raw.strip().splitlines()[0] if raw.strip() else speaker))
+        return re.sub(r'^[「『"\']+|[」』"\']+$', "", cleaned).strip()
+
+    title = _call(_build_prompt())
+    attempts = 0
+    while attempts < TITLE_DEDUPE_RETRY and (
+            not _title_contains_speaker(title, speaker) or title in previous_titles):
+        attempts += 1
+        reasons = []
+        if not _title_contains_speaker(title, speaker):
+            reasons.append(f"上一次生成的标题「{title}」没有包含讲者名「{speaker}」")
+        if title in previous_titles:
+            reasons.append(f"上一次生成的标题「{title}」与已有标题完全重复")
+        extra = "，".join(reasons) + "，请重新生成，务必满足上面的硬性要求。"
+        title = _call(_build_prompt(extra))
+
+    # 模型多次重试后仍不含讲者名：不允许静默产出不合规标题，
+    # 确定性地把讲者名钉在开头，保证硬性要求 100% 满足。
+    if not _title_contains_speaker(title, speaker):
+        title = f"{speaker}：{title}" if title else speaker
+
+    title = title or speaker
+    return _truncate_at_word_boundary(title, TITLE_HARD_MAX_CHARS)
 
 
 # ── 8. manifest ───────────────────────────────────────────────────────────────
@@ -1549,6 +1644,7 @@ def main(argv=None) -> int:
             episodes_requested=args.episodes)
 
     queue_episodes = []
+    generated_titles: list = []   # 问题4：同批避重需要把已生成的标题传进下一集的 prompt
     for index, quotes in enumerate(groups, 1):
         ep_dir = episode_dir(out_dir, index, args.episodes)
         ep_dir.mkdir(parents=True, exist_ok=True)
@@ -1586,7 +1682,8 @@ def main(argv=None) -> int:
 
         stage("title")
         title = make_title(quotes, args.speaker, api_key, base_url,
-                           args.title_override)
+                           args.title_override, previous_titles=generated_titles)
+        generated_titles.append(title)
         log("title", title)
 
         stage("cover-render")
