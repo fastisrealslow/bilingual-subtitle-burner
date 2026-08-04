@@ -119,6 +119,28 @@ def test_degrades_deterministically_when_retry_still_fabricates(monkeypatch):
     assert "10%" not in title
 
 
+def test_degrade_removes_the_fabricated_number_itself_not_just_the_tail(monkeypatch):
+    """编造数字出现在标题靠前位置时，降级必须精确去掉那个数字片段，
+
+    不能靠「反正截掉末尾」这种跟位置相关的巧合来通过检查——如果降级逻辑
+    被换成对标题做固定长度的静默截断（比如只保留前 N 个字符），当编造的
+    数字刚好出现在靠前的位置时，截断结果里仍会带着这个编造数字，这条测试
+    就会失败，从而杀掉「降级改成静默截断标题」这一类变异。
+    """
+    def fake_call_llm(messages, api_key, model, base_url):
+        return "帕伯莱谈300%的杠杆神话与信号"
+
+    monkeypatch.setattr(produce.HL, "call_llm", fake_call_llm)
+    quotes = _quotes("帕伯莱谈的是杠杆使用的纪律问题，通篇没有出现任何具体数字")
+    title = produce.make_title(quotes, "帕伯莱", "key", "http://x", None)
+    assert "300%" not in title, (
+        f"标题「{title}」仍带着编造数字「300%」，降级没有精确去掉它，"
+        f"疑似退化成了跟数字位置无关的固定长度截断")
+    assert not produce._title_has_digit_or_percent(title), (
+        f"标题「{title}」仍带有阿拉伯数字或百分号")
+    assert "帕伯莱" in title
+
+
 def test_number_that_appears_only_via_unit_suffix_in_source_is_kept(monkeypatch):
     """原文带单位的数字（「23美元」）要能被识别为真实数字并保留，不是编造。
 
@@ -132,6 +154,17 @@ def test_number_that_appears_only_via_unit_suffix_in_source_is_kept(monkeypatch)
     quotes = _quotes("帕伯莱讲述曼哈顿岛当年只卖23美元的历史案例，反常识")
     title = produce.make_title(quotes, "帕伯莱", "key", "http://x", None)
     assert "23美元" in title, f"标题「{title}」把原文真实存在的「23美元」也删掉了"
+
+
+def test_strip_fabricated_numbers_actually_removes_the_span():
+    """_strip_fabricated_numbers 直接单测：传入的编造 token 对应的数字片段
+    必须真的从标题里消失，不能原样返回。这条直接针对函数本身，
+    不依赖 make_title 里还有其他安全网（安全降级标题）把问题掩盖掉。
+    """
+    result = produce._strip_fabricated_numbers(
+        "帕伯莱：韩国半导体投资回报超300%", {"PCT:300.0"})
+    assert "300%" not in result, (
+        f"_strip_fabricated_numbers 没有真正删除编造数字片段，结果为「{result}」")
 
 
 def test_extract_number_tokens_direct_unit_test():
