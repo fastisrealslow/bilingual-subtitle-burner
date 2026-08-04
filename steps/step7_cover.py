@@ -30,23 +30,87 @@ except ImportError:
     sys.exit(1)
 
 
-FONT_CANDIDATES = [
-    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
-    "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
-    "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
-    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+# 问题 3 的根因：NotoSansCJK-Bold.ttc 是一个 TTC 合集，同一个文件里塞着 JP/KR/SC/
+# TC/HK 五套字形。PIL 的 ``ImageFont.truetype(path, size)`` 不给 ``index`` 时默认
+# 取第 0 个子字体 —— 实测就是 Noto Sans CJK **JP**，不是 SC。JP 和 SC 共享大部分
+# 汉字轮廓，但对「关」这类字符用的是日文常见的字形变体，笔画粗细、内部间距都跟
+# 简体印刷习惯不一致，混进标题里就是「同一句话里有一个字明显细一号」的视觉 bug —
+# 这不是 fontconfig 传统意义上的 fallback（cmap 里其实有这个字），是**同一文件内
+# 选错了子字体索引**。下面按 name 表在 TTC 里查找「Noto Sans CJK SC」的下标，
+# 而不是写死数字：不同发行版打的 Noto CJK 包，子字体在合集里的顺序不一定相同。
+TITLE_FONT_CANDIDATES = [
+    ("/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc", "Noto Sans CJK SC"),
+    ("/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf", None),
+    ("/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", None),
+    ("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", None),
+    ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", None),
 ]
+
+# 向后兼容旧名字（其他模块 / 测试可能还在引用）
+FONT_CANDIDATES = [p for p, _ in TITLE_FONT_CANDIDATES]
+
+
+def _sc_face_index(ttc_path: str, want_name: str = "Noto Sans CJK SC") -> int:
+    """在一个 .ttc 字体合集里找到 name 表包含 ``want_name`` 的子字体下标。
+
+    找不到（不是 ttc、fontTools 缺失、确实没有这个子字体）时返回 0，
+    退回合集里的第一个子字体——这和历史行为一致，不会比修之前更差。
+    """
+    try:
+        from fontTools.ttLib import TTCollection
+    except ImportError:
+        return 0
+    try:
+        tc = TTCollection(ttc_path, lazy=True)
+    except Exception:
+        return 0
+    for i, f in enumerate(tc.fonts):
+        try:
+            name = f["name"].getDebugName(1) or ""
+        except Exception:
+            continue
+        if want_name in name:
+            return i
+    return 0
+
+
+_sc_index_cache: dict = {}
+
+
+def _resolve_font_index(path: str, hint_name: str | None) -> int:
+    if hint_name is None:
+        return 0
+    if path not in _sc_index_cache:
+        _sc_index_cache[path] = _sc_face_index(path, hint_name)
+    return _sc_index_cache[path]
 
 
 def find_font(size: int):
-    for path in FONT_CANDIDATES:
+    """按 ``TITLE_FONT_CANDIDATES`` 顺序找可用字体，TTC 合集会解析出 SC 子字体。"""
+    for path, hint_name in TITLE_FONT_CANDIDATES:
         if os.path.exists(path):
             try:
-                return ImageFont.truetype(path, size)
+                idx = _resolve_font_index(path, hint_name)
+                return ImageFont.truetype(path, size, index=idx)
             except Exception:
                 continue
     return ImageFont.load_default()
+
+
+def find_font_path_and_index(size: int):
+    """同 ``find_font``，但额外把实际选中的 (路径, index) 一并返回。
+
+    供字体覆盖测试断言「所有字形确实来自同一个字体文件的同一个子字体」，
+    不用只靠视觉抽查。
+    """
+    for path, hint_name in TITLE_FONT_CANDIDATES:
+        if os.path.exists(path):
+            try:
+                idx = _resolve_font_index(path, hint_name)
+                return ImageFont.truetype(path, size, index=idx), path, idx
+            except Exception:
+                continue
+    return ImageFont.load_default(), None, None
 
 
 def _find_ffmpeg() -> str:
@@ -312,9 +376,13 @@ def verify_frame_person(api_key: str, model: str, frame_path: str, speaker: str,
     }
 
 
-def reject_cover(reason: str, **fields) -> None:
-    """打印结构化拒绝原因到 stderr 并以 EXIT_QUALITY 退出。"""
-    payload = {"stage": "cover", "reason": reason, **fields}
+def reject_cover(reason: str, stage: str = "cover", **fields) -> None:
+    """打印结构化拒绝原因到 stderr 并以 EXIT_QUALITY 退出。
+
+    ``stage`` 默认仍是 "cover"（选帧/VLM 校验那一类拒绝的历史行为）；
+    标题超行（title_overflow）要求的是 "cover-render"，调用方传进来覆盖。
+    """
+    payload = {"stage": stage, "reason": reason, **fields}
     print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
     sys.exit(EXIT_QUALITY)
 
@@ -855,6 +923,16 @@ TAG_MARGIN_X = 24
 TAG_MARGIN_Y = 20
 TITLE_SHADOW = 2                          # 标题描边偏移，量包围盒时要算进去
 
+# ── 标题字号与换行（问题1：固定字号 + 超宽换行，不再“缩字号撑进一行”） ──
+# 90px 是实测选的：1080 宽的安全区减去两侧边距后剩 996px，Noto Sans CJK SC 是正方形
+# 每字宽正好等于字号，996/90≈11.07 → 每行至少能装 11 个汉字（含标点/数字能装更多），
+# 恰在任务要求的 90-110px 区间内。固定不变：同一批封面无论标题长短字号都一样。
+TITLE_FONT_SIZE_PX = 90
+# 行间额外行距（加在字号上构成 line_height）。
+TITLE_LINE_SPACING = 14
+# 硬上限：超过这个行数宁可拒绝出图，也不偷偷缩字号 / 硬截断去塞。
+TITLE_MAX_LINES = 2
+
 
 def platform_safe_area(target_size: tuple) -> tuple:
     """该出图尺寸下「平台一定看得见」的矩形 ``(l, t, r, b)``。"""
@@ -883,6 +961,27 @@ class CoverSafeAreaError(RuntimeError):
         super().__init__("；".join(
             f"{v['element']} 包围盒 {v['box']} 越出{v['limit_name']} {v['limit']}"
             for v in violations))
+
+
+class TitleOverflowError(RuntimeError):
+    """固定字号下标题真的装不进 ``TITLE_MAX_LINES`` 行。
+
+    硬约束 #1：不允许任何一集标题渲染不下时偷偷缩字号 / 硬截断 / 改行距去塞。
+    只能拒绝出图、抛这个异常，由调用方（produce.py 或 step7_cover.py 的 main）
+    翻译成 exit 2 + {"stage": "cover-render", "reason": "title_overflow", ...}。
+    """
+
+    def __init__(self, title: str, lines: list, target_size: tuple,
+                font_size: int, max_line_px: float):
+        self.title = title
+        self.lines = list(lines)
+        self.target_size = tuple(target_size)
+        self.font_size = font_size
+        self.max_line_px = max_line_px
+        super().__init__(
+            f"标题「{title}」在字号 {font_size}px 下排出 {len(lines)} 行"
+            f"（上限 {TITLE_MAX_LINES} 行，行宽上限 {max_line_px:.0f}px），"
+            f"拒绝出图：{lines}")
 
 
 def safe_area_violations(boxes: dict, target_size: tuple) -> list:
@@ -1055,12 +1154,16 @@ def make_cover(frame_path: str, title: str, speaker: str,
 
     # 标题折行。
     #
-    # 旧版是“逐字累加 + 固定 14 字估宽”，两个毛病：
-    #   1. 不看真实字体度量，宽度估不准；
-    #   2. 贪心填满第一行，会把词从中间劈开。实测出现过
-    #      “大选后全面买入的反常 / 识逻辑！”——把“反常识”劈成两截。
+    # 旧版是「单行 + 按标题长度把字号缩到能塞进一行」：同一批封面里，8 字的标题
+    # 字很大、15 字的字明显小一圈，放在一起参差不齐，长标题在手机上还看不清
+    # （实测 ep06「长期价值投资的关键在于现金流预」标题区只有画面高度的 2.9%）。
+    # 旧逻辑为了塞进一行，还会在字符数上限处硬砍——「现金流预测」被砍成
+    # 「现金流预」，断在词中间。
     #
-    # 现在：真实字体宽度 + jieba 词边界 + 行数均衡 + 行首禁则。
+    # 现在：字号写死（TITLE_FONT_SIZE_PX），绝不因为标题长短而缩放或拉伸；
+    # 超宽就换行，最多 TITLE_MAX_LINES 行；真的两行都装不下，不偷偷截断、
+    # 不偷偷缩字号、不偷偷改行距去硬塞——直接抛 TitleOverflowError，
+    # 由调用方翻译成 exit 2 + {"reason": "title_overflow"}，逼着上游把标题写短。
     #
     # 左右边界和落底位置都从 platform_safe_area 推，不再从画面边缘推 ——
     # 边缘那一圈会被平台裁掉。
@@ -1068,7 +1171,7 @@ def make_cover(frame_path: str, title: str, speaker: str,
     chrome = platform_chrome_zone(target_size)
     title_bottom = (chrome[1] if chrome else safe_b) - TITLE_BOTTOM_MARGIN
 
-    title_font_size = max(36, w // 22)
+    title_font_size = TITLE_FONT_SIZE_PX
     title_font = find_font(title_font_size)
     max_line_px = (safe_r - safe_l) - 2 * (TITLE_SIDE_MARGIN + TITLE_SHADOW)
 
@@ -1077,15 +1180,14 @@ def make_cover(frame_path: str, title: str, speaker: str,
 
     title_lines = wrap_title(title, _measure, max_line_px)
 
-    # 行数太多就缩字号重排，宁可小一点也不要堆成四行遮住画面
-    while len(title_lines) > 3 and title_font_size > 28:
-        title_font_size -= 4
-        title_font = find_font(title_font_size)
-        title_lines = wrap_title(title, _measure, max_line_px)
+    if len(title_lines) > TITLE_MAX_LINES or \
+            any(_measure(ln) > max_line_px for ln in title_lines):
+        raise TitleOverflowError(title, title_lines, target_size,
+                                 title_font_size, max_line_px)
 
     # 先按 (0, 0) 起笔量一遍真实墨水框，再整体平移到「左边贴安全区内边距、
     # 底边贴 title_bottom」。用字号估高度会差出十几像素，正好卡在闸门上。
-    line_height = title_font_size + 10
+    line_height = title_font_size + TITLE_LINE_SPACING
     ink = [draw.textbbox((0, i * line_height), line, font=title_font)
            for i, line in enumerate(title_lines)]
     dx = safe_l + TITLE_SIDE_MARGIN - min(b[0] for b in ink)
@@ -1224,6 +1326,11 @@ def main():
             reject_cover("cover_text_outside_safe_area",
                          detail="封面文字/角标越出平台安全区，拒绝出图",
                          target_size=[w, h], violations=e.violations)
+        except TitleOverflowError as e:
+            reject_cover("title_overflow", stage="cover-render",
+                         detail="标题在固定字号下超过 2 行或行宽超限，拒绝硬出图",
+                         title=e.title, lines=e.lines, target_size=list(e.target_size),
+                         font_size_px=e.font_size, max_line_px=round(e.max_line_px))
         print(f"[cover] ✅ [{rank:02d}] → {rank:02d}_cover.jpg", flush=True)
 
     import shutil

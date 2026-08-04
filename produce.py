@@ -1090,6 +1090,14 @@ def render_covers(frame: str, title: str, speaker: str, out_dir: Path,
                 detail="封面文字/角标越出平台安全区，拒绝出图",
                 cover=name, target_size=list(size), title=title,
                 violations=e.violations)
+        except COVER.TitleOverflowError as e:
+            # 硬约束 #1：固定字号下标题超过 TITLE_MAX_LINES 行就拒绝硬出图，
+            # 不许偷偷缩字号 / 硬截断 / 改行距。stage 固定用 "cover-render"。
+            die(EXIT_QUALITY, "cover-render", "title_overflow",
+                detail="标题在固定字号下超过 2 行或行宽超限，拒绝硬出图",
+                cover=name, target_size=list(size), title=title,
+                lines=e.lines, font_size_px=e.font_size,
+                max_line_px=round(e.max_line_px))
         covers[name] = path
         log("cover", f"→ {path}")
     report["files"] = covers

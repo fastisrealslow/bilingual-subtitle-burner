@@ -32,6 +32,12 @@ jieba>=0.42.1
 # 附带 haarcascade_*.xml，装上 5.x 会让预筛静默退化成「全部帧都送 vision」。
 opencv-python-headless>=4.8.0,<5
 
+# 封面标题字体：NotoSansCJK-Bold.ttc 是一个 TTC 合集，PIL 不指定 index 时默认
+# 取第 0 个子字体（Noto Sans CJK JP），不是 SC。用 fontTools 按 name 表在合集里
+# 查出「Noto Sans CJK SC」的真实下标，避免简体标题里混入日文字形变体。
+# 缺失时退化成 index=0（旧行为，不会比修之前更差，但拿不到 SC 子字体）。
+fonttools>=4.0.0
+
 # ── 上传相关（可选，按需安装）──
 # B站自动上传（step8 --do-upload）：
 #   pip install biliup            # 或 biliupload；也可用 biliup-rs 二进制
