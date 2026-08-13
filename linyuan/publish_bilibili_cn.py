@@ -9,7 +9,9 @@
     python3 linyuan/publish_bilibili_cn.py --slug <slug> [--dry-run]
 
 环境变量：
-    BILIBILI_COOKIES: biliup cookies.json 路径或内容
+    BILI_COOKIES_FILE: biliup cookies.json 的**文件路径**
+    （由 bili_cookies.py 准备步骤把 secret 内容落盘后写入此变量；
+     GitHub secret 里装的是文件全文，不是路径，不能直接当路径用）
 """
 
 import argparse
@@ -69,10 +71,10 @@ def main():
     else:
         title, desc, tags = args.slug, "", ["林园"]
 
-    # cookies
-    raw_cookies = (args.cookies or os.environ.get("BILIBILI_COOKIES") or "").strip()
+    # cookies：BILI_COOKIES_FILE 装的是路径（secret 原文由准备步骤落盘）
+    raw_cookies = (args.cookies or os.environ.get("BILI_COOKIES_FILE") or "").strip()
     if not raw_cookies:
-        print(f"❌ 缺少 BILIBILI_COOKIES", file=sys.stderr)
+        print(f"❌ 缺少 BILI_COOKIES_FILE（cookie 文件路径）", file=sys.stderr)
         return 1
     cookies = Path(raw_cookies)
     if not cookies.is_file():

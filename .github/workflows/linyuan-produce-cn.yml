@@ -167,22 +167,27 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # B 站投稿（可选，需配置 BILIBILI_COOKIES secret）
-      - name: B 站投稿
-        if: env.BILIBILI_COOKIES != ''
-        working-directory: .
+      # ── B 站自动投稿（可选，默认关闭）─────────────────────────────
+      # 开启方式：本机跑 linyuan/setup_bilibili_cookies.sh，扫码登录后
+      # cookies.json 会写进 BILIBILI_COOKIES secret。
+      #
+      # 这里分两步，理由：
+      # 1. secret 里装的是 cookies.json 全文（内容），不是路径 —— 直接当
+      #    路径传给脚本必然报「文件不存在」。
+      # 2. secrets 不能出现在步骤级 if 里 —— 必须由准备步骤把「配没配好」
+      #    翻译成 GITHUB_ENV 变量，投稿步骤再判断。
+      - name: 准备 B站登录态
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: |
-          python -m pip install biliup -q
-          python3 linyuan/publish_bilibili_cn.py --slug "${{ inputs.slug }}"
+          set -euo pipefail
+          python3 bili_cookies.py \
+            --out "$RUNNER_TEMP/bili_cookies.json" \
+            --github-env "$GITHUB_ENV"
 
-      # B 站自动投稿：默认关闭，需要配置 BILIBILI_COOKIES secret
       - name: B 站投稿
-        if: success() && env.BILIBILI_COOKIES != ''
-        env:
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        if: env.BILI_COOKIES_FILE != ''
         run: |
-          pip install biliup
-          python3 publish_bilibili_cn.py --slug "${{ inputs.slug }}" --dry-run
-          # 确认无误后去掉 --dry-run 即可真正投稿
+          set -euo pipefail
+          python -m pip install -q biliup
+          python3 publish_bilibili_cn.py --slug "${{ inputs.slug }}"
