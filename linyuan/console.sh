@@ -7,6 +7,9 @@ set -uo pipefail
 cd "$(dirname "$0")"
 
 PORT="${PORT:-8420}"
+LAN_IP=$(ip -4 route get 1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src"){print $(i+1); exit}}')
+LAN_IP=${LAN_IP:-$(hostname -I 2>/dev/null | awk '{print $1}')}
+LAN_IP=${LAN_IP:-127.0.0.1}
 PIDFILE=".console.pid"
 LOGFILE=".console.log"
 
@@ -23,7 +26,7 @@ case "${1:-status}" in
     if [ -n "$pid" ]; then
       echo "$pid" > "$PIDFILE"
       echo "✅ 已启动 (pid $pid)"
-      echo "   局域网  http://10.4.145.236:$PORT/"
+      echo "   局域网  http://$LAN_IP:$PORT/"
       echo "   本机    http://127.0.0.1:$PORT/"
     else
       echo "❌ 启动失败，看 $LOGFILE"; exit 1
@@ -36,7 +39,7 @@ case "${1:-status}" in
   restart) "$0" stop; sleep 1; "$0" start ;;
   status)
     if running; then
-      echo "✅ 运行中 (pid $(cat $PIDFILE))  http://10.4.145.236:$PORT/"
+      echo "✅ 运行中 (pid $(cat $PIDFILE))  http://$LAN_IP:$PORT/"
     else
       echo "○ 未运行"
     fi

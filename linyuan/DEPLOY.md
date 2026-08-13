@@ -56,18 +56,20 @@ sudo apt-get install -y poppler-utils ffmpeg
 - `pdftotext`（poppler-utils）：解析股东大会公告 PDF 提取会议时间地点
 - `ffmpeg`：合并 B站 DASH 音视频流
 
-### 4. 内网信息隔离
+### 4. 内部信息隔离
 
-以下内容**不得进入公开仓库**，已在 `.gitignore` 中排除：
+**不得进入公开仓库**的内容（已在 `.gitignore` 中排除）：
 
-- `dashboard/.cowork.json` — 含公司内网部署地址
-- `dashboard.zip` / `dashboard-guard/` — 内网发布产物
+- 内部部署平台的配置文件与发布产物
+- 本机/局域网 IP、内部域名、任何凭据文件（`.env`、`cookies.json`）
 
-`CDP_URL` 已改为读环境变量，默认值仅本地生效。
+原则：仓库里只允许出现公开服务的 API 端点（B站/微博/硅基流动等）和
+`127.0.0.1` 这类本机约定地址。`CDP_URL` 读环境变量，默认值仅本地生效。
 
 ## 部署步骤
 
-1. 新建 GitHub 仓库（**建议私有**，虽已隔离内网信息，但监控数据仍属内部资产）
+1. 新建 GitHub 仓库（**强烈建议私有**：监控数据属内部资产，且 Actions
+   日志会带源站响应细节）
 2. 复制以下文件：
    ```
    monitor_v2.py  monitor_v2_config.json
@@ -87,7 +89,7 @@ sudo apt-get install -y poppler-utils ffmpeg
 | 抓取源 | 8 个 | 7 个（无雪球）|
 | 视频落盘 | 永久保存 | Artifacts 保留 30 天 |
 | 种子自动补充 | 可调 web_search | ❌ 需人工或外部触发 |
-| Dashboard 部署 | 内网 Cowork | 需另配（GitHub Pages 等）|
+| Dashboard 部署 | 本地 HTTP 服务 | 需另配（GitHub Pages 等）|
 
 **种子补充是最大缺口**：抖音/好看视频靠种子池驱动，而发现新种子需要
 搜索引擎能力，Actions 环境内无法调用。建议保持「本地补种子 → 提交种子文件 →

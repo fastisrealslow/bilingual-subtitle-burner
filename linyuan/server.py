@@ -302,13 +302,26 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(200, {"job": job_id, "step": step})
 
 
+def _lan_ip():
+    """探测本机局域网 IP。绝不硬编码 —— 硬编码等于把内部网络拓扑泄进公开仓库。"""
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))   # 不真的发包，只用来确定出口网卡
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except OSError:
+        return "127.0.0.1"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8420)
     ap.add_argument("--host", default="0.0.0.0")
     args = ap.parse_args()
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"控制台 → http://10.4.145.236:{args.port}/")
+    print(f"控制台 → http://{_lan_ip()}:{args.port}/")
     print(f"        （本机 http://127.0.0.1:{args.port}/）")
     srv.serve_forever()
 
