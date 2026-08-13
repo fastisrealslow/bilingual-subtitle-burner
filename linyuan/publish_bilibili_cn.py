@@ -33,6 +33,8 @@ def main():
     ap.add_argument("--tid", type=int, default=DEFAULT_TID, help="分区 id")
     ap.add_argument("--copyright", type=int, default=DEFAULT_COPYRIGHT, choices=[1, 2])
     ap.add_argument("--line", default=DEFAULT_LINE)
+    ap.add_argument("--title", default=None, help="覆盖自动生成的标题")
+    ap.add_argument("--desc", default=None, help="覆盖自动生成的简介")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -70,6 +72,11 @@ def main():
             title, desc, tags = args.slug, "", ["林园"]
     else:
         title, desc, tags = args.slug, "", ["林园"]
+
+    if args.title:
+        title = args.title
+    if args.desc:
+        desc = args.desc
 
     # cookies：BILI_COOKIES_FILE 装的是路径（secret 原文由准备步骤落盘）
     raw_cookies = (args.cookies or os.environ.get("BILI_COOKIES_FILE") or "").strip()
