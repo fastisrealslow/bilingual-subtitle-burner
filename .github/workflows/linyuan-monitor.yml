@@ -1,0 +1,119 @@
+name: 林园监控 · 每日抓取
+
+# 只做监控和元数据更新，不出片 —— 抓取是轻量高频的（约 1 分钟），
+# 出片是重计算（十几分钟），两者分开，互不拖累。
+#
+# 视频不进仓库：GitHub 仓库软限制 1GB、单文件 100MB，而素材动辄数 GB。
+# 需要视频时由 produce-cn.yml 现取现用。
+
+on:
+  schedule:
+    - cron: '0 1 * * *'        # 每天 09:00 (UTC+8)
+  workflow_dispatch:
+    inputs:
+      refresh_up_list:
+        description: '同时刷新 B站 UP 主视频清单（对标基准）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false     # 抓一半被取消会留下半截状态
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: linyuan
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # pdftotext 用来解析股东大会公告 PDF，提取会议时间地点 ——
+      # 这是「比二创早 3 周」那个提前量的来源，缺了整块能力就没了
+      - name: 安装系统依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+
+      - name: 接口健康巡检
+        id: health
+        continue-on-error: true       # 巡检失败不该挡住抓取，但要留痕
+        run: python3 healthcheck.py
+
+      - name: 抓取全部源
+        id: fetch
+        run: |
+          set -o pipefail
+          rm -f monitor_v2_state.json
+          python3 -u monitor_v2.py 2>&1 | tee /tmp/fetch.log
+          echo "new=$(grep -oP '总计新增: \K\d+' /tmp/fetch.log || echo 0)" >> $GITHUB_OUTPUT
+
+      - name: 刷新 UP 主清单
+        if: inputs.refresh_up_list
+        continue-on-error: true
+        run: python3 fetch_up_list.py
+
+      - name: 能力回测
+        continue-on-error: true
+        run: python3 backtest.py 2>&1 | tee /tmp/backtest.log
+
+      - name: 提交元数据变更
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # 注意：本步骤 cwd 是 linyuan/（job 级 working-directory），
+          # 路径绝不能带 linyuan/ 前缀 —— 带前缀会因 pathspec 不匹配而静默
+          # 跳过，每次 run 都假报「无变更」，数据永远提交不上来。
+          git add -A -- dashboard/data.json monitor_v2.db up_videos.json *_seeds.json
+          if git diff --staged --quiet; then
+            echo "无变更"
+            exit 0
+          fi
+          git commit -m "chore(monitor): 自动更新 (+${{ steps.fetch.outputs.new }} 条)"
+          # 定时任务之间不会撞车，但手动触发可能和定时重叠
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" \
+              && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "推送冲突，第 $i 次重试"
+            sleep $(( i * 5 ))
+          done
+          echo "::error::元数据提交失败，抓取结果只在本次 run 的日志里"
+          exit 1
+
+      - name: 摘要
+        if: always()
+        run: |
+          {
+            echo "## 抓取结果"
+            echo '```'
+            grep -aE "模式|抓取成功|过滤|复用|新增:|总计" /tmp/fetch.log 2>/dev/null | head -30
+            echo '```'
+            if [ -f /tmp/backtest.log ]; then
+              echo "## 回测"
+              echo '```'
+              tail -14 /tmp/backtest.log
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 上传日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-logs-${{ github.run_number }}
+          path: |
+            /tmp/fetch.log
+            /tmp/backtest.log
+          retention-days: 14
+          if-no-files-found: ignore

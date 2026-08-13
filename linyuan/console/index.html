@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>林园监控流水线 · 控制台</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --line:#252932; --tx:#e8eaed; --tx2:#9aa3af;
+    --tx3:#6b7280; --ok:#22c55e; --run:#3b82f6; --err:#ef4444; --warn:#f59e0b;
+    --accent:#6366f1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font:14px/1.6 -apple-system,BlinkMacSystemFont,
+       "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1400px;margin:0 auto;padding:22px 20px 60px}
+  header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  h1{font-size:19px;font-weight:650}
+  .sub{color:var(--tx3);font-size:12.5px}
+  .clock{margin-left:auto;color:var(--tx3);font-size:12px;font-variant-numeric:tabular-nums}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .stat .k{font-size:11px;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase}
+  .stat .v{font-size:23px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:3px}
+  .stat .v small{font-size:12px;color:var(--tx3);font-weight:400;margin-left:3px}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:980px){.cols{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .panel h2{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;
+            align-items:center;gap:8px}
+  .panel h2 .tag{font-size:11px;font-weight:400;color:var(--tx3);
+                 border:1px solid var(--line);border-radius:20px;padding:1px 8px}
+
+  /* 流程步骤 */
+  .step{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:10px;
+        border:1px solid var(--line);margin-bottom:8px;transition:.15s;background:#1b1f27}
+  .step:hover{border-color:#39404e}
+  .step .dot{width:9px;height:9px;border-radius:50%;background:var(--tx3);flex-shrink:0}
+  .step.running .dot{background:var(--run);animation:pulse 1.1s infinite}
+  .step.ok .dot{background:var(--ok)}
+  .step.err .dot{background:var(--err)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .step .info{flex:1;min-width:0}
+  .step .nm{font-size:13.5px;font-weight:500}
+  .step .ds{font-size:11.5px;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;
+            white-space:nowrap}
+  .step .est{font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums;
+             white-space:nowrap}
+  .btn{background:#252b36;border:1px solid #333a47;color:var(--tx);padding:5px 13px;
+       border-radius:8px;font-size:12.5px;cursor:pointer;white-space:nowrap;
+       font-family:inherit;transition:.15s}
+  .btn:hover:not(:disabled){background:var(--accent);border-color:var(--accent)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.primary{background:var(--accent);border-color:var(--accent);font-weight:500}
+  .btn.primary:hover:not(:disabled){opacity:.88}
+  .btn.danger{background:#7f1d1d;border-color:#991b1b}
+
+  /* 日志 */
+  #logbox{background:#0b0d11;border:1px solid var(--line);border-radius:10px;
+          padding:12px;height:420px;overflow-y:auto;font:12px/1.65 ui-monospace,
+          SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;
+          word-break:break-word;color:#c9d1d9}
+  #logbox:empty::before{content:"点左侧任一步骤的「运行」按钮，日志会实时显示在这里";
+                        color:var(--tx3)}
+  .loghead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .badge{font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--line)}
+  .badge.running{background:#1e3a8a;border-color:#1d4ed8;color:#bfdbfe}
+  .badge.ok{background:#14532d;border-color:#166534;color:#bbf7d0}
+  .badge.err{background:#7f1d1d;border-color:#991b1b;color:#fecaca}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  td,th{padding:6px 8px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--tx3);font-weight:500;font-size:11px;text-transform:uppercase}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .muted{color:var(--tx3)}
+  .pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:20px;
+        background:#252b36;border:1px solid var(--line)}
+  .pill.on{background:#14532d;border-color:#166534;color:#bbf7d0}
+  .pill.off{background:#3f1d1d;border-color:#7f1d1d;color:#fecaca}
+  #qr{margin-top:10px;text-align:center}
+  #qr img{max-width:260px;border-radius:10px;background:#fff;padding:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>林园监控流水线</h1>
+    <span class="sub">监控 → 下载 → 出片 → 投稿</span>
+    <span class="clock" id="clock"></span>
+  </header>
+
+  <div class="grid" id="stats"></div>
+
+  <div class="cols">
+    <div>
+      <div class="panel" style="margin-bottom:16px">
+        <h2>流程 <span class="tag">点「运行」单独执行，或用全流程一键跑</span></h2>
+        <div id="steps"></div>
+      </div>
+
+      <div class="panel">
+        <h2>产出</h2>
+        <div id="delivers"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="loghead">
+          <h2 style="margin:0">实时日志</h2>
+          <span id="logbadge"></span>
+          <button class="btn" style="margin-left:auto" onclick="clearLog()">清空</button>
+        </div>
+        <div id="logbox"></div>
+        <div id="qr"></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px">
+        <h2>B站登录 <span class="tag" id="lgtag">一次性，凭据有效期数月</span></h2>
+        <div id="loginbox"></div>
+      </div>
+
+      <div class="panel">
+        <h2>数据分布</h2>
+        <div id="dist"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let CUR = null;      // 当前跟踪的 job
+let OFF = 0;         // 日志偏移
+let LAST = {};       // 各步骤最近一次结果
+
+// 后端地址：直接打开时用相对路径；被嵌入别的页面时用 ?api= 传绝对地址
+const API = new URLSearchParams(location.search).get('api') || '';
+
+const $ = s => document.querySelector(s);
+const esc = s => (s??'').toString().replace(/[&<>"']/g,
+  m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+async function api(p, opt){ const r = await fetch(API + p, opt); return r.json(); }
+
+function renderStats(s){
+  const box=[
+    ['监控条目', s.monitor.total, ''],
+    ['视频文件', s.videos.total, ''],
+    ['成片', s.delivers.length, ''],
+    ['已投稿', s.uploaded.length, ''],
+    ['种子池', Object.values(s.seeds).reduce((a,b)=>a+b,0), ''],
+  ];
+  $('#stats').innerHTML = box.map(([k,v])=>
+    `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')
+    + `<div class="stat"><div class="k">B站登录</div><div class="v" style="font-size:15px;padding-top:6px">
+       <span class="pill ${s.bili_logged_in?'on':'off'}">${s.bili_logged_in?'已登录':'未登录'}</span>
+       </div></div>`;
+}
+
+function renderSteps(s){
+  $('#steps').innerHTML = s.steps.map(st=>{
+    const j = s.jobs.find(j=>j.step===st.key);
+    let cls='', badge='';
+    if(j){
+      if(j.running){cls='running'; badge='运行中';}
+      else if(j.rc===0){cls='ok'; badge='成功';}
+      else {cls='err'; badge='退出'+j.rc;}
+    }
+    const running = j && j.running;
+    return `<div class="step ${cls}">
+      <span class="dot"></span>
+      <div class="info">
+        <div class="nm">${esc(st.name)}${badge?` <span class="muted" style="font-size:11px">· ${badge}</span>`:''}</div>
+        <div class="ds">${esc(st.desc)}</div>
+      </div>
+      <span class="est">${esc(st.est)}</span>
+      <button class="btn ${st.key==='pipeline'?'primary':''}"
+        ${running?'disabled':''} onclick="run('${st.key}')">
+        ${running?'运行中':'运行'}</button>
+      ${j?`<button class="btn" onclick="track('${j.id}')">日志</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderDelivers(s){
+  if(!s.delivers.length){ $('#delivers').innerHTML='<div class="muted">暂无成片</div>'; return; }
+  $('#delivers').innerHTML = `<table><tr><th>成片</th><th>场合</th><th class="num">段</th>
+    <th class="num">大小</th><th>投稿</th></tr>` +
+    s.delivers.map(d=>`<tr>
+      <td>${esc(d.slug)}</td>
+      <td class="muted">${esc(d.occasion||'—')}</td>
+      <td class="num">${d.segments||'—'}</td>
+      <td class="num">${d.size_mb}MB</td>
+      <td>${s.uploaded.includes(d.slug)
+            ? '<span class="pill on">已投</span>'
+            : `<button class="btn" onclick="upload('${esc(d.slug)}')">投稿</button>`}</td>
+    </tr>`).join('') + '</table>';
+}
+
+function renderDist(s){
+  const rows = Object.entries(s.monitor.by_source).sort((a,b)=>b[1]-a[1]);
+  const vids = Object.entries(s.videos.by_category).sort();
+  let h = '<table><tr><th>监控源</th><th class="num">条目</th></tr>';
+  h += rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('');
+  h += '</table>';
+  if(vids.length){
+    h += '<table style="margin-top:12px"><tr><th>视频分类</th><th class="num">个</th></tr>';
+    h += vids.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('');
+    h += '</table>';
+  }
+  h += '<table style="margin-top:12px"><tr><th>种子池</th><th class="num">个</th></tr>';
+  h += Object.entries(s.seeds).map(([k,v])=>
+        `<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('');
+  h += '</table>';
+  $('#dist').innerHTML = h;
+}
+
+/* ── B站扫码登录 ───────────────────────────────────────────── */
+let QRKEY = null, QRTIMER = null;
+
+function renderLogin(s){
+  const box = $('#loginbox');
+  if(s.bili_logged_in){
+    stopQR();
+    box.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
+      <span class="pill on">已登录</span>
+      <span class="muted" style="font-size:12.5px">凭据有效，可直接投稿</span>
+    </div>`;
+    return;
+  }
+  if(QRKEY) return;                 // 正在扫码流程中，别覆盖二维码
+  box.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
+    <span class="pill off">未登录</span>
+    <button class="btn primary" onclick="startQR()">生成二维码</button>
+    <span class="muted" style="font-size:12px">手机 B站 App 扫码</span>
+  </div>`;
+}
+
+async function startQR(){
+  stopQR();
+  $('#loginbox').innerHTML = '<div class="muted">生成中…</div>';
+  let r;
+  try{ r = await api('/api/bili/qr', {method:'POST'}); }
+  catch(e){ $('#loginbox').innerHTML = '<div class="muted">请求失败：'+esc(e.message)+'</div>'; return; }
+  if(r.error){ $('#loginbox').innerHTML = '<div class="muted">'+esc(r.error)+'</div>'; return; }
+  QRKEY = r.key;
+  drawQR(r.png, '等待扫码…', 180);
+  QRTIMER = setInterval(pollQR, 2000);
+}
+
+function drawQR(png, status, left){
+  $('#loginbox').innerHTML = `
+    <div style="text-align:center">
+      <img src="${API}/api/artifact?name=${encodeURIComponent(png)}"
+           style="width:230px;background:#fff;padding:9px;border-radius:10px">
+      <div id="qrstat" style="margin-top:9px;font-size:13px">${esc(status)}</div>
+      <div class="muted" style="font-size:11.5px;margin-top:4px">
+        手机 B站 App → 我的 → 右上角扫一扫
+        <span id="qrleft"></span>
+      </div>
+      <button class="btn" style="margin-top:9px" onclick="startQR()">换一张</button>
+    </div>`;
+}
+
+async function pollQR(){
+  if(!QRKEY) return;
+  let r;
+  try{ r = await api('/api/bili/poll?key='+encodeURIComponent(QRKEY)); }
+  catch(e){ return; }
+  const st = $('#qrstat');
+  if(!st) return;
+  if(r.done){
+    stopQR();
+    $('#loginbox').innerHTML = `<div style="display:flex;align-items:center;gap:10px">
+      <span class="pill on">登录成功</span>
+      <span style="font-size:12.5px">${esc(r.user||'')}</span></div>`;
+    refresh();
+    return;
+  }
+  if(r.code === 86038){            // 过期，自动换一张，省得手动点
+    st.textContent = '二维码已过期，正在换新…';
+    setTimeout(startQR, 600);
+    return;
+  }
+  const map = {86101:'等待扫码…', 86090:'✓ 已扫码，请在手机上点确认'};
+  st.textContent = map[r.code] || (r.message || '…');
+  if(r.code === 86090) st.style.color = '#22c55e';
+}
+
+function stopQR(){
+  if(QRTIMER){ clearInterval(QRTIMER); QRTIMER = null; }
+  QRKEY = null;
+}
+
+async function refresh(){
+  try{
+    const s = await api('/api/status');
+    $('#clock').textContent = '更新于 ' + s.now.replace('T',' ');
+    renderStats(s); renderSteps(s); renderDelivers(s); renderDist(s); renderLogin(s);
+  }catch(e){ $('#clock').textContent = '连接失败'; }
+}
+
+async function run(step){
+  const r = await api('/api/run', {method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({step})});
+  if(r.error){ alert(r.error); if(r.job) track(r.job); return; }
+  clearLog(); track(r.job); refresh();
+}
+
+function track(job){ CUR=job; OFF=0; $('#logbox').textContent=''; pump(); }
+function clearLog(){ $('#logbox').textContent=''; $('#qr').innerHTML=''; }
+
+async function pump(){
+  if(!CUR) return;
+  const job = CUR;
+  try{
+    const r = await api(`/api/log?job=${job}&offset=${OFF}`);
+    if(job!==CUR) return;                       // 期间切了别的任务
+    if(r.text){
+      OFF = r.offset;
+      const box=$('#logbox');
+      const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+      box.textContent += r.text;
+      if(atBottom) box.scrollTop = box.scrollHeight;
+      // 登录步骤生成二维码后自动展示
+      if(r.text.includes('二维码已生成')) showQR();
+    }
+    const b=$('#logbadge');
+    if(r.running){ b.className='badge running'; b.textContent='运行中';
+                   setTimeout(pump, 1000); }
+    else { b.className = r.rc===0?'badge ok':'badge err';
+           b.textContent = r.rc===0?'完成':`退出码 ${r.rc}`; refresh(); }
+  }catch(e){ setTimeout(pump, 2500); }
+}
+
+function showQR(){
+  $('#qr').innerHTML = `<img src="${API}/api/artifact?name=bili_login_qr.png&t=${Date.now()}"
+    alt="B站登录二维码"><div class="muted" style="font-size:12px;margin-top:6px">
+    用手机 B站 App 扫码，约 3 分钟内有效</div>`;
+}
+
+async function upload(slug){
+  if(!confirm(`确认投稿「${slug}」？\n\n默认定时发布（4小时后），期间可在创作中心撤回。`)) return;
+  alert('投稿请在终端执行：\n\npython3 bili_upload.py --slug ' + slug +
+        '\n\n（涉及账号操作，控制台不代为执行）');
+}
+
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>
