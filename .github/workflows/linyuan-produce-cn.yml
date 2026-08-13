@@ -166,3 +166,23 @@ jobs:
               echo "未产出 meta.json，见 debug artifact"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # B 站投稿（可选，需配置 BILIBILI_COOKIES secret）
+      - name: B 站投稿
+        if: env.BILIBILI_COOKIES != ''
+        working-directory: .
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python -m pip install biliup -q
+          python3 linyuan/publish_bilibili_cn.py --slug "${{ inputs.slug }}"
+
+      # B 站自动投稿：默认关闭，需要配置 BILIBILI_COOKIES secret
+      - name: B 站投稿
+        if: success() && env.BILIBILI_COOKIES != ''
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          pip install biliup
+          python3 publish_bilibili_cn.py --slug "${{ inputs.slug }}" --dry-run
+          # 确认无误后去掉 --dry-run 即可真正投稿

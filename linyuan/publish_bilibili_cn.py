@@ -44,16 +44,30 @@ def main():
         print(f"❌ 找不到成片 {video}", file=sys.stderr)
         return 1
 
-    # 读 meta.json 取标题/描述/标签
-    title, desc, tags = args.slug, "", []
+    # 从 meta.json 或 slug 生成标题/描述
+    # meta.json 没有 title/tags，需要从 slug 推断
     if meta.is_file():
         try:
             m = json.loads(meta.read_text(encoding="utf-8"))
-            title = m.get("title", title)
-            desc = m.get("description", "")
-            tags = m.get("tags", [])
+            occasion = m.get("occasion", "")
+            speaker = m.get("speaker", "林园")
+            segments = m.get("segments", [])
+            # 生成标题：场合 + 主讲人
+            title = f"{occasion}｜{speaker}" if occasion else f"{speaker}发言"
+            # 生成描述：段落摘要
+            desc_parts = [f"- {s.get('reason', '')}" for s in segments[:3]]
+            desc = f"精选段落：\n" + "\n".join(desc_parts) if desc_parts else ""
+            # 标签：从 occasion 提取关键词
+            tags = ["林园", "价值投资"]
+            if "股东大会" in occasion:
+                tags.append("股东大会")
+            if "片仔癀" in occasion:
+                tags.append("片仔癀")
         except Exception as e:
             print(f"⚠️  读 meta.json 失败：{e}", file=sys.stderr)
+            title, desc, tags = args.slug, "", ["林园"]
+    else:
+        title, desc, tags = args.slug, "", ["林园"]
 
     # cookies
     raw_cookies = (args.cookies or os.environ.get("BILIBILI_COOKIES") or "").strip()
