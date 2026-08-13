@@ -159,6 +159,36 @@ def transcribe(src, work):
     return cues
 
 
+def parse_llm_json_array(out):
+    """解析 LLM 返回的 JSON 数组，多策略容错。
+
+    LLM 经常返回「类 JSON」：键不加引号、用单引号、尾随逗号、数组里换行
+    注释……裸 json.loads 一遇就崩，而在 CI 上崩一次就是一次完整重跑。
+    逐级降级：标准 JSON → Python 字面量 → 正则修复后再 JSON。
+    """
+    import ast
+    m = re.search(r"\[.*\]", out, re.S)
+    if not m:
+        raise RuntimeError(f"金句返回无法解析（无数组）：{out[:300]}")
+    raw = m.group(0)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
+    try:
+        return ast.literal_eval(raw)
+    except (ValueError, SyntaxError):
+        pass
+    fixed = re.sub(r"([{,]\s*)(\w+)(\s*:)", r'\1"\2"\3', raw)   # 裸键加引号
+    fixed = fixed.replace("'", '"')                                  # 单引号
+    fixed = re.sub(r",\s*([}\]])", r"\1", fixed)                    # 尾随逗号
+    try:
+        return json.loads(fixed)
+    except json.JSONDecodeError as e:
+        # 把原文打进日志，CI 上只能靠它定位
+        raise RuntimeError(f"金句 JSON 修复后仍无法解析（{e}）：{raw[:300]}")
+
+
 def pick_highlights(cues, speaker, api_key, work):
     """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。"""
     cache = work / "highlights.json"
@@ -186,10 +216,7 @@ def pick_highlights(cues, speaker, api_key, work):
 {numbered}"""
 
     out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.2)
-    m = re.search(r"\[.*\]", out, re.S)
-    if not m:
-        raise RuntimeError(f"金句返回无法解析：{out[:200]}")
-    picks = json.loads(m.group(0))
+    picks = parse_llm_json_array(out)
 
     valid = []
     for p in picks:
