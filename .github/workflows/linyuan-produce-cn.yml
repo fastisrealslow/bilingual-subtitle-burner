@@ -32,6 +32,11 @@ on:
         required: false
         default: ''
         type: string
+      delay_hours:
+        description: '投稿定时发布：延迟小时数（0=立即发布）'
+        required: false
+        default: '0'
+        type: string
 
 permissions:
   contents: write
@@ -190,4 +195,9 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install -q biliup
-          python3 publish_bilibili_cn.py --slug "${{ inputs.slug }}"
+          DTIME=0
+          if [ "${{ inputs.delay_hours }}" != "0" ]; then
+            DTIME=$(date -d "+${{ inputs.delay_hours }} hours" +%s)
+            echo "定时发布：$(date -d "@$DTIME" '+%Y-%m-%d %H:%M') UTC"
+          fi
+          python3 publish_bilibili_cn.py --slug "${{ inputs.slug }}" --dtime "$DTIME"

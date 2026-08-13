@@ -35,6 +35,8 @@ def main():
     ap.add_argument("--line", default=DEFAULT_LINE)
     ap.add_argument("--title", default=None, help="覆盖自动生成的标题")
     ap.add_argument("--desc", default=None, help="覆盖自动生成的简介")
+    ap.add_argument("--dtime", type=int, default=0,
+                    help="定时发布的 Unix 时间戳（0=立即）。B站要求明显晚于当前时间")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -95,6 +97,8 @@ def main():
            "--desc", desc,
            "--copyright", str(args.copyright),
            "--line", args.line]
+    if args.dtime:
+        cmd += ["--dtime", str(args.dtime)]
     for tag in tags:
         cmd += ["--tag", tag]
 
