@@ -162,9 +162,8 @@ def transcribe(src, work):
 def parse_llm_json_array(out):
     """解析 LLM 返回的 JSON 数组，多策略容错。
 
-    LLM 经常返回「类 JSON」：键不加引号、用单引号、尾随逗号、数组里换行
-    注释……裸 json.loads 一遇就崩，而在 CI 上崩一次就是一次完整重跑。
-    逐级降级：标准 JSON → Python 字面量 → 正则修复后再 JSON。
+    CI 实证踩过的坑：裸键、单引号、尾随逗号、引号错位（"end:29"）。
+    逐级降级：标准 JSON → Python 字面量 → 正则修复 → 宽松键值抽取。
     """
     import ast
     m = re.search(r"\[.*\]", out, re.S)
@@ -179,14 +178,24 @@ def parse_llm_json_array(out):
         return ast.literal_eval(raw)
     except (ValueError, SyntaxError):
         pass
-    fixed = re.sub(r"([{,]\s*)(\w+)(\s*:)", r'\1"\2"\3', raw)   # 裸键加引号
-    fixed = fixed.replace("'", '"')                                  # 单引号
-    fixed = re.sub(r",\s*([}\]])", r"\1", fixed)                    # 尾随逗号
+    fixed = re.sub(r'"(\w+):(\d+)"', r'"\1":\2', raw)  # "end:29"→"end":29（CI 实证）
+    fixed = re.sub(r"([{,]\s*)(\w+)(\s*:)", r'\1"\2"\3', fixed)  # 裸键
+    fixed = fixed.replace("'", '"')  # 单引号
+    fixed = re.sub(r",\s*([}\]])", r"\1", fixed)  # 尾随逗号
     try:
         return json.loads(fixed)
-    except json.JSONDecodeError as e:
-        # 把原文打进日志，CI 上只能靠它定位
-        raise RuntimeError(f"金句 JSON 修复后仍无法解析（{e}）：{raw[:300]}")
+    except json.JSONDecodeError:
+        pass
+    # 究极兜底：逐对象宽松键值抽取，容忍上述错位任意组合
+    objs = []
+    for block in re.findall(r"\{[^{}]*\}", raw):
+        pairs = re.findall(r'"?(\w+)"?\s*:\s*"?([^",}]+)"?', block)
+        obj = {k: (int(v) if v.strip().isdigit() else v.strip()) for k, v in pairs}
+        if "start" in obj and "end" in obj:
+            objs.append(obj)
+    if objs:
+        return objs
+    raise RuntimeError(f"金句 JSON 所有修复策略均失败：{raw[:300]}")
 
 
 def pick_highlights(cues, speaker, api_key, work):
