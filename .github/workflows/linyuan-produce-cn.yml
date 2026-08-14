@@ -37,6 +37,11 @@ on:
         required: false
         default: '0'
         type: string
+      auto_publish:
+        description: '出片后自动投稿到 B站（false=审片模式，只出片）'
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -191,7 +196,7 @@ jobs:
             --github-env "$GITHUB_ENV"
 
       - name: B 站投稿
-        if: env.BILI_COOKIES_FILE != ''
+        if: env.BILI_COOKIES_FILE != '' && inputs.auto_publish
         run: |
           set -euo pipefail
           python -m pip install -q biliup

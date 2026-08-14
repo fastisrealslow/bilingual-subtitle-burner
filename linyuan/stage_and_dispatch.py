@@ -53,8 +53,14 @@ def log(*a):
 
 def load_state():
     if STATE.exists():
-        return json.loads(STATE.read_text(encoding="utf-8"))
-    return {"dispatched": []}
+        st = json.loads(STATE.read_text(encoding="utf-8"))
+    else:
+        st = {"dispatched": []}
+    # 旧版是纯字符串列表，升级为 {key, video_id, ts} 结构
+    for k in ("dispatched", "rejected"):
+        st[k] = [e if isinstance(e, dict) else {"key": e, "video_id": e, "ts": 0}
+                 for e in st.get(k, [])]
+    return st
 
 
 def save_state(st):
@@ -96,9 +102,33 @@ def fetch_items(token):
     return j if isinstance(j, list) else j.get("items", [])
 
 
+def video_id_of(cand):
+    """同源标识：B站是 bvid；微博直链去签名参数；其余退化为页面 URL。
+    搬运/转发条目共享同一个 video_id。"""
+    m = re.search(r"(BV\w+)", cand.get("page_url") or "")
+    if m:
+        return m.group(1)
+    vu = cand.get("video_url") or ""
+    if vu:
+        return vu.split("?")[0]                       # 去掉 Expires/ssig 签名
+    return cand.get("page_url") or cand["key"]
+
+
+# 同一 video_id 的冷却期：同一场会的切片不能连发，否则 B站查重打回
+SAME_VIDEO_COOLDOWN = 48 * 3600
+
+
 def pick(items, state, n):
-    """挑 N 条候选：有视频直链、时长合适、没调度过，新的优先。"""
-    done = set(state.get("dispatched", [])) | set(state.get("rejected", []))
+    """挑 N 条候选：有视频直链、没调度过、同源不在冷却期，新的优先。"""
+    now = time.time()
+    done, cooling = set(), set()
+    for e in state.get("dispatched", []):
+        done.add(e["key"])
+        if now - e.get("ts", 0) < SAME_VIDEO_COOLDOWN:
+            cooling.add(e["video_id"])
+    for e in state.get("rejected", []):
+        done.add(e["key"])
+        cooling.add(e["video_id"])                    # 不合格同源也别再试
     cands = []
     for it in items:
         url = it.get("video_url") or ""
@@ -108,6 +138,8 @@ def pick(items, state, n):
         key = it.get("id") or src_page or url
         if not key or key in done:
             continue
+        if video_id_of({"page_url": src_page, "video_url": url, "key": key}) in cooling:
+            continue                                  # 同源冷却中
         cands.append({
             "key": key,
             "title": it.get("title", "")[:60],
@@ -205,19 +237,22 @@ def cleanup_assets(token, rel_id, keep=10):
         log(f"  清理旧 asset: {a['name']}")
 
 
-def dispatch(token, cand, asset_url, delay_hours):
+def dispatch(token, cand, asset_url, delay_hours, auto_publish):
     slug = cand["slug"]
     gh(token, "POST", "/actions/workflows/linyuan-produce-cn.yml/dispatches", {
         "ref": "main",
         "inputs": {"source": asset_url, "slug": slug,
                    "speaker": "林园", "occasion": cand["title"][:30],
-                   "delay_hours": str(delay_hours)}})
+                   "delay_hours": str(delay_hours),
+                   "auto_publish": "true" if auto_publish else "false"}})
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=3, help="每天最多出几条")
     ap.add_argument("--dry-run", action="store_true", help="只选片，不下载不调度")
+    ap.add_argument("--auto-publish", action="store_true",
+                    help="出片后直接投稿（默认关闭=审片模式，只出片不投）")
     args = ap.parse_args()
 
     if not TOKEN_FILE.exists():
@@ -240,7 +275,8 @@ def main():
         path = download(c, STATE_DIR / "src")
         if not path:
             # 不合格的也记下来（太短/下不了），否则明天还会选中它
-            state.setdefault("rejected", []).append(c["key"])
+            state.setdefault("rejected", []).append(
+                {"key": c["key"], "video_id": video_id_of(c), "ts": int(time.time())})
             save_state(state)
             log("    下载失败或不合格，已标记跳过")
             continue
@@ -250,8 +286,10 @@ def main():
         asset_url = upload_asset(token, rel_id, path)
         log(f"    已传 staging release")
 
-        dispatch(token, c, asset_url, delay)
-        state.setdefault("dispatched", []).append(c["key"])
+        dispatch(token, c, asset_url, delay, args.auto_publish)
+        state.setdefault("dispatched", []).append(
+            {"key": c["key"], "video_id": video_id_of(c),
+             "slug": c["slug"], "ts": int(time.time())})
         save_state(state)
         log(f"    已 dispatch（slug={c['slug']}）")
         path.unlink()                                # 本地不留视频
@@ -262,6 +300,8 @@ def main():
             cleanup_assets(token, get_or_create_staging_release(token))
         except Exception as e:
             log(f"  清理旧 asset 失败（不致命）：{e}")
+    if not args.auto_publish and not args.dry_run and cands:
+        log("审片模式：成片在 Actions Artifacts，审过后手动投或带 --auto-publish 重跑")
     log("完成")
 
 
