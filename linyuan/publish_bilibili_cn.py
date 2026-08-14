@@ -112,12 +112,29 @@ def main():
     print(f"📤 投稿：{title}")
     print(f"   视频：{video}")
     print(f"   大小：{video.stat().st_size / 1024 / 1024:.1f} MB")
-    r = subprocess.run(cmd)
-    if r.returncode == 0:
-        print("✅ 投稿成功")
-    else:
-        print(f"❌ 投稿失败（exit {r.returncode}）", file=sys.stderr)
-    return r.returncode
+
+    # B站对不同上传线路的容忍度随 IP 地域变化：GitHub runner 在海外，
+    # 单一线路（bda2）可能被拒（实测 uploader.rs Unknown Error）。
+    # 逐线路重试，哪条通用哪条。
+    last_rc = 1
+    for line in [args.line, "ws", "qn"]:
+        attempt = [c if c != args.line else line for c in cmd]
+        # 替换 --line 的值
+        i = attempt.index("--line")
+        attempt[i + 1] = line
+        print(f"   线路 {line} ...", flush=True)
+        r = subprocess.run(attempt, capture_output=True, text=True)
+        if r.returncode == 0:
+            print("✅ 投稿成功")
+            return 0
+        last_rc = r.returncode
+        # biliup 的 Rust 报错在 stderr，B站返回的错误码也在里面，全打出来
+        tail = (r.stderr or r.stdout or "").strip().splitlines()[-6:]
+        print(f"   失败（exit {r.returncode}）：")
+        for ln in tail:
+            print(f"     {ln}")
+    print("❌ 所有线路均失败", file=sys.stderr)
+    return last_rc
 
 
 if __name__ == "__main__":

@@ -197,6 +197,8 @@ jobs:
 
       - name: B 站投稿
         if: env.BILI_COOKIES_FILE != '' && inputs.auto_publish
+        env:
+          RUST_LOG: info
         run: |
           set -euo pipefail
           python -m pip install -q biliup
