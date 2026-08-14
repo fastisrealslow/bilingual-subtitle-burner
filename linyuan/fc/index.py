@@ -23,6 +23,7 @@ import logging
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import time
 import urllib.request
@@ -293,7 +294,9 @@ def publish_handler(event=None, context=None):
         title = e.get("title") or slug
         if "｜" not in title:
             title = f"{title[:40]}｜林园"
-        cmd = ["biliup", "-u", str(tmp / "cookies.json"), "upload", str(video),
+        # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
+        cmd = [sys.executable, "-m", "biliup",
+               "-u", str(tmp / "cookies.json"), "upload", str(video),
                "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
                "--source", e.get("source_url") or "https://www.bilibili.com",
                "--tag", "林园,价值投资", "--limit", "1"]
