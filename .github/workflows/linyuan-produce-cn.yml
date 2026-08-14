@@ -201,6 +201,11 @@ jobs:
           RUST_LOG: info
         run: |
           set -euo pipefail
+          # 跨太平洋疑似 MTU 黑洞：小包全通、大包全丢、16m20s 确定性超时
+          # （≈tcp_retries2 上限）。压低 MSS 强制对端按小包收发。
+          sudo iptables -t mangle -A OUTPUT -p tcp --tcp-flags SYN,RST SYN \
+            -j TCPMSS --set-mss 1300
+          echo "MSS 已压到 1300"
           python -m pip install -q biliup
           DTIME=0
           if [ "${{ inputs.delay_hours }}" != "0" ]; then

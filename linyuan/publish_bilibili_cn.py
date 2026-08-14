@@ -96,6 +96,8 @@ def main():
            "--tid", str(args.tid),
            "--desc", desc,
            "--copyright", str(args.copyright),
+           # 单流上传：跨太平洋 3 路并发会互相挤压触发更狠的丢包
+           "--limit", "1",
            "--line", args.line]
     if args.dtime:
         cmd += ["--dtime", str(args.dtime)]
