@@ -78,7 +78,7 @@ def build_upload_args(episode: dict, video: Path, cover: Path,
                       cookies: Path, tid: int = DEFAULT_TID,
                       copyright_: int = DEFAULT_COPYRIGHT,
                       line: str = DEFAULT_LINE) -> list:
-    """拼 ``biliup upload`` 的命令行。标签逐个 ``--tag``，顺序与 queue 一致。"""
+    """拼 ``biliup upload`` 的命令行。--tag 只能出现一次，多标签逗号合并。"""
     cmd = ["biliup", "-u", str(cookies), "upload", str(video),
            "--title", episode.get("title", ""),
            "--tid", str(tid),
@@ -86,8 +86,10 @@ def build_upload_args(episode: dict, video: Path, cover: Path,
            "--cover", str(cover),
            "--copyright", str(copyright_),
            "--line", line]
-    for tag in episode.get("tags", []):
-        cmd += ["--tag", tag]
+    tags = episode.get("tags", [])
+    if tags:
+        # 同 CN 版：--tag 只能出现一次，逗号合并
+        cmd += ["--tag", ",".join(tags)]
     return cmd
 
 

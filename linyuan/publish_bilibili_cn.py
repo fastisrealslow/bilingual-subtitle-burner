@@ -99,8 +99,10 @@ def main():
            "--line", args.line]
     if args.dtime:
         cmd += ["--dtime", str(args.dtime)]
-    for tag in tags:
-        cmd += ["--tag", tag]
+    if tags:
+        # biliup 的 --tag 只能出现一次，多标签用英文逗号拼进同一个参数；
+        # 逐个 --tag 会被 CLI 直接拒绝（cannot be used multiple times）
+        cmd += ["--tag", ",".join(tags)]
 
     if args.dry_run:
         print("【dry-run】将执行：")
