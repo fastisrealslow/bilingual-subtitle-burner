@@ -38,9 +38,9 @@ on:
         default: '0'
         type: string
       auto_publish:
-        description: '出片后自动投稿到 B站（false=审片模式，只出片）'
+        description: '出片后在 CI 直接投稿（已实测：upos 对海外 runner 零吞吐，物理不可行；投稿由境内 publish_worker 完成，此开关仅留作将来网络变化时的备用）'
         required: false
-        default: true
+        default: false
         type: boolean
 
 permissions:

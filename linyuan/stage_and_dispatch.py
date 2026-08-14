@@ -288,6 +288,14 @@ def main():
         log(f"    已传 staging release")
 
         dispatch(token, c, asset_url, delay, args.auto_publish)
+        # 投稿队列：publish_worker（境内）轮询消费。source_url 必须带着 ——
+        # 转载投稿缺 --source 会被 B站 21021 拒（实测）。
+        pend_f = STATE_DIR / "pending.json"
+        pend = json.loads(pend_f.read_text(encoding="utf-8")) if pend_f.exists() else []
+        pend.append({"slug": c["slug"], "title": c["title"],
+                     "source_url": c.get("page_url") or c.get("video_url", ""),
+                     "delay_hours": delay, "ts": int(time.time())})
+        pend_f.write_text(json.dumps(pend, ensure_ascii=False, indent=1), encoding="utf-8")
         state.setdefault("dispatched", []).append(
             {"key": c["key"], "video_id": video_id_of(c),
              "slug": c["slug"], "ts": int(time.time())})
