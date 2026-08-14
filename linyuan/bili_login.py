@@ -99,8 +99,15 @@ def make_opener():
 
 
 def render_qr(url, out_png):
-    """用 node 的 qrcode 包出图。纯 Python 侧没有可用的 QR 库，
-    而 npm 在本环境可用，所以走 node 生成。"""
+    """二维码出图：优先 Python qrcode 库，没有则回退 node 的 qrcode 包。
+    两个有一个就行 —— 不同机器上可用的依赖不一样，别挑。"""
+    try:
+        import qrcode
+        img = qrcode.make(url, box_size=12, border=2)
+        img.save(str(out_png))
+        return
+    except ImportError:
+        pass
     script = (
         "const QR=require('qrcode');"
         f"QR.toFile({json.dumps(str(out_png))},{json.dumps(url)},"
@@ -110,7 +117,11 @@ def render_qr(url, out_png):
     r = subprocess.run(["node", "-e", script], cwd=BASE,
                        capture_output=True, text=True)
     if r.returncode != 0:
-        raise RuntimeError(f"二维码生成失败：{r.stderr.strip()[:120]}")
+        raise RuntimeError(
+            "二维码生成失败：Python 缺 qrcode、node 缺 qrcode 包，任装其一：\n"
+            "  pip3 install 'qrcode[pil]'\n"
+            "  npm install qrcode   # 在 linyuan/ 目录下执行\n"
+            f"node 报错：{r.stderr.strip()[:120]}")
 
 
 def save_cookies(jar):
