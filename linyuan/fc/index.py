@@ -193,6 +193,25 @@ def upload_asset(rel_id, path):
     return f"https://github.com/{REPO}/releases/download/{RELEASE_TAG}/{name}"
 
 
+# ---------- FC 路由（一个函数挂两个定时触发器）----------
+
+def handler(event, context):
+    """FC 统一入口：按触发器名字路由。
+
+    触发器名含 dispatch → 每日调度；其余 → 投稿。
+    （定时触发器的 event 是 JSON：{"triggerName": "...", "triggerTime": "..."}）
+    """
+    try:
+        evt = json.loads(event or "{}")
+    except Exception:
+        evt = {}
+    name = str(evt.get("triggerName", ""))
+    log.info(f"触发器: {name or '（手动测试）'}")
+    if "dispatch" in name:
+        return dispatch_handler(event, context)
+    return publish_handler(event, context)
+
+
 # ---------- Handler 1：每日调度 ----------
 
 def dispatch_handler(event=None, context=None):
