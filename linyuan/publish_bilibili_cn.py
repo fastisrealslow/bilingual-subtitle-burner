@@ -117,7 +117,9 @@ def main():
     # 单一线路（bda2）可能被拒（实测 uploader.rs Unknown Error）。
     # 逐线路重试，哪条通用哪条。
     last_rc = 1
-    for line in [args.line, "ws", "qn"]:
+    # 本版 biliup 合法线路：bldsa cnbldsa andsa atdsa bda2 cnbd anbd atbd
+    # tx cntx antx attx bda txa alia（ws/qn 不是合法值，CLI 直接拒）
+    for line in [args.line, "tx", "txa", "bda", "alia"]:
         attempt = [c if c != args.line else line for c in cmd]
         # 替换 --line 的值
         i = attempt.index("--line")
