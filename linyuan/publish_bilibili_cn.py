@@ -113,29 +113,28 @@ def main():
     print(f"   视频：{video}")
     print(f"   大小：{video.stat().st_size / 1024 / 1024:.1f} MB")
 
-    # B站对不同上传线路的容忍度随 IP 地域变化：GitHub runner 在海外，
-    # 单一线路（bda2）可能被拒（实测 uploader.rs Unknown Error）。
-    # 逐线路重试，哪条通用哪条。
+    # CI 实证：海外 runner 上只有 bda2 能完成预检进入传输，但跨太平洋
+    # 单连接会在十几分钟后被重置（error sending request）。
+    # biliup 有断点续传（checkpoint 写在本地），同 job 内重试会接着断点传 ——
+    # 正确策略是主力线路多次续传，而不是换线路（别的线路预检就秒挂）。
+    attempts = [args.line] * 5 + ["tx", "bda"]       # bda2 续传 5 次再换线
     last_rc = 1
-    # 本版 biliup 合法线路：bldsa cnbldsa andsa atdsa bda2 cnbd anbd atbd
-    # tx cntx antx attx bda txa alia（ws/qn 不是合法值，CLI 直接拒）
-    for line in [args.line, "tx", "txa", "bda", "alia"]:
-        attempt = [c if c != args.line else line for c in cmd]
-        # 替换 --line 的值
-        i = attempt.index("--line")
-        attempt[i + 1] = line
-        print(f"   线路 {line} ...", flush=True)
-        r = subprocess.run(attempt, capture_output=True, text=True)
+    for n, line in enumerate(attempts, 1):
+        i = cmd.index("--line")
+        cmd[i + 1] = line
+        print(f"   线路 {line}（第 {n} 次）...", flush=True)
+        r = subprocess.run(cmd, capture_output=True, text=True)
         if r.returncode == 0:
             print("✅ 投稿成功")
             return 0
         last_rc = r.returncode
-        # biliup 的 Rust 报错在 stderr，B站返回的错误码也在里面，全打出来
-        tail = (r.stderr or r.stdout or "").strip().splitlines()[-6:]
+        tail = (r.stderr or r.stdout or "").strip().splitlines()[-4:]
         print(f"   失败（exit {r.returncode}）：")
         for ln in tail:
             print(f"     {ln}")
-    print("❌ 所有线路均失败", file=sys.stderr)
+        if "error sending request" in (r.stderr or ""):
+            print("   → 传输中断，断点已存，下次重试将续传")
+    print("❌ 多次重试均失败", file=sys.stderr)
     return last_rc
 
 
