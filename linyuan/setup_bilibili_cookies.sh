@@ -91,16 +91,23 @@ except json.JSONDecodeError as e:
     print(f"✗ 不是合法 JSON：第 {e.lineno} 行", file=sys.stderr)
     sys.exit(1)
 
-# biliup 认的格式：{"cookies": [{"name": ..., "value": ...}, ...]}
-entries = d.get("cookies") if isinstance(d, dict) else None
-if not isinstance(entries, list):
-    # 兼容裸 {name: value} 字典格式
-    if isinstance(d, dict) and "SESSDATA" in d:
-        entries = [{"name": k} for k in d]
-    else:
-        print("✗ 认不出格式：既不是 biliup 的 {cookies:[...]} 也不是 {name:value} 字典",
-              file=sys.stderr)
-        sys.exit(1)
+# biliup 认的格式有三种：
+#   1. biliup-rs 实际格式 {"cookie_info": {"cookies": [...]}}  ← bili_login.py 产出
+#   2. 简化版 {"cookies": [...]}
+#   3. 裸字典 {name: value}
+entries = None
+if isinstance(d, dict):
+    ci = d.get("cookie_info")
+    if isinstance(ci, dict) and isinstance(ci.get("cookies"), list):
+        entries = ci["cookies"]
+    elif isinstance(d.get("cookies"), list):
+        entries = d["cookies"]
+if entries is None and isinstance(d, dict) and "SESSDATA" in d:
+    entries = [{"name": k} for k in d]
+if entries is None:
+    print("✗ 认不出格式：既不是 biliup-rs 嵌套，也不是 {cookies:[...]} 或裸字典",
+          file=sys.stderr)
+    sys.exit(1)
 
 names = {e.get("name") for e in entries if isinstance(e, dict)}
 print(f"✓ 记录 {len(entries)} 条")

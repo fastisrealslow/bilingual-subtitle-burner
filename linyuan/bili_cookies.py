@@ -35,17 +35,29 @@ class CookiesError(Exception):
 
 
 def load_cookie_names(text: str) -> set:
-    """从 cookies.json 文本里取出 cookie 名集合。兼容两种格式。"""
+    """从 cookies.json 文本里取出 cookie 名集合。兼容三种格式：
+    1. biliup-rs 实际格式：{"cookie_info": {"cookies": [...]}}  ← bili_login.py 产出
+    2. 简化版：{"cookies": [...]}
+    3. 裸字典：{name: value}
+    """
     try:
         d = json.loads(text)
     except json.JSONDecodeError as e:
         raise CookiesError(f"不是合法 JSON（第 {e.lineno} 行）")
-    entries = d.get("cookies") if isinstance(d, dict) else None
-    if isinstance(entries, list):
+    if not isinstance(d, dict):
+        raise CookiesError("顶层不是 JSON 对象")
+    entries = None
+    ci = d.get("cookie_info")
+    if isinstance(ci, dict) and isinstance(ci.get("cookies"), list):
+        entries = ci["cookies"]                          # biliup-rs 嵌套格式
+    elif isinstance(d.get("cookies"), list):
+        entries = d["cookies"]                           # 简化嵌套
+    if entries is not None:
         return {e.get("name") for e in entries if isinstance(e, dict)}
-    if isinstance(d, dict) and "SESSDATA" in d:
-        return set(d)                      # 裸 {name: value} 字典
-    raise CookiesError("认不出格式：既不是 biliup 的 {cookies:[...]} 也不是 {name:value} 字典")
+    if "SESSDATA" in d:
+        return set(d)                                    # 裸 {name: value} 字典
+    raise CookiesError("认不出格式：既不是 biliup-rs 的 {cookie_info:{cookies:[...]}}，"
+                       "也不是 {cookies:[...]} 或 {name:value} 字典")
 
 
 def main() -> int:
