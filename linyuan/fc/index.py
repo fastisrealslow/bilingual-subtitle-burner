@@ -81,18 +81,30 @@ def load_state():
         return {"dispatched": [], "rejected": [], "published": {}}
 
 
-def save_state(st):
+def save_state(st, retries=3):
+    """写回 fc_state.json。防御性设计：
+    - PUT 前重新 GET 拿最新 sha（并发/缓存会让旧 sha 失效）
+    - 任何失败重试 3 次，仍失败也只报错不抛出 —— 状态丢失可恢复，
+      但保存失败绝不能把主流程搞崩（实测：422 直接炸了整个 dispatch）。
+    """
     import base64
     content = base64.b64encode(json.dumps(
         st, ensure_ascii=False, indent=1).encode()).decode()
-    try:
-        cur = gh("GET", f"/contents/{STATE_KEY}?ref=main")
-        gh("PUT", f"/contents/{STATE_KEY}", {
-            "message": "chore(fc): 更新流水线状态",
-            "content": content, "sha": cur["sha"]})
-    except Exception:
-        gh("PUT", f"/contents/{STATE_KEY}", {
-            "message": "chore(fc): 初始化流水线状态", "content": content})
+    for attempt in range(retries):
+        try:
+            payload = {"message": "chore(fc): 更新流水线状态", "content": content}
+            try:
+                cur = gh("GET", f"/contents/{STATE_KEY}?ref=main&_={time.time()}")
+                if isinstance(cur, dict) and cur.get("sha"):
+                    payload["sha"] = cur["sha"]
+            except Exception as e:
+                log.warning(f"取 sha 失败（首次创建时正常）：{e}")
+            gh("PUT", f"/contents/{STATE_KEY}", payload)
+            return
+        except Exception as e:
+            log.warning(f"save_state 第 {attempt+1} 次失败：{e}")
+            time.sleep(2 * (attempt + 1))
+    log.error("save_state 多次失败，本轮状态未保存（下轮会基于仓库里的旧状态重试）")
 
 
 # ---------- 选片 ----------
@@ -176,23 +188,40 @@ def bili_opener():
     return op
 
 
-def download(cand, dest):
+def download(cand, dest, _retried=False):
+    try:
+        return _download_inner(cand, dest)
+    except urllib.error.HTTPError as e:
+        if e.code in (412, 403) and not _retried and not cand["video_url"]:
+            # B站 WAF 是按会话/IP 时间窗挑战的，换新会话重来一次常能过
+            global _BILI_OPENER
+            _BILI_OPENER = None
+            log.info(f"    {e.code}，换新会话重试一次")
+            time.sleep(3)
+            return download(cand, dest, _retried=True)
+        raise
+
+
+def _download_inner(cand, dest):
     if cand["video_url"]:                                # 微博等直链
         subprocess.run(["curl", "-sfL", "--max-time", "240", "-o",
                         str(dest), cand["video_url"]], check=True)
     else:                                                # B站：带指纹的会话走全程
         op = bili_opener()
         bvid = cand["video_id"]
+        log.info(f"    view {bvid}")
         v = json.loads(op.open(
             f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}",
             timeout=30).read())
         cid = v["data"]["cid"]
+        log.info("    playurl")
         p = json.loads(op.open(
             f"https://api.bilibili.com/x/player/playurl?bvid={bvid}&cid={cid}"
             "&qn=32&fnval=1&platform=html5&high_quality=1", timeout=30).read())
         durl = (p.get("data") or {}).get("durl") or []
         if not durl:
             raise RuntimeError("无可用流")
+        log.info("    下载流")
         req = urllib.request.Request(
             durl[0]["url"],
             headers={"Referer": cand["page_url"] or "https://www.bilibili.com/"})
