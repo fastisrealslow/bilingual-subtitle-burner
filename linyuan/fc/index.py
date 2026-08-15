@@ -291,7 +291,19 @@ def publish_handler(event=None, context=None):
         video = tmp / slug / "final.mp4"
         if not video.exists():
             continue
-        title = e.get("title") or slug
+        # 优先用 artifact 里 meta.json 的 LLM 文案 + 封面
+        title, desc, tags, cover = e.get("title") or slug, "", "林园,价值投资", None
+        meta_f = tmp / slug / "meta.json"
+        if meta_f.exists():
+            try:
+                mj = json.loads(meta_f.read_text(encoding="utf-8"))
+                title = mj.get("title") or title
+                desc = mj.get("desc", "")
+                tags = ",".join(mj.get("tags", ["林园", "价值投资"]))
+                if mj.get("cover") and (tmp / slug / mj["cover"]).exists():
+                    cover = tmp / slug / mj["cover"]
+            except Exception:
+                pass
         if "｜" not in title:
             title = f"{title[:40]}｜林园"
         # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
@@ -299,7 +311,9 @@ def publish_handler(event=None, context=None):
                "-u", str(tmp / "cookies.json"), "upload", str(video),
                "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
                "--source", e.get("source_url") or "https://www.bilibili.com",
-               "--tag", "林园,价值投资", "--limit", "1"]
+               "--desc", desc, "--tag", tags, "--limit", "1"]
+        if cover:
+            cmd += ["--cover", str(cover)]
         delay = int(e.get("delay_hours") or 0)
         if delay > 0:
             cmd += ["--dtime", str(int(time.time()) + delay * 3600)]

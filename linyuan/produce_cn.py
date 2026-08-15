@@ -339,6 +339,112 @@ def probe(src, entries):
     return r.stdout.strip()
 
 
+def copywrite(cues, sel, speaker, occasion, api_key, work):
+    """LLM 生成 B站标题/简介/标签（参考原库 scripts/copywrite.py）。
+
+    标题党检测器就是prompt本身：要求「有信息量、不夸张」。结果落 meta.json，
+    投稿脚本优先读这里，不再用 occasion 硬拼。
+    """
+    cache = work / "copywrite.json"
+    if cache.exists():
+        try:
+            return json.loads(cache.read_text(encoding="utf-8"))
+        except ValueError:
+            pass
+    sample = "\n".join(cues[i]["text"] for i in sel[:20])
+    prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选：
+
+{sample}
+
+为它生成 B站投稿文案，只输出 JSON：
+{{{{"title":"标题，25字以内，必须有具体信息量（数字/观点/场合），不许标题党",
+ "desc":"简介，100字以内，第一人称视角陈述内容要点，末尾注明来源场合",
+ "tags":["标签", "最多5个", "含主讲人姓名"]}}}}"""
+    out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.4)
+    m = re.search(r"\{.*\}", out, re.S)
+    try:
+        d = json.loads(m.group(0))
+        assert d.get("title")
+    except (ValueError, AssertionError, AttributeError):
+        d = {"title": f"{occasion}｜{speaker}".strip("｜"),
+             "desc": f"{speaker}在{occasion}的发言精选。",
+             "tags": [speaker, "价值投资"]}
+    d.setdefault("tags", [speaker])
+    cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+    print(f"[文案] 标题：{d['title']}")
+    return d
+
+
+def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
+    """TTC 合集里找指定子字体下标。原库踩过的坑：默认取第 0 个是 JP 字形，
+    简体字会「细一号」。"""
+    try:
+        from fontTools.ttLib import TTCollection
+        for i, f in enumerate(TTCollection(ttc_path).fonts):
+            if want_name in f["name"].toUnicode() if isinstance(f["name"].toUnicode(), str) else False:
+                return i
+            names = f["name"].names
+            if any(want_name in (n.toUnicode() if hasattr(n, "toUnicode") else "") for n in names):
+                return i
+    except Exception:
+        pass
+    return 0
+
+
+def make_cover(src, seg_start, seg_end, title, speaker, out_path):
+    """封面：抽第一段中间帧 → 16:9 → 底部渐变 → 标题大字。
+
+    务实版（原库 step7 是 VLM 选主讲人特写，后续再加）。
+    字体必须显式指定 SC 子字体，见 _sc_face_index。
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    W, H = 1280, 720
+    tmp = out_path.with_suffix(".frame.png")
+    mid = seg_start + (seg_end - seg_start) / 2
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{mid:.1f}",
+                    "-i", str(src), "-frames:v", "1", str(tmp)], check=True)
+    img = Image.open(tmp).convert("RGB")
+    # 居中裁成 16:9
+    w, h = img.size
+    tw = min(w, int(h * 16 / 9))
+    img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h)).resize((W, H))
+    # 底部 45% 压暗（黑渐变），字才看得清
+    overlay = Image.new("L", (W, H), 0)
+    od = ImageDraw.Draw(overlay)
+    for y in range(H):
+        if y > H * 0.55:
+            od.line([(0, y), (W, y)], fill=int(200 * (y - H * 0.55) / (H * 0.45)))
+    img.paste(Image.new("RGB", (W, H), (0, 0, 0)), (0, 0), overlay)
+
+    font_path = None
+    for cand in ["/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+                 "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
+                 "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"]:
+        if Path(cand).exists():
+            font_path = cand
+            break
+    idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
+    f_title = ImageFont.truetype(font_path, 64, index=idx) if font_path else ImageFont.load_default()
+    f_tag = ImageFont.truetype(font_path, 36, index=idx) if font_path else ImageFont.load_default()
+
+    d = ImageDraw.Draw(img)
+    # 主讲人标签（左上角黄底黑字）
+    d.rounded_rectangle([40, 36, 40 + len(speaker) * 40 + 32, 96], 10, fill=(255, 196, 0))
+    d.text((56, 48), speaker, font=f_tag, fill=(20, 20, 20))
+    # 标题（底部，两行以内，白字黑边）
+    chars_per_line = 17
+    lines = [title[i:i + chars_per_line] for i in range(0, min(len(title), 34), chars_per_line)]
+    y = H - 60 - 76 * len(lines)
+    for ln in lines:
+        for dx, dy in [(-2, 0), (2, 0), (0, -2), (0, 2)]:
+            d.text((44 + dx, y + dy), ln, font=f_title, fill=(0, 0, 0))
+        d.text((44, y), ln, font=f_title, fill=(255, 255, 255))
+        y += 76
+    img.save(out_path, quality=92)
+    tmp.unlink(missing_ok=True)
+    print(f"[封面] {out_path.name}  「{title[:20]}」")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True)
@@ -416,9 +522,22 @@ def main():
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
 
+    # 文案 + 封面（投稿三件套：标题/简介/标签 + 封面图）
+    cw = copywrite(cues, sel, args.speaker, args.occasion, api_key, work)
+    cover = out / "cover_16x9.jpg"
+    try:
+        p0 = picks[0]
+        make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
+                   cw["title"], args.speaker, cover)
+    except Exception as e:
+        print(f"[封面] 生成失败（不阻断出片）：{e}", file=sys.stderr)
+        cover = None
+
     (out / "meta.json").write_text(json.dumps({
         "slug": args.slug, "source": str(src), "speaker": args.speaker,
         "occasion": args.occasion, "duration_sec": round(dur, 1),
+        "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
+        "cover": "cover_16x9.jpg" if cover else None,
         "segments": [{"start": cues[p["start"]]["start"],
                       "end": cues[p["end"]]["end"], "reason": p["reason"]}
                      for p in picks],
