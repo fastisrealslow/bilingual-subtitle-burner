@@ -44,6 +44,9 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
+# 搜索噪音：「虎林园」「东北虎林园」是老虎公园，不是林园本人。标题命中即排除。
+NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰")
+
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 COOKIES_JSON = os.environ.get("BILIBILI_COOKIES", "")
 
@@ -130,6 +133,8 @@ def pick(items, st, n):
         vid = video_id_of(page, url)
         if not key or key in done or vid in cooling:
             continue
+        if NOISE.search(it.get("title") or ""):
+            continue                                     # 老虎公园不是林园
         cands.append({"key": key, "video_id": vid,
                       "title": (it.get("title") or "")[:60],
                       "video_url": url, "page_url": page,
