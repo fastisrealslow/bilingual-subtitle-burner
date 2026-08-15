@@ -117,7 +117,13 @@ jobs:
           SOURCE: ${{ inputs.source }}
         run: |
           set -euo pipefail
-          if [[ "$SOURCE" =~ ^https?:// ]]; then
+          if [[ "$SOURCE" =~ bilibili\.com/video/BV ]]; then
+            # B站 API 在 GitHub runner 上反而通（监控每天在调），
+            # yt-dlp 裸请求会被 412，走自己的指纹会话下载器
+            mkdir -p _src
+            python3 linyuan/ci_fetch_bilibili.py --url "$SOURCE" --out _src/video.mp4
+            echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
+          elif [[ "$SOURCE" =~ ^https?:// ]]; then
             mkdir -p _src
             yt-dlp --socket-timeout 120 --retries 5 \
               -f 'bv*[height<=1080]+ba/b[height<=1080]/b' \

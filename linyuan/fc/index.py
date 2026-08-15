@@ -301,9 +301,16 @@ def dispatch_handler(event=None, context=None):
         delay = DELAY_LADDER[i] if i < len(DELAY_LADDER) else DELAY_LADDER[-1]
         log.info(f"[{i+1}/{len(cands)}] {c['title'][:40]}")
         try:
-            dest = tmp / f"{c['slug']}.mp4"
-            dur = download(c, dest)
-            asset_url = upload_asset(rel, dest)
+            if not c["video_url"] and "bilibili.com/video/" in c["page_url"]:
+                # B站 API 在 CI 侧反而通（FC 的阿里云 IP 被 WAF 412 整体拉黑），
+                # 页面 URL 直接传给 CI，取源阶段由 ci_fetch_bilibili.py 拉流。
+                asset_url = c["page_url"]
+                dur = 0
+                log.info("    B站源 → 透传页面 URL 给 CI 下载")
+            else:
+                dest = tmp / f"{c['slug']}.mp4"
+                dur = download(c, dest)
+                asset_url = upload_asset(rel, dest)
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
