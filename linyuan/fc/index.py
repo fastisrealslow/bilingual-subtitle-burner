@@ -259,7 +259,8 @@ def dispatch_handler(event=None, context=None):
 def publish_handler(event=None, context=None):
     st = load_state()
     pending = [e for e in st["dispatched"]
-               if e["slug"] not in st["published"] and not e.get("failed")]
+               if e.get("slug") and e["slug"] not in st["published"]
+               and not e.get("failed")]
     if not pending:
         log.info("无待投稿件")
         return {"published": 0}
