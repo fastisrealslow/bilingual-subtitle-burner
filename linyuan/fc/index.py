@@ -47,6 +47,47 @@ TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须�
 # 搜索噪音：「虎林园」「东北虎林园」是老虎公园，不是林园本人。标题命中即排除。
 NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰")
 
+# 投稿好时段：12:00, 18:00, 21:00（避开凌晨和深夜）
+PUBLISH_SLOTS = [(12, 0), (18, 0), (21, 0)]
+
+
+def get_publish_delay(slot_index: int) -> int:
+    """计算距离下一个好时段的延迟小时数。
+    
+    Args:
+        slot_index: 使用第几个时段（0=第一个可用，1=第二个...）
+    
+    Returns:
+        延迟小时数（至少 1 小时，最多 24 小时）
+    """
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    
+    # 收集今天剩余 + 明天的时段
+    available_slots = []
+    for hour, minute in PUBLISH_SLOTS:
+        slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if slot_time > now:
+            available_slots.append(slot_time)
+    
+    # 添加明天的时段
+    tomorrow = now + timedelta(days=1)
+    for hour, minute in PUBLISH_SLOTS:
+        slot_time = tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        available_slots.append(slot_time)
+    
+    # 选择第 slot_index 个可用时段
+    if slot_index >= len(available_slots):
+        slot_index = len(available_slots) - 1
+    
+    target_time = available_slots[slot_index]
+    delay_hours = (target_time - now).total_seconds() / 3600
+    
+    # 限制范围：至少 1 小时，最多 24 小时
+    return max(1, min(24, int(delay_hours)))
+
+
+
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 COOKIES_JSON = os.environ.get("BILIBILI_COOKIES", "")
 
@@ -298,7 +339,7 @@ def dispatch_handler(event=None, context=None):
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
                     hashlib.md5(c["key"].encode()).hexdigest()[:6]
-        delay = DELAY_LADDER[i] if i < len(DELAY_LADDER) else DELAY_LADDER[-1]
+        delay = get_publish_delay(i)
         log.info(f"[{i+1}/{len(cands)}] {c['title'][:40]}")
         try:
             if not c["video_url"] and "bilibili.com/video/" in c["page_url"]:
