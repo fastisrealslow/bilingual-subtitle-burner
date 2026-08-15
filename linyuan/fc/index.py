@@ -145,28 +145,63 @@ def pick(items, st, n):
 
 # ---------- 下载 ----------
 
+_BILI_OPENER = None
+
+
+def bili_opener():
+    """带 buvid 指纹的会话。B站 CDN 对 curl/裸 UA 直接 403（FC 实测），
+    必须走 fetch_bilibili.py 那套：首页 → finger/spi 拿 buvid3/4 → 同会话下载。"""
+    global _BILI_OPENER
+    if _BILI_OPENER is not None:
+        return _BILI_OPENER
+    import http.cookiejar
+    jar = http.cookiejar.CookieJar()
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+    op.addheaders = [("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/126.0.0.0 Safari/537.36"),
+                     ("Accept-Language", "zh-CN,zh;q=0.9"),
+                     ("Referer", "https://www.bilibili.com/")]
+    try:
+        op.open("https://www.bilibili.com/", timeout=20).read()
+        spi = json.loads(op.open(
+            "https://api.bilibili.com/x/frontend/finger/spi", timeout=20).read().decode())
+        for n, val in (("buvid3", spi["data"]["b_3"]), ("buvid4", spi["data"]["b_4"])):
+            jar.set_cookie(http.cookiejar.Cookie(
+                0, n, val, None, False, ".bilibili.com", True, False,
+                "/", True, False, None, False, None, None, {}))
+    except Exception as e:
+        log.warning(f"buvid cookie 获取失败（可能触发 403/412）: {e}")
+    _BILI_OPENER = op
+    return op
+
+
 def download(cand, dest):
     if cand["video_url"]:                                # 微博等直链
         subprocess.run(["curl", "-sfL", "--max-time", "240", "-o",
                         str(dest), cand["video_url"]], check=True)
-    else:                                                # B站：playurl API 绕风控
-        import hashlib, urllib.parse
+    else:                                                # B站：带指纹的会话走全程
+        op = bili_opener()
         bvid = cand["video_id"]
-        ua = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.bilibili.com/"}
-        v = json.loads(urllib.request.urlopen(urllib.request.Request(
+        v = json.loads(op.open(
             f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}",
-            headers=ua), timeout=30).read())
+            timeout=30).read())
         cid = v["data"]["cid"]
-        p = json.loads(urllib.request.urlopen(urllib.request.Request(
+        p = json.loads(op.open(
             f"https://api.bilibili.com/x/player/playurl?bvid={bvid}&cid={cid}"
-            "&qn=32&fnval=1&platform=html5&high_quality=1",
-            headers=ua), timeout=30).read())
+            "&qn=32&fnval=1&platform=html5&high_quality=1", timeout=30).read())
         durl = (p.get("data") or {}).get("durl") or []
         if not durl:
             raise RuntimeError("无可用流")
-        subprocess.run(["curl", "-sfL", "--max-time", "240",
-                        "-H", "Referer: https://www.bilibili.com/",
-                        "-o", str(dest), durl[0]["url"]], check=True)
+        req = urllib.request.Request(
+            durl[0]["url"],
+            headers={"Referer": cand["page_url"] or "https://www.bilibili.com/"})
+        with op.open(req, timeout=240) as r, open(dest, "wb") as f:
+            while True:
+                chunk = r.read(1 << 20)
+                if not chunk:
+                    break
+                f.write(chunk)
     dur = mp4_duration(dest)
     if not (MIN_DUR <= dur <= MAX_DUR):
         raise RuntimeError(f"时长 {dur:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]")
