@@ -83,8 +83,12 @@ def get_publish_delay(slot_index: int) -> int:
     target_time = available_slots[slot_index]
     delay_hours = (target_time - now).total_seconds() / 3600
     
+    # 向上取整到下一个整小时，确保到达目标时段
+    import math
+    delay_hours = math.ceil(delay_hours)
+    
     # 限制范围：至少 1 小时，最多 24 小时
-    return max(1, min(24, int(delay_hours)))
+    return max(1, min(24, delay_hours))
 
 
 
