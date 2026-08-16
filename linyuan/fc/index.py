@@ -44,8 +44,12 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
-# 搜索噪音：「虎林园」「东北虎林园」是老虎公园，不是林园本人。标题命中即排除。
-NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰")
+# 搜索噪音：标题命中即排除
+# - 「虎林园」「东北虎林园」是老虎公园，不是林园本人
+# - 「林园群」是人名「林园群」，不是投资人林园
+# - 「横道河子」是东北虎产地
+# - 「二埋汰」是东北虎网红名
+NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群")
 
 # 投稿好时段：12:00, 18:00, 21:00（避开凌晨和深夜）
 PUBLISH_SLOTS = [(12, 0), (18, 0), (21, 0)]
@@ -386,6 +390,11 @@ def publish_handler(event=None, context=None):
         log.info("无待投稿件")
         return {"published": 0}
 
+    # 频率控制：每次只投 1 条，避免触发 B站风控
+    e = pending[0]
+    slug = e["slug"]
+    log.info(f"准备投稿: {slug} (共 {len(pending)} 条待发布，本次只投 1 条)")
+
     runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
                      "?status=success&per_page=10").get("workflow_runs", [])
     arts = {}
@@ -394,20 +403,19 @@ def publish_handler(event=None, context=None):
             if a["name"].startswith("deliver-") and not a.get("expired"):
                 arts[a["name"][8:]] = a["archive_download_url"]
 
+    if slug not in arts:
+        log.info(f"{slug} 成片未就绪，下轮再看")
+        return {"published": 0}
+
     tmp = Path(tempfile.mkdtemp())
     with open(tmp / "cookies.json", "w") as f:
         f.write(COOKIES_JSON)
     os.chmod(tmp / "cookies.json", 0o600)
 
     done = 0
-    for e in pending:
-        slug = e["slug"]
-        if slug not in arts:
-            log.info(f"{slug} 成片未就绪，下轮再看")
-            continue
-        zf = tmp / f"{slug}.zip"
-        subprocess.run(["curl", "-sfL", "--max-time", "300", "-C", "-",
-                        "-H", f"Authorization: Bearer {TOKEN}",
+    zf = tmp / f"{slug}.zip"
+    subprocess.run(["curl", "-sfL", "--max-time", "300", "-C", "-",
+                    "-H", f"Authorization: Bearer {TOKEN}",
                         "-o", str(zf), arts[slug]], check=True)
         subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
         video = tmp / slug / "final.mp4"
