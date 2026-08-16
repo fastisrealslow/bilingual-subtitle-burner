@@ -456,49 +456,49 @@ def publish_handler(event=None, context=None):
     try:
         import biliup
         log.info(f"✓ biliup 可用: {biliup.__file__}")
-        # 直接导入 biliup 的函数，不用 subprocess
-        from biliup import upload
-        log.info("✓ biliup.upload 函数可用")
     except ImportError as e:
         log.error(f"✗ biliup 不可用: {e}")
         log.error(f"  sys.path: {sys.path}")
         return {"published": 0}
     
-    # 直接用 biliup.upload 函数，不用 subprocess
+    # 使用 subprocess 调用 biliup CLI，设置 PYTHONPATH 环境变量
     log.info(f"准备投稿: {slug}")
-    try:
-        # 构造投稿参数
-        upload_args = {
-            "video": str(video),
-            "title": title,
-            "tid": TID,
-            "copyright": COPYRIGHT,
-            "source": e.get("source_url") or "https://www.bilibili.com",
-            "desc": desc,
-            "tag": tags,
-            "limit": 1,
-        }
-        if cover:
-            upload_args["cover"] = str(cover)
-        delay = int(e.get("delay_hours") or 0)
-        if delay > 0:
-            upload_args["dtime"] = int(time.time()) + delay * 3600
-        
-        # 调用 biliup.upload
-        result = upload(**upload_args)
-        log.info(f"✓ 投稿结果: {result}")
-        
-        # 提取 BV 号
-        m = re.search(r'BV\w{10}', str(result))
-        if m:
-            st["published"][slug] = {"bvid": m.group(0), "ts": int(time.time()),
-                                     "title": title}
-            save_state(st)
-            log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
-            done += 1
-        else:
-            log.error(f"✗ {slug} 投稿失败：未找到 BV 号")
-    except Exception as e:
-        log.error(f"✗ {slug} 投稿失败：{e}")
+    
+    # 构造命令
+    cmd = [sys.executable, "-m", "biliup",
+           "-u", str(tmp / "cookies.json"), "upload", str(video),
+           "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
+           "--source", e.get("source_url") or "https://www.bilibili.com",
+           "--desc", desc, "--tag", tags, "--limit", "1"]
+    if cover:
+        cmd += ["--cover", str(cover)]
+    delay = int(e.get("delay_hours") or 0)
+    if delay > 0:
+        cmd += ["--dtime", str(int(time.time()) + delay * 3600)]
+    
+    # 设置 PYTHONPATH 环境变量
+    env = os.environ.copy()
+    env["PYTHONPATH"] = ":".join(sys.path)
+    
+    # 调用 biliup CLI
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=900, env=env)
+    out = (r.stdout or "") + (r.stderr or "")
+    m = re.search(r'BV\w{10}', out)
+    if r.returncode == 0 and m:
+        st["published"][slug] = {"bvid": m.group(0), "ts": int(time.time()),
+                                 "title": title}
+        save_state(st)
+        log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
+        done += 1
+    else:
+        # 输出完整错误信息，方便调试
+        log.error(f"✗ {slug} 投稿失败")
+        log.error(f"  返回码: {r.returncode}")
+        log.error(f"  stdout: {r.stdout[:500]}")
+        log.error(f"  stderr: {r.stderr[:500]}")
+        # 尝试提取错误代码
+        tail = [ln for ln in out.splitlines() if "code" in ln or "Error" in ln or "error" in ln][-3:]
+        if tail:
+            log.error(f"  错误信息: {'; '.join(tail)[:300]}")
     
     return {"published": done}
