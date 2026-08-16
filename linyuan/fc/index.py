@@ -416,47 +416,51 @@ def publish_handler(event=None, context=None):
     zf = tmp / f"{slug}.zip"
     subprocess.run(["curl", "-sfL", "--max-time", "300", "-C", "-",
                     "-H", f"Authorization: Bearer {TOKEN}",
-                        "-o", str(zf), arts[slug]], check=True)
-        subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
-        video = tmp / slug / "final.mp4"
-        if not video.exists():
-            continue
-        # 优先用 artifact 里 meta.json 的 LLM 文案 + 封面
-        title, desc, tags, cover = e.get("title") or slug, "", "林园,价值投资", None
-        meta_f = tmp / slug / "meta.json"
-        if meta_f.exists():
-            try:
-                mj = json.loads(meta_f.read_text(encoding="utf-8"))
-                title = mj.get("title") or title
-                desc = mj.get("desc", "")
-                tags = ",".join(mj.get("tags", ["林园", "价值投资"]))
-                if mj.get("cover") and (tmp / slug / mj["cover"]).exists():
-                    cover = tmp / slug / mj["cover"]
-            except Exception:
-                pass
-        if "｜" not in title:
-            title = f"{title[:40]}｜林园"
-        # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
-        cmd = [sys.executable, "-m", "biliup",
-               "-u", str(tmp / "cookies.json"), "upload", str(video),
-               "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
-               "--source", e.get("source_url") or "https://www.bilibili.com",
-               "--desc", desc, "--tag", tags, "--limit", "1"]
-        if cover:
-            cmd += ["--cover", str(cover)]
-        delay = int(e.get("delay_hours") or 0)
-        if delay > 0:
-            cmd += ["--dtime", str(int(time.time()) + delay * 3600)]
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
-        out = (r.stdout or "") + (r.stderr or "")
-        m = re.search(r'BV\w{10}', out)
-        if r.returncode == 0 and m:
-            st["published"][slug] = {"bvid": m.group(0), "ts": int(time.time()),
-                                     "title": title}
-            save_state(st)
-            log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
-            done += 1
-        else:
-            tail = [ln for ln in out.splitlines() if "code" in ln or "Error" in ln][-2:]
-            log.error(f"✗ {slug} 投稿失败：{'; '.join(tail)[:200]}")
+                    "-o", str(zf), arts[slug]], check=True)
+    subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
+    video = tmp / slug / "final.mp4"
+    if not video.exists():
+        log.error(f"✗ {slug} 成片不存在")
+        return {"published": 0}
+    
+    # 优先用 artifact 里 meta.json 的 LLM 文案 + 封面
+    title, desc, tags, cover = e.get("title") or slug, "", "林园,价值投资", None
+    meta_f = tmp / slug / "meta.json"
+    if meta_f.exists():
+        try:
+            mj = json.loads(meta_f.read_text(encoding="utf-8"))
+            title = mj.get("title") or title
+            desc = mj.get("desc", "")
+            tags = ",".join(mj.get("tags", ["林园", "价值投资"]))
+            if mj.get("cover") and (tmp / slug / mj["cover"]).exists():
+                cover = tmp / slug / mj["cover"]
+        except Exception:
+            pass
+    if "｜" not in title:
+        title = f"{title[:40]}｜林园"
+    
+    # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
+    cmd = [sys.executable, "-m", "biliup",
+           "-u", str(tmp / "cookies.json"), "upload", str(video),
+           "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
+           "--source", e.get("source_url") or "https://www.bilibili.com",
+           "--desc", desc, "--tag", tags, "--limit", "1"]
+    if cover:
+        cmd += ["--cover", str(cover)]
+    delay = int(e.get("delay_hours") or 0)
+    if delay > 0:
+        cmd += ["--dtime", str(int(time.time()) + delay * 3600)]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+    out = (r.stdout or "") + (r.stderr or "")
+    m = re.search(r'BV\w{10}', out)
+    if r.returncode == 0 and m:
+        st["published"][slug] = {"bvid": m.group(0), "ts": int(time.time()),
+                                 "title": title}
+        save_state(st)
+        log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
+        done += 1
+    else:
+        tail = [ln for ln in out.splitlines() if "code" in ln or "Error" in ln][-2:]
+        log.error(f"✗ {slug} 投稿失败：{'; '.join(tail)[:200]}")
+    
     return {"published": done}
