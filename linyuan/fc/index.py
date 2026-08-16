@@ -439,6 +439,12 @@ def publish_handler(event=None, context=None):
     if "｜" not in title:
         title = f"{title[:40]}｜林园"
     
+    # FC 依赖层路径：/opt/python
+    # 如果层没有生效，手动添加到 sys.path
+    import sys
+    if "/opt/python" not in sys.path:
+        sys.path.insert(0, "/opt/python")
+    
     # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
     cmd = [sys.executable, "-m", "biliup",
            "-u", str(tmp / "cookies.json"), "upload", str(video),
