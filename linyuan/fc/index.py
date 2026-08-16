@@ -456,12 +456,21 @@ def publish_handler(event=None, context=None):
     try:
         import biliup
         log.info(f"✓ biliup 可用: {biliup.__file__}")
+        # 找到层中的 Python
+        layer_python = "/opt/python/bin/python3"
+        if os.path.exists(layer_python):
+            log.info(f"✓ 层 Python 存在: {layer_python}")
+            python_cmd = layer_python
+        else:
+            log.info(f"✗ 层 Python 不存在，使用默认: {sys.executable}")
+            python_cmd = sys.executable
     except ImportError as e:
         log.error(f"✗ biliup 不可用: {e}")
         log.error(f"  sys.path: {sys.path}")
+        python_cmd = sys.executable
     
-    # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
-    cmd = [sys.executable, "-m", "biliup",
+    # FC 没有 PATH 里的 biliup，用层中的 Python 调 biliup
+    cmd = [python_cmd, "-m", "biliup",
            "-u", str(tmp / "cookies.json"), "upload", str(video),
            "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
            "--source", e.get("source_url") or "https://www.bilibili.com",
