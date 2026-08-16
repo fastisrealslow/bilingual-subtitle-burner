@@ -434,8 +434,13 @@ def publish_handler(event=None, context=None):
             tags = ",".join(mj.get("tags", ["林园", "价值投资"]))
             if mj.get("cover") and (tmp / slug / mj["cover"]).exists():
                 cover = tmp / slug / mj["cover"]
+                log.info(f"✓ 封面: {cover}")
+            else:
+                log.info(f"✗ 封面不存在: meta.cover={mj.get('cover')}")
         except Exception:
             pass
+    else:
+        log.info(f"✗ meta.json 不存在")
     if "｜" not in title:
         title = f"{title[:40]}｜林园"
     
