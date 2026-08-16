@@ -456,21 +456,52 @@ def publish_handler(event=None, context=None):
     try:
         import biliup
         log.info(f"✓ biliup 可用: {biliup.__file__}")
-        # 找到层中的 Python
-        layer_python = "/opt/python/bin/python3"
-        if os.path.exists(layer_python):
-            log.info(f"✓ 层 Python 存在: {layer_python}")
-            python_cmd = layer_python
-        else:
-            log.info(f"✗ 层 Python 不存在，使用默认: {sys.executable}")
-            python_cmd = sys.executable
+        # 直接导入 biliup 的函数，不用 subprocess
+        from biliup import upload
+        log.info("✓ biliup.upload 函数可用")
     except ImportError as e:
         log.error(f"✗ biliup 不可用: {e}")
         log.error(f"  sys.path: {sys.path}")
-        python_cmd = sys.executable
+        return {"published": 0}
     
-    # FC 没有 PATH 里的 biliup，用层中的 Python 调 biliup
-    cmd = [python_cmd, "-m", "biliup",
+    # 直接用 biliup.upload 函数，不用 subprocess
+    log.info(f"准备投稿: {slug}")
+    try:
+        # 构造投稿参数
+        upload_args = {
+            "video": str(video),
+            "title": title,
+            "tid": TID,
+            "copyright": COPYRIGHT,
+            "source": e.get("source_url") or "https://www.bilibili.com",
+            "desc": desc,
+            "tag": tags,
+            "limit": 1,
+        }
+        if cover:
+            upload_args["cover"] = str(cover)
+        delay = int(e.get("delay_hours") or 0)
+        if delay > 0:
+            upload_args["dtime"] = int(time.time()) + delay * 3600
+        
+        # 调用 biliup.upload
+        result = upload(**upload_args)
+        log.info(f"✓ 投稿结果: {result}")
+        
+        # 提取 BV 号
+        m = re.search(r'BV\w{10}', str(result))
+        if m:
+            st["published"][slug] = {"bvid": m.group(0), "ts": int(time.time()),
+                                     "title": title}
+            save_state(st)
+            log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
+            done += 1
+        else:
+            log.error(f"✗ {slug} 投稿失败：未找到 BV 号")
+    except Exception as e:
+        log.error(f"✗ {slug} 投稿失败：{e}")
+    
+    return {"published": done}
            "-u", str(tmp / "cookies.json"), "upload", str(video),
            "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
            "--source", e.get("source_url") or "https://www.bilibili.com",
