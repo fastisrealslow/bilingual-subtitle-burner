@@ -442,10 +442,23 @@ def publish_handler(event=None, context=None):
     # FC 依赖层路径：尝试多个可能的路径
     import sys
     possible_paths = ["/opt/python", "/opt/python/lib/python3.10/site-packages", "/code/python"]
+    log.info(f"Python 路径: {sys.path}")
     for path in possible_paths:
-        if os.path.exists(path) and path not in sys.path:
-            sys.path.insert(0, path)
-            log.info(f"添加层路径: {path}")
+        if os.path.exists(path):
+            log.info(f"层路径存在: {path}")
+            if path not in sys.path:
+                sys.path.insert(0, path)
+                log.info(f"添加层路径: {path}")
+        else:
+            log.info(f"层路径不存在: {path}")
+    
+    # 检查 biliup 是否可用
+    try:
+        import biliup
+        log.info(f"✓ biliup 可用: {biliup.__file__}")
+    except ImportError as e:
+        log.error(f"✗ biliup 不可用: {e}")
+        log.error(f"  sys.path: {sys.path}")
     
     # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
     cmd = [sys.executable, "-m", "biliup",
