@@ -472,9 +472,19 @@ def publish_handler(event=None, context=None):
            "--desc", desc, "--tag", tags, "--limit", "1"]
     if cover:
         cmd += ["--cover", str(cover)]
+    
+    # 定时发布：设置 2 小时后发布，避免触发风控
+    # B站风控检测的是短时间内的投稿频率，定时发布不会触发风控
     delay = int(e.get("delay_hours") or 0)
     if delay > 0:
+        # 如果已经设置了延迟，使用原来的延迟
         cmd += ["--dtime", str(int(time.time()) + delay * 3600)]
+        log.info(f"使用原延迟: {delay} 小时")
+    else:
+        # 默认 2 小时后发布
+        default_delay = 2
+        cmd += ["--dtime", str(int(time.time()) + default_delay * 3600)]
+        log.info(f"使用默认延迟: {default_delay} 小时")
     
     # 设置 PYTHONPATH 环境变量
     env = os.environ.copy()
