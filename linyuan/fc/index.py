@@ -460,7 +460,14 @@ def publish_handler(event=None, context=None):
         log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
         done += 1
     else:
-        tail = [ln for ln in out.splitlines() if "code" in ln or "Error" in ln][-2:]
-        log.error(f"✗ {slug} 投稿失败：{'; '.join(tail)[:200]}")
+        # 输出完整错误信息，方便调试
+        log.error(f"✗ {slug} 投稿失败")
+        log.error(f"  返回码: {r.returncode}")
+        log.error(f"  stdout: {r.stdout[:500]}")
+        log.error(f"  stderr: {r.stderr[:500]}")
+        # 尝试提取错误代码
+        tail = [ln for ln in out.splitlines() if "code" in ln or "Error" in ln or "error" in ln][-3:]
+        if tail:
+            log.error(f"  错误信息: {'; '.join(tail)[:300]}")
     
     return {"published": done}
