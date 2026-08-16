@@ -439,11 +439,13 @@ def publish_handler(event=None, context=None):
     if "｜" not in title:
         title = f"{title[:40]}｜林园"
     
-    # FC 依赖层路径：/opt/python
-    # 如果层没有生效，手动添加到 sys.path
+    # FC 依赖层路径：尝试多个可能的路径
     import sys
-    if "/opt/python" not in sys.path:
-        sys.path.insert(0, "/opt/python")
+    possible_paths = ["/opt/python", "/opt/python/lib/python3.10/site-packages", "/code/python"]
+    for path in possible_paths:
+        if os.path.exists(path) and path not in sys.path:
+            sys.path.insert(0, path)
+            log.info(f"添加层路径: {path}")
     
     # FC 没有 PATH 里的 biliup，用 python -m 调包里带的（biliup/stream_gears 已打进代码包）
     cmd = [sys.executable, "-m", "biliup",
