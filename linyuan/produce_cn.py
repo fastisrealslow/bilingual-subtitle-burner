@@ -392,22 +392,70 @@ def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path):
-    """封面：抽第一段中间帧 → 16:9 → 底部渐变 → 标题大字。
+    """封面：抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
-    务实版（原库 step7 是 VLM 选主讲人特写，后续再加）。
-    字体必须显式指定 SC 子字体，见 _sc_face_index。
+    用 OpenCV haar 级联检测人脸，裁切时以人脸为中心，
+    避免居中裁切把人脸裁掉或压扁。
     """
     from PIL import Image, ImageDraw, ImageFont
     W, H = 1280, 720
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{mid:.1f}",
-                    "-i", str(src), "-frames:v", "1", str(tmp)], check=True)
-    img = Image.open(tmp).convert("RGB")
-    # 居中裁成 16:9
+    # 抽 3 帧（中间偏前/正中/偏后），选人脸最大的那张
+    frames = []
+    for offset in [-2, 0, 2]:
+        t = max(0, mid + offset)
+        fp = tmp.with_suffix(f".{offset}.png")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
+                        "-i", str(src), "-frames:v", "1", str(fp)],
+                       check=True, capture_output=True)
+        if fp.exists():
+            frames.append(fp)
+    
+    # 选人脸最大的帧
+    best_frame = frames[0] if frames else tmp
+    best_face = None
+    try:
+        import cv2
+        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        cascade = cv2.CascadeClassifier(cascade_path)
+        for fp in frames:
+            img_cv = cv2.imread(str(fp))
+            if img_cv is None:
+                continue
+            gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+            faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(80, 80))
+            if len(faces) > 0:
+                # 选最大的人脸
+                biggest = max(faces, key=lambda f: f[2] * f[3])
+                if best_face is None or biggest[2] * biggest[3] > best_face[2] * best_face[3]:
+                    best_face = biggest
+                    best_frame = fp
+    except ImportError:
+        pass  # 没装 opencv 就用第一帧
+    
+    img = Image.open(best_frame).convert("RGB")
     w, h = img.size
-    tw = min(w, int(h * 16 / 9))
-    img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h)).resize((W, H))
+    
+    # 以人脸为中心裁切 16:9
+    if best_face is not None:
+        fx, fy, fw, fh = best_face
+        # 人脸中心
+        cx, cy = fx + fw // 2, fy + fh // 2
+        # 16:9 裁切宽度
+        tw = min(w, int(h * 16 / 9))
+        # 以人脸为中心，但要保证不超出画面
+        x0 = max(0, min(cx - tw // 2, w - tw))
+        img = img.crop((x0, 0, x0 + tw, h)).resize((W, H))
+    else:
+        # 无人脸 → 居中裁切
+        tw = min(w, int(h * 16 / 9))
+        img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h)).resize((W, H))
+    
+    # 清理临时帧
+    for fp in frames:
+        fp.unlink(missing_ok=True)
+    
     # 底部 45% 压暗（黑渐变），字才看得清
     overlay = Image.new("L", (W, H), 0)
     od = ImageDraw.Draw(overlay)

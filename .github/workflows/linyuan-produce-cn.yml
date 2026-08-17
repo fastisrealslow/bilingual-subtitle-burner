@@ -149,13 +149,23 @@ jobs:
             --speaker "${{ inputs.speaker }}" \
             --occasion "${{ inputs.occasion }}"
 
-      - name: 上传成片
+      - name: 上传成片到 Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deliver-${{ inputs.slug }}
           path: linyuan/deliver/${{ inputs.slug }}/
           retention-days: 90
           if-no-files-found: error
+
+      - name: 上传成片到 Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: deliver
+          name: 成品库
+          files: linyuan/deliver/${{ inputs.slug }}/*
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 失败时把转写、金句、译文带出来，否则只能靠日志猜是哪步不达标
       - name: 失败时上传中间产物
