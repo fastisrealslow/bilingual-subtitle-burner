@@ -185,6 +185,17 @@ def pick(items, st, n):
     cooling = {e["video_id"] for e in st["dispatched"]
                if now - e.get("ts", 0) < SAME_VIDEO_COOLDOWN}
     cooling |= {e["video_id"] for e in st["rejected"]}
+    # 排除已发布的视频（防止重复采集自己发的）
+    published_bvs = {info.get("bvid", "") for info in st.get("published", {}).values()}
+    # 微博噪音：不是林园本人视频的常见噪音关键词
+    NOISE_EXTRA = re.compile(
+        r"超话|小说|灯花笑|张子墨|好事多墨|木槿|"
+        r"白居易|绿含滋|水风清|四韵|诗词|古诗|"
+        r"陈育哲|张甜甜|胡以信|案例黑料|跟风后悔|姐妹|"
+        r"两园共|打榜|应援|周边|同人|"
+        r"假价值|假投机|假风险|假茅|卖书|会员|"
+        r"远离林园|大势已去|时运已去"
+    )
     cands = []
     for it in items:
         url, page = it.get("video_url") or "", it.get("url") or ""
@@ -194,10 +205,19 @@ def pick(items, st, n):
         vid = video_id_of(page, url)
         if not key or key in done or vid in cooling:
             continue
-        if NOISE.search(it.get("title") or ""):
+        # 排除已发布的视频（BV 号匹配）
+        if vid in published_bvs:
+            continue
+        title = it.get("title") or ""
+        if NOISE.search(title):
             continue                                     # 老虎公园不是林园
+        if NOISE_EXTRA.search(title):
+            continue                                     # 微博噪音
+        # 标题必须包含"林园"（排除只是提到林园的视频）
+        if "林园" not in title:
+            continue
         cands.append({"key": key, "video_id": vid,
-                      "title": (it.get("title") or "")[:60],
+                      "title": title[:60],
                       "video_url": url, "page_url": page,
                       "publish_time": it.get("publish_time") or ""})
     cands.sort(key=lambda c: c["publish_time"], reverse=True)
