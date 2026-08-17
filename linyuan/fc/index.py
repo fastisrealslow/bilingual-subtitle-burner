@@ -194,12 +194,15 @@ def pick(items, st, n):
         r"陈育哲|张甜甜|胡以信|案例黑料|跟风后悔|姐妹|"
         r"两园共|打榜|应援|周边|同人|"
         r"假价值|假投机|假风险|假茅|卖书|会员|"
-        r"远离林园|大势已去|时运已去"
+        r"远离林园|大势已去|时运已去|"
+        r"墓园|公墓|墓地|陵园|骨灰|"
+        r"灯花笑|宏成|版税|打赏|签约|出版"
     )
     cands = []
     for it in items:
         url, page = it.get("video_url") or "", it.get("url") or ""
-        if not url and "bilibili.com/video/" not in page:
+        # 有直链或B站链接 → 可用；有页面链接 → 也可用（FC dispatch 时再提取直链）
+        if not url and "bilibili.com/video/" not in page and not page:
             continue
         key = it.get("id") or page or url
         vid = video_id_of(page, url)
@@ -376,6 +379,11 @@ def dispatch_handler(event=None, context=None):
                 asset_url = c["page_url"]
                 dur = 0
                 log.info("    B站源 → 透传页面 URL 给 CI 下载")
+            elif not c["video_url"] and c["page_url"]:
+                # 非B站但无直链（微博/腾讯/抖音等）→ 透传页面 URL 给 CI 提取
+                asset_url = c["page_url"]
+                dur = 0
+                log.info(f"    非B站源 → 透传页面 URL 给 CI 下载: {c['page_url'][:60]}")
             else:
                 dest = tmp / f"{c['slug']}.mp4"
                 dur = download(c, dest)
