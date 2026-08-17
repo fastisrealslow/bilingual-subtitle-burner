@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>林园监控 · 运行日志</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f5f5; color: #333; }
+.topbar { background: #1a1a2e; color: #fff; padding: 20px; text-align: center; }
+.topbar h1 { font-size: 20px; }
+.topbar p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+.container { max-width: 900px; margin: 0 auto; padding: 16px; }
+.section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.section h2 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.badge-ok { background: #d4edda; color: #155724; }
+.badge-warn { background: #fff3cd; color: #856404; }
+.badge-err { background: #f8d7da; color: #721c24; }
+.badge-pending { background: #cce5ff; color: #004085; }
+.item { padding: 10px 0; border-bottom: 1px solid #eee; }
+.item:last-child { border-bottom: none; }
+.item-title { font-size: 14px; font-weight: 500; }
+.item-meta { font-size: 12px; color: #888; margin-top: 4px; }
+.item-status { font-size: 12px; margin-top: 4px; }
+.error { color: #dc3545; }
+.success { color: #28a745; }
+.pending { color: #007bff; }
+.stats { display: flex; gap: 12px; margin-bottom: 12px; }
+.stat { flex: 1; text-align: center; padding: 12px; border-radius: 8px; }
+.stat-published { background: #d4edda; }
+.stat-pending { background: #cce5ff; }
+.stat-rejected { background: #f8d7da; }
+.stat-num { font-size: 24px; font-weight: 700; }
+.stat-label { font-size: 12px; color: #666; }
+.empty { text-align: center; padding: 20px; color: #999; }
+a { color: #007bff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <h1>林园监控 · 运行日志</h1>
+  <p id="updated">加载中...</p>
+</header>
+<div class="container">
+  <div class="stats" id="stats"></div>
+  <div class="section" id="alerts-section" hidden>
+    <h2>⚠️ 告警</h2>
+    <div id="alerts"></div>
+  </div>
+  <div class="section">
+    <h2>✅ 已发布</h2>
+    <div id="published"></div>
+  </div>
+  <div class="section">
+    <h2>⏳ 待发布</h2>
+    <div id="pending"></div>
+  </div>
+  <div class="section">
+    <h2>❌ 已拒绝</h2>
+    <div id="rejected"></div>
+  </div>
+</div>
+<script>
+async function load() {
+  try {
+    const resp = await fetch('../linyuan/.automation/fc_state.json');
+    const state = await resp.json();
+    
+    const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));
+    const pending = (state.dispatched || []).filter(e => e.slug && !(state.published || {})[e.slug]);
+    const rejected = state.rejected || [];
+    
+    // 统计
+    document.getElementById('stats').innerHTML = `
+      <div class="stat stat-published"><div class="stat-num">${published.length}</div><div class="stat-label">已发布</div></div>
+      <div class="stat stat-pending"><div class="stat-num">${pending.length}</div><div class="stat-label">待发布</div></div>
+      <div class="stat stat-rejected"><div class="stat-num">${rejected.length}</div><div class="stat-label">已拒绝</div></div>
+    `;
+    
+    // 已发布
+    document.getElementById('published').innerHTML = published.length ? 
+      published.sort((a,b) => (b.ts||0) - (a.ts||0)).map(e => `
+        <div class="item">
+          <div class="item-title">${e.title || e.slug}</div>
+          <div class="item-meta">
+            <a href="https://www.bilibili.com/video/${e.bvid}" target="_blank">${e.bvid}</a>
+            · ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}
+          </div>
+        </div>
+      `).join('') : '<div class="empty">暂无</div>';
+    
+    // 待发布
+    document.getElementById('pending').innerHTML = pending.length ?
+      pending.map(e => `
+        <div class="item">
+          <div class="item-title">${e.title || e.slug}</div>
+          <div class="item-meta">${e.slug} · 调度于 ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}</div>
+          <div class="item-status pending">等待出片 + 投稿</div>
+        </div>
+      `).join('') : '<div class="empty">暂无</div>';
+    
+    // 已拒绝
+    document.getElementById('rejected').innerHTML = rejected.length ?
+      rejected.slice(-10).map(e => `
+        <div class="item">
+          <div class="item-title">${e.video_id || e.key}</div>
+          <div class="item-meta">${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}</div>
+        </div>
+      `).join('') : '<div class="empty">暂无</div>';
+    
+    // 检查告警
+    const alerts = [];
+    const now = Date.now() / 1000;
+    // 待发布超过 24 小时
+    const stuck = pending.filter(e => now - (e.ts||0) > 86400);
+    if (stuck.length > 0) {
+      alerts.push(`${stuck.length} 条待发布视频超过 24 小时未发布，可能出片失败`);
+    }
+    // 最近 6 小时无 publish
+    const recentPub = published.filter(e => now - (e.ts||0) < 21600);
+    if (pending.length > 0 && recentPub.length === 0) {
+      alerts.push('最近 6 小时无新发布，可能 FC publish 未运行');
+    }
+    
+    if (alerts.length > 0) {
+      document.getElementById('alerts-section').hidden = false;
+      document.getElementById('alerts').innerHTML = alerts.map(a => `<div class="item"><div class="error">${a}</div></div>`).join('');
+    }
+    
+    document.getElementById('updated').textContent = `更新于 ${new Date().toLocaleString('zh-CN')}`;
+  } catch (e) {
+    document.getElementById('updated').textContent = '加载失败: ' + e.message;
+  }
+}
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
