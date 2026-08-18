@@ -42,6 +42,11 @@ TARGET_SEC = 180          # 成片目标时长
 MAX_CHARS = 18            # 单条字幕上限
 MIN_CHARS = 6
 BREAK = "，。！？；、,.!?;"
+# 语气词过滤：ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
+# 单帧语气词没有信息量，反而让字幕跳动
+FILLER_WORDS = set("啊呀呐呢吧嘛哦噢哎唉哼嗯呃哈呵嘿")
+# 最小帧间隔（秒）：相邻字幕间距太小会闪烁
+MIN_GAP = 0.3
 
 # ASR 专名纠错表。现场录音对专有名词识别率很差，而这些词恰恰是内容的核心。
 # 只放「读音接近且在本领域无歧义」的，避免误改。
@@ -142,17 +147,34 @@ def transcribe(src, work):
         tok = w.word.strip()
         if not tok:
             continue
+        # 过滤单独的语气词（没有信息量，反而让字幕跳动）
+        if len(tok) == 1 and tok in FILLER_WORDS:
+            continue
         if start is None:
             start = w.start
         buf.append(tok)
         t = "".join(buf)
         if (tok[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
-            cues.append({"start": start, "end": w.end,
-                         "text": fix_terms(t.strip(BREAK + " "))})
+            text = fix_terms(t.strip(BREAK + " "))
+            # 跳过纯语气词的帧
+            if text and not all(c in FILLER_WORDS for c in text):
+                cues.append({"start": start, "end": w.end, "text": text})
             buf, start = [], None
     if buf:
-        cues.append({"start": start, "end": words[-1].end,
-                     "text": fix_terms("".join(buf).strip(BREAK + " "))})
+        text = fix_terms("".join(buf).strip(BREAK + " "))
+        if text and not all(c in FILLER_WORDS for c in text):
+            cues.append({"start": start, "end": words[-1].end, "text": text})
+    
+    # 合并间距太小的帧（防止字幕闪烁）
+    merged = []
+    for c in cues:
+        if merged and c["start"] - merged[-1]["end"] < MIN_GAP:
+            # 合并到上一帧
+            merged[-1]["end"] = c["end"]
+            merged[-1]["text"] += c["text"]
+        else:
+            merged.append(dict(c))
+    cues = merged
     cues = [c for c in cues if c["text"]]
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[asr] {len(words)} 词 → {len(cues)} 条字幕")
@@ -436,27 +458,40 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
-    
-    # 以人脸为中心裁切 16:9
-    if best_face is not None:
-        fx, fy, fw, fh = best_face
-        # 人脸中心
-        cx, cy = fx + fw // 2, fy + fh // 2
-        # 16:9 裁切宽度
-        tw = min(w, int(h * 16 / 9))
-        # 以人脸为中心，但要保证不超出画面
-        x0 = max(0, min(cx - tw // 2, w - tw))
-        img = img.crop((x0, 0, x0 + tw, h)).resize((W, H))
+
+    # 以人脸为中心裁切，保持原始宽高比
+    vertical = h > w
+    if vertical:
+        # 竖屏视频：生成 9:16 封面（B站支持），以人脸为中心
+        if best_face is not None:
+            fx, fy, fw, fh = best_face
+            cx, cy = fx + fw // 2, fy + fh // 2
+            tw = min(w, int(h * 9 / 16))
+            x0 = max(0, min(cx - tw // 2, w - tw))
+            img = img.crop((x0, 0, x0 + tw, h))
+        else:
+            tw = min(w, int(h * 9 / 16))
+            img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h))
+        # 缩放到 720x1280 的 9:16 封面
+        img = img.resize((720, 1280), Image.LANCZOS)
     else:
-        # 无人脸 → 居中裁切
-        tw = min(w, int(h * 16 / 9))
-        img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h)).resize((W, H))
+        # 横屏视频：裁成 16:9 的 1280x720 封面
+        if best_face is not None:
+            fx, fy, fw, fh = best_face
+            cx, cy = fx + fw // 2, fy + fh // 2
+            tw = min(w, int(h * 16 / 9))
+            x0 = max(0, min(cx - tw // 2, w - tw))
+            img = img.crop((x0, 0, x0 + tw, h)).resize((W, H), Image.LANCZOS)
+        else:
+            tw = min(w, int(h * 16 / 9))
+            img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h)).resize((W, H), Image.LANCZOS)
     
     # 清理临时帧
     for fp in frames:
         fp.unlink(missing_ok=True)
     
     # 底部 45% 压暗（黑渐变），字才看得清
+    W, H = img.size
     overlay = Image.new("L", (W, H), 0)
     od = ImageDraw.Draw(overlay)
     for y in range(H):
@@ -493,6 +528,68 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     print(f"[封面] {out_path.name}  「{title[:20]}」")
 
 
+def has_existing_subtitles(src):
+    """检测视频是否已有硬字幕（烧录在画面上的字幕）。
+    用 OCR 检查画面底部是否有连续文字区域。
+    """
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(src))
+        if not cap.isOpened():
+            return False
+        # 检查 3 帧（25%、50%、75% 位置）
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if total <= 0:
+            return False
+        subtitle_hits = 0
+        for pct in (0.25, 0.5, 0.75):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * pct))
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                continue
+            h, w = frame.shape[:2]
+            # 底部 20% 区域（字幕通常在底部）
+            bottom = frame[int(h * 0.8):, :]
+            gray = cv2.cvtColor(bottom, cv2.COLOR_BGR2GRAY)
+            # 二值化，文字区域会有大量高对比度像素
+            _, binary = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+            text_ratio = cv2.countNonZero(binary) / (bottom.size / 3)
+            if text_ratio > 0.05:  # 5% 以上白色像素 → 可能有字幕
+                subtitle_hits += 1
+        cap.release()
+        return subtitle_hits >= 2  # 3 帧中至少 2 帧有字幕
+    except Exception:
+        return False
+
+
+def has_hard_watermark(src):
+    """检测视频是否有难以裁除的水印（画面中间的 logo）。
+    检查画面四角和中间是否有固定位置的半透明 logo。
+    """
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(src))
+        if not cap.isOpened():
+            return False
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if total <= 0:
+            return False
+        cap.set(cv2.CAP_PROP_POS_FRAMES, total // 2)
+        ret, frame = cap.read()
+        cap.release()
+        if not ret or frame is None:
+            return False
+        h, w = frame.shape[:2]
+        # 检查中间区域是否有固定 logo
+        center = frame[int(h*0.4):int(h*0.6), int(w*0.4):int(w*0.6)]
+        gray = cv2.cvtColor(center, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+        logo_ratio = cv2.countNonZero(binary) / (center.size / 3)
+        return logo_ratio > 0.1  # 10% 以上白色像素 → 可能有中间水印
+    except Exception:
+        return False
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True)
@@ -514,6 +611,18 @@ def main():
     work.mkdir(parents=True, exist_ok=True)
 
     cues = transcribe(src, work)
+    
+    # 检测已有字幕（如果视频已有硬字幕，跳过字幕烧录）
+    existing_subtitles = has_existing_subtitles(src)
+    if existing_subtitles:
+        print("[检测] 视频已有硬字幕，跳过字幕烧录")
+    
+    # 检测难以裁除的水印
+    hard_watermark = has_hard_watermark(src)
+    if hard_watermark:
+        print("[检测] 视频有中间水印，难以裁除，跳过")
+        return 1
+    
     picks = pick_highlights(cues, args.speaker, api_key, work)
 
     sel = []
@@ -531,8 +640,9 @@ def main():
         return 0
 
     zh_texts = [cues[i]["text"] for i in sel]
-    en_texts = translate(zh_texts, api_key, work)
-    en_map = dict(zip(sel, en_texts))
+    # 林园视频是中文源，不需要英文翻译
+    # en_map = dict(zip(sel, translate(zh_texts, api_key, work)))
+    en_map = {}
 
     size = probe(src, "stream=width,height")
     W, H = (int(x) for x in size.split("x"))
@@ -548,10 +658,35 @@ def main():
         make_ass(entries, ass, W, H)
         seg = work / f"seg{n}.mp4"
         print(f"[烧录] 段{n} {s0:.0f}s→{s1:.0f}s ({s1-s0:.0f}s)")
+        # 根据检测结果构建滤镜
+        if hard_watermark:
+            # 有中间水印 → 跳过，不出片
+            print("[跳过] 有中间水印，不出片")
+            return 1
+        else:
+            # 裁掉顶部 100px，保持原始宽高比
+            # 横屏 16:9 → 保持 16:9；竖屏 9:16 → 保持 9:16
+            vertical = H > W
+            if vertical:
+                # 竖屏：保持 9:16
+                crop_h = H - 100
+                crop_w = min(int(crop_h * 9 / 16), W)
+            else:
+                # 横屏：保持 16:9
+                crop_h = H - 100
+                crop_w = min(int(crop_h * 16 / 9), W)
+            crop_x = (W - crop_w) // 2
+            
+            if existing_subtitles:
+                # 已有字幕 → 不烧录字幕
+                vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
+            else:
+                # 正常：裁掉顶部 + 烧录字幕
+                vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
-             "-t", str(s1 - s0), "-i", str(src), "-vf", f"ass={ass}",
-             # 现场录音普遍 -36dB，不做响度标准化基本听不见
+             "-t", str(s1 - s0), "-i", str(src),
+             "-vf", vf,
              "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
              "-c:v", "libx264", "-preset", "medium", "-crf", "20",
              "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
@@ -572,7 +707,10 @@ def main():
 
     # 文案 + 封面（投稿三件套：标题/简介/标签 + 封面图）
     cw = copywrite(cues, sel, args.speaker, args.occasion, api_key, work)
-    cover = out / "cover_16x9.jpg"
+    # 竖屏视频生成 9:16 封面，横屏生成 16:9 封面
+    vertical = H > W
+    cover_name = "cover_9x16.jpg" if vertical else "cover_16x9.jpg"
+    cover = out / cover_name
     try:
         p0 = picks[0]
         make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
@@ -585,7 +723,7 @@ def main():
         "slug": args.slug, "source": str(src), "speaker": args.speaker,
         "occasion": args.occasion, "duration_sec": round(dur, 1),
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
-        "cover": "cover_16x9.jpg" if cover else None,
+        "cover": cover_name if cover else None,
         "segments": [{"start": cues[p["start"]]["start"],
                       "end": cues[p["end"]]["end"], "reason": p["reason"]}
                      for p in picks],
