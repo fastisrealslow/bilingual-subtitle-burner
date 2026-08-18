@@ -125,9 +125,22 @@ jobs:
             echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
           elif [[ "$SOURCE" =~ ^https?:// ]]; then
             mkdir -p _src
-            yt-dlp --socket-timeout 120 --retries 5 \
-              -f 'bv*[height<=1080]+ba/b[height<=1080]/b' \
-              -o '_src/video.%(ext)s' "$SOURCE"
+            # GitHub release asset URL 需要 Authorization，yt-dlp 不带 token 会 404
+            if [[ "$SOURCE" =~ github\.com/.*/releases/assets/ ]]; then
+              echo "GitHub release asset，用 token 下载"
+              curl -sfL --retry 3 --max-time 300 \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/octet-stream" \
+                -L -o _src/video.bin "$SOURCE"
+              # 尝试推断扩展名（GitHub asset 通常不带扩展名，用 file 或默认 mp4）
+              ext=$(file -b --mime-type _src/video.bin | sed 's|video/||; s|application/mp4|mp4|')
+              [ "$ext" = "bin" ] || [ -z "$ext" ] && ext="mp4"
+              mv _src/video.bin "_src/video.$ext"
+            else
+              yt-dlp --socket-timeout 120 --retries 5 \
+                -f 'bv*[height<=1080]+ba/b[height<=1080]/b' \
+                -o '_src/video.%(ext)s' "$SOURCE"
+            fi
             echo "path=$(ls _src/video.* | head -1)" >> $GITHUB_OUTPUT
           else
             [ -f "$SOURCE" ] || { echo "::error::找不到 $SOURCE"; exit 1; }
