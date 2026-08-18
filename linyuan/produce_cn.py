@@ -719,11 +719,35 @@ def main():
         print(f"[封面] 生成失败（不阻断出片）：{e}", file=sys.stderr)
         cover = None
 
+    # 推断来源平台
+    src_str = str(src).lower()
+    if "bilibili" in src_str or "bv" in src_str:
+        platform = "bilibili"
+    elif "weibo" in src_str or "weibocdn" in src_str:
+        platform = "weibo"
+    elif "tencent" in src_str or "qq.com" in src_str:
+        platform = "tencent"
+    elif "xueqiu" in src_str:
+        platform = "xueqiu"
+    elif "douyin" in src_str:
+        platform = "douyin"
+    elif "haokan" in src_str:
+        platform = "haokan"
+    elif "netease" in src_str or "163.com" in src_str:
+        platform = "netease"
+    else:
+        platform = "unknown"
+
     (out / "meta.json").write_text(json.dumps({
         "slug": args.slug, "source": str(src), "speaker": args.speaker,
         "occasion": args.occasion, "duration_sec": round(dur, 1),
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover_name if cover else None,
+        "source_platform": platform,
+        "watermark_cropped": True,  # 统一裁掉顶部 100px 水印
+        "subtitles_burned": not existing_subtitles,  # 有原字幕就不烧录
+        "has_existing_subtitles": existing_subtitles,
+        "vertical": vertical,
         "segments": [{"start": cues[p["start"]]["start"],
                       "end": cues[p["end"]]["end"], "reason": p["reason"]}
                      for p in picks],
