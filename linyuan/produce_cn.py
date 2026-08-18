@@ -317,7 +317,34 @@ def make_ass(entries, path, W, H):
         if not t:
             return ""
         if cjk:
-            return "\\N".join(t[i:i + n] for i in range(0, len(t), n))
+            # 中文：优先按标点换行；无标点时长行尽量不在连续汉字中间截断
+            lines, cur = [], ""
+            for i, ch in enumerate(t):
+                cur += ch
+                # 标点符号后直接换行
+                if ch in "，。！？、；：":
+                    lines.append(cur)
+                    cur = ""
+                    continue
+                # 长度达到上限，需要换行
+                if len(cur) >= n:
+                    # 优先回溯到前一个标点处
+                    cut = -1
+                    for j in range(len(cur) - 1, 0, -1):
+                        if cur[j] in "，。！？、；：":
+                            cut = j + 1
+                            break
+                    if cut > 0:
+                        lines.append(cur[:cut])
+                        cur = cur[cut:]
+                    else:
+                        # 无标点：尽量不在连续汉字中间截断，找前后都是汉字的边界
+                        # 简单处理：直接截断，但保留完整字符
+                        lines.append(cur)
+                        cur = ""
+            if cur:
+                lines.append(cur)
+            return "\\N".join(lines)
         words, lines, cur = t.split(), [], ""
         for w in words:
             if len(cur) + len(w) + 1 > n and cur:
