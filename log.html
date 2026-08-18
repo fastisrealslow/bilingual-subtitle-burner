@@ -20,11 +20,21 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .stat-rejected { background: #f8d7da; }
 .stat-num { font-size: 24px; font-weight: 700; }
 .stat-label { font-size: 12px; color: #666; }
-.item { padding: 10px 0; border-bottom: 1px solid #eee; }
-.item:last-child { border-bottom: none; }
-.item-title { font-size: 14px; font-weight: 500; }
-.item-meta { font-size: 12px; color: #888; margin-top: 4px; }
-.item-status { font-size: 12px; margin-top: 4px; }
+.day-group { margin-bottom: 20px; }
+.day-title { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+.item { padding: 12px; margin-bottom: 10px; border-radius: 8px; background: #fafafa; }
+.item:last-child { margin-bottom: 0; }
+.item-title { font-size: 14px; font-weight: 500; line-height: 1.4; }
+.item-meta { font-size: 12px; color: #888; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.item-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #e9ecef; color: #495057; }
+.tag-platform-bilibili { background: #e3f2fd; color: #1565c0; }
+.tag-platform-weibo { background: #fce4ec; color: #c2185b; }
+.tag-platform-tencent { background: #e8f5e9; color: #2e7d32; }
+.tag-platform-xueqiu { background: #fff3e0; color: #ef6c00; }
+.tag-watermark { background: #d1ecf1; color: #0c5460; }
+.tag-subtitle { background: #d4edda; color: #155724; }
+.tag-nosubtitle { background: #fff3cd; color: #856404; }
 .error { color: #dc3545; }
 .success { color: #28a745; }
 .pending { color: #007bff; }
@@ -32,6 +42,8 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 a { color: #007bff; text-decoration: none; }
 a:hover { text-decoration: underline; }
 .alert { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
+#alerts-section[hidden] { display: none; }
+.platform-icon { font-weight: 600; }
 </style>
 </head>
 <body>
@@ -48,7 +60,7 @@ a:hover { text-decoration: underline; }
     </div>
   </div>
   <div class="section">
-    <h2>✅ 已发布</h2>
+    <h2>✅ 已发布（最近 7 天）</h2>
     <div id="published"></div>
   </div>
   <div class="section">
@@ -62,6 +74,64 @@ a:hover { text-decoration: underline; }
 </div>
 <script>
 const STATE_URL = 'https://raw.githubusercontent.com/fastisrealslow/bilingual-subtitle-burner/main/linyuan/.automation/fc_state.json';
+
+const PLATFORM_NAMES = {
+  bilibili: 'B站',
+  weibo: '微博',
+  tencent: '腾讯新闻',
+  xueqiu: '雪球',
+  douyin: '抖音',
+  haokan: '好看视频',
+  netease: '网易',
+  unknown: '未知'
+};
+
+const PLATFORM_CLASSES = {
+  bilibili: 'tag-platform-bilibili',
+  weibo: 'tag-platform-weibo',
+  tencent: 'tag-platform-tencent',
+  xueqiu: 'tag-platform-xueqiu'
+};
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDuration(sec) {
+  if (!sec) return '';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function getDateKey(ts, dateStr) {
+  let d;
+  if (dateStr) {
+    d = new Date(dateStr);
+  }
+  if (!d || isNaN(d.getTime())) {
+    d = new Date((ts || 0) * 1000);
+  }
+  if (isNaN(d.getTime())) return '未知日期';
+  return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+}
+
+function isWithinDays(ts, dateStr, days) {
+  let d;
+  if (dateStr) {
+    d = new Date(dateStr);
+  }
+  if (!d || isNaN(d.getTime())) {
+    d = new Date((ts || 0) * 1000);
+  }
+  if (isNaN(d.getTime())) return false;
+  const now = new Date();
+  const diffMs = now - d;
+  return diffMs < days * 24 * 60 * 60 * 1000;
+}
 
 async function load() {
   try {
@@ -79,16 +149,53 @@ async function load() {
       <div class="stat stat-rejected"><div class="stat-num">${rejected.length}</div><div class="stat-label">已拒绝</div></div>
     `;
 
-    document.getElementById('published').innerHTML = published.length ?
-      published.sort((a,b) => (b.ts||0) - (a.ts||0)).map(e => `
-        <div class="item">
-          <div class="item-title">${e.title || e.slug}</div>
-          <div class="item-meta">
-            <a href="https://www.bilibili.com/video/${e.bvid}" target="_blank">${e.bvid}</a>
-            · ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}
+    // 已发布：按天分组，只显示最近 7 天
+    const recentPublished = published.filter(e => isWithinDays(e.ts, e.publish_time, 7));
+    const publishedByDay = {};
+    recentPublished.forEach(e => {
+      const key = getDateKey(e.ts, e.publish_time);
+      if (!publishedByDay[key]) publishedByDay[key] = [];
+      publishedByDay[key].push(e);
+    });
+
+    document.getElementById('published').innerHTML = recentPublished.length ?
+      Object.entries(publishedByDay)
+        .sort((a, b) => new Date(b[1][0].publish_time || b[1][0].ts * 1000) - new Date(a[1][0].publish_time || a[1][0].ts * 1000))
+        .map(([day, items]) => `
+          <div class="day-group">
+            <div class="day-title">${day}</div>
+            ${items.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(e => {
+              const platform = e.source_platform || 'unknown';
+              const platformName = PLATFORM_NAMES[platform] || platform;
+              const platformClass = PLATFORM_CLASSES[platform] || '';
+              const duration = formatDuration(e.duration_sec);
+              const watermarkTag = e.watermark_cropped !== false
+                ? '<span class="tag tag-watermark">✓ 去水印</span>'
+                : '';
+              const subtitleTag = e.subtitles_burned
+                ? '<span class="tag tag-subtitle">✓ 烧字幕</span>'
+                : (e.has_existing_subtitles ? '<span class="tag tag-nosubtitle">原视频有字幕</span>' : '<span class="tag">无字幕</span>');
+              const verticalTag = e.vertical ? '<span class="tag">竖屏</span>' : '<span class="tag">横屏</span>';
+              return `
+                <div class="item">
+                  <div class="item-title">${e.title || e.slug}</div>
+                  <div class="item-meta">
+                    <span>${formatDate(e.publish_time || e.ts * 1000)}</span>
+                    <span>·</span>
+                    <a href="https://www.bilibili.com/video/${e.bvid}" target="_blank">${e.bvid}</a>
+                    ${duration ? `<span>·</span><span>${duration}</span>` : ''}
+                  </div>
+                  <div class="item-tags">
+                    <span class="tag ${platformClass}">${platformName}</span>
+                    ${verticalTag}
+                    ${watermarkTag}
+                    ${subtitleTag}
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
-        </div>
-      `).join('') : '<div class="empty">暂无</div>';
+        `).join('') : '<div class="empty">最近 7 天暂无</div>';
 
     document.getElementById('pending').innerHTML = pending.length ?
       pending.map(e => {
