@@ -592,6 +592,7 @@ def dispatch_handler(event=None, context=None):
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
+                                     "asset_url": asset_url,
                                      "title": c["title"], "delay_hours": delay,
                                      "source": c.get("source", ""),
                                      "publish_time": c.get("publish_time", "")})
@@ -669,27 +670,53 @@ def publish_handler(event=None, context=None):
                 art_ids[slug_key] = a["id"]
 
     # 遍历 pending，找到第一个有 artifact 的
+    # 无 artifact 且未超重试次数 → 自动重试出片
     # 超过 12 小时无 artifact → 标记为 failed，避免永远 pending
     e = None
     slug = None
+    retried = 0
     for candidate in pending:
         s = candidate["slug"]
         if s in arts:
             e = candidate
             slug = s
             break
-        if now - candidate.get("ts", 0) > 12 * 3600:
+        age = now - candidate.get("ts", 0)
+        retries = candidate.get("retries", 0)
+        last_retry = candidate.get("last_retry", 0)
+        if age > 12 * 3600:
             candidate["failed"] = True
             log.info(f"{s} 超过 12h 无 artifact，标记失败")
+        elif retries < 2 and now - last_retry > 6 * 3600:
+            # 自动重试出片：用之前保存的 asset_url 重新触发 workflow
+            asset_url = candidate.get("asset_url") or candidate.get("source_url")
+            if asset_url:
+                try:
+                    gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
+                        "ref": "main",
+                        "inputs": {"source": asset_url, "slug": s,
+                                   "speaker": "林园", "occasion": candidate["title"][:30],
+                                   "delay_hours": "0", "auto_publish": "false"}})
+                    candidate["retries"] = retries + 1
+                    candidate["last_retry"] = int(now)
+                    retried += 1
+                    log.info(f"{s} 无 artifact，自动重试出片 ({retries+1}/2)")
+                except Exception as re:
+                    log.warning(f"{s} 重试触发失败: {re}")
+            else:
+                log.warning(f"{s} 无可用 asset_url，无法重试")
         else:
             log.info(f"{s} 成片未就绪，跳过")
 
-    # 保存 failed 标记
-    if any(c.get("failed") for c in pending):
+    # 保存 failed 标记和重试记录
+    if any(c.get("failed") for c in pending) or retried > 0:
         save_state(st)
 
     if e is None:
-        log.info("无可投稿件（所有待发布视频都无 artifact 或已超时）")
+        if retried > 0:
+            log.info(f"已触发 {retried} 条重试，等待出片完成")
+        else:
+            log.info("无可投稿件（所有待发布视频都无 artifact 或已超时）")
         return {"published": 0}
 
     log.info(f"准备投稿: {slug} (共 {len(pending)} 条待发布，本次只投 1 条)")
