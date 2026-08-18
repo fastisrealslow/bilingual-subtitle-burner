@@ -166,25 +166,103 @@ def video_id_of(page_url, video_url):
 
 
 def mp4_duration(path):
-    """纯 Python 读 mvhd atom，FC 没有 ffmpeg。"""
-    data = Path(path).open("rb").read(200_000)
+    """纯 Python 读 mvhd atom，FC 没有 ffmpeg。
+    moov atom 可能 在文件头部或尾部，两头都找。
+    """
+    f = Path(path).open("rb")
+    # 先读头部 500KB
+    data = f.read(500_000)
     i = data.find(b"mvhd")
+    if i < 0:
+        # 头部没找到 → 读尾部 500KB
+        f.seek(0, 2)
+        size = f.tell()
+        tail = min(500_000, size)
+        f.seek(-tail, 2)
+        data = f.read(tail)
+        i = data.find(b"mvhd")
+    f.close()
     if i < 0:
         return 0
     ver = data[i + 4]
     if ver == 1:
-        ts, dur = int.from_bytes(data[i+20:i+24], "big"), int.from_bytes(data[i+24:i+32], "big")
+        # mvhd: type(4) + version(1) + flags(3) + creation(8) + modification(8) + timescale(4) + duration(8)
+        ts = int.from_bytes(data[i+20:i+24], "big")
+        dur = int.from_bytes(data[i+24:i+32], "big")
     else:
-        ts, dur = int.from_bytes(data[i+12:i+16], "big"), int.from_bytes(data[i+16:i+20], "big")
+        # mvhd: type(4) + version(1) + flags(3) + creation(4) + modification(4) + timescale(4) + duration(4)
+        ts = int.from_bytes(data[i+16:i+20], "big")
+        dur = int.from_bytes(data[i+20:i+24], "big")
     return dur / ts if ts else 0
+
+
+def title_similarity(a, b):
+    """简单标题相似度：共同字符占比。"""
+    if not a or not b:
+        return 0
+    # 取前 20 字符比较
+    a, b = a[:20], b[:20]
+    common = sum(1 for c in a if c in b)
+    return common / max(len(a), len(b))
+
+
+def dedup_by_title(cands, threshold=0.6):
+    """同内容去重：标题相似度 > threshold 只保留一条。
+    保留质量更好的：有直链 > 无直链，时长更长的优先。
+    """
+    result = []
+    for c in cands:
+        dup = False
+        for i, r in enumerate(result):
+            if title_similarity(c["title"], r["title"]) >= threshold:
+                # 比较质量：有直链的优先，都没有直链的看 extra 中的时长
+                c_score = (1 if c.get("video_url") else 0)
+                r_score = (1 if r.get("video_url") else 0)
+                c_extra = c.get("extra", {})
+                r_extra = r.get("extra", {})
+                # extra 可能是 JSON 字符串，需要解析
+                if isinstance(c_extra, str):
+                    try:
+                        c_extra = json.loads(c_extra)
+                    except Exception:
+                        c_extra = {}
+                if isinstance(r_extra, str):
+                    try:
+                        r_extra = json.loads(r_extra)
+                    except Exception:
+                        r_extra = {}
+                # 有 duration 信息的优先
+                c_dur = c_extra.get("duration", 0)
+                r_dur = r_extra.get("duration", 0)
+                if isinstance(c_dur, str):
+                    c_dur = 0
+                if isinstance(r_dur, str):
+                    r_dur = 0
+                c_score += c_dur / 10000  # 时长加权
+                r_score += r_dur / 10000
+                
+                if c_score > r_score:
+                    result[i] = c
+                dup = True
+                break
+        if not dup:
+            result.append(c)
+    return result
 
 
 def pick(items, st, n):
     now = time.time()
     done = {e["key"] for e in st["dispatched"]} | {e["key"] for e in st["rejected"]}
+    # 重试项：3 次失败后会进 rejected，这里从 retry_list 重新加回候选
+    retry_ready = []
+    for x in st.get("pending_retry", []):
+        if now - x.get("ts", 0) > 30 * 60 and x.get("retries", 0) < 3:
+            retry_ready.append(x)
+    done -= {x["key"] for x in retry_ready}
     cooling = {e["video_id"] for e in st["dispatched"]
                if now - e.get("ts", 0) < SAME_VIDEO_COOLDOWN}
     cooling |= {e["video_id"] for e in st["rejected"]}
+    cooling -= {x["video_id"] for x in retry_ready}
     # 排除已发布的视频（防止重复采集自己发的）
     published_bvs = {info.get("bvid", "") for info in st.get("published", {}).values()}
     # 微博噪音：不是林园本人视频的常见噪音关键词
@@ -201,7 +279,15 @@ def pick(items, st, n):
     cands = []
     for it in items:
         url, page = it.get("video_url") or "", it.get("url") or ""
-        # 有直链或B站链接 → 可用；有页面链接 → 也可用（FC dispatch 时再提取直链）
+        # 兼容旧 data.json：video_url 可能在 extra 里
+        extra = it.get("extra") or {}
+        if not url:
+            url = extra.get("video_url", "")
+        # 必须有视频：有直链、或B站链接、或 extra 标记 has_video=True
+        has_video = bool(url) or "bilibili.com/video/" in page or extra.get("has_video", False)
+        if not has_video:
+            continue
+        # 有直链或B站链接 → 可用；有页面链接 → 也可用
         if not url and "bilibili.com/video/" not in page and not page:
             continue
         key = it.get("id") or page or url
@@ -222,8 +308,42 @@ def pick(items, st, n):
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
                       "video_url": url, "page_url": page,
-                      "publish_time": it.get("publish_time") or ""})
-    cands.sort(key=lambda c: c["publish_time"], reverse=True)
+                      "source": it.get("source", ""),
+                      "publish_time": it.get("publish_time") or "",
+                      "extra": extra})
+    # 同内容去重：标题相似度 > 60% 只保留一条，保留质量更好的
+    cands = dedup_by_title(cands)
+    # 过滤时长过短的（< 60 秒）和过长的（> 30 分钟）
+    def _dur_ok(c):
+        extra = c.get("extra") or {}
+        if isinstance(extra, str):
+            try:
+                extra = json.loads(extra)
+            except Exception:
+                extra = {}
+        dur = extra.get("duration", 0) or 0
+        if isinstance(dur, str):
+            try:
+                dur = int(dur)
+            except Exception:
+                dur = 0
+        return 60 <= dur <= 1800 or dur == 0  # 0 表示未知，交给下载后检查
+    cands = [c for c in cands if _dur_ok(c)]
+    # 排序：标题质量 + 发布时间
+    def title_score(t):
+        # "林园"开头的标题优先（本人视频）
+        if t.startswith("林园"):
+            return 0
+        # 标题包含"林园"+冒号/引号（采访标题）
+        if "林园：" in t or "林园:" in t or '【林园' in t:
+            return 1
+        return 2
+    cands.sort(key=lambda c: (
+        title_score(c["title"]),               # 标题质量
+        c["publish_time"],                      # 时间倒序（取反）
+    ), reverse=False)
+    # 时间倒序：最新的在前
+    cands.reverse()
     return cands[:n]
 
 
@@ -274,8 +394,79 @@ def download(cand, dest, _retried=False):
         raise
 
 
+def weibo_refresh_url(page_url):
+    """从微博页面 URL 重新获取视频直链（直链会过期）。"""
+    import http.cookiejar, urllib.parse, re as _re
+    mid = page_url.rstrip("/").split("/")[-1]
+    log.info(f"    微博刷新直链: mid={mid}")
+    jar = http.cookiejar.CookieJar()
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+    op.addheaders = [("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")]
+    # 访客票据
+    fp = json.dumps({"os": "1", "browser": "Chrome120,0,0,0", "fonts": "undefined",
+                     "screenInfo": "1920*1080*24", "plugins": ""})
+    body = urllib.parse.urlencode({"cb": "gen_callback", "fp": fp}).encode()
+    txt = op.open(urllib.request.Request(
+        "https://passport.weibo.com/visitor/genvisitor",
+        data=body, headers={"Content-Type": "application/x-www-form-urlencoded",
+                           "Referer": "https://passport.weibo.com/visitor/visitor"}),
+        timeout=25).read().decode("utf-8", "ignore")
+    m = _re.search(r"\((\{.*\})\)", txt, _re.S)
+    if not m:
+        raise RuntimeError("微博 genvisitor 失败")
+    tid = json.loads(m.group(1))["data"]["tid"]
+    op.open(urllib.request.Request(
+        f"https://passport.weibo.com/visitor/visitor?a=incarnate&t={urllib.parse.quote(tid)}"
+        "&w=2&c=095&gc=&cb=cross_domain&from=weibo&_rand=0"), timeout=25).read()
+    try:
+        op.open("https://weibo.com/", timeout=20).read()
+    except Exception:
+        pass
+    xsrf = next((c.value for c in jar if c.name == "XSRF-TOKEN"), "")
+    # 搜索 API 找到这条微博
+    data = json.loads(op.open(urllib.request.Request(
+        f"https://weibo.com/ajax/statuses/show?id={mid}",
+        headers={"Accept": "application/json", "X-XSRF-TOKEN": xsrf,
+                 "Referer": f"https://weibo.com/"}), timeout=25).read().decode())
+    media = (data.get("page_info") or {}).get("media_info") or {}
+    vurl = (media.get("stream_url_hd") or media.get("stream_url")
+            or media.get("mp4_hd_url") or media.get("mp4_sd_url") or "")
+    if not vurl:
+        raise RuntimeError("微博无视频或直链提取失败")
+    log.info(f"    ✓ 新直链: {vurl[:60]}")
+    return vurl
+
+
 def _download_inner(cand, dest):
-    if cand["video_url"]:                                # 微博等直链
+    if cand["video_url"] and "weibocdn" in cand["video_url"]:
+        # 微博直链 → 带 Referer 下载
+        log.info("    微博直链，带 Referer 下载")
+        try:
+            subprocess.run(["curl", "-sfL", "--max-time", "240",
+                            "-H", "Referer: https://weibo.com/",
+                            "-o", str(dest), cand["video_url"]], check=True)
+        except subprocess.CalledProcessError:
+            # 直链过期/403 → 刷新直链重试
+            log.info("    直链下载失败，刷新微博直链")
+            new_url = weibo_refresh_url(cand["page_url"])
+            cand["video_url"] = new_url
+            subprocess.run(["curl", "-sfL", "--max-time", "240",
+                            "-H", "Referer: https://weibo.com/",
+                            "-o", str(dest), new_url], check=True)
+        if not dest.exists() or dest.stat().st_size < 10240:
+            # 文件太小 → 可能是错误页面，刷新直链重试
+            if cand["video_url"] and "weibocdn" in cand.get("video_url", ""):
+                log.info("    文件异常，刷新微博直链")
+                new_url = weibo_refresh_url(cand["page_url"])
+                cand["video_url"] = new_url
+                subprocess.run(["curl", "-sfL", "--max-time", "240",
+                                "-H", "Referer: https://weibo.com/",
+                                "-o", str(dest), new_url], check=True)
+            if not dest.exists() or dest.stat().st_size < 10240:
+                raise RuntimeError("微博直链下载失败")
+    elif cand["video_url"]:
+        # 其他直链 → 直接下载
         subprocess.run(["curl", "-sfL", "--max-time", "240", "-o",
                         str(dest), cand["video_url"]], check=True)
     else:                                                # B站：带指纹的会话走全程
@@ -304,6 +495,7 @@ def _download_inner(cand, dest):
                     break
                 f.write(chunk)
     dur = mp4_duration(dest)
+    log.info(f"    文件大小: {dest.stat().st_size/1024:.0f} KB, 时长: {dur:.0f}s")
     if not (MIN_DUR <= dur <= MAX_DUR):
         raise RuntimeError(f"时长 {dur:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]")
     return dur
@@ -379,15 +571,19 @@ def dispatch_handler(event=None, context=None):
                 asset_url = c["page_url"]
                 dur = 0
                 log.info("    B站源 → 透传页面 URL 给 CI 下载")
-            elif not c["video_url"] and c["page_url"]:
-                # 非B站但无直链（微博/腾讯/抖音等）→ 透传页面 URL 给 CI 提取
+            elif c["video_url"]:
+                # 有直链（微博等）→ FC 下载后上传到 staging release
+                dest = tmp / f"{c['slug']}.mp4"
+                dur = download(c, dest)
+                asset_url = upload_asset(rel, dest)
+            elif c["page_url"]:
+                # 非B站但无直链（腾讯新闻/抖音等）→ 透传页面 URL 给 CI
+                # CI 用 yt-dlp 下载，可能失败
                 asset_url = c["page_url"]
                 dur = 0
                 log.info(f"    非B站源 → 透传页面 URL 给 CI 下载: {c['page_url'][:60]}")
             else:
-                dest = tmp / f"{c['slug']}.mp4"
-                dur = download(c, dest)
-                asset_url = upload_asset(rel, dest)
+                raise RuntimeError("无可用 URL")
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
@@ -400,17 +596,58 @@ def dispatch_handler(event=None, context=None):
             save_state(st)
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s，定时 +{delay}h）")
         except Exception as e:
-            st["rejected"].append({"key": c["key"], "video_id": c["video_id"],
-                                   "ts": int(time.time())})
-            save_state(st)
-            log.warning(f"    ✗ {e}")
+            _record_failure(st, c, e)
+
+    _process_retries(st)
     return {"dispatched": len([c for c in cands])}
+
+
+def _record_failure(st, c, e):
+    """记录调度失败，3 次后才真正 rejected。"""
+    retry_list = st.setdefault("pending_retry", [])
+    existing = next((x for x in retry_list if x.get("key") == c["key"]), None)
+    if existing:
+        existing["retries"] = existing.get("retries", 0) + 1
+        existing["last_error"] = str(e)
+        existing["ts"] = int(time.time())
+        if existing["retries"] >= 3:
+            st["rejected"].append({"key": c["key"], "video_id": c["video_id"],
+                                   "ts": int(time.time()), "error": str(e)})
+            st["pending_retry"] = [x for x in retry_list if x.get("key") != c["key"]]
+            log.warning(f"    ✗ {c.get('slug', c['key'])} 失败 3 次，移入 rejected: {e}")
+        else:
+            log.warning(f"    ✗ {c.get('slug', c['key'])} 失败 {existing['retries']}/3: {e}")
+    else:
+        retry_list.append({
+            "key": c["key"], "video_id": c["video_id"],
+            "title": c["title"], "video_url": c.get("video_url"),
+            "page_url": c.get("page_url"), "source": c.get("source"),
+            "extra": c.get("extra"), "retries": 1,
+            "last_error": str(e), "ts": int(time.time())
+        })
+        log.warning(f"    ✗ {c.get('slug', c['key'])} 失败 1/3: {e}，稍后重试")
+    save_state(st)
+
+
+def _process_retries(st):
+    """把冷却完成的重试项重新加入候选队列（在下次 dispatch 时重试）。"""
+    retry_list = st.get("pending_retry", [])
+    if not retry_list:
+        return
+    now = time.time()
+    ready = [x for x in retry_list if now - x.get("ts", 0) > 30 * 60]
+    if not ready:
+        return
+    # 重试项不在这里直接调度，只是从 retry 移到候选可见状态
+    # 实际重试会在下次 dispatch 时由 pick() 重新处理
+    log.info(f"有 {len(ready)} 条失败项达到重试冷却时间")
 
 
 # ---------- Handler 2：投稿 ----------
 
 def publish_handler(event=None, context=None):
     st = load_state()
+    now = time.time()
     pending = [e for e in st["dispatched"]
                if e.get("slug") and e["slug"] not in st["published"]
                and not e.get("failed")]
@@ -418,22 +655,42 @@ def publish_handler(event=None, context=None):
         log.info("无待投稿件")
         return {"published": 0}
 
-    # 频率控制：每次只投 1 条，避免触发 B站风控
-    e = pending[0]
-    slug = e["slug"]
-    log.info(f"准备投稿: {slug} (共 {len(pending)} 条待发布，本次只投 1 条)")
-
     runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
                      "?status=success&per_page=10").get("workflow_runs", [])
     arts = {}
+    art_ids = {}
     for run in runs:
         for a in gh("GET", f"/actions/runs/{run['id']}/artifacts").get("artifacts", []):
             if a["name"].startswith("deliver-") and not a.get("expired"):
-                arts[a["name"][8:]] = a["archive_download_url"]
+                slug_key = a["name"][8:]
+                arts[slug_key] = a["archive_download_url"]
+                art_ids[slug_key] = a["id"]
 
-    if slug not in arts:
-        log.info(f"{slug} 成片未就绪，下轮再看")
+    # 遍历 pending，找到第一个有 artifact 的
+    # 超过 48 小时无 artifact → 标记为 failed，避免永远 pending
+    e = None
+    slug = None
+    for candidate in pending:
+        s = candidate["slug"]
+        if s in arts:
+            e = candidate
+            slug = s
+            break
+        if now - candidate.get("ts", 0) > 48 * 3600:
+            candidate["failed"] = True
+            log.info(f"{s} 超过 48h 无 artifact，标记失败")
+        else:
+            log.info(f"{s} 成片未就绪，跳过")
+
+    # 保存 failed 标记
+    if any(c.get("failed") for c in pending):
+        save_state(st)
+
+    if e is None:
+        log.info("无可投稿件（所有待发布视频都无 artifact 或已超时）")
         return {"published": 0}
+
+    log.info(f"准备投稿: {slug} (共 {len(pending)} 条待发布，本次只投 1 条)")
 
     tmp = Path(tempfile.mkdtemp())
     with open(tmp / "cookies.json", "w") as f:
@@ -506,18 +763,52 @@ def publish_handler(event=None, context=None):
     if cover:
         cmd += ["--cover", str(cover)]
     
-    # 定时发布：设置 2 小时后发布，避免触发风控
-    # B站风控检测的是短时间内的投稿频率，定时发布不会触发风控
+    # 定时发布：重新计算延迟，基于当前时间而不是 dispatch 时的时间
+    # dispatch 时计算 delay → publish 时直接用会导致时间不准
+    # publish 运行时间可能已经晚于 dispatch 时的时间
     delay = int(e.get("delay_hours") or 0)
     if delay > 0:
-        # 如果已经设置了延迟，使用原来的延迟
-        cmd += ["--dtime", str(int(time.time()) + delay * 3600)]
-        log.info(f"使用原延迟: {delay} 小时")
+        # 重新计算：基于当前时间到下一个好时段的延迟
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        available_slots = []
+        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
+            slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if slot_time > now:
+                available_slots.append(slot_time)
+        tomorrow = now + timedelta(days=1)
+        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
+            slot_time = tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            available_slots.append(slot_time)
+        if available_slots:
+            target = available_slots[0]
+            delay_seconds = int((target - now).total_seconds())
+            cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
+            log.info(f"重新计算延迟: 目标 {target.strftime('%H:%M')}，延迟 {delay_seconds/3600:.1f}h")
+        else:
+            cmd += ["--dtime", str(int(time.time()) + 2 * 3600)]
+            log.info(f"使用默认延迟: 2 小时")
     else:
-        # 默认 2 小时后发布
-        default_delay = 2
-        cmd += ["--dtime", str(int(time.time()) + default_delay * 3600)]
-        log.info(f"使用默认延迟: {default_delay} 小时")
+        # 没有设置延迟，使用默认的好时段
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        available_slots = []
+        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
+            slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if slot_time > now:
+                available_slots.append(slot_time)
+        tomorrow = now + timedelta(days=1)
+        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
+            slot_time = tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            available_slots.append(slot_time)
+        if available_slots:
+            target = available_slots[0]
+            delay_seconds = int((target - now).total_seconds())
+            cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
+            log.info(f"重新计算延迟: 目标 {target.strftime('%H:%M')}，延迟 {delay_seconds/3600:.1f}h")
+        else:
+            cmd += ["--dtime", str(int(time.time()) + 2 * 3600)]
+            log.info(f"使用默认延迟: 2 小时")
     
     # 设置 PYTHONPATH 环境变量
     env = os.environ.copy()
@@ -528,10 +819,18 @@ def publish_handler(event=None, context=None):
     out = (r.stdout or "") + (r.stderr or "")
     m = re.search(r'BV\w{10}', out)
     if r.returncode == 0 and m:
-        st["published"][slug] = {"bvid": m.group(0), "ts": int(time.time()),
+        bvid = m.group(0)
+        st["published"][slug] = {"bvid": bvid, "ts": int(time.time()),
                                  "title": title}
+        # 投稿成功后删除 GitHub Actions artifact，避免占用空间
+        if slug in art_ids:
+            try:
+                gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
+                log.info(f"✓ 已删除 artifact: deliver-{slug}")
+            except Exception as ae:
+                log.warning(f"删除 artifact 失败: {ae}")
         save_state(st)
-        log.info(f"✅ 已投 https://www.bilibili.com/video/{m.group(0)}")
+        log.info(f"✅ 已投 https://www.bilibili.com/video/{bvid}")
         done += 1
     else:
         # 输出完整错误信息，方便调试
@@ -543,5 +842,5 @@ def publish_handler(event=None, context=None):
         tail = [ln for ln in out.splitlines() if "code" in ln or "Error" in ln or "error" in ln][-3:]
         if tail:
             log.error(f"  错误信息: {'; '.join(tail)[:300]}")
-    
+
     return {"published": done}
