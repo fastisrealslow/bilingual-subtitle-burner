@@ -592,7 +592,9 @@ def dispatch_handler(event=None, context=None):
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
-                                     "title": c["title"], "delay_hours": delay})
+                                     "title": c["title"], "delay_hours": delay,
+                                     "source": c.get("source", ""),
+                                     "publish_time": c.get("publish_time", "")})
             save_state(st)
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s，定时 +{delay}h）")
         except Exception as e:
@@ -710,10 +712,12 @@ def publish_handler(event=None, context=None):
     
     # 优先用 artifact 里 meta.json 的 LLM 文案 + 封面
     title, desc, tags, cover = e.get("title") or slug, "", "林园,价值投资", None
+    meta_info = {}
     meta_f = tmp / slug / "meta.json"
     if meta_f.exists():
         try:
             mj = json.loads(meta_f.read_text(encoding="utf-8"))
+            meta_info = mj
             title = mj.get("title") or title
             desc = mj.get("desc", "")
             tags = ",".join(mj.get("tags", ["林园", "价值投资"]))
@@ -820,8 +824,19 @@ def publish_handler(event=None, context=None):
     m = re.search(r'BV\w{10}', out)
     if r.returncode == 0 and m:
         bvid = m.group(0)
-        st["published"][slug] = {"bvid": bvid, "ts": int(time.time()),
-                                 "title": title}
+        st["published"][slug] = {
+            "bvid": bvid,
+            "ts": int(time.time()),
+            "title": title,
+            "source_platform": meta_info.get("source_platform", e.get("source", "")),
+            "source_url": e.get("source_url", ""),
+            "watermark_cropped": meta_info.get("watermark_cropped", True),
+            "subtitles_burned": meta_info.get("subtitles_burned", True),
+            "has_existing_subtitles": meta_info.get("has_existing_subtitles", False),
+            "vertical": meta_info.get("vertical", False),
+            "duration_sec": meta_info.get("duration_sec", 0),
+            "publish_time": e.get("publish_time", "") or time.strftime("%Y-%m-%dT%H:%M:%S"),
+        }
         # 投稿成功后删除 GitHub Actions artifact，避免占用空间
         if slug in art_ids:
             try:
