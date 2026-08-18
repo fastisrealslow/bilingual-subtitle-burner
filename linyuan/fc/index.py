@@ -669,7 +669,7 @@ def publish_handler(event=None, context=None):
                 art_ids[slug_key] = a["id"]
 
     # 遍历 pending，找到第一个有 artifact 的
-    # 超过 48 小时无 artifact → 标记为 failed，避免永远 pending
+    # 超过 12 小时无 artifact → 标记为 failed，避免永远 pending
     e = None
     slug = None
     for candidate in pending:
@@ -678,9 +678,9 @@ def publish_handler(event=None, context=None):
             e = candidate
             slug = s
             break
-        if now - candidate.get("ts", 0) > 48 * 3600:
+        if now - candidate.get("ts", 0) > 12 * 3600:
             candidate["failed"] = True
-            log.info(f"{s} 超过 48h 无 artifact，标记失败")
+            log.info(f"{s} 超过 12h 无 artifact，标记失败")
         else:
             log.info(f"{s} 成片未就绪，跳过")
 
@@ -701,9 +701,16 @@ def publish_handler(event=None, context=None):
 
     done = 0
     zf = tmp / f"{slug}.zip"
-    subprocess.run(["curl", "-sfL", "--max-time", "300", "-C", "-",
-                    "-H", f"Authorization: Bearer {TOKEN}",
-                    "-o", str(zf), arts[slug]], check=True)
+    dl = subprocess.run(["curl", "-sfL", "--max-time", "300", "-C", "-",
+                         "-H", f"Authorization: Bearer {TOKEN}",
+                         "-o", str(zf), arts[slug]], capture_output=True)
+    if dl.returncode != 0:
+        log.error(f"✗ {slug} artifact 下载失败: {dl.stderr.decode()[:200]}")
+        # artifact 可能已过期被删，标记 failed 避免一直卡在这
+        e["failed"] = True
+        save_state(st)
+        log.info(f"{slug} artifact 不可用，标记为失败")
+        return {"published": 0}
     subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
     video = tmp / slug / "final.mp4"
     if not video.exists():
