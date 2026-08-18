@@ -91,19 +91,24 @@ async function load() {
       `).join('') : '<div class="empty">暂无</div>';
 
     document.getElementById('pending').innerHTML = pending.length ?
-      pending.map(e => `
+      pending.map(e => {
+        const age = Math.floor((Date.now()/1000 - (e.ts||0))/3600);
+        const status = e.failed ? '❌ 已失败' : (age > 6 ? '⏳ 出片可能卡住' : '⏳ 等待出片 + 投稿');
+        const statusClass = e.failed ? 'error' : (age > 6 ? 'pending' : 'pending');
+        return `
         <div class="item">
           <div class="item-title">${e.title || e.slug}</div>
-          <div class="item-meta">${e.slug} · 调度于 ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}</div>
-          <div class="item-status pending">等待出片 + 投稿</div>
+          <div class="item-meta">${e.slug} · 调度于 ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')} · 已等待 ${age} 小时</div>
+          <div class="item-status ${statusClass}">${status}</div>
         </div>
-      `).join('') : '<div class="empty">暂无</div>';
+      `;
+      }).join('') : '<div class="empty">暂无</div>';
 
     document.getElementById('rejected').innerHTML = rejected.length ?
-      rejected.slice(-10).map(e => `
+      rejected.slice(-10).reverse().map(e => `
         <div class="item">
           <div class="item-title">${e.video_id || e.key}</div>
-          <div class="item-meta">${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}</div>
+          <div class="item-meta">${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}${e.error ? ' · ' + e.error : ''}</div>
         </div>
       `).join('') : '<div class="empty">暂无</div>';
 
