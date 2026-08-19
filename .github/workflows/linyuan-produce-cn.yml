@@ -37,6 +37,11 @@ on:
         required: false
         default: '0'
         type: string
+      source_platform:
+        description: '来源平台（bilibili/weibo/tencent 等）'
+        required: false
+        default: ''
+        type: string
       auto_publish:
         description: '出片后在 CI 直接投稿（已实测：upos 对海外 runner 零吞吐，物理不可行；投稿由境内 publish_worker 完成，此开关仅留作将来网络变化时的备用）'
         required: false
@@ -160,7 +165,8 @@ jobs:
             --source "${{ steps.src.outputs.path }}" \
             --slug "${{ inputs.slug }}" \
             --speaker "${{ inputs.speaker }}" \
-            --occasion "${{ inputs.occasion }}"
+            --occasion "${{ inputs.occasion }}" \
+            --source-platform "${{ inputs.source_platform }}"
 
       - name: 上传成片到 Artifact
         uses: actions/upload-artifact@v4
