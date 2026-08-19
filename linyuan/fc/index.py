@@ -65,16 +65,16 @@ def get_publish_delay(slot_index: int) -> int:
     Returns:
         延迟小时数（至少 1 小时，最多 24 小时）
     """
-    from datetime import datetime, timedelta
-    now = datetime.now()
-    
-    # 收集今天剩余 + 明天的时段
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone(timedelta(hours=8)))
+
+    # 收集今天剩余 + 明天的时段（北京时间）
     available_slots = []
     for hour, minute in PUBLISH_SLOTS:
         slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
         if slot_time > now:
             available_slots.append(slot_time)
-    
+
     # 添加明天的时段
     tomorrow = now + timedelta(days=1)
     for hour, minute in PUBLISH_SLOTS:
@@ -332,26 +332,96 @@ def pick(items, st, n):
     cands = [c for c in cands if _dur_ok(c)]
 
     def source_score(c):
-        """B站源通常更完整，优先。"""
-        return 0 if c.get("source", "").startswith("bilibili") else 1
+        """来源权威性评分。注意：B站搜索很多是二创，不绝对优先。"""
+        src = c.get("source", "")
+        if src.startswith("xueqiu"):
+            return 30   # 雪球：通常是一手访谈/股东大会
+        if src.startswith("tencent"):
+            return 28   # 腾讯新闻：官方媒体
+        if src.startswith("bilibili_api") or src.startswith("bilibili_space"):
+            return 25   # B站官方 API/空间：较可靠
+        if src.startswith("weibo"):
+            return 20   # 微博：可能一手，也可能片段
+        if src.startswith("bilibili_search"):
+            return 15   # B站搜索：二创可能性高
+        if src.startswith("douyin"):
+            return 12
+        if src.startswith("netease"):
+            return 10
+        return 10
 
     def title_score(t):
         t = t.lower()
-        # 高质量关键词：完整访谈/路演/直播回放
-        if any(k in t for k in ["完整版", "完整", "访谈", "路演", "直播回放", "最新采访", "最新发声", "全集"]):
-            return 0
-        # "林园"开头的标题优先（本人视频）
+        score = 0
+        # 高质量关键词：完整访谈/路演/直播回放/最新采访
+        high = ["完整版", "完整", "访谈", "路演", "直播回放", "最新采访", "最新发声", "全集", "最新", "股东大会"]
+        for k in high:
+            if k in t:
+                score += 10
+                break
+        # 有具体数字/观点
+        if __import__('re').search(r"\d+", t):
+            score += 8
+        # 核心投资主题
+        for k in ["投资", "医药", "消费", "茅台", "垄断", "AI", "风险", "回报"]:
+            if k in t:
+                score += 4
+        # "林园"开头（本人视频）
         if t.startswith("林园"):
-            return 1
-        # 标题包含"林园"+冒号/引号（采访标题）
-        if "林园：" in t or "林园:" in t or '【林园' in t:
-            return 2
-        return 3
+            score += 5
+        # 二创/剪辑类减分
+        low = ["精华版", "剪辑", "混剪", "恶搞", "鬼畜", "吐槽", "Reaction", " reaction"]
+        for k in low:
+            if k in t:
+                score -= 15
+        return score
 
-    # 排序：来源质量 → 标题质量 → 发布时间（新的在前）
-    # 先按时间倒序，再按来源+标题（稳定排序保持时间顺序）
-    cands.sort(key=lambda c: c["publish_time"], reverse=True)
-    cands.sort(key=lambda c: (source_score(c), title_score(c["title"])))
+    def freshness_score(c):
+        """发布时间越新越好，但同一场内容不重复。"""
+        try:
+            from datetime import datetime
+            pt = datetime.fromisoformat(c.get("publish_time", ""))
+            age_hours = (__import__('time').time() - pt.timestamp()) / 3600
+            if age_hours < 0:
+                return 20
+            if age_hours <= 24:
+                return 15
+            if age_hours <= 72:
+                return 10
+            if age_hours <= 168:
+                return 5
+            return 0
+        except Exception:
+            return 5
+
+    def duration_score(c):
+        """已知时长且合适的加分。"""
+        extra = c.get("extra") or {}
+        if isinstance(extra, str):
+            try:
+                extra = json.loads(extra)
+            except Exception:
+                extra = {}
+        dur = extra.get("duration", 0) or 0
+        if isinstance(dur, str):
+            try:
+                dur = int(dur)
+            except Exception:
+                dur = 0
+        if 120 <= dur <= 600:
+            return 10
+        if 600 < dur <= 1200:
+            return 8
+        if 60 <= dur < 120:
+            return 2
+        return 0  # 未知或太短/太长
+
+    def quality_score(c):
+        return (source_score(c) + title_score(c["title"]) +
+                freshness_score(c) + duration_score(c))
+
+    # 按综合质量分降序
+    cands.sort(key=lambda c: quality_score(c), reverse=True)
     return cands[:n]
 
 
@@ -814,52 +884,11 @@ def publish_handler(event=None, context=None):
     if cover:
         cmd += ["--cover", str(cover)]
     
-    # 定时发布：重新计算延迟，基于当前时间而不是 dispatch 时的时间
-    # dispatch 时计算 delay → publish 时直接用会导致时间不准
-    # publish 运行时间可能已经晚于 dispatch 时的时间
-    delay = int(e.get("delay_hours") or 0)
-    if delay > 0:
-        # 重新计算：基于当前时间到下一个好时段的延迟
-        from datetime import datetime, timedelta
-        now = datetime.now()
-        available_slots = []
-        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
-            slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-            if slot_time > now:
-                available_slots.append(slot_time)
-        tomorrow = now + timedelta(days=1)
-        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
-            slot_time = tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0)
-            available_slots.append(slot_time)
-        if available_slots:
-            target = available_slots[0]
-            delay_seconds = int((target - now).total_seconds())
-            cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
-            log.info(f"重新计算延迟: 目标 {target.strftime('%H:%M')}，延迟 {delay_seconds/3600:.1f}h")
-        else:
-            cmd += ["--dtime", str(int(time.time()) + 2 * 3600)]
-            log.info(f"使用默认延迟: 2 小时")
-    else:
-        # 没有设置延迟，使用默认的好时段
-        from datetime import datetime, timedelta
-        now = datetime.now()
-        available_slots = []
-        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
-            slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-            if slot_time > now:
-                available_slots.append(slot_time)
-        tomorrow = now + timedelta(days=1)
-        for hour, minute in [(12, 0), (18, 0), (21, 0)]:
-            slot_time = tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0)
-            available_slots.append(slot_time)
-        if available_slots:
-            target = available_slots[0]
-            delay_seconds = int((target - now).total_seconds())
-            cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
-            log.info(f"重新计算延迟: 目标 {target.strftime('%H:%M')}，延迟 {delay_seconds/3600:.1f}h")
-        else:
-            cmd += ["--dtime", str(int(time.time()) + 2 * 3600)]
-            log.info(f"使用默认延迟: 2 小时")
+    # 定时发布：重新计算延迟，基于当前北京时间而不是 dispatch 时的时间
+    delay_hours = get_publish_delay(0)
+    delay_seconds = delay_hours * 3600
+    cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
+    log.info(f"重新计算延迟: 目标时段 12:00/18:00/21:00（北京），延迟 {delay_hours}h")
     
     # 设置 PYTHONPATH 环境变量
     env = os.environ.copy()
