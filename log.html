@@ -73,8 +73,9 @@ a:hover { text-decoration: underline; }
   </div>
 </div>
 <script>
-// 优先走 GitHub Pages 同域，避免 raw.githubusercontent.com 跨域/墙问题
-const STATE_URL = './linyuan/.automation/fc_state.json';
+// 优先走 GitHub Pages 同域镜像（FC 会同步写 site/fc_state.json），
+// 避免 raw.githubusercontent.com 的跨域/加载失败问题。
+const STATE_URL = './site/fc_state.json';
 
 const PLATFORM_NAMES = {
   bilibili: 'B站',
