@@ -578,6 +578,50 @@ def weibo_refresh_url(page_url):
     return vurl
 
 
+def tencent_resolve_url(page_url):
+    """腾讯新闻页面 URL → (视频真直链, 时长秒)。两段解析：
+    getWebVideo 拿 vid → getinfo 换真直链。
+    playurl 字段是假直链（跳转页），必须走 getinfo。
+    时长用于下载前预检，短视频直接跳过。"""
+    m = re.search(r"(\d{8}[A-Z]\w+)", page_url or "")
+    if not m:
+        raise RuntimeError(f"无法提取腾讯文章 ID: {page_url}")
+    art_id = m.group(1)
+    log.info(f"    腾讯解析: article={art_id}")
+    req = urllib.request.Request(
+        f"https://i.news.qq.com/getWebVideo?id={art_id}&appver=29_android_7.6.10",
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0"})
+    data = json.loads(urllib.request.urlopen(req, timeout=25).read().decode("utf-8", "ignore"))
+    if data.get("ret") != 0:
+        raise RuntimeError(f"getWebVideo 失败 ret={data.get('ret')}")
+    video = ((data.get("video_channel") or {}).get("video") or {})
+    vid = video.get("vid") or ""
+    if not vid:
+        raise RuntimeError("腾讯文章无视频")
+    # 时长格式 "MM:SS" → 秒，用于下载前预检
+    dur = 0
+    dm = re.match(r"(\d+):(\d+)(?::(\d+))?", str(video.get("duration") or ""))
+    if dm:
+        parts = [int(x) for x in dm.groups() if x is not None]
+        dur = (parts[0] * 60 + parts[1]) if len(parts) == 2 else (parts[0] * 3600 + parts[1] * 60 + parts[2])
+    info_req = urllib.request.Request(
+        f"http://vv.video.qq.com/getinfo?vids={vid}&defaultfmt=mp4",
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0"})
+    raw = urllib.request.urlopen(info_req, timeout=25).read().decode("utf-8", "ignore")
+    if raw.startswith("<?xml"):
+        em = re.search(r"<em>(\w+)</em>", raw)
+        raise RuntimeError(f"getinfo 拒绝 vid={vid} code={em.group(1) if em else '?'}（视频可能已被限制播放）")
+    info = json.loads(raw)
+    item = ((info.get("vl") or {}).get("vl") or [{}])[0]
+    host = ((item.get("ul") or {}).get("ui") or [{}])[0].get("url", "")
+    fn, vkey = item.get("fn", ""), item.get("fvkey", "")
+    if not (host and fn and vkey):
+        raise RuntimeError("getinfo 字段缺失")
+    url = f"{host.rstrip('/')}/{fn}?vkey={vkey}"
+    log.info(f"    ✓ 腾讯直链: {url[:70]}")
+    return url, dur
+
+
 def _download_inner(cand, dest):
     if cand["video_url"] and "weibocdn" in cand["video_url"]:
         # 微博直链 → 带 Referer 下载
@@ -715,6 +759,16 @@ def dispatch_handler(event=None, context=None):
                 asset_url = c["page_url"]
                 dur = 0
                 log.info("    B站源 → 透传页面 URL 给 CI 下载")
+            elif "news.qq.com" in (c["page_url"] or ""):
+                # 腾讯新闻：yt-dlp 下不了 blob 页面，FC 直接解析真直链下载
+                vurl, dur_hint = tencent_resolve_url(c["page_url"])
+                if dur_hint and not (MIN_DUR <= dur_hint <= MAX_DUR):
+                    raise RuntimeError(f"腾讯时长预检 {dur_hint:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]")
+                dest = tmp / f"{c['slug']}.mp4"
+                c2 = dict(c)
+                c2["video_url"] = vurl
+                dur = download(c2, dest)
+                asset_url = upload_asset(rel, dest)
             elif c["video_url"]:
                 # 有直链（微博等）→ FC 下载后上传到 staging release
                 dest = tmp / f"{c['slug']}.mp4"
@@ -833,8 +887,9 @@ def publish_handler(event=None, context=None):
         if age > 12 * 3600:
             candidate["failed"] = True
             log.info(f"{s} 超过 12h 无 artifact，标记失败")
-        elif retries < 2 and now - last_retry > 6 * 3600:
+        elif retries < 2 and now - max(candidate.get("ts", 0), last_retry) > 6 * 3600:
             # 自动重试出片：用之前保存的 asset_url 重新触发 workflow
+            # 注意用 max(ts, last_retry)：刚调度的条目（出片还在跑）不能重触发
             asset_url = candidate.get("asset_url") or candidate.get("source_url")
             if asset_url:
                 try:
