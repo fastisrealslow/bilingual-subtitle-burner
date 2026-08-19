@@ -96,6 +96,51 @@ def get_publish_delay(slot_index: int) -> int:
     return max(1, min(24, delay_hours))
 
 
+def platform_of(source):
+    """把监控源名归一化成平台名（供日志页显示）。"""
+    s = (source or "").lower()
+    if s.startswith("bilibili"):
+        return "bilibili"
+    if s.startswith("weibo"):
+        return "weibo"
+    if s.startswith("tencent"):
+        return "tencent"
+    if s.startswith("xueqiu"):
+        return "xueqiu"
+    if s.startswith("douyin"):
+        return "douyin"
+    if s.startswith("haokan"):
+        return "haokan"
+    if s.startswith("netease"):
+        return "netease"
+    return s or "unknown"
+
+
+def pick_publish_slot(st):
+    """选择发布时间段（北京时间），避开已占用的时段，防止多条视频同一时段
+    集中发布触发 B站风控。返回 (target_datetime, delay_seconds)。"""
+    from datetime import datetime, timedelta, timezone
+    tz = timezone(timedelta(hours=8))
+    now = datetime.now(tz)
+    available = []
+    for hour, minute in PUBLISH_SLOTS:
+        t = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if t > now:
+            available.append(t)
+    tomorrow = now + timedelta(days=1)
+    for hour, minute in PUBLISH_SLOTS:
+        available.append(tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0))
+    # 已占用的时段（epoch 秒，只考虑未来 48h 内的）
+    now_epoch = time.time()
+    reserved = {int(ts) for ts in st.get("scheduled", [])
+                if isinstance(ts, (int, float)) and now_epoch < ts <= now_epoch + 48 * 3600}
+    for t in available:
+        if int(t.timestamp()) not in reserved:
+            return t, int((t - now).total_seconds())
+    # 全部被占用 → 退而选最早可用时段
+    t = available[0]
+    return t, int((t - now).total_seconds())
+
 
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 COOKIES_JSON = os.environ.get("BILIBILI_COOKIES", "")
@@ -103,6 +148,9 @@ COOKIES_JSON = os.environ.get("BILIBILI_COOKIES", "")
 # FC 实例可复用（热启动），状态文件放 /tmp 能在短时间内防重；
 # 冷启动会丢，所以 dispatched 名单同时维护在 GitHub 侧（见 state 函数）
 STATE_KEY = "linyuan/.automation/fc_state.json"
+# 日志页（GitHub Pages）镜像副本：Pages 不服务 .automation 点目录，
+# 所以另存一份到非点路径 site/ 供 log.html 同域读取。
+SITE_STATE_KEY = "site/fc_state.json"
 
 
 # ---------- GitHub 基础 ----------
@@ -150,11 +198,25 @@ def save_state(st, retries=3):
             except Exception as e:
                 log.warning(f"取 sha 失败（首次创建时正常）：{e}")
             gh("PUT", f"/contents/{STATE_KEY}", payload)
-            return
+            break
         except Exception as e:
             log.warning(f"save_state 第 {attempt+1} 次失败：{e}")
             time.sleep(2 * (attempt + 1))
-    log.error("save_state 多次失败，本轮状态未保存（下轮会基于仓库里的旧状态重试）")
+    else:
+        log.error("save_state 多次失败，本轮状态未保存（下轮会基于仓库里的旧状态重试）")
+        return
+    # 镜像到 site/ 供 GitHub Pages 日志页读取（best-effort，失败不影响主流程）
+    try:
+        payload = {"message": "chore(fc): 同步日志页状态", "content": content}
+        try:
+            cur = gh("GET", f"/contents/{SITE_STATE_KEY}?ref=main&_={time.time()}")
+            if isinstance(cur, dict) and cur.get("sha"):
+                payload["sha"] = cur["sha"]
+        except Exception:
+            pass
+        gh("PUT", f"/contents/{SITE_STATE_KEY}", payload)
+    except Exception as e:
+        log.warning(f"site 镜像同步失败（不影响主流程）：{e}")
 
 
 # ---------- 选片 ----------
@@ -671,7 +733,7 @@ def dispatch_handler(event=None, context=None):
                 "inputs": {"source": asset_url, "slug": c["slug"],
                            "speaker": "林园", "occasion": c["title"][:30],
                            "delay_hours": "0", "auto_publish": "false",
-                           "source_platform": c.get("source", "") or ""}})
+                           "source_platform": platform_of(c.get("source", ""))}})
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
@@ -885,11 +947,10 @@ def publish_handler(event=None, context=None):
     if cover:
         cmd += ["--cover", str(cover)]
     
-    # 定时发布：重新计算延迟，基于当前北京时间而不是 dispatch 时的时间
-    delay_hours = get_publish_delay(0)
-    delay_seconds = delay_hours * 3600
+    # 定时发布：选择未占用的好时段，避免多条视频同一时段集中发布触发风控
+    target_slot, delay_seconds = pick_publish_slot(st)
     cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
-    log.info(f"重新计算延迟: 目标时段 12:00/18:00/21:00（北京），延迟 {delay_hours}h")
+    log.info(f"定时发布: {target_slot.strftime('%m-%d %H:%M')}（北京），延迟 {delay_seconds/3600:.1f}h")
     
     # 设置 PYTHONPATH 环境变量
     env = os.environ.copy()
@@ -905,7 +966,7 @@ def publish_handler(event=None, context=None):
             "bvid": bvid,
             "ts": int(time.time()),
             "title": title,
-            "source_platform": meta_info.get("source_platform", e.get("source", "")),
+            "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", "")),
             "source_url": e.get("source_url", ""),
             "watermark_cropped": meta_info.get("watermark_cropped", True),
             "subtitles_burned": meta_info.get("subtitles_burned", True),
@@ -914,6 +975,9 @@ def publish_handler(event=None, context=None):
             "duration_sec": meta_info.get("duration_sec", 0),
             "publish_time": e.get("publish_time", "") or time.strftime("%Y-%m-%dT%H:%M:%S"),
         }
+        # 记录已占用的发布时段，防止下一条扎堆；只保留未来 48h 内的预约
+        st.setdefault("scheduled", []).append(int(target_slot.timestamp()))
+        st["scheduled"] = [x for x in st["scheduled"] if x > time.time() - 3600]
         # 投稿成功后删除 GitHub Actions artifact，避免占用空间
         if slug in art_ids:
             try:
