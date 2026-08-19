@@ -670,7 +670,8 @@ def dispatch_handler(event=None, context=None):
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
                            "speaker": "林园", "occasion": c["title"][:30],
-                           "delay_hours": "0", "auto_publish": "false"}})
+                           "delay_hours": "0", "auto_publish": "false",
+                           "source_platform": c.get("source", "") or ""}})
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
