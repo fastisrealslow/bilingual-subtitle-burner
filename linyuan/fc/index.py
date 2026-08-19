@@ -805,7 +805,7 @@ def publish_handler(event=None, context=None):
         return {"published": 0}
 
     runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
-                     "?status=success&per_page=10").get("workflow_runs", [])
+                     "?status=success&per_page=30").get("workflow_runs", [])
     arts = {}
     art_ids = {}
     for run in runs:
