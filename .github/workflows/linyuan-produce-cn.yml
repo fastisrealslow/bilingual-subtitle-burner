@@ -130,17 +130,12 @@ jobs:
             echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
           elif [[ "$SOURCE" =~ ^https?:// ]]; then
             mkdir -p _src
-            # GitHub release asset URL 需要 Authorization，yt-dlp 不带 token 会 404
-            if [[ "$SOURCE" =~ github\.com/.*/releases/assets/ ]]; then
-              echo "GitHub release asset，用 token 下载"
-              curl -sfL --retry 3 --max-time 300 \
-                -H "Authorization: Bearer $GITHUB_TOKEN" \
-                -H "Accept: application/octet-stream" \
-                -L -o _src/video.bin "$SOURCE"
-              # 尝试推断扩展名（GitHub asset 通常不带扩展名，用 file 或默认 mp4）
-              ext=$(file -b --mime-type _src/video.bin | sed 's|video/||; s|application/mp4|mp4|')
-              [ "$ext" = "bin" ] || [ -z "$ext" ] && ext="mp4"
-              mv _src/video.bin "_src/video.$ext"
+            # FC 上传的 staging release 素材：releases/download/<tag>/<slug>.mp4
+            # 公开仓库的 download 链接无需 token，直接 curl（yt-dlp 不认这种链接）
+            if [[ "$SOURCE" =~ github\.com/.*/releases/download/ ]]; then
+              echo "GitHub release 素材，直接下载"
+              curl -sfL --retry 3 --max-time 600 -o _src/video.mp4 "$SOURCE"
+              [ -s _src/video.mp4 ] || { echo "::error::release 素材下载失败"; exit 1; }
             else
               yt-dlp --socket-timeout 120 --retries 5 \
                 -f 'bv*[height<=1080]+ba/b[height<=1080]/b' \
