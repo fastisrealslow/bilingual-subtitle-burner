@@ -623,6 +623,7 @@ def main():
     ap.add_argument("--slug", required=True)
     ap.add_argument("--speaker", default="林园")
     ap.add_argument("--occasion", default="")
+    ap.add_argument("--source-platform", default="", help="来源平台（bilibili/weibo/tencent 等）")
     ap.add_argument("--dry-run", action="store_true", help="只挑金句，不出片")
     args = ap.parse_args()
 
@@ -746,24 +747,26 @@ def main():
         print(f"[封面] 生成失败（不阻断出片）：{e}", file=sys.stderr)
         cover = None
 
-    # 推断来源平台
-    src_str = str(src).lower()
-    if "bilibili" in src_str or "bv" in src_str:
-        platform = "bilibili"
-    elif "weibo" in src_str or "weibocdn" in src_str:
-        platform = "weibo"
-    elif "tencent" in src_str or "qq.com" in src_str:
-        platform = "tencent"
-    elif "xueqiu" in src_str:
-        platform = "xueqiu"
-    elif "douyin" in src_str:
-        platform = "douyin"
-    elif "haokan" in src_str:
-        platform = "haokan"
-    elif "netease" in src_str or "163.com" in src_str:
-        platform = "netease"
-    else:
-        platform = "unknown"
+    # 推断来源平台（优先用命令行传入的 --source-platform）
+    platform = args.source_platform or ""
+    if not platform:
+        src_str = str(src).lower()
+        if "bilibili" in src_str or "bv" in src_str:
+            platform = "bilibili"
+        elif "weibo" in src_str or "weibocdn" in src_str:
+            platform = "weibo"
+        elif "tencent" in src_str or "qq.com" in src_str:
+            platform = "tencent"
+        elif "xueqiu" in src_str:
+            platform = "xueqiu"
+        elif "douyin" in src_str:
+            platform = "douyin"
+        elif "haokan" in src_str:
+            platform = "haokan"
+        elif "netease" in src_str or "163.com" in src_str:
+            platform = "netease"
+        else:
+            platform = "unknown"
 
     (out / "meta.json").write_text(json.dumps({
         "slug": args.slug, "source": str(src), "speaker": args.speaker,
