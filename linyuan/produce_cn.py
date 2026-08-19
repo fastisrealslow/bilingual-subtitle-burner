@@ -142,29 +142,8 @@ def transcribe(src, work):
             words.extend(seg.words)
         print(f"  [{seg.start:7.1f}s] {seg.text.strip()[:46]}", flush=True)
 
-    cues, buf, start = [], [], None
-    for w in words:
-        tok = w.word.strip()
-        if not tok:
-            continue
-        # 过滤单独的语气词（没有信息量，反而让字幕跳动）
-        if len(tok) == 1 and tok in FILLER_WORDS:
-            continue
-        if start is None:
-            start = w.start
-        buf.append(tok)
-        t = "".join(buf)
-        if (tok[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
-            text = fix_terms(t.strip(BREAK + " "))
-            # 跳过纯语气词的帧
-            if text and not all(c in FILLER_WORDS for c in text):
-                cues.append({"start": start, "end": w.end, "text": text})
-            buf, start = [], None
-    if buf:
-        text = fix_terms("".join(buf).strip(BREAK + " "))
-        if text and not all(c in FILLER_WORDS for c in text):
-            cues.append({"start": start, "end": words[-1].end, "text": text})
-    
+    cues = _group_tokens_to_cues(words)
+
     # 合并间距太小的帧（防止字幕闪烁）
     merged = []
     for c in cues:
@@ -178,6 +157,88 @@ def transcribe(src, work):
     cues = [c for c in cues if c["text"]]
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[asr] {len(words)} 词 → {len(cues)} 条字幕")
+    return cues
+
+
+def _group_tokens_to_cues(words):
+    """把 whisper 词级 token 组成字幕条，保证不在词中间断开。
+
+    问题：whisper 会把双字词切成两个单字 token（医|生），
+    强制断句（MAX_CHARS）恰好落在词中间时，前后两条字幕各显示半个词。
+
+    方案 A（优先）：jieba 重新分词，按完整词组句，断点必在词边界。
+    方案 B（无 jieba 环境降级）：单字 lookahead —— 强制断句时若末 token
+    和下一 token 都是单字，多带一个 token（上限溢出 2 字），避免切词。
+    """
+    # 过滤语气词后的 token 流 (tok, start, end)
+    toks = []
+    for w in words:
+        tok = w.word.strip()
+        if not tok:
+            continue
+        if len(tok) == 1 and tok in FILLER_WORDS:
+            continue
+        toks.append((tok, w.start, w.end))
+    if not toks:
+        return []
+
+    try:
+        import jieba
+        import logging as _lg
+        jieba.setLogLevel(_lg.ERROR)
+        # 全文 + 每个字符所属 token 的时间映射
+        chars = []
+        for tok, ws, we in toks:
+            for ch in tok:
+                chars.append((ch, ws, we))
+        full = "".join(c[0] for c in chars)
+        cues, buf, start, pos = [], [], None, 0
+        for word in jieba.cut(full):
+            if not word:
+                continue
+            wlen = len(word)
+            if start is None:
+                start = chars[pos][1]
+            buf.append(word)
+            t = "".join(buf)
+            if (word[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
+                end_time = chars[pos + wlen - 1][2]
+                text = fix_terms(t.strip(BREAK + " "))
+                if text and not all(c in FILLER_WORDS for c in text):
+                    cues.append({"start": start, "end": end_time, "text": text})
+                buf, start = [], None
+            pos += wlen
+        if buf:
+            text = fix_terms("".join(buf).strip(BREAK + " "))
+            if text and not all(c in FILLER_WORDS for c in text):
+                cues.append({"start": start, "end": chars[-1][2], "text": text})
+        return cues
+    except ImportError:
+        pass
+
+    # 降级方案：原始 token 流 + 单字 lookahead 词边界保护
+    cues, buf, start = [], [], None
+    for i, (tok, ws, we) in enumerate(toks):
+        if start is None:
+            start = ws
+        buf.append(tok)
+        t = "".join(buf)
+        if (tok[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
+            # 词边界保护：强制断句时若末 token 和下一 token 都是单字，
+            # 多带一个 token（上限溢出 2 字），避免把双字词切成两半
+            if len(t) >= MAX_CHARS and len(tok) == 1 and tok[-1] not in BREAK:
+                nxt = next((x for x in toks[i + 1:i + 3]
+                            if not (len(x[0]) == 1 and x[0] in FILLER_WORDS)), None)
+                if nxt and len(nxt[0]) == 1 and len(t) < MAX_CHARS + 2:
+                    continue
+            text = fix_terms(t.strip(BREAK + " "))
+            if text and not all(c in FILLER_WORDS for c in text):
+                cues.append({"start": start, "end": we, "text": text})
+            buf, start = [], None
+    if buf:
+        text = fix_terms("".join(buf).strip(BREAK + " "))
+        if text and not all(c in FILLER_WORDS for c in text):
+            cues.append({"start": start, "end": toks[-1][2], "text": text})
     return cues
 
 
