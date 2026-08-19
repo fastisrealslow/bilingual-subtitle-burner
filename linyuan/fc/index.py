@@ -846,6 +846,33 @@ def _process_retries(st):
     log.info(f"有 {len(ready)} 条失败项达到重试冷却时间")
 
 
+OWNER_MID = os.environ.get("BILI_MID", "275211725")  # 园来滚雪球
+
+
+def bili_find_duplicate(title):
+    """查自己 B站空间是否已传过同标题视频。
+    2026-08-19 事故复盘：publish 上传成功但 save_state 失败 → 每小时重复上传，
+    单日出现 5 个相同视频。这是最后防线：投稿前查重，已存在直接补记状态。"""
+    if not title:
+        return None
+    try:
+        import urllib.parse as _up
+        url = (f"https://api.bilibili.com/x/series/recArchivesByKeywords"
+               f"?mid={OWNER_MID}&keywords={_up.quote(title[:20])}&ps=8&pn=1")
+        # 裸请求会被 B站 WAF 412，必须走带 buvid 指纹的会话
+        op = bili_opener()
+        req = urllib.request.Request(url, headers={
+            "Referer": f"https://space.bilibili.com/{OWNER_MID}/video",
+            "Accept": "application/json"})
+        data = json.loads(op.open(req, timeout=20).read().decode("utf-8", "ignore"))
+        for v in (data.get("data") or {}).get("archives") or []:
+            if (v.get("title") or "").strip() == title.strip():
+                return v.get("bvid")
+    except Exception as e:
+        log.warning(f"B站查重失败（不阻断，但无法防重复）: {e}")
+    return None
+
+
 # ---------- Handler 2：投稿 ----------
 
 def publish_handler(event=None, context=None):
@@ -877,6 +904,21 @@ def publish_handler(event=None, context=None):
     retried = 0
     for candidate in pending:
         s = candidate["slug"]
+        # 上轮上传中断的（uploading 标记仍在）：绝不能盲目重传——先查 B站
+        if candidate.get("uploading"):
+            dup = bili_find_duplicate(candidate.get("upload_title") or "")
+            if dup:
+                st["published"][s] = {"bvid": dup, "ts": int(time.time()),
+                                       "title": candidate.get("upload_title") or candidate.get("title", "")}
+                candidate.pop("uploading", None)
+                log.info(f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
+                save_state(st)
+            else:
+                candidate["failed"] = True
+                candidate.pop("uploading", None)
+                log.error(f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
+                save_state(st)
+            continue
         if s in arts:
             e = candidate
             slug = s
@@ -1006,6 +1048,20 @@ def publish_handler(event=None, context=None):
     target_slot, delay_seconds = pick_publish_slot(st)
     cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
     log.info(f"定时发布: {target_slot.strftime('%m-%d %H:%M')}（北京），延迟 {delay_seconds/3600:.1f}h")
+
+    # ── 投稿前双重防护（2026-08-19 五连发事故）──
+    # 1) 查 B站是否已有同标题视频（状态丢失时的自愈防线）
+    dup = bili_find_duplicate(title)
+    if dup:
+        st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
+                                 "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", ""))}
+        save_state(st)
+        log.info(f"⛔ {slug} 已在 B站存在（{dup}），补记状态跳过上传")
+        return {"published": 1}
+    # 2) 落盘上传意图：万一上传后崩溃，下轮凭 uploading 标记走恢复逻辑而非重传
+    e["uploading"] = True
+    e["upload_title"] = title
+    save_state(st)
     
     # 设置 PYTHONPATH 环境变量
     env = os.environ.copy()
@@ -1017,6 +1073,8 @@ def publish_handler(event=None, context=None):
     m = re.search(r'BV\w{10}', out)
     if r.returncode == 0 and m:
         bvid = m.group(0)
+        e.pop("uploading", None)
+        e.pop("upload_title", None)
         st["published"][slug] = {
             "bvid": bvid,
             "ts": int(time.time()),
