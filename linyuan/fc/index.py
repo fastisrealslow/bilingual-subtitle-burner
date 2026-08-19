@@ -39,7 +39,8 @@ DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
 
 MIN_DUR, MAX_DUR = 120, 1200            # 太短挑不出 3 段，太长 CI 转写拖不起
-MAX_PER_DAY = 2                          # 每天最多出几条（新号防限流）
+MAX_PER_DAY = 3                          # 每天最多成功调度几条
+MAX_ATTEMPTS = 6                         # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
@@ -329,21 +330,28 @@ def pick(items, st, n):
                 dur = 0
         return 60 <= dur <= 1800 or dur == 0  # 0 表示未知，交给下载后检查
     cands = [c for c in cands if _dur_ok(c)]
-    # 排序：标题质量 + 发布时间
+
+    def source_score(c):
+        """B站源通常更完整，优先。"""
+        return 0 if c.get("source", "").startswith("bilibili") else 1
+
     def title_score(t):
+        t = t.lower()
+        # 高质量关键词：完整访谈/路演/直播回放
+        if any(k in t for k in ["完整版", "完整", "访谈", "路演", "直播回放", "最新采访", "最新发声", "全集"]):
+            return 0
         # "林园"开头的标题优先（本人视频）
         if t.startswith("林园"):
-            return 0
+            return 1
         # 标题包含"林园"+冒号/引号（采访标题）
         if "林园：" in t or "林园:" in t or '【林园' in t:
-            return 1
-        return 2
-    cands.sort(key=lambda c: (
-        title_score(c["title"]),               # 标题质量
-        c["publish_time"],                      # 时间倒序（取反）
-    ), reverse=False)
-    # 时间倒序：最新的在前
-    cands.reverse()
+            return 2
+        return 3
+
+    # 排序：来源质量 → 标题质量 → 发布时间（新的在前）
+    # 先按时间倒序，再按来源+标题（稳定排序保持时间顺序）
+    cands.sort(key=lambda c: c["publish_time"], reverse=True)
+    cands.sort(key=lambda c: (source_score(c), title_score(c["title"])))
     return cands[:n]
 
 
@@ -553,16 +561,20 @@ def dispatch_handler(event=None, context=None):
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
-    cands = pick(items, st, MAX_PER_DAY)
-    log.info(f"候选 {len(cands)} 条")
+    cands = pick(items, st, MAX_ATTEMPTS)
+    log.info(f"候选 {len(cands)} 条，今日目标成功 {MAX_PER_DAY} 条")
 
     rel = staging_release_id()
     tmp = Path(tempfile.mkdtemp())
+    success = 0
     for i, c in enumerate(cands):
+        if success >= MAX_PER_DAY:
+            log.info(f"已达到今日目标 {MAX_PER_DAY} 条，停止调度")
+            break
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
                     hashlib.md5(c["key"].encode()).hexdigest()[:6]
-        delay = get_publish_delay(i)
+        delay = get_publish_delay(success)
         log.info(f"[{i+1}/{len(cands)}] {c['title'][:40]}")
         try:
             if not c["video_url"] and "bilibili.com/video/" in c["page_url"]:
@@ -597,12 +609,13 @@ def dispatch_handler(event=None, context=None):
                                      "source": c.get("source", ""),
                                      "publish_time": c.get("publish_time", "")})
             save_state(st)
+            success += 1
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s，定时 +{delay}h）")
         except Exception as e:
             _record_failure(st, c, e)
 
     _process_retries(st)
-    return {"dispatched": len([c for c in cands])}
+    return {"dispatched": success, "attempted": len(cands)}
 
 
 def _record_failure(st, c, e):
