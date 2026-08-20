@@ -293,7 +293,7 @@ def pick_highlights(cues, speaker, api_key, work):
         for i, c in enumerate(cues))
     prompt = f"""下面是{speaker}一段讲话的字幕，格式为「序号|时间|文本」。
 
-请挑出 3-4 个最有价值的**连续段落**，用于剪成约 {TARGET_SEC} 秒的短视频。
+请挑出 2-4 个最有价值的**连续段落**，用于剪成约 {TARGET_SEC} 秒的短视频。若素材本身较短（不到 2 分钟），选 2 段即可，宁缺毋滥。
 
 要求：
 1. 每段必须是连续的序号区间，且本身语义完整（有观点、有论证或有具体案例）
