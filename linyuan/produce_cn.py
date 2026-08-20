@@ -182,16 +182,19 @@ def _group_tokens_to_cues(words):
     if not toks:
         return []
 
-    # 停顿反推标点：返回带标点的 token 流
+    # 停顿反推标点：返回带标点的 token 流。
+    # 注意：标点 token 不占时间（start=end=prev_end）——
+    # 否则字幕结束时间会被推到下一词的开始，间隙归零，
+    # 全部帧被「合并间距太小」逻辑吞掉（2026-08-20 实际事故：1139 词→1 条字幕）。
     def with_punct(tokens):
         out, prev_end = [], None
         for tok, ws, we in tokens:
             if prev_end is not None:
                 gap = ws - prev_end
                 if gap > 0.6:
-                    out.append(("。", prev_end, ws))
+                    out.append(("。", prev_end, prev_end))
                 elif gap > 0.3:
-                    out.append(("，", prev_end, ws))
+                    out.append(("，", prev_end, prev_end))
             out.append((tok, ws, we))
             prev_end = we
         return out
