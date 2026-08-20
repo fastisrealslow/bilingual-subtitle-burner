@@ -38,9 +38,9 @@ WF_PRODUCE = "linyuan-produce-cn.yml"
 DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
 
-MIN_DUR, MAX_DUR = 120, 1200            # 太短挑不出 3 段，太长 CI 转写拖不起
-MAX_PER_DAY = 3                          # 每天最多成功调度几条
-MAX_ATTEMPTS = 6                         # 每天最多尝试调度几条（含下载失败的）
+MIN_DUR, MAX_DUR = 90, 1800             # 90s 可选 2-3 段；产能提升后时长窗口放宽
+MAX_PER_DAY = 5                          # 每天最多成功调度几条（用户 2026-08-20 要求）
+MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
@@ -52,8 +52,8 @@ TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须�
 # - 「二埋汰」是东北虎网红名
 NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群")
 
-# 投稿好时段：12:00, 18:00, 21:00（避开凌晨和深夜）
-PUBLISH_SLOTS = [(12, 0), (18, 0), (21, 0)]
+# 投稿好时段（北京）：主时段 + 次时段，防扎堆逻辑会自动错开
+PUBLISH_SLOTS = [(11, 0), (12, 30), (15, 0), (18, 0), (21, 0)]
 
 
 def get_publish_delay(slot_index: int) -> int:
