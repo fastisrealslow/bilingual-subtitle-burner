@@ -144,13 +144,13 @@ def transcribe(src, work):
 
     cues = _group_tokens_to_cues(words)
 
-    # 合并间距太小的帧（防止字幕闪烁）
+    # 合并间距太小的帧（防止字幕闪烁）；拼接时补分隔符避免文字粘连
     merged = []
     for c in cues:
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP:
-            # 合并到上一帧
             merged[-1]["end"] = c["end"]
-            merged[-1]["text"] += c["text"]
+            sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else "，"
+            merged[-1]["text"] += sep + c["text"]
         else:
             merged.append(dict(c))
     cues = merged
@@ -161,14 +161,14 @@ def transcribe(src, work):
 
 
 def _group_tokens_to_cues(words):
-    """把 whisper 词级 token 组成字幕条，保证不在词中间断开。
+    """把 whisper 词级 token 组成字幕条，保证不在词中间断开，并补全标点。
 
-    问题：whisper 会把双字词切成两个单字 token（医|生），
-    强制断句（MAX_CHARS）恰好落在词中间时，前后两条字幕各显示半个词。
-
-    方案 A（优先）：jieba 重新分词，按完整词组句，断点必在词边界。
-    方案 B（无 jieba 环境降级）：单字 lookahead —— 强制断句时若末 token
-    和下一 token 都是单字，多带一个 token（上限溢出 2 字），避免切词。
+    两个历史问题：
+    1. whisper 会把双字词切成两个单字 token（医|生），强制断句落在词中间时
+       前后两条字幕各显示半个词 → jieba 重新分词，断点必在词边界。
+    2. whisper 中文输出经常不带标点，断句逻辑依赖标点 → 没标点时只能靠
+       MAX_CHARS 硬切，句子全部连在一起（用户 2026-08-20 反馈）。
+       解法：用语音停顿反推标点 —— 词间隙 >0.6s 插句号，>0.3s 插逗号。
     """
     # 过滤语气词后的 token 流 (tok, start, end)
     toks = []
@@ -182,11 +182,31 @@ def _group_tokens_to_cues(words):
     if not toks:
         return []
 
+    # 停顿反推标点：返回带标点的 token 流
+    def with_punct(tokens):
+        out, prev_end = [], None
+        for tok, ws, we in tokens:
+            if prev_end is not None:
+                gap = ws - prev_end
+                if gap > 0.6:
+                    out.append(("。", prev_end, ws))
+                elif gap > 0.3:
+                    out.append(("，", prev_end, ws))
+            out.append((tok, ws, we))
+            prev_end = we
+        return out
+
+    toks = with_punct(toks)
+
+    def _clean(t):
+        # 只去首部标点/空格，保留尾部标点（可读性）
+        return fix_terms(t.lstrip(" " + BREAK))
+
     try:
         import jieba
         import logging as _lg
         jieba.setLogLevel(_lg.ERROR)
-        # 全文 + 每个字符所属 token 的时间映射
+        # 全文 + 每个字符所属 token 的时间映射（含合成的标点字符）
         chars = []
         for tok, ws, we in toks:
             for ch in tok:
@@ -203,13 +223,13 @@ def _group_tokens_to_cues(words):
             t = "".join(buf)
             if (word[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
                 end_time = chars[pos + wlen - 1][2]
-                text = fix_terms(t.strip(BREAK + " "))
+                text = _clean(t)
                 if text and not all(c in FILLER_WORDS for c in text):
                     cues.append({"start": start, "end": end_time, "text": text})
                 buf, start = [], None
             pos += wlen
         if buf:
-            text = fix_terms("".join(buf).strip(BREAK + " "))
+            text = _clean("".join(buf))
             if text and not all(c in FILLER_WORDS for c in text):
                 cues.append({"start": start, "end": chars[-1][2], "text": text})
         return cues
@@ -223,6 +243,13 @@ def _group_tokens_to_cues(words):
             start = ws
         buf.append(tok)
         t = "".join(buf)
+        # 标点 token：直接作为断句点
+        if len(tok) == 1 and tok in BREAK and len(t) >= MIN_CHARS:
+            text = _clean(t)
+            if text and not all(c in FILLER_WORDS for c in text):
+                cues.append({"start": start, "end": we, "text": text})
+            buf, start = [], None
+            continue
         if (tok[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
             # 词边界保护：强制断句时若末 token 和下一 token 都是单字，
             # 多带一个 token（上限溢出 2 字），避免把双字词切成两半
@@ -231,12 +258,12 @@ def _group_tokens_to_cues(words):
                             if not (len(x[0]) == 1 and x[0] in FILLER_WORDS)), None)
                 if nxt and len(nxt[0]) == 1 and len(t) < MAX_CHARS + 2:
                     continue
-            text = fix_terms(t.strip(BREAK + " "))
+            text = _clean(t)
             if text and not all(c in FILLER_WORDS for c in text):
                 cues.append({"start": start, "end": we, "text": text})
             buf, start = [], None
     if buf:
-        text = fix_terms("".join(buf).strip(BREAK + " "))
+        text = _clean("".join(buf))
         if text and not all(c in FILLER_WORDS for c in text):
             cues.append({"start": start, "end": toks[-1][2], "text": text})
     return cues
