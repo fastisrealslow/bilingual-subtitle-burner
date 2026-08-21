@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""出片：任意中文视频 → 3 分钟双语字幕短片。
+"""出片:任意中文视频 → 3 分钟双语字幕短片。
 
 和 bilingual-subtitle-burner 的 produce.py 的关系
 ------------------------------------------------
-produce.py 是给**英文片源**设计的（direction 写死 en2zh、srt_lang 写死 en），
-且依赖仓库里另外 5 个本地缺失的模块。这里不改它，而是针对中文源单独实现，
-复用同一套思路：转写 → 挑金句 → 翻译 → 烧字幕 → 拼接。
+produce.py 是给**英文片源**设计的(direction 写死 en2zh、srt_lang 写死 en),
+且依赖仓库里另外 5 个本地缺失的模块。这里不改它,而是针对中文源单独实现,
+复用同一套思路:转写 → 挑金句 → 翻译 → 烧字幕 → 拼接。
 
-针对中文股东会素材做的三处专门处理（produce.py 都没有）：
-  1. large-v3 + 词级时间戳重新组句 —— medium 会切出 60 秒一段的巨块没法当字幕
-  2. 术语表纠正 ASR 专名 —— 现场录音把「安宫牛黄丸」听成「安牛」是常态
-  3. loudnorm 响度标准化 —— 观众席手机录音普遍 -36dB，不处理根本听不见
+针对中文股东会素材做的三处专门处理(produce.py 都没有):
+  1. large-v3 + 词级时间戳重新组句 -- medium 会切出 60 秒一段的巨块没法当字幕
+  2. 术语表纠正 ASR 专名 -- 现场录音把「安宫牛黄丸」听成「安牛」是常态
+  3. loudnorm 响度标准化 -- 观众席手机录音普遍 -36dB,不处理根本听不见
 
-用法：
+用法:
     python3 produce_cn.py --source videos/xx.mp4 --slug xx --speaker 林园
     python3 produce_cn.py --source xx.mp4 --slug xx --dry-run   # 只挑金句不出片
 """
@@ -29,27 +29,27 @@ from datetime import datetime
 from pathlib import Path
 
 BASE = Path(__file__).parent
-# 本地用已下好的绝对路径；CI 里用 HF 模型名（faster-whisper 自己拉）。
-# 两边都是 large-v3：实测 4 核 runner 上实时率 1.17x，完全跑得动，
-# 而 small 会输出繁体、把「安宫」听成「安公」，质量差距是决定性的。
+# 本地用已下好的绝对路径;CI 里用 HF 模型名(faster-whisper 自己拉)。
+# 两边都是 large-v3:实测 4 核 runner 上实时率 1.17x,完全跑得动,
+# 而 small 会输出繁体、把「安宫」听成「安公」,质量差距是决定性的。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
 SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
 
-# 免费额度可用的模型，按质量排序；限流时逐个降级
+# 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
 
 TARGET_SEC = 180          # 成片目标时长
 MAX_CHARS = 18            # 单条字幕上限
 MIN_CHARS = 6
-BREAK = "，。！？；、,.!?;"
-# 语气词过滤：ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
-# 单帧语气词没有信息量，反而让字幕跳动
+BREAK = ",。!?;、,.!?;"
+# 语气词过滤:ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
+# 单帧语气词没有信息量,反而让字幕跳动
 FILLER_WORDS = set("啊呀呐呢吧嘛哦噢哎唉哼嗯呃哈呵嘿")
-# 最小帧间隔（秒）：相邻字幕间距太小会闪烁
+# 最小帧间隔(秒):相邻字幕间距太小会闪烁
 MIN_GAP = 0.3
 
-# ASR 专名纠错表。现场录音对专有名词识别率很差，而这些词恰恰是内容的核心。
-# 只放「读音接近且在本领域无歧义」的，避免误改。
+# ASR 专名纠错表。现场录音对专有名词识别率很差,而这些词恰恰是内容的核心。
+# 只放「读音接近且在本领域无歧义」的,避免误改。
 GLOSSARY = {
     "老离化": "老龄化", "老民化": "老龄化",
     "安牛": "安宫牛黄丸", "安工": "安宫牛黄丸", "按钮": "安宫牛黄丸",
@@ -70,7 +70,7 @@ def load_key():
 
 
 def llm(messages, api_key, temperature=0.3, max_tokens=2000):
-    """调 LLM，限流时自动换模型。硅基流动的限流是分模型的。"""
+    """调 LLM,限流时自动换模型。硅基流动的限流是分模型的。"""
     cache_dir = BASE / ".llm_cache"
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
@@ -80,10 +80,10 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000):
     if cf.exists():
         try:
             out = json.loads(cf.read_text(encoding="utf-8"))["content"]
-            print("[llm-cache] 命中，不发请求")
+            print("[llm-cache] 命中,不发请求")
             return out
         except (ValueError, KeyError, OSError):
-            print("[llm-cache] 缓存损坏，重新请求", file=sys.stderr)
+            print("[llm-cache] 缓存损坏,重新请求", file=sys.stderr)
 
     last = None
     for model in MODELS:
@@ -107,13 +107,13 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000):
             except urllib.error.HTTPError as e:
                 last = f"{model} HTTP {e.code}"
                 if e.code in (400, 401, 402, 403):
-                    break                      # 换模型也救不了，直接下一个
+                    break                      # 换模型也救不了,直接下一个
                 time.sleep(2 * (attempt + 1))
             except Exception as e:
                 last = f"{model} {type(e).__name__}"
                 time.sleep(2 * (attempt + 1))
-        print(f"[llm] {model} 不可用（{last}），降级", file=sys.stderr)
-    raise RuntimeError(f"全部模型不可用，最后错误：{last}")
+        print(f"[llm] {model} 不可用({last}),降级", file=sys.stderr)
+    raise RuntimeError(f"全部模型不可用,最后错误:{last}")
 
 
 def fix_terms(text):
@@ -123,7 +123,7 @@ def fix_terms(text):
 
 
 def transcribe(src, work):
-    """large-v3 + 词级时间戳，按标点和字数重新组句。"""
+    """large-v3 + 词级时间戳,按标点和字数重新组句。"""
     from faster_whisper import WhisperModel
     cache = work / "cues_raw.json"
     if cache.exists():
@@ -144,12 +144,12 @@ def transcribe(src, work):
 
     cues = _group_tokens_to_cues(words)
 
-    # 合并间距太小的帧（防止字幕闪烁）；拼接时补分隔符避免文字粘连
+    # 合并间距太小的帧(防止字幕闪烁);拼接时补分隔符避免文字粘连
     merged = []
     for c in cues:
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP:
             merged[-1]["end"] = c["end"]
-            sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else "，"
+            sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else ","
             merged[-1]["text"] += sep + c["text"]
         else:
             merged.append(dict(c))
@@ -161,14 +161,14 @@ def transcribe(src, work):
 
 
 def _group_tokens_to_cues(words):
-    """把 whisper 词级 token 组成字幕条，保证不在词中间断开，并补全标点。
+    """把 whisper 词级 token 组成字幕条,保证不在词中间断开,并补全标点。
 
-    两个历史问题：
-    1. whisper 会把双字词切成两个单字 token（医|生），强制断句落在词中间时
-       前后两条字幕各显示半个词 → jieba 重新分词，断点必在词边界。
-    2. whisper 中文输出经常不带标点，断句逻辑依赖标点 → 没标点时只能靠
-       MAX_CHARS 硬切，句子全部连在一起（用户 2026-08-20 反馈）。
-       解法：用语音停顿反推标点 —— 词间隙 >0.6s 插句号，>0.3s 插逗号。
+    两个历史问题:
+    1. whisper 会把双字词切成两个单字 token(医|生),强制断句落在词中间时
+       前后两条字幕各显示半个词 → jieba 重新分词,断点必在词边界。
+    2. whisper 中文输出经常不带标点,断句逻辑依赖标点 → 没标点时只能靠
+       MAX_CHARS 硬切,句子全部连在一起(用户 2026-08-20 反馈)。
+       解法:用语音停顿反推标点 -- 词间隙 >0.6s 插句号,>0.3s 插逗号。
     """
     # 过滤语气词后的 token 流 (tok, start, end)
     toks = []
@@ -182,10 +182,10 @@ def _group_tokens_to_cues(words):
     if not toks:
         return []
 
-    # 停顿反推标点：返回带标点的 token 流。
-    # 注意：标点 token 不占时间（start=end=prev_end）——
-    # 否则字幕结束时间会被推到下一词的开始，间隙归零，
-    # 全部帧被「合并间距太小」逻辑吞掉（2026-08-20 实际事故：1139 词→1 条字幕）。
+    # 停顿反推标点:返回带标点的 token 流。
+    # 注意:标点 token 不占时间(start=end=prev_end)--
+    # 否则字幕结束时间会被推到下一词的开始,间隙归零,
+    # 全部帧被「合并间距太小」逻辑吞掉(2026-08-20 实际事故:1139 词→1 条字幕)。
     def with_punct(tokens):
         out, prev_end = [], None
         for tok, ws, we in tokens:
@@ -194,7 +194,7 @@ def _group_tokens_to_cues(words):
                 if gap > 0.6:
                     out.append(("。", prev_end, prev_end))
                 elif gap > 0.3:
-                    out.append(("，", prev_end, prev_end))
+                    out.append((",", prev_end, prev_end))
             out.append((tok, ws, we))
             prev_end = we
         return out
@@ -202,14 +202,14 @@ def _group_tokens_to_cues(words):
     toks = with_punct(toks)
 
     def _clean(t):
-        # 只去首部标点/空格，保留尾部标点（可读性）
+        # 只去首部标点/空格,保留尾部标点(可读性)
         return fix_terms(t.lstrip(" " + BREAK))
 
     try:
         import jieba
         import logging as _lg
         jieba.setLogLevel(_lg.ERROR)
-        # 全文 + 每个字符所属 token 的时间映射（含合成的标点字符）
+        # 全文 + 每个字符所属 token 的时间映射(含合成的标点字符)
         chars = []
         for tok, ws, we in toks:
             for ch in tok:
@@ -239,14 +239,14 @@ def _group_tokens_to_cues(words):
     except ImportError:
         pass
 
-    # 降级方案：原始 token 流 + 单字 lookahead 词边界保护
+    # 降级方案:原始 token 流 + 单字 lookahead 词边界保护
     cues, buf, start = [], [], None
     for i, (tok, ws, we) in enumerate(toks):
         if start is None:
             start = ws
         buf.append(tok)
         t = "".join(buf)
-        # 标点 token：直接作为断句点
+        # 标点 token:直接作为断句点
         if len(tok) == 1 and tok in BREAK and len(t) >= MIN_CHARS:
             text = _clean(t)
             if text and not all(c in FILLER_WORDS for c in text):
@@ -254,8 +254,8 @@ def _group_tokens_to_cues(words):
             buf, start = [], None
             continue
         if (tok[-1] in BREAK and len(t) >= MIN_CHARS) or len(t) >= MAX_CHARS:
-            # 词边界保护：强制断句时若末 token 和下一 token 都是单字，
-            # 多带一个 token（上限溢出 2 字），避免把双字词切成两半
+            # 词边界保护:强制断句时若末 token 和下一 token 都是单字,
+            # 多带一个 token(上限溢出 2 字),避免把双字词切成两半
             if len(t) >= MAX_CHARS and len(tok) == 1 and tok[-1] not in BREAK:
                 nxt = next((x for x in toks[i + 1:i + 3]
                             if not (len(x[0]) == 1 and x[0] in FILLER_WORDS)), None)
@@ -273,15 +273,15 @@ def _group_tokens_to_cues(words):
 
 
 def parse_llm_json_array(out):
-    """解析 LLM 返回的 JSON 数组，多策略容错。
+    """解析 LLM 返回的 JSON 数组,多策略容错。
 
-    CI 实证踩过的坑：裸键、单引号、尾随逗号、引号错位（"end:29"）。
-    逐级降级：标准 JSON → Python 字面量 → 正则修复 → 宽松键值抽取。
+    CI 实证踩过的坑:裸键、单引号、尾随逗号、引号错位("end:29")。
+    逐级降级:标准 JSON → Python 字面量 → 正则修复 → 宽松键值抽取。
     """
     import ast
     m = re.search(r"\[.*\]", out, re.S)
     if not m:
-        raise RuntimeError(f"金句返回无法解析（无数组）：{out[:300]}")
+        raise RuntimeError(f"金句返回无法解析(无数组):{out[:300]}")
     raw = m.group(0)
     try:
         return json.loads(raw)
@@ -291,7 +291,7 @@ def parse_llm_json_array(out):
         return ast.literal_eval(raw)
     except (ValueError, SyntaxError):
         pass
-    fixed = re.sub(r'"(\w+):(\d+)"', r'"\1":\2', raw)  # "end:29"→"end":29（CI 实证）
+    fixed = re.sub(r'"(\w+):(\d+)"', r'"\1":\2', raw)  # "end:29"→"end":29(CI 实证)
     fixed = re.sub(r"([{,]\s*)(\w+)(\s*:)", r'\1"\2"\3', fixed)  # 裸键
     fixed = fixed.replace("'", '"')  # 单引号
     fixed = re.sub(r",\s*([}\]])", r"\1", fixed)  # 尾随逗号
@@ -299,7 +299,7 @@ def parse_llm_json_array(out):
         return json.loads(fixed)
     except json.JSONDecodeError:
         pass
-    # 究极兜底：逐对象宽松键值抽取，容忍上述错位任意组合
+    # 究极兜底:逐对象宽松键值抽取,容忍上述错位任意组合
     objs = []
     for block in re.findall(r"\{[^{}]*\}", raw):
         pairs = re.findall(r'"?(\w+)"?\s*:\s*"?([^",}]+)"?', block)
@@ -308,7 +308,7 @@ def parse_llm_json_array(out):
             objs.append(obj)
     if objs:
         return objs
-    raise RuntimeError(f"金句 JSON 所有修复策略均失败：{raw[:300]}")
+    raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
 
 
 def pick_highlights(cues, speaker, api_key, work):
@@ -321,20 +321,20 @@ def pick_highlights(cues, speaker, api_key, work):
     numbered = "\n".join(
         f"{i}|{int(c['start'])//60}:{int(c['start'])%60:02d}|{c['text']}"
         for i, c in enumerate(cues))
-    prompt = f"""下面是{speaker}一段讲话的字幕，格式为「序号|时间|文本」。
+    prompt = f"""下面是{speaker}一段讲话的字幕,格式为「序号|时间|文本」。
 
-请挑出 2-4 个最有价值的**连续段落**，用于剪成约 {TARGET_SEC} 秒的短视频。若素材本身较短（不到 2 分钟），选 2 段即可，宁缺毋滥。
+请挑出 2-4 个最有价值的**连续段落**,用于剪成约 {TARGET_SEC} 秒的短视频。若素材本身较短(不到 2 分钟),选 2 段即可,宁缺毋滥。
 
-要求：
-1. 每段必须是连续的序号区间，且本身语义完整（有观点、有论证或有具体案例）
-2. 优先选：具体数字预测、可验证的投资逻辑、生动的真实案例
-3. 避开：语义残缺、明显是语音识别错乱、纯客套或过渡的段落
+要求:
+1. 每段必须是连续的序号区间,且本身语义完整(有观点、有论证或有具体案例)
+2. 优先选:具体数字预测、可验证的投资逻辑、生动的真实案例
+3. 避开:语义残缺、明显是语音识别错乱、纯客套或过渡的段落
 4. 各段时长加起来接近 {TARGET_SEC} 秒
 
-只输出 JSON 数组，不要任何解释：
+只输出 JSON 数组,不要任何解释:
 [{{"start":起始序号,"end":结束序号,"reason":"选它的理由(10字内)"}}]
 
-字幕：
+字幕:
 {numbered}"""
 
     out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.2)
@@ -368,12 +368,12 @@ def translate(texts, api_key, work):
         numbered = "\n".join(f"{j+1}. {t}" for j, t in enumerate(batch))
         prompt = (
             "把下面每条中文字幕翻成自然口语化的英文。\n"
-            "严格保持编号，每条一行，格式「N. translation」，只输出译文行。\n"
-            "注意：原文来自语音识别，可能有残缺或错字；只译实际出现的内容，"
+            "严格保持编号,每条一行,格式「N. translation」,只输出译文行。\n"
+            "注意:原文来自语音识别,可能有残缺或错字;只译实际出现的内容,"
             "不要自行补全或添加原文没有的信息。\n"
-            "专有名词按通用译法：林园=Lin Yuan，达仁堂=Darentang，"
-            "片仔癀=Pien Tze Huang，同仁堂=Tong Ren Tang，"
-            "安宫牛黄丸=Angong Niuhuang Wan，速效救心丸=Suxiao Jiuxin Wan。\n\n"
+            "专有名词按通用译法:林园=Lin Yuan,达仁堂=Darentang,"
+            "片仔癀=Pien Tze Huang,同仁堂=Tong Ren Tang,"
+            "安宫牛黄丸=Angong Niuhuang Wan,速效救心丸=Suxiao Jiuxin Wan。\n\n"
             + numbered)
         res = llm([{"role": "user", "content": prompt}], api_key, temperature=0.3)
         got = {}
@@ -388,11 +388,11 @@ def translate(texts, api_key, work):
 
 
 def make_ass(entries, path, W, H):
-    """竖版适配：字号按高度算、抬到安全区。burner 的 make_ass 是按 16:9 调的，
-    720x1280 下算出来才 29px，且会被平台底部 UI 遮住。
+    """竖版适配:字号按高度算、抬到安全区。burner 的 make_ass 是按 16:9 调的,
+    720x1280 下算出来才 29px,且会被平台底部 UI 遮住。
 
-    字体必须可换：本机有 Microsoft YaHei，CI 的 ubuntu 上只有 Noto Sans CJK。
-    libass 按名字找字体，找不到就 fallback 到无 CJK 字形的字体 —— 中文字幕
+    字体必须可换:本机有 Microsoft YaHei,CI 的 ubuntu 上只有 Noto Sans CJK。
+    libass 按名字找字体,找不到就 fallback 到无 CJK 字形的字体 -- 中文字幕
     会烧成一排豆腐块。workflow 里通过 ZH_FONT/EN_FONT 传入。"""
     font_zh = os.environ.get("ZH_FONT", "Microsoft YaHei")
     font_en = os.environ.get("EN_FONT", "Arial")
@@ -408,29 +408,29 @@ def make_ass(entries, path, W, H):
         if not t:
             return ""
         if cjk:
-            # 中文：优先按标点换行；无标点时长行尽量不在连续汉字中间截断
+            # 中文:优先按标点换行;无标点时长行尽量不在连续汉字中间截断
             lines, cur = [], ""
             for i, ch in enumerate(t):
                 cur += ch
                 # 标点符号后直接换行
-                if ch in "，。！？、；：":
+                if ch in ",。!?、;:":
                     lines.append(cur)
                     cur = ""
                     continue
-                # 长度达到上限，需要换行
+                # 长度达到上限,需要换行
                 if len(cur) >= n:
                     # 优先回溯到前一个标点处
                     cut = -1
                     for j in range(len(cur) - 1, 0, -1):
-                        if cur[j] in "，。！？、；：":
+                        if cur[j] in ",。!?、;:":
                             cut = j + 1
                             break
                     if cut > 0:
                         lines.append(cur[:cut])
                         cur = cur[cut:]
                     else:
-                        # 无标点：尽量不在连续汉字中间截断，找前后都是汉字的边界
-                        # 简单处理：直接截断，但保留完整字符
+                        # 无标点:尽量不在连续汉字中间截断,找前后都是汉字的边界
+                        # 简单处理:直接截断,但保留完整字符
                         lines.append(cur)
                         cur = ""
             if cur:
@@ -480,10 +480,10 @@ def probe(src, entries):
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work):
-    """LLM 生成 B站标题/简介/标签（参考原库 scripts/copywrite.py）。
+    """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
 
-    标题党检测器就是prompt本身：要求「有信息量、不夸张」。结果落 meta.json，
-    投稿脚本优先读这里，不再用 occasion 硬拼。
+    标题党检测器就是prompt本身:要求「有信息量、不夸张」。结果落 meta.json,
+    投稿脚本优先读这里,不再用 occasion 硬拼。
     """
     cache = work / "copywrite.json"
     if cache.exists():
@@ -492,13 +492,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work):
         except ValueError:
             pass
     sample = "\n".join(cues[i]["text"] for i in sel[:20])
-    prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选：
+    prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选:
 
 {sample}
 
-为它生成 B站投稿文案，只输出 JSON：
-{{{{"title":"标题，25字以内，必须有具体信息量（数字/观点/场合），不许标题党",
- "desc":"简介，100字以内，第一人称视角陈述内容要点，末尾注明来源场合",
+为它生成 B站投稿文案,只输出 JSON:
+{{{{"title":"标题,25字以内,必须有具体信息量(数字/观点/场合),不许标题党",
+ "desc":"简介,100字以内,第一人称视角陈述内容要点,末尾注明来源场合",
  "tags":["标签", "最多5个", "含主讲人姓名"]}}}}"""
     out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.4)
     m = re.search(r"\{.*\}", out, re.S)
@@ -506,17 +506,17 @@ def copywrite(cues, sel, speaker, occasion, api_key, work):
         d = json.loads(m.group(0))
         assert d.get("title")
     except (ValueError, AssertionError, AttributeError):
-        d = {"title": f"{occasion}｜{speaker}".strip("｜"),
+        d = {"title": f"{occasion}|{speaker}".strip("|"),
              "desc": f"{speaker}在{occasion}的发言精选。",
              "tags": [speaker, "价值投资"]}
     d.setdefault("tags", [speaker])
     cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
-    print(f"[文案] 标题：{d['title']}")
+    print(f"[文案] 标题:{d['title']}")
     return d
 
 
 def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
-    """TTC 合集里找指定子字体下标。原库踩过的坑：默认取第 0 个是 JP 字形，
+    """TTC 合集里找指定子字体下标。原库踩过的坑:默认取第 0 个是 JP 字形,
     简体字会「细一号」。"""
     try:
         from fontTools.ttLib import TTCollection
@@ -532,84 +532,97 @@ def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path):
-    """封面：抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
+    """封面：抽帧 → 人脸检测裁切 → 竖屏9:16/横屏16:9 → 底部渐变 → 标题大字。
 
-    用 OpenCV haar 级联检测人脸，裁切时以人脸为中心，
-    避免居中裁切把人脸裁掉或压扁。
+    竖屏排版自适应（2026-08-21 修复）：之前用横屏硬编码参数（64px字号×17字/行），
+    720px 宽的竖屏画布装不下 1007px 文字 → 标题溢出、人脸被挤。
+    小帧人脸检测：360x640 低清源 haar 检不出脸 → 提前放大再检测。
+    抽帧位置：取段落偏前位置，避开字幕最密集的说话中段。
     """
     from PIL import Image, ImageDraw, ImageFont
-    W, H = 1280, 720
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
-    # 抽 3 帧（中间偏前/正中/偏后），选人脸最大的那张
+    # 抽 3 帧（段落前1/4、正中、偏后），偏前帧字幕较少
     frames = []
-    for offset in [-2, 0, 2]:
-        t = max(0, mid + offset)
-        fp = tmp.with_suffix(f".{offset}.png")
+    for offset_pct in [-0.25, 0, 0.15]:
+        t = max(0, mid + offset_pct * (seg_end - seg_start))
+        fp = tmp.with_suffix(f".{int(offset_pct*100)}.png")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
                         "-i", str(src), "-frames:v", "1", str(fp)],
                        check=True, capture_output=True)
         if fp.exists():
             frames.append(fp)
-    
-    # 选人脸最大的帧
+
+    # 选人脸最大的帧（小帧先放大再检测，360p 源 haar 直接检不出）
     best_frame = frames[0] if frames else tmp
     best_face = None
     try:
         import cv2
+        import numpy as np
         cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         cascade = cv2.CascadeClassifier(cascade_path)
         for fp in frames:
             img_cv = cv2.imread(str(fp))
             if img_cv is None:
                 continue
+            fh, fw = img_cv.shape[:2]
+            scale = 2.0 if max(fh, fw) < 720 else 1.0  # 低清帧放大 2 倍再检测
+            if scale > 1.0:
+                img_cv = cv2.resize(img_cv, (fw*2, fh*2), interpolation=cv2.INTER_CUBIC)
             gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-            faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(80, 80))
+            faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3,
+                                             minSize=(120, 120) if scale > 1.0 else (80, 80))
             if len(faces) > 0:
-                # 选最大的人脸
                 biggest = max(faces, key=lambda f: f[2] * f[3])
                 if best_face is None or biggest[2] * biggest[3] > best_face[2] * best_face[3]:
-                    best_face = biggest
+                    # 人脸坐标除回 scale，映射到原图坐标系
+                    best_face = (int(biggest[0]/scale), int(biggest[1]/scale),
+                                 int(biggest[2]/scale), int(biggest[3]/scale))
                     best_frame = fp
     except ImportError:
         pass  # 没装 opencv 就用第一帧
-    
+
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
 
-    # 以人脸为中心裁切，保持原始宽高比
+    # 以人脸为中心裁切，保持目标比例
     vertical = h > w
     if vertical:
-        # 竖屏视频：生成 9:16 封面（B站支持），以人脸为中心
+        # 竖屏：9:16，人脸中心决定水平裁切窗口，头部适当上移留白
+        tw = min(w, int(h * 9 / 16))
         if best_face is not None:
             fx, fy, fw, fh = best_face
-            cx, cy = fx + fw // 2, fy + fh // 2
-            tw = min(w, int(h * 9 / 16))
+            cx = fx + fw // 2
             x0 = max(0, min(cx - tw // 2, w - tw))
+            # 裁切窗口上移：保头顶（人脸顶部上方留人脸高度 80%）
+            top = max(0, fy - int(fh * 0.8))
+            bottom = min(h, top + int(tw * 16 / 9))
+            if bottom - top < int(tw * 16 / 9):
+                top = max(0, bottom - int(tw * 16 / 9))
+            img = img.crop((x0, top, x0 + tw, bottom))
+        else:
+            x0 = (w - tw) // 2
             img = img.crop((x0, 0, x0 + tw, h))
-        else:
-            tw = min(w, int(h * 9 / 16))
-            img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h))
-        # 缩放到 720x1280 的 9:16 封面
         img = img.resize((720, 1280), Image.LANCZOS)
+        W, H = 720, 1280
     else:
-        # 横屏视频：裁成 16:9 的 1280x720 封面
+        # 横屏：16:9，以人脸为中心
+        tw = min(w, int(h * 16 / 9))
         if best_face is not None:
             fx, fy, fw, fh = best_face
-            cx, cy = fx + fw // 2, fy + fh // 2
-            tw = min(w, int(h * 16 / 9))
+            cx = fx + fw // 2
             x0 = max(0, min(cx - tw // 2, w - tw))
-            img = img.crop((x0, 0, x0 + tw, h)).resize((W, H), Image.LANCZOS)
         else:
-            tw = min(w, int(h * 16 / 9))
-            img = img.crop(((w - tw) // 2, 0, (w - tw) // 2 + tw, h)).resize((W, H), Image.LANCZOS)
-    
+            x0 = (w - tw) // 2
+        img = img.crop((x0, 0, x0 + tw, h)).resize((1280, 720), Image.LANCZOS)
+        W, H = 1280, 720
+
     # 清理临时帧
     for fp in frames:
         fp.unlink(missing_ok=True)
-    
+    tmp.unlink(missing_ok=True)
+
     # 底部 45% 压暗（黑渐变），字才看得清
-    W, H = img.size
     overlay = Image.new("L", (W, H), 0)
     od = ImageDraw.Draw(overlay)
     for y in range(H):
@@ -625,29 +638,43 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             font_path = cand
             break
     idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
-    f_title = ImageFont.truetype(font_path, 64, index=idx) if font_path else ImageFont.load_default()
-    f_tag = ImageFont.truetype(font_path, 36, index=idx) if font_path else ImageFont.load_default()
+    # 字号按画布宽自适应（竖屏 720 → 标题 44px，横屏 1280 → 64px）
+    title_size = 44 if W < 1000 else 64
+    tag_size = 30 if W < 1000 else 36
+    f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
+    f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
 
     d = ImageDraw.Draw(img)
-    # 主讲人标签（左上角黄底黑字）
-    d.rounded_rectangle([40, 36, 40 + len(speaker) * 40 + 32, 96], 10, fill=(255, 196, 0))
-    d.text((56, 48), speaker, font=f_tag, fill=(20, 20, 20))
-    # 标题（底部，两行以内，白字黑边）
-    chars_per_line = 17
-    lines = [title[i:i + chars_per_line] for i in range(0, min(len(title), 34), chars_per_line)]
-    y = H - 60 - 76 * len(lines)
+    # 主讲人标签（左上角黄底黑字），尺寸自适应
+    tag_w = int(len(speaker) * tag_size * 1.15) + 28
+    d.rounded_rectangle([36, 32, 36 + tag_w, 32 + int(tag_size * 1.7)], 8, fill=(255, 196, 0))
+    d.text((50, 40), speaker, font=f_tag, fill=(20, 20, 20))
+    # 标题：行宽按画布自适应，行高按字号
+    # 竖屏每行约 W/字号*0.95 字，横屏约 17 字；最多 3 行（竖屏窄）
+    if W < 1000:
+        chars_per_line = max(10, int(W * 0.92 / title_size))
+        max_lines = 3
+        line_h = int(title_size * 1.25)
+        margin_bottom = 48
+    else:
+        chars_per_line = 17
+        max_lines = 2
+        line_h = 76
+        margin_bottom = 60
+    lines = [title[i:i + chars_per_line] for i in range(0, min(len(title), chars_per_line * max_lines), chars_per_line)]
+    y = H - margin_bottom - line_h * len(lines)
     for ln in lines:
-        for dx, dy in [(-2, 0), (2, 0), (0, -2), (0, 2)]:
-            d.text((44 + dx, y + dy), ln, font=f_title, fill=(0, 0, 0))
-        d.text((44, y), ln, font=f_title, fill=(255, 255, 255))
-        y += 76
+        # 白字黑边（描边厚度自适应）
+        stroke = 3 if W < 1000 else 2
+        d.text((40, y), ln, font=f_title, fill=(255, 255, 255),
+               stroke_width=stroke, stroke_fill=(0, 0, 0))
+        y += line_h
     img.save(out_path, quality=92)
-    tmp.unlink(missing_ok=True)
-    print(f"[封面] {out_path.name}  「{title[:20]}」")
+    print(f"[封面] {out_path.name} {W}x{H} 「{title[:20]}」")
 
 
 def has_existing_subtitles(src):
-    """检测视频是否已有硬字幕（烧录在画面上的字幕）。
+    """检测视频是否已有硬字幕(烧录在画面上的字幕)。
     用 OCR 检查画面底部是否有连续文字区域。
     """
     try:
@@ -655,7 +682,7 @@ def has_existing_subtitles(src):
         cap = cv2.VideoCapture(str(src))
         if not cap.isOpened():
             return False
-        # 检查 3 帧（25%、50%、75% 位置）
+        # 检查 3 帧(25%、50%、75% 位置)
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if total <= 0:
             return False
@@ -666,10 +693,10 @@ def has_existing_subtitles(src):
             if not ret or frame is None:
                 continue
             h, w = frame.shape[:2]
-            # 底部 20% 区域（字幕通常在底部）
+            # 底部 20% 区域(字幕通常在底部)
             bottom = frame[int(h * 0.8):, :]
             gray = cv2.cvtColor(bottom, cv2.COLOR_BGR2GRAY)
-            # 二值化，文字区域会有大量高对比度像素
+            # 二值化,文字区域会有大量高对比度像素
             _, binary = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
             text_ratio = cv2.countNonZero(binary) / (bottom.size / 3)
             if text_ratio > 0.05:  # 5% 以上白色像素 → 可能有字幕
@@ -681,7 +708,7 @@ def has_existing_subtitles(src):
 
 
 def has_hard_watermark(src):
-    """检测视频是否有难以裁除的水印（画面中间的 logo）。
+    """检测视频是否有难以裁除的水印(画面中间的 logo)。
     检查画面四角和中间是否有固定位置的半透明 logo。
     """
     try:
@@ -714,34 +741,34 @@ def main():
     ap.add_argument("--slug", required=True)
     ap.add_argument("--speaker", default="林园")
     ap.add_argument("--occasion", default="")
-    ap.add_argument("--source-platform", default="", help="来源平台（bilibili/weibo/tencent 等）")
-    ap.add_argument("--dry-run", action="store_true", help="只挑金句，不出片")
+    ap.add_argument("--source-platform", default="", help="来源平台(bilibili/weibo/tencent 等)")
+    ap.add_argument("--dry-run", action="store_true", help="只挑金句,不出片")
     args = ap.parse_args()
 
     src = Path(args.source)
     if not src.is_file():
-        sys.exit(f"找不到源：{src}")
+        sys.exit(f"找不到源:{src}")
     api_key = load_key()
     if not api_key:
-        sys.exit("缺 SILICONFLOW_API_KEY（放 .env 或环境变量）")
+        sys.exit("缺 SILICONFLOW_API_KEY(放 .env 或环境变量)")
 
     out = BASE / "deliver" / args.slug
     work = out / "_tmp"
     work.mkdir(parents=True, exist_ok=True)
 
     cues = transcribe(src, work)
-    
-    # 检测已有字幕（如果视频已有硬字幕，跳过字幕烧录）
+
+    # 检测已有字幕(如果视频已有硬字幕,跳过字幕烧录)
     existing_subtitles = has_existing_subtitles(src)
     if existing_subtitles:
-        print("[检测] 视频已有硬字幕，跳过字幕烧录")
-    
+        print("[检测] 视频已有硬字幕,跳过字幕烧录")
+
     # 检测难以裁除的水印
     hard_watermark = has_hard_watermark(src)
     if hard_watermark:
-        print("[检测] 视频有中间水印，难以裁除，跳过")
+        print("[检测] 视频有中间水印,难以裁除,跳过")
         return 1
-    
+
     picks = pick_highlights(cues, args.speaker, api_key, work)
 
     sel = []
@@ -749,7 +776,7 @@ def main():
         sel.extend(range(p["start"], p["end"] + 1))
     sel = sorted(set(sel))
     total = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
-    print(f"\n选中 {len(sel)} 条字幕，约 {int(total)//60}:{int(total)%60:02d}")
+    print(f"\n选中 {len(sel)} 条字幕,约 {int(total)//60}:{int(total)%60:02d}")
 
     if args.dry_run:
         for p in picks:
@@ -759,7 +786,7 @@ def main():
         return 0
 
     zh_texts = [cues[i]["text"] for i in sel]
-    # 林园视频是中文源，不需要英文翻译
+    # 林园视频是中文源,不需要英文翻译
     # en_map = dict(zip(sel, translate(zh_texts, api_key, work)))
     en_map = {}
 
@@ -779,28 +806,28 @@ def main():
         print(f"[烧录] 段{n} {s0:.0f}s→{s1:.0f}s ({s1-s0:.0f}s)")
         # 根据检测结果构建滤镜
         if hard_watermark:
-            # 有中间水印 → 跳过，不出片
-            print("[跳过] 有中间水印，不出片")
+            # 有中间水印 → 跳过,不出片
+            print("[跳过] 有中间水印,不出片")
             return 1
         else:
-            # 裁掉顶部 100px，保持原始宽高比
-            # 横屏 16:9 → 保持 16:9；竖屏 9:16 → 保持 9:16
+            # 裁掉顶部 100px,保持原始宽高比
+            # 横屏 16:9 → 保持 16:9;竖屏 9:16 → 保持 9:16
             vertical = H > W
             if vertical:
-                # 竖屏：保持 9:16
+                # 竖屏:保持 9:16
                 crop_h = H - 100
                 crop_w = min(int(crop_h * 9 / 16), W)
             else:
-                # 横屏：保持 16:9
+                # 横屏:保持 16:9
                 crop_h = H - 100
                 crop_w = min(int(crop_h * 16 / 9), W)
             crop_x = (W - crop_w) // 2
-            
+
             if existing_subtitles:
                 # 已有字幕 → 不烧录字幕
                 vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
             else:
-                # 正常：裁掉顶部 + 烧录字幕
+                # 正常:裁掉顶部 + 烧录字幕
                 vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
@@ -824,9 +851,9 @@ def main():
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
 
-    # 文案 + 封面（投稿三件套：标题/简介/标签 + 封面图）
+    # 文案 + 封面(投稿三件套:标题/简介/标签 + 封面图)
     cw = copywrite(cues, sel, args.speaker, args.occasion, api_key, work)
-    # 竖屏视频生成 9:16 封面，横屏生成 16:9 封面
+    # 竖屏视频生成 9:16 封面,横屏生成 16:9 封面
     vertical = H > W
     cover_name = "cover_9x16.jpg" if vertical else "cover_16x9.jpg"
     cover = out / cover_name
@@ -835,10 +862,10 @@ def main():
         make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
                    cw["title"], args.speaker, cover)
     except Exception as e:
-        print(f"[封面] 生成失败（不阻断出片）：{e}", file=sys.stderr)
+        print(f"[封面] 生成失败(不阻断出片):{e}", file=sys.stderr)
         cover = None
 
-    # 推断来源平台（优先用命令行传入的 --source-platform）
+    # 推断来源平台(优先用命令行传入的 --source-platform)
     platform = args.source_platform or ""
     if not platform:
         src_str = str(src).lower()
