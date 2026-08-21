@@ -423,11 +423,8 @@ def pick(items, st, n):
             continue                                     # 老虎公园不是林园
         if NOISE_EXTRA.search(title):
             continue                                     # 微博噪音
-        # 标题必须包含"林园"；例外：作者是已知林园内容账号
-        # （巴菲特思想研讨会等优质内容只因标题没写"林园"被拒）
-        KNOWN_LY_AUTHORS = ("昕礽果", "圣叹财经", "只只是个小朋友")
-        author = it.get("author") or ""
-        if "林园" not in title and not any(a in author for a in KNOWN_LY_AUTHORS):
+        # 标题必须包含"林园"（硬性要求，防止无关内容混入）
+        if "林园" not in title:
             continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
