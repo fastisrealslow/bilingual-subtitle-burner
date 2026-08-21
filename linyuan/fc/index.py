@@ -51,7 +51,7 @@ TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须�
 # - 「林园群」是人名「林园群」，不是投资人林园
 # - 「横道河子」是东北虎产地
 # - 「二埋汰」是东北虎网红名
-NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群")
+NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜|雕像|泼漆|通报")
 
 # 投稿好时段（北京）：主时段 + 次时段，防扎堆逻辑会自动错开
 PUBLISH_SLOTS = [(11, 0), (12, 30), (15, 0), (18, 0), (21, 0)]
@@ -423,8 +423,11 @@ def pick(items, st, n):
             continue                                     # 老虎公园不是林园
         if NOISE_EXTRA.search(title):
             continue                                     # 微博噪音
-        # 标题必须包含"林园"（排除只是提到林园的视频）
-        if "林园" not in title:
+        # 标题必须包含"林园"；例外：作者是已知林园内容账号
+        # （巴菲特思想研讨会等优质内容只因标题没写"林园"被拒）
+        KNOWN_LY_AUTHORS = ("昕礽果", "圣叹财经", "只只是个小朋友")
+        author = it.get("author") or ""
+        if "林园" not in title and not any(a in author for a in KNOWN_LY_AUTHORS):
             continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
@@ -433,7 +436,19 @@ def pick(items, st, n):
                       "publish_time": it.get("publish_time") or "",
                       "extra": extra})
     # 同内容去重：标题相似度 > 60% 只保留一条，保留质量更好的
+    # 同内容提前去重：微博同条内容被大量转发/重发，重复候选会污染排序。
+    # 进池子前就按标题相似度去重（阈值 0.6），只留质量最好的 1 条。
     cands = dedup_by_title(cands)
+    # 二次去重：标题前 12 字完全相同也视为同内容（转发时只改尾部的场景）
+    seen_prefix = set()
+    deduped = []
+    for c in cands:
+        pfx = (c["title"] or "")[:12]
+        if pfx in seen_prefix:
+            continue
+        seen_prefix.add(pfx)
+        deduped.append(c)
+    cands = deduped
     # 过滤时长过短的（< 60 秒）和过长的（> 30 分钟）
     def _dur_ok(c):
         extra = c.get("extra") or {}
