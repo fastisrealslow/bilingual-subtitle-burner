@@ -674,35 +674,67 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
 
 
 def has_existing_subtitles(src):
-    """检测视频是否已有硬字幕(烧录在画面上的字幕)。
-    用 OCR 检查画面底部是否有连续文字区域。
+    """检测视频是否已有硬字幕（烧录在画面上的字幕）。
+
+    2026-08-21 修复：旧版亮度阈值法把「画面偏亮」误判成「有字幕」
+    （白色衣服/亮背景即可触发），导致无字幕视频跳过烧录，成片裸奔。
+
+    新版检测字幕的结构特征（同时满足才算字幕帧）：
+    1. 底部存在横向窄条带（高度 3%~15% 屏高）
+    2. 条带内白色（高亮）像素 ≥ 20%（文字覆盖）
+    3. 条带上下边界与背景有明显对比（不是整片亮背景）
     """
     try:
         import cv2
+        import numpy as np
         cap = cv2.VideoCapture(str(src))
         if not cap.isOpened():
             return False
-        # 检查 3 帧(25%、50%、75% 位置)
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if total <= 0:
             return False
         subtitle_hits = 0
+        checked = 0
         for pct in (0.25, 0.5, 0.75):
             cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * pct))
             ret, frame = cap.read()
             if not ret or frame is None:
                 continue
+            checked += 1
             h, w = frame.shape[:2]
-            # 底部 20% 区域(字幕通常在底部)
-            bottom = frame[int(h * 0.8):, :]
+            # 只看底部 28%（字幕安全区）
+            bottom = frame[int(h * 0.72):, :]
             gray = cv2.cvtColor(bottom, cv2.COLOR_BGR2GRAY)
-            # 二值化,文字区域会有大量高对比度像素
-            _, binary = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
-            text_ratio = cv2.countNonZero(binary) / (bottom.size / 3)
-            if text_ratio > 0.05:  # 5% 以上白色像素 → 可能有字幕
+            # 按行统计亮像素（>200）比例，找「文字条带」
+            bright = (gray > 200).astype(np.uint8)
+            row_ratio = bright.mean(axis=1)  # 每行的亮像素占比
+            # 滑窗找连续条带：高度 3%~15% 屏高，且带内亮像素 ≥ 20%，
+            # 但条带外（其上 10% 高度内）亮像素 < 8%（排除整片亮背景）
+            bh = bottom.shape[0]
+            found = False
+            for band_h in range(max(2, int(h * 0.03)), int(h * 0.15)):
+                if band_h > bh:
+                    break
+                for y0 in range(0, bh - band_h, max(1, band_h // 2)):
+                    band = row_ratio[y0:y0 + band_h]
+                    # 条带上方必须有足够行且明显更暗（与背景对比），
+                    # 纯亮背景（如白墙）会被排除；条带贴底时用带内列分布区分：
+                    # 真字幕是「中间亮两侧暗」，整行亮是背景
+                    above = row_ratio[max(0, y0 - int(h*0.08)):max(1, y0)]
+                    if band.mean() < 0.20 or len(above) < 2 or above.mean() >= 0.08:
+                        continue
+                    # 带内列分布：字幕文字不会横贯整行，两端留白
+                    col_bright = bright[y0:y0 + band_h, :].mean(axis=0)
+                    if col_bright[:int(w*0.12)].mean() < 0.10 and col_bright[-int(w*0.12):].mean() < 0.10:
+                        found = True
+                        break
+                if found:
+                    break
+            if found:
                 subtitle_hits += 1
         cap.release()
-        return subtitle_hits >= 2  # 3 帧中至少 2 帧有字幕
+        # 至少 3 帧里 2 帧有明确文字条带
+        return checked >= 2 and subtitle_hits >= 2
     except Exception:
         return False
 
