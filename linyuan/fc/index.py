@@ -915,13 +915,15 @@ OWNER_MID = os.environ.get("BILI_MID", "275211725")  # 园来滚雪球
 def bili_find_duplicate(title):
     """查自己 B站空间是否已传过同标题视频。
     2026-08-19 事故复盘：publish 上传成功但 save_state 失败 → 每小时重复上传，
-    单日出现 5 个相同视频。这是最后防线：投稿前查重，已存在直接补记状态。"""
+    单日出现 5 个相同视频。这是最后防线：投稿前查重，已存在直接补记状态。
+    2026-08-21 加强：模糊匹配——标题前 15 字相同即视为同一视频
+    （同一素材重出片时 LLM 会生成不同标题，精确匹配拦不住）。"""
     if not title:
         return None
     try:
         import urllib.parse as _up
         url = (f"https://api.bilibili.com/x/series/recArchivesByKeywords"
-               f"?mid={OWNER_MID}&keywords={_up.quote(title[:20])}&ps=8&pn=1")
+               f"?mid={OWNER_MID}&keywords={_up.quote(title[:12])}&ps=10&pn=1")
         # 裸请求会被 B站 WAF 412，必须走带 buvid 指纹的会话
         op = bili_opener()
         req = urllib.request.Request(url, headers={
@@ -929,7 +931,10 @@ def bili_find_duplicate(title):
             "Accept": "application/json"})
         data = json.loads(op.open(req, timeout=20).read().decode("utf-8", "ignore"))
         for v in (data.get("data") or {}).get("archives") or []:
-            if (v.get("title") or "").strip() == title.strip():
+            vt = (v.get("title") or "").strip()
+            # 精确匹配 或 前 15 字相同（同一素材重出的不同 LLM 标题）
+            if vt == title.strip() or (len(vt) >= 15 and len(title.strip()) >= 15
+                                       and vt[:15] == title.strip()[:15]):
                 return v.get("bvid")
     except Exception as e:
         log.warning(f"B站查重失败（不阻断，但无法防重复）: {e}")
@@ -1116,6 +1121,21 @@ def publish_handler(event=None, context=None):
     log.info(f"定时发布: {target_slot.strftime('%m-%d %H:%M')}（北京），延迟 {delay_seconds/3600:.1f}h")
 
     # ── 投稿前双重防护（2026-08-19 五连发事故）──
+    # 0) 素材源查重：同一源视频（source_url）已发布过 → 绝不再投
+    #    （2026-08-21 事故：同一素材重出片后 LLM 生成不同标题，标题查重失效）
+    src_url = (e.get("source_url") or "").strip()
+    if src_url:
+        for pslug, pinfo in st.get("published", {}).items():
+            if (pinfo.get("source_url") or "").strip() == src_url and pslug != slug:
+                st["published"][slug] = {"bvid": pinfo.get("bvid"), "ts": int(time.time()),
+                                          "title": pinfo.get("title") or title,
+                                          "source_platform": pinfo.get("source_platform") or platform_of(e.get("source", "")),
+                                          "source_url": src_url, "note": "同源素材已发布过，防重入拦截"}
+                candidate_failed_note = f"同源 {pslug} 已发布（{pinfo.get('bvid')}），拦截重复投稿"
+                log_event("dedup", f"⛔ {slug} 与已发布 {pslug} 同源，拦截", (e.get("title") or "")[:60])
+                log.info(f"⛔ {slug} 与已发布 {pslug} 同源，拦截重复投稿")
+                save_state(st)
+                return {"published": 0}
     # 1) 查 B站是否已有同标题视频（状态丢失时的自愈防线）
     dup = bili_find_duplicate(title)
     if dup:
