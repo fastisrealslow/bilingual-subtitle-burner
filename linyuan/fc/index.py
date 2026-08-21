@@ -38,7 +38,8 @@ WF_PRODUCE = "linyuan-produce-cn.yml"
 DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
 
-MIN_DUR, MAX_DUR = 90, 1800             # 90s 可选 2-3 段；产能提升后时长窗口放宽
+MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
+                                          # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
 MAX_PER_DAY = 5                          # 每天最多成功调度几条（用户 2026-08-20 要求）
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
