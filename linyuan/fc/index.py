@@ -151,6 +151,9 @@ STATE_KEY = "linyuan/.automation/fc_state.json"
 # 日志页（GitHub Pages）镜像副本：Pages 不服务 .automation 点目录，
 # 所以另存一份到非点路径 site/ 供 log.html 同域读取。
 SITE_STATE_KEY = "site/fc_state.json"
+# 运行日志：FC 每次运行的关键事件追加到这，log.html 展示，便于追踪
+LOGS_KEY = "linyuan/.automation/fc_logs.json"
+MAX_LOG_ENTRIES = 200
 
 
 # ---------- GitHub 基础 ----------
@@ -179,6 +182,57 @@ def load_state():
         return {"dispatched": [], "rejected": [], "published": {}}
 
 
+# ---------- 运行日志（log.html 展示，便于追踪）----------
+
+_log_buffer = []
+
+
+def log_event(kind, msg, detail=""):
+    """记录一条运行事件到本地缓冲，运行结束时统一追加到 GitHub。
+    kind: dispatch|publish|skip|fail|publish_ok|dispatch_ok|retry|dedup
+    """
+    _log_buffer.append({"ts": int(time.time()), "kind": kind, "msg": msg[:120],
+                        "detail": (detail or "")[:200]})
+    log.info(f"[{kind}] {msg}")
+
+
+def flush_logs():
+    """把本次运行的事件追加到 fc_logs.json（保留最近 MAX_LOG_ENTRIES 条）。
+    best-effort：失败只告警，绝不影响主流程。"""
+    if not _log_buffer:
+        return
+    import base64
+    try:
+        try:
+            cur = gh("GET", f"/contents/{LOGS_KEY}?ref=main&_={time.time()}")
+            entries = json.loads(base64.b64decode(cur["content"]).decode())
+            sha = cur.get("sha")
+        except Exception:
+            entries, sha = [], None
+        entries.extend(_log_buffer)
+        entries = entries[-MAX_LOG_ENTRIES:]
+        content = base64.b64encode(json.dumps(entries, ensure_ascii=False).encode()).decode()
+        payload = {"message": "chore(fc): 追加运行日志", "content": content}
+        if sha:
+            payload["sha"] = sha
+        gh("PUT", f"/contents/{LOGS_KEY}", payload)
+        # 同步镜像到 site/ 供日志页同域读取
+        try:
+            site_payload = {"message": "chore(fc): 同步日志页运行日志", "content": content}
+            try:
+                scur = gh("GET", f"/contents/site/fc_logs.json?ref=main&_={time.time()}")
+                if isinstance(scur, dict) and scur.get("sha"):
+                    site_payload["sha"] = scur["sha"]
+            except Exception:
+                pass
+            gh("PUT", "/contents/site/fc_logs.json", site_payload)
+        except Exception:
+            pass
+        _log_buffer.clear()
+    except Exception as e:
+        log.warning(f"运行日志追加失败（不影响主流程）: {e}")
+
+
 def save_state(st, retries=3):
     """写回 fc_state.json。防御性设计：
     - PUT 前重新 GET 拿最新 sha（并发/缓存会让旧 sha 失效）
@@ -204,6 +258,9 @@ def save_state(st, retries=3):
             time.sleep(2 * (attempt + 1))
     else:
         log.error("save_state 多次失败，本轮状态未保存（下轮会基于仓库里的旧状态重试）")
+        _log_buffer.append({"ts": int(time.time()), "kind": "state_lost",
+                            "msg": "⚠️ 状态保存失败！本轮状态未落盘（可能造成重复投稿/日志页不准）",
+                            "detail": ""})
         return
     # 镜像到 site/ 供 GitHub Pages 日志页读取（best-effort，失败不影响主流程）
     try:
@@ -725,9 +782,13 @@ def handler(event, context):
         evt = {}
     name = str(evt.get("triggerName", ""))
     log.info(f"触发器: {name or '（手动测试）'}")
-    if "dispatch" in name:
-        return dispatch_handler(event, context)
-    return publish_handler(event, context)
+    log_event("run", f"触发器 {name or '手动'} 开始运行")
+    try:
+        if "dispatch" in name:
+            return dispatch_handler(event, context)
+        return publish_handler(event, context)
+    finally:
+        flush_logs()
 
 
 # ---------- Handler 1：每日调度 ----------
@@ -797,8 +858,10 @@ def dispatch_handler(event=None, context=None):
                                      "publish_time": c.get("publish_time", "")})
             save_state(st)
             success += 1
+            log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s，定时 +{delay}h）")
         except Exception as e:
+            log_event("fail", f"调度失败 {c.get('slug', c['key'])}", str(e)[:150])
             _record_failure(st, c, e)
 
     _process_retries(st)
@@ -911,11 +974,13 @@ def publish_handler(event=None, context=None):
                 st["published"][s] = {"bvid": dup, "ts": int(time.time()),
                                        "title": candidate.get("upload_title") or candidate.get("title", "")}
                 candidate.pop("uploading", None)
+                log_event("dedup", f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
                 log.info(f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
                 save_state(st)
             else:
                 candidate["failed"] = True
                 candidate.pop("uploading", None)
+                log_event("fail", f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
                 log.error(f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
                 save_state(st)
             continue
@@ -928,6 +993,7 @@ def publish_handler(event=None, context=None):
         last_retry = candidate.get("last_retry", 0)
         if age > 12 * 3600:
             candidate["failed"] = True
+            log_event("fail", f"{s} 超过 12h 无成片，标记失败", (candidate.get("title") or "")[:60])
             log.info(f"{s} 超过 12h 无 artifact，标记失败")
         elif retries < 2 and now - max(candidate.get("ts", 0), last_retry) > 6 * 3600:
             # 自动重试出片：用之前保存的 asset_url 重新触发 workflow
@@ -1099,10 +1165,12 @@ def publish_handler(event=None, context=None):
             except Exception as ae:
                 log.warning(f"删除 artifact 失败: {ae}")
         save_state(st)
+        log_event("publish_ok", f"✅ 已投 https://www.bilibili.com/video/{bvid}", title[:60])
         log.info(f"✅ 已投 https://www.bilibili.com/video/{bvid}")
         done += 1
     else:
         # 输出完整错误信息，方便调试
+        log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} {((r.stdout or '') + (r.stderr or ''))[:150]}")
         log.error(f"✗ {slug} 投稿失败")
         log.error(f"  返回码: {r.returncode}")
         log.error(f"  stdout: {r.stdout[:500]}")
