@@ -42,6 +42,17 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 a { color: #007bff; text-decoration: none; }
 a:hover { text-decoration: underline; }
 .alert { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
+.log-item { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.log-item:last-child { border-bottom: none; }
+.log-icon { flex-shrink: 0; }
+.log-time { color: #999; font-size: 12px; flex-shrink: 0; width: 100px; }
+.log-msg { flex: 1; }
+.log-detail { color: #888; font-size: 12px; flex-basis: 100%; padding-left: 26px; }
+.log-ok .log-msg { color: #155724; }
+.log-fail .log-msg { color: #dc3545; font-weight: 500; }
+.log-dedup .log-msg { color: #0c5460; }
+.log-run .log-msg { color: #666; }
+.log-retry .log-msg { color: #856404; }
 #alerts-section[hidden] { display: none; }
 .platform-icon { font-weight: 600; }
 </style>
@@ -68,6 +79,10 @@ a:hover { text-decoration: underline; }
     <div id="pending"></div>
   </div>
   <div class="section">
+    <h2>📋 运行日志</h2>
+    <div id="fclogs"></div>
+  </div>
+  <div class="section">
     <h2>❌ 已拒绝</h2>
     <div id="rejected"></div>
   </div>
@@ -76,6 +91,17 @@ a:hover { text-decoration: underline; }
 // 优先走 GitHub Pages 同域镜像（FC 会同步写 site/fc_state.json），
 // 避免 raw.githubusercontent.com 的跨域/加载失败问题。
 const STATE_URL = './site/fc_state.json';
+const LOGS_URL = './site/fc_logs.json';
+
+const LOG_KINDS = {
+  run: {icon: '▶️', cls: 'log-run'},
+  dispatch_ok: {icon: '📤', cls: 'log-ok'},
+  publish_ok: {icon: '✅', cls: 'log-ok'},
+  dedup: {icon: '🛡️', cls: 'log-dedup'},
+  fail: {icon: '❌', cls: 'log-fail'},
+  state_lost: {icon: '⚠️', cls: 'log-fail'},
+  retry: {icon: '🔁', cls: 'log-retry'}
+};
 
 const PLATFORM_NAMES = {
   bilibili: 'B站',
@@ -243,6 +269,24 @@ async function load() {
   } catch (e) {
     document.getElementById('updated').textContent = '加载失败: ' + e.message;
   }
+
+  // 运行日志（FC 每次运行的事件流）
+  try {
+    const lresp = await fetch(LOGS_URL);
+    if (lresp.ok) {
+      const logs = await lresp.json();
+      const el = document.getElementById('fclogs');
+      if (Array.isArray(logs) && logs.length) {
+        el.innerHTML = logs.slice(-40).reverse().map(l => {
+          const k = LOG_KINDS[l.kind] || {icon: '•', cls: ''};
+          const t = new Date((l.ts||0)*1000).toLocaleString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+          return `<div class="log-item ${k.cls}"><span class="log-icon">${k.icon}</span><span class="log-time">${t}</span><span class="log-msg">${(l.msg||'').replace(/</g,'&lt;')}</span>${l.detail ? `<span class="log-detail">${(l.detail||'').replace(/</g,'&lt;')}</span>` : ''}</div>`;
+        }).join('');
+      } else {
+        el.innerHTML = '<div class="empty">暂无运行日志</div>';
+      }
+    }
+  } catch (e) { /* 日志加载失败不阻塞主页面 */ }
 }
 load();
 setInterval(load, 60000);
