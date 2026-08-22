@@ -41,7 +41,7 @@ MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B
 TARGET_SEC = 180          # 成片目标时长
 MAX_CHARS = 18            # 单条字幕上限
 MIN_CHARS = 6
-BREAK = ",。!?;、,.!?;"
+BREAK = "，。！？；：、,.!?;"
 # 语气词过滤:ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
 # 单帧语气词没有信息量,反而让字幕跳动
 FILLER_WORDS = set("啊呀呐呢吧嘛哦噢哎唉哼嗯呃哈呵嘿")
@@ -182,19 +182,20 @@ def _group_tokens_to_cues(words):
     if not toks:
         return []
 
-    # 停顿反推标点:返回带标点的 token 流。
-    # 注意:标点 token 不占时间(start=end=prev_end)--
-    # 否则字幕结束时间会被推到下一词的开始,间隙归零,
-    # 全部帧被「合并间距太小」逻辑吞掉(2026-08-20 实际事故:1139 词→1 条字幕)。
+    # 停顿反推标点：返回带标点的 token 流。
+    # 注意：标点 token 不占时间（start=end=prev_end）——
+    # 否则字幕结束时间会被推到下一词的开始，间隙归零，
+    # 全部帧被「合并间距太小」逻辑吞掉（2026-08-20 实际事故：1139 词→1 条字幕）。
+    # 阈值：句号>0.9s、逗号>0.55s —— 只补真停顿，不把词间短停顿误当标点。
     def with_punct(tokens):
         out, prev_end = [], None
         for tok, ws, we in tokens:
             if prev_end is not None:
                 gap = ws - prev_end
-                if gap > 0.6:
+                if gap > 0.9:
                     out.append(("。", prev_end, prev_end))
-                elif gap > 0.3:
-                    out.append((",", prev_end, prev_end))
+                elif gap > 0.55:
+                    out.append(("，", prev_end, prev_end))
             out.append((tok, ws, we))
             prev_end = we
         return out
@@ -408,32 +409,24 @@ def make_ass(entries, path, W, H):
         if not t:
             return ""
         if cjk:
-            # 中文:优先按标点换行;无标点时长行尽量不在连续汉字中间截断
+            # 按宽度断行:每行尽量接近 n 字,标点是「优先断点」而非「必断点」。
+            # 达到 n 字时优先回溯到最近的标点处断(标点留在上一行尾),
+            # 无标点则硬断。这样一句最多 2-3 行,不会每遇逗号就断开。
             lines, cur = [], ""
-            for i, ch in enumerate(t):
+            for ch in t:
                 cur += ch
-                # 标点符号后直接换行
-                if ch in ",。!?、;:":
-                    lines.append(cur)
-                    cur = ""
-                    continue
-                # 长度达到上限,需要换行
                 if len(cur) >= n:
-                    # 优先回溯到前一个标点处
                     cut = -1
-                    for j in range(len(cur) - 1, 0, -1):
-                        if cur[j] in ",。!?、;:":
+                    # 在 [n-8, n] 范围内找最后一个标点作为断点
+                    for j in range(len(cur) - 1, max(0, len(cur) - 9), -1):
+                        if cur[j] in "，。！？；：、":
                             cut = j + 1
                             break
-                    if cut > 0:
-                        lines.append(cur[:cut])
-                        cur = cur[cut:]
-                    else:
-                        # 无标点:尽量不在连续汉字中间截断,找前后都是汉字的边界
-                        # 简单处理:直接截断,但保留完整字符
-                        lines.append(cur)
-                        cur = ""
-            if cur:
+                    if cut <= 0:
+                        cut = len(cur)  # 无标点,整行断
+                    lines.append(cur[:cut])
+                    cur = cur[cut:]
+            if cur or not lines:
                 lines.append(cur)
             return "\\N".join(lines)
         words, lines, cur = t.split(), [], ""
@@ -532,17 +525,17 @@ def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path):
-    """封面：抽帧 → 人脸检测裁切 → 竖屏9:16/横屏16:9 → 底部渐变 → 标题大字。
+    """封面:抽帧 → 人脸检测裁切 → 竖屏9:16/横屏16:9 → 底部渐变 → 标题大字。
 
-    竖屏排版自适应（2026-08-21 修复）：之前用横屏硬编码参数（64px字号×17字/行），
+    竖屏排版自适应(2026-08-21 修复):之前用横屏硬编码参数(64px字号×17字/行),
     720px 宽的竖屏画布装不下 1007px 文字 → 标题溢出、人脸被挤。
-    小帧人脸检测：360x640 低清源 haar 检不出脸 → 提前放大再检测。
-    抽帧位置：取段落偏前位置，避开字幕最密集的说话中段。
+    小帧人脸检测:360x640 低清源 haar 检不出脸 → 提前放大再检测。
+    抽帧位置:取段落偏前位置,避开字幕最密集的说话中段。
     """
     from PIL import Image, ImageDraw, ImageFont
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
-    # 抽 3 帧（段落前1/4、正中、偏后），偏前帧字幕较少
+    # 抽 3 帧(段落前1/4、正中、偏后),偏前帧字幕较少
     frames = []
     for offset_pct in [-0.25, 0, 0.15]:
         t = max(0, mid + offset_pct * (seg_end - seg_start))
@@ -553,7 +546,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         if fp.exists():
             frames.append(fp)
 
-    # 选人脸最大的帧（小帧先放大再检测，360p 源 haar 直接检不出）
+    # 选人脸最大的帧(小帧先放大再检测,360p 源 haar 直接检不出)
     best_frame = frames[0] if frames else tmp
     best_face = None
     try:
@@ -575,7 +568,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             if len(faces) > 0:
                 biggest = max(faces, key=lambda f: f[2] * f[3])
                 if best_face is None or biggest[2] * biggest[3] > best_face[2] * best_face[3]:
-                    # 人脸坐标除回 scale，映射到原图坐标系
+                    # 人脸坐标除回 scale,映射到原图坐标系
                     best_face = (int(biggest[0]/scale), int(biggest[1]/scale),
                                  int(biggest[2]/scale), int(biggest[3]/scale))
                     best_frame = fp
@@ -585,16 +578,16 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
 
-    # 以人脸为中心裁切，保持目标比例
+    # 以人脸为中心裁切,保持目标比例
     vertical = h > w
     if vertical:
-        # 竖屏：9:16，人脸中心决定水平裁切窗口，头部适当上移留白
+        # 竖屏:9:16,人脸中心决定水平裁切窗口,头部适当上移留白
         tw = min(w, int(h * 9 / 16))
         if best_face is not None:
             fx, fy, fw, fh = best_face
             cx = fx + fw // 2
             x0 = max(0, min(cx - tw // 2, w - tw))
-            # 裁切窗口上移：保头顶（人脸顶部上方留人脸高度 80%）
+            # 裁切窗口上移:保头顶(人脸顶部上方留人脸高度 80%)
             top = max(0, fy - int(fh * 0.8))
             bottom = min(h, top + int(tw * 16 / 9))
             if bottom - top < int(tw * 16 / 9):
@@ -606,7 +599,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         img = img.resize((720, 1280), Image.LANCZOS)
         W, H = 720, 1280
     else:
-        # 横屏：16:9，以人脸为中心
+        # 横屏:16:9,以人脸为中心
         tw = min(w, int(h * 16 / 9))
         if best_face is not None:
             fx, fy, fw, fh = best_face
@@ -622,7 +615,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         fp.unlink(missing_ok=True)
     tmp.unlink(missing_ok=True)
 
-    # 底部 45% 压暗（黑渐变），字才看得清
+    # 底部 45% 压暗(黑渐变),字才看得清
     overlay = Image.new("L", (W, H), 0)
     od = ImageDraw.Draw(overlay)
     for y in range(H):
@@ -638,19 +631,19 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             font_path = cand
             break
     idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
-    # 字号按画布宽自适应（竖屏 720 → 标题 44px，横屏 1280 → 64px）
+    # 字号按画布宽自适应(竖屏 720 → 标题 44px,横屏 1280 → 64px)
     title_size = 44 if W < 1000 else 64
     tag_size = 30 if W < 1000 else 36
     f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
     f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
 
     d = ImageDraw.Draw(img)
-    # 主讲人标签（左上角黄底黑字），尺寸自适应
+    # 主讲人标签(左上角黄底黑字),尺寸自适应
     tag_w = int(len(speaker) * tag_size * 1.15) + 28
     d.rounded_rectangle([36, 32, 36 + tag_w, 32 + int(tag_size * 1.7)], 8, fill=(255, 196, 0))
     d.text((50, 40), speaker, font=f_tag, fill=(20, 20, 20))
-    # 标题：行宽按画布自适应，行高按字号
-    # 竖屏每行约 W/字号*0.95 字，横屏约 17 字；最多 3 行（竖屏窄）
+    # 标题:行宽按画布自适应,行高按字号
+    # 竖屏每行约 W/字号*0.95 字,横屏约 17 字;最多 3 行(竖屏窄)
     if W < 1000:
         chars_per_line = max(10, int(W * 0.92 / title_size))
         max_lines = 3
@@ -664,7 +657,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     lines = [title[i:i + chars_per_line] for i in range(0, min(len(title), chars_per_line * max_lines), chars_per_line)]
     y = H - margin_bottom - line_h * len(lines)
     for ln in lines:
-        # 白字黑边（描边厚度自适应）
+        # 白字黑边(描边厚度自适应)
         stroke = 3 if W < 1000 else 2
         d.text((40, y), ln, font=f_title, fill=(255, 255, 255),
                stroke_width=stroke, stroke_fill=(0, 0, 0))
@@ -674,15 +667,15 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
 
 
 def has_existing_subtitles(src):
-    """检测视频是否已有硬字幕（烧录在画面上的字幕）。
+    """检测视频是否已有硬字幕(烧录在画面上的字幕)。
 
-    2026-08-21 修复：旧版亮度阈值法把「画面偏亮」误判成「有字幕」
-    （白色衣服/亮背景即可触发），导致无字幕视频跳过烧录，成片裸奔。
+    2026-08-21 修复:旧版亮度阈值法把「画面偏亮」误判成「有字幕」
+    (白色衣服/亮背景即可触发),导致无字幕视频跳过烧录,成片裸奔。
 
-    新版检测字幕的结构特征（同时满足才算字幕帧）：
-    1. 底部存在横向窄条带（高度 3%~15% 屏高）
-    2. 条带内白色（高亮）像素 ≥ 20%（文字覆盖）
-    3. 条带上下边界与背景有明显对比（不是整片亮背景）
+    新版检测字幕的结构特征(同时满足才算字幕帧):
+    1. 底部存在横向窄条带(高度 3%~15% 屏高)
+    2. 条带内白色(高亮)像素 ≥ 20%(文字覆盖)
+    3. 条带上下边界与背景有明显对比(不是整片亮背景)
     """
     try:
         import cv2
@@ -702,14 +695,14 @@ def has_existing_subtitles(src):
                 continue
             checked += 1
             h, w = frame.shape[:2]
-            # 只看底部 28%（字幕安全区）
+            # 只看底部 28%(字幕安全区)
             bottom = frame[int(h * 0.72):, :]
             gray = cv2.cvtColor(bottom, cv2.COLOR_BGR2GRAY)
-            # 按行统计亮像素（>200）比例，找「文字条带」
+            # 按行统计亮像素(>200)比例,找「文字条带」
             bright = (gray > 200).astype(np.uint8)
             row_ratio = bright.mean(axis=1)  # 每行的亮像素占比
-            # 滑窗找连续条带：高度 3%~15% 屏高，且带内亮像素 ≥ 20%，
-            # 但条带外（其上 10% 高度内）亮像素 < 8%（排除整片亮背景）
+            # 滑窗找连续条带:高度 3%~15% 屏高,且带内亮像素 ≥ 20%,
+            # 但条带外(其上 10% 高度内)亮像素 < 8%(排除整片亮背景)
             bh = bottom.shape[0]
             found = False
             for band_h in range(max(2, int(h * 0.03)), int(h * 0.15)):
@@ -717,13 +710,13 @@ def has_existing_subtitles(src):
                     break
                 for y0 in range(0, bh - band_h, max(1, band_h // 2)):
                     band = row_ratio[y0:y0 + band_h]
-                    # 条带上方必须有足够行且明显更暗（与背景对比），
-                    # 纯亮背景（如白墙）会被排除；条带贴底时用带内列分布区分：
-                    # 真字幕是「中间亮两侧暗」，整行亮是背景
+                    # 条带上方必须有足够行且明显更暗(与背景对比),
+                    # 纯亮背景(如白墙)会被排除;条带贴底时用带内列分布区分:
+                    # 真字幕是「中间亮两侧暗」,整行亮是背景
                     above = row_ratio[max(0, y0 - int(h*0.08)):max(1, y0)]
                     if band.mean() < 0.20 or len(above) < 2 or above.mean() >= 0.08:
                         continue
-                    # 带内列分布：字幕文字不会横贯整行，两端留白
+                    # 带内列分布:字幕文字不会横贯整行,两端留白
                     col_bright = bright[y0:y0 + band_h, :].mean(axis=0)
                     if col_bright[:int(w*0.12)].mean() < 0.10 and col_bright[-int(w*0.12):].mean() < 0.10:
                         found = True
