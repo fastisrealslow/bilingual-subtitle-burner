@@ -398,11 +398,21 @@ def make_ass(entries, path, W, H):
     font_zh = os.environ.get("ZH_FONT", "Microsoft YaHei")
     font_en = os.environ.get("EN_FONT", "Arial")
     vertical = H > W
-    zh = max(30, int(H * 46 / 1280)) if vertical else max(18, int(W * 26 / 640))
-    en = max(22, int(H * 32 / 1280)) if vertical else max(14, int(W * 20 / 640))
-    mv = int(H * 0.09) if vertical else 12
-    zw = max(12, int(W * 15 / 720)) if vertical else max(10, int(W * 16 / 640))
-    ew = max(24, int(W * 34 / 720)) if vertical else max(20, int(W * 38 / 640))
+    if vertical:
+        # 竖屏：按高度比例 + 抬高避开底部 UI（现状保持，用户未反馈竖屏问题）
+        zh = max(30, int(H * 46 / 1280))
+        en = max(22, int(H * 32 / 1280))
+        mv = int(H * 0.09)
+        zw = max(12, int(W * 15 / 720))
+        ew = max(24, int(W * 34 / 720))
+    else:
+        # 横屏：字号占高 5%、底边距占高 6.5%、行宽按字号自洽。
+        # 旧版按宽度 W*26/640 算 → 占高 7.2% 偏大，且 MarginV 固定 12px 贴底。
+        zh = max(28, int(H * 0.05))
+        en = max(20, int(H * 0.04))
+        mv = int(H * 0.065)
+        zw = max(12, int(W * 0.85 / zh))
+        ew = max(22, int(W * 0.85 / en))
 
     def wrap(t, n, cjk):
         t = (t or "").strip()
