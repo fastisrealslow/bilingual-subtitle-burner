@@ -163,6 +163,20 @@ jobs:
             --occasion "${{ inputs.occasion }}" \
             --source-platform "${{ inputs.source_platform }}"
 
+      - name: 整理归档（slug 命名，留存可分析产物）
+        run: |
+          set -euo pipefail
+          cd "deliver/${{ inputs.slug }}"
+          # 成片、元数据、字幕都按 slug 命名，避免 deliver release 同名覆盖
+          [ -f final.mp4 ] && cp final.mp4 "${{ inputs.slug }}.final.mp4"
+          [ -f meta.json ] && cp meta.json "${{ inputs.slug }}.meta.json"
+          n=1
+          for f in _tmp/seg*.ass; do
+            [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.seg$n.ass" && n=$((n+1))
+          done
+          echo "归档产物："
+          ls -la "${{ inputs.slug }}".* 2>/dev/null || true
+
       - name: 上传成片到 Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -177,7 +191,7 @@ jobs:
         with:
           tag_name: deliver
           name: 成品库
-          files: linyuan/deliver/${{ inputs.slug }}/*
+          files: linyuan/deliver/${{ inputs.slug }}/${{ inputs.slug }}.*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
