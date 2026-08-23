@@ -325,7 +325,7 @@ def pick_highlights(cues, speaker, api_key, work):
     numbered = "\n".join(
         f"{i}|{int(c['start'])//60}:{int(c['start'])%60:02d}|{c['text']}"
         for i, c in enumerate(cues))
-    prompt = f"""下面是{speaker}一段讲话的字幕,格式为「序号|时间|文本」。
+    prompt = f"""下面是{speaker}一段讲话的字幕,格式为「序号|时间|文本」(注意:序号从 0 开始计数)。
 
 请挑出 2-4 个最有价值的**连续段落**,用于剪成约 {TARGET_SEC} 秒的短视频。若素材本身较短(不到 2 分钟),选 2 段即可,宁缺毋滥。
 
@@ -346,11 +346,29 @@ def pick_highlights(cues, speaker, api_key, work):
 
     valid = []
     for p in picks:
-        a, b = int(p["start"]), int(p["end"])
+        try:
+            a, b = int(p["start"]), int(p["end"])
+        except (ValueError, KeyError, TypeError):
+            continue
         if 0 <= a <= b < len(cues):
             valid.append({"start": a, "end": b, "reason": p.get("reason", "")})
+            continue
+        # 容错：LLM 误用 1-based 序号（把第一条当序号 1），统一减 1
+        if 1 <= a <= b <= len(cues):
+            valid.append({"start": a - 1, "end": b - 1, "reason": p.get("reason", "")})
     if not valid:
-        raise RuntimeError("金句区间全部越界")
+        # 降级兜底：金句选不出时不废掉整条，取前 TARGET_SEC 秒的连续字幕
+        end_idx = 0
+        total = 0.0
+        for i, c in enumerate(cues):
+            total += c["end"] - c["start"]
+            if total >= TARGET_SEC:
+                end_idx = i
+                break
+        else:
+            end_idx = len(cues) - 1
+        valid = [{"start": 0, "end": max(1, end_idx), "reason": "降级取前段"}]
+        print(f"[金句] LLM 未返回有效区间，降级取前段(至第 {end_idx} 条)")
     cache.write_text(json.dumps(valid, ensure_ascii=False, indent=1), encoding="utf-8")
     for v in valid:
         d = cues[v["end"]]["end"] - cues[v["start"]]["start"]
