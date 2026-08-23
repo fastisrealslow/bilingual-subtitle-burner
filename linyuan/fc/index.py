@@ -1028,8 +1028,8 @@ def publish_handler(event=None, context=None):
                     candidate["last_retry"] = int(now)
                     retried += 1
                     log.info(f"{s} 无 artifact，自动重试出片 ({retries+1}/2)")
-                except Exception as re:
-                    log.warning(f"{s} 重试触发失败: {re}")
+                except Exception as retry_err:
+                    log.warning(f"{s} 重试触发失败: {retry_err}")
             else:
                 log.warning(f"{s} 无可用 asset_url，无法重试")
         else:
