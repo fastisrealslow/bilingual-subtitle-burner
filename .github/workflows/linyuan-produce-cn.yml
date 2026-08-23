@@ -77,7 +77,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends \
-            ffmpeg fonts-noto-cjk poppler-utils
+            ffmpeg fonts-noto-cjk poppler-utils libgl1 libglib2.0-0
           fc-cache -f
           ffprobe -version | head -1
 
