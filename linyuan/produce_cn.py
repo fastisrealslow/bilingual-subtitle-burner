@@ -605,8 +605,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
                     best_face = (int(biggest[0]/scale), int(biggest[1]/scale),
                                  int(biggest[2]/scale), int(biggest[3]/scale))
                     best_frame = fp
-    except ImportError:
-        pass  # 没装 opencv 就用第一帧
+    except Exception:
+        pass  # cv2 不可用/缺级联文件(如 opencv-headless 无 CascadeClassifier)→ 退居中裁切
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
