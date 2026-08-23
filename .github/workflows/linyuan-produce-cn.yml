@@ -84,7 +84,7 @@ jobs:
       - name: 安装 Python 依赖
         run: |
           python -m pip install --upgrade pip
-          pip install faster-whisper yt-dlp pillow fonttools opencv-python-headless jieba
+          pip install faster-whisper yt-dlp pillow fonttools opencv-python jieba
 
       # large-v3 是 2.9GB，每次现下要好几分钟且可能超时。
       # 缓存键固定（模型不会变），命中后直接复用。
