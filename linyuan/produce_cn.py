@@ -556,8 +556,10 @@ def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path):
-    """封面:抽帧 → 人脸检测裁切 → 竖屏9:16/横屏16:9 → 底部渐变 → 标题大字。
+    """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
+    竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
+    竖屏画面居中贴到 1280x720,两侧用放大模糊的原帧做背景。
     竖屏排版自适应(2026-08-21 修复):之前用横屏硬编码参数(64px字号×17字/行),
     720px 宽的竖屏画布装不下 1007px 文字 → 标题溢出、人脸被挤。
     小帧人脸检测:360x640 低清源 haar 检不出脸 → 提前放大再检测。
@@ -904,9 +906,8 @@ def main():
 
     # 文案 + 封面(投稿三件套:标题/简介/标签 + 封面图)
     cw = copywrite(cues, sel, args.speaker, args.occasion, api_key, work)
-    # 竖屏视频生成 9:16 封面,横屏生成 16:9 封面
-    vertical = H > W
-    cover_name = "cover_9x16.jpg" if vertical else "cover_16x9.jpg"
+    # 封面统一 16:9（B站封面信息流是横屏，竖屏视频也输出 16:9 横屏封面）
+    cover_name = "cover_16x9.jpg"
     cover = out / cover_name
     try:
         p0 = picks[0]
