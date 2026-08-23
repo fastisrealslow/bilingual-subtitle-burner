@@ -42,6 +42,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 a { color: #007bff; text-decoration: none; }
 a:hover { text-decoration: underline; }
 .alert { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
+.reason-summary { font-size: 13px; color: #666; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
 .log-item { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 .log-item:last-child { border-bottom: none; }
 .log-icon { flex-shrink: 0; }
@@ -83,7 +84,7 @@ a:hover { text-decoration: underline; }
     <div id="fclogs"></div>
   </div>
   <div class="section">
-    <h2>❌ 已拒绝</h2>
+    <h2>❌ 失败/拒绝（最近 7 天）</h2>
     <div id="rejected"></div>
   </div>
 </div>
@@ -168,13 +169,16 @@ async function load() {
     const state = await resp.json();
 
     const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));
-    const pending = (state.dispatched || []).filter(e => e.slug && !(state.published || {})[e.slug]);
-    const rejected = state.rejected || [];
+    // 待发布：只算真正的 pending（排除已失败、已发布）
+    const pending = (state.dispatched || []).filter(e => e.slug && !(state.published || {})[e.slug] && !e.failed);
+    const failedSlugs = new Set((state.dispatched || []).filter(e => e.failed).map(e => e.slug));
+    const rejectedCount = (state.rejected || []).length;
+    const failedCount = failedSlugs.size;
 
     document.getElementById('stats').innerHTML = `
       <div class="stat stat-published"><div class="stat-num">${published.length}</div><div class="stat-label">已发布</div></div>
       <div class="stat stat-pending"><div class="stat-num">${pending.length}</div><div class="stat-label">待发布</div></div>
-      <div class="stat stat-rejected"><div class="stat-num">${rejected.length}</div><div class="stat-label">已拒绝</div></div>
+      <div class="stat stat-rejected"><div class="stat-num">${failedCount + rejectedCount}</div><div class="stat-label">失败/拒绝</div></div>
     `;
 
     // 已发布：按天分组，只显示最近 7 天
@@ -228,24 +232,52 @@ async function load() {
     document.getElementById('pending').innerHTML = pending.length ?
       pending.map(e => {
         const age = Math.floor((Date.now()/1000 - (e.ts||0))/3600);
-        const status = e.failed ? '❌ 已失败' : (age > 6 ? '⏳ 出片可能卡住' : '⏳ 等待出片 + 投稿');
-        const statusClass = e.failed ? 'error' : (age > 6 ? 'pending' : 'pending');
+        const status = age > 6 ? '⏳ 出片可能卡住' : '⏳ 等待出片 + 投稿';
         return `
         <div class="item">
           <div class="item-title">${e.title || e.slug}</div>
-          <div class="item-meta">${e.slug} · 调度于 ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')} · 已等待 ${age} 小时</div>
-          <div class="item-status ${statusClass}">${status}</div>
+          <div class="item-meta">${e.slug} · 已等待 ${age} 小时</div>
+          <div class="item-status pending">${status}</div>
         </div>
       `;
-      }).join('') : '<div class="empty">暂无</div>';
+      }).join('') : '<div class="empty">暂无（干净）</div>';
 
-    document.getElementById('rejected').innerHTML = rejected.length ?
-      rejected.slice(-10).reverse().map(e => `
+    // 失败/拒绝：合并 dispatched 的 failed + rejected，显示原因，只显示最近 7 天
+    function failReason(f) {
+      const err = String(f.last_error || f.error || '');
+      if (/时长/.test(err) && /不在/.test(err)) return '时长不合适';
+      if (/水印/.test(err)) return '有水印';
+      if (/getinfo|code=9|腾讯/.test(err)) return '腾讯源受限';
+      if (/取源|下载|curl|yt-dlp/.test(err)) return '下载失败';
+      if (/金句|字幕|转写|越界/.test(err)) return '出片失败';
+      if (/上传状态未知/.test(err)) return '投稿中断';
+      return '其他';
+    }
+    const failures = [
+      ...(state.dispatched || []).filter(e => e.failed && !(state.published || {})[e.slug])
+        .map(e => ({title: e.title || e.slug, ts: e.ts, reason: failReason(e)})),
+      ...(state.rejected || [])
+        .filter(e => isWithinDays(e.ts, null, 7))
+        .map(e => ({title: (e.video_id || e.key || ''), ts: e.ts, reason: failReason(e)}))
+    ].filter(f => isWithinDays(f.ts, null, 7))
+     .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    // 按原因分组统计
+    const reasonCounts = {};
+    failures.forEach(f => { reasonCounts[f.reason] = (reasonCounts[f.reason] || 0) + 1; });
+    const reasonSummary = Object.entries(reasonCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([r, c]) => `<span class="tag">${r} ×${c}</span>`).join(' ');
+
+    document.getElementById('rejected').innerHTML = failures.length
+      ? `<div class="reason-summary">近 7 天失败 ${failures.length} 条：${reasonSummary}</div>` +
+        failures.slice(0, 20).map(f => `
         <div class="item">
-          <div class="item-title">${e.video_id || e.key}</div>
-          <div class="item-meta">${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}${e.error ? ' · ' + e.error : ''}</div>
+          <div class="item-title">${f.title}</div>
+          <div class="item-meta"><span class="tag tag-watermark">${f.reason}</span> · ${new Date((f.ts||0)*1000).toLocaleString('zh-CN', {month:'short',day:'numeric'})}</div>
         </div>
-      `).join('') : '<div class="empty">暂无</div>';
+      `).join('')
+      : '<div class="empty">近 7 天无失败</div>';
 
     const alerts = [];
     const now = Date.now() / 1000;
