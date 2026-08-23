@@ -122,7 +122,7 @@ def fix_terms(text):
     return text
 
 
-def transcribe(src, work):
+def transcribe(src, work, api_key=None):
     """large-v3 + 词级时间戳,按标点和字数重新组句。"""
     from faster_whisper import WhisperModel
     cache = work / "cues_raw.json"
@@ -142,7 +142,10 @@ def transcribe(src, work):
             words.extend(seg.words)
         print(f"  [{seg.start:7.1f}s] {seg.text.strip()[:46]}", flush=True)
 
-    cues = _group_tokens_to_cues(words)
+    # 优先 LLM 断句（理解语义），失败/不可用回退规则断句
+    cues = _llm_punctuate_and_cues(words, api_key, work)
+    if cues is None:
+        cues = _group_tokens_to_cues(words)
 
     # 合并间距太小的帧(防止字幕闪烁);拼接时补分隔符避免文字粘连。
     # 关键约束：合并后长度不超过 MAX_CHARS+2，否则连续说话时硬切的长段
@@ -160,6 +163,59 @@ def transcribe(src, work):
     cues = [c for c in cues if c["text"]]
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[asr] {len(words)} 词 → {len(cues)} 条字幕")
+    return cues
+
+
+def _llm_punctuate_and_cues(words, api_key, work):
+    """LLM 断句：把 ASR 词级文本交给 LLM 加标点（理解语义），
+    再按标点断句。返回 cues；失败/校验不过/太短返回 None（回退规则断句）。
+
+    省钱设计：
+    - 整段一次调用（不是逐句）
+    - llm() 自带内容寻址缓存（.llm_cache），同文本重跑不付费
+    - 文本 < 20 字跳过（规则够用）
+    """
+    if not api_key or not work:
+        return None
+    chars = []  # [(字, start, end)] —— 按顺序对应原文每个字
+    for w in words:
+        tok = (w.word or "").strip()
+        if not tok or (len(tok) == 1 and tok in FILLER_WORDS):
+            continue
+        for ch in tok:
+            chars.append((ch, w.start, w.end))
+    if len(chars) < 20:
+        return None
+    raw_text = "".join(c[0] for c in chars)
+    prompt = ("给下面这段语音识别出的中文加标点（，。！？等），"
+              "只输出加标点后的原文，不要增删改任何字，不要解释，不要加空格换行：\n\n" + raw_text)
+    try:
+        out = llm([{"role": "user", "content": prompt}], api_key,
+                  temperature=0.0, max_tokens=len(raw_text) + 200)
+    except Exception as e:
+        print(f"[断句] LLM 不可用，回退规则: {e}", file=sys.stderr)
+        return None
+    out = re.sub(r"```.*?```", "", out, flags=re.S).strip()
+    out = re.sub(r"\s+", "", out)
+    # 校验：去掉标点后必须与原文完全一致（防止 LLM 增删改字）
+    if re.sub(r"[，。！？；：、,.!?;]", "", out) != raw_text:
+        print("[断句] LLM 输出与原文字序不符，回退规则", file=sys.stderr)
+        return None
+    # 按标点断句，标点位置映射回时间戳
+    cues, buf, ci = [], [], 0
+    for ch in out:
+        if ch in "，。！？；：、,.!?;":
+            if buf:
+                text = "".join(c[0] for c in buf) + ch
+                cues.append({"start": buf[0][1], "end": buf[-1][2], "text": text})
+                buf = []
+        else:
+            if ci < len(chars):
+                buf.append(chars[ci])
+                ci += 1
+    if buf:
+        cues.append({"start": buf[0][1], "end": buf[-1][2], "text": "".join(c[0] for c in buf)})
+    print(f"[断句] LLM 断句: {len(words)} 词 → {len(cues)} 条")
     return cues
 
 
@@ -823,7 +879,7 @@ def main():
     work = out / "_tmp"
     work.mkdir(parents=True, exist_ok=True)
 
-    cues = transcribe(src, work)
+    cues = transcribe(src, work, api_key)
 
     # 检测已有字幕(如果视频已有硬字幕,跳过字幕烧录)
     existing_subtitles = has_existing_subtitles(src)
