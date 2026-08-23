@@ -144,10 +144,13 @@ def transcribe(src, work):
 
     cues = _group_tokens_to_cues(words)
 
-    # 合并间距太小的帧(防止字幕闪烁);拼接时补分隔符避免文字粘连
+    # 合并间距太小的帧(防止字幕闪烁);拼接时补分隔符避免文字粘连。
+    # 关键约束：合并后长度不超过 MAX_CHARS+2，否则连续说话时硬切的长段
+    # 会被合并回超长条，导致「一页十几行字幕」(2026-08-23 事故根因)。
     merged = []
     for c in cues:
-        if merged and c["start"] - merged[-1]["end"] < MIN_GAP:
+        if merged and c["start"] - merged[-1]["end"] < MIN_GAP and \
+           len(merged[-1]["text"]) + len(c["text"]) <= MAX_CHARS + 2:
             merged[-1]["end"] = c["end"]
             sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else ","
             merged[-1]["text"] += sep + c["text"]
