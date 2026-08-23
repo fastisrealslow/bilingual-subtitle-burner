@@ -545,7 +545,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     小帧人脸检测:360x640 低清源 haar 检不出脸 → 提前放大再检测。
     抽帧位置:取段落偏前位置,避开字幕最密集的说话中段。
     """
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
     # 抽 3 帧(段落前1/4、正中、偏后),偏前帧字幕较少
@@ -594,13 +594,13 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     # 以人脸为中心裁切,保持目标比例
     vertical = h > w
     if vertical:
-        # 竖屏:9:16,人脸中心决定水平裁切窗口,头部适当上移留白
+        # 竖屏视频 → 16:9 横屏封面（B站封面是横屏显示）：
+        # 竖屏主体居中贴到 1280x720，两侧用放大模糊的原帧做背景（毛玻璃，非纯黑边）
         tw = min(w, int(h * 9 / 16))
         if best_face is not None:
             fx, fy, fw, fh = best_face
             cx = fx + fw // 2
             x0 = max(0, min(cx - tw // 2, w - tw))
-            # 裁切窗口上移:保头顶(人脸顶部上方留人脸高度 80%)
             top = max(0, fy - int(fh * 0.8))
             bottom = min(h, top + int(tw * 16 / 9))
             if bottom - top < int(tw * 16 / 9):
@@ -609,8 +609,17 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         else:
             x0 = (w - tw) // 2
             img = img.crop((x0, 0, x0 + tw, h))
-        img = img.resize((720, 1280), Image.LANCZOS)
-        W, H = 720, 1280
+        # 背景：原始帧放大到 1280x720 并高斯模糊
+        bg = Image.open(best_frame).convert("RGB").resize((1280, 720), Image.LANCZOS) \
+            .filter(ImageFilter.GaussianBlur(30))
+        # 竖屏主体缩放到高度 720 居中
+        fg_h = 720
+        fg_w = max(1, int(img.width * fg_h / img.height))
+        fg = img.resize((fg_w, fg_h), Image.LANCZOS)
+        canvas = bg.copy()
+        canvas.paste(fg, ((1280 - fg_w) // 2, 0))
+        img = canvas
+        W, H = 1280, 720
     else:
         # 横屏:16:9,以人脸为中心
         tw = min(w, int(h * 16 / 9))
@@ -801,12 +810,7 @@ def main():
     if existing_subtitles:
         print("[检测] 视频已有硬字幕,跳过字幕烧录")
 
-    # 检测难以裁除的水印
-    hard_watermark = has_hard_watermark(src)
-    if hard_watermark:
-        print("[检测] 视频有中间水印,难以裁除,跳过")
-        return 1
-
+    # 中间水印不再检测跳过（用户 2026-08-23 决定：带中间水印也照常出片）
     picks = pick_highlights(cues, args.speaker, api_key, work)
 
     sel = []
@@ -842,31 +846,22 @@ def main():
         make_ass(entries, ass, W, H)
         seg = work / f"seg{n}.mp4"
         print(f"[烧录] 段{n} {s0:.0f}s→{s1:.0f}s ({s1-s0:.0f}s)")
-        # 根据检测结果构建滤镜
-        if hard_watermark:
-            # 有中间水印 → 跳过,不出片
-            print("[跳过] 有中间水印,不出片")
-            return 1
+        # 裁掉顶部 100px，保持原始宽高比（横屏 16:9 / 竖屏 9:16）
+        vertical = H > W
+        if vertical:
+            crop_h = H - 100
+            crop_w = min(int(crop_h * 9 / 16), W)
         else:
-            # 裁掉顶部 100px,保持原始宽高比
-            # 横屏 16:9 → 保持 16:9;竖屏 9:16 → 保持 9:16
-            vertical = H > W
-            if vertical:
-                # 竖屏:保持 9:16
-                crop_h = H - 100
-                crop_w = min(int(crop_h * 9 / 16), W)
-            else:
-                # 横屏:保持 16:9
-                crop_h = H - 100
-                crop_w = min(int(crop_h * 16 / 9), W)
-            crop_x = (W - crop_w) // 2
+            crop_h = H - 100
+            crop_w = min(int(crop_h * 16 / 9), W)
+        crop_x = (W - crop_w) // 2
 
-            if existing_subtitles:
-                # 已有字幕 → 不烧录字幕
-                vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
-            else:
-                # 正常:裁掉顶部 + 烧录字幕
-                vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
+        if existing_subtitles:
+            # 已有字幕 → 不烧录字幕
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
+        else:
+            # 正常:裁掉顶部 + 烧录字幕
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
              "-t", str(s1 - s0), "-i", str(src),
