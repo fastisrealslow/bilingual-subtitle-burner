@@ -169,6 +169,14 @@ async function load() {
     const state = await resp.json();
 
     const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));
+    // 按 bvid 去重：同源拦截会复用旧 bvid 形成幽灵记录，同一 bvid 只保留最新一条
+    const seenBvid = new Set();
+    const publishedUnique = published.filter(e => {
+      if (!e.bvid || e.bvid === '待确认（B站稿件管理查看）') return true;
+      if (seenBvid.has(e.bvid)) return false;
+      seenBvid.add(e.bvid);
+      return true;
+    });
     // 待发布：只算真正的 pending（排除已失败、已发布）
     const pending = (state.dispatched || []).filter(e => e.slug && !(state.published || {})[e.slug] && !e.failed);
     const failedSlugs = new Set((state.dispatched || []).filter(e => e.failed).map(e => e.slug));
@@ -176,23 +184,23 @@ async function load() {
     const failedCount = failedSlugs.size;
 
     document.getElementById('stats').innerHTML = `
-      <div class="stat stat-published"><div class="stat-num">${published.length}</div><div class="stat-label">已发布</div></div>
+      <div class="stat stat-published"><div class="stat-num">${publishedUnique.length}</div><div class="stat-label">已发布</div></div>
       <div class="stat stat-pending"><div class="stat-num">${pending.length}</div><div class="stat-label">待发布</div></div>
       <div class="stat stat-rejected"><div class="stat-num">${failedCount + rejectedCount}</div><div class="stat-label">失败/拒绝</div></div>
     `;
 
-    // 已发布：按天分组，只显示最近 7 天
-    const recentPublished = published.filter(e => isWithinDays(e.ts, e.publish_time, 7));
+    // 已发布：按投稿时间 ts 分组，只显示最近 7 天（不能再用 publish_time，那是源视频发布时间，可能几个月前）
+    const recentPublished = publishedUnique.filter(e => isWithinDays(e.ts, null, 7));
     const publishedByDay = {};
     recentPublished.forEach(e => {
-      const key = getDateKey(e.ts, e.publish_time);
+      const key = getDateKey(e.ts, null);
       if (!publishedByDay[key]) publishedByDay[key] = [];
       publishedByDay[key].push(e);
     });
 
     document.getElementById('published').innerHTML = recentPublished.length ?
       Object.entries(publishedByDay)
-        .sort((a, b) => new Date(b[1][0].publish_time || b[1][0].ts * 1000) - new Date(a[1][0].publish_time || a[1][0].ts * 1000))
+        .sort((a, b) => (b[1][0].ts || 0) - (a[1][0].ts || 0))
         .map(([day, items]) => `
           <div class="day-group">
             <div class="day-title">${day}</div>
@@ -212,7 +220,7 @@ async function load() {
                 <div class="item">
                   <div class="item-title">${e.title || e.slug}</div>
                   <div class="item-meta">
-                    <span>${formatDate(e.publish_time || e.ts * 1000)}</span>
+                    <span>${formatDate(e.ts * 1000)}</span>
                     <span>·</span>
                     <a href="https://www.bilibili.com/video/${e.bvid}" target="_blank">${e.bvid}</a>
                     ${duration ? `<span>·</span><span>${duration}</span>` : ''}
