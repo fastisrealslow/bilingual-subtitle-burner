@@ -201,20 +201,26 @@ def _llm_punctuate_and_cues(words, api_key, work):
     if re.sub(r"[，。！？；：、,.!?;]", "", out) != raw_text:
         print("[断句] LLM 输出与原文字序不符，回退规则", file=sys.stderr)
         return None
-    # 按标点断句，标点位置映射回时间戳
-    cues, buf, ci = [], [], 0
+    # 按标点断句，标点位置映射回时间戳。
+    # 关键：只有句末标点（。！？）断句，逗号等句内标点保留在句内——
+    # 否则 cues 被逗号切碎，金句选段会选到「半句」（2026-08-25 用户反馈：
+    # 字幕开头是上一句折断的话、结尾也是折断的话）。
+    cues, chars_buf, text_buf, ci = [], [], "", 0
     for ch in out:
-        if ch in "，。！？；：、,.!?;":
-            if buf:
-                text = "".join(c[0] for c in buf) + ch
-                cues.append({"start": buf[0][1], "end": buf[-1][2], "text": text})
-                buf = []
+        if ch in "。！？!?":
+            text_buf += ch
+            if chars_buf:
+                cues.append({"start": chars_buf[0][1], "end": chars_buf[-1][2], "text": text_buf})
+            chars_buf, text_buf = [], ""
+        elif ch in "，、；：,;:":
+            text_buf += ch  # 句内标点：保留，不断句
         else:
             if ci < len(chars):
-                buf.append(chars[ci])
+                chars_buf.append(chars[ci])
+                text_buf += chars[ci][0]
                 ci += 1
-    if buf:
-        cues.append({"start": buf[0][1], "end": buf[-1][2], "text": "".join(c[0] for c in buf)})
+    if chars_buf:
+        cues.append({"start": chars_buf[0][1], "end": chars_buf[-1][2], "text": text_buf})
     print(f"[断句] LLM 断句: {len(words)} 词 → {len(cues)} 条")
     return cues
 
@@ -476,20 +482,20 @@ def make_ass(entries, path, W, H):
     font_en = os.environ.get("EN_FONT", "Arial")
     vertical = H > W
     if vertical:
-        # 竖屏：按高度比例 + 抬高避开底部 UI（现状保持，用户未反馈竖屏问题）
-        zh = max(30, int(H * 46 / 1280))
-        en = max(22, int(H * 32 / 1280))
+        # 竖屏：按高度比例 + 抬高避开底部 UI
+        zh = max(34, int(H * 0.04))
+        en = max(24, int(H * 0.03))
         mv = int(H * 0.09)
         zw = max(12, int(W * 15 / 720))
         ew = max(24, int(W * 34 / 720))
     else:
-        # 横屏：字号占高 5%、底边距占高 6.5%、行宽按字号自洽。
-        # 旧版按宽度 W*26/640 算 → 占高 7.2% 偏大，且 MarginV 固定 12px 贴底。
-        zh = max(28, int(H * 0.05))
-        en = max(20, int(H * 0.04))
+        # 横屏：字号占高 7%（用户 2026-08-25 反馈 5% 偏小，调大 ~1.4 倍）、
+        # 底边距占高 6.5%（已修好贴底）、行宽按字号自洽。
+        zh = max(32, int(H * 0.07))
+        en = max(22, int(H * 0.055))
         mv = int(H * 0.065)
-        zw = max(12, int(W * 0.85 / zh))
-        ew = max(22, int(W * 0.85 / en))
+        zw = max(10, int(W * 0.85 / zh))
+        ew = max(20, int(W * 0.85 / en))
 
     def wrap(t, n, cjk):
         t = (t or "").strip()
@@ -638,6 +644,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     # 选人脸最大的帧(小帧先放大再检测,360p 源 haar 直接检不出)
     best_frame = frames[0] if frames else tmp
     best_face = None
+    best_face_score = None
     try:
         import cv2
         import numpy as np
@@ -655,11 +662,17 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3,
                                              minSize=(120, 120) if scale > 1.0 else (80, 80))
             if len(faces) > 0:
-                biggest = max(faces, key=lambda f: f[2] * f[3])
-                if best_face is None or biggest[2] * biggest[3] > best_face[2] * best_face[3]:
-                    # 人脸坐标除回 scale,映射到原图坐标系
-                    best_face = (int(biggest[0]/scale), int(biggest[1]/scale),
-                                 int(biggest[2]/scale), int(biggest[3]/scale))
+                # 选最靠近画面中心的人脸（主角），而不是最大的——
+                # 否则会误选镜头更近的主持人/观众（2026-08-25 封面误选女性主持人）
+                cc_x, cc_y = fw // 2, fh // 2
+                def _dist2(f):
+                    return (f[0] + f[2]/2 - cc_x)**2 + (f[1] + f[3]/2 - cc_y)**2
+                central = min(faces, key=_dist2)
+                d = _dist2(central)
+                if best_face is None or d < best_face_score:
+                    best_face = (int(central[0]/scale), int(central[1]/scale),
+                                 int(central[2]/scale), int(central[3]/scale))
+                    best_face_score = d
                     best_frame = fp
     except Exception:
         pass  # cv2 不可用/缺级联文件(如 opencv-headless 无 CascadeClassifier)→ 退居中裁切
