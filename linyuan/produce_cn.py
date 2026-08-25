@@ -649,9 +649,9 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     from PIL import Image, ImageDraw, ImageFont, ImageFilter
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
-    # 抽 3 帧(段落前1/4、正中、偏后),偏前帧字幕较少
+    # 抽 5 帧（主讲人持续出镜，多帧投票更准）
     frames = []
-    for offset_pct in [-0.25, 0, 0.15]:
+    for offset_pct in [-0.25, -0.12, 0, 0.12, 0.15]:
         t = max(0, mid + offset_pct * (seg_end - seg_start))
         fp = tmp.with_suffix(f".{int(offset_pct*100)}.png")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
@@ -660,13 +660,12 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         if fp.exists():
             frames.append(fp)
 
-    # 选人脸最大的帧(小帧先放大再检测,360p 源 haar 直接检不出)
+    # 多帧检测人脸，选「大且居中」的主讲人（林园离镜头近、居中，主持人/观众偶尔出现）
     best_frame = frames[0] if frames else tmp
     best_face = None
-    best_face_score = None
+    best_score = None
     try:
         import cv2
-        import numpy as np
         cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         cascade = cv2.CascadeClassifier(cascade_path)
         for fp in frames:
@@ -677,21 +676,20 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             scale = 2.0 if max(fh, fw) < 720 else 1.0  # 低清帧放大 2 倍再检测
             if scale > 1.0:
                 img_cv = cv2.resize(img_cv, (fw*2, fh*2), interpolation=cv2.INTER_CUBIC)
+                fh, fw = fh*2, fw*2
             gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
             faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3,
                                              minSize=(120, 120) if scale > 1.0 else (80, 80))
-            if len(faces) > 0:
-                # 选最靠近画面中心的人脸（主角），而不是最大的——
-                # 否则会误选镜头更近的主持人/观众（2026-08-25 封面误选女性主持人）
-                cc_x, cc_y = fw // 2, fh // 2
-                def _dist2(f):
-                    return (f[0] + f[2]/2 - cc_x)**2 + (f[1] + f[3]/2 - cc_y)**2
-                central = min(faces, key=_dist2)
-                d = _dist2(central)
-                if best_face is None or d < best_face_score:
-                    best_face = (int(central[0]/scale), int(central[1]/scale),
-                                 int(central[2]/scale), int(central[3]/scale))
-                    best_face_score = d
+            for f in faces:
+                fx, fy, fw2, fh2 = f
+                cx, cy = fx + fw2/2, fy + fh2/2
+                center_dist = ((cx - fw/2)**2 + (cy - fh/2)**2) ** 0.5 / max(fw, fh)
+                area_norm = (fw2 * fh2) / (fw * fh)
+                # 主讲人=居中优先（演讲者在画面主体位置），脸大作次要因素
+                score = area_norm * 30 - center_dist * 50
+                if best_score is None or score > best_score:
+                    best_score = score
+                    best_face = (int(fx/scale), int(fy/scale), int(fw2/scale), int(fh2/scale))
                     best_frame = fp
     except Exception:
         pass  # cv2 不可用/缺级联文件(如 opencv-headless 无 CascadeClassifier)→ 退居中裁切
