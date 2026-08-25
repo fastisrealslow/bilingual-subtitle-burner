@@ -374,9 +374,18 @@ def dedup_by_title(cands, threshold=0.6):
 def pick(items, st, n):
     now = time.time()
     done = {e["key"] for e in st["dispatched"]} | {e["key"] for e in st["rejected"]}
+    # 已发布过的 key/source_url：绝不能因 pending_retry 残留被重新派发
+    # （2026-08-25 事故：同一视频 BV1yM8x6ZEZy 连续 4 天被重复投稿）
+    published_slugs = set(st.get("published", {}).keys())
+    published_keys = {e["key"] for e in st["dispatched"] if e.get("slug") in published_slugs}
+    published_srcs = {info.get("source_url", "") for info in st.get("published", {}).values() if info.get("source_url")}
     # 重试项：3 次失败后会进 rejected，这里从 retry_list 重新加回候选
     retry_ready = []
     for x in st.get("pending_retry", []):
+        if x.get("key") in published_keys:
+            continue  # 已发布过，不再重试
+        if (x.get("page_url") or "").strip() in published_srcs:
+            continue
         if now - x.get("ts", 0) > 30 * 60 and x.get("retries", 0) < 3:
             retry_ready.append(x)
     done -= {x["key"] for x in retry_ready}
@@ -1190,6 +1199,10 @@ def publish_handler(event=None, context=None):
         # 记录已占用的发布时段，防止下一条扎堆；只保留未来 48h 内的预约
         st.setdefault("scheduled", []).append(int(target_slot.timestamp()))
         st["scheduled"] = [x for x in st["scheduled"] if x > time.time() - 3600]
+        # 投稿成功 → 从 pending_retry 清理对应 key/source_url，防止重复派发
+        st["pending_retry"] = [x for x in st.get("pending_retry", [])
+                               if x.get("key") != e.get("key")
+                               and (x.get("page_url") or "").strip() != (e.get("source_url") or "").strip()]
         # 投稿成功后删除 GitHub Actions artifact，避免占用空间
         if slug in art_ids:
             try:
