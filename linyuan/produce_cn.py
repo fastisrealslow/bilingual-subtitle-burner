@@ -759,8 +759,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             font_path = cand
             break
     idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
-    # 字号按画布宽自适应(竖屏 720 → 标题 44px,横屏 1280 → 64px)
-    title_size = 44 if W < 1000 else 64
+    # 字号按画布宽自适应（用户 2026-08-25 反馈封面文字偏小，横屏 64→66px）
+    title_size = 48 if W < 1000 else 66
     tag_size = 30 if W < 1000 else 36
     f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
     f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
@@ -771,18 +771,23 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     d.rounded_rectangle([36, 32, 36 + tag_w, 32 + int(tag_size * 1.7)], 8, fill=(255, 196, 0))
     d.text((50, 40), speaker, font=f_tag, fill=(20, 20, 20))
     # 标题:行宽按画布自适应,行高按字号
-    # 竖屏每行约 W/字号*0.95 字,横屏约 17 字;最多 3 行(竖屏窄)
     if W < 1000:
         chars_per_line = max(10, int(W * 0.92 / title_size))
         max_lines = 3
         line_h = int(title_size * 1.25)
         margin_bottom = 48
     else:
-        chars_per_line = 17
+        chars_per_line = max(13, int(W * 0.90 / title_size))
         max_lines = 2
-        line_h = 76
-        margin_bottom = 60
-    lines = [title[i:i + chars_per_line] for i in range(0, min(len(title), chars_per_line * max_lines), chars_per_line)]
+        line_h = int(title_size * 1.2)
+        margin_bottom = 56
+    # 标题分行：尽量均匀，避免最后一行只剩 1-2 字
+    if len(title) <= chars_per_line:
+        lines = [title]
+    else:
+        n_lines = min(max_lines, (len(title) + chars_per_line - 1) // chars_per_line)
+        per = (len(title) + n_lines - 1) // n_lines
+        lines = [title[i:i + per] for i in range(0, len(title), per)][:n_lines]
     y = H - margin_bottom - line_h * len(lines)
     for ln in lines:
         # 白字黑边(描边厚度自适应)
