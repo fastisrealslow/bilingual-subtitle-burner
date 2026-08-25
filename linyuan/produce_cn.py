@@ -202,25 +202,34 @@ def _llm_punctuate_and_cues(words, api_key, work):
         print("[断句] LLM 输出与原文字序不符，回退规则", file=sys.stderr)
         return None
     # 按标点断句，标点位置映射回时间戳。
-    # 关键：只有句末标点（。！？）断句，逗号等句内标点保留在句内——
-    # 否则 cues 被逗号切碎，金句选段会选到「半句」（2026-08-25 用户反馈：
-    # 字幕开头是上一句折断的话、结尾也是折断的话）。
+    # 断句策略（两层）：
+    # 1) 句末标点（。！？）必断 —— 保证语义句完整
+    # 2) 句内逗号：长句接近 MAX_CHARS 时也断 —— 避免单条字幕过长堆 2-3 行
     cues, chars_buf, text_buf, ci = [], [], "", 0
+    def _flush():
+        nonlocal chars_buf, text_buf
+        if chars_buf:
+            cues.append({"start": chars_buf[0][1], "end": chars_buf[-1][2], "text": text_buf})
+        chars_buf, text_buf = [], ""
     for ch in out:
         if ch in "。！？!?":
             text_buf += ch
-            if chars_buf:
-                cues.append({"start": chars_buf[0][1], "end": chars_buf[-1][2], "text": text_buf})
-            chars_buf, text_buf = [], ""
+            _flush()
         elif ch in "，、；：,;:":
-            text_buf += ch  # 句内标点：保留，不断句
+            # 逗号：text_buf 已够长（接近 MAX_CHARS 的一半以上）就在此断，
+            # 短句则保留在句内（保持语义完整）
+            if len(text_buf) >= MAX_CHARS - 6:
+                text_buf += ch
+                _flush()
+            else:
+                text_buf += ch
         else:
             if ci < len(chars):
                 chars_buf.append(chars[ci])
                 text_buf += chars[ci][0]
                 ci += 1
     if chars_buf:
-        cues.append({"start": chars_buf[0][1], "end": chars_buf[-1][2], "text": text_buf})
+        _flush()
     print(f"[断句] LLM 断句: {len(words)} 词 → {len(cues)} 条")
     return cues
 
@@ -431,6 +440,16 @@ def pick_highlights(cues, speaker, api_key, work):
             end_idx = len(cues) - 1
         valid = [{"start": 0, "end": max(1, end_idx), "reason": "降级取前段"}]
         print(f"[金句] LLM 未返回有效区间，降级取前段(至第 {end_idx} 条)")
+    # 边界对齐到句末标点：金句区间的头尾若是逗号分句（半句），
+    # 则 start 向左退到最近的句号句、end 向右扩到最近的句号句，保证头尾完整。
+    SENT_TAIL = "。！？!?"
+    for v in valid:
+        a, b = v["start"], v["end"]
+        while a > 0 and cues[a]["text"].rstrip() and cues[a]["text"].rstrip()[-1] not in SENT_TAIL:
+            a -= 1
+        while b < len(cues) - 1 and cues[b]["text"].rstrip() and cues[b]["text"].rstrip()[-1] not in SENT_TAIL:
+            b += 1
+        v["start"], v["end"] = a, b
     cache.write_text(json.dumps(valid, ensure_ascii=False, indent=1), encoding="utf-8")
     for v in valid:
         d = cues[v["end"]]["end"] - cues[v["start"]]["start"]
