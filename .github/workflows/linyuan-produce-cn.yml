@@ -85,7 +85,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install faster-whisper yt-dlp pillow fonttools opencv-python jieba
+          # Fun-ASR-Nano 后端：sherpa-onnx 推理框架（onnxruntime CPU，无需 torch）
+          pip install sherpa-onnx
 
+      # whisper large-v3 仍是默认后端（可回滚），缓存照旧保留。
       # large-v3 是 2.9GB，每次现下要好几分钟且可能超时。
       # 缓存键固定（模型不会变），命中后直接复用。
       # Actions 单仓库缓存上限 10GB，这个占 3GB 可以接受。
@@ -95,6 +98,33 @@ jobs:
         with:
           path: ~/.cache/huggingface/hub
           key: whisper-large-v3-ct2-v1
+
+      # Fun-ASR-Nano int8 模型（~1GB）：编码器适配 + LLM + embedding + tokenizer。
+      # 从 HF 拉官方 sherpa-onnx 版（CI 海外访问 HF 快），缓存命中后直接复用。
+      - name: 缓存 Fun-ASR-Nano 模型
+        id: funasr-cache
+        uses: actions/cache@v4
+        with:
+          # cache 的 path 相对仓库根，而下载在 linyuan/ 工作目录下
+          path: linyuan/funasr_model
+          key: funasr-nano-int8-v1
+
+      - name: 下载 Fun-ASR-Nano 模型
+        if: steps.funasr-cache.outputs.cache-hit != 'true'
+        run: |
+          pip install -q huggingface_hub
+          mkdir -p funasr_model
+          python3 - <<'PY'
+          from huggingface_hub import hf_hub_download
+          repo = "csukuangfj/sherpa-onnx-funasr-nano-int8-2025-12-30"
+          for f in ["encoder_adaptor.int8.onnx", "embedding.int8.onnx", "llm.int8.onnx",
+                    "Qwen3-0.6B/tokenizer.json", "Qwen3-0.6B/vocab.json",
+                    "Qwen3-0.6B/merges.txt", "Qwen3-0.6B/config.json",
+                    "Qwen3-0.6B/tokenizer_config.json", "Qwen3-0.6B/generation_config.json"]:
+              hf_hub_download(repo, f, local_dir="funasr_model")
+          print("Fun-ASR-Nano 模型就位")
+          PY
+          ls -lh funasr_model/ | head
 
       - name: 预下载模型
         if: steps.whisper-cache.outputs.cache-hit != 'true'
@@ -151,6 +181,9 @@ jobs:
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
           WHISPER_MODEL: large-v3
+          # Fun-ASR-Nano 后端（默认开启，自带标点+更准）；出问题可临时改为 whisper 回滚
+          ASR_BACKEND: funasr
+          FUNASR_MODEL_DIR: funasr_model
           # ubuntu runner 没有 Microsoft YaHei/Arial，libass 找不到会烧成豆腐块
           ZH_FONT: Noto Sans CJK SC
           EN_FONT: DejaVu Sans
