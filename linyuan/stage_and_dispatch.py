@@ -47,6 +47,10 @@ MIN_DUR, MAX_DUR = 120, 1200
 # biliup 要求 dtime 距离提交必须大于 4 小时，+4h 会被拒，从 5h 起
 DELAY_LADDER = [5, 8, 11, 14, 17]
 
+# B站二创号黑名单（与 monitor_v2.py 保持一致）：选片时排除这些号的视频，
+# 只吃一手原视频。命中即排除：滚雪球（竞品+用户自己成片号）、价值观、财务自由、复利、股神、大佬。
+AUTHOR_BLACKLIST = re.compile(r"滚雪球|价值观|财务自由|复利|股神|大佬")
+
 
 def log(*a):
     print(f"[{datetime.now():%H:%M:%S}]", *a, flush=True)
@@ -99,7 +103,7 @@ def fetch_items(token):
         capture_output=True, timeout=400)
     if r.returncode != 0:
         raise RuntimeError(f"拉取 data.json 失败：curl exit {r.returncode}")
-    j = json.loads(r.stdout.decode(), strict=False)  # 抓取的标题带控制字符
+    j = json.loads(r.stdout.decode("utf-8", errors="replace"), strict=False)  # 抓取的标题带控制字符/非法字节
     return j if isinstance(j, list) else j.get("items", [])
 
 
@@ -132,6 +136,11 @@ def pick(items, state, n):
         cooling.add(e["video_id"])                    # 不合格同源也别再试
     cands = []
     for it in items:
+        src = it.get("source", "") or ""
+        author = it.get("author", "") or ""
+        # B站二创号黑名单：排除二创（含竞品），只吃一手原视频
+        if src.startswith("bilibili") and author and AUTHOR_BLACKLIST.search(author):
+            continue
         url = it.get("video_url") or ""
         src_page = it.get("url") or ""
         if not url and "bilibili.com/video/" not in src_page:
