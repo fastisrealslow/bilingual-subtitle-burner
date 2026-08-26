@@ -1116,13 +1116,13 @@ def publish_handler(event=None, context=None):
         video = final_videos[k] if k < len(final_videos) else final_videos[0]
 
     # 优先用当前 part 的 meta 文案 + 封面
+    meta_info = part
     title = (part.get("title") or e.get("title") or slug)
     desc = part.get("desc", "")
     tags = ",".join(part.get("tags", ["林园", "价值投资"]))
     cover = None
     if part.get("cover") and (tmp / slug / part["cover"]).exists():
         cover = tmp / slug / part["cover"]
-        meta_info = part
     if "｜" not in title:
         title = f"{title[:40]}｜林园"
     
