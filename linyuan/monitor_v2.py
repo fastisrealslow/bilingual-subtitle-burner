@@ -157,6 +157,14 @@ class BilibiliSearchSource(Source):
     name = "bilibili_search"
     min_interval = 1800
 
+    # B站二创个人号黑名单：搜「林园」会把一堆二创号一起搜进来，
+    # 这些号本质是把林园股东大会/采访原片再剪辑，不是一手素材。
+    # 命中即排除：
+    #  -「滚雪球」系列：竞品「园园滚雪球」（已拉黑你）+ 用户自己的「园来
+    #   滚雪球」（自己的成片不能回炉当素材）+ 投资就是/林林/贤哥滚雪球
+    #  -「价值观」「财务自由」「复利」「股神」「大佬」：标题党二创个人号
+    AUTHOR_BLACKLIST = re.compile(r"滚雪球|价值观|财务自由|复利|股神|大佬")
+
     EXTRACT_JS = """
     () => {
         const items = [];
@@ -226,6 +234,10 @@ class BilibiliSearchSource(Source):
 
         items = []
         for v in raw_items:
+            up = v.get("up", "")
+            # 二创号黑名单：滚雪球/价值观/财务自由等（含竞品与用户自己的成片号）
+            if up and self.AUTHOR_BLACKLIST.search(up):
+                continue
             view_count = v.get("view_count") or 0
             vt = v.get("viewText", "")
             if not view_count and vt:
@@ -239,7 +251,7 @@ class BilibiliSearchSource(Source):
                 "title": v["title"],
                 "url": f"https://www.bilibili.com/video/{v['bvid']}",
                 "publish_time": datetime.now().strftime("%Y-%m-%d 00:00:00"),
-                "author": v.get("up", ""),
+                "author": up,
                 "extra": json.dumps({"bvid": v["bvid"], "view_count": view_count}, ensure_ascii=False),
             })
         return items
@@ -1411,17 +1423,19 @@ def export_dashboard_data():
             extra = json.loads(row["extra"] or "{}")
         except Exception:
             pass
-        items.append({
+        item = {
             "id": row["id"],
             "source": row["source"],
             "title": row["title"],
             "url": row["url"],
+            "video_url": extra.get("video_url", ""),
             "publish_time": row["publish_time"],
             "author": row["author"],
             "extra": extra,
             "created_at": row["created_at"],
             "updated_at": row["updated_at"],
-        })
+        }
+        items.append(item)
 
     out_path.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[dashboard] 已导出 {len(items)} 条到 {out_path}")
