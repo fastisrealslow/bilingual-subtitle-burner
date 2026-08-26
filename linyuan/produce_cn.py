@@ -200,10 +200,10 @@ def _llm_punctuate_and_cues(words, api_key, work):
         return None
     out = re.sub(r"```.*?```", "", out, flags=re.S).strip()
     out = re.sub(r"\s+", "", out)
-    # 相似度校验：LLM 可能修正了错字/重复，只要求与原文相似度 > 0.85
+    # 相似度校验：LLM 可能修正了错字/重复/口语词，只要求与原文相似度 > 0.80
     out_no_punct = re.sub(r"[，。！？；：、,.!?;]", "", out)
     ratio = difflib.SequenceMatcher(None, raw_text, out_no_punct).ratio()
-    if ratio < 0.85:
+    if ratio < 0.80:
         print(f"[断句] LLM 输出与原文差异过大(相似度{ratio:.2f})，回退规则", file=sys.stderr)
         return None
     # 对齐时间戳：每个输出字符映射到原文字符
