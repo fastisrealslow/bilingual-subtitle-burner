@@ -34,6 +34,13 @@ BASE = Path(__file__).parent
 # 两边都是 large-v3:实测 4 核 runner 上实时率 1.17x,完全跑得动,
 # 而 small 会输出繁体、把「安宫」听成「安公」,质量差距是决定性的。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
+
+# ASR 后端选择：funasr（Fun-ASR-Nano LLM 版，自带标点+热词）| whisper（旧 large-v3，默认，过渡期保险）
+ASR_BACKEND = os.environ.get("ASR_BACKEND") or "whisper"
+# Fun-ASR-Nano 模型目录（int8 三件套 + tokenizer 目录）
+FUNASR_DIR = os.environ.get("FUNASR_MODEL_DIR") or "/tmp/funasr_llm"
+FUNASR_LANG = os.environ.get("FUNASR_LANG") or "zh"
+
 SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
 
 # 免费额度可用的模型,按质量排序;限流时逐个降级
@@ -124,12 +131,20 @@ def fix_terms(text):
 
 
 def transcribe(src, work, api_key=None):
-    """large-v3 + 词级时间戳,按标点和字数重新组句。"""
-    from faster_whisper import WhisperModel
+    """转写入口：按 ASR_BACKEND 分发到 Fun-ASR-Nano 或 whisper large-v3。"""
     cache = work / "cues_raw.json"
     if cache.exists():
         print("[asr] 命中缓存")
         return json.loads(cache.read_text(encoding="utf-8"))
+    if ASR_BACKEND == "funasr":
+        return _transcribe_funasr(src, work)
+    return _transcribe_whisper(src, work, api_key)
+
+
+def _transcribe_whisper(src, work, api_key):
+    """large-v3 + 词级时间戳,按标点和字数重新组句。"""
+    from faster_whisper import WhisperModel
+    cache = work / "cues_raw.json"
 
     print(f"[asr] 加载 {WHISPER}")
     model = WhisperModel(WHISPER, device="cpu", compute_type="int8")
@@ -148,9 +163,16 @@ def transcribe(src, work, api_key=None):
     if cues is None:
         cues = _group_tokens_to_cues(words)
 
-    # 合并间距太小的帧(防止字幕闪烁);拼接时补分隔符避免文字粘连。
-    # 关键约束：合并后长度不超过 MAX_CHARS+2，否则连续说话时硬切的长段
-    # 会被合并回超长条，导致「一页十几行字幕」(2026-08-23 事故根因)。
+    cues = _merge_cues(cues)
+    cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"[asr] {len(words)} 词 → {len(cues)} 条字幕")
+    return cues
+
+
+def _merge_cues(cues):
+    """合并间距太小的帧(防止字幕闪烁);拼接时补分隔符避免文字粘连。
+    关键约束：合并后长度不超过 MAX_CHARS+2，否则连续说话时硬切的长段
+    会被合并回超长条，导致「一页十几行字幕」(2026-08-23 事故根因)。"""
     merged = []
     for c in cues:
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP and \
@@ -160,10 +182,118 @@ def transcribe(src, work, api_key=None):
             merged[-1]["text"] += sep + c["text"]
         else:
             merged.append(dict(c))
-    cues = merged
-    cues = [c for c in cues if c["text"]]
+    return [c for c in merged if c["text"]]
+
+
+def _transcribe_funasr(src, work):
+    """Fun-ASR-Nano LLM 版转写：自带分词+标点+每个 token 的时间戳。
+
+    相对 whisper 的优势：
+    1. 中文 CER ~4.55%（whisper ~20%），远更准。
+    2. LLM 架构天然输出标点，省掉 LLM 加标点这一步。
+    3. 支持热词（财经专名如「林园、片仔癀、茅台」）。
+    4. 输出是语义分词（`茅台`/`都是`）非单字，断句不会切碎词。
+
+    时间戳策略：sherpa-onnx 的 Fun-ASR-Nano 返回 tokens（含标点）+
+    timestamps（每个 token 的开始时间，毫秒间隔均匀）。token[i] 的
+    end 取 token[i+1] 的 start，末 token 取段尾。
+    """
+    import numpy as np
+    import wave
+    from sherpa_onnx import OfflineRecognizer
+    cache = work / "cues_raw.json"
+
+    # 1. 提取 16k 单声道 PCM（Fun-ASR-Nano 要求的输入格式）
+    wav_path = work / "audio_16k.wav"
+    if not wav_path.exists():
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+                        "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+                        str(wav_path)], check=True)
+    with wave.open(str(wav_path), "rb") as w:
+        sr = w.getframerate()
+        samples = w.readframes(w.getnframes())
+    audio = np.frombuffer(samples, dtype=np.int16).astype(np.float32) / 32768.0
+    total_dur = len(audio) / sr
+    print(f"[asr] 音频 {total_dur:.0f}s，Fun-ASR-Nano 转写")
+
+    # 2. 加载模型（int8 三件套 + tokenizer）；llm 优先 max_token_1024（长 chunk），回退官方 512 版
+    llm_path = f"{FUNASR_DIR}/llm_int8_max_token_1024/llm.int8.onnx"
+    if not Path(llm_path).exists():
+        llm_path = f"{FUNASR_DIR}/llm.int8.onnx"
+    recognizer = OfflineRecognizer.from_funasr_nano(
+        encoder_adaptor=f"{FUNASR_DIR}/encoder_adaptor.int8.onnx",
+        llm=llm_path,
+        embedding=f"{FUNASR_DIR}/embedding.int8.onnx",
+        tokenizer=f"{FUNASR_DIR}/Qwen3-0.6B",
+        num_threads=1, itn=True, temperature=0.3, max_new_tokens=200,
+    )
+
+    # 3. 分 chunk 转写（Fun-ASR-Nano 有 KV 上限，长音频需切段）
+    #    temperature=0.3 消除 LLM 贪婪解码的死循环重复（默认 1e-6 会循环刷屏）。
+    #    overlap 缓冲：每段前后多转写 OVERLAP 秒，让跨边界的词被完整看到，
+    #    但只输出核心区 [t, t+CHUNK_SEC] 的 cue（首尾 overlap 仅当上下文）。
+    #    这样边界词（如「多得多」）在前一段能被完整识别输出，不会切成半词。
+    #    CHUNK_SEC=20：兼容官方 512 KV 版（~20s=334 audio tokens < 512 上限）；
+    #    若有 max_token_1024 版，20s 段更是绰绰有余。
+    CHUNK_SEC = 20.0
+    OVERLAP = 3.0
+    cues = []
+    t = 0.0
+    while t < total_dur:
+        seg_start = max(0.0, t - OVERLAP)
+        seg_end = min(t + CHUNK_SEC + OVERLAP, total_dur)
+        seg = audio[int(seg_start * sr):int(seg_end * sr)]
+        stream = recognizer.create_stream()
+        stream.accept_waveform(sr, seg)
+        recognizer.decode_stream(stream)
+        r = stream.result
+        if r.tokens:
+            seg_cues = _funasr_tokens_to_cues(
+                list(r.tokens), list(r.timestamps), seg_start, seg_end - seg_start)
+            for c in seg_cues:
+                if t <= c["start"] < t + CHUNK_SEC:
+                    cues.append(c)
+        print(f"  [chunk {seg_start:6.0f}-{seg_end:6.0f}s] {len(r.tokens)} tokens", flush=True)
+        t += CHUNK_SEC
+
+    cues = _merge_cues(cues)
+    # 最后一道 GLOSSARY 专名纠错（Fun-ASR-Nano 对专名仍有盲区）
+    for c in cues:
+        c["text"] = fix_terms(c["text"])
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"[asr] {len(words)} 词 → {len(cues)} 条字幕")
+    print(f"[asr] {len(cues)} 条字幕")
+    return cues
+
+
+def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
+    """Fun-ASR-Nano 的 tokens（含标点）+ timestamps → 字幕 cues。
+
+    断句规则：句末标点（。！？）必断；逗号仅在接近 MAX_CHARS 时断；
+    标点不进 buf（避免「吗？」「。」单独成条），end 取末 token 的 end。
+    尊重 LLM 的句号边界（语义完整）优先于硬切字数。
+    """
+    cues, buf, buf_text = [], [], ""
+    def _flush():
+        nonlocal buf, buf_text
+        if buf:
+            cues.append({"start": round(offset + buf[0][1], 2),
+                         "end": round(offset + buf[-1][2], 2),
+                         "text": buf_text})
+        buf, buf_text = [], ""
+    for i, tok in enumerate(tokens):
+        st = timestamps[i]
+        en = timestamps[i + 1] if i + 1 < len(timestamps) else chunk_dur
+        if tok in "。！？!?":
+            buf_text += tok
+            _flush()
+        elif tok in "，、；：,;:":
+            buf_text += tok
+            if len(buf_text) >= MAX_CHARS - 4:
+                _flush()
+        else:
+            buf.append((tok, st, en))
+            buf_text += tok
+    _flush()
     return cues
 
 
