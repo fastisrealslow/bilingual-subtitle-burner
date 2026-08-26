@@ -965,12 +965,22 @@ def bili_find_duplicate(title):
 
 # ---------- Handler 2：投稿 ----------
 
+def _has_unpublished_part(e, st):
+    """判断 dispatched 条目是否还有未投的 part（长视频多条分次投稿）。"""
+    pub = st.get("published", {}).get(e["slug"])
+    if not pub:
+        return True  # 完全没投过
+    parts_total = pub.get("parts_total", 1)
+    published_parts = e.get("published_parts", 0)
+    return published_parts < parts_total
+
+
 def publish_handler(event=None, context=None):
     st = load_state()
     now = time.time()
     pending = [e for e in st["dispatched"]
-               if e.get("slug") and e["slug"] not in st["published"]
-               and not e.get("failed")]
+               if e.get("slug") and not e.get("failed")
+               and _has_unpublished_part(e, st)]
     if not pending:
         log.info("无待投稿件")
         return {"published": 0}
@@ -1075,31 +1085,44 @@ def publish_handler(event=None, context=None):
         log.info(f"{slug} artifact 不可用，标记为失败")
         return {"published": 0}
     subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
-    video = tmp / slug / "final.mp4"
-    if not video.exists():
+    # 长视频拆多条：检测所有 final*.mp4（final.mp4 / final_1.mp4 ...）
+    final_videos = sorted((tmp / slug).glob("final*.mp4"), key=lambda p: p.name)
+    if not final_videos:
         log.error(f"✗ {slug} 成片不存在")
         return {"published": 0}
-    
-    # 优先用 artifact 里 meta.json 的 LLM 文案 + 封面
-    title, desc, tags, cover = e.get("title") or slug, "", "林园,价值投资", None
+
+    # meta.json：可能是 dict（单条）或 list（多条），统一成 parts 列表
     meta_info = {}
     meta_f = tmp / slug / "meta.json"
+    parts = []
     if meta_f.exists():
         try:
             mj = json.loads(meta_f.read_text(encoding="utf-8"))
-            meta_info = mj
-            title = mj.get("title") or title
-            desc = mj.get("desc", "")
-            tags = ",".join(mj.get("tags", ["林园", "价值投资"]))
-            if mj.get("cover") and (tmp / slug / mj["cover"]).exists():
-                cover = tmp / slug / mj["cover"]
-                log.info(f"✓ 封面: {cover}")
-            else:
-                log.info(f"✗ 封面不存在: meta.cover={mj.get('cover')}")
+            parts = mj if isinstance(mj, list) else [mj]
         except Exception:
-            pass
-    else:
-        log.info(f"✗ meta.json 不存在")
+            parts = []
+    if not parts:
+        parts = [{}]
+    parts_total = len(parts)
+
+    # 决定投第几条：已投的 part 数（长视频多条时分次投稿，防扎堆）
+    k = e.get("published_parts", 0)
+    if k >= parts_total:
+        log.info(f"{slug} 的 {parts_total} 条已全部投完")
+        return {"published": 0}
+    part = parts[k]
+    video = tmp / slug / part.get("final", "final.mp4")
+    if not video.exists():
+        video = final_videos[k] if k < len(final_videos) else final_videos[0]
+
+    # 优先用当前 part 的 meta 文案 + 封面
+    title = (part.get("title") or e.get("title") or slug)
+    desc = part.get("desc", "")
+    tags = ",".join(part.get("tags", ["林园", "价值投资"]))
+    cover = None
+    if part.get("cover") and (tmp / slug / part["cover"]).exists():
+        cover = tmp / slug / part["cover"]
+        meta_info = part
     if "｜" not in title:
         title = f"{title[:40]}｜林园"
     
@@ -1183,8 +1206,13 @@ def publish_handler(event=None, context=None):
         bvid = m.group(0)
         e.pop("uploading", None)
         e.pop("upload_title", None)
+        # 记录这次投到第几条了（长视频多条时分次投稿）
+        e["published_parts"] = k + 1
+        prev_bvids = st.get("published", {}).get(slug, {}).get("bvids", []) + [bvid]
         st["published"][slug] = {
-            "bvid": bvid,
+            "bvid": bvid,  # 最新一条的 bvid
+            "bvids": prev_bvids,
+            "parts_total": parts_total,
             "ts": int(time.time()),
             "title": title,
             "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", "")),
@@ -1203,16 +1231,16 @@ def publish_handler(event=None, context=None):
         st["pending_retry"] = [x for x in st.get("pending_retry", [])
                                if x.get("key") != e.get("key")
                                and (x.get("page_url") or "").strip() != (e.get("source_url") or "").strip()]
-        # 投稿成功后删除 GitHub Actions artifact，避免占用空间
-        if slug in art_ids:
+        # 只在所有 part 都投完时才删 artifact（否则下次还要投下一条）
+        if slug in art_ids and k + 1 >= parts_total:
             try:
                 gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
                 log.info(f"✓ 已删除 artifact: deliver-{slug}")
             except Exception as ae:
                 log.warning(f"删除 artifact 失败: {ae}")
         save_state(st)
-        log_event("publish_ok", f"✅ 已投 https://www.bilibili.com/video/{bvid}", title[:60])
-        log.info(f"✅ 已投 https://www.bilibili.com/video/{bvid}")
+        log_event("publish_ok", f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}", title[:50])
+        log.info(f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}")
         done += 1
     else:
         # 输出完整错误信息，方便调试
