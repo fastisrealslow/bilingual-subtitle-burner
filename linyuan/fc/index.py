@@ -966,11 +966,14 @@ def bili_find_duplicate(title):
 # ---------- Handler 2：投稿 ----------
 
 def _has_unpublished_part(e, st):
-    """判断 dispatched 条目是否还有未投的 part（长视频多条分次投稿）。"""
+    """判断 dispatched 条目是否还有未投的 part（长视频多条分次投稿）。
+    单条/旧记录（无 parts_total 或 parts_total<=1）已投完就不算 pending。"""
     pub = st.get("published", {}).get(e["slug"])
     if not pub:
         return True  # 完全没投过
     parts_total = pub.get("parts_total", 1)
+    if parts_total <= 1:
+        return False  # 单条/旧记录已投完，不再 pending
     published_parts = e.get("published_parts", 0)
     return published_parts < parts_total
 
