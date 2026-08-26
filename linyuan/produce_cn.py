@@ -893,6 +893,99 @@ def has_hard_watermark(src):
         return False
 
 
+def _chunk_by_time(cues, chunk_sec=240):
+    """长视频按时间均分成多段（每段约 chunk_sec 秒）。
+    返回 [(start_idx, end_idx), ...] 每段的 cues 索引区间。
+    不足 1.5 段就不拆，返回整段。"""
+    if not cues:
+        return []
+    total = cues[-1]["end"] - cues[0]["start"]
+    if total <= chunk_sec * 1.5:
+        return [(0, len(cues) - 1)]
+    chunks = []
+    start_idx = 0
+    seg_start = cues[0]["start"]
+    for i in range(1, len(cues)):
+        if cues[i]["end"] - seg_start >= chunk_sec:
+            chunks.append((start_idx, i - 1))
+            start_idx = i
+            seg_start = cues[i]["start"]
+    chunks.append((start_idx, len(cues) - 1))
+    return chunks
+
+
+def _produce_one(src, work, out, cues, speaker, occasion, api_key,
+                 existing_subtitles, W, H, suffix, pick_cache_suffix=""):
+    """出一段视频。suffix='' 或 '_2' 等。返回 meta dict。"""
+    picks = pick_highlights(cues, speaker, api_key, work)
+    sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
+    total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
+    print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
+
+    en_map = {}
+    parts = []
+    for n, p in enumerate(picks, 1):
+        idx = list(range(p["start"], p["end"] + 1))
+        s0, s1 = cues[idx[0]]["start"], cues[idx[-1]]["end"]
+        entries = [{"start_sec": cues[i]["start"] - s0,
+                    "end_sec": cues[i]["end"] - s0,
+                    "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
+        ass = work / f"seg{suffix}{n}.ass"
+        make_ass(entries, ass, W, H)
+        seg = work / f"seg{suffix}{n}.mp4"
+        vertical = H > W
+        if vertical:
+            crop_h = H - 100
+            crop_w = min(int(crop_h * 9 / 16), W)
+        else:
+            crop_h = H - 100
+            crop_w = min(int(crop_h * 16 / 9), W)
+        crop_x = (W - crop_w) // 2
+        if existing_subtitles:
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
+        else:
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
+             "-t", str(s1 - s0), "-i", str(src),
+             "-vf", vf,
+             "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
+             "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
+             str(seg)], check=True)
+        parts.append(seg)
+
+    lst = work / f"concat{suffix}.txt"
+    lst.write_text("".join(f"file '{p.name}'\n" for p in parts), encoding="utf-8")
+    final = out / f"final{suffix}.mp4"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
+                    "-safe", "0", "-i", str(lst), "-c", "copy", str(final)],
+                   check=True)
+    dur = float(subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=nw=1:nk=1", str(final)],
+        capture_output=True, text=True).stdout.strip() or 0)
+
+    cw = copywrite(cues, sel, speaker, occasion, api_key, work)
+    cover_name = "cover_16x9.jpg"
+    cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
+    try:
+        p0 = picks[0]
+        make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
+                   cw["title"], speaker, cover)
+    except Exception as e:
+        print(f"[封面] 生成失败(不阻断出片):{e}", file=sys.stderr)
+        cover = None
+    return {
+        "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
+        "cover": cover.name if cover else None,
+        "duration_sec": round(dur, 1),
+        "segments": [{"start": cues[p["start"]]["start"],
+                      "end": cues[p["end"]]["end"], "reason": p["reason"]}
+                     for p in picks],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True)
@@ -916,99 +1009,15 @@ def main():
 
     cues = transcribe(src, work, api_key)
 
-    # 检测已有字幕(如果视频已有硬字幕,跳过字幕烧录)
     existing_subtitles = has_existing_subtitles(src)
     if existing_subtitles:
         print("[检测] 视频已有硬字幕,跳过字幕烧录")
 
-    # 中间水印不再检测跳过（用户 2026-08-23 决定：带中间水印也照常出片）
-    picks = pick_highlights(cues, args.speaker, api_key, work)
-
-    sel = []
-    for p in picks:
-        sel.extend(range(p["start"], p["end"] + 1))
-    sel = sorted(set(sel))
-    total = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
-    print(f"\n选中 {len(sel)} 条字幕,约 {int(total)//60}:{int(total)%60:02d}")
-
-    if args.dry_run:
-        for p in picks:
-            print(f"\n── {p['reason']} ──")
-            for i in range(p["start"], p["end"] + 1):
-                print(f"  {cues[i]['text']}")
-        return 0
-
-    zh_texts = [cues[i]["text"] for i in sel]
-    # 林园视频是中文源,不需要英文翻译
-    # en_map = dict(zip(sel, translate(zh_texts, api_key, work)))
-    en_map = {}
-
     size = probe(src, "stream=width,height")
     W, H = (int(x) for x in size.split("x"))
+    vertical = H > W
 
-    parts = []
-    for n, p in enumerate(picks, 1):
-        idx = list(range(p["start"], p["end"] + 1))
-        s0, s1 = cues[idx[0]]["start"], cues[idx[-1]]["end"]
-        entries = [{"start_sec": cues[i]["start"] - s0,
-                    "end_sec": cues[i]["end"] - s0,
-                    "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
-        ass = work / f"seg{n}.ass"
-        make_ass(entries, ass, W, H)
-        seg = work / f"seg{n}.mp4"
-        print(f"[烧录] 段{n} {s0:.0f}s→{s1:.0f}s ({s1-s0:.0f}s)")
-        # 裁掉顶部 100px，保持原始宽高比（横屏 16:9 / 竖屏 9:16）
-        vertical = H > W
-        if vertical:
-            crop_h = H - 100
-            crop_w = min(int(crop_h * 9 / 16), W)
-        else:
-            crop_h = H - 100
-            crop_w = min(int(crop_h * 16 / 9), W)
-        crop_x = (W - crop_w) // 2
-
-        if existing_subtitles:
-            # 已有字幕 → 不烧录字幕
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
-        else:
-            # 正常:裁掉顶部 + 烧录字幕
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
-        subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
-             "-t", str(s1 - s0), "-i", str(src),
-             "-vf", vf,
-             "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
-             "-c:v", "libx264", "-preset", "medium", "-crf", "20",
-             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
-             str(seg)], check=True)
-        parts.append(seg)
-
-    lst = work / "concat.txt"
-    lst.write_text("".join(f"file '{p.name}'\n" for p in parts), encoding="utf-8")
-    final = out / "final.mp4"
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
-                    "-safe", "0", "-i", str(lst), "-c", "copy", str(final)],
-                   check=True)
-
-    dur = float(subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-         "-of", "default=nw=1:nk=1", str(final)],
-        capture_output=True, text=True).stdout.strip() or 0)
-
-    # 文案 + 封面(投稿三件套:标题/简介/标签 + 封面图)
-    cw = copywrite(cues, sel, args.speaker, args.occasion, api_key, work)
-    # 封面统一 16:9（B站封面信息流是横屏，竖屏视频也输出 16:9 横屏封面）
-    cover_name = "cover_16x9.jpg"
-    cover = out / cover_name
-    try:
-        p0 = picks[0]
-        make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
-                   cw["title"], args.speaker, cover)
-    except Exception as e:
-        print(f"[封面] 生成失败(不阻断出片):{e}", file=sys.stderr)
-        cover = None
-
-    # 推断来源平台(优先用命令行传入的 --source-platform)
+    # 平台推断
     platform = args.source_platform or ""
     if not platform:
         src_str = str(src).lower()
@@ -1029,25 +1038,61 @@ def main():
         else:
             platform = "unknown"
 
-    (out / "meta.json").write_text(json.dumps({
-        "slug": args.slug, "source": str(src), "speaker": args.speaker,
-        "occasion": args.occasion, "duration_sec": round(dur, 1),
-        "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
-        "cover": cover_name if cover else None,
-        "source_platform": platform,
-        "watermark_cropped": True,  # 统一裁掉顶部 100px 水印
-        "subtitles_burned": not existing_subtitles,  # 有原字幕就不烧录
-        "has_existing_subtitles": existing_subtitles,
-        "vertical": vertical,
-        "segments": [{"start": cues[p["start"]]["start"],
-                      "end": cues[p["end"]]["end"], "reason": p["reason"]}
-                     for p in picks],
-        "cue_count": len(sel), "asr_model": "faster-whisper large-v3",
-        "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
-    }, ensure_ascii=False, indent=2), encoding="utf-8")
+    # 长视频按时间切成多段，每段出一条；短视频出 1 条
+    chunks = _chunk_by_time(cues)
+    if args.dry_run:
+        # dry-run 只看金句，不切分
+        p = pick_highlights(cues, args.speaker, api_key, work)
+        for pp in p:
+            print(f"\n── {pp['reason']} ──")
+            for i in range(pp["start"], pp["end"] + 1):
+                print(f"  {cues[i]['text']}")
+        return 0
 
-    print(f"\n✅ {final}  {int(dur)//60}:{int(dur)%60:02d}  "
-          f"{final.stat().st_size/1048576:.1f}MB")
+    metas = []
+    for ci, (a, b) in enumerate(chunks):
+        suffix = "" if len(chunks) == 1 else f"_{ci + 1}"
+        seg_cues = cues[a:b + 1]
+        m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
+                         api_key, existing_subtitles, W, H, suffix)
+        metas.append(m)
+
+    # 写 meta.json：单条保持兼容，多条记录列表
+    if len(metas) == 1:
+        final_meta = {
+            "slug": args.slug, "source": str(src), "speaker": args.speaker,
+            "occasion": args.occasion, **metas[0],
+            "source_platform": platform,
+            "watermark_cropped": True,
+            "subtitles_burned": not existing_subtitles,
+            "has_existing_subtitles": existing_subtitles,
+            "vertical": vertical,
+            "cue_count": sum(1 for _ in cues),
+            "asr_model": "faster-whisper large-v3",
+            "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    else:
+        # 多条：meta.json 是列表，每个元素含 final 文件名
+        final_meta = [
+            {"slug": args.slug, "source": str(src), "speaker": args.speaker,
+             "occasion": args.occasion, "part": i + 1,
+             "final": f"final_{i + 1}.mp4", **m,
+             "source_platform": platform,
+             "watermark_cropped": True,
+             "subtitles_burned": not existing_subtitles,
+             "has_existing_subtitles": existing_subtitles,
+             "vertical": vertical,
+             "asr_model": "faster-whisper large-v3",
+             "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
+            } for i, m in enumerate(metas)
+        ]
+        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    n = len(metas)
+    print(f"\n✅ 出片完成: {n} 条")
+    for i, m in enumerate(metas):
+        print(f"   [{i+1}] {m['title']}  ({m['duration_sec']}s)")
     return 0
 
 
