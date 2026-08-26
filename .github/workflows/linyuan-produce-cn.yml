@@ -119,8 +119,7 @@ jobs:
           repo = "csukuangfj/sherpa-onnx-funasr-nano-int8-2025-12-30"
           for f in ["encoder_adaptor.int8.onnx", "embedding.int8.onnx", "llm.int8.onnx",
                     "Qwen3-0.6B/tokenizer.json", "Qwen3-0.6B/vocab.json",
-                    "Qwen3-0.6B/merges.txt", "Qwen3-0.6B/config.json",
-                    "Qwen3-0.6B/tokenizer_config.json", "Qwen3-0.6B/generation_config.json"]:
+                    "Qwen3-0.6B/merges.txt"]:
               hf_hub_download(repo, f, local_dir="funasr_model")
           print("Fun-ASR-Nano 模型就位")
           PY
