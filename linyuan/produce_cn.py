@@ -156,7 +156,7 @@ def transcribe(src, work, api_key=None):
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP and \
            len(merged[-1]["text"]) + len(c["text"]) <= MAX_CHARS + 2:
             merged[-1]["end"] = c["end"]
-            sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else ","
+            sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else "，"
             merged[-1]["text"] += sep + c["text"]
         else:
             merged.append(dict(c))
@@ -584,7 +584,7 @@ def make_ass(entries, path, W, H):
                     cut = -1
                     # 在 [n-8, n] 范围内找最后一个标点作为断点
                     for j in range(len(cur) - 1, max(0, len(cur) - 9), -1):
-                        if cur[j] in "，。！？；：、":
+                        if cur[j] in "，。！？；：、,.!?;":
                             cut = j + 1
                             break
                     if cut <= 0:
