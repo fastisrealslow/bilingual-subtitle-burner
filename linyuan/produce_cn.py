@@ -167,14 +167,35 @@ def transcribe(src, work, api_key=None):
     return cues
 
 
+def _llm_clean_text(raw_text, api_key):
+    """给一段 ASR 文本 LLM 整理（加标点 + 修正明显错误）。
+    返回整理后文本（含标点），失败返回 None。"""
+    prompt = ("下面是一段语音识别出的中文，可能有识别错误（重复的字、错字、语序颠倒）。"
+              "请把它整理成通顺的中文并加上标点（，。！？）。要求："
+              "1) 忠实原意，不增删观点、不补充原文没有的内容；"
+              "2) 只修正明显的识别错误（如重复的字、明显错字、明显语序颠倒）；"
+              "3) 只输出整理后的文字，不要解释、不要加空格换行。\n\n" + raw_text)
+    try:
+        out = llm([{"role": "user", "content": prompt}], api_key,
+                  temperature=0.0, max_tokens=len(raw_text) + 300)
+    except Exception as e:
+        print(f"[断句] LLM 不可用: {e}", file=sys.stderr)
+        return None
+    out = re.sub(r"```.*?```", "", out, flags=re.S).strip()
+    return re.sub(r"\s+", "", out)
+
+
 def _llm_punctuate_and_cues(words, api_key, work):
     """LLM 整理字幕：加标点 + 修正明显识别错误，再断句。
     返回 cues；失败/差异过大/太短返回 None（回退规则断句）。
 
-    2026-08-26 升级：之前只让 LLM 加标点（不改字），但 ASR 有重复/语序错乱
-    （如「几乎都是都是百分之一百」），且校验「去标点必须等于原文」太严，
-    LLM 稍改字就回退 → 规则硬切无标点。现在让 LLM 顺手修正明显错误，
-    用 difflib 对齐时间戳，只要求相似度 > 0.85。"""
+    2026-08-26 升级：
+    1. 之前只让 LLM 加标点（不改字），但 ASR 有重复/语序错乱，且校验太严
+       稍改字就回退 → 规则硬切无标点。现在让 LLM 顺手修正明显错误，
+       用 difflib 对齐时间戳，只要求相似度 > 0.80。
+    2. 长文本分片：一次调用输出 token 超 8K 会失败（42 分钟视频 ASR 上万字），
+       故每片 ~2500 字独立整理再拼接。
+    """
     if not api_key or not work:
         return None
     chars = []  # [(字, start, end)] —— 按顺序对应原文每个字
@@ -187,20 +208,19 @@ def _llm_punctuate_and_cues(words, api_key, work):
     if len(chars) < 20:
         return None
     raw_text = "".join(c[0] for c in chars)
-    prompt = ("下面是一段语音识别出的中文，可能有识别错误（重复的字、错字、语序颠倒）。"
-              "请把它整理成通顺的中文并加上标点（，。！？）。要求："
-              "1) 忠实原意，不增删观点、不补充原文没有的内容；"
-              "2) 只修正明显的识别错误（如重复的字、明显错字、明显语序颠倒）；"
-              "3) 只输出整理后的文字，不要解释、不要加空格换行。\n\n" + raw_text)
-    try:
-        out = llm([{"role": "user", "content": prompt}], api_key,
-                  temperature=0.0, max_tokens=len(raw_text) + 300)
-    except Exception as e:
-        print(f"[断句] LLM 不可用，回退规则: {e}", file=sys.stderr)
-        return None
-    out = re.sub(r"```.*?```", "", out, flags=re.S).strip()
-    out = re.sub(r"\s+", "", out)
-    # 相似度校验：LLM 可能修正了错字/重复/口语词，只要求与原文相似度 > 0.80
+
+    # 分片整理：长文本分成多段，每段独立 LLM 整理再拼接
+    MAX_LLM_CHARS = 2500
+    outs = []
+    for i in range(0, len(chars), MAX_LLM_CHARS):
+        chunk_text = "".join(c[0] for c in chars[i:i + MAX_LLM_CHARS])
+        out_chunk = _llm_clean_text(chunk_text, api_key)
+        if out_chunk is None:
+            return None
+        outs.append(out_chunk)
+    out = "".join(outs)
+
+    # 相似度校验：LLM 可能修正了错字/重复/口语词，只要求整体相似度 > 0.80
     out_no_punct = re.sub(r"[，。！？；：、,.!?;]", "", out)
     ratio = difflib.SequenceMatcher(None, raw_text, out_no_punct).ratio()
     if ratio < 0.80:
