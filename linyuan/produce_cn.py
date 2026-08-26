@@ -17,6 +17,7 @@ produce.py 是给**英文片源**设计的(direction 写死 en2zh、srt_lang 写
     python3 produce_cn.py --source xx.mp4 --slug xx --dry-run   # 只挑金句不出片
 """
 import argparse
+import difflib
 import hashlib
 import json
 import os
@@ -167,14 +168,13 @@ def transcribe(src, work, api_key=None):
 
 
 def _llm_punctuate_and_cues(words, api_key, work):
-    """LLM 断句：把 ASR 词级文本交给 LLM 加标点（理解语义），
-    再按标点断句。返回 cues；失败/校验不过/太短返回 None（回退规则断句）。
+    """LLM 整理字幕：加标点 + 修正明显识别错误，再断句。
+    返回 cues；失败/差异过大/太短返回 None（回退规则断句）。
 
-    省钱设计：
-    - 整段一次调用（不是逐句）
-    - llm() 自带内容寻址缓存（.llm_cache），同文本重跑不付费
-    - 文本 < 20 字跳过（规则够用）
-    """
+    2026-08-26 升级：之前只让 LLM 加标点（不改字），但 ASR 有重复/语序错乱
+    （如「几乎都是都是百分之一百」），且校验「去标点必须等于原文」太严，
+    LLM 稍改字就回退 → 规则硬切无标点。现在让 LLM 顺手修正明显错误，
+    用 difflib 对齐时间戳，只要求相似度 > 0.85。"""
     if not api_key or not work:
         return None
     chars = []  # [(字, start, end)] —— 按顺序对应原文每个字
@@ -187,51 +187,84 @@ def _llm_punctuate_and_cues(words, api_key, work):
     if len(chars) < 20:
         return None
     raw_text = "".join(c[0] for c in chars)
-    prompt = ("给下面这段语音识别出的中文加标点（，。！？等），"
-              "只输出加标点后的原文，不要增删改任何字，不要解释，不要加空格换行：\n\n" + raw_text)
+    prompt = ("下面是一段语音识别出的中文，可能有识别错误（重复的字、错字、语序颠倒）。"
+              "请把它整理成通顺的中文并加上标点（，。！？）。要求："
+              "1) 忠实原意，不增删观点、不补充原文没有的内容；"
+              "2) 只修正明显的识别错误（如重复的字、明显错字、明显语序颠倒）；"
+              "3) 只输出整理后的文字，不要解释、不要加空格换行。\n\n" + raw_text)
     try:
         out = llm([{"role": "user", "content": prompt}], api_key,
-                  temperature=0.0, max_tokens=len(raw_text) + 200)
+                  temperature=0.0, max_tokens=len(raw_text) + 300)
     except Exception as e:
         print(f"[断句] LLM 不可用，回退规则: {e}", file=sys.stderr)
         return None
     out = re.sub(r"```.*?```", "", out, flags=re.S).strip()
     out = re.sub(r"\s+", "", out)
-    # 校验：去掉标点后必须与原文完全一致（防止 LLM 增删改字）
-    if re.sub(r"[，。！？；：、,.!?;]", "", out) != raw_text:
-        print("[断句] LLM 输出与原文字序不符，回退规则", file=sys.stderr)
+    # 相似度校验：LLM 可能修正了错字/重复，只要求与原文相似度 > 0.85
+    out_no_punct = re.sub(r"[，。！？；：、,.!?;]", "", out)
+    ratio = difflib.SequenceMatcher(None, raw_text, out_no_punct).ratio()
+    if ratio < 0.85:
+        print(f"[断句] LLM 输出与原文差异过大(相似度{ratio:.2f})，回退规则", file=sys.stderr)
         return None
-    # 按标点断句，标点位置映射回时间戳。
-    # 断句策略（两层）：
-    # 1) 句末标点（。！？）必断 —— 保证语义句完整
-    # 2) 句内逗号：长句接近 MAX_CHARS 时也断 —— 避免单条字幕过长堆 2-3 行
-    cues, chars_buf, text_buf, ci = [], [], "", 0
+    # 对齐时间戳：每个输出字符映射到原文字符
+    aligned = _align_timestamps(chars, out)
+    # 断句（两层）：句末标点必断；长句接近上限时逗号也断
+    cues, buf, buf_text = [], [], ""
     def _flush():
-        nonlocal chars_buf, text_buf
-        if chars_buf:
-            cues.append({"start": chars_buf[0][1], "end": chars_buf[-1][2], "text": text_buf})
-        chars_buf, text_buf = [], ""
-    for ch in out:
+        nonlocal buf, buf_text
+        if buf:
+            cues.append({"start": buf[0][1], "end": buf[-1][2], "text": buf_text})
+        buf, buf_text = [], ""
+    for ch, ws, we in aligned:
         if ch in "。！？!?":
-            text_buf += ch
+            buf_text += ch
             _flush()
         elif ch in "，、；：,;:":
-            # 逗号：text_buf 已够长（接近 MAX_CHARS 的一半以上）就在此断，
-            # 短句则保留在句内（保持语义完整）
-            if len(text_buf) >= MAX_CHARS - 6:
-                text_buf += ch
+            buf_text += ch
+            if len(buf_text) >= MAX_CHARS - 6:
                 _flush()
-            else:
-                text_buf += ch
         else:
-            if ci < len(chars):
-                chars_buf.append(chars[ci])
-                text_buf += chars[ci][0]
-                ci += 1
-    if chars_buf:
+            buf.append((ch, ws, we))
+            buf_text += ch
+    if buf:
         _flush()
-    print(f"[断句] LLM 断句: {len(words)} 词 → {len(cues)} 条")
+    print(f"[断句] LLM 整理: {len(words)} 词 → {len(cues)} 条 (相似度{ratio:.2f})")
     return cues
+
+
+def _align_timestamps(chars, out):
+    """把 LLM 输出（含标点、可能修正字）的每个字符对齐到原文字符。
+    返回 [(ch, start, end), ...]，标点时间 = 前一个字的 end。"""
+    import difflib
+    raw_text = "".join(c[0] for c in chars)
+    out_no_punct = re.sub(r"[，。！？；：、,.!?;]", "", out)
+    sm = difflib.SequenceMatcher(None, raw_text, out_no_punct)
+    out_to_raw = []  # out_no_punct 第 k 字 → raw 索引（或 None）
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op == "equal":
+            out_to_raw.extend(i1 + (k - j1) for k in range(j1, j2))
+        elif op == "replace":
+            for k in range(j1, j2):
+                raw_idx = i1 + int((k - j1) * (i2 - i1) / max(1, j2 - j1)) if i2 > i1 else None
+                out_to_raw.append(raw_idx)
+        elif op == "insert":
+            out_to_raw.extend([None] * (j2 - j1))
+        # delete 跳过（原文有、输出没有）
+    result = []
+    oi = 0
+    last_end = 0.0
+    for ch in out:
+        if ch in "，。！？；：、,.!?;":
+            result.append((ch, last_end, last_end))
+        else:
+            raw_idx = out_to_raw[oi] if oi < len(out_to_raw) else None
+            oi += 1
+            if raw_idx is not None and raw_idx < len(chars):
+                last_end = chars[raw_idx][2]
+                result.append((ch, chars[raw_idx][1], chars[raw_idx][2]))
+            else:
+                result.append((ch, last_end, last_end))
+    return result
 
 
 def _group_tokens_to_cues(words):
@@ -759,9 +792,9 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             font_path = cand
             break
     idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
-    # 字号按画布宽自适应（用户 2026-08-25 反馈封面文字偏小，横屏 64→66px）
-    title_size = 48 if W < 1000 else 66
-    tag_size = 30 if W < 1000 else 36
+    # 字号按画布宽自适应（用户 2026-08-26 反馈封面文字再大、标签+0.5倍）
+    title_size = 48 if W < 1000 else 74
+    tag_size = 30 if W < 1000 else 54
     f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
     f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
 
