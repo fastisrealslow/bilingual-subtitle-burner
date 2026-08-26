@@ -216,13 +216,15 @@ async function load() {
                 ? '<span class="tag tag-subtitle">✓ 烧字幕</span>'
                 : (e.has_existing_subtitles ? '<span class="tag tag-nosubtitle">原视频有字幕</span>' : '<span class="tag">无字幕</span>');
               const verticalTag = e.vertical ? '<span class="tag">竖屏</span>' : '<span class="tag">横屏</span>';
+              const bvidLinks = (e.bvids && e.bvids.length ? e.bvids : [e.bvid]).filter(Boolean)
+                .map(bv => `<a href="https://www.bilibili.com/video/${bv}" target="_blank">${bv}</a>`).join(' ');
               return `
                 <div class="item">
                   <div class="item-title">${e.title || e.slug}</div>
                   <div class="item-meta">
                     <span>${formatDate(e.ts * 1000)}</span>
                     <span>·</span>
-                    <a href="https://www.bilibili.com/video/${e.bvid}" target="_blank">${e.bvid}</a>
+                    ${bvidLinks}
                     ${duration ? `<span>·</span><span>${duration}</span>` : ''}
                   </div>
                   <div class="item-tags">
