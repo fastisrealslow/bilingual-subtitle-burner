@@ -569,9 +569,11 @@ def parse_llm_json_array(out):
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
 
 
-def pick_highlights(cues, speaker, api_key, work):
-    """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。"""
-    cache = work / "highlights.json"
+def pick_highlights(cues, speaker, api_key, work, suffix=""):
+    """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。
+    suffix 用于长视频拆多条时区分各段的缓存（否则第 2 段会命中第 1 段的
+    highlights.json，返回超出本段范围的索引 → IndexError）。"""
+    cache = work / f"highlights{suffix}.json"
     if cache.exists():
         print("[金句] 命中缓存")
         return json.loads(cache.read_text(encoding="utf-8"))
@@ -767,13 +769,14 @@ def probe(src, entries):
     return r.stdout.strip()
 
 
-def copywrite(cues, sel, speaker, occasion, api_key, work):
+def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
     """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
 
     标题党检测器就是prompt本身:要求「有信息量、不夸张」。结果落 meta.json,
     投稿脚本优先读这里,不再用 occasion 硬拼。
+    suffix 区分长视频拆多条的各段缓存（否则每段复用同一条文案）。
     """
-    cache = work / "copywrite.json"
+    cache = work / f"copywrite{suffix}.json"
     if cache.exists():
         try:
             return json.loads(cache.read_text(encoding="utf-8"))
@@ -1100,7 +1103,7 @@ def _chunk_by_time(cues, chunk_sec=240):
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix=""):
     """出一段视频。suffix='' 或 '_2' 等。返回 meta dict。"""
-    picks = pick_highlights(cues, speaker, api_key, work)
+    picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
@@ -1149,7 +1152,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
 
-    cw = copywrite(cues, sel, speaker, occasion, api_key, work)
+    cw = copywrite(cues, sel, speaker, occasion, api_key, work, pick_cache_suffix)
     cover_name = "cover_16x9.jpg"
     cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
     try:
@@ -1237,7 +1240,8 @@ def main():
         suffix = "" if len(chunks) == 1 else f"_{ci + 1}"
         seg_cues = cues[a:b + 1]
         m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
-                         api_key, existing_subtitles, W, H, suffix)
+                         api_key, existing_subtitles, W, H, suffix,
+                         pick_cache_suffix=suffix)
         metas.append(m)
 
     # 写 meta.json：单条保持兼容，多条记录列表
