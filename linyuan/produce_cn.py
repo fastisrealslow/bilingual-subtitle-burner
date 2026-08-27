@@ -533,31 +533,51 @@ def _group_tokens_to_cues(words):
 def parse_llm_json_array(out):
     """解析 LLM 返回的 JSON 数组,多策略容错。
 
-    CI 实证踩过的坑:裸键、单引号、尾随逗号、引号错位("end:29")。
-    逐级降级:标准 JSON → Python 字面量 → 正则修复 → 宽松键值抽取。
+    CI 实证踩过的坑:裸键、单引号、尾随逗号、引号错位("end:29")，
+    以及 LLM 偶发把 JSON 包进 ```json 代码块、甚至再套一层 [ ]。
+    逐级降级:去代码块围栏 → JSON → 字面量 → 嵌套数组展开 → 正则修复 → 宽松抽取。
     """
     import ast
+
+    def _loads(s):
+        try:
+            return json.loads(s)
+        except (json.JSONDecodeError, ValueError):
+            return None
+
+    def _unwrap(v):
+        while isinstance(v, list) and len(v) == 1 and isinstance(v[0], list):
+            v = v[0]
+        return v
+
+    out = re.sub(r"```[a-zA-Z]*", "", out)
+    out = out.replace("```", "")
     m = re.search(r"\[.*\]", out, re.S)
     if not m:
         raise RuntimeError(f"金句返回无法解析(无数组):{out[:300]}")
     raw = m.group(0)
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        pass
-    try:
-        return ast.literal_eval(raw)
-    except (ValueError, SyntaxError):
-        pass
-    fixed = re.sub(r'"(\w+):(\d+)"', r'"\1":\2', raw)  # "end:29"→"end":29(CI 实证)
-    fixed = re.sub(r"([{,]\s*)(\w+)(\s*:)", r'\1"\2"\3', fixed)  # 裸键
-    fixed = fixed.replace("'", '"')  # 单引号
-    fixed = re.sub(r",\s*([}\]])", r"\1", fixed)  # 尾随逗号
-    try:
-        return json.loads(fixed)
-    except json.JSONDecodeError:
-        pass
-    # 究极兜底:逐对象宽松键值抽取,容忍上述错位任意组合
+
+    v = _loads(raw)
+    if v is None:
+        try:
+            v = ast.literal_eval(raw)
+        except (ValueError, SyntaxError):
+            v = None
+    if isinstance(v, list):
+        v = _unwrap(v)
+        if v:
+            return v
+
+    fixed = re.sub(r'"(\w+):(\d+)"', r'"\1":\2', raw)
+    fixed = re.sub(r"([{,]\s*)(\w+)(\s*:)", r'\1"\2"\3', fixed)
+    fixed = fixed.replace("'", '"')
+    fixed = re.sub(r",\s*([}\]])", r"\1", fixed)
+    v = _loads(fixed)
+    if isinstance(v, list):
+        v = _unwrap(v)
+        if v:
+            return v
+
     objs = []
     for block in re.findall(r"\{[^{}]*\}", raw):
         pairs = re.findall(r'"?(\w+)"?\s*:\s*"?([^",}]+)"?', block)
@@ -567,8 +587,6 @@ def parse_llm_json_array(out):
     if objs:
         return objs
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
-
-
 def pick_highlights(cues, speaker, api_key, work, suffix=""):
     """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。
     suffix 用于长视频拆多条时区分各段的缓存（否则第 2 段会命中第 1 段的
