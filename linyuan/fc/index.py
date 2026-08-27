@@ -42,6 +42,7 @@ MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟�
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
 MAX_PER_DAY = 5                          # 每天最多成功调度几条素材（用户 2026-08-20 要求）
 MAX_PUBLISH_PER_DAY = 5                  # 每天最多投几条成片：长视频拆多条排队分天发（2026-08-27）
+PENDING_LIMIT = 10                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
@@ -832,6 +833,11 @@ def handler(event, context):
 
 def dispatch_handler(event=None, context=None):
     st = load_state()
+    # 调度动态控制：待投队列积压超过阈值就暂停调度，先消化（防积压爆炸 2026-08-27）
+    pending_cnt = _pending_final_count(st)
+    if pending_cnt >= PENDING_LIMIT:
+        log.info(f"待投队列 {pending_cnt} 条，超阈值 {PENDING_LIMIT}，暂停调度，先消化积压")
+        return {"dispatched": 0}
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
@@ -993,6 +999,23 @@ def _has_unpublished_part(e, st):
     return published_parts < parts_total
 
 
+def _pending_final_count(st):
+    """待投成片总数（所有素材剩余未投 part 之和），调度端用它防积压。"""
+    total = 0
+    for e in st.get("dispatched", []):
+        if not (e.get("slug") and not e.get("failed")):
+            continue
+        pub = st.get("published", {}).get(e["slug"])
+        if pub:
+            parts_total = pub.get("parts_total", 1)
+            if parts_total <= 1:
+                continue  # 单条已投完
+            total += max(0, parts_total - e.get("published_parts", 0))
+        else:
+            total += 1  # 还没投过，按至少 1 条估
+    return total
+
+
 def publish_handler(event=None, context=None):
     st = load_state()
     now = time.time()
@@ -1009,6 +1032,8 @@ def publish_handler(event=None, context=None):
     pending = [e for e in st["dispatched"]
                if e.get("slug") and not e.get("failed")
                and _has_unpublished_part(e, st)]
+    # 轮转：已投条数最少的素材优先（防长视频霸占额度、新素材饿死 2026-08-27）
+    pending.sort(key=lambda e: e.get("published_parts", 0))
     if not pending:
         log.info("无待投稿件")
         return {"published": 0}
