@@ -257,6 +257,12 @@ def _transcribe_funasr(src, work):
         t += CHUNK_SEC
 
     cues = _merge_cues(cues)
+    # 去重 + 截断死循环：Fun-ASR-Nano 的 LLM 偶发死循环重复、ASR 重复识别，
+    # 必须在这里清理（2026-08-27 实拍：B站二创字幕「两个两个…」整屏、
+    # 「对吧？」×13 条）。顺序：先单条截死循环，再去相邻重复，最后纠错。
+    for c in cues:
+        c["text"] = _de_loop_text(c["text"])
+    cues = _dedup_consecutive(cues)
     # 最后一道 GLOSSARY 专名纠错（Fun-ASR-Nano 对专名仍有盲区）
     for c in cues:
         c["text"] = fix_terms(c["text"])
@@ -295,6 +301,40 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
             buf_text += tok
     _flush()
     return cues
+
+
+def _de_loop_text(text):
+    """截断单条字幕内的 LLM 死循环重复（如「两个两个两个…」「谁谁谁谁…」）。
+
+    Fun-ASR-Nano 是 LLM 架构，temperature 偏低时偶发贪婪解码死循环，
+    输出「方法跟你的方法跟你的…」这类无限重复。这里用正则找 1-8 字单元
+    连续重复 4 次以上的片段，截断到保留 2 次（容忍真实口吃的一次重复）。
+    """
+    if not text:
+        return text
+    m = re.search(r"(.{1,8}?)\1{3,}", text)
+    if m:
+        unit = m.group(1)
+        return text[:m.start()] + unit * 2
+    return text
+
+
+def _dedup_consecutive(cues, sim=0.9):
+    """相邻字幕条去重：连续相同或高度相似的只留第一条，延长 end。
+
+    ASR 对同一句音频重复识别会产出连续重复的字幕（如「对吧？」×13 条、
+    「我们最近看到的…」×8 条），观感极差。这里合并连续重复的条。
+    """
+    out = []
+    for c in cues:
+        t = c["text"]
+        if out:
+            prev = out[-1]["text"]
+            if t == prev or (t and prev and difflib.SequenceMatcher(None, t, prev).ratio() > sim):
+                out[-1]["end"] = c["end"]
+                continue
+        out.append(dict(c))
+    return out
 
 
 def _llm_clean_text(raw_text, api_key):
