@@ -55,7 +55,14 @@ NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜
 
 # B站源「机构白名单」（与 monitor_v2.py/stage_and_dispatch.py 保持一致）：
 # 只保留明确的一手机构/官方号，其余二创个人号全排除。
-AUTHOR_WHITELIST = re.compile(r"私募排排网|基金经理说|投资私享会|巴菲特|财联社|第一财经|证券时报|排排网|官方")
+# 「完整原片」识别（2026-08-27 重构）：不认作者、认内容形态。
+# 真相：微博 764 条里官方媒体仅 12 条、B站 141 条里机构仅 8 条，纯一手撑不起每天 5 条。
+# 改为按内容判断——「完整原片」（完整访谈/发言/直播/实录，哪怕自媒体转发）收，
+# 「剪辑二创」（金句/观点/碎片/标题党）拒。
+FULL_TITLE_PAT = re.compile(
+    r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访")
+CLIP_TITLE_PAT = re.compile(
+    r"金句|十大观点|观点|秘诀|股神|曝光|惊人|精华|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
 # 投稿好时段（北京）：主时段 + 次时段，防扎堆逻辑会自动错开
 PUBLISH_SLOTS = [(11, 0), (12, 30), (15, 0), (18, 0), (21, 0)]
@@ -412,11 +419,6 @@ def pick(items, st, n):
     )
     cands = []
     for it in items:
-        src = it.get("source") or ""
-        author = it.get("author") or ""
-        # B站机构白名单：只保留机构/官方号，其余二创个人号排除
-        if src.startswith("bilibili") and (not author or not AUTHOR_WHITELIST.search(author)):
-            continue
         url, page = it.get("video_url") or "", it.get("url") or ""
         # 兼容旧 data.json：video_url 可能在 extra 里
         extra = it.get("extra") or {}
@@ -437,6 +439,9 @@ def pick(items, st, n):
         if vid in published_bvs:
             continue
         title = it.get("title") or ""
+        # 剪辑二创（碎片/标题党）→ 拒；完整原片 → 收
+        if CLIP_TITLE_PAT.search(title) and not FULL_TITLE_PAT.search(title):
+            continue
         if NOISE.search(title):
             continue                                     # 老虎公园不是林园
         if NOISE_EXTRA.search(title):
