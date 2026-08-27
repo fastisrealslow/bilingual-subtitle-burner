@@ -40,7 +40,8 @@ RELEASE_TAG = "staging"
 
 MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
-MAX_PER_DAY = 5                          # 每天最多成功调度几条（用户 2026-08-20 要求）
+MAX_PER_DAY = 5                          # 每天最多成功调度几条素材（用户 2026-08-20 要求）
+MAX_PUBLISH_PER_DAY = 5                  # 每天最多投几条成片：长视频拆多条排队分天发（2026-08-27）
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
@@ -995,6 +996,16 @@ def _has_unpublished_part(e, st):
 def publish_handler(event=None, context=None):
     st = load_state()
     now = time.time()
+    # 每天投片上限：长视频拆多条排队分天发，每天最多投 MAX_PUBLISH_PER_DAY 条成片
+    today = time.strftime("%Y-%m-%d", time.gmtime(now + 8 * 3600))  # 北京时间
+    dp = st.get("daily_publish") or {}
+    if dp.get("date") != today:
+        dp = {"date": today, "count": 0}
+        st["daily_publish"] = dp
+    if dp.get("count", 0) >= MAX_PUBLISH_PER_DAY:
+        log.info(f"今日已投 {dp['count']} 条，达每日上限 {MAX_PUBLISH_PER_DAY}，剩余排队到明天")
+        save_state(st)
+        return {"published": 0}
     pending = [e for e in st["dispatched"]
                if e.get("slug") and not e.get("failed")
                and _has_unpublished_part(e, st)]
@@ -1225,6 +1236,7 @@ def publish_handler(event=None, context=None):
         e.pop("upload_title", None)
         # 记录这次投到第几条了（长视频多条时分次投稿）
         e["published_parts"] = k + 1
+        st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1
         prev_bvids = st.get("published", {}).get(slug, {}).get("bvids", []) + [bvid]
         st["published"][slug] = {
             "bvid": bvid,  # 最新一条的 bvid
