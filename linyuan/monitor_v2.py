@@ -160,7 +160,11 @@ class BilibiliSearchSource(Source):
     # B站源「机构白名单」：只保留明确的一手机构/官方号，其余二创个人号全排除。
     # 2026-08-27 实证：B站源 141 条里机构号 <10 条，关键词黑名单打地鼠盖不住
     # （二创号名字千奇百怪），改成白名单只吃机构，一手素材靠微博/股东大会等源。
-    AUTHOR_WHITELIST = re.compile(r"私募排排网|基金经理说|投资私享会|巴菲特|财联社|第一财经|证券时报|排排网|官方")
+    # 「完整原片」识别：不认作者、认内容形态（选片层会再判断一次，这里先粗筛减少噪音）
+    FULL_TITLE_PAT = re.compile(
+        r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访")
+    CLIP_TITLE_PAT = re.compile(
+        r"金句|十大观点|观点|秘诀|股神|曝光|惊人|精华|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
     EXTRACT_JS = """
     () => {
@@ -232,8 +236,8 @@ class BilibiliSearchSource(Source):
         items = []
         for v in raw_items:
             up = v.get("up", "")
-            # 机构白名单：只保留机构/官方号，其余二创个人号排除
-            if not up or not self.AUTHOR_WHITELIST.search(up):
+            # 剪辑二创标题 → 拒；完整原片 → 收（按内容形态，不按作者）
+            if self.CLIP_TITLE_PAT.search(v["title"]) and not self.FULL_TITLE_PAT.search(v["title"]):
                 continue
             view_count = v.get("view_count") or 0
             vt = v.get("viewText", "")
