@@ -237,7 +237,7 @@ class BilibiliSearchSource(Source):
         for v in raw_items:
             up = v.get("up", "")
             # 剪辑二创标题 → 拒；完整原片 → 收（按内容形态，不按作者）
-            if self.CLIP_TITLE_PAT.search(v["title"]) and not self.FULL_TITLE_PAT.search(v["title"]):
+            if self.CLIP_TITLE_PAT.search(v.get("title", "")) and not self.FULL_TITLE_PAT.search(v.get("title", "")):
                 continue
             view_count = v.get("view_count") or 0
             vt = v.get("viewText", "")
