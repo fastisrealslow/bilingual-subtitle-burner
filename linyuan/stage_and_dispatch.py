@@ -42,16 +42,23 @@ API = f"https://api.github.com/repos/{REPO}"
 RELEASE_TAG = "staging"
 
 # 选片约束：太短挑不出 3 段金句，太长 CI 的 4 核 ASR 拖不起
-MIN_DUR, MAX_DUR = 120, 1200
+MIN_DUR, MAX_DUR = 120, 5400
 # B站定时发布：第 i 条依次往后推（小时）。B站要求定时必须明显晚于当前时间
 # biliup 要求 dtime 距离提交必须大于 4 小时，+4h 会被拒，从 5h 起
 DELAY_LADDER = [5, 8, 11, 14, 17]
 
-# B站源「机构白名单」：只保留明确的一手机构/官方号，其余（二创个人号）全排除。
-# 2026-08-27 实证：B站源 141 条里机构号 <10 条，其余全是二创；关键词黑名单打地鼠
-# 盖不住（二创号名字千奇百怪：易懂小课堂/樵门/股海淘沙…），改成白名单只吃机构。
-# 一手素材主力是微博(764)+股东大会(139)+腾讯/抖音/好看/网易(103)，B站那点机构内容无关大局。
-AUTHOR_WHITELIST = re.compile(r"私募排排网|基金经理说|投资私享会|巴菲特|财联社|第一财经|证券时报|排排网|官方")
+# 「完整原片」识别（2026-08-27 重构）：不认作者、认内容形态。
+# 真相：微博 764 条里官方媒体仅 12 条、B站 141 条里机构仅 8 条，纯一手撑不起每天 5 条。
+# 所以改为按内容判断——「完整原片」（完整访谈/发言/直播/实录，哪怕自媒体转发）收，
+# 「剪辑二创」（金句/观点、碎片、标题党）拒。
+# 噪音标题（与 fc 一致）：老虎公园、林园群（人名）、雕像、泼漆等无关内容
+NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜|雕像|泼漆|通报")
+
+FULL_TITLE_PAT = re.compile(
+    r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访")
+# 剪辑二创标题（碎片/标题党）→ 拒
+CLIP_TITLE_PAT = re.compile(
+    r"金句|十大观点|观点|秘诀|股神|曝光|惊人|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
 
 def log(*a):
@@ -140,8 +147,11 @@ def pick(items, state, n):
     for it in items:
         src = it.get("source", "") or ""
         author = it.get("author", "") or ""
-        # B站源机构白名单：只保留机构/官方号，其余二创个人号排除
-        if src.startswith("bilibili") and (not author or not AUTHOR_WHITELIST.search(author)):
+        title = it.get("title", "") or ""
+        if NOISE.search(title):
+            continue
+        # 剪辑二创（碎片/标题党）→ 拒；完整原片 → 收
+        if CLIP_TITLE_PAT.search(title) and not FULL_TITLE_PAT.search(title):
             continue
         url = it.get("video_url") or ""
         src_page = it.get("url") or ""
@@ -154,7 +164,7 @@ def pick(items, state, n):
             continue                                  # 同源冷却中
         cands.append({
             "key": key,
-            "title": it.get("title", "")[:60],
+            "title": title[:60],
             "video_url": url,
             "page_url": src_page,
             "source": it.get("source", ""),
