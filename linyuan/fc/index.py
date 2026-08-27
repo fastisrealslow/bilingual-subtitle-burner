@@ -53,10 +53,9 @@ TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须�
 # - 「二埋汰」是东北虎网红名
 NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜|雕像|泼漆|通报")
 
-# B站二创号黑名单（与 monitor_v2.py/stage_and_dispatch.py 保持一致）：
-# 选片时排除二创个人号，只吃一手原视频。命中即排除：滚雪球（竞品+用户自己成片号）、
-# 价值观、财务自由、复利、股神、大佬。
-AUTHOR_BLACKLIST = re.compile(r"滚雪球|价值观|财务自由|复利|股神|大佬")
+# B站源「机构白名单」（与 monitor_v2.py/stage_and_dispatch.py 保持一致）：
+# 只保留明确的一手机构/官方号，其余二创个人号全排除。
+AUTHOR_WHITELIST = re.compile(r"私募排排网|基金经理说|投资私享会|巴菲特|财联社|第一财经|证券时报|排排网|官方")
 
 # 投稿好时段（北京）：主时段 + 次时段，防扎堆逻辑会自动错开
 PUBLISH_SLOTS = [(11, 0), (12, 30), (15, 0), (18, 0), (21, 0)]
@@ -415,8 +414,8 @@ def pick(items, st, n):
     for it in items:
         src = it.get("source") or ""
         author = it.get("author") or ""
-        # B站二创号黑名单：排除二创（含竞品），只吃一手原视频
-        if src.startswith("bilibili") and author and AUTHOR_BLACKLIST.search(author):
+        # B站机构白名单：只保留机构/官方号，其余二创个人号排除
+        if src.startswith("bilibili") and (not author or not AUTHOR_WHITELIST.search(author)):
             continue
         url, page = it.get("video_url") or "", it.get("url") or ""
         # 兼容旧 data.json：video_url 可能在 extra 里
