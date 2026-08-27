@@ -225,11 +225,14 @@ def _transcribe_funasr(src, work):
         llm=llm_path,
         embedding=f"{FUNASR_DIR}/embedding.int8.onnx",
         tokenizer=f"{FUNASR_DIR}/Qwen3-0.6B",
-        num_threads=1, itn=True, temperature=0.3, max_new_tokens=200,
+        num_threads=1, itn=True, temperature=0.5, max_new_tokens=150,
     )
 
     # 3. 分 chunk 转写（Fun-ASR-Nano 有 KV 上限，长音频需切段）
-    #    temperature=0.3 消除 LLM 贪婪解码的死循环重复（默认 1e-6 会循环刷屏）。
+    #    temperature=0.5 + max_new_tokens=150：消除 LLM 贪婪解码死循环。
+    #    0.3 对含 BGM/口吃的片段（尤其 B站二创）仍会偶发死循环，拉到 0.5；
+    #    150 是 20s 音频正常输出（~60 token）的 2.5 倍余量，死循环时也会更早截断。
+    #    另外 _transcribe_funasr 末尾还有 _de_loop_text 截断 + _dedup_consecutive 去重兜底。
     #    overlap 缓冲：每段前后多转写 OVERLAP 秒，让跨边界的词被完整看到，
     #    但只输出核心区 [t, t+CHUNK_SEC] 的 cue（首尾 overlap 仅当上下文）。
     #    这样边界词（如「多得多」）在前一段能被完整识别输出，不会切成半词。
