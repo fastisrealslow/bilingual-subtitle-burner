@@ -157,13 +157,10 @@ class BilibiliSearchSource(Source):
     name = "bilibili_search"
     min_interval = 1800
 
-    # B站二创个人号黑名单：搜「林园」会把一堆二创号一起搜进来，
-    # 这些号本质是把林园股东大会/采访原片再剪辑，不是一手素材。
-    # 命中即排除：
-    #  -「滚雪球」系列：竞品「园园滚雪球」（已拉黑你）+ 用户自己的「园来
-    #   滚雪球」（自己的成片不能回炉当素材）+ 投资就是/林林/贤哥滚雪球
-    #  -「价值观」「财务自由」「复利」「股神」「大佬」：标题党二创个人号
-    AUTHOR_BLACKLIST = re.compile(r"滚雪球|价值观|财务自由|复利|股神|大佬")
+    # B站源「机构白名单」：只保留明确的一手机构/官方号，其余二创个人号全排除。
+    # 2026-08-27 实证：B站源 141 条里机构号 <10 条，关键词黑名单打地鼠盖不住
+    # （二创号名字千奇百怪），改成白名单只吃机构，一手素材靠微博/股东大会等源。
+    AUTHOR_WHITELIST = re.compile(r"私募排排网|基金经理说|投资私享会|巴菲特|财联社|第一财经|证券时报|排排网|官方")
 
     EXTRACT_JS = """
     () => {
@@ -235,8 +232,8 @@ class BilibiliSearchSource(Source):
         items = []
         for v in raw_items:
             up = v.get("up", "")
-            # 二创号黑名单：滚雪球/价值观/财务自由等（含竞品与用户自己的成片号）
-            if up and self.AUTHOR_BLACKLIST.search(up):
+            # 机构白名单：只保留机构/官方号，其余二创个人号排除
+            if not up or not self.AUTHOR_WHITELIST.search(up):
                 continue
             view_count = v.get("view_count") or 0
             vt = v.get("viewText", "")
