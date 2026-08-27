@@ -35,9 +35,12 @@ BASE = Path(__file__).parent
 # 而 small 会输出繁体、把「安宫」听成「安公」,质量差距是决定性的。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
 
-# ASR 后端选择：funasr（Fun-ASR-Nano LLM 版，自带标点+热词）| whisper（旧 large-v3，默认，过渡期保险）
-ASR_BACKEND = os.environ.get("ASR_BACKEND") or "whisper"
-# Fun-ASR-Nano 模型目录（int8 三件套 + tokenizer 目录）
+# ASR 后端选择：sensevoice（SenseVoice-Small，非LLM结构上不会死循环，推荐）|
+# whisper（旧 large-v3 可回滚）| funasr（Fun-ASR-Nano，LLM架构有死循环风险，弃用仅保留）
+ASR_BACKEND = os.environ.get("ASR_BACKEND") or "sensevoice"
+# SenseVoice-Small 模型目录（model.int8.onnx + tokens.txt）
+SENSEVOICE_DIR = os.environ.get("SENSEVOICE_MODEL_DIR") or "/tmp/sv_onnx"
+# Fun-ASR-Nano 模型目录（int8 三件套 + tokenizer 目录，弃用仅保留）
 FUNASR_DIR = os.environ.get("FUNASR_MODEL_DIR") or "/tmp/funasr_llm"
 FUNASR_LANG = os.environ.get("FUNASR_LANG") or "zh"
 
@@ -136,6 +139,8 @@ def transcribe(src, work, api_key=None):
     if cache.exists():
         print("[asr] 命中缓存")
         return json.loads(cache.read_text(encoding="utf-8"))
+    if ASR_BACKEND == "sensevoice":
+        return _transcribe_sensevoice(src, work)
     if ASR_BACKEND == "funasr":
         return _transcribe_funasr(src, work)
     return _transcribe_whisper(src, work, api_key)
@@ -225,14 +230,14 @@ def _transcribe_funasr(src, work):
         llm=llm_path,
         embedding=f"{FUNASR_DIR}/embedding.int8.onnx",
         tokenizer=f"{FUNASR_DIR}/Qwen3-0.6B",
-        num_threads=1, itn=True, temperature=0.5, max_new_tokens=150,
+        num_threads=1, itn=True, temperature=0.7, max_new_tokens=150,
     )
 
     # 3. 分 chunk 转写（Fun-ASR-Nano 有 KV 上限，长音频需切段）
-    #    temperature=0.5 + max_new_tokens=150：消除 LLM 贪婪解码死循环。
-    #    0.3 对含 BGM/口吃的片段（尤其 B站二创）仍会偶发死循环，拉到 0.5；
-    #    150 是 20s 音频正常输出（~60 token）的 2.5 倍余量，死循环时也会更早截断。
-    #    另外 _transcribe_funasr 末尾还有 _de_loop_text 截断 + _dedup_consecutive 去重兜底。
+    #    temperature=0.7：批量实证死循环阈值——0.3/0.5 对含口吃/BGM 片段仍会死循环，
+    #    0.7 死循环消失且专名识别尚可（>0.9 会把「林园」误识别成「李彦忠」）。
+    #    max_new_tokens=150 是 20s 音频正常输出(~60 token)的 2.5 倍余量，死循环也早截断。
+    #    末尾还有 _de_loop_text 截断 + _dedup_consecutive 去重兜底。
     #    overlap 缓冲：每段前后多转写 OVERLAP 秒，让跨边界的词被完整看到，
     #    但只输出核心区 [t, t+CHUNK_SEC] 的 cue（首尾 overlap 仅当上下文）。
     #    这样边界词（如「多得多」）在前一段能被完整识别输出，不会切成半词。
@@ -267,6 +272,73 @@ def _transcribe_funasr(src, work):
         c["text"] = _de_loop_text(c["text"])
     cues = _dedup_consecutive(cues)
     # 最后一道 GLOSSARY 专名纠错（Fun-ASR-Nano 对专名仍有盲区）
+    for c in cues:
+        c["text"] = fix_terms(c["text"])
+    cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"[asr] {len(cues)} 条字幕")
+    return cues
+
+
+def _transcribe_sensevoice(src, work):
+    """SenseVoice-Small 转写：非 LLM（CTC）架构，结构上不会死循环，自带标点。
+
+    相对 Fun-ASR-Nano 的关键优势：2026-08-27 批量实测 Fun-ASR-Nano 长视频
+    死循环率 43%（「吃一粒吃一粒」「吓吓吓」无限重复吞内容），调 temperature 治不了根；
+    SenseVoice 是非自回归 CTC，不存在 LLM 贪婪解码死循环，10 条音频 0 死循环。
+    CER 略高（7.8% vs 4.5%），但偶发错字可用术语表/LLM 兜，死循环兜不住。
+    """
+    import numpy as np
+    import wave
+    from sherpa_onnx import OfflineRecognizer
+    cache = work / "cues_raw.json"
+
+    # 1. 提取 16k 单声道 PCM
+    wav_path = work / "audio_16k.wav"
+    if not wav_path.exists():
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+                        "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+                        str(wav_path)], check=True)
+    with wave.open(str(wav_path), "rb") as w:
+        sr = w.getframerate()
+        samples = w.readframes(w.getnframes())
+    audio = np.frombuffer(samples, dtype=np.int16).astype(np.float32) / 32768.0
+    total_dur = len(audio) / sr
+    print(f"[asr] 音频 {total_dur:.0f}s，SenseVoice-Small 转写")
+
+    # 2. 加载模型（int8 onnx；use_itn=True 输出带标点）
+    recognizer = OfflineRecognizer.from_sense_voice(
+        model=f"{SENSEVOICE_DIR}/model.int8.onnx",
+        tokens=f"{SENSEVOICE_DIR}/tokens.txt",
+        num_threads=1, use_itn=True,
+    )
+
+    # 3. 分 chunk 转写（SenseVoice 整段 >60s 会退化输出空：实测 60s 正常、90s 退到 18 字、
+    #    120s+ 只剩几个字）。故按 60s 切段 + overlap 3s 缓冲边界词，只输出核心区。
+    CHUNK_SEC = 60.0
+    OVERLAP = 3.0
+    cues = []
+    t = 0.0
+    while t < total_dur:
+        seg_start = max(0.0, t - OVERLAP)
+        seg_end = min(t + CHUNK_SEC + OVERLAP, total_dur)
+        seg = audio[int(seg_start * sr):int(seg_end * sr)]
+        stream = recognizer.create_stream()
+        stream.accept_waveform(sr, seg)
+        recognizer.decode_stream(stream)
+        r = stream.result
+        if r.tokens:
+            seg_cues = _funasr_tokens_to_cues(list(r.tokens), list(r.timestamps), seg_start, seg_end - seg_start)
+            for c in seg_cues:
+                if t <= c["start"] < t + CHUNK_SEC:
+                    cues.append(c)
+        print(f"  [chunk {seg_start:6.0f}-{seg_end:6.0f}s] {len(r.tokens)} tokens", flush=True)
+        t += CHUNK_SEC
+
+    cues = _merge_cues(cues)
+    # 去重 + GLOSSARY 纠错（SenseVoice 偶发小错字，如「金钱二」→「金钱上」）
+    for c in cues:
+        c["text"] = _de_loop_text(c["text"])
+    cues = _dedup_consecutive(cues)
     for c in cues:
         c["text"] = fix_terms(c["text"])
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -748,18 +820,18 @@ def make_ass(entries, path, W, H):
     vertical = H > W
     if vertical:
         # 竖屏：按高度比例 + 抬高避开底部 UI
-        zh = max(34, int(H * 0.04))
-        en = max(24, int(H * 0.03))
+        zh = max(38, int(H * 0.05))
+        en = max(26, int(H * 0.035))
         mv = int(H * 0.09)
-        zw = max(12, int(W * 15 / 720))
+        zw = max(11, int(W * 14 / 720))
         ew = max(24, int(W * 34 / 720))
     else:
         # 横屏：字号占高 7%（用户 2026-08-25 反馈 5% 偏小，调大 ~1.4 倍）、
         # 底边距占高 6.5%（已修好贴底）、行宽按字号自洽。
-        zh = max(32, int(H * 0.07))
-        en = max(22, int(H * 0.055))
+        zh = max(36, int(H * 0.08))
+        en = max(24, int(H * 0.06))
         mv = int(H * 0.065)
-        zw = max(10, int(W * 0.85 / zh))
+        zw = max(9, int(W * 0.80 / zh))
         ew = max(20, int(W * 0.85 / en))
 
     def wrap(t, n, cjk):
@@ -970,12 +1042,19 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         # 背景：原始帧放大到 1280x720 并高斯模糊
         bg = Image.open(best_frame).convert("RGB").resize((1280, 720), Image.LANCZOS) \
             .filter(ImageFilter.GaussianBlur(30))
-        # 竖屏主体缩放到高度 720 居中
+        # 竖屏主体缩放到高度 720；以人脸为锚水平偏移，让人脸落到 1280 中央
+        # （2026-08-27 实拍：原来横条居中贴，人脸偏左不居中，主体「没放出来」）
         fg_h = 720
         fg_w = max(1, int(img.width * fg_h / img.height))
         fg = img.resize((fg_w, fg_h), Image.LANCZOS)
         canvas = bg.copy()
-        canvas.paste(fg, ((1280 - fg_w) // 2, 0))
+        if best_face is not None:
+            face_x_in_fg = int(cx * fg_w / max(1, tw))  # 人脸在缩放后 fg 中的 x
+            fg_x = 1280 // 2 - face_x_in_fg
+        else:
+            fg_x = (1280 - fg_w) // 2
+        fg_x = max(0, min(fg_x, 1280 - fg_w))  # 边界保护
+        canvas.paste(fg, (fg_x, 0))
         img = canvas
         W, H = 1280, 720
     else:
@@ -1033,13 +1112,30 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         max_lines = 2
         line_h = int(title_size * 1.2)
         margin_bottom = 56
-    # 标题分行：尽量均匀，避免最后一行只剩 1-2 字
+    # 标题分行：用 jieba 分词按词边界断，避免「公司」被硬切成「公」+「司」
+    # （2026-08-27 实拍封面断句问题）。jieba 失败则退回均匀字符切分。
     if len(title) <= chars_per_line:
         lines = [title]
     else:
-        n_lines = min(max_lines, (len(title) + chars_per_line - 1) // chars_per_line)
-        per = (len(title) + n_lines - 1) // n_lines
-        lines = [title[i:i + per] for i in range(0, len(title), per)][:n_lines]
+        try:
+            import jieba as _jieba
+            import logging as _lg
+            _jieba.setLogLevel(_lg.ERROR)
+            words = list(_jieba.cut(title))
+            lines, cur = [], ""
+            for w in words:
+                if len(cur) + len(w) > chars_per_line and cur:
+                    lines.append(cur)
+                    cur = w
+                else:
+                    cur += w
+            if cur:
+                lines.append(cur)
+            lines = lines[:max_lines]
+        except ImportError:
+            n_lines = min(max_lines, (len(title) + chars_per_line - 1) // chars_per_line)
+            per = (len(title) + n_lines - 1) // n_lines
+            lines = [title[i:i + per] for i in range(0, len(title), per)][:n_lines]
     y = H - margin_bottom - line_h * len(lines)
     for ln in lines:
         # 白字黑边(描边厚度自适应)
@@ -1193,16 +1289,19 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             crop_h = H - 100
             crop_w = min(int(crop_h * 16 / 9), W)
         crop_x = (W - crop_w) // 2
+        seg_dur = s1 - s0
+        # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
+        fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
         if existing_subtitles:
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100"
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,{fade}"
         else:
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass}"
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass},{fade}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
-             "-t", str(s1 - s0), "-i", str(src),
+             "-t", str(seg_dur), "-i", str(src),
              "-vf", vf,
              "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
-             "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+             "-c:v", "libx264", "-preset", "slow", "-crf", "18",
              "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
              str(seg)], check=True)
         parts.append(seg)
