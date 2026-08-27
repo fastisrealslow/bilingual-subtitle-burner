@@ -47,9 +47,11 @@ MIN_DUR, MAX_DUR = 120, 1200
 # biliup 要求 dtime 距离提交必须大于 4 小时，+4h 会被拒，从 5h 起
 DELAY_LADDER = [5, 8, 11, 14, 17]
 
-# B站二创号黑名单（与 monitor_v2.py 保持一致）：选片时排除这些号的视频，
-# 只吃一手原视频。命中即排除：滚雪球（竞品+用户自己成片号）、价值观、财务自由、复利、股神、大佬。
-AUTHOR_BLACKLIST = re.compile(r"滚雪球|价值观|财务自由|复利|股神|大佬")
+# B站源「机构白名单」：只保留明确的一手机构/官方号，其余（二创个人号）全排除。
+# 2026-08-27 实证：B站源 141 条里机构号 <10 条，其余全是二创；关键词黑名单打地鼠
+# 盖不住（二创号名字千奇百怪：易懂小课堂/樵门/股海淘沙…），改成白名单只吃机构。
+# 一手素材主力是微博(764)+股东大会(139)+腾讯/抖音/好看/网易(103)，B站那点机构内容无关大局。
+AUTHOR_WHITELIST = re.compile(r"私募排排网|基金经理说|投资私享会|巴菲特|财联社|第一财经|证券时报|排排网|官方")
 
 
 def log(*a):
@@ -138,8 +140,8 @@ def pick(items, state, n):
     for it in items:
         src = it.get("source", "") or ""
         author = it.get("author", "") or ""
-        # B站二创号黑名单：排除二创（含竞品），只吃一手原视频
-        if src.startswith("bilibili") and author and AUTHOR_BLACKLIST.search(author):
+        # B站源机构白名单：只保留机构/官方号，其余二创个人号排除
+        if src.startswith("bilibili") and (not author or not AUTHOR_WHITELIST.search(author)):
             continue
         url = it.get("video_url") or ""
         src_page = it.get("url") or ""
