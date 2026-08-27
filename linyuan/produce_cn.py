@@ -724,23 +724,28 @@ def make_ass(entries, path, W, H):
         if not t:
             return ""
         if cjk:
-            # 按宽度断行:每行尽量接近 n 字,标点是「优先断点」而非「必断点」。
-            # 达到 n 字时优先回溯到最近的标点处断(标点留在上一行尾),
-            # 无标点则硬断。这样一句最多 2-3 行,不会每遇逗号就断开。
+            # jieba 分词断行：断点落在词边界，避免双字词被硬切（如「看|好」被
+            # 切成「看」+「好」）；标点归前一个词，避免孤立在行首（如「节能灯\n。」）。
+            try:
+                import jieba as _jieba
+                import logging as _lg
+                _jieba.setLogLevel(_lg.ERROR)
+                segs = list(_jieba.cut(t))
+            except ImportError:
+                segs = list(t)
+            merged = []
+            for w in segs:
+                if w and merged and w[0] in "，。！？；：、,.!?;":
+                    merged[-1] += w
+                else:
+                    merged.append(w)
             lines, cur = [], ""
-            for ch in t:
-                cur += ch
-                if len(cur) >= n:
-                    cut = -1
-                    # 在 [n-8, n] 范围内找最后一个标点作为断点
-                    for j in range(len(cur) - 1, max(0, len(cur) - 9), -1):
-                        if cur[j] in "，。！？；：、,.!?;":
-                            cut = j + 1
-                            break
-                    if cut <= 0:
-                        cut = len(cur)  # 无标点,整行断
-                    lines.append(cur[:cut])
-                    cur = cur[cut:]
+            for w in merged:
+                if len(cur) + len(w) > n and cur:
+                    lines.append(cur)
+                    cur = w
+                else:
+                    cur += w
             if cur or not lines:
                 lines.append(cur)
             return "\\N".join(lines)
