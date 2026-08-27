@@ -1262,10 +1262,15 @@ def publish_handler(event=None, context=None):
         # 记录这次投到第几条了（长视频多条时分次投稿）
         e["published_parts"] = k + 1
         st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1
-        prev_bvids = st.get("published", {}).get(slug, {}).get("bvids", []) + [bvid]
+        prev_pub = st.get("published", {}).get(slug, {})
+        prev_bvids = prev_pub.get("bvids", []) + [bvid]
+        # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
+        parts_log = list(prev_pub.get("parts", []))
+        parts_log.append({"bvid": bvid, "title": title, "ts": int(time.time())})
         st["published"][slug] = {
             "bvid": bvid,  # 最新一条的 bvid
             "bvids": prev_bvids,
+            "parts": parts_log,
             "parts_total": parts_total,
             "ts": int(time.time()),
             "title": title,
