@@ -106,24 +106,17 @@ jobs:
         uses: actions/cache@v4
         with:
           # cache 的 path 相对仓库根，而下载在 linyuan/ 工作目录下
-          path: linyuan/funasr_model
-          key: funasr-nano-int8-v1
+          path: linyuan/sensevoice_model
+          key: sensevoice-int8-v1
 
-      - name: 下载 Fun-ASR-Nano 模型
-        if: steps.funasr-cache.outputs.cache-hit != 'true'
+      - name: 下载 SenseVoice 模型
+        if: steps.sensevoice-cache.outputs.cache-hit != 'true'
         run: |
-          pip install -q huggingface_hub
-          mkdir -p funasr_model
-          python3 - <<'PY'
-          from huggingface_hub import hf_hub_download
-          repo = "csukuangfj/sherpa-onnx-funasr-nano-int8-2025-12-30"
-          for f in ["encoder_adaptor.int8.onnx", "embedding.int8.onnx", "llm.int8.onnx",
-                    "Qwen3-0.6B/tokenizer.json", "Qwen3-0.6B/vocab.json",
-                    "Qwen3-0.6B/merges.txt"]:
-              hf_hub_download(repo, f, local_dir="funasr_model")
-          print("Fun-ASR-Nano 模型就位")
-          PY
-          ls -lh funasr_model/ | head
+          mkdir -p sensevoice_model
+          curl -sfL --retry 3 --max-time 600 -o /tmp/sv.tar.bz2 \
+            "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2"
+          tar xjf /tmp/sv.tar.bz2 -C sensevoice_model --strip-components=1
+          ls -lh sensevoice_model/
 
       - name: 预下载模型
         if: steps.whisper-cache.outputs.cache-hit != 'true'
@@ -180,9 +173,9 @@ jobs:
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
           WHISPER_MODEL: large-v3
-          # Fun-ASR-Nano 后端（默认开启，自带标点+更准）；出问题可临时改为 whisper 回滚
-          ASR_BACKEND: funasr
-          FUNASR_MODEL_DIR: funasr_model
+          # SenseVoice-Small 后端（非 LLM 不会死循环，自带标点）；出问题可临时改 whisper 回滚
+          ASR_BACKEND: sensevoice
+          SENSEVOICE_MODEL_DIR: sensevoice_model
           # ubuntu runner 没有 Microsoft YaHei/Arial，libass 找不到会烧成豆腐块
           ZH_FONT: Noto Sans CJK SC
           EN_FONT: DejaVu Sans
