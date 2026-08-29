@@ -687,9 +687,22 @@ def _download_inner(cand, dest):
             if not dest.exists() or dest.stat().st_size < 10240:
                 raise RuntimeError("微博直链下载失败")
     elif cand["video_url"]:
-        # 其他直链 → 直接下载
-        subprocess.run(["curl", "-sfL", "--max-time", "240", "-o",
-                        str(dest), cand["video_url"]], check=True)
+        # 其他直链 → 直接下载（带浏览器 UA + 防盗链 Referer）
+        # （2026-08-29 修复：网易/好看/抖音 CDN 有防盗链，裸 curl 无 UA/Referer 会被 403）
+        _ua = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+               "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+        _ref = "https://www.baidu.com/"
+        _v = cand["video_url"]
+        if "163.com" in _v or "netease" in str(cand.get("source", "")):
+            _ref = "https://www.163.com/"
+        elif "bdstatic" in _v or "haokan" in str(cand.get("source", "")):
+            _ref = "https://haokan.baidu.com/"
+        elif "snssdk" in _v or "douyin" in str(cand.get("source", "")):
+            _ref = "https://www.douyin.com/"
+        subprocess.run(["curl", "-sfL", "--max-time", "240",
+                        "-H", f"User-Agent: {_ua}",
+                        "-H", f"Referer: {_ref}",
+                        "-o", str(dest), cand["video_url"]], check=True)
     else:                                                # B站：带指纹的会话走全程
         op = bili_opener()
         bvid = cand["video_id"]
