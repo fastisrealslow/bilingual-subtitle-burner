@@ -929,6 +929,8 @@ def make_ass(entries, path, W, H):
                     cur += w
             if cur or not lines:
                 lines.append(cur)
+            if len(lines) > 2:
+                lines = lines[:1] + ["".join(lines[1:])]  # 最多 2 行
             return "\\N".join(lines)
         words, lines, cur = t.split(), [], ""
         for w in words:
@@ -938,6 +940,8 @@ def make_ass(entries, path, W, H):
                 cur = f"{cur} {w}".strip()
         if cur:
             lines.append(cur)
+        if len(lines) > 2:
+            lines = lines[:1] + [" ".join(lines[1:])]  # 最多 2 行
         return "\\N".join(lines)
 
     def ts(s):
@@ -1265,7 +1269,7 @@ def has_existing_subtitles(src):
             return False
         subtitle_hits = 0
         checked = 0
-        for pct in (0.25, 0.5, 0.75):
+        for pct in (0.15, 0.30, 0.50, 0.70, 0.85):
             cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * pct))
             ret, frame = cap.read()
             if not ret or frame is None:
@@ -1276,7 +1280,7 @@ def has_existing_subtitles(src):
             bottom = frame[int(h * 0.72):, :]
             gray = cv2.cvtColor(bottom, cv2.COLOR_BGR2GRAY)
             # 按行统计亮像素(>200)比例,找「文字条带」
-            bright = (gray > 200).astype(np.uint8)
+            bright = (gray > 185).astype(np.uint8)
             row_ratio = bright.mean(axis=1)  # 每行的亮像素占比
             # 滑窗找连续条带:高度 3%~15% 屏高,且带内亮像素 ≥ 20%,
             # 但条带外(其上 10% 高度内)亮像素 < 8%(排除整片亮背景)
@@ -1303,7 +1307,7 @@ def has_existing_subtitles(src):
             if found:
                 subtitle_hits += 1
         cap.release()
-        # 至少 3 帧里 2 帧有明确文字条带
+        # 至少 5 帧里 2 帧有明确文字条带（字幕可能断断续续，放宽帧数要求）
         return checked >= 2 and subtitle_hits >= 2
     except Exception:
         return False
