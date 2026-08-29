@@ -173,13 +173,25 @@ async function load() {
     const state = await resp.json();
 
     const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));
-    // 按 bvid 去重：同源拦截会复用旧 bvid 形成幽灵记录，同一 bvid 只保留最新一条
+    // 平铺：长视频拆多条的每个 part 独立成一条；按 part 的 bvid 去重（同源拦截的幽灵记录）
     const seenBvid = new Set();
-    const publishedUnique = published.filter(e => {
-      if (!e.bvid || e.bvid === '待确认（B站稿件管理查看）') return true;
-      if (seenBvid.has(e.bvid)) return false;
-      seenBvid.add(e.bvid);
-      return true;
+    const flatPublished = [];
+    published.forEach(e => {
+      const partsArr = e.parts && e.parts.length ? e.parts :
+                       (e.bvids && e.bvids.length ? e.bvids.map(bv => ({bvid: bv})) : [{bvid: e.bvid || ''}]);
+      partsArr.forEach((p, idx) => {
+        const bvid = p.bvid || '';
+        const valid = bvid && bvid !== '待确认（B站稿件管理查看）';
+        if (valid && seenBvid.has(bvid)) return;
+        if (valid) seenBvid.add(bvid);
+        flatPublished.push({
+          ...e, bvid: bvid,
+          partTitle: p.title || (idx === 0 ? (e.title || '') : ''),
+          partTs: p.ts || e.ts,
+          partTotal: partsArr.length,
+          partIndex: idx,
+        });
+      });
     });
     // 待发布：只算真正的 pending（排除已失败、已发布）
     const pending = (state.dispatched || []).filter(e => e.slug && !(state.published || {})[e.slug] && !e.failed);
@@ -188,16 +200,16 @@ async function load() {
     const failedCount = failedSlugs.size;
 
     document.getElementById('stats').innerHTML = `
-      <div class="stat stat-published"><div class="stat-num">${publishedUnique.length}</div><div class="stat-label">已发布</div></div>
+      <div class="stat stat-published"><div class="stat-num">${flatPublished.length}</div><div class="stat-label">已发布</div></div>
       <div class="stat stat-pending"><div class="stat-num">${pending.length}</div><div class="stat-label">待发布</div></div>
       <div class="stat stat-rejected"><div class="stat-num">${failedCount + rejectedCount}</div><div class="stat-label">失败/拒绝</div></div>
     `;
 
     // 已发布：按投稿时间 ts 分组，只显示最近 7 天（不能再用 publish_time，那是源视频发布时间，可能几个月前）
-    const recentPublished = publishedUnique.filter(e => isWithinDays(e.ts, null, 7));
+    const recentPublished = flatPublished.filter(e => isWithinDays(e.partTs || e.ts, null, 7));
     const publishedByDay = {};
     recentPublished.forEach(e => {
-      const key = getDateKey(e.ts, null);
+      const key = getDateKey(e.partTs || e.ts, null);
       if (!publishedByDay[key]) publishedByDay[key] = [];
       publishedByDay[key].push(e);
     });
@@ -208,11 +220,10 @@ async function load() {
         .map(([day, items]) => `
           <div class="day-group">
             <div class="day-title">${day}</div>
-            ${items.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(e => {
+            ${items.sort((a, b) => (b.partTs || b.ts || 0) - (a.partTs || a.ts || 0)).map(e => {
               const platform = e.source_platform || 'unknown';
               const platformName = PLATFORM_NAMES[platform] || platform;
               const platformClass = PLATFORM_CLASSES[platform] || '';
-              const duration = formatDuration(e.duration_sec);
               const watermarkTag = e.watermark_cropped !== false
                 ? '<span class="tag tag-watermark">✓ 去水印</span>'
                 : '';
@@ -220,26 +231,22 @@ async function load() {
                 ? '<span class="tag tag-subtitle">✓ 烧字幕</span>'
                 : (e.has_existing_subtitles ? '<span class="tag tag-nosubtitle">原视频有字幕</span>' : '<span class="tag">无字幕</span>');
               const verticalTag = e.vertical ? '<span class="tag">竖屏</span>' : '<span class="tag">横屏</span>';
-              // 同素材分组：长视频拆多条时，标注「同素材·N条」，每条 part 显示各自标题
-              const partsArr = e.parts && e.parts.length ? e.parts :
-                               (e.bvids && e.bvids.length ? e.bvids.map(bv => ({bvid: bv})) : [{bvid: e.bvid || ''}]);
-              const isMulti = partsArr.length > 1;
-              const multiTag = isMulti ? `<span class="tag tag-multi">同素材 · 共 ${partsArr.length} 条</span>` : '';
-              // 每条 part 单独一行（多条时带编号），一眼看清几条、各是什么
-              const partLines = partsArr.map((p, idx) => {
-                const bv = p.bvid && p.bvid !== '待确认（B站稿件管理查看）' ? p.bvid : '';
-                const link = bv ? `<a href="https://www.bilibili.com/video/${bv}" target="_blank">${bv}</a>` : '待确认';
-                const t = p.title && p.title !== e.title ? ` <span class="part-title">${p.title}</span>` : '';
-                const num = isMulti ? `<span class="part-num">${idx + 1}</span>` : '';
-                return `<div class="part-line">${num} ${link}${t}</div>`;
-              }).join('');
-              const metaHtml = isMulti
-                ? `<div class="item-meta"><span>${formatDate(e.ts * 1000)}</span><span>·</span><span>共 ${partsArr.length} 条</span></div>${partLines}`
-                : `<div class="item-meta"><span>${formatDate(e.ts * 1000)}</span><span>·</span>${partLines}${duration ? `<span>·</span><span>${duration}</span>` : ''}</div>`;
+              const title = e.partTitle || e.title || e.slug;
+              const bvid = e.bvid || '';
+              const link = bvid && bvid !== '待确认（B站稿件管理查看）'
+                ? `<a href="https://www.bilibili.com/video/${bvid}" target="_blank">${bvid}</a>` : '待确认';
+              // 单条才显示时长；拆多条时素材时长不代表每条，不显示（避免误导）
+              const durationHtml = (e.partTotal || 1) <= 1 && e.duration_sec
+                ? `<span>·</span><span>${formatDuration(e.duration_sec)}</span>` : '';
               return `
                 <div class="item">
-                  <div class="item-title">${e.title || e.slug} ${multiTag}</div>
-                  ${metaHtml}
+                  <div class="item-title">${title}</div>
+                  <div class="item-meta">
+                    <span>${formatDate((e.partTs || e.ts) * 1000)}</span>
+                    <span>·</span>
+                    ${link}
+                    ${durationHtml}
+                  </div>
                   <div class="item-tags">
                     <span class="tag ${platformClass}">${platformName}</span>
                     ${verticalTag}
