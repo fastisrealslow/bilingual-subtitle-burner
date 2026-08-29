@@ -1341,6 +1341,47 @@ def _chunk_by_time(cues, chunk_sec=240):
     return chunks
 
 
+def _dedup_chunks_by_llm(chunks, cues, api_key, work):
+    """LLM 观点去重：长视频多段里，观点重复的段只保留信息量最丰富的一段。
+
+    2026-08-29：a987c4 拆 7 段但「AI风险/红海/泡沫」反复讲，是语义级重复
+    （字符相似度仅 0.04~0.20，difflib 抓不到），必须 LLM 判断观点重复。
+    保守降级：LLM 不可用 / 解析异常 / 结果异常 → 全部保留，绝不多删。
+    """
+    if len(chunks) <= 1 or not api_key:
+        return chunks
+    cache = work / "chunks_dedup.json"
+    if cache.exists():
+        try:
+            keep0 = json.loads(cache.read_text(encoding="utf-8"))
+            kept = [chunks[i] for i in keep0 if 0 <= i < len(chunks)]
+            if len(kept) >= 2:
+                return kept
+        except Exception:
+            pass
+    segs = []
+    for i, (a, b) in enumerate(chunks):
+        txt = "".join(cues[j]["text"] for j in range(a, b + 1))
+        segs.append(f"[段{i+1}]{txt[:180]}")
+    prompt = ("下面是同一个访谈视频按时间切出的 " + str(len(chunks)) + " 段字幕。\n"
+              "请判断哪些段讲的「观点重复」（同一个意思/同一个观点反复讲）。\n"
+              "规则：观点重复的几段，只保留信息量最丰富的一段，其余删除；观点不重复的段全部保留。\n"
+              "只输出 JSON 数组，元素是要【保留】的段编号（从 1 开始），如 [1,2,4,6]。不要输出其他内容。\n\n"
+              + "\n".join(segs))
+    try:
+        out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.0, max_tokens=200)
+    except Exception as e:
+        print(f"[去重] LLM 不可用，跳过: {e}")
+        return chunks
+    nums = parse_llm_json_array(out)
+    keep0 = sorted({n - 1 for n in nums if isinstance(n, int) and 1 <= n <= len(chunks)})
+    if len(keep0) < 2:
+        return chunks  # 结果异常（只剩 0/1 段）→ 保守全保留
+    cache.write_text(json.dumps(keep0, ensure_ascii=False), encoding="utf-8")
+    print(f"[去重] {len(chunks)} 段 → 保留 {len(keep0)} 段（LLM 观点去重）")
+    return [chunks[i] for i in keep0]
+
+
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。返回 meta dict。"""
@@ -1470,6 +1511,8 @@ def main():
 
     # 长视频按时间切成多段，每段出一条；短视频出 1 条
     chunks = _chunk_by_time(cues)
+    # 观点去重：长视频多段里语义重复的段收敛掉（LLM 判断，2026-08-29）
+    chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
     if args.dry_run:
         # dry-run 只看金句，不切分
         p = pick_highlights(cues, args.speaker, api_key, work)
