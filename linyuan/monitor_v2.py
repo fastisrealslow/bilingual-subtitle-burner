@@ -25,6 +25,12 @@ STATE_PATH = Path(__file__).with_name("monitor_v2_state.json")
 # 无浏览器环境（如 CI）探测不到会自动降级，跳过 BROWSER_REQUIRED 中的源。
 CDP_URL = os.environ.get("CDP_URL", "http://127.0.0.1:18800")
 
+# 黑名单作者（2026-08-29）：这些账号的内容从源头排除，不进 data.json、不出片。
+# - 园来滚雪球：自己的成片号（避免自己搬运自己）
+# - 园园滚雪球：竞品号（要超越竞品、不抄竞品内容）
+# 加号直接往集合里加名字即可。
+BLACKLIST_AUTHORS = {"园来滚雪球", "园园滚雪球"}
+
 # 需要 CDP 浏览器（登录态 / JS 渲染）的源。
 # 无浏览器环境下自动跳过，其余源仍可正常运行。
 BROWSER_REQUIRED = {
@@ -156,7 +162,6 @@ class BilibiliSearchSource(Source):
     """B站搜索关键词（空间页被风控时更稳定）"""
     name = "bilibili_search"
     min_interval = 1800
-    SELF_UPS = {"园来滚雪球", "园园滚雪球"}  # 自己成片号 + 竞品号，搜索抓取时排除（2026-08-29）
 
     # B站源「机构白名单」：只保留明确的一手机构/官方号，其余二创个人号全排除。
     # 2026-08-27 实证：B站源 141 条里机构号 <10 条，关键词黑名单打地鼠盖不住
@@ -237,9 +242,6 @@ class BilibiliSearchSource(Source):
         items = []
         for v in raw_items:
             up = v.get("up", "")
-            # 排除自己成片号（园来滚雪球），避免自己搬运自己（2026-08-29）
-            if up in self.SELF_UPS:
-                continue
             # 剪辑二创标题 → 拒；完整原片 → 收（按内容形态，不按作者）
             if self.CLIP_TITLE_PAT.search(v.get("title", "")) and not self.FULL_TITLE_PAT.search(v.get("title", "")):
                 continue
@@ -1428,6 +1430,8 @@ def export_dashboard_data():
             extra = json.loads(row["extra"] or "{}")
         except Exception:
             pass
+        if row["author"] in BLACKLIST_AUTHORS:
+            continue  # 排除黑名单账号（存量数据在导出时一并滤掉）
         item = {
             "id": row["id"],
             "source": row["source"],
@@ -1486,6 +1490,7 @@ def main():
                 print(f"未知 source type: {src_type}", file=sys.stderr)
                 continue
             items = run_source(src_cls, cfg, state, page)
+            items = [it for it in items if it.get("author", "") not in BLACKLIST_AUTHORS]
             new_items = upsert_items(items)
             print(f"[{src_type}] 新增: {len(new_items)} 条")
             for item in new_items[:5]:
