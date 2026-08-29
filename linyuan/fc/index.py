@@ -40,10 +40,6 @@ RELEASE_TAG = "staging"
 
 MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
-# pick 时排除的作者（不出片）：
-# - 园来滚雪球：自己的成片号，避免自己搬运自己
-# - 园园滚雪球：竞品号，要「超越竞品、拿一手原视频」，不抄竞品内容（2026-08-29）
-BLOCK_AUTHORS = {"园来滚雪球", "园园滚雪球"}
 MAX_PER_DAY = 7                          # 每天最多成功调度几条素材（2026-08-29 提至 7，保证供应 ≥6 条成片）
 MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
 PENDING_LIMIT = 10                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
@@ -395,9 +391,6 @@ def pick(items, st, n):
             continue                                     # 微博噪音
         # 标题必须包含"林园"（硬性要求，防止无关内容混入）
         if "林园" not in title:
-            continue
-        # 排除自己的成片号，避免「自己搬运自己」成循环（2026-08-29）
-        if it.get("author", "") in BLOCK_AUTHORS:
             continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
