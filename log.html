@@ -289,10 +289,15 @@ async function load() {
       pending.map(e => {
         const age = Math.floor((Date.now()/1000 - (e.ts||0))/3600);
         const status = age > 6 ? '⏳ 出片可能卡住' : '⏳ 等待出片 + 投稿';
+        const pauthor = (e.author || '').replace(/[<>&]/g, '');
+        const purl = e.source_url || '';
+        const psrc = (pauthor || purl)
+          ? `<span class="src-wrap">${pauthor ? `<span class="src-author">@${pauthor}</span>` : ''}${purl ? `<a class="src-link" href="${purl}" target="_blank">查看源</a>` : ''}</span>`
+          : '';
         return `
         <div class="item">
           <div class="item-title">${e.title || e.slug}</div>
-          <div class="item-meta">${e.slug} · 已等待 ${age} 小时</div>
+          <div class="item-meta">${e.slug} · 已等待 ${age} 小时 ${psrc}</div>
           <div class="item-status pending">${status}</div>
         </div>
       `;
