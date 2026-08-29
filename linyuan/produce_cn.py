@@ -137,6 +137,54 @@ def fix_terms(text):
     return text
 
 
+def _llm_smooth_cues(cues, api_key):
+    """LLM 通顺化：去口水磕巴、通顺句子，保数字词义和时间戳。
+
+    2026-08-29 实测：字幕「脏」= ASR 把口语原样转出（这个/就是/是吧/磕巴）。
+    免费模型会篡改数字（99.8%→8.8%、2009→222012），故用付费 DeepSeek-V3 + 相似度校验。
+    逐批处理、保持句数对应（时间戳不变），输出与原文相似度过低就保留原文（防篡改）。
+    """
+    if not api_key or not cues:
+        return cues
+    out_cues = list(cues)
+    BATCH = 12
+    for i in range(0, len(cues), BATCH):
+        batch = cues[i:i + BATCH]
+        numbered = "\n".join(f"{j}.{c['text']}" for j, c in enumerate(batch, 1))
+        prompt = ("下面是 " + str(len(batch)) + " 句语音识别字幕，含口水话（这个/就是/是吧/我们）、磕巴重复。\n\n"
+                  "请逐句做最小清理（去口水话、去磕巴重复、修明显错字），但严格要求：\n"
+                  "1. 逐句输出，每句一行，格式「数字.清理后的句子」\n"
+                  "2. 保持每句的编号、顺序、句数不变（共 " + str(len(batch)) + " 句）\n"
+                  "3. 绝不改动任何数字、百分比、金额（如 99.8%、2009、8000）\n"
+                  "4. 忠实原意，不合并、不拆分、不补充内容、不换用词\n\n"
+                  "字幕：\n" + numbered)
+        try:
+            out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.0, max_tokens=1200)
+        except Exception as e:
+            print(f"[通顺化] LLM 不可用，跳过这批: {e}", file=sys.stderr)
+            continue
+        # 解析逐行输出「数字.句子」
+        parsed = {}
+        for line in out.splitlines():
+            line = line.strip()
+            m = re.match(r"^(\d+)[.、．]\s*(.+)$", line)
+            if m:
+                parsed[int(m.group(1))] = m.group(2).strip()
+        for j, c in enumerate(batch, 1):
+            new_text = parsed.get(j)
+            if not new_text:
+                continue
+            # 相似度校验：输出与原文差异过大（可能篡改），保留原文
+            ratio = difflib.SequenceMatcher(None, c["text"], new_text).ratio()
+            if ratio < 0.55:
+                print(f"[通顺化] 第{i+j}句相似度过低({ratio:.2f})，保留原文", file=sys.stderr)
+                continue
+            out_cues[i + j - 1] = dict(c, text=new_text)
+    return out_cues
+
+
+
+
 def transcribe(src, work, api_key=None):
     """转写入口：按 ASR_BACKEND 分发到 Fun-ASR-Nano 或 whisper large-v3。"""
     cache = work / "cues_raw.json"
@@ -144,7 +192,7 @@ def transcribe(src, work, api_key=None):
         print("[asr] 命中缓存")
         return json.loads(cache.read_text(encoding="utf-8"))
     if ASR_BACKEND == "sensevoice":
-        return _transcribe_sensevoice(src, work)
+        return _transcribe_sensevoice(src, work, api_key)
     if ASR_BACKEND == "funasr":
         return _transcribe_funasr(src, work)
     return _transcribe_whisper(src, work, api_key)
@@ -283,7 +331,7 @@ def _transcribe_funasr(src, work):
     return cues
 
 
-def _transcribe_sensevoice(src, work):
+def _transcribe_sensevoice(src, work, api_key=None):
     """SenseVoice-Small 转写：非 LLM（CTC）架构，结构上不会死循环，自带标点。
 
     相对 Fun-ASR-Nano 的关键优势：2026-08-27 批量实测 Fun-ASR-Nano 长视频
@@ -345,6 +393,8 @@ def _transcribe_sensevoice(src, work):
     cues = _dedup_consecutive(cues)
     for c in cues:
         c["text"] = fix_terms(c["text"])
+    # LLM 通顺化：去口水磕巴（付费 DeepSeek-V3 + 相似度防篡改，2026-08-29）
+    cues = _llm_smooth_cues(cues, api_key)
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[asr] {len(cues)} 条字幕")
     return cues
