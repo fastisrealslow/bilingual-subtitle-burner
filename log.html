@@ -20,6 +20,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .part-title { color: #888; font-size: 0.85em; }
 .part-line { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; margin-top: 4px; padding-left: 2px; flex-wrap: wrap; }
 .part-num { display: inline-block; min-width: 18px; height: 18px; line-height: 18px; text-align: center; background: #eef; color: #36c; border-radius: 50%; font-size: 11px; font-weight: 700; }
+.src-author { color: #b45309; font-size: 0.85em; }
+.src-link { color: #2563eb; font-size: 0.85em; text-decoration: none; border-bottom: 1px dashed #93c5fd; }
+.src-wrap { display: inline-flex; gap: 4px; align-items: center; }
 .stat-pending { background: #cce5ff; }
 .stat-rejected { background: #f8d7da; }
 .stat-num { font-size: 24px; font-weight: 700; }
@@ -173,10 +176,16 @@ async function load() {
     const state = await resp.json();
 
     const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));
+    // slug → dispatched 来源信息（author/url），published 展示时反查（2026-08-29 便于审查来源）
+    const dispatchMeta = {};
+    (state.dispatched || []).forEach(d => {
+      if (d.slug) dispatchMeta[d.slug] = {author: d.author || '', url: d.source_url || ''};
+    });
     // 平铺：长视频拆多条的每个 part 独立成一条；按 part 的 bvid 去重（同源拦截的幽灵记录）
     const seenBvid = new Set();
     const flatPublished = [];
     published.forEach(e => {
+      const dm = dispatchMeta[e.slug] || {};
       const partsArr = e.parts && e.parts.length ? e.parts :
                        (e.bvids && e.bvids.length ? e.bvids.map(bv => ({bvid: bv})) : [{bvid: e.bvid || ''}]);
       partsArr.forEach((p, idx) => {
@@ -190,6 +199,8 @@ async function load() {
           partTs: p.ts || e.ts,
           partTotal: partsArr.length,
           partIndex: idx,
+          author: dm.author || '',
+          sourceUrl: dm.url || e.source_url || '',
         });
       });
     });
@@ -246,6 +257,12 @@ async function load() {
               // 单条才显示时长；拆多条时素材时长不代表每条，不显示（避免误导）
               const durationHtml = (e.partTotal || 1) <= 1 && e.duration_sec
                 ? `<span>·</span><span>${formatDuration(e.duration_sec)}</span>` : '';
+              // 详细来源：UP主/账号名 + 源链接（2026-08-29 便于审查）
+              const author = (e.author || '').replace(/[<>&]/g, '');
+              const sourceUrl = e.sourceUrl || '';
+              const srcHtml = (author || sourceUrl)
+                ? `<span class="src-wrap">${author ? `<span class="src-author">@${author}</span>` : ''}${sourceUrl ? `<a class="src-link" href="${sourceUrl}" target="_blank">查看源</a>` : ''}</span>`
+                : '';
               return `
                 <div class="item">
                   <div class="item-title">${title}</div>
@@ -254,6 +271,7 @@ async function load() {
                     <span>·</span>
                     ${link}
                     ${durationHtml}
+                    ${srcHtml}
                   </div>
                   <div class="item-tags">
                     <span class="tag ${platformClass}">${platformName}</span>
