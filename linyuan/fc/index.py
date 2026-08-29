@@ -356,12 +356,19 @@ def pick(items, st, n):
     cands = []
     for it in items:
         url, page = it.get("video_url") or "", it.get("url") or ""
-        # 兼容旧 data.json：video_url 可能在 extra 里
+        # 兼容旧 data.json：video_url 可能在 extra 的 video_url / mp4_url 字段
+        # （2026-08-29 修复：抖音/网易/好看的直链在 extra.mp4_url，之前只查顶层 video_url 导致被当「无视频」过滤）
         extra = it.get("extra") or {}
+        if isinstance(extra, str):
+            try:
+                extra = json.loads(extra)
+            except Exception:
+                extra = {}
         if not url:
-            url = extra.get("video_url", "")
-        # 必须有视频：有直链、或B站链接、或 extra 标记 has_video=True
-        has_video = bool(url) or "bilibili.com/video/" in page or extra.get("has_video", False)
+            url = extra.get("video_url", "") or extra.get("mp4_url", "")
+        # 必须有视频：有直链、或B站链接、或腾讯页面（dispatch 会解析）、或 extra 标记 has_video
+        has_video = (bool(url) or "bilibili.com/video/" in page
+                     or "news.qq.com" in page or extra.get("has_video", False))
         if not has_video:
             continue
         # 有直链或B站链接 → 可用；有页面链接 → 也可用
