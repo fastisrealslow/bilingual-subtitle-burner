@@ -41,7 +41,7 @@ RELEASE_TAG = "staging"
 MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
 MAX_PER_DAY = 5                          # 每天最多成功调度几条素材（用户 2026-08-20 要求）
-MAX_PUBLISH_PER_DAY = 5                  # 每天最多投几条成片：长视频拆多条排队分天发（2026-08-27）
+MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
 PENDING_LIMIT = 10                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
