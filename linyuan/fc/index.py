@@ -40,7 +40,7 @@ RELEASE_TAG = "staging"
 
 MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
-MAX_PER_DAY = 5                          # 每天最多成功调度几条素材（用户 2026-08-20 要求）
+MAX_PER_DAY = 7                          # 每天最多成功调度几条素材（2026-08-29 提至 7，保证供应 ≥6 条成片）
 MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
 PENDING_LIMIT = 10                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
@@ -66,48 +66,8 @@ FULL_TITLE_PAT = re.compile(
 CLIP_TITLE_PAT = re.compile(
     r"金句|十大观点|秘诀|股神|曝光|惊人|精华|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
-# 投稿好时段（北京）：主时段 + 次时段，防扎堆逻辑会自动错开
+# 投稿好时段（北京）：与 publish 触发器 cron 对齐（9/11/13/15/18/21 六次，每次只投 1 条）
 PUBLISH_SLOTS = [(9, 0), (11, 0), (13, 0), (15, 0), (18, 0), (21, 0)]
-
-
-def get_publish_delay(slot_index: int) -> int:
-    """计算距离下一个好时段的延迟小时数。
-    
-    Args:
-        slot_index: 使用第几个时段（0=第一个可用，1=第二个...）
-    
-    Returns:
-        延迟小时数（至少 1 小时，最多 24 小时）
-    """
-    from datetime import datetime, timedelta, timezone
-    now = datetime.now(timezone(timedelta(hours=8)))
-
-    # 收集今天剩余 + 明天的时段（北京时间）
-    available_slots = []
-    for hour, minute in PUBLISH_SLOTS:
-        slot_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if slot_time > now:
-            available_slots.append(slot_time)
-
-    # 添加明天的时段
-    tomorrow = now + timedelta(days=1)
-    for hour, minute in PUBLISH_SLOTS:
-        slot_time = tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        available_slots.append(slot_time)
-    
-    # 选择第 slot_index 个可用时段
-    if slot_index >= len(available_slots):
-        slot_index = len(available_slots) - 1
-    
-    target_time = available_slots[slot_index]
-    delay_hours = (target_time - now).total_seconds() / 3600
-    
-    # 向上取整到下一个整小时，确保到达目标时段
-    import math
-    delay_hours = math.ceil(delay_hours)
-    
-    # 限制范围：至少 1 小时，最多 24 小时
-    return max(1, min(24, delay_hours))
 
 
 def platform_of(source):
@@ -128,32 +88,6 @@ def platform_of(source):
     if s.startswith("netease"):
         return "netease"
     return s or "unknown"
-
-
-def pick_publish_slot(st):
-    """选择发布时间段（北京时间），避开已占用的时段，防止多条视频同一时段
-    集中发布触发 B站风控。返回 (target_datetime, delay_seconds)。"""
-    from datetime import datetime, timedelta, timezone
-    tz = timezone(timedelta(hours=8))
-    now = datetime.now(tz)
-    available = []
-    for hour, minute in PUBLISH_SLOTS:
-        t = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if t > now:
-            available.append(t)
-    tomorrow = now + timedelta(days=1)
-    for hour, minute in PUBLISH_SLOTS:
-        available.append(tomorrow.replace(hour=hour, minute=minute, second=0, microsecond=0))
-    # 已占用的时段（epoch 秒，只考虑未来 48h 内的）
-    now_epoch = time.time()
-    reserved = {int(ts) for ts in st.get("scheduled", [])
-                if isinstance(ts, (int, float)) and now_epoch < ts <= now_epoch + 48 * 3600}
-    for t in available:
-        if int(t.timestamp()) not in reserved:
-            return t, int((t - now).total_seconds())
-    # 全部被占用 → 退而选最早可用时段
-    t = available[0]
-    return t, int((t - now).total_seconds())
 
 
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
@@ -854,7 +788,6 @@ def dispatch_handler(event=None, context=None):
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
                     hashlib.md5(c["key"].encode()).hexdigest()[:6]
-        delay = get_publish_delay(success)
         log.info(f"[{i+1}/{len(cands)}] {c['title'][:40]}")
         try:
             if not c["video_url"] and "bilibili.com/video/" in c["page_url"]:
@@ -896,13 +829,13 @@ def dispatch_handler(event=None, context=None):
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
-                                     "title": c["title"], "delay_hours": delay,
+                                     "title": c["title"], "delay_hours": 0,
                                      "source": c.get("source", ""),
                                      "publish_time": c.get("publish_time", "")})
             save_state(st)
             success += 1
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
-            log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s，定时 +{delay}h）")
+            log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
         except Exception as e:
             log_event("fail", f"调度失败 {c.get('slug', c['key'])}", str(e)[:150])
             _record_failure(st, c, e)
@@ -1213,10 +1146,9 @@ def publish_handler(event=None, context=None):
     if cover:
         cmd += ["--cover", str(cover)]
     
-    # 定时发布：选择未占用的好时段，避免多条视频同一时段集中发布触发风控
-    target_slot, delay_seconds = pick_publish_slot(st)
-    cmd += ["--dtime", str(int(time.time()) + delay_seconds)]
-    log.info(f"定时发布: {target_slot.strftime('%m-%d %H:%M')}（北京），延迟 {delay_seconds/3600:.1f}h")
+    # 立即发布：cron 已按 6 时段（9/11/13/15/18/21）唤醒 + 每次只投 1 条，
+    # 天然分散不扎堆，无需再算延迟发布时间（2026-08-29 去掉 pick_publish_slot 双轨制）
+    log.info("立即发布（cron 时段已分散，无需延迟）")
 
     # ── 投稿前双重防护（2026-08-19 五连发事故）──
     # 0) 素材源查重：同一源视频（source_url）已发布过 → 绝不再投
@@ -1283,9 +1215,6 @@ def publish_handler(event=None, context=None):
             "duration_sec": meta_info.get("duration_sec", 0),
             "publish_time": e.get("publish_time", "") or time.strftime("%Y-%m-%dT%H:%M:%S"),
         }
-        # 记录已占用的发布时段，防止下一条扎堆；只保留未来 48h 内的预约
-        st.setdefault("scheduled", []).append(int(target_slot.timestamp()))
-        st["scheduled"] = [x for x in st["scheduled"] if x > time.time() - 3600]
         # 投稿成功 → 从 pending_retry 清理对应 key/source_url，防止重复派发
         st["pending_retry"] = [x for x in st.get("pending_retry", [])
                                if x.get("key") != e.get("key")
