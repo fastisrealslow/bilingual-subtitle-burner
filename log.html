@@ -194,7 +194,15 @@ async function load() {
       });
     });
     // 待发布：只算真正的 pending（排除已失败、已发布）
-    const pending = (state.dispatched || []).filter(e => e.slug && !(state.published || {})[e.slug] && !e.failed);
+    // 待发布：完全没投的 + 长视频拆多条「投了部分还有剩余 part」的（2026-08-29 修复漏算）
+    const pending = (state.dispatched || []).filter(e => {
+      if (!e.slug || e.failed) return false;
+      const pub = (state.published || {})[e.slug];
+      if (!pub) return true;                       // 完全没投
+      const partsTotal = pub.parts_total || 1;
+      if (partsTotal <= 1) return false;           // 单条已投完
+      return (e.published_parts || 0) < partsTotal; // 长视频还有未投 part
+    });
     const failedSlugs = new Set((state.dispatched || []).filter(e => e.failed).map(e => e.slug));
     const rejectedCount = (state.rejected || []).length;
     const failedCount = failedSlugs.size;
