@@ -427,7 +427,7 @@ def pick(items, st, n):
                 dur = int(dur)
             except Exception:
                 dur = 0
-        return 60 <= dur <= 1800 or dur == 0  # 0 表示未知，交给下载后检查
+        return 90 <= dur <= 1800 or dur == 0  # 0=未知交给下载后检查；下限对齐 MIN_DUR=90，避免 60-90s 被调度后下载浪费
     cands = [c for c in cands if _dur_ok(c)]
 
     def source_score(c):
