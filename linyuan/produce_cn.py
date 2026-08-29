@@ -357,9 +357,12 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
     def _flush():
         nonlocal buf, buf_text
         if buf:
-            cues.append({"start": round(offset + buf[0][1], 2),
-                         "end": round(offset + buf[-1][2], 2),
-                         "text": buf_text})
+            # 去掉句末的句号/逗号/顿号/分号/冒号（字幕无需句号收尾），保留问号/感叹号（有语气）
+            buf_text = buf_text.rstrip("。，、；：")
+            if buf_text:
+                cues.append({"start": round(offset + buf[0][1], 2),
+                             "end": round(offset + buf[-1][2], 2),
+                             "text": buf_text})
         buf, buf_text = [], ""
     for i, tok in enumerate(tokens):
         st = timestamps[i]
