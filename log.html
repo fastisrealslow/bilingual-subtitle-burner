@@ -171,7 +171,7 @@ function isWithinDays(ts, dateStr, days) {
 
 async function load() {
   try {
-    const resp = await fetch(STATE_URL);
+    const resp = await fetch(STATE_URL + '?t=' + Date.now(), {cache: 'no-store'});
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const state = await resp.json();
 
@@ -365,7 +365,7 @@ async function load() {
 
   // 运行日志（FC 每次运行的事件流）
   try {
-    const lresp = await fetch(LOGS_URL);
+    const lresp = await fetch(LOGS_URL + '?t=' + Date.now(), {cache: 'no-store'});
     if (lresp.ok) {
       const logs = await lresp.json();
       const el = document.getElementById('fclogs');
