@@ -16,6 +16,8 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .stats { display: flex; gap: 12px; margin-bottom: 16px; }
 .stat { flex: 1; text-align: center; padding: 12px; border-radius: 8px; }
 .stat-published { background: #d4edda; }
+.tag-multi { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.part-title { color: #888; font-size: 0.85em; }
 .stat-pending { background: #cce5ff; }
 .stat-rejected { background: #f8d7da; }
 .stat-num { font-size: 24px; font-weight: 700; }
@@ -216,11 +218,18 @@ async function load() {
                 ? '<span class="tag tag-subtitle">✓ 烧字幕</span>'
                 : (e.has_existing_subtitles ? '<span class="tag tag-nosubtitle">原视频有字幕</span>' : '<span class="tag">无字幕</span>');
               const verticalTag = e.vertical ? '<span class="tag">竖屏</span>' : '<span class="tag">横屏</span>';
-              const bvidLinks = (e.bvids && e.bvids.length ? e.bvids : [e.bvid]).filter(Boolean)
-                .map(bv => `<a href="https://www.bilibili.com/video/${bv}" target="_blank">${bv}</a>`).join(' ');
+              // 同素材分组：长视频拆多条时，标注「同素材·N条」，每条 part 显示各自标题
+              const partsArr = e.parts && e.parts.length ? e.parts :
+                               (e.bvids && e.bvids.length ? e.bvids.map(bv => ({bvid: bv})) : [{bvid: e.bvid || ''}]);
+              const multiTag = partsArr.length > 1 ? `<span class="tag tag-multi">同素材·${partsArr.length}条</span>` : '';
+              const bvidLinks = partsArr.filter(p => p.bvid && p.bvid !== '待确认（B站稿件管理查看）')
+                .map(p => {
+                  const t = p.title && p.title !== e.title ? ` <span class="part-title">${p.title}</span>` : '';
+                  return `<a href="https://www.bilibili.com/video/${p.bvid}" target="_blank">${p.bvid}</a>${t}`;
+                }).join('　');
               return `
                 <div class="item">
-                  <div class="item-title">${e.title || e.slug}</div>
+                  <div class="item-title">${e.title || e.slug} ${multiTag}</div>
                   <div class="item-meta">
                     <span>${formatDate(e.ts * 1000)}</span>
                     <span>·</span>
