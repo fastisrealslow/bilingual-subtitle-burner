@@ -49,7 +49,8 @@ SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
 
-TARGET_SEC = 180          # 成片目标时长
+TARGET_SEC = 180          # 成片目标时长（短金句）
+TARGET_SEC_MID = 420     # 中视频目标时长（7分钟话题片，2026-08-29 对标竞品中视频）
 MAX_CHARS = 18            # 单条字幕上限
 MIN_CHARS = 6
 BREAK = "，。！？；：、,.!?;"
@@ -708,7 +709,7 @@ def parse_llm_json_array(out):
     if objs:
         return objs
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
-def pick_highlights(cues, speaker, api_key, work, suffix=""):
+def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None):
     """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。
     suffix 用于长视频拆多条时区分各段的缓存（否则第 2 段会命中第 1 段的
     highlights.json，返回超出本段范围的索引 → IndexError）。"""
@@ -717,12 +718,13 @@ def pick_highlights(cues, speaker, api_key, work, suffix=""):
         print("[金句] 命中缓存")
         return json.loads(cache.read_text(encoding="utf-8"))
 
+    target = target_sec or TARGET_SEC
     numbered = "\n".join(
         f"{i}|{int(c['start'])//60}:{int(c['start'])%60:02d}|{c['text']}"
         for i, c in enumerate(cues))
     prompt = f"""下面是{speaker}一段讲话的字幕,格式为「序号|时间|文本」(序号从 0 开始计数)。
 
-请挑出 2-4 个**最有传播力的金句段落**,剪成约 {TARGET_SEC} 秒的短视频。素材短(不到 2 分钟)选 2 段即可,宁缺毋滥。
+请挑出 2-4 个**最有传播力的金句段落**,剪成约 {target} 秒的视频。素材短(不到 2 分钟)选 2 段即可,宁缺毋滥。
 
 什么样的段落算「有传播力」(按优先级):
 1. 开头有「钩子」:第一句就是具体数字(如"8000块做到20亿"、"股价加两个零")、反常识观点、或强烈判断,能一把抓住划手机的人
@@ -736,7 +738,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix=""):
 
 要求:
 1. 每段语义完整(有观点、有论证或有具体案例)
-2. 各段时长加起来接近 {TARGET_SEC} 秒
+2. 各段时长加起来接近 {target} 秒
 
 只输出 JSON 数组,不要任何解释:
 [{{"start":起始序号,"end":结束序号,"reason":"选它的理由(10字内)"}}]
@@ -760,12 +762,12 @@ def pick_highlights(cues, speaker, api_key, work, suffix=""):
         if 1 <= a <= b <= len(cues):
             valid.append({"start": a - 1, "end": b - 1, "reason": p.get("reason", "")})
     if not valid:
-        # 降级兜底：金句选不出时不废掉整条，取前 TARGET_SEC 秒的连续字幕
+        # 降级兜底：金句选不出时不废掉整条，取前 target 秒的连续字幕
         end_idx = 0
         total = 0.0
         for i, c in enumerate(cues):
             total += c["end"] - c["start"]
-            if total >= TARGET_SEC:
+            if total >= target:
                 end_idx = i
                 break
         else:
@@ -1290,9 +1292,9 @@ def _chunk_by_time(cues, chunk_sec=240):
 
 
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
-                 existing_subtitles, W, H, suffix, pick_cache_suffix=""):
-    """出一段视频。suffix='' 或 '_2' 等。返回 meta dict。"""
-    picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix)
+                 existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None):
+    """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。返回 meta dict。"""
+    picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
@@ -1427,13 +1429,22 @@ def main():
                 print(f"  {cues[i]['text']}")
         return 0
 
+    # 长视频拆多条时，选「字幕条数最多」的一段做中视频（7分钟话题片），其余短金句
+    # （2026-08-29 对标竞品：中视频是播放最高的档，一段信息量最足的内容做话题展开）
+    mid_idx = None
+    if len(chunks) > 1:
+        mid_idx = max(range(len(chunks)), key=lambda i: chunks[i][1] - chunks[i][0] + 1)
+
     metas = []
     for ci, (a, b) in enumerate(chunks):
         suffix = "" if len(chunks) == 1 else f"_{ci + 1}"
         seg_cues = cues[a:b + 1]
+        target_sec = TARGET_SEC_MID if ci == mid_idx else TARGET_SEC
+        if ci == mid_idx:
+            print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
                          api_key, existing_subtitles, W, H, suffix,
-                         pick_cache_suffix=suffix)
+                         pick_cache_suffix=suffix, target_sec=target_sec)
         metas.append(m)
 
     # 写 meta.json：单条保持兼容，多条记录列表
