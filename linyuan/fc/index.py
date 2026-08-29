@@ -389,6 +389,7 @@ def pick(items, st, n):
                       "title": title[:60],
                       "video_url": url, "page_url": page,
                       "source": it.get("source", ""),
+                      "author": it.get("author", ""),
                       "publish_time": it.get("publish_time") or "",
                       "extra": extra})
     # 同内容去重：标题相似度 > 60% 只保留一条，保留质量更好的
@@ -831,6 +832,7 @@ def dispatch_handler(event=None, context=None):
                                      "asset_url": asset_url,
                                      "title": c["title"], "delay_hours": 0,
                                      "source": c.get("source", ""),
+                                     "author": c.get("author", ""),
                                      "publish_time": c.get("publish_time", "")})
             save_state(st)
             success += 1
