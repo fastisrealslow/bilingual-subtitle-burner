@@ -156,6 +156,7 @@ class BilibiliSearchSource(Source):
     """B站搜索关键词（空间页被风控时更稳定）"""
     name = "bilibili_search"
     min_interval = 1800
+    SELF_UPS = {"园来滚雪球"}  # 自己的成片号，抓取时排除（2026-08-29）
 
     # B站源「机构白名单」：只保留明确的一手机构/官方号，其余二创个人号全排除。
     # 2026-08-27 实证：B站源 141 条里机构号 <10 条，关键词黑名单打地鼠盖不住
@@ -236,6 +237,9 @@ class BilibiliSearchSource(Source):
         items = []
         for v in raw_items:
             up = v.get("up", "")
+            # 排除自己成片号（园来滚雪球），避免自己搬运自己（2026-08-29）
+            if up in self.SELF_UPS:
+                continue
             # 剪辑二创标题 → 拒；完整原片 → 收（按内容形态，不按作者）
             if self.CLIP_TITLE_PAT.search(v.get("title", "")) and not self.FULL_TITLE_PAT.search(v.get("title", "")):
                 continue
