@@ -1054,7 +1054,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     mid = seg_start + (seg_end - seg_start) / 2
     # 抽 5 帧（主讲人持续出镜，多帧投票更准）
     frames = []
-    for offset_pct in [-0.25, -0.12, 0, 0.12, 0.15]:
+    for offset_pct in [-0.30, -0.20, -0.10, 0, 0.10, 0.20, 0.30]:
         t = max(0, mid + offset_pct * (seg_end - seg_start))
         fp = tmp.with_suffix(f".{int(offset_pct*100)}.png")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
@@ -1063,20 +1063,21 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
         if fp.exists():
             frames.append(fp)
 
-    # 多帧检测人脸，选「大且居中」的主讲人（林园离镜头近、居中，主持人/观众偶尔出现）
+    # 多帧人脸聚类，选「跨帧持续出镜」的主讲人（林园），而非单帧「大且居中」的主持人。
+    # （2026-08-29 修复：专访里女主持居中脸大，旧评分误选主持人；现统计多帧出现次数）
     best_frame = frames[0] if frames else tmp
     best_face = None
-    best_score = None
     try:
         import cv2
         cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         cascade = cv2.CascadeClassifier(cascade_path)
+        groups = []  # {'center':(cx,cy,wn), 'count':int, 'faces':[(x,y,w,h,fp)]}
         for fp in frames:
             img_cv = cv2.imread(str(fp))
             if img_cv is None:
                 continue
             fh, fw = img_cv.shape[:2]
-            scale = 2.0 if max(fh, fw) < 720 else 1.0  # 低清帧放大 2 倍再检测
+            scale = 2.0 if max(fh, fw) < 720 else 1.0
             if scale > 1.0:
                 img_cv = cv2.resize(img_cv, (fw*2, fh*2), interpolation=cv2.INTER_CUBIC)
                 fh, fw = fh*2, fw*2
@@ -1085,17 +1086,33 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
                                              minSize=(120, 120) if scale > 1.0 else (80, 80))
             for f in faces:
                 fx, fy, fw2, fh2 = f
-                cx, cy = fx + fw2/2, fy + fh2/2
-                center_dist = ((cx - fw/2)**2 + (cy - fh/2)**2) ** 0.5 / max(fw, fh)
-                area_norm = (fw2 * fh2) / (fw * fh)
-                # 主讲人=居中优先（演讲者在画面主体位置），脸大作次要因素
-                score = area_norm * 30 - center_dist * 50
-                if best_score is None or score > best_score:
-                    best_score = score
-                    best_face = (int(fx/scale), int(fy/scale), int(fw2/scale), int(fh2/scale))
-                    best_frame = fp
+                cx = (fx + fw2/2) / fw   # 归一化中心
+                cy = (fy + fh2/2) / fh
+                wn = fw2 / fw            # 归一化宽度
+                best_g, best_d = None, 0.15
+                for g in groups:
+                    gcx, gcy, gwn = g["center"]
+                    d = ((cx - gcx) ** 2 + (cy - gcy) ** 2 + (wn - gwn) ** 2) ** 0.5
+                    if d < best_d:
+                        best_d, best_g = d, g
+                if best_g is not None:
+                    n = best_g["count"]
+                    best_g["center"] = ((best_g["center"][0]*n + cx) / (n+1),
+                                        (best_g["center"][1]*n + cy) / (n+1),
+                                        (best_g["center"][2]*n + wn) / (n+1))
+                    best_g["count"] = n + 1
+                    best_g["faces"].append((fx/scale, fy/scale, fw2/scale, fh2/scale, fp))
+                else:
+                    groups.append({"center": (cx, cy, wn), "count": 1,
+                                   "faces": [(fx/scale, fy/scale, fw2/scale, fh2/scale, fp)]})
+        if groups:
+            # 跨帧出现次数最多 = 主讲人；同簇内取面积最大的那一帧
+            best_g = max(groups, key=lambda g: g["count"])
+            fx, fy, fw2, fh2, fp = max(best_g["faces"], key=lambda x: x[2] * x[3])
+            best_face = (int(fx), int(fy), int(fw2), int(fh2))
+            best_frame = fp
     except Exception:
-        pass  # cv2 不可用/缺级联文件(如 opencv-headless 无 CascadeClassifier)→ 退居中裁切
+        pass  # cv2 不可用/缺级联文件 → 退居中裁切
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
@@ -1341,6 +1358,32 @@ def _chunk_by_time(cues, chunk_sec=240):
     return chunks
 
 
+def _dedup_chunks_char(chunks, cues, sim_threshold=0.90):
+    """字符级去重：逐字/高度相同的段直接去重（保留最早一段）。
+
+    2026-08-29 补盲区：LLM 观点去重对「完全相同的两段」可能漏删（c94dbf 实测
+    段1段2 逐字相同却都保留），故先用 difflib 把这种极端重复兜底掉，
+    剩下的语义重复再交给 LLM。阈值 0.90 只抓「几乎逐字相同」，不误杀语义相似。
+    """
+    if len(chunks) <= 1:
+        return chunks
+    kept = []
+    for cand in chunks:
+        a, b = cand
+        ta = "".join(cues[i]["text"] for i in range(a, b + 1))
+        dup = False
+        for ka, kb in kept:
+            tk = "".join(cues[i]["text"] for i in range(ka, kb + 1))
+            if difflib.SequenceMatcher(None, ta, tk).ratio() >= sim_threshold:
+                dup = True
+                break
+        if not dup:
+            kept.append(cand)
+    if len(kept) < len(chunks):
+        print(f"[字符去重] {len(chunks)} 段 → {len(kept)} 段（逐字重复兜底）")
+    return kept
+
+
 def _dedup_chunks_by_llm(chunks, cues, api_key, work):
     """LLM 观点去重：长视频多段里，观点重复的段只保留信息量最丰富的一段。
 
@@ -1511,7 +1554,8 @@ def main():
 
     # 长视频按时间切成多段，每段出一条；短视频出 1 条
     chunks = _chunk_by_time(cues)
-    # 观点去重：长视频多段里语义重复的段收敛掉（LLM 判断，2026-08-29）
+    # 去重：先字符级（逐字重复兜底），再 LLM 观点去重（语义重复），2026-08-29
+    chunks = _dedup_chunks_char(chunks, cues)
     chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
     if args.dry_run:
         # dry-run 只看金句，不切分
