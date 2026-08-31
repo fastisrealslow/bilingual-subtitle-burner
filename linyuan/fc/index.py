@@ -56,6 +56,8 @@ TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须�
 # - 「横道河子」是东北虎产地
 # - 「二埋汰」是东北虎网红名
 NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜|雕像|泼漆|通报")
+# AI 问答噪音：不是林园本人视频，是「网友问 AI 得到的回答」（2026-08-31 元宝问答混入）
+AI_NOISE = re.compile(r"问了下|问一下|元宝|豆包|DeepSeek|deepseek|文心一言|通义千问|ChatGPT|Kimi|kimi|AI回答|AI问答|AI解读")
 
 # B站源「机构白名单」（与 monitor_v2.py/stage_and_dispatch.py 保持一致）：
 # 只保留明确的一手机构/官方号，其余二创个人号全排除。
@@ -391,6 +393,8 @@ def pick(items, st, n):
             continue                                     # 老虎公园不是林园
         if NOISE_EXTRA.search(title):
             continue                                     # 微博噪音
+        if AI_NOISE.search(title):
+            continue                                     # AI 问答噪音（元宝/豆包等，非林园本人视频）
         # 标题必须包含"林园"（硬性要求，防止无关内容混入）
         if "林园" not in title:
             continue
