@@ -796,8 +796,14 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None):
 字幕:
 {numbered}"""
 
-    out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.2)
-    picks = parse_llm_json_array(out)
+    try:
+        out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.2)
+        picks = parse_llm_json_array(out)
+    except Exception as e:
+        # LLM 偶发返回无法解析的格式（空/截断/字符串数组等），parse 会 raise。
+        # 这里兜住：降级取前段出片，绝不因解析失败废掉整条（2026-08-31 线上崩溃）
+        print(f"[金句] LLM 输出解析失败，降级取前段: {e}")
+        picks = []
 
     valid = []
     for p in picks:
@@ -1012,12 +1018,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
 
 只输出 JSON:
 {{{{"title":"标题","desc":"简介","tags":["标签","最多5个","含主讲人姓名"]}}}}"""
-    out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.4)
-    m = re.search(r"\{.*\}", out, re.S)
     try:
+        out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.4)
+        m = re.search(r"\{.*\}", out, re.S)
         d = json.loads(m.group(0))
         assert d.get("title")
-    except (ValueError, AssertionError, AttributeError):
+    except Exception:
+        out = ""
         d = {"title": f"{occasion}|{speaker}".strip("|"),
              "desc": f"{speaker}在{occasion}的发言精选。",
              "tags": [speaker, "价值投资"]}
@@ -1417,10 +1424,10 @@ def _dedup_chunks_by_llm(chunks, cues, api_key, work):
               + "\n".join(segs))
     try:
         out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.0, max_tokens=200)
+        nums = parse_llm_json_array(out)
     except Exception as e:
-        print(f"[去重] LLM 不可用，跳过: {e}")
+        print(f"[去重] LLM/解析异常，跳过: {e}")
         return chunks
-    nums = parse_llm_json_array(out)
     keep0 = sorted({n - 1 for n in nums if isinstance(n, int) and 1 <= n <= len(chunks)})
     if len(keep0) < 2:
         return chunks  # 结果异常（只剩 0/1 段）→ 保守全保留
