@@ -83,8 +83,12 @@ def download_artifact(token, url, dest):
 
 def publish(item, video):
     title = item.get("title") or item["slug"]
-    if "｜" not in title:
-        title = f"{title[:40]}｜林园"
+    # 标题必须含「林园」（硬性要求），但改为前缀式而非「｜林园」后缀。
+    # 2026-09-01 竞品实测：高播放标题是「林园：+原话金句」，我们的「…｜林园」
+    # 后缀是第三人称摘要体，同期播放中位 23 vs 竞品 584~1956（差 33 倍）。
+    if "林园" not in title:
+        title = f"林园：{title}"
+    title = title[:78]
     cmd = ["biliup", "-u", str(COOKIES), "upload", str(video),
            "--title", title, "--tid", str(TID),
            "--copyright", str(COPYRIGHT),
