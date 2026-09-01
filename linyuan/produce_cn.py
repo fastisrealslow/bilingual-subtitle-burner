@@ -56,7 +56,11 @@ MAX_CUE_SEC = 6.0         # 单条字幕上限（秒）：ASR 不吐标点时兜
 # ASR 质量闸门：识别字数/音频秒数，低于此值判为「音频太差、识别大面积失败」，放弃出片。
 # 2026-09-01 实测标定：正常片 2.1~8.1 字/秒（多数 4~5）；片仔癀现场收音那条仅 0.73 字/秒
 # （450s 只转出 328 字，漏识约 70%，成片字幕全是「隔一牛」这类乱码）。阈值留足余量。
-ASR_MIN_DENSITY = float(os.environ.get("ASR_MIN_DENSITY") or 1.2)
+# 主指标「条内语速」= 总字数 / 各条字幕时长之和（只算识别出话的那段时间，
+# 不受片头音乐/长静音干扰）。实测标定：正常片 3.40~5.86，坏片 1.32/1.96。
+ASR_MIN_SPEECH_RATE = float(os.environ.get("ASR_MIN_SPEECH_RATE") or 2.5)
+# 副指标「整段密度」= 总字数 / 音频总秒数，只兜极端情况（几乎什么都没识别出来）
+ASR_MIN_DENSITY = float(os.environ.get("ASR_MIN_DENSITY") or 0.5)
 MIN_CHARS = 6
 BREAK = "，。！？；：、,.!?;"
 # 语气词过滤:ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
@@ -190,17 +194,36 @@ def _llm_smooth_cues(cues, api_key):
 
 
 
+def _audio_duration(src):
+    """音频时长（秒），ffprobe 取；失败返回 0。"""
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "default=nw=1:nk=1", str(src)],
+                           capture_output=True, text=True, timeout=60)
+        return float((r.stdout or "0").strip() or 0)
+    except Exception:
+        return 0.0
+
+
 def transcribe(src, work, api_key=None):
-    """转写入口：按 ASR_BACKEND 分发到 Fun-ASR-Nano 或 whisper large-v3。"""
+    """转写入口：按 ASR_BACKEND 分发。质量闸门在这里统一把关——
+    缓存命中和所有后端都要过闸（2026-09-01：原来闸门只在 sensevoice 分支内，
+    缓存命中会直接绕过）。"""
     cache = work / "cues_raw.json"
     if cache.exists():
         print("[asr] 命中缓存")
-        return json.loads(cache.read_text(encoding="utf-8"))
+        cues = json.loads(cache.read_text(encoding="utf-8"))
+        _asr_quality_gate(cues, _audio_duration(src))
+        return cues
     if ASR_BACKEND == "sensevoice":
+        # sensevoice 内部已在 LLM 通顺化之前过闸（提前失败省 LLM 开销），此处不重复
         return _transcribe_sensevoice(src, work, api_key)
     if ASR_BACKEND == "funasr":
-        return _transcribe_funasr(src, work)
-    return _transcribe_whisper(src, work, api_key)
+        cues = _transcribe_funasr(src, work)
+    else:
+        cues = _transcribe_whisper(src, work, api_key)
+    _asr_quality_gate(cues, _audio_duration(src))
+    return cues
 
 
 def _transcribe_whisper(src, work, api_key):
@@ -237,8 +260,11 @@ def _merge_cues(cues):
     会被合并回超长条，导致「一页十几行字幕」(2026-08-23 事故根因)。"""
     merged = []
     for c in cues:
+        # 合并三重约束：间距近 + 合并后字数不超 + 合并后时长不超。
+        # （2026-09-01 修复：原来只卡字数不卡时长，会把硬切开的 6s 条又粘成 12s 条）
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP and \
-           len(merged[-1]["text"]) + len(c["text"]) <= MAX_CHARS + 2:
+           len(merged[-1]["text"]) + len(c["text"]) <= MAX_CHARS + 2 and \
+           c["end"] - merged[-1]["start"] <= MAX_CUE_SEC:
             merged[-1]["end"] = c["end"]
             sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else "，"
             merged[-1]["text"] += sep + c["text"]
@@ -398,8 +424,8 @@ def _transcribe_sensevoice(src, work, api_key=None):
     cues = _dedup_consecutive(cues)
     for c in cues:
         c["text"] = fix_terms(c["text"])
-    # 质量闸门：识别密度过低说明音频太差（现场嘈杂/口音重），字幕基本是乱码，
-    # 继续出片只会产出「隔一牛」这类胡话标题，直接放弃（2026-09-01）
+    # 质量闸门（提前判一次：在 LLM 通顺化之前失败，省掉 LLM 调用开销；
+    # transcribe() 入口还会再统一判一次，覆盖缓存命中的情况）
     _asr_quality_gate(cues, total_dur)
     # LLM 通顺化：去口水磕巴（付费 DeepSeek-V3 + 相似度防篡改，2026-08-29）
     cues = _llm_smooth_cues(cues, api_key)
@@ -416,13 +442,19 @@ def _asr_quality_gate(cues, audio_sec):
     对照 8 条正常成片：2.1~8.1 字/秒（多数 4~5）。阈值 1.2 留足余量。
     """
     chars = sum(len(c["text"]) for c in cues)
-    density = chars / audio_sec if audio_sec > 0 else 0
-    print(f"[质检] 识别密度 {density:.2f} 字/秒（{chars} 字 / {audio_sec:.0f}s，阈值 {ASR_MIN_DENSITY}）")
-    if not cues or density < ASR_MIN_DENSITY:
+    inner = sum(max(0.0, c["end"] - c["start"]) for c in cues)
+    rate = chars / inner if inner > 0 else 0          # 条内语速（主）
+    density = chars / audio_sec if audio_sec > 0 else 0  # 整段密度（副）
+    print(f"[质检] 条内语速 {rate:.2f} 字/秒（阈值 {ASR_MIN_SPEECH_RATE}）；"
+          f"整段密度 {density:.2f} 字/秒（阈值 {ASR_MIN_DENSITY}）；"
+          f"{chars} 字 / {len(cues)} 条 / 音频 {audio_sec:.0f}s")
+    if not cues:
+        raise RuntimeError("ASR 质量不合格：没有识别出任何字幕，放弃出片")
+    if rate < ASR_MIN_SPEECH_RATE or density < ASR_MIN_DENSITY:
         raise RuntimeError(
-            f"ASR 质量不合格：识别密度 {density:.2f} 字/秒 < {ASR_MIN_DENSITY}"
-            f"（{chars} 字 / {audio_sec:.0f}s）。音频可能是现场嘈杂/口音重/削顶失真，"
-            f"字幕大概率是乱码，放弃出片")
+            f"ASR 质量不合格：条内语速 {rate:.2f}（阈值 {ASR_MIN_SPEECH_RATE}）、"
+            f"整段密度 {density:.2f}（阈值 {ASR_MIN_DENSITY}）。"
+            f"音频可能是现场嘈杂/口音重/削顶失真，字幕大概率是乱码，放弃出片")
 
 
 def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
