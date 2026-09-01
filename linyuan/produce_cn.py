@@ -53,14 +53,20 @@ TARGET_SEC = 180          # 成片目标时长（短金句）
 TARGET_SEC_MID = 420     # 中视频目标时长（7分钟话题片，2026-08-29 对标竞品中视频）
 MAX_CHARS = 18            # 单条字幕上限（字数）
 MAX_CUE_SEC = 6.0         # 单条字幕上限（秒）：ASR 不吐标点时兜底硬断（2026-09-01）
+MAX_GAP_SEC = 1.0         # token 间静音超过此值就断句：ASR 稀疏时字幕会横跨大段静音
+MAX_TOKEN_SEC = 1.0       # 单个 token 时长封顶：cue 的 end 取自「下一个 token 的 start」，
+                          # ASR 稀疏时中间大段静音会被算进上一个字，导致「白」一个字占 22 秒
+                          # （2026-09-01 用真实音频重跑 SenseVoice 实测）
 # ASR 质量闸门：识别字数/音频秒数，低于此值判为「音频太差、识别大面积失败」，放弃出片。
 # 2026-09-01 实测标定：正常片 2.1~8.1 字/秒（多数 4~5）；片仔癀现场收音那条仅 0.73 字/秒
 # （450s 只转出 328 字，漏识约 70%，成片字幕全是「隔一牛」这类乱码）。阈值留足余量。
-# 主指标「条内语速」= 总字数 / 各条字幕时长之和（只算识别出话的那段时间，
-# 不受片头音乐/长静音干扰）。实测标定：正常片 3.40~5.86，坏片 1.32/1.96。
-ASR_MIN_SPEECH_RATE = float(os.environ.get("ASR_MIN_SPEECH_RATE") or 2.5)
-# 副指标「整段密度」= 总字数 / 音频总秒数，只兜极端情况（几乎什么都没识别出来）
-ASR_MIN_DENSITY = float(os.environ.get("ASR_MIN_DENSITY") or 0.5)
+# ASR 质量闸门阈值（2026-09-01 用新代码在真实音频上重跑 SenseVoice 标定）：
+#   茅台专访(正常)   条内语速 4.69 / 整段密度 4.39
+#   同仁堂讲话(正常) 条内语速 3.73 / 整段密度 2.92
+#   片仔癀现场(坏片) 条内语速 2.61 / 整段密度 1.03  ← 41% 时间完全没识别出内容
+# 两个指标「同时」偏低才判废，避免「片头音乐长」这类正常片被单指标误杀。
+ASR_MIN_SPEECH_RATE = float(os.environ.get("ASR_MIN_SPEECH_RATE") or 3.0)
+ASR_MIN_DENSITY = float(os.environ.get("ASR_MIN_DENSITY") or 1.8)
 MIN_CHARS = 6
 BREAK = "，。！？；：、,.!?;"
 # 语气词过滤:ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
@@ -263,7 +269,7 @@ def _merge_cues(cues):
         # 合并三重约束：间距近 + 合并后字数不超 + 合并后时长不超。
         # （2026-09-01 修复：原来只卡字数不卡时长，会把硬切开的 6s 条又粘成 12s 条）
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP and \
-           len(merged[-1]["text"]) + len(c["text"]) <= MAX_CHARS + 2 and \
+           len(merged[-1]["text"]) + len(c["text"]) + 1 <= MAX_CHARS + 2 and \
            c["end"] - merged[-1]["start"] <= MAX_CUE_SEC:
             merged[-1]["end"] = c["end"]
             sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else "，"
@@ -450,10 +456,10 @@ def _asr_quality_gate(cues, audio_sec):
           f"{chars} 字 / {len(cues)} 条 / 音频 {audio_sec:.0f}s")
     if not cues:
         raise RuntimeError("ASR 质量不合格：没有识别出任何字幕，放弃出片")
-    if rate < ASR_MIN_SPEECH_RATE or density < ASR_MIN_DENSITY:
+    if rate < ASR_MIN_SPEECH_RATE and density < ASR_MIN_DENSITY:
         raise RuntimeError(
-            f"ASR 质量不合格：条内语速 {rate:.2f}（阈值 {ASR_MIN_SPEECH_RATE}）、"
-            f"整段密度 {density:.2f}（阈值 {ASR_MIN_DENSITY}）。"
+            f"ASR 质量不合格：条内语速 {rate:.2f}（阈值 {ASR_MIN_SPEECH_RATE}）"
+            f"且整段密度 {density:.2f}（阈值 {ASR_MIN_DENSITY}）双双偏低。"
             f"音频可能是现场嘈杂/口音重/削顶失真，字幕大概率是乱码，放弃出片")
 
 
@@ -478,6 +484,7 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
     for i, tok in enumerate(tokens):
         st = timestamps[i]
         en = timestamps[i + 1] if i + 1 < len(timestamps) else chunk_dur
+        en = min(en, st + MAX_TOKEN_SEC)   # 单 token 封顶，避免跨静音把字幕拖长
         if tok in "。！？!?":
             buf_text += tok
             _flush()
@@ -486,6 +493,10 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
             if len(buf_text) >= MAX_CHARS - 4:
                 _flush()
         else:
+            # 静音断句：与上一个 token 间隔过大说明中间是静音/没识别出来，
+            # 不能把它们塞进同一条字幕（否则字幕横跨十几秒静音，2026-09-01 实测）
+            if buf and st - buf[-1][2] > MAX_GAP_SEC:
+                _flush()
             buf.append((tok, st, en))
             buf_text += tok
             # 兜底硬断：ASR 没吐标点时，普通字符也必须受字数/时长上限约束，
