@@ -1073,16 +1073,29 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
 
 {sample}
 
-为它生成 B站投稿文案。标题要有「钩子」——对标短视频平台高播放标题的写法（2026-08-29 竞品分析：同样内容，带钩子标题播放量是平淡标题的 10 倍）。
+为它生成 B站投稿文案。
 
-标题要求（核心）:
-1. 25 字以内，必须含「{speaker}」姓名
-2. 必须带至少一个「钩子」：反常识观点 / 具体数字 / 冲突 / 带感细节，例如:
-   - 反常识：「赚钱是学不了的，连{speaker}儿子也学不会」
-   - 具体数字：「8000块做到20亿」
-   - 冲突细节：「儿子亏8000万，他说像吃了个死苍蝇」
-3. 钩子必须来自字幕真实内容，可突出原意，但严禁编造、严禁夸大数字、严禁说字幕里没有的事
-4. 一句话戳人：让刷到的人想点进来，而不是「XX谈XX」的平铺直叙
+【标题写法：必须模仿高播放竞品的「原话引用体」】
+2026-09-01 实测同期 B站「林园」内容 220 条，播放中位数对比：
+  竞品「园园滚雪球」1956、「唐晶晶的价值观」1006、「投资就是滚雪球」584
+  我们「园来滚雪球」只有 23 —— 差 33 倍，处于第 1 百分位。
+差距的核心是标题写法：
+
+  ✅ 竞品（高播放）= 「{speaker}：」+ 他本人说的原话金句（第一人称、口语、有态度）
+     「股神林园：现在消费和医药的回报是我从事资本市场以来最值得的时候」
+     「林园：股市里赚到大钱的人都是"呆子""笨蛋"」
+     「股神林园：没留意泡泡玛特这类新消费，精神消费就看它从事的门槛高不高」
+  ❌ 我们（低播放）= 第三人称摘要体，像新闻导语
+     「林园谈创新药投资：为何不投癌症而选中药」
+     「林园谈茅台：600元时不再确定，超前20年的投资逻辑」
+
+标题要求（严格遵守）:
+1. 必须以「{speaker}：」或「股神{speaker}：」开头
+2. 冒号后面必须是**从字幕里摘出来的他本人的原话**（可精简去口水词、可合并相邻两句，但不能改变意思、不能替换成书面语）
+3. 长度 26~36 字（竞品中位 32~34 字；我们过去 22 字太短、信息量不足）
+4. 保留口语感和态度（「我」「你」「不可能」「肯定」这类词不要删）
+5. 严禁编造：字幕里没说的话、没出现的数字，一律不许写
+6. 不要加任何后缀（不要「｜{speaker}」这种尾巴）
 
 简介:
 1. 100字以内，第一人称视角陈述内容要点，末尾注明来源场合
@@ -1097,7 +1110,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
         assert d.get("title")
     except Exception:
         out = ""
-        d = {"title": f"{occasion}|{speaker}".strip("|"),
+        d = {"title": f"{speaker}：{occasion}"[:36],
              "desc": f"{speaker}在{occasion}的发言精选。",
              "tags": [speaker, "价值投资"]}
     d.setdefault("tags", [speaker])
@@ -1392,6 +1405,55 @@ def has_existing_subtitles(src):
         return False
 
 
+_OVERLAY_CACHE = {}
+
+
+def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
+    """检测视频上下边缘的「贴片区」（台标/标题条/硬字幕），返回 (顶部比例, 底部比例)。
+
+    做法：抽帧算 Canny 边缘的行剖面，用「中位数 × k」作自适应阈值，
+    在顶部 40% / 底部 25% 窗口内找最内侧的高边缘行。
+
+    2026-09-01 用 5 条真实视频标定（含 1 条无水印的干净片做负样本）：
+      k=1.8 → 漏检 0.17 / 过检 0.11 / 干净片误报 0；k≤1.6 会把干净片误判成有水印。
+    检出后各外扩 margin，宁可多裁一点也别留残缺水印。
+    """
+    key = str(src)
+    if key in _OVERLAY_CACHE:
+        return _OVERLAY_CACHE[key]
+    res = (0.0, 0.0)
+    try:
+        import cv2
+        import numpy as np
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        E = []
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / max(1, frames)))
+            ok, f = cap.read()
+            if ok:
+                E.append(cv2.Canny(cv2.cvtColor(f, cv2.COLOR_BGR2GRAY), 80, 200).astype(np.float32) / 255)
+        cap.release()
+        if E:
+            H = E[0].shape[0]
+            row = np.mean(E, axis=0).mean(axis=1)
+            w = max(3, H // 80)
+            row = np.convolve(row, np.ones(w) / w, mode="same")
+            thr = float(np.median(row)) * k
+            hi = np.where(row >= thr)[0]
+            t_idx = [i for i in hi if i <= H * 0.40]
+            b_idx = [i for i in hi if i >= H * 0.75]
+            top = (max(t_idx) + 1) / H if t_idx else 0.0
+            bot = (H - min(b_idx)) / H if b_idx else 0.0
+            top = top + margin if top >= 0.03 else 0.0
+            bot = bot + margin if bot >= 0.03 else 0.0
+            res = (min(top, 0.45), min(bot, 0.30))
+    except Exception as e:
+        print(f"[裁切] 贴片检测失败，退回不裁: {e}", file=sys.stderr)
+    _OVERLAY_CACHE[key] = res
+    return res
+
+
 def has_hard_watermark(src):
     """检测视频是否有难以裁除的水印(画面中间的 logo)。
     检查画面四角和中间是否有固定位置的半透明 logo。
@@ -1528,20 +1590,23 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         make_ass(entries, ass, W, H)
         seg = work / f"seg{suffix}{n}.mp4"
         vertical = H > W
-        if vertical:
-            crop_h = H - 100
-            crop_w = min(int(crop_h * 9 / 16), W)
-        else:
-            crop_h = H - 100
-            crop_w = min(int(crop_h * 16 / 9), W)
+        # 按检测到的贴片区裁切（替代原来「一律裁顶部 100px」——2026-09-01 实测那种裁法
+        # 竖屏只裁 7.8% 而标题条占 28~33%（等于没裁），横屏顶部没水印却被裁掉 17%）
+        # 2026-09-01 回滚说明：曾尝试「按检测到的贴片带裁切」，实测失败并回滚——
+        # 这些素材的贴片不只在边缘，还在画面中部（人物介绍条 63~75%、台标右下 65~75%），
+        # 裁边缘既去不掉中部贴片，又会把人物头顶切掉，属于倒退。恢复原有保守裁切。
+        # detect_overlay_bands() 保留，用于「如实标注是否有水印」和后续素材优选。
+        crop_h = H - 100
+        crop_w = min(int(crop_h * (9 / 16 if vertical else 16 / 9)), W)
         crop_x = (W - crop_w) // 2
+        crop_y = 100
         seg_dur = s1 - s0
         # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
         fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
         if existing_subtitles:
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,{fade}"
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},{fade}"
         else:
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:100,ass={ass},{fade}"
+            vf = f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},ass={ass},{fade}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
              "-t", str(seg_dur), "-i", str(src),
@@ -1667,13 +1732,19 @@ def main():
                          pick_cache_suffix=suffix, target_sec=target_sec)
         metas.append(m)
 
+    # 「去水印」标记必须反映真实裁切结果，不能写死 True（2026-09-01 发现线上
+    # 全部标着 ✓去水印，实际台标/字幕原样保留）
+    _t_f, _b_f = detect_overlay_bands(src)
+    _wm_cropped = (_t_f + _b_f) > 0
+    print(f"[裁切] 贴片区 顶{_t_f:.0%} 底{_b_f:.0%} → watermark_cropped={_wm_cropped}")
+
     # 写 meta.json：单条保持兼容，多条记录列表
     if len(metas) == 1:
         final_meta = {
             "slug": args.slug, "source": str(src), "speaker": args.speaker,
             "occasion": args.occasion, **metas[0],
             "source_platform": platform,
-            "watermark_cropped": True,
+            "watermark_cropped": _wm_cropped,
             "subtitles_burned": not existing_subtitles,
             "has_existing_subtitles": existing_subtitles,
             "vertical": vertical,
@@ -1689,7 +1760,7 @@ def main():
              "occasion": args.occasion, "part": i + 1,
              "final": f"final_{i + 1}.mp4", **m,
              "source_platform": platform,
-             "watermark_cropped": True,
+             "watermark_cropped": _wm_cropped,
              "subtitles_burned": not existing_subtitles,
              "has_existing_subtitles": existing_subtitles,
              "vertical": vertical,
