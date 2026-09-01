@@ -51,7 +51,12 @@ MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B
 
 TARGET_SEC = 180          # 成片目标时长（短金句）
 TARGET_SEC_MID = 420     # 中视频目标时长（7分钟话题片，2026-08-29 对标竞品中视频）
-MAX_CHARS = 18            # 单条字幕上限
+MAX_CHARS = 18            # 单条字幕上限（字数）
+MAX_CUE_SEC = 6.0         # 单条字幕上限（秒）：ASR 不吐标点时兜底硬断（2026-09-01）
+# ASR 质量闸门：识别字数/音频秒数，低于此值判为「音频太差、识别大面积失败」，放弃出片。
+# 2026-09-01 实测标定：正常片 2.1~8.1 字/秒（多数 4~5）；片仔癀现场收音那条仅 0.73 字/秒
+# （450s 只转出 328 字，漏识约 70%，成片字幕全是「隔一牛」这类乱码）。阈值留足余量。
+ASR_MIN_DENSITY = float(os.environ.get("ASR_MIN_DENSITY") or 1.2)
 MIN_CHARS = 6
 BREAK = "，。！？；：、,.!?;"
 # 语气词过滤:ASR 会把 "啊、嗯、呢、吧" 等单独识别为一帧
@@ -393,11 +398,31 @@ def _transcribe_sensevoice(src, work, api_key=None):
     cues = _dedup_consecutive(cues)
     for c in cues:
         c["text"] = fix_terms(c["text"])
+    # 质量闸门：识别密度过低说明音频太差（现场嘈杂/口音重），字幕基本是乱码，
+    # 继续出片只会产出「隔一牛」这类胡话标题，直接放弃（2026-09-01）
+    _asr_quality_gate(cues, total_dur)
     # LLM 通顺化：去口水磕巴（付费 DeepSeek-V3 + 相似度防篡改，2026-08-29）
     cues = _llm_smooth_cues(cues, api_key)
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[asr] {len(cues)} 条字幕")
     return cues
+
+
+def _asr_quality_gate(cues, audio_sec):
+    """ASR 质量闸门：识别密度过低 → 放弃出片。
+
+    2026-09-01：片仔癀股东大会现场收音（450s）只转出 328 字＝0.73 字/秒，
+    成片字幕全是「隔一牛」「片仔大吃偏小比伊利」这类乱码，标题也跟着胡说。
+    对照 8 条正常成片：2.1~8.1 字/秒（多数 4~5）。阈值 1.2 留足余量。
+    """
+    chars = sum(len(c["text"]) for c in cues)
+    density = chars / audio_sec if audio_sec > 0 else 0
+    print(f"[质检] 识别密度 {density:.2f} 字/秒（{chars} 字 / {audio_sec:.0f}s，阈值 {ASR_MIN_DENSITY}）")
+    if not cues or density < ASR_MIN_DENSITY:
+        raise RuntimeError(
+            f"ASR 质量不合格：识别密度 {density:.2f} 字/秒 < {ASR_MIN_DENSITY}"
+            f"（{chars} 字 / {audio_sec:.0f}s）。音频可能是现场嘈杂/口音重/削顶失真，"
+            f"字幕大概率是乱码，放弃出片")
 
 
 def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
@@ -431,6 +456,10 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
         else:
             buf.append((tok, st, en))
             buf_text += tok
+            # 兜底硬断：ASR 没吐标点时，普通字符也必须受字数/时长上限约束，
+            # 否则整个 chunk 会挤成一条 60+ 字、跨 50 多秒的字幕（2026-09-01 实测 bug）
+            if len(buf_text) >= MAX_CHARS or (buf and (en - buf[0][1]) >= MAX_CUE_SEC):
+                _flush()
     _flush()
     return cues
 
