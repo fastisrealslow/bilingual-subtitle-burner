@@ -516,17 +516,38 @@ def pick(items, st, n):
                 dur = int(dur)
             except Exception:
                 dur = 0
-        if 120 <= dur <= 600:
-            return 10
-        if 600 < dur <= 1200:
-            return 8
-        if 60 <= dur < 120:
+        # 2026-09-01 修正：原规则给 120~600s 最高分，而那正是「短二创切片」的时长，
+        # 直接导致一直抓二创。素材应该是「完整原片」，短片由我们自己拆条产出。
+        # 依据：同期 B站林园内容实测，10~30 分钟完整版播放中位 1055（最高段），
+        # 1~3 分钟切片中位 514（最低段）；而竞品高播放长视频都是 20~60 分钟完整采访。
+        if dur >= 1800:            # 30 分钟以上：完整采访/直播回放，最优
+            return 16
+        if 900 <= dur < 1800:      # 15~30 分钟：较完整
+            return 14
+        if 600 <= dur < 900:       # 10~15 分钟
+            return 11
+        if 300 <= dur < 600:       # 5~10 分钟
+            return 6
+        if 120 <= dur < 300:       # 2~5 分钟：多半是二创切片
             return 2
-        return 0  # 未知或太短/太长
+        if 60 <= dur < 120:
+            return 0
+        return 0  # 未知或太短
+
+    # 画面重包装的搬运号：素材上有大面积自制贴片，裁不掉（2026-09-01 逐帧看图确认）
+    HEAVY_PACKAGING = {
+        "投资就是滚雪球": "左上角常驻黄色大字标题 + 红字日期，左侧无裁切空间",
+        "昕礽果复利增长": "左中部水印，位置在画面核心区，无法裁切",
+        "股海淘沙": "竖版拼贴 + 上下黑边大字",
+    }
+
+    def packaging_score(c):
+        a = (c.get("author") or "").strip()
+        return -12 if a in HEAVY_PACKAGING else 0
 
     def quality_score(c):
         return (source_score(c) + title_score(c["title"]) +
-                freshness_score(c) + duration_score(c))
+                freshness_score(c) + duration_score(c) + packaging_score(c))
 
     # 按综合质量分降序
     cands.sort(key=lambda c: quality_score(c), reverse=True)
