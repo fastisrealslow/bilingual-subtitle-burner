@@ -1119,6 +1119,19 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
     return d
 
 
+def _cascade(path):
+    """兼容 OpenCV 4 / 5 取 CascadeClassifier。OpenCV 5 把它挪出了主命名空间。"""
+    import cv2
+    for getter in (lambda: cv2.CascadeClassifier,
+                   lambda: cv2.objdetect.CascadeClassifier,
+                   lambda: cv2.legacy.CascadeClassifier):
+        try:
+            return getter()(path)
+        except AttributeError:
+            continue
+    raise RuntimeError("当前 OpenCV 版本找不到 CascadeClassifier（4/5 命名空间均未命中）")
+
+
 def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
     """TTC 合集里找指定子字体下标。原库踩过的坑:默认取第 0 个是 JP 字形,
     简体字会「细一号」。"""
@@ -1166,7 +1179,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     try:
         import cv2
         cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-        cascade = cv2.CascadeClassifier(cascade_path)
+        cascade = _cascade(cascade_path)
         groups = []  # {'center':(cx,cy,wn), 'count':int, 'faces':[(x,y,w,h,fp)]}
         for fp in frames:
             img_cv = cv2.imread(str(fp))
@@ -1207,8 +1220,13 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
             fx, fy, fw2, fh2, fp = max(best_g["faces"], key=lambda x: x[2] * x[3])
             best_face = (int(fx), int(fy), int(fw2), int(fh2))
             best_frame = fp
-    except Exception:
-        pass  # cv2 不可用/缺级联文件 → 退居中裁切
+    except Exception as e:
+        # 2026-09-01 血的教训：这里原来是 except: pass 静默吞异常。
+        # CI 的 pip install opencv-python 未锁版本，装到 OpenCV 5.0 后
+        # cv2.CascadeClassifier 被移除 → 人脸检测全程失败但无任何日志 →
+        # 封面退化成「中间裁一刀取第一帧」→ 出现「观众后脑勺封面」(盲评 2/10)、
+        # 「女主播当封面」(4/10)。异常必须喊出来。
+        print(f"[封面] ⚠️ 人脸检测失败({type(e).__name__}: {e})，退化为居中裁切", file=sys.stderr)
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
@@ -1406,6 +1424,65 @@ def has_existing_subtitles(src):
 
 
 _OVERLAY_CACHE = {}
+_OCR_ENGINE = None
+_OCR_COV_CACHE = {}
+
+
+def _ocr():
+    """RapidOCR（PaddleOCR 的 ONNX 版）。只做文字检测不做识别 —— 实测同一帧
+    检测+识别 28.2s，只检测 3.0s，快 9 倍且检出框更多（44 vs 40）。"""
+    global _OCR_ENGINE
+    if _OCR_ENGINE is None:
+        from rapidocr_onnxruntime import RapidOCR
+        _OCR_ENGINE = RapidOCR()
+    return _OCR_ENGINE
+
+
+def ocr_row_coverage(src, frames=6, max_w=640):
+    """抽帧 OCR，统计每 1% 行位置被文字框覆盖的「帧比例」(长度 100 的列表)。
+
+    2026-09-01 换掉原来的 Canny 边缘密度方案：边缘密度会把人物轮廓、K线图、
+    装饰线条都当成文字，还漏检半透明台标；实测 5 条有标准答案的素材，
+    OCR 全部命中（含之前漏掉的「红星资本局」「金融界 JRJ.com」台标）。
+    用「帧比例」而不是单帧结果，是为了区分常驻贴片和一闪而过的内容。
+    """
+    key = str(src)
+    if key in _OCR_COV_CACHE:
+        return _OCR_COV_CACHE[key]
+    cov = [0.0] * 100
+    try:
+        import cv2
+        import numpy as np
+        engine = _ocr()
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        hit = np.zeros(100)
+        got = 0
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / max(1, frames)))
+            ok, f = cap.read()
+            if not ok:
+                continue
+            H, W = f.shape[:2]
+            if W > max_w:
+                f = cv2.resize(f, (max_w, int(H * max_w / W)))
+                H, W = f.shape[:2]
+            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
+            got += 1
+            rows = np.zeros(100, bool)
+            for box in (res or []):
+                ys = [pt[1] for pt in box]
+                a = max(0, min(99, int(min(ys) / H * 100)))
+                b = max(0, min(100, int(max(ys) / H * 100) + 1))
+                rows[a:b] = True
+            hit += rows
+        cap.release()
+        if got:
+            cov = (hit / got).tolist()
+    except Exception as e:
+        print(f"[OCR] 行覆盖统计失败: {e}", file=sys.stderr)
+    _OCR_COV_CACHE[key] = cov
+    return cov
 
 
 def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
@@ -1452,6 +1529,104 @@ def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
         print(f"[裁切] 贴片检测失败，退回不裁: {e}", file=sys.stderr)
     _OVERLAY_CACHE[key] = res
     return res
+
+
+def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.35):
+    """算安全裁切方案 (crop_w, crop_h, crop_x, crop_y)，只为「腾出干净的字幕位」。
+
+    历史教训（2026-09-01 三次迭代）：
+      ① 按检测带裁掉所有贴片 → 中部贴片去不掉、还切到人头，失败回滚；
+      ② 高斯模糊遮挡 → 盲评 3/10，比不处理更差；
+      ③ 固定裁检测到的底部带 → 多行字幕只切掉一行，16 组只过 11 组(69%)。
+    现在的做法：用 OCR 逐行统计「文字覆盖帧比例」，**从底部往上裁到干净为止**。
+
+    参数：
+      stable  行覆盖率 ≥ 此值视为常驻文字（贴片/硬字幕）
+      clean   裁完后底部区域允许的最大覆盖率
+      max_cut 总裁切上限，超过就放弃裁切（宁可带字幕也不切坏画面）
+    """
+    cov = ocr_row_coverage(src)
+    if not any(cov):
+        return None
+    # 从底部往上找「最底下那一块连续文字」，只裁它。
+    # 上一版是「35% 内出现任何文字就一路裁到那里」，结果 26 条全部触顶放弃（0 条裁切）。
+    limit = int(max_cut * 100)
+    i = 99
+    while i >= 100 - limit and cov[i] < stable:     # 跳过底部干净区
+        i -= 1
+    bot = 0
+    if i >= 100 - limit:
+        gap = 0
+        j = i
+        while j >= 100 - limit:
+            if cov[j] >= stable:
+                gap = 0
+                bot = 100 - j
+            else:
+                gap += 1
+                if gap >= 3:                        # 连续 3% 干净 → 文字块到头
+                    break
+            j -= 1
+        bot = min(limit, bot + 3)                   # 多裁 3% 余量
+    # 顶部：只裁小块（大块说明是标题包装，这种素材本就该在选片淘汰）
+    top = 0
+    for i in range(0, 20):
+        if cov[i] >= stable:
+            top = i + 1
+    if top > 15:
+        print(f"[裁切] 顶部文字 {top}% > 15%（大字标题包装），不裁顶部")
+        top = 0
+    elif top:
+        top = min(15, top + 2)
+    if top + bot > max_cut * 100:
+        print(f"[裁切] 总裁切量 {top + bot}% > {max_cut:.0%}，放弃裁切（保画面）")
+        return None
+    if top + bot < 2:
+        return None
+    # 裁完后底部是否干净（留给我们自己的字幕）
+    keep_lo, keep_hi = top, 100 - bot
+    tail = cov[max(keep_lo, keep_hi - 15):keep_hi]
+    if tail and sum(tail) / len(tail) > clean:
+        print(f"[裁切] 裁 {top}%/{bot}% 后底部仍有文字（{sum(tail)/len(tail):.0%}），放弃")
+        return None
+    top_px = int(H * top / 100) // 2 * 2
+    bot_px = int(H * bot / 100) // 2 * 2
+    crop_h = (H - top_px - bot_px) // 2 * 2
+    crop_w = W // 2 * 2
+    if not _face_survives(src, top_px, crop_h):
+        print("[裁切] 裁切后检不出人脸，回退不裁")
+        return None
+    print(f"[裁切] 顶{top}% 底{bot}% → {crop_w}x{crop_h}（保留 {crop_w*crop_h/(W*H):.0%}）")
+    return crop_w, crop_h, 0, top_px
+
+
+def _face_survives(src, top_px, crop_h, samples=6):
+    """裁切后还能否检出人脸。切到脸的裁法一律不要。"""
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        cascade = _cascade(cv2.data.haarcascades +
+                           "haarcascade_frontalface_default.xml")
+        before = after = 0
+        for i in range(samples):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / samples))
+            ok, f = cap.read()
+            if not ok:
+                continue
+            g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+            if len(cascade.detectMultiScale(g, 1.1, 4, minSize=(28, 28))):
+                before += 1
+            gc = g[top_px:top_px + crop_h, :]
+            if gc.size and len(cascade.detectMultiScale(gc, 1.1, 4, minSize=(28, 28))):
+                after += 1
+        cap.release()
+        if before == 0:
+            return True                    # 原片本来就没脸（如图表/资料画面），不拦
+        return after >= before * 0.7       # 裁后人脸帧数不能掉太多
+    except Exception as e:
+        print(f"[裁切] 人脸校验失败({e})，保守起见不裁", file=sys.stderr)
+        return False
 
 
 def has_hard_watermark(src):
@@ -1592,14 +1767,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         vertical = H > W
         # 按检测到的贴片区裁切（替代原来「一律裁顶部 100px」——2026-09-01 实测那种裁法
         # 竖屏只裁 7.8% 而标题条占 28~33%（等于没裁），横屏顶部没水印却被裁掉 17%）
-        # 2026-09-01 回滚说明：曾尝试「按检测到的贴片带裁切」，实测失败并回滚——
-        # 这些素材的贴片不只在边缘，还在画面中部（人物介绍条 63~75%、台标右下 65~75%），
-        # 裁边缘既去不掉中部贴片，又会把人物头顶切掉，属于倒退。恢复原有保守裁切。
-        # detect_overlay_bands() 保留，用于「如实标注是否有水印」和后续素材优选。
-        crop_h = H - 100
-        crop_w = min(int(crop_h * (9 / 16 if vertical else 16 / 9)), W)
-        crop_x = (W - crop_w) // 2
-        crop_y = 100
+        plan = safe_crop_plan(src, W, H)
+        if plan:
+            crop_w, crop_h, crop_x, crop_y = plan
+        else:
+            # 不裁：保持原画幅（比切坏画面强）
+            crop_w, crop_h, crop_x, crop_y = W // 2 * 2, H // 2 * 2, 0, 0
         seg_dur = s1 - s0
         # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
         fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
