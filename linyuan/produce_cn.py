@@ -50,6 +50,9 @@ SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
 
 TARGET_SEC = 180          # 成片目标时长（短金句）
+MIN_HIGHLIGHT_SCORE = 7   # 金句评分门槛：低于此分不出片（2026-09-02）
+                          # 依据：同期 B站实测 <30s 炸裂金句播放中位 10.8 万，
+                          # 我们 1~3 分钟平铺内容中位 23。宁缺毋滥。
 TARGET_SEC_MID = 420     # 中视频目标时长（7分钟话题片，2026-08-29 对标竞品中视频）
 MAX_CHARS = 18            # 单条字幕上限（字数）
 MAX_CUE_SEC = 6.0         # 单条字幕上限（秒）：ASR 不吐标点时兜底硬断（2026-09-01）
@@ -809,7 +812,10 @@ def parse_llm_json_array(out):
             v = None
     if isinstance(v, list):
         v = _unwrap(v)
-        if v:
+        # 2026-09-02：空数组是**合法结果**（选段改造后，LLM 判定「本段没有够格
+        # 金句」就返回 []）。原来 `if v:` 把 [] 当解析失败继续降级，日志会误报
+        # 「解析失败」，也可能被后面的宽松抽取捞出垃圾结果。
+        if isinstance(v, list) and (v or raw.strip() in ("[]", "[ ]")):
             return v
 
     fixed = re.sub(r'"(\w+):(\d+)"', r'"\1":\2', raw)
@@ -831,7 +837,7 @@ def parse_llm_json_array(out):
     if objs:
         return objs
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
-def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None):
+def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。
     suffix 用于长视频拆多条时区分各段的缓存（否则第 2 段会命中第 1 段的
     highlights.json，返回超出本段范围的索引 → IndexError）。"""
@@ -846,24 +852,34 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None):
         for i, c in enumerate(cues))
     prompt = f"""下面是{speaker}一段讲话的字幕,格式为「序号|时间|文本」(序号从 0 开始计数)。
 
-请挑出 2-4 个**最有传播力的金句段落**,剪成约 {target} 秒的视频。素材短(不到 2 分钟)选 2 段即可,宁缺毋滥。
+请挑出**最有传播力的金句段落**,每段约 {target} 秒。
 
-什么样的段落算「有传播力」(按优先级):
-1. 开头有「钩子」:第一句就是具体数字(如"8000块做到20亿"、"股价加两个零")、反常识观点、或强烈判断,能一把抓住划手机的人
-2. 有具体信息增量:具体的数字预测、可验证的投资逻辑、生动的真实案例(带具体公司/年份/金额)
-3. 观点锋利、敢下结论,而不是含糊其辞的套话
+⚠️ 允许一个都不选（返回空数组 []）。这段素材如果全是开场白/流程性内容/寒暄,就返回 []。
+宁可不出片,也不要把没传播力的内容做成视频。
 
-严格避开:
-- 纯客套、口头禅、口水话("是吧"、"对不对"、"嗯"、"这个这个")
-- 语义残缺、明显识别错乱的段落
-- 没有信息量的过渡、寒暄、自问自答铺垫
+【为什么严格】2026-09-01 实测同期 B站林园内容：
+  <30 秒的炸裂金句切片，播放中位 10.8 万；
+  我们发的 1~3 分钟平铺内容，播放中位 23。
+差距不在剪辑，在选的这段话本身有没有冲击力。
 
-要求:
-1. 每段语义完整(有观点、有论证或有具体案例)
-2. 各段时长加起来接近 {target} 秒
+【每段必须打分】给 0~10 分,只有 **≥7 分**的才放进结果:
+  9~10 分：有冲突/反常识/大数字，单独拎出来就能当标题
+         例「股市里赚到大钱的人都是呆子笨蛋」「我这么有钱的人，怎么会给穷人道歉」
+  7~8 分：有具体数字或明确判断，信息量足
+         例「8000块做到20亿」「片仔癀股价未来或加两个零」
+  ≤6 分：一律不要 —— 包括:
+         开场白/致辞/流程语（「大家好」「手机静音」「感谢主办方」「我们开始吧」）
+         寒暄客套、自我介绍、对主持人的回应
+         没有结论的铺垫、含糊其辞的套话
+         语义残缺、识别错乱
 
-只输出 JSON 数组,不要任何解释:
-[{{"start":起始序号,"end":结束序号,"reason":"选它的理由(10字内)"}}]
+【硬性要求】
+1. 第一句就要是钩子 —— 观众划到的前 2 秒决定去留,不要用铺垫开头
+2. 每段语义完整,有观点或有具体案例
+3. 单段控制在 {target} 秒左右,不要贪长
+
+只输出 JSON 数组,不要任何解释（可以是空数组）:
+[{{"start":起始序号,"end":结束序号,"score":分数,"reason":"选它的理由(10字内)"}}]
 
 字幕:
 {numbered}"""
@@ -883,14 +899,28 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None):
             a, b = int(p["start"]), int(p["end"])
         except (ValueError, KeyError, TypeError):
             continue
+        try:
+            score = float(p.get("score", 10))
+        except (TypeError, ValueError):
+            score = 10.0
+        if score < MIN_HIGHLIGHT_SCORE:
+            print(f"[金句] 丢弃低分段 {a}-{b}（{score} 分 < {MIN_HIGHLIGHT_SCORE}）：{p.get('reason','')}")
+            continue
         if 0 <= a <= b < len(cues):
-            valid.append({"start": a, "end": b, "reason": p.get("reason", "")})
+            valid.append({"start": a, "end": b, "score": score, "reason": p.get("reason", "")})
             continue
         # 容错：LLM 误用 1-based 序号（把第一条当序号 1），统一减 1
         if 1 <= a <= b <= len(cues):
-            valid.append({"start": a - 1, "end": b - 1, "reason": p.get("reason", "")})
+            valid.append({"start": a - 1, "end": b - 1, "score": score, "reason": p.get("reason", "")})
     if not valid:
-        # 降级兜底：金句选不出时不废掉整条，取前 target 秒的连续字幕
+        if allow_empty:
+            # 长视频拆多段时，某段全是开场白/流程语很正常 —— 直接跳过这一段，
+            # 不要硬凑。2026-09-02 事故：25 分钟北大演讲拆出 6 条，第 1 条是
+            # 「希望大家能够安静下来，手机静音不干扰讲座」，就是无脑降级的结果。
+            print("[金句] 本段无够格金句（或 LLM 未返回），跳过该段不出片")
+            cache.write_text("[]", encoding="utf-8")
+            return []
+        # 单段素材：不废掉整条，降级取前 target 秒
         end_idx = 0
         total = 0.0
         for i, c in enumerate(cues):
@@ -1763,9 +1793,15 @@ def _dedup_chunks_by_llm(chunks, cues, api_key, work):
 
 
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
-                 existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None):
-    """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。返回 meta dict。"""
-    picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec)
+                 existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
+                 allow_empty=False):
+    """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
+    返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
+    picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec,
+                            allow_empty=allow_empty)
+    if not picks:
+        print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
+        return None
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
@@ -1810,6 +1846,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     lst = work / f"concat{suffix}.txt"
     lst.write_text("".join(f"file '{p.name}'\n" for p in parts), encoding="utf-8")
     final = out / f"final{suffix}.mp4"
+    final_name = final.name          # 真实文件名，跳段后编号会与列表下标脱节，必须回传
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
                     "-safe", "0", "-i", str(lst), "-c", "copy", str(final)],
                    check=True)
@@ -1829,6 +1866,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         print(f"[封面] 生成失败(不阻断出片):{e}", file=sys.stderr)
         cover = None
     return {
+        "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover.name if cover else None,
         "duration_sec": round(dur, 1),
@@ -1919,14 +1957,20 @@ def main():
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
                          api_key, existing_subtitles, W, H, suffix,
-                         pick_cache_suffix=suffix, target_sec=target_sec)
-        metas.append(m)
+                         pick_cache_suffix=suffix, target_sec=target_sec,
+                         allow_empty=len(chunks) > 1)
+        if m is not None:
+            metas.append(m)
 
     # 「去水印」标记必须反映真实裁切结果，不能写死 True（2026-09-01 发现线上
     # 全部标着 ✓去水印，实际台标/字幕原样保留）
     _t_f, _b_f = detect_overlay_bands(src)
     _wm_cropped = bool((_t_f + _b_f) > 0)      # 显式 bool，防 numpy 标量泄漏
     print(f"[裁切] 贴片区 顶{_t_f:.0%} 底{_b_f:.0%} → watermark_cropped={_wm_cropped}")
+
+    if not metas:
+        print("❌ 所有段都没有够格金句，本条素材不出片", file=sys.stderr)
+        return 1
 
     # 写 meta.json：单条保持兼容，多条记录列表
     if len(metas) == 1:
@@ -1948,7 +1992,10 @@ def main():
         final_meta = [
             {"slug": args.slug, "source": str(src), "speaker": args.speaker,
              "occasion": args.occasion, "part": i + 1,
-             "final": f"final_{i + 1}.mp4", **m,
+             # 文件名取 _produce_one 回传的真实值：某段无金句被跳过后，
+             # 列表下标 != 原始段号，按下标拼 final_{i+1}.mp4 会指向不存在的文件
+             # （2026-09-02 加「跳过低质段」时发现的隐患）
+             **m,
              "source_platform": platform,
              "watermark_cropped": _wm_cropped,
              "subtitles_burned": not existing_subtitles,
