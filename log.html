@@ -50,6 +50,21 @@ a { color: #007bff; text-decoration: none; }
 a:hover { text-decoration: underline; }
 .alert { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
 .reason-summary { font-size: 13px; color: #666; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+/* 播放数据区块：配色沿用页面浅色主题（2026-09-02 初版误用深色卡片，与页面冲突） */
+.ps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:14px; }
+.ps-card { background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:11px 13px; }
+.ps-card .n { font-size:21px; font-weight:600; color:#333; }
+.ps-card .l { font-size:12px; color:#888; margin-top:3px; }
+.ps-new { border-color:#c3e6cb; background:#f6fdf8; }
+.ps-new .n { color:#155724; }
+.ps-old { background:#fafafa; }
+.ps-old .n { color:#666; }
+.ps-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; background:#fff; }
+.ps-table th,.ps-table td { border-bottom:1px solid #eee; padding:6px 8px; text-align:right; }
+.ps-table th:first-child,.ps-table td:first-child { text-align:left; }
+.ps-table th { color:#888; font-weight:500; background:#fafafa; }
+.ps-bar { display:inline-block; height:8px; background:#007bff; border-radius:4px; vertical-align:middle; }
+.ps-note { font-size:12px; color:#999; margin-top:8px; line-height:1.6; }
 .log-item { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 .log-item:last-child { border-bottom: none; }
 .log-icon { flex-shrink: 0; }
@@ -77,6 +92,10 @@ a:hover { text-decoration: underline; }
       <h2>⚠️ 告警</h2>
       <div id="alerts"></div>
     </div>
+  </div>
+  <div class="section">
+    <h2>📊 播放数据</h2>
+    <div id="playstats"></div>
   </div>
   <div class="section">
     <h2>✅ 已发布（最近 7 天）</h2>
@@ -371,6 +390,41 @@ async function load() {
 
   // 运行日志（FC 每次运行的事件流）
   try {
+    // 播放数据（linyuan/collect_stats.py 每 6 小时采集一次）
+    try {
+      const sresp = await fetch('./site/stats.json?t=' + Date.now(), {cache: 'no-store'});
+      if (sresp.ok) {
+        const st = await sresp.json();
+        const card = (v, l, cls) => `<div class="ps-card ${cls||''}"><div class="n">${v}</div><div class="l">${l}</div></div>`;
+        const nr = st.new_rule || {}, orl = st.old_rule || {}, ov = st.overall || {};
+        const lift = (nr.median && orl.median) ? (nr.median / orl.median) : 0;
+        const daily = (st.daily || []).slice(0, 10);
+        const maxTotal = Math.max(1, ...daily.map(d => d.total));
+        document.getElementById('playstats').innerHTML =
+          `<div class="ps-grid">
+             ${card(ov.count || 0, '总条数')}
+             ${card((ov.total || 0).toLocaleString(), '总播放')}
+             ${card(ov.median || 0, '单条播放中位')}
+             ${card((ov.max || 0).toLocaleString(), '单条最高')}
+           </div>
+           <div class="ps-grid">
+             ${card(`${nr.count || 0} 条 / 中位 ${nr.median || 0}`, '新规则片（9/2 11:00 起）', 'ps-new')}
+             ${card(`${orl.count || 0} 条 / 中位 ${orl.median || 0}`, '旧规则片', 'ps-old')}
+             ${card(lift ? lift.toFixed(1) + '×' : '样本不足', '新/旧 中位数之比', 'ps-new')}
+           </div>
+           <table class="ps-table">
+             <tr><th>日期</th><th>条数</th><th>新规则</th><th>总播放</th><th>中位</th><th>最高</th><th style="width:26%"></th></tr>
+             ${daily.map(d => `<tr>
+               <td>${d.date.slice(5)}</td><td>${d.count}</td>
+               <td>${d.new_rule_count || 0}</td>
+               <td>${d.total.toLocaleString()}</td><td>${d.median}</td><td>${d.max}</td>
+               <td><span class="ps-bar" style="width:${Math.round(d.total / maxTotal * 100)}%"></span></td>
+             </tr>`).join('')}
+           </table>
+           <div class="ps-note">${st.note || ''}<br>采集于 ${st.generated_at || '-'}</div>`;
+      }
+    } catch (e) { /* 播放数据加载失败不阻塞主页面 */ }
+
     const lresp = await fetch(LOGS_URL + '?t=' + Date.now(), {cache: 'no-store'});
     if (lresp.ok) {
       const logs = await lresp.json();
