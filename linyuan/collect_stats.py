@@ -29,6 +29,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from fetch_bilibili import http  # noqa: E402
 
 UP_NAME = "园来滚雪球"
+# 对标账号：粉丝量级各异，重点看「播放/粉丝」比（消除粉丝规模差异）
+# 2026-09-01 实测：我们 0.14，同体量小号 1.7~2.7，差 12~19 倍
+PEERS = ["园园滚雪球", "唐晶晶的价值观", "昕礽果复利增长", "投资就是滚雪球"]
 OUT = Path(__file__).parent.parent / "site" / "stats.json"
 CST = timezone(timedelta(hours=8))
 
@@ -46,6 +49,66 @@ def api(url, retries=3):
 
 def strip_tags(s):
     return re.sub(r"<[^>]+>", "", s or "")
+
+
+def fetch_fans(name):
+    """取账号粉丝数/稿件数。用户搜索接口，无需 wbi 签名。"""
+    try:
+        d = api("https://api.bilibili.com/x/web-interface/search/type"
+                f"?search_type=bili_user&keyword={urllib.parse.quote(name)}&page=1")
+        lst = (d.get("data") or {}).get("result") or []
+        hit = next((r for r in lst if r.get("uname") == name), None) or (lst[0] if lst else None)
+        if hit:
+            return {"fans": hit.get("fans", 0), "videos": hit.get("videos", 0)}
+    except Exception as e:
+        print(f"  [{name}] 粉丝数获取失败: {e}", file=sys.stderr)
+    return {"fans": 0, "videos": 0}
+
+
+def fetch_by_author(name, keywords, max_pages=6):
+    """按作者名抓稿件（搜索接口，只覆盖被索引的部分）。"""
+    seen = {}
+    for kw in keywords:
+        for pn in range(1, max_pages + 1):
+            try:
+                d = api("https://api.bilibili.com/x/web-interface/search/type"
+                        f"?search_type=video&keyword={urllib.parse.quote(kw)}"
+                        f"&page={pn}&order=pubdate")
+            except Exception as e:
+                print(f"[stats] {name}/{kw} 第{pn}页失败: {e}", file=sys.stderr)
+                break
+            res = (d.get("data") or {}).get("result") or []
+            if not res:
+                break
+            for v in res:
+                if v.get("author") == name:
+                    seen[v["bvid"]] = v
+            time.sleep(1.2)
+    return list(seen.values())
+
+
+def peer_summary(name):
+    """竞品概览：近 30 天表现 + 播放/粉丝比。"""
+    vids = fetch_by_author(name, [name, "林园"], max_pages=4)
+    info = fetch_fans(name)
+    cutoff = time.time() - 30 * 86400
+    rows = [{"play": v.get("play", 0) or 0, "pubdate": v.get("pubdate", 0) or 0,
+             "title": strip_tags(v.get("title", ""))}
+            for v in vids if is_relevant(strip_tags(v.get("title", "")))]
+    recent = [r for r in rows if r["pubdate"] >= cutoff]
+    med = statistics.median([r["play"] for r in recent]) if recent else 0
+    fans = info["fans"] or 0
+    top = max(rows, key=lambda r: r["play"]) if rows else None
+    return {
+        "name": name, "fans": fans, "videos_total": info["videos"],
+        "indexed": len(rows),
+        "recent30_count": len(recent),
+        "recent30_total": sum(r["play"] for r in recent),
+        "recent30_median": round(med, 1),
+        "play_per_fan": round(med / fans, 3) if fans else 0,
+        "top_title": top["title"][:44] if top else "",
+        "top_play": top["play"] if top else 0,
+    }
 
 
 def fetch_ours(max_pages=6):
@@ -150,6 +213,30 @@ def main():
         print("[stats] 没抓到数据，保留原文件不覆盖", file=sys.stderr)
         return 1
     data = build(videos)
+    data["self_fans"] = fetch_fans(UP_NAME)
+    print("[stats] 采集对标账号...")
+    peers = []
+    for nm in PEERS:
+        try:
+            ps = peer_summary(nm)
+            peers.append(ps)
+            print(f"  {nm}: 粉丝{ps['fans']} 近30天{ps['recent30_count']}条 "
+                  f"中位{ps['recent30_median']} 播放/粉丝{ps['play_per_fan']}")
+        except Exception as e:
+            print(f"  {nm} 失败: {e}", file=sys.stderr)
+    # 把我们自己也算进同一张表，口径一致才能比
+    cutoff = time.time() - 30 * 86400
+    mine = [x["play"] for x in data["top"] if x["pubdate"] >= cutoff]
+    sf = data["self_fans"]["fans"] or 1
+    mymed = statistics.median(mine) if mine else 0
+    peers.insert(0, {"name": UP_NAME + "（我们）", "fans": data["self_fans"]["fans"],
+                     "videos_total": data["self_fans"]["videos"], "indexed": len(data["top"]),
+                     "recent30_count": len(mine), "recent30_total": sum(mine),
+                     "recent30_median": round(mymed, 1),
+                     "play_per_fan": round(mymed / sf, 3),
+                     "top_title": data["top"][0]["title"][:44] if data["top"] else "",
+                     "top_play": max((x["play"] for x in data["top"]), default=0), "is_self": True})
+    data["peers"] = sorted(peers, key=lambda x: -x["play_per_fan"])
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     o, n, ol = data["overall"], data["new_rule"], data["old_rule"]
