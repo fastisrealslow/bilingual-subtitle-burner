@@ -235,7 +235,13 @@ async function load() {
 
     document.getElementById('published').innerHTML = recentPublished.length ?
       Object.entries(publishedByDay)
-        .sort((a, b) => (b[1][0].ts || 0) - (a[1][0].ts || 0))
+        // 2026-09-02 修复日期分组乱序：原来组排序取 b[1][0].ts —— 用的是
+        // ①组内「未排序」数组的第一个元素 ②字段是 ts（素材调度时间）而不是
+        // partTs（实际投稿时间）。多 part 素材两者能差好几天，导致
+        // 8/31 → 9/2 → 8/29 → 8/30 → 9/1 这种乱序。
+        // 改成用组内最大的 partTs||ts 排序，与组内排序口径一致。
+        .sort((a, b) => Math.max(...b[1].map(e => e.partTs || e.ts || 0))
+                      - Math.max(...a[1].map(e => e.partTs || e.ts || 0)))
         .map(([day, items]) => `
           <div class="day-group">
             <div class="day-title">${day}</div>
