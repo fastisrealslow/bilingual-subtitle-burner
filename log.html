@@ -412,6 +412,19 @@ async function load() {
              ${card(`${orl.count || 0} 条 / 中位 ${orl.median || 0}`, '旧规则片', 'ps-old')}
              ${card(lift ? lift.toFixed(1) + '×' : '样本不足', '新/旧 中位数之比', 'ps-new')}
            </div>
+           <div style="font-size:13px;color:#666;margin:16px 0 6px">🆚 对标账号（近 30 天，按「播放/粉丝」排序）</div>
+           <table class="ps-table">
+             <tr><th>账号</th><th>粉丝</th><th>近30天</th><th>播放中位</th><th>播放/粉丝</th><th>最高单条</th></tr>
+             ${(st.peers || []).map(p => `<tr${p.is_self ? ' style="background:#fffbea;font-weight:600"' : ''}>
+               <td>${p.name}</td>
+               <td>${(p.fans || 0).toLocaleString()}</td>
+               <td>${p.recent30_count} 条</td>
+               <td>${p.recent30_median}</td>
+               <td>${p.play_per_fan}</td>
+               <td title="${(p.top_title || '').replace(/"/g, '')}">${(p.top_play || 0).toLocaleString()}</td>
+             </tr>`).join('')}
+           </table>
+           <div style="font-size:13px;color:#666;margin:16px 0 6px">📅 本号近 10 天</div>
            <table class="ps-table">
              <tr><th>日期</th><th>条数</th><th>新规则</th><th>总播放</th><th>中位</th><th>最高</th><th style="width:26%"></th></tr>
              ${daily.map(d => `<tr>
