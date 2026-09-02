@@ -1423,6 +1423,20 @@ def has_existing_subtitles(src):
         return False
 
 
+def _json_default(o):
+    """meta.json 落盘兜底：numpy 标量 / Path 等非原生类型统一转可序列化形式。"""
+    try:
+        import numpy as np
+        if isinstance(o, np.generic):
+            return o.item()
+    except ImportError:
+        pass
+    from pathlib import Path as _P
+    if isinstance(o, _P):
+        return str(o)
+    return str(o)
+
+
 _OVERLAY_CACHE = {}
 _OCR_ENGINE = None
 _OCR_COV_CACHE = {}
@@ -1524,7 +1538,10 @@ def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
             bot = (H - min(b_idx)) / H if b_idx else 0.0
             top = top + margin if top >= 0.03 else 0.0
             bot = bot + margin if bot >= 0.03 else 0.0
-            res = (min(top, 0.45), min(bot, 0.30))
+            # 必须转成 Python float：numpy 标量参与比较会产出 np.bool_，
+            # 写进 meta.json 时 json.dumps 直接 TypeError
+            #（2026-09-02 事故：7 次出片全挂在 "Object of type bool is not JSON serializable"）
+            res = (float(min(top, 0.45)), float(min(bot, 0.30)))
     except Exception as e:
         print(f"[裁切] 贴片检测失败，退回不裁: {e}", file=sys.stderr)
     _OVERLAY_CACHE[key] = res
@@ -1908,7 +1925,7 @@ def main():
     # 「去水印」标记必须反映真实裁切结果，不能写死 True（2026-09-01 发现线上
     # 全部标着 ✓去水印，实际台标/字幕原样保留）
     _t_f, _b_f = detect_overlay_bands(src)
-    _wm_cropped = (_t_f + _b_f) > 0
+    _wm_cropped = bool((_t_f + _b_f) > 0)      # 显式 bool，防 numpy 标量泄漏
     print(f"[裁切] 贴片区 顶{_t_f:.0%} 底{_b_f:.0%} → watermark_cropped={_wm_cropped}")
 
     # 写 meta.json：单条保持兼容，多条记录列表
@@ -1925,7 +1942,7 @@ def main():
             "asr_model": "faster-whisper large-v3",
             "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
         }
-        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2, default=_json_default), encoding="utf-8")
     else:
         # 多条：meta.json 是列表，每个元素含 final 文件名
         final_meta = [
@@ -1941,7 +1958,7 @@ def main():
              "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
             } for i, m in enumerate(metas)
         ]
-        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2, default=_json_default), encoding="utf-8")
 
     n = len(metas)
     print(f"\n✅ 出片完成: {n} 条")
