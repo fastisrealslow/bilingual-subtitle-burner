@@ -44,7 +44,9 @@ MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟�
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 7                          # 每天最多成功调度几条素材（2026-08-29 提至 7，保证供应 ≥6 条成片）
 MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
-PENDING_LIMIT = 10                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
+PENDING_LIMIT = 15                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
+                                          # 2026-09-02 由 10 提到 15：MAX_PER_DAY=7 时一次调度就可能触顶，
+                                          # 导致次日调度被永久卡住
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
@@ -436,7 +438,10 @@ def pick(items, st, n):
                 dur = int(dur)
             except Exception:
                 dur = 0
-        return 90 <= dur <= 1800 or dur == 0  # 0=未知交给下载后检查；下限对齐 MIN_DUR=90，避免 60-90s 被调度后下载浪费
+        # 2026-09-02 修正：上限原为 1800（30分钟），与常量 MAX_DUR=5400 不一致，
+        # 导致「奖励完整原片」的打分被架空 —— 40~60 分钟的完整采访（如被 9 个号
+        # 搬运的 59 分钟财联社直播）在打分前就被过滤掉了。
+        return MIN_DUR <= dur <= MAX_DUR or dur == 0  # 0=未知交给下载后检查
     cands = [c for c in cands if _dur_ok(c)]
 
     def source_score(c):
@@ -857,8 +862,16 @@ def dispatch_handler(event=None, context=None):
                 c2["video_url"] = vurl
                 dur = download(c2, dest)
                 asset_url = upload_asset(rel, dest)
+            elif "weibo.c" in (c["page_url"] or ""):
+                # 微博 → 透传页面 URL 给 CI（2026-09-02 实测对比，见 test-source-fetch）：
+                #   FC 下直链：720p / 62MB / 2分19秒，且直链带 Expires 会过期；
+                #   CI 用 yt-dlp 吃页面 URL：**1080p** / 128MB / 1分47秒，且页面 URL 不过期。
+                # 画质更高、FC 不再占用 600s 超时预算、直链过期问题一并消失。
+                asset_url = c["page_url"]
+                dur = 0
+                log.info(f"    微博源 → 透传页面 URL 给 CI（yt-dlp 取 1080p）: {c['page_url'][:60]}")
             elif c["video_url"]:
-                # 有直链（微博等）→ FC 下载后上传到 staging release
+                # 其余有直链的 → FC 下载后上传到 staging release
                 dest = tmp / f"{c['slug']}.mp4"
                 dur = download(c, dest)
                 asset_url = upload_asset(rel, dest)
