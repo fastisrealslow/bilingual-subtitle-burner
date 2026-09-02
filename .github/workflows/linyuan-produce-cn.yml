@@ -171,6 +171,20 @@ jobs:
             echo "path=$SOURCE" >> $GITHUB_OUTPUT
           fi
 
+      - name: 时长校验
+        # 2026-09-02 新增：微博/抖音等源改为「透传 URL 给 CI 下载」后，FC 侧不再做
+        # 下载后时长检查（原来会拦掉 8s、43s 这类废片）。这道校验必须补在 CI，
+        # 否则太短/太长的素材会一路跑完 ASR+出片才发现，白烧算力。
+        run: |
+          set -euo pipefail
+          SRC="${{ steps.src.outputs.path }}"
+          DUR=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$SRC" | cut -d. -f1)
+          echo "素材时长: ${DUR}s"
+          if [ "$DUR" -lt 90 ] || [ "$DUR" -gt 5400 ]; then
+            echo "::error::时长 ${DUR}s 不在 [90,5400]，放弃出片"
+            exit 1
+          fi
+
       - name: 出片
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
