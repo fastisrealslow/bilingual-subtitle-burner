@@ -61,6 +61,10 @@ a:hover { text-decoration: underline; }
     <h2>❌ 已拒绝</h2>
     <div id="rejected"></div>
   </div>
+  <div class="section">
+    <h2>🧾 运行日志（最近 60 条）</h2>
+    <div id="runlog"></div>
+  </div>
 </div>
 <script>
 async function load() {
@@ -92,8 +96,10 @@ async function load() {
       `).join('') : '<div class="empty">暂无</div>';
     
     // 待发布
+    // 2026-09-02 修复：原来只有「已发布」做了时间倒序，待发布/已拒绝直接按
+    // state 数组的追加顺序渲染，看起来就是「没按日期排」。三块统一排序。
     document.getElementById('pending').innerHTML = pending.length ?
-      pending.map(e => `
+      pending.slice().sort((a,b) => (b.ts||0) - (a.ts||0)).map(e => `
         <div class="item">
           <div class="item-title">${e.title || e.slug}</div>
           <div class="item-meta">${e.slug} · 调度于 ${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}</div>
@@ -103,13 +109,32 @@ async function load() {
     
     // 已拒绝
     document.getElementById('rejected').innerHTML = rejected.length ?
-      rejected.slice(-10).map(e => `
+      rejected.slice().sort((a,b) => (b.ts||0) - (a.ts||0)).slice(0, 10).map(e => `
         <div class="item">
           <div class="item-title">${e.video_id || e.key}</div>
           <div class="item-meta">${new Date((e.ts||0)*1000).toLocaleString('zh-CN')}</div>
         </div>
       `).join('') : '<div class="empty">暂无</div>';
     
+    // 运行日志：fc_logs.json 一直在收集（dispatch/publish/fail/retry 全过程），
+    // 但页面从未渲染，排障只能翻 FC 控制台。2026-09-02 补上。
+    try {
+      const lr = await fetch('fc_logs.json?_=' + Date.now());
+      const logs = await lr.json();
+      const KIND = {publish_ok:['✅','ok'], dispatch_ok:['📤','ok'], dispatch:['📤',''],
+                    fail:['❌','err'], retry:['🔄',''], skip:['⏭️',''], dedup:['🔁',''], run:['▶️','']};
+      document.getElementById('runlog').innerHTML = logs.length ?
+        logs.slice().sort((a,b) => (b.ts||0) - (a.ts||0)).slice(0, 60).map(e => {
+          const k = KIND[e.kind] || ['·',''];
+          return `<div class="item">
+            <div class="item-title">${k[0]} ${e.msg || ''}</div>
+            <div class="item-meta ${k[1]==='err'?'error':''}">${new Date((e.ts||0)*1000).toLocaleString('zh-CN')} · ${e.kind}${e.detail ? ' · ' + e.detail : ''}</div>
+          </div>`;
+        }).join('') : '<div class="empty">暂无</div>';
+    } catch (err) {
+      document.getElementById('runlog').innerHTML = '<div class="empty">运行日志加载失败</div>';
+    }
+
     // 检查告警
     const alerts = [];
     const now = Date.now() / 1000;
