@@ -478,8 +478,11 @@ class WeiboSearchSource(Source):
             "X-XSRF-TOKEN": xsrf,
         }
 
+        # 2026-09-01 实测：微博搜索可翻到第 8 页且每页都是新内容（378 条唯一），
+        # 原来写死只抓 2 页 = 丢掉 75% 候选。改为可配置，默认 6 页。
+        pages = int(self.config.get("pages", 6))
         statuses = []
-        for pg in (1, 2):
+        for pg in range(1, pages + 1):
             url = ("https://weibo.com/ajax/statuses/search"
                    f"?q={urllib.parse.quote(keyword)}&page={pg}")
             try:
