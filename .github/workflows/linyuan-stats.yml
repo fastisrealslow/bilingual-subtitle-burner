@@ -1,0 +1,49 @@
+name: 播放数据采集
+
+# 采集本号 B站播放数据 → site/stats.json，供 log.html 展示与后续效果分析。
+# 为什么放 Actions：B站对数据中心 IP 有 WAF 风控，GitHub runner 实测可用
+# （监控每天在这跑），而且免费、有 cron。
+
+on:
+  schedule:
+    - cron: '0 1,7,13 * * *'     # UTC → 北京时间 09:00 / 15:00 / 21:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: linyuan-stats
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 采集
+        working-directory: linyuan
+        run: python3 -u collect_stats.py
+
+      - name: 提交
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- site/stats.json; then
+            echo "数据无变化，跳过提交"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/stats.json
+          git commit -m "chore(stats): 更新播放数据 $(date -u +%Y-%m-%dT%H:%MZ)"
+          # 并发/竞态下 push 可能被拒，重试几次再放弃（失败不算致命）
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "push 失败，重试 $i"; sleep 5
+          done
+          echo "::warning::stats 提交失败（不影响主流程）"
