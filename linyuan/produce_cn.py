@@ -942,10 +942,41 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         while b < len(cues) - 1 and cues[b]["text"].rstrip() and cues[b]["text"].rstrip()[-1] not in SENT_TAIL:
             b += 1
         v["start"], v["end"] = a, b
+    # 去重 + 合并重叠区间。2026-09-02 实测事故：LLM 会对同一段内容给出多个
+    # 重叠区间（如 14-62 返回 4 次，理由各不相同），边界对齐后 collapse 成完全
+    # 相同的范围，却被当作多个独立片段各剪一遍再拼接 —— 180s 的目标片被拼成
+    # 957s（16 分钟）。必须先合并再出片。
+    valid.sort(key=lambda v: (v["start"], v["end"]))
+    merged = []
+    for v in valid:
+        if merged and v["start"] <= merged[-1]["end"]:
+            prev = merged[-1]
+            prev["end"] = max(prev["end"], v["end"])
+            if v.get("score", 0) > prev.get("score", 0):
+                prev["score"], prev["reason"] = v.get("score", 0), v.get("reason", "")
+            continue
+        merged.append(dict(v))
+    if len(merged) < len(valid):
+        print(f"[金句] 合并重叠区间: {len(valid)} → {len(merged)} 段")
+    # 总时长封顶：超过目标的 1.8 倍就按分数保留最好的几段
+    def _dur(v):
+        return cues[v["end"]]["end"] - cues[v["start"]]["start"]
+    cap = target * 1.8
+    if sum(_dur(v) for v in merged) > cap:
+        merged.sort(key=lambda v: -v.get("score", 0))
+        kept, acc = [], 0.0
+        for v in merged:
+            if acc + _dur(v) > cap and kept:
+                continue
+            kept.append(v)
+            acc += _dur(v)
+        merged = sorted(kept, key=lambda v: v["start"])
+        print(f"[金句] 总时长超 {cap:.0f}s，按分数保留 {len(merged)} 段（{acc:.0f}s）")
+    valid = merged
     cache.write_text(json.dumps(valid, ensure_ascii=False, indent=1), encoding="utf-8")
     for v in valid:
         d = cues[v["end"]]["end"] - cues[v["start"]]["start"]
-        print(f"[金句] {v['start']}-{v['end']} ({d:.0f}s) {v['reason']}")
+        print(f"[金句] {v['start']}-{v['end']} ({d:.0f}s) {v.get('score','')} {v['reason']}")
     return valid
 
 
