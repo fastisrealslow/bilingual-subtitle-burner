@@ -60,6 +60,8 @@ VISUAL_SAMPLE_COUNT = 6
 VISUAL_MIN_MATCHES = 2
 VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
+MIN_SHORT_EDGE = 480
+FINGERPRINT_VERSION = 1
 
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
@@ -1304,6 +1306,148 @@ def probe(src, entries):
     return r.stdout.strip()
 
 
+def video_size(src):
+    """返回视频宽高；探测失败时抛质量错误，不能把未知尺寸当合格。"""
+    raw = probe(src, "stream=width,height")
+    try:
+        width, height = (int(x) for x in raw.split("x"))
+    except (TypeError, ValueError):
+        raise VisualQualityError(f"无法取得视频分辨率：{raw!r}")
+    if width <= 0 or height <= 0:
+        raise VisualQualityError(f"视频分辨率异常：{width}x{height}")
+    return width, height
+
+
+def ensure_min_short_edge(src, minimum=MIN_SHORT_EDGE, label="成片"):
+    """画质硬闸门。必须检查清理/裁切后的文件，而不只是原始下载。"""
+    width, height = video_size(src)
+    short = min(width, height)
+    if short < minimum:
+        raise VisualQualityError(
+            f"{label}短边 {short} < {minimum}（{width}x{height}），画质不达标")
+    return width, height
+
+
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def _simhash64(features):
+    """对字符串特征做 64 位 SimHash；用于容忍少量 ASR 错字和标点差异。"""
+    weights = [0] * 64
+    for feature in features:
+        value = int.from_bytes(hashlib.blake2b(
+            feature.encode("utf-8"), digest_size=8).digest(), "big")
+        for bit in range(64):
+            weights[bit] += 1 if value & (1 << bit) else -1
+    out = 0
+    for bit, weight in enumerate(weights):
+        if weight >= 0:
+            out |= 1 << bit
+    return f"{out:016x}"
+
+
+def transcript_fingerprints(text, window=96, step=48, limit=96):
+    """生成重叠转写指纹；不同平台、不同画质但说的是同一段话仍能命中。"""
+    clean = re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", text or "").lower()
+    if not clean:
+        return []
+    starts = list(range(0, max(1, len(clean) - window + 1), step))
+    tail = max(0, len(clean) - window)
+    if tail not in starts:
+        starts.append(tail)
+    result = []
+    for start in starts:
+        chunk = clean[start:start + window]
+        grams = [chunk[i:i + 3] for i in range(max(1, len(chunk) - 2))]
+        sig = _simhash64(grams)
+        if sig not in result:
+            result.append(sig)
+    return result[:limit]
+
+
+def transcript_ngram_fingerprints(text, n=5, limit=96):
+    """确定性采样字符 n-gram；适合判断短片是否是长内容中的一个片段。"""
+    clean = re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", text or "").lower()
+    if not clean:
+        return []
+    grams = {clean[i:i + n] for i in range(max(1, len(clean) - n + 1))}
+    hashes = sorted({hashlib.blake2b(g.encode("utf-8"), digest_size=8).hexdigest()
+                     for g in grams})
+    sampled = [h for h in hashes if int(h[-2:], 16) < 32]  # 固定抽约 1/8
+    # 很短的金句采样后可能不足，回退全量；仍受 limit 控制，避免 state 膨胀。
+    return (sampled if len(sampled) >= 8 else hashes)[:limit]
+
+
+def _video_frame_fingerprints(src, count=12):
+    """均匀抽帧 dHash；对重新编码、轻微缩放较稳定。"""
+    try:
+        import cv2
+    except ImportError as e:
+        raise VisualQualityError(f"缺少 OpenCV，无法生成视频指纹：{e}") from e
+    cap = cv2.VideoCapture(str(src))
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    if total <= 0:
+        cap.release()
+        raise VisualQualityError("无法读取成片帧数，不能生成视频指纹")
+    hashes = []
+    for i in range(count):
+        cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / count))
+        ok, frame = cap.read()
+        if not ok:
+            continue
+        h, w = frame.shape[:2]
+        # 去掉最外侧 5%，降低跨平台轻微裁边对指纹的影响。
+        x, y = max(1, int(w * 0.05)), max(1, int(h * 0.05))
+        if w > x * 2 and h > y * 2:
+            frame = frame[y:h - y, x:w - x]
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        small = cv2.resize(gray, (9, 8), interpolation=cv2.INTER_AREA)
+        bits = small[:, 1:] > small[:, :-1]
+        value = 0
+        for bit in bits.flatten():
+            value = (value << 1) | int(bit)
+        hashes.append(f"{value:016x}")
+    cap.release()
+    if len(hashes) < min(4, count):
+        raise VisualQualityError(f"视频指纹抽帧不足：{len(hashes)}/{count}")
+    return hashes
+
+
+def _audio_fingerprints(src, limit=96):
+    """使用 Chromaprint 生成声纹；可识别重新编码、换容器后的同一段音频。"""
+    import struct
+    r = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", str(src), "-map", "0:a:0",
+         "-f", "chromaprint", "-fp_format", "raw", "pipe:1"],
+        capture_output=True)
+    raw = r.stdout[:len(r.stdout) // 4 * 4]
+    if r.returncode != 0 or len(raw) < 16:
+        detail = r.stderr.decode("utf-8", "ignore")[:120]
+        raise VisualQualityError(f"Chromaprint 音频指纹失败：{detail}")
+    values = struct.unpack(f"<{len(raw) // 4}I", raw)
+    # 取排序后的唯一 token，既控制 meta/state 体积，又让同一片段的子集仍可命中。
+    return [f"{value:08x}" for value in sorted(set(values))[:limit]]
+
+
+def build_content_fingerprints(src, transcript_text):
+    """成片三重指纹：精确文件、画面、声音、转写内容。"""
+    return {
+        "version": FINGERPRINT_VERSION,
+        "sha256": _file_sha256(src),
+        "video_dhash": _video_frame_fingerprints(src),
+        "audio_chromaprint": _audio_fingerprints(src),
+        "transcript_simhash": transcript_fingerprints(transcript_text),
+        "transcript_ngrams": transcript_ngram_fingerprints(transcript_text),
+        "transcript_chars": len(re.sub(
+            r"[^0-9A-Za-z\u4e00-\u9fff]+", "", transcript_text or "")),
+    }
+
+
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
     """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
 
@@ -2260,9 +2404,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
+    final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
     remaining_logos = detect_corner_logos(final, frames=6, strict=True)
     if remaining_logos:
         raise VisualQualityError(f"成片清理后仍检出外部角标：{remaining_logos}")
+    transcript_text = "".join(cues[i]["text"] for i in sel)
+    fingerprints = build_content_fingerprints(final, transcript_text)
 
     cw = copywrite(cues, sel, speaker, occasion, api_key, work, pick_cache_suffix)
     cover_name = "cover_16x9.jpg"
@@ -2279,6 +2426,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover.name if cover else None,
         "duration_sec": round(dur, 1),
+        "resolution": {"width": final_w, "height": final_h,
+                       "short_edge": min(final_w, final_h)},
+        "fingerprints": fingerprints,
         "watermark_removed": bool(_logos or plan),
         "watermark_verified": True,
         "segments": [{"start": cues[p["start"]]["start"],
@@ -2321,8 +2471,7 @@ def main():
     if existing_subtitles:
         print("[检测] 视频已有硬字幕,跳过字幕烧录")
 
-    size = probe(src, "stream=width,height")
-    W, H = (int(x) for x in size.split("x"))
+    W, H = ensure_min_short_edge(src, label="原始素材")
     vertical = H > W
 
     # 平台推断

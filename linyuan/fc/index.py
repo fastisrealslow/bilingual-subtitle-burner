@@ -18,6 +18,7 @@
 - B站 upos 投稿对海外 IP 零吞吐（CI 实测 16 分钟零字节）→ 投稿须在境内
 - 境内阿里云实测：下载正常、投稿 30MB/s 秒传（2026-08-15 验证）
 """
+import difflib
 import json
 import logging
 import os
@@ -50,6 +51,7 @@ PENDING_LIMIT = 15                        # 待投成片积压阈值：超过就
 MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
+TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
 # 搜索噪音：标题命中即排除
@@ -344,6 +346,122 @@ def dedup_by_title(cands, threshold=0.6):
     return result
 
 
+_TOPIC_BOILERPLATE = re.compile(
+    r"林园|股神|最新|完整版|完整|现场|发言|分享|揭秘|解析|观点|投资逻辑|"
+    r"投资|为什么|为何|如何|表示|认为|指出|直言|强调|回应|[年月日]")
+
+
+def normalize_topic(title):
+    """保留真正区分观点的字词，去掉每条标题都有的包装词。"""
+    text = _TOPIC_BOILERPLATE.sub("", (title or "").lower())
+    return re.sub(r"[^0-9a-z%\u4e00-\u9fff]+", "", text)
+
+
+def topic_similarity(a, b):
+    """标题主题相似度：字符序列 + 中文二元词交集，取更保守的高值。"""
+    a, b = normalize_topic(a), normalize_topic(b)
+    if min(len(a), len(b)) < 5:
+        return 0.0
+    seq = difflib.SequenceMatcher(None, a, b).ratio()
+    aa = {a[i:i + 2] for i in range(len(a) - 1)}
+    bb = {b[i:i + 2] for i in range(len(b) - 1)}
+    jac = len(aa & bb) / max(1, len(aa | bb))
+    return max(seq, jac)
+
+
+def iter_published_parts(st):
+    """兼容新旧 state，逐条返回真正发布过的 part。"""
+    seen = set()
+    for slug, info in (st.get("published") or {}).items():
+        parts = info.get("parts") or []
+        records = parts if parts else [info]
+        for part in records:
+            if part.get("status") == "skipped":
+                continue
+            marker = (part.get("bvid") or info.get("bvid") or "",
+                      part.get("title") or info.get("title") or "")
+            if marker in seen:
+                continue
+            seen.add(marker)
+            yield slug, {
+                "bvid": marker[0],
+                "title": marker[1],
+                "ts": part.get("ts") or info.get("ts") or 0,
+                "fingerprints": (part.get("fingerprints")
+                                 or info.get("fingerprints") or {}),
+            }
+
+
+def find_recent_topic(title, st, now=None, threshold=0.55, exclude_slug=None):
+    """查找 14 天内已发布的同主题内容。"""
+    now = time.time() if now is None else now
+    for slug, old in iter_published_parts(st):
+        if exclude_slug and slug == exclude_slug:
+            continue
+        if now - old["ts"] > TOPIC_COOLDOWN:
+            continue
+        score = topic_similarity(title, old["title"])
+        if score >= threshold:
+            return {"slug": slug, "bvid": old["bvid"],
+                    "title": old["title"], "score": round(score, 3)}
+    return None
+
+
+def _hamming_hex(a, b):
+    try:
+        return (int(a, 16) ^ int(b, 16)).bit_count()
+    except (TypeError, ValueError):
+        return 10 ** 9
+
+
+def _fingerprint_match_ratio(current, previous, max_distance):
+    if not current or not previous:
+        return 0.0
+    matched = sum(any(_hamming_hex(a, b) <= max_distance for b in previous)
+                  for a in current)
+    return matched / len(current)
+
+
+def fingerprint_duplicate(current, previous):
+    """判断两条成片是否同内容，返回命中依据；三种模糊指纹避免单路误杀。"""
+    if not current or not previous:
+        return None
+    if current.get("sha256") and current.get("sha256") == previous.get("sha256"):
+        return "文件 SHA256 完全相同"
+
+    cur_ngrams = set(current.get("transcript_ngrams") or [])
+    old_ngrams = set(previous.get("transcript_ngrams") or [])
+    shared = len(cur_ngrams & old_ngrams)
+    containment = shared / max(1, min(len(cur_ngrams), len(old_ngrams)))
+    if shared >= 8 and containment >= 0.45:
+        return f"转写片段重合 {containment:.0%}"
+
+    cur_text = current.get("transcript_simhash") or []
+    old_text = previous.get("transcript_simhash") or []
+    text_ratio = _fingerprint_match_ratio(cur_text, old_text, 10)
+    text_matches = round(text_ratio * len(cur_text))
+    if text_ratio >= 0.60 and text_matches >= min(2, len(cur_text)):
+        return f"转写内容重合 {text_ratio:.0%}"
+
+    video_ratio = _fingerprint_match_ratio(
+        current.get("video_dhash") or [], previous.get("video_dhash") or [], 8)
+    cur_audio = current.get("audio_chromaprint") or current.get("audio_spectral") or []
+    old_audio = previous.get("audio_chromaprint") or previous.get("audio_spectral") or []
+    audio_ratio = _fingerprint_match_ratio(cur_audio, old_audio, 3)
+    if audio_ratio >= 0.625 and video_ratio >= 0.50:
+        return f"音频 {audio_ratio:.0%} + 画面 {video_ratio:.0%} 重合"
+    return None
+
+
+def find_content_duplicate(fingerprints, st):
+    """跨 URL、跨平台查找相同成片。历史记录没指纹时自动跳过。"""
+    for slug, old in iter_published_parts(st):
+        reason = fingerprint_duplicate(fingerprints, old["fingerprints"])
+        if reason:
+            return {"slug": slug, "bvid": old["bvid"], "reason": reason}
+    return None
+
+
 def pick(items, st, n):
     now = time.time()
     done = {e["key"] for e in st["dispatched"]} | {e["key"] for e in st["rejected"]}
@@ -419,6 +537,13 @@ def pick(items, st, n):
             continue                                     # AI 问答噪音（元宝/豆包等，非林园本人视频）
         # 标题必须能证明是林园本人发言；只“提到林园”的二手解说不再放行。
         if not title_has_target_speaker(title):
+            continue
+        # 已发主题两周内不再调度。最终成片标题和三重内容指纹还会在投稿前复检，
+        # 这里先挡住明显重复，避免浪费下载、ASR 和编码算力。
+        topic_dup = find_recent_topic(title, st, now=now)
+        if topic_dup:
+            log_event("dedup", f"候选主题冷却中，跳过 {key}",
+                      f"与 {topic_dup['bvid'] or topic_dup['slug']} 相似 {topic_dup['score']:.0%}")
             continue
         # 竞品号：监控但不抄，出片跳过（2026-08-29）
         if it.get("author", "") in COMPETITOR_AUTHORS:
@@ -1009,12 +1134,35 @@ def _has_unpublished_part(e, st):
     单条/旧记录（无 parts_total 或 parts_total<=1）已投完就不算 pending。"""
     pub = st.get("published", {}).get(e["slug"])
     if not pub:
-        return True  # 完全没投过
+        total = e.get("parts_total", 0)
+        return not total or e.get("published_parts", 0) < total
     parts_total = pub.get("parts_total", 1)
     if parts_total <= 1:
         return False  # 单条/旧记录已投完，不再 pending
     published_parts = e.get("published_parts", 0)
     return published_parts < parts_total
+
+
+def _record_skipped_part(st, e, slug, part, parts_total, index, title, reason):
+    """重复 part 视为已处理，避免每小时反复尝试同一个文件。"""
+    e["parts_total"] = parts_total
+    e["published_parts"] = index + 1
+    prev = dict((st.get("published") or {}).get(slug) or {})
+    parts_log = list(prev.get("parts") or [])
+    parts_log.append({
+        "status": "skipped", "title": title, "ts": int(time.time()),
+        "reason": reason, "fingerprints": part.get("fingerprints") or {},
+    })
+    prev.update({
+        "parts": parts_log, "parts_total": parts_total,
+        "title": prev.get("title") or title,
+        "source_url": prev.get("source_url") or e.get("source_url", ""),
+        "source_platform": (prev.get("source_platform")
+                            or part.get("source_platform")
+                            or platform_of(e.get("source", ""))),
+    })
+    st.setdefault("published", {})[slug] = prev
+    save_state(st)
 
 
 def _pending_final_count(st):
@@ -1175,6 +1323,7 @@ def publish_handler(event=None, context=None):
     if not parts:
         parts = [{}]
     parts_total = len(parts)
+    e["parts_total"] = parts_total
 
     # 决定投第几条：已投的 part 数（长视频多条时分次投稿，防扎堆）
     k = e.get("published_parts", 0)
@@ -1255,7 +1404,37 @@ def publish_handler(event=None, context=None):
                 log.info(f"⛔ {slug} 与已发布 {pslug} 同源，拦截重复投稿")
                 save_state(st)
                 return {"published": 0}
-    # 1) 查 B站是否已有同标题视频（状态丢失时的自愈防线）
+    # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
+    content_dup = find_content_duplicate(part.get("fingerprints") or {}, st)
+    if content_dup:
+        reason = (f"与 {content_dup['bvid'] or content_dup['slug']} 重复："
+                  f"{content_dup['reason']}")
+        _record_skipped_part(st, e, slug, part, parts_total, k, title, reason)
+        if k + 1 >= parts_total and slug in art_ids:
+            try:
+                gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
+            except Exception as ae:
+                log.warning(f"删除已处理 artifact 失败: {ae}")
+        log_event("dedup", f"⛔ 跳过重复成片 {slug}[{k+1}]", reason)
+        log.info(f"⛔ 跳过重复成片 {slug}[{k+1}]：{reason}")
+        return {"published": 0, "skipped": 1}
+
+    # 2) 主题冷却：即使不是逐字同片，同一个观点 14 天内也不再发布。
+    topic_dup = find_recent_topic(title, st, now=now)
+    if topic_dup:
+        reason = (f"主题与 {topic_dup['bvid'] or topic_dup['slug']} "
+                  f"相似 {topic_dup['score']:.0%}，14 天冷却")
+        _record_skipped_part(st, e, slug, part, parts_total, k, title, reason)
+        if k + 1 >= parts_total and slug in art_ids:
+            try:
+                gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
+            except Exception as ae:
+                log.warning(f"删除已处理 artifact 失败: {ae}")
+        log_event("dedup", f"⛔ 跳过重复主题 {slug}[{k+1}]", reason)
+        log.info(f"⛔ 跳过重复主题 {slug}[{k+1}]：{reason}")
+        return {"published": 0, "skipped": 1}
+
+    # 3) 查 B站是否已有同标题视频（状态丢失时的自愈防线）
     dup = bili_find_duplicate(title)
     if dup:
         st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
@@ -1263,7 +1442,7 @@ def publish_handler(event=None, context=None):
         save_state(st)
         log.info(f"⛔ {slug} 已在 B站存在（{dup}），补记状态跳过上传")
         return {"published": 1}
-    # 2) 落盘上传意图：万一上传后崩溃，下轮凭 uploading 标记走恢复逻辑而非重传
+    # 4) 落盘上传意图：万一上传后崩溃，下轮凭 uploading 标记走恢复逻辑而非重传
     e["uploading"] = True
     e["upload_title"] = title
     save_state(st)
@@ -1287,7 +1466,9 @@ def publish_handler(event=None, context=None):
         prev_bvids = prev_pub.get("bvids", []) + [bvid]
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
-        parts_log.append({"bvid": bvid, "title": title, "ts": int(time.time())})
+        parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          "ts": int(time.time()),
+                          "fingerprints": meta_info.get("fingerprints") or {}})
         st["published"][slug] = {
             "bvid": bvid,  # 最新一条的 bvid
             "bvids": prev_bvids,
@@ -1302,6 +1483,8 @@ def publish_handler(event=None, context=None):
             "has_existing_subtitles": meta_info.get("has_existing_subtitles", False),
             "vertical": meta_info.get("vertical", False),
             "duration_sec": meta_info.get("duration_sec", 0),
+            "resolution": meta_info.get("resolution") or {},
+            "fingerprints": meta_info.get("fingerprints") or {},
             "publish_time": e.get("publish_time", "") or time.strftime("%Y-%m-%dT%H:%M:%S"),
         }
         # 投稿成功 → 从 pending_retry 清理对应 key/source_url，防止重复派发

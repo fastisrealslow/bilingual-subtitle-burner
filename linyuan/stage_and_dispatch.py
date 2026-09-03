@@ -43,6 +43,7 @@ RELEASE_TAG = "staging"
 
 # 选片约束：太短挑不出 3 段金句，太长 CI 的 4 核 ASR 拖不起
 MIN_DUR, MAX_DUR = 120, 5400
+MIN_SHORT_EDGE = 480
 # B站定时发布：第 i 条依次往后推（小时）。B站要求定时必须明显晚于当前时间
 # biliup 要求 dtime 距离提交必须大于 4 小时，+4h 会被拒，从 5h 起
 DELAY_LADDER = [5, 8, 11, 14, 17]
@@ -232,6 +233,18 @@ def download(cand, workdir):
         return None
     if not (MIN_DUR <= dur <= MAX_DUR):
         log(f"    时长 {dur:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]，跳过")
+        return None
+    wh = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", str(out)],
+        capture_output=True, text=True).stdout.strip()
+    try:
+        width, height = (int(x) for x in wh.split("x"))
+    except (TypeError, ValueError):
+        log(f"    无法取得素材分辨率：{wh!r}，跳过")
+        return None
+    if min(width, height) < MIN_SHORT_EDGE:
+        log(f"    分辨率 {width}x{height} 短边不足 {MIN_SHORT_EDGE}，跳过")
         return None
     cand["duration"] = dur
     return out
