@@ -1,0 +1,47 @@
+name: FC staging package
+
+# FC 调度代码每次进入 main 后，覆盖 staging Release 中的固定资产。
+# 部署端始终可以用同一个 URL 下载最新版：
+# https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/fc-code.zip
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/fc/index.py
+      - .github/workflows/fc-staging-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fc-staging-release
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 打包 FC 代码
+        run: |
+          set -euo pipefail
+          cd linyuan/fc
+          zip -j "$RUNNER_TEMP/fc-code.zip" index.py
+          unzip -l "$RUNNER_TEMP/fc-code.zip"
+
+      - name: 更新 staging Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! gh release view staging >/dev/null 2>&1; then
+            gh release create staging \
+              --target "$GITHUB_SHA" \
+              --title "FC staging" \
+              --notes "Rolling staging package for Aliyun FC." \
+              --prerelease
+          fi
+          gh release upload staging "$RUNNER_TEMP/fc-code.zip" --clobber
