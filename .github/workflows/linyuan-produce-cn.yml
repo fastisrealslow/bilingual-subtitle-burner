@@ -171,7 +171,7 @@ jobs:
             echo "path=$SOURCE" >> $GITHUB_OUTPUT
           fi
 
-      - name: 时长校验
+      - name: 素材校验（时长 + 分辨率）
         # 2026-09-02 新增：微博/抖音等源改为「透传 URL 给 CI 下载」后，FC 侧不再做
         # 下载后时长检查（原来会拦掉 8s、43s 这类废片）。这道校验必须补在 CI，
         # 否则太短/太长的素材会一路跑完 ASR+出片才发现，白烧算力。
@@ -182,6 +182,20 @@ jobs:
           echo "素材时长: ${DUR}s"
           if [ "$DUR" -lt 90 ] || [ "$DUR" -gt 5400 ]; then
             echo "::error::时长 ${DUR}s 不在 [90,5400]，放弃出片"
+            exit 1
+          fi
+          # 分辨率门槛（2026-09-03）：外部评价指出我们大量素材是「三手转手货」，
+          # 实测确认 B站源短边多为 360~480，对比竞品 77% 是 1080P。
+          # 先设 360 起步（淘汰约 4 成），等好看/网易/西瓜等无水印高清源产量上来
+          # 再收紧到 480 —— 一次砍到 480 会淘汰 80% B站素材，供给断档。
+          MIN_SHORT=360
+          WH=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height \
+                 -of csv=p=0:s=x "$SRC")
+          VW=${WH%x*}; VH=${WH#*x}
+          SHORT=$(( VW < VH ? VW : VH ))
+          echo "素材分辨率: ${VW}x${VH}（短边 ${SHORT}）"
+          if [ "$SHORT" -lt "$MIN_SHORT" ]; then
+            echo "::error::短边 ${SHORT} < ${MIN_SHORT}，画质不达标，放弃出片"
             exit 1
           fi
 
