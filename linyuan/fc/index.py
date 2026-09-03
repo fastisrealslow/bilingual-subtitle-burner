@@ -72,6 +72,26 @@ FULL_TITLE_PAT = re.compile(
 CLIP_TITLE_PAT = re.compile(
     r"金句|十大观点|秘诀|股神|曝光|惊人|精华|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
+# “标题里出现林园”不等于“视频里的人是林园”。2026-09-03 的坏样本
+# 「林园也这样看！」实际全片是另一位戴眼镜的男性，却被默认 speaker=林园，
+# 最终连标题和封面都被错误归因。调度层先要求标题能证明这是本人发言；下载后
+# produce_cn.py 还会用参考照做多帧人物复核，形成第二道闸门。
+THIRD_PARTY_TITLE_PAT = re.compile(
+    r"与林园(?:并肩|齐名|同框)|林园(?:也这样|遭(?:点名|处罚|调查)|"
+    r"被(?:点名|处罚|调查)|基金|私募)|#远离#.*#林园#|"
+    r"(?:怎么看|如何看)林园|林园(?:和|与)(?:但斌|段永平)")
+DIRECT_SPEECH_PAT = re.compile(
+    r"林园\s*[：:]|林园(?:说|表示|认为|指出|直言|强调|回应|分享|谈|称)|"
+    r"(?:采访|专访|对话|演讲|股东会|路演|直播|实录|发言).*林园")
+
+
+def title_has_target_speaker(title):
+    """标题是否有足够证据表明素材是林园本人发言，而非仅仅提到他。"""
+    title = (title or "").strip()
+    if "林园" not in title or THIRD_PARTY_TITLE_PAT.search(title):
+        return False
+    return bool(DIRECT_SPEECH_PAT.search(title) or FULL_TITLE_PAT.search(title))
+
 # 投稿好时段（北京）：与 publish 触发器 cron 对齐（9/11/13/15/18/21 六次，每次只投 1 条）
 PUBLISH_SLOTS = [(9, 0), (11, 0), (13, 0), (15, 0), (18, 0), (21, 0)]
 
@@ -397,8 +417,8 @@ def pick(items, st, n):
             continue                                     # 微博噪音
         if AI_NOISE.search(title):
             continue                                     # AI 问答噪音（元宝/豆包等，非林园本人视频）
-        # 标题必须包含"林园"（硬性要求，防止无关内容混入）
-        if "林园" not in title:
+        # 标题必须能证明是林园本人发言；只“提到林园”的二手解说不再放行。
+        if not title_has_target_speaker(title):
             continue
         # 竞品号：监控但不抄，出片跳过（2026-08-29）
         if it.get("author", "") in COMPETITOR_AUTHORS:
