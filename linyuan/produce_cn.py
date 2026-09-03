@@ -62,7 +62,7 @@ VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
 MIN_SHORT_EDGE = 480
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 2
+QUALITY_GATE_VERSION = 3
 
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
@@ -1788,6 +1788,22 @@ def has_existing_subtitles(src):
     2. 条带内白色(高亮)像素 ≥ 20%(文字覆盖)
     3. 条带上下边界与背景有明显对比(不是整片亮背景)
     """
+    # 优先使用已有的多帧 OCR 行覆盖结果。旧算法要求字幕带内亮像素达到 20%，
+    # 对「蓝底白字 + 黑描边」这类常见二次加工字幕过于苛刻：文字实际只占
+    # 条带约 5%~12%，因此会误判为无字幕并再次烧录。OCR 只关心文字框，且
+    # 以多帧持续出现为条件，可排除偶发 PPT/图表文字。
+    try:
+        cov = ocr_row_coverage(src, frames=8)
+        # 字幕通常位于画面 55%~93% 高度；连续至少 2% 屏高、在至少一半
+        # 抽样帧出现，视为已有硬字幕/下三分之一包装。
+        run = 0
+        for ratio in cov[55:94]:
+            run = run + 1 if ratio >= 0.50 else 0
+            if run >= 2:
+                return True
+    except Exception as e:
+        print(f"[字幕检测] OCR 检测失败，回退像素检测: {e}", file=sys.stderr)
+
     try:
         import cv2
         import numpy as np
@@ -1837,7 +1853,7 @@ def has_existing_subtitles(src):
             if found:
                 subtitle_hits += 1
         cap.release()
-        # 至少 5 帧里 2 帧有明确文字条带（字幕可能断断续续，放宽帧数要求）
+        # 至少 5 帧里 2 帧有明确文字条带（OCR 不可用时的保守回退）
         return checked >= 2 and subtitle_hits >= 2
     except Exception:
         return False
@@ -2459,6 +2475,15 @@ def main():
     work = out / "_tmp"
     work.mkdir(parents=True, exist_ok=True)
 
+    W, H = ensure_min_short_edge(src, label="原始素材")
+    existing_subtitles = has_existing_subtitles(src)
+    if existing_subtitles:
+        print(json.dumps({
+            "stage": "source-subtitles",
+            "reason": "源视频含持续内嵌字幕/下三分之一文字，拒绝二次叠字",
+        }, ensure_ascii=False), file=sys.stderr)
+        return 2
+
     try:
         visual_report = verify_source_identity(src, work, args.speaker, api_key)
     except VisualQualityError as e:
@@ -2467,12 +2492,6 @@ def main():
         return 2
 
     cues = transcribe(src, work, api_key)
-
-    existing_subtitles = has_existing_subtitles(src)
-    if existing_subtitles:
-        print("[检测] 视频已有硬字幕,跳过字幕烧录")
-
-    W, H = ensure_min_short_edge(src, label="原始素材")
     vertical = H > W
 
     # 平台推断

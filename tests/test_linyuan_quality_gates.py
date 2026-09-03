@@ -116,7 +116,7 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
 
 def _good_artifact_meta():
     return {
-        "quality_gate_version": 2,
+        "quality_gate_version": 3,
         "speaker": "林园",
         "visual_identity": {
             "speaker": "林园", "same_person_frames": [1, 2],
@@ -124,6 +124,8 @@ def _good_artifact_meta():
         },
         "resolution": {"width": 854, "height": 480, "short_edge": 480},
         "watermark_verified": True,
+        "has_existing_subtitles": False,
+        "subtitles_burned": True,
         "fingerprints": {
             "sha256": "a" * 64,
             "video_dhash": ["0" * 16] * 4,
@@ -142,11 +144,34 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
     ("resolution", {"short_edge": 479}, "短边 479"),
     ("watermark_verified", False, "角标复检"),
     ("fingerprints", {}, "指纹不完整"),
+    ("has_existing_subtitles", True, "内嵌字幕"),
+    ("subtitles_burned", False, "统一字幕"),
 ])
 def test_artifact_quality_proof_fails_closed(field, value, message):
     meta = _good_artifact_meta()
     meta[field] = value
     assert message in FC.artifact_quality_error(meta)
+
+
+def test_ocr_subtitle_band_detects_persistent_double_subtitle_risk(monkeypatch):
+    cov = [0.0] * 100
+    cov[73:78] = [0.75] * 5
+    monkeypatch.setattr(P, "ocr_row_coverage", lambda *args, **kwargs: cov)
+    assert P.has_existing_subtitles(Path("blue-band-white-text.mp4")) is True
+
+
+def test_ocr_subtitle_band_ignores_sporadic_lower_screen_text(monkeypatch):
+    cov = [0.0] * 100
+    cov[73:78] = [0.25] * 5
+    monkeypatch.setattr(P, "ocr_row_coverage", lambda *args, **kwargs: cov)
+
+    class ClosedCapture:
+        def isOpened(self):
+            return False
+
+    import cv2
+    monkeypatch.setattr(cv2, "VideoCapture", lambda *args: ClosedCapture())
+    assert P.has_existing_subtitles(Path("clean-interview.mp4")) is False
 
 
 def test_rejection_refills_slot_cleans_temp_and_aggregates_result(monkeypatch,
