@@ -1780,12 +1780,22 @@ class ConfigErrorArgumentParser(argparse.ArgumentParser):
     """
 
     def error(self, message):
-        self.print_usage(sys.stderr)
         die(EXIT_CONFIG, "config", "invalid_arguments",
             detail=f"{self.prog}: error: {message}")
 
 
 def parse_args(argv=None):
+    # argparse 会把 ``--cover-crop -1:396:0:0`` 的负数开头误当成下一个
+    # option，提前报“expected one argument”，使它绕过下面更准确的格式校验。
+    # 仅把明显的冒号裁切值改写成等号形式，其他未知 flag 仍交给 argparse。
+    if argv is not None:
+        argv = list(argv)
+        for i in range(len(argv) - 1):
+            value = argv[i + 1]
+            if (argv[i] == "--cover-crop" and value.startswith("-")
+                    and ":" in value):
+                argv[i:i + 2] = [f"--cover-crop={value}"]
+                break
     p = ConfigErrorArgumentParser(
         prog="produce.py",
         description="一键出片：视频源 → deliver/<slug>/{final.mp4, cover_*.jpg, meta.json}",

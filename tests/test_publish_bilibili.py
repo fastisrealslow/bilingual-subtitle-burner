@@ -62,11 +62,12 @@ def test_upload_args_carry_every_biliup_flag(tmp_path):
     assert cmd[cmd.index("--cover") + 1] == "c.jpg"
 
 
-def test_every_tag_gets_its_own_flag(tmp_path):
+def test_tags_use_the_single_comma_separated_biliup_flag(tmp_path):
     cmd = PB.build_upload_args(sample_episode(), Path("v.mp4"),
                                Path("c.jpg"), cookie_file(tmp_path))
     tags = [cmd[i + 1] for i, a in enumerate(cmd) if a == "--tag"]
-    assert tags == ["查理·芒格", "价值投资", "投资思维"]
+    # biliup-rs 明确不允许重复 --tag；多个标签必须放在同一个逗号分隔参数中。
+    assert tags == ["查理·芒格,价值投资,投资思维"]
 
 
 def test_desc_is_passed_through_verbatim(tmp_path):
