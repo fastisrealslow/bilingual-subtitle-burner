@@ -27,7 +27,8 @@ jobs:
       ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
       FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'linyuan-pipeline' }}
-      FC_CODE_ZIP: ${{ runner.temp }}/fc-code.zip
+      # runner context 在 job 级 env 尚不可用；使用固定临时路径避免工作流预校验失败。
+      FC_CODE_ZIP: /tmp/fc-code.zip
     steps:
       - uses: actions/checkout@v4
 

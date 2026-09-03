@@ -81,3 +81,4 @@ def test_deploy_workflow_uses_only_aliyun_secrets():
     assert "secrets.ALIYUN_SK" in workflow
     assert "BILIBILI_COOKIES" not in workflow
     assert "GITHUB_TOKEN" not in workflow
+    assert "runner.temp" not in workflow
