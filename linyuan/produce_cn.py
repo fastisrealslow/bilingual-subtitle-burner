@@ -17,6 +17,7 @@ produce.py 是给**英文片源**设计的(direction 写死 en2zh、srt_lang 写
     python3 produce_cn.py --source xx.mp4 --slug xx --dry-run   # 只挑金句不出片
 """
 import argparse
+import base64
 import difflib
 import hashlib
 import json
@@ -25,6 +26,7 @@ import re
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime
 from pathlib import Path
@@ -45,6 +47,19 @@ FUNASR_DIR = os.environ.get("FUNASR_MODEL_DIR") or "/tmp/funasr_llm"
 FUNASR_LANG = os.environ.get("FUNASR_LANG") or "zh"
 
 SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
+VISION_MODEL = os.environ.get("VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"
+
+# 第一财经 2026-08-22《投资人说》官方节目封面。这里只作为机器人物比对的
+# 参考图，不会进入成片或对外分发；可用环境变量替换为自有参考图 URL。
+LINYUAN_REFERENCE_URL = os.environ.get("LINYUAN_REFERENCE_URL") or (
+    "https://imgcdn.yicai.com/vms-new/2026/08/"
+    "b6e325e8-6616-46ed-902e-2987008296f5.jpg"
+)
+VISUAL_GATE_VERSION = 1
+VISUAL_SAMPLE_COUNT = 6
+VISUAL_MIN_MATCHES = 2
+VISUAL_MIN_MATCH_RATIO = 0.50
+VISUAL_MIN_CONFIDENCE = 0.75
 
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
@@ -93,6 +108,10 @@ GLOSSARY = {
 }
 
 
+class VisualQualityError(RuntimeError):
+    """人物或去水印质量不合格；宁可不出片，也不错误归因。"""
+
+
 def load_key():
     env = BASE / ".env"
     if env.exists():
@@ -100,6 +119,175 @@ def load_key():
             if line.startswith("SILICONFLOW_API_KEY="):
                 return line.split("=", 1)[1].strip()
     return (os.environ.get("SILICONFLOW_API_KEY") or "").strip()
+
+
+def _image_data_url(path):
+    mime = "image/png" if str(path).lower().endswith(".png") else "image/jpeg"
+    return f"data:{mime};base64," + base64.b64encode(Path(path).read_bytes()).decode()
+
+
+def _parse_json_object(text):
+    """兼容模型偶尔返回 Markdown 围栏；只接受一个 JSON object。"""
+    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", (text or "").strip(),
+                  flags=re.I | re.S)
+    m = re.search(r"\{.*\}", text, re.S)
+    if not m:
+        raise ValueError("人物校验没有返回 JSON object")
+    out = json.loads(m.group(0))
+    if not isinstance(out, dict):
+        raise ValueError("人物校验结果不是 object")
+    return out
+
+
+def identity_verdict_passes(verdict, frame_count):
+    """多帧参考照比对的硬门槛。无法确认时按不通过处理。"""
+    if not isinstance(verdict, dict) or frame_count <= 0:
+        return False
+    valid = set(range(1, frame_count + 1))
+
+    def indices(name):
+        value = verdict.get(name) or []
+        if not isinstance(value, list):
+            return set()
+        return {x for x in value if isinstance(x, int) and x in valid}
+
+    same = indices("same_person_frames")
+    different = indices("different_person_frames") - same
+    try:
+        confidence = float(verdict.get("confidence", 0))
+    except (TypeError, ValueError):
+        return False
+    decisive = len(same) + len(different)
+    ratio = len(same) / decisive if decisive else 0.0
+    need = min(VISUAL_MIN_MATCHES, frame_count)
+    return (len(same) >= need and ratio >= VISUAL_MIN_MATCH_RATIO
+            and confidence >= VISUAL_MIN_CONFIDENCE)
+
+
+def _download_speaker_reference(speaker, work):
+    """取得人物参考图。林园流水线默认只允许有已配置参考图的人物。"""
+    if speaker != "林园":
+        raise VisualQualityError(f"没有为人物「{speaker}」配置参考图，无法安全核验")
+    out = work / "speaker_reference.jpg"
+    if out.exists() and out.stat().st_size > 10_000:
+        return out
+    req = urllib.request.Request(LINYUAN_REFERENCE_URL, headers={
+        "User-Agent": "Mozilla/5.0 (compatible; linyuan-visual-gate/1.0)"})
+    try:
+        with urllib.request.urlopen(req, timeout=45) as r:
+            data = r.read(3_000_001)
+    except Exception as e:
+        raise VisualQualityError(f"人物参考图下载失败：{e}") from e
+    if not (10_000 <= len(data) <= 3_000_000):
+        raise VisualQualityError(f"人物参考图大小异常：{len(data)} bytes")
+    out.write_bytes(data)
+    return out
+
+
+def _sample_visual_frames(src, work, count=VISUAL_SAMPLE_COUNT):
+    """均匀抽取整片多帧；片头片尾不取，避免节目包装和转场。"""
+    try:
+        duration = float(probe(src, "format=duration") or 0)
+    except (TypeError, ValueError):
+        duration = 0
+    if duration <= 0:
+        raise VisualQualityError("无法取得视频时长，不能做人物核验")
+    frames = []
+    times = []
+    for i in range(count):
+        t = duration * (i + 1) / (count + 1)
+        fp = work / f"identity_{i + 1}.jpg"
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.2f}",
+             "-i", str(src), "-frames:v", "1", "-q:v", "2", str(fp)],
+            capture_output=True)
+        if r.returncode == 0 and fp.exists() and fp.stat().st_size > 1000:
+            frames.append(fp)
+            times.append(t)
+    if len(frames) < min(3, count):
+        raise VisualQualityError(f"人物核验抽帧不足：{len(frames)}/{count}")
+    return frames, times
+
+
+def _call_identity_vlm(reference, frames, speaker, api_key):
+    """把权威参考照和源片多帧一起交给 VLM 做同一人比对。"""
+    content = [
+        {"type": "text", "text": f"参考图：已确认是目标人物【{speaker}】本人。"},
+        {"type": "image_url", "image_url": {"url": _image_data_url(reference)}},
+    ]
+    for i, fp in enumerate(frames, 1):
+        content.extend([
+            {"type": "text", "text": f"待检视频帧 {i}"},
+            {"type": "image_url", "image_url": {"url": _image_data_url(fp)}},
+        ])
+    content.append({
+        "type": "text",
+        "text": (
+            "请严格比较脸部身份，不要根据视频标题、字幕、财经话题或‘谁在讲话’猜测。"
+            f"逐帧判断待检人物是否与参考图中的{speaker}是同一个人；看不清就归为 uncertain。"
+            "同时记录看得到的外部账号/平台角标文字。只返回 JSON object："
+            '{"same_person_frames":[1],"different_person_frames":[2],'
+            '"uncertain_frames":[3],"best_cover_frame":1,"confidence":0.95,'
+            '"watermark_texts":["某账号"],"reason":"简短依据"}'
+        ),
+    })
+    payload = json.dumps({
+        "model": VISION_MODEL,
+        "messages": [{"role": "user", "content": content}],
+        "max_tokens": 600,
+        "temperature": 0.0,
+        "stream": False,
+    }).encode()
+    req = urllib.request.Request(
+        SF_URL, data=payload,
+        headers={"Authorization": f"Bearer {api_key}",
+                 "Content-Type": "application/json"})
+    last = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                data = json.loads(r.read().decode())
+            return _parse_json_object(data["choices"][0]["message"]["content"])
+        except Exception as e:
+            last = e
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+    raise VisualQualityError(f"人物 VLM 校验不可用：{last}")
+
+
+def verify_source_identity(src, work, speaker, api_key):
+    """在 ASR 前确认整片主角确实是指定人物，并返回可用封面帧时间。"""
+    reference = _download_speaker_reference(speaker, work)
+    frames, times = _sample_visual_frames(src, work)
+    verdict = _call_identity_vlm(reference, frames, speaker, api_key)
+    if not identity_verdict_passes(verdict, len(frames)):
+        raise VisualQualityError(
+            f"人物不一致或无法确认：{speaker}；"
+            f"same={verdict.get('same_person_frames', [])}，"
+            f"different={verdict.get('different_person_frames', [])}，"
+            f"confidence={verdict.get('confidence', 0)}，"
+            f"reason={verdict.get('reason', '')}")
+    same = [i for i in verdict.get("same_person_frames", [])
+            if isinstance(i, int) and 1 <= i <= len(times)]
+    best = verdict.get("best_cover_frame")
+    if best not in same:
+        best = same[0]
+    report = {
+        "version": VISUAL_GATE_VERSION,
+        "model": VISION_MODEL,
+        "speaker": speaker,
+        "same_person_frames": same,
+        "different_person_frames": verdict.get("different_person_frames", []),
+        "confidence": verdict.get("confidence", 0),
+        "reason": verdict.get("reason", ""),
+        "watermark_texts": verdict.get("watermark_texts", []),
+        "best_cover_time": round(times[best - 1], 2),
+    }
+    (work / "source_identity.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[人物] ✓ 多帧确认是{speaker}本人：{len(same)}/{len(frames)}，"
+          f"置信度 {float(report['confidence']):.0%}")
+    return report
 
 
 def llm(messages, api_key, temperature=0.3, max_tokens=2000):
@@ -1219,7 +1407,8 @@ def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
     return 0
 
 
-def make_cover(src, seg_start, seg_end, title, speaker, out_path):
+def make_cover(src, seg_start, seg_end, title, speaker, out_path,
+               video_filter="", preferred_time=None):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
     竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
@@ -1232,16 +1421,31 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path):
     from PIL import Image, ImageDraw, ImageFont, ImageFilter
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
-    # 抽 5 帧（主讲人持续出镜，多帧投票更准）
+    # 人物闸门给出的 preferred_time 已经与参考照核验为本人；围绕该时间取三帧。
+    # 没有核验时间时才退回原来的段内多帧策略。
     frames = []
-    for offset_pct in [-0.30, -0.20, -0.10, 0, 0.10, 0.20, 0.30]:
-        t = max(0, mid + offset_pct * (seg_end - seg_start))
-        fp = tmp.with_suffix(f".{int(offset_pct*100)}.png")
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
-                        "-i", str(src), "-frames:v", "1", str(fp)],
+    if preferred_time is not None:
+        sample_times = [max(0, preferred_time + d) for d in (-0.6, 0, 0.6)]
+    else:
+        sample_times = [max(0, mid + p * (seg_end - seg_start))
+                        for p in (-0.30, -0.20, -0.10, 0, 0.10, 0.20, 0.30)]
+    for idx, t in enumerate(sample_times):
+        fp = tmp.with_suffix(f".{idx}.png")
+        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
+               "-i", str(src)]
+        if video_filter:
+            cmd += ["-vf", video_filter]
+        cmd += ["-frames:v", "1", str(fp)]
+        subprocess.run(cmd,
                        check=True, capture_output=True)
         if fp.exists():
             frames.append(fp)
+
+    if not frames:
+        raise VisualQualityError("封面无法抽帧")
+    remaining = detect_corner_logos_in_images(frames)
+    if remaining:
+        raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
 
     # 多帧人脸聚类，选「跨帧持续出镜」的主讲人（林园），而非单帧「大且居中」的主持人。
     # （2026-08-29 修复：专访里女主持居中脸大，旧评分误选主持人；现统计多帧出现次数）
@@ -1619,7 +1823,54 @@ def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
     return res
 
 
-def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02):
+def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
+    """对已抽出的帧做 OCR 角标复检，供清理后的封面质量闸门使用。"""
+    try:
+        import cv2
+        engine = _ocr()
+        boxes = []
+        got = 0
+        for fp in frame_paths:
+            f = cv2.imread(str(fp))
+            if f is None:
+                continue
+            H, W = f.shape[:2]
+            got += 1
+            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
+            for b in (res or []):
+                xs = [pt[0] for pt in b]
+                ys = [pt[1] for pt in b]
+                boxes.append((min(xs) / W, min(ys) / H,
+                              max(xs) / W, max(ys) / H))
+        if not got:
+            raise VisualQualityError("OCR 没有读到任何封面帧")
+        clusters = []
+        for b in boxes:
+            hit = next((c for c in clusters
+                        if all(abs(b[k] - c["r"][k]) < 0.03 for k in range(4))), None)
+            if hit:
+                hit["n"] += 1
+            else:
+                clusters.append({"r": b, "n": 1})
+        out = []
+        for c in clusters:
+            if c["n"] < max(2, int(got * stable_ratio)):
+                continue
+            x0, y0, x1, y1 = c["r"]
+            if (x1 - x0) * (y1 - y0) > max_area:
+                continue
+            in_corner = (x1 < 0.35 or x0 > 0.65) and (y1 < 0.30 or y0 > 0.70)
+            if in_corner:
+                out.append((x0, y0, x1, y1))
+        return out
+    except VisualQualityError:
+        raise
+    except Exception as e:
+        raise VisualQualityError(f"封面 OCR 角标复检失败：{e}") from e
+
+
+def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02,
+                        strict=False):
     """检测常驻角落台标/水印，返回归一化框列表 [(x0,y0,x1,y1), ...]。
 
     背景（2026-09-03 用户发现 BV1QRt96GETb 右上角残留「投资大佬说 bilibili」）：
@@ -1636,6 +1887,8 @@ def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02):
         import cv2
         import numpy as np
     except ImportError:
+        if strict:
+            raise VisualQualityError("缺少 OpenCV/Numpy，无法执行角标检测")
         return []
     try:
         engine = _ocr()
@@ -1686,6 +1939,8 @@ def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02):
                 out.append((x0, y0, x1, y1))
         return out
     except Exception as e:
+        if strict:
+            raise VisualQualityError(f"角标检测失败：{e}") from e
         print(f"[角标] 检测失败: {e}", file=sys.stderr)
         return []
 
@@ -1936,7 +2191,7 @@ def _dedup_chunks_by_llm(chunks, cues, api_key, work):
 
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
-                 allow_empty=False):
+                 allow_empty=False, visual_report=None):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
     picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec,
@@ -1947,6 +2202,23 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
+
+    # 内容和封面必须共用完全相同的去标/裁切滤镜。旧版只给成片加 delogo，
+    # make_cover 又从原片重新抽帧，导致内容干净但封面仍带别人账号角标。
+    _logos = detect_corner_logos(src, strict=True)
+    _dl = delogo_filter(_logos, W, H) if _logos else ""
+    if _logos:
+        print(f"[角标] 检出 {len(_logos)} 处常驻角标 → 内容与封面统一 delogo")
+        for x0, y0, x1, y1 in _logos:
+            print(f"       x {x0:.0%}~{x1:.0%}  y {y0:.0%}~{y1:.0%}")
+    plan = safe_crop_plan(src, W, H)
+    if plan:
+        crop_w, crop_h, crop_x, crop_y = plan
+    else:
+        crop_w, crop_h, crop_x, crop_y = W // 2 * 2, H // 2 * 2, 0, 0
+    clean_filters = [x for x in (
+        _dl, f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y}") if x]
+    clean_vf = ",".join(clean_filters)
 
     en_map = {}
     parts = []
@@ -1960,30 +2232,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         make_ass(entries, ass, W, H)
         seg = work / f"seg{suffix}{n}.mp4"
         vertical = H > W
-        # 按检测到的贴片区裁切（替代原来「一律裁顶部 100px」——2026-09-01 实测那种裁法
-        # 竖屏只裁 7.8% 而标题条占 28~33%（等于没裁），横屏顶部没水印却被裁掉 17%）
-        # 角标去除：必须排在 crop 之前，否则坐标系对不上（2026-09-03）
-        _logos = detect_corner_logos(src)
-        _dl = delogo_filter(_logos, W, H) if _logos else ""
-        pre = (_dl + ",") if _dl else ""
-        if _logos:
-            print(f"[角标] 检出 {len(_logos)} 处常驻角标 → delogo 去除")
-            for x0, y0, x1, y1 in _logos:
-                print(f"       x {x0:.0%}~{x1:.0%}  y {y0:.0%}~{y1:.0%}")
-
-        plan = safe_crop_plan(src, W, H)
-        if plan:
-            crop_w, crop_h, crop_x, crop_y = plan
-        else:
-            # 不裁：保持原画幅（比切坏画面强）
-            crop_w, crop_h, crop_x, crop_y = W // 2 * 2, H // 2 * 2, 0, 0
         seg_dur = s1 - s0
         # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
         fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
         if existing_subtitles:
-            vf = f"{pre}crop={crop_w}:{crop_h}:{crop_x}:{crop_y},{fade}"
+            vf = f"{clean_vf},{fade}"
         else:
-            vf = f"{pre}crop={crop_w}:{crop_h}:{crop_x}:{crop_y},ass={ass},{fade}"
+            vf = f"{clean_vf},ass={ass},{fade}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
              "-t", str(seg_dur), "-i", str(src),
@@ -2005,6 +2260,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
+    remaining_logos = detect_corner_logos(final, frames=6, strict=True)
+    if remaining_logos:
+        raise VisualQualityError(f"成片清理后仍检出外部角标：{remaining_logos}")
 
     cw = copywrite(cues, sel, speaker, occasion, api_key, work, pick_cache_suffix)
     cover_name = "cover_16x9.jpg"
@@ -2012,15 +2270,17 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
-                   cw["title"], speaker, cover)
+                   cw["title"], speaker, cover, video_filter=clean_vf,
+                   preferred_time=(visual_report or {}).get("best_cover_time"))
     except Exception as e:
-        print(f"[封面] 生成失败(不阻断出片):{e}", file=sys.stderr)
-        cover = None
+        raise VisualQualityError(f"封面生成/人物/角标复检失败：{e}") from e
     return {
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover.name if cover else None,
         "duration_sec": round(dur, 1),
+        "watermark_removed": bool(_logos or plan),
+        "watermark_verified": True,
         "segments": [{"start": cues[p["start"]]["start"],
                       "end": cues[p["end"]]["end"], "reason": p["reason"]}
                      for p in picks],
@@ -2047,6 +2307,13 @@ def main():
     out = BASE / "deliver" / args.slug
     work = out / "_tmp"
     work.mkdir(parents=True, exist_ok=True)
+
+    try:
+        visual_report = verify_source_identity(src, work, args.speaker, api_key)
+    except VisualQualityError as e:
+        print(json.dumps({"stage": "visual-identity", "reason": str(e)},
+                         ensure_ascii=False), file=sys.stderr)
+        return 2
 
     cues = transcribe(src, work, api_key)
 
@@ -2106,18 +2373,26 @@ def main():
         target_sec = TARGET_SEC_MID if ci == mid_idx else TARGET_SEC
         if ci == mid_idx:
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
-        m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
-                         api_key, existing_subtitles, W, H, suffix,
-                         pick_cache_suffix=suffix, target_sec=target_sec,
-                         allow_empty=len(chunks) > 1)
+        try:
+            m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
+                             api_key, existing_subtitles, W, H, suffix,
+                             pick_cache_suffix=suffix, target_sec=target_sec,
+                             allow_empty=len(chunks) > 1,
+                             visual_report=visual_report)
+        except VisualQualityError as e:
+            print(json.dumps({"stage": "visual-quality", "reason": str(e),
+                              "part": ci + 1}, ensure_ascii=False), file=sys.stderr)
+            return 2
         if m is not None:
             metas.append(m)
 
     # 「去水印」标记必须反映真实裁切结果，不能写死 True（2026-09-01 发现线上
     # 全部标着 ✓去水印，实际台标/字幕原样保留）
     _t_f, _b_f = detect_overlay_bands(src)
-    _wm_cropped = bool((_t_f + _b_f) > 0)      # 显式 bool，防 numpy 标量泄漏
-    print(f"[裁切] 贴片区 顶{_t_f:.0%} 底{_b_f:.0%} → watermark_cropped={_wm_cropped}")
+    _wm_cropped = any(bool(m.get("watermark_removed")) for m in metas)
+    _wm_verified = all(bool(m.get("watermark_verified")) for m in metas)
+    print(f"[裁切] 贴片区 顶{_t_f:.0%} 底{_b_f:.0%}；"
+          f"removed={_wm_cropped} verified={_wm_verified}")
 
     if not metas:
         print("❌ 所有段都没有够格金句，本条素材不出片", file=sys.stderr)
@@ -2130,6 +2405,8 @@ def main():
             "occasion": args.occasion, **metas[0],
             "source_platform": platform,
             "watermark_cropped": _wm_cropped,
+            "watermark_verified": _wm_verified,
+            "visual_identity": visual_report,
             "subtitles_burned": not existing_subtitles,
             "has_existing_subtitles": existing_subtitles,
             "vertical": vertical,
@@ -2149,6 +2426,8 @@ def main():
              **m,
              "source_platform": platform,
              "watermark_cropped": _wm_cropped,
+             "watermark_verified": _wm_verified,
+             "visual_identity": visual_report,
              "subtitles_burned": not existing_subtitles,
              "has_existing_subtitles": existing_subtitles,
              "vertical": vertical,
