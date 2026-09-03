@@ -61,6 +61,8 @@ VISUAL_MIN_MATCHES = 2
 VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
 MIN_SHORT_EDGE = 480
+SOURCE_MIN_DURATION = 90
+SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
 QUALITY_GATE_VERSION = 3
 
@@ -1329,6 +1331,67 @@ def ensure_min_short_edge(src, minimum=MIN_SHORT_EDGE, label="成片"):
     return width, height
 
 
+def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
+    """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
+    report_path = Path(report_path or (work / "source_quality.json"))
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report = {
+        "quality_gate_version": QUALITY_GATE_VERSION,
+        "source_sha256": _file_sha256(src),
+        "speaker": speaker,
+        "passed": False,
+    }
+    try:
+        try:
+            duration = float(probe(src, "format=duration") or 0)
+        except (TypeError, ValueError):
+            duration = 0
+        report["duration_sec"] = round(duration, 2)
+        if not (SOURCE_MIN_DURATION <= duration <= SOURCE_MAX_DURATION):
+            raise VisualQualityError(
+                f"素材时长 {duration:.0f}s 不在 "
+                f"[{SOURCE_MIN_DURATION},{SOURCE_MAX_DURATION}]")
+        width, height = ensure_min_short_edge(src, label="原始素材")
+        report["resolution"] = {
+            "width": width, "height": height, "short_edge": min(width, height),
+        }
+        report["has_existing_subtitles"] = has_existing_subtitles(src)
+        if report["has_existing_subtitles"]:
+            raise VisualQualityError(
+                "源视频含持续内嵌字幕/下三分之一文字，拒绝二次叠字")
+        report["visual_identity"] = verify_source_identity(
+            src, work, speaker, api_key)
+        report["passed"] = True
+    except VisualQualityError as e:
+        report["reason"] = str(e)
+    except Exception as e:
+        # 质检服务未知异常也必须失败关闭，不能把“没检成”当成“已合格”。
+        report["reason"] = f"素材质检不可用：{e}"
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, default=_json_default),
+        encoding="utf-8")
+    return report
+
+
+def load_source_quality_report(src, report_path):
+    """复用工作流前置质检结果，并防止报告被用于另一份素材。"""
+    try:
+        report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    except Exception as e:
+        raise VisualQualityError(f"素材质检报告不可读：{e}") from e
+    if report.get("quality_gate_version") != QUALITY_GATE_VERSION:
+        raise VisualQualityError("素材质检报告版本过旧")
+    if report.get("source_sha256") != _file_sha256(src):
+        raise VisualQualityError("素材质检报告与当前视频不匹配")
+    if report.get("passed") is not True:
+        raise VisualQualityError(report.get("reason") or "素材质检未通过")
+    if report.get("has_existing_subtitles") is not False:
+        raise VisualQualityError("素材缺少无内嵌字幕证明")
+    if not report.get("visual_identity"):
+        raise VisualQualityError("素材缺少人物核验记录")
+    return report
+
+
 def _file_sha256(path):
     h = hashlib.sha256()
     with Path(path).open("rb") as f:
@@ -2462,6 +2525,10 @@ def main():
     ap.add_argument("--occasion", default="")
     ap.add_argument("--source-platform", default="", help="来源平台(bilibili/weibo/tencent 等)")
     ap.add_argument("--dry-run", action="store_true", help="只挑金句,不出片")
+    ap.add_argument("--source-check-only", action="store_true",
+                    help="只执行下载后素材质检，不进入 ASR/切片")
+    ap.add_argument("--source-report", default="",
+                    help="素材质检报告路径；前置检查和正式出片共用")
     args = ap.parse_args()
 
     src = Path(args.source)
@@ -2475,21 +2542,32 @@ def main():
     work = out / "_tmp"
     work.mkdir(parents=True, exist_ok=True)
 
-    W, H = ensure_min_short_edge(src, label="原始素材")
-    existing_subtitles = has_existing_subtitles(src)
-    if existing_subtitles:
-        print(json.dumps({
-            "stage": "source-subtitles",
-            "reason": "源视频含持续内嵌字幕/下三分之一文字，拒绝二次叠字",
-        }, ensure_ascii=False), file=sys.stderr)
-        return 2
+    report_path = Path(args.source_report) if args.source_report else \
+        work / "source_quality.json"
+    if args.source_check_only:
+        report = run_source_quality_gate(
+            src, work, args.speaker, api_key, report_path)
+        print(json.dumps(report, ensure_ascii=False))
+        return 0 if report.get("passed") is True else 2
 
     try:
-        visual_report = verify_source_identity(src, work, args.speaker, api_key)
+        if args.source_report:
+            source_report = load_source_quality_report(src, report_path)
+        else:
+            source_report = run_source_quality_gate(
+                src, work, args.speaker, api_key, report_path)
+            if source_report.get("passed") is not True:
+                raise VisualQualityError(
+                    source_report.get("reason") or "素材质检未通过")
     except VisualQualityError as e:
-        print(json.dumps({"stage": "visual-identity", "reason": str(e)},
+        print(json.dumps({"stage": "source-quality", "reason": str(e)},
                          ensure_ascii=False), file=sys.stderr)
         return 2
+
+    resolution = source_report["resolution"]
+    W, H = int(resolution["width"]), int(resolution["height"])
+    existing_subtitles = False
+    visual_report = source_report["visual_identity"]
 
     cues = transcribe(src, work, api_key)
     vertical = H > W

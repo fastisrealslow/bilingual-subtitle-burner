@@ -81,64 +81,12 @@ jobs:
           fc-cache -f
           ffprobe -version | head -1
 
-      - name: 安装 Python 依赖
+      - name: 安装素材质检依赖
         run: |
           python -m pip install --upgrade pip
           # opencv 必须锁 <5：OpenCV 5.0 移除了 cv2.CascadeClassifier，会静默打断封面人脸检测
           # （2026-09-01 实测：装到 5.0.0 后人脸检测全失败，封面退化成取第一帧）
-          pip install faster-whisper yt-dlp pillow fonttools 'opencv-python<5' jieba rapidocr-onnxruntime
-          # Fun-ASR-Nano 后端：sherpa-onnx 推理框架（onnxruntime CPU，无需 torch）
-          pip install sherpa-onnx
-
-      # whisper large-v3 仍是默认后端（可回滚），缓存照旧保留。
-      # large-v3 是 2.9GB，每次现下要好几分钟且可能超时。
-      # 缓存键固定（模型不会变），命中后直接复用。
-      # Actions 单仓库缓存上限 10GB，这个占 3GB 可以接受。
-      - name: 缓存 Whisper large-v3
-        id: whisper-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/huggingface/hub
-          key: whisper-large-v3-ct2-v1
-
-      # Fun-ASR-Nano int8 模型（~1GB）：编码器适配 + LLM + embedding + tokenizer。
-      # 从 HF 拉官方 sherpa-onnx 版（CI 海外访问 HF 快），缓存命中后直接复用。
-      - name: 缓存 Fun-ASR-Nano 模型
-        id: funasr-cache
-        uses: actions/cache@v4
-        with:
-          # cache 的 path 相对仓库根，而下载在 linyuan/ 工作目录下
-          path: linyuan/sensevoice_model
-          key: sensevoice-int8-v1
-
-      - name: 下载 SenseVoice 模型
-        if: steps.sensevoice-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p sensevoice_model
-          curl -sfL --retry 3 --max-time 600 -o /tmp/sv.tar.bz2 \
-            "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2"
-          tar xjf /tmp/sv.tar.bz2 -C sensevoice_model --strip-components=1
-          ls -lh sensevoice_model/
-
-      - name: 预下载模型
-        if: steps.whisper-cache.outputs.cache-hit != 'true'
-        run: |
-          python3 - <<'PY'
-          from faster_whisper import WhisperModel
-          # 首次会从 HF 拉 CTranslate2 权重到 ~/.cache/huggingface/hub
-          WhisperModel("large-v3", device="cpu", compute_type="int8")
-          print("模型就位")
-          PY
-
-      # LLM 响应按内容寻址缓存：出片失败重跑时，金句和翻译不重复付费
-      - name: 复用 LLM 缓存
-        uses: actions/cache@v4
-        with:
-          path: linyuan/.llm_cache
-          key: llm-cn-${{ inputs.slug }}-${{ github.run_id }}
-          restore-keys: |
-            llm-cn-${{ inputs.slug }}-
-            llm-cn-
+          pip install yt-dlp pillow 'opencv-python<5' rapidocr-onnxruntime
 
       - name: 取源
         id: src
@@ -171,34 +119,67 @@ jobs:
             echo "path=$SOURCE" >> $GITHUB_OUTPUT
           fi
 
-      - name: 素材校验（时长 + 分辨率）
-        # 2026-09-02 新增：微博/抖音等源改为「透传 URL 给 CI 下载」后，FC 侧不再做
-        # 下载后时长检查（原来会拦掉 8s、43s 这类废片）。这道校验必须补在 CI，
-        # 否则太短/太长的素材会一路跑完 ASR+出片才发现，白烧算力。
+      - name: 素材质量门禁
+        id: source_gate
+        env:
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
         run: |
           set -euo pipefail
-          SRC="${{ steps.src.outputs.path }}"
-          DUR=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$SRC" | cut -d. -f1)
-          echo "素材时长: ${DUR}s"
-          if [ "$DUR" -lt 90 ] || [ "$DUR" -gt 5400 ]; then
-            echo "::error::时长 ${DUR}s 不在 [90,5400]，放弃出片"
-            exit 1
-          fi
-          # 分辨率门槛（2026-09-03）：外部评价指出我们大量素材是「三手转手货」，
-          # 实测确认 B站源短边多为 360~480，对比竞品 77% 是 1080P。
-          # 低清高频已经损害账号观感：现在宁可少出，也不再接收 360P 素材。
-          # produce_cn.py 还会对裁切后的最终成片再检查一次，防止源片刚好 480、
-          # 去水印裁边后又跌回 360P 档。
-          MIN_SHORT=480
-          WH=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height \
-                 -of csv=p=0:s=x "$SRC")
-          VW=${WH%x*}; VH=${WH#*x}
-          SHORT=$(( VW < VH ? VW : VH ))
-          echo "素材分辨率: ${VW}x${VH}（短边 ${SHORT}）"
-          if [ "$SHORT" -lt "$MIN_SHORT" ]; then
-            echo "::error::短边 ${SHORT} < ${MIN_SHORT}，画质不达标，放弃出片"
-            exit 1
-          fi
+          python3 -u produce_cn.py \
+            --source "${{ steps.src.outputs.path }}" \
+            --slug "${{ inputs.slug }}" \
+            --speaker "${{ inputs.speaker }}" \
+            --source-check-only \
+            --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+
+      # 只有素材通过后才安装 ASR、恢复大模型并下载权重。低清、双字幕、
+      # 错人物素材不会再消耗 1~3 小时转写/编码资源。
+      - name: 安装出片依赖
+        run: |
+          pip install faster-whisper fonttools jieba sherpa-onnx
+
+      # whisper large-v3 仍是默认后端（可回滚），缓存照旧保留。
+      # large-v3 是 2.9GB，每次现下要好几分钟且可能超时。
+      - name: 缓存 Whisper large-v3
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: whisper-large-v3-ct2-v1
+
+      - name: 缓存 Fun-ASR-Nano 模型
+        id: funasr-cache
+        uses: actions/cache@v4
+        with:
+          path: linyuan/sensevoice_model
+          key: sensevoice-int8-v1
+
+      - name: 下载 SenseVoice 模型
+        if: steps.funasr-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p sensevoice_model
+          curl -sfL --retry 3 --max-time 600 -o /tmp/sv.tar.bz2 \
+            "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2"
+          tar xjf /tmp/sv.tar.bz2 -C sensevoice_model --strip-components=1
+          ls -lh sensevoice_model/
+
+      - name: 预下载模型
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          python3 - <<'PY'
+          from faster_whisper import WhisperModel
+          WhisperModel("large-v3", device="cpu", compute_type="int8")
+          print("模型就位")
+          PY
+
+      - name: 复用 LLM 缓存
+        uses: actions/cache@v4
+        with:
+          path: linyuan/.llm_cache
+          key: llm-cn-${{ inputs.slug }}-${{ github.run_id }}
+          restore-keys: |
+            llm-cn-${{ inputs.slug }}-
+            llm-cn-
 
       - name: 出片
         env:
@@ -217,7 +198,8 @@ jobs:
             --slug "${{ inputs.slug }}" \
             --speaker "${{ inputs.speaker }}" \
             --occasion "${{ inputs.occasion }}" \
-            --source-platform "${{ inputs.source_platform }}"
+            --source-platform "${{ inputs.source_platform }}" \
+            --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
 
       - name: 整理归档（slug 命名，留存可分析产物）
         run: |
@@ -264,6 +246,17 @@ jobs:
           path: linyuan/deliver/${{ inputs.slug }}/_tmp/
           retention-days: 14
           if-no-files-found: ignore
+
+      # 素材门禁失败要与普通出片异常分开：FC 每小时读取这个小 artifact，
+      # 立即淘汰该素材并补调一个新候选，不再傻等 12 小时无成片超时。
+      - name: 上传素材拒绝结果
+        if: failure() && steps.source_gate.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-reject-${{ inputs.slug }}
+          path: linyuan/deliver/${{ inputs.slug }}/_tmp/source_quality.json
+          retention-days: 14
+          if-no-files-found: error
 
       - name: 摘要
         if: always()

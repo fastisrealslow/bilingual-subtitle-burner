@@ -19,6 +19,7 @@
 - 境内阿里云实测：下载正常、投稿 30MB/s 秒传（2026-08-15 验证）
 """
 import difflib
+import io
 import json
 import logging
 import os
@@ -29,6 +30,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import zipfile
 from pathlib import Path
 
 log = logging.getLogger()
@@ -972,6 +974,9 @@ def handler(event, context):
 
 def dispatch_handler(event=None, context=None):
     st = load_state()
+    target = MAX_PER_DAY
+    if isinstance(event, dict) and event.get("_refill_count"):
+        target = max(1, min(MAX_PER_DAY, int(event["_refill_count"])))
     # 调度动态控制：待投队列积压超过阈值就暂停调度，先消化（防积压爆炸 2026-08-27）
     pending_cnt = _pending_final_count(st)
     if pending_cnt >= PENDING_LIMIT:
@@ -981,14 +986,14 @@ def dispatch_handler(event=None, context=None):
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
     cands = pick(items, st, MAX_ATTEMPTS)
-    log.info(f"候选 {len(cands)} 条，今日目标成功 {MAX_PER_DAY} 条")
+    log.info(f"候选 {len(cands)} 条，本轮目标成功 {target} 条")
 
     rel = staging_release_id()
     tmp = Path(tempfile.mkdtemp())
     success = 0
     for i, c in enumerate(cands):
-        if success >= MAX_PER_DAY:
-            log.info(f"已达到今日目标 {MAX_PER_DAY} 条，停止调度")
+        if success >= target:
+            log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
@@ -1215,6 +1220,62 @@ def artifact_quality_error(meta):
     return None
 
 
+def _collect_source_rejections(st):
+    """读取失败工作流的素材质检报告，立即淘汰，避免无成片干等 12 小时。"""
+    prefix = "source-reject-"
+    rejected = 0
+    runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
+                     "?status=completed&per_page=30").get("workflow_runs", [])
+    by_slug = {e.get("slug"): e for e in st.get("dispatched", [])
+               if e.get("slug")}
+    for run in runs:
+        artifacts = gh("GET", f"/actions/runs/{run['id']}/artifacts").get(
+            "artifacts", [])
+        for artifact in artifacts:
+            name = artifact.get("name", "")
+            if not name.startswith(prefix) or artifact.get("expired"):
+                continue
+            slug = name[len(prefix):]
+            candidate = by_slug.get(slug)
+            if not candidate or candidate.get("failed"):
+                continue
+            reason = "素材质量门禁未通过"
+            try:
+                req = urllib.request.Request(
+                    artifact["archive_download_url"],
+                    headers={"Authorization": f"Bearer {TOKEN}",
+                             "Accept": "application/vnd.github+json"})
+                with urllib.request.urlopen(req, timeout=60) as response:
+                    payload = response.read(2_000_001)
+                if len(payload) > 2_000_000:
+                    raise RuntimeError("素材拒绝报告异常过大")
+                with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                    report_name = next(
+                        n for n in archive.namelist()
+                        if n.endswith("source_quality.json"))
+                    report = json.loads(archive.read(report_name).decode("utf-8"))
+                reason = report.get("reason") or reason
+            except Exception as exc:
+                log.warning(f"{slug} 素材拒绝报告读取失败: {exc}")
+            candidate["failed"] = True
+            candidate["last_error"] = reason
+            candidate["source_quality_rejected"] = True
+            if not any(x.get("slug") == slug for x in st.setdefault("rejected", [])):
+                st["rejected"].append({
+                    "slug": slug, "key": candidate.get("key"),
+                    "video_id": candidate.get("video_id"),
+                    "ts": int(time.time()), "error": reason,
+                })
+            log_event("fail", f"素材淘汰 {slug}", reason[:150])
+            log.info(f"✗ 素材门禁淘汰 {slug}: {reason}")
+            rejected += 1
+            try:
+                gh("DELETE", f"/actions/artifacts/{artifact['id']}")
+            except Exception as exc:
+                log.warning(f"删除素材拒绝 artifact 失败: {exc}")
+    return rejected
+
+
 def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
     """隔离旧 artifact，并用原素材触发新版流水线重新生成。"""
     if artifact_id:
@@ -1293,6 +1354,15 @@ def _pending_final_count(st):
 def publish_handler(event=None, context=None):
     st = load_state()
     now = time.time()
+    source_rejected = _collect_source_rejections(st)
+    if source_rejected:
+        save_state(st)
+        try:
+            dispatch_handler({"_refill_count": source_rejected}, context)
+            st = load_state()
+            log.info(f"已为 {source_rejected} 条不合格素材补调候选")
+        except Exception as exc:
+            log.warning(f"素材淘汰后的自动补位失败: {exc}")
     # 每天投片上限：长视频拆多条排队分天发，每天最多投 MAX_PUBLISH_PER_DAY 条成片
     today = time.strftime("%Y-%m-%d", time.gmtime(now + 8 * 3600))  # 北京时间
     dp = st.get("daily_publish") or {}

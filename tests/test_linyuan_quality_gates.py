@@ -1,10 +1,13 @@
 """林园流水线：480P 画质、三重内容指纹和 14 天主题冷却。"""
 
 import importlib.util
+import io
+import json
 import shutil
 import subprocess
 import sys
 import time
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -36,8 +39,9 @@ def test_resolution_gate_checks_short_edge_after_crop(monkeypatch):
 
 def test_workflow_rejects_source_below_480():
     workflow = (ROOT / ".github/workflows/linyuan-produce-cn.yml").read_text()
-    assert "MIN_SHORT=480" in workflow
-    assert "MIN_SHORT=360" not in workflow
+    assert P.MIN_SHORT_EDGE == 480
+    assert "--source-check-only" in workflow
+    assert workflow.index("name: 素材质量门禁") < workflow.index("name: 出片")
 
 
 def test_transcript_fingerprint_survives_light_rewrite():
@@ -172,6 +176,106 @@ def test_ocr_subtitle_band_ignores_sporadic_lower_screen_text(monkeypatch):
     import cv2
     monkeypatch.setattr(cv2, "VideoCapture", lambda *args: ClosedCapture())
     assert P.has_existing_subtitles(Path("clean-interview.mp4")) is False
+
+
+def test_source_gate_rejects_embedded_subtitles_before_identity(monkeypatch,
+                                                                 tmp_path):
+    src = tmp_path / "source.mp4"
+    src.write_bytes(b"video")
+    monkeypatch.setattr(P, "_file_sha256", lambda path: "source-hash")
+    monkeypatch.setattr(P, "probe", lambda *args, **kwargs: "120")
+    monkeypatch.setattr(P, "ensure_min_short_edge", lambda *args, **kwargs: (854, 480))
+    monkeypatch.setattr(P, "has_existing_subtitles", lambda path: True)
+    monkeypatch.setattr(
+        P, "verify_source_identity",
+        lambda *args, **kwargs: pytest.fail("双字幕素材不应再调用人物 VLM"))
+
+    report = P.run_source_quality_gate(
+        src, tmp_path / "work", "林园", "sk-test", tmp_path / "report.json")
+    assert report["passed"] is False
+    assert report["has_existing_subtitles"] is True
+    assert "内嵌字幕" in report["reason"]
+
+
+def test_source_gate_rejects_duration_before_visual_checks(monkeypatch, tmp_path):
+    src = tmp_path / "short.mp4"
+    src.write_bytes(b"video")
+    monkeypatch.setattr(P, "_file_sha256", lambda path: "source-hash")
+    monkeypatch.setattr(P, "probe", lambda *args, **kwargs: "43")
+    monkeypatch.setattr(
+        P, "ensure_min_short_edge",
+        lambda *args, **kwargs: pytest.fail("短片应先被时长门禁淘汰"))
+    report = P.run_source_quality_gate(src, tmp_path, "林园", "sk-test")
+    assert report["passed"] is False
+    assert "43s" in report["reason"]
+
+
+def test_source_report_is_reused_only_for_the_same_media(monkeypatch, tmp_path):
+    src = tmp_path / "source.mp4"
+    src.write_bytes(b"video")
+    report = tmp_path / "source_quality.json"
+    report.write_text(json.dumps({
+        "quality_gate_version": 3,
+        "source_sha256": "right",
+        "passed": True,
+        "has_existing_subtitles": False,
+        "visual_identity": {"speaker": "林园"},
+        "resolution": {"width": 854, "height": 480, "short_edge": 480},
+    }), encoding="utf-8")
+    monkeypatch.setattr(P, "_file_sha256", lambda path: "right")
+    assert P.load_source_quality_report(src, report)["passed"] is True
+    monkeypatch.setattr(P, "_file_sha256", lambda path: "different")
+    with pytest.raises(P.VisualQualityError, match="不匹配"):
+        P.load_source_quality_report(src, report)
+
+
+def test_workflow_runs_source_gate_before_asr_setup_and_uploads_rejection():
+    workflow = (ROOT / ".github/workflows/linyuan-produce-cn.yml").read_text()
+    assert workflow.index("name: 素材质量门禁") < workflow.index("name: 安装出片依赖")
+    assert "--source-check-only" in workflow
+    assert "source-reject-${{ inputs.slug }}" in workflow
+
+
+def test_fc_consumes_source_rejection_artifact(monkeypatch):
+    state = {"dispatched": [{
+        "slug": "ly-bad", "key": "source:bad", "video_id": "bad",
+    }], "rejected": []}
+
+    def fake_gh(method, path, *args, **kwargs):
+        if "/runs?status=completed" in path:
+            return {"workflow_runs": [{"id": 11}]}
+        if path == "/actions/runs/11/artifacts":
+            return {"artifacts": [{
+                "id": 22, "name": "source-reject-ly-bad",
+                "archive_download_url": "https://example.test/reject.zip",
+                "expired": False,
+            }]}
+        if method == "DELETE" and path == "/actions/artifacts/22":
+            return {}
+        raise AssertionError((method, path))
+
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr("source_quality.json", json.dumps({
+            "passed": False, "reason": "源视频含持续内嵌字幕",
+        }))
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self, limit):
+            return payload.getvalue()
+
+    monkeypatch.setattr(FC, "gh", fake_gh)
+    monkeypatch.setattr(FC.urllib.request, "urlopen", lambda *args, **kwargs: Response())
+    monkeypatch.setattr(FC, "log_event", lambda *args, **kwargs: None)
+    assert FC._collect_source_rejections(state) == 1
+    assert state["dispatched"][0]["failed"] is True
+    assert "内嵌字幕" in state["rejected"][0]["error"]
 
 
 def test_rejection_refills_slot_cleans_temp_and_aggregates_result(monkeypatch,
