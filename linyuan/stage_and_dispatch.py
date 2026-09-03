@@ -59,6 +59,21 @@ FULL_TITLE_PAT = re.compile(
 # 剪辑二创标题（碎片/标题党）→ 拒
 CLIP_TITLE_PAT = re.compile(
     r"金句|十大观点|秘诀|股神|曝光|惊人|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
+THIRD_PARTY_TITLE_PAT = re.compile(
+    r"与林园(?:并肩|齐名|同框)|林园(?:也这样|遭(?:点名|处罚|调查)|"
+    r"被(?:点名|处罚|调查)|基金|私募)|#远离#.*#林园#|"
+    r"(?:怎么看|如何看)林园|林园(?:和|与)(?:但斌|段永平)")
+DIRECT_SPEECH_PAT = re.compile(
+    r"林园\s*[：:]|林园(?:说|表示|认为|指出|直言|强调|回应|分享|谈|称)|"
+    r"(?:采访|专访|对话|演讲|股东会|路演|直播|实录|发言).*林园")
+
+
+def title_has_target_speaker(title):
+    """拒绝只提到林园、实际由别人讲解的素材。"""
+    title = (title or "").strip()
+    if "林园" not in title or THIRD_PARTY_TITLE_PAT.search(title):
+        return False
+    return bool(DIRECT_SPEECH_PAT.search(title) or FULL_TITLE_PAT.search(title))
 
 
 def log(*a):
@@ -152,6 +167,8 @@ def pick(items, state, n):
             continue
         # 剪辑二创（碎片/标题党）→ 拒；完整原片 → 收
         if CLIP_TITLE_PAT.search(title) and not FULL_TITLE_PAT.search(title):
+            continue
+        if not title_has_target_speaker(title):
             continue
         url = it.get("video_url") or ""
         src_page = it.get("url") or ""
