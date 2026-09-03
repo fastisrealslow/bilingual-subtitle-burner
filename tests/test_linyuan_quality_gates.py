@@ -114,6 +114,56 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
     assert list(FC.iter_published_parts(state)) == []
 
 
+def _good_artifact_meta():
+    return {
+        "quality_gate_version": 2,
+        "speaker": "林园",
+        "visual_identity": {
+            "speaker": "林园", "same_person_frames": [1, 2],
+            "confidence": 0.91,
+        },
+        "resolution": {"width": 854, "height": 480, "short_edge": 480},
+        "watermark_verified": True,
+        "fingerprints": {
+            "sha256": "a" * 64,
+            "video_dhash": ["0" * 16] * 4,
+            "audio_chromaprint": ["0" * 8] * 4,
+            "transcript_ngrams": ["1" * 16] * 8,
+        },
+    }
+
+
+def test_old_artifact_without_new_quality_proof_is_rejected():
+    assert "旧成片" in FC.artifact_quality_error({"speaker": "林园"})
+    assert FC.artifact_quality_error(_good_artifact_meta()) is None
+
+
+@pytest.mark.parametrize(("field", "value", "message"), [
+    ("resolution", {"short_edge": 479}, "短边 479"),
+    ("watermark_verified", False, "角标复检"),
+    ("fingerprints", {}, "指纹不完整"),
+])
+def test_artifact_quality_proof_fails_closed(field, value, message):
+    meta = _good_artifact_meta()
+    meta[field] = value
+    assert message in FC.artifact_quality_error(meta)
+
+
+def test_rejection_refills_slot_cleans_temp_and_aggregates_result(monkeypatch,
+                                                                  tmp_path):
+    monkeypatch.setattr(
+        FC, "publish_handler",
+        lambda event, context: {"published": 1, "skipped": 1})
+    extracted = tmp_path / "extracted"
+    extracted.mkdir()
+    (extracted / "large.mp4").write_bytes(b"video")
+    result = FC._continue_after_rejection(
+        {"_attempted_slugs": ["old"]}, None, "bad",
+        {"published": 0, "quality_rejected": 1}, extracted)
+    assert result == {"published": 1, "skipped": 1, "quality_rejected": 1}
+    assert not extracted.exists()
+
+
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="需要 ffmpeg")
 def test_reencoded_video_keeps_composite_fingerprint(tmp_path):
     original = tmp_path / "original.mp4"

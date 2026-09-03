@@ -23,6 +23,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -52,6 +53,9 @@ MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含�
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
+MIN_SHORT_EDGE = 480
+QUALITY_GATE_VERSION = 2                 # 缺少此版本证明的旧 artifact 必须重新出片
+REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
 # 搜索噪音：标题命中即排除
@@ -1165,6 +1169,106 @@ def _record_skipped_part(st, e, slug, part, parts_total, index, title, reason):
     save_state(st)
 
 
+def artifact_quality_error(meta):
+    """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
+    if not isinstance(meta, dict):
+        return "meta.json 不是对象"
+    try:
+        version = int(meta.get("quality_gate_version", 0))
+    except (TypeError, ValueError):
+        version = 0
+    if version < QUALITY_GATE_VERSION:
+        return f"旧成片缺少质量闸门 v{QUALITY_GATE_VERSION} 证明"
+    if meta.get("speaker") != "林园":
+        return "成片人物字段不是林园"
+
+    visual = meta.get("visual_identity") or {}
+    same = {x for x in (visual.get("same_person_frames") or [])
+            if isinstance(x, int) and x > 0}
+    try:
+        confidence = float(visual.get("confidence", 0))
+    except (TypeError, ValueError):
+        confidence = 0
+    if visual.get("speaker") != "林园" or len(same) < 2 or confidence < 0.75:
+        return "人物多帧核验记录不完整或未通过"
+
+    resolution = meta.get("resolution") or {}
+    try:
+        short_edge = int(resolution.get("short_edge", 0))
+    except (TypeError, ValueError):
+        short_edge = 0
+    if short_edge < MIN_SHORT_EDGE:
+        return f"裁切后成片短边 {short_edge} < {MIN_SHORT_EDGE}"
+    if meta.get("watermark_verified") is not True:
+        return "成片没有通过外部角标复检"
+
+    fp = meta.get("fingerprints") or {}
+    if (not fp.get("sha256") or len(fp.get("video_dhash") or []) < 4
+            or len(fp.get("audio_chromaprint") or []) < 4
+            or not ((fp.get("transcript_ngrams") or [])
+                    or (fp.get("transcript_simhash") or []))):
+        return "成片内容指纹不完整"
+    return None
+
+
+def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
+    """隔离旧 artifact，并用原素材触发新版流水线重新生成。"""
+    if artifact_id:
+        try:
+            gh("DELETE", f"/actions/artifacts/{artifact_id}")
+            log.info(f"✓ 已隔离旧 artifact: deliver-{slug}")
+        except Exception as exc:
+            log.warning(f"隔离旧 artifact 失败（仍不会放行）: {exc}")
+
+    source = e.get("asset_url") or e.get("source_url")
+    retries = e.get("quality_retries", 0)
+    if not source or retries >= 2:
+        e["failed"] = True
+        e["quality_failure"] = reason
+        save_state(st)
+        log_event("fail", f"⛔ {slug} 旧成片无法安全重做", reason)
+        return False
+    try:
+        gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
+            "ref": "main",
+            "inputs": {"source": source, "slug": slug,
+                       "speaker": "林园", "occasion": e.get("title", "")[:30],
+                       "delay_hours": "0", "auto_publish": "false"}})
+    except Exception as exc:
+        e["quality_failure"] = f"{reason}；重做触发失败：{exc}"
+        save_state(st)
+        log_event("fail", f"⛔ {slug} 旧成片重做触发失败", str(exc)[:120])
+        return False
+    e["quality_retries"] = retries + 1
+    e["last_retry"] = int(time.time())
+    e["reprocessing_quality"] = True
+    e["quality_failure"] = reason
+    save_state(st)
+    log_event("quality", f"♻️ {slug} 旧成片已隔离并重新出片", reason)
+    return True
+
+
+def _continue_after_rejection(event, context, slug, result, cleanup_dir=None):
+    """本候选被拦后在同一时段换下一条，仍保证最多实际上传一条。"""
+    if cleanup_dir:
+        shutil.rmtree(cleanup_dir, ignore_errors=True)
+    attempted = set((event or {}).get("_attempted_slugs") or []) \
+        if isinstance(event, dict) else set()
+    attempted.add(slug)
+    if len(attempted) >= REJECT_REFILL_LIMIT:
+        return result
+    next_event = dict(event or {}) if isinstance(event, dict) else {}
+    next_event["_attempted_slugs"] = sorted(attempted)
+    follow = publish_handler(next_event, context)
+    merged = dict(result)
+    for key, value in (follow or {}).items():
+        if isinstance(value, (int, float)):
+            merged[key] = merged.get(key, 0) + value
+        else:
+            merged[key] = value
+    return merged
+
+
 def _pending_final_count(st):
     """待投成片总数（所有素材剩余未投 part 之和），调度端用它防积压。"""
     total = 0
@@ -1195,8 +1299,11 @@ def publish_handler(event=None, context=None):
         log.info(f"今日已投 {dp['count']} 条，达每日上限 {MAX_PUBLISH_PER_DAY}，剩余排队到明天")
         save_state(st)
         return {"published": 0}
+    attempted = set((event or {}).get("_attempted_slugs") or []) \
+        if isinstance(event, dict) else set()
     pending = [e for e in st["dispatched"]
                if e.get("slug") and not e.get("failed")
+               and e.get("slug") not in attempted
                and _has_unpublished_part(e, st)]
     # 轮转：已投条数最少的素材优先（防长视频霸占额度、新素材饿死 2026-08-27）
     pending.sort(key=lambda e: e.get("published_parts", 0))
@@ -1244,7 +1351,7 @@ def publish_handler(event=None, context=None):
             e = candidate
             slug = s
             break
-        age = now - candidate.get("ts", 0)
+        age = now - max(candidate.get("ts", 0), candidate.get("last_retry", 0))
         retries = candidate.get("retries", 0)
         last_retry = candidate.get("last_retry", 0)
         if age > 12 * 3600:
@@ -1349,6 +1456,16 @@ def publish_handler(event=None, context=None):
     if "林园" not in title:
         title = f"林园：{title}"
     title = title[:78]
+
+    # 老库存是在人物/水印/480P/指纹闸门上线前生成的，不能凭“文件存在”继续投。
+    # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
+    quality_error = artifact_quality_error(part)
+    if quality_error:
+        started = _request_quality_reprocess(
+            st, e, slug, quality_error, art_ids.get(slug))
+        result = {"published": 0, "reprocessing": int(started),
+                  "quality_rejected": 1}
+        return _continue_after_rejection(event, context, slug, result, tmp)
     
     # FC 依赖层路径：尝试多个可能的路径
     import sys
@@ -1403,7 +1520,8 @@ def publish_handler(event=None, context=None):
                 log_event("dedup", f"⛔ {slug} 与已发布 {pslug} 同源，拦截", (e.get("title") or "")[:60])
                 log.info(f"⛔ {slug} 与已发布 {pslug} 同源，拦截重复投稿")
                 save_state(st)
-                return {"published": 0}
+                return _continue_after_rejection(
+                    event, context, slug, {"published": 0, "skipped": 1}, tmp)
     # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
     content_dup = find_content_duplicate(part.get("fingerprints") or {}, st)
     if content_dup:
@@ -1417,7 +1535,8 @@ def publish_handler(event=None, context=None):
                 log.warning(f"删除已处理 artifact 失败: {ae}")
         log_event("dedup", f"⛔ 跳过重复成片 {slug}[{k+1}]", reason)
         log.info(f"⛔ 跳过重复成片 {slug}[{k+1}]：{reason}")
-        return {"published": 0, "skipped": 1}
+        return _continue_after_rejection(
+            event, context, slug, {"published": 0, "skipped": 1}, tmp)
 
     # 2) 主题冷却：即使不是逐字同片，同一个观点 14 天内也不再发布。
     topic_dup = find_recent_topic(title, st, now=now)
@@ -1432,7 +1551,8 @@ def publish_handler(event=None, context=None):
                 log.warning(f"删除已处理 artifact 失败: {ae}")
         log_event("dedup", f"⛔ 跳过重复主题 {slug}[{k+1}]", reason)
         log.info(f"⛔ 跳过重复主题 {slug}[{k+1}]：{reason}")
-        return {"published": 0, "skipped": 1}
+        return _continue_after_rejection(
+            event, context, slug, {"published": 0, "skipped": 1}, tmp)
 
     # 3) 查 B站是否已有同标题视频（状态丢失时的自愈防线）
     dup = bili_find_duplicate(title)
@@ -1441,7 +1561,8 @@ def publish_handler(event=None, context=None):
                                  "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", ""))}
         save_state(st)
         log.info(f"⛔ {slug} 已在 B站存在（{dup}），补记状态跳过上传")
-        return {"published": 1}
+        return _continue_after_rejection(
+            event, context, slug, {"published": 0, "existing": 1}, tmp)
     # 4) 落盘上传意图：万一上传后崩溃，下轮凭 uploading 标记走恢复逻辑而非重传
     e["uploading"] = True
     e["upload_title"] = title
@@ -1459,6 +1580,8 @@ def publish_handler(event=None, context=None):
         bvid = m.group(0)
         e.pop("uploading", None)
         e.pop("upload_title", None)
+        e.pop("reprocessing_quality", None)
+        e.pop("quality_failure", None)
         # 记录这次投到第几条了（长视频多条时分次投稿）
         e["published_parts"] = k + 1
         st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1

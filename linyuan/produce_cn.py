@@ -62,6 +62,7 @@ VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
 MIN_SHORT_EDGE = 480
 FINGERPRINT_VERSION = 1
+QUALITY_GATE_VERSION = 2
 
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
@@ -2552,6 +2553,7 @@ def main():
         final_meta = {
             "slug": args.slug, "source": str(src), "speaker": args.speaker,
             "occasion": args.occasion, **metas[0],
+            "quality_gate_version": QUALITY_GATE_VERSION,
             "source_platform": platform,
             "watermark_cropped": _wm_cropped,
             "watermark_verified": _wm_verified,
@@ -2569,6 +2571,7 @@ def main():
         final_meta = [
             {"slug": args.slug, "source": str(src), "speaker": args.speaker,
              "occasion": args.occasion, "part": i + 1,
+             "quality_gate_version": QUALITY_GATE_VERSION,
              # 文件名取 _produce_one 回传的真实值：某段无金句被跳过后，
              # 列表下标 != 原始段号，按下标拼 final_{i+1}.mp4 会指向不存在的文件
              # （2026-09-02 加「跳过低质段」时发现的隐患）

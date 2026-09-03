@@ -1,0 +1,59 @@
+name: FC production deploy
+
+# FC 代码进入 main 后直接部署到已有阿里云函数；函数中的 GitHub token、
+# B站 cookies、依赖层和触发器都由代码级部分更新保留，不回写到 GitHub。
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/fc/index.py
+      - linyuan/fc/deploy_code.py
+      - .github/workflows/fc-production-deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fc-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'linyuan-pipeline' }}
+      FC_CODE_ZIP: ${{ runner.temp }}/fc-code.zip
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 检查一次性部署凭据
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$ALIYUN_AK" || -z "$ALIYUN_SK" ]]; then
+            echo "请在仓库 Settings → Secrets and variables → Actions 中配置 ALIYUN_AK 和 ALIYUN_SK" >&2
+            exit 2
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: 安装阿里云 FC SDK
+        run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+
+      - name: 打包并校验 FC 代码
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py
+          unzip -t "$FC_CODE_ZIP"
+
+      - name: 部署到阿里云函数计算
+        run: python linyuan/fc/deploy_code.py

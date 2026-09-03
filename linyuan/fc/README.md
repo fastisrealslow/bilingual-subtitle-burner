@@ -52,3 +52,13 @@ zip -qr layer.zip python
 **状态存哪**：`linyuan/.automation/fc_state.json`（GitHub 仓库里），冷启动不丢进度。
 
 **成本**：函数计算每月免费额度 40 万 GB·秒，这套一天跑几分钟，≈0 元。
+
+## 后续代码自动部署
+
+函数首次建好后，只需在 GitHub 仓库的 `Settings → Secrets and variables → Actions`
+一次性添加 `ALIYUN_AK` 和 `ALIYUN_SK`。此后 `linyuan/fc/index.py` 进入 `main`
+会由 `FC production deploy` workflow 自动更新函数代码，不再手工上传 ZIP。
+
+自动部署只更新代码包，FC 中已有的 `GITHUB_TOKEN`、`BILIBILI_COOKIES`、
+依赖层、超时和触发器都会保留。若函数不在杭州或名称不是 `linyuan-pipeline`，
+再添加仓库 Variables：`FC_REGION`、`FC_FUNCTION_NAME`。
