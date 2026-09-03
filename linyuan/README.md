@@ -6,8 +6,9 @@
 与仓库根 `produce.py` 的关系
 ---------------------------
 - 根 `produce.py`：英文访谈源（芒格/巴菲特），`direction=en2zh`
-- 本目录 `produce_cn.py`：中文股东会/演讲源，原生 `zh2en`，另做三处专门处理
-  （large-v3 词级重切 / ASR 专名术语表 / loudnorm 响度标准化）
+- 本目录 `produce_cn.py`：中文股东会/演讲源，原生 `zh2en`，另做人物参考照
+  多帧核验、OCR 角标清理与复检、large-v3 词级重切、ASR 专名术语表和
+  loudnorm 响度标准化。人物无法确认或角标清理不干净时不出片。
 - 投稿复用根的 `scripts/publish_bilibili.py`，不重复造轮子
 
 目录内容
@@ -48,7 +49,7 @@ CI（仓库根 `.github/workflows/`）
 --------
 ```bash
 cd linyuan
-python3 -m pip install faster-whisper pillow requests
+python3 -m pip install faster-whisper pillow requests 'opencv-python<5' rapidocr-onnxruntime
 echo 'SILICONFLOW_API_KEY=sk-xxx' > .env   # 或用环境变量
 
 python3 monitor_v2.py          # 抓取
@@ -56,5 +57,9 @@ python3 fetch_videos.py --all  # 下载
 python3 bridge_produce.py      # 看选片
 python3 produce_cn.py --source videos/xxx.mp4 --slug xxx --speaker 林园
 ```
+
+人物核验默认使用第一财经官方节目封面作为林园参考照，只用于机器比对、不写入
+成片。需要替换为自有参考图时设置 `LINYUAN_REFERENCE_URL`；视觉模型可用
+`VISION_MODEL` 覆盖。
 
 详细设计见同目录：SEEDS / TRACING / EARLY_ACCESS / HEADLESS / RISKS / DEPLOY。
