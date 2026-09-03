@@ -1161,6 +1161,9 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
 简介:
 1. 100字以内，第一人称视角陈述内容要点，末尾注明来源场合
 2. 可以补一句「看点」提示
+3. ⚠️ 严禁出现任何链接或引流信息：不要写 URL、http、https、t.cn 短链、
+   www 开头的地址、@某某账号、"来源见链接"之类。只写文字内容本身。
+   （2026-09-03 用户明确要求：简介里不要放原始链接）
 
 只输出 JSON:
 {{{{"title":"标题","desc":"简介","tags":["标签","最多5个","含主讲人姓名"]}}}}"""
@@ -1174,6 +1177,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
         d = {"title": f"{speaker}：{occasion}"[:36],
              "desc": f"{speaker}在{occasion}的发言精选。",
              "tags": [speaker, "价值投资"]}
+    # 兜底清洗：prompt 说了不许带链接，但 LLM 不一定听话，程序层再洗一遍
+    if d.get("desc"):
+        clean_desc = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+|@[\w\u4e00-\u9fa5]{2,20}", "", d["desc"])
+        clean_desc = re.sub(r"[（(]\s*[）)]|\s{2,}", " ", clean_desc).strip(" ，,、;；")
+        if clean_desc != d["desc"]:
+            print(f"[文案] 简介已清除链接/引流信息")
+            d["desc"] = clean_desc
     d.setdefault("tags", [speaker])
     cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     print(f"[文案] 标题:{d['title']}")
@@ -1609,6 +1619,95 @@ def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
     return res
 
 
+def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02):
+    """检测常驻角落台标/水印，返回归一化框列表 [(x0,y0,x1,y1), ...]。
+
+    背景（2026-09-03 用户发现 BV1QRt96GETb 右上角残留「投资大佬说 bilibili」）：
+    此前的裁切只处理上下横向条带，完全没覆盖角落 logo。而 B站会给**所有**上传
+    视频自动打「UP名 + bilibili」右上角水印，只要素材来自 B站就一定带别人的名字，
+    这不是个例而是通例。
+
+    判定条件（三者同时满足才算角标）：
+      1. 跨帧位置固定（±3%）—— 排除会动的画面内容
+      2. 面积 < 2% —— 排除大标题条
+      3. 落在四角区域 —— 排除画面中部的字幕
+    """
+    try:
+        import cv2
+        import numpy as np
+    except ImportError:
+        return []
+    try:
+        engine = _ocr()
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        if not (W and H and total):
+            cap.release()
+            return []
+        boxes = []
+        got = 0
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / frames))
+            ok, f = cap.read()
+            if not ok:
+                continue
+            got += 1
+            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
+            for b in (res or []):
+                xs = [pt[0] for pt in b]
+                ys = [pt[1] for pt in b]
+                boxes.append((min(xs) / W, min(ys) / H, max(xs) / W, max(ys) / H))
+        cap.release()
+        if not got:
+            return []
+        # 聚类：位置几乎不变的框
+        clusters = []
+        for b in boxes:
+            hit = None
+            for c in clusters:
+                if all(abs(b[k] - c["r"][k]) < 0.03 for k in range(4)):
+                    hit = c
+                    break
+            if hit:
+                hit["n"] += 1
+            else:
+                clusters.append({"r": b, "n": 1})
+        out = []
+        for c in clusters:
+            if c["n"] < max(2, int(got * stable_ratio)):
+                continue
+            x0, y0, x1, y1 = c["r"]
+            if (x1 - x0) * (y1 - y0) > max_area:
+                continue
+            in_corner = (x1 < 0.35 or x0 > 0.65) and (y1 < 0.30 or y0 > 0.70)
+            if in_corner:
+                out.append((x0, y0, x1, y1))
+        return out
+    except Exception as e:
+        print(f"[角标] 检测失败: {e}", file=sys.stderr)
+        return []
+
+
+def delogo_filter(boxes, W, H, pad=4):
+    """把角标框转成 ffmpeg delogo 滤镜串。
+
+    用 delogo 而不是高斯模糊：2026-09-01 试过整块模糊，盲评 3/10（「像连人一起
+    打了码」），比不处理更差。delogo 用周围像素插值填补，对半透明水印（B站自动
+    水印）效果好；对不透明实心台标会留下轻微痕迹，那类素材应在选片阶段减分淘汰。
+    """
+    parts = []
+    for x0, y0, x1, y1 in boxes:
+        x = max(1, int(x0 * W) - pad)
+        y = max(1, int(y0 * H) - pad)
+        w = min(W - x - 1, int((x1 - x0) * W) + pad * 2)
+        h = min(H - y - 1, int((y1 - y0) * H) + pad * 2)
+        if w >= 8 and h >= 8:
+            parts.append(f"delogo=x={x}:y={y}:w={w}:h={h}")
+    return ",".join(parts)
+
+
 def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.35):
     """算安全裁切方案 (crop_w, crop_h, crop_x, crop_y)，只为「腾出干净的字幕位」。
 
@@ -1863,6 +1962,15 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         vertical = H > W
         # 按检测到的贴片区裁切（替代原来「一律裁顶部 100px」——2026-09-01 实测那种裁法
         # 竖屏只裁 7.8% 而标题条占 28~33%（等于没裁），横屏顶部没水印却被裁掉 17%）
+        # 角标去除：必须排在 crop 之前，否则坐标系对不上（2026-09-03）
+        _logos = detect_corner_logos(src)
+        _dl = delogo_filter(_logos, W, H) if _logos else ""
+        pre = (_dl + ",") if _dl else ""
+        if _logos:
+            print(f"[角标] 检出 {len(_logos)} 处常驻角标 → delogo 去除")
+            for x0, y0, x1, y1 in _logos:
+                print(f"       x {x0:.0%}~{x1:.0%}  y {y0:.0%}~{y1:.0%}")
+
         plan = safe_crop_plan(src, W, H)
         if plan:
             crop_w, crop_h, crop_x, crop_y = plan
@@ -1873,9 +1981,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
         fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
         if existing_subtitles:
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},{fade}"
+            vf = f"{pre}crop={crop_w}:{crop_h}:{crop_x}:{crop_y},{fade}"
         else:
-            vf = f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},ass={ass},{fade}"
+            vf = f"{pre}crop={crop_w}:{crop_h}:{crop_x}:{crop_y},ass={ass},{fade}"
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
              "-t", str(seg_dur), "-i", str(src),
