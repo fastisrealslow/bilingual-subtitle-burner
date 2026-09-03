@@ -1,4 +1,4 @@
-"""林园流水线：480P 画质、三重内容指纹和 14 天主题冷却。"""
+"""林园流水线：360P 底线、三重内容指纹和 14 天主题冷却。"""
 
 import importlib.util
 import io
@@ -29,17 +29,20 @@ FC = _load_fc()
 
 
 def test_resolution_gate_checks_short_edge_after_crop(monkeypatch):
-    monkeypatch.setattr(P, "video_size", lambda src: (854, 479))
-    with pytest.raises(P.VisualQualityError, match="短边 479 < 480"):
+    monkeypatch.setattr(P, "video_size", lambda src: (640, 359))
+    with pytest.raises(P.VisualQualityError, match="短边 359 < 360"):
         P.ensure_min_short_edge(Path("final.mp4"), label="裁切后成片")
 
-    monkeypatch.setattr(P, "video_size", lambda src: (854, 480))
-    assert P.ensure_min_short_edge(Path("final.mp4")) == (854, 480)
+    monkeypatch.setattr(P, "video_size", lambda src: (640, 360))
+    assert P.ensure_min_short_edge(Path("final.mp4")) == (640, 360)
 
 
-def test_workflow_rejects_source_below_480():
+def test_workflow_rejects_source_below_360():
     workflow = (ROOT / ".github/workflows/linyuan-produce-cn.yml").read_text()
-    assert P.MIN_SHORT_EDGE == 480
+    assert P.MIN_SHORT_EDGE == 360
+    assert FC.MIN_SHORT_EDGE == 360
+    assert P.SOURCE_MIN_DURATION == 90
+    assert FC.MIN_DUR == 90
     assert "--source-check-only" in workflow
     assert workflow.index("name: 素材质量门禁") < workflow.index("name: 出片")
 
@@ -145,7 +148,7 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
 
 
 @pytest.mark.parametrize(("field", "value", "message"), [
-    ("resolution", {"short_edge": 479}, "短边 479"),
+    ("resolution", {"short_edge": 359}, "短边 359"),
     ("watermark_verified", False, "角标复检"),
     ("fingerprints", {}, "指纹不完整"),
     ("has_existing_subtitles", True, "内嵌字幕"),

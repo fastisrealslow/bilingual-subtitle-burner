@@ -55,7 +55,7 @@ MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含�
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
-MIN_SHORT_EDGE = 480
+MIN_SHORT_EDGE = 360
 QUALITY_GATE_VERSION = 3                 # v3 起硬拦截源字幕，旧 artifact 必须重新出片
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
@@ -828,14 +828,18 @@ def tencent_resolve_url(page_url):
         parts = [int(x) for x in dm.groups() if x is not None]
         dur = (parts[0] * 60 + parts[1]) if len(parts) == 2 else (parts[0] * 3600 + parts[1] * 60 + parts[2])
     info_req = urllib.request.Request(
-        f"http://vv.video.qq.com/getinfo?vids={vid}&defaultfmt=mp4",
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0"})
+        f"https://vv.video.qq.com/getinfo?vids={vid}"
+        "&platform=101001&charge=0&otype=json&defn=shd",
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0",
+                 "Referer": "https://v.qq.com/"})
     raw = urllib.request.urlopen(info_req, timeout=25).read().decode("utf-8", "ignore")
     if raw.startswith("<?xml"):
         em = re.search(r"<em>(\w+)</em>", raw)
         raise RuntimeError(f"getinfo 拒绝 vid={vid} code={em.group(1) if em else '?'}（视频可能已被限制播放）")
-    info = json.loads(raw)
-    item = ((info.get("vl") or {}).get("vl") or [{}])[0]
+    info = json.loads(re.sub(r"^QZOutputJson=|;$", "", raw.strip()))
+    videos = ((info.get("vl") or {}).get("vi")
+              or (info.get("vl") or {}).get("vl") or [{}])
+    item = videos[0]
     host = ((item.get("ul") or {}).get("ui") or [{}])[0].get("url", "")
     fn, vkey = item.get("fn", ""), item.get("fvkey", "")
     if not (host and fn and vkey):
@@ -845,31 +849,68 @@ def tencent_resolve_url(page_url):
     return url, dur
 
 
+def _curl_download(url, dest, referer, user_agent=None):
+    """可续传的长视频下载；失败时保留 .part，下一次重试从断点继续。"""
+    dest = Path(dest)
+    part = dest.with_suffix(dest.suffix + ".part")
+    cmd = [
+        "curl", "-fL", "--retry", "5", "--retry-all-errors",
+        "--retry-delay", "2", "--connect-timeout", "30",
+        "--max-time", "900", "--continue-at", "-",
+        "-H", f"Referer: {referer}",
+    ]
+    if user_agent:
+        cmd += ["-H", f"User-Agent: {user_agent}"]
+    cmd += ["-o", str(part), url]
+    subprocess.run(cmd, check=True, timeout=960)
+    if not part.exists() or part.stat().st_size < 10240:
+        raise RuntimeError("下载结果为空或异常小")
+    part.replace(dest)
+
+
+def _hls_download(url, dest, referer, user_agent):
+    """让 ffmpeg 从 HLS 主播放表选择最高码率，并在瞬断后重连。"""
+    dest = Path(dest)
+    part = dest.with_suffix(dest.suffix + ".part.mp4")
+    part.unlink(missing_ok=True)
+    headers = f"User-Agent: {user_agent}\r\nReferer: {referer}\r\n"
+    try:
+        subprocess.run([
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-rw_timeout", "30000000", "-reconnect", "1",
+            "-reconnect_streamed", "1", "-reconnect_delay_max", "10",
+            "-headers", headers, "-i", url, "-map", "0:v:0", "-map", "0:a?",
+            "-c", "copy", "-movflags", "+faststart", str(part),
+        ], check=True, timeout=960)
+        if not part.exists() or part.stat().st_size < 10240:
+            raise RuntimeError("HLS 下载结果为空或异常小")
+        part.replace(dest)
+    except Exception:
+        part.unlink(missing_ok=True)
+        raise
+
+
 def _download_inner(cand, dest):
     if cand["video_url"] and "weibocdn" in cand["video_url"]:
         # 微博直链 → 带 Referer 下载
         log.info("    微博直链，带 Referer 下载")
         try:
-            subprocess.run(["curl", "-sfL", "--max-time", "240",
-                            "-H", "Referer: https://weibo.com/",
-                            "-o", str(dest), cand["video_url"]], check=True)
-        except subprocess.CalledProcessError:
+            _curl_download(cand["video_url"], dest, "https://weibo.com/")
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError):
             # 直链过期/403 → 刷新直链重试
             log.info("    直链下载失败，刷新微博直链")
             new_url = weibo_refresh_url(cand["page_url"])
             cand["video_url"] = new_url
-            subprocess.run(["curl", "-sfL", "--max-time", "240",
-                            "-H", "Referer: https://weibo.com/",
-                            "-o", str(dest), new_url], check=True)
+            dest.with_suffix(dest.suffix + ".part").unlink(missing_ok=True)
+            _curl_download(new_url, dest, "https://weibo.com/")
         if not dest.exists() or dest.stat().st_size < 10240:
             # 文件太小 → 可能是错误页面，刷新直链重试
             if cand["video_url"] and "weibocdn" in cand.get("video_url", ""):
                 log.info("    文件异常，刷新微博直链")
                 new_url = weibo_refresh_url(cand["page_url"])
                 cand["video_url"] = new_url
-                subprocess.run(["curl", "-sfL", "--max-time", "240",
-                                "-H", "Referer: https://weibo.com/",
-                                "-o", str(dest), new_url], check=True)
+                dest.with_suffix(dest.suffix + ".part").unlink(missing_ok=True)
+                _curl_download(new_url, dest, "https://weibo.com/")
             if not dest.exists() or dest.stat().st_size < 10240:
                 raise RuntimeError("微博直链下载失败")
     elif cand["video_url"]:
@@ -885,10 +926,19 @@ def _download_inner(cand, dest):
             _ref = "https://haokan.baidu.com/"
         elif "snssdk" in _v or "douyin" in str(cand.get("source", "")):
             _ref = "https://www.douyin.com/"
-        subprocess.run(["curl", "-sfL", "--max-time", "240",
-                        "-H", f"User-Agent: {_ua}",
-                        "-H", f"Referer: {_ref}",
-                        "-o", str(dest), cand["video_url"]], check=True)
+        # 网易记录同时保留 m3u8 和推导出来的 SD mobile MP4。优先让 ffmpeg
+        # 从 HLS 主播放表选择最高码率；HLS 失效时再回退可续传的 MP4。
+        _extra = cand.get("extra") or {}
+        _hls = _extra.get("m3u8_url", "") if isinstance(_extra, dict) else ""
+        if "netease" in str(cand.get("source", "")) and _hls:
+            try:
+                log.info("    网易 HLS 最高码率下载")
+                _hls_download(_hls, dest, _ref, _ua)
+            except Exception as exc:
+                log.warning(f"    网易 HLS 失败，回退 MP4 续传：{exc}")
+                _curl_download(cand["video_url"], dest, _ref, _ua)
+        else:
+            _curl_download(cand["video_url"], dest, _ref, _ua)
     else:                                                # B站：带指纹的会话走全程
         op = bili_opener()
         bvid = cand["video_id"]
@@ -900,7 +950,7 @@ def _download_inner(cand, dest):
         log.info("    playurl")
         p = json.loads(op.open(
             f"https://api.bilibili.com/x/player/playurl?bvid={bvid}&cid={cid}"
-            "&qn=32&fnval=1&platform=html5&high_quality=1", timeout=30).read())
+            "&qn=80&fnval=1&high_quality=1", timeout=30).read())
         durl = (p.get("data") or {}).get("durl") or []
         if not durl:
             raise RuntimeError("无可用流")
@@ -1531,7 +1581,7 @@ def publish_handler(event=None, context=None):
         title = f"林园：{title}"
     title = title[:78]
 
-    # 老库存是在人物/水印/480P/指纹闸门上线前生成的，不能凭“文件存在”继续投。
+    # 老库存是在人物/水印/分辨率/指纹闸门上线前生成的，不能凭“文件存在”继续投。
     # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
     quality_error = artifact_quality_error(part)
     if quality_error:

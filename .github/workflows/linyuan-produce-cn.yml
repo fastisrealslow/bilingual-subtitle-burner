@@ -92,6 +92,9 @@ jobs:
         id: src
         env:
           SOURCE: ${{ inputs.source }}
+          # 下载和投稿共用同一份登录态；有登录态时 B站可取得 720/1080P，
+          # 未配置时下载器仍会选择匿名可用的最高画质。
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: |
           set -euo pipefail
           if [[ "$SOURCE" =~ bilibili\.com/video/BV ]]; then
@@ -109,8 +112,10 @@ jobs:
               curl -sfL --retry 3 --max-time 600 -o _src/video.mp4 "$SOURCE"
               [ -s _src/video.mp4 ] || { echo "::error::release 素材下载失败"; exit 1; }
             else
-              yt-dlp --socket-timeout 120 --retries 5 \
+              yt-dlp --continue --socket-timeout 120 --retries 10 \
+                --fragment-retries 10 --concurrent-fragments 4 \
                 -f 'bv*[height<=1080]+ba/b[height<=1080]/b' \
+                --merge-output-format mp4 \
                 -o '_src/video.%(ext)s' "$SOURCE"
             fi
             echo "path=$(ls _src/video.* | head -1)" >> $GITHUB_OUTPUT

@@ -6,7 +6,7 @@
   不是切片。这些内容在其他平台往往找不到，直接下 B站是最快的补齐方式。
 
 技术路径：
-  播放页 window.__playinfo__ 里有 DASH 音视频流地址（无需登录即可拿到 480P/360P）。
+  播放接口提供 DASH 音视频流；请求最高 1080P，实际取登录态或匿名态可用的最高画质。
   下载 video+audio 两条流后用 ffmpeg 合并。
   必须带 Referer: bilibili.com，否则 403。
 
@@ -102,7 +102,7 @@ def get_streams(bvid):
 
     p = json.loads(op.open(
         f"https://api.bilibili.com/x/player/playurl?bvid={bvid}&cid={cid}"
-        "&qn=32&fnval=1&platform=html5&high_quality=1", timeout=25
+        "&qn=80&fnval=4048&fourk=0&high_quality=1", timeout=25
     ).read().decode("utf-8", "ignore"))
     if p.get("code") != 0:
         raise RuntimeError(f"playurl code={p.get('code')}")
