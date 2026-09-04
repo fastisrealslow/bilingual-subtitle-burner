@@ -55,6 +55,7 @@ jobs:
               'timeout': body.timeout,
               'instance_concurrency': body.instance_concurrency,
               'internet_access': body.internet_access,
+              'log_config': body.log_config.to_map() if body.log_config else None,
               'layers': [x.arn for x in (body.layers or [])],
               'environment_variable_names': sorted((body.environment_variables or {}).keys()),
               'code_size': body.code_size,
