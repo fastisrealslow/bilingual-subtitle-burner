@@ -88,6 +88,18 @@ def test_topic_cooldown_blocks_rephrased_idea_for_14_days():
         "林园：科技股100%风险？过去确实如此｜林园", state, now=now) is None
 
 
+def test_topic_cooldown_does_not_block_other_parts_of_same_master():
+    now = time.time()
+    state = {"published": {"master": {
+        "bvid": "BV-part-1", "ts": now - 60,
+        "title": "林园：老龄化医药未来30年有100倍机会",
+    }}}
+    title = "林园：老龄化医药未来30年，我认为至少有100倍机会"
+    assert FC.find_recent_topic(title, state, now=now)
+    assert FC.find_recent_topic(
+        title, state, now=now, exclude_slug="master") is None
+
+
 def test_picker_applies_topic_cooldown_before_dispatch():
     now = time.time()
     state = {

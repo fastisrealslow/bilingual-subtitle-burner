@@ -76,6 +76,34 @@ def test_audio_card_title_falls_back_to_fixed_width_for_long_words():
     assert "".join(lines) == title[:39]
 
 
+def test_audio_card_keeps_dense_title_and_strips_speaker_prefix():
+    raw = ("股神林园：老龄化医药未来30年有100倍机会！"
+           "我只投能持续赚钱的垄断企业，不会去赌概念")
+    display = P._audio_card_display_topic(raw, "林园")
+    assert not display.startswith("股神林园")
+    assert len(display) <= P.AUDIO_CARD_TOPIC_MAX_CHARS
+    assert "100倍" in display
+    assert len(P._wrap_audio_card_title(display, 13, max_lines=4)) <= 4
+
+
+def test_audio_card_emphasis_uses_red_yellow_blue_hierarchy():
+    text = "医药未来30年有100倍机会"
+    colors = P._audio_card_emphasis_colors(text)
+    assert colors[text.index("医")] == (35, 86, 170)
+    assert colors[text.index("3")] == (226, 45, 39)
+    assert colors[text.index("未")] == (255, 210, 24)
+    assert P.AUDIO_CARD_DISCLAIMER.endswith("非投资建议")
+
+
+def test_audio_card_title_does_not_split_number_from_unit():
+    lines = P._wrap_audio_card_title(
+        "医药行业未来30年有100倍机会守财奴不会亏", 13, max_lines=4)
+    joined = "\n".join(lines)
+    assert "100\n倍" not in joined
+    assert "30\n年" not in joined
+    assert not any(line.startswith("的") for line in lines[1:])
+
+
 def test_cleanable_subtitle_band_is_cropped_and_preview_verified(monkeypatch,
                                                                  tmp_path):
     monkeypatch.setattr(P, "detect_corner_logos", lambda *a, **k: [])
@@ -139,6 +167,18 @@ def test_audio_card_does_not_ocr_its_own_template(monkeypatch, tmp_path):
     monkeypatch.setattr(P, "detect_corner_logos", should_not_run)
     assert P.detect_external_logos_after_render(
         tmp_path / "card.mp4", "audio_card", 720, 1280) == []
+
+
+def test_competitor_profile_creates_exactly_thirteen_contiguous_windows():
+    cues = [{"start": i * 10.0, "end": (i + 1) * 10.0,
+             "text": f"观点{i}。"} for i in range(348)]
+    chunks = P._chunk_by_duration_profile(
+        cues, P.COMPETITOR_13_DURATION_PROFILE)
+    assert len(chunks) == 13
+    assert chunks[0][0] == 0
+    assert chunks[-1][1] == len(cues) - 1
+    assert all(chunks[i][1] + 1 == chunks[i + 1][0]
+               for i in range(len(chunks) - 1))
 
 
 def test_reference_role_never_dispatches_even_if_author_changes():

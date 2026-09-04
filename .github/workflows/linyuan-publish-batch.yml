@@ -1,0 +1,97 @@
+name: 林园单批连续投稿
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: '只投稿这个已完成 slug'
+        required: true
+        type: string
+      total:
+        description: '本批总投稿数'
+        required: true
+        default: '14'
+        type: string
+  workflow_run:
+    workflows: ['中文源出片']
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linyuan-publish-batch-${{ inputs.slug }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+      BATCH_SLUG: ${{ inputs.slug || 'ly-parity-14-0904' }}
+      BATCH_TOTAL: ${{ inputs.total || '14' }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 仅接管指定14条生产批次
+        id: target
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if test "${{ github.event.workflow_run.conclusion }}" = success && \
+             gh api "repos/${{ github.repository }}/actions/runs/$SOURCE_RUN_ID/artifacts" \
+               --jq '.artifacts[].name' | grep -Fxq "deliver-$BATCH_SLUG"; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: 分批调用境内投稿器
+        if: github.event_name == 'workflow_dispatch' || steps.target.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as open_api
+
+          client = Client(open_api.Config(
+              access_key_id=os.environ["ALIYUN_AK"],
+              access_key_secret=os.environ["ALIYUN_SK"],
+              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+          remaining = int(os.environ["BATCH_TOTAL"])
+          published = 0
+          while remaining > 0:
+              take = min(3, remaining)
+              payload = json.dumps({
+                  "triggerName": "publish-batch",
+                  "batch_slug": os.environ["BATCH_SLUG"],
+                  "batch_remaining": take,
+                  "ignore_daily_limit": True,
+                  "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
+                  "title": "2026年8月7日林园57分钟专访",
+              }).encode()
+              response = client.invoke_function(
+                  os.environ["FC_FUNCTION_NAME"],
+                  m.InvokeFunctionRequest(body=m.InvokeRequest(
+                      qualifier="LATEST", body=payload)))
+              raw = response.body.read().decode() if hasattr(response.body, "read") else str(response.body)
+              print(raw)
+              result = json.loads(raw)
+              made = int(result.get("published", 0))
+              if made < 1:
+                  raise SystemExit(f"本轮未成功投稿，已完成 {published}/{os.environ['BATCH_TOTAL']}")
+              published += made
+              remaining -= made
+          print(f"投稿完成：{published}/{os.environ['BATCH_TOTAL']}")
+          PY

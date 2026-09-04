@@ -47,6 +47,21 @@ on:
         required: false
         default: false
         type: boolean
+      target_parts:
+        description: '固定观点切片数（本次园园对标用 13；0=常规自动）'
+        required: false
+        default: '0'
+        type: string
+      include_full:
+        description: '追加完整访谈'
+        required: false
+        default: false
+        type: boolean
+      prefer_live_video:
+        description: '优先使用裁净后的真人动态画面卡'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -207,7 +222,10 @@ jobs:
             --speaker "${{ inputs.speaker }}" \
             --occasion "${{ inputs.occasion }}" \
             --source-platform "${{ inputs.source_platform }}" \
-            --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+            --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json" \
+            ${{ inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \
+            ${{ inputs.include_full && '--include-full' || '' }} \
+            ${{ inputs.prefer_live_video && '--prefer-live-video' || '' }}
 
       - name: 整理归档（slug 命名，留存可分析产物）
         run: |

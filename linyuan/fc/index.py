@@ -1042,8 +1042,8 @@ def handler(event, context):
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     try:
         if "dispatch" in name:
-            return dispatch_handler(event, context)
-        return publish_handler(event, context)
+            return dispatch_handler(evt, context)
+        return publish_handler(evt, context)
     finally:
         flush_logs()
 
@@ -1437,7 +1437,23 @@ def _pending_final_count(st):
 
 
 def publish_handler(event=None, context=None):
+    event = event if isinstance(event, dict) else {}
+    batch_slug = str(event.get("batch_slug") or "").strip()
+    batch_remaining = max(1, min(14, int(event.get("batch_remaining") or 1)))
+    ignore_daily_limit = bool(event.get("ignore_daily_limit")) and bool(batch_slug)
     st = load_state()
+    if batch_slug and not any(e.get("slug") == batch_slug
+                              for e in st.get("dispatched", [])):
+        st.setdefault("dispatched", []).append({
+            "slug": batch_slug,
+            "title": str(event.get("title") or "林园完整访谈对标批次"),
+            "source_url": str(event.get("source_url") or ""),
+            "asset_url": str(event.get("source_url") or ""),
+            "source": str(event.get("source_url") or ""),
+            "ts": int(time.time()),
+            "published_parts": 0,
+        })
+        save_state(st)
     now = time.time()
     source_rejected = _collect_source_rejections(st)
     if source_rejected:
@@ -1454,7 +1470,7 @@ def publish_handler(event=None, context=None):
     if dp.get("date") != today:
         dp = {"date": today, "count": 0}
         st["daily_publish"] = dp
-    if dp.get("count", 0) >= MAX_PUBLISH_PER_DAY:
+    if not ignore_daily_limit and dp.get("count", 0) >= MAX_PUBLISH_PER_DAY:
         log.info(f"今日已投 {dp['count']} 条，达每日上限 {MAX_PUBLISH_PER_DAY}，剩余排队到明天")
         save_state(st)
         return {"published": 0}
@@ -1463,6 +1479,7 @@ def publish_handler(event=None, context=None):
     pending = [e for e in st["dispatched"]
                if e.get("slug") and not e.get("failed")
                and e.get("slug") not in attempted
+               and (not batch_slug or e.get("slug") == batch_slug)
                and _has_unpublished_part(e, st)]
     # 轮转：已投条数最少的素材优先（防长视频霸占额度、新素材饿死 2026-08-27）
     pending.sort(key=lambda e: e.get("published_parts", 0))
@@ -1552,24 +1569,26 @@ def publish_handler(event=None, context=None):
 
     log.info(f"准备投稿: {slug} (共 {len(pending)} 条待发布，本次只投 1 条)")
 
-    tmp = Path(tempfile.mkdtemp())
+    reuse_dir = str(event.get("_artifact_dir") or "").strip()
+    tmp = Path(reuse_dir) if reuse_dir else Path(tempfile.mkdtemp())
+    tmp.mkdir(parents=True, exist_ok=True)
     with open(tmp / "cookies.json", "w") as f:
         f.write(COOKIES_JSON)
     os.chmod(tmp / "cookies.json", 0o600)
 
     done = 0
-    zf = tmp / f"{slug}.zip"
-    dl = subprocess.run(["curl", "-sfL", "--max-time", "300", "-C", "-",
-                         "-H", f"Authorization: Bearer {TOKEN}",
-                         "-o", str(zf), arts[slug]], capture_output=True)
-    if dl.returncode != 0:
-        log.error(f"✗ {slug} artifact 下载失败: {dl.stderr.decode()[:200]}")
-        # artifact 可能已过期被删，标记 failed 避免一直卡在这
-        e["failed"] = True
-        save_state(st)
-        log.info(f"{slug} artifact 不可用，标记为失败")
-        return {"published": 0}
-    subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
+    if not (tmp / slug / "meta.json").exists():
+        zf = tmp / f"{slug}.zip"
+        dl = subprocess.run(["curl", "-sfL", "--max-time", "600", "-C", "-",
+                             "-H", f"Authorization: Bearer {TOKEN}",
+                             "-o", str(zf), arts[slug]], capture_output=True)
+        if dl.returncode != 0:
+            log.error(f"✗ {slug} artifact 下载失败: {dl.stderr.decode()[:200]}")
+            e["failed"] = True
+            save_state(st)
+            log.info(f"{slug} artifact 不可用，标记为失败")
+            return {"published": 0}
+        subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
     # 长视频拆多条：检测所有 final*.mp4（final.mp4 / final_1.mp4 ...）
     final_videos = sorted((tmp / slug).glob("final*.mp4"), key=lambda p: p.name)
     if not final_videos:
@@ -1698,7 +1717,9 @@ def publish_handler(event=None, context=None):
             event, context, slug, {"published": 0, "skipped": 1}, tmp)
 
     # 2) 主题冷却：即使不是逐字同片，同一个观点 14 天内也不再发布。
-    topic_dup = find_recent_topic(title, st, now=now)
+    # 同一条长母片的不同 part 本来就要多角度发布；内容指纹已经在前一步拦截
+    # 真重复。主题冷却只拦截其他母片的重复观点，不能让同源切片互相误杀。
+    topic_dup = find_recent_topic(title, st, now=now, exclude_slug=slug)
     if topic_dup:
         reason = (f"主题与 {topic_dup['bvid'] or topic_dup['slug']} "
                   f"相似 {topic_dup['score']:.0%}，14 天冷却")
@@ -1784,6 +1805,12 @@ def publish_handler(event=None, context=None):
         log_event("publish_ok", f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}", title[:50])
         log.info(f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}")
         done += 1
+        if ignore_daily_limit and batch_remaining > 1 and k + 1 < parts_total:
+            next_event = dict(event)
+            next_event["batch_remaining"] = batch_remaining - 1
+            next_event["_artifact_dir"] = str(tmp)
+            follow = publish_handler(next_event, context) or {}
+            done += int(follow.get("published", 0))
     else:
         # 输出完整错误信息，方便调试
         log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} {((r.stdout or '') + (r.stderr or ''))[:150]}")
