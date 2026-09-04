@@ -123,7 +123,7 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
 
 def _good_artifact_meta():
     return {
-        "quality_gate_version": 3,
+        "quality_gate_version": 4,
         "speaker": "林园",
         "visual_identity": {
             "speaker": "林园", "same_person_frames": [1, 2],
@@ -131,6 +131,7 @@ def _good_artifact_meta():
         },
         "resolution": {"width": 854, "height": 480, "short_edge": 480},
         "watermark_verified": True,
+        "brand_watermark_applied": True,
         "has_existing_subtitles": False,
         "subtitles_burned": True,
         "fingerprints": {
@@ -150,6 +151,7 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
 @pytest.mark.parametrize(("field", "value", "message"), [
     ("resolution", {"short_edge": 359}, "短边 359"),
     ("watermark_verified", False, "角标复检"),
+    ("brand_watermark_applied", False, "品牌水印"),
     ("fingerprints", {}, "指纹不完整"),
     ("has_existing_subtitles", True, "内嵌字幕"),
     ("subtitles_burned", False, "统一字幕"),
@@ -218,7 +220,7 @@ def test_source_report_is_reused_only_for_the_same_media(monkeypatch, tmp_path):
     src.write_bytes(b"video")
     report = tmp_path / "source_quality.json"
     report.write_text(json.dumps({
-        "quality_gate_version": 3,
+        "quality_gate_version": 4,
         "source_sha256": "right",
         "passed": True,
         "has_existing_subtitles": False,

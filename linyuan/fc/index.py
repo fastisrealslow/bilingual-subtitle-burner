@@ -56,7 +56,7 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 360
-QUALITY_GATE_VERSION = 3                 # v3 起硬拦截源字幕，旧 artifact 必须重新出片
+QUALITY_GATE_VERSION = 4                 # v4 起要求右上角“园来滚雪球”品牌水印
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
@@ -1281,6 +1281,8 @@ def artifact_quality_error(meta):
         return f"裁切后成片短边 {short_edge} < {MIN_SHORT_EDGE}"
     if meta.get("watermark_verified") is not True:
         return "成片没有通过外部角标复检"
+    if meta.get("brand_watermark_applied") is not True:
+        return "成片没有叠加园来滚雪球品牌水印"
     if meta.get("has_existing_subtitles") is not False:
         return "源素材含内嵌字幕或缺少无源字幕证明"
     if meta.get("subtitles_burned") is not True:

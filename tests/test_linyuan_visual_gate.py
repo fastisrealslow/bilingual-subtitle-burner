@@ -1,5 +1,7 @@
 """林园人物参考照核验与清理后 OCR 角标复检。"""
 
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -102,6 +104,61 @@ def test_corner_ocr_groups_persistent_boxes(monkeypatch, tmp_path):
     assert len(found) == 1
     assert found[0][0] > 0.8
     assert found[0][1] < 0.1
+
+
+def test_brand_watermark_filter_places_asset_at_top_right():
+    vf = P.brand_overlay_filter("crop=1280:720:0:0", 1280, 720)
+    assert "scale=192:-1" in vf
+    assert "overlay=x=main_w-overlay_w-25:y=14" in vf
+    assert "colorchannelmixer=aa=0.68" in vf
+    assert P.brand_watermark_path().name == "yuanlai-snowball-watermark.png"
+
+
+def test_brand_region_excludes_only_the_expected_top_right_area():
+    assert P._inside_brand_watermark_region(
+        (0.86, 0.03, 0.97, 0.12), 1280, 720)
+    assert not P._inside_brand_watermark_region(
+        (0.03, 0.03, 0.15, 0.10), 1280, 720)
+    assert not P._inside_brand_watermark_region(
+        (0.86, 0.70, 0.97, 0.80), 1280, 720)
+
+
+@pytest.mark.skipif(not shutil.which("ffmpeg") or not shutil.which("ffprobe"),
+                    reason="需要 ffmpeg/ffprobe")
+def test_ffmpeg_brand_overlay_preserves_video_and_audio(tmp_path):
+    cv2 = pytest.importorskip("cv2")
+    src = tmp_path / "source.mp4"
+    out = tmp_path / "branded.mp4"
+    frame = tmp_path / "frame.png"
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-f", "lavfi", "-i", "color=c=#202020:s=640x360:r=30:d=2",
+        "-f", "lavfi", "-i", "sine=frequency=440:duration=2",
+        "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+        "-c:a", "aac", str(src),
+    ], check=True)
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+        "-loop", "1", "-framerate", "30", "-i",
+        str(P.brand_watermark_path()),
+        "-filter_complex", P.brand_overlay_filter("null", 640, 360),
+        "-map", "[outv]", "-map", "0:a:0", "-c:v", "libx264",
+        "-c:a", "aac", "-t", "2", "-shortest", str(out),
+    ], check=True)
+    probe = subprocess.run([
+        "ffprobe", "-v", "error", "-show_entries",
+        "stream=codec_type,width,height", "-of", "csv=p=0", str(out),
+    ], check=True, capture_output=True, text=True).stdout
+    assert "video,640,360" in probe
+    assert "audio" in probe
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-ss", "0.5", "-i",
+        str(out), "-frames:v", "1", str(frame),
+    ], check=True)
+    image = cv2.imread(str(frame))
+    background = image[40:100, 20:120].mean()
+    watermark = image[8:90, 500:632]
+    assert np.percentile(watermark, 95) > background + 30
 
 
 def test_cover_uses_the_same_cleanup_filter(monkeypatch, tmp_path):

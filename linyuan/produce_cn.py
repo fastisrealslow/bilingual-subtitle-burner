@@ -64,7 +64,18 @@ MIN_SHORT_EDGE = 360
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 3
+QUALITY_GATE_VERSION = 4
+
+# 自有品牌水印：先清掉来源平台/搬运账号角标，再在同一次编码中叠加到右上角。
+# 参数可通过环境变量微调，但生产默认值必须保持小尺寸、半透明，避免遮挡内容。
+BRAND_WATERMARK = Path(os.environ.get("BRAND_WATERMARK") or
+                       (BASE / "assets" / "yuanlai-snowball-watermark.png"))
+BRAND_WATERMARK_WIDTH_RATIO = float(
+    os.environ.get("BRAND_WATERMARK_WIDTH_RATIO") or 0.15)
+BRAND_WATERMARK_OPACITY = float(
+    os.environ.get("BRAND_WATERMARK_OPACITY") or 0.68)
+BRAND_WATERMARK_MARGIN_RATIO = float(
+    os.environ.get("BRAND_WATERMARK_MARGIN_RATIO") or 0.02)
 
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
@@ -1339,6 +1350,45 @@ def ensure_min_short_edge(src, minimum=MIN_SHORT_EDGE, label="成片"):
     return width, height
 
 
+def brand_watermark_path():
+    """返回生产水印；缺失时失败关闭，避免无品牌成片进入待投队列。"""
+    path = BRAND_WATERMARK
+    if not path.is_file() or path.stat().st_size < 1000:
+        raise VisualQualityError(f"品牌水印文件缺失或异常：{path}")
+    return path
+
+
+def brand_overlay_filter(base_vf, width, height):
+    """生成右上角品牌水印滤镜；宽度、透明度和边距均按画面自适应。"""
+    ratio = min(0.25, max(0.08, BRAND_WATERMARK_WIDTH_RATIO))
+    opacity = min(0.90, max(0.30, BRAND_WATERMARK_OPACITY))
+    margin_ratio = min(0.08, max(0.01, BRAND_WATERMARK_MARGIN_RATIO))
+    wm_width = max(64, int(width * ratio)) // 2 * 2
+    margin_x = max(8, int(width * margin_ratio))
+    margin_y = max(8, int(height * margin_ratio))
+    return (
+        f"[0:v]{base_vf}[base];"
+        f"[1:v]format=rgba,colorchannelmixer=aa={opacity:.2f},"
+        f"scale={wm_width}:-1[brand];"
+        f"[base][brand]overlay=x=main_w-overlay_w-{margin_x}:"
+        f"y={margin_y}:shortest=1[outv]"
+    )
+
+
+def _inside_brand_watermark_region(box, width, height):
+    """判断 OCR 框是否属于我们刚叠加的右上角水印，供外部角标复检排除。"""
+    x0, y0, x1, y1 = box
+    ratio = min(0.25, max(0.08, BRAND_WATERMARK_WIDTH_RATIO))
+    margin_ratio = min(0.08, max(0.01, BRAND_WATERMARK_MARGIN_RATIO))
+    # 当前透明 PNG 的宽高比约 2.69；预留少量容差覆盖描边与 OCR 分框。
+    aspect = 2057 / 765
+    wm_height_ratio = (width * ratio / aspect) / max(1, height)
+    region_x0 = 1.0 - margin_ratio - ratio - 0.03
+    region_y1 = min(0.35, margin_ratio + wm_height_ratio + 0.04)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    return region_x0 <= cx <= 1.0 and 0.0 <= cy <= region_y1
+
+
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
     report_path = Path(report_path or (work / "source_quality.json"))
@@ -2464,6 +2514,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         _dl, f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y}") if x]
     clean_vf = ",".join(clean_filters)
 
+    brand = brand_watermark_path()
     en_map = {}
     parts = []
     for n, p in enumerate(picks, 1):
@@ -2483,14 +2534,17 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             vf = f"{clean_vf},{fade}"
         else:
             vf = f"{clean_vf},ass={ass},{fade}"
+        filter_complex = brand_overlay_filter(vf, crop_w, crop_h)
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
              "-t", str(seg_dur), "-i", str(src),
-             "-vf", vf,
+             "-loop", "1", "-framerate", "30", "-i", str(brand),
+             "-filter_complex", filter_complex,
+             "-map", "[outv]", "-map", "0:a:0",
              "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
              "-c:v", "libx264", "-preset", "slow", "-crf", "18",
              "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
-             str(seg)], check=True)
+             "-t", str(seg_dur), "-shortest", str(seg)], check=True)
         parts.append(seg)
 
     lst = work / f"concat{suffix}.txt"
@@ -2506,8 +2560,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         capture_output=True, text=True).stdout.strip() or 0)
     final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
     remaining_logos = detect_corner_logos(final, frames=6, strict=True)
-    if remaining_logos:
-        raise VisualQualityError(f"成片清理后仍检出外部角标：{remaining_logos}")
+    external_logos = [box for box in remaining_logos
+                      if not _inside_brand_watermark_region(
+                          box, final_w, final_h)]
+    if external_logos:
+        raise VisualQualityError(f"成片清理后仍检出外部角标：{external_logos}")
     transcript_text = "".join(cues[i]["text"] for i in sel)
     fingerprints = build_content_fingerprints(final, transcript_text)
 
@@ -2531,6 +2588,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "fingerprints": fingerprints,
         "watermark_removed": bool(_logos or plan),
         "watermark_verified": True,
+        "brand_watermark_applied": True,
+        "brand_watermark": {
+            "name": "园来滚雪球", "position": "top-right",
+            "width_ratio": BRAND_WATERMARK_WIDTH_RATIO,
+            "opacity": BRAND_WATERMARK_OPACITY,
+        },
         "segments": [{"start": cues[p["start"]]["start"],
                       "end": cues[p["end"]]["end"], "reason": p["reason"]}
                      for p in picks],
