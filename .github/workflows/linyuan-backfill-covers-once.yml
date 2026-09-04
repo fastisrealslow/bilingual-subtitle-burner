@@ -1,0 +1,36 @@
+name: 林园14条封面补齐
+
+# 旧批次只把视频传到了 Release；本次把 Artifact 内的14张封面补齐，
+# 让阿里 FC 后续逐条下载，不再为每条反复拉取整包。
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-backfill-covers-once.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 下载旧批次并补齐逐条封面
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source_dir="$RUNNER_TEMP/source-delivery"
+          release_dir="$RUNNER_TEMP/release-covers"
+          mkdir -p "$source_dir" "$release_dir"
+          gh run download 33877816576 \
+            --repo "${{ github.repository }}" \
+            --name 'deliver-ly-parity-14-0904' \
+            --dir "$source_dir"
+          while IFS= read -r -d '' cover; do
+            cp "$cover" "$release_dir/ly-parity-14-0904.$(basename "$cover")"
+          done < <(find "$source_dir" -type f -name 'cover*.jpg' -print0)
+          test "$(find "$release_dir" -type f -name '*.jpg' | wc -l)" -eq 14
+          gh release upload deliver "$release_dir"/*.jpg --clobber \
+            --repo "${{ github.repository }}"
