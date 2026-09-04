@@ -55,7 +55,7 @@ LINYUAN_REFERENCE_URL = os.environ.get("LINYUAN_REFERENCE_URL") or (
     "https://imgcdn.yicai.com/vms-new/2026/08/"
     "b6e325e8-6616-46ed-902e-2987008296f5.jpg"
 )
-VISUAL_GATE_VERSION = 1
+VISUAL_GATE_VERSION = 2
 VISUAL_SAMPLE_COUNT = 6
 VISUAL_MIN_MATCHES = 2
 VISUAL_MIN_MATCH_RATIO = 0.50
@@ -64,7 +64,7 @@ MIN_SHORT_EDGE = 360
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 6
+QUALITY_GATE_VERSION = 7
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
 # 9:16 竖版上传，B站桌面播放器自行补黑边；移动端则直接占满屏幕。我们保留
 # 这种有效的版式，但不复制对方插画或照片资产，改用自有的通用编辑卡视觉。
@@ -241,7 +241,7 @@ def _sample_visual_frames(src, work, count=VISUAL_SAMPLE_COUNT):
 
 
 def _call_identity_vlm(reference, frames, speaker, api_key):
-    """把权威参考照和源片多帧一起交给 VLM 做同一人比对。"""
+    """把权威参考照和源片多帧一起交给 VLM 做目标人物在场核验。"""
     content = [
         {"type": "text", "text": f"参考图：已确认是目标人物【{speaker}】本人。"},
         {"type": "image_url", "image_url": {"url": _image_data_url(reference)}},
@@ -255,7 +255,11 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
         "type": "text",
         "text": (
             "请严格比较脸部身份，不要根据视频标题、字幕、财经话题或‘谁在讲话’猜测。"
-            f"逐帧判断待检人物是否与参考图中的{speaker}是同一个人；看不清就归为 uncertain。"
+            f"任务是逐帧判断参考图中的{speaker}本人是否出现在画面任意位置。"
+            "一帧可能同时出现主持人、嘉宾或多人：只要目标人物也在场，即归入"
+            " same_person_frames，绝不能因为另一个人更大、更居中或正在说话而归入"
+            " different_person_frames。只有清楚看到人脸、且能确认目标人物完全不在画面中，"
+            "才归入 different_person_frames；遮挡、侧脸过小或看不清则归为 uncertain。"
             "同时记录看得到的外部账号/平台角标文字。只返回 JSON object："
             '{"same_person_frames":[1],"different_person_frames":[2],'
             '"uncertain_frames":[3],"best_cover_frame":1,"confidence":0.95,'
@@ -2003,8 +2007,23 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     print(f"[封面] {out_path.name} {W}x{H} 「{title[:20]}」")
 
 
+def _has_persistent_editorial_overlay(cov, stable=0.50, min_rows=8):
+    """检测上半屏持续存在的大标题/信息卡。
+
+    小角标通常只占几行，可交给 ``detect_corner_logos`` + delogo；连续覆盖
+    8% 以上画高的文字则属于版式本身，强行涂抹会留下大块脏画面，应改走
+    音频卡重建。只检查 0%~55%，避免与下三分之一字幕判定重复。
+    """
+    run = 0
+    for ratio in cov[:55]:
+        run = run + 1 if ratio >= stable else 0
+        if run >= min_rows:
+            return True
+    return False
+
+
 def has_existing_subtitles(src):
-    """检测视频是否已有硬字幕(烧录在画面上的字幕)。
+    """检测视频是否已有硬字幕或持续编辑包装。
 
     2026-08-21 修复:旧版亮度阈值法把「画面偏亮」误判成「有字幕」
     (白色衣服/亮背景即可触发),导致无字幕视频跳过烧录,成片裸奔。
@@ -2020,6 +2039,10 @@ def has_existing_subtitles(src):
     # 以多帧持续出现为条件，可排除偶发 PPT/图表文字。
     try:
         cov = ocr_row_coverage(src, frames=8)
+        # 上半屏持续的大标题/信息卡同样会与我们的包装叠加。它不能按小角标
+        # delogo，否则会留下大片模糊区域；统一标脏，交给音频卡重建。
+        if _has_persistent_editorial_overlay(cov):
+            return True
         # 字幕通常位于画面 55%~93% 高度；连续至少 2% 屏高、在至少一半
         # 抽样帧出现，视为已有硬字幕/下三分之一包装。
         run = 0
@@ -2590,13 +2613,75 @@ def _wrap_audio_card_title(title, chars_per_line, max_lines=3):
                 for i in range(0, len(title), chars_per_line)][:max_lines]
 
 
-def make_audio_card(out_path, speaker, topic, width=None, height=None):
+def extract_audio_card_portrait(src, at_sec, out_path):
+    """从已核验原片提取主讲人肖像；失败时返回 None 供模板回退。
+
+    只截取最大人脸附近的正方形区域，不把原片标题条或账号角标带进卡片。
+    该图仅是同一素材的视觉摘取，不做身份推断；人物身份仍由前置多帧门禁负责。
+    """
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(src))
+        cap.set(cv2.CAP_PROP_POS_MSEC, max(0.0, float(at_sec)) * 1000)
+        ok, frame = cap.read()
+        cap.release()
+        if not ok or frame is None:
+            return None
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = _cascade(
+            cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        ).detectMultiScale(gray, 1.1, 4, minSize=(48, 48))
+        if len(faces) == 0:
+            return None
+        x, y, w, h = max(faces, key=lambda box: box[2] * box[3])
+        H, W = frame.shape[:2]
+        # 若源片顶部有持续标题条，肖像裁切也必须绕开它；否则虽然主画布已
+        # 重建，标题残片仍会被带进圆形人物区。行覆盖结果在前置门禁已缓存，
+        # 生产路径通常不会增加一次 OCR。
+        top_guard = 0
+        cov = ocr_row_coverage(src)
+        run_start = None
+        for i, ratio in enumerate(cov[:55]):
+            if ratio >= 0.50 and run_start is None:
+                run_start = i
+            elif ratio < 0.50 and run_start is not None:
+                if i - run_start >= 8:
+                    top_guard = int(H * min(55, i + 2) / 100)
+                    run_start = None
+                    break
+                run_start = None
+        if not top_guard and run_start is not None and 55 - run_start >= 8:
+            top_guard = int(H * 0.55)
+
+        side = int(max(w, h) * 1.75)
+        side = min(side, W, H - top_guard)
+        if side < max(w, h):
+            return None
+        cx = x + w // 2
+        cy = y + h // 2 + int(h * 0.22)
+        x0 = max(0, min(W - side, cx - side // 2))
+        y0 = max(top_guard, min(H - side, cy - side // 2))
+        crop = frame[y0:y0 + side, x0:x0 + side]
+        if crop.size == 0:
+            return None
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        if not cv2.imwrite(str(out_path), crop):
+            return None
+        return out_path
+    except Exception as e:
+        print(f"[音频卡] 肖像提取失败，使用通用人物图标: {e}", file=sys.stderr)
+        return None
+
+
+def make_audio_card(out_path, speaker, topic, width=None, height=None,
+                    portrait_path=None):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
     仅贡献已通过人物核验的讲话音频，避免把模糊/涂抹后的脏画面硬塞进成片。
     """
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
 
     width = int(width or AUDIO_CARD_WIDTH)
     height = int(height or AUDIO_CARD_HEIGHT)
@@ -2672,16 +2757,35 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None):
         draw.ellipse((cx - halo_r, halo_y - halo_r, cx + halo_r,
                       halo_y + halo_r), fill=(245, 242, 232),
                      outline=(193, 151, 64), width=max(3, int(5 * unit)))
-        head_r = int(width * 0.105)
-        head_y = int(height * 0.505)
-        draw.ellipse((cx - head_r, head_y - head_r, cx + head_r,
-                      head_y + head_r), fill=(35, 48, 64))
-        shoulder_w = int(width * 0.27)
-        shoulder_h = int(height * 0.125)
-        draw.rounded_rectangle((cx - shoulder_w, int(height * 0.57),
-                                cx + shoulder_w,
-                                int(height * 0.57) + shoulder_h),
-                               radius=int(width * 0.11), fill=(35, 48, 64))
+        portrait_used = False
+        if portrait_path and Path(portrait_path).is_file():
+            try:
+                portrait_r = int(width * 0.255)
+                portrait = Image.open(portrait_path).convert("RGB")
+                portrait = ImageOps.fit(
+                    portrait, (portrait_r * 2, portrait_r * 2),
+                    method=Image.Resampling.LANCZOS)
+                mask = Image.new("L", portrait.size, 0)
+                ImageDraw.Draw(mask).ellipse(
+                    (0, 0, portrait.size[0] - 1, portrait.size[1] - 1),
+                    fill=255)
+                image.paste(portrait,
+                            (cx - portrait_r, halo_y - portrait_r), mask)
+                portrait_used = True
+            except Exception as e:
+                print(f"[音频卡] 肖像嵌入失败，使用通用人物图标: {e}",
+                      file=sys.stderr)
+        if not portrait_used:
+            head_r = int(width * 0.105)
+            head_y = int(height * 0.505)
+            draw.ellipse((cx - head_r, head_y - head_r, cx + head_r,
+                          head_y + head_r), fill=(35, 48, 64))
+            shoulder_w = int(width * 0.27)
+            shoulder_h = int(height * 0.125)
+            draw.rounded_rectangle((cx - shoulder_w, int(height * 0.57),
+                                    cx + shoulder_w,
+                                    int(height * 0.57) + shoulder_h),
+                                   radius=int(width * 0.11), fill=(35, 48, 64))
         mic_x = cx + int(width * 0.19)
         mic_y = int(height * 0.56)
         mic_r = int(width * 0.045)
@@ -2770,14 +2874,21 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
 
     brand = brand_watermark_path()
     audio_card = None
+    audio_card_portrait = None
     if strategy == "audio_card":
         # 用本条已选内容的第一段做卡片标题，避免所有音频卡都只写泛化场次名。
         # 这对应对标账号“顶部标题直接概括本条观点”的有效做法。
         first_pick = picks[0]
         topic_text = "".join(cues[i]["text"] for i in range(
             first_pick["start"], first_pick["end"] + 1))
+        portrait_at = ((visual_report or {}).get("best_cover_time")
+                       or (cues[first_pick["start"]]["start"]
+                           + cues[first_pick["end"]]["end"]) / 2)
+        audio_card_portrait = extract_audio_card_portrait(
+            src, portrait_at, work / f"audio_card_portrait{suffix}.png")
         audio_card = make_audio_card(
-            work / "audio_card.png", speaker, topic_text)
+            work / f"audio_card{suffix}.png", speaker, topic_text,
+            portrait_path=audio_card_portrait)
     en_map = {}
     parts = []
     for n, p in enumerate(picks, 1):
@@ -2849,7 +2960,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         p0 = picks[0]
         if strategy == "audio_card":
             make_audio_card(cover, speaker, cw["title"],
-                            width=1280, height=720)
+                            width=1280, height=720,
+                            portrait_path=audio_card_portrait)
         else:
             make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
                        cw["title"], speaker, cover, video_filter=clean_vf,

@@ -173,6 +173,27 @@ def test_ocr_subtitle_band_detects_persistent_double_subtitle_risk(monkeypatch):
     assert P.has_existing_subtitles(Path("blue-band-white-text.mp4")) is True
 
 
+def test_ocr_detects_persistent_top_editorial_card(monkeypatch):
+    cov = [0.0] * 100
+    cov[2:17] = [1.0] * 15
+    monkeypatch.setattr(P, "ocr_row_coverage", lambda *args, **kwargs: cov)
+    assert P.has_existing_subtitles(Path("persistent-top-title.mp4")) is True
+
+
+def test_ocr_leaves_small_top_logo_for_delogo(monkeypatch):
+    cov = [0.0] * 100
+    cov[3:8] = [1.0] * 5
+    monkeypatch.setattr(P, "ocr_row_coverage", lambda *args, **kwargs: cov)
+
+    class ClosedCapture:
+        def isOpened(self):
+            return False
+
+    import cv2
+    monkeypatch.setattr(cv2, "VideoCapture", lambda *args: ClosedCapture())
+    assert P.has_existing_subtitles(Path("small-top-logo.mp4")) is False
+
+
 def test_ocr_subtitle_band_ignores_sporadic_lower_screen_text(monkeypatch):
     cov = [0.0] * 100
     cov[73:78] = [0.25] * 5

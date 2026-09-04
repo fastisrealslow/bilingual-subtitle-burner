@@ -1,5 +1,6 @@
 """林园人物参考照核验与清理后 OCR 角标复检。"""
 
+import json
 import shutil
 import subprocess
 import sys
@@ -41,6 +42,42 @@ def test_markdown_wrapped_identity_json_is_accepted():
     assert P._parse_json_object(
         '```json\n{"same_person_frames":[1,2],"confidence":0.9}\n```'
     )["same_person_frames"] == [1, 2]
+
+
+def test_identity_prompt_counts_target_when_host_is_also_present(monkeypatch,
+                                                                  tmp_path):
+    reference = tmp_path / "reference.jpg"
+    frame = tmp_path / "frame.jpg"
+    reference.write_bytes(b"reference")
+    frame.write_bytes(b"frame")
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return (b'{"choices":[{"message":{"content":"'
+                    b'{\\"same_person_frames\\":[1],'
+                    b'\\"different_person_frames\\":[],'
+                    b'\\"uncertain_frames\\":[],'
+                    b'\\"best_cover_frame\\":1,'
+                    b'\\"confidence\\":0.95}"}}]}')
+
+    def fake_urlopen(req, timeout):
+        captured["payload"] = req.data.decode()
+        return Response()
+
+    monkeypatch.setattr(P.urllib.request, "urlopen", fake_urlopen)
+    P._call_identity_vlm(reference, [frame], "林园", "sk-test")
+    payload = json.loads(captured["payload"])
+    prompt = payload["messages"][0]["content"][-1]["text"]
+    assert "同时出现主持人" in prompt
+    assert "只要目标人物也在场" in prompt
+    assert "目标人物完全不在画面中" in prompt
 
 
 def test_source_identity_rejects_a_video_full_of_other_people(monkeypatch,
