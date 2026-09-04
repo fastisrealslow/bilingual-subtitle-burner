@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Recheck after 1GB / 0.5 CPU deployment.
+# Inspect active instances and async queue after the long-upload handoff.
 on:
   push:
     branches: [main]
@@ -61,4 +61,25 @@ jobs:
               'code_checksum': body.code_checksum,
               'last_modified_time': body.last_modified_time,
           }, ensure_ascii=False, indent=2))
+
+          for label, call in (
+              ('instances', lambda: client.list_instances(
+                  os.environ['FC_FUNCTION_NAME'],
+                  m.ListInstancesRequest(with_all_active=True, limit='100'))),
+              ('async_tasks', lambda: client.list_async_tasks(
+                  os.environ['FC_FUNCTION_NAME'],
+                  m.ListAsyncTasksRequest(
+                      qualifier='LATEST', limit=100,
+                      started_time_begin=int(__import__('time').time() - 7200)))),
+              ('async_config', lambda: client.get_async_invoke_config(
+                  os.environ['FC_FUNCTION_NAME'],
+                  m.GetAsyncInvokeConfigRequest(qualifier='LATEST'))),
+          ):
+              try:
+                  value = call()
+                  print(label + ': ' + json.dumps(
+                      value.body.to_map() if value.body else {},
+                      ensure_ascii=False, indent=2))
+              except Exception as exc:
+                  print(label + '_error: ' + repr(exc))
           PY
