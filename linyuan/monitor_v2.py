@@ -203,26 +203,37 @@ class BilibiliSearchSource(Source):
     """
 
     def _fetch_via_api(self, keyword):
-        """纯 HTTP 路径：B站搜索 API 无需登录态，实测 code=0 可直接返回结果。"""
+        """纯 HTTP 路径：分页抓取 B站搜索结果，扩大完整访谈/演讲候选池。"""
         import urllib.parse
         kw = urllib.parse.quote(keyword)
-        url = ("https://api.bilibili.com/x/web-interface/wbi/search/type"
-               f"?search_type=video&keyword={kw}&page=1")
-        data = json.loads(http_get(url, referer="https://www.bilibili.com/"))
-        if data.get("code") != 0:
-            raise RuntimeError(f"B站 API code={data.get('code')} {data.get('message')}")
+        try:
+            pages = max(1, min(int(self.config.get("pages", 1)), 10))
+        except (TypeError, ValueError):
+            pages = 1
         out = []
-        for v in (data.get("data", {}).get("result") or []):
-            bvid = v.get("bvid")
-            if not bvid:
-                continue
-            out.append({
-                "bvid": bvid,
-                "title": re.sub(r"<[^>]+>", "", v.get("title", "")),
-                "viewText": "",
-                "view_count": v.get("play") or 0,
-                "up": v.get("author", ""),
-            })
+        seen = set()
+        for page_no in range(1, pages + 1):
+            url = ("https://api.bilibili.com/x/web-interface/wbi/search/type"
+                   f"?search_type=video&keyword={kw}&page={page_no}")
+            data = json.loads(http_get(url, referer="https://www.bilibili.com/"))
+            if data.get("code") != 0:
+                raise RuntimeError(
+                    f"B站 API page={page_no} code={data.get('code')} "
+                    f"{data.get('message')}")
+            for v in (data.get("data", {}).get("result") or []):
+                bvid = v.get("bvid")
+                if not bvid or bvid in seen:
+                    continue
+                seen.add(bvid)
+                out.append({
+                    "bvid": bvid,
+                    "title": re.sub(r"<[^>]+>", "", v.get("title", "")),
+                    "viewText": "",
+                    "view_count": v.get("play") or 0,
+                    "up": v.get("author", ""),
+                })
+            if page_no < pages:
+                time.sleep(1)
         return out
 
     def fetch(self, page):
