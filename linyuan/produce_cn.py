@@ -64,7 +64,7 @@ MIN_SHORT_EDGE = 360
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 7
+QUALITY_GATE_VERSION = 8
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
 # 9:16 竖版上传，B站桌面播放器自行补黑边；移动端则直接占满屏幕。我们保留
 # 这种有效的版式，但不复制对方插画或照片资产，改用自有的通用编辑卡视觉。
@@ -1476,6 +1476,15 @@ def _inside_brand_watermark_region(box, width, height):
     return region_x0 <= cx <= 1.0 and 0.0 <= cy <= region_y1
 
 
+def detect_external_logos_after_render(final, strategy, width, height):
+    """复检真实原画；音频卡是自有模板，不把模板文字当第三方角标。"""
+    if strategy == "audio_card":
+        return []
+    remaining = detect_corner_logos(final, frames=6, strict=True)
+    return [box for box in remaining
+            if not _inside_brand_watermark_region(box, width, height)]
+
+
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
     report_path = Path(report_path or (work / "source_quality.json"))
@@ -2613,19 +2622,17 @@ def _wrap_audio_card_title(title, chars_per_line, max_lines=3):
                 for i in range(0, len(title), chars_per_line)][:max_lines]
 
 
-def extract_audio_card_portrait(src, at_sec, out_path):
-    """从已核验原片提取主讲人肖像；失败时返回 None 供模板回退。
+def extract_audio_card_portrait(reference_image, out_path):
+    """从身份门禁的权威参考照提取目标人物肖像。
 
-    只截取最大人脸附近的正方形区域，不把原片标题条或账号角标带进卡片。
-    该图仅是同一素材的视觉摘取，不做身份推断；人物身份仍由前置多帧门禁负责。
+    多人访谈里“最大脸”经常是主持人，不能再从原片盲取。参考照已经由
+    ``verify_source_identity`` 下载并作为 VLM 的身份基准；若参考照不可用，
+    宁可回退通用人物图标，也不把其他嘉宾放进主讲人卡片。
     """
     try:
         import cv2
-        cap = cv2.VideoCapture(str(src))
-        cap.set(cv2.CAP_PROP_POS_MSEC, max(0.0, float(at_sec)) * 1000)
-        ok, frame = cap.read()
-        cap.release()
-        if not ok or frame is None:
+        frame = cv2.imread(str(reference_image))
+        if frame is None:
             return None
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = _cascade(
@@ -2635,32 +2642,16 @@ def extract_audio_card_portrait(src, at_sec, out_path):
             return None
         x, y, w, h = max(faces, key=lambda box: box[2] * box[3])
         H, W = frame.shape[:2]
-        # 若源片顶部有持续标题条，肖像裁切也必须绕开它；否则虽然主画布已
-        # 重建，标题残片仍会被带进圆形人物区。行覆盖结果在前置门禁已缓存，
-        # 生产路径通常不会增加一次 OCR。
-        top_guard = 0
-        cov = ocr_row_coverage(src)
-        run_start = None
-        for i, ratio in enumerate(cov[:55]):
-            if ratio >= 0.50 and run_start is None:
-                run_start = i
-            elif ratio < 0.50 and run_start is not None:
-                if i - run_start >= 8:
-                    top_guard = int(H * min(55, i + 2) / 100)
-                    run_start = None
-                    break
-                run_start = None
-        if not top_guard and run_start is not None and 55 - run_start >= 8:
-            top_guard = int(H * 0.55)
-
-        side = int(max(w, h) * 1.75)
-        side = min(side, W, H - top_guard)
+        # 参考图本身可能是采访海报；1.45 倍足以保留头肩，同时避免把两侧
+        # 栏目文字裁进圆形肖像。过宽的 1.75 倍在真实样片中带入了“人说”残字。
+        side = int(max(w, h) * 1.45)
+        side = min(side, W, H)
         if side < max(w, h):
             return None
         cx = x + w // 2
         cy = y + h // 2 + int(h * 0.22)
         x0 = max(0, min(W - side, cx - side // 2))
-        y0 = max(top_guard, min(H - side, cy - side // 2))
+        y0 = max(0, min(H - side, cy - side // 2))
         crop = frame[y0:y0 + side, x0:x0 + side]
         if crop.size == 0:
             return None
@@ -2881,11 +2872,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         first_pick = picks[0]
         topic_text = "".join(cues[i]["text"] for i in range(
             first_pick["start"], first_pick["end"] + 1))
-        portrait_at = ((visual_report or {}).get("best_cover_time")
-                       or (cues[first_pick["start"]]["start"]
-                           + cues[first_pick["end"]]["end"]) / 2)
         audio_card_portrait = extract_audio_card_portrait(
-            src, portrait_at, work / f"audio_card_portrait{suffix}.png")
+            work / "speaker_reference.jpg",
+            work / f"audio_card_portrait{suffix}.png")
         audio_card = make_audio_card(
             work / f"audio_card{suffix}.png", speaker, topic_text,
             portrait_path=audio_card_portrait)
@@ -2944,10 +2933,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
     final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
-    remaining_logos = detect_corner_logos(final, frames=6, strict=True)
-    external_logos = [box for box in remaining_logos
-                      if not _inside_brand_watermark_region(
-                          box, final_w, final_h)]
+    # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
+    # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
+    # 真实原画策略仍必须逐帧复检。
+    external_logos = detect_external_logos_after_render(
+        final, strategy, final_w, final_h)
     if external_logos:
         raise VisualQualityError(f"成片清理后仍检出外部角标：{external_logos}")
     transcript_text = "".join(cues[i]["text"] for i in sel)

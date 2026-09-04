@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import numpy as np
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -109,6 +110,35 @@ def test_audio_card_fails_closed_without_chinese_font(monkeypatch, tmp_path):
     monkeypatch.setattr(Path, "exists", fake_exists)
     with pytest.raises(P.VisualQualityError, match="缺少中文字体"):
         P.make_audio_card(tmp_path / "audio-card.png", "林园", "投资观点")
+
+
+def test_audio_card_portrait_comes_from_authority_reference(monkeypatch,
+                                                             tmp_path):
+    cv2 = pytest.importorskip("cv2")
+    reference = tmp_path / "speaker_reference.jpg"
+    image = np.zeros((180, 240, 3), dtype=np.uint8)
+    image[:, :] = (30, 80, 140)
+    assert cv2.imwrite(str(reference), image)
+
+    class FakeCascade:
+        def detectMultiScale(self, *args, **kwargs):
+            return np.array([[80, 35, 60, 70]])
+
+    monkeypatch.setattr(P, "_cascade", lambda *args: FakeCascade())
+    out = P.extract_audio_card_portrait(reference, tmp_path / "portrait.png")
+    assert out is not None
+    portrait = cv2.imread(str(out))
+    assert portrait.shape[0] == portrait.shape[1]
+
+
+def test_audio_card_does_not_ocr_its_own_template(monkeypatch, tmp_path):
+    # 音频卡画布完全由本流程生成；这里固定行为，避免模板标题再次被误报。
+    def should_not_run(*args, **kwargs):
+        raise AssertionError("audio card must not run external-logo OCR")
+
+    monkeypatch.setattr(P, "detect_corner_logos", should_not_run)
+    assert P.detect_external_logos_after_render(
+        tmp_path / "card.mp4", "audio_card", 720, 1280) == []
 
 
 def test_reference_role_never_dispatches_even_if_author_changes():
