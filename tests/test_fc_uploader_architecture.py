@@ -67,5 +67,7 @@ def test_workflows_publish_one_part_and_release_covers():
     assert "take = min(3, remaining)" not in batch
     assert "为旧批次补齐逐条封面" in batch
     assert "config.read_timeout = 1800000" in batch
+    assert "io.BytesIO(payload)" in batch
+    assert "m.InvokeRequest" not in batch
     assert "for f in cover*.jpg" in produce
     assert 'cp "$f" "${{ inputs.slug }}.$f"' in produce

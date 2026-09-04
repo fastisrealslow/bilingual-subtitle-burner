@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, os
+          import io, json, os
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as open_api
@@ -109,8 +109,8 @@ jobs:
               }).encode()
               response = client.invoke_function(
                   os.environ["FC_FUNCTION_NAME"],
-                  m.InvokeFunctionRequest(body=m.InvokeRequest(
-                      qualifier="LATEST", body=payload)))
+                  m.InvokeFunctionRequest(
+                      qualifier="LATEST", body=io.BytesIO(payload)))
               raw = response.body.read().decode() if hasattr(response.body, "read") else str(response.body)
               print(raw)
               result = json.loads(raw)
