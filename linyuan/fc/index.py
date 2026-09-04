@@ -56,7 +56,7 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 360
-QUALITY_GATE_VERSION = 4                 # v4 起要求右上角“园来滚雪球”品牌水印
+QUALITY_GATE_VERSION = 5                 # v5 起记录裁切/音频卡干净画面策略
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
@@ -551,8 +551,11 @@ def pick(items, st, n):
             log_event("dedup", f"候选主题冷却中，跳过 {key}",
                       f"与 {topic_dup['bvid'] or topic_dup['slug']} 相似 {topic_dup['score']:.0%}")
             continue
-        # 竞品号：监控但不抄，出片跳过（2026-08-29）
-        if it.get("author", "") in COMPETITOR_AUTHORS:
+        # 竞品目录全部进入素材库作溯源线索，但永不直接调度。除了作者名，
+        # 再检查 source_role，避免后续改作者字段时意外把参考条目当成片源。
+        if (it.get("author", "") in COMPETITOR_AUTHORS
+                or extra.get("source_role") == "reference"
+                or extra.get("direct_dispatch") is False):
             continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
@@ -1287,6 +1290,11 @@ def artifact_quality_error(meta):
         return "源素材含内嵌字幕或缺少无源字幕证明"
     if meta.get("subtitles_burned") is not True:
         return "成片没有烧录统一字幕"
+    if meta.get("clean_strategy") not in {
+            "direct", "delogo", "crop", "crop_delogo", "audio_card"}:
+        return "成片缺少可复现的干净画面策略"
+    if meta.get("clean_filter_verified") is not True:
+        return "成片清理方案未经复检"
 
     fp = meta.get("fingerprints") or {}
     if (not fp.get("sha256") or len(fp.get("video_dhash") or []) < 4

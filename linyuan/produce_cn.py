@@ -64,7 +64,10 @@ MIN_SHORT_EDGE = 360
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 4
+QUALITY_GATE_VERSION = 5
+AUDIO_CARD_WIDTH = 1280
+AUDIO_CARD_HEIGHT = 720
+ALLOW_AUDIO_CARD = os.environ.get("ALLOW_AUDIO_CARD", "1") != "0"
 
 # 自有品牌水印：先清掉来源平台/搬运账号角标，再在同一次编码中叠加到右上角。
 # 参数可通过环境变量微调，但生产默认值必须保持小尺寸、半透明，避免遮挡内容。
@@ -1375,6 +1378,78 @@ def brand_overlay_filter(base_vf, width, height):
     )
 
 
+def _render_clean_preview(src, work, video_filter, duration):
+    """渲染一小段清理后预览，供硬字幕二次复检。"""
+    preview = Path(work) / "clean_preview.mp4"
+    start = max(0.0, min(duration * 0.35, max(0.0, duration - 24.0)))
+    clip_duration = max(4.0, min(24.0, duration - start))
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}",
+           "-t", f"{clip_duration:.2f}", "-i", str(src)]
+    if video_filter:
+        cmd += ["-vf", video_filter]
+    cmd += ["-an", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+            str(preview)]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return preview
+
+
+def build_clean_source_plan(src, work, width, height, duration,
+                            raw_has_existing_subtitles):
+    """决定如何得到只含我们一套字幕/水印的画面。
+
+    顺序与「园园滚雪球」抽样成片一致：优先使用干净原画；可安全裁掉的
+    先裁并实渲染复检；旧字幕/大标题无法安全移除时，仅保留已核验音频，
+    重建品牌音频卡。不会把 delogo 当成大面积抹字工具。
+    """
+    logos = detect_corner_logos(src, strict=True)
+    delogo = delogo_filter(logos, width, height) if logos else ""
+    crop = safe_crop_plan(src, width, height)
+    if crop:
+        crop_w, crop_h, crop_x, crop_y = crop
+    else:
+        crop_w, crop_h, crop_x, crop_y = (
+            width // 2 * 2, height // 2 * 2, 0, 0)
+    filters = [x for x in (
+        delogo, f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y}") if x]
+    video_filter = ",".join(filters)
+
+    if raw_has_existing_subtitles:
+        crop_verified = False
+        if crop:
+            preview = _render_clean_preview(
+                src, work, video_filter, duration)
+            crop_verified = not has_existing_subtitles(preview)
+        if crop_verified:
+            strategy = "crop_delogo" if logos else "crop"
+        elif ALLOW_AUDIO_CARD:
+            strategy = "audio_card"
+            crop_w, crop_h = AUDIO_CARD_WIDTH, AUDIO_CARD_HEIGHT
+            video_filter = ""
+        else:
+            raise VisualQualityError(
+                "源视频含持续内嵌字幕，且无法安全裁净；音频卡模式已关闭")
+    elif crop:
+        strategy = "crop_delogo" if logos else "crop"
+    elif logos:
+        strategy = "delogo"
+    else:
+        strategy = "direct"
+
+    if min(crop_w, crop_h) < MIN_SHORT_EDGE:
+        raise VisualQualityError(
+            f"清理后预计短边 {min(crop_w, crop_h)} < {MIN_SHORT_EDGE}")
+    return {
+        "clean_strategy": strategy,
+        "clean_video_filter": video_filter,
+        "clean_output_resolution": {
+            "width": crop_w, "height": crop_h,
+            "short_edge": min(crop_w, crop_h),
+        },
+        "clean_filter_verified": True,
+        "detected_corner_logos": logos,
+    }
+
+
 def _inside_brand_watermark_region(box, width, height):
     """判断 OCR 框是否属于我们刚叠加的右上角水印，供外部角标复检排除。"""
     x0, y0, x1, y1 = box
@@ -1413,12 +1488,14 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
         report["resolution"] = {
             "width": width, "height": height, "short_edge": min(width, height),
         }
-        report["has_existing_subtitles"] = has_existing_subtitles(src)
-        if report["has_existing_subtitles"]:
-            raise VisualQualityError(
-                "源视频含持续内嵌字幕/下三分之一文字，拒绝二次叠字")
+        report["raw_has_existing_subtitles"] = has_existing_subtitles(src)
         report["visual_identity"] = verify_source_identity(
             src, work, speaker, api_key)
+        report.update(build_clean_source_plan(
+            src, work, width, height, duration,
+            report["raw_has_existing_subtitles"]))
+        # 该字段描述进入成片画布后的状态，不再等同于原文件状态。
+        report["has_existing_subtitles"] = False
         report["passed"] = True
     except VisualQualityError as e:
         report["reason"] = str(e)
@@ -1445,6 +1522,14 @@ def load_source_quality_report(src, report_path):
         raise VisualQualityError(report.get("reason") or "素材质检未通过")
     if report.get("has_existing_subtitles") is not False:
         raise VisualQualityError("素材缺少无内嵌字幕证明")
+    if report.get("clean_strategy") not in {
+            "direct", "delogo", "crop", "crop_delogo", "audio_card"}:
+        raise VisualQualityError("素材缺少可复现的干净画面策略")
+    if report.get("clean_filter_verified") is not True:
+        raise VisualQualityError("素材清理方案未经复检")
+    clean_resolution = report.get("clean_output_resolution") or {}
+    if int(clean_resolution.get("short_edge") or 0) < MIN_SHORT_EDGE:
+        raise VisualQualityError("素材清理后分辨率不达标")
     if not report.get("visual_identity"):
         raise VisualQualityError("素材缺少人物核验记录")
     return report
@@ -2483,9 +2568,74 @@ def _dedup_chunks_by_llm(chunks, cues, api_key, work):
     return [chunks[i] for i in keep0]
 
 
+def make_audio_card(out_path, speaker, topic):
+    """生成不携带第三方字幕/角标的品牌音频卡。
+
+    只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
+    仅贡献已通过人物核验的讲话音频，避免把模糊/涂抹后的脏画面硬塞进成片。
+    """
+    from PIL import Image, ImageDraw, ImageFont
+
+    width, height = AUDIO_CARD_WIDTH, AUDIO_CARD_HEIGHT
+    image = Image.new("RGB", (width, height), (10, 20, 37))
+    draw = ImageDraw.Draw(image)
+    for y in range(height):
+        blend = y / max(1, height - 1)
+        color = (int(10 + 10 * blend), int(20 + 24 * blend),
+                 int(37 + 36 * blend))
+        draw.line((0, y, width, y), fill=color)
+    draw.rounded_rectangle((86, 118, width - 86, 500), radius=34,
+                           fill=(17, 35, 60), outline=(193, 151, 64), width=3)
+    draw.ellipse((116, 162, 242, 288), fill=(193, 151, 64))
+    draw.ellipse((151, 188, 207, 244), fill=(17, 35, 60))
+    draw.rectangle((171, 235, 187, 276), fill=(17, 35, 60))
+
+    font_path = next((x for x in (
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+    ) if Path(x).exists()), None)
+    if not font_path:
+        raise VisualQualityError("音频卡缺少中文字体，拒绝生成方框字成片")
+    index = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
+    headline_font = (ImageFont.truetype(font_path, 62, index=index)
+                     if font_path else ImageFont.load_default())
+    topic_font = (ImageFont.truetype(font_path, 38, index=index)
+                  if font_path else ImageFont.load_default())
+    small_font = (ImageFont.truetype(font_path, 25, index=index)
+                  if font_path else ImageFont.load_default())
+    draw.text((282, 170), f"{speaker}公开发言原声", font=headline_font,
+              fill=(255, 255, 255), stroke_width=1, stroke_fill=(0, 0, 0))
+    display_topic = re.sub(r"\s+", " ", topic or "投资观点精选").strip()
+    if len(display_topic) > 42:
+        display_topic = display_topic[:41] + "…"
+    lines = wrap_cover_title(display_topic, 21, max_lines=2)
+    for i, line in enumerate(lines):
+        draw.text((282, 286 + i * 54), line, font=topic_font,
+                  fill=(226, 232, 240))
+    draw.text((282, 428), "画面已重建 · 仅保留经核验讲话音频",
+              font=small_font, fill=(143, 165, 190))
+
+    brand = Image.open(brand_watermark_path()).convert("RGBA")
+    brand_w = int(width * BRAND_WATERMARK_WIDTH_RATIO)
+    brand_h = max(1, int(brand.height * brand_w / brand.width))
+    brand = brand.resize((brand_w, brand_h), Image.LANCZOS)
+    alpha = brand.getchannel("A").point(
+        lambda value: int(value * BRAND_WATERMARK_OPACITY))
+    brand.putalpha(alpha)
+    margin = int(width * BRAND_WATERMARK_MARGIN_RATIO)
+    image.paste(brand, (width - brand_w - margin, margin), brand)
+    out_path = Path(out_path)
+    if out_path.suffix.lower() in {".jpg", ".jpeg"}:
+        image.save(out_path, quality=93)
+    else:
+        image.save(out_path)
+    return out_path
+
+
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
-                 allow_empty=False, visual_report=None):
+                 allow_empty=False, visual_report=None, source_report=None):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
     picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec,
@@ -2497,24 +2647,20 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 
-    # 内容和封面必须共用完全相同的去标/裁切滤镜。旧版只给成片加 delogo，
-    # make_cover 又从原片重新抽帧，导致内容干净但封面仍带别人账号角标。
-    _logos = detect_corner_logos(src, strict=True)
-    _dl = delogo_filter(_logos, W, H) if _logos else ""
-    if _logos:
-        print(f"[角标] 检出 {len(_logos)} 处常驻角标 → 内容与封面统一 delogo")
-        for x0, y0, x1, y1 in _logos:
-            print(f"       x {x0:.0%}~{x1:.0%}  y {y0:.0%}~{y1:.0%}")
-    plan = safe_crop_plan(src, W, H)
-    if plan:
-        crop_w, crop_h, crop_x, crop_y = plan
-    else:
-        crop_w, crop_h, crop_x, crop_y = W // 2 * 2, H // 2 * 2, 0, 0
-    clean_filters = [x for x in (
-        _dl, f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y}") if x]
-    clean_vf = ",".join(clean_filters)
+    # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
+    source_report = source_report or {}
+    strategy = source_report.get("clean_strategy", "direct")
+    clean_vf = source_report.get("clean_video_filter") or f"crop={W//2*2}:{H//2*2}:0:0"
+    clean_resolution = source_report.get("clean_output_resolution") or {}
+    crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
+    crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
+    _logos = source_report.get("detected_corner_logos") or []
+    print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
 
     brand = brand_watermark_path()
+    audio_card = None
+    if strategy == "audio_card":
+        audio_card = make_audio_card(work / "audio_card.png", speaker, occasion)
     en_map = {}
     parts = []
     for n, p in enumerate(picks, 1):
@@ -2524,27 +2670,37 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     "end_sec": cues[i]["end"] - s0,
                     "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
         ass = work / f"seg{suffix}{n}.ass"
-        make_ass(entries, ass, W, H)
+        make_ass(entries, ass, crop_w, crop_h)
         seg = work / f"seg{suffix}{n}.mp4"
         vertical = H > W
         seg_dur = s1 - s0
         # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
         fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
-        if existing_subtitles:
-            vf = f"{clean_vf},{fade}"
+        if strategy == "audio_card":
+            vf = f"ass={ass},{fade}"
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-loop", "1", "-framerate", "30", "-i", str(audio_card),
+                "-ss", str(s0), "-t", str(seg_dur), "-i", str(src),
+                "-filter_complex", f"[0:v]{vf}[outv]",
+                "-map", "[outv]", "-map", "1:a:0",
+            ]
         else:
             vf = f"{clean_vf},ass={ass},{fade}"
-        filter_complex = brand_overlay_filter(vf, crop_w, crop_h)
-        subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
-             "-t", str(seg_dur), "-i", str(src),
-             "-loop", "1", "-framerate", "30", "-i", str(brand),
-             "-filter_complex", filter_complex,
-             "-map", "[outv]", "-map", "0:a:0",
-             "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
-             "-c:v", "libx264", "-preset", "slow", "-crf", "18",
-             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
-             "-t", str(seg_dur), "-shortest", str(seg)], check=True)
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
+                "-t", str(seg_dur), "-i", str(src),
+                "-loop", "1", "-framerate", "30", "-i", str(brand),
+                "-filter_complex", brand_overlay_filter(vf, crop_w, crop_h),
+                "-map", "[outv]", "-map", "0:a:0",
+            ]
+        cmd += [
+            "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
+            "-c:v", "libx264", "-preset", "slow", "-crf", "18",
+            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
+            "-t", str(seg_dur), "-shortest", str(seg),
+        ]
+        subprocess.run(cmd, check=True)
         parts.append(seg)
 
     lst = work / f"concat{suffix}.txt"
@@ -2573,9 +2729,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
     try:
         p0 = picks[0]
-        make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
-                   cw["title"], speaker, cover, video_filter=clean_vf,
-                   preferred_time=(visual_report or {}).get("best_cover_time"))
+        if strategy == "audio_card":
+            make_audio_card(cover, speaker, cw["title"])
+        else:
+            make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
+                       cw["title"], speaker, cover, video_filter=clean_vf,
+                       preferred_time=(visual_report or {}).get("best_cover_time"))
     except Exception as e:
         raise VisualQualityError(f"封面生成/人物/角标复检失败：{e}") from e
     return {
@@ -2586,8 +2745,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "resolution": {"width": final_w, "height": final_h,
                        "short_edge": min(final_w, final_h)},
         "fingerprints": fingerprints,
-        "watermark_removed": bool(_logos or plan),
+        "watermark_removed": strategy != "direct",
         "watermark_verified": True,
+        "clean_strategy": strategy,
         "brand_watermark_applied": True,
         "brand_watermark": {
             "name": "园来滚雪球", "position": "top-right",
@@ -2649,11 +2809,15 @@ def main():
 
     resolution = source_report["resolution"]
     W, H = int(resolution["width"]), int(resolution["height"])
+    clean_resolution = source_report.get("clean_output_resolution") or resolution
+    output_w = int(clean_resolution.get("width") or W)
+    output_h = int(clean_resolution.get("height") or H)
     existing_subtitles = False
     visual_report = source_report["visual_identity"]
 
     cues = transcribe(src, work, api_key)
-    vertical = H > W
+    # 元数据描述实际成片画布；音频卡统一为 16:9，不能沿用原素材方向。
+    vertical = output_h > output_w
 
     # 平台推断
     platform = args.source_platform or ""
@@ -2708,7 +2872,8 @@ def main():
                              api_key, existing_subtitles, W, H, suffix,
                              pick_cache_suffix=suffix, target_sec=target_sec,
                              allow_empty=len(chunks) > 1,
-                             visual_report=visual_report)
+                             visual_report=visual_report,
+                             source_report=source_report)
         except VisualQualityError as e:
             print(json.dumps({"stage": "visual-quality", "reason": str(e),
                               "part": ci + 1}, ensure_ascii=False), file=sys.stderr)
@@ -2740,6 +2905,10 @@ def main():
             "visual_identity": visual_report,
             "subtitles_burned": not existing_subtitles,
             "has_existing_subtitles": existing_subtitles,
+            "raw_has_existing_subtitles": bool(
+                source_report.get("raw_has_existing_subtitles")),
+            "clean_filter_verified": bool(
+                source_report.get("clean_filter_verified")),
             "vertical": vertical,
             "cue_count": sum(1 for _ in cues),
             "asr_model": "faster-whisper large-v3",
@@ -2762,6 +2931,10 @@ def main():
              "visual_identity": visual_report,
              "subtitles_burned": not existing_subtitles,
              "has_existing_subtitles": existing_subtitles,
+             "raw_has_existing_subtitles": bool(
+                 source_report.get("raw_has_existing_subtitles")),
+             "clean_filter_verified": bool(
+                 source_report.get("clean_filter_verified")),
              "vertical": vertical,
              "asr_model": "faster-whisper large-v3",
              "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),

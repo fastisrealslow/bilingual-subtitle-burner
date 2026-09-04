@@ -54,6 +54,7 @@ DELAY_LADDER = [5, 8, 11, 14, 17]
 # 「剪辑二创」（金句/观点、碎片、标题党）拒。
 # 噪音标题（与 fc 一致）：老虎公园、林园群（人名）、雕像、泼漆等无关内容
 NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜|雕像|泼漆|通报")
+COMPETITOR_AUTHORS = {"园园滚雪球"}
 
 FULL_TITLE_PAT = re.compile(
     r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访")
@@ -164,6 +165,17 @@ def pick(items, state, n):
         src = it.get("source", "") or ""
         author = it.get("author", "") or ""
         title = it.get("title", "") or ""
+        extra = it.get("extra") or {}
+        if isinstance(extra, str):
+            try:
+                extra = json.loads(extra)
+            except Exception:
+                extra = {}
+        # 竞品历史条目只用于定位原始场次，绝不直接下载/投稿。
+        if (author in COMPETITOR_AUTHORS
+                or extra.get("source_role") == "reference"
+                or extra.get("direct_dispatch") is False):
+            continue
         if NOISE.search(title):
             continue
         # 剪辑二创（碎片/标题党）→ 拒；完整原片 → 收

@@ -123,7 +123,7 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
 
 def _good_artifact_meta():
     return {
-        "quality_gate_version": 4,
+        "quality_gate_version": 5,
         "speaker": "林园",
         "visual_identity": {
             "speaker": "林园", "same_person_frames": [1, 2],
@@ -134,6 +134,8 @@ def _good_artifact_meta():
         "brand_watermark_applied": True,
         "has_existing_subtitles": False,
         "subtitles_burned": True,
+        "clean_strategy": "direct",
+        "clean_filter_verified": True,
         "fingerprints": {
             "sha256": "a" * 64,
             "video_dhash": ["0" * 16] * 4,
@@ -155,6 +157,8 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
     ("fingerprints", {}, "指纹不完整"),
     ("has_existing_subtitles", True, "内嵌字幕"),
     ("subtitles_burned", False, "统一字幕"),
+    ("clean_strategy", "", "干净画面策略"),
+    ("clean_filter_verified", False, "清理方案未经复检"),
 ])
 def test_artifact_quality_proof_fails_closed(field, value, message):
     meta = _good_artifact_meta()
@@ -183,23 +187,33 @@ def test_ocr_subtitle_band_ignores_sporadic_lower_screen_text(monkeypatch):
     assert P.has_existing_subtitles(Path("clean-interview.mp4")) is False
 
 
-def test_source_gate_rejects_embedded_subtitles_before_identity(monkeypatch,
-                                                                 tmp_path):
+def test_source_gate_rebuilds_embedded_subtitles_as_audio_card(monkeypatch,
+                                                               tmp_path):
     src = tmp_path / "source.mp4"
     src.write_bytes(b"video")
     monkeypatch.setattr(P, "_file_sha256", lambda path: "source-hash")
     monkeypatch.setattr(P, "probe", lambda *args, **kwargs: "120")
     monkeypatch.setattr(P, "ensure_min_short_edge", lambda *args, **kwargs: (854, 480))
     monkeypatch.setattr(P, "has_existing_subtitles", lambda path: True)
-    monkeypatch.setattr(
-        P, "verify_source_identity",
-        lambda *args, **kwargs: pytest.fail("双字幕素材不应再调用人物 VLM"))
+    monkeypatch.setattr(P, "verify_source_identity", lambda *args, **kwargs: {
+        "speaker": "林园", "same_person_frames": [1, 2], "confidence": 0.9,
+    })
+    monkeypatch.setattr(P, "build_clean_source_plan", lambda *args, **kwargs: {
+        "clean_strategy": "audio_card",
+        "clean_video_filter": "",
+        "clean_output_resolution": {
+            "width": 1280, "height": 720, "short_edge": 720,
+        },
+        "clean_filter_verified": True,
+        "detected_corner_logos": [],
+    })
 
     report = P.run_source_quality_gate(
         src, tmp_path / "work", "林园", "sk-test", tmp_path / "report.json")
-    assert report["passed"] is False
-    assert report["has_existing_subtitles"] is True
-    assert "内嵌字幕" in report["reason"]
+    assert report["passed"] is True
+    assert report["raw_has_existing_subtitles"] is True
+    assert report["has_existing_subtitles"] is False
+    assert report["clean_strategy"] == "audio_card"
 
 
 def test_source_gate_rejects_duration_before_visual_checks(monkeypatch, tmp_path):
@@ -220,10 +234,15 @@ def test_source_report_is_reused_only_for_the_same_media(monkeypatch, tmp_path):
     src.write_bytes(b"video")
     report = tmp_path / "source_quality.json"
     report.write_text(json.dumps({
-        "quality_gate_version": 4,
+        "quality_gate_version": 5,
         "source_sha256": "right",
         "passed": True,
         "has_existing_subtitles": False,
+        "clean_strategy": "direct",
+        "clean_filter_verified": True,
+        "clean_output_resolution": {
+            "width": 854, "height": 480, "short_edge": 480,
+        },
         "visual_identity": {"speaker": "林园"},
         "resolution": {"width": 854, "height": 480, "short_edge": 480},
     }), encoding="utf-8")

@@ -327,6 +327,74 @@ class BilibiliSpaceSource(Source):
         return items
 
 
+class CompetitorReferenceSource(Source):
+    """把竞品账号的历史视频当作溯源目录，而不是可直接投稿的片源。
+
+    ``up_videos.json`` 是「园园滚雪球」历史归档。它的价值在于告诉我们：
+    哪些林园发言值得找、同一场活动被切成了哪些话题；文件本身不代表转载
+    授权，也不应绕过一手源优先和成片质量门禁。
+    """
+    name = "competitor_reference"
+    min_interval = 0
+
+    @staticmethod
+    def _duration_seconds(value):
+        if isinstance(value, (int, float)):
+            return int(value)
+        try:
+            parts = [int(x) for x in str(value).split(":")]
+        except ValueError:
+            return 0
+        if len(parts) == 3:
+            return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        if len(parts) == 2:
+            return parts[0] * 60 + parts[1]
+        return parts[0] if parts else 0
+
+    def fetch(self, page):
+        seeds_file = self.config.get("seeds_file", "up_videos.json")
+        path = Path(__file__).with_name(seeds_file)
+        if not path.is_file():
+            raise FileNotFoundError(f"竞品参考目录不存在: {path}")
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        speaker = self.config.get("speaker", "林园")
+        author = self.config.get("author", "园园滚雪球")
+        parent_words = re.compile(
+            r"完整|完整版|全集|访谈|实录|直播|演讲|全程|发言|现场|"
+            r"对话|采访|股东会|股东大会|路演|专访")
+        items = []
+        for bvid, video in raw.items():
+            title = (video.get("title") or "").strip()
+            if speaker not in title:
+                continue
+            duration = self._duration_seconds(video.get("dur", 0))
+            date = video.get("date") or ""
+            items.append({
+                "id": f"competitor_reference:{bvid}",
+                "source": self.name,
+                "title": title,
+                "url": f"https://www.bilibili.com/video/{bvid}",
+                "publish_time": f"{date} 00:00:00" if date else "",
+                "author": author,
+                "extra": json.dumps({
+                    "bvid": bvid,
+                    "duration": duration,
+                    "view_count": video.get("play", 0),
+                    "season": video.get("season", ""),
+                    "source_role": "reference",
+                    "direct_dispatch": False,
+                    "lineage_status": "needs_original",
+                    "reference_kind": (
+                        "parent_candidate"
+                        if (duration >= 600
+                            or (duration >= 300 and parent_words.search(title)))
+                        else "clip_clue"
+                    ),
+                }, ensure_ascii=False),
+            })
+        return items
+
+
 class XueqiuSearchSource(Source):
     """雪球个股讨论监控（雪球搜索页被风控，改抓个股讨论区并过滤林园）"""
     name = "xueqiu_search"
@@ -1418,6 +1486,7 @@ SOURCES = {
     "bilibili_api": BilibiliApiSource,
     "bilibili_search": BilibiliSearchSource,
     "bilibili_space": BilibiliSpaceSource,
+    "competitor_reference": CompetitorReferenceSource,
     "xueqiu_search": XueqiuSearchSource,
     "weibo_search": WeiboSearchSource,
     "tencent_live": TencentLiveSource,
@@ -1436,18 +1505,24 @@ def upsert_items(items):
     new_items = []
 
     for item in items:
-        cur = conn.execute("SELECT 1 FROM items WHERE id = ?", (item["id"],))
-        exists = cur.fetchone() is not None
+        cur = conn.execute("""
+            SELECT title, url, publish_time, author, extra
+            FROM items WHERE id = ?
+        """, (item["id"],))
+        previous = cur.fetchone()
+        exists = previous is not None
 
         if exists:
-            conn.execute("""
-                UPDATE items SET
-                    title = ?, url = ?, publish_time = ?, author = ?, extra = ?, updated_at = ?
-                WHERE id = ?
-            """, (
-                item["title"], item["url"], item["publish_time"], item["author"],
-                item["extra"], now, item["id"]
-            ))
+            current = (item["title"], item["url"], item["publish_time"],
+                       item["author"], item["extra"])
+            # 静态参考目录每次都会完整读取；内容没变时不要刷新 updated_at，
+            # 否则 972 条历史线索会让 data.json 每轮产生无意义的大 diff。
+            if tuple(previous) != current:
+                conn.execute("""
+                    UPDATE items SET
+                        title = ?, url = ?, publish_time = ?, author = ?, extra = ?, updated_at = ?
+                    WHERE id = ?
+                """, (*current, now, item["id"]))
         else:
             conn.execute("""
                 INSERT INTO items
