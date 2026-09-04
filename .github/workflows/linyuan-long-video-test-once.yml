@@ -1,0 +1,36 @@
+name: 林园长视频单次发布测试触发
+
+# 临时受控入口：固定一条已核验候选，避免通用参数入口被误用。
+# 生成与投稿仍由正式 linyuan-produce-cn.yml 完成。
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/long_video_test_request.json
+
+permissions:
+  actions: write
+
+concurrency:
+  group: linyuan-long-video-test-once
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 触发固定长视频出片并投稿
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run linyuan-produce-cn.yml \
+            --repo "${{ github.repository }}" \
+            --ref main \
+            -f source='https://www.bilibili.com/video/BV1Pzug6fEyY' \
+            -f slug='ly-test-long-0904-v6' \
+            -f speaker='林园' \
+            -f occasion='2026年8月7日林园专访·长视频实测' \
+            -f source_platform='bilibili' \
+            -f delay_hours='0' \
+            -f auto_publish=true
