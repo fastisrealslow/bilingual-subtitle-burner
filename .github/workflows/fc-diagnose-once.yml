@@ -1,0 +1,63 @@
+name: FC production diagnose once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fc-diagnose-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 读取函数非敏感运行状态
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as open_api
+
+          client = Client(open_api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+          response = client.get_function(
+              os.environ['FC_FUNCTION_NAME'], m.GetFunctionRequest())
+          body = response.body
+          print(json.dumps({
+              'status_code': response.status_code,
+              'function_name': body.function_name,
+              'state': body.state,
+              'state_reason': body.state_reason,
+              'state_reason_code': body.state_reason_code,
+              'last_update_status': body.last_update_status,
+              'last_update_status_reason': body.last_update_status_reason,
+              'last_update_status_reason_code': body.last_update_status_reason_code,
+              'runtime': body.runtime,
+              'handler': body.handler,
+              'memory_size': body.memory_size,
+              'cpu': body.cpu,
+              'disk_size': body.disk_size,
+              'timeout': body.timeout,
+              'instance_concurrency': body.instance_concurrency,
+              'internet_access': body.internet_access,
+              'layers': [x.arn for x in (body.layers or [])],
+              'environment_variable_names': sorted((body.environment_variables or {}).keys()),
+              'code_size': body.code_size,
+              'code_checksum': body.code_checksum,
+              'last_modified_time': body.last_modified_time,
+          }, ensure_ascii=False, indent=2))
+          PY
