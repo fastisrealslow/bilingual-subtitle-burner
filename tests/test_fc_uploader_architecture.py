@@ -66,10 +66,15 @@ def test_workflows_publish_one_part_and_release_covers():
     assert '"batch_remaining": 1' in batch
     assert "take = min(3, remaining)" not in batch
     assert "为旧批次补齐逐条封面" in batch
-    assert "config.read_timeout = 1800000" in batch
+    assert "config.read_timeout = 120000" in batch
     assert "io.BytesIO(payload)" in batch
     assert "m.InvokeRequest" not in batch
     assert "for attempt in range(1, 6)" in batch
     assert "time.sleep(wait_seconds)" in batch
+    assert 'x_fc_invocation_type="Async"' in batch
+    assert "status != 202" in batch
+    assert "def published_parts()" in batch
+    assert "current >= target" in batch
+    assert "time.time() + 45 * 60" in batch
     assert "for f in cover*.jpg" in produce
     assert 'cp "$f" "${{ inputs.slug }}.$f"' in produce
