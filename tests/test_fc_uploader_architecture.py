@@ -71,7 +71,9 @@ def test_workflows_publish_one_part_and_release_covers():
     assert "m.InvokeRequest" not in batch
     assert "for attempt in range(1, 6)" in batch
     assert "time.sleep(wait_seconds)" in batch
-    assert 'x_fc_invocation_type="Async"' in batch
+    assert 'm.InvokeFunctionHeaders(common_headers={' in batch
+    assert '"x-fc-invocation-type": "Async"' in batch
+    assert "client.invoke_function_with_options(" in batch
     assert "status != 202" in batch
     assert "def published_parts()" in batch
     assert "current >= target" in batch
