@@ -80,3 +80,10 @@ def test_workflows_publish_one_part_and_release_covers():
     assert "time.time() + 45 * 60" in batch
     assert "for f in cover*.jpg" in produce
     assert 'cp "$f" "${{ inputs.slug }}.$f"' in produce
+
+
+def test_named_batch_skips_global_artifact_inventory_scan():
+    source = (ROOT / "linyuan/fc/index.py").read_text()
+    assert "if batch_slug:" in source
+    assert "arts[batch_slug] = None" in source
+    assert "else:\n        runs = gh(\"GET\"" in source
