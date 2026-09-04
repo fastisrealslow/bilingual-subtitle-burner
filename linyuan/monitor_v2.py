@@ -8,6 +8,7 @@
 - 通过 OpenClaw Chromium CDP 获取登录态
 """
 import hashlib
+import html as html_lib
 import json
 import os
 import random
@@ -1037,6 +1038,79 @@ class HaokanVideoSource(Source):
         return items
 
 
+class YicaiVideoSource(Source):
+    """第一财经原始采访源。
+
+    页面是纯 HTML，直接包含带时效签名的高清 MP4，无需登录或浏览器。
+    相比抖音/好看的二次搬运，官方访谈更少带多层字幕和账号角标。
+    """
+    name = "yicai_video"
+    min_interval = 1800
+    NOISE = re.compile(r"园林|林园酒店|华林园|亭林园")
+
+    def _extract(self, article_id):
+        page_url = f"https://www.yicai.com/video/{article_id}.html"
+        page = http_get(page_url, referer="https://www.yicai.com/", timeout=45)
+        title_match = re.search(r"<title>(.*?)</title>", page, re.S | re.I)
+        title = html_lib.unescape(re.sub(r"<[^>]+>", "", title_match.group(1))).strip() \
+            if title_match else ""
+        title = re.sub(r"[_|]第一财经.*$", "", title).strip()
+        mp4_match = re.search(r'https?://[^\s"\'<>]+?\.mp4[^\s"\'<>]*', page, re.I)
+        if not mp4_match:
+            raise RuntimeError("未找到 mp4 直链")
+        mp4 = html_lib.unescape(mp4_match.group(0).replace("\\/", "/"))
+        published = ""
+        publish_match = re.search(r"(20\d{2}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})", page)
+        if publish_match:
+            published = publish_match.group(1).replace(" ", "T")
+        cover = ""
+        cover_match = re.search(
+            r'<meta[^>]+(?:property|name)=["\'](?:og:image|twitter:image)["\'][^>]+content=["\']([^"\']+)',
+            page, re.I)
+        if cover_match:
+            cover = html_lib.unescape(cover_match.group(1))
+        return {"title": title, "mp4_url": mp4, "cover": cover,
+                "published_at": published, "page_url": page_url}
+
+    def fetch(self, page):
+        ids = list(self.config.get("ids", []))
+        seeds_file = self.config.get("seeds_file")
+        if seeds_file:
+            path = Path(__file__).with_name(seeds_file)
+            if path.exists():
+                try:
+                    ids.extend(json.loads(path.read_text(encoding="utf-8")).get("ids", []))
+                except Exception as exc:
+                    print(f"[{self.name}] 种子文件读取失败: {exc}", file=sys.stderr)
+        keyword = self.config.get("keyword", "林园")
+        items, seen = [], set()
+        for article_id in ids[:50]:
+            article_id = str(article_id).strip()
+            if not article_id or article_id in seen:
+                continue
+            seen.add(article_id)
+            try:
+                info = self._extract(article_id)
+                title = info["title"] or f"第一财经视频 {article_id}"
+                if keyword not in title or self.NOISE.search(title):
+                    print(f"[{self.name}] 排除无关标题: {title[:60]}", file=sys.stderr)
+                    continue
+                items.append({
+                    "id": f"{self.name}:{article_id}", "source": self.name,
+                    "title": title[:300], "url": info["page_url"],
+                    "publish_time": info["published_at"] or datetime.now().isoformat(),
+                    "author": "第一财经",
+                    "extra": json.dumps({
+                        "article_id": article_id, "mp4_url": info["mp4_url"],
+                        "cover": info["cover"], "published_at": info["published_at"],
+                    }, ensure_ascii=False),
+                })
+            except Exception as exc:
+                print(f"[{self.name}] 解析失败 {article_id}: {exc}", file=sys.stderr)
+            time.sleep(0.3)
+        return items
+
+
 class ShareholderMeetingSource(Source):
     """股东大会公告监控（巨潮资讯，证监会指定信披网站）。
 
@@ -1352,6 +1426,7 @@ SOURCES = {
     "haokan_video": HaokanVideoSource,
     "shareholder_meeting": ShareholderMeetingSource,
     "netease_video": NeteaseVideoSource,
+    "yicai_video": YicaiVideoSource,
 }
 
 

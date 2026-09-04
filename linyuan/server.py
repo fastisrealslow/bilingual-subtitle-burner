@@ -158,7 +158,7 @@ def collect_status():
 
     seeds = {}
     for f, key in (("douyin_seeds.json", "urls"), ("haokan_seeds.json", "vids"),
-                   ("netease_seeds.json", "vcodes")):
+                   ("netease_seeds.json", "vcodes"), ("yicai_seeds.json", "ids")):
         d = safe(lambda f=f: json.loads((BASE / f).read_text(encoding="utf-8")), {}) or {}
         seeds[f.split("_")[0]] = len(d.get(key, []))
 

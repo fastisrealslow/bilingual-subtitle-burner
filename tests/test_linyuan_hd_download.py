@@ -2,6 +2,7 @@
 
 import importlib.util
 from pathlib import Path
+import subprocess
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -106,5 +107,56 @@ def test_workflow_and_downloaders_request_hd_without_relaxing_duration():
     assert "qn=32" not in ci_fetch + local_fetch + fc_source
     assert "BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}" in workflow
     assert "--fragment-retries 10" in workflow
+    assert 'ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}"' in workflow
     assert "defn=shd" in fc_source
     assert FC.MIN_DUR == 90
+
+
+def test_real_dash_merge_has_audio_video_and_decodable_tail(tmp_path):
+    """用真实 ffmpeg 封装和解码走完合流校验，不只 mock 命令行。"""
+    src = tmp_path / "source.mp4"
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+        "testsrc2=size=1280x720:rate=30:duration=3", "-f", "lavfi", "-i",
+        "sine=frequency=880:sample_rate=48000:duration=3", "-c:v", "libx264",
+        "-c:a", "aac", "-shortest", str(src),
+    ], check=True)
+
+    report = BILI.validate_media(src)
+
+    assert report["video_streams"] == 1
+    assert report["audio_streams"] == 1
+    assert 2.5 < report["duration"] < 3.5
+
+
+def test_merge_validation_rejects_video_without_audio(tmp_path):
+    src = tmp_path / "silent.mp4"
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+        "color=size=640x360:duration=2", "-c:v", "libx264", str(src),
+    ], check=True)
+
+    try:
+        BILI.validate_media(src)
+    except RuntimeError as exc:
+        assert "轨道不完整" in str(exc)
+    else:
+        raise AssertionError("缺音轨文件不应通过合流校验")
+
+
+def test_merge_validation_rejects_audio_track_that_ends_early(tmp_path):
+    """即使放宽元数据时长差，最后一个真实音频包也必须接近文件结尾。"""
+    src = tmp_path / "early-audio.mp4"
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+        "testsrc2=size=640x360:rate=30:duration=8", "-f", "lavfi", "-i",
+        "sine=frequency=880:sample_rate=48000:duration=1", "-c:v", "libx264",
+        "-c:a", "aac", str(src),
+    ], check=True)
+
+    try:
+        BILI.validate_media(src, max_track_drift=100, max_tail_gap=3)
+    except RuntimeError as exc:
+        assert "音频" in str(exc) and ("提前" in str(exc) or "缺少" in str(exc))
+    else:
+        raise AssertionError("音轨提前结束不应通过真实 packet 尾部校验")

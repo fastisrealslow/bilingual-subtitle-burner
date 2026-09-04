@@ -801,6 +801,21 @@ def weibo_refresh_url(page_url):
     return vurl
 
 
+def yicai_refresh_url(page_url):
+    """第一财经文章页重新换取带签名的 MP4 直链。"""
+    import html
+    req = urllib.request.Request(page_url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+        "Referer": "https://www.yicai.com/",
+    })
+    page = urllib.request.urlopen(req, timeout=45).read().decode("utf-8", "ignore")
+    match = re.search(r'https?://[^\s"\'<>]+?\.mp4[^\s"\'<>]*', page, re.I)
+    if not match:
+        raise RuntimeError("第一财经原文页未找到 MP4 直链")
+    return html.unescape(match.group(0).replace("\\/", "/"))
+
+
 def tencent_resolve_url(page_url):
     """腾讯新闻页面 URL → (视频真直链, 时长秒)。两段解析：
     getWebVideo 拿 vid → getinfo 换真直链。
@@ -926,6 +941,8 @@ def _download_inner(cand, dest):
             _ref = "https://haokan.baidu.com/"
         elif "snssdk" in _v or "douyin" in str(cand.get("source", "")):
             _ref = "https://www.douyin.com/"
+        elif "yicai" in _v or "yicai" in str(cand.get("source", "")):
+            _ref = "https://www.yicai.com/"
         # 网易记录同时保留 m3u8 和推导出来的 SD mobile MP4。优先让 ffmpeg
         # 从 HLS 主播放表选择最高码率；HLS 失效时再回退可续传的 MP4。
         _extra = cand.get("extra") or {}
@@ -938,7 +955,15 @@ def _download_inner(cand, dest):
                 log.warning(f"    网易 HLS 失败，回退 MP4 续传：{exc}")
                 _curl_download(cand["video_url"], dest, _ref, _ua)
         else:
-            _curl_download(cand["video_url"], dest, _ref, _ua)
+            try:
+                _curl_download(cand["video_url"], dest, _ref, _ua)
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError):
+                if "yicai" not in str(cand.get("source", "")):
+                    raise
+                log.info("    第一财经签名直链失效，从原文页刷新")
+                cand["video_url"] = yicai_refresh_url(cand["page_url"])
+                dest.with_suffix(dest.suffix + ".part").unlink(missing_ok=True)
+                _curl_download(cand["video_url"], dest, _ref, _ua)
     else:                                                # B站：带指纹的会话走全程
         op = bili_opener()
         bvid = cand["video_id"]

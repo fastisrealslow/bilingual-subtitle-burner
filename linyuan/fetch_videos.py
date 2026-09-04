@@ -81,6 +81,15 @@ def refresh_url(source, item_url, old_url, extra_vid=""):
         elif source == "weibo_search":
             # 微博需重跑搜索才能拿新链接（直链仅 1 小时有效）
             return ""
+        elif source == "yicai_video":
+            # 第一财经 MP4 带 auth_key，过期后重读原文页即可刷新。
+            req = urllib.request.Request(
+                item_url, headers={"User-Agent": UA, "Referer": "https://www.yicai.com/"})
+            page = urllib.request.urlopen(req, timeout=45).read().decode("utf-8", "ignore")
+            match = re.search(r'https?://[^\s"\'<>]+?\.mp4[^\s"\'<>]*', page, re.I)
+            if match:
+                import html
+                return html.unescape(match.group(0).replace("\\/", "/"))
     except Exception:
         return ""
     return ""

@@ -110,6 +110,14 @@ GLOSSARY = {
     # ASR 音近错字（2026-08-29 用户反馈）：骨=股、0源/零源=林园
     "骨价": "股价", "骨票": "股票", "骨市": "股市",
     "0源": "林园", "零源": "林园", "0园": "林园", "零园": "林园",
+    # 2026-09-04 用 14 份真实跨渠道片段横评捕到的稳定音近错。
+    # 只收录在林园财经语境中几乎无歧义的词，不做泛化单字替换。
+    "林元": "林园", "林源": "林园", "林远": "林园",
+    "达人堂": "达仁堂",
+    "高抛低息": "高抛低吸", "选骨": "选股", "骨子占的比例": "股票占的比例",
+    "夕洋行业": "夕阳行业", "西洋行业": "夕阳行业",
+    "划解这种风险": "化解这种风险", "复荷增长": "复合增长",
+    "负利增长": "复利增长", "历史的地位被低估": "历史的低位被低估",
 }
 
 
@@ -1615,6 +1623,38 @@ def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
     return 0
 
 
+def wrap_cover_title(title, chars_per_line, max_lines=3):
+    """按词边界折行，并且绝不静默丢掉标题尾部。"""
+    if len(title) <= chars_per_line:
+        return [title]
+    try:
+        import jieba as _jieba
+        import logging as _lg
+        _jieba.setLogLevel(_lg.ERROR)
+        words = list(_jieba.cut(title))
+    except ImportError:
+        words = list(title)
+    lines, current = [], ""
+    for word in words:
+        while len(word) > chars_per_line:
+            head, word = word[:chars_per_line], word[chars_per_line:]
+            if current:
+                lines.append(current)
+                current = ""
+            lines.append(head)
+        if len(current) + len(word) > chars_per_line and current:
+            lines.append(current)
+            current = word
+        else:
+            current += word
+    if current:
+        lines.append(current)
+    if len(lines) > max_lines:
+        raise VisualQualityError(
+            f"封面标题 {len(title)} 字无法在 {max_lines} 行内完整排版")
+    return lines
+
+
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                video_filter="", preferred_time=None):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
@@ -1802,33 +1842,13 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         margin_bottom = 48
     else:
         chars_per_line = max(13, int(W * 0.90 / title_size))
-        max_lines = 2
+        # 26~36 字标题在 1280 画布上需要三行；旧代码会静默丢掉末尾。
+        max_lines = 3
         line_h = int(title_size * 1.2)
         margin_bottom = 56
     # 标题分行：用 jieba 分词按词边界断，避免「公司」被硬切成「公」+「司」
     # （2026-08-27 实拍封面断句问题）。jieba 失败则退回均匀字符切分。
-    if len(title) <= chars_per_line:
-        lines = [title]
-    else:
-        try:
-            import jieba as _jieba
-            import logging as _lg
-            _jieba.setLogLevel(_lg.ERROR)
-            words = list(_jieba.cut(title))
-            lines, cur = [], ""
-            for w in words:
-                if len(cur) + len(w) > chars_per_line and cur:
-                    lines.append(cur)
-                    cur = w
-                else:
-                    cur += w
-            if cur:
-                lines.append(cur)
-            lines = lines[:max_lines]
-        except ImportError:
-            n_lines = min(max_lines, (len(title) + chars_per_line - 1) // chars_per_line)
-            per = (len(title) + n_lines - 1) // n_lines
-            lines = [title[i:i + per] for i in range(0, len(title), per)][:n_lines]
+    lines = wrap_cover_title(title, chars_per_line, max_lines)
     y = H - margin_bottom - line_h * len(lines)
     for ln in lines:
         # 白字黑边(描边厚度自适应)

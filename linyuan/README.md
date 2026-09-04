@@ -8,7 +8,7 @@
 - 根 `produce.py`：英文访谈源（芒格/巴菲特），`direction=en2zh`
 - 本目录 `produce_cn.py`：中文股东会/演讲源，原生 `zh2en`，另做人物参考照
   多帧核验、OCR 角标清理与复检、large-v3 词级重切、ASR 专名术语表和
-  loudnorm 响度标准化。下载后先执行独立素材闸门：时长、原始短边 480、
+  loudnorm 响度标准化。下载后先执行独立素材闸门：时长、原始短边 360、
   多帧 OCR 源字幕和人物身份任一不合格，都不会进入 ASR/切片；失败报告由 FC
   消费并自动补调候选。裁切后的最终成片仍做分辨率和角标复检作为兜底。
 - FC 投稿前做文件 SHA256、画面 dHash、Chromaprint 声纹和转写文本联合去重，
@@ -22,7 +22,7 @@
 ```
 监控        monitor_v2.py         8 源抓取引擎
             fetch_up_list.py      B站 UP 主全量清单（对标基准）
-            *_seeds.json          抖音/好看/网易种子池
+            *_seeds.json          抖音/好看/网易/第一财经种子池
             healthcheck.py        接口巡检（防静默失败）
             backtest.py           三项能力回测
 
@@ -46,7 +46,7 @@
 CI（仓库根 `.github/workflows/`）
 --------------------------------
 - `linyuan-monitor.yml`：每天 9 点抓取，提交元数据，视频不进仓库
-- `linyuan-produce-cn.yml`：手动触发出片，缓存 large-v3 模型
+- `linyuan-produce-cn.yml`：手动触发出片，默认 SenseVoice-Small，并缓存 large-v3 回滚模型
 
 两条都用 `working-directory: linyuan`。secret 复用仓库已有的
 `SILICONFLOW_API_KEY`；投稿要额外配 `BILIBILI_COOKIES`（默认不配=不投）。

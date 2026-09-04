@@ -22,6 +22,7 @@ REFERER = {
     "douyin_video": "https://www.douyin.com/",
     "haokan_video": "https://haokan.baidu.com/",
     "netease_video": "https://www.163.com/",
+    "yicai_video": "https://www.yicai.com/",
     "bilibili_search": "https://www.bilibili.com/",
 }
 
@@ -37,6 +38,7 @@ SRC_NAME = {
     "douyin_search": "抖音",
     "haokan_video": "好看视频",
     "netease_video": "网易",
+    "yicai_video": "第一财经",
     "shareholder_meeting": "股东大会",
 }
 

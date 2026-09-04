@@ -11,21 +11,29 @@
 用法：
   python3 seed_manager.py add-douyin <url|id> [...]
   python3 seed_manager.py add-haokan <vid|url> [...]
+  python3 seed_manager.py add-netease <vcode|url> [...]
+  python3 seed_manager.py add-yicai <article-id|url> [...]
   python3 seed_manager.py add-douyin --stdin      # 从 stdin 读，每行一个
   python3 seed_manager.py stats
 """
 import json
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 BASE = Path(__file__).parent
 DOUYIN_SEEDS = BASE / "douyin_seeds.json"
 HAOKAN_SEEDS = BASE / "haokan_seeds.json"
+NETEASE_SEEDS = BASE / "netease_seeds.json"
+YICAI_SEEDS = BASE / "yicai_seeds.json"
 
 DOUYIN_ID_RE = re.compile(r"(\d{15,25})")
 HAOKAN_VID_RE = re.compile(r"(\d{15,25})")
+NETEASE_URL_RE = re.compile(r"/v/video/([A-Za-z0-9]{7,16})\.html", re.I)
+NETEASE_VCODE_RE = re.compile(r"^[A-Za-z0-9]{7,16}$")
+YICAI_URL_RE = re.compile(r"/video/(\d{6,12})\.html", re.I)
+YICAI_ID_RE = re.compile(r"^\d{6,12}$")
 
 
 def _load(path, key):
@@ -38,7 +46,7 @@ def _load(path, key):
 
 
 def _save(path, data, key):
-    data["updated_at"] = datetime.now().strftime("%Y-%m-%d")
+    data["updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return len(data[key])
 
@@ -63,19 +71,45 @@ def normalize_haokan(raw):
     return m.group(1) if m else None
 
 
+def normalize_netease(raw):
+    """接受网易播放页或 vcode，统一输出大写 vcode。"""
+    raw = raw.strip().strip('"\'')
+    if not raw:
+        return None
+    match = NETEASE_URL_RE.search(raw)
+    value = match.group(1) if match else raw
+    return value.upper() if NETEASE_VCODE_RE.fullmatch(value) else None
+
+
+def normalize_yicai(raw):
+    """接受第一财经播放页或文章数字 ID。"""
+    raw = raw.strip().strip('"\'')
+    if not raw:
+        return None
+    match = YICAI_URL_RE.search(raw)
+    value = match.group(1) if match else raw
+    return value if YICAI_ID_RE.fullmatch(value) else None
+
+
 def add_seeds(kind, raw_items):
     if kind == "douyin":
         path, key, norm = DOUYIN_SEEDS, "urls", normalize_douyin
-    else:
+    elif kind == "haokan":
         path, key, norm = HAOKAN_SEEDS, "vids", normalize_haokan
+    elif kind == "netease":
+        path, key, norm = NETEASE_SEEDS, "vcodes", normalize_netease
+    elif kind == "yicai":
+        path, key, norm = YICAI_SEEDS, "ids", normalize_yicai
+    else:
+        raise ValueError(f"不支持的种子类型: {kind}")
 
     data = _load(path, key)
     existing = list(data.get(key, []))
     existing_ids = set()
-    for e in existing:
-        m = DOUYIN_ID_RE.search(str(e))
-        if m:
-            existing_ids.add(m.group(1))
+    for entry in existing:
+        normalized = norm(str(entry))
+        if normalized:
+            existing_ids.add(normalized)
 
     added, skipped, invalid = [], 0, 0
     for raw in raw_items:
@@ -83,11 +117,10 @@ def add_seeds(kind, raw_items):
         if not v:
             invalid += 1
             continue
-        vid = DOUYIN_ID_RE.search(v).group(1)
-        if vid in existing_ids:
+        if v in existing_ids:
             skipped += 1
             continue
-        existing_ids.add(vid)
+        existing_ids.add(v)
         existing.append(v)
         added.append(v)
 
@@ -100,7 +133,9 @@ def add_seeds(kind, raw_items):
 def stats():
     out = {}
     for kind, path, key in (("douyin", DOUYIN_SEEDS, "urls"),
-                            ("haokan", HAOKAN_SEEDS, "vids")):
+                            ("haokan", HAOKAN_SEEDS, "vids"),
+                            ("netease", NETEASE_SEEDS, "vcodes"),
+                            ("yicai", YICAI_SEEDS, "ids")):
         d = _load(path, key)
         out[kind] = {"count": len(d.get(key, [])), "updated_at": d.get("updated_at", "")}
     return out
@@ -118,8 +153,8 @@ def main():
             print(f"{k:8} {v['count']:3} 个种子   更新于 {v['updated_at']}")
         return 0
 
-    if cmd in ("add-douyin", "add-haokan"):
-        kind = "douyin" if cmd == "add-douyin" else "haokan"
+    if cmd in ("add-douyin", "add-haokan", "add-netease", "add-yicai"):
+        kind = cmd.removeprefix("add-")
         if args and args[0] == "--stdin":
             items = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]
         else:

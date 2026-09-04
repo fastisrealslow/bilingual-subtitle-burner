@@ -62,6 +62,8 @@ python3 seed_manager.py stats
 # 接受完整 URL 或纯数字 ID，自动归一化 + 去重
 python3 seed_manager.py add-douyin "https://www.douyin.com/video/7545369238313635130"
 python3 seed_manager.py add-haokan "11688231757041610344"
+python3 seed_manager.py add-netease "VA141983Q"
+python3 seed_manager.py add-yicai "https://www.yicai.com/video/103329354.html"
 
 # 批量从 stdin
 cat links.txt | python3 seed_manager.py add-douyin --stdin

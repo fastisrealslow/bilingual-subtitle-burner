@@ -130,6 +130,9 @@ jobs:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
         run: |
           set -euo pipefail
+          # 所有渠道都确认音视频轨、时长漂移与头尾可解码；
+          # 避免 DASH/HLS 合流“命令成功但下到半截”继续进 ASR。
+          python3 ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}"
           python3 -u produce_cn.py \
             --source "${{ steps.src.outputs.path }}" \
             --slug "${{ inputs.slug }}" \

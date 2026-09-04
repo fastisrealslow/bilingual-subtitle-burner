@@ -172,10 +172,84 @@ def download_one(op, urls, referer, out, attempts=3):
     raise RuntimeError(f"所有 CDN 镜像下载失败：{last}")
 
 
+def validate_media(path, max_track_drift=2.0, max_tail_gap=5.0):
+    """合流后硬校验：必须同时有可识别的音视频轨，且时长不明显漂移。
+
+    ffmpeg 返回 0 只能说封装完成，不代表 CDN 给的两条 DASH 轨
+    完整且可解码。再对头尾各 2 秒解码，能抓到截断的 m4s/NAL。
+    """
+    path = Path(path)
+    probe = subprocess.run([
+        "ffprobe", "-v", "error", "-show_entries",
+        "format=duration:stream=codec_type,duration", "-of", "json", str(path),
+    ], capture_output=True, text=True, timeout=60)
+    if probe.returncode:
+        raise RuntimeError(f"合流文件 ffprobe 失败：{probe.stderr.strip()[:160]}")
+    try:
+        data = json.loads(probe.stdout)
+        streams = data.get("streams") or []
+        video = [x for x in streams if x.get("codec_type") == "video"]
+        audio = [x for x in streams if x.get("codec_type") == "audio"]
+        duration = float((data.get("format") or {}).get("duration") or 0)
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError("合流文件媒体信息无效") from exc
+    if not video or not audio or duration <= 1:
+        raise RuntimeError(
+            f"合流文件轨道不完整：video={len(video)} audio={len(audio)} "
+            f"duration={duration:.2f}s")
+    durations = []
+    for stream in (video[0], audio[0]):
+        try:
+            value = float(stream.get("duration") or 0)
+        except (TypeError, ValueError):
+            value = 0
+        if value > 0:
+            durations.append(value)
+    if len(durations) == 2 and abs(durations[0] - durations[1]) > max_track_drift:
+        raise RuntimeError(
+            f"合流后音视频时长漂移 {abs(durations[0] - durations[1]):.2f}s")
+
+    # 不能只相信 format/stream duration：截断 MP4 的 moov 元数据可能仍写着完整
+    # 时长，ffmpeg 对“尾部根本没有音频包”也可能返回 0。直接检查两条轨最后一个
+    # 真实 packet 的 PTS，确保数据确实延伸到容器结尾附近。
+    tail_start = max(0.0, duration - max_tail_gap - 2.0)
+    for selector, label in (("v:0", "视频"), ("a:0", "音频")):
+        packet_probe = subprocess.run([
+            "ffprobe", "-v", "error", "-read_intervals", f"{tail_start}%",
+            "-select_streams", selector, "-show_packets", "-show_entries",
+            "packet=pts_time", "-of", "csv=p=0", str(path),
+        ], capture_output=True, text=True, timeout=120)
+        pts = []
+        for line in packet_probe.stdout.splitlines():
+            try:
+                pts.append(float(line.strip().split(",")[0]))
+            except (TypeError, ValueError):
+                continue
+        if packet_probe.returncode or not pts:
+            raise RuntimeError(f"合流文件尾部缺少{label}数据包")
+        gap = duration - max(pts)
+        if gap > max_tail_gap:
+            raise RuntimeError(f"合流文件{label}轨提前 {gap:.2f}s 结束")
+
+    checks = [
+        ["ffmpeg", "-v", "error", "-xerror", "-t", "2", "-i", str(path),
+         "-map", "0:v:0", "-map", "0:a:0", "-f", "null", "-"],
+        ["ffmpeg", "-v", "error", "-xerror", "-sseof", "-2", "-i", str(path),
+         "-map", "0:v:0", "-map", "0:a:0", "-f", "null", "-"],
+    ]
+    for cmd in checks:
+        decoded = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if decoded.returncode:
+            raise RuntimeError(f"合流文件头尾解码失败：{decoded.stderr.strip()[:160]}")
+    return {"duration": duration, "video_streams": len(video),
+            "audio_streams": len(audio)}
+
+
 def download(op, streams, referer, out):
     out = Path(out)
     if not streams.get("audio"):
         download_one(op, streams["video"], referer, out)
+        validate_media(out)
         return
     video = out.with_suffix(".video.m4s")
     audio = out.with_suffix(".audio.m4s")
@@ -185,8 +259,9 @@ def download(op, streams, referer, out):
         subprocess.run([
             "ffmpeg", "-y", "-loglevel", "error", "-i", str(video),
             "-i", str(audio), "-map", "0:v:0", "-map", "1:a:0",
-            "-c", "copy", "-movflags", "+faststart", str(out),
+            "-c", "copy", "-shortest", "-movflags", "+faststart", str(out),
         ], check=True)
+        validate_media(out)
     finally:
         video.unlink(missing_ok=True)
         audio.unlink(missing_ok=True)
@@ -194,9 +269,17 @@ def download(op, streams, referer, out):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--url", required=True)
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--url")
+    ap.add_argument("--out")
+    ap.add_argument("--validate-only", metavar="MEDIA")
     args = ap.parse_args()
+
+    if args.validate_only:
+        report = validate_media(args.validate_only)
+        print(f"✓ 音视频轨与头尾解码正常，时长 {report['duration']:.2f}s")
+        return
+    if not args.url or not args.out:
+        ap.error("下载模式必须同时提供 --url 和 --out")
 
     m = re.search(r"(BV\w+)", args.url)
     if not m:

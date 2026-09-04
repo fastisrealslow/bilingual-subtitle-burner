@@ -99,7 +99,8 @@ def check_seeds():
     out = []
     for f, key in (("douyin_seeds.json", "urls"),
                    ("haokan_seeds.json", "vids"),
-                   ("netease_seeds.json", "vcodes")):
+                   ("netease_seeds.json", "vcodes"),
+                   ("yicai_seeds.json", "ids")):
         p = BASE / f
         if not p.exists():
             out.append((f, "缺失", False))
