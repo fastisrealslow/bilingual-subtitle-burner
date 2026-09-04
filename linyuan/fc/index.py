@@ -1557,16 +1557,22 @@ def publish_handler(event=None, context=None):
         log.info("无待投稿件")
         return {"published": 0}
 
-    runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
-                     "?status=success&per_page=30").get("workflow_runs", [])
     arts = {}
     art_ids = {}
-    for run in runs:
-        for a in gh("GET", f"/actions/runs/{run['id']}/artifacts").get("artifacts", []):
-            if a["name"].startswith("deliver-") and not a.get("expired"):
-                slug_key = a["name"][8:]
-                arts[slug_key] = a["archive_download_url"]
-                art_ids[slug_key] = a["id"]
+    if batch_slug:
+        # 指定批次已经由调用方确认成片齐全，且优先从 deliver Release 逐条取件。
+        # 不要为每一个 part 重扫最近 30 次 workflow 的全部 Artifact；库存变大后
+        # 这段扫描会耗时数分钟，并让 14 条批次重复 14 遍相同网络请求。
+        arts[batch_slug] = None
+    else:
+        runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
+                         "?status=success&per_page=30").get("workflow_runs", [])
+        for run in runs:
+            for a in gh("GET", f"/actions/runs/{run['id']}/artifacts").get("artifacts", []):
+                if a["name"].startswith("deliver-") and not a.get("expired"):
+                    slug_key = a["name"][8:]
+                    arts[slug_key] = a["archive_download_url"]
+                    art_ids[slug_key] = a["id"]
 
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
