@@ -28,7 +28,7 @@ def main():
     client = Client(open_api_models.Config(
         access_key_id=required_env("ALIYUN_AK"),
         access_key_secret=required_env("ALIYUN_SK"),
-        endpoint=f"fc3.{region}.aliyuncs.com",
+        endpoint=f"fcv3.{region}.aliyuncs.com",
     ))
     code = fc_models.InputCodeLocation(
         zip_file=base64.b64encode(zip_path.read_bytes()).decode("ascii"))

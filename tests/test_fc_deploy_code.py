@@ -72,7 +72,7 @@ def test_code_only_deploy_preserves_function_configuration(monkeypatch, tmp_path
 
     assert calls["function_name"] == "linyuan-pipeline"
     assert set(calls["update_fields"]) == {"code"}
-    assert calls["config"]["endpoint"] == "fc3.cn-hangzhou.aliyuncs.com"
+    assert calls["config"]["endpoint"] == "fcv3.cn-hangzhou.aliyuncs.com"
 
 
 def test_deploy_workflow_uses_only_aliyun_secrets():
