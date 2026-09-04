@@ -30,6 +30,8 @@ jobs:
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
       # runner context 在 job 级 env 尚不可用；使用固定临时路径避免工作流预校验失败。
       FC_CODE_ZIP: /tmp/fc-code.zip
+      FC_MEMORY_SIZE_MB: '1024'
+      FC_CPU: '0.5'
       FC_TIMEOUT_SECONDS: '1800'
       FC_DISK_SIZE_MB: '10240'
     steps:

@@ -37,6 +37,8 @@ def main():
     # 用于容纳 57 分钟完整版；一次调用只下载当前一条，使用完立即清理。
     body = fc_models.UpdateFunctionInput(
         code=code,
+        memory_size=int(os.environ.get("FC_MEMORY_SIZE_MB", "1024")),
+        cpu=float(os.environ.get("FC_CPU", "0.5")),
         timeout=int(os.environ.get("FC_TIMEOUT_SECONDS", "1800")),
         disk_size=int(os.environ.get("FC_DISK_SIZE_MB", "10240")),
         instance_concurrency=1,

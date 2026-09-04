@@ -72,7 +72,10 @@ def test_deploy_preserves_secrets_and_sets_uploader_limits(monkeypatch, tmp_path
 
     assert calls["function_name"] == "fc-develop"
     assert set(calls["update_fields"]) == {
-        "code", "timeout", "disk_size", "instance_concurrency"}
+        "code", "memory_size", "cpu", "timeout", "disk_size",
+        "instance_concurrency"}
+    assert calls["update_fields"]["memory_size"] == 1024
+    assert calls["update_fields"]["cpu"] == 0.5
     assert calls["update_fields"]["timeout"] == 1800
     assert calls["update_fields"]["disk_size"] == 10240
     assert calls["update_fields"]["instance_concurrency"] == 1
