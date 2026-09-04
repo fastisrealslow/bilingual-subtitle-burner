@@ -89,6 +89,7 @@ jobs:
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as open_api
+          from alibabacloud_tea_util import models as util_models
 
           config = open_api.Config(
               access_key_id=os.environ["ALIYUN_AK"],
@@ -130,14 +131,20 @@ jobs:
                   "title": "2026年8月7日林园57分钟专访",
               }).encode()
               accepted = False
+              headers = m.InvokeFunctionHeaders(common_headers={
+                  "x-fc-invocation-type": "Async",
+              })
               for attempt in range(1, 6):
                   try:
-                      response = client.invoke_function(
+                      response = client.invoke_function_with_options(
                           os.environ["FC_FUNCTION_NAME"],
                           m.InvokeFunctionRequest(
                               qualifier="LATEST",
-                              x_fc_invocation_type="Async",
-                              body=io.BytesIO(payload)))
+                              body=io.BytesIO(payload)),
+                          headers,
+                          util_models.RuntimeOptions(
+                              connect_timeout=10000,
+                              read_timeout=120000))
                       status = int(getattr(response, "status_code", 202) or 202)
                       if status != 202:
                           raise RuntimeError(f"异步调用未被接受，HTTP {status}")
