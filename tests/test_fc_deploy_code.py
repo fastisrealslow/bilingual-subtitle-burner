@@ -70,7 +70,7 @@ def test_code_only_deploy_preserves_function_configuration(monkeypatch, tmp_path
 
     _load_module().main()
 
-    assert calls["function_name"] == "linyuan-pipeline"
+    assert calls["function_name"] == "fc-develop"
     assert set(calls["update_fields"]) == {"code"}
     assert calls["config"]["endpoint"] == "fcv3.cn-hangzhou.aliyuncs.com"
 

@@ -60,5 +60,5 @@ zip -qr layer.zip python
 会由 `FC production deploy` workflow 自动更新函数代码，不再手工上传 ZIP。
 
 自动部署只更新代码包，FC 中已有的 `GITHUB_TOKEN`、`BILIBILI_COOKIES`、
-依赖层、超时和触发器都会保留。若函数不在杭州或名称不是 `linyuan-pipeline`，
+依赖层、超时和触发器都会保留。若函数不在杭州或名称不是 `fc-develop`，
 再添加仓库 Variables：`FC_REGION`、`FC_FUNCTION_NAME`。

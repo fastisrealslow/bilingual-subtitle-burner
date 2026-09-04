@@ -20,7 +20,7 @@ def main():
     from alibabacloud_tea_openapi import models as open_api_models
 
     region = os.environ.get("FC_REGION", "cn-hangzhou").strip()
-    function_name = os.environ.get("FC_FUNCTION_NAME", "linyuan-pipeline").strip()
+    function_name = os.environ.get("FC_FUNCTION_NAME", "fc-develop").strip()
     zip_path = Path(os.environ.get("FC_CODE_ZIP", "/tmp/fc-code.zip"))
     if not zip_path.is_file() or zip_path.stat().st_size == 0:
         raise SystemExit(f"FC 代码包不存在或为空：{zip_path}")
