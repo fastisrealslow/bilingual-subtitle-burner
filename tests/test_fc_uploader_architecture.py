@@ -69,5 +69,7 @@ def test_workflows_publish_one_part_and_release_covers():
     assert "config.read_timeout = 1800000" in batch
     assert "io.BytesIO(payload)" in batch
     assert "m.InvokeRequest" not in batch
+    assert "for attempt in range(1, 6)" in batch
+    assert "time.sleep(wait_seconds)" in batch
     assert "for f in cover*.jpg" in produce
     assert 'cp "$f" "${{ inputs.slug }}.$f"' in produce

@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import io, json, os
+          import io, json, os, time
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as open_api
@@ -107,10 +107,22 @@ jobs:
                   "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
                   "title": "2026年8月7日林园57分钟专访",
               }).encode()
-              response = client.invoke_function(
-                  os.environ["FC_FUNCTION_NAME"],
-                  m.InvokeFunctionRequest(
-                      qualifier="LATEST", body=io.BytesIO(payload)))
+              response = None
+              for attempt in range(1, 6):
+                  try:
+                      response = client.invoke_function(
+                          os.environ["FC_FUNCTION_NAME"],
+                          m.InvokeFunctionRequest(
+                              qualifier="LATEST", body=io.BytesIO(payload)))
+                      break
+                  except Exception as exc:
+                      if attempt == 5:
+                          raise
+                      wait_seconds = attempt * 15
+                      print(f"阿里 FC 调用失败（第 {attempt}/5 次）：{exc}；"
+                            f"{wait_seconds} 秒后重试")
+                      time.sleep(wait_seconds)
+              assert response is not None
               raw = response.body.read().decode() if hasattr(response.body, "read") else str(response.body)
               print(raw)
               result = json.loads(raw)
