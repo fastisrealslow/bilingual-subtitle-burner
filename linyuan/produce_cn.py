@@ -64,9 +64,13 @@ MIN_SHORT_EDGE = 360
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 5
-AUDIO_CARD_WIDTH = 1280
-AUDIO_CARD_HEIGHT = 720
+QUALITY_GATE_VERSION = 6
+# 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
+# 9:16 竖版上传，B站桌面播放器自行补黑边；移动端则直接占满屏幕。我们保留
+# 这种有效的版式，但不复制对方插画或照片资产，改用自有的通用编辑卡视觉。
+AUDIO_CARD_WIDTH = 720
+AUDIO_CARD_HEIGHT = 1280
+AUDIO_CARD_TEMPLATE = "portrait_editorial_v2"
 ALLOW_AUDIO_CARD = os.environ.get("ALLOW_AUDIO_CARD", "1") != "0"
 
 # 自有品牌水印：先清掉来源平台/搬运账号角标，再在同一次编码中叠加到右上角。
@@ -1228,7 +1232,7 @@ def translate(texts, api_key, work):
     return out
 
 
-def make_ass(entries, path, W, H):
+def make_ass(entries, path, W, H, card_style=False):
     """竖版适配:字号按高度算、抬到安全区。burner 的 make_ass 是按 16:9 调的,
     720x1280 下算出来才 29px,且会被平台底部 UI 遮住。
 
@@ -1301,6 +1305,10 @@ def make_ass(entries, path, W, H):
     def ts(s):
         return f"{int(s//3600)}:{int(s%3600//60):02d}:{s%60:05.2f}"
 
+    # 音频卡沿用对标账号最易读的「黄字黑边」字幕；真实原画仍保持白字，避免
+    # 在浅色/暖色现场画面上产生不必要的品牌化偏色。
+    zh_color = "&H0000D7FF" if card_style else "&H00FFFFFF"
+    zh_outline = 5 if card_style else 3
     L = ["[Script Info]", "ScriptType: v4.00+", f"PlayResX: {W}", f"PlayResY: {H}",
          "", "[V4+ Styles]",
          "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, "
@@ -1309,8 +1317,8 @@ def make_ass(entries, path, W, H):
          "MarginL, MarginR, MarginV, Encoding",
          f"Style: EN,{font_en},{en},&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
          f"-1,0,0,0,100,100,0,0,1,2,1,2,20,20,{mv + zh*2 + 10},1",
-         f"Style: ZH,{font_zh},{zh},&H00FFFFFF,&H000000FF,&H00000000,"
-         f"&H80000000,-1,0,0,0,100,100,0,0,1,3,1,2,20,20,{mv},1",
+         f"Style: ZH,{font_zh},{zh},{zh_color},&H000000FF,&H00000000,"
+         f"&H80000000,-1,0,0,0,100,100,0,0,1,{zh_outline},1,2,20,20,{mv},1",
          "", "[Events]",
          "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, "
          "Effect, Text"]
@@ -2342,7 +2350,7 @@ def delogo_filter(boxes, W, H, pad=4):
     return ",".join(parts)
 
 
-def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.35):
+def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.24):
     """算安全裁切方案 (crop_w, crop_h, crop_x, crop_y)，只为「腾出干净的字幕位」。
 
     历史教训（2026-09-01 三次迭代）：
@@ -2354,7 +2362,8 @@ def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.35):
     参数：
       stable  行覆盖率 ≥ 此值视为常驻文字（贴片/硬字幕）
       clean   裁完后底部区域允许的最大覆盖率
-      max_cut 总裁切上限，超过就放弃裁切（宁可带字幕也不切坏画面）
+      max_cut 总裁切上限。实看对标账号后收紧到 24%：它对横屏原片基本不裁，
+              竖屏包装则保留完整主体；超过这个比例不再硬切，转音频卡重建。
     """
     cov = ocr_row_coverage(src)
     if not any(cov):
@@ -2568,7 +2577,20 @@ def _dedup_chunks_by_llm(chunks, cues, api_key, work):
     return [chunks[i] for i in keep0]
 
 
-def make_audio_card(out_path, speaker, topic):
+def _wrap_audio_card_title(title, chars_per_line, max_lines=3):
+    """音频卡标题优先按词换行；词边界装不下时退回定长分行。
+
+    `wrap_cover_title` 为普通封面设计，会为了不拆词而正确地拒绝超行标题；
+    音频卡标题已经按画布容量截短，不能再因英文长词或混排词边界废掉成片。
+    """
+    try:
+        return wrap_cover_title(title, chars_per_line, max_lines=max_lines)
+    except VisualQualityError:
+        return [title[i:i + chars_per_line]
+                for i in range(0, len(title), chars_per_line)][:max_lines]
+
+
+def make_audio_card(out_path, speaker, topic, width=None, height=None):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
@@ -2576,54 +2598,143 @@ def make_audio_card(out_path, speaker, topic):
     """
     from PIL import Image, ImageDraw, ImageFont
 
-    width, height = AUDIO_CARD_WIDTH, AUDIO_CARD_HEIGHT
-    image = Image.new("RGB", (width, height), (10, 20, 37))
+    width = int(width or AUDIO_CARD_WIDTH)
+    height = int(height or AUDIO_CARD_HEIGHT)
+    vertical = height > width
+
+    # 对标账号的高播放音频卡不是深色科技模板，而是「浅灰底 + 人物视觉 +
+    # 红黄标题 + 黄字字幕」。这里复刻信息层级和观看习惯，不复制它的插画、
+    # 照片、署名或其他受保护资产。浅暖灰比纯白更耐看，也能承托金色品牌色。
+    image = Image.new("RGB", (width, height), (232, 231, 226))
     draw = ImageDraw.Draw(image)
     for y in range(height):
         blend = y / max(1, height - 1)
-        color = (int(10 + 10 * blend), int(20 + 24 * blend),
-                 int(37 + 36 * blend))
+        color = (int(238 - 15 * blend), int(237 - 14 * blend),
+                 int(232 - 12 * blend))
         draw.line((0, y, width, y), fill=color)
-    draw.rounded_rectangle((86, 118, width - 86, 500), radius=34,
-                           fill=(17, 35, 60), outline=(193, 151, 64), width=3)
-    draw.ellipse((116, 162, 242, 288), fill=(193, 151, 64))
-    draw.ellipse((151, 188, 207, 244), fill=(17, 35, 60))
-    draw.rectangle((171, 235, 187, 276), fill=(17, 35, 60))
 
     font_path = next((x for x in (
+        os.environ.get("AUDIO_CARD_FONT_FILE"),
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
         "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
         "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
-    ) if Path(x).exists()), None)
+    ) if x and Path(x).exists()), None)
     if not font_path:
         raise VisualQualityError("音频卡缺少中文字体，拒绝生成方框字成片")
     index = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
-    headline_font = (ImageFont.truetype(font_path, 62, index=index)
+    unit = (min(width / 720, height / 1280) if vertical
+            else min(width / 1280, height / 720))
+    headline_size = max(34, int((52 if vertical else 58) * unit))
+    topic_size = max(25, int((43 if vertical else 40) * unit))
+    small_size = max(18, int((22 if vertical else 24) * unit))
+    headline_font = (ImageFont.truetype(font_path, headline_size, index=index)
                      if font_path else ImageFont.load_default())
-    topic_font = (ImageFont.truetype(font_path, 38, index=index)
+    topic_font = (ImageFont.truetype(font_path, topic_size, index=index)
                   if font_path else ImageFont.load_default())
-    small_font = (ImageFont.truetype(font_path, 25, index=index)
+    small_font = (ImageFont.truetype(font_path, small_size, index=index)
                   if font_path else ImageFont.load_default())
-    draw.text((282, 170), f"{speaker}公开发言原声", font=headline_font,
-              fill=(255, 255, 255), stroke_width=1, stroke_fill=(0, 0, 0))
+
     display_topic = re.sub(r"\s+", " ", topic or "投资观点精选").strip()
-    if len(display_topic) > 42:
-        display_topic = display_topic[:41] + "…"
-    lines = wrap_cover_title(display_topic, 21, max_lines=2)
-    for i, line in enumerate(lines):
-        draw.text((282, 286 + i * 54), line, font=topic_font,
-                  fill=(226, 232, 240))
-    draw.text((282, 428), "画面已重建 · 仅保留经核验讲话音频",
-              font=small_font, fill=(143, 165, 190))
+    if len(display_topic) > 39:
+        display_topic = display_topic[:38] + "…"
+
+    if vertical:
+        margin_x = int(width * 0.07)
+        # 顶部身份标签与对标账号的大标题层级相同，但采用自有红金配色。
+        label = f"{speaker} · 公开发言原声"
+        label_box = draw.textbbox((0, 0), label, font=small_font)
+        label_w = label_box[2] - label_box[0] + int(34 * unit)
+        label_h = label_box[3] - label_box[1] + int(20 * unit)
+        label_x = (width - label_w) // 2
+        label_y = int(height * 0.105)
+        draw.rounded_rectangle((label_x, label_y, label_x + label_w,
+                                label_y + label_h),
+                               radius=max(8, int(12 * unit)),
+                               fill=(155, 39, 35))
+        draw.text((label_x + int(17 * unit), label_y + int(7 * unit)), label,
+                  font=small_font, fill=(255, 246, 220))
+
+        lines = _wrap_audio_card_title(display_topic, 13, max_lines=3)
+        line_h = int(topic_size * 1.22)
+        title_y = int(height * 0.17)
+        for i, line in enumerate(lines):
+            box = draw.textbbox((0, 0), line, font=topic_font, stroke_width=3)
+            x = (width - (box[2] - box[0])) // 2
+            draw.text((x, title_y + i * line_h), line, font=topic_font,
+                      fill=(255, 205, 24),
+                      stroke_width=max(2, int(3 * unit)),
+                      stroke_fill=(67, 29, 20))
+
+        # 自有抽象人物/话筒视觉：保持“人物卡”的重心，但不复制对方插画。
+        cx = width // 2
+        halo_r = int(width * 0.29)
+        halo_y = int(height * 0.57)
+        draw.ellipse((cx - halo_r, halo_y - halo_r, cx + halo_r,
+                      halo_y + halo_r), fill=(245, 242, 232),
+                     outline=(193, 151, 64), width=max(3, int(5 * unit)))
+        head_r = int(width * 0.105)
+        head_y = int(height * 0.505)
+        draw.ellipse((cx - head_r, head_y - head_r, cx + head_r,
+                      head_y + head_r), fill=(35, 48, 64))
+        shoulder_w = int(width * 0.27)
+        shoulder_h = int(height * 0.125)
+        draw.rounded_rectangle((cx - shoulder_w, int(height * 0.57),
+                                cx + shoulder_w,
+                                int(height * 0.57) + shoulder_h),
+                               radius=int(width * 0.11), fill=(35, 48, 64))
+        mic_x = cx + int(width * 0.19)
+        mic_y = int(height * 0.56)
+        mic_r = int(width * 0.045)
+        draw.ellipse((mic_x - mic_r, mic_y - mic_r,
+                      mic_x + mic_r, mic_y + mic_r), fill=(193, 151, 64))
+        draw.line((mic_x, mic_y + mic_r, mic_x, mic_y + mic_r * 3),
+                  fill=(193, 151, 64), width=max(5, int(8 * unit)))
+        draw.arc((mic_x - mic_r * 2, mic_y, mic_x + mic_r * 2,
+                  mic_y + mic_r * 3), 5, 175, fill=(193, 151, 64),
+                 width=max(4, int(6 * unit)))
+
+        note = "画面重建 · 经核验讲话音频"
+        note_box = draw.textbbox((0, 0), note, font=small_font)
+        draw.text(((width - (note_box[2] - note_box[0])) // 2,
+                   int(height * 0.765)), note, font=small_font,
+                  fill=(89, 94, 99))
+        draw.line((margin_x, int(height * 0.805), width - margin_x,
+                   int(height * 0.805)), fill=(196, 190, 177),
+                  width=max(1, int(2 * unit)))
+    else:
+        # B站封面仍需 16:9：沿用同一视觉语言，避免直接拿竖卡充当横封面。
+        panel = (int(width * 0.07), int(height * 0.17),
+                 int(width * 0.93), int(height * 0.72))
+        draw.rounded_rectangle(panel, radius=max(18, int(28 * unit)),
+                               fill=(245, 242, 232),
+                               outline=(193, 151, 64),
+                               width=max(2, int(4 * unit)))
+        icon_x, icon_y = int(width * 0.19), int(height * 0.43)
+        icon_r = int(height * 0.11)
+        draw.ellipse((icon_x - icon_r, icon_y - icon_r,
+                      icon_x + icon_r, icon_y + icon_r), fill=(35, 48, 64))
+        draw.text((int(width * 0.29), int(height * 0.25)),
+                  f"{speaker}公开发言原声", font=headline_font,
+                  fill=(45, 50, 55))
+        lines = _wrap_audio_card_title(display_topic, 19, max_lines=3)
+        for i, line in enumerate(lines):
+            draw.text((int(width * 0.29),
+                       int(height * 0.40) + i * int(topic_size * 1.25)),
+                      line, font=topic_font, fill=(155, 39, 35))
+        draw.text((int(width * 0.29), int(height * 0.64)),
+                  "画面重建 · 经核验讲话音频", font=small_font,
+                  fill=(89, 94, 99))
 
     brand = Image.open(brand_watermark_path()).convert("RGBA")
-    brand_w = int(width * BRAND_WATERMARK_WIDTH_RATIO)
+    brand_w = int(width * (0.18 if vertical
+                           else BRAND_WATERMARK_WIDTH_RATIO))
     brand_h = max(1, int(brand.height * brand_w / brand.width))
     brand = brand.resize((brand_w, brand_h), Image.LANCZOS)
     alpha = brand.getchannel("A").point(
         lambda value: int(value * BRAND_WATERMARK_OPACITY))
     brand.putalpha(alpha)
-    margin = int(width * BRAND_WATERMARK_MARGIN_RATIO)
+    margin = int(width * (0.035 if vertical
+                          else BRAND_WATERMARK_MARGIN_RATIO))
     image.paste(brand, (width - brand_w - margin, margin), brand)
     out_path = Path(out_path)
     if out_path.suffix.lower() in {".jpg", ".jpeg"}:
@@ -2660,7 +2771,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     brand = brand_watermark_path()
     audio_card = None
     if strategy == "audio_card":
-        audio_card = make_audio_card(work / "audio_card.png", speaker, occasion)
+        # 用本条已选内容的第一段做卡片标题，避免所有音频卡都只写泛化场次名。
+        # 这对应对标账号“顶部标题直接概括本条观点”的有效做法。
+        first_pick = picks[0]
+        topic_text = "".join(cues[i]["text"] for i in range(
+            first_pick["start"], first_pick["end"] + 1))
+        audio_card = make_audio_card(
+            work / "audio_card.png", speaker, topic_text)
     en_map = {}
     parts = []
     for n, p in enumerate(picks, 1):
@@ -2670,7 +2787,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     "end_sec": cues[i]["end"] - s0,
                     "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
         ass = work / f"seg{suffix}{n}.ass"
-        make_ass(entries, ass, crop_w, crop_h)
+        make_ass(entries, ass, crop_w, crop_h,
+                 card_style=(strategy == "audio_card"))
         seg = work / f"seg{suffix}{n}.mp4"
         vertical = H > W
         seg_dur = s1 - s0
@@ -2730,7 +2848,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         if strategy == "audio_card":
-            make_audio_card(cover, speaker, cw["title"])
+            make_audio_card(cover, speaker, cw["title"],
+                            width=1280, height=720)
         else:
             make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
                        cw["title"], speaker, cover, video_filter=clean_vf,
@@ -2748,6 +2867,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "watermark_removed": strategy != "direct",
         "watermark_verified": True,
         "clean_strategy": strategy,
+        "audio_card_template": (AUDIO_CARD_TEMPLATE
+                                if strategy == "audio_card" else None),
         "brand_watermark_applied": True,
         "brand_watermark": {
             "name": "园来滚雪球", "position": "top-right",

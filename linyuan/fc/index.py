@@ -56,7 +56,7 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 360
-QUALITY_GATE_VERSION = 5                 # v5 起记录裁切/音频卡干净画面策略
+QUALITY_GATE_VERSION = 6                 # v6 起使用竖版编辑音频卡并收紧安全裁切上限
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 

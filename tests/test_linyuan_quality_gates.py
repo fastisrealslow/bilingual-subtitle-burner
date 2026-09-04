@@ -123,7 +123,7 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
 
 def _good_artifact_meta():
     return {
-        "quality_gate_version": 5,
+        "quality_gate_version": FC.QUALITY_GATE_VERSION,
         "speaker": "林园",
         "visual_identity": {
             "speaker": "林园", "same_person_frames": [1, 2],
@@ -234,7 +234,7 @@ def test_source_report_is_reused_only_for_the_same_media(monkeypatch, tmp_path):
     src.write_bytes(b"video")
     report = tmp_path / "source_quality.json"
     report.write_text(json.dumps({
-        "quality_gate_version": 5,
+        "quality_gate_version": P.QUALITY_GATE_VERSION,
         "source_sha256": "right",
         "passed": True,
         "has_existing_subtitles": False,

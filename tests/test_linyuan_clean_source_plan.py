@@ -36,8 +36,43 @@ def test_dirty_video_without_safe_crop_uses_clean_audio_card(monkeypatch,
     plan = P.build_clean_source_plan(
         Path("dirty.mp4"), tmp_path, 720, 1280, 180, True)
     assert plan["clean_strategy"] == "audio_card"
-    assert plan["clean_output_resolution"]["short_edge"] == 720
+    assert plan["clean_output_resolution"] == {
+        "width": 720, "height": 1280, "short_edge": 720,
+    }
     assert plan["clean_video_filter"] == ""
+
+
+def test_audio_card_ass_uses_yellow_black_outline(tmp_path):
+    ass = tmp_path / "card.ass"
+    P.make_ass([{
+        "start_sec": 0.0, "end_sec": 2.0,
+        "zh": "投资要看供需关系", "en": "",
+    }], ass, 720, 1280, card_style=True)
+    text = ass.read_text(encoding="utf-8-sig")
+    style = next(line for line in text.splitlines()
+                 if line.startswith("Style: ZH,"))
+    assert "&H0000D7FF" in style
+    assert ",1,5,1,2," in style
+
+
+def test_real_video_subtitles_remain_white(tmp_path):
+    ass = tmp_path / "direct.ass"
+    P.make_ass([{
+        "start_sec": 0.0, "end_sec": 2.0,
+        "zh": "投资要看供需关系", "en": "",
+    }], ass, 1280, 720)
+    text = ass.read_text(encoding="utf-8-sig")
+    style = next(line for line in text.splitlines()
+                 if line.startswith("Style: ZH,"))
+    assert "&H00FFFFFF" in style
+    assert ",1,3,1,2," in style
+
+
+def test_audio_card_title_falls_back_to_fixed_width_for_long_words():
+    title = "VALUE INVESTING WINS OVER THE VERY LONG TERM"
+    lines = P._wrap_audio_card_title(title[:39], 13, max_lines=3)
+    assert len(lines) <= 3
+    assert "".join(lines) == title[:39]
 
 
 def test_cleanable_subtitle_band_is_cropped_and_preview_verified(monkeypatch,
@@ -53,6 +88,14 @@ def test_cleanable_subtitle_band_is_cropped_and_preview_verified(monkeypatch,
     assert plan["clean_output_resolution"] == {
         "width": 1280, "height": 600, "short_edge": 600,
     }
+
+
+def test_deep_subtitle_band_is_not_cropped_past_the_safe_limit(monkeypatch):
+    coverage = [0.0] * 100
+    coverage[70:80] = [1.0] * 10
+    monkeypatch.setattr(P, "ocr_row_coverage", lambda *a, **k: coverage)
+    monkeypatch.setattr(P, "_face_survives", lambda *a, **k: True)
+    assert P.safe_crop_plan(Path("dirty.mp4"), 1280, 720) is None
 
 
 def test_audio_card_fails_closed_without_chinese_font(monkeypatch, tmp_path):
