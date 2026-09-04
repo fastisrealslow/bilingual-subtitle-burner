@@ -17,7 +17,7 @@ on:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: linyuan-publish-batch-${{ inputs.slug }}
@@ -54,6 +54,29 @@ jobs:
           else
             echo 'enabled=false' >> "$GITHUB_OUTPUT"
           fi
+      - name: 为旧批次补齐逐条封面
+        if: github.event_name == 'workflow_run' && steps.target.outputs.enabled == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          first_cover="https://github.com/${GITHUB_REPOSITORY}/releases/download/deliver/${BATCH_SLUG}.cover_1.jpg"
+          if curl -sfIL "$first_cover" >/dev/null; then
+            echo '逐条封面已在 Release，无需补传'
+            exit 0
+          fi
+          source_dir="$RUNNER_TEMP/source-delivery"
+          release_dir="$RUNNER_TEMP/release-covers"
+          mkdir -p "$source_dir" "$release_dir"
+          gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "deliver-$BATCH_SLUG" --dir "$source_dir"
+          while IFS= read -r -d '' cover; do
+            cp "$cover" "$release_dir/${BATCH_SLUG}.$(basename "$cover")"
+          done < <(find "$source_dir" -type f -name 'cover*.jpg' -print0)
+          test -n "$(find "$release_dir" -type f -name '*.jpg' -print -quit)"
+          gh release upload deliver "$release_dir"/*.jpg --clobber \
+            --repo "$GITHUB_REPOSITORY"
       - name: 分批调用境内投稿器
         if: github.event_name == 'workflow_dispatch' || steps.target.outputs.enabled == 'true'
         shell: bash
@@ -65,18 +88,21 @@ jobs:
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as open_api
 
-          client = Client(open_api.Config(
+          config = open_api.Config(
               access_key_id=os.environ["ALIYUN_AK"],
               access_key_secret=os.environ["ALIYUN_SK"],
-              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com")
+          config.connect_timeout = 10000
+          config.read_timeout = 1800000
+          client = Client(config)
           remaining = int(os.environ["BATCH_TOTAL"])
           published = 0
           while remaining > 0:
-              take = min(3, remaining)
               payload = json.dumps({
                   "triggerName": "publish-batch",
                   "batch_slug": os.environ["BATCH_SLUG"],
-                  "batch_remaining": take,
+                  # 一次 FC 调用只投一条：失败只重试当前 part，不在函数内递归上传。
+                  "batch_remaining": 1,
                   "ignore_daily_limit": True,
                   "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
                   "title": "2026年8月7日林园57分钟专访",

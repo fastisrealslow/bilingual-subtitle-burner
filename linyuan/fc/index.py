@@ -41,6 +41,7 @@ API = f"https://api.github.com/repos/{REPO}"
 WF_PRODUCE = "linyuan-produce-cn.yml"
 DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
+DELIVERY_RELEASE_TAG = "deliver"
 
 MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
@@ -100,8 +101,24 @@ def title_has_target_speaker(title):
         return False
     return bool(DIRECT_SPEECH_PAT.search(title) or FULL_TITLE_PAT.search(title))
 
-# 投稿好时段（北京）：与 publish 触发器 cron 对齐（9/11/13/15/18/21 六次，每次只投 1 条）
-PUBLISH_SLOTS = [(9, 0), (11, 0), (13, 0), (15, 0), (18, 0), (21, 0)]
+# 普通投稿好时段（北京时间）。FC 的兼容触发器仍可每小时唤醒，但只有这些
+# 小时真正检查并投稿；批量任务带 batch_slug，明确绕过本限制。
+PUBLISH_HOURS = {9, 11, 13, 15, 18, 21}
+UPLOAD_LEASE_SECONDS = 45 * 60
+
+
+def is_regular_publish_hour(now=None):
+    """普通队列只在六个北京时间窗口运行，避免每小时触发导致凌晨连发。"""
+    stamp = time.time() if now is None else float(now)
+    return time.gmtime(stamp + 8 * 3600).tm_hour in PUBLISH_HOURS
+
+
+def has_active_upload_lease(candidate, now=None):
+    """另一个调用刚声明上传时先让路，避免定时器与批处理撞车。"""
+    if not candidate.get("uploading") or not candidate.get("uploading_ts"):
+        return False
+    stamp = time.time() if now is None else float(now)
+    return stamp - float(candidate["uploading_ts"]) < UPLOAD_LEASE_SECONDS
 
 
 def platform_of(source):
@@ -154,6 +171,55 @@ def gh(method, path, payload=None, raw=False, timeout=120):
         if raw:
             return body
         return json.loads(body.decode() or "{}")
+
+
+def download_release_asset(asset, dest, max_time=1620):
+    """流式下载单个 Release 资产，避免把整批视频读进内存或临时盘。"""
+    url = asset.get("browser_download_url") or asset.get("url")
+    if not url:
+        return False
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    cmd = ["curl", "-sfL", "--retry", "3", "--max-time", str(max_time),
+           "-H", f"Authorization: Bearer {TOKEN}",
+           "-o", str(dest), str(url)]
+    result = subprocess.run(cmd, capture_output=True)
+    return result.returncode == 0 and dest.is_file() and dest.stat().st_size > 0
+
+
+def delivery_release_asset(name):
+    """Release 文件名可预测，直接构造 URL，避免每次分页扫描整个成品库。"""
+    return {"browser_download_url": (
+        f"https://github.com/{REPO}/releases/download/"
+        f"{DELIVERY_RELEASE_TAG}/{name}")}
+
+
+def download_release_part(slug, part_index, dest_dir):
+    """只取当前 part 的元数据、视频和封面；缺任一必需文件即回退旧 Artifact。"""
+    dest_dir = Path(dest_dir)
+    meta_dest = dest_dir / "meta.json"
+    if not download_release_asset(
+            delivery_release_asset(f"{slug}.meta.json"), meta_dest,
+            max_time=120):
+        return False
+    try:
+        payload = json.loads(meta_dest.read_text(encoding="utf-8"))
+        parts = payload if isinstance(payload, list) else [payload]
+        part = parts[part_index] if part_index < len(parts) else {}
+        final_name = str(part.get("final") or "final.mp4")
+        cover_name = str(part.get("cover") or "")
+        # 封面体积小，先确认它存在；旧批次缺封面时不要先下载几百 MB 视频。
+        if cover_name and not download_release_asset(
+                delivery_release_asset(f"{slug}.{cover_name}"),
+                dest_dir / cover_name, max_time=120):
+            return False
+        if not download_release_asset(
+                delivery_release_asset(f"{slug}.{final_name}"),
+                dest_dir / final_name):
+            return False
+        return True
+    except (ValueError, OSError, IndexError):
+        return False
 
 
 def load_state():
@@ -1439,8 +1505,12 @@ def _pending_final_count(st):
 def publish_handler(event=None, context=None):
     event = event if isinstance(event, dict) else {}
     batch_slug = str(event.get("batch_slug") or "").strip()
-    batch_remaining = max(1, min(14, int(event.get("batch_remaining") or 1)))
     ignore_daily_limit = bool(event.get("ignore_daily_limit")) and bool(batch_slug)
+    force_publish = bool(event.get("force_publish"))
+    if not batch_slug and not force_publish and not is_regular_publish_hour():
+        hour = time.gmtime(time.time() + 8 * 3600).tm_hour
+        log.info(f"北京时间 {hour:02d} 时不在普通投稿窗口，跳过")
+        return {"published": 0, "outside_publish_window": 1}
     st = load_state()
     if batch_slug and not any(e.get("slug") == batch_slug
                               for e in st.get("dispatched", [])):
@@ -1508,17 +1578,23 @@ def publish_handler(event=None, context=None):
         s = candidate["slug"]
         # 上轮上传中断的（uploading 标记仍在）：绝不能盲目重传——先查 B站
         if candidate.get("uploading"):
+            lease_age = now - float(candidate.get("uploading_ts") or 0)
+            if has_active_upload_lease(candidate, now):
+                log.info(f"{s} 另一投稿调用仍在执行（{lease_age:.0f}s），本轮跳过")
+                continue
             dup = bili_find_duplicate(candidate.get("upload_title") or "")
             if dup:
                 st["published"][s] = {"bvid": dup, "ts": int(time.time()),
                                        "title": candidate.get("upload_title") or candidate.get("title", "")}
                 candidate.pop("uploading", None)
+                candidate.pop("uploading_ts", None)
                 log_event("dedup", f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
                 log.info(f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
                 save_state(st)
             else:
                 candidate["failed"] = True
                 candidate.pop("uploading", None)
+                candidate.pop("uploading_ts", None)
                 log_event("fail", f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
                 log.error(f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
                 save_state(st)
@@ -1569,30 +1645,47 @@ def publish_handler(event=None, context=None):
 
     log.info(f"准备投稿: {slug} (共 {len(pending)} 条待发布，本次只投 1 条)")
 
-    reuse_dir = str(event.get("_artifact_dir") or "").strip()
-    tmp = Path(reuse_dir) if reuse_dir else Path(tempfile.mkdtemp())
+    tmp = Path(tempfile.mkdtemp())
     tmp.mkdir(parents=True, exist_ok=True)
     with open(tmp / "cookies.json", "w") as f:
         f.write(COOKIES_JSON)
     os.chmod(tmp / "cookies.json", 0o600)
 
     done = 0
-    if not (tmp / slug / "meta.json").exists():
+    used_release = False
+    delivery_dir = tmp / slug
+    delivery_dir.mkdir(parents=True, exist_ok=True)
+    if not e.get("reprocessing_quality"):
+        used_release = download_release_part(
+            slug, e.get("published_parts", 0), delivery_dir)
+
+    if not used_release:
+        shutil.rmtree(delivery_dir, ignore_errors=True)
+        delivery_dir.mkdir(parents=True, exist_ok=True)
         zf = tmp / f"{slug}.zip"
-        dl = subprocess.run(["curl", "-sfL", "--max-time", "600", "-C", "-",
+        artifact_url = arts.get(slug)
+        if not artifact_url:
+            log.error(f"✗ {slug} 逐条 Release 不完整且无 Artifact 可回退")
+            shutil.rmtree(tmp, ignore_errors=True)
+            return {"published": 0}
+        dl = subprocess.run(["curl", "-sfL", "--max-time", "1620", "-C", "-",
                              "-H", f"Authorization: Bearer {TOKEN}",
-                             "-o", str(zf), arts[slug]], capture_output=True)
+                             "-o", str(zf), artifact_url], capture_output=True)
         if dl.returncode != 0:
             log.error(f"✗ {slug} artifact 下载失败: {dl.stderr.decode()[:200]}")
             e["failed"] = True
             save_state(st)
             log.info(f"{slug} artifact 不可用，标记为失败")
+            shutil.rmtree(tmp, ignore_errors=True)
             return {"published": 0}
         subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
+    else:
+        log.info(f"{slug} 使用 Release 逐条下载，未拉取整批 Artifact")
     # 长视频拆多条：检测所有 final*.mp4（final.mp4 / final_1.mp4 ...）
     final_videos = sorted((tmp / slug).glob("final*.mp4"), key=lambda p: p.name)
     if not final_videos:
         log.error(f"✗ {slug} 成片不存在")
+        shutil.rmtree(tmp, ignore_errors=True)
         return {"published": 0}
 
     # meta.json：可能是 dict（单条）或 list（多条），统一成 parts 列表
@@ -1614,6 +1707,7 @@ def publish_handler(event=None, context=None):
     k = e.get("published_parts", 0)
     if k >= parts_total:
         log.info(f"{slug} 的 {parts_total} 条已全部投完")
+        shutil.rmtree(tmp, ignore_errors=True)
         return {"published": 0}
     part = parts[k]
     video = tmp / slug / part.get("final", "final.mp4")
@@ -1665,6 +1759,7 @@ def publish_handler(event=None, context=None):
     except ImportError as e:
         log.error(f"✗ biliup 不可用: {e}")
         log.error(f"  sys.path: {sys.path}")
+        shutil.rmtree(tmp, ignore_errors=True)
         return {"published": 0}
     
     # 使用 subprocess 调用 biliup CLI，设置 PYTHONPATH 环境变量
@@ -1745,6 +1840,7 @@ def publish_handler(event=None, context=None):
             event, context, slug, {"published": 0, "existing": 1}, tmp)
     # 4) 落盘上传意图：万一上传后崩溃，下轮凭 uploading 标记走恢复逻辑而非重传
     e["uploading"] = True
+    e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
     save_state(st)
     
@@ -1753,12 +1849,20 @@ def publish_handler(event=None, context=None):
     env["PYTHONPATH"] = ":".join(sys.path)
     
     # 调用 biliup CLI
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=900, env=env)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True,
+                           timeout=1620, env=env)
+    except subprocess.TimeoutExpired:
+        log_event("fail", f"✗ {slug} 投稿超过 27 分钟", title[:80])
+        log.error(f"✗ {slug} 投稿超时；保留上传租约供下轮查重恢复")
+        shutil.rmtree(tmp, ignore_errors=True)
+        return {"published": 0, "upload_timeout": 1}
     out = (r.stdout or "") + (r.stderr or "")
     m = re.search(r'BV\w{10}', out)
     if r.returncode == 0 and m:
         bvid = m.group(0)
         e.pop("uploading", None)
+        e.pop("uploading_ts", None)
         e.pop("upload_title", None)
         e.pop("reprocessing_quality", None)
         e.pop("quality_failure", None)
@@ -1805,12 +1909,6 @@ def publish_handler(event=None, context=None):
         log_event("publish_ok", f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}", title[:50])
         log.info(f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}")
         done += 1
-        if ignore_daily_limit and batch_remaining > 1 and k + 1 < parts_total:
-            next_event = dict(event)
-            next_event["batch_remaining"] = batch_remaining - 1
-            next_event["_artifact_dir"] = str(tmp)
-            follow = publish_handler(next_event, context) or {}
-            done += int(follow.get("published", 0))
     else:
         # 输出完整错误信息，方便调试
         log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} {((r.stdout or '') + (r.stderr or ''))[:150]}")
@@ -1823,4 +1921,5 @@ def publish_handler(event=None, context=None):
         if tail:
             log.error(f"  错误信息: {'; '.join(tail)[:300]}")
 
+    shutil.rmtree(tmp, ignore_errors=True)
     return {"published": done}

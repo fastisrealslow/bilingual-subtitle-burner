@@ -10,7 +10,8 @@ cookies 和 GitHub token **只存在你自己的阿里云账号**，不碰公司
    - 运行时：**Python 3.10**
    - 地域：任意（杭州/上海均可）
    - 上传代码：把本目录 `index.py` 打成 zip 上传（或直接粘贴进在线编辑器）
-   - 执行超时时间：**600 秒**（调度要下载视频，默认 60s 不够）
+   - 执行超时时间：**1800 秒**（可容纳完整版投稿）
+   - 临时磁盘：**10 GB**（FC 只有 512 MB / 10 GB 两档；逐条用完即清理）
 
 ## 2. 装依赖层（biliup）
 
@@ -42,6 +43,9 @@ zip -qr layer.zip python
 | 每日调度 | `0 0 10 * * *` | `index.dispatch_handler` |
 | 投稿 | `0 30 * * * *` | `index.publish_handler` |
 
+投稿触发器可以保持每小时唤醒；代码只在北京时间 9、11、13、15、18、21
+六个窗口处理普通队列。带 `batch_slug` 的专项批次不受该窗口和每日上限限制。
+
 ## 5. 手动点一次「测试」验证
 
 先测 `dispatch_handler`：看日志里是否出现「候选 N 条 / 已调度 ly-xxxx」。
@@ -60,5 +64,6 @@ zip -qr layer.zip python
 会由 `FC production deploy` workflow 自动更新函数代码，不再手工上传 ZIP。
 
 自动部署只更新代码包，FC 中已有的 `GITHUB_TOKEN`、`BILIBILI_COOKIES`、
-依赖层、超时和触发器都会保留。若函数不在杭州或名称不是 `fc-develop`，
+依赖层、凭据和触发器都会保留；自动部署只把超时调整为 1800 秒、临时磁盘
+调整为 10 GB、单实例并发设为 1。若函数不在杭州或名称不是 `fc-develop`，
 再添加仓库 Variables：`FC_REGION`、`FC_FUNCTION_NAME`。

@@ -236,6 +236,10 @@ jobs:
           for f in final*.mp4; do
             [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.$f"
           done
+          # FC 逐条投稿从 Release 只取当前视频与封面，不再反复下载整批 Artifact。
+          for f in cover*.jpg; do
+            [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.$f"
+          done
           [ -f meta.json ] && cp meta.json "${{ inputs.slug }}.meta.json"
           n=1
           for f in _tmp/seg*.ass; do

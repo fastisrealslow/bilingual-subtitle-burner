@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""只更新阿里云 FC 代码包，保留函数现有环境变量、层和触发器。"""
+"""更新阿里云 FC 投稿器代码与可靠性配置，保留凭据、层和触发器。"""
 
 import base64
 import os
@@ -32,9 +32,15 @@ def main():
     ))
     code = fc_models.InputCodeLocation(
         zip_file=base64.b64encode(zip_path.read_bytes()).decode("ascii"))
-    # UpdateFunction 是部分更新：这里只发送 code，不能覆盖函数里已有的
-    # GITHUB_TOKEN、BILIBILI_COOKIES、依赖层、超时和定时触发器。
-    body = fc_models.UpdateFunctionInput(code=code)
+    # UpdateFunction 是部分更新。只调整投稿可靠性所需字段，不发送环境变量、
+    # 层或触发器，因此现有登录态不会被覆盖。10GB 是 FC 支持的下一个磁盘档位，
+    # 用于容纳 57 分钟完整版；一次调用只下载当前一条，使用完立即清理。
+    body = fc_models.UpdateFunctionInput(
+        code=code,
+        timeout=int(os.environ.get("FC_TIMEOUT_SECONDS", "1800")),
+        disk_size=int(os.environ.get("FC_DISK_SIZE_MB", "10240")),
+        instance_concurrency=1,
+    )
     client.update_function(
         function_name, fc_models.UpdateFunctionRequest(body=body))
     print(f"✓ 已更新 {region}/{function_name}，代码包 {zip_path.stat().st_size} bytes")

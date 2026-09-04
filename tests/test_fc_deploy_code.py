@@ -17,7 +17,7 @@ def _load_module():
     return module
 
 
-def test_code_only_deploy_preserves_function_configuration(monkeypatch, tmp_path):
+def test_deploy_preserves_secrets_and_sets_uploader_limits(monkeypatch, tmp_path):
     calls = {}
 
     class Config:
@@ -71,7 +71,11 @@ def test_code_only_deploy_preserves_function_configuration(monkeypatch, tmp_path
     _load_module().main()
 
     assert calls["function_name"] == "fc-develop"
-    assert set(calls["update_fields"]) == {"code"}
+    assert set(calls["update_fields"]) == {
+        "code", "timeout", "disk_size", "instance_concurrency"}
+    assert calls["update_fields"]["timeout"] == 1800
+    assert calls["update_fields"]["disk_size"] == 10240
+    assert calls["update_fields"]["instance_concurrency"] == 1
     assert calls["config"]["endpoint"] == "fcv3.cn-hangzhou.aliyuncs.com"
 
 
