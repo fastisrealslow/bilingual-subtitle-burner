@@ -3065,7 +3065,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         draw.rounded_rectangle((72, 112, 330, 170), radius=12,
                                fill=(35, 86, 170))
         draw.text((90, 120), tag, font=small_font, fill=(255, 255, 255))
-        lines = _wrap_audio_card_title(display_topic, 13, max_lines=3)
+        # 与竖版统一为 14 字 × 3 行；展示标题已限制在 42 字内。\n        lines = _wrap_audio_card_title(display_topic, 14, max_lines=3)
         for i, line in enumerate(lines):
             _draw_emphasis_line(
                 draw, (72, 220 + i * int(topic_size * 1.35)),
