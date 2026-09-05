@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Immediate read-only ping of the deployed FC invocation endpoint.
+# Guarded bootstrap for the exact authorized V4 batch, using the proven no-retry SDK mode.
 on:
   push:
     branches: [main]
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 调用 FC 即时 ping
+      - name: 空闲时引导精确 V4 第1条
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -30,29 +30,35 @@ jobs:
           import io, json, os, time
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
-          from alibabacloud_tea_openapi import models as open_api
-          from alibabacloud_tea_util import models as util_models
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
 
-          client = Client(open_api.Config(
+          client = Client(api.Config(
               access_key_id=os.environ['ALIYUN_AK'],
               access_key_secret=os.environ['ALIYUN_SK'],
-              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+              endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
           active = client.list_instances(
               os.environ['FC_FUNCTION_NAME'],
               m.ListInstancesRequest(with_all_active=True, limit='100')).body
           instances = (active.to_map() or {}).get('instances') or []
           if instances:
               raise SystemExit(f"refuse bootstrap: {len(instances)} active FC instance(s)")
-          payload = json.dumps({"triggerName": "diagnose-ping"}).encode()
-          response = client.invoke_function_with_options(
-              os.environ['FC_FUNCTION_NAME'],
-              m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
-              m.InvokeFunctionHeaders(),
-              util_models.RuntimeOptions(connect_timeout=10000, read_timeout=30000))
-          body = getattr(response, 'body', None)
-          raw = body.read() if hasattr(body, 'read') else body
-          if isinstance(raw, bytes):
-              raw = raw.decode('utf-8', errors='replace')
-          print("ping_status:", getattr(response, 'status_code', None))
-          print("ping_body:", raw)
+          payload = json.dumps({
+              'triggerName':'publish-batch',
+              'batch_slug':'ly-parity-v3-14-0905',
+              'batch_remaining':1,
+              'ignore_daily_limit':True,
+              'source_url':'https://www.bilibili.com/video/BV1Pzug6fEyY',
+              'title':'2026年8月7日林园57分钟专访',
+          }).encode()
+          try:
+              client.invoke_function_with_options(
+                  os.environ['FC_FUNCTION_NAME'],
+                  m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
+                  m.InvokeFunctionHeaders(),
+                  util.RuntimeOptions(connect_timeout=10000, read_timeout=180000,
+                                      autoretry=False))
+          except Exception as exc:
+              print('调用已进入或网关断开；仅等待主工作流回执：'
+                    +type(exc).__name__, flush=True)
           PY
