@@ -48,6 +48,19 @@ def test_workflow_rejects_source_below_480():
     assert workflow.index("name: 素材质量门禁") < workflow.index("name: 出片")
 
 
+def test_publish_boundary_removes_urls_from_desc_and_source_field():
+    desc = "观点摘要。\n原片：https://www.bilibili.com/video/BV123\n更多 t.cn/abc"
+    cleaned = FC.clean_publish_desc(desc)
+    assert "http" not in cleaned
+    assert "t.cn" not in cleaned
+    label = FC.publication_source_label({
+        "source": "bilibili_search",
+        "source_url": "https://www.bilibili.com/video/BV123",
+    })
+    assert label == "公开访谈资料（哔哩哔哩）"
+    assert "http" not in label
+
+
 def test_transcript_fingerprint_survives_light_rewrite():
     a = ("科技股长期来看风险很高，但是人工智能确实可能带来革命性的行业机会。"
          "我们不能因为机会就忽视风险。")

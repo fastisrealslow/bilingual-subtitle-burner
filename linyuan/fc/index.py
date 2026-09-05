@@ -143,6 +143,29 @@ def platform_of(source):
     return s or "unknown"
 
 
+def clean_publish_desc(value):
+    """投稿前最后一道简介清洗，兼容修复前生成的缓存和旧 Artifact。"""
+    text = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+", "", value or "",
+                  flags=re.I)
+    return re.sub(r"[ \t]+\n", "\n", text).strip()
+
+
+def publication_source_label(item):
+    """转载来源字段只给文字归因，绝不把原站 URL 暴露到稿件信息区。"""
+    platform = (item.get("source_platform")
+                or platform_of(item.get("source", "")))
+    labels = {
+        "bilibili": "公开访谈资料（哔哩哔哩）",
+        "weibo": "公开访谈资料（微博）",
+        "tencent": "公开访谈资料（腾讯视频）",
+        "xueqiu": "公开访谈资料（雪球）",
+        "douyin": "公开访谈资料（抖音）",
+        "haokan": "公开访谈资料（好看视频）",
+        "netease": "公开访谈资料（网易）",
+    }
+    return labels.get(platform, "公开访谈资料")
+
+
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 COOKIES_JSON = os.environ.get("BILIBILI_COOKIES", "")
 
@@ -1749,7 +1772,7 @@ def publish_handler(event=None, context=None):
     # 优先用当前 part 的 meta 文案 + 封面
     meta_info = part
     title = (part.get("title") or e.get("title") or slug)
-    desc = part.get("desc", "")
+    desc = clean_publish_desc(part.get("desc", ""))
     tags = ",".join(part.get("tags", ["林园", "价值投资"]))
     cover = None
     if part.get("cover") and (tmp / slug / part["cover"]).exists():
@@ -1801,7 +1824,11 @@ def publish_handler(event=None, context=None):
     cmd = [sys.executable, "-m", "biliup",
            "-u", str(tmp / "cookies.json"), "upload", str(video),
            "--title", title, "--tid", str(TID), "--copyright", str(COPYRIGHT),
-           "--source", e.get("source_url") or "https://www.bilibili.com",
+           "--source", publication_source_label({
+               **e,
+               "source_platform": (meta_info.get("source_platform")
+                                   or e.get("source_platform")),
+           }),
            "--desc", desc, "--tag", tags, "--limit", "1"]
     if cover:
         cmd += ["--cover", str(cover)]

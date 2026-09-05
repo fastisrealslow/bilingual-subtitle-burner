@@ -15,6 +15,7 @@
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -56,7 +57,8 @@ def ensure_login():
 
 def build_desc(meta):
     """简介：说明素材出处和处理方式，不夸大。"""
-    occasion = meta.get("occasion", "")
+    occasion = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+", "",
+                      meta.get("occasion", ""), flags=re.I).strip()
     lines = []
     if occasion:
         lines.append(f"素材来源：{occasion}")
@@ -64,6 +66,17 @@ def build_desc(meta):
     lines.append("")
     lines.append("本视频仅作信息分享，不构成任何投资建议。")
     return "\n".join(lines)
+
+
+def publication_source_label(meta):
+    labels = {
+        "bilibili": "公开访谈资料（哔哩哔哩）",
+        "weibo": "公开访谈资料（微博）",
+        "tencent": "公开访谈资料（腾讯视频）",
+        "douyin": "公开访谈资料（抖音）",
+    }
+    return labels.get((meta.get("source_platform") or "").lower(),
+                      "公开访谈资料")
 
 
 def main():
@@ -106,7 +119,7 @@ def main():
            "--desc", build_desc(meta),
            "--tag", args.tags,
            "--copyright", "2",              # 2=转载：素材非自己拍摄
-           "--source", meta.get("source_url") or meta.get("occasion", "网络"),
+           "--source", publication_source_label(meta),
            ]
     cover = args.cover or (d / "cover.jpg" if (d / "cover.jpg").exists() else None)
     if cover:

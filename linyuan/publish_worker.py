@@ -92,7 +92,7 @@ def publish(item, video):
     cmd = ["biliup", "-u", str(COOKIES), "upload", str(video),
            "--title", title, "--tid", str(TID),
            "--copyright", str(COPYRIGHT),
-           "--source", item.get("source_url") or "https://www.bilibili.com",
+           "--source", "公开访谈资料",
            "--tag", "林园,价值投资", "--limit", "1"]
     delay = int(item.get("delay_hours") or 0)
     if delay > 0:
