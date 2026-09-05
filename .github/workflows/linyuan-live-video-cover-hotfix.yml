@@ -1,0 +1,44 @@
+name: 林园真人视频与封面轮换优化
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-live-video-cover-hotfix.yml]
+permissions:
+  contents: write
+  actions: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 修复真人动态画面优先与三套封面轮换
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path('linyuan/produce_cn.py')
+          s=p.read_text()
+          old='''    live_crop = None\n    use_live_video = bool(live_crop)\n    if strategy == "audio_card" and prefer_live_video and not use_live_video:\n        print("[自动版式] 原画无法安全清理，使用已核验人物资料卡，不硬裁原片")\n'''
+          new='''    live_crop = None\n    # 原画因字幕/包装无法作为整屏成片时，优先尝试“真人动态窗口”而不是\n    # 直接退化成静态音频卡。候选窗口必须再次实渲染并确认无持续字幕/角标；\n    # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。\n    if strategy == "audio_card" and prefer_live_video:\n        candidate_crop = audio_card_live_crop(W, H)\n        if candidate_crop:\n            try:\n                live_preview = _render_clean_preview(\n                    src, work, candidate_crop, float(probe(src, "format=duration") or 0))\n                if has_existing_subtitles(live_preview):\n                    print("[自动版式] 真人窗口仍有持续字幕/包装，保留人物资料卡兜底")\n                elif detect_corner_logos(live_preview, frames=6, strict=True):\n                    print("[自动版式] 真人窗口仍有来源角标，保留人物资料卡兜底")\n                else:\n                    live_crop = candidate_crop\n                    print("[自动版式] ✓ 原画整屏不可用，但真人动态窗口已清理通过")\n            except Exception as exc:\n                print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")\n    use_live_video = bool(live_crop)\n    if strategy == "audio_card" and prefer_live_video and not use_live_video:\n        print("[自动版式] 原画无法安全清理，使用已核验人物资料卡兜底")\n'''
+          if old not in s:
+              raise SystemExit('produce_cn target block not found')
+          p.write_text(s.replace(old,new,1))
+
+          p=Path('linyuan/presentation.py')
+          s=p.read_text()
+          old="""    if clean_source:\n        return 'photo'\n    return ('light','dark')[hashlib.sha256(title.encode()).digest()[0] % 2]\n"""
+          new="""    # 三套封面统一进入稳定轮换：实景 photo、浅色人物 light、深色人物 dark。\n    # 用标题哈希保证同一条重跑不会随机变脸，同时避免主页连续全是同一种模板。\n    # photo 仅在原画通过清理时可选；脏原画仍只在 light/dark 中轮换。\n    bucket = hashlib.sha256(title.encode()).digest()[0]\n    if clean_source:\n        return ('photo','light','dark')[bucket % 3]\n    return ('light','dark')[bucket % 2]\n"""
+          if old not in s:
+              raise SystemExit('presentation target block not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+          python3 -m py_compile linyuan/produce_cn.py linyuan/presentation.py
+          git diff --check
+          git diff -- linyuan/produce_cn.py linyuan/presentation.py
+      - name: 提交生产修改
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add linyuan/produce_cn.py linyuan/presentation.py
+          git commit -m 'feat: prefer verified live video and rotate three cover styles'
+          git push
