@@ -2158,3 +2158,5 @@ def publish_handler(event=None, context=None):
 
     shutil.rmtree(tmp, ignore_errors=True)
     return {"published": done}
+
+# Deployment marker: visual quality gate v11.
