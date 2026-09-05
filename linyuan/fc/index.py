@@ -199,11 +199,85 @@ def gh(method, path, payload=None, raw=False, timeout=120):
         return json.loads(body.decode() or "{}")
 
 
+def _download_release_asset_parallel(asset, dest, max_time=1620):
+    """为指定 V4 批次并行拉取 Release 分段，解决境内单连接吞吐过低。"""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    url = asset.get("browser_download_url") or asset.get("url")
+    size = int(asset.get("size") or 0)
+    if not url or size <= 0:
+        return False
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    # 2MB 以下不并行；大文件最多 16 路，最终文件按原始字节数复核。
+    workers = min(16, max(2, (size + 2 * 1024 * 1024 - 1)
+                           // (2 * 1024 * 1024)))
+    chunk_size = (size + workers - 1) // workers
+    parts = []
+    for index in range(workers):
+        start = index * chunk_size
+        end = min(size - 1, start + chunk_size - 1)
+        if start > end:
+            break
+        parts.append((index, start, end, dest.parent / f".{dest.name}.part{index:02d}"))
+
+    log_event("download", f"并行下载 {dest.name}",
+              f"bytes={size} segments={len(parts)}")
+    flush_logs()
+
+    def fetch_part(item):
+        index, start, end, part_path = item
+        result = subprocess.run([
+            "curl", "-sS", "-fL", "--retry", "2", "--retry-all-errors",
+            "--connect-timeout", "20", "--max-time", str(max_time),
+            "--range", f"{start}-{end}",
+            "-H", f"Authorization: Bearer {TOKEN}",
+            "-o", str(part_path), str(url),
+        ], capture_output=True)
+        expected = end - start + 1
+        actual = part_path.stat().st_size if part_path.is_file() else 0
+        return index, result.returncode, expected, actual, result.stderr
+
+    results = []
+    with ThreadPoolExecutor(max_workers=len(parts)) as pool:
+        futures = [pool.submit(fetch_part, item) for item in parts]
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    failures = [x for x in results if x[1] != 0 or x[2] != x[3]]
+    if failures:
+        detail = "; ".join(
+            f"part={x[0]} rc={x[1]} expected={x[2]} actual={x[3]} "
+            f"err={x[4].decode(errors='replace')[:60]}"
+            for x in failures[:3])
+        log_event("download_fail", f"并行下载失败 {dest.name}", detail)
+        flush_logs()
+        for _, _, _, part_path in parts:
+            part_path.unlink(missing_ok=True)
+        return False
+
+    with dest.open("wb") as output:
+        for _, _, _, part_path in parts:
+            with part_path.open("rb") as source:
+                shutil.copyfileobj(source, output, length=1024 * 1024)
+            part_path.unlink(missing_ok=True)
+    ok = dest.stat().st_size == size
+    log_event("download_ok" if ok else "download_fail",
+              f"并行下载完成 {dest.name}",
+              f"bytes={dest.stat().st_size} expected={size}")
+    flush_logs()
+    return ok
+
+
 def download_release_asset(asset, dest, max_time=1620):
-    """流式下载单个 Release 资产，避免把整批视频读进内存或临时盘。"""
+    """流式下载单个 Release 资产；目标 V4 视频使用境内并行分段。"""
     url = asset.get("browser_download_url") or asset.get("url")
     if not url:
         return False
+    size = int(asset.get("size") or 0)
+    if ("ly-parity-v3-14-0905." in str(url)
+            and size >= 2 * 1024 * 1024):
+        return _download_release_asset_parallel(asset, dest, max_time=max_time)
     dest = Path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     cmd = ["curl", "-sfL", "--retry", "3", "--max-time", str(max_time),
@@ -213,8 +287,25 @@ def download_release_asset(asset, dest, max_time=1620):
     return result.returncode == 0 and dest.is_file() and dest.stat().st_size > 0
 
 
+_delivery_release_assets = None
+
+
 def delivery_release_asset(name):
-    """Release 文件名可预测，直接构造 URL，避免每次分页扫描整个成品库。"""
+    """优先返回带原始尺寸的 Release 元数据，供分段下载与完整性校验。"""
+    global _delivery_release_assets
+    if _delivery_release_assets is None:
+        try:
+            release = gh("GET", f"/releases/tags/{DELIVERY_RELEASE_TAG}")
+            _delivery_release_assets = {
+                str(asset.get("name") or ""): asset
+                for asset in release.get("assets", [])
+            }
+        except Exception as exc:
+            log.warning(f"读取 Release 元数据失败，回退可预测 URL: {exc}")
+            _delivery_release_assets = {}
+    asset = _delivery_release_assets.get(name)
+    if asset:
+        return asset
     return {"browser_download_url": (
         f"https://github.com/{REPO}/releases/download/"
         f"{DELIVERY_RELEASE_TAG}/{name}")}
