@@ -1372,6 +1372,7 @@ def dispatch_handler(event=None, context=None):
                            "delay_hours": "0", "auto_publish": "false",
                            "source_platform": platform_of(c.get("source", ""))}})
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
+                                     "required_presentation_version": 1,
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
@@ -1508,6 +1509,50 @@ def _record_skipped_part(st, e, slug, part, parts_total, index, title, reason):
     save_state(st)
 
 
+def presentation_quality_error(meta):
+    """Validate the selected layout against real encoded dimensions, not portrait constants."""
+    layout = meta.get("layout_proof") or {}
+    resolution = meta.get("resolution") or {}
+    canvas = layout.get("canvas") or {}
+    mode = layout.get("mode")
+    try:
+        w, h = int(canvas["width"]), int(canvas["height"])
+        region = layout["subtitle_region"]
+        x,y,rw,rh = (int(region[k]) for k in ("x","y","width","height"))
+        font = int(layout["subtitle_font_px"])
+    except (KeyError, TypeError, ValueError):
+        return "多版式尺寸证明缺失"
+    if (w,h) != (resolution.get("width"),resolution.get("height")):
+        return "版式与实际成片尺寸不一致"
+    if not (0<=x and 0<=y and rw>0 and rh>0 and x+rw<=w and y+rh<=h):
+        return "字幕安全区域越界"
+    if mode not in {"landscape","portrait","square","audio_card"}:
+        return "未知版式"
+    if mode == "landscape" and w <= h*1.15:
+        return "横版尺寸不符"
+    if mode == "portrait" and h <= w*1.15:
+        return "竖版尺寸不符"
+    if mode == "square" and not (w<=h*1.15 and h<=w*1.15):
+        return "方版尺寸不符"
+    if mode == "audio_card" and ((w,h)!=(720,1280) or meta.get("render_mode")!="audio_card"):
+        return "人物资料卡模式不符"
+    if (layout.get("subtitle_max_lines")!=2 or layout.get("subtitle_vertical_alignment")!="center"
+            or layout.get("subtitle_layout_version",0)<3 or not 28<=font<=min(w,h)*.08
+            or layout.get("word_boundary_policy")!="semantic-v1"
+            or meta.get("subtitle_word_boundaries_verified") is not True):
+        return "缺少完整词句字幕证明"
+    checks=meta.get("render_checks") or {}
+    if (checks.get("frames_checked",0)<12 or checks.get("dimensions_match") is not True
+            or checks.get("qr_detected") is not False):
+        return "缺少实际多版式抽帧证明"
+    cover=meta.get("cover_proof") or {}
+    if (cover.get("font_px",0)<96 or cover.get("thumbnail_font_px",0)<12
+            or not 1<=len(cover.get("headline_lines") or [])<=2
+            or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
+        return "封面未通过列表缩略图大字门禁"
+    return None
+
+
 def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
@@ -1539,7 +1584,13 @@ def artifact_quality_error(meta):
         return "预发布质检产物记录不完整"
 
     layout = meta.get("layout_proof") or {}
-    if (layout.get("live_region") != {"x": 44, "y": 360,
+    if meta.get("presentation_version") == 1:
+        error = presentation_quality_error(meta)
+        if error:
+            return error
+    elif meta.get("presentation_version") not in (None, 0):
+        return "不支持的版式版本"
+    elif (layout.get("live_region") != {"x": 44, "y": 360,
                                       "width": 632, "height": 470}
             or layout.get("subtitle_region") != {
                 "x": 38, "y": 874, "width": 644, "height": 166}
@@ -1981,6 +2032,8 @@ def publish_handler(event=None, context=None):
     # 老库存是在人物/水印/分辨率/指纹闸门上线前生成的，不能凭“文件存在”继续投。
     # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
     quality_error = artifact_quality_error(part)
+    if e.get("required_presentation_version", 0) >= 1 and part.get("presentation_version") != 1:
+        quality_error = "新日常任务缺少多版式通用规则证明，禁止沿用旧库存"
     if quality_error:
         started = _request_quality_reprocess(
             st, e, slug, quality_error, art_ids.get(slug))
@@ -2274,5 +2327,3 @@ def publish_tv_wine_review_once(event):
             "sha": lock_sha, "content": encoded()})
         log_event("review_publish", json.dumps(receipt, ensure_ascii=False))
         return receipt
-
-
