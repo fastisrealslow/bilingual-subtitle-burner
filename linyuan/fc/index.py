@@ -1445,6 +1445,14 @@ def _collect_source_rejections(st):
             candidate = by_slug.get(slug)
             if not candidate or candidate.get("failed"):
                 continue
+            # 同一 slug 可能曾有失败重跑。只处理候选创建之后产生的拒绝报告；
+            # 更早的 source-reject artifact 属于历史运行，不能污染新成片批次。
+            artifact_created = str(artifact.get("created_at") or "")
+            candidate_created = time.strftime(
+                "%Y-%m-%dT%H:%M:%SZ",
+                time.gmtime(int(candidate.get("ts") or 0)))
+            if artifact_created and artifact_created <= candidate_created:
+                continue
             reason = "素材质量门禁未通过"
             try:
                 req = urllib.request.Request(
