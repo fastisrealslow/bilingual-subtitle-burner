@@ -1,0 +1,51 @@
+name: 林园新版六条成片验收
+
+on:
+  push:
+    paths:
+      - '.github/workflows/linyuan-six-sample-run.yml'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch-six:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 从当前候选池挑六条不同素材并触发新版出片
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+          repo='fastisrealslow/bilingual-subtitle-burner'
+          headers={'Authorization':f'Bearer {os.environ["GH_TOKEN"]}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/contents/linyuan/.automation/fc_state.json',headers=headers)
+          state=json.loads(__import__('base64').b64decode(json.load(urllib.request.urlopen(req))['content']))
+          # 从已发现/调度过的真实素材中取最近六个不同 source_url，避开专项 parity slug；
+          # 用全新 slug 强制走当前 main 的新版视觉逻辑，不自动投稿。
+          pool=[]; seen=set()
+          for item in reversed(state.get('dispatched',[])):
+              url=item.get('asset_url') or item.get('source_url')
+              key=item.get('video_id') or item.get('source_url')
+              if not url or not key or key in seen or 'parity' in (item.get('slug') or ''):
+                  continue
+              seen.add(key); pool.append(item)
+              if len(pool)>=6: break
+          if len(pool)<6:
+              raise SystemExit(f'候选池不足6个不同素材，当前仅{len(pool)}')
+          for i,item in enumerate(reversed(pool),1):
+              payload={'ref':'main','inputs':{
+                  'source':item.get('asset_url') or item.get('source_url'),
+                  'slug':f'ly-visual6-0905-{i}',
+                  'speaker':'林园','occasion':'新版真人视频六条验收',
+                  'delay_hours':'0','source_platform':item.get('source') or '',
+                  'auto_publish':False,'target_parts':'0','include_full':False,
+                  'prefer_live_video':True}}
+              data=json.dumps(payload).encode()
+              r=urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/workflows/linyuan-produce-cn.yml/dispatches',data=data,headers={**headers,'Content-Type':'application/json'},method='POST')
+              with urllib.request.urlopen(r) as resp:
+                  print(i, item.get('slug'), item.get('title','')[:50], resp.status)
+          PY
