@@ -21,7 +21,8 @@ permissions:
 
 concurrency:
   group: linyuan-publish-batch-${{ inputs.slug }}
-  cancel-in-progress: false
+  # 仅本次已授权 V4 批次允许新运行替换超时旧运行，避免并发投稿。
+  cancel-in-progress: ${{ inputs.slug == 'ly-parity-v3-14-0905' }}
 
 jobs:
   publish:
