@@ -1,25 +1,21 @@
 name: FC production diagnose once
 
-# Bootstrap for the exact authorized V4 batch, using the proven no-retry SDK mode.
+# Read-only active-instance inspection; never invokes the function.
 on:
   push:
     branches: [main]
-    paths:
-      - .github/workflows/fc-diagnose-once.yml
-
+    paths: [.github/workflows/fc-diagnose-once.yml]
 permissions:
   contents: read
-
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 引导精确 V4 下一条
+      - name: 读取 FC 活跃实例
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -27,32 +23,16 @@ jobs:
           FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
         run: |
           python - <<'PY'
-          import io, json, os, time
+          import json, os
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as api
-          from alibabacloud_tea_util import models as util
-
-          client = Client(api.Config(
-              access_key_id=os.environ['ALIYUN_AK'],
-              access_key_secret=os.environ['ALIYUN_SK'],
-              endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
-          payload = json.dumps({
-              'triggerName':'publish-batch',
-              'batch_slug':'ly-parity-v3-14-0905',
-              'batch_remaining':1,
-              'ignore_daily_limit':True,
-              'source_url':'https://www.bilibili.com/video/BV1Pzug6fEyY',
-              'title':'2026年8月7日林园57分钟专访',
-          }).encode()
-          try:
-              client.invoke_function_with_options(
-                  os.environ['FC_FUNCTION_NAME'],
-                  m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
-                  m.InvokeFunctionHeaders(),
-                  util.RuntimeOptions(connect_timeout=10000, read_timeout=180000,
-                                      autoretry=False))
-          except Exception as exc:
-              print('调用已进入或网关断开；仅等待主工作流回执：'
-                    +type(exc).__name__, flush=True)
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
+            access_key_secret=os.environ['ALIYUN_SK'],
+            endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          fn=client.get_function(os.environ['FC_FUNCTION_NAME'],m.GetFunctionRequest()).body
+          active=client.list_instances(os.environ['FC_FUNCTION_NAME'],
+            m.ListInstancesRequest(with_all_active=True,limit='100')).body
+          print(json.dumps({'timeout':fn.timeout,'instances':active.to_map()},
+            ensure_ascii=False,indent=2))
           PY
