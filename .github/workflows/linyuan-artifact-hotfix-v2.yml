@@ -1,0 +1,53 @@
+name: 林园成片归档瘦身修复V2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-artifact-hotfix-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 修正 Artifact 上传范围
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.github/workflows/linyuan-produce-cn.yml')
+          lines = p.read_text().splitlines()
+          start = next(i for i, x in enumerate(lines) if x.strip() == '- name: 上传成片到 Artifact')
+          end = next(i for i, x in enumerate(lines[start + 1:], start + 1) if x.strip() == '- name: 上传成片到 Release')
+          expr = chr(36) + '{{ inputs.slug }}'
+          block = [
+              '      - name: 上传成片到 Artifact',
+              '        uses: actions/upload-artifact@v4',
+              '        with:',
+              f'          name: deliver-{expr}',
+              '          # 只上传整理归档后的交付文件；避免 _tmp、源文件与未前缀副本重复打包。',
+              f'          path: linyuan/deliver/{expr}/{expr}.*',
+              '          retention-days: 90',
+              '          if-no-files-found: error',
+              '          compression-level: 0',
+              '',
+          ]
+          p.write_text('\n'.join(lines[:start] + block + lines[end:]) + '\n')
+          PY
+          git diff --check
+          git diff -- .github/workflows/linyuan-produce-cn.yml
+      - name: 提交修复
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/linyuan-produce-cn.yml
+          git commit -m 'fix: slim production artifact to archived delivery files'
+          git push origin HEAD:main
