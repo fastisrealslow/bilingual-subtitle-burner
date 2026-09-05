@@ -15,12 +15,9 @@ spec = importlib.util.spec_from_file_location('presentation_fc', ROOT / 'linyuan
 FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
 
-# Staging this dependency/test file must not break the currently active renderer.
-# Once both production consumers are activated, these tests are mandatory.
-pytestmark = pytest.mark.skipif(
-    getattr(P, 'PRESENTATION_RULES_VERSION', 0) != V.VERSION or
-    not hasattr(FC, 'presentation_quality_error'),
-    reason='shared presentation consumers are staged but not yet activated')
+def test_shared_rules_are_active_in_both_production_consumers():
+    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 1
+    assert callable(FC.presentation_quality_error)
 
 
 @pytest.mark.parametrize('w,h,mode', [(1280,720,'landscape'), (720,1280,'portrait'),
