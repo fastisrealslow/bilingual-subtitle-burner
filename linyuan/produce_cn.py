@@ -32,6 +32,7 @@ from datetime import datetime
 from pathlib import Path
 
 BASE = Path(__file__).parent
+PRESENTATION_RULES_VERSION = 1
 # 本地用已下好的绝对路径;CI 里用 HF 模型名(faster-whisper 自己拉)。
 # 两边都是 large-v3:实测 4 核 runner 上实时率 1.17x,完全跑得动,
 # 而 small 会输出繁体、把「安宫」听成「安公」,质量差距是决定性的。
@@ -1304,6 +1305,11 @@ def make_ass(entries, path, W, H, card_style=False):
     字体必须可换:本机有 Microsoft YaHei,CI 的 ubuntu 上只有 Noto Sans CJK。
     libass 按名字找字体,找不到就 fallback 到无 CJK 字形的字体 -- 中文字幕
     会烧成一排豆腐块。workflow 里通过 ZH_FONT/EN_FONT 传入。"""
+    # Chinese production uses the same semantic segmenter in every layout.
+    if not any(e.get("en") for e in entries):
+        from presentation import layout_for, write_ass
+        return write_ass(entries, path, layout_for(W, H, card_style),
+                         os.environ.get("ZH_FONT", "Microsoft YaHei"))
     font_zh = os.environ.get("ZH_FONT", "Microsoft YaHei")
     font_en = os.environ.get("EN_FONT", "Arial")
     vertical = H > W
@@ -2149,7 +2155,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         # cv2.CascadeClassifier 被移除 → 人脸检测全程失败但无任何日志 →
         # 封面退化成「中间裁一刀取第一帧」→ 出现「观众后脑勺封面」(盲评 2/10)、
         # 「女主播当封面」(4/10)。异常必须喊出来。
-        print(f"[封面] ⚠️ 人脸检测失败({type(e).__name__}: {e})，退化为居中裁切", file=sys.stderr)
+        raise VisualQualityError(f"封面人脸检测不可用，禁止盲目居中裁切：{e}") from e
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
@@ -2224,7 +2230,11 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
             break
     idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
     # 字号按画布宽自适应（用户 2026-08-26 反馈封面文字再大、标签+0.5倍）
-    title_size = 48 if W < 1000 else 74
+    from presentation import cover_headline, cover_proof
+    if not font_path:
+        raise VisualQualityError("横版封面缺少中文字体，拒绝输出不可读小字/方框字")
+    headline_lines = cover_headline(title, speaker)
+    title_size = 104
     tag_size = 30 if W < 1000 else 54
     f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
     f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
@@ -2248,15 +2258,18 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         margin_bottom = 56
     # 标题分行：用 jieba 分词按词边界断，避免「公司」被硬切成「公」+「司」
     # （2026-08-27 实拍封面断句问题）。jieba 失败则退回均匀字符切分。
-    lines = wrap_cover_title(title, chars_per_line, max_lines)
+    lines = headline_lines
     y = H - margin_bottom - line_h * len(lines)
+    boxes = []
     for ln in lines:
         # 白字黑边(描边厚度自适应)
         stroke = 3 if W < 1000 else 2
         d.text((40, y), ln, font=f_title, fill=(255, 255, 255),
                stroke_width=stroke, stroke_fill=(0, 0, 0))
+        boxes.append(d.textbbox((40,y),ln,font=f_title,stroke_width=stroke))
         y += line_h
     img.save(out_path, quality=92)
+    cover_proof(img, out_path, lines, title_size, boxes)
     print(f"[封面] {out_path.name} {W}x{H} 「{title[:20]}」")
 
 
@@ -3124,6 +3137,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
                 print(f"[音频卡] 肖像嵌入失败，使用通用人物图标: {e}",
                       file=sys.stderr)
         if not portrait_used:
+            if require_portrait:
+                raise VisualQualityError("人物资料卡缺少可用真人参考图，禁止占位图出片")
             cx, head_y, head_r = width // 2, 505, 78
             draw.ellipse((cx - head_r, head_y - head_r, cx + head_r,
                           head_y + head_r), fill=(35, 48, 64))
@@ -3133,7 +3148,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
                                fill=(249, 249, 247),
                                outline=(214, 210, 200), width=2)
-        draw.text((48, 1080), "来源：公开访谈原声｜画面已清理重建",
+        draw.text((48, 1080), "公开发言原声｜人物资料图，非现场画面",
                   font=small_font, fill=(89, 94, 99))
         draw.text((48, 1120), AUDIO_CARD_DISCLAIMER, font=small_font,
                   fill=(105, 105, 105))
@@ -3144,8 +3159,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
                                fill=(245, 242, 232),
                                outline=(193, 151, 64),
                                width=max(2, int(4 * unit)))
-        icon_x, icon_y = int(width * 0.80), int(height * 0.45)
-        icon_r = int(height * 0.31)
+        icon_x, icon_y = int(width * 0.86), int(height * 0.46)
+        icon_r = int(height * 0.19)
         portrait_used = False
         if portrait_path and Path(portrait_path).is_file():
             try:
@@ -3177,12 +3192,17 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
                                fill=(35, 86, 170))
         draw.text((90, 120), tag, font=small_font, fill=(255, 255, 255))
         # 与竖版统一为 14 字 × 3 行；展示标题已限制在 42 字内。
-        lines = _wrap_audio_card_title(display_topic, 14, max_lines=3)
+        from presentation import cover_headline
+        lines = cover_headline(topic, speaker)
+        cover_font_px = 100
+        cover_font = ImageFont.truetype(font_path, cover_font_px, index=index)
+        cover_boxes = []
         for i, line in enumerate(lines):
             _draw_emphasis_line(
-                draw, (72, 220 + i * int(topic_size * 1.35)),
-                line, topic_font, stroke_width=max(1, int(2 * unit)),
+                draw, (60, 238 + i * 128),
+                line, cover_font, stroke_width=3,
                 stroke_fill=(45, 28, 20), centered=False)
+            cover_boxes.append(draw.textbbox((60,238+i*128),line,font=cover_font,stroke_width=3))
         draw.text((72, 560), "公开访谈原声 · 个人观点非投资建议", font=small_font,
                   fill=(89, 94, 99))
 
@@ -3202,6 +3222,9 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         image.save(out_path, quality=93)
     else:
         image.save(out_path)
+    if not vertical:
+        from presentation import cover_proof
+        cover_proof(image, out_path, lines, cover_font_px, cover_boxes)
     return out_path
 
 
@@ -3255,11 +3278,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
     _logos = source_report.get("detected_corner_logos") or []
     print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
-    live_crop = (audio_card_live_crop(W, H)
-                 if strategy == "audio_card" and prefer_live_video else None)
+    # A failed source-cleaning gate must never be bypassed by putting the same
+    # dirty source into a guessed fixed crop. Native clean sources retain aspect;
+    # genuinely unusable pictures become an explicitly labelled portrait/audio card.
+    live_crop = None
     use_live_video = bool(live_crop)
     if strategy == "audio_card" and prefer_live_video and not use_live_video:
-        print("[真人动态区] 源片不是横屏，禁止错误硬裁；改用已核验人物静态卡")
+        print("[自动版式] 原画无法安全清理，使用已核验人物资料卡，不硬裁原片")
 
     brand = brand_watermark_path()
     audio_card = None
@@ -3272,7 +3297,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             work / f"audio_card_portrait{suffix}.png")
         audio_card = make_audio_card(
             work / f"audio_card{suffix}.png", speaker, cw["title"],
-            portrait_path=audio_card_portrait)
+            portrait_path=audio_card_portrait, require_portrait=True)
+    from presentation import layout_for, VERSION as PRESENTATION_VERSION
+    layout = layout_for(crop_w, crop_h, strategy == "audio_card")
     en_map = {}
     parts = []
     for n, p in enumerate(picks, 1):
@@ -3310,7 +3337,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 cmd += ["-filter_complex", f"[0:v]{vf}[outv]",
                         "-map", "[outv]", "-map", "1:a:0"]
         else:
-            vf = f"{clean_vf},ass={ass},{fade}"
+            vf = f"setpts=PTS-STARTPTS,{clean_vf},setsar=1,ass={ass},{fade}"
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
                 "-t", str(seg_dur), "-i", str(src),
@@ -3319,7 +3346,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 "-map", "[outv]", "-map", "0:a:0",
             ]
         cmd += [
-            "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
+            "-af", "asetpts=PTS-STARTPTS,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
             "-c:v", "libx264", "-preset", ("veryfast" if use_live_video else "slow"),
             "-crf", ("20" if use_live_video else "18"),
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
@@ -3343,8 +3370,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
     # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
     # 真实原画策略仍必须逐帧复检。
-    live_checks = {"live_region_verified": True, "no_qr_verified": True,
-                   "no_black_bars_verified": True}
+    from presentation import verify_render
+    live_checks = verify_render(final, layout)
     if use_live_video:
         live_checks = verify_live_region_after_render(final)
         external_logos = []
@@ -3387,17 +3414,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "cover_standard_version": COVER_STANDARD_VERSION,
         "cover_person_image_verified": True,
         "cover_person_image_source": cover_person_image_source,
-        "layout_proof": {
-            "canvas": {"width": AUDIO_CARD_WIDTH,
-                       "height": AUDIO_CARD_HEIGHT},
-            "live_region": LIVE_REGION,
-            "subtitle_region": SUBTITLE_REGION,
-            "safe_margin": SAFE_MARGIN,
-            "subtitle_max_lines": 2,
-            "subtitle_font_px": 40,
-            "subtitle_vertical_alignment": "center",
-            "subtitle_layout_version": 2,
-        },
+        "presentation_version": PRESENTATION_VERSION,
+        "layout_proof": layout,
+        "cover_proof": json.loads(Path(str(cover)+".proof.json").read_text()),
+        "subtitle_word_boundaries_verified": True,
         **live_checks,
         "duration_sec": round(dur, 1),
         "resolution": {"width": final_w, "height": final_h,
@@ -3622,7 +3642,7 @@ def main():
                 source_report.get("raw_has_existing_subtitles")),
             "clean_filter_verified": bool(
                 source_report.get("clean_filter_verified")),
-            "vertical": vertical,
+            "vertical": metas[0]["resolution"]["height"] > metas[0]["resolution"]["width"],
             "cue_count": sum(1 for _ in cues),
             "asr_model": "faster-whisper large-v3",
             "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -3648,7 +3668,7 @@ def main():
                  source_report.get("raw_has_existing_subtitles")),
              "clean_filter_verified": bool(
                  source_report.get("clean_filter_verified")),
-             "vertical": vertical,
+             "vertical": m["resolution"]["height"] > m["resolution"]["width"],
              "asr_model": "faster-whisper large-v3",
              "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
             } for i, m in enumerate(metas)
