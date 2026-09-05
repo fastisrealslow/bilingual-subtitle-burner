@@ -121,8 +121,14 @@ def main():
         create_worker(fc)
         time.sleep(25)
         for index in range(1):
-            invoke_once(fc)
-            print(f"isolated Web submission completed {index + 1}/1", flush=True)
+            try:
+                invoke_once(fc)
+                print(f"isolated Web submission completed {index + 1}/1", flush=True)
+            except Exception as exc:
+                if "ServiceUnavailable" not in repr(exc):
+                    raise
+                print("FC sync gateway detached; keep worker alive 30 minutes", flush=True)
+                time.sleep(1800)
             if index < 1:
                 print("cooldown 10 minutes", flush=True)
                 time.sleep(600)
