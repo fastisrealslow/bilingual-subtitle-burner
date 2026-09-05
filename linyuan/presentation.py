@@ -203,9 +203,13 @@ def select_cover_style(clean_source, title, requested='auto'):
         raise ValueError('原画未通过清理，不能强制原画封面')
     if requested != 'auto':
         return requested
+    # 三套封面统一进入稳定轮换：实景 photo、浅色人物 light、深色人物 dark。
+    # 用标题哈希保证同一条重跑不会随机变脸，同时避免主页连续全是同一种模板。
+    # photo 仅在原画通过清理时可选；脏原画仍只在 light/dark 中轮换。
+    bucket = hashlib.sha256(title.encode()).digest()[0]
     if clean_source:
-        return 'photo'
-    return ('light','dark')[hashlib.sha256(title.encode()).digest()[0] % 2]
+        return ('photo','light','dark')[bucket % 3]
+    return ('light','dark')[bucket % 2]
 
 
 def dark_cover(portrait_path, title, speaker, font_path, font_index=0):

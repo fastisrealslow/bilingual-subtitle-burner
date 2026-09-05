@@ -3266,9 +3266,27 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # dirty source into a guessed fixed crop. Native clean sources retain aspect;
     # genuinely unusable pictures become an explicitly labelled portrait/audio card.
     live_crop = None
+    # 原画因字幕/包装无法作为整屏成片时，优先尝试“真人动态窗口”而不是
+    # 直接退化成静态音频卡。候选窗口必须再次实渲染并确认无持续字幕/角标；
+    # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
+    if strategy == "audio_card" and prefer_live_video:
+        candidate_crop = audio_card_live_crop(W, H)
+        if candidate_crop:
+            try:
+                live_preview = _render_clean_preview(
+                    src, work, candidate_crop, float(probe(src, "format=duration") or 0))
+                if has_existing_subtitles(live_preview):
+                    print("[自动版式] 真人窗口仍有持续字幕/包装，保留人物资料卡兜底")
+                elif detect_corner_logos(live_preview, frames=6, strict=True):
+                    print("[自动版式] 真人窗口仍有来源角标，保留人物资料卡兜底")
+                else:
+                    live_crop = candidate_crop
+                    print("[自动版式] ✓ 原画整屏不可用，但真人动态窗口已清理通过")
+            except Exception as exc:
+                print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")
     use_live_video = bool(live_crop)
     if strategy == "audio_card" and prefer_live_video and not use_live_video:
-        print("[自动版式] 原画无法安全清理，使用已核验人物资料卡，不硬裁原片")
+        print("[自动版式] 原画无法安全清理，使用已核验人物资料卡兜底")
 
     brand = brand_watermark_path()
     audio_card = None
