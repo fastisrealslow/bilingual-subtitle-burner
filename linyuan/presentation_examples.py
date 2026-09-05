@@ -18,6 +18,8 @@ def run(*args):
 
 
 def build(args):
+    if getattr(P, 'PRESENTATION_RULES_VERSION', 0) != V.VERSION:
+        raise RuntimeError('通用规则尚未激活；禁止拿旧渲染器结果冒充新版样例')
     out=Path(args.out); out.mkdir(parents=True,exist_ok=True)
     P.SENSEVOICE_DIR=args.model
     native=out/'interview-source-30s.mp4'
