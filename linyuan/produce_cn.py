@@ -2072,7 +2072,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     小帧人脸检测:360x640 低清源 haar 检不出脸 → 提前放大再检测。
     抽帧位置:取段落偏前位置,避开字幕最密集的说话中段。
     """
-    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
     # 人物闸门给出的 preferred_time 已经与参考照核验为本人；围绕该时间取三帧。
@@ -2162,39 +2162,13 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     # 以人脸为中心裁切,保持目标比例
     vertical = h > w
+    portrait_foreground = None
     if vertical:
-        # 竖屏视频 → 16:9 横屏封面（B站封面是横屏显示）：
-        # 竖屏主体居中贴到 1280x720，两侧用放大模糊的原帧做背景（毛玻璃，非纯黑边）
-        tw = min(w, int(h * 9 / 16))
-        if best_face is not None:
-            fx, fy, fw, fh = best_face
-            cx = fx + fw // 2
-            x0 = max(0, min(cx - tw // 2, w - tw))
-            top = max(0, fy - int(fh * 0.8))
-            bottom = min(h, top + int(tw * 16 / 9))
-            if bottom - top < int(tw * 16 / 9):
-                top = max(0, bottom - int(tw * 16 / 9))
-            img = img.crop((x0, top, x0 + tw, bottom))
-        else:
-            x0 = (w - tw) // 2
-            img = img.crop((x0, 0, x0 + tw, h))
-        # 背景：原始帧放大到 1280x720 并高斯模糊
-        bg = Image.open(best_frame).convert("RGB").resize((1280, 720), Image.LANCZOS) \
-            .filter(ImageFilter.GaussianBlur(30))
-        # 竖屏主体缩放到高度 720；以人脸为锚水平偏移，让人脸落到 1280 中央
-        # （2026-08-27 实拍：原来横条居中贴，人脸偏左不居中，主体「没放出来」）
-        fg_h = 720
-        fg_w = max(1, int(img.width * fg_h / img.height))
-        fg = img.resize((fg_w, fg_h), Image.LANCZOS)
-        canvas = bg.copy()
-        if best_face is not None:
-            face_x_in_fg = int(cx * fg_w / max(1, tw))  # 人脸在缩放后 fg 中的 x
-            fg_x = 1280 // 2 - face_x_in_fg
-        else:
-            fg_x = (1280 - fg_w) // 2
-        fg_x = max(0, min(fg_x, 1280 - fg_w))  # 边界保护
-        canvas.paste(fg, (fg_x, 0))
-        img = canvas
+        # Keep the complete vertical source frame in a separate right-hand
+        # panel; a large headline must not cover the speaker's face.
+        portrait_foreground = ImageOps.contain(img, (288, 560), Image.Resampling.LANCZOS)
+        bg = ImageOps.fit(img, (1280, 720), Image.Resampling.LANCZOS).filter(ImageFilter.GaussianBlur(30))
+        img = Image.blend(bg, Image.new("RGB", bg.size, (10, 15, 20)), .65)
         W, H = 1280, 720
     else:
         # 横屏:16:9,以人脸为中心
@@ -2220,6 +2194,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         if y > H * 0.55:
             od.line([(0, y), (W, y)], fill=int(200 * (y - H * 0.55) / (H * 0.45)))
     img.paste(Image.new("RGB", (W, H), (0, 0, 0)), (0, 0), overlay)
+    if portrait_foreground is not None:
+        img.paste(portrait_foreground, (952, (720-portrait_foreground.height)//2))
 
     font_path = None
     for cand in ["/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
@@ -2234,7 +2210,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     if not font_path:
         raise VisualQualityError("横版封面缺少中文字体，拒绝输出不可读小字/方框字")
     headline_lines = cover_headline(title, speaker)
-    title_size = 104
+    title_size = 100 if vertical else 104
     tag_size = 30 if W < 1000 else 54
     f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
     f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
@@ -2260,6 +2236,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     # （2026-08-27 实拍封面断句问题）。jieba 失败则退回均匀字符切分。
     lines = headline_lines
     y = H - margin_bottom - line_h * len(lines)
+    if vertical:
+        y = 238
     boxes = []
     for ln in lines:
         # 白字黑边(描边厚度自适应)
@@ -2269,7 +2247,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         boxes.append(d.textbbox((40,y),ln,font=f_title,stroke_width=stroke))
         y += line_h
     img.save(out_path, quality=92)
-    cover_proof(img, out_path, lines, title_size, boxes)
+    cover_proof(img, out_path, lines, title_size, boxes, style="photo")
     print(f"[封面] {out_path.name} {W}x{H} 「{title[:20]}」")
 
 
@@ -3049,7 +3027,7 @@ def extract_audio_card_portrait(reference_image, out_path):
 
 
 def make_audio_card(out_path, speaker, topic, width=None, height=None,
-                    portrait_path=None, require_portrait=False):
+                    portrait_path=None, require_portrait=False, cover_style=None):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
@@ -3205,6 +3183,12 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
             cover_boxes.append(draw.textbbox((60,238+i*128),line,font=cover_font,stroke_width=3))
         draw.text((72, 560), "公开访谈原声 · 个人观点非投资建议", font=small_font,
                   fill=(89, 94, 99))
+        from presentation import select_cover_style, dark_cover
+        selected_style = select_cover_style(False, topic,
+            cover_style or os.environ.get("COVER_STYLE", "auto"))
+        if selected_style == "dark":
+            image, lines, cover_font_px, cover_boxes = dark_cover(
+                portrait_path, topic, speaker, font_path, index)
 
     brand = Image.open(brand_watermark_path()).convert("RGBA")
     brand_w = int(width * (0.18 if vertical
@@ -3224,7 +3208,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         image.save(out_path)
     if not vertical:
         from presentation import cover_proof
-        cover_proof(image, out_path, lines, cover_font_px, cover_boxes)
+        cover_proof(image, out_path, lines, cover_font_px, cover_boxes, style=selected_style)
     return out_path
 
 
@@ -3389,11 +3373,17 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
     try:
         p0 = picks[0]
-        if strategy == "audio_card":
+        from presentation import select_cover_style
+        selected_cover_style = select_cover_style(strategy != "audio_card", cw["title"],
+                                                  os.environ.get("COVER_STYLE", "auto"))
+        if selected_cover_style != "photo":
+            if audio_card_portrait is None:
+                audio_card_portrait = extract_audio_card_portrait(
+                    work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
             make_audio_card(cover, speaker, cw["title"],
                             width=1280, height=720,
                             portrait_path=audio_card_portrait,
-                            require_portrait=True)
+                            require_portrait=True, cover_style=selected_cover_style)
             cover_person_image_source = "authority_reference"
         else:
             make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
