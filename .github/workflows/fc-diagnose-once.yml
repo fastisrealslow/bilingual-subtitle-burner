@@ -22,6 +22,7 @@ jobs:
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
           FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
           FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+          GH_TOKEN: ${{ github.token }}
         run: python linyuan/fc/run_exact_isolated_once.py
 
 # cooldown retry: after Beijing midnight 2026-09-06
@@ -33,4 +34,5 @@ jobs:
 
 
 
-# web submit retry: final part 14 retain worker on lost response
+
+# web submit retry: async final part 14
