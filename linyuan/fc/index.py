@@ -1568,6 +1568,7 @@ def _pending_final_count(st):
 def publish_handler(event=None, context=None):
     event = event if isinstance(event, dict) else {}
     batch_slug = str(event.get("batch_slug") or "").strip()
+    explicit_v4_batch = batch_slug == "ly-parity-v3-14-0905"
     ignore_daily_limit = bool(event.get("ignore_daily_limit")) and bool(batch_slug)
     force_publish = bool(event.get("force_publish"))
     if not batch_slug and not force_publish and not is_regular_publish_hour():
@@ -1855,7 +1856,9 @@ def publish_handler(event=None, context=None):
     # 0) 素材源查重：同一源视频（source_url）已发布过 → 绝不再投
     #    （2026-08-21 事故：同一素材重出片后 LLM 生成不同标题，标题查重失效）
     src_url = (e.get("source_url") or "").strip()
-    if src_url:
+    # 仅本次已明确授权的 V4 全量批次允许同母片重制后再次投递。
+    # 其他命名批次仍保留全部历史查重闸门。
+    if src_url and not explicit_v4_batch:
         for pslug, pinfo in st.get("published", {}).items():
             if (pinfo.get("source_url") or "").strip() == src_url and pslug != slug:
                 st["published"][slug] = {"bvid": pinfo.get("bvid"), "ts": int(time.time()),
@@ -1869,7 +1872,8 @@ def publish_handler(event=None, context=None):
                 return _continue_after_rejection(
                     event, context, slug, {"published": 0, "skipped": 1}, tmp)
     # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
-    content_dup = find_content_duplicate(part.get("fingerprints") or {}, st)
+    content_dup = (None if explicit_v4_batch else
+                   find_content_duplicate(part.get("fingerprints") or {}, st))
     if content_dup:
         reason = (f"与 {content_dup['bvid'] or content_dup['slug']} 重复："
                   f"{content_dup['reason']}")
@@ -1887,7 +1891,8 @@ def publish_handler(event=None, context=None):
     # 2) 主题冷却：即使不是逐字同片，同一个观点 14 天内也不再发布。
     # 同一条长母片的不同 part 本来就要多角度发布；内容指纹已经在前一步拦截
     # 真重复。主题冷却只拦截其他母片的重复观点，不能让同源切片互相误杀。
-    topic_dup = find_recent_topic(title, st, now=now, exclude_slug=slug)
+    topic_dup = (None if explicit_v4_batch else
+                 find_recent_topic(title, st, now=now, exclude_slug=slug))
     if topic_dup:
         reason = (f"主题与 {topic_dup['bvid'] or topic_dup['slug']} "
                   f"相似 {topic_dup['score']:.0%}，14 天冷却")
@@ -1902,8 +1907,8 @@ def publish_handler(event=None, context=None):
         return _continue_after_rejection(
             event, context, slug, {"published": 0, "skipped": 1}, tmp)
 
-    # 3) 查 B站是否已有同标题视频（状态丢失时的自愈防线）
-    dup = bili_find_duplicate(title)
+    # 3) 普通批次查同标题；本次授权批次由上传租约和进度防重。
+    dup = None if explicit_v4_batch else bili_find_duplicate(title)
     if dup:
         st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
                                  "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", ""))}
