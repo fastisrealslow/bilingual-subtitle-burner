@@ -32,6 +32,10 @@ jobs:
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as open_api
 
+          print("client_instance_methods:", [
+              name for name in dir(Client)
+              if any(word in name.lower() for word in ("instance", "invoke", "stop", "kill"))
+          ])
           client = Client(open_api.Config(
               access_key_id=os.environ['ALIYUN_AK'],
               access_key_secret=os.environ['ALIYUN_SK'],
