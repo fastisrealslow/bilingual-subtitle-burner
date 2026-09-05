@@ -1,4 +1,5 @@
 name: 电视机与酒单条重制
+# Shot-aware revision: preserve original aspect and dining speaker framing.
 on:
   push:
     branches: [main]
@@ -6,7 +7,7 @@ on:
   workflow_dispatch:
 permissions:
   actions: read
-  contents: write
+  contents: read
 concurrency:
   group: tv-wine-review-render
   cancel-in-progress: false
@@ -42,11 +43,3 @@ jobs:
           name: tv-wine-review
           path: ${{ runner.temp }}/review/
           if-no-files-found: ignore
-      - name: 归档指定单条，等待实际画面复核后独立投稿
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/release"
-          for name in final.mp4 meta.json cover.jpg preview_30s.mp4 contact_sheet_6.jpg; do
-            cp "$RUNNER_TEMP/review/$name" "$RUNNER_TEMP/release/ly-tv-wine-review-0905.$name"
-          done
-          gh release upload deliver "$RUNNER_TEMP/release/"* --repo "$GITHUB_REPOSITORY" --clobber
