@@ -1269,6 +1269,8 @@ def handler(event, context):
     name = str(evt.get("triggerName", ""))
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
+    # 入口事件立即落盘，长下载/上传即使超时也能证明请求实际进入函数。
+    flush_logs()
     try:
         if name == "diagnose-ping":
             log_event("probe_ok", "FC 同步入口 ping 成功", "")
@@ -1750,7 +1752,10 @@ def publish_handler(event=None, context=None):
         })
         save_state(st)
     now = time.time()
-    source_rejected = _collect_source_rejections(st)
+    # 指定的已验收批次已有独立 14 条门禁证据，无需每个 part 重扫
+    # 最近 30 次出片运行；普通自动队列仍保留素材淘汰扫描。
+    source_rejected = (0 if explicit_v4_batch
+                       else _collect_source_rejections(st))
     if source_rejected:
         save_state(st)
         try:
