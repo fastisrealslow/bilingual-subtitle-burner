@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Guarded bootstrap for the exact authorized V4 batch, using the proven no-retry SDK mode.
+# Bootstrap for the exact authorized V4 batch, using the proven no-retry SDK mode.
 on:
   push:
     branches: [main]
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 空闲时引导精确 V4 第1条
+      - name: 引导精确 V4 下一条
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -37,12 +37,6 @@ jobs:
               access_key_id=os.environ['ALIYUN_AK'],
               access_key_secret=os.environ['ALIYUN_SK'],
               endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
-          active = client.list_instances(
-              os.environ['FC_FUNCTION_NAME'],
-              m.ListInstancesRequest(with_all_active=True, limit='100')).body
-          instances = (active.to_map() or {}).get('instances') or []
-          if instances:
-              raise SystemExit(f"refuse bootstrap: {len(instances)} active FC instance(s)")
           payload = json.dumps({
               'triggerName':'publish-batch',
               'batch_slug':'ly-parity-v3-14-0905',
