@@ -1270,6 +1270,9 @@ def handler(event, context):
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     try:
+        if name == "diagnose-ping":
+            log_event("probe_ok", "FC 同步入口 ping 成功", "")
+            return {"ok": True, "ts": int(time.time())}
         if name == "publish-tv-wine-review-once":
             return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":
