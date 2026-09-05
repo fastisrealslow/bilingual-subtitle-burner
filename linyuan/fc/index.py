@@ -47,12 +47,12 @@ MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟�
                                           # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
 # 竞品号：监控但不抄（视频在 data.json 供分析，选片/出片时跳过，2026-08-29）
 COMPETITOR_AUTHORS = {"园园滚雪球"}
-MAX_PER_DAY = 7                          # 每天最多成功调度几条素材（2026-08-29 提至 7，保证供应 ≥6 条成片）
+MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
 MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
-PENDING_LIMIT = 15                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）
+PENDING_LIMIT = 24                        # 2026-09-05：允许 8-10 条安全库存；发布仍保持每日 6 条上限
                                           # 2026-09-02 由 10 提到 15：MAX_PER_DAY=7 时一次调度就可能触顶，
                                           # 导致次日调度被永久卡住
-MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）
+MAX_ATTEMPTS = 24                        # 2026-09-05：扩大候选尝试池；质量门禁失败不消耗有效产能
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
@@ -64,7 +64,7 @@ TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
 REVIEW_PAUSED_SLUGS = {"ly-0904-f47739"}
-REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
+REJECT_REFILL_LIMIT = 10                 # 2026-09-05：质量淘汰立即换候选，直到找到合格库存或达到安全上限
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
 # 搜索噪音：标题命中即排除
@@ -1974,11 +1974,11 @@ def publish_handler(event=None, context=None):
         age = now - max(candidate.get("ts", 0), candidate.get("last_retry", 0))
         retries = candidate.get("retries", 0)
         last_retry = candidate.get("last_retry", 0)
-        if age > 12 * 3600:
+        if age > 6 * 3600:
             candidate["failed"] = True
             log_event("fail", f"{s} 超过 12h 无成片，标记失败", (candidate.get("title") or "")[:60])
             log.info(f"{s} 超过 12h 无 artifact，标记失败")
-        elif retries < 2 and now - max(candidate.get("ts", 0), last_retry) > 6 * 3600:
+        elif retries < 2 and now - max(candidate.get("ts", 0), last_retry) > 2 * 3600:
             # 自动重试出片：用之前保存的 asset_url 重新触发 workflow
             # 注意用 max(ts, last_retry)：刚调度的条目（出片还在跑）不能重触发
             asset_url = candidate.get("asset_url") or candidate.get("source_url")
