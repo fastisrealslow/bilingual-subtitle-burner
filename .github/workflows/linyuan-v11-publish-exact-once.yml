@@ -1,0 +1,99 @@
+name: 林园V11精确14条境内投稿
+# One-shot, hard-coded controller for the user-authorized 14-part batch.
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-v11-publish-exact-once.yml]
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 480
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 顺序投稿并逐条等待BV回执
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import io,json,os,time,urllib.request
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+
+          repo=os.environ['GITHUB_REPOSITORY']
+          slug='ly-parity-v3-14-0905'
+          state_url=f'https://api.github.com/repos/{repo}/contents/linyuan/.automation/fc_state.json?ref=main'
+          client=Client(api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+
+          def state():
+              req=urllib.request.Request(state_url,headers={
+                  'Authorization':'Bearer '+os.environ['GH_TOKEN'],
+                  'Accept':'application/vnd.github.raw+json',
+                  'X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=60) as response:
+                  return json.loads(response.read().decode())
+
+          def progress(snapshot):
+              entry=next((x for x in snapshot.get('dispatched',[]) if x.get('slug')==slug),{})
+              pub=snapshot.get('published',{}).get(slug,{})
+              return int(entry.get('published_parts') or 0),entry,pub
+
+          while True:
+              before,entry,pub=progress(state())
+              if before>=14:
+                  break
+              if entry.get('failed') or entry.get('quality_failure'):
+                  raise SystemExit('批次状态失败: '+str(entry.get('quality_failure') or entry.get('failed')))
+              payload=json.dumps({
+                  'triggerName':'publish-batch',
+                  'batch_slug':slug,
+                  'batch_remaining':1,
+                  'ignore_daily_limit':True,
+                  'source_url':'https://www.bilibili.com/video/BV1Pzug6fEyY',
+                  'title':'2026年8月7日林园57分钟专访'
+              },ensure_ascii=False).encode()
+              print(f'调用境内FC投稿 part {before+1}/14',flush=True)
+              try:
+                  response=client.invoke_function_with_options(
+                      os.environ['FC_FUNCTION_NAME'],
+                      m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(payload)),
+                      m.InvokeFunctionHeaders(),
+                      util.RuntimeOptions(connect_timeout=10000,read_timeout=180000,autoretry=False))
+                  print('FC调用已返回',flush=True)
+              except Exception as exc:
+                  print('FC网关已断开；不重复调用，转为查状态: '+repr(exc),flush=True)
+
+              deadline=time.time()+2100
+              while time.time()<deadline:
+                  time.sleep(20)
+                  current,e,p=progress(state())
+                  if e.get('failed') or e.get('quality_failure'):
+                      raise SystemExit('投稿失败: '+str(e.get('quality_failure') or e.get('failed')))
+                  if current>before:
+                      bvids=p.get('bvids') or []
+                      latest=bvids[-1] if bvids else p.get('bvid','')
+                      print(f'完成 {current}/14: {latest}',flush=True)
+                      break
+              else:
+                  raise SystemExit(f'part {before+1} 在35分钟内没有形成回执，停止以防重复投稿')
+
+          count,entry,pub=progress(state())
+          parts=[x for x in (pub.get('parts') or []) if x.get('status')=='published']
+          bvids=[x.get('bvid') for x in parts if x.get('bvid')]
+          if count!=14 or len(parts)!=14 or len(set(bvids))!=14:
+              raise SystemExit(f'回执不完整: published_parts={count}, parts={len(parts)}, unique_bvids={len(set(bvids))}')
+          print(json.dumps({'slug':slug,'published_parts':count,'bvids':bvids},
+                           ensure_ascii=False,indent=2))
+          PY
