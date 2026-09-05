@@ -215,6 +215,8 @@ jobs:
           # ubuntu runner 没有 Microsoft YaHei/Arial，libass 找不到会烧成豆腐块
           ZH_FONT: Noto Sans CJK SC
           EN_FONT: DejaVu Sans
+          # auto：干净原画用实景封面，资料卡在浅色/深色间按标题稳定选择。
+          COVER_STYLE: ${{ vars.COVER_STYLE || 'auto' }}
         run: |
           set -euo pipefail
           python3 -u produce_cn.py \
