@@ -220,6 +220,49 @@ def delivery_release_asset(name):
         f"{DELIVERY_RELEASE_TAG}/{name}")}
 
 
+def diagnose_release_download(event=None, context=None):
+    """只读探测境内 FC 到逐条 Release 的链路；不进入投稿器。"""
+    event = event if isinstance(event, dict) else {}
+    slug = str(event.get("batch_slug") or "").strip()
+    if slug != "ly-parity-v3-14-0905":
+        log_event("probe_fail", "Release 探针拒绝非目标批次", slug)
+        flush_logs()
+        return {"ok": False, "reason": "unsupported_slug"}
+
+    results = []
+    probe_dir = Path(tempfile.mkdtemp(prefix="release-probe-"))
+    try:
+        for suffix in ("meta.json", "cover_1.jpg", "final_1.mp4"):
+            name = f"{slug}.{suffix}"
+            url = delivery_release_asset(name)["browser_download_url"]
+            dest = probe_dir / suffix
+            started = time.time()
+            log_event("probe", f"开始探测 {suffix}", "range=0-1048575")
+            flush_logs()
+            result = subprocess.run([
+                "curl", "-sS", "-fL", "--retry", "1",
+                "--connect-timeout", "15", "--max-time", "50",
+                "--range", "0-1048575",
+                "-H", f"Authorization: Bearer {TOKEN}",
+                "-o", str(dest), url,
+            ], capture_output=True)
+            elapsed = round(time.time() - started, 2)
+            size = dest.stat().st_size if dest.is_file() else 0
+            detail = (f"rc={result.returncode} bytes={size} seconds={elapsed} "
+                      f"stderr={result.stderr.decode(errors='replace')[:100]}")
+            kind = "probe_ok" if result.returncode == 0 and size > 0 else "probe_fail"
+            log_event(kind, f"探测 {suffix}", detail)
+            flush_logs()
+            results.append({"name": suffix, "rc": result.returncode,
+                            "bytes": size, "seconds": elapsed})
+            if result.returncode != 0 or size <= 0:
+                break
+        return {"ok": all(x["rc"] == 0 and x["bytes"] > 0 for x in results),
+                "results": results}
+    finally:
+        shutil.rmtree(probe_dir, ignore_errors=True)
+
+
 def download_release_part(slug, part_index, dest_dir):
     """只取当前 part 的元数据、视频和封面；缺任一必需文件即回退旧 Artifact。"""
     dest_dir = Path(dest_dir)
@@ -1133,6 +1176,8 @@ def handler(event, context):
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     try:
+        if name == "diagnose-release":
+            return diagnose_release_download(evt, context)
         if "dispatch" in name:
             return dispatch_handler(evt, context)
         return publish_handler(evt, context)
