@@ -85,6 +85,9 @@ jobs:
                       bvids=p.get('bvids') or []
                       latest=bvids[-1] if bvids else p.get('bvid','')
                       print(f'完成 {current}/14: {latest}',flush=True)
+                      if current < 14:
+                          print('冷却10分钟后再投下一条，避免B站频控',flush=True)
+                          time.sleep(600)
                       break
               else:
                   raise SystemExit(f'part {before+1} 在35分钟内没有形成回执，停止以防重复投稿')
