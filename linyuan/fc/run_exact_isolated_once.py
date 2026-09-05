@@ -110,10 +110,31 @@ def invoke_once(fc):
         m.InvokeFunctionHeaders(x_fc_invocation_type="Async"),
         util.RuntimeOptions(connect_timeout=10000, read_timeout=120000, autoretry=False),
     )
-    raw = response.body.read() if hasattr(response.body, "read") else response.body
-    if isinstance(raw, bytes):
-        raw = raw.decode(errors="replace")
-    print("EXACT_RESPONSE=" + str(raw), flush=True)
+    print("async invocation accepted", flush=True)
+
+
+def wait_for_final():
+    token = os.environ.get("GH_TOKEN", "")
+    if not token:
+        raise RuntimeError("Actions state token missing")
+    url = "https://api.github.com/repos/fastisrealslow/bilingual-subtitle-burner/contents/linyuan/.automation/fc_state.json?ref=main"
+    deadline = time.time() + 5400
+    while time.time() < deadline:
+        request = urllib.request.Request(url, headers={
+            "Authorization": "Bearer " + token,
+            "Accept": "application/vnd.github.raw+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        })
+        with urllib.request.urlopen(request, timeout=60) as response:
+            state = json.loads(response.read().decode())
+        entry = next((item for item in state.get("dispatched", [])
+                      if item.get("slug") == "ly-parity-v3-14-0905"), {})
+        published = int(entry.get("published_parts") or 0)
+        print(f"final progress {published}/14", flush=True)
+        if published >= 14:
+            return
+        time.sleep(30)
+    raise RuntimeError("final async upload did not form a receipt in 90 minutes")
 
 
 def main():
@@ -121,16 +142,8 @@ def main():
     try:
         create_worker(fc)
         time.sleep(25)
-        for index in range(1):
-            try:
-                invoke_once(fc)
-                print(f"isolated Web submission completed {index + 1}/1", flush=True)
-            except Exception as exc:
-                print("FC sync response unavailable; keep worker alive 30 minutes: " + repr(exc), flush=True)
-                time.sleep(1800)
-            if index < 1:
-                print("cooldown 10 minutes", flush=True)
-                time.sleep(600)
+        invoke_once(fc)
+        wait_for_final()
     finally:
         try:
             fc.delete_function(WORKER)
