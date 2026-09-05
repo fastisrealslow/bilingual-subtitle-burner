@@ -67,9 +67,13 @@ def build(args):
     proof.append(dict(file=final.name,layout=layout,checks=checks,captions=captions,contact_sheet=sheet))
     P.make_audio_card(out/'cover.jpg','林园',title,width=1280,height=720,
                       portrait_path=Path(args.portrait),require_portrait=True)
+    for style in ('light','dark'):
+        P.make_audio_card(out/('cover-'+style+'.jpg'),'林园',title,width=1280,height=720,
+                         portrait_path=Path(args.portrait),require_portrait=True,cover_style=style)
     # Native-photo cover uses the same shortened headline at >=104px.
-    P.make_cover(out/'portrait-derived-30s.mp4',2,20,'林园：投资要看供需关系，长期持有好企业',
-                 '林园',out/'native-cover.jpg',preferred_time=5)
+    P.make_cover(native,2,20,'林园：投资要看供需关系，长期持有好企业',
+                 '林园',out/'native-cover.jpg',preferred_time=5,
+                 video_filter=clean+',crop=480:620:1140:48')
     (out/'verification.json').write_text(json.dumps({'presentation_version':1,
         'test_only':True,'no_publication':True,'samples':proof,
         'sources':[args.interview,args.tv]},ensure_ascii=False,indent=2))
