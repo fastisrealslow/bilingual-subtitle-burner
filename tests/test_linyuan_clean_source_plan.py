@@ -54,7 +54,7 @@ def test_audio_card_ass_uses_yellow_black_outline(tmp_path):
                  if line.startswith("Style: ZH,"))
     assert "&H0000D7FF" in style
     assert ",40," in style
-    assert ",1,5,1,5," in style
+    assert ",1,3,1,5," in style
     assert "WrapStyle: 2" in text
     dialogue = next(line for line in text.splitlines()
                     if line.startswith("Dialogue:"))
@@ -83,7 +83,8 @@ def test_real_video_subtitles_remain_white(tmp_path):
     style = next(line for line in text.splitlines()
                  if line.startswith("Style: ZH,"))
     assert "&H00FFFFFF" in style
-    assert ",1,3,1,2," in style
+    assert ",1,3,1,5," in style
+    assert "\\an5\\pos(640,608)" in text
 
 
 def test_audio_card_title_falls_back_to_fixed_width_for_long_words():
