@@ -210,6 +210,19 @@ def _download_release_asset_parallel(asset, dest, max_time=1620):
     size = int(asset.get("size") or 0)
     if not url or size <= 0:
         return False
+    # 与已验证的单条投稿链路一致：只经过 GitHub 一次，后续所有 Range
+    # 直接读取同一个签名 Blob；不向 Blob 转发 GitHub 凭据。
+    try:
+        import requests
+        redirect = requests.get(
+            str(url), headers={"Authorization": f"Bearer {TOKEN}"},
+            allow_redirects=False, timeout=60)
+        location = redirect.headers.get("Location", "")
+        if redirect.status_code in (301, 302, 303, 307, 308) \
+                and location.startswith("https://"):
+            url = location
+    except Exception as exc:
+        log.warning(f"解析 Release 签名地址失败，回退原 URL: {exc}")
     dest = Path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     # 2MB 以下不并行；大文件最多 16 路，最终文件按原始字节数复核。
@@ -234,7 +247,6 @@ def _download_release_asset_parallel(asset, dest, max_time=1620):
             "curl", "-sS", "-fL", "--retry", "2",
             "--connect-timeout", "20", "--max-time", str(max_time),
             "--range", f"{start}-{end}",
-            "-H", f"Authorization: Bearer {TOKEN}",
             "-o", str(part_path), str(url),
         ], capture_output=True)
         expected = end - start + 1
