@@ -57,8 +57,9 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 480
-QUALITY_GATE_VERSION = 9                 # v9 锁定真人动态 v3、标题与预览接触表证明
+QUALITY_GATE_VERSION = 10                # v10 封面必须包含已核验真人图，禁止黑色占位
 VISUAL_STANDARD_VERSION = 3
+COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
@@ -1357,8 +1358,13 @@ def artifact_quality_error(meta):
         return "成片人物字段不是林园"
     if int(meta.get("visual_standard_version") or 0) < VISUAL_STANDARD_VERSION:
         return "成片没有应用 v3 对标视觉标准"
-    if int(meta.get("cover_standard_version") or 0) < VISUAL_STANDARD_VERSION:
-        return "封面没有应用 v3 对标视觉标准"
+    if int(meta.get("cover_standard_version") or 0) < COVER_STANDARD_VERSION:
+        return "封面没有应用 v4 真人图强制标准"
+    if meta.get("cover_person_image_verified") is not True:
+        return "封面没有已核验真人图证明"
+    if meta.get("cover_person_image_source") not in {
+            "authority_reference", "verified_source_frame"}:
+        return "封面人物图来源不可验证"
     if meta.get("title_quality_verified") is not True:
         return "标题没有通过原话/重复/ASR 污染质检"
     if any(word in (meta.get("title") or "") for word in TITLE_ASR_BLACKLIST):

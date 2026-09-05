@@ -64,8 +64,9 @@ MIN_SHORT_EDGE = 480
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 9
+QUALITY_GATE_VERSION = 10
 VISUAL_STANDARD_VERSION = 3
+COVER_STANDARD_VERSION = 4
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
 # 9:16 竖版上传，B站桌面播放器自行补黑边；移动端则直接占满屏幕。我们保留
 # 这种有效的版式，但不复制对方插画或照片资产，改用自有的通用编辑卡视觉。
@@ -2924,7 +2925,7 @@ def extract_audio_card_portrait(reference_image, out_path):
 
 
 def make_audio_card(out_path, speaker, topic, width=None, height=None,
-                    portrait_path=None):
+                    portrait_path=None, require_portrait=False):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
@@ -3055,6 +3056,9 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
                 print(f"[封面] 肖像嵌入失败，使用通用人物图标: {e}",
                       file=sys.stderr)
         if not portrait_used:
+            if require_portrait:
+                raise VisualQualityError(
+                    "v4 封面未能嵌入已核验人物图，拒绝使用深色占位图")
             draw.ellipse((icon_x - icon_r, icon_y - icon_r,
                           icon_x + icon_r, icon_y + icon_r), fill=(35, 48, 64))
         tag = _audio_card_topic_tag(display_topic, speaker)
@@ -3241,11 +3245,14 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         if strategy == "audio_card":
             make_audio_card(cover, speaker, cw["title"],
                             width=1280, height=720,
-                            portrait_path=audio_card_portrait)
+                            portrait_path=audio_card_portrait,
+                            require_portrait=True)
+            cover_person_image_source = "authority_reference"
         else:
             make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
                        cw["title"], speaker, cover, video_filter=clean_vf,
                        preferred_time=(visual_report or {}).get("best_cover_time"))
+            cover_person_image_source = "verified_source_frame"
     except Exception as e:
         raise VisualQualityError(f"封面生成/人物/角标复检失败：{e}") from e
     return {
@@ -3257,7 +3264,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "review_assets_verified": True,
         "title_quality_verified": cw.get("title_quality_verified") is True,
         "visual_standard_version": VISUAL_STANDARD_VERSION,
-        "cover_standard_version": VISUAL_STANDARD_VERSION,
+        "cover_standard_version": COVER_STANDARD_VERSION,
+        "cover_person_image_verified": True,
+        "cover_person_image_source": cover_person_image_source,
         "layout_proof": {
             "canvas": {"width": AUDIO_CARD_WIDTH,
                        "height": AUDIO_CARD_HEIGHT},

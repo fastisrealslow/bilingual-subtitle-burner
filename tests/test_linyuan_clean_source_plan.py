@@ -160,6 +160,17 @@ def test_audio_card_fails_closed_without_chinese_font(monkeypatch, tmp_path):
         P.make_audio_card(tmp_path / "audio-card.png", "林园", "投资观点")
 
 
+def test_v4_cover_rejects_dark_placeholder(monkeypatch, tmp_path):
+    font = Path("/usr/local/share/fonts/noto-cjk/NotoSansCJKsc-Regular.otf")
+    if not font.exists():
+        pytest.skip("local CJK font unavailable")
+    monkeypatch.setenv("AUDIO_CARD_FONT_FILE", str(font))
+    with pytest.raises(P.VisualQualityError, match="拒绝使用深色占位图"):
+        P.make_audio_card(
+            tmp_path / "cover.jpg", "林园", "投资观点",
+            width=1280, height=720, require_portrait=True)
+
+
 def test_audio_card_portrait_comes_from_authority_reference(monkeypatch,
                                                              tmp_path):
     cv2 = pytest.importorskip("cv2")

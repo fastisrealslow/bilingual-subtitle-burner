@@ -152,7 +152,9 @@ def _good_artifact_meta():
     return {
         "quality_gate_version": FC.QUALITY_GATE_VERSION,
         "visual_standard_version": FC.VISUAL_STANDARD_VERSION,
-        "cover_standard_version": FC.VISUAL_STANDARD_VERSION,
+        "cover_standard_version": FC.COVER_STANDARD_VERSION,
+        "cover_person_image_verified": True,
+        "cover_person_image_source": "authority_reference",
         "title": "林园：医药行业未来三十年会有长期机会",
         "title_quality_verified": True,
         "review_assets_verified": True,
@@ -193,6 +195,8 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
 @pytest.mark.parametrize(("field", "value", "message"), [
     ("resolution", {"short_edge": 479}, "短边 479"),
     ("visual_standard_version", 2, "v3 对标视觉标准"),
+    ("cover_standard_version", 3, "v4 真人图强制标准"),
+    ("cover_person_image_verified", False, "已核验真人图"),
     ("title_quality_verified", False, "标题没有通过"),
     ("review_assets_verified", False, "30秒预览"),
     ("watermark_verified", False, "角标复检"),
