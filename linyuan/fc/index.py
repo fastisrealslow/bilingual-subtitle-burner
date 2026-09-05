@@ -2186,8 +2186,33 @@ def publish_tv_wine_review_once(event):
             raise
     with tempfile.TemporaryDirectory(prefix="tv-review-") as directory:
         tmp = Path(directory)
-        if not download_release_part(slug, 0, tmp):
-            raise RuntimeError("review release assets are incomplete")
+        artifact_id = int(event.get("artifact_id") or 0)
+        if artifact_id <= 0 or not re.fullmatch(r"[a-f0-9]{64}", str(event.get("expected_sha256") or "")):
+            raise ValueError("exact reviewed artifact and checksum are required")
+        artifact = gh("GET", f"/actions/artifacts/{artifact_id}")
+        if artifact.get("name") != "tv-wine-review" or artifact.get("expired"):
+            raise ValueError("wrong or expired review artifact")
+        import requests
+        redirect = requests.get(API + f"/actions/artifacts/{artifact_id}/zip",
+            headers={"Authorization": f"Bearer {TOKEN}"}, allow_redirects=False, timeout=60)
+        if redirect.status_code != 302 or not redirect.headers.get("Location", "").startswith("https://"):
+            raise RuntimeError("could not resolve exact review artifact")
+        archive_path = tmp / "review.zip"
+        # Do not forward the GitHub credential to the signed blob URL.
+        with requests.get(redirect.headers["Location"], stream=True, timeout=120) as response:
+            response.raise_for_status()
+            size = 0
+            with archive_path.open("wb") as target:
+                for block in response.iter_content(1024 * 1024):
+                    size += len(block)
+                    if size > 512 * 1024 * 1024:
+                        raise RuntimeError("review artifact exceeds size limit")
+                    target.write(block)
+        with zipfile.ZipFile(archive_path) as archive:
+            # Extract only the three exact top-level files, never arbitrary paths.
+            for name in ("meta.json", "final.mp4", "cover.jpg"):
+                with archive.open(name) as source, (tmp / name).open("wb") as target:
+                    shutil.copyfileobj(source, target)
         part = json.loads((tmp / "meta.json").read_text())
         if (not isinstance(part, dict) or part.get("slug") != slug
                 or part.get("review_of_bvid") != "BV1Ngt163EZ4"
@@ -2199,6 +2224,8 @@ def publish_tv_wine_review_once(event):
         if error:
             raise ValueError(error)
         video = tmp / "final.mp4"
+        if part["fingerprints"]["sha256"] != event["expected_sha256"]:
+            raise ValueError("artifact differs from visually reviewed file")
         if hashlib.sha256(video.read_bytes()).hexdigest() != part["fingerprints"]["sha256"]:
             raise ValueError("review video checksum mismatch")
         receipt = {"slug": slug, "review_of_bvid": "BV1Ngt163EZ4",
