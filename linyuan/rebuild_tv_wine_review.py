@@ -149,9 +149,9 @@ def main():
     # This source has a nested 16:9 broadcast, ticker, CCTV logo, account logo
     # and QR. Coordinates are source-specific, guarded by the exact SHA above.
     vf = ("[1:v]setpts=PTS-STARTPTS,split=2[wide][dining];"
-          "[wide]delogo=x=1470:y=40:w=210:h=80:enable='between(t,59.64,76.5733)+gte(t,124.67)',"
-          "delogo=x=545:y=42:w=190:h=80:enable='between(t,124.67,154.9)',"
-          "delogo=x=970:y=390:w=250:h=260:enable='between(t,165,200)',"
+          "[wide]delogo=x=1450:y=25:w=250:h=160:enable='between(t,59.64,76.54)+between(t,124.67,139.94)+between(t,151.14,233.34)',"
+          "delogo=x=545:y=42:w=190:h=80:enable='between(t,128.74,139.94)',"
+          "delogo=x=970:y=390:w=250:h=260:enable='between(t,178,182.5)',"
           "crop=1120:600:550:42,scale=632:338:flags=lanczos,setsar=1[live];"
           "[dining]crop=920:400:1050:190,scale=632:274:flags=lanczos,setsar=1[close];"
           "[0:v]drawbox=x=44:y=360:w=632:h=470:color=0xECECE3:t=fill[bg];"
