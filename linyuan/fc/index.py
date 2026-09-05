@@ -1799,7 +1799,11 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
             "ref": "main",
             "inputs": {"source": source, "slug": slug,
                        "speaker": "林园", "occasion": e.get("title", "")[:30],
-                       "delay_hours": "0", "auto_publish": "false"}})
+                       "delay_hours": "0", "auto_publish": "false",
+                       # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
+                       # 否则常规模式允许空片段，会出现“运行成功但仅产出 3 条”。
+                       **({"target_parts": "13", "include_full": "true"}
+                          if slug == "ly-parity-v3-14-0905" else {})}})
     except Exception as exc:
         e["quality_failure"] = f"{reason}；重做触发失败：{exc}"
         save_state(st)
