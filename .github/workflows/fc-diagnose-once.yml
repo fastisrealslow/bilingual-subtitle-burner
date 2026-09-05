@@ -1,5 +1,5 @@
-name: FC exact worker clone preflight
-# Read-only inspection before creating an isolated exact-batch worker.
+name: FC isolated exact upload diagnostic
+# One-shot isolated worker. No trigger, alias, or change to the normal FC function.
 on:
   push:
     branches: [main]
@@ -9,12 +9,15 @@ permissions:
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 55
+    env:
+      WORKER: fc-develop-v11-exact-0905
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 只读核对克隆所需字段
+      - name: 创建隔离执行端
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -22,27 +25,109 @@ jobs:
           FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
         run: |
           python - <<'PY'
-          import inspect,json,os
+          import base64,os,zipfile
+          from pathlib import Path
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as api
           client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
             access_key_secret=os.environ['ALIYUN_SK'],
             endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
-          body=client.get_function(os.environ['FC_FUNCTION_NAME'],m.GetFunctionRequest()).body
-          data=body.to_map() if hasattr(body,'to_map') else {}
-          safe={}
-          for key,value in data.items():
-              if key in {'environmentVariables','code'}:
-                  safe[key]=sorted(value.keys()) if isinstance(value,dict) else '<omitted>'
-              elif key in {'functionName','description','handler','runtime','memorySize',
-                           'cpu','timeout','diskSize','instanceConcurrency','layers',
-                           'role','internetAccess'}:
-                  safe[key]=value
-          print('CREATE_SIGNATURE='+str(inspect.signature(m.CreateFunctionInput.__init__)))
-          print('CODE_SIGNATURE='+str(inspect.signature(m.InputCodeLocation.__init__)))
-          print('CREATE_CALL='+str(inspect.signature(client.create_function)))
-          print('REQUEST_SIGNATURE='+str(inspect.signature(m.CreateFunctionRequest.__init__)))
-          print('DELETE_CALL='+str(inspect.signature(client.delete_function)))
-          print('SOURCE_CONFIG='+json.dumps(safe,ensure_ascii=False,default=str))
+          source=client.get_function(os.environ['FC_FUNCTION_NAME'],m.GetFunctionRequest()).body
+          code=Path('linyuan/fc/index.py').read_text()
+          old='log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} {((r.stdout or \'\') + (r.stderr or \'\'))[:150]}")'
+          new='log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} tail={out[-1800:]}")'
+          if old not in code:
+              raise SystemExit('expected failure-log line not found')
+          code=code.replace(old,new,1)
+          old_return='''        if tail:
+            log.error(f"  错误信息: {'; '.join(tail)[:300]}")
+
+    shutil.rmtree(tmp, ignore_errors=True)
+    return {"published": done}'''
+          new_return='''        if tail:
+            log.error(f"  错误信息: {'; '.join(tail)[:300]}")
+        if explicit_v4_batch:
+            e.pop("uploading", None)
+            e.pop("uploading_ts", None)
+            e.pop("upload_title", None)
+            e["last_upload_failure_exact"] = out[-1800:]
+            save_state(st)
+
+    shutil.rmtree(tmp, ignore_errors=True)
+    return {"published": done, "error_tail": out[-1800:] if explicit_v4_batch and r.returncode else ""}'''
+          if old_return not in code:
+              raise SystemExit('expected failure-return block not found')
+          code=code.replace(old_return,new_return,1)
+          Path('/tmp/index.py').write_text(code)
+          with zipfile.ZipFile('/tmp/code.zip','w',zipfile.ZIP_DEFLATED) as z:
+              z.write('/tmp/index.py','index.py')
+          try:
+              client.delete_function(os.environ['WORKER'])
+          except Exception:
+              pass
+          layers=[getattr(x,'arn',None) for x in (source.layers or [])]
+          layers=[x for x in layers if x]
+          body=m.CreateFunctionInput(
+              function_name=os.environ['WORKER'],
+              description='Temporary exact V11 publication diagnostic; no triggers',
+              runtime=source.runtime,handler=source.handler,
+              cpu=source.cpu,memory_size=source.memory_size,
+              disk_size=source.disk_size,timeout=source.timeout,
+              instance_concurrency=1,internet_access=source.internet_access,
+              layers=layers,role=source.role or None,
+              environment_variables=source.environment_variables,
+              code=m.InputCodeLocation(zip_file=base64.b64encode(Path('/tmp/code.zip').read_bytes()).decode()))
+          client.create_function(m.CreateFunctionRequest(body=body))
+          print('isolated worker created')
+          PY
+      - name: 等待部署
+        run: sleep 25
+      - name: 精确尝试第5条并输出完整错误尾部
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+        run: |
+          python - <<'PY'
+          import io,json,os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
+            access_key_secret=os.environ['ALIYUN_SK'],
+            endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          payload=json.dumps({'triggerName':'publish-batch','batch_slug':'ly-parity-v3-14-0905',
+            'batch_remaining':1,'ignore_daily_limit':True,
+            'source_url':'https://www.bilibili.com/video/BV1Pzug6fEyY',
+            'title':'2026年8月7日林园57分钟专访'},ensure_ascii=False).encode()
+          response=client.invoke_function_with_options(
+            os.environ['WORKER'],
+            m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(payload)),
+            m.InvokeFunctionHeaders(),
+            util.RuntimeOptions(connect_timeout=10000,read_timeout=2100000,autoretry=False))
+          raw=response.body.read() if hasattr(response.body,'read') else response.body
+          if isinstance(raw,bytes): raw=raw.decode(errors='replace')
+          print('EXACT_RESPONSE='+str(raw))
+          PY
+      - name: 删除隔离执行端
+        if: always()
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+        run: |
+          python - <<'PY'
+          import os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_tea_openapi import models as api
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
+            access_key_secret=os.environ['ALIYUN_SK'],
+            endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          try:
+              client.delete_function(os.environ['WORKER'])
+              print('isolated worker deleted')
+          except Exception as exc:
+              print('cleanup result: '+repr(exc))
           PY
