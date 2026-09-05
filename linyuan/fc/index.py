@@ -369,6 +369,69 @@ def diagnose_release_download(event=None, context=None):
         shutil.rmtree(probe_dir, ignore_errors=True)
 
 
+def download_v4_fast_part(slug, part_index, dest_dir):
+    """从逐条 Artifact 的签名 Blob 取件；仅服务本次已授权 V4 批次。"""
+    if slug != "ly-parity-v3-14-0905" or not 0 <= int(part_index) < 14:
+        return False
+    import requests
+    name = f"linyuan-v4-fast-part-{int(part_index) + 1}"
+    try:
+        listing = gh("GET", f"/actions/artifacts?name={name}&per_page=20")
+        artifacts = [a for a in listing.get("artifacts", [])
+                     if a.get("name") == name and not a.get("expired")]
+        if not artifacts:
+            return False
+        artifact = max(artifacts, key=lambda a: int(a.get("id") or 0))
+        artifact_id = int(artifact["id"])
+        log_event("download", f"快通道下载 part {int(part_index)+1}",
+                  f"artifact={artifact_id} bytes={artifact.get('size_in_bytes', 0)}")
+        flush_logs()
+        redirect = requests.get(
+            API + f"/actions/artifacts/{artifact_id}/zip",
+            headers={"Authorization": f"Bearer {TOKEN}"},
+            allow_redirects=False, timeout=60)
+        location = redirect.headers.get("Location", "")
+        if redirect.status_code != 302 or not location.startswith("https://"):
+            return False
+        dest_dir = Path(dest_dir)
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        archive_path = dest_dir / "part.zip"
+        size = 0
+        with requests.get(location, stream=True, timeout=(20, 1800)) as response:
+            response.raise_for_status()
+            with archive_path.open("wb") as target:
+                for block in response.iter_content(1024 * 1024):
+                    if not block:
+                        continue
+                    size += len(block)
+                    if size > 256 * 1024 * 1024:
+                        raise RuntimeError("V4 part artifact exceeds 256MB")
+                    target.write(block)
+        wanted = {"meta.json", f"final_{int(part_index)+1}.mp4",
+                  f"cover_{int(part_index)+1}.jpg"}
+        found = set()
+        with zipfile.ZipFile(archive_path) as archive:
+            for member in archive.infolist():
+                base = Path(member.filename).name
+                if base not in wanted or member.is_dir():
+                    continue
+                with archive.open(member) as source, (dest_dir / base).open("wb") as target:
+                    shutil.copyfileobj(source, target, length=1024 * 1024)
+                found.add(base)
+        archive_path.unlink(missing_ok=True)
+        ok = found == wanted
+        log_event("download_ok" if ok else "download_fail",
+                  f"快通道取件 part {int(part_index)+1}",
+                  f"archive_bytes={size} files={','.join(sorted(found))}")
+        flush_logs()
+        return ok
+    except Exception as exc:
+        log_event("download_fail", f"快通道异常 part {int(part_index)+1}",
+                  repr(exc)[:180])
+        flush_logs()
+        return False
+
+
 def download_release_part(slug, part_index, dest_dir):
     """只取当前 part 的元数据、视频和封面；缺任一必需文件即回退旧 Artifact。"""
     dest_dir = Path(dest_dir)
@@ -1957,8 +2020,10 @@ def publish_handler(event=None, context=None):
     delivery_dir = tmp / slug
     delivery_dir.mkdir(parents=True, exist_ok=True)
     if not e.get("reprocessing_quality"):
-        used_release = download_release_part(
-            slug, e.get("published_parts", 0), delivery_dir)
+        part_index = int(e.get("published_parts", 0))
+        used_release = download_v4_fast_part(slug, part_index, delivery_dir)
+        if not used_release:
+            used_release = download_release_part(slug, part_index, delivery_dir)
 
     if not used_release:
         shutil.rmtree(delivery_dir, ignore_errors=True)
