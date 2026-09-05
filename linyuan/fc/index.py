@@ -1270,6 +1270,8 @@ def handler(event, context):
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     try:
+        if name == "publish-tv-wine-review-once":
+            return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":
             return diagnose_release_download(evt, context)
         if "dispatch" in name:
@@ -2160,3 +2162,70 @@ def publish_handler(event=None, context=None):
     return {"published": done}
 
 # Deployment marker: visual quality gate v11.
+
+
+def publish_tv_wine_review_once(event):
+    """Exact user-authorized replacement; isolated receipt, no queue resets or refill."""
+    import base64
+    import hashlib
+    slug = "ly-tv-wine-review-0905"
+    if (event.get("slug") != slug
+            or event.get("review_of_bvid") != "BV1Ngt163EZ4"):
+        raise ValueError("review target does not match authorization")
+    receipt_path = f"linyuan/.automation/{slug}-receipt.json"
+    # A successful creation of this distinct file is our durable upload lock.
+    # Existing/unknown attempts never initiate a second upload.
+    try:
+        old = gh("GET", f"/contents/{receipt_path}?ref=main")
+        return json.loads(base64.b64decode(old["content"]))
+    except urllib.error.HTTPError as exc:
+        if exc.code != 404:
+            raise
+    with tempfile.TemporaryDirectory(prefix="tv-review-") as directory:
+        tmp = Path(directory)
+        if not download_release_part(slug, 0, tmp):
+            raise RuntimeError("review release assets are incomplete")
+        part = json.loads((tmp / "meta.json").read_text())
+        if (not isinstance(part, dict) or part.get("slug") != slug
+                or part.get("review_of_bvid") != "BV1Ngt163EZ4"
+                or part.get("source_sha256") !=
+                "14ef8887af5fe638e7c731a071695131827f079f0e0309a5bf8cccaad6f977bb"
+                or part.get("segments") != [{"start": 239.46, "end": 477.54}]):
+            raise ValueError("review metadata does not identify the selected clip")
+        error = artifact_quality_error(part)
+        if error:
+            raise ValueError(error)
+        video = tmp / "final.mp4"
+        if hashlib.sha256(video.read_bytes()).hexdigest() != part["fingerprints"]["sha256"]:
+            raise ValueError("review video checksum mismatch")
+        receipt = {"slug": slug, "review_of_bvid": "BV1Ngt163EZ4",
+                   "status": "uploading", "ts": int(time.time()),
+                   "sha256": part["fingerprints"]["sha256"], "title": part["title"]}
+        def encoded():
+            return base64.b64encode(json.dumps(receipt, ensure_ascii=False).encode()).decode()
+        locked = gh("PUT", f"/contents/{receipt_path}", {
+            "message": "ops: reserve single authorized TV/wine review upload",
+            "content": encoded()})
+        lock_sha = locked["content"]["sha"]
+        cookies = tmp / "cookies.json"
+        cookies.write_text(COOKIES_JSON)
+        os.chmod(cookies, 0o600)
+        env = os.environ.copy()
+        env["PYTHONPATH"] = ":".join(sys.path + ["/opt/python"])
+        cmd = [sys.executable, "-m", "biliup", "-u", str(cookies), "upload", str(video),
+               "--title", part["title"], "--tid", str(TID), "--copyright", str(COPYRIGHT),
+               "--source", "央视公开访谈资料", "--desc", clean_publish_desc(part["desc"]),
+               "--tag", ",".join(part["tags"]), "--cover", str(tmp / "cover.jpg"), "--limit", "1"]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=1620, env=env)
+        match = re.search(r"BV[a-zA-Z0-9]{10}", (result.stdout or "") + (result.stderr or ""))
+        if result.returncode == 0 and match:
+            receipt.update(status="published", bvid=match.group(0), ts=int(time.time()))
+        else:
+            receipt.update(status="upload_result_unknown", returncode=result.returncode)
+        gh("PUT", f"/contents/{receipt_path}", {
+            "message": "ops: record single TV/wine review upload result",
+            "sha": lock_sha, "content": encoded()})
+        log_event("review_publish", json.dumps(receipt, ensure_ascii=False))
+        return receipt
+
+
