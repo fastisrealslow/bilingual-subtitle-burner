@@ -1,0 +1,146 @@
+name: 林园V4逐条快通道准备
+# Read-only split of the already verified 14-part delivery artifact.
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-v4-stage-parts-once.yml]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: 下载已通过门禁的14条原始产物
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          src="$RUNNER_TEMP/source"
+          mkdir -p "$src"
+          gh run download 33943054549 --repo "$GITHUB_REPOSITORY"             --name deliver-ly-parity-v3-14-0905 --dir "$src"
+          meta="$(find "$src" -type f -name meta.json -print -quit)"
+          test -n "$meta"
+          for i in $(seq 1 14); do
+            dir="$RUNNER_TEMP/parts/$i"
+            mkdir -p "$dir"
+            final="$(find "$src" -type f -name "final_${i}.mp4" -print -quit)"
+            cover="$(find "$src" -type f -name "cover_${i}.jpg" -print -quit)"
+            test -n "$final" -a -n "$cover"
+            cp "$meta" "$dir/meta.json"
+            cp "$final" "$dir/final_${i}.mp4"
+            cp "$cover" "$dir/cover_${i}.jpg"
+          done
+      - name: 上传 V4 第1条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-1
+          path: ${{ runner.temp }}/parts/1/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第2条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-2
+          path: ${{ runner.temp }}/parts/2/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第3条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-3
+          path: ${{ runner.temp }}/parts/3/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第4条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-4
+          path: ${{ runner.temp }}/parts/4/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第5条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-5
+          path: ${{ runner.temp }}/parts/5/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第6条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-6
+          path: ${{ runner.temp }}/parts/6/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第7条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-7
+          path: ${{ runner.temp }}/parts/7/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第8条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-8
+          path: ${{ runner.temp }}/parts/8/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第9条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-9
+          path: ${{ runner.temp }}/parts/9/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第10条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-10
+          path: ${{ runner.temp }}/parts/10/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第11条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-11
+          path: ${{ runner.temp }}/parts/11/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第12条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-12
+          path: ${{ runner.temp }}/parts/12/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第13条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-13
+          path: ${{ runner.temp }}/parts/13/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: 上传 V4 第14条快通道包
+        uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-v4-fast-part-14
+          path: ${{ runner.temp }}/parts/14/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
