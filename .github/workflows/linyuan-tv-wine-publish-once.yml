@@ -1,0 +1,79 @@
+name: 电视机与酒单条直接投稿
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-tv-wine-publish-once.yml]
+permissions:
+  contents: read
+concurrency:
+  group: tv-wine-review-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+      REVIEW_ARTIFACT_ID: '9965748848'
+      REVIEW_SHA256: bc7904451225330f8462d1f72ad0cd5391de0c2a521c8ce90fec78af00409fab
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 仅调用一次指定单条，等待真实BV回执
+        shell: bash
+        run: |
+          python - <<'PY'
+          import io, json, os, time, urllib.request, urllib.error
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          slug = 'ly-tv-wine-review-0905'
+          url = ('https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY'] +
+                 '/contents/linyuan/.automation/' + slug + '-receipt.json?ref=main')
+          def receipt():
+              request = urllib.request.Request(url, headers={
+                  'Authorization': 'Bearer '+os.environ['GH_TOKEN'],
+                  'Accept': 'application/vnd.github.raw', 'Cache-Control': 'no-cache'})
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      return json.load(response)
+              except urllib.error.HTTPError as exc:
+                  if exc.code == 404:
+                      return None
+                  raise
+          previous = receipt()
+          if previous is None:
+              config = api.Config(access_key_id=os.environ['ALIYUN_AK'],
+                  access_key_secret=os.environ['ALIYUN_SK'],
+                  endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com')
+              client = Client(config)
+              payload = json.dumps({'triggerName':'publish-tv-wine-review-once',
+                  'slug':slug,'review_of_bvid':'BV1Ngt163EZ4',
+                  'artifact_id':int(os.environ['REVIEW_ARTIFACT_ID']),
+                  'expected_sha256':os.environ['REVIEW_SHA256']}).encode()
+              try:
+                  client.invoke_function_with_options(os.environ['FC_FUNCTION_NAME'],
+                      m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(payload)),
+                      m.InvokeFunctionHeaders(),
+                      util.RuntimeOptions(connect_timeout=10000,read_timeout=180000,autoretry=False))
+              except Exception as exc:
+                  print('单次调用已结束或网关断开，仅查回执，绝不重复投稿：'+type(exc).__name__,flush=True)
+          for attempt in range(70):
+              result = receipt()
+              if result:
+                  print(json.dumps(result,ensure_ascii=False),flush=True)
+                  if result.get('status') == 'published' and result.get('bvid'):
+                      break
+                  if result.get('status') == 'upload_result_unknown':
+                      raise RuntimeError('结果未确认；禁止自动重投')
+              time.sleep(30)
+          else:
+              raise RuntimeError('未取得投稿成功回执；禁止自动重投')
+          PY
