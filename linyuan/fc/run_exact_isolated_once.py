@@ -5,6 +5,7 @@ import io
 import json
 import os
 import time
+import urllib.request
 import zipfile
 from pathlib import Path
 
@@ -106,8 +107,8 @@ def invoke_once(fc):
     response = fc.invoke_function_with_options(
         WORKER,
         m.InvokeFunctionRequest(qualifier="LATEST", body=io.BytesIO(payload)),
-        m.InvokeFunctionHeaders(),
-        util.RuntimeOptions(connect_timeout=10000, read_timeout=2100000, autoretry=False),
+        m.InvokeFunctionHeaders(x_fc_invocation_type="Async"),
+        util.RuntimeOptions(connect_timeout=10000, read_timeout=120000, autoretry=False),
     )
     raw = response.body.read() if hasattr(response.body, "read") else response.body
     if isinstance(raw, bytes):
