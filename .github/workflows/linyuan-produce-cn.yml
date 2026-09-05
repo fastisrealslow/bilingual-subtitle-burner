@@ -68,7 +68,8 @@ permissions:
 
 concurrency:
   group: produce-cn-${{ inputs.slug }}
-  cancel-in-progress: false     # 取消会白扔已付费的 LLM 调用
+  # 同一 slug 的新版验收会取代旧版；不同日常 slug 仍可并行，不影响正常出片。
+  cancel-in-progress: true
 
 jobs:
   produce:

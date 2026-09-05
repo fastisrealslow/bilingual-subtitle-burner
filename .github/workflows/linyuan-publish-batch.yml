@@ -32,7 +32,7 @@ jobs:
       ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
       FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
-      BATCH_SLUG: ${{ inputs.slug || 'ly-parity-14-0904' }}
+      BATCH_SLUG: ${{ inputs.slug || 'ly-parity-v3-14-0905' }}
       BATCH_TOTAL: ${{ inputs.total || '14' }}
       SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
     steps:

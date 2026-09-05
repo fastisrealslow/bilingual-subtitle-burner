@@ -19,18 +19,20 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: 触发 v3 真人动态版14条复刻批次
+      - name: 触发 v4 真人封面版14条正式批次
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # GitHub Runner 只负责生产；成功后由「林园单批连续投稿」自动调用
+          # 境内 FC 顺序上传 14 条，避免海外 upos 超时或双通道重复投稿。
           gh workflow run linyuan-produce-cn.yml \
             --repo "${{ github.repository }}" \
             --ref main \
             -f source='https://www.bilibili.com/video/BV1Pzug6fEyY' \
             -f slug='ly-parity-v3-14-0905' \
             -f speaker='林园' \
-            -f occasion='2026年8月7日林园57分钟专访·v3全量复刻' \
+            -f occasion='2026年8月7日林园57分钟专访·v4真人封面全量复刻' \
             -f source_platform='bilibili' \
             -f delay_hours='0' \
             -f auto_publish=false \
