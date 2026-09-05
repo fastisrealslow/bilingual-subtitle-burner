@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# One guarded bootstrap invocation for the explicitly authorized V4 batch.
+# Immediate read-only ping of the deployed FC invocation endpoint.
 on:
   push:
     branches: [main]
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 空闲时引导 V4 第1条
+      - name: 调用 FC 即时 ping
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -43,25 +43,16 @@ jobs:
           instances = (active.to_map() or {}).get('instances') or []
           if instances:
               raise SystemExit(f"refuse bootstrap: {len(instances)} active FC instance(s)")
-          payload = json.dumps({
-              "triggerName": "publish-batch",
-              "batch_slug": "ly-parity-v3-14-0905",
-              "batch_remaining": 1,
-              "ignore_daily_limit": True,
-              "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
-              "title": "2026年8月7日林园57分钟专访",
-          }).encode()
-          started = time.time()
-          try:
-              response = client.invoke_function_with_options(
-                  os.environ['FC_FUNCTION_NAME'],
-                  m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
-                  m.InvokeFunctionHeaders(),
-                  util_models.RuntimeOptions(connect_timeout=10000, read_timeout=180000))
-              print("sync_status:", getattr(response, 'status_code', None))
-          except Exception as exc:
-              elapsed = time.time() - started
-              if elapsed < 50:
-                  raise
-              print(f"sync gateway detached after {elapsed:.1f}s: {type(exc).__name__}")
+          payload = json.dumps({"triggerName": "diagnose-ping"}).encode()
+          response = client.invoke_function_with_options(
+              os.environ['FC_FUNCTION_NAME'],
+              m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
+              m.InvokeFunctionHeaders(),
+              util_models.RuntimeOptions(connect_timeout=10000, read_timeout=30000))
+          body = getattr(response, 'body', None)
+          raw = body.read() if hasattr(body, 'read') else body
+          if isinstance(raw, bytes):
+              raw = raw.decode('utf-8', errors='replace')
+          print("ping_status:", getattr(response, 'status_code', None))
+          print("ping_body:", raw)
           PY
