@@ -49,3 +49,10 @@ def test_existing_upload_lock_never_uploads_again():
     with patch.object(fc,'gh',return_value=value), patch.object(fc,'download_release_part') as download:
         assert fc.publish_tv_wine_review_once({'slug':review.SLUG,'review_of_bvid':review.ORIGINAL_BVID}) == receipt
         download.assert_not_called()
+
+
+def test_qr_geometry_keeps_valid_unreadable_code():
+    assert review.credible_qr([[10,10],[100,10],[100,100],[10,100]],632,470)
+    assert not review.credible_qr([[436,440],[70,266],[22,-169],[547,94]],632,470)
+    assert not review.credible_qr([[456,0],[614,467],[614,467],[13,45]],632,470)
+    assert not review.credible_qr([[10,0],[174,114],[213.6,200.6],[20,149]],632,470)
