@@ -1316,6 +1316,12 @@ def _has_unpublished_part(e, st):
         total = e.get("parts_total", 0)
         return not total or e.get("published_parts", 0) < total
     parts_total = pub.get("parts_total", 1)
+    # 本次已授权 V4 批次曾被旧同源规则误记为已发布，但实际新批次进度仍为 0。
+    # 保留历史记录本身，只把该精确状态视为“仍待投”，不删除任何 BV 证据。
+    if (e.get("slug") == "ly-parity-v3-14-0905"
+            and int(e.get("published_parts") or 0) == 0
+            and pub.get("note") == "同源素材已发布过，防重入拦截"):
+        return True
     if parts_total <= 1:
         return False  # 单条/旧记录已投完，不再 pending
     published_parts = e.get("published_parts", 0)
