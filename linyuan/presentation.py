@@ -10,7 +10,7 @@ PROTECTED = ('贵州茅台', '茅台', '五粮液', '片仔癀', '达仁堂', '�
              '价值投资者', '长期投资者', '价值投资', '现金流', '人工智能', '机器人', '不可能', '不会',
              '不能', '没有', '不是', '不应该')
 UNIT = re.compile(r'(?:\d+(?:\.\d+)?(?:年|月|日|倍|亿|万|元|%|％|个百分点|小时|分钟|秒))+')
-CLOSE = '，。！？；：、,.!?;:%％）】》」』'
+CLOSE = '，。！？；：、,.!?;:%％）】》」』”’'
 
 
 def word_spans(text):
@@ -52,19 +52,21 @@ def layout_for(width, height, card=False):
     if card:
         if (width, height) != (720, 1280):
             raise ValueError('人物卡画布必须为720×1280')
-        mode, region, font = 'audio_card', dict(x=38,y=874,width=644,height=166), 40
+        mode, region, font = 'audio_card', dict(x=38,y=874,width=644,height=166), 48
     else:
         mode = 'landscape' if width > height*1.15 else ('portrait' if height > width*1.15 else 'square')
-        region = dict(x=round(width*.06), y=round(height*(.77 if mode=='portrait' else .76)),
-                      width=round(width*.88), height=round(height*.17))
+        region = dict(x=round(width*.06), y=round(height*(.73 if mode=='portrait' else .72)),
+                      width=round(width*.88), height=round(height*.25))
         # Ultrawide interviews must remain readable at phone width too. Cap by
         # short edge so two lines still fit the reserved region.
         font = min(int(min(width,height)*.08),
                    max(28, round(min(width,height)*.055), round(width*.035)))
+        font = min(int(min(width,height)*.10), round(font*1.20))
     return {'version':VERSION,'mode':mode,'canvas':{'width':width,'height':height},
             'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':2,
             'subtitle_vertical_alignment':'center','subtitle_layout_version':3,
             'word_boundary_policy':'semantic-v1',
+            'terminal_punctuation_policy':'no-comma-period',
             'line_capacity':max(8, int((region['width']-32)/(font*1.05)))}
 
 
@@ -104,22 +106,40 @@ def prepare_captions(entries, layout):
             for end in stops:
                 if end <= start or end-start > 2*cap:
                     continue
+                part=text[start:end]
+                longest=max((b-a for a,b in word_spans(part)),default=0)
+                cue_cap=max(cap,longest)
+                cue_font=layout['subtitle_font_px']
+                if longest>cap:
+                    # A whole date/unit may exceed the enlarged default size.
+                    # Fit that cue only, rather than split the entity or shrink
+                    # every subtitle in the video. Never drop below 28px.
+                    cue_font=min(cue_font,int((layout['subtitle_region']['width']-32)/(cue_cap*1.05)))
+                    if cue_font<28:
+                        continue
                 try:
-                    lines=wrap_words(text[start:end],cap)
+                    lines=wrap_words(part,cue_cap)
                 except ValueError:
                     continue
                 duration=group[end-1][2]-group[start][1]
                 if duration <= 6 or not candidates:
-                    candidates.append((end,lines,duration))
+                    candidates.append((end,lines,duration,cue_font))
             if not candidates:
                 raise ValueError('字幕含无法安全展示的超长完整词')
             usable=[c for c in candidates if c[2] <= 6] or candidates[:1]
             punct=[c for c in usable if text[c[0]-1] in '，。！？；,!?;' and c[2]>=1.5]
-            end,lines,duration=(punct[-1] if punct else usable[-1])
+            end,lines,duration,cue_font=(punct[-1] if punct else usable[-1])
+            if end<len(text) and group[-1][2]-group[end][1]<.8:
+                # Do not leave a flashing "呢？" or a lone sentence ending on
+                # the next screen after increasing font size.
+                balanced=[c for c in usable if c[0]<end and len(text)-c[0]>=4
+                          and group[-1][2]-group[c[0]][1]>=.8]
+                if balanced:
+                    end,lines,duration,cue_font=balanced[-1]
             if duration < .25:
                 raise ValueError('字幕出现不足0.25秒的闪屏，需修复转写时间')
             result.append({'start_sec':group[start][1],'end_sec':group[end-1][2],
-                           'zh':text[start:end],'en':'','lines':lines})
+                           'zh':text[start:end],'en':'','lines':lines,'font_px':cue_font})
             start=end
     if ''.join(e['zh'] for e in result) != ''.join(re.sub(r'\s+','',e.get('zh') or '') for e in entries):
         raise ValueError('字幕重分段改变了原文')
@@ -141,9 +161,13 @@ def write_ass(entries, path, layout, font_name):
            f'Style: ZH,{font_name},{font},{color},&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,3,1,5,0,0,0,1',
            '', '[Events]','Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text']
     for cue in prepared:
+        # Display-only cleanup: transcript and timing remain intact. Preserve
+        # question/exclamation marks, decimals, and punctuation inside a line.
+        cue['display_lines'] = [re.sub(r'[，。,．.]+(?=[”’」』）】]*$)', '', t)
+                                for t in cue['lines']]
         # Literal braces/backslashes are escaped; only our explicit line breaks are ASS commands.
-        rendered='\\N'.join(t.replace('\\','／').replace('{','（').replace('}','）') for t in cue['lines'])
-        lines.append(f'Dialogue: 0,{ts(cue["start_sec"])},{ts(cue["end_sec"])},ZH,,0,0,0,,{{\\an5\\pos({x},{y})\\fs{font}}}{rendered}')
+        rendered='\\N'.join(t.replace('\\','／').replace('{','（').replace('}','）') for t in cue['display_lines'])
+        lines.append(f'Dialogue: 0,{ts(cue["start_sec"])},{ts(cue["end_sec"])},ZH,,0,0,0,,{{\\an5\\pos({x},{y})\\fs{cue["font_px"]}}}{rendered}')
     Path(path).write_text('\n'.join(lines),encoding='utf-8-sig')
     return prepared
 
@@ -170,7 +194,44 @@ def cover_headline(title, speaker='林园'):
     raise ValueError('无法生成完整词边界的短封面标题，需重写封面文案')
 
 
-def cover_proof(image, path, lines, font_size, boxes):
+def select_cover_style(clean_source, title, requested='auto'):
+    """Keep real-scene covers for clean footage; stable variety for audio cards."""
+    import hashlib
+    if requested not in ('auto','photo','light','dark'):
+        raise ValueError('封面风格只支持 auto/photo/light/dark')
+    if requested == 'photo' and not clean_source:
+        raise ValueError('原画未通过清理，不能强制原画封面')
+    if requested != 'auto':
+        return requested
+    if clean_source:
+        return 'photo'
+    return ('light','dark')[hashlib.sha256(title.encode()).digest()[0] % 2]
+
+
+def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
+    """An alternative editorial cover: rectangular real portrait, short quote."""
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
+    if not portrait_path or not Path(portrait_path).is_file():
+        raise ValueError('深色封面缺少真人参考图')
+    image=Image.new('RGB',(1280,720),(20,27,36))
+    draw=ImageDraw.Draw(image)
+    portrait=ImageOps.fit(Image.open(portrait_path).convert('RGB'),(288,448),
+                          method=Image.Resampling.LANCZOS)
+    image.paste(portrait,(944,170))
+    draw.rectangle((48,172,64,202),fill=(246,186,57))
+    tagfont=ImageFont.truetype(font_path,30,index=font_index)
+    draw.text((48,75),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
+    font=ImageFont.truetype(font_path,96,index=font_index)
+    lines=cover_headline(title,speaker); boxes=[]
+    for i,line in enumerate(lines):
+        xy=(48,228+i*134)
+        draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
+        boxes.append(draw.textbbox(xy,line,font=font))
+    draw.text((48,640),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
+    return image,lines,96,boxes
+
+
+def cover_proof(image, path, lines, font_size, boxes, style=None):
     import json
     from PIL import Image
     if len(lines)>2 or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
@@ -180,6 +241,8 @@ def cover_proof(image, path, lines, font_size, boxes):
     proof={'version':VERSION,'canvas':{'width':1280,'height':720},'headline_lines':lines,
            'font_px':font_size,'thumbnail_font_px':font_size/8,'thumbnail':thumb.name,
            'text_boxes':boxes,'no_overflow':True}
+    if style:
+        proof['style']=style
     Path(str(path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return proof
 
@@ -215,7 +278,16 @@ def verify_render(path, layout, samples=12):
             cap.release(); raise ValueError('成片复检抽帧不足')
         checked+=1
         scaled=cv2.resize(frame,(round(width*min(1,960/width)),round(height*min(1,960/width))))
-        text,points,_=detector.detectAndDecode(scaled)
+        found,points=detector.detect(scaled)
+        text=''
+        if found and points is not None:
+            # OpenCV can return a collinear false candidate, then crash during
+            # decode. A zero-area quad cannot be a QR image; validate first.
+            quad=np.asarray(points,dtype=np.float32).reshape(4,2)
+            if not np.isfinite(quad).all() or abs(cv2.contourArea(quad))==0:
+                points=None
+            else:
+                text,_=detector.decode(scaled,points)
         if text or (points is not None and qr_is_plausible(points,scaled.shape[1],scaled.shape[0])):
             cap.release(); raise ValueError(f'成片第{i}个抽检帧存在二维码候选')
         gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
