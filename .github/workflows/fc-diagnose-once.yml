@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Read-only inspection of active FC instances. Never invokes the function.
+# One guarded bootstrap invocation for the explicitly authorized V4 batch.
 on:
   push:
     branches: [main]
@@ -13,13 +13,13 @@ permissions:
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 读取 FC 活跃实例
+      - name: 空闲时引导 V4 第1条
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -27,31 +27,41 @@ jobs:
           FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
         run: |
           python - <<'PY'
-          import json, os
+          import io, json, os, time
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as open_api
+          from alibabacloud_tea_util import models as util_models
 
-          print("client_instance_methods:", [
-              name for name in dir(Client)
-              if any(word in name.lower() for word in ("instance", "invoke", "stop", "kill"))
-          ])
           client = Client(open_api.Config(
               access_key_id=os.environ['ALIYUN_AK'],
               access_key_secret=os.environ['ALIYUN_SK'],
               endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
-          fn = client.get_function(
-              os.environ['FC_FUNCTION_NAME'], m.GetFunctionRequest()).body
-          print("function:", json.dumps({
-              "state": fn.state,
-              "last_update_status": fn.last_update_status,
-              "timeout": fn.timeout,
-              "instance_concurrency": fn.instance_concurrency,
-              "memory_size": fn.memory_size,
-              "cpu": fn.cpu,
-          }, ensure_ascii=False))
-          instances = client.list_instances(
+          active = client.list_instances(
               os.environ['FC_FUNCTION_NAME'],
               m.ListInstancesRequest(with_all_active=True, limit='100')).body
-          print("instances:", json.dumps(instances.to_map(), ensure_ascii=False, indent=2))
+          instances = (active.to_map() or {}).get('instances') or []
+          if instances:
+              raise SystemExit(f"refuse bootstrap: {len(instances)} active FC instance(s)")
+          payload = json.dumps({
+              "triggerName": "publish-batch",
+              "batch_slug": "ly-parity-v3-14-0905",
+              "batch_remaining": 1,
+              "ignore_daily_limit": True,
+              "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
+              "title": "2026年8月7日林园57分钟专访",
+          }).encode()
+          started = time.time()
+          try:
+              response = client.invoke_function_with_options(
+                  os.environ['FC_FUNCTION_NAME'],
+                  m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
+                  m.InvokeFunctionHeaders(),
+                  util_models.RuntimeOptions(connect_timeout=10000, read_timeout=180000))
+              print("sync_status:", getattr(response, 'status_code', None))
+          except Exception as exc:
+              elapsed = time.time() - started
+              if elapsed < 50:
+                  raise
+              print(f"sync gateway detached after {elapsed:.1f}s: {type(exc).__name__}")
           PY
