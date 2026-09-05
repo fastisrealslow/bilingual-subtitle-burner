@@ -63,7 +63,7 @@ COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
-REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-parity-v3-14-0905"}
+REVIEW_PAUSED_SLUGS = {"ly-0904-f47739"}
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
