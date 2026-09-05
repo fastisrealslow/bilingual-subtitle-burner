@@ -57,10 +57,13 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 480
-QUALITY_GATE_VERSION = 10                # v10 封面必须包含已核验真人图，禁止黑色占位
+QUALITY_GATE_VERSION = 11                # v11 禁黑边/源水印/二维码，字幕块居中且最多两行
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
+# 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
+# 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
+REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-parity-v3-14-0905"}
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
@@ -1522,6 +1525,8 @@ def artifact_quality_error(meta):
             or layout.get("subtitle_region") != {
                 "x": 38, "y": 874, "width": 644, "height": 166}
             or int(layout.get("subtitle_max_lines") or 0) != 2
+            or int(layout.get("subtitle_layout_version") or 0) < 2
+            or layout.get("subtitle_vertical_alignment") != "center"
             or not 38 <= int(layout.get("subtitle_font_px") or 0) <= 42):
         return "v3 画面/字幕固定版式证明不完整"
 
@@ -1544,6 +1549,12 @@ def artifact_quality_error(meta):
         return f"裁切后成片短边 {short_edge} < {MIN_SHORT_EDGE}"
     if meta.get("watermark_verified") is not True:
         return "成片没有通过外部角标复检"
+    if meta.get("live_region_verified") is not True:
+        return "真人动态区没有通过逐帧复检"
+    if meta.get("no_qr_verified") is not True:
+        return "成片没有通过二维码复检"
+    if meta.get("no_black_bars_verified") is not True:
+        return "成片没有通过黑边/取景复检"
     if meta.get("brand_watermark_applied") is not True:
         return "成片没有叠加园来滚雪球品牌水印"
     if meta.get("has_existing_subtitles") is not False:
@@ -1554,8 +1565,8 @@ def artifact_quality_error(meta):
             "direct", "delogo", "crop", "crop_delogo", "audio_card"}:
         return "成片缺少可复现的干净画面策略"
     if (meta.get("clean_strategy") == "audio_card"
-            and meta.get("render_mode") != "live_video_card"):
-        return "音频卡没有使用真人动态混合版"
+            and meta.get("render_mode") not in {"live_video_card", "audio_card"}):
+        return "音频卡渲染模式不可验证"
     if meta.get("clean_filter_verified") is not True:
         return "成片清理方案未经复检"
 
@@ -1713,6 +1724,9 @@ def publish_handler(event=None, context=None):
     explicit_v4_batch = batch_slug == "ly-parity-v3-14-0905"
     ignore_daily_limit = bool(event.get("ignore_daily_limit")) and bool(batch_slug)
     force_publish = bool(event.get("force_publish"))
+    if batch_slug in REVIEW_PAUSED_SLUGS:
+        log.warning(f"{batch_slug} 等待新版真实样片验收，投稿已熔断")
+        return {"published": 0, "review_paused": 1, "slug": batch_slug}
     if not batch_slug and not force_publish and not is_regular_publish_hour():
         hour = time.gmtime(time.time() + 8 * 3600).tm_hour
         log.info(f"北京时间 {hour:02d} 时不在普通投稿窗口，跳过")
@@ -1754,6 +1768,7 @@ def publish_handler(event=None, context=None):
         if isinstance(event, dict) else set()
     pending = [e for e in st["dispatched"]
                if e.get("slug") and not e.get("failed")
+               and e.get("slug") not in REVIEW_PAUSED_SLUGS
                and e.get("slug") not in attempted
                and (not batch_slug or e.get("slug") == batch_slug)
                and _has_unpublished_part(e, st)]

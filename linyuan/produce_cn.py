@@ -64,7 +64,7 @@ MIN_SHORT_EDGE = 480
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 10
+QUALITY_GATE_VERSION = 11
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
@@ -1356,7 +1356,11 @@ def make_ass(entries, path, W, H, card_style=False):
             if cur or not lines:
                 lines.append(cur)
             if len(lines) > 2:
-                lines = lines[:1] + ["".join(lines[1:])]  # 最多 2 行
+                # 重新按总长度均分成两行。旧逻辑把第 2 行以后的全部塞进
+                # 第二行，libass 会再次自动折行，最终出现用户看到的三行。
+                joined = "".join(lines)
+                cut = max(1, (len(joined) + 1) // 2)
+                lines = [joined[:cut], joined[cut:]]
             return "\\N".join(lines)
         words, lines, cur = t.split(), [], ""
         for w in words:
@@ -1367,8 +1371,28 @@ def make_ass(entries, path, W, H, card_style=False):
         if cur:
             lines.append(cur)
         if len(lines) > 2:
-            lines = lines[:1] + [" ".join(lines[1:])]  # 最多 2 行
+            joined = " ".join(lines)
+            cut = max(1, len(joined) // 2)
+            split = joined.rfind(" ", 0, cut + 1)
+            split = split if split > 0 else cut
+            lines = [joined[:split].strip(), joined[split:].strip()]
         return "\\N".join(lines)
+
+    def card_subtitle_override(text):
+        """把一/两行字幕作为整体固定在白色字幕区中央。
+
+        WrapStyle=2 禁止 libass 产生隐式第三行；超长单行按字符数缩小，
+        保证显式的两行仍留在 644px 安全宽度内。
+        """
+        if not (card_style and vertical):
+            return "", text
+        lines = text.split("\\N") if text else []
+        longest = max((len(line) for line in lines), default=1)
+        safe_width = SUBTITLE_REGION["width"] - 36
+        fitted = min(zh, max(28, int(safe_width / max(1, longest))))
+        center_x = SUBTITLE_REGION["x"] + SUBTITLE_REGION["width"] // 2
+        center_y = SUBTITLE_REGION["y"] + SUBTITLE_REGION["height"] // 2
+        return f"{{\\an5\\pos({center_x},{center_y})\\fs{fitted}}}", text
 
     def ts(s):
         return f"{int(s//3600)}:{int(s%3600//60):02d}:{s%60:05.2f}"
@@ -1377,7 +1401,8 @@ def make_ass(entries, path, W, H, card_style=False):
     # 在浅色/暖色现场画面上产生不必要的品牌化偏色。
     zh_color = "&H0000D7FF" if card_style else "&H00FFFFFF"
     zh_outline = 5 if card_style else 3
-    L = ["[Script Info]", "ScriptType: v4.00+", f"PlayResX: {W}", f"PlayResY: {H}",
+    L = ["[Script Info]", "ScriptType: v4.00+", "WrapStyle: 2",
+         f"PlayResX: {W}", f"PlayResY: {H}",
          "", "[V4+ Styles]",
          "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, "
          "OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, "
@@ -1386,7 +1411,9 @@ def make_ass(entries, path, W, H, card_style=False):
          f"Style: EN,{font_en},{en},&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
          f"-1,0,0,0,100,100,0,0,1,2,1,2,20,20,{mv + zh*2 + 10},1",
          f"Style: ZH,{font_zh},{zh},{zh_color},&H000000FF,&H00000000,"
-         f"&H80000000,-1,0,0,0,100,100,0,0,1,{zh_outline},1,2,20,20,{mv},1",
+         f"&H80000000,-1,0,0,0,100,100,0,0,1,{zh_outline},1,"
+         f"{5 if card_style and vertical else 2},20,20,"
+         f"{0 if card_style and vertical else mv},1",
          "", "[Events]",
          "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, "
          "Effect, Text"]
@@ -1396,7 +1423,8 @@ def make_ass(entries, path, W, H, card_style=False):
         if et:
             L.append(f"Dialogue: 0,{a},{b},EN,,0,0,0,,{et}")
         if zt:
-            L.append(f"Dialogue: 0,{a},{b},ZH,,0,0,0,,{zt}")
+            override, zt = card_subtitle_override(zt)
+            L.append(f"Dialogue: 0,{a},{b},ZH,,0,0,0,,{override}{zt}")
     Path(path).write_text("\n".join(L), encoding="utf-8-sig")
 
 
@@ -1547,6 +1575,89 @@ def detect_external_logos_after_render(final, strategy, width, height):
     remaining = detect_corner_logos(final, frames=6, strict=True)
     return [box for box in remaining
             if not _inside_brand_watermark_region(box, width, height)]
+
+
+def audio_card_live_crop(width, height):
+    """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
+    if width <= height:
+        return None
+    target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
+    crop_h = min(height, int(height * 0.78)) // 2 * 2
+    crop_w = min(width, int(crop_h * target_ratio)) // 2 * 2
+    if crop_w > width:
+        crop_w = width // 2 * 2
+        crop_h = int(crop_w / target_ratio) // 2 * 2
+    crop_x = int((width - crop_w) * 0.68) // 2 * 2
+    crop_y = int((height - crop_h) * 0.45) // 2 * 2
+    crop_x = max(0, min(crop_x, width - crop_w))
+    crop_y = max(0, min(crop_y, height - crop_h))
+    return (f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},"
+            f"scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:"
+            "flags=lanczos,setsar=1")
+
+
+def verify_live_region_after_render(final, frames=6):
+    """复检嵌入的真人动态区：拒绝黑边、二维码和稳定外部角标。"""
+    import tempfile
+    try:
+        import cv2
+        import numpy as np
+    except ImportError as exc:
+        raise VisualQualityError(f"真人动态区复检依赖不可用：{exc}") from exc
+
+    cap = cv2.VideoCapture(str(final))
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frame_paths = []
+    black_edge_hits = 0
+    qr_hits = 0
+    tmp = Path(tempfile.mkdtemp(prefix="live-region-check-"))
+    got = 0
+    try:
+        qr = cv2.QRCodeDetector()
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES,
+                    int(total * (i + 0.5) / max(1, frames)))
+            ok, frame = cap.read()
+            if not ok:
+                continue
+            x, y = LIVE_REGION["x"], LIVE_REGION["y"]
+            w, h = LIVE_REGION["width"], LIVE_REGION["height"]
+            region = frame[y:y + h, x:x + w]
+            if region.shape[:2] != (h, w):
+                raise VisualQualityError("真人动态区尺寸不完整")
+            got += 1
+            fp = tmp / f"frame-{i}.jpg"
+            if not cv2.imwrite(str(fp), region):
+                raise VisualQualityError("真人动态区抽帧失败")
+            frame_paths.append(fp)
+
+            gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+            dark_columns = np.mean(gray < 18, axis=0) > 0.92
+            edge = max(8, int(w * 0.08))
+            if (dark_columns[:edge].mean() > 0.45
+                    or dark_columns[-edge:].mean() > 0.45):
+                black_edge_hits += 1
+            try:
+                _decoded, points, _straight = qr.detectAndDecode(region)
+                if points is not None:
+                    qr_hits += 1
+            except cv2.error:
+                pass
+    finally:
+        cap.release()
+
+    if got < max(3, frames // 2):
+        raise VisualQualityError("真人动态区复检抽帧不足")
+    if black_edge_hits >= max(2, got // 2):
+        raise VisualQualityError("真人动态区检出持续黑边/错误取景")
+    if qr_hits:
+        raise VisualQualityError("真人动态区检出来源二维码")
+    logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
+                                          max_area=0.04)
+    if logos:
+        raise VisualQualityError(f"真人动态区仍有稳定来源角标：{logos}")
+    return {"live_region_verified": True, "no_qr_verified": True,
+            "no_black_bars_verified": True}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
@@ -3144,6 +3255,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
     _logos = source_report.get("detected_corner_logos") or []
     print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
+    live_crop = (audio_card_live_crop(W, H)
+                 if strategy == "audio_card" and prefer_live_video else None)
+    use_live_video = bool(live_crop)
+    if strategy == "audio_card" and prefer_live_video and not use_live_video:
+        print("[真人动态区] 源片不是横屏，禁止错误硬裁；改用已核验人物静态卡")
 
     brand = brand_watermark_path()
     audio_card = None
@@ -3179,14 +3295,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 "-loop", "1", "-framerate", "30", "-i", str(audio_card),
                 "-ss", str(s0), "-t", str(seg_dur), "-i", str(src),
             ]
-            if prefer_live_video:
-                # 该访谈中林园始终位于右侧。裁去顶部平台角标、底部旧字幕/栏标，
-                # 把干净的真人动态区域嵌回自有竖版画布；保留园园式信息密度，
-                # 但不带原账号包装，也不退化成三张静态音频卡。
+            if use_live_video:
+                # 只允许横屏源进入动态窗口；按窗口宽高比实裁并精确缩放，
+                # 不使用 pad，因而不会产生右侧黑块。
                 live = (
-                    "[1:v]crop=iw*0.48:ih*0.66:iw*0.52:ih*0.11,"
-                    "scale=632:470:force_original_aspect_ratio=decrease,"
-                    "pad=632:470:(ow-iw)/2:(oh-ih)/2:color=0xDAD7CE,setsar=1[live];"
+                    f"[1:v]{live_crop}[live];"
                     "[0:v][live]overlay=44:360[card];"
                     f"[card]ass={ass},{fade}[outv]"
                 )
@@ -3207,8 +3320,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             ]
         cmd += [
             "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
-            "-c:v", "libx264", "-preset", ("veryfast" if prefer_live_video else "slow"),
-            "-crf", ("20" if prefer_live_video else "18"),
+            "-c:v", "libx264", "-preset", ("veryfast" if use_live_video else "slow"),
+            "-crf", ("20" if use_live_video else "18"),
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
             "-t", str(seg_dur), "-shortest", str(seg),
         ]
@@ -3230,8 +3343,14 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
     # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
     # 真实原画策略仍必须逐帧复检。
-    external_logos = detect_external_logos_after_render(
-        final, strategy, final_w, final_h)
+    live_checks = {"live_region_verified": True, "no_qr_verified": True,
+                   "no_black_bars_verified": True}
+    if use_live_video:
+        live_checks = verify_live_region_after_render(final)
+        external_logos = []
+    else:
+        external_logos = detect_external_logos_after_render(
+            final, strategy, final_w, final_h)
     if external_logos:
         raise VisualQualityError(f"成片清理后仍检出外部角标：{external_logos}")
     transcript_text = "".join(cues[i]["text"] for i in sel)
@@ -3276,7 +3395,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             "safe_margin": SAFE_MARGIN,
             "subtitle_max_lines": 2,
             "subtitle_font_px": 40,
+            "subtitle_vertical_alignment": "center",
+            "subtitle_layout_version": 2,
         },
+        **live_checks,
         "duration_sec": round(dur, 1),
         "resolution": {"width": final_w, "height": final_h,
                        "short_edge": min(final_w, final_h)},
@@ -3286,7 +3408,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "clean_strategy": strategy,
         "audio_card_template": (AUDIO_CARD_TEMPLATE
                                 if strategy == "audio_card" else None),
-        "render_mode": ("live_video_card" if prefer_live_video
+        "render_mode": ("live_video_card" if use_live_video
                         and strategy == "audio_card" else strategy),
         "brand_watermark_applied": True,
         "brand_watermark": {

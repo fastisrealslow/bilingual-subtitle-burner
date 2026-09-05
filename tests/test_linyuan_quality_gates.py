@@ -165,6 +165,8 @@ def _good_artifact_meta():
             "subtitle_region": {"x": 38, "y": 874, "width": 644, "height": 166},
             "subtitle_max_lines": 2,
             "subtitle_font_px": 40,
+            "subtitle_vertical_alignment": "center",
+            "subtitle_layout_version": 2,
         },
         "speaker": "林园",
         "visual_identity": {
@@ -173,6 +175,9 @@ def _good_artifact_meta():
         },
         "resolution": {"width": 854, "height": 480, "short_edge": 480},
         "watermark_verified": True,
+        "live_region_verified": True,
+        "no_qr_verified": True,
+        "no_black_bars_verified": True,
         "brand_watermark_applied": True,
         "has_existing_subtitles": False,
         "subtitles_burned": True,
@@ -192,6 +197,20 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
     assert FC.artifact_quality_error(_good_artifact_meta()) is None
 
 
+def test_review_paused_batch_cannot_publish(monkeypatch):
+    def should_not_load_state():
+        raise AssertionError("paused batch must stop before reading the queue")
+
+    monkeypatch.setattr(FC, "load_state", should_not_load_state)
+    result = FC.publish_handler({
+        "batch_slug": "ly-parity-v3-14-0905",
+        "ignore_daily_limit": True,
+        "force_publish": True,
+    })
+    assert result == {"published": 0, "review_paused": 1,
+                      "slug": "ly-parity-v3-14-0905"}
+
+
 @pytest.mark.parametrize(("field", "value", "message"), [
     ("resolution", {"short_edge": 479}, "短边 479"),
     ("visual_standard_version", 2, "v3 对标视觉标准"),
@@ -200,6 +219,9 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
     ("title_quality_verified", False, "标题没有通过"),
     ("review_assets_verified", False, "30秒预览"),
     ("watermark_verified", False, "角标复检"),
+    ("live_region_verified", False, "真人动态区"),
+    ("no_qr_verified", False, "二维码复检"),
+    ("no_black_bars_verified", False, "黑边/取景复检"),
     ("brand_watermark_applied", False, "品牌水印"),
     ("fingerprints", {}, "指纹不完整"),
     ("has_existing_subtitles", True, "内嵌字幕"),

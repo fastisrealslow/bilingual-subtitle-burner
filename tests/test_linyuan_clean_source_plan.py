@@ -54,7 +54,23 @@ def test_audio_card_ass_uses_yellow_black_outline(tmp_path):
                  if line.startswith("Style: ZH,"))
     assert "&H0000D7FF" in style
     assert ",40," in style
-    assert ",1,5,1,2," in style
+    assert ",1,5,1,5," in style
+    assert "WrapStyle: 2" in text
+    dialogue = next(line for line in text.splitlines()
+                    if line.startswith("Dialogue:"))
+    assert "{\\an5\\pos(360,957)" in dialogue
+
+
+def test_audio_card_subtitles_are_explicitly_limited_to_two_balanced_lines(tmp_path):
+    ass = tmp_path / "long-card.ass"
+    P.make_ass([{
+        "start_sec": 0.0, "end_sec": 2.0,
+        "zh": "这是一个用来验证字幕不会再次隐式折成第三行的很长中文句子", "en": "",
+    }], ass, 720, 1280, card_style=True)
+    dialogue = next(line for line in ass.read_text(encoding="utf-8-sig").splitlines()
+                    if line.startswith("Dialogue:"))
+    assert dialogue.count("\\N") == 1
+    assert "{\\an5\\pos(360,957)" in dialogue
 
 
 def test_real_video_subtitles_remain_white(tmp_path):
@@ -198,6 +214,14 @@ def test_audio_card_does_not_ocr_its_own_template(monkeypatch, tmp_path):
     monkeypatch.setattr(P, "detect_corner_logos", should_not_run)
     assert P.detect_external_logos_after_render(
         tmp_path / "card.mp4", "audio_card", 720, 1280) == []
+
+
+def test_live_crop_only_accepts_landscape_and_never_pads():
+    assert P.audio_card_live_crop(720, 1280) is None
+    crop = P.audio_card_live_crop(1280, 720)
+    assert crop.startswith("crop=")
+    assert "scale=632:470" in crop
+    assert "pad=" not in crop
 
 
 def test_competitor_profile_creates_exactly_thirteen_contiguous_windows():
