@@ -13,6 +13,82 @@ SOURCE_SHA = "14ef8887af5fe638e7c731a071695131827f079f0e0309a5bf8cccaad6f977bb"
 START, END = 239.46, 477.54
 
 
+def credible_qr(points, width, height):
+    """Reject impossible OpenCV quads, not valid but unreadable QR codes."""
+    import numpy as np
+    import cv2
+    p = np.asarray(points).reshape(4, 2)
+    if not np.isfinite(p).all() or (p < 0).any():
+        return False
+    if (p[:, 0] >= width).any() or (p[:, 1] >= height).any():
+        return False
+    edges = np.roll(p, -1, axis=0) - p
+    lengths = np.linalg.norm(edges, axis=1)
+    if min(lengths) < 8 or max(lengths) / min(lengths) > 1.8:
+        return False
+    if abs(cv2.contourArea(p.astype('float32'))) > width * height * .2:
+        return False
+    angles = abs((edges * np.roll(edges, -1, axis=0)).sum(axis=1) /
+                 (lengths * np.roll(lengths, -1)))
+    return bool((angles < .5).all())
+
+
+def verify_review(final, out):
+    """Dense QR/black-edge/OCR check with recorded geometry for review."""
+    import cv2
+    import numpy as np
+    cap = cv2.VideoCapture(str(final))
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    qr = cv2.QRCodeDetector()
+    directory = out / 'inspection'
+    directory.mkdir(exist_ok=True)
+    paths, candidates = [], []
+    black = 0
+    for i in range(120):
+        cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + .5) / 120))
+        ok, frame = cap.read()
+        if not ok:
+            raise P.VisualQualityError('密集抽帧失败')
+        region = frame[360:830, 44:676]
+        path = directory / f'{i:03}.jpg'
+        cv2.imwrite(str(path), region)
+        paths.append(path)
+        dark = np.mean(cv2.cvtColor(region, cv2.COLOR_BGR2GRAY) < 18, axis=0) > .92
+        black += int(dark[:50].mean() > .45 or dark[-50:].mean() > .45)
+        decoded, points, _ = qr.detectAndDecode(region)
+        if points is not None:
+            valid = bool(decoded) or credible_qr(points, 632, 470)
+            candidates.append({'frame':i,'credible':valid,'quad':points.tolist()})
+            if valid:
+                raise P.VisualQualityError(f'第{i}帧存在可信二维码候选，需复核')
+    cap.release()
+    if black >= 60:
+        raise P.VisualQualityError('持续黑边/取景错误')
+    logos = P.detect_corner_logos_in_images(paths, stable_ratio=.5, max_area=.04)
+    if logos:
+        raise P.VisualQualityError(f'稳定来源角标：{logos}')
+    (out/'inspection.json').write_text(json.dumps({'frames':120,'qr_candidates':candidates,
+        'black_edge_hits':black,'external_logos':logos},ensure_ascii=False,indent=2))
+    return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True}
+
+
+def subtitle_review_sheet(final, entries, path):
+    """Six actual frames, including the dining shot and one-/two-line subtitles."""
+    import cv2
+    cap = cv2.VideoCapture(str(final))
+    thumbs = []
+    for target in (15, 50, 92, 110, 170, 210):
+        cue = min(entries, key=lambda e: abs((e['start_sec']+e['end_sec'])/2-target))
+        at = (cue['start_sec']+cue['end_sec'])/2
+        cap.set(cv2.CAP_PROP_POS_MSEC, at*1000)
+        ok, frame = cap.read()
+        if not ok:
+            raise P.VisualQualityError('字幕检查图抽帧失败')
+        thumbs.append(cv2.resize(frame,(360,640)))
+    cap.release()
+    cv2.imwrite(str(path),cv2.vconcat([cv2.hconcat(thumbs[:3]),cv2.hconcat(thumbs[3:])]))
+
+
 def subtitle_entries(cues):
     """Keep source timing, remove overlaps, and split long cues without tiny orphan lines."""
     selected = [c for c in cues if c["end"] > START and c["start"] < END]
@@ -72,9 +148,13 @@ def main():
     ass.write_text("\n".join(lines), encoding="utf-8-sig")
     # This source has a nested 16:9 broadcast, ticker, CCTV logo, account logo
     # and QR. Coordinates are source-specific, guarded by the exact SHA above.
-    vf = ("[1:v]setpts=PTS-STARTPTS,crop=944:702:590:42,"
-          "scale=632:470:flags=lanczos,setsar=1[live];"
-          "[0:v][live]overlay=44:360[card];"
+    vf = ("[1:v]setpts=PTS-STARTPTS,split=2[wide][dining];"
+          "[wide]delogo=x=1470:y=40:w=210:h=80:enable='between(t,59.64,76.5733)+gte(t,155)',"
+          "crop=1120:600:550:42,scale=632:338:flags=lanczos,setsar=1[live];"
+          "[dining]crop=650:484:1090:190,scale=632:470:flags=lanczos,setsar=1[close];"
+          "[0:v]drawbox=x=44:y=360:w=632:h=470:color=0xECECE3:t=fill[bg];"
+          "[bg][live]overlay=44:426[base];"
+          "[base][close]overlay=44:360:enable='between(t,88.3733,94.74)'[card];"
           f"[card]ass={ass}[outv]")
     final = out / "final.mp4"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-i", str(card),
@@ -85,8 +165,9 @@ def main():
                     "-c:a", "aac", "-b:a", "192k", "-r", "30", "-pix_fmt", "yuv420p",
                     "-t", str(END - START), "-shortest", str(final)], check=True)
     # Sample every ~2 seconds, not just six easily missed positions.
-    checks = P.verify_live_region_after_render(final, frames=120)
+    checks = verify_review(final, out)
     preview, sheet = P.make_review_assets(final, out, "", END - START)
+    subtitle_review_sheet(final, entries, out / sheet)
     cover = out / "cover.jpg"
     P.make_audio_card(cover, "林园", title, width=1280, height=720,
                       portrait_path=portrait, require_portrait=True)
