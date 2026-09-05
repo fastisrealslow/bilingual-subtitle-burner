@@ -231,7 +231,7 @@ def _download_release_asset_parallel(asset, dest, max_time=1620):
     def fetch_part(item):
         index, start, end, part_path = item
         result = subprocess.run([
-            "curl", "-sS", "-fL", "--retry", "2", "--retry-all-errors",
+            "curl", "-sS", "-fL", "--retry", "2",
             "--connect-timeout", "20", "--max-time", str(max_time),
             "--range", f"{start}-{end}",
             "-H", f"Authorization: Bearer {TOKEN}",
