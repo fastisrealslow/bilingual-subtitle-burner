@@ -43,7 +43,7 @@ RELEASE_TAG = "staging"
 
 # 选片约束：太短挑不出 3 段金句，太长 CI 的 4 核 ASR 拖不起
 MIN_DUR, MAX_DUR = 120, 5400
-MIN_SHORT_EDGE = 360
+MIN_SHORT_EDGE = 480
 # B站定时发布：第 i 条依次往后推（小时）。B站要求定时必须明显晚于当前时间
 # biliup 要求 dtime 距离提交必须大于 4 小时，+4h 会被拒，从 5h 起
 DELAY_LADDER = [5, 8, 11, 14, 17]

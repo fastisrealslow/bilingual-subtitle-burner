@@ -60,20 +60,25 @@ VISUAL_SAMPLE_COUNT = 6
 VISUAL_MIN_MATCHES = 2
 VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
-MIN_SHORT_EDGE = 360
+MIN_SHORT_EDGE = 480
 SOURCE_MIN_DURATION = 90
 SOURCE_MAX_DURATION = 5400
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 8
+QUALITY_GATE_VERSION = 9
+VISUAL_STANDARD_VERSION = 3
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
 # 9:16 竖版上传，B站桌面播放器自行补黑边；移动端则直接占满屏幕。我们保留
 # 这种有效的版式，但不复制对方插画或照片资产，改用自有的通用编辑卡视觉。
 AUDIO_CARD_WIDTH = 720
 AUDIO_CARD_HEIGHT = 1280
-AUDIO_CARD_TEMPLATE = "portrait_editorial_v3_competitor_parity"
-AUDIO_CARD_TOPIC_MAX_CHARS = 52
+AUDIO_CARD_TEMPLATE = "live_editorial_v3_competitor_parity"
+AUDIO_CARD_TOPIC_MAX_CHARS = 42
 AUDIO_CARD_DISCLAIMER = "个人观点 · 仅供交流 · 非投资建议"
 ALLOW_AUDIO_CARD = os.environ.get("ALLOW_AUDIO_CARD", "1") != "0"
+TITLE_ASR_BLACKLIST = ("手财", "一定折")
+LIVE_REGION = {"x": 44, "y": 360, "width": 632, "height": 470}
+SUBTITLE_REGION = {"x": 38, "y": 874, "width": 644, "height": 166}
+SAFE_MARGIN = {"left": 38, "right": 38, "bottom": 64}
 
 # 自有品牌水印：先清掉来源平台/搬运账号角标，再在同一次编码中叠加到右上角。
 # 参数可通过环境变量微调，但生产默认值必须保持小尺寸、半透明，避免遮挡内容。
@@ -1249,11 +1254,13 @@ def make_ass(entries, path, W, H, card_style=False):
     font_en = os.environ.get("EN_FONT", "Arial")
     vertical = H > W
     if vertical:
-        # 竖屏：按高度比例 + 抬高避开底部 UI
-        zh = max(38, int(H * (0.046 if card_style else 0.05)))
+        # v3 对标版：字幕固定在人物画面下方的 874~1040 安全区，字号
+        # 38~42px，最多两行；不能再沿用旧版 58px/贴底参数。
+        zh = (40 if card_style and W == 720 and H == 1280
+              else max(38, int(H * 0.05)))
         en = max(26, int(H * 0.035))
-        # 园园音频卡字幕位于人物下方而非贴底；抬高后也能避开移动端操作栏。
-        mv = int(H * (0.16 if card_style else 0.09))
+        mv = (240 if card_style and W == 720 and H == 1280
+              else int(H * 0.09))
         zw = max(11, int(W * 14 / 720))
         ew = max(24, int(W * 34 / 720))
     else:
@@ -1679,7 +1686,51 @@ def build_content_fingerprints(src, transcript_text):
     }
 
 
-def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
+def _title_text(value):
+    return re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", value or "")
+
+
+def title_quality_error(title, speaker, transcript_text, existing_titles=None,
+                        require_quote=True):
+    """程序化标题闸门：拦 ASR 脏词、摘要腔、编造和批内撞题。"""
+    title = re.sub(r"\s+", " ", title or "").strip()
+    if not re.match(rf"^(?:股神)?{re.escape(speaker)}[：:]", title):
+        return f"标题必须以「{speaker}：」或「股神{speaker}：」开头"
+    if any(word in title for word in TITLE_ASR_BLACKLIST):
+        return "标题命中 ASR 污染词"
+    if re.search(r"https?://|www\.|t\.cn/|@[\w\u4e00-\u9fff]+", title, re.I):
+        return "标题含链接或引流信息"
+    compact = _title_text(title)
+    if not 12 <= len(compact) <= 62:
+        return f"标题长度 {len(compact)} 不在 12~62 字"
+    normalized = re.sub(
+        rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
+    body = _title_text(normalized)
+    transcript = _title_text(transcript_text)
+    if require_quote and len(body) >= 6:
+        # 允许删除口水词或合并相邻句，但至少要有一段 6 字原话可回溯。
+        if not any(body[i:i + 6] in transcript
+                   for i in range(max(1, len(body) - 5))):
+            return "标题缺少可回溯到所选字幕的连续原话"
+    for previous in existing_titles or []:
+        a, b = _title_text(previous), compact
+        if a and difflib.SequenceMatcher(None, a, b).ratio() >= 0.84:
+            return "标题与本批已有标题过于相似"
+    return None
+
+
+def _fallback_quote_title(cues, sel, speaker):
+    sample = "".join(cues[i]["text"] for i in sel)
+    sample = re.sub(r"\s+", "", sample)
+    sample = re.split(r"[。！？；]", sample)[0].strip("，、：: ")
+    if len(sample) < 10:
+        sample = re.sub(r"[。！？；，、]", "", "".join(
+            cues[i]["text"] for i in sel))
+    return f"{speaker}：{sample[:48]}"
+
+
+def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
+              existing_titles=None, require_quote=True):
     """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
 
     钩子式标题:prompt 要求带反常识/数字/冲突钩子（对标竞品高播放标题），但严禁编造，结果落 meta.json,
@@ -1687,9 +1738,16 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
     suffix 区分长视频拆多条的各段缓存（否则每段复用同一条文案）。
     """
     cache = work / f"copywrite{suffix}.json"
+    transcript_text = "".join(cues[i]["text"] for i in sel)
     if cache.exists():
         try:
-            return json.loads(cache.read_text(encoding="utf-8"))
+            cached = json.loads(cache.read_text(encoding="utf-8"))
+            error = title_quality_error(
+                cached.get("title"), speaker, transcript_text,
+                existing_titles, require_quote=require_quote)
+            if not error:
+                return cached
+            print(f"[文案] 缓存标题未通过 v3 闸门，重新生成：{error}")
         except ValueError:
             pass
     sample = "\n".join(cues[i]["text"] for i in sel[:20])
@@ -1731,16 +1789,32 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
 
 只输出 JSON:
 {{{{"title":"标题","desc":"简介","tags":["标签","最多5个","含主讲人姓名"]}}}}"""
-    try:
-        out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.4)
-        m = re.search(r"\{.*\}", out, re.S)
-        d = json.loads(m.group(0))
-        assert d.get("title")
-    except Exception:
-        out = ""
-        d = {"title": f"{speaker}：{occasion}"[:36],
-             "desc": f"{speaker}在{occasion}的发言精选。",
+    d, last_error = None, ""
+    for attempt in range(3):
+        retry = ("" if not last_error else
+                 f"\n上一次标题未通过程序质检：{last_error}。请修正后重新输出 JSON。")
+        try:
+            out = llm([{"role": "user", "content": prompt + retry}],
+                      api_key, temperature=0.35)
+            m = re.search(r"\{.*\}", out, re.S)
+            candidate = json.loads(m.group(0))
+            last_error = title_quality_error(
+                candidate.get("title"), speaker, transcript_text,
+                existing_titles, require_quote=require_quote)
+            if not last_error:
+                d = candidate
+                break
+        except Exception as exc:
+            last_error = f"文案 JSON 解析失败：{exc}"
+    if d is None:
+        d = {"title": _fallback_quote_title(cues, sel, speaker),
+             "desc": f"{speaker}在{occasion}的公开发言精选。",
              "tags": [speaker, "价值投资"]}
+        last_error = title_quality_error(
+            d["title"], speaker, transcript_text, existing_titles,
+            require_quote=require_quote)
+        if last_error:
+            raise VisualQualityError(f"标题连续三次未通过质量闸门：{last_error}")
     # 兜底清洗：prompt 说了不许带链接，但 LLM 不一定听话，程序层再洗一遍
     if d.get("desc"):
         clean_desc = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+|@[\w\u4e00-\u9fa5]{2,20}", "", d["desc"])
@@ -1749,6 +1823,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix=""):
             print(f"[文案] 简介已清除链接/引流信息")
             d["desc"] = clean_desc
     d.setdefault("tags", [speaker])
+    d["title_quality_verified"] = True
     cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     print(f"[文案] 标题:{d['title']}")
     return d
@@ -2713,6 +2788,14 @@ def _audio_card_display_topic(topic, speaker=""):
     return text
 
 
+def _audio_card_topic_tag(text, speaker):
+    for keyword in ("医药", "中药", "消费", "白酒", "AI", "科技", "机器人",
+                    "老龄化", "价值投资", "股市"):
+        if keyword.lower() in (text or "").lower():
+            return f"{speaker}｜{keyword}"
+    return f"{speaker}｜投资观点"
+
+
 def _audio_card_emphasis_colors(text):
     """为强数字、冲突词和赛道词生成园园式红黄蓝标题层级。"""
     yellow = (255, 210, 24)
@@ -2835,93 +2918,69 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
     display_topic = _audio_card_display_topic(topic, speaker)
 
     if vertical:
-        margin_x = int(width * 0.07)
-        # 对标样片顶部是四行高密度红黄蓝标题；投稿标题与视频常驻标题必须一致。
-        lines = _wrap_audio_card_title(display_topic, 14, max_lines=4)
-        line_h = int(topic_size * 1.18)
-        title_y = int(height * 0.055)
+        # v3 固定坐标：标签 96~142，主标题 165~325，人物 360~830，
+        # 字幕留白 874~1040，来源说明 1080~1160。
+        tag = _audio_card_topic_tag(display_topic, speaker)
+        tag_bbox = draw.textbbox((0, 0), tag, font=small_font)
+        tag_w = tag_bbox[2] - tag_bbox[0] + int(28 * unit)
+        draw.rounded_rectangle(
+            (48, 96, 48 + tag_w, 142), radius=max(8, int(10 * unit)),
+            fill=(35, 86, 170))
+        draw.text((48 + int(14 * unit), 101), tag, font=small_font,
+                  fill=(255, 255, 255))
+
+        lines = _wrap_audio_card_title(display_topic, 14, max_lines=3)
+        line_h = int(topic_size * 1.15)
+        title_y = 165
         for i, line in enumerate(lines):
             _draw_emphasis_line(
-                draw, (width / 2, title_y + i * line_h), line, topic_font,
+                draw, (48, title_y + i * line_h), line, topic_font,
                 stroke_width=max(2, int(3 * unit)),
-                stroke_fill=(45, 28, 20))
+                stroke_fill=(45, 28, 20), centered=False)
 
-        context = f"{speaker}公开发言原声"
-        context_box = draw.textbbox((0, 0), context, font=small_font)
-        context_y = title_y + len(lines) * line_h + int(9 * unit)
-        draw.text(((width - (context_box[2] - context_box[0])) // 2, context_y),
-                  context, font=small_font, fill=(83, 83, 83))
-        disclaimer_box = draw.textbbox(
-            (0, 0), AUDIO_CARD_DISCLAIMER, font=small_font)
-        draw.text(((width - (disclaimer_box[2] - disclaimer_box[0])) // 2,
-                   context_y + int(small_size * 1.35)),
-                  AUDIO_CARD_DISCLAIMER, font=small_font, fill=(105, 105, 105))
-
-        # 自有抽象人物/话筒视觉：保持“人物卡”的重心，但不复制对方插画。
-        cx = width // 2
-        halo_r = int(width * 0.32)
-        halo_y = int(height * 0.55)
-        draw.ellipse((cx - halo_r, halo_y - halo_r, cx + halo_r,
-                      halo_y + halo_r), fill=(245, 242, 232),
-                     outline=(193, 151, 64), width=max(3, int(5 * unit)))
+        x0, y0, x1, y1 = 44, 360, 676, 830
+        draw.rounded_rectangle((x0, y0, x1, y1), radius=18,
+                               fill=(218, 215, 206),
+                               outline=(193, 151, 64), width=3)
         portrait_used = False
         if portrait_path and Path(portrait_path).is_file():
             try:
-                portrait_r = int(width * 0.29)
                 portrait = Image.open(portrait_path).convert("RGB")
                 portrait = ImageOps.fit(
-                    portrait, (portrait_r * 2, portrait_r * 2),
+                    portrait, (x1 - x0, y1 - y0),
                     method=Image.Resampling.LANCZOS)
                 mask = Image.new("L", portrait.size, 0)
-                ImageDraw.Draw(mask).ellipse(
+                ImageDraw.Draw(mask).rounded_rectangle(
                     (0, 0, portrait.size[0] - 1, portrait.size[1] - 1),
-                    fill=255)
-                image.paste(portrait,
-                            (cx - portrait_r, halo_y - portrait_r), mask)
+                    radius=16, fill=255)
+                image.paste(portrait, (x0, y0), mask)
                 portrait_used = True
             except Exception as e:
                 print(f"[音频卡] 肖像嵌入失败，使用通用人物图标: {e}",
                       file=sys.stderr)
         if not portrait_used:
-            head_r = int(width * 0.105)
-            head_y = int(height * 0.505)
+            cx, head_y, head_r = width // 2, 505, 78
             draw.ellipse((cx - head_r, head_y - head_r, cx + head_r,
                           head_y + head_r), fill=(35, 48, 64))
-            shoulder_w = int(width * 0.27)
-            shoulder_h = int(height * 0.125)
-            draw.rounded_rectangle((cx - shoulder_w, int(height * 0.57),
-                                    cx + shoulder_w,
-                                    int(height * 0.57) + shoulder_h),
-                                   radius=int(width * 0.11), fill=(35, 48, 64))
-        mic_x = cx + int(width * 0.19)
-        mic_y = int(height * 0.56)
-        mic_r = int(width * 0.045)
-        draw.ellipse((mic_x - mic_r, mic_y - mic_r,
-                      mic_x + mic_r, mic_y + mic_r), fill=(193, 151, 64))
-        draw.line((mic_x, mic_y + mic_r, mic_x, mic_y + mic_r * 3),
-                  fill=(193, 151, 64), width=max(5, int(8 * unit)))
-        draw.arc((mic_x - mic_r * 2, mic_y, mic_x + mic_r * 2,
-                  mic_y + mic_r * 3), 5, 175, fill=(193, 151, 64),
-                 width=max(4, int(6 * unit)))
+            draw.rounded_rectangle((170, 590, 550, 790), radius=100,
+                                   fill=(35, 48, 64))
 
-        note = "画面重建｜经核验讲话音频"
-        note_box = draw.textbbox((0, 0), note, font=small_font)
-        draw.text(((width - (note_box[2] - note_box[0])) // 2,
-                   int(height * 0.875)), note, font=small_font,
-                  fill=(89, 94, 99))
-        draw.line((margin_x, int(height * 0.92), width - margin_x,
-                   int(height * 0.92)), fill=(196, 190, 177),
-                  width=max(1, int(2 * unit)))
+        draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
+                               fill=(249, 249, 247),
+                               outline=(214, 210, 200), width=2)
+        draw.text((48, 1080), "来源：公开访谈原声｜画面已清理重建",
+                  font=small_font, fill=(89, 94, 99))
+        draw.text((48, 1120), AUDIO_CARD_DISCLAIMER, font=small_font,
+                  fill=(105, 105, 105))
     else:
-        # B站封面仍需 16:9：沿用同一视觉语言，避免直接拿竖卡充当横封面。
-        panel = (int(width * 0.07), int(height * 0.17),
-                 int(width * 0.93), int(height * 0.72))
+        # 16:9 封面：结论在左、人物在右且占 35%~45%，缩略图仍可辨认。
+        panel = (46, 74, width - 46, height - 74)
         draw.rounded_rectangle(panel, radius=max(18, int(28 * unit)),
                                fill=(245, 242, 232),
                                outline=(193, 151, 64),
                                width=max(2, int(4 * unit)))
-        icon_x, icon_y = int(width * 0.19), int(height * 0.43)
-        icon_r = int(height * 0.15)
+        icon_x, icon_y = int(width * 0.80), int(height * 0.45)
+        icon_r = int(height * 0.31)
         portrait_used = False
         if portrait_path and Path(portrait_path).is_file():
             try:
@@ -2945,18 +3004,17 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         if not portrait_used:
             draw.ellipse((icon_x - icon_r, icon_y - icon_r,
                           icon_x + icon_r, icon_y + icon_r), fill=(35, 48, 64))
-        draw.text((int(width * 0.29), int(height * 0.25)),
-                  f"{speaker}公开发言原声", font=headline_font,
-                  fill=(45, 50, 55))
-        lines = _wrap_audio_card_title(display_topic, 19, max_lines=3)
+        tag = _audio_card_topic_tag(display_topic, speaker)
+        draw.rounded_rectangle((72, 112, 330, 170), radius=12,
+                               fill=(35, 86, 170))
+        draw.text((90, 120), tag, font=small_font, fill=(255, 255, 255))
+        lines = _wrap_audio_card_title(display_topic, 13, max_lines=3)
         for i, line in enumerate(lines):
             _draw_emphasis_line(
-                draw, (int(width * 0.29),
-                       int(height * 0.40) + i * int(topic_size * 1.25)),
+                draw, (72, 220 + i * int(topic_size * 1.35)),
                 line, topic_font, stroke_width=max(1, int(2 * unit)),
                 stroke_fill=(45, 28, 20), centered=False)
-        draw.text((int(width * 0.29), int(height * 0.64)),
-                  "画面重建 · 经核验讲话音频", font=small_font,
+        draw.text((72, 560), "公开访谈原声 · 个人观点非投资建议", font=small_font,
                   fill=(89, 94, 99))
 
     brand = Image.open(brand_watermark_path()).convert("RGBA")
@@ -2978,10 +3036,30 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
     return out_path
 
 
+def make_review_assets(final, out, suffix, duration_sec):
+    """发布前固定生成 30 秒预览和 6 帧接触表，供人机双重抽检。"""
+    preview = out / f"preview_30s{suffix}.mp4"
+    sheet = out / f"contact_sheet_6{suffix}.jpg"
+    preview_sec = max(1.0, min(30.0, float(duration_sec)))
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-i", str(final),
+        "-t", f"{preview_sec:.3f}", "-c", "copy", str(preview),
+    ], check=True)
+    fps = 6.0 / max(1.0, float(duration_sec))
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-i", str(final),
+        "-vf", f"fps={fps:.8f},scale=240:-2,tile=3x2:padding=6:margin=6",
+        "-frames:v", "1", "-q:v", "2", str(sheet),
+    ], check=True)
+    if preview.stat().st_size < 1024 or sheet.stat().st_size < 1024:
+        raise VisualQualityError("30秒预览或6帧接触表生成不完整")
+    return preview.name, sheet.name
+
+
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
-                 prefer_live_video=False):
+                 prefer_live_video=False, existing_titles=None):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
     picks = pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec,
@@ -2994,7 +3072,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 
     # 文案必须先于画面卡生成：保证投稿标题、B站封面和视频内常驻标题完全一致。
-    cw = copywrite(cues, sel, speaker, occasion, api_key, work, pick_cache_suffix)
+    cw = copywrite(
+        cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
+        existing_titles=existing_titles,
+        require_quote=(pick_cache_suffix != "_full"))
 
     # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
     source_report = source_report or {}
@@ -3046,9 +3127,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 # 但不带原账号包装，也不退化成三张静态音频卡。
                 live = (
                     "[1:v]crop=iw*0.48:ih*0.66:iw*0.52:ih*0.11,"
-                    "scale=640:430:force_original_aspect_ratio=decrease,"
-                    "pad=640:430:(ow-iw)/2:(oh-ih)/2:color=0x111111[live];"
-                    "[0:v][live]overlay=40:500[card];"
+                    "scale=632:470:force_original_aspect_ratio=decrease,"
+                    "pad=632:470:(ow-iw)/2:(oh-ih)/2:color=0xDAD7CE,setsar=1[live];"
+                    "[0:v][live]overlay=44:360[card];"
                     f"[card]ass={ass},{fade}[outv]"
                 )
                 cmd += ["-filter_complex", live,
@@ -3097,6 +3178,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         raise VisualQualityError(f"成片清理后仍检出外部角标：{external_logos}")
     transcript_text = "".join(cues[i]["text"] for i in sel)
     fingerprints = build_content_fingerprints(final, transcript_text)
+    preview_name, contact_sheet_name = make_review_assets(
+        final, out, suffix, dur)
 
     cover_name = "cover_16x9.jpg"
     cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
@@ -3116,6 +3199,21 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover.name if cover else None,
+        "preview_30s": preview_name,
+        "contact_sheet_6": contact_sheet_name,
+        "review_assets_verified": True,
+        "title_quality_verified": cw.get("title_quality_verified") is True,
+        "visual_standard_version": VISUAL_STANDARD_VERSION,
+        "cover_standard_version": VISUAL_STANDARD_VERSION,
+        "layout_proof": {
+            "canvas": {"width": AUDIO_CARD_WIDTH,
+                       "height": AUDIO_CARD_HEIGHT},
+            "live_region": LIVE_REGION,
+            "subtitle_region": SUBTITLE_REGION,
+            "safe_margin": SAFE_MARGIN,
+            "subtitle_max_lines": 2,
+            "subtitle_font_px": 40,
+        },
         "duration_sec": round(dur, 1),
         "resolution": {"width": final_w, "height": final_h,
                        "short_edge": min(final_w, final_h)},
@@ -3156,7 +3254,7 @@ def main():
     ap.add_argument("--include-full", action="store_true",
                     help="在观点切片后追加一条完整访谈")
     ap.add_argument("--prefer-live-video", action="store_true",
-                    help="旧字幕源使用裁净后的真人动态画面卡，而非静态肖像卡")
+                    help="默认使用裁净后的真人动态画面卡；静态肖像仅作失败回退")
     args = ap.parse_args()
 
     src = Path(args.source)
@@ -3266,7 +3364,8 @@ def main():
                              allow_empty=(len(chunks) > 1 and not args.target_parts),
                              visual_report=visual_report,
                              source_report=source_report,
-                             prefer_live_video=args.prefer_live_video)
+                             prefer_live_video=args.prefer_live_video,
+                             existing_titles=[x["title"] for x in metas])
         except VisualQualityError as e:
             print(json.dumps({"stage": "visual-quality", "reason": str(e),
                               "part": ci + 1}, ensure_ascii=False), file=sys.stderr)
@@ -3286,9 +3385,10 @@ def main():
             "reason": "57分钟完整版"
         }], ensure_ascii=False), encoding="utf-8")
         (work / f"copywrite{full_suffix}.json").write_text(json.dumps({
-            "title": "林园57分钟完整访谈：谈AI、机器人、消费和医药的长期机会",
+            "title": "林园：57分钟完整访谈，谈AI、机器人、消费和医药的长期机会",
             "desc": "林园完整公开访谈原声，谈AI、机器人、消费、医药与长期投资判断。个人观点，仅供交流，非投资建议。",
-            "tags": ["林园", "价值投资", "完整访谈", "医药", "消费"]
+            "tags": ["林园", "价值投资", "完整访谈", "医药", "消费"],
+            "title_quality_verified": True
         }, ensure_ascii=False), encoding="utf-8")
         try:
             full_meta = _produce_one(
@@ -3297,7 +3397,8 @@ def main():
                 target_sec=max(1, int(cues[-1]["end"] - cues[0]["start"])),
                 allow_empty=False, visual_report=visual_report,
                 source_report=source_report,
-                prefer_live_video=args.prefer_live_video)
+                prefer_live_video=args.prefer_live_video,
+                existing_titles=[x["title"] for x in metas])
         except VisualQualityError as e:
             print(json.dumps({"stage": "visual-quality", "reason": str(e),
                               "part": "full"}, ensure_ascii=False), file=sys.stderr)

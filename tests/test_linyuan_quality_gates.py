@@ -1,4 +1,4 @@
-"""林园流水线：360P 底线、三重内容指纹和 14 天主题冷却。"""
+"""林园流水线：480P 底线、v3 视觉标准、内容指纹和主题冷却。"""
 
 import importlib.util
 import io
@@ -29,18 +29,19 @@ FC = _load_fc()
 
 
 def test_resolution_gate_checks_short_edge_after_crop(monkeypatch):
-    monkeypatch.setattr(P, "video_size", lambda src: (640, 359))
-    with pytest.raises(P.VisualQualityError, match="短边 359 < 360"):
+    monkeypatch.setattr(P, "video_size", lambda src: (854, 479))
+    with pytest.raises(P.VisualQualityError, match="短边 479 < 480"):
         P.ensure_min_short_edge(Path("final.mp4"), label="裁切后成片")
 
-    monkeypatch.setattr(P, "video_size", lambda src: (640, 360))
-    assert P.ensure_min_short_edge(Path("final.mp4")) == (640, 360)
+    monkeypatch.setattr(P, "video_size", lambda src: (854, 480))
+    assert P.ensure_min_short_edge(Path("final.mp4")) == (854, 480)
 
 
-def test_workflow_rejects_source_below_360():
+def test_workflow_rejects_source_below_480():
     workflow = (ROOT / ".github/workflows/linyuan-produce-cn.yml").read_text()
-    assert P.MIN_SHORT_EDGE == 360
-    assert FC.MIN_SHORT_EDGE == 360
+    assert P.MIN_SHORT_EDGE == 480
+    assert FC.MIN_SHORT_EDGE == 480
+    assert "default: true" in workflow
     assert P.SOURCE_MIN_DURATION == 90
     assert FC.MIN_DUR == 90
     assert "--source-check-only" in workflow
@@ -122,6 +123,7 @@ def test_picker_applies_topic_cooldown_before_dispatch():
 
 def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
     monkeypatch.setattr(FC.time, "time", lambda: 123456)
+    monkeypatch.setattr(FC, "save_state", lambda state: None)
     state = {"published": {}}
     dispatched = {"published_parts": 0}
     FC._record_skipped_part(
@@ -136,6 +138,19 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
 def _good_artifact_meta():
     return {
         "quality_gate_version": FC.QUALITY_GATE_VERSION,
+        "visual_standard_version": FC.VISUAL_STANDARD_VERSION,
+        "cover_standard_version": FC.VISUAL_STANDARD_VERSION,
+        "title": "林园：医药行业未来三十年会有长期机会",
+        "title_quality_verified": True,
+        "review_assets_verified": True,
+        "preview_30s": "preview_30s.mp4",
+        "contact_sheet_6": "contact_sheet_6.jpg",
+        "layout_proof": {
+            "live_region": {"x": 44, "y": 360, "width": 632, "height": 470},
+            "subtitle_region": {"x": 38, "y": 874, "width": 644, "height": 166},
+            "subtitle_max_lines": 2,
+            "subtitle_font_px": 40,
+        },
         "speaker": "林园",
         "visual_identity": {
             "speaker": "林园", "same_person_frames": [1, 2],
@@ -163,7 +178,10 @@ def test_old_artifact_without_new_quality_proof_is_rejected():
 
 
 @pytest.mark.parametrize(("field", "value", "message"), [
-    ("resolution", {"short_edge": 359}, "短边 359"),
+    ("resolution", {"short_edge": 479}, "短边 479"),
+    ("visual_standard_version", 2, "v3 对标视觉标准"),
+    ("title_quality_verified", False, "标题没有通过"),
+    ("review_assets_verified", False, "30秒预览"),
     ("watermark_verified", False, "角标复检"),
     ("brand_watermark_applied", False, "品牌水印"),
     ("fingerprints", {}, "指纹不完整"),

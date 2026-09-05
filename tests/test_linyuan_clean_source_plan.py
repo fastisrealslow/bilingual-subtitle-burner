@@ -53,6 +53,7 @@ def test_audio_card_ass_uses_yellow_black_outline(tmp_path):
     style = next(line for line in text.splitlines()
                  if line.startswith("Style: ZH,"))
     assert "&H0000D7FF" in style
+    assert ",40," in style
     assert ",1,5,1,2," in style
 
 
@@ -83,7 +84,26 @@ def test_audio_card_keeps_dense_title_and_strips_speaker_prefix():
     assert not display.startswith("股神林园")
     assert len(display) <= P.AUDIO_CARD_TOPIC_MAX_CHARS
     assert "100倍" in display
-    assert len(P._wrap_audio_card_title(display, 13, max_lines=4)) <= 4
+    assert len(P._wrap_audio_card_title(display, 14, max_lines=3)) <= 3
+
+
+def test_v3_layout_constants_match_approved_spec():
+    assert P.VISUAL_STANDARD_VERSION == 3
+    assert P.LIVE_REGION == {"x": 44, "y": 360, "width": 632, "height": 470}
+    assert P.SUBTITLE_REGION == {"x": 38, "y": 874,
+                                 "width": 644, "height": 166}
+    assert P.SAFE_MARGIN["bottom"] == 64
+
+
+def test_title_gate_blocks_asr_pollution_and_untraceable_summary():
+    transcript = "我认为医药行业未来三十年一定会有长期机会。"
+    assert P.title_quality_error(
+        "林园：手财的人最后一定能赚钱", "林园", transcript)
+    assert P.title_quality_error(
+        "林园：这是一个完全不同的新闻摘要", "林园", transcript)
+    assert P.title_quality_error(
+        "林园：医药行业未来三十年一定会有长期机会", "林园", transcript
+    ) is None
 
 
 def test_audio_card_emphasis_uses_red_yellow_blue_hierarchy():

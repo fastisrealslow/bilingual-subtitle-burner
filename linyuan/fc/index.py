@@ -56,8 +56,10 @@ MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含�
 DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h）
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
-MIN_SHORT_EDGE = 360
-QUALITY_GATE_VERSION = 8                 # v8 音频卡只用权威参考照，避免多人画面取错头像
+MIN_SHORT_EDGE = 480
+QUALITY_GATE_VERSION = 9                 # v9 锁定真人动态 v3、标题与预览接触表证明
+VISUAL_STANDARD_VERSION = 3
+TITLE_ASR_BLACKLIST = ("手财", "一定折")
 REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
@@ -1330,6 +1332,27 @@ def artifact_quality_error(meta):
         return f"旧成片缺少质量闸门 v{QUALITY_GATE_VERSION} 证明"
     if meta.get("speaker") != "林园":
         return "成片人物字段不是林园"
+    if int(meta.get("visual_standard_version") or 0) < VISUAL_STANDARD_VERSION:
+        return "成片没有应用 v3 对标视觉标准"
+    if int(meta.get("cover_standard_version") or 0) < VISUAL_STANDARD_VERSION:
+        return "封面没有应用 v3 对标视觉标准"
+    if meta.get("title_quality_verified") is not True:
+        return "标题没有通过原话/重复/ASR 污染质检"
+    if any(word in (meta.get("title") or "") for word in TITLE_ASR_BLACKLIST):
+        return "标题仍含 ASR 污染词"
+    if meta.get("review_assets_verified") is not True:
+        return "缺少30秒预览和6帧接触表质检证明"
+    if not meta.get("preview_30s") or not meta.get("contact_sheet_6"):
+        return "预发布质检产物记录不完整"
+
+    layout = meta.get("layout_proof") or {}
+    if (layout.get("live_region") != {"x": 44, "y": 360,
+                                      "width": 632, "height": 470}
+            or layout.get("subtitle_region") != {
+                "x": 38, "y": 874, "width": 644, "height": 166}
+            or int(layout.get("subtitle_max_lines") or 0) != 2
+            or not 38 <= int(layout.get("subtitle_font_px") or 0) <= 42):
+        return "v3 画面/字幕固定版式证明不完整"
 
     visual = meta.get("visual_identity") or {}
     same = {x for x in (visual.get("same_person_frames") or [])
@@ -1359,6 +1382,9 @@ def artifact_quality_error(meta):
     if meta.get("clean_strategy") not in {
             "direct", "delogo", "crop", "crop_delogo", "audio_card"}:
         return "成片缺少可复现的干净画面策略"
+    if (meta.get("clean_strategy") == "audio_card"
+            and meta.get("render_mode") != "live_video_card"):
+        return "音频卡没有使用真人动态混合版"
     if meta.get("clean_filter_verified") is not True:
         return "成片清理方案未经复检"
 
