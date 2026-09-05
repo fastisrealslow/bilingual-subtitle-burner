@@ -1,5 +1,5 @@
 name: FC production diagnose once
-# Read-only active-instance inspection; never invokes the function.
+# Exact V4 fast-artifact handoff after confirming zero active instances.
 on:
   push:
     branches: [main]
@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 读取 FC 活跃实例
+      - name: 调用精确 V4 快通道下一条
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -29,7 +29,18 @@ jobs:
           client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
             access_key_secret=os.environ['ALIYUN_SK'],
             endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
-          active=client.list_instances(os.environ['FC_FUNCTION_NAME'],
-            m.ListInstancesRequest(with_all_active=True,limit='100')).body
-          print(json.dumps(active.to_map(),ensure_ascii=False,indent=2))
+          import io
+          from alibabacloud_tea_util import models as util
+          payload=json.dumps({'triggerName':'publish-batch',
+            'batch_slug':'ly-parity-v3-14-0905','batch_remaining':1,
+            'ignore_daily_limit':True,
+            'source_url':'https://www.bilibili.com/video/BV1Pzug6fEyY',
+            'title':'2026年8月7日林园57分钟专访'}).encode()
+          try:
+            client.invoke_function_with_options(os.environ['FC_FUNCTION_NAME'],
+              m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(payload)),
+              m.InvokeFunctionHeaders(),
+              util.RuntimeOptions(connect_timeout=10000,read_timeout=180000,autoretry=False))
+          except Exception as exc:
+            print('网关断开；不重投，只查状态：'+repr(exc),flush=True)
           PY
