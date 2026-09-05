@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Inspect active instances and async queue after the long-upload handoff.
+# Inspect active instances and synchronously diagnose the verified V4 upload.
 on:
   push:
     branches: [main]
@@ -86,3 +86,49 @@ jobs:
           PY
 
 
+
+
+      - name: 同步诊断 V4 第1条投稿
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          python - <<'PY'
+          import io, json, os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as open_api
+          from alibabacloud_tea_util import models as util_models
+
+          client = Client(open_api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+          payload = json.dumps({
+              "triggerName": "publish-batch-sync-diagnose",
+              "batch_slug": "ly-parity-v3-14-0905",
+              "batch_remaining": 1,
+              "ignore_daily_limit": True,
+              "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
+              "title": "2026年8月7日林园57分钟专访",
+          }).encode()
+          try:
+              response = client.invoke_function_with_options(
+                  os.environ['FC_FUNCTION_NAME'],
+                  m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
+                  m.InvokeFunctionHeaders(),
+                  util_models.RuntimeOptions(
+                      connect_timeout=10000, read_timeout=180000))
+              body = getattr(response, 'body', None)
+              raw = body.read() if hasattr(body, 'read') else body
+              if isinstance(raw, bytes):
+                  raw = raw.decode('utf-8', errors='replace')
+              print(json.dumps({
+                  "status_code": getattr(response, 'status_code', None),
+                  "result": raw,
+              }, ensure_ascii=False, default=str))
+          except Exception as exc:
+              print("sync_invoke_error:", repr(exc))
+          PY
