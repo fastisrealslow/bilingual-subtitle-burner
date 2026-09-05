@@ -40,22 +40,8 @@ jobs:
           if old not in code:
               raise SystemExit('expected failure-log line not found')
           code=code.replace(old,new,1)
-          old_return='''        if tail:
-            log.error(f"  错误信息: {'; '.join(tail)[:300]}")
-
-    shutil.rmtree(tmp, ignore_errors=True)
-    return {"published": done}'''
-          new_return='''        if tail:
-            log.error(f"  错误信息: {'; '.join(tail)[:300]}")
-        if explicit_v4_batch:
-            e.pop("uploading", None)
-            e.pop("uploading_ts", None)
-            e.pop("upload_title", None)
-            e["last_upload_failure_exact"] = out[-1800:]
-            save_state(st)
-
-    shutil.rmtree(tmp, ignore_errors=True)
-    return {"published": done, "error_tail": out[-1800:] if explicit_v4_batch and r.returncode else ""}'''
+          old_return = '        if tail:\\n            log.error(f"  错误信息: {\'; \'.join(tail)[:300]}")\\n\\n    shutil.rmtree(tmp, ignore_errors=True)\\n    return {"published": done}'
+          new_return = '        if tail:\\n            log.error(f"  错误信息: {\'; \'.join(tail)[:300]}")\\n        if explicit_v4_batch:\\n            e.pop("uploading", None)\\n            e.pop("uploading_ts", None)\\n            e.pop("upload_title", None)\\n            e["last_upload_failure_exact"] = out[-1800:]\\n            save_state(st)\\n\\n    shutil.rmtree(tmp, ignore_errors=True)\\n    return {"published": done, "error_tail": out[-1800:] if explicit_v4_batch and r.returncode else ""}'
           if old_return not in code:
               raise SystemExit('expected failure-return block not found')
           code=code.replace(old_return,new_return,1)
