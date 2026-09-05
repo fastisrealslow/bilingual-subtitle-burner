@@ -1,0 +1,57 @@
+name: 林园日常产能优化
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-throughput-hotfix.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+      - name: 提升候选池与失败补位能力（不降低V11）
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('linyuan/fc/index.py')
+          s=p.read_text()
+          changes={
+            'MAX_PER_DAY = 7                          # 每天最多成功调度几条素材（2026-08-29 提至 7，保证供应 ≥6 条成片）':
+            'MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片',
+            'PENDING_LIMIT = 15                        # 待投成片积压阈值：超过就暂停调度（防积压爆炸，2026-08-27）':
+            'PENDING_LIMIT = 24                        # 2026-09-05：允许 8-10 条安全库存；发布仍保持每日 6 条上限',
+            'MAX_ATTEMPTS = 10                        # 每天最多尝试调度几条（含下载失败的）':
+            'MAX_ATTEMPTS = 24                        # 2026-09-05：扩大候选尝试池；质量门禁失败不消耗有效产能',
+            'REJECT_REFILL_LIMIT = 5                  # 同一投稿时段最多换 5 个被拦截的候选':
+            'REJECT_REFILL_LIMIT = 10                 # 2026-09-05：质量淘汰立即换候选，直到找到合格库存或达到安全上限',
+          }
+          for old,new in changes.items():
+            if old not in s:
+              raise SystemExit(f'missing expected line: {old}')
+            s=s.replace(old,new,1)
+          # 系统/出片异常更快恢复：不改质量失败判定，只缩短无 artifact 的恢复等待。
+          s=s.replace('if age > 12 * 3600:', 'if age > 6 * 3600:', 1)
+          s=s.replace('> 6 * 3600:\n            # 自动重试出片', '> 2 * 3600:\n            # 自动重试出片', 1)
+          p.write_text(s)
+          PY
+          python3 -m py_compile linyuan/fc/index.py
+          git diff --check
+          git diff -- linyuan/fc/index.py
+      - name: 提交并触发FC自动部署
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add linyuan/fc/index.py
+          git commit -m 'perf(fc): keep 8-10 ready clips without lowering V11'
+          git push origin HEAD:main
