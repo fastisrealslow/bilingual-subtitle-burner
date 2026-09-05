@@ -202,6 +202,56 @@ def identity_verdict_passes(verdict, frame_count):
             and confidence >= VISUAL_MIN_CONFIDENCE)
 
 
+def _retry_identity_vlm_in_chunks(reference, frames, speaker, api_key,
+                                  chunk_size=3):
+    """首轮多图判定失败时分组复核，避免 VLM 漏填后半组帧号。
+
+    复核仍使用相同的参考照和硬门槛，只是把一次六帧拆成两次三帧；任何低置信
+    结果都会拉低最终置信度，因此不会把真正的异人素材放行。
+    """
+    combined = {
+        "same_person_frames": [],
+        "different_person_frames": [],
+        "uncertain_frames": [],
+        "best_cover_frame": None,
+        "confidence": 1.0,
+        "watermark_texts": [],
+        "reason": "",
+    }
+    reasons = []
+    for start in range(0, len(frames), chunk_size):
+        chunk = frames[start:start + chunk_size]
+        verdict = _call_identity_vlm(reference, chunk, speaker, api_key)
+        valid = set(range(1, len(chunk) + 1))
+        for key in ("same_person_frames", "different_person_frames",
+                    "uncertain_frames"):
+            values = verdict.get(key) or []
+            if not isinstance(values, list):
+                continue
+            combined[key].extend(
+                start + value for value in values
+                if isinstance(value, int) and value in valid)
+        best = verdict.get("best_cover_frame")
+        if (combined["best_cover_frame"] is None and isinstance(best, int)
+                and best in valid):
+            combined["best_cover_frame"] = start + best
+        try:
+            combined["confidence"] = min(
+                combined["confidence"], float(verdict.get("confidence", 0)))
+        except (TypeError, ValueError):
+            combined["confidence"] = 0.0
+        marks = verdict.get("watermark_texts") or []
+        if isinstance(marks, list):
+            combined["watermark_texts"].extend(
+                mark for mark in marks if isinstance(mark, str))
+        if verdict.get("reason"):
+            reasons.append(str(verdict["reason"]))
+    combined["reason"] = "分组复核：" + "；".join(reasons)
+    combined["watermark_texts"] = list(dict.fromkeys(
+        combined["watermark_texts"]))
+    return combined
+
+
 def _download_speaker_reference(speaker, work):
     """取得人物参考图。林园流水线默认只允许有已配置参考图的人物。"""
     if speaker != "林园":
@@ -302,6 +352,9 @@ def verify_source_identity(src, work, speaker, api_key):
     reference = _download_speaker_reference(speaker, work)
     frames, times = _sample_visual_frames(src, work)
     verdict = _call_identity_vlm(reference, frames, speaker, api_key)
+    if not identity_verdict_passes(verdict, len(frames)):
+        verdict = _retry_identity_vlm_in_chunks(
+            reference, frames, speaker, api_key)
     if not identity_verdict_passes(verdict, len(frames)):
         raise VisualQualityError(
             f"人物不一致或无法确认：{speaker}；"

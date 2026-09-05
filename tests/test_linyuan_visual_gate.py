@@ -44,6 +44,28 @@ def test_markdown_wrapped_identity_json_is_accepted():
     )["same_person_frames"] == [1, 2]
 
 
+def test_chunked_identity_retry_remaps_frame_numbers(monkeypatch, tmp_path):
+    frames = [tmp_path / f"f{i}.jpg" for i in range(6)]
+    verdicts = iter([
+        {"same_person_frames": [1, 2], "different_person_frames": [],
+         "uncertain_frames": [3], "best_cover_frame": 2,
+         "confidence": 0.93, "reason": "前组三帧"},
+        {"same_person_frames": [1, 3], "different_person_frames": [2],
+         "uncertain_frames": [], "best_cover_frame": 1,
+         "confidence": 0.88, "reason": "后组三帧"},
+    ])
+    monkeypatch.setattr(P, "_call_identity_vlm",
+                        lambda *args: next(verdicts))
+    out = P._retry_identity_vlm_in_chunks(
+        tmp_path / "reference.jpg", frames, "林园", "sk-test")
+    assert out["same_person_frames"] == [1, 2, 4, 6]
+    assert out["different_person_frames"] == [5]
+    assert out["uncertain_frames"] == [3]
+    assert out["best_cover_frame"] == 2
+    assert out["confidence"] == 0.88
+    assert P.identity_verdict_passes(out, 6) is True
+
+
 def test_identity_prompt_counts_target_when_host_is_also_present(monkeypatch,
                                                                   tmp_path):
     reference = tmp_path / "reference.jpg"
