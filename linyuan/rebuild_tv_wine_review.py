@@ -151,12 +151,12 @@ def main():
     vf = ("[1:v]setpts=PTS-STARTPTS,split=2[wide][dining];"
           "[wide]delogo=x=1470:y=40:w=210:h=80:enable='between(t,59.64,76.5733)+gte(t,124.67)',"
           "delogo=x=545:y=42:w=190:h=80:enable='between(t,124.67,154.9)',"
-          "delogo=x=970:y=535:w=150:h=150:enable='between(t,165,200)',"
+          "delogo=x=970:y=390:w=250:h=260:enable='between(t,165,200)',"
           "crop=1120:600:550:42,scale=632:338:flags=lanczos,setsar=1[live];"
-          "[dining]crop=650:484:1090:190,scale=632:470:flags=lanczos,setsar=1[close];"
+          "[dining]crop=920:400:1050:190,scale=632:274:flags=lanczos,setsar=1[close];"
           "[0:v]drawbox=x=44:y=360:w=632:h=470:color=0xECECE3:t=fill[bg];"
-          "[bg][live]overlay=44:426[base];"
-          "[base][close]overlay=44:360:enable='between(t,88.3733,94.74)'[card];"
+          "[bg][live]overlay=44:426:enable='not(between(t,88.3733,94.74))'[base];"
+          "[base][close]overlay=44:458:enable='between(t,88.3733,94.74)'[card];"
           f"[card]ass={ass}[outv]")
     final = out / "final.mp4"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-i", str(card),
