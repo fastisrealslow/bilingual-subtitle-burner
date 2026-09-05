@@ -29,7 +29,7 @@ jobs:
           client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
             access_key_secret=os.environ['ALIYUN_SK'],
             endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
-          body=client.get_function(os.environ['FC_FUNCTION_NAME']).body
+          body=client.get_function(os.environ['FC_FUNCTION_NAME'],m.GetFunctionRequest()).body
           data=body.to_map() if hasattr(body,'to_map') else {}
           safe={}
           for key,value in data.items():
