@@ -42,6 +42,7 @@ jobs:
           print('CREATE_SIGNATURE='+str(inspect.signature(m.CreateFunctionInput.__init__)))
           print('CODE_SIGNATURE='+str(inspect.signature(m.InputCodeLocation.__init__)))
           print('CREATE_CALL='+str(inspect.signature(client.create_function)))
+          print('REQUEST_SIGNATURE='+str(inspect.signature(m.CreateFunctionRequest.__init__)))
           print('DELETE_CALL='+str(inspect.signature(client.delete_function)))
           print('SOURCE_CONFIG='+json.dumps(safe,ensure_ascii=False,default=str))
           PY
