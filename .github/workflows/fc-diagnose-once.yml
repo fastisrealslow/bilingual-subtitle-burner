@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Inspect active instances and async queue after the long-upload handoff.
+# Inspect active instances and retry the verified V4 batch after stale-rejection repair.
 on:
   push:
     branches: [main]
@@ -83,4 +83,45 @@ jobs:
                       ensure_ascii=False, indent=2))
               except Exception as exc:
                   print(label + '_error: ' + repr(exc))
+          PY
+
+
+      - name: 重试已验证 V4 批次第1条
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          python - <<'PY'
+          import io, json, os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as open_api
+          from alibabacloud_tea_util import models as util_models
+
+          client = Client(open_api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+          payload = json.dumps({
+              "triggerName": "publish-batch-retry",
+              "batch_slug": "ly-parity-v3-14-0905",
+              "batch_remaining": 1,
+              "ignore_daily_limit": True,
+              "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
+              "title": "2026年8月7日林园57分钟专访",
+          }).encode()
+          response = client.invoke_function_with_options(
+              os.environ['FC_FUNCTION_NAME'],
+              m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(payload)),
+              m.InvokeFunctionHeaders(common_headers={
+                  'x-fc-invocation-type': 'Async',
+              }),
+              util_models.RuntimeOptions(
+                  connect_timeout=10000, read_timeout=120000))
+          status = int(getattr(response, 'status_code', 202) or 202)
+          print(json.dumps({"accepted": status == 202, "status_code": status}))
+          if status != 202:
+              raise SystemExit(f"FC async invoke rejected: HTTP {status}")
           PY
