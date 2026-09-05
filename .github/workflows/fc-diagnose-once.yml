@@ -12,6 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: 停止旧的错误形状重跑
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for run in 33960174018 33960451229 33960650393 33960892427; do
+            gh run cancel "$run" --repo "$GITHUB_REPOSITORY" || true
+          done
       - name: 触发13条切片加1条完整版
         env:
           GH_TOKEN: ${{ github.token }}
@@ -28,4 +35,4 @@ jobs:
             -f target_parts='13' \
             -f include_full='true' \
             -f prefer_live_video='true'
-          echo '已提交精确14条V11重跑'
+          echo '旧任务已停；已提交唯一精确14条V11重跑'
