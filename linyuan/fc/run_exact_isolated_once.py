@@ -120,7 +120,12 @@ def main():
     try:
         create_worker(fc)
         time.sleep(25)
-        invoke_once(fc)
+        for index in range(9):
+            invoke_once(fc)
+            print(f"isolated Web submission completed {index + 1}/9", flush=True)
+            if index < 8:
+                print("cooldown 10 minutes", flush=True)
+                time.sleep(600)
     finally:
         try:
             fc.delete_function(WORKER)
