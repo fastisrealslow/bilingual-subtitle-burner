@@ -1,0 +1,33 @@
+name: 林园坏片新版样片触发
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-review-sample-once.yml
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 仅生成新版真实样片，不投稿
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run linyuan-produce-cn.yml \
+            --repo "${GITHUB_REPOSITORY}" --ref main \
+            -f source="https://m.weibo.cn/detail/5335082961471123" \
+            -f slug="ly-v11-review-0905" \
+            -f speaker="林园" \
+            -f occasion="2017年央视投资者说专访" \
+            -f source_platform="weibo" \
+            -f auto_publish=false \
+            -f target_parts=0 \
+            -f include_full=false \
+            -f prefer_live_video=true
