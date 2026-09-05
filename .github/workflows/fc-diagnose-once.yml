@@ -1,6 +1,6 @@
 name: FC production diagnose once
 
-# Verify GitHub Release range semantics. This job is read-only and never calls FC.
+# Read-only inspection of active FC instances. Never invokes the function.
 on:
   push:
     branches: [main]
@@ -15,15 +15,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: 校验 Release 视频分段读取
-        shell: bash
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 读取 FC 活跃实例
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
         run: |
-          set -euo pipefail
-          url="https://github.com/${GITHUB_REPOSITORY}/releases/download/deliver/ly-parity-v3-14-0905.final_1.mp4"
-          headers="${RUNNER_TEMP}/headers.txt"
-          sample="${RUNNER_TEMP}/sample.bin"
-          curl -sS -fL --connect-timeout 15 --max-time 90             --range 0-1048575 -D "$headers" -o "$sample" "$url"
-          sed -n '/^HTTP\//p;/^[Cc]ontent-[Rr]ange:/p;/^[Cc]ontent-[Ll]ength:/p;/^[Aa]ccept-[Rr]anges:/p' "$headers"
-          size="$(stat -c %s "$sample")"
-          echo "sample_bytes=$size"
-          test "$size" -eq 1048576
+          python - <<'PY'
+          import json, os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as open_api
+
+          client = Client(open_api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint=f"fcv3.{os.environ['FC_REGION']}.aliyuncs.com"))
+          fn = client.get_function(
+              os.environ['FC_FUNCTION_NAME'], m.GetFunctionRequest()).body
+          print("function:", json.dumps({
+              "state": fn.state,
+              "last_update_status": fn.last_update_status,
+              "timeout": fn.timeout,
+              "instance_concurrency": fn.instance_concurrency,
+              "memory_size": fn.memory_size,
+              "cpu": fn.cpu,
+          }, ensure_ascii=False))
+          instances = client.list_instances(
+              os.environ['FC_FUNCTION_NAME'],
+              m.ListInstancesRequest(with_all_active=True, limit='100')).body
+          print("instances:", json.dumps(instances.to_map(), ensure_ascii=False, indent=2))
+          PY
