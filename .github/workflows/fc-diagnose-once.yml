@@ -40,5 +40,8 @@ jobs:
                            'role','internetAccess'}:
                   safe[key]=value
           print('CREATE_SIGNATURE='+str(inspect.signature(m.CreateFunctionInput.__init__)))
+print('CODE_SIGNATURE='+str(inspect.signature(m.InputCodeLocation.__init__)))
+print('CREATE_CALL='+str(inspect.signature(client.create_function)))
+print('DELETE_CALL='+str(inspect.signature(client.delete_function)))
           print('SOURCE_CONFIG='+json.dumps(safe,ensure_ascii=False,default=str))
           PY
