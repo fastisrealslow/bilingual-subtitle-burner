@@ -32,6 +32,14 @@ def patched_code():
     if old not in code:
         raise RuntimeError("expected failure log statement missing")
     code = code.replace(old, new, 1)
+    submit_anchor = '    if cover:\\n        cmd += ["--cover", str(cover)]'
+    if submit_anchor not in code:
+        raise RuntimeError("expected cover command block missing")
+    code = code.replace(
+        submit_anchor,
+        '    cmd += ["--submit", "web"]\\n' + submit_anchor,
+        1,
+    )
     anchor = '''        if tail:
             log.error(f"  错误信息: {'; '.join(tail)[:300]}")
 
