@@ -120,10 +120,10 @@ def main():
     try:
         create_worker(fc)
         time.sleep(25)
-        for index in range(9):
+        for index in range(2):
             invoke_once(fc)
-            print(f"isolated Web submission completed {index + 1}/9", flush=True)
-            if index < 8:
+            print(f"isolated Web submission completed {index + 1}/2", flush=True)
+            if index < 1:
                 print("cooldown 10 minutes", flush=True)
                 time.sleep(600)
     finally:
