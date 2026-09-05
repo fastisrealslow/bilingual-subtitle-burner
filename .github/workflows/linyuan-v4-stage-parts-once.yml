@@ -1,5 +1,5 @@
-name: 林园V4逐条快通道准备
-# Read-only split of the already verified 14-part delivery artifact.
+name: 林园V11逐条快通道恢复
+# Recover the verified 14 renders after the aggregate Artifact finalize timeout.
 on:
   push:
     branches: [main]
@@ -12,26 +12,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: 下载已通过门禁的14条原始产物
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 安装恢复质检依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-cjk
+          pip install -q pillow 'opencv-python<5' jieba
+      - name: 下载已完成渲染的V11中间产物
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          src="$RUNNER_TEMP/source"
+          src="$RUNNER_TEMP/debug"
           mkdir -p "$src"
-          gh run download 33943054549 --repo "$GITHUB_REPOSITORY"             --name deliver-ly-parity-v3-14-0905 --dir "$src"
-          meta="$(find "$src" -type f -name meta.json -print -quit)"
-          test -n "$meta"
-          for i in $(seq 1 14); do
-            dir="$RUNNER_TEMP/parts/$i"
-            mkdir -p "$dir"
-            final="$(find "$src" -type f -name "final_${i}.mp4" -print -quit)"
-            cover="$(find "$src" -type f -name "cover_${i}.jpg" -print -quit)"
-            test -n "$final" -a -n "$cover"
-            cp "$meta" "$dir/meta.json"
-            cp "$final" "$dir/final_${i}.mp4"
-            cp "$cover" "$dir/cover_${i}.jpg"
-          done
+          gh run download 33960957254 --repo "$GITHUB_REPOSITORY" \
+            --name debug-ly-parity-v3-14-0905 --dir "$src"
+          test -f "$src/seg_11.mp4"
+          test -f "$src/seg_141.mp4"
+          test -f "$src/source_quality.json"
+      - name: 恢复14条封面样片检查图及V11证明
+        run: |
+          python linyuan/recover_v11_batch.py \
+            --debug "$RUNNER_TEMP/debug" \
+            --out "$RUNNER_TEMP/recovered" \
+            --parts "$RUNNER_TEMP/parts"
+          test "$(find "$RUNNER_TEMP/parts" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 14
       - name: 上传 V4 第1条快通道包
         uses: actions/upload-artifact@v4
         with:
