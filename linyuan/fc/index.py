@@ -1537,7 +1537,8 @@ def presentation_quality_error(meta):
     if mode == "audio_card" and ((w,h)!=(720,1280) or meta.get("render_mode")!="audio_card"):
         return "人物资料卡模式不符"
     if (layout.get("subtitle_max_lines")!=2 or layout.get("subtitle_vertical_alignment")!="center"
-            or layout.get("subtitle_layout_version",0)<3 or not 28<=font<=min(w,h)*.08
+            or layout.get("subtitle_layout_version",0)<3 or not 28<=font<=min(w,h)*.10
+            or rh < 2*font
             or layout.get("word_boundary_policy")!="semantic-v1"
             or meta.get("subtitle_word_boundaries_verified") is not True):
         return "缺少完整词句字幕证明"
