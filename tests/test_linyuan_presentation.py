@@ -204,3 +204,23 @@ def test_semantic_group_model_cannot_change_original_words():
         P.apply_semantic_groups(entries,['大家不愿意买。'],12)
     with pytest.raises(ValueError):
         P.apply_semantic_groups(entries,['大家还更','愿意买。'],12)
+
+
+def test_complete_semantic_group_uses_bounded_per_cue_font_before_rejecting():
+    # The protected/balanced word boundaries need 13 characters on one line,
+    # although the complete clause is still within the nominal 24 characters.
+    text = '您平均持有一家企业能在几年的时间呢我们的变化挺大'
+    entries = [dict(start_sec=0, end_sec=5, zh=text)]
+    groups = P.apply_semantic_groups(entries, [text], 12, font_px=48)
+    assert groups[0]['line_capacity'] == 13
+    assert 38 <= groups[0]['font_px'] < 48
+    prepared = V.prepare_captions(groups, V.layout_for(720,1280,True))
+    assert ''.join(prepared[0]['lines']) == text
+    assert prepared[0]['font_px'] == groups[0]['font_px']
+
+
+def test_semantic_group_still_rejects_beyond_38px_two_line_capacity():
+    text = '守住现金流的企业大家还更愿意买' * 3
+    entries = [dict(start_sec=0, end_sec=5, zh=text)]
+    with pytest.raises(ValueError, match='无法放入两行'):
+        P.apply_semantic_groups(entries, [text], 12, font_px=48)

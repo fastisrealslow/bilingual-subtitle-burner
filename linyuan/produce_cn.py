@@ -1347,7 +1347,7 @@ def translate(texts, api_key, work):
     return out
 
 
-def apply_semantic_groups(entries, texts, capacity):
+def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
     """Validate model-selected boundaries against source characters and timing."""
     from presentation import word_spans, wrap_words
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
@@ -1372,12 +1372,40 @@ def apply_semantic_groups(entries, texts, capacity):
             raise ValueError('意群以未完成的连接词结束')
         if strip(text).startswith('的'):
             raise ValueError('意群不能以依附上一屏的“的”开头')
-        wrap_words(text,capacity)
+        # A model-selected complete clause can be within the advertised two-line
+        # character limit and still have no legal split at the exact midpoint
+        # (for example because a protected company name or numeric unit crosses
+        # it).  Do not ask the model to break that word, and do not reject the
+        # whole otherwise-good clip.  Instead find the smallest two-line
+        # capacity that preserves every word and shrink this cue only.  The
+        # floor remains 38 px, so this is a bounded layout adjustment rather
+        # than a quality-gate bypass.
+        cue_capacity = capacity
+        cue_font = font_px
+        max_capacity = capacity
+        if font_px:
+            max_capacity = max(capacity, int(font_px * capacity / min_font_px))
+        while True:
+            try:
+                wrap_words(text, cue_capacity)
+                break
+            except ValueError as exc:
+                if ("无法放入两行" not in str(exc)
+                        or cue_capacity >= max_capacity):
+                    raise
+                cue_capacity += 1
+        if font_px and cue_capacity > capacity:
+            cue_font = max(min_font_px,
+                           int(font_px * capacity / cue_capacity))
         a,b=chars[offset][1],chars[end-1][2]
         if b-a>8:
             raise ValueError('单屏跨越超过8秒，应在完整意群处分开')
         if b-a<.25: raise ValueError('意群字幕过短闪屏')
-        result.append(dict(start_sec=a,end_sec=b,zh=text,en='',semantic_group=True))
+        group = dict(start_sec=a,end_sec=b,zh=text,en='',semantic_group=True)
+        if cue_capacity > capacity:
+            group['line_capacity'] = cue_capacity
+            group['font_px'] = cue_font
+        result.append(group)
         offset=end
     return result
 
@@ -1387,7 +1415,10 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
     capacity=layout['line_capacity']
     cache_path=Path(cache_path)
     if cache_path.exists():
-        try: return apply_semantic_groups(entries,json.loads(cache_path.read_text()),capacity)
+        try:
+            return apply_semantic_groups(
+                entries, json.loads(cache_path.read_text()), capacity,
+                layout.get('subtitle_font_px'))
         except (ValueError,TypeError): pass
     from presentation import word_spans
     # Ask for boundary indices, never a copied transcript: models tend to
@@ -1413,7 +1444,8 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):
                 raise ValueError('换屏位置必须严格递增并覆盖全部原文')
             texts=[transcript[a:b] for a,b in zip([0]+breaks,breaks)]
-            result=apply_semantic_groups(entries,texts,capacity)
+            result=apply_semantic_groups(
+                entries, texts, capacity, layout.get('subtitle_font_px'))
             cache_path.write_text(json.dumps(texts,ensure_ascii=False,indent=2))
             return result
         except (ValueError,KeyError,TypeError,RuntimeError) as exc:
@@ -3868,4 +3900,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

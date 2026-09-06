@@ -79,8 +79,10 @@ def prepare_captions(entries, layout):
     """
     cap = layout['line_capacity']
     if entries and all(e.get('semantic_group') is True for e in entries):
-        return [{**e, 'lines': wrap_words(e['zh'],cap),
-                 'font_px':layout['subtitle_font_px']} for e in entries]
+        return [{**e,
+                 'lines': wrap_words(e['zh'], e.get('line_capacity', cap)),
+                 'font_px': e.get('font_px', layout['subtitle_font_px'])}
+                for e in entries]
     entries = sorted(entries, key=lambda e: e['start_sec'])
     groups, group, last_end = [], [], None
     for i, entry in enumerate(entries):
@@ -338,4 +340,3 @@ def verify_render(path, layout, samples=12):
     return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True,
             'render_checks':{'version':VERSION,'frames_checked':checked,
                              'dimensions_match':True,'qr_detected':False,'black_edge_hits':black}}
-
