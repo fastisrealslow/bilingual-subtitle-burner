@@ -21,7 +21,7 @@ jobs:
         run: |
           python - <<'PY'
           import json,os,subprocess,time
-          repo=os.environ['GITHUB_REPOSITORY'];run='34040028431'
+          repo=os.environ['GITHUB_REPOSITORY'];run='34040962204'
           def status():
               return json.loads(subprocess.check_output(['gh','run','view',run,'--repo',repo,'--json','status']))['status']
           if status()!='completed':
