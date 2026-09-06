@@ -86,6 +86,12 @@ def test_unresolved_negation_or_number_requires_audio_review():
     assert policy.metadata_error(meta) is not None
 
 
+def test_schema_placeholder_cannot_impersonate_a_review_summary():
+    meta = complete_meta()
+    meta['editorial_review']['summary'] = '主题、理由和结论'
+    assert '占位文案' in policy.metadata_error(meta)
+
+
 def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
     assert 'ASR污染' in policy.transcript_integrity_error('你买片公司万丈深渊')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None

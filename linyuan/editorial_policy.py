@@ -86,6 +86,9 @@ def review_error(review):
         return '原话存在影响观点的识别歧义，须听辨或更换素材'
     if not review.get('transcript_sha256') or not review.get('summary'):
         return '缺少完整观点文本指纹和内容摘要'
+    summary = re.sub(r'[^0-9A-Za-z\u4e00-\u9fff]+', '', str(review['summary']))
+    if summary in {'主题理由和结论', '主题理由结论'}:
+        return '完整观点摘要仍是字段占位文案，未实际核对内容'
     return None
 
 

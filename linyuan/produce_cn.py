@@ -1386,7 +1386,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '中间同主题追问可保留；无关主题拼凑、片头寒暄/无指代回应、必要结论被切掉须拒绝。'
         '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
         '只输出JSON：{"standalone_opening":true,"complete_argument":true,"reasoning_present":true,'
-        '"natural_ending":true,"requires_audio_review":false,"summary":"主题、理由和结论",'
+        '"natural_ending":true,"requires_audio_review":false,"summary":"具体写出本段主题、理由和结论",'
         '"issues":[]}。\n原话：'+text)
     response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
     raw=re.sub(r'```(?:json)?|```','',response).strip()
