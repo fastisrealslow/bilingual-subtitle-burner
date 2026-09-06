@@ -527,6 +527,39 @@ def diagnose_release_download(event=None, context=None):
         shutil.rmtree(probe_dir, ignore_errors=True)
 
 
+def download_reviewed_zip(artifact_id, archive_path, attempts=3):
+    """Refresh signed URLs after a bounded failed/slow read; never expose tokens."""
+    import requests
+    archive_path=Path(archive_path)
+    for attempt in range(attempts):
+        try:
+            redirect=requests.get(API+f'/actions/artifacts/{artifact_id}/zip',
+                params={'_':str(time.time_ns())},
+                headers={'Authorization':f'Bearer {TOKEN}'},
+                allow_redirects=False,timeout=(10,20))
+            location=redirect.headers.get('Location','')
+            if redirect.status_code!=302 or not location.startswith('https://'):
+                raise RuntimeError('Signed artifact redirect unavailable')
+            result=subprocess.run(['curl','-fsSL','--connect-timeout','15',
+                '--max-time','120','--speed-time','20','--speed-limit','32768',
+                '--max-filesize',str(256*1024*1024),'-o',str(archive_path),location],
+                capture_output=True,timeout=130)
+            if result.returncode!=0 or not archive_path.is_file():
+                raise RuntimeError('Bounded artifact transfer failed')
+            size=archive_path.stat().st_size
+            if not 0<size<=256*1024*1024:
+                raise RuntimeError('Reviewed artifact size invalid')
+            with zipfile.ZipFile(archive_path) as archive:
+                if archive.testzip() is not None:
+                    raise RuntimeError('Reviewed artifact CRC invalid')
+            return size
+        except Exception as exc:
+            archive_path.unlink(missing_ok=True)
+            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',type(exc).__name__)
+            flush_logs()
+    raise RuntimeError(f'Reviewed artifact exhausted {attempts} bounded attempts')
+
+
 def download_v4_fast_part(slug, part_index, dest_dir):
     """Download an exact reviewed part through its signed artifact blob."""
     reviewed = next((row for row in FRESH_SIX_APPROVED.values()
@@ -553,27 +586,10 @@ def download_v4_fast_part(slug, part_index, dest_dir):
         log_event("download", f"快通道下载 part {int(part_index)+1}",
                   f"artifact={artifact_id} bytes={artifact.get('size_in_bytes', 0)}")
         flush_logs()
-        redirect = requests.get(
-            API + f"/actions/artifacts/{artifact_id}/zip",
-            headers={"Authorization": f"Bearer {TOKEN}"},
-            allow_redirects=False, timeout=60)
-        location = redirect.headers.get("Location", "")
-        if redirect.status_code != 302 or not location.startswith("https://"):
-            return False
         dest_dir = Path(dest_dir)
         dest_dir.mkdir(parents=True, exist_ok=True)
         archive_path = dest_dir / "part.zip"
-        size = 0
-        with requests.get(location, stream=True, timeout=(20, 1800)) as response:
-            response.raise_for_status()
-            with archive_path.open("wb") as target:
-                for block in response.iter_content(1024 * 1024):
-                    if not block:
-                        continue
-                    size += len(block)
-                    if size > 256 * 1024 * 1024:
-                        raise RuntimeError("Reviewed part artifact exceeds 256MB")
-                    target.write(block)
+        size = download_reviewed_zip(artifact_id,archive_path)
         found = set()
         with zipfile.ZipFile(archive_path) as archive:
             for member in archive.infolist():
@@ -2286,6 +2302,12 @@ def publish_handler(event=None, context=None):
     if not e.get("reprocessing_quality"):
         part_index = int(e.get("published_parts", 0))
         used_release = download_v4_fast_part(slug, part_index, delivery_dir)
+        if not used_release and any(row.get('slug')==slug and row.get('part_index')==part_index
+                                    for row in FRESH_SIX_APPROVED.values()):
+            # Reviewed packages can select sparse original files. A Release's
+            # original indices may point at a different, unapproved part.
+            shutil.rmtree(tmp,ignore_errors=True)
+            return {'published':0,'artifact_download_retryable':1}
         if not used_release:
             used_release = download_release_part(slug, part_index, delivery_dir)
 
