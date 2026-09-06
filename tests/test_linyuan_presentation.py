@@ -183,3 +183,24 @@ def test_portrait_card_cannot_use_placeholder(tmp_path):
     with pytest.raises(P.VisualQualityError):
         P.make_audio_card(tmp_path/'card.png','林园','投资要看供需关系',
                           width=720,height=1280,require_portrait=True)
+
+
+def test_long_asr_cue_does_not_end_screen_inside_intent_group():
+    entries=[{'start_sec':0,'end_sec':3.42,'zh':'守住现金流的企业，大家还更'},
+             {'start_sec':3.42,'end_sec':5.34,'zh':'愿意买，相反那些巨额投入的'},
+             {'start_sec':5.4,'end_sec':6.3,'zh':'大家会有些担忧'}]
+    cues=V.prepare_captions(entries,V.layout_for(720,1280,True))
+    assert ''.join(c['zh'] for c in cues)==''.join(e['zh'] for e in entries)
+    assert any('大家还更愿意买' in c['zh'] for c in cues)
+    assert not any(c['zh'].endswith(('还更','投入的')) for c in cues)
+
+
+def test_semantic_group_model_cannot_change_original_words():
+    entries=[dict(start_sec=0,end_sec=3,zh='大家还更'),dict(start_sec=3,end_sec=5,zh='愿意买。')]
+    groups=P.apply_semantic_groups(entries,['大家还更愿意买。'],12)
+    assert groups[0]['start_sec']==0 and groups[0]['semantic_group'] is True
+    assert len(V.prepare_captions(groups,V.layout_for(720,1280,True)))==1
+    with pytest.raises(ValueError,match='改写或丢失'):
+        P.apply_semantic_groups(entries,['大家不愿意买。'],12)
+    with pytest.raises(ValueError):
+        P.apply_semantic_groups(entries,['大家还更','愿意买。'],12)

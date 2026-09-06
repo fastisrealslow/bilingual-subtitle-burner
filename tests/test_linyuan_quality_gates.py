@@ -177,6 +177,7 @@ def _good_artifact_meta():
         "watermark_verified": True,
         "live_region_verified": True,
         "no_qr_verified": True,
+        "subtitle_semantic_groups_verified": True,
         "no_black_bars_verified": True,
         "brand_watermark_applied": True,
         "has_existing_subtitles": False,
@@ -222,6 +223,7 @@ def test_review_paused_batch_cannot_publish(monkeypatch):
     ("live_region_verified", False, "真人动态区"),
     ("no_qr_verified", False, "二维码复检"),
     ("no_black_bars_verified", False, "黑边/取景复检"),
+    ("subtitle_semantic_groups_verified", False, "完整意群字幕"),
     ("brand_watermark_applied", False, "品牌水印"),
     ("fingerprints", {}, "指纹不完整"),
     ("has_existing_subtitles", True, "内嵌字幕"),
@@ -424,3 +426,22 @@ def test_reencoded_video_keeps_composite_fingerprint(tmp_path):
     a = P.build_content_fingerprints(original, "完全不同的测试文本甲")
     b = P.build_content_fingerprints(encoded, "完全不同的测试文本乙")
     assert "音频" in FC.fingerprint_duplicate(a, b)
+
+
+def test_partial_qr_blocks_old_live_artifacts():
+    meta = _good_artifact_meta()
+    meta['render_mode'] = 'live_video_card'
+    assert '残缺二维码' in FC.artifact_quality_error(meta)
+    meta['partial_qr_verified'] = True
+    assert FC.artifact_quality_error(meta) is None
+
+def test_cropped_qr_finder_is_detected_without_decodable_full_code():
+    import cv2
+    import numpy as np
+    finder = np.zeros((7, 7), dtype=np.uint8)
+    finder[1:6, 1:6] = 255
+    finder[2:5, 2:5] = 0
+    frame = np.full((470, 632), 180, dtype=np.uint8)
+    frame[-42:-14, -42:-14] = cv2.resize(finder, (28, 28), interpolation=cv2.INTER_NEAREST)
+    assert P.partial_qr_finder_score(frame) >= .70
+    assert P.partial_qr_finder_score(np.full_like(frame, 180)) < .70

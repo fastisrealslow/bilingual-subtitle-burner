@@ -1383,6 +1383,7 @@ def dispatch_handler(event=None, context=None):
     if pending_cnt >= PENDING_LIMIT:
         log.info(f"待投队列 {pending_cnt} 条，超阈值 {PENDING_LIMIT}，暂停调度，先消化积压")
         return {"dispatched": 0}
+    target = min(target, PENDING_LIMIT - pending_cnt)
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
@@ -1713,6 +1714,10 @@ def artifact_quality_error(meta):
         return "真人动态区没有通过逐帧复检"
     if meta.get("no_qr_verified") is not True:
         return "成片没有通过二维码复检"
+    if meta.get("render_mode") == "live_video_card" and meta.get("partial_qr_verified") is not True:
+        return "真人窗口缺少残缺二维码复检，旧漏检成片不得投稿"
+    if meta.get("subtitle_semantic_groups_verified") is not True:
+        return "缺少完整意群字幕复检，旧碎句成片必须重做"
     if meta.get("no_black_bars_verified") is not True:
         return "成片没有通过黑边/取景复检"
     if meta.get("brand_watermark_applied") is not True:

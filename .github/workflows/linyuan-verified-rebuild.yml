@@ -1,0 +1,40 @@
+name: 林园真人干净成片实渲染
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-verified-rebuild.yml, linyuan/rebuild_verified_live.py]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+      - run: pip install numpy pillow 'opencv-python-headless<5' jieba rapidocr-onnxruntime
+      - name: 下载已核验真人母片及原始ASR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fLsS --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/9986365708/zip" -o source.zip
+          unzip -q source.zip -d source-artifact
+      - name: 重新烧录完整意群字幕并验收实际MP4
+        env:
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+          ZH_FONT: Noto Sans CJK SC
+        run: python linyuan/rebuild_verified_live.py --archive-dir source-artifact --out deliver/verified-live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linyuan-verified-live-0906
+          path: |
+            deliver/verified-live/*
+            !deliver/verified-live/_tmp/**
+          retention-days: 30

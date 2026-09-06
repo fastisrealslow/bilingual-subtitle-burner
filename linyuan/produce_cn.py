@@ -393,7 +393,7 @@ def verify_source_identity(src, work, speaker, api_key):
     return report
 
 
-def llm(messages, api_key, temperature=0.3, max_tokens=2000):
+def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
     """调 LLM,限流时自动换模型。硅基流动的限流是分模型的。"""
     cache_dir = BASE / ".llm_cache"
     cache_dir.mkdir(exist_ok=True)
@@ -410,6 +410,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000):
             print("[llm-cache] 缓存损坏,重新请求", file=sys.stderr)
 
     last = None
+    deadline = time.monotonic() + budget_sec if budget_sec else None
     for model in MODELS:
         payload = json.dumps({
             "model": model, "messages": messages, "temperature": temperature,
@@ -420,8 +421,11 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000):
             headers={"Authorization": f"Bearer {api_key}",
                      "Content-Type": "application/json"})
         for attempt in range(3):
+            remaining = deadline - time.monotonic() if deadline else 120
+            if remaining <= 0:
+                raise RuntimeError("LLM 调用超出本片时间预算")
             try:
-                with urllib.request.urlopen(req, timeout=120) as r:
+                with urllib.request.urlopen(req, timeout=min(120, remaining)) as r:
                     d = json.loads(r.read().decode())
                 txt = d["choices"][0]["message"]["content"]
                 txt = re.sub(r"<think>.*?</think>", "", txt, flags=re.S).strip()
@@ -1343,6 +1347,64 @@ def translate(texts, api_key, work):
     return out
 
 
+def apply_semantic_groups(entries, texts, capacity):
+    """Validate model-selected boundaries against source characters and timing."""
+    from presentation import word_spans, wrap_words
+    strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
+    chars=[]
+    for i,e in enumerate(entries):
+        a,b=float(e['start_sec']),float(e['end_sec'])
+        if i+1<len(entries): b=min(b,float(entries[i+1]['start_sec']))
+        original=e.get('zh','')
+        for j,c in enumerate(original):
+            if strip(c): chars.append((c,a+(b-a)*j/len(original),a+(b-a)*(j+1)/len(original)))
+    source=''.join(c[0] for c in chars)
+    if not isinstance(texts,list) or not texts or not all(isinstance(t,str) and strip(t) for t in texts):
+        raise ValueError('完整意群分组为空或格式错误')
+    if ''.join(strip(t) for t in texts)!=source:
+        raise ValueError('意群分组改写或丢失原话，拒绝烧录')
+    bounds={0,len(source)}|{b for a,b in word_spans(source)}
+    result=[]; offset=0
+    for t in texts:
+        text=re.sub(r'\s+','',t); end=offset+len(strip(text))
+        if end not in bounds: raise ValueError('意群分组切断完整词')
+        if re.search(r'(?:还更|因为|如果|但是|以及|把|被|与|比)$',strip(text)):
+            raise ValueError('意群以未完成的连接词结束')
+        wrap_words(text,capacity)
+        a,b=chars[offset][1],chars[end-1][2]
+        if b-a<.25: raise ValueError('意群字幕过短闪屏')
+        result.append(dict(start_sec=a,end_sec=b,zh=text,en='',semantic_group=True))
+        offset=end
+    return result
+
+
+def semantic_caption_entries(entries, api_key, layout, cache_path):
+    """Use the language model for meaning; validate every character locally."""
+    capacity=layout['line_capacity']
+    cache_path=Path(cache_path)
+    if cache_path.exists():
+        try: return apply_semantic_groups(entries,json.loads(cache_path.read_text()),capacity)
+        except (ValueError,TypeError): pass
+    transcript=''.join(e.get('zh','') for e in entries)
+    prompt=('把以下口语原文划分成短视频字幕的完整句或完整意群，每屏最多'
+            +str(capacity*2)+'个字符（包括标点），单行最多'+str(capacity)+'字。'
+            '可以跨原ASR边界合并，也可以在完整意群边界拆分。不要把专名、数字单位、'
+            '否定词和谓语拆开；不能以“还更、因为、如果、把、被、与”等未完成成分结束。'
+            '保留全部原话的每一个字，不纠错、不改写、不删除重复语气词，只可调整中文标点。'
+            '仅返回JSON对象 {"groups":["第一屏","第二屏"]}。原文：'+transcript)
+    error=''
+    for attempt in range(3):
+        try:
+            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=6000,budget_sec=60)
+            texts=_parse_json_object(response)['groups']
+            result=apply_semantic_groups(entries,texts,capacity)
+            cache_path.write_text(json.dumps(texts,ensure_ascii=False,indent=2))
+            return result
+        except (ValueError,KeyError,TypeError,RuntimeError) as exc:
+            error='\n上次输出未通过严格校验：'+str(exc)+'。请重新按原文输出全部字幕。'
+    raise ValueError('完整意群字幕重试3次仍未通过'+error)
+
+
 def make_ass(entries, path, W, H, card_style=False):
     """竖版适配:字号按高度算、抬到安全区。burner 的 make_ass 是按 16:9 调的,
     720x1280 下算出来才 29px,且会被平台底部 UI 遮住。
@@ -1650,6 +1712,33 @@ def audio_card_live_crop(width, height):
             "flags=lanczos,setsar=1")
 
 
+def partial_qr_finder_score(gray):
+    """Recognize a remaining QR finder in cropped edge codes that cannot decode.
+
+    Match the standard 7x7 dark/light/dark finder at several pixel scales;
+    callers require it in multiple frames, rather than trusting one texture.
+    """
+    import cv2
+    import numpy as np
+    template = np.zeros((7, 7), dtype=np.uint8)
+    template[1:6, 1:6] = 255
+    template[2:5, 2:5] = 0
+    edge = min(94, gray.shape[0], gray.shape[1])
+    corners = (gray[:edge,:edge], gray[:edge,-edge:],
+               gray[-edge:,:edge], gray[-edge:,-edge:])
+    best = 0.0
+    for corner in corners:
+        for size in range(10, min(37,edge+1), 2):
+            pattern = cv2.resize(template, (size,size), interpolation=cv2.INTER_NEAREST)
+            pattern = cv2.GaussianBlur(pattern,(3,3),0.8)
+            _, score, _, point = cv2.minMaxLoc(cv2.matchTemplate(corner,pattern,cv2.TM_CCOEFF_NORMED))
+            x,y = point
+            # Flat fields and weak incidental texture are not QR candidates.
+            if float(corner[y:y+size,x:x+size].std()) >= 35:
+                best = max(best,float(score))
+    return best
+
+
 def verify_live_region_after_render(final, frames=6):
     """复检嵌入的真人动态区：拒绝黑边、二维码和稳定外部角标。"""
     import tempfile
@@ -1664,6 +1753,7 @@ def verify_live_region_after_render(final, frames=6):
     frame_paths = []
     black_edge_hits = 0
     qr_hits = 0
+    partial_qr_hits = 0
     tmp = Path(tempfile.mkdtemp(prefix="live-region-check-"))
     got = 0
     try:
@@ -1686,6 +1776,7 @@ def verify_live_region_after_render(final, frames=6):
             frame_paths.append(fp)
 
             gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+            partial_qr_hits += int(partial_qr_finder_score(gray) >= 0.70)
             dark_columns = np.mean(gray < 18, axis=0) > 0.92
             edge = max(8, int(w * 0.08))
             if (dark_columns[:edge].mean() > 0.45
@@ -1704,14 +1795,14 @@ def verify_live_region_after_render(final, frames=6):
         raise VisualQualityError("真人动态区复检抽帧不足")
     if black_edge_hits >= max(2, got // 2):
         raise VisualQualityError("真人动态区检出持续黑边/错误取景")
-    if qr_hits:
-        raise VisualQualityError("真人动态区检出来源二维码")
+    if qr_hits or partial_qr_hits >= 2:
+        raise VisualQualityError("真人动态区检出来源二维码（含裁切残留定位图案）")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
     if logos:
         raise VisualQualityError(f"真人动态区仍有稳定来源角标：{logos}")
     return {"live_region_verified": True, "no_qr_verified": True,
-            "no_black_bars_verified": True}
+            "partial_qr_verified": True, "no_black_bars_verified": True}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
@@ -3362,6 +3453,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     "end_sec": cues[i]["end"] - s0,
                     "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
         ass = work / f"seg{suffix}{n}.ass"
+        entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json")
         make_ass(entries, ass, crop_w, crop_h,
                  card_style=(strategy == "audio_card"))
         seg = work / f"seg{suffix}{n}.mp4"
@@ -3483,6 +3575,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "layout_proof": layout,
         "cover_proof": json.loads(Path(str(cover)+".proof.json").read_text()),
         "subtitle_word_boundaries_verified": True,
+        "subtitle_semantic_groups_verified": True,
         **live_checks,
         "duration_sec": round(dur, 1),
         "resolution": {"width": final_w, "height": final_h,

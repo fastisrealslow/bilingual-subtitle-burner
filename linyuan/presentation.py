@@ -78,6 +78,9 @@ def prepare_captions(entries, layout):
     cue end times are clipped to the next start time.
     """
     cap = layout['line_capacity']
+    if entries and all(e.get('semantic_group') is True for e in entries):
+        return [{**e, 'lines': wrap_words(e['zh'],cap),
+                 'font_px':layout['subtitle_font_px']} for e in entries]
     entries = sorted(entries, key=lambda e: e['start_sec'])
     groups, group, last_end = [], [], None
     for i, entry in enumerate(entries):
@@ -96,13 +99,14 @@ def prepare_captions(entries, layout):
         # 软语义边界：已有 cue 只要持续够可读，就先结束当前组；极短碎片
         # 才允许和下一 cue 合并。
         group_dur = (last_end-group[0][1]) if group and last_end is not None else 0
+        unfinished = bool(group and re.search(r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|的|把|被|与|比|要|更|还|是)$', ''.join(c[0] for c in group)))
         # An ASR cue is only a soft boundary. Reconnect 茅/台 and numeric units
         # before splitting screens; the 1.15s cutoff must not split a token.
         joined = ''.join(c[0] for c in group) + text
         boundary = len(group)
         split_word = group and any(lo < boundary < hi for lo, hi in word_spans(joined))
         if group and (a-last_end > .45 or group[-1][0] in '。！？!?' or
-                      (group_dur >= 1.15 and not split_word)):
+                      (group_dur >= 1.15 and not split_word and not unfinished)):
             groups.append(group); group=[]
         for k, char in enumerate(text):
             group.append((char, a+(b-a)*k/len(text), a+(b-a)*(k+1)/len(text)))
