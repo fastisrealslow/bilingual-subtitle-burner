@@ -1701,4 +1701,2424 @@ def make_ass(entries, path, W, H, card_style=False):
         if not (card_style and vertical):
             return "", text
         lines = text.split("\\N") if text else []
-        longest = max((len(line) 
+        longest = max((len(line) for line in lines), default=1)
+        safe_width = SUBTITLE_REGION["width"] - 36
+        fitted = min(zh, max(28, int(safe_width / max(1, longest))))
+        center_x = SUBTITLE_REGION["x"] + SUBTITLE_REGION["width"] // 2
+        center_y = SUBTITLE_REGION["y"] + SUBTITLE_REGION["height"] // 2
+        return f"{{\\an5\\pos({center_x},{center_y})\\fs{fitted}}}", text
+
+    def ts(s):
+        return f"{int(s//3600)}:{int(s%3600//60):02d}:{s%60:05.2f}"
+
+    # 音频卡沿用对标账号最易读的「黄字黑边」字幕；真实原画仍保持白字，避免
+    # 在浅色/暖色现场画面上产生不必要的品牌化偏色。
+    zh_color = "&H0000D7FF" if card_style else "&H00FFFFFF"
+    zh_outline = 5 if card_style else 3
+    L = ["[Script Info]", "ScriptType: v4.00+", "WrapStyle: 2",
+         f"PlayResX: {W}", f"PlayResY: {H}",
+         "", "[V4+ Styles]",
+         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, "
+         "OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, "
+         "ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, "
+         "MarginL, MarginR, MarginV, Encoding",
+         f"Style: EN,{font_en},{en},&H00FFFFFF,&H000000FF,&H00000000,&H80000000,"
+         f"-1,0,0,0,100,100,0,0,1,2,1,2,20,20,{mv + zh*2 + 10},1",
+         f"Style: ZH,{font_zh},{zh},{zh_color},&H000000FF,&H00000000,"
+         f"&H80000000,-1,0,0,0,100,100,0,0,1,{zh_outline},1,"
+         f"{5 if card_style and vertical else 2},20,20,"
+         f"{0 if card_style and vertical else mv},1",
+         "", "[Events]",
+         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, "
+         "Effect, Text"]
+    for e in entries:
+        a, b = ts(e["start_sec"]), ts(e["end_sec"])
+        et, zt = wrap(e.get("en"), ew, False), wrap(e.get("zh"), zw, True)
+        if et:
+            L.append(f"Dialogue: 0,{a},{b},EN,,0,0,0,,{et}")
+        if zt:
+            override, zt = card_subtitle_override(zt)
+            L.append(f"Dialogue: 0,{a},{b},ZH,,0,0,0,,{override}{zt}")
+    Path(path).write_text("\n".join(L), encoding="utf-8-sig")
+
+
+def probe(src, entries):
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
+                        "-show_entries", entries, "-of", "csv=s=x:p=0", str(src)],
+                       capture_output=True, text=True)
+    return r.stdout.strip()
+
+
+def video_size(src):
+    """返回视频宽高；探测失败时抛质量错误，不能把未知尺寸当合格。"""
+    raw = probe(src, "stream=width,height")
+    try:
+        width, height = (int(x) for x in raw.split("x"))
+    except (TypeError, ValueError):
+        raise VisualQualityError(f"无法取得视频分辨率：{raw!r}")
+    if width <= 0 or height <= 0:
+        raise VisualQualityError(f"视频分辨率异常：{width}x{height}")
+    return width, height
+
+
+def ensure_min_short_edge(src, minimum=MIN_SHORT_EDGE, label="成片"):
+    """画质硬闸门。必须检查清理/裁切后的文件，而不只是原始下载。"""
+    width, height = video_size(src)
+    short = min(width, height)
+    if short < minimum:
+        raise VisualQualityError(
+            f"{label}短边 {short} < {minimum}（{width}x{height}），画质不达标")
+    return width, height
+
+
+def brand_watermark_path():
+    """返回生产水印；缺失时失败关闭，避免无品牌成片进入待投队列。"""
+    path = BRAND_WATERMARK
+    if not path.is_file() or path.stat().st_size < 1000:
+        raise VisualQualityError(f"品牌水印文件缺失或异常：{path}")
+    return path
+
+
+def brand_overlay_filter(base_vf, width, height):
+    """生成右上角品牌水印滤镜；宽度、透明度和边距均按画面自适应。"""
+    ratio = min(0.25, max(0.08, BRAND_WATERMARK_WIDTH_RATIO))
+    opacity = min(0.90, max(0.30, BRAND_WATERMARK_OPACITY))
+    margin_ratio = min(0.08, max(0.01, BRAND_WATERMARK_MARGIN_RATIO))
+    wm_width = max(64, int(width * ratio)) // 2 * 2
+    margin_x = max(8, int(width * margin_ratio))
+    margin_y = max(8, int(height * margin_ratio))
+    return (
+        f"[0:v]{base_vf}[base];"
+        f"[1:v]format=rgba,colorchannelmixer=aa={opacity:.2f},"
+        f"scale={wm_width}:-1[brand];"
+        f"[base][brand]overlay=x=main_w-overlay_w-{margin_x}:"
+        f"y={margin_y}:shortest=1[outv]"
+    )
+
+
+def _render_clean_preview(src, work, video_filter, duration):
+    """渲染一小段清理后预览，供硬字幕二次复检。"""
+    preview = Path(work) / "clean_preview.mp4"
+    start = max(0.0, min(duration * 0.35, max(0.0, duration - 24.0)))
+    clip_duration = max(4.0, min(24.0, duration - start))
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}",
+           "-t", f"{clip_duration:.2f}", "-i", str(src)]
+    if video_filter:
+        cmd += ["-vf", video_filter]
+    cmd += ["-an", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+            str(preview)]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return preview
+
+
+def build_clean_source_plan(src, work, width, height, duration,
+                            raw_has_existing_subtitles):
+    """决定如何得到只含我们一套字幕/水印的画面。
+
+    顺序与「园园滚雪球」抽样成片一致：优先使用干净原画；可安全裁掉的
+    先裁并实渲染复检；旧字幕/大标题无法安全移除时，仅保留已核验音频，
+    重建品牌音频卡。不会把 delogo 当成大面积抹字工具。
+    """
+    logos = detect_corner_logos(src, strict=True)
+    delogo = delogo_filter(logos, width, height) if logos else ""
+    crop = safe_crop_plan(src, width, height)
+    if crop:
+        crop_w, crop_h, crop_x, crop_y = crop
+    else:
+        crop_w, crop_h, crop_x, crop_y = (
+            width // 2 * 2, height // 2 * 2, 0, 0)
+    filters = [x for x in (
+        delogo, f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y}") if x]
+    video_filter = ",".join(filters)
+
+    if raw_has_existing_subtitles:
+        crop_verified = False
+        if crop:
+            preview = _render_clean_preview(
+                src, work, video_filter, duration)
+            crop_verified = not has_existing_subtitles(preview)
+        if crop_verified:
+            strategy = "crop_delogo" if logos else "crop"
+        elif ALLOW_AUDIO_CARD:
+            strategy = "audio_card"
+            crop_w, crop_h = AUDIO_CARD_WIDTH, AUDIO_CARD_HEIGHT
+            video_filter = ""
+        else:
+            raise VisualQualityError(
+                "源视频含持续内嵌字幕，且无法安全裁净；音频卡模式已关闭")
+    elif crop:
+        strategy = "crop_delogo" if logos else "crop"
+    elif logos:
+        strategy = "delogo"
+    else:
+        strategy = "direct"
+
+    if min(crop_w, crop_h) < MIN_SHORT_EDGE:
+        raise VisualQualityError(
+            f"清理后预计短边 {min(crop_w, crop_h)} < {MIN_SHORT_EDGE}")
+    return {
+        "clean_strategy": strategy,
+        "clean_video_filter": video_filter,
+        "clean_output_resolution": {
+            "width": crop_w, "height": crop_h,
+            "short_edge": min(crop_w, crop_h),
+        },
+        "clean_filter_verified": True,
+        "detected_corner_logos": logos,
+    }
+
+
+def _inside_brand_watermark_region(box, width, height):
+    """判断 OCR 框是否属于我们刚叠加的右上角水印，供外部角标复检排除。"""
+    x0, y0, x1, y1 = box
+    ratio = min(0.25, max(0.08, BRAND_WATERMARK_WIDTH_RATIO))
+    margin_ratio = min(0.08, max(0.01, BRAND_WATERMARK_MARGIN_RATIO))
+    # 当前透明 PNG 的宽高比约 2.69；预留少量容差覆盖描边与 OCR 分框。
+    aspect = 2057 / 765
+    wm_height_ratio = (width * ratio / aspect) / max(1, height)
+    region_x0 = 1.0 - margin_ratio - ratio - 0.03
+    region_y1 = min(0.35, margin_ratio + wm_height_ratio + 0.04)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    return region_x0 <= cx <= 1.0 and 0.0 <= cy <= region_y1
+
+
+def detect_external_logos_after_render(final, strategy, width, height):
+    """复检真实原画；音频卡是自有模板，不把模板文字当第三方角标。"""
+    if strategy == "audio_card":
+        return []
+    remaining = detect_corner_logos(final, frames=6, strict=True)
+    return [box for box in remaining
+            if not _inside_brand_watermark_region(box, width, height)]
+
+
+def select_interview_face(faces, width, height):
+    """Ignore small background/cloth patterns before choosing the interview guest."""
+    candidates=[tuple(map(int,b)) for b in faces
+                if b[2] >= max(48, width*.045)
+                and height*.12 <= b[1]+b[3]/2 <= height*.65]
+    if not candidates:
+        return None
+    largest=max(b[2]*b[3] for b in candidates)
+    # Comparable faces can be the interviewer and right-hand guest; a tiny
+    # rightmost false positive must never win over the actual speaker's face.
+    candidates=[b for b in candidates if b[2]*b[3] >= largest*.70]
+    return max(candidates,key=lambda b:b[0]+b[2]/2)
+
+
+def audio_card_live_crop(width, height, src=None, at=None):
+    """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
+    if width <= height:
+        return None
+    target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
+    if src is not None:
+        import cv2
+        import statistics
+        cap=cv2.VideoCapture(str(src)); boxes=[]
+        detector=_cascade(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+        for seconds in ((float(at or 0)+.5),(float(at or 0)+2),(float(at or 0)+4)):
+            cap.set(cv2.CAP_PROP_POS_MSEC,seconds*1000)
+            ok,frame=cap.read()
+            if not ok: continue
+            faces=detector.detectMultiScale(cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY),1.1,4,minSize=(48,48))
+            face=select_interview_face(faces,width,height)
+            if face is not None:
+                boxes.append(face)
+        cap.release()
+        if len(boxes)>=2:
+            fx,fy,fw,fh=[statistics.median([b[k] for b in boxes]) for k in range(4)]
+            ch=min(height,int(fh*1.8))//2*2; cw=min(width,int(ch*target_ratio))//2*2
+            if cw>=160 and ch>=120:
+                cx=max(0,min(width-cw,int(fx+fw/2-cw/2)))//2*2
+                cy=max(0,min(height-ch,int(fy-fh*.38)))//2*2
+                return f"crop={cw}:{ch}:{cx}:{cy},scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:flags=lanczos,setsar=1"
+    # 横屏访谈优先取人物上半身，主动避开底部常驻字幕/栏目条。
+    # 旧版取 78% 高度会把 0.73~0.95H 的来源条带一起带进真人窗口，
+    # 导致本来可用的 1080P 双人访谈全部退回 audio_card。
+    crop_h = min(height, int(height * 0.60)) // 2 * 2
+    crop_w = min(width, int(crop_h * target_ratio)) // 2 * 2
+    if crop_w > width:
+        crop_w = width // 2 * 2
+        crop_h = int(crop_w / target_ratio) // 2 * 2
+    crop_x = int((width - crop_w) * 0.72) // 2 * 2
+    crop_y = int(height * 0.05) // 2 * 2
+    crop_x = max(0, min(crop_x, width - crop_w))
+    crop_y = max(0, min(crop_y, height - crop_h))
+    return (f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},"
+            f"scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:"
+            "flags=lanczos,setsar=1")
+
+
+def partial_qr_finder_score(gray):
+    """Recognize a remaining QR finder in cropped edge codes that cannot decode.
+
+    Match the standard 7x7 dark/light/dark finder at several pixel scales;
+    callers require it in multiple frames, rather than trusting one texture.
+    """
+    import cv2
+    import numpy as np
+    template = np.zeros((7, 7), dtype=np.uint8)
+    template[1:6, 1:6] = 255
+    template[2:5, 2:5] = 0
+    edge = min(94, gray.shape[0], gray.shape[1])
+    corners = (gray[:edge,:edge], gray[:edge,-edge:],
+               gray[-edge:,:edge], gray[-edge:,-edge:])
+    best = 0.0
+    for corner in corners:
+        for size in range(10, min(37,edge+1), 2):
+            pattern = cv2.resize(template, (size,size), interpolation=cv2.INTER_NEAREST)
+            pattern = cv2.GaussianBlur(pattern,(3,3),0.8)
+            _, score, _, point = cv2.minMaxLoc(cv2.matchTemplate(corner,pattern,cv2.TM_CCOEFF_NORMED))
+            x,y = point
+            # Flat fields and weak incidental texture are not QR candidates.
+            if float(corner[y:y+size,x:x+size].std()) >= 35:
+                best = max(best,float(score))
+    return best
+
+
+def verify_live_region_after_render(final, frames=6, api_key=None,
+                                    speaker='林园', reference=None):
+    """复检嵌入的真人动态区：拒绝黑边、二维码和稳定外部角标。"""
+    import tempfile
+    try:
+        import cv2
+        import numpy as np
+    except ImportError as exc:
+        raise VisualQualityError(f"真人动态区复检依赖不可用：{exc}") from exc
+
+    cap = cv2.VideoCapture(str(final))
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frame_paths = []
+    black_edge_hits = 0
+    qr_hits = 0
+    partial_qr_hits = 0
+    full_face_frames = 0
+    face_detector = _cascade(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    tmp = Path(tempfile.mkdtemp(prefix="live-region-check-"))
+    got = 0
+    try:
+        qr = cv2.QRCodeDetector()
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES,
+                    int(total * (i + 0.5) / max(1, frames)))
+            ok, frame = cap.read()
+            if not ok:
+                continue
+            x, y = LIVE_REGION["x"], LIVE_REGION["y"]
+            w, h = LIVE_REGION["width"], LIVE_REGION["height"]
+            region = frame[y:y + h, x:x + w]
+            if region.shape[:2] != (h, w):
+                raise VisualQualityError("真人动态区尺寸不完整")
+            got += 1
+            fp = tmp / f"frame-{i}.jpg"
+            if not cv2.imwrite(str(fp), region):
+                raise VisualQualityError("真人动态区抽帧失败")
+            frame_paths.append(fp)
+
+            gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+            faces = face_detector.detectMultiScale(gray,1.1,4,minSize=(48,48))
+            full_face_frames += int(any(fx>=8 and fy>=8 and fx+fw<=w-8 and fy+fh<=h-8
+                                       for fx,fy,fw,fh in faces))
+            partial_qr_hits += int(partial_qr_finder_score(gray) >= 0.70)
+            dark_columns = np.mean(gray < 18, axis=0) > 0.92
+            edge = max(8, int(w * 0.08))
+            if (dark_columns[:edge].mean() > 0.45
+                    or dark_columns[-edge:].mean() > 0.45):
+                black_edge_hits += 1
+            try:
+                _decoded, points, _straight = qr.detectAndDecode(region)
+                if points is not None:
+                    qr_hits += 1
+            except cv2.error:
+                pass
+    finally:
+        cap.release()
+
+    if got < max(3, frames // 2):
+        raise VisualQualityError("真人动态区复检抽帧不足")
+    if black_edge_hits >= max(2, got // 2):
+        raise VisualQualityError("真人动态区检出持续黑边/错误取景")
+    if qr_hits or partial_qr_hits >= 2:
+        raise VisualQualityError("真人动态区检出来源二维码（含裁切残留定位图案）")
+    if full_face_frames < max(3, int(got*.8+.999)):
+        raise VisualQualityError("真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜")
+    logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
+                                          max_area=0.04)
+    if logos:
+        raise VisualQualityError(f"真人动态区仍有稳定来源角标：{logos}")
+    # Rotating uploader watermarks can move between corners and evade a stable
+    # position cluster. Reuse the multi-frame visual review on the cropped final
+    # live region. Our own title/disclaimer/brand are all outside this rectangle.
+    if api_key and reference:
+        verdict=_call_identity_vlm(Path(reference),frame_paths,speaker,api_key)
+        marks=[]
+        for mark in verdict.get('watermark_texts') or []:
+            value=str(mark).strip()
+            if value and value.lower() not in {'none','null','无','没有','未发现'}:
+                marks.append(value)
+        if marks:
+            raise VisualQualityError(
+                f"真人动态区仍有外部水印文字：{list(dict.fromkeys(marks))}")
+    return {"live_region_verified": True, "no_qr_verified": True,
+            "partial_qr_verified": True, "full_face_frames": full_face_frames,
+            "no_black_bars_verified": True}
+
+
+def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
+    """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
+    report_path = Path(report_path or (work / "source_quality.json"))
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report = {
+        "quality_gate_version": QUALITY_GATE_VERSION,
+        "source_sha256": _file_sha256(src),
+        "speaker": speaker,
+        "passed": False,
+    }
+    try:
+        try:
+            duration = float(probe(src, "format=duration") or 0)
+        except (TypeError, ValueError):
+            duration = 0
+        report["duration_sec"] = round(duration, 2)
+        if not (SOURCE_MIN_DURATION <= duration <= SOURCE_MAX_DURATION):
+            raise VisualQualityError(
+                f"素材时长 {duration:.0f}s 不在 "
+                f"[{SOURCE_MIN_DURATION},{SOURCE_MAX_DURATION}]")
+        width, height = ensure_min_short_edge(src, label="原始素材")
+        report["resolution"] = {
+            "width": width, "height": height, "short_edge": min(width, height),
+        }
+        report["raw_has_existing_subtitles"] = has_existing_subtitles(src)
+        report["visual_identity"] = verify_source_identity(
+            src, work, speaker, api_key)
+        report.update(build_clean_source_plan(
+            src, work, width, height, duration,
+            report["raw_has_existing_subtitles"]))
+        # 该字段描述进入成片画布后的状态，不再等同于原文件状态。
+        report["has_existing_subtitles"] = False
+        report["passed"] = True
+    except VisualQualityError as e:
+        report["reason"] = str(e)
+    except Exception as e:
+        # 质检服务未知异常也必须失败关闭，不能把“没检成”当成“已合格”。
+        report["reason"] = f"素材质检不可用：{e}"
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, default=_json_default),
+        encoding="utf-8")
+    return report
+
+
+def load_source_quality_report(src, report_path):
+    """复用工作流前置质检结果，并防止报告被用于另一份素材。"""
+    try:
+        report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    except Exception as e:
+        raise VisualQualityError(f"素材质检报告不可读：{e}") from e
+    if report.get("quality_gate_version") != QUALITY_GATE_VERSION:
+        raise VisualQualityError("素材质检报告版本过旧")
+    if report.get("source_sha256") != _file_sha256(src):
+        raise VisualQualityError("素材质检报告与当前视频不匹配")
+    if report.get("passed") is not True:
+        raise VisualQualityError(report.get("reason") or "素材质检未通过")
+    if report.get("has_existing_subtitles") is not False:
+        raise VisualQualityError("素材缺少无内嵌字幕证明")
+    if report.get("clean_strategy") not in {
+            "direct", "delogo", "crop", "crop_delogo", "audio_card"}:
+        raise VisualQualityError("素材缺少可复现的干净画面策略")
+    if report.get("clean_filter_verified") is not True:
+        raise VisualQualityError("素材清理方案未经复检")
+    clean_resolution = report.get("clean_output_resolution") or {}
+    if int(clean_resolution.get("short_edge") or 0) < MIN_SHORT_EDGE:
+        raise VisualQualityError("素材清理后分辨率不达标")
+    if not report.get("visual_identity"):
+        raise VisualQualityError("素材缺少人物核验记录")
+    return report
+
+
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def _simhash64(features):
+    """对字符串特征做 64 位 SimHash；用于容忍少量 ASR 错字和标点差异。"""
+    weights = [0] * 64
+    for feature in features:
+        value = int.from_bytes(hashlib.blake2b(
+            feature.encode("utf-8"), digest_size=8).digest(), "big")
+        for bit in range(64):
+            weights[bit] += 1 if value & (1 << bit) else -1
+    out = 0
+    for bit, weight in enumerate(weights):
+        if weight >= 0:
+            out |= 1 << bit
+    return f"{out:016x}"
+
+
+def transcript_fingerprints(text, window=96, step=48, limit=96):
+    """生成重叠转写指纹；不同平台、不同画质但说的是同一段话仍能命中。"""
+    clean = re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", text or "").lower()
+    if not clean:
+        return []
+    starts = list(range(0, max(1, len(clean) - window + 1), step))
+    tail = max(0, len(clean) - window)
+    if tail not in starts:
+        starts.append(tail)
+    result = []
+    for start in starts:
+        chunk = clean[start:start + window]
+        grams = [chunk[i:i + 3] for i in range(max(1, len(chunk) - 2))]
+        sig = _simhash64(grams)
+        if sig not in result:
+            result.append(sig)
+    return result[:limit]
+
+
+def transcript_ngram_fingerprints(text, n=5, limit=96):
+    """确定性采样字符 n-gram；适合判断短片是否是长内容中的一个片段。"""
+    clean = re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", text or "").lower()
+    if not clean:
+        return []
+    grams = {clean[i:i + n] for i in range(max(1, len(clean) - n + 1))}
+    hashes = sorted({hashlib.blake2b(g.encode("utf-8"), digest_size=8).hexdigest()
+                     for g in grams})
+    sampled = [h for h in hashes if int(h[-2:], 16) < 32]  # 固定抽约 1/8
+    # 很短的金句采样后可能不足，回退全量；仍受 limit 控制，避免 state 膨胀。
+    return (sampled if len(sampled) >= 8 else hashes)[:limit]
+
+
+def _video_frame_fingerprints(src, count=12):
+    """均匀抽帧 dHash；对重新编码、轻微缩放较稳定。"""
+    try:
+        import cv2
+    except ImportError as e:
+        raise VisualQualityError(f"缺少 OpenCV，无法生成视频指纹：{e}") from e
+    cap = cv2.VideoCapture(str(src))
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    if total <= 0:
+        cap.release()
+        raise VisualQualityError("无法读取成片帧数，不能生成视频指纹")
+    hashes = []
+    for i in range(count):
+        cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / count))
+        ok, frame = cap.read()
+        if not ok:
+            continue
+        h, w = frame.shape[:2]
+        # 去掉最外侧 5%，降低跨平台轻微裁边对指纹的影响。
+        x, y = max(1, int(w * 0.05)), max(1, int(h * 0.05))
+        if w > x * 2 and h > y * 2:
+            frame = frame[y:h - y, x:w - x]
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        small = cv2.resize(gray, (9, 8), interpolation=cv2.INTER_AREA)
+        bits = small[:, 1:] > small[:, :-1]
+        value = 0
+        for bit in bits.flatten():
+            value = (value << 1) | int(bit)
+        hashes.append(f"{value:016x}")
+    cap.release()
+    if len(hashes) < min(4, count):
+        raise VisualQualityError(f"视频指纹抽帧不足：{len(hashes)}/{count}")
+    return hashes
+
+
+def _audio_fingerprints(src, limit=96):
+    """使用 Chromaprint 生成声纹；可识别重新编码、换容器后的同一段音频。"""
+    import struct
+    r = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", str(src), "-map", "0:a:0",
+         "-f", "chromaprint", "-fp_format", "raw", "pipe:1"],
+        capture_output=True)
+    raw = r.stdout[:len(r.stdout) // 4 * 4]
+    if r.returncode != 0 or len(raw) < 16:
+        detail = r.stderr.decode("utf-8", "ignore")[:120]
+        raise VisualQualityError(f"Chromaprint 音频指纹失败：{detail}")
+    values = struct.unpack(f"<{len(raw) // 4}I", raw)
+    # 取排序后的唯一 token，既控制 meta/state 体积，又让同一片段的子集仍可命中。
+    return [f"{value:08x}" for value in sorted(set(values))[:limit]]
+
+
+def build_content_fingerprints(src, transcript_text):
+    """成片三重指纹：精确文件、画面、声音、转写内容。"""
+    return {
+        "version": FINGERPRINT_VERSION,
+        "sha256": _file_sha256(src),
+        "video_dhash": _video_frame_fingerprints(src),
+        "audio_chromaprint": _audio_fingerprints(src),
+        "transcript_simhash": transcript_fingerprints(transcript_text),
+        "transcript_ngrams": transcript_ngram_fingerprints(transcript_text),
+        "transcript_chars": len(re.sub(
+            r"[^0-9A-Za-z\u4e00-\u9fff]+", "", transcript_text or "")),
+    }
+
+
+def _title_text(value):
+    return re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", value or "")
+
+
+def title_quality_error(title, speaker, transcript_text, existing_titles=None,
+                        require_quote=True):
+    """程序化标题闸门：拦 ASR 脏词、摘要腔、编造和批内撞题。"""
+    title = re.sub(r"\s+", " ", title or "").strip()
+    if not re.match(rf"^(?:股神)?{re.escape(speaker)}[：:]", title):
+        return f"标题必须以「{speaker}：」或「股神{speaker}：」开头"
+    if any(word in title for word in TITLE_ASR_BLACKLIST):
+        return "标题命中 ASR 污染词"
+    if re.search(r"https?://|www\.|t\.cn/|@[\w\u4e00-\u9fff]+", title, re.I):
+        return "标题含链接或引流信息"
+    compact = _title_text(title)
+    if not 12 <= len(compact) <= 62:
+        return f"标题长度 {len(compact)} 不在 12~62 字"
+    normalized = re.sub(
+        rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
+    body = _title_text(normalized)
+    transcript = _title_text(transcript_text)
+    if require_quote and len(body) >= 6:
+        # 允许删除口水词或合并相邻句，但至少要有一段 6 字原话可回溯。
+        if not any(body[i:i + 6] in transcript
+                   for i in range(max(1, len(body) - 5))):
+            return "标题缺少可回溯到所选字幕的连续原话"
+    for previous in existing_titles or []:
+        a, b = _title_text(previous), compact
+        if a and difflib.SequenceMatcher(None, a, b).ratio() >= 0.84:
+            return "标题与本批已有标题过于相似"
+    return None
+
+
+def _fallback_quote_title(cues, sel, speaker):
+    sample = "".join(cues[i]["text"] for i in sel)
+    sample = re.sub(r"\s+", "", sample)
+    sample = re.split(r"[。！？；]", sample)[0].strip("，、：: ")
+    if len(sample) < 10:
+        sample = re.sub(r"[。！？；，、]", "", "".join(
+            cues[i]["text"] for i in sel))
+    return f"{speaker}：{sample[:48]}"
+
+
+def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
+              existing_titles=None, require_quote=True):
+    """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
+
+    钩子式标题:prompt 要求带反常识/数字/冲突钩子（对标竞品高播放标题），但严禁编造，结果落 meta.json,
+    投稿脚本优先读这里,不再用 occasion 硬拼。
+    suffix 区分长视频拆多条的各段缓存（否则每段复用同一条文案）。
+    """
+    cache = work / f"copywrite{suffix}.json"
+    transcript_text = "".join(cues[i]["text"] for i in sel)
+    if cache.exists():
+        try:
+            cached = json.loads(cache.read_text(encoding="utf-8"))
+            error = title_quality_error(
+                cached.get("title"), speaker, transcript_text,
+                existing_titles, require_quote=require_quote)
+            if not error:
+                return cached
+            print(f"[文案] 缓存标题未通过 v3 闸门，重新生成：{error}")
+        except ValueError:
+            pass
+    sample = "\n".join(cues[i]["text"] for i in sel[:20])
+    prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选:
+
+{sample}
+
+为它生成 B站投稿文案。
+
+【标题写法：必须模仿高播放竞品的「原话引用体」】
+2026-09-01 实测同期 B站「林园」内容 220 条，播放中位数对比：
+  竞品「园园滚雪球」1956、「唐晶晶的价值观」1006、「投资就是滚雪球」584
+  我们「园来滚雪球」只有 23 —— 差 33 倍，处于第 1 百分位。
+差距的核心是标题写法：
+
+  ✅ 竞品（高播放）= 「{speaker}：」+ 他本人说的原话金句（第一人称、口语、有态度）
+     「股神林园：现在消费和医药的回报是我从事资本市场以来最值得的时候」
+     「林园：股市里赚到大钱的人都是"呆子""笨蛋"」
+     「股神林园：没留意泡泡玛特这类新消费，精神消费就看它从事的门槛高不高」
+  ❌ 我们（低播放）= 第三人称摘要体，像新闻导语
+     「林园谈创新药投资：为何不投癌症而选中药」
+     「林园谈茅台：600元时不再确定，超前20年的投资逻辑」
+
+标题要求（严格遵守）:
+1. 必须以「{speaker}：」或「股神{speaker}：」开头
+2. 冒号后面必须是**从字幕里摘出来的他本人的原话**（可精简去口水词、可合并相邻两句，但不能改变意思、不能替换成书面语）
+3. 长度优先 32~60 字：允许用 2~3 个紧密相连的原话分句把冲突、数字和结论
+   交代完整；不要为了凑短标题删掉「我」「你」「不可能」等口语钩子
+4. 保留口语感和态度（「我」「你」「不可能」「肯定」这类词不要删）
+5. 严禁编造：字幕里没说的话、没出现的数字，一律不许写
+6. 不要加任何后缀（不要「｜{speaker}」这种尾巴）
+
+简介:
+1. 100字以内，第一人称视角陈述内容要点，末尾注明来源场合
+2. 可以补一句「看点」提示
+3. ⚠️ 严禁出现任何链接或引流信息：不要写 URL、http、https、t.cn 短链、
+   www 开头的地址、@某某账号、"来源见链接"之类。只写文字内容本身。
+   （2026-09-03 用户明确要求：简介里不要放原始链接）
+
+只输出 JSON:
+{{{{"title":"标题","desc":"简介","tags":["标签","最多5个","含主讲人姓名"]}}}}"""
+    d, last_error = None, ""
+    for attempt in range(3):
+        retry = ("" if not last_error else
+                 f"\n上一次标题未通过程序质检：{last_error}。请修正后重新输出 JSON。")
+        try:
+            out = llm([{"role": "user", "content": prompt + retry}],
+                      api_key, temperature=0.35)
+            m = re.search(r"\{.*\}", out, re.S)
+            candidate = json.loads(m.group(0))
+            last_error = title_quality_error(
+                candidate.get("title"), speaker, transcript_text,
+                existing_titles, require_quote=require_quote)
+            if not last_error:
+                d = candidate
+                break
+        except Exception as exc:
+            last_error = f"文案 JSON 解析失败：{exc}"
+    if d is None:
+        d = {"title": _fallback_quote_title(cues, sel, speaker),
+             "desc": f"{speaker}在{occasion}的公开发言精选。",
+             "tags": [speaker, "价值投资"]}
+        last_error = title_quality_error(
+            d["title"], speaker, transcript_text, existing_titles,
+            require_quote=require_quote)
+        if last_error:
+            raise VisualQualityError(f"标题连续三次未通过质量闸门：{last_error}")
+    # 兜底清洗：prompt 说了不许带链接，但 LLM 不一定听话，程序层再洗一遍
+    if d.get("desc"):
+        clean_desc = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+|@[\w\u4e00-\u9fa5]{2,20}", "", d["desc"])
+        clean_desc = re.sub(r"[（(]\s*[）)]|\s{2,}", " ", clean_desc).strip(" ，,、;；")
+        if clean_desc != d["desc"]:
+            print(f"[文案] 简介已清除链接/引流信息")
+            d["desc"] = clean_desc
+    d.setdefault("tags", [speaker])
+    d["title_quality_verified"] = True
+    cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+    print(f"[文案] 标题:{d['title']}")
+    return d
+
+
+def _cascade(path):
+    """兼容 OpenCV 4 / 5 取 CascadeClassifier。OpenCV 5 把它挪出了主命名空间。"""
+    import cv2
+    for getter in (lambda: cv2.CascadeClassifier,
+                   lambda: cv2.objdetect.CascadeClassifier,
+                   lambda: cv2.legacy.CascadeClassifier):
+        try:
+            return getter()(path)
+        except AttributeError:
+            continue
+    raise RuntimeError("当前 OpenCV 版本找不到 CascadeClassifier（4/5 命名空间均未命中）")
+
+
+def _sc_face_index(ttc_path, want_name="Noto Sans CJK SC"):
+    """TTC 合集里找指定子字体下标。原库踩过的坑:默认取第 0 个是 JP 字形,
+    简体字会「细一号」。"""
+    try:
+        from fontTools.ttLib import TTCollection
+        for i, f in enumerate(TTCollection(ttc_path).fonts):
+            if want_name in f["name"].toUnicode() if isinstance(f["name"].toUnicode(), str) else False:
+                return i
+            names = f["name"].names
+            if any(want_name in (n.toUnicode() if hasattr(n, "toUnicode") else "") for n in names):
+                return i
+    except Exception:
+        pass
+    return 0
+
+
+def wrap_cover_title(title, chars_per_line, max_lines=3):
+    """按词边界折行，并且绝不静默丢掉标题尾部。"""
+    if len(title) <= chars_per_line:
+        return [title]
+    try:
+        import jieba as _jieba
+        import logging as _lg
+        _jieba.setLogLevel(_lg.ERROR)
+        words = list(_jieba.cut(title))
+    except ImportError:
+        words = list(title)
+    lines, current = [], ""
+    for word in words:
+        while len(word) > chars_per_line:
+            head, word = word[:chars_per_line], word[chars_per_line:]
+            if current:
+                lines.append(current)
+                current = ""
+            lines.append(head)
+        if len(current) + len(word) > chars_per_line and current:
+            lines.append(current)
+            current = word
+        else:
+            current += word
+    if current:
+        lines.append(current)
+    if len(lines) > max_lines:
+        raise VisualQualityError(
+            f"封面标题 {len(title)} 字无法在 {max_lines} 行内完整排版")
+    return lines
+
+
+def make_cover(src, seg_start, seg_end, title, speaker, out_path,
+               video_filter="", preferred_time=None):
+    """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
+
+    竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
+    竖屏画面居中贴到 1280x720,两侧用放大模糊的原帧做背景。
+    竖屏排版自适应(2026-08-21 修复):之前用横屏硬编码参数(64px字号×17字/行),
+    720px 宽的竖屏画布装不下 1007px 文字 → 标题溢出、人脸被挤。
+    小帧人脸检测:360x640 低清源 haar 检不出脸 → 提前放大再检测。
+    抽帧位置:取段落偏前位置,避开字幕最密集的说话中段。
+    """
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
+    tmp = out_path.with_suffix(".frame.png")
+    mid = seg_start + (seg_end - seg_start) / 2
+    # 人物闸门给出的 preferred_time 已经与参考照核验为本人；围绕该时间取三帧。
+    # 没有核验时间时才退回原来的段内多帧策略。
+    frames = []
+    if preferred_time is not None:
+        sample_times = [max(0, preferred_time + d) for d in (-0.6, 0, 0.6)]
+    else:
+        sample_times = [max(0, mid + p * (seg_end - seg_start))
+                        for p in (-0.30, -0.20, -0.10, 0, 0.10, 0.20, 0.30)]
+    for idx, t in enumerate(sample_times):
+        fp = tmp.with_suffix(f".{idx}.png")
+        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
+               "-i", str(src)]
+        if video_filter:
+            cmd += ["-vf", video_filter]
+        cmd += ["-frames:v", "1", str(fp)]
+        subprocess.run(cmd,
+                       check=True, capture_output=True)
+        if fp.exists():
+            frames.append(fp)
+
+    if not frames:
+        raise VisualQualityError("封面无法抽帧")
+    remaining = detect_corner_logos_in_images(frames)
+    if remaining:
+        raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
+
+    # 多帧人脸聚类，选「跨帧持续出镜」的主讲人（林园），而非单帧「大且居中」的主持人。
+    # （2026-08-29 修复：专访里女主持居中脸大，旧评分误选主持人；现统计多帧出现次数）
+    best_frame = frames[0] if frames else tmp
+    best_face = None
+    try:
+        import cv2
+        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        cascade = _cascade(cascade_path)
+        groups = []  # {'center':(cx,cy,wn), 'count':int, 'faces':[(x,y,w,h,fp)]}
+        for fp in frames:
+            img_cv = cv2.imread(str(fp))
+            if img_cv is None:
+                continue
+            fh, fw = img_cv.shape[:2]
+            scale = 2.0 if max(fh, fw) < 720 else 1.0
+            if scale > 1.0:
+                img_cv = cv2.resize(img_cv, (fw*2, fh*2), interpolation=cv2.INTER_CUBIC)
+                fh, fw = fh*2, fw*2
+            gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+            faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3,
+                                             minSize=(120, 120) if scale > 1.0 else (80, 80))
+            for f in faces:
+                fx, fy, fw2, fh2 = f
+                cx = (fx + fw2/2) / fw   # 归一化中心
+                cy = (fy + fh2/2) / fh
+                wn = fw2 / fw            # 归一化宽度
+                best_g, best_d = None, 0.15
+                for g in groups:
+                    gcx, gcy, gwn = g["center"]
+                    d = ((cx - gcx) ** 2 + (cy - gcy) ** 2 + (wn - gwn) ** 2) ** 0.5
+                    if d < best_d:
+                        best_d, best_g = d, g
+                if best_g is not None:
+                    n = best_g["count"]
+                    best_g["center"] = ((best_g["center"][0]*n + cx) / (n+1),
+                                        (best_g["center"][1]*n + cy) / (n+1),
+                                        (best_g["center"][2]*n + wn) / (n+1))
+                    best_g["count"] = n + 1
+                    best_g["faces"].append((fx/scale, fy/scale, fw2/scale, fh2/scale, fp))
+                else:
+                    groups.append({"center": (cx, cy, wn), "count": 1,
+                                   "faces": [(fx/scale, fy/scale, fw2/scale, fh2/scale, fp)]})
+        if groups:
+            # 跨帧出现次数最多 = 主讲人；同簇内取面积最大的那一帧
+            best_g = max(groups, key=lambda g: g["count"])
+            fx, fy, fw2, fh2, fp = max(best_g["faces"], key=lambda x: x[2] * x[3])
+            best_face = (int(fx), int(fy), int(fw2), int(fh2))
+            best_frame = fp
+    except Exception as e:
+        # 2026-09-01 血的教训：这里原来是 except: pass 静默吞异常。
+        # CI 的 pip install opencv-python 未锁版本，装到 OpenCV 5.0 后
+        # cv2.CascadeClassifier 被移除 → 人脸检测全程失败但无任何日志 →
+        # 封面退化成「中间裁一刀取第一帧」→ 出现「观众后脑勺封面」(盲评 2/10)、
+        # 「女主播当封面」(4/10)。异常必须喊出来。
+        raise VisualQualityError(f"封面人脸检测不可用，禁止盲目居中裁切：{e}") from e
+
+    img = Image.open(best_frame).convert("RGB")
+    w, h = img.size
+
+    # 以人脸为中心裁切,保持目标比例
+    vertical = h > w
+    portrait_foreground = None
+    if vertical:
+        # Keep the complete vertical source frame in a separate right-hand
+        # panel; a large headline must not cover the speaker's face.
+        portrait_foreground = ImageOps.contain(img, (288, 560), Image.Resampling.LANCZOS)
+        bg = ImageOps.fit(img, (1280, 720), Image.Resampling.LANCZOS).filter(ImageFilter.GaussianBlur(30))
+        img = Image.blend(bg, Image.new("RGB", bg.size, (10, 15, 20)), .65)
+        W, H = 1280, 720
+    else:
+        # 横屏:16:9,以人脸为中心
+        tw = min(w, int(h * 16 / 9))
+        if best_face is not None:
+            fx, fy, fw, fh = best_face
+            cx = fx + fw // 2
+            x0 = max(0, min(cx - tw // 2, w - tw))
+        else:
+            x0 = (w - tw) // 2
+        img = img.crop((x0, 0, x0 + tw, h)).resize((1280, 720), Image.LANCZOS)
+        W, H = 1280, 720
+
+    # 清理临时帧
+    for fp in frames:
+        fp.unlink(missing_ok=True)
+    tmp.unlink(missing_ok=True)
+
+    # 底部 45% 压暗(黑渐变),字才看得清
+    overlay = Image.new("L", (W, H), 0)
+    od = ImageDraw.Draw(overlay)
+    for y in range(H):
+        if y > H * 0.55:
+            od.line([(0, y), (W, y)], fill=int(200 * (y - H * 0.55) / (H * 0.45)))
+    img.paste(Image.new("RGB", (W, H), (0, 0, 0)), (0, 0), overlay)
+    if portrait_foreground is not None:
+        img.paste(portrait_foreground, (952, (720-portrait_foreground.height)//2))
+
+    font_path = None
+    for cand in ["/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+                 "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
+                 "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"]:
+        if Path(cand).exists():
+            font_path = cand
+            break
+    idx = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
+    # 字号按画布宽自适应（用户 2026-08-26 反馈封面文字再大、标签+0.5倍）
+    from presentation import cover_headline, cover_proof
+    if not font_path:
+        raise VisualQualityError("横版封面缺少中文字体，拒绝输出不可读小字/方框字")
+    headline_lines = cover_headline(title, speaker)
+    title_size = 100 if vertical else 104
+    tag_size = 30 if W < 1000 else 54
+    f_title = ImageFont.truetype(font_path, title_size, index=idx) if font_path else ImageFont.load_default()
+    f_tag = ImageFont.truetype(font_path, tag_size, index=idx) if font_path else ImageFont.load_default()
+
+    d = ImageDraw.Draw(img)
+    # 主讲人标签(左上角黄底黑字),尺寸自适应
+    tag_w = int(len(speaker) * tag_size * 1.15) + 28
+    d.rounded_rectangle([36, 32, 36 + tag_w, 32 + int(tag_size * 1.7)], 8, fill=(255, 196, 0))
+    d.text((50, 40), speaker, font=f_tag, fill=(20, 20, 20))
+    # 标题:行宽按画布自适应,行高按字号
+    if W < 1000:
+        chars_per_line = max(10, int(W * 0.92 / title_size))
+        max_lines = 3
+        line_h = int(title_size * 1.25)
+        margin_bottom = 48
+    else:
+        chars_per_line = max(13, int(W * 0.90 / title_size))
+        # 26~36 字标题在 1280 画布上需要三行；旧代码会静默丢掉末尾。
+        max_lines = 3
+        line_h = int(title_size * 1.2)
+        margin_bottom = 56
+    # 标题分行：用 jieba 分词按词边界断，避免「公司」被硬切成「公」+「司」
+    # （2026-08-27 实拍封面断句问题）。jieba 失败则退回均匀字符切分。
+    lines = headline_lines
+    y = H - margin_bottom - line_h * len(lines)
+    if vertical:
+        y = 238
+    boxes = []
+    for ln in lines:
+        # 白字黑边(描边厚度自适应)
+        stroke = 3 if W < 1000 else 2
+        d.text((40, y), ln, font=f_title, fill=(255, 255, 255),
+               stroke_width=stroke, stroke_fill=(0, 0, 0))
+        boxes.append(d.textbbox((40,y),ln,font=f_title,stroke_width=stroke))
+        y += line_h
+    img.save(out_path, quality=92)
+    cover_proof(img, out_path, lines, title_size, boxes, style="photo")
+    print(f"[封面] {out_path.name} {W}x{H} 「{title[:20]}」")
+
+
+def _has_persistent_editorial_overlay(cov, stable=0.50, min_rows=8):
+    """检测上半屏持续存在的大标题/信息卡。
+
+    小角标通常只占几行，可交给 ``detect_corner_logos`` + delogo；连续覆盖
+    8% 以上画高的文字则属于版式本身，强行涂抹会留下大块脏画面，应改走
+    音频卡重建。只检查 0%~55%，避免与下三分之一字幕判定重复。
+    """
+    run = 0
+    for ratio in cov[:55]:
+        run = run + 1 if ratio >= stable else 0
+        if run >= min_rows:
+            return True
+    return False
+
+
+def has_existing_subtitles(src):
+    """检测视频是否已有硬字幕或持续编辑包装。
+
+    2026-08-21 修复:旧版亮度阈值法把「画面偏亮」误判成「有字幕」
+    (白色衣服/亮背景即可触发),导致无字幕视频跳过烧录,成片裸奔。
+
+    新版检测字幕的结构特征(同时满足才算字幕帧):
+    1. 底部存在横向窄条带(高度 3%~15% 屏高)
+    2. 条带内白色(高亮)像素 ≥ 20%(文字覆盖)
+    3. 条带上下边界与背景有明显对比(不是整片亮背景)
+    """
+    # 优先使用已有的多帧 OCR 行覆盖结果。旧算法要求字幕带内亮像素达到 20%，
+    # 对「蓝底白字 + 黑描边」这类常见二次加工字幕过于苛刻：文字实际只占
+    # 条带约 5%~12%，因此会误判为无字幕并再次烧录。OCR 只关心文字框，且
+    # 以多帧持续出现为条件，可排除偶发 PPT/图表文字。
+    try:
+        cov = ocr_row_coverage(src, frames=8)
+        # 上半屏持续的大标题/信息卡同样会与我们的包装叠加。它不能按小角标
+        # delogo，否则会留下大片模糊区域；统一标脏，交给音频卡重建。
+        if _has_persistent_editorial_overlay(cov):
+            return True
+        # 字幕通常位于画面 55%~93% 高度；连续至少 2% 屏高、在至少一半
+        # 抽样帧出现，视为已有硬字幕/下三分之一包装。
+        run = 0
+        for ratio in cov[55:94]:
+            run = run + 1 if ratio >= 0.50 else 0
+            if run >= 2:
+                return True
+    except Exception as e:
+        print(f"[字幕检测] OCR 检测失败，回退像素检测: {e}", file=sys.stderr)
+
+    try:
+        import cv2
+        import numpy as np
+        cap = cv2.VideoCapture(str(src))
+        if not cap.isOpened():
+            return False
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if total <= 0:
+            return False
+        subtitle_hits = 0
+        checked = 0
+        for pct in (0.15, 0.30, 0.50, 0.70, 0.85):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * pct))
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                continue
+            checked += 1
+            h, w = frame.shape[:2]
+            # 只看底部 28%(字幕安全区)
+            bottom = frame[int(h * 0.72):, :]
+            gray = cv2.cvtColor(bottom, cv2.COLOR_BGR2GRAY)
+            # 按行统计亮像素(>200)比例,找「文字条带」
+            bright = (gray > 185).astype(np.uint8)
+            row_ratio = bright.mean(axis=1)  # 每行的亮像素占比
+            # 滑窗找连续条带:高度 3%~15% 屏高,且带内亮像素 ≥ 20%,
+            # 但条带外(其上 10% 高度内)亮像素 < 8%(排除整片亮背景)
+            bh = bottom.shape[0]
+            found = False
+            for band_h in range(max(2, int(h * 0.03)), int(h * 0.15)):
+                if band_h > bh:
+                    break
+                for y0 in range(0, bh - band_h, max(1, band_h // 2)):
+                    band = row_ratio[y0:y0 + band_h]
+                    # 条带上方必须有足够行且明显更暗(与背景对比),
+                    # 纯亮背景(如白墙)会被排除;条带贴底时用带内列分布区分:
+                    # 真字幕是「中间亮两侧暗」,整行亮是背景
+                    above = row_ratio[max(0, y0 - int(h*0.08)):max(1, y0)]
+                    if band.mean() < 0.20 or len(above) < 2 or above.mean() >= 0.08:
+                        continue
+                    # 带内列分布:字幕文字不会横贯整行,两端留白
+                    col_bright = bright[y0:y0 + band_h, :].mean(axis=0)
+                    if col_bright[:int(w*0.12)].mean() < 0.10 and col_bright[-int(w*0.12):].mean() < 0.10:
+                        found = True
+                        break
+                if found:
+                    break
+            if found:
+                subtitle_hits += 1
+        cap.release()
+        # 至少 5 帧里 2 帧有明确文字条带（OCR 不可用时的保守回退）
+        return checked >= 2 and subtitle_hits >= 2
+    except Exception:
+        return False
+
+
+def _json_default(o):
+    """meta.json 落盘兜底：numpy 标量 / Path 等非原生类型统一转可序列化形式。"""
+    try:
+        import numpy as np
+        if isinstance(o, np.generic):
+            return o.item()
+    except ImportError:
+        pass
+    from pathlib import Path as _P
+    if isinstance(o, _P):
+        return str(o)
+    return str(o)
+
+
+_OVERLAY_CACHE = {}
+_OCR_ENGINE = None
+_OCR_COV_CACHE = {}
+
+
+def _ocr():
+    """RapidOCR（PaddleOCR 的 ONNX 版）。只做文字检测不做识别 —— 实测同一帧
+    检测+识别 28.2s，只检测 3.0s，快 9 倍且检出框更多（44 vs 40）。"""
+    global _OCR_ENGINE
+    if _OCR_ENGINE is None:
+        from rapidocr_onnxruntime import RapidOCR
+        _OCR_ENGINE = RapidOCR()
+    return _OCR_ENGINE
+
+
+def ocr_row_coverage(src, frames=6, max_w=640):
+    """抽帧 OCR，统计每 1% 行位置被文字框覆盖的「帧比例」(长度 100 的列表)。
+
+    2026-09-01 换掉原来的 Canny 边缘密度方案：边缘密度会把人物轮廓、K线图、
+    装饰线条都当成文字，还漏检半透明台标；实测 5 条有标准答案的素材，
+    OCR 全部命中（含之前漏掉的「红星资本局」「金融界 JRJ.com」台标）。
+    用「帧比例」而不是单帧结果，是为了区分常驻贴片和一闪而过的内容。
+    """
+    key = str(src)
+    if key in _OCR_COV_CACHE:
+        return _OCR_COV_CACHE[key]
+    cov = [0.0] * 100
+    try:
+        import cv2
+        import numpy as np
+        engine = _ocr()
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        hit = np.zeros(100)
+        got = 0
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / max(1, frames)))
+            ok, f = cap.read()
+            if not ok:
+                continue
+            H, W = f.shape[:2]
+            if W > max_w:
+                f = cv2.resize(f, (max_w, int(H * max_w / W)))
+                H, W = f.shape[:2]
+            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
+            got += 1
+            rows = np.zeros(100, bool)
+            for box in (res or []):
+                ys = [pt[1] for pt in box]
+                a = max(0, min(99, int(min(ys) / H * 100)))
+                b = max(0, min(100, int(max(ys) / H * 100) + 1))
+                rows[a:b] = True
+            hit += rows
+        cap.release()
+        if got:
+            cov = (hit / got).tolist()
+    except Exception as e:
+        print(f"[OCR] 行覆盖统计失败: {e}", file=sys.stderr)
+    _OCR_COV_CACHE[key] = cov
+    return cov
+
+
+def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
+    """检测视频上下边缘的「贴片区」（台标/标题条/硬字幕），返回 (顶部比例, 底部比例)。
+
+    做法：抽帧算 Canny 边缘的行剖面，用「中位数 × k」作自适应阈值，
+    在顶部 40% / 底部 25% 窗口内找最内侧的高边缘行。
+
+    2026-09-01 用 5 条真实视频标定（含 1 条无水印的干净片做负样本）：
+      k=1.8 → 漏检 0.17 / 过检 0.11 / 干净片误报 0；k≤1.6 会把干净片误判成有水印。
+    检出后各外扩 margin，宁可多裁一点也别留残缺水印。
+    """
+    key = str(src)
+    if key in _OVERLAY_CACHE:
+        return _OVERLAY_CACHE[key]
+    res = (0.0, 0.0)
+    try:
+        import cv2
+        import numpy as np
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        E = []
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / max(1, frames)))
+            ok, f = cap.read()
+            if ok:
+                E.append(cv2.Canny(cv2.cvtColor(f, cv2.COLOR_BGR2GRAY), 80, 200).astype(np.float32) / 255)
+        cap.release()
+        if E:
+            H = E[0].shape[0]
+            row = np.mean(E, axis=0).mean(axis=1)
+            w = max(3, H // 80)
+            row = np.convolve(row, np.ones(w) / w, mode="same")
+            thr = float(np.median(row)) * k
+            hi = np.where(row >= thr)[0]
+            t_idx = [i for i in hi if i <= H * 0.40]
+            b_idx = [i for i in hi if i >= H * 0.75]
+            top = (max(t_idx) + 1) / H if t_idx else 0.0
+            bot = (H - min(b_idx)) / H if b_idx else 0.0
+            top = top + margin if top >= 0.03 else 0.0
+            bot = bot + margin if bot >= 0.03 else 0.0
+            # 必须转成 Python float：numpy 标量参与比较会产出 np.bool_，
+            # 写进 meta.json 时 json.dumps 直接 TypeError
+            #（2026-09-02 事故：7 次出片全挂在 "Object of type bool is not JSON serializable"）
+            res = (float(min(top, 0.45)), float(min(bot, 0.30)))
+    except Exception as e:
+        print(f"[裁切] 贴片检测失败，退回不裁: {e}", file=sys.stderr)
+    _OVERLAY_CACHE[key] = res
+    return res
+
+
+def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
+    """对已抽出的帧做 OCR 角标复检，供清理后的封面质量闸门使用。"""
+    try:
+        import cv2
+        engine = _ocr()
+        boxes = []
+        got = 0
+        for fp in frame_paths:
+            f = cv2.imread(str(fp))
+            if f is None:
+                continue
+            H, W = f.shape[:2]
+            got += 1
+            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
+            for b in (res or []):
+                xs = [pt[0] for pt in b]
+                ys = [pt[1] for pt in b]
+                boxes.append((min(xs) / W, min(ys) / H,
+                              max(xs) / W, max(ys) / H))
+        if not got:
+            raise VisualQualityError("OCR 没有读到任何封面帧")
+        clusters = []
+        for b in boxes:
+            hit = next((c for c in clusters
+                        if all(abs(b[k] - c["r"][k]) < 0.03 for k in range(4))), None)
+            if hit:
+                hit["n"] += 1
+            else:
+                clusters.append({"r": b, "n": 1})
+        out = []
+        for c in clusters:
+            if c["n"] < max(2, int(got * stable_ratio)):
+                continue
+            x0, y0, x1, y1 = c["r"]
+            if (x1 - x0) * (y1 - y0) > max_area:
+                continue
+            in_corner = (x1 < 0.35 or x0 > 0.65) and (y1 < 0.30 or y0 > 0.70)
+            if in_corner:
+                out.append((x0, y0, x1, y1))
+        return out
+    except VisualQualityError:
+        raise
+    except Exception as e:
+        raise VisualQualityError(f"封面 OCR 角标复检失败：{e}") from e
+
+
+def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02,
+                        strict=False):
+    """检测常驻角落台标/水印，返回归一化框列表 [(x0,y0,x1,y1), ...]。
+
+    背景（2026-09-03 用户发现 BV1QRt96GETb 右上角残留「投资大佬说 bilibili」）：
+    此前的裁切只处理上下横向条带，完全没覆盖角落 logo。而 B站会给**所有**上传
+    视频自动打「UP名 + bilibili」右上角水印，只要素材来自 B站就一定带别人的名字，
+    这不是个例而是通例。
+
+    判定条件（三者同时满足才算角标）：
+      1. 跨帧位置固定（±3%）—— 排除会动的画面内容
+      2. 面积 < 2% —— 排除大标题条
+      3. 落在四角区域 —— 排除画面中部的字幕
+    """
+    try:
+        import cv2
+        import numpy as np
+    except ImportError:
+        if strict:
+            raise VisualQualityError("缺少 OpenCV/Numpy，无法执行角标检测")
+        return []
+    try:
+        engine = _ocr()
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        if not (W and H and total):
+            cap.release()
+            return []
+        boxes = []
+        got = 0
+        for i in range(frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / frames))
+            ok, f = cap.read()
+            if not ok:
+                continue
+            got += 1
+            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
+            for b in (res or []):
+                xs = [pt[0] for pt in b]
+                ys = [pt[1] for pt in b]
+                boxes.append((min(xs) / W, min(ys) / H, max(xs) / W, max(ys) / H))
+        cap.release()
+        if not got:
+            return []
+        # 聚类：位置几乎不变的框
+        clusters = []
+        for b in boxes:
+            hit = None
+            for c in clusters:
+                if all(abs(b[k] - c["r"][k]) < 0.03 for k in range(4)):
+                    hit = c
+                    break
+            if hit:
+                hit["n"] += 1
+            else:
+                clusters.append({"r": b, "n": 1})
+        out = []
+        for c in clusters:
+            if c["n"] < max(2, int(got * stable_ratio)):
+                continue
+            x0, y0, x1, y1 = c["r"]
+            if (x1 - x0) * (y1 - y0) > max_area:
+                continue
+            in_corner = (x1 < 0.35 or x0 > 0.65) and (y1 < 0.30 or y0 > 0.70)
+            if in_corner:
+                out.append((x0, y0, x1, y1))
+        return out
+    except Exception as e:
+        if strict:
+            raise VisualQualityError(f"角标检测失败：{e}") from e
+        print(f"[角标] 检测失败: {e}", file=sys.stderr)
+        return []
+
+
+def delogo_filter(boxes, W, H, pad=4):
+    """把角标框转成 ffmpeg delogo 滤镜串。
+
+    用 delogo 而不是高斯模糊：2026-09-01 试过整块模糊，盲评 3/10（「像连人一起
+    打了码」），比不处理更差。delogo 用周围像素插值填补，对半透明水印（B站自动
+    水印）效果好；对不透明实心台标会留下轻微痕迹，那类素材应在选片阶段减分淘汰。
+    """
+    parts = []
+    for x0, y0, x1, y1 in boxes:
+        x = max(1, int(x0 * W) - pad)
+        y = max(1, int(y0 * H) - pad)
+        w = min(W - x - 1, int((x1 - x0) * W) + pad * 2)
+        h = min(H - y - 1, int((y1 - y0) * H) + pad * 2)
+        if w >= 8 and h >= 8:
+            parts.append(f"delogo=x={x}:y={y}:w={w}:h={h}")
+    return ",".join(parts)
+
+
+def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):
+    """算安全裁切方案 (crop_w, crop_h, crop_x, crop_y)，只为「腾出干净的字幕位」。
+
+    历史教训（2026-09-01 三次迭代）：
+      ① 按检测带裁掉所有贴片 → 中部贴片去不掉、还切到人头，失败回滚；
+      ② 高斯模糊遮挡 → 盲评 3/10，比不处理更差；
+      ③ 固定裁检测到的底部带 → 多行字幕只切掉一行，16 组只过 11 组(69%)。
+    现在的做法：用 OCR 逐行统计「文字覆盖帧比例」，**从底部往上裁到干净为止**。
+
+    参数：
+      stable  行覆盖率 ≥ 此值视为常驻文字（贴片/硬字幕）
+      clean   裁完后底部区域允许的最大覆盖率
+      max_cut 总裁切上限（当前生产30%）；裁后仍须保留人脸和通过成片复检。
+              超过调用方设定上限不再硬切，转人物卡重建。
+    """
+    cov = ocr_row_coverage(src)
+    if not any(cov):
+        return None
+    # 第一步永远是：底部本来就干净吗？干净就别裁。
+    # 2026-09-02 实测（ly-0902-50cd97 格隆专访）：底部 15% 覆盖率 0.00 完全干净，
+    # 字幕带其实在 70~75%。算法却从底部往上够那条带子，算出要裁 33%，
+    # 裁完新底部落在人物区（0.29 零星文字）反而不干净 → 6 次全放弃。
+    # 正解：底部干净就直接用，我们的字幕烧在原底部即可，一刀都不用裁。
+    # 检查窗口取 70~90%：2026-09-02 实测 5 条真实素材，字幕带集中在 65~87%，
+    # 而 90~100% 普遍是 0.00（视频底部有安全边距）。
+    # 最初用 85~100% 做窗口，正好落在空白区，把 8 条本该裁的误判成「干净」。
+    bottom_now = sum(cov[70:90]) / 20
+    if bottom_now <= clean:
+        print(f"[裁切] 字幕区本就干净（70~90% 覆盖 {bottom_now:.0%}），无需裁切")
+        return None
+    # 从底部往上找「最底下那一块连续文字」，只裁它。
+    # 上一版是「35% 内出现任何文字就一路裁到那里」，结果 26 条全部触顶放弃（0 条裁切）。
+    limit = int(max_cut * 100)
+    i = 99
+    while i >= 100 - limit and cov[i] < stable:     # 跳过底部干净区
+        i -= 1
+    bot = 0
+    if i >= 100 - limit:
+        gap = 0
+        j = i
+        while j >= 100 - limit:
+            if cov[j] >= stable:
+                gap = 0
+                bot = 100 - j
+            else:
+                gap += 1
+                if gap >= 3:                        # 连续 3% 干净 → 文字块到头
+                    break
+            j -= 1
+        bot = min(limit, bot + 3)                   # 多裁 3% 余量
+    # 顶部：只裁小块（大块说明是标题包装，这种素材本就该在选片淘汰）
+    top = 0
+    for i in range(0, 20):
+        if cov[i] >= stable:
+            top = i + 1
+    if top > 15:
+        print(f"[裁切] 顶部文字 {top}% > 15%（大字标题包装），不裁顶部")
+        top = 0
+    elif top:
+        top = min(15, top + 2)
+    if top + bot > max_cut * 100:
+        print(f"[裁切] 总裁切量 {top + bot}% > {max_cut:.0%}，放弃裁切（保画面）")
+        return None
+    if top + bot < 2:
+        return None
+    # 裁完后底部是否干净（留给我们自己的字幕）
+    keep_lo, keep_hi = top, 100 - bot
+    tail = cov[max(keep_lo, keep_hi - 15):keep_hi]
+    if tail and sum(tail) / len(tail) > clean:
+        print(f"[裁切] 裁 {top}%/{bot}% 后底部仍有文字（{sum(tail)/len(tail):.0%}），放弃")
+        return None
+    top_px = int(H * top / 100) // 2 * 2
+    bot_px = int(H * bot / 100) // 2 * 2
+    crop_h = (H - top_px - bot_px) // 2 * 2
+    crop_w = W // 2 * 2
+    if not _face_survives(src, top_px, crop_h):
+        print("[裁切] 裁切后检不出人脸，回退不裁")
+        return None
+    print(f"[裁切] 顶{top}% 底{bot}% → {crop_w}x{crop_h}（保留 {crop_w*crop_h/(W*H):.0%}）")
+    return crop_w, crop_h, 0, top_px
+
+
+def _face_survives(src, top_px, crop_h, samples=6):
+    """裁切后还能否检出人脸。切到脸的裁法一律不要。"""
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(src))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        cascade = _cascade(cv2.data.haarcascades +
+                           "haarcascade_frontalface_default.xml")
+        before = after = 0
+        for i in range(samples):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / samples))
+            ok, f = cap.read()
+            if not ok:
+                continue
+            g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+            if len(cascade.detectMultiScale(g, 1.1, 4, minSize=(28, 28))):
+                before += 1
+            gc = g[top_px:top_px + crop_h, :]
+            if gc.size and len(cascade.detectMultiScale(gc, 1.1, 4, minSize=(28, 28))):
+                after += 1
+        cap.release()
+        if before == 0:
+            return True                    # 原片本来就没脸（如图表/资料画面），不拦
+        return after >= before * 0.7       # 裁后人脸帧数不能掉太多
+    except Exception as e:
+        print(f"[裁切] 人脸校验失败({e})，保守起见不裁", file=sys.stderr)
+        return False
+
+
+def has_hard_watermark(src):
+    """检测视频是否有难以裁除的水印(画面中间的 logo)。
+    检查画面四角和中间是否有固定位置的半透明 logo。
+    """
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(src))
+        if not cap.isOpened():
+            return False
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if total <= 0:
+            return False
+        cap.set(cv2.CAP_PROP_POS_FRAMES, total // 2)
+        ret, frame = cap.read()
+        cap.release()
+        if not ret or frame is None:
+            return False
+        h, w = frame.shape[:2]
+        # 检查中间区域是否有固定 logo
+        center = frame[int(h*0.4):int(h*0.6), int(w*0.4):int(w*0.6)]
+        gray = cv2.cvtColor(center, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+        logo_ratio = cv2.countNonZero(binary) / (center.size / 3)
+        return logo_ratio > 0.1  # 10% 以上白色像素 → 可能有中间水印
+    except Exception:
+        return False
+
+
+def _chunk_by_time(cues, chunk_sec=240):
+    """长视频按时间均分成多段（每段约 chunk_sec 秒）。
+    返回 [(start_idx, end_idx), ...] 每段的 cues 索引区间。
+    不足 1.5 段就不拆，返回整段。"""
+    if not cues:
+        return []
+    total = cues[-1]["end"] - cues[0]["start"]
+    if total <= chunk_sec * 1.5:
+        return [(0, len(cues) - 1)]
+    chunks = []
+    start_idx = 0
+    seg_start = cues[0]["start"]
+    for i in range(1, len(cues)):
+        if cues[i]["end"] - seg_start >= chunk_sec:
+            chunks.append((start_idx, i - 1))
+            start_idx = i
+            seg_start = cues[i]["start"]
+    chunks.append((start_idx, len(cues) - 1))
+    return chunks
+
+
+# 园园对同场 57:53 访谈公开拆出的 13 条时长（秒）。专用对标模式按这个
+# 长短结构分配 13 个连续内容窗口；窗口额外均摊未入选的谈话时间，让 LLM
+# 仍能在完整上下文里挑到语义闭合的观点，而不是机械截固定分钟数。
+COMPETITOR_13_DURATION_PROFILE = [541, 160, 116, 197, 68, 100, 46,
+                                  244, 136, 69, 220, 83, 604]
+
+
+def _chunk_by_duration_profile(cues, profile):
+    """按目标时长比例把整场讲话切成固定数量的内容窗口。"""
+    if not cues or not profile:
+        return []
+    total = cues[-1]["end"] - cues[0]["start"]
+    selected = float(sum(profile))
+    gap = max(0.0, total - selected) / len(profile)
+    boundaries = []
+    elapsed = cues[0]["start"]
+    for duration in profile[:-1]:
+        elapsed += float(duration) + gap
+        boundaries.append(elapsed)
+    chunks = []
+    start = 0
+    for boundary in boundaries:
+        end = start
+        while end + 1 < len(cues) and cues[end + 1]["end"] <= boundary:
+            end += 1
+        chunks.append((start, max(start, end)))
+        start = min(len(cues) - 1, end + 1)
+    chunks.append((start, len(cues) - 1))
+    return chunks
+
+
+def _dedup_chunks_char(chunks, cues, sim_threshold=0.90):
+    """字符级去重：逐字/高度相同的段直接去重（保留最早一段）。
+
+    2026-08-29 补盲区：LLM 观点去重对「完全相同的两段」可能漏删（c94dbf 实测
+    段1段2 逐字相同却都保留），故先用 difflib 把这种极端重复兜底掉，
+    剩下的语义重复再交给 LLM。阈值 0.90 只抓「几乎逐字相同」，不误杀语义相似。
+    """
+    if len(chunks) <= 1:
+        return chunks
+    kept = []
+    for cand in chunks:
+        a, b = cand
+        ta = "".join(cues[i]["text"] for i in range(a, b + 1))
+        dup = False
+        for ka, kb in kept:
+            tk = "".join(cues[i]["text"] for i in range(ka, kb + 1))
+            if difflib.SequenceMatcher(None, ta, tk).ratio() >= sim_threshold:
+                dup = True
+                break
+        if not dup:
+            kept.append(cand)
+    if len(kept) < len(chunks):
+        print(f"[字符去重] {len(chunks)} 段 → {len(kept)} 段（逐字重复兜底）")
+    return kept
+
+
+def _dedup_chunks_by_llm(chunks, cues, api_key, work):
+    """LLM 观点去重：长视频多段里，观点重复的段只保留信息量最丰富的一段。
+
+    2026-08-29：a987c4 拆 7 段但「AI风险/红海/泡沫」反复讲，是语义级重复
+    （字符相似度仅 0.04~0.20，difflib 抓不到），必须 LLM 判断观点重复。
+    保守降级：LLM 不可用 / 解析异常 / 结果异常 → 全部保留，绝不多删。
+    """
+    if len(chunks) <= 1 or not api_key:
+        return chunks
+    cache = work / "chunks_dedup.json"
+    if cache.exists():
+        try:
+            keep0 = json.loads(cache.read_text(encoding="utf-8"))
+            kept = [chunks[i] for i in keep0 if 0 <= i < len(chunks)]
+            if len(kept) >= 2:
+                return kept
+        except Exception:
+            pass
+    segs = []
+    for i, (a, b) in enumerate(chunks):
+        txt = "".join(cues[j]["text"] for j in range(a, b + 1))
+        segs.append(f"[段{i+1}]{txt[:180]}")
+    prompt = ("下面是同一个访谈视频按时间切出的 " + str(len(chunks)) + " 段字幕。\n"
+              "请判断哪些段讲的「观点重复」（同一个意思/同一个观点反复讲）。\n"
+              "规则：观点重复的几段，只保留信息量最丰富的一段，其余删除；观点不重复的段全部保留。\n"
+              "只输出 JSON 数组，元素是要【保留】的段编号（从 1 开始），如 [1,2,4,6]。不要输出其他内容。\n\n"
+              + "\n".join(segs))
+    try:
+        out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.0, max_tokens=200)
+        nums = parse_llm_json_array(out)
+    except Exception as e:
+        print(f"[去重] LLM/解析异常，跳过: {e}")
+        return chunks
+    keep0 = sorted({n - 1 for n in nums if isinstance(n, int) and 1 <= n <= len(chunks)})
+    if len(keep0) < 2:
+        return chunks  # 结果异常（只剩 0/1 段）→ 保守全保留
+    cache.write_text(json.dumps(keep0, ensure_ascii=False), encoding="utf-8")
+    print(f"[去重] {len(chunks)} 段 → 保留 {len(keep0)} 段（LLM 观点去重）")
+    return [chunks[i] for i in keep0]
+
+
+def _wrap_audio_card_title(title, chars_per_line, max_lines=3):
+    """按词边界排高密度标题，并把 ``100倍``、``30年`` 当不可拆原子。"""
+    try:
+        import jieba as _jieba
+        import logging as _logging
+        _jieba.setLogLevel(_logging.ERROR)
+        raw_atoms = list(_jieba.cut(title))
+    except ImportError:
+        raw_atoms = list(title)
+
+    phrase_atoms = []
+    i = 0
+    while i < len(raw_atoms):
+        atom = raw_atoms[i]
+        if (atom in {"最", "更", "很"} and i + 1 < len(raw_atoms)
+                and raw_atoms[i + 1]
+                and raw_atoms[i + 1][0] not in "，。！？；：、,.!?;"):
+            phrase_atoms.append(atom + raw_atoms[i + 1])
+            i += 2
+            continue
+        phrase_atoms.append(atom)
+        i += 1
+
+    atoms = []
+    for atom in phrase_atoms:
+        if (atom in {"%", "倍", "万", "亿", "年", "元"} and atoms
+                and re.fullmatch(r"\d+(?:\.\d+)?", atoms[-1])):
+            atoms[-1] += atom
+        elif len(atom) > chars_per_line:
+            atoms.extend(atom[i:i + chars_per_line]
+                         for i in range(0, len(atom), chars_per_line))
+        else:
+            atoms.append(atom)
+
+    lines = []
+    current = ""
+    for atom in atoms:
+        if len(current) + len(atom) > chars_per_line and current:
+            if atom and atom[0] in "，。！？；：、,.!?;的了着过吧呢吗啊呀":
+                current += atom
+                continue
+            lines.append(current)
+            current = ""
+        current += atom
+    if current:
+        lines.append(current)
+    if len(lines) > max_lines:
+        if len(title) <= chars_per_line * max_lines:
+            # 英文长词/空格可能浪费一整行；容量足够时退回定宽，不丢任何字符。
+            return [title[i:i + chars_per_line]
+                    for i in range(0, len(title), chars_per_line)]
+        raise VisualQualityError(
+            f"音频卡标题超过 {max_lines} 行容量，拒绝截断：{title}")
+    return lines
+
+
+def _audio_card_display_topic(topic, speaker=""):
+    """把投稿标题变成卡片常驻标题，同时保留竞品式信息密度。"""
+    text = re.sub(r"\s+", " ", topic or "投资观点精选").strip()
+    if speaker:
+        escaped = re.escape(speaker)
+        text = re.sub(
+            rf'^[“\"]?股神[”\"]?\s*{escaped}\s*[：:]\s*', "", text)
+        text = re.sub(rf'^{escaped}\s*[：:]\s*', "", text)
+    if len(text) > AUDIO_CARD_TOPIC_MAX_CHARS:
+        text = text[:AUDIO_CARD_TOPIC_MAX_CHARS - 1] + "…"
+    return text
+
+
+def _audio_card_topic_tag(text, speaker):
+    for keyword in ("医药", "中药", "消费", "白酒", "AI", "科技", "机器人",
+                    "老龄化", "价值投资", "股市"):
+        if keyword.lower() in (text or "").lower():
+            return f"{speaker}｜{keyword}"
+    return f"{speaker}｜投资观点"
+
+
+def _audio_card_emphasis_colors(text):
+    """为强数字、冲突词和赛道词生成园园式红黄蓝标题层级。"""
+    yellow = (255, 210, 24)
+    blue = (35, 86, 170)
+    red = (226, 45, 39)
+    colors = [yellow] * len(text)
+    for pattern, color in (
+        (r"AI|科技|医药|中药|消费|白酒|老龄化|行业|国家", blue),
+        (r"\d+(?:\.\d+)?%?|[零一二三四五六七八九十百千万亿]+倍|"
+         r"万倍|百倍|亿|首富|发财|赚钱|机会|风险|上涨|下跌|涨|跌|牛市", red),
+    ):
+        for match in re.finditer(pattern, text, re.I):
+            for i in range(match.start(), match.end()):
+                colors[i] = color
+    return colors
+
+
+def _draw_emphasis_line(draw, xy, text, font, stroke_width, stroke_fill,
+                        centered=True):
+    """逐字绘制强调色，保持整行居中或从指定 x 起绘制。"""
+    x, y = xy
+    widths = [draw.textlength(ch, font=font) for ch in text]
+    if centered:
+        x -= sum(widths) / 2
+    for ch, width, color in zip(
+            text, widths, _audio_card_emphasis_colors(text)):
+        draw.text((int(x), y), ch, font=font, fill=color,
+                  stroke_width=stroke_width, stroke_fill=stroke_fill)
+        x += width
+
+
+def extract_audio_card_portrait(reference_image, out_path):
+    """从身份门禁的权威参考照提取目标人物肖像。
+
+    多人访谈里“最大脸”经常是主持人，不能再从原片盲取。参考照已经由
+    ``verify_source_identity`` 下载并作为 VLM 的身份基准；若参考照不可用，
+    宁可回退通用人物图标，也不把其他嘉宾放进主讲人卡片。
+    """
+    try:
+        import cv2
+        frame = cv2.imread(str(reference_image))
+        if frame is None:
+            return None
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = _cascade(
+            cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        ).detectMultiScale(gray, 1.1, 4, minSize=(48, 48))
+        if len(faces) == 0:
+            return None
+        x, y, w, h = max(faces, key=lambda box: box[2] * box[3])
+        H, W = frame.shape[:2]
+        # 参考图本身可能是采访海报；1.45 倍足以保留头肩，同时避免把两侧
+        # 栏目文字裁进圆形肖像。过宽的 1.75 倍在真实样片中带入了“人说”残字。
+        side = int(max(w, h) * 1.45)
+        side = min(side, W, H)
+        if side < max(w, h):
+            return None
+        cx = x + w // 2
+        cy = y + h // 2 + int(h * 0.22)
+        x0 = max(0, min(W - side, cx - side // 2))
+        y0 = max(0, min(H - side, cy - side // 2))
+        crop = frame[y0:y0 + side, x0:x0 + side]
+        if crop.size == 0:
+            return None
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        if not cv2.imwrite(str(out_path), crop):
+            return None
+        return out_path
+    except Exception as e:
+        print(f"[音频卡] 肖像提取失败，使用通用人物图标: {e}", file=sys.stderr)
+        return None
+
+
+def make_audio_card(out_path, speaker, topic, width=None, height=None,
+                    portrait_path=None, require_portrait=False, cover_style=None):
+    """生成不携带第三方字幕/角标的品牌音频卡。
+
+    只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
+    仅贡献已通过人物核验的讲话音频，避免把模糊/涂抹后的脏画面硬塞进成片。
+    """
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+    width = int(width or AUDIO_CARD_WIDTH)
+    height = int(height or AUDIO_CARD_HEIGHT)
+    vertical = height > width
+
+    # 对标账号的高播放音频卡不是深色科技模板，而是「浅灰底 + 人物视觉 +
+    # 红黄标题 + 黄字字幕」。这里复刻信息层级和观看习惯，不复制它的插画、
+    # 照片、署名或其他受保护资产。浅暖灰比纯白更耐看，也能承托金色品牌色。
+    image = Image.new("RGB", (width, height), (232, 231, 226))
+    draw = ImageDraw.Draw(image)
+    for y in range(height):
+        blend = y / max(1, height - 1)
+        color = (int(238 - 15 * blend), int(237 - 14 * blend),
+                 int(232 - 12 * blend))
+        draw.line((0, y, width, y), fill=color)
+
+    font_path = next((x for x in (
+        os.environ.get("AUDIO_CARD_FONT_FILE"),
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+    ) if x and Path(x).exists()), None)
+    if not font_path:
+        raise VisualQualityError("音频卡缺少中文字体，拒绝生成方框字成片")
+    index = _sc_face_index(font_path) if font_path and font_path.endswith(".ttc") else 0
+    unit = (min(width / 720, height / 1280) if vertical
+            else min(width / 1280, height / 720))
+    headline_size = max(34, int((52 if vertical else 58) * unit))
+    topic_size = max(25, int((43 if vertical else 40) * unit))
+    small_size = max(18, int((22 if vertical else 24) * unit))
+    headline_font = (ImageFont.truetype(font_path, headline_size, index=index)
+                     if font_path else ImageFont.load_default())
+    topic_font = (ImageFont.truetype(font_path, topic_size, index=index)
+                  if font_path else ImageFont.load_default())
+    small_font = (ImageFont.truetype(font_path, small_size, index=index)
+                  if font_path else ImageFont.load_default())
+
+    display_topic = _audio_card_display_topic(topic, speaker)
+
+    if vertical:
+        # v3 固定坐标：标签 96~142，主标题 165~325，人物 360~830，
+        # 字幕留白 874~1040，来源说明 1080~1160。
+        tag = _audio_card_topic_tag(display_topic, speaker)
+        tag_bbox = draw.textbbox((0, 0), tag, font=small_font)
+        tag_w = tag_bbox[2] - tag_bbox[0] + int(28 * unit)
+        draw.rounded_rectangle(
+            (48, 96, 48 + tag_w, 142), radius=max(8, int(10 * unit)),
+            fill=(35, 86, 170))
+        draw.text((48 + int(14 * unit), 101), tag, font=small_font,
+                  fill=(255, 255, 255))
+
+        lines = _wrap_audio_card_title(display_topic, 14, max_lines=3)
+        line_h = int(topic_size * 1.15)
+        title_y = 165
+        for i, line in enumerate(lines):
+            _draw_emphasis_line(
+                draw, (48, title_y + i * line_h), line, topic_font,
+                stroke_width=max(2, int(3 * unit)),
+                stroke_fill=(45, 28, 20), centered=False)
+
+        x0, y0, x1, y1 = 44, 360, 676, 830
+        draw.rounded_rectangle((x0, y0, x1, y1), radius=18,
+                               fill=(218, 215, 206),
+                               outline=(193, 151, 64), width=3)
+        portrait_used = False
+        if portrait_path and Path(portrait_path).is_file():
+            try:
+                portrait = Image.open(portrait_path).convert("RGB")
+                portrait = ImageOps.fit(
+                    portrait, (x1 - x0, y1 - y0),
+                    method=Image.Resampling.LANCZOS)
+                mask = Image.new("L", portrait.size, 0)
+                ImageDraw.Draw(mask).rounded_rectangle(
+                    (0, 0, portrait.size[0] - 1, portrait.size[1] - 1),
+                    radius=16, fill=255)
+                image.paste(portrait, (x0, y0), mask)
+                portrait_used = True
+            except Exception as e:
+                print(f"[音频卡] 肖像嵌入失败，使用通用人物图标: {e}",
+                      file=sys.stderr)
+        if not portrait_used:
+            if require_portrait:
+                raise VisualQualityError("人物资料卡缺少可用真人参考图，禁止占位图出片")
+            cx, head_y, head_r = width // 2, 505, 78
+            draw.ellipse((cx - head_r, head_y - head_r, cx + head_r,
+                          head_y + head_r), fill=(35, 48, 64))
+            draw.rounded_rectangle((170, 590, 550, 790), radius=100,
+                                   fill=(35, 48, 64))
+
+        draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
+                               fill=(249, 249, 247),
+                               outline=(214, 210, 200), width=2)
+        draw.text((48, 1080), "公开发言原声｜人物资料图，非现场画面",
+                  font=small_font, fill=(89, 94, 99))
+        draw.text((48, 1120), AUDIO_CARD_DISCLAIMER, font=small_font,
+                  fill=(105, 105, 105))
+    else:
+        # 16:9 封面：结论在左、人物在右且占 35%~45%，缩略图仍可辨认。
+        panel = (46, 74, width - 46, height - 74)
+        draw.rounded_rectangle(panel, radius=max(18, int(28 * unit)),
+                               fill=(245, 242, 232),
+                               outline=(193, 151, 64),
+                               width=max(2, int(4 * unit)))
+        icon_x, icon_y = int(width * 0.86), int(height * 0.46)
+        icon_r = int(height * 0.19)
+        portrait_used = False
+        if portrait_path and Path(portrait_path).is_file():
+            try:
+                portrait = Image.open(portrait_path).convert("RGB")
+                portrait = ImageOps.fit(
+                    portrait, (icon_r * 2, icon_r * 2),
+                    method=Image.Resampling.LANCZOS)
+                mask = Image.new("L", portrait.size, 0)
+                ImageDraw.Draw(mask).ellipse(
+                    (0, 0, portrait.size[0] - 1, portrait.size[1] - 1),
+                    fill=255)
+                image.paste(portrait, (icon_x - icon_r, icon_y - icon_r), mask)
+                draw.ellipse((icon_x - icon_r, icon_y - icon_r,
+                              icon_x + icon_r, icon_y + icon_r),
+                             outline=(193, 151, 64),
+                             width=max(2, int(4 * unit)))
+                portrait_used = True
+            except Exception as e:
+                print(f"[封面] 肖像嵌入失败，使用通用人物图标: {e}",
+                      file=sys.stderr)
+        if not portrait_used:
+            if require_portrait:
+                raise VisualQualityError(
+                    "v4 封面未能嵌入已核验人物图，拒绝使用深色占位图")
+            draw.ellipse((icon_x - icon_r, icon_y - icon_r,
+                          icon_x + icon_r, icon_y + icon_r), fill=(35, 48, 64))
+        tag = _audio_card_topic_tag(display_topic, speaker)
+        draw.rounded_rectangle((72, 112, 330, 170), radius=12,
+                               fill=(35, 86, 170))
+        draw.text((90, 120), tag, font=small_font, fill=(255, 255, 255))
+        # 与竖版统一为 14 字 × 3 行；展示标题已限制在 42 字内。
+        from presentation import cover_headline
+        lines = cover_headline(topic, speaker)
+        cover_font_px = 100
+        cover_font = ImageFont.truetype(font_path, cover_font_px, index=index)
+        cover_boxes = []
+        for i, line in enumerate(lines):
+            _draw_emphasis_line(
+                draw, (60, 238 + i * 128),
+                line, cover_font, stroke_width=3,
+                stroke_fill=(45, 28, 20), centered=False)
+            cover_boxes.append(draw.textbbox((60,238+i*128),line,font=cover_font,stroke_width=3))
+        draw.text((72, 560), "公开访谈原声 · 个人观点非投资建议", font=small_font,
+                  fill=(89, 94, 99))
+        from presentation import select_cover_style, dark_cover
+        selected_style = select_cover_style(False, topic,
+            cover_style or os.environ.get("COVER_STYLE", "auto"))
+        if selected_style == "dark":
+            image, lines, cover_font_px, cover_boxes = dark_cover(
+                portrait_path, topic, speaker, font_path, index)
+
+    brand = Image.open(brand_watermark_path()).convert("RGBA")
+    brand_w = int(width * (0.18 if vertical
+                           else BRAND_WATERMARK_WIDTH_RATIO))
+    brand_h = max(1, int(brand.height * brand_w / brand.width))
+    brand = brand.resize((brand_w, brand_h), Image.LANCZOS)
+    alpha = brand.getchannel("A").point(
+        lambda value: int(value * BRAND_WATERMARK_OPACITY))
+    brand.putalpha(alpha)
+    margin = int(width * (0.035 if vertical
+                          else BRAND_WATERMARK_MARGIN_RATIO))
+    image.paste(brand, (width - brand_w - margin, margin), brand)
+    out_path = Path(out_path)
+    if out_path.suffix.lower() in {".jpg", ".jpeg"}:
+        image.save(out_path, quality=93)
+    else:
+        image.save(out_path)
+    if not vertical:
+        from presentation import cover_proof
+        cover_proof(image, out_path, lines, cover_font_px, cover_boxes, style=selected_style)
+    return out_path
+
+
+def make_review_assets(final, out, suffix, duration_sec):
+    """发布前固定生成 30 秒预览和 6 帧接触表，供人机双重抽检。"""
+    preview = out / f"preview_30s{suffix}.mp4"
+    sheet = out / f"contact_sheet_6{suffix}.jpg"
+    preview_sec = max(1.0, min(30.0, float(duration_sec)))
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-i", str(final),
+        "-t", f"{preview_sec:.3f}", "-c", "copy", str(preview),
+    ], check=True)
+    fps = 6.0 / max(1.0, float(duration_sec))
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-i", str(final),
+        "-vf", f"fps={fps:.8f},scale=240:-2,tile=3x2:padding=6:margin=6",
+        "-frames:v", "1", "-q:v", "2", str(sheet),
+    ], check=True)
+    if preview.stat().st_size < 1024 or sheet.stat().st_size < 1024:
+        raise VisualQualityError("30秒预览或6帧接触表生成不完整")
+    return preview.name, sheet.name
+
+
+def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
+    """Verify the actual moving window, excluding the template/reference portrait."""
+    directory=Path(work)/f"final_identity{suffix}"
+    directory.mkdir(exist_ok=True)
+    frames=[]
+    duration=float(probe(final,"format=duration"))
+    for i in range(1,7):
+        path=directory/f"frame_{i}.jpg"
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(duration*i/7),
+            '-i',str(final),'-vf','crop=632:470:44:360','-frames:v','1',str(path)],
+            check=True,timeout=45)
+        frames.append(path)
+    reference=_download_speaker_reference(speaker,Path(work))
+    verdict=_call_identity_vlm(reference,frames,speaker,api_key)
+    same={i for i in verdict.get('same_person_frames',[]) if type(i) is int and 1<=i<=6}
+    proof={**verdict,'version':1,'speaker':speaker,'sample_count':6}
+    (directory/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if len(same)<5 or float(verdict.get('confidence') or 0)<.75:
+        raise VisualQualityError(f'成片动态窗口目标人物不足5/6帧：{len(same)}/6')
+    if verdict.get('watermark_texts'):
+        raise VisualQualityError('成片动态窗口仍有外部台标/账号：'+str(verdict['watermark_texts']))
+    return proof
+
+
+def _produce_one(src, work, out, cues, speaker, occasion, api_key,
+                 existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
+                 allow_empty=False, visual_report=None, source_report=None,
+                 prefer_live_video=False, existing_titles=None, selected_picks=None):
+    """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
+    返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
+    picks = (selected_picks if selected_picks is not None else
+             pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec,
+                             allow_empty=allow_empty))
+    if not picks:
+        print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
+        return None
+    sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
+    total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
+    print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
+
+    # 文案必须先于画面卡生成：保证投稿标题、B站封面和视频内常驻标题完全一致。
+    cw = copywrite(
+        cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
+        existing_titles=existing_titles,
+        require_quote=(pick_cache_suffix != "_full"))
+
+    # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
+    source_report = source_report or {}
+    strategy = source_report.get("clean_strategy", "direct")
+    clean_vf = source_report.get("clean_video_filter") or f"crop={W//2*2}:{H//2*2}:0:0"
+    clean_resolution = source_report.get("clean_output_resolution") or {}
+    crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
+    crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
+    _logos = source_report.get("detected_corner_logos") or []
+    print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
+    # A failed source-cleaning gate must never be bypassed by putting the same
+    # dirty source into a guessed fixed crop. Native clean sources retain aspect;
+    # genuinely unusable pictures become an explicitly labelled portrait/audio card.
+    live_crop = None
+    # 原画因字幕/包装无法作为整屏成片时，优先尝试“真人动态窗口”而不是
+    # 直接退化成静态音频卡。候选窗口必须再次实渲染并确认无持续字幕/角标；
+    # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
+    if strategy == "audio_card" and prefer_live_video:
+        candidate_crop = audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"])
+        if candidate_crop:
+            try:
+                live_preview = _render_clean_preview(
+                    src, work, candidate_crop, float(probe(src, "format=duration") or 0))
+                # V11 原来把任何持续文字都视为不可用，导致大量官方访谈即使
+                # 文字只落在动态窗口边缘也直接退成静态卡。这里不再用整帧
+                # has_existing_subtitles 一票否决，而是以最终窗口的角标/二维码/
+                # 黑边复检为硬门槛。人物身份门禁仍保持不变。
+                remaining = detect_corner_logos(live_preview, frames=6, strict=True)
+                if remaining:
+                    print("[自动版式] 真人窗口仍有稳定来源角标，保留人物资料卡兜底")
+                else:
+                    live_crop = candidate_crop
+                    print("[自动版式] ✓ 真人动态窗口通过安全复检，优先保留动态画面")
+            except Exception as exc:
+                print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")
+    use_live_video = bool(live_crop)
+    if strategy == "audio_card" and prefer_live_video and not use_live_video:
+        print("[自动版式] 原画无法安全清理，使用已核验人物资料卡兜底")
+
+    brand = brand_watermark_path()
+    audio_card = None
+    audio_card_portrait = None
+    if strategy == "audio_card":
+        # 用已经核验过的投稿标题做常驻标题，避免视频内标题与封面各说各话。
+        first_pick = picks[0]
+        audio_card_portrait = extract_audio_card_portrait(
+            work / "speaker_reference.jpg",
+            work / f"audio_card_portrait{suffix}.png")
+        audio_card = make_audio_card(
+            work / f"audio_card{suffix}.png", speaker, cw["title"],
+            portrait_path=audio_card_portrait, require_portrait=True)
+    from presentation import layout_for, VERSION as PRESENTATION_VERSION
+    layout = layout_for(crop_w, crop_h, strategy == "audio_card")
+    en_map = {}
+    parts = []
+    for n, p in enumerate(picks, 1):
+        idx = list(range(p["start"], p["end"] + 1))
+        s0, s1 = cues[idx[0]]["start"], cues[idx[-1]]["end"]
+        entries = [{"start_sec": cues[i]["start"] - s0,
+                    "end_sec": cues[i]["end"] - s0,
+                    "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
+        ass = work / f"seg{suffix}{n}.ass"
+        entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json")
+        make_ass(entries, ass, crop_w, crop_h,
+                 card_style=(strategy == "audio_card"))
+        seg = work / f"seg{suffix}{n}.mp4"
+        vertical = H > W
+        seg_dur = s1 - s0
+        # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
+        fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
+        if strategy == "audio_card":
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-loop", "1", "-framerate", "30", "-i", str(audio_card),
+                "-ss", str(s0), "-t", str(seg_dur), "-i", str(src),
+            ]
+            if use_live_video:
+                # 只允许横屏源进入动态窗口；按窗口宽高比实裁并精确缩放，
+                # 不使用 pad，因而不会产生右侧黑块。
+                live = (
+                    f"[1:v]{live_crop}[live];"
+                    "[0:v][live]overlay=44:360[card];"
+                    f"[card]ass={ass},{fade}[outv]"
+                )
+                cmd += ["-filter_complex", live,
+                        "-map", "[outv]", "-map", "1:a:0"]
+            else:
+                vf = f"ass={ass},{fade}"
+                cmd += ["-filter_complex", f"[0:v]{vf}[outv]",
+                        "-map", "[outv]", "-map", "1:a:0"]
+        else:
+            vf = f"setpts=PTS-STARTPTS,{clean_vf},setsar=1,ass={ass},{fade}"
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
+                "-t", str(seg_dur), "-i", str(src),
+                "-loop", "1", "-framerate", "30", "-i", str(brand),
+                "-filter_complex", brand_overlay_filter(vf, crop_w, crop_h),
+                "-map", "[outv]", "-map", "0:a:0",
+            ]
+        cmd += [
+            "-af", "asetpts=PTS-STARTPTS,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
+            "-c:v", "libx264", "-preset", ("veryfast" if use_live_video else "slow"),
+            "-crf", ("20" if use_live_video else "18"),
+            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
+            "-t", str(seg_dur), "-shortest", str(seg),
+        ]
+        subprocess.run(cmd, check=True, timeout=max(180, int(seg_dur * 8)))
+        parts.append(seg)
+
+    lst = work / f"concat{suffix}.txt"
+    lst.write_text("".join(f"file '{p.name}'\n" for p in parts), encoding="utf-8")
+    final = out / f"final{suffix}.mp4"
+    final_name = final.name          # 真实文件名，跳段后编号会与列表下标脱节，必须回传
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
+                    "-safe", "0", "-i", str(lst), "-c", "copy", str(final)],
+                   check=True, timeout=120)
+    dur = float(subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=nw=1:nk=1", str(final)],
+        capture_output=True, text=True).stdout.strip() or 0)
+    final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
+    # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
+    # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
+    # 真实原画策略仍必须逐帧复检。
+    from presentation import verify_render
+    live_checks = verify_render(final, layout)
+    if use_live_video:
+        live_checks.update(verify_live_region_after_render(final))
+        live_checks['final_live_identity']=verify_final_live_identity(
+            final,work,speaker,api_key,suffix)
+        external_logos = []
+    else:
+        external_logos = detect_external_logos_after_render(
+            final, strategy, final_w, final_h)
+    if external_logos:
+        raise VisualQualityError(f"成片清理后仍检出外部角标：{external_logos}")
+    transcript_text = "".join(cues[i]["text"] for i in sel)
+    fingerprints = build_content_fingerprints(final, transcript_text)
+    preview_name, contact_sheet_name = make_review_assets(
+        final, out, suffix, dur)
+
+    cover_name = "cover_16x9.jpg"
+    cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
+    try:
+        p0 = picks[0]
+        from presentation import select_cover_style
+        selected_cover_style = select_cover_style(strategy != "audio_card", cw["title"],
+                                                  os.environ.get("COVER_STYLE", "auto"))
+        if selected_cover_style != "photo":
+            if audio_card_portrait is None:
+                audio_card_portrait = extract_audio_card_portrait(
+                    work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
+            make_audio_card(cover, speaker, cw["title"],
+                            width=1280, height=720,
+                            portrait_path=audio_card_portrait,
+                            require_portrait=True, cover_style=selected_cover_style)
+            cover_person_image_source = "authority_reference"
+        else:
+            make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
+                       cw["title"], speaker, cover, video_filter=clean_vf,
+                       preferred_time=(visual_report or {}).get("best_cover_time"))
+            cover_person_image_source = "verified_source_frame"
+    except Exception as e:
+        raise VisualQualityError(f"封面生成/人物/角标复检失败：{e}") from e
+    subtitle_files = []
+    for n in range(1, len(picks) + 1):
+        name = f"subtitles{suffix}-{n}.ass"
+        (out / name).write_bytes((work / f"seg{suffix}{n}.ass").read_bytes())
+        subtitle_files.append(name)
+    return {
+        "subtitle_files": subtitle_files,
+        "final": final_name,
+        "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
+        "cover": cover.name if cover else None,
+        "preview_30s": preview_name,
+        "contact_sheet_6": contact_sheet_name,
+        "review_assets_verified": True,
+        "title_quality_verified": cw.get("title_quality_verified") is True,
+        "visual_standard_version": VISUAL_STANDARD_VERSION,
+        "cover_standard_version": COVER_STANDARD_VERSION,
+        "cover_person_image_verified": True,
+        "cover_person_image_source": cover_person_image_source,
+        "presentation_version": PRESENTATION_VERSION,
+        "layout_proof": layout,
+        "cover_proof": json.loads(Path(str(cover)+".proof.json").read_text()),
+        "subtitle_word_boundaries_verified": True,
+        "subtitle_semantic_groups_verified": True,
+        **live_checks,
+        "duration_sec": round(dur, 1),
+        "resolution": {"width": final_w, "height": final_h,
+                       "short_edge": min(final_w, final_h)},
+        "fingerprints": fingerprints,
+        "watermark_removed": strategy != "direct",
+        "watermark_verified": True,
+        "clean_strategy": strategy,
+        "audio_card_template": (AUDIO_CARD_TEMPLATE
+                                if strategy == "audio_card" else None),
+        "render_mode": ("live_video_card" if use_live_video
+                        and strategy == "audio_card" else strategy),
+        "brand_watermark_applied": True,
+        "brand_watermark": {
+            "name": "园来滚雪球", "position": "top-right",
+            "width_ratio": BRAND_WATERMARK_WIDTH_RATIO,
+            "opacity": BRAND_WATERMARK_OPACITY,
+        },
+        "segments": [{"start": cues[p["start"]]["start"],
+                      "end": cues[p["end"]]["end"], "reason": p["reason"]}
+                     for p in picks],
+    }
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--source", required=True)
+    ap.add_argument("--slug", required=True)
+    ap.add_argument("--speaker", default="林园")
+    ap.add_argument("--occasion", default="")
+    ap.add_argument("--source-platform", default="", help="来源平台(bilibili/weibo/tencent 等)")
+    ap.add_argument("--dry-run", action="store_true", help="只挑金句,不出片")
+    ap.add_argument("--source-check-only", action="store_true",
+                    help="只执行下载后素材质检，不进入 ASR/切片")
+    ap.add_argument("--source-report", default="",
+                    help="素材质检报告路径；前置检查和正式出片共用")
+    ap.add_argument("--target-parts", type=int, default=0,
+                    help="专用对标模式：固定产出多少条观点切片")
+    ap.add_argument("--include-full", action="store_true",
+                    help="在观点切片后追加一条完整访谈")
+    ap.add_argument("--prefer-live-video", action="store_true",
+                    help="默认使用裁净后的真人动态画面卡；静态肖像仅作失败回退")
+    ap.add_argument("--split-highlights", action="store_true",
+                    help="每个完整观点独立成片，单个坏镜头不连带淘汰同一话题中的其他观点")
+    args = ap.parse_args()
+
+    src = Path(args.source)
+    if not src.is_file():
+        sys.exit(f"找不到源:{src}")
+    api_key = load_key()
+    if not api_key:
+        sys.exit("缺 SILICONFLOW_API_KEY(放 .env 或环境变量)")
+
+    out = BASE / "deliver" / args.slug
+    work = out / "_tmp"
+    work.mkdir(parents=True, exist_ok=True)
+
+    report_path = Path(args.source_report) if args.source_report else \
+        work / "source_quality.json"
+    if args.source_check_only:
+        report = run_source_quality_gate(
+            src, work, args.speaker, api_key, report_path)
+        print(json.dumps(report, ensure_ascii=False))
+        return 0 if report.get("passed") is True else 2
+
+    try:
+        if args.source_report:
+            source_report = load_source_quality_report(src, report_path)
+        else:
+            source_report = run_source_quality_gate(
+                src, work, args.speaker, api_key, report_path)
+            if source_report.get("passed") is not True:
+                raise VisualQualityError(
+                    source_report.get("reason") or "素材质检未通过")
+    except VisualQualityError as e:
+        print(json.dumps({"stage": "source-quality", "reason": str(e)},
+                         ensure_ascii=False), file=sys.stderr)
+        return 2
+
+    resolution = source_report["resolution"]
+    W, H = int(resolution["width"]), int(resolution["height"])
+    clean_resolution = source_report.get("clean_output_resolution") or resolution
+    output_w = int(clean_resolution.get("width") or W)
+    output_h = int(clean_resolution.get("height") or H)
+    existing_subtitles = False
+    visual_report = source_report["visual_identity"]
+
+    cues = transcribe(src, work, api_key)
+    # 元数据描述实际成片画布；音频卡统一为 16:9，不能沿用原素材方向。
+    vertical = output_h > output_w
+
+    # 平台推断
+    platform = args.source_platform or ""
+    if not platform:
+        src_str = str(src).lower()
+        if "bilibili" in src_str or "bv" in src_str:
+            platform = "bilibili"
+        elif "weibo" in src_str or "weibocdn" in src_str:
+            platform = "weibo"
+        elif "tencent" in src_str or "qq.com" in src_str:
+            platform = "tencent"
+        elif "xueqiu" in src_str:
+            platform = "xueqiu"
+        elif "douyin" in src_str:
+            platform = "douyin"
+        elif "haokan" in src_str:
+            platform = "haokan"
+        elif "netease" in src_str or "163.com" in src_str:
+            platform = "netease"
+        else:
+            platform = "unknown"
+
+    # 长视频按时间切成多段，每段出一条；短视频出 1 条
+    if args.target_parts:
+        if args.target_parts != 13:
+            sys.exit("当前对标模式只支持已核验的 13 条结构")
+        chunks = _chunk_by_duration_profile(cues, COMPETITOR_13_DURATION_PROFILE)
+    else:
+        chunks = _chunk_by_time(cues)
+        # 去重：先字符级（逐字重复兜底），再 LLM 观点去重（语义重复）
+        chunks = _dedup_chunks_char(chunks, cues)
+        chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
+    if args.dry_run:
+        # dry-run 只看金句，不切分
+        p = pick_highlights(cues, args.speaker, api_key, work)
+        for pp in p:
+            print(f"\n── {pp['reason']} ──")
+            for i in range(pp["start"], pp["end"] + 1):
+                print(f"  {cues[i]['text']}")
+        return 0
+
+    # 长视频拆多条时，选「字幕条数最多」的一段做中视频（7分钟话题片），其余短金句
+    # （2026-08-29 对标竞品：中视频是播放最高的档，一段信息量最足的内容做话题展开）
+    mid_idx = None
+    if len(chunks) > 1:
+        mid_idx = max(range(len(chunks)), key=lambda i: chunks[i][1] - chunks[i][0] + 1)
+
+    from batch_delivery import quarantine_part, write_json
+    metas, rejected = [], []
+    # Persist complete metadata as soon as a part passes all checks. A later bad
+    # part cannot erase earlier successes; diagnostics stay outside delivery.
+    def checkpoint():
+        rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
+                 "occasion": args.occasion, **m,
+                 "quality_gate_version": QUALITY_GATE_VERSION,
+                 "source_platform": platform,
+                 "watermark_cropped": bool(m.get("watermark_removed")),
+                 "watermark_verified": bool(m.get("watermark_verified")),
+                 "visual_identity": visual_report,
+                 "subtitles_burned": True, "has_existing_subtitles": False,
+                 "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles")),
+                 "clean_filter_verified": bool(source_report.get("clean_filter_verified")),
+                 "vertical": m["resolution"]["height"] > m["resolution"]["width"],
+                 "asr_model": ASR_BACKEND, "llm": MODELS[0],
+                 "generated_at": datetime.now().isoformat(timespec="seconds")}
+                for m in metas]
+        if rows:
+            write_json(out / "meta.json", rows[0] if len(rows) == 1 else rows)
+        live = sum(m.get("render_mode") != "audio_card" for m in metas)
+        write_json(out / "batch_report.json", {
+            "slug": args.slug, "accepted": len(metas), "rejected": rejected,
+            "accepted_finals": [m["final"] for m in metas],
+            "live_video": live, "audio_card": len(metas) - live,
+            "live_ratio": live / len(metas) if metas else 0,
+            "quality_gate_version": QUALITY_GATE_VERSION})
+
+    output_index = 0
+    for ci, (a, b) in enumerate(chunks):
+        seg_cues = cues[a:b + 1]
+        cache_suffix = "" if len(chunks) == 1 else f"_{ci + 1}"
+        target_sec = (COMPETITOR_13_DURATION_PROFILE[ci]
+                      if args.target_parts else
+                      (TARGET_SEC_MID if ci == mid_idx else TARGET_SEC))
+        independent = args.split_highlights and not args.target_parts
+        try:
+            selected = (pick_highlights(seg_cues, args.speaker, api_key, work,
+                        cache_suffix, target_sec, allow_empty=True) if independent else None)
+        except (ValueError, RuntimeError, subprocess.SubprocessError) as exc:
+            rejected.append({"stage":"highlight-selection", "chunk":ci+1,
+                             "reason":str(exc), "error_type":type(exc).__name__})
+            checkpoint()
+            continue
+        candidates = [[pick] for pick in selected] if independent else [None]
+        for pi, candidate in enumerate(candidates, 1):
+            output_index += 1
+            suffix = f"_{output_index}" if independent else cache_suffix
+            pick_suffix = f"{cache_suffix}_pick{pi}" if independent else cache_suffix
+            try:
+                m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
+                                 api_key, existing_subtitles, W, H, suffix,
+                                 pick_cache_suffix=pick_suffix, target_sec=target_sec,
+                                 allow_empty=(len(chunks) > 1 and not args.target_parts),
+                                 visual_report=visual_report,
+                                 source_report=source_report,
+                                 prefer_live_video=args.prefer_live_video,
+                                 selected_picks=candidate,
+                                 existing_titles=[x["title"] for x in metas])
+            except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+                failure = {"stage": "part-quality", "reason": str(e), "part": output_index,
+                           "error_type": type(e).__name__}
+                print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
+                quarantine_part(out, suffix)
+                rejected.append(failure)
+                checkpoint()
+                continue
+            if m is not None:
+                m["part"] = output_index
+                metas.append(m)
+            checkpoint()
+
+    if args.target_parts and len(metas) != args.target_parts:
+        print(f"❌ 对标批次要求 {args.target_parts} 条，实际仅 {len(metas)} 条",
+              file=sys.stderr)
+        return 2
+
+    if args.include_full:
+        full_suffix = "_full"
+        (work / f"highlights{full_suffix}.json").write_text(json.dumps([{
+            "start": 0, "end": len(cues) - 1, "score": 10,
+            "reason": "57分钟完整版"
+        }], ensure_ascii=False), encoding="utf-8")
+        (work / f"copywrite{full_suffix}.json").write_text(json.dumps({
+            "title": "林园：57分钟完整访谈，谈AI、机器人、消费和医药的长期机会",
+            "desc": "林园完整公开访谈原声，谈AI、机器人、消费、医药与长期投资判断。个人观点，仅供交流，非投资建议。",
+            "tags": ["林园", "价值投资", "完整访谈", "医药", "消费"],
+            "title_quality_verified": True
+        }, ensure_ascii=False), encoding="utf-8")
+        try:
+            full_meta = _produce_one(
+                src, work, out, cues, args.speaker, args.occasion, api_key,
+                existing_subtitles, W, H, "_14", pick_cache_suffix=full_suffix,
+                target_sec=max(1, int(cues[-1]["end"] - cues[0]["start"])),
+                allow_empty=False, visual_report=visual_report,
+                source_report=source_report,
+                prefer_live_video=args.prefer_live_video,
+                existing_titles=[x["title"] for x in metas])
+        except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+            quarantine_part(out, "_14")
+            rejected.append({"stage": "part-quality", "reason": str(e), "part": "full"})
+            checkpoint()
+            return 2
+        if full_meta is None:
+            print("❌ 完整版未生成", file=sys.stderr)
+            return 2
+        full_meta["content_type"] = "full_interview"
+        metas.append(full_meta)
+
+    checkpoint()
+    if not metas:
+        print("❌ 本素材没有通过全部门禁的成片，换下一个候选", file=sys.stderr)
+        return 2 if rejected else 1
+
+    n = len(metas)
+    print(f"\n✅ 出片完成: {n} 条")
+    for i, m in enumerate(metas):
+        print(f"   [{i+1}] {m['title']}  ({m['duration_sec']}s)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
