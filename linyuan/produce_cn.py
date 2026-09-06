@@ -505,6 +505,16 @@ def transcribe(src, work, api_key=None):
             pass
     # Old cache files have no provenance; do not silently trust a previous model
     # or reuse PCM extracted from a different video at the same work directory.
+    stale = set()
+    for pattern in ("cues_raw.json", "asr_tokens.json", "asr_raw_chunks.json",
+                    "highlights*.json", "copywrite*.json", "translation.json",
+                    "chunks_dedup.json", "semantic*.json"):
+        stale.update(work.glob(pattern))
+    if stale:
+        archive = work / "asr_stale" / str(time.time_ns())
+        archive.mkdir(parents=True)
+        for path in stale:
+            path.replace(archive / path.name)
     provenance.unlink(missing_ok=True)
     wav = work / "audio_16k.wav"
     if wav.resolve() != src.resolve():

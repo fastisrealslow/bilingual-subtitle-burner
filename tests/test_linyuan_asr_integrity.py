@@ -83,8 +83,13 @@ def test_cache_binds_audio_model_and_exact_output(tmp_path, monkeypatch):
     assert len(calls) == 1
     src.write_bytes(b'other audio')
     (work/'audio_16k.wav').write_bytes(b'stale PCM')
+    (work/'highlights_part1.json').write_text('[{"start":0,"end":10}]')
+    (work/'translation.json').write_text('["stale translation"]')
     P.transcribe(src, work)
     assert len(calls) == 2 and not (work/'audio_16k.wav').exists()
+    assert not (work/'highlights_part1.json').exists()
+    assert not (work/'translation.json').exists()
+    assert len(list((work/'asr_stale').glob('*/highlights_part1.json'))) == 1
     (model/'model.int8.onnx').write_bytes(b'other model')
     P.transcribe(src, work)
     assert len(calls) == 3
