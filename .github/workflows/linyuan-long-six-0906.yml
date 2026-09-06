@@ -1,5 +1,5 @@
 name: 林园六条完整观点重做
-# Six reviewed continuous arguments; ordinary media and editorial gates remain required.
+# Reuse exact-source checked evidence and render all six reviewed arguments.
 on:
   push:
     branches: [main]
@@ -18,7 +18,7 @@ jobs:
           python - <<'PY'
           import os,subprocess
           for slug,source,occasion in [
-              ('ly-long-six-0906-05','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
+              ('ly-long-six-0906-06','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
           ]:
               subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml',
                   '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',

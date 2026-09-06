@@ -378,6 +378,11 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             with urllib.request.urlopen(req, timeout=120) as r:
                 data = json.loads(r.read().decode())
             raw_response=data["choices"][0]["message"]["content"]
+            if frames and Path(frames[0]).exists():
+                trace=Path(frames[0]).parent/'visual_response_attempts.jsonl'
+                with trace.open('a',encoding='utf-8') as stream:
+                    stream.write(json.dumps(dict(frame_count=len(frames),attempt=attempt+1,
+                        response=raw_response),ensure_ascii=False)+'\n')
             verdict = _parse_json_object(raw_response)
             classified=[]
             for field in ('same_person_frames','different_person_frames','uncertain_frames'):
@@ -2140,7 +2145,10 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     # position cluster. Reuse the multi-frame visual review on the cropped final
     # live region. Our own title/disclaimer/brand are all outside this rectangle.
     if api_key and reference:
-        verdict=_call_identity_vlm(Path(reference),frame_paths,speaker,api_key)
+        try:
+            verdict=_call_identity_vlm(Path(reference),frame_paths,speaker,api_key)
+        except VisualResponseFormatError:
+            verdict=_retry_identity_vlm_in_chunks(Path(reference),frame_paths,speaker,api_key)
         marks=[]
         for mark in verdict.get('watermark_texts') or []:
             value=str(mark).strip()
@@ -2158,6 +2166,11 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
     report_path = Path(report_path or (work / "source_quality.json"))
     report_path.parent.mkdir(parents=True, exist_ok=True)
+    cached=verified_source_evidence(src,speaker)
+    if cached is not None:
+        report_path.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
+        print('[素材复用] 当前文件与已实际核验的母片逐字节一致；成片仍逐条检查')
+        return cached
     report = {
         "quality_gate_version": QUALITY_GATE_VERSION,
         "source_sha256": _file_sha256(src),
@@ -2195,6 +2208,28 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2, default=_json_default),
         encoding="utf-8")
+    return report
+
+
+def verified_source_evidence(src,speaker):
+    """Reuse an immutable actual source report, never an inferred pass flag."""
+    manifest=BASE/'source_quality_evidence'/'manifest.json'
+    if not manifest.exists():
+        return None
+    source_sha=_file_sha256(src)
+    evidence=json.loads(manifest.read_text()).get(source_sha)
+    if not evidence:
+        return None
+    path=manifest.parent/(source_sha+'.json')
+    if _file_sha256(path)!=evidence['report_sha256']:
+        raise VisualQualityError('实际源片检查证据校验和不符')
+    report=load_source_quality_report(src,path)
+    identity=report.get('visual_identity') or {}
+    if (report.get('speaker')!=speaker or identity.get('version')!=VISUAL_GATE_VERSION
+            or not identity_verdict_passes(identity,VISUAL_SAMPLE_COUNT)
+            or not SOURCE_MIN_DURATION<=float(report['duration_sec'])<=SOURCE_MAX_DURATION):
+        raise VisualQualityError('实际源片检查证据与当前规则不符')
+    report['reused_actual_evidence']=evidence
     return report
 
 

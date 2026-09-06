@@ -82,6 +82,19 @@ def test_malformed_frame_batches_recover_but_uncertain_frames_do_not_pass(monkey
     assert 1 in calls and max(calls)==6
 
 
+def test_source_evidence_reuse_requires_actual_report_hash_and_source(monkeypatch):
+    source='9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'
+    real=P._file_sha256
+    monkeypatch.setattr(P,'_file_sha256',lambda path:source if str(path)=='source.mp4' else real(path))
+    proof=P.verified_source_evidence('source.mp4','林园')
+    assert proof['reused_actual_evidence']['run_id']==34035494314
+    assert proof['source_sha256']==source
+    with pytest.raises(P.VisualQualityError,match='规则不符'):
+        P.verified_source_evidence('source.mp4','other-speaker')
+    monkeypatch.setattr(P,'_file_sha256',lambda path:'changed-source' if str(path)=='source.mp4' else real(path))
+    assert P.verified_source_evidence('source.mp4','林园') is None
+
+
 def test_identity_prompt_counts_target_when_host_is_also_present(monkeypatch,
                                                                   tmp_path):
     reference = tmp_path / "reference.jpg"
