@@ -14,6 +14,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # kick 2026-09-06 11:16 CST
           gh workflow run linyuan-produce-cn.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref main \
