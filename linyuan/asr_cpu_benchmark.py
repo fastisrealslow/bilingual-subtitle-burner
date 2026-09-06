@@ -68,6 +68,15 @@ def download_weights(backend, root):
     from huggingface_hub import snapshot_download, hf_hub_download
     if backend == 'qwen3-0.6b':
         return Path(snapshot_download('Qwen/Qwen3-ASR-0.6B'))
+    if backend == 'sensevoice-int8':
+        root.mkdir(parents=True, exist_ok=True)
+        archive = root / 'model.tar.bz2'
+        subprocess.run(['curl', '-fsSL', '--retry', '3', '--max-time', '300',
+            'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2',
+            '-o', str(archive)], check=True, timeout=950)
+        subprocess.run(['tar', 'xjf', str(archive), '-C', str(root), '--strip-components=1'], check=True)
+        archive.unlink()
+        return root
     model_id = {
         'sensevoice-int8': 'csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17',
         'paraformer-int8': 'csukuangfj/sherpa-onnx-paraformer-zh-2023-03-28',
@@ -110,6 +119,7 @@ def infer(args):
         if args.backend == 'sensevoice-int8':
             model = OfflineRecognizer.from_sense_voice(**kwargs, use_itn=True)
         else:
+            kwargs['paraformer'] = kwargs.pop('model')
             model = OfflineRecognizer.from_paraformer(**kwargs)
         def decode(wav):
             with wave.open(str(wav)) as w:
