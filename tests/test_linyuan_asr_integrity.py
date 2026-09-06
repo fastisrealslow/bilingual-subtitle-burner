@@ -57,6 +57,12 @@ def test_missing_token_timestamps_are_rejected():
         P._owned_sensevoice_tokens([dict(tokens=['一'], timestamps=[])])
 
 
+def test_punctuation_after_capacity_flush_is_not_lost():
+    tokens = list('投资之前必须先搞清楚企业的基本情况。')
+    cues = P._funasr_tokens_to_cues(tokens, [i*.15 for i in range(len(tokens))], 0, 5)
+    assert ''.join(c['text'] for c in cues) == ''.join(tokens)
+
+
 def test_cache_binds_audio_model_and_exact_output(tmp_path, monkeypatch):
     src = tmp_path/'input.mp4'
     src.write_bytes(b'first audio')

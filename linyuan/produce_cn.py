@@ -772,12 +772,20 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
         en = timestamps[i + 1] if i + 1 < len(timestamps) else chunk_dur
         en = min(en, st + MAX_TOKEN_SEC)   # 单 token 封顶，避免跨静音把字幕拖长
         if tok in "。！？!?":
-            buf_text += tok
-            _flush()
-        elif tok in "，、；：,;:":
-            buf_text += tok
-            if len(buf_text) >= MAX_CHARS - 4:
+            if buf:
+                buf_text += tok
                 _flush()
+            elif cues:
+                # A length flush may have just emitted the preceding word.
+                # Keep its sentence boundary instead of discarding punctuation.
+                cues[-1]["text"] += tok
+        elif tok in "，、；：,;:":
+            if buf:
+                buf_text += tok
+                if len(buf_text) >= MAX_CHARS - 4:
+                    _flush()
+            elif cues:
+                cues[-1]["text"] += tok
         else:
             # 静音断句：与上一个 token 间隔过大说明中间是静音/没识别出来，
             # 不能把它们塞进同一条字幕（否则字幕横跨十几秒静音，2026-09-01 实测）
