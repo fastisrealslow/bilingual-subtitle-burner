@@ -323,7 +323,8 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             " same_person_frames，绝不能因为另一个人更大、更居中或正在说话而归入"
             " different_person_frames。只有清楚看到人脸、且能确认目标人物完全不在画面中，"
             "才归入 different_person_frames；遮挡、侧脸过小或看不清则归为 uncertain。"
-            "同时记录看得到的外部账号/平台角标文字。只返回 JSON object："
+            "同时记录屏幕叠加的外部账号/平台角标；无文字的彩色图形台标也须记录为[图形台标]，"
+            "不要把真实场景里的字画、衣服文字或物品当叠加水印。只返回 JSON object："
             '{"same_person_frames":[1],"different_person_frames":[2],'
             '"uncertain_frames":[3],"best_cover_frame":1,"confidence":0.95,'
             '"watermark_texts":["某账号"],"reason":"简短依据"}'
@@ -1180,12 +1181,33 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
 
     try:
         out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.2)
+        (work / f"highlight_response{suffix}.txt").write_text(out, encoding="utf-8")
         picks = parse_llm_json_array(out)
     except Exception as e:
         # LLM 偶发返回无法解析的格式（空/截断/字符串数组等），parse 会 raise。
         # 这里兜住：降级取前段出片，绝不因解析失败废掉整条（2026-08-31 线上崩溃）
         print(f"[金句] LLM 输出解析失败，降级取前段: {e}")
         picks = []
+
+    if not picks:
+        # Raw offline ASR contains repetitions and fixed-length cue fragments.
+        # Judge a continuous argument across cues, rather than requiring each
+        # individual ASR fragment to be a polished, sensational quotation.
+        review_prompt = (
+            f"你是{speaker}访谈编辑。以下是同一段连续讲话的原始ASR，"
+            "序号之间不是语义边界，必须连起来读；口语重复和停顿不等于没有观点。"
+            "请挑1到3段能够独立理解的具体判断、解释或案例。不要开场寒暄或主持人问题。"
+            "保留原话，不编造数字，不要求夸张标题。只选语义闭合且信息量达到7/10的段落，"
+            f"每段约20到{min(target,180)}秒。没有才返回[]。"
+            "start/end必须是下面左栏的0起始序号，不是秒数。只输出JSON数组："
+            '[{"start":0,"end":8,"score":8,"reason":"完整观点"}]。\n'+numbered)
+        try:
+            reviewed = llm([{"role":"user","content":review_prompt}], api_key,
+                           temperature=0, max_tokens=2000, budget_sec=90)
+            (work / f"highlight_review_response{suffix}.txt").write_text(reviewed, encoding="utf-8")
+            picks = parse_llm_json_array(reviewed)
+        except (ValueError, RuntimeError, KeyError, TypeError) as exc:
+            print(f"[金句复核] {exc}")
 
     valid = []
     for p in picks:
@@ -1447,6 +1469,22 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     return result
 
 
+def repair_semantic_boundaries(texts):
+    """Remove invalid screen boundaries; never alter or drop spoken characters."""
+    from presentation import word_spans
+    source=''.join(texts)
+    bounds={0,len(source)}|{b for a,b in word_spans(source)}
+    unfinished=re.compile(r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|把|被|与|比|是|要|会|能|将|对|向|愿意)$')
+    out=[]; offset=0
+    for text in texts:
+        if out and (offset not in bounds or unfinished.search(out[-1]) or text.startswith('的')):
+            out[-1]+=text
+        else:
+            out.append(text)
+        offset+=len(text)
+    return out
+
+
 def semantic_caption_entries(entries, api_key, layout, cache_path):
     """Use the language model for meaning; validate every character locally."""
     capacity=layout['line_capacity']
@@ -1522,6 +1560,10 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
             breaks=_parse_json_object(response)['break_after']
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):
                 raise ValueError('换屏位置必须严格递增并覆盖全部原文')
+            merged=repair_semantic_boundaries([transcript[a:b] for a,b in zip([0]+breaks,breaks)])
+            breaks=[]; boundary=0
+            for piece in merged:
+                boundary+=len(piece); breaks.append(boundary)
             if any(b-a>max_group_chars for a,b in zip([0]+breaks,breaks)):
                 breaks=repair_oversized_groups(breaks)
             texts=[transcript[a:b] for a,b in zip([0]+breaks,breaks)]
@@ -1532,6 +1574,8 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
         except (ValueError,KeyError,TypeError,RuntimeError) as exc:
             print('[意群重试]',str(exc),flush=True)
             error='\n上次输出未通过严格校验：'+str(exc)+'。请重新按原文输出全部字幕。'
+            if 'texts' in locals():
+                error+='上次分屏文本：'+json.dumps(texts,ensure_ascii=False)
     raise ValueError('完整意群字幕重试3次仍未通过'+error)
 
 
@@ -3545,6 +3589,30 @@ def make_review_assets(final, out, suffix, duration_sec):
     return preview.name, sheet.name
 
 
+def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
+    """Verify the actual moving window, excluding the template/reference portrait."""
+    directory=Path(work)/f"final_identity{suffix}"
+    directory.mkdir(exist_ok=True)
+    frames=[]
+    duration=float(probe(final,"format=duration"))
+    for i in range(1,7):
+        path=directory/f"frame_{i}.jpg"
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(duration*i/7),
+            '-i',str(final),'-vf','crop=632:470:44:360','-frames:v','1',str(path)],
+            check=True,timeout=45)
+        frames.append(path)
+    reference=_download_speaker_reference(speaker,Path(work))
+    verdict=_call_identity_vlm(reference,frames,speaker,api_key)
+    same={i for i in verdict.get('same_person_frames',[]) if type(i) is int and 1<=i<=6}
+    proof={**verdict,'version':1,'speaker':speaker,'sample_count':6}
+    (directory/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if len(same)<5 or float(verdict.get('confidence') or 0)<.75:
+        raise VisualQualityError(f'成片动态窗口目标人物不足5/6帧：{len(same)}/6')
+    if verdict.get('watermark_texts'):
+        raise VisualQualityError('成片动态窗口仍有外部台标/账号：'+str(verdict['watermark_texts']))
+    return proof
+
+
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
@@ -3692,9 +3760,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     from presentation import verify_render
     live_checks = verify_render(final, layout)
     if use_live_video:
-        live_checks.update(verify_live_region_after_render(
-            final, api_key=api_key, speaker=speaker,
-            reference=work / 'speaker_reference.jpg'))
+        live_checks.update(verify_live_region_after_render(final))
+        live_checks['final_live_identity']=verify_final_live_identity(
+            final,work,speaker,api_key,suffix)
         external_logos = []
     else:
         external_logos = detect_external_logos_after_render(
