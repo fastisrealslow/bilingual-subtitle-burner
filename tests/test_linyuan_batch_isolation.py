@@ -20,6 +20,29 @@ spec.loader.exec_module(fc)
 
 
 class BatchIsolationTests(unittest.TestCase):
+    def test_part_deadline_escapes_nested_api_retry_and_next_part_runs(self):
+        import signal
+        if not hasattr(signal,'setitimer'):
+            self.skipTest('POSIX deadline')
+        def stuck():
+            while True:
+                try:time.sleep(.1)
+                except Exception:continue
+        with patch.object(produce,'_produce_one',side_effect=stuck):
+            with self.assertRaisesRegex(produce.VisualQualityError,'生产预算'):
+                produce.produce_part_with_budget(budget_sec=.02)
+        with patch.object(produce,'_produce_one',return_value={'final':'next.mp4'}):
+            self.assertEqual(produce.produce_part_with_budget(budget_sec=1)['final'],'next.mp4')
+
+    def test_live_window_requires_target_person_not_just_any_complete_face(self):
+        meta=dict(render_mode='live_video_card',full_face_frames=6)
+        self.assertIsNotNone(fc.final_live_identity_error(meta))
+        meta['final_live_identity']=dict(speaker='林园',sample_count=6,
+            same_person_frames=[1,2,3,4,5],confidence=.95,watermark_texts=[])
+        self.assertIsNone(fc.final_live_identity_error(meta))
+        meta['final_live_identity']['same_person_frames']=[1,2]
+        self.assertIsNotNone(fc.final_live_identity_error(meta))
+
     def test_bad_middle_part_does_not_erase_success_or_skip_next_part(self, split=False):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)

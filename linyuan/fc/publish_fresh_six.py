@@ -60,7 +60,8 @@ def main():
     if health.get("code_sha256") != expected or health.get("daily_limit") != 6:
         raise SystemExit("Deployed code does not match reviewed publisher")
     Path("fresh-six-receipts.json").write_text(json.dumps(receipts(state()), ensure_ascii=False, indent=2))
-    ordered = sorted(fc.FRESH_SIX_APPROVED.items(), key=lambda item: (item[1]["slug"], item[1]["part_index"]))
+    ordered = sorted(fc.FRESH_SIX_APPROVED.items(), key=lambda item: (
+        item[1].get('render_mode')=='audio_card',item[1]["slug"],item[1]["part_index"]))
     for sha, approved in ordered:
         current = state()
         if sha in receipts(current):
@@ -97,6 +98,16 @@ def main():
             raise SystemExit("Exact receipt not found; do not retry an uncertain upload")
     got = receipts(state())
     print(json.dumps({"new_receipts":len(got), "receipts":got}, ensure_ascii=False, indent=2))
+    deadline=time.monotonic()+30*60
+    while True:
+        public=invoke({'triggerName':'diagnose-fresh-six-publication'})
+        Path('fresh-six-public-status.json').write_text(json.dumps(public,ensure_ascii=False,indent=2))
+        print(json.dumps(public,ensure_ascii=False),flush=True)
+        if public.get('public_count')==len(fc.FRESH_SIX_APPROVED):
+            break
+        if time.monotonic()>=deadline:
+            raise SystemExit('Uploads have receipts but public archive verification is incomplete; do not re-upload')
+        time.sleep(45)
 
 
 if __name__ == "__main__":

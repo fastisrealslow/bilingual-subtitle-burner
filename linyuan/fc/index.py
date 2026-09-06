@@ -53,20 +53,81 @@ MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08
 # Historical totals remain intact. Only these named, individually reviewed
 # outputs may use the separate, expiring six-slot allowance.
 FRESH_SIX_DATE = "2026-09-06"
-FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 7)}
+FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 10)}
+# Reviewed actual outputs from immutable run 34032251529. Previous source06 was rejected.
 FRESH_SIX_APPROVED = {
-    # Run 34030084818, artifact 9988361761. Actual final_3.mp4, ASS and six-frame
-    # contact sheet reviewed 2026-09-06: V11 static authority portrait card;
-    # no external watermark/QR/black fill; complete screen-level intent groups.
-    "2d6dfa9fbaabf59df0b2ba839a9af37b87c8df694f7509644c5cbfa6aacb8035": {
-        "slug": "ly-fresh-six-0906-06",
-        "source_url": "https://www.bilibili.com/video/BV1oq5UzpEQ5",
+    "619ded426551eb8d7239dc3defd5a4c2ad7986c4620ca0fb3cf04e697a8a3644": {
+        "slug": "ly-fresh-six-0906-05",
+        "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
         "part_index": 0,
-        "artifact_name": "deliver-ly-fresh-six-0906-06",
-        "final": "final_3.mp4",
-        "cover": "cover_3.jpg",
-        "review": "actual MP4/ASS/contact-sheet reviewed; audio_card 1/6",
+        "artifact_name": "fresh-six-0906-reviewed-p1",
+        "final": "final_1.mp4",
+        "cover": "cover_1.jpg",
+        "title": "林园：金额很小，比存款利息好一点",
+        "render_mode": "live_video_card",
+        "run_id": 34032251529
     },
+    "a846d4218c0e54c9e6f909aa2adf0a0f7ba51c1ac7deed66fe22b5a8b4a3ada9": {
+        "slug": "ly-fresh-six-0906-05",
+        "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
+        "part_index": 1,
+        "artifact_name": "fresh-six-0906-reviewed-p2",
+        "final": "final_2.mp4",
+        "cover": "cover_2.jpg",
+        "title": "林园：打新不是我们主要的策略",
+        "render_mode": "live_video_card",
+        "run_id": 34032251529
+    },
+    "0cff0adbbd3c3e03b695e95d60aa938cc6be730c25d9a03526e9eef98830dfde": {
+        "slug": "ly-fresh-six-0906-05",
+        "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
+        "part_index": 2,
+        "artifact_name": "fresh-six-0906-reviewed-p3",
+        "final": "final_15.mp4",
+        "cover": "cover_15.jpg",
+        "title": "林园：我们说创新一定是人的力量",
+        "render_mode": "live_video_card",
+        "run_id": 34032251529
+    },
+    "7ac2f38468368a7984b3dddd53aba1ccfcfe007b327b0e949dd554533190554a": {
+        "slug": "ly-fresh-six-0906-05",
+        "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
+        "part_index": 3,
+        "artifact_name": "fresh-six-0906-reviewed-p4",
+        "final": "final_16.mp4",
+        "cover": "cover_16.jpg",
+        "title": "林园：读书能力不代表创新能力",
+        "render_mode": "live_video_card",
+        "run_id": 34032251529
+    },
+    "ad08b3e4d240a8201c74c6ebbb4be6f32e41a9f813dcf4d3850465088a246903": {
+        "slug": "ly-fresh-six-0906-05",
+        "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
+        "part_index": 4,
+        "artifact_name": "fresh-six-0906-reviewed-p5",
+        "final": "final_17.mp4",
+        "cover": "cover_17.jpg",
+        "title": "林园：我问喝酒的人，你们把酒戒掉",
+        "render_mode": "live_video_card",
+        "run_id": 34032251529
+    },
+    "c75a0ee5d0370105f391c4cb1e07e78b6392113b0c930010cdc2c3e6f533160c": {
+        "slug": "ly-fresh-six-0906-05",
+        "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
+        "part_index": 5,
+        "artifact_name": "fresh-six-0906-reviewed-p6",
+        "final": "final_21.mp4",
+        "cover": "cover_21.jpg",
+        "title": "林园：港股和A股实际上是同步的",
+        "render_mode": "live_video_card",
+        "run_id": 34032251529
+    }
 }
 
 
@@ -78,12 +139,30 @@ def fresh_six_budget(daily, slug, today):
         "reason": "用户要求旧批次不计入今天新六条；历史实际总数保留"})
 
 
+def final_live_identity_error(meta):
+    if meta.get('render_mode') != 'live_video_card':
+        return None
+    proof=meta.get('final_live_identity') or {}
+    same={n for n in proof.get('same_person_frames',[]) if type(n) is int and 1<=n<=6}
+    try:
+        confidence=float(proof.get('confidence') or 0)
+    except (ValueError,TypeError):
+        confidence=0
+    if (proof.get('speaker')!='林园' or proof.get('sample_count')!=6
+            or len(same)<5 or confidence<.75 or proof.get('watermark_texts')):
+        return '实际动态窗口缺少林园本人及台标复检'
+    return None
+
+
 def fresh_six_review_error(meta, video, slug, source_url):
     import hashlib
     sha = (meta.get("fingerprints") or {}).get("sha256")
     approved = FRESH_SIX_APPROVED.get(sha) or {}
     if approved.get("slug") != slug or approved.get("source_url") != source_url:
         return "本次新六条尚无逐条实际MP4验收记录"
+    error=final_live_identity_error(meta)
+    if error:
+        return error
     digest = hashlib.sha256()
     with Path(video).open("rb") as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
@@ -1412,6 +1491,8 @@ def handler(event, context):
         if name == "diagnose-ping":
             log_event("probe_ok", "FC 同步入口 ping 成功", "")
             return {"ok": True, "ts": int(time.time())}
+        if name == "diagnose-fresh-six-publication":
+            return fresh_six_publication_status()
         if name == "publish-tv-wine-review-once":
             return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":
@@ -1427,6 +1508,12 @@ def handler(event, context):
 
 def dispatch_handler(event=None, context=None):
     st = load_state()
+    today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
+    if (today == FRESH_SIX_DATE and FRESH_SIX_APPROVED
+            and int(((st.get("daily_publish") or {}).get("fresh_six") or {}).get("count", 0)) < 6):
+        # The six accepted files are already in hand. Avoid background state
+        # writers racing with their sequential receipt updates during release.
+        return {"dispatched": 0, "fresh_six_publication_in_progress": 1}
     target = MAX_PER_DAY
     if isinstance(event, dict) and event.get("_refill_count"):
         target = max(1, min(MAX_PER_DAY, int(event["_refill_count"])))
@@ -1561,6 +1648,34 @@ def _process_retries(st):
 
 
 OWNER_MID = os.environ.get("BILI_MID", "275211725")  # 园来滚雪球
+
+
+def fresh_six_publication_status():
+    """Read actual public archive state after exact-hash upload receipts."""
+    st=load_state()
+    opener=bili_opener()
+    rows=[]
+    for slug,info in st.get('published',{}).items():
+        for part in info.get('parts',[]):
+            sha=(part.get('fingerprints') or {}).get('sha256')
+            if (sha not in FRESH_SIX_APPROVED or part.get('status')!='published'
+                    or part.get('fresh_six_date')!=FRESH_SIX_DATE or not part.get('bvid')):
+                continue
+            row={'sha256':sha,'bvid':part['bvid'],'title':part.get('title'),'public':False}
+            try:
+                req=urllib.request.Request('https://api.bilibili.com/x/web-interface/view?bvid='+part['bvid'],
+                    headers={'Referer':'https://www.bilibili.com/'})
+                response=json.loads(opener.open(req,timeout=15).read())
+                data=response.get('data') or {}
+                row.update(api_code=response.get('code'),archive_state=data.get('state'),
+                    duration=data.get('duration'),owner_mid=(data.get('owner') or {}).get('mid'))
+                row['public']=(response.get('code')==0 and data.get('state')==0
+                    and str((data.get('owner') or {}).get('mid'))==str(OWNER_MID)
+                    and data.get('bvid')==part['bvid'])
+            except Exception as exc:
+                row['error']=str(exc)[:160]
+            rows.append(row)
+    return {'receipts':len(rows),'public_count':sum(r['public'] for r in rows),'videos':rows}
 
 
 def bili_find_duplicate(title):
@@ -1771,6 +1886,9 @@ def artifact_quality_error(meta):
         return "真人窗口缺少残缺二维码复检，旧漏检成片不得投稿"
     if meta.get("render_mode") == "live_video_card" and int(meta.get("full_face_frames") or 0) < 5:
         return "真人窗口缺少完整人脸取景复检，旧裁头成片必须重做"
+    identity_error=final_live_identity_error(meta)
+    if identity_error:
+        return identity_error
     if meta.get("subtitle_semantic_groups_verified") is not True:
         return "缺少完整意群字幕复检，旧碎句成片必须重做"
     if meta.get("no_black_bars_verified") is not True:
@@ -2026,13 +2144,16 @@ def publish_handler(event=None, context=None):
         arts[batch_slug] = None
     else:
         runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
-                         "?status=success&per_page=30").get("workflow_runs", [])
+                         "?status=completed&per_page=30").get("workflow_runs", [])
         for run in runs:
             for a in gh("GET", f"/actions/runs/{run['id']}/artifacts").get("artifacts", []):
                 if a["name"].startswith("deliver-") and not a.get("expired"):
                     slug_key = a["name"][8:]
-                    arts[slug_key] = a["archive_download_url"]
-                    art_ids[slug_key] = a["id"]
+                    # Runs are newest first. Keep the latest accepted delivery;
+                    # a later optional Release-mirror error does not invalidate it.
+                    if slug_key not in arts:
+                        arts[slug_key] = a["archive_download_url"]
+                        art_ids[slug_key] = a["id"]
 
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
