@@ -1,0 +1,52 @@
+name: 林园完整长段CPU识别与时间轴核验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-long-asr-cpu-0906.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  transcript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0,1,2]
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 取已校验母片的同一份PCM音频
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 34034689303 --repo "$GITHUB_REPOSITORY" --name debug-ly-long-six-0906-01 --dir debug
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          source=next(Path('debug').rglob('audio_16k.wav'))
+          shutil.copyfile(source,'audio.wav')
+          PY
+      - name: 安装CPU离线推理依赖
+        run: |
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-asr
+      - name: 离线识别完整上下文并保存原始结果
+        run: python -u linyuan/qwen_cpu_transcript.py decode --audio audio.wav --part ${{ matrix.part }} --out transcript
+      - name: 独立进程CPU逐字对齐，释放上一步识别模型内存
+        run: python -u linyuan/qwen_cpu_transcript.py align --audio audio.wav --part ${{ matrix.part }} --out transcript
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: long-cpu-transcript-${{ matrix.part }}
+          path: transcript/*.json
+          if-no-files-found: warn
+          retention-days: 30
