@@ -117,6 +117,9 @@ jobs:
             mkdir -p _src
             python3 ci_fetch_bilibili.py --url "$SOURCE" --out _src/video.mp4
             echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
+          elif [[ "$SOURCE" =~ yicai\.com/video/ ]]; then
+            python3 ci_fetch_yicai.py --url "$SOURCE" --out _src/video.mp4
+            echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
           elif [[ "$SOURCE" =~ ^https?:// ]]; then
             mkdir -p _src
             # FC 上传的 staging release 素材：releases/download/<tag>/<slug>.mp4
