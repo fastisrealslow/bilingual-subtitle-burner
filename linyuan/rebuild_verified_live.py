@@ -1,6 +1,6 @@
 """Rebuild a selected, already-identified live window with current captions/checks.
 
-This is a recovery render, never a new source or a duplicate-publication bypass.
+This recovery render retains its source identity and the duplicate-publication gate.
 The original artifact and selected source range remain in the output metadata.
 """
 import argparse
