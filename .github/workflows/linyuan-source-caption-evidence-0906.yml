@@ -1,0 +1,31 @@
+name: 林园原片字幕CPU核对
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-source-caption-evidence-0906.yml]
+permissions:
+  contents: read
+jobs:
+  captions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libgl1 libglib2.0-0
+      - run: pip install -q 'opencv-python<5' rapidocr-onnxruntime pillow yt-dlp
+      - name: 取同一份已核验母片
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1ADetzQEuE --out source.mp4
+      - name: CPU读取原片实际字幕，不调用语音或文字改写API
+        run: python -u linyuan/source_caption_evidence.py --source source.mp4 --out caption-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linyuan-source-caption-evidence-0906
+          path: caption-evidence/
+          if-no-files-found: error
+          retention-days: 30
