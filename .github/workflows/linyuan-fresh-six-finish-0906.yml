@@ -1,0 +1,38 @@
+name: 林园新六条完整观点复核成片
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-fresh-six-finish-0906.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-fresh-six-finish-0906
+  cancel-in-progress: false
+jobs:
+  finish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk libchromaprint-tools
+          pip install -q pillow fonttools jieba opencv-python-headless rapidocr-onnxruntime
+      - name: 原话完整切点重新渲染并复检实际六条
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+          ZH_FONT: Noto Sans CJK SC
+        run: python linyuan/fc/finish_fresh_six.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deliver-ly-fresh-six-0906-05
+          path: fresh-six-finished/
+          if-no-files-found: error
+          retention-days: 30
