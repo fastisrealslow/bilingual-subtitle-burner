@@ -431,7 +431,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
             print("[llm-cache] 缓存损坏,重新请求", file=sys.stderr)
 
     last = None
-    deadline = time.monotonic() + budget_sec if budget_sec else None
+    deadline = time.monotonic() + (budget_sec if budget_sec is not None else 120)
     for model in MODELS:
         payload = json.dumps({
             "model": model, "messages": messages, "temperature": temperature,
@@ -3925,6 +3925,29 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     }
 
 
+class PartDeadlineExceeded(BaseException):
+    """A wall-clock deadline must escape lower-level broad Exception retries."""
+
+
+def produce_part_with_budget(*args, budget_sec=None, **kwargs):
+    import signal
+    seconds=float(budget_sec if budget_sec is not None else
+                  os.environ.get('PART_RENDER_BUDGET_SEC','240'))
+    if not hasattr(signal,'setitimer'):
+        return _produce_one(*args,**kwargs)
+    def expired(signum,frame):
+        raise PartDeadlineExceeded()
+    previous=signal.signal(signal.SIGALRM,expired)
+    timer=signal.setitimer(signal.ITIMER_REAL,seconds)
+    try:
+        return _produce_one(*args,**kwargs)
+    except PartDeadlineExceeded:
+        raise VisualQualityError(f'单片超过{seconds:g}秒生产预算，隔离后继续后续片段') from None
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,*timer)
+        signal.signal(signal.SIGALRM,previous)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True)
@@ -4094,7 +4117,7 @@ def main():
         if ci == mid_idx:
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         try:
-            m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
+            m = produce_part_with_budget(src, work, out, seg_cues, args.speaker, args.occasion,
                              api_key, existing_subtitles, W, H, suffix,
                              pick_cache_suffix=suffix, target_sec=target_sec,
                              allow_empty=(len(chunks) > 1 and not args.target_parts),
