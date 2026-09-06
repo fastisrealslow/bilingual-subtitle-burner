@@ -1172,6 +1172,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
     identity = editorial.plan_identity(cues, target)
+    identity['selector_version'] = 2
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1184,8 +1185,13 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             pass
     if not cues or cues[-1]['end']-cues[0]['start'] < editorial.MIN_SECONDS:
         return []
-    numbered = "\n".join(f"{i}|{c['start']:.2f}-{c['end']:.2f}|{c['text']}"
-                           for i,c in enumerate(cues))
+    numbered_rows=[]
+    for i,c in enumerate(cues):
+        earliest=next((j for j in range(i,len(cues))
+                       if cues[j]['end']-c['start'] >= editorial.MIN_SECONDS),None)
+        floor=str(earliest) if earliest is not None else '不可作为起点'
+        numbered_rows.append(f"{i}|{c['start']:.2f}-{c['end']:.2f}|最早允许end={floor}|{c['text']}")
+    numbered="\n".join(numbered_rows)
     prompt = (
         f"你是{speaker}访谈编辑。以下是带原始时间戳的CPU离线ASR。"
         "字幕序号之间不一定是词句边界，请连起来读。用户明确拒绝十几秒、几十秒摘句。"
@@ -1195,7 +1201,8 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         "不要只取结论、不要拼不相关问题、不要为了数量硬凑。无法满足就返回[]。"
         "前3秒需独立可懂，不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
         "也不能删掉理解这句话所必需的上下文。可以保留同一主题内有用的追问。"
-        "start/end是下面0起始字幕序号，不是秒数；确保起止为完整词句/意群。"
+        "start/end是下面0起始字幕序号，不是秒数；结束序号不得小于起始行标注的最早允许end，"
+        "这个下界已经由程序按真实时间计算，不能忽略。确保起止为完整词句/意群。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
         "只返回JSON数组，每项包含start,end,score(至少7),reason(完整主题)。\n"+numbered)
     valid=[]
@@ -3970,6 +3977,17 @@ def main():
         # 去重：先字符级（逐字重复兜底），再 LLM 观点去重（语义重复）
         chunks = _dedup_chunks_char(chunks, cues)
         chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
+        # Give the editor context across mechanical chunk boundaries. Final
+        # outputs are still individual continuous arguments and content-deduped.
+        expanded=[]
+        for a,b in chunks:
+            left,right=a,b
+            while left>0 and cues[a]['start']-cues[left-1]['start']<=60:
+                left-=1
+            while right+1<len(cues) and cues[right+1]['end']-cues[b]['end']<=60:
+                right+=1
+            expanded.append((left,right))
+        chunks=expanded
     if args.dry_run:
         # dry-run 只看金句，不切分
         p = pick_highlights(cues, args.speaker, api_key, work)
