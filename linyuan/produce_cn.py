@@ -2168,6 +2168,7 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     report_path.parent.mkdir(parents=True, exist_ok=True)
     cached=verified_source_evidence(src,speaker)
     if cached is not None:
+        _download_speaker_reference(speaker,work)
         report_path.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
         print('[素材复用] 当前文件与已实际核验的母片逐字节一致；成片仍逐条检查')
         return cached
@@ -2392,6 +2393,8 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         return f"标题必须以「{speaker}：」或「股神{speaker}：」开头"
     if any(word in title for word in TITLE_ASR_BLACKLIST):
         return "标题命中 ASR 污染词"
+    if any(phrase in title for phrase in ('请问','想问林总','分享一下','您如何','您认为','林总能')):
+        return '标题引用了主持人的提问，不能归为嘉宾原话'
     if re.search(r"https?://|www\.|t\.cn/|@[\w\u4e00-\u9fff]+", title, re.I):
         return "标题含链接或引流信息"
     compact = _title_text(title)
@@ -2417,14 +2420,15 @@ def _fallback_quote_title(cues, sel, speaker):
     sample = "".join(cues[i]["text"] for i in sel)
     sample = re.sub(r"\s+", "", sample)
     sentences=[s.strip('，、：: ') for s in re.split(r'[。！？；]',sample)]
-    sentence=next((s for s in sentences if 10<=len(s)<=55),None)
+    sentence=next((s for s in sentences if 10<=len(s)<=55 and not any(
+        phrase in s for phrase in ('请问','想问林总','分享一下','您如何','您认为','林总能'))),None)
     if sentence is None:
         raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
     return f"{speaker}：{sentence}"
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
-              existing_titles=None, require_quote=True):
+              existing_titles=None, require_quote=True, reviewed_title=None):
     """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
 
     钩子式标题:prompt 要求带反常识/数字/冲突钩子（对标竞品高播放标题），但严禁编造，结果落 meta.json,
@@ -2433,8 +2437,17 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     """
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
-    copy_identity={'version':2,'transcript_sha256':editorial.text_digest(transcript_text),
-                   'speaker':speaker,'occasion':occasion}
+    copy_identity={'version':3,'transcript_sha256':editorial.text_digest(transcript_text),
+                   'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title}
+    if reviewed_title:
+        error=title_quality_error(reviewed_title,speaker,transcript_text,existing_titles,
+                                  require_quote=require_quote)
+        if error:
+            raise VisualQualityError('编辑标题未通过原话校验：'+error)
+        result=dict(title=reviewed_title,desc=f'{speaker}在{occasion}的公开发言选段。',
+                    tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True)
+        cache.write_text(json.dumps(result,ensure_ascii=False))
+        return result
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
@@ -3798,7 +3811,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     cw = copywrite(
         cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
         existing_titles=existing_titles,
-        require_quote=(pick_cache_suffix != "_full"))
+        require_quote=(pick_cache_suffix != "_full"),
+        reviewed_title=picks[0].get('editorial_title'))
 
     # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
     source_report = source_report or {}
@@ -3846,7 +3860,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         # 用已经核验过的投稿标题做常驻标题，避免视频内标题与封面各说各话。
         first_pick = picks[0]
         audio_card_portrait = extract_audio_card_portrait(
-            work / "speaker_reference.jpg",
+            _download_speaker_reference(speaker,work),
             work / f"audio_card_portrait{suffix}.png")
         audio_card = make_audio_card(
             work / f"audio_card{suffix}.png", speaker, cw["title"],

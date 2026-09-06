@@ -26,5 +26,6 @@ def source_ranges(cues,source_sha,profile_path=None):
             raise ValueError('Reviewed source range no longer matches its opening or ending')
         if result and a<=result[-1][1]:
             raise ValueError('Reviewed continuous arguments overlap')
-        result.append((a,b,[dict(start=0,end=b-a,score=8,reason=row['topic'])]))
+        result.append((a,b,[dict(start=0,end=b-a,score=8,reason=row['topic'],
+                                editorial_title=row.get('title'))]))
     return result

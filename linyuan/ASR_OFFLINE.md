@@ -8,6 +8,8 @@
 - 缓存：核对音视频 SHA256、模型 SHA256、配置、术语表、处理版本与字幕文件校验和。失配时归档旧字幕及依赖它的选段、翻译、文案、意群缓存，重新识别。
 - 留证：`asr_raw_chunks.json` 保留每段原始输出；`asr_tokens.json` 保留 token 与时间戳；`cues_raw.json` 是兼容既有生产接口的组句结果；`asr_cache.json` 记录来源。
 - 句末标点保留在转写结果中，显示时再处理。成片继续执行原来的完整意群、人物、黑边、二维码等质量门禁。
+- Qwen的独立对齐器只返回词，生产现从同段原始识别文本恢复标点；不调用文本模型补写标点或改变否定词。恢复标点前后校验全部词的字符一致。
+- `reviewed_asr_corrections.py`只对精确源哈希及限定时间范围应用已有原访谈记录/原片截图支持的纠错，并写出`asr_reviewed_corrections.json`。原始模型输出和原始token不改。字数相同的音近修正保留字级区间；已经核实的不同字数短语保留原短语区间，不冒充重新逐字对齐。纠错代码哈希纳入缓存身份。
 
 **在已有本地模型上运行识别**
 
@@ -44,3 +46,11 @@ PY
 [首轮 Qwen 记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34026825959)；[SenseVoice 与 Paraformer 记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34026954219)；[完整音频验收](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34027255724)。Qwen 模型与本地加载方法见 [官方仓库](https://github.com/QwenLM/Qwen3-ASR)；Paraformer 导出模型的时间戳限制见 [sherpa 官方说明](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-paraformer/paraformer-models.html)。
 
 财经词表复测已经完成。它将两段中的“林元/林远”转为“林园”，将一处“纯隐蔽”转为“成瘾品”，同时也将“原始股”输出成“原石股”，且仍存在其他句子错误。因此它是有价值的离线候选，尚不能证明整体质量优于现有后端，暂不自动接管生产。[完整复测记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34027156975)。
+
+**31分钟完整访谈的CPU识别与对齐**
+
+2026-09-06完成[真实完整音频任务34035892469](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34035892469)，音频1882.6506875秒。三份报告覆盖0～630、630～1260、1260～1882.6506875秒，段内30秒核心加前后3秒上下文。识别和对齐使用独立CPU进程释放内存，推理过程禁用网络。
+
+识别和对齐累计约1523秒，RTF约0.81；单进程峰值约6275MiB。三台runner并行的墙钟耗时不代表一台CPU的速度。共校验6502个核心区词，逐字对齐未改变或丢失各段原始识别内容，并校验了源视频、PCM、模型版本及完整时间覆盖。
+
+此结果证明本机CPU可运行完整转写和对齐，并不证明识别准确率达到发布标准。“睡/税”“方子/房子”等仍需有证据的审校，含关键数字或否定词歧义的区间不能凭语言流畅度放行。当前仅对已审查的这份源启用此后端，其他素材不自动切换。
