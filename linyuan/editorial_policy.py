@@ -2,14 +2,63 @@
 import hashlib
 import json
 import math
+import re
+from pathlib import Path
 
 VERSION = 2026090604
 MIN_SECONDS = 120.0
 TARGET_SECONDS = 180.0
 
+# These are source-bound, manually confirmed ASR corruptions from the
+# 2026-09-07 production artifact.  They are rejection evidence, not guessed
+# rewrites: the offline recognizer must not silently turn them into fluent text.
+ASR_CONTAMINATION_FRAGMENTS = (
+    '哎印的印一段时间我就对了',
+    '买了一个骗公司不挣钱的',
+    '你买片公司万丈深渊',
+)
+
 
 def text_digest(text):
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+def transcript_integrity_error(text):
+    compact = re.sub(r'\s+', '', str(text or ''))
+    hit = next((fragment for fragment in ASR_CONTAMINATION_FRAGMENTS
+                if fragment in compact), None)
+    if hit:
+        return f'实际字幕含已确认的CPU ASR污染片段「{hit}」，须听辨或更换选段'
+    return None
+
+
+def ass_dialogue_text(content):
+    """Return the exact visible dialogue text from an ASS file.
+
+    The uploader uses this to inspect the rendered subtitle payload instead of
+    trusting a boolean in meta.json.
+    """
+    rows = []
+    for line in str(content or '').splitlines():
+        if not line.startswith('Dialogue:'):
+            continue
+        fields = line.split(',', 9)
+        if len(fields) != 10:
+            continue
+        visible = re.sub(r'\{[^}]*\}', '', fields[9])
+        rows.append(visible.replace(r'\N', '').replace(r'\n', ''))
+    return re.sub(r'\s+', '', ''.join(rows))
+
+
+def subtitle_files_text(base_dir, names):
+    base = Path(base_dir)
+    texts = []
+    for name in names or []:
+        path = base / str(name)
+        if not path.is_file() or path.resolve().parent != base.resolve():
+            raise ValueError('实际字幕文件缺失或路径非法')
+        texts.append(ass_dialogue_text(path.read_text(encoding='utf-8-sig')))
+    return ''.join(texts)
 
 
 def plan_identity(cues, target_seconds):

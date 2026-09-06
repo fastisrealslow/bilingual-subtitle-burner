@@ -215,7 +215,7 @@ SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不�
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 480
 PRODUCTION_RULES_VERSION = 2026090604   # final-window target identity + bounded isolated parts
-QUALITY_GATE_VERSION = 11                # v11 禁黑边/源水印/二维码，字幕块居中且最多两行
+QUALITY_GATE_VERSION = 12                # v12 读取真实ASS并校验文本哈希/已确认ASR污染
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
@@ -1950,6 +1950,9 @@ def artifact_quality_error(meta):
         return identity_error
     if meta.get("subtitle_semantic_groups_verified") is not True:
         return "缺少完整意群字幕复检，旧碎句成片必须重做"
+    if (not meta.get("subtitle_files")
+            or not re.fullmatch(r"[a-f0-9]{64}", str(meta.get("subtitle_text_sha256") or ""))):
+        return "缺少真实ASS字幕文本指纹，不能只信完整意群布尔字段"
     if meta.get("no_black_bars_verified") is not True:
         return "成片没有通过黑边/取景复检"
     if meta.get("brand_watermark_applied") is not True:
@@ -1974,6 +1977,19 @@ def artifact_quality_error(meta):
                     or (fp.get("transcript_simhash") or []))):
         return "成片内容指纹不完整"
     return None
+
+
+def artifact_subtitle_error(meta, delivery_dir):
+    """Inspect the actual ASS files carried beside the MP4 before upload."""
+    try:
+        text = editorial.subtitle_files_text(delivery_dir, meta.get("subtitle_files"))
+    except (OSError, UnicodeError, ValueError) as exc:
+        return f"真实ASS字幕读取失败：{exc}"
+    if not text:
+        return "真实ASS字幕为空"
+    if editorial.text_digest(text) != meta.get("subtitle_text_sha256"):
+        return "真实ASS字幕与meta文本指纹不一致"
+    return editorial.transcript_integrity_error(text)
 
 
 def _collect_source_rejections(st):
@@ -2386,7 +2402,8 @@ def publish_handler(event=None, context=None):
     # 老库存是在人物/水印/分辨率/指纹闸门上线前生成的，不能凭“文件存在”继续投。
     # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
     quality_error = (editorial.metadata_error(part, mp4_duration(video))
-                     or artifact_quality_error(part))
+                     or artifact_quality_error(part)
+                     or artifact_subtitle_error(part, tmp / slug))
     if e.get("required_presentation_version", 0) >= 1 and int(part.get("presentation_version") or 0) < e["required_presentation_version"]:
         quality_error = "新日常任务缺少多版式通用规则证明，禁止沿用旧库存"
     if quality_error:

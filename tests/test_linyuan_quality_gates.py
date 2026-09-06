@@ -183,6 +183,8 @@ def _good_artifact_meta():
         "live_region_verified": True,
         "no_qr_verified": True,
         "subtitle_semantic_groups_verified": True,
+        "subtitle_files": ["subtitles.ass"],
+        "subtitle_text_sha256": "b" * 64,
         "no_black_bars_verified": True,
         "brand_watermark_applied": True,
         "has_existing_subtitles": False,
@@ -444,6 +446,24 @@ def test_partial_qr_blocks_old_live_artifacts():
     meta['final_live_identity'] = dict(speaker='林园',sample_count=6,
         same_person_frames=[1,2,3,4,5],confidence=.95,watermark_texts=[])
     assert FC.artifact_quality_error(meta) is None
+
+
+def test_actual_ass_is_read_and_asr_corruption_is_rejected(tmp_path):
+    meta = _good_artifact_meta()
+    ass = tmp_path / "subtitles.ass"
+    ass.write_text("[Events]\nDialogue: 0,0:00:00.00,0:00:03.00,Default,,0,0,0,,"
+                   "{\\an5}你买片公司万丈深渊\n", encoding="utf-8")
+    text = FC.editorial.subtitle_files_text(tmp_path, meta["subtitle_files"])
+    meta["subtitle_text_sha256"] = FC.editorial.text_digest(text)
+    assert "ASR污染" in FC.artifact_subtitle_error(meta, tmp_path)
+
+
+def test_actual_ass_hash_cannot_be_forged_by_boolean(tmp_path):
+    meta = _good_artifact_meta()
+    (tmp_path / "subtitles.ass").write_text(
+        "Dialogue: 0,0:00:00.00,0:00:03.00,Default,,0,0,0,,完整观点\n",
+        encoding="utf-8")
+    assert "指纹不一致" in FC.artifact_subtitle_error(meta, tmp_path)
 
 def test_cropped_qr_finder_is_detected_without_decodable_full_code():
     import cv2

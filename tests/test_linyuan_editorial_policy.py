@@ -86,6 +86,11 @@ def test_unresolved_negation_or_number_requires_audio_review():
     assert policy.metadata_error(meta) is not None
 
 
+def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
+    assert 'ASR污染' in policy.transcript_integrity_error('你买片公司万丈深渊')
+    assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
+
+
 def test_daily_and_explicit_publication_share_the_same_gate():
     spec=importlib.util.spec_from_file_location('editorial_fc',ROOT/'linyuan/fc/index.py')
     fc=importlib.util.module_from_spec(spec);spec.loader.exec_module(fc)

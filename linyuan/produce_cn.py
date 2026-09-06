@@ -69,7 +69,7 @@ MIN_SHORT_EDGE = 480
 SOURCE_MIN_DURATION = int(editorial.MIN_SECONDS)
 SOURCE_MAX_DURATION = 7200
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 11
+QUALITY_GATE_VERSION = 12
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
@@ -1367,6 +1367,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     editorial.range_seconds(cues,picks[0])
     pick=picks[0]
     text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    integrity_error=editorial.transcript_integrity_error(text)
+    if integrity_error:
+        raise VisualQualityError(integrity_error)
     digest=editorial.text_digest(text)
     cache=work/f'editorial_review{suffix}.json'
     if cache.exists():
@@ -4008,10 +4011,15 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         name = f"subtitles{suffix}-{n}.ass"
         (out / name).write_bytes((work / f"seg{suffix}{n}.ass").read_bytes())
         subtitle_files.append(name)
+    rendered_subtitle_text = editorial.subtitle_files_text(out, subtitle_files)
+    subtitle_integrity_error = editorial.transcript_integrity_error(rendered_subtitle_text)
+    if subtitle_integrity_error:
+        raise VisualQualityError(subtitle_integrity_error)
     return {
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
         "subtitle_files": subtitle_files,
+        "subtitle_text_sha256": editorial.text_digest(rendered_subtitle_text),
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover.name if cover else None,
