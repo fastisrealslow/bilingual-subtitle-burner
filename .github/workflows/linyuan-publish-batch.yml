@@ -12,6 +12,11 @@ on:
         required: true
         default: '14'
         type: string
+      source_url:
+        description: '本批实际母片 URL（新六条逐文件验收必须精确匹配）'
+        required: false
+        default: ''
+        type: string
   workflow_run:
     workflows: ['中文源出片']
     types: [completed]
@@ -35,6 +40,7 @@ jobs:
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
       BATCH_SLUG: ${{ inputs.slug || 'ly-parity-v3-14-0905' }}
       BATCH_TOTAL: ${{ inputs.total || '14' }}
+      SOURCE_URL: ${{ inputs.source_url || 'https://www.bilibili.com/video/BV1Pzug6fEyY' }}
       SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
       - uses: actions/setup-python@v5
@@ -116,7 +122,13 @@ jobs:
                   state = json.loads(response.read().decode())
               daily = state.get("daily_publish") or {}
               today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
-              if daily.get("date") == today and int(daily.get("count") or 0) >= 6:
+              if slug.startswith('ly-fresh-six-0906-'):
+                  fresh = daily.get('fresh_six') or {}
+                  if (fresh.get('date') == today
+                          and int(fresh.get('count') or 0) >= 6):
+                      print("本次新六条已达6条，停止投稿", flush=True)
+                      raise SystemExit(0)
+              elif daily.get("date") == today and int(daily.get("count") or 0) >= 6:
                   print("今日已达6条，剩余交回日常定时发布队列", flush=True)
                   raise SystemExit(0)
               for item in state.get("dispatched", []):
@@ -133,7 +145,7 @@ jobs:
                   # 一次 FC 调用只投一条：失败只重试当前 part，不在函数内递归上传。
                   "batch_remaining": 1,
                   "ignore_daily_limit": False,
-                  "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
+                  "source_url": os.environ["SOURCE_URL"],
                   "title": "2026年8月7日林园57分钟专访",
               }).encode()
               accepted = False

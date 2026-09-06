@@ -54,7 +54,20 @@ MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08
 # outputs may use the separate, expiring six-slot allowance.
 FRESH_SIX_DATE = "2026-09-06"
 FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 7)}
-FRESH_SIX_APPROVED = {}  # MP4 SHA256 -> {slug, source_url, review}; populated after actual review.
+FRESH_SIX_APPROVED = {
+    # Run 34030084818, artifact 9988361761. Actual final_3.mp4, ASS and six-frame
+    # contact sheet reviewed 2026-09-06: V11 static authority portrait card;
+    # no external watermark/QR/black fill; complete screen-level intent groups.
+    "2d6dfa9fbaabf59df0b2ba839a9af37b87c8df694f7509644c5cbfa6aacb8035": {
+        "slug": "ly-fresh-six-0906-06",
+        "source_url": "https://www.bilibili.com/video/BV1oq5UzpEQ5",
+        "part_index": 0,
+        "artifact_name": "deliver-ly-fresh-six-0906-06",
+        "final": "final_3.mp4",
+        "cover": "cover_3.jpg",
+        "review": "actual MP4/ASS/contact-sheet reviewed; audio_card 1/6",
+    },
+}
 
 
 def fresh_six_budget(daily, slug, today):
