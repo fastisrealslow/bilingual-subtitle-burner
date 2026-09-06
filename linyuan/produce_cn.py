@@ -1351,13 +1351,16 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     """Validate model-selected boundaries against source characters and timing."""
     from presentation import word_spans, wrap_words
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
-    chars=[]; entry_bounds=set()
+    chars=[]; entry_bounds=set(); punctuation_bounds=set()
     for i,e in enumerate(entries):
         a,b=float(e['start_sec']),float(e['end_sec'])
         if i+1<len(entries): b=min(b,float(entries[i+1]['start_sec']))
         original=e.get('zh','')
         for j,c in enumerate(original):
-            if strip(c): chars.append((c,a+(b-a)*j/len(original),a+(b-a)*(j+1)/len(original)))
+            if strip(c):
+                chars.append((c,a+(b-a)*j/len(original),a+(b-a)*(j+1)/len(original)))
+            elif c in '，。！？；：、':
+                punctuation_bounds.add(len(chars))
         if chars:
             entry_bounds.add(len(chars))
     source=''.join(c[0] for c in chars)
@@ -1390,7 +1393,8 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
 
     def split_long_group(start, end):
         """Split only at original ASR-cue word boundaries, never by character count."""
-        candidates = sorted(({start, end} | entry_bounds) & bounds)
+        candidates = sorted(
+            ({start, end} | entry_bounds | punctuation_bounds) & bounds)
         best = {start: (0, [])}
         for a in candidates:
             if a not in best or a >= end:
@@ -1410,7 +1414,10 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                     continue
                 # Prefer readable complete ASR phrases around 8–18 characters;
                 # a short final phrase is allowed but never flashed below .25 s.
-                cost = best[a][0] + abs(len(part)-14) + (8 if len(part)<4 else 0)
+                boundary_cost = (0 if b in punctuation_bounds else
+                                 (2 if b in entry_bounds else 20))
+                cost = (best[a][0] + abs(len(part)-14)
+                        + (8 if len(part)<4 else 0) + boundary_cost)
                 if b not in best or cost < best[b][0]:
                     best[b] = (cost, best[a][1] + [
                         (a, b, part, cue_capacity, cue_font)])

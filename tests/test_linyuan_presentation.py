@@ -246,3 +246,16 @@ def test_long_group_does_not_split_at_incomplete_source_cue():
     with pytest.raises(ValueError, match='无法安全重分'):
         P.apply_semantic_groups(
             entries, ['我们因为看好医药所以买入'], 12, font_px=48)
+
+
+def test_long_group_can_use_real_punctuation_inside_an_asr_cue():
+    entries = [
+        dict(start_sec=0, end_sec=4, zh='快速消费是与'),
+        dict(start_sec=4, end_sec=10,
+             zh='嘴巴有关的与生命有关的，这些企业在慢慢增长'),
+    ]
+    groups = P.apply_semantic_groups(
+        entries, ['快速消费是与嘴巴有关的与生命有关的这些企业在慢慢增长'],
+        12, font_px=48)
+    assert [g['zh'] for g in groups] == [
+        '快速消费是与嘴巴有关的与生命有关的', '这些企业在慢慢增长']
