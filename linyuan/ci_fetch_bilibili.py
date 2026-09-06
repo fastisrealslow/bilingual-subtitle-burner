@@ -152,7 +152,9 @@ def download_one(op, urls, referer, out, attempts=3):
             try:
                 req = urllib.request.Request(
                     url, headers={"User-Agent": UA, "Referer": referer})
-                with op.open(req, timeout=600) as response, tmp.open("wb") as handle:
+                # A stalled mirror should yield to its backups. This is socket
+                # inactivity, not a 60-second cap on a progressing large video.
+                with op.open(req, timeout=60) as response, tmp.open("wb") as handle:
                     expected = int(response.headers.get("Content-Length") or 0)
                     while True:
                         chunk = response.read(1 << 20)
