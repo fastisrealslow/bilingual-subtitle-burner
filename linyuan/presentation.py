@@ -316,7 +316,14 @@ def verify_render(path, layout, samples=12):
         if not ok:
             cap.release(); raise ValueError('成片复检抽帧不足')
         checked+=1
-        scaled=cv2.resize(frame,(round(width*min(1,960/width)),round(height*min(1,960/width))))
+        # In the generated card, source pixels exist only in this window.
+        # Detecting across title glyphs + source pixels creates false QR quads
+        # spanning unrelated layers (observed in actual final_3 on 2026-09-06).
+        # Keep full-frame detection for native footage, and retain the separate
+        # partial-finder checks on the moving source window in the producer.
+        qr_frame=frame[360:830,44:676] if layout['mode']=='audio_card' else frame
+        qh,qw=qr_frame.shape[:2]
+        scaled=cv2.resize(qr_frame,(round(qw*min(1,960/qw)),round(qh*min(1,960/qw))))
         found,points=detector.detect(scaled)
         text=''
         if found and points is not None:
@@ -339,4 +346,5 @@ def verify_render(path, layout, samples=12):
         raise ValueError('成片存在持续黑色填充边')
     return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True,
             'render_checks':{'version':VERSION,'frames_checked':checked,
-                             'dimensions_match':True,'qr_detected':False,'black_edge_hits':black}}
+                             'dimensions_match':True,'qr_detected':False,'black_edge_hits':black,
+                             'qr_scope':'source_window' if layout['mode']=='audio_card' else 'full_frame'}}

@@ -29,6 +29,21 @@ def test_measured_crop_is_bound_to_source_bytes_and_dimensions():
     assert P.reviewed_source_live_crop(report,1920,1080) is None
     assert P.reviewed_source_live_crop({'source_sha256':'unseen'},1280,720) is None
 
+
+def test_encoded_qr_inside_card_source_window_is_rejected(tmp_path):
+    import cv2
+    import numpy as np
+    frame=np.full((1280,720,3),238,dtype=np.uint8)
+    code=cv2.QRCodeEncoder_create().encode('actual-source-qr')
+    code=cv2.resize(code,(200,200),interpolation=cv2.INTER_NEAREST)
+    frame[460:660,220:420]=cv2.cvtColor(code,cv2.COLOR_GRAY2BGR)
+    video=tmp_path/'card-qr.mp4'
+    writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),12,(720,1280))
+    for _ in range(12):writer.write(frame)
+    writer.release()
+    with pytest.raises(ValueError,match='二维码'):
+        V.verify_render(video,V.layout_for(720,1280,True))
+
 spec = importlib.util.spec_from_file_location('presentation_fc', ROOT / 'linyuan/fc/index.py')
 FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
