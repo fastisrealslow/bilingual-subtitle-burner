@@ -155,6 +155,30 @@ def test_encoded_qr_is_still_rejected(tmp_path):
         V.verify_render(path,V.layout_for(640,480))
 
 
+def test_damaged_undecodable_qr_keeps_surviving_finder_gate():
+    import cv2
+    import numpy as np
+    code=cv2.QRCodeEncoder_create().encode('damaged-qr-regression')
+    # Remove quiet border and destroy payload while retaining finder corners.
+    ink=np.argwhere(code==0)
+    lo=ink.min(axis=0);hi=ink.max(axis=0)+1
+    code=code[lo[0]:hi[0],lo[1]:hi[1]]
+    code=cv2.resize(code,(224,224),interpolation=cv2.INTER_NEAREST)
+    code[75:190,75:190]=127
+    points=np.array([[[0,0],[223,0],[223,223],[0,223]]],dtype=np.float32)
+    assert V.qr_candidate_has_finders(code,points)
+    assert not V.qr_candidate_has_finders(np.full((224,224),127,dtype=np.uint8),points)
+
+
+def test_tiny_spoken_filler_merges_without_losing_text_or_faking_time():
+    entries=[dict(start_sec=0,end_sec=2,zh='我们已经看到了曙光'),
+             dict(start_sec=2,end_sec=2.1,zh='啊')]
+    groups=P.apply_semantic_groups(entries,['我们已经看到了曙光','啊'],12,48)
+    assert len(groups)==1
+    assert groups[0]['zh']=='我们已经看到了曙光啊'
+    assert groups[0]['end_sec']==2.1
+
+
 def test_zero_area_qr_false_candidate_is_not_decoded(tmp_path,monkeypatch):
     import cv2
     import numpy as np

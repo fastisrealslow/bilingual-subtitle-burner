@@ -300,6 +300,37 @@ def qr_is_plausible(points, width, height):
     return bool((angles<.5).all() and cv2.isContourConvex(p.astype('float32')))
 
 
+def qr_candidate_has_finders(frame, points):
+    """An undecoded quad needs QR finder structure, not just four corners.
+
+    OpenCV detects large quads across faces/bookshelves in this interview.
+    Preserve undecodable/damaged codes with two surviving finder patterns;
+    decoded codes and the producer's separate cropped-finder gate still reject.
+    """
+    import cv2
+    import numpy as np
+    p=np.asarray(points,dtype=np.float32).reshape(4,2)
+    target=np.array([[0,0],[223,0],[223,223],[0,223]],dtype=np.float32)
+    gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY) if frame.ndim==3 else frame
+    square=cv2.warpPerspective(gray,cv2.getPerspectiveTransform(p,target),(224,224))
+    template=np.zeros((7,7),dtype=np.uint8)
+    template[1:6,1:6]=255; template[2:5,2:5]=0
+    for modules in range(21,178,4):
+        size=max(7,round(224*7/modules))
+        edge=min(112,size+max(6,round(size*.25)))
+        pattern=cv2.resize(template,(size,size),interpolation=cv2.INTER_NEAREST)
+        pattern=cv2.GaussianBlur(pattern,(3,3),.6)
+        hits=0
+        for corner in (square[:edge,:edge],square[:edge,-edge:],
+                       square[-edge:,:edge],square[-edge:,-edge:]):
+            _,score,_,point=cv2.minMaxLoc(cv2.matchTemplate(corner,pattern,cv2.TM_CCOEFF_NORMED))
+            x,y=point
+            hits+=int(score>=.65 and float(corner[y:y+size,x:x+size].std())>=35)
+        if hits>=2:
+            return True
+    return False
+
+
 def verify_render(path, layout, samples=12):
     """Check actual encoded dimensions and frames, not a hardcoded portrait window."""
     import cv2
@@ -334,7 +365,17 @@ def verify_render(path, layout, samples=12):
                 points=None
             else:
                 text,_=detector.decode(scaled,points)
-        if text or (points is not None and qr_is_plausible(points,scaled.shape[1],scaled.shape[0])):
+        plausible=points is not None and qr_is_plausible(points,scaled.shape[1],scaled.shape[0])
+        finder_match=plausible and qr_candidate_has_finders(scaled,points)
+        if plausible:
+            # Keep the actual candidate for review even when it lacks QR structure.
+            import json
+            proof=Path(path).parent/'_tmp'/'qr_review'; proof.mkdir(parents=True,exist_ok=True)
+            name=f'{Path(path).stem}-frame-{i}'
+            cv2.imwrite(str(proof/(name+'.jpg')),scaled)
+            (proof/(name+'.json')).write_text(json.dumps(dict(points=points.tolist(),
+                decoded=bool(text),finder_match=bool(finder_match))))
+        if text or finder_match:
             cap.release(); raise ValueError(f'成片第{i}个抽检帧存在二维码候选')
         gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         # Uniform near-black outer borders, not naturally dark image content.

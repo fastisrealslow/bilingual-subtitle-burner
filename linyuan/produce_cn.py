@@ -1472,6 +1472,23 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         raise ValueError('完整意群分组为空或格式错误')
     if ''.join(strip(t) for t in texts)!=source:
         raise ValueError('意群分组改写或丢失原话，拒绝烧录')
+    # A spoken filler/call-out can be <250 ms even when its text is a whole
+    # word. Remove that screen boundary while preserving the original times
+    # and every character. The merged group still faces all layout/8s gates.
+    texts=list(texts)
+    while len(texts)>1:
+        offset=0; short=None
+        for i,text in enumerate(texts):
+            end=offset+len(strip(text))
+            if chars[end-1][2]-chars[offset][1]<.25:
+                short=i; break
+            offset=end
+        if short is None:
+            break
+        if short:
+            texts[short-1:short+1]=[texts[short-1]+texts[short]]
+        else:
+            texts[:2]=[texts[0]+texts[1]]
     bounds={0,len(source)}|{b for a,b in word_spans(source)}
 
     def fit_lines(text):
@@ -1669,7 +1686,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
                 boundary+=len(piece); breaks.append(boundary)
             if any(b-a>max_group_chars for a,b in zip([0]+breaks,breaks)):
                 breaks=repair_oversized_groups(breaks)
-            texts=[transcript[a:b] for a,b in zip([0]+breaks,breaks)]
+            texts=repair_semantic_boundaries([transcript[a:b] for a,b in zip([0]+breaks,breaks)])
             result=apply_semantic_groups(
                 entries, texts, capacity, layout.get('subtitle_font_px'))
             cache_path.write_text(json.dumps(texts,ensure_ascii=False,indent=2))
@@ -2118,11 +2135,12 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
                 black_edge_hits += 1
             try:
                 _decoded, points, _straight = qr.detectAndDecode(region)
-                from presentation import qr_is_plausible
+                from presentation import qr_is_plausible, qr_candidate_has_finders
                 # OpenCV may return repeated corners or vertices far outside
                 # the image. Those cannot describe a QR; keep decoded codes,
                 # plausible complete candidates and the separate finder gate.
-                if _decoded or (points is not None and qr_is_plausible(points,w,h)):
+                if _decoded or (points is not None and qr_is_plausible(points,w,h)
+                                and qr_candidate_has_finders(region,points)):
                     qr_hits += 1
             except cv2.error:
                 pass
@@ -4054,6 +4072,8 @@ def produce_part_with_budget(*args, budget_sec=None, **kwargs):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--only-reviewed-parts', default='',
+                    help='Recovery only: comma-separated reviewed source part numbers; default all')
     ap.add_argument("--source", required=True)
     ap.add_argument("--slug", required=True)
     ap.add_argument("--speaker", default="林园")
@@ -4197,6 +4217,13 @@ def main():
     mid_idx = None
 
     from batch_delivery import quarantine_part, write_json
+    retry_parts=None
+    if args.only_reviewed_parts:
+        if curated is None or not re.fullmatch(r'[1-9][0-9]*(,[1-9][0-9]*)*',args.only_reviewed_parts):
+            raise ValueError('按条补产仅接受已核对选段的正整数编号')
+        retry_parts={int(n) for n in args.only_reviewed_parts.split(',')}
+        if not retry_parts.issubset(set(range(1,len(work_items)+1))):
+            raise ValueError('补产编号不在已核对选段中')
     metas, rejected = [], []
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
@@ -4226,6 +4253,8 @@ def main():
             "quality_gate_version": QUALITY_GATE_VERSION})
 
     for ci, (a, b, preselected_picks) in enumerate(work_items):
+        if retry_parts is not None and ci+1 not in retry_parts:
+            continue
         suffix = "" if len(work_items) == 1 else f"_{ci + 1}"
         seg_cues = cues[a:b + 1]
         target_sec = (COMPETITOR_13_DURATION_PROFILE[ci]

@@ -44,6 +44,11 @@ on:
         required: false
         default: '0'
         type: string
+      reviewed_parts:
+        description: '仅补产已核对选段编号，逗号分隔；留空正常生产全部'
+        required: false
+        default: ''
+        type: string
       include_full:
         description: '追加完整访谈'
         required: false
@@ -216,6 +221,7 @@ jobs:
           EN_FONT: DejaVu Sans
           # auto：干净原画用实景封面，资料卡在浅色/深色间按标题稳定选择。
           COVER_STYLE: ${{ vars.COVER_STYLE || 'auto' }}
+          REVIEWED_PARTS: ${{ inputs.reviewed_parts }}
         run: |
           set -euo pipefail
           python3 -u produce_cn.py \
@@ -226,6 +232,7 @@ jobs:
             --source-platform "${{ inputs.source_platform }}" \
             --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json" \
             --split-highlights \
+            --only-reviewed-parts "$REVIEWED_PARTS" \
             ${{ inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \
             ${{ inputs.include_full && '--include-full' || '' }} \
             ${{ inputs.prefer_live_video && '--prefer-live-video' || '' }}
@@ -243,6 +250,9 @@ jobs:
             linyuan/deliver/${{ inputs.slug }}/_tmp/context_response*.txt
             linyuan/deliver/${{ inputs.slug }}/_tmp/editorial_review*.json
             linyuan/deliver/${{ inputs.slug }}/_tmp/source_quality.json
+            linyuan/deliver/${{ inputs.slug }}/_tmp/qr_review/
+            linyuan/deliver/${{ inputs.slug }}/_tmp/semantic*.json
+            linyuan/deliver/${{ inputs.slug }}/_tmp/semantic*.txt
             linyuan/deliver/${{ inputs.slug }}/batch_report.json
             linyuan/deliver/${{ inputs.slug }}/meta.json
             linyuan/deliver/${{ inputs.slug }}/subtitles*.ass
