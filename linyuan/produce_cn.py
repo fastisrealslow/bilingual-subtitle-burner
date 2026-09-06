@@ -1485,6 +1485,16 @@ def repair_semantic_boundaries(texts):
     return out
 
 
+def token_breaks_to_char_offsets(selected, tokens):
+    """Map selected whole-word IDs; a model never has to count characters."""
+    if (not isinstance(selected,list) or not selected
+            or any(type(n) is not int or not 1<=n<=len(tokens) for n in selected)
+            or selected[-1]!=len(tokens)
+            or any(b<=a for a,b in zip([0]+selected,selected))):
+        raise ValueError('换屏词编号须从1开始、严格递增并覆盖最后一个词')
+    return [tokens[n-1]['end'] for n in selected]
+
+
 def semantic_caption_entries(entries, api_key, layout, cache_path):
     """Use the language model for meaning; validate every character locally."""
     capacity=layout['line_capacity']
@@ -1499,7 +1509,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
     # Ask for boundary indices, never a copied transcript: models tend to
     # silently repair spoken repetitions/ASR errors while copying strings.
     transcript=re.sub(r'[\s，。！？；：、]', '', ''.join(e.get('zh','') for e in entries))
-    tokens=[{'end':b,'text':transcript[a:b]} for a,b in word_spans(transcript)]
+    tokens=[{'id':i+1,'end':b,'text':transcript[a:b]} for i,(a,b) in enumerate(word_spans(transcript))]
     # 48 px captions may shrink per cue, but never below 38 px.  Tell the
     # model the actual bounded two-line limit and enforce it locally.  The old
     # code mentioned a nominal limit only in the prompt; an oversized group
@@ -1517,19 +1527,18 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
             if end-start<=max_group_chars:
                 repaired.append(end); start=end; continue
             parent=transcript[start:end]
-            parent_bounds={0,len(parent)}|{b for _a,b in word_spans(parent)}
-            choices=[{'end':b,'left':parent[max(0,b-8):b],
-                      'right':parent[b:min(len(parent),b+8)]}
-                     for b in sorted(parent_bounds) if 0<b<len(parent)]
+            choices=[{'id':i+1,'end':b,'text':parent[a:b]}
+                     for i,(a,b) in enumerate(word_spans(parent))]
+            parent_bounds={0,len(parent)}|{t['end'] for t in choices}
             request=(
                 '只修复下面这一个过长但语义完整的中文字幕意群。请在完整句/完整意群处'
                 '增加换屏，不能按固定字数切，不能拆开专名、否定词、数字单位或谓宾结构。'
-                f'只返回JSON {{"break_after":[递增位置]}}；每段最多{max_group_chars}字，'
-                f'最后一个位置必须是{len(parent)}。原文：{parent}。'
-                '可选边界及前后文：'+json.dumps(choices,ensure_ascii=False))
+                f'只返回JSON {{"break_after_tokens":[每屏末词id]}}；每段最多{max_group_chars}字，'
+                f'最后一个id必须是{len(choices)}。选词id，不是字符位置，不需要计算字数位置。原文：{parent}。'
+                '词序列：'+json.dumps(choices,ensure_ascii=False))
             answer=llm([{'role':'user','content':request}],api_key,
                        temperature=0,max_tokens=1200,budget_sec=45)
-            local=_parse_json_object(answer)['break_after']
+            local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices)
             if (not isinstance(local,list) or not local
                     or any(type(n) is not int for n in local)
                     or local[-1]!=len(parent)
@@ -1542,22 +1551,23 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
             start=end
         return repaired
     prompt=('请按中文完整句/完整意群给原文选字幕换屏位置。只返回JSON '
-            '{"break_after":[递增的字符结束位置]}，最后一个位置必须等于'
-            +str(len(transcript))+'。相邻结束位置的差必须为1到'+str(capacity*2)+
-            '，尽量每屏8到22字；在必须保留完整意群时可放宽，但绝不能超过'
-            +str(max_group_chars)+'字。仅可从下面token的end字段选择位置，'
+            '{"break_after_tokens":[每屏末词的id]}，最后一个id必须等于'
+            +str(len(tokens))+'。只选下面明确给出的词id，不是字符位置，不需要计算累计字数。'
+            '尽量每屏8到22字；在必须保留完整意群时可放宽，但绝不能超过'
+            +str(max_group_chars)+'字。仅可从下面token的id字段选择位置，'
             '但绝不能仅按固定字数切割。不能把否定词和谓语拆开、不能以'
             '“还更、因为、如果、把、被、与”等未完成成分结束。'
             '可以选完整短语作为一个意群，如“守住现金流的企业”或“大家还更愿意买”。'
             '必须保留原文逗号体现的意群边界。错误：投资技巧一定要是 / 大行业；正确：投资技巧 / 一定要是大行业越来越大。'
             '错误：工资收入高 / 的一些发达国家；正确：凡是工资收入高的一些发达国家。'
             '原始ASR含标点及时间：'+json.dumps(entries,ensure_ascii=False)+
-            '。用于计数的原文：'+transcript+'。带结束字符位置的词序列：'+json.dumps(tokens,ensure_ascii=False))
+            '。连续原文：'+transcript+'。带id的完整词序列：'+json.dumps(tokens,ensure_ascii=False))
     error=''
     for attempt in range(3):
         try:
             response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=6000,budget_sec=60)
-            breaks=_parse_json_object(response)['break_after']
+            cache_path.with_suffix(f'.attempt{attempt+1}.txt').write_text(response,encoding='utf-8')
+            breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens)
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):
                 raise ValueError('换屏位置必须严格递增并覆盖全部原文')
             merged=repair_semantic_boundaries([transcript[a:b] for a,b in zip([0]+breaks,breaks)])
