@@ -100,6 +100,10 @@ def infer(args):
     import numpy as np
     args.output.mkdir(parents=True, exist_ok=True)
     weights = download_weights(args.backend, args.output / 'weights')
+    context = ''
+    if getattr(args, 'context_file', None):
+        words = json.loads(args.context_file.read_text(encoding='utf-8'))
+        context = '相关词汇：' + '、'.join(words) + '。仅供识别参考，不添加音频中没有的内容。'
     offline_only()
     started = time.perf_counter()
     if args.backend == 'qwen3-0.6b':
@@ -110,7 +114,7 @@ def infer(args):
         model = Qwen3ASRModel.from_pretrained(str(weights), dtype=torch.float32,
             device_map='cpu', max_inference_batch_size=1, max_new_tokens=256)
         def decode(wav):
-            result = model.transcribe(audio=str(wav), language='Chinese')[0]
+            result = model.transcribe(audio=str(wav), language='Chinese', context=context)[0]
             return dict(text=result.text, tokens=[], timestamps=[])
     else:
         from sherpa_onnx import OfflineRecognizer
@@ -133,7 +137,8 @@ def infer(args):
     report = dict(backend=args.backend, device='cpu', threads=args.threads,
         model_load_seconds=time.perf_counter()-started, platform=platform.platform(),
         cpu_count=os.cpu_count(), cpu_info=Path('/proc/cpuinfo').read_text().split('\n')[:12],
-        networking_during_inference=False, reference_kind='no human gold reference', results=[])
+        networking_during_inference=False, context=context,
+        reference_kind='no human gold reference', results=[])
     manifest = json.loads((args.audio/'manifest.json').read_text())
     for item in manifest:
         start = time.perf_counter()
@@ -158,5 +163,6 @@ if __name__ == '__main__':
     p.add_argument('--audio', type=Path, default=Path('benchmark-audio'))
     p.add_argument('--output', type=Path, default=Path('benchmark-result'))
     p.add_argument('--threads', type=int, default=2)
+    p.add_argument('--context-file', type=Path)
     args = p.parse_args()
     prepare(args.audio) if args.mode == 'prepare' else infer(args)

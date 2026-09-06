@@ -1,0 +1,47 @@
+name: 林园 CPU 离线财经词表复测
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/cpu-offline-asr]
+    paths:
+      - .github/workflows/linyuan-asr-context-benchmark.yml
+      - linyuan/asr_finance_vocabulary.json
+permissions:
+  contents: read
+  actions: read
+jobs:
+  context:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: asr-benchmark-audio
+          run-id: 34026954219
+          github-token: ${{ github.token }}
+          path: benchmark-audio
+      - name: Install CPU backend
+        run: |
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-asr
+      - name: Decode locally with finance vocabulary
+        run: >-
+          python -u linyuan/asr_cpu_benchmark.py infer --backend qwen3-0.6b
+          --context-file linyuan/asr_finance_vocabulary.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asr-cpu-qwen3-finance-context
+          path: |
+            benchmark-result/results.json
+            benchmark-result/requirements.txt
+          retention-days: 90
