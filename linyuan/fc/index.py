@@ -774,11 +774,11 @@ def find_content_duplicate(fingerprints, st):
 
 def pick(items, st, n):
     now = time.time()
-    done = {e["key"] for e in st["dispatched"]} | {e["key"] for e in st["rejected"]}
+    done = {e.get("key") for e in st["dispatched"] if e.get("key")} | {e.get("key") for e in st["rejected"] if e.get("key")}
     # 已发布过的 key/source_url：绝不能因 pending_retry 残留被重新派发
     # （2026-08-25 事故：同一视频 BV1yM8x6ZEZy 连续 4 天被重复投稿）
     published_slugs = set(st.get("published", {}).keys())
-    published_keys = {e["key"] for e in st["dispatched"] if e.get("slug") in published_slugs}
+    published_keys = {e.get("key") for e in st["dispatched"] if e.get("key") and e.get("slug") in published_slugs}
     published_srcs = {info.get("source_url", "") for info in st.get("published", {}).values() if info.get("source_url")}
     # 重试项：3 次失败后会进 rejected，这里从 retry_list 重新加回候选
     retry_ready = []
@@ -790,9 +790,9 @@ def pick(items, st, n):
         if now - x.get("ts", 0) > 30 * 60 and x.get("retries", 0) < 3:
             retry_ready.append(x)
     done -= {x["key"] for x in retry_ready}
-    cooling = {e["video_id"] for e in st["dispatched"]
-               if now - e.get("ts", 0) < SAME_VIDEO_COOLDOWN}
-    cooling |= {e["video_id"] for e in st["rejected"]}
+    cooling = {e.get("video_id") for e in st["dispatched"]
+               if e.get("video_id") and now - e.get("ts", 0) < SAME_VIDEO_COOLDOWN}
+    cooling |= {e.get("video_id") for e in st["rejected"] if e.get("video_id")}
     cooling -= {x["video_id"] for x in retry_ready}
     # 排除已发布的视频（防止重复采集自己发的）
     published_bvs = {info.get("bvid", "") for info in st.get("published", {}).values()}
@@ -1347,6 +1347,16 @@ def handler(event, context):
     # 入口事件立即落盘，长下载/上传即使超时也能证明请求实际进入函数。
     flush_logs()
     try:
+        if name == "diagnose-production":
+            import hashlib
+            st = load_state()
+            payload = json.loads(gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True).decode())
+            items = payload if isinstance(payload, list) else payload.get("items", [])
+            return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                    "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_six": 5, "audio_max_per_six": 1,
+                    "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
+                    "pending_inventory": _pending_final_count(st), "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
+                    "daily_publish": st.get("daily_publish", {}), "publish_hours_beijing": sorted(PUBLISH_HOURS)}
         if name == "diagnose-ping":
             log_event("probe_ok", "FC 同步入口 ping 成功", "")
             return {"ok": True, "ts": int(time.time())}
@@ -1435,7 +1445,7 @@ def dispatch_handler(event=None, context=None):
                            "delay_hours": "0", "auto_publish": "false",
                            "source_platform": platform_of(c.get("source", ""))}})
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
-                                     "required_presentation_version": 1,
+                                     "required_presentation_version": 2,
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
@@ -1597,7 +1607,7 @@ def presentation_quality_error(meta):
         return "竖版尺寸不符"
     if mode == "square" and not (w<=h*1.15 and h<=w*1.15):
         return "方版尺寸不符"
-    if mode == "audio_card" and ((w,h)!=(720,1280) or meta.get("render_mode")!="audio_card"):
+    if mode == "audio_card" and ((w,h)!=(720,1280) or meta.get("render_mode") not in {"audio_card", "live_video_card"}):
         return "人物资料卡模式不符"
     if (layout.get("subtitle_max_lines")!=2 or layout.get("subtitle_vertical_alignment")!="center"
             or layout.get("subtitle_layout_version",0)<3 or not 28<=font<=min(w,h)*.10
@@ -1614,6 +1624,22 @@ def presentation_quality_error(meta):
             or not 1<=len(cover.get("headline_lines") or [])<=2
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
+    return None
+
+
+def daily_mix_error(meta, daily):
+    """Six daily releases require >=5 live clips; an audio card follows >=3 live.
+
+    Unknown historical modes do not count as verified live footage.
+    """
+    if meta.get("render_mode") in {"live_video_card", "direct", "delogo", "crop", "crop_delogo"}:
+        return None
+    if meta.get("render_mode") != "audio_card":
+        return "内容形态不明，不能计入真人动态配额"
+    audio = int(daily.get("audio_card_count") or 0) + 1
+    live = int(daily.get("live_video_count") or 0)
+    if audio > int(MAX_PUBLISH_PER_DAY * 0.30) or audio * 10 > (audio + live) * 3:
+        return "音频卡额度暂不可用，继续选择真人动态（每日6条至少5条动态）"
     return None
 
 
@@ -1648,7 +1674,7 @@ def artifact_quality_error(meta):
         return "预发布质检产物记录不完整"
 
     layout = meta.get("layout_proof") or {}
-    if meta.get("presentation_version") == 1:
+    if meta.get("presentation_version") in (1, 2):
         error = presentation_quality_error(meta)
         if error:
             return error
@@ -1715,7 +1741,7 @@ def artifact_quality_error(meta):
 
 def _collect_source_rejections(st):
     """读取失败工作流的素材质检报告，立即淘汰，避免无成片干等 12 小时。"""
-    prefix = "source-reject-"
+    prefixes = ("source-reject-", "production-reject-")
     rejected = 0
     runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
                      "?status=completed&per_page=30").get("workflow_runs", [])
@@ -1726,7 +1752,8 @@ def _collect_source_rejections(st):
             "artifacts", [])
         for artifact in artifacts:
             name = artifact.get("name", "")
-            if not name.startswith(prefix) or artifact.get("expired"):
+            prefix = next((p for p in prefixes if name.startswith(p)), None)
+            if not prefix or artifact.get("expired"):
                 continue
             slug = name[len(prefix):]
             candidate = by_slug.get(slug)
@@ -1753,9 +1780,12 @@ def _collect_source_rejections(st):
                 with zipfile.ZipFile(io.BytesIO(payload)) as archive:
                     report_name = next(
                         n for n in archive.namelist()
-                        if n.endswith("source_quality.json"))
+                        if n.endswith(("source_quality.json", "batch_report.json")))
                     report = json.loads(archive.read(report_name).decode("utf-8"))
-                reason = report.get("reason") or reason
+                if prefix == "production-reject-" and report.get("accepted", 0):
+                    continue  # 有合格片的严格批次交给其显式验收流程，不淘汰全源
+                failures = report.get("rejected") or []
+                reason = report.get("reason") or (failures[0].get("reason") if failures else None) or reason
             except Exception as exc:
                 log.warning(f"{slug} 素材拒绝报告读取失败: {exc}")
             candidate["failed"] = True
@@ -1851,8 +1881,8 @@ def _pending_final_count(st):
             if parts_total <= 1:
                 continue  # 单条已投完
             total += max(0, parts_total - e.get("published_parts", 0))
-        else:
-            total += 1  # 还没投过，按至少 1 条估
+        elif time.time() - float(e.get("ts") or 0) < 6 * 3600:
+            total += 1  # 只把六小时内在制任务计入库存；老失败占位不能阻塞补量
     return total
 
 
@@ -2102,7 +2132,7 @@ def publish_handler(event=None, context=None):
     # 老库存是在人物/水印/分辨率/指纹闸门上线前生成的，不能凭“文件存在”继续投。
     # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
     quality_error = artifact_quality_error(part)
-    if e.get("required_presentation_version", 0) >= 1 and part.get("presentation_version") != 1:
+    if e.get("required_presentation_version", 0) >= 1 and int(part.get("presentation_version") or 0) < e["required_presentation_version"]:
         quality_error = "新日常任务缺少多版式通用规则证明，禁止沿用旧库存"
     if quality_error:
         started = _request_quality_reprocess(
@@ -2111,6 +2141,12 @@ def publish_handler(event=None, context=None):
                   "quality_rejected": 1}
         return _continue_after_rejection(event, context, slug, result, tmp)
     
+    mix_error = daily_mix_error(part, st["daily_publish"])
+    if mix_error:
+        log.info(f"{slug}: {mix_error}")
+        return _continue_after_rejection(event, context, slug,
+                                         {"published": 0, "mix_deferred": 1}, tmp)
+
     # FC 依赖层路径：尝试多个可能的路径
     import sys
     possible_paths = ["/opt/python", "/opt/python/lib/python3.10/site-packages", "/code/python"]
@@ -2249,11 +2285,14 @@ def publish_handler(event=None, context=None):
         # 记录这次投到第几条了（长视频多条时分次投稿）
         e["published_parts"] = k + 1
         st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1
+        mode_counter = "audio_card_count" if part.get("render_mode") == "audio_card" else "live_video_count"
+        st["daily_publish"][mode_counter] = st["daily_publish"].get(mode_counter, 0) + 1
         prev_pub = st.get("published", {}).get(slug, {})
         prev_bvids = prev_pub.get("bvids", []) + [bvid]
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          "render_mode": part.get("render_mode"),
                           "ts": int(time.time()),
                           "fingerprints": meta_info.get("fingerprints") or {}})
         st["published"][slug] = {
@@ -2397,3 +2436,4 @@ def publish_tv_wine_review_once(event):
             "sha": lock_sha, "content": encoded()})
         log_event("review_publish", json.dumps(receipt, ensure_ascii=False))
         return receipt
+

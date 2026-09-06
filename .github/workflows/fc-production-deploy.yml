@@ -9,6 +9,7 @@ on:
     paths:
       - linyuan/fc/index.py
       - linyuan/fc/deploy_code.py
+      - linyuan/fc/verify_production.py
       - .github/workflows/fc-production-deploy.yml
   workflow_dispatch:
 
@@ -61,5 +62,17 @@ jobs:
           zip -j "$FC_CODE_ZIP" linyuan/fc/index.py
           unzip -t "$FC_CODE_ZIP"
 
+      - name: 单片隔离与每日配额回归
+        run: python -m unittest discover -s tests -p test_linyuan_batch_isolation.py -v
+
       - name: 部署到阿里云函数计算
         run: python linyuan/fc/deploy_code.py
+
+      - name: 核对部署代码与定时器并补调六个候选
+        run: python linyuan/fc/verify_production.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-verification
+          path: production-verification.json
+          if-no-files-found: error
