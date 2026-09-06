@@ -2005,8 +2005,14 @@ def _collect_source_rejections(st):
     rejected = 0
     runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
                      "?status=completed&per_page=30").get("workflow_runs", [])
-    by_slug = {e.get("slug"): e for e in st.get("dispatched", [])
-               if e.get("slug")}
+    by_slug = {}
+    for entry in st.get("dispatched", []):
+        slug = entry.get("slug")
+        if not slug:
+            continue
+        current = by_slug.get(slug)
+        if current is None or float(entry.get("ts") or 0) >= float(current.get("ts") or 0):
+            by_slug[slug] = entry
     for run in runs:
         artifacts = gh("GET", f"/actions/runs/{run['id']}/artifacts").get(
             "artifacts", [])
@@ -2051,6 +2057,14 @@ def _collect_source_rejections(st):
             candidate["failed"] = True
             candidate["last_error"] = reason
             candidate["source_quality_rejected"] = True
+            # A deterministic slug may have several dispatch rows after prior
+            # retries.  The artifact rejects the source/slug, not merely the
+            # newest row, so close every duplicate row as well.
+            for row in st.get("dispatched", []):
+                if row.get("slug") == slug:
+                    row["failed"] = True
+                    row["last_error"] = reason
+                    row["source_quality_rejected"] = True
             # A gate rejection is terminal for this exact source.  Leaving the
             # old retry record behind would make pick() subtract the rejected
             # key from `done` after its cooldown and dispatch it again.
@@ -2145,7 +2159,17 @@ def _continue_after_rejection(event, context, slug, result, cleanup_dir=None):
 def _pending_final_count(st):
     """待投成片总数（所有素材剩余未投 part 之和），调度端用它防积压。"""
     total = 0
-    for e in st.get("dispatched", []):
+    # Retries keep historical dispatch rows for auditability.  Inventory is a
+    # current-state metric, so count only the newest row of each slug.
+    latest_by_slug = {}
+    for entry in st.get("dispatched", []):
+        slug = entry.get("slug")
+        if not slug:
+            continue
+        current = latest_by_slug.get(slug)
+        if current is None or float(entry.get("ts") or 0) >= float(current.get("ts") or 0):
+            latest_by_slug[slug] = entry
+    for e in latest_by_slug.values():
         if not (e.get("slug") and not e.get("failed")):
             continue
         if e.get("production_rules_version") != PRODUCTION_RULES_VERSION:

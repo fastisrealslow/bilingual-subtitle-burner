@@ -362,7 +362,10 @@ def test_workflow_runs_source_gate_before_asr_setup_and_uploads_rejection():
 def test_fc_consumes_source_rejection_artifact(monkeypatch):
     state = {"dispatched": [{
         "slug": "ly-bad", "key": "source:bad", "video_id": "bad",
-        "source_url": "https://example.test/bad",
+        "source_url": "https://example.test/bad", "ts": 1,
+    }, {
+        "slug": "ly-bad", "key": "source:bad", "video_id": "bad",
+        "source_url": "https://example.test/bad", "ts": 2,
     }], "rejected": [], "pending_retry": [
         {"key": "source:bad", "page_url": "https://example.test/bad"},
         {"key": "source:good", "page_url": "https://example.test/good"},
@@ -401,7 +404,7 @@ def test_fc_consumes_source_rejection_artifact(monkeypatch):
     monkeypatch.setattr(FC.urllib.request, "urlopen", lambda *args, **kwargs: Response())
     monkeypatch.setattr(FC, "log_event", lambda *args, **kwargs: None)
     assert FC._collect_source_rejections(state) == 1
-    assert state["dispatched"][0]["failed"] is True
+    assert all(row["failed"] is True for row in state["dispatched"])
     assert "内嵌字幕" in state["rejected"][0]["error"]
     assert [row["key"] for row in state["pending_retry"]] == ["source:good"]
 
@@ -419,6 +422,23 @@ def test_dispatch_consumes_terminal_rejections_before_picking(monkeypatch):
 
     assert FC.dispatch_handler() == {"dispatched": 0}
     assert saved
+
+
+def test_pending_inventory_counts_latest_slug_state_once(monkeypatch):
+    monkeypatch.setattr(FC.time, "time", lambda: 10_000)
+    state = {"dispatched": [
+        {"slug": "same", "ts": 9_000,
+         "production_rules_version": FC.PRODUCTION_RULES_VERSION},
+        {"slug": "same", "ts": 9_500,
+         "production_rules_version": FC.PRODUCTION_RULES_VERSION},
+    ], "published": {}}
+    assert FC._pending_final_count(state) == 1
+
+    state["dispatched"].append({
+        "slug": "same", "ts": 9_700, "failed": True,
+        "production_rules_version": FC.PRODUCTION_RULES_VERSION,
+    })
+    assert FC._pending_final_count(state) == 0
 
 
 def test_rejection_refills_slot_cleans_temp_and_aggregates_result(monkeypatch,
