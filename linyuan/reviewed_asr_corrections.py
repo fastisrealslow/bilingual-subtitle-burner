@@ -12,6 +12,9 @@ RULES=[
     (1080,1088,'人有多大胆地有多大草','人有多大胆地有多大产','原访谈报道完整引用同一句话'),
     (1199,1205,'老老一话','老老龄化','原访谈报道确认此处讨论老龄化自然规律；保留口头重复'),
     (1543,1548,'只有股','绩优股','原访谈报道确认此处是市场主流绩优股'),
+    (1499,1508,'未高的情绪','畏高的情绪','原片字幕caption-006017.jpg与原访谈报道均为畏高'),
+    (1440,1445,'这个话题呢八年','这个话题九八年','原访谈报道确认此处回顾1998年已有的讨论'),
+    (1254,1258,'真正爱的那些人','真正厉害的那些人','原片字幕caption-005020.jpg清楚显示真正厉害的那些人；保留整短语原时间范围'),
 ]
 
 
@@ -20,8 +23,6 @@ def apply_reviewed_corrections(words,source_sha):
     if source_sha!=SOURCE_SHA:
         return result,changes
     for lo,hi,before,after,reason in RULES:
-        if len(before)!=len(after):
-            raise ValueError('Reviewed homophone changes must preserve character timing')
         positions=[i for i,w in enumerate(result)
                    if lo<=w['start']<hi and w['text'].isalnum()]
         text=''.join(result[i]['text'] for i in positions)
@@ -31,9 +32,15 @@ def apply_reviewed_corrections(words,source_sha):
         if any(len(result[i]['text'])!=1 for i in positions):
             raise ValueError('Reviewed correction expects character-level alignment')
         selected=positions[at:at+len(before)]
-        for i,char in zip(selected,after):
-            result[i]['text']=char
-        changes.append(dict(source_sha256=source_sha,start=result[selected[0]]['start'],
-            end=result[selected[-1]]['end'],before=before,after=after,
+        start,end=result[selected[0]]['start'],result[selected[-1]]['end']
+        if len(before)==len(after):
+            for i,char in zip(selected,after):
+                result[i]['text']=char
+        else:
+            # A verified multi-character repair retains the original phrase
+            # interval. Do not claim freshly forced-aligned character times.
+            result[selected[0]:selected[-1]+1]=[dict(text=after,start=start,end=end)]
+        changes.append(dict(source_sha256=source_sha,start=start,end=end,before=before,after=after,
+            timing='original_character_intervals' if len(before)==len(after) else 'original_phrase_interval',
             evidence_url=EVIDENCE_URL,reason=reason))
     return result,changes

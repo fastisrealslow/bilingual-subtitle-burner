@@ -526,6 +526,7 @@ def _asr_cache_identity(src):
         files=[f for p in paths for pattern in ('*.safetensors','*.json') for f in p.glob(pattern)]
         return dict(version=ASR_PIPELINE_VERSION,source_sha256=_sha256_file(src),
             backend='qwen3',chunk_sec=30,overlap_sec=3,threads=2,
+            reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
             models={str(p.resolve()):_sha256_file(p) for p in files})
     model_dir = Path(SENSEVOICE_DIR if ASR_BACKEND == "sensevoice" else FUNASR_DIR)
     model_files = sorted(model_dir.rglob("*.onnx")) + sorted(model_dir.rglob("tokens.txt"))
@@ -4090,8 +4091,14 @@ def main():
         else:
             platform = "unknown"
 
-    # 长视频按时间切成多段，每段出一条；短视频出 1 条
-    if args.target_parts:
+    # A reviewed edit list fixes continuous topic boundaries only. Every range
+    # still goes through independent argument, caption, visual and media gates.
+    from curated_editorial import source_ranges
+    curated=source_ranges(cues,source_report.get('source_sha256'))
+    if curated is not None:
+        chunks=[(a,b) for a,b,_ in curated]
+        print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')
+    elif args.target_parts:
         if args.target_parts != 13:
             sys.exit("当前对标模式只支持已核验的 13 条结构")
         chunks = _chunk_by_duration_profile(cues, COMPETITOR_13_DURATION_PROFILE)
@@ -4122,8 +4129,8 @@ def main():
 
     # 一个时间块可能含多个独立金句。逐条生产时先保留模型选出的完整范围，
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
-    work_items = [(a, b, None) for a, b in chunks]
-    if args.split_highlights and not args.target_parts:
+    work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
+    if curated is None and args.split_highlights and not args.target_parts:
         work_items = []
         for block_no, (a, b) in enumerate(chunks, 1):
             block_cues = cues[a:b + 1]
