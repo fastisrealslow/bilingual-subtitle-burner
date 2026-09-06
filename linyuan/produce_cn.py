@@ -1171,8 +1171,7 @@ def parse_llm_json_array(out):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = editorial.plan_identity(cues, target)
-    identity['selector_version'] = 2
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 2}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
