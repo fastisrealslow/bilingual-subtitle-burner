@@ -49,6 +49,36 @@ MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟�
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
 MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
+# User's 2026-09-06 request excludes the old batch from today's new six.
+# Historical totals remain intact. Only these named, individually reviewed
+# outputs may use the separate, expiring six-slot allowance.
+FRESH_SIX_DATE = "2026-09-06"
+FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 7)}
+FRESH_SIX_APPROVED = {}  # MP4 SHA256 -> {slug, source_url, review}; populated after actual review.
+
+
+def fresh_six_budget(daily, slug, today):
+    if today != FRESH_SIX_DATE or slug not in FRESH_SIX_SLUGS:
+        return None
+    return daily.setdefault("fresh_six", {"date": FRESH_SIX_DATE, "count": 0,
+        "live_video_count": 0, "audio_card_count": 0,
+        "reason": "用户要求旧批次不计入今天新六条；历史实际总数保留"})
+
+
+def fresh_six_review_error(meta, video, slug, source_url):
+    import hashlib
+    sha = (meta.get("fingerprints") or {}).get("sha256")
+    approved = FRESH_SIX_APPROVED.get(sha) or {}
+    if approved.get("slug") != slug or approved.get("source_url") != source_url:
+        return "本次新六条尚无逐条实际MP4验收记录"
+    digest = hashlib.sha256()
+    with Path(video).open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    if digest.hexdigest() != sha:
+        return "实际MP4与已验收文件哈希不一致"
+    return None
+
 PENDING_LIMIT = 24                        # 2026-09-05：允许 8-10 条安全库存；发布仍保持每日 6 条上限
                                           # 2026-09-02 由 10 提到 15：MAX_PER_DAY=7 时一次调度就可能触顶，
                                           # 导致次日调度被永久卡住
@@ -371,11 +401,20 @@ def diagnose_release_download(event=None, context=None):
 
 
 def download_v4_fast_part(slug, part_index, dest_dir):
-    """从逐条 Artifact 的签名 Blob 取件；仅服务本次已授权 V4 批次。"""
-    if slug != "ly-parity-v3-14-0905" or not 0 <= int(part_index) < 14:
+    """Download an exact reviewed part through its signed artifact blob."""
+    reviewed = next((row for row in FRESH_SIX_APPROVED.values()
+                     if row.get("slug") == slug
+                     and row.get("part_index") == int(part_index)), None)
+    if reviewed:
+        name = reviewed["artifact_name"]
+        wanted = {"meta.json", reviewed["final"], reviewed["cover"]}
+    elif slug == "ly-parity-v3-14-0905" and 0 <= int(part_index) < 14:
+        name = f"linyuan-v4-fast-part-{int(part_index) + 1}"
+        wanted = {"meta.json", f"final_{int(part_index)+1}.mp4",
+                  f"cover_{int(part_index)+1}.jpg"}
+    else:
         return False
     import requests
-    name = f"linyuan-v4-fast-part-{int(part_index) + 1}"
     try:
         listing = gh("GET", f"/actions/artifacts?name={name}&per_page=20")
         artifacts = [a for a in listing.get("artifacts", [])
@@ -406,10 +445,8 @@ def download_v4_fast_part(slug, part_index, dest_dir):
                         continue
                     size += len(block)
                     if size > 256 * 1024 * 1024:
-                        raise RuntimeError("V4 part artifact exceeds 256MB")
+                        raise RuntimeError("Reviewed part artifact exceeds 256MB")
                     target.write(block)
-        wanted = {"meta.json", f"final_{int(part_index)+1}.mp4",
-                  f"cover_{int(part_index)+1}.jpg"}
         found = set()
         with zipfile.ZipFile(archive_path) as archive:
             for member in archive.infolist():
@@ -1928,7 +1965,9 @@ def publish_handler(event=None, context=None):
     now = time.time()
     # 指定的已验收批次已有独立 14 条门禁证据，无需每个 part 重扫
     # 最近 30 次出片运行；普通自动队列仍保留素材淘汰扫描。
-    source_rejected = (0 if explicit_v4_batch
+    reviewed_batch = any(row.get("slug") == batch_slug
+                         for row in FRESH_SIX_APPROVED.values())
+    source_rejected = (0 if explicit_v4_batch or reviewed_batch
                        else _collect_source_rejections(st))
     if source_rejected:
         save_state(st)
@@ -1944,8 +1983,10 @@ def publish_handler(event=None, context=None):
     if dp.get("date") != today:
         dp = {"date": today, "count": 0}
         st["daily_publish"] = dp
-    if dp.get("count", 0) >= MAX_PUBLISH_PER_DAY:
-        log.info(f"今日已投 {dp['count']} 条，达每日上限 {MAX_PUBLISH_PER_DAY}，剩余排队到明天")
+    fresh_budget = fresh_six_budget(dp, batch_slug, today)
+    budget = fresh_budget if fresh_budget is not None else dp
+    if budget.get("count", 0) >= MAX_PUBLISH_PER_DAY:
+        log.info(f"本配额已投 {budget['count']} 条，达上限 {MAX_PUBLISH_PER_DAY}")
         save_state(st)
         return {"published": 0}
     attempted = set((event or {}).get("_attempted_slugs") or []) \
@@ -2155,7 +2196,14 @@ def publish_handler(event=None, context=None):
                   "quality_rejected": 1}
         return _continue_after_rejection(event, context, slug, result, tmp)
     
-    mix_error = daily_mix_error(part, st["daily_publish"])
+    if fresh_budget is not None:
+        review_error = fresh_six_review_error(part, video, slug, e.get("source_url") or "")
+        if review_error:
+            log.warning(f"{slug}: {review_error}")
+            shutil.rmtree(tmp, ignore_errors=True)
+            return {"published": 0, "review_required": 1}
+
+    mix_error = daily_mix_error(part, budget)
     if mix_error:
         log.info(f"{slug}: {mix_error}")
         return _continue_after_rejection(event, context, slug,
@@ -2197,6 +2245,8 @@ def publish_handler(event=None, context=None):
                                    or e.get("source_platform")),
            }),
            "--desc", desc, "--tag", tags, "--limit", "1"]
+    # The web submit route is the route with confirmed production receipts.
+    cmd += ["--submit", "web"]
     if cover:
         cmd += ["--cover", str(cover)]
     
@@ -2210,7 +2260,10 @@ def publish_handler(event=None, context=None):
     src_url = (e.get("source_url") or "").strip()
     # 仅本次已明确授权的 V4 全量批次允许同母片重制后再次投递。
     # 其他命名批次仍保留全部历史查重闸门。
-    if src_url and not explicit_v4_batch:
+    # Reviewed new excerpts can continue a previously used long interview.
+    # Their exact MP4 hashes are allowlisted above; content/topic/title checks
+    # below still reject old excerpts, including copies under different URLs.
+    if src_url and not explicit_v4_batch and fresh_budget is None:
         for pslug, pinfo in st.get("published", {}).items():
             if (pinfo.get("source_url") or "").strip() == src_url and pslug != slug:
                 st["published"][slug] = {"bvid": pinfo.get("bvid"), "ts": int(time.time()),
@@ -2301,12 +2354,17 @@ def publish_handler(event=None, context=None):
         st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1
         mode_counter = "audio_card_count" if part.get("render_mode") == "audio_card" else "live_video_count"
         st["daily_publish"][mode_counter] = st["daily_publish"].get(mode_counter, 0) + 1
+        if fresh_budget is not None:
+            fresh_budget["count"] += 1
+            fresh_budget[mode_counter] = fresh_budget.get(mode_counter, 0) + 1
         prev_pub = st.get("published", {}).get(slug, {})
         prev_bvids = prev_pub.get("bvids", []) + [bvid]
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
                           "render_mode": part.get("render_mode"),
+                          "fresh_six_date": FRESH_SIX_DATE if fresh_budget is not None else None,
+                          "source_segments": part.get("segments") or [],
                           "ts": int(time.time()),
                           "fingerprints": meta_info.get("fingerprints") or {}})
         st["published"][slug] = {
@@ -2344,7 +2402,7 @@ def publish_handler(event=None, context=None):
         done += 1
     else:
         # 输出完整错误信息，方便调试
-        log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} {((r.stdout or '') + (r.stderr or ''))[:150]}")
+        log_event("fail", f"✗ {slug} 投稿失败", f"rc={r.returncode} tail={out[-1800:]}")
         log.error(f"✗ {slug} 投稿失败")
         log.error(f"  返回码: {r.returncode}")
         log.error(f"  stdout: {r.stdout[:500]}")
@@ -2450,4 +2508,3 @@ def publish_tv_wine_review_once(event):
             "sha": lock_sha, "content": encoded()})
         log_event("review_publish", json.dumps(receipt, ensure_ascii=False))
         return receipt
-

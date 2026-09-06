@@ -98,6 +98,44 @@ class BatchIsolationTests(unittest.TestCase):
         self.assertIsNotNone(fc.daily_mix_error(card,dict(live_video_count=4,audio_card_count=1)))
         self.assertIsNone(fc.daily_mix_error(dict(render_mode='live_video_card'),{}))
 
+    def test_fresh_six_is_dated_scoped_and_preserves_real_old_totals(self):
+        daily = dict(date='2026-09-06', count=10, live_video_count=10)
+        self.assertIsNone(fc.fresh_six_budget(daily, 'old-batch', '2026-09-06'))
+        self.assertIsNone(fc.fresh_six_budget(daily, 'ly-fresh-six-0906-01', '2026-09-07'))
+        fresh = fc.fresh_six_budget(daily, 'ly-fresh-six-0906-01', '2026-09-06')
+        self.assertEqual(daily['count'], 10)
+        self.assertEqual(fresh['count'], 0)
+        self.assertIsNotNone(fc.daily_mix_error(dict(render_mode='audio_card'), fresh))
+        fresh['count'] = 6
+        self.assertIs(fc.fresh_six_budget(daily, 'ly-fresh-six-0906-02', '2026-09-06'), fresh)
+        self.assertEqual(daily['count'], 10)
+
+    def test_fresh_six_stops_at_six_even_when_forced(self):
+        now = 1788681600  # 2026-09-06 16:00 Beijing
+        state = dict(dispatched=[dict(slug='ly-fresh-six-0906-01', ts=now)], published={},
+                     daily_publish=dict(date='2026-09-06', count=16,
+                                        fresh_six=dict(date='2026-09-06', count=6)))
+        with patch.object(fc.time, 'time', return_value=now), \
+             patch.object(fc, 'load_state', return_value=state), \
+             patch.object(fc, 'save_state'), patch.object(fc, '_collect_source_rejections', return_value=0), \
+             patch.object(fc, 'gh', side_effect=AssertionError('quota must stop before network')):
+            self.assertEqual(fc.publish_handler(dict(batch_slug='ly-fresh-six-0906-01',
+                force_publish=True, ignore_daily_limit=True)), {'published': 0})
+
+    def test_fresh_six_requires_exact_reviewed_video_and_source(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as tmp:
+            video = Path(tmp)/'final.mp4'; video.write_bytes(b'reviewed-video')
+            sha = hashlib.sha256(video.read_bytes()).hexdigest()
+            meta = dict(fingerprints=dict(sha256=sha))
+            slug, source = 'ly-fresh-six-0906-01', 'https://example.com/original'
+            self.assertIsNotNone(fc.fresh_six_review_error(meta, video, slug, source))
+            with patch.object(fc, 'FRESH_SIX_APPROVED', {sha: dict(slug=slug, source_url=source)}):
+                self.assertIsNone(fc.fresh_six_review_error(meta, video, slug, source))
+                self.assertIsNotNone(fc.fresh_six_review_error(meta, video, slug, source+'-other'))
+                video.write_bytes(b'unreviewed-replacement')
+                self.assertIsNotNone(fc.fresh_six_review_error(meta, video, slug, source))
+
 
 if __name__ == '__main__':
     unittest.main()
