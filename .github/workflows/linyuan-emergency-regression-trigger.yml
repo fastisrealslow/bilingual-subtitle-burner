@@ -1,4 +1,4 @@
-name: 林园字幕修复真人动态回归触发
+name: 林园完整意群有界缩放回归触发
 on:
   push:
     paths: ['.github/workflows/linyuan-emergency-regression-trigger.yml']
@@ -9,19 +9,26 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: 触发新版单条真人动态回归
+      - name: 触发两条已定位字幕失败素材回归
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # kick 2026-09-06 11:16 CST
-          gh workflow run linyuan-produce-cn.yml \
-            --repo "$GITHUB_REPOSITORY" \
-            --ref main \
-            -f source='https://m.weibo.cn/detail/5335082961471123' \
-            -f slug='ly-caption-regression-0906-01' \
-            -f speaker='林园' \
-            -f occasion='字幕紧急回归' \
-            -f source_platform='weibo_search' \
-            -f auto_publish=false \
-            -f prefer_live_video=true
+          # 这两条已通过清晰度和人物门禁，只因完整意群在固定 48px 下
+          # 没有合法的两行词边界而失败。用新 slug 重跑，避免把旧失败记录
+          # 或旧 MP4 伪装成合格片；当天投稿仍受 FC 的 6 条硬上限控制。
+          while IFS='|' read -r source slug; do
+            gh workflow run linyuan-produce-cn.yml \
+              --repo "$GITHUB_REPOSITORY" \
+              --ref main \
+              -f source="$source" \
+              -f slug="$slug" \
+              -f speaker='林园' \
+              -f occasion='完整意群有界缩放回归' \
+              -f source_platform='bilibili_search' \
+              -f auto_publish=false \
+              -f prefer_live_video=true
+          done <<'EOF'
+          https://www.bilibili.com/video/BV1NFbe6VELY|ly-caption-scale-0906-01
+          https://www.bilibili.com/video/BV14B8M65E7g|ly-caption-scale-0906-02
+          EOF
