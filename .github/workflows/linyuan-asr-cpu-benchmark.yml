@@ -1,0 +1,72 @@
+name: 林园 CPU 离线 ASR 实测
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/asr_cpu_benchmark.py
+      - .github/workflows/linyuan-asr-cpu-benchmark.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare twelve real production audio samples
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python linyuan/asr_cpu_benchmark.py prepare
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asr-benchmark-audio
+          path: benchmark-audio/
+          retention-days: 90
+  compare:
+    needs: audio
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [sensevoice-int8, paraformer-int8, qwen3-0.6b]
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: asr-benchmark-audio
+          path: benchmark-audio
+      - name: Install CPU inference dependencies
+        env:
+          BACKEND: ${{ matrix.backend }}
+        run: |
+          pip install numpy huggingface_hub
+          if [ "$BACKEND" = qwen3-0.6b ]; then
+            pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+            pip install qwen-asr
+          else
+            pip install sherpa-onnx
+          fi
+      - name: Decode locally with two CPU threads and networking disabled
+        env:
+          BACKEND: ${{ matrix.backend }}
+        run: python -u linyuan/asr_cpu_benchmark.py infer --backend "$BACKEND"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asr-cpu-${{ matrix.backend }}
+          path: |
+            benchmark-result/results.json
+            benchmark-result/requirements.txt
+          retention-days: 90
+          if-no-files-found: warn
