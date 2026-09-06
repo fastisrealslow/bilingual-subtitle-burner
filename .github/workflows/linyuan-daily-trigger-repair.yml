@@ -1,0 +1,56 @@
+name: 林园日常出片触发链修复
+
+on:
+  push:
+    paths:
+      - '.github/workflows/linyuan-daily-trigger-repair.yml'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  repair-and-kick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 找可用母素材并立即触发正式出片
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64,json,os,urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          H={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+          def get(path):
+            r=urllib.request.Request('https://api.github.com/repos/'+repo+path,headers=H)
+            return json.load(urllib.request.urlopen(r))
+          state=get('/contents/linyuan/.automation/fc_state.json')
+          data=json.loads(base64.b64decode(state['content']))
+          picked=[]; seen=set()
+          # 从已验证可下载的历史母素材中补今天生产；去重并跳过明显短片。
+          for item in reversed(data.get('dispatched',[])):
+            url=item.get('asset_url') or item.get('source_url')
+            key=item.get('video_id') or url
+            if not url or not key or key in seen: continue
+            seen.add(key)
+            title=(item.get('title') or '')
+            if 'parity' in (item.get('slug') or ''): continue
+            picked.append(item)
+            if len(picked)>=6: break
+          if not picked: raise SystemExit('候选池无可触发母素材')
+          for i,item in enumerate(reversed(picked),1):
+            payload={'ref':'main','inputs':{
+              'source':item.get('asset_url') or item.get('source_url'),
+              'slug':f'ly-daily-live70-0906-{i:02d}',
+              'speaker':'林园','occasion':'日常新版正式生产','delay_hours':'0',
+              'source_platform':item.get('source') or '',
+              'auto_publish':False,'target_parts':'0','include_full':False,
+              'prefer_live_video':True}}
+            req=urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/actions/workflows/linyuan-produce-cn.yml/dispatches',
+              data=json.dumps(payload).encode(),headers={**H,'Content-Type':'application/json'},method='POST')
+            with urllib.request.urlopen(req) as resp:
+              print(f'触发 {i}/6: {title[:50]} -> {resp.status}')
+          PY
