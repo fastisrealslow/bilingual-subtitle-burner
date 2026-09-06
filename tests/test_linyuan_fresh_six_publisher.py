@@ -46,3 +46,22 @@ def test_runner_publication_status_requires_exact_public_owner(monkeypatch):
     assert result["public_count"] == 1
     assert result["videos"][0]["public"] is True
     assert result["videos"][1]["public"] is False
+
+
+def test_complete_receipts_skip_upload_path(monkeypatch, tmp_path):
+    complete = {
+        sha: {"bvid": "BV" + str(i), "title": item["title"]}
+        for i, (sha, item) in enumerate(publisher.fc.FRESH_SIX_APPROVED.items())
+    }
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(publisher, "state", lambda: {})
+    monkeypatch.setattr(publisher, "receipts", lambda value: complete)
+    monkeypatch.setattr(
+        publisher, "_publish_missing_receipts",
+        lambda: (_ for _ in ()).throw(AssertionError("must not upload again")))
+    monkeypatch.setattr(
+        publisher, "runner_publication_status",
+        lambda found: {"receipts": len(found), "public_count": len(found),
+                       "videos": []})
+    publisher.main()
+    assert json.loads(Path("fresh-six-receipts.json").read_text()) == complete

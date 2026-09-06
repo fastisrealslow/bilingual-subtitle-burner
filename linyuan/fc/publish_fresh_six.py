@@ -101,7 +101,7 @@ def receipts(st):
     return found
 
 
-def main():
+def _publish_missing_receipts():
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
     from alibabacloud_tea_openapi import models as api
@@ -167,6 +167,22 @@ def main():
             raise SystemExit("Exact receipt not found; do not retry an uncertain upload")
     got = receipts(state())
     print(json.dumps({"new_receipts":len(got), "receipts":got}, ensure_ascii=False, indent=2))
+    return got
+
+
+def main():
+    if not 1 <= len(fc.FRESH_SIX_APPROVED) <= 6:
+        raise SystemExit("No bounded reviewed fresh-six manifest")
+    today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
+    if today != fc.FRESH_SIX_DATE:
+        raise SystemExit("The one-day fresh-six authorization has expired")
+    got = receipts(state())
+    Path("fresh-six-receipts.json").write_text(
+        json.dumps(got, ensure_ascii=False, indent=2))
+    if len(got) != len(fc.FRESH_SIX_APPROVED):
+        got = _publish_missing_receipts()
+    print(json.dumps({"new_receipts": len(got), "receipts": got},
+                     ensure_ascii=False, indent=2))
     deadline=time.monotonic()+30*60
     while True:
         public=runner_publication_status(got)
