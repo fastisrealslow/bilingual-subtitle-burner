@@ -712,6 +712,20 @@ def _transcribe_sensevoice(src, work, api_key=None):
         t += CHUNK_SEC
 
     cues = _merge_cues(cues)
+    # 合并极短孤立尾巴后再交给 LLM 通顺化。否则会出现上一屏“回来一大”
+    # 下一屏只剩“钱？”这种肉眼可见的半句话。短碎片只有在紧邻且上一句未结束时合并。
+    compact = []
+    for c in cues:
+        text = (c.get("text") or "").strip()
+        bare = text.rstrip("。！？!?，,；;：:")
+        if (compact and len(bare) <= 3
+                and c["start"] - compact[-1]["end"] <= 0.65
+                and not (compact[-1].get("text") or "").rstrip().endswith(tuple("。！？!?"))):
+            compact[-1]["text"] = (compact[-1].get("text") or "") + text
+            compact[-1]["end"] = c["end"]
+        else:
+            compact.append(dict(c))
+    cues = compact
     # 去重 + GLOSSARY 纠错（SenseVoice 偶发小错字，如「金钱二」→「金钱上」）
     for c in cues:
         c["text"] = _de_loop_text(c["text"])
@@ -1217,23 +1231,40 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             end_idx = len(cues) - 1
         valid = [{"start": 0, "end": max(1, end_idx), "reason": "降级取前段"}]
         print(f"[金句] LLM 未返回有效区间，降级取前段(至第 {end_idx} 条)")
-    # 切片边界必须落在完整句。旧逻辑错误地检查 cues[a] 自己是否以句号结尾，
-    # 这无法判断 a 是否处在上一句话中间；因此会出现成片第一帧直接从“了是吧？”
-    # 这种尾巴开始。正确规则：start 的前一条必须已经结束一个完整句，否则持续向左
-    # 回退；end 则向右扩到本句结束。
+    # 切片边界尽量落在完整句，但绝不能为找句号跨几十秒/几分钟回退。
+    # SenseVoice 的句号并不稳定，旧版无限 while 会把 30~90s 金句扩成 2~4 分钟，
+    # 既破坏开头钩子也直接拖垮渲染。这里将对齐限制在 8 秒/4 cue：
+    # 先找最近的上一句结束；找不到就向前丢掉当前残句，宁可少几秒也不从半句话开头。
     SENT_TAIL = "。！？!?"
+    MAX_ALIGN_SEC = 8.0
+    MAX_ALIGN_CUES = 4
     for v in valid:
-        a, b = v["start"], v["end"]
-        while a > 0:
-            prev = (cues[a-1].get("text") or "").rstrip()
-            if prev and prev[-1] in SENT_TAIL:
+        a0, b0 = v["start"], v["end"]
+        a, b = a0, b0
+        found = False
+        for j in range(a0 - 1, max(-1, a0 - MAX_ALIGN_CUES - 1), -1):
+            if cues[a0]["start"] - cues[j]["end"] > MAX_ALIGN_SEC:
                 break
-            a -= 1
-        while b < len(cues) - 1:
-            cur = (cues[b].get("text") or "").rstrip()
+            prev = (cues[j].get("text") or "").rstrip()
+            if prev and prev[-1] in SENT_TAIL:
+                a = j + 1
+                found = True
+                break
+        if not found:
+            for j in range(a0, min(b0, a0 + MAX_ALIGN_CUES) + 1):
+                if cues[j]["end"] - cues[a0]["start"] > MAX_ALIGN_SEC:
+                    break
+                cur = (cues[j].get("text") or "").rstrip()
+                if cur and cur[-1] in SENT_TAIL and j + 1 <= b0:
+                    a = j + 1
+                    break
+        for j in range(b0, min(len(cues), b0 + MAX_ALIGN_CUES + 1)):
+            if cues[j]["end"] - cues[b0]["end"] > MAX_ALIGN_SEC:
+                break
+            cur = (cues[j].get("text") or "").rstrip()
+            b = j
             if cur and cur[-1] in SENT_TAIL:
                 break
-            b += 1
         v["start"], v["end"] = a, b
     # 去重 + 合并重叠区间。2026-09-02 实测事故：LLM 会对同一段内容给出多个
     # 重叠区间（如 14-62 返回 4 次，理由各不相同），边界对齐后 collapse 成完全
@@ -1596,13 +1627,16 @@ def audio_card_live_crop(width, height):
     if width <= height:
         return None
     target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
-    crop_h = min(height, int(height * 0.78)) // 2 * 2
+    # 横屏访谈优先取人物上半身，主动避开底部常驻字幕/栏目条。
+    # 旧版取 78% 高度会把 0.73~0.95H 的来源条带一起带进真人窗口，
+    # 导致本来可用的 1080P 双人访谈全部退回 audio_card。
+    crop_h = min(height, int(height * 0.60)) // 2 * 2
     crop_w = min(width, int(crop_h * target_ratio)) // 2 * 2
     if crop_w > width:
         crop_w = width // 2 * 2
         crop_h = int(crop_w / target_ratio) // 2 * 2
-    crop_x = int((width - crop_w) * 0.68) // 2 * 2
-    crop_y = int((height - crop_h) * 0.45) // 2 * 2
+    crop_x = int((width - crop_w) * 0.72) // 2 * 2
+    crop_y = int(height * 0.05) // 2 * 2
     crop_x = max(0, min(crop_x, width - crop_w))
     crop_y = max(0, min(crop_y, height - crop_h))
     return (f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y},"
