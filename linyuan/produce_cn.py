@@ -346,10 +346,12 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             " different_person_frames。只有清楚看到人脸、且能确认目标人物完全不在画面中，"
             "才归入 different_person_frames；遮挡、侧脸过小或看不清则归为 uncertain。"
             "同时记录屏幕叠加的外部账号/平台角标；无文字的彩色图形台标也须记录为[图形台标]，"
-            "不要把真实场景里的字画、衣服文字或物品当叠加水印。只返回 JSON object："
-            '{"same_person_frames":[1],"different_person_frames":[2],'
-            '"uncertain_frames":[3],"best_cover_frame":1,"confidence":0.95,'
-            '"watermark_texts":["某账号"],"reason":"简短依据"}'
+            "不要把真实场景里的字画、衣服文字或物品当叠加水印。"
+            f"必须逐一分类全部 {len(frames)} 帧，三组索引合起来恰好是 1 到 {len(frames)}，不重不漏。"
+            "看不清的帧放 uncertain_frames，不能省略；空组返回空数组。"
+            "只返回 JSON object，以下仅为字段结构，数组必须填写实际逐帧判断："
+            '{"same_person_frames":[],"different_person_frames":[],"uncertain_frames":[], '
+            '"best_cover_frame":null,"confidence":0.0,"watermark_texts":[],"reason":"逐帧判断依据"}'
         ),
     })
     payload = json.dumps({
@@ -368,7 +370,16 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 data = json.loads(r.read().decode())
-            return _parse_json_object(data["choices"][0]["message"]["content"])
+            verdict = _parse_json_object(data["choices"][0]["message"]["content"])
+            classified=[]
+            for field in ('same_person_frames','different_person_frames','uncertain_frames'):
+                values=verdict.get(field)
+                if not isinstance(values,list) or any(type(x) is not int for x in values):
+                    raise ValueError('人物核验未返回逐帧索引数组')
+                classified.extend(values)
+            if sorted(classified)!=list(range(1,len(frames)+1)):
+                raise ValueError('人物核验遗漏或重复帧，不能把格式示例当作实际核验')
+            return verdict
         except Exception as e:
             last = e
             if attempt < 2:

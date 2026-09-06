@@ -81,64 +81,68 @@ def main():
     portrait = p.extract_audio_card_portrait(reference,work/'portrait.png')
     result=[]
     for number,start,end,title,pinned_sha in RECIPES:
-        parent = next(m for m in original if m['final']==f'final_{number}.mp4')
-        video = source/parent['final']
-        parent_sha = p._file_sha256(video)
-        if parent_sha != parent['fingerprints']['sha256'] or (pinned_sha and parent_sha != pinned_sha):
-            raise ValueError('Immutable production input hash changed')
-        entries = captions(source,number,start,end)
-        title_error=p.title_quality_error(title,'林园',''.join(e['zh'] for e in entries))
-        if title_error: raise ValueError(title_error)
-        suffix=f'_{number}'; duration=end-start
-        layout=pres.layout_for(720,1280,True)
-        ass=out/f'subtitles{suffix}-1.ass'
-        rendered=pres.write_ass(entries,ass,layout,'Noto Sans CJK SC')
-        assert ''.join(e['zh'] for e in rendered)==''.join(e['zh'] for e in entries)
-        card=p.make_audio_card(work/f'card{suffix}.png','林园',title,
-            portrait_path=portrait,require_portrait=True)
-        # Label this actual moving interview correctly, retaining its date.
-        from PIL import Image,ImageDraw,ImageFont
-        im=Image.open(card); draw=ImageDraw.Draw(im)
-        for y in range(1070,1118):
-            blend=y/1279
-            draw.line((0,y,720,y),fill=(int(238-15*blend),int(237-14*blend),int(232-12*blend)))
-        font='/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
-        draw.text((48,1080),'2025年8月21日公开访谈 · 原声节选',
-            font=ImageFont.truetype(font,24,index=p._sc_face_index(font)),fill=(89,94,99))
-        im.save(card)
-        final=out/f'final{suffix}.mp4'
-        vf=f'[1:v]crop=632:470:44:360,setpts=PTS-STARTPTS[live];[0:v][live]overlay=44:360,ass={ass}[outv]'
-        subprocess.run(['ffmpeg','-y','-v','error','-loop','1','-framerate','30','-i',str(card),
-            '-ss',str(start),'-t',str(duration),'-i',str(video),'-filter_complex',vf,
-            '-map','[outv]','-map','1:a:0','-af','asetpts=PTS-STARTPTS',
-            '-c:v','libx264','-preset','veryfast','-crf','18','-c:a','aac','-b:a','192k',
-            '-r','30','-t',str(duration),'-movflags','+faststart',str(final)],check=True,timeout=180)
-        subprocess.run(['ffmpeg','-v','error','-i',str(final),'-f','null','-'],check=True,timeout=90)
-        meta=copy.deepcopy(parent)
-        meta.update(pres.verify_render(final,layout))
-        meta.update(p.verify_live_region_after_render(final))
-        meta['final_live_identity']=p.verify_final_live_identity(final,work,'林园',p.load_key(),suffix)
-        cover=out/f'cover{suffix}.jpg'
-        p.make_audio_card(cover,'林园',title,1280,720,portrait_path=portrait,require_portrait=True)
-        proof=json.loads(Path(str(cover)+'.proof.json').read_text())
-        actual_duration=float(p.probe(final,'format=duration'))
-        preview,sheet=p.make_review_assets(final,out,suffix,actual_duration)
-        meta.update(title=title,desc='2025年8月21日公开访谈原声节选。观点和市场语境属于原发言日期。',
-            cover=cover.name,cover_proof=proof,final=final.name,
-            preview_30s=preview,contact_sheet_6=sheet,subtitle_files=[ass.name],
-            layout_proof=layout,duration_sec=actual_duration,
-            fingerprints=p.build_content_fingerprints(final,''.join(e['zh'] for e in entries)),
-            generated_at=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
-            segments=[{'start':parent['segments'][0]['start']+start,
-                       'end':parent['segments'][0]['start']+end,
-                       'reason':'逐句复核的完整观点；排除下一话题及含歧义识别的后段'}],
-            editorial_provenance={'parent_run':PARENT_RUN,'parent_sha256':parent_sha,
-                'input_range':[start,end],'subtitle_characters_preserved':True,
-                'asr_api_calls':0,'reverified_encoded_output':True})
-        result.append(meta)
-        (out/'meta.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
-        print(json.dumps({'accepted':final.name,'seconds':actual_duration,
-            'sha256':meta['fingerprints']['sha256'],'title':title},ensure_ascii=False),flush=True)
+        try:
+            parent = next(m for m in original if m['final']==f'final_{number}.mp4')
+            video = source/parent['final']
+            parent_sha = p._file_sha256(video)
+            if parent_sha != parent['fingerprints']['sha256'] or (pinned_sha and parent_sha != pinned_sha):
+                raise ValueError('Immutable production input hash changed')
+            entries = captions(source,number,start,end)
+            title_error=p.title_quality_error(title,'林园',''.join(e['zh'] for e in entries))
+            if title_error: raise ValueError(title_error)
+            suffix=f'_{number}'; duration=end-start
+            layout=pres.layout_for(720,1280,True)
+            ass=out/f'subtitles{suffix}-1.ass'
+            rendered=pres.write_ass(entries,ass,layout,'Noto Sans CJK SC')
+            assert ''.join(e['zh'] for e in rendered)==''.join(e['zh'] for e in entries)
+            card=p.make_audio_card(work/f'card{suffix}.png','林园',title,
+                portrait_path=portrait,require_portrait=True)
+            # Label this actual moving interview correctly, retaining its date.
+            from PIL import Image,ImageDraw,ImageFont
+            im=Image.open(card); draw=ImageDraw.Draw(im)
+            for y in range(1070,1118):
+                blend=y/1279
+                draw.line((0,y,720,y),fill=(int(238-15*blend),int(237-14*blend),int(232-12*blend)))
+            font='/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
+            draw.text((48,1080),'2025年8月21日公开访谈 · 原声节选',
+                font=ImageFont.truetype(font,24,index=p._sc_face_index(font)),fill=(89,94,99))
+            im.save(card)
+            final=out/f'final{suffix}.mp4'
+            vf=f'[1:v]crop=632:470:44:360,setpts=PTS-STARTPTS[live];[0:v][live]overlay=44:360,ass={ass}[outv]'
+            subprocess.run(['ffmpeg','-y','-v','error','-loop','1','-framerate','30','-i',str(card),
+                '-ss',str(start),'-t',str(duration),'-i',str(video),'-filter_complex',vf,
+                '-map','[outv]','-map','1:a:0','-af','asetpts=PTS-STARTPTS',
+                '-c:v','libx264','-preset','veryfast','-crf','18','-c:a','aac','-b:a','192k',
+                '-r','30','-t',str(duration),'-movflags','+faststart',str(final)],check=True,timeout=180)
+            subprocess.run(['ffmpeg','-v','error','-i',str(final),'-f','null','-'],check=True,timeout=90)
+            meta=copy.deepcopy(parent)
+            meta.update(pres.verify_render(final,layout))
+            meta.update(p.verify_live_region_after_render(final))
+            meta['final_live_identity']=p.verify_final_live_identity(final,work,'林园',p.load_key(),suffix)
+            cover=out/f'cover{suffix}.jpg'
+            p.make_audio_card(cover,'林园',title,1280,720,portrait_path=portrait,require_portrait=True)
+            proof=json.loads(Path(str(cover)+'.proof.json').read_text())
+            actual_duration=float(p.probe(final,'format=duration'))
+            preview,sheet=p.make_review_assets(final,out,suffix,actual_duration)
+            meta.update(title=title,desc='2025年8月21日公开访谈原声节选。观点和市场语境属于原发言日期。',
+                cover=cover.name,cover_proof=proof,final=final.name,
+                preview_30s=preview,contact_sheet_6=sheet,subtitle_files=[ass.name],
+                layout_proof=layout,duration_sec=actual_duration,
+                fingerprints=p.build_content_fingerprints(final,''.join(e['zh'] for e in entries)),
+                generated_at=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
+                segments=[{'start':parent['segments'][0]['start']+start,
+                           'end':parent['segments'][0]['start']+end,
+                           'reason':'逐句复核的完整观点；排除下一话题及含歧义识别的后段'}],
+                editorial_provenance={'parent_run':PARENT_RUN,'parent_sha256':parent_sha,
+                    'input_range':[start,end],'subtitle_characters_preserved':True,
+                    'asr_api_calls':0,'reverified_encoded_output':True})
+            result.append(meta)
+            (out/'meta.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+            print(json.dumps({'accepted':final.name,'seconds':actual_duration,
+                'sha256':meta['fingerprints']['sha256'],'title':title},ensure_ascii=False),flush=True)
+        except Exception as exc:
+            print(json.dumps({'rejected':number,'error':str(exc)},ensure_ascii=False),flush=True)
+            continue
     assert len(result)==6
 
 

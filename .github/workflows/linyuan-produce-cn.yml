@@ -232,6 +232,9 @@ jobs:
           if-no-files-found: error
 
       - name: 上传成片到 Release
+        # The accepted Artifact above is the publication source of truth.
+        # A colliding thumbnail in this optional mirror must not lose a batch.
+        continue-on-error: true
         uses: softprops/action-gh-release@v1
         with:
           tag_name: deliver

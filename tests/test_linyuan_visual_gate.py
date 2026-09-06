@@ -102,6 +102,24 @@ def test_identity_prompt_counts_target_when_host_is_also_present(monkeypatch,
     assert "目标人物完全不在画面中" in prompt
 
 
+def test_identity_retries_incomplete_example_instead_of_using_missing_frames(monkeypatch):
+    import io
+    invalid={'same_person_frames':[1], 'different_person_frames':[2], 'uncertain_frames':[3]}
+    complete={'same_person_frames':[1,2,3,4,5], 'different_person_frames':[6],
+              'uncertain_frames':[], 'confidence':.95}
+    pending=iter([invalid,complete])
+    calls=[]
+    def response(req,timeout):
+        calls.append(1)
+        return io.BytesIO(json.dumps({'choices':[{'message':{'content':json.dumps(next(pending))}}]}).encode())
+    monkeypatch.setattr(P,'_image_data_url',lambda path:'data:image/jpeg;base64,eA==')
+    monkeypatch.setattr(P,'identity_face_reference',lambda path:path)
+    monkeypatch.setattr(P.urllib.request,'urlopen',response)
+    monkeypatch.setattr(P.time,'sleep',lambda seconds:None)
+    assert P._call_identity_vlm('reference',['frame']*6,'林园','test')==complete
+    assert len(calls)==2
+
+
 def test_source_identity_rejects_a_video_full_of_other_people(monkeypatch,
                                                                tmp_path):
     reference = tmp_path / "reference.jpg"
