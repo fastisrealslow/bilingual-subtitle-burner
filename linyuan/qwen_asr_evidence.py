@@ -46,3 +46,38 @@ def validated_words(reports, pcm_sha, video_sha, duration):
 
 def load_reports(root):
     return [json.loads(p.read_text()) for p in sorted(Path(root).rglob('aligned.json'))]
+
+
+def punctuated_words(reports, owned):
+    """Restore punctuation from decoded text; the aligner emits lexical words only.
+
+    No model is asked to rewrite a sentence. Every mark comes from the same
+    chunk that owns its preceding word, and all lexical characters are retained.
+    """
+    suffixes={}
+    for report in reports:
+        for chunk in report['chunks']:
+            raw=chunk['text']
+            positions=[i for i,c in enumerate(raw) if c.isalnum()]
+            cursor=0
+            for word in chunk['words']:
+                size=len(content(word['text']))
+                if not size:
+                    continue
+                cursor+=size
+                if cursor>len(positions):
+                    raise ValueError('Punctuation mapping exceeds decoded characters')
+                left=positions[cursor-1]+1
+                right=positions[cursor] if cursor<len(positions) else len(raw)
+                marks=''.join(c for c in raw[left:right] if c in '，。！？；：、,!?;:')
+                if chunk['core_start']<=word['start']<chunk['core_end']:
+                    suffixes[(word['start'],word['text'])]=marks
+    result=[]
+    for i,word in enumerate(owned):
+        result.append(dict(word))
+        at=min(word['end'],owned[i+1]['start']) if i+1<len(owned) else word['end']
+        for mark in suffixes.get((word['start'],word['text']),''):
+            result.append(dict(text=mark,start=at,end=at))
+    if content(''.join(w['text'] for w in result))!=content(''.join(w['text'] for w in owned)):
+        raise ValueError('Punctuation restoration changed spoken characters')
+    return result

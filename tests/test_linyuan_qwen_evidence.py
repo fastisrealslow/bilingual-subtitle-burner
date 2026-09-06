@@ -6,6 +6,27 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from qwen_asr_evidence import validated_words
 
 
+def test_aligner_punctuation_loss_is_restored_without_changing_negation():
+    from qwen_asr_evidence import punctuated_words
+    r=report();words=validated_words([r],'pcm','video',10)
+    output=punctuated_words([r],words)
+    assert ''.join(w['text'] for w in output)=='我不卖。'
+    assert output[:3]==words
+    assert [w['start'] for w in output]==[1,2,3,4]
+
+
+def test_reviewed_phrase_cannot_change_another_source_or_time():
+    from reviewed_asr_corrections import apply_reviewed_corrections,SOURCE_SHA
+    words=[dict(text=c,start=182+i*.2,end=182+(i+1)*.2) for i,c in enumerate('钱是税出来的')]
+    revised,changes=apply_reviewed_corrections(words,SOURCE_SHA)
+    assert ''.join(w['text'] for w in revised)=='钱是睡出来的'
+    assert ''.join(w['text'] for w in words)=='钱是税出来的'
+    assert len(changes)==1 and changes[0]['evidence_url']
+    assert apply_reviewed_corrections(words,'different-source')==(words,[])
+    earlier=[dict(w,start=w['start']-100,end=w['end']-100) for w in words]
+    assert apply_reviewed_corrections(earlier,SOURCE_SHA)==(earlier,[])
+
+
 def report():
     return dict(source_pcm_sha256='pcm',source_video_sha256='video',device='cpu',
         networking_during_inference=False,model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr-revision',

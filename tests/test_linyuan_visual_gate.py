@@ -66,6 +66,22 @@ def test_chunked_identity_retry_remaps_frame_numbers(monkeypatch, tmp_path):
     assert P.identity_verdict_passes(out, 6) is True
 
 
+def test_malformed_frame_batches_recover_but_uncertain_frames_do_not_pass(monkeypatch,tmp_path):
+    frames=list(range(6));calls=[]
+    monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:'reference')
+    monkeypatch.setattr(P,'_sample_visual_frames',lambda *a:(frames,[10,20,30,40,50,60]))
+    def classify(reference,chunk,*args):
+        calls.append(len(chunk))
+        if len(chunk)>1:
+            raise P.VisualResponseFormatError('omitted frames')
+        return dict(same_person_frames=[],different_person_frames=[],
+                    uncertain_frames=[1],confidence=.3)
+    monkeypatch.setattr(P,'_call_identity_vlm',classify)
+    with pytest.raises(P.VisualQualityError,match='人物不一致'):
+        P.verify_source_identity('source',tmp_path,'林园','test')
+    assert 1 in calls and max(calls)==6
+
+
 def test_identity_prompt_counts_target_when_host_is_also_present(monkeypatch,
                                                                   tmp_path):
     reference = tmp_path / "reference.jpg"

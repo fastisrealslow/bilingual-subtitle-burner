@@ -40,7 +40,7 @@ PRESENTATION_RULES_VERSION = 2
 # 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
 # legacy Whisper 函数保留供历史代码读取，不进入本生产入口。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
-ASR_PIPELINE_VERSION = 3
+ASR_PIPELINE_VERSION = 4
 ASR_CHUNK_SEC = 30.0
 ASR_OVERLAP_SEC = 3.0
 ASR_CPU_THREADS = max(1, min(4, int(os.environ.get("ASR_CPU_THREADS", "2"))))
@@ -158,6 +158,10 @@ class VisualQualityError(RuntimeError):
     """人物或去水印质量不合格；宁可不出片，也不错误归因。"""
 
 
+class VisualResponseFormatError(VisualQualityError):
+    """The service answered, but its frame accounting was incomplete."""
+
+
 def load_key():
     env = BASE / ".env"
     if env.exists():
@@ -229,7 +233,13 @@ def _retry_identity_vlm_in_chunks(reference, frames, speaker, api_key,
     reasons = []
     for start in range(0, len(frames), chunk_size):
         chunk = frames[start:start + chunk_size]
-        verdict = _call_identity_vlm(reference, chunk, speaker, api_key)
+        try:
+            verdict = _call_identity_vlm(reference, chunk, speaker, api_key)
+        except VisualResponseFormatError:
+            if len(chunk) == 1:
+                raise
+            verdict = _retry_identity_vlm_in_chunks(
+                reference, chunk, speaker, api_key, chunk_size=1)
         valid = set(range(1, len(chunk) + 1))
         for key in ("same_person_frames", "different_person_frames",
                     "uncertain_frames"):
@@ -387,6 +397,8 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
                      "只输出完整JSON，保留实际判断。"}])
             if attempt < 2:
                 time.sleep(2 ** attempt)
+    if isinstance(last, (ValueError, TypeError, KeyError)):
+        raise VisualResponseFormatError(f"人物 VLM 校验不可用：{last}")
     raise VisualQualityError(f"人物 VLM 校验不可用：{last}")
 
 
@@ -394,7 +406,11 @@ def verify_source_identity(src, work, speaker, api_key):
     """在 ASR 前确认整片主角确实是指定人物，并返回可用封面帧时间。"""
     reference = _download_speaker_reference(speaker, work)
     frames, times = _sample_visual_frames(src, work)
-    verdict = _call_identity_vlm(reference, frames, speaker, api_key)
+    try:
+        verdict = _call_identity_vlm(reference, frames, speaker, api_key)
+    except VisualResponseFormatError:
+        verdict = _retry_identity_vlm_in_chunks(
+            reference, frames, speaker, api_key)
     if not identity_verdict_passes(verdict, len(frames)):
         verdict = _retry_identity_vlm_in_chunks(
             reference, frames, speaker, api_key)
@@ -582,7 +598,8 @@ def transcribe(src, work, api_key=None):
 def _transcribe_qwen_cpu(src,work):
     """Explicit CPU backend; no ASR API or automatic model fallback."""
     import wave
-    from qwen_asr_evidence import validated_words,load_reports
+    from qwen_asr_evidence import validated_words,load_reports,punctuated_words
+    from reviewed_asr_corrections import apply_reviewed_corrections
     wav=work/'audio_16k.wav'
     if wav.resolve()!=src.resolve():
         subprocess.run(['ffmpeg','-y','-v','error','-i',str(src),'-vn','-ar','16000',
@@ -609,7 +626,11 @@ def _transcribe_qwen_cpu(src,work):
     tokens=[w['text'] for w in words];times=[w['start'] for w in words]
     (work/'asr_tokens.json').write_text(json.dumps(dict(tokens=tokens,timestamps=times,
         duration=duration,backend='qwen3',alignment='Qwen3-ForcedAligner-0.6B'),ensure_ascii=False))
-    return _merge_cues(_funasr_tokens_to_cues(tokens,times,0,duration))
+    timed=punctuated_words(reports,words)
+    corrected,changes=apply_reviewed_corrections(timed,video_sha)
+    (work/'asr_reviewed_corrections.json').write_text(json.dumps(changes,ensure_ascii=False,indent=2))
+    return _merge_cues(_funasr_tokens_to_cues(
+        [w['text'] for w in corrected],[w['start'] for w in corrected],0,duration))
 
 
 def _transcribe_whisper(src, work, api_key):
@@ -3705,7 +3726,10 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
             check=True,timeout=45)
         frames.append(path)
     reference=_download_speaker_reference(speaker,Path(work))
-    verdict=_call_identity_vlm(reference,frames,speaker,api_key)
+    try:
+        verdict=_call_identity_vlm(reference,frames,speaker,api_key)
+    except VisualResponseFormatError:
+        verdict=_retry_identity_vlm_in_chunks(reference,frames,speaker,api_key)
     same={i for i in verdict.get('same_person_frames',[]) if type(i) is int and 1<=i<=6}
     proof={**verdict,'version':1,'speaker':speaker,'sample_count':6}
     (directory/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
