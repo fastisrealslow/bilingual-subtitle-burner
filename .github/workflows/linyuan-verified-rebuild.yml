@@ -25,11 +25,15 @@ jobs:
           curl -fLsS --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/9986365708/zip" -o source.zip
           unzip -q source.zip -d source-artifact
+      - name: 重取原始母片以保留完整人脸
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1kJuu6XEMS --out original-source.mp4
       - name: 重新烧录完整意群字幕并验收实际MP4
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
           ZH_FONT: Noto Sans CJK SC
-        run: python linyuan/rebuild_verified_live.py --archive-dir source-artifact --out deliver/verified-live
+        run: python linyuan/rebuild_verified_live.py --archive-dir source-artifact --out deliver/verified-live --original-source original-source.mp4
       - uses: actions/upload-artifact@v4
         if: always()
         with:

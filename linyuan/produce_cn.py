@@ -1707,11 +1707,33 @@ def detect_external_logos_after_render(final, strategy, width, height):
             if not _inside_brand_watermark_region(box, width, height)]
 
 
-def audio_card_live_crop(width, height):
+def audio_card_live_crop(width, height, src=None, at=None):
     """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
     if width <= height:
         return None
     target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
+    if src is not None:
+        import cv2
+        import statistics
+        cap=cv2.VideoCapture(str(src)); boxes=[]
+        detector=_cascade(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+        for seconds in ((float(at or 0)+.5),(float(at or 0)+2),(float(at or 0)+4)):
+            cap.set(cv2.CAP_PROP_POS_MSEC,seconds*1000)
+            ok,frame=cap.read()
+            if not ok: continue
+            faces=detector.detectMultiScale(cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY),1.1,4,minSize=(48,48))
+            if len(faces):
+                # Preserve the existing right-hand guest selection for split-screen
+                # interviews, but fit the crop to the face rather than the canvas top.
+                boxes.append(max(faces,key=lambda b:b[0]+b[2]/2))
+        cap.release()
+        if len(boxes)>=2:
+            fx,fy,fw,fh=[statistics.median([b[k] for b in boxes]) for k in range(4)]
+            ch=min(height,int(fh*1.8))//2*2; cw=min(width,int(ch*target_ratio))//2*2
+            if cw>=160 and ch>=120:
+                cx=max(0,min(width-cw,int(fx+fw/2-cw/2)))//2*2
+                cy=max(0,min(height-ch,int(fy-fh*.38)))//2*2
+                return f"crop={cw}:{ch}:{cx}:{cy},scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:flags=lanczos,setsar=1"
     # 横屏访谈优先取人物上半身，主动避开底部常驻字幕/栏目条。
     # 旧版取 78% 高度会把 0.73~0.95H 的来源条带一起带进真人窗口，
     # 导致本来可用的 1080P 双人访谈全部退回 audio_card。
@@ -1771,6 +1793,8 @@ def verify_live_region_after_render(final, frames=6):
     black_edge_hits = 0
     qr_hits = 0
     partial_qr_hits = 0
+    full_face_frames = 0
+    face_detector = _cascade(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
     tmp = Path(tempfile.mkdtemp(prefix="live-region-check-"))
     got = 0
     try:
@@ -1793,6 +1817,9 @@ def verify_live_region_after_render(final, frames=6):
             frame_paths.append(fp)
 
             gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+            faces = face_detector.detectMultiScale(gray,1.1,4,minSize=(48,48))
+            full_face_frames += int(any(fx>=8 and fy>=8 and fx+fw<=w-8 and fy+fh<=h-8
+                                       for fx,fy,fw,fh in faces))
             partial_qr_hits += int(partial_qr_finder_score(gray) >= 0.70)
             dark_columns = np.mean(gray < 18, axis=0) > 0.92
             edge = max(8, int(w * 0.08))
@@ -1814,12 +1841,15 @@ def verify_live_region_after_render(final, frames=6):
         raise VisualQualityError("真人动态区检出持续黑边/错误取景")
     if qr_hits or partial_qr_hits >= 2:
         raise VisualQualityError("真人动态区检出来源二维码（含裁切残留定位图案）")
+    if full_face_frames < max(3, int(got*.8+.999)):
+        raise VisualQualityError("真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
     if logos:
         raise VisualQualityError(f"真人动态区仍有稳定来源角标：{logos}")
     return {"live_region_verified": True, "no_qr_verified": True,
-            "partial_qr_verified": True, "no_black_bars_verified": True}
+            "partial_qr_verified": True, "full_face_frames": full_face_frames,
+            "no_black_bars_verified": True}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
@@ -3426,7 +3456,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 直接退化成静态音频卡。候选窗口必须再次实渲染并确认无持续字幕/角标；
     # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
     if strategy == "audio_card" and prefer_live_video:
-        candidate_crop = audio_card_live_crop(W, H)
+        candidate_crop = audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"])
         if candidate_crop:
             try:
                 live_preview = _render_clean_preview(

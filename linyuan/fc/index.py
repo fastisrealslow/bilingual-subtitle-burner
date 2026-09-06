@@ -1719,6 +1719,8 @@ def artifact_quality_error(meta):
         return "成片没有通过二维码复检"
     if meta.get("render_mode") == "live_video_card" and meta.get("partial_qr_verified") is not True:
         return "真人窗口缺少残缺二维码复检，旧漏检成片不得投稿"
+    if meta.get("render_mode") == "live_video_card" and int(meta.get("full_face_frames") or 0) < 5:
+        return "真人窗口缺少完整人脸取景复检，旧裁头成片必须重做"
     if meta.get("subtitle_semantic_groups_verified") is not True:
         return "缺少完整意群字幕复检，旧碎句成片必须重做"
     if meta.get("no_black_bars_verified") is not True:

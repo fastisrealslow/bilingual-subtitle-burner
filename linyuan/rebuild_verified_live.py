@@ -18,8 +18,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--archive-dir', required=True)
     parser.add_argument('--out', required=True)
+    parser.add_argument('--original-source', required=True)
     args = parser.parse_args()
     source, out = Path(args.archive_dir).resolve(), Path(args.out).resolve()
+    original = Path(args.original_source).resolve()
+    if (int(P.probe(original,'stream=width')),int(P.probe(original,'stream=height'))) != (1920,1080):
+        raise ValueError('母片尺寸变更，已审核的人物取景不能直接复用')
     out.mkdir(parents=True, exist_ok=True)
     work = out / '_tmp'
     work.mkdir(exist_ok=True)
@@ -48,9 +52,9 @@ def main():
     background = work/'background.png'
     P.make_audio_card(background,'林园',title,width=720,height=1280,portrait_path=portrait,require_portrait=True)
     final = out/'linyuan-verified-live.mp4'
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(offset),'-i',str(source/old['final']),
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(base),'-i',str(original),
                     '-loop','1','-framerate','30','-i',str(background),
-                    '-filter_complex',f'[0:v]crop=632:470:44:360,setpts=PTS-STARTPTS[live];[1:v][live]overlay=44:360,ass={ass}[outv]',
+                    '-filter_complex',f'[0:v]crop=606:450:1120:330,scale=632:470,setsar=1,setpts=PTS-STARTPTS[live];[1:v][live]overlay=44:360,ass={ass}[outv]',
                     '-map','[outv]','-map','0:a:0','-c:v','libx264','-preset','veryfast','-crf','20',
                     '-r','30','-c:a','aac','-b:a','192k','-t',str(duration),'-movflags','+faststart',str(final)],
                    check=True,timeout=720)
@@ -67,7 +71,7 @@ def main():
             'preview_30s':preview,'contact_sheet_6':contact,'layout_proof':layout,
             'subtitle_files':[ass.name],'subtitle_semantic_groups_verified':True,
             'fingerprints':P.build_content_fingerprints(final,transcript),
-            'provenance':{'artifact_id':9986365708,'original_final':old['final'],'rebuild':True},
+            'provenance':{'artifact_id':9986365708,'original_source':'https://www.bilibili.com/video/BV1kJuu6XEMS','crop':'606:450:1120:330','source_sha256':P._file_sha256(original),'rebuild':True},
             'generated_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat()}
     spec = importlib.util.spec_from_file_location('fc_quality',Path(__file__).parent/'fc/index.py')
     fc = importlib.util.module_from_spec(spec)

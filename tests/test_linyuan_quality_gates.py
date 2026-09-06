@@ -433,6 +433,8 @@ def test_partial_qr_blocks_old_live_artifacts():
     meta['render_mode'] = 'live_video_card'
     assert '残缺二维码' in FC.artifact_quality_error(meta)
     meta['partial_qr_verified'] = True
+    assert '完整人脸' in FC.artifact_quality_error(meta)
+    meta['full_face_frames'] = 6
     assert FC.artifact_quality_error(meta) is None
 
 def test_cropped_qr_finder_is_detected_without_decodable_full_code():
