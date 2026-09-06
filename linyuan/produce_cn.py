@@ -3656,12 +3656,13 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
-                 prefer_live_video=False, existing_titles=None, selected_picks=None):
+                 prefer_live_video=False, existing_titles=None,
+                 preselected_picks=None):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
-    picks = (selected_picks if selected_picks is not None else
-             pick_highlights(cues, speaker, api_key, work, pick_cache_suffix, target_sec,
-                             allow_empty=allow_empty))
+    picks = (preselected_picks if preselected_picks is not None else
+             pick_highlights(cues, speaker, api_key, work, pick_cache_suffix,
+                             target_sec, allow_empty=allow_empty))
     if not picks:
         print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
         return None
@@ -3904,7 +3905,7 @@ def main():
     ap.add_argument("--prefer-live-video", action="store_true",
                     help="默认使用裁净后的真人动态画面卡；静态肖像仅作失败回退")
     ap.add_argument("--split-highlights", action="store_true",
-                    help="每个完整观点独立成片，单个坏镜头不连带淘汰同一话题中的其他观点")
+                    help="把每个完整金句独立渲染/隔离，单条失败不淘汰同源其他金句")
     args = ap.parse_args()
 
     src = Path(args.source)
@@ -3992,11 +3993,29 @@ def main():
                 print(f"  {cues[i]['text']}")
         return 0
 
+    # 一个时间块可能含多个独立金句。逐条生产时先保留模型选出的完整范围，
+    # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
+    work_items = [(a, b, None) for a, b in chunks]
+    if args.split_highlights and not args.target_parts:
+        work_items = []
+        for block_no, (a, b) in enumerate(chunks, 1):
+            block_cues = cues[a:b + 1]
+            picks = pick_highlights(
+                block_cues, args.speaker, api_key, work,
+                suffix=f"_block_{block_no}", target_sec=TARGET_SEC,
+                allow_empty=True)
+            for pick in picks:
+                lo, hi = int(pick["start"]), int(pick["end"])
+                if 0 <= lo <= hi < len(block_cues):
+                    whole = {**pick, "start": 0, "end": hi - lo}
+                    work_items.append((a + lo, a + hi, [whole]))
+
     # 长视频拆多条时，选「字幕条数最多」的一段做中视频（7分钟话题片），其余短金句
     # （2026-08-29 对标竞品：中视频是播放最高的档，一段信息量最足的内容做话题展开）
     mid_idx = None
-    if len(chunks) > 1:
-        mid_idx = max(range(len(chunks)), key=lambda i: chunks[i][1] - chunks[i][0] + 1)
+    if len(work_items) > 1:
+        mid_idx = max(range(len(work_items)),
+                      key=lambda i: work_items[i][1] - work_items[i][0] + 1)
 
     from batch_delivery import quarantine_part, write_json
     metas, rejected = [], []
@@ -4027,49 +4046,36 @@ def main():
             "live_ratio": live / len(metas) if metas else 0,
             "quality_gate_version": QUALITY_GATE_VERSION})
 
-    output_index = 0
-    for ci, (a, b) in enumerate(chunks):
+    for ci, (a, b, preselected_picks) in enumerate(work_items):
+        suffix = "" if len(work_items) == 1 else f"_{ci + 1}"
         seg_cues = cues[a:b + 1]
-        cache_suffix = "" if len(chunks) == 1 else f"_{ci + 1}"
         target_sec = (COMPETITOR_13_DURATION_PROFILE[ci]
                       if args.target_parts else
                       (TARGET_SEC_MID if ci == mid_idx else TARGET_SEC))
-        independent = args.split_highlights and not args.target_parts
+        if ci == mid_idx:
+            print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         try:
-            selected = (pick_highlights(seg_cues, args.speaker, api_key, work,
-                        cache_suffix, target_sec, allow_empty=True) if independent else None)
-        except (ValueError, RuntimeError, subprocess.SubprocessError) as exc:
-            rejected.append({"stage":"highlight-selection", "chunk":ci+1,
-                             "reason":str(exc), "error_type":type(exc).__name__})
+            m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
+                             api_key, existing_subtitles, W, H, suffix,
+                             pick_cache_suffix=suffix, target_sec=target_sec,
+                             allow_empty=(len(chunks) > 1 and not args.target_parts),
+                             visual_report=visual_report,
+                             source_report=source_report,
+                             prefer_live_video=args.prefer_live_video,
+                             existing_titles=[x["title"] for x in metas],
+                             preselected_picks=preselected_picks)
+        except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+            failure = {"stage": "part-quality", "reason": str(e), "part": ci + 1,
+                       "error_type": type(e).__name__}
+            print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
+            quarantine_part(out, suffix)
+            rejected.append(failure)
             checkpoint()
             continue
-        candidates = [[pick] for pick in selected] if independent else [None]
-        for pi, candidate in enumerate(candidates, 1):
-            output_index += 1
-            suffix = f"_{output_index}" if independent else cache_suffix
-            pick_suffix = f"{cache_suffix}_pick{pi}" if independent else cache_suffix
-            try:
-                m = _produce_one(src, work, out, seg_cues, args.speaker, args.occasion,
-                                 api_key, existing_subtitles, W, H, suffix,
-                                 pick_cache_suffix=pick_suffix, target_sec=target_sec,
-                                 allow_empty=(len(chunks) > 1 and not args.target_parts),
-                                 visual_report=visual_report,
-                                 source_report=source_report,
-                                 prefer_live_video=args.prefer_live_video,
-                                 selected_picks=candidate,
-                                 existing_titles=[x["title"] for x in metas])
-            except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
-                failure = {"stage": "part-quality", "reason": str(e), "part": output_index,
-                           "error_type": type(e).__name__}
-                print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
-                quarantine_part(out, suffix)
-                rejected.append(failure)
-                checkpoint()
-                continue
-            if m is not None:
-                m["part"] = output_index
-                metas.append(m)
-            checkpoint()
+        if m is not None:
+            m["part"] = ci + 1
+            metas.append(m)
+        checkpoint()
 
     if args.target_parts and len(metas) != args.target_parts:
         print(f"❌ 对标批次要求 {args.target_parts} 条，实际仅 {len(metas)} 条",
