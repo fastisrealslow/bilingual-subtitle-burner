@@ -362,7 +362,11 @@ def test_workflow_runs_source_gate_before_asr_setup_and_uploads_rejection():
 def test_fc_consumes_source_rejection_artifact(monkeypatch):
     state = {"dispatched": [{
         "slug": "ly-bad", "key": "source:bad", "video_id": "bad",
-    }], "rejected": []}
+        "source_url": "https://example.test/bad",
+    }], "rejected": [], "pending_retry": [
+        {"key": "source:bad", "page_url": "https://example.test/bad"},
+        {"key": "source:good", "page_url": "https://example.test/good"},
+    ]}
 
     def fake_gh(method, path, *args, **kwargs):
         if "/runs?status=completed" in path:
@@ -399,6 +403,22 @@ def test_fc_consumes_source_rejection_artifact(monkeypatch):
     assert FC._collect_source_rejections(state) == 1
     assert state["dispatched"][0]["failed"] is True
     assert "内嵌字幕" in state["rejected"][0]["error"]
+    assert [row["key"] for row in state["pending_retry"]] == ["source:good"]
+
+
+def test_dispatch_consumes_terminal_rejections_before_picking(monkeypatch):
+    state = {
+        "dispatched": [], "rejected": [], "pending_retry": [],
+        "published": {}, "daily_publish": {},
+    }
+    monkeypatch.setattr(FC, "load_state", lambda: state)
+    monkeypatch.setattr(FC, "_collect_source_rejections", lambda current: 1)
+    saved = []
+    monkeypatch.setattr(FC, "save_state", lambda current: saved.append(current.copy()))
+    monkeypatch.setattr(FC, "_pending_final_count", lambda current: FC.PENDING_LIMIT)
+
+    assert FC.dispatch_handler() == {"dispatched": 0}
+    assert saved
 
 
 def test_rejection_refills_slot_cleans_temp_and_aggregates_result(monkeypatch,

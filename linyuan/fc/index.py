@@ -1564,6 +1564,13 @@ def handler(event, context):
 
 def dispatch_handler(event=None, context=None):
     st = load_state()
+    # Production/source gate failures happen in Actions after dispatch returns.
+    # Consume their evidence before picking candidates so a terminally rejected
+    # source cannot become retry-ready and get dispatched again.
+    source_rejected = _collect_source_rejections(st)
+    if source_rejected:
+        save_state(st)
+        log.info(f"已在调度前淘汰 {source_rejected} 条失败素材")
     today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
     if (today == FRESH_SIX_DATE and FRESH_SIX_APPROVED
             and int(((st.get("daily_publish") or {}).get(fresh_six_counter(next(iter(FRESH_SIX_APPROVED.values()))["slug"])) or {}).get("count", 0)) < 6):
@@ -2044,6 +2051,17 @@ def _collect_source_rejections(st):
             candidate["failed"] = True
             candidate["last_error"] = reason
             candidate["source_quality_rejected"] = True
+            # A gate rejection is terminal for this exact source.  Leaving the
+            # old retry record behind would make pick() subtract the rejected
+            # key from `done` after its cooldown and dispatch it again.
+            candidate_key = candidate.get("key")
+            candidate_source = (candidate.get("source_url") or "").strip()
+            st["pending_retry"] = [
+                row for row in st.get("pending_retry", [])
+                if row.get("key") != candidate_key
+                and (row.get("page_url") or row.get("video_url") or "").strip()
+                != candidate_source
+            ]
             if not any(x.get("slug") == slug for x in st.setdefault("rejected", [])):
                 st["rejected"].append({
                     "slug": slug, "key": candidate.get("key"),
