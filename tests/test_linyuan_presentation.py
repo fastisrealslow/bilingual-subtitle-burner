@@ -261,8 +261,8 @@ def test_long_group_can_use_real_punctuation_inside_an_asr_cue():
         '快速消费是与嘴巴有关的与生命有关的', '这些企业在慢慢增长']
 
 
-def test_semantic_caption_retries_oversized_group_with_exact_limit(tmp_path,
-                                                                   monkeypatch):
+def test_semantic_caption_safely_splits_model_parent_group_for_layout(tmp_path,
+                                                                      monkeypatch):
     entries = [
         dict(start_sec=0, end_sec=2, zh='我们长期持有优秀企业'),
         dict(start_sec=2, end_sec=4, zh='因为现金流能够持续增长'),
@@ -273,15 +273,14 @@ def test_semantic_caption_retries_oversized_group_with_exact_limit(tmp_path,
 
     def fake_llm(messages, *_args, **_kwargs):
         calls.append(messages[0]['content'])
-        if len(calls) == 1:
-            return P.json.dumps({'break_after': [len(transcript)]})
-        return P.json.dumps({'break_after': [10, 21, len(transcript)]})
+        return P.json.dumps({'break_after': [len(transcript)]})
 
     monkeypatch.setattr(P, 'llm', fake_llm)
     layout = V.layout_for(720, 1280, True)
     groups = P.semantic_caption_entries(
         entries, 'test-key', layout, tmp_path / 'semantic.json')
-    assert len(calls) == 2
-    assert '超过两行硬上限30字' in calls[1]
+    assert len(calls) == 1
     assert ''.join(g['zh'] for g in groups) == transcript
+    assert len(groups) >= 2
+    assert all(len(g['zh']) <= 30 for g in groups)
     assert all(g['end_sec'] - g['start_sec'] <= 8 for g in groups)
