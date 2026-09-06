@@ -22,7 +22,8 @@ jobs:
       - run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg fonts-noto-cjk libchromaprint-tools
-          pip install -q pillow fonttools jieba opencv-python-headless rapidocr-onnxruntime
+          pip install -q pillow fonttools jieba 'opencv-python<5' rapidocr-onnxruntime
+          python -c "import cv2; assert hasattr(cv2,'CascadeClassifier'); print(cv2.__version__)"
       - name: 原话完整切点重新渲染并复检实际六条
         env:
           GH_TOKEN: ${{ github.token }}
