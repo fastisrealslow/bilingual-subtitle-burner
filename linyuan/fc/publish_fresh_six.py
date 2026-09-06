@@ -1,5 +1,6 @@
 """Publish reviewed new outputs sequentially and require exact Bilibili receipts."""
 import hashlib
+import http.cookiejar
 import io
 import json
 import os
@@ -8,6 +9,74 @@ import time
 import urllib.request
 
 import index as fc
+
+
+PUBLIC_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+             "AppleWebKit/537.36 (KHTML, like Gecko) "
+             "Chrome/120.0 Safari/537.36")
+
+
+def bilibili_opener():
+    """Build the same browser-like session already proven by the CI fetcher.
+
+    FC's mainland egress currently receives HTTP 412 from Bilibili's public
+    archive API.  Public verification therefore belongs on the GitHub runner;
+    uploads and their exact receipts remain on FC.
+    """
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(
+        urllib.request.HTTPCookieProcessor(jar))
+    opener.addheaders = [
+        ("User-Agent", PUBLIC_UA),
+        ("Accept-Language", "zh-CN,zh;q=0.9"),
+        ("Referer", "https://www.bilibili.com/"),
+    ]
+    try:
+        opener.open("https://www.bilibili.com/", timeout=20).read()
+        spi = json.loads(opener.open(
+            "https://api.bilibili.com/x/frontend/finger/spi",
+            timeout=20).read().decode())
+        for name, value in (("buvid3", spi["data"]["b_3"]),
+                            ("buvid4", spi["data"]["b_4"])):
+            jar.set_cookie(http.cookiejar.Cookie(
+                0, name, value, None, False, ".bilibili.com", True, False,
+                "/", True, False, None, False, None, None, {}))
+    except Exception as exc:
+        print(f"Bilibili fingerprint bootstrap warning: {exc}", flush=True)
+    return opener
+
+
+def runner_publication_status(found):
+    """Verify exact BV receipts through GitHub egress, never by re-uploading."""
+    opener = bilibili_opener()
+    rows = []
+    for sha, receipt in found.items():
+        bvid = receipt.get("bvid")
+        row = {"sha256": sha, "bvid": bvid,
+               "title": receipt.get("title"), "public": False}
+        try:
+            req = urllib.request.Request(
+                "https://api.bilibili.com/x/web-interface/view?bvid=" + bvid,
+                headers={"Referer": "https://www.bilibili.com/",
+                         "Accept": "application/json"})
+            response = json.loads(opener.open(req, timeout=20).read().decode())
+            data = response.get("data") or {}
+            row.update(api_code=response.get("code"),
+                       archive_state=data.get("state"),
+                       duration=data.get("duration"),
+                       owner_mid=(data.get("owner") or {}).get("mid"))
+            row["public"] = (
+                response.get("code") == 0 and data.get("state") == 0
+                and str((data.get("owner") or {}).get("mid"))
+                == str(fc.OWNER_MID)
+                and data.get("bvid") == bvid)
+        except Exception as exc:
+            row["error"] = str(exc)[:160]
+        rows.append(row)
+    return {"verification_origin": "github-actions",
+            "receipts": len(rows),
+            "public_count": sum(row["public"] for row in rows),
+            "videos": rows}
 
 
 def state():
@@ -100,7 +169,7 @@ def main():
     print(json.dumps({"new_receipts":len(got), "receipts":got}, ensure_ascii=False, indent=2))
     deadline=time.monotonic()+30*60
     while True:
-        public=invoke({'triggerName':'diagnose-fresh-six-publication'})
+        public=runner_publication_status(got)
         Path('fresh-six-public-status.json').write_text(json.dumps(public,ensure_ascii=False,indent=2))
         print(json.dumps(public,ensure_ascii=False),flush=True)
         if public.get('public_count')==len(fc.FRESH_SIX_APPROVED):

@@ -67,7 +67,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
-      - name: 境内逐条投稿并核对六条真实回执
+      - name: 境内逐条投稿并由 GitHub 复核六条公开状态
         env:
           GH_TOKEN: ${{ github.token }}
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
