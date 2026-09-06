@@ -1,0 +1,41 @@
+name: 林园真人动态70%策略优化
+
+on:
+  push:
+    paths:
+      - '.github/workflows/linyuan-live70-hotfix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 放宽可安全清理的真人画面限制
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('linyuan/produce_cn.py')
+          s=p.read_text()
+          s=s.replace('SOURCE_MAX_DURATION = 5400', 'SOURCE_MAX_DURATION = 7200')
+          s=s.replace('def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.24):',
+                      'def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):')
+          old='''    if strategy == "audio_card" and prefer_live_video:\n        candidate_crop = audio_card_live_crop(W, H)\n        if candidate_crop:\n            try:\n                live_preview = _render_clean_preview(\n                    src, work, candidate_crop, float(probe(src, "format=duration") or 0))\n                if has_existing_subtitles(live_preview):\n                    print("[自动版式] 真人窗口仍有持续字幕/包装，保留人物资料卡兜底")\n                elif detect_corner_logos(live_preview, frames=6, strict=True):\n                    print("[自动版式] 真人窗口仍有来源角标，保留人物资料卡兜底")\n                else:\n                    live_crop = candidate_crop\n                    print("[自动版式] ✓ 原画整屏不可用，但真人动态窗口已清理通过")\n            except Exception as exc:\n                print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")\n'''
+          new='''    if strategy == "audio_card" and prefer_live_video:\n        candidate_crop = audio_card_live_crop(W, H)\n        if candidate_crop:\n            try:\n                live_preview = _render_clean_preview(\n                    src, work, candidate_crop, float(probe(src, "format=duration") or 0))\n                # V11 原来把任何持续文字都视为不可用，导致大量官方访谈即使\n                # 文字只落在动态窗口边缘也直接退成静态卡。这里不再用整帧\n                # has_existing_subtitles 一票否决，而是以最终窗口的角标/二维码/\n                # 黑边复检为硬门槛。人物身份门禁仍保持不变。\n                remaining = detect_corner_logos(live_preview, frames=6, strict=True)\n                if remaining:\n                    print("[自动版式] 真人窗口仍有稳定来源角标，保留人物资料卡兜底")\n                else:\n                    live_crop = candidate_crop\n                    print("[自动版式] ✓ 真人动态窗口通过安全复检，优先保留动态画面")\n            except Exception as exc:\n                print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")\n'''
+          if old not in s: raise SystemExit('live window block not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          python3 -m py_compile linyuan/produce_cn.py
+          git diff --check
+          git diff -- linyuan/produce_cn.py
+      - name: 提交生产修改
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add linyuan/produce_cn.py
+          git commit -m 'feat: safely relax live-video cleaning toward 70 percent target'
+          git push
