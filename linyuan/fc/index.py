@@ -57,6 +57,7 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 480
+PRODUCTION_RULES_VERSION = 2026090602   # partial QR + complete semantic groups
 QUALITY_GATE_VERSION = 11                # v11 禁黑边/源水印/二维码，字幕块居中且最多两行
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
@@ -1355,6 +1356,7 @@ def handler(event, context):
             return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                     "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_six": 5, "audio_max_per_six": 1,
                     "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
+                    "production_rules_version": PRODUCTION_RULES_VERSION,
                     "pending_inventory": _pending_final_count(st), "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
                     "daily_publish": st.get("daily_publish", {}), "publish_hours_beijing": sorted(PUBLISH_HOURS)}
         if name == "diagnose-ping":
@@ -1447,6 +1449,7 @@ def dispatch_handler(event=None, context=None):
                            "source_platform": platform_of(c.get("source", ""))}})
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
                                      "required_presentation_version": 2,
+                                     "production_rules_version": PRODUCTION_RULES_VERSION,
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
@@ -1847,6 +1850,8 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
     e["quality_retries"] = retries + 1
     e["last_retry"] = int(time.time())
     e["reprocessing_quality"] = True
+    e["production_rules_version"] = PRODUCTION_RULES_VERSION
+    e["ts"] = int(time.time())
     e["quality_failure"] = reason
     save_state(st)
     log_event("quality", f"♻️ {slug} 旧成片已隔离并重新出片", reason)
@@ -1880,6 +1885,8 @@ def _pending_final_count(st):
     for e in st.get("dispatched", []):
         if not (e.get("slug") and not e.get("failed")):
             continue
+        if e.get("production_rules_version") != PRODUCTION_RULES_VERSION:
+            continue  # Obsolete unverified inventory cannot block fresh production.
         pub = st.get("published", {}).get(e["slug"])
         if pub:
             parts_total = pub.get("parts_total", 1)
@@ -1949,7 +1956,8 @@ def publish_handler(event=None, context=None):
                and (not batch_slug or e.get("slug") == batch_slug)
                and _has_unpublished_part(e, st)]
     # 轮转：已投条数最少的素材优先（防长视频霸占额度、新素材饿死 2026-08-27）
-    pending.sort(key=lambda e: e.get("published_parts", 0))
+    pending.sort(key=lambda e: (e.get("production_rules_version") != PRODUCTION_RULES_VERSION,
+                                e.get("published_parts", 0)))
     if not pending:
         log.info("无待投稿件")
         return {"published": 0}

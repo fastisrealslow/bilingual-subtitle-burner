@@ -73,8 +73,13 @@ class BatchIsolationTests(unittest.TestCase):
         self.assertEqual(fc.pick([],state,6),[])
 
     def test_stale_unfinished_jobs_do_not_fill_inventory(self):
-        state=dict(dispatched=[dict(slug='stale',ts=1),dict(slug='running',ts=time.time())],published={})
+        state=dict(dispatched=[dict(slug='stale',ts=1),dict(slug='running',ts=time.time(),production_rules_version=fc.PRODUCTION_RULES_VERSION)],published={})
         self.assertEqual(fc._pending_final_count(state),1)
+
+    def test_obsolete_partial_batch_does_not_block_new_production(self):
+        state=dict(dispatched=[dict(slug='old',ts=time.time(),published_parts=1)],
+                   published={'old':dict(parts_total=53)})
+        self.assertEqual(fc._pending_final_count(state),0)
 
     def test_audio_card_requires_verified_live_supply_and_at_most_one_per_six(self):
         card=dict(render_mode='audio_card')
