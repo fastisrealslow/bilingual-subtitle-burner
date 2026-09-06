@@ -1,4 +1,5 @@
-name: 林园今日新六条实际投稿
+name: 林园六条长视频实际发布与时长核验
+# Publish only the deployed exact-hash long-video manifest, then verify archive duration.
 on:
   push:
     branches: [main]
@@ -89,6 +90,7 @@ jobs:
       - name: 境内逐条投稿并由 GitHub 复核六条公开状态
         env:
           GH_TOKEN: ${{ github.token }}
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
           FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
