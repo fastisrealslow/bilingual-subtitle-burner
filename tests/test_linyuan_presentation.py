@@ -43,6 +43,8 @@ def test_encoded_qr_inside_card_source_window_is_rejected(tmp_path):
     writer.release()
     with pytest.raises(ValueError,match='二维码'):
         V.verify_render(video,V.layout_for(720,1280,True))
+    with pytest.raises(P.VisualQualityError,match='二维码'):
+        P.verify_live_region_after_render(video)
 
 spec = importlib.util.spec_from_file_location('presentation_fc', ROOT / 'linyuan/fc/index.py')
 FC = importlib.util.module_from_spec(spec)

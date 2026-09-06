@@ -19,6 +19,7 @@ import presentation as pres
 
 SLUG = 'ly-fresh-six-0906-05'
 PARENT_RUN = 34030288401
+ACCEPTED_CHECKPOINT_RUN = 34031908071
 RECIPES = [
     (1, 0, 29.60, '林园：金额很小，比存款利息好一点', '11cc3a7093f2200afe99409dee332c01e0dc2d51f6258b2126968d513be32371'),
     (2, 2.20, 33.10, '林园：打新不是我们主要的策略', '96384f9fa696e6404c7c0a5f5e00b9f5e32200df66488b833c090138df0d3ba1'),
@@ -75,12 +76,23 @@ def main():
             'fastisrealslow/bilingual-subtitle-burner','--name','deliver-'+SLUG,
             '--dir',str(source)],check=True)
     original = json.loads((source/'meta.json').read_text())
-    out = Path('fresh-six-finished'); out.mkdir(exist_ok=True)
+    out = Path('fresh-six-finished')
+    if not (out/'meta.json').exists():
+        subprocess.run(['gh','run','download',str(ACCEPTED_CHECKPOINT_RUN),'--repo',
+            'fastisrealslow/bilingual-subtitle-burner','--name','deliver-'+SLUG,
+            '--dir',str(out)],check=True)
     work = out/'review'; work.mkdir(exist_ok=True)
     reference = p._download_speaker_reference('林园',work)
     portrait = p.extract_audio_card_portrait(reference,work/'portrait.png')
-    result=[]
+    result=json.loads((out/'meta.json').read_text())
     for number,start,end,title,pinned_sha in RECIPES:
+        existing=next((m for m in result if m['final']==f'final_{number}.mp4'),None)
+        if existing:
+            if (existing['title']!=title or p._file_sha256(out/existing['final'])!=existing['fingerprints']['sha256']
+                    or existing['editorial_provenance']['parent_sha256']!=pinned_sha):
+                raise ValueError('Accepted checkpoint changed')
+            print(json.dumps({'retained':existing['final'],'sha256':existing['fingerprints']['sha256']}),flush=True)
+            continue
         try:
             parent = next(m for m in original if m['final']==f'final_{number}.mp4')
             video = source/parent['final']

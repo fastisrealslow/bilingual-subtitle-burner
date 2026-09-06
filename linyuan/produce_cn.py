@@ -2075,7 +2075,11 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
                 black_edge_hits += 1
             try:
                 _decoded, points, _straight = qr.detectAndDecode(region)
-                if points is not None:
+                from presentation import qr_is_plausible
+                # OpenCV may return repeated corners or vertices far outside
+                # the image. Those cannot describe a QR; keep decoded codes,
+                # plausible complete candidates and the separate finder gate.
+                if _decoded or (points is not None and qr_is_plausible(points,w,h)):
                     qr_hits += 1
             except cv2.error:
                 pass
