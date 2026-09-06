@@ -69,6 +69,6 @@ def test_unresolved_negation_or_number_requires_audio_review():
 def test_daily_and_explicit_publication_share_the_same_gate():
     spec=importlib.util.spec_from_file_location('editorial_fc',ROOT/'linyuan/fc/index.py')
     fc=importlib.util.module_from_spec(spec);spec.loader.exec_module(fc)
-    meta=complete_meta();meta['duration_sec']=20
+    meta=complete_meta();meta['duration_sec']=20;meta['quality_gate_version']=fc.QUALITY_GATE_VERSION
     assert '不足120秒' in fc.artifact_quality_error(meta)
     assert fc.fresh_six_budget({'date':'2026-09-07','count':0},'ly-fresh-six-0906-05','2026-09-07') is None

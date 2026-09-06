@@ -42,7 +42,7 @@ def test_workflow_rejects_source_below_480():
     assert P.MIN_SHORT_EDGE == 480
     assert FC.MIN_SHORT_EDGE == 480
     assert "default: true" in workflow
-    assert P.SOURCE_MIN_DURATION == 90
+    assert P.SOURCE_MIN_DURATION == 120
     assert FC.MIN_DUR == 90
     assert "--source-check-only" in workflow
     assert workflow.index("name: 素材质量门禁") < workflow.index("name: 出片")
@@ -150,6 +150,11 @@ def test_skipped_duplicate_advances_part_without_joining_history(monkeypatch):
 
 def _good_artifact_meta():
     return {
+        "duration_sec": 150,
+        "segments": [{"start":600,"end":750}],
+        "editorial_review": {"version":FC.editorial.VERSION,"standalone_opening":True,
+            "complete_argument":True,"reasoning_present":True,"natural_ending":True,
+            "requires_audio_review":False,"summary":"完整观点和论据","transcript_sha256":"abc"},
         "quality_gate_version": FC.QUALITY_GATE_VERSION,
         "visual_standard_version": FC.VISUAL_STANDARD_VERSION,
         "cover_standard_version": FC.COVER_STANDARD_VERSION,
@@ -435,6 +440,9 @@ def test_partial_qr_blocks_old_live_artifacts():
     meta['partial_qr_verified'] = True
     assert '完整人脸' in FC.artifact_quality_error(meta)
     meta['full_face_frames'] = 6
+    assert '林园本人' in FC.artifact_quality_error(meta)
+    meta['final_live_identity'] = dict(speaker='林园',sample_count=6,
+        same_person_frames=[1,2,3,4,5],confidence=.95,watermark_texts=[])
     assert FC.artifact_quality_error(meta) is None
 
 def test_cropped_qr_finder_is_detected_without_decodable_full_code():

@@ -1,5 +1,5 @@
 name: 林园六条完整观点重做
-# Retry after fixing shared-module import in the pre-production regression gate.
+# Retry source01 only after adaptive VLM format repair; source02 is already rendering.
 on:
   push:
     branches: [main]
@@ -19,7 +19,6 @@ jobs:
           import os,subprocess
           for slug,source,occasion in [
               ('ly-long-six-0906-01','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
-              ('ly-long-six-0906-02','https://www.bilibili.com/video/BV15Z4y147qD','公开访谈原声节选'),
           ]:
               subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml',
                   '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',

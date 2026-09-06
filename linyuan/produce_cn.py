@@ -356,23 +356,19 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             '"best_cover_frame":null,"confidence":0.0,"watermark_texts":[],"reason":"逐帧判断依据"}'
         ),
     })
-    payload = json.dumps({
-        "model": VISION_MODEL,
-        "messages": [{"role": "user", "content": content}],
-        "max_tokens": 600,
-        "temperature": 0.0,
-        "stream": False,
-    }).encode()
-    req = urllib.request.Request(
-        SF_URL, data=payload,
-        headers={"Authorization": f"Bearer {api_key}",
-                 "Content-Type": "application/json"})
+    messages=[{"role":"user","content":content}]
     last = None
     for attempt in range(3):
+        raw_response=None
         try:
+            payload=json.dumps({"model":VISION_MODEL,"messages":messages,
+                "max_tokens":1200,"temperature":0.0,"stream":False}).encode()
+            req=urllib.request.Request(SF_URL,data=payload,headers={
+                "Authorization":f"Bearer {api_key}","Content-Type":"application/json"})
             with urllib.request.urlopen(req, timeout=120) as r:
                 data = json.loads(r.read().decode())
-            verdict = _parse_json_object(data["choices"][0]["message"]["content"])
+            raw_response=data["choices"][0]["message"]["content"]
+            verdict = _parse_json_object(raw_response)
             classified=[]
             for field in ('same_person_frames','different_person_frames','uncertain_frames'):
                 values=verdict.get(field)
@@ -384,6 +380,11 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             return verdict
         except Exception as e:
             last = e
+            if raw_response is not None and isinstance(e,(ValueError,TypeError,KeyError)):
+                messages.extend([{"role":"assistant","content":raw_response},
+                    {"role":"user","content":f"上次格式未通过：{e}。请重新逐一核验原图中编号1到{len(frames)}的所有帧，"
+                     "每个编号必须且只能出现在一个组中。空数组不可代替遗漏的判断，不允许猜测；看不清放uncertain_frames。"
+                     "只输出完整JSON，保留实际判断。"}])
             if attempt < 2:
                 time.sleep(2 ** attempt)
     raise VisualQualityError(f"人物 VLM 校验不可用：{last}")

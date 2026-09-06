@@ -21,7 +21,6 @@
 import difflib
 import io
 import json
-import editorial_policy as editorial
 import logging
 import os
 import re
@@ -33,6 +32,11 @@ import time
 import urllib.request
 import zipfile
 from pathlib import Path
+
+# Repo scripts load index from linyuan/fc; deployed ZIP modules sit together.
+if str(Path(__file__).resolve().parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import editorial_policy as editorial
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -1820,15 +1824,15 @@ def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
         return "meta.json 不是对象"
-    editorial_error = editorial.metadata_error(meta)
-    if editorial_error:
-        return editorial_error
     try:
         version = int(meta.get("quality_gate_version", 0))
     except (TypeError, ValueError):
         version = 0
     if version < QUALITY_GATE_VERSION:
         return f"旧成片缺少质量闸门 v{QUALITY_GATE_VERSION} 证明"
+    editorial_error = editorial.metadata_error(meta)
+    if editorial_error:
+        return editorial_error
     if meta.get("speaker") != "林园":
         return "成片人物字段不是林园"
     if int(meta.get("visual_standard_version") or 0) < VISUAL_STANDARD_VERSION:
