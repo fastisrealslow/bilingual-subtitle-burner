@@ -1,5 +1,5 @@
 name: 林园六条完整观点重做
-# Fix actual incomplete screen boundaries in parts 1, 3 and 6; keep all source words.
+# Finalize reviewed boundaries in the two recovered parts, preserving every word.
 on:
   push:
     branches: [main]
@@ -18,13 +18,13 @@ jobs:
           python - <<'PY'
           import os,subprocess
           for slug,source,occasion in [
-              ('ly-long-six-0906-07','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
+              ('ly-long-six-0906-09','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
           ]:
               subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml',
                   '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',
                   '-f','source='+source,'-f','slug='+slug,'-f','speaker=林园',
                   '-f','occasion='+occasion,'-f','source_platform=bilibili',
-                  '-F','auto_publish=false','-f','target_parts=0','-f','reviewed_parts=1,3,6',
+                  '-F','auto_publish=false','-f','target_parts=0','-f','reviewed_parts=2,4',
                   '-F','include_full=false','-F','prefer_live_video=true'],check=True)
               print('已触发常规main流程：',slug,flush=True)
           PY
