@@ -58,3 +58,20 @@ def test_failed_task_with_upload_intent_stops_without_replay(setup, monkeypatch)
     monkeypatch.setattr(pub, 'state', lambda: {'dispatched':[{'slug':'reviewed','uploading':True}]})
     with pytest.raises(SystemExit, match='no exact receipt'):
         pub.publish_async_part(client, 'function', m, NS(), 'abc', approved)
+
+
+def test_absent_fc_async_config_is_initialized_with_no_replay():
+    class Missing(Exception):
+        code = 'AsyncConfigNotExists'
+    saved = []
+    def get(*args):
+        if not saved:
+            raise Missing()
+        return NS(body=saved[0])
+    def put(function, request, *args):
+        saved.append(request.body)
+    models = NS(GetAsyncInvokeConfigRequest=NS, PutAsyncInvokeConfigInput=NS, PutAsyncInvokeConfigRequest=NS)
+    pub.prepare_async_tasks(NS(get_async_invoke_config_with_options=get,
+        put_async_invoke_config_with_options=put), 'function', models, NS())
+    assert saved[0].async_task is True
+    assert saved[0].max_async_retry_attempts == 0

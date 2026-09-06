@@ -137,7 +137,7 @@ def prepare_async_tasks(client, function, m, runtime):
         old = client.get_async_invoke_config_with_options(function,
             m.GetAsyncInvokeConfigRequest(qualifier='LATEST'), {}, runtime).body
     except Exception as exc:
-        if 'NotFound' not in str(getattr(exc, 'code', '')):
+        if not any(marker in str(getattr(exc, 'code', '')) for marker in ('NotFound', 'NotExist')):
             raise
         old = None
     body = m.PutAsyncInvokeConfigInput(async_task=True, max_async_retry_attempts=0)
@@ -162,7 +162,7 @@ def publish_async_part(client, function, m, runtime, sha, approved):
                 return client.get_async_task_with_options(function, task_id,
                     m.GetAsyncTaskRequest(qualifier='LATEST'), {}, runtime).body
             except Exception as exc:
-                if 'NotFound' in str(getattr(exc, 'code', '')):
+                if any(marker in str(getattr(exc, 'code', '')) for marker in ('NotFound', 'NotExist')):
                     return None
                 raise
         task = query()
