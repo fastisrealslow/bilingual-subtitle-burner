@@ -14,8 +14,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # 这两条已通过清晰度和人物门禁，只因完整意群在固定 48px 下
-          # 没有合法的两行词边界而失败。用新 slug 重跑，避免把旧失败记录
+          # 这两条已通过清晰度和人物门禁；修复既覆盖词边界有界缩放，也覆盖
+          # 跨 8 秒意群仅按原始 ASR 词边界重分。用新 slug 重跑，避免把旧失败记录
           # 或旧 MP4 伪装成合格片；当天投稿仍受 FC 的 6 条硬上限控制。
           while IFS='|' read -r source slug; do
             gh workflow run linyuan-produce-cn.yml \
@@ -29,6 +29,6 @@ jobs:
               -f auto_publish=false \
               -f prefer_live_video=true
           done <<'EOF'
-          https://www.bilibili.com/video/BV1NFbe6VELY|ly-caption-scale-0906-01
-          https://www.bilibili.com/video/BV14B8M65E7g|ly-caption-scale-0906-02
+          https://www.bilibili.com/video/BV1NFbe6VELY|ly-caption-scale-0906-01-r2
+          https://www.bilibili.com/video/BV14B8M65E7g|ly-caption-scale-0906-02-r2
           EOF

@@ -224,3 +224,25 @@ def test_semantic_group_still_rejects_beyond_38px_two_line_capacity():
     entries = [dict(start_sec=0, end_sec=5, zh=text)]
     with pytest.raises(ValueError, match='无法放入两行'):
         P.apply_semantic_groups(entries, [text], 12, font_px=48)
+
+
+def test_long_model_group_rebalances_only_at_original_cue_boundaries():
+    entries = [
+        dict(start_sec=0, end_sec=3, zh='我们买入贵州茅台'),
+        dict(start_sec=9, end_sec=12, zh='以后就长期持有'),
+    ]
+    groups = P.apply_semantic_groups(
+        entries, ['我们买入贵州茅台以后就长期持有'], 12, font_px=48)
+    assert [g['zh'] for g in groups] == ['我们买入贵州茅台', '以后就长期持有']
+    assert groups[0]['end_sec'] == 3
+    assert groups[1]['start_sec'] == 9
+
+
+def test_long_group_does_not_split_at_incomplete_source_cue():
+    entries = [
+        dict(start_sec=0, end_sec=4, zh='我们因为'),
+        dict(start_sec=10, end_sec=14, zh='看好医药所以买入'),
+    ]
+    with pytest.raises(ValueError, match='无法安全重分'):
+        P.apply_semantic_groups(
+            entries, ['我们因为看好医药所以买入'], 12, font_px=48)

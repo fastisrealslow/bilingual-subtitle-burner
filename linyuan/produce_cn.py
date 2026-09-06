@@ -1351,22 +1351,76 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     """Validate model-selected boundaries against source characters and timing."""
     from presentation import word_spans, wrap_words
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
-    chars=[]
+    chars=[]; entry_bounds=set()
     for i,e in enumerate(entries):
         a,b=float(e['start_sec']),float(e['end_sec'])
         if i+1<len(entries): b=min(b,float(entries[i+1]['start_sec']))
         original=e.get('zh','')
         for j,c in enumerate(original):
             if strip(c): chars.append((c,a+(b-a)*j/len(original),a+(b-a)*(j+1)/len(original)))
+        if chars:
+            entry_bounds.add(len(chars))
     source=''.join(c[0] for c in chars)
     if not isinstance(texts,list) or not texts or not all(isinstance(t,str) and strip(t) for t in texts):
         raise ValueError('完整意群分组为空或格式错误')
     if ''.join(strip(t) for t in texts)!=source:
         raise ValueError('意群分组改写或丢失原话，拒绝烧录')
     bounds={0,len(source)}|{b for a,b in word_spans(source)}
+    unfinished = re.compile(
+        r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|把|被|与|比|是|要|会|能|将|对|向|愿意)$')
+
+    def fit_lines(text):
+        """Return a legal per-cue capacity/font without crossing 38 px."""
+        cue_capacity = capacity
+        cue_font = font_px
+        max_capacity = capacity
+        if font_px:
+            max_capacity = max(capacity, int(font_px * capacity / min_font_px))
+        while True:
+            try:
+                wrap_words(text, cue_capacity)
+                return cue_capacity, cue_font
+            except ValueError as exc:
+                if ("无法放入两行" not in str(exc)
+                        or cue_capacity >= max_capacity):
+                    raise
+                cue_capacity += 1
+                cue_font = max(min_font_px,
+                               int(font_px * capacity / cue_capacity))
+
+    def split_long_group(start, end):
+        """Split only at original ASR-cue word boundaries, never by character count."""
+        candidates = sorted(({start, end} | entry_bounds) & bounds)
+        best = {start: (0, [])}
+        for a in candidates:
+            if a not in best or a >= end:
+                continue
+            for b in candidates:
+                if b <= a or b > end:
+                    continue
+                part = source[a:b]
+                if unfinished.search(part) or part.startswith('的'):
+                    continue
+                duration = chars[b-1][2] - chars[a][1]
+                if not .25 <= duration <= 8:
+                    continue
+                try:
+                    cue_capacity, cue_font = fit_lines(part)
+                except ValueError:
+                    continue
+                # Prefer readable complete ASR phrases around 8–18 characters;
+                # a short final phrase is allowed but never flashed below .25 s.
+                cost = best[a][0] + abs(len(part)-14) + (8 if len(part)<4 else 0)
+                if b not in best or cost < best[b][0]:
+                    best[b] = (cost, best[a][1] + [
+                        (a, b, part, cue_capacity, cue_font)])
+        if end not in best:
+            raise ValueError('单屏跨越超过8秒，原始意群边界也无法安全重分')
+        return best[end][1]
+
     result=[]; offset=0
-    for t in texts:
-        text=re.sub(r'\s+','',t); end=offset+len(strip(text))
+    for original_text in texts:
+        text=re.sub(r'\s+','',original_text); end=offset+len(strip(text))
         if end not in bounds: raise ValueError('意群分组切断完整词')
         if re.search(r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|把|被|与|比|是|要|会|能|将|对|向|愿意)$',strip(text)):
             raise ValueError('意群以未完成的连接词结束')
@@ -1380,32 +1434,17 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         # capacity that preserves every word and shrink this cue only.  The
         # floor remains 38 px, so this is a bounded layout adjustment rather
         # than a quality-gate bypass.
-        cue_capacity = capacity
-        cue_font = font_px
-        max_capacity = capacity
-        if font_px:
-            max_capacity = max(capacity, int(font_px * capacity / min_font_px))
-        while True:
-            try:
-                wrap_words(text, cue_capacity)
-                break
-            except ValueError as exc:
-                if ("无法放入两行" not in str(exc)
-                        or cue_capacity >= max_capacity):
-                    raise
-                cue_capacity += 1
-        if font_px and cue_capacity > capacity:
-            cue_font = max(min_font_px,
-                           int(font_px * capacity / cue_capacity))
         a,b=chars[offset][1],chars[end-1][2]
-        if b-a>8:
-            raise ValueError('单屏跨越超过8秒，应在完整意群处分开')
-        if b-a<.25: raise ValueError('意群字幕过短闪屏')
-        group = dict(start_sec=a,end_sec=b,zh=text,en='',semantic_group=True)
-        if cue_capacity > capacity:
-            group['line_capacity'] = cue_capacity
-            group['font_px'] = cue_font
-        result.append(group)
+        pieces = (split_long_group(offset, end) if b-a>8 else
+                  [(offset, end, text, *fit_lines(text))])
+        for lo, hi, piece, cue_capacity, cue_font in pieces:
+            a,b=chars[lo][1],chars[hi-1][2]
+            if b-a<.25: raise ValueError('意群字幕过短闪屏')
+            group = dict(start_sec=a,end_sec=b,zh=piece,en='',semantic_group=True)
+            if cue_capacity > capacity:
+                group['line_capacity'] = cue_capacity
+                group['font_px'] = cue_font
+            result.append(group)
         offset=end
     return result
 
