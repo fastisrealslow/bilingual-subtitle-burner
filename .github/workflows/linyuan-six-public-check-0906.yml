@@ -1,0 +1,43 @@
+name: 林园六条公开视频只读核验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-six-public-check-0906.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 只读查询六条实际BV的公开状态
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          python - <<'PY'
+          import io,json,os
+          from pathlib import Path
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          result=client.invoke_function_with_options(os.environ['FC_FUNCTION_NAME'],m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(json.dumps({'triggerName':'diagnose-fresh-six-publication'}).encode())),m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),util.RuntimeOptions(connect_timeout=10000,read_timeout=120000,autoretry=False))
+          body=result.body.read() if hasattr(result.body,'read') else result.body
+          data=json.loads(body)
+          Path('six-public-status.json').write_text(json.dumps(data,ensure_ascii=False,indent=2))
+          print(json.dumps(data,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: six-public-status-snapshot
+          path: six-public-status.json
+          if-no-files-found: error
