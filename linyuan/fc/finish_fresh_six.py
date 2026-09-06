@@ -20,9 +20,9 @@ import presentation as pres
 SLUG = 'ly-fresh-six-0906-05'
 PARENT_RUN = 34030288401
 RECIPES = [
-    (1, 0, 29.60, '林园：比存款利息好一点', '11cc3a7093f2200afe99409dee332c01e0dc2d51f6258b2126968d513be32371'),
+    (1, 0, 29.60, '林园：金额很小，比存款利息好一点', '11cc3a7093f2200afe99409dee332c01e0dc2d51f6258b2126968d513be32371'),
     (2, 2.20, 33.10, '林园：打新不是我们主要的策略', '96384f9fa696e6404c7c0a5f5e00b9f5e32200df66488b833c090138df0d3ba1'),
-    (15, 0, 16.60, '林园：创新一定是人的力量', '400f54bcf1575d585148581e16c898e72318093c84b8e5f68c1484c3eb60905a'),
+    (15, 0, 16.60, '林园：我们说创新一定是人的力量', '400f54bcf1575d585148581e16c898e72318093c84b8e5f68c1484c3eb60905a'),
     (16, 0, 18.80, '林园：读书能力不代表创新能力', 'c14cca1a8fb2804207e7975cc07bdfd312c76ccfa0ce8cfe0d90d205f72cd07e'),
     (17, 11.15, 27.20, '林园：我问喝酒的人，你们把酒戒掉', 'b87d107c5950a65372d0f6a9de7aa7d600065016e13e32165bde62b6880b4a9b'),
     (21, 0, 20.05, '林园：港股和A股实际上是同步的', 'a41aeec4a01fdb525578fe9f8b8796508680815546595feb8e3d810c74f951a9'),
@@ -87,6 +87,8 @@ def main():
         if parent_sha != parent['fingerprints']['sha256'] or (pinned_sha and parent_sha != pinned_sha):
             raise ValueError('Immutable production input hash changed')
         entries = captions(source,number,start,end)
+        title_error=p.title_quality_error(title,'林园',''.join(e['zh'] for e in entries))
+        if title_error: raise ValueError(title_error)
         suffix=f'_{number}'; duration=end-start
         layout=pres.layout_for(720,1280,True)
         ass=out/f'subtitles{suffix}-1.ass'
