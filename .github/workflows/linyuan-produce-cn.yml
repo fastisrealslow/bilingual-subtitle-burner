@@ -57,6 +57,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: produce-cn-${{ inputs.slug }}
@@ -84,7 +85,7 @@ jobs:
         working-directory: .
         run: |
           python -m pip install -q pytest
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py
 
       # fonts-noto-cjk 必装：缺了中文字体，字幕会烧成一排豆腐块
       - name: 安装 ffmpeg 与中文字体
@@ -163,15 +164,29 @@ jobs:
         run: |
           pip install fonttools jieba sherpa-onnx==1.13.7
 
+      - name: 读取已验证的CPU离线识别配置
+        run: python prepare_asr_runtime.py select --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+
+      - name: 准备CPU离线Qwen识别及逐字对齐
+        if: env.ASR_BACKEND == 'qwen3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CUDA_VISIBLE_DEVICES: ''
+        run: |
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-asr
+          python prepare_asr_runtime.py prepare --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+
       - name: 缓存 SenseVoice CPU 模型
         id: sensevoice-cache
+        if: env.ASR_BACKEND == 'sensevoice'
         uses: actions/cache@v4
         with:
           path: linyuan/sensevoice_model
           key: sensevoice-int8-v1
 
       - name: 下载 SenseVoice 模型
-        if: steps.sensevoice-cache.outputs.cache-hit != 'true'
+        if: env.ASR_BACKEND == 'sensevoice' && steps.sensevoice-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p sensevoice_model
           curl -sfL --retry 3 --max-time 600 -o /tmp/sv.tar.bz2 \
@@ -193,8 +208,8 @@ jobs:
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
           # 字幕识别与清理只在本地 CPU 运行，禁止 API 改写转写结果
-          ASR_BACKEND: sensevoice
           ASR_CPU_THREADS: '2'
+          CUDA_VISIBLE_DEVICES: ''
           SENSEVOICE_MODEL_DIR: sensevoice_model
           # ubuntu runner 没有 Microsoft YaHei/Arial，libass 找不到会烧成豆腐块
           ZH_FONT: Noto Sans CJK SC
@@ -225,6 +240,7 @@ jobs:
             linyuan/deliver/${{ inputs.slug }}/_tmp/cues_raw.json
             linyuan/deliver/${{ inputs.slug }}/_tmp/highlight*.json
             linyuan/deliver/${{ inputs.slug }}/_tmp/highlight*.txt
+            linyuan/deliver/${{ inputs.slug }}/_tmp/context_response*.txt
             linyuan/deliver/${{ inputs.slug }}/_tmp/editorial_review*.json
             linyuan/deliver/${{ inputs.slug }}/_tmp/source_quality.json
             linyuan/deliver/${{ inputs.slug }}/batch_report.json

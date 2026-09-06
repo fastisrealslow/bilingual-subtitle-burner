@@ -109,7 +109,7 @@ def test_workflow_and_downloaders_request_hd_without_relaxing_duration():
     assert "--fragment-retries 10" in workflow
     assert 'ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}"' in workflow
     assert "defn=shd" in fc_source
-    assert FC.MIN_DUR == 90
+    assert FC.MIN_DUR == 120
 
 
 def test_real_dash_merge_has_audio_video_and_decodable_tail(tmp_path):

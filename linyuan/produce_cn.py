@@ -503,6 +503,14 @@ def _sha256_file(path):
 
 
 def _asr_cache_identity(src):
+    if ASR_BACKEND == 'qwen3':
+        paths=[Path(os.environ.get(name,'')) for name in ('QWEN3_ASR_DIR','QWEN3_ALIGNER_DIR')]
+        if any(not p.is_dir() or not list(p.glob('*.safetensors')) for p in paths):
+            raise ValueError('缺少已下载的CPU离线Qwen识别或对齐权重')
+        files=[f for p in paths for pattern in ('*.safetensors','*.json') for f in p.glob(pattern)]
+        return dict(version=ASR_PIPELINE_VERSION,source_sha256=_sha256_file(src),
+            backend='qwen3',chunk_sec=30,overlap_sec=3,threads=2,
+            models={str(p.resolve()):_sha256_file(p) for p in files})
     model_dir = Path(SENSEVOICE_DIR if ASR_BACKEND == "sensevoice" else FUNASR_DIR)
     model_files = sorted(model_dir.rglob("*.onnx")) + sorted(model_dir.rglob("tokens.txt"))
     return dict(version=ASR_PIPELINE_VERSION, source_sha256=_sha256_file(src),
@@ -524,7 +532,7 @@ def _audio_duration(src):
 
 def transcribe(src, work, api_key=None):
     """Offline CPU ASR with source/model/config-bound cache and quality gates."""
-    if ASR_BACKEND not in ("sensevoice", "funasr"):
+    if ASR_BACKEND not in ("sensevoice", "funasr", "qwen3"):
         raise ValueError(f"中文生产不支持 ASR_BACKEND={ASR_BACKEND!r}；只允许已验证的 CPU 离线后端")
     src, work = Path(src), Path(work)
     work.mkdir(parents=True, exist_ok=True)
@@ -545,7 +553,7 @@ def transcribe(src, work, api_key=None):
     stale = set()
     for pattern in ("cues_raw.json", "asr_tokens.json", "asr_raw_chunks.json",
                     "highlights*.json", "copywrite*.json", "translation.json",
-                    "chunks_dedup.json", "semantic*.json", "editorial_review*.json"):
+                    "chunks_dedup.json", "semantic*.json", "editorial_review*.json", "qwen_cpu"):
         stale.update(work.glob(pattern))
     if stale:
         archive = work / "asr_stale" / str(time.time_ns())
@@ -558,6 +566,8 @@ def transcribe(src, work, api_key=None):
         wav.unlink(missing_ok=True)
     if ASR_BACKEND == "sensevoice":
         cues = _transcribe_sensevoice(src, work)
+    elif ASR_BACKEND == 'qwen3':
+        cues = _transcribe_qwen_cpu(src,work)
     else:
         cues = _transcribe_funasr(src, work)
     _asr_quality_gate(cues, _audio_duration(src))
@@ -567,6 +577,39 @@ def transcribe(src, work, api_key=None):
                               ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(provenance)
     return cues
+
+
+def _transcribe_qwen_cpu(src,work):
+    """Explicit CPU backend; no ASR API or automatic model fallback."""
+    import wave
+    from qwen_asr_evidence import validated_words,load_reports
+    wav=work/'audio_16k.wav'
+    if wav.resolve()!=src.resolve():
+        subprocess.run(['ffmpeg','-y','-v','error','-i',str(src),'-vn','-ar','16000',
+            '-ac','1','-c:a','pcm_s16le',str(wav)],check=True,timeout=600)
+    with wave.open(str(wav)) as stream:
+        duration=stream.getnframes()/stream.getframerate()
+        pcm_sha=hashlib.sha256(stream.readframes(stream.getnframes())).hexdigest()
+    video_sha=_sha256_file(src)
+    evidence=Path(os.environ.get('QWEN3_EVIDENCE_DIR') or work/'qwen_cpu')
+    reports=load_reports(evidence)
+    if not reports:
+        evidence.mkdir(parents=True,exist_ok=True)
+        for mode,env in [('decode','QWEN3_ASR_DIR'),('align','QWEN3_ALIGNER_DIR')]:
+            subprocess.run([sys.executable,str(BASE/'qwen_cpu_transcript.py'),mode,
+                '--audio',str(wav),'--out',str(evidence),'--weights',os.environ[env],
+                '--source-video-sha',video_sha],check=True,timeout=max(600,int(duration*4)))
+        reports=load_reports(evidence)
+    if any(r.get('model_revision')!=Path(os.environ['QWEN3_ASR_DIR']).name
+           or (r.get('alignment') or {}).get('model_revision')!=Path(os.environ['QWEN3_ALIGNER_DIR']).name
+           for r in reports):
+        raise ValueError('离线转写缓存与当前识别/对齐权重版本不同')
+    words=validated_words(reports,pcm_sha,video_sha,duration)
+    (work/'asr_raw_chunks.json').write_text(json.dumps(reports,ensure_ascii=False,indent=1))
+    tokens=[w['text'] for w in words];times=[w['start'] for w in words]
+    (work/'asr_tokens.json').write_text(json.dumps(dict(tokens=tokens,timestamps=times,
+        duration=duration,backend='qwen3',alignment='Qwen3-ForcedAligner-0.6B'),ensure_ascii=False))
+    return _merge_cues(_funasr_tokens_to_cues(tokens,times,0,duration))
 
 
 def _transcribe_whisper(src, work, api_key):
@@ -1168,10 +1211,65 @@ def parse_llm_json_array(out):
     if objs:
         return objs
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
+def argument_context_candidates(cues,seeds):
+    """Offer only real continuous long contexts around model-selected ideas."""
+    ranges={}
+    for seed in seeds:
+        lo,hi=seed.get('start'),seed.get('end')
+        if type(lo) is not int or type(hi) is not int or not 0<=lo<=hi<len(cues):
+            continue
+        start_options=set()
+        for lookback in (0,15,30,60,90):
+            stamp=cues[lo]['start']-lookback
+            a=min(range(lo+1),key=lambda i:abs(cues[i]['start']-stamp))
+            start_options.add(a)
+        for a in start_options:
+            for length in (120,150,180,210,240,300):
+                ends=[j for j in range(max(a,hi),len(cues))
+                      if cues[j]['end']-cues[a]['start']>=editorial.MIN_SECONDS]
+                if not ends:continue
+                b=min(ends,key=lambda j:abs(cues[j]['end']-cues[a]['start']-length))
+                seconds=cues[b]['end']-cues[a]['start']
+                if seconds<=330:
+                    ranges[(a,b)]={'start':a,'end':b,'duration_sec':round(seconds,2)}
+    return [dict(row,candidate_id=i) for i,row in enumerate(ranges.values())]
+
+
+def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
+    choices=argument_context_candidates(cues,seeds)
+    if not choices:return []
+    transcript='\n'.join(f"{i}|{c['text']}" for i,c in enumerate(cues))
+    table=[]
+    for row in choices:
+        a,b=row['start'],row['end']
+        table.append({**row,'opening':''.join(c['text'] for c in cues[a:min(a+2,b+1)]),
+                      'ending':''.join(c['text'] for c in cues[max(a,b-1):b+1])})
+    prompt=(f'你是{speaker}访谈编辑。此前选出了有意义的短句，但用户要完整观点长片。'
+        '以下候选是这些观点附近的真实连续上下文，每条已由程序确保至少120秒。'
+        '从候选ID中选至多2条：一个完整主题、开头独立可懂、解释充分、自然结束。'
+        '必须连同中间原文阅读判断，不能仅看首尾或因为时长足够就接受。'
+        '无关问题拼在一起、寒暄开场、缺必要解释、残句结束必须拒绝。'
+        '可以选较长候选保留同主题追问，不得改写文字。没有合格候选就返回[]。'
+        '只输出JSON数组，每项candidate_id,score(至少7),reason。\n完整原文：\n'+transcript+
+        '\n候选：\n'+json.dumps(table,ensure_ascii=False))
+    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
+    (work/f'context_response{suffix}.txt').write_text(answer)
+    selected=[]
+    for row in parse_llm_json_array(answer):
+        i=row.get('candidate_id')
+        if type(i) is not int or not 0<=i<len(choices) or float(row.get('score',0))<MIN_HIGHLIGHT_SCORE:
+            continue
+        choice=choices[i]
+        if any(not(choice['end']<p['start'] or choice['start']>p['end']) for p in selected):
+            continue
+        selected.append(dict(start=choice['start'],end=choice['end'],score=row['score'],reason=row.get('reason','')))
+    return selected[:2]
+
+
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 2}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 3}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1204,13 +1302,14 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         "这个下界已经由程序按真实时间计算，不能忽略。确保起止为完整词句/意群。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
         "只返回JSON数组，每项包含start,end,score(至少7),reason(完整主题)。\n"+numbered)
-    valid=[]
+    valid=[];seeds=[]
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,
                          temperature=0,max_tokens=2400,budget_sec=90)
             (work/f'highlight_response{suffix}-{attempt}.txt').write_text(response)
             picks=parse_llm_json_array(response)
+            seeds.extend(p for p in picks if float(p.get('score',0))>=MIN_HIGHLIGHT_SCORE)
             for pick in picks:
                 if float(pick.get('score',0)) < MIN_HIGHLIGHT_SCORE:
                     continue
@@ -1223,6 +1322,13 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         except (ValueError,TypeError,KeyError,RuntimeError) as exc:
             print(f'[完整观点] 第{attempt+1}次未通过: {exc}')
             prompt += '\n上次区间未通过：'+str(exc)+'。重新在同一主题完整上下文内选择，禁止短句。'
+    if not valid and seeds:
+        try:
+            valid=pick_argument_context(cues,seeds,speaker,api_key,work,suffix)
+            for pick in valid:editorial.range_seconds(cues,pick)
+        except (ValueError,TypeError,KeyError,RuntimeError) as exc:
+            print('[完整观点] 连续上下文候选未通过：'+str(exc))
+            valid=[]
     valid.sort(key=lambda p:p['start'])
     cache.write_text(json.dumps({'identity':identity,'picks':valid},ensure_ascii=False,indent=2))
     return valid
@@ -2253,11 +2359,11 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
 def _fallback_quote_title(cues, sel, speaker):
     sample = "".join(cues[i]["text"] for i in sel)
     sample = re.sub(r"\s+", "", sample)
-    sample = re.split(r"[。！？；]", sample)[0].strip("，、：: ")
-    if len(sample) < 10:
-        sample = re.sub(r"[。！？；，、]", "", "".join(
-            cues[i]["text"] for i in sel))
-    return f"{speaker}：{sample[:48]}"
+    sentences=[s.strip('，、：: ') for s in re.split(r'[。！？；]',sample)]
+    sentence=next((s for s in sentences if 10<=len(s)<=55),None)
+    if sentence is None:
+        raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
+    return f"{speaker}：{sentence}"
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
@@ -2270,37 +2376,30 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     """
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
+    copy_identity={'version':2,'transcript_sha256':editorial.text_digest(transcript_text),
+                   'speaker':speaker,'occasion':occasion}
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
             error = title_quality_error(
                 cached.get("title"), speaker, transcript_text,
                 existing_titles, require_quote=require_quote)
-            if not error:
+            if not error and cached.get('copy_identity')==copy_identity:
                 return cached
             print(f"[文案] 缓存标题未通过 v3 闸门，重新生成：{error}")
         except ValueError:
             pass
-    sample = "\n".join(cues[i]["text"] for i in sel[:20])
+    sample = "\n".join(cues[i]["text"] for i in sel)
     prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选:
 
 {sample}
 
 为它生成 B站投稿文案。
 
-【标题写法：必须模仿高播放竞品的「原话引用体」】
-2026-09-01 实测同期 B站「林园」内容 220 条，播放中位数对比：
-  竞品「园园滚雪球」1956、「唐晶晶的价值观」1006、「投资就是滚雪球」584
-  我们「园来滚雪球」只有 23 —— 差 33 倍，处于第 1 百分位。
-差距的核心是标题写法：
-
-  ✅ 竞品（高播放）= 「{speaker}：」+ 他本人说的原话金句（第一人称、口语、有态度）
-     「股神林园：现在消费和医药的回报是我从事资本市场以来最值得的时候」
-     「林园：股市里赚到大钱的人都是"呆子""笨蛋"」
-     「股神林园：没留意泡泡玛特这类新消费，精神消费就看它从事的门槛高不高」
-  ❌ 我们（低播放）= 第三人称摘要体，像新闻导语
-     「林园谈创新药投资：为何不投癌症而选中药」
-     「林园谈茅台：600元时不再确定，超前20年的投资逻辑」
+【完整观点标题】
+先读完上面整段内容，识别主要论点，再选能独立理解的原话作为标题。
+不能只复制开头的主持人问题、称呼或半句回应；不得靠常识修正含糊识别内容。
+标题与整条视频的论点、理由、限定条件必须一致，保留否定和数字。
 
 标题要求（严格遵守）:
 1. 必须以「{speaker}：」或「股神{speaker}：」开头
@@ -2354,6 +2453,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             print(f"[文案] 简介已清除链接/引流信息")
             d["desc"] = clean_desc
     d.setdefault("tags", [speaker])
+    d['copy_identity']=copy_identity
     d["title_quality_verified"] = True
     cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     print(f"[文案] 标题:{d['title']}")

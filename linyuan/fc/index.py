@@ -48,8 +48,7 @@ DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
 DELIVERY_RELEASE_TAG = "deliver"
 
-MIN_DUR, MAX_DUR = 90, 5400             # 90s 可选 2-3 段；上限 90 分钟：完整访谈/路演是最佳素材，
-                                          # ASR 实时率 1.17x → 90min 视频约 110min 转写，CI 180min 超时放得下
+MIN_DUR, MAX_DUR = 120, 5400            # 源片须足够产出至少2分钟的连续完整观点
 # 竞品号：监控但不抄（视频在 data.json 供分析，选片/出片时跳过，2026-08-29）
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
@@ -58,7 +57,10 @@ MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08
 # Historical totals remain intact. Only these named, individually reviewed
 # outputs may use the separate, expiring six-slot allowance.
 FRESH_SIX_DATE = "2026-09-06"
-FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 10)}
+LONG_SIX_SLUGS = {f"ly-long-six-0906-{n:02d}" for n in range(1, 10)}
+FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 10)} | LONG_SIX_SLUGS
+HIDDEN_SHORT_SIX_BVIDS = {"BV1ZGbs6GEdZ","BV16Gbs6GEgv","BV1Zjbs6zEB2",
+                        "BV1Zjbs6zELR","BV1Bjbs6zEAm","BV1ojbs6zE5K"}
 # Reviewed actual outputs from immutable run 34032251529. Previous source06 was rejected.
 FRESH_SIX_APPROVED = {
     "619ded426551eb8d7239dc3defd5a4c2ad7986c4620ca0fb3cf04e697a8a3644": {
@@ -136,12 +138,34 @@ FRESH_SIX_APPROVED = {
 }
 
 
+def fresh_six_counter(slug):
+    return 'replacement_six' if slug in LONG_SIX_SLUGS else 'fresh_six'
+
+
 def fresh_six_budget(daily, slug, today):
     if today != FRESH_SIX_DATE or slug not in FRESH_SIX_SLUGS:
         return None
-    return daily.setdefault("fresh_six", {"date": FRESH_SIX_DATE, "count": 0,
+    return daily.setdefault(fresh_six_counter(slug), {"date": FRESH_SIX_DATE, "count": 0,
         "live_video_count": 0, "audio_card_count": 0,
-        "reason": "用户要求旧批次不计入今天新六条；历史实际总数保留"})
+        "reason": ("用户已隐藏短六条，明确要求重做并发布六条2～3分钟完整观点；历史保留"
+                   if slug in LONG_SIX_SLUGS else "用户要求旧批次不计入今天新六条；历史实际总数保留")})
+
+
+def replacement_comparison_state(st, meta, slug):
+    """Only reviewed replacement hashes may supersede the six user-hidden shorts."""
+    approved=FRESH_SIX_APPROVED.get((meta.get('fingerprints') or {}).get('sha256')) or {}
+    if slug not in LONG_SIX_SLUGS or approved.get('slug') != slug:
+        return st
+    published={}
+    for old_slug,info in (st.get('published') or {}).items():
+        parts=info.get('parts') or []
+        if parts:
+            retained=[p for p in parts if p.get('bvid') not in HIDDEN_SHORT_SIX_BVIDS]
+            if retained:
+                published[old_slug]={**info,'parts':retained}
+        elif info.get('bvid') not in HIDDEN_SHORT_SIX_BVIDS:
+            published[old_slug]=info
+    return {**st,'published':published}
 
 
 def final_live_identity_error(meta):
@@ -191,7 +215,7 @@ COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
-REVIEW_PAUSED_SLUGS = {"ly-0904-f47739"}
+REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-fresh-six-0906-05"}
 REJECT_REFILL_LIMIT = 10                 # 2026-09-05：质量淘汰立即换候选，直到找到合格库存或达到安全上限
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
@@ -1518,7 +1542,7 @@ def dispatch_handler(event=None, context=None):
     st = load_state()
     today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
     if (today == FRESH_SIX_DATE and FRESH_SIX_APPROVED
-            and int(((st.get("daily_publish") or {}).get("fresh_six") or {}).get("count", 0)) < 6):
+            and int(((st.get("daily_publish") or {}).get(fresh_six_counter(next(iter(FRESH_SIX_APPROVED.values()))["slug"])) or {}).get("count", 0)) < 6):
         # The six accepted files are already in hand. Avoid background state
         # writers racing with their sequential receipt updates during release.
         return {"dispatched": 0, "fresh_six_publication_in_progress": 1}
@@ -2423,8 +2447,9 @@ def publish_handler(event=None, context=None):
                 return _continue_after_rejection(
                     event, context, slug, {"published": 0, "skipped": 1}, tmp)
     # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
+    comparison_state = replacement_comparison_state(st, part, slug)
     content_dup = (None if explicit_v4_batch else
-                   find_content_duplicate(part.get("fingerprints") or {}, st))
+                   find_content_duplicate(part.get("fingerprints") or {}, comparison_state))
     if content_dup:
         reason = (f"与 {content_dup['bvid'] or content_dup['slug']} 重复："
                   f"{content_dup['reason']}")
@@ -2443,7 +2468,7 @@ def publish_handler(event=None, context=None):
     # 同一条长母片的不同 part 本来就要多角度发布；内容指纹已经在前一步拦截
     # 真重复。主题冷却只拦截其他母片的重复观点，不能让同源切片互相误杀。
     topic_dup = (None if explicit_v4_batch else
-                 find_recent_topic(title, st, now=now, exclude_slug=slug))
+                 find_recent_topic(title, comparison_state, now=now, exclude_slug=slug))
     if topic_dup:
         reason = (f"主题与 {topic_dup['bvid'] or topic_dup['slug']} "
                   f"相似 {topic_dup['score']:.0%}，14 天冷却")
@@ -2460,6 +2485,8 @@ def publish_handler(event=None, context=None):
 
     # 3) 普通批次查同标题；本次授权批次由上传租约和进度防重。
     dup = None if explicit_v4_batch else bili_find_duplicate(title)
+    if comparison_state is not st and dup in HIDDEN_SHORT_SIX_BVIDS:
+        dup = None  # Explicitly superseded hidden short; all other titles remain protected.
     if dup:
         st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
                                  "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", ""))}
@@ -2510,6 +2537,7 @@ def publish_handler(event=None, context=None):
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
                           "render_mode": part.get("render_mode"),
                           "fresh_six_date": FRESH_SIX_DATE if fresh_budget is not None else None,
+                          "fresh_six_batch": fresh_six_counter(slug) if fresh_budget is not None else None,
                           "source_segments": part.get("segments") or [],
                           "ts": int(time.time()),
                           "fingerprints": meta_info.get("fingerprints") or {}})

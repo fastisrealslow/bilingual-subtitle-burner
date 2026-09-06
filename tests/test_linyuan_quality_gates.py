@@ -43,7 +43,7 @@ def test_workflow_rejects_source_below_480():
     assert FC.MIN_SHORT_EDGE == 480
     assert "default: true" in workflow
     assert P.SOURCE_MIN_DURATION == 120
-    assert FC.MIN_DUR == 90
+    assert FC.MIN_DUR == 120
     assert "--source-check-only" in workflow
     assert workflow.index("name: 素材质量门禁") < workflow.index("name: 出片")
 

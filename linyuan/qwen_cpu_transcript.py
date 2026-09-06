@@ -28,7 +28,9 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('mode',choices=['decode','align'])
     parser.add_argument('--audio',required=True)
-    parser.add_argument('--part',type=int,choices=[0,1,2],required=True)
+    parser.add_argument('--part',type=int,choices=[0,1,2])
+    parser.add_argument('--weights')
+    parser.add_argument('--source-video-sha')
     parser.add_argument('--out',required=True)
     args=parser.parse_args()
     import numpy as np
@@ -39,13 +41,17 @@ def main():
     output=Path(args.out);output.mkdir(parents=True,exist_ok=True)
     with wave.open(args.audio) as w:
         sr=w.getframerate();channels=w.getnchannels();pcm=w.readframes(w.getnframes())
-    if sr!=16000 or channels!=1 or hashlib.sha256(pcm).hexdigest()!=SOURCE_PCM_SHA:
+    pcm_sha=hashlib.sha256(pcm).hexdigest()
+    if sr!=16000 or channels!=1 or (args.part is not None and pcm_sha!=SOURCE_PCM_SHA):
         raise ValueError('Audio samples differ from the verified source interview')
     audio=np.frombuffer(pcm,np.int16).astype(np.float32)/32768
     duration=len(audio)/sr
-    first=args.part*630;last=min(first+630,duration)
+    first=args.part*630 if args.part is not None else 0
+    last=min(first+630,duration) if args.part is not None else duration
     model_id='Qwen/Qwen3-ASR-0.6B' if args.mode=='decode' else 'Qwen/Qwen3-ForcedAligner-0.6B'
-    weights=Path(snapshot_download(model_id))
+    weights=Path(args.weights) if args.weights else Path(snapshot_download(model_id))
+    if not weights.is_dir():
+        raise ValueError('Local offline model directory is missing')
     offline_only()
     started=time.monotonic()
     report_path=output/'recognition.json'
@@ -53,7 +59,8 @@ def main():
         from qwen_asr import Qwen3ASRModel
         model=Qwen3ASRModel.from_pretrained(str(weights),dtype=torch.float32,
             device_map='cpu',max_inference_batch_size=1,max_new_tokens=512)
-        report={'version':1,'source_pcm_sha256':SOURCE_PCM_SHA,'source_video_sha256':SOURCE_VIDEO_SHA,
+        report={'version':1,'source_pcm_sha256':pcm_sha,
+                'source_video_sha256':args.source_video_sha or (SOURCE_VIDEO_SHA if args.part is not None else None),
                 'model_id':model_id,'model_revision':weights.name,'device':'cpu','threads':2,
                 'networking_during_inference':False,'core_range':[first,last],'duration':duration,'chunks':[]}
         for core in range(first,int(last)+1,CORE_SECONDS):

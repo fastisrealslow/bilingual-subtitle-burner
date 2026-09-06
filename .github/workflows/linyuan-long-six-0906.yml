@@ -1,5 +1,5 @@
 name: 林园六条完整观点重做
-# Retry after wrapping the editorial digest in a versioned selector identity.
+# Actual full-argument rerender using verified CPU hypotheses and word alignment.
 on:
   push:
     branches: [main]
@@ -18,7 +18,7 @@ jobs:
           python - <<'PY'
           import os,subprocess
           for slug,source,occasion in [
-              ('ly-long-six-0906-03','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
+              ('ly-long-six-0906-04','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
           ]:
               subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml',
                   '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',

@@ -60,6 +60,26 @@ def test_preselected_shortcut_rejected_before_copy_or_render():
             copywrite.assert_not_called()
 
 
+def test_short_model_picks_must_select_from_real_long_contexts():
+    cues=[dict(start=i*30,end=(i+1)*30,text='这是这一观点的完整解释。') for i in range(10)]
+    replies=['[{"start":0,"end":0,"score":8}]']*2+['[{"candidate_id":0,"score":8,"reason":"完整上下文"}]']
+    with tempfile.TemporaryDirectory() as tmp:
+        with patch.object(produce,'llm',side_effect=replies):
+            picks=produce.pick_highlights(cues,'林园','test',Path(tmp))
+    assert len(picks)==1 and policy.range_seconds(cues,picks[0])>=120
+    assert picks[0]['end']>picks[0]['start']
+
+
+def test_title_generation_reads_the_entire_long_argument():
+    cues=[dict(start=i*6,end=(i+1)*6,text='前面的解释。') for i in range(25)]
+    cues[-1]['text']='长期持有才是我们一贯坚持的方法。'
+    response='{"title":"林园：长期持有才是我们一贯坚持的方法","desc":"公开发言","tags":["林园"]}'
+    with tempfile.TemporaryDirectory() as tmp:
+        with patch.object(produce,'llm',return_value=response) as ask:
+            produce.copywrite(cues,list(range(len(cues))),'林园','访谈','test',Path(tmp))
+        assert cues[-1]['text'] in ask.call_args.args[0][0]['content']
+
+
 def test_unresolved_negation_or_number_requires_audio_review():
     meta=complete_meta()
     meta['editorial_review']['requires_audio_review']=True
@@ -72,3 +92,31 @@ def test_daily_and_explicit_publication_share_the_same_gate():
     meta=complete_meta();meta['duration_sec']=20;meta['quality_gate_version']=fc.QUALITY_GATE_VERSION
     assert '不足120秒' in fc.artifact_quality_error(meta)
     assert fc.fresh_six_budget({'date':'2026-09-07','count':0},'ly-fresh-six-0906-05','2026-09-07') is None
+
+
+def test_long_replacement_quota_preserves_history_and_expires():
+    spec=importlib.util.spec_from_file_location('replacement_fc',ROOT/'linyuan/fc/index.py')
+    fc=importlib.util.module_from_spec(spec);spec.loader.exec_module(fc)
+    daily={'date':'2026-09-06','count':16,'fresh_six':{'count':6}}
+    budget=fc.fresh_six_budget(daily,'ly-long-six-0906-03','2026-09-06')
+    assert budget['count']==0
+    assert daily['count']==16 and daily['fresh_six']['count']==6
+    assert fc.fresh_six_budget(daily,'ly-long-six-0906-03','2026-09-07') is None
+    assert fc.fresh_six_budget(daily,'unreviewed-daily','2026-09-06') is None
+
+
+def test_only_exact_reviewed_replacements_can_exclude_hidden_short_history():
+    import copy
+    spec=importlib.util.spec_from_file_location('replacement_dedup_fc',ROOT/'linyuan/fc/index.py')
+    fc=importlib.util.module_from_spec(spec);spec.loader.exec_module(fc)
+    hidden=next(iter(fc.HIDDEN_SHORT_SIX_BVIDS))
+    state={'published':{'old':{'parts':[{'bvid':hidden},{'bvid':'keep-me'}]}}}
+    original=copy.deepcopy(state)
+    meta={'fingerprints':{'sha256':'reviewed'}}
+    slug='ly-long-six-0906-03'
+    assert fc.replacement_comparison_state(state,meta,slug) is state
+    with patch.object(fc,'FRESH_SIX_APPROVED',{'reviewed':{'slug':slug}}):
+        filtered=fc.replacement_comparison_state(state,meta,slug)
+        assert filtered['published']['old']['parts']==[{'bvid':'keep-me'}]
+        assert fc.replacement_comparison_state(state,meta,'ly-long-six-0906-04') is state
+    assert state==original
