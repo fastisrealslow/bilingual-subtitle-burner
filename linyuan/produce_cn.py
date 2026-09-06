@@ -71,6 +71,12 @@ COVER_STANDARD_VERSION = 4
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
 # 9:16 竖版上传，B站桌面播放器自行补黑边；移动端则直接占满屏幕。我们保留
 # 这种有效的版式，但不复制对方插画或照片资产，改用自有的通用编辑卡视觉。
+
+# 正式生产目标（2026-09-06 用户实审）：发布候选真人动态 >=70%，
+# audio_card <=30%。明显持续黑区/错误取景仍由 V11 淘汰，不能放水。
+LIVE_VIDEO_TARGET_RATIO = 0.70
+AUDIO_CARD_MAX_RATIO = 0.30
+
 AUDIO_CARD_WIDTH = 720
 AUDIO_CARD_HEIGHT = 1280
 AUDIO_CARD_TEMPLATE = "live_editorial_v3_competitor_parity"
