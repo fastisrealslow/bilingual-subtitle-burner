@@ -1217,14 +1217,22 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             end_idx = len(cues) - 1
         valid = [{"start": 0, "end": max(1, end_idx), "reason": "降级取前段"}]
         print(f"[金句] LLM 未返回有效区间，降级取前段(至第 {end_idx} 条)")
-    # 边界对齐到句末标点：金句区间的头尾若是逗号分句（半句），
-    # 则 start 向左退到最近的句号句、end 向右扩到最近的句号句，保证头尾完整。
+    # 切片边界必须落在完整句。旧逻辑错误地检查 cues[a] 自己是否以句号结尾，
+    # 这无法判断 a 是否处在上一句话中间；因此会出现成片第一帧直接从“了是吧？”
+    # 这种尾巴开始。正确规则：start 的前一条必须已经结束一个完整句，否则持续向左
+    # 回退；end 则向右扩到本句结束。
     SENT_TAIL = "。！？!?"
     for v in valid:
         a, b = v["start"], v["end"]
-        while a > 0 and cues[a]["text"].rstrip() and cues[a]["text"].rstrip()[-1] not in SENT_TAIL:
+        while a > 0:
+            prev = (cues[a-1].get("text") or "").rstrip()
+            if prev and prev[-1] in SENT_TAIL:
+                break
             a -= 1
-        while b < len(cues) - 1 and cues[b]["text"].rstrip() and cues[b]["text"].rstrip()[-1] not in SENT_TAIL:
+        while b < len(cues) - 1:
+            cur = (cues[b].get("text") or "").rstrip()
+            if cur and cur[-1] in SENT_TAIL:
+                break
             b += 1
         v["start"], v["end"] = a, b
     # 去重 + 合并重叠区间。2026-09-02 实测事故：LLM 会对同一段内容给出多个
