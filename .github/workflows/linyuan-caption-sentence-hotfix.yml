@@ -1,0 +1,44 @@
+name: 林园字幕完整句断句修复
+
+on:
+  push:
+    paths:
+      - '.github/workflows/linyuan-caption-sentence-hotfix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 修复字幕语义断句
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('linyuan/presentation.py')
+          s=p.read_text()
+          s=s.replace('VERSION = 1', 'VERSION = 2', 1)
+          old="""        if group and (a-last_end > .65 or (group[-1][0] in '。！？!?' and last_end-group[0][1]>=1)):\n            groups.append(group); group=[]\n"""
+          new="""        # 原版只在较长停顿或上一 cue 末尾已有句末标点时分组。\n        # SenseVoice 经常把口语标点省掉，于是多个 ASR cue 会被拼成一个超长\n        # 字符流，再按屏幕容量机械切开，出现“邀请到的嘉宾也是我们首席 /\n        # 说的新朋友来自0元投资的”这种半句话。现在把 ASR cue 本身也作为\n        # 软语义边界：已有 cue 只要持续够可读，就先结束当前组；极短碎片\n        # 才允许和下一 cue 合并。\n        group_dur = (last_end-group[0][1]) if group and last_end is not None else 0\n        if group and (a-last_end > .45 or group[-1][0] in '。！？!?' or group_dur >= 1.15):\n            groups.append(group); group=[]\n"""
+          if old not in s: raise SystemExit('group boundary block not found')
+          s=s.replace(old,new,1)
+          # 选屏时优先句末/逗号，其次才按容量；避免为了塞满两行把下一句开头带进来。
+          old2="""            punct=[c for c in usable if text[c[0]-1] in '，。！？；,!?;' and c[2]>=1.5]\n            end,lines,duration,cue_font=(punct[-1] if punct else usable[-1])\n"""
+          new2="""            strong=[c for c in usable if text[c[0]-1] in '。！？!?' and c[2]>=.8]\n            soft=[c for c in usable if text[c[0]-1] in '，；：,;:' and c[2]>=1.0]\n            end,lines,duration,cue_font=(strong[-1] if strong else (soft[-1] if soft else usable[-1]))\n"""
+          if old2 not in s: raise SystemExit('punct choice block not found')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+          python3 -m py_compile linyuan/presentation.py
+          git diff --check
+          git diff -- linyuan/presentation.py
+      - name: 提交修复
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add linyuan/presentation.py
+          git commit -m 'fix: segment captions on complete spoken phrases'
+          git push
