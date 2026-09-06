@@ -29,7 +29,11 @@ def main():
 
     health = invoke({'triggerName':'diagnose-production'})
     expected = hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
-    if health.get('code_sha256') != expected or health.get('daily_limit') != 6:
+    if (health.get('code_sha256') != expected or health.get('daily_limit') != 6
+            or health.get('editorial_policy_version') != 2026090604
+            or health.get('minimum_final_seconds') != 120
+            or health.get('editorial_code_sha256') != hashlib.sha256(Path('linyuan/editorial_policy.py').read_bytes()).hexdigest()
+            or health.get('dispatch_workflow_ref') != 'main'):
         raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
     # FC cron expressions use UTC. Preserve the original two timer identities;
     # dispatch at 06:00 Beijing, with three hours before the first release slot.
@@ -52,7 +56,9 @@ def main():
             config=json.loads(trigger.trigger_config)
             if not config.get('enable') or config.get('cronExpression') != desired[trigger.trigger_name]:
                 raise SystemExit('Timer read-back mismatch: '+trigger.trigger_name)
-            timer_proof.append({'name':trigger.trigger_name,'config':config})
+            if trigger.qualifier != 'LATEST':
+                raise SystemExit('Timer is pinned to an obsolete function version')
+            timer_proof.append({'name':trigger.trigger_name,'qualifier':trigger.qualifier,'config':config})
     result={'health':health,'timers':timer_proof,
             'dispatch':invoke({'triggerName':'dispatch','_refill_count':6},asynchronous=True)}
     Path('production-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))

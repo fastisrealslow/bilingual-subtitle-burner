@@ -1,0 +1,30 @@
+name: 林园六条完整观点重做
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-long-six-0906.yml]
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import os,subprocess
+          for slug,source,occasion in [
+              ('ly-long-six-0906-01','https://www.bilibili.com/video/BV1ADetzQEuE','2025年8月21日公开访谈'),
+              ('ly-long-six-0906-02','https://www.bilibili.com/video/BV15Z4y147qD','公开访谈原声节选'),
+          ]:
+              subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml',
+                  '--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main',
+                  '-f','source='+source,'-f','slug='+slug,'-f','speaker=林园',
+                  '-f','occasion='+occasion,'-f','source_platform=bilibili',
+                  '-F','auto_publish=false','-f','target_parts=0',
+                  '-F','include_full=false','-F','prefer_live_video=true'],check=True)
+              print('已触发常规main流程：',slug,flush=True)
+          PY

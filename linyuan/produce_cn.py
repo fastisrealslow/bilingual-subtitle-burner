@@ -31,6 +31,8 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+import editorial_policy as editorial
+
 BASE = Path(__file__).parent
 PRESENTATION_RULES_VERSION = 2
 # 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
@@ -62,7 +64,7 @@ VISUAL_MIN_MATCHES = 2
 VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
 MIN_SHORT_EDGE = 480
-SOURCE_MIN_DURATION = 90
+SOURCE_MIN_DURATION = int(editorial.MIN_SECONDS)
 SOURCE_MAX_DURATION = 7200
 FINGERPRINT_VERSION = 1
 QUALITY_GATE_VERSION = 11
@@ -102,10 +104,8 @@ BRAND_WATERMARK_MARGIN_RATIO = float(
 # 免费额度可用的模型,按质量排序;限流时逐个降级
 MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B"]
 
-TARGET_SEC = 180          # 成片目标时长（短金句）
+TARGET_SEC = int(editorial.TARGET_SECONDS)  # 日常以2～3分钟完整观点为主
 MIN_HIGHLIGHT_SCORE = 7   # 金句评分门槛：低于此分不出片（2026-09-02）
-                          # 依据：同期 B站实测 <30s 炸裂金句播放中位 10.8 万，
-                          # 我们 1~3 分钟平铺内容中位 23。宁缺毋滥。
 TARGET_SEC_MID = 420     # 中视频目标时长（7分钟话题片，2026-08-29 对标竞品中视频）
 MAX_CHARS = 18            # 单条字幕上限（字数）
 MAX_CUE_SEC = 6.0         # 单条字幕上限（秒）：ASR 不吐标点时兜底硬断（2026-09-01）
@@ -542,7 +542,7 @@ def transcribe(src, work, api_key=None):
     stale = set()
     for pattern in ("cues_raw.json", "asr_tokens.json", "asr_raw_chunks.json",
                     "highlights*.json", "copywrite*.json", "translation.json",
-                    "chunks_dedup.json", "semantic*.json"):
+                    "chunks_dedup.json", "semantic*.json", "editorial_review*.json"):
         stale.update(work.glob(pattern))
     if stale:
         archive = work / "asr_stale" / str(time.time_ns())
@@ -1166,192 +1166,93 @@ def parse_llm_json_array(out):
         return objs
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
-    """让 LLM 挑金句段落。返回 [(起cue索引, 止cue索引), ...]。
-    suffix 用于长视频拆多条时区分各段的缓存（否则第 2 段会命中第 1 段的
-    highlights.json，返回超出本段范围的索引 → IndexError）。"""
+    """Select complete continuous arguments; short quotations never enter daily work."""
+    target = target_sec or TARGET_SEC
+    identity = editorial.plan_identity(cues, target)
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
-        print("[金句] 命中缓存")
-        return json.loads(cache.read_text(encoding="utf-8"))
-
-    target = target_sec or TARGET_SEC
-    numbered = "\n".join(
-        f"{i}|{int(c['start'])//60}:{int(c['start'])%60:02d}|{c['text']}"
-        for i, c in enumerate(cues))
-    prompt = f"""下面是{speaker}一段讲话的字幕,格式为「序号|时间|文本」(序号从 0 开始计数)。
-
-请挑出**最有传播力的金句段落**,每段约 {target} 秒。
-
-⚠️ 允许一个都不选（返回空数组 []）。这段素材如果全是开场白/流程性内容/寒暄,就返回 []。
-宁可不出片,也不要把没传播力的内容做成视频。
-
-【为什么严格】2026-09-01 实测同期 B站林园内容：
-  <30 秒的炸裂金句切片，播放中位 10.8 万；
-  我们发的 1~3 分钟平铺内容，播放中位 23。
-差距不在剪辑，在选的这段话本身有没有冲击力。
-
-【每段必须打分】给 0~10 分,只有 **≥7 分**的才放进结果:
-  9~10 分：有冲突/反常识/大数字，单独拎出来就能当标题
-         例「股市里赚到大钱的人都是呆子笨蛋」「我这么有钱的人，怎么会给穷人道歉」
-  7~8 分：有具体数字或明确判断，信息量足
-         例「8000块做到20亿」「片仔癀股价未来或加两个零」
-  ≤6 分：一律不要 —— 包括:
-         开场白/致辞/流程语（「大家好」「手机静音」「感谢主办方」「我们开始吧」）
-         寒暄客套、自我介绍、对主持人的回应
-         没有结论的铺垫、含糊其辞的套话
-         语义残缺、识别错乱
-
-【硬性要求】
-1. 第一句就要是钩子 —— 观众划到的前 2 秒决定去留,不要用铺垫开头
-2. 每段语义完整,有观点或有具体案例
-3. 单段控制在 {target} 秒左右,不要贪长
-
-只输出 JSON 数组,不要任何解释（可以是空数组）:
-[{{"start":起始序号,"end":结束序号,"score":分数,"reason":"选它的理由(10字内)"}}]
-
-字幕:
-{numbered}"""
-
-    try:
-        out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.2)
-        (work / f"highlight_response{suffix}.txt").write_text(out, encoding="utf-8")
-        picks = parse_llm_json_array(out)
-    except Exception as e:
-        # LLM 偶发返回无法解析的格式（空/截断/字符串数组等），parse 会 raise。
-        # 这里兜住：降级取前段出片，绝不因解析失败废掉整条（2026-08-31 线上崩溃）
-        print(f"[金句] LLM 输出解析失败，降级取前段: {e}")
-        picks = []
-
-    if not picks:
-        # Raw offline ASR contains repetitions and fixed-length cue fragments.
-        # Judge a continuous argument across cues, rather than requiring each
-        # individual ASR fragment to be a polished, sensational quotation.
-        review_prompt = (
-            f"你是{speaker}访谈编辑。以下是同一段连续讲话的原始ASR，"
-            "序号之间不是语义边界，必须连起来读；口语重复和停顿不等于没有观点。"
-            "请挑1到3段能够独立理解的具体判断、解释或案例。不要开场寒暄或主持人问题。"
-            "保留原话，不编造数字，不要求夸张标题。只选语义闭合且信息量达到7/10的段落，"
-            f"每段约20到{min(target,180)}秒。没有才返回[]。"
-            "start/end必须是下面左栏的0起始序号，不是秒数。只输出JSON数组："
-            '[{"start":0,"end":8,"score":8,"reason":"完整观点"}]。\n'+numbered)
         try:
-            reviewed = llm([{"role":"user","content":review_prompt}], api_key,
-                           temperature=0, max_tokens=2000, budget_sec=90)
-            (work / f"highlight_review_response{suffix}.txt").write_text(reviewed, encoding="utf-8")
-            picks = parse_llm_json_array(reviewed)
-        except (ValueError, RuntimeError, KeyError, TypeError) as exc:
-            print(f"[金句复核] {exc}")
-
-    valid = []
-    for p in picks:
+            saved = json.loads(cache.read_text())
+            if isinstance(saved, dict) and saved.get('identity') == identity:
+                for pick in saved['picks']:
+                    editorial.range_seconds(cues, pick)
+                return saved['picks']
+        except (ValueError, TypeError, KeyError):
+            pass
+    if not cues or cues[-1]['end']-cues[0]['start'] < editorial.MIN_SECONDS:
+        return []
+    numbered = "\n".join(f"{i}|{c['start']:.2f}-{c['end']:.2f}|{c['text']}"
+                           for i,c in enumerate(cues))
+    prompt = (
+        f"你是{speaker}访谈编辑。以下是带原始时间戳的CPU离线ASR。"
+        "字幕序号之间不一定是词句边界，请连起来读。用户明确拒绝十几秒、几十秒摘句。"
+        "选1到2个不同的、连续完整观点，每条以120到180秒为主，"
+        "需要解释时可更长。每个区间实际结束时间减起始时间必须至少120秒。"
+        "一条必须讲清一个主题，有观点、有理由或案例、自然结论；保留必要限定与否定。"
+        "不要只取结论、不要拼不相关问题、不要为了数量硬凑。无法满足就返回[]。"
+        "前3秒需独立可懂，不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
+        "也不能删掉理解这句话所必需的上下文。可以保留同一主题内有用的追问。"
+        "start/end是下面0起始字幕序号，不是秒数；确保起止为完整词句/意群。"
+        "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
+        "只返回JSON数组，每项包含start,end,score(至少7),reason(完整主题)。\n"+numbered)
+    valid=[]
+    for attempt in range(2):
         try:
-            a, b = int(p["start"]), int(p["end"])
-        except (ValueError, KeyError, TypeError):
-            continue
-        try:
-            score = float(p.get("score", 10))
-        except (TypeError, ValueError):
-            score = 10.0
-        if score < MIN_HIGHLIGHT_SCORE:
-            print(f"[金句] 丢弃低分段 {a}-{b}（{score} 分 < {MIN_HIGHLIGHT_SCORE}）：{p.get('reason','')}")
-            continue
-        if 0 <= a <= b < len(cues):
-            valid.append({"start": a, "end": b, "score": score, "reason": p.get("reason", "")})
-            continue
-        # 容错：LLM 误用 1-based 序号（把第一条当序号 1），统一减 1
-        if 1 <= a <= b <= len(cues):
-            valid.append({"start": a - 1, "end": b - 1, "score": score, "reason": p.get("reason", "")})
-    if not valid:
-        if allow_empty:
-            # 长视频拆多段时，某段全是开场白/流程语很正常 —— 直接跳过这一段，
-            # 不要硬凑。2026-09-02 事故：25 分钟北大演讲拆出 6 条，第 1 条是
-            # 「希望大家能够安静下来，手机静音不干扰讲座」，就是无脑降级的结果。
-            print("[金句] 本段无够格金句（或 LLM 未返回），跳过该段不出片")
-            cache.write_text("[]", encoding="utf-8")
-            return []
-        # 单段素材：不废掉整条，降级取前 target 秒
-        end_idx = 0
-        total = 0.0
-        for i, c in enumerate(cues):
-            total += c["end"] - c["start"]
-            if total >= target:
-                end_idx = i
+            response=llm([{'role':'user','content':prompt}],api_key,
+                         temperature=0,max_tokens=2400,budget_sec=90)
+            (work/f'highlight_response{suffix}-{attempt}.txt').write_text(response)
+            picks=parse_llm_json_array(response)
+            for pick in picks:
+                if float(pick.get('score',0)) < MIN_HIGHLIGHT_SCORE:
+                    continue
+                editorial.range_seconds(cues,pick)
+                if any(not(pick['end']<v['start'] or pick['start']>v['end']) for v in valid):
+                    continue
+                valid.append(pick)
+            if valid or not picks:
                 break
-        else:
-            end_idx = len(cues) - 1
-        valid = [{"start": 0, "end": max(1, end_idx), "reason": "降级取前段"}]
-        print(f"[金句] LLM 未返回有效区间，降级取前段(至第 {end_idx} 条)")
-    # 切片边界尽量落在完整句，但绝不能为找句号跨几十秒/几分钟回退。
-    # SenseVoice 的句号并不稳定，旧版无限 while 会把 30~90s 金句扩成 2~4 分钟，
-    # 既破坏开头钩子也直接拖垮渲染。这里将对齐限制在 8 秒/4 cue：
-    # 先找最近的上一句结束；找不到就向前丢掉当前残句，宁可少几秒也不从半句话开头。
-    SENT_TAIL = "。！？!?"
-    MAX_ALIGN_SEC = 8.0
-    MAX_ALIGN_CUES = 4
-    for v in valid:
-        a0, b0 = v["start"], v["end"]
-        a, b = a0, b0
-        found = False
-        for j in range(a0 - 1, max(-1, a0 - MAX_ALIGN_CUES - 1), -1):
-            if cues[a0]["start"] - cues[j]["end"] > MAX_ALIGN_SEC:
-                break
-            prev = (cues[j].get("text") or "").rstrip()
-            if prev and prev[-1] in SENT_TAIL:
-                a = j + 1
-                found = True
-                break
-        if not found:
-            for j in range(a0, min(b0, a0 + MAX_ALIGN_CUES) + 1):
-                if cues[j]["end"] - cues[a0]["start"] > MAX_ALIGN_SEC:
-                    break
-                cur = (cues[j].get("text") or "").rstrip()
-                if cur and cur[-1] in SENT_TAIL and j + 1 <= b0:
-                    a = j + 1
-                    break
-        for j in range(b0, min(len(cues), b0 + MAX_ALIGN_CUES + 1)):
-            if cues[j]["end"] - cues[b0]["end"] > MAX_ALIGN_SEC:
-                break
-            cur = (cues[j].get("text") or "").rstrip()
-            b = j
-            if cur and cur[-1] in SENT_TAIL:
-                break
-        v["start"], v["end"] = a, b
-    # 去重 + 合并重叠区间。2026-09-02 实测事故：LLM 会对同一段内容给出多个
-    # 重叠区间（如 14-62 返回 4 次，理由各不相同），边界对齐后 collapse 成完全
-    # 相同的范围，却被当作多个独立片段各剪一遍再拼接 —— 180s 的目标片被拼成
-    # 957s（16 分钟）。必须先合并再出片。
-    valid.sort(key=lambda v: (v["start"], v["end"]))
-    merged = []
-    for v in valid:
-        if merged and v["start"] <= merged[-1]["end"]:
-            prev = merged[-1]
-            prev["end"] = max(prev["end"], v["end"])
-            if v.get("score", 0) > prev.get("score", 0):
-                prev["score"], prev["reason"] = v.get("score", 0), v.get("reason", "")
-            continue
-        merged.append(dict(v))
-    if len(merged) < len(valid):
-        print(f"[金句] 合并重叠区间: {len(valid)} → {len(merged)} 段")
-    # 总时长封顶：超过目标的 1.8 倍就按分数保留最好的几段
-    def _dur(v):
-        return cues[v["end"]]["end"] - cues[v["start"]]["start"]
-    cap = target * 1.8
-    if sum(_dur(v) for v in merged) > cap:
-        merged.sort(key=lambda v: -v.get("score", 0))
-        kept, acc = [], 0.0
-        for v in merged:
-            if acc + _dur(v) > cap and kept:
-                continue
-            kept.append(v)
-            acc += _dur(v)
-        merged = sorted(kept, key=lambda v: v["start"])
-        print(f"[金句] 总时长超 {cap:.0f}s，按分数保留 {len(merged)} 段（{acc:.0f}s）")
-    valid = merged
-    cache.write_text(json.dumps(valid, ensure_ascii=False, indent=1), encoding="utf-8")
-    for v in valid:
-        d = cues[v["end"]]["end"] - cues[v["start"]]["start"]
-        print(f"[金句] {v['start']}-{v['end']} ({d:.0f}s) {v.get('score','')} {v['reason']}")
+        except (ValueError,TypeError,KeyError,RuntimeError) as exc:
+            print(f'[完整观点] 第{attempt+1}次未通过: {exc}')
+            prompt += '\n上次区间未通过：'+str(exc)+'。重新在同一主题完整上下文内选择，禁止短句。'
+    valid.sort(key=lambda p:p['start'])
+    cache.write_text(json.dumps({'identity':identity,'picks':valid},ensure_ascii=False,indent=2))
     return valid
+
+
+def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
+    if len(picks) != 1:
+        raise VisualQualityError('每条只允许一个连续完整观点，请逐段隔离生产')
+    editorial.range_seconds(cues,picks[0])
+    pick=picks[0]
+    text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    digest=editorial.text_digest(text)
+    cache=work/f'editorial_review{suffix}.json'
+    if cache.exists():
+        try:
+            saved=json.loads(cache.read_text())
+            if saved.get('transcript_sha256')==digest and not editorial.review_error(saved):
+                return saved
+        except (ValueError,TypeError):
+            pass
+    prompt=(f'独立复核这条{speaker}访谈选段是否适合作为完整观点视频。'
+        '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
+        '只判断内容，不改写原话。检查前3秒是否有明确主语/话题、是否讲清完整观点、'
+        '有无理由/案例、结束是否自然且没有半句、数字/否定/关键实体是否有影响观点的识别歧义。'
+        '中间同主题追问可保留；无关主题拼凑、片头寒暄/无指代回应、必要结论被切掉须拒绝。'
+        '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
+        '只输出JSON：{"standalone_opening":true,"complete_argument":true,"reasoning_present":true,'
+        '"natural_ending":true,"requires_audio_review":false,"summary":"主题、理由和结论",'
+        '"issues":[]}。\n原话：'+text)
+    response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
+    raw=re.sub(r'```(?:json)?|```','',response).strip()
+    match=re.search(r'\{.*\}',raw,re.S)
+    proof=json.loads(match.group(0) if match else raw)
+    proof.update(version=editorial.VERSION,transcript_sha256=digest)
+    cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    error=editorial.review_error(proof)
+    if error:
+        raise VisualQualityError(error+'：'+str(proof.get('issues') or ''))
+    return proof
 
 
 def translate(texts, api_key, work):
@@ -3206,7 +3107,7 @@ def has_hard_watermark(src):
         return False
 
 
-def _chunk_by_time(cues, chunk_sec=240):
+def _chunk_by_time(cues, chunk_sec=360):
     """长视频按时间均分成多段（每段约 chunk_sec 秒）。
     返回 [(start_idx, end_idx), ...] 每段的 cues 索引区间。
     不足 1.5 段就不拆，返回整段。"""
@@ -3719,6 +3620,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if not picks:
         print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
         return None
+    argument_review = review_complete_argument(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
@@ -3849,6 +3751,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
+    if dur < editorial.MIN_SECONDS:
+        raise VisualQualityError('实际成片不足120秒，隔离后更换完整观点')
     final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
     # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
     # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
@@ -3899,6 +3803,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         (out / name).write_bytes((work / f"seg{suffix}{n}.ass").read_bytes())
         subtitle_files.append(name)
     return {
+        "editorial_review": argument_review,
+        "editorial_policy_version": editorial.VERSION,
         "subtitle_files": subtitle_files,
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
@@ -3947,7 +3853,7 @@ class PartDeadlineExceeded(BaseException):
 def produce_part_with_budget(*args, budget_sec=None, **kwargs):
     import signal
     seconds=float(budget_sec if budget_sec is not None else
-                  os.environ.get('PART_RENDER_BUDGET_SEC','240'))
+                  os.environ.get('PART_RENDER_BUDGET_SEC','720'))
     if not hasattr(signal,'setitimer'):
         return _produce_one(*args,**kwargs)
     def expired(signum,frame):
@@ -4087,12 +3993,8 @@ def main():
                     whole = {**pick, "start": 0, "end": hi - lo}
                     work_items.append((a + lo, a + hi, [whole]))
 
-    # 长视频拆多条时，选「字幕条数最多」的一段做中视频（7分钟话题片），其余短金句
-    # （2026-08-29 对标竞品：中视频是播放最高的档，一段信息量最足的内容做话题展开）
+    # 默认所有日常片遵循同一个2～3分钟完整观点目标；不按字幕数量强行拉长某条。
     mid_idx = None
-    if len(work_items) > 1:
-        mid_idx = max(range(len(work_items)),
-                      key=lambda i: work_items[i][1] - work_items[i][0] + 1)
 
     from batch_delivery import quarantine_part, write_json
     metas, rejected = [], []

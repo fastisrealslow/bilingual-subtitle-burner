@@ -21,6 +21,7 @@
 import difflib
 import io
 import json
+import editorial_policy as editorial
 import logging
 import os
 import re
@@ -179,7 +180,7 @@ DELAY_LADDER = [5, 8, 11]                # B站定时发布阶梯（必须 >4h�
 SAME_VIDEO_COOLDOWN = 48 * 3600          # 同源冷却：同一场会切片不能连发
 TOPIC_COOLDOWN = 14 * 24 * 3600          # 相同观点两周内不再发，防标题农场观感
 MIN_SHORT_EDGE = 480
-PRODUCTION_RULES_VERSION = 2026090603   # final-window target identity + bounded isolated parts
+PRODUCTION_RULES_VERSION = 2026090604   # final-window target identity + bounded isolated parts
 QUALITY_GATE_VERSION = 11                # v11 禁黑边/源水印/二维码，字幕块居中且最多两行
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
@@ -1486,6 +1487,9 @@ def handler(event, context):
                     "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_six": 5, "audio_max_per_six": 1,
                     "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
                     "production_rules_version": PRODUCTION_RULES_VERSION,
+                    "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
+                    "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
+                    "dispatch_workflow_ref": "main",
                     "pending_inventory": _pending_final_count(st), "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
                     "daily_publish": st.get("daily_publish", {}), "publish_hours_beijing": sorted(PUBLISH_HOURS)}
         if name == "diagnose-ping":
@@ -1816,6 +1820,9 @@ def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
         return "meta.json 不是对象"
+    editorial_error = editorial.metadata_error(meta)
+    if editorial_error:
+        return editorial_error
     try:
         version = int(meta.get("quality_gate_version", 0))
     except (TypeError, ValueError):
@@ -2320,7 +2327,8 @@ def publish_handler(event=None, context=None):
 
     # 老库存是在人物/水印/分辨率/指纹闸门上线前生成的，不能凭“文件存在”继续投。
     # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
-    quality_error = artifact_quality_error(part)
+    quality_error = (editorial.metadata_error(part, mp4_duration(video))
+                     or artifact_quality_error(part))
     if e.get("required_presentation_version", 0) >= 1 and int(part.get("presentation_version") or 0) < e["required_presentation_version"]:
         quality_error = "新日常任务缺少多版式通用规则证明，禁止沿用旧库存"
     if quality_error:

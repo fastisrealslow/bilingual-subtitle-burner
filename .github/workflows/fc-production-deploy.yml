@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - linyuan/fc/index.py
+      - linyuan/editorial_policy.py
       - linyuan/fc/deploy_code.py
       - linyuan/fc/verify_production.py
       - .github/workflows/fc-production-deploy.yml
@@ -59,7 +60,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/editorial_policy.py
           unzip -t "$FC_CODE_ZIP"
 
       - name: 单片隔离与每日配额回归
