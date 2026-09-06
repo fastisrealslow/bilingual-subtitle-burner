@@ -1,0 +1,30 @@
+name: 林园六条投稿状态只读核验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-archive-status-0906.yml]
+permissions:
+  contents: read
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 仅查询六个指定BV，不上传、不更改可见性
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: >-
+          python linyuan/bili_archive_status.py
+          --bvid BV1ZGbs6GEdZ --bvid BV16Gbs6GEgv --bvid BV1Zjbs6zEB2
+          --bvid BV1Zjbs6zELR --bvid BV1Bjbs6zEAm --bvid BV1ojbs6zE5K
+          --out archive-status.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linyuan-archive-status-0906
+          path: archive-status.json
+          if-no-files-found: error
+          retention-days: 30
