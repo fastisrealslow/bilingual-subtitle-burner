@@ -61,79 +61,85 @@ LONG_SIX_SLUGS = {f"ly-long-six-0906-{n:02d}" for n in range(1, 10)}
 FRESH_SIX_SLUGS = {f"ly-fresh-six-0906-{n:02d}" for n in range(1, 10)} | LONG_SIX_SLUGS
 HIDDEN_SHORT_SIX_BVIDS = {"BV1ZGbs6GEdZ","BV16Gbs6GEgv","BV1Zjbs6zEB2",
                         "BV1Zjbs6zELR","BV1Bjbs6zEAm","BV1ojbs6zE5K"}
-# Reviewed actual outputs from immutable run 34032251529. Previous source06 was rejected.
+# Six reviewed long outputs; immutable run IDs and actual-file hashes below.
 FRESH_SIX_APPROVED = {
-    "619ded426551eb8d7239dc3defd5a4c2ad7986c4620ca0fb3cf04e697a8a3644": {
-        "slug": "ly-fresh-six-0906-05",
+    "ba60c79cfbd8b20d940cf647d8ead19c0715d22658a2553091b7290a8e4a51ae": {
+        "slug": "ly-long-six-0906-07",
         "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
+        "review": "Actual complete MP4 decode, source-conserving subtitle groups, rendered frames and covers reviewed. Continuous 120+ second argument; live target, full-face, QR and black-region gates passed. Narrow source-supported ASR corrections retain original raw evidence.",
         "part_index": 0,
-        "artifact_name": "fresh-six-0906-reviewed-p1",
+        "artifact_name": "long-six-0906-reviewed-p1",
         "final": "final_1.mp4",
         "cover": "cover_1.jpg",
-        "title": "林园：金额很小，比存款利息好一点",
+        "title": "林园：这个时候我更要强调不卖",
         "render_mode": "live_video_card",
-        "run_id": 34032251529
+        "duration_sec": 135.621333,
+        "run_id": 34038895681
     },
-    "a846d4218c0e54c9e6f909aa2adf0a0f7ba51c1ac7deed66fe22b5a8b4a3ada9": {
-        "slug": "ly-fresh-six-0906-05",
+    "17a8bb2b1e480ce5da154c9e0283707f4c075333fb3657448950d6896fb91ced": {
+        "slug": "ly-long-six-0906-09",
         "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
-        "part_index": 1,
-        "artifact_name": "fresh-six-0906-reviewed-p2",
+        "review": "Actual complete MP4 decode, source-conserving subtitle groups, rendered frames and covers reviewed. Continuous 120+ second argument; live target, full-face, QR and black-region gates passed. Narrow source-supported ASR corrections retain original raw evidence.",
+        "part_index": 0,
+        "artifact_name": "long-six-0906-reviewed-p2",
         "final": "final_2.mp4",
         "cover": "cover_2.jpg",
-        "title": "林园：打新不是我们主要的策略",
+        "title": "林园：我们认为有价值的公司是可以入场的",
         "render_mode": "live_video_card",
-        "run_id": 34032251529
+        "duration_sec": 165.541333,
+        "run_id": 34039301459
     },
-    "0cff0adbbd3c3e03b695e95d60aa938cc6be730c25d9a03526e9eef98830dfde": {
-        "slug": "ly-fresh-six-0906-05",
+    "6b983beffc2e3d93ca3706a4918ad0e7e030fa3713ff4a604372f9db076e3178": {
+        "slug": "ly-long-six-0906-06",
         "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
-        "part_index": 2,
-        "artifact_name": "fresh-six-0906-reviewed-p3",
-        "final": "final_15.mp4",
-        "cover": "cover_15.jpg",
-        "title": "林园：我们说创新一定是人的力量",
+        "review": "Actual complete MP4 decode, source-conserving subtitle groups, rendered frames and covers reviewed. Continuous 120+ second argument; live target, full-face, QR and black-region gates passed. Narrow source-supported ASR corrections retain original raw evidence.",
+        "part_index": 0,
+        "artifact_name": "long-six-0906-reviewed-p3",
+        "final": "final_3.mp4",
+        "cover": "cover_3.jpg",
+        "title": "林园：中成药实际上也在创新，市场会非常大",
         "render_mode": "live_video_card",
-        "run_id": 34032251529
+        "duration_sec": 124.421333,
+        "run_id": 34039434560
     },
-    "7ac2f38468368a7984b3dddd53aba1ccfcfe007b327b0e949dd554533190554a": {
-        "slug": "ly-fresh-six-0906-05",
+    "99c471a77855c33859444d96891734092862d4ba4d22448698c72715c3b8686f": {
+        "slug": "ly-long-six-0906-09",
         "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
-        "part_index": 3,
-        "artifact_name": "fresh-six-0906-reviewed-p4",
-        "final": "final_16.mp4",
-        "cover": "cover_16.jpg",
-        "title": "林园：读书能力不代表创新能力",
+        "review": "Actual complete MP4 decode, source-conserving subtitle groups, rendered frames and covers reviewed. Continuous 120+ second argument; live target, full-face, QR and black-region gates passed. Narrow source-supported ASR corrections retain original raw evidence.",
+        "part_index": 1,
+        "artifact_name": "long-six-0906-reviewed-p4",
+        "final": "final_4.mp4",
+        "cover": "cover_4.jpg",
+        "title": "林园：现在的公司成为龙头的概率并不大",
         "render_mode": "live_video_card",
-        "run_id": 34032251529
+        "duration_sec": 155.941333,
+        "run_id": 34039301459
     },
-    "ad08b3e4d240a8201c74c6ebbb4be6f32e41a9f813dcf4d3850465088a246903": {
-        "slug": "ly-fresh-six-0906-05",
+    "f98dd9b43afa9768f445eac518cf551decb9e7ee6e6043400abf30767090e9b0": {
+        "slug": "ly-long-six-0906-08",
         "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
-        "part_index": 4,
-        "artifact_name": "fresh-six-0906-reviewed-p5",
-        "final": "final_17.mp4",
-        "cover": "cover_17.jpg",
-        "title": "林园：我问喝酒的人，你们把酒戒掉",
+        "review": "Actual complete MP4 decode, source-conserving subtitle groups, rendered frames and covers reviewed. Continuous 120+ second argument; live target, full-face, QR and black-region gates passed. Narrow source-supported ASR corrections retain original raw evidence.",
+        "part_index": 0,
+        "artifact_name": "long-six-0906-reviewed-p5",
+        "final": "final_5.mp4",
+        "cover": "cover_5.jpg",
+        "title": "林园：人口的下降会对白酒有影响",
         "render_mode": "live_video_card",
-        "run_id": 34032251529
+        "duration_sec": 131.454362,
+        "run_id": 34037860686
     },
-    "c75a0ee5d0370105f391c4cb1e07e78b6392113b0c930010cdc2c3e6f533160c": {
-        "slug": "ly-fresh-six-0906-05",
+    "0f9fc57ac3398d11f3ef3b7068631c147460c78e3a8e9efdefb9f979b91829ff": {
+        "slug": "ly-long-six-0906-07",
         "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-        "review": "Actual full MP4 decode, six-frame contact sheets, complete retained subtitle text and covers reviewed; final live target and QR/black/full-face gates passed. No inferred ASR corrections.",
-        "part_index": 5,
-        "artifact_name": "fresh-six-0906-reviewed-p6",
-        "final": "final_21.mp4",
-        "cover": "cover_21.jpg",
-        "title": "林园：港股和A股实际上是同步的",
+        "review": "Actual complete MP4 decode, source-conserving subtitle groups, rendered frames and covers reviewed. Continuous 120+ second argument; live target, full-face, QR and black-region gates passed. Narrow source-supported ASR corrections retain original raw evidence.",
+        "part_index": 1,
+        "artifact_name": "long-six-0906-reviewed-p6",
+        "final": "final_6.mp4",
+        "cover": "cover_6.jpg",
+        "title": "林园：炒作和投资的本质区别",
         "render_mode": "live_video_card",
-        "run_id": 34032251529
+        "duration_sec": 167.221333,
+        "run_id": 34038895681
     }
 }
 
@@ -215,7 +221,7 @@ COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
-REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-fresh-six-0906-05"}
+REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05"}
 REJECT_REFILL_LIMIT = 10                 # 2026-09-05：质量淘汰立即换候选，直到找到合格库存或达到安全上限
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 

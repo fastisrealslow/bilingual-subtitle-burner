@@ -73,10 +73,40 @@ def runner_publication_status(found):
         except Exception as exc:
             row["error"] = str(exc)[:160]
         rows.append(row)
+    if rows and not all(row['public'] for row in rows) and os.environ.get('BILIBILI_COOKIES'):
+        from bili_archive_status import archive_status
+        try:
+            creator=archive_status([r['bvid'] for r in rows],fc.OWNER_MID,
+                                  os.environ['BILIBILI_COOKIES'])
+            by_bvid={r['bvid']:r for r in creator['videos']}
+            for row in rows:
+                evidence=by_bvid.get(row['bvid'])
+                if evidence is not None:
+                    row['creator_archive']=evidence
+                    row['public']=evidence['public']
+                    row['verification_origin']='authenticated-creator-read'
+        except Exception as exc:
+            print('Creator status unavailable: '+type(exc).__name__,flush=True)
+    for row in rows:
+        expected=(fc.FRESH_SIX_APPROVED.get(row['sha256']) or {}).get('duration_sec')
+        archive=row.get('creator_archive') or {}
+        if 'duration' in archive:
+            row['duration']=archive['duration']
+        row['expected_duration_sec']=expected
+        row['duration_verified']=duration_matches_review(row.get('duration'),expected)
     return {"verification_origin": "github-actions",
             "receipts": len(rows),
             "public_count": sum(row["public"] for row in rows),
+            "verified_count":sum(row['public'] and row['duration_verified'] for row in rows),
             "videos": rows}
+
+
+def duration_matches_review(actual, expected):
+    """Bilibili's archive duration is seconds; require the reviewed long video."""
+    try:
+        return float(actual)>=120 and float(expected)>=120 and abs(float(actual)-float(expected))<=2
+    except (TypeError,ValueError):
+        return False
 
 
 def state():
@@ -136,7 +166,7 @@ def _publish_missing_receipts():
         if sha in receipts(current):
             continue
         daily = current.get("daily_publish") or {}
-        if int((daily.get("fresh_six") or {}).get("count") or 0) >= 6:
+        if int((daily.get(fc.fresh_six_counter(approved["slug"])) or {}).get("count") or 0) >= 6:
             raise SystemExit("Six new uploads already reached; stop")
         candidate = next((e for e in current.get("dispatched", []) if e.get("slug") == approved["slug"]), {})
         if candidate.get("uploading"):
@@ -188,8 +218,11 @@ def main():
         public=runner_publication_status(got)
         Path('fresh-six-public-status.json').write_text(json.dumps(public,ensure_ascii=False,indent=2))
         print(json.dumps(public,ensure_ascii=False),flush=True)
-        if public.get('public_count')==len(fc.FRESH_SIX_APPROVED):
+        if public.get('verified_count')==len(fc.FRESH_SIX_APPROVED):
             break
+        if any((r.get('creator_archive') or {}).get('is_only_self')==1
+               for r in public.get('videos',[])):
+            raise SystemExit('Owner has hidden a reviewed upload; preserve visibility and do not re-upload')
         if time.monotonic()>=deadline:
             raise SystemExit('Uploads have receipts but public archive verification is incomplete; do not re-upload')
         time.sleep(45)

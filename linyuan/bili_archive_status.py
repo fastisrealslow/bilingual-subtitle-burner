@@ -11,7 +11,7 @@ import urllib.request
 def archive_status(bvids, owner_mid, cookies_json):
     target=set(bvids)
     result={'owner_mid':str(owner_mid),'requested_bvids':sorted(target),'videos':[],
-            'verification_origin':'authenticated-creator-read','public_count':None}
+            'verification_origin':'authenticated-creator-read','public_count':0}
     data=json.loads(cookies_json.lstrip('\ufeff'))
     entries=(data.get('cookie_info') or {}).get('cookies') or data.get('cookies')
     if entries is None:
@@ -46,14 +46,16 @@ def archive_status(bvids, owner_mid, cookies_json):
             archive=row.get('Archive') or row.get('archive') or {}
             if archive.get('bvid') not in target:
                 continue
-            safe={k:archive[k] for k in ('bvid','aid','title','state','state_desc',
-                  'duration','is_only_self','is_self_only','is_private','pubdate','ctime') if k in archive}
-            safe['archive_keys']=sorted(archive)
-            safe['row_keys']=sorted(row)
+            safe={k:archive[k] for k in ('bvid','aid','mid','title','state','state_desc',
+                  'duration','is_only_self','no_public','had_passed','pubdate','ctime') if k in archive}
+            safe['public']=(str(archive.get('mid'))==str(owner_mid)
+                and archive.get('state')==0 and archive.get('is_only_self')==0
+                and archive.get('no_public')==0)
             result['videos'].append(safe)
         if not rows or target <= {r['bvid'] for r in result['videos']}:
             break
     result['found_count']=len(result['videos'])
+    result['public_count']=sum(v['public'] for v in result['videos'])
     return result
 
 
