@@ -31,9 +31,11 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
-import editorial_policy as editorial
-
 BASE = Path(__file__).parent
+# Also support importlib loaders used by the CPU ASR regression gate.
+if str(BASE) not in sys.path:
+    sys.path.insert(0, str(BASE))
+import editorial_policy as editorial
 PRESENTATION_RULES_VERSION = 2
 # 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
 # legacy Whisper 函数保留供历史代码读取，不进入本生产入口。
