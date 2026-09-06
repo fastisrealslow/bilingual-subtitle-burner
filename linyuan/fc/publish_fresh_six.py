@@ -150,7 +150,12 @@ def _publish_missing_receipts():
         response = client.invoke_function_with_options(function,
             m.InvokeFunctionRequest(qualifier="LATEST", body=io.BytesIO(json.dumps(payload).encode())),
             m.InvokeFunctionHeaders(x_fc_invocation_type="Sync"),
-            util.RuntimeOptions(connect_timeout=10000, read_timeout=120000, autoretry=False))
+            util.RuntimeOptions(connect_timeout=10000,
+                # A cancelled synchronous client stops the FC invocation.
+                # Keep this connection beyond the bounded download + upload;
+                # the old 120s timeout could kill a transfer before any receipt.
+                read_timeout=2700000 if payload.get('triggerName')=='publish-batch' else 120000,
+                autoretry=False))
         body = response.body.read() if hasattr(response.body, "read") else response.body
         return json.loads(body)
 

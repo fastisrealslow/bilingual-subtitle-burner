@@ -1,0 +1,58 @@
+name: 林园发布等待恢复与只读核对
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-publish-recover-0906.yml]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 停止已超时请求的等待作业并核对结束状态
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,subprocess,time
+          repo=os.environ['GITHUB_REPOSITORY'];run='34040028431'
+          def status():
+              return json.loads(subprocess.check_output(['gh','run','view',run,'--repo',repo,'--json','status']))['status']
+          if status()!='completed':
+              subprocess.run(['gh','run','cancel',run,'--repo',repo],check=True)
+          for _ in range(60):
+              if status()=='completed':
+                  print('Previous waiting job ended');break
+              time.sleep(2)
+          else:
+              raise SystemExit('Previous job still active; no new upload is allowed')
+          PY
+      - name: 只读核对已上传长片与用户隐藏的短片
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,sys
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import index as fc
+          from bili_archive_status import archive_status
+          from publish_fresh_six import receipts,state
+          known=receipts(state());titles=[x['title'] for x in fc.FRESH_SIX_APPROVED.values()]
+          bvids=set(fc.HIDDEN_SHORT_SIX_BVIDS)|{x['bvid'] for x in known.values()}
+          result=archive_status(bvids,fc.OWNER_MID,os.environ['BILIBILI_COOKIES'],expected_titles=titles)
+          Path('recovery-archive-status.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: long-six-recovery-archive-status
+          path: recovery-archive-status.json
+          if-no-files-found: error
