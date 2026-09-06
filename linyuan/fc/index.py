@@ -1357,7 +1357,9 @@ def _curl_download(url, dest, referer, user_agent=None):
     dest = Path(dest)
     part = dest.with_suffix(dest.suffix + ".part")
     cmd = [
-        "curl", "-fL", "--retry", "5", "--retry-all-errors",
+        # FC's system curl predates --retry-all-errors. Keep the compatible
+        # transient retry and resume options; unknown flags abort before I/O.
+        "curl", "-fL", "--retry", "5",
         "--retry-delay", "2", "--connect-timeout", "30",
         "--max-time", "900", "--continue-at", "-",
         "-H", f"Referer: {referer}",

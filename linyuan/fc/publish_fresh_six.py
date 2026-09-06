@@ -131,6 +131,87 @@ def receipts(st):
     return found
 
 
+def prepare_async_tasks(client, function, m, runtime):
+    """Preserve destinations/retention, with no automatic replay of uploads."""
+    try:
+        old = client.get_async_invoke_config_with_options(function,
+            m.GetAsyncInvokeConfigRequest(qualifier='LATEST'), {}, runtime).body
+    except Exception as exc:
+        if 'NotFound' not in str(getattr(exc, 'code', '')):
+            raise
+        old = None
+    body = m.PutAsyncInvokeConfigInput(async_task=True, max_async_retry_attempts=0)
+    if old is not None:
+        body.destination_config = old.destination_config
+        body.max_async_event_age_in_seconds = old.max_async_event_age_in_seconds
+    client.put_async_invoke_config_with_options(function,
+        m.PutAsyncInvokeConfigRequest(qualifier='LATEST', body=body), {}, runtime)
+    verified = client.get_async_invoke_config_with_options(function,
+        m.GetAsyncInvokeConfigRequest(qualifier='LATEST'), {}, runtime).body
+    if not verified.async_task or verified.max_async_retry_attempts != 0:
+        raise SystemExit('Async task mode/no-replay configuration did not persist')
+
+
+def publish_async_part(client, function, m, runtime, sha, approved):
+    """A stable task ID survives a lost HTTP response without a second upload."""
+    terminal = {'Succeeded', 'Failed', 'Stopped', 'Expired', 'Invalid'}
+    for attempt in range(1, 4):
+        task_id = 'ly-long-0906-' + sha[:20] + '-a' + str(attempt)
+        def query():
+            try:
+                return client.get_async_task_with_options(function, task_id,
+                    m.GetAsyncTaskRequest(qualifier='LATEST'), {}, runtime).body
+            except Exception as exc:
+                if 'NotFound' in str(getattr(exc, 'code', '')):
+                    return None
+                raise
+        task = query()
+        if task is None:
+            payload = {'triggerName':'publish-batch', 'batch_slug':approved['slug'],
+                'source_url':approved['source_url'], 'title':approved['title'], 'batch_remaining':1}
+            try:
+                response = client.invoke_function_with_options(function,
+                    m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(json.dumps(payload).encode())),
+                    m.InvokeFunctionHeaders(x_fc_invocation_type='Async', x_fc_async_task_id=task_id), runtime)
+                if response.status_code != 202:
+                    raise RuntimeError('Async task was not accepted')
+            except Exception:
+                # The same ID is queried after an uncertain submission; never
+                # create a different invocation to overcome a network error.
+                task = query()
+                if task is None:
+                    raise
+        print(json.dumps({'task_id':task_id, 'sha256':sha, 'phase':'accepted-or-existing'}), flush=True)
+        deadline = time.monotonic() + 30 * 60
+        while time.monotonic() < deadline:
+            task = query()
+            if task is not None:
+                Path('fresh-six-async-task.json').write_text(json.dumps(task.to_map(), ensure_ascii=False, indent=2))
+                if task.status in terminal:
+                    break
+            time.sleep(15)
+        else:
+            raise SystemExit('Async task still unresolved; retain task ID and do not resubmit')
+        got = receipts(state())
+        Path('fresh-six-receipts.json').write_text(json.dumps(got, ensure_ascii=False, indent=2))
+        if sha in got:
+            print(json.dumps(got[sha], ensure_ascii=False), flush=True)
+            return
+        try:
+            result = json.loads(task.return_payload or '{}')
+        except (TypeError, ValueError):
+            result = {}
+        current = state()
+        candidate = next((e for e in current.get('dispatched', []) if e.get('slug') == approved['slug']), {})
+        if (task.status == 'Succeeded' and result.get('artifact_download_retryable') == 1
+                and not candidate.get('uploading') and sha not in receipts(current)):
+            print(json.dumps({'task_id':task_id, 'result':result, 'phase':'download-only-retry'}), flush=True)
+            continue
+        raise SystemExit('Completed async task has no exact receipt: ' + json.dumps({
+            'task_id':task_id, 'status':task.status, 'result':result}, ensure_ascii=False))
+    raise SystemExit('Three completed download-only failures; no upload was retried')
+
+
 def _publish_missing_receipts():
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
@@ -163,6 +244,8 @@ def _publish_missing_receipts():
     expected = hashlib.sha256(Path(fc.__file__).read_bytes()).hexdigest()
     if health.get("code_sha256") != expected or health.get("daily_limit") != 6:
         raise SystemExit("Deployed code does not match reviewed publisher")
+    task_runtime = util.RuntimeOptions(connect_timeout=10000, read_timeout=60000, autoretry=False)
+    prepare_async_tasks(client, function, m, task_runtime)
     Path("fresh-six-receipts.json").write_text(json.dumps(receipts(state()), ensure_ascii=False, indent=2))
     ordered = sorted(fc.FRESH_SIX_APPROVED.items(), key=lambda item: (
         item[1].get('render_mode')=='audio_card',item[1]["slug"],item[1]["part_index"]))
@@ -178,28 +261,7 @@ def _publish_missing_receipts():
             raise SystemExit("Existing upload lease: inspect its receipt before another invocation")
         if int(candidate.get("published_parts") or 0) != approved["part_index"]:
             raise SystemExit("Manifest cursor differs from reviewed part; inspect skipped/recovered records")
-        started = time.monotonic()
-        try:
-            result = invoke({"triggerName": "publish-batch", "batch_slug": approved["slug"],
-                "source_url": approved["source_url"], "title": approved["title"], "batch_remaining": 1})
-            if not result.get("published"):
-                raise SystemExit("Publisher did not upload reviewed part: "+json.dumps(result))
-        except Exception as exc:
-            elapsed = time.monotonic()-started
-            error = str(exc)
-            if elapsed < 45 or not any(x in error.lower() for x in ("503", "timeout", "timed out", "504")):
-                raise
-            print("Gateway ended synchronous response; waiting for the exact receipt without re-upload", flush=True)
-        deadline = time.monotonic()+30*60
-        while time.monotonic() < deadline:
-            got = receipts(state())
-            Path("fresh-six-receipts.json").write_text(json.dumps(got, ensure_ascii=False, indent=2))
-            if sha in got:
-                print(json.dumps(got[sha], ensure_ascii=False), flush=True)
-                break
-            time.sleep(15)
-        else:
-            raise SystemExit("Exact receipt not found; do not retry an uncertain upload")
+        publish_async_part(client, function, m, task_runtime, sha, approved)
     got = receipts(state())
     print(json.dumps({"new_receipts":len(got), "receipts":got}, ensure_ascii=False, indent=2))
     return got
