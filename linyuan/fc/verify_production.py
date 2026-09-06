@@ -34,16 +34,18 @@ def main():
     # FC cron expressions use UTC. Preserve the original two timer identities;
     # dispatch at 06:00 Beijing, with three hours before the first release slot.
     desired = {'dispatch':'0 0 22 * * *', 'publish':'0 0 1,3,5,7,10,13 * * *'}
-    response = client.list_triggers(function,m.ListTriggersRequest(limit=100))
+    read_runtime = util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,
+                                       autoretry=True,max_attempts=3)
+    response = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
     triggers = {t.trigger_name:t for t in response.body.triggers}
     for name, cron in desired.items():
         if name not in triggers or triggers[name].trigger_type != 'timer':
             raise SystemExit('Expected production timer is missing: '+name)
         config = json.loads(triggers[name].trigger_config)
         config.update(cronExpression=cron,enable=True,payload=json.dumps({'triggerName':name}))
-        client.update_trigger(function,name,m.UpdateTriggerRequest(body=m.UpdateTriggerInput(
-            qualifier='LATEST',trigger_config=json.dumps(config))))
-    updated = client.list_triggers(function,m.ListTriggersRequest(limit=100))
+        client.update_trigger_with_options(function,name,m.UpdateTriggerRequest(body=m.UpdateTriggerInput(
+            qualifier='LATEST',trigger_config=json.dumps(config))),{},read_runtime)
+    updated = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
     timer_proof=[]
     for trigger in updated.body.triggers:
         if trigger.trigger_name in desired:
