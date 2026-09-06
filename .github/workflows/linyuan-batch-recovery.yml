@@ -1,0 +1,41 @@
+name: 林园单片隔离实产验收
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-batch-recovery.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  verify-and-produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 单片失败隔离回归
+        run: python tests/test_linyuan_batch_isolation.py BatchIsolationTests.test_bad_middle_part_does_not_erase_success_or_skip_next_part -v
+      - name: 用今天黑边失败的真实母片重新生产
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']
+          payload={'ref':'main','inputs':{
+              'source':'https://m.weibo.cn/detail/5335082961471123',
+              'slug':'ly-batch-recovery-0906-06',
+              'speaker':'林园','occasion':'单片黑边隔离实产验收',
+              'source_platform':'weibo_search','auto_publish':False,
+              'target_parts':'0','include_full':False,'prefer_live_video':True}}
+          req=urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/actions/workflows/linyuan-produce-cn.yml/dispatches',
+              data=json.dumps(payload).encode(),
+              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],
+                       'Accept':'application/vnd.github+json','Content-Type':'application/json'},method='POST')
+          with urllib.request.urlopen(req,timeout=60) as r:
+              print('生产触发 HTTP',r.status,'slug=',payload['inputs']['slug'])
+          PY

@@ -3405,7 +3405,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",
             "-t", str(seg_dur), "-shortest", str(seg),
         ]
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, timeout=max(180, int(seg_dur * 8)))
         parts.append(seg)
 
     lst = work / f"concat{suffix}.txt"
@@ -3414,7 +3414,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     final_name = final.name          # 真实文件名，跳段后编号会与列表下标脱节，必须回传
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
                     "-safe", "0", "-i", str(lst), "-c", "copy", str(final)],
-                   check=True)
+                   check=True, timeout=120)
     dur = float(subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(final)],
@@ -3426,7 +3426,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     from presentation import verify_render
     live_checks = verify_render(final, layout)
     if use_live_video:
-        live_checks = verify_live_region_after_render(final)
+        live_checks.update(verify_live_region_after_render(final))
         external_logos = []
     else:
         external_logos = detect_external_logos_after_render(
@@ -3612,7 +3612,35 @@ def main():
     if len(chunks) > 1:
         mid_idx = max(range(len(chunks)), key=lambda i: chunks[i][1] - chunks[i][0] + 1)
 
-    metas = []
+    from batch_delivery import quarantine_part, write_json
+    metas, rejected = [], []
+    # Persist complete metadata as soon as a part passes all checks. A later bad
+    # part cannot erase earlier successes; diagnostics stay outside delivery.
+    def checkpoint():
+        rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
+                 "occasion": args.occasion, **m,
+                 "quality_gate_version": QUALITY_GATE_VERSION,
+                 "source_platform": platform,
+                 "watermark_cropped": bool(m.get("watermark_removed")),
+                 "watermark_verified": bool(m.get("watermark_verified")),
+                 "visual_identity": visual_report,
+                 "subtitles_burned": True, "has_existing_subtitles": False,
+                 "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles")),
+                 "clean_filter_verified": bool(source_report.get("clean_filter_verified")),
+                 "vertical": m["resolution"]["height"] > m["resolution"]["width"],
+                 "asr_model": ASR_BACKEND, "llm": MODELS[0],
+                 "generated_at": datetime.now().isoformat(timespec="seconds")}
+                for m in metas]
+        if rows:
+            write_json(out / "meta.json", rows[0] if len(rows) == 1 else rows)
+        live = sum(m.get("render_mode") != "audio_card" for m in metas)
+        write_json(out / "batch_report.json", {
+            "slug": args.slug, "accepted": len(metas), "rejected": rejected,
+            "accepted_finals": [m["final"] for m in metas],
+            "live_video": live, "audio_card": len(metas) - live,
+            "live_ratio": live / len(metas) if metas else 0,
+            "quality_gate_version": QUALITY_GATE_VERSION})
+
     for ci, (a, b) in enumerate(chunks):
         suffix = "" if len(chunks) == 1 else f"_{ci + 1}"
         seg_cues = cues[a:b + 1]
@@ -3630,12 +3658,18 @@ def main():
                              source_report=source_report,
                              prefer_live_video=args.prefer_live_video,
                              existing_titles=[x["title"] for x in metas])
-        except VisualQualityError as e:
-            print(json.dumps({"stage": "visual-quality", "reason": str(e),
-                              "part": ci + 1}, ensure_ascii=False), file=sys.stderr)
-            return 2
+        except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+            failure = {"stage": "part-quality", "reason": str(e), "part": ci + 1,
+                       "error_type": type(e).__name__}
+            print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
+            quarantine_part(out, suffix)
+            rejected.append(failure)
+            checkpoint()
+            continue
         if m is not None:
+            m["part"] = ci + 1
             metas.append(m)
+        checkpoint()
 
     if args.target_parts and len(metas) != args.target_parts:
         print(f"❌ 对标批次要求 {args.target_parts} 条，实际仅 {len(metas)} 条",
@@ -3663,9 +3697,10 @@ def main():
                 source_report=source_report,
                 prefer_live_video=args.prefer_live_video,
                 existing_titles=[x["title"] for x in metas])
-        except VisualQualityError as e:
-            print(json.dumps({"stage": "visual-quality", "reason": str(e),
-                              "part": "full"}, ensure_ascii=False), file=sys.stderr)
+        except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+            quarantine_part(out, "_14")
+            rejected.append({"stage": "part-quality", "reason": str(e), "part": "full"})
+            checkpoint()
             return 2
         if full_meta is None:
             print("❌ 完整版未生成", file=sys.stderr)
@@ -3673,66 +3708,10 @@ def main():
         full_meta["content_type"] = "full_interview"
         metas.append(full_meta)
 
-    # 「去水印」标记必须反映真实裁切结果，不能写死 True（2026-09-01 发现线上
-    # 全部标着 ✓去水印，实际台标/字幕原样保留）
-    _t_f, _b_f = detect_overlay_bands(src)
-    _wm_cropped = any(bool(m.get("watermark_removed")) for m in metas)
-    _wm_verified = all(bool(m.get("watermark_verified")) for m in metas)
-    print(f"[裁切] 贴片区 顶{_t_f:.0%} 底{_b_f:.0%}；"
-          f"removed={_wm_cropped} verified={_wm_verified}")
-
+    checkpoint()
     if not metas:
-        print("❌ 所有段都没有够格金句，本条素材不出片", file=sys.stderr)
-        return 1
-
-    # 写 meta.json：单条保持兼容，多条记录列表
-    if len(metas) == 1:
-        final_meta = {
-            "slug": args.slug, "source": str(src), "speaker": args.speaker,
-            "occasion": args.occasion, **metas[0],
-            "quality_gate_version": QUALITY_GATE_VERSION,
-            "source_platform": platform,
-            "watermark_cropped": _wm_cropped,
-            "watermark_verified": _wm_verified,
-            "visual_identity": visual_report,
-            "subtitles_burned": not existing_subtitles,
-            "has_existing_subtitles": existing_subtitles,
-            "raw_has_existing_subtitles": bool(
-                source_report.get("raw_has_existing_subtitles")),
-            "clean_filter_verified": bool(
-                source_report.get("clean_filter_verified")),
-            "vertical": metas[0]["resolution"]["height"] > metas[0]["resolution"]["width"],
-            "cue_count": sum(1 for _ in cues),
-            "asr_model": "faster-whisper large-v3",
-            "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
-        }
-        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2, default=_json_default), encoding="utf-8")
-    else:
-        # 多条：meta.json 是列表，每个元素含 final 文件名
-        final_meta = [
-            {"slug": args.slug, "source": str(src), "speaker": args.speaker,
-             "occasion": args.occasion, "part": i + 1,
-             "quality_gate_version": QUALITY_GATE_VERSION,
-             # 文件名取 _produce_one 回传的真实值：某段无金句被跳过后，
-             # 列表下标 != 原始段号，按下标拼 final_{i+1}.mp4 会指向不存在的文件
-             # （2026-09-02 加「跳过低质段」时发现的隐患）
-             **m,
-             "source_platform": platform,
-             "watermark_cropped": _wm_cropped,
-             "watermark_verified": _wm_verified,
-             "visual_identity": visual_report,
-             "subtitles_burned": not existing_subtitles,
-             "has_existing_subtitles": existing_subtitles,
-             "raw_has_existing_subtitles": bool(
-                 source_report.get("raw_has_existing_subtitles")),
-             "clean_filter_verified": bool(
-                 source_report.get("clean_filter_verified")),
-             "vertical": m["resolution"]["height"] > m["resolution"]["width"],
-             "asr_model": "faster-whisper large-v3",
-             "llm": MODELS[0], "generated_at": datetime.now().isoformat(timespec="seconds"),
-            } for i, m in enumerate(metas)
-        ]
-        (out / "meta.json").write_text(json.dumps(final_meta, ensure_ascii=False, indent=2, default=_json_default), encoding="utf-8")
+        print("❌ 本素材没有通过全部门禁的成片，换下一个候选", file=sys.stderr)
+        return 2 if rejected else 1
 
     n = len(metas)
     print(f"\n✅ 出片完成: {n} 条")
@@ -3743,3 +3722,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -234,23 +234,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "deliver/${{ inputs.slug }}"
-          # 成片、元数据、字幕都按 slug 命名，避免 deliver release 同名覆盖
-          # 成片（长视频可能多个 final_n.mp4）、元数据、字幕都按 slug 命名
-          for f in final*.mp4; do
-            [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.$f"
-          done
-          # FC 逐条投稿从 Release 只取当前视频与封面，不再反复下载整批 Artifact。
-          for f in cover*.jpg; do
-            [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.$f"
-          done
-          for f in preview_30s*.mp4 contact_sheet_6*.jpg; do
-            [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.$f"
-          done
-          [ -f meta.json ] && cp meta.json "${{ inputs.slug }}.meta.json"
-          n=1
-          for f in _tmp/seg*.ass; do
-            [ -f "$f" ] && cp "$f" "${{ inputs.slug }}.seg$n.ass" && n=$((n+1))
-          done
+          python3 -c 'import sys; sys.path.insert(0,"../.."); from batch_delivery import archive_accepted; archive_accepted(".",sys.argv[1])' "${{ inputs.slug }}"
           echo "归档产物："
           ls -la "${{ inputs.slug }}".* 2>/dev/null || true
 
@@ -258,8 +242,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deliver-${{ inputs.slug }}
-          path: linyuan/deliver/${{ inputs.slug }}/
-          exclude: linyuan/deliver/${{ inputs.slug }}/_tmp/**
+          path: |
+            linyuan/deliver/${{ inputs.slug }}/
+            !linyuan/deliver/${{ inputs.slug }}/_tmp/**
           retention-days: 90
           if-no-files-found: error
 
@@ -279,7 +264,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debug-${{ inputs.slug }}
-          path: linyuan/deliver/${{ inputs.slug }}/_tmp/
+          path: |
+            linyuan/deliver/${{ inputs.slug }}/_tmp/
+            linyuan/deliver/${{ inputs.slug }}/meta.json
+            linyuan/deliver/${{ inputs.slug }}/batch_report.json
+            linyuan/deliver/${{ inputs.slug }}/final*.mp4
           retention-days: 14
           if-no-files-found: ignore
 
