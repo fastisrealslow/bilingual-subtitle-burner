@@ -63,7 +63,7 @@ VISUAL_MIN_MATCH_RATIO = 0.50
 VISUAL_MIN_CONFIDENCE = 0.75
 MIN_SHORT_EDGE = 480
 SOURCE_MIN_DURATION = 90
-SOURCE_MAX_DURATION = 5400
+SOURCE_MAX_DURATION = 7200
 FINGERPRINT_VERSION = 1
 QUALITY_GATE_VERSION = 11
 VISUAL_STANDARD_VERSION = 3
@@ -2617,7 +2617,7 @@ def delogo_filter(boxes, W, H, pad=4):
     return ",".join(parts)
 
 
-def safe_crop_plan(src, W, H, stable=0.4, clean=0.2, max_cut=0.24):
+def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):
     """算安全裁切方案 (crop_w, crop_h, crop_x, crop_y)，只为「腾出干净的字幕位」。
 
     历史教训（2026-09-01 三次迭代）：
@@ -3275,13 +3275,16 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             try:
                 live_preview = _render_clean_preview(
                     src, work, candidate_crop, float(probe(src, "format=duration") or 0))
-                if has_existing_subtitles(live_preview):
-                    print("[自动版式] 真人窗口仍有持续字幕/包装，保留人物资料卡兜底")
-                elif detect_corner_logos(live_preview, frames=6, strict=True):
-                    print("[自动版式] 真人窗口仍有来源角标，保留人物资料卡兜底")
+                # V11 原来把任何持续文字都视为不可用，导致大量官方访谈即使
+                # 文字只落在动态窗口边缘也直接退成静态卡。这里不再用整帧
+                # has_existing_subtitles 一票否决，而是以最终窗口的角标/二维码/
+                # 黑边复检为硬门槛。人物身份门禁仍保持不变。
+                remaining = detect_corner_logos(live_preview, frames=6, strict=True)
+                if remaining:
+                    print("[自动版式] 真人窗口仍有稳定来源角标，保留人物资料卡兜底")
                 else:
                     live_crop = candidate_crop
-                    print("[自动版式] ✓ 原画整屏不可用，但真人动态窗口已清理通过")
+                    print("[自动版式] ✓ 真人动态窗口通过安全复检，优先保留动态画面")
             except Exception as exc:
                 print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")
     use_live_video = bool(live_crop)
