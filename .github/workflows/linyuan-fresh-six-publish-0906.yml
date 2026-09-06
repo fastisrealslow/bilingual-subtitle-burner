@@ -1,5 +1,5 @@
 name: 林园六条长视频实际发布与时长核验
-# Resume the five missing exact-hash long videos with bounded downloads and the full FC timeout.
+# Resume exact reviewed videos as queryable background tasks with stable IDs and no automatic replay.
 on:
   push:
     branches: [main]
@@ -103,5 +103,6 @@ jobs:
           path: |
             fresh-six-receipts.json
             fresh-six-public-status.json
+            fresh-six-async-task.json
           if-no-files-found: ignore
           retention-days: 90
