@@ -5,7 +5,7 @@ No source-specific coordinates, network requests, or publishing side effects.
 import re
 from pathlib import Path
 
-VERSION = 1
+VERSION = 2
 PROTECTED = ('贵州茅台', '茅台', '五粮液', '片仔癀', '达仁堂', '林园',
              '价值投资者', '长期投资者', '价值投资', '现金流', '人工智能', '机器人', '不可能', '不会',
              '不能', '没有', '不是', '不应该')
@@ -89,7 +89,14 @@ def prepare_captions(entries, layout):
             continue
         if b <= a:
             raise ValueError('字幕时间重叠到零长度，禁止静默丢弃文本')
-        if group and (a-last_end > .65 or (group[-1][0] in '。！？!?' and last_end-group[0][1]>=1)):
+        # 原版只在较长停顿或上一 cue 末尾已有句末标点时分组。
+        # SenseVoice 经常把口语标点省掉，于是多个 ASR cue 会被拼成一个超长
+        # 字符流，再按屏幕容量机械切开，出现“邀请到的嘉宾也是我们首席 /
+        # 说的新朋友来自0元投资的”这种半句话。现在把 ASR cue 本身也作为
+        # 软语义边界：已有 cue 只要持续够可读，就先结束当前组；极短碎片
+        # 才允许和下一 cue 合并。
+        group_dur = (last_end-group[0][1]) if group and last_end is not None else 0
+        if group and (a-last_end > .45 or group[-1][0] in '。！？!?' or group_dur >= 1.15):
             groups.append(group); group=[]
         for k, char in enumerate(text):
             group.append((char, a+(b-a)*k/len(text), a+(b-a)*(k+1)/len(text)))
@@ -127,8 +134,9 @@ def prepare_captions(entries, layout):
             if not candidates:
                 raise ValueError('字幕含无法安全展示的超长完整词')
             usable=[c for c in candidates if c[2] <= 6] or candidates[:1]
-            punct=[c for c in usable if text[c[0]-1] in '，。！？；,!?;' and c[2]>=1.5]
-            end,lines,duration,cue_font=(punct[-1] if punct else usable[-1])
+            strong=[c for c in usable if text[c[0]-1] in '。！？!?' and c[2]>=.8]
+            soft=[c for c in usable if text[c[0]-1] in '，；：,;:' and c[2]>=1.0]
+            end,lines,duration,cue_font=(strong[-1] if strong else (soft[-1] if soft else usable[-1]))
             if end<len(text) and group[-1][2]-group[end][1]<.8:
                 # Do not leave a flashing "呢？" or a lone sentence ending on
                 # the next screen after increasing font size.
