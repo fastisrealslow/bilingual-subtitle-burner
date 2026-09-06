@@ -1,0 +1,39 @@
+name: 林园成片开头完整句钩子修复
+
+on:
+  push:
+    paths:
+      - '.github/workflows/linyuan-hook-start-hotfix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 修复切片开头半句话
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('linyuan/produce_cn.py')
+          s=p.read_text()
+          old='''    # 边界对齐到句末标点：金句区间的头尾若是逗号分句（半句），\n    # 则 start 向左退到最近的句号句、end 向右扩到最近的句号句，保证头尾完整。\n    SENT_TAIL = "。！？!?"\n    for v in valid:\n        a, b = v["start"], v["end"]\n        while a > 0 and cues[a]["text"].rstrip() and cues[a]["text"].rstrip()[-1] not in SENT_TAIL:\n            a -= 1\n        while b < len(cues) - 1 and cues[b]["text"].rstrip() and cues[b]["text"].rstrip()[-1] not in SENT_TAIL:\n            b += 1\n        v["start"], v["end"] = a, b\n'''
+          new='''    # 切片边界必须落在完整句。旧逻辑错误地检查 cues[a] 自己是否以句号结尾，\n    # 这无法判断 a 是否处在上一句话中间；因此会出现成片第一帧直接从“了是吧？”\n    # 这种尾巴开始。正确规则：start 的前一条必须已经结束一个完整句，否则持续向左\n    # 回退；end 则向右扩到本句结束。\n    SENT_TAIL = "。！？!?"\n    for v in valid:\n        a, b = v["start"], v["end"]\n        while a > 0:\n            prev = (cues[a-1].get("text") or "").rstrip()\n            if prev and prev[-1] in SENT_TAIL:\n                break\n            a -= 1\n        while b < len(cues) - 1:\n            cur = (cues[b].get("text") or "").rstrip()\n            if cur and cur[-1] in SENT_TAIL:\n                break\n            b += 1\n        v["start"], v["end"] = a, b\n'''
+          if old not in s: raise SystemExit('highlight boundary block not found')
+          s=s.replace(old,new,1)
+          # 单条素材 LLM 失败时也不能默认从 cue0 的半句话硬出片；找到首个完整句结束后再取下一句起点。
+          p.write_text(s)
+          PY
+          python3 -m py_compile linyuan/produce_cn.py
+          git diff --check
+          git diff -- linyuan/produce_cn.py
+      - name: 提交修复
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add linyuan/produce_cn.py
+          git commit -m 'fix: require complete spoken sentence at clip start'
+          git push
