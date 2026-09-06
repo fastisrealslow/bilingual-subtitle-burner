@@ -1902,7 +1902,6 @@ def publish_handler(event=None, context=None):
     event = event if isinstance(event, dict) else {}
     batch_slug = str(event.get("batch_slug") or "").strip()
     explicit_v4_batch = batch_slug == "ly-parity-v3-14-0905"
-    ignore_daily_limit = bool(event.get("ignore_daily_limit")) and bool(batch_slug)
     force_publish = bool(event.get("force_publish"))
     if batch_slug in REVIEW_PAUSED_SLUGS:
         log.warning(f"{batch_slug} 等待新版真实样片验收，投稿已熔断")
@@ -1943,7 +1942,7 @@ def publish_handler(event=None, context=None):
     if dp.get("date") != today:
         dp = {"date": today, "count": 0}
         st["daily_publish"] = dp
-    if not ignore_daily_limit and dp.get("count", 0) >= MAX_PUBLISH_PER_DAY:
+    if dp.get("count", 0) >= MAX_PUBLISH_PER_DAY:
         log.info(f"今日已投 {dp['count']} 条，达每日上限 {MAX_PUBLISH_PER_DAY}，剩余排队到明天")
         save_state(st)
         return {"published": 0}

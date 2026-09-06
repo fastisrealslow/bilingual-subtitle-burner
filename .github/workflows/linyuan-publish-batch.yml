@@ -114,6 +114,11 @@ jobs:
               })
               with urllib.request.urlopen(req, timeout=60) as response:
                   state = json.loads(response.read().decode())
+              daily = state.get("daily_publish") or {}
+              today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
+              if daily.get("date") == today and int(daily.get("count") or 0) >= 6:
+                  print("今日已达6条，剩余交回日常定时发布队列", flush=True)
+                  raise SystemExit(0)
               for item in state.get("dispatched", []):
                   if item.get("slug") == slug:
                       return int(item.get("published_parts", 0))
@@ -127,7 +132,7 @@ jobs:
                   "batch_slug": slug,
                   # 一次 FC 调用只投一条：失败只重试当前 part，不在函数内递归上传。
                   "batch_remaining": 1,
-                  "ignore_daily_limit": True,
+                  "ignore_daily_limit": False,
                   "source_url": "https://www.bilibili.com/video/BV1Pzug6fEyY",
                   "title": "2026年8月7日林园57分钟专访",
               }).encode()

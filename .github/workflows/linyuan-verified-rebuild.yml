@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
-      - run: pip install numpy pillow 'opencv-python-headless<5' jieba rapidocr-onnxruntime
+      - run: pip install numpy pillow 'opencv-python<5' jieba rapidocr-onnxruntime
       - name: 下载已核验真人母片及原始ASR
         env:
           GH_TOKEN: ${{ github.token }}

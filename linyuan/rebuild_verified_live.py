@@ -26,13 +26,15 @@ def main():
     old = next(m for m in json.loads((source/'meta.json').read_text()) if m['final']=='final_4.mp4')
     # The second original segment ends in an unfinished lead-in. Stop after the
     # completed preceding sentence, keeping its audio and all preceding words.
-    base, end, offset = 1158.9, 1244.28, 63.9
+    base, end, offset = 1158.9, 1231.66, 63.9
     duration = end-base
     cues = json.loads((source/'_tmp/cues_raw.json').read_text())
     entries = [dict(start_sec=c['start']-base,end_sec=c['end']-base,zh=c['text'],en='')
                for c in cues if c['start']>=base-.01 and c['end']<=end+.01]
     layout = V.layout_for(720,1280,True)
-    groups = P.semantic_caption_entries(entries,P.load_key(),layout,out/'subtitle-groups.json')
+    reviewed = json.loads((Path(__file__).parent/'rebuild-caption-groups.json').read_text())
+    groups = P.apply_semantic_groups(entries,reviewed,layout['line_capacity'])
+    (out/'subtitle-groups.json').write_text(json.dumps(reviewed,ensure_ascii=False,indent=2))
     ass = out/'subtitles.ass'
     P.make_ass(groups,ass,720,1280,card_style=True)
     transcript = ''.join(e['zh'] for e in entries)
@@ -77,7 +79,7 @@ def main():
     proof={'passed':True,'full_decode':True,'live_video_ratio':1.0,'audio_card_ratio':0.0,
            'duration_sec':duration,'subtitle_groups':len(groups),'checks':checks,
            'sha256':meta['fingerprints']['sha256'],'artifact_quality_error':error,
-           'source_artifact':9986365708,'manual_visual_review':'pending'}
+           'source_artifact':9986365708,'caption_review':'reviewed complete intent groups; source characters validated','manual_visual_review':'pending'}
     (out/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     print(json.dumps(proof,ensure_ascii=False,indent=2))
 

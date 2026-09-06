@@ -76,6 +76,15 @@ class BatchIsolationTests(unittest.TestCase):
         state=dict(dispatched=[dict(slug='stale',ts=1),dict(slug='running',ts=time.time(),production_rules_version=fc.PRODUCTION_RULES_VERSION)],published={})
         self.assertEqual(fc._pending_final_count(state),1)
 
+    def test_legacy_batch_override_cannot_exceed_six_daily_releases(self):
+        today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
+        state=dict(dispatched=[dict(slug='manual',ts=time.time())],published={},
+                   daily_publish=dict(date=today,count=6))
+        with patch.object(fc,'load_state',return_value=state), \
+             patch.object(fc,'save_state'), patch.object(fc,'_collect_source_rejections',return_value=0), \
+             patch.object(fc,'gh',side_effect=AssertionError('must stop before upload/artifact network')):
+            self.assertEqual(fc.publish_handler(dict(batch_slug='manual',ignore_daily_limit=True,force_publish=True)),{'published':0})
+
     def test_obsolete_partial_batch_does_not_block_new_production(self):
         state=dict(dispatched=[dict(slug='old',ts=time.time(),published_parts=1)],
                    published={'old':dict(parts_total=53)})

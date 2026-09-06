@@ -1368,10 +1368,14 @@ def apply_semantic_groups(entries, texts, capacity):
     for t in texts:
         text=re.sub(r'\s+','',t); end=offset+len(strip(text))
         if end not in bounds: raise ValueError('意群分组切断完整词')
-        if re.search(r'(?:还更|因为|如果|但是|以及|把|被|与|比)$',strip(text)):
+        if re.search(r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|把|被|与|比|是|要|会|能|将|对|向|愿意)$',strip(text)):
             raise ValueError('意群以未完成的连接词结束')
+        if strip(text).startswith('的'):
+            raise ValueError('意群不能以依附上一屏的“的”开头')
         wrap_words(text,capacity)
         a,b=chars[offset][1],chars[end-1][2]
+        if b-a>8:
+            raise ValueError('单屏跨越超过8秒，应在完整意群处分开')
         if b-a<.25: raise ValueError('意群字幕过短闪屏')
         result.append(dict(start_sec=a,end_sec=b,zh=text,en='',semantic_group=True))
         offset=end
@@ -1397,7 +1401,10 @@ def semantic_caption_entries(entries, api_key, layout, cache_path):
             '但绝不能仅按固定字数切割。不能把否定词和谓语拆开、不能以'
             '“还更、因为、如果、把、被、与”等未完成成分结束。'
             '可以选完整短语作为一个意群，如“守住现金流的企业”或“大家还更愿意买”。'
-            '原文：'+transcript+'。带结束字符位置的词序列：'+json.dumps(tokens,ensure_ascii=False))
+            '必须保留原文逗号体现的意群边界。错误：投资技巧一定要是 / 大行业；正确：投资技巧 / 一定要是大行业越来越大。'
+            '错误：工资收入高 / 的一些发达国家；正确：凡是工资收入高的一些发达国家。'
+            '原始ASR含标点及时间：'+json.dumps(entries,ensure_ascii=False)+
+            '。用于计数的原文：'+transcript+'。带结束字符位置的词序列：'+json.dumps(tokens,ensure_ascii=False))
     error=''
     for attempt in range(3):
         try:
