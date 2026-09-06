@@ -39,10 +39,19 @@ def archive_accepted(out, slug):
             if Path(name).name != name or not (out / name).is_file():
                 raise ValueError(f'Invalid/missing accepted artifact: {name}')
             names.add(name)
+        for name in row.get('subtitle_files') or []:
+            if Path(name).name != name or not (out / name).is_file():
+                raise ValueError(f'Invalid/missing accepted subtitles: {name}')
+            names.add(name)
         thumb = (row.get('cover_proof') or {}).get('thumbnail')
         if thumb and Path(thumb).name == thumb:
             names.add(thumb)
+    delivery = out / '_accepted'
+    if delivery.exists():
+        shutil.rmtree(delivery)
+    delivery.mkdir()
     for name in names:
         if (out / name).is_file():
-            shutil.copy2(out / name, out / f'{slug}.{name}')
+            shutil.copy2(out / name, delivery / name)
+            shutil.copy2(out / name, delivery / f'{slug}.{name}')
     return len(rows)

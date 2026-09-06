@@ -161,7 +161,7 @@ def test_deep_subtitle_band_is_not_cropped_past_the_safe_limit(monkeypatch):
     coverage[70:80] = [1.0] * 10
     monkeypatch.setattr(P, "ocr_row_coverage", lambda *a, **k: coverage)
     monkeypatch.setattr(P, "_face_survives", lambda *a, **k: True)
-    assert P.safe_crop_plan(Path("dirty.mp4"), 1280, 720) is None
+    assert P.safe_crop_plan(Path("dirty.mp4"), 1280, 720, max_cut=0.24) is None
 
 
 def test_audio_card_fails_closed_without_chinese_font(monkeypatch, tmp_path):

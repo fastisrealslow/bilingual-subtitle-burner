@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 
 BASE = Path(__file__).parent
-PRESENTATION_RULES_VERSION = 1
+PRESENTATION_RULES_VERSION = 2
 # 本地用已下好的绝对路径;CI 里用 HF 模型名(faster-whisper 自己拉)。
 # 两边都是 large-v3:实测 4 核 runner 上实时率 1.17x,完全跑得动,
 # 而 small 会输出繁体、把「安宫」听成「安公」,质量差距是决定性的。
@@ -2677,8 +2677,8 @@ def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):
     参数：
       stable  行覆盖率 ≥ 此值视为常驻文字（贴片/硬字幕）
       clean   裁完后底部区域允许的最大覆盖率
-      max_cut 总裁切上限。实看对标账号后收紧到 24%：它对横屏原片基本不裁，
-              竖屏包装则保留完整主体；超过这个比例不再硬切，转音频卡重建。
+      max_cut 总裁切上限（当前生产30%）；裁后仍须保留人脸和通过成片复检。
+              超过调用方设定上限不再硬切，转人物卡重建。
     """
     cov = ocr_row_coverage(src)
     if not any(cov):
@@ -3461,7 +3461,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             cover_person_image_source = "verified_source_frame"
     except Exception as e:
         raise VisualQualityError(f"封面生成/人物/角标复检失败：{e}") from e
+    subtitle_files = []
+    for n in range(1, len(picks) + 1):
+        name = f"subtitles{suffix}-{n}.ass"
+        (out / name).write_bytes((work / f"seg{suffix}{n}.ass").read_bytes())
+        subtitle_files.append(name)
     return {
+        "subtitle_files": subtitle_files,
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover": cover.name if cover else None,

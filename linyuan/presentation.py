@@ -96,7 +96,13 @@ def prepare_captions(entries, layout):
         # 软语义边界：已有 cue 只要持续够可读，就先结束当前组；极短碎片
         # 才允许和下一 cue 合并。
         group_dur = (last_end-group[0][1]) if group and last_end is not None else 0
-        if group and (a-last_end > .45 or group[-1][0] in '。！？!?' or group_dur >= 1.15):
+        # An ASR cue is only a soft boundary. Reconnect 茅/台 and numeric units
+        # before splitting screens; the 1.15s cutoff must not split a token.
+        joined = ''.join(c[0] for c in group) + text
+        boundary = len(group)
+        split_word = group and any(lo < boundary < hi for lo, hi in word_spans(joined))
+        if group and (a-last_end > .45 or group[-1][0] in '。！？!?' or
+                      (group_dur >= 1.15 and not split_word)):
             groups.append(group); group=[]
         for k, char in enumerate(text):
             group.append((char, a+(b-a)*k/len(text), a+(b-a)*(k+1)/len(text)))
@@ -328,3 +334,4 @@ def verify_render(path, layout, samples=12):
     return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True,
             'render_checks':{'version':VERSION,'frames_checked':checked,
                              'dimensions_match':True,'qr_detected':False,'black_edge_hits':black}}
+

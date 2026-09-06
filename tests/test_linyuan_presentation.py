@@ -16,7 +16,7 @@ FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
 
 def test_shared_rules_are_active_in_both_production_consumers():
-    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 1
+    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 2
     assert callable(FC.presentation_quality_error)
 
 
@@ -96,7 +96,8 @@ def test_question_ending_is_not_left_on_a_flashing_screen():
 
 
 def test_cover_styles_preserve_scene_and_offer_safe_choice():
-    assert V.select_cover_style(True,'访谈主题')=='photo'
+    assert {V.select_cover_style(True,str(n)) for n in range(30)}=={'photo','light','dark'}
+    assert V.select_cover_style(True,'访谈主题','photo')=='photo'
     assert {V.select_cover_style(False,str(n)) for n in range(20)}=={'light','dark'}
     assert V.select_cover_style(True,'访谈主题','dark')=='dark'
     with pytest.raises(ValueError):

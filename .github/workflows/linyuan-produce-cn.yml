@@ -206,6 +206,7 @@ jobs:
             llm-cn-
 
       - name: 出片
+        id: render
         env:
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
           WHISPER_MODEL: large-v3
@@ -236,15 +237,13 @@ jobs:
           cd "deliver/${{ inputs.slug }}"
           python3 -c 'import sys; sys.path.insert(0,"../.."); from batch_delivery import archive_accepted; archive_accepted(".",sys.argv[1])' "${{ inputs.slug }}"
           echo "归档产物："
-          ls -la "${{ inputs.slug }}".* 2>/dev/null || true
+          ls -la _accepted/
 
       - name: 上传成片到 Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deliver-${{ inputs.slug }}
-          path: |
-            linyuan/deliver/${{ inputs.slug }}/
-            !linyuan/deliver/${{ inputs.slug }}/_tmp/**
+          path: linyuan/deliver/${{ inputs.slug }}/_accepted/
           retention-days: 90
           if-no-files-found: error
 
@@ -253,7 +252,7 @@ jobs:
         with:
           tag_name: deliver
           name: 成品库
-          files: linyuan/deliver/${{ inputs.slug }}/${{ inputs.slug }}.*
+          files: linyuan/deliver/${{ inputs.slug }}/_accepted/${{ inputs.slug }}.*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -269,6 +268,15 @@ jobs:
             linyuan/deliver/${{ inputs.slug }}/meta.json
             linyuan/deliver/${{ inputs.slug }}/batch_report.json
             linyuan/deliver/${{ inputs.slug }}/final*.mp4
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: 上传整源无合格片结果供自动补位
+        if: failure() && steps.render.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-reject-${{ inputs.slug }}
+          path: linyuan/deliver/${{ inputs.slug }}/batch_report.json
           retention-days: 14
           if-no-files-found: ignore
 

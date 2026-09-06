@@ -63,7 +63,9 @@ class BatchIsolationTests(unittest.TestCase):
             # Even a stray root-level MP4 is not release-packaged.
             (out/'final_bad.mp4').write_bytes(b'bad')
             self.assertEqual(archive_accepted(out,'case'),2)
-            self.assertFalse((out/'case.final_bad.mp4').exists())
+            self.assertFalse((out/'_accepted/case.final_bad.mp4').exists())
+            self.assertTrue((out/'_accepted/final_3.mp4').exists())
+            self.assertFalse((out/'_accepted/final_2.mp4').exists())
 
     def test_manual_batch_without_candidate_keys_does_not_crash_daily_picker(self):
         state=dict(dispatched=[dict(slug='manual',ts=time.time())],
