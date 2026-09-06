@@ -1,0 +1,86 @@
+name: 林园今日新六条实际投稿
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-fresh-six-publish-0906.yml]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: linyuan-fresh-six-0906-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 按实际MP4哈希打包已验收的新片
+        id: pack
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python linyuan/fc/package_fresh_six.py
+      - uses: actions/upload-artifact@v4
+        if: steps.pack.outputs.part1 != ''
+        with:
+          name: ${{ steps.pack.outputs.part1 }}
+          path: fresh-six-package/${{ steps.pack.outputs.part1 }}/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: steps.pack.outputs.part2 != ''
+        with:
+          name: ${{ steps.pack.outputs.part2 }}
+          path: fresh-six-package/${{ steps.pack.outputs.part2 }}/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: steps.pack.outputs.part3 != ''
+        with:
+          name: ${{ steps.pack.outputs.part3 }}
+          path: fresh-six-package/${{ steps.pack.outputs.part3 }}/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: steps.pack.outputs.part4 != ''
+        with:
+          name: ${{ steps.pack.outputs.part4 }}
+          path: fresh-six-package/${{ steps.pack.outputs.part4 }}/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: steps.pack.outputs.part5 != ''
+        with:
+          name: ${{ steps.pack.outputs.part5 }}
+          path: fresh-six-package/${{ steps.pack.outputs.part5 }}/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: steps.pack.outputs.part6 != ''
+        with:
+          name: ${{ steps.pack.outputs.part6 }}
+          path: fresh-six-package/${{ steps.pack.outputs.part6 }}/
+          if-no-files-found: error
+          retention-days: 30
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 境内逐条投稿并核对六条真实回执
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: python linyuan/fc/publish_fresh_six.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fresh-six-0906-publication-receipts
+          path: |
+            fresh-six-receipts.json
+            fresh-six-public-status.json
+          if-no-files-found: ignore
+          retention-days: 90
