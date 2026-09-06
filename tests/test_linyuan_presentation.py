@@ -179,6 +179,18 @@ def test_tiny_spoken_filler_merges_without_losing_text_or_faking_time():
     assert groups[0]['end_sec']==2.1
 
 
+@pytest.mark.parametrize('tail',['最后我相信是中国人会','目前市场虽然','买入一个'])
+def test_real_incomplete_tails_do_not_hide_inside_dictionary_tokens(tail):
+    assert P.unfinished_caption_tail(tail)
+
+
+def test_reviewed_subtitle_boundaries_still_reject_text_changes(tmp_path):
+    entries=[dict(start_sec=0,end_sec=4,zh='最后我相信中国人会在这个领域独大')]
+    with pytest.raises(ValueError,match='改写或丢失'):
+        P.semantic_caption_entries(entries,None,V.layout_for(720,1280,True),tmp_path/'proof.json',
+                                   reviewed_groups=['最后我相信中国人不会在这个领域独大'])
+
+
 def test_zero_area_qr_false_candidate_is_not_decoded(tmp_path,monkeypatch):
     import cv2
     import numpy as np

@@ -27,5 +27,6 @@ def source_ranges(cues,source_sha,profile_path=None):
         if result and a<=result[-1][1]:
             raise ValueError('Reviewed continuous arguments overlap')
         result.append((a,b,[dict(start=0,end=b-a,score=8,reason=row['topic'],
-                                editorial_title=row.get('title'))]))
+                                editorial_title=row.get('title'),
+                                editorial_subtitles=row.get('subtitle_groups'))]))
     return result

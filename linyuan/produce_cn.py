@@ -1437,7 +1437,7 @@ def unfinished_caption_tail(text):
     if not spans:
         return False
     a,b=spans[-1]
-    return text.endswith('还更') or text[a:b] in {
+    return bool(re.search(r'(?:还更|一个|这个|这种|一些|那些|这些|虽然|即使|尽管|无论|(?:我|你|他|她|们|人|企业|公司)会)$',text)) or text[a:b] in {
         '更加','因为','所以','如果','那么','但是','而且','以及','把','被',
         '与','比','是','要','会','能','将','对','向','愿意','暂时'}
 
@@ -1605,10 +1605,14 @@ def token_breaks_to_char_offsets(selected, tokens):
     return [tokens[n-1]['end'] for n in selected]
 
 
-def semantic_caption_entries(entries, api_key, layout, cache_path):
+def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_groups=None):
     """Use the language model for meaning; validate every character locally."""
     capacity=layout['line_capacity']
     cache_path=Path(cache_path)
+    if reviewed_groups is not None:
+        result=apply_semantic_groups(entries,reviewed_groups,capacity,layout.get('subtitle_font_px'))
+        cache_path.write_text(json.dumps(reviewed_groups,ensure_ascii=False,indent=2))
+        return result
     if cache_path.exists():
         try:
             return apply_semantic_groups(
@@ -3894,7 +3898,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     "end_sec": cues[i]["end"] - s0,
                     "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
         ass = work / f"seg{suffix}{n}.ass"
-        entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json")
+        entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json",
+                                           reviewed_groups=p.get('editorial_subtitles'))
         make_ass(entries, ass, crop_w, crop_h,
                  card_style=(strategy == "audio_card"))
         seg = work / f"seg{suffix}{n}.mp4"
