@@ -35,9 +35,12 @@ PY
 | SenseVoice INT8 | 12.50 秒 | 0.045 | 440 MiB | 12/12 |
 | Paraformer INT8 | 9.43 秒 | 0.034 | 426 MiB | 0/12 |
 | Qwen3-ASR 0.6B FP32 | 156.05 秒 | 0.566 | 6102 MiB | 0/12，未加独立对齐模型 |
+| Qwen3-ASR 0.6B + 财经词表 | 164.26 秒 | 0.595 | 6101 MiB | 0/12，未加独立对齐模型 |
 
 没有人工逐字听写的标准答案，因此不报告 CER、准确率或“提升百分比”。Qwen 的个别口语更通顺，难词仍出现错误；Paraformer 的速度优势也不能代替识别质量和时间轴验收。先保留经过完整链路验证的 SenseVoice，候选模型不自动进入生产。
 
 可用 `linyuan/asr_cpu_benchmark.py` 复现离线模型对比；`--context-file linyuan/asr_finance_vocabulary.json` 用于 Qwen 的财经词表实验。测试输出保留完整假设文本、音频哈希、CPU 信息、耗时、内存及依赖版本。词表只作为候选模型上下文，不强制向字幕加入词表词。
 
 [首轮 Qwen 记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34026825959)；[SenseVoice 与 Paraformer 记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34026954219)；[完整音频验收](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34027255724)。Qwen 模型与本地加载方法见 [官方仓库](https://github.com/QwenLM/Qwen3-ASR)；Paraformer 导出模型的时间戳限制见 [sherpa 官方说明](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-paraformer/paraformer-models.html)。
+
+财经词表复测已经完成。它将两段中的“林元/林远”转为“林园”，将一处“纯隐蔽”转为“成瘾品”，同时也将“原始股”输出成“原石股”，且仍存在其他句子错误。因此它是有价值的离线候选，尚不能证明整体质量优于现有后端，暂不自动接管生产。[完整复测记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34027156975)。
