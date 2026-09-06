@@ -80,6 +80,10 @@ jobs:
           python-version: '3.11'
           cache: pip
 
+      - name: CPU离线ASR保真回归（失败不进入实产）
+        working-directory: .
+        run: python -m unittest discover -s tests -p test_linyuan_asr_integrity.py -v
+
       # fonts-noto-cjk 必装：缺了中文字体，字幕会烧成一排豆腐块
       - name: 安装 ffmpeg 与中文字体
         run: |

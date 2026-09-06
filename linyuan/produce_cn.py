@@ -8,8 +8,8 @@ produce.py 是给**英文片源**设计的(direction 写死 en2zh、srt_lang 写
 复用同一套思路:转写 → 挑金句 → 翻译 → 烧字幕 → 拼接。
 
 针对中文股东会素材做的三处专门处理(produce.py 都没有):
-  1. large-v3 + 词级时间戳重新组句 -- medium 会切出 60 秒一段的巨块没法当字幕
-  2. 术语表纠正 ASR 专名 -- 现场录音把「安宫牛黄丸」听成「安牛」是常态
+  1. CPU 离线 SenseVoice + 原始 token 时间戳重新组句
+  2. 保守的专名纠错；不把有歧义的普通词扩写成药名
   3. loudnorm 响度标准化 -- 观众席手机录音普遍 -36dB,不处理根本听不见
 
 用法:
@@ -33,13 +33,13 @@ from pathlib import Path
 
 BASE = Path(__file__).parent
 PRESENTATION_RULES_VERSION = 2
-# 本地用已下好的绝对路径;CI 里用 HF 模型名(faster-whisper 自己拉)。
-# 两边都是 large-v3:实测 4 核 runner 上实时率 1.17x,完全跑得动,
-# 而 small 会输出繁体、把「安宫」听成「安公」,质量差距是决定性的。
+# 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
+# legacy Whisper 函数保留供历史代码读取，不进入本生产入口。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
-
-# ASR 后端选择：sensevoice（SenseVoice-Small，非LLM结构上不会死循环，推荐）|
-# whisper（旧 large-v3 可回滚）| funasr（Fun-ASR-Nano，LLM架构有死循环风险，弃用仅保留）
+ASR_PIPELINE_VERSION = 3
+ASR_CHUNK_SEC = 30.0
+ASR_OVERLAP_SEC = 3.0
+ASR_CPU_THREADS = max(1, min(4, int(os.environ.get("ASR_CPU_THREADS", "2"))))
 ASR_BACKEND = os.environ.get("ASR_BACKEND") or "sensevoice"
 # SenseVoice-Small 模型目录（model.int8.onnx + tokens.txt）
 SENSEVOICE_DIR = os.environ.get("SENSEVOICE_MODEL_DIR") or "/tmp/sv_onnx"
@@ -135,9 +135,7 @@ MIN_GAP = 0.3
 # 只放「读音接近且在本领域无歧义」的,避免误改。
 GLOSSARY = {
     "老离化": "老龄化", "老民化": "老龄化",
-    "安牛": "安宫牛黄丸", "安工": "安宫牛黄丸", "按钮": "安宫牛黄丸",
     "大人堂": "达仁堂", "达人塔": "达仁堂", "大二代": "达仁堂",
-    "塑效": "速效救心丸", "速效": "速效救心丸",
     "白耀": "白药", "荷药": "中药", "核药": "中药",
     "片仔皇": "片仔癀", "片仔黄": "片仔癀",
     # ASR 音近错字（2026-08-29 用户反馈）：骨=股、0源/零源=林园
@@ -150,7 +148,7 @@ GLOSSARY = {
     "高抛低息": "高抛低吸", "选骨": "选股", "骨子占的比例": "股票占的比例",
     "夕洋行业": "夕阳行业", "西洋行业": "夕阳行业",
     "划解这种风险": "化解这种风险", "复荷增长": "复合增长",
-    "负利增长": "复利增长", "历史的地位被低估": "历史的低位被低估",
+    "历史的地位被低估": "历史的低位被低估",
 }
 
 
@@ -450,52 +448,30 @@ def fix_terms(text):
     return text
 
 
-def _llm_smooth_cues(cues, api_key):
-    """LLM 通顺化：去口水磕巴、通顺句子，保数字词义和时间戳。
+def _llm_smooth_cues(cues, api_key=None):
+    """Historical entry point: ASR text cleanup is now offline and lossless.
 
-    2026-08-29 实测：字幕「脏」= ASR 把口语原样转出（这个/就是/是吧/磕巴）。
-    免费模型会篡改数字（99.8%→8.8%、2009→222012），故用付费 DeepSeek-V3 + 相似度校验。
-    逐批处理、保持句数对应（时间戳不变），输出与原文相似度过低就保留原文（防篡改）。
+    A text-only model cannot verify spoken numbers, negations or names. Preserve
+    decoded text instead of requesting an API rewrite and trusting similarity.
     """
-    if not api_key or not cues:
-        return cues
-    out_cues = list(cues)
-    BATCH = 12
-    for i in range(0, len(cues), BATCH):
-        batch = cues[i:i + BATCH]
-        numbered = "\n".join(f"{j}.{c['text']}" for j, c in enumerate(batch, 1))
-        prompt = ("下面是 " + str(len(batch)) + " 句语音识别字幕，含口水话（这个/就是/是吧/我们）、磕巴重复。\n\n"
-                  "请逐句做最小清理（去口水话、去磕巴重复、修明显错字），但严格要求：\n"
-                  "1. 逐句输出，每句一行，格式「数字.清理后的句子」\n"
-                  "2. 保持每句的编号、顺序、句数不变（共 " + str(len(batch)) + " 句）\n"
-                  "3. 绝不改动任何数字、百分比、金额（如 99.8%、2009、8000）\n"
-                  "4. 忠实原意，不合并、不拆分、不补充内容、不换用词\n\n"
-                  "字幕：\n" + numbered)
-        try:
-            out = llm([{"role": "user", "content": prompt}], api_key, temperature=0.0, max_tokens=1200)
-        except Exception as e:
-            print(f"[通顺化] LLM 不可用，跳过这批: {e}", file=sys.stderr)
-            continue
-        # 解析逐行输出「数字.句子」
-        parsed = {}
-        for line in out.splitlines():
-            line = line.strip()
-            m = re.match(r"^(\d+)[.、．]\s*(.+)$", line)
-            if m:
-                parsed[int(m.group(1))] = m.group(2).strip()
-        for j, c in enumerate(batch, 1):
-            new_text = parsed.get(j)
-            if not new_text:
-                continue
-            # 相似度校验：输出与原文差异过大（可能篡改），保留原文
-            ratio = difflib.SequenceMatcher(None, c["text"], new_text).ratio()
-            if ratio < 0.55:
-                print(f"[通顺化] 第{i+j}句相似度过低({ratio:.2f})，保留原文", file=sys.stderr)
-                continue
-            out_cues[i + j - 1] = dict(c, text=new_text)
-    return out_cues
+    return [dict(c) for c in cues]
 
 
+def _sha256_file(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _asr_cache_identity(src):
+    model_dir = Path(SENSEVOICE_DIR if ASR_BACKEND == "sensevoice" else FUNASR_DIR)
+    model_files = sorted(model_dir.rglob("*.onnx")) + sorted(model_dir.rglob("tokens.txt"))
+    return dict(version=ASR_PIPELINE_VERSION, source_sha256=_sha256_file(src),
+                backend=ASR_BACKEND, chunk_sec=ASR_CHUNK_SEC, overlap_sec=ASR_OVERLAP_SEC,
+                threads=ASR_CPU_THREADS, glossary=GLOSSARY,
+                models={str(p.resolve()): _sha256_file(p) for p in model_files})
 
 
 def _audio_duration(src):
@@ -510,23 +486,49 @@ def _audio_duration(src):
 
 
 def transcribe(src, work, api_key=None):
-    """转写入口：按 ASR_BACKEND 分发。质量闸门在这里统一把关——
-    缓存命中和所有后端都要过闸（2026-09-01：原来闸门只在 sensevoice 分支内，
-    缓存命中会直接绕过）。"""
-    cache = work / "cues_raw.json"
-    if cache.exists():
-        print("[asr] 命中缓存")
-        cues = json.loads(cache.read_text(encoding="utf-8"))
-        _asr_quality_gate(cues, _audio_duration(src))
-        return cues
+    """Offline CPU ASR with source/model/config-bound cache and quality gates."""
+    if ASR_BACKEND not in ("sensevoice", "funasr"):
+        raise ValueError(f"中文生产不支持 ASR_BACKEND={ASR_BACKEND!r}；只允许已验证的 CPU 离线后端")
+    src, work = Path(src), Path(work)
+    work.mkdir(parents=True, exist_ok=True)
+    cache, provenance = work / "cues_raw.json", work / "asr_cache.json"
+    identity = _asr_cache_identity(src)
+    if cache.exists() and provenance.exists():
+        try:
+            meta = json.loads(provenance.read_text(encoding="utf-8"))
+            if meta.get("identity") == identity and meta.get("cues_sha256") == _sha256_file(cache):
+                cues = json.loads(cache.read_text(encoding="utf-8"))
+                _asr_quality_gate(cues, _audio_duration(src))
+                print("[asr] 命中经过来源、模型及配置校验的离线缓存")
+                return cues
+        except (ValueError, OSError, TypeError, KeyError):
+            pass
+    # Old cache files have no provenance; do not silently trust a previous model
+    # or reuse PCM extracted from a different video at the same work directory.
+    stale = set()
+    for pattern in ("cues_raw.json", "asr_tokens.json", "asr_raw_chunks.json",
+                    "highlights*.json", "copywrite*.json", "translation.json",
+                    "chunks_dedup.json", "semantic*.json"):
+        stale.update(work.glob(pattern))
+    if stale:
+        archive = work / "asr_stale" / str(time.time_ns())
+        archive.mkdir(parents=True)
+        for path in stale:
+            path.replace(archive / path.name)
+    provenance.unlink(missing_ok=True)
+    wav = work / "audio_16k.wav"
+    if wav.resolve() != src.resolve():
+        wav.unlink(missing_ok=True)
     if ASR_BACKEND == "sensevoice":
-        # sensevoice 内部已在 LLM 通顺化之前过闸（提前失败省 LLM 开销），此处不重复
-        return _transcribe_sensevoice(src, work, api_key)
-    if ASR_BACKEND == "funasr":
-        cues = _transcribe_funasr(src, work)
+        cues = _transcribe_sensevoice(src, work)
     else:
-        cues = _transcribe_whisper(src, work, api_key)
+        cues = _transcribe_funasr(src, work)
     _asr_quality_gate(cues, _audio_duration(src))
+    cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
+    tmp = provenance.with_suffix(".tmp")
+    tmp.write_text(json.dumps(dict(identity=identity, cues_sha256=_sha256_file(cache)),
+                              ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(provenance)
     return cues
 
 
@@ -666,89 +668,73 @@ def _transcribe_funasr(src, work):
     return cues
 
 
-def _transcribe_sensevoice(src, work, api_key=None):
-    """SenseVoice-Small 转写：非 LLM（CTC）架构，结构上不会死循环，自带标点。
-
-    相对 Fun-ASR-Nano 的关键优势：2026-08-27 批量实测 Fun-ASR-Nano 长视频
-    死循环率 43%（「吃一粒吃一粒」「吓吓吓」无限重复吞内容），调 temperature 治不了根；
-    SenseVoice 是非自回归 CTC，不存在 LLM 贪婪解码死循环，10 条音频 0 死循环。
-    CER 略高（7.8% vs 4.5%），但偶发错字可用术语表/LLM 兜，死循环兜不住。
+def _owned_sensevoice_tokens(chunks):
+    """Assign timestamped tokens before grouping, so a cue crossing a chunk
+    boundary cannot cause the following part of a sentence to disappear.
+    Keep raw chunk hypotheses separately for auditable overlap disagreements.
     """
+    tokens, timestamps = [], []
+    for chunk in chunks:
+        if len(chunk["tokens"]) != len(chunk["timestamps"]):
+            raise ValueError("ASR token 与时间戳数量不一致，不能伪造时间轴")
+        for token, relative in zip(chunk["tokens"], chunk["timestamps"]):
+            absolute = chunk["offset"] + float(relative)
+            if not (0 <= relative <= chunk["duration"]):
+                raise ValueError("ASR token 时间戳超出音频片段")
+            if chunk["core_start"] <= absolute < chunk["core_end"]:
+                if timestamps and absolute < timestamps[-1]:
+                    raise ValueError("ASR token 时间戳逆序")
+                tokens.append(token)
+                timestamps.append(absolute)
+    return tokens, timestamps
+
+
+def _transcribe_sensevoice(src, work, api_key=None):
+    """CPU-only SenseVoice; retain raw hypotheses, never rewrite through an API."""
     import numpy as np
     import wave
     from sherpa_onnx import OfflineRecognizer
-    cache = work / "cues_raw.json"
-
-    # 1. 提取 16k 单声道 PCM
     wav_path = work / "audio_16k.wav"
     if not wav_path.exists():
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
                         "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
-                        str(wav_path)], check=True)
+                        str(wav_path)], check=True, timeout=600)
     with wave.open(str(wav_path), "rb") as w:
         sr = w.getframerate()
         samples = w.readframes(w.getnframes())
     audio = np.frombuffer(samples, dtype=np.int16).astype(np.float32) / 32768.0
     total_dur = len(audio) / sr
-    print(f"[asr] 音频 {total_dur:.0f}s，SenseVoice-Small 转写")
-
-    # 2. 加载模型（int8 onnx；use_itn=True 输出带标点）
+    print(f"[asr] 音频 {total_dur:.0f}s，SenseVoice CPU 离线转写")
     recognizer = OfflineRecognizer.from_sense_voice(
-        model=f"{SENSEVOICE_DIR}/model.int8.onnx",
-        tokens=f"{SENSEVOICE_DIR}/tokens.txt",
-        num_threads=1, use_itn=True,
-    )
-
-    # 3. 分 chunk 转写（SenseVoice 整段 >60s 会退化输出空：实测 60s 正常、90s 退到 18 字、
-    #    120s+ 只剩几个字）。故按 60s 切段 + overlap 3s 缓冲边界词，只输出核心区。
-    CHUNK_SEC = 60.0
-    OVERLAP = 3.0
-    cues = []
-    t = 0.0
+        model=f"{SENSEVOICE_DIR}/model.int8.onnx", tokens=f"{SENSEVOICE_DIR}/tokens.txt",
+        num_threads=ASR_CPU_THREADS, use_itn=True, provider="cpu")
+    chunks, t = [], 0.0
     while t < total_dur:
-        seg_start = max(0.0, t - OVERLAP)
-        seg_end = min(t + CHUNK_SEC + OVERLAP, total_dur)
-        seg = audio[int(seg_start * sr):int(seg_end * sr)]
+        start = max(0.0, t - ASR_OVERLAP_SEC)
+        end = min(t + ASR_CHUNK_SEC + ASR_OVERLAP_SEC, total_dur)
         stream = recognizer.create_stream()
-        stream.accept_waveform(sr, seg)
+        stream.accept_waveform(sr, audio[int(start * sr):int(end * sr)])
         recognizer.decode_stream(stream)
         r = stream.result
-        if r.tokens:
-            seg_cues = _funasr_tokens_to_cues(list(r.tokens), list(r.timestamps), seg_start, seg_end - seg_start)
-            for c in seg_cues:
-                if t <= c["start"] < t + CHUNK_SEC:
-                    cues.append(c)
-        print(f"  [chunk {seg_start:6.0f}-{seg_end:6.0f}s] {len(r.tokens)} tokens", flush=True)
-        t += CHUNK_SEC
-
+        chunks.append(dict(offset=start, duration=end-start, core_start=t,
+            core_end=min(t+ASR_CHUNK_SEC, total_dur), text=r.text,
+            tokens=list(r.tokens), timestamps=list(r.timestamps)))
+        # Checkpoint every chunk; a later failure must not erase the evidence.
+        (work / "asr_raw_chunks.json").write_text(
+            json.dumps(chunks, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"  [chunk {start:6.0f}-{end:6.0f}s] {len(r.tokens)} tokens", flush=True)
+        t += ASR_CHUNK_SEC
+    tokens, timestamps = _owned_sensevoice_tokens(chunks)
+    (work / "asr_tokens.json").write_text(json.dumps(dict(tokens=tokens,
+        timestamps=timestamps, duration=total_dur), ensure_ascii=False), encoding="utf-8")
+    cues = _funasr_tokens_to_cues(tokens, timestamps, 0.0, total_dur)
     cues = _merge_cues(cues)
-    # 合并极短孤立尾巴后再交给 LLM 通顺化。否则会出现上一屏“回来一大”
-    # 下一屏只剩“钱？”这种肉眼可见的半句话。短碎片只有在紧邻且上一句未结束时合并。
-    compact = []
-    for c in cues:
-        text = (c.get("text") or "").strip()
-        bare = text.rstrip("。！？!?，,；;：:")
-        if (compact and len(bare) <= 3
-                and c["start"] - compact[-1]["end"] <= 0.65
-                and not (compact[-1].get("text") or "").rstrip().endswith(tuple("。！？!?"))):
-            compact[-1]["text"] = (compact[-1].get("text") or "") + text
-            compact[-1]["end"] = c["end"]
-        else:
-            compact.append(dict(c))
-    cues = compact
-    # 去重 + GLOSSARY 纠错（SenseVoice 偶发小错字，如「金钱二」→「金钱上」）
-    for c in cues:
-        c["text"] = _de_loop_text(c["text"])
-    cues = _dedup_consecutive(cues)
+    # Non-autoregressive decoding cannot enter an autoregressive loop. Real
+    # hesitations and repeated statements must not be deleted by loop heuristics.
     for c in cues:
         c["text"] = fix_terms(c["text"])
-    # 质量闸门（提前判一次：在 LLM 通顺化之前失败，省掉 LLM 调用开销；
-    # transcribe() 入口还会再统一判一次，覆盖缓存命中的情况）
     _asr_quality_gate(cues, total_dur)
-    # LLM 通顺化：去口水磕巴（付费 DeepSeek-V3 + 相似度防篡改，2026-08-29）
-    cues = _llm_smooth_cues(cues, api_key)
-    cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"[asr] {len(cues)} 条字幕")
+    print(f"[asr] {len(cues)} 条字幕，原始 token 与识别结果已留存")
     return cues
 
 
@@ -786,8 +772,6 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
     def _flush():
         nonlocal buf, buf_text
         if buf:
-            # 去掉句末的句号/逗号/顿号/分号/冒号（字幕无需句号收尾），保留问号/感叹号（有语气）
-            buf_text = buf_text.rstrip("。，、；：")
             if buf_text:
                 cues.append({"start": round(offset + buf[0][1], 2),
                              "end": round(offset + buf[-1][2], 2),
@@ -798,12 +782,20 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
         en = timestamps[i + 1] if i + 1 < len(timestamps) else chunk_dur
         en = min(en, st + MAX_TOKEN_SEC)   # 单 token 封顶，避免跨静音把字幕拖长
         if tok in "。！？!?":
-            buf_text += tok
-            _flush()
-        elif tok in "，、；：,;:":
-            buf_text += tok
-            if len(buf_text) >= MAX_CHARS - 4:
+            if buf:
+                buf_text += tok
                 _flush()
+            elif cues:
+                # A length flush may have just emitted the preceding word.
+                # Keep its sentence boundary instead of discarding punctuation.
+                cues[-1]["text"] += tok
+        elif tok in "，、；：,;:":
+            if buf:
+                buf_text += tok
+                if len(buf_text) >= MAX_CHARS - 4:
+                    _flush()
+            elif cues:
+                cues[-1]["text"] += tok
         else:
             # 静音断句：与上一个 token 间隔过大说明中间是静音/没识别出来，
             # 不能把它们塞进同一条字幕（否则字幕横跨十几秒静音，2026-09-01 实测）
@@ -828,28 +820,21 @@ def _de_loop_text(text):
     """
     if not text:
         return text
-    m = re.search(r"(.{1,8}?)\1{3,}", text)
-    if m:
-        unit = m.group(1)
-        return text[:m.start()] + unit * 2
-    return text
+    return re.sub(r"(.{1,8}?)\1{3,}", lambda match: match.group(1) * 2, text)
 
 
 def _dedup_consecutive(cues, sim=0.9):
-    """相邻字幕条去重：连续相同或高度相似的只留第一条，延长 end。
+    """Only merge exact duplicates covering overlapping audio.
 
-    ASR 对同一句音频重复识别会产出连续重复的字幕（如「对吧？」×13 条、
-    「我们最近看到的…」×8 条），观感极差。这里合并连续重复的条。
+    Similar sentences can differ in price, date or negation. Consecutive spoken
+    repetition at different times is also meaningful and must remain intact.
     """
     out = []
     for c in cues:
-        t = c["text"]
-        if out:
-            prev = out[-1]["text"]
-            if t == prev or (t and prev and difflib.SequenceMatcher(None, t, prev).ratio() > sim):
-                out[-1]["end"] = c["end"]
-                continue
-        out.append(dict(c))
+        if out and c["text"] == out[-1]["text"] and c["start"] < out[-1]["end"]:
+            out[-1]["end"] = max(c["end"], out[-1]["end"])
+        else:
+            out.append(dict(c))
     return out
 
 
