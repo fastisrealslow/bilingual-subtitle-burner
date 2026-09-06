@@ -11,6 +11,17 @@ sys.path.insert(0, str(ROOT / 'linyuan'))
 import presentation as V
 import produce_cn as P
 
+
+def test_real_face_beats_rightmost_cloth_and_background_patterns():
+    faces=[(1338,268,65,65),(774,225,342,342),(1088,786,71,71)]
+    assert P.select_interview_face(faces,1920,1080)==(774,225,342,342)
+    assert P.select_interview_face([(359,277,73,73),(783,216,308,308)],1920,1080)==(783,216,308,308)
+
+
+def test_comparable_split_screen_guest_stays_on_right():
+    assert P.select_interview_face([(250,220,300,300),(1200,240,290,290)],1920,1080)==(1200,240,290,290)
+    assert P.select_interview_face([(1088,786,71,71)],1920,1080) is None
+
 spec = importlib.util.spec_from_file_location('presentation_fc', ROOT / 'linyuan/fc/index.py')
 FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
@@ -274,8 +285,8 @@ def test_semantic_caption_repairs_oversized_parent_with_focused_model_call(
     def fake_llm(messages, *_args, **_kwargs):
         calls.append(messages[0]['content'])
         if len(calls) == 1:
-            return P.json.dumps({'break_after': [len(transcript)]})
-        return P.json.dumps({'break_after': [10, 21, len(transcript)]})
+            return P.json.dumps({'break_after_tokens': [13]})
+        return P.json.dumps({'break_after_tokens': [4, 8, 13]})
 
     monkeypatch.setattr(P, 'llm', fake_llm)
     layout = V.layout_for(720, 1280, True)
@@ -287,3 +298,32 @@ def test_semantic_caption_repairs_oversized_parent_with_focused_model_call(
     assert len(groups) >= 2
     assert all(len(g['zh']) <= 30 for g in groups)
     assert all(g['end_sec'] - g['start_sec'] <= 8 for g in groups)
+
+
+def test_semantic_repair_removes_bad_boundary_without_changing_source():
+    texts=['大家还更','愿意买','守住现金流','的企业']
+    repaired=P.repair_semantic_boundaries(texts)
+    assert repaired==['大家还更愿意买','守住现金流的企业']
+    assert ''.join(repaired)==''.join(texts)
+    with pytest.raises(ValueError, match='未完成'):
+        P.apply_semantic_groups([dict(start_sec=0,end_sec=3,zh='如果')],
+                               P.repair_semantic_boundaries(['如果']),12)
+
+
+def test_model_selects_whole_word_ids_instead_of_inventing_character_offsets():
+    tokens=[dict(id=1,end=2,text='投资'),dict(id=2,end=4,text='茅台'),dict(id=3,end=7,text='100股')]
+    assert P.token_breaks_to_char_offsets([2,3],tokens)==[4,7]
+    for invalid in ([0,3],[3,2],[1,1,3],[1,4],[2],['2',3],[True,3]):
+        with pytest.raises(ValueError):P.token_breaks_to_char_offsets(invalid,tokens)
+
+
+@pytest.mark.parametrize('text',['珍惜现在的机会','这就是现代社会','人的寿命越来越长','地球的资源有限','得到真正的回报'])
+def test_complete_words_are_not_mistaken_for_grammatical_fragments(text):
+    result=P.apply_semantic_groups([dict(start_sec=0,end_sec=4,zh=text)],[text],12)
+    assert ''.join(x['zh'] for x in result)==text
+
+
+@pytest.mark.parametrize('text',['因为','大家还更','我们愿意','这时他们会'])
+def test_real_unfinished_function_words_still_fail(text):
+    with pytest.raises(ValueError,match='未完成'):
+        P.apply_semantic_groups([dict(start_sec=0,end_sec=3,zh=text)],[text],12)

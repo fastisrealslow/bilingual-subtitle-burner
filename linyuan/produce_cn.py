@@ -1354,6 +1354,27 @@ def translate(texts, api_key, work):
     return out
 
 
+def unfinished_caption_tail(text):
+    """Function words are incomplete tails; 机会/社会/相对 are whole words."""
+    from presentation import word_spans
+    spans=word_spans(text)
+    if not spans:
+        return False
+    a,b=spans[-1]
+    return text.endswith('还更') or text[a:b] in {
+        '更加','因为','所以','如果','那么','但是','而且','以及','把','被',
+        '与','比','是','要','会','能','将','对','向','愿意','暂时'}
+
+
+def dependent_caption_start(text):
+    from presentation import word_spans
+    spans=word_spans(text)
+    if not spans:
+        return False
+    a,b=spans[0]
+    return text[a:b] in {'的','地','得'}
+
+
 def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
     """Validate model-selected boundaries against source characters and timing."""
     from presentation import word_spans, wrap_words
@@ -1376,9 +1397,6 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     if ''.join(strip(t) for t in texts)!=source:
         raise ValueError('意群分组改写或丢失原话，拒绝烧录')
     bounds={0,len(source)}|{b for a,b in word_spans(source)}
-    unfinished = re.compile(
-        r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|把|被|与|比|是|要|会|能|将|对|向|愿意|暂时)$')
-    dependent_start = re.compile(r'^(?:的|地|得|人的|有关的)')
 
     def fit_lines(text):
         """Return a legal per-cue capacity/font without crossing 38 px."""
@@ -1416,7 +1434,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 if b <= a or b > end:
                     continue
                 part = source[a:b]
-                if unfinished.search(part) or dependent_start.search(part):
+                if unfinished_caption_tail(part) or dependent_caption_start(part):
                     continue
                 duration = chars[b-1][2] - chars[a][1]
                 if not .25 <= duration <= 8:
@@ -1442,10 +1460,10 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     for original_text in texts:
         text=re.sub(r'\s+','',original_text); end=offset+len(strip(text))
         if end not in bounds: raise ValueError('意群分组切断完整词')
-        if unfinished.search(strip(text)):
-            raise ValueError('意群以未完成的连接词结束')
-        if dependent_start.search(strip(text)):
-            raise ValueError('意群不能以依附上一屏的成分开头')
+        if unfinished_caption_tail(strip(text)):
+            raise ValueError('意群以未完成的连接词结束：'+text)
+        if dependent_caption_start(strip(text)):
+            raise ValueError('意群不能以依附上一屏的成分开头：'+text)
         # A model-selected complete clause can be within the advertised two-line
         # character limit and still have no legal split at the exact midpoint
         # (for example because a protected company name or numeric unit crosses
@@ -1474,10 +1492,9 @@ def repair_semantic_boundaries(texts):
     from presentation import word_spans
     source=''.join(texts)
     bounds={0,len(source)}|{b for a,b in word_spans(source)}
-    unfinished=re.compile(r'(?:还更|更加|因为|所以|如果|那么|但是|而且|以及|把|被|与|比|是|要|会|能|将|对|向|愿意)$')
     out=[]; offset=0
     for text in texts:
-        if out and (offset not in bounds or unfinished.search(out[-1]) or text.startswith('的')):
+        if out and (offset not in bounds or unfinished_caption_tail(out[-1]) or dependent_caption_start(text)):
             out[-1]+=text
         else:
             out.append(text)
@@ -1874,6 +1891,20 @@ def detect_external_logos_after_render(final, strategy, width, height):
             if not _inside_brand_watermark_region(box, width, height)]
 
 
+def select_interview_face(faces, width, height):
+    """Ignore small background/cloth patterns before choosing the interview guest."""
+    candidates=[tuple(map(int,b)) for b in faces
+                if b[2] >= max(48, width*.045)
+                and height*.12 <= b[1]+b[3]/2 <= height*.65]
+    if not candidates:
+        return None
+    largest=max(b[2]*b[3] for b in candidates)
+    # Comparable faces can be the interviewer and right-hand guest; a tiny
+    # rightmost false positive must never win over the actual speaker's face.
+    candidates=[b for b in candidates if b[2]*b[3] >= largest*.70]
+    return max(candidates,key=lambda b:b[0]+b[2]/2)
+
+
 def audio_card_live_crop(width, height, src=None, at=None):
     """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
     if width <= height:
@@ -1889,10 +1920,9 @@ def audio_card_live_crop(width, height, src=None, at=None):
             ok,frame=cap.read()
             if not ok: continue
             faces=detector.detectMultiScale(cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY),1.1,4,minSize=(48,48))
-            if len(faces):
-                # Preserve the existing right-hand guest selection for split-screen
-                # interviews, but fit the crop to the face rather than the canvas top.
-                boxes.append(max(faces,key=lambda b:b[0]+b[2]/2))
+            face=select_interview_face(faces,width,height)
+            if face is not None:
+                boxes.append(face)
         cap.release()
         if len(boxes)>=2:
             fx,fy,fw,fh=[statistics.median([b[k] for b in boxes]) for k in range(4)]
