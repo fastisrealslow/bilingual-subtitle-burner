@@ -1,0 +1,27 @@
+name: 林园新六条真人素材补位
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-fresh-six-backup-0906.yml]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            -f source=https://www.bilibili.com/video/BV15Z4y147qD \
+            -f slug=ly-fresh-six-0906-02 -f speaker=林园 \
+            -f occasion=访谈新观点 -f source_platform=bilibili \
+            -f delay_hours=0 -F auto_publish=false -f target_parts=0 \
+            -F include_full=false -F prefer_live_video=true
+          gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            -f source=https://www.bilibili.com/video/BV1CG5K6bEvt \
+            -f slug=ly-fresh-six-0906-03 -f speaker=林园 \
+            -f occasion=林园直播问答新观点 -f source_platform=bilibili \
+            -f delay_hours=0 -F auto_publish=false -f target_parts=0 \
+            -F include_full=false -F prefer_live_video=true
