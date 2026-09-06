@@ -303,11 +303,32 @@ def _sample_visual_frames(src, work, count=VISUAL_SAMPLE_COUNT):
     return frames, times
 
 
+def identity_face_reference(reference):
+    """Remove poster lettering and clothing as distractions in the reference only."""
+    import cv2
+    reference=Path(reference)
+    frame=cv2.imread(str(reference))
+    if frame is None:
+        return reference
+    faces=_cascade(cv2.data.haarcascades+'haarcascade_frontalface_default.xml').detectMultiScale(
+        cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY),1.1,4,minSize=(48,48))
+    if not len(faces):
+        return reference
+    x,y,w,h=map(int,max(faces,key=lambda b:b[2]*b[3]))
+    H,W=frame.shape[:2]
+    x0,y0=max(0,int(x-w*.12)),max(0,int(y-h*.22))
+    x1,y1=min(W,int(x+w*1.12)),min(H,int(y+h*1.10))
+    out=reference.with_name(reference.stem+'-face-reference.jpg')
+    if not cv2.imwrite(str(out),frame[y0:y1,x0:x1]):
+        raise VisualQualityError('人物参考图无法提取清晰面部')
+    return out
+
+
 def _call_identity_vlm(reference, frames, speaker, api_key):
     """把权威参考照和源片多帧一起交给 VLM 做目标人物在场核验。"""
     content = [
         {"type": "text", "text": f"参考图：已确认是目标人物【{speaker}】本人。"},
-        {"type": "image_url", "image_url": {"url": _image_data_url(reference)}},
+        {"type": "image_url", "image_url": {"url": _image_data_url(identity_face_reference(reference))}},
     ]
     for i, fp in enumerate(frames, 1):
         content.extend([
@@ -318,6 +339,7 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
         "type": "text",
         "text": (
             "请严格比较脸部身份，不要根据视频标题、字幕、财经话题或‘谁在讲话’猜测。"
+            "衣服、背景、拍摄年份或表情不同不能作为不同人的依据；只比较脸部特征。"
             f"任务是逐帧判断参考图中的{speaker}本人是否出现在画面任意位置。"
             "一帧可能同时出现主持人、嘉宾或多人：只要目标人物也在场，即归入"
             " same_person_frames，绝不能因为另一个人更大、更居中或正在说话而归入"
@@ -1889,6 +1911,22 @@ def detect_external_logos_after_render(final, strategy, width, height):
     remaining = detect_corner_logos(final, frames=6, strict=True)
     return [box for box in remaining
             if not _inside_brand_watermark_region(box, width, height)]
+
+
+def reviewed_source_live_crop(source_report, width, height):
+    """A measured crop is a render hint, bound to exact source bytes, never a gate exemption."""
+    path=Path(__file__).with_name('source_crop_profiles.json')
+    if not path.exists():
+        return None
+    row=json.loads(path.read_text()).get(source_report.get('source_sha256'))
+    if not row or row.get('resolution') != [width,height]:
+        return None
+    x,y,w,h=row['crop_xywh']
+    if (any(type(v) is not int or v%2 for v in (x,y,w,h))
+            or min(x,y)<0 or min(w,h)<=0 or x+w>width or y+h>height
+            or abs(w/h-LIVE_REGION['width']/LIVE_REGION['height'])>.005):
+        raise VisualQualityError('已测量取景区域无效')
+    return f"crop={w}:{h}:{x}:{y},scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:flags=lanczos,setsar=1"
 
 
 def select_interview_face(faces, width, height):
@@ -3693,7 +3731,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 直接退化成静态音频卡。候选窗口必须再次实渲染并确认无持续字幕/角标；
     # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
     if strategy == "audio_card" and prefer_live_video:
-        candidate_crop = audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"])
+        candidate_crop = (reviewed_source_live_crop(source_report,W,H) or
+                          audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"]))
         if candidate_crop:
             try:
                 live_preview = _render_clean_preview(

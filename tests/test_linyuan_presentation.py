@@ -22,6 +22,13 @@ def test_comparable_split_screen_guest_stays_on_right():
     assert P.select_interview_face([(250,220,300,300),(1200,240,290,290)],1920,1080)==(1200,240,290,290)
     assert P.select_interview_face([(1088,786,71,71)],1920,1080) is None
 
+
+def test_measured_crop_is_bound_to_source_bytes_and_dimensions():
+    report={'source_sha256':'9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'}
+    assert P.reviewed_source_live_crop(report,1280,720).startswith('crop=488:362:646:206,')
+    assert P.reviewed_source_live_crop(report,1920,1080) is None
+    assert P.reviewed_source_live_crop({'source_sha256':'unseen'},1280,720) is None
+
 spec = importlib.util.spec_from_file_location('presentation_fc', ROOT / 'linyuan/fc/index.py')
 FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
