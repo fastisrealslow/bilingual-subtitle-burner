@@ -1,0 +1,26 @@
+name: 林园字幕修复真人动态回归触发
+on:
+  push:
+    paths: ['.github/workflows/linyuan-emergency-regression-trigger.yml']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 触发新版单条真人动态回归
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run linyuan-produce-cn.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f source='https://m.weibo.cn/detail/5335082961471123' \
+            -f slug='ly-caption-regression-0906-01' \
+            -f speaker='林园' \
+            -f occasion='字幕紧急回归' \
+            -f source_platform='weibo_search' \
+            -f auto_publish=false \
+            -f prefer_live_video=true
