@@ -1,0 +1,38 @@
+name: 林园新六条独立观点实产复验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-fresh-six-retry-0906.yml]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import html, os, re, subprocess, urllib.request
+          for n,article in [(7,'103329354')]:
+              url=f'https://www.yicai.com/video/{article}.html'
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://www.yicai.com/'})
+              with urllib.request.urlopen(req,timeout=60) as response:
+                  page=response.read().decode('utf-8')
+              match=re.search(r'https?://[^\s"\'<>]+?\.mp4[^\s"\'<>]*',page,re.I)
+              if not match: raise RuntimeError('官方页没有可用MP4: '+url)
+              media=html.unescape(match.group(0).replace('\\/','/'))
+              subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml','--repo',os.environ['GITHUB_REPOSITORY'],
+                  '--ref','production/fresh-six-0906','-f','source='+media,
+                  '-f',f'slug=ly-fresh-six-0906-{n:02d}','-f','speaker=林园',
+                  '-f','occasion=第一财经官方采访 '+article,'-f','source_platform=yicai',
+                  '-f','delay_hours=0','-F','auto_publish=false','-f','target_parts=0',
+                  '-F','include_full=false','-F','prefer_live_video=true'],check=True)
+              print('已触发官方母片',article,flush=True)
+          subprocess.run(['gh','workflow','run','linyuan-produce-cn.yml','--repo',os.environ['GITHUB_REPOSITORY'],
+              '--ref','production/fresh-six-0906','-f','source=https://www.bilibili.com/video/BV1oq5UzpEQ5',
+              '-f','slug=ly-fresh-six-0906-06','-f','speaker=林园','-f','occasion=第一财经2025年4月采访',
+              '-f','source_platform=bilibili','-f','delay_hours=0','-F','auto_publish=false',
+              '-f','target_parts=0','-F','include_full=false','-F','prefer_live_video=true'],check=True)
+          PY
