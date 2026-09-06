@@ -207,6 +207,7 @@ jobs:
             --occasion "${{ inputs.occasion }}" \
             --source-platform "${{ inputs.source_platform }}" \
             --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json" \
+            --split-highlights \
             ${{ inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \
             ${{ inputs.include_full && '--include-full' || '' }} \
             ${{ inputs.prefer_live_video && '--prefer-live-video' || '' }}

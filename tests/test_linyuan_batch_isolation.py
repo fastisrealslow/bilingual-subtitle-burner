@@ -20,7 +20,7 @@ spec.loader.exec_module(fc)
 
 
 class BatchIsolationTests(unittest.TestCase):
-    def test_bad_middle_part_does_not_erase_success_or_skip_next_part(self):
+    def test_bad_middle_part_does_not_erase_success_or_skip_next_part(self, split=False):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             source = base / 'source.mp4'
@@ -50,8 +50,9 @@ class BatchIsolationTests(unittest.TestCase):
                  patch.object(produce,'_chunk_by_time',return_value=[(0,0),(1,1),(2,2)]), \
                  patch.object(produce,'_dedup_chunks_char',side_effect=lambda chunks,*a:chunks), \
                  patch.object(produce,'_dedup_chunks_by_llm',side_effect=lambda chunks,*a:chunks), \
+                 patch.object(produce,'pick_highlights',return_value=[dict(start=0,end=0,score=8)]), \
                  patch.object(produce,'_produce_one',side_effect=render), \
-                 patch.object(sys,'argv',['produce','--source',str(source),'--slug','case']):
+                 patch.object(sys,'argv',['produce','--source',str(source),'--slug','case']+(['--split-highlights'] if split else [])):
                 self.assertEqual(produce.main(),0)
             out=base/'deliver/case'
             rows=json.loads((out/'meta.json').read_text())
@@ -66,6 +67,9 @@ class BatchIsolationTests(unittest.TestCase):
             self.assertFalse((out/'_accepted/case.final_bad.mp4').exists())
             self.assertTrue((out/'_accepted/final_3.mp4').exists())
             self.assertFalse((out/'_accepted/final_2.mp4').exists())
+
+    def test_independent_highlights_keep_other_successes_after_bad_middle(self):
+        self.test_bad_middle_part_does_not_erase_success_or_skip_next_part(split=True)
 
     def test_manual_batch_without_candidate_keys_does_not_crash_daily_picker(self):
         state=dict(dispatched=[dict(slug='manual',ts=time.time())],
