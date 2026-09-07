@@ -2239,9 +2239,13 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
         report["passed"] = True
     except VisualQualityError as e:
         report["reason"] = str(e)
+        report['retryable']=isinstance(e,VisualResponseFormatError) or str(e).startswith('人物 VLM 校验不可用')
+        report['failure_stage']='quality-service' if report['retryable'] else 'source-quality'
     except Exception as e:
         # 质检服务未知异常也必须失败关闭，不能把“没检成”当成“已合格”。
         report["reason"] = f"素材质检不可用：{e}"
+        report['retryable']=True
+        report['failure_stage']='quality-service'
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2, default=_json_default),
         encoding="utf-8")

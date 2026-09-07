@@ -7,6 +7,7 @@ import sys
 import time
 from datetime import datetime,timezone
 import zipfile
+import io
 from urllib.error import HTTPError
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
@@ -152,3 +153,25 @@ def test_cross_url_same_mother_and_same_batch_overlap_are_also_rejected():
     st=dict(published=dict(batch=dict(source_url='other-url',parts=[old])))
     meta=dict(source_sha256='same',segments=[dict(start=20,end=170)])
     assert '重叠' in fc.editorial.source_reuse_error(meta,'new-url',st)
+
+
+def test_unavailable_checker_or_report_does_not_blacklist_mother(monkeypatch):
+    state=dict(dispatched=[dict(slug='new',ts=1)],published={},rejected=[])
+    artifact=dict(id=7,name='source-reject-new',expired=False,archive_download_url='https://example.invalid/report')
+    def gh(method,path,*a,**kw):
+        assert method=='GET'
+        return dict(workflow_runs=[dict(id=8)]) if '/workflows/' in path else dict(artifacts=[artifact])
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc,'save_state',lambda st:None)
+    def unavailable(*a,**kw):raise OSError('temporary transfer failure')
+    monkeypatch.setattr(fc.urllib.request,'urlopen',unavailable)
+    assert fc._collect_source_rejections(state)==0
+    assert not state['dispatched'][0].get('failed') and state['rejected']==[]
+    data=io.BytesIO()
+    with zipfile.ZipFile(data,'w') as z:
+        z.writestr('source_quality.json',json.dumps(dict(reason='人物 VLM 校验不可用：格式错误',retryable=True)))
+    monkeypatch.setattr(fc.urllib.request,'urlopen',lambda *a,**kw:io.BytesIO(data.getvalue()))
+    assert fc._collect_source_rejections(state)==0
+    entry=state['dispatched'][0]
+    assert entry['source_check_retry_after']>time.time()
+    assert entry['source_check_report_id']==7 and not entry.get('source_quality_rejected')

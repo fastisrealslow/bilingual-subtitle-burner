@@ -1748,6 +1748,23 @@ def _dispatch_admitted(event=None, context=None):
     rel = staging_release_id()
     tmp = Path(tempfile.mkdtemp())
     success = 0
+    # A unavailable checker is not evidence of a bad mother. Retry its exact
+    # candidate with backoff, bounded by the same six-running-source limit.
+    for entry in _latest_dispatches(st):
+        if success>=target:break
+        retry_at=entry.get('source_check_retry_after')
+        if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
+        source=entry.get('asset_url') or entry.get('source_url')
+        if not source:continue
+        gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{
+            'ref':'main','inputs':{'source':source,'slug':entry['slug'],'speaker':'林园',
+                'occasion':entry.get('title','')[:30],'auto_publish':'false',
+                'source_platform':platform_of(entry.get('source',''))}})
+        entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
+        entry.pop('source_check_retry_after',None)
+        entry['ts']=int(time.time())
+        save_state(st)
+        success+=1
     for i, c in enumerate(cands):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
@@ -2180,6 +2197,8 @@ def _collect_source_rejections(st):
             candidate = by_slug.get(slug)
             if not candidate or candidate.get("failed"):
                 continue
+            if candidate.get('source_check_report_id')==artifact['id']:
+                continue
             # 同一 slug 可能曾有失败重跑。只处理候选创建之后产生的拒绝报告；
             # 更早的 source-reject artifact 属于历史运行，不能污染新成片批次。
             artifact_created = str(artifact.get("created_at") or "")
@@ -2209,9 +2228,25 @@ def _collect_source_rejections(st):
                 reason = report.get("reason") or (failures[0].get("reason") if failures else None) or reason
             except Exception as exc:
                 log.warning(f"{slug} 素材拒绝报告读取失败: {exc}")
+                # Do not fabricate a source verdict from an unavailable ZIP.
+                continue
+            if report.get('retryable') is True or reason.startswith(('人物 VLM 校验不可用','素材质检不可用')):
+                candidate['source_check_report_id']=artifact['id']
+                candidate['last_error']=reason
+                candidate['failure_stage']='quality-service'
+                attempts=int(candidate.get('source_check_attempts') or 0)
+                if attempts<2:
+                    candidate['source_check_retry_after']=int(time.time())+900*(attempts+1)
+                else:
+                    candidate['failed']=True
+                    candidate['source_check_exhausted']=True
+                save_state(st)
+                log_event('quality',f'{slug} 质检服务未完成，保留原素材',reason[:150])
+                continue
             candidate["failed"] = True
             candidate["last_error"] = reason
             candidate["source_quality_rejected"] = True
+            candidate['failure_stage']='editorial-or-render' if prefix=='production-reject-' else 'source-quality'
             # A deterministic slug may have several dispatch rows after prior
             # retries.  The artifact rejects the source/slug, not merely the
             # newest row, so close every duplicate row as well.
