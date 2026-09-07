@@ -1,31 +1,62 @@
 name: 林园未用母片段落复用实产
-# Wait for a real capacity slot after fixing obsolete source-evidence fallback.
+# Retry after actual frame-protocol validation, through the shared writer lease.
 on:
   push:
     branches: [main]
     paths: [.github/workflows/linyuan-mother-reuse-0907.yml]
 permissions:
-  contents: read
+  contents: write
   actions: write
 jobs:
   start:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
       - name: 复用完整离线转写，只产未发的新观点
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          for attempt in $(seq 1 90); do
-            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/linyuan-produce-cn.yml/runs?per_page=50" --jq '[.workflow_runs[] | select(.status == "in_progress" or .status == "queued")] | length')
-            if [ "$count" -lt 6 ]; then break; fi
-            echo "等待生产空位 $attempt/90，当前 $count 个任务"
-            sleep 30
-          done
-          test "$count" -lt 6 || { echo '当前已有六个生产任务，等待空位'; exit 1; }
-          gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
-            -f source=https://www.bilibili.com/video/BV1ADetzQEuE \
-            -f slug=ly-mother-reuse-0907-01 -f speaker=林园 \
-            -f occasion='2025年8月21日新浪证券公开访谈' \
-            -f source_platform=bilibili -f auto_publish=false \
-            -f reviewed_parts=7 -f prefer_live_video=true
+          python -u - <<'PY'
+          import sys,time
+          sys.path.insert(0,'linyuan/fc')
+          import index as fc
+          slug='ly-mother-reuse-0907-01'
+          def admit():
+            state=fc.load_state()
+            entry=next(e for e in reversed(state['dispatched']) if e['slug']==slug)
+            if fc.processed_part_indices(entry):
+              return dict(already_handled=True)
+            active=sum(len(fc.gh('GET',f'/actions/workflows/{fc.WF_PRODUCE}/runs?status={status}&per_page=100')['workflow_runs'])
+                       for status in ('in_progress','queued'))
+            if active>=fc.MAX_ACTIVE_SOURCES:
+              # This exact new exploration had not entered ASR at the last check.
+              # Only yield it if it is still downloading; preserve all running ASR.
+              run=34081095774
+              jobs=fc.gh('GET',f'/actions/runs/{run}/jobs').get('jobs',[])
+              if any(j.get('status')=='in_progress' and any(s.get('name')=='取源' and s.get('status')=='in_progress'
+                     for s in j.get('steps',[])) for j in jobs):
+                fc.gh('POST',f'/actions/runs/{run}/cancel')
+                print('已让出仍在下载的探索任务，等待释放生产空位')
+              return dict(waiting=True)
+            entry.pop('source_check_retry_after',None)
+            entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
+            ok=fc._request_quality_reprocess(state,entry,slug,
+                '实际抽帧协议复验完成；重新运行当前素材、字幕及成片门禁')
+            if not ok:
+              raise RuntimeError('当前已核对母片未能触发重产，请检查具体状态')
+            saved=fc.load_state()
+            current=next(e for e in reversed(saved['dispatched']) if e['slug']==slug)
+            assert current.get('last_retry')==entry.get('last_retry'),'已派任务但状态未确认，禁止再次派发'
+            return dict(dispatched=1,slug=slug)
+          for attempt in range(90):
+            result=fc.run_with_lease('dispatch',admit)
+            print(result)
+            if result.get('dispatched') or result.get('already_handled'):break
+            time.sleep(30)
+          else:
+            raise RuntimeError('生产空位等待超时')
+          PY
