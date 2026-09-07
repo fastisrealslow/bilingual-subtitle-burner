@@ -162,6 +162,10 @@ class VisualResponseFormatError(VisualQualityError):
     """The service answered, but its frame accounting was incomplete."""
 
 
+class EditorialReviewUnavailable(VisualQualityError):
+    """An ungrounded service response is not evidence against source footage."""
+
+
 def load_key():
     env = BASE / ".env"
     if env.exists():
@@ -1391,7 +1395,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_protocol')==(3 if omitted_text else 2)
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==2
+                    and saved.get('review_protocol')==(3 if omitted_text else 2)
                     and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
                          and saved.get('omission_preserves_meaning') is True and saved.get('omitted_is_parenthetical') is True))
                     and not editorial.review_error(saved)):
@@ -1402,9 +1407,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
         '比喻、自我强调或你不赞同的投资判断本身也不是识别错误；只审核表达和原话，不评判观点对错。'
         '先逐句列出无法按字面理解的错词、关键否定或数字歧义，再作整体判断。'
-        '禁止在脑中替换错词后给原文通过。例如“生产效率大大不提高”“资本是足力的”'
-        '不能被你自行理解为另一句话；“这我判断在未来的”这种半句结尾必须拒绝。'
-        '摘要通顺不代表原字幕正确。开头“他说”“那就我们当时”若缺少前因或指代也须拒绝。'
+        '禁止在脑中替换错词后给原文通过；缺少宾语或必要下文的半句结尾须拒绝。'
+        '摘要通顺不代表原字幕正确；开场无明确指代或缺少必要前因也须拒绝。'
         '只判断内容，不改写原话。检查开场第一句话是否明确话题并独立可懂，允许短的口头承接词，'
         '不要求3秒内说完一句；但指代必须能在片内理解。检查是否讲清完整观点、'
         '有无理由/案例、结束是否自然且没有半句、数字/否定/关键实体是否有影响观点的识别歧义。'
@@ -1412,6 +1416,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
         '每个布尔值独立填写，不预设通过。输出JSON字段：standalone_opening、complete_argument、'
         'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
+        'issue_details（逐个解释识别问题为何影响原意）。issues只能逐字引用下面实际保留的原话，'
+        '不得填规则描述、括号说明、改写词或输入中不存在的文字；没有问题填空数组。'
         'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。\n原话：'+text)
     if omitted_text:
         first=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
@@ -1421,17 +1427,29 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             '不猜测插语中的识别疑点；仅在无需依赖该插语也能明确原论点和限定时判断。'
             '输出omission_preserves_meaning及omitted_is_parenthetical两个布尔值和omission_reason。'
             '\n[保留前段]'+first+'\n[拟删插语]'+omitted_text+'\n[保留后段]'+second)
-    response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
-    raw=re.sub(r'```(?:json)?|```','',response).strip()
-    match=re.search(r'\{.*\}',raw,re.S)
-    proof=json.loads(match.group(0) if match else raw)
-    for name in ('opening_quote','ending_quote'):
-        quote=str(proof.get(name) or '')
-        if not quote or quote not in text:
-            raise VisualQualityError('完整观点审核缺少可对照原文的开场/结尾证据')
+    for attempt in range(2):
+        try:
+            response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=2200,budget_sec=90)
+            raw=re.sub(r'```(?:json)?|```','',response).strip()
+            match=re.search(r'\{.*\}',raw,re.S)
+            proof=json.loads(match.group(0) if match else raw)
+            for name in ('opening_quote','ending_quote'):
+                quote=proof.get(name)
+                if not isinstance(quote,str) or not quote or quote not in text:
+                    raise ValueError('开场/结尾引用证据不在实际原话中')
+            issues=proof.get('issues')
+            if not isinstance(issues,list) or any(not isinstance(x,str) or not x or x not in text for x in issues):
+                raise ValueError('问题引用证据不在实际原话中')
+            break
+        except (ValueError,TypeError,RuntimeError) as exc:
+            (work/f'editorial_service_error{suffix}-{attempt}.txt').write_text(type(exc).__name__+': '+str(exc))
+            if attempt:
+                raise EditorialReviewUnavailable('观点审核服务未提供可对照的实际原文证据：'+str(exc)) from exc
+            prompt+='\n上次响应未提供可逐字核对的证据。请重新独立审核，只从实际保留原话摘录引用，不要复制审核规则。'
     if proof.get('issues'):
         proof['requires_audio_review']=True
-    proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2)
+    proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
+                 review_prompt_version=2)
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
@@ -1486,7 +1504,7 @@ def unfinished_caption_tail(text):
     a,b=spans[-1]
     return bool(re.search(r'(?:还更|一个|这个|这种|一些|那些|这些|虽然|即使|尽管|无论|(?:我|你|他|她|们|人|企业|公司)会)$',text)) or text[a:b] in {
         '更加','因为','所以','如果','那么','但是','而且','以及','把','被',
-        '与','比','是','要','会','能','将','对','向','愿意','暂时'}
+        '与','比','是','要','会','能','将','对','向','愿意','暂时','就是'}
 
 
 def dependent_caption_start(text):
@@ -1519,7 +1537,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         raise ValueError('完整意群分组为空或格式错误')
     if ''.join(strip(t) for t in texts)!=source:
         raise ValueError('意群分组改写或丢失原话，拒绝烧录')
-    # A spoken filler/call-out can be <250 ms even when its text is a whole
+    # A spoken filler/call-out can flash even when its text is a whole
     # word. Remove that screen boundary while preserving the original times
     # and every character. The merged group still faces all layout/8s gates.
     texts=list(texts)
@@ -1527,7 +1545,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         offset=0; short=None
         for i,text in enumerate(texts):
             end=offset+len(strip(text))
-            if chars[end-1][2]-chars[offset][1]<.25:
+            if chars[end-1][2]-chars[offset][1]<.8:
                 short=i; break
             offset=end
         if short is None:
@@ -2136,7 +2154,7 @@ def partial_qr_finder_score(gray):
 
 
 def verify_live_region_after_render(final, frames=6, api_key=None,
-                                    speaker='林园', reference=None):
+                                    speaker='林园', reference=None, extra_times=()):
     """复检嵌入的真人动态区：拒绝黑边、二维码和稳定外部角标。"""
     import tempfile
     try:
@@ -2147,6 +2165,9 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
 
     cap = cv2.VideoCapture(str(final))
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = float(cap.get(cv2.CAP_PROP_FPS)) or 30
+    junction_indices={min(total-1,max(0,int(t*fps))) for t in extra_times}
+    sample_indices=sorted({int(total*(i+.5)/max(1,frames)) for i in range(frames)}|junction_indices)
     frame_paths = []
     black_edge_hits = 0
     qr_hits = 0
@@ -2157,9 +2178,8 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     got = 0
     try:
         qr = cv2.QRCodeDetector()
-        for i in range(frames):
-            cap.set(cv2.CAP_PROP_POS_FRAMES,
-                    int(total * (i + 0.5) / max(1, frames)))
+        for i,frame_index in enumerate(sample_indices):
+            cap.set(cv2.CAP_PROP_POS_FRAMES,frame_index)
             ok, frame = cap.read()
             if not ok:
                 continue
@@ -2176,8 +2196,11 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
 
             gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
             faces = face_detector.detectMultiScale(gray,1.1,4,minSize=(48,48))
-            full_face_frames += int(any(fx>=8 and fy>=8 and fx+fw<=w-8 and fy+fh<=h-8
-                                       for fx,fy,fw,fh in faces))
+            full_face=any(fx>=8 and fy>=max(8,int(fh*.18)) and fx+fw<=w-8 and fy+fh<=h-2
+                          for fx,fy,fw,fh in faces)
+            full_face_frames += int(full_face)
+            if frame_index in junction_indices and not full_face:
+                raise VisualQualityError('剪接附近真人取景缺少完整人脸或头顶余量')
             partial_qr_hits += int(partial_qr_finder_score(gray) >= 0.70)
             dark_columns = np.mean(gray < 18, axis=0) > 0.92
             edge = max(8, int(w * 0.08))
@@ -4026,7 +4049,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     from presentation import verify_render
     live_checks = verify_render(final, layout)
     if use_live_video:
-        live_checks.update(verify_live_region_after_render(final))
+        elapsed=0; junction_times=[]
+        for pick in picks[:-1]:
+            elapsed+=cues[pick['end']]['end']-cues[pick['start']]['start']
+            junction_times.extend((max(0,elapsed-.25),elapsed+.25))
+        live_checks.update(verify_live_region_after_render(final,extra_times=junction_times))
+        live_checks['junction_frames_checked']=len(junction_times)
         live_checks['final_live_identity']=verify_final_live_identity(
             final,work,speaker,api_key,suffix)
         external_logos = []
@@ -4326,6 +4354,7 @@ def main():
             "accepted_finals": [m["final"] for m in metas],
             "live_video": live, "audio_card": len(metas) - live,
             "live_ratio": live / len(metas) if metas else 0,
+            "retryable": not metas and any(r.get('retryable') for r in rejected),
             "quality_gate_version": QUALITY_GATE_VERSION})
 
     for ci, (a, b, preselected_picks) in enumerate(work_items):
@@ -4365,7 +4394,7 @@ def main():
                              preselected_picks=preselected_picks)
         except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
             failure = {"stage": "part-quality", "reason": str(e), "part": ci + 1,
-                       "error_type": type(e).__name__}
+                       "error_type": type(e).__name__,"retryable":isinstance(e,EditorialReviewUnavailable)}
             print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
             quarantine_part(out, suffix)
             rejected.append(failure)

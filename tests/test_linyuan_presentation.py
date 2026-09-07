@@ -25,7 +25,7 @@ def test_comparable_split_screen_guest_stays_on_right():
 
 def test_measured_crop_is_bound_to_source_bytes_and_dimensions():
     report={'source_sha256':'9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'}
-    assert P.reviewed_source_live_crop(report,1280,720).startswith('crop=488:362:646:206,')
+    assert P.reviewed_source_live_crop(report,1280,720).startswith('crop=632:470:646:128,')
     assert P.reviewed_source_live_crop(report,1920,1080) is None
     assert P.reviewed_source_live_crop({'source_sha256':'unseen'},1280,720) is None
 
@@ -177,6 +177,19 @@ def test_tiny_spoken_filler_merges_without_losing_text_or_faking_time():
     assert len(groups)==1
     assert groups[0]['zh']=='我们已经看到了曙光啊'
     assert groups[0]['end_sec']==2.1
+
+
+def test_observed_half_second_caption_does_not_flash_alone():
+    entries=[dict(start_sec=0,end_sec=5.4,zh='肾透析透析的那个地方人满得很'),
+             dict(start_sec=5.56,end_sec=6.17,zh='要给你排')]
+    groups=P.apply_semantic_groups(entries,[e['zh'] for e in entries],12,48)
+    assert len(groups)==1 and groups[0]['end_sec']==6.17
+    assert groups[0]['zh']==''.join(e['zh'] for e in entries)
+
+
+def test_observed_jiushi_boundary_is_joined_without_changing_words():
+    groups=P.repair_semantic_boundaries(['他们也是春天来了就是','因为老龄化'])
+    assert groups==['他们也是春天来了就是因为老龄化']
 
 
 @pytest.mark.parametrize('tail',['最后我相信是中国人会','目前市场虽然','买入一个'])

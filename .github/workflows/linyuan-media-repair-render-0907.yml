@@ -1,0 +1,22 @@
+name: 林园已发稿件原位修复渲染
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-media-repair-render-0907.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 相同稿件修正取景和字幕，不追加投稿
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            -f source=https://www.bilibili.com/video/BV1ADetzQEuE \
+            -f slug=ly-mother-edited-0907-01 -f speaker=林园 \
+            -f occasion='2025年8月21日访谈' -f reviewed_parts=7 \
+            -f repair_bvid=BV1HNbw6UEuv -f auto_publish=false

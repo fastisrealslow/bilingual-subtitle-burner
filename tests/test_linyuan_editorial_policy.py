@@ -109,6 +109,22 @@ def test_short_model_picks_must_select_from_real_long_contexts():
     assert picks[0]['end']>picks[0]['start']
 
 
+def test_review_cannot_reject_source_by_copying_nonexistent_example_words(tmp_path):
+    cues=[dict(start=0,end=150,text='医药需求随老龄化增长。这是我们的判断。')]
+    valid=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False,summary='解释老龄化与需求的关系',issues=[],
+        opening_quote='医药需求随老龄化增长。',ending_quote='这是我们的判断。')
+    invalid={**valid,'issues':['生产效率大大不提高']}
+    with patch.object(produce,'llm',side_effect=[json.dumps(invalid,ensure_ascii=False),json.dumps(valid,ensure_ascii=False)]):
+        result=produce.review_complete_argument(cues,[dict(start=0,end=0)],'林园','key',tmp_path,'')
+    assert result['issues']==[] and result['review_prompt_version']==2
+    (tmp_path/'editorial_review.json').unlink()
+    import pytest
+    with patch.object(produce,'llm',return_value=json.dumps(invalid,ensure_ascii=False)):
+        with pytest.raises(produce.EditorialReviewUnavailable):
+            produce.review_complete_argument(cues,[dict(start=0,end=0)],'林园','key',tmp_path,'')
+
+
 def test_title_generation_reads_the_entire_long_argument():
     cues=[dict(start=i*6,end=(i+1)*6,text='前面的解释。') for i in range(25)]
     cues[-1]['text']='长期持有才是我们一贯坚持的方法。'

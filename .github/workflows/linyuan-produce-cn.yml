@@ -49,6 +49,11 @@ on:
         required: false
         default: ''
         type: string
+      repair_bvid:
+        description: '已登记稿件原位修复；仅渲染，不能作为新稿发布'
+        required: false
+        default: ''
+        type: string
       include_full:
         description: '追加完整访谈'
         required: false
@@ -236,10 +241,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SOURCE_ORIGIN_URL: ${{ inputs.source }}
           PUBLICATION_STATE_PATH: _publication_state.json
+          REPAIR_BVID: ${{ inputs.repair_bvid }}
+          RENDER_SLUG: ${{ inputs.slug }}
         run: |
           set -euo pipefail
           # Read actual receipts so a cached mother does not re-render used excerpts.
           gh api "repos/$GITHUB_REPOSITORY/contents/linyuan/.automation/fc_state.json?ref=main" --jq '.content' | base64 --decode > "$PUBLICATION_STATE_PATH"
+          if [ -n "$REPAIR_BVID" ]; then
+            test '${{ inputs.auto_publish }}' != 'true'
+            python media_revision.py --bvid "$REPAIR_BVID" --slug "$RENDER_SLUG" --state "$PUBLICATION_STATE_PATH"
+          fi
           python3 -u produce_cn.py \
             --source "${{ steps.src.outputs.path }}" \
             --slug "${{ inputs.slug }}" \
