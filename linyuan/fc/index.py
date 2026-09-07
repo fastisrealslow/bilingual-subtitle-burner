@@ -2156,11 +2156,8 @@ def _continue_after_rejection(event, context, slug, result, cleanup_dir=None):
     return merged
 
 
-def _pending_final_count(st):
-    """待投成片总数（所有素材剩余未投 part 之和），调度端用它防积压。"""
-    total = 0
-    # Retries keep historical dispatch rows for auditability.  Inventory is a
-    # current-state metric, so count only the newest row of each slug.
+def _latest_dispatches(st):
+    """Return one current state row per deterministic production slug."""
     latest_by_slug = {}
     for entry in st.get("dispatched", []):
         slug = entry.get("slug")
@@ -2169,7 +2166,15 @@ def _pending_final_count(st):
         current = latest_by_slug.get(slug)
         if current is None or float(entry.get("ts") or 0) >= float(current.get("ts") or 0):
             latest_by_slug[slug] = entry
-    for e in latest_by_slug.values():
+    return list(latest_by_slug.values())
+
+
+def _pending_final_count(st):
+    """待投成片总数（所有素材剩余未投 part 之和），调度端用它防积压。"""
+    total = 0
+    # Retries keep historical dispatch rows for auditability.  Inventory is a
+    # current-state metric, so count only the newest row of each slug.
+    for e in _latest_dispatches(st):
         if not (e.get("slug") and not e.get("failed")):
             continue
         if e.get("production_rules_version") != PRODUCTION_RULES_VERSION:
@@ -2239,7 +2244,7 @@ def publish_handler(event=None, context=None):
         return {"published": 0}
     attempted = set((event or {}).get("_attempted_slugs") or []) \
         if isinstance(event, dict) else set()
-    pending = [e for e in st["dispatched"]
+    pending = [e for e in _latest_dispatches(st)
                if e.get("slug") and not e.get("failed")
                and e.get("slug") not in REVIEW_PAUSED_SLUGS
                and e.get("slug") not in attempted

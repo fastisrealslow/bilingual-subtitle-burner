@@ -439,6 +439,7 @@ def test_pending_inventory_counts_latest_slug_state_once(monkeypatch):
         "production_rules_version": FC.PRODUCTION_RULES_VERSION,
     })
     assert FC._pending_final_count(state) == 0
+    assert FC._latest_dispatches(state) == [state["dispatched"][-1]]
 
 
 def test_rejection_refills_slot_cleans_temp_and_aggregates_result(monkeypatch,
