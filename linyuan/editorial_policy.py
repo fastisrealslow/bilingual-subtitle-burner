@@ -23,6 +23,12 @@ ASR_CONTAMINATION_FRAGMENTS = (
     '收索掉投对经头',
     '因瑞达老板',
     '受到多体但是我们看他的',
+    # 2026-09-07 ly-0907-894bf4, verified from the delivered ASS.  This
+    # render crossed an interviewer sign-off into another question and also
+    # contained speaker-name / idiom corruptions, so it is not one argument.
+    '非常谢谢谢谢林园先生',
+    '呃刘源先生',
+    '平安化起',
 )
 
 

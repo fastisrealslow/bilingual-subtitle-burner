@@ -98,6 +98,10 @@ def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
         '我总感觉到现在不在半山药\n也在办三药以上')
     assert 'ASR污染' in policy.transcript_integrity_error(
         '当然它也会受到多体但是我们看他的比如说它会很快恢复')
+    assert 'ASR污染' in policy.transcript_integrity_error(
+        '非常谢谢谢谢林园先生参与直播，接下来我们具体展开来讲')
+    assert 'ASR污染' in policy.transcript_integrity_error('呃刘源先生您看好哪些领域')
+    assert 'ASR污染' in policy.transcript_integrity_error('最后都能够这个平安化起')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
 
 
