@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788767817,
+  "updated_at": 1788767981,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -4172,7 +4172,7 @@
           {
             "slug": "ly-0907-456e35",
             "stage": "quality-service",
-            "terminal": false,
+            "terminal": true,
             "reason": "人物 VLM 校验不可用：HTTP Error 402: Payment Required"
           }
         ],
@@ -4588,7 +4588,14 @@
           "ly-0907-528091"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-528091",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "人物 VLM 校验不可用：HTTP Error 402: Payment Required"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4601,6 +4608,43 @@
         "family": "BV1rYcWeaEtb",
         "slugs": [
           "ly-0907-3cc0d8"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0907-3cc0d8",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "人物 VLM 校验不可用：HTTP Error 402: Payment Required"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1fT421m76m:p1",
+        "source_url": "https://www.bilibili.com/video/BV1fT421m76m",
+        "family": "BV1fT421m76m",
+        "slugs": [
+          "ly-0907-5062c0"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1sMCwYtEcS:p1",
+        "source_url": "https://www.bilibili.com/video/BV1sMCwYtEcS",
+        "family": "BV1sMCwYtEcS",
+        "slugs": [
+          "ly-0907-d61227"
         ],
         "source_sha256": [],
         "failures": [],
@@ -4656,7 +4700,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1H4Na6kEFd": {
         "attempted_mothers": 1,
@@ -5418,10 +5463,20 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1fT421m76m": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1sMCwYtEcS": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 18,
+  "in_flight_placeholders": 19,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
