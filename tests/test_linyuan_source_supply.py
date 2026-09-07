@@ -34,6 +34,25 @@ def test_jobs_and_unknown_links_are_not_ready_stock():
 def test_retired_recognizer_cannot_pass_on_metadata_flags():
     error=fc.artifact_quality_error(dict(quality_gate_version=fc.QUALITY_GATE_VERSION,asr_model='sensevoice'))
     assert 'CPU' in error and 'SenseVoice' in error
+    error=fc.artifact_quality_error(dict(quality_gate_version=fc.QUALITY_GATE_VERSION,asr_model='qwen3',
+        editorial_review=dict(standalone_opening=True,natural_ending=True,summary='流畅摘要')))
+    assert '识别疑点复核' in error
+
+
+def test_raw_evidence_reuse_does_not_import_review_or_another_source(tmp_path):
+    from prepare_asr_runtime import restore_raw_qwen_evidence
+    report=dict(source_video_sha256='mother',device='cpu',networking_during_inference=False,
+        model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr',chunks=[dict(core_start=0,core_end=20)],
+        alignment=dict(model_id='Qwen/Qwen3-ForcedAligner-0.6B',model_revision='align'))
+    archive=tmp_path/'evidence.zip'
+    with zipfile.ZipFile(archive,'w') as z:
+        z.writestr('_tmp/asr_raw_chunks.json',json.dumps([report]))
+        z.writestr('_tmp/editorial_review.json','{"passed":true}')
+    revisions=dict(asr='asr',aligner='align')
+    assert not restore_raw_qwen_evidence(archive,tmp_path/'wrong','different',revisions)
+    assert restore_raw_qwen_evidence(archive,tmp_path/'right','mother',revisions)
+    assert (tmp_path/'right/0/aligned.json').exists()
+    assert not list((tmp_path/'right').rglob('editorial_review.json'))
 
 
 def test_mix_limit_and_used_parts_reduce_real_reserve():

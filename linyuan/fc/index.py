@@ -2057,6 +2057,8 @@ def artifact_quality_error(meta):
         return f"旧成片缺少质量闸门 v{QUALITY_GATE_VERSION} 证明"
     if meta.get('asr_model') == 'sensevoice':
         return 'SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核'
+    if meta.get('asr_model')=='qwen3' and (meta.get('editorial_review') or {}).get('review_protocol')!=2:
+        return 'CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核，不能仅凭旧摘要放行'
     editorial_error = editorial.metadata_error(meta)
     if editorial_error:
         return editorial_error
