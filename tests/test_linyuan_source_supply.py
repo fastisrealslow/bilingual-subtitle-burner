@@ -17,6 +17,30 @@ import source_supply
 fc=source_supply.fc
 
 
+def test_source_yield_counts_actual_unused_files_and_preserves_failure_stages():
+    from source_outcomes import audit
+    url='https://www.bilibili.com/video/BVarchive?p=2'
+    entries=[dict(slug='old',source_url=url,failed=True,last_error='unclear transcript',
+                  failure_stage='editorial-or-render'),
+             dict(slug='new',source_url=url,published_parts=1),
+             dict(slug='service',source_url=url+'0',last_error='timeout',
+                  failure_stage='quality-service',failed=False)]
+    parts=[dict(index=i,status='verified',render_mode='live_video_card',duration_sec=130,
+                source_sha256='mother',sha256='file'+str(i)) for i in range(2)]
+    record=dict(slug='new',parts=parts)
+    state=dict(published={'old':dict(source_url=url,parts=[
+        dict(bvid='A',source_sha256='mother',source_segments=[dict(start=0,end=140)]),
+        dict(bvid='B',source_sha256='mother',source_segments=[dict(start=120,end=180)]),
+    ])})
+    result=audit(state,[record,record],entries,fc.processed_part_indices,set())
+    row=next(r for r in result['mothers'] if r['source_key']=='BVarchive:p2')
+    assert row['verified_available']==1 and row['verified_seconds']==130
+    assert row['used_source_seconds']==180 and row['historical_receipts']==2
+    group=result['families']['BVarchive']
+    assert group['attempted_mothers']==2 and group['terminal_editorial-or-render']==1
+    assert 'terminal_quality-service' not in group
+
+
 def payload(parts):
     return dict(quality_gate_version=fc.QUALITY_GATE_VERSION,
                 editorial_policy_version=fc.editorial.VERSION,updated_at=time.time(),

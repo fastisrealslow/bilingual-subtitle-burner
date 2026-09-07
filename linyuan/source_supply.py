@@ -14,6 +14,7 @@ import zipfile
 
 sys.path.insert(0, str(Path(__file__).parent/'fc'))
 import index as fc
+import source_outcomes
 
 VERSION = 1
 INVENTORY = Path(__file__).parent/'.automation/source_inventory.json'
@@ -99,7 +100,7 @@ def main():
     if not state.get('dispatched'):
         raise SystemExit('Production state unavailable; do not replace inventory with empty state')
     previous=json.loads(INVENTORY.read_text()) if INVENTORY.exists() else {}
-    validation_sha=hashlib.sha256(Path(__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
+    validation_sha=hashlib.sha256(Path(__file__).read_bytes()+Path(source_outcomes.__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
                                  +Path(fc.__file__).read_bytes()).hexdigest()
     old={r['artifact_id']:r for r in previous.get('artifacts',[])} if (
         previous.get('version')==VERSION and previous.get('validation_sha256')==validation_sha
@@ -161,6 +162,8 @@ def main():
     result=dict(version=VERSION,validation_sha256=validation_sha,quality_gate_version=fc.QUALITY_GATE_VERSION,
         editorial_policy_version=fc.editorial.VERSION,updated_at=int(time.time()),
         materials=audit_materials(items),inventory=inventory_counts(records,state),
+        source_outcomes=source_outcomes.audit(state,records,fc._latest_dispatches(state),
+            fc.processed_part_indices,fc.REVIEW_PAUSED_SLUGS),
         in_flight_placeholders=fc._pending_final_count(state),artifacts=records)
     INVENTORY.parent.mkdir(parents=True,exist_ok=True)
     INVENTORY.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
