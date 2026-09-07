@@ -48,7 +48,8 @@ def test_download_release_part_fetches_only_selected_video(monkeypatch, tmp_path
         if dest.name == "meta.json":
             dest.write_text(json.dumps([
                 {"final": "final_1.mp4", "cover": "cover_1.jpg"},
-                {"final": "final_2.mp4", "cover": "cover_2.jpg"},
+                {"final": "final_2.mp4", "cover": "cover_2.jpg",
+                 "subtitle_files": ["subtitles_2-1.ass"]},
             ]), encoding="utf-8")
         else:
             dest.write_bytes(b"media")
@@ -56,8 +57,22 @@ def test_download_release_part_fetches_only_selected_video(monkeypatch, tmp_path
 
     monkeypatch.setattr(FC, "download_release_asset", fake_download)
     assert FC.download_release_part(slug, 1, tmp_path)
-    assert downloaded == ["meta.json", "cover_2.jpg", "final_2.mp4"]
+    assert downloaded == ["meta.json", "cover_2.jpg", "subtitles_2-1.ass", "final_2.mp4"]
     assert not (tmp_path / "final_1.mp4").exists()
+
+
+def test_missing_subtitle_stops_release_transfer_before_large_video(monkeypatch, tmp_path):
+    downloaded = []
+    def fake_download(asset, dest, max_time=1620):
+        downloaded.append(Path(dest).name)
+        if Path(dest).name == 'meta.json':
+            Path(dest).write_text(json.dumps({'final':'final_3.mp4',
+                'subtitle_files':['subtitles_3-1.ass']}))
+            return True
+        return False
+    monkeypatch.setattr(FC, 'download_release_asset', fake_download)
+    assert FC.download_release_part('ly-sparse', 0, tmp_path) is False
+    assert downloaded == ['meta.json', 'subtitles_3-1.ass']
 
 
 def test_workflows_publish_one_part_and_release_covers():

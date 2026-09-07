@@ -221,7 +221,10 @@ COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
-REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05"}
+REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05",
+                       # run34074613911 final_3: actual ASS contains many
+                       # unintelligible words despite a positive LLM review.
+                       "ly-0907-d04876"}
 REJECT_REFILL_LIMIT = 10                 # 2026-09-05：质量淘汰立即换候选，直到找到合格库存或达到安全上限
 TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
 
@@ -632,6 +635,15 @@ def download_release_part(slug, part_index, dest_dir):
                 delivery_release_asset(f"{slug}.{cover_name}"),
                 dest_dir / cover_name, max_time=120):
             return False
+        # v12 checks the actual ASS payload. Fetch it on the normal Release
+        # path as well; otherwise every otherwise valid new MP4 is rejected.
+        for subtitle_name in part.get("subtitle_files") or []:
+            if not isinstance(subtitle_name, str) or Path(subtitle_name).name != subtitle_name:
+                return False
+            if not download_release_asset(
+                    delivery_release_asset(f"{slug}.{subtitle_name}"),
+                    dest_dir / subtitle_name, max_time=120):
+                return False
         if not download_release_asset(
                 delivery_release_asset(f"{slug}.{final_name}"),
                 dest_dir / final_name):
