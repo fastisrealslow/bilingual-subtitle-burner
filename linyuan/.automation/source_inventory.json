@@ -3,7 +3,7 @@
   "validation_sha256": "edec4dbe5878b574229a678909fbf4e5ec54e3a0c2f9b705ceb23c07d5ee7555",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788755315,
+  "updated_at": 1788755601,
   "materials": {
     "weibo_search": {
       "records": 1048,
@@ -75,9 +75,9 @@
     }
   },
   "inventory": {
-    "verified_live": 1,
+    "verified_live": 0,
     "verified_audio_card": 0,
-    "daily_mix_usable": 1,
+    "daily_mix_usable": 0,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -2603,11 +2603,11 @@
             "reason": "完整观点验收未通过：standalone_opening：['是我们说为什么中药，西药，包括创新药，他们也是春天来了', '啊，你可以去去，你现在就是我说的现象，你可以到医院去实地去看一下', '我们现在为什么说高血压，这个一日高血压日，大家去看那个高血压的这个', '对，我认为现在这个，就是我们这个赛道，就是人有多大胆，地有多大产，是吧？']"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 175.3,
-        "used_source_seconds": 960.63,
-        "historical_receipts": 12
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 1135.91,
+        "historical_receipts": 13
       },
       {
         "source_key": "https://m.weibo.cn/detail/5335088103687090",
@@ -3808,9 +3808,9 @@
         "failures": [
           {
             "slug": "ly-0907-b8e9fb",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "人物 VLM 校验不可用：人物核验遗漏或重复帧，不能把格式示例当作实际核验"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整意群字幕重试3次仍未通过\n上次输出未通过严格校验：完整词句无法放入两行；必须先重新分段。请重新按原文输出全部字幕。上次分屏文本：[\"上涨的时间只有百分之五\", \"下跌的时间或者盘整的时间它是百分之九十五\", \"啊所以我们没有别的办法\", \"我就始终我这个人也贪\", \"那么就等着这百分之五的时间\", \"是我就满仓等着市值会有损失但这个不要紧\", \"它反正跌了我们讲它呃这个股市又没变少\", \"啊再一个我们在选股上做一些这个策略的话\", \"我们我知道今天的结果还会回来而且还会赚大钱\", \"那你这种满仓持有的这个方式啊就会对这个选股要求特别高\", \"吧对这个有一个前提就是你买入的时候它是不是合理的价格\", \"你如果六六千点去买就是有问题的\", \"对大部分投资者那肯定是有问题的\", \"但对我来说我可以化解这种风险\", \"怎么化解时间不会长怎么化解啊\", \"那就是我我就是选择一些确定性高的我有把握的\", \"你的方法是什么我很想了解一下我们的一个基本判断就是\", \"你买了股票它它不会出大问题都是赚钱的是吧\", \"主要是抓一些公司的这个基本面对公司的盈利的确定性\", \"然后通过公司的这个最我说的是最坏的结果\", \"通过公司的这个经营把它的这个确定性定下来\", \"好那你给我们介绍一下\", \"你现在公司的这个行业配比大概是什么样的方便说\", \"啊行业配比是这样的我们投资有一个主线啊主线就是\", \"我现在就是与吃有关系的啊凡是与嘴有关系的这样的消费品\", \"因为人他离不了吃离不了喝的啊离不了心脑病死这都是离不了的\", \"所以这个是这个占百分之多少百分之应该七十以上百分之七十以上\", \"还有百分之三十是什么呢还百分之三十\", \"就是一些便宜的啊大市值的公司\", \"还有一些就是我们认为就是有有足够大的市场生产足够大市场的产品\", \"比如说什么板块啊比如说什么呃我大概有百分之十啊\", \"是配比只要中国它是品品牌公司只要\", \"是它有一个强大的品牌婴儿的股本这是符合\", \"我选股条件的啊为什么是婴儿的股本呢只有\", \"符合增长才雪球才能滚大嘛公司也是这样\", \"我们才能分享到公司长大\"]"
           }
         ],
         "verified_available": 0,
@@ -4408,8 +4408,8 @@
       },
       "BV1ADetzQEuE": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 175.3,
+        "verified_available": 0,
+        "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
       "BV15PuP6bEvU": {
@@ -4707,45 +4707,12 @@
         "attempted_mothers": 9,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 3
+        "terminal_editorial-or-render": 4
       }
     }
   },
-  "in_flight_placeholders": 19,
+  "in_flight_placeholders": 17,
   "artifacts": [
-    {
-      "slug": "ly-mother-edited-0907-01",
-      "artifact_id": 10004341369,
-      "run_id": 34082854669,
-      "checked_at": 1788755309,
-      "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_7.mp4",
-          "title": "林园：老龄化带来的医药需求，还只是个开始（2025年访谈）",
-          "duration_sec": 175.3,
-          "render_mode": "live_video_card",
-          "source_sha256": "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345",
-          "segments": [
-            {
-              "start": 938.6,
-              "end": 1037.16,
-              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
-            },
-            {
-              "start": 1044.44,
-              "end": 1121.16,
-              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
-            }
-          ],
-          "sha256": "3c8d79144c856487a8f1656c407ca856945765683ea8dd3ee7fb5f01dd48ebcf",
-          "subtitle_sha256": "b348784c95c18992c30595bb747d47cacff2051bed407a7944742e87391ea3a7",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
     {
       "slug": "ly-0907-38a09c",
       "artifact_id": 10003011453,
@@ -5206,6 +5173,39 @@
           "subtitle_sha256": "b1e4a6b2226717c986e08bbc186bb93ff1442606a3b4542e00a353d6ddaae0a6",
           "status": "rejected",
           "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
+        }
+      ]
+    },
+    {
+      "slug": "ly-mother-edited-0907-01",
+      "artifact_id": 10004341369,
+      "run_id": 34082854669,
+      "checked_at": 1788755309,
+      "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_7.mp4",
+          "title": "林园：老龄化带来的医药需求，还只是个开始（2025年访谈）",
+          "duration_sec": 175.3,
+          "render_mode": "live_video_card",
+          "source_sha256": "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345",
+          "segments": [
+            {
+              "start": 938.6,
+              "end": 1037.16,
+              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
+            },
+            {
+              "start": 1044.44,
+              "end": 1121.16,
+              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
+            }
+          ],
+          "sha256": "3c8d79144c856487a8f1656c407ca856945765683ea8dd3ee7fb5f01dd48ebcf",
+          "subtitle_sha256": "b348784c95c18992c30595bb747d47cacff2051bed407a7944742e87391ea3a7",
+          "status": "verified",
+          "reason": null
         }
       ]
     }
