@@ -1,65 +1,14 @@
-name: 林园母片一次性本地缓存
+name: 林园母片一次性本地缓存（已关闭）
 
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/linyuan-local-source-cache-0907.yml]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  fetch:
-    name: 下载母片 ${{ matrix.key }}
+  closed:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        include:
-          - key: linyuan-p50-2021
-            url: https://www.bilibili.com/video/BV1rYcWeaEtb?p=50
-            sha256: 0be2fd6f9f4db51f3b4bc84c962597667d32b9613639e3e0f5c6f90a0e8e2cf2
     steps:
-      - uses: actions/checkout@v4
-
-      - name: 安装系统合流工具
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-
-      - name: 只下载公开母片
-        id: fetch
-        continue-on-error: true
-        env:
-          SOURCE_URL: ${{ matrix.url }}
-          SOURCE_KEY: ${{ matrix.key }}
-          EXPECTED_SHA256: ${{ matrix.sha256 }}
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: |
-          set -euo pipefail
-          mkdir -p local_mothers
-          python3 linyuan/ci_fetch_bilibili.py --url "$SOURCE_URL" --out "local_mothers/$SOURCE_KEY.mp4"
-          actual=$(sha256sum "local_mothers/$SOURCE_KEY.mp4" | cut -d' ' -f1)
-          python3 - "$SOURCE_KEY" "$EXPECTED_SHA256" "$actual" > "local_mothers/$SOURCE_KEY.sha256.json" <<'PY'
-          import json,sys
-          key,expected,actual=sys.argv[1:]
-          print(json.dumps({"key":key,"expected_sha256":expected,"actual_sha256":actual,
-                            "matched":expected==actual},ensure_ascii=False,indent=2))
-          PY
-          test "$actual" = "$EXPECTED_SHA256"
-
-      - name: 上传短期母片缓存
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: local-mother-${{ matrix.key }}
-          path: local_mothers/
-          retention-days: 1
-          if-no-files-found: warn
-          compression-level: 0
-
-      - name: 确认哈希
-        if: steps.fetch.outcome != 'success'
-        run: exit 1
+      - run: echo "一次性母片下载已完成，工作流关闭"
