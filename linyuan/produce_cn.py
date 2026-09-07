@@ -2202,7 +2202,13 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
     report_path = Path(report_path or (work / "source_quality.json"))
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    cached=verified_source_evidence(src,speaker)
+    # An obsolete cached verdict is a cache miss, not a verdict about this
+    # source. Re-run today's full gate; never upgrade an old pass flag.
+    try:
+        cached=verified_source_evidence(src,speaker)
+    except (VisualQualityError, OSError, ValueError, KeyError) as exc:
+        print(f'[素材复用] 旧证据不可复用，重新质检：{exc}')
+        cached=None
     if cached is not None:
         _download_speaker_reference(speaker,work)
         report_path.write_text(json.dumps(cached,ensure_ascii=False,indent=2))

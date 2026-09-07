@@ -328,6 +328,20 @@ def test_source_gate_rejects_duration_before_visual_checks(monkeypatch, tmp_path
     assert "43s" in report["reason"]
 
 
+def test_obsolete_source_cache_runs_current_gate_and_writes_actual_rejection(monkeypatch, tmp_path):
+    src = tmp_path / 'source.mp4'
+    src.write_bytes(b'video')
+    def stale(*args):
+        raise P.VisualQualityError('素材质检报告版本过旧')
+    monkeypatch.setattr(P, 'verified_source_evidence', stale)
+    monkeypatch.setattr(P, 'probe', lambda *args, **kwargs: '43')
+    report = P.run_source_quality_gate(src, tmp_path, '林园', 'test')
+    assert report['passed'] is False
+    assert '43s' in report['reason']
+    assert report['quality_gate_version'] == P.QUALITY_GATE_VERSION
+    assert json.loads((tmp_path/'source_quality.json').read_text()) == report
+
+
 def test_source_report_is_reused_only_for_the_same_media(monkeypatch, tmp_path):
     src = tmp_path / "source.mp4"
     src.write_bytes(b"video")
