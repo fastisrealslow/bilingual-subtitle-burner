@@ -3,7 +3,7 @@
   "validation_sha256": "edec4dbe5878b574229a678909fbf4e5ec54e3a0c2f9b705ceb23c07d5ee7555",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788755166,
+  "updated_at": 1788755315,
   "materials": {
     "weibo_search": {
       "records": 1048,
@@ -75,9 +75,9 @@
     }
   },
   "inventory": {
-    "verified_live": 0,
+    "verified_live": 1,
     "verified_audio_card": 0,
-    "daily_mix_usable": 0,
+    "daily_mix_usable": 1,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -2592,7 +2592,9 @@
           "ly-mother-edited-0907-01",
           "ly-mother-reuse-0907-01"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345"
+        ],
         "failures": [
           {
             "slug": "ly-mother-reuse-0907-01",
@@ -2601,9 +2603,9 @@
             "reason": "完整观点验收未通过：standalone_opening：['是我们说为什么中药，西药，包括创新药，他们也是春天来了', '啊，你可以去去，你现在就是我说的现象，你可以到医院去实地去看一下', '我们现在为什么说高血压，这个一日高血压日，大家去看那个高血压的这个', '对，我认为现在这个，就是我们这个赛道，就是人有多大胆，地有多大产，是吧？']"
           }
         ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 175.3,
         "used_source_seconds": 960.63,
         "historical_receipts": 12
       },
@@ -3781,7 +3783,14 @@
           "ly-0907-5954b6"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-5954b6",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整观点验收未通过：standalone_opening：['春雨会客厅（名称混淆）', '春鱼会客厅（名称混淆）', '林远总/林跃总（姓名不一致）', '四十五点八四（单位缺失）', '忧郁（应为‘优异’）', '初行会客厅（名称混淆）', '一几几天的表现（口语歧义）']"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -3840,7 +3849,14 @@
           "ly-0907-d125f8"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-d125f8",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整观点验收未通过：standalone_opening：['选选行业', '这个你你投资啊', '你最最终能赚钱的一个是这个', '呃，世界有很多行业', '就是革命性的东西啊', '呃呃一些这些', '这行业的发展', '这个，呃，就是在短期内能够赚到很多钱', '那么我们，就是，就是我什么这八九年到这个参加这个这个炒股以来啊', '那么我们就是，就是我个人认为啊', '我看看，就是没有例外，他没有我在里边啊，也都也都不行，我发现', '啊，这是每一次都要抓住啊', '这个这个炒股刚开始炒了这银行', '那时候银行都是像发呃深发展', '就一两个啊', '那么我们当时就炒银行', '啊，过了两年又炒这个电视机', '就银行和电视机，这个是同步的啊', '啊，这到后来的这个这个这个这个消费升级', '你看现在九，这都是我们抓住的', '但是我们始终是贯贯穿了一个主线，那就是健康']"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4392,8 +4408,8 @@
       },
       "BV1ADetzQEuE": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_seconds": 175.3,
         "terminal_editorial-or-render": 1
       },
       "BV15PuP6bEvU": {
@@ -4691,12 +4707,45 @@
         "attempted_mothers": 9,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 3
       }
     }
   },
-  "in_flight_placeholders": 21,
+  "in_flight_placeholders": 19,
   "artifacts": [
+    {
+      "slug": "ly-mother-edited-0907-01",
+      "artifact_id": 10004341369,
+      "run_id": 34082854669,
+      "checked_at": 1788755309,
+      "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_7.mp4",
+          "title": "林园：老龄化带来的医药需求，还只是个开始（2025年访谈）",
+          "duration_sec": 175.3,
+          "render_mode": "live_video_card",
+          "source_sha256": "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345",
+          "segments": [
+            {
+              "start": 938.6,
+              "end": 1037.16,
+              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
+            },
+            {
+              "start": 1044.44,
+              "end": 1121.16,
+              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
+            }
+          ],
+          "sha256": "3c8d79144c856487a8f1656c407ca856945765683ea8dd3ee7fb5f01dd48ebcf",
+          "subtitle_sha256": "b348784c95c18992c30595bb747d47cacff2051bed407a7944742e87391ea3a7",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0907-38a09c",
       "artifact_id": 10003011453,
@@ -5108,6 +5157,53 @@
           ],
           "sha256": "2f3f5d6e7dfe4ded4a48a17a075520fc679a4b51b7b68a959c94edbaba911c09",
           "subtitle_sha256": "1306ddc90896ad9c1c52d9e7e01f6cccd3b5e3a0a023b1b9974041d57071c463",
+          "status": "rejected",
+          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
+        }
+      ]
+    },
+    {
+      "slug": "ly-0906-5e5a53",
+      "artifact_id": 10000794305,
+      "run_id": 34071783125,
+      "checked_at": 1788755313,
+      "source_url": "https://m.weibo.cn/detail/5320752769532627",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_3.mp4",
+          "title": "股神林园：我总感觉到现在不在半山药，也在办三药以上，我可以肯定因瑞达老板他也判断不了",
+          "duration_sec": 158.2,
+          "render_mode": "audio_card",
+          "source_sha256": null,
+          "segments": [
+            {
+              "start": 456.54,
+              "end": 614.76,
+              "reason": "林园讨论了企业在经营过程中需要不断投入资金和人力资源的问题，并指出当市场突然下行时，这些投入可能导致企业面临巨大的亏损风险。他通过举例说明了企业在市场乐观时过度投入的后果。"
+            }
+          ],
+          "sha256": "e21646efe4f55fc98a37c5f37dc2a962eb8554160f79dabb5eb6da84a980b87b",
+          "subtitle_sha256": "f853eac58932a6078ea3f68c5895ff063ecffef7c26fdeff5a5c05963377675c",
+          "status": "rejected",
+          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
+        },
+        {
+          "index": 1,
+          "final": "final_4.mp4",
+          "title": "林园：我根本就不看，做乌龟。他们知道公司价值，卖出去都能赚钱，几乎看不到什么危机",
+          "duration_sec": 125.5,
+          "render_mode": "audio_card",
+          "source_sha256": null,
+          "segments": [
+            {
+              "start": 712.86,
+              "end": 838.38,
+              "reason": "林园阐述熊市第三期的投资策略，指出在行业加速下跌阶段应采取'做乌龟'的观望态度，并解释这种策略源于对市场低估期不可持续的判断。"
+            }
+          ],
+          "sha256": "11f1a2ee70ceb5b5df4992df311f0700fe7ac809bbd6bde0128895a16c178763",
+          "subtitle_sha256": "b1e4a6b2226717c986e08bbc186bb93ff1442606a3b4542e00a353d6ddaae0a6",
           "status": "rejected",
           "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
         }
