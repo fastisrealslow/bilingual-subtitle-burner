@@ -361,6 +361,7 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             "不要把真实场景里的字画、衣服文字或物品当叠加水印。"
             f"必须逐一分类全部 {len(frames)} 帧，三组索引合起来恰好是 1 到 {len(frames)}，不重不漏。"
             "看不清的帧放 uncertain_frames，不能省略；空组返回空数组。"
+            "图表、字幕、空镜或没有可辨认人脸的帧也必须放入uncertain_frames，不能漏填这些帧。"
             "只返回一个JSON对象。字段说明（不是待复制的答案）："
             "reason：逐帧写出实际看见的依据；same_person_frames：确认目标在场的整数帧号数组；"
             "different_person_frames：确认目标不在场的整数帧号数组；"

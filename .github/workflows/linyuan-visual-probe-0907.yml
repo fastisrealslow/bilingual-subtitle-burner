@@ -1,4 +1,5 @@
 name: 林园真实抽帧检查返回格式复验
+# Compare the unavailable television source with the previously used mother.
 on:
   push:
     branches: [main]
@@ -22,17 +23,25 @@ jobs:
         run: |
           pip install -q 'opencv-python-headless<5'
           gh run download 34080291917 --repo "$GITHUB_REPOSITORY" --name debug-ly-0907-09a2ef --dir evidence
+          gh run download 34080697866 --repo "$GITHUB_REPOSITORY" --name debug-ly-mother-reuse-0907-01 --dir mother-evidence
           python -u - <<'PY'
           import sys,json,os
           from pathlib import Path
           sys.path.insert(0,'linyuan')
           import produce_cn as p
-          work=Path('evidence/_tmp')
-          report=json.loads((work/'source_quality.json').read_text())
-          assert report['source_sha256']=='0f6d98e76957cf3d4e693b76b71b967439a151a746681894f3c52e164ac72693'
-          frames=[work/f'identity_{i}.jpg' for i in range(1,7)]
-          verdict=p._call_identity_vlm(work/'speaker_reference.jpg',frames,'林园',p.load_key())
-          result=dict(diagnostic_only=True,source_sha256=report['source_sha256'],verdict=verdict)
+          result=[]
+          for root,sha in [('evidence','0f6d98e76957cf3d4e693b76b71b967439a151a746681894f3c52e164ac72693'),
+                           ('mother-evidence','9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345')]:
+            work=Path(root)/'_tmp'
+            report=json.loads((work/'source_quality.json').read_text())
+            assert report['source_sha256']==sha
+            frames=[work/f'identity_{i}.jpg' for i in range(1,7)]
+            try:
+              verdict=p._call_identity_vlm(work/'speaker_reference.jpg',frames,'林园',p.load_key())
+            except p.VisualResponseFormatError:
+              verdict=p._retry_identity_vlm_in_chunks(work/'speaker_reference.jpg',frames,'林园',p.load_key())
+            result.append(dict(diagnostic_only=True,source_sha256=sha,verdict=verdict,
+                               identity_passes=p.identity_verdict_passes(verdict,6)))
           Path('visual-format-probe.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
           print(json.dumps(result,ensure_ascii=False))
           PY
@@ -43,4 +52,5 @@ jobs:
           path: |
             visual-format-probe.json
             evidence/_tmp/visual_response_attempts.jsonl
+            mother-evidence/_tmp/visual_response_attempts.jsonl
           if-no-files-found: error
