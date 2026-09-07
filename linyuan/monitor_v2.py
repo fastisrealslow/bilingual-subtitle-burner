@@ -279,19 +279,22 @@ class BilibiliSearchSource(Source):
         # daily refill can still discover older full interviews and speeches.
         keywords = list(dict.fromkeys(str(k).strip() for k in keywords if str(k).strip()))
         raw_items = []
-        try:
-            seen = set()
-            for search_keyword in keywords:
+        seen, errors = set(), []
+        for search_keyword in keywords:
+            try:
                 for item in self._fetch_via_api(search_keyword):
                     bvid = item.get("bvid")
                     if not bvid or bvid in seen:
                         continue
                     seen.add(bvid)
                     raw_items.append(item)
-        except Exception as e:
+            except Exception as e:
+                errors.append(str(e))
+                print(f'[{self.name}] 单个检索失败，继续其他检索: {search_keyword}: {e}',file=sys.stderr)
+        if not raw_items and errors:
             if page is None:
-                raise
-            print(f"[{self.name}] API 路径失败，回退浏览器: {e}", file=sys.stderr)
+                raise RuntimeError(errors[0])
+            print(f"[{self.name}] API 路径失败，回退浏览器: {errors[0]}", file=sys.stderr)
             raw_items = None
 
         if raw_items is None:
@@ -1691,7 +1694,33 @@ def upsert_items(items):
     return new_items
 
 
+class SourceDeadline(BaseException):
+    """Escape internal retry handlers without stopping the whole crawler."""
+
+
 def run_source(source_cls, config, state, page):
+    import signal
+    # CI runs sources sequentially. One blocked API must not consume the entire
+    # 30-minute job and discard results from the other channels.
+    bounded=os.environ.get('GITHUB_ACTIONS')=='true' and hasattr(signal,'setitimer')
+    if not bounded:
+        return _run_source(source_cls,config,state,page)
+    budget=float(config.get('budget_seconds',120))
+    previous=signal.getsignal(signal.SIGALRM)
+    def expired(*_):raise SourceDeadline()
+    signal.signal(signal.SIGALRM,expired)
+    signal.setitimer(signal.ITIMER_REAL,budget)
+    try:
+        return _run_source(source_cls,config,state,page)
+    except SourceDeadline:
+        print(f'[{source_cls.name}] 超过 {budget:g} 秒预算；保留历史目录，继续其他渠道',file=sys.stderr)
+        return []
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0)
+        signal.signal(signal.SIGALRM,previous)
+
+
+def _run_source(source_cls, config, state, page):
     src = source_cls(config, state)
     if not src.can_fetch():
         print(f"[{src.name}] 未到最小间隔，跳过")

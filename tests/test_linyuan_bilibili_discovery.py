@@ -9,6 +9,7 @@ import monitor_v2
 import ci_fetch_bilibili as fetcher
 import json
 import pytest
+import time
 
 
 def test_bilibili_search_combines_configured_keywords_without_duplicate_bvid(monkeypatch):
@@ -81,3 +82,28 @@ def test_collection_falls_back_from_view_without_guessing_author(monkeypatch):
     extra=json.loads(row['extra'])
     assert extra['cid']==222 and extra['direct_dispatch'] is False
     assert extra['metadata_status']=='needs_author_verification'
+
+
+def test_stalled_discovery_does_not_block_next_source(monkeypatch):
+    monkeypatch.setenv('GITHUB_ACTIONS','true')
+    class Stalled(monitor_v2.Source):
+        name='stalled'
+        def fetch(self,page):
+            while True:
+                try:time.sleep(.01)
+                except Exception:continue
+    class Healthy(monitor_v2.Source):
+        name='healthy'
+        def fetch(self,page):return [{'id':'new-source'}]
+    assert monitor_v2.run_source(Stalled,{'budget_seconds':.03},{},None)==[]
+    assert monitor_v2.run_source(Healthy,{'budget_seconds':.03},{},None)==[{'id':'new-source'}]
+
+
+def test_failed_keyword_keeps_successful_source_results(monkeypatch):
+    source=monitor_v2.BilibiliSearchSource({'keywords':['good','unavailable']},{})
+    def fetch(keyword):
+        if keyword=='unavailable':raise RuntimeError('temporary API failure')
+        return [dict(bvid='BVgood',title='林园完整访谈',duration=900,pubdate=1700000000)]
+    monkeypatch.setattr(source,'_fetch_via_api',fetch)
+    rows=source.fetch(None)
+    assert [r['id'] for r in rows]==['bilibili_search:BVgood']
