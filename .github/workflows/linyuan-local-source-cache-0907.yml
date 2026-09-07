@@ -1,0 +1,72 @@
+name: 林园母片一次性本地缓存
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-local-source-cache-0907.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    name: 下载母片 ${{ matrix.key }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - key: linyuan-medicine-2025
+            url: https://www.bilibili.com/video/BV1ADetzQEuE
+            sha256: 9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345
+          - key: linyuan-p50-2021
+            url: https://www.bilibili.com/video/BV1rYcWeaEtb?p=50
+            sha256: 0be2fd6f9f4db51f3b4bc84c962597667d32b9613639e3e0f5c6f90a0e8e2cf2
+          - key: linyuan-2025-11-02
+            url: https://www.bilibili.com/video/BV1tuCDBhE6C
+            sha256: a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b
+          - key: linyuan-p59
+            url: https://www.bilibili.com/video/BV1rYcWeaEtb?p=59
+            sha256: 8faf6cb3e353a074c5c5a28a70e511f458c00bb795c3ffe3047202e8a6b162df
+          - key: linyuan-p44-2017
+            url: https://www.bilibili.com/video/BV1rYcWeaEtb?p=44
+            sha256: d97c85adbbd554166b10ed45b95c6a5679dd58c044d1abfe7dabcb59a2745a0d
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 只下载公开母片
+        id: fetch
+        continue-on-error: true
+        env:
+          SOURCE_URL: ${{ matrix.url }}
+          SOURCE_KEY: ${{ matrix.key }}
+          EXPECTED_SHA256: ${{ matrix.sha256 }}
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          set -euo pipefail
+          mkdir -p local_mothers
+          python3 linyuan/ci_fetch_bilibili.py --url "$SOURCE_URL" --out "local_mothers/$SOURCE_KEY.mp4"
+          actual=$(sha256sum "local_mothers/$SOURCE_KEY.mp4" | cut -d' ' -f1)
+          python3 - "$SOURCE_KEY" "$EXPECTED_SHA256" "$actual" > "local_mothers/$SOURCE_KEY.sha256.json" <<'PY'
+          import json,sys
+          key,expected,actual=sys.argv[1:]
+          print(json.dumps({"key":key,"expected_sha256":expected,"actual_sha256":actual,
+                            "matched":expected==actual},ensure_ascii=False,indent=2))
+          PY
+          test "$actual" = "$EXPECTED_SHA256"
+
+      - name: 上传短期母片缓存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-mother-${{ matrix.key }}
+          path: local_mothers/
+          retention-days: 1
+          if-no-files-found: warn
+          compression-level: 0
+
+      - name: 确认哈希
+        if: steps.fetch.outcome != 'success'
+        run: exit 1
