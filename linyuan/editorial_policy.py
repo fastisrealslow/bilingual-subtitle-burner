@@ -16,6 +16,13 @@ ASR_CONTAMINATION_FRAGMENTS = (
     '哎印的印一段时间我就对了',
     '买了一个骗公司不挣钱的',
     '你买片公司万丈深渊',
+    # 2026-09-07 qg12 re-render, verified from the delivered ASS files.
+    # These exact fragments also quarantine the already-rendered MP4s before
+    # FC can upload them at the next publication window.
+    '不在半山药也在办三药以上',
+    '收索掉投对经头',
+    '因瑞达老板',
+    '受到多体但是我们看他的',
 )
 
 

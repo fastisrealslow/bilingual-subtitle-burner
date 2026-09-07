@@ -94,6 +94,10 @@ def test_schema_placeholder_cannot_impersonate_a_review_summary():
 
 def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
     assert 'ASR污染' in policy.transcript_integrity_error('你买片公司万丈深渊')
+    assert 'ASR污染' in policy.transcript_integrity_error(
+        '我总感觉到现在不在半山药\n也在办三药以上')
+    assert 'ASR污染' in policy.transcript_integrity_error(
+        '当然它也会受到多体但是我们看他的比如说它会很快恢复')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
 
 

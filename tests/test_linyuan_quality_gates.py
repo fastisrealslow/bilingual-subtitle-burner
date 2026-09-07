@@ -499,6 +499,17 @@ def test_actual_ass_is_read_and_asr_corruption_is_rejected(tmp_path):
     assert "ASR污染" in FC.artifact_subtitle_error(meta, tmp_path)
 
 
+def test_actual_ass_rejects_qg12_verified_corruption(tmp_path):
+    text = "这个当然它也会受到多体但是我们看他的比如说它会很快恢复"
+    ass = "Dialogue: 0,0:00:00.00,0:00:03.00,Default,,0,0,0,," + text
+    (tmp_path / "bad.ass").write_text(ass, encoding="utf-8")
+    meta = {
+        "subtitle_files": ["bad.ass"],
+        "subtitle_text_sha256": FC.editorial.text_digest(text),
+    }
+    assert "ASR污染" in FC.artifact_subtitle_error(meta, tmp_path)
+
+
 def test_actual_ass_hash_cannot_be_forged_by_boolean(tmp_path):
     meta = _good_artifact_meta()
     (tmp_path / "subtitles.ass").write_text(
