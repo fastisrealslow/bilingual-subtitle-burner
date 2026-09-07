@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "backend": "sensevoice",
+  "version": 2,
+  "backend": "qwen3",
   "source_overrides": {
     "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345": {
       "backend": "qwen3",
@@ -18,5 +18,10 @@
       },
       "validation_status": "pilot_quarantined_until_actual_subtitle_review"
     }
-  }
+  },
+  "model_revisions": {
+    "asr": "5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+    "aligner": "c7cbfc2048c462b0d63a45797104fc9db3ad62b7"
+  },
+  "rollout_note": "CPU offline default after verified long-source evidence and repeated SenseVoice failures across 0907 mothers. Every new source still requires real subtitle and frame validation; model choice is not acceptance."
 }

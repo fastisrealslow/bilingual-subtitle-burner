@@ -29,6 +29,11 @@ def test_jobs_and_unknown_links_are_not_ready_stock():
     assert audit['competitor_reference']['reference_only']==1
 
 
+def test_retired_recognizer_cannot_pass_on_metadata_flags():
+    error=fc.artifact_quality_error(dict(quality_gate_version=fc.QUALITY_GATE_VERSION,asr_model='sensevoice'))
+    assert 'CPU' in error and 'SenseVoice' in error
+
+
 def test_mix_limit_and_used_parts_reduce_real_reserve():
     parts=[dict(index=i,status='verified',render_mode='live_video_card' if i<10 else 'audio_card') for i in range(20)]
     state=dict(dispatched=[dict(slug='mother',published_parts=0)],published={})

@@ -226,6 +226,7 @@ TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
 REVIEW_PAUSED_SLUGS = {
+    "ly-0907-aba5c6",  # Actual ASS has truncated clauses and corrupt names/numbers in both live parts.
     "ly-0907-f95a57",  # Actual ASS: wrong financial terms and incomplete standalone openings.
     "ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05",
                        # run34074613911 final_3: actual ASS contains many
@@ -2008,6 +2009,8 @@ def artifact_quality_error(meta):
         version = 0
     if version < QUALITY_GATE_VERSION:
         return f"旧成片缺少质量闸门 v{QUALITY_GATE_VERSION} 证明"
+    if meta.get('asr_model') == 'sensevoice':
+        return 'SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核'
     editorial_error = editorial.metadata_error(meta)
     if editorial_error:
         return editorial_error
@@ -2217,6 +2220,13 @@ def _collect_source_rejections(st):
 
 def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
     """隔离旧 artifact，并用原素材触发新版流水线重新生成。"""
+    active=sum(len(gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30)
+                       .get('workflow_runs',[])) for status in ('in_progress','queued'))
+    if active>=MAX_ACTIVE_SOURCES:
+        e['quality_failure']=reason
+        save_state(st)
+        log_event('quality',f'{slug} 等待 CPU 重识别空位',reason)
+        return False
     if artifact_id:
         try:
             gh("DELETE", f"/actions/artifacts/{artifact_id}")
