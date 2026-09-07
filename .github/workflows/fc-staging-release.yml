@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           cd linyuan/fc
-          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../editorial_policy.py
+          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../editorial_policy.py media_repair.py
           unzip -l "$RUNNER_TEMP/fc-code.zip"
 
       - name: 更新 staging Release

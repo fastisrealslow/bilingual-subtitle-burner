@@ -1,0 +1,32 @@
+name: 林园原位更新前稿件字段核对
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-existing-media-detail-0907.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 只读核对同一 BV 的稿件结构
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request
+          data=json.loads(os.environ['BILIBILI_COOKIES'])
+          rows=(data.get('cookie_info') or {}).get('cookies') or data.get('cookies') or []
+          cookies={r['name']:str(r['value']) for r in rows}
+          assert cookies.get('DedeUserID')=='275211725'
+          request=urllib.request.Request('https://member.bilibili.com/x/web/archive/view?bvid=BV1HNbw6UEuv&history=',
+              headers={'Cookie':'; '.join(k+'='+v for k,v in cookies.items()),'User-Agent':'Mozilla/5.0',
+                       'Referer':'https://member.bilibili.com/'})
+          with urllib.request.urlopen(request,timeout=30) as response:reply=json.load(response)
+          body=reply.get('data') or {};arc=body.get('archive') or body.get('Archive') or {}
+          videos=body.get('videos') or []
+          print(json.dumps(dict(code=reply.get('code'),body_fields=list(body),archive_fields=list(arc),
+              archive={k:arc[k] for k in ('aid','bvid','title','copyright','tag','tid','is_only_self','no_public') if k in arc},
+              videos=[dict(fields=list(v),cid=v.get('cid'),filename_present=bool(v.get('filename'))) for v in videos]),ensure_ascii=False))
+          PY

@@ -1625,6 +1625,10 @@ def handler(event, context):
             return {"ok": True, "ts": int(time.time())}
         if name == "diagnose-fresh-six-publication":
             return fresh_six_publication_status()
+        if name == 'repair-reviewed-media-0907':
+            import media_repair
+            import sys
+            return run_with_lease('publish',lambda:media_repair.repair_known_media(evt,sys.modules[__name__]))
         if name == "publish-tv-wine-review-once":
             return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":
