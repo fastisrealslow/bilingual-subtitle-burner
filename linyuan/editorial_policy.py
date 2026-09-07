@@ -51,6 +51,15 @@ ASR_CONTAMINATION_FRAGMENTS = (
     '有创8%的股息',
     '炒小炒心',
     '大概在115年16年的时候',
+    # 2026-09-07 ly-0907-851152, verified from its delivered ASS files.
+    # All accepted parts were static audio cards and the recognizer output
+    # contains unresolved numbers/names or an incomplete ending.
+    '我说细生说的',
+    '实际上我是十0年前我们都在说这个事啊',
+    '过去1年中国的老龄化比10年前是严重了很多',
+    '这就是我我举了个中药的例',
+    '大概是667岁',
+    '那可不得了那我肯定是花大财',
 )
 
 

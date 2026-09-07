@@ -114,6 +114,12 @@ def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
     assert 'ASR污染' in policy.transcript_integrity_error('今天是有是投资的好时候')
     assert 'ASR污染' in policy.transcript_integrity_error('有创8%的股息')
     assert 'ASR污染' in policy.transcript_integrity_error('大概在115年16年的时候')
+    assert 'ASR污染' in policy.transcript_integrity_error('医药板块是这样的我说细生说的')
+    assert 'ASR污染' in policy.transcript_integrity_error('实际上我是十0年前我们都在说这个事啊')
+    assert 'ASR污染' in policy.transcript_integrity_error('过去1年中国的老龄化比10年前是严重了很多')
+    assert 'ASR污染' in policy.transcript_integrity_error('这就是我我举了个中药的例')
+    assert 'ASR污染' in policy.transcript_integrity_error('当时人口死亡年龄大概是667岁')
+    assert 'ASR污染' in policy.transcript_integrity_error('那可不得了那我肯定是花大财')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
 
 
