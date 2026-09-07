@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788763226,
+  "updated_at": 1788763822,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -76,7 +76,7 @@
   },
   "inventory": {
     "verified_live": 0,
-    "verified_audio_card": 0,
+    "verified_audio_card": 1,
     "daily_mix_usable": 0,
     "target_reserve": 12
   },
@@ -2969,11 +2969,13 @@
         "slugs": [
           "ly-0907-f1fb08"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "2a2fbf1f4cdd2ddd702e4e39f5d5ee9fcb77bf5273dd025b03420dc268a5eb78"
+        ],
         "failures": [],
-        "verified_available": 0,
+        "verified_available": 1,
         "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_seconds": 151.8,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -4235,7 +4237,14 @@
           "ly-0907-52aead"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-52aead",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整观点验收未通过：standalone_opening：['就我们说的根根子上', '我说：你现在是不是不？', '他前两天去杭州。我说：你是不是想？', '一天有一天啊，袁弘啊，他我跟你说', '那那她很厉害，是吧？不要这个东西冷冷一段', '那时我是，那火得很，是吧？你一直过着呢', '我的那是我也不知道', '就是你的工作，你可以干别的工作，但是这个是，比如说三百六十五天']"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4801,8 +4810,8 @@
       },
       "BV1QFWxeGEGL": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 1,
+        "verified_seconds": 151.8
       },
       "BV1gh41127Ln": {
         "attempted_mothers": 1,
@@ -5054,7 +5063,8 @@
       "BV1njaSzqEwj": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1X2aAz8Eh6": {
         "attempted_mothers": 1,
@@ -5063,204 +5073,33 @@
       }
     }
   },
-  "in_flight_placeholders": 19,
+  "in_flight_placeholders": 18,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
-      "artifact_id": 10002566025,
-      "run_id": 34074630129,
-      "checked_at": 1788756839,
+      "artifact_id": 10007351350,
+      "run_id": 34083314544,
+      "checked_at": 1788763816,
       "source_url": "https://www.bilibili.com/video/BV1QFWxeGEGL",
       "parts": [
         {
           "index": 0,
-          "final": "final_2.mp4",
-          "title": "股神林园：一级市场该比二级市场贵是瞎扯 最终定价权在二级市场",
-          "duration_sec": 132.8,
-          "render_mode": "live_video_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 500.34,
-              "end": 633.12,
-              "reason": "林园讨论了当前资本市场的状况，特别强调了一级市场和二级市场的关系。他指出二级市场具有定价权，一级市场的泡沫在热时会膨胀，但在冷时都会亏损。他认为当前经济形势严峻，生意难做，供大于求，这是长期积累的结果。"
-            }
-          ],
-          "sha256": "54b7b0c1026bb8c45a59aebf7cf9c3e71eb1154e330a304803910352719a9521",
-          "subtitle_sha256": "9a0db20386fa47875b3e8836d599c7d1befc412caab34fc4b10193b244e909cd",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 1,
-          "final": "final_4.mp4",
-          "title": "股神林园：人生只要一次机会 我算了下5000家上市公司我们参与的不到50家",
-          "duration_sec": 120.1,
-          "render_mode": "live_video_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 1024.32,
-              "end": 1144.44,
-              "reason": "林园强调抓住一次投资机会的重要性，并反驳将其归因于运气的观点。他通过国内外资本市场的对比，说明抓住一次机会可以带来巨大收益，并举巴菲特为例。"
-            }
-          ],
-          "sha256": "34abaac7a38b60e7db6963a4511bf1246d3676527039e2c63e0d373d0d5985c6",
-          "subtitle_sha256": "92048400d8cb04ac6bbe21bc259dd3aea4f0c184c49fc64977a063cb907e1b27",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 2,
-          "final": "final_7.mp4",
-          "title": "股神林园：我说错了但总要说对一次 这次抓住机会狠捞一把能改变命运 市场上一定有上万倍的企业",
-          "duration_sec": 299.9,
-          "render_mode": "live_video_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 1788.18,
-              "end": 2088.06,
-              "reason": "该候选从经济寒冬到黎明将至的乐观展望，再到具体投资策略（如定投的弊端）和风险控制，最后以嘴巴相关投资的长期稳定性作结，主题完整且逻辑连贯。"
-            }
-          ],
-          "sha256": "47b0c04ffaf2da0fb5ba8e0ad35d99497dc3ad4b611d93fdc2f3379eb55ebf62",
-          "subtitle_sha256": "63d344a45279f111a60f328606138e899a797435fe747eecf9a326b5b29187f4",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 3,
-          "final": "final_12.mp4",
-          "title": "股神林园：你去看他报表那去体现了没 那些路边的这人跟他去打着他的牌子去弄一个 那些没用",
-          "duration_sec": 122.1,
+          "final": "final_19.mp4",
+          "title": "股神林园：分散买的都改变不了命运 最后你百分之九十五的财富是重仓",
+          "duration_sec": 151.8,
           "render_mode": "audio_card",
-          "source_sha256": null,
+          "source_sha256": "2a2fbf1f4cdd2ddd702e4e39f5d5ee9fcb77bf5273dd025b03420dc268a5eb78",
           "segments": [
             {
-              "start": 3180.06,
-              "end": 3302.1,
-              "reason": "用户提出关于中药老字号贴牌产品泛滥的困惑，林园回应应关注企业核心产品而非贴牌业务，强调80%利润由少数产品贡献，其他边缘业务可忽略不计。完整呈现了从问题提出到核心观点论证的过程（3180-3302秒）。"
+              "start": 4512.04,
+              "end": 4663.8,
+              "reason": "探讨市场资金流向与投资策略。以\"水从哪些渠道流进来\"为核心问题，系统阐述\"钓鱼理论\"的投资哲学：不预判资金来源，而是通过坚守价值等待资本自然流入。包含人性分析（资本贪婪本质）、全球市场比较（8个股市投资经验）、投机行为批判，最终以门框比喻强化\"坚守位置比预测路径更重要\"的观点，形成闭环论证。"
             }
           ],
-          "sha256": "10df254f7f34fcbe5291f55b3693722f2e6fcbd09ef720bbe450a89f5d378493",
-          "subtitle_sha256": "ed7774c307de1b469482763d3424693a9e664117e931df4e1dcb9cc817b61322",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 4,
-          "final": "final_13.mp4",
-          "title": "股神林园：一级市场现在根本就不能投 新能源芯片你投了看最后收益 投资标准是垄断企业才有确定性",
-          "duration_sec": 226.0,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 3302.28,
-              "end": 3528.24,
-              "reason": "讨论一级市场与二级市场投资选择，林园明确反对盲目投资一级市场，以新能源芯片为例说明行业虽热但难把握，强调投资确定性（3302-3410秒）。包含问题背景、观点阐述和案例论证，形成完整投资逻辑链。"
-            }
-          ],
-          "sha256": "0d01b243cf0866ddcf3245c885bbea7d8ec269fbe2891d77297a1cf5c49f0316",
-          "subtitle_sha256": "5c5c58c1cbd1da92edee8144e64ebd0a10e8cc0b73547af7924c830336f7d2f1",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 5,
-          "final": "final_14.mp4",
-          "title": "林园：企业家和科学家千万别画等号，他产品都卖不出去在那光花钱有本事",
-          "duration_sec": 133.9,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 3564.72,
-              "end": 3698.58,
-              "reason": "林园详细解释了如何避免投资中的'炸弹'，即聚焦于商业模式可持续的行业（如消费领域），并强调对变化大的行业保持警惕。他通过创业者与生意人的本质区别，说明投资需选择能持续创造价值的企业家而非单纯的技术专家。"
-            }
-          ],
-          "sha256": "92ccc79134b0c8395a27b3438231be8233c324e00da27cad41c8edcad6636758",
-          "subtitle_sha256": "9c711f4eddd392c686a3783bbf7f8be4776c8078df1f03bb3e99031e88c1b845",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 6,
-          "final": "final_15.mp4",
-          "title": "股神林园：房价不低，租金回报率不高，和中国人的收入比全球都高",
-          "duration_sec": 143.1,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 3799.32,
-              "end": 3942.36,
-              "reason": "林园分析了中国房地产市场的现状，指出房价绝对值高、租金回报率低的核心问题，并结合自身早期房地产经历，说明行业长期存在的结构性矛盾。他明确区分居住需求与投资属性，认为房地产难以像企业一样持续创造价值。"
-            }
-          ],
-          "sha256": "c5b0944b935d788ffa08e32081deed98d80f876793164c425d38f79e31e5a96a",
-          "subtitle_sha256": "e52021aadd8f1ad616cfc6e0860e8f3be430cf799ebd989894cc8e745c15aee8",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 7,
-          "final": "final_21.mp4",
-          "title": "股神林园：我去了解了一下也也算了，不去不去。到目前我没发现成功的。",
-          "duration_sec": 124.8,
-          "render_mode": "live_video_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 5700.3,
-              "end": 5825.04,
-              "reason": "林园详细解释了老年人慢性病治疗的局限性，以糖尿病和高血压为例，说明传统药物只能暂时控制症状但无法根治，且长期用药会产生副作用。他通过自身经历（2002年确诊糖尿病后尝试干细胞治疗失败）佐证观点，并指出这类疾病存在自愈可能性但不可依赖。"
-            }
-          ],
-          "sha256": "0c51c41215f455ca45a6af881c205d4a7e996c16efd1e5e3f25552292cc6856b",
-          "subtitle_sha256": "c0a8672168e777bbc89a0ba479eda910419ed8df8c008108cb94c9e66d8a0df3",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 8,
-          "final": "final_23.mp4",
-          "title": "林园：我看未来十年真正值钱的还是大家觉得房子是有底的，还是觉得它是个好的资产",
-          "duration_sec": 120.8,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 6125.28,
-              "end": 6246.1,
-              "reason": "林园明确表达对房地产行业未来十年的看好观点，认为中国人收入提高后仍会优先考虑买房，头部房企如万科、保利存在底部逆转机会。他结合行业出清现状和低估值（PE<5、PB<1）论证，并以个人投资失败案例（房地产债券归零）反向佐证需选择优质标的。"
-            }
-          ],
-          "sha256": "b6dd8d8f4f84b2ecce1cd516781f3f67c0cb8dfaffc42cebf9c73a2ae8715505",
-          "subtitle_sha256": "5958969050e1c0f1021159b114f15908ec631f568803a8813f7bc31dc2c840f4",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 9,
-          "final": "final_25.mp4",
-          "title": "股神林园：我不知道哪个医药公司能涨1万倍 如果行业出现龙头了我就不投",
-          "duration_sec": 298.6,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 6403.02,
-              "end": 6701.58,
-              "reason": "该候选从政策风险问题开始，完整讨论了投资策略、泡沫现象、银行股不投的原因，并以明确的投资原则自然结束。内容连贯，主题完整。"
-            }
-          ],
-          "sha256": "021b30f745ee0ce75621324f61e5da7ff210754e4df8ca1f18c12636bde7c1d1",
-          "subtitle_sha256": "62a4b7ae4ca55ddbec27963a767075fac9cd5bf42731a123a98d2db448802b6a",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
+          "sha256": "565f734bc1533ee41b66c7d383a1a6cb3255758f798c6333f6d95ac99bab73e6",
+          "subtitle_sha256": "7719afadf5945f6a86e522a0663aca32f5e432328b6f9f9e9fa0f2cf3873dcd9",
+          "status": "verified",
+          "reason": null
         }
       ]
     },
