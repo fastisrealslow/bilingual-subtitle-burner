@@ -1368,11 +1368,21 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
 
 
 def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
-    if len(picks) != 1:
-        raise VisualQualityError('每条只允许一个连续完整观点，请逐段隔离生产')
-    editorial.range_seconds(cues,picks[0])
-    pick=picks[0]
-    text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    omitted_text=None
+    if len(picks)==1:
+        editorial.range_seconds(cues,picks[0])
+    else:
+        try:
+            spans=[dict(start=cues[p['start']]['start'],end=cues[p['end']]['end']) for p in picks]
+            source_sha=picks[0].get('editorial_source_sha256')
+            if (not editorial.reviewed_omission_matches(source_sha,spans)
+                    or any(p.get('editorial_source_sha256')!=source_sha for p in picks)):
+                raise ValueError('未核对的拼接范围')
+            omitted_text=''.join(c['text'] for c in cues[picks[0]['end']+1:picks[1]['start']])
+            if not omitted_text:raise ValueError('缺少删去部分的原文')
+        except (IndexError,KeyError,TypeError,ValueError) as exc:
+            raise VisualQualityError('只允许同一论述中已核对的短插语剪除，禁止拼凑：'+str(exc)) from exc
+    text=''.join(c['text'] for p in picks for c in cues[p['start']:p['end']+1])
     integrity_error=editorial.transcript_integrity_error(text)
     if integrity_error:
         raise VisualQualityError(integrity_error)
@@ -1381,24 +1391,36 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_protocol')==2
+            if (saved.get('transcript_sha256')==digest and saved.get('review_protocol')==(3 if omitted_text else 2)
+                    and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
+                         and saved.get('omission_preserves_meaning') is True and saved.get('omitted_is_parenthetical') is True))
                     and not editorial.review_error(saved)):
                 return saved
         except (ValueError,TypeError):
             pass
     prompt=(f'独立复核这条{speaker}访谈选段是否适合作为完整观点视频。'
         '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
+        '比喻、自我强调或你不赞同的投资判断本身也不是识别错误；只审核表达和原话，不评判观点对错。'
         '先逐句列出无法按字面理解的错词、关键否定或数字歧义，再作整体判断。'
         '禁止在脑中替换错词后给原文通过。例如“生产效率大大不提高”“资本是足力的”'
         '不能被你自行理解为另一句话；“这我判断在未来的”这种半句结尾必须拒绝。'
         '摘要通顺不代表原字幕正确。开头“他说”“那就我们当时”若缺少前因或指代也须拒绝。'
-        '只判断内容，不改写原话。检查前3秒是否有明确主语/话题、是否讲清完整观点、'
+        '只判断内容，不改写原话。检查开场第一句话是否明确话题并独立可懂，允许短的口头承接词，'
+        '不要求3秒内说完一句；但指代必须能在片内理解。检查是否讲清完整观点、'
         '有无理由/案例、结束是否自然且没有半句、数字/否定/关键实体是否有影响观点的识别歧义。'
         '中间同主题追问可保留；无关主题拼凑、片头寒暄/无指代回应、必要结论被切掉须拒绝。'
         '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
         '每个布尔值独立填写，不预设通过。输出JSON字段：standalone_opening、complete_argument、'
         'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
         'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。\n原话：'+text)
+    if omitted_text:
+        first=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
+        second=''.join(c['text'] for c in cues[picks[1]['start']:picks[1]['end']+1])
+        prompt+=('\n另须独立审核这次插语剪除。音画与字幕会一起剪掉中间插语，保留片段顺序。'
+            '不能因某句话不方便、包含反例/否定/必要限定就删掉它。若删除改变原意、论证或立场，必须拒绝。'
+            '不猜测插语中的识别疑点；仅在无需依赖该插语也能明确原论点和限定时判断。'
+            '输出omission_preserves_meaning及omitted_is_parenthetical两个布尔值和omission_reason。'
+            '\n[保留前段]'+first+'\n[拟删插语]'+omitted_text+'\n[保留后段]'+second)
     response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
     raw=re.sub(r'```(?:json)?|```','',response).strip()
     match=re.search(r'\{.*\}',raw,re.S)
@@ -1409,7 +1431,12 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             raise VisualQualityError('完整观点审核缺少可对照原文的开场/结尾证据')
     if proof.get('issues'):
         proof['requires_audio_review']=True
-    proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=2)
+    proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2)
+    if omitted_text:
+        proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
+        cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        if proof.get('omission_preserves_meaning') is not True or proof.get('omitted_is_parenthetical') is not True:
+            raise VisualQualityError('剪除插语未通过独立语义复核：'+str(proof.get('omission_reason','')))
     cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     error=editorial.review_error(proof)
     if error:
@@ -3936,7 +3963,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         vertical = H > W
         seg_dur = s1 - s0
         # 片头片尾淡入淡出 0.4s：修「开头结束断帧」的视觉突兀（2026-08-27）
-        fade = f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, seg_dur - 0.4):.2f}:d=0.4"
+        fades=[]
+        if n==1:fades.append('fade=t=in:st=0:d=0.4')
+        if n==len(picks):fades.append(f'fade=t=out:st={max(0,seg_dur-.4):.2f}:d=0.4')
+        fade=','.join(fades) or 'null'
         if strategy == "audio_card":
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
@@ -4310,20 +4340,19 @@ def main():
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         try:
             if preselected_picks and publication_state:
-                pick=preselected_picks[0]
-                lo,hi=seg_cues[pick['start']]['start'],seg_cues[pick['end']]['end']
+                segments=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end'])
+                          for p in preselected_picks]
                 reuse_error=editorial.source_reuse_error(
-                    dict(source_sha256=source_report.get('source_sha256'),segments=[dict(start=lo,end=hi)]),
+                    dict(source_sha256=source_report.get('source_sha256'),segments=segments),
                     os.environ.get('SOURCE_ORIGIN_URL',''),publication_state)
                 if reuse_error:
                     raise VisualQualityError(reuse_error)
             # Context expansion can propose overlapping candidates; retain the
             # first accepted complete argument, never duplicate the same speech.
             if preselected_picks:
-                pick=preselected_picks[0]
-                lo,hi=seg_cues[pick['start']]['start'],seg_cues[pick['end']]['end']
+                ranges=[(seg_cues[p['start']]['start'],seg_cues[p['end']]['end']) for p in preselected_picks]
                 if any(min(hi,s['end'])-max(lo,s['start'])>.3
-                       for old in metas for s in old.get('segments',[])):
+                       for lo,hi in ranges for old in metas for s in old.get('segments',[])):
                     raise VisualQualityError('与本批已通过的完整观点时间段重叠，跳过重复选段')
             m = produce_part_with_budget(src, work, out, seg_cues, args.speaker, args.occasion,
                              api_key, existing_subtitles, W, H, suffix,

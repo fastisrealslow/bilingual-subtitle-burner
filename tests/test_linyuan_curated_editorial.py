@@ -20,3 +20,19 @@ def test_reviewed_ranges_bind_source_boundaries_and_duration(tmp_path):
     cues[-1].update(end=122,text='半句话')
     with pytest.raises(ValueError,match='opening or ending'):
         source_ranges(cues,'source',path)
+
+
+def test_known_single_omission_preserves_source_sentence_boundaries(tmp_path):
+    source='9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'
+    path=tmp_path/'profile.json'
+    path.write_text(json.dumps(dict(sources={source:[dict(start=938.6,end=1121.16,
+        opening='完整话题',ending='完整结论',topic='讨论',omit=dict(start=1037.16,end=1044.44))]})))
+    cues=[dict(start=938.6,end=1037.16,text='完整话题'),
+          dict(start=1037.56,end=1043.56,text='未说完的插语'),
+          dict(start=1044.44,end=1121.16,text='完整结论')]
+    a,b,picks=source_ranges(cues,source,path)[0]
+    assert (a,b)==(0,2)
+    assert [(p['start'],p['end']) for p in picks]==[(0,0),(2,2)]
+    cues[2]['start']+=1
+    with pytest.raises(ValueError,match='omission'):
+        source_ranges(cues,source,path)

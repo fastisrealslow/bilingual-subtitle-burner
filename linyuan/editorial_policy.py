@@ -10,6 +10,21 @@ VERSION = 2026090604
 MIN_SECONDS = 120.0
 TARGET_SECONDS = 180.0
 
+# Editing inputs verified against the original cue boundaries. This permits
+# one specific chronological omission, never publication or subtitle approval.
+REVIEWED_OMISSION_RANGES = {
+    '9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345':
+        ((938.6,1037.16),(1044.44,1121.16)),
+}
+
+
+def reviewed_omission_matches(source_sha, segments):
+    expected=REVIEWED_OMISSION_RANGES.get(source_sha)
+    actual=intervals(segments)
+    return bool(expected and actual and len(actual)==len(expected)
+                and all(abs(a-c)<.05 and abs(b-d)<.05
+                        for (a,b),(c,d) in zip(actual,expected)))
+
 
 def source_key(url):
     """A Bilibili collection page is a separate mother; tracking args are not."""
@@ -217,8 +232,14 @@ def metadata_error(meta, actual_seconds=None):
                 return '实际MP4时长与验收记录不一致'
         segments = meta.get('segments') or []
         if len(segments) != 1:
-            return '日常观点片须来自一个连续完整论述，禁止拼接无关短句'
-        source_duration = float(segments[0]['end']) - float(segments[0]['start'])
+            review=meta.get('editorial_review') or {}
+            if (not reviewed_omission_matches(meta.get('source_sha256'),segments)
+                    or review.get('review_protocol')!=3
+                    or review.get('omission_preserves_meaning') is not True
+                    or review.get('omitted_is_parenthetical') is not True
+                    or not review.get('omitted_text_sha256')):
+                return '日常观点片须来自一个完整论述；删去插语须有原片范围和独立语义复核'
+        source_duration = sum(float(s['end'])-float(s['start']) for s in segments)
         if abs(source_duration - duration) > 1.0:
             return '源选段与成片时长不一致，禁止补空白、重复或变速凑时长'
     except (TypeError, ValueError, KeyError):

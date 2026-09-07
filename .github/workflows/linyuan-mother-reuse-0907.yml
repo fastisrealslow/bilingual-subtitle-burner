@@ -1,5 +1,5 @@
 name: 林园未用母片段落复用实产
-# Retry after actual frame-protocol validation, through the shared writer lease.
+# Render the reviewed parenthetical edit as a new candidate; every gate runs.
 on:
   push:
     branches: [main]
@@ -24,10 +24,17 @@ jobs:
           import sys,time
           sys.path.insert(0,'linyuan/fc')
           import index as fc
-          slug='ly-mother-reuse-0907-01'
+          slug='ly-mother-edited-0907-01'
           def admit():
             state=fc.load_state()
-            entry=next(e for e in reversed(state['dispatched']) if e['slug']==slug)
+            entry=next((e for e in reversed(state['dispatched']) if e['slug']==slug),None)
+            if entry is None:
+              source='https://www.bilibili.com/video/BV1ADetzQEuE'
+              entry=dict(slug=slug,source_url=source,asset_url=source,source='bilibili',
+                         title='林园：老龄化带来的医药需求，还只是个开始（2025年访谈）',
+                         reviewed_parts='7',published_parts=0,required_presentation_version=2,
+                         production_rules_version=fc.PRODUCTION_RULES_VERSION)
+              state['dispatched'].append(entry)
             if fc.processed_part_indices(entry):
               return dict(already_handled=True)
             active=sum(len(fc.gh('GET',f'/actions/workflows/{fc.WF_PRODUCE}/runs?status={status}&per_page=100')['workflow_runs'])

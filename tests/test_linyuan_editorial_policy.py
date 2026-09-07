@@ -34,6 +34,45 @@ def test_silence_padding_and_unrelated_splicing_do_not_satisfy_duration():
     assert policy.metadata_error(meta,150) is not None
 
 
+def test_source_bound_parenthetical_cut_still_needs_independent_meaning_review():
+    source=next(iter(policy.REVIEWED_OMISSION_RANGES))
+    ranges=policy.REVIEWED_OMISSION_RANGES[source]
+    meta=complete_meta()
+    duration=sum(b-a for a,b in ranges)
+    meta.update(source_sha256=source,duration_sec=duration,
+                segments=[dict(start=a,end=b) for a,b in ranges])
+    assert policy.metadata_error(meta,duration) is not None
+    meta['editorial_review'].update(review_protocol=3,omission_preserves_meaning=True,
+        omitted_is_parenthetical=True,omitted_text_sha256='actual-removed-text-digest')
+    assert policy.metadata_error(meta,duration) is None
+    meta['source_sha256']='other-source'
+    assert policy.metadata_error(meta,duration) is not None
+    meta['source_sha256']=source
+    meta['segments'][1]['start']+=5
+    assert policy.metadata_error(meta,duration) is not None
+
+
+def test_omission_reviewer_sees_removed_words_and_can_reject_the_edit(tmp_path):
+    source=next(iter(policy.REVIEWED_OMISSION_RANGES))
+    cues=[dict(start=938.6,end=1037.16,text='为什么医药需求增加。'),
+          dict(start=1037.56,end=1043.56,text='但是这里有一个重要限制。'),
+          dict(start=1044.44,end=1121.16,text='这是完整结论。')]
+    picks=[dict(start=i,end=i,editorial_source_sha256=source) for i in (0,2)]
+    answer=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False,summary='需求讨论',issues=[],
+        opening_quote='为什么医药需求增加。',ending_quote='这是完整结论。',
+        omission_preserves_meaning=False,omitted_is_parenthetical=False,omission_reason='不能删去必要限制')
+    with patch.object(produce,'llm',return_value=json.dumps(answer,ensure_ascii=False)) as call:
+        try:
+            produce.review_complete_argument(cues,picks,'林园','test',tmp_path,'_7')
+        except produce.VisualQualityError as exc:
+            assert '剪除插语未通过' in str(exc)
+        else:
+            raise AssertionError('A rejected omission became publication approval')
+    assert '[拟删插语]但是这里有一个重要限制。' in call.call_args.args[0][0]['content']
+    assert json.loads((tmp_path/'editorial_review_7.json').read_text())['omission_preserves_meaning'] is False
+
+
 def test_old_short_highlight_cache_is_not_reused():
     cues=[dict(start=i*30,end=(i+1)*30,text='这是完整论述。') for i in range(6)]
     with tempfile.TemporaryDirectory() as tmp:
