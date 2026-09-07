@@ -232,8 +232,13 @@ jobs:
           # auto：干净原画用实景封面，资料卡在浅色/深色间按标题稳定选择。
           COVER_STYLE: ${{ vars.COVER_STYLE || 'auto' }}
           REVIEWED_PARTS: ${{ inputs.reviewed_parts }}
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_ORIGIN_URL: ${{ inputs.source }}
+          PUBLICATION_STATE_PATH: _publication_state.json
         run: |
           set -euo pipefail
+          # Read actual receipts so a cached mother does not re-render used excerpts.
+          gh api "repos/$GITHUB_REPOSITORY/contents/linyuan/.automation/fc_state.json?ref=main" --jq '.content' | base64 --decode > "$PUBLICATION_STATE_PATH"
           python3 -u produce_cn.py \
             --source "${{ steps.src.outputs.path }}" \
             --slug "${{ inputs.slug }}" \

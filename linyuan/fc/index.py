@@ -2699,8 +2699,7 @@ def publish_handler(event=None, context=None):
     log.info("立即发布（cron 时段已分散，无需延迟）")
 
     # ── 投稿前双重防护（2026-08-19 五连发事故）──
-    # 0) 素材源查重：同一源视频（source_url）已发布过 → 绝不再投
-    #    （2026-08-21 事故：同一素材重出片后 LLM 生成不同标题，标题查重失效）
+    # 0) 同母片按连续时间段查重；不同观点可继续使用，未知旧范围仍阻断。
     src_url = (e.get("source_url") or "").strip()
     # 仅本次已明确授权的 V4 全量批次允许同母片重制后再次投递。
     # 其他命名批次仍保留全部历史查重闸门。
@@ -2708,18 +2707,12 @@ def publish_handler(event=None, context=None):
     # Their exact MP4 hashes are allowlisted above; content/topic/title checks
     # below still reject old excerpts, including copies under different URLs.
     if src_url and not explicit_v4_batch and fresh_budget is None:
-        for pslug, pinfo in st.get("published", {}).items():
-            if (pinfo.get("source_url") or "").strip() == src_url and pslug != slug:
-                st["published"][slug] = {"bvid": pinfo.get("bvid"), "ts": int(time.time()),
-                                          "title": pinfo.get("title") or title,
-                                          "source_platform": pinfo.get("source_platform") or platform_of(e.get("source", "")),
-                                          "source_url": src_url, "note": "同源素材已发布过，防重入拦截"}
-                candidate_failed_note = f"同源 {pslug} 已发布（{pinfo.get('bvid')}），拦截重复投稿"
-                log_event("dedup", f"⛔ {slug} 与已发布 {pslug} 同源，拦截", (e.get("title") or "")[:60])
-                log.info(f"⛔ {slug} 与已发布 {pslug} 同源，拦截重复投稿")
-                save_state(st)
-                return _continue_after_rejection(
-                    event, context, slug, {"published": 0, "skipped": 1}, tmp)
+        reuse_error=editorial.source_reuse_error(part,src_url,st)
+        if reuse_error:
+            _record_skipped_part(st,e,slug,part,parts_total,k,title,reuse_error)
+            log_event('dedup',f'同源选段拦截 {slug}',reuse_error)
+            return _continue_after_rejection(event,context,slug,
+                {'published':0,'skipped':1,'source_overlap':1},tmp)
     # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
     comparison_state = replacement_comparison_state(st, part, slug)
     content_dup = (None if explicit_v4_batch else
@@ -2813,6 +2806,7 @@ def publish_handler(event=None, context=None):
                           "fresh_six_date": FRESH_SIX_DATE if fresh_budget is not None else None,
                           "fresh_six_batch": fresh_six_counter(slug) if fresh_budget is not None else None,
                           "source_segments": part.get("segments") or [],
+                          "source_sha256": part.get("source_sha256"),
                           "ts": int(time.time()),
                           "fingerprints": meta_info.get("fingerprints") or {}})
         st["published"][slug] = {

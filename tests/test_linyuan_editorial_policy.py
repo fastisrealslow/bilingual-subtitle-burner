@@ -86,6 +86,30 @@ def test_unresolved_negation_or_number_requires_audio_review():
     assert policy.metadata_error(meta) is not None
 
 
+def test_editor_cannot_approve_by_inventing_fluent_boundary_quotes():
+    cues=[dict(start=0,end=150,text='这句有前提但原文没有完整结尾的')]
+    reply=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False,summary='通顺摘要',issues=[],
+        opening_quote='这句有前提',ending_quote='这是完整的结论')
+    with tempfile.TemporaryDirectory() as tmp:
+        with patch.object(produce,'llm',return_value=json.dumps(reply,ensure_ascii=False)):
+            import pytest
+            with pytest.raises(produce.VisualQualityError,match='证据'):
+                produce.review_complete_argument(cues,[dict(start=0,end=0)],'林园','test',Path(tmp),'')
+
+
+def test_reported_transcript_issue_overrides_positive_editor_flags():
+    cues=[dict(start=0,end=150,text='这是一个观点，但关键名词无法理解，这是本段结论。')]
+    reply=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False,summary='通顺摘要',
+        issues=['关键名词无法理解'],opening_quote='这是一个观点',ending_quote='这是本段结论。')
+    with tempfile.TemporaryDirectory() as tmp:
+        with patch.object(produce,'llm',return_value=json.dumps(reply,ensure_ascii=False)):
+            import pytest
+            with pytest.raises(produce.VisualQualityError,match='歧义'):
+                produce.review_complete_argument(cues,[dict(start=0,end=0)],'林园','test',Path(tmp),'')
+
+
 def test_schema_placeholder_cannot_impersonate_a_review_summary():
     meta = complete_meta()
     meta['editorial_review']['summary'] = '主题、理由和结论'

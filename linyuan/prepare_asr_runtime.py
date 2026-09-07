@@ -35,7 +35,9 @@ def main():
         # Cache recognition once per exact mother video, model and code. This
         # remains a hypothesis cache, never a substitute for editorial review.
         digest=hashlib.sha256(json.dumps(choice,sort_keys=True).encode())
-        for name in ('produce_cn.py','qwen_cpu_transcript.py','qwen_asr_evidence.py','reviewed_asr_corrections.py'):
+        # Rendering/editorial edits must not invalidate expensive recognition.
+        # ASR_PIPELINE_VERSION is already part of the inner provenance check.
+        for name in ('qwen_cpu_transcript.py','qwen_asr_evidence.py','reviewed_asr_corrections.py'):
             digest.update((Path(__file__).parent/name).read_bytes())
         emit('MOTHER_ASR_KEY',choice['source_sha256']+'-'+digest.hexdigest()[:20])
         print('CPU offline ASR backend:',choice['backend'])

@@ -1375,24 +1375,35 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if saved.get('transcript_sha256')==digest and not editorial.review_error(saved):
+            if (saved.get('transcript_sha256')==digest and saved.get('review_protocol')==2
+                    and not editorial.review_error(saved)):
                 return saved
         except (ValueError,TypeError):
             pass
     prompt=(f'独立复核这条{speaker}访谈选段是否适合作为完整观点视频。'
         '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
+        '先逐句列出无法按字面理解的错词、关键否定或数字歧义，再作整体判断。'
+        '禁止在脑中替换错词后给原文通过。例如“生产效率大大不提高”“资本是足力的”'
+        '不能被你自行理解为另一句话；“这我判断在未来的”这种半句结尾必须拒绝。'
+        '摘要通顺不代表原字幕正确。开头“他说”“那就我们当时”若缺少前因或指代也须拒绝。'
         '只判断内容，不改写原话。检查前3秒是否有明确主语/话题、是否讲清完整观点、'
         '有无理由/案例、结束是否自然且没有半句、数字/否定/关键实体是否有影响观点的识别歧义。'
         '中间同主题追问可保留；无关主题拼凑、片头寒暄/无指代回应、必要结论被切掉须拒绝。'
         '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
-        '只输出JSON：{"standalone_opening":true,"complete_argument":true,"reasoning_present":true,'
-        '"natural_ending":true,"requires_audio_review":false,"summary":"具体写出本段主题、理由和结论",'
-        '"issues":[]}。\n原话：'+text)
+        '每个布尔值独立填写，不预设通过。输出JSON字段：standalone_opening、complete_argument、'
+        'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
+        'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。\n原话：'+text)
     response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
     raw=re.sub(r'```(?:json)?|```','',response).strip()
     match=re.search(r'\{.*\}',raw,re.S)
     proof=json.loads(match.group(0) if match else raw)
-    proof.update(version=editorial.VERSION,transcript_sha256=digest)
+    for name in ('opening_quote','ending_quote'):
+        quote=str(proof.get(name) or '')
+        if not quote or quote not in text:
+            raise VisualQualityError('完整观点审核缺少可对照原文的开场/结尾证据')
+    if proof.get('issues'):
+        proof['requires_audio_review']=True
+    proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=2)
     cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     error=editorial.review_error(proof)
     if error:
@@ -4238,6 +4249,11 @@ def main():
         if not retry_parts.issubset(set(range(1,len(work_items)+1))):
             raise ValueError('补产编号不在已核对选段中')
     metas, rejected = [], []
+    publication_state={}
+    if os.environ.get('PUBLICATION_STATE_PATH'):
+        publication_state=json.loads(Path(os.environ['PUBLICATION_STATE_PATH']).read_text())
+        if not isinstance(publication_state.get('published'),dict):
+            raise ValueError('发布历史不可用，不能把未核对的母片当成未使用')
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint():
@@ -4277,6 +4293,22 @@ def main():
         if ci == mid_idx:
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         try:
+            if preselected_picks and publication_state:
+                pick=preselected_picks[0]
+                lo,hi=seg_cues[pick['start']]['start'],seg_cues[pick['end']]['end']
+                reuse_error=editorial.source_reuse_error(
+                    dict(source_sha256=source_report.get('source_sha256'),segments=[dict(start=lo,end=hi)]),
+                    os.environ.get('SOURCE_ORIGIN_URL',''),publication_state)
+                if reuse_error:
+                    raise VisualQualityError(reuse_error)
+            # Context expansion can propose overlapping candidates; retain the
+            # first accepted complete argument, never duplicate the same speech.
+            if preselected_picks:
+                pick=preselected_picks[0]
+                lo,hi=seg_cues[pick['start']]['start'],seg_cues[pick['end']]['end']
+                if any(min(hi,s['end'])-max(lo,s['start'])>.3
+                       for old in metas for s in old.get('segments',[])):
+                    raise VisualQualityError('与本批已通过的完整观点时间段重叠，跳过重复选段')
             m = produce_part_with_budget(src, work, out, seg_cues, args.speaker, args.occasion,
                              api_key, existing_subtitles, W, H, suffix,
                              pick_cache_suffix=suffix, target_sec=target_sec,

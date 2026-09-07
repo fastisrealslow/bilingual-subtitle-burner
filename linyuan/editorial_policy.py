@@ -4,15 +4,73 @@ import json
 import math
 import re
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 
 VERSION = 2026090604
 MIN_SECONDS = 120.0
 TARGET_SECONDS = 180.0
 
+
+def source_key(url):
+    """A Bilibili collection page is a separate mother; tracking args are not."""
+    parsed = urlparse(str(url or ''))
+    if parsed.hostname in {'www.bilibili.com', 'bilibili.com', 'm.bilibili.com'}:
+        match = re.search(r'/video/(BV[0-9A-Za-z]+)', parsed.path)
+        if match:
+            page = parse_qs(parsed.query).get('p', ['1'])[0]
+            return match.group(1) + ':p' + str(int(page)) if page.isdigit() and int(page)>0 else str(url)
+    return str(url or '').strip()
+
+
+def intervals(segments):
+    result=[]
+    for row in segments or []:
+        try:
+            a,b=float(row['start']),float(row['end'])
+        except (KeyError,TypeError,ValueError):
+            return None
+        if not math.isfinite(a+b) or a<0 or b<=a:
+            return None
+        result.append((a,b))
+    return result or None
+
+
+def source_reuse_error(meta, source_url, state):
+    """Permit different arguments from a mother only with usable old ranges.
+
+    This is additional to audio/text/visual fingerprint deduplication. It never
+    grants publication approval and refuses legacy receipts with unknown ranges.
+    """
+    current=intervals(meta.get('segments'))
+    digest=meta.get('source_sha256')
+    for info in state.get('published',{}).values():
+        same_url=bool(source_url and source_key(info.get('source_url'))==source_key(source_url))
+        parts=info.get('parts') or ([info] if info.get('bvid') else [])
+        for old in parts:
+            if old.get('status')=='skipped' or not old.get('bvid'):
+                continue
+            old_digest=old.get('source_sha256') or info.get('source_sha256')
+            same_digest=bool(digest and old_digest==digest)
+            if not same_url and not same_digest:
+                continue
+            previous=intervals(old.get('source_segments'))
+            if not current or not previous:
+                return '同源历史缺少可核对的起止段，不能确认是未用内容'
+            if same_url and digest and old_digest and digest!=old_digest:
+                return '同一来源URL的母片内容哈希已改变，须核对旧段对应关系'
+            if any(min(b,d)-max(a,c)>.3 for a,b in current for c,d in previous):
+                return '与已经发布的母片时间段重叠，保留其他完整观点'
+    return None
+
 # These are source-bound, manually confirmed ASR corruptions from the
 # 2026-09-07 production artifact.  They are rejection evidence, not guessed
 # rewrites: the offline recognizer must not silently turn them into fluent text.
 ASR_CONTAMINATION_FRAGMENTS = (
+    # Actual Qwen pilot ASS, run 34076248043: changing recognizer is not QA.
+    '资本是足力的',
+    '生产效率大大不提高',
+    '乐视网肯定是因为见不迟',
+    '那就我就我们就当时就就挣起来了',
     '哎印的印一段时间我就对了',
     '买了一个骗公司不挣钱的',
     '你买片公司万丈深渊',

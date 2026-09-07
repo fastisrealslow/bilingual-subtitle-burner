@@ -129,3 +129,26 @@ def test_different_collection_episodes_survive_title_dedup():
                page_url=f'https://www.bilibili.com/video/BVseries?p={i}') for i in [1,2]]
     assert len(fc.dedup_by_title(rows))==2
     assert fc.video_id_of(rows[1]['page_url'],'')=='BVseries:p2'
+
+
+def test_reuse_allows_new_arguments_but_not_overlap_or_unknown_legacy():
+    url='https://www.bilibili.com/video/BVsource?p=2'
+    old=dict(bvid='published',status='published',source_segments=[dict(start=100,end=240)],source_sha256='same')
+    st=dict(published=dict(old=dict(source_url=url,parts=[old])))
+    fresh=dict(source_sha256='same',segments=[dict(start=250,end=400)])
+    assert fc.editorial.source_reuse_error(fresh,url+'&spm_id_from=tracking',st) is None
+    fresh['segments']=[dict(start=200,end=350)]
+    assert '重叠' in fc.editorial.source_reuse_error(fresh,url,st)
+    fresh['source_sha256']='changed'
+    assert '哈希已改变' in fc.editorial.source_reuse_error(fresh,url,st)
+    # Another collection page must not inherit the first page's timeline.
+    assert fc.editorial.source_reuse_error(fresh,url.replace('p=2','p=3'),st) is None
+    del old['source_segments']
+    assert '缺少' in fc.editorial.source_reuse_error(fresh,url,st)
+
+
+def test_cross_url_same_mother_and_same_batch_overlap_are_also_rejected():
+    old=dict(bvid='old',source_sha256='same',source_segments=[dict(start=0,end=180)])
+    st=dict(published=dict(batch=dict(source_url='other-url',parts=[old])))
+    meta=dict(source_sha256='same',segments=[dict(start=20,end=170)])
+    assert '重叠' in fc.editorial.source_reuse_error(meta,'new-url',st)
