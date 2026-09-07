@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788765542,
+  "updated_at": 1788765672,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -2903,7 +2903,14 @@
           "ly-0906-5e5a53"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0906-5e5a53",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "素材质量门禁未通过"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4376,6 +4383,36 @@
         "historical_receipts": 0
       },
       {
+        "source_key": "BV1rYcWeaEtb:p48",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=48",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0907-f2e3ea"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1rYcWeaEtb:p18",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=18",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0907-388c81"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
         "source_key": "https://m.weibo.cn/detail/5333685484129451",
         "source_url": "https://m.weibo.cn/detail/5333685484129451",
         "family": "m.weibo.cn",
@@ -4420,7 +4457,8 @@
         "attempted_mothers": 68,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 29
+        "terminal_unclassified": 29,
+        "terminal_editorial-or-render": 1
       },
       "BV1H4Na6kEFd": {
         "attempted_mothers": 1,
@@ -5139,7 +5177,7 @@
         "terminal_unclassified": 1
       },
       "BV1rYcWeaEtb": {
-        "attempted_mothers": 19,
+        "attempted_mothers": 21,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 11,
@@ -5170,7 +5208,7 @@
       }
     }
   },
-  "in_flight_placeholders": 16,
+  "in_flight_placeholders": 18,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
@@ -5197,53 +5235,6 @@
           "subtitle_sha256": "7719afadf5945f6a86e522a0663aca32f5e432328b6f9f9e9fa0f2cf3873dcd9",
           "status": "verified",
           "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0906-5e5a53",
-      "artifact_id": 10000794305,
-      "run_id": 34071783125,
-      "checked_at": 1788756856,
-      "source_url": "https://m.weibo.cn/detail/5320752769532627",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_3.mp4",
-          "title": "股神林园：我总感觉到现在不在半山药，也在办三药以上，我可以肯定因瑞达老板他也判断不了",
-          "duration_sec": 158.2,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 456.54,
-              "end": 614.76,
-              "reason": "林园讨论了企业在经营过程中需要不断投入资金和人力资源的问题，并指出当市场突然下行时，这些投入可能导致企业面临巨大的亏损风险。他通过举例说明了企业在市场乐观时过度投入的后果。"
-            }
-          ],
-          "sha256": "e21646efe4f55fc98a37c5f37dc2a962eb8554160f79dabb5eb6da84a980b87b",
-          "subtitle_sha256": "f853eac58932a6078ea3f68c5895ff063ecffef7c26fdeff5a5c05963377675c",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 1,
-          "final": "final_4.mp4",
-          "title": "林园：我根本就不看，做乌龟。他们知道公司价值，卖出去都能赚钱，几乎看不到什么危机",
-          "duration_sec": 125.5,
-          "render_mode": "audio_card",
-          "source_sha256": null,
-          "segments": [
-            {
-              "start": 712.86,
-              "end": 838.38,
-              "reason": "林园阐述熊市第三期的投资策略，指出在行业加速下跌阶段应采取'做乌龟'的观望态度，并解释这种策略源于对市场低估期不可持续的判断。"
-            }
-          ],
-          "sha256": "11f1a2ee70ceb5b5df4992df311f0700fe7ac809bbd6bde0128895a16c178763",
-          "subtitle_sha256": "b1e4a6b2226717c986e08bbc186bb93ff1442606a3b4542e00a353d6ddaae0a6",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
         }
       ]
     }
