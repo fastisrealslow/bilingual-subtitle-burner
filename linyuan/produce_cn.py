@@ -1302,7 +1302,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 3}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 4}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1329,7 +1329,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         "需要解释时可更长。每个区间实际结束时间减起始时间必须至少120秒。"
         "一条必须讲清一个主题，有观点、有理由或案例、自然结论；保留必要限定与否定。"
         "不要只取结论、不要拼不相关问题、不要为了数量硬凑。无法满足就返回[]。"
-        "前3秒需独立可懂，不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
+        "开场第一句话须明确主题并独立可懂，不要求三秒内说完；不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
         "也不能删掉理解这句话所必需的上下文。可以保留同一主题内有用的追问。"
         "start/end是下面0起始字幕序号，不是秒数；结束序号不得小于起始行标注的最早允许end，"
         "这个下界已经由程序按真实时间计算，不能忽略。确保起止为完整词句/意群。"
