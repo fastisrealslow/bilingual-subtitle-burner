@@ -1700,7 +1700,7 @@ def publish_catchup(event, context=None):
     if not catchup_deficit(st):
         return {'published':0,'schedule_caught_up':1}
     stock=source_inventory(st)
-    if not stock['inventory_fresh'] or stock['daily_mix_usable']<=0:
+    if not stock['inventory_fresh'] or stock.get('publishable_now',stock['daily_mix_usable'])<=0:
         return {'published':0,'verified_stock_empty':1}
     return publish_handler({**event,'force_publish':True,'batch_remaining':1},context)
 
@@ -1726,7 +1726,12 @@ def source_inventory(st, payload=None):
                 if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
-    return dict(verified_live=live,verified_audio_card=audio,
+    today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
+    daily=st.get('daily_publish') or {}
+    if daily.get('date')!=today:daily={}
+    audio_now=bool(audio and not daily_mix_error(dict(render_mode='audio_card'),daily))
+    publishable=max(0,min(live+int(audio_now),MAX_PUBLISH_PER_DAY-int(daily.get('count') or 0)))
+    return dict(verified_live=live,verified_audio_card=audio,publishable_now=publishable,
                 daily_mix_usable=live+min(audio,live//5),target_reserve=TARGET_READY_RESERVE,
                 inventory_fresh=valid)
 

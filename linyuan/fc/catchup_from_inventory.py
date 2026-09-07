@@ -12,7 +12,7 @@ from publish_fresh_six import prepare_async_tasks, state
 def inventory_action(initial, stock):
     if not stock['inventory_fresh']:
         return None
-    if fc.catchup_deficit(initial) and stock['daily_mix_usable']>0:
+    if fc.catchup_deficit(initial) and stock.get('publishable_now',stock['daily_mix_usable'])>0:
         return 'publish-catchup'
     if stock['daily_mix_usable']<fc.TARGET_READY_RESERVE:
         return 'dispatch-source-inventory'

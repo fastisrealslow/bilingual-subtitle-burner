@@ -79,6 +79,20 @@ def test_mix_limit_and_used_parts_reduce_real_reserve():
     assert fc.source_inventory(state,p)['daily_mix_usable']==0
 
 
+def test_last_audio_card_uses_today_live_receipts_without_inflating_reserve():
+    today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
+    state=dict(dispatched=[dict(slug='mother')],published={},
+               daily_publish=dict(date=today,count=5,live_video_count=5))
+    data=payload([dict(index=0,status='verified',render_mode='audio_card')])
+    stock=fc.source_inventory(state,data)
+    assert stock['daily_mix_usable']==0
+    assert stock['publishable_now']==1
+    state['daily_publish']['count']=6
+    assert fc.source_inventory(state,data)['publishable_now']==0
+    state['daily_publish']['date']='2020-01-01'
+    assert fc.source_inventory(state,data)['publishable_now']==0
+
+
 def test_quarantined_and_failed_mothers_do_not_count(monkeypatch):
     state=dict(dispatched=[dict(slug='mother')],published={})
     p=payload([dict(index=0,status='verified',render_mode='live_video_card')])
