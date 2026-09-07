@@ -1,0 +1,51 @@
+name: 林园成片稿件与原画核对
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-hold-final-review-0907.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  hold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 只读核对已生成的本条稿件回执
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python - <<'PYREAD'
+          import os,sys,json
+          from pathlib import Path
+          sys.path.insert(0,'linyuan/fc')
+          sys.path.insert(0,'linyuan')
+          import index as fc
+          from bili_archive_status import archive_status
+          result=archive_status(['BV1HNbw6UEuv'],fc.OWNER_MID,os.environ['BILIBILI_COOKIES'])
+          Path('hold-receipt.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PYREAD
+      - name: 下载同一原片并抽取缺陷附近完整画面
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1ADetzQEuE --out source.mp4
+          mkdir -p source-frames
+          for stamp in 938.6 994.3 1036.8 1044.7 1084.4; do
+            ffmpeg -v error -ss "$stamp" -i source.mp4 -frames:v 1 -update 1 "source-frames/$stamp.jpg"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-review-source-frames
+          path: |
+            hold-receipt.json
+            source-frames/
