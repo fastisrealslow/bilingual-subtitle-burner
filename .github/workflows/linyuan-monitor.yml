@@ -7,6 +7,12 @@ name: 林园监控 · 每日抓取
 # 需要视频时由 produce-cn.yml 现取现用。
 
 on:
+  # Editing this workflow is also an explicit, auditable way to perform an
+  # immediate refresh when GitHub's scheduled delivery is late.  Other source
+  # or state commits do not retrigger the crawler.
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-monitor.yml]
   schedule:
     # GitHub 定时任务实测曾延后约 4 小时启动。02:00 预抓给 06:00 FC
     # 调度留足缓冲；09:00 再补抓一次，避免单次延迟导致全天无新候选。
