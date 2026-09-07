@@ -1,0 +1,37 @@
+name: 林园原声CPU独立交叉核对
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-asr-diagnostic-0907.yml]
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pip install -q numpy sherpa-onnx==1.13.7
+      - name: 取对照原片和固定离线模型
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        timeout-minutes: 12
+        run: |
+          python linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1ADetzQEuE --out source.mp4
+          curl --fail --location --retry 2 --max-time 180 https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-paraformer-zh-2024-03-09.tar.bz2 -o /tmp/paraformer.tar.bz2
+          tar -xjf /tmp/paraformer.tar.bz2
+      - name: CPU本地核对原声疑点，不进入投稿
+        env:
+          CUDA_VISIBLE_DEVICES: ''
+        run: python -u linyuan/asr_diagnostic_probe.py --source source.mp4 --weights sherpa-onnx-paraformer-zh-2024-03-09 --out evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: independent-cpu-asr-evidence
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: error
