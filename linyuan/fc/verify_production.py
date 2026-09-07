@@ -1,9 +1,15 @@
-"""Verify deployed code, daily timers and candidate supply; then kick dispatch."""
+"""Verify deployed code and timers; refill only after an explicit source refresh."""
 import hashlib
 import io
 import json
 import os
 from pathlib import Path
+
+
+def refill_requested(env=None):
+    """Keep code-deploy pushes from accidentally starting another production batch."""
+    value = (env or os.environ).get('FC_REFILL', '')
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 def main():
@@ -59,8 +65,10 @@ def main():
             if trigger.qualifier != 'LATEST':
                 raise SystemExit('Timer is pinned to an obsolete function version')
             timer_proof.append({'name':trigger.trigger_name,'qualifier':trigger.qualifier,'config':config})
-    result={'health':health,'timers':timer_proof,
-            'dispatch':invoke({'triggerName':'dispatch','_refill_count':6},asynchronous=True)}
+    dispatch = ({'skipped': True, 'reason': 'refill_not_requested'}
+                if not refill_requested()
+                else invoke({'triggerName':'dispatch','_refill_count':6},asynchronous=True))
+    result={'health':health,'timers':timer_proof,'dispatch':dispatch}
     Path('production-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
     print(json.dumps(result,ensure_ascii=False,indent=2))
 

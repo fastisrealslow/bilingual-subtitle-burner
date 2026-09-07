@@ -113,7 +113,7 @@ jobs:
           # GITHUB_TOKEN 创建的 git push 不会递归触发其他工作流；使用
           # workflow_dispatch 是 GitHub 明确允许的安全例外。部署流程会先
           # 验证线上代码/定时器，再由 FC 按当前库存和日配额幂等补位。
-          gh workflow run fc-production-deploy.yml --ref "${GITHUB_REF_NAME}"
+          gh workflow run fc-production-deploy.yml --ref "${GITHUB_REF_NAME}" -f refill=true
 
       - name: 摘要
         if: always()

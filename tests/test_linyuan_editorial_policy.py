@@ -107,7 +107,30 @@ def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
     assert 'ASR污染' in policy.transcript_integrity_error('钱甚至还要倾家账')
     assert 'ASR污染' in policy.transcript_integrity_error('白度趋势但这个也有背景')
     assert 'ASR污染' in policy.transcript_integrity_error('这就是资本是逐利的我能挣钱我不会拉着你的')
+    assert 'ASR污染' in policy.transcript_integrity_error('你跟着里边肯定能赚钱不见得')
+    assert 'ASR污染' in policy.transcript_integrity_error('那他总是这样新智生产力')
+    assert 'ASR污染' in policy.transcript_integrity_error('投资医药也是投老人口老龄化')
+    assert 'ASR污染' in policy.transcript_integrity_error('还是要就是企业的目的是为什么')
+    assert 'ASR污染' in policy.transcript_integrity_error('今天是有是投资的好时候')
+    assert 'ASR污染' in policy.transcript_integrity_error('有创8%的股息')
+    assert 'ASR污染' in policy.transcript_integrity_error('大概在115年16年的时候')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
+
+
+def test_deploy_refill_requires_an_explicit_source_refresh_flag():
+    spec = importlib.util.spec_from_file_location(
+        'verify_production', ROOT / 'linyuan/fc/verify_production.py')
+    verify = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(verify)
+    assert verify.refill_requested({}) is False
+    assert verify.refill_requested({'FC_REFILL': 'false'}) is False
+    assert verify.refill_requested({'FC_REFILL': 'true'}) is True
+    assert verify.refill_requested({'FC_REFILL': '1'}) is True
+
+    deploy = (ROOT / '.github/workflows/fc-production-deploy.yml').read_text()
+    monitor = (ROOT / '.github/workflows/linyuan-monitor.yml').read_text()
+    assert "inputs.refill" in deploy
+    assert "-f refill=true" in monitor
 
 
 def test_daily_and_explicit_publication_share_the_same_gate():

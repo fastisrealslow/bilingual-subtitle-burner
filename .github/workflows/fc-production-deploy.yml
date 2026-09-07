@@ -17,6 +17,11 @@ on:
       - linyuan/fc/verify_production.py
       - .github/workflows/fc-production-deploy.yml
   workflow_dispatch:
+    inputs:
+      refill:
+        description: '部署核验后按当前库存补候选（仅素材刷新使用）'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -40,6 +45,9 @@ jobs:
       FC_CPU: '0.5'
       FC_TIMEOUT_SECONDS: '7200'
       FC_DISK_SIZE_MB: '10240'
+      # 普通代码部署只核验，不应顺带启动另一批生产。只有素材刷新
+      # 显式 workflow_dispatch(refill=true) 才补队列。
+      FC_REFILL: ${{ github.event_name == 'workflow_dispatch' && inputs.refill && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -73,7 +81,7 @@ jobs:
       - name: 部署到阿里云函数计算
         run: python linyuan/fc/deploy_code.py
 
-      - name: 核对部署代码与定时器并补调六个候选
+      - name: 核对部署代码与定时器（按显式参数补候选）
         run: python linyuan/fc/verify_production.py
 
       - uses: actions/upload-artifact@v4

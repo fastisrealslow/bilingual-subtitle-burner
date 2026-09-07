@@ -37,6 +37,20 @@ ASR_CONTAMINATION_FRAGMENTS = (
     '我没有犯的标准就连干这个事呢',
     '白度趋势',
     '我能挣钱我不会拉着你的',
+    # 2026-09-07 ly-0907-f95a57, verified from the delivered ASS files.
+    # Several parts begin mid-thought or contain unresolved number/term errors;
+    # retain the recognizer output as rejection evidence instead of rewriting it.
+    '你跟着里边肯定能赚钱不见得',
+    '它不见代不见得',
+    '那他总是这样',
+    '新智生产力',
+    '投老人口老龄化',
+    '还是要就是企业的目的是为什么',
+    '时好时候',
+    '今天是有是投资的好时候',
+    '有创8%的股息',
+    '炒小炒心',
+    '大概在115年16年的时候',
 )
 
 
