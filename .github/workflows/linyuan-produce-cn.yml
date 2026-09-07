@@ -113,6 +113,12 @@ jobs:
           # （2026-09-01 实测：装到 5.0.0 后人脸检测全失败，封面退化成取第一帧）
           pip install yt-dlp pillow 'opencv-python<5' rapidocr-onnxruntime
 
+      - name: 缓存 CPU 本地人物模型
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.tool_cache }}/linyuan-face-models
+          key: opencv-yunet-sface-2023mar-2021dec-v1
+
       - name: 取源
         id: src
         timeout-minutes: 12
@@ -156,7 +162,7 @@ jobs:
       - name: 素材质量门禁
         id: source_gate
         env:
-          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+          LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
         run: |
           set -euo pipefail
           # 所有渠道都确认音视频轨、时长漂移与头尾可解码；

@@ -1763,10 +1763,10 @@ def _dispatch_admitted(event=None, context=None):
     if source_rejected:
         save_state(st)
         log.info(f"已在调度前淘汰 {source_rejected} 条失败素材")
-    quality_blocked_until=float(st.get('quality_service_blocked_until') or 0)
-    if time.time()<quality_blocked_until:
-        return {'dispatched':0,'quality_service_blocked':1,
-                'retry_after':int(quality_blocked_until)}
+    # Person verification is CPU-local; an old external VLM 402 circuit no
+    # longer blocks source production after this release.
+    st.pop('quality_service_blocked_until',None)
+    st.pop('quality_service_block_reason',None)
     today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
     if (today == FRESH_SIX_DATE and FRESH_SIX_APPROVED
             and int(((st.get("daily_publish") or {}).get(fresh_six_counter(next(iter(FRESH_SIX_APPROVED.values()))["slug"])) or {}).get("count", 0)) < 6):

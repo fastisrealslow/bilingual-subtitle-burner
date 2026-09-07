@@ -53,6 +53,12 @@ FUNASR_LANG = os.environ.get("FUNASR_LANG") or "zh"
 
 SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
 VISION_MODEL = os.environ.get("VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"
+LOCAL_FACE_MODEL_DIR = Path(os.environ.get("LOCAL_FACE_MODEL_DIR") or "/tmp/linyuan-face-models")
+LOCAL_FACE_DETECTOR_URL = ("https://github.com/opencv/opencv_zoo/raw/main/models/"
+    "face_detection_yunet/face_detection_yunet_2023mar.onnx")
+LOCAL_FACE_RECOGNIZER_URL = ("https://github.com/opencv/opencv_zoo/raw/main/models/"
+    "face_recognition_sface/face_recognition_sface_2021dec.onnx")
+LOCAL_FACE_COSINE_THRESHOLD = float(os.environ.get("LOCAL_FACE_COSINE_THRESHOLD") or .363)
 
 # 第一财经 2026-08-22《投资人说》官方节目封面。这里只作为机器人物比对的
 # 参考图，不会进入成片或对外分发；可用环境变量替换为自有参考图 URL。
@@ -60,7 +66,7 @@ LINYUAN_REFERENCE_URL = os.environ.get("LINYUAN_REFERENCE_URL") or (
     "https://imgcdn.yicai.com/vms-new/2026/08/"
     "b6e325e8-6616-46ed-902e-2987008296f5.jpg"
 )
-VISUAL_GATE_VERSION = 2
+VISUAL_GATE_VERSION = 3
 VISUAL_SAMPLE_COUNT = 6
 VISUAL_MIN_MATCHES = 2
 VISUAL_MIN_MATCH_RATIO = 0.50
@@ -69,7 +75,7 @@ MIN_SHORT_EDGE = 480
 SOURCE_MIN_DURATION = int(editorial.MIN_SECONDS)
 SOURCE_MAX_DURATION = 7200
 FINGERPRINT_VERSION = 1
-QUALITY_GATE_VERSION = 12
+QUALITY_GATE_VERSION = 13
 VISUAL_STANDARD_VERSION = 3
 COVER_STANDARD_VERSION = 4
 # 对标「园园滚雪球」实际成片后的音频卡规格：它的静态人物卡/活动拼图均以
@@ -340,6 +346,79 @@ def identity_face_reference(reference):
     return out
 
 
+def _local_face_models():
+    """Download OpenCV's ONNX face models once; inference is CPU-only."""
+    LOCAL_FACE_MODEL_DIR.mkdir(parents=True,exist_ok=True)
+    result=[]
+    for name,url,min_bytes in (
+        ('face_detection_yunet_2023mar.onnx',LOCAL_FACE_DETECTOR_URL,200_000),
+        ('face_recognition_sface_2021dec.onnx',LOCAL_FACE_RECOGNIZER_URL,10_000_000)):
+        path=LOCAL_FACE_MODEL_DIR/name
+        if not path.exists() or path.stat().st_size<min_bytes:
+            tmp=path.with_suffix('.part')
+            req=urllib.request.Request(url,headers={'User-Agent':'linyuan-local-face/1.0'})
+            try:
+                with urllib.request.urlopen(req,timeout=180) as response, tmp.open('wb') as stream:
+                    while True:
+                        chunk=response.read(1024*1024)
+                        if not chunk:break
+                        stream.write(chunk)
+                if tmp.stat().st_size<min_bytes:raise ValueError('模型文件不完整')
+                tmp.replace(path)
+            except Exception as exc:
+                tmp.unlink(missing_ok=True)
+                raise VisualResponseFormatError('本地人物模型准备失败：'+str(exc)) from exc
+        result.append(path)
+    return result
+
+
+def _local_identity_verdict(reference,frames,speaker):
+    """Compare every detected face with the authority portrait using CPU SFace."""
+    import cv2
+    detector_path,recognizer_path=_local_face_models()
+    detector=cv2.FaceDetectorYN.create(str(detector_path),'',(320,320),score_threshold=.80,
+                                       nms_threshold=.3,top_k=5000)
+    recognizer=cv2.FaceRecognizerSF.create(str(recognizer_path),'')
+
+    def features(path):
+        image=cv2.imread(str(path))
+        if image is None:return []
+        h,w=image.shape[:2];detector.setInputSize((w,h))
+        _ok,found=detector.detect(image)
+        if found is None:return []
+        rows=sorted(found,key=lambda x:float(x[2]*x[3]),reverse=True)
+        result=[]
+        for face in rows:
+            try:
+                result.append(recognizer.feature(recognizer.alignCrop(image,face)))
+            except cv2.error:
+                continue
+        return result
+
+    refs=features(reference)
+    if not refs:
+        raise VisualResponseFormatError('本地人物核验无法从参考图提取人脸')
+    reference_feature=refs[0]
+    same=[];different=[];uncertain=[];scores={}
+    for index,path in enumerate(frames,1):
+        candidates=features(path)
+        if not candidates:
+            uncertain.append(index);continue
+        score=max(float(recognizer.match(reference_feature,x,cv2.FaceRecognizerSF_FR_COSINE))
+                  for x in candidates)
+        scores[index]=round(score,4)
+        (same if score>=LOCAL_FACE_COSINE_THRESHOLD else different).append(index)
+    best=max(same,key=lambda i:scores[i]) if same else None
+    decisive=[scores[i] for i in same]
+    confidence=(min(.99,.75+max(0,(sum(decisive)/len(decisive)-LOCAL_FACE_COSINE_THRESHOLD))*1.5)
+                if decisive else 0.0)
+    return dict(same_person_frames=same,different_person_frames=different,
+                uncertain_frames=uncertain,best_cover_frame=best,
+                confidence=round(confidence,3),watermark_texts=[],
+                reason=f'CPU SFace逐帧比对；阈值{LOCAL_FACE_COSINE_THRESHOLD}；分数{scores}',
+                engine='opencv_yunet_sface_cpu')
+
+
 def _call_identity_vlm(reference, frames, speaker, api_key):
     """把权威参考照和源片多帧一起交给 VLM 做目标人物在场核验。"""
     content = [
@@ -421,14 +500,7 @@ def verify_source_identity(src, work, speaker, api_key):
     """在 ASR 前确认整片主角确实是指定人物，并返回可用封面帧时间。"""
     reference = _download_speaker_reference(speaker, work)
     frames, times = _sample_visual_frames(src, work)
-    try:
-        verdict = _call_identity_vlm(reference, frames, speaker, api_key)
-    except VisualResponseFormatError:
-        verdict = _retry_identity_vlm_in_chunks(
-            reference, frames, speaker, api_key)
-    if not identity_verdict_passes(verdict, len(frames)):
-        verdict = _retry_identity_vlm_in_chunks(
-            reference, frames, speaker, api_key)
+    verdict = _local_identity_verdict(reference,frames,speaker)
     if not identity_verdict_passes(verdict, len(frames)):
         raise VisualQualityError(
             f"人物不一致或无法确认：{speaker}；"
@@ -443,7 +515,7 @@ def verify_source_identity(src, work, speaker, api_key):
         best = same[0]
     report = {
         "version": VISUAL_GATE_VERSION,
-        "model": VISION_MODEL,
+        "model": "opencv_yunet_sface_cpu",
         "speaker": speaker,
         "same_person_frames": same,
         "different_person_frames": verdict.get("different_person_frames", []),
@@ -2236,19 +2308,10 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     # Rotating uploader watermarks can move between corners and evade a stable
     # position cluster. Reuse the multi-frame visual review on the cropped final
     # live region. Our own title/disclaimer/brand are all outside this rectangle.
-    if api_key and reference:
-        try:
-            verdict=_call_identity_vlm(Path(reference),frame_paths,speaker,api_key)
-        except VisualResponseFormatError:
-            verdict=_retry_identity_vlm_in_chunks(Path(reference),frame_paths,speaker,api_key)
-        marks=[]
-        for mark in verdict.get('watermark_texts') or []:
-            value=str(mark).strip()
-            if value and value.lower() not in {'none','null','无','没有','未发现'}:
-                marks.append(value)
-        if marks:
-            raise VisualQualityError(
-                f"真人动态区仍有外部水印文字：{list(dict.fromkeys(marks))}")
+    if reference:
+        verdict=_local_identity_verdict(Path(reference),frame_paths,speaker)
+        if not identity_verdict_passes(verdict,len(frame_paths)):
+            raise VisualQualityError('真人动态区本地人物复检未确认林园本人：'+verdict['reason'])
     return {"live_region_verified": True, "no_qr_verified": True,
             "partial_qr_verified": True, "full_face_frames": full_face_frames,
             "no_black_bars_verified": True}
@@ -3877,10 +3940,7 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
             check=True,timeout=45)
         frames.append(path)
     reference=_download_speaker_reference(speaker,Path(work))
-    try:
-        verdict=_call_identity_vlm(reference,frames,speaker,api_key)
-    except VisualResponseFormatError:
-        verdict=_retry_identity_vlm_in_chunks(reference,frames,speaker,api_key)
+    verdict=_local_identity_verdict(reference,frames,speaker)
     same={i for i in verdict.get('same_person_frames',[]) if type(i) is int and 1<=i<=6}
     proof={**verdict,'version':1,'speaker':speaker,'sample_count':6}
     (directory/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))

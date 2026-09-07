@@ -67,19 +67,14 @@ def test_chunked_identity_retry_remaps_frame_numbers(monkeypatch, tmp_path):
 
 
 def test_malformed_frame_batches_recover_but_uncertain_frames_do_not_pass(monkeypatch,tmp_path):
-    frames=list(range(6));calls=[]
+    frames=list(range(6))
     monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:'reference')
     monkeypatch.setattr(P,'_sample_visual_frames',lambda *a:(frames,[10,20,30,40,50,60]))
-    def classify(reference,chunk,*args):
-        calls.append(len(chunk))
-        if len(chunk)>1:
-            raise P.VisualResponseFormatError('omitted frames')
-        return dict(same_person_frames=[],different_person_frames=[],
-                    uncertain_frames=[1],confidence=.3)
-    monkeypatch.setattr(P,'_call_identity_vlm',classify)
+    monkeypatch.setattr(P,'_local_identity_verdict',lambda *args:
+        dict(same_person_frames=[],different_person_frames=[],
+             uncertain_frames=[1,2,3,4,5,6],confidence=.3,reason='没有清晰人脸'))
     with pytest.raises(P.VisualQualityError,match='人物不一致'):
         P.verify_source_identity('source',tmp_path,'林园','test')
-    assert 1 in calls and max(calls)==6
 
 
 def test_source_evidence_reuse_requires_actual_report_hash_and_source(monkeypatch):
@@ -166,7 +161,7 @@ def test_source_identity_rejects_a_video_full_of_other_people(monkeypatch,
                         lambda *args: reference)
     monkeypatch.setattr(P, "_sample_visual_frames",
                         lambda *args: (frames, [10, 20, 30, 40, 50, 60]))
-    monkeypatch.setattr(P, "_call_identity_vlm", lambda *args: {
+    monkeypatch.setattr(P, "_local_identity_verdict", lambda *args: {
         "same_person_frames": [],
         "different_person_frames": [1, 2, 3, 4, 5, 6],
         "confidence": 0.99,
@@ -185,7 +180,7 @@ def test_source_identity_returns_only_a_verified_cover_time(monkeypatch,
                         lambda *args: reference)
     monkeypatch.setattr(P, "_sample_visual_frames",
                         lambda *args: (frames, [10, 20, 30, 40, 50, 60]))
-    monkeypatch.setattr(P, "_call_identity_vlm", lambda *args: {
+    monkeypatch.setattr(P, "_local_identity_verdict", lambda *args: {
         "same_person_frames": [2, 4, 6],
         "different_person_frames": [1, 3, 5],
         "best_cover_frame": 4,
