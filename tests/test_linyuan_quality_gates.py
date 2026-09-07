@@ -401,7 +401,7 @@ def test_fc_consumes_source_rejection_artifact(monkeypatch):
             return payload.getvalue()
 
     monkeypatch.setattr(FC, "gh", fake_gh)
-    monkeypatch.setattr(FC.urllib.request, "urlopen", lambda *args, **kwargs: Response())
+    monkeypatch.setattr(FC, "download_reviewed_zip", lambda aid,path,**kwargs: Path(path).write_bytes(payload.getvalue()))
     monkeypatch.setattr(FC, "log_event", lambda *args, **kwargs: None)
     assert FC._collect_source_rejections(state) == 1
     assert all(row["failed"] is True for row in state["dispatched"])

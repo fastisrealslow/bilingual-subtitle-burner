@@ -1,0 +1,25 @@
+name: 林园未用母片段落复用实产
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-mother-reuse-0907.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 复用完整离线转写，只产未发的新观点
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/linyuan-produce-cn.yml/runs?per_page=50" --jq '[.workflow_runs[] | select(.status == "in_progress" or .status == "queued")] | length')
+          test "$count" -lt 6 || { echo '当前已有六个生产任务，等待空位'; exit 1; }
+          gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            -f source=https://www.bilibili.com/video/BV1ADetzQEuE \
+            -f slug=ly-mother-reuse-0907-01 -f speaker=林园 \
+            -f occasion='2025年8月21日新浪证券公开访谈' \
+            -f source_platform=bilibili -f auto_publish=false \
+            -f reviewed_parts=7 -f prefer_live_video=true

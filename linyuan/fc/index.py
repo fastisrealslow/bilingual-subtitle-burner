@@ -537,7 +537,7 @@ def diagnose_release_download(event=None, context=None):
         shutil.rmtree(probe_dir, ignore_errors=True)
 
 
-def download_reviewed_zip(artifact_id, archive_path, attempts=3):
+def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=256*1024*1024):
     """Refresh signed URLs after a bounded failed/slow read; never expose tokens."""
     import requests
     archive_path=Path(archive_path)
@@ -551,13 +551,13 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3):
             if redirect.status_code!=302 or not location.startswith('https://'):
                 raise RuntimeError('Signed artifact redirect unavailable')
             result=subprocess.run(['curl','-fsSL','--connect-timeout','15',
-                '--max-time','120','--speed-time','20','--speed-limit','32768',
-                '--max-filesize',str(256*1024*1024),'-o',str(archive_path),location],
-                capture_output=True,timeout=130)
+                '--max-time',str(timeout_sec),'--speed-time','20','--speed-limit','32768',
+                '--max-filesize',str(max_bytes),'-o',str(archive_path),location],
+                capture_output=True,timeout=timeout_sec+10)
             if result.returncode!=0 or not archive_path.is_file():
                 raise RuntimeError('Bounded artifact transfer failed')
             size=archive_path.stat().st_size
-            if not 0<size<=256*1024*1024:
+            if not 0<size<=max_bytes:
                 raise RuntimeError('Reviewed artifact size invalid')
             with zipfile.ZipFile(archive_path) as archive:
                 if archive.testzip() is not None:
@@ -2209,14 +2209,13 @@ def _collect_source_rejections(st):
                 continue
             reason = "素材质量门禁未通过"
             try:
-                req = urllib.request.Request(
-                    artifact["archive_download_url"],
-                    headers={"Authorization": f"Bearer {TOKEN}",
-                             "Accept": "application/vnd.github+json"})
-                with urllib.request.urlopen(req, timeout=60) as response:
-                    payload = response.read(2_000_001)
-                if len(payload) > 2_000_000:
-                    raise RuntimeError("素材拒绝报告异常过大")
+                # Obtain the signed URL separately. The GitHub credential must
+                # not follow the redirect to the blob host (which rejects it).
+                with tempfile.TemporaryDirectory() as report_dir:
+                    report_zip=Path(report_dir)/'report.zip'
+                    download_reviewed_zip(artifact['id'],report_zip,attempts=1,
+                                          timeout_sec=30,max_bytes=2_000_000)
+                    payload=report_zip.read_bytes()
                 with zipfile.ZipFile(io.BytesIO(payload)) as archive:
                     report_name = next(
                         n for n in archive.namelist()

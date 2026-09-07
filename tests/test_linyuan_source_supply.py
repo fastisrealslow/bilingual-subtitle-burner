@@ -164,13 +164,13 @@ def test_unavailable_checker_or_report_does_not_blacklist_mother(monkeypatch):
     monkeypatch.setattr(fc,'gh',gh)
     monkeypatch.setattr(fc,'save_state',lambda st:None)
     def unavailable(*a,**kw):raise OSError('temporary transfer failure')
-    monkeypatch.setattr(fc.urllib.request,'urlopen',unavailable)
+    monkeypatch.setattr(fc,'download_reviewed_zip',unavailable)
     assert fc._collect_source_rejections(state)==0
     assert not state['dispatched'][0].get('failed') and state['rejected']==[]
     data=io.BytesIO()
     with zipfile.ZipFile(data,'w') as z:
         z.writestr('source_quality.json',json.dumps(dict(reason='人物 VLM 校验不可用：格式错误',retryable=True)))
-    monkeypatch.setattr(fc.urllib.request,'urlopen',lambda *a,**kw:io.BytesIO(data.getvalue()))
+    monkeypatch.setattr(fc,'download_reviewed_zip',lambda aid,path,**kw:Path(path).write_bytes(data.getvalue()))
     assert fc._collect_source_rejections(state)==0
     entry=state['dispatched'][0]
     assert entry['source_check_retry_after']>time.time()
