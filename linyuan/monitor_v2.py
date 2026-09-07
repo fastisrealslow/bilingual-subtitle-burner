@@ -238,13 +238,26 @@ class BilibiliSearchSource(Source):
 
     def fetch(self, page):
         keyword = self.config.get("keyword", "林园")
-        raw_items = None
+        keywords = self.config.get("keywords") or [keyword]
+        # A generic search is dominated by recent short reposts.  Search the
+        # configured complete-content phrases in the same source pass so the
+        # daily refill can still discover older full interviews and speeches.
+        keywords = list(dict.fromkeys(str(k).strip() for k in keywords if str(k).strip()))
+        raw_items = []
         try:
-            raw_items = self._fetch_via_api(keyword)
+            seen = set()
+            for search_keyword in keywords:
+                for item in self._fetch_via_api(search_keyword):
+                    bvid = item.get("bvid")
+                    if not bvid or bvid in seen:
+                        continue
+                    seen.add(bvid)
+                    raw_items.append(item)
         except Exception as e:
             if page is None:
                 raise
             print(f"[{self.name}] API 路径失败，回退浏览器: {e}", file=sys.stderr)
+            raw_items = None
 
         if raw_items is None:
             url = f"https://search.bilibili.com/all?keyword={keyword}"
