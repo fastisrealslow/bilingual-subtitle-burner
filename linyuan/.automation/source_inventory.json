@@ -3,7 +3,7 @@
   "validation_sha256": "edec4dbe5878b574229a678909fbf4e5ec54e3a0c2f9b705ceb23c07d5ee7555",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788755601,
+  "updated_at": 1788755926,
   "materials": {
     "weibo_search": {
       "records": 1048,
@@ -3904,9 +3904,9 @@
         "failures": [
           {
             "slug": "ly-0907-09a2ef",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "人物 VLM 校验不可用：人物核验遗漏或重复帧，不能把格式示例当作实际核验"
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[1, 4]，different=[2, 3, 5, 6]，confidence=1.0，reason=分组复核：参考图是林园的正面清晰头像。待检帧1中，画面仅显示林园的正面头像，与参考图完全一致，可确认为同一个人。待检帧2和帧3中，画面主体为一位女性主持人，背景为湖北卫视演播室，无林园出现。参考图中林园的面部特征（如发型、脸型、五官）在帧2和帧3中均未出现，因此可确认林园不在场。所有帧均无叠加水印文字，仅有电视台台标。；参考图是林园的正面清晰头像。待检帧1中，画面仅显示参考图中林园的头像，无其他人物，确认其在场。待检帧2中，画面主体为一位女性主持人，背景为湖北卫视演播室，未见林园面部，确认其不在场。待检帧3中，画面主体为一位戴眼镜的男性嘉宾，背景为湖北卫视演播室，未见林园面部，确认其不在场。"
           }
         ],
         "verified_available": 0,
@@ -3923,7 +3923,14 @@
           "ly-0907-729151"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-729151",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整观点验收未通过：standalone_opening：['他说', '那就我们当时', '这我判断在未来的', '资本是足力的', '生产效率大大不提高']"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -3936,6 +3943,21 @@
         "family": "BV1rYcWeaEtb",
         "slugs": [
           "ly-0907-b485ad"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1rYcWeaEtb:p8",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=8",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0907-f32dcc"
         ],
         "source_sha256": [],
         "failures": [],
@@ -4704,14 +4726,15 @@
         "terminal_unclassified": 1
       },
       "BV1rYcWeaEtb": {
-        "attempted_mothers": 9,
+        "attempted_mothers": 10,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 5,
+        "terminal_source-quality": 1
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 16,
   "artifacts": [
     {
       "slug": "ly-0907-38a09c",
