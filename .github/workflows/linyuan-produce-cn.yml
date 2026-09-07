@@ -340,7 +340,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: 上传整源无合格片结果供自动补位
-        if: failure() && steps.render.outcome == 'failure'
+        if: failure() && steps.render.outcome == 'failure' && inputs.repair_bvid == ''
         uses: actions/upload-artifact@v4
         with:
           name: production-reject-${{ inputs.slug }}

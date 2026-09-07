@@ -4392,9 +4392,14 @@ def main():
                              prefer_live_video=args.prefer_live_video,
                              existing_titles=[x["title"] for x in metas],
                              preselected_picks=preselected_picks)
-        except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+        except (VisualQualityError, ValueError, RuntimeError, subprocess.SubprocessError) as e:
+            # LLM/part time budgets are local to one candidate.  They must not
+            # abort the remaining candidates from the same mother video.
+            service_timeout = isinstance(e, RuntimeError) and (
+                '时间预算' in str(e) or 'LLM 调用' in str(e))
             failure = {"stage": "part-quality", "reason": str(e), "part": ci + 1,
-                       "error_type": type(e).__name__,"retryable":isinstance(e,EditorialReviewUnavailable)}
+                       "error_type": type(e).__name__,
+                       "retryable":isinstance(e,EditorialReviewUnavailable) or service_timeout}
             print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
             quarantine_part(out, suffix)
             rejected.append(failure)
@@ -4431,7 +4436,7 @@ def main():
                 source_report=source_report,
                 prefer_live_video=args.prefer_live_video,
                 existing_titles=[x["title"] for x in metas])
-        except (VisualQualityError, ValueError, subprocess.SubprocessError) as e:
+        except (VisualQualityError, ValueError, RuntimeError, subprocess.SubprocessError) as e:
             quarantine_part(out, "_14")
             rejected.append({"stage": "part-quality", "reason": str(e), "part": "full"})
             checkpoint()
