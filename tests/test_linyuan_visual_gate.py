@@ -92,7 +92,8 @@ def test_source_evidence_reuse_requires_actual_report_hash_and_source(monkeypatc
             P.verified_source_evidence('source.mp4','林园')
     else:
         proof=P.verified_source_evidence('source.mp4','林园')
-        assert proof['reused_actual_evidence']['run_id']==34035494314
+        manifest=json.loads((P.BASE/'source_quality_evidence'/'manifest.json').read_text())
+        assert proof['reused_actual_evidence']==manifest[source]
         assert proof['source_sha256']==source
         with pytest.raises(P.VisualQualityError,match='规则不符'):
             P.verified_source_evidence('source.mp4','other-speaker')
