@@ -1,5 +1,5 @@
 name: 林园未用母片段落复用实产
-# Retry after fixing obsolete source-evidence fallback; current gates still run.
+# Wait for a real capacity slot after fixing obsolete source-evidence fallback.
 on:
   push:
     branches: [main]
@@ -10,13 +10,18 @@ permissions:
 jobs:
   start:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 50
     steps:
       - name: 复用完整离线转写，只产未发的新观点
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          count=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/linyuan-produce-cn.yml/runs?per_page=50" --jq '[.workflow_runs[] | select(.status == "in_progress" or .status == "queued")] | length')
+          for attempt in $(seq 1 90); do
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/linyuan-produce-cn.yml/runs?per_page=50" --jq '[.workflow_runs[] | select(.status == "in_progress" or .status == "queued")] | length')
+            if [ "$count" -lt 6 ]; then break; fi
+            echo "等待生产空位 $attempt/90，当前 $count 个任务"
+            sleep 30
+          done
           test "$count" -lt 6 || { echo '当前已有六个生产任务，等待空位'; exit 1; }
           gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
             -f source=https://www.bilibili.com/video/BV1ADetzQEuE \

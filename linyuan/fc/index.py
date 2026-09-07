@@ -1702,9 +1702,9 @@ def source_inventory(st, payload=None):
         for record in payload.get('artifacts',[]):
             slug=record.get('slug'); e=latest.get(slug)
             if not e or e.get('failed') or slug in REVIEW_PAUSED_SLUGS:continue
-            done=int(e.get('published_parts') or 0)
+            done=processed_part_indices(e)
             for part in record.get('parts',[]):
-                if part.get('status')!='verified' or int(part.get('index',-1))<done:continue
+                if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
     return dict(verified_live=live,verified_audio_card=audio,
@@ -1942,6 +1942,40 @@ def bili_find_duplicate(title):
 
 # ---------- Handler 2：投稿 ----------
 
+def processed_part_indices(entry):
+    """Keep old contiguous progress while supporting independently handled parts."""
+    return (set(range(max(0,int(entry.get('published_parts') or 0))))
+            | {int(i) for i in entry.get('processed_part_indices',[]) if int(i)>=0})
+
+
+def mark_part_processed(entry, index):
+    done=processed_part_indices(entry)
+    done.add(int(index))
+    prefix=int(entry.get('published_parts') or 0)
+    while prefix in done:
+        prefix+=1
+    entry['published_parts']=prefix
+    entry['processed_part_indices']=sorted(i for i in done if i>=prefix)
+
+
+def inventory_part_index(entry, artifact_id, records, daily):
+    """Pick an inspected usable part without letting an early audio card block live ones.
+
+    None means a known verified reserve is temporarily blocked by today's mix;
+    absent inspection falls back to the normal full checks at the current index.
+    """
+    for record in records:
+        if record.get('slug')!=entry['slug'] or record.get('artifact_id')!=artifact_id:
+            continue
+        ready=sorted((p for p in record.get('parts',[])
+                      if p.get('status')=='verified'
+                      and int(p['index']) not in processed_part_indices(entry)),
+                     key=lambda p:int(p['index']))
+        if ready:
+            return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)),None)
+    return int(entry.get('published_parts') or 0)
+
+
 def _has_unpublished_part(e, st):
     """判断 dispatched 条目是否还有未投的 part（长视频多条分次投稿）。
     单条/旧记录（无 parts_total 或 parts_total<=1）已投完就不算 pending。"""
@@ -1965,11 +1999,12 @@ def _has_unpublished_part(e, st):
 def _record_skipped_part(st, e, slug, part, parts_total, index, title, reason):
     """重复 part 视为已处理，避免每小时反复尝试同一个文件。"""
     e["parts_total"] = parts_total
-    e["published_parts"] = index + 1
+    mark_part_processed(e,index)
     prev = dict((st.get("published") or {}).get(slug) or {})
     parts_log = list(prev.get("parts") or [])
     parts_log.append({
         "status": "skipped", "title": title, "ts": int(time.time()),
+        "part_index": index,
         "reason": reason, "fingerprints": part.get("fingerprints") or {},
     })
     prev.update({
@@ -2382,7 +2417,7 @@ def _pending_final_count(st):
             parts_total = pub.get("parts_total", 1)
             if parts_total <= 1:
                 continue  # 单条已投完
-            total += max(0, parts_total - e.get("published_parts", 0))
+            total += len(set(range(parts_total))-processed_part_indices(e))
         elif time.time() - float(e.get("ts") or 0) < 6 * 3600:
             total += 1  # 只把六小时内在制任务计入库存；老失败占位不能阻塞补量
     return total
@@ -2457,6 +2492,7 @@ def publish_handler(event=None, context=None):
 
     arts = {}
     art_ids = {}
+    reserve_records = []
     if batch_slug:
         # 指定批次已经由调用方确认成片齐全，且优先从 deliver Release 逐条取件。
         # 不要为每一个 part 重扫最近 30 次 workflow 的全部 Artifact；库存变大后
@@ -2477,6 +2513,7 @@ def publish_handler(event=None, context=None):
         try:
             reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
             if source_inventory(st,reserve)['inventory_fresh']:
+                reserve_records=reserve.get('artifacts',[])
                 for record in reserve.get('artifacts',[]):
                     s=record['slug']
                     if s not in arts and any(p.get('status')=='verified' for p in record.get('parts',[])):
@@ -2492,6 +2529,7 @@ def publish_handler(event=None, context=None):
     e = None
     slug = None
     retried = 0
+    selected_part_index = None
     for candidate in pending:
         s = candidate["slug"]
         # 上轮上传中断的（uploading 标记仍在）：绝不能盲目重传——先查 B站
@@ -2518,6 +2556,10 @@ def publish_handler(event=None, context=None):
                 save_state(st)
             continue
         if s in arts:
+            selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget)
+            if selected_part_index is None:
+                log.info('%s 已验证余量暂不符合今日形态比例，继续找真人片',s)
+                continue
             e = candidate
             slug = s
             break
@@ -2574,14 +2616,14 @@ def publish_handler(event=None, context=None):
     delivery_dir = tmp / slug
     delivery_dir.mkdir(parents=True, exist_ok=True)
     if slug in art_ids:
-        used_release=download_inventory_part(art_ids[slug],int(e.get('published_parts',0)),delivery_dir)
+        used_release=download_inventory_part(art_ids[slug],selected_part_index,delivery_dir)
         if not used_release:
             # A transient download failure is not a source-quality rejection.
             # Do not spend 27 minutes on another unbounded copy of this bundle.
             shutil.rmtree(tmp,ignore_errors=True)
             return {'published':0,'artifact_download_retryable':1}
     if not used_release and not e.get("reprocessing_quality"):
-        part_index = int(e.get("published_parts", 0))
+        part_index = selected_part_index
         used_release = download_v4_fast_part(slug, part_index, delivery_dir)
         if not used_release and any(row.get('slug')==slug and row.get('part_index')==part_index
                                     for row in FRESH_SIX_APPROVED.values()):
@@ -2636,8 +2678,8 @@ def publish_handler(event=None, context=None):
     parts_total = len(parts)
     e["parts_total"] = parts_total
 
-    # 决定投第几条：已投的 part 数（长视频多条时分次投稿，防扎堆）
-    k = e.get("published_parts", 0)
+    # 库存可独立选择后面的真人片；进度只在实际发布或明确跳过后更新。
+    k = selected_part_index
     if k >= parts_total:
         log.info(f"{slug} 的 {parts_total} 条已全部投完")
         shutil.rmtree(tmp, ignore_errors=True)
@@ -2757,7 +2799,7 @@ def publish_handler(event=None, context=None):
         reason = (f"与 {content_dup['bvid'] or content_dup['slug']} 重复："
                   f"{content_dup['reason']}")
         _record_skipped_part(st, e, slug, part, parts_total, k, title, reason)
-        if k + 1 >= parts_total and slug in art_ids:
+        if e['published_parts'] >= parts_total and slug in art_ids:
             try:
                 gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
             except Exception as ae:
@@ -2776,7 +2818,7 @@ def publish_handler(event=None, context=None):
         reason = (f"主题与 {topic_dup['bvid'] or topic_dup['slug']} "
                   f"相似 {topic_dup['score']:.0%}，14 天冷却")
         _record_skipped_part(st, e, slug, part, parts_total, k, title, reason)
-        if k + 1 >= parts_total and slug in art_ids:
+        if e['published_parts'] >= parts_total and slug in art_ids:
             try:
                 gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
             except Exception as ae:
@@ -2801,6 +2843,7 @@ def publish_handler(event=None, context=None):
     e["uploading"] = True
     e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
+    e['upload_part_index'] = k
     save_state(st)
     
     # 设置 PYTHONPATH 环境变量
@@ -2826,7 +2869,8 @@ def publish_handler(event=None, context=None):
         e.pop("reprocessing_quality", None)
         e.pop("quality_failure", None)
         # 记录这次投到第几条了（长视频多条时分次投稿）
-        e["published_parts"] = k + 1
+        mark_part_processed(e,k)
+        e.pop('upload_part_index',None)
         st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1
         mode_counter = "audio_card_count" if part.get("render_mode") == "audio_card" else "live_video_count"
         st["daily_publish"][mode_counter] = st["daily_publish"].get(mode_counter, 0) + 1
@@ -2838,6 +2882,7 @@ def publish_handler(event=None, context=None):
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          "part_index": k,
                           "render_mode": part.get("render_mode"),
                           "fresh_six_date": FRESH_SIX_DATE if fresh_budget is not None else None,
                           "fresh_six_batch": fresh_six_counter(slug) if fresh_budget is not None else None,
@@ -2868,7 +2913,7 @@ def publish_handler(event=None, context=None):
                                if x.get("key") != e.get("key")
                                and (x.get("page_url") or "").strip() != (e.get("source_url") or "").strip()]
         # 只在所有 part 都投完时才删 artifact（否则下次还要投下一条）
-        if slug in art_ids and k + 1 >= parts_total:
+        if slug in art_ids and e['published_parts'] >= parts_total:
             try:
                 gh("DELETE", f"/actions/artifacts/{art_ids[slug]}")
                 log.info(f"✓ 已删除 artifact: deliver-{slug}")

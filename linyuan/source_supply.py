@@ -81,9 +81,9 @@ def inventory_counts(records, state):
         slug=record['slug']; entry=latest.get(slug,{})
         if slug in fc.REVIEW_PAUSED_SLUGS or entry.get('failed'):
             continue
-        completed=int(entry.get('published_parts') or 0)
+        completed=fc.processed_part_indices(entry)
         for part in record.get('parts',[]):
-            if part.get('status')!='verified' or part['index']<completed:
+            if part.get('status')!='verified' or part['index'] in completed:
                 continue
             if part['render_mode']=='audio_card':audio+=1
             else:live+=1
@@ -140,7 +140,7 @@ def main():
                 data=json.loads((Path(tmp)/'meta.json').read_text())
                 metas=data if isinstance(data,list) else [data]
                 for i,m in enumerate(metas):
-                    if i<int(candidates[slug].get('published_parts') or 0):continue
+                    if i in fc.processed_part_indices(candidates[slug]):continue
                     error=validate_part(m,tmp)
                     record['parts'].append(dict(index=i,final=m.get('final'),title=m.get('title'),
                         duration_sec=m.get('duration_sec'),render_mode=m.get('render_mode'),

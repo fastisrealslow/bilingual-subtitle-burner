@@ -8,6 +8,7 @@ import time
 from datetime import datetime,timezone
 import zipfile
 import io
+from types import SimpleNamespace
 from urllib.error import HTTPError
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
@@ -70,6 +71,102 @@ def test_quarantined_and_failed_mothers_do_not_count(monkeypatch):
     p=payload([dict(index=0,status='verified',render_mode='live_video_card')])
     monkeypatch.setattr(fc,'REVIEW_PAUSED_SLUGS',{'mother'})
     assert fc.source_inventory(state,p)['verified_live']==0
+
+
+def test_audio_first_cannot_bury_live_or_count_a_finished_part_twice():
+    entry=dict(slug='mother',published_parts=0,parts_total=3)
+    state=dict(dispatched=[entry],published={})
+    parts=[dict(index=i,status='verified',render_mode='audio_card' if i==0 else 'live_video_card')
+           for i in range(3)]
+    data=payload(parts)
+    data['artifacts'][0]['artifact_id']=123
+    choose=lambda daily:fc.inventory_part_index(entry,123,data['artifacts'],daily)
+    assert choose({})==1
+    fc.mark_part_processed(entry,1)
+    assert entry['published_parts']==0
+    assert choose({})==2
+    assert fc.source_inventory(state,data)['verified_live']==1
+    assert source_supply.inventory_counts(data['artifacts'],state)['verified_live']==1
+    fc.mark_part_processed(entry,2)
+    assert entry['published_parts']==0
+    assert fc._has_unpublished_part(entry,state)
+    assert choose({}) is None
+    assert choose(dict(live_video_count=3))==0
+    fc.mark_part_processed(entry,0)
+    assert entry['published_parts']==3
+    assert not fc._has_unpublished_part(entry,state)
+    assert not fc.source_inventory(state,data)['verified_audio_card']
+
+
+def test_rejected_early_part_does_not_hide_inspected_later_part():
+    entry=dict(slug='mother',published_parts=0)
+    record=dict(slug='mother',artifact_id=123,parts=[
+        dict(index=0,status='rejected',render_mode='live_video_card'),
+        dict(index=1,status='verified',render_mode='live_video_card')])
+    assert fc.inventory_part_index(entry,123,[record],{})==1
+    # An inspection of a different artifact must not select unverified indices.
+    assert fc.inventory_part_index(entry,456,[record],{})==0
+
+
+def test_old_contiguous_progress_remains_compatible_with_sparse_progress():
+    entry=dict(published_parts=2)
+    fc.mark_part_processed(entry,4)
+    fc.mark_part_processed(entry,4)
+    assert entry['published_parts']==2
+    fc.mark_part_processed(entry,2)
+    assert fc.processed_part_indices(entry)=={0,1,2,4}
+    assert entry['published_parts']==3
+    fc.mark_part_processed(entry,3)
+    assert entry['published_parts']==5
+
+
+def test_publisher_uses_later_live_part_and_keeps_earlier_audio_artifact(monkeypatch):
+    today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
+    entry=dict(slug='mother',published_parts=0,ts=time.time(),source_url='')
+    state=dict(dispatched=[entry],published={},daily_publish=dict(date=today,count=0))
+    metas=[dict(final=f'final_{i}.mp4',title=f'林园：完整观点{i}',
+                render_mode='audio_card' if i==0 else 'live_video_card') for i in range(2)]
+    reserve=payload([dict(index=i,status='verified',render_mode=m['render_mode'])
+                     for i,m in enumerate(metas)])
+    reserve['artifacts'][0]['artifact_id']=123
+    calls=[]
+    def gh(method,path,*args,**kwargs):
+        calls.append((method,path))
+        if method=='GET' and path.startswith('/actions/workflows/'):
+            return dict(workflow_runs=[dict(id=456)])
+        if method=='GET' and path=='/actions/runs/456/artifacts':
+            return dict(artifacts=[dict(name='deliver-mother',id=123,expired=False,
+                                       archive_download_url='https://example.test/archive')])
+        if method=='GET' and path.startswith('/contents/'+fc.SOURCE_INVENTORY_KEY):
+            return json.dumps(reserve).encode()
+        raise AssertionError((method,path))
+    def download(aid,index,dest):
+        assert (aid,index)==(123,1)
+        (dest/'meta.json').write_text(json.dumps(metas))
+        (dest/'final_1.mp4').write_bytes(b'unit-test-video')
+        return True
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc,'load_state',lambda:state)
+    monkeypatch.setattr(fc,'save_state',lambda value:None)
+    monkeypatch.setattr(fc,'_collect_source_rejections',lambda value:0)
+    monkeypatch.setattr(fc,'download_inventory_part',download)
+    monkeypatch.setattr(fc,'mp4_duration',lambda path:180)
+    monkeypatch.setattr(fc.editorial,'metadata_error',lambda *a:None)
+    monkeypatch.setattr(fc,'artifact_quality_error',lambda *a:None)
+    monkeypatch.setattr(fc,'artifact_subtitle_error',lambda *a:None)
+    monkeypatch.setattr(fc,'find_content_duplicate',lambda *a:None)
+    monkeypatch.setattr(fc,'find_recent_topic',lambda *a,**kw:None)
+    monkeypatch.setattr(fc,'bili_find_duplicate',lambda *a:None)
+    monkeypatch.setitem(sys.modules,'biliup',SimpleNamespace(__file__='unit-test-only'))
+    monkeypatch.setattr(fc.subprocess,'run',lambda *a,**kw:SimpleNamespace(
+        returncode=0,stdout='BV1234567890',stderr=''))
+    assert fc.publish_handler(dict(force_publish=True))['published']==1
+    assert entry['published_parts']==0
+    assert entry['processed_part_indices']==[1]
+    assert state['published']['mother']['parts'][0]['part_index']==1
+    assert state['daily_publish']['count']==1
+    assert state['daily_publish']['live_video_count']==1
+    assert not any(method=='DELETE' for method,path in calls)
 
 
 def test_admission_lease_stops_duplicate_dispatch(monkeypatch):
