@@ -49,10 +49,22 @@ jobs:
             sleep 3
           done
           exit 1
+      - name: 有合格库存时补上已错过的发布位
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+          python linyuan/fc/catchup_from_inventory.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: source-inventory
-          path: linyuan/.automation/source_inventory.json
+          path: |
+            linyuan/.automation/source_inventory.json
+            catchup-receipt.json
           include-hidden-files: true
           if-no-files-found: warn

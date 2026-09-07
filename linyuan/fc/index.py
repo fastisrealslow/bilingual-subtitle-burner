@@ -56,7 +56,7 @@ MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08
 TARGET_READY_RESERVE = 12
 MAX_ACTIVE_SOURCES = 6
 SOURCE_INVENTORY_KEY = 'linyuan/.automation/source_inventory.json'
-DISPATCH_LEASE_KEY = 'linyuan/.automation/dispatch_lease.json'
+DISPATCH_LEASE_KEY = 'linyuan/.automation/pipeline_lease.json'
 # User's 2026-09-06 request excludes the old batch from today's new six.
 # Historical totals remain intact. Only these named, individually reviewed
 # outputs may use the separate, expiring six-slot allowance.
@@ -1612,7 +1612,8 @@ def handler(event, context):
             return diagnose_release_download(evt, context)
         if "dispatch" in name:
             return dispatch_handler(evt, context)
-        return publish_handler(evt, context)
+        return run_with_lease('publish',lambda: publish_catchup(evt,context)
+                              if name=='publish-catchup' else publish_handler(evt,context))
     finally:
         flush_logs()
 
@@ -1621,40 +1622,68 @@ def handler(event, context):
 
 def dispatch_handler(event=None, context=None):
     """Serialize admission so timer/refill/deploy cannot dispatch in parallel."""
+    return run_with_lease('dispatch',lambda:_dispatch_admitted(event,context))
+
+
+def run_with_lease(kind, action):
     import base64
     import uuid
     from urllib.error import HTTPError
     owner = uuid.uuid4().hex
     now = int(time.time())
+    # Dispatch and publishing share the state file. Serialize both writers so
+    # an older dispatch snapshot cannot erase a just-written upload receipt.
+    key=DISPATCH_LEASE_KEY
+    busy={'dispatched':0,'admission_busy':1} if kind=='dispatch' else {'published':0,'publisher_busy':1}
     current = None
     try:
-        current = gh('GET', f'/contents/{DISPATCH_LEASE_KEY}?ref=main', timeout=20)
+        current = gh('GET', f'/contents/{key}?ref=main', timeout=20)
         lease = json.loads(base64.b64decode(current['content']))
         if int(lease.get('expires_at') or 0) > now:
-            return {'dispatched': 0, 'admission_busy': 1}
+            return busy
     except HTTPError as exc:
         if exc.code != 404:
             raise
-    payload = {'message': 'chore(supply): claim source admission',
+    payload = {'message': f'chore(supply): claim {kind} lease',
                'content': base64.b64encode(json.dumps(dict(owner=owner,expires_at=now+7200)).encode()).decode()}
     if current:
         payload['sha'] = current['sha']
     try:
-        claim = gh('PUT', f'/contents/{DISPATCH_LEASE_KEY}', payload, timeout=30)
+        claim = gh('PUT', f'/contents/{key}', payload, timeout=30)
     except HTTPError as exc:
         if exc.code in (409,422):
-            return {'dispatched': 0, 'admission_busy': 1}
+            return busy
         raise
     try:
-        return _dispatch_admitted(event, context)
+        return action()
     finally:
         try:
-            gh('PUT', f'/contents/{DISPATCH_LEASE_KEY}', {
-                'message': 'chore(supply): release source admission',
+            gh('PUT', f'/contents/{key}', {
+                'message': f'chore(supply): release {kind} lease',
                 'sha': claim['content']['sha'],
                 'content': base64.b64encode(json.dumps(dict(owner=owner,expires_at=0)).encode()).decode()}, timeout=20)
         except Exception as exc:
-            log.warning('Source admission lease will expire: %s',type(exc).__name__)
+            log.warning('%s lease will expire: %s',kind,type(exc).__name__)
+
+
+def catchup_deficit(st, now=None):
+    now=time.time() if now is None else now
+    local=time.gmtime(now+8*3600)
+    today=time.strftime('%Y-%m-%d',local)
+    daily=st.get('daily_publish') or {}
+    count=int(daily.get('count') or 0) if daily.get('date')==today else 0
+    due=sum(h<=local.tm_hour for h in PUBLISH_HOURS)
+    return max(0,min(MAX_PUBLISH_PER_DAY,due)-count)
+
+
+def publish_catchup(event, context=None):
+    st=load_state()
+    if not catchup_deficit(st):
+        return {'published':0,'schedule_caught_up':1}
+    stock=source_inventory(st)
+    if not stock['inventory_fresh'] or stock['daily_mix_usable']<=0:
+        return {'published':0,'verified_stock_empty':1}
+    return publish_handler({**event,'force_publish':True,'batch_remaining':1},context)
 
 
 def source_inventory(st, payload=None):

@@ -43,7 +43,7 @@ def main():
         raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
     # FC cron expressions use UTC. Preserve the original two timer identities;
     # Refill real reserve all day/night, at most six active source jobs.
-    desired = {'dispatch':'0 0,30 * * * *', 'publish':'0 0 1,3,5,7,10,13 * * *'}
+    desired = {'dispatch':'0 7,37 * * * *', 'publish':'0 0 1,3,5,7,10,13 * * *'}
     read_runtime = util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,
                                        autoretry=True,max_attempts=3)
     response = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)

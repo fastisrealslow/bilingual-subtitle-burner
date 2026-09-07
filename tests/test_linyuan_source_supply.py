@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import sys
 import time
+from datetime import datetime,timezone
 import zipfile
 from urllib.error import HTTPError
 
@@ -68,6 +69,22 @@ def test_compare_and_swap_conflict_does_not_dispatch(monkeypatch):
         raise HTTPError(path,404 if method=='GET' else 409,'conflict',None,None)
     monkeypatch.setattr(fc,'gh',gh)
     assert fc.dispatch_handler()['admission_busy']==1
+
+
+def test_catchup_only_fills_elapsed_slots_and_respects_daily_six():
+    now=datetime(2026,9,7,2,30,tzinfo=timezone.utc).timestamp()
+    assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=0)),now)==1
+    assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=1)),now)==0
+    late=datetime(2026,9,7,15,30,tzinfo=timezone.utc).timestamp()
+    assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=6)),late)==0
+    assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-06',count=22)),now)==1
+
+
+def test_publisher_lease_blocks_timer_and_inventory_race(monkeypatch):
+    lease=base64.b64encode(json.dumps(dict(expires_at=time.time()+500)).encode()).decode()
+    monkeypatch.setattr(fc,'gh',lambda *a,**kw:dict(content=lease,sha='owned'))
+    result=fc.run_with_lease('publish',lambda:(_ for _ in ()).throw(AssertionError('duplicate upload')))
+    assert result['publisher_busy']==1
 
 
 def test_stock_target_stops_source_expansion(monkeypatch):
