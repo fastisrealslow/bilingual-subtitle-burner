@@ -1763,6 +1763,10 @@ def _dispatch_admitted(event=None, context=None):
     if source_rejected:
         save_state(st)
         log.info(f"已在调度前淘汰 {source_rejected} 条失败素材")
+    quality_blocked_until=float(st.get('quality_service_blocked_until') or 0)
+    if time.time()<quality_blocked_until:
+        return {'dispatched':0,'quality_service_blocked':1,
+                'retry_after':int(quality_blocked_until)}
     today = time.strftime("%Y-%m-%d", time.gmtime(time.time()+8*3600))
     if (today == FRESH_SIX_DATE and FRESH_SIX_APPROVED
             and int(((st.get("daily_publish") or {}).get(fresh_six_counter(next(iter(FRESH_SIX_APPROVED.values()))["slug"])) or {}).get("count", 0)) < 6):
@@ -2344,7 +2348,15 @@ def _collect_source_rejections(st):
                 candidate['last_error']=reason
                 candidate['failure_stage']='quality-service'
                 attempts=int(candidate.get('source_check_attempts') or 0)
-                if attempts<2:
+                # 402 means the configured visual service cannot accept more
+                # work. Retrying other mothers only burns Actions minutes and
+                # produces the same non-verdict, so open one shared circuit.
+                if '402' in reason or 'Payment Required' in reason:
+                    candidate['source_check_exhausted']=True
+                    candidate.pop('source_check_retry_after',None)
+                    st['quality_service_blocked_until']=int(time.time())+6*3600
+                    st['quality_service_block_reason']=reason
+                elif attempts<2:
                     candidate['source_check_retry_after']=int(time.time())+900*(attempts+1)
                 else:
                     candidate['failed']=True
