@@ -29,6 +29,14 @@ ASR_CONTAMINATION_FRAGMENTS = (
     '非常谢谢谢谢林园先生',
     '呃刘源先生',
     '平安化起',
+    # 2026-09-07 ly-0907-d04876, verified from its real ASS.  Keep the
+    # recognizer evidence unchanged and quarantine this exact corrupt render.
+    '大部分万象前朝的那个投资总监',
+    '现在的这个还子高',
+    '甚至还要倾家账',
+    '我没有犯的标准就连干这个事呢',
+    '白度趋势',
+    '我能挣钱我不会拉着你的',
 )
 
 

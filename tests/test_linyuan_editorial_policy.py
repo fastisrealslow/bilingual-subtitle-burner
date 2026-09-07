@@ -102,6 +102,11 @@ def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
         '非常谢谢谢谢林园先生参与直播，接下来我们具体展开来讲')
     assert 'ASR污染' in policy.transcript_integrity_error('呃刘源先生您看好哪些领域')
     assert 'ASR污染' in policy.transcript_integrity_error('最后都能够这个平安化起')
+    assert 'ASR污染' in policy.transcript_integrity_error(
+        '经常做投资我也是个大部分万象前朝的那个投资总监')
+    assert 'ASR污染' in policy.transcript_integrity_error('钱甚至还要倾家账')
+    assert 'ASR污染' in policy.transcript_integrity_error('白度趋势但这个也有背景')
+    assert 'ASR污染' in policy.transcript_integrity_error('这就是资本是逐利的我能挣钱我不会拉着你的')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
 
 
