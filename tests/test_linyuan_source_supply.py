@@ -108,6 +108,40 @@ def test_rejected_early_part_does_not_hide_inspected_later_part():
     assert fc.inventory_part_index(entry,456,[record],{})==0
 
 
+def test_obsolete_reviews_reuse_raw_asr_but_never_destroy_usable_stock():
+    entry=dict(slug='mother')
+    state=dict(dispatched=[entry])
+    reason='CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核，不能仅凭旧摘要放行'
+    record=dict(slug='mother',artifact_id=123,parts=[dict(index=0,status='rejected',reason=reason)])
+    inventory=dict(artifacts=[record])
+    assert list(fc.obsolete_review_candidates(state,inventory))==[(entry,record)]
+    record['parts'].append(dict(index=1,status='verified'))
+    assert not list(fc.obsolete_review_candidates(state,inventory))
+    fc.mark_part_processed(entry,1)
+    assert list(fc.obsolete_review_candidates(state,inventory))==[(entry,record)]
+    entry['quality_reprocess_artifact_id']=123
+    assert not list(fc.obsolete_review_candidates(state,inventory))
+    entry.pop('quality_reprocess_artifact_id')
+    entry['quality_retries']=2
+    assert not list(fc.obsolete_review_candidates(state,inventory))
+
+
+def test_inventory_event_replenishes_before_the_next_publish_window(monkeypatch):
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan/fc'))
+    import catchup_from_inventory as catchup
+    monkeypatch.setattr(catchup.fc,'catchup_deficit',lambda state:2)
+    stock=dict(inventory_fresh=True,daily_mix_usable=0)
+    assert catchup.inventory_action({},stock)=='dispatch-source-inventory'
+    stock['daily_mix_usable']=1
+    assert catchup.inventory_action({},stock)=='publish-catchup'
+    monkeypatch.setattr(catchup.fc,'catchup_deficit',lambda state:0)
+    assert catchup.inventory_action({},stock)=='dispatch-source-inventory'
+    stock['daily_mix_usable']=12
+    assert catchup.inventory_action({},stock) is None
+    stock.update(inventory_fresh=False,daily_mix_usable=0)
+    assert catchup.inventory_action({},stock) is None
+
+
 def test_old_contiguous_progress_remains_compatible_with_sparse_progress():
     entry=dict(published_parts=2)
     fc.mark_part_processed(entry,4)

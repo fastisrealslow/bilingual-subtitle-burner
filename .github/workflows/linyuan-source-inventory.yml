@@ -49,7 +49,7 @@ jobs:
             sleep 3
           done
           exit 1
-      - name: 有合格库存时补上已错过的发布位
+      - name: 合格库存补发布位，库存不足自动补源或复核旧转写
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}

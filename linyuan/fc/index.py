@@ -1748,6 +1748,18 @@ def _dispatch_admitted(event=None, context=None):
     rel = staging_release_id()
     tmp = Path(tempfile.mkdtemp())
     success = 0
+    # A new editorial rule must not leave already transcribed mothers stranded
+    # until the next publication hour. Reuse their raw offline evidence first.
+    try:
+        reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
+        if source_inventory(st,reserve)['inventory_fresh']:
+            for entry,record in obsolete_review_candidates(st,reserve):
+                if success>=target:break
+                reason='当前母片需重新执行逐字原文审核，复用实际CPU原始转写'
+                if _request_quality_reprocess(st,entry,entry['slug'],reason,record['artifact_id']):
+                    success+=1
+    except Exception as exc:
+        log.warning('原始转写再利用队列暂不可读：%s',type(exc).__name__)
     # A unavailable checker is not evidence of a bad mother. Retry its exact
     # candidate with backoff, bounded by the same six-running-source limit.
     for entry in _latest_dispatches(st):
@@ -1974,6 +1986,23 @@ def inventory_part_index(entry, artifact_id, records, daily):
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)),None)
     return int(entry.get('published_parts') or 0)
+
+
+def obsolete_review_candidates(state, inventory):
+    """Only reprocess obsolete reviews, never overwrite usable inspected parts."""
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    for record in inventory.get('artifacts',[]):
+        entry=latest.get(record.get('slug'))
+        if (not entry or entry.get('failed') or entry['slug'] in REVIEW_PAUSED_SLUGS
+                or int(entry.get('quality_retries') or 0)>=2
+                or entry.get('quality_reprocess_artifact_id')==record.get('artifact_id')):
+            continue
+        remaining=[p for p in record.get('parts',[])
+                   if int(p['index']) not in processed_part_indices(entry)]
+        if (remaining and all(p.get('status')=='rejected' for p in remaining)
+                and any('CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核' in str(p.get('reason',''))
+                        for p in remaining)):
+            yield entry,record
 
 
 def _has_unpublished_part(e, st):
@@ -2348,6 +2377,7 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
             "inputs": {"source": source, "slug": slug,
                        "speaker": "林园", "occasion": e.get("title", "")[:30],
                        "delay_hours": "0", "auto_publish": "false",
+                       **({'reviewed_parts':str(e['reviewed_parts'])} if e.get('reviewed_parts') else {}),
                        # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
                        # 否则常规模式允许空片段，会出现“运行成功但仅产出 3 条”。
                        **({"target_parts": "13", "include_full": "true"}
@@ -2358,6 +2388,7 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
         log_event("fail", f"⛔ {slug} 旧成片重做触发失败", str(exc)[:120])
         return False
     e["quality_retries"] = retries + 1
+    e['quality_reprocess_artifact_id']=artifact_id
     e["last_retry"] = int(time.time())
     e["reprocessing_quality"] = True
     e["production_rules_version"] = PRODUCTION_RULES_VERSION
