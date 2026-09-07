@@ -162,25 +162,38 @@ def playurl(op, bvid, cid):
 
 
 def download_one(op, urls, referer, out, attempts=3):
-    """镜像轮换 + 临时文件 + Content-Length 校验，避免半截 MP4 被当成功。"""
+    """镜像轮换 + 断点续传 + Content-Length 校验，避免长母片反复从零下载。"""
     out = Path(out)
     last = None
+    tmp = out.with_suffix(out.suffix + ".part")
     for attempt in range(attempts):
         for url in urls:
-            tmp = out.with_suffix(out.suffix + ".part")
-            tmp.unlink(missing_ok=True)
             try:
+                existing = tmp.stat().st_size if tmp.exists() else 0
+                headers = {"User-Agent": UA, "Referer": referer}
+                if existing:
+                    headers["Range"] = f"bytes={existing}-"
                 req = urllib.request.Request(
-                    url, headers={"User-Agent": UA, "Referer": referer})
+                    url, headers=headers)
                 # A stalled mirror should yield to its backups. This is socket
                 # inactivity, not a 60-second cap on a progressing large video.
-                with op.open(req, timeout=60) as response, tmp.open("wb") as handle:
-                    expected = int(response.headers.get("Content-Length") or 0)
-                    while True:
-                        chunk = response.read(1 << 20)
-                        if not chunk:
-                            break
-                        handle.write(chunk)
+                with op.open(req, timeout=60) as response:
+                    status = getattr(response, 'status', None) or response.getcode()
+                    resumed = bool(existing and status == 206)
+                    if not resumed:
+                        existing = 0
+                    content_range = response.headers.get("Content-Range") or ""
+                    match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+|\*)", content_range)
+                    if resumed and (not match or int(match.group(1)) != existing):
+                        raise RuntimeError("CDN断点区间不连续")
+                    expected = (int(match.group(3)) if match and match.group(3) != '*'
+                                else existing + int(response.headers.get("Content-Length") or 0))
+                    with tmp.open("ab" if resumed else "wb") as handle:
+                        while True:
+                            chunk = response.read(1 << 20)
+                            if not chunk:
+                                break
+                            handle.write(chunk)
                 actual = tmp.stat().st_size
                 if actual < 10240 or (expected and actual != expected):
                     raise RuntimeError(f"下载不完整：{actual}/{expected or '?'} bytes")
@@ -188,7 +201,10 @@ def download_one(op, urls, referer, out, attempts=3):
                 return
             except Exception as exc:
                 last = exc
-                tmp.unlink(missing_ok=True)
+                # Tiny/error responses are not reusable. A substantial partial
+                # file is kept and resumed on the next mirror or attempt.
+                if tmp.exists() and tmp.stat().st_size < 10240:
+                    tmp.unlink(missing_ok=True)
         if attempt + 1 < attempts:
             time.sleep(2 ** attempt)
     raise RuntimeError(f"所有 CDN 镜像下载失败：{last}")
