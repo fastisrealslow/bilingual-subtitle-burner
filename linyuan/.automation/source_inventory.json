@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788765006,
+  "updated_at": 1788765105,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -3986,7 +3986,14 @@
           "ly-0907-b485ad"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-b485ad",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[4]，different=[1, 2, 3, 5, 6]，confidence=1.0，reason=分组复核：参考图是林园的正面清晰头像。待检帧1中，画面为纯色背景，无任何人脸，故为different_person_frames。待检帧2中，画面主体为一位女性主持人，背景为演播室布景，无林园出现，故为different_person_frames。待检帧3中，画面主体为一位戴眼镜、穿红色Polo衫的男性，其面部特征与参考图中林园的面部特征（如眉眼间距、鼻梁轮廓、嘴角形态）存在明显差异，且该男性并非林园，故为different_person_frames。所有帧均无叠加水印文字，但有图形台标。；参考图是林园的清晰正面照。待检帧1中，画面仅显示林园的头部特写，与参考图完全一致，可确认为同一个人。待检帧2中，画面显示一位戴眼镜、穿红色Polo衫的男性，其面部特征（如发型、脸型、眼睛形状）与参考图差异明显，可确认不是林园。待检帧3中，画面显示一位穿格子衬衫的男性，其面部特征（如发型、脸型、眼睛形状）与参考图差异明显，可确认不是林园。所有帧均能清晰辨认人脸，无需归入uncertain_frames。"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5106,7 +5113,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 11,
-        "terminal_source-quality": 2
+        "terminal_source-quality": 3
       },
       "BV19P4y1m77K": {
         "attempted_mothers": 4,
@@ -5133,7 +5140,7 @@
       }
     }
   },
-  "in_flight_placeholders": 19,
+  "in_flight_placeholders": 18,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
