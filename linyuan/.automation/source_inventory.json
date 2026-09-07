@@ -3,7 +3,7 @@
   "validation_sha256": "b58c79a63837b1c3d6cd6926abab94a90fe0fddeb8a935d21c02feb19e44ae19",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788769029,
+  "updated_at": 1788769166,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -4735,7 +4735,14 @@
           "ly-0907-a1157e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-a1157e",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "人物 VLM 校验不可用：HTTP Error 402: Payment Required"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
