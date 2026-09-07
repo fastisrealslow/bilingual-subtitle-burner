@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "validation_sha256": "edec4dbe5878b574229a678909fbf4e5ec54e3a0c2f9b705ceb23c07d5ee7555",
+  "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788756065,
+  "updated_at": 1788756859,
   "materials": {
     "weibo_search": {
       "records": 1048,
@@ -3878,7 +3878,14 @@
           "ly-0907-ccc28f"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-ccc28f",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4789,7 +4796,7 @@
         "attempted_mothers": 12,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 6,
+        "terminal_editorial-or-render": 7,
         "terminal_source-quality": 1
       },
       "BV19P4y1m77K": {
@@ -4799,13 +4806,13 @@
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 16,
   "artifacts": [
     {
       "slug": "ly-0907-38a09c",
       "artifact_id": 10003011453,
       "run_id": 34077078166,
-      "checked_at": 1788755157,
+      "checked_at": 1788756835,
       "source_url": "https://www.bilibili.com/video/BV12CiGBMEUJ",
       "parts": [
         {
@@ -4871,7 +4878,7 @@
       "slug": "ly-0907-f1fb08",
       "artifact_id": 10002566025,
       "run_id": 34074630129,
-      "checked_at": 1788755159,
+      "checked_at": 1788756839,
       "source_url": "https://www.bilibili.com/video/BV1QFWxeGEGL",
       "parts": [
         {
@@ -5070,7 +5077,7 @@
       "slug": "ly-0907-6b9737",
       "artifact_id": 10002444779,
       "run_id": 34075155484,
-      "checked_at": 1788755162,
+      "checked_at": 1788756851,
       "source_url": "https://www.bilibili.com/video/BV1jXziBcEUq",
       "parts": [
         {
@@ -5193,7 +5200,7 @@
       "slug": "ly-0906-5e5a53",
       "artifact_id": 10000794305,
       "run_id": 34071783125,
-      "checked_at": 1788755313,
+      "checked_at": 1788756856,
       "source_url": "https://m.weibo.cn/detail/5320752769532627",
       "parts": [
         {
@@ -5233,39 +5240,6 @@
           "subtitle_sha256": "b1e4a6b2226717c986e08bbc186bb93ff1442606a3b4542e00a353d6ddaae0a6",
           "status": "rejected",
           "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        }
-      ]
-    },
-    {
-      "slug": "ly-mother-edited-0907-01",
-      "artifact_id": 10004341369,
-      "run_id": 34082854669,
-      "checked_at": 1788755309,
-      "source_url": "https://www.bilibili.com/video/BV1ADetzQEuE",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_7.mp4",
-          "title": "林园：老龄化带来的医药需求，还只是个开始（2025年访谈）",
-          "duration_sec": 175.3,
-          "render_mode": "live_video_card",
-          "source_sha256": "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345",
-          "segments": [
-            {
-              "start": 938.6,
-              "end": 1037.16,
-              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
-            },
-            {
-              "start": 1044.44,
-              "end": 1121.16,
-              "reason": "老龄化怎样支撑医药需求，从就医现象到长期投资判断的完整讨论"
-            }
-          ],
-          "sha256": "3c8d79144c856487a8f1656c407ca856945765683ea8dd3ee7fb5f01dd48ebcf",
-          "subtitle_sha256": "b348784c95c18992c30595bb747d47cacff2051bed407a7944742e87391ea3a7",
-          "status": "verified",
-          "reason": null
         }
       ]
     }
