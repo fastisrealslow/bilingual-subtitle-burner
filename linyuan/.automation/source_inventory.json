@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788768585,
+  "updated_at": 1788768743,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -4691,7 +4691,14 @@
           "ly-0907-15c6b7"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-15c6b7",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "人物 VLM 校验不可用：HTTP Error 402: Payment Required"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4734,6 +4741,28 @@
         "family": "BV1rYcWeaEtb",
         "slugs": [
           "ly-0907-f88808"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0907-f88808",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "人物 VLM 校验不可用：HTTP Error 402: Payment Required"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1rYcWeaEtb:p37",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=37",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0907-1bc8cd"
         ],
         "source_sha256": [],
         "failures": [],
@@ -5511,7 +5540,7 @@
         "terminal_unclassified": 1
       },
       "BV1rYcWeaEtb": {
-        "attempted_mothers": 28,
+        "attempted_mothers": 29,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 12,
@@ -5570,7 +5599,7 @@
       }
     }
   },
-  "in_flight_placeholders": 24,
+  "in_flight_placeholders": 25,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
