@@ -53,6 +53,10 @@ FUNASR_LANG = os.environ.get("FUNASR_LANG") or "zh"
 
 SF_URL = "https://api.siliconflow.cn/v1/chat/completions"
 VISION_MODEL = os.environ.get("VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"
+TEXT_BACKEND = (os.environ.get("TEXT_BACKEND") or "local").strip().lower()
+LOCAL_LLM_URL = (os.environ.get("LOCAL_LLM_URL") or
+                 "http://127.0.0.1:11434/api/chat").strip()
+LOCAL_LLM_MODEL = (os.environ.get("LOCAL_LLM_MODEL") or "qwen3:4b").strip()
 LOCAL_FACE_MODEL_DIR = Path(os.environ.get("LOCAL_FACE_MODEL_DIR") or "/tmp/linyuan-face-models")
 LOCAL_FACE_DETECTOR_URL = ("https://github.com/opencv/opencv_zoo/raw/main/models/"
     "face_detection_yunet/face_detection_yunet_2023mar.onnx")
@@ -532,11 +536,12 @@ def verify_source_identity(src, work, speaker, api_key):
 
 
 def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
-    """调 LLM,限流时自动换模型。硅基流动的限流是分模型的。"""
+    """Use a loopback Ollama model by default; cloud requires explicit opt-in."""
     cache_dir = BASE / ".llm_cache"
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
-        {"m": messages, "t": temperature, "mt": max_tokens},
+        {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
+         "m": messages, "t": temperature, "mt": max_tokens},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if cf.exists():
@@ -547,8 +552,34 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
         except (ValueError, KeyError, OSError):
             print("[llm-cache] 缓存损坏,重新请求", file=sys.stderr)
 
-    last = None
     deadline = time.monotonic() + (budget_sec if budget_sec is not None else 120)
+    if TEXT_BACKEND == 'local':
+        from urllib.parse import urlparse
+        parsed=urlparse(LOCAL_LLM_URL)
+        if parsed.scheme!='http' or parsed.hostname not in {'127.0.0.1','localhost','::1'}:
+            raise RuntimeError('LOCAL_LLM_URL 只允许本机回环地址，防止误用收费接口')
+        remaining=max(1,deadline-time.monotonic())
+        payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,
+                            'options':{'temperature':temperature,'num_predict':max_tokens}}).encode()
+        try:
+            request=urllib.request.Request(LOCAL_LLM_URL,data=payload,
+                headers={'Content-Type':'application/json'})
+            with urllib.request.urlopen(request,timeout=min(600,remaining)) as response:
+                data=json.loads(response.read().decode())
+            txt=str((data.get('message') or {}).get('content') or '').strip()
+            if not txt:raise ValueError('本地模型返回空内容')
+            txt=re.sub(r"<think>.*?</think>","",txt,flags=re.S).strip()
+            cf.write_text(json.dumps({'model':LOCAL_LLM_MODEL,'backend':'local','content':txt},
+                                     ensure_ascii=False),encoding='utf-8')
+            return txt
+        except Exception as exc:
+            raise RuntimeError('本地文本模型不可用；请启动 Ollama 并准备 '+LOCAL_LLM_MODEL+': '
+                               +type(exc).__name__) from exc
+    if TEXT_BACKEND != 'siliconflow':
+        raise RuntimeError('TEXT_BACKEND 只能是 local；恢复收费云端须显式设为 siliconflow')
+    if not api_key:
+        raise RuntimeError('显式云端模式缺少 SILICONFLOW_API_KEY')
+    last = None
     for model in MODELS:
         payload = json.dumps({
             "model": model, "messages": messages, "temperature": temperature,
@@ -607,11 +638,39 @@ def _sha256_file(path):
 
 def _asr_cache_identity(src):
     if ASR_BACKEND == 'qwen3':
+        source_sha = _sha256_file(src)
+        evidence = Path(os.environ.get('QWEN3_EVIDENCE_DIR') or '')
+        reports = []
+        if evidence.is_dir():
+            from qwen_asr_evidence import load_reports
+            reports = load_reports(evidence)
+        if reports:
+            config = json.loads((BASE / 'asr_production_config.json').read_text())
+            choice = {**config, **config.get('source_overrides', {}).get(source_sha, {})}
+            revisions = choice.get('model_revisions') or {}
+            for report in reports:
+                alignment = report.get('alignment') or {}
+                if (report.get('source_video_sha256') != source_sha
+                        or report.get('device') != 'cpu'
+                        or report.get('networking_during_inference') is not False
+                        or report.get('model_id') != 'Qwen/Qwen3-ASR-0.6B'
+                        or report.get('model_revision') != revisions.get('asr')
+                        or alignment.get('device') != 'cpu'
+                        or alignment.get('networking_during_inference') is not False
+                        or alignment.get('model_id') != 'Qwen/Qwen3-ForcedAligner-0.6B'
+                        or alignment.get('model_revision') != revisions.get('aligner')):
+                    raise ValueError('离线转写证据与当前母片或固定模型版本不匹配')
+            files = sorted(evidence.rglob('aligned.json'))
+            return dict(version=ASR_PIPELINE_VERSION, source_sha256=source_sha,
+                backend='qwen3', chunk_sec=30, overlap_sec=3, threads=2,
+                reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
+                evidence={str(path.resolve()): _sha256_file(path) for path in files},
+                model_revisions=revisions)
         paths=[Path(os.environ.get(name,'')) for name in ('QWEN3_ASR_DIR','QWEN3_ALIGNER_DIR')]
         if any(not p.is_dir() or not list(p.glob('*.safetensors')) for p in paths):
-            raise ValueError('缺少已下载的CPU离线Qwen识别或对齐权重')
+            raise ValueError('缺少已验证的CPU离线证据，且未下载Qwen识别或对齐权重')
         files=[f for p in paths for pattern in ('*.safetensors','*.json') for f in p.glob(pattern)]
-        return dict(version=ASR_PIPELINE_VERSION,source_sha256=_sha256_file(src),
+        return dict(version=ASR_PIPELINE_VERSION,source_sha256=source_sha,
             backend='qwen3',chunk_sec=30,overlap_sec=3,threads=2,
             reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
             models={str(p.resolve()):_sha256_file(p) for p in files})
@@ -705,8 +764,11 @@ def _transcribe_qwen_cpu(src,work):
                 '--audio',str(wav),'--out',str(evidence),'--weights',os.environ[env],
                 '--source-video-sha',video_sha],check=True,timeout=max(600,int(duration*4)))
         reports=load_reports(evidence)
-    if any(r.get('model_revision')!=Path(os.environ['QWEN3_ASR_DIR']).name
-           or (r.get('alignment') or {}).get('model_revision')!=Path(os.environ['QWEN3_ALIGNER_DIR']).name
+    config=json.loads((BASE/'asr_production_config.json').read_text())
+    choice={**config,**config.get('source_overrides',{}).get(video_sha,{})}
+    revisions=choice.get('model_revisions') or {}
+    if any(r.get('model_revision')!=revisions.get('asr')
+           or (r.get('alignment') or {}).get('model_revision')!=revisions.get('aligner')
            for r in reports):
         raise ValueError('离线转写缓存与当前识别/对齐权重版本不同')
     words=validated_words(reports,pcm_sha,video_sha,duration)
@@ -4256,7 +4318,7 @@ def main():
     if not src.is_file():
         sys.exit(f"找不到源:{src}")
     api_key = load_key()
-    if not api_key:
+    if TEXT_BACKEND == 'siliconflow' and not api_key:
         sys.exit("缺 SILICONFLOW_API_KEY(放 .env 或环境变量)")
 
     out = BASE / "deliver" / args.slug
@@ -4403,7 +4465,9 @@ def main():
                  "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles")),
                  "clean_filter_verified": bool(source_report.get("clean_filter_verified")),
                  "vertical": m["resolution"]["height"] > m["resolution"]["width"],
-                 "asr_model": ASR_BACKEND, "llm": MODELS[0],
+                 "asr_model": ASR_BACKEND,
+                 "llm": LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS[0],
+                 "text_backend": TEXT_BACKEND,
                  "generated_at": datetime.now().isoformat(timespec="seconds")}
                 for m in metas]
         if rows:

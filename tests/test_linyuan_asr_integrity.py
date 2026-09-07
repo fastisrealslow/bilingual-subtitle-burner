@@ -1,5 +1,6 @@
 """Speech content and cache regressions: numbers/negation must never disappear."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import pytest
@@ -102,3 +103,60 @@ def test_unknown_backend_does_not_silently_load_large_v3(tmp_path, monkeypatch):
     monkeypatch.setattr(P, 'ASR_BACKEND', 'typo')
     with pytest.raises(ValueError, match='CPU 离线'):
         P.transcribe(tmp_path/'unused', tmp_path)
+
+
+def test_qwen_verified_evidence_can_be_reused_without_weight_files(tmp_path, monkeypatch):
+    src = tmp_path/'input.mp4'
+    src.write_bytes(b'exact mother video')
+    source_sha = hashlib.sha256(src.read_bytes()).hexdigest()
+    base = tmp_path/'linyuan'
+    base.mkdir()
+    (base/'reviewed_asr_corrections.py').write_text('VERSION = 1\n')
+    (base/'asr_production_config.json').write_text(json.dumps({
+        'backend': 'qwen3',
+        'model_revisions': {'asr': 'asr-revision', 'aligner': 'align-revision'},
+    }))
+    evidence = tmp_path/'evidence'/'0'
+    evidence.mkdir(parents=True)
+    report = dict(source_video_sha256=source_sha, device='cpu',
+        networking_during_inference=False, model_id='Qwen/Qwen3-ASR-0.6B',
+        model_revision='asr-revision', alignment=dict(device='cpu',
+            networking_during_inference=False,
+            model_id='Qwen/Qwen3-ForcedAligner-0.6B',
+            model_revision='align-revision'), chunks=[])
+    (evidence/'aligned.json').write_text(json.dumps(report))
+    monkeypatch.setattr(P, 'BASE', base)
+    monkeypatch.setattr(P, 'ASR_BACKEND', 'qwen3')
+    monkeypatch.setenv('QWEN3_EVIDENCE_DIR', str(evidence.parent))
+    monkeypatch.delenv('QWEN3_ASR_DIR', raising=False)
+    monkeypatch.delenv('QWEN3_ALIGNER_DIR', raising=False)
+    identity = P._asr_cache_identity(src)
+    assert identity['source_sha256'] == source_sha
+    assert identity['model_revisions']['asr'] == 'asr-revision'
+    assert list(identity['evidence']) == [str((evidence/'aligned.json').resolve())]
+
+
+def test_qwen_evidence_with_unpinned_revision_is_rejected(tmp_path, monkeypatch):
+    src = tmp_path/'input.mp4'
+    src.write_bytes(b'exact mother video')
+    source_sha = hashlib.sha256(src.read_bytes()).hexdigest()
+    base = tmp_path/'linyuan'
+    base.mkdir()
+    (base/'reviewed_asr_corrections.py').write_text('VERSION = 1\n')
+    (base/'asr_production_config.json').write_text(json.dumps({
+        'backend': 'qwen3',
+        'model_revisions': {'asr': 'expected', 'aligner': 'align-revision'},
+    }))
+    evidence = tmp_path/'evidence'
+    evidence.mkdir()
+    (evidence/'aligned.json').write_text(json.dumps(dict(
+        source_video_sha256=source_sha, device='cpu', networking_during_inference=False,
+        model_id='Qwen/Qwen3-ASR-0.6B', model_revision='different',
+        alignment=dict(device='cpu', networking_during_inference=False,
+            model_id='Qwen/Qwen3-ForcedAligner-0.6B', model_revision='align-revision'),
+        chunks=[])))
+    monkeypatch.setattr(P, 'BASE', base)
+    monkeypatch.setattr(P, 'ASR_BACKEND', 'qwen3')
+    monkeypatch.setenv('QWEN3_EVIDENCE_DIR', str(evidence))
+    with pytest.raises(ValueError, match='固定模型版本'):
+        P._asr_cache_identity(src)

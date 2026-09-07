@@ -50,7 +50,13 @@ CI（仓库根 `.github/workflows/`）
 - 日常成片以2～3分钟为主，每条为一个连续完整论述。每天发布6条，至少5条真人动态、最多1条audio_card。每条单独限时、隔离失败产物并保存已通过成片。
 
 两条都用 `working-directory: linyuan`。secret 复用仓库已有的
-`SILICONFLOW_API_KEY`；投稿要额外配 `BILIBILI_COOKIES`（默认不配=不投）。
+默认使用本机 Ollama（`qwen3:4b`）完成选段、翻译和内容复核；人物核验使用
+OpenCV YuNet + SFace ONNX，ASR 使用 CPU 离线模型。运行
+`run_local_cpu.sh <本地视频.mp4> <slug>` 时会主动清除硅基流动和阿里云变量，
+只允许文本模型连接本机回环地址。投稿要额外配 `BILIBILI_COOKIES`。
+
+收费的硅基流动模式只保留为显式兼容选项：同时设置
+`TEXT_BACKEND=siliconflow` 和 `SILICONFLOW_API_KEY` 才会发起请求。
 
 快速开始
 --------

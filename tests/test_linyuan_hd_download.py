@@ -1,6 +1,7 @@
 """高清取源和可恢复下载的回归测试。"""
 
 import importlib.util
+import io
 from pathlib import Path
 import subprocess
 
@@ -48,6 +49,37 @@ def test_bilibili_falls_back_to_single_file_stream():
     }})
     assert selected["video"] == ["main", "backup"]
     assert selected["audio"] == []
+
+
+def test_bilibili_large_download_resumes_partial_file(tmp_path):
+    body = b'x' * 30000
+
+    class Response(io.BytesIO):
+        def __init__(self, data, status, headers):
+            super().__init__(data)
+            self.status = status
+            self.headers = headers
+        def getcode(self):
+            return self.status
+
+    class Opener:
+        def __init__(self):
+            self.calls = []
+        def open(self, request, timeout):
+            requested = request.headers.get('Range') or request.headers.get('range')
+            self.calls.append(requested)
+            if requested is None:
+                return Response(body[:15000], 200, {'Content-Length': str(len(body))})
+            assert requested == 'bytes=15000-'
+            return Response(body[15000:], 206, {
+                'Content-Length': '15000', 'Content-Range': 'bytes 15000-29999/30000'})
+
+    opener = Opener()
+    output = tmp_path / 'large.m4s'
+    BILI.download_one(opener, ['https://cdn.example/video'], 'https://example.com',
+                      output, attempts=2)
+    assert output.read_bytes() == body
+    assert opener.calls == [None, 'bytes=15000-']
 
 
 def test_fc_direct_download_is_resumable_and_retried(monkeypatch, tmp_path):

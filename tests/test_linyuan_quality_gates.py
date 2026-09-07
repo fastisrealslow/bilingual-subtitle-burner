@@ -18,6 +18,32 @@ sys.path.insert(0, str(ROOT / "linyuan"))
 import produce_cn as P  # noqa: E402
 
 
+def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'LOCAL_LLM_URL','http://127.0.0.1:11434/api/chat')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    seen={}
+    class Reply:
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+        def read(self):return b'{"message":{"content":"local result"}}'
+    def open_local(request,timeout):
+        seen['url']=request.full_url
+        assert 'Authorization' not in request.headers
+        return Reply()
+    monkeypatch.setattr(P.urllib.request,'urlopen',open_local)
+    assert P.llm([{'role':'user','content':'x'}],'paid-key')=='local result'
+    assert seen['url'].startswith('http://127.0.0.1:')
+
+
+def test_local_text_backend_rejects_remote_endpoint(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'LOCAL_LLM_URL','https://api.example.com/chat')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    with pytest.raises(RuntimeError,match='只允许本机回环地址'):
+        P.llm([{'role':'user','content':'x'}],'')
+
+
 def _load_fc():
     spec = importlib.util.spec_from_file_location("quality_fc", ROOT / "linyuan/fc/index.py")
     module = importlib.util.module_from_spec(spec)

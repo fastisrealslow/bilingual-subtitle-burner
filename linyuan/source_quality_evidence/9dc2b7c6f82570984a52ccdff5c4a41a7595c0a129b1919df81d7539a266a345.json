@@ -1,5 +1,5 @@
 {
-  "quality_gate_version": 12,
+  "quality_gate_version": 13,
   "source_sha256": "9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345",
   "speaker": "林园",
   "passed": true,
@@ -11,8 +11,8 @@
   },
   "raw_has_existing_subtitles": true,
   "visual_identity": {
-    "version": 2,
-    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "version": 3,
+    "model": "opencv_yunet_sface_cpu",
     "speaker": "林园",
     "same_person_frames": [
       1,
@@ -23,13 +23,10 @@
       6
     ],
     "different_person_frames": [],
-    "confidence": 1.0,
-    "reason": "参考图是林园的正面清晰头像。待检帧1为林园本人的正面特写，与参考图完全一致。待检帧2-6均为视频通话画面，右侧为林园，左侧为女性。林园在右侧画面中，其面部特征（如额头、眼睛、鼻梁、嘴角、脸颊轮廓、发型）与参考图高度一致，尽管表情和角度略有变化，但可确认为同一人。所有帧中均无其他可辨认的林园面孔。所有帧均带有'滚雪球等风来'和'bilibili'水印。",
-    "watermark_texts": [
-      "滚雪球等风来",
-      "bilibili"
-    ],
-    "best_cover_time": 268.95
+    "confidence": 0.99,
+    "reason": "CPU SFace逐帧比对；阈值0.363；分数{1: 0.5923, 2: 0.6065, 3: 0.7131, 4: 0.6625, 5: 0.6578, 6: 0.6762}",
+    "watermark_texts": [],
+    "best_cover_time": 806.86
   },
   "clean_strategy": "audio_card",
   "clean_video_filter": "",
