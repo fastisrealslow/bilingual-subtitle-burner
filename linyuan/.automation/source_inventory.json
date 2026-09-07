@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788765424,
+  "updated_at": 1788765542,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -3758,7 +3758,14 @@
           "ly-0907-d2dd1a"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-d2dd1a",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "素材质量门禁未通过"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5116,7 +5123,8 @@
       "BV1iv411Y7S4": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1d4VR6JELK": {
         "attempted_mothers": 1,
@@ -5162,7 +5170,7 @@
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 16,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
