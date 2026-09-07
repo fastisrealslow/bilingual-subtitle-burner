@@ -17,7 +17,7 @@ import sqlite3
 import sys
 import time
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 DB_PATH = Path(__file__).with_name("monitor_v2.db")
@@ -39,6 +39,39 @@ BROWSER_REQUIRED = {
     "bilibili_space",   # 空间页需 JS 渲染
     "xueqiu_search",    # WAF 拦截，尚未攻克
 }
+
+
+def duration_seconds(value):
+    """Normalize search API seconds or HH:MM:SS, keeping unknown distinct."""
+    try:
+        if isinstance(value, str) and ':' in value:
+            parts = value.strip().split(':')
+            if len(parts) not in (2, 3) or any(not p.isdigit() for p in parts):
+                return 0
+            total = 0
+            for part in parts:
+                total = total * 60 + int(part)
+            return total
+        return max(0, int(float(value or 0)))
+    except (ValueError, TypeError, OverflowError):
+        return 0
+
+
+def source_publish_time(value):
+    """An unknown source date must never become today's discovery date."""
+    try:
+        if isinstance(value, (int, float)) or str(value).isdigit():
+            return datetime.fromtimestamp(float(value), timezone.utc).isoformat() if float(value) > 0 else ''
+        value = str(value or '').strip()
+        if not value:
+            return ''
+        try:
+            parsed = datetime.fromisoformat(value)
+        except ValueError:
+            parsed = datetime.strptime(value, '%a %b %d %H:%M:%S %z %Y')
+        return parsed.isoformat()
+    except (ValueError, TypeError, OverflowError, OSError):
+        return ''
 
 
 def cdp_available(url=CDP_URL, timeout=3):
@@ -231,6 +264,8 @@ class BilibiliSearchSource(Source):
                     "viewText": "",
                     "view_count": v.get("play") or 0,
                     "up": v.get("author", ""),
+                    "duration": duration_seconds(v.get("duration")),
+                    "pubdate": v.get("pubdate"),
                 })
             if page_no < pages:
                 time.sleep(1)
@@ -283,10 +318,57 @@ class BilibiliSearchSource(Source):
                 "source": self.name,
                 "title": v["title"],
                 "url": f"https://www.bilibili.com/video/{v['bvid']}",
-                "publish_time": datetime.now().strftime("%Y-%m-%d 00:00:00"),
+                "publish_time": source_publish_time(v.get("pubdate")),
                 "author": up,
-                "extra": json.dumps({"bvid": v["bvid"], "view_count": view_count}, ensure_ascii=False),
+                "extra": json.dumps({"bvid": v["bvid"], "view_count": view_count,
+                                     "duration": duration_seconds(v.get("duration")),
+                                     "metadata_status": "known_duration" if duration_seconds(v.get("duration")) else "needs_probe"}, ensure_ascii=False),
             })
+        return items
+
+
+class BilibiliCollectionSource(Source):
+    """Expand verified collection links into independently addressable pages.
+
+    These are source candidates, never approved clips. Face, ASR, frame and
+    cross-platform content gates still run on the actual downloaded page.
+    """
+    name = "bilibili_collection"
+    min_interval = 6 * 3600
+
+    def fetch(self, page):
+        items = []
+        for seed in self.config.get("seeds", []):
+            bvid = seed["bvid"]
+            try:
+                data = json.loads(http_get(
+                    f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}",
+                    referer="https://www.bilibili.com/"))
+                if data.get("code") != 0:
+                    raise ValueError(f"view code={data.get('code')}")
+                data = data["data"]
+                author = (data.get("owner") or {}).get("name", "")
+                if author in BLACKLIST_AUTHORS or author == "园园滚雪球":
+                    continue
+                for part in data.get("pages") or []:
+                    number = int(part["page"])
+                    duration = duration_seconds(part.get("duration"))
+                    if not 120 <= duration <= 5400:
+                        continue
+                    suffix = f":p{number}" if number > 1 else ""
+                    url = f"https://www.bilibili.com/video/{bvid}" + (f"?p={number}" if number > 1 else "")
+                    items.append({
+                        "id": f"bilibili_search:{bvid}{suffix}",
+                        "source": self.name,
+                        "title": f"林园 P{number} {part.get('part') or data.get('title') or seed.get('title', '')}",
+                        "url": url, "author": author,
+                        "publish_time": source_publish_time(data.get("pubdate")),
+                        "extra": json.dumps({"bvid": bvid, "page": number, "cid": part["cid"],
+                            "duration": duration, "collection_title": data.get("title", ""),
+                            "source_role": "mother_candidate", "metadata_status": "known_duration"}, ensure_ascii=False),
+                    })
+            except Exception as exc:
+                print(f"[{self.name}] {bvid} 元数据失败，保留已有目录: {exc}", file=sys.stderr)
         return items
 
 
@@ -613,7 +695,7 @@ class WeiboSearchSource(Source):
                 "source": self.name,
                 "title": text[:300],
                 "url": f"https://m.weibo.cn/detail/{mid}",
-                "publish_time": datetime.now().isoformat(),
+                "publish_time": source_publish_time(s.get("created_at")),
                 "author": (s.get("user") or {}).get("screen_name", ""),
                 "extra": json.dumps({
                     "mid": mid,
@@ -627,6 +709,7 @@ class WeiboSearchSource(Source):
                     "need_referer": "https://weibo.com/" if video_url else "",
                     "cover": cover,
                     "raw_time": s.get("created_at", ""),
+                    "duration": duration_seconds(media.get("duration")),
                     "reposts": s.get("reposts_count", 0),
                     "comments": s.get("comments_count", 0),
                 }, ensure_ascii=False),
@@ -1509,6 +1592,7 @@ class NeteaseVideoSource(Source):
 SOURCES = {
     "bilibili_api": BilibiliApiSource,
     "bilibili_search": BilibiliSearchSource,
+    "bilibili_collection": BilibiliCollectionSource,
     "bilibili_space": BilibiliSpaceSource,
     "competitor_reference": CompetitorReferenceSource,
     "xueqiu_search": XueqiuSearchSource,

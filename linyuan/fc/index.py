@@ -221,7 +221,9 @@ COVER_STANDARD_VERSION = 4
 TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
-REVIEW_PAUSED_SLUGS = {"ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05",
+REVIEW_PAUSED_SLUGS = {
+    "ly-0907-f95a57",  # Actual ASS: wrong financial terms and incomplete standalone openings.
+    "ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05",
                        # run34074613911 final_3: actual ASS contains many
                        # unintelligible words despite a positive LLM review.
                        "ly-0907-d04876"}
@@ -760,7 +762,9 @@ def save_state(st, retries=3):
 def video_id_of(page_url, video_url):
     m = re.search(r"(BV\w+)", page_url or "")
     if m:
-        return m.group(1)
+        from urllib.parse import parse_qs, urlparse
+        page = parse_qs(urlparse(page_url).query).get('p', ['1'])[0]
+        return m.group(1) + (f':p{int(page)}' if page.isdigit() and int(page) > 1 else '')
     return (video_url or "").split("?")[0] or page_url
 
 
@@ -813,6 +817,15 @@ def dedup_by_title(cands, threshold=0.6):
     for c in cands:
         dup = False
         for i, r in enumerate(result):
+            # Different cids in one collection are separate recordings even
+            # when their series title is shared. Final media fingerprints still
+            # reject an episode duplicated under another URL.
+            ce, re_ = c.get('extra') or {}, r.get('extra') or {}
+            if (isinstance(ce, dict) and isinstance(re_, dict)
+                    and ce.get('bvid') == re_.get('bvid')
+                    and ce.get('cid') and re_.get('cid')
+                    and ce['cid'] != re_['cid']):
+                continue
             if title_similarity(c["title"], r["title"]) >= threshold:
                 # 比较质量：有直链的优先，都没有直链的看 extra 中的时长
                 c_score = (1 if c.get("video_url") else 0)
@@ -1069,7 +1082,8 @@ def pick(items, st, n):
     seen_prefix = set()
     deduped = []
     for c in cands:
-        pfx = (c["title"] or "")[:12]
+        pfx = (('cid', c['extra']['cid']) if c.get('extra', {}).get('cid')
+               else (c["title"] or "")[:12])
         if pfx in seen_prefix:
             continue
         seen_prefix.add(pfx)

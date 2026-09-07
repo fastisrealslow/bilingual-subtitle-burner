@@ -19,6 +19,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+from urllib.parse import parse_qs, urlparse
 from pathlib import Path
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -71,22 +72,41 @@ def opener():
     return op
 
 
-def via_view(op, bvid):
+def requested_page(url):
+    value = parse_qs(urlparse(url).query).get('p', ['1'])
+    if len(value) != 1 or not value[0].isdigit() or int(value[0]) < 1:
+        raise ValueError('Invalid Bilibili page number')
+    return int(value[0])
+
+
+def page_cid(pages, page):
+    matches = [p for p in pages if int(p.get('page', 0)) == page]
+    if len(matches) != 1 or not matches[0].get('cid'):
+        raise ValueError(f'Bilibili page {page} is missing or ambiguous; never substitute page 1')
+    return matches[0]['cid']
+
+
+def via_view(op, bvid, page=1):
     """策略 A：view API 拿 cid。"""
     v = json.loads(op.open(
         f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}", timeout=30).read())
     if v.get("code") != 0:
         raise RuntimeError(f"view code={v.get('code')}")
-    return v["data"]["cid"]
+    data = v['data']
+    if data.get('pages'):
+        return page_cid(data['pages'], page)
+    if page != 1:
+        raise ValueError(f'No page {page} metadata')
+    return data['cid']
 
 
-def via_pagelist(op, bvid):
+def via_pagelist(op, bvid, page=1):
     """策略 B：pagelist 拿 cid（风控级别和 view 不同）。"""
     r = json.loads(op.open(
         f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}", timeout=30).read())
     if r.get("code") != 0 or not r.get("data"):
         raise RuntimeError(f"pagelist code={r.get('code')}")
-    return r["data"][0]["cid"]
+    return page_cid(r['data'], page)
 
 
 def _urls(stream):
@@ -120,10 +140,10 @@ def select_streams(info):
     raise RuntimeError("无可用 DASH/durl 流")
 
 
-def via_embed(op, bvid):
+def via_embed(op, bvid, page=1):
     """策略 C：embed 播放页的 __playinfo__ 直接带流地址，连 playurl 都省了。"""
     html = op.open(
-        f"https://player.bilibili.com/player.html?bvid={bvid}&autoplay=0",
+        f"https://player.bilibili.com/player.html?bvid={bvid}&page={page}&autoplay=0",
         timeout=30).read().decode("utf-8", "ignore")
     m = re.search(r"__playinfo__\s*=\s*(\{.*?\})\s*</script>", html, re.S) \
         or re.search(r"__playinfo__\s*=\s*(\{.*)", html)
@@ -287,12 +307,16 @@ def main():
     if not m:
         sys.exit("URL 里没有 BV 号")
     bvid = m.group(1)
+    page = requested_page(args.url)
 
     strategies = [
-        ("view→playurl", lambda op: playurl(op, bvid, via_view(op, bvid))),
-        ("pagelist→playurl", lambda op: playurl(op, bvid, via_pagelist(op, bvid))),
-        ("embed __playinfo__", lambda op: via_embed(op, bvid)),
+        ("view→playurl", lambda op: playurl(op, bvid, via_view(op, bvid, page))),
+        ("pagelist→playurl", lambda op: playurl(op, bvid, via_pagelist(op, bvid, page))),
     ]
+    # Embedded pages do not prove which cid their playinfo belongs to. Keep
+    # the legacy fallback only for page 1, never silently download the wrong P.
+    if page == 1:
+        strategies.append(("embed __playinfo__", lambda op: via_embed(op, bvid)))
     last = None
     for name, fn in strategies:
         op = opener()

@@ -1,0 +1,26 @@
+name: 林园新母片 CPU 离线复核试产
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-source-pilot-0907.yml]
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: linyuan-source-pilot-0907
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 对同一母片执行新的离线识别，投稿保持隔离
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run linyuan-produce-cn.yml --ref main \
+            -f source=https://www.bilibili.com/video/BV1tuCDBhE6C \
+            -f slug=ly-0907-d04876 -f speaker=林园 \
+            -f occasion='激荡投资30年2025年11月2日' \
+            -f source_platform=bilibili -f auto_publish=false
