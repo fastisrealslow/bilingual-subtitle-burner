@@ -1644,6 +1644,26 @@ def dispatch_handler(event=None, context=None):
     return run_with_lease('dispatch',lambda:_dispatch_admitted(event,context))
 
 
+def release_pipeline_lease(owner, kind, attempts=3):
+    """Retry ref conflicts, but never release a lease that changed owners."""
+    import base64
+    for attempt in range(attempts):
+        try:
+            current=gh('GET',f'/contents/{DISPATCH_LEASE_KEY}?ref=main',timeout=15)
+            lease=json.loads(base64.b64decode(current['content']))
+            if lease.get('owner')!=owner:return False
+            if not lease.get('expires_at'):return True
+            gh('PUT',f'/contents/{DISPATCH_LEASE_KEY}',dict(
+                message=f'chore(supply): release {kind} lease',sha=current['sha'],
+                content=base64.b64encode(json.dumps(dict(owner=owner,expires_at=0)).encode()).decode()),timeout=15)
+            return True
+        except Exception as exc:
+            log.warning('%s lease release attempt %s: %s',kind,attempt+1,type(exc).__name__)
+            if attempt+1<attempts:time.sleep(attempt+1)
+    log_event('lease_release_failed','调度锁释放失败，等待保守租约过期',kind)
+    return False
+
+
 def run_with_lease(kind, action):
     import base64
     import uuid
@@ -1676,13 +1696,7 @@ def run_with_lease(kind, action):
     try:
         return action()
     finally:
-        try:
-            gh('PUT', f'/contents/{key}', {
-                'message': f'chore(supply): release {kind} lease',
-                'sha': claim['content']['sha'],
-                'content': base64.b64encode(json.dumps(dict(owner=owner,expires_at=0)).encode()).decode()}, timeout=20)
-        except Exception as exc:
-            log.warning('%s lease will expire: %s',kind,type(exc).__name__)
+        release_pipeline_lease(owner,kind)
 
 
 def catchup_deficit(st, now=None):

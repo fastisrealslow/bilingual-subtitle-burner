@@ -242,6 +242,31 @@ def test_admission_lease_stops_duplicate_dispatch(monkeypatch):
     assert calls==['GET']
 
 
+def test_lease_release_retries_a_ref_conflict_with_fresh_ownership(monkeypatch):
+    calls=[]
+    def gh(method,path,payload=None,**kwargs):
+        calls.append(method)
+        if method=='GET':
+            return dict(sha=str(len(calls)),content=base64.b64encode(json.dumps(
+                dict(owner='own',expires_at=time.time()+60)).encode()).decode())
+        if calls.count('PUT')==1:raise HTTPError(path,409,'concurrent ref update',None,None)
+        assert payload['sha']=='3'
+        return {}
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc.time,'sleep',lambda delay:None)
+    assert fc.release_pipeline_lease('own','dispatch') is True
+    assert calls==['GET','PUT','GET','PUT']
+
+
+def test_failed_release_cannot_clear_a_new_owners_lock(monkeypatch):
+    def gh(method,path,*args,**kwargs):
+        assert method=='GET'
+        return dict(sha='new',content=base64.b64encode(json.dumps(
+            dict(owner='another',expires_at=time.time()+60)).encode()).decode())
+    monkeypatch.setattr(fc,'gh',gh)
+    assert fc.release_pipeline_lease('old','dispatch') is False
+
+
 def test_compare_and_swap_conflict_does_not_dispatch(monkeypatch):
     def gh(method,path,*a,**kw):
         raise HTTPError(path,404 if method=='GET' else 409,'conflict',None,None)

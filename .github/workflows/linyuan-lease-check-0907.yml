@@ -1,0 +1,49 @@
+name: 林园调度锁对应云端任务核对
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-lease-check-0907.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 只读核对云端调用状态和实际最长执行时间
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+          function=os.environ['FC_FUNCTION_NAME']
+          config=client.get_function_with_options(function,m.GetFunctionRequest(qualifier='LATEST'),{},runtime).body
+          response=client.list_async_tasks_with_options(function,m.ListAsyncTasksRequest(
+              qualifier='LATEST',limit=100,sort_order_by_time='desc',include_payload=False),{},runtime).body.to_map()
+          tasks=response.get('tasks') or response.get('asyncTasks') or []
+          allowed={'taskId','status','startedTime','endTime','endedTime','createdTime','invocationId','lastModifiedTime'}
+          result=dict(function_timeout=config.timeout,response_fields=list(response),
+                      tasks=[{k:v for k,v in t.items() if k in allowed} for t in tasks])
+          Path('pipeline-task-state.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-task-state
+          path: pipeline-task-state.json
+          if-no-files-found: error
