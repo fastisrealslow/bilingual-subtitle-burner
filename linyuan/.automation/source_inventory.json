@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788760996,
+  "updated_at": 1788761142,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -4142,7 +4142,14 @@
           "ly-0907-999bc1"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0907-999bc1",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整意群字幕重试3次仍未通过\n上次输出未通过严格校验：完整词句无法放入两行；必须先重新分段。请重新按原文输出全部字幕。上次分屏文本：[\"对于这个医药板块还是得跟您聊一聊\", \"就是其实我们注意到四加七这个政策也已经退出了\", \"可能这个医药市场会有一些变局呗\", \"如果医药市场放开的话那么海外医药股会对国内这些企业形成冲击吗\", \"不会哎这个非常明确的告诉你\", \"嗯就是如果说是价格性能比还是国内的它便宜\", \"嗯性价比\", \"海外会逐步\", \"我相信如果这个政策出出来的话\", \"会把一些境外的这些特别是这个老的药啊\", \"我们说的仿制药会挤挤出中国市场\", \"嗯你能举个例子吗\", \"嗯能举个例子吗\", \"因为我对这个化学药我也不是很了解啊\", \"但是我们看到就是比如说\", \"美国的一些化化学药生产\", \"最大的化学药呃生产厂家就仿制药生产厂家\", \"它都是亏损的\", \"为什么亏损它成本太高了啊\", \"嗯它的生产成本流通成本都是太高了嗯\", \"就是还是还是到目前为止还是亏损嗯\", \"嗯\", \"就是比如说中国的这些仿制药其实他们也在走一些哦一条研发的\", \"路线比如说像恒瑞啊他其实也想自己做投入然后做研发\", \"但是现在相比较来看恒瑞三季度的研发投入比如说在十七个亿左右\", \"相比于美国这些大企业其实差的还是很多\", \"所以您觉得国内的这些企业走研发这条路可行吗\", \"嗯它这个研发是这个是针对于未来啊呃药的研发也不是那么容易\", \"当然可行的啊\", \"作为一个比如说它这个公司发展到一定程程度\", \"它必须走这个就自主有自主知识产权的东西\", \"嗯嗯明白明白\", \"但您现在觉得这些仿制药\", \"它的低价格还是不会被国外这些企业这些药品取代\", \"是吧啊不会去明白\"]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4155,6 +4162,43 @@
         "family": "BV1rYcWeaEtb",
         "slugs": [
           "ly-0907-6e7f0f"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0907-6e7f0f",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[4, 5]，different=[1, 2, 3, 6]，confidence=1.0，reason=分组复核：参考图是林园的正面清晰头像。待检帧1中，画面仅显示主持人，无林园。待检帧2中，画面显示主持人，背景有'湖北卫视'和'Sina'台标，无林园。待检帧3中，画面为财经图表动画，无任何人物，无林园。所有帧均无林园本人的脸部出现。；参考图是林园的正面清晰头像。待检帧1中，画面主体是林园本人，面部特征与参考图一致。待检帧2中，画面主体是林园本人，面部特征与参考图一致。待检帧3中，画面主体是女主持人，林园未出现，且画面中无林园的面部。"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1jg1EBtEg1:p1",
+        "source_url": "https://www.bilibili.com/video/BV1jg1EBtEg1",
+        "family": "BV1jg1EBtEg1",
+        "slugs": [
+          "ly-0907-4ff549"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1rYcWeaEtb:p55",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=55",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0907-9bc40c"
         ],
         "source_sha256": [],
         "failures": [],
@@ -4925,14 +4969,19 @@
         "terminal_unclassified": 1
       },
       "BV1rYcWeaEtb": {
-        "attempted_mothers": 16,
+        "attempted_mothers": 17,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 10,
-        "terminal_source-quality": 1
+        "terminal_editorial-or-render": 11,
+        "terminal_source-quality": 2
       },
       "BV19P4y1m77K": {
         "attempted_mothers": 2,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1jg1EBtEg1": {
+        "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
