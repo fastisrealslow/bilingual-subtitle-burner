@@ -9,8 +9,6 @@ on:
   workflow_run:
     workflows: ['中文源出片', '林园监控 · 每日抓取']
     types: [completed]
-  schedule:
-    - cron: '8,38 * * * *'
   workflow_dispatch:
 permissions:
   contents: write

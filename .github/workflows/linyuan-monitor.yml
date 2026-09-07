@@ -18,11 +18,6 @@ on:
       - .github/workflows/linyuan-monitor.yml
       - linyuan/monitor_v2.py
       - linyuan/monitor_v2_config.json
-  schedule:
-    # GitHub 定时任务实测曾延后约 4 小时启动。02:00 预抓给 06:00 FC
-    # 调度留足缓冲；09:00 再补抓一次，避免单次延迟导致全天无新候选。
-    - cron: '0 18 * * *'       # 每天 02:00 (UTC+8，主抓取)
-    - cron: '0 1 * * *'        # 每天 09:00 (UTC+8，兜底刷新)
   workflow_dispatch:
     inputs:
       refresh_up_list:

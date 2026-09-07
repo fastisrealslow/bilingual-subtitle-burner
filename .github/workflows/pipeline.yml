@@ -54,10 +54,6 @@ on:
         default: false
         type: boolean
 
-  # 定时：默认每天 UTC 22:00（= 北京时间次日 06:00）。按需修改。
-  schedule:
-    - cron: "0 22 * * *"
-
 # 避免多次触发并发跑坏登录态
 concurrency:
   group: video-pipeline

@@ -69,7 +69,7 @@ for name, cron in [("dispatch", "0 0 10 * * *"), ("publish", "0 30 * * * *")]:
                              qualifier="LATEST",
                              trigger_config=json.dumps({
                                  "cronExpression": cron,
-                                 "enable": True, "payload": "{}"}))
+                                 "enable": False, "payload": "{}"}))
     try:
         client.create_trigger(FUNC, m.CreateTriggerRequest(body=t))
         print(f"✓ 触发器 {name}（{cron}）")
@@ -79,10 +79,4 @@ for name, cron in [("dispatch", "0 0 10 * * *"), ("publish", "0 30 * * * *")]:
         else:
             raise
 
-# 3. 同步测试调用 publish（队列空时会秒回）
-print("\n测试调用 publish ...")
-r = client.invoke_function(FUNC, m.InvokeFunctionRequest(body=m.InvokeRequest(
-    qualifier="LATEST", body=b'{"triggerName":"publish"}')))
-resp = r.body.read().decode() if hasattr(r.body, "read") else str(r.body)
-print("返回:", resp[:300])
-print("\n✅ 部署完成。明天 10:00 第一次自动调度。")
+print("\n✅ 止损部署完成：云端生产触发器保持禁用。")

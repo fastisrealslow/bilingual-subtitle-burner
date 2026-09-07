@@ -1599,6 +1599,10 @@ def handler(event, context):
     except Exception:
         evt = {}
     name = str(evt.get("triggerName", ""))
+    # Emergency cost stop: keep diagnostics readable, but never dispatch,
+    # render or publish from FC until a later explicit code change enables it.
+    if not name.startswith('diagnose-'):
+        return {'ok':True,'cloud_production_disabled':True,'trigger':name}
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     # 入口事件立即落盘，长下载/上传即使超时也能证明请求实际进入函数。
