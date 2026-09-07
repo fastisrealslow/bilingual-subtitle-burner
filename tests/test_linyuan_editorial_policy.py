@@ -143,7 +143,9 @@ def test_deploy_refill_requires_an_explicit_source_refresh_flag():
     deploy = (ROOT / '.github/workflows/fc-production-deploy.yml').read_text()
     monitor = (ROOT / '.github/workflows/linyuan-monitor.yml').read_text()
     assert "inputs.refill" in deploy
-    assert "-f refill=true" in monitor
+    assert "gh workflow run fc-production-deploy.yml" not in monitor
+    inventory = (ROOT / '.github/workflows/linyuan-source-inventory.yml').read_text()
+    assert "'林园监控 · 每日抓取'" in inventory
     assert "linyuan/dashboard/data.json" not in deploy
 
 
