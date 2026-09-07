@@ -60,6 +60,16 @@ ASR_CONTAMINATION_FRAGMENTS = (
     '这就是我我举了个中药的例',
     '大概是667岁',
     '那可不得了那我肯定是花大财',
+    # 2026-09-07 ly-0907-a7f0a1, verified from both delivered ASS files.
+    # The two audio cards also overlap by about 42 seconds; these fragments
+    # preserve the separate ASR/standalone-ending reasons for rejecting them.
+    '不不单纯是看书的股',
+    '你这个股司不起来哪有钱去消费',
+    '7块多是倒着来到15块牛市启动',
+    '今天来的不是笨难',
+    '你提戚过这怎么涨了这么高了你还跑虑听这',
+    '大概的时件不是高位',
+    '那无非是这三个',
 )
 
 

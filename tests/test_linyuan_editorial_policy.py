@@ -120,6 +120,13 @@ def test_confirmed_asr_corruption_is_rejected_before_editorial_review():
     assert 'ASR污染' in policy.transcript_integrity_error('这就是我我举了个中药的例')
     assert 'ASR污染' in policy.transcript_integrity_error('当时人口死亡年龄大概是667岁')
     assert 'ASR污染' in policy.transcript_integrity_error('那可不得了那我肯定是花大财')
+    assert 'ASR污染' in policy.transcript_integrity_error('它这个高低啊不不单纯是看书的股')
+    assert 'ASR污染' in policy.transcript_integrity_error('你这个股司不起来哪有钱去消费')
+    assert 'ASR污染' in policy.transcript_integrity_error('7块多是倒着来到15块牛市启动')
+    assert 'ASR污染' in policy.transcript_integrity_error('今天来的不是笨难')
+    assert 'ASR污染' in policy.transcript_integrity_error('你提戚过这怎么涨了这么高了你还跑虑听这')
+    assert 'ASR污染' in policy.transcript_integrity_error('大概的时件不是高位')
+    assert 'ASR污染' in policy.transcript_integrity_error('买还是卖还是持有那无非是这三个')
     assert policy.transcript_integrity_error('买好公司长期持有不会错') is None
 
 
@@ -136,9 +143,8 @@ def test_deploy_refill_requires_an_explicit_source_refresh_flag():
     deploy = (ROOT / '.github/workflows/fc-production-deploy.yml').read_text()
     monitor = (ROOT / '.github/workflows/linyuan-monitor.yml').read_text()
     assert "inputs.refill" in deploy
-    assert "gh workflow run fc-production-deploy.yml" not in monitor
-    inventory = (ROOT / '.github/workflows/linyuan-source-inventory.yml').read_text()
-    assert "'林园监控 · 每日抓取'" in inventory
+    assert "-f refill=true" in monitor
+    assert "linyuan/dashboard/data.json" not in deploy
 
 
 def test_daily_and_explicit_publication_share_the_same_gate():
