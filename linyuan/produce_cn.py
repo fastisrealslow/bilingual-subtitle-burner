@@ -4244,6 +4244,7 @@ def main():
         rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
                  "occasion": args.occasion, **m,
                  "quality_gate_version": QUALITY_GATE_VERSION,
+                 "source_sha256": source_report.get('source_sha256'),
                  "source_platform": platform,
                  "watermark_cropped": bool(m.get("watermark_removed")),
                  "watermark_verified": bool(m.get("watermark_verified")),

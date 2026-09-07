@@ -69,3 +69,15 @@ def test_page_lookup_never_silently_downloads_first_episode():
         fetcher.page_cid(pages, 3)
     with pytest.raises(ValueError):
         fetcher.requested_page('https://www.bilibili.com/video/BVseries?p=0')
+
+
+def test_collection_falls_back_from_view_without_guessing_author(monkeypatch):
+    def get(url,**kw):
+        if '/view?' in url:raise RuntimeError('view unavailable')
+        return json.dumps(dict(code=0,data=[dict(page=2,cid=222,duration=600,part='独立访谈')]))
+    monkeypatch.setattr(monitor_v2,'http_get',get)
+    monkeypatch.setattr(monitor_v2.BilibiliSearchSource,'_fetch_via_api',lambda *a:[])
+    row=monitor_v2.BilibiliCollectionSource(dict(seeds=[dict(bvid='BVseries',title='林园合集')]),{}).fetch(None)[0]
+    extra=json.loads(row['extra'])
+    assert extra['cid']==222 and extra['direct_dispatch'] is False
+    assert extra['metadata_status']=='needs_author_verification'

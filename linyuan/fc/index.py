@@ -53,6 +53,10 @@ MIN_DUR, MAX_DUR = 120, 5400            # 源片须足够产出至少2分钟的�
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
 MAX_PUBLISH_PER_DAY = 6                  # 每天最多投几条成片（2026-08-29 改成 6 条，含中视频）
+TARGET_READY_RESERVE = 12
+MAX_ACTIVE_SOURCES = 6
+SOURCE_INVENTORY_KEY = 'linyuan/.automation/source_inventory.json'
+DISPATCH_LEASE_KEY = 'linyuan/.automation/dispatch_lease.json'
 # User's 2026-09-06 request excludes the old batch from today's new six.
 # Historical totals remain intact. Only these named, individually reviewed
 # outputs may use the separate, expiring six-slot allowance.
@@ -653,6 +657,30 @@ def download_release_part(slug, part_index, dest_dir):
         return True
     except (ValueError, OSError, IndexError):
         return False
+
+
+def download_inventory_part(artifact_id, part_index, dest_dir):
+    """Use the inspected artifact's own metadata and actual ASS, with a deadline."""
+    dest_dir=Path(dest_dir)
+    archive_path=dest_dir/'inventory.zip'
+    try:
+        download_reviewed_zip(artifact_id,archive_path,attempts=2)
+        with zipfile.ZipFile(archive_path) as archive:
+            payload=json.loads(archive.read('meta.json'))
+            parts=payload if isinstance(payload,list) else [payload]
+            part=parts[part_index]
+            names=[part.get('final'),part.get('cover'),*(part.get('subtitle_files') or [])]
+            if any(not isinstance(n,str) or Path(n).name!=n for n in names):
+                raise ValueError('Invalid delivery file path')
+            for name in names:
+                (dest_dir/name).write_bytes(archive.read(name))
+            (dest_dir/'meta.json').write_text(json.dumps(parts,ensure_ascii=False))
+        return True
+    except Exception as exc:
+        log.warning('Bounded inventory download unavailable: %s',type(exc).__name__)
+        return False
+    finally:
+        archive_path.unlink(missing_ok=True)
 
 
 def load_state():
@@ -1568,7 +1596,9 @@ def handler(event, context):
                     "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
                     "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
                     "dispatch_workflow_ref": "main",
-                    "pending_inventory": _pending_final_count(st), "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
+                    "in_flight_placeholders": _pending_final_count(st),
+                    "source_inventory": source_inventory(st),
+                    "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
                     "daily_publish": st.get("daily_publish", {}), "publish_hours_beijing": sorted(PUBLISH_HOURS)}
         if name == "diagnose-ping":
             log_event("probe_ok", "FC 同步入口 ping 成功", "")
@@ -1589,6 +1619,70 @@ def handler(event, context):
 # ---------- Handler 1：每日调度 ----------
 
 def dispatch_handler(event=None, context=None):
+    """Serialize admission so timer/refill/deploy cannot dispatch in parallel."""
+    import base64
+    import uuid
+    from urllib.error import HTTPError
+    owner = uuid.uuid4().hex
+    now = int(time.time())
+    current = None
+    try:
+        current = gh('GET', f'/contents/{DISPATCH_LEASE_KEY}?ref=main', timeout=20)
+        lease = json.loads(base64.b64decode(current['content']))
+        if int(lease.get('expires_at') or 0) > now:
+            return {'dispatched': 0, 'admission_busy': 1}
+    except HTTPError as exc:
+        if exc.code != 404:
+            raise
+    payload = {'message': 'chore(supply): claim source admission',
+               'content': base64.b64encode(json.dumps(dict(owner=owner,expires_at=now+7200)).encode()).decode()}
+    if current:
+        payload['sha'] = current['sha']
+    try:
+        claim = gh('PUT', f'/contents/{DISPATCH_LEASE_KEY}', payload, timeout=30)
+    except HTTPError as exc:
+        if exc.code in (409,422):
+            return {'dispatched': 0, 'admission_busy': 1}
+        raise
+    try:
+        return _dispatch_admitted(event, context)
+    finally:
+        try:
+            gh('PUT', f'/contents/{DISPATCH_LEASE_KEY}', {
+                'message': 'chore(supply): release source admission',
+                'sha': claim['content']['sha'],
+                'content': base64.b64encode(json.dumps(dict(owner=owner,expires_at=0)).encode()).decode()}, timeout=20)
+        except Exception as exc:
+            log.warning('Source admission lease will expire: %s',type(exc).__name__)
+
+
+def source_inventory(st, payload=None):
+    """Count actual inspected MP4s separately from running workflow jobs."""
+    if payload is None:
+        try:
+            payload=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
+        except Exception:
+            payload={}
+    valid=(payload.get('quality_gate_version')==QUALITY_GATE_VERSION
+           and payload.get('editorial_policy_version')==editorial.VERSION
+           and time.time()-float(payload.get('updated_at') or 0)<3*3600)
+    latest={e['slug']:e for e in _latest_dispatches(st)}
+    live=audio=0
+    if valid:
+        for record in payload.get('artifacts',[]):
+            slug=record.get('slug'); e=latest.get(slug)
+            if not e or e.get('failed') or slug in REVIEW_PAUSED_SLUGS:continue
+            done=int(e.get('published_parts') or 0)
+            for part in record.get('parts',[]):
+                if part.get('status')!='verified' or int(part.get('index',-1))<done:continue
+                if part.get('render_mode')=='audio_card':audio+=1
+                else:live+=1
+    return dict(verified_live=live,verified_audio_card=audio,
+                daily_mix_usable=live+min(audio,live//5),target_reserve=TARGET_READY_RESERVE,
+                inventory_fresh=valid)
+
+
+def _dispatch_admitted(event=None, context=None):
     st = load_state()
     # Production/source gate failures happen in Actions after dispatch returns.
     # Consume their evidence before picking candidates so a terminally rejected
@@ -1606,12 +1700,15 @@ def dispatch_handler(event=None, context=None):
     target = MAX_PER_DAY
     if isinstance(event, dict) and event.get("_refill_count"):
         target = max(1, min(MAX_PER_DAY, int(event["_refill_count"])))
-    # 调度动态控制：待投队列积压超过阈值就暂停调度，先消化（防积压爆炸 2026-08-27）
-    pending_cnt = _pending_final_count(st)
-    if pending_cnt >= PENDING_LIMIT:
-        log.info(f"待投队列 {pending_cnt} 条，超阈值 {PENDING_LIMIT}，暂停调度，先消化积压")
-        return {"dispatched": 0}
-    target = min(target, PENDING_LIMIT - pending_cnt)
+    inventory=source_inventory(st)
+    if inventory['daily_mix_usable']>=TARGET_READY_RESERVE:
+        return {'dispatched':0,'reserve_full':1,**inventory}
+    active=sum(len(gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30)
+                       .get('workflow_runs',[])) for status in ('in_progress','queued'))
+    if active>=MAX_ACTIVE_SOURCES:
+        return {'dispatched':0,'active_sources':active,**inventory}
+    target=min(target,MAX_ACTIVE_SOURCES-active,TARGET_READY_RESERVE-inventory['daily_mix_usable'])
+    # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
@@ -2302,6 +2399,17 @@ def publish_handler(event=None, context=None):
                     if slug_key not in arts:
                         arts[slug_key] = a["archive_download_url"]
                         art_ids[slug_key] = a["id"]
+        try:
+            reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
+            if source_inventory(st,reserve)['inventory_fresh']:
+                for record in reserve.get('artifacts',[]):
+                    s=record['slug']
+                    if s not in arts and any(p.get('status')=='verified' for p in record.get('parts',[])):
+                        aid=int(record['artifact_id'])
+                        arts[s]=API+f'/actions/artifacts/{aid}/zip'
+                        art_ids[s]=aid
+        except Exception as exc:
+            log.warning('Reserve artifact index unavailable: %s',type(exc).__name__)
 
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
@@ -2390,7 +2498,14 @@ def publish_handler(event=None, context=None):
     used_release = False
     delivery_dir = tmp / slug
     delivery_dir.mkdir(parents=True, exist_ok=True)
-    if not e.get("reprocessing_quality"):
+    if slug in art_ids:
+        used_release=download_inventory_part(art_ids[slug],int(e.get('published_parts',0)),delivery_dir)
+        if not used_release:
+            # A transient download failure is not a source-quality rejection.
+            # Do not spend 27 minutes on another unbounded copy of this bundle.
+            shutil.rmtree(tmp,ignore_errors=True)
+            return {'published':0,'artifact_download_retryable':1}
+    if not used_release and not e.get("reprocessing_quality"):
         part_index = int(e.get("published_parts", 0))
         used_release = download_v4_fast_part(slug, part_index, delivery_dir)
         if not used_release and any(row.get('slug')==slug and row.get('part_index')==part_index

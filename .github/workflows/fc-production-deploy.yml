@@ -9,10 +9,6 @@ on:
     paths:
       - linyuan/fc/index.py
       - linyuan/editorial_policy.py
-      # A successful source refresh must refill production immediately instead
-      # of waiting for the next day's 06:00 dispatch.  The verification step
-      # below is idempotent and asks FC to fill only its remaining queue slots.
-      - linyuan/dashboard/data.json
       - linyuan/fc/deploy_code.py
       - linyuan/fc/verify_production.py
       - .github/workflows/fc-production-deploy.yml

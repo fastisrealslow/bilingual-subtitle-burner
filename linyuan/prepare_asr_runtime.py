@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import hashlib
 
 
 def configuration(report_path):
@@ -31,6 +32,12 @@ def main():
     choice=configuration(args.source_report)
     if args.mode=='select':
         emit('ASR_BACKEND',choice['backend'])
+        # Cache recognition once per exact mother video, model and code. This
+        # remains a hypothesis cache, never a substitute for editorial review.
+        digest=hashlib.sha256(json.dumps(choice,sort_keys=True).encode())
+        for name in ('produce_cn.py','qwen_cpu_transcript.py','qwen_asr_evidence.py','reviewed_asr_corrections.py'):
+            digest.update((Path(__file__).parent/name).read_bytes())
+        emit('MOTHER_ASR_KEY',choice['source_sha256']+'-'+digest.hexdigest()[:20])
         print('CPU offline ASR backend:',choice['backend'])
         return
     if choice['backend']!='qwen3':return

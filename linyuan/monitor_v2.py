@@ -327,6 +327,35 @@ class BilibiliSearchSource(Source):
         return items
 
 
+class ReferenceOriginSource(BilibiliSearchSource):
+    """Turn reference event labels into bounded original-source searches."""
+    name = 'reference_origin_search'
+    min_interval = 6 * 3600
+    EVENTS = ('新书发布会','激荡投资30年','雪球嘉年华','红周刊投资峰会',
+              '北大演讲','浙江大学','复旦大学','股东大会','策略分享会')
+
+    def fetch(self, page):
+        path=Path(__file__).with_name(self.config.get('seeds_file','up_videos.json'))
+        data=json.loads(path.read_text())
+        rows=data.values() if isinstance(data,dict) else data
+        queries=set()
+        for row in rows:
+            title=row.get('title','')
+            if '林园' not in title:continue
+            for event in self.EVENTS:
+                if event in title:
+                    year=re.search(r'20(?:1[0-9]|2[0-9])年',title)
+                    queries.add('林园 '+event+' '+(year.group()+' ' if year else '')+'完整版')
+        queries=sorted(queries)
+        budget=min(len(queries),max(1,int(self.config.get('query_budget',3))))
+        if not budget:return []
+        offset=(int(time.time()//86400)*budget)%len(queries)
+        selected=[queries[(offset+i)%len(queries)] for i in range(budget)]
+        self.config={**self.config,'keywords':selected,'pages':2}
+        print(f'[{self.name}] 事件溯源检索: '+json.dumps(selected,ensure_ascii=False))
+        return super().fetch(page)
+
+
 class BilibiliCollectionSource(Source):
     """Expand verified collection links into independently addressable pages.
 
@@ -341,12 +370,25 @@ class BilibiliCollectionSource(Source):
         for seed in self.config.get("seeds", []):
             bvid = seed["bvid"]
             try:
-                data = json.loads(http_get(
-                    f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}",
-                    referer="https://www.bilibili.com/"))
-                if data.get("code") != 0:
-                    raise ValueError(f"view code={data.get('code')}")
-                data = data["data"]
+                try:
+                    data = json.loads(http_get(
+                        f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}",
+                        referer="https://www.bilibili.com/"))
+                    if data.get("code") != 0:
+                        raise ValueError(f"view code={data.get('code')}")
+                    data = data["data"]
+                except Exception:
+                    # view and pagelist have different availability. Search
+                    # supplies the actual author/date; pagelist supplies cids.
+                    page_data=json.loads(http_get(
+                        f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}",
+                        referer="https://www.bilibili.com/"))
+                    if page_data.get('code')!=0 or not page_data.get('data'):
+                        raise ValueError('Collection page list unavailable')
+                    matches=BilibiliSearchSource({'pages':1},{})._fetch_via_api(bvid)
+                    parent=next((x for x in matches if x.get('bvid')==bvid),{})
+                    data=dict(pages=page_data['data'],title=parent.get('title') or seed.get('title',''),
+                              pubdate=parent.get('pubdate'),owner=dict(name=parent.get('up','')))
                 author = (data.get("owner") or {}).get("name", "")
                 if author in BLACKLIST_AUTHORS or author == "园园滚雪球":
                     continue
@@ -365,7 +407,8 @@ class BilibiliCollectionSource(Source):
                         "publish_time": source_publish_time(data.get("pubdate")),
                         "extra": json.dumps({"bvid": bvid, "page": number, "cid": part["cid"],
                             "duration": duration, "collection_title": data.get("title", ""),
-                            "source_role": "mother_candidate", "metadata_status": "known_duration"}, ensure_ascii=False),
+                            "source_role": "mother_candidate", "direct_dispatch": bool(author),
+                            "metadata_status": "known_duration" if author else "needs_author_verification"}, ensure_ascii=False),
                     })
             except Exception as exc:
                 print(f"[{self.name}] {bvid} 元数据失败，保留已有目录: {exc}", file=sys.stderr)
@@ -1593,6 +1636,7 @@ SOURCES = {
     "bilibili_api": BilibiliApiSource,
     "bilibili_search": BilibiliSearchSource,
     "bilibili_collection": BilibiliCollectionSource,
+    "reference_origin_search": ReferenceOriginSource,
     "bilibili_space": BilibiliSpaceSource,
     "competitor_reference": CompetitorReferenceSource,
     "xueqiu_search": XueqiuSearchSource,

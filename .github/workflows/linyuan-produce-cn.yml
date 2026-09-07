@@ -110,6 +110,7 @@ jobs:
 
       - name: 取源
         id: src
+        timeout-minutes: 12
         env:
           SOURCE: ${{ inputs.source }}
           # 下载和投稿共用同一份登录态；有登录态时 B站可取得 720/1080P，
@@ -171,6 +172,15 @@ jobs:
 
       - name: 读取已验证的CPU离线识别配置
         run: python prepare_asr_runtime.py select --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+
+      - name: 恢复相同母片的离线识别缓存
+        uses: actions/cache/restore@v4
+        with:
+          path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+          key: mother-asr-${{ env.MOTHER_ASR_KEY }}
+
+      - name: 按母片哈希载入原始转写
+        run: python mother_asr_cache.py restore --work "deliver/${{ inputs.slug }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
 
       - name: 准备CPU离线Qwen识别及逐字对齐
         if: env.ASR_BACKEND == 'qwen3'
@@ -258,6 +268,16 @@ jobs:
             linyuan/deliver/${{ inputs.slug }}/subtitles*.ass
           retention-days: 30
           if-no-files-found: ignore
+
+      - name: 保存已完成的母片转写供后续选段复用
+        if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
+        run: python mother_asr_cache.py save --work "deliver/${{ inputs.slug }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+
+      - uses: actions/cache/save@v4
+        if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
+        with:
+          path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+          key: mother-asr-${{ env.MOTHER_ASR_KEY }}
 
       - name: 整理归档（slug 命名，留存可分析产物）
         run: |
