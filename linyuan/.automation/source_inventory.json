@@ -3,7 +3,7 @@
   "validation_sha256": "d65a00e1c126a078958f103d0cc91eaec2cab7a480d50887e1a12fc31990b64d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788763107,
+  "updated_at": 1788763226,
   "materials": {
     "weibo_search": {
       "records": 1050,
@@ -3682,10 +3682,15 @@
         "slugs": [
           "ly-0907-38a09c"
         ],
-        "source_sha256": [
-          "af31f905fed9dd7e1f4598b769535a3a7756cfabaeff31719efae26af3b70d28"
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0907-38a09c",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整观点验收未通过：standalone_opening：['这个就是我们小时候学的那个资本家把牛奶往河里倒的时候', '啊，我相信这个这个多是从零八年，甚至甚至一零年', '我我不懂，但是我有我的方法', '那不不，根本就没有办法谈这个谈论这个这个本本金的问题']"
+          }
         ],
-        "failures": [],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -4228,6 +4233,36 @@
         "family": "BV1njaSzqEwj",
         "slugs": [
           "ly-0907-52aead"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1X2aAz8Eh6:p1",
+        "source_url": "https://www.bilibili.com/video/BV1X2aAz8Eh6",
+        "family": "BV1X2aAz8Eh6",
+        "slugs": [
+          "ly-0907-f9ea94"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p27",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=27",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0907-1286a3"
         ],
         "source_sha256": [],
         "failures": [],
@@ -4966,7 +5001,8 @@
       "BV12CiGBMEUJ": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1Eg4y1k7JD": {
         "attempted_mothers": 1,
@@ -5005,7 +5041,7 @@
         "terminal_source-quality": 2
       },
       "BV19P4y1m77K": {
-        "attempted_mothers": 2,
+        "attempted_mothers": 3,
         "verified_available": 0,
         "verified_seconds": 0
       },
@@ -5019,77 +5055,16 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1X2aAz8Eh6": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 18,
+  "in_flight_placeholders": 19,
   "artifacts": [
-    {
-      "slug": "ly-0907-38a09c",
-      "artifact_id": 10003011453,
-      "run_id": 34077078166,
-      "checked_at": 1788756835,
-      "source_url": "https://www.bilibili.com/video/BV12CiGBMEUJ",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "股神林园：中国是全世界最便宜的市场 我要抓住这最后一次机会 管理A股财富2000亿到1万亿",
-          "duration_sec": 140.8,
-          "render_mode": "live_video_card",
-          "source_sha256": "af31f905fed9dd7e1f4598b769535a3a7756cfabaeff31719efae26af3b70d28",
-          "segments": [
-            {
-              "start": 678.96,
-              "end": 819.72,
-              "reason": "林园阐述当前资本市场是全球最便宜的市场，并通过个人投资经历和财务数据支持这一观点。他提到自己61岁，视此为人生最后一次重大投资机会，并计划管理A股财富达到2000亿到1万亿之间，强调抓住一次机会的重要性。"
-            }
-          ],
-          "sha256": "ba9f4c51646c2ef87371fffd810ec065380019149cadb047084bf95c140d3659",
-          "subtitle_sha256": "6b1f2f9eb9f74947bbcdcb779595f677c25e0ed9a8edec536ed94e7b5076cb94",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 1,
-          "final": "final_5.mp4",
-          "title": "股神林园：5.5%的年息不可能长久 现在六七甚至八九的股息率都没人注意",
-          "duration_sec": 121.8,
-          "render_mode": "live_video_card",
-          "source_sha256": "af31f905fed9dd7e1f4598b769535a3a7756cfabaeff31719efae26af3b70d28",
-          "segments": [
-            {
-              "start": 1391.82,
-              "end": 1513.56,
-              "reason": "讨论高利率环境不可持续及其对人民币资产的影响。从能源价格上涨引发全球通胀开始，分析美国5.5%高利率的不可持续性，并通过个人经历（30年高息存款的荒谬性）佐证。最终推导出外资将因息差逆转流入人民币资产的结论，完整呈现因果链条。"
-            }
-          ],
-          "sha256": "8a6150b740839bf075451d7570b95a0d3f0fba47d2cf45d4d6cf5a544ed6fa20",
-          "subtitle_sha256": "8035e84278cb6c87001e81b7d96525ac3b72d8e7154059ddee1a860e78b23722",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        },
-        {
-          "index": 2,
-          "final": "final_7.mp4",
-          "title": "股神林园：今天市场上一定有上万倍的企业，你投资亿万也是亿万富翁了。我们只投嘴巴，因为食品药品会很快纠正平衡",
-          "duration_sec": 131.6,
-          "render_mode": "live_video_card",
-          "source_sha256": "af31f905fed9dd7e1f4598b769535a3a7756cfabaeff31719efae26af3b70d28",
-          "segments": [
-            {
-              "start": 1745.7,
-              "end": 1877.28,
-              "reason": "林园阐述了他对投资方向的看法，认为市场上存在能够带来上万倍回报的企业，并强调投资方向正确的重要性。他通过对比不同行业的投资回报，指出与嘴巴相关的行业（如食品和药品）因其保质期短、需求稳定，是更可靠的投资选择。"
-            }
-          ],
-          "sha256": "484983cbf99610bde8c902b018b0529cb598f78ed10a8f59536af647a7cdec0a",
-          "subtitle_sha256": "e9a161f7ae0effcbd78a7930f4efb75d050fb9d72f0cb1b4195e310abef790f0",
-          "status": "rejected",
-          "reason": "SenseVoice 在多场林园母片出现影响理解的识别错误，须用新版 CPU 离线识别重做并复核"
-        }
-      ]
-    },
     {
       "slug": "ly-0907-f1fb08",
       "artifact_id": 10002566025,
