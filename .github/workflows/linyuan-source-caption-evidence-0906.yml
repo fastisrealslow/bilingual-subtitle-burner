@@ -1,10 +1,12 @@
 name: 林园原片字幕CPU核对
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths: [.github/workflows/linyuan-source-caption-evidence-0906.yml]
 permissions:
   contents: read
+  actions: read
 jobs:
   captions:
     runs-on: ubuntu-latest
@@ -14,13 +16,40 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: 复用同一母片已经保存的原字幕证据
+        id: evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=linyuan-source-caption-evidence-0906&per_page=20" --jq '.artifacts | map(select(.expired == false)) | first | .id // empty')
+          if test -n "$id"; then
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > /tmp/captions.zip
+            python - <<'PY'
+          import json,zipfile
+          from pathlib import Path
+          with zipfile.ZipFile('/tmp/captions.zip') as z:
+              report=json.loads(z.read('source_caption_evidence.json'))
+              assert report['identity']['source_sha256']=='9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'
+              assert report['cues']
+              for n in z.namelist():
+                  if '/' not in n and n.endswith(('.json','.jpg')):
+                      Path('caption-evidence').mkdir(exist_ok=True)
+                      (Path('caption-evidence')/n).write_bytes(z.read(n))
+          PY
+            echo 'reused=true' >> "$GITHUB_OUTPUT"
+          fi
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libgl1 libglib2.0-0
+        if: steps.evidence.outputs.reused != 'true'
       - run: pip install -q 'opencv-python<5' rapidocr-onnxruntime pillow yt-dlp
+        if: steps.evidence.outputs.reused != 'true'
       - name: 取同一份已核验母片
+        if: steps.evidence.outputs.reused != 'true'
+        timeout-minutes: 12
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1ADetzQEuE --out source.mp4
       - name: CPU读取原片实际字幕，不调用语音或文字改写API
+        if: steps.evidence.outputs.reused != 'true'
         run: python -u linyuan/source_caption_evidence.py --source source.mp4 --out caption-evidence
       - uses: actions/upload-artifact@v4
         if: always()

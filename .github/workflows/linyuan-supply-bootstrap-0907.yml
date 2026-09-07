@@ -1,0 +1,17 @@
+name: 林园素材库存程序补产
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-supply-bootstrap-0907.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  replenish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 按线上库存和并发上限实际补产
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run fc-production-deploy.yml --repo "$GITHUB_REPOSITORY" --ref main -f refill=true
