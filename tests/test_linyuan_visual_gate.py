@@ -86,11 +86,16 @@ def test_source_evidence_reuse_requires_actual_report_hash_and_source(monkeypatc
     source='9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'
     real=P._file_sha256
     monkeypatch.setattr(P,'_file_sha256',lambda path:source if str(path)=='source.mp4' else real(path))
-    proof=P.verified_source_evidence('source.mp4','林园')
-    assert proof['reused_actual_evidence']['run_id']==34035494314
-    assert proof['source_sha256']==source
-    with pytest.raises(P.VisualQualityError,match='规则不符'):
-        P.verified_source_evidence('source.mp4','other-speaker')
+    report=json.loads((P.BASE/'source_quality_evidence'/(source+'.json')).read_text())
+    if report['quality_gate_version']!=P.QUALITY_GATE_VERSION:
+        with pytest.raises(P.VisualQualityError,match='版本过旧'):
+            P.verified_source_evidence('source.mp4','林园')
+    else:
+        proof=P.verified_source_evidence('source.mp4','林园')
+        assert proof['reused_actual_evidence']['run_id']==34035494314
+        assert proof['source_sha256']==source
+        with pytest.raises(P.VisualQualityError,match='规则不符'):
+            P.verified_source_evidence('source.mp4','other-speaker')
     monkeypatch.setattr(P,'_file_sha256',lambda path:'changed-source' if str(path)=='source.mp4' else real(path))
     assert P.verified_source_evidence('source.mp4','林园') is None
 
@@ -129,6 +134,8 @@ def test_identity_prompt_counts_target_when_host_is_also_present(monkeypatch,
     assert "同时出现主持人" in prompt
     assert "只要目标人物也在场" in prompt
     assert "目标人物完全不在画面中" in prompt
+    assert '"same_person_frames":[]' not in prompt
+    assert '逐帧写出实际看见的依据' in prompt
 
 
 def test_identity_retries_incomplete_example_instead_of_using_missing_frames(monkeypatch):

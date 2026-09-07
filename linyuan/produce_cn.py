@@ -361,9 +361,14 @@ def _call_identity_vlm(reference, frames, speaker, api_key):
             "不要把真实场景里的字画、衣服文字或物品当叠加水印。"
             f"必须逐一分类全部 {len(frames)} 帧，三组索引合起来恰好是 1 到 {len(frames)}，不重不漏。"
             "看不清的帧放 uncertain_frames，不能省略；空组返回空数组。"
-            "只返回 JSON object，以下仅为字段结构，数组必须填写实际逐帧判断："
-            '{"same_person_frames":[],"different_person_frames":[],"uncertain_frames":[], '
-            '"best_cover_frame":null,"confidence":0.0,"watermark_texts":[],"reason":"逐帧判断依据"}'
+            "只返回一个JSON对象。字段说明（不是待复制的答案）："
+            "reason：逐帧写出实际看见的依据；same_person_frames：确认目标在场的整数帧号数组；"
+            "different_person_frames：确认目标不在场的整数帧号数组；"
+            "uncertain_frames：确实无法确认的整数帧号数组；"
+            "best_cover_frame：实际最清晰的已确认帧号，没有则null；"
+            "confidence：根据实际比较给出0到1之间的数字；"
+            "watermark_texts：实际看见的叠加水印文字数组。"
+            "不得原样复述字段说明，不得把全部帧留空。"
         ),
     })
     messages=[{"role":"user","content":content}]

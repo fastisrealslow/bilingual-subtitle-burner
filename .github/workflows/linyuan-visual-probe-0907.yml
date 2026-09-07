@@ -1,0 +1,46 @@
+name: 林园真实抽帧检查返回格式复验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-visual-probe-0907.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 用实际失败抽帧复验，不产生素材通过证明
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+        run: |
+          pip install -q 'opencv-python-headless<5'
+          gh run download 34080291917 --repo "$GITHUB_REPOSITORY" --name debug-ly-0907-09a2ef --dir evidence
+          python -u - <<'PY'
+          import sys,json,os
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          import produce_cn as p
+          work=Path('evidence/_tmp')
+          report=json.loads((work/'source_quality.json').read_text())
+          assert report['source_sha256']=='0f6d98e76957cf3d4e693b76b71b967439a151a746681894f3c52e164ac72693'
+          frames=[work/f'identity_{i}.jpg' for i in range(1,7)]
+          verdict=p._call_identity_vlm(work/'speaker_reference.jpg',frames,'林园',p.load_key())
+          result=dict(diagnostic_only=True,source_sha256=report['source_sha256'],verdict=verdict)
+          Path('visual-format-probe.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-format-probe
+          path: |
+            visual-format-probe.json
+            evidence/_tmp/visual_response_attempts.jsonl
+          if-no-files-found: error
