@@ -32,6 +32,19 @@ def test_jobs_and_unknown_links_are_not_ready_stock():
     assert audit['competitor_reference']['reference_only']==1
 
 
+def test_six_slots_include_several_source_families_without_losing_candidates():
+    candidates=[dict(key=f'a{i}',author='same-uploader',extra=dict(collection_title='old archive',bvid='BVA'))
+                for i in range(8)]
+    candidates += [dict(key=f'b{i}',author='same-uploader',extra=dict(collection_title='other event',bvid='BVB'))
+                   for i in range(3)]
+    candidates += [dict(key=f'c{i}',author='official',extra={}) for i in range(2)]
+    first=fc.diversify_source_candidates(candidates,6)
+    assert [c['key'] for c in first]==['a0','a1','b0','b1','c0','c1']
+    all_rows=fc.diversify_source_candidates(candidates,20)
+    assert len(all_rows)==len(candidates)==len({c['key'] for c in all_rows})
+    assert len(fc.diversify_source_candidates(candidates[:8],6))==6
+
+
 def test_retired_recognizer_cannot_pass_on_metadata_flags():
     error=fc.artifact_quality_error(dict(quality_gate_version=fc.QUALITY_GATE_VERSION,asr_model='sensevoice'))
     assert 'CPU' in error and 'SenseVoice' in error

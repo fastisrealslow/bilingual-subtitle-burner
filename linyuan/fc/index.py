@@ -1007,6 +1007,25 @@ def find_content_duplicate(fingerprints, st):
     return None
 
 
+def diversify_source_candidates(candidates, limit, per_family=2):
+    """Try several source families before spending all six slots on one archive."""
+    families={}
+    for candidate in candidates:
+        extra=candidate.get('extra') or {}
+        if extra.get('collection_title') and extra.get('bvid'):
+            family=('collection',extra['bvid'])
+        else:
+            family=('author',candidate.get('author') or candidate.get('source') or 'unknown')
+        families.setdefault(family,[]).append(candidate)
+    selected=[]
+    while len(selected)<limit and any(families.values()):
+        for queue in families.values():
+            count=min(per_family,len(queue),limit-len(selected))
+            selected.extend(queue[:count])
+            del queue[:count]
+    return selected
+
+
 def pick(items, st, n):
     now = time.time()
     done = {e.get("key") for e in st["dispatched"] if e.get("key")} | {e.get("key") for e in st["rejected"] if e.get("key")}
@@ -1250,7 +1269,7 @@ def pick(items, st, n):
 
     # 按综合质量分降序
     cands.sort(key=lambda c: quality_score(c), reverse=True)
-    return cands[:n]
+    return diversify_source_candidates(cands,n)
 
 
 # ---------- 下载 ----------
@@ -1762,7 +1781,8 @@ def _dispatch_admitted(event=None, context=None):
         log.warning('原始转写再利用队列暂不可读：%s',type(exc).__name__)
     # A unavailable checker is not evidence of a bad mother. Retry its exact
     # candidate with backoff, bounded by the same six-running-source limit.
-    for entry in _latest_dispatches(st):
+    for entry in sorted(_latest_dispatches(st),key=lambda e:(not bool(e.get('reviewed_parts')),
+                                                           float(e.get('source_check_retry_after') or 0))):
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
@@ -1771,6 +1791,7 @@ def _dispatch_admitted(event=None, context=None):
         gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{
             'ref':'main','inputs':{'source':source,'slug':entry['slug'],'speaker':'林园',
                 'occasion':entry.get('title','')[:30],'auto_publish':'false',
+                **({'reviewed_parts':str(entry['reviewed_parts'])} if entry.get('reviewed_parts') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
         entry.pop('source_check_retry_after',None)
