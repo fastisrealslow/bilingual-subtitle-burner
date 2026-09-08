@@ -1545,6 +1545,32 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 return saved
         except (ValueError,TypeError):
             pass
+    # A user-reviewed source profile is stronger evidence than a small CPU
+    # model re-judging the same clip on every run. Trust it only when it is
+    # bound to this mother SHA and to the exact post-correction transcript;
+    # any changed byte fails closed and must be reviewed again.
+    reviewed=picks[0].get('editorial_review') if len(picks)==1 else None
+    if reviewed is not None:
+        proof=dict(reviewed)
+        if (not picks[0].get('editorial_source_sha256')
+                or proof.get('transcript_sha256')!=digest
+                or proof.get('review_protocol')!=2
+                or proof.get('review_prompt_version')!=2):
+            raise VisualQualityError('已核对观点与当前母片修正文本不匹配，禁止沿用旧审核')
+        for name in ('opening_quote','ending_quote'):
+            quote=proof.get(name)
+            if not isinstance(quote,str) or not quote or quote not in text:
+                raise VisualQualityError('已核对观点的开场/结尾证据不在当前原话中')
+        issues=proof.get('issues')
+        if not isinstance(issues,list) or any(
+                not isinstance(item,str) or not item or item not in text for item in issues):
+            raise VisualQualityError('已核对观点的问题证据不在当前原话中')
+        error=editorial.review_error(proof)
+        if error:
+            raise VisualQualityError(error+'：'+str(proof.get('issues') or ''))
+        cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        print('[完整观点] 命中母片SHA及修正后全文哈希绑定的人工审核')
+        return proof
     prompt=(f'独立复核这条{speaker}访谈选段是否适合作为完整观点视频。'
         '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
         '比喻、自我强调或你不赞同的投资判断本身也不是识别错误；只审核表达和原话，不评判观点对错。'

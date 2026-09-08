@@ -47,3 +47,22 @@ def test_reviewed_subtitle_groups_are_passed_to_renderer(tmp_path):
     cues=[dict(start=1,end=10,text='独立话题'),dict(start=12,end=122,text='完整结论')]
     picks=source_ranges(cues,'source',path)[0][2]
     assert picks[0]['editorial_subtitles']==['独立话题','完整结论']
+    assert picks[0]['editorial_source_sha256']=='source'
+
+
+def test_reviewed_argument_is_bound_to_exact_corrected_transcript(monkeypatch,tmp_path):
+    import produce_cn as production
+    from editorial_policy import VERSION,text_digest
+    cues=[dict(start=1,end=10,text='独立话题。'),dict(start=12,end=122,text='完整结论。')]
+    transcript=''.join(c['text'] for c in cues)
+    review=dict(version=VERSION,standalone_opening=True,complete_argument=True,
+        reasoning_present=True,natural_ending=True,requires_audio_review=False,
+        summary='独立话题包含理由并得出完整结论',issues=[],issue_details=[],
+        opening_quote='独立话题。',ending_quote='完整结论。',
+        transcript_sha256=text_digest(transcript),review_protocol=2,review_prompt_version=2)
+    pick=dict(start=0,end=1,editorial_source_sha256='source',editorial_review=review)
+    monkeypatch.setattr(production,'llm',lambda *a,**k: (_ for _ in ()).throw(AssertionError('no llm')))
+    assert production.review_complete_argument(cues,[pick],'林园','',tmp_path,'')['summary']
+    pick['editorial_review']={**review,'transcript_sha256':'stale'}
+    with pytest.raises(production.VisualQualityError,match='不匹配'):
+        production.review_complete_argument(cues,[pick],'林园','',tmp_path/'stale','')

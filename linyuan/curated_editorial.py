@@ -27,7 +27,10 @@ def source_ranges(cues,source_sha,profile_path=None):
         if any(a<=old_b and b>=old_a for old_a,old_b,_ in result):
             raise ValueError('Reviewed continuous arguments overlap')
         picks=[dict(start=0,end=b-a,score=8,reason=row['topic'],
-                    editorial_title=row.get('title'),editorial_subtitles=row.get('subtitle_groups'))]
+                    editorial_source_sha256=source_sha,
+                    editorial_title=row.get('title'),
+                    editorial_subtitles=row.get('subtitle_groups'),
+                    editorial_review=row.get('editorial_review'))]
         if row.get('omit'):
             from editorial_policy import reviewed_omission_matches
             cut=row['omit']
@@ -37,7 +40,7 @@ def source_ranges(cues,source_sha,profile_path=None):
                    dict(start=cues[right[0]]['start'],end=cues[right[-1]]['end'])] if left and right else []
             if not reviewed_omission_matches(source_sha,spans):
                 raise ValueError('Reviewed omission does not match actual source sentence boundaries')
-            picks=[{**picks[0],'start':group[0]-a,'end':group[-1]-a,
-                    'editorial_source_sha256':source_sha} for group in (left,right)]
+            picks=[{**picks[0],'start':group[0]-a,'end':group[-1]-a}
+                   for group in (left,right)]
         result.append((a,b,picks))
     return result
