@@ -560,7 +560,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
             raise RuntimeError('LOCAL_LLM_URL 只允许本机回环地址，防止误用收费接口')
         remaining=max(1,deadline-time.monotonic())
         payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,
-                            'think':False,'format':'json','keep_alive':-1,
+                            'think':False,'format':'json','keep_alive':'24h',
                             # Daily prompts all request compact JSON.  A hard
                             # local cap prevents a CPU runner spending minutes
                             # on a malformed response that never emits EOS.

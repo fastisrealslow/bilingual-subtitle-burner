@@ -37,6 +37,7 @@ def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
     assert seen['url'].startswith('http://127.0.0.1:')
     assert seen['payload']['think'] is False
     assert seen['payload']['format']=='json'
+    assert seen['payload']['keep_alive']=='24h'
     assert seen['payload']['options']['num_predict']==1200
 
 

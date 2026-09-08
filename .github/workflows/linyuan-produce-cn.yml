@@ -245,7 +245,8 @@ jobs:
             llm-cn-
 
       - name: 缓存 CPU 本地文本模型
-        uses: actions/cache@v4
+        id: ollama-cache
+        uses: actions/cache/restore@v4
         with:
           path: ~/.ollama/models
           key: ollama-qwen3-4b-v1
@@ -261,7 +262,7 @@ jobs:
             "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
           echo "${OLLAMA_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
           sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
-          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=-1 \
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h \
             ollama serve > /tmp/ollama.log 2>&1 &
           for _ in $(seq 1 30); do
             curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
@@ -274,8 +275,15 @@ jobs:
           # per-review 90-second quality budget begins.
           curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
             -H 'Content-Type: application/json' \
-            -d '{"model":"qwen3:4b","messages":[{"role":"user","content":"Return JSON: {\\"ready\\":true}"}],"stream":false,"think":false,"format":"json","keep_alive":-1,"options":{"temperature":0,"num_predict":32}}' \
+            -d '{"model":"qwen3:4b","messages":[{"role":"user","content":"Reply ready"}],"stream":false,"think":false,"options":{"temperature":0,"num_predict":8}}' \
             | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+
+      - name: 保存 CPU 本地文本模型缓存
+        if: steps.ollama-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen3-4b-v1
 
       - name: 出片
         id: render
