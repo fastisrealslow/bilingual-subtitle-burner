@@ -5137,7 +5137,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "天玉和她的朋友们",
-   "publish_time": "2024-11-05T09:44:44+00:00"
+   "publish_time": "2024-11-05T09:44:44+00:00",
+   "source_check_report_id": 10058149345,
+   "last_error": "旧版空选段报告没有完成审核的证据，保留CPU转写后有界重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1788879150
   },
   {
    "key": "bilibili_search:BV1fM411f727",
@@ -5152,7 +5156,11 @@
    "delay_hours": 0,
    "source": "reference_origin_search",
    "author": "路人呷哺",
-   "publish_time": "2023-11-15T14:55:33+00:00"
+   "publish_time": "2023-11-15T14:55:33+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；same=[3]，different=[1, 2, 4, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；阈值0.363；分数{1: 0.2587, 2: 0.0741, 3: 0.5801, 4: 0.2233, 5: 0.151, 6: 0.3244}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5335007129504221",
@@ -17713,6 +17721,13 @@
    "video_id": "https://ycalvod.yicai.com/vms-new/2026/08/0e934fb8-2b39-432d-a073-8ac60b84fad3.mp4",
    "ts": 1788778566,
    "error": "时长 53s 不在 [120,5400]"
+  },
+  {
+   "slug": "ly-0908-68409e",
+   "key": "bilibili_search:BV1fM411f727",
+   "video_id": "BV1fM411f727",
+   "ts": 1788878247,
+   "error": "人物不一致或无法确认：林园；same=[3]，different=[1, 2, 4, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；阈值0.363；分数{1: 0.2587, 2: 0.0741, 3: 0.5801, 4: 0.2233, 5: 0.151, 6: 0.3244}"
   }
  ],
  "pending_retry": [
