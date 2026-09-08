@@ -49,6 +49,23 @@ def test_local_text_backend_rejects_remote_endpoint(monkeypatch,tmp_path):
         P.llm([{'role':'user','content':'x'}],'')
 
 
+def test_local_text_backend_forwards_json_schema(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'LOCAL_LLM_URL','http://127.0.0.1:11434/api/chat')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    schema={'type':'object','properties':{'passed':{'type':'boolean'}},
+            'required':['passed'],'additionalProperties':False}
+    class Reply:
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+        def read(self):return b'{"message":{"content":"{\\"passed\\":true}"}}'
+    def open_local(request,timeout):
+        assert json.loads(request.data)['format']==schema
+        return Reply()
+    monkeypatch.setattr(P.urllib.request,'urlopen',open_local)
+    assert json.loads(P.llm([{'role':'user','content':'x'}],'',response_schema=schema))=={'passed':True}
+
+
 def _load_fc():
     spec = importlib.util.spec_from_file_location("quality_fc", ROOT / "linyuan/fc/index.py")
     module = importlib.util.module_from_spec(spec)

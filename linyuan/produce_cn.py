@@ -535,13 +535,14 @@ def verify_source_identity(src, work, speaker, api_key):
     return report
 
 
-def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
+def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
+        response_schema=None):
     """Use a loopback Ollama model by default; cloud requires explicit opt-in."""
     cache_dir = BASE / ".llm_cache"
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
         {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
-         "m": messages, "t": temperature, "mt": max_tokens},
+         "m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if cf.exists():
@@ -560,7 +561,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
             raise RuntimeError('LOCAL_LLM_URL 只允许本机回环地址，防止误用收费接口')
         remaining=max(1,deadline-time.monotonic())
         payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,
-                            'think':False,'format':'json','keep_alive':'24h',
+                            'think':False,'format':response_schema or 'json','keep_alive':'24h',
                             # Daily prompts all request compact JSON.  A hard
                             # local cap prevents a CPU runner spending minutes
                             # on a malformed response that never emits EOS. 640
@@ -1559,7 +1560,21 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
         'issue_details（逐个解释识别问题为何影响原意）。issues只能逐字引用下面实际保留的原话，'
         '不得填规则描述、括号说明、改写词或输入中不存在的文字；没有问题填空数组。'
-        'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。\n原话：'+text)
+        'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。'
+        '所有字符串须简短，summary不超过50字，issue_details每项不超过30字。\n原话：'+text)
+    fields={
+        'standalone_opening':{'type':'boolean'},
+        'complete_argument':{'type':'boolean'},
+        'reasoning_present':{'type':'boolean'},
+        'natural_ending':{'type':'boolean'},
+        'requires_audio_review':{'type':'boolean'},
+        'summary':{'type':'string'},
+        'issues':{'type':'array','items':{'type':'string'}},
+        'issue_details':{'type':'array','items':{'type':'string'}},
+        'opening_quote':{'type':'string'},
+        'ending_quote':{'type':'string'},
+    }
+    required=list(fields)
     if omitted_text:
         first=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
         second=''.join(c['text'] for c in cues[picks[1]['start']:picks[1]['end']+1])
@@ -1568,10 +1583,18 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             '不猜测插语中的识别疑点；仅在无需依赖该插语也能明确原论点和限定时判断。'
             '输出omission_preserves_meaning及omitted_is_parenthetical两个布尔值和omission_reason。'
             '\n[保留前段]'+first+'\n[拟删插语]'+omitted_text+'\n[保留后段]'+second)
+        fields.update({
+            'omission_preserves_meaning':{'type':'boolean'},
+            'omitted_is_parenthetical':{'type':'boolean'},
+            'omission_reason':{'type':'string'},
+        })
+        required=list(fields)
+    response_schema={'type':'object','properties':fields,'required':required,
+                     'additionalProperties':False}
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                         max_tokens=2200,budget_sec=240)
+                         max_tokens=2200,budget_sec=240,response_schema=response_schema)
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)
