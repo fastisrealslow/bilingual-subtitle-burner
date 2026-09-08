@@ -3,7 +3,7 @@
   "validation_sha256": "e5344c89ba9186f4d5e0a42e9fdf268f4f0a3701ae2e59f5722ed572ef428fc9",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788874023,
+  "updated_at": 1788882605,
   "materials": {
     "weibo_search": {
       "records": 1055,
@@ -5463,7 +5463,14 @@
           "ly-0908-759946"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0908-759946",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "旧版空选段报告没有完成审核的证据，保留CPU转写后有界重试"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5478,7 +5485,14 @@
           "ly-0908-68409e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0908-68409e",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[3]，different=[1, 2, 4, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；阈值0.363；分数{1: 0.2587, 2: 0.0741, 3: 0.5801, 4: 0.2233, 5: 0.151, 6: 0.3244}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5493,7 +5507,14 @@
           "ly-0908-fa57fb"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0908-fa57fb",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "旧版空选段报告没有完成审核的证据，保留CPU转写后有界重试"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6393,11 +6414,12 @@
       "BV1fM411f727": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       }
     }
   },
-  "in_flight_placeholders": 3,
+  "in_flight_placeholders": 2,
   "artifacts": [
     {
       "slug": "ly-0907-f1fb08",
