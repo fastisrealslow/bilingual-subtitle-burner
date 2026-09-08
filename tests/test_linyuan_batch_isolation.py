@@ -103,10 +103,10 @@ class BatchIsolationTests(unittest.TestCase):
         state=dict(dispatched=[dict(slug='stale',ts=1),dict(slug='running',ts=time.time(),production_rules_version=fc.PRODUCTION_RULES_VERSION)],published={})
         self.assertEqual(fc._pending_final_count(state),1)
 
-    def test_legacy_batch_override_cannot_exceed_six_daily_releases(self):
+    def test_legacy_batch_override_cannot_exceed_three_daily_releases(self):
         today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
         state=dict(dispatched=[dict(slug='manual',ts=time.time())],published={},
-                   daily_publish=dict(date=today,count=6))
+                   daily_publish=dict(date=today,count=3))
         with patch.object(fc,'load_state',return_value=state), \
              patch.object(fc,'save_state'), patch.object(fc,'_collect_source_rejections',return_value=0), \
              patch.object(fc,'gh',side_effect=AssertionError('must stop before upload/artifact network')):
@@ -117,16 +117,16 @@ class BatchIsolationTests(unittest.TestCase):
                    published={'old':dict(parts_total=53)})
         self.assertEqual(fc._pending_final_count(state),0)
 
-    def test_audio_card_requires_verified_live_supply_and_at_most_one_per_six(self):
+    def test_three_daily_slots_preserve_live_ratio(self):
         card=dict(render_mode='audio_card')
         self.assertIsNotNone(fc.daily_mix_error(card,{}))
         self.assertIsNotNone(fc.daily_mix_error(card,dict(count=4)))
-        self.assertIsNone(fc.daily_mix_error(card,dict(live_video_count=3)))
+        self.assertIsNotNone(fc.daily_mix_error(card,dict(live_video_count=3)))
         self.assertIsNotNone(fc.daily_mix_error(card,dict(live_video_count=4,audio_card_count=1)))
         self.assertIsNone(fc.daily_mix_error(dict(render_mode='live_video_card'),{}))
 
     def test_daily_publish_windows_start_at_ten_beijing(self):
-        self.assertEqual(fc.PUBLISH_HOURS, {10, 12, 14, 16, 19, 21})
+        self.assertEqual(fc.PUBLISH_HOURS, {10, 16, 21})
 
     def test_exact_artifact_must_match_the_reviewed_slug(self):
         state = dict(dispatched=[], published={}, daily_publish={})

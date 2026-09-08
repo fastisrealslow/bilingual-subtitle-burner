@@ -4612,12 +4612,12 @@ def main():
         full_suffix = "_full"
         (work / f"highlights{full_suffix}.json").write_text(json.dumps([{
             "start": 0, "end": len(cues) - 1, "score": 10,
-            "reason": "57分钟完整版"
+            "reason": "完整访谈原声"
         }], ensure_ascii=False), encoding="utf-8")
         (work / f"copywrite{full_suffix}.json").write_text(json.dumps({
-            "title": "林园：57分钟完整访谈，谈AI、机器人、消费和医药的长期机会",
-            "desc": "林园完整公开访谈原声，谈AI、机器人、消费、医药与长期投资判断。个人观点，仅供交流，非投资建议。",
-            "tags": ["林园", "价值投资", "完整访谈", "医药", "消费"],
+            "title": "林园：完整访谈原声",
+            "desc": "林园完整访谈原声。个人观点，仅供交流，非投资建议。",
+            "tags": ["林园", "价值投资", "完整访谈"],
             "title_quality_verified": True
         }, ensure_ascii=False), encoding="utf-8")
         try:

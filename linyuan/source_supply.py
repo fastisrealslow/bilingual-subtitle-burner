@@ -145,6 +145,7 @@ def main():
                     error=validate_part(m,tmp)
                     record['parts'].append(dict(index=i,final=m.get('final'),title=m.get('title'),
                         duration_sec=m.get('duration_sec'),render_mode=m.get('render_mode'),
+                        content_type=m.get('content_type'),
                         source_sha256=m.get('source_sha256'),segments=m.get('segments'),
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
                         subtitle_sha256=m.get('subtitle_text_sha256'),

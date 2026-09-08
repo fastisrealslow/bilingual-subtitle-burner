@@ -96,9 +96,9 @@ def test_raw_evidence_reuse_does_not_import_review_or_another_source(tmp_path):
 def test_mix_limit_and_used_parts_reduce_real_reserve():
     parts=[dict(index=i,status='verified',render_mode='live_video_card' if i<10 else 'audio_card') for i in range(20)]
     state=dict(dispatched=[dict(slug='mother',published_parts=0)],published={})
-    assert fc.source_inventory(state,payload(parts))['daily_mix_usable']==12
+    assert fc.source_inventory(state,payload(parts))['daily_mix_usable']==10
     state['dispatched'][0]['published_parts']=5
-    assert fc.source_inventory(state,payload(parts))['daily_mix_usable']==6
+    assert fc.source_inventory(state,payload(parts))['daily_mix_usable']==5
     p=payload(parts);p['updated_at']=1
     assert fc.source_inventory(state,p)['daily_mix_usable']==0
 
@@ -110,7 +110,7 @@ def test_last_audio_card_uses_today_live_receipts_without_inflating_reserve():
     data=payload([dict(index=0,status='verified',render_mode='audio_card')])
     stock=fc.source_inventory(state,data)
     assert stock['daily_mix_usable']==0
-    assert stock['publishable_now']==1
+    assert stock['publishable_now']==0
     state['daily_publish']['count']=6
     assert fc.source_inventory(state,data)['publishable_now']==0
     state['daily_publish']['date']='2020-01-01'
@@ -142,7 +142,7 @@ def test_audio_first_cannot_bury_live_or_count_a_finished_part_twice():
     assert entry['published_parts']==0
     assert fc._has_unpublished_part(entry,state)
     assert choose({}) is None
-    assert choose(dict(live_video_count=3))==0
+    assert choose(dict(live_video_count=3)) is None
     fc.mark_part_processed(entry,0)
     assert entry['published_parts']==3
     assert not fc._has_unpublished_part(entry,state)
@@ -298,13 +298,62 @@ def test_compare_and_swap_conflict_does_not_dispatch(monkeypatch):
     assert fc.dispatch_handler()['admission_busy']==1
 
 
-def test_catchup_only_fills_elapsed_slots_and_respects_daily_six():
+def test_catchup_only_fills_current_slot_and_respects_daily_three():
     now=datetime(2026,9,7,2,30,tzinfo=timezone.utc).timestamp()
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=0)),now)==1
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=1)),now)==0
     late=datetime(2026,9,7,15,30,tzinfo=timezone.utc).timestamp()
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=6)),late)==0
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-06',count=22)),now)==1
+
+
+def test_removed_windows_never_catch_up_and_one_slot_cannot_burst():
+    stamp=lambda hour:datetime(2026,9,9,hour-8,30,tzinfo=timezone.utc).timestamp()
+    state=dict(daily_publish=dict(date='2026-09-09',count=0))
+    for hour in (12,14,19,22):
+        assert not fc.is_regular_publish_hour(stamp(hour))
+        assert fc.catchup_deficit(state,stamp(hour))==0
+    for hour in (10,16,21):
+        assert fc.catchup_deficit(state,stamp(hour))==1
+    state['daily_publish'].update(count=1,published_hours=[16])
+    assert fc.catchup_deficit(state,stamp(16))==0
+    assert fc.catchup_deficit(state,stamp(21))==1
+    state['daily_publish']['count']=3
+    assert fc.catchup_deficit(state,stamp(21))==0
+
+
+def test_pre_migration_receipts_occupy_their_existing_slot():
+    now=datetime(2026,9,9,8,30,tzinfo=timezone.utc).timestamp()
+    state=dict(published={'old':dict(parts=[dict(bvid='BVexisting',ts=now-60)])})
+    assert fc.slot_published(state,now)
+    assert fc.catchup_deficit(state,now)==0
+    state['published']['old']['parts'][0]['ts']=now-86400
+    assert not fc.slot_published(state,now)
+
+
+def test_sunday_evening_is_reserved_for_full_interview_without_clip_fallback():
+    sunday=datetime(2026,9,13,13,0,tzinfo=timezone.utc).timestamp()
+    full=dict(content_type='full_interview')
+    assert fc.content_fits_slot(full,now=sunday)
+    assert not fc.content_fits_slot({},now=sunday)
+    assert not fc.content_fits_slot(full,now=sunday-5*3600)
+    assert fc.content_fits_slot({},now=sunday-5*3600)
+    assert not fc.content_fits_slot({},dict(weekly_full_week='2026-W37'),sunday-5*3600)
+
+
+def test_weekly_full_request_requires_long_complete_source_and_no_active_request():
+    now=datetime(2026,9,9,8,0,tzinfo=timezone.utc).timestamp()
+    candidate=dict(title='林园完整访谈',extra=dict(duration=3400))
+    week=fc.weekly_full_request(candidate,{},now)
+    assert week=='2026-W37'
+    state=dict(dispatched=[dict(slug='full',weekly_full_week=week)])
+    assert fc.weekly_full_request(candidate,state,now)==''
+    state['dispatched'][0]['failed']=True
+    assert fc.weekly_full_request(candidate,state,now)==week
+    candidate['extra']['duration']=180
+    assert fc.weekly_full_request(candidate,{},now)==''
+    candidate.update(title='林园访谈切片',extra=dict(duration=1800))
+    assert fc.weekly_full_request(candidate,{},now)==''
 
 
 def test_publisher_lease_blocks_timer_and_inventory_race(monkeypatch):
