@@ -83,6 +83,26 @@ def test_explicit_budget_still_bounds_local_request(monkeypatch,tmp_path):
         P.llm([{'role':'user','content':'review'}],'',budget_sec=2)
 
 
+def test_actual_single_selection_object_is_normalized_without_weakening_duration(monkeypatch,tmp_path):
+    response=dict(start=0,end=43,score=7,reason='科技股长期投资风险')
+    monkeypatch.setattr(P,'llm',lambda *a,**kw:json.dumps(response))
+    cues=[dict(start=i*3,end=(i+1)*3,text='真实字幕') for i in range(50)]
+    picks=P.pick_highlights(cues,'林园','',tmp_path)
+    assert picks==[response]
+    assert P.editorial.range_seconds(cues,picks[0])==132
+    short=P.parse_llm_json_array(json.dumps(dict(response,end=3)))[0]
+    with pytest.raises(ValueError,match='120'):
+        P.editorial.range_seconds(cues,short)
+
+
+def test_invalid_model_shape_cannot_turn_into_empty_content_verdict(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'llm',lambda *a,**kw:'{"unexpected":"shape"}')
+    cues=[dict(start=i*3,end=(i+1)*3,text='真实字幕') for i in range(50)]
+    with pytest.raises(P.LocalTextUnavailable,match='格式无效'):
+        P.pick_highlights(cues,'林园','',tmp_path)
+    assert not (tmp_path/'highlights.json').exists()
+
+
 def test_local_text_backend_rejects_remote_endpoint(monkeypatch,tmp_path):
     monkeypatch.setattr(P,'TEXT_BACKEND','local')
     monkeypatch.setattr(P,'LOCAL_LLM_URL','https://api.example.com/chat')

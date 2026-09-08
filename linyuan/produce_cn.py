@@ -1382,6 +1382,12 @@ def parse_llm_json_array(out):
 
     out = re.sub(r"```[a-zA-Z]*", "", out)
     out = out.replace("```", "")
+    single = _loads(out.strip())
+    if (isinstance(single, dict) and {'start','end','score','reason'} <= single.keys()
+            and type(single['start']) is int and type(single['end']) is int):
+        # Ollama JSON mode returned this exact shape in run 34228214027.
+        # Normalize the container only; range/score/argument gates still apply.
+        return [single]
     m = re.search(r"\[.*\]", out, re.S)
     if not m:
         raise RuntimeError(f"金句返回无法解析(无数组):{out[:300]}")
@@ -1478,7 +1484,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 5}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 6}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1511,13 +1517,14 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         "这个下界已经由程序按真实时间计算，不能忽略。确保起止为完整词句/意群。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
         "只返回JSON数组，每项包含start,end,score(至少7),reason(完整主题)。\n"+numbered)
-    valid=[];seeds=[]
+    valid=[];seeds=[];parsed_response=False
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,
                          temperature=0,max_tokens=2400,budget_sec=text_budget(90))
             (work/f'highlight_response{suffix}-{attempt}.txt').write_text(response)
             picks=parse_llm_json_array(response)
+            parsed_response=True
             seeds.extend(p for p in picks if float(p.get('score',0))>=MIN_HIGHLIGHT_SCORE)
             for pick in picks:
                 if float(pick.get('score',0)) < MIN_HIGHLIGHT_SCORE:
@@ -1533,6 +1540,8 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         except (ValueError,TypeError,KeyError,RuntimeError) as exc:
             print(f'[完整观点] 第{attempt+1}次未通过: {exc}')
             prompt += '\n上次区间未通过：'+str(exc)+'。重新在同一主题完整上下文内选择，禁止短句。'
+    if not parsed_response:
+        raise LocalTextUnavailable('本地选段回答格式无效，未形成内容判定；保留ASR并重试')
     if not valid and seeds:
         try:
             valid=pick_argument_context(cues,seeds,speaker,api_key,work,suffix)
