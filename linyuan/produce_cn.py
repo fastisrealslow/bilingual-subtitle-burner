@@ -563,9 +563,11 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
                             'think':False,'format':'json','keep_alive':'24h',
                             # Daily prompts all request compact JSON.  A hard
                             # local cap prevents a CPU runner spending minutes
-                            # on a malformed response that never emits EOS.
+                            # on a malformed response that never emits EOS. 384
+                            # tokens is enough for the compact review schema and
+                            # remains practical on GitHub's two-core CPU runner.
                             'options':{'temperature':temperature,
-                                       'num_predict':min(max_tokens,1200)}}).encode()
+                                       'num_predict':min(max_tokens,384)}}).encode()
         try:
             request=urllib.request.Request(LOCAL_LLM_URL,data=payload,
                 headers={'Content-Type':'application/json'})
@@ -1568,7 +1570,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             '\n[保留前段]'+first+'\n[拟删插语]'+omitted_text+'\n[保留后段]'+second)
     for attempt in range(2):
         try:
-            response=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=2200,budget_sec=90)
+            response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                         max_tokens=2200,budget_sec=180)
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)

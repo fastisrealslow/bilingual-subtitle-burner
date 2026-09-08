@@ -38,7 +38,7 @@ def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
     assert seen['payload']['think'] is False
     assert seen['payload']['format']=='json'
     assert seen['payload']['keep_alive']=='24h'
-    assert seen['payload']['options']['num_predict']==1200
+    assert seen['payload']['options']['num_predict']==384
 
 
 def test_local_text_backend_rejects_remote_endpoint(monkeypatch,tmp_path):

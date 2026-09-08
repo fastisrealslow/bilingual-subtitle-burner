@@ -31,7 +31,9 @@ def test_reviewed_0907_mothers_only_replace_verified_phrases():
     from reviewed_asr_corrections import apply_reviewed_corrections
     cases=[
         ('a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b',
-         1064.2,'那个炒小白股是吧','那个炒小盘股是吧'),
+         1064.2,'那个炒小白股是吧','他就炒小盘股是吧'),
+        ('a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b',
+         1158.2,'给我听我都懒是吧我没有评判的标准','给我说听我都懒得听我们有判断的标准'),
         ('a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b',
          1313.2,'这就是资本是足力的','这就是资本是逐利的'),
         ('40da16692854170b57b3ce38b20f4f8095d1f16ad2123bb68200a4864fed47dc',

@@ -36,3 +36,14 @@ def test_known_single_omission_preserves_source_sentence_boundaries(tmp_path):
     cues[2]['start']+=1
     with pytest.raises(ValueError,match='omission'):
         source_ranges(cues,source,path)
+
+
+def test_reviewed_subtitle_groups_are_passed_to_renderer(tmp_path):
+    path=tmp_path/'profile.json'
+    path.write_text(json.dumps({'sources':{'source':[
+        dict(start=1,end=122,opening='独立话题',ending='完整结论',topic='讨论',
+             subtitle_groups=['独立话题','完整结论'])
+    ]}}))
+    cues=[dict(start=1,end=10,text='独立话题'),dict(start=12,end=122,text='完整结论')]
+    picks=source_ranges(cues,'source',path)[0][2]
+    assert picks[0]['editorial_subtitles']==['独立话题','完整结论']
