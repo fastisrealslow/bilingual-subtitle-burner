@@ -1,0 +1,59 @@
+name: 林园生产补库启动
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/.automation/refill_request.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linyuan-production-kick
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 启动一次正式补库
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import io, json, os
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+
+          client = Client(api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint='fcv3.' + os.environ['FC_REGION'] + '.aliyuncs.com'))
+          response = client.invoke_function_with_options(
+              os.environ['FC_FUNCTION_NAME'],
+              m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(
+                  json.dumps({'triggerName': 'dispatch'}).encode())),
+              m.InvokeFunctionHeaders(),
+              util.RuntimeOptions(connect_timeout=10000, read_timeout=180000,
+                                  autoretry=False))
+          body = response.body.read() if hasattr(response.body, 'read') else response.body
+          if isinstance(body, bytes):
+              body = body.decode()
+          result = json.loads(body)
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          if result.get('cloud_production_disabled') or result.get('busy'):
+              raise SystemExit('补库未启动: ' + json.dumps(result, ensure_ascii=False))
+          PY
