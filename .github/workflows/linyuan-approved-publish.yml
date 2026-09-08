@@ -1,0 +1,94 @@
+name: 林园已验收成片发布
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/.automation/publish_request.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linyuan-approved-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 境内发布并等待真实回执
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import io, json, os, time, urllib.request
+          from pathlib import Path
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+
+          request = json.loads(Path('linyuan/.automation/publish_request.json').read_text())
+          required = {'slug', 'artifact_id', 'source_url', 'title', 'expected_sha256'}
+          missing = sorted(required - request.keys())
+          if missing:
+              raise SystemExit('发布请求缺字段: ' + ','.join(missing))
+          payload = {
+              'triggerName': 'publish-batch',
+              'batch_slug': request['slug'],
+              'batch_remaining': 1,
+              'artifact_id': int(request['artifact_id']),
+              'source_url': request['source_url'],
+              'title': request['title'],
+              'expected_sha256': request['expected_sha256'],
+          }
+          client = Client(api.Config(
+              access_key_id=os.environ['ALIYUN_AK'],
+              access_key_secret=os.environ['ALIYUN_SK'],
+              endpoint='fcv3.' + os.environ['FC_REGION'] + '.aliyuncs.com'))
+          response = client.invoke_function_with_options(
+              os.environ['FC_FUNCTION_NAME'],
+              m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(json.dumps(payload).encode())),
+              m.InvokeFunctionHeaders(x_fc_invocation_type='Async'),
+              util.RuntimeOptions(connect_timeout=10000, read_timeout=120000, autoretry=False))
+          if int(response.status_code or 0) != 202:
+              raise SystemExit(f'FC 异步发布未受理: HTTP {response.status_code}')
+          print('FC 已受理精确 Artifact，等待 B站回执', flush=True)
+
+          state_url = ('https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+                       + '/contents/linyuan/.automation/fc_state.json?ref=main')
+          headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                     'Accept': 'application/vnd.github.raw', 'Cache-Control': 'no-cache'}
+          deadline = time.time() + 85 * 60
+          while time.time() < deadline:
+              req = urllib.request.Request(state_url + '&_=' + str(time.time()), headers=headers)
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  state = json.loads(response.read().decode())
+              receipt = (state.get('published') or {}).get(request['slug']) or {}
+              if receipt.get('bvid'):
+                  print('发布成功: https://www.bilibili.com/video/' + receipt['bvid'], flush=True)
+                  with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+                      summary.write('## 发布成功\n\nhttps://www.bilibili.com/video/' + receipt['bvid'] + '\n')
+                  raise SystemExit(0)
+              rows = [row for row in state.get('dispatched', [])
+                      if row.get('slug') == request['slug']]
+              current = max(rows, key=lambda row: row.get('ts', 0), default={})
+              if current.get('failed'):
+                  raise SystemExit('境内发布失败: ' + str(current.get('last_error') or '状态已标记 failed'))
+              print('等待回执: ' + ('上传中' if current.get('uploading') else '已入队'), flush=True)
+              time.sleep(30)
+          raise SystemExit('85 分钟内未收到 B站发布回执；为防重复投稿，不自动重试')
+          PY
