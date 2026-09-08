@@ -41,9 +41,9 @@ def main():
             or health.get('editorial_code_sha256') != hashlib.sha256(Path('linyuan/editorial_policy.py').read_bytes()).hexdigest()
             or health.get('dispatch_workflow_ref') != 'main'):
         raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
-    # Emergency cost stop: retain trigger identities for a reversible restart,
-    # but disable them at the provider so idle invocations are not billed.
-    desired = {'dispatch':'0 7,37 * * * *', 'publish':'0 0 1,3,5,7,10,13 * * *'}
+    # Keep the inexpensive coordinator hourly; rendering remains GitHub CPU-only.
+    # Publish at 10/12/14/16/19/21 Beijing time, with the first item at 10:00.
+    desired = {'dispatch':'0 37 * * * *', 'publish':'0 0 2,4,6,8,11,13 * * *'}
     read_runtime = util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,
                                        autoretry=True,max_attempts=3)
     response = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
@@ -52,7 +52,7 @@ def main():
         if name not in triggers or triggers[name].trigger_type != 'timer':
             raise SystemExit('Expected production timer is missing: '+name)
         config = json.loads(triggers[name].trigger_config)
-        config.update(cronExpression=cron,enable=False,payload=json.dumps({'triggerName':name}))
+        config.update(cronExpression=cron,enable=True,payload=json.dumps({'triggerName':name}))
         client.update_trigger_with_options(function,name,m.UpdateTriggerRequest(body=m.UpdateTriggerInput(
             qualifier='LATEST',trigger_config=json.dumps(config))),{},read_runtime)
     updated = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
@@ -60,12 +60,13 @@ def main():
     for trigger in updated.body.triggers:
         if trigger.trigger_name in desired:
             config=json.loads(trigger.trigger_config)
-            if config.get('enable') or config.get('cronExpression') != desired[trigger.trigger_name]:
+            if not config.get('enable') or config.get('cronExpression') != desired[trigger.trigger_name]:
                 raise SystemExit('Timer read-back mismatch: '+trigger.trigger_name)
             if trigger.qualifier != 'LATEST':
                 raise SystemExit('Timer is pinned to an obsolete function version')
             timer_proof.append({'name':trigger.trigger_name,'qualifier':trigger.qualifier,'config':config})
-    dispatch = {'skipped': True, 'reason': 'cloud_production_disabled'}
+    dispatch = invoke({'triggerName':'dispatch'}, asynchronous=True) if refill_requested() else {
+        'skipped': True, 'reason': 'deploy_without_refill'}
     result={'health':health,'timers':timer_proof,'dispatch':dispatch}
     Path('production-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
     print(json.dumps(result,ensure_ascii=False,indent=2))

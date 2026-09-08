@@ -125,6 +125,21 @@ class BatchIsolationTests(unittest.TestCase):
         self.assertIsNotNone(fc.daily_mix_error(card,dict(live_video_count=4,audio_card_count=1)))
         self.assertIsNone(fc.daily_mix_error(dict(render_mode='live_video_card'),{}))
 
+    def test_daily_publish_windows_start_at_ten_beijing(self):
+        self.assertEqual(fc.PUBLISH_HOURS, {10, 12, 14, 16, 19, 21})
+
+    def test_exact_artifact_must_match_the_reviewed_slug(self):
+        state = dict(dispatched=[], published={}, daily_publish={})
+        artifact = dict(name='deliver-some-other-slug', expired=False,
+                        archive_download_url='https://api.github.test/artifact.zip')
+        with patch.object(fc, 'load_state', return_value=state), \
+             patch.object(fc, 'save_state'), \
+             patch.object(fc, '_collect_source_rejections', return_value=0), \
+             patch.object(fc, 'gh', return_value=artifact):
+            result = fc.publish_handler(dict(batch_slug='reviewed', artifact_id=123,
+                                             force_publish=True))
+        self.assertEqual(result, {'published': 0, 'artifact_mismatch': 1})
+
     def test_fresh_six_is_dated_scoped_and_preserves_real_old_totals(self):
         daily = dict(date='2026-09-06', count=10, live_video_count=10)
         self.assertIsNone(fc.fresh_six_budget(daily, 'old-batch', '2026-09-06'))

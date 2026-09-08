@@ -277,7 +277,7 @@ def title_has_target_speaker(title):
 
 # 普通投稿好时段（北京时间）。FC 的兼容触发器仍可每小时唤醒，但只有这些
 # 小时真正检查并投稿；批量任务带 batch_slug，明确绕过本限制。
-PUBLISH_HOURS = {9, 11, 13, 15, 18, 21}
+PUBLISH_HOURS = {10, 12, 14, 16, 19, 21}
 UPLOAD_LEASE_SECONDS = 45 * 60
 
 
@@ -1599,10 +1599,6 @@ def handler(event, context):
     except Exception:
         evt = {}
     name = str(evt.get("triggerName", ""))
-    # Emergency cost stop: keep diagnostics readable, but never dispatch,
-    # render or publish from FC until a later explicit code change enables it.
-    if not name.startswith('diagnose-'):
-        return {'ok':True,'cloud_production_disabled':True,'trigger':name}
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     # 入口事件立即落盘，长下载/上传即使超时也能证明请求实际进入函数。
@@ -2517,6 +2513,10 @@ def _pending_final_count(st):
 def publish_handler(event=None, context=None):
     event = event if isinstance(event, dict) else {}
     batch_slug = str(event.get("batch_slug") or "").strip()
+    try:
+        requested_artifact_id = int(event.get("artifact_id") or 0)
+    except (TypeError, ValueError):
+        requested_artifact_id = 0
     explicit_v4_batch = batch_slug == "ly-parity-v3-14-0905"
     force_publish = bool(event.get("force_publish"))
     if batch_slug in REVIEW_PAUSED_SLUGS:
@@ -2537,6 +2537,8 @@ def publish_handler(event=None, context=None):
             "source": str(event.get("source_url") or ""),
             "ts": int(time.time()),
             "published_parts": 0,
+            "production_rules_version": PRODUCTION_RULES_VERSION,
+            "required_presentation_version": 2,
         })
         save_state(st)
     now = time.time()
@@ -2585,10 +2587,19 @@ def publish_handler(event=None, context=None):
     art_ids = {}
     reserve_records = []
     if batch_slug:
-        # 指定批次已经由调用方确认成片齐全，且优先从 deliver Release 逐条取件。
-        # 不要为每一个 part 重扫最近 30 次 workflow 的全部 Artifact；库存变大后
-        # 这段扫描会耗时数分钟，并让 14 条批次重复 14 遍相同网络请求。
-        arts[batch_slug] = None
+        # 用户验收后可绑定精确 Artifact。Release 成品库长期累积后可能达到
+        # asset 数量上限；此时不能让可发布视频因为可选镜像失败而丢失。
+        if requested_artifact_id > 0:
+            artifact = gh("GET", f"/actions/artifacts/{requested_artifact_id}")
+            if (artifact.get("name") != f"deliver-{batch_slug}"
+                    or artifact.get("expired")):
+                log.error(f"✗ {batch_slug} 指定 Artifact 与 slug 不匹配或已过期")
+                return {"published": 0, "artifact_mismatch": 1}
+            arts[batch_slug] = artifact.get("archive_download_url")
+            art_ids[batch_slug] = requested_artifact_id
+        else:
+            # 指定批次优先从 deliver Release 逐条取件，不重扫最近 30 次运行。
+            arts[batch_slug] = None
     else:
         runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
                          "?status=completed&per_page=30").get("workflow_runs", [])
