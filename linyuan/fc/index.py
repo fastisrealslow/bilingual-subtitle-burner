@@ -2389,6 +2389,13 @@ def _collect_source_rejections(st):
                 if prefix == "production-reject-" and report.get("accepted", 0):
                     continue  # 有合格片的严格批次交给其显式验收流程，不淘汰全源
                 failures = report.get("rejected") or []
+                if (prefix == 'production-reject-' and not report.get('accepted')
+                        and not failures and not report.get('reason')
+                        and report.get('selection_completed') is not True):
+                    # Old selectors swallowed inference timeouts and wrote an
+                    # empty report. That report is not a quality verdict.
+                    report['retryable'] = True
+                    report['reason'] = '旧版空选段报告没有完成审核的证据，保留CPU转写后有界重试'
                 reason = report.get("reason") or (failures[0].get("reason") if failures else None) or reason
             except Exception as exc:
                 log.warning(f"{slug} 素材拒绝报告读取失败: {exc}")

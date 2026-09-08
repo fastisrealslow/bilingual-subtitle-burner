@@ -450,3 +450,21 @@ def test_unavailable_checker_or_report_does_not_blacklist_mother(monkeypatch):
     entry=state['dispatched'][0]
     assert entry['source_check_retry_after']>time.time()
     assert entry['source_check_report_id']==7 and not entry.get('source_quality_rejected')
+
+
+def test_legacy_empty_selection_report_is_not_a_quality_verdict(monkeypatch):
+    state=dict(dispatched=[dict(slug='timeout',ts=1)],published={},rejected=[])
+    artifact=dict(id=9,name='production-reject-timeout',expired=False)
+    def gh(method,path,*a,**kw):
+        assert method=='GET'
+        return dict(workflow_runs=[dict(id=10)]) if '/workflows/' in path else dict(artifacts=[artifact])
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc,'save_state',lambda st:None)
+    data=io.BytesIO()
+    with zipfile.ZipFile(data,'w') as z:
+        z.writestr('batch_report.json',json.dumps(dict(accepted=0,rejected=[],retryable=False)))
+    monkeypatch.setattr(fc,'download_reviewed_zip',lambda aid,path,**kw:Path(path).write_bytes(data.getvalue()))
+    assert fc._collect_source_rejections(state)==0
+    entry=state['dispatched'][0]
+    assert not entry.get('failed') and state['rejected']==[]
+    assert entry['source_check_retry_after']>time.time()

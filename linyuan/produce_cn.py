@@ -4581,6 +4581,7 @@ def main():
             "live_video": live, "audio_card": len(metas) - live,
             "live_ratio": live / len(metas) if metas else 0,
             "retryable": not metas and any(r.get('retryable') for r in rejected),
+            "selection_completed": not selection_failures,
             "quality_gate_version": QUALITY_GATE_VERSION})
 
     for ci, (a, b, preselected_picks) in enumerate(work_items):
