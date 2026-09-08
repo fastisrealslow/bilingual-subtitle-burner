@@ -4,6 +4,12 @@ name: 中文源出片
 # 模型比较见 linyuan-asr-cpu-benchmark.yml，识别阶段禁用网络。
 
 on:
+  # Path-scoped push trigger gives connected GitHub automation a bounded E2E
+  # entry point when workflow_dispatch is unavailable. Ordinary commits do not
+  # start production; changing this marker is an explicit one-shot test.
+  push:
+    branches: [main]
+    paths: ['.github/linyuan-e2e.trigger']
   workflow_dispatch:
     inputs:
       source:
@@ -65,12 +71,20 @@ on:
         default: true
         type: boolean
 
+env:
+  RUN_SOURCE: ${{ inputs.source || 'https://www.bilibili.com/video/BV1tuCDBhE6C' }}
+  RUN_SLUG: ${{ inputs.slug || 'ly-e2e-local-0908' }}
+  RUN_SPEAKER: ${{ inputs.speaker || '林园' }}
+  RUN_OCCASION: ${{ inputs.occasion || '2025年11月2日林园演讲，CPU离线端到端验收' }}
+  RUN_SOURCE_PLATFORM: ${{ inputs.source_platform || 'bilibili' }}
+  RUN_REVIEWED_PARTS: ${{ github.event_name == 'push' && '1' || inputs.reviewed_parts }}
+
 permissions:
   contents: write
   actions: read
 
 concurrency:
-  group: produce-cn-${{ inputs.slug }}
+  group: produce-cn-${{ inputs.slug || 'ly-e2e-local-0908' }}
   # 同一 slug 的新版验收会取代旧版；不同日常 slug 仍可并行，不影响正常出片。
   cancel-in-progress: true
 
@@ -123,7 +137,7 @@ jobs:
         id: src
         timeout-minutes: 12
         env:
-          SOURCE: ${{ inputs.source }}
+          SOURCE: ${{ env.RUN_SOURCE }}
           # 下载和投稿共用同一份登录态；有登录态时 B站可取得 720/1080P，
           # 未配置时下载器仍会选择匿名可用的最高画质。
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
@@ -170,10 +184,10 @@ jobs:
           python3 ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}"
           python3 -u produce_cn.py \
             --source "${{ steps.src.outputs.path }}" \
-            --slug "${{ inputs.slug }}" \
-            --speaker "${{ inputs.speaker }}" \
+            --slug "${{ env.RUN_SLUG }}" \
+            --speaker "${{ env.RUN_SPEAKER }}" \
             --source-check-only \
-            --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+            --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       # 只有素材通过后才安装 ASR、恢复大模型并下载权重。低清、双字幕、
       # 错人物素材不会再消耗 1~3 小时转写/编码资源。
@@ -182,7 +196,7 @@ jobs:
           pip install fonttools jieba sherpa-onnx==1.13.7
 
       - name: 读取已验证的CPU离线识别配置
-        run: python prepare_asr_runtime.py select --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+        run: python prepare_asr_runtime.py select --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - name: 恢复相同母片的离线识别缓存
         uses: actions/cache/restore@v4
@@ -191,18 +205,18 @@ jobs:
           key: mother-asr-${{ env.MOTHER_ASR_KEY }}
 
       - name: 按母片哈希载入原始转写
-        run: python mother_asr_cache.py restore --work "deliver/${{ inputs.slug }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+        run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - name: 准备CPU离线Qwen识别及逐字对齐
         if: env.ASR_BACKEND == 'qwen3'
         env:
           GH_TOKEN: ${{ github.token }}
           CUDA_VISIBLE_DEVICES: ''
-          ASR_SOURCE_SLUG: ${{ inputs.slug }}
+          ASR_SOURCE_SLUG: ${{ env.RUN_SLUG }}
         run: |
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
           pip install qwen-asr
-          python prepare_asr_runtime.py prepare --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+          python prepare_asr_runtime.py prepare --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - name: 缓存 SenseVoice CPU 模型
         id: sensevoice-cache
@@ -225,9 +239,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: linyuan/.llm_cache
-          key: llm-cn-${{ inputs.slug }}-${{ github.run_id }}
+          key: llm-cn-${{ env.RUN_SLUG }}-${{ github.run_id }}
           restore-keys: |
-            llm-cn-${{ inputs.slug }}-
+            llm-cn-${{ env.RUN_SLUG }}-
             llm-cn-
 
       - name: 缓存 CPU 本地文本模型
@@ -271,12 +285,12 @@ jobs:
           EN_FONT: DejaVu Sans
           # auto：干净原画用实景封面，资料卡在浅色/深色间按标题稳定选择。
           COVER_STYLE: ${{ vars.COVER_STYLE || 'auto' }}
-          REVIEWED_PARTS: ${{ inputs.reviewed_parts }}
+          REVIEWED_PARTS: ${{ env.RUN_REVIEWED_PARTS }}
           GH_TOKEN: ${{ github.token }}
-          SOURCE_ORIGIN_URL: ${{ inputs.source }}
+          SOURCE_ORIGIN_URL: ${{ env.RUN_SOURCE }}
           PUBLICATION_STATE_PATH: _publication_state.json
           REPAIR_BVID: ${{ inputs.repair_bvid }}
-          RENDER_SLUG: ${{ inputs.slug }}
+          RENDER_SLUG: ${{ env.RUN_SLUG }}
         run: |
           set -euo pipefail
           # Read actual receipts so a cached mother does not re-render used excerpts.
@@ -287,42 +301,42 @@ jobs:
           fi
           python3 -u produce_cn.py \
             --source "${{ steps.src.outputs.path }}" \
-            --slug "${{ inputs.slug }}" \
-            --speaker "${{ inputs.speaker }}" \
-            --occasion "${{ inputs.occasion }}" \
-            --source-platform "${{ inputs.source_platform }}" \
-            --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json" \
+            --slug "${{ env.RUN_SLUG }}" \
+            --speaker "${{ env.RUN_SPEAKER }}" \
+            --occasion "${{ env.RUN_OCCASION }}" \
+            --source-platform "${{ env.RUN_SOURCE_PLATFORM }}" \
+            --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
             --split-highlights \
             --only-reviewed-parts "$REVIEWED_PARTS" \
-            ${{ inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \
+            ${{ inputs.target_parts != '' && inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \
             ${{ inputs.include_full && '--include-full' || '' }} \
-            ${{ inputs.prefer_live_video && '--prefer-live-video' || '' }}
+            ${{ (github.event_name == 'push' || inputs.prefer_live_video) && '--prefer-live-video' || '' }}
 
       - name: 留存完整观点与原始ASR核验材料
         if: always() && steps.render.outcome != 'skipped'
         uses: actions/upload-artifact@v4
         with:
-          name: editorial-${{ inputs.slug }}
+          name: editorial-${{ env.RUN_SLUG }}
           path: |
-            linyuan/deliver/${{ inputs.slug }}/_tmp/asr*.json
-            linyuan/deliver/${{ inputs.slug }}/_tmp/cues_raw.json
-            linyuan/deliver/${{ inputs.slug }}/_tmp/highlight*.json
-            linyuan/deliver/${{ inputs.slug }}/_tmp/highlight*.txt
-            linyuan/deliver/${{ inputs.slug }}/_tmp/context_response*.txt
-            linyuan/deliver/${{ inputs.slug }}/_tmp/editorial_review*.json
-            linyuan/deliver/${{ inputs.slug }}/_tmp/source_quality.json
-            linyuan/deliver/${{ inputs.slug }}/_tmp/qr_review/
-            linyuan/deliver/${{ inputs.slug }}/_tmp/semantic*.json
-            linyuan/deliver/${{ inputs.slug }}/_tmp/semantic*.txt
-            linyuan/deliver/${{ inputs.slug }}/batch_report.json
-            linyuan/deliver/${{ inputs.slug }}/meta.json
-            linyuan/deliver/${{ inputs.slug }}/subtitles*.ass
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/asr*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/cues_raw.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.txt
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_response*.txt
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/editorial_review*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/qr_review/
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/semantic*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/semantic*.txt
+            linyuan/deliver/${{ env.RUN_SLUG }}/batch_report.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
           retention-days: 30
           if-no-files-found: ignore
 
       - name: 保存已完成的母片转写供后续选段复用
         if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
-        run: python mother_asr_cache.py save --work "deliver/${{ inputs.slug }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ inputs.slug }}/_tmp/source_quality.json"
+        run: python mother_asr_cache.py save --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - uses: actions/cache/save@v4
         if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
@@ -333,16 +347,16 @@ jobs:
       - name: 整理归档（slug 命名，留存可分析产物）
         run: |
           set -euo pipefail
-          cd "deliver/${{ inputs.slug }}"
-          python3 -c 'import sys; sys.path.insert(0,"../.."); from batch_delivery import archive_accepted; archive_accepted(".",sys.argv[1])' "${{ inputs.slug }}"
+          cd "deliver/${{ env.RUN_SLUG }}"
+          python3 -c 'import sys; sys.path.insert(0,"../.."); from batch_delivery import archive_accepted; archive_accepted(".",sys.argv[1])' "${{ env.RUN_SLUG }}"
           echo "归档产物："
           ls -la _accepted/
 
       - name: 上传成片到 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deliver-${{ inputs.slug }}
-          path: linyuan/deliver/${{ inputs.slug }}/_accepted/
+          name: deliver-${{ env.RUN_SLUG }}
+          path: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/
           retention-days: 90
           if-no-files-found: error
 
@@ -354,7 +368,7 @@ jobs:
         with:
           tag_name: deliver
           name: 成品库
-          files: linyuan/deliver/${{ inputs.slug }}/_accepted/${{ inputs.slug }}.*
+          files: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/${{ env.RUN_SLUG }}.*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -364,12 +378,12 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: debug-${{ inputs.slug }}
+          name: debug-${{ env.RUN_SLUG }}
           path: |
-            linyuan/deliver/${{ inputs.slug }}/_tmp/
-            linyuan/deliver/${{ inputs.slug }}/meta.json
-            linyuan/deliver/${{ inputs.slug }}/batch_report.json
-            linyuan/deliver/${{ inputs.slug }}/final*.mp4
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/
+            linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/batch_report.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/final*.mp4
           retention-days: 14
           if-no-files-found: ignore
 
@@ -377,8 +391,8 @@ jobs:
         if: failure() && steps.render.outcome == 'failure' && inputs.repair_bvid == ''
         uses: actions/upload-artifact@v4
         with:
-          name: production-reject-${{ inputs.slug }}
-          path: linyuan/deliver/${{ inputs.slug }}/batch_report.json
+          name: production-reject-${{ env.RUN_SLUG }}
+          path: linyuan/deliver/${{ env.RUN_SLUG }}/batch_report.json
           retention-days: 14
           if-no-files-found: ignore
 
@@ -388,8 +402,8 @@ jobs:
         if: failure() && steps.source_gate.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
-          name: source-reject-${{ inputs.slug }}
-          path: linyuan/deliver/${{ inputs.slug }}/_tmp/source_quality.json
+          name: source-reject-${{ env.RUN_SLUG }}
+          path: linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json
           retention-days: 14
           if-no-files-found: error
 
@@ -397,12 +411,12 @@ jobs:
         if: always()
         run: |
           {
-            echo "## ${{ inputs.slug }}"
+            echo "## ${{ env.RUN_SLUG }}"
             # cwd 是 linyuan/（job 级 working-directory），路径不带前缀；
             # 只有 actions/* 的 with.path 才相对仓库根、需要 linyuan/ 前缀。
-            if [ -f "deliver/${{ inputs.slug }}/meta.json" ]; then
+            if [ -f "deliver/${{ env.RUN_SLUG }}/meta.json" ]; then
               echo '```json'
-              cat "deliver/${{ inputs.slug }}/meta.json"
+              cat "deliver/${{ env.RUN_SLUG }}/meta.json"
               echo '```'
             else
               echo "未产出 meta.json，见 debug artifact"
@@ -444,4 +458,4 @@ jobs:
             DTIME=$(date -d "+${{ inputs.delay_hours }} hours" +%s)
             echo "定时发布：$(date -d "@$DTIME" '+%Y-%m-%d %H:%M') UTC"
           fi
-          python3 publish_bilibili_cn.py --slug "${{ inputs.slug }}" --dtime "$DTIME"
+          python3 publish_bilibili_cn.py --slug "${{ env.RUN_SLUG }}" --dtime "$DTIME"

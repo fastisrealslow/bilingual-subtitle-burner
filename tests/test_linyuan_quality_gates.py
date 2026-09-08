@@ -396,7 +396,7 @@ def test_workflow_runs_source_gate_before_asr_setup_and_uploads_rejection():
     workflow = (ROOT / ".github/workflows/linyuan-produce-cn.yml").read_text()
     assert workflow.index("name: 素材质量门禁") < workflow.index("name: 安装出片依赖")
     assert "--source-check-only" in workflow
-    assert "source-reject-${{ inputs.slug }}" in workflow
+    assert "source-reject-${{ env.RUN_SLUG }}" in workflow
 
 
 def test_fc_consumes_source_rejection_artifact(monkeypatch):
