@@ -40,7 +40,7 @@ PRESENTATION_RULES_VERSION = 2
 # 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
 # legacy Whisper 函数保留供历史代码读取，不进入本生产入口。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
-ASR_PIPELINE_VERSION = 4
+ASR_PIPELINE_VERSION = 5
 ASR_CHUNK_SEC = 30.0
 ASR_OVERLAP_SEC = 3.0
 ASR_CPU_THREADS = max(1, min(4, int(os.environ.get("ASR_CPU_THREADS", "2"))))

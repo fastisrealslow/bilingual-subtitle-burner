@@ -63,7 +63,14 @@ def main():
         # remains a hypothesis cache, never a substitute for editorial review.
         digest=hashlib.sha256(json.dumps(choice,sort_keys=True).encode())
         # Rendering/editorial edits must not invalidate expensive recognition.
-        # ASR_PIPELINE_VERSION is already part of the inner provenance check.
+        # The cue-conversion version does invalidate the mother cue cache, but
+        # still reuses immutable decoder/alignment evidence instead of decoding
+        # the audio again. Other rendering/editorial edits stay out of this key.
+        production=(Path(__file__).parent/'produce_cn.py').read_text()
+        version=re.search(r'^ASR_PIPELINE_VERSION\s*=\s*\d+',production,re.M)
+        if not version:
+            raise ValueError('Missing ASR pipeline version')
+        digest.update(version.group(0).encode())
         for name in ('qwen_cpu_transcript.py','qwen_asr_evidence.py','reviewed_asr_corrections.py'):
             digest.update((Path(__file__).parent/name).read_bytes())
         emit('MOTHER_ASR_KEY',choice['source_sha256']+'-'+digest.hexdigest()[:20])
