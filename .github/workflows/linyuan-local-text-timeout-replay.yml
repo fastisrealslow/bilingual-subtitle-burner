@@ -1,0 +1,82 @@
+name: 林园CPU文本超时原样回放
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-local-text-timeout-replay.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-local-text-timeout-replay
+  cancel-in-progress: false
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TEXT_BACKEND: local
+      LOCAL_LLM_MODEL: qwen3:4b
+      LOCAL_LLM_TIMEOUT_SEC: '600'
+      CUDA_VISIBLE_DEVICES: ''
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        working-directory: linyuan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证本地运行故障不会淘汰素材
+        run: |
+          pip install -q pytest
+          python -m pytest -q ../tests/test_linyuan_quality_gates.py -k 'local_text or local_timeout or local_truncated or explicit_budget'
+      - name: 缓存 CPU 本地文本模型
+        id: ollama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen3-4b-v1
+
+      - name: 启动 CPU 本地文本模型（禁止云 API）
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 --max-time 600 \
+            -o /tmp/ollama-linux-amd64.tar.zst \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+          echo "${OLLAMA_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
+          sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+            ollama serve > /tmp/ollama.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull qwen3:4b
+          ollama show qwen3:4b >/dev/null
+          # Pulling only downloads weights.  Warm them into RAM before the
+          # bounded CPU review budget begins.
+          curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3:4b","messages":[{"role":"user","content":"Reply ready"}],"stream":false,"think":false,"options":{"temperature":0,"num_predict":8,"num_ctx":16384}}' \
+            | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+
+
+      - name: 读取失败任务的原始字幕证据
+        run: gh run download 34224561237 -n editorial-ly-0908-fa57fb -D /tmp/incident-transcript
+      - name: 使用真实CPU模型重放同一段字幕
+        run: python -u replay_local_text.py /tmp/incident-transcript
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-text-timeout-replay
+          path: |
+            /tmp/local-text-replay/
+            /tmp/ollama.log
+          include-hidden-files: true
+          if-no-files-found: error

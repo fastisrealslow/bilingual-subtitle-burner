@@ -39,6 +39,48 @@ def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
     assert seen['payload']['format']=='json'
     assert seen['payload']['keep_alive']=='24h'
     assert seen['payload']['options']['num_predict']==640
+    assert seen['payload']['options']['num_ctx']==16384
+
+
+def test_local_timeout_remains_retryable_and_never_caches_no_highlights(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    calls=[]
+    def timeout(request,timeout):
+        calls.append(timeout)
+        raise TimeoutError('slow prompt evaluation')
+    monkeypatch.setattr(P.urllib.request,'urlopen',timeout)
+    cues=[dict(start=i*10,end=(i+1)*10,text='原始完整字幕') for i in range(20)]
+    with pytest.raises(P.LocalTextUnavailable,match='保留ASR'):
+        P.pick_highlights(cues,'林园','',tmp_path)
+    assert len(calls)==1 and 590<calls[0]<=600
+    assert not (tmp_path/'highlights.json').exists()
+    assert not list((tmp_path/'.llm_cache').glob('*.json'))
+    assert issubclass(P.LocalTextUnavailable,P.EditorialReviewUnavailable)
+
+
+def test_local_truncated_response_cannot_be_cached_as_complete(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    class Reply:
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+        def read(self):return b'{"message":{"content":"[]"},"done_reason":"length"}'
+    monkeypatch.setattr(P.urllib.request,'urlopen',lambda *a,**kw:Reply())
+    with pytest.raises(P.LocalTextUnavailable):
+        P.llm([{'role':'user','content':'review'}],'')
+    assert not list((tmp_path/'.llm_cache').glob('*.json'))
+
+
+def test_explicit_budget_still_bounds_local_request(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    def fail(request,timeout):
+        assert 0<timeout<=2
+        raise TimeoutError()
+    monkeypatch.setattr(P.urllib.request,'urlopen',fail)
+    with pytest.raises(P.LocalTextUnavailable):
+        P.llm([{'role':'user','content':'review'}],'',budget_sec=2)
 
 
 def test_local_text_backend_rejects_remote_endpoint(monkeypatch,tmp_path):

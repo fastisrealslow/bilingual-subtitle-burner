@@ -176,6 +176,17 @@ class EditorialReviewUnavailable(VisualQualityError):
     """An ungrounded service response is not evidence against source footage."""
 
 
+class LocalTextUnavailable(EditorialReviewUnavailable):
+    """Local inference did not finish; do not reject or cache an empty selection."""
+
+
+def text_budget(cloud_seconds):
+    """CPU prompt evaluation needs its own bounded budget; no cloud fallback."""
+    if TEXT_BACKEND == 'local':
+        return min(600, max(cloud_seconds, float(os.environ.get('LOCAL_LLM_TIMEOUT_SEC', '600'))))
+    return cloud_seconds
+
+
 def load_key():
     env = BASE / ".env"
     if env.exists():
@@ -419,7 +430,8 @@ def _local_identity_verdict(reference,frames,speaker):
     return dict(same_person_frames=same,different_person_frames=different,
                 uncertain_frames=uncertain,best_cover_frame=best,
                 confidence=round(confidence,3),watermark_texts=[],
-                reason=f'CPU SFace逐帧比对；阈值{LOCAL_FACE_COSINE_THRESHOLD}；分数{scores}',
+                confidence_scope='matched_frames_only',match_fraction=len(same)/max(1,len(frames)),
+                reason=f'CPU SFace逐帧比对；匹配{len(same)}/{len(frames)}帧；confidence仅针对匹配帧，并非整段身份概率；阈值{LOCAL_FACE_COSINE_THRESHOLD}；分数{scores}',
                 engine='opencv_yunet_sface_cpu')
 
 
@@ -542,7 +554,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
         {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
-         "m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
+         "runtime_version":2,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if cf.exists():
@@ -553,7 +565,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
         except (ValueError, KeyError, OSError):
             print("[llm-cache] 缓存损坏,重新请求", file=sys.stderr)
 
-    deadline = time.monotonic() + (budget_sec if budget_sec is not None else 120)
+    deadline = time.monotonic() + (budget_sec if budget_sec is not None else text_budget(120))
     if TEXT_BACKEND == 'local':
         from urllib.parse import urlparse
         parsed=urlparse(LOCAL_LLM_URL)
@@ -568,12 +580,21 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
                             # tokens covers the evidenced review schema while
                             # remaining practical on GitHub's two-core runner.
                             'options':{'temperature':temperature,
+                                       'num_ctx':16384,
                                        'num_predict':min(max_tokens,640)}}).encode()
+        started = time.monotonic()
+        print(f'[local-llm] model={LOCAL_LLM_MODEL} chars={sum(len(m.get("content", "")) for m in messages)} budget={remaining:.0f}s ctx=16384', flush=True)
         try:
             request=urllib.request.Request(LOCAL_LLM_URL,data=payload,
                 headers={'Content-Type':'application/json'})
             with urllib.request.urlopen(request,timeout=min(600,remaining)) as response:
                 data=json.loads(response.read().decode())
+            metrics={k:data.get(k) for k in ('prompt_eval_count','prompt_eval_duration',
+                     'eval_count','eval_duration','load_duration','done_reason')}
+            metrics['wall_seconds']=round(time.monotonic()-started,2)
+            print('[local-llm] '+json.dumps(metrics), flush=True)
+            if data.get('done_reason') == 'length':
+                raise ValueError('本地模型输出达到长度上限，审核未完成')
             txt=str((data.get('message') or {}).get('content') or '').strip()
             if not txt:raise ValueError('本地模型返回空内容')
             txt=re.sub(r"<think>.*?</think>","",txt,flags=re.S).strip()
@@ -581,8 +602,9 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
                                      ensure_ascii=False),encoding='utf-8')
             return txt
         except Exception as exc:
-            raise RuntimeError('本地文本模型不可用；请启动 Ollama 并准备 '+LOCAL_LLM_MODEL+': '
-                               +type(exc).__name__) from exc
+            raise LocalTextUnavailable(
+                f'本地文本推理未完成：{LOCAL_LLM_MODEL}，耗时{time.monotonic()-started:.1f}秒，'
+                f'预算{remaining:.0f}秒，{type(exc).__name__}；保留ASR并重试，不判素材不合格') from exc
     if TEXT_BACKEND != 'siliconflow':
         raise RuntimeError('TEXT_BACKEND 只能是 local；恢复收费云端须显式设为 siliconflow')
     if not api_key:
@@ -1439,7 +1461,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         '可以选较长候选保留同主题追问，不得改写文字。没有合格候选就返回[]。'
         '只输出JSON数组，每项candidate_id,score(至少7),reason。\n完整原文：\n'+transcript+
         '\n候选：\n'+json.dumps(table,ensure_ascii=False))
-    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=90)
+    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=text_budget(90))
     (work/f'context_response{suffix}.txt').write_text(answer)
     selected=[]
     for row in parse_llm_json_array(answer):
@@ -1456,7 +1478,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 4}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 5}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1493,7 +1515,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,
-                         temperature=0,max_tokens=2400,budget_sec=90)
+                         temperature=0,max_tokens=2400,budget_sec=text_budget(90))
             (work/f'highlight_response{suffix}-{attempt}.txt').write_text(response)
             picks=parse_llm_json_array(response)
             seeds.extend(p for p in picks if float(p.get('score',0))>=MIN_HIGHLIGHT_SCORE)
@@ -1506,6 +1528,8 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
                 valid.append(pick)
             if valid or not picks:
                 break
+        except LocalTextUnavailable:
+            raise
         except (ValueError,TypeError,KeyError,RuntimeError) as exc:
             print(f'[完整观点] 第{attempt+1}次未通过: {exc}')
             prompt += '\n上次区间未通过：'+str(exc)+'。重新在同一主题完整上下文内选择，禁止短句。'
@@ -1513,6 +1537,8 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         try:
             valid=pick_argument_context(cues,seeds,speaker,api_key,work,suffix)
             for pick in valid:editorial.range_seconds(cues,pick)
+        except LocalTextUnavailable:
+            raise
         except (ValueError,TypeError,KeyError,RuntimeError) as exc:
             print('[完整观点] 连续上下文候选未通过：'+str(exc))
             valid=[]
@@ -1628,7 +1654,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                         max_tokens=2200,budget_sec=240,response_schema=response_schema)
+                         max_tokens=2200,budget_sec=text_budget(240),response_schema=response_schema)
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)
@@ -1919,7 +1945,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
                 f'最后一个id必须是{len(choices)}。选词id，不是字符位置，不需要计算字数位置。原文：{parent}。'
                 '词序列：'+json.dumps(choices,ensure_ascii=False))
             answer=llm([{'role':'user','content':request}],api_key,
-                       temperature=0,max_tokens=1200,budget_sec=45)
+                       temperature=0,max_tokens=1200,budget_sec=text_budget(45))
             local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices)
             if (not isinstance(local,list) or not local
                     or any(type(n) is not int for n in local)
@@ -1947,7 +1973,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
     error=''
     for attempt in range(3):
         try:
-            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=6000,budget_sec=60)
+            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=6000,budget_sec=text_budget(60))
             cache_path.with_suffix(f'.attempt{attempt+1}.txt').write_text(response,encoding='utf-8')
             breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens)
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):
@@ -4487,15 +4513,22 @@ def main():
 
     # 一个时间块可能含多个独立金句。逐条生产时先保留模型选出的完整范围，
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
+    selection_failures = []
     work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
     if curated is None and args.split_highlights and not args.target_parts:
         work_items = []
         for block_no, (a, b) in enumerate(chunks, 1):
             block_cues = cues[a:b + 1]
-            picks = pick_highlights(
-                block_cues, args.speaker, api_key, work,
-                suffix=f"_block_{block_no}", target_sec=TARGET_SEC,
-                allow_empty=True)
+            try:
+                picks = pick_highlights(
+                    block_cues, args.speaker, api_key, work,
+                    suffix=f"_block_{block_no}", target_sec=TARGET_SEC,
+                    allow_empty=True)
+            except LocalTextUnavailable as exc:
+                selection_failures.append(dict(stage='editorial-service',part=block_no,
+                    reason=str(exc),error_type=type(exc).__name__,retryable=True))
+                print(f'[完整观点] 运行故障，保留第{block_no}块原始转写：{exc}',flush=True)
+                continue
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])
                 if 0 <= lo <= hi < len(block_cues):
@@ -4513,7 +4546,7 @@ def main():
         retry_parts={int(n) for n in args.only_reviewed_parts.split(',')}
         if not retry_parts.issubset(set(range(1,len(work_items)+1))):
             raise ValueError('补产编号不在已核对选段中')
-    metas, rejected = [], []
+    metas, rejected = [], list(selection_failures)
     publication_state={}
     if os.environ.get('PUBLICATION_STATE_PATH'):
         publication_state=json.loads(Path(os.environ['PUBLICATION_STATE_PATH']).read_text())
