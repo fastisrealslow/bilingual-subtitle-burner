@@ -29,11 +29,15 @@ def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
         def read(self):return b'{"message":{"content":"local result"}}'
     def open_local(request,timeout):
         seen['url']=request.full_url
+        seen['payload']=json.loads(request.data)
         assert 'Authorization' not in request.headers
         return Reply()
     monkeypatch.setattr(P.urllib.request,'urlopen',open_local)
     assert P.llm([{'role':'user','content':'x'}],'paid-key')=='local result'
     assert seen['url'].startswith('http://127.0.0.1:')
+    assert seen['payload']['think'] is False
+    assert seen['payload']['format']=='json'
+    assert seen['payload']['options']['num_predict']==1200
 
 
 def test_local_text_backend_rejects_remote_endpoint(monkeypatch,tmp_path):
