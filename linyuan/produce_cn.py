@@ -559,7 +559,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None):
         if parsed.scheme!='http' or parsed.hostname not in {'127.0.0.1','localhost','::1'}:
             raise RuntimeError('LOCAL_LLM_URL 只允许本机回环地址，防止误用收费接口')
         remaining=max(1,deadline-time.monotonic())
-        payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,
+        payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,'think':False,
                             'options':{'temperature':temperature,'num_predict':max_tokens}}).encode()
         try:
             request=urllib.request.Request(LOCAL_LLM_URL,data=payload,

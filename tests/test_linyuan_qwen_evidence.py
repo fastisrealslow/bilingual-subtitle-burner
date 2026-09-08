@@ -27,6 +27,29 @@ def test_reviewed_phrase_cannot_change_another_source_or_time():
     assert apply_reviewed_corrections(earlier,SOURCE_SHA)==(earlier,[])
 
 
+def test_reviewed_0907_mothers_only_replace_verified_phrases():
+    from reviewed_asr_corrections import apply_reviewed_corrections
+    cases=[
+        ('a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b',
+         1064.2,'那个炒小白股是吧','那个炒小盘股是吧'),
+        ('a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b',
+         1313.2,'这就是资本是足力的','这就是资本是逐利的'),
+        ('40da16692854170b57b3ce38b20f4f8095d1f16ad2123bb68200a4864fed47dc',
+         2502.2,'机器的时好时候','机器的是好时候'),
+        ('40da16692854170b57b3ce38b20f4f8095d1f16ad2123bb68200a4864fed47dc',
+         2951.2,'大概在115年16年的时候','大概在15年16年的时候'),
+    ]
+    for source,start,before,after in cases:
+        words=[dict(text=char,start=start+i*.1,end=start+(i+1)*.1)
+               for i,char in enumerate(before)]
+        revised,changes=apply_reviewed_corrections(words,source)
+        assert ''.join(w['text'] for w in revised)==after
+        assert len(changes)==1
+        assert changes[0]['source_sha256']==source
+        untouched,_=apply_reviewed_corrections(words,'different-source')
+        assert untouched==words
+
+
 def report():
     return dict(source_pcm_sha256='pcm',source_video_sha256='video',device='cpu',
         networking_during_inference=False,model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr-revision',

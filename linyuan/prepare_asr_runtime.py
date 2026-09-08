@@ -84,7 +84,10 @@ def main():
             '--pattern','long-cpu-transcript-*','--dir',str(directory)],check=True,timeout=300)
         emit('QWEN3_EVIDENCE_DIR',directory)
     else:
-        slug=os.environ.get('ASR_SOURCE_SLUG','')
+        # Evidence belongs to the immutable mother video, not to a delivery
+        # directory.  A reviewed source can therefore reuse its prior raw CPU
+        # transcript under a fresh output slug without importing old reviews.
+        slug=choice.get('evidence_slug') or os.environ.get('ASR_SOURCE_SLUG','')
         if not re.fullmatch(r'[a-zA-Z0-9_-]+',slug):return
         repo=os.environ['GITHUB_REPOSITORY']
         try:
