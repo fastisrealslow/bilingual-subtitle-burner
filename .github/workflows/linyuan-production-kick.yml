@@ -46,14 +46,10 @@ jobs:
               os.environ['FC_FUNCTION_NAME'],
               m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(
                   json.dumps({'triggerName': 'dispatch'}).encode())),
-              m.InvokeFunctionHeaders(),
-              util.RuntimeOptions(connect_timeout=10000, read_timeout=180000,
+              m.InvokeFunctionHeaders(x_fc_invocation_type='Async'),
+              util.RuntimeOptions(connect_timeout=10000, read_timeout=120000,
                                   autoretry=False))
-          body = response.body.read() if hasattr(response.body, 'read') else response.body
-          if isinstance(body, bytes):
-              body = body.decode()
-          result = json.loads(body)
-          print(json.dumps(result, ensure_ascii=False, indent=2))
-          if result.get('cloud_production_disabled') or result.get('busy'):
-              raise SystemExit('补库未启动: ' + json.dumps(result, ensure_ascii=False))
+          if int(response.status_code or 0) != 202:
+              raise SystemExit(f'补库异步请求未受理: HTTP {response.status_code}')
+          print('FC 已受理补库请求；调度锁与库存闸门在境内实例执行')
           PY
