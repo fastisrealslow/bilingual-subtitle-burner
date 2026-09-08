@@ -788,7 +788,8 @@ def _transcribe_qwen_cpu(src,work):
     corrected,changes=apply_reviewed_corrections(timed,video_sha)
     (work/'asr_reviewed_corrections.json').write_text(json.dumps(changes,ensure_ascii=False,indent=2))
     return _merge_cues(_funasr_tokens_to_cues(
-        [w['text'] for w in corrected],[w['start'] for w in corrected],0,duration))
+        [w['text'] for w in corrected],[w['start'] for w in corrected],0,duration,
+        end_timestamps=[w['end'] for w in corrected]))
 
 
 def _transcribe_whisper(src, work, api_key):
@@ -1020,7 +1021,8 @@ def _asr_quality_gate(cues, audio_sec):
             f"音频可能是现场嘈杂/口音重/削顶失真，字幕大概率是乱码，放弃出片")
 
 
-def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
+def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur,
+                           end_timestamps=None):
     """Fun-ASR-Nano 的 tokens（含标点）+ timestamps → 字幕 cues。
 
     断句规则：句末标点（。！？）必断；逗号仅在接近 MAX_CHARS 时断；
@@ -1038,8 +1040,14 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur):
         buf, buf_text = [], ""
     for i, tok in enumerate(tokens):
         st = timestamps[i]
-        en = timestamps[i + 1] if i + 1 < len(timestamps) else chunk_dur
-        en = min(en, st + MAX_TOKEN_SEC)   # 单 token 封顶，避免跨静音把字幕拖长
+        if end_timestamps is not None:
+            # Qwen's reviewed multi-character repairs carry the immutable
+            # original phrase interval. Do not discard that evidence or
+            # compress an entire corrected sentence into a one-second token.
+            en = end_timestamps[i]
+        else:
+            en = timestamps[i + 1] if i + 1 < len(timestamps) else chunk_dur
+            en = min(en, st + MAX_TOKEN_SEC)  # 无显式词尾时防止跨静音拖长
         if tok in "。！？!?":
             if buf:
                 buf_text += tok
@@ -1745,7 +1753,11 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
             texts[short-1:short+1]=[texts[short-1]+texts[short]]
         else:
             texts[:2]=[texts[0]+texts[1]]
-    bounds={0,len(source)}|{b for a,b in word_spans(source)}
+    # `source` has punctuation removed, so dictionary tokenization can fuse
+    # neighbours that were separate in the real transcript (e.g. “不会错。钱”
+    # becomes the bogus token “错钱”). Original punctuation remains an exact,
+    # source-backed semantic boundary and must survive that normalization.
+    bounds={0,len(source)}|{b for a,b in word_spans(source)}|punctuation_bounds
 
     def fit_lines(text):
         """Return a legal per-cue capacity/font without crossing 38 px."""

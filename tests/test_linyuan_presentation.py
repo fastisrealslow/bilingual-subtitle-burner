@@ -204,6 +204,17 @@ def test_reviewed_subtitle_boundaries_still_reject_text_changes(tmp_path):
                                    reviewed_groups=['最后我相信中国人不会在这个领域独大'])
 
 
+def test_reviewed_subtitles_keep_original_punctuation_boundary(tmp_path):
+    entries=[
+        dict(start_sec=0,end_sec=2,zh='我们明眼人一看就知道不会错。'),
+        dict(start_sec=2,end_sec=4,zh='钱怎么来的还得怎么回去。'),
+    ]
+    result=P.semantic_caption_entries(
+        entries,None,V.layout_for(720,1280,True),tmp_path/'proof.json',
+        reviewed_groups=['我们明眼人一看就知道不会错','钱怎么来的还得怎么回去'])
+    assert ''.join(row['zh'] for row in result)=='我们明眼人一看就知道不会错钱怎么来的还得怎么回去'
+
+
 def test_zero_area_qr_false_candidate_is_not_decoded(tmp_path,monkeypatch):
     import cv2
     import numpy as np

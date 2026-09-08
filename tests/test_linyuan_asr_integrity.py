@@ -64,6 +64,14 @@ def test_punctuation_after_capacity_flush_is_not_lost():
     assert ''.join(c['text'] for c in cues) == ''.join(tokens)
 
 
+def test_reviewed_phrase_keeps_its_explicit_end_time():
+    cues=P._funasr_tokens_to_cues(
+        ['没有一个人能守住，只是什么时候清算的事。'],[10],0,30,
+        end_timestamps=[16.5])
+    assert cues==[{'start':10,'end':16.5,
+                   'text':'没有一个人能守住，只是什么时候清算的事。'}]
+
+
 def test_cache_binds_audio_model_and_exact_output(tmp_path, monkeypatch):
     src = tmp_path/'input.mp4'
     src.write_bytes(b'first audio')
