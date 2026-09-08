@@ -2791,6 +2791,16 @@ def publish_handler(event=None, context=None):
     if not video.exists():
         video = final_videos[k] if k < len(final_videos) else final_videos[0]
 
+    expected_sha256 = str(event.get("expected_sha256") or "").strip().lower()
+    if expected_sha256:
+        import hashlib
+        if (not re.fullmatch(r"[a-f0-9]{64}", expected_sha256)
+                or hashlib.sha256(video.read_bytes()).hexdigest() != expected_sha256
+                or (part.get("fingerprints") or {}).get("sha256") != expected_sha256):
+            log.error(f"✗ {slug} 指定成片与用户验收哈希不一致")
+            shutil.rmtree(tmp, ignore_errors=True)
+            return {"published": 0, "reviewed_checksum_mismatch": 1}
+
     # 优先用当前 part 的 meta 文案 + 封面
     meta_info = part
     title = (part.get("title") or e.get("title") or slug)
