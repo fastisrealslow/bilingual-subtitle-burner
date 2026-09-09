@@ -3,7 +3,7 @@
   "validation_sha256": "206318a45d0ebf44256da04fa709931110ccd1fb44f026ef0cd299109b8240aa",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788944370,
+  "updated_at": 1788944593,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -5621,7 +5621,14 @@
           "ly-0909-3c2ade"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0909-3c2ade",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "本地选段回答格式无效，未形成内容判定；保留ASR并重试"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5708,6 +5715,21 @@
         "family": "BV16Vjj6xEJy",
         "slugs": [
           "ly-0909-2d63c1"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1ta4y1Z7GA:p1",
+        "source_url": "https://www.bilibili.com/video/BV1ta4y1Z7GA",
+        "family": "BV1ta4y1Z7GA",
+        "slugs": [
+          "ly-0909-b9e5b8"
         ],
         "source_sha256": [],
         "failures": [],
@@ -6669,10 +6691,15 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1ta4y1Z7GA": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 7,
+  "in_flight_placeholders": 8,
   "artifacts": [
     {
       "slug": "ly-0908-fa57fb",
