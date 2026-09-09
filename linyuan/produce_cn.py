@@ -1491,11 +1491,10 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     choices=argument_context_candidates(cues,seeds)
     if not choices:return []
     transcript='\n'.join(f"{i}|{c['text']}" for i,c in enumerate(cues))
-    table=[]
-    for row in choices:
-        a,b=row['start'],row['end']
-        table.append({**row,'opening':''.join(c['text'] for c in cues[a:min(a+2,b+1)]),
-                      'ending':''.join(c['text'] for c in cues[max(a,b-1):b+1])})
+    # The complete numbered transcript already contains every opening/ending.
+    # Repeating those strings for 30-60 overlapping ranges inflated real CPU
+    # prompts past 12k chars (#632), without adding any source evidence.
+    table=choices
     prompt=(f'你是{speaker}访谈编辑。此前选出了有意义的短句，但用户要完整观点长片。'
         '以下候选是这些观点附近的真实连续上下文，每条已由程序确保至少120秒。'
         '从候选ID中选至多2条：一个完整主题、开头独立可懂、解释充分、自然结束。'
