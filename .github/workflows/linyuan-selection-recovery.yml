@@ -1,0 +1,43 @@
+name: 林园选段故障修复验收
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-selection-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-selection-recovery
+  cancel-in-progress: false
+jobs:
+  verify-and-recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 选段结构、时长与现有质量门禁回归
+        run: |
+          pip install -q pytest 'opencv-python-headless<5' jieba requests
+          python -m pytest -q tests/test_linyuan_selection_incident.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_quality_gates.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_source_supply.py
+      - name: 回放四个失败任务保存的真实回答与转写
+        run: |
+          gh run download 34324232881 -n editorial-ly-0909-09068a -D /tmp/selection-incident/34324232881
+          gh run download 34324248124 -n editorial-ly-0909-a2a732 -D /tmp/selection-incident/34324248124
+          gh run download 34324263270 -n editorial-ly-0909-7c4660 -D /tmp/selection-incident/34324263270
+          gh run download 34324276167 -n editorial-ly-0909-7d480e -D /tmp/selection-incident/34324276167
+          python linyuan/replay_selection_incident.py /tmp/selection-incident > /tmp/selection-replay.json
+          cat /tmp/selection-replay.json
+      - name: 复用失败母片缓存，触发一条实际生产并登记库存队列
+        run: python linyuan/register_selection_recovery.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selection-incident-replay
+          path: /tmp/selection-replay.json
+          if-no-files-found: warn

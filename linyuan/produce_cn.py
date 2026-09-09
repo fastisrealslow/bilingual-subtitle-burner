@@ -1385,11 +1385,12 @@ def parse_llm_json_array(out):
     out = re.sub(r"```[a-zA-Z]*", "", out)
     out = out.replace("```", "")
     single = _loads(out.strip())
-    if (isinstance(single, dict) and {'start','end','score','reason'} <= single.keys()
-            and type(single['start']) is int and type(single['end']) is int):
-        # Ollama JSON mode returned this exact shape in run 34228214027.
-        # Normalize the container only; range/score/argument gates still apply.
-        return [single]
+    if isinstance(single, dict):
+        if isinstance(single.get('picks'), list):
+            return single['picks']
+        if 'candidate_id' in single or {'start', 'end'} <= single.keys():
+            # Normalize only the container; callers verify real ranges.
+            return [single]
     m = re.search(r"\[.*\]", out, re.S)
     if not m:
         raise RuntimeError(f"金句返回无法解析(无数组):{out[:300]}")
@@ -1440,7 +1441,7 @@ def argument_context_candidates(cues,seeds):
             stamp=cues[lo]['start']-lookback
             a=min(range(lo+1),key=lambda i:abs(cues[i]['start']-stamp))
             start_options.add(a)
-        for a in start_options:
+        for a in sorted(start_options):
             for length in (120,150,180,210,240,300):
                 ends=[j for j in range(max(a,hi),len(cues))
                       if cues[j]['end']-cues[a]['start']>=editorial.MIN_SECONDS]
@@ -1452,7 +1453,27 @@ def argument_context_candidates(cues,seeds):
     return [dict(row,candidate_id=i) for i,row in enumerate(ranges.values())]
 
 
+def selection_schema(cue_count=None, candidate_count=None):
+    """Constrain CPU output shape and IDs; timestamps are verified in Python."""
+    properties = {'score': {'type': 'number', 'minimum': 0, 'maximum': 10},
+                  'reason': {'type': 'string'}}
+    if candidate_count is not None:
+        properties.update(candidate_id={'type': 'integer', 'minimum': 0,
+                                        'maximum': candidate_count - 1},
+                          accepted={'type': 'boolean'})
+    else:
+        properties.update({k: {'type': 'integer', 'minimum': 0,
+                               'maximum': cue_count - 1} for k in ('start', 'end')})
+    return {'type': 'object', 'properties': {'picks': {'type': 'array',
+        'maxItems': 2, 'items': {'type': 'object', 'properties': properties,
+            'required': list(properties), 'additionalProperties': False}}},
+        'required': ['picks'], 'additionalProperties': False}
+
+
 def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
+    if not any(type(p.get('start')) is int and type(p.get('end')) is int
+               and 0 <= p['start'] <= p['end'] < len(cues) for p in seeds):
+        raise ValueError('原选段没有有效字幕编号，不能判定素材不合格')
     choices=argument_context_candidates(cues,seeds)
     if not choices:return []
     transcript='\n'.join(f"{i}|{c['text']}" for i,c in enumerate(cues))
@@ -1467,14 +1488,21 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         '必须连同中间原文阅读判断，不能仅看首尾或因为时长足够就接受。'
         '无关问题拼在一起、寒暄开场、缺必要解释、残句结束必须拒绝。'
         '可以选较长候选保留同主题追问，不得改写文字。没有合格候选就返回[]。'
-        '只输出JSON数组，每项candidate_id,score(至少7),reason。\n完整原文：\n'+transcript+
+        '只输出JSON对象，picks字段为数组，每项candidate_id,accepted,score,reason。'
+        '只有上述条件全部满足才设accepted=true，否则设false；无合格项返回{"picks":[]}。'
+        '不得自行填写起止序号或时长，程序按candidate_id取真实区间。\n完整原文：\n'+transcript+
         '\n候选：\n'+json.dumps(table,ensure_ascii=False))
-    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,budget_sec=text_budget(90))
+    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,
+               budget_sec=text_budget(90),response_schema=selection_schema(candidate_count=len(choices)))
     (work/f'context_response{suffix}.txt').write_text(answer)
     selected=[]
     for row in parse_llm_json_array(answer):
+        if not isinstance(row,dict) or type(row.get('accepted')) is not bool:
+            raise ValueError('连续上下文缺少明确接受或拒绝结论')
         i=row.get('candidate_id')
-        if type(i) is not int or not 0<=i<len(choices) or float(row.get('score',0))<MIN_HIGHLIGHT_SCORE:
+        if type(i) is not int or not 0<=i<len(choices):
+            raise ValueError('连续上下文候选ID无效，未形成内容判定')
+        if row.get('accepted') is False or float(row.get('score',0))<MIN_HIGHLIGHT_SCORE:
             continue
         choice=choices[i]
         if any(not(choice['end']<p['start'] or choice['start']>p['end']) for p in selected):
@@ -1500,7 +1528,7 @@ def editorial_sentence_units(cues):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 7}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 8}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1532,25 +1560,37 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         "再核算时长，不能直接从开头截到恰好120秒；不得把片头预告、寒暄和正式采访混成一段。"
         "片尾必须包含回答及结论，不能用下一个未回答的问题凑够120秒。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
-        "只返回JSON数组，每项包含start,end,score(至少7),reason(完整主题)。\n"+numbered)
+        '只返回JSON对象，picks字段为数组，每项包含start,end,score(至少7),reason(完整主题)。'
+        '没有合格选段返回{"picks":[]}。\n'+numbered)
     valid=[];seeds=[];parsed_response=False
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,
-                         temperature=0,max_tokens=2400,budget_sec=text_budget(90))
+                         temperature=0,max_tokens=2400,budget_sec=text_budget(90),
+                         response_schema=selection_schema(cue_count=len(cues)))
             (work/f'highlight_response{suffix}-{attempt}.txt').write_text(response)
             picks=parse_llm_json_array(response)
+            if any(not isinstance(p,dict) or not {'start','end','score'} <= p.keys()
+                   for p in picks):
+                raise ValueError('选段字段无效')
             parsed_response=True
             seeds.extend(p for p in picks if float(p.get('score',0))>=MIN_HIGHLIGHT_SCORE)
+            invalid=[]
             for pick in picks:
                 if float(pick.get('score',0)) < MIN_HIGHLIGHT_SCORE:
                     continue
-                editorial.range_seconds(cues,pick)
+                try:
+                    editorial.range_seconds(cues,pick)
+                except (ValueError,TypeError,KeyError) as exc:
+                    invalid.append(str(exc))
+                    continue
                 if any(not(pick['end']<v['start'] or pick['start']>v['end']) for v in valid):
                     continue
                 valid.append(pick)
             if valid or not picks:
                 break
+            if invalid:
+                raise ValueError('; '.join(invalid))
         except LocalTextUnavailable:
             raise
         except (ValueError,TypeError,KeyError,RuntimeError) as exc:
@@ -1566,7 +1606,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             raise
         except (ValueError,TypeError,KeyError,RuntimeError) as exc:
             print('[完整观点] 连续上下文候选未通过：'+str(exc))
-            valid=[]
+            raise LocalTextUnavailable('连续上下文选段格式或编号无效；保留ASR并重试，不判素材不合格') from exc
     valid.sort(key=lambda p:p['start'])
     cache.write_text(json.dumps({'identity':identity,'picks':valid},ensure_ascii=False,indent=2))
     return valid
