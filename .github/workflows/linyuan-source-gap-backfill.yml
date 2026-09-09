@@ -1,20 +1,11 @@
-name: 林园来源缺口补齐
+name: 林园来源缺口补齐（手动维护入口）
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/linyuan-source-gap-backfill.yml
-      - linyuan/source_gap_backfill.py
-      - linyuan/source_lineage.json
   workflow_dispatch:
     inputs:
       probe_media:
         type: boolean
         default: false
         description: 是否重取参考片与母片截图
-  workflow_run:
-    workflows: ['林园监控 · 每日抓取']
-    types: [completed]
 permissions:
   contents: write
 concurrency:

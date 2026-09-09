@@ -1,12 +1,14 @@
 name: 林园监控 · 每日抓取
 
-# 只做监控和元数据更新，不出片 —— 抓取是轻量高频的（约 1 分钟），
-# 出片是重计算（十几分钟），两者分开，互不拖累。
+# 日常抓取包含来源溯源、持久化重试与媒体证据；正式出片仍由生产工作流执行。
 #
 # 视频不进仓库：GitHub 仓库软限制 1GB、单文件 100MB，而素材动辄数 GB。
 # 需要视频时由 produce-cn.yml 现取现用。
 
 on:
+  schedule:
+    # 北京时间每天 09:17、18:17；FC仍负责既有发布与生产调度。
+    - cron: '17 1,10 * * *'
   # Editing this workflow is also an explicit, auditable way to perform an
   # immediate refresh when GitHub's scheduled delivery is late.  Other source
   # or state commits do not retrigger the crawler.
@@ -18,6 +20,9 @@ on:
       - .github/workflows/linyuan-monitor.yml
       - linyuan/monitor_v2.py
       - linyuan/monitor_v2_config.json
+      - linyuan/source_gap_backfill.py
+      - linyuan/source_research.py
+      - linyuan/source_lineage.json
   workflow_dispatch:
     inputs:
       refresh_up_list:
@@ -36,13 +41,15 @@ concurrency:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: linyuan
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-python@v5
         with:
@@ -53,7 +60,44 @@ jobs:
       - name: 安装系统依赖
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq poppler-utils
+          sudo apt-get install -y -qq poppler-utils ffmpeg
+          python -m pip install -q pytest yt-dlp
+
+      - name: 来源自动重试回归
+        working-directory: .
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py
+
+      - name: 恢复已核验来源证据
+        uses: actions/cache/restore@v4
+        with:
+          path: linyuan/.source-research-cache
+          key: source-research-v1-${{ github.run_id }}
+          restore-keys: source-research-v1-
+
+      - name: 更新参考目录与来源对应关系
+        run: python -u source_gap_backfill.py
+
+      - name: 自动补源、重试下载并比对实际音频
+        timeout-minutes: 20
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python -u source_research.py --max-items 3 --max-queries 3 --download-budget 300
+
+      - name: 保存来源核验缓存
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: linyuan/.source-research-cache
+          key: source-research-v1-${{ github.run_id }}
+
+      - name: 留存本轮来源证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-research-evidence-${{ github.run_id }}
+          path: /tmp/source-research-evidence/
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: 接口健康巡检
         id: health
@@ -61,6 +105,8 @@ jobs:
         run: python3 healthcheck.py
 
       - name: 抓取全部源
+        timeout-minutes: 18
+        continue-on-error: true
         id: fetch
         run: |
           set -o pipefail
@@ -77,7 +123,12 @@ jobs:
         continue-on-error: true
         run: python3 backtest.py 2>&1 | tee /tmp/backtest.log
 
+      - name: 合并来源证据并导出最新台账
+        if: always()
+        run: python -u source_gap_backfill.py --offline
+
       - name: 提交元数据变更
+        if: always()
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
@@ -86,11 +137,14 @@ jobs:
           # 路径绝不能带 linyuan/ 前缀 —— 带前缀会因 pathspec 不匹配而静默
           # 跳过，每次 run 都假报「无变更」，数据永远提交不上来。
           git add -A -- dashboard/data.json monitor_v2.db up_videos.json *_seeds.json
+          for report in .automation/source_gap_audit.json .automation/source_research_state.json .automation/source_research_report.json; do
+            if [ -f "$report" ]; then git add -f "$report"; fi
+          done
           if git diff --staged --quiet; then
             echo "无变更"
             exit 0
           fi
-          git commit -m "chore(monitor): 自动更新 (+${{ steps.fetch.outputs.new }} 条)"
+          git commit -m "chore(monitor): update discovery and persistent source research (+${{ steps.fetch.outputs.new }} records)"
           # 定时任务之间不会撞车，但手动触发可能和定时重叠
           for i in 1 2 3 4 5; do
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" \
@@ -99,6 +153,12 @@ jobs:
             sleep $(( i * 5 ))
           done
           echo "::error::元数据提交失败，抓取结果只在本次 run 的日志里"
+          exit 1
+
+      - name: 报告抓取失败（已保存可恢复的补库进度）
+        if: always() && steps.fetch.outcome == 'failure'
+        run: |
+          echo '::error::常规抓取未完整完成，已提交成功渠道结果及来源重试队列；查看抓取日志。'
           exit 1
 
       # Completion triggers inventory verification. FC refills every 30 minutes
@@ -128,5 +188,6 @@ jobs:
           path: |
             /tmp/fetch.log
             /tmp/backtest.log
+            linyuan/.automation/source_research_report.json
           retention-days: 14
           if-no-files-found: ignore
