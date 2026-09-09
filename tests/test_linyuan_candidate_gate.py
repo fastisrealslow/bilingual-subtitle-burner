@@ -19,6 +19,8 @@ LOCAL = _load("linyuan_stage_and_dispatch", "linyuan/stage_and_dispatch.py")
 
 
 BAD_TITLES = [
+    "林园好友谈林园：巴菲特和他一样，把风险控制放第一",
+    "林园朋友访谈：讲述与林园认识三十年的经历",
     "林园也这样看！",  # BV1qMtZ6cEc8 的错误源片：全片是另一位男性
     "与林园并肩的百亿私募巨擘，但斌怎么看科技股",
     "林园遭点名，多家私募年内领到罚单",
@@ -57,4 +59,3 @@ def test_bad_sample_never_enters_fc_candidate_pool():
     }]
     state = {"dispatched": [], "rejected": [], "published": {}}
     assert FC.pick(items, state, 10) == []
-

@@ -1,0 +1,52 @@
+name: 林园原文选段实产验收
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-source-editor-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证不依赖模型的原文问答和片尾读取
+        run: |
+          pip install -q pytest jieba pillow 'opencv-python<5'
+          python -m pytest -q tests/test_linyuan_source_selection.py tests/test_linyuan_candidate_gate.py tests/test_linyuan_live_tracking.py
+      - name: 用真实母片ASR重选，禁止读取旧选段或请求模型
+        run: |
+          gh run download 34340237266 --pattern 'debug-*' -D /tmp/actual622
+          PYTHONPATH=linyuan python - <<'PY'
+          import json,tempfile,os
+          from pathlib import Path
+          from unittest.mock import patch
+          from source_selection import select
+          import produce_cn as p
+          root=next(Path('/tmp/actual622').rglob('cues_raw.json')).parent
+          cues=json.loads((root/'cues_raw.json').read_text())
+          picks=select(cues,whole_source=True)
+          assert len(picks)==2
+          os.environ['SOURCE_EDITORIAL_FIRST']='true'
+          with tempfile.TemporaryDirectory() as tmp, patch.object(p,'llm',side_effect=AssertionError('Uncached source editing must not call a model')):
+              for i,row in enumerate(picks):
+                  selected=list(range(row['start'],row['end']+1))
+                  copy=p.copywrite(cues,selected,'林园','红周刊访谈','',Path(tmp),suffix=str(i))
+                  print(cues[selected[0]]['start'],cues[selected[-1]]['end'],copy['title'])
+          PY
+      - name: 补齐第648次已验收成片的独立备份
+        run: |
+          gh run download 34343086627 -n deliver-ly-0909-09068a-tracked15 -D /tmp/accepted648
+          tag=deliver-ly-0909-09068a-tracked15
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title '成品库 · ly-0909-09068a-tracked15' --notes '通过实际成片门禁的原始交付备份。'
+          gh release upload "$tag" /tmp/accepted648/ly-0909-09068a-tracked15.* --clobber
+      - name: 正常生产重新选出的问答，仍逐条验片
+        run: python linyuan/register_selection_recovery.py --suffix sourceqa19 --evidence-run 34340237266

@@ -1468,7 +1468,7 @@ def argument_context_candidates(cues,seeds):
 def selection_schema(cue_count=None, candidate_count=None):
     """Constrain CPU output shape and IDs; timestamps are verified in Python."""
     properties = {'score': {'type': 'number', 'minimum': 0, 'maximum': 10},
-                  'reason': {'type': 'string'}}
+                  'reason': {'type': 'string', 'maxLength': 60}}
     if candidate_count is not None:
         properties.update(candidate_id={'type': 'integer', 'minimum': 0,
                                         'maximum': candidate_count - 1},
@@ -1504,7 +1504,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         '只有上述条件全部满足才设accepted=true，否则设false；无合格项返回{"picks":[]}。'
         '不得自行填写起止序号或时长，程序按candidate_id取真实区间。\n完整原文：\n'+transcript+
         '\n候选：\n'+json.dumps(table,ensure_ascii=False))
-    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=1800,
+    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=512,
                budget_sec=text_budget(90),response_schema=selection_schema(candidate_count=len(choices)))
     (work/f'context_response{suffix}.txt').write_text(answer)
     selected=[]
@@ -1553,6 +1553,13 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             pass
     if not cues or cues[-1]['end']-cues[0]['start'] < editorial.MIN_SECONDS:
         return []
+    if os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true':
+        from source_selection import select
+        selected=select(cues)
+        if selected:
+            print(f'[原文选段] {len(selected)}条连续候选；无需等待文本模型，逐条进入实片质检',flush=True)
+            cache.write_text(json.dumps({'identity':identity,'picks':selected},ensure_ascii=False,indent=2))
+            return selected
     numbered_rows=[]
     for unit in editorial_sentence_units(cues):
         a,b=unit['start'],unit['end']
@@ -1578,7 +1585,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,
-                         temperature=0,max_tokens=2400,budget_sec=text_budget(90),
+                         temperature=0,max_tokens=512,budget_sec=text_budget(90),
                          response_schema=selection_schema(cue_count=len(cues)))
             (work/f'highlight_response{suffix}-{attempt}.txt').write_text(response)
             picks=parse_llm_json_array(response)
@@ -2724,6 +2731,15 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     """下载后的素材闸门；任何 ASR、切片和编码开始前必须通过。"""
     report_path = Path(report_path or (work / "source_quality.json"))
     report_path.parent.mkdir(parents=True, exist_ok=True)
+    # #630/#651: the visible subject is Lin Yuan, but the audio explicitly
+    # belongs to his friend Wang Hong. Face matching cannot establish authorship.
+    source_hash=_file_sha256(src)
+    if speaker=='林园' and source_hash=='87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
+        report=dict(quality_gate_version=QUALITY_GATE_VERSION,source_sha256=source_hash,
+            speaker=speaker,passed=False,retryable=False,failure_stage='source-quality',
+            reason='已核对原始转写：王红讲述自己与林园的经历，非林园本人发言，禁止错误署名')
+        report_path.write_text(json.dumps(report,ensure_ascii=False,indent=2))
+        return report
     # An obsolete cached verdict is a cache miss, not a verdict about this
     # source. Re-run today's full gate; never upgrade an old pass flag.
     try:
@@ -2812,6 +2828,8 @@ def load_source_quality_report(src, report_path):
         raise VisualQualityError("素材质检报告版本过旧")
     if report.get("source_sha256") != _file_sha256(src):
         raise VisualQualityError("素材质检报告与当前视频不匹配")
+    if report.get('speaker')=='林园' and report.get('source_sha256')=='87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
+        raise VisualQualityError('已核对：该源为王红讲述林园，历史人脸通过记录不能证明声音归属')
     if report.get("passed") is not True:
         raise VisualQualityError(report.get("reason") or "素材质检未通过")
     if report.get("has_existing_subtitles") is not False:
@@ -3037,6 +3055,16 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except ValueError:
             pass
     sample = "\n".join(cues[i]["text"] for i in sel)
+    if os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true':
+        from headline_policy import title_candidates
+        for title in title_candidates(transcript_text,speaker,existing_titles):
+            if title_quality_error(title,speaker,transcript_text,existing_titles,require_quote=require_quote):continue
+            result=attach_copy(dict(title=title,desc=f'{speaker}在{occasion}的公开发言选段。',
+                tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True),
+                transcript_text,speaker,existing_titles)
+            cache.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+            print(f'[原文文案] {title}',flush=True)
+            return result
     prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选:
 
 {sample}
@@ -4846,7 +4874,16 @@ def main():
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
     selection_failures = []
     work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
-    if curated is None and args.split_highlights and not args.target_parts:
+    source_picks=[]
+    if (curated is None and args.split_highlights and not args.target_parts
+            and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
+        from source_selection import select
+        source_picks=select(cues,whole_source=True)
+        if source_picks:
+            work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
+            (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
+            print(f'[原文选段] 直接保留{len(source_picks)}组原始提问及连续回答，跳过模型选段',flush=True)
+    if curated is None and args.split_highlights and not args.target_parts and not source_picks:
         work_items = []
         for block_no, (a, b) in enumerate(chunks, 1):
             block_cues = cues[a:b + 1]

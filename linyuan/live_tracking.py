@@ -2,6 +2,21 @@
 import json
 from pathlib import Path
 import subprocess
+import math
+
+
+def frame_interval(start,duration,fps,total_frames):
+    """Use one frame grid for seek and length; never request frames past EOF."""
+    if not all(math.isfinite(v) for v in (start,duration,fps)) or start<0 or duration<=0 or not 0<fps<=120:
+        raise ValueError('动态取景时间或帧率无效')
+    first=round(start*fps)
+    count=round(duration*fps)
+    if total_frames>0 and first+count>total_frames:
+        shortage=first+count-total_frames
+        if shortage>2:raise ValueError(f'源视频比选段短{shortage/fps:.3f}秒，须重新核对音视频边界')
+        count=total_frames-first  # At most two frame rounding; no padding frames.
+    if count<=0:raise ValueError('选段位于源视频帧范围之外')
+    return first,count
 
 
 def crop_box(face, width, height, ratio=632/470, exclusions=()):
@@ -53,8 +68,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     identity=recognizer.feature(recognizer.alignCrop(ref,rf))
     cap=cv2.VideoCapture(str(src));fps=cap.get(cv2.CAP_PROP_FPS)
     if not fps or fps>120:raise ValueError('动态取景源帧率无效')
-    cap.set(cv2.CAP_PROP_POS_MSEC,start*1000)
-    count=round(duration*fps)
+    first_frame,count=frame_interval(start,duration,fps,round(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
+    cap.set(cv2.CAP_PROP_POS_FRAMES,first_frame)
     output=Path(output); log=output.with_suffix('.ffmpeg.log')
     matched=0;missing=0;longest_missing=0;previous=None;first=None;last=None
     other_faces=0;no_face=0;blank_streak=0
@@ -66,7 +81,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
         try:
             for n in range(count):
                 ok,frame=cap.read()
-                if not ok:raise ValueError('动态取景源视频提前结束')
+                if not ok:raise ValueError(f'动态取景解码提前结束：实际{n}/{count}帧，起始帧{first_frame}，fps={fps}')
                 height,width=frame.shape[:2]; candidates=[]
                 detected=faces(frame)
                 for face in detected:
@@ -117,6 +132,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     if matched/count<.8:
         output.unlink(missing_ok=True);raise ValueError('动态取景目标人物匹配不足80%')
     proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
+        source_first_frame=first_frame,encoded_duration=count/fps,
         frames=count,matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
         longest_unmatched_seconds=longest_missing/fps,
         first_crop=first,last_crop=last,threshold=threshold)
