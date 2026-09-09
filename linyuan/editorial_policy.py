@@ -245,6 +245,9 @@ def title_attribution_error(title):
 
 
 def metadata_error(meta, actual_seconds=None):
+    if (meta.get('speaker')=='林园' and meta.get('source_sha256')==
+            '87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1'):
+        return '已核对该源为王红谈林园，不能作为林园本人原声发布'
     attribution=title_attribution_error(meta.get('title'))
     if attribution:return attribution
     try:

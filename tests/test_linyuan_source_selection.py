@@ -53,6 +53,7 @@ def test_known_third_party_audio_cannot_reuse_a_face_approval(tmp_path):
         cache.assert_not_called()
         with pytest.raises(p.VisualQualityError,match='王红'):
             p.load_source_quality_report(Path('source.mp4'),tmp_path/'source_quality.json')
+    assert '王红' in p.editorial.metadata_error(dict(speaker='林园',source_sha256=bad))
 
 
 def test_seek_and_eof_use_same_grid_without_padding():
