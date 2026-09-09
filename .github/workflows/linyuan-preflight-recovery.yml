@@ -1,0 +1,28 @@
+name: 林园恢复因前置依赖失败的素材
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-preflight-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证完整实产前置检查
+        run: |
+          python -m pip install -q pytest jieba
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py
+      - name: 第635次素材重新进入正常质检
+        run: python linyuan/register_selection_recovery.py --origin-slug ly-0909-29cff8 --expected-source https://www.bilibili.com/video/BV1TkfCBSEN5 --suffix deps11
+      - name: 第636次素材重新进入正常质检
+        run: python linyuan/register_selection_recovery.py --origin-slug ly-0909-580a9e --expected-source https://www.bilibili.com/video/BV1sVbg6LEJe --suffix deps11
