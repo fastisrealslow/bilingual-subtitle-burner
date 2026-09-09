@@ -1848,9 +1848,8 @@ def dependent_caption_start(text):
     return text[a:b] in {'的','地','得'}
 
 
-def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
-    """Validate source- or model-selected boundaries against text and timing."""
-    from presentation import word_spans, wrap_words
+def caption_timeline(entries):
+    """One shared character/time map for planning and final validation."""
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
     chars=[]; entry_bounds=set(); punctuation_bounds=set()
     for i,e in enumerate(entries):
@@ -1864,6 +1863,14 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 punctuation_bounds.add(len(chars))
         if chars:
             entry_bounds.add(len(chars))
+    return chars,entry_bounds,punctuation_bounds
+
+
+def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
+    """Validate source- or model-selected boundaries against text and timing."""
+    from presentation import word_spans, wrap_words
+    strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
+    chars,entry_bounds,punctuation_bounds=caption_timeline(entries)
     source=''.join(c[0] for c in chars)
     if not isinstance(texts,list) or not texts or not all(isinstance(t,str) and strip(t) for t in texts):
         raise ValueError('完整意群分组为空或格式错误')
@@ -2016,9 +2023,70 @@ def token_breaks_to_char_offsets(selected, tokens):
     return [tokens[n-1]['end'] for n in selected]
 
 
-def caption_break_schema(token_count):
+def source_caption_groups(entries, layout):
+    """Plan readable screens using words, grammar, source pauses and timestamps.
+
+    Screen boundaries are layout decisions, not edits to the spoken argument.
+    No characters, timestamps, negations, entity names or numeric units change.
+    The existing independent validator checks the complete result afterwards.
+    """
+    from presentation import word_spans,wrap_words
+    import jieba.posseg as posseg
+    chars,entry_bounds,punctuation_bounds=caption_timeline(entries)
+    source=''.join(c[0] for c in chars)
+    if not source:raise ValueError('字幕原文为空')
+    bounds=sorted({0,len(source)}|{b for a,b in word_spans(source)}|punctuation_bounds)
+    tagged=list(posseg.cut(source));pos={};offset=0
+    for word in tagged:
+        pos[offset]=(word.word,word.flag);offset+=len(word.word)
+    ends={a+len(word): (word,tag) for a,(word,tag) in pos.items()}
+    capacity=layout['line_capacity'];font=layout.get('subtitle_font_px')
+    max_capacity=max(capacity,int(font*capacity/38)) if font else capacity
+    best={0:(0,[])}
+    for i,a in enumerate(bounds):
+        if a not in best:continue
+        for b in bounds[i+1:]:
+            if b-a>2*max_capacity:break
+            part=source[a:b]
+            duration=chars[b-1][2]-chars[a][1]
+            if duration>8:break
+            if duration<.8:continue
+            if unfinished_caption_tail(part) or dependent_caption_start(part):continue
+            if part.startswith('的话'):continue
+            if b<len(source) and (re.search(r'(?:就像|比如说|确实|不会|不能|应该|必须|需要|认为|觉得)$',part)
+                    or part.endswith('会') and not part.endswith(('社会','机会','体会','学会','协会','大会'))):
+                continue
+            # Keep negation, prepositions, classifiers and verb/object pairs
+            # together even if a noisy ASR cue boundary falls between them.
+            tail,tail_tag=ends.get(b,('',''))
+            following,next_tag=pos.get(b,('',''))
+            if b<len(source) and (tail in {'不','没','未','别','不会','不能','没有','不是','并非',
+                    '应该','必须','需要','想','觉得','认为','知道','相信','就像','比如说',
+                    '和','或','为','在','更','就','也','地','得'}
+                    or tail_tag in {'p','c','q','u','uj','ul','d'} and tail not in {'了','着','过','的'}
+                    or tail_tag.startswith('v') and next_tag.startswith(('n','r'))
+                    or tail_tag.startswith('v') and b not in punctuation_bounds
+                    or tail_tag.startswith(('a','s','f','b','n')) and next_tag.startswith('n')):
+                continue
+            if b<len(source) and part.endswith(('国内','国外','海外')) and next_tag.startswith(('n','r')):continue
+            if following in {'的','地','得'}:continue
+            fits=False
+            for cap in range(capacity,max_capacity+1):
+                try:wrap_words(part,cap);fits=True;break
+                except ValueError:pass
+            if not fits:continue
+            gap=(chars[b][1]-chars[b-1][2]) if b<len(chars) else 0
+            boundary_cost=(0 if b in punctuation_bounds else
+                           2 if gap>=.35 else 4 if b in entry_bounds else 10)
+            cost=best[a][0]+boundary_cost+abs(len(part)-16)/3+(8 if len(part)<5 else 0)
+            if b not in best or cost<best[b][0]:best[b]=(cost,best[a][1]+[part])
+    if len(source) not in best:raise ValueError('没有满足词界、意群和显示时长的本地分屏路径')
+    return best[len(source)][1]
+
+
+def caption_break_schema(token_count, char_count=1, max_group_chars=30):
     return {'type':'object','properties':{'break_after_tokens':{
-        'type':'array','minItems':1,'maxItems':token_count,
+        'type':'array','minItems':max(1,(char_count+max_group_chars-1)//max_group_chars),'maxItems':token_count,
         'items':{'type':'integer','minimum':1,'maximum':token_count}}},
         'required':['break_after_tokens'],'additionalProperties':False}
 
@@ -2060,6 +2128,14 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
             return result
         except ValueError as exc:
             print('[字幕分屏] 原文边界需进一步分组：'+str(exc),flush=True)
+    try:
+        groups=source_caption_groups(entries,layout)
+        result=apply_semantic_groups(entries,groups,capacity,layout.get('subtitle_font_px'))
+        cache_path.write_text(json.dumps(groups,ensure_ascii=False,indent=2))
+        print(f'[字幕分屏] 本地词界、停顿与意群规划通过全部校验：{len(result)}屏',flush=True)
+        return result
+    except ValueError as exc:
+        print('[字幕分屏] 本地规划需要补充：'+str(exc),flush=True)
     from presentation import word_spans
     # Ask for boundary indices, never a copied transcript: models tend to
     # silently repair spoken repetitions/ASR errors while copying strings.
@@ -2093,7 +2169,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
                 '词序列：'+compact_caption_tokens(choices))
             answer=llm([{'role':'user','content':request}],api_key,
                        temperature=0,max_tokens=1000,budget_sec=text_budget(45),
-                       response_schema=caption_break_schema(len(choices)))
+                       response_schema=caption_break_schema(len(choices),len(parent),max_group_chars))
             local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices)
             if (not isinstance(local,list) or not local
                     or any(type(n) is not int for n in local)
@@ -2122,7 +2198,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
     for attempt in range(3):
         try:
             response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=1000,
-                         budget_sec=text_budget(60),response_schema=caption_break_schema(len(tokens)))
+                         budget_sec=text_budget(60),response_schema=caption_break_schema(len(tokens),len(transcript),max_group_chars))
             cache_path.with_suffix(f'.attempt{attempt+1}.txt').write_text(response,encoding='utf-8')
             breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens)
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):

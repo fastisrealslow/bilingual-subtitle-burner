@@ -358,6 +358,7 @@ def test_long_group_can_use_real_punctuation_inside_an_asr_cue():
 
 def test_semantic_caption_repairs_oversized_parent_with_focused_model_call(
         tmp_path, monkeypatch):
+    monkeypatch.setattr(P,'source_caption_groups',lambda *a: (_ for _ in ()).throw(ValueError('Exercise model fallback')))
     entries = [
         dict(start_sec=0, end_sec=2, zh='我们长期持有优秀企业'),
         dict(start_sec=2, end_sec=4, zh='因为现金流能够持续增长'),
