@@ -87,8 +87,43 @@ def test_editorial_schema_evidence_only_contains_retained_source(monkeypatch,tmp
             opening_quote='医药需求随老龄化增长。',ending_quote='这是我们的判断。'))
     monkeypatch.setattr(P,'llm',review)
     result=P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
-    assert result['review_prompt_version']==3
+    assert result['review_prompt_version']==4
     assert (tmp_path/'editorial_response-0.txt').exists()
+
+
+def test_review_evidence_rejoins_display_rows_before_checking_completeness(monkeypatch,tmp_path):
+    cues=[dict(start=0,end=60,text='科技股它现在还在走牛市，传统的股票它'),
+          dict(start=60,end=120,text='是在走熊市。')]
+    def review(messages,api_key,**options):
+        evidence=options['response_schema']['properties']['issues']['items']['enum']
+        assert cues[0]['text'] not in evidence
+        assert ''.join(c['text'] for c in cues) in evidence
+        return json.dumps(dict(standalone_opening=True,complete_argument=True,
+            reasoning_present=True,natural_ending=True,requires_audio_review=False,
+            summary='测试完整句证据传输',issues=[],issue_details=[],
+            opening_quote=cues[0]['text'],ending_quote=cues[1]['text']))
+    monkeypatch.setattr(P,'llm',review)
+    P.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')
+
+
+def test_model_cannot_substitute_middle_quote_for_actual_unanswered_ending(monkeypatch,tmp_path):
+    cues=[dict(start=0,end=120,text='我们投资慢性病治疗。这能延长生命。那其他行业呢？')]
+    response=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False,summary='慢性病投资',issues=[],
+        opening_quote='我们投资慢性病治疗。',ending_quote='这能延长生命。')
+    monkeypatch.setattr(P,'llm',lambda *a,**kw:json.dumps(response))
+    with pytest.raises(P.EditorialReviewUnavailable,match='不是实际选段的结尾'):
+        P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
+    assert not (tmp_path/'editorial_review.json').exists()
+
+
+def test_sentence_display_preserves_split_words_and_original_indices():
+    cues=[dict(start=0,end=1,text='百分之一'),dict(start=1,end=2,text='百的风险。'),
+          dict(start=2,end=3,text='但不能忽略行业机会。')]
+    units=P.editorial_sentence_units(cues)
+    assert units==[dict(start=0,end=1,text='百分之一百的风险。'),
+                   dict(start=2,end=2,text='但不能忽略行业机会。')]
+    assert ''.join(x['text'] for x in units)==''.join(x['text'] for x in cues)
 
 
 def test_explicit_budget_still_bounds_local_request(monkeypatch,tmp_path):

@@ -1479,10 +1479,24 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     return selected[:2]
 
 
+def editorial_sentence_units(cues):
+    """Read ASR display rows as continuous speech, without rewriting a byte."""
+    units=[]
+    start=0
+    text=''
+    for i,cue in enumerate(cues):
+        text+=cue['text']
+        if re.search(r'[。！？!?][”’」』\"]?\s*$',text) or i==len(cues)-1:
+            units.append(dict(start=start,end=i,text=text))
+            start=i+1
+            text=''
+    return units
+
+
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 6}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 7}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1496,11 +1510,9 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     if not cues or cues[-1]['end']-cues[0]['start'] < editorial.MIN_SECONDS:
         return []
     numbered_rows=[]
-    for i,c in enumerate(cues):
-        earliest=next((j for j in range(i,len(cues))
-                       if cues[j]['end']-c['start'] >= editorial.MIN_SECONDS),None)
-        floor=str(earliest) if earliest is not None else '不可作为起点'
-        numbered_rows.append(f"{i}|{c['start']:.2f}-{c['end']:.2f}|最早允许end={floor}|{c['text']}")
+    for unit in editorial_sentence_units(cues):
+        a,b=unit['start'],unit['end']
+        numbered_rows.append(f"字幕{a}-{b}|{cues[a]['start']:.2f}-{cues[b]['end']:.2f}秒|{unit['text']}")
     numbered="\n".join(numbered_rows)
     prompt = (
         f"你是{speaker}访谈编辑。以下是带原始时间戳的CPU离线ASR。"
@@ -1511,8 +1523,10 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         "不要只取结论、不要拼不相关问题、不要为了数量硬凑。无法满足就返回[]。"
         "开场第一句话须明确主题并独立可懂，不要求三秒内说完；不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
         "也不能删掉理解这句话所必需的上下文。可以保留同一主题内有用的追问。"
-        "start/end是下面0起始字幕序号，不是秒数；结束序号不得小于起始行标注的最早允许end，"
-        "这个下界已经由程序按真实时间计算，不能忽略。确保起止为完整词句/意群。"
+        "输入已将显示换行接回完整句，字幕a-b表示这一整句占用的原始字幕编号。"
+        "start/end仍是原始字幕编号，不是句子序号或秒数。先找同一主题问答的自然起止，"
+        "再核算时长，不能直接从开头截到恰好120秒；不得把片头预告、寒暄和正式采访混成一段。"
+        "片尾必须包含回答及结论，不能用下一个未回答的问题凑够120秒。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
         "只返回JSON数组，每项包含start,end,score(至少7),reason(完整主题)。\n"+numbered)
     valid=[];seeds=[];parsed_response=False
@@ -1578,7 +1592,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==3
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==4
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
                     and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
                          and saved.get('omission_preserves_meaning') is True and saved.get('omitted_is_parenthetical') is True))
@@ -1614,6 +1628,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         return proof
     prompt=(f'独立复核这条{speaker}访谈选段是否适合作为完整观点视频。'
         '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
+        '字幕显示换行不是句子边界，必须连读整句；不能把一行截取的前半句当成缺失后半句。'
+        '行业俗称和比喻（如老登股、性感、打水漂）应结合片内解释理解，不能仅因词语口语化判定缺失论证或需要听音。'
         '比喻、自我强调或你不赞同的投资判断本身也不是识别错误；只审核表达和原话，不评判观点对错。'
         '先逐句列出无法按字面理解的错词、关键否定或数字歧义，再作整体判断。'
         '禁止在脑中替换错词后给原文通过；缺少宾语或必要下文的半句结尾须拒绝。'
@@ -1629,15 +1645,17 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '选取包含问题的原句，最多8项；发现更多问题也必须拒绝，无需抄录全文。'
         '不得填规则描述、括号说明、改写词或输入中不存在的文字；没有问题填空数组。'
         'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。'
+        '开场引用必须从实际选段第一个字开始，结尾引用必须覆盖选段最后一个字，禁止用中间一句冒充结尾。'
+        'completeness_reason须具体说明上述完整性判断：有何观点、理由、结论，或究竟缺哪一环；'
+        '不要要求这一主题顺带解释所有其他行业或回答片内未提出的问题。'
         '所有字符串须简短，summary不超过50字，issue_details每项不超过30字，'
         '开场及结尾各摘录不超过100字。\n原话：'+text)
     # Constrain issue evidence to actual retained ASR, rather than asking a
     # small model to reproduce quotes from memory. Never normalize or repair
     # negations/numbers in order to make an invented quotation match.
-    evidence=list(dict.fromkeys(fragment for p in picks
-        for cue in cues[p['start']:p['end']+1]
-        for fragment in [cue['text'], *re.split(r'[。！？!?；;]',cue['text'])]
-        if fragment))
+    evidence=list(dict.fromkeys(fragment
+        for sentence in re.findall(r'[^。！？!?]+[。！？!?]?',text)
+        for fragment in (sentence,sentence.rstrip('。！？!?')) if fragment))
     fields={
         'standalone_opening':{'type':'boolean'},
         'complete_argument':{'type':'boolean'},
@@ -1645,6 +1663,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         'natural_ending':{'type':'boolean'},
         'requires_audio_review':{'type':'boolean'},
         'summary':{'type':'string','maxLength':50},
+        'completeness_reason':{'type':'string','maxLength':100},
         'issues':{'type':'array','maxItems':8,'items':{'type':'string','enum':evidence}},
         'issue_details':{'type':'array','maxItems':8,'items':{'type':'string','maxLength':30}},
         'opening_quote':{'type':'string','maxLength':100},
@@ -1679,6 +1698,10 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 quote=proof.get(name)
                 if not isinstance(quote,str) or not quote or quote not in text:
                     raise ValueError('开场/结尾引用证据不在实际原话中')
+                if name=='opening_quote' and not text.startswith(quote):
+                    raise ValueError('开场引用不是实际选段的开头；必须从第一个字摘录')
+                if name=='ending_quote' and not text.endswith(quote):
+                    raise ValueError('结尾引用不是实际选段的结尾；必须覆盖最后一个字')
             issues=proof.get('issues')
             if not isinstance(issues,list) or any(not isinstance(x,str) or not x or x not in text for x in issues):
                 raise ValueError('问题引用证据不在实际原话中')
@@ -1691,7 +1714,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=3)
+                 review_prompt_version=4)
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
@@ -1700,7 +1723,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     error=editorial.review_error(proof)
     if error:
-        raise VisualQualityError(error+'：'+str(proof.get('issues') or ''))
+        raise VisualQualityError(error+'；完整性理由：'+str(proof.get('completeness_reason') or '未提供')+
+            '；原文问题：'+json.dumps(list(zip(proof.get('issues') or [],proof.get('issue_details') or [])),ensure_ascii=False))
     return proof
 
 
