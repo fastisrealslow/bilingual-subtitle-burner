@@ -15,12 +15,14 @@ def restore(evidence, work):
             or current['source_sha256']!=old.get('source_sha256')):
         raise ValueError('恢复证据与本次通过质检的母片哈希不一致')
     copied=[]
+    from mother_asr_cache import transfer
+    restored_asr=transfer(evidence,work,current['source_sha256'])
     # Never restore source/identity approvals, final outputs or delivery metadata.
     # Every cache below is revalidated by the existing production functions.
     for pattern in ('highlights*.json','copywrite*.json'):
         for path in evidence.glob(pattern):
             shutil.copy2(path,work/path.name);copied.append(path.name)
-    print(json.dumps(dict(restored=copied,source_sha256=current['source_sha256']),ensure_ascii=False))
+    print(json.dumps(dict(restored=copied,restored_asr=restored_asr,source_sha256=current['source_sha256']),ensure_ascii=False))
 
 
 def main():

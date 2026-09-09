@@ -224,8 +224,19 @@ jobs:
       - name: 按母片哈希载入原始转写
         run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
+      - name: 复用同源失败任务的已完成证据
+        if: inputs.recovery_run_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_RUN_ID: ${{ inputs.recovery_run_id }}
+        run: |
+          python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
+
+      - name: 检查原始识别证据，避免重复下载和推理
+        run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+
       - name: 准备CPU离线Qwen识别及逐字对齐
-        if: env.ASR_BACKEND == 'qwen3'
+        if: env.ASR_BACKEND == 'qwen3' && env.ASR_EVIDENCE_READY != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           CUDA_VISIBLE_DEVICES: ''
@@ -306,14 +317,6 @@ jobs:
         with:
           path: ~/.ollama/models
           key: ${{ env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
-
-      - name: 复用同源失败任务的已完成证据
-        if: inputs.recovery_run_id != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: ${{ inputs.recovery_run_id }}
-        run: |
-          python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
       - name: 出片
         id: render

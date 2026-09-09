@@ -25,6 +25,14 @@ def transfer(source, target, video_sha):
             shutil.copyfile(source/name, target/name)
     if (source/'qwen_cpu').is_dir():
         shutil.copytree(source/'qwen_cpu', target/'qwen_cpu', dirs_exist_ok=True)
+    elif (source/'asr_raw_chunks.json').is_file():
+        reports=json.loads((source/'asr_raw_chunks.json').read_text())
+        if isinstance(reports,list) and reports and all(
+                r.get('source_video_sha256')==video_sha for r in reports):
+            for i,report in enumerate(reports):
+                path=target/'qwen_cpu'/str(i)
+                path.mkdir(parents=True,exist_ok=True)
+                (path/'aligned.json').write_text(json.dumps(report,ensure_ascii=False))
     # produce_cn.transcribe still checks the exact model/config identity and
     # audio coverage; no edited subtitles or selection/review flags are cached.
     return True

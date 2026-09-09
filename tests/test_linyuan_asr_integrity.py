@@ -141,7 +141,16 @@ def test_qwen_verified_evidence_can_be_reused_without_weight_files(tmp_path, mon
     identity = P._asr_cache_identity(src)
     assert identity['source_sha256'] == source_sha
     assert identity['model_revisions']['asr'] == 'asr-revision'
-    assert list(identity['evidence']) == [str((evidence/'aligned.json').resolve())]
+    assert identity['evidence_sha256'] == [hashlib.sha256((evidence/'aligned.json').read_bytes()).hexdigest()]
+    moved=tmp_path/'another-run';moved.mkdir()
+    (moved/'aligned.json').write_bytes((evidence/'aligned.json').read_bytes())
+    monkeypatch.setenv('QWEN3_EVIDENCE_DIR',str(moved))
+    assert P._asr_cache_identity(src)==identity
+    monkeypatch.delenv('QWEN3_EVIDENCE_DIR')
+    monkeypatch.chdir(tmp_path)
+    # An unset evidence directory must never scan the entire working tree.
+    with pytest.raises(ValueError,match='缺少已验证'):
+        P._asr_cache_identity(src)
 
 
 def test_qwen_evidence_with_unpinned_revision_is_rejected(tmp_path, monkeypatch):
@@ -168,3 +177,34 @@ def test_qwen_evidence_with_unpinned_revision_is_rejected(tmp_path, monkeypatch)
     monkeypatch.setenv('QWEN3_EVIDENCE_DIR', str(evidence))
     with pytest.raises(ValueError, match='固定模型版本'):
         P._asr_cache_identity(src)
+
+
+def test_cue_cache_migration_keeps_alignment_and_bound_editing_caches(tmp_path,monkeypatch):
+    src=tmp_path/'video.mp4';src.write_bytes(b'exact mother')
+    sha=hashlib.sha256(src.read_bytes()).hexdigest()
+    base=tmp_path/'base';base.mkdir();work=tmp_path/'new-slug';work.mkdir()
+    (base/'reviewed_asr_corrections.py').write_text('VERSION=1')
+    revisions=dict(asr='asr-rev',aligner='align-rev')
+    (base/'asr_production_config.json').write_text(json.dumps(dict(model_revisions=revisions)))
+    raw=work/'qwen_cpu';raw.mkdir()
+    report=dict(source_video_sha256=sha,device='cpu',networking_during_inference=False,
+        model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr-rev',chunks=[],
+        alignment=dict(device='cpu',networking_during_inference=False,
+            model_id='Qwen/Qwen3-ForcedAligner-0.6B',model_revision='align-rev'))
+    (raw/'aligned.json').write_text(json.dumps(report))
+    cues=[dict(start=0,end=4,text='投资之前必须先搞清楚企业的基本情况')]
+    (work/'cues_raw.json').write_text(json.dumps(cues))
+    (work/'asr_cache.json').write_text(json.dumps(dict(identity=dict(source_sha256=sha,evidence={'/old/run': 'old'}))))
+    (work/'highlights_block_1.json').write_text('{"identity":"independently validated later"}')
+    monkeypatch.setattr(P,'BASE',base);monkeypatch.setattr(P,'ASR_BACKEND','qwen3')
+    monkeypatch.delenv('QWEN3_EVIDENCE_DIR',raising=False)
+    monkeypatch.setattr(P,'_audio_duration',lambda _:4)
+    calls=[]
+    def rebuild(_src,_work):
+        assert (raw/'aligned.json').exists()
+        calls.append('rebuild cues from immutable alignment')
+        return cues
+    monkeypatch.setattr(P,'_transcribe_qwen_cpu',rebuild)
+    assert P.transcribe(src,work)==cues
+    assert P.transcribe(src,work)==cues
+    assert len(calls)==1 and (work/'highlights_block_1.json').exists()

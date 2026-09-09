@@ -1,5 +1,5 @@
 name: 林园字幕修复后同源补产
-# Recovery revision 2: all six real subtitle sequences must pass without a model.
+# Recovery revision 3: portable raw alignment cache; no repeated ASR decoding.
 on:
   push:
     branches: [main]
@@ -26,13 +26,15 @@ jobs:
       - name: 恢复第622次两段已选内容
         run: |
           gh run download 34329944620 -n debug-ly-0909-7c4660-selector8 -D /tmp/622-evidence
+          python linyuan/replay_asr_cache.py /tmp/622-evidence
           python -u linyuan/replay_caption_622.py /tmp/622-evidence --output /tmp/622-verified --no-model
-          python linyuan/register_selection_recovery.py --suffix caption11 --evidence-run 34329944620
+          python linyuan/register_selection_recovery.py --suffix cached12 --evidence-run 34329944620
       - name: 恢复第623次四段已选内容
         run: |
           gh run download 34331627673 -n debug-ly-0909-09068a -D /tmp/623-evidence
+          python linyuan/replay_asr_cache.py /tmp/623-evidence
           python -u linyuan/replay_caption_622.py /tmp/623-evidence --output /tmp/623-verified --no-model
-          python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix caption11 --evidence-run 34331627673
+          python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix cached12 --evidence-run 34331627673
       - uses: actions/upload-artifact@v4
         if: always()
         with:

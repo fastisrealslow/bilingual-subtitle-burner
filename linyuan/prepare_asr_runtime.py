@@ -51,12 +51,38 @@ def emit(name,value):
         stream.write(f'{name}={value}\n')
 
 
+def cached_evidence(report_path,choice):
+    from qwen_asr_evidence import load_reports
+    directory=Path(report_path).parent/'qwen_cpu'
+    reports=load_reports(directory)
+    revisions=choice.get('model_revisions') or {}
+    if not reports:return None
+    for report in reports:
+        alignment=report.get('alignment') or {}
+        if (report.get('source_video_sha256')!=choice['source_sha256']
+                or report.get('device')!='cpu' or report.get('networking_during_inference') is not False
+                or report.get('model_id')!='Qwen/Qwen3-ASR-0.6B'
+                or report.get('model_revision')!=revisions.get('asr')
+                or alignment.get('device')!='cpu' or alignment.get('networking_during_inference') is not False
+                or alignment.get('model_id')!='Qwen/Qwen3-ForcedAligner-0.6B'
+                or alignment.get('model_revision')!=revisions.get('aligner')
+                or not report.get('chunks')):return None
+    return directory.resolve()
+
+
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument('mode',choices=['select','prepare'])
+    p.add_argument('mode',choices=['select','prepare','cache'])
     p.add_argument('--source-report',required=True)
     args=p.parse_args()
     choice=configuration(args.source_report)
+    if args.mode=='cache':
+        directory=cached_evidence(args.source_report,choice) if choice['backend']=='qwen3' else None
+        emit('ASR_EVIDENCE_READY','true' if directory else 'false')
+        if directory:
+            emit('QWEN3_EVIDENCE_DIR',directory)
+            print('复用母片绑定的逐字对齐证据；实际PCM与覆盖率仍在出片前校验')
+        return
     if args.mode=='select':
         emit('ASR_BACKEND',choice['backend'])
         # Cache recognition once per exact mother video, model and code. This

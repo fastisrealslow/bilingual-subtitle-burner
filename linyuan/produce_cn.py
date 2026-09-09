@@ -672,12 +672,13 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
-def _asr_cache_identity(src):
+def _asr_cache_identity(src, work=None):
     if ASR_BACKEND == 'qwen3':
         source_sha = _sha256_file(src)
-        evidence = Path(os.environ.get('QWEN3_EVIDENCE_DIR') or '')
+        explicit=os.environ.get('QWEN3_EVIDENCE_DIR')
+        evidence = Path(explicit) if explicit else (Path(work)/'qwen_cpu' if work else None)
         reports = []
-        if evidence.is_dir():
+        if evidence is not None and evidence.is_dir():
             from qwen_asr_evidence import load_reports
             reports = load_reports(evidence)
         if reports:
@@ -700,7 +701,7 @@ def _asr_cache_identity(src):
             return dict(version=ASR_PIPELINE_VERSION, source_sha256=source_sha,
                 backend='qwen3', chunk_sec=30, overlap_sec=3, threads=2,
                 reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
-                evidence={str(path.resolve()): _sha256_file(path) for path in files},
+                evidence_sha256=sorted(_sha256_file(path) for path in files),
                 model_revisions=revisions)
         paths=[Path(os.environ.get(name,'')) for name in ('QWEN3_ASR_DIR','QWEN3_ALIGNER_DIR')]
         if any(not p.is_dir() or not list(p.glob('*.safetensors')) for p in paths):
@@ -736,7 +737,8 @@ def transcribe(src, work, api_key=None):
     src, work = Path(src), Path(work)
     work.mkdir(parents=True, exist_ok=True)
     cache, provenance = work / "cues_raw.json", work / "asr_cache.json"
-    identity = _asr_cache_identity(src)
+    identity = _asr_cache_identity(src,work)
+    meta={}
     if cache.exists() and provenance.exists():
         try:
             meta = json.loads(provenance.read_text(encoding="utf-8"))
@@ -753,6 +755,11 @@ def transcribe(src, work, api_key=None):
     for pattern in ("cues_raw.json", "asr_tokens.json", "asr_raw_chunks.json",
                     "highlights*.json", "copywrite*.json", "translation.json",
                     "chunks_dedup.json", "semantic*.json", "editorial_review*.json", "qwen_cpu"):
+        if pattern=='qwen_cpu' and identity.get('evidence_sha256'):
+            continue  # Immutable source/model-bound alignment is not a cue cache.
+        if (pattern in ('highlights*.json','copywrite*.json')
+                and meta.get('identity',{}).get('source_sha256')==identity['source_sha256']):
+            continue  # Both caches independently bind the regenerated transcript.
         stale.update(work.glob(pattern))
     if stale:
         archive = work / "asr_stale" / str(time.time_ns())
@@ -771,6 +778,7 @@ def transcribe(src, work, api_key=None):
         cues = _transcribe_funasr(src, work)
     _asr_quality_gate(cues, _audio_duration(src))
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
+    if ASR_BACKEND=='qwen3':identity=_asr_cache_identity(src,work)
     tmp = provenance.with_suffix(".tmp")
     tmp.write_text(json.dumps(dict(identity=identity, cues_sha256=_sha256_file(cache)),
                               ensure_ascii=False, indent=2), encoding="utf-8")

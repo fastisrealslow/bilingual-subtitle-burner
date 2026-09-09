@@ -384,6 +384,19 @@ def test_mother_cache_binds_actual_source_and_cues(tmp_path):
     assert not mother_asr_cache.transfer(raw,dest,'mother')
 
 
+def test_mother_cache_restores_external_alignment_as_raw_evidence(tmp_path):
+    raw=tmp_path/'source';raw.mkdir();dest=tmp_path/'target'
+    cues=b'[{"start":0,"end":1,"text":"original words"}]'
+    (raw/'cues_raw.json').write_bytes(cues)
+    (raw/'asr_cache.json').write_text(json.dumps(dict(identity=dict(source_sha256='mother'),cues_sha256=hashlib.sha256(cues).hexdigest())))
+    reports=[dict(source_video_sha256='mother',chunks=[dict(text='original words')])]
+    (raw/'asr_raw_chunks.json').write_text(json.dumps(reports))
+    assert mother_asr_cache.transfer(raw,dest,'mother')
+    assert json.loads((dest/'qwen_cpu/0/aligned.json').read_text())==reports[0]
+    # No review approval or identity bypass is created by the raw transfer.
+    assert not (dest/'editorial_review.json').exists()
+
+
 def test_sparse_artifact_part_download_preserves_required_ass(tmp_path,monkeypatch):
     meta=[dict(final='final_3.mp4',cover='cover_3.jpg',subtitle_files=['subtitles_3.ass'])]
     def download(aid,path,**kw):
