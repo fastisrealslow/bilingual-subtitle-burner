@@ -11,6 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('artifact_dir', type=Path)
     parser.add_argument('--output', type=Path, default=Path('/tmp/local-text-replay'))
+    parser.add_argument('--review-controls', action='store_true')
     args = parser.parse_args()
     source = args.artifact_dir / '_tmp'
     report = json.loads((source / 'source_quality.json').read_text())
@@ -23,6 +24,34 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     # A fresh cache makes this a measured inference, not a cached answer.
     production.BASE = args.output
+    if args.review_controls:
+        results=[]
+        for name,a,b,expected_pass in [('complete_technology',56,105,True),
+                ('trailer_and_unfinished_valuation',0,43,False),
+                ('medicine_with_unanswered_next_question',108,148,False)]:
+            started=time.monotonic()
+            try:
+                proof=production.review_complete_argument(cues,[dict(start=a,end=b)],
+                    '林园','',args.output,'_'+name)
+                actual_pass=True
+                reason=''
+            except production.EditorialReviewUnavailable:
+                raise  # A service failure is never a correct content rejection.
+            except production.VisualQualityError as exc:
+                actual_pass=False
+                reason=str(exc)
+                proof=json.loads((args.output/f'editorial_review_{name}.json').read_text())
+            row=dict(name=name,source_cues=[a,b],expected_pass=expected_pass,
+                actual_pass=actual_pass,matched=actual_pass==expected_pass,
+                seconds=round(time.monotonic()-started,2),proof=proof,reason=reason)
+            results.append(row)
+            (args.output/'controls.json').write_text(json.dumps(dict(source_sha256=expected,
+                model=production.LOCAL_LLM_MODEL,cases=results),ensure_ascii=False,indent=2))
+            print(json.dumps(row,ensure_ascii=False),flush=True)
+        if not all(row['matched'] for row in results):
+            raise RuntimeError('Real editorial positive/negative controls did not all match')
+        print('CONTROLS_PASSED: complete argument accepted; both known bad cuts rejected')
+        return
     results = []
     for number, (a, b) in enumerate(production._chunk_by_time(cues), 1):
         left, right = a, b

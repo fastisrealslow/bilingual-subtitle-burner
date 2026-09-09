@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 45
     env:
       TEXT_BACKEND: local
-      LOCAL_LLM_MODEL: qwen3:4b
+      LOCAL_LLM_MODEL: qwen3:4b-instruct-2507-q4_K_M
       LOCAL_LLM_TIMEOUT_SEC: '600'
       CUDA_VISIBLE_DEVICES: ''
       GH_TOKEN: ${{ github.token }}
@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.ollama/models
-          key: ollama-qwen3-4b-v1
+          key: ollama-qwen3-4b-instruct-2507-q4-v1
 
       - name: 启动 CPU 本地文本模型（禁止云 API）
         env:
@@ -57,20 +57,20 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
-          ollama pull qwen3:4b
-          ollama show qwen3:4b >/dev/null
+          ollama pull qwen3:4b-instruct-2507-q4_K_M
+          ollama show qwen3:4b-instruct-2507-q4_K_M >/dev/null
           # Pulling only downloads weights.  Warm them into RAM before the
           # bounded CPU review budget begins.
           curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
             -H 'Content-Type: application/json' \
-            -d '{"model":"qwen3:4b","messages":[{"role":"user","content":"Reply ready"}],"stream":false,"think":false,"options":{"temperature":0,"num_predict":8,"num_ctx":16384}}' \
+            -d '{"model":"qwen3:4b-instruct-2507-q4_K_M","messages":[{"role":"user","content":"Reply ready"}],"stream":false,"think":false,"options":{"temperature":0,"num_predict":8,"num_ctx":16384}}' \
             | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
 
 
       - name: 读取失败任务的原始字幕证据
         run: gh run download 34224561237 -n editorial-ly-0908-fa57fb -D /tmp/incident-transcript
-      - name: 使用真实CPU模型重放同一段字幕
-        run: python -u replay_local_text.py /tmp/incident-transcript
+      - name: 用真实CPU模型核对一条完整问答及两条已知坏切段
+        run: python -u replay_local_text.py /tmp/incident-transcript --review-controls
       - uses: actions/upload-artifact@v4
         if: always()
         with:
