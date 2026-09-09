@@ -1,0 +1,80 @@
+name: 林园来源缺口补齐
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-source-gap-backfill.yml
+      - linyuan/source_gap_backfill.py
+      - linyuan/source_lineage.json
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['林园监控 · 每日抓取']
+    types: [completed]
+permissions:
+  contents: write
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 补齐参考与完整目录，保留来源证据及未确认状态
+        run: |
+          python -m pip install -q pytest
+          python -m pytest -q tests/test_linyuan_source_gap_backfill.py
+          python -u linyuan/source_gap_backfill.py
+      - name: 提交实际入库结果
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add linyuan/monitor_v2.db linyuan/dashboard/data.json linyuan/up_videos.json
+          git add -f linyuan/.automation/source_gap_audit.json
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m 'chore(sources): reconcile reference gaps and complete collection catalog'
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+      - name: 抽取茅台参考片与候选母片的真实画面对照
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          mkdir -p /tmp/source-gap-media
+          python - <<'PY'
+          import json,subprocess,sys
+          from pathlib import Path
+          out=Path('/tmp/source-gap-media');results=[]
+          for bvid in ['BV1QmbW6bEnm','BV1EX7X6bEFH','BV1d4VR6JELK']:
+              media=out/(bvid+'.mp4')
+              try:
+                  subprocess.run([sys.executable,'linyuan/ci_fetch_bilibili.py','--url',
+                      'https://www.bilibili.com/video/'+bvid,'--out',str(media)],
+                      check=True,timeout=100,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                  for stamp in [5,15]:
+                      subprocess.run(['ffmpeg','-v','error','-y','-ss',str(stamp),'-i',str(media),
+                          '-frames:v','1',str(out/f'{bvid}-{stamp}.jpg')],check=True,timeout=30)
+                  results.append(dict(bvid=bvid,status='frames_extracted'))
+                  if bvid!='BV1QmbW6bEnm':media.unlink()
+              except Exception as exc:
+                  results.append(dict(bvid=bvid,status='unavailable',error=type(exc).__name__))
+                  media.unlink(missing_ok=True)
+          (out/'probe.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
+          print(json.dumps(results,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-gap-evidence
+          path: |
+            /tmp/source-gap-media/*.jpg
+            /tmp/source-gap-media/BV1QmbW6bEnm.mp4
+            /tmp/source-gap-media/probe.json
+            linyuan/.automation/source_gap_audit.json
+          retention-days: 30
+          if-no-files-found: warn
