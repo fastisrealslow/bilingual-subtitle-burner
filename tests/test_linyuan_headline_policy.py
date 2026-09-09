@@ -103,3 +103,25 @@ def test_full_interview_cover_reports_actual_length_without_text_model(tmp_path,
 def test_labeled_transcript_cannot_duplicate_speaker_prefix():
     candidates=H.title_candidates('林园：我们长期持有优秀企业。')
     assert candidates and all('林园：林园' not in t for t in candidates)
+
+
+def test_623_cover_checks_word_layout_not_just_18_character_count():
+    text='片仔癀又呃这个系列产品，他又搞了很多'
+    assert not H.cover_fits(text)
+    cover=H.cover_copy(text)
+    lines=V.cover_headline(cover['text'])
+    assert all(len(line)<=9 for line in lines)
+    assert H.compact(cover['text']) in H.compact(text) or cover['kind']=='topic_label'
+
+
+def test_cached_copy_gets_current_cover_layout_without_model(tmp_path,monkeypatch):
+    cues=[dict(text='我们长期持有优秀企业。',start=0,end=5)]
+    title='林园：我们长期持有优秀企业'
+    cache=dict(title=title,cover_title='片仔癀又呃这个系列产品，他又搞了很多',
+        copy_identity=dict(version=4,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
+            speaker='林园',occasion='访谈',reviewed_title=None))
+    (tmp_path/'copywrite.json').write_text(P.json.dumps(cache,ensure_ascii=False))
+    monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Valid title should be reused'))
+    result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path)
+    assert result['cover_title']=='我们长期持有优秀企业'
+    assert result['packaging_version']==H.VERSION

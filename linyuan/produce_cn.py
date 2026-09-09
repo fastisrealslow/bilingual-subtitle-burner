@@ -2929,6 +2929,8 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                 cached.get("title"), speaker, transcript_text,
                 existing_titles, require_quote=require_quote)
             if not error and cached.get('copy_identity')==copy_identity:
+                cached=attach_copy(cached,transcript_text,speaker,existing_titles)
+                cache.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
                 return cached
             print(f"[文案] 缓存标题未通过 v3 闸门，重新生成：{error}")
         except ValueError:

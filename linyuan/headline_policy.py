@@ -2,7 +2,7 @@
 import re
 import difflib
 
-VERSION = 2026090902
+VERSION = 2026090903
 TOPICS = ('片仔癀','茅台','股息','分红','医药','消费','科技股','机器人','老龄化','现金流','投资','企业')
 QUESTION = re.compile(r'请问|想问|您认为|您如何|林总|分享一下')
 CONDITION = re.compile(r'如果|假如|除非|只有|虽然|即使|只要')
@@ -62,6 +62,18 @@ def title_candidates(transcript, speaker='林园', existing_titles=None):
     return result
 
 
+def cover_fits(text):
+    """Choose copy that fits whole words before expensive video rendering."""
+    from presentation import wrap_words
+    clauses=[part for part in re.split(r'[，,。；;]',text) if part]
+    if len(clauses)==2 and all(len(part)<=9 for part in clauses):return True
+    try:
+        wrap_words(''.join(clauses),9)
+        return True
+    except ValueError:
+        return False
+
+
 def cover_copy(title, transcript=None, speaker='林园'):
     original=body(title,speaker)
     if '完整访谈' in original:
@@ -79,20 +91,20 @@ def cover_copy(title, transcript=None, speaker='林园'):
             match=re.search(pattern,original)
             if match:
                 short='，'.join(match.groups())
-                if len(compact(short))<=18:
+                if len(compact(short))<=18 and cover_fits(short):
                     return {'text':short,'kind':'extractive_label','evidence':original,
                             'source_spans':[list(match.span(i)) for i in (1,2)]}
-    if complete(original) and len(compact(original))<=18 and len(original)<=19:
+    if complete(original) and len(compact(original))<=18 and len(original)<=19 and cover_fits(original):
         return {'text':original,'kind':'quote','evidence':original}
     # Prefer a complete clause from the title; retain full conditional sentences.
     preferred=quote_candidates(original,6,18)
     for candidate in sorted(preferred,key=score,reverse=True):
-        if len(candidate)<=19:
+        if len(candidate)<=19 and cover_fits(candidate):
             return {'text':candidate,'kind':'quote','evidence':original}
     related=[]
     title_terms={word for word in TOPICS if word in original}
     for candidate in quote_candidates(source,6,18):
-        if len(candidate)>19:continue
+        if len(candidate)>19 or not cover_fits(candidate):continue
         shared=sum(word in candidate for word in title_terms)
         # Source quotes must address the selected title's subject, not an arbitrary aside.
         if shared:related.append((shared*20+score(candidate),candidate))
