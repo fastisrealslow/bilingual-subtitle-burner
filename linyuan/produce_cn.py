@@ -2848,6 +2848,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     from headline_policy import attach_copy
     copy_identity={'version':4,'transcript_sha256':editorial.text_digest(transcript_text),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title}
+    if suffix=='_full':
+        minutes=max(1,round((cues[sel[-1]]['end']-cues[sel[0]]['start'])/60))
+        result=attach_copy(dict(title=f'{speaker}：{minutes}分钟完整访谈原声',
+            desc=f'{speaker}在{occasion}的完整访谈原声。',tags=[speaker,'完整访谈'],
+            copy_identity=copy_identity,title_quality_verified=True),transcript_text,speaker)
+        cache.write_text(json.dumps(result,ensure_ascii=False))
+        return result
     if reviewed_title:
         error=title_quality_error(reviewed_title,speaker,transcript_text,existing_titles,
                                   require_quote=require_quote)
@@ -2913,8 +2920,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                 candidate.get("title"), speaker, transcript_text,
                 existing_titles, require_quote=require_quote)
             if not last_error and require_quote:
-                from headline_policy import compact, body
-                if compact(body(candidate.get('title'),speaker)) not in compact(transcript_text):
+                from headline_policy import compact, body, complete
+                if not complete(body(candidate.get('title'),speaker)):
+                    last_error='标题是未完成的回应或句子片段，需要完整原话观点'
+                elif compact(body(candidate.get('title'),speaker)) not in compact(transcript_text):
                     last_error='标题必须完整回溯原文，不能靠六字相同混入新数字或断言'
             if not last_error:
                 d = candidate

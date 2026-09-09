@@ -24,7 +24,7 @@ jobs:
       - run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
-          pip install -q pytest pillow requests jieba numpy opencv-python-headless fonttools
+          pip install -q pytest pillow requests jieba numpy 'opencv-python-headless<5' fonttools
       - name: 标题原文、条件否定、人物选帧回归
         run: |
           python -m pytest -q tests/test_linyuan_headline_policy.py

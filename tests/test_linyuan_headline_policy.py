@@ -90,3 +90,11 @@ def test_extractive_cover_never_drops_negation_or_uncertainty():
     result=H.cover_copy(text)
     assert result['kind']=='topic_label'
     assert '最值得' not in result['text']
+
+
+def test_full_interview_cover_reports_actual_length_without_text_model(tmp_path,monkeypatch):
+    monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('full format must not require a model'))
+    result=P.copywrite([dict(text='我们长期持有优秀企业',start=0,end=3472)],[0],
+                      '林园','访谈',None,tmp_path,suffix='_full',require_quote=False)
+    assert result['cover_title']=='58分钟完整访谈'
+    assert result['title']=='林园：58分钟完整访谈原声'
