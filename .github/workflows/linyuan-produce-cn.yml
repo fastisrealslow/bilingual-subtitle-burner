@@ -279,22 +279,39 @@ jobs:
 
       - name: 缓存 CPU 本地文本模型
         id: ollama-cache
+        continue-on-error: true
         uses: actions/cache/restore@v4
         with:
           path: ~/.ollama/models
           key: ${{ env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
 
+      - name: 缓存已校验的 Ollama 安装包
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+
       - name: 启动 CPU 本地文本模型（禁止云 API）
+        id: local_text
+        # Source Q&A selection and source caption grouping work without Ollama.
+        # A failed optional download must not prevent those paths from running.
+        continue-on-error: true
         env:
           OLLAMA_VERSION: v0.33.3
           OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
         run: |
           set -euo pipefail
-          curl -fsSL --retry 3 --max-time 600 \
-            -o /tmp/ollama-linux-amd64.tar.zst \
-            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
-          echo "${OLLAMA_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
-          sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
+          mkdir -p /tmp/ollama-runtime
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "${OLLAMA_SHA256}  $archive" | sha256sum -c -; then
+            curl -fsSL --retry 8 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 600 \
+              -o /tmp/ollama-download.tar.zst \
+              "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+            echo "${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst" | sha256sum -c -
+            mv /tmp/ollama-download.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
           OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
             ollama serve > /tmp/ollama.log 2>&1 &
           for _ in $(seq 1 30); do
@@ -317,7 +334,8 @@ jobs:
             | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
 
       - name: 保存 CPU 本地文本模型缓存
-        if: steps.ollama-cache.outputs.cache-hit != 'true'
+        if: steps.local_text.outcome == 'success' && steps.ollama-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
         uses: actions/cache/save@v4
         with:
           path: ~/.ollama/models
@@ -331,6 +349,7 @@ jobs:
           CUDA_VISIBLE_DEVICES: ''
           TEXT_BACKEND: local
           SOURCE_EDITORIAL_FIRST: 'true'
+          TEXT_RUNTIME_UNAVAILABLE: ${{ steps.local_text.outcome != 'success' }}
           LOCAL_LLM_URL: http://127.0.0.1:11434/api/chat
           LOCAL_LLM_MODEL: ${{ env.RUN_TEXT_MODEL }}
           LOCAL_LLM_TIMEOUT_SEC: '600'
@@ -378,6 +397,7 @@ jobs:
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/asr*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/cues_raw.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_response*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/editorial_review*.json

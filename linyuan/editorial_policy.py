@@ -237,6 +237,8 @@ def review_error(review):
 
 
 def title_attribution_error(title):
+    if re.search(r'^(?:股神)?林园[：:](?:也看到一些机构|和零售价)',str(title or '')):
+        return '已核对的采访者引导语或缺少前文的价格片段，不能作为独立标题'
     if re.search(r'请问|请教您|您(?:觉得|认为|如何|有没有|能不能)|你也聊聊|(?:和|跟)我们分享一下',str(title or '')):
         return '标题引用了采访者提问，不能署为嘉宾本人观点'
     return None

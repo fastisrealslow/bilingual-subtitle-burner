@@ -575,6 +575,8 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
 
     deadline = time.monotonic() + (budget_sec if budget_sec is not None else text_budget(120))
     if TEXT_BACKEND == 'local':
+        if os.environ.get('TEXT_RUNTIME_UNAVAILABLE')=='true':
+            raise LocalTextUnavailable('本地文本模型未就绪；原文规则路径可继续，需要模型的部分保留转写后重试')
         from urllib.parse import urlparse
         parsed=urlparse(LOCAL_LLM_URL)
         if parsed.scheme!='http' or parsed.hostname not in {'127.0.0.1','localhost','::1'}:
@@ -3047,6 +3049,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             error = title_quality_error(
                 cached.get("title"), speaker, transcript_text,
                 existing_titles, require_quote=require_quote)
+            if require_quote and not error:
+                from headline_policy import complete,body
+                if not complete(body(cached.get('title'),speaker)):
+                    error='缓存标题不是可独立引用的完整原话'
             if not error and cached.get('copy_identity')==copy_identity:
                 cached=attach_copy(cached,transcript_text,speaker,existing_titles)
                 cache.write_text(json.dumps(cached,ensure_ascii=False,indent=2))

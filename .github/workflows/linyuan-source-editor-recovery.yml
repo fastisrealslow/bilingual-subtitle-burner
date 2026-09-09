@@ -51,7 +51,7 @@ jobs:
           gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title '成品库 · ly-0909-09068a-tracked15' --notes '通过实际成片门禁的原始交付备份。'
           gh release upload "$tag" /tmp/accepted648/ly-0909-09068a-tracked15.* --clobber
       - name: 正常生产重新选出的问答，仍逐条验片
-        run: python linyuan/register_selection_recovery.py --suffix sourceqa19 --evidence-run 34340237266
+        run: python linyuan/register_selection_recovery.py --suffix sourceqa22 --evidence-run 34340237266
       - name: 修正两条旧缓存的采访者标题，重烧顶部标题和封面
         run: |
           python linyuan/register_selection_recovery.py --suffix packaging20 --evidence-run 34340237266 --selected-parts 2

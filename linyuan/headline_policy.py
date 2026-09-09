@@ -21,17 +21,19 @@ def body(title, speaker='林园'):
 
 def complete(text):
     return bool(text and not QUESTION.search(text) and not TAIL.search(text)
-        and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是)',text)
+        and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是|和|也看到|是因为)',text)
         and VERB.search(text))
 
 
 def quote_candidates(text, min_chars=10, max_chars=54):
     """Whole sentences/clauses only; never a character-budget prefix."""
     result=[]
-    for sentence in re.split(r'(?<=[。！？；!?;\n])',text):
+    sentences=re.split(r'(?<=[。！？；!?;\n])',text)
+    for index,sentence in enumerate(sentences):
         # Filter the entire interviewer sentence before splitting clauses;
         # otherwise a clause can shed its "您" and impersonate the answer.
         if QUESTION.search(sentence):continue
+        if index+1<len(sentences) and QUESTION.search(sentences[index+1]):continue
         sentence=sentence.strip('，,：: 。！？；!?;\n')
         clauses=[p.strip() for p in re.split(r'[，,]+',sentence) if p.strip()]
         options=[sentence]
