@@ -3,7 +3,7 @@
   "validation_sha256": "d0889bd23a2bc93baa3fe2fbeb159eb75d5db3e78c4159c4de80d98b6275ddf2",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788956633,
+  "updated_at": 1788957299,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 13,
+    "verified_live": 14,
     "verified_audio_card": 3,
-    "daily_mix_usable": 15,
+    "daily_mix_usable": 16,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -5689,7 +5689,9 @@
         "slugs": [
           "ly-0909-3c2ade"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "58371b9c7b0693310ac6704258565f48e1507a0bb6736c289ad0c5a92497d604"
+        ],
         "failures": [
           {
             "slug": "ly-0909-3c2ade",
@@ -5698,9 +5700,9 @@
             "reason": "本地文本推理未完成：qwen3:4b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格"
           }
         ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 237.9,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6985,8 +6987,8 @@
       },
       "BV1JWQWYKEy6": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 1,
+        "verified_seconds": 237.9
       },
       "BV1Ke41127bL": {
         "attempted_mothers": 1,
@@ -7088,6 +7090,35 @@
   },
   "in_flight_placeholders": 24,
   "artifacts": [
+    {
+      "slug": "ly-0909-3c2ade",
+      "artifact_id": 10103982146,
+      "run_id": 34349703080,
+      "checked_at": 1788957290,
+      "source_url": "https://www.bilibili.com/video/BV1JWQWYKEy6",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_2.mp4",
+          "title": "林园：我好像就是有有一个天眼的，我能看到最后全球十大医药公司",
+          "duration_sec": 237.9,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "source_sha256": "58371b9c7b0693310ac6704258565f48e1507a0bb6736c289ad0c5a92497d604",
+          "segments": [
+            {
+              "start": 1267.56,
+              "end": 1505.4,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "50ec3894f4e2822dfd91aba5f1a6702fd47122ba6b5e12ab6c4315083cf38e6e",
+          "subtitle_sha256": "7b6d0f338e0a1961aea0581e0ad8dcb8b563f72dcbe1e7a09fc16bfb41faf3b6",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0909-15ef03",
       "artifact_id": 10103517884,
