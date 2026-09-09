@@ -18,11 +18,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: 断点续传、总预算与质量门禁回归
         run: |
           pip install -q pytest requests
           python -m pytest -q tests/test_linyuan_fetch_budget.py tests/test_linyuan_hd_download.py
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: 实际重下626同一母片，验证完整音视频轨和头尾解码
         timeout-minutes: 25
         env:
