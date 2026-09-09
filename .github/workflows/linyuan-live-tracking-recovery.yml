@@ -1,0 +1,46 @@
+name: 林园镜头切换取景修复验收
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-live-tracking-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.tool_cache }}/linyuan-face-models
+          key: opencv-yunet-sface-2023mar-2021dec-v1
+      - name: 安装并验证取景规则
+        run: |
+          python -m pip install -q pytest jieba pillow 'opencv-python<5' rapidocr-onnxruntime
+          python -m pytest -q tests/test_linyuan_live_tracking.py tests/test_linyuan_presentation.py tests/test_linyuan_caption_timeout.py
+      - name: 回放第644次真实失败成片，空镜仍必须拒绝
+        run: |
+          gh run download 34340237266 --pattern 'debug-*' -D /tmp/644
+          PYTHONPATH=linyuan python - <<'PY'
+          from pathlib import Path
+          import json
+          import produce_cn as p
+          root=next(Path('/tmp/644').rglob('source_quality.json')).parent
+          for part in (1,2):
+              try:
+                  p.verify_live_region_after_render(root/f'rejected/{part}/final_{part}.mp4')
+              except p.VisualQualityError as exc:
+                  print(f'Actual empty crop {part} correctly rejected:',exc)
+              else:raise AssertionError('Empty crop must remain rejected')
+          PY
+      - name: 同源正常实产，保留字幕和人物质量门禁
+        run: python linyuan/register_selection_recovery.py --suffix tracked14 --evidence-run 34340237266

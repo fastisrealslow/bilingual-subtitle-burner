@@ -4119,7 +4119,7 @@ def extract_audio_card_portrait(reference_image, out_path):
 
 
 def make_audio_card(out_path, speaker, topic, width=None, height=None,
-                    portrait_path=None, require_portrait=False, cover_style=None):
+                    portrait_path=None, require_portrait=False, cover_style=None, live_video=False):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
@@ -4231,7 +4231,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
                                fill=(249, 249, 247),
                                outline=(214, 210, 200), width=2)
-        draw.text((48, 1080), "公开发言原声｜人物资料图，非现场画面",
+        draw.text((48, 1080), ("公开发言原声｜原始访谈画面" if live_video else
+                             "公开发言原声｜人物资料图，非现场画面"),
                   font=small_font, fill=(89, 94, 99))
         draw.text((48, 1120), AUDIO_CARD_DISCLAIMER, font=small_font,
                   fill=(105, 105, 105))
@@ -4457,7 +4458,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             work / f"audio_card_portrait{suffix}.png")
         audio_card = make_audio_card(
             work / f"audio_card{suffix}.png", speaker, cw["cover_title"],
-            portrait_path=audio_card_portrait, require_portrait=True)
+            portrait_path=audio_card_portrait, require_portrait=True, live_video=use_live_video)
     from presentation import layout_for, VERSION as PRESENTATION_VERSION
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
     en_map = {}
@@ -4490,8 +4491,16 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             if use_live_video:
                 # 只允许横屏源进入动态窗口；按窗口宽高比实裁并精确缩放，
                 # 不使用 pad，因而不会产生右侧黑块。
+                # Fixed crops become empty when the source switches cameras.
+                # Track identity in the selected interval before composing the card.
+                from live_tracking import render_tracked
+                tracked=work/f'tracked{suffix}{n}.mp4'
+                tracking=render_tracked(src,s0,seg_dur,tracked,
+                    _download_speaker_reference(speaker,work),_local_face_models(),
+                    LOCAL_FACE_COSINE_THRESHOLD)
+                cmd += ["-i",str(tracked)]
                 live = (
-                    f"[1:v]{live_crop}[live];"
+                    "[2:v]setpts=PTS-STARTPTS[live];"
                     "[0:v][live]overlay=44:360[card];"
                     f"[card]ass={ass},{fade}[outv]"
                 )

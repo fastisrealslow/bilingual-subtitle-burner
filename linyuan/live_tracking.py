@@ -1,0 +1,100 @@
+"""CPU source-face tracking; every output frame comes from the same source time."""
+import json
+from pathlib import Path
+import subprocess
+
+
+def crop_box(face, width, height, ratio=632/470):
+    x,y,w,h=map(float,face[:4])
+    ch=min(height, h*2.1, width/ratio)
+    cw=ch*ratio
+    left=max(0,min(width-cw,x+w/2-cw/2))
+    top=max(0,min(height-ch,y-h*.48))
+    return tuple(int(v)//2*2 for v in (left,top,cw,ch))
+
+
+def complete_face(face, width, height):
+    x,y,w,h=map(float,face[:4])
+    return (min(w,h)>=48 and x>=8 and y>=max(8,h*.18)
+            and x+w<=width-8 and y+h<=height-2)
+
+
+def render_tracked(src,start,duration,output,reference,model_paths,threshold=.363):
+    """Track the reference identity through camera cuts, with no static fallback."""
+    import cv2
+    cv2.setNumThreads(2)
+    detector=cv2.FaceDetectorYN.create(str(model_paths[0]),'',(320,320),
+        score_threshold=.8,nms_threshold=.3,top_k=5000)
+    recognizer=cv2.FaceRecognizerSF.create(str(model_paths[1]),'')
+
+    def faces(frame):
+        h,w=frame.shape[:2]
+        scale=min(1,960/max(w,h))
+        small=cv2.resize(frame,(round(w*scale),round(h*scale))) if scale<1 else frame
+        detector.setInputSize((small.shape[1],small.shape[0]))
+        _,found=detector.detect(small)
+        if found is None:return []
+        rows=found.copy()
+        rows[:,:14]/=scale
+        return rows
+
+    ref=cv2.imread(str(reference)); refs=faces(ref)
+    if not len(refs):raise ValueError('动态取景参考照未检出人脸')
+    rf=max(refs,key=lambda f:float(f[2]*f[3]))
+    identity=recognizer.feature(recognizer.alignCrop(ref,rf))
+    cap=cv2.VideoCapture(str(src));fps=cap.get(cv2.CAP_PROP_FPS)
+    if not fps or fps>120:raise ValueError('动态取景源帧率无效')
+    cap.set(cv2.CAP_PROP_POS_MSEC,start*1000)
+    count=round(duration*fps)
+    output=Path(output); log=output.with_suffix('.ffmpeg.log')
+    matched=0;missing=0;longest_missing=0;previous=None; first=None; last=None
+    with log.open('wb') as errors:
+        proc=subprocess.Popen(['ffmpeg','-y','-loglevel','error','-f','rawvideo',
+            '-pix_fmt','bgr24','-s','632x470','-r',str(fps),'-i','-',
+            '-an','-c:v','libx264','-preset','veryfast','-crf','18',
+            '-pix_fmt','yuv420p',str(output)],stdin=subprocess.PIPE,stderr=errors)
+        try:
+            for n in range(count):
+                ok,frame=cap.read()
+                if not ok:raise ValueError('动态取景源视频提前结束')
+                height,width=frame.shape[:2]; candidates=[]
+                for face in faces(frame):
+                    feature=recognizer.feature(recognizer.alignCrop(frame,face))
+                    score=float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                    if score>=threshold:candidates.append((score,face))
+                if candidates:
+                    score,face=max(candidates,key=lambda row:row[0])
+                    box=crop_box(face,width,height);matched+=1;missing=0
+                    if previous is not None:
+                        # Smooth ordinary movement, but snap to a new shot immediately.
+                        delta=max(abs(box[k]-previous[k]) for k in range(4))
+                        if delta<min(box[2:])*.12:
+                            box=tuple(round((previous[k]*.65+box[k]*.35)/2)*2 for k in range(4))
+                    previous=box
+                else:
+                    missing+=1;longest_missing=max(longest_missing,missing)
+                    if previous is None or missing/fps>2:
+                        raise ValueError(f'动态取景连续{missing/fps:.2f}秒无法确认目标人物')
+                    box=previous
+                x,y,w,h=box
+                region=frame[y:y+h,x:x+w]
+                if region.shape[:2]!=(h,w):raise ValueError('动态取景越出源画面')
+                result=cv2.resize(region,(632,470),interpolation=cv2.INTER_LANCZOS4)
+                proc.stdin.write(result.tobytes())
+                if first is None:first=list(box)
+                last=list(box)
+                if n%max(1,round(fps*30))==0:
+                    print(f'[动态取景] {n/fps:.0f}/{duration:.0f}s，身份匹配{matched}/{n+1}帧',flush=True)
+            proc.stdin.close()
+            if proc.wait(timeout=120):raise ValueError('动态取景编码失败：'+log.read_text()[-1000:])
+        except BaseException:
+            proc.kill();proc.wait();output.unlink(missing_ok=True);raise
+        finally:
+            cap.release()
+    if matched/count<.8:
+        output.unlink(missing_ok=True);raise ValueError('动态取景目标人物匹配不足80%')
+    proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
+        frames=count,matched_frames=matched,longest_unmatched_seconds=longest_missing/fps,
+        first_crop=first,last_crop=last,threshold=threshold)
+    output.with_suffix('.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    return proof
