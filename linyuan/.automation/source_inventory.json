@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "validation_sha256": "b6da64cc9f1cc447f72f2ff7d1cadea7657d54ebfbef9ac5a6cfd2862b832c1c",
+  "validation_sha256": "65af7f5f08c579159ce07bf637682dcf9bdbdfbef83375722c3501cb3c33fe67",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788953514,
+  "updated_at": 1788954142,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 5,
-    "verified_audio_card": 1,
-    "daily_mix_usable": 6,
+    "verified_live": 3,
+    "verified_audio_card": 0,
+    "daily_mix_usable": 3,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -5534,6 +5534,7 @@
           "ly-0909-09068a-cached13",
           "ly-0909-09068a-caption10",
           "ly-0909-09068a-caption11",
+          "ly-0909-09068a-packaging21",
           "ly-0909-09068a-tracked15"
         ],
         "source_sha256": [
@@ -5565,9 +5566,9 @@
             "reason": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 228.3,
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -5603,7 +5604,9 @@
           "ly-0909-7c4660-caption10",
           "ly-0909-7c4660-caption11",
           "ly-0909-7c4660-caption9",
+          "ly-0909-7c4660-packaging20",
           "ly-0909-7c4660-selector8",
+          "ly-0909-7c4660-sourceqa19",
           "ly-0909-7c4660-tracked14",
           "ly-0909-7c4660-tracked16",
           "ly-0909-7c4660-tracked17",
@@ -5650,9 +5653,9 @@
             "reason": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜"
           }
         ],
-        "verified_available": 2,
-        "verified_live": 2,
-        "verified_seconds": 316.0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 160.1,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6005,13 +6008,11 @@
         "slugs": [
           "ly-0909-79a7be"
         ],
-        "source_sha256": [
-          "eae8b97939bd2994489b8f6f3e2bc7fad1e9300aaa6205c7c355225dfd615448"
-        ],
+        "source_sha256": [],
         "failures": [],
-        "verified_available": 1,
+        "verified_available": 0,
         "verified_live": 0,
-        "verified_seconds": 158.0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6021,6 +6022,28 @@
         "family": "BV1bgbc64EwH",
         "slugs": [
           "ly-0909-ad262c"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0909-ad262c",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 330 < 480（640x330），画质不达标"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1gBfCBpEFj:p1",
+        "source_url": "https://www.bilibili.com/video/BV1gBfCBpEFj",
+        "family": "BV1gBfCBpEFj",
+        "slugs": [
+          "ly-0909-703b35"
         ],
         "source_sha256": [],
         "failures": [],
@@ -6931,8 +6954,8 @@
       },
       "BV17Rt8zKEji": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 228.3,
+        "verified_available": 0,
+        "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
@@ -6943,8 +6966,8 @@
       },
       "BV1SazbBhE8a": {
         "attempted_mothers": 1,
-        "verified_available": 2,
-        "verified_seconds": 316.0,
+        "verified_available": 1,
+        "verified_seconds": 160.1,
         "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
@@ -7040,23 +7063,29 @@
       },
       "BV1Ng4y1w78M": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 158.0
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV1bgbc64EwH": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1gBfCBpEFj": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 20,
+  "in_flight_placeholders": 23,
   "artifacts": [
     {
       "slug": "ly-0909-7c4660-tracked18",
       "artifact_id": 10101599308,
       "run_id": 34345123664,
-      "checked_at": 1788953358,
+      "checked_at": 1788954119,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -7076,8 +7105,8 @@
           ],
           "sha256": "4085d52fcdb3b28d2ecf79966831752eda3da057d3563bea9eebd728b912d705",
           "subtitle_sha256": "11dc163da3c7e6d91de7810b29358ba9a12842896e7e3623a4ddf844f5b80765",
-          "status": "verified",
-          "reason": null
+          "status": "rejected",
+          "reason": "标题引用了采访者提问，不能署为嘉宾本人观点"
         }
       ]
     },
@@ -7085,7 +7114,7 @@
       "slug": "ly-0909-09068a-tracked15",
       "artifact_id": 10101393434,
       "run_id": 34343086627,
-      "checked_at": 1788953144,
+      "checked_at": 1788954121,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -7105,8 +7134,8 @@
           ],
           "sha256": "f954fd1ce9455e40c136aadec0d3f0ea2c797f80f5a0a783d9476793c652c4b5",
           "subtitle_sha256": "1dda1b6eecf16170b05f0b50ffb96af181b73a1e197cf2f2e917aee2971bf1fa",
-          "status": "verified",
-          "reason": null
+          "status": "rejected",
+          "reason": "标题引用了采访者提问，不能署为嘉宾本人观点"
         }
       ]
     },
@@ -7114,7 +7143,7 @@
       "slug": "ly-0909-29cff8-deps11",
       "artifact_id": 10100778897,
       "run_id": 34339664313,
-      "checked_at": 1788951948,
+      "checked_at": 1788954124,
       "source_url": "https://www.bilibili.com/video/BV1TkfCBSEN5",
       "parts": [
         {
@@ -7163,7 +7192,7 @@
       "slug": "ly-0909-7c4660-tracked14",
       "artifact_id": 10100628219,
       "run_id": 34342158327,
-      "checked_at": 1788951961,
+      "checked_at": 1788954137,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -7187,43 +7216,6 @@
           "reason": null
         }
       ]
-    },
-    {
-      "slug": "ly-0909-79a7be",
-      "artifact_id": 10099291013,
-      "run_id": 34338670416,
-      "checked_at": 1788951965,
-      "source_url": "https://www.bilibili.com/video/BV1Ng4y1w78M",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：我相信啊，随着这个这个人口老龄化",
-          "duration_sec": 158.0,
-          "render_mode": "audio_card",
-          "content_type": null,
-          "source_sha256": "eae8b97939bd2994489b8f6f3e2bc7fad1e9300aaa6205c7c355225dfd615448",
-          "segments": [
-            {
-              "start": 8.48,
-              "end": 166.44,
-              "reason": "在讨论中国低出生率和人口增速放缓背景下，养老行业投资价值的判断。从第3句开始，明确指出低出生率问题对投资的影响，提出养老行业作为唯一可统计的选项，强调即使出生率不解决，养老行业仍具投资价值。通过对比存入银行的保守策略与实际市场操作的矛盾，说明投资者无法空仓，必须将资金投入市场。最后结合人口老龄化趋势，提出通过多生育解决社会问题的观点，形成完整逻辑链：问题背景→投资困境→行业选择→社会贡献价值。时长计算：第3句（8.48-12.32秒）到第59句（165.64-166.44秒）共120.28秒，符合120-180秒要求。保留原话，不修正ASR内容，确保观点连贯、有理由、有案例。"
-            }
-          ],
-          "sha256": "a1a14e63aac49b351bc865ba85f5c01ac414cc7a1fec6ee3e9fe3d8006ca53fb",
-          "subtitle_sha256": "bca0f19c72206368e9a749df54a77a5e74045f2640dfbfc29a5b33b6352a4f7d",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0908-fa57fb",
-      "artifact_id": 10087605460,
-      "run_id": 34308518432,
-      "checked_at": 1788951970,
-      "source_url": "https://m.weibo.cn/detail/5335007129504221",
-      "parts": []
     }
   ]
 }
