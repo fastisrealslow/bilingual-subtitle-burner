@@ -4030,14 +4030,27 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         draw.text((48 + int(14 * unit), 101), tag, font=small_font,
                   fill=(255, 255, 255))
 
-        lines = _wrap_audio_card_title(display_topic, 14, max_lines=3)
+        from presentation import cover_headline
+        lines = cover_headline(topic, speaker)
+        topic_size = max(34, int(58 * unit))
+        topic_font = ImageFont.truetype(font_path, topic_size, index=index)
         line_h = int(topic_size * 1.15)
         title_y = 165
+        title_boxes = []
         for i, line in enumerate(lines):
             _draw_emphasis_line(
                 draw, (48, title_y + i * line_h), line, topic_font,
                 stroke_width=max(2, int(3 * unit)),
                 stroke_fill=(45, 28, 20), centered=False)
+            title_boxes.append(draw.textbbox((48,title_y+i*line_h),line,
+                               font=topic_font,stroke_width=max(2,int(3*unit))))
+        if len(lines)>2 or any(b[0]<38 or b[2]>682 or b[1]<150 or b[3]>325
+                               for b in title_boxes):
+            raise VisualQualityError('视频顶部短标题超出两行安全区域')
+        Path(str(out_path)+'.title-proof.json').write_text(json.dumps({
+            'version':1,'title':topic,'headline_lines':lines,'font_px':topic_size,
+            'text_boxes':title_boxes,'max_lines':2,'bottom_limit':325,
+            'matches_cover_headline':True},ensure_ascii=False,indent=2))
 
         x0, y0, x1, y1 = 44, 360, 676, 830
         draw.rounded_rectangle((x0, y0, x1, y1), radius=18,
@@ -4290,13 +4303,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     audio_card = None
     audio_card_portrait = None
     if strategy == "audio_card":
-        # 用已经核验过的投稿标题做常驻标题，避免视频内标题与封面各说各话。
+        # 视频顶部与封面共用完整短标题，投稿标题保留完整表述。
         first_pick = picks[0]
         audio_card_portrait = extract_audio_card_portrait(
             _download_speaker_reference(speaker,work),
             work / f"audio_card_portrait{suffix}.png")
         audio_card = make_audio_card(
-            work / f"audio_card{suffix}.png", speaker, cw["title"],
+            work / f"audio_card{suffix}.png", speaker, cw["cover_title"],
             portrait_path=audio_card_portrait, require_portrait=True)
     from presentation import layout_for, VERSION as PRESENTATION_VERSION
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
@@ -4454,6 +4467,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
         "cover_title":cw['cover_title'], "cover_copy":cw['cover_copy'],
+        "video_title":cw['cover_title'] if strategy=='audio_card' else None,
+        "video_title_proof":(json.loads(Path(str(audio_card)+'.title-proof.json').read_text())
+                             if audio_card else None),
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
         "cover_fallback_reason":cover_fallback_reason,
         "cover": cover.name if cover else None,

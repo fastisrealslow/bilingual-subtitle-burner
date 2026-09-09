@@ -23,7 +23,14 @@ for name,title in samples:
         path=out/f'{name}-{style}.jpg'
         P.make_audio_card(path,'林园',copy['cover_title'],width=1280,height=720,
                           portrait_path=portrait,require_portrait=True,cover_style=style)
-    rows.append({'sample':name,**copy})
+    video_card=out/f'{name}-video-top.png'
+    P.make_audio_card(video_card,'林园',copy['cover_title'],width=720,height=1280,
+                      portrait_path=portrait,require_portrait=True)
+    proof=json.loads(Path(str(video_card)+'.title-proof.json').read_text())
+    from presentation import cover_headline
+    assert proof['headline_lines']==cover_headline(copy['cover_title'])
+    assert len(proof['headline_lines'])<=2 and all(b[3]<=325 for b in proof['text_boxes'])
+    rows.append({'sample':name,**copy,'video_title_proof':proof})
 # Real CPU identity pass using a reference-derived guest and an unrelated blank image.
 from PIL import Image
 blank=out/'blank.jpg';Image.new('RGB',(640,360),'gray').save(blank)
