@@ -46,3 +46,10 @@ jobs:
         run: python linyuan/register_selection_recovery.py --suffix tracked14 --evidence-run 34340237266
       - name: 用第二场访谈验证镜头切换与正常主持人反应镜头
         run: python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix tracked15 --evidence-run 34340715975
+      - name: 准备本次成片取景诊断所需的公开CPU模型
+        run: PYTHONPATH=linyuan python -c 'import produce_cn; produce_cn._local_face_models()'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-opencv-face-models
+          path: /tmp/linyuan-face-models/*.onnx
+          retention-days: 3
