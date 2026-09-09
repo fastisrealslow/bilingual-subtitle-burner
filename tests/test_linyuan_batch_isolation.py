@@ -29,8 +29,9 @@ class BatchIsolationTests(unittest.TestCase):
                 try:time.sleep(.1)
                 except Exception:continue
         with patch.object(produce,'_produce_one',side_effect=stuck):
-            with self.assertRaisesRegex(produce.VisualQualityError,'生产预算'):
+            with self.assertRaisesRegex(produce.PartProductionUnavailable,'生产预算'):
                 produce.produce_part_with_budget(budget_sec=.02)
+        self.assertTrue(issubclass(produce.PartProductionUnavailable,produce.EditorialReviewUnavailable))
         with patch.object(produce,'_produce_one',return_value={'final':'next.mp4'}):
             self.assertEqual(produce.produce_part_with_budget(budget_sec=1)['final'],'next.mp4')
 

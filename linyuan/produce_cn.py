@@ -180,6 +180,10 @@ class LocalTextUnavailable(EditorialReviewUnavailable):
     """Local inference did not finish; do not reject or cache an empty selection."""
 
 
+class PartProductionUnavailable(EditorialReviewUnavailable):
+    """A production time limit is retryable, not evidence of bad source content."""
+
+
 def text_budget(cloud_seconds):
     """CPU prompt evaluation needs its own bounded budget; no cloud fallback."""
     if TEXT_BACKEND == 'local':
@@ -4481,7 +4485,7 @@ def produce_part_with_budget(*args, budget_sec=None, **kwargs):
     try:
         return _produce_one(*args,**kwargs)
     except PartDeadlineExceeded:
-        raise VisualQualityError(f'单片超过{seconds:g}秒生产预算，隔离后继续后续片段') from None
+        raise PartProductionUnavailable(f'单片超过{seconds:g}秒生产预算，保留原始证据并隔离后继续后续片段') from None
     finally:
         signal.setitimer(signal.ITIMER_REAL,*timer)
         signal.signal(signal.SIGALRM,previous)
