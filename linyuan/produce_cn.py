@@ -1928,10 +1928,13 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         else:
             try:
                 pieces=[(offset,end,text,*fit_lines(text))]
-            except ValueError:
+            except ValueError as fit_error:
                 # A complete spoken sentence can overflow two lines in less
                 # than eight seconds. Reuse the same source-bound splitter.
-                pieces=split_long_group(offset,end)
+                try:
+                    pieces=split_long_group(offset,end)
+                except ValueError as split_error:
+                    raise ValueError(str(fit_error)+'；原文边界无法安全重分') from split_error
         for lo, hi, piece, cue_capacity, cue_font in pieces:
             a,b=chars[lo][1],chars[hi-1][2]
             if b-a<.25: raise ValueError('意群字幕过短闪屏')
