@@ -77,7 +77,7 @@ def test_editorial_schema_evidence_only_contains_retained_source(monkeypatch,tmp
           dict(start=120,end=240,text='这句不在选段中')]
     def review(messages,api_key,**options):
         assert options['max_tokens']==2200
-        evidence=options['response_schema']['properties']['issues']['items']['enum']
+        evidence=options['response_schema']['properties']['analysis']['properties']['audio_issues']['items']['properties']['quote']['enum']
         assert '医药需求随老龄化增长' in evidence
         assert all(quote in cues[0]['text'] for quote in evidence)
         assert '这句不在选段中' not in evidence
@@ -87,7 +87,7 @@ def test_editorial_schema_evidence_only_contains_retained_source(monkeypatch,tmp
             opening_quote='医药需求随老龄化增长。',ending_quote='这是我们的判断。'))
     monkeypatch.setattr(P,'llm',review)
     result=P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
-    assert result['review_prompt_version']==5
+    assert result['review_prompt_version']==6
     assert (tmp_path/'editorial_response-0.txt').exists()
 
 
@@ -95,7 +95,7 @@ def test_review_evidence_rejoins_display_rows_before_checking_completeness(monke
     cues=[dict(start=0,end=60,text='科技股它现在还在走牛市，传统的股票它'),
           dict(start=60,end=120,text='是在走熊市。')]
     def review(messages,api_key,**options):
-        evidence=options['response_schema']['properties']['issues']['items']['enum']
+        evidence=options['response_schema']['properties']['analysis']['properties']['audio_issues']['items']['properties']['quote']['enum']
         assert cues[0]['text'] not in evidence
         assert ''.join(c['text'] for c in cues) in evidence
         return json.dumps(dict(standalone_opening=True,complete_argument=True,
@@ -124,6 +124,27 @@ def test_sentence_display_preserves_split_words_and_original_indices():
     assert units==[dict(start=0,end=1,text='百分之一百的风险。'),
                    dict(start=2,end=2,text='但不能忽略行业机会。')]
     assert ''.join(x['text'] for x in units)==''.join(x['text'] for x in cues)
+
+
+def test_nested_editorial_verdict_requires_real_claim_and_reason(monkeypatch,tmp_path):
+    text='医药需求长期存在。因为人会衰老。所以我们长期关注。'
+    cues=[dict(start=0,end=140,text=text)]
+    analysis=dict(claim_quote='医药需求长期存在。',reasoning_quote='因为人会衰老。',
+        conclusion_quote='所以我们长期关注。',opening_quote='医药需求长期存在。',
+        ending_quote='所以我们长期关注。',summary='衰老带来持续需求',
+        completeness_reason='观点、原因和收束均保留',audio_issues=[])
+    verdict=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False)
+    def review(*args,**options):
+        assert sorted(options['response_schema']['properties'])==['analysis','verdict']
+        return json.dumps(dict(analysis=analysis,verdict=verdict))
+    monkeypatch.setattr(P,'llm',review)
+    proof=P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
+    assert proof['reasoning_quote']=='因为人会衰老。' and proof['issues']==[]
+    (tmp_path/'editorial_review.json').unlink()
+    analysis['reasoning_quote']=''
+    with pytest.raises(P.EditorialReviewUnavailable,match='没有原文理由证据'):
+        P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
 
 
 def test_explicit_budget_still_bounds_local_request(monkeypatch,tmp_path):

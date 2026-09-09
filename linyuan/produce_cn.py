@@ -1592,7 +1592,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==5
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==6
                     and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
                     and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
@@ -1627,57 +1627,44 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
         print('[完整观点] 命中母片SHA及修正后全文哈希绑定的人工审核')
         return proof
-    prompt=(f'独立复核这条{speaker}访谈选段是否适合作为完整观点视频。'
-        '以下是原始CPU ASR，口语重复、语气词和无标点本身不是否决原因。'
-        '字幕显示换行不是句子边界，必须连读整句；不能把一行截取的前半句当成缺失后半句。'
-        '行业俗称和比喻（如老登股、性感、打水漂）应结合片内解释理解，不能仅因词语口语化判定缺失论证或需要听音。'
-        '比喻、自我强调或你不赞同的投资判断本身也不是识别错误；只审核表达和原话，不评判观点对错。'
-        '先逐句列出无法按字面理解的错词、关键否定或数字歧义，再作整体判断。'
-        '禁止在脑中替换错词后给原文通过；缺少宾语或必要下文的半句结尾须拒绝。'
-        '摘要通顺不代表原字幕正确；开场无明确指代或缺少必要前因也须拒绝。'
-        '只判断内容，不改写原话。检查开场第一句话是否明确话题并独立可懂，允许短的口头承接词，'
-        '不要求3秒内说完一句；但指代必须能在片内理解。检查是否讲清完整观点、'
-        '有无理由/案例、结束是否自然且没有半句、数字/否定/关键实体是否有影响观点的识别歧义。'
-        '中间同主题追问可保留；无关主题拼凑、片头寒暄/无指代回应、必要结论被切掉须拒绝。'
-        '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
-        '先摘录真实开场结尾、写出观点理由结论与不足，再根据这些证据填写布尔判定。'
-        '主持人明确提到主题再询问嘉宾，是独立开场；提到过去的直播日期本身不需要观众看过那场直播。'
-        '每个布尔值独立填写，不预设通过。输出JSON字段：standalone_opening、complete_argument、'
-        'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
-        'issue_details（逐个解释识别问题为何影响原意）。issues只能从JSON schema的enum原文候选中选择，'
-        '选取包含问题的原句，最多8项；发现更多问题也必须拒绝，无需抄录全文。'
-        '不得填规则描述、括号说明、改写词或输入中不存在的文字；没有问题填空数组。'
-        'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。'
-        '开场引用必须从实际选段第一个字开始，结尾引用必须覆盖选段最后一个字，禁止用中间一句冒充结尾。'
-        'completeness_reason须具体说明上述完整性判断：有何观点、理由、结论，或究竟缺哪一环；'
-        '不要要求这一主题顺带解释所有其他行业或回答片内未提出的问题。'
-        '所有字符串须简短，summary不超过50字，issue_details每项不超过30字，'
-        '开场及结尾各摘录不超过100字。\n原话：'+text)
-    # Constrain issue evidence to actual retained ASR, rather than asking a
-    # small model to reproduce quotes from memory. Never normalize or repair
-    # negations/numbers in order to make an invented quotation match.
+    prompt=(f'审核{speaker}的一段访谈能否独立成片。任务是判断剪辑是否保留完整表达，'
+        '不是审查投资判断的正确性，也不是要求研究报告式的严密论证。\n'
+        '先阅读全部原话，在analysis中逐字摘录观点、至少一个理由或例子、收束语；不存在则填空字符串。'
+        '然后填写verdict。观点加上片内理由、自然完成回答即可构成完整表达；'
+        '结尾可以是最后一条解释，不必再次重述观点。不要求定义常见行业名词或提供数据证明。'
+        '主持人已说出话题再提问可以独立开场，提及过去直播日期不等于依赖片外上下文。\n'
+        '保留以下剪辑门禁：真正不明的指代、必要论述被切断、未回答的新问题结尾、'
+        '无关话题或片头预告寒暄拼凑，均不得通过。中间同主题追问可以保留。'
+        '按完整原话理解，字幕显示换行、口吃、重复、语气词、常见口语比喻本身不算错误。'
+        '不得自行改写错字或猜测关键数字、否定、实体；仅在这些识别歧义实际妨碍理解时，'
+        '列入audio_issues并标记requires_audio_review。结构不完整的理由写入completeness_reason，'
+        '不能冒充听音问题。\n'
+        '所有quote必须逐字取自原话。opening_quote从第一个字开始，ending_quote覆盖最后一个字，'
+        '各不超过100字。audio_issues每项将quote和影响原意的reason配对；没有则为空数组。'
+        '每个判定须与摘录的证据一致；缺什么写具体，不要凭空提出片内未问的新问题。\n原话：'+text)
+    # Whole-sentence evidence prevents a display row ending mid-sentence from
+    # becoming a spurious "missing object". Evidence and verdict are separate
+    # objects because Ollama's grammar orders property names alphabetically.
     evidence=list(dict.fromkeys(fragment
         for sentence in re.findall(r'[^。！？!?]+[。！？!?]?',text)
         for fragment in (sentence,sentence.rstrip('。！？!?')) if fragment))
-    fields={
-        'standalone_opening':{'type':'boolean'},
-        'complete_argument':{'type':'boolean'},
-        'reasoning_present':{'type':'boolean'},
-        'natural_ending':{'type':'boolean'},
-        'requires_audio_review':{'type':'boolean'},
+    quote_field={'type':'string','maxLength':100}
+    analysis_fields={
+        'claim_quote':quote_field,
+        'reasoning_quote':quote_field,
+        'conclusion_quote':quote_field,
+        'opening_quote':quote_field,
+        'ending_quote':quote_field,
         'summary':{'type':'string','maxLength':50},
-        'completeness_reason':{'type':'string','maxLength':100},
-        'issues':{'type':'array','maxItems':8,'items':{'type':'string','enum':evidence}},
-        'issue_details':{'type':'array','maxItems':8,'items':{'type':'string','maxLength':30}},
-        'opening_quote':{'type':'string','maxLength':100},
-        'ending_quote':{'type':'string','maxLength':100},
+        'completeness_reason':{'type':'string','maxLength':150},
+        'audio_issues':{'type':'array','maxItems':8,'items':{
+            'type':'object','properties':{
+                'quote':{'type':'string','enum':evidence},
+                'reason':{'type':'string','maxLength':60}},
+            'required':['quote','reason'],'additionalProperties':False}},
     }
-    # Generate evidence and reasoning before decisions. The old small model
-    # generated a negative boolean first, then a contradictory complete summary.
-    fields={key:fields[key] for key in ('opening_quote','ending_quote','summary',
-        'completeness_reason','issues','issue_details','standalone_opening',
+    fields={name:{'type':'boolean'} for name in ('standalone_opening',
         'complete_argument','reasoning_present','natural_ending','requires_audio_review')}
-    required=list(fields)
     if omitted_text:
         first=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
         second=''.join(c['text'] for c in cues[picks[1]['start']:picks[1]['end']+1])
@@ -1691,9 +1678,12 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             'omitted_is_parenthetical':{'type':'boolean'},
             'omission_reason':{'type':'string'},
         })
-        required=list(fields)
-    response_schema={'type':'object','properties':fields,'required':required,
-                     'additionalProperties':False}
+    response_schema={'type':'object','properties':{
+        'analysis':{'type':'object','properties':analysis_fields,
+            'required':list(analysis_fields),'additionalProperties':False},
+        'verdict':{'type':'object','properties':fields,
+            'required':list(fields),'additionalProperties':False}},
+        'required':['analysis','verdict'],'additionalProperties':False}
     for attempt in range(2):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
@@ -1702,6 +1692,26 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)
+            if 'analysis' in proof or 'verdict' in proof:
+                analysis,verdict=proof.get('analysis'),proof.get('verdict')
+                if not isinstance(analysis,dict) or not isinstance(verdict,dict):
+                    raise ValueError('缺少证据或判定对象')
+                for name in ('claim_quote','reasoning_quote','conclusion_quote'):
+                    quote=analysis.get(name)
+                    if not isinstance(quote,str) or (quote and quote not in text):
+                        raise ValueError('观点/理由/收束引用不在实际原话中')
+                audio_issues=analysis.get('audio_issues')
+                if not isinstance(audio_issues,list) or any(not isinstance(x,dict)
+                        or not isinstance(x.get('reason'),str) or not x['reason']
+                        for x in audio_issues):
+                    raise ValueError('听音问题缺少配对说明')
+                proof={**analysis,**verdict,'issues':[x.get('quote') for x in audio_issues],
+                       'issue_details':[x['reason'] for x in audio_issues]}
+                # A positive decision needs actual source support, not just flags.
+                if proof.get('complete_argument') is True and not analysis['claim_quote']:
+                    raise ValueError('完整观点通过却没有原文观点证据')
+                if proof.get('reasoning_present') is True and not analysis['reasoning_quote']:
+                    raise ValueError('理由通过却没有原文理由证据')
             for name in ('opening_quote','ending_quote'):
                 quote=proof.get(name)
                 if not isinstance(quote,str) or not quote or quote not in text:
@@ -1722,7 +1732,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=5,review_model=LOCAL_LLM_MODEL)
+                 review_prompt_version=6,review_model=LOCAL_LLM_MODEL)
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
