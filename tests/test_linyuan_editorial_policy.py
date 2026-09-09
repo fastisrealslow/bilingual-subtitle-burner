@@ -26,6 +26,23 @@ def test_real_short_mp4_cannot_pass_with_long_metadata():
     assert policy.metadata_error(meta,180) is not None
 
 
+def test_disabled_model_review_is_explicit_and_still_enforces_source_integrity(tmp_path):
+    cues=[dict(start=0,end=140,text='医药需求长期存在，因为人会衰老。')]
+    with patch.object(produce,'llm',side_effect=AssertionError('disabled review called model')):
+        record=produce.argument_record_for_render(cues,[dict(start=0,end=0)],
+            '林园','',tmp_path,'')
+    assert record['status']=='skipped' and 'complete_argument' not in record
+    meta=dict(duration_sec=140,segments=[dict(start=0,end=140)],editorial_review=record)
+    assert policy.metadata_error(meta,140) is None
+    assert policy.metadata_error(meta,20) is not None
+    assert policy.review_error({**record,'complete_argument':True}) is not None
+    assert policy.review_error({**record,'transcript_sha256':''}) is not None
+    import pytest
+    cues[0]['text']='资本是足力的'
+    with pytest.raises(produce.VisualQualityError,match='ASR污染'):
+        produce.argument_record_for_render(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
+
+
 def test_silence_padding_and_unrelated_splicing_do_not_satisfy_duration():
     meta=complete_meta()
     meta['segments']=[dict(start=600,end=620)]

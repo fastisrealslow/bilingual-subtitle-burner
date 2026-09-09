@@ -4167,6 +4167,27 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
     return proof
 
 
+def argument_record_for_render(cues,picks,speaker,api_key,work,suffix):
+    """Record the user's disabled model review; retain source integrity gates."""
+    # Omitting words within an argument still needs its existing meaning check.
+    # The ordinary production path is one continuous source range.
+    if len(picks)!=1:
+        return review_complete_argument(cues,picks,speaker,api_key,work,suffix)
+    editorial.range_seconds(cues,picks[0])
+    text=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
+    error=editorial.transcript_integrity_error(text)
+    if error:
+        raise VisualQualityError(error)
+    proof=dict(version=editorial.VERSION,status='skipped',
+        review_protocol='model-review-disabled-v1',
+        model_review_policy_version=editorial.MODEL_REVIEW_POLICY_VERSION,
+        reason='user_disabled_model_completeness_review',
+        transcript_sha256=editorial.text_digest(text))
+    (work/f'editorial_review{suffix}.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    print('[完整观点] 按用户设置跳过模型审核；保留连续源区间、时长及字幕完整性检查')
+    return proof
+
+
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
@@ -4180,7 +4201,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if not picks:
         print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
         return None
-    argument_review = review_complete_argument(cues,picks,speaker,api_key,work,suffix)
+    argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")

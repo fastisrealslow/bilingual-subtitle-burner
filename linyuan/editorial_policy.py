@@ -9,6 +9,21 @@ from urllib.parse import urlparse, parse_qs
 VERSION = 2026090604
 MIN_SECONDS = 120.0
 TARGET_SECONDS = 180.0
+# 2026-09-09: user removed the mandatory model opinion-completeness review.
+# This is a declared omission of that review, never a synthetic positive verdict.
+MODEL_REVIEW_POLICY_VERSION = 2026090901
+
+
+def model_review_skipped(review):
+    return bool(isinstance(review,dict)
+        and review.get('version')==VERSION
+        and review.get('status')=='skipped'
+        and review.get('review_protocol')=='model-review-disabled-v1'
+        and review.get('model_review_policy_version')==MODEL_REVIEW_POLICY_VERSION
+        and review.get('reason')=='user_disabled_model_completeness_review'
+        and re.fullmatch(r'[0-9a-f]{64}',str(review.get('transcript_sha256','')))
+        and not any(key in review for key in ('standalone_opening','complete_argument',
+            'reasoning_present','natural_ending','requires_audio_review')))
 
 # Editing inputs verified against the original cue boundaries. This permits
 # one specific chronological omission, never publication or subtitle approval.
@@ -204,6 +219,8 @@ def range_seconds(cues, pick):
 
 
 def review_error(review):
+    if model_review_skipped(review):
+        return None
     if not isinstance(review, dict) or review.get('version') != VERSION:
         return '缺少新版完整观点验收'
     for field in ('standalone_opening', 'complete_argument', 'reasoning_present', 'natural_ending'):
