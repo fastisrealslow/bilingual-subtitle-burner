@@ -47,10 +47,10 @@ CI（仓库根 `.github/workflows/`）
 --------------------------------
 - `linyuan-monitor.yml`：每天 9 点抓取，提交元数据，视频不进仓库
 - `linyuan-produce-cn.yml`：日常与手动生产共用main流程；读取版本化CPU离线配置，不调用ASR API，不使用large-v3回退。配置与实测见[ASR_OFFLINE.md](ASR_OFFLINE.md)。
-- 日常成片以2～3分钟为主，每条为一个连续完整论述。每天发布6条，至少5条真人动态、最多1条audio_card。每条单独限时、隔离失败产物并保存已通过成片。
+- 日常成片以2～3分钟为主，每条为一个连续论述。每天最多3条真人动态，北京时间10:00、16:00、21:00，周日21:00保留完整访谈。每条单独限时、隔离失败产物并保存已通过成片；库存不足不凑数。
 
 两条都用 `working-directory: linyuan`。secret 复用仓库已有的
-默认使用本机 Ollama（`qwen3:4b`）完成选段、翻译和内容复核；人物核验使用
+默认使用本机 Ollama（`qwen3:4b`）完成选段、标题和字幕分屏；用户已取消连续选段的强制模型观点审核，生产与上传端明确记录`status=skipped`。时长、字幕与画面检查保留。人物核验使用
 OpenCV YuNet + SFace ONNX，ASR 使用 CPU 离线模型。运行
 `run_local_cpu.sh <本地视频.mp4> <slug>` 时会主动清除硅基流动和阿里云变量，
 只允许文本模型连接本机回环地址。投稿要额外配 `BILIBILI_COOKIES`。
