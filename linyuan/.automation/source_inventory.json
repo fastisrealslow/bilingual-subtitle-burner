@@ -3,7 +3,7 @@
   "validation_sha256": "206318a45d0ebf44256da04fa709931110ccd1fb44f026ef0cd299109b8240aa",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788949448,
+  "updated_at": 1788950289,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -5530,6 +5530,8 @@
         "family": "BV17Rt8zKEji",
         "slugs": [
           "ly-0909-09068a",
+          "ly-0909-09068a-cached12",
+          "ly-0909-09068a-cached13",
           "ly-0909-09068a-caption10",
           "ly-0909-09068a-caption11"
         ],
@@ -5576,6 +5578,7 @@
         "family": "BV1SazbBhE8a",
         "slugs": [
           "ly-0909-7c4660",
+          "ly-0909-7c4660-cached12",
           "ly-0909-7c4660-caption10",
           "ly-0909-7c4660-caption11",
           "ly-0909-7c4660-caption9",
@@ -5928,7 +5931,14 @@
           "ly-0909-580a9e-deps11"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0909-580a9e-deps11",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[1]，different=[2, 3, 4]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.7544, 2: 0.116, 3: 0.0452, 4: 0.1078}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6955,7 +6965,8 @@
       "BV1sVbg6LEJe": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1Ng4y1w78M": {
         "attempted_mothers": 1,
@@ -6964,7 +6975,7 @@
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 19,
   "artifacts": [
     {
       "slug": "ly-0909-79a7be",
