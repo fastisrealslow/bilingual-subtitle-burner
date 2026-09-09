@@ -1801,7 +1801,7 @@ def dependent_caption_start(text):
 
 
 def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
-    """Validate model-selected boundaries against source characters and timing."""
+    """Validate source- or model-selected boundaries against text and timing."""
     from presentation import word_spans, wrap_words
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
     chars=[]; entry_bounds=set(); punctuation_bounds=set()
@@ -1919,8 +1919,15 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         # floor remains 38 px, so this is a bounded layout adjustment rather
         # than a quality-gate bypass.
         a,b=chars[offset][1],chars[end-1][2]
-        pieces = (split_long_group(offset, end) if b-a>8 else
-                  [(offset, end, text, *fit_lines(text))])
+        if b-a>8:
+            pieces=split_long_group(offset,end)
+        else:
+            try:
+                pieces=[(offset,end,text,*fit_lines(text))]
+            except ValueError:
+                # A complete spoken sentence can overflow two lines in less
+                # than eight seconds. Reuse the same source-bound splitter.
+                pieces=split_long_group(offset,end)
         for lo, hi, piece, cue_capacity, cue_font in pieces:
             a,b=chars[lo][1],chars[hi-1][2]
             if b-a<.25: raise ValueError('意群字幕过短闪屏')
@@ -1959,7 +1966,7 @@ def token_breaks_to_char_offsets(selected, tokens):
 
 
 def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_groups=None):
-    """Use the language model for meaning; validate every character locally."""
+    """Prefer real sentence boundaries; validate every character locally."""
     capacity=layout['line_capacity']
     cache_path=Path(cache_path)
     if reviewed_groups is not None:
@@ -1972,6 +1979,21 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
                 entries, json.loads(cache_path.read_text()), capacity,
                 layout.get('subtitle_font_px'))
         except (ValueError,TypeError): pass
+    raw=''.join(e.get('zh','') for e in entries)
+    if re.search(r'[。！？]',raw):
+        # CPU ASR already supplies punctuation. Reconnect display rows into
+        # actual sentences instead of sending a redundant 20k-character cue /
+        # transcript / token table to the local model for a second segmentation.
+        groups=[re.sub(r'[\s，。！？；：、]','',sentence)
+                for sentence in re.findall(r'[^。！？]+[。！？]?',raw)]
+        groups=[g for g in groups if g]
+        try:
+            result=apply_semantic_groups(entries,groups,capacity,layout.get('subtitle_font_px'))
+            cache_path.write_text(json.dumps(groups,ensure_ascii=False,indent=2))
+            print(f'[字幕分屏] 原文完整句边界通过字符、词界、时长及两行校验：{len(result)}屏',flush=True)
+            return result
+        except ValueError as exc:
+            print('[字幕分屏] 原文边界需进一步分组：'+str(exc),flush=True)
     from presentation import word_spans
     # Ask for boundary indices, never a copied transcript: models tend to
     # silently repair spoken repetitions/ASR errors while copying strings.

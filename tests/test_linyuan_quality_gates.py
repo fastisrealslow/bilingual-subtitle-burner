@@ -147,6 +147,17 @@ def test_nested_editorial_verdict_requires_real_claim_and_reason(monkeypatch,tmp
         P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
 
 
+def test_caption_sentence_path_rejoins_display_rows_without_model(monkeypatch,tmp_path):
+    from presentation import layout_for
+    entries=[dict(start_sec=0,end_sec=2,zh='科技股的长期风险'),
+             dict(start_sec=2,end_sec=4,zh='需要考虑。'),
+             dict(start_sec=4,end_sec=7,zh='因为会有新的技术替代。')]
+    monkeypatch.setattr(P,'llm',lambda *a,**kw:pytest.fail('source sentences called model'))
+    result=P.semantic_caption_entries(entries,'',layout_for(720,1280,True),tmp_path/'captions.json')
+    assert ''.join(g['zh'] for g in result)=='科技股的长期风险需要考虑因为会有新的技术替代'
+    assert all(g['semantic_group'] and g['end_sec']-g['start_sec']<=8 for g in result)
+
+
 def test_explicit_budget_still_bounds_local_request(monkeypatch,tmp_path):
     monkeypatch.setattr(P,'TEXT_BACKEND','local')
     monkeypatch.setattr(P,'BASE',tmp_path)
