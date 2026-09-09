@@ -3,13 +3,13 @@
   "validation_sha256": "d0889bd23a2bc93baa3fe2fbeb159eb75d5db3e78c4159c4de80d98b6275ddf2",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788957626,
+  "updated_at": 1788965310,
   "materials": {
     "weibo_search": {
-      "records": 1092,
-      "video_candidates": 422,
+      "records": 1098,
+      "video_candidates": 423,
+      "too_short": 31,
       "duration_eligible": 36,
-      "too_short": 30,
       "long_mother_candidates": 13,
       "duration_unknown": 356
     },
@@ -21,14 +21,22 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 725,
-      "video_candidates": 719,
-      "duration_eligible": 456,
-      "long_mother_candidates": 225,
-      "too_short": 81,
-      "over_limit": 65,
-      "duration_unknown": 117,
+      "records": 825,
+      "video_candidates": 819,
+      "duration_eligible": 545,
+      "long_mother_candidates": 281,
+      "too_short": 89,
+      "over_limit": 70,
+      "duration_unknown": 115,
       "reference_only": 6
+    },
+    "reference_origin_search": {
+      "records": 103,
+      "video_candidates": 103,
+      "over_limit": 25,
+      "duration_eligible": 66,
+      "long_mother_candidates": 33,
+      "too_short": 12
     },
     "shareholder_meeting": {
       "records": 145
@@ -37,14 +45,6 @@
       "records": 37,
       "video_candidates": 36,
       "duration_unknown": 36
-    },
-    "reference_origin_search": {
-      "records": 83,
-      "video_candidates": 83,
-      "over_limit": 19,
-      "duration_eligible": 53,
-      "long_mother_candidates": 24,
-      "too_short": 11
     },
     "competitor_reference": {
       "records": 982,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 17,
+    "verified_live": 16,
     "verified_audio_card": 3,
-    "daily_mix_usable": 20,
+    "daily_mix_usable": 19,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -5700,11 +5700,11 @@
             "reason": "本地文本推理未完成：qwen3:4b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 237.9,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 237.84,
+        "historical_receipts": 1
       },
       {
         "source_key": "BV1Ke41127bL:p1",
@@ -6967,8 +6967,8 @@
         "attempted_mothers": 1,
         "verified_available": 3,
         "verified_seconds": 478.3,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -6990,8 +6990,8 @@
       },
       "BV1JWQWYKEy6": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 237.9
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV1Ke41127bL": {
         "attempted_mothers": 1,
@@ -7091,7 +7091,7 @@
       }
     }
   },
-  "in_flight_placeholders": 23,
+  "in_flight_placeholders": 22,
   "artifacts": [
     {
       "slug": "ly-0909-703b35",
@@ -7157,35 +7157,6 @@
           ],
           "sha256": "832cd45257a92b1dbec946a33cdbbd96127f2abfdef27156bce97ee1608e2fa4",
           "subtitle_sha256": "015ab4b37395c73c23b32ac000b11befb109a10ce6c653e1d3c37f51a5ac0a67",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-3c2ade",
-      "artifact_id": 10103982146,
-      "run_id": 34349703080,
-      "checked_at": 1788957290,
-      "source_url": "https://www.bilibili.com/video/BV1JWQWYKEy6",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：我好像就是有有一个天眼的，我能看到最后全球十大医药公司",
-          "duration_sec": 237.9,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "58371b9c7b0693310ac6704258565f48e1507a0bb6736c289ad0c5a92497d604",
-          "segments": [
-            {
-              "start": 1267.56,
-              "end": 1505.4,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "50ec3894f4e2822dfd91aba5f1a6702fd47122ba6b5e12ab6c4315083cf38e6e",
-          "subtitle_sha256": "7b6d0f338e0a1961aea0581e0ad8dcb8b563f72dcbe1e7a09fc16bfb41faf3b6",
           "status": "verified",
           "reason": null
         }
@@ -7724,6 +7695,35 @@
       "checked_at": 1788955391,
       "source_url": "https://m.weibo.cn/detail/5335007129504221",
       "parts": []
+    },
+    {
+      "slug": "ly-0909-3c2ade",
+      "artifact_id": 10103982146,
+      "run_id": 34349703080,
+      "checked_at": 1788957290,
+      "source_url": "https://www.bilibili.com/video/BV1JWQWYKEy6",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_2.mp4",
+          "title": "林园：我好像就是有有一个天眼的，我能看到最后全球十大医药公司",
+          "duration_sec": 237.9,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "source_sha256": "58371b9c7b0693310ac6704258565f48e1507a0bb6736c289ad0c5a92497d604",
+          "segments": [
+            {
+              "start": 1267.56,
+              "end": 1505.4,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "50ec3894f4e2822dfd91aba5f1a6702fd47122ba6b5e12ab6c4315083cf38e6e",
+          "subtitle_sha256": "7b6d0f338e0a1961aea0581e0ad8dcb8b563f72dcbe1e7a09fc16bfb41faf3b6",
+          "status": "verified",
+          "reason": null
+        }
+      ]
     }
   ]
 }
