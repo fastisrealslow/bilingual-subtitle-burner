@@ -3,7 +3,7 @@
   "validation_sha256": "206318a45d0ebf44256da04fa709931110ccd1fb44f026ef0cd299109b8240aa",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788940394,
+  "updated_at": 1788940966,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 1,
+    "verified_live": 0,
     "verified_audio_card": 0,
-    "daily_mix_usable": 1,
+    "daily_mix_usable": 0,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -5518,11 +5518,11 @@
             "reason": "观点审核服务未提供可对照的实际原文证据：本地文本推理未完成：qwen3:4b，耗时131.9秒，预算600秒，ValueError；保留ASR并重试，不判素材不合格"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 140.7,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 140.64,
+        "historical_receipts": 1
       },
       {
         "source_key": "BV17Rt8zKEji:p1",
@@ -5577,7 +5577,14 @@
           "ly-0909-7d480e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0909-7d480e",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "素材质量门禁未通过"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5605,6 +5612,21 @@
         "family": "BV1Ke41127bL",
         "slugs": [
           "ly-0909-15ef03"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1FfpxzEEJv:p1",
+        "source_url": "https://www.bilibili.com/video/BV1FfpxzEEJv",
+        "family": "BV1FfpxzEEJv",
+        "slugs": [
+          "ly-0909-20049b"
         ],
         "source_sha256": [],
         "failures": [],
@@ -5657,8 +5679,8 @@
     "families": {
       "m.weibo.cn": {
         "attempted_mothers": 69,
-        "verified_available": 1,
-        "verified_seconds": 140.7,
+        "verified_available": 0,
+        "verified_seconds": 0,
         "terminal_unclassified": 29,
         "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1
@@ -6531,7 +6553,8 @@
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1JWQWYKEy6": {
         "attempted_mothers": 1,
@@ -6542,39 +6565,23 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1FfpxzEEJv": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 7,
+  "in_flight_placeholders": 6,
   "artifacts": [
     {
       "slug": "ly-0908-fa57fb",
-      "artifact_id": 10090157996,
-      "run_id": 34315967424,
-      "checked_at": 1788935096,
+      "artifact_id": 10087605460,
+      "run_id": 34308518432,
+      "checked_at": 1788940965,
       "source_url": "https://m.weibo.cn/detail/5335007129504221",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：科技股如果长期能够沉淀下来的很少很少，那个成功的案例，就是我们带科技的，是吧？",
-          "duration_sec": 140.7,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "a8c31e64cb10672706c38ce9f9efc4cacf77312eafeda6ff68a467b437c9e27b",
-          "segments": [
-            {
-              "start": 152.76,
-              "end": 293.4,
-              "reason": "科技行业机会与个股长期投资风险的区别：技术替代、持续投入和需求变化"
-            }
-          ],
-          "sha256": "eaee060f56b14464b270e56769849992649af015740dbb60ea4153be3258b0f7",
-          "subtitle_sha256": "441fafb073a25e1eefe35b1e74ce34741fbe9113f22775d457a3de5671e6f9cd",
-          "status": "verified",
-          "reason": null
-        }
-      ]
+      "parts": []
     },
     {
       "slug": "ly-new-scarcity-0909",
