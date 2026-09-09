@@ -1,0 +1,35 @@
+name: 林园审核修复实产验收
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-editorial-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: linyuan-editorial-recovery
+  cancel-in-progress: false
+jobs:
+  verify-and-produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 审核预算、原文证据及质量门禁回归
+        run: |
+          python -m pip install -q pytest
+          python -m pytest -q tests/test_linyuan_quality_gates.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_curated_editorial.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_source_supply.py
+      - name: 使用失败母片执行完整生产流程
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run linyuan-produce-cn.yml --ref main \
+            -f source=https://m.weibo.cn/detail/5335007129504221 \
+            -f slug=ly-0908-fa57fb -f speaker=林园 \
+            -f occasion=第一财经投资人说 -f source_platform=weibo \
+            -f auto_publish=false -f include_full=false
+          echo '已触发中文源出片；本工作流成功仅表示回归通过及任务已调度，不代表成片验收通过。' >> "$GITHUB_STEP_SUMMARY"

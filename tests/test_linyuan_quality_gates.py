@@ -38,7 +38,7 @@ def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
     assert seen['payload']['think'] is False
     assert seen['payload']['format']=='json'
     assert seen['payload']['keep_alive']=='24h'
-    assert seen['payload']['options']['num_predict']==640
+    assert seen['payload']['options']['num_predict']==2000
     assert seen['payload']['options']['num_ctx']==16384
 
 
@@ -67,9 +67,28 @@ def test_local_truncated_response_cannot_be_cached_as_complete(monkeypatch,tmp_p
         def __exit__(self,*args):return False
         def read(self):return b'{"message":{"content":"[]"},"done_reason":"length"}'
     monkeypatch.setattr(P.urllib.request,'urlopen',lambda *a,**kw:Reply())
-    with pytest.raises(P.LocalTextUnavailable):
+    with pytest.raises(P.LocalTextUnavailable,match='输出达到长度上限'):
         P.llm([{'role':'user','content':'review'}],'')
     assert not list((tmp_path/'.llm_cache').glob('*.json'))
+
+
+def test_editorial_schema_evidence_only_contains_retained_source(monkeypatch,tmp_path):
+    cues=[dict(start=0,end=120,text='医药需求随老龄化增长。这是我们的判断。'),
+          dict(start=120,end=240,text='这句不在选段中')]
+    def review(messages,api_key,**options):
+        assert options['max_tokens']==2200
+        evidence=options['response_schema']['properties']['issues']['items']['enum']
+        assert '医药需求随老龄化增长' in evidence
+        assert all(quote in cues[0]['text'] for quote in evidence)
+        assert '这句不在选段中' not in evidence
+        return json.dumps(dict(standalone_opening=True,complete_argument=True,
+            reasoning_present=True,natural_ending=True,requires_audio_review=False,
+            summary='解释老龄化与医药需求',issues=[],issue_details=[],
+            opening_quote='医药需求随老龄化增长。',ending_quote='这是我们的判断。'))
+    monkeypatch.setattr(P,'llm',review)
+    result=P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
+    assert result['review_prompt_version']==3
+    assert (tmp_path/'editorial_response-0.txt').exists()
 
 
 def test_explicit_budget_still_bounds_local_request(monkeypatch,tmp_path):

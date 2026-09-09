@@ -554,7 +554,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
         {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
-         "runtime_version":2,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
+         "runtime_version":3,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if cf.exists():
@@ -574,14 +574,12 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
         remaining=max(1,deadline-time.monotonic())
         payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,
                             'think':False,'format':response_schema or 'json','keep_alive':'24h',
-                            # Daily prompts all request compact JSON.  A hard
-                            # local cap prevents a CPU runner spending minutes
-                            # on a malformed response that never emits EOS. 640
-                            # tokens covers the evidenced review schema while
-                            # remaining practical on GitHub's two-core runner.
+                            # Respect each caller's bounded output budget.
+                            # A shared 640-token cap truncated real editorial
+                            # reports long before their wall-clock deadline.
                             'options':{'temperature':temperature,
                                        'num_ctx':16384,
-                                       'num_predict':min(max_tokens,640)}}).encode()
+                                       'num_predict':max_tokens}}).encode()
         started = time.monotonic()
         print(f'[local-llm] model={LOCAL_LLM_MODEL} chars={sum(len(m.get("content", "")) for m in messages)} budget={remaining:.0f}s ctx=16384', flush=True)
         try:
@@ -604,7 +602,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
         except Exception as exc:
             raise LocalTextUnavailable(
                 f'本地文本推理未完成：{LOCAL_LLM_MODEL}，耗时{time.monotonic()-started:.1f}秒，'
-                f'预算{remaining:.0f}秒，{type(exc).__name__}；保留ASR并重试，不判素材不合格') from exc
+                f'预算{remaining:.0f}秒，{type(exc).__name__}: {exc}；保留ASR并重试，不判素材不合格') from exc
     if TEXT_BACKEND != 'siliconflow':
         raise RuntimeError('TEXT_BACKEND 只能是 local；恢复收费云端须显式设为 siliconflow')
     if not api_key:
@@ -1580,7 +1578,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==2
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==3
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
                     and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
                          and saved.get('omission_preserves_meaning') is True and saved.get('omitted_is_parenthetical') is True))
@@ -1627,21 +1625,30 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
         '每个布尔值独立填写，不预设通过。输出JSON字段：standalone_opening、complete_argument、'
         'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
-        'issue_details（逐个解释识别问题为何影响原意）。issues只能逐字引用下面实际保留的原话，'
+        'issue_details（逐个解释识别问题为何影响原意）。issues只能从JSON schema的enum原文候选中选择，'
+        '选取包含问题的原句，最多8项；发现更多问题也必须拒绝，无需抄录全文。'
         '不得填规则描述、括号说明、改写词或输入中不存在的文字；没有问题填空数组。'
         'opening_quote（逐字摘录完整开场）、ending_quote（逐字摘录完整结尾）。'
-        '所有字符串须简短，summary不超过50字，issue_details每项不超过30字。\n原话：'+text)
+        '所有字符串须简短，summary不超过50字，issue_details每项不超过30字，'
+        '开场及结尾各摘录不超过100字。\n原话：'+text)
+    # Constrain issue evidence to actual retained ASR, rather than asking a
+    # small model to reproduce quotes from memory. Never normalize or repair
+    # negations/numbers in order to make an invented quotation match.
+    evidence=list(dict.fromkeys(fragment for p in picks
+        for cue in cues[p['start']:p['end']+1]
+        for fragment in [cue['text'], *re.split(r'[。！？!?；;]',cue['text'])]
+        if fragment))
     fields={
         'standalone_opening':{'type':'boolean'},
         'complete_argument':{'type':'boolean'},
         'reasoning_present':{'type':'boolean'},
         'natural_ending':{'type':'boolean'},
         'requires_audio_review':{'type':'boolean'},
-        'summary':{'type':'string'},
-        'issues':{'type':'array','items':{'type':'string'}},
-        'issue_details':{'type':'array','items':{'type':'string'}},
-        'opening_quote':{'type':'string'},
-        'ending_quote':{'type':'string'},
+        'summary':{'type':'string','maxLength':50},
+        'issues':{'type':'array','maxItems':8,'items':{'type':'string','enum':evidence}},
+        'issue_details':{'type':'array','maxItems':8,'items':{'type':'string','maxLength':30}},
+        'opening_quote':{'type':'string','maxLength':100},
+        'ending_quote':{'type':'string','maxLength':100},
     }
     required=list(fields)
     if omitted_text:
@@ -1664,6 +1671,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         try:
             response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
                          max_tokens=2200,budget_sec=text_budget(240),response_schema=response_schema)
+            (work/f'editorial_response{suffix}-{attempt}.txt').write_text(response,encoding='utf-8')
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)
@@ -1683,7 +1691,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=2)
+                 review_prompt_version=3)
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
