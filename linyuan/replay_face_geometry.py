@@ -11,6 +11,7 @@ def main():
     args=argparse.ArgumentParser()
     args.add_argument('--accepted',required=True,type=Path)
     args.add_argument('--rejected',required=True,type=Path)
+    args.add_argument('--recovered',type=Path)
     options=args.parse_args()
     cv2.setNumThreads(2)
     detector_path,_=p._local_face_models()
@@ -35,6 +36,10 @@ def main():
         count=sum(passes(im) for im in sample(path))
         assert count<5
         rows.append(dict(case=f'actual_644_empty_{part}',full_faces=count,total=6))
+    if options.recovered:
+        count=sum(passes(im) for im in sample(options.recovered))
+        assert count==6
+        rows.append(dict(case='actual_652_profile_frames',full_faces=count,total=6))
     # Use the exact accepted source-time frame for a meaningful geometry control.
     cap=cv2.VideoCapture(str(options.accepted));cap.set(cv2.CAP_PROP_POS_MSEC,50000)
     ok,image=cap.read();cap.release();assert ok
