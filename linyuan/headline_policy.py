@@ -4,7 +4,7 @@ import difflib
 
 VERSION = 2026090903
 TOPICS = ('片仔癀','茅台','股息','分红','医药','消费','科技股','机器人','老龄化','现金流','投资','企业')
-QUESTION = re.compile(r'请问|想问|您认为|您如何|林总|分享一下')
+QUESTION = re.compile(r'您|请问|想问|请教|聊聊|林总|分享一下|[？?]')
 CONDITION = re.compile(r'如果|假如|除非|只有|虽然|即使|只要')
 TAIL = re.compile(r'(?:因为|所以|如果|虽然|但是|以及|而且|关于|对于|我们说的买入|我本人学医的|我们认为|我们说的|能够|可以|需要|这些|那些|这个|那个|的话|是否|的|是|与|把|被|比|更|还|在|会)$')
 VERB = re.compile(r'买|卖|投|持有|涨|跌|赚|亏|值|回报|增长|增加|下降|风险|降价|涨价|机会|不|有|够|活|重要|便宜|贵|少|多|强|弱|完|老龄化|股息率')
@@ -28,8 +28,11 @@ def complete(text):
 def quote_candidates(text, min_chars=10, max_chars=54):
     """Whole sentences/clauses only; never a character-budget prefix."""
     result=[]
-    for sentence in re.split(r'[。！？；!?;\n]+',text):
-        sentence=sentence.strip('，,：: ')
+    for sentence in re.split(r'(?<=[。！？；!?;\n])',text):
+        # Filter the entire interviewer sentence before splitting clauses;
+        # otherwise a clause can shed its "您" and impersonate the answer.
+        if QUESTION.search(sentence):continue
+        sentence=sentence.strip('，,：: 。！？；!?;\n')
         clauses=[p.strip() for p in re.split(r'[，,]+',sentence) if p.strip()]
         options=[sentence]
         # A condition is kept with its consequence, even if that means no short quote.

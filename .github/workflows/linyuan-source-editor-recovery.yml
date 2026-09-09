@@ -20,6 +20,8 @@ jobs:
           python-version: '3.11'
       - name: 验证不依赖模型的原文问答和片尾读取
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           pip install -q pytest jieba pillow 'opencv-python<5'
           python -m pytest -q tests/test_linyuan_source_selection.py tests/test_linyuan_candidate_gate.py tests/test_linyuan_live_tracking.py
       - name: 用真实母片ASR重选，禁止读取旧选段或请求模型
@@ -50,3 +52,7 @@ jobs:
           gh release upload "$tag" /tmp/accepted648/ly-0909-09068a-tracked15.* --clobber
       - name: 正常生产重新选出的问答，仍逐条验片
         run: python linyuan/register_selection_recovery.py --suffix sourceqa19 --evidence-run 34340237266
+      - name: 修正两条旧缓存的采访者标题，重烧顶部标题和封面
+        run: |
+          python linyuan/register_selection_recovery.py --suffix packaging20 --evidence-run 34340237266 --selected-parts 2
+          python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix packaging21 --evidence-run 34340715975 --selected-parts 1

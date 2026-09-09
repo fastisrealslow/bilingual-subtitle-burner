@@ -62,7 +62,8 @@ def test_seek_and_eof_use_same_grid_without_padding():
 
 
 def test_actual_mp4_decodes_exactly_the_planned_frames(tmp_path):
-    import subprocess
+    import subprocess,shutil
+    if not shutil.which('ffmpeg'):pytest.skip('Media test runs after ffmpeg installation')
     cv2=pytest.importorskip('cv2')
     video=tmp_path/'rounding.mp4'
     subprocess.run(['ffmpeg','-loglevel','error','-f','lavfi','-i',
@@ -73,3 +74,11 @@ def test_actual_mp4_decodes_exactly_the_planned_frames(tmp_path):
     assert sum(cap.read()[0] for _ in range(count))==count
     assert not cap.read()[0]
     cap.release()
+
+
+def test_interviewer_clauses_cannot_shed_question_context_for_a_title():
+    from headline_policy import title_candidates
+    text='呃，您看好三种药品，然后你也聊聊原因，是因为受中国人口老龄化的影响嘛。我们看好的企业必须有持续增长的需求。'
+    titles=title_candidates(text)
+    assert titles and all('老龄化' not in title for title in titles)
+    assert p.editorial.title_attribution_error('林园：然后你也聊聊到说看好这三个药品的原因')

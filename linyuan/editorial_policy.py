@@ -236,7 +236,15 @@ def review_error(review):
     return None
 
 
+def title_attribution_error(title):
+    if re.search(r'请问|请教您|您(?:觉得|认为|如何|有没有|能不能)|你也聊聊|(?:和|跟)我们分享一下',str(title or '')):
+        return '标题引用了采访者提问，不能署为嘉宾本人观点'
+    return None
+
+
 def metadata_error(meta, actual_seconds=None):
+    attribution=title_attribution_error(meta.get('title'))
+    if attribution:return attribution
     try:
         duration = float(meta.get('duration_sec', 0))
         if not math.isfinite(duration) or duration < MIN_SECONDS:

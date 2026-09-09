@@ -2979,7 +2979,7 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         return f"标题必须以「{speaker}：」或「股神{speaker}：」开头"
     if any(word in title for word in TITLE_ASR_BLACKLIST):
         return "标题命中 ASR 污染词"
-    if any(phrase in title for phrase in ('请问','想问林总','分享一下','您如何','您认为','林总能')):
+    if editorial.title_attribution_error(title) or any(phrase in title for phrase in ('请问','想问林总','分享一下','您如何','您认为','林总能')):
         return '标题引用了主持人的提问，不能归为嘉宾原话'
     if re.search(r"https?://|www\.|t\.cn/|@[\w\u4e00-\u9fff]+", title, re.I):
         return "标题含链接或引流信息"
