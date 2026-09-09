@@ -105,6 +105,7 @@ def main():
     old={r['artifact_id']:r for r in previous.get('artifacts',[])} if (
         previous.get('version')==VERSION and previous.get('validation_sha256')==validation_sha
         and previous.get('quality_gate_version')==fc.QUALITY_GATE_VERSION) else {}
+    rules_changed=previous.get('validation_sha256')!=validation_sha
     candidates={e['slug']:e for e in fc._latest_dispatches(state)
                 if not e.get('failed') and e.get('production_rules_version')==fc.PRODUCTION_RULES_VERSION
                 and e['slug'] not in fc.REVIEW_PAUSED_SLUGS}
@@ -118,11 +119,15 @@ def main():
             if a['name'].startswith('deliver-') and slug in candidates and not a.get('expired'):
                 found.setdefault(slug,a)
         if len(rows)<100:break
+    # A rule upgrade invalidates cached approvals, but must not publish a
+    # partially rechecked stock count (four new batches used to hide older
+    # reserves and trigger unnecessary refills). Finish the full recheck first.
+    validation_budget=len(found) if rules_changed else args.max_new
     records=[];checked=0
     for slug,a in found.items():
         if a['id'] in old:
             records.append(old[a['id']]);continue
-        if checked>=args.max_new:continue
+        if checked>=validation_budget:continue
         checked+=1
         record=dict(slug=slug,artifact_id=a['id'],run_id=a['workflow_run']['id'],
                     checked_at=int(time.time()),source_url=candidates[slug].get('source_url'),parts=[])
