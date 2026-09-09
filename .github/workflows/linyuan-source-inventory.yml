@@ -1,5 +1,5 @@
 name: 林园素材与真实成片库存
-# Refresh verified inventory after distinct scarcity production 34318502241.
+# Refresh the actual accepted artifact after the 2026-09-09 review-policy recovery.
 on:
   push:
     branches: [main]
@@ -8,7 +8,7 @@ on:
       - linyuan/source_supply.py
       - linyuan/source_outcomes.py
   workflow_run:
-    workflows: ['中文源出片', '林园监控 · 每日抓取']
+    workflows: ['林园监控 · 每日抓取']
     types: [completed]
   workflow_dispatch:
 permissions:

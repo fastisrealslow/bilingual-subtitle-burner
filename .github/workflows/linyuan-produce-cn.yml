@@ -95,7 +95,7 @@ env:
 
 permissions:
   contents: write
-  actions: read
+  actions: write
 
 concurrency:
   group: produce-cn-${{ inputs.slug || 'ly-e2e-local-0908' }}
@@ -415,12 +415,24 @@ jobs:
         continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: deliver
-          name: 成品库
+          tag_name: deliver-${{ env.RUN_SLUG }}
+          name: 成品库 · ${{ env.RUN_SLUG }}
           files: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/${{ env.RUN_SLUG }}.*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 保留部分失败的实际成片与逐帧取景证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-evidence-${{ env.RUN_SLUG }}
+          path: |
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/rejected/
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/final_identity*/
+          retention-days: 14
+          if-no-files-found: ignore
 
       # 失败时把转写、金句、译文带出来，否则只能靠日志猜是哪步不达标
       - name: 保存本地模型运行日志
@@ -516,3 +528,9 @@ jobs:
             echo "定时发布：$(date -d "@$DTIME" '+%Y-%m-%d %H:%M') UTC"
           fi
           python3 publish_bilibili_cn.py --slug "${{ env.RUN_SLUG }}" --dtime "$DTIME"
+
+      - name: 明确触发库存核验与自动补位
+        if: always() && !cancelled()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main

@@ -514,11 +514,26 @@ def download_release_asset(asset, dest, max_time=1620):
 
 
 _delivery_release_assets = None
+_batch_delivery_release_assets = {}
 
 
 def delivery_release_asset(name):
     """优先返回带原始尺寸的 Release 元数据，供分段下载与完整性校验。"""
     global _delivery_release_assets
+    # One release per production batch avoids GitHub's 1000-asset shared limit.
+    # Keep the old shared release readable for previously generated batches.
+    slug=str(name).split('.',1)[0]
+    if re.fullmatch(r'[A-Za-z0-9_-]+',slug):
+        tag='deliver-'+slug
+        assets=_batch_delivery_release_assets.get(tag)
+        if assets is None:
+            try:
+                release=gh('GET',f'/releases/tags/{tag}')
+                assets={str(a.get('name') or ''):a for a in release.get('assets',[])}
+                if assets:_batch_delivery_release_assets[tag]=assets
+            except Exception:
+                assets={}
+        if name in assets:return assets[name]
     if _delivery_release_assets is None:
         try:
             release = gh("GET", f"/releases/tags/{DELIVERY_RELEASE_TAG}")
