@@ -44,3 +44,5 @@ jobs:
           PY
       - name: 同源正常实产，保留字幕和人物质量门禁
         run: python linyuan/register_selection_recovery.py --suffix tracked14 --evidence-run 34340237266
+      - name: 用第二场访谈验证镜头切换与正常主持人反应镜头
+        run: python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix tracked15 --evidence-run 34340715975

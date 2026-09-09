@@ -47,7 +47,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     cap.set(cv2.CAP_PROP_POS_MSEC,start*1000)
     count=round(duration*fps)
     output=Path(output); log=output.with_suffix('.ffmpeg.log')
-    matched=0;missing=0;longest_missing=0;previous=None; first=None; last=None
+    matched=0;missing=0;longest_missing=0;previous=None;first=None;last=None
+    other_faces=0;no_face=0;blank_streak=0
     with log.open('wb') as errors:
         proc=subprocess.Popen(['ffmpeg','-y','-loglevel','error','-f','rawvideo',
             '-pix_fmt','bgr24','-s','632x470','-r',str(fps),'-i','-',
@@ -58,13 +59,17 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 ok,frame=cap.read()
                 if not ok:raise ValueError('动态取景源视频提前结束')
                 height,width=frame.shape[:2]; candidates=[]
-                for face in faces(frame):
-                    feature=recognizer.feature(recognizer.alignCrop(frame,face))
-                    score=float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                detected=faces(frame)
+                for face in detected:
+                    try:
+                        feature=recognizer.feature(recognizer.alignCrop(frame,face))
+                        score=float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                    except cv2.error:
+                        continue
                     if score>=threshold:candidates.append((score,face))
                 if candidates:
                     score,face=max(candidates,key=lambda row:row[0])
-                    box=crop_box(face,width,height);matched+=1;missing=0
+                    box=crop_box(face,width,height);matched+=1;missing=0;blank_streak=0
                     if previous is not None:
                         # Smooth ordinary movement, but snap to a new shot immediately.
                         delta=max(abs(box[k]-previous[k]) for k in range(4))
@@ -73,9 +78,18 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                     previous=box
                 else:
                     missing+=1;longest_missing=max(longest_missing,missing)
-                    if previous is None or missing/fps>2:
-                        raise ValueError(f'动态取景连续{missing/fps:.2f}秒无法确认目标人物')
-                    box=previous
+                    if len(detected):
+                        # Preserve a brief original interviewer reaction shot. It
+                        # is explicitly NOT counted as a matched target frame;
+                        # aggregate 80% and final independent 5/6 gates still apply.
+                        face=max(detected,key=lambda f:float(f[2]*f[3]))
+                        box=crop_box(face,width,height);previous=box
+                        other_faces+=1;blank_streak=0
+                    else:
+                        no_face+=1;blank_streak+=1
+                        if previous is None or blank_streak/fps>2:
+                            raise ValueError(f'动态取景连续{blank_streak/fps:.2f}秒缺少人脸')
+                        box=previous
                 x,y,w,h=box
                 region=frame[y:y+h,x:x+w]
                 if region.shape[:2]!=(h,w):raise ValueError('动态取景越出源画面')
@@ -94,7 +108,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     if matched/count<.8:
         output.unlink(missing_ok=True);raise ValueError('动态取景目标人物匹配不足80%')
     proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
-        frames=count,matched_frames=matched,longest_unmatched_seconds=longest_missing/fps,
+        frames=count,matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
+        longest_unmatched_seconds=longest_missing/fps,
         first_crop=first,last_crop=last,threshold=threshold)
     output.with_suffix('.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return proof
