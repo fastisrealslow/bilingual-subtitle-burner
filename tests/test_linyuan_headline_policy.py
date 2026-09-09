@@ -98,3 +98,8 @@ def test_full_interview_cover_reports_actual_length_without_text_model(tmp_path,
                       '林园','访谈',None,tmp_path,suffix='_full',require_quote=False)
     assert result['cover_title']=='58分钟完整访谈'
     assert result['title']=='林园：58分钟完整访谈原声'
+
+
+def test_labeled_transcript_cannot_duplicate_speaker_prefix():
+    candidates=H.title_candidates('林园：我们长期持有优秀企业。')
+    assert candidates and all('林园：林园' not in t for t in candidates)

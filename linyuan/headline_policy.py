@@ -50,7 +50,7 @@ def score(text):
 
 
 def title_candidates(transcript, speaker='林园', existing_titles=None):
-    rows=quote_candidates(transcript)
+    rows=quote_candidates(body(transcript,speaker))
     rows.sort(key=score,reverse=True)
     result=[]
     for quote in rows:
