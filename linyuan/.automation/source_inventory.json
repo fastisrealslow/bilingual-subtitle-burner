@@ -3,7 +3,7 @@
   "validation_sha256": "206318a45d0ebf44256da04fa709931110ccd1fb44f026ef0cd299109b8240aa",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788947198,
+  "updated_at": 1788947341,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -5789,7 +5789,14 @@
           "ly-0909-61b909"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0909-61b909",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[]，different=[1, 2, 3, 6]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1924, 2: 0.2181, 3: 0.195, 6: 0.03}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -5802,6 +5809,43 @@
         "family": "BV1oEFsz7Eyk",
         "slugs": [
           "ly-0909-1a39c1"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0909-1a39c1",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 398 < 480（854x398），画质不达标"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1bA2cBAEMB:p1",
+        "source_url": "https://www.bilibili.com/video/BV1bA2cBAEMB",
+        "family": "BV1bA2cBAEMB",
+        "slugs": [
+          "ly-0909-8a0661"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Pm42177aC:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Pm42177aC",
+        "family": "BV1Pm42177aC",
+        "slugs": [
+          "ly-0909-a6878f"
         ],
         "source_sha256": [],
         "failures": [],
@@ -6780,9 +6824,21 @@
       "BV1Dw411Z7o8": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1oEFsz7Eyk": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1bA2cBAEMB": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1Pm42177aC": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
