@@ -208,25 +208,12 @@ def write_ass(entries, path, layout, font_name):
 
 
 def cover_headline(title, speaker='林园'):
-    body=re.sub(rf'^(?:股神)?{re.escape(speaker)}[：:]\s*','',title).strip()
-    body=re.sub(r'【重制试看】|\s+','',body)
-    clauses=[s.strip('，。！？；：,!?; ') for s in re.split(r'[，。！？；,!?;]',body)]
-    clauses=[c for c in clauses if c]
-    if len(clauses)>=2 and all(len(x)<=9 for x in clauses[:2]):
-        return clauses[:2]
-    if clauses and len(clauses[0])<=18:
-        try:
-            return wrap_words(clauses[0],9)
-        except ValueError:
-            pass
-    # Explicit quotation excerpt, never silently truncate or invent a new claim.
-    ends=[b for a,b in word_spans(body) if 6<=b<=16 and body[b-1] not in CLOSE]
-    for end in reversed(ends):
-        try:
-            return wrap_words(body[:end]+'…',9)
-        except ValueError:
-            pass
-    raise ValueError('无法生成完整词边界的短封面标题，需重写封面文案')
+    from headline_policy import cover_copy
+    short=cover_copy(title, speaker=speaker)['text']
+    clauses=[part for part in re.split(r'[，,。；;]',short) if part]
+    if len(clauses)==2 and all(len(part)<=9 for part in clauses):
+        return clauses
+    return wrap_words(''.join(clauses),9)
 
 
 def select_cover_style(clean_source, title, requested='auto'):

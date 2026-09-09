@@ -2827,14 +2827,12 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
 
 
 def _fallback_quote_title(cues, sel, speaker):
-    sample = "".join(cues[i]["text"] for i in sel)
-    sample = re.sub(r"\s+", "", sample)
-    sentences=[s.strip('，、：: ') for s in re.split(r'[。！？；]',sample)]
-    sentence=next((s for s in sentences if 10<=len(s)<=55 and not any(
-        phrase in s for phrase in ('请问','想问林总','分享一下','您如何','您认为','林总能'))),None)
-    if sentence is None:
-        raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
-    return f"{speaker}：{sentence}"
+    from headline_policy import title_candidates
+    transcript=''.join(cues[i]['text'] for i in sel)
+    for title in title_candidates(transcript,speaker):
+        if not title_quality_error(title,speaker,transcript):
+            return title
+    raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
@@ -2847,7 +2845,8 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     """
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
-    copy_identity={'version':3,'transcript_sha256':editorial.text_digest(transcript_text),
+    from headline_policy import attach_copy
+    copy_identity={'version':4,'transcript_sha256':editorial.text_digest(transcript_text),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title}
     if reviewed_title:
         error=title_quality_error(reviewed_title,speaker,transcript_text,existing_titles,
@@ -2856,6 +2855,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             raise VisualQualityError('编辑标题未通过原话校验：'+error)
         result=dict(title=reviewed_title,desc=f'{speaker}在{occasion}的公开发言选段。',
                     tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True)
+        result=attach_copy(result,transcript_text,speaker,existing_titles)
         cache.write_text(json.dumps(result,ensure_ascii=False))
         return result
     if cache.exists():
@@ -2884,8 +2884,9 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
 标题要求（严格遵守）:
 1. 必须以「{speaker}：」或「股神{speaker}：」开头
 2. 冒号后面必须是**从字幕里摘出来的他本人的原话**（可精简去口水词、可合并相邻两句，但不能改变意思、不能替换成书面语）
-3. 长度优先 32~60 字：允许用 2~3 个紧密相连的原话分句把冲突、数字和结论
-   交代完整；不要为了凑短标题删掉「我」「你」「不可能」等口语钩子
+3. 优先用一句完整原话交代具体对象与明确观点，通常18~36字即可；必要时保留更长的限定条件。
+   不强制数字或冲突，不添加原文没有的回报、身家、价格或态度。数字不是流量保证。
+   避免把同一科技风险观点换一种说法；不要写“机遇与挑战”等空泛总结。
 4. 保留口语感和态度（「我」「你」「不可能」「肯定」这类词不要删）
 5. 严禁编造：字幕里没说的话、没出现的数字，一律不许写
 6. 不要加任何后缀（不要「｜{speaker}」这种尾巴）
@@ -2911,6 +2912,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             last_error = title_quality_error(
                 candidate.get("title"), speaker, transcript_text,
                 existing_titles, require_quote=require_quote)
+            if not last_error and require_quote:
+                from headline_policy import compact, body
+                if compact(body(candidate.get('title'),speaker)) not in compact(transcript_text):
+                    last_error='标题必须完整回溯原文，不能靠六字相同混入新数字或断言'
             if not last_error:
                 d = candidate
                 break
@@ -2935,6 +2940,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     d.setdefault("tags", [speaker])
     d['copy_identity']=copy_identity
     d["title_quality_verified"] = True
+    d=attach_copy(d,transcript_text,speaker,existing_titles)
     cache.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     print(f"[文案] 标题:{d['title']}")
     return d
@@ -3001,8 +3007,50 @@ def wrap_cover_title(title, chars_per_line, max_lines=3):
     return lines
 
 
+def select_verified_cover_face(frames, reference_path):
+    """Select the actual matching face, never the most frequent/largest other face."""
+    import cv2
+    if not reference_path or not Path(reference_path).is_file():
+        raise VisualQualityError('现场封面缺少已核验人物参考图')
+    detector_path,recognizer_path=_local_face_models()
+    detector=cv2.FaceDetectorYN.create(str(detector_path),'',(320,320),score_threshold=.80,
+                                      nms_threshold=.3,top_k=5000)
+    recognizer=cv2.FaceRecognizerSF.create(str(recognizer_path),'')
+    def faces(path):
+        image=cv2.imread(str(path))
+        if image is None:return None,[]
+        h,w=image.shape[:2];detector.setInputSize((w,h))
+        _,found=detector.detect(image)
+        return image,([] if found is None else found)
+    ref,refs=faces(reference_path)
+    if not len(refs):raise VisualQualityError('封面参考照没有可识别人脸')
+    rf=max(refs,key=lambda face:float(face[2]*face[3]))
+    reference=recognizer.feature(recognizer.alignCrop(ref,rf))
+    matched=[]
+    for path in frames:
+        frame,found=faces(path)
+        if frame is None:continue
+        h,w=frame.shape[:2]
+        for face in found:
+            try:
+                feature=recognizer.feature(recognizer.alignCrop(frame,face))
+                score=float(recognizer.match(reference,feature,cv2.FaceRecognizerSF_FR_COSINE))
+            except cv2.error:continue
+            if score<LOCAL_FACE_COSINE_THRESHOLD:continue
+            x,y,fw,fh=[int(v) for v in face[:4]]
+            crop=frame[max(0,y):min(h,y+fh),max(0,x):min(w,x+fw)]
+            if crop.size==0:continue
+            sharp=float(cv2.Laplacian(cv2.cvtColor(crop,cv2.COLOR_BGR2GRAY),cv2.CV_64F).var())
+            matched.append((score,sharp,fw*fh,path,(x,y,fw,fh)))
+    if not matched:raise VisualQualityError('现场封面未找到与林园参考照匹配的人脸')
+    score,sharp,area,path,box=max(matched,key=lambda r:(r[0],r[1],r[2]))
+    return path,box,{'engine':'opencv_yunet_sface_cpu','cosine_score':round(score,4),
+                     'threshold':LOCAL_FACE_COSINE_THRESHOLD,'face_box':list(box),
+                     'matched_faces':len(matched),'sharpness':round(sharp,2)}
+
+
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
-               video_filter="", preferred_time=None):
+               video_filter="", preferred_time=None, reference_path=None):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
     竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
@@ -3018,11 +3066,11 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     # 人物闸门给出的 preferred_time 已经与参考照核验为本人；围绕该时间取三帧。
     # 没有核验时间时才退回原来的段内多帧策略。
     frames = []
-    if preferred_time is not None:
-        sample_times = [max(0, preferred_time + d) for d in (-0.6, 0, 0.6)]
-    else:
-        sample_times = [max(0, mid + p * (seg_end - seg_start))
-                        for p in (-0.30, -0.20, -0.10, 0, 0.10, 0.20, 0.30)]
+    lo=max(0,seg_start);hi=max(lo,seg_end-.1)
+    center=min(hi,max(lo,preferred_time)) if preferred_time is not None else mid
+    offsets=(-.6,0,.6) if preferred_time is not None else tuple(
+        p*(seg_end-seg_start) for p in (-.3,-.2,-.1,0,.1,.2,.3))
+    sample_times=sorted({min(hi,max(lo,center+d)) for d in offsets})
     for idx, t in enumerate(sample_times):
         fp = tmp.with_suffix(f".{idx}.png")
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
@@ -3041,61 +3089,9 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     if remaining:
         raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
 
-    # 多帧人脸聚类，选「跨帧持续出镜」的主讲人（林园），而非单帧「大且居中」的主持人。
-    # （2026-08-29 修复：专访里女主持居中脸大，旧评分误选主持人；现统计多帧出现次数）
-    best_frame = frames[0] if frames else tmp
-    best_face = None
-    try:
-        import cv2
-        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-        cascade = _cascade(cascade_path)
-        groups = []  # {'center':(cx,cy,wn), 'count':int, 'faces':[(x,y,w,h,fp)]}
-        for fp in frames:
-            img_cv = cv2.imread(str(fp))
-            if img_cv is None:
-                continue
-            fh, fw = img_cv.shape[:2]
-            scale = 2.0 if max(fh, fw) < 720 else 1.0
-            if scale > 1.0:
-                img_cv = cv2.resize(img_cv, (fw*2, fh*2), interpolation=cv2.INTER_CUBIC)
-                fh, fw = fh*2, fw*2
-            gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-            faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3,
-                                             minSize=(120, 120) if scale > 1.0 else (80, 80))
-            for f in faces:
-                fx, fy, fw2, fh2 = f
-                cx = (fx + fw2/2) / fw   # 归一化中心
-                cy = (fy + fh2/2) / fh
-                wn = fw2 / fw            # 归一化宽度
-                best_g, best_d = None, 0.15
-                for g in groups:
-                    gcx, gcy, gwn = g["center"]
-                    d = ((cx - gcx) ** 2 + (cy - gcy) ** 2 + (wn - gwn) ** 2) ** 0.5
-                    if d < best_d:
-                        best_d, best_g = d, g
-                if best_g is not None:
-                    n = best_g["count"]
-                    best_g["center"] = ((best_g["center"][0]*n + cx) / (n+1),
-                                        (best_g["center"][1]*n + cy) / (n+1),
-                                        (best_g["center"][2]*n + wn) / (n+1))
-                    best_g["count"] = n + 1
-                    best_g["faces"].append((fx/scale, fy/scale, fw2/scale, fh2/scale, fp))
-                else:
-                    groups.append({"center": (cx, cy, wn), "count": 1,
-                                   "faces": [(fx/scale, fy/scale, fw2/scale, fh2/scale, fp)]})
-        if groups:
-            # 跨帧出现次数最多 = 主讲人；同簇内取面积最大的那一帧
-            best_g = max(groups, key=lambda g: g["count"])
-            fx, fy, fw2, fh2, fp = max(best_g["faces"], key=lambda x: x[2] * x[3])
-            best_face = (int(fx), int(fy), int(fw2), int(fh2))
-            best_frame = fp
-    except Exception as e:
-        # 2026-09-01 血的教训：这里原来是 except: pass 静默吞异常。
-        # CI 的 pip install opencv-python 未锁版本，装到 OpenCV 5.0 后
-        # cv2.CascadeClassifier 被移除 → 人脸检测全程失败但无任何日志 →
-        # 封面退化成「中间裁一刀取第一帧」→ 出现「观众后脑勺封面」(盲评 2/10)、
-        # 「女主播当封面」(4/10)。异常必须喊出来。
-        raise VisualQualityError(f"封面人脸检测不可用，禁止盲目居中裁切：{e}") from e
+    best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+    Path(str(out_path)+'.identity.json').write_text(
+        json.dumps(identity_proof,ensure_ascii=False,indent=2))
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
@@ -4235,7 +4231,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 
-    # 文案必须先于画面卡生成：保证投稿标题、B站封面和视频内常驻标题完全一致。
+    # 标题与封面共用原文证据，但封面使用独立的完整短句。
     cw = copywrite(
         cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
         existing_titles=existing_titles,
@@ -4396,6 +4392,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
 
     cover_name = "cover_16x9.jpg"
     cover = out / (f"cover{suffix}.jpg" if suffix else cover_name)
+    cover_fallback_reason=None
     try:
         p0 = picks[0]
         from presentation import select_cover_style
@@ -4405,16 +4402,30 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
                     work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
-            make_audio_card(cover, speaker, cw["title"],
+            make_audio_card(cover, speaker, cw["cover_title"],
                             width=1280, height=720,
                             portrait_path=audio_card_portrait,
                             require_portrait=True, cover_style=selected_cover_style)
             cover_person_image_source = "authority_reference"
         else:
-            make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
-                       cw["title"], speaker, cover, video_filter=clean_vf,
-                       preferred_time=(visual_report or {}).get("best_cover_time"))
-            cover_person_image_source = "verified_source_frame"
+            try:
+                make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
+                           cw["cover_title"], speaker, cover, video_filter=clean_vf,
+                           preferred_time=(visual_report or {}).get("best_cover_time"),
+                           reference_path=work / "speaker_reference.jpg")
+                cover_person_image_source = "verified_source_frame"
+            except VisualQualityError as exc:
+                if os.environ.get('COVER_STYLE','auto')=='photo':raise
+                cover_fallback_reason=str(exc)
+                selected_cover_style=select_cover_style(False,cw['title'])
+                if audio_card_portrait is None:
+                    audio_card_portrait=extract_audio_card_portrait(
+                        work / 'speaker_reference.jpg',work / f'cover_portrait{suffix}.png')
+                make_audio_card(cover,speaker,cw['cover_title'],width=1280,height=720,
+                                portrait_path=audio_card_portrait,require_portrait=True,
+                                cover_style=selected_cover_style)
+                cover_person_image_source='authority_reference'
+                print('[封面] 现场帧不可用，已改用核验人物卡：'+str(exc))
     except Exception as e:
         raise VisualQualityError(f"封面生成/人物/角标复检失败：{e}") from e
     subtitle_files = []
@@ -4433,6 +4444,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "subtitle_text_sha256": editorial.text_digest(rendered_subtitle_text),
         "final": final_name,
         "title": cw["title"], "desc": cw["desc"], "tags": cw["tags"],
+        "cover_title":cw['cover_title'], "cover_copy":cw['cover_copy'],
+        "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
+        "cover_fallback_reason":cover_fallback_reason,
         "cover": cover.name if cover else None,
         "preview_30s": preview_name,
         "contact_sheet_6": contact_sheet_name,

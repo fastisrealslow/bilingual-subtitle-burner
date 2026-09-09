@@ -1,0 +1,39 @@
+name: 林园标题封面优化验收
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-headline-preview.yml
+      - linyuan/headline_policy.py
+      - linyuan/preview_headline_policy.py
+      - tests/test_linyuan_headline_policy.py
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LOCAL_FACE_MODEL_DIR: /tmp/linyuan-face-models
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          pip install -q pytest pillow requests jieba numpy opencv-python-headless fonttools
+      - name: 标题原文、条件否定、人物选帧回归
+        run: |
+          python -m pytest -q tests/test_linyuan_headline_policy.py
+          python -m pytest -q tests/test_linyuan_presentation.py -k 'thumbnail_headline or cover_style or portrait_card'
+      - name: 使用正式封面函数渲染十二张样例
+        run: python linyuan/preview_headline_policy.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: headline-preview
+          path: headline-preview/
+          retention-days: 30
