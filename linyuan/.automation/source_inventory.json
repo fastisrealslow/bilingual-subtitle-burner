@@ -3,7 +3,7 @@
   "validation_sha256": "b6da64cc9f1cc447f72f2ff7d1cadea7657d54ebfbef9ac5a6cfd2862b832c1c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788953151,
+  "updated_at": 1788953363,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 4,
+    "verified_live": 5,
     "verified_audio_card": 1,
-    "daily_mix_usable": 4,
+    "daily_mix_usable": 6,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -5644,9 +5644,9 @@
             "reason": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 160.1,
+        "verified_available": 2,
+        "verified_live": 2,
+        "verified_seconds": 316.0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -5896,9 +5896,9 @@
         "failures": [
           {
             "slug": "ly-0909-8a0661",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "本地文本推理未完成：qwen3:4b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景源视频提前结束"
           }
         ],
         "verified_available": 0,
@@ -6922,8 +6922,8 @@
       },
       "BV1SazbBhE8a": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 160.1,
+        "verified_available": 2,
+        "verified_seconds": 316.0,
         "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
@@ -6991,7 +6991,8 @@
       "BV1bA2cBAEMB": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1Pm42177aC": {
         "attempted_mothers": 1,
@@ -7023,8 +7024,37 @@
       }
     }
   },
-  "in_flight_placeholders": 20,
+  "in_flight_placeholders": 19,
   "artifacts": [
+    {
+      "slug": "ly-0909-7c4660-tracked18",
+      "artifact_id": 10101599308,
+      "run_id": 34345123664,
+      "checked_at": 1788953358,
+      "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_2.mp4",
+          "title": "林园：然后你也聊聊到说看好这三个药品的呃原因，是因为受中国人口老龄化的影响嘛",
+          "duration_sec": 155.9,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "source_sha256": "f2a561a9d6258ca6a4836abbbcbefb07af65029cf181e815b800a81b4669ab4c",
+          "segments": [
+            {
+              "start": 487.72,
+              "end": 643.64,
+              "reason": "中药企业核心竞争力与估值逻辑：林园详细分析了中药企业（如片仔癀、云南白药）的盈利模式，强调其核心是传统中成药，无需研发，副作用小且经过长期市场检验。他指出这类企业业绩稳定，净利润增长率常年保持在较高水平，但市场估值（如40倍PE）是否合理需结合长期增速判断。他提到中药企业通过老药新用（如肝病药物治疗其他疾病）实现增长，但需警惕多元化战略（如做牙膏）可能带来的风险。整体逻辑连贯，有具体案例和数据支撑，时间跨度符合要求。"
+            }
+          ],
+          "sha256": "4085d52fcdb3b28d2ecf79966831752eda3da057d3563bea9eebd728b912d705",
+          "subtitle_sha256": "11dc163da3c7e6d91de7810b29358ba9a12842896e7e3623a4ddf844f5b80765",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0909-09068a-tracked15",
       "artifact_id": 10101393434,
