@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 15
     env:
       GH_TOKEN: ${{ github.token }}
-      LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
+      LOCAL_FACE_MODEL_DIR: /tmp/linyuan-face-models
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
       - uses: actions/cache@v4
         with:
-          path: ${{ runner.tool_cache }}/linyuan-face-models
+          path: /tmp/linyuan-face-models
           key: opencv-yunet-sface-2023mar-2021dec-v1
       - name: 安装并验证取景规则
         run: |
