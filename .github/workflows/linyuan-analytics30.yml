@@ -1,0 +1,23 @@
+name: 林园近30天标题封面分析取数
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-analytics30.yml]
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: 只读采集创作中心清单、公开播放与封面
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/analytics30.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: analytics30
+          path: analytics30/
+          retention-days: 30
