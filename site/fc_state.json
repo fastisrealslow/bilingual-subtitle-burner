@@ -5491,10 +5491,11 @@
    "ts": 1788947556,
    "delay_hours": 0,
    "repair_of": "ly-0909-7c4660",
-   "source_check_report_id": 10097586957,
-   "last_error": "本地文本推理未完成：qwen3:4b，耗时600.0秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格",
+   "source_check_report_id": 10099808298,
+   "last_error": "本地文本推理未完成：qwen3:4b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1788952120
   },
   {
    "key": "bilibili_search:BV1ta4y1Z7GA",
@@ -5781,6 +5782,52 @@
    "last_error": "人物不一致或无法确认：林园；same=[1]，different=[2, 3, 4]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.7544, 2: 0.116, 3: 0.0452, 4: 0.1078}",
    "source_quality_rejected": true,
    "failure_stage": "source-quality"
+  },
+  {
+   "key": "bilibili_search:BV1SazbBhE8a",
+   "video_id": "BV1SazbBhE8a",
+   "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
+   "asset_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
+   "title": "林园经典采访-2018.12.28-医药专题-红周刊专访",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-7c4660-cached12",
+   "ts": 1788949602,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-7c4660",
+   "failed": true,
+   "last_error": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
+  },
+  {
+   "key": "bilibili_search:BV17Rt8zKEji",
+   "video_id": "BV17Rt8zKEji",
+   "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
+   "asset_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
+   "title": "林园-2025年8月8日-从消费体验到投资信仰    新华财经专访：林园谈片仔癀",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-09068a-cached12",
+   "ts": 1788949612,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-09068a"
+  },
+  {
+   "key": "bilibili_search:BV17Rt8zKEji",
+   "video_id": "BV17Rt8zKEji",
+   "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
+   "asset_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
+   "title": "林园-2025年8月8日-从消费体验到投资信仰    新华财经专访：林园谈片仔癀",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-09068a-cached13",
+   "ts": 1788949919,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-09068a"
   }
  ],
  "published": {
@@ -19219,6 +19266,13 @@
    "video_id": "BV1sVbg6LEJe",
    "ts": 1788949473,
    "error": "人物不一致或无法确认：林园；same=[1]，different=[2, 3, 4]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.7544, 2: 0.116, 3: 0.0452, 4: 0.1078}"
+  },
+  {
+   "slug": "ly-0909-7c4660-cached12",
+   "key": "bilibili_search:BV1SazbBhE8a",
+   "video_id": "BV1SazbBhE8a",
+   "ts": 1788950313,
+   "error": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜"
   }
  ],
  "pending_retry": [
