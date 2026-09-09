@@ -144,7 +144,8 @@ jobs:
 
       - name: 取源
         id: src
-        timeout-minutes: 12
+        # 20-minute downloader budget leaves room to persist a retry report.
+        timeout-minutes: 25
         env:
           SOURCE: ${{ env.RUN_SOURCE }}
           # 下载和投稿共用同一份登录态；有登录态时 B站可取得 720/1080P，
@@ -156,7 +157,9 @@ jobs:
             # B站 API 在 GitHub runner 上反而通（监控每天在调），
             # yt-dlp 裸请求会被 412，走自己的指纹会话下载器
             mkdir -p _src
-            python3 ci_fetch_bilibili.py --url "$SOURCE" --out _src/video.mp4
+            python3 -u ci_fetch_bilibili.py --url "$SOURCE" --out _src/video.mp4 \
+              --budget-seconds 1200 \
+              --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
             echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
           elif [[ "$SOURCE" =~ yicai\.com/video/ ]]; then
             python3 ci_fetch_yicai.py --url "$SOURCE" --out _src/video.mp4
@@ -437,7 +440,7 @@ jobs:
       # 素材门禁失败要与普通出片异常分开：FC 每小时读取这个小 artifact，
       # 立即淘汰该素材并补调一个新候选，不再傻等 12 小时无成片超时。
       - name: 上传素材拒绝结果
-        if: failure() && steps.source_gate.outcome == 'failure'
+        if: failure() && (steps.source_gate.outcome == 'failure' || steps.src.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
           name: source-reject-${{ env.RUN_SLUG }}

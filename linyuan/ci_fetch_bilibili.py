@@ -161,13 +161,29 @@ def playurl(op, bvid, cid):
     return select_streams(p)
 
 
-def download_one(op, urls, referer, out, attempts=3):
+class FetchBudgetExceeded(TimeoutError):
+    pass
+
+
+def remaining_seconds(deadline):
+    remaining=deadline-time.monotonic()
+    if remaining<=0:
+        raise FetchBudgetExceeded('取源达到总时间预算，保留为可重试下载故障')
+    return remaining
+
+
+def download_one(op, urls, referer, out, attempts=3, deadline=None):
     """镜像轮换 + 断点续传 + Content-Length 校验，避免长母片反复从零下载。"""
     out = Path(out)
     last = None
     tmp = out.with_suffix(out.suffix + ".part")
-    for attempt in range(attempts):
+    deadline=deadline if deadline is not None else time.monotonic()+1200
+    stalled_rounds=0
+    while stalled_rounds<attempts:
+        remaining_seconds(deadline)
+        before=tmp.stat().st_size if tmp.exists() else 0
         for url in urls:
+            remaining_seconds(deadline)
             try:
                 existing = tmp.stat().st_size if tmp.exists() else 0
                 headers = {"User-Agent": UA, "Referer": referer}
@@ -177,7 +193,7 @@ def download_one(op, urls, referer, out, attempts=3):
                     url, headers=headers)
                 # A stalled mirror should yield to its backups. This is socket
                 # inactivity, not a 60-second cap on a progressing large video.
-                with op.open(req, timeout=60) as response:
+                with op.open(req, timeout=min(60,remaining_seconds(deadline))) as response:
                     status = getattr(response, 'status', None) or response.getcode()
                     resumed = bool(existing and status == 206)
                     if not resumed:
@@ -189,24 +205,40 @@ def download_one(op, urls, referer, out, attempts=3):
                     expected = (int(match.group(3)) if match and match.group(3) != '*'
                                 else existing + int(response.headers.get("Content-Length") or 0))
                     with tmp.open("ab" if resumed else "wb") as handle:
+                        last_logged=existing
                         while True:
+                            remaining_seconds(deadline)
                             chunk = response.read(1 << 20)
                             if not chunk:
                                 break
                             handle.write(chunk)
+                            current=handle.tell()
+                            if current-last_logged>=16*(1<<20):
+                                print(f'[下载进度] {current}/{expected or "?"} bytes',flush=True)
+                                last_logged=current
                 actual = tmp.stat().st_size
                 if actual < 10240 or (expected and actual != expected):
                     raise RuntimeError(f"下载不完整：{actual}/{expected or '?'} bytes")
                 tmp.replace(out)
                 return
+            except FetchBudgetExceeded:
+                raise
             except Exception as exc:
                 last = exc
                 # Tiny/error responses are not reusable. A substantial partial
                 # file is kept and resumed on the next mirror or attempt.
                 if tmp.exists() and tmp.stat().st_size < 10240:
                     tmp.unlink(missing_ok=True)
-        if attempt + 1 < attempts:
-            time.sleep(2 ** attempt)
+        after=tmp.stat().st_size if tmp.exists() else 0
+        if after>before:
+            # A partial response with forward progress is resumable work, not
+            # a spent retry. #626 stopped at 111/258MB after just three rounds.
+            stalled_rounds=0
+            print(f'[断点续传] 已保留 {after} bytes，继续下载',flush=True)
+        else:
+            stalled_rounds+=1
+            if stalled_rounds<attempts:
+                time.sleep(min(2**(stalled_rounds-1),remaining_seconds(deadline)))
     raise RuntimeError(f"所有 CDN 镜像下载失败：{last}")
 
 
@@ -283,17 +315,17 @@ def validate_media(path, max_track_drift=2.0, max_tail_gap=5.0):
             "audio_streams": len(audio)}
 
 
-def download(op, streams, referer, out):
+def download(op, streams, referer, out, deadline=None):
     out = Path(out)
     if not streams.get("audio"):
-        download_one(op, streams["video"], referer, out)
+        download_one(op, streams["video"], referer, out,deadline=deadline)
         validate_media(out)
         return
     video = out.with_suffix(".video.m4s")
     audio = out.with_suffix(".audio.m4s")
     try:
-        download_one(op, streams["video"], referer, video)
-        download_one(op, streams["audio"], referer, audio)
+        download_one(op, streams["video"], referer, video,deadline=deadline)
+        download_one(op, streams["audio"], referer, audio,deadline=deadline)
         subprocess.run([
             "ffmpeg", "-y", "-loglevel", "error", "-i", str(video),
             "-i", str(audio), "-map", "0:v:0", "-map", "1:a:0",
@@ -310,6 +342,8 @@ def main():
     ap.add_argument("--url")
     ap.add_argument("--out")
     ap.add_argument("--validate-only", metavar="MEDIA")
+    ap.add_argument('--budget-seconds',type=int,default=1200)
+    ap.add_argument('--failure-report',type=Path)
     args = ap.parse_args()
 
     if args.validate_only:
@@ -318,6 +352,9 @@ def main():
         return
     if not args.url or not args.out:
         ap.error("下载模式必须同时提供 --url 和 --out")
+    if args.budget_seconds<=0:
+        ap.error('取源预算必须为正数')
+    deadline=time.monotonic()+args.budget_seconds
 
     m = re.search(r"(BV\w+)", args.url)
     if not m:
@@ -335,18 +372,27 @@ def main():
         strategies.append(("embed __playinfo__", lambda op: via_embed(op, bvid)))
     last = None
     for name, fn in strategies:
-        op = opener()
         try:
-            print(f"→ 策略 {name}")
+            remaining_seconds(deadline)
+            op = opener()
+            print(f"→ 策略 {name}",flush=True)
             streams = fn(op)
             height = streams.get("height") or "未知"
-            print(f"  拿到最高可用流（{height}P），下载中...")
-            download(op, streams, args.url, args.out)
+            print(f"  拿到最高可用流（{height}P），下载中...",flush=True)
+            download(op, streams, args.url, args.out,deadline=deadline)
             print(f"✓ {name} 成功")
             return
+        except FetchBudgetExceeded as e:
+            last=e
+            break
         except Exception as e:
             last = e
             print(f"  ✗ {e}", file=sys.stderr)
+    if args.failure_report:
+        args.failure_report.parent.mkdir(parents=True,exist_ok=True)
+        args.failure_report.write_text(json.dumps(dict(passed=False,retryable=True,
+            failure_stage='source-fetch',reason=f'取源未完成：{type(last).__name__}: {last}',
+            source_url=args.url,budget_seconds=args.budget_seconds),ensure_ascii=False,indent=2))
     sys.exit(f"所有策略失败，最后错误：{last}")
 
 
