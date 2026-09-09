@@ -66,7 +66,8 @@ def apply_lineage(conn, catalog):
         for ref in catalog['references']:
             if url.rstrip('/')==f"https://www.bilibili.com/video/{ref['bvid']}":
                 extra.update(source_role='reference',direct_dispatch=False,
-                    lineage_status='needs_media_match',candidate_families=ref['candidate_families'])
+                    lineage_status=ref.get('match_status','needs_media_match'),candidate_families=ref['candidate_families'])
+                if ref.get('visual_evidence'):extra['visual_evidence']=ref['visual_evidence']
         if extra!=before:
             conn.execute('UPDATE items SET extra=? WHERE id=?',(json.dumps(extra,ensure_ascii=False),item_id))
     conn.commit()
@@ -129,7 +130,10 @@ def main():
         apply_lineage(conn,catalog)
         rows=conn.execute('SELECT id,url,extra FROM items').fetchall()
     report['references']=[dict(bvid=r['bvid'],catalogued=any(i=='competitor_reference:'+r['bvid'] for i,_,_ in rows),
-        match_status='needs_media_match',candidate_families=r['candidate_families']) for r in catalog['references']]
+        match_status=r.get('match_status','needs_media_match'),candidate_families=r['candidate_families'],
+        title=seeds[r['bvid']]['title'],date=seeds[r['bvid']]['date'],duration_sec=seeds[r['bvid']]['dur'],
+        metadata_provenance=seeds[r['bvid']].get('metadata_provenance','existing_catalog'),
+        visual_evidence=r.get('visual_evidence')) for r in catalog['references']]
     report['collection_pages']=sorted({int(e['page']) for _,_,raw in rows for e in [json.loads(raw or '{}')]
         if e.get('bvid')==bvid and e.get('page')})
     report['missing_collection_pages']=sorted(set(range(1,catalog['collection']['expected_pages']+1))-set(report['collection_pages']))
