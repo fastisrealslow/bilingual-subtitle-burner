@@ -1,0 +1,45 @@
+import json
+import sys
+from pathlib import Path
+import pytest
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
+import produce_cn as p
+from presentation import layout_for
+from restore_production_evidence import restore
+
+
+def test_caption_prompt_excludes_duplicate_timing_and_offset_tables(monkeypatch,tmp_path):
+    class Captured(BaseException):pass
+    entries=[dict(start_sec=i*3,end_sec=(i+1)*3,zh='守住现金流的企业大家还更愿意买',en='') for i in range(40)]
+    def capture(messages,*args,**kwargs):
+        prompt=messages[0]['content']
+        assert len(prompt)<5000
+        assert 'start_sec' not in prompt and '"end"' not in prompt
+        assert kwargs['max_tokens']==1000
+        assert kwargs['response_schema']['properties']['break_after_tokens']['items']['type']=='integer'
+        raise Captured()
+    monkeypatch.setattr(p,'llm',capture)
+    with pytest.raises(Captured):p.semantic_caption_entries(entries,'',layout_for(720,1280,True),tmp_path/'captions.json')
+
+
+def test_false_asr_period_after_function_word_is_reconnected(monkeypatch,tmp_path):
+    entries=[dict(start_sec=0,end_sec=2,zh='他必须走这个。'),
+             dict(start_sec=2,end_sec=5,zh='自主知识产权的方向。')]
+    def forbidden(*args,**kwargs):raise AssertionError('Simple source repair called model')
+    monkeypatch.setattr(p,'llm',forbidden)
+    out=p.semantic_caption_entries(entries,'',layout_for(720,1280,True),tmp_path/'captions.json')
+    assert ''.join(g['zh'] for g in out)=='他必须走这个自主知识产权的方向'
+
+
+def test_recovery_matches_source_and_never_restores_approvals(tmp_path):
+    old=tmp_path/'old';new=tmp_path/'new';old.mkdir();new.mkdir()
+    for root in (old,new):
+        (root/'source_quality.json').write_text(json.dumps(dict(source_sha256='a'*64,passed=True)))
+    (old/'highlights_block_1.json').write_text('{"picks":[]}')
+    (old/'source_identity.json').write_text('obsolete approval')
+    restore(old,new)
+    assert (new/'highlights_block_1.json').exists()
+    assert not (new/'source_identity.json').exists()
+    (new/'source_quality.json').write_text(json.dumps(dict(source_sha256='b'*64,passed=True)))
+    with pytest.raises(ValueError,match='哈希不一致'):restore(old,new)

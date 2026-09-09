@@ -2012,6 +2012,20 @@ def token_breaks_to_char_offsets(selected, tokens):
     return [tokens[n-1]['end'] for n in selected]
 
 
+def caption_break_schema(token_count):
+    return {'type':'object','properties':{'break_after_tokens':{
+        'type':'array','minItems':1,'maxItems':token_count,
+        'items':{'type':'integer','minimum':1,'maximum':token_count}}},
+        'required':['break_after_tokens'],'additionalProperties':False}
+
+
+def compact_caption_tokens(tokens):
+    # Offsets and timestamps belong to the validator, not the language model.
+    # The old JSON repeated the transcript three times and sent >23k chars for
+    # a two-minute clip. Only IDs and words are needed to choose boundaries.
+    return ' '.join(f"{t['id']}:{t['text']}" for t in tokens)
+
+
 def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_groups=None):
     """Prefer real sentence boundaries; validate every character locally."""
     capacity=layout['line_capacity']
@@ -2034,6 +2048,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
         groups=[re.sub(r'[\s，。！？；：、]','',sentence)
                 for sentence in re.findall(r'[^。！？]+[。！？]?',raw)]
         groups=[g for g in groups if g]
+        groups=repair_semantic_boundaries(groups)
         try:
             result=apply_semantic_groups(entries,groups,capacity,layout.get('subtitle_font_px'))
             cache_path.write_text(json.dumps(groups,ensure_ascii=False,indent=2))
@@ -2071,9 +2086,10 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
                 '增加换屏，不能按固定字数切，不能拆开专名、否定词、数字单位或谓宾结构。'
                 f'只返回JSON {{"break_after_tokens":[每屏末词id]}}；每段最多{max_group_chars}字，'
                 f'最后一个id必须是{len(choices)}。选词id，不是字符位置，不需要计算字数位置。原文：{parent}。'
-                '词序列：'+json.dumps(choices,ensure_ascii=False))
+                '词序列：'+compact_caption_tokens(choices))
             answer=llm([{'role':'user','content':request}],api_key,
-                       temperature=0,max_tokens=1200,budget_sec=text_budget(45))
+                       temperature=0,max_tokens=1000,budget_sec=text_budget(45),
+                       response_schema=caption_break_schema(len(choices)))
             local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices)
             if (not isinstance(local,list) or not local
                     or any(type(n) is not int for n in local)
@@ -2096,12 +2112,13 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
             '可以选完整短语作为一个意群，如“守住现金流的企业”或“大家还更愿意买”。'
             '必须保留原文逗号体现的意群边界。错误：投资技巧一定要是 / 大行业；正确：投资技巧 / 一定要是大行业越来越大。'
             '错误：工资收入高 / 的一些发达国家；正确：凡是工资收入高的一些发达国家。'
-            '原始ASR含标点及时间：'+json.dumps(entries,ensure_ascii=False)+
-            '。连续原文：'+transcript+'。带id的完整词序列：'+json.dumps(tokens,ensure_ascii=False))
+            '原始ASR标点仅供参考，若句号落在“这个”等未完成成分后，需连接下句。'
+            '原文：'+raw+'。完整词序列（id:词）：'+compact_caption_tokens(tokens))
     error=''
     for attempt in range(3):
         try:
-            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=6000,budget_sec=text_budget(60))
+            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=1000,
+                         budget_sec=text_budget(60),response_schema=caption_break_schema(len(tokens)))
             cache_path.with_suffix(f'.attempt{attempt+1}.txt').write_text(response,encoding='utf-8')
             breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens)
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):
@@ -4557,7 +4574,7 @@ class PartDeadlineExceeded(BaseException):
 def produce_part_with_budget(*args, budget_sec=None, **kwargs):
     import signal
     seconds=float(budget_sec if budget_sec is not None else
-                  os.environ.get('PART_RENDER_BUDGET_SEC','720'))
+                  os.environ.get('PART_RENDER_BUDGET_SEC','1800'))
     if not hasattr(signal,'setitimer'):
         return _produce_one(*args,**kwargs)
     def expired(signum,frame):

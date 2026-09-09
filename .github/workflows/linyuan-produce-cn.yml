@@ -12,6 +12,11 @@ on:
     paths: ['.github/linyuan-e2e.trigger']
   workflow_dispatch:
     inputs:
+      recovery_run_id:
+        description: '复用同一母片失败任务的转写和选段证据；留空正常生产'
+        required: false
+        default: ''
+        type: string
       local_text_model:
         description: 'CPU离线文本模型；更新版先用于同源实产验收'
         required: false
@@ -301,6 +306,14 @@ jobs:
         with:
           path: ~/.ollama/models
           key: ${{ env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+
+      - name: 复用同源失败任务的已完成证据
+        if: inputs.recovery_run_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_RUN_ID: ${{ inputs.recovery_run_id }}
+        run: |
+          python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
       - name: 出片
         id: render

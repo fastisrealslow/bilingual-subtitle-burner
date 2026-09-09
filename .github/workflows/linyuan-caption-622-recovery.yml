@@ -1,0 +1,87 @@
+name: 林园字幕超时实产恢复
+# Actual #622 subtitle inference, then same-source production recovery.
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-caption-622-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-caption-622-recovery
+  cancel-in-progress: false
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TEXT_BACKEND: local
+      LOCAL_LLM_MODEL: qwen3:4b
+      LOCAL_LLM_TIMEOUT_SEC: '600'
+      CUDA_VISIBLE_DEVICES: ''
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        working-directory: linyuan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 字幕与质检规则回归
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk zstd
+          pip install -q pytest jieba 'opencv-python-headless<5' requests
+          python -m pytest -q ../tests/test_linyuan_caption_timeout.py ../tests/test_linyuan_presentation.py ../tests/test_linyuan_quality_gates.py ../tests/test_linyuan_batch_isolation.py
+      - name: 触发同源正常生产，自动登记库存
+        run: python register_selection_recovery.py --suffix caption9 --evidence-run 34329944620
+      - name: 缓存 CPU 本地文本模型
+        id: ollama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen3-4b-v1
+
+      - name: 启动 CPU 本地文本模型（禁止云 API）
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 --max-time 600 \
+            -o /tmp/ollama-linux-amd64.tar.zst \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+          echo "${OLLAMA_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
+          sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+            ollama serve > /tmp/ollama.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull qwen3:4b
+          ollama show qwen3:4b >/dev/null
+          # Pulling only downloads weights.  Warm them into RAM before the
+          # bounded CPU review budget begins.
+          curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3:4b","messages":[{"role":"user","content":"Reply ready"}],"stream":false,"think":false,"options":{"temperature":0,"num_predict":8,"num_ctx":16384}}' \
+            | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+
+
+      - name: 读取第622次实际失败字幕
+        run: gh run download 34329944620 -n debug-ly-0909-7c4660-selector8 -D /tmp/caption-622-evidence
+      - name: 真实CPU推理验证两段字幕逐字一致且完整排版
+        run: python -u replay_caption_622.py /tmp/caption-622-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: caption-622-replay
+          path: |
+            /tmp/caption-622/
+            /tmp/ollama.log
+          include-hidden-files: true
+          if-no-files-found: warn

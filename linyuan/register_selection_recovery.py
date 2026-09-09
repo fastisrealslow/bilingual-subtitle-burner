@@ -1,5 +1,6 @@
 """Dispatch and track one cached-ASR recovery, preserving unrelated FC state."""
 import base64
+import argparse
 import json
 import subprocess
 import time
@@ -21,6 +22,12 @@ def read_state():
 
 
 def main():
+    global NEW
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--suffix',default='selector8')
+    parser.add_argument('--evidence-run',default='')
+    args=parser.parse_args()
+    NEW=OLD+'-'+args.suffix
     doc,state=read_state()
     if any(e.get('slug')==NEW for e in state.get('dispatched',[])):
         print('Recovery already registered; no duplicate dispatch')
@@ -31,7 +38,8 @@ def main():
     gh('workflow','run','linyuan-produce-cn.yml','--repo',REPO,'--ref','main',
        '-f',f'source={source}','-f',f'slug={NEW}','-f','speaker=林园',
        '-f','occasion=2018红周刊医药专访','-f','source_platform=bilibili',
-       '-f','auto_publish=false','-f','include_full=false')
+       '-f','auto_publish=false','-f','include_full=false',
+       '-f',f'recovery_run_id={args.evidence_run}')
     entry={k:origin[k] for k in ('key','video_id','source_url','asset_url','title','source',
            'production_rules_version','required_presentation_version') if k in origin}
     entry.update(slug=NEW,ts=int(time.time()),delay_hours=0,repair_of=OLD)
