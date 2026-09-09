@@ -5472,7 +5472,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "亮亮滚雪球",
-   "publish_time": "2026-06-16T23:59:33+00:00"
+   "publish_time": "2026-06-16T23:59:33+00:00",
+   "source_check_report_id": 10098334791,
+   "last_error": "本地选段回答格式无效，未形成内容判定；保留ASR并重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1788948814
   },
   {
    "key": "bilibili_search:BV1SazbBhE8a",
@@ -5618,7 +5622,25 @@
    "delay_hours": 0,
    "source": "reference_origin_search",
    "author": "价值投资88",
-   "publish_time": "2023-07-03T06:35:54+00:00"
+   "publish_time": "2023-07-03T06:35:54+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；same=[]，different=[2, 3, 4]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.0988, 3: 0.1013, 4: 0.0691}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
+  },
+  {
+   "key": "bilibili_search:BV1SazbBhE8a",
+   "video_id": "BV1SazbBhE8a",
+   "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
+   "asset_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
+   "title": "林园经典采访-2018.12.28-医药专题-红周刊专访",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-7c4660-caption9",
+   "ts": 1788947855,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-7c4660"
   }
  ],
  "published": {
@@ -19043,6 +19065,13 @@
    "video_id": "BV1Pm42177aC",
    "ts": 1788947521,
    "error": "人物不一致或无法确认：林园；same=[3]，different=[1, 2, 4, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0954, 2: 0.1183, 3: 0.6468, 4: 0.0713, 5: 0.1123, 6: 0.0546}"
+  },
+  {
+   "slug": "ly-0909-84ab84",
+   "key": "bilibili_search:BV17u411b7M3",
+   "video_id": "BV17u411b7M3",
+   "ts": 1788947907,
+   "error": "人物不一致或无法确认：林园；same=[]，different=[2, 3, 4]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.0988, 3: 0.1013, 4: 0.0691}"
   }
  ],
  "pending_retry": [
