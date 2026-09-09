@@ -1,0 +1,28 @@
+name: 林园字幕修复后同源补产
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-resume-render.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  resume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 按实产顺序验证前置依赖和规则
+        run: |
+          python -m pip install -q pytest jieba
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py
+      - name: 恢复第622次两段已选内容
+        run: python linyuan/register_selection_recovery.py --suffix caption10 --evidence-run 34329944620
+      - name: 恢复第623次四段已选内容
+        run: python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix caption10 --evidence-run 34331627673

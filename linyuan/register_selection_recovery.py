@@ -22,11 +22,14 @@ def read_state():
 
 
 def main():
-    global NEW
+    global NEW, OLD
     parser=argparse.ArgumentParser()
     parser.add_argument('--suffix',default='selector8')
     parser.add_argument('--evidence-run',default='')
+    parser.add_argument('--origin-slug',default=OLD)
+    parser.add_argument('--expected-source',default='https://www.bilibili.com/video/BV1SazbBhE8a')
     args=parser.parse_args()
+    OLD=args.origin_slug
     NEW=OLD+'-'+args.suffix
     doc,state=read_state()
     if any(e.get('slug')==NEW for e in state.get('dispatched',[])):
@@ -34,10 +37,10 @@ def main():
         return
     origin=max((e for e in state['dispatched'] if e.get('slug')==OLD),key=lambda e:e.get('ts',0))
     source=origin['source_url']
-    assert source=='https://www.bilibili.com/video/BV1SazbBhE8a',source
+    assert source==args.expected_source,source
     gh('workflow','run','linyuan-produce-cn.yml','--repo',REPO,'--ref','main',
        '-f',f'source={source}','-f',f'slug={NEW}','-f','speaker=林园',
-       '-f','occasion=2018红周刊医药专访','-f','source_platform=bilibili',
+       '-f',f'occasion={origin.get("title") or "林园公开访谈"}','-f','source_platform=bilibili',
        '-f','auto_publish=false','-f','include_full=false',
        '-f',f'recovery_run_id={args.evidence_run}')
     entry={k:origin[k] for k in ('key','video_id','source_url','asset_url','title','source',
