@@ -19,12 +19,17 @@ def transfer(source, target, video_sha):
             return False
     except (OSError, ValueError, KeyError, TypeError):
         return False
+    if source.resolve()==target.resolve():return True
     target.mkdir(parents=True, exist_ok=True)
     for name in FILES:
         if (source/name).is_file():
             shutil.copyfile(source/name, target/name)
+    # Cache restore and explicit incident restore can use different directory
+    # layouts for the same alignment. Unioning them duplicates every audio core.
+    # The source snapshot is authoritative; never merge two evidence trees.
+    if (target/'qwen_cpu').exists():shutil.rmtree(target/'qwen_cpu')
     if (source/'qwen_cpu').is_dir():
-        shutil.copytree(source/'qwen_cpu', target/'qwen_cpu', dirs_exist_ok=True)
+        shutil.copytree(source/'qwen_cpu', target/'qwen_cpu')
     elif (source/'asr_raw_chunks.json').is_file():
         reports=json.loads((source/'asr_raw_chunks.json').read_text())
         if isinstance(reports,list) and reports and all(

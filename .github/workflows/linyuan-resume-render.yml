@@ -1,5 +1,5 @@
 name: 林园字幕修复后同源补产
-# Recovery revision 3: portable raw alignment cache; no repeated ASR decoding.
+# Recovery revision 4: repeated restores replace evidence instead of duplicating cores.
 on:
   push:
     branches: [main]
@@ -34,7 +34,7 @@ jobs:
           gh run download 34331627673 -n debug-ly-0909-09068a -D /tmp/623-evidence
           python linyuan/replay_asr_cache.py /tmp/623-evidence
           python -u linyuan/replay_caption_622.py /tmp/623-evidence --output /tmp/623-verified --no-model
-          python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix cached12 --evidence-run 34331627673
+          python linyuan/register_selection_recovery.py --origin-slug ly-0909-09068a --expected-source https://www.bilibili.com/video/BV17Rt8zKEji --suffix cached13 --evidence-run 34331627673
       - uses: actions/upload-artifact@v4
         if: always()
         with:

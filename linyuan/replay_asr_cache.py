@@ -17,6 +17,12 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         target=Path(tmp)
         assert transfer(root,target,report['source_sha256'])
+        # Reproduce #645: an existing cache uses another directory layout.
+        reports_before=load_reports(target/'qwen_cpu')
+        assert reports_before
+        alias=target/'qwen_cpu'/'previous-layout';alias.mkdir()
+        (alias/'aligned.json').write_text(json.dumps(reports_before[0]))
+        assert transfer(root,target,report['source_sha256'])
         (target/'source_quality.json').write_text(json.dumps(report))
         choice=configuration(target/'source_quality.json')
         evidence=cached_evidence(target/'source_quality.json',choice)

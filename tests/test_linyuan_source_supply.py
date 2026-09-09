@@ -393,6 +393,9 @@ def test_mother_cache_restores_external_alignment_as_raw_evidence(tmp_path):
     (raw/'asr_raw_chunks.json').write_text(json.dumps(reports))
     assert mother_asr_cache.transfer(raw,dest,'mother')
     assert json.loads((dest/'qwen_cpu/0/aligned.json').read_text())==reports[0]
+    (dest/'qwen_cpu/aligned.json').write_text(json.dumps(reports[0]))
+    assert mother_asr_cache.transfer(raw,dest,'mother')
+    assert len(list((dest/'qwen_cpu').rglob('aligned.json')))==1
     # No review approval or identity bypass is created by the raw transfer.
     assert not (dest/'editorial_review.json').exists()
 
