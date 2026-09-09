@@ -4,12 +4,21 @@ from pathlib import Path
 import subprocess
 
 
-def crop_box(face, width, height, ratio=632/470):
+def crop_box(face, width, height, ratio=632/470, exclusions=()):
     x,y,w,h=map(float,face[:4])
     ch=min(height, h*2.1, width/ratio)
     cw=ch*ratio
     left=max(0,min(width-cw,x+w/2-cw/2))
     top=max(0,min(height-ch,y-h*.48))
+    # A partial top-left station logo can evade final OCR after a wide-shot
+    # crop. Use the source gate's measured rectangles, while retaining headroom.
+    for bx0,by0,bx1,by1 in exclusions:
+        bx0,bx1=bx0*width,bx1*width
+        by0,by1=by0*height,by1*height
+        if left<bx1 and left+cw>bx0 and top<by1 and top+ch>by0:
+            safe_top=(int(by1)+5)//2*2
+            if safe_top<=y-h*.22 and safe_top+ch<=height:
+                top=max(top,safe_top)
     return tuple(int(v)//2*2 for v in (left,top,cw,ch))
 
 
@@ -19,7 +28,7 @@ def complete_face(face, width, height):
             and x+w<=width-8 and y+h<=height-2)
 
 
-def render_tracked(src,start,duration,output,reference,model_paths,threshold=.363):
+def render_tracked(src,start,duration,output,reference,model_paths,threshold=.363,exclusions=()):
     """Track the reference identity through camera cuts, with no static fallback."""
     import cv2
     cv2.setNumThreads(2)
@@ -69,7 +78,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                     if score>=threshold:candidates.append((score,face))
                 if candidates:
                     score,face=max(candidates,key=lambda row:row[0])
-                    box=crop_box(face,width,height);matched+=1;missing=0;blank_streak=0
+                    box=crop_box(face,width,height,exclusions=exclusions);matched+=1;missing=0;blank_streak=0
                     if previous is not None:
                         # Smooth ordinary movement, but snap to a new shot immediately.
                         delta=max(abs(box[k]-previous[k]) for k in range(4))
@@ -83,7 +92,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                         # is explicitly NOT counted as a matched target frame;
                         # aggregate 80% and final independent 5/6 gates still apply.
                         face=max(detected,key=lambda f:float(f[2]*f[3]))
-                        box=crop_box(face,width,height);previous=box
+                        box=crop_box(face,width,height,exclusions=exclusions);previous=box
                         other_faces+=1;blank_streak=0
                     else:
                         no_face+=1;blank_streak+=1

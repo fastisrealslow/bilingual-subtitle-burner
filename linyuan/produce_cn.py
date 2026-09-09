@@ -2635,8 +2635,8 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     qr_hits = 0
     partial_qr_hits = 0
     full_face_frames = 0
-    face_detector = _cascade(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-    tmp = Path(tempfile.mkdtemp(prefix="live-region-check-"))
+    tmp = Path(final).parent / "_tmp" / ("live-region-"+Path(final).stem)
+    tmp.mkdir(parents=True,exist_ok=True)
     got = 0
     try:
         qr = cv2.QRCodeDetector()
@@ -2657,12 +2657,6 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             frame_paths.append(fp)
 
             gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
-            faces = face_detector.detectMultiScale(gray,1.1,4,minSize=(48,48))
-            full_face=any(fx>=8 and fy>=max(8,int(fh*.18)) and fx+fw<=w-8 and fy+fh<=h-2
-                          for fx,fy,fw,fh in faces)
-            full_face_frames += int(full_face)
-            if frame_index in junction_indices and not full_face:
-                raise VisualQualityError('剪接附近真人取景缺少完整人脸或头顶余量')
             partial_qr_hits += int(partial_qr_finder_score(gray) >= 0.70)
             dark_columns = np.mean(gray < 18, axis=0) > 0.92
             edge = max(8, int(w * 0.08))
@@ -2689,8 +2683,27 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
         raise VisualQualityError("真人动态区检出持续黑边/错误取景")
     if qr_hits or partial_qr_hits >= 2:
         raise VisualQualityError("真人动态区检出来源二维码（含裁切残留定位图案）")
+    from live_tracking import complete_face
+    detector_path,_=_local_face_models()
+    detector=cv2.FaceDetectorYN.create(str(detector_path),'',(632,470),
+        score_threshold=.8,nms_threshold=.3,top_k=5000)
+    geometry=[]
+    for fp in frame_paths:
+        region=cv2.imread(str(fp));h,w=region.shape[:2]
+        detector.setInputSize((w,h));_,found=detector.detect(region)
+        full_face=found is not None and any(complete_face(face,w,h) for face in found)
+        full_face_frames+=int(full_face)
+        index=int(fp.stem.split('-')[-1])
+        geometry.append(dict(frame=index,time_sec=round(sample_indices[index]/fps,3),
+            full_face=bool(full_face),boxes=[] if found is None else
+            [[round(float(v),2) for v in face[:4]] for face in found]))
+    (tmp/'geometry.json').write_text(json.dumps(dict(engine='opencv_yunet_cpu',
+        full_face_frames=full_face_frames,sampled_frames=got,frames=geometry),indent=2))
+    for row in geometry:
+        if sample_indices[row['frame']] in junction_indices and not row['full_face']:
+            raise VisualQualityError('剪接附近真人取景缺少完整人脸或头顶余量')
     if full_face_frames < max(3, int(got*.8+.999)):
-        raise VisualQualityError("真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜")
+        raise VisualQualityError(f"真人窗口完整人脸抽帧不足：{full_face_frames}/{got}，拒绝裁头/裁下巴或空镜")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
     if logos:
@@ -4497,7 +4510,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 tracked=work/f'tracked{suffix}{n}.mp4'
                 tracking=render_tracked(src,s0,seg_dur,tracked,
                     _download_speaker_reference(speaker,work),_local_face_models(),
-                    LOCAL_FACE_COSINE_THRESHOLD)
+                    LOCAL_FACE_COSINE_THRESHOLD,
+                    exclusions=source_report.get('detected_corner_logos') or ())
                 cmd += ["-i",str(tracked)]
                 live = (
                     "[2:v]setpts=PTS-STARTPTS[live];"

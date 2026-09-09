@@ -53,3 +53,8 @@ jobs:
           name: public-opencv-face-models
           path: /tmp/linyuan-face-models/*.onnx
           retention-days: 3
+      - name: 实测新检测器保留合格帧，并拒绝空镜、裁头和裁下巴
+        run: |
+          gh run download 34342158327 -n deliver-ly-0909-7c4660-tracked14 -D /tmp/accepted647
+          root=$(find /tmp/644 -name source_quality.json -printf '%h\n')
+          python linyuan/replay_face_geometry.py --accepted /tmp/accepted647/final_1.mp4 --rejected "$root"
