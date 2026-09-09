@@ -4832,17 +4832,12 @@ def main():
 
     if args.include_full:
         full_suffix = "_full"
-        (work / f"highlights{full_suffix}.json").write_text(json.dumps([{
-            "start": 0, "end": len(cues) - 1, "score": 10,
-            "reason": "完整访谈原声"
-        }], ensure_ascii=False), encoding="utf-8")
-        (work / f"copywrite{full_suffix}.json").write_text(json.dumps({
-            "title": "林园：完整访谈原声",
-            "desc": "林园完整访谈原声。个人观点，仅供交流，非投资建议。",
-            "tags": ["林园", "价值投资", "完整访谈"],
-            "title_quality_verified": True
-        }, ensure_ascii=False), encoding="utf-8")
         try:
+            # Full interviews already have a defined range. A legacy bare-list
+            # cache is invalidated by the selector and used to send the entire
+            # transcript back through short-clip selection (incident #617).
+            full_picks=[dict(start=0,end=len(cues)-1,score=10,reason='完整访谈原声')]
+            editorial.range_seconds(cues,full_picks[0])
             full_meta = _produce_one(
                 src, work, out, cues, args.speaker, args.occasion, api_key,
                 existing_subtitles, W, H, "_14", pick_cache_suffix=full_suffix,
@@ -4850,17 +4845,23 @@ def main():
                 allow_empty=False, visual_report=visual_report,
                 source_report=source_report,
                 prefer_live_video=args.prefer_live_video,
-                existing_titles=[x["title"] for x in metas])
+                existing_titles=[x["title"] for x in metas],
+                preselected_picks=full_picks)
+            if full_meta is None:
+                raise VisualQualityError('完整版未生成')
         except (VisualQualityError, ValueError, RuntimeError, subprocess.SubprocessError) as e:
+            failure={"stage":"part-quality","reason":str(e),"part":"full",
+                     "error_type":type(e).__name__,
+                     "retryable":isinstance(e,EditorialReviewUnavailable)}
+            print(json.dumps(failure,ensure_ascii=False),file=sys.stderr)
             quarantine_part(out, "_14")
-            rejected.append({"stage": "part-quality", "reason": str(e), "part": "full"})
+            rejected.append(failure)
             checkpoint()
-            return 2
-        if full_meta is None:
-            print("❌ 完整版未生成", file=sys.stderr)
-            return 2
-        full_meta["content_type"] = "full_interview"
-        metas.append(full_meta)
+            if args.target_parts:
+                return 2
+        else:
+            full_meta["content_type"] = "full_interview"
+            metas.append(full_meta)
 
     checkpoint()
     if not metas:
