@@ -87,7 +87,7 @@ def test_editorial_schema_evidence_only_contains_retained_source(monkeypatch,tmp
             opening_quote='医药需求随老龄化增长。',ending_quote='这是我们的判断。'))
     monkeypatch.setattr(P,'llm',review)
     result=P.review_complete_argument(cues,[dict(start=0,end=0)],'林园','',tmp_path,'')
-    assert result['review_prompt_version']==4
+    assert result['review_prompt_version']==5
     assert (tmp_path/'editorial_response-0.txt').exists()
 
 

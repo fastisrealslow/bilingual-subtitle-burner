@@ -1592,7 +1592,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==4
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==5
+                    and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
                     and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
                          and saved.get('omission_preserves_meaning') is True and saved.get('omitted_is_parenthetical') is True))
@@ -1639,6 +1640,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '有无理由/案例、结束是否自然且没有半句、数字/否定/关键实体是否有影响观点的识别歧义。'
         '中间同主题追问可保留；无关主题拼凑、片头寒暄/无指代回应、必要结论被切掉须拒绝。'
         '不能凭常识猜测含糊原话的正确内容；确实需要听音频才能判断的关键歧义标记requires_audio_review=true。'
+        '先摘录真实开场结尾、写出观点理由结论与不足，再根据这些证据填写布尔判定。'
+        '主持人明确提到主题再询问嘉宾，是独立开场；提到过去的直播日期本身不需要观众看过那场直播。'
         '每个布尔值独立填写，不预设通过。输出JSON字段：standalone_opening、complete_argument、'
         'reasoning_present、natural_ending、requires_audio_review、summary、issues（问题原词数组）、'
         'issue_details（逐个解释识别问题为何影响原意）。issues只能从JSON schema的enum原文候选中选择，'
@@ -1669,6 +1672,11 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         'opening_quote':{'type':'string','maxLength':100},
         'ending_quote':{'type':'string','maxLength':100},
     }
+    # Generate evidence and reasoning before decisions. The old small model
+    # generated a negative boolean first, then a contradictory complete summary.
+    fields={key:fields[key] for key in ('opening_quote','ending_quote','summary',
+        'completeness_reason','issues','issue_details','standalone_opening',
+        'complete_argument','reasoning_present','natural_ending','requires_audio_review')}
     required=list(fields)
     if omitted_text:
         first=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
@@ -1714,7 +1722,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=4)
+                 review_prompt_version=5,review_model=LOCAL_LLM_MODEL)
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))

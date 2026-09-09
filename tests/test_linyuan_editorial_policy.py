@@ -117,7 +117,7 @@ def test_review_cannot_reject_source_by_copying_nonexistent_example_words(tmp_pa
     invalid={**valid,'issues':['生产效率大大不提高']}
     with patch.object(produce,'llm',side_effect=[json.dumps(invalid,ensure_ascii=False),json.dumps(valid,ensure_ascii=False)]):
         result=produce.review_complete_argument(cues,[dict(start=0,end=0)],'林园','key',tmp_path,'')
-    assert result['issues']==[] and result['review_prompt_version']==4
+    assert result['issues']==[] and result['review_prompt_version']==5
     (tmp_path/'editorial_review.json').unlink()
     import pytest
     with patch.object(produce,'llm',return_value=json.dumps(invalid,ensure_ascii=False)):

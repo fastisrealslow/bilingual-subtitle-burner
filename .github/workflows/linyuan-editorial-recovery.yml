@@ -1,5 +1,5 @@
 name: 林园审核修复实产验收
-# Recovery revision 2: sentence evidence and a complete continuous question/answer.
+# Recovery revision 3: verify the same question/answer with the 2507 Instruct model.
 on:
   push:
     branches: [main]
@@ -32,5 +32,6 @@ jobs:
             -f source=https://m.weibo.cn/detail/5335007129504221 \
             -f slug=ly-0908-fa57fb -f speaker=林园 \
             -f occasion=第一财经投资人说 -f source_platform=weibo \
+            -f local_text_model=qwen3:4b-instruct-2507-q4_K_M \
             -f auto_publish=false -f include_full=false
           echo '已触发中文源出片；本工作流成功仅表示回归通过及任务已调度，不代表成片验收通过。' >> "$GITHUB_STEP_SUMMARY"
