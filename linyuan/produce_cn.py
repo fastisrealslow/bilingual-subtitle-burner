@@ -4689,10 +4689,23 @@ def produce_part_with_budget(*args, budget_sec=None, **kwargs):
         signal.signal(signal.SIGALRM,previous)
 
 
+def selected_part_numbers(spec, work_items):
+    if not re.fullmatch(r'[1-9][0-9]*(,[1-9][0-9]*)*',spec):
+        raise ValueError('选段补产编号必须是正整数')
+    numbers={int(n) for n in spec.split(',')}
+    if not numbers.issubset(set(range(1,len(work_items)+1))):
+        raise ValueError('补产编号不在本次已验证选段中')
+    if any(not work_items[n-1][2] for n in numbers):
+        raise ValueError('按条补产需要已完成并验证的选段，不能指定未选片的母片分块')
+    return numbers
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--only-reviewed-parts', default='',
                     help='Recovery only: comma-separated reviewed source part numbers; default all')
+    ap.add_argument('--only-selected-parts', default='',
+                    help='Render only these validated automatic selections; all gates still run')
     ap.add_argument("--source", required=True)
     ap.add_argument("--slug", required=True)
     ap.add_argument("--speaker", default="林园")
@@ -4850,6 +4863,10 @@ def main():
         retry_parts={int(n) for n in args.only_reviewed_parts.split(',')}
         if not retry_parts.issubset(set(range(1,len(work_items)+1))):
             raise ValueError('补产编号不在已核对选段中')
+    if args.only_selected_parts:
+        if args.only_reviewed_parts:
+            raise ValueError('不能同时指定人工核对与自动选段编号')
+        retry_parts=selected_part_numbers(args.only_selected_parts,work_items)
     metas, rejected = [], list(selection_failures)
     publication_state={}
     if os.environ.get('PUBLICATION_STATE_PATH'):

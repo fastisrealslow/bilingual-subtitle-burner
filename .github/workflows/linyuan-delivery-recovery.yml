@@ -31,4 +31,4 @@ jobs:
       - name: 让实际合格视频进入库存核验
         run: gh workflow run linyuan-source-inventory.yml --ref main
       - name: 只复测尚未通过的第二条，保留实际失败画面
-        run: python linyuan/register_selection_recovery.py --suffix tracked16 --evidence-run 34340237266 --reviewed-parts 2
+        run: python linyuan/register_selection_recovery.py --suffix tracked17 --evidence-run 34340237266 --selected-parts 2

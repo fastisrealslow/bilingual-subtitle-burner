@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--suffix',default='selector8')
     parser.add_argument('--evidence-run',default='')
     parser.add_argument('--reviewed-parts',default='')
+    parser.add_argument('--selected-parts',default='')
     parser.add_argument('--origin-slug',default=OLD)
     parser.add_argument('--expected-source',default='https://www.bilibili.com/video/BV1SazbBhE8a')
     args=parser.parse_args()
@@ -44,7 +45,8 @@ def main():
        '-f',f'occasion={origin.get("title") or "林园公开访谈"}','-f','source_platform=bilibili',
        '-f','auto_publish=false','-f','include_full=false',
        '-f',f'recovery_run_id={args.evidence_run}',
-       '-f',f'reviewed_parts={args.reviewed_parts}')
+       '-f',f'reviewed_parts={args.reviewed_parts}',
+       '-f',f'selected_parts={args.selected_parts}')
     entry={k:origin[k] for k in ('key','video_id','source_url','asset_url','title','source',
            'production_rules_version','required_presentation_version') if k in origin}
     entry.update(slug=NEW,ts=int(time.time()),delay_hours=0,repair_of=OLD)

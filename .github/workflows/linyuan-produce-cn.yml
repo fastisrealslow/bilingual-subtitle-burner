@@ -63,6 +63,11 @@ on:
         required: false
         default: '0'
         type: string
+      selected_parts:
+        description: '仅补产已通过选段验证的自动切片编号；所有成片门禁照常运行'
+        required: false
+        default: ''
+        type: string
       reviewed_parts:
         description: '仅补产已核对选段编号，逗号分隔；留空正常生产全部'
         required: false
@@ -335,6 +340,7 @@ jobs:
           # auto：干净原画用实景封面，资料卡在浅色/深色间按标题稳定选择。
           COVER_STYLE: ${{ vars.COVER_STYLE || 'auto' }}
           REVIEWED_PARTS: ${{ env.RUN_REVIEWED_PARTS }}
+          SELECTED_PARTS: ${{ inputs.selected_parts }}
           GH_TOKEN: ${{ github.token }}
           SOURCE_ORIGIN_URL: ${{ env.RUN_SOURCE }}
           PUBLICATION_STATE_PATH: _publication_state.json
@@ -357,6 +363,7 @@ jobs:
             --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
             --split-highlights \
             --only-reviewed-parts "$REVIEWED_PARTS" \
+            --only-selected-parts "$SELECTED_PARTS" \
             ${{ inputs.target_parts != '' && inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \
             ${{ inputs.include_full && '--include-full' || '' }} \
             ${{ (github.event_name == 'push' || inputs.prefer_live_video) && '--prefer-live-video' || '' }}
