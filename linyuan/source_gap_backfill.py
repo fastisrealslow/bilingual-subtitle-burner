@@ -17,6 +17,23 @@ def get_api(path):
     return data['data']
 
 
+
+def reference_metadata(bvid, account):
+    try:
+        d=get_api('/x/web-interface/view?bvid='+bvid)
+    except Exception:
+        matches=monitor.BilibiliSearchSource({'pages':1},{})._fetch_via_api(bvid)
+        row=next((r for r in matches if r.get('bvid')==bvid and r.get('up')==account['name']),None)
+        if not row:
+            raise ValueError('No exact reference ID and uploader match')
+        return dict(title=row['title'],date=monitor.source_publish_time(row.get('pubdate'))[:10],
+            dur=row.get('duration',0),play=row.get('view_count',0),metadata_provenance='bilibili_search_exact_id_author')
+    if int((d.get('owner') or {}).get('mid',0)) != account['mid']:
+        raise ValueError('Reference uploader did not match expected mid')
+    return dict(title=d['title'],date=monitor.source_publish_time(d.get('pubdate'))[:10],
+        dur=d.get('duration',0),play=(d.get('stat') or {}).get('view',0),metadata_provenance='bilibili_view')
+
+
 def collection_item(bvid, part, parent):
     number = int(part['page'])
     duration = monitor.duration_seconds(part.get('duration'))
@@ -72,11 +89,7 @@ def main():
                 metadata_provenance=ref['metadata_provenance'])
         if not args.offline and seeds[bvid].get('metadata_provenance'):
             try:
-                d=get_api('/x/web-interface/view?bvid='+bvid)
-                if int((d.get('owner') or {}).get('mid',0)) != catalog['reference_account']['mid']:
-                    raise ValueError('Reference uploader did not match expected mid')
-                seeds[bvid].update(title=d['title'],date=monitor.source_publish_time(d.get('pubdate'))[:10],
-                    dur=d.get('duration',0),play=(d.get('stat') or {}).get('view',0),metadata_provenance='bilibili_view')
+                seeds[bvid].update(reference_metadata(bvid,catalog['reference_account']))
             except Exception as exc:
                 report['errors'].append(dict(target=bvid,stage='reference_metadata',error=type(exc).__name__))
     seeds_path.write_text(json.dumps(seeds,ensure_ascii=False,indent=2)+'\n')

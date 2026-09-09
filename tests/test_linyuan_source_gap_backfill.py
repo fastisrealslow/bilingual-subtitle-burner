@@ -37,3 +37,14 @@ def test_lineage_keeps_hypotheses_and_blocks_reference_reposts():
     before=list(conn.execute('SELECT * FROM items'))
     gaps.apply_lineage(conn,catalog)
     assert list(conn.execute('SELECT * FROM items'))==before
+
+
+def test_reference_fallback_requires_exact_id_and_author(monkeypatch):
+    monkeypatch.setattr(gaps,'get_api',lambda _: (_ for _ in ()).throw(RuntimeError('unavailable')))
+    monkeypatch.setattr(gaps.monitor.BilibiliSearchSource,'_fetch_via_api',lambda *_:[
+        dict(bvid='BVref',up='园园滚雪球',title='林园原声',duration=29,pubdate=1788652800)])
+    d=gaps.reference_metadata('BVref',dict(name='园园滚雪球',mid=1700344493))
+    assert d['dur']==29 and d['metadata_provenance']=='bilibili_search_exact_id_author'
+    import pytest
+    with pytest.raises(ValueError):
+        gaps.reference_metadata('BVdifferent',dict(name='园园滚雪球',mid=1700344493))
