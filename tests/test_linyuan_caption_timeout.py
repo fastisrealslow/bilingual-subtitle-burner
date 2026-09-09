@@ -43,3 +43,17 @@ def test_recovery_matches_source_and_never_restores_approvals(tmp_path):
     assert not (new/'source_identity.json').exists()
     (new/'source_quality.json').write_text(json.dumps(dict(source_sha256='b'*64,passed=True)))
     with pytest.raises(ValueError,match='哈希不一致'):restore(old,new)
+
+
+def test_invalid_model_boundaries_are_retryable_not_bad_source(monkeypatch,tmp_path):
+    prompts=[]
+    def invalid(messages,*args,**kwargs):
+        prompts.append(messages[0]['content'])
+        return '{"wrong_field":[]}'
+    monkeypatch.setattr(p,'llm',invalid)
+    entries=[dict(start_sec=0,end_sec=4,zh='我们长期持有优秀企业')]
+    with pytest.raises(p.CaptionPlanningUnavailable):
+        p.semantic_caption_entries(entries,'',layout_for(720,1280,True),tmp_path/'captions.json')
+    assert len(set(prompts))==3  # Don't serve the same invalid answer from cache.
+    assert issubclass(p.CaptionPlanningUnavailable,p.EditorialReviewUnavailable)
+    assert not (tmp_path/'captions.json').exists()

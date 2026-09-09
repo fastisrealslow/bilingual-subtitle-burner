@@ -184,6 +184,10 @@ class PartProductionUnavailable(EditorialReviewUnavailable):
     """A production time limit is retryable, not evidence of bad source content."""
 
 
+class CaptionPlanningUnavailable(EditorialReviewUnavailable):
+    """Generated screen boundaries failed; the original footage is reusable."""
+
+
 def text_budget(cloud_seconds):
     """CPU prompt evaluation needs its own bounded budget; no cloud fallback."""
     if TEXT_BACKEND == 'local':
@@ -2136,10 +2140,10 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
             return result
         except (ValueError,KeyError,TypeError,RuntimeError) as exc:
             print('[意群重试]',str(exc),flush=True)
-            error='\n上次输出未通过严格校验：'+str(exc)+'。请重新按原文输出全部字幕。'
+            error=f'\n第{attempt+1}次输出未通过严格校验：'+str(exc)+'。请重新按原文输出全部字幕。'
             if 'texts' in locals():
                 error+='上次分屏文本：'+json.dumps(texts,ensure_ascii=False)
-    raise ValueError('完整意群字幕重试3次仍未通过'+error)
+    raise CaptionPlanningUnavailable('字幕分屏未完成，保留原始转写供重试；'+error)
 
 
 def make_ass(entries, path, W, H, card_style=False):
