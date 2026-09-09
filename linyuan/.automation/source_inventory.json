@@ -3,7 +3,7 @@
   "validation_sha256": "206318a45d0ebf44256da04fa709931110ccd1fb44f026ef0cd299109b8240aa",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1788947498,
+  "updated_at": 1788947697,
   "materials": {
     "weibo_search": {
       "records": 1092,
@@ -5848,7 +5848,14 @@
           "ly-0909-a6878f"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0909-a6878f",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[3]，different=[1, 2, 4, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0954, 2: 0.1183, 3: 0.6468, 4: 0.0713, 5: 0.1123, 6: 0.0546}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6841,11 +6848,12 @@
       "BV1Pm42177aC": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 7,
   "artifacts": [
     {
       "slug": "ly-0908-fa57fb",
