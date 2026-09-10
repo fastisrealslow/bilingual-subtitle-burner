@@ -1,0 +1,39 @@
+name: Export third reviewed source
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-third-source-export.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-0e87a0f5eace2d0141d9794024ab5ca4c53dad95e120a71fcafd22c797b27983-export
+          restore-keys: source-download-v1-0e87a0f5eace2d0141d9794024ab5ca4c53dad95e120a71fcafd22c797b27983-
+      - name: Verify cached source and export exact reviewed range
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          mkdir -p third-source
+          python - <<'PY'
+          import hashlib,pathlib,json,subprocess
+          src=pathlib.Path('linyuan/_src/video.mp4')
+          digest=hashlib.file_digest(src.open('rb'),'sha256').hexdigest()
+          expected='58371b9c7b0693310ac6704258565f48e1507a0bb6736c289ad0c5a92497d604'
+          if digest!=expected: raise SystemExit('Cached source differs from the published source')
+          metadata=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(src)]))
+          pathlib.Path('third-source/source-proof.json').write_text(json.dumps({'source_sha256':digest,'source_url':'https://www.bilibili.com/video/BV1JWQWYKEy6','start':1267.56,'end':1505.4,'media':metadata},ensure_ascii=False,indent=2))
+          PY
+          ffmpeg -y -v error -ss 1267.56 -i linyuan/_src/video.mp4 -t 237.84 -map 0:v:0 -map 0:a:0 -c:v libx264 -crf 16 -preset fast -c:a flac third-source/source-excerpt.mkv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-third-source
+          path: third-source/
+          compression-level: 0
+          retention-days: 7
