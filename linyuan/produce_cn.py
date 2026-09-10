@@ -93,7 +93,7 @@ AUDIO_CARD_MAX_RATIO = 0.30
 
 AUDIO_CARD_WIDTH = 720
 AUDIO_CARD_HEIGHT = 1280
-AUDIO_CARD_TEMPLATE = "live_editorial_v3_competitor_parity"
+AUDIO_CARD_TEMPLATE = "live_editorial_v4_readable"
 AUDIO_CARD_TOPIC_MAX_CHARS = 42
 AUDIO_CARD_DISCLAIMER = "个人观点 · 仅供交流 · 非投资建议"
 ALLOW_AUDIO_CARD = os.environ.get("ALLOW_AUDIO_CARD", "1") != "0"
@@ -1849,9 +1849,12 @@ def unfinished_caption_tail(text):
     spans=word_spans(text)
     if not spans:
         return False
+    if re.search(r'(?:(?:我|我们)(?:主要)?|主要)(?:是)?从(?:这个)?行业$',text):
+        return True
     a,b=spans[-1]
-    return bool(re.search(r'(?:还更|一个|这个|这种|一些|那些|这些|虽然|即使|尽管|无论|(?:我|你|他|她|们|人|企业|公司)会)$',text)) or text[a:b] in {
+    return bool(re.search(r'(?:还更|一个|这个|这种|一些|那些|这些|虽然|即使|尽管|无论|(?:我|你|他|她|们|人|企业|公司)会|(?:他|它|你|我)跟银行)$',text)) or text[a:b] in {
         '更加','因为','所以','如果','那么','但是','而且','以及','把','被',
+        '来自','甚至','跟','向','主要',
         '与','比','是','要','会','能','将','对','向','愿意','暂时','就是'}
 
 
@@ -1872,9 +1875,11 @@ def caption_timeline(entries):
         a,b=float(e['start_sec']),float(e['end_sec'])
         if i+1<len(entries): b=min(b,float(entries[i+1]['start_sec']))
         original=e.get('zh','')
+        mapped=e.get('caption_chars')
         for j,c in enumerate(original):
             if strip(c):
-                chars.append((c,a+(b-a)*j/len(original),a+(b-a)*(j+1)/len(original)))
+                chars.append(tuple(mapped[j]) if mapped is not None else
+                             (c,a+(b-a)*j/len(original),a+(b-a)*(j+1)/len(original)))
             elif c in '，。！？；：、':
                 punctuation_bounds.add(len(chars))
         if chars:
@@ -2052,6 +2057,12 @@ def source_caption_groups(entries, layout):
     source=''.join(c[0] for c in chars)
     if not source:raise ValueError('字幕原文为空')
     bounds=sorted({0,len(source)}|{b for a,b in word_spans(source)}|punctuation_bounds)
+    sentence_ends=set(); terminal_marks={}; offset=0
+    for c in ''.join(e.get('zh','') for e in entries):
+        if c in '。！？':
+            sentence_ends.add(offset)
+            if c in '！？':terminal_marks[offset]=c
+        elif not re.match(r'[\s，。！？；：、]',c):offset+=1
     tagged=list(posseg.cut(source));pos={};offset=0
     for word in tagged:
         pos[offset]=(word.word,word.flag);offset+=len(word.word)
@@ -2065,7 +2076,7 @@ def source_caption_groups(entries, layout):
             if b-a>2*max_capacity:break
             part=source[a:b]
             duration=chars[b-1][2]-chars[a][1]
-            if duration>8:break
+            if duration>layout.get('_phrase_limit',6):break
             if duration<.8:continue
             if unfinished_caption_tail(part) or dependent_caption_start(part):continue
             if part.startswith('的话'):continue
@@ -2076,16 +2087,18 @@ def source_caption_groups(entries, layout):
             # together even if a noisy ASR cue boundary falls between them.
             tail,tail_tag=ends.get(b,('',''))
             following,next_tag=pos.get(b,('',''))
-            if b<len(source) and (tail in {'不','没','未','别','不会','不能','没有','不是','并非',
+            hard_tail=tail in {'不','没','未','别','不会','不能','没有','不是','并非',
                     '应该','必须','需要','想','觉得','认为','知道','相信','就像','比如说',
                     '和','或','为','在','更','就','也','地','得'}
-                    or tail_tag in {'p','c','q','u','uj','ul','d'} and tail not in {'了','着','过','的'}
-                    or tail_tag.startswith('v') and next_tag.startswith(('n','r'))
-                    or tail_tag.startswith('v') and b not in punctuation_bounds
-                    or tail_tag.startswith(('a','s','f','b','n')) and next_tag.startswith('n')):
+            dependent_pair=(tail_tag in {'p','c','q','u','uj','ul','d'} and tail not in {'了','着','过','的'}
+                    or tail_tag.startswith('v')
+                    or tail_tag.startswith('r') and next_tag.startswith(('v','d'))
+                    or tail_tag.startswith(('a','s','f','b','n')) and next_tag.startswith('n'))
+            if b<len(source) and (hard_tail or b not in punctuation_bounds and dependent_pair):
                 continue
             if b<len(source) and part.endswith(('国内','国外','海外')) and next_tag.startswith(('n','r')):continue
             if following in {'的','地','得'}:continue
+            if part.endswith('的') and b not in punctuation_bounds and next_tag.startswith(('n','r')):continue
             fits=False
             for cap in range(capacity,max_capacity+1):
                 try:wrap_words(part,cap);fits=True;break
@@ -2094,10 +2107,20 @@ def source_caption_groups(entries, layout):
             gap=(chars[b][1]-chars[b-1][2]) if b<len(chars) else 0
             boundary_cost=(0 if b in punctuation_bounds else
                            2 if gap>=.35 else 4 if b in entry_bounds else 10)
-            cost=best[a][0]+boundary_cost+abs(len(part)-16)/3+(8 if len(part)<5 else 0)
+            cost=(best[a][0]+boundary_cost+abs(len(part)-14)/3
+                  +abs(duration-3.5)*2+(8 if len(part)<5 else 0)
+                  +40*sum(a<stop<b and not unfinished_caption_tail(source[a:stop])
+                          for stop in sentence_ends))
             if b not in best or cost<best[b][0]:best[b]=(cost,best[a][1]+[part])
-    if len(source) not in best:raise ValueError('没有满足词界、意群和显示时长的本地分屏路径')
-    return best[len(source)][1]
+    if len(source) not in best:
+        # Preserve a complete slow phrase rather than create a flashing tail.
+        if not layout.get('_phrase_limit'):
+            return source_caption_groups(entries,{**layout,'_phrase_limit':8})
+        raise ValueError('没有满足词界、意群和显示时长的本地分屏路径')
+    result=[];offset=0
+    for part in best[len(source)][1]:
+        offset+=len(part);result.append(part+terminal_marks.get(offset,''))
+    return result
 
 
 def caption_break_schema(token_count, char_count=1, max_group_chars=30):
@@ -2116,8 +2139,16 @@ def compact_caption_tokens(tokens):
 
 def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_groups=None):
     """Prefer real sentence boundaries; validate every character locally."""
+    from caption_readability import clean_entries, write_edit_proof, VERSION as READABILITY_VERSION
+    entries, edit_proof = clean_entries(entries)
     capacity=layout['line_capacity']
     cache_path=Path(cache_path)
+    write_edit_proof(cache_path.with_suffix('.editing.json'), edit_proof)
+    # Old raw-text boundaries are invalid after display edits; replan the
+    # cleaned transcript. Raw ASR and original reviewed picks remain untouched.
+    if edit_proof['edits']:
+        reviewed_groups=None
+    cache_path=cache_path.with_name(cache_path.stem+f'.readable-{READABILITY_VERSION}.json')
     if reviewed_groups is not None:
         result=apply_semantic_groups(entries,reviewed_groups,capacity,layout.get('subtitle_font_px'))
         cache_path.write_text(json.dumps(reviewed_groups,ensure_ascii=False,indent=2))
@@ -2128,6 +2159,14 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
                 entries, json.loads(cache_path.read_text()), capacity,
                 layout.get('subtitle_font_px'))
         except (ValueError,TypeError): pass
+    try:
+        groups=source_caption_groups(entries,layout)
+        result=apply_semantic_groups(entries,groups,capacity,layout.get('subtitle_font_px'))
+        cache_path.write_text(json.dumps(groups,ensure_ascii=False,indent=2))
+        print(f'[字幕分屏] 本地词界、停顿与意群规划通过全部校验：{len(result)}屏',flush=True)
+        return result
+    except ValueError as exc:
+        print('[字幕分屏] 本地规划需要补充：'+str(exc),flush=True)
     raw=''.join(e.get('zh','') for e in entries)
     if re.search(r'[。！？]',raw):
         # CPU ASR already supplies punctuation. Reconnect display rows into
@@ -2144,14 +2183,6 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
             return result
         except ValueError as exc:
             print('[字幕分屏] 原文边界需进一步分组：'+str(exc),flush=True)
-    try:
-        groups=source_caption_groups(entries,layout)
-        result=apply_semantic_groups(entries,groups,capacity,layout.get('subtitle_font_px'))
-        cache_path.write_text(json.dumps(groups,ensure_ascii=False,indent=2))
-        print(f'[字幕分屏] 本地词界、停顿与意群规划通过全部校验：{len(result)}屏',flush=True)
-        return result
-    except ValueError as exc:
-        print('[字幕分屏] 本地规划需要补充：'+str(exc),flush=True)
     from presentation import word_spans
     # Ask for boundary indices, never a copied transcript: models tend to
     # silently repair spoken repetitions/ASR errors while copying strings.
@@ -4231,12 +4262,10 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         title_y = 165
         title_boxes = []
         for i, line in enumerate(lines):
-            _draw_emphasis_line(
-                draw, (48, title_y + i * line_h), line, topic_font,
-                stroke_width=max(2, int(3 * unit)),
-                stroke_fill=(45, 28, 20), centered=False)
+            draw.text((48, title_y + i * line_h), line, font=topic_font,
+                      fill=(24, 44, 66))
             title_boxes.append(draw.textbbox((48,title_y+i*line_h),line,
-                               font=topic_font,stroke_width=max(2,int(3*unit))))
+                               font=topic_font))
         if len(lines)>2 or any(b[0]<38 or b[2]>682 or b[1]<150 or b[3]>325
                                for b in title_boxes):
             raise VisualQualityError('视频顶部短标题超出两行安全区域')
@@ -4700,6 +4729,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "cover_proof": json.loads(Path(str(cover)+".proof.json").read_text()),
         "subtitle_word_boundaries_verified": True,
         "subtitle_semantic_groups_verified": True,
+        "subtitle_readability_version": layout["readability_version"],
+        "subtitle_edit_proofs": [f"_tmp/semantic{suffix}-{n}.editing.json" for n in range(1,len(picks)+1)],
         **live_checks,
         "duration_sec": round(dur, 1),
         "resolution": {"width": final_w, "height": final_h,

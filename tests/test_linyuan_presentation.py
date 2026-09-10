@@ -110,8 +110,10 @@ def test_larger_fonts_keep_two_line_room():
     for w,h,card in [(1280,720,False),(1640,620,False),(480,620,False),(720,1280,True)]:
         layout=V.layout_for(w,h,card)
         assert layout['subtitle_region']['height']>=2*layout['subtitle_font_px']
-    assert V.layout_for(720,1280,True)['subtitle_font_px']==48
-    assert V.layout_for(1640,620)['subtitle_font_px']>49
+    assert V.layout_for(720,1280,True)['subtitle_font_px']==44
+    assert V.layout_for(1640,620)['subtitle_font_px']>=44
+    from caption_readability import ass_font_size
+    assert ass_font_size(44,'Noto Sans CJK SC')==64
 
 
 def test_complete_date_fits_narrow_frame_without_splitting():

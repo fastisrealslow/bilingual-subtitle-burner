@@ -52,7 +52,7 @@ def layout_for(width, height, card=False):
     if card:
         if (width, height) != (720, 1280):
             raise ValueError('人物卡画布必须为720×1280')
-        mode, region, font = 'audio_card', dict(x=38,y=874,width=644,height=166), 48
+        mode, region, font = 'audio_card', dict(x=38,y=874,width=644,height=166), 44
     else:
         mode = 'landscape' if width > height*1.15 else ('portrait' if height > width*1.15 else 'square')
         region = dict(x=round(width*.06), y=round(height*(.73 if mode=='portrait' else .72)),
@@ -62,9 +62,14 @@ def layout_for(width, height, card=False):
         font = min(int(min(width,height)*.08),
                    max(28, round(min(width,height)*.055), round(width*.035)))
         font = min(int(min(width,height)*.10), round(font*1.20))
+        font = min(font, int((region['height']-16)/(2*1.448)))
+    from caption_readability import VERSION as READABILITY_VERSION
     return {'version':VERSION,'mode':mode,'canvas':{'width':width,'height':height},
             'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':2,
-            'subtitle_vertical_alignment':'center','subtitle_layout_version':3,
+            'subtitle_vertical_alignment':'center','subtitle_layout_version':4,
+            'readability_version':READABILITY_VERSION,
+            'subtitle_style':'light-panel-dark-text','subtitle_font_unit':'visible-glyph-px',
+            'subtitle_preferred_max_seconds':6.0,'subtitle_max_seconds':8.0,'subtitle_target_seconds':3.5,
             'word_boundary_policy':'semantic-v1',
             'terminal_punctuation_policy':'no-comma-period',
             'line_capacity':max(8, int((region['width']-32)/(font*1.05)))}
@@ -182,6 +187,7 @@ def prepare_captions(entries, layout):
 
 
 def write_ass(entries, path, layout, font_name):
+    from caption_readability import ass_font_size
     prepared=prepare_captions(entries,layout)
     region=layout['subtitle_region']; font=layout['subtitle_font_px']
     w,h=layout['canvas']['width'],layout['canvas']['height']
@@ -189,11 +195,12 @@ def write_ass(entries, path, layout, font_name):
     def ts(t):
         ticks=round(t*100)
         return f'{ticks//360000}:{ticks//6000%60:02}:{ticks//100%60:02}.{ticks%100:02}'
-    color='&H0000D7FF' if layout['mode']=='audio_card' else '&H00FFFFFF'
+    color='&H00422C18'
+    box_style, box_outline=(1,0) if layout['mode']=='audio_card' else (3,10)
     lines=['[Script Info]','ScriptType: v4.00+','WrapStyle: 2',f'PlayResX: {w}',f'PlayResY: {h}',
            '', '[V4+ Styles]',
            'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-           f'Style: ZH,{font_name},{font},{color},&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,3,1,5,0,0,0,1',
+           f'Style: ZH,{font_name},{ass_font_size(font,font_name)},{color},&H000000FF,&H00FFFFFF,&H00FFFFFF,0,0,0,0,100,100,0,0,{box_style},{box_outline},0,5,0,0,0,1',
            '', '[Events]','Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text']
     for cue in prepared:
         # Display-only cleanup: transcript and timing remain intact. Preserve
@@ -202,7 +209,8 @@ def write_ass(entries, path, layout, font_name):
                                 for t in cue['lines']]
         # Literal braces/backslashes are escaped; only our explicit line breaks are ASS commands.
         rendered='\\N'.join(t.replace('\\','／').replace('{','（').replace('}','）') for t in cue['display_lines'])
-        lines.append(f'Dialogue: 0,{ts(cue["start_sec"])},{ts(cue["end_sec"])},ZH,,0,0,0,,{{\\an5\\pos({x},{y})\\fs{cue["font_px"]}}}{rendered}')
+        size=ass_font_size(cue['font_px'],font_name)
+        lines.append(f'Dialogue: 0,{ts(cue["start_sec"])},{ts(cue["end_sec"])},ZH,,0,0,0,,{{\\an5\\pos({x},{y})\\fs{size}}}{rendered}')
     Path(path).write_text('\n'.join(lines),encoding='utf-8-sig')
     return prepared
 

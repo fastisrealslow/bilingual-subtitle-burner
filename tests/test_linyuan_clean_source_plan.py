@@ -43,7 +43,7 @@ def test_dirty_video_without_safe_crop_uses_clean_audio_card(monkeypatch,
     assert plan["clean_video_filter"] == ""
 
 
-def test_audio_card_ass_uses_yellow_black_outline(tmp_path):
+def test_audio_card_ass_uses_readable_dark_text_without_heavy_outline(tmp_path):
     ass = tmp_path / "card.ass"
     P.make_ass([{
         "start_sec": 0.0, "end_sec": 2.0,
@@ -52,9 +52,9 @@ def test_audio_card_ass_uses_yellow_black_outline(tmp_path):
     text = ass.read_text(encoding="utf-8-sig")
     style = next(line for line in text.splitlines()
                  if line.startswith("Style: ZH,"))
-    assert "&H0000D7FF" in style
-    assert ",48," in style
-    assert ",1,3,1,5," in style
+    assert "&H00422C18" in style
+    assert ",44," in style
+    assert ",1,0,0,5," in style
     assert "WrapStyle: 2" in text
     dialogue = next(line for line in text.splitlines()
                     if line.startswith("Dialogue:"))
@@ -73,7 +73,7 @@ def test_audio_card_subtitles_are_explicitly_limited_to_two_balanced_lines(tmp_p
     assert "{\\an5\\pos(360,957)" in dialogue
 
 
-def test_real_video_subtitles_remain_white(tmp_path):
+def test_real_video_subtitles_have_light_background_and_dark_text(tmp_path):
     ass = tmp_path / "direct.ass"
     P.make_ass([{
         "start_sec": 0.0, "end_sec": 2.0,
@@ -83,7 +83,7 @@ def test_real_video_subtitles_remain_white(tmp_path):
     style = next(line for line in text.splitlines()
                  if line.startswith("Style: ZH,"))
     assert "&H00FFFFFF" in style
-    assert ",1,3,1,5," in style
+    assert ",3,10,0,5," in style
     assert "\\an5\\pos(640,608)" in text
 
 
