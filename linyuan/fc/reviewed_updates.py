@@ -13,6 +13,21 @@ DIRECTORY = Path(__file__).parent / 'reviewed_0910'
 TARGETS = {'BV16vYT6ME5s', 'BV16QYK6qEwm', 'BV1hmYt6SEJd'}
 
 
+def creator_detail(session, bvid):
+    response = session.get('https://member.bilibili.com/x/web/archive/view',
+                           params=dict(bvid=bvid, history=''), timeout=30)
+    content_type = response.headers.get('Content-Type', '')
+    if response.status_code != 200:
+        raise RuntimeError(f'Creator detail HTTP {response.status_code}; type={content_type}; bvid={bvid}')
+    try:
+        reply = response.json()
+    except ValueError:
+        raise RuntimeError(f'Creator detail returned non-JSON; HTTP 200; type={content_type}; bvid={bvid}') from None
+    if reply.get('code') != 0:
+        raise RuntimeError('Creator detail unavailable: ' + str(reply.get('code')))
+    return reply.get('data') or {}
+
+
 def asset(name, digest):
     if Path(name).name != name:
         raise ValueError('Invalid reviewed asset path')
@@ -91,11 +106,7 @@ def apply(fc):
             raise RuntimeError('Update receipt did not persist; refusing edit')
 
     def detail(bvid):
-        reply = session.get('https://member.bilibili.com/x/web/archive/view',
-                            params=dict(bvid=bvid, history=''), timeout=30).json()
-        if reply.get('code') != 0:
-            raise RuntimeError('Creator detail unavailable: ' + str(reply.get('code')))
-        return reply.get('data') or {}
+        return creator_detail(session, bvid)
 
     results = []
     for item in items:
