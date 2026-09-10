@@ -109,3 +109,34 @@ def test_interview_keeps_broll_frames_and_distinguishes_verified_participants(tm
     assert ok and 175<float(frame[220:250,300:330].mean())<200
     assert frame[:10].mean()>240  # white fit, not black padding or a frozen portrait
     assert all(t<4 for t in proof['target_sample_times'])
+
+
+def test_editorial_cards_preserve_timeline_and_do_not_count_as_people(tmp_path,monkeypatch):
+    import cv2,numpy as np
+    import interview_graphics as graphics
+    source=tmp_path/'tracked.mp4'
+    writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(632,470))
+    for n in range(100):writer.write(np.full((470,632,3),40+n,dtype=np.uint8))
+    writer.release()
+    proof=dict(source_start=0,duration=10,frames=100,matched_frames=80,other_face_frames=0,
+        roles=[dict(role='guest',start_frame=0,end_frame=80),dict(role='source_illustration',start_frame=80,end_frame=100)],
+        target_reference_spans=[[0,80]],source_frames_preserved=True)
+    monkeypatch.setattr(graphics,'GRAPHICS',{'test':dict(reviewed_start=0,reviewed_end=10,spans=[(3,4,'财务思维')])})
+    monkeypatch.setattr(graphics,'topic_card',lambda path,text:cv2.imwrite(str(path),np.full((470,632,3),250,dtype=np.uint8)))
+    cues=[dict(start_sec=3,end_sec=4,zh='这是财务思维')]
+    out=graphics.clean_interview_graphics(source,proof,cues,'test',tmp_path/'cards')
+    assert out['source_timeline_preserved'] and not out['source_frames_preserved']
+    assert out['matched_frames']==70 and out['editorial_card_frames']==10
+    assert out['verified_face_ratio']==.7
+    assert all(not 3<=t<4 for t in out['target_sample_times'])
+    cap=cv2.VideoCapture(str(source))
+    assert cap.get(cv2.CAP_PROP_FRAME_COUNT)==100 and cap.get(cv2.CAP_PROP_FPS)==10
+    for n in [29,30,39,40]:
+        cap.set(cv2.CAP_PROP_POS_FRAMES,n);ok,frame=cap.read();assert ok
+        assert (frame.mean()>240)==(30<=n<40)
+    cap.release()
+    graphics.GRAPHICS['test']['spans']=[(2,4,'财务思维')]
+    with pytest.raises(ValueError,match='真人动态不足70%'):
+        graphics.clean_interview_graphics(source,proof,cues,'test',tmp_path/'reject')
+    with pytest.raises(ValueError,match='超出已复检画面范围'):
+        graphics.clean_interview_graphics(source,{**proof,'duration':11},cues,'test',tmp_path/'outside')

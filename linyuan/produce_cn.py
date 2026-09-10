@@ -2745,7 +2745,7 @@ def partial_qr_finder_score(gray):
 
 
 def verify_live_region_after_render(final, frames=6, api_key=None,
-                                    speaker='林园', reference=None, extra_times=()):
+                                    speaker='林园', reference=None, extra_times=(), actor_times=()):
     """复检嵌入的真人动态区：拒绝黑边、二维码和稳定外部角标。"""
     import tempfile
     try:
@@ -2758,7 +2758,8 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = float(cap.get(cv2.CAP_PROP_FPS)) or 30
     junction_indices={min(total-1,max(0,int(t*fps))) for t in extra_times}
-    sample_indices=sorted({int(total*(i+.5)/max(1,frames)) for i in range(frames)}|junction_indices)
+    actor_indices={min(total-1,max(0,int(t*fps))) for t in actor_times}
+    sample_indices=sorted({int(total*(i+.5)/max(1,frames)) for i in range(frames)}|junction_indices|actor_indices)
     frame_paths = []
     black_edge_hits = 0
     qr_hits = 0
@@ -2831,7 +2832,10 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     for row in geometry:
         if sample_indices[row['frame']] in junction_indices and not row['full_face']:
             raise VisualQualityError('剪接附近真人取景缺少完整人脸或头顶余量')
-    if full_face_frames < max(3, int(got*.8+.999)):
+    actor_faces=sum(row['full_face'] for row in geometry if sample_indices[row['frame']] in actor_indices)
+    if actor_indices and (len(actor_indices)!=6 or actor_faces<5):
+        raise VisualQualityError('访谈人物镜头完整人脸复检不足5/6')
+    if not actor_indices and full_face_frames < max(3, int(got*.8+.999)):
         raise VisualQualityError(f"真人窗口完整人脸抽帧不足：{full_face_frames}/{got}，拒绝裁头/裁下巴或空镜")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
@@ -4717,6 +4721,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                         (source_report.get('visual_identity') or {}).get('same_person_frames',[])
                         if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
                 if interview_plan:
+                    from interview_graphics import clean_interview_graphics
+                    tracking=clean_interview_graphics(tracked,tracking,entries,
+                        source_report['source_sha256'],work/f'graphics{suffix}{n}')
                     interview_tracking={**tracking,'source_sha256':source_report['source_sha256']}
                 cmd += ["-i",str(tracked)]
                 live = (
@@ -4775,7 +4782,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         for pick in picks[:-1]:
             elapsed+=cues[pick['end']]['end']-cues[pick['start']]['start']
             junction_times.extend((max(0,elapsed-.25),elapsed+.25))
-        live_checks.update(verify_live_region_after_render(final,extra_times=junction_times))
+        live_checks.update(verify_live_region_after_render(final,extra_times=junction_times,
+            actor_times=interview_tracking['target_sample_times'] if interview_tracking else ()))
         live_checks['junction_frames_checked']=len(junction_times)
         live_checks['final_live_identity']=verify_final_live_identity(
             final,work,speaker,api_key,suffix,

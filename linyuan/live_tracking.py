@@ -104,8 +104,14 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             passed=error is None and (context_frames/count>=.7 and len(target_times)>=6
                 if context_crop is not None else matched/count>=.8),matched_ratio=matched/count)
         if context_crop is not None:
+            strong=[]
+            for t in target_times:
+                index=round(t*fps-.5)
+                if strong and strong[-1][1]==index:strong[-1][1]=index+1
+                else:strong.append([index,index+1])
             proof.update(mode='verified_interview_context_v1',verified_face_ratio=context_frames/count,
                 source_frames_preserved=decoded==encoded==count,source_crop=list(context_crop),
+                target_reference_spans=strong,
                 context_picture_frames=picture_frames,unmatched_detection_frames=unmatched_detections,
                 roles=roles,target_sample_times=[target_times[min(len(target_times)-1,
                     int(len(target_times)*(i+.5)/6))] for i in range(6)] if len(target_times)>=6 else [])

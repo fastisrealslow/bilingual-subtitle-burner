@@ -194,14 +194,24 @@ def final_live_identity_error(meta):
     if context or proof.get('sampling_scope')=='verified_guest_turns':
         try:
             frames=context['frames'];roles=context['roles'];cursor=0
-            counts={'guest':0,'participant':0,'source_illustration':0}
+            counts={'guest':0,'participant':0,'source_illustration':0,'editorial_card':0}
             for row in roles:
                 if row['start_frame']!=cursor or row['end_frame']<=cursor:raise ValueError()
                 counts[row['role']]+=row['end_frame']-cursor;cursor=row['end_frame']
             times=context['target_sample_times']
             fps=frames/context['encoded_duration']
-            if (context['mode']!='verified_interview_context_v1' or context['passed'] is not True
-                    or context['source_frames_preserved'] is not True
+            version=context['mode']
+            if version=='verified_interview_context_v2':
+                if (context['source_timeline_preserved'] is not True
+                        or context['source_frames_preserved'] is not (counts['editorial_card']==0)
+                        or context['editorial_card_frames']!=counts['editorial_card']
+                        or context['graphics_profile_source_sha256']!=meta.get('source_sha256')):raise ValueError()
+                cards=context['editorial_cards']
+                spans=[(r['start_frame'],r['end_frame']) for r in roles if r['role']=='editorial_card']
+                if [(r['start_frame'],r['end_frame']) for r in cards]!=spans:raise ValueError()
+            elif version!='verified_interview_context_v1' or context['source_frames_preserved'] is not True or counts['editorial_card']:
+                raise ValueError()
+            if (context['passed'] is not True
                     or cursor!=frames or context['decoded_frames']!=frames or context['encoded_frames']!=frames
                     or counts['guest']!=context['matched_frames'] or counts['participant']!=context['other_face_frames']
                     or counts['source_illustration']!=context['context_picture_frames']

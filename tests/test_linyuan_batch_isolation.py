@@ -66,6 +66,31 @@ class BatchIsolationTests(unittest.TestCase):
         bad=copy.deepcopy(meta);bad['final_live_identity']['sample_times']=[9]*6
         self.assertIsNotNone(fc.final_live_identity_error(bad))
 
+    def test_editorial_cards_are_separate_from_verified_actor_coverage(self):
+        times=[.1,.3,.5,.7,.9,1.1]
+        context=dict(mode='verified_interview_context_v2',passed=True,frames=100,
+            decoded_frames=100,encoded_frames=100,encoded_duration=10,
+            source_frames_preserved=False,source_timeline_preserved=True,
+            matched_frames=60,other_face_frames=10,no_face_frames=20,
+            context_picture_frames=20,unmatched_detection_frames=0,editorial_card_frames=10,
+            source_sha256='source',graphics_profile_source_sha256='source',target_sample_times=times,
+            editorial_cards=[dict(start_frame=60,end_frame=70,text='财务思维')],roles=[
+                dict(role='guest',start_frame=0,end_frame=60),
+                dict(role='editorial_card',start_frame=60,end_frame=70),
+                dict(role='participant',start_frame=70,end_frame=80),
+                dict(role='source_illustration',start_frame=80,end_frame=100)])
+        meta=dict(render_mode='live_video_card',duration_sec=10,source_sha256='source',
+            interview_context=context,final_live_identity=dict(speaker='林园',sample_count=6,
+                same_person_frames=list(range(1,7)),confidence=.95,watermark_texts=[],
+                sampling_scope='verified_guest_turns',sample_times=times))
+        self.assertIsNone(fc.final_live_identity_error(meta))
+        for key,value in [('editorial_card_frames',0),('source_frames_preserved',True),
+                          ('source_timeline_preserved',False),('graphics_profile_source_sha256','wrong')]:
+            bad=copy.deepcopy(meta);bad['interview_context'][key]=value
+            self.assertIsNotNone(fc.final_live_identity_error(bad),key)
+        bad=copy.deepcopy(meta);bad['interview_context']['editorial_cards'][0]['end_frame']=71
+        self.assertIsNotNone(fc.final_live_identity_error(bad))
+
     def test_bad_middle_part_does_not_erase_success_or_skip_next_part(self, split=False):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
