@@ -1541,7 +1541,7 @@ def editorial_sentence_units(cues):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 8}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 9}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:

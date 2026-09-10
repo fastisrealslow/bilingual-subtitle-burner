@@ -83,3 +83,25 @@ def test_interviewer_clauses_cannot_shed_question_context_for_a_title():
     titles=title_candidates(text)
     assert titles and all('老龄化' not in title for title in titles)
     assert p.editorial.title_attribution_error('林园：然后你也聊聊到说看好这三个药品的原因')
+
+
+@pytest.mark.parametrize('section',['topic_changes','next_question_preamble','host_outro'])
+def test_actual_686_cannot_borrow_other_topics_questions_or_outro(section):
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_686_selection.json').read_text())
+    assert select(data['sections'][section],whole_source=True)==[]
+
+
+def test_informal_you_question_is_a_boundary_too():
+    cues=dialogue()
+    cues[0]['text']='你对医药股有什么判断？'
+    cues[4]['text']='你对科技股怎么看？'
+    assert [(x['start'],x['end']) for x in select(cues)]==[(0,3)]
+
+
+def test_actual_686_interviewer_stock_claim_cannot_be_guest_title():
+    from headline_policy import title_candidates
+    text=('二零二一年你在茅台股东大会上面透露过，'
+          '你有持有茅台百分之二的股票，当时占定总资产的百分之四十。'
+          '医药行业需求随着老龄化增长，我们长期持有这些企业。')
+    titles=title_candidates(text)
+    assert titles and all('百分之' not in title and '茅台' not in title for title in titles)
