@@ -46,7 +46,20 @@ def payload_for(data, item, cover, filename=None):
             or archive.get('bvid') not in (None, item['bvid'])
             or archive.get('title') not in (item['old_title'], item['title'])):
         raise ValueError('Existing archive identity, title or part count changed')
-    payload = copy.deepcopy(archive)
+    # The read model contains nested status/policy objects that are not valid
+    # edit inputs. Use the uploader's Studio fields plus existing visibility.
+    editable = ('aid', 'bvid', 'copyright', 'source', 'tid', 'cover', 'title',
+        'desc_format_id', 'desc', 'dynamic', 'tag', 'dtime', 'interactive',
+        'mission_id', 'lossless_music', 'no_reprint', 'is_only_self',
+        'is_space_hidden', 'no_public', 'open_elec', 'up_selection_reply',
+        'up_close_reply', 'up_close_danmu')
+    payload = {k:copy.deepcopy(archive[k]) for k in editable if archive.get(k) is not None}
+    if archive.get('desc_v2'):
+        payload['desc_v2'] = copy.deepcopy(archive['desc_v2'])
+    if archive.get('human_type2'):
+        payload['human_type2'] = copy.deepcopy(archive['human_type2'])
+    if (archive.get('creation_statement') or {}).get('id', 0) > 0:
+        payload['creation_statement'] = {'id': archive['creation_statement']['id']}
     # Creator reads expose the category as {id, name}; edit expects an integer.
     if isinstance(payload.get('human_type2'), dict):
         payload['human_type2'] = int(payload['human_type2'].get('id') or 0)
@@ -151,11 +164,11 @@ def apply(fc):
             # once with the corrected schema. Uncertain edits are only read back.
             corrected_rejection = (transaction['status'] == 'edit_rejected'
                 and transaction.get('api_code') == 21001
-                and transaction.get('payload_schema_version', 1) < 2)
+                and transaction.get('payload_schema_version', 1) < 3)
             if transaction['status'] in ('edit_requested', 'edit_rejected') and not corrected_rejection:
                 results.append(dict(bvid=bvid, status=transaction['status'])); continue
             payload = payload_for(current, item, transaction['cover'], transaction.get('filename'))
-            transaction.update(status='edit_requested', payload_schema_version=2); persist()
+            transaction.update(status='edit_requested', payload_schema_version=3); persist()
             reply = session.post('https://member.bilibili.com/x/vu/web/edit',
                 params=dict(csrf=values['bili_jct']), json=payload, timeout=60).json()
             transaction['api_code'] = reply.get('code')

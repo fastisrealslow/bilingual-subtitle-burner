@@ -13,7 +13,8 @@ import reviewed_updates as R
 def test_payload_preserves_archive_settings_and_existing_media():
     item = dict(bvid='BV16QYK6qEwm', old_title='old', title='new')
     data = dict(archive=dict(aid=123,bvid=item['bvid'],title='old',tag='tags',
-        copyright=2,desc='description',is_only_self=0,human_type2={'id':1010,'name':'知识'}),
+        copyright=2,desc='description',is_only_self=0,human_type2={'id':1010,'name':'知识'},
+        recreate={'auth':1,'editable':1,'switch':-1},creation_statement={'id':-2,'content':'内容为转载'}),
         videos=[dict(filename='old-file',cid=789,title='old',desc='part')])
     original=copy.deepcopy(data)
     result=R.payload_for(data,item,'new-cover')
@@ -21,6 +22,7 @@ def test_payload_preserves_archive_settings_and_existing_media():
     assert result['videos'][0]['filename']=='old-file' and result['videos'][0]['cid']==789
     assert result['desc']=='description' and result['tag']=='tags' and result['is_only_self']==0
     assert result['human_type2']==1010
+    assert 'recreate' not in result and 'creation_statement' not in result
     result=R.payload_for(data,item,'new-cover','replacement')
     assert result['videos'][0]['filename']=='replacement' and 'cid' not in result['videos'][0]
     data['archive']['title']='unrelated edit'
@@ -110,7 +112,7 @@ def test_definitive_old_parameter_rejection_reuses_uploaded_assets(monkeypatch):
         filename='accepted-video',created_at=1)}
     assert R.apply(fc)['status']=='verified'
     assert calls==dict(covers=2,uploads=0,edits=3)
-    assert stored[0]['reviewed_updates_0910']['BV16vYT6ME5s']['payload_schema_version']==2
+    assert stored[0]['reviewed_updates_0910']['BV16vYT6ME5s']['payload_schema_version']==3
 
 
 @pytest.mark.parametrize('status,payload,expected', [(412,{},'HTTP 412'),
