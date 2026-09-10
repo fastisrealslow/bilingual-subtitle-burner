@@ -6,11 +6,17 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   export:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
+      - name: Inspect available source caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --paginate "repos/$GITHUB_REPOSITORY/actions/caches?per_page=100" --jq '.actions_caches[] | select(.key | startswith("source-download")) | {key,ref,size_in_bytes}'
       - uses: actions/cache/restore@v4
         with:
           path: linyuan/_src/
