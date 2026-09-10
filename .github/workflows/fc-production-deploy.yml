@@ -9,6 +9,9 @@ on:
     paths:
       - linyuan/fc/index.py
       - linyuan/fc/media_repair.py
+      - linyuan/fc/reviewed_updates.py
+      - linyuan/fc/reviewed_0910/**
+      - linyuan/fc/invoke_reviewed_updates.py
       - linyuan/editorial_policy.py
       - linyuan/fc/deploy_code.py
       - linyuan/fc/verify_production.py
@@ -30,7 +33,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     env:
       ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
       ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
@@ -69,13 +72,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/editorial_policy.py linyuan/fc/media_repair.py
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/editorial_policy.py linyuan/fc/media_repair.py linyuan/fc/reviewed_updates.py
+          (cd linyuan/fc && zip -r "$FC_CODE_ZIP" reviewed_0910)
           unzip -t "$FC_CODE_ZIP"
 
       - name: 单片隔离与每日配额回归
         run: |
-          pip install -q pytest jieba
+          pip install -q pytest jieba requests
           python -m pytest -q tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py
+          python -m pytest -q tests/test_linyuan_reviewed_updates.py
 
       - name: 部署到阿里云函数计算
         run: python linyuan/fc/deploy_code.py
@@ -83,8 +88,14 @@ jobs:
       - name: 核对部署代码与定时器（按显式参数补候选）
         run: python linyuan/fc/verify_production.py
 
+      - name: 原位更新用户已验收的三条稿件（带持久化回执防重）
+        run: python -u linyuan/fc/invoke_reviewed_updates.py
+
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: production-verification
-          path: production-verification.json
+          path: |
+            production-verification.json
+            reviewed-updates-verification.json
           if-no-files-found: error

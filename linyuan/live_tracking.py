@@ -93,6 +93,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     decoded=0;encoded=0;frame=None;n=0;recent=deque(maxlen=7)
     last_target_time=None
     target_times=[];roles=[];context_frames=0;picture_frames=0;unmatched_detections=0
+    from stable_framing import StableFraming
+    framing = StableFraming(fps)
 
     def evidence(error=None):
         proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
@@ -103,6 +105,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             first_crop=first,last_crop=last,threshold=threshold,
             passed=error is None and (context_frames/count>=.7 and len(target_times)>=6
                 if context_crop is not None else matched/count>=.8),matched_ratio=matched/count)
+        proof['framing'] = framing.proof()
         if context_crop is not None:
             strong=[]
             for t in target_times:
@@ -140,6 +143,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 ok,frame=cap.read()
                 if not ok:raise ValueError(f'动态取景解码提前结束：实际{n}/{count}帧，起始帧{first_frame}，fps={fps}')
                 decoded+=1
+                framing.observe(frame, n)
                 if n%max(1,round(fps/2))==0:
                     saved,jpeg=cv2.imencode('.jpg',frame)
                     if saved:recent.append((n,jpeg.tobytes()))
@@ -162,11 +166,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                     score,face,primary=max(candidates,key=lambda row:row[0])
                     box=crop_box(face,width,height,exclusions=exclusions);matched+=1;missing=0;blank_streak=0
                     last_target_time=(first_frame+n)/fps
-                    if previous is not None:
-                        # Smooth ordinary movement, but snap to a new shot immediately.
-                        delta=max(abs(box[k]-previous[k]) for k in range(4))
-                        if delta<min(box[2:])*.12:
-                            box=tuple(round((previous[k]*.65+box[k]*.35)/2)*2 for k in range(4))
+                    box=framing.update(box,face,width,height,n)
                     previous=box
                     role='guest';context_frames+=1
                     if primary>=threshold+.03:target_times.append((n+.5)/fps)
@@ -184,7 +184,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                         # aggregate 80% and final independent 5/6 gates still apply.
                         face=(max(other_candidates,key=lambda x:x[0])[1] if context_crop is not None
                               else max(detected,key=lambda f:float(f[2]*f[3])))
-                        box=crop_box(face,width,height,exclusions=exclusions);previous=box
+                        box=crop_box(face,width,height,exclusions=exclusions)
+                        box=framing.update(box,face,width,height,n);previous=box
                         other_faces+=1;blank_streak=0
                         role='participant';context_frames+=1
                     else:

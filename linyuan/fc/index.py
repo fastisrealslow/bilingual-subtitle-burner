@@ -1733,6 +1733,10 @@ def handler(event, context):
             import media_repair
             import sys
             return run_with_lease('publish',lambda:media_repair.repair_known_media(evt,sys.modules[__name__]))
+        if name == 'apply-reviewed-updates-0910':
+            import reviewed_updates
+            import sys
+            return run_with_lease('publish', lambda: reviewed_updates.apply(sys.modules[__name__]))
         if name == "publish-tv-wine-review-once":
             return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":

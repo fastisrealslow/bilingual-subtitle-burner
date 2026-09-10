@@ -3138,7 +3138,7 @@ def _fallback_quote_title(cues, sel, speaker):
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
-              existing_titles=None, require_quote=True, reviewed_title=None):
+              existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None):
     """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
 
     钩子式标题:prompt 要求带反常识/数字/冲突钩子（对标竞品高播放标题），但严禁编造，结果落 meta.json,
@@ -3149,7 +3149,8 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     transcript_text = "".join(cues[i]["text"] for i in sel)
     from headline_policy import attach_copy
     copy_identity={'version':4,'transcript_sha256':editorial.text_digest(transcript_text),
-                   'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title}
+                   'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
+                   **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     if suffix=='_full':
         minutes=max(1,round((cues[sel[-1]]['end']-cues[sel[0]]['start'])/60))
         result=attach_copy(dict(title=f'{speaker}：{minutes}分钟完整访谈原声',
@@ -3164,7 +3165,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             raise VisualQualityError('编辑标题未通过原话校验：'+error)
         result=dict(title=reviewed_title,desc=f'{speaker}在{occasion}的公开发言选段。',
                     tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True)
-        result=attach_copy(result,transcript_text,speaker,existing_titles)
+        result=attach_copy(result,transcript_text,speaker,existing_titles,reviewed_cover)
         cache.write_text(json.dumps(result,ensure_ascii=False))
         return result
     if cache.exists():
@@ -4222,6 +4223,10 @@ def _audio_card_display_topic(topic, speaker=""):
 
 
 def _audio_card_topic_tag(text, speaker):
+    if '片仔癀' in (text or ''):
+        return f"{speaker}｜片仔癀"
+    if '药企' in (text or ''):
+        return f"{speaker}｜医药"
     for keyword in ("医药", "中药", "消费", "白酒", "AI", "科技", "机器人",
                     "老龄化", "价值投资", "股市"):
         if keyword.lower() in (text or "").lower():
@@ -4236,9 +4241,9 @@ def _audio_card_emphasis_colors(text):
     red = (226, 45, 39)
     colors = [yellow] * len(text)
     for pattern, color in (
-        (r"AI|科技|医药|中药|消费|白酒|老龄化|行业|国家", blue),
+        (r"AI|科技|医药|中药|片仔癀|药企|消费|白酒|老龄化|行业|国家", blue),
         (r"\d+(?:\.\d+)?%?|[零一二三四五六七八九十百千万亿]+倍|"
-         r"万倍|百倍|亿|首富|发财|赚钱|机会|风险|上涨|下跌|涨|跌|牛市", red),
+         r"万倍|百倍|亿|首富|发财|赚钱|机会|风险|上涨|下跌|涨|跌|牛市|三四席|不敢", red),
     ):
         for match in re.finditer(pattern, text, re.I):
             for i in range(match.start(), match.end()):
@@ -4594,7 +4599,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
         existing_titles=existing_titles,
         require_quote=(pick_cache_suffix != "_full"),
-        reviewed_title=picks[0].get('editorial_title'))
+        reviewed_title=picks[0].get('editorial_title'),
+        reviewed_cover=picks[0].get('editorial_cover'))
 
     # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
     source_report = source_report or {}
@@ -4679,6 +4685,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     en_map = {}
     parts = []
     interview_tracking=None
+    framing_proofs=[]
     for n, p in enumerate(picks, 1):
         idx = list(range(p["start"], p["end"] + 1))
         s0, s1 = cues[idx[0]]["start"], cues[idx[-1]]["end"]
@@ -4720,6 +4727,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     reference_samples=[work/f'identity_{i}.jpg' for i in
                         (source_report.get('visual_identity') or {}).get('same_person_frames',[])
                         if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
+                framing_proofs.append(tracking['framing'])
                 if interview_plan:
                     from interview_graphics import clean_interview_graphics
                     tracking=clean_interview_graphics(tracked,tracking,entries,
@@ -4885,6 +4893,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "clean_strategy": strategy,
         "native_context_proof":(native_plan or {}).get('native_context_proof'),
         "interview_context":interview_tracking,
+        "framing_proofs":framing_proofs,
         "audio_card_template": (AUDIO_CARD_TEMPLATE
                                 if strategy == "audio_card" else None),
         "render_mode": ("live_video_card" if use_live_video

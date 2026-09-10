@@ -125,3 +125,39 @@ def test_cached_copy_gets_current_cover_layout_without_model(tmp_path,monkeypatc
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path)
     assert result['cover_title']=='我们长期持有优秀企业'
     assert result['packaging_version']==H.VERSION
+
+
+def test_user_reference_titles_keep_concrete_judgments_and_qualifiers():
+    examples=[
+        '我们作为茅台股东要知道好坏，我不会害你们',
+        '科技股赛道机会非常大，但长久下去几乎都是100%的风险',
+        '老登股历史性机会！医药布局，核心是慢性病医药股加减重创新药加港股医药',
+        '传统消费股几十年便宜，港股可入尤其医药，科技股100%风险',
+        '老龄化中药投资逻辑：我觉得我是最厉害的',
+    ]
+    for text in examples:
+        candidates=H.title_candidates(text)
+        assert candidates
+        assert any(word in candidates[0] for word in H.TOPICS)
+    selected=H.title_candidates(examples[1])[0]
+    assert '机会非常大' in selected and '长久' in selected and '几乎' in selected and '100%' in selected
+    cover=H.cover_copy(selected)
+    assert '机会' in cover['text'] and '长期风险' in cover['text']
+
+
+def test_actual_blood_pressure_title_cannot_keep_padding_or_generic_cover():
+    title='林园：问题就是，所以就是我们发现它有这个稳定这个血压的功效'
+    assert not H.complete(H.body(title))
+    assert H.cover_copy(title)['reason']=='needs_editorial_copy'
+    with pytest.raises(ValueError,match='具体封面'):
+        H.attach_copy({'title':title},H.body(title))
+
+
+def test_reviewed_family_anecdote_is_scoped_and_readable():
+    title='林园：母亲使用片仔癀的经历，我也不敢给她乱吃这些东西'
+    transcript='母亲使用片仔癀。我也不敢给他乱吃这些东西。'
+    result=H.attach_copy({'title':title},transcript,
+                         reviewed_cover='母亲用片仔癀，不敢乱给她吃')
+    assert result['cover_copy']['kind']=='reviewed_editorial'
+    assert result['cover_title']!='投资观点'
+    assert len(V.cover_headline(result['cover_title']))==2

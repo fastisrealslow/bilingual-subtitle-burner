@@ -8,6 +8,9 @@ on:
     branches: [main]
     paths:
       - linyuan/fc/index.py
+      - linyuan/fc/media_repair.py
+      - linyuan/fc/reviewed_updates.py
+      - linyuan/fc/reviewed_0910/**
       - linyuan/editorial_policy.py
       - .github/workflows/fc-staging-release.yml
   workflow_dispatch:
@@ -30,7 +33,8 @@ jobs:
         run: |
           set -euo pipefail
           cd linyuan/fc
-          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../editorial_policy.py media_repair.py
+          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../editorial_policy.py media_repair.py reviewed_updates.py
+          zip -r "$RUNNER_TEMP/fc-code.zip" reviewed_0910
           unzip -l "$RUNNER_TEMP/fc-code.zip"
 
       - name: 更新 staging Release

@@ -216,8 +216,11 @@ def write_ass(entries, path, layout, font_name):
 
 
 def cover_headline(title, speaker='林园'):
-    from headline_policy import cover_copy
-    short=cover_copy(title, speaker=speaker)['text']
+    from headline_policy import cover_copy, body, compact
+    # A caller may supply already-reviewed cover copy. Rendering must not
+    # reinterpret it as a new title and replace its words with a topic label.
+    text=body(title,speaker)
+    short=text if len(compact(text))<=18 else cover_copy(title, speaker=speaker)['text']
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
     if len(clauses)==2 and all(len(part)<=9 for part in clauses):
         return clauses

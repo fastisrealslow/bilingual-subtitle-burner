@@ -2,12 +2,12 @@
 import re
 import difflib
 
-VERSION = 2026091003
+VERSION = 2026091004
 TOPICS = ('片仔癀','茅台','股息','分红','医药','消费','科技股','机器人','老龄化','现金流','投资','企业')
 QUESTION = re.compile(r'您|请问|想问|请教|聊聊|林总|分享一下|[？?]|你(?:有持有|进入了|第一次|是怎么|怎么看|当时|集中投资|充分.{0,4}利用)|你.{0,24}(?:透露过|辞职|毕业之后)')
 CONDITION = re.compile(r'如果|假如|除非|只有|虽然|即使|只要')
 TAIL = re.compile(r'(?:因为|所以|如果|虽然|但是|以及|而且|关于|对于|我们说的买入|我本人学医的|我们认为|我们说的|能够|可以|需要|这些|那些|这个|那个|的话|是否|的|是|与|把|被|比|更|还|在|会)$')
-VERB = re.compile(r'考虑|买|卖|投|持有|涨|跌|赚|亏|值|回报|增长|增加|下降|风险|降价|涨价|机会|不|有|够|活|重要|便宜|贵|少|多|强|弱|完|老龄化|股息率')
+VERB = re.compile(r'考虑|布局|核心|买|卖|投|持有|涨|跌|赚|亏|值|回报|增长|增加|下降|风险|降价|涨价|机会|不|有|够|活|重要|便宜|贵|少|多|强|弱|完|老龄化|股息率')
 
 
 def compact(text):
@@ -22,11 +22,22 @@ def body(title, speaker='林园'):
 def complete(text):
     # A source quote can be verbatim yet unreadable: do not promote a false
     # start, dangling bank clause or repeated filler into a permanent headline.
-    if re.search(r'^(?:有的甚至|基本上|啊|呃)|(?:这个){2}|(?:那么){2}|我我|他他|去去|行业的行业',text):
+    if re.search(r'^(?:问题就是|有的甚至|基本上|啊|呃)|(?:这个){2}|(?:那么){2}|我我|他他|去去|行业的行业',text):
         return False
-    return bool(text and not QUESTION.search(text) and not TAIL.search(text)
+    if text.count('就是') >= 2 or text.count('这个') >= 2:
+        return False
+    dangling = bool(TAIL.search(text)) and not re.search(r'(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text)
+    return bool(text and not QUESTION.search(text) and not dangling
         and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是|和|也看到|是因为)',text)
         and VERB.search(text))
+
+
+def clean_quote(text):
+    """Remove bounded verbal padding; never remove a condition or qualifier."""
+    text=re.sub(r'^(?:(?:问题就是|所以就是|基本上|那么|就是)[，, ]*)+', '', text)
+    for token in ('这个','那个','就是','我们','我'):
+        text=re.sub(r'('+re.escape(token)+r'){2,}',token,text)
+    return text
 
 
 def quote_candidates(text, min_chars=10, max_chars=54):
@@ -46,6 +57,7 @@ def quote_candidates(text, min_chars=10, max_chars=54):
             options += clauses
             options += ['，'.join(clauses[i:i+2]) for i in range(len(clauses)-1)]
         for candidate in options:
+            candidate=clean_quote(candidate)
             if (min_chars<=len(compact(candidate))<=max_chars and complete(candidate)
                     and candidate not in result):result.append(candidate)
     return result
@@ -55,7 +67,14 @@ def score(text):
     concrete=sum(word in text for word in TOPICS[:10])
     action=bool(re.search(r'买|卖|持有|分红|股息|回报|涨价|降价',text))
     vague=bool(re.search(r'机遇与挑战|投资哲学|投资逻辑|投资理念|核心逻辑|我们说的',text))
-    return 6*concrete+4*action+2*bool(re.search(r'我|你',text))-5*vague-abs(len(compact(text))-24)/12
+    # The reference account leads with an identifiable asset/industry and a
+    # concrete judgment. Preserve both sides of a contrast, including 几乎/长期.
+    judgment=bool(re.search(r'机会|风险|便宜|核心|不会|不卖|看好|最|历史|要知道',text))
+    contrast=bool(re.search(r'但|却|而|长久|长期',text))
+    anonymous=bool(re.match(r'他|它|这|那',text)) and not concrete
+    padding=len(re.findall(r'这个|那个|就是|基本上|问题就是',text))
+    return (6*concrete+4*action+4*judgment+3*contrast+2*bool(re.search(r'我|你',text))
+            -8*anonymous-5*vague-3*padding-abs(len(compact(text))-30)/16)
 
 
 def title_candidates(transcript, speaker='林园', existing_titles=None):
@@ -89,6 +108,14 @@ def cover_copy(title, transcript=None, speaker='林园'):
         match=re.search(r'\d+分钟完整访谈',original)
         return {'text':match.group(0) if match else '完整访谈','kind':'format_label','evidence':title}
     source=body(transcript or original,speaker)
+    if '机会' in original and '风险' in original:
+        topic=next((word for word in TOPICS if word in original),None)
+        if topic:
+            focus='机会与长期风险' if re.search(r'长久|长期',original) else '机会与风险'
+            label=topic+'，'+focus
+            if cover_fits(label):
+                return {'text':label,'kind':'topic_label','evidence':original,
+                        'reason':'retain_both_sides_of_contrast'}
     # A few source-anchored headline extractions, with explicit evidence. These
     # do not apply when a condition, negation or uncertainty changes the claim.
     if not re.search(r'不|没|未|并非|如果|假如|可能|或许|只有|除非',original):
@@ -120,16 +147,34 @@ def cover_copy(title, transcript=None, speaker='林园'):
     if related:
         candidate=max(related,key=lambda r:r[0])[1]
         return {'text':candidate,'kind':'quote','evidence':candidate}
-    # Honest topic label when no safe short quotation exists. Never fake completeness.
-    topic=next((word for word in TOPICS if word in original and word in source),'投资')
-    return {'text':topic+'观点','kind':'topic_label','evidence':topic,'reason':'no_complete_short_quote'}
+    # A specific topic + focus is useful even when a qualified statement cannot
+    # fit. These are labels, not shortened claims that discard "不/如果/几乎".
+    topic=next((word for word in TOPICS if word in original and word in source),None)
+    focuses=(('风险','风险怎么判断'),('股息','股息与买入条件'),
+             ('价格','价格与买入条件'),('估值','估值与买入时机'),
+             ('研发','研发投入'),('母亲','家人的使用经历'),
+             ('老龄化','老龄化需求'),('买入','买入的条件'),
+             ('回报','回报的判断'),('产品','产品与需求'))
+    focus=next((label for word,label in focuses if word in original),None)
+    if topic and focus and cover_fits(topic+'，'+focus):
+        return {'text':topic+'，'+focus,'kind':'topic_label','evidence':original,
+                'reason':'qualified_claim_retained_in_full_title'}
+    # Keep the diagnostic result for callers, but never publish this placeholder.
+    return {'text':(topic or '内容')+'待提炼','kind':'topic_label','evidence':original,
+            'reason':'needs_editorial_copy'}
 
 
-def attach_copy(result, transcript, speaker='林园', existing_titles=None):
+def attach_copy(result, transcript, speaker='林园', existing_titles=None, reviewed_cover=None):
     result=dict(result)
     candidates=title_candidates(transcript,speaker,existing_titles)
     if result['title'] not in candidates:candidates.insert(0,result['title'])
     cover=cover_copy(result['title'],transcript,speaker)
+    if reviewed_cover is not None:
+        if not cover_fits(reviewed_cover) or not 8<=len(compact(reviewed_cover))<=18:
+            raise ValueError('编辑封面必须以完整词句排入两行')
+        cover={'text':reviewed_cover,'kind':'reviewed_editorial','evidence':transcript}
+    elif cover.get('reason')=='needs_editorial_copy' or cover['text'] in {'投资观点','投资逻辑','价值投资'}:
+        raise ValueError('缺少具体封面文案，不能用投资观点等通用标签发布')
     result.update(cover_title=cover['text'],cover_copy=cover,title_candidates=candidates[:3],
                   packaging_version=VERSION,packaging_method='source_quotes_cpu')
     return result
