@@ -18,6 +18,7 @@ def main():
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as fc_models
     from alibabacloud_tea_openapi import models as open_api_models
+    from alibabacloud_tea_util import models as util_models
 
     region = os.environ.get("FC_REGION", "cn-hangzhou").strip()
     function_name = os.environ.get("FC_FUNCTION_NAME", "fc-develop").strip()
@@ -43,8 +44,13 @@ def main():
         disk_size=int(os.environ.get("FC_DISK_SIZE_MB", "10240")),
         instance_concurrency=1,
     )
-    client.update_function(
-        function_name, fc_models.UpdateFunctionRequest(body=body))
+    # The reviewed media makes this request several MB. The SDK's short default
+    # socket timeout can expire while writing from an overseas Actions runner.
+    # Repeating this exact code/config update is idempotent; it invokes no posts.
+    client.update_function_with_options(
+        function_name, fc_models.UpdateFunctionRequest(body=body), {},
+        util_models.RuntimeOptions(connect_timeout=120000, read_timeout=180000,
+                                   autoretry=True, max_attempts=3))
     print(f"✓ 已更新 {region}/{function_name}，代码包 {zip_path.stat().st_size} bytes")
 
 

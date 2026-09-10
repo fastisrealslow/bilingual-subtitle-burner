@@ -40,15 +40,26 @@ def test_deploy_preserves_secrets_and_sets_uploader_limits(monkeypatch, tmp_path
         def __init__(self, config):
             calls["client"] = config
 
-        def update_function(self, function_name, request):
+        def update_function_with_options(self, function_name, request, headers, runtime):
             calls["function_name"] = function_name
             calls["request"] = request
+            calls["runtime"] = runtime
+
+    class RuntimeOptions:
+        def __init__(self, **kwargs):
+            self.options = kwargs
 
     fc_pkg = types.ModuleType("alibabacloud_fc20230330")
     fc_client = types.ModuleType("alibabacloud_fc20230330.client")
     fc_models = types.ModuleType("alibabacloud_fc20230330.models")
     tea_pkg = types.ModuleType("alibabacloud_tea_openapi")
     tea_models = types.ModuleType("alibabacloud_tea_openapi.models")
+    util_pkg = types.ModuleType("alibabacloud_tea_util")
+    util_models = types.ModuleType("alibabacloud_tea_util.models")
+    util_models.RuntimeOptions = RuntimeOptions
+    util_pkg.models = util_models
+    monkeypatch.setitem(sys.modules, "alibabacloud_tea_util", util_pkg)
+    monkeypatch.setitem(sys.modules, "alibabacloud_tea_util.models", util_models)
     fc_client.Client = Client
     fc_models.InputCodeLocation = InputCodeLocation
     fc_models.UpdateFunctionInput = UpdateFunctionInput
@@ -80,6 +91,9 @@ def test_deploy_preserves_secrets_and_sets_uploader_limits(monkeypatch, tmp_path
     assert calls["update_fields"]["disk_size"] == 10240
     assert calls["update_fields"]["instance_concurrency"] == 1
     assert calls["config"]["endpoint"] == "fcv3.cn-hangzhou.aliyuncs.com"
+    assert calls["runtime"].options == {
+        "connect_timeout": 120000, "read_timeout": 180000,
+        "autoretry": True, "max_attempts": 3}
 
 
 def test_deploy_workflow_uses_only_aliyun_secrets():
