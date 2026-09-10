@@ -8,15 +8,17 @@ import time
 import urllib.request
 
 
-def persisted_receipts():
+def persisted_receipts(state_key='reviewed_updates_0910', bvids=('BV16vYT6ME5s','BV16QYK6qEwm','BV1hmYt6SEJd')):
     url = 'https://raw.githubusercontent.com/fastisrealslow/bilingual-subtitle-burner/main/linyuan/.automation/fc_state.json?t=' + str(time.time_ns())
     with urllib.request.urlopen(url, timeout=30) as response:
         state = json.load(response)
-    return {b:state.get('reviewed_updates_0910',{}).get(b,{}) for b in
-        ('BV16vYT6ME5s','BV16QYK6qEwm','BV1hmYt6SEJd')}
+    return {b:state.get(state_key,{}).get(b,{}) for b in bvids}
 
 
-def main():
+def main(trigger='apply-reviewed-updates-0910', state_key='reviewed_updates_0910',
+         bvids=('BV16vYT6ME5s','BV16QYK6qEwm','BV1hmYt6SEJd'),
+         version_file='linyuan/fc/reviewed_updates.py', prefix='reviewed-0910',
+         report='reviewed-updates-verification.json'):
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
     from alibabacloud_tea_openapi import models as api
@@ -34,10 +36,10 @@ def main():
                 async_task=True, max_async_retry_attempts=0,
                 destination_config=old.destination_config,
                 max_async_event_age_in_seconds=old.max_async_event_age_in_seconds)), {}, runtime)
-    version = hashlib.sha256(Path('linyuan/fc/reviewed_updates.py').read_bytes()).hexdigest()[:16]
+    version = hashlib.sha256(Path(version_file).read_bytes()).hexdigest()[:16]
     deadline = time.monotonic() + 900
     for attempt in range(30):
-        task_id = f'reviewed-0910-{version}-{attempt}'
+        task_id = f'{prefix}-{version}-{attempt}'
         def query():
             try:
                 return client.get_async_task_with_options(function,task_id,
@@ -51,7 +53,7 @@ def main():
             try:
                 response = client.invoke_function_with_options(function,
                     m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(
-                        b'{"triggerName":"apply-reviewed-updates-0910"}')),
+                        json.dumps({'triggerName':trigger}).encode())),
                     m.InvokeFunctionHeaders(x_fc_invocation_type='Async',x_fc_async_task_id=task_id),runtime)
                 if response.status_code != 202:
                     raise RuntimeError('Tracked update task was not accepted')
@@ -71,10 +73,10 @@ def main():
         except (ValueError, TypeError):
             result = {'error':'Invalid task return payload'}
         record = {'task_id':task_id,'task_status':task.status,'result':result}
-        receipts = persisted_receipts()
+        receipts = persisted_receipts(state_key, bvids)
         record['receipts'] = {b:{k:v.get(k) for k in ('status','title','cover','api_code','api_message','verified_at')}
                               for b,v in receipts.items()}
-        Path('reviewed-updates-verification.json').write_text(json.dumps(record,ensure_ascii=False,indent=2))
+        Path(report).write_text(json.dumps(record,ensure_ascii=False,indent=2))
         print(json.dumps(record,ensure_ascii=False),flush=True)
         if all(v.get('status')=='verified' for v in receipts.values()):
             return
@@ -84,7 +86,7 @@ def main():
         if task.status == 'Succeeded' and time.monotonic() < deadline:
             time.sleep(20)
             continue
-        raise SystemExit('Tracked update completed without all three verified receipts')
+        raise SystemExit('Tracked update completed without all requested verified receipts')
     raise SystemExit('Publisher remained busy; no untracked invocation was sent')
 
 

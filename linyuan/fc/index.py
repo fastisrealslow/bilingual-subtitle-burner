@@ -1737,6 +1737,10 @@ def handler(event, context):
             import reviewed_updates
             import sys
             return run_with_lease('publish', lambda: reviewed_updates.apply(sys.modules[__name__]))
+        if name == 'apply-reviewed-third-video-0910':
+            import reviewed_third_video
+            import sys
+            return run_with_lease('publish', lambda: reviewed_third_video.apply(sys.modules[__name__]))
         if name == "publish-tv-wine-review-once":
             return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":
