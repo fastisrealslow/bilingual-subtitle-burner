@@ -128,6 +128,20 @@ def test_informal_you_question_is_a_boundary_too():
     assert [(x['start'],x['end']) for x in select(cues)]==[(0,3)]
 
 
+def test_guest_example_is_not_a_new_interviewer_question():
+    from source_selection import QUESTION
+    assert not QUESTION.search('有这个产品，你比如说我们医医这个医药公司，它如果说是营业额，有比如说我们它销售额有一百亿，是吧？')
+    cues=dialogue()
+    cues[2]['text']='你比如说这个企业有一百亿销售额，是吧？'
+    assert [(x['start'],x['end']) for x in select(cues)]==[(0,3)]
+
+
+def test_actual_685_accepted_answer_survives_boundary_fixes():
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_685_selection.json').read_text())
+    picks=select(data['cues'],whole_source=True)
+    assert [{k:p[k] for k in ('start','end')} for p in picks]==[data['expected_pick']]
+
+
 def test_actual_686_interviewer_stock_claim_cannot_be_guest_title():
     from headline_policy import title_candidates
     text=('二零二一年你在茅台股东大会上面透露过，'
