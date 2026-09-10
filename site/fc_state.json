@@ -6174,10 +6174,11 @@
    "source": "reference_origin_search",
    "author": "财道挖掘者",
    "publish_time": "2024-01-09T15:47:12+00:00",
-   "source_check_report_id": 10130272199,
+   "source_check_report_id": 10135964403,
    "last_error": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1789016846
   },
   {
    "key": "bilibili_search:BV1PCDHBwEUn",
@@ -6253,7 +6254,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "临园指路",
-   "publish_time": "2022-05-14T02:04:00+00:00"
+   "publish_time": "2022-05-14T02:04:00+00:00",
+   "failed": true,
+   "last_error": "动态取景目标人物匹配不足80%",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1mT4y117GG",
@@ -6269,7 +6274,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "靠谱投研",
-   "publish_time": "2022-01-14T11:43:50+00:00"
+   "publish_time": "2022-01-14T11:43:50+00:00",
+   "failed": true,
+   "last_error": "成片存在持续黑色填充边",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1RY4y1b7VF",
@@ -6285,7 +6294,11 @@
    "delay_hours": 0,
    "source": "reference_origin_search",
    "author": "走走走拍拍拍",
-   "publish_time": "2022-05-11T03:25:21+00:00"
+   "publish_time": "2022-05-11T03:25:21+00:00",
+   "failed": true,
+   "last_error": "素材质量门禁未通过",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Es4y1y7yW",
@@ -6301,7 +6314,11 @@
    "delay_hours": 0,
    "source": "reference_origin_search",
    "author": "薇薇离开故乡",
-   "publish_time": "2023-06-14T23:53:41+00:00"
+   "publish_time": "2023-06-14T23:53:41+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；same=[]，different=[1, 4, 5]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0069, 4: 0.1666, 5: -0.1461}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "published": {
@@ -20844,6 +20861,34 @@
    "video_id": "BV1FE7V6JEof",
    "ts": 1789000663,
    "error": "素材质量门禁未通过"
+  },
+  {
+   "slug": "ly-0910-cd177f",
+   "key": "bilibili_search:BV1Es4y1y7yW",
+   "video_id": "BV1Es4y1y7yW",
+   "ts": 1789015034,
+   "error": "人物不一致或无法确认：林园；same=[]，different=[1, 4, 5]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0069, 4: 0.1666, 5: -0.1461}"
+  },
+  {
+   "slug": "ly-0910-83ee23",
+   "key": "bilibili_search:BV1RY4y1b7VF",
+   "video_id": "BV1RY4y1b7VF",
+   "ts": 1789015037,
+   "error": "素材质量门禁未通过"
+  },
+  {
+   "slug": "ly-0910-0da5fc",
+   "key": "bilibili_search:BV1mT4y117GG",
+   "video_id": "BV1mT4y117GG",
+   "ts": 1789015040,
+   "error": "成片存在持续黑色填充边"
+  },
+  {
+   "slug": "ly-0910-650428",
+   "key": "bilibili_search:BV1hY4y1b7YE",
+   "video_id": "BV1hY4y1b7YE",
+   "ts": 1789015043,
+   "error": "动态取景目标人物匹配不足80%"
   }
  ],
  "pending_retry": [
