@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "validation_sha256": "d0889bd23a2bc93baa3fe2fbeb159eb75d5db3e78c4159c4de80d98b6275ddf2",
+  "validation_sha256": "2d5af407ddbfb1846d9f5d9e49ce381171b128d03f0cad5e5ba60cdc2071fb4d",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789026085,
+  "updated_at": 1789027775,
   "materials": {
     "weibo_search": {
       "records": 1106,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 19,
+    "verified_live": 18,
     "verified_audio_card": 8,
-    "daily_mix_usable": 22,
+    "daily_mix_usable": 21,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -5566,11 +5566,11 @@
             "reason": "真人窗口完整人脸抽帧不足，拒绝裁头/裁下巴或空镜"
           }
         ],
-        "verified_available": 3,
-        "verified_live": 3,
-        "verified_seconds": 478.3,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 2,
+        "verified_live": 2,
+        "verified_seconds": 353.3,
+        "used_source_seconds": 124.96,
+        "historical_receipts": 1
       },
       {
         "source_key": "BV1bz4y1q76u:p1",
@@ -5626,7 +5626,7 @@
           {
             "slug": "ly-0909-7c4660-selector8",
             "stage": "quality-service",
-            "terminal": false,
+            "terminal": true,
             "reason": "本地文本推理未完成：qwen3:4b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格"
           },
           {
@@ -6215,6 +6215,7 @@
         "slugs": [
           "ly-0909-18d8c2",
           "ly-0910-690-text-boundaries",
+          "ly-0910-interview-context-v2",
           "ly-0910-native-context-v1"
         ],
         "source_sha256": [
@@ -6226,6 +6227,12 @@
             "stage": "render-layout",
             "terminal": true,
             "reason": "已核对的329.4–456.6秒问答，在400.30秒遇到茅台插图，连续2.03秒无人脸；该选段不适配当前真人窗口，并非无完整话题"
+          },
+          {
+            "slug": "ly-0910-native-context-v1",
+            "stage": "render-review",
+            "terminal": true,
+            "reason": "成片人工复检：原源巨大强调字仍干扰画面，暂不进入发布队列，改用访谈适配重做"
           }
         ],
         "verified_available": 1,
@@ -7291,8 +7298,8 @@
       },
       "BV17Rt8zKEji": {
         "attempted_mothers": 1,
-        "verified_available": 3,
-        "verified_seconds": 478.3,
+        "verified_available": 2,
+        "verified_seconds": 353.3,
         "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1
       },
@@ -7306,7 +7313,8 @@
         "attempted_mothers": 1,
         "verified_available": 4,
         "verified_seconds": 598.1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -7461,6 +7469,7 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
@@ -7509,10 +7518,10 @@
   "in_flight_placeholders": 5,
   "artifacts": [
     {
-      "slug": "ly-0910-native-context-v1",
-      "artifact_id": 10141577115,
-      "run_id": 34450656016,
-      "checked_at": 1789026077,
+      "slug": "ly-0910-interview-context-v2",
+      "artifact_id": 10142419417,
+      "run_id": 34452710525,
+      "checked_at": 1789027628,
       "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
       "parts": [
         {
@@ -7520,7 +7529,7 @@
           "final": "final.mp4",
           "title": "林园：这个时候你只需要考虑财务",
           "duration_sec": 127.2,
-          "render_mode": "crop",
+          "render_mode": "live_video_card",
           "content_type": null,
           "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
           "segments": [
@@ -7530,7 +7539,7 @@
               "reason": "选择白酒的消费逻辑，以及持有时为何看财务而不是股价"
             }
           ],
-          "sha256": "31d35621136c0c840afbd8911dcbfa7830b23d02e0130ad05c0e7f6afbe9bd54",
+          "sha256": "7fdd7283d88845541fba8bc12ed1d2d76e8247e8ccb6aa250e36a7696c6e1c93",
           "subtitle_sha256": "550af232ae24bdbdaefea35da439a6646f2ef2b0ac3918da841842adc3f13ebd",
           "status": "verified",
           "reason": null
@@ -7541,7 +7550,7 @@
       "slug": "ly-0909-ba9f87",
       "artifact_id": 10136625491,
       "run_id": 34434046456,
-      "checked_at": 1789014532,
+      "checked_at": 1789027634,
       "source_url": "https://www.bilibili.com/video/BV1oD421L7T7",
       "parts": [
         {
@@ -7570,7 +7579,7 @@
       "slug": "ly-0909-1c3654",
       "artifact_id": 10130146974,
       "run_id": 34417772252,
-      "checked_at": 1788998037,
+      "checked_at": 1789027639,
       "source_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
       "parts": [
         {
@@ -7619,7 +7628,7 @@
       "slug": "ly-0909-2ee3a5",
       "artifact_id": 10122569091,
       "run_id": 34390237087,
-      "checked_at": 1788984295,
+      "checked_at": 1789027647,
       "source_url": "https://www.bilibili.com/video/BV1z1U5BZEMe",
       "parts": [
         {
@@ -7648,7 +7657,7 @@
       "slug": "ly-0909-2e376f",
       "artifact_id": 10122199650,
       "run_id": 34390165324,
-      "checked_at": 1788983710,
+      "checked_at": 1789027654,
       "source_url": "https://www.bilibili.com/video/BV1Z6SEBrEdQ",
       "parts": [
         {
@@ -7677,7 +7686,7 @@
       "slug": "ly-0909-c1fe7f",
       "artifact_id": 10120677603,
       "run_id": 34390201344,
-      "checked_at": 1788981277,
+      "checked_at": 1789027660,
       "source_url": "https://www.bilibili.com/video/BV1r5411B7qK",
       "parts": [
         {
@@ -7726,7 +7735,7 @@
       "slug": "ly-0909-f1dc1a",
       "artifact_id": 10119979612,
       "run_id": 34390184471,
-      "checked_at": 1788980182,
+      "checked_at": 1789027668,
       "source_url": "https://www.bilibili.com/video/BV12A6jBdE8q",
       "parts": [
         {
@@ -7755,7 +7764,7 @@
       "slug": "ly-0909-703b35",
       "artifact_id": 10104193325,
       "run_id": 34346142451,
-      "checked_at": 1788957606,
+      "checked_at": 1789027674,
       "source_url": "https://www.bilibili.com/video/BV1gBfCBpEFj",
       "parts": [
         {
@@ -7824,7 +7833,7 @@
       "slug": "ly-0909-15ef03",
       "artifact_id": 10103517884,
       "run_id": 34345597964,
-      "checked_at": 1788956575,
+      "checked_at": 1789027691,
       "source_url": "https://www.bilibili.com/video/BV1Ke41127bL",
       "parts": [
         {
@@ -7873,7 +7882,7 @@
       "slug": "ly-0909-09068a-caption11",
       "artifact_id": 10103240749,
       "run_id": 34349062231,
-      "checked_at": 1788956155,
+      "checked_at": 1789027710,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -7899,61 +7908,12 @@
       ]
     },
     {
-      "slug": "ly-0909-09068a-caption10",
-      "artifact_id": 10103107487,
-      "run_id": 34348514383,
-      "checked_at": 1788956009,
-      "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_1.mp4",
-          "title": "林园：问题就是，所以就是我们发现它有这个稳定这个血压的功效",
-          "duration_sec": 125.0,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "31e694157feb6bd5f23bbfd1ca209ec35c37619bbe0de703547d391e9542535f",
-          "segments": [
-            {
-              "start": 218.04,
-              "end": 343.0,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "1c7d5b77760295981dd049eb2c22fc6aa107f71afa1b8c7f1015bfdebca4b37a",
-          "subtitle_sha256": "c03e548a473103c3151569d679c8a53cbb19fbe68cb791e7b47033164b057664",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
       "slug": "ly-0909-2d63c1",
       "artifact_id": 10103061164,
       "run_id": 34343872605,
-      "checked_at": 1788955886,
+      "checked_at": 1789027714,
       "source_url": "https://www.bilibili.com/video/BV16Vjj6xEJy",
       "parts": [
-        {
-          "index": 0,
-          "final": "final_1.mp4",
-          "title": "林园：我赚一百块钱，基本上，有的甚至，他跟银行有借贷的去跟你分红",
-          "duration_sec": 364.0,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "6e2debd3c5bc7bdec8066a94552c7f2a5fb6a01806802b34dccb076d52c6a390",
-          "segments": [
-            {
-              "start": 5.68,
-              "end": 369.64,
-              "reason": "林园对价值投资的理解：过去和现在都强调投好的企业，从行业把握，A股因市场年轻而有短缺经济特点，导致企业快速成长后易过剩。以房地产为例，过去几十年中国房地产行业利润丰厚，但如今已全军覆没，说明快速消费行业易过剩。结论：价值投资应聚焦于不易过剩的行业，避免高增长但易饱和的领域。"
-            }
-          ],
-          "sha256": "c3c331722aa9d23ec5fbf33a044b6dd8cf479a465571018c41e36bfd4c2eb8eb",
-          "subtitle_sha256": "c9f1e212504a3332c3d6757062309484987c67a2fab8966b5d5764513aa7ab0b",
-          "status": "verified",
-          "reason": null
-        },
         {
           "index": 1,
           "final": "final_2.mp4",
@@ -8020,7 +7980,7 @@
       "slug": "ly-0909-7c4660-caption11",
       "artifact_id": 10102818302,
       "run_id": 34345901687,
-      "checked_at": 1788955487,
+      "checked_at": 1789027725,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8049,7 +8009,7 @@
       "slug": "ly-0909-7c4660-sourceqa22",
       "artifact_id": 10102607333,
       "run_id": 34347097575,
-      "checked_at": 1788955326,
+      "checked_at": 1789027727,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8095,39 +8055,10 @@
       ]
     },
     {
-      "slug": "ly-0909-7c4660-selector8",
-      "artifact_id": 10102485816,
-      "run_id": 34345041966,
-      "checked_at": 1788955338,
-      "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：然后大家现在觉得医药股的估值属于，呃，可以上车的机会了",
-          "duration_sec": 121.1,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "f2a561a9d6258ca6a4836abbbcbefb07af65029cf181e815b800a81b4669ab4c",
-          "segments": [
-            {
-              "start": 305.24,
-              "end": 426.36,
-              "reason": "完整主题：医药股估值与反弹/反转分析；开头独立可懂：从'明白，嗯，其实看到这个医药股今年下半年出现了不小的回撤...'开始，清晰点出医药股回撤背景；解释充分：详细讨论了医药股回调原因（估值、业绩公布、机构抛售）、反弹机制（业绩公布后企稳）、市场情绪（'心情平常心但不高兴'）；自然结束：以'最重要的核心的盈利产品'收尾，不突兀。时长121.12秒符合要求。排除：无寒暄、无残句、无无关拼接。唯一合格项。"
-            }
-          ],
-          "sha256": "4b64a692b3159671c84b731bdc7b35fb8a9240ea4f43609b0e85848ed5873b5d",
-          "subtitle_sha256": "9d73b8d6b9474a49ee40f794bb85641a033a908b24021842e63f6b4776453c81",
-          "status": "rejected",
-          "reason": "标题引用了采访者提问，不能署为嘉宾本人观点"
-        }
-      ]
-    },
-    {
       "slug": "ly-0909-7c4660-packaging20",
       "artifact_id": 10102285281,
       "run_id": 34346675033,
-      "checked_at": 1788955340,
+      "checked_at": 1789027736,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8156,7 +8087,7 @@
       "slug": "ly-0909-09068a-packaging21",
       "artifact_id": 10102231141,
       "run_id": 34346681400,
-      "checked_at": 1788955349,
+      "checked_at": 1789027741,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -8185,7 +8116,7 @@
       "slug": "ly-0909-7c4660-tracked18",
       "artifact_id": 10101599308,
       "run_id": 34345123664,
-      "checked_at": 1788955357,
+      "checked_at": 1789027748,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8214,7 +8145,7 @@
       "slug": "ly-0909-09068a-tracked15",
       "artifact_id": 10101393434,
       "run_id": 34343086627,
-      "checked_at": 1788955360,
+      "checked_at": 1789027750,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -8243,7 +8174,7 @@
       "slug": "ly-0909-29cff8-deps11",
       "artifact_id": 10100778897,
       "run_id": 34339664313,
-      "checked_at": 1788955363,
+      "checked_at": 1789027753,
       "source_url": "https://www.bilibili.com/video/BV1TkfCBSEN5",
       "parts": [
         {
@@ -8292,7 +8223,7 @@
       "slug": "ly-0909-7c4660-tracked14",
       "artifact_id": 10100628219,
       "run_id": 34342158327,
-      "checked_at": 1788955377,
+      "checked_at": 1789027765,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8321,7 +8252,7 @@
       "slug": "ly-0909-79a7be",
       "artifact_id": 10099291013,
       "run_id": 34338670416,
-      "checked_at": 1788955385,
+      "checked_at": 1789027770,
       "source_url": "https://www.bilibili.com/video/BV1Ng4y1w78M",
       "parts": [
         {
@@ -8341,43 +8272,6 @@
           ],
           "sha256": "a1a14e63aac49b351bc865ba85f5c01ac414cc7a1fec6ee3e9fe3d8006ca53fb",
           "subtitle_sha256": "bca0f19c72206368e9a749df54a77a5e74045f2640dfbfc29a5b33b6352a4f7d",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0908-fa57fb",
-      "artifact_id": 10087605460,
-      "run_id": 34308518432,
-      "checked_at": 1788955391,
-      "source_url": "https://m.weibo.cn/detail/5335007129504221",
-      "parts": []
-    },
-    {
-      "slug": "ly-0909-3c2ade",
-      "artifact_id": 10103982146,
-      "run_id": 34349703080,
-      "checked_at": 1788957290,
-      "source_url": "https://www.bilibili.com/video/BV1JWQWYKEy6",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：我好像就是有有一个天眼的，我能看到最后全球十大医药公司",
-          "duration_sec": 237.9,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "58371b9c7b0693310ac6704258565f48e1507a0bb6736c289ad0c5a92497d604",
-          "segments": [
-            {
-              "start": 1267.56,
-              "end": 1505.4,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "50ec3894f4e2822dfd91aba5f1a6702fd47122ba6b5e12ab6c4315083cf38e6e",
-          "subtitle_sha256": "7b6d0f338e0a1961aea0581e0ad8dcb8b563f72dcbe1e7a09fc16bfb41faf3b6",
           "status": "verified",
           "reason": null
         }
