@@ -23,6 +23,8 @@ def creator_detail(session, bvid):
         reply = response.json()
     except ValueError:
         raise RuntimeError(f'Creator detail returned non-JSON; HTTP 200; type={content_type}; bvid={bvid}') from None
+    if not isinstance(reply, dict):
+        raise RuntimeError('Creator detail returned invalid JSON shape')
     if reply.get('code') != 0:
         raise RuntimeError('Creator detail unavailable: ' + str(reply.get('code')))
     return reply.get('data') or {}

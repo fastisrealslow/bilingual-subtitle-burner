@@ -41,7 +41,8 @@ def environment(monkeypatch, uncertain=False, failed_save=False):
     class Session:
         def mount(self,*a):pass
         def get(self,url,params,timeout):
-            return SimpleNamespace(json=lambda:dict(code=0,data=copy.deepcopy(archives[params['bvid']])))
+            return SimpleNamespace(status_code=200, headers={'Content-Type':'application/json'},
+                json=lambda:dict(code=0,data=copy.deepcopy(archives[params['bvid']])))
         def post(self,url,timeout,**kwargs):
             if url.endswith('/cover/up'):
                 calls['covers']+=1
@@ -98,3 +99,11 @@ def test_state_save_failure_stops_before_edit(monkeypatch):
 def test_asset_hash_mismatch_is_rejected():
     with pytest.raises(ValueError):R.asset('cover-1.jpg','0'*64)
     with pytest.raises(ValueError):R.asset('../cover-1.jpg','0'*64)
+
+
+@pytest.mark.parametrize('status,payload,expected', [(412,{},'HTTP 412'),
+    (404,{},'HTTP 404'), (200,{'code':-101},'-101'), (200,[],'invalid JSON shape')])
+def test_creator_detail_reports_failure_before_updates(status,payload,expected):
+    session=SimpleNamespace(get=lambda *a,**kw:SimpleNamespace(status_code=status,
+        headers={'Content-Type':'application/json'},json=lambda:payload))
+    with pytest.raises(RuntimeError,match=expected):R.creator_detail(session,'BV16vYT6ME5s')
