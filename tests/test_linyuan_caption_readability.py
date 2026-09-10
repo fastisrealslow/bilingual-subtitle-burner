@@ -51,6 +51,35 @@ def test_repeated_pronoun_after_a_real_turn_gap_is_not_deleted():
     assert not proof['edits']
 
 
+def test_run_698_point_timestamp_survives_readability_and_real_screen_planner(monkeypatch,tmp_path):
+    source=json.loads((ROOT/'tests/fixtures/linyuan_run_698_captions.json').read_text())
+    snapshot=copy.deepcopy(source)
+    cleaned,proof=R.clean_entries(source)
+    assert source==snapshot
+    point=next(e for e in cleaned if e['zh']=='哦。' and e['start_sec']==e['end_sec'])
+    assert all(a==b==point['start_sec'] for _,a,b in point['caption_chars'])
+    assert proof['point_anchors']==[dict(entry=36,time=point['start_sec'],text='哦。')]
+    monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Real #698 cues must resolve locally'))
+    result=P.semantic_caption_entries(source,'',V.layout_for(720,1280,True),tmp_path/'semantic.json')
+    normalized=lambda s:P.re.sub(r'[\s，。！？；：、]','',s)
+    assert normalized(''.join(x['zh'] for x in result))==normalized(proof['display_text'])
+    assert any(x['zh']=='哦嗯没有问题' for x in result)
+    assert all(.8<=x['end_sec']-x['start_sec']<=6.001 for x in result)
+    assert all(a['end_sec']<=b['start_sec'] for a,b in zip(result,result[1:]))
+    P.make_ass(result,tmp_path/'captions.ass',720,1280,card_style=True)
+
+
+@pytest.mark.parametrize('source',[
+    [entry('不能丢弃',2,1)],
+    [entry('原句',0,3),entry('另一句',0,4)],
+    [entry('原句',2,3),entry('逆序',1,4)],
+    [entry('不是',1,1)],
+    [entry('无效时间',0,float('nan'))],
+])
+def test_point_timestamp_support_does_not_accept_corrupt_timing(source):
+    with pytest.raises(ValueError):R.clean_entries(source)
+
+
 def test_accepted_source_uses_default_editor_and_replans_old_cache(monkeypatch,tmp_path):
     source=json.loads((ROOT/'tests/fixtures/linyuan_readability_0909.json').read_text())
     cache=tmp_path/'semantic.json'

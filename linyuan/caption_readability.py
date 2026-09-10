@@ -5,9 +5,10 @@ times, negation, quantities and names; log every conservative disfluency edit.
 """
 import hashlib
 import json
+import math
 import re
 
-VERSION = 2026091001
+VERSION = 2026091002
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -20,16 +21,30 @@ PUNCTUATION = '，。！？；：、,.!?;:'
 
 def clean_entries(entries):
     atoms = []
+    point_anchors = []
     for i, entry in enumerate(entries):
         text = entry.get('zh', '')
         a, b = float(entry['start_sec']), float(entry['end_sec'])
+        original_end = b
+        if not math.isfinite(a + b) or b < a:
+            raise ValueError('字幕原始时间无效')
         if i + 1 < len(entries):
-            b = min(b, float(entries[i + 1]['start_sec']))
-        if text and b <= a:
+            following = float(entries[i + 1]['start_sec'])
+            if not math.isfinite(following):
+                raise ValueError('字幕原始时间无效')
+            b = min(b, following)
+        if text and (b < a or b == a and original_end > a):
             raise ValueError('字幕时间重叠到零长度')
+        if text and b == a:
+            # Qwen's validated forced alignment permits point timestamps. Keep
+            # them verbatim; the existing >=.8s screen planner must join them
+            # to surrounding speech. Never invent a duration or drop a word.
+            point_anchors.append(dict(entry=i, time=a, text=text))
         for j, char in enumerate(text):
             atoms.append((char, a + (b-a)*j/len(text), a + (b-a)*(j+1)/len(text), i))
     original = ''.join(x[0] for x in atoms)
+    if atoms and atoms[-1][2] <= atoms[0][1]:
+        raise ValueError('字幕时间轴没有可显示的正时长')
     keep = [True] * len(atoms)
     edits = []
 
@@ -87,6 +102,7 @@ def clean_entries(entries):
         result.append(item)
     cleaned=''.join(e['zh'] for e in result)
     proof=dict(version=VERSION, raw_text=original, display_text=cleaned, edits=edits,
+               point_anchors=point_anchors,
                raw_sha256=hashlib.sha256(original.encode()).hexdigest(),
                display_sha256=hashlib.sha256(cleaned.encode()).hexdigest(),
                policy='conservative_deletions_only', asr_corrections='source_verified_only')
