@@ -360,9 +360,38 @@ def validate_media(path, max_track_drift=2.0, max_tail_gap=5.0):
 
 def download(op, streams, referer, out, deadline=None):
     out = Path(out)
+    out.parent.mkdir(parents=True,exist_ok=True)
+    # Completed DASH tracks are removed after muxing. Reuse the validated mux,
+    # not only .m4s checkpoints, and bind it to source + selected representation.
+    manifest=out.with_suffix(out.suffix+'.source.json')
+    identity=dict(source=referer,height=streams.get('height'),quality=streams.get('quality'),
+        video_paths=sorted({urlparse(u).path for u in streams['video']}),
+        audio_paths=sorted({urlparse(u).path for u in streams.get('audio',[])}))
+    if out.exists() and manifest.exists():
+        try:
+            saved=json.loads(manifest.read_text())
+            with out.open('rb') as handle:
+                digest=hashlib.file_digest(handle,'sha256').hexdigest()
+            if (saved.get('identity')==identity and saved.get('sha256')==digest
+                    and saved.get('size')==out.stat().st_size):
+                validate_media(out)
+                print('[取源复用] 已校验完整母片，无需重新下载音视频轨',flush=True)
+                return
+        except (ValueError,OSError,RuntimeError):
+            pass
+    manifest.unlink(missing_ok=True)
+
+    def remember():
+        with out.open('rb') as handle:
+            digest=hashlib.file_digest(handle,'sha256').hexdigest()
+        temp=manifest.with_suffix('.tmp')
+        temp.write_text(json.dumps(dict(identity=identity,sha256=digest,size=out.stat().st_size)))
+        temp.replace(manifest)
+
     if not streams.get("audio"):
         download_one(op, streams["video"], referer, out,deadline=deadline)
         validate_media(out)
+        remember()
         return
     video = out.with_suffix(".video.m4s")
     audio = out.with_suffix(".audio.m4s")
@@ -386,6 +415,7 @@ def download(op, streams, referer, out, deadline=None):
             out.unlink(missing_ok=True)
             raise
         completed = True
+        remember()
     finally:
         # A later audio/network failure must not discard an already downloaded
         # video track. Actions persists these verified, source-bound checkpoints.

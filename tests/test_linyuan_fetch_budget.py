@@ -123,3 +123,30 @@ def test_full_partial_checkpoint_does_not_request_unsatisfiable_range(tmp_path):
             raise AssertionError('full checkpoint must not be downloaded again')
     b.download_one(NoRequest(), ['https://cdn.test/video'], 'source', out)
     assert out.read_bytes() == b'v' * 30000
+
+
+def test_completed_mux_is_reused_and_changed_source_or_damage_redownloads(monkeypatch,tmp_path):
+    import subprocess
+    import shutil
+    source=tmp_path/'fixture.mp4'
+    subprocess.run(['ffmpeg','-y','-v','error','-f','lavfi','-i',
+        'testsrc2=size=160x120:rate=10:duration=3','-f','lavfi','-i',
+        'sine=duration=3','-c:v','libx264','-c:a','aac','-shortest',str(source)],check=True)
+    calls=[]
+    def fetch(op,urls,referer,dest,**kwargs):
+        calls.append((referer,urls));shutil.copyfile(source,dest)
+    monkeypatch.setattr(b,'download_one',fetch)
+    out=tmp_path/'nested'/'video.mp4'
+    streams=dict(video=['https://cdn.test/video?sig=old'],audio=['https://cdn.test/audio'],height=1080)
+    b.download(None,streams,'source-a',out)
+    assert len(calls)==2 and not out.with_suffix('.video.m4s').exists()
+    rotated={**streams,'video':['https://cdn.test/video?sig=new']}
+    b.download(None,rotated,'source-a',out)
+    assert len(calls)==2
+    b.download(None,rotated,'source-b',out)
+    assert len(calls)==4
+    out.write_bytes(b'damaged')
+    b.download(None,rotated,'source-b',out)
+    assert len(calls)==6 and b.validate_media(out)['audio_streams']==1
+    b.download(None,{**rotated,'height':720},'source-b',out)
+    assert len(calls)==8

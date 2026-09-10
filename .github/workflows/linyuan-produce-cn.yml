@@ -124,12 +124,6 @@ jobs:
           python-version: '3.11'
           cache: pip
 
-      - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
-        working-directory: .
-        run: |
-          python -m pip install -q pytest jieba numpy
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py
-
       # fonts-noto-cjk 必装：缺了中文字体，字幕会烧成一排豆腐块
       - name: 安装 ffmpeg 与中文字体
         run: |
@@ -138,6 +132,12 @@ jobs:
             ffmpeg fonts-noto-cjk poppler-utils libgl1 libglib2.0-0 zstd
           fc-cache -f
           ffprobe -version | head -1
+
+      - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
+        working-directory: .
+        run: |
+          python -m pip install -q pytest jieba numpy pillow 'opencv-python<5'
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py
 
       - name: 安装素材质检依赖
         run: |
