@@ -3,7 +3,7 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789068331,
+  "updated_at": 1789069171,
   "materials": {
     "weibo_search": {
       "records": 1116,
@@ -78,7 +78,7 @@
   },
   "inventory": {
     "verified_live": 16,
-    "verified_audio_card": 9,
+    "verified_audio_card": 12,
     "daily_mix_usable": 19,
     "target_reserve": 12
   },
@@ -6560,11 +6560,13 @@
         "slugs": [
           "ly-0910-5bb3b9"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "92b8e3439fe1d6414ef95fa55f52f31f97a57ddd0aee05eca4acee0197e5962c"
+        ],
         "failures": [],
-        "verified_available": 0,
+        "verified_available": 3,
         "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_seconds": 860.2,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6606,7 +6608,14 @@
           "ly-0910-d5c0bf"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-d5c0bf",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 240 < 480（432x240），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7782,8 +7791,8 @@
       },
       "BV1L7a1znEz8": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 3,
+        "verified_seconds": 860.2
       },
       "BV1xcu26hEx1": {
         "attempted_mothers": 1,
@@ -7793,7 +7802,8 @@
       "BV1nd4y1f7Hi": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1i47s6kEvF": {
         "attempted_mothers": 1,
@@ -7802,8 +7812,77 @@
       }
     }
   },
-  "in_flight_placeholders": 10,
+  "in_flight_placeholders": 9,
   "artifacts": [
+    {
+      "slug": "ly-0910-5bb3b9",
+      "artifact_id": 10169851644,
+      "run_id": 34515511379,
+      "checked_at": 1789069147,
+      "source_url": "https://www.bilibili.com/video/BV1L7a1znEz8",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_1.mp4",
+          "title": "林园：对，昨天晚上有有一个有一个女孩子给我讲，她说她姐很厉害，过去五个月，白手起家赚了两百万，卖衣服",
+          "duration_sec": 348.1,
+          "render_mode": "audio_card",
+          "content_type": null,
+          "source_sha256": "92b8e3439fe1d6414ef95fa55f52f31f97a57ddd0aee05eca4acee0197e5962c",
+          "segments": [
+            {
+              "start": 68.92,
+              "end": 417.0,
+              "reason": "投资成功的关键在于坚持和区分好坏，而非短期市场波动。林园通过自身经历和案例说明，真正的投资能力体现在长期坚持和辨别价值上"
+            }
+          ],
+          "sha256": "7d2100abf84f6dd2c2d12f132f67e5b7f9939cd61edecaad2f3f451ccf6a27ea",
+          "subtitle_sha256": "f59527efdb588ead6cd5a01e4c3a2136879dcb4bba0dd84e9711c6e51a42e60e",
+          "status": "verified",
+          "reason": null
+        },
+        {
+          "index": 1,
+          "final": "final_3.mp4",
+          "title": "林园：独家买卖，最好是独家买卖",
+          "duration_sec": 217.4,
+          "render_mode": "audio_card",
+          "content_type": null,
+          "source_sha256": "92b8e3439fe1d6414ef95fa55f52f31f97a57ddd0aee05eca4acee0197e5962c",
+          "segments": [
+            {
+              "start": 834.36,
+              "end": 1051.72,
+              "reason": "当前经济收缩期，人口减少导致未来行业变化，投资需选对方向。人口减少使新质生产力不再适用，老年人口增加是未来趋势，投资应向"
+            }
+          ],
+          "sha256": "30a67c461a08c5ff4c9b5ccde627f6b4d811f80e7b59fb76f063abd8d49db3c1",
+          "subtitle_sha256": "1c7f968ad67e8765ff492213e9b0ba34bc9de64e4e303d4b6bbb42c89bd2ea81",
+          "status": "verified",
+          "reason": null
+        },
+        {
+          "index": 2,
+          "final": "final_5.mp4",
+          "title": "林园：到一定时候，他一定会卖但老林不会卖",
+          "duration_sec": 294.7,
+          "render_mode": "audio_card",
+          "content_type": null,
+          "source_sha256": "92b8e3439fe1d6414ef95fa55f52f31f97a57ddd0aee05eca4acee0197e5962c",
+          "segments": [
+            {
+              "start": 1381.0,
+              "end": 1675.64,
+              "reason": "完整主题：长期持有策略；开头独立可懂：从'我的股票不卖'开始，明确核心观点；解释充分：详细说明不卖股票的原因（茅台、科技"
+            }
+          ],
+          "sha256": "d08e02b33c594a4d312dee03c520f87dad3bbc783ba8e8c2957eac501a05ef37",
+          "subtitle_sha256": "2675b08445039b5cf7d52e30b4056c73362c91513b9a477b00cab098e5f48d52",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0910-0f8bfb",
       "artifact_id": 10169299074,
