@@ -16,11 +16,20 @@ def main():
         endpoint='fcv3.' + os.environ.get('FC_REGION','cn-hangzhou') + '.aliyuncs.com'))
     deadline = time.monotonic() + 900
     while True:
-        response = client.invoke_function_with_options(os.environ.get('FC_FUNCTION_NAME','fc-develop'),
-            m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(json.dumps(
-                {'triggerName':'apply-reviewed-updates-0910'}).encode())),
-            m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),
-            util.RuntimeOptions(connect_timeout=10000, read_timeout=600000, autoretry=False))
+        try:
+            response = client.invoke_function_with_options(os.environ.get('FC_FUNCTION_NAME','fc-develop'),
+                m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(json.dumps(
+                    {'triggerName':'apply-reviewed-updates-0910'}).encode())),
+                m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),
+                util.RuntimeOptions(connect_timeout=10000, read_timeout=600000, autoretry=False))
+        except Exception as exc:
+            # A gateway 503 can arrive while FC is still running. The FC lease
+            # and persisted edit receipt reconcile the next call without replay.
+            if getattr(exc, 'code', '') in ('ServiceUnavailable', 'RequestTimeout') and time.monotonic() < deadline:
+                print(json.dumps({'status':'awaiting_receipt','gateway_code':exc.code}),flush=True)
+                time.sleep(30)
+                continue
+            raise
         body = response.body.read() if hasattr(response.body,'read') else response.body
         if isinstance(body, bytes): body = body.decode()
         result = json.loads(body)

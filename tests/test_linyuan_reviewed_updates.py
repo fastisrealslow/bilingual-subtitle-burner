@@ -13,13 +13,14 @@ import reviewed_updates as R
 def test_payload_preserves_archive_settings_and_existing_media():
     item = dict(bvid='BV16QYK6qEwm', old_title='old', title='new')
     data = dict(archive=dict(aid=123,bvid=item['bvid'],title='old',tag='tags',
-        copyright=2,desc='description',is_only_self=0),
+        copyright=2,desc='description',is_only_self=0,human_type2={'id':1010,'name':'知识'}),
         videos=[dict(filename='old-file',cid=789,title='old',desc='part')])
     original=copy.deepcopy(data)
     result=R.payload_for(data,item,'new-cover')
     assert data==original
     assert result['videos'][0]['filename']=='old-file' and result['videos'][0]['cid']==789
     assert result['desc']=='description' and result['tag']=='tags' and result['is_only_self']==0
+    assert result['human_type2']==1010
     result=R.payload_for(data,item,'new-cover','replacement')
     assert result['videos'][0]['filename']=='replacement' and 'cid' not in result['videos'][0]
     data['archive']['title']='unrelated edit'
@@ -100,6 +101,16 @@ def test_state_save_failure_stops_before_edit(monkeypatch):
 def test_asset_hash_mismatch_is_rejected():
     with pytest.raises(ValueError):R.asset('cover-1.jpg','0'*64)
     with pytest.raises(ValueError):R.asset('../cover-1.jpg','0'*64)
+
+
+def test_definitive_old_parameter_rejection_reuses_uploaded_assets(monkeypatch):
+    fc,calls,stored=environment(monkeypatch)
+    stored[0]['reviewed_updates_0910']={'BV16vYT6ME5s':dict(status='edit_rejected',
+        api_code=21001,cover='https://example.test/accepted-cover.jpg',
+        filename='accepted-video',created_at=1)}
+    assert R.apply(fc)['status']=='verified'
+    assert calls==dict(covers=2,uploads=0,edits=3)
+    assert stored[0]['reviewed_updates_0910']['BV16vYT6ME5s']['payload_schema_version']==2
 
 
 @pytest.mark.parametrize('status,payload,expected', [(412,{},'HTTP 412'),

@@ -47,6 +47,9 @@ def payload_for(data, item, cover, filename=None):
             or archive.get('title') not in (item['old_title'], item['title'])):
         raise ValueError('Existing archive identity, title or part count changed')
     payload = copy.deepcopy(archive)
+    # Creator reads expose the category as {id, name}; edit expects an integer.
+    if isinstance(payload.get('human_type2'), dict):
+        payload['human_type2'] = int(payload['human_type2'].get('id') or 0)
     video = {k: v for k, v in videos[0].items() if k in ('filename', 'title', 'desc', 'cid')}
     if filename:
         video['filename'] = filename
@@ -144,13 +147,19 @@ def apply(fc):
             persist()
         current = detail(bvid)
         if not matches(current, item, transaction):
-            if transaction['status'] in ('edit_requested', 'edit_rejected'):
+            # A definitive parameter rejection of the old payload may be retried
+            # once with the corrected schema. Uncertain edits are only read back.
+            corrected_rejection = (transaction['status'] == 'edit_rejected'
+                and transaction.get('api_code') == 21001
+                and transaction.get('payload_schema_version', 1) < 2)
+            if transaction['status'] in ('edit_requested', 'edit_rejected') and not corrected_rejection:
                 results.append(dict(bvid=bvid, status=transaction['status'])); continue
             payload = payload_for(current, item, transaction['cover'], transaction.get('filename'))
-            transaction['status'] = 'edit_requested'; persist()
+            transaction.update(status='edit_requested', payload_schema_version=2); persist()
             reply = session.post('https://member.bilibili.com/x/vu/web/edit',
                 params=dict(csrf=values['bili_jct']), json=payload, timeout=60).json()
             transaction['api_code'] = reply.get('code')
+            transaction['api_message'] = str(reply.get('message') or reply.get('msg') or '')[:300]
             if reply.get('code') != 0:
                 transaction['status'] = 'edit_rejected'
             persist()
