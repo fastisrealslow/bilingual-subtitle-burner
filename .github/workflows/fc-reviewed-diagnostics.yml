@@ -23,7 +23,7 @@ jobs:
       - name: Inspect function instances without changing them
         run: |
           python - <<'PY'
-          import os,json,time
+          import os,json,time,io
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as api
@@ -32,7 +32,13 @@ jobs:
           f=os.environ['FC_FUNCTION_NAME']
           runtime=util.RuntimeOptions(connect_timeout=20000,read_timeout=60000,autoretry=True,max_attempts=3)
           fn=c.get_function_with_options(f,m.GetFunctionRequest(qualifier='LATEST'),{},runtime).body
-          print(json.dumps({'log_config':fn.log_config.to_map() if fn.log_config else None,'last_modified_time':fn.last_modified_time},ensure_ascii=False))
+          print(json.dumps({'log_config':fn.log_config.to_map() if fn.log_config else None,'last_modified_time':fn.last_modified_time,'instance_concurrency':fn.instance_concurrency},ensure_ascii=False))
           r=c.list_instances_with_options(f,m.ListInstancesRequest(qualifier='LATEST',start_time_ms=1789041600000,end_time_ms=int(time.time()*1000),with_all_active=True,limit=100),{},runtime)
-          print(json.dumps({'instances':r.body.to_map()},ensure_ascii=False))
+          before=r.body.to_map()
+          print(json.dumps({'instances_before':before},ensure_ascii=False))
+          response=c.invoke_function_with_options(f,m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(b'{"triggerName":"diagnose-ping"}')),m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),runtime)
+          body=response.body.read() if hasattr(response.body,'read') else response.body
+          print(json.dumps({'ping':json.loads(body)},ensure_ascii=False))
+          after=c.list_instances_with_options(f,m.ListInstancesRequest(qualifier='LATEST',with_all_active=True,limit=100),{},runtime).body.to_map()
+          print(json.dumps({'instances_after':after},ensure_ascii=False))
           PY
