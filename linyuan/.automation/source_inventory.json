@@ -3,15 +3,18 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789047986,
+  "updated_at": 1789051491,
   "materials": {
     "weibo_search": {
-      "records": 1106,
-      "video_candidates": 427,
-      "duration_eligible": 38,
-      "long_mother_candidates": 15,
-      "too_short": 33,
+      "records": 1116,
+      "video_candidates": 430,
+      "duration_eligible": 40,
+      "long_mother_candidates": 16,
+      "too_short": 34,
       "duration_unknown": 356
+    },
+    "shareholder_meeting": {
+      "records": 149
     },
     "haokan_video": {
       "records": 25,
@@ -21,25 +24,22 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 846,
-      "video_candidates": 840,
-      "duration_eligible": 564,
-      "long_mother_candidates": 289,
-      "too_short": 93,
-      "over_limit": 71,
-      "duration_unknown": 112,
+      "records": 938,
+      "video_candidates": 932,
+      "duration_eligible": 648,
+      "long_mother_candidates": 334,
+      "too_short": 98,
+      "over_limit": 77,
+      "duration_unknown": 109,
       "reference_only": 6
     },
     "reference_origin_search": {
-      "records": 110,
-      "video_candidates": 110,
-      "duration_eligible": 69,
-      "over_limit": 29,
-      "long_mother_candidates": 34,
-      "too_short": 12
-    },
-    "shareholder_meeting": {
-      "records": 145
+      "records": 138,
+      "video_candidates": 138,
+      "duration_eligible": 86,
+      "over_limit": 35,
+      "too_short": 17,
+      "long_mother_candidates": 45
     },
     "netease_video": {
       "records": 37,
@@ -71,9 +71,9 @@
     "bilibili_collection": {
       "records": 114,
       "video_candidates": 114,
-      "over_limit": 1,
       "duration_eligible": 113,
-      "long_mother_candidates": 97
+      "long_mother_candidates": 97,
+      "over_limit": 1
     }
   },
   "inventory": {
@@ -6463,6 +6463,12 @@
             "stage": "editorial-or-render",
             "terminal": true,
             "reason": "字幕时间重叠到零长度"
+          },
+          {
+            "slug": "ly-0910-663f01-caption-time2",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景连续2.03秒缺少人脸"
           }
         ],
         "verified_available": 0,
@@ -7435,8 +7441,8 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 228.3,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7448,8 +7454,8 @@
         "attempted_mothers": 1,
         "verified_available": 3,
         "verified_seconds": 438.0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -7684,7 +7690,7 @@
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 6,
   "artifacts": [
     {
       "slug": "ly-0910-d2b531",
