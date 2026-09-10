@@ -9,7 +9,9 @@ from headline_policy import quote_candidates, score
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(r'请问|想问|请教|(?:您|你)[^。]*[？?]|(?:您|你).{0,100}(?:怎么|如何|能否|能不能|有没有|什么|哪些|怎样|多少|吗|呢|是否|建议|期待|分享|聊聊)|(?:怎么|如何|能不能).{0,40}(?:您|你)')
-TRANSITION = re.compile(r'(?:我们|咱们).{0,8}(?:下面|下一个|另外一个|换个).{0,5}话题|(?:我们|咱们).{0,5}(?:来聊聊|再来谈)|(?:我|我们).{0,12}(?:有所担心|想追问|想进一步问|顺带.{0,3}问)|(?:这个|这一).{0,20}(?:我|我们).{0,5}(?:完全认同|完全同意)')
+TOPIC_CHANGE = re.compile(r'(?:我们|咱们).{0,8}(?:下面|下一个|另外一个|换个).{0,5}话题|(?:我们|咱们).{0,5}(?:来聊聊|再来谈)')
+FOLLOWUP = re.compile(r'(?:我|我们).{0,12}(?:有所担心|想追问|想进一步问|顺带.{0,3}问)|(?:这个|这一).{0,20}(?:我|我们).{0,5}(?:完全认同|完全同意)')
+TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)
 OUTRO = re.compile(r'今天的(?:对谈|访谈|对话)|这次的(?:对谈|访谈)|本期(?:节目|访谈).{0,8}(?:结束|到这里)|今天.{0,8}就到这里')
 
 
@@ -21,6 +23,25 @@ def sentence_units(cues):
             units.append(dict(start=start,end=i,text=text))
             start=i+1; text=''
     return units
+
+
+def boundary_error(cues,pick):
+    """Apply observable boundaries to model/cache candidates too.
+
+    Same-topic follow-up Q&A is allowed when its answer is retained. A host's
+    preamble alone cannot supply the missing seconds of the preceding answer.
+    This is a structural check, not a claimed semantic-model approval.
+    """
+    selected=cues[pick['start']:pick['end']+1]
+    units=sentence_units(selected)
+    for i,u in enumerate(units):
+        if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
+        if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
+        if FOLLOWUP.search(u['text']):
+            question=next((j for j in range(i,len(units)) if QUESTION.search(units[j]['text'])),None)
+            if question is None or question==len(units)-1:
+                return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
+    return None
 
 
 def select(cues, limit=2, whole_source=False):

@@ -91,6 +91,36 @@ def test_actual_686_cannot_borrow_other_topics_questions_or_outro(section):
     assert select(data['sections'][section],whole_source=True)==[]
 
 
+@pytest.mark.parametrize('section',['topic_changes','next_question_preamble','host_outro'])
+def test_model_fallback_cannot_reintroduce_actual_686_bad_ranges(section):
+    from source_selection import boundary_error
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_686_selection.json').read_text())
+    cues=data['sections'][section]
+    # Exact failed endings, before the next question/answer in the fixture.
+    end={'topic_changes':48,'next_question_preamble':40,'host_outro':len(cues)-1}[section]
+    assert boundary_error(cues,dict(start=0,end=end))
+
+
+def test_complete_followup_answer_remains_allowed():
+    from source_selection import boundary_error
+    cues=dialogue()[:4]+[
+        dict(start=145,end=155,text='这个需求我完全认同。'),
+        dict(start=155,end=165,text='您怎么看支付能力的问题？'),
+        dict(start=165,end=180,text='人口基数大，支付能力也需要综合考虑。')]
+    assert boundary_error(cues,dict(start=0,end=len(cues)-1)) is None
+
+
+def test_model_proposed_686_cross_topic_range_never_enters_render(tmp_path,monkeypatch):
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_686_selection.json').read_text())
+    cues=data['sections']['topic_changes']
+    monkeypatch.delenv('SOURCE_EDITORIAL_FIRST',raising=False)
+    bad=json.dumps(dict(picks=[dict(start=0,end=48,score=9,reason='model candidate')]))
+    with patch.object(p,'llm',side_effect=[bad,'{"picks":[]}']) as llm, \
+            patch.object(p,'pick_argument_context',return_value=[]):
+        assert p.pick_highlights(cues,'林园','',tmp_path,allow_empty=True)==[]
+        assert llm.call_count==2
+
+
 def test_informal_you_question_is_a_boundary_too():
     cues=dialogue()
     cues[0]['text']='你对医药股有什么判断？'

@@ -1518,6 +1518,9 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         if row.get('accepted') is False or float(row.get('score',0))<MIN_HIGHLIGHT_SCORE:
             continue
         choice=choices[i]
+        from source_selection import boundary_error
+        if boundary_error(cues,choice):
+            continue
         if any(not(choice['end']<p['start'] or choice['start']>p['end']) for p in selected):
             continue
         selected.append(dict(start=choice['start'],end=choice['end'],score=row['score'],reason=row.get('reason','')))
@@ -1541,7 +1544,8 @@ def editorial_sentence_units(cues):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 9}
+    from source_selection import boundary_error
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 10}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1549,6 +1553,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             if isinstance(saved, dict) and saved.get('identity') == identity:
                 for pick in saved['picks']:
                     editorial.range_seconds(cues, pick)
+                    if boundary_error(cues,pick):raise ValueError('缓存选段边界已失效')
                 return saved['picks']
         except (ValueError, TypeError, KeyError):
             pass
@@ -1601,6 +1606,8 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
                     continue
                 try:
                     editorial.range_seconds(cues,pick)
+                    error=boundary_error(cues,pick)
+                    if error:raise ValueError(error)
                 except (ValueError,TypeError,KeyError) as exc:
                     invalid.append(str(exc))
                     continue
