@@ -202,20 +202,28 @@ def final_live_identity_error(meta):
             fps=frames/context['encoded_duration']
             version=context['mode']
             if version=='verified_interview_context_v2':
+                illustrated=context.get('reformatted_illustration_frames',0)
+                if not 0<=context.get('replaced_source_illustration_frames',0)<=counts['editorial_card']:
+                    raise ValueError()
                 if (context['source_timeline_preserved'] is not True
-                        or context['source_frames_preserved'] is not (counts['editorial_card']==0)
+                        or context['source_frames_preserved'] is not (counts['editorial_card']+illustrated==0)
                         or context['editorial_card_frames']!=counts['editorial_card']
                         or context['graphics_profile_source_sha256']!=meta.get('source_sha256')):raise ValueError()
                 cards=context['editorial_cards']
                 spans=[(r['start_frame'],r['end_frame']) for r in roles if r['role']=='editorial_card']
                 if [(r['start_frame'],r['end_frame']) for r in cards]!=spans:raise ValueError()
+                if illustrated:
+                    spans=[(r['start_frame'],r['end_frame']) for r in roles if r['role']=='source_illustration']
+                    shown=[(r['start_frame'],r['end_frame']) for r in context['illustration_cards']]
+                    if (len(set(shown))!=len(shown) or any(span not in spans for span in shown)
+                            or sum(b-a for a,b in shown)!=illustrated):raise ValueError()
             elif version!='verified_interview_context_v1' or context['source_frames_preserved'] is not True or counts['editorial_card']:
                 raise ValueError()
             if (context['passed'] is not True
                     or cursor!=frames or context['decoded_frames']!=frames or context['encoded_frames']!=frames
                     or counts['guest']!=context['matched_frames'] or counts['participant']!=context['other_face_frames']
                     or counts['source_illustration']!=context['context_picture_frames']
-                    or context['context_picture_frames']!=context['no_face_frames']+context['unmatched_detection_frames']
+                    or context['context_picture_frames']+context.get('replaced_source_illustration_frames',0)!=context['no_face_frames']+context['unmatched_detection_frames']
                     or (counts['guest']+counts['participant'])/frames<.7
                     or context['source_sha256']!=meta.get('source_sha256')
                     or proof.get('sampling_scope')!='verified_guest_turns'

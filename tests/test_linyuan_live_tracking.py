@@ -121,19 +121,23 @@ def test_editorial_cards_preserve_timeline_and_do_not_count_as_people(tmp_path,m
     proof=dict(source_start=0,duration=10,frames=100,matched_frames=80,other_face_frames=0,
         roles=[dict(role='guest',start_frame=0,end_frame=80),dict(role='source_illustration',start_frame=80,end_frame=100)],
         target_reference_spans=[[0,80]],source_frames_preserved=True)
-    monkeypatch.setattr(graphics,'GRAPHICS',{'test':dict(reviewed_start=0,reviewed_end=10,spans=[(3,4,'财务思维')])})
-    monkeypatch.setattr(graphics,'topic_card',lambda path,text:cv2.imwrite(str(path),np.full((470,632,3),250,dtype=np.uint8)))
-    cues=[dict(start_sec=3,end_sec=4,zh='这是财务思维')]
+    monkeypatch.setattr(graphics,'GRAPHICS',{'test':dict(reviewed_start=0,reviewed_end=10,illustration_range=(8,10),spans=[(3,4,'财务思维'),(8,8.1,'财务思维')])})
+    monkeypatch.setattr(graphics,'topic_card',lambda path,text,**kw:cv2.imwrite(str(path),np.full((470,632,3),250,dtype=np.uint8)))
+    cues=[dict(start_sec=3,end_sec=4,zh='这是财务思维199元113元28亿元151亿元')]
     out=graphics.clean_interview_graphics(source,proof,cues,'test',tmp_path/'cards')
     assert out['source_timeline_preserved'] and not out['source_frames_preserved']
-    assert out['matched_frames']==70 and out['editorial_card_frames']==10
+    assert out['matched_frames']==70 and out['editorial_card_frames']==11
     assert out['verified_face_ratio']==.7
+    assert out['reformatted_illustration_frames']==19
+    assert out['replaced_source_illustration_frames']==1
+    assert out['context_picture_frames']==19
+    assert out['illustration_cards'][0]['values']['2013']['profit_yi_yuan']==151
     assert all(not 3<=t<4 for t in out['target_sample_times'])
     cap=cv2.VideoCapture(str(source))
     assert cap.get(cv2.CAP_PROP_FRAME_COUNT)==100 and cap.get(cv2.CAP_PROP_FPS)==10
-    for n in [29,30,39,40]:
+    for n in [29,30,39,40,79,80,99]:
         cap.set(cv2.CAP_PROP_POS_FRAMES,n);ok,frame=cap.read();assert ok
-        assert (frame.mean()>240)==(30<=n<40)
+        assert (frame.mean()>240)==(30<=n<40 or n>=80)
     cap.release()
     graphics.GRAPHICS['test']['spans']=[(2,4,'财务思维')]
     with pytest.raises(ValueError,match='真人动态不足70%'):

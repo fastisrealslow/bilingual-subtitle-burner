@@ -90,6 +90,15 @@ class BatchIsolationTests(unittest.TestCase):
             self.assertIsNotNone(fc.final_live_identity_error(bad),key)
         bad=copy.deepcopy(meta);bad['interview_context']['editorial_cards'][0]['end_frame']=71
         self.assertIsNotNone(fc.final_live_identity_error(bad))
+        context.update(reformatted_illustration_frames=20,
+            illustration_cards=[dict(start_frame=80,end_frame=100)])
+        self.assertIsNone(fc.final_live_identity_error(meta))
+        bad=copy.deepcopy(meta);bad['interview_context']['illustration_cards'][0]['end_frame']=99
+        self.assertIsNotNone(fc.final_live_identity_error(bad))
+        context.update(no_face_frames=21,replaced_source_illustration_frames=1)
+        self.assertIsNone(fc.final_live_identity_error(meta))
+        bad=copy.deepcopy(meta);bad['interview_context']['replaced_source_illustration_frames']=2
+        self.assertIsNotNone(fc.final_live_identity_error(bad))
 
     def test_bad_middle_part_does_not_erase_success_or_skip_next_part(self, split=False):
         with tempfile.TemporaryDirectory() as tmp:
