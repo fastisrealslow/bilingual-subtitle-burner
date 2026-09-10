@@ -10,7 +10,7 @@ permissions:
 jobs:
   export:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - name: Inspect available source caches
@@ -22,6 +22,18 @@ jobs:
           path: linyuan/_src/
           key: source-download-v1-0e87a0f5eace2d0141d9794024ab5ca4c53dad95e120a71fcafd22c797b27983-export
           restore-keys: source-download-v1-0e87a0f5eace2d0141d9794024ab5ca4c53dad95e120a71fcafd22c797b27983-
+      - name: Install media reader
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -q yt-dlp requests
+      - name: Recover original source if cache has expired
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          if ! test -s linyuan/_src/video.mp4; then
+            python -u linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1JWQWYKEy6 --out linyuan/_src/video.mp4 --budget-seconds 3600
+          fi
       - name: Verify cached source and export exact reviewed range
         run: |
           set -euo pipefail
@@ -43,3 +55,4 @@ jobs:
           path: third-source/
           compression-level: 0
           retention-days: 7
+
