@@ -3,7 +3,7 @@
   "validation_sha256": "d0889bd23a2bc93baa3fe2fbeb159eb75d5db3e78c4159c4de80d98b6275ddf2",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789015002,
+  "updated_at": 1789017603,
   "materials": {
     "weibo_search": {
       "records": 1098,
@@ -6306,7 +6306,14 @@
           "ly-0910-650428"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-650428",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景目标人物匹配不足80%"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6321,7 +6328,14 @@
           "ly-0910-0da5fc"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-0da5fc",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "成片存在持续黑色填充边"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6336,7 +6350,14 @@
           "ly-0910-83ee23"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-83ee23",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "素材质量门禁未通过"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6351,7 +6372,14 @@
           "ly-0910-cd177f"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-cd177f",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[]，different=[1, 4, 5]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0069, 4: 0.1666, 5: -0.1461}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7450,26 +7478,30 @@
       "BV1hY4y1b7YE": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1mT4y117GG": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1RY4y1b7VF": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1Es4y1y7yW": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       }
     }
   },
-  "in_flight_placeholders": 10,
+  "in_flight_placeholders": 6,
   "artifacts": [
     {
       "slug": "ly-0909-ba9f87",
