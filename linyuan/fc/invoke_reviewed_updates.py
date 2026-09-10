@@ -1,4 +1,5 @@
-"""Invoke the accepted in-place edits; read back the persisted creator receipts."""
+"""Run approved archive edits as tracked tasks, then verify their return receipt."""
+import hashlib
 import io
 import json
 import os
@@ -14,33 +15,62 @@ def main():
     client = Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],
         access_key_secret=os.environ['ALIYUN_SK'],
         endpoint='fcv3.' + os.environ.get('FC_REGION','cn-hangzhou') + '.aliyuncs.com'))
+    function = os.environ.get('FC_FUNCTION_NAME','fc-develop')
+    runtime = util.RuntimeOptions(connect_timeout=20000, read_timeout=60000, autoretry=False)
+    old = client.get_async_invoke_config_with_options(function,
+        m.GetAsyncInvokeConfigRequest(qualifier='LATEST'), {}, runtime).body
+    if not old.async_task or old.max_async_retry_attempts != 0:
+        client.put_async_invoke_config_with_options(function,
+            m.PutAsyncInvokeConfigRequest(qualifier='LATEST', body=m.PutAsyncInvokeConfigInput(
+                async_task=True, max_async_retry_attempts=0,
+                destination_config=old.destination_config,
+                max_async_event_age_in_seconds=old.max_async_event_age_in_seconds)), {}, runtime)
+    version = hashlib.sha256(Path('linyuan/fc/reviewed_updates.py').read_bytes()).hexdigest()[:16]
     deadline = time.monotonic() + 900
-    while True:
+    for attempt in range(30):
+        task_id = f'reviewed-0910-{version}-{attempt}'
+        def query():
+            try:
+                return client.get_async_task_with_options(function,task_id,
+                    m.GetAsyncTaskRequest(qualifier='LATEST'),{},runtime).body
+            except Exception as exc:
+                if any(x in str(getattr(exc,'code','')) for x in ('NotFound','NotExist')):
+                    return None
+                raise
+        task = query()
+        if task is None:
+            try:
+                response = client.invoke_function_with_options(function,
+                    m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(
+                        b'{"triggerName":"apply-reviewed-updates-0910"}')),
+                    m.InvokeFunctionHeaders(x_fc_invocation_type='Async',x_fc_async_task_id=task_id),runtime)
+                if response.status_code != 202:
+                    raise RuntimeError('Tracked update task was not accepted')
+            except Exception:
+                if query() is None:
+                    raise
+        print(json.dumps({'task_id':task_id,'status':'accepted-or-existing'}),flush=True)
+        while time.monotonic() < deadline:
+            task = query()
+            if task and task.status in ('Succeeded','Failed','Stopped','Expired','Invalid'):
+                break
+            time.sleep(10)
+        else:
+            raise SystemExit('Tracked update still unresolved; retain task ID')
         try:
-            response = client.invoke_function_with_options(os.environ.get('FC_FUNCTION_NAME','fc-develop'),
-                m.InvokeFunctionRequest(qualifier='LATEST', body=io.BytesIO(json.dumps(
-                    {'triggerName':'apply-reviewed-updates-0910'}).encode())),
-                m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),
-                util.RuntimeOptions(connect_timeout=10000, read_timeout=600000, autoretry=False))
-        except Exception as exc:
-            # A gateway 503 can arrive while FC is still running. The FC lease
-            # and persisted edit receipt reconcile the next call without replay.
-            if getattr(exc, 'code', '') in ('ServiceUnavailable', 'RequestTimeout') and time.monotonic() < deadline:
-                print(json.dumps({'status':'awaiting_receipt','gateway_code':exc.code}),flush=True)
-                time.sleep(30)
-                continue
-            raise
-        body = response.body.read() if hasattr(response.body,'read') else response.body
-        if isinstance(body, bytes): body = body.decode()
-        result = json.loads(body)
-        Path('reviewed-updates-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
-        print(json.dumps(result,ensure_ascii=False),flush=True)
-        if result.get('status') in ('verified','already_verified'):
+            result = json.loads(task.return_payload or '{}')
+        except (ValueError, TypeError):
+            result = {'error':'Invalid task return payload'}
+        record = {'task_id':task_id,'task_status':task.status,'result':result}
+        Path('reviewed-updates-verification.json').write_text(json.dumps(record,ensure_ascii=False,indent=2))
+        print(json.dumps(record,ensure_ascii=False),flush=True)
+        if task.status == 'Succeeded' and result.get('status') in ('verified','already_verified'):
             return
-        if result.get('publisher_busy') or result.get('status') == 'pending':
-            if time.monotonic() < deadline:
-                time.sleep(30); continue
-        raise SystemExit('Reviewed archive updates require inspection; see verification receipt')
+        if task.status == 'Succeeded' and result.get('publisher_busy') and time.monotonic() < deadline:
+            time.sleep(20)
+            continue
+        raise SystemExit('Tracked update completed without all three verified receipts')
+    raise SystemExit('Publisher remained busy; no untracked invocation was sent')
 
 
 if __name__ == '__main__': main()
