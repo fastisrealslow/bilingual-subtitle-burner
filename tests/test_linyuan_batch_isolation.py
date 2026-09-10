@@ -44,6 +44,28 @@ class BatchIsolationTests(unittest.TestCase):
         meta['final_live_identity']['same_person_frames']=[1,2]
         self.assertIsNotNone(fc.final_live_identity_error(meta))
 
+    def test_interview_identity_requires_complete_timeline_not_only_selected_faces(self):
+        times=[.2,.7,1.2,1.7,2.2,2.7]
+        context=dict(mode='verified_interview_context_v1',passed=True,frames=100,
+            decoded_frames=100,encoded_frames=100,encoded_duration=10,
+            source_frames_preserved=True,matched_frames=40,other_face_frames=40,no_face_frames=20,
+            context_picture_frames=20,unmatched_detection_frames=0,
+            source_sha256='source',target_sample_times=times,roles=[
+                dict(role='guest',start_frame=0,end_frame=40),
+                dict(role='participant',start_frame=40,end_frame=80),
+                dict(role='source_illustration',start_frame=80,end_frame=100)])
+        meta=dict(render_mode='live_video_card',duration_sec=10,source_sha256='source',
+            interview_context=context,final_live_identity=dict(speaker='林园',sample_count=6,
+                same_person_frames=list(range(1,7)),confidence=.95,watermark_texts=[],
+                sampling_scope='verified_guest_turns',sample_times=times))
+        self.assertIsNone(fc.final_live_identity_error(meta))
+        bad=copy.deepcopy(meta);bad['interview_context']['roles'][1]['start_frame']=45
+        self.assertIsNotNone(fc.final_live_identity_error(bad))
+        bad=copy.deepcopy(meta);bad['interview_context']['source_sha256']='different'
+        self.assertIsNotNone(fc.final_live_identity_error(bad))
+        bad=copy.deepcopy(meta);bad['final_live_identity']['sample_times']=[9]*6
+        self.assertIsNotNone(fc.final_live_identity_error(bad))
+
     def test_bad_middle_part_does_not_erase_success_or_skip_next_part(self, split=False):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)

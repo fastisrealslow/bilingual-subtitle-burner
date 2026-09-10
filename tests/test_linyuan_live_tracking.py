@@ -78,3 +78,34 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     directory=tmp_path/proof['evidence_directory']
     assert cv2.imread(str(directory/'failure.jpg')).shape==(120,160,3)
     assert proof['samples'] and all((directory/x['file']).is_file() for x in proof['samples'])
+
+
+def test_interview_keeps_broll_frames_and_distinguishes_verified_participants(tmp_path,monkeypatch):
+    import cv2,numpy as np,json
+    from types import SimpleNamespace
+    from live_tracking import render_tracked
+    source=tmp_path/'interview.mp4';reference=tmp_path/'guest.png';host=tmp_path/'host.png'
+    cv2.imwrite(str(reference),np.full((120,160,3),20,dtype=np.uint8))
+    cv2.imwrite(str(host),np.full((120,160,3),100,dtype=np.uint8))
+    writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(160,120))
+    for n in range(100):writer.write(np.full((120,160,3),20 if n<40 else 100 if n<80 else 180+n-80,dtype=np.uint8))
+    writer.release()
+    face=np.array([[40,30,30,40,45,40,60,40,50,50,45,60,60,60,.99]],dtype=np.float32)
+    detector=SimpleNamespace(setInputSize=lambda *a:None,
+        detect=lambda frame:(None,None if frame.mean()>160 else face))
+    recognizer=SimpleNamespace(alignCrop=lambda frame,f:frame,
+        feature=lambda frame:0 if frame.mean()<60 else 1,
+        match=lambda a,b,*args:1. if a==b else 0.)
+    monkeypatch.setattr(cv2,'FaceDetectorYN',SimpleNamespace(create=lambda *a,**k:detector))
+    monkeypatch.setattr(cv2,'FaceRecognizerSF',SimpleNamespace(create=lambda *a:recognizer))
+    output=tmp_path/'tracked.mp4'
+    proof=render_tracked(source,0,10,output,reference,('detector','recognizer'),
+        context_crop=(0,0,160,100),participant_reference=host)
+    assert proof['passed'] and proof['source_frames_preserved']
+    assert (proof['matched_frames'],proof['other_face_frames'],proof['no_face_frames'])==(40,40,20)
+    assert proof['verified_face_ratio']==.8
+    assert [x['role'] for x in proof['roles']]==['guest','participant','source_illustration']
+    cap=cv2.VideoCapture(str(output));cap.set(cv2.CAP_PROP_POS_FRAMES,90);ok,frame=cap.read();cap.release()
+    assert ok and 175<float(frame[220:250,300:330].mean())<200
+    assert frame[:10].mean()>240  # white fit, not black padding or a frozen portrait
+    assert all(t<4 for t in proof['target_sample_times'])

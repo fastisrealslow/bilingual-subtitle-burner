@@ -44,7 +44,8 @@ def complete_face(face, width, height):
             and x+w<=width-8 and y+h<=height-2)
 
 
-def render_tracked(src,start,duration,output,reference,model_paths,threshold=.363,exclusions=()):
+def render_tracked(src,start,duration,output,reference,model_paths,threshold=.363,exclusions=(),
+                   context_crop=None,participant_reference=None,reference_samples=()):
     """Track the reference identity through camera cuts, with no static fallback."""
     import cv2
     cv2.setNumThreads(2)
@@ -67,6 +68,21 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     if not len(refs):raise ValueError('动态取景参考照未检出人脸')
     rf=max(refs,key=lambda f:float(f[2]*f[3]))
     identity=recognizer.feature(recognizer.alignCrop(ref,rf))
+    identities=[identity]
+    for path in reference_samples:
+        extra=cv2.imread(str(path));found=faces(extra)
+        for face in found:
+            feature=recognizer.feature(recognizer.alignCrop(extra,face))
+            if float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))>=threshold:
+                identities.append(feature)
+    participant=None
+    if participant_reference is not None:
+        other=cv2.imread(str(participant_reference));found=faces(other)
+        if not len(found):raise ValueError('访谈另一参与者参考帧没有人脸')
+        of=max(found,key=lambda f:float(f[2]*f[3]))
+        participant=recognizer.feature(recognizer.alignCrop(other,of))
+        if float(recognizer.match(identity,participant,cv2.FaceRecognizerSF_FR_COSINE))>=threshold:
+            raise ValueError('访谈另一参与者参考帧重复使用了嘉宾身份')
     cap=cv2.VideoCapture(str(src));fps=cap.get(cv2.CAP_PROP_FPS)
     if not fps or fps>120:raise ValueError('动态取景源帧率无效')
     first_frame,count=frame_interval(start,duration,fps,round(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
@@ -76,6 +92,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     other_faces=0;no_face=0;blank_streak=0
     decoded=0;encoded=0;frame=None;n=0;recent=deque(maxlen=7)
     last_target_time=None
+    target_times=[];roles=[];context_frames=0;picture_frames=0;unmatched_detections=0
 
     def evidence(error=None):
         proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
@@ -84,7 +101,14 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
             longest_unmatched_seconds=longest_missing/fps,
             first_crop=first,last_crop=last,threshold=threshold,
-            passed=error is None and matched/count>=.8,matched_ratio=matched/count)
+            passed=error is None and (context_frames/count>=.7 and len(target_times)>=6
+                if context_crop is not None else matched/count>=.8),matched_ratio=matched/count)
+        if context_crop is not None:
+            proof.update(mode='verified_interview_context_v1',verified_face_ratio=context_frames/count,
+                source_frames_preserved=decoded==encoded==count,source_crop=list(context_crop),
+                context_picture_frames=picture_frames,unmatched_detection_frames=unmatched_detections,
+                roles=roles,target_sample_times=[target_times[min(len(target_times)-1,
+                    int(len(target_times)*(i+.5)/6))] for i in range(6)] if len(target_times)>=6 else [])
         if error is not None:
             directory=output.with_suffix('.evidence');directory.mkdir(exist_ok=True)
             samples=[]
@@ -113,17 +137,23 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 if n%max(1,round(fps/2))==0:
                     saved,jpeg=cv2.imencode('.jpg',frame)
                     if saved:recent.append((n,jpeg.tobytes()))
-                height,width=frame.shape[:2]; candidates=[]
+                height,width=frame.shape[:2]; candidates=[];other_candidates=[];role=None
                 detected=faces(frame)
                 for face in detected:
                     try:
                         feature=recognizer.feature(recognizer.alignCrop(frame,face))
-                        score=float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                        score=max(float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                                  for identity in identities)
                     except cv2.error:
                         continue
-                    if score>=threshold:candidates.append((score,face))
+                    if score>=threshold:
+                        primary=float(recognizer.match(identities[0],feature,cv2.FaceRecognizerSF_FR_COSINE))
+                        candidates.append((score,face,primary))
+                    elif participant is not None:
+                        other_score=float(recognizer.match(participant,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                        if other_score>=threshold:other_candidates.append((other_score,face))
                 if candidates:
-                    score,face=max(candidates,key=lambda row:row[0])
+                    score,face,primary=max(candidates,key=lambda row:row[0])
                     box=crop_box(face,width,height,exclusions=exclusions);matched+=1;missing=0;blank_streak=0
                     last_target_time=(first_frame+n)/fps
                     if previous is not None:
@@ -132,24 +162,49 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                         if delta<min(box[2:])*.12:
                             box=tuple(round((previous[k]*.65+box[k]*.35)/2)*2 for k in range(4))
                     previous=box
+                    role='guest';context_frames+=1
+                    if primary>=threshold+.03:target_times.append((n+.5)/fps)
                 else:
                     missing+=1;longest_missing=max(longest_missing,missing)
+                    unknown=bool(len(detected)) and context_crop is not None and not other_candidates
+                    if unknown:
+                        # B-roll can contain strangers or face-like numerals.
+                        # Keep the original composition, never make an unknown
+                        # detection into a guest/host close-up or count it as one.
+                        unmatched_detections+=1;detected=[]
                     if len(detected):
                         # Preserve a brief original interviewer reaction shot. It
                         # is explicitly NOT counted as a matched target frame;
                         # aggregate 80% and final independent 5/6 gates still apply.
-                        face=max(detected,key=lambda f:float(f[2]*f[3]))
+                        face=(max(other_candidates,key=lambda x:x[0])[1] if context_crop is not None
+                              else max(detected,key=lambda f:float(f[2]*f[3])))
                         box=crop_box(face,width,height,exclusions=exclusions);previous=box
                         other_faces+=1;blank_streak=0
+                        role='participant';context_frames+=1
                     else:
-                        no_face+=1;blank_streak+=1
-                        if previous is None or blank_streak/fps>2:
+                        no_face+=int(not unknown);blank_streak+=1
+                        if context_crop is not None:
+                            box=context_crop;role='source_illustration';picture_frames+=1
+                        elif previous is None or blank_streak/fps>2:
                             raise ValueError(f'动态取景连续{blank_streak/fps:.2f}秒缺少人脸')
-                        box=previous
+                        else:box=previous
                 x,y,w,h=box
                 region=frame[y:y+h,x:x+w]
                 if region.shape[:2]!=(h,w):raise ValueError('动态取景越出源画面')
-                result=cv2.resize(region,(632,470),interpolation=cv2.INTER_LANCZOS4)
+                if role=='source_illustration':
+                    # Preserve the original contemporaneous illustration, with
+                    # its aspect ratio. Never freeze a guest portrait over it.
+                    if float(region.mean())<5 and float(region.std())<2:
+                        raise ValueError('资料画面为空黑帧')
+                    scale=min(632/w,470/h);rw,rh=round(w*scale),round(h*scale)
+                    fitted=cv2.resize(region,(rw,rh),interpolation=cv2.INTER_LANCZOS4)
+                    result=cv2.copyMakeBorder(fitted,(470-rh)//2,470-rh-(470-rh)//2,
+                        (632-rw)//2,632-rw-(632-rw)//2,cv2.BORDER_CONSTANT,value=(250,250,250))
+                else:
+                    result=cv2.resize(region,(632,470),interpolation=cv2.INTER_LANCZOS4)
+                if context_crop is not None:
+                    if roles and roles[-1]['role']==role:roles[-1]['end_frame']=n+1
+                    else:roles.append(dict(role=role,start_frame=n,end_frame=n+1))
                 proc.stdin.write(result.tobytes())
                 encoded+=1
                 if first is None:first=list(box)
@@ -168,7 +223,10 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
         finally:
             cap.release()
     proof=evidence()
-    if matched/count<.8:
+    if context_crop is not None and (context_frames/count<.7 or len(target_times)<6):
+        output.unlink(missing_ok=True)
+        raise ValueError(f'访谈已核验人物动态不足70%：{context_frames}/{count}帧')
+    if context_crop is None and matched/count<.8:
         output.unlink(missing_ok=True)
         raise ValueError(f'动态取景目标人物匹配不足80%：{matched}/{count}帧（{matched/count:.1%}），'
                          f'其他人脸{other_faces}帧，无人脸{no_face}帧；已保存取景证据')

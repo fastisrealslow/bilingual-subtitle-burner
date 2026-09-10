@@ -190,6 +190,32 @@ def final_live_identity_error(meta):
     if (proof.get('speaker')!='林园' or proof.get('sample_count')!=6
             or len(same)<5 or confidence<.75 or proof.get('watermark_texts')):
         return '实际动态窗口缺少林园本人及台标复检'
+    context=meta.get('interview_context')
+    if context or proof.get('sampling_scope')=='verified_guest_turns':
+        try:
+            frames=context['frames'];roles=context['roles'];cursor=0
+            counts={'guest':0,'participant':0,'source_illustration':0}
+            for row in roles:
+                if row['start_frame']!=cursor or row['end_frame']<=cursor:raise ValueError()
+                counts[row['role']]+=row['end_frame']-cursor;cursor=row['end_frame']
+            times=context['target_sample_times']
+            fps=frames/context['encoded_duration']
+            if (context['mode']!='verified_interview_context_v1' or context['passed'] is not True
+                    or context['source_frames_preserved'] is not True
+                    or cursor!=frames or context['decoded_frames']!=frames or context['encoded_frames']!=frames
+                    or counts['guest']!=context['matched_frames'] or counts['participant']!=context['other_face_frames']
+                    or counts['source_illustration']!=context['context_picture_frames']
+                    or context['context_picture_frames']!=context['no_face_frames']+context['unmatched_detection_frames']
+                    or (counts['guest']+counts['participant'])/frames<.7
+                    or context['source_sha256']!=meta.get('source_sha256')
+                    or proof.get('sampling_scope')!='verified_guest_turns'
+                    or proof.get('sample_times')!=times or len(times)!=6
+                    or abs(context['encoded_duration']-float(meta['duration_sec']))>.15):raise ValueError()
+            for t in times:
+                if not any(r['role']=='guest' and r['start_frame']<=int(t*fps)<r['end_frame'] for r in roles):
+                    raise ValueError()
+        except (TypeError,KeyError,ValueError,ZeroDivisionError):
+            return '访谈逐帧人物/资料画面记录不完整，不能用挑选的人脸帧替代整段核验'
     return None
 
 

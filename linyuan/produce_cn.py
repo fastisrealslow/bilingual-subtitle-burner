@@ -4517,22 +4517,27 @@ def make_review_assets(final, out, suffix, duration_sec):
     return preview.name, sheet.name
 
 
-def verify_final_live_identity(final, work, speaker, api_key, suffix=""):
+def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_times=None):
     """Verify the actual moving window, excluding the template/reference portrait."""
     directory=Path(work)/f"final_identity{suffix}"
     directory.mkdir(exist_ok=True)
     frames=[]
     duration=float(probe(final,"format=duration"))
-    for i in range(1,7):
+    times=target_times if target_times is not None else [duration*i/7 for i in range(1,7)]
+    if len(times)!=6 or any(not 0<=t<duration for t in times):
+        raise VisualQualityError('成片人物复检的实际时间点无效')
+    for i,t in enumerate(times,1):
         path=directory/f"frame_{i}.jpg"
-        subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(duration*i/7),
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(t),
             '-i',str(final),'-vf','crop=632:470:44:360','-frames:v','1',str(path)],
             check=True,timeout=45)
         frames.append(path)
     reference=_download_speaker_reference(speaker,Path(work))
     verdict=_local_identity_verdict(reference,frames,speaker)
     same={i for i in verdict.get('same_person_frames',[]) if type(i) is int and 1<=i<=6}
-    proof={**verdict,'version':1,'speaker':speaker,'sample_count':6}
+    proof={**verdict,'version':1,'speaker':speaker,'sample_count':6,
+           'sampling_scope':'verified_guest_turns' if target_times is not None else 'whole_timeline',
+           'sample_times':times}
     (directory/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     if len(same)<5 or float(verdict.get('confidence') or 0)<.75:
         raise VisualQualityError(f'成片动态窗口目标人物不足5/6帧：{len(same)}/6')
@@ -4590,13 +4595,21 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
     source_report = source_report or {}
     strategy = source_report.get("clean_strategy", "direct")
-    native_plan=None
+    native_plan=None;interview_plan=None;participant_reference=None
     if strategy=='audio_card' and prefer_live_video and len(picks)==1:
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'])
         if native_plan:
-            source_report={**source_report,**native_plan}
-            strategy=source_report['clean_strategy']
+            from source_selection import sentence_units,QUESTION
+            units=sentence_units(cues[picks[0]['start']:picks[0]['end']+1])
+            others=(source_report.get('visual_identity') or {}).get('different_person_frames') or []
+            reference=work/f'identity_{others[0]}.jpg' if len(others)==1 else None
+            if units and QUESTION.search(units[0]['text']) and reference and reference.is_file():
+                interview_plan=native_plan;participant_reference=reference
+                print('[访谈适配] 分别核验嘉宾与提问者；插图按原始时间保留，不用静态头像覆盖',flush=True)
+            else:
+                source_report={**source_report,**native_plan}
+                strategy=source_report['clean_strategy']
     clean_vf = source_report.get("clean_video_filter") or f"crop={W//2*2}:{H//2*2}:0:0"
     clean_resolution = source_report.get("clean_output_resolution") or {}
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
@@ -4661,6 +4674,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
     en_map = {}
     parts = []
+    interview_tracking=None
     for n, p in enumerate(picks, 1):
         idx = list(range(p["start"], p["end"] + 1))
         s0, s1 = cues[idx[0]]["start"], cues[idx[-1]]["end"]
@@ -4696,7 +4710,14 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 tracking=render_tracked(src,s0,seg_dur,tracked,
                     _download_speaker_reference(speaker,work),_local_face_models(),
                     LOCAL_FACE_COSINE_THRESHOLD,
-                    exclusions=source_report.get('detected_corner_logos') or ())
+                    exclusions=source_report.get('detected_corner_logos') or (),
+                    context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
+                    participant_reference=participant_reference,
+                    reference_samples=[work/f'identity_{i}.jpg' for i in
+                        (source_report.get('visual_identity') or {}).get('same_person_frames',[])
+                        if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
+                if interview_plan:
+                    interview_tracking={**tracking,'source_sha256':source_report['source_sha256']}
                 cmd += ["-i",str(tracked)]
                 live = (
                     "[2:v]setpts=PTS-STARTPTS[live];"
@@ -4757,7 +4778,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         live_checks.update(verify_live_region_after_render(final,extra_times=junction_times))
         live_checks['junction_frames_checked']=len(junction_times)
         live_checks['final_live_identity']=verify_final_live_identity(
-            final,work,speaker,api_key,suffix)
+            final,work,speaker,api_key,suffix,
+            target_times=interview_tracking['target_sample_times'] if interview_tracking else None)
         external_logos = []
     else:
         external_logos = detect_external_logos_after_render(
@@ -4854,6 +4876,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "watermark_verified": True,
         "clean_strategy": strategy,
         "native_context_proof":(native_plan or {}).get('native_context_proof'),
+        "interview_context":interview_tracking,
         "audio_card_template": (AUDIO_CARD_TEMPLATE
                                 if strategy == "audio_card" else None),
         "render_mode": ("live_video_card" if use_live_video
