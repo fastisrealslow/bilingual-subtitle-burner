@@ -1,69 +1,210 @@
 {
-  "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
-  "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
-  "run_id": 34442577231,
-  "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34442577231",
+  "batch_report": {
+    "accepted": 0,
+    "accepted_finals": [],
+    "audio_card": 0,
+    "live_ratio": 0,
+    "live_video": 0,
+    "quality_gate_version": 13,
+    "rejected": [
+      {
+        "error_type": "NoEligibleArgument",
+        "part": 1,
+        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
+        "retryable": false,
+        "stage": "editorial-selection"
+      },
+      {
+        "error_type": "NoEligibleArgument",
+        "part": 2,
+        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
+        "retryable": false,
+        "stage": "editorial-selection"
+      },
+      {
+        "error_type": "NoEligibleArgument",
+        "part": 3,
+        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
+        "retryable": false,
+        "stage": "editorial-selection"
+      },
+      {
+        "error_type": "NoEligibleArgument",
+        "part": 4,
+        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
+        "retryable": false,
+        "stage": "editorial-selection"
+      },
+      {
+        "error_type": "NoEligibleArgument",
+        "part": 5,
+        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
+        "retryable": false,
+        "stage": "editorial-selection"
+      }
+    ],
+    "retryable": false,
+    "selection_completed": true,
+    "slug": "ly-0910-boundary-repaired"
+  },
+  "decision": "superseded: incomplete candidate selection is not a terminal source rejection",
   "head_sha": "5f72b11381925b13c0df772a66463f4518d0286f",
   "original_slugs": [
     "ly-0909-18d8c2"
   ],
-  "decision": "superseded: incomplete candidate selection is not a terminal source rejection",
-  "batch_report": {
-    "slug": "ly-0910-boundary-repaired",
-    "accepted": 0,
-    "rejected": [
-      {
-        "stage": "editorial-selection",
-        "part": 1,
-        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
-        "error_type": "NoEligibleArgument",
-        "retryable": false
-      },
-      {
-        "stage": "editorial-selection",
-        "part": 2,
-        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
-        "error_type": "NoEligibleArgument",
-        "retryable": false
-      },
-      {
-        "stage": "editorial-selection",
-        "part": 3,
-        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
-        "error_type": "NoEligibleArgument",
-        "retryable": false
-      },
-      {
-        "stage": "editorial-selection",
-        "part": 4,
-        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
-        "error_type": "NoEligibleArgument",
-        "retryable": false
-      },
-      {
-        "stage": "editorial-selection",
-        "part": 5,
-        "reason": "已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数",
-        "error_type": "NoEligibleArgument",
-        "retryable": false
-      }
-    ],
-    "accepted_finals": [],
-    "live_video": 0,
-    "audio_card": 0,
-    "live_ratio": 0,
-    "retryable": false,
-    "selection_completed": true,
-    "quality_gate_version": 13
-  },
   "reassessment": {
     "reason": "Only two candidate rejections were returned per block; natural sentence endings were not offered reliably.",
-    "source_interval": {
-      "start": 329.4,
-      "end": 456.6,
-      "duration_sec": 127.2
-    },
     "scope": "Text boundary review only; production and visual gates still required",
-    "selector_version": 11
-  }
+    "selector_version": 11,
+    "source_interval": {
+      "duration_sec": 127.2,
+      "end": 456.6,
+      "start": 329.4
+    },
+    "candidate_audit": [
+      {
+        "block": 1,
+        "explicit_rejected_ids": [
+          41,
+          40
+        ],
+        "old_candidate_count": 42,
+        "old_offered_127s": false,
+        "partial_sentence_candidates": 32
+      },
+      {
+        "block": 2,
+        "explicit_rejected_ids": [
+          0,
+          1
+        ],
+        "old_candidate_count": 42,
+        "old_offered_127s": false,
+        "partial_sentence_candidates": 34
+      },
+      {
+        "block": 3,
+        "explicit_rejected_ids": [
+          0,
+          1
+        ],
+        "old_candidate_count": 86,
+        "old_offered_127s": false,
+        "partial_sentence_candidates": 62
+      },
+      {
+        "block": 4,
+        "explicit_rejected_ids": [
+          0,
+          1
+        ],
+        "old_candidate_count": 42,
+        "old_offered_127s": false,
+        "partial_sentence_candidates": 32
+      },
+      {
+        "block": 5,
+        "explicit_rejected_ids": [],
+        "old_candidate_count": 0,
+        "old_offered_127s": false,
+        "partial_sentence_candidates": 0
+      }
+    ],
+    "followup": {
+      "run_id": 34447730036,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34447730036",
+      "head_sha": "16b994a1799b1ccfdb319dbc25b5543ad96d147e",
+      "result": "Text-selected interval reached rendering; original B-roll has no face, so the current tracked live-window layout rejected it.",
+      "whole_source_content_rejected": false,
+      "batch_report": {
+        "accepted": 0,
+        "accepted_finals": [],
+        "audio_card": 0,
+        "live_ratio": 0,
+        "live_video": 0,
+        "quality_gate_version": 13,
+        "rejected": [
+          {
+            "error_type": "ValueError",
+            "part": 1,
+            "reason": "动态取景连续2.03秒缺少人脸",
+            "retryable": false,
+            "stage": "part-quality"
+          }
+        ],
+        "retryable": false,
+        "selection_completed": true,
+        "slug": "ly-0910-690-text-boundaries"
+      },
+      "tracking": {
+        "consecutive_no_face_seconds": 2.033332840278887,
+        "decoded_frames": 2128,
+        "duration": 127.20000000000005,
+        "encoded_duration": 70.89998280775727,
+        "encoded_frames": 2127,
+        "engine": "yunet_sface_per_frame_cpu",
+        "error": "动态取景连续2.03秒缺少人脸",
+        "evidence_directory": "tracked1.evidence",
+        "failure_relative_time": 70.89998280775727,
+        "failure_source_time": 400.299902932937,
+        "first_crop": [
+          360,
+          0,
+          628,
+          466
+        ],
+        "frames": 3816,
+        "last_crop": [
+          686,
+          166,
+          572,
+          426
+        ],
+        "last_target_source_time": 396.1665706018783,
+        "longest_unmatched_seconds": 14.366663182954104,
+        "matched_frames": 946,
+        "matched_ratio": 0.24790356394129978,
+        "no_face_frames": 61,
+        "other_face_frames": 1121,
+        "passed": false,
+        "samples": [
+          {
+            "file": "source-11907.jpg",
+            "source_time": 396.8999037573887
+          },
+          {
+            "file": "source-11922.jpg",
+            "source_time": 397.3999036361458
+          },
+          {
+            "file": "source-11937.jpg",
+            "source_time": 397.8999035149029
+          },
+          {
+            "file": "source-11952.jpg",
+            "source_time": 398.39990339366
+          },
+          {
+            "file": "source-11967.jpg",
+            "source_time": 398.89990327241713
+          },
+          {
+            "file": "source-11982.jpg",
+            "source_time": 399.3999031511742
+          },
+          {
+            "file": "source-11997.jpg",
+            "source_time": 399.8999030299313
+          }
+        ],
+        "source_first_frame": 9882,
+        "source_start": 329.4,
+        "threshold": 0.363
+      }
+    }
+  },
+  "run_id": 34442577231,
+  "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34442577231",
+  "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
+  "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A"
 }
