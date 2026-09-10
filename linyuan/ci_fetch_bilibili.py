@@ -12,6 +12,7 @@ view 被封不代表全死：pagelist 拿 cid、embed 页直接带 __playinfo__�
     python3 ci_fetch_bilibili.py --url https://www.bilibili.com/video/BVxx --out video.mp4
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -177,6 +178,28 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
     out = Path(out)
     last = None
     tmp = out.with_suffix(out.suffix + ".part")
+    manifest = out.with_suffix(out.suffix + '.download.json')
+    identity = dict(source=referer, paths=sorted({urlparse(u).path for u in urls}))
+    saved = {}
+    if manifest.exists():
+        try:
+            saved = json.loads(manifest.read_text())
+        except (ValueError, OSError):
+            pass
+    if saved.get('identity') != identity:
+        # Refreshed CDN signatures are fine; a different source/representation
+        # is not. Never append a new encoding to bytes cached by an earlier run.
+        tmp.unlink(missing_ok=True)
+        out.unlink(missing_ok=True)
+        saved = dict(identity=identity)
+        manifest.write_text(json.dumps(saved))
+    if out.exists() and saved.get('sha256'):
+        with out.open('rb') as handle:
+            digest = hashlib.file_digest(handle, 'sha256').hexdigest()
+        if digest == saved['sha256'] and out.stat().st_size == saved.get('total'):
+            print(f'[取源复用] 已完成轨道 {out.name}', flush=True)
+            return
+        out.unlink()
     deadline=deadline if deadline is not None else time.monotonic()+1200
     stalled_rounds=0
     while stalled_rounds<attempts:
@@ -204,6 +227,15 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                         raise RuntimeError("CDN断点区间不连续")
                     expected = (int(match.group(3)) if match and match.group(3) != '*'
                                 else existing + int(response.headers.get("Content-Length") or 0))
+                    etag = response.headers.get('ETag')
+                    if resumed and ((saved.get('total') and expected != saved['total'])
+                                    or (etag and saved.get('etag') and etag != saved['etag'])):
+                        tmp.unlink(missing_ok=True)
+                        saved = dict(identity=identity)
+                        manifest.write_text(json.dumps(saved))
+                        raise RuntimeError('CDN内容版本改变，丢弃旧断点后重新下载')
+                    saved.update(total=expected, etag=etag)
+                    manifest.write_text(json.dumps(saved))
                     with tmp.open("ab" if resumed else "wb") as handle:
                         last_logged=existing
                         while True:
@@ -220,6 +252,10 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                 if actual < 10240 or (expected and actual != expected):
                     raise RuntimeError(f"下载不完整：{actual}/{expected or '?'} bytes")
                 tmp.replace(out)
+                with out.open('rb') as handle:
+                    saved['sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
+                saved['total'] = actual
+                manifest.write_text(json.dumps(saved))
                 return
             except FetchBudgetExceeded:
                 raise
@@ -323,6 +359,7 @@ def download(op, streams, referer, out, deadline=None):
         return
     video = out.with_suffix(".video.m4s")
     audio = out.with_suffix(".audio.m4s")
+    completed = False
     try:
         download_one(op, streams["video"], referer, video,deadline=deadline)
         download_one(op, streams["audio"], referer, audio,deadline=deadline)
@@ -332,9 +369,14 @@ def download(op, streams, referer, out, deadline=None):
             "-c", "copy", "-shortest", "-movflags", "+faststart", str(out),
         ], check=True)
         validate_media(out)
+        completed = True
     finally:
-        video.unlink(missing_ok=True)
-        audio.unlink(missing_ok=True)
+        # A later audio/network failure must not discard an already downloaded
+        # video track. Actions persists these verified, source-bound checkpoints.
+        if completed:
+            for track in (video, audio):
+                track.unlink(missing_ok=True)
+                track.with_suffix(track.suffix + '.download.json').unlink(missing_ok=True)
 
 
 def main():

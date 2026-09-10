@@ -66,3 +66,48 @@ def test_fetch_deadline_writes_retry_evidence_for_inventory(monkeypatch,tmp_path
     row=json.loads(report.read_text())
     assert row['retryable'] is True and row['passed'] is False
     assert row['failure_stage']=='source-fetch'
+
+
+def test_partial_download_survives_new_invocation_and_signed_url_rotation(tmp_path):
+    payload = b'a' * 30000
+    out = tmp_path / 'video.m4s'
+    class Interrupted:
+        def open(self, request, timeout):
+            if request.headers.get('Range'):
+                raise b.FetchBudgetExceeded('interrupted')
+            return Response(payload[:15000], 200, {'Content-Length': '30000'})
+    with pytest.raises(b.FetchBudgetExceeded):
+        b.download_one(Interrupted(), ['https://cdn.test/video?token=old'], 'same-source', out)
+    class Resumed:
+        def open(self, request, timeout):
+            assert request.headers['Range'] == 'bytes=15000-'
+            return Response(payload[15000:], 206,
+                {'Content-Range': 'bytes 15000-29999/30000', 'Content-Length': '15000'})
+    b.download_one(Resumed(), ['https://cdn.test/video?token=new'], 'same-source', out)
+    assert out.read_bytes() == payload
+
+
+def test_changed_representation_never_appends_to_old_partial(tmp_path):
+    out = tmp_path / 'video.m4s'
+    partial = out.with_suffix('.m4s.part')
+    partial.write_bytes(b'old' * 5000)
+    out.with_suffix('.m4s.download.json').write_text(json.dumps(
+        dict(identity=dict(source='same-source', paths=['/old']), total=30000)))
+    class NewStream:
+        def open(self, request, timeout):
+            assert not request.headers.get('Range')
+            return Response(b'n' * 30000, 200, {'Content-Length': '30000'})
+    b.download_one(NewStream(), ['https://cdn.test/new'], 'same-source', out)
+    assert out.read_bytes() == b'n' * 30000
+
+
+def test_audio_failure_retains_completed_video_track(monkeypatch, tmp_path):
+    out = tmp_path / 'video.mp4'
+    def download(op, urls, referer, dest, **kwargs):
+        if dest.name.endswith('.audio.m4s'):
+            raise b.FetchBudgetExceeded('audio interrupted')
+        dest.write_bytes(b'v' * 30000)
+    monkeypatch.setattr(b, 'download_one', download)
+    with pytest.raises(b.FetchBudgetExceeded):
+        b.download(None, dict(video=['video'], audio=['audio']), 'source', out)
+    assert out.with_suffix('.video.m4s').stat().st_size == 30000

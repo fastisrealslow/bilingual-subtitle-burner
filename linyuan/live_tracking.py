@@ -129,12 +129,15 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             proc.kill();proc.wait();output.unlink(missing_ok=True);raise
         finally:
             cap.release()
-    if matched/count<.8:
-        output.unlink(missing_ok=True);raise ValueError('动态取景目标人物匹配不足80%')
     proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
         source_first_frame=first_frame,encoded_duration=count/fps,
         frames=count,matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
         longest_unmatched_seconds=longest_missing/fps,
-        first_crop=first,last_crop=last,threshold=threshold)
+        first_crop=first,last_crop=last,threshold=threshold,
+        passed=matched/count>=.8,matched_ratio=matched/count)
     output.with_suffix('.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if matched/count<.8:
+        output.unlink(missing_ok=True)
+        raise ValueError(f'动态取景目标人物匹配不足80%：{matched}/{count}帧（{matched/count:.1%}），'
+                         f'其他人脸{other_faces}帧，无人脸{no_face}帧；已保存取景证据')
     return proof

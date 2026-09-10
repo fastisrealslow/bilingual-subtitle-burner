@@ -1,0 +1,33 @@
+name: 中文出片故障样本实产复验
+on:
+  push:
+    branches: [main]
+    paths: ['.github/linyuan-recovery-cases.json']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 用当前修复代码重新生产明确登记的失败源
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          cases = json.loads(Path('.github/linyuan-recovery-cases.json').read_text())
+          if not 1 <= len(cases) <= 3:
+              raise ValueError('一次最多复验三个已定位的失败源')
+          for case in cases:
+              inputs = {**case, 'speaker': '林园', 'prefer_live_video': True,
+                        'auto_publish': False}
+              subprocess.run(['gh', 'workflow', 'run', 'linyuan-produce-cn.yml',
+                  '--repo', os.environ['GITHUB_REPOSITORY'], '--ref', 'main', '--json'],
+                  input=json.dumps(inputs), text=True, check=True)
+              print('已触发实际生产：' + case['slug'], flush=True)
+          PY

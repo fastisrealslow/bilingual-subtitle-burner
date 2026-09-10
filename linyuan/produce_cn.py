@@ -4461,6 +4461,15 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     clean_resolution = source_report.get("clean_output_resolution") or {}
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
     crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
+    border_proof = None
+    if strategy != 'audio_card':
+        # OCR cleaning does not detect encoded black bars (#682). Measure the
+        # actual cleaned source before deciding caption and watermark geometry.
+        from source_geometry import refine_native_crop
+        clean_vf, crop_w, crop_h, border_proof = refine_native_crop(
+            src, clean_vf, crop_w, crop_h, work, minimum=MIN_SHORT_EDGE)
+        (work / f'border_geometry{suffix}.json').write_text(
+            json.dumps(border_proof, ensure_ascii=False, indent=2))
     _logos = source_report.get("detected_corner_logos") or []
     print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
     # A failed source-cleaning gate must never be bypassed by putting the same
@@ -4595,6 +4604,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 真实原画策略仍必须逐帧复检。
     from presentation import verify_render
     live_checks = verify_render(final, layout)
+    if border_proof is not None:
+        live_checks['source_border_geometry'] = border_proof
     if use_live_video:
         elapsed=0; junction_times=[]
         for pick in picks[:-1]:
@@ -4902,6 +4913,10 @@ def main():
                     reason=str(exc),error_type=type(exc).__name__,retryable=True))
                 print(f'[完整观点] 运行故障，保留第{block_no}块原始转写：{exc}',flush=True)
                 continue
+            if not picks:
+                selection_failures.append(dict(stage='editorial-selection', part=block_no,
+                    reason='已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数',
+                    error_type='NoEligibleArgument', retryable=False))
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])
                 if 0 <= lo <= hi < len(block_cues):
@@ -4958,7 +4973,7 @@ def main():
             "live_video": live, "audio_card": len(metas) - live,
             "live_ratio": live / len(metas) if metas else 0,
             "retryable": not metas and any(r.get('retryable') for r in rejected),
-            "selection_completed": not selection_failures,
+            "selection_completed": not any(r.get('retryable') for r in selection_failures),
             "quality_gate_version": QUALITY_GATE_VERSION})
 
     for ci, (a, b, preselected_picks) in enumerate(work_items):

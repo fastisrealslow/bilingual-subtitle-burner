@@ -111,7 +111,7 @@ jobs:
   produce:
     runs-on: ubuntu-latest
     # 转写 + 3 次编码，长素材可能到 1 小时以上，留足余量
-    timeout-minutes: 180
+    timeout-minutes: 240
     defaults:
       run:
         working-directory: linyuan
@@ -127,8 +127,8 @@ jobs:
       - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
         working-directory: .
         run: |
-          python -m pip install -q pytest jieba
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_source_selection.py
+          python -m pip install -q pytest jieba numpy
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_source_selection.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py
 
       # fonts-noto-cjk 必装：缺了中文字体，字幕会烧成一排豆腐块
       - name: 安装 ffmpeg 与中文字体
@@ -152,10 +152,23 @@ jobs:
           path: ${{ runner.tool_cache }}/linyuan-face-models
           key: opencv-yunet-sface-2023mar-2021dec-v1
 
+      - name: 生成母片下载缓存键
+        id: source_cache_key
+        run: |
+          python -c 'import hashlib,os; print("key="+hashlib.sha256(os.environ["RUN_SOURCE"].encode()).hexdigest())' >> "$GITHUB_OUTPUT"
+
+      - name: 恢复同源未完成下载
+        uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: source-download-v1-${{ steps.source_cache_key.outputs.key }}-
+
       - name: 取源
         id: src
-        # 20-minute downloader budget leaves room to persist a retry report.
-        timeout-minutes: 25
+        # Long sources in #675/#678/#680 were progressing at the old 20m cutoff.
+        # Preserve the same highest-quality stream and checkpoints across retries.
+        timeout-minutes: 65
         env:
           SOURCE: ${{ env.RUN_SOURCE }}
           # 下载和投稿共用同一份登录态；有登录态时 B站可取得 720/1080P，
@@ -168,7 +181,7 @@ jobs:
             # yt-dlp 裸请求会被 412，走自己的指纹会话下载器
             mkdir -p _src
             python3 -u ci_fetch_bilibili.py --url "$SOURCE" --out _src/video.mp4 \
-              --budget-seconds 1200 \
+              --budget-seconds 3600 \
               --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
             echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
           elif [[ "$SOURCE" =~ yicai\.com/video/ ]]; then
@@ -194,6 +207,13 @@ jobs:
             [ -f "$SOURCE" ] || { echo "::error::找不到 $SOURCE"; exit 1; }
             echo "path=$SOURCE" >> $GITHUB_OUTPUT
           fi
+
+      - name: 保存未完成下载供下一次续传
+        if: failure() && steps.src.outcome == 'failure'
+        uses: actions/cache/save@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: 素材质量门禁
         id: source_gate
