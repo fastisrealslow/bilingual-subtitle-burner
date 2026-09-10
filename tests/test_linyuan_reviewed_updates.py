@@ -41,6 +41,7 @@ def environment(monkeypatch, uncertain=False, failed_save=False):
     class Session:
         def mount(self,*a):pass
         def get(self,url,params,timeout):
+            assert url == 'https://member.bilibili.com/x/vupre/web/archive/view'
             return SimpleNamespace(status_code=200, headers={'Content-Type':'application/json'},
                 json=lambda:dict(code=0,data=copy.deepcopy(archives[params['bvid']])))
         def post(self,url,timeout,**kwargs):

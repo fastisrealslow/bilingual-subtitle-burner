@@ -14,7 +14,7 @@ TARGETS = {'BV16vYT6ME5s', 'BV16QYK6qEwm', 'BV1hmYt6SEJd'}
 
 
 def creator_detail(session, bvid):
-    response = session.get('https://member.bilibili.com/x/web/archive/view',
+    response = session.get('https://member.bilibili.com/x/vupre/web/archive/view',
                            params=dict(bvid=bvid, history=''), timeout=30)
     content_type = response.headers.get('Content-Type', '')
     if response.status_code != 200:
