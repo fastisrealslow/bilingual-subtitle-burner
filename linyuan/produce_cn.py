@@ -2459,11 +2459,12 @@ def brand_overlay_filter(base_vf, width, height):
     )
 
 
-def _render_clean_preview(src, work, video_filter, duration):
+def _render_clean_preview(src, work, video_filter, duration, source_start=0.0):
     """渲染一小段清理后预览，供硬字幕二次复检。"""
     preview = Path(work) / "clean_preview.mp4"
     start = max(0.0, min(duration * 0.35, max(0.0, duration - 24.0)))
     clip_duration = max(4.0, min(24.0, duration - start))
+    start += source_start
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}",
            "-t", f"{clip_duration:.2f}", "-i", str(src)]
     if video_filter:
@@ -2471,6 +2472,8 @@ def _render_clean_preview(src, work, video_filter, duration):
     cmd += ["-an", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
             str(preview)]
     subprocess.run(cmd, check=True, capture_output=True)
+    preview.with_suffix('.json').write_text(json.dumps(dict(
+        source_start=start,duration=clip_duration,video_filter=video_filter),ensure_ascii=False))
     return preview
 
 
@@ -4513,8 +4516,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                           audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"]))
         if candidate_crop:
             try:
+                preview_pick=picks[0]
+                preview_start=cues[preview_pick['start']]['start']
+                preview_duration=cues[preview_pick['end']]['end']-preview_start
                 live_preview = _render_clean_preview(
-                    src, work, candidate_crop, float(probe(src, "format=duration") or 0))
+                    src, work, candidate_crop, preview_duration,source_start=preview_start)
                 # V11 原来把任何持续文字都视为不可用，导致大量官方访谈即使
                 # 文字只落在动态窗口边缘也直接退成静态卡。这里不再用整帧
                 # has_existing_subtitles 一票否决，而是以最终窗口的角标/二维码/
@@ -4524,7 +4530,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     print("[自动版式] 真人窗口仍有稳定来源角标，保留人物资料卡兜底")
                 else:
                     live_crop = candidate_crop
-                    print("[自动版式] ✓ 真人动态窗口通过安全复检，优先保留动态画面")
+                    print("[自动版式] 当前选段的窗口角标抽检通过；仍须逐帧取景及成片人物复检")
             except Exception as exc:
                 print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")
     use_live_video = bool(live_crop)

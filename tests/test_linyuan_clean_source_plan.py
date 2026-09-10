@@ -15,6 +15,19 @@ import monitor_v2 as M  # noqa: E402
 import produce_cn as P  # noqa: E402
 
 
+def test_selected_preview_uses_selected_interval_not_whole_mother(tmp_path,monkeypatch):
+    calls=[]
+    monkeypatch.setattr(P.subprocess,'run',lambda cmd,**kwargs:calls.append(cmd))
+    preview=P._render_clean_preview('mother.mp4',tmp_path,'crop=632:470',124.24,source_start=776.6)
+    command=calls[0]
+    actual_start=float(command[command.index('-ss')+1])
+    actual_duration=float(command[command.index('-t')+1])
+    assert 776.6<=actual_start<actual_start+actual_duration<=900.84
+    proof=json.loads(preview.with_suffix('.json').read_text())
+    assert proof['source_start']==pytest.approx(actual_start,abs=.01)
+    assert proof['video_filter']=='crop=632:470'
+
+
 def test_competitor_archive_enters_reference_pool_but_not_dispatch_pool():
     source = M.CompetitorReferenceSource({
         "seeds_file": "up_videos.json",
