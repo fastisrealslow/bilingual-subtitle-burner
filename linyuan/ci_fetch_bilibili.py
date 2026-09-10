@@ -193,6 +193,13 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
         out.unlink(missing_ok=True)
         saved = dict(identity=identity)
         manifest.write_text(json.dumps(saved))
+    if tmp.exists() and tmp.stat().st_size >= 10240 and tmp.stat().st_size == saved.get('total'):
+        # A runner may stop after the last write but before the atomic rename.
+        # Requesting Range: bytes=<total>- would only produce HTTP 416 forever.
+        tmp.replace(out)
+        with out.open('rb') as handle:
+            saved['sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
+        manifest.write_text(json.dumps(saved))
     if out.exists() and saved.get('sha256'):
         with out.open('rb') as handle:
             digest = hashlib.file_digest(handle, 'sha256').hexdigest()
@@ -368,7 +375,16 @@ def download(op, streams, referer, out, deadline=None):
             "-i", str(audio), "-map", "0:v:0", "-map", "1:a:0",
             "-c", "copy", "-shortest", "-movflags", "+faststart", str(out),
         ], check=True)
-        validate_media(out)
+        try:
+            validate_media(out)
+        except Exception:
+            # Network checkpoints are reusable; an independently proven broken
+            # media file is not. Force a clean download on the next attempt.
+            for track in (video, audio):
+                track.unlink(missing_ok=True)
+                track.with_suffix(track.suffix + '.download.json').unlink(missing_ok=True)
+            out.unlink(missing_ok=True)
+            raise
         completed = True
     finally:
         # A later audio/network failure must not discard an already downloaded

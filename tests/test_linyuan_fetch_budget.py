@@ -111,3 +111,15 @@ def test_audio_failure_retains_completed_video_track(monkeypatch, tmp_path):
     with pytest.raises(b.FetchBudgetExceeded):
         b.download(None, dict(video=['video'], audio=['audio']), 'source', out)
     assert out.with_suffix('.video.m4s').stat().st_size == 30000
+
+
+def test_full_partial_checkpoint_does_not_request_unsatisfiable_range(tmp_path):
+    out = tmp_path / 'video.m4s'
+    out.with_suffix('.m4s.part').write_bytes(b'v' * 30000)
+    out.with_suffix('.m4s.download.json').write_text(json.dumps(
+        dict(identity=dict(source='source', paths=['/video']), total=30000)))
+    class NoRequest:
+        def open(self, *args, **kwargs):
+            raise AssertionError('full checkpoint must not be downloaded again')
+    b.download_one(NoRequest(), ['https://cdn.test/video'], 'source', out)
+    assert out.read_bytes() == b'v' * 30000
