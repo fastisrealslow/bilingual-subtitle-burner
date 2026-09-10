@@ -165,7 +165,20 @@ def apply(fc):
             corrected_rejection = (transaction['status'] == 'edit_rejected'
                 and transaction.get('api_code') == 21001
                 and transaction.get('payload_schema_version', 1) < 3)
-            if transaction['status'] in ('edit_requested', 'edit_rejected') and not corrected_rejection:
+            # The two old sync workers were confirmed gone before recovery.
+            # A v2 request may be corrected only when creator state still equals
+            # the original title, cover and video; never replay a v3 request.
+            original = transaction.get('original_archive') or {}
+            old_archive = original.get('archive') or original.get('Archive') or {}
+            now_archive = current.get('archive') or current.get('Archive') or {}
+            unchanged_original = (now_archive.get('state') == 0
+                and now_archive.get('title') == item['old_title']
+                and old_archive.get('cover') == now_archive.get('cover')
+                and (original.get('videos') or [{}])[0].get('filename')
+                    == (current.get('videos') or [{}])[0].get('filename'))
+            corrected_uncertain = (transaction['status'] == 'edit_requested'
+                and transaction.get('payload_schema_version') == 2 and unchanged_original)
+            if transaction['status'] in ('edit_requested', 'edit_rejected') and not (corrected_rejection or corrected_uncertain):
                 results.append(dict(bvid=bvid, status=transaction['status'])); continue
             payload = payload_for(current, item, transaction['cover'], transaction.get('filename'))
             transaction.update(status='edit_requested', payload_schema_version=3); persist()

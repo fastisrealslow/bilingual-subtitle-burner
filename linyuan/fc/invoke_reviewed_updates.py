@@ -5,6 +5,15 @@ import json
 import os
 from pathlib import Path
 import time
+import urllib.request
+
+
+def persisted_receipts():
+    url = 'https://raw.githubusercontent.com/fastisrealslow/bilingual-subtitle-burner/main/linyuan/.automation/fc_state.json?t=' + str(time.time_ns())
+    with urllib.request.urlopen(url, timeout=30) as response:
+        state = json.load(response)
+    return {b:state.get('reviewed_updates_0910',{}).get(b,{}) for b in
+        ('BV16vYT6ME5s','BV16QYK6qEwm','BV1hmYt6SEJd')}
 
 
 def main():
@@ -62,11 +71,17 @@ def main():
         except (ValueError, TypeError):
             result = {'error':'Invalid task return payload'}
         record = {'task_id':task_id,'task_status':task.status,'result':result}
+        receipts = persisted_receipts()
+        record['receipts'] = {b:{k:v.get(k) for k in ('status','title','cover','api_code','api_message','verified_at')}
+                              for b,v in receipts.items()}
         Path('reviewed-updates-verification.json').write_text(json.dumps(record,ensure_ascii=False,indent=2))
         print(json.dumps(record,ensure_ascii=False),flush=True)
-        if task.status == 'Succeeded' and result.get('status') in ('verified','already_verified'):
+        if all(v.get('status')=='verified' for v in receipts.values()):
             return
-        if task.status == 'Succeeded' and result.get('publisher_busy') and time.monotonic() < deadline:
+        if any(v.get('status')=='edit_rejected' and v.get('payload_schema_version',1)>=3
+               for v in receipts.values()):
+            raise SystemExit('Bilibili rejected the corrected payload; inspect persisted message')
+        if task.status == 'Succeeded' and time.monotonic() < deadline:
             time.sleep(20)
             continue
         raise SystemExit('Tracked update completed without all three verified receipts')
