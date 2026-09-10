@@ -3,7 +3,7 @@
   "validation_sha256": "d0889bd23a2bc93baa3fe2fbeb159eb75d5db3e78c4159c4de80d98b6275ddf2",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789023843,
+  "updated_at": 1789023990,
   "materials": {
     "weibo_search": {
       "records": 1106,
@@ -6217,7 +6217,14 @@
           "ly-0910-690-text-boundaries"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-690-text-boundaries",
+            "stage": "render-layout",
+            "terminal": true,
+            "reason": "已核对的329.4–456.6秒问答，在400.30秒遇到茅台插图，连续2.03秒无人脸；该选段不适配当前真人窗口，并非无完整话题"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7450,7 +7457,8 @@
       "BV1nt4y1o74A": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -7495,7 +7503,7 @@
       }
     }
   },
-  "in_flight_placeholders": 5,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-0909-ba9f87",
