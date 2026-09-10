@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "validation_sha256": "2d5af407ddbfb1846d9f5d9e49ce381171b128d03f0cad5e5ba60cdc2071fb4d",
+  "validation_sha256": "9489f77db1d692610e7d2e83d37cffdbae5a628c9e9fc370ebb34d5036500d2e",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789027775,
+  "updated_at": 1789028757,
   "materials": {
     "weibo_search": {
       "records": 1106,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 18,
-    "verified_audio_card": 8,
-    "daily_mix_usable": 21,
+    "verified_live": 17,
+    "verified_audio_card": 7,
+    "daily_mix_usable": 20,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6015,13 +6015,11 @@
         "slugs": [
           "ly-0909-79a7be"
         ],
-        "source_sha256": [
-          "eae8b97939bd2994489b8f6f3e2bc7fad1e9300aaa6205c7c355225dfd615448"
-        ],
+        "source_sha256": [],
         "failures": [],
-        "verified_available": 1,
+        "verified_available": 0,
         "verified_live": 0,
-        "verified_seconds": 158.0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6215,12 +6213,12 @@
         "slugs": [
           "ly-0909-18d8c2",
           "ly-0910-690-text-boundaries",
+          "ly-0910-interview-clean-v3",
+          "ly-0910-interview-clean-v4",
           "ly-0910-interview-context-v2",
           "ly-0910-native-context-v1"
         ],
-        "source_sha256": [
-          "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e"
-        ],
+        "source_sha256": [],
         "failures": [
           {
             "slug": "ly-0910-690-text-boundaries",
@@ -6233,11 +6231,29 @@
             "stage": "render-review",
             "terminal": true,
             "reason": "成片人工复检：原源巨大强调字仍干扰画面，暂不进入发布队列，改用访谈适配重做"
+          },
+          {
+            "slug": "ly-0910-interview-context-v2",
+            "stage": "render-review",
+            "terminal": true,
+            "reason": "实际成片复看发现5处原片大字遮挡，已转入清理重做，不进入发布队列"
+          },
+          {
+            "slug": "ly-0910-interview-clean-v3",
+            "stage": "render-review",
+            "terminal": true,
+            "reason": "资料图表底部裁字，已更新为完整的原访谈数据对比卡，等待新版本实测"
+          },
+          {
+            "slug": "ly-0910-interview-clean-v4",
+            "stage": "review-pending",
+            "terminal": true,
+            "reason": "同源修复成片等待实际MP4复看，验收后解除保留"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 127.2,
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -7300,8 +7316,8 @@
         "attempted_mothers": 1,
         "verified_available": 2,
         "verified_seconds": 353.3,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7313,8 +7329,8 @@
         "attempted_mothers": 1,
         "verified_available": 4,
         "verified_seconds": 598.1,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -7409,8 +7425,8 @@
       },
       "BV1Ng4y1w78M": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 158.0
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV1bgbc64EwH": {
         "attempted_mothers": 1,
@@ -7467,10 +7483,11 @@
       },
       "BV1nt4y1o74A": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 127.2,
+        "verified_available": 0,
+        "verified_seconds": 0,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_review-pending": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -7515,42 +7532,13 @@
       }
     }
   },
-  "in_flight_placeholders": 5,
+  "in_flight_placeholders": 4,
   "artifacts": [
-    {
-      "slug": "ly-0910-interview-context-v2",
-      "artifact_id": 10142419417,
-      "run_id": 34452710525,
-      "checked_at": 1789027628,
-      "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：这个时候你只需要考虑财务",
-          "duration_sec": 127.2,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
-          "segments": [
-            {
-              "start": 329.4,
-              "end": 456.6,
-              "reason": "选择白酒的消费逻辑，以及持有时为何看财务而不是股价"
-            }
-          ],
-          "sha256": "7fdd7283d88845541fba8bc12ed1d2d76e8247e8ccb6aa250e36a7696c6e1c93",
-          "subtitle_sha256": "550af232ae24bdbdaefea35da439a6646f2ef2b0ac3918da841842adc3f13ebd",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
     {
       "slug": "ly-0909-ba9f87",
       "artifact_id": 10136625491,
       "run_id": 34434046456,
-      "checked_at": 1789027634,
+      "checked_at": 1789028645,
       "source_url": "https://www.bilibili.com/video/BV1oD421L7T7",
       "parts": [
         {
@@ -7579,7 +7567,7 @@
       "slug": "ly-0909-1c3654",
       "artifact_id": 10130146974,
       "run_id": 34417772252,
-      "checked_at": 1789027639,
+      "checked_at": 1789028650,
       "source_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
       "parts": [
         {
@@ -7628,7 +7616,7 @@
       "slug": "ly-0909-2ee3a5",
       "artifact_id": 10122569091,
       "run_id": 34390237087,
-      "checked_at": 1789027647,
+      "checked_at": 1789028657,
       "source_url": "https://www.bilibili.com/video/BV1z1U5BZEMe",
       "parts": [
         {
@@ -7657,7 +7645,7 @@
       "slug": "ly-0909-2e376f",
       "artifact_id": 10122199650,
       "run_id": 34390165324,
-      "checked_at": 1789027654,
+      "checked_at": 1789028661,
       "source_url": "https://www.bilibili.com/video/BV1Z6SEBrEdQ",
       "parts": [
         {
@@ -7686,7 +7674,7 @@
       "slug": "ly-0909-c1fe7f",
       "artifact_id": 10120677603,
       "run_id": 34390201344,
-      "checked_at": 1789027660,
+      "checked_at": 1789028667,
       "source_url": "https://www.bilibili.com/video/BV1r5411B7qK",
       "parts": [
         {
@@ -7735,7 +7723,7 @@
       "slug": "ly-0909-f1dc1a",
       "artifact_id": 10119979612,
       "run_id": 34390184471,
-      "checked_at": 1789027668,
+      "checked_at": 1789028672,
       "source_url": "https://www.bilibili.com/video/BV12A6jBdE8q",
       "parts": [
         {
@@ -7764,7 +7752,7 @@
       "slug": "ly-0909-703b35",
       "artifact_id": 10104193325,
       "run_id": 34346142451,
-      "checked_at": 1789027674,
+      "checked_at": 1789028677,
       "source_url": "https://www.bilibili.com/video/BV1gBfCBpEFj",
       "parts": [
         {
@@ -7833,7 +7821,7 @@
       "slug": "ly-0909-15ef03",
       "artifact_id": 10103517884,
       "run_id": 34345597964,
-      "checked_at": 1789027691,
+      "checked_at": 1789028692,
       "source_url": "https://www.bilibili.com/video/BV1Ke41127bL",
       "parts": [
         {
@@ -7882,7 +7870,7 @@
       "slug": "ly-0909-09068a-caption11",
       "artifact_id": 10103240749,
       "run_id": 34349062231,
-      "checked_at": 1789027710,
+      "checked_at": 1789028704,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -7911,7 +7899,7 @@
       "slug": "ly-0909-2d63c1",
       "artifact_id": 10103061164,
       "run_id": 34343872605,
-      "checked_at": 1789027714,
+      "checked_at": 1789028707,
       "source_url": "https://www.bilibili.com/video/BV16Vjj6xEJy",
       "parts": [
         {
@@ -7980,7 +7968,7 @@
       "slug": "ly-0909-7c4660-caption11",
       "artifact_id": 10102818302,
       "run_id": 34345901687,
-      "checked_at": 1789027725,
+      "checked_at": 1789028717,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8009,7 +7997,7 @@
       "slug": "ly-0909-7c4660-sourceqa22",
       "artifact_id": 10102607333,
       "run_id": 34347097575,
-      "checked_at": 1789027727,
+      "checked_at": 1789028719,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8058,7 +8046,7 @@
       "slug": "ly-0909-7c4660-packaging20",
       "artifact_id": 10102285281,
       "run_id": 34346675033,
-      "checked_at": 1789027736,
+      "checked_at": 1789028727,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8087,7 +8075,7 @@
       "slug": "ly-0909-09068a-packaging21",
       "artifact_id": 10102231141,
       "run_id": 34346681400,
-      "checked_at": 1789027741,
+      "checked_at": 1789028732,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -8116,7 +8104,7 @@
       "slug": "ly-0909-7c4660-tracked18",
       "artifact_id": 10101599308,
       "run_id": 34345123664,
-      "checked_at": 1789027748,
+      "checked_at": 1789028737,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8145,7 +8133,7 @@
       "slug": "ly-0909-09068a-tracked15",
       "artifact_id": 10101393434,
       "run_id": 34343086627,
-      "checked_at": 1789027750,
+      "checked_at": 1789028739,
       "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
       "parts": [
         {
@@ -8174,7 +8162,7 @@
       "slug": "ly-0909-29cff8-deps11",
       "artifact_id": 10100778897,
       "run_id": 34339664313,
-      "checked_at": 1789027753,
+      "checked_at": 1789028741,
       "source_url": "https://www.bilibili.com/video/BV1TkfCBSEN5",
       "parts": [
         {
@@ -8223,7 +8211,7 @@
       "slug": "ly-0909-7c4660-tracked14",
       "artifact_id": 10100628219,
       "run_id": 34342158327,
-      "checked_at": 1789027765,
+      "checked_at": 1789028752,
       "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
       "parts": [
         {
@@ -8243,35 +8231,6 @@
           ],
           "sha256": "367de99ecaceba3efc88191748ddc0a8ac855d0bbb788aca756f925f61c906de",
           "subtitle_sha256": "4ac055918542a75298859e4884b829b67b88634b9b160442a827be1129845a2c",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-79a7be",
-      "artifact_id": 10099291013,
-      "run_id": 34338670416,
-      "checked_at": 1789027770,
-      "source_url": "https://www.bilibili.com/video/BV1Ng4y1w78M",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：我相信啊，随着这个这个人口老龄化",
-          "duration_sec": 158.0,
-          "render_mode": "audio_card",
-          "content_type": null,
-          "source_sha256": "eae8b97939bd2994489b8f6f3e2bc7fad1e9300aaa6205c7c355225dfd615448",
-          "segments": [
-            {
-              "start": 8.48,
-              "end": 166.44,
-              "reason": "在讨论中国低出生率和人口增速放缓背景下，养老行业投资价值的判断。从第3句开始，明确指出低出生率问题对投资的影响，提出养老行业作为唯一可统计的选项，强调即使出生率不解决，养老行业仍具投资价值。通过对比存入银行的保守策略与实际市场操作的矛盾，说明投资者无法空仓，必须将资金投入市场。最后结合人口老龄化趋势，提出通过多生育解决社会问题的观点，形成完整逻辑链：问题背景→投资困境→行业选择→社会贡献价值。时长计算：第3句（8.48-12.32秒）到第59句（165.64-166.44秒）共120.28秒，符合120-180秒要求。保留原话，不修正ASR内容，确保观点连贯、有理由、有案例。"
-            }
-          ],
-          "sha256": "a1a14e63aac49b351bc865ba85f5c01ac414cc7a1fec6ee3e9fe3d8006ca53fb",
-          "subtitle_sha256": "bca0f19c72206368e9a749df54a77a5e74045f2640dfbfc29a5b33b6352a4f7d",
           "status": "verified",
           "reason": null
         }
