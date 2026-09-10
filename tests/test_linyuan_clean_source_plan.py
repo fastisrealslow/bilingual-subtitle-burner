@@ -177,6 +177,76 @@ def test_deep_subtitle_band_is_not_cropped_past_the_safe_limit(monkeypatch):
     assert P.safe_crop_plan(Path("dirty.mp4"), 1280, 720, max_cut=0.24) is None
 
 
+@pytest.mark.parametrize('begin,end',[(86,89),(91,94)])
+def test_narrow_persistent_subtitles_are_not_diluted_by_empty_rows(monkeypatch,begin,end):
+    coverage=[0.0]*100;coverage[begin:end]=[1.0]*(end-begin)
+    monkeypatch.setattr(P,'_face_survives',lambda *a,**k:True)
+    crop=P.safe_crop_plan(Path('source.mp4'),1920,1080,coverage=coverage)
+    assert crop is not None
+    width,height,x,y=crop
+    assert width==1920 and x==y==0
+    assert 480<=height<1080*begin/100
+
+
+def test_sparse_original_illustration_is_not_a_persistent_subtitle_band(monkeypatch):
+    coverage=[0.0]*100;coverage[65:95]=[.25]*30
+    assert P.safe_crop_plan(Path('source.mp4'),1920,1080,coverage=coverage) is None
+
+
+def test_strict_ocr_failure_cannot_approve_a_native_picture(monkeypatch,tmp_path):
+    def unavailable():raise RuntimeError('OCR unavailable')
+    monkeypatch.setattr(P,'_ocr',unavailable)
+    with pytest.raises(P.VisualQualityError,match='未完成'):
+        P.ocr_row_coverage(tmp_path/'source.mp4',strict=True)
+    with pytest.raises(P.VisualQualityError,match='未完成'):
+        P.has_existing_subtitles(tmp_path/'source.mp4',strict=True)
+
+
+def test_overwritten_preview_and_sample_count_do_not_reuse_old_ocr(monkeypatch,tmp_path):
+    import cv2
+    src=tmp_path/'preview.mp4';calls=[]
+    def video(value):
+        writer=cv2.VideoWriter(str(src),cv2.VideoWriter_fourcc(*'mp4v'),10,(80,80))
+        for _ in range(20):writer.write(np.full((80,80,3),value,dtype=np.uint8))
+        writer.release()
+    def engine(frame,**kwargs):
+        calls.append(1)
+        return ([[[10,60],[70,60],[70,65],[10,65]]] if frame.mean()<20 else []),None
+    monkeypatch.setattr(P,'_ocr',lambda:engine)
+    video(0)
+    assert P.ocr_row_coverage(src,frames=2,strict=True)[75]==1
+    assert P.ocr_row_coverage(src,frames=3,strict=True)[75]==1
+    assert len(calls)==5
+    video(240)
+    assert not any(P.ocr_row_coverage(src,frames=3,strict=True))
+    assert len(calls)==8
+
+
+@pytest.mark.parametrize('still_dirty',[False,True])
+def test_selected_native_plan_checks_whole_interval_and_keeps_native_pixels(monkeypatch,tmp_path,still_dirty):
+    commands=[]
+    coverage=[0.0]*100;coverage[90:94]=[.8]*4
+    monkeypatch.setattr(P.subprocess,'run',lambda cmd,**kw:commands.append(cmd))
+    monkeypatch.setattr(P,'ocr_row_coverage',lambda *a,**kw:coverage)
+    monkeypatch.setattr(P,'_face_survives',lambda *a,**kw:True)
+    monkeypatch.setattr(P,'detect_corner_logos',lambda *a,**kw:[])
+    monkeypatch.setattr(P,'has_existing_subtitles',lambda *a,**kw:still_dirty)
+    plan=P.selected_native_clean_plan('mother.mp4',tmp_path,1838,1080,329.4,456.6)
+    cmd=commands[0]
+    assert float(cmd[cmd.index('-ss')+1])==329.4
+    assert float(cmd[cmd.index('-t')+1])==pytest.approx(127.2)
+    assert cmd[cmd.index('-vf')+1]=='fps=2'
+    proof=json.loads((tmp_path/'native-plan.json').read_text())
+    assert proof['passed'] is (not still_dirty)
+    if still_dirty:
+        assert plan is None
+    else:
+        assert plan['clean_strategy']=='crop'
+        assert plan['clean_output_resolution']['width']==1838
+        assert 'scale=' not in plan['clean_video_filter']
+        assert plan['native_context_proof']['sampled_frames']==12
+
+
 def test_audio_card_fails_closed_without_chinese_font(monkeypatch, tmp_path):
     real_exists = Path.exists
 

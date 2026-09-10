@@ -2568,6 +2568,59 @@ def build_clean_source_plan(src, work, width, height, duration,
     }
 
 
+def selected_native_clean_plan(src, work, width, height, start, end):
+    """Reassess the selected interview before forcing a face-only window.
+
+    A mother-level card decision can come from an unrelated introduction or a
+    missed narrow subtitle band. Keep camera cuts and original illustrations
+    when the actual interval can be cropped cleanly at native resolution.
+    """
+    if width<=height or end<=start:return None
+    work=Path(work);work.mkdir(parents=True,exist_ok=True)
+    sample=work/'source-sample.mp4';cleaned=work/'clean-sample.mp4'
+    proof=dict(version=1,source_start=start,source_end=end,
+               source_resolution=[width,height],passed=False)
+    try:
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(start),
+            '-i',str(src),'-t',str(end-start),'-vf','fps=2','-an',
+            '-c:v','libx264','-preset','ultrafast','-crf','23','-threads','2',str(sample)],
+            check=True,capture_output=True,timeout=180)
+        # This fallback must not interpret an unavailable OCR service as a
+        # clean frame. It is useful even when the old mother cache says card.
+        before=ocr_row_coverage(sample,frames=12,strict=True)
+        crop=safe_crop_plan(sample,width,height,coverage=before)
+        if crop is None:
+            raise VisualQualityError('选段没有可验证的原画裁切方案')
+        cw,ch,cx,cy=crop
+        if min(cw,ch)<MIN_SHORT_EDGE:
+            raise VisualQualityError('原画裁切后短边不足，不能放大冒充清晰源')
+        logos=detect_corner_logos(sample,frames=12,strict=True)
+        filters=[delogo_filter(logos,width,height) if logos else '',
+                 f'crop={cw}:{ch}:{cx}:{cy}']
+        vf=','.join(x for x in filters if x)
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(sample),
+            '-vf',vf,'-an','-c:v','libx264','-preset','ultrafast','-crf','23',
+            '-threads','2',str(cleaned)],check=True,capture_output=True,timeout=120)
+        if has_existing_subtitles(cleaned,strict=True,frames=12):
+            raise VisualQualityError('裁切后仍有持续原字幕或大标题')
+        if detect_corner_logos(cleaned,frames=12,strict=True):
+            raise VisualQualityError('裁切后仍有来源角标')
+        proof.update(passed=True,video_filter=vf,crop_xywh=[cx,cy,cw,ch],
+                     sampled_frames=12,raw_row_coverage=before,
+                     clean_row_coverage=ocr_row_coverage(cleaned,frames=12,strict=True),
+                     old_subtitles_removed=True,external_logos_removed=True)
+        print(f'[原画适配] {start:.2f}–{end:.2f}秒可裁净旧字幕，保留横屏切镜和原始插图：{cw}x{ch}',flush=True)
+        return dict(clean_strategy='crop_delogo' if logos else 'crop',
+            clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=ch),
+            native_context_proof=proof,geometry_source=str(sample))
+    except (VisualQualityError,subprocess.SubprocessError,OSError,ValueError) as exc:
+        proof['reason']=str(exc)
+        print('[原画适配] 未通过，继续按既有版式检查：'+str(exc),flush=True)
+        return None
+    finally:
+        (work/'native-plan.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+
+
 def _inside_brand_watermark_region(box, width, height):
     """判断 OCR 框是否属于我们刚叠加的右上角水印，供外部角标复检排除。"""
     x0, y0, x1, y1 = box
@@ -3472,7 +3525,7 @@ def _has_persistent_editorial_overlay(cov, stable=0.50, min_rows=8):
     return False
 
 
-def has_existing_subtitles(src):
+def has_existing_subtitles(src, strict=False, frames=8):
     """检测视频是否已有硬字幕或持续编辑包装。
 
     2026-08-21 修复:旧版亮度阈值法把「画面偏亮」误判成「有字幕」
@@ -3488,7 +3541,7 @@ def has_existing_subtitles(src):
     # 条带约 5%~12%，因此会误判为无字幕并再次烧录。OCR 只关心文字框，且
     # 以多帧持续出现为条件，可排除偶发 PPT/图表文字。
     try:
-        cov = ocr_row_coverage(src, frames=8)
+        cov = ocr_row_coverage(src, frames=frames,strict=strict)
         # 上半屏持续的大标题/信息卡同样会与我们的包装叠加。它不能按小角标
         # delogo，否则会留下大片模糊区域；统一标脏，交给音频卡重建。
         if _has_persistent_editorial_overlay(cov):
@@ -3501,6 +3554,8 @@ def has_existing_subtitles(src):
             if run >= 2:
                 return True
     except Exception as e:
+        if strict:
+            raise VisualQualityError('字幕检测未完成，不能放行原画') from e
         print(f"[字幕检测] OCR 检测失败，回退像素检测: {e}", file=sys.stderr)
 
     try:
@@ -3583,11 +3638,11 @@ def _ocr():
     global _OCR_ENGINE
     if _OCR_ENGINE is None:
         from rapidocr_onnxruntime import RapidOCR
-        _OCR_ENGINE = RapidOCR()
+        _OCR_ENGINE = RapidOCR(intra_op_num_threads=2,inter_op_num_threads=1)
     return _OCR_ENGINE
 
 
-def ocr_row_coverage(src, frames=6, max_w=640):
+def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
     """抽帧 OCR，统计每 1% 行位置被文字框覆盖的「帧比例」(长度 100 的列表)。
 
     2026-09-01 换掉原来的 Canny 边缘密度方案：边缘密度会把人物轮廓、K线图、
@@ -3595,7 +3650,9 @@ def ocr_row_coverage(src, frames=6, max_w=640):
     OCR 全部命中（含之前漏掉的「红星资本局」「金融界 JRJ.com」台标）。
     用「帧比例」而不是单帧结果，是为了区分常驻贴片和一闪而过的内容。
     """
-    key = str(src)
+    path=Path(src)
+    stamp=(path.stat().st_mtime_ns,path.stat().st_size) if path.exists() else None
+    key = (str(path),stamp,frames,max_w,strict)
     if key in _OCR_COV_CACHE:
         return _OCR_COV_CACHE[key]
     cov = [0.0] * 100
@@ -3626,9 +3683,13 @@ def ocr_row_coverage(src, frames=6, max_w=640):
                 rows[a:b] = True
             hit += rows
         cap.release()
+        if strict and got!=frames:
+            raise VisualQualityError(f'OCR实际抽帧不足：{got}/{frames}')
         if got:
             cov = (hit / got).tolist()
     except Exception as e:
+        if strict:
+            raise VisualQualityError('OCR未完成，不能证明原画字幕已清理') from e
         print(f"[OCR] 行覆盖统计失败: {e}", file=sys.stderr)
     _OCR_COV_CACHE[key] = cov
     return cov
@@ -3823,7 +3884,7 @@ def delogo_filter(boxes, W, H, pad=4):
     return ",".join(parts)
 
 
-def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):
+def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30, coverage=None):
     """算安全裁切方案 (crop_w, crop_h, crop_x, crop_y)，只为「腾出干净的字幕位」。
 
     历史教训（2026-09-01 三次迭代）：
@@ -3838,7 +3899,7 @@ def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):
       max_cut 总裁切上限（当前生产30%）；裁后仍须保留人脸和通过成片复检。
               超过调用方设定上限不再硬切，转人物卡重建。
     """
-    cov = ocr_row_coverage(src)
+    cov = ocr_row_coverage(src) if coverage is None else coverage
     if not any(cov):
         return None
     # 第一步永远是：底部本来就干净吗？干净就别裁。
@@ -3849,9 +3910,15 @@ def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30):
     # 检查窗口取 70~90%：2026-09-02 实测 5 条真实素材，字幕带集中在 65~87%，
     # 而 90~100% 普遍是 0.00（视频底部有安全边距）。
     # 最初用 85~100% 做窗口，正好落在空白区，把 8 条本该裁的误判成「干净」。
-    bottom_now = sum(cov[70:90]) / 20
-    if bottom_now <= clean:
-        print(f"[裁切] 字幕区本就干净（70~90% 覆盖 {bottom_now:.0%}），无需裁切")
+    # A narrow persistent subtitle occupies only 2–4% of image height. Averaging
+    # it over 20 rows incorrectly called it clean, especially below row 90.
+    # Use the same consecutive-row evidence as the hard-subtitle detector.
+    band_run=0; persistent_band=False
+    for coverage in cov[55:98]:
+        band_run=band_run+1 if coverage>=stable else 0
+        if band_run>=2:persistent_band=True;break
+    if not persistent_band:
+        print('[裁切] 未检出持续底部字幕带，无需裁切')
         return None
     # 从底部往上找「最底下那一块连续文字」，只裁它。
     # 上一版是「35% 内出现任何文字就一路裁到那里」，结果 26 条全部触顶放弃（0 条裁切）。
@@ -4523,6 +4590,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
     source_report = source_report or {}
     strategy = source_report.get("clean_strategy", "direct")
+    native_plan=None
+    if strategy=='audio_card' and prefer_live_video and len(picks)==1:
+        native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
+            cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'])
+        if native_plan:
+            source_report={**source_report,**native_plan}
+            strategy=source_report['clean_strategy']
     clean_vf = source_report.get("clean_video_filter") or f"crop={W//2*2}:{H//2*2}:0:0"
     clean_resolution = source_report.get("clean_output_resolution") or {}
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
@@ -4533,7 +4607,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         # actual cleaned source before deciding caption and watermark geometry.
         from source_geometry import refine_native_crop
         clean_vf, crop_w, crop_h, border_proof = refine_native_crop(
-            src, clean_vf, crop_w, crop_h, work, minimum=MIN_SHORT_EDGE)
+            source_report.get('geometry_source') or src, clean_vf, crop_w, crop_h, work, minimum=MIN_SHORT_EDGE)
         (work / f'border_geometry{suffix}.json').write_text(
             json.dumps(border_proof, ensure_ascii=False, indent=2))
     _logos = source_report.get("detected_corner_logos") or []
@@ -4779,6 +4853,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "watermark_removed": strategy != "direct",
         "watermark_verified": True,
         "clean_strategy": strategy,
+        "native_context_proof":(native_plan or {}).get('native_context_proof'),
         "audio_card_template": (AUDIO_CARD_TEMPLATE
                                 if strategy == "audio_card" else None),
         "render_mode": ("live_video_card" if use_live_video
