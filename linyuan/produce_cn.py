@@ -180,6 +180,10 @@ class LocalTextUnavailable(EditorialReviewUnavailable):
     """Local inference did not finish; do not reject or cache an empty selection."""
 
 
+class SelectionIncomplete(LocalTextUnavailable):
+    """The editor did not assess the remaining candidates; not a source verdict."""
+
+
 class PartProductionUnavailable(EditorialReviewUnavailable):
     """A production time limit is retryable, not evidence of bad source content."""
 
@@ -1444,25 +1448,38 @@ def parse_llm_json_array(out):
         return objs
     raise RuntimeError(f"金句 JSON 所有修复策略均失败:{raw[:300]}")
 def argument_context_candidates(cues,seeds):
-    """Offer only real continuous long contexts around model-selected ideas."""
+    """Offer complete sentences, including nearby natural answer endings.
+
+    ASR display rows are not sentence boundaries. Snapping a 120-second window
+    to one such row both cut sentences and missed slightly longer answers.
+    Candidates still need an editorial decision; duration is not approval.
+    """
+    from source_selection import sentence_units, boundary_error
+    units=sentence_units(cues)
     ranges={}
     for seed in seeds:
         lo,hi=seed.get('start'),seed.get('end')
         if type(lo) is not int or type(hi) is not int or not 0<=lo<=hi<len(cues):
             continue
+        openings=[u['start'] for u in units if u['start']<=lo]
+        if not openings:continue
         start_options=set()
         for lookback in (0,15,30,60,90):
             stamp=cues[lo]['start']-lookback
-            a=min(range(lo+1),key=lambda i:abs(cues[i]['start']-stamp))
+            a=min(openings,key=lambda i:abs(cues[i]['start']-stamp))
             start_options.add(a)
         for a in sorted(start_options):
-            for length in (120,150,180,210,240,300):
-                ends=[j for j in range(max(a,hi),len(cues))
-                      if cues[j]['end']-cues[a]['start']>=editorial.MIN_SECONDS]
-                if not ends:continue
-                b=min(ends,key=lambda j:abs(cues[j]['end']-cues[a]['start']-length))
+            ends=[u['end'] for u in units if u['end']>=hi
+                  and editorial.MIN_SECONDS<=cues[u['end']]['end']-cues[a]['start']<=330]
+            if not ends:continue
+            # Keep every sentence ending in the preferred 2–3 minute range,
+            # rather than offering only the first row crossing 120 seconds.
+            chosen={b for b in ends if cues[b]['end']-cues[a]['start']<=180}
+            for length in (210,240,300):
+                chosen.add(min(ends,key=lambda j:abs(cues[j]['end']-cues[a]['start']-length)))
+            for b in sorted(chosen):
                 seconds=cues[b]['end']-cues[a]['start']
-                if seconds<=330:
+                if not boundary_error(cues,dict(start=a,end=b)):
                     ranges[(a,b)]={'start':a,'end':b,'duration_sec':round(seconds,2)}
     return [dict(row,candidate_id=i) for i,row in enumerate(ranges.values())]
 
@@ -1490,7 +1507,9 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         raise ValueError('原选段没有有效字幕编号，不能判定素材不合格')
     choices=argument_context_candidates(cues,seeds)
     if not choices:return []
-    transcript='\n'.join(f"{i}|{c['text']}" for i,c in enumerate(cues))
+    (work/f'context_candidates{suffix}.json').write_text(json.dumps(choices,ensure_ascii=False,indent=2))
+    transcript='\n'.join(f"字幕{u['start']}-{u['end']}|{u['text']}"
+                         for u in editorial_sentence_units(cues))
     # The complete numbered transcript already contains every opening/ending.
     # Repeating those strings for 30-60 overlapping ranges inflated real CPU
     # prompts past 12k chars (#632), without adding any source evidence.
@@ -1502,13 +1521,15 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         '无关问题拼在一起、寒暄开场、缺必要解释、残句结束必须拒绝。'
         '可以选较长候选保留同主题追问，不得改写文字。没有合格候选就返回[]。'
         '只输出JSON对象，picks字段为数组，每项candidate_id,accepted,score,reason。'
-        '只有上述条件全部满足才设accepted=true，否则设false；无合格项返回{"picks":[]}。'
+        '只返回接受的候选并设accepted=true；检查全部候选后仍无合格项才返回{"picks":[]}。'
+        '不要用一两条拒绝结果代替对其余候选的判断。'
         '不得自行填写起止序号或时长，程序按candidate_id取真实区间。\n完整原文：\n'+transcript+
         '\n候选：\n'+json.dumps(table,ensure_ascii=False))
     answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=512,
                budget_sec=text_budget(90),response_schema=selection_schema(candidate_count=len(choices)))
     (work/f'context_response{suffix}.txt').write_text(answer)
     selected=[]
+    rejected_ids=set()
     for row in parse_llm_json_array(answer):
         if not isinstance(row,dict) or type(row.get('accepted')) is not bool:
             raise ValueError('连续上下文缺少明确接受或拒绝结论')
@@ -1516,6 +1537,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         if type(i) is not int or not 0<=i<len(choices):
             raise ValueError('连续上下文候选ID无效，未形成内容判定')
         if row.get('accepted') is False or float(row.get('score',0))<MIN_HIGHLIGHT_SCORE:
+            rejected_ids.add(i)
             continue
         choice=choices[i]
         from source_selection import boundary_error
@@ -1524,6 +1546,11 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         if any(not(choice['end']<p['start'] or choice['start']>p['end']) for p in selected):
             continue
         selected.append(dict(start=choice['start'],end=choice['end'],score=row['score'],reason=row.get('reason','')))
+    # A response rejecting only two IDs does not reject the other candidates.
+    # Keep the ASR available for bounded recovery instead of banning the source.
+    if not selected and rejected_ids and len(rejected_ids)<len(choices):
+        raise SelectionIncomplete(
+            f'连续上下文仅明确拒绝{len(rejected_ids)}/{len(choices)}个候选，选段未完成；保留ASR，不判整源无合格片')
     return selected[:2]
 
 
@@ -1545,7 +1572,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 10}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 11}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -4953,13 +4980,14 @@ def main():
                     suffix=f"_block_{block_no}", target_sec=TARGET_SEC,
                     allow_empty=True)
             except LocalTextUnavailable as exc:
-                selection_failures.append(dict(stage='editorial-service',part=block_no,
+                selection_failures.append(dict(stage='editorial-selection' if isinstance(exc,SelectionIncomplete)
+                    else 'editorial-service',part=block_no,
                     reason=str(exc),error_type=type(exc).__name__,retryable=True))
                 print(f'[完整观点] 运行故障，保留第{block_no}块原始转写：{exc}',flush=True)
                 continue
             if not picks:
                 selection_failures.append(dict(stage='editorial-selection', part=block_no,
-                    reason='已完成选段：没有至少120秒的同一主题连续完整区间，禁止拼接短话题凑数',
+                    reason='本轮选段没有返回通过120秒和连续上下文检查的候选',
                     error_type='NoEligibleArgument', retryable=False))
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])
