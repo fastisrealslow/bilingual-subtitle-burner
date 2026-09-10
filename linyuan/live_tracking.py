@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import subprocess
 import math
+from collections import deque
 
 
 def frame_interval(start,duration,fps,total_frames):
@@ -73,6 +74,32 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     output=Path(output); log=output.with_suffix('.ffmpeg.log')
     matched=0;missing=0;longest_missing=0;previous=None;first=None;last=None
     other_faces=0;no_face=0;blank_streak=0
+    decoded=0;encoded=0;frame=None;n=0;recent=deque(maxlen=7)
+    last_target_time=None
+
+    def evidence(error=None):
+        proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
+            source_first_frame=first_frame,encoded_duration=encoded/fps,
+            frames=count,decoded_frames=decoded,encoded_frames=encoded,
+            matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
+            longest_unmatched_seconds=longest_missing/fps,
+            first_crop=first,last_crop=last,threshold=threshold,
+            passed=error is None and matched/count>=.8,matched_ratio=matched/count)
+        if error is not None:
+            directory=output.with_suffix('.evidence');directory.mkdir(exist_ok=True)
+            samples=[]
+            for index,jpeg in recent:
+                name=f'source-{first_frame+index}.jpg'
+                (directory/name).write_bytes(jpeg)
+                samples.append(dict(file=name,source_time=(first_frame+index)/fps))
+            if frame is not None:
+                cv2.imwrite(str(directory/'failure.jpg'),frame)
+            proof.update(error=str(error),failure_source_time=(first_frame+n)/fps,
+                failure_relative_time=n/fps,last_target_source_time=last_target_time,
+                consecutive_no_face_seconds=blank_streak/fps,
+                evidence_directory=directory.name,samples=samples)
+        output.with_suffix('.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        return proof
     with log.open('wb') as errors:
         proc=subprocess.Popen(['ffmpeg','-y','-loglevel','error','-f','rawvideo',
             '-pix_fmt','bgr24','-s','632x470','-r',str(fps),'-i','-',
@@ -82,6 +109,10 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             for n in range(count):
                 ok,frame=cap.read()
                 if not ok:raise ValueError(f'动态取景解码提前结束：实际{n}/{count}帧，起始帧{first_frame}，fps={fps}')
+                decoded+=1
+                if n%max(1,round(fps/2))==0:
+                    saved,jpeg=cv2.imencode('.jpg',frame)
+                    if saved:recent.append((n,jpeg.tobytes()))
                 height,width=frame.shape[:2]; candidates=[]
                 detected=faces(frame)
                 for face in detected:
@@ -94,6 +125,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 if candidates:
                     score,face=max(candidates,key=lambda row:row[0])
                     box=crop_box(face,width,height,exclusions=exclusions);matched+=1;missing=0;blank_streak=0
+                    last_target_time=(first_frame+n)/fps
                     if previous is not None:
                         # Smooth ordinary movement, but snap to a new shot immediately.
                         delta=max(abs(box[k]-previous[k]) for k in range(4))
@@ -119,23 +151,23 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 if region.shape[:2]!=(h,w):raise ValueError('动态取景越出源画面')
                 result=cv2.resize(region,(632,470),interpolation=cv2.INTER_LANCZOS4)
                 proc.stdin.write(result.tobytes())
+                encoded+=1
                 if first is None:first=list(box)
                 last=list(box)
                 if n%max(1,round(fps*30))==0:
                     print(f'[动态取景] {n/fps:.0f}/{duration:.0f}s，身份匹配{matched}/{n+1}帧',flush=True)
             proc.stdin.close()
             if proc.wait(timeout=120):raise ValueError('动态取景编码失败：'+log.read_text()[-1000:])
-        except BaseException:
-            proc.kill();proc.wait();output.unlink(missing_ok=True);raise
+        except BaseException as exc:
+            proc.kill();proc.wait();output.unlink(missing_ok=True)
+            try:
+                evidence(exc)
+            except Exception as diagnostic_error:
+                print(f'[取景证据] 保存失败：{diagnostic_error}',flush=True)
+            raise
         finally:
             cap.release()
-    proof=dict(engine='yunet_sface_per_frame_cpu',source_start=start,duration=duration,
-        source_first_frame=first_frame,encoded_duration=count/fps,
-        frames=count,matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
-        longest_unmatched_seconds=longest_missing/fps,
-        first_crop=first,last_crop=last,threshold=threshold,
-        passed=matched/count>=.8,matched_ratio=matched/count)
-    output.with_suffix('.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    proof=evidence()
     if matched/count<.8:
         output.unlink(missing_ok=True)
         raise ValueError(f'动态取景目标人物匹配不足80%：{matched}/{count}帧（{matched/count:.1%}），'

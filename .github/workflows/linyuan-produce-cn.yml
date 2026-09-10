@@ -210,6 +210,15 @@ jobs:
 
       - name: 保存未完成下载供下一次续传
         if: failure() && steps.src.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: 保存完整母片供后续取景失败及选段重试复用
+        if: steps.src.outcome == 'success'
+        continue-on-error: true
         uses: actions/cache/save@v4
         with:
           path: linyuan/_src/
@@ -478,6 +487,7 @@ jobs:
           path: |
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/rejected/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.evidence/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/live-region-*/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/final_identity*/
           retention-days: 14

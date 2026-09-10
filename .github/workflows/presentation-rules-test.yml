@@ -9,6 +9,8 @@ on:
       - tests/test_linyuan_caption_readability.py
       - tests/fixtures/linyuan_readability_0909.json
       - linyuan/produce_cn.py
+      - linyuan/live_tracking.py
+      - tests/test_linyuan_live_tracking.py
       - linyuan/fc/index.py
       - tests/test_linyuan_asr_integrity.py
       - tests/test_linyuan_presentation.py
@@ -35,6 +37,7 @@ jobs:
       - name: 通用字幕、封面、版式和投稿证据回归（不投稿）
         run: >-
           python -m pytest -q tests/test_linyuan_presentation.py
+          tests/test_linyuan_live_tracking.py
           tests/test_linyuan_caption_readability.py tests/test_linyuan_caption_timeout.py
           tests/test_linyuan_headline_policy.py
           tests/test_linyuan_clean_source_plan.py tests/test_linyuan_quality_gates.py
