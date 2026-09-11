@@ -7143,12 +7143,14 @@
    "ts": 1789110208,
    "delay_hours": 0,
    "repair_of": "ly-0910-interview-clean-v4",
-   "failed": false,
-   "stock_upgrade_status": "verified",
+   "failed": true,
+   "stock_upgrade_status": "held",
    "parts_total": 1,
    "published_parts": 0,
    "processed_part_indices": [],
-   "stock_upgrade_run_id": 34572634883
+   "stock_upgrade_run_id": 34572634883,
+   "failure_stage": "stock-upgrade",
+   "stock_upgrade_to": "ly-0910-interview-clean-v4-wide0911"
   },
   {
    "key": "bilibili_search:BV1z1U5BZEMe",
@@ -7351,12 +7353,14 @@
    "ts": 1789111785,
    "delay_hours": 0,
    "repair_of": "ly-0909-2e376f",
-   "failed": false,
-   "stock_upgrade_status": "verified",
+   "failed": true,
+   "stock_upgrade_status": "held",
    "parts_total": 1,
    "published_parts": 0,
    "processed_part_indices": [],
-   "stock_upgrade_run_id": 34574645617
+   "stock_upgrade_run_id": 34574645617,
+   "failure_stage": "stock-upgrade",
+   "stock_upgrade_to": "ly-0909-2e376f-wide0911"
   },
   {
    "key": "bilibili_search:BV1SazbBhE8a",
@@ -7447,7 +7451,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "巴菲特思想研究院",
-   "publish_time": "2026-05-11T03:30:00+00:00"
+   "publish_time": "2026-05-11T03:30:00+00:00",
+   "failed": true,
+   "last_error": "动态取景连续0.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Gs4y1y7Qi",
@@ -7651,7 +7659,50 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "牛市sky",
-   "publish_time": "2026-08-24T02:18:04.917184"
+   "publish_time": "2026-08-24T02:18:04.917184",
+   "failed": true,
+   "last_error": "与已经发布的母片时间段重叠，保留其他完整观点",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
+  },
+  {
+   "key": "bilibili_search:BV1Z6SEBrEdQ",
+   "video_id": "BV1Z6SEBrEdQ",
+   "source_url": "https://www.bilibili.com/video/BV1Z6SEBrEdQ",
+   "asset_url": "https://www.bilibili.com/video/BV1Z6SEBrEdQ",
+   "title": "林园：未来我会不得了（最新采访 2025.11.22）",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-2e376f-wide0911",
+   "ts": 1789118017,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-2e376f-u0911r2",
+   "failed": true,
+   "failure_stage": "stock-upgrade",
+   "stock_upgrade_status": "rendering",
+   "landscape_run_id": 34584204537
+  },
+  {
+   "key": "bilibili_search:BV1nt4y1o74A",
+   "video_id": "BV1nt4y1o74A",
+   "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
+   "asset_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
+   "title": "【格隆对话林园】“中国巴菲特”最新访谈",
+   "source": "reference_origin_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0910-interview-clean-v4-wide0911",
+   "ts": 1789118025,
+   "delay_hours": 0,
+   "repair_of": "ly-0910-interview-clean-v4-u0911r2",
+   "failed": false,
+   "stock_upgrade_status": "verified",
+   "landscape_run_id": 34583845288,
+   "parts_total": 1,
+   "published_parts": 0,
+   "processed_part_indices": [],
+   "stock_upgrade_run_id": 34583845288
   }
  ],
  "pending_retry": [
@@ -25439,6 +25490,20 @@
    "video_id": "BV1Vrbc6KEhF",
    "ts": 1789117783,
    "error": "原始素材短边 330 < 480（640x330），画质不达标"
+  },
+  {
+   "slug": "ly-0911-4f5c14",
+   "key": "weibo_search:5335049207549946",
+   "video_id": "http://f.video.weibocdn.com/o0/OYI9FqlWlx08AdFxiGs001041201Lc3K0E010.mp4",
+   "ts": 1789118955,
+   "error": "与已经发布的母片时间段重叠，保留其他完整观点"
+  },
+  {
+   "slug": "ly-0911-cd3238",
+   "key": "bilibili_search:BV1MU5J6GEAh",
+   "video_id": "BV1MU5J6GEAh",
+   "ts": 1789118963,
+   "error": "动态取景连续0.03秒缺少人脸"
   }
  ],
  "scheduled": [
