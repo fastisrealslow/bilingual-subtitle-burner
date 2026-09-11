@@ -7003,9 +7003,11 @@
    "delay_hours": 0,
    "repair_of": "ly-0910-340459",
    "source_check_report_id": 10185112017,
-   "last_error": "话题划分没有覆盖完整原文；保留ASR，不判整源无合格片",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "本轮选段没有返回通过120秒和连续上下文检查的候选",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV1ixfuBYEiX",
@@ -7513,7 +7515,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "账号已注销",
-   "publish_time": "2024-11-15T12:09:48+00:00"
+   "publish_time": "2024-11-15T12:09:48+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；same=[4, 6]，different=[1, 2, 5]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0961, 2: 0.1647, 4: 0.7473, 5: -0.0749, 6: 0.7554}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "pending_retry": [
@@ -25265,6 +25271,20 @@
    "key": "bilibili_search:BV1ixfuBYEiX",
    "video_id": "BV1ixfuBYEiX",
    "ts": 1789113449,
+   "error": "本轮选段没有返回通过120秒和连续上下文检查的候选"
+  },
+  {
+   "slug": "ly-0911-7340f1",
+   "key": "bilibili_search:BV1m9mdYcEmr",
+   "video_id": "BV1m9mdYcEmr",
+   "ts": 1789113941,
+   "error": "人物不一致或无法确认：林园；same=[4, 6]，different=[1, 2, 5]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0961, 2: 0.1647, 4: 0.7473, 5: -0.0749, 6: 0.7554}"
+  },
+  {
+   "slug": "ly-0910-340459-context13",
+   "key": "bilibili_search:BV1ixfuBYEiX",
+   "video_id": "BV1ixfuBYEiX",
+   "ts": 1789113946,
    "error": "本轮选段没有返回通过120秒和连续上下文检查的候选"
   }
  ],
