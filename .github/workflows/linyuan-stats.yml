@@ -5,6 +5,13 @@ name: 播放数据采集
 # （监控每天在这跑），而且免费、有 cron。
 
 on:
+  schedule:
+    - cron: '0 1,7,13 * * *'     # 北京时间 09:00 / 15:00 / 21:00
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-stats.yml
+      - linyuan/collect_stats.py
   workflow_dispatch:
 
 permissions:
@@ -39,9 +46,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add site/stats.json
           git commit -m "chore(stats): 更新播放数据 $(date -u +%Y-%m-%dT%H:%MZ)"
-          # 并发/竞态下 push 可能被拒，重试几次再放弃（失败不算致命）
+          # 并发提交失败必须报错，避免采集成功但网页一直保留旧数据。
           for i in 1 2 3; do
             git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
             echo "push 失败，重试 $i"; sleep 5
           done
-          echo "::warning::stats 提交失败（不影响主流程）"
+          echo "::error::播放数据未提交，页面仍是旧数据"
+          exit 1
