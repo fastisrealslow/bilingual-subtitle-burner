@@ -3,7 +3,7 @@
   "validation_sha256": "7ec7d0dd42022e56f5be2abac0a7bd336006f76d2816a4d65bcab9b9f1153673",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789117761,
+  "updated_at": 1789118451,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 9,
+    "verified_live": 7,
     "verified_audio_card": 10,
-    "daily_mix_usable": 10,
+    "daily_mix_usable": 8,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6069,15 +6069,14 @@
         "slugs": [
           "ly-0909-2e376f",
           "ly-0909-2e376f-u0911",
-          "ly-0909-2e376f-u0911r2"
+          "ly-0909-2e376f-u0911r2",
+          "ly-0909-2e376f-wide0911"
         ],
-        "source_sha256": [
-          "01f37878d1d4a19cd35600727532a68be0c30687279367e4384e687a5602c706"
-        ],
+        "source_sha256": [],
         "failures": [],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 214.4,
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6231,12 +6230,11 @@
           "ly-0910-interview-clean-v4",
           "ly-0910-interview-clean-v4-u0911",
           "ly-0910-interview-clean-v4-u0911r2",
+          "ly-0910-interview-clean-v4-wide0911",
           "ly-0910-interview-context-v2",
           "ly-0910-native-context-v1"
         ],
-        "source_sha256": [
-          "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e"
-        ],
+        "source_sha256": [],
         "failures": [
           {
             "slug": "ly-0910-690-text-boundaries",
@@ -6269,9 +6267,9 @@
             "reason": "新版标题含口吃片段，人工抽帧发现回退，暂停投稿并重做"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 127.2,
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6991,7 +6989,14 @@
           "ly-0911-fe6777"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0911-fe6777",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "动态取景连续2.03秒缺少人脸"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7065,6 +7070,43 @@
           "ly-0911-c358ba"
         ],
         "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-c358ba",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 330 < 480（640x330），画质不达标"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1mi4y177iT:p1",
+        "source_url": "https://www.bilibili.com/video/BV1mi4y177iT",
+        "family": "BV1mi4y177iT",
+        "slugs": [
+          "ly-0911-ab960b"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "https://m.weibo.cn/detail/5335049207549946",
+        "source_url": "https://m.weibo.cn/detail/5335049207549946",
+        "family": "m.weibo.cn",
+        "slugs": [
+          "ly-0911-4f5c14"
+        ],
+        "source_sha256": [],
         "failures": [],
         "verified_available": 0,
         "verified_live": 0,
@@ -7114,7 +7156,7 @@
     ],
     "families": {
       "m.weibo.cn": {
-        "attempted_mothers": 71,
+        "attempted_mothers": 72,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
@@ -7975,8 +8017,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7988,8 +8030,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8102,8 +8144,8 @@
       },
       "BV1Z6SEBrEdQ": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 214.4
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV12A6jBdE8q": {
         "attempted_mothers": 1,
@@ -8145,11 +8187,11 @@
       },
       "BV1nt4y1o74A": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 127.2,
-        "terminal_stock-upgrade-title": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_render-layout": 1,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8355,11 +8397,17 @@
       "BV1Vrbc6KEhF": {
         "attempted_mothers": 1,
         "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1mi4y177iT": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 16,
   "artifacts": [
     {
       "slug": "ly-0909-f1dc1a-u0911r2",
@@ -8434,35 +8482,6 @@
           ],
           "sha256": "5ab490b82678eecdc206f6021423180d3b408d24cf317af1f37fd9967dc5fe04",
           "subtitle_sha256": "30872d69da49ec6fa9481c53628c338732ed3749eae11859f624cf81c457cffe",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-2e376f-u0911r2",
-      "artifact_id": 10189354252,
-      "run_id": 34574645617,
-      "checked_at": 1789113084,
-      "source_url": "https://www.bilibili.com/video/BV1Z6SEBrEdQ",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：能卖得出去企业才有利润",
-          "duration_sec": 214.4,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "01f37878d1d4a19cd35600727532a68be0c30687279367e4384e687a5602c706",
-          "segments": [
-            {
-              "start": 2175.4,
-              "end": 2389.8,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec",
-          "subtitle_sha256": "c8004e861e9fcb8c7c8de85229cb925bd692f5e3a55f6d62c487dbaf23d53fb4",
           "status": "verified",
           "reason": null
         }
@@ -8550,35 +8569,6 @@
           ],
           "sha256": "d1f7a76ae0cbb43ad5771a4bb1d9542d916aa456b7a73d6682482c6131973fdf",
           "subtitle_sha256": "ea730fb9ccdb182f3e8dd5366d9ba5d870cab16e7581b4030b285b55f6b435bf",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0910-interview-clean-v4-u0911r2",
-      "artifact_id": 10188546970,
-      "run_id": 34572634883,
-      "checked_at": 1789113108,
-      "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：这个时候你只需要考虑财务",
-          "duration_sec": 127.2,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
-          "segments": [
-            {
-              "start": 329.4,
-              "end": 456.6,
-              "reason": "选择白酒的消费逻辑，以及持有时为何看财务而不是股价"
-            }
-          ],
-          "sha256": "7fcc05c136e80ee25bb1d84aab3acac42191b9e262cd03d9161b33f14520bad5",
-          "subtitle_sha256": "550af232ae24bdbdaefea35da439a6646f2ef2b0ac3918da841842adc3f13ebd",
           "status": "verified",
           "reason": null
         }
