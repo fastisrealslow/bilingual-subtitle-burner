@@ -1,0 +1,33 @@
+name: 林园未发布旧成片版本核查与优化
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-stock-upgrade.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-stock-upgrade
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 读取实际成片版本并逐条核对发布指纹
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/audit_unpublished_stock.py --out stock-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unpublished-stock-audit
+          path: stock-audit.json
