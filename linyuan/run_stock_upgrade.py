@@ -94,8 +94,8 @@ def run(plan):
     deadline=time.time()+4*3600
     # Leave capacity for normal production and never flood the source queue.
     while time.time()<deadline:
-        runs=api('actions/runs?per_page=100')['workflow_runs']
-        active=sum(r['name']=='中文源出片' and r['status'] in ('queued','in_progress') for r in runs)
+        runs=api('actions/workflows/linyuan-produce-cn.yml/runs?per_page=100')['workflow_runs']
+        active=sum(r['status'] in ('queued','in_progress') for r in runs)
         if active<6:break
         time.sleep(30)
     else:raise TimeoutError('Waiting for production capacity')
@@ -120,6 +120,7 @@ def run(plan):
     deliver=next((a for a in artifacts if a['name']=='deliver-'+plan['new_slug']),None)
     if not deliver:
         receipt.update(status='held',reason='没有通过质检的新成片；旧文件保留，暂停旧版投稿')
+        mutate(lambda state:promote(state,plan,[],result['id']))
         return receipt
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run(['gh','run','download',str(result['id']),'--repo',fc.REPO,

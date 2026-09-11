@@ -1,0 +1,35 @@
+name: 林园库存最终文案复核修复
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-stock-final-copy-repair.yml']
+permissions:
+  contents: write
+  actions: write
+jobs:
+  repair:
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        slug: [ly-0909-2e376f-u0911r2, ly-0909-f1dc1a-u0911r2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 260
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pytest
+      - run: python -m pytest -q tests/test_stock_upgrade.py
+      - run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+      - name: 保留清楚完整的原话标题并重新生成视频
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/run_stock_upgrade.py --slug ${{ matrix.slug }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stock-final-copy-${{ matrix.slug }}
+          path: stock-upgrade-receipt.json

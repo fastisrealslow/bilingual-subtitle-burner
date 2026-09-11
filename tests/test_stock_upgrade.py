@@ -72,7 +72,7 @@ def test_duplicate_stock_exclusion_does_not_touch_other_parts_or_receipts():
 def test_known_722_false_start_is_not_a_title_and_clean_old_title_survives():
     import headline_policy as h
     assert not h.complete('现在我认为不不还不还不是消费')
-    item=plan();item['parts'][0]['title']='林园：这个时候你只需要考虑财务'
+    item=plan();item['parts'][0].update(title='林园：这个时候你只需要考虑财务',reviewed_title=True)
     result=planmod.source_ranges([dict(start=10,end=140,text='这个时候你只需要考虑财务。')],'sha','new',item)
     assert result[0][2][0]['editorial_title']==item['parts'][0]['title']
 
@@ -81,3 +81,9 @@ def test_existing_audio_card_is_not_forced_into_new_live_tracking():
     item=plan();item['parts'][0]['render_mode']='audio_card'
     result=planmod.source_ranges([dict(start=10,end=140,text='原有完整观点。')],'sha','new',item)
     assert result[0][2][0]['stock_original_mode']=='audio_card'
+
+
+def test_unreviewed_legacy_title_does_not_override_current_copy():
+    item=plan();item['parts'][0]['title']='林园：到今天为止，我没有觉得我的方法有问题'
+    result=planmod.source_ranges([dict(start=10,end=140,text='到今天为止，我没有觉得我的方法有问题。')],'sha','new',item)
+    assert 'editorial_title' not in result[0][2][0]
