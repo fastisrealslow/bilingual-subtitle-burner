@@ -630,7 +630,8 @@ def test_dispatch_consumes_terminal_rejections_before_picking(monkeypatch):
     monkeypatch.setattr(FC, "save_state", lambda current: saved.append(current.copy()))
     # Admission now stops on actual reserve, not stale job placeholders. The
     # lease transport is covered separately; this check exercises ordering.
-    monkeypatch.setattr(FC, "source_inventory", lambda current: {"daily_mix_usable": FC.TARGET_READY_RESERVE})
+    monkeypatch.setattr(FC, "source_inventory", lambda current: {"daily_mix_usable": FC.TARGET_READY_RESERVE,
+                                                               "verified_landscape": FC.TARGET_LANDSCAPE_RESERVE})
 
     assert FC._dispatch_admitted()["reserve_full"] == 1
     assert saved
