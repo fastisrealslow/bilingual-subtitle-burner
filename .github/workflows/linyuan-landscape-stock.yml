@@ -9,7 +9,7 @@ permissions:
   actions: write
 concurrency:
   group: linyuan-landscape-stock
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   landscape:
     runs-on: ubuntu-latest
@@ -26,15 +26,39 @@ jobs:
           python-version: '3.11'
       - name: 验证字幕时间、画幅和真实画面检查
         run: |
-          pip install -q pytest jieba pillow numpy 'opencv-python-headless<5'
+          pip install -q pytest jieba pillow numpy 'opencv-python-headless<5' rapidocr-onnxruntime
           python -m pytest -q tests/test_linyuan_landscape.py tests/test_linyuan_presentation.py tests/test_stock_upgrade.py
-          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
-      - name: 重做两条未发布片段，验收后进入库存
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          fc-cache -f
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/linyuan-face-models
+          key: linyuan-local-face-v1
+      - name: 复用已验收成片，重排并复检实际横版
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
           UPGRADE_SLUG: ${{ matrix.slug }}
-        run: python linyuan/run_stock_upgrade.py --slug "$UPGRADE_SLUG"
+        run: python -u linyuan/run_landscape_stock.py --slug "$UPGRADE_SLUG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deliver-${{ matrix.slug }}
+          path: linyuan/deliver/${{ matrix.slug }}/_accepted/
+          retention-days: 90
+          if-no-files-found: error
+      - name: 保存横版长期下载链接
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: deliver-${{ matrix.slug }}
+          name: 成品库 · ${{ matrix.slug }}
+          files: linyuan/deliver/${{ matrix.slug }}/_accepted/${{ matrix.slug }}.*
+      - name: 再次核对未发布状态后入库
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPGRADE_SLUG: ${{ matrix.slug }}
+        run: python linyuan/run_landscape_stock.py --slug "$UPGRADE_SLUG" --admit
       - uses: actions/upload-artifact@v4
         if: always()
         with:

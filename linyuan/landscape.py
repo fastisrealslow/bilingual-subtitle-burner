@@ -72,9 +72,13 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
         raise ValueError('横版重排输入视频指纹变化')
     work.mkdir(parents=True,exist_ok=True)
     spec=layout();region=spec['live_region']
+    font=os.environ.get('ZH_FONT','Noto Sans CJK SC')
+    matched=subprocess.check_output(['fc-match','-f','%{family}',font],text=True)
+    if font.casefold() not in matched.casefold():
+        raise ValueError('横版字幕字体不可用，拒绝输出缺字方框：'+font)
     captions=read_captions(directory,meta['subtitle_files'])
     subtitle=directory/('landscape-'+meta['subtitle_files'][0])
-    presentation.write_ass(captions,subtitle,spec,os.environ.get('ZH_FONT','Noto Sans CJK SC'))
+    presentation.write_ass(captions,subtitle,spec,font)
     if text_digest(subtitle_files_text(directory,[subtitle.name])) != meta['subtitle_text_sha256']:
         raise ValueError('横版重排改变了字幕文字')
     bg=work/'landscape-background.png';background(bg)

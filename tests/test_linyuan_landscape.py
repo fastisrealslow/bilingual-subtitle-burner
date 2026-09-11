@@ -52,3 +52,15 @@ def test_actual_qr_in_landscape_window_is_rejected(tmp_path):
     for _ in range(12):writer.write(frame)
     writer.release()
     with pytest.raises(ValueError,match='二维码'):V.verify_render(video,L.layout())
+
+
+def test_queue_migration_cannot_overwrite_another_render_or_accepted_stock():
+    from run_landscape_stock import reserve
+    plan=dict(old_slug='old',new_slug='new')
+    entry=dict(slug='new',repair_of='old',stock_upgrade_status='rendering')
+    state=dict(dispatched=[entry])
+    reserve(state,plan,123)
+    assert entry['landscape_run_id']==123
+    with pytest.raises(ValueError):reserve(state,plan,456)
+    entry['stock_upgrade_status']='verified'
+    with pytest.raises(ValueError):reserve(state,plan,123)
