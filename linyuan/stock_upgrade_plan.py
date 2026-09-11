@@ -30,7 +30,10 @@ def source_ranges(cues,source_sha,slug,plan=None):
         pick=dict(start=0,end=b-a,score=7,reason=segment.get('reason') or '保留已验收库存的连续源区间，重新执行成片质检')
         if part.get('render_mode')=='audio_card':pick['stock_original_mode']='audio_card'
         if part.get('title') and headline_policy.complete(headline_policy.body(part['title'])):
-            pick['editorial_title']=part['title']
+            from produce_cn import title_quality_error
+            transcript=''.join(c['text'] for c in cues[a:b+1])
+            if not title_quality_error(part['title'],'林园',transcript):
+                pick['editorial_title']=part['title']
         editorial.range_seconds(cues[a:b+1],pick)
         ranges.append((a,b,[pick]))
     return ranges
