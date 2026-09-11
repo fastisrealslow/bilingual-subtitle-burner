@@ -1,8 +1,5 @@
 name: 林园未发布旧成片版本核查与优化
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/linyuan-stock-upgrade.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -30,13 +27,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python linyuan/run_stock_upgrade.py --exclude-duplicates
       - id: plan
-        name: 读取19条未发布成片的固定优化清单
+        name: 读取复核后仍适合升级的未发布清单
         run: |
           python - <<'PY'
           import json,os
           p=json.load(open('linyuan/stock-upgrade-0911.json'))
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-              print('batches='+json.dumps([b['new_slug'] for b in p['batches']]),file=f)
+              print('batches='+json.dumps([b['new_slug'] for b in p['batches'] if b['parts']]),file=f)
           PY
   upgrade:
     needs: prepare
@@ -54,8 +51,7 @@ jobs:
           python-version: '3.11'
       - name: 准备实际成片复检
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
+          command -v ffmpeg || (sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 update -qq && sudo apt-get -y -qq install ffmpeg)
       - name: 保留原片区间，用新版生产并核对后替换库存
         env:
           GH_TOKEN: ${{ github.token }}
