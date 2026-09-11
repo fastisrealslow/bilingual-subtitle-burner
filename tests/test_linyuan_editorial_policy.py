@@ -118,7 +118,10 @@ def test_preselected_shortcut_rejected_before_copy_or_render():
 
 def test_short_model_picks_must_select_from_real_long_contexts():
     cues=[dict(start=i*30,end=(i+1)*30,text='这是这一观点的完整解释。') for i in range(10)]
-    replies=['[{"start":0,"end":0,"score":8}]']*2+['[{"candidate_id":0,"accepted":true,"score":8,"reason":"完整上下文"}]']
+    choices=produce.argument_context_candidates(cues,[dict(start=0,end=0)])
+    verdicts={str(c['candidate_id']):'reject_low_value' for c in choices}
+    verdicts['0']='accept_8'
+    replies=['[{"start":0,"end":0,"score":8}]']*2+[json.dumps({'verdicts':verdicts})]
     with tempfile.TemporaryDirectory() as tmp:
         with patch.object(produce,'llm',side_effect=replies):
             picks=produce.pick_highlights(cues,'林园','test',Path(tmp))

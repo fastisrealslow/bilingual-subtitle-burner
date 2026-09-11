@@ -93,8 +93,9 @@ def test_690_text_edit_is_source_bound_and_has_no_fabricated_media_approval():
 
 
 def test_candidate_id_uses_program_duration_and_never_model_timestamps(tmp_path):
-    answer={'picks':[dict(candidate_id=0,accepted=True,score=8,reason='完整上下文',
-                          duration_sec=9999,start=307.4,end=343.0)]}
+    choices=p.argument_context_candidates(cues(),[dict(start=0,end=0)])
+    answer={'verdicts':{str(c['candidate_id']):'reject_low_value' for c in choices}}
+    answer['verdicts']['0']='accept_8'
     with patch.object(p,'llm',return_value=json.dumps(answer)):
         picked=p.pick_argument_context(cues(),[dict(start=0,end=0)],'林园','',tmp_path,'')
     assert p.editorial.range_seconds(cues(),picked[0])==120

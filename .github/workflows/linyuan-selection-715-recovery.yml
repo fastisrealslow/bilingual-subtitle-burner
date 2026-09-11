@@ -1,0 +1,34 @@
+name: 林园715逐项选段回归与恢复
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-selection-715-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-selection-715-recovery
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 核对715真实候选与完整观点回归
+        run: |
+          python -m pip install -q pytest jieba numpy pillow 'opencv-python-headless<5' requests
+          python -m pytest -q tests/test_linyuan_context_review.py tests/test_linyuan_selection_incident.py tests/test_linyuan_source_selection.py tests/test_linyuan_editorial_policy.py
+      - name: 登记同源正常生产，复用715原始识别证据
+        run: >-
+          python linyuan/register_selection_recovery.py
+          --origin-slug ly-0910-340459
+          --expected-source https://www.bilibili.com/video/BV1ixfuBYEiX
+          --suffix context12
+          --evidence-run 34559152818

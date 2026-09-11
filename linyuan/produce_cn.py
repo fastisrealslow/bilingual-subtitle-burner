@@ -1510,48 +1510,37 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     (work/f'context_candidates{suffix}.json').write_text(json.dumps(choices,ensure_ascii=False,indent=2))
     transcript='\n'.join(f"字幕{u['start']}-{u['end']}|{u['text']}"
                          for u in editorial_sentence_units(cues))
-    # The complete numbered transcript already contains every opening/ending.
-    # Repeating those strings for 30-60 overlapping ranges inflated real CPU
-    # prompts past 12k chars (#632), without adding any source evidence.
-    table=choices
-    prompt=(f'你是{speaker}访谈编辑。此前选出了有意义的短句，但用户要完整观点长片。'
-        '以下候选是这些观点附近的真实连续上下文，每条已由程序确保至少120秒。'
-        '从候选ID中选至多2条：一个完整主题、开头独立可懂、解释充分、自然结束。'
-        '必须连同中间原文阅读判断，不能仅看首尾或因为时长足够就接受。'
-        '无关问题拼在一起、寒暄开场、缺必要解释、残句结束必须拒绝。'
-        '可以选较长候选保留同主题追问，不得改写文字。没有合格候选就返回[]。'
-        '只输出JSON对象，picks字段为数组，每项candidate_id,accepted,score,reason。'
-        '只返回接受的候选并设accepted=true；检查全部候选后仍无合格项才返回{"picks":[]}。'
-        '不要用一两条拒绝结果代替对其余候选的判断。'
-        '不得自行填写起止序号或时长，程序按candidate_id取真实区间。\n完整原文：\n'+transcript+
-        '\n候选：\n'+json.dumps(table,ensure_ascii=False))
-    answer=llm([{'role':'user','content':prompt}],api_key,temperature=0,max_tokens=512,
-               budget_sec=text_budget(90),response_schema=selection_schema(candidate_count=len(choices)))
-    (work/f'context_response{suffix}.txt').write_text(answer)
+    import context_review as review
     selected=[]
-    rejected_ids=set()
-    for row in parse_llm_json_array(answer):
-        if not isinstance(row,dict) or type(row.get('accepted')) is not bool:
-            raise ValueError('连续上下文缺少明确接受或拒绝结论')
-        i=row.get('candidate_id')
-        if type(i) is not int or not 0<=i<len(choices):
-            raise ValueError('连续上下文候选ID无效，未形成内容判定')
-        if row.get('accepted') is False or float(row.get('score',0))<MIN_HIGHLIGHT_SCORE:
-            rejected_ids.add(i)
-            continue
-        choice=choices[i]
+    verdicts={}
+    for offset in range(0,len(choices),review.BATCH_SIZE):
+        batch=choices[offset:offset+review.BATCH_SIZE]
+        answer=llm([{'role':'user','content':review.prompt(transcript,batch,speaker)}],
+                   api_key,temperature=0,max_tokens=1800,budget_sec=text_budget(240),
+                   response_schema=review.schema(batch))
+        (work/f'context_response{suffix}-{offset}.txt').write_text(answer)
+        try:
+            verdicts.update(review.parse(answer,batch))
+        except (ValueError,TypeError) as exc:
+            raise SelectionIncomplete(f'{exc}；保留ASR，不判整源无合格片') from exc
+    # Only a valid judgment for EVERY offered range can produce an empty result.
+    # A single enum encodes acceptance and score, so accepted=true/score=0 is
+    # impossible. Raw model text remains available beside the coverage proof.
+    (work/f'context_review{suffix}.json').write_text(json.dumps(dict(
+        version=review.VERSION,complete=True,candidate_count=len(choices),
+        reviewed_count=len(verdicts),transcript_sha256=editorial.text_digest(transcript),
+        choices=choices,verdicts=verdicts),ensure_ascii=False,indent=2))
+    for choice in sorted(choices,key=lambda c:review.ACCEPT.get(verdicts[str(c['candidate_id'])],0),reverse=True):
+        decision=verdicts[str(choice['candidate_id'])]
+        if decision not in review.ACCEPT:continue
         from source_selection import boundary_error
-        if boundary_error(cues,choice):
-            continue
-        if any(not(choice['end']<p['start'] or choice['start']>p['end']) for p in selected):
-            continue
-        selected.append(dict(start=choice['start'],end=choice['end'],score=row['score'],reason=row.get('reason','')))
-    # A response rejecting only two IDs does not reject the other candidates.
-    # Keep the ASR available for bounded recovery instead of banning the source.
-    if not selected and rejected_ids and len(rejected_ids)<len(choices):
-        raise SelectionIncomplete(
-            f'连续上下文仅明确拒绝{len(rejected_ids)}/{len(choices)}个候选，选段未完成；保留ASR，不判整源无合格片')
-    return selected[:2]
+        if boundary_error(cues,choice):continue
+        if any(not(choice['end']<p['start'] or choice['start']>p['end']) for p in selected):continue
+        selected.append(dict(start=choice['start'],end=choice['end'],score=review.ACCEPT[decision],
+            reason='逐项审查通过完整主题、解释、首尾及观看价值要求'))
+        if len(selected)==2:break
+    print(f'[连续上下文] 完成{len(verdicts)}/{len(choices)}个候选审查，接受{len(selected)}段',flush=True)
+    return sorted(selected,key=lambda p:p['start'])
 
 
 def editorial_sentence_units(cues):
@@ -1572,7 +1561,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 11}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 12}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:

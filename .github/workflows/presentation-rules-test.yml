@@ -12,6 +12,9 @@ on:
       - linyuan/live_tracking.py
       - tests/test_linyuan_live_tracking.py
       - linyuan/source_selection.py
+      - linyuan/context_review.py
+      - tests/test_linyuan_context_review.py
+      - tests/fixtures/linyuan_715_selection.json
       - linyuan/ci_fetch_bilibili.py
       - linyuan/source_geometry.py
       - tests/test_linyuan_source_selection.py
@@ -50,6 +53,7 @@ jobs:
           python -m pytest -q tests/test_linyuan_presentation.py
           tests/test_linyuan_live_tracking.py
           tests/test_linyuan_source_selection.py tests/test_linyuan_selection_incident.py
+          tests/test_linyuan_context_review.py
           tests/test_linyuan_fetch_budget.py
           tests/test_linyuan_source_borders.py
           tests/test_linyuan_caption_readability.py tests/test_linyuan_caption_timeout.py
