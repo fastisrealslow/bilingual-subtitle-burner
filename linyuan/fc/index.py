@@ -787,12 +787,81 @@ def download_inventory_part(artifact_id, part_index, dest_dir):
         archive_path.unlink(missing_ok=True)
 
 
+class StateSnapshot(dict):
+    """Track this invocation's edits independently of concurrent state writers."""
+    def __init__(self, value):
+        import copy
+        super().__init__(value)
+        self.baseline = copy.deepcopy(value)
+
+
+def merge_state_changes(base, local, remote, path=()):
+    """Apply only local changes to the latest CAS version, retaining other edits."""
+    import copy
+    if local == base:
+        return copy.deepcopy(remote)
+    if isinstance(local, dict) and isinstance(remote, dict):
+        base = base if isinstance(base, dict) else {}
+        result = copy.deepcopy(remote)
+        for key, value in local.items():
+            if key in remote:
+                result[key] = merge_state_changes(base.get(key), value, remote[key], path+(key,))
+            elif key not in base or value != base[key]:
+                result[key] = copy.deepcopy(value)
+        for key in base.keys()-local.keys():
+            if key in result and result[key] == base[key]:
+                result.pop(key)
+        if 'dispatched' in path and any(k in local or k in remote for k in ('published_parts','processed_part_indices')):
+            done = processed_part_indices(local) | processed_part_indices(remote)
+            prefix = 0
+            while prefix in done:prefix += 1
+            result['published_parts'] = prefix
+            result['processed_part_indices'] = sorted(i for i in done if i >= prefix)
+        # Stock admission belongs to the audited upgrade worker. A publisher
+        # loaded before a hold/promotion cannot undo those newer control fields.
+        if remote.get('stock_upgrade_status') != base.get('stock_upgrade_status'):
+            for key in set(base)|set(local)|set(remote):
+                if key.startswith('stock_') or key in ('failed','failure_stage','parts_total'):
+                    if key in remote:result[key] = copy.deepcopy(remote[key])
+                    else:result.pop(key,None)
+        return result
+    if isinstance(local, list) and isinstance(remote, list):
+        base = base if isinstance(base, list) else []
+        all_rows = base+local+remote
+        keyed = bool(path and path[-1] in ('dispatched','parts')
+                     and all(isinstance(row,dict) for row in all_rows))
+        if keyed:
+            def identity(row):
+                if path[-1]=='dispatched':return (row.get('slug'),row.get('ts'))
+                if type(row.get('part_index')) is int:return ('part',row['part_index'])
+                return ('legacy',row.get('bvid'),row.get('final'),row.get('status'))
+            # Malformed/ambiguous legacy lists use conservative append merging.
+            keyed = all(len({identity(row) for row in rows})==len(rows) for rows in (base,local,remote))
+        if keyed:
+            b={identity(row):row for row in base}
+            l={identity(row):row for row in local}
+            r={identity(row):row for row in remote}
+            order=list(r)+[key for key in l if key not in r]
+            result=[]
+            for key in order:
+                if key in l and key in r:
+                    result.append(merge_state_changes(b.get(key,{}),l[key],r[key],path+('entry',)))
+                elif key in l:
+                    if key not in b or l[key]!=b[key]:result.append(copy.deepcopy(l[key]))
+                elif key not in b or r[key]!=b[key]:
+                    result.append(copy.deepcopy(r[key]))
+            return result
+        if remote == base:return copy.deepcopy(local)
+        return copy.deepcopy(remote)+[copy.deepcopy(row) for row in local if row not in base and row not in remote]
+    return copy.deepcopy(local)
+
+
 def load_state():
     try:
         raw = gh("GET", f"/contents/{STATE_KEY}?ref=main", raw=True)
-        return json.loads(raw.decode())
+        return StateSnapshot(json.loads(raw.decode()))
     except Exception:
-        return {"dispatched": [], "rejected": [], "published": {}}
+        return StateSnapshot({"dispatched": [], "rejected": [], "published": {}})
 
 
 # ---------- 运行日志（log.html 展示，便于追踪）----------
@@ -847,24 +916,25 @@ def flush_logs():
 
 
 def save_state(st, retries=3):
-    """写回 fc_state.json。防御性设计：
-    - PUT 前重新 GET 拿最新 sha（并发/缓存会让旧 sha 失效）
-    - 任何失败重试 3 次，仍失败也只报错不抛出 —— 状态丢失可恢复，
-      但保存失败绝不能把主流程搞崩（实测：422 直接炸了整个 dispatch）。
-    """
+    """Merge this invocation's delta into fresh state on every CAS attempt."""
     import base64
-    content = base64.b64encode(json.dumps(
-        st, ensure_ascii=False, indent=1).encode()).decode()
+    import copy
+    base = copy.deepcopy(getattr(st, 'baseline', {}))
+    local = copy.deepcopy(dict(st))
+    content = None
     for attempt in range(retries):
         try:
-            payload = {"message": "chore(fc): 更新流水线状态", "content": content}
-            try:
-                cur = gh("GET", f"/contents/{STATE_KEY}?ref=main&_={time.time()}")
-                if isinstance(cur, dict) and cur.get("sha"):
-                    payload["sha"] = cur["sha"]
-            except Exception as e:
-                log.warning(f"取 sha 失败（首次创建时正常）：{e}")
+            cur = gh("GET", f"/contents/{STATE_KEY}?ref=main&_={time.time()}")
+            if not isinstance(cur,dict) or not cur.get('sha') or not cur.get('content'):
+                raise ValueError('Latest state unavailable; refusing a blind overwrite')
+            remote = json.loads(base64.b64decode(cur['content']))
+            merged = merge_state_changes(base, local, remote)
+            content = base64.b64encode(json.dumps(merged,ensure_ascii=False,indent=1).encode()).decode()
+            payload = {"message": "chore(fc): 更新流水线状态", "content": content, "sha":cur['sha']}
             gh("PUT", f"/contents/{STATE_KEY}", payload)
+            if isinstance(st, StateSnapshot):
+                # Keep callers' existing entry references valid after a save.
+                st.baseline = copy.deepcopy(local)
             break
         except Exception as e:
             log.warning(f"save_state 第 {attempt+1} 次失败：{e}")
