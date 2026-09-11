@@ -3,7 +3,7 @@
   "validation_sha256": "7ec7d0dd42022e56f5be2abac0a7bd336006f76d2816a4d65bcab9b9f1153673",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789113916,
+  "updated_at": 1789115416,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -6738,9 +6738,9 @@
           },
           {
             "slug": "ly-0910-340459-context13",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "话题划分没有覆盖完整原文；保留ASR，不判整源无合格片"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
           },
           {
             "slug": "ly-0910-340459-context14",
@@ -6960,6 +6960,43 @@
         "family": "BV1m9mdYcEmr",
         "slugs": [
           "ly-0911-7340f1"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-7340f1",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[4, 6]，different=[1, 2, 5]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0961, 2: 0.1647, 4: 0.7473, 5: -0.0749, 6: 0.7554}"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1h2YEzzEmX:p1",
+        "source_url": "https://www.bilibili.com/video/BV1h2YEzzEmX",
+        "family": "BV1h2YEzzEmX",
+        "slugs": [
+          "ly-0911-fe6777"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1L7V56NExf:p1",
+        "source_url": "https://www.bilibili.com/video/BV1L7V56NExf",
+        "family": "BV1L7V56NExf",
+        "slugs": [
+          "ly-0911-242f90"
         ],
         "source_sha256": [],
         "failures": [],
@@ -7872,8 +7909,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7885,8 +7922,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8044,8 +8081,8 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
@@ -8222,6 +8259,17 @@
         "verified_seconds": 0
       },
       "BV1m9mdYcEmr": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1h2YEzzEmX": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1L7V56NExf": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
