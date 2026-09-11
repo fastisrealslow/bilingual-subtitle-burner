@@ -22,7 +22,7 @@ def body(title, speaker='林园'):
 def complete(text):
     # A source quote can be verbatim yet unreadable: do not promote a false
     # start, dangling bank clause or repeated filler into a permanent headline.
-    if re.search(r'^(?:问题就是|有的甚至|基本上|啊|呃)|(?:这个){2}|(?:那么){2}|我我|他他|去去|行业的行业',text):
+    if re.search(r'^(?:问题就是|有的甚至|基本上|啊|呃)|(?:这个){2}|(?:那么){2}|我我|他他|去去|不不|还不还|还还|是是|行业的行业',text):
         return False
     if text.count('就是') >= 2 or text.count('这个') >= 2:
         return False

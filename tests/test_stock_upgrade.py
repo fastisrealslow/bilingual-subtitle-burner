@@ -67,3 +67,11 @@ def test_duplicate_stock_exclusion_does_not_touch_other_parts_or_receipts():
     worker.exclude_duplicates(s,[dict(slug='old',index=1,published_duplicate={'bvid':'BVexisting'})])
     assert worker.fc.processed_part_indices(s['dispatched'][0])=={0,1}
     assert s['published']==receipt
+
+
+def test_known_722_false_start_is_not_a_title_and_clean_old_title_survives():
+    import headline_policy as h
+    assert not h.complete('现在我认为不不还不还不是消费')
+    item=plan();item['parts'][0]['title']='林园：这个时候你只需要考虑财务'
+    result=planmod.source_ranges([dict(start=10,end=140,text='这个时候你只需要考虑财务。')],'sha','new',item)
+    assert result[0][2][0]['editorial_title']==item['parts'][0]['title']
