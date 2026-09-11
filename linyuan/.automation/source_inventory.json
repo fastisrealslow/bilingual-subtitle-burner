@@ -3,7 +3,7 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789086991,
+  "updated_at": 1789098261,
   "materials": {
     "weibo_search": {
       "records": 1116,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 21,
+    "verified_live": 20,
     "verified_audio_card": 13,
-    "daily_mix_usable": 25,
+    "daily_mix_usable": 24,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6056,11 +6056,11 @@
           "d8ae9476e5e894920e6f5881db5141c9d603c62b271d096eb4e58397b13e1665"
         ],
         "failures": [],
-        "verified_available": 3,
-        "verified_live": 3,
-        "verified_seconds": 708.8,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 2,
+        "verified_live": 2,
+        "verified_seconds": 536.2,
+        "used_source_seconds": 172.56,
+        "historical_receipts": 1
       },
       {
         "source_key": "BV1Z6SEBrEdQ:p1",
@@ -6651,7 +6651,14 @@
           "ly-0910-2c3090"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-2c3090",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.9446808510638298, 0.11708860759493671, 0.9893617021276596)]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6683,7 +6690,14 @@
           "ly-0910-340459"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-340459",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "连续上下文仅明确拒绝2/39个候选，选段未完成；保留ASR，不判整源无合格片"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6698,7 +6712,14 @@
           "ly-0910-f7bd5e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0910-f7bd5e",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 360 < 480（486x360），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6736,6 +6757,51 @@
         "verified_available": 1,
         "verified_live": 0,
         "verified_seconds": 303.4,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1s64y1A7Rh:p1",
+        "source_url": "https://www.bilibili.com/video/BV1s64y1A7Rh",
+        "family": "BV1s64y1A7Rh",
+        "slugs": [
+          "ly-0911-7a75fe"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1PY411w782:p1",
+        "source_url": "https://www.bilibili.com/video/BV1PY411w782",
+        "family": "BV1PY411w782",
+        "slugs": [
+          "ly-0911-8c3393"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1VkirBaE69:p1",
+        "source_url": "https://www.bilibili.com/video/BV1VkirBaE69",
+        "family": "BV1VkirBaE69",
+        "slugs": [
+          "ly-0911-6d1b80"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -7762,8 +7828,8 @@
       },
       "BV1gBfCBpEFj": {
         "attempted_mothers": 1,
-        "verified_available": 3,
-        "verified_seconds": 708.8
+        "verified_available": 2,
+        "verified_seconds": 536.2
       },
       "BV1Z6SEBrEdQ": {
         "attempted_mothers": 1,
@@ -7811,8 +7877,8 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
-        "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -7913,7 +7979,8 @@
       "BV12pum6NEHU": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1514y1F7mr": {
         "attempted_mothers": 1,
@@ -7928,7 +7995,8 @@
       "BV1Qi4y1w7eb": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1FjVn6FEkM": {
         "attempted_mothers": 1,
@@ -7939,10 +8007,25 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 303.4
+      },
+      "BV1s64y1A7Rh": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1PY411w782": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1VkirBaE69": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 15,
+  "in_flight_placeholders": 13,
   "artifacts": [
     {
       "slug": "ly-0910-feceaa",
@@ -8827,64 +8910,6 @@
           "subtitle_sha256": "1dda1b6eecf16170b05f0b50ffb96af181b73a1e197cf2f2e917aee2971bf1fa",
           "status": "verified",
           "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-7c4660-tracked18",
-      "artifact_id": 10101599308,
-      "run_id": 34345123664,
-      "checked_at": 1789047980,
-      "source_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：然后你也聊聊到说看好这三个药品的呃原因，是因为受中国人口老龄化的影响嘛",
-          "duration_sec": 155.9,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "f2a561a9d6258ca6a4836abbbcbefb07af65029cf181e815b800a81b4669ab4c",
-          "segments": [
-            {
-              "start": 487.72,
-              "end": 643.64,
-              "reason": "中药企业核心竞争力与估值逻辑：林园详细分析了中药企业（如片仔癀、云南白药）的盈利模式，强调其核心是传统中成药，无需研发，副作用小且经过长期市场检验。他指出这类企业业绩稳定，净利润增长率常年保持在较高水平，但市场估值（如40倍PE）是否合理需结合长期增速判断。他提到中药企业通过老药新用（如肝病药物治疗其他疾病）实现增长，但需警惕多元化战略（如做牙膏）可能带来的风险。整体逻辑连贯，有具体案例和数据支撑，时间跨度符合要求。"
-            }
-          ],
-          "sha256": "4085d52fcdb3b28d2ecf79966831752eda3da057d3563bea9eebd728b912d705",
-          "subtitle_sha256": "11dc163da3c7e6d91de7810b29358ba9a12842896e7e3623a4ddf844f5b80765",
-          "status": "rejected",
-          "reason": "标题引用了采访者提问，不能署为嘉宾本人观点"
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-09068a-tracked15",
-      "artifact_id": 10101393434,
-      "run_id": 34343086627,
-      "checked_at": 1789047983,
-      "source_url": "https://www.bilibili.com/video/BV17Rt8zKEji",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_1.mp4",
-          "title": "林园：嗯，那就是您觉得这个片仔癀，它对比咱们其他的一个中医药的品牌来讲，它有什么样的差异化的一个优势呢",
-          "duration_sec": 228.3,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "31e694157feb6bd5f23bbfd1ca209ec35c37619bbe0de703547d391e9542535f",
-          "segments": [
-            {
-              "start": 96.76,
-              "end": 325.0,
-              "reason": "林总从片仔癀的个人使用体验出发，详细阐述了片仔癀作为中医药品牌与普通清热解毒药物的区别，以及其在实际应用中对血压稳定等健康问题的显著效果。具体包括：片仔癀的使用体验与功效的独特性（区别于其他清热解毒药物）、母亲因心衰使用片仔癀后血压稳定、体重增加等实际案例，以及由此得出的片仔癀具有不可替代的健康价值和投资价值的结论。该段落从字幕31-45（96.76-142.60秒）开始，到字幕105（325.00秒）结束，时长为128.32秒，符合120-180秒要求。内容完整，有观点、有案例、有自然结论，保留了必要限定（如‘不是一般的清热解’），且不涉及短摘句或无关问题。"
-            }
-          ],
-          "sha256": "f954fd1ce9455e40c136aadec0d3f0ea2c797f80f5a0a783d9476793c652c4b5",
-          "subtitle_sha256": "1dda1b6eecf16170b05f0b50ffb96af181b73a1e197cf2f2e917aee2971bf1fa",
-          "status": "rejected",
-          "reason": "标题引用了采访者提问，不能署为嘉宾本人观点"
         }
       ]
     }
