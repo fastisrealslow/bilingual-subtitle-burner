@@ -31,16 +31,28 @@ jobs:
           python linyuan/audit_unpublished_stock.py --out linyuan/stock-upgrade-0911-results.json
       - name: 保存最终库存及版本核查清单
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -f linyuan/.automation/source_inventory.json linyuan/stock-upgrade-0911-results.json
-          if git diff --staged --quiet; then exit 0; fi
-          git commit -m 'chore(stock): record final audited reserve after legacy upgrades'
-          for attempt in 1 2 3 4 5; do
-            git pull --rebase origin main && git push origin HEAD:main && exit 0
-            sleep 3
-          done
-          exit 1
+          python - <<'PYCODE'
+          import base64,json,subprocess,time
+          from pathlib import Path
+          root='repos/fastisrealslow/bilingual-subtitle-burner/contents/'
+          for filename in ['linyuan/.automation/source_inventory.json','linyuan/stock-upgrade-0911-results.json']:
+              data=Path(filename).read_bytes()
+              for attempt in range(6):
+                  got=subprocess.run(['gh','api',root+filename+'?ref=main'],capture_output=True,text=True)
+                  if got.returncode and '404' not in got.stderr:raise RuntimeError(got.stderr)
+                  current=json.loads(got.stdout) if got.returncode==0 else {}
+                  if filename.endswith('source_inventory.json') and current.get('content'):
+                      old=json.loads(base64.b64decode(current['content']))
+                      if old.get('updated_at',0)>=json.loads(data)['updated_at']:
+                          print('Keep newer concurrent inventory');break
+                  body=dict(message='chore(stock): record final audited reserve',branch='main',content=base64.b64encode(data).decode())
+                  if current.get('sha'):body['sha']=current['sha']
+                  saved=subprocess.run(['gh','api','--method','PUT',root+filename,'--input','-'],input=json.dumps(body),capture_output=True,text=True)
+                  if saved.returncode==0:break
+                  if not any(code in saved.stderr for code in ('409','422')):raise RuntimeError(saved.stderr)
+                  if attempt==5:raise RuntimeError('Concurrent inventory update did not settle')
+                  time.sleep(2)
+          PYCODE
       - uses: actions/upload-artifact@v4
         if: always()
         with:
