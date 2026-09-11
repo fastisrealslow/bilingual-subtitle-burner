@@ -66,8 +66,7 @@ def test_queue_migration_cannot_overwrite_another_render_or_accepted_stock():
     with pytest.raises(ValueError):reserve(state,plan,123)
 
 
-def test_reviewed_caption_inset_is_bound_to_exact_input_bytes():
-    rect=L.source_window(dict(fingerprints=dict(sha256='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec')))
-    assert rect['y']+rect['height']==772
-    assert abs(rect['width']/rect['height']-774/576)<.003
+def test_known_moving_source_captions_are_held_instead_of_cropping_the_face():
+    with pytest.raises(ValueError,match='遮挡人物'):
+        L.source_window(dict(fingerprints=dict(sha256='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec')))
     assert L.source_window(dict(fingerprints=dict(sha256='other'))) == dict(x=44,y=360,width=632,height=470)

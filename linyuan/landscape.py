@@ -11,10 +11,10 @@ LIVE_REGION = dict(x=252, y=0, width=774, height=576)
 
 
 def source_window(meta):
-    # Frame review found a transient yellow source caption at 53.6s. This
-    # tighter inset is bound to the exact accepted input bytes, not a global crop.
+    # Timeline review found moving yellow captions reaching the speaker's chin.
+    # A tighter crop cannot remove these without cutting the face.
     if meta.get('fingerprints',{}).get('sha256')=='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec':
-        return dict(x=82,y=360,width=554,height=412)
+        raise ValueError('原片动态黄色大字遮挡人物，不能以裁切冒充干净横版')
     return dict(x=44,y=360,width=632,height=470)
 
 

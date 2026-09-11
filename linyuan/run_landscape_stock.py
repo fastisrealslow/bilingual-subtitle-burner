@@ -10,7 +10,7 @@ import landscape
 import run_stock_upgrade as stock
 import source_supply
 
-SLUGS = {'ly-0910-interview-clean-v4-wide0911', 'ly-0909-2e376f-wide0911'}
+SLUGS = {'ly-0910-interview-clean-v4-wide0911', 'ly-0909-703b35-wide0911'}
 SUPERSEDED_RUN = 34583060777
 
 
@@ -34,6 +34,12 @@ def render(plan, directory, run_id):
     previous=stock.api(f'actions/runs/{SUPERSEDED_RUN}')
     if previous['status']!='completed':
         raise ValueError('原试产任务仍运行，拒绝并发认领')
+    def hold_source_overlay(state):
+        for e in state['dispatched']:
+            if e['slug'] in {'ly-0909-2e376f-u0911r2','ly-0909-2e376f-wide0911'}:
+                e.update(failed=True,failure_stage='source-overlay-review',stock_upgrade_status='held',
+                         landscape_issue='动态黄色大字靠近下巴，不能安全裁净；已替换试产素材')
+    stock.mutate(hold_source_overlay)
     runs=stock.api('actions/workflows/linyuan-produce-cn.yml/runs?per_page=100')['workflow_runs']
     if any(r.get('display_title')=='中文源出片 · '+plan['new_slug'] for r in runs):
         raise ValueError('该横版已派发普通生产，不能重复生产')
