@@ -10,6 +10,14 @@ CANVAS = (1280, 720)
 LIVE_REGION = dict(x=252, y=0, width=774, height=576)
 
 
+def source_window(meta):
+    # Frame review found a transient yellow source caption at 53.6s. This
+    # tighter inset is bound to the exact accepted input bytes, not a global crop.
+    if meta.get('fingerprints',{}).get('sha256')=='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec':
+        return dict(x=82,y=360,width=554,height=412)
+    return dict(x=44,y=360,width=632,height=470)
+
+
 def selected(meta, requested='auto'):
     if requested not in {'auto', 'portrait', 'landscape'}:
         raise ValueError('未知横竖屏选择')
@@ -83,9 +91,10 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
         raise ValueError('横版重排改变了字幕文字')
     bg=work/'landscape-background.png';background(bg)
     target=work/'landscape.mp4';brand=producer.brand_watermark_path()
+    window=source_window(meta)
     rate=subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
         '-show_entries','stream=avg_frame_rate','-of','default=nw=1:nk=1',str(original)],text=True).strip()
-    filters=(f'[0:v]crop=632:470:44:360,scale={region["width"]}:{region["height"]}:flags=lanczos,setsar=1[v];'
+    filters=(f'[0:v]crop={window["width"]}:{window["height"]}:{window["x"]}:{window["y"]},scale={region["width"]}:{region["height"]}:flags=lanczos,setsar=1[v];'
              f'[1:v][v]overlay={region["x"]}:{region["y"]}:shortest=1,ass={subtitle}[base];'
              '[2:v]format=rgba,colorchannelmixer=aa=0.68,scale=166:-1[brand];'
              '[base][brand]overlay=W-w-22:22:shortest=1[outv]')
@@ -120,6 +129,6 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
             'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v1',
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=1,input_sha256=original_sha,source_window=dict(x=44,y=360,width=632,height=470),
+            'landscape_reframe':dict(version=1,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
                 source_frame_rate=rate,subtitle_timing_preserved=True)}
