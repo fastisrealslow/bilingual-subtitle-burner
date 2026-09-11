@@ -3,7 +3,7 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789111296,
+  "updated_at": 1789111349,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 14,
+    "verified_live": 13,
     "verified_audio_card": 13,
-    "daily_mix_usable": 16,
+    "daily_mix_usable": 15,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6050,15 +6050,16 @@
         "source_url": "https://www.bilibili.com/video/BV1gBfCBpEFj",
         "family": "BV1gBfCBpEFj",
         "slugs": [
-          "ly-0909-703b35"
+          "ly-0909-703b35",
+          "ly-0909-703b35-u0911"
         ],
         "source_sha256": [
           "d8ae9476e5e894920e6f5881db5141c9d603c62b271d096eb4e58397b13e1665"
         ],
         "failures": [],
-        "verified_available": 2,
-        "verified_live": 2,
-        "verified_seconds": 536.2,
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 172.56,
         "historical_receipts": 1
       },
@@ -6144,11 +6145,13 @@
           "ly-0909-2ee3a5",
           "ly-0909-2ee3a5-u0911"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "59b9cff35414b7b2f80bbb414764c66fd9ea02523df47a719e0ab474bdc4d97a"
+        ],
         "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 161.9,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -7772,8 +7775,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7785,8 +7788,8 @@
         "attempted_mothers": 1,
         "verified_available": 2,
         "verified_seconds": 282.1,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -7892,8 +7895,8 @@
       },
       "BV1gBfCBpEFj": {
         "attempted_mothers": 1,
-        "verified_available": 2,
-        "verified_seconds": 536.2
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV1Z6SEBrEdQ": {
         "attempted_mothers": 1,
@@ -7918,8 +7921,8 @@
       },
       "BV1z1U5BZEMe": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 1,
+        "verified_seconds": 161.9
       },
       "BV1XZ6EY7EMK": {
         "attempted_mothers": 1,
@@ -7942,9 +7945,9 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
+        "terminal_render-layout": 1,
         "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8095,8 +8098,37 @@
       }
     }
   },
-  "in_flight_placeholders": 15,
+  "in_flight_placeholders": 14,
   "artifacts": [
+    {
+      "slug": "ly-0909-2ee3a5-u0911",
+      "artifact_id": 10188851354,
+      "run_id": 34573099697,
+      "checked_at": 1789111340,
+      "source_url": "https://www.bilibili.com/video/BV1z1U5BZEMe",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final.mp4",
+          "title": "林园：而且未来这个人口老龄化嘛，咱上次也提到",
+          "duration_sec": 161.9,
+          "render_mode": "crop_delogo",
+          "content_type": null,
+          "source_sha256": "59b9cff35414b7b2f80bbb414764c66fd9ea02523df47a719e0ab474bdc4d97a",
+          "segments": [
+            {
+              "start": 1845.0,
+              "end": 2006.92,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "c8bb02ee617cdd96a033d76d653a62e55a11f6208d5511ffa470d6804d027882",
+          "subtitle_sha256": "7d7d4e87e1f6c0e373ce53f42e7fdbb4a4068d09c554e3f567aa4842245b8832",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0909-2e376f-u0911",
       "artifact_id": 10188838177,
@@ -8607,75 +8639,6 @@
           ],
           "sha256": "c17d0143d81a985a7d2f3c854551d627e4be06d3e324e308e0233fa5de1940a4",
           "subtitle_sha256": "dfe2f82b943604dbbc438ee583f179cb04c8319712784496c3882ab3c5a06ada",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-703b35",
-      "artifact_id": 10104193325,
-      "run_id": 34346142451,
-      "checked_at": 1789047885,
-      "source_url": "https://www.bilibili.com/video/BV1gBfCBpEFj",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_1.mp4",
-          "title": "林园：至少我母亲他是支持我的，他好像就是没有提出过什么异议",
-          "duration_sec": 172.6,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "d8ae9476e5e894920e6f5881db5141c9d603c62b271d096eb4e58397b13e1665",
-          "segments": [
-            {
-              "start": 79.08,
-              "end": 251.64,
-              "reason": "林总从八九年中国股市试点开始，怀揣八千块钱进军股市，其投资逻辑源于好奇心和家庭支持。他提到当时没有太多投资理论，但通过观察市场供求关系和企业财务数据，逐渐形成以财务思维为核心的投资框架，强调选好企业后严格遵循财务数据进行投资，属于价值投资范畴。这一观点完整阐述了其早期投资经历、家庭环境影响、投资逻辑形成过程及与传统价值投资的区别，时长为128.04-251.64秒（约123.6秒），符合120-180秒要求。"
-            }
-          ],
-          "sha256": "36a090b5ee39f12bef93e9a8c28b8a1f3da410fc668512807d09b62ae312a9ed",
-          "subtitle_sha256": "119caf732836833be1f4795c6368e1a1884bb24a52641db682cea2b4f72420c7",
-          "status": "verified",
-          "reason": null
-        },
-        {
-          "index": 1,
-          "final": "final_2.mp4",
-          "title": "林园：我知道这个老的这一批这个价值投资者啊，他们通常会使用这个现金流折现思维",
-          "duration_sec": 391.9,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "d8ae9476e5e894920e6f5881db5141c9d603c62b271d096eb4e58397b13e1665",
-          "segments": [
-            {
-              "start": 335.48,
-              "end": 727.4,
-              "reason": "在财务思维下，投资的核心是行业宏观层面的确定性，而非微观细节。林园强调，其投资框架基于行业从零到壮年的周期性增长，通过需求端的长期趋势判断行业最终规模，而非现金流折现等微观计算。关键点包括：行业需有革命性机会、需求端的长期稳定性（如必需品）、对黑天鹅事件的免疫性（不影响需求端）。例如，他提到中低端必需品在宏观经济波动中仍具需求稳定性，但需避免替代品。这种框架下，投资标的极少，但行业大背景的确定性是核心。结论：财务思维聚焦行业宏观，以需求端长期趋势为依据，确保投资的确定性。"
-            }
-          ],
-          "sha256": "15c57f66ffa36765a34c7158424ca3cd5e26ce04ecb1b48440146fce79b5dd30",
-          "subtitle_sha256": "f22868a9b71c7a8e3f78600e5ad2fefd53c8a06868ee523a110186df8eac5db2",
-          "status": "verified",
-          "reason": null
-        },
-        {
-          "index": 2,
-          "final": "final_4.mp4",
-          "title": "林园：我们买的时候没有想着去卖出啊，这就对了",
-          "duration_sec": 144.3,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "d8ae9476e5e894920e6f5881db5141c9d603c62b271d096eb4e58397b13e1665",
-          "segments": [
-            {
-              "start": 1049.48,
-              "end": 1193.72,
-              "reason": "林园讨论了投资决策中买入和退出点的判断标准，强调了长期持有优质企业的必要性。他指出，真正的投资价值在于企业自身持续成长和分红能力，而非短期市场波动。当企业具备长期健康发展的潜力时，投资者应避免频繁交易，而是通过持有股权与企业共成长。他举例说明，如果企业能持续分红且行业长期存在，投资者应持有至企业自然退出市场，而非因市场波动而卖出。这一观点基于对资本市场本质的理解：股市是股权交易市场，企业经营才是股东回报的真正来源。结论是，投资者应以企业长期价值为导向，将买入决策作为核心，卖出决策相对次要，从而实现长期稳定收益。该段落从字幕1049.48到1189.64，时长140.16秒，符合120-180秒要求，主题连贯，有观点、案例和自然结论。"
-            }
-          ],
-          "sha256": "832cd45257a92b1dbec946a33cdbbd96127f2abfdef27156bce97ee1608e2fa4",
-          "subtitle_sha256": "015ab4b37395c73c23b32ac000b11befb109a10ce6c653e1d3c37f51a5ac0a67",
           "status": "verified",
           "reason": null
         }
