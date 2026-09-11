@@ -166,6 +166,9 @@ def cover_copy(title, transcript=None, speaker='林园'):
 
 def attach_copy(result, transcript, speaker='林园', existing_titles=None, reviewed_cover=None):
     result=dict(result)
+    from editorial_policy import publication_tags
+    result['tags']=publication_tags(transcript,speaker,result.get('tags'),
+                                    'full_interview' if '完整访谈' in result.get('tags',[]) else None)
     candidates=title_candidates(transcript,speaker,existing_titles)
     if result['title'] not in candidates:candidates.insert(0,result['title'])
     cover=cover_copy(result['title'],transcript,speaker)

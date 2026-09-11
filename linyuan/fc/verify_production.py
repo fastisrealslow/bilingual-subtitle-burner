@@ -35,9 +35,10 @@ def main():
 
     health = invoke({'triggerName':'diagnose-production'})
     expected = hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
-    if (health.get('code_sha256') != expected or health.get('daily_limit') != 3
-            or health.get('publish_hours_beijing') != [10, 16, 21]
-            or health.get('live_min_per_day') != 3 or health.get('audio_max_per_day') != 0
+    if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
+            or health.get('publish_hours_beijing') != [10, 14, 16, 21]
+            or health.get('live_min_per_day') != 4
+            or health.get('landscape_hour_beijing') != 14 or health.get('audio_max_per_day') != 0
             or health.get('weekly_full_slot_beijing') != {'weekday': 6, 'hour': 21}
             or health.get('editorial_policy_version') != 2026090604
             or health.get('minimum_final_seconds') != 120
@@ -45,8 +46,8 @@ def main():
             or health.get('dispatch_workflow_ref') != 'main'):
         raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
     # Keep the inexpensive coordinator hourly; rendering remains GitHub CPU-only.
-    # Publish at 10/16/21 Beijing time, with the first item at 10:00.
-    desired = {'dispatch':'0 37 * * * *', 'publish':'0 0 2,8,13 * * *'}
+    # Publish at 10/14/16/21 Beijing time, with the first item at 10:00.
+    desired = {'dispatch':'0 37 * * * *', 'publish':'0 0 2,6,8,13 * * *'}
     read_runtime = util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,
                                        autoretry=True,max_attempts=3)
     response = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)

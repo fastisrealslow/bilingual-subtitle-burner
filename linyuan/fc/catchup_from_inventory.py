@@ -14,7 +14,8 @@ def inventory_action(initial, stock):
         return None
     if fc.catchup_deficit(initial) and stock.get('publishable_now',stock['daily_mix_usable'])>0:
         return 'publish-catchup'
-    if stock['daily_mix_usable']<fc.TARGET_READY_RESERVE:
+    if (stock['daily_mix_usable']<fc.TARGET_READY_RESERVE
+            or stock.get('verified_landscape',0)<fc.TARGET_LANDSCAPE_RESERVE):
         return 'dispatch-source-inventory'
     return None
 

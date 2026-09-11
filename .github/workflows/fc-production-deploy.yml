@@ -81,7 +81,7 @@ jobs:
       - name: 单片隔离与每日配额回归
         run: |
           pip install -q pytest jieba requests
-          python -m pytest -q tests/test_linyuan_state_merge.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py
+          python -m pytest -q tests/test_linyuan_state_merge.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py tests/test_linyuan_daily_landscape.py tests/test_linyuan_headline_policy.py
           python -m pytest -q tests/test_linyuan_reviewed_updates.py
           python -m pytest -q tests/test_linyuan_third_video.py
 

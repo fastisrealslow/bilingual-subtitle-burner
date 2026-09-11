@@ -14,6 +14,38 @@ TARGET_SECONDS = 180.0
 MODEL_REVIEW_POLICY_VERSION = 2026090901
 
 
+def publication_tags(transcript, speaker='林园', existing=None, content_type=None):
+    """Use clip evidence for topic tags; do not borrow a whole mother's topics."""
+    text = re.sub(r'\s+', '', str(transcript or ''))
+    tags = [speaker, '价值投资', '投资理念']
+    topics = (
+        ('财务分析', ('财务', '财报', '资产负债', '利润表')),
+        ('长期持有', ('长期持有', '长期投资', '不卖', '不去卖', '没有想着去卖', '一直持有')),
+        ('企业经营', ('企业', '生意', '经营', '公司')),
+        ('现金流', ('现金流',)), ('分红', ('分红', '股息')),
+        ('投资风险', ('风险', '亏损', '亏钱', '套住')),
+        ('股票投资', ('股票', '股市', '资本市场')),
+        ('行业研究', ('行业', '竞争', '市场份额', '垄断')),
+        ('消费行业', ('消费', '白酒', '食品', '饮料')),
+        ('医药行业', ('医药', '制药', '药品')),
+        ('投资经历', ('八千块', '八千元', '入市', '进军股市')),
+    )
+    if content_type == 'full_interview':
+        tags.append('完整访谈')
+    for tag, phrases in topics:
+        if any(phrase in text for phrase in phrases):
+            tags.append(tag)
+    # Preserve additional source-supported editorial tags, normalize and cap.
+    if isinstance(existing, str):
+        existing = re.split(r'[,，]', existing)
+    for tag in existing or []:
+        if isinstance(tag, str):
+            tag = tag.strip().strip('#')
+            if 2 <= len(tag) <= 20 and tag in text and ',' not in tag:
+                tags.append(tag)
+    return list(dict.fromkeys(tags))[:8]
+
+
 def model_review_skipped(review):
     return bool(isinstance(review,dict)
         and review.get('version')==VERSION

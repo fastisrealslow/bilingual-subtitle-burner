@@ -52,8 +52,9 @@ MIN_DUR, MAX_DUR = 120, 5400            # 源片须足够产出至少2分钟的�
 # 竞品号：监控但不抄（视频在 data.json 供分析，选片/出片时跳过，2026-08-29）
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
-MAX_PUBLISH_PER_DAY = 3                  # 2026-09-08：精选三条，长访谈也占当天名额
+MAX_PUBLISH_PER_DAY = 4                  # 三个原时段 + 每天14点一条横屏
 TARGET_READY_RESERVE = 12
+TARGET_LANDSCAPE_RESERVE = 2
 MAX_ACTIVE_SOURCES = 6
 SOURCE_INVENTORY_KEY = 'linyuan/.automation/source_inventory.json'
 DISPATCH_LEASE_KEY = 'linyuan/.automation/pipeline_lease.json'
@@ -322,13 +323,14 @@ def title_has_target_speaker(title):
 
 # 普通投稿好时段（北京时间）。FC 的兼容触发器仍可每小时唤醒，但只有这些
 # 小时真正检查并投稿；批量任务带 batch_slug，明确绕过本限制。
-PUBLISH_HOURS = {10, 16, 21}
+PUBLISH_HOURS = {10, 14, 16, 21}
+LANDSCAPE_HOUR = 14
 WEEKLY_FULL_SLOT = (6, 21)               # 周日21点（北京时间，周一=0）
 UPLOAD_LEASE_SECONDS = 45 * 60
 
 
 def is_regular_publish_hour(now=None):
-    """普通队列只在三个北京时间窗口运行。"""
+    """普通队列只在四个北京时间窗口运行。"""
     stamp = time.time() if now is None else float(now)
     return time.gmtime(stamp + 8 * 3600).tm_hour in PUBLISH_HOURS
 
@@ -350,13 +352,25 @@ def slot_published(st, now=None):
     return False
 
 
+def is_landscape(meta):
+    resolution = meta.get('resolution') or {}
+    try:
+        return (int(resolution.get('width', 0)) > int(resolution.get('height', 0)) > 0
+                and meta.get('render_mode') != 'audio_card')
+    except (TypeError, ValueError):
+        return False
+
+
 def content_fits_slot(meta, entry=None, now=None):
     local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
     full_slot = (local.tm_wday, local.tm_hour) == WEEKLY_FULL_SLOT
     full = meta.get('content_type') == 'full_interview'
     if (entry or {}).get('weekly_full_week') and not full:
         return False  # Keep this mother's full interview unused for Sunday.
-    return full == full_slot
+    if full_slot or full:
+        return full == full_slot
+    # Reserve all landscape clips for the added daily slot, including catch-up.
+    return is_landscape(meta) == (local.tm_hour == LANDSCAPE_HOUR)
 
 
 def weekly_full_request(candidate, st, now=None):
@@ -1783,7 +1797,7 @@ def handler(event, context):
             payload = json.loads(gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True).decode())
             items = payload if isinstance(payload, list) else payload.get("items", [])
             return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-                    "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 3, "audio_max_per_day": 0,
+                    "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4, "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
                     "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
                     "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
                     "production_rules_version": PRODUCTION_RULES_VERSION,
@@ -1918,7 +1932,7 @@ def source_inventory(st, payload=None):
            and payload.get('editorial_policy_version')==editorial.VERSION
            and time.time()-float(payload.get('updated_at') or 0)<3*3600)
     latest={e['slug']:e for e in _latest_dispatches(st)}
-    live=audio=0
+    live=audio=landscape=slot_ready=0
     if valid:
         for record in payload.get('artifacts',[]):
             slug=record.get('slug'); e=latest.get(slug)
@@ -1929,12 +1943,15 @@ def source_inventory(st, payload=None):
                 if e.get('weekly_full_week') and part.get('content_type') != 'full_interview':continue
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
+                if is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
+                if content_fits_slot(part,e) and part.get('render_mode')!='audio_card':slot_ready+=1
     today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
     daily=st.get('daily_publish') or {}
     if daily.get('date')!=today:daily={}
     audio_now=bool(audio and not daily_mix_error(dict(render_mode='audio_card'),daily))
-    publishable=max(0,min(live+int(audio_now),MAX_PUBLISH_PER_DAY-int(daily.get('count') or 0)))
-    return dict(verified_live=live,verified_audio_card=audio,publishable_now=publishable,
+    publishable=max(0,min(slot_ready+int(audio_now),MAX_PUBLISH_PER_DAY-int(daily.get('count') or 0)))
+    return dict(verified_live=live,verified_audio_card=audio,verified_landscape=landscape,
+                landscape_target=TARGET_LANDSCAPE_RESERVE,publishable_now=publishable,
                 daily_mix_usable=live,target_reserve=TARGET_READY_RESERVE,
                 inventory_fresh=valid)
 
@@ -1962,13 +1979,14 @@ def _dispatch_admitted(event=None, context=None):
     if isinstance(event, dict) and event.get("_refill_count"):
         target = max(1, min(MAX_PER_DAY, int(event["_refill_count"])))
     inventory=source_inventory(st)
-    if inventory['daily_mix_usable']>=TARGET_READY_RESERVE:
+    landscape_needed=max(0,TARGET_LANDSCAPE_RESERVE-inventory.get('verified_landscape',0))
+    if inventory['daily_mix_usable']>=TARGET_READY_RESERVE and not landscape_needed:
         return {'dispatched':0,'reserve_full':1,**inventory}
     active=sum(len(gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30)
                        .get('workflow_runs',[])) for status in ('in_progress','queued'))
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
-    target=min(target,MAX_ACTIVE_SOURCES-active,TARGET_READY_RESERVE-inventory['daily_mix_usable'])
+    target=min(target,MAX_ACTIVE_SOURCES-active,max(landscape_needed,TARGET_READY_RESERVE-inventory['daily_mix_usable']))
     # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
@@ -2004,6 +2022,7 @@ def _dispatch_admitted(event=None, context=None):
             'ref':'main','inputs':{'source':source,'slug':entry['slug'],'speaker':'林园',
                 'occasion':entry.get('title','')[:30],'auto_publish':'false',
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
+                'output_layout':entry.get('output_layout','auto'),
                 **({'reviewed_parts':str(entry['reviewed_parts'])} if entry.get('reviewed_parts') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
@@ -2058,17 +2077,19 @@ def _dispatch_admitted(event=None, context=None):
             else:
                 raise RuntimeError("无可用 URL")
             full_week = weekly_full_request(c, st)
+            output_layout = "landscape" if not full_week and success < landscape_needed else "portrait"
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
                            "include_full": "true" if full_week else "false",
+                           "output_layout": output_layout,
                            "speaker": "林园", "occasion": c["title"][:30],
                            "delay_hours": "0", "auto_publish": "false",
                            "source_platform": platform_of(c.get("source", ""))}})
             st["dispatched"].append({"key": c["key"], "video_id": c["video_id"],
                                      "required_presentation_version": 2,
                                      "production_rules_version": PRODUCTION_RULES_VERSION,
-                                     "weekly_full_week": full_week,
+                                     "weekly_full_week": full_week, "output_layout": output_layout,
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
@@ -2207,7 +2228,7 @@ def mark_part_processed(entry, index):
     entry['processed_part_indices']=sorted(i for i in done if i>=prefix)
 
 
-def inventory_part_index(entry, artifact_id, records, daily):
+def inventory_part_index(entry, artifact_id, records, daily, now=None):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
     None means a known verified reserve is temporarily blocked by today's mix;
@@ -2221,7 +2242,8 @@ def inventory_part_index(entry, artifact_id, records, daily):
                       and int(p['index']) not in processed_part_indices(entry)),
                      key=lambda p:int(p['index']))
         if ready:
-            return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)),None)
+            return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
+                         and (now is None or content_fits_slot(p,entry,now))),None)
     return int(entry.get('published_parts') or 0)
 
 
@@ -2331,19 +2353,12 @@ def presentation_quality_error(meta):
 
 
 def daily_mix_error(meta, daily):
-    """Three daily releases retain the >=70% live rule, so all three are live.
-
-    Unknown historical modes do not count as verified live footage.
-    """
+    """The extra landscape slot preserves the current live-footage-only policy."""
     if meta.get("render_mode") in {"live_video_card", "direct", "delogo", "crop", "crop_delogo"}:
         return None
-    if meta.get("render_mode") != "audio_card":
-        return "内容形态不明，不能计入真人动态配额"
-    audio = int(daily.get("audio_card_count") or 0) + 1
-    live = int(daily.get("live_video_count") or 0)
-    if audio > int(MAX_PUBLISH_PER_DAY * 0.30) or audio * 10 > (audio + live) * 3:
-        return "音频卡额度暂不可用，三条日上限下保持真人动态比例，继续选择真人片"
-    return None
+    if meta.get("render_mode") == "audio_card":
+        return "音频卡额度不可用，四条日上限均保留真人动态视频"
+    return "内容形态不明，不能计入真人动态配额"
 
 
 def artifact_quality_error(meta):
@@ -2630,6 +2645,7 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
             "ref": "main",
             "inputs": {"source": source, "slug": slug,
                        "speaker": "林园", "occasion": e.get("title", "")[:30],
+                       "output_layout": e.get("output_layout", "auto"),
                        "delay_hours": "0", "auto_publish": "false",
                        **({'reviewed_parts':str(e['reviewed_parts'])} if e.get('reviewed_parts') else {}),
                        # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
@@ -2865,7 +2881,8 @@ def publish_handler(event=None, context=None):
                 save_state(st)
             continue
         if s in arts:
-            selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget)
+            selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
+                                                    now=None if batch_slug else now)
             if selected_part_index is None:
                 log.info('%s 已验证余量暂不符合今日形态比例，继续找真人片',s)
                 continue
@@ -3027,7 +3044,7 @@ def publish_handler(event=None, context=None):
     meta_info = part
     title = (part.get("title") or e.get("title") or slug)
     desc = clean_publish_desc(part.get("desc", ""))
-    tags = ",".join(part.get("tags", ["林园", "价值投资"]))
+
     cover = None
     if part.get("cover") and (tmp / slug / part["cover"]).exists():
         cover = tmp / slug / part["cover"]
@@ -3052,6 +3069,12 @@ def publish_handler(event=None, context=None):
                   "quality_rejected": 1}
         return _continue_after_rejection(event, context, slug, result, tmp)
     
+    # Enrich queued clips too, using the actual hash-checked ASS, never source titles.
+    tags = ",".join(editorial.publication_tags(
+        editorial.subtitle_files_text(tmp / slug, part.get('subtitle_files')),
+        speaker=part.get('speaker') or '林园', existing=part.get('tags'),
+        content_type=part.get('content_type')))
+
     if fresh_budget is not None:
         review_error = fresh_six_review_error(part, video, slug, e.get("source_url") or "")
         if review_error:
@@ -3106,7 +3129,7 @@ def publish_handler(event=None, context=None):
     if cover:
         cmd += ["--cover", str(cover)]
     
-    # 立即发布：cron 已按 3 时段（10/16/21）唤醒 + 每次只投 1 条，
+    # 立即发布：cron 已按 4 时段（10/14/16/21）唤醒 + 每次只投 1 条，
     # 天然分散不扎堆，无需再算延迟发布时间（2026-08-29 去掉 pick_publish_slot 双轨制）
     log.info("立即发布（cron 时段已分散，无需延迟）")
 
@@ -3218,7 +3241,8 @@ def publish_handler(event=None, context=None):
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
-                          "part_index": k,
+                          "part_index": k, "tags": tags.split(","),
+                          "resolution": part.get("resolution") or {},
                           "render_mode": part.get("render_mode"),
                           "content_type": part.get("content_type"),
                           "fresh_six_date": FRESH_SIX_DATE if fresh_budget is not None else None,

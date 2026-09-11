@@ -187,7 +187,7 @@ def test_inventory_event_replenishes_before_the_next_publish_window(monkeypatch)
     assert catchup.inventory_action({},stock)=='publish-catchup'
     monkeypatch.setattr(catchup.fc,'catchup_deficit',lambda state:0)
     assert catchup.inventory_action({},stock)=='dispatch-source-inventory'
-    stock['daily_mix_usable']=12
+    stock.update(daily_mix_usable=12,verified_landscape=2)
     assert catchup.inventory_action({},stock) is None
     stock.update(inventory_fresh=False,daily_mix_usable=0)
     assert catchup.inventory_action({},stock) is None
@@ -298,7 +298,7 @@ def test_compare_and_swap_conflict_does_not_dispatch(monkeypatch):
     assert fc.dispatch_handler()['admission_busy']==1
 
 
-def test_catchup_only_fills_current_slot_and_respects_daily_three():
+def test_catchup_only_fills_current_slot_and_respects_daily_four():
     now=datetime(2026,9,7,2,30,tzinfo=timezone.utc).timestamp()
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=0)),now)==1
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=1)),now)==0
@@ -310,15 +310,15 @@ def test_catchup_only_fills_current_slot_and_respects_daily_three():
 def test_removed_windows_never_catch_up_and_one_slot_cannot_burst():
     stamp=lambda hour:datetime(2026,9,9,hour-8,30,tzinfo=timezone.utc).timestamp()
     state=dict(daily_publish=dict(date='2026-09-09',count=0))
-    for hour in (12,14,19,22):
+    for hour in (12,19,22):
         assert not fc.is_regular_publish_hour(stamp(hour))
         assert fc.catchup_deficit(state,stamp(hour))==0
-    for hour in (10,16,21):
+    for hour in (10,14,16,21):
         assert fc.catchup_deficit(state,stamp(hour))==1
     state['daily_publish'].update(count=1,published_hours=[16])
     assert fc.catchup_deficit(state,stamp(16))==0
     assert fc.catchup_deficit(state,stamp(21))==1
-    state['daily_publish']['count']=3
+    state['daily_publish']['count']=4
     assert fc.catchup_deficit(state,stamp(21))==0
 
 
@@ -366,7 +366,7 @@ def test_publisher_lease_blocks_timer_and_inventory_race(monkeypatch):
 def test_stock_target_stops_source_expansion(monkeypatch):
     monkeypatch.setattr(fc,'load_state',lambda:dict(dispatched=[],published={}))
     monkeypatch.setattr(fc,'_collect_source_rejections',lambda st:0)
-    monkeypatch.setattr(fc,'source_inventory',lambda st:dict(daily_mix_usable=12))
+    monkeypatch.setattr(fc,'source_inventory',lambda st:dict(daily_mix_usable=12,verified_landscape=2))
     monkeypatch.setattr(fc,'gh',lambda *a,**kw: (_ for _ in ()).throw(AssertionError('unnecessary new job')))
     assert fc._dispatch_admitted()['reserve_full']==1
 

@@ -160,10 +160,10 @@ class BatchIsolationTests(unittest.TestCase):
         state=dict(dispatched=[dict(slug='stale',ts=1),dict(slug='running',ts=time.time(),production_rules_version=fc.PRODUCTION_RULES_VERSION)],published={})
         self.assertEqual(fc._pending_final_count(state),1)
 
-    def test_legacy_batch_override_cannot_exceed_three_daily_releases(self):
+    def test_legacy_batch_override_cannot_exceed_four_daily_releases(self):
         today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
         state=dict(dispatched=[dict(slug='manual',ts=time.time())],published={},
-                   daily_publish=dict(date=today,count=3))
+                   daily_publish=dict(date=today,count=4))
         with patch.object(fc,'load_state',return_value=state), \
              patch.object(fc,'save_state'), patch.object(fc,'_collect_source_rejections',return_value=0), \
              patch.object(fc,'gh',side_effect=AssertionError('must stop before upload/artifact network')):
@@ -183,7 +183,7 @@ class BatchIsolationTests(unittest.TestCase):
         self.assertIsNone(fc.daily_mix_error(dict(render_mode='live_video_card'),{}))
 
     def test_daily_publish_windows_start_at_ten_beijing(self):
-        self.assertEqual(fc.PUBLISH_HOURS, {10, 16, 21})
+        self.assertEqual(fc.PUBLISH_HOURS, {10, 14, 16, 21})
 
     def test_exact_artifact_must_match_the_reviewed_slug(self):
         state = dict(dispatched=[], published={}, daily_publish={})

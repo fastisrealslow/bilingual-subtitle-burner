@@ -41,6 +41,13 @@ def validate_part(meta, directory):
     error = fc.editorial.metadata_error(meta, fc.mp4_duration(path))
     if error:
         return error
+    # Read the encoded dimensions, so a claimed landscape flag cannot fill 14:00.
+    dimensions = json.loads(subprocess.check_output(['ffprobe','-v','error',
+        '-select_streams','v:0','-show_entries','stream=width,height',
+        '-of','json',str(path)], timeout=30))['streams'][0]
+    declared = meta.get('resolution') or {}
+    if any(dimensions[key] != declared.get(key) for key in ('width','height')):
+        return 'Actual MP4 dimensions differ from metadata'
     probe = subprocess.run(['ffmpeg','-v','error','-xerror','-i',str(path),
         '-map','0:v:0','-map','0:a:0','-f','null','-'], capture_output=True, timeout=120)
     if probe.returncode:
@@ -77,7 +84,7 @@ def audit_materials(items):
 
 def inventory_counts(records, state):
     latest={e['slug']:e for e in fc._latest_dispatches(state)}
-    live=audio=0
+    live=audio=landscape=0
     for record in records:
         slug=record['slug']; entry=latest.get(slug,{})
         if slug in fc.REVIEW_PAUSED_SLUGS or entry.get('failed'):
@@ -88,8 +95,10 @@ def inventory_counts(records, state):
                 continue
             if part['render_mode']=='audio_card':audio+=1
             else:live+=1
-    return dict(verified_live=live,verified_audio_card=audio,
-                daily_mix_usable=live+min(audio,live//5), target_reserve=12)
+            if fc.is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
+    return dict(verified_live=live,verified_audio_card=audio,verified_landscape=landscape,
+                landscape_target=fc.TARGET_LANDSCAPE_RESERVE,
+                daily_mix_usable=live, target_reserve=fc.TARGET_READY_RESERVE)
 
 
 def main():
@@ -150,7 +159,7 @@ def main():
                     error=validate_part(m,tmp)
                     record['parts'].append(dict(index=i,final=m.get('final'),title=m.get('title'),
                         duration_sec=m.get('duration_sec'),render_mode=m.get('render_mode'),
-                        content_type=m.get('content_type'),
+                        content_type=m.get('content_type'),resolution=m.get('resolution') or {},
                         source_sha256=m.get('source_sha256'),segments=m.get('segments'),
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
                         subtitle_sha256=m.get('subtitle_text_sha256'),
