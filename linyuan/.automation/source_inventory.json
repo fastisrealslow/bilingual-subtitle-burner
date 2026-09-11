@@ -3,7 +3,7 @@
   "validation_sha256": "7ec7d0dd42022e56f5be2abac0a7bd336006f76d2816a4d65bcab9b9f1153673",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789118931,
+  "updated_at": 1789119095,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -6895,7 +6895,14 @@
           "ly-0911-cd3238"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0911-cd3238",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景连续0.03秒缺少人脸"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -6984,28 +6991,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1h2YEzzEmX:p1",
-        "source_url": "https://www.bilibili.com/video/BV1h2YEzzEmX",
-        "family": "BV1h2YEzzEmX",
-        "slugs": [
-          "ly-0911-fe6777"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0911-fe6777",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "动态取景连续2.03秒缺少人脸"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1L7V56NExf:p1",
         "source_url": "https://www.bilibili.com/video/BV1L7V56NExf",
         "family": "BV1L7V56NExf",
@@ -7019,28 +7004,6 @@
             "stage": "editorial-or-render",
             "terminal": true,
             "reason": "真人动态区检出来源二维码（含裁切残留定位图案）"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1hh411K7dJ:p1",
-        "source_url": "https://www.bilibili.com/video/BV1hh411K7dJ",
-        "family": "BV1hh411K7dJ",
-        "slugs": [
-          "ly-0911-171705"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0911-171705",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "话题起点不连续、重复或切断原句；保留ASR，不判整源无合格片"
           }
         ],
         "verified_available": 0,
@@ -7109,7 +7072,58 @@
           "ly-0911-4f5c14"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0911-4f5c14",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1hh411K7dJ:p1",
+        "source_url": "https://www.bilibili.com/video/BV1hh411K7dJ",
+        "family": "BV1hh411K7dJ",
+        "slugs": [
+          "ly-0911-171705"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-171705",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "话题起点不连续、重复或切断原句；保留ASR，不判整源无合格片"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1h2YEzzEmX:p1",
+        "source_url": "https://www.bilibili.com/video/BV1h2YEzzEmX",
+        "family": "BV1h2YEzzEmX",
+        "slugs": [
+          "ly-0911-fe6777"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-fe6777",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "动态取景连续2.03秒缺少人脸"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7162,7 +7176,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
-        "terminal_editorial-or-render": 1,
+        "terminal_editorial-or-render": 2,
         "terminal_quality-service": 1
       },
       "BV1H4Na6kEFd": {
@@ -8350,7 +8364,8 @@
       "BV1MU5J6GEAh": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1Gs4y1y7Qi": {
         "attempted_mothers": 1,
@@ -8375,21 +8390,11 @@
         "verified_seconds": 0,
         "terminal_source-quality": 1
       },
-      "BV1h2YEzzEmX": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1L7V56NExf": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
-      },
-      "BV1hh411K7dJ": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
       },
       "BV1Vt4y1q7fc": {
         "attempted_mothers": 1,
@@ -8406,10 +8411,20 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1hh411K7dJ": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1h2YEzzEmX": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 15,
   "artifacts": [
     {
       "slug": "ly-0910-interview-clean-v4-wide0911",
