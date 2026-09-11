@@ -1,0 +1,55 @@
+name: 林园库存真人角标误判实片回归
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-stock-corner-check.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pytest numpy pillow 'opencv-python<5' rapidocr-onnxruntime
+      - run: python -m pytest -q tests/test_linyuan_visual_gate.py tests/test_stock_upgrade.py
+      - name: 下载实际误拒绝画面
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 34572162748 --repo "$GITHUB_REPOSITORY" --name render-evidence-ly-0910-d2b531-u0911 --dir actual
+      - name: 柜门把手不是文字，真实文字水印仍须拦截
+        env:
+          PYTHONPATH: linyuan
+        run: |
+          python - <<'PY'
+          import cv2,json
+          from pathlib import Path
+          import produce_cn as p
+          frames=sorted(Path('actual/live-region-final_1').glob('frame-*.jpg'))
+          assert len(frames)==6
+          found=p.detect_corner_logos_in_images(frames,max_area=.04)
+          print('ACTUAL NEGATIVE',found,flush=True)
+          assert not found,'柜门把手仍然被识别成水印'
+          control=Path('positive-control');control.mkdir()
+          marked=[]
+          for i,src in enumerate(frames[:3]):
+              frame=cv2.imread(str(src))
+              cv2.putText(frame,'bilibili',(425,35),cv2.FONT_HERSHEY_SIMPLEX,.8,(255,255,255),2,cv2.LINE_AA)
+              dst=control/f'{i}.jpg';cv2.imwrite(str(dst),frame);marked.append(dst)
+          positive=p.detect_corner_logos_in_images(marked,max_area=.04)
+          print('ACTUAL POSITIVE',positive,flush=True)
+          assert positive,'不能因修复误拒绝而放过稳定文字水印'
+          Path('corner-regression.json').write_text(json.dumps(dict(negative=found,positive=positive,passed=True)))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stock-corner-regression
+          path: |
+            corner-regression.json
+            actual/live-region-final_1/corner_ocr.json
+            positive-control/corner_ocr.json

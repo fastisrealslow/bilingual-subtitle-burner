@@ -206,7 +206,7 @@ def test_corner_ocr_groups_persistent_boxes(monkeypatch, tmp_path):
 
     class OCR:
         def __call__(self, *args, **kwargs):
-            return [box], None
+            return [[box,"bilibili",.98]], None
 
     monkeypatch.setattr(P, "_ocr", lambda: OCR())
     found = P.detect_corner_logos_in_images(frames)
@@ -295,3 +295,27 @@ def test_cover_uses_the_same_cleanup_filter(monkeypatch, tmp_path):
         assert "-vf" in cmd
         assert cmd[cmd.index("-vf") + 1] == \
             "delogo=x=1:y=1:w=80:h=30,crop=852:440:0:0"
+
+
+def test_unrecognized_corner_shapes_are_not_watermark_evidence(monkeypatch,tmp_path):
+    cv2=pytest.importorskip('cv2');frames=[]
+    for i in range(3):
+        p=tmp_path/f'cabinet{i}.jpg';cv2.imwrite(str(p),np.full((470,632,3),127,dtype=np.uint8));frames.append(p)
+    box=[[30,380],[107,380],[107,458],[30,458]]
+    class OCR:
+        def __call__(self,*a,**kw):
+            assert kw['use_rec'] is True
+            return [[box,'川',.21]],None
+    monkeypatch.setattr(P,'_ocr',lambda:OCR())
+    assert P.detect_corner_logos_in_images(frames,max_area=.04)==[]
+
+
+def test_multiple_detections_in_one_frame_do_not_count_as_persistent(monkeypatch,tmp_path):
+    cv2=pytest.importorskip('cv2');frames=[]
+    for i in range(3):
+        p=tmp_path/f'frame{i}.jpg';cv2.imwrite(str(p),np.full((480,852,3),127,dtype=np.uint8));frames.append(p)
+    answers=iter([[[[710,30],[830,30],[830,55],[710,55]],'bilibili',.99]])
+    box=[[710,30],[830,30],[830,55],[710,55]]
+    responses=iter([[[box,'bilibili',.99]]*3,[],[]])
+    monkeypatch.setattr(P,'_ocr',lambda:lambda *a,**kw:(next(responses),None))
+    assert P.detect_corner_logos_in_images(frames)==[]

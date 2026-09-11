@@ -3754,49 +3754,44 @@ def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
 
 
 def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
-    """对已抽出的帧做 OCR 角标复检，供清理后的封面质量闸门使用。"""
+    """Require recognized, persistent corner text, not detector shapes alone."""
     try:
         import cv2
+        import math
         engine = _ocr()
-        boxes = []
-        got = 0
-        for fp in frame_paths:
-            f = cv2.imread(str(fp))
-            if f is None:
-                continue
-            H, W = f.shape[:2]
-            got += 1
-            res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
-            for b in (res or []):
-                xs = [pt[0] for pt in b]
-                ys = [pt[1] for pt in b]
-                boxes.append((min(xs) / W, min(ys) / H,
-                              max(xs) / W, max(ys) / H))
-        if not got:
-            raise VisualQualityError("OCR 没有读到任何封面帧")
-        clusters = []
-        for b in boxes:
-            hit = next((c for c in clusters
-                        if all(abs(b[k] - c["r"][k]) < 0.03 for k in range(4))), None)
-            if hit:
-                hit["n"] += 1
-            else:
-                clusters.append({"r": b, "n": 1})
-        out = []
-        for c in clusters:
-            if c["n"] < max(2, int(got * stable_ratio)):
-                continue
-            x0, y0, x1, y1 = c["r"]
-            if (x1 - x0) * (y1 - y0) > max_area:
-                continue
-            in_corner = (x1 < 0.35 or x0 > 0.65) and (y1 < 0.30 or y0 > 0.70)
-            if in_corner:
-                out.append((x0, y0, x1, y1))
-        return out
+        clusters=[];evidence=[];got=0
+        for frame_no,fp in enumerate(frame_paths):
+            f=cv2.imread(str(fp))
+            if f is None:continue
+            H,W=f.shape[:2];got+=1
+            res,_=engine(f,use_det=True,use_rec=True,use_cls=True)
+            for item in (res or []):
+                if not isinstance(item,(list,tuple)) or len(item)!=3 or not isinstance(item[1],str):
+                    raise VisualQualityError('角标OCR缺少文字识别结果，不能用形状框代替文字')
+                box,text,confidence=item
+                xs=[pt[0] for pt in box];ys=[pt[1] for pt in box]
+                rect=(min(xs)/W,min(ys)/H,max(xs)/W,max(ys)/H)
+                normalized=re.sub(r'\W+','',text).casefold()
+                evidence.append(dict(frame=frame_no,text=text,confidence=float(confidence),rect=rect))
+                if not normalized or float(confidence)<.75:continue
+                x0,y0,x1,y1=rect
+                if (x1-x0)*(y1-y0)>max_area:continue
+                if not ((x1<.35 or x0>.65) and (y1<.30 or y0>.70)):continue
+                hit=next((c for c in clusters if all(abs(rect[k]-c['rect'][k])<.03 for k in range(4))
+                          and __import__('difflib').SequenceMatcher(None,normalized,c['text']).ratio()>=.7),None)
+                if hit:hit['frames'].add(frame_no)
+                else:clusters.append(dict(rect=rect,text=normalized,frames={frame_no}))
+        if not got:raise VisualQualityError('OCR没有读到任何封面帧')
+        found=[c['rect'] for c in clusters if len(c['frames'])>=max(2,math.ceil(got*stable_ratio))]
+        if frame_paths:
+            (Path(frame_paths[0]).parent/'corner_ocr.json').write_text(json.dumps(dict(
+                engine='rapidocr_detection_and_recognition',sampled_frames=got,
+                min_confidence=.75,evidence=evidence,logos=found),ensure_ascii=False,indent=2))
+        return found
     except VisualQualityError:
         raise
     except Exception as e:
-        raise VisualQualityError(f"封面 OCR 角标复检失败：{e}") from e
+        raise VisualQualityError(f'封面OCR角标复检失败：{e}') from e
 
 
 def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02,
