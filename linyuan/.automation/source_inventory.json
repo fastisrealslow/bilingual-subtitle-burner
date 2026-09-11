@@ -3,7 +3,7 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789110073,
+  "updated_at": 1789110558,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 15,
-    "verified_audio_card": 12,
-    "daily_mix_usable": 18,
+    "verified_live": 14,
+    "verified_audio_card": 10,
+    "daily_mix_usable": 16,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6194,15 +6194,14 @@
         "source_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
         "family": "BV1f7C3YGEuk",
         "slugs": [
-          "ly-0909-1c3654"
+          "ly-0909-1c3654",
+          "ly-0909-1c3654-u0911"
         ],
-        "source_sha256": [
-          "566aa8e3dfe10416d332e24523fbc45bd39d6fe7073dd520781378670bec476f"
-        ],
+        "source_sha256": [],
         "failures": [],
-        "verified_available": 2,
+        "verified_available": 0,
         "verified_live": 0,
-        "verified_seconds": 326.9,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6216,12 +6215,11 @@
           "ly-0910-interview-clean-v3",
           "ly-0910-interview-clean-v4",
           "ly-0910-interview-clean-v4-u0911",
+          "ly-0910-interview-clean-v4-u0911r2",
           "ly-0910-interview-context-v2",
           "ly-0910-native-context-v1"
         ],
-        "source_sha256": [
-          "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e"
-        ],
+        "source_sha256": [],
         "failures": [
           {
             "slug": "ly-0910-690-text-boundaries",
@@ -6246,11 +6244,17 @@
             "stage": "render-review",
             "terminal": true,
             "reason": "资料图表底部裁字，已更新为完整的原访谈数据对比卡，等待新版本实测"
+          },
+          {
+            "slug": "ly-0910-interview-clean-v4-u0911",
+            "stage": "stock-upgrade-title",
+            "terminal": true,
+            "reason": "新版标题含口吃片段，人工抽帧发现回退，暂停投稿并重做"
           }
         ],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 127.2,
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -7745,8 +7749,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7907,15 +7911,16 @@
       },
       "BV1f7C3YGEuk": {
         "attempted_mothers": 1,
-        "verified_available": 2,
-        "verified_seconds": 326.9
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV1nt4y1o74A": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 127.2,
-        "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8066,37 +8071,8 @@
       }
     }
   },
-  "in_flight_placeholders": 10,
+  "in_flight_placeholders": 9,
   "artifacts": [
-    {
-      "slug": "ly-0910-interview-clean-v4-u0911",
-      "artifact_id": 10188245047,
-      "run_id": 34571793400,
-      "checked_at": 1789110064,
-      "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：现在我认为不不还不还不是消费",
-          "duration_sec": 127.2,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
-          "segments": [
-            {
-              "start": 329.4,
-              "end": 456.6,
-              "reason": "选择白酒的消费逻辑，以及持有时为何看财务而不是股价"
-            }
-          ],
-          "sha256": "f14e75eb93793a84e92c8bcfa56812337cb7f668e5bc8fb6c4d392bb32af4eed",
-          "subtitle_sha256": "550af232ae24bdbdaefea35da439a6646f2ef2b0ac3918da841842adc3f13ebd",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
     {
       "slug": "ly-0910-cb1c31-u0911",
       "artifact_id": 10188134885,
@@ -8413,55 +8389,6 @@
           ],
           "sha256": "c17d0143d81a985a7d2f3c854551d627e4be06d3e324e308e0233fa5de1940a4",
           "subtitle_sha256": "dfe2f82b943604dbbc438ee583f179cb04c8319712784496c3882ab3c5a06ada",
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0909-1c3654",
-      "artifact_id": 10130146974,
-      "run_id": 34417772252,
-      "checked_at": 1789047842,
-      "source_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_1.mp4",
-          "title": "林园：我们虽说这个市场有投机的城市",
-          "duration_sec": 131.0,
-          "render_mode": "audio_card",
-          "content_type": null,
-          "source_sha256": "566aa8e3dfe10416d332e24523fbc45bd39d6fe7073dd520781378670bec476f",
-          "segments": [
-            {
-              "start": 280.52,
-              "end": 411.48,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "b7b3065fe411c9b3ea8a69277267fc40a9a3a92a88c2084f02e861a637bdae08",
-          "subtitle_sha256": "e5e96aa9d60d18027c74a1de9e6d95bee12ed081697993895ac4f5261290ce13",
-          "status": "verified",
-          "reason": null
-        },
-        {
-          "index": 1,
-          "final": "final_2.mp4",
-          "title": "林园：二十块钱、三十块钱一件的鞋，这种，我告诉大家，不是一个常态，不可能",
-          "duration_sec": 195.9,
-          "render_mode": "audio_card",
-          "content_type": null,
-          "source_sha256": "566aa8e3dfe10416d332e24523fbc45bd39d6fe7073dd520781378670bec476f",
-          "segments": [
-            {
-              "start": 416.52,
-              "end": 612.36,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "ef5d5b6a5aed1f628cf0c8bf0bfc3abed706ccab74717cb6843fc83e0ea1b099",
-          "subtitle_sha256": "5ca02a0698fc1b9ad8a74513b7c346351dddc88e9d50ffd40fb8090f9c3f6870",
           "status": "verified",
           "reason": null
         }
