@@ -34,7 +34,7 @@ def delivery_meta(record):
 
 def audit(state,inventory,loader=delivery_meta):
     latest={e['slug']:e for e in fc._latest_dispatches(state)}
-    rows=[];errors=[]
+    rows=[];errors=[];seen=[]
     for record in inventory['artifacts']:
         slug=record['slug'];entry=latest.get(slug,{})
         if entry.get('failed') or slug in fc.REVIEW_PAUSED_SLUGS:continue
@@ -55,6 +55,20 @@ def audit(state,inventory,loader=delivery_meta):
             if meta.get('fingerprints',{}).get('sha256')!=part['sha256']:
                 errors.append(dict(slug=slug,index=i,error='Inventory/delivery hash mismatch'));continue
             duplicate=fc.find_content_duplicate(meta.get('fingerprints') or {},state)
+            pending_duplicate=None
+            if not duplicate:
+                for previous in seen:
+                    reason=fc.fingerprint_duplicate(meta.get('fingerprints') or {},previous['fingerprints'])
+                    if (not reason and meta.get('source_sha256')==previous['source_sha256']
+                            and any(min(a['end'],b['end'])-max(a['start'],b['start'])>.3
+                                    for a in meta.get('segments',[]) for b in previous['segments'])):
+                        reason='同一母片的未发布区间重叠'
+                    if reason:
+                        pending_duplicate=dict(slug=previous['slug'],index=previous['index'],reason=reason)
+                        break
+            if not duplicate and not pending_duplicate:
+                seen.append(dict(slug=slug,index=i,fingerprints=meta.get('fingerprints') or {},
+                                 source_sha256=meta.get('source_sha256'),segments=meta.get('segments') or []))
             rows.append(dict(slug=slug,index=i,run_id=record['run_id'],run_number=run['run_number'],
                 code_sha=run['head_sha'],created_at=run['created_at'],source_url=record.get('source_url'),
                 artifact_id=record['artifact_id'],source_sha256=meta.get('source_sha256'),
@@ -64,8 +78,9 @@ def audit(state,inventory,loader=delivery_meta):
                 packaging_version=meta.get('packaging_version',0),
                 needs_render=int(meta.get('subtitle_readability_version') or 0)<caption_readability.VERSION,
                 needs_packaging=int(meta.get('packaging_version') or 0)<headline_policy.VERSION,
-                published_duplicate=duplicate))
+                published_duplicate=duplicate,pending_duplicate=pending_duplicate))
     counts=collections.Counter('published_duplicate' if r['published_duplicate'] else
+                               'pending_duplicate' if r['pending_duplicate'] else
                                'needs_render' if r['needs_render'] else
                                'needs_packaging' if r['needs_packaging'] else 'current' for r in rows)
     return dict(generated_at=int(time.time()),caption_version=caption_readability.VERSION,
