@@ -1,0 +1,35 @@
+name: 停止已复核淘汰的旧库存重做
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-stock-stop-excluded.yml']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 仅取消已暂停且清单无合格选段的库存任务
+        run: |
+          python - <<'PY'
+          import json,subprocess,base64
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api','repos/fastisrealslow/bilingual-subtitle-burner/'+path]))
+          doc=api('contents/linyuan/.automation/fc_state.json?ref=main')
+          state=json.loads(base64.b64decode(doc['content']))
+          latest={e['slug']:e for e in state['dispatched']}
+          plan=json.load(open('linyuan/stock-upgrade-0911.json'))
+          excluded={b['new_slug'] for b in plan['batches'] if not b['parts'] and latest.get(b['new_slug'],{}).get('stock_upgrade_status')=='held'}
+          runs=api('actions/workflows/linyuan-produce-cn.yml/runs?event=workflow_dispatch&per_page=100')['workflow_runs']
+          for r in runs:
+              if r['status'] in ('queued','in_progress') and r.get('display_title') in {'中文源出片 · '+s for s in excluded}:
+                  subprocess.run(['gh','api','--method','POST',f"repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/{r['id']}/cancel"],check=True)
+                  print('Cancelled excluded stock run',r['run_number'],r['display_title'])
+          PY
