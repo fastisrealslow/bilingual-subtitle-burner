@@ -7,7 +7,7 @@ from pathlib import Path
 
 CANVAS = (1280, 720)
 # Keep the 632:470 clean window's aspect ratio to within one encoded pixel.
-LIVE_REGION = dict(x=252, y=0, width=774, height=576)
+LIVE_REGION = dict(x=156, y=0, width=968, height=720)
 
 
 def source_window(meta):
@@ -34,9 +34,9 @@ def selected(meta, requested='auto'):
 def layout():
     from presentation import layout_for
     result = layout_for(*CANVAS)
-    result.update(live_region=dict(LIVE_REGION), subtitle_region=dict(x=80,y=578,width=1120,height=138),
-                  subtitle_font_px=44, line_capacity=23, subtitle_style='white-outline',
-                  template='landscape-live-v1', preserve_display_text=True)
+    result.update(live_region=dict(LIVE_REGION), subtitle_region=dict(x=200,y=570,width=880,height=138),
+                  subtitle_font_px=44, line_capacity=18, subtitle_style='white-outline',
+                  template='landscape-live-v2', preserve_display_text=True)
     return result
 
 
@@ -45,7 +45,7 @@ def background(path):
     image = Image.new('RGB', CANVAS, (117, 34, 47))
     draw = ImageDraw.Draw(image)
     # Original understated snowball motif; no borrowed artwork or account mark.
-    for x,y,r in [(75,110,23),(170,440,36),(1120,150,32),(1220,470,20)]:
+    for x,y,r in [(65,150,22),(96,500,28),(1215,500,22)]:
         draw.ellipse((x-r,y-r,x+r,y+r),outline=(171,111,78),width=3)
     image.save(path)
 
@@ -94,10 +94,22 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     window=source_window(meta)
     rate=subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
         '-show_entries','stream=avg_frame_rate','-of','default=nw=1:nk=1',str(original)],text=True).strip()
-    filters=(f'[0:v]crop={window["width"]}:{window["height"]}:{window["x"]}:{window["y"]},scale={region["width"]}:{region["height"]}:flags=lanczos,setsar=1[v];'
+    card_footer=''
+    context=meta.get('interview_context') or {}
+    # Reposition the footer on our own generated chart so overlaid captions do
+    # not collide with it. The chart's values and attribution remain visible.
+    if context.get('graphics_profile_source_sha256')=='67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e':
+        for card in context.get('illustration_cards',[]):
+            if card.get('kind')!='source_quoted_financial_comparison':continue
+            a,b=int(card['start_frame']),int(card['end_frame'])
+            condition=f'gte(n,{a})*lt(n,{b})'
+            card_footer+=(f",drawbox=x=0:y=570:w=iw:h=150:color=0xfafafa:t=fill:enable='{condition}'"
+                f",drawtext=font='Noto Sans CJK SC':text='数据为原访谈中的表述':fontsize=22:fontcolor=0x6e747b:"
+                f"x=(w-tw)/2:y=540:enable='{condition}'")
+    filters=(f'[0:v]crop={window["width"]}:{window["height"]}:{window["x"]}:{window["y"]},scale={region["width"]}:{region["height"]}:flags=lanczos,setsar=1{card_footer}[v];'
              f'[1:v][v]overlay={region["x"]}:{region["y"]}:shortest=1,ass={subtitle}[base];'
-             '[2:v]format=rgba,colorchannelmixer=aa=0.68,scale=166:-1[brand];'
-             '[base][brand]overlay=W-w-22:22:shortest=1[outv]')
+             '[2:v]format=rgba,colorchannelmixer=aa=0.68,scale=124:-1[brand];'
+             '[base][brand]overlay=W-w-16:22:shortest=1[outv]')
     subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(original),
         '-loop','1','-framerate',rate,'-i',str(bg),'-loop','1','-framerate',rate,'-i',str(brand),'-filter_complex',filters,
         '-map','[outv]','-map','0:a:0','-c:v','libx264','-preset','veryfast','-crf','18',
@@ -127,8 +139,9 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     return {**meta,**checks,'layout_proof':spec,'resolution':dict(width=1280,height=720,short_edge=720),
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
-            'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v1',
+            'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v2',
+            'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':124/1280},
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=1,input_sha256=original_sha,source_window=window,
+            'landscape_reframe':dict(version=2,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
                 source_frame_rate=rate,subtitle_timing_preserved=True)}

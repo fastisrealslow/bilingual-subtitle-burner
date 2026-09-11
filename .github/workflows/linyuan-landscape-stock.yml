@@ -1,5 +1,5 @@
 name: 林园首批横屏试产
-# First clip accepted; replace the caption-obstructed candidate with clean office footage.
+# User revision: full-height video with captions inside the picture.
 on:
   push:
     branches: [main]
@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        slug: [ly-0909-703b35-wide0911]
+        slug: [ly-0910-interview-clean-v4-wide0911v2, ly-0909-703b35-wide0911v2]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

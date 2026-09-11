@@ -10,7 +10,8 @@ import landscape
 import run_stock_upgrade as stock
 import source_supply
 
-SLUGS = {'ly-0910-interview-clean-v4-wide0911', 'ly-0909-703b35-wide0911'}
+SLUGS = {'ly-0910-interview-clean-v4-wide0911', 'ly-0909-703b35-wide0911',
+         'ly-0910-interview-clean-v4-wide0911v2', 'ly-0909-703b35-wide0911v2'}
 SUPERSEDED_RUN = 34583060777
 
 
@@ -60,8 +61,9 @@ def render(plan, directory, run_id):
         stock.mutate(release_cancelled)
     stock.mutate(lambda state:reserve(state,plan,run_id))
     directory.mkdir(parents=True,exist_ok=True)
+    input_slug=plan.get('input_slug',plan['old_slug'])
     subprocess.run(['gh','run','download',str(plan['run_id']),'--repo',stock.fc.REPO,
-                    '--name','deliver-'+plan['old_slug'],'--dir',str(directory)],check=True)
+                    '--name','deliver-'+input_slug,'--dir',str(directory)],check=True)
     data=json.loads((directory/'meta.json').read_text())
     rows=data if isinstance(data,list) else [data]
     if len(rows)!=1:raise ValueError('首批横版必须为一条已验收连续片段')
@@ -74,7 +76,8 @@ def render(plan, directory, run_id):
             or meta['title']!=expected['title']):
         raise ValueError('原成片与已复核选段不一致')
     result=landscape.reframe(meta,directory,directory/'_tmp'/'landscape')
-    result['landscape_reframe'].update(original_slug=plan['old_slug'],original_run_id=plan['run_id'])
+    result['landscape_reframe'].update(original_slug=input_slug,original_run_id=plan['run_id'],
+                                      replaces_slug=plan['old_slug'])
     error=source_supply.validate_part(result,directory)
     if error:raise ValueError('横版实际成片验收失败：'+error)
     batch_delivery.write_json(directory/'meta.json',result)

@@ -32,11 +32,13 @@ def test_reflow_preserves_every_displayed_character_and_cue_time(tmp_path):
     with pytest.raises(ValueError):L.read_captions(tmp_path,['old.ass','new.ass'])
 
 
-def test_landscape_regions_do_not_stretch_source_or_cover_subtitles():
+def test_landscape_video_fills_height_and_subtitles_stay_inside_picture():
     spec=L.layout();live=spec['live_region'];sub=spec['subtitle_region']
     assert spec['canvas']==dict(width=1280,height=720)
     assert abs(live['width']/live['height']-632/470)<.003
-    assert live['y']+live['height']<=sub['y']
+    assert live['y']==0 and live['height']==720
+    assert sub['x']>=live['x'] and sub['x']+sub['width']<=live['x']+live['width']
+    assert sub['y']>=live['y']
     assert sub['y']+sub['height']<=720
     assert 2*spec['subtitle_font_px']*1.448+8<=sub['height']
 
