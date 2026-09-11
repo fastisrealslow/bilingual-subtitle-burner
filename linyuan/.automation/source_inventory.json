@@ -3,7 +3,7 @@
   "validation_sha256": "9540c35e1237bc064b8434269221d52e080e65d1886fbd69f0d4a5a52b5b6ab0",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789137698,
+  "updated_at": 1789138639,
   "materials": {
     "weibo_search": {
       "records": 1138,
@@ -7230,7 +7230,14 @@
           "ly-0911-f99b51"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0911-f99b51",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[3, 4]，different=[1, 2, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0861, 2: 0.0653, 3: 0.7445, 4: 0.5686, 5: 0.0687, 6: 0.0464}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8141,8 +8148,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -8154,8 +8161,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8313,9 +8320,9 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
-        "terminal_render-review": 1,
+        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8551,11 +8558,12 @@
       "BV1WcvsBaE9o": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 7,
   "artifacts": [
     {
       "slug": "ly-0911-ea0eed",
