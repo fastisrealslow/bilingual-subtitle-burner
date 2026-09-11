@@ -1,0 +1,51 @@
+name: 林园首批横屏试产
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-landscape-stock.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-landscape-stock
+  cancel-in-progress: false
+jobs:
+  landscape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 260
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        slug: [ly-0910-interview-clean-v4-wide0911, ly-0909-2e376f-wide0911]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证字幕时间、画幅和真实画面检查
+        run: |
+          pip install -q pytest jieba pillow numpy 'opencv-python-headless<5'
+          python -m pytest -q tests/test_linyuan_landscape.py tests/test_linyuan_presentation.py tests/test_stock_upgrade.py
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+      - name: 重做两条未发布片段，验收后进入库存
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          UPGRADE_SLUG: ${{ matrix.slug }}
+        run: python linyuan/run_stock_upgrade.py --slug "$UPGRADE_SLUG"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: landscape-receipt-${{ matrix.slug }}
+          path: stock-upgrade-receipt.json
+  refresh:
+    needs: landscape
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 更新库存
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main

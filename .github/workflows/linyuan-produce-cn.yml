@@ -13,6 +13,12 @@ on:
     paths: ['.github/linyuan-e2e.trigger']
   workflow_dispatch:
     inputs:
+      output_layout:
+        description: 'auto：真人窗口约三分之一用横版；原画保留原比例'
+        required: false
+        type: choice
+        default: auto
+        options: [auto, portrait, landscape]
       recovery_run_id:
         description: '复用同一母片失败任务的转写和选段证据；留空正常生产'
         required: false
@@ -395,6 +401,7 @@ jobs:
           PUBLICATION_STATE_PATH: _publication_state.json
           REPAIR_BVID: ${{ inputs.repair_bvid }}
           RENDER_SLUG: ${{ env.RUN_SLUG }}
+          OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
         run: |
           set -euo pipefail
           # Read actual receipts so a cached mother does not re-render used excerpts.

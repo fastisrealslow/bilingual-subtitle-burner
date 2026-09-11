@@ -2749,7 +2749,7 @@ def partial_qr_finder_score(gray):
 
 
 def verify_live_region_after_render(final, frames=6, api_key=None,
-                                    speaker='林园', reference=None, extra_times=(), actor_times=()):
+                                    speaker='林园', reference=None, extra_times=(), actor_times=(),live_region=None):
     """复检嵌入的真人动态区：拒绝黑边、二维码和稳定外部角标。"""
     import tempfile
     try:
@@ -2779,8 +2779,9 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             ok, frame = cap.read()
             if not ok:
                 continue
-            x, y = LIVE_REGION["x"], LIVE_REGION["y"]
-            w, h = LIVE_REGION["width"], LIVE_REGION["height"]
+            rect=live_region or LIVE_REGION
+            x, y = rect["x"], rect["y"]
+            w, h = rect["width"], rect["height"]
             region = frame[y:y + h, x:x + w]
             if region.shape[:2] != (h, w):
                 raise VisualQualityError("真人动态区尺寸不完整")
@@ -4525,7 +4526,7 @@ def make_review_assets(final, out, suffix, duration_sec):
     return preview.name, sheet.name
 
 
-def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_times=None):
+def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_times=None,live_region=None):
     """Verify the actual moving window, excluding the template/reference portrait."""
     directory=Path(work)/f"final_identity{suffix}"
     directory.mkdir(exist_ok=True)
@@ -4534,10 +4535,12 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_
     times=target_times if target_times is not None else [duration*i/7 for i in range(1,7)]
     if len(times)!=6 or any(not 0<=t<duration for t in times):
         raise VisualQualityError('成片人物复检的实际时间点无效')
+    rect=live_region or LIVE_REGION
+    crop=f'crop={rect["width"]}:{rect["height"]}:{rect["x"]}:{rect["y"]}'
     for i,t in enumerate(times,1):
         path=directory/f"frame_{i}.jpg"
         subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(t),
-            '-i',str(final),'-vf','crop=632:470:44:360','-frames:v','1',str(path)],
+            '-i',str(final),'-vf',crop,'-frames:v','1',str(path)],
             check=True,timeout=45)
         frames.append(path)
     reference=_download_speaker_reference(speaker,Path(work))
@@ -4853,7 +4856,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     subtitle_integrity_error = editorial.transcript_integrity_error(rendered_subtitle_text)
     if subtitle_integrity_error:
         raise VisualQualityError(subtitle_integrity_error)
-    return {
+    meta = {
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
         "subtitle_files": subtitle_files,
@@ -4907,6 +4910,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                       "end": cues[p["end"]]["end"], "reason": p["reason"]}
                      for p in picks],
     }
+    meta['source_sha256']=source_report.get('source_sha256')
+    from landscape import selected, reframe
+    requested=os.environ.get('OUTPUT_LAYOUT','auto')
+    if not os.environ.get('REPAIR_BVID') and selected(meta,requested):
+        print('[横版] 保留已核验真人窗口与完整音频，重新排字幕并复检实际成片',flush=True)
+        meta=reframe(meta,out,work/f'landscape{suffix}',speaker,api_key)
+    return meta
 
 
 class PartDeadlineExceeded(BaseException):

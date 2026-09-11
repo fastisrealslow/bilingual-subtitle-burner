@@ -197,16 +197,19 @@ def write_ass(entries, path, layout, font_name):
         return f'{ticks//360000}:{ticks//6000%60:02}:{ticks//100%60:02}.{ticks%100:02}'
     color='&H00422C18'
     box_style, box_outline=(1,0) if layout['mode']=='audio_card' else (3,10)
+    outline_color='&H00FFFFFF'
+    if layout.get('subtitle_style')=='white-outline':
+        color,outline_color,box_style,box_outline='&H00FFFFFF','&H00000000',1,2.5
     lines=['[Script Info]','ScriptType: v4.00+','WrapStyle: 2',f'PlayResX: {w}',f'PlayResY: {h}',
            '', '[V4+ Styles]',
            'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-           f'Style: ZH,{font_name},{ass_font_size(font,font_name)},{color},&H000000FF,&H00FFFFFF,&H00FFFFFF,0,0,0,0,100,100,0,0,{box_style},{box_outline},0,5,0,0,0,1',
+           f'Style: ZH,{font_name},{ass_font_size(font,font_name)},{color},&H000000FF,{outline_color},{outline_color},0,0,0,0,100,100,0,0,{box_style},{box_outline},0,5,0,0,0,1',
            '', '[Events]','Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text']
     for cue in prepared:
         # Display-only cleanup: transcript and timing remain intact. Preserve
         # question/exclamation marks, decimals, and punctuation inside a line.
-        cue['display_lines'] = [re.sub(r'[，。,．.]+(?=[”’」』）】]*$)', '', t)
-                                for t in cue['lines']]
+        cue['display_lines'] = (list(cue['lines']) if layout.get('preserve_display_text') else
+                                [re.sub(r'[，。,．.]+(?=[”’」』）】]*$)', '', t) for t in cue['lines']])
         # Literal braces/backslashes are escaped; only our explicit line breaks are ASS commands.
         rendered='\\N'.join(t.replace('\\','／').replace('{','（').replace('}','）') for t in cue['display_lines'])
         size=ass_font_size(cue['font_px'],font_name)
@@ -350,7 +353,11 @@ def verify_render(path, layout, samples=12):
         # spanning unrelated layers (observed in actual final_3 on 2026-09-06).
         # Keep full-frame detection for native footage, and retain the separate
         # partial-finder checks on the moving source window in the producer.
-        qr_frame=frame[360:830,44:676] if layout['mode']=='audio_card' else frame
+        live=layout.get('live_region')
+        if live:
+            qr_frame=frame[live['y']:live['y']+live['height'],live['x']:live['x']+live['width']]
+        else:
+            qr_frame=frame[360:830,44:676] if layout['mode']=='audio_card' else frame
         qh,qw=qr_frame.shape[:2]
         scaled=cv2.resize(qr_frame,(round(qw*min(1,960/qw)),round(qh*min(1,960/qw))))
         found,points=detector.detect(scaled)
@@ -386,4 +393,4 @@ def verify_render(path, layout, samples=12):
     return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True,
             'render_checks':{'version':VERSION,'frames_checked':checked,
                              'dimensions_match':True,'qr_detected':False,'black_edge_hits':black,
-                             'qr_scope':'source_window' if layout['mode']=='audio_card' else 'full_frame'}}
+                             'qr_scope':'source_window' if layout['mode']=='audio_card' or layout.get('live_region') else 'full_frame'}}

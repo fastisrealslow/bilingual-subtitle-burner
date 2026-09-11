@@ -103,6 +103,7 @@ def run(plan):
     inputs=dict(source=plan['source_url'],slug=plan['new_slug'],speaker='林园',
                 occasion='未发布库存新版优化',source_platform='bilibili',auto_publish='false',
                 include_full='false',prefer_live_video='true',recovery_run_id=str(plan['run_id']))
+    inputs['output_layout']=plan.get('output_layout','portrait')
     for k,v in inputs.items():args+=['-f',f'{k}={v}']
     subprocess.run(args,check=True)
     result=None
