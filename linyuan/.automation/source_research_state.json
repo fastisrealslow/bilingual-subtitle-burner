@@ -138,8 +138,11 @@
       "role": "mother",
       "family": "hnw_course",
       "priority": 4,
-      "status": "pending",
-      "attempts": 0
+      "status": "retry_wait",
+      "attempts": 1,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1789106823.8823874,
+      "next_retry_at": 1789128423.8823874
     },
     "e5969d99d828494866a3": {
       "url": "https://m.weibo.cn/detail/5329567113806333",
@@ -374,8 +377,33 @@
       "role": "reference",
       "family": "unresolved",
       "priority": 4,
-      "status": "pending",
-      "attempts": 0
+      "status": "inspected",
+      "attempts": 0,
+      "last_attempt_at": 1789106902.3440192,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "5c1705ec8587c9f15c7a07221a4ecba0c4a3993375e1106b14d0eac4951eab64",
+        "duration_sec": 99.433313,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 49.72
+          }
+        ],
+        "audio_fingerprint_count": 782,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "34568195678"
     },
     "d3da6b9cb4162e423317": {
       "url": "https://m.weibo.cn/detail/5340245572194512",
@@ -416,10 +444,10 @@
       "family": "maotai_table_exchange",
       "priority": 2,
       "status": "retry_wait",
-      "attempts": 3,
+      "attempts": 4,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1789020002.2649832,
-      "next_retry_at": 1789106402.2649832
+      "last_attempt_at": 1789106523.8796604,
+      "next_retry_at": 1789192923.8796604
     },
     "2e9e9e5b7516d453dcd6": {
       "url": "https://www.bilibili.com/video/BV1oD421L7T7",
@@ -540,14 +568,38 @@
       "priority": 5,
       "status": "pending",
       "attempts": 0
+    },
+    "c578a1acf07943f6ce61": {
+      "url": "https://www.bilibili.com/video/BV1L7V56NExf",
+      "role": "mother",
+      "family": "hnw_course",
+      "priority": 5,
+      "status": "pending",
+      "attempts": 0
+    },
+    "bd51e72e8d78431ffe6a": {
+      "url": "https://www.bilibili.com/video/BV1X2aAz8Eh6",
+      "role": "mother",
+      "family": "investor_call",
+      "priority": 5,
+      "status": "pending",
+      "attempts": 0
+    },
+    "46cb312073e9ed264c36": {
+      "url": "https://www.bilibili.com/video/BV1RWikBYEzH",
+      "role": "mother",
+      "family": "investor_call",
+      "priority": 5,
+      "status": "pending",
+      "attempts": 0
     }
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
       "status": "searched",
-      "checked_at": 1789019999.0708492,
-      "next_retry_at": 1789063199.0708492,
-      "found": 3,
+      "checked_at": 1789106520.6697884,
+      "next_retry_at": 1789149720.6697884,
+      "found": 4,
       "new_ids": []
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
@@ -582,30 +634,27 @@
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
       "status": "searched",
-      "checked_at": 1788964666.34398,
-      "next_retry_at": 1789007866.34398,
+      "checked_at": 1789106520.6697884,
+      "next_retry_at": 1789149720.6697884,
       "found": 4,
       "new_ids": [
-        "bilibili_search:BV17mzeBdEae",
-        "bilibili_search:BV12A6jBdE8q"
+        "bilibili_search:BV1L7V56NExf"
       ]
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "searched",
-      "checked_at": 1789019999.0708492,
-      "next_retry_at": 1789063199.0708492,
+      "checked_at": 1789106520.6697884,
+      "next_retry_at": 1789149720.6697884,
       "found": 4,
-      "new_ids": [
-        "bilibili_search:BV1ezbc6iEtE"
-      ]
+      "new_ids": []
     }
   },
   "reference_refresh": {
     "status": "searched",
     "new_bvids": []
   },
-  "search_cursor": 5,
-  "updated_at": 1789051137,
-  "last_run_id": "34489181479",
+  "search_cursor": 1,
+  "updated_at": 1789106903,
+  "last_run_id": "34568195678",
   "audio_match_candidates": []
 }
