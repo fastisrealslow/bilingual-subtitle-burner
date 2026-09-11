@@ -38,6 +38,7 @@ def main():
     if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
             or health.get('publish_hours_beijing') != [10, 14, 16, 21]
             or health.get('live_min_per_day') != 4
+            or health.get('cover_styles') != ['scene','photo','light','dark']
             or health.get('landscape_hour_beijing') != 14 or health.get('audio_max_per_day') != 0
             or health.get('weekly_full_slot_beijing') != {'weekday': 6, 'hour': 21}
             or health.get('editorial_policy_version') != 2026090604

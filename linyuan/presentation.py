@@ -233,19 +233,64 @@ def cover_headline(title, speaker='林园'):
 def select_cover_style(clean_source, title, requested='auto'):
     """Keep real-scene covers for clean footage; stable variety for audio cards."""
     import hashlib
-    if requested not in ('auto','photo','light','dark'):
-        raise ValueError('封面风格只支持 auto/photo/light/dark')
-    if requested == 'photo' and not clean_source:
+    if requested not in ('auto','scene','photo','light','dark'):
+        raise ValueError('封面风格只支持 auto/scene/photo/light/dark')
+    if requested in ('scene','photo') and not clean_source:
         raise ValueError('原画未通过清理，不能强制原画封面')
     if requested != 'auto':
         return requested
-    # 三套封面统一进入稳定轮换：实景 photo、浅色人物 light、深色人物 dark。
+    # 四套封面稳定轮换：现场无字 scene、实景大字 photo、浅色 light、深色 dark。
     # 用标题哈希保证同一条重跑不会随机变脸，同时避免主页连续全是同一种模板。
-    # photo 仅在原画通过清理时可选；脏原画仍只在 light/dark 中轮换。
+    # scene/photo 仅在原画通过清理时可选；scene 另验清晰度和横向构图。
     bucket = hashlib.sha256(title.encode()).digest()[0]
     if clean_source:
-        return ('photo','light','dark')[bucket % 3]
+        return ('scene','photo','light','dark')[bucket % 4]
     return ('light','dark')[bucket % 2]
+
+
+def save_scene_cover(image, path, face, identity):
+    """Keep a clean, sharp landscape scene without added text or a blurred frame."""
+    import cv2
+    import hashlib
+    import json
+    import numpy as np
+    from PIL import Image
+    w, h = image.size
+    if w < 960 or h < 540 or not 1.6 <= w / h <= 1.95:
+        raise ValueError('现场原画封面需要足够清晰的横向画面，不能大幅裁竖图')
+    if (not face or identity.get('engine') != 'opencv_yunet_sface_cpu'
+            or identity.get('cosine_score', 0) < max(.363, identity.get('threshold', 1))
+            or identity.get('sharpness', 0) < 60):
+        raise ValueError('现场原画封面人物身份或清晰度不足')
+    x, y, fw, fh = face
+    cw, ch = min(w, int(h * 16 / 9)), min(h, int(w * 9 / 16))
+    left = max(0, min(round(x + fw / 2 - cw / 2), w - cw))
+    top = max(0, min(round(y + fh / 2 - ch / 2), h - ch))
+    if (fw / cw < .10 or x < left or y < top
+            or x + fw > left + cw or y + fh > top + ch):
+        raise ValueError('现场原画封面人脸过小或裁切不完整')
+    result = image.crop((left, top, left + cw, top + ch)).resize((1280, 720), Image.Resampling.LANCZOS)
+    frame = cv2.cvtColor(np.asarray(result), cv2.COLOR_RGB2BGR)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    if any(float(e.mean()) < 5 and float(e.std()) < 2
+           for e in (gray[:18], gray[-18:], gray[:, :32], gray[:, -32:])):
+        raise ValueError('现场原画封面存在黑色填充边')
+    detector = cv2.QRCodeDetector()
+    found, points = detector.detect(frame)
+    if found and points is not None and qr_is_plausible(points, 1280, 720) and qr_candidate_has_finders(frame, points):
+        raise ValueError('现场原画封面存在二维码')
+    result.save(path, quality=95)
+    thumb = Path(path).with_name(Path(path).stem + '_list_160.jpg')
+    result.resize((160, 90), Image.Resampling.LANCZOS).save(thumb, quality=95)
+    proof = dict(version=VERSION, style='scene', canvas=dict(width=1280, height=720),
+        headline_lines=[], font_px=0, thumbnail_font_px=0, text_boxes=[],
+        no_overflow=True, thumbnail=thumb.name, no_added_text=True,
+        source_kind='verified_source_frame', source_resolution=dict(width=w, height=h),
+        source_identity=identity, crop=[left, top, cw, ch],
+        face_fully_visible=True, no_black_bars=True, no_qr=True,
+        sha256=hashlib.sha256(Path(path).read_bytes()).hexdigest())
+    Path(str(path) + '.proof.json').write_text(json.dumps(proof, ensure_ascii=False, indent=2))
+    return proof
 
 
 def dark_cover(portrait_path, title, speaker, font_path, font_index=0):

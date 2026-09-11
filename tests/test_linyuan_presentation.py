@@ -133,7 +133,7 @@ def test_question_ending_is_not_left_on_a_flashing_screen():
 
 
 def test_cover_styles_preserve_scene_and_offer_safe_choice():
-    assert {V.select_cover_style(True,str(n)) for n in range(30)}=={'photo','light','dark'}
+    assert {V.select_cover_style(True,str(n)) for n in range(30)}=={'scene','photo','light','dark'}
     assert V.select_cover_style(True,'访谈主题','photo')=='photo'
     assert {V.select_cover_style(False,str(n)) for n in range(20)}=={'light','dark'}
     assert V.select_cover_style(True,'访谈主题','dark')=='dark'
@@ -414,3 +414,32 @@ def test_complete_words_are_not_mistaken_for_grammatical_fragments(text):
 def test_real_unfinished_function_words_still_fail(text):
     with pytest.raises(ValueError,match='未完成'):
         P.apply_semantic_groups([dict(start_sec=0,end_sec=3,zh=text)],[text],12)
+
+
+def test_scene_cover_keeps_pixels_without_headline_and_checks_identity(tmp_path):
+    from PIL import Image
+    import numpy as np
+    import hashlib
+    import sys
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan/fc'))
+    import index as fc
+    # A colored scene has no logo, black bands or QR. No artificial panel/text is added.
+    image=Image.new('RGB',(1280,720),(128,172,151))
+    identity=dict(engine='opencv_yunet_sface_cpu',cosine_score=.8,threshold=.363,sharpness=100)
+    path=tmp_path/'scene.jpg'
+    proof=V.save_scene_cover(image,path,(350,150,240,280),identity)
+    assert proof['headline_lines']==[] and proof['font_px']==0
+    assert np.abs(np.asarray(Image.open(path)).astype(float)-np.asarray(image)).mean()<2
+    assert proof['sha256']==hashlib.sha256(path.read_bytes()).hexdigest()
+    assert fc.cover_quality_error(proof) is None
+    meta=dict(cover='scene.jpg',cover_proof=proof)
+    assert fc.artifact_cover_error(meta,tmp_path) is None
+    path.write_bytes(b'wrong-cover')
+    assert fc.artifact_cover_error(meta,tmp_path)
+    with pytest.raises(ValueError,match='清晰度'):
+        V.save_scene_cover(image,path,(350,150,240,280),{**identity,'sharpness':10})
+    with pytest.raises(ValueError,match='横向'):
+        V.save_scene_cover(Image.new('RGB',(720,1280)),path,(150,200,200,250),identity)
+    with pytest.raises(ValueError):
+        V.select_cover_style(False,'脏原画','scene')
+    assert V.select_cover_style(True,'访谈','scene')=='scene'

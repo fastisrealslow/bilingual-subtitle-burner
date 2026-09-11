@@ -1799,6 +1799,7 @@ def handler(event, context):
             return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                     "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4, "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
                     "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
+                    "cover_styles": ["scene", "photo", "light", "dark"],
                     "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
                     "production_rules_version": PRODUCTION_RULES_VERSION,
                     "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
@@ -2344,12 +2345,47 @@ def presentation_quality_error(meta):
     if (checks.get("frames_checked",0)<12 or checks.get("dimensions_match") is not True
             or checks.get("qr_detected") is not False):
         return "缺少实际多版式抽帧证明"
-    cover=meta.get("cover_proof") or {}
+    return cover_quality_error(meta.get("cover_proof") or {})
+
+
+def cover_quality_error(cover):
+    if cover.get('style') == 'scene':
+        identity = cover.get('source_identity') or {}
+        resolution = cover.get('source_resolution') or {}
+        try:
+            good = (cover.get('canvas') == dict(width=1280,height=720)
+                and cover.get('source_kind') == 'verified_source_frame'
+                and cover.get('headline_lines') == [] and cover.get('text_boxes') == []
+                and cover.get('font_px') == 0 and cover.get('thumbnail_font_px') == 0
+                and all(cover.get(k) is True for k in ('no_added_text','no_overflow',
+                    'face_fully_visible','no_black_bars','no_qr'))
+                and resolution.get('width',0) >= 960 and resolution.get('height',0) >= 540
+                and identity.get('engine') == 'opencv_yunet_sface_cpu'
+                and identity.get('cosine_score',0) >= max(.363,identity.get('threshold',1))
+                and identity.get('sharpness',0) >= 60 and cover.get('thumbnail')
+                and re.fullmatch(r'[a-f0-9]{64}',str(cover.get('sha256',''))))
+        except (TypeError,ValueError):
+            good = False
+        return None if good else '现场原画封面缺少身份、清晰度或无字画面证明'
     if (cover.get("font_px",0)<96 or cover.get("thumbnail_font_px",0)<12
             or not 1<=len(cover.get("headline_lines") or [])<=2
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
     return None
+
+
+def artifact_cover_error(meta, directory):
+    proof = meta.get('cover_proof') or {}
+    if proof.get('style') != 'scene':
+        return None
+    import hashlib
+    name = meta.get('cover')
+    if not isinstance(name,str) or Path(name).name != name:
+        return '现场封面文件名无效'
+    path = Path(directory)/name
+    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != proof.get('sha256'):
+        return '现场封面原图与质检指纹不一致'
+    return cover_quality_error(proof)
 
 
 def daily_mix_error(meta, daily):
@@ -3059,7 +3095,8 @@ def publish_handler(event=None, context=None):
     # 隔离后用原素材重做，并在本时段继续寻找下一条，避免空耗发布时段。
     quality_error = (editorial.metadata_error(part, mp4_duration(video))
                      or artifact_quality_error(part)
-                     or artifact_subtitle_error(part, tmp / slug))
+                     or artifact_subtitle_error(part, tmp / slug)
+                     or artifact_cover_error(part, tmp / slug))
     if e.get("required_presentation_version", 0) >= 1 and int(part.get("presentation_version") or 0) < e["required_presentation_version"]:
         quality_error = "新日常任务缺少多版式通用规则证明，禁止沿用旧库存"
     if quality_error:

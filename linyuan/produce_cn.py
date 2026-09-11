@@ -3383,7 +3383,7 @@ def select_verified_cover_face(frames, reference_path):
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
-               video_filter="", preferred_time=None, reference_path=None):
+               video_filter="", preferred_time=None, reference_path=None, style="photo"):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
     竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
@@ -3428,6 +3428,17 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
+    if style == 'scene':
+        from presentation import save_scene_cover
+        try:
+            save_scene_cover(img, out_path, best_face, identity_proof)
+        except ValueError as exc:
+            raise VisualQualityError(str(exc)) from exc
+        finally:
+            for fp in frames:
+                fp.unlink(missing_ok=True)
+        print(f'[封面] {out_path.name} 现场原画，无叠加标题')
+        return
 
     # 以人脸为中心裁切,保持目标比例
     vertical = h > w
@@ -4817,7 +4828,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         from presentation import select_cover_style
         selected_cover_style = select_cover_style(strategy != "audio_card", cw["title"],
                                                   os.environ.get("COVER_STYLE", "auto"))
-        if selected_cover_style != "photo":
+        if selected_cover_style not in {"photo", "scene"}:
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
                     work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
@@ -4831,10 +4842,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
                            cw["cover_title"], speaker, cover, video_filter=clean_vf,
                            preferred_time=(visual_report or {}).get("best_cover_time"),
-                           reference_path=work / "speaker_reference.jpg")
+                           reference_path=work / "speaker_reference.jpg", style=selected_cover_style)
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
-                if os.environ.get('COVER_STYLE','auto')=='photo':raise
+                if os.environ.get('COVER_STYLE','auto') in {'photo','scene'}:raise
                 cover_fallback_reason=str(exc)
                 selected_cover_style=select_cover_style(False,cw['title'])
                 if audio_card_portrait is None:

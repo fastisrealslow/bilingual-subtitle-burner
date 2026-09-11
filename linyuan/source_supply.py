@@ -26,7 +26,8 @@ def api(path):
 
 def validate_part(meta, directory):
     """A job exit code or metadata approval flag alone is insufficient."""
-    error = fc.artifact_quality_error(meta) or fc.artifact_subtitle_error(meta, directory)
+    error = (fc.artifact_quality_error(meta) or fc.artifact_subtitle_error(meta, directory)
+             or fc.artifact_cover_error(meta, directory))
     if error:
         return error
     name = meta.get('final')
