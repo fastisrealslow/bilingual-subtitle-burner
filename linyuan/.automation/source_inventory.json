@@ -3,7 +3,7 @@
   "validation_sha256": "a95878366bbe866f0a996e7a411322699d9d5eafdca9157e40f372c9a214265f",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789120985,
+  "updated_at": 1789121097,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -77,11 +77,11 @@
     }
   },
   "inventory": {
-    "verified_live": 9,
+    "verified_live": 10,
     "verified_audio_card": 10,
     "verified_landscape": 2,
     "landscape_target": 2,
-    "daily_mix_usable": 9,
+    "daily_mix_usable": 10,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6965,11 +6965,13 @@
         "slugs": [
           "ly-0911-b5ca8c"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "d03a5105a2d667f6ff96025dc12f5fad860738985d992fb930c0aeed53681c9f"
+        ],
         "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 148.1,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -7062,7 +7064,14 @@
           "ly-0911-ab960b"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0911-ab960b",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "持续黑区超过安全裁边范围"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8388,8 +8397,8 @@
       },
       "BV1mYU6YpEBs": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 1,
+        "verified_seconds": 148.1
       },
       "BV1m9mdYcEmr": {
         "attempted_mothers": 1,
@@ -8417,7 +8426,8 @@
       "BV1mi4y177iT": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1hh411K7dJ": {
         "attempted_mothers": 1,
@@ -8431,8 +8441,42 @@
       }
     }
   },
-  "in_flight_placeholders": 14,
+  "in_flight_placeholders": 13,
   "artifacts": [
+    {
+      "slug": "ly-0911-b5ca8c",
+      "artifact_id": 10194078822,
+      "run_id": 34576862393,
+      "checked_at": 1789121092,
+      "source_url": "https://www.bilibili.com/video/BV1mYU6YpEBs",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_1.mp4",
+          "title": "林园：但多数老字号啊，就最顶尖的老字号都是国有，它存在一个体制的问题",
+          "duration_sec": 148.1,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "resolution": {
+            "width": 720,
+            "height": 1280,
+            "short_edge": 720
+          },
+          "source_sha256": "d03a5105a2d667f6ff96025dc12f5fad860738985d992fb930c0aeed53681c9f",
+          "segments": [
+            {
+              "start": 2757.16,
+              "end": 2905.24,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "371870608a409fce0aa6cfe5a71c10dea26bbbfc69a0ece4c191a3e5b5016607",
+          "subtitle_sha256": "045e7126e70d1e495e136cb78c7ca612524b9d23aae03be72e97e46b2e37e803",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0911-171705",
       "artifact_id": 10193953129,
