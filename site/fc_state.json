@@ -6851,9 +6851,11 @@
    "author": "投资大佬说",
    "publish_time": "2026-02-20T10:50:08+00:00",
    "source_check_report_id": 10183804870,
-   "last_error": "连续上下文仅明确拒绝2/39个候选，选段未完成；保留ASR，不判整源无合格片",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "本轮选段没有返回通过120秒和连续上下文检查的候选",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV1Qi4y1w7eb",
@@ -7320,9 +7322,13 @@
    "ts": 1789111783,
    "delay_hours": 0,
    "repair_of": "ly-0909-f1dc1a",
-   "failed": true,
-   "failure_stage": "stock-upgrade",
-   "stock_upgrade_status": "rendering"
+   "failed": false,
+   "stock_upgrade_status": "verified",
+   "stock_upgrade_run_id": 34574644052,
+   "parts_total": 1,
+   "published_parts": 0,
+   "processed_part_indices": [],
+   "stock_state_recovered_from": "92b413422c9d07f8c2ede7afe2fb916759a1d1e2"
   },
   {
    "key": "bilibili_search:BV1Z6SEBrEdQ",
@@ -7465,7 +7471,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "账号已注销",
-   "publish_time": "2026-02-04T00:48:44+00:00"
+   "publish_time": "2026-02-04T00:48:44+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；same=[]，different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "pending_retry": [
@@ -24692,6 +24702,20 @@
    "key": "bilibili_search:BV1ixfuBYEiX",
    "video_id": "BV1ixfuBYEiX",
    "ts": 1789105032,
+   "error": "本轮选段没有返回通过120秒和连续上下文检查的候选"
+  },
+  {
+   "slug": "ly-0911-1671e2",
+   "key": "bilibili_search:BV1EBf9BAEoP",
+   "video_id": "BV1EBf9BAEoP",
+   "ts": 1789113444,
+   "error": "人物不一致或无法确认：林园；same=[]，different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-0910-340459",
+   "key": "bilibili_search:BV1ixfuBYEiX",
+   "video_id": "BV1ixfuBYEiX",
+   "ts": 1789113449,
    "error": "本轮选段没有返回通过120秒和连续上下文检查的候选"
   }
  ],
