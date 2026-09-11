@@ -5202,7 +5202,8 @@ def main():
                              allow_empty=(len(chunks) > 1 and not args.target_parts),
                              visual_report=visual_report,
                              source_report=source_report,
-                             prefer_live_video=args.prefer_live_video,
+                             prefer_live_video=args.prefer_live_video and not (preselected_picks
+                                 and all(p.get('stock_original_mode')=='audio_card' for p in preselected_picks)),
                              existing_titles=[x["title"] for x in metas],
                              preselected_picks=preselected_picks)
         except (VisualQualityError, ValueError, RuntimeError, subprocess.SubprocessError) as e:
