@@ -6756,10 +6756,11 @@
    "source": "bilibili_search",
    "author": "投资大佬说",
    "publish_time": "2026-02-20T10:50:08+00:00",
-   "source_check_report_id": 10178269787,
+   "source_check_report_id": 10183804870,
    "last_error": "连续上下文仅明确拒绝2/39个候选，选段未完成；保留ASR，不判整源无合格片",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1789103243
   },
   {
    "key": "bilibili_search:BV1Qi4y1w7eb",
@@ -6827,7 +6828,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "投资大佬说",
-   "publish_time": "2024-01-17T00:00:03+00:00"
+   "publish_time": "2024-01-17T00:00:03+00:00",
+   "failed": true,
+   "last_error": "动态取景连续2.00秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1PY411w782",
@@ -6843,7 +6848,11 @@
    "delay_hours": 0,
    "source": "reference_origin_search",
    "author": "临园指路",
-   "publish_time": "2022-05-16T11:28:00+00:00"
+   "publish_time": "2022-05-16T11:28:00+00:00",
+   "failed": true,
+   "last_error": "真人窗口完整人脸抽帧不足：3/6，拒绝裁头/裁下巴或空镜",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1VkirBaE69",
@@ -6860,6 +6869,38 @@
    "source": "reference_origin_search",
    "author": "投资就是滚雪球",
    "publish_time": "2026-01-04T03:54:50+00:00"
+  },
+  {
+   "key": "bilibili_search:BV1ixfuBYEiX",
+   "video_id": "BV1ixfuBYEiX",
+   "source_url": "https://www.bilibili.com/video/BV1ixfuBYEiX",
+   "asset_url": "https://www.bilibili.com/video/BV1ixfuBYEiX",
+   "title": "林园访谈：十倍要来了？私募大佬林园的十倍要来了！",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0910-340459-context12",
+   "ts": 1789100395,
+   "delay_hours": 0,
+   "repair_of": "ly-0910-340459",
+   "failed": true,
+   "last_error": "动态取景目标人物匹配不足80%：2725/3637帧（74.9%），其他人脸912帧，无人脸0帧；已保存取景证据",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
+  },
+  {
+   "key": "bilibili_search:BV1ixfuBYEiX",
+   "video_id": "BV1ixfuBYEiX",
+   "source_url": "https://www.bilibili.com/video/BV1ixfuBYEiX",
+   "asset_url": "https://www.bilibili.com/video/BV1ixfuBYEiX",
+   "title": "林园访谈：十倍要来了？私募大佬林园的十倍要来了！",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0910-340459-context13",
+   "ts": 1789101275,
+   "delay_hours": 0,
+   "repair_of": "ly-0910-340459"
   }
  ],
  "pending_retry": [
@@ -24059,6 +24100,27 @@
    "video_id": "BV12pum6NEHU",
    "ts": 1789087048,
    "error": "真人动态区仍有稳定来源角标：[(0.0, 0.9446808510638298, 0.11708860759493671, 0.9893617021276596)]"
+  },
+  {
+   "slug": "ly-0910-340459-context12",
+   "key": "bilibili_search:BV1ixfuBYEiX",
+   "video_id": "BV1ixfuBYEiX",
+   "ts": 1789101433,
+   "error": "动态取景目标人物匹配不足80%：2725/3637帧（74.9%），其他人脸912帧，无人脸0帧；已保存取景证据"
+  },
+  {
+   "slug": "ly-0911-8c3393",
+   "key": "bilibili_search:BV1PY411w782",
+   "video_id": "BV1PY411w782",
+   "ts": 1789101437,
+   "error": "真人窗口完整人脸抽帧不足：3/6，拒绝裁头/裁下巴或空镜"
+  },
+  {
+   "slug": "ly-0911-7a75fe",
+   "key": "bilibili_search:BV1s64y1A7Rh",
+   "video_id": "BV1s64y1A7Rh",
+   "ts": 1789101440,
+   "error": "动态取景连续2.00秒缺少人脸"
   }
  ],
  "scheduled": [
