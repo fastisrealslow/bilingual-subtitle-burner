@@ -195,14 +195,12 @@ jobs:
               echo "GitHub release 素材，直接下载"
               curl -sfL --retry 3 --max-time 600 -o _src/video.mp4 "$SOURCE"
               [ -s _src/video.mp4 ] || { echo "::error::release 素材下载失败"; exit 1; }
+              echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
             else
-              yt-dlp --continue --socket-timeout 120 --retries 10 \
-                --fragment-retries 10 --concurrent-fragments 4 \
-                -f 'bv*[height<=1080]+ba/b[height<=1080]/b' \
-                --merge-output-format mp4 \
-                -o '_src/video.%(ext)s' "$SOURCE"
+              python3 -u ci_fetch_generic.py --url "$SOURCE" --directory _src \
+                --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
+                --github-output "$GITHUB_OUTPUT"
             fi
-            echo "path=$(ls _src/video.* | head -1)" >> $GITHUB_OUTPUT
           else
             [ -f "$SOURCE" ] || { echo "::error::找不到 $SOURCE"; exit 1; }
             echo "path=$SOURCE" >> $GITHUB_OUTPUT
@@ -210,14 +208,6 @@ jobs:
 
       - name: 保存未完成下载供下一次续传
         if: failure() && steps.src.outcome == 'failure'
-        continue-on-error: true
-        uses: actions/cache/save@v4
-        with:
-          path: linyuan/_src/
-          key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: 保存完整母片供后续取景失败及选段重试复用
-        if: steps.src.outcome == 'success'
         continue-on-error: true
         uses: actions/cache/save@v4
         with:
@@ -232,13 +222,22 @@ jobs:
           set -euo pipefail
           # 所有渠道都确认音视频轨、时长漂移与头尾可解码；
           # 避免 DASH/HLS 合流“命令成功但下到半截”继续进 ASR。
-          python3 ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}"
+          python3 ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}" \
+            --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
           python3 -u produce_cn.py \
             --source "${{ steps.src.outputs.path }}" \
             --slug "${{ env.RUN_SLUG }}" \
             --speaker "${{ env.RUN_SPEAKER }}" \
             --source-check-only \
             --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+
+      - name: 保存完整母片供后续取景失败及选段重试复用
+        if: steps.source_gate.outcome == 'success'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       # 只有素材通过后才安装 ASR、恢复大模型并下载权重。低清、双字幕、
       # 错人物素材不会再消耗 1~3 小时转写/编码资源。

@@ -435,7 +435,16 @@ def main():
     args = ap.parse_args()
 
     if args.validate_only:
-        report = validate_media(args.validate_only)
+        try:
+            report = validate_media(args.validate_only)
+        except Exception as exc:
+            if args.failure_report:
+                args.failure_report.parent.mkdir(parents=True,exist_ok=True)
+                args.failure_report.write_text(json.dumps(dict(passed=False,retryable=True,
+                    failure_stage='source-fetch',
+                    reason=f'下载文件未通过音视频完整性检查：{type(exc).__name__}: {exc}'),
+                    ensure_ascii=False,indent=2))
+            raise
         print(f"✓ 音视频轨与头尾解码正常，时长 {report['duration']:.2f}s")
         return
     if not args.url or not args.out:

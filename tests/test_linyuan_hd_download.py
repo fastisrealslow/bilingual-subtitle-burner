@@ -138,7 +138,8 @@ def test_workflow_and_downloaders_request_hd_without_relaxing_duration():
     assert "qn=80" in local_fetch and "fnval=4048" in local_fetch
     assert "qn=32" not in ci_fetch + local_fetch + fc_source
     assert "BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}" in workflow
-    assert "--fragment-retries 10" in workflow
+    generic_fetch = (ROOT / "linyuan/ci_fetch_generic.py").read_text()
+    assert "'--fragment-retries', '10'" in generic_fetch
     assert 'ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}"' in workflow
     assert "defn=shd" in fc_source
     assert FC.MIN_DUR == 120
