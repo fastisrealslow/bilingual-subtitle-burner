@@ -3,18 +3,15 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789102451,
+  "updated_at": 1789107180,
   "materials": {
     "weibo_search": {
-      "records": 1116,
-      "video_candidates": 430,
-      "duration_eligible": 40,
-      "long_mother_candidates": 16,
-      "too_short": 34,
+      "records": 1133,
+      "video_candidates": 437,
+      "duration_eligible": 42,
+      "long_mother_candidates": 17,
+      "too_short": 39,
       "duration_unknown": 356
-    },
-    "shareholder_meeting": {
-      "records": 149
     },
     "haokan_video": {
       "records": 25,
@@ -24,22 +21,25 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 938,
-      "video_candidates": 932,
-      "duration_eligible": 648,
-      "long_mother_candidates": 334,
-      "too_short": 98,
-      "over_limit": 77,
-      "duration_unknown": 109,
+      "records": 995,
+      "video_candidates": 989,
+      "too_short": 102,
+      "duration_eligible": 699,
+      "long_mother_candidates": 363,
+      "over_limit": 80,
+      "duration_unknown": 108,
       "reference_only": 6
     },
+    "shareholder_meeting": {
+      "records": 149
+    },
     "reference_origin_search": {
-      "records": 138,
-      "video_candidates": 138,
-      "duration_eligible": 86,
-      "over_limit": 35,
+      "records": 158,
+      "video_candidates": 158,
+      "duration_eligible": 94,
+      "over_limit": 47,
       "too_short": 17,
-      "long_mother_candidates": 45
+      "long_mother_candidates": 52
     },
     "netease_video": {
       "records": 37,
@@ -71,9 +71,9 @@
     "bilibili_collection": {
       "records": 114,
       "video_candidates": 114,
+      "over_limit": 1,
       "duration_eligible": 113,
-      "long_mother_candidates": 97,
-      "over_limit": 1
+      "long_mother_candidates": 97
     }
   },
   "inventory": {
@@ -6705,6 +6705,18 @@
             "stage": "editorial-or-render",
             "terminal": true,
             "reason": "动态取景目标人物匹配不足80%：2725/3637帧（74.9%），其他人脸912帧，无人脸0帧；已保存取景证据"
+          },
+          {
+            "slug": "ly-0910-340459-context13",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "话题划分没有覆盖完整原文；保留ASR，不判整源无合格片"
+          },
+          {
+            "slug": "ly-0910-340459-context14",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
           }
         ],
         "verified_available": 0,
@@ -7902,8 +7914,8 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
-        "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8053,7 +8065,7 @@
       }
     }
   },
-  "in_flight_placeholders": 13,
+  "in_flight_placeholders": 9,
   "artifacts": [
     {
       "slug": "ly-0911-6d1b80",
