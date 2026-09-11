@@ -3,7 +3,7 @@
   "validation_sha256": "1b153a258ca92f670bf70509e05813c768b8e2ceac4571cfdff74b9a333bf47c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789110663,
+  "updated_at": 1789110709,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -77,9 +77,9 @@
     }
   },
   "inventory": {
-    "verified_live": 12,
+    "verified_live": 13,
     "verified_audio_card": 12,
-    "daily_mix_usable": 14,
+    "daily_mix_usable": 15,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6219,7 +6219,9 @@
           "ly-0910-interview-context-v2",
           "ly-0910-native-context-v1"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e"
+        ],
         "failures": [
           {
             "slug": "ly-0910-690-text-boundaries",
@@ -6252,9 +6254,9 @@
             "reason": "新版标题含口吃片段，人工抽帧发现回退，暂停投稿并重做"
           }
         ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 127.2,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -6308,7 +6310,8 @@
         "family": "BV1oD421L7T7",
         "slugs": [
           "ly-0909-ba9f87",
-          "ly-0909-ba9f87-u0911"
+          "ly-0909-ba9f87-u0911",
+          "ly-0909-ba9f87-u0911r2"
         ],
         "source_sha256": [],
         "failures": [
@@ -6317,6 +6320,12 @@
             "stage": "stock-upgrade",
             "terminal": true,
             "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
+          },
+          {
+            "slug": "ly-0909-ba9f87-u0911",
+            "stage": "stock-upgrade",
+            "terminal": true,
+            "reason": "真人化尝试连续2.03秒无人脸，保留原有音频卡形式重做"
           }
         ],
         "verified_available": 0,
@@ -7916,11 +7925,11 @@
       },
       "BV1nt4y1o74A": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_seconds": 127.2,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8071,8 +8080,37 @@
       }
     }
   },
-  "in_flight_placeholders": 10,
+  "in_flight_placeholders": 11,
   "artifacts": [
+    {
+      "slug": "ly-0910-interview-clean-v4-u0911r2",
+      "artifact_id": 10188546970,
+      "run_id": 34572634883,
+      "checked_at": 1789110705,
+      "source_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final.mp4",
+          "title": "林园：这个时候你只需要考虑财务",
+          "duration_sec": 127.2,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "source_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
+          "segments": [
+            {
+              "start": 329.4,
+              "end": 456.6,
+              "reason": "选择白酒的消费逻辑，以及持有时为何看财务而不是股价"
+            }
+          ],
+          "sha256": "7fcc05c136e80ee25bb1d84aab3acac42191b9e262cd03d9161b33f14520bad5",
+          "subtitle_sha256": "550af232ae24bdbdaefea35da439a6646f2ef2b0ac3918da841842adc3f13ebd",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0909-1c3654-u0911",
       "artifact_id": 10188517461,
