@@ -5044,6 +5044,9 @@ def main():
     # still goes through independent argument, caption, visual and media gates.
     from curated_editorial import source_ranges
     curated=source_ranges(cues,source_report.get('source_sha256'))
+    from stock_upgrade_plan import source_ranges as stock_ranges
+    stock=stock_ranges(cues,source_report.get('source_sha256'),args.slug)
+    if stock is not None:curated=stock
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]
         print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')

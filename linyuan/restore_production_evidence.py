@@ -31,8 +31,16 @@ def main():
     parser.add_argument('--work',required=True,type=Path)
     args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix='production-evidence-') as directory:
-        subprocess.run(['gh','run','download',str(args.run_id),
-            '--pattern','debug-*','--dir',directory],check=True)
+        # Successful batches retain raw ASR in editorial artifacts, while older
+        # failures may only have debug evidence. Never redownload/reinfer good ASR.
+        repo=__import__('os').environ.get('GITHUB_REPOSITORY','fastisrealslow/bilingual-subtitle-burner')
+        artifacts=json.loads(subprocess.check_output(['gh','api',
+            f'repos/{repo}/actions/runs/{args.run_id}/artifacts']))['artifacts']
+        names=[a['name'] for prefix in ('editorial-','debug-') for a in artifacts
+               if a['name'].startswith(prefix) and not a.get('expired')]
+        if not names:raise ValueError('原任务没有可用的转写证据')
+        subprocess.run(['gh','run','download',str(args.run_id),'--repo',repo,
+                        '--name',names[0],'--dir',directory],check=True)
         reports=list(Path(directory).rglob('source_quality.json'))
         if len(reports)!=1:raise ValueError('需要唯一的失败母片证据')
         restore(reports[0].parent,args.work)

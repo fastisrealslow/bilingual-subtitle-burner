@@ -1,34 +1,78 @@
 name: 林园未发布旧成片版本核查与优化
-# Compare remaining stock with both published receipts and other pending clips.
 on:
   push:
     branches: [main]
     paths: ['.github/workflows/linyuan-stock-upgrade.yml']
   workflow_dispatch:
 permissions:
-  contents: read
-  actions: read
+  contents: write
+  actions: write
 concurrency:
   group: linyuan-stock-upgrade
   cancel-in-progress: false
 jobs:
-  audit:
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    outputs:
+      batches: ${{ steps.plan.outputs.batches }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 读取实际成片版本并逐条核对发布指纹
+      - name: 验证已发布片段保护和新版选段固定规则
+        run: |
+          pip install -q pytest
+          python -m pytest -q tests/test_stock_upgrade.py
+      - name: 排除已核对的重复库存，保留原文件和发布回执
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python linyuan/run_stock_upgrade.py --exclude-duplicates
+      - id: plan
+        name: 读取19条未发布成片的固定优化清单
+        run: |
+          python - <<'PY'
+          import json,os
+          p=json.load(open('linyuan/stock-upgrade-0911.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              print('batches='+json.dumps([b['new_slug'] for b in p['batches']]),file=f)
+          PY
+  upgrade:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 260
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        slug: ${{ fromJSON(needs.prepare.outputs.batches) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 准备实际成片复检
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: 保留原片区间，用新版生产并核对后替换库存
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: python linyuan/audit_unpublished_stock.py --out stock-audit.json
+          UPGRADE_SLUG: ${{ matrix.slug }}
+        run: python linyuan/run_stock_upgrade.py --slug "$UPGRADE_SLUG"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: unpublished-stock-audit
-          path: stock-audit.json
+          name: stock-upgrade-${{ matrix.slug }}
+          path: stock-upgrade-receipt.json
+  refresh:
+    needs: [prepare, upgrade]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 汇总实际剩余库存
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
