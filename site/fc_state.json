@@ -5477,7 +5477,7 @@
    "asset_url": "https://www.bilibili.com/video/BV16Vjj6xEJy",
    "author": "亮亮滚雪球",
    "delay_hours": 0,
-   "failure_stage": "quality-service",
+   "failure_stage": "stock-upgrade",
    "key": "bilibili_search:BV16Vjj6xEJy",
    "last_error": "本地选段回答格式无效，未形成内容判定；保留ASR并重试",
    "parts_total": 4,
@@ -5503,7 +5503,11 @@
      "index": 0,
      "reason": "转写片段重合 71%"
     }
-   }
+   },
+   "failed": true,
+   "stock_upgrade_status": "held",
+   "stock_upgrade_to": "ly-0909-2d63c1-u0911",
+   "stock_upgrade_hold_reason": "旧ASR污染和选段结尾不完整，需要重新转写与选段"
   },
   {
    "asset_url": "https://www.bilibili.com/video/BV1SazbBhE8a",
@@ -6265,7 +6269,7 @@
    "failed": true,
    "failure_stage": "stock-upgrade",
    "stock_upgrade_status": "held",
-   "stock_upgrade_to": "ly-0909-1c3654-u0911r2"
+   "stock_upgrade_to": "ly-0909-1c3654-u0911r3"
   },
   {
    "asset_url": "https://www.bilibili.com/video/BV1nt4y1o74A",
@@ -7194,12 +7198,14 @@
    "ts": 1789110690,
    "delay_hours": 0,
    "repair_of": "ly-0909-ba9f87",
-   "failed": false,
-   "stock_upgrade_status": "verified",
+   "failed": true,
+   "stock_upgrade_status": "held",
    "parts_total": 1,
    "published_parts": 0,
    "processed_part_indices": [],
-   "stock_upgrade_run_id": 34573238254
+   "stock_upgrade_run_id": 34573238254,
+   "failure_stage": "stock-upgrade",
+   "stock_upgrade_hold_reason": "原始转写跨多个采访话题，且结尾没有收完整回答"
   },
   {
    "key": "bilibili_search:BV1r5411B7qK",
@@ -7234,12 +7240,15 @@
    "ts": 1789110899,
    "delay_hours": 0,
    "repair_of": "ly-0909-1c3654",
-   "failed": false,
-   "stock_upgrade_status": "verified",
+   "failed": true,
+   "stock_upgrade_status": "held",
    "parts_total": 2,
    "published_parts": 0,
    "processed_part_indices": [],
-   "stock_upgrade_run_id": 34573507023
+   "stock_upgrade_run_id": 34573507023,
+   "failure_stage": "stock-upgrade",
+   "stock_upgrade_hold_reason": "完整句判断误拒绝人工标题，重新生成并校验实际成片标题",
+   "stock_upgrade_to": "ly-0909-1c3654-u0911r3"
   },
   {
    "key": "bilibili_search:BV12A6jBdE8q",
@@ -7295,7 +7304,8 @@
    "repair_of": "ly-0909-15ef03",
    "failed": true,
    "failure_stage": "stock-upgrade",
-   "stock_upgrade_status": "rendering"
+   "stock_upgrade_status": "held",
+   "stock_upgrade_hold_reason": "原始转写跨多个采访话题，且结尾没有收完整回答"
   },
   {
    "key": "bilibili_search:BV12A6jBdE8q",
@@ -7327,9 +7337,12 @@
    "ts": 1789111785,
    "delay_hours": 0,
    "repair_of": "ly-0909-2e376f",
-   "failed": true,
-   "failure_stage": "stock-upgrade",
-   "stock_upgrade_status": "rendering"
+   "failed": false,
+   "stock_upgrade_status": "verified",
+   "parts_total": 1,
+   "published_parts": 0,
+   "processed_part_indices": [],
+   "stock_upgrade_run_id": 34574645617
   },
   {
    "key": "bilibili_search:BV1SazbBhE8a",
@@ -7346,7 +7359,65 @@
    "repair_of": "ly-0909-7c4660-sourceqa22",
    "failed": true,
    "failure_stage": "stock-upgrade",
-   "stock_upgrade_status": "rendering"
+   "stock_upgrade_status": "held",
+   "parts_total": 0,
+   "published_parts": 0,
+   "processed_part_indices": [],
+   "stock_upgrade_run_id": 34574674814
+  },
+  {
+   "key": "bilibili_search:BV1f7C3YGEuk",
+   "video_id": "BV1f7C3YGEuk",
+   "source_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
+   "asset_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
+   "title": "私募大佬林园访谈，下《中药龙头》",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-1c3654-u0911r3",
+   "ts": 1789111986,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-1c3654",
+   "failed": false,
+   "stock_upgrade_status": "verified",
+   "parts_total": 2,
+   "published_parts": 0,
+   "processed_part_indices": [],
+   "stock_upgrade_run_id": 34574913918
+  },
+  {
+   "key": "bilibili_search:BV16Vjj6xEJy",
+   "video_id": "BV16Vjj6xEJy",
+   "source_url": "https://www.bilibili.com/video/BV16Vjj6xEJy",
+   "asset_url": "https://www.bilibili.com/video/BV16Vjj6xEJy",
+   "title": "林园-202605复旦大学演讲",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0909-2d63c1-u0911",
+   "ts": 1789112070,
+   "delay_hours": 0,
+   "repair_of": "ly-0909-2d63c1",
+   "failed": true,
+   "failure_stage": "stock-upgrade",
+   "stock_upgrade_status": "held",
+   "stock_upgrade_hold_reason": "原始证据复核未通过，不启动仅重渲染任务"
+  },
+  {
+   "key": "bilibili_search:BV1kdzYBhEB6",
+   "video_id": "BV1kdzYBhEB6",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "2026-W37",
+   "slug": "ly-0911-f8d754",
+   "ts": 1789112365,
+   "source_url": "https://www.bilibili.com/video/BV1kdzYBhEB6",
+   "asset_url": "https://www.bilibili.com/video/BV1kdzYBhEB6",
+   "title": "林园经典采访-2023.12.26-财经采访（完整版）",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "巴菲特思想研究院",
+   "publish_time": "2026-01-26T06:46:36+00:00"
   }
  ],
  "pending_retry": [
