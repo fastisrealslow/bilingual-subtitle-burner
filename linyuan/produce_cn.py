@@ -1502,6 +1502,7 @@ def selection_schema(cue_count=None, candidate_count=None):
 
 
 def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
+    (work/f'context_review{suffix}.json').unlink(missing_ok=True)
     if not any(type(p.get('start')) is int and type(p.get('end')) is int
                and 0 <= p['start'] <= p['end'] < len(cues) for p in seeds):
         raise ValueError('原选段没有有效字幕编号，不能判定素材不合格')
@@ -1513,14 +1514,17 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     import context_review as review
     selected=[]
     verdicts={}
+    topic_evidence=[]
     for offset in range(0,len(choices),review.BATCH_SIZE):
         batch=choices[offset:offset+review.BATCH_SIZE]
         answer=llm([{'role':'user','content':review.prompt(transcript,batch,speaker)}],
                    api_key,temperature=0,max_tokens=1800,budget_sec=text_budget(240),
-                   response_schema=review.schema(batch))
+                   response_schema=review.schema(batch,len(cues)))
         (work/f'context_response{suffix}-{offset}.txt').write_text(answer)
         try:
-            verdicts.update(review.parse(answer,batch))
+            effective,topics,raw_verdicts=review.parse(answer,batch,cues)
+            verdicts.update(effective)
+            topic_evidence.append(dict(offset=offset,topics=topics,model_verdicts=raw_verdicts))
         except (ValueError,TypeError) as exc:
             raise SelectionIncomplete(f'{exc}；保留ASR，不判整源无合格片') from exc
     # Only a valid judgment for EVERY offered range can produce an empty result.
@@ -1529,7 +1533,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     (work/f'context_review{suffix}.json').write_text(json.dumps(dict(
         version=review.VERSION,complete=True,candidate_count=len(choices),
         reviewed_count=len(verdicts),transcript_sha256=editorial.text_digest(transcript),
-        choices=choices,verdicts=verdicts),ensure_ascii=False,indent=2))
+        choices=choices,verdicts=verdicts,topic_evidence=topic_evidence),ensure_ascii=False,indent=2))
     for choice in sorted(choices,key=lambda c:review.ACCEPT.get(verdicts[str(c['candidate_id'])],0),reverse=True):
         decision=verdicts[str(choice['candidate_id'])]
         if decision not in review.ACCEPT:continue
@@ -1561,7 +1565,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 12}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 13}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
