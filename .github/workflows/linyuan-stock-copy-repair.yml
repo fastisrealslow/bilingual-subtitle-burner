@@ -22,7 +22,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: python linyuan/run_stock_upgrade.py --slug ly-0909-1c3654-u0911r2
+        run: python linyuan/run_stock_upgrade.py --slug ly-0909-1c3654-u0911r3
       - uses: actions/upload-artifact@v4
         if: always()
         with:

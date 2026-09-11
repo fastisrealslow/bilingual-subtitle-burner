@@ -87,3 +87,15 @@ def test_unreviewed_legacy_title_does_not_override_current_copy():
     item=plan();item['parts'][0]['title']='林园：到今天为止，我没有觉得我的方法有问题'
     result=planmod.source_ranges([dict(start=10,end=140,text='到今天为止，我没有觉得我的方法有问题。')],'sha','new',item)
     assert 'editorial_title' not in result[0][2][0]
+
+
+def test_invalid_reviewed_title_is_not_silently_replaced():
+    item=plan();item['parts'][0].update(title='林园：所以这个',reviewed_title=True)
+    with pytest.raises(ValueError,match='不能静默替换'):
+        planmod.source_ranges([dict(start=10,end=140,text='所以这个原有完整观点。')],'sha','new',item)
+
+
+def test_reviewed_judgment_quote_is_passed_to_renderer():
+    item=plan();item['parts'][0].update(title='林园：我们还是按照常识去判断一个事情的好坏',reviewed_title=True)
+    result=planmod.source_ranges([dict(start=10,end=140,text='但是我们还是按照常识去判断一个事情的好坏。')],'sha','new',item)
+    assert result[0][2][0]['editorial_title']==item['parts'][0]['title']

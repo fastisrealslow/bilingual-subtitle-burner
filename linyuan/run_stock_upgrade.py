@@ -130,6 +130,10 @@ def run(plan):
             if (meta.get('subtitle_readability_version')!=caption_readability.VERSION
                     or meta.get('packaging_version')!=headline_policy.VERSION):
                 raise ValueError('Replacement did not use current caption and packaging rules')
+            actual=[(s['start'],s['end']) for s in meta.get('segments',[])]
+            matching=next((p for p in plan['parts'] if actual==[(s['start'],s['end']) for s in p['segments']]),None)
+            if matching and matching.get('reviewed_title') and meta.get('title')!=matching['title']:
+                raise ValueError('Rendered title differs from the reviewed source quote')
             error=source_supply.validate_part(meta,tmp)
             if error:raise ValueError(error)
             if meta.get('source_sha256')!=plan['source_sha256']:raise ValueError('Final source hash changed')
