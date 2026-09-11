@@ -83,15 +83,23 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
         raise ValueError('横版重排改变了字幕文字')
     bg=work/'landscape-background.png';background(bg)
     target=work/'landscape.mp4';brand=producer.brand_watermark_path()
+    rate=subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
+        '-show_entries','stream=avg_frame_rate','-of','default=nw=1:nk=1',str(original)],text=True).strip()
     filters=(f'[0:v]crop=632:470:44:360,scale={region["width"]}:{region["height"]}:flags=lanczos,setsar=1[v];'
              f'[1:v][v]overlay={region["x"]}:{region["y"]}:shortest=1,ass={subtitle}[base];'
              '[2:v]format=rgba,colorchannelmixer=aa=0.68,scale=166:-1[brand];'
              '[base][brand]overlay=W-w-22:22:shortest=1[outv]')
     subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(original),
-        '-loop','1','-i',str(bg),'-loop','1','-i',str(brand),'-filter_complex',filters,
+        '-loop','1','-framerate',rate,'-i',str(bg),'-loop','1','-framerate',rate,'-i',str(brand),'-filter_complex',filters,
         '-map','[outv]','-map','0:a:0','-c:v','libx264','-preset','veryfast','-crf','18',
-        '-pix_fmt','yuv420p','-c:a','copy','-t',str(meta['duration_sec']),'-movflags','+faststart',str(target)],
+        '-pix_fmt','yuv420p','-c:a','copy','-movflags','+faststart',str(target)],
         check=True,timeout=max(180,int(meta['duration_sec']*5)))
+    def audio_digest(path):
+        return subprocess.check_output(['ffmpeg','-v','error','-i',str(path),
+            '-map','0:a:0','-c','copy','-f','hash','-'],text=True).strip()
+    audio_sha=audio_digest(original)
+    if audio_digest(target)!=audio_sha:
+        raise ValueError('横版音频数据包与原片不一致')
     checks=presentation.verify_render(target,spec)
     context=meta.get('interview_context') or {}
     times=context.get('target_sample_times')
@@ -113,4 +121,5 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
             'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v1',
             'preview_30s':preview,'contact_sheet_6':sheet,
             'landscape_reframe':dict(version=1,input_sha256=original_sha,source_window=dict(x=44,y=360,width=632,height=470),
-                output_window=region,audio_stream_copied=True,subtitle_timing_preserved=True)}
+                output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
+                source_frame_rate=rate,subtitle_timing_preserved=True)}

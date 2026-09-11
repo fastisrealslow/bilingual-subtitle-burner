@@ -37,6 +37,21 @@ def render(plan, directory, run_id):
     runs=stock.api('actions/workflows/linyuan-produce-cn.yml/runs?per_page=100')['workflow_runs']
     if any(r.get('display_title')=='中文源出片 · '+plan['new_slug'] for r in runs):
         raise ValueError('该横版已派发普通生产，不能重复生产')
+    # A cancelled reframe can be resumed only after its owning job has stopped.
+    import base64
+    state=json.loads(base64.b64decode(stock.api(f'contents/{stock.STATE}?ref=main')['content']))
+    entry=next((e for e in state['dispatched'] if e['slug']==plan['new_slug']),{})
+    owner=entry.get('landscape_run_id')
+    if owner and owner!=run_id:
+        prior=stock.api(f'actions/runs/{owner}')
+        if prior['status']!='completed' or prior['conclusion']!='cancelled':
+            raise ValueError('上次横版任务未取消，不能接管')
+        def release_cancelled(state):
+            e=next(e for e in state['dispatched'] if e['slug']==plan['new_slug'])
+            if e.get('landscape_run_id')!=owner or e.get('stock_upgrade_status')!='rendering':
+                raise ValueError('取消后的认领状态已变化')
+            e.pop('landscape_run_id')
+        stock.mutate(release_cancelled)
     stock.mutate(lambda state:reserve(state,plan,run_id))
     directory.mkdir(parents=True,exist_ok=True)
     subprocess.run(['gh','run','download',str(plan['run_id']),'--repo',stock.fc.REPO,
