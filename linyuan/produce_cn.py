@@ -1512,6 +1512,17 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     transcript='\n'.join(f"字幕{u['start']}-{u['end']}|{u['text']}"
                          for u in editorial_sentence_units(cues))
     import context_review as review
+    reviewed=review.reviewed_topics(cues)
+    if reviewed and all(not any(t['start']<=c['start']<=c['end']<=t['end']
+                                for t in reviewed) for c in choices):
+        (work/f'context_review{suffix}.json').write_text(json.dumps(dict(
+            version=review.VERSION,complete=True,candidate_count=len(choices),
+            reviewed_count=len(choices),transcript_sha256=editorial.text_digest(transcript),
+            choices=choices,verdicts={str(c['candidate_id']):'reject_mixed_topics' for c in choices},
+            topic_evidence=[dict(origin='reviewed_exact_transcript',topics=reviewed)]),
+            ensure_ascii=False,indent=2))
+        print(f'[连续上下文] 已核对原文话题边界：{len(choices)}/{len(choices)}个候选均跨话题；没有合格长段',flush=True)
+        return []
     selected=[]
     verdicts={}
     topic_evidence=[]
@@ -1565,7 +1576,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 13}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 14}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:

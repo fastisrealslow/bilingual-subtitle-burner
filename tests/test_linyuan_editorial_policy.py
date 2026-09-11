@@ -121,7 +121,7 @@ def test_short_model_picks_must_select_from_real_long_contexts():
     choices=produce.argument_context_candidates(cues,[dict(start=0,end=0)])
     verdicts={str(c['candidate_id']):'reject_low_value' for c in choices}
     verdicts['0']='accept_8'
-    replies=['[{"start":0,"end":0,"score":8}]']*2+[json.dumps({'topics':[dict(start=0,end=len(cues)-1,topic='完整解释')],'verdicts':verdicts})]
+    replies=['[{"start":0,"end":0,"score":8}]']*2+[json.dumps({'topics':[dict(start=0,topic='完整解释')],'verdicts':verdicts})]
     with tempfile.TemporaryDirectory() as tmp:
         with patch.object(produce,'llm',side_effect=replies):
             picks=produce.pick_highlights(cues,'林园','test',Path(tmp))

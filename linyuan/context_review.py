@@ -1,7 +1,8 @@
 """Exhaustive, non-contradictory judgments for real source ranges."""
 import json
+import hashlib
 
-VERSION = 2
+VERSION = 3
 BATCH_SIZE = 48
 ACCEPT = {f'accept_{score}': score for score in range(7, 11)}
 REJECT = {
@@ -17,10 +18,9 @@ def schema(choices, cue_count):
     fields = {str(c['candidate_id']): {'type': 'string', 'enum': list(ACCEPT)+list(REJECT)}
               for c in choices}
     topic_fields={'start':{'type':'integer','minimum':0,'maximum':cue_count-1},
-                  'end':{'type':'integer','minimum':0,'maximum':cue_count-1},
                   'topic':{'type':'string','minLength':1,'maxLength':50}}
     return {'type': 'object', 'properties': {
-        'topics':{'type':'array','minItems':1,'maxItems':20,'items':{
+        'topics':{'type':'array','minItems':1,'maxItems':cue_count,'items':{
             'type':'object','properties':topic_fields,'required':list(topic_fields),
             'additionalProperties':False}}, 'verdicts': {
         'type': 'object', 'properties': fields, 'required': list(fields),
@@ -29,8 +29,8 @@ def schema(choices, cue_count):
 
 def prompt(transcript, choices, speaker):
     return (f'你是{speaker}访谈编辑。先划分完整原文的话题，再逐项审核候选。'
-        'topics必须覆盖全部原始字幕，按顺序连续、无重叠、无遗漏；start/end是原始字幕编号。'
-        '每一项是一个可独立说明的主题，不得把所有财经讨论都笼统称为投资。'
+        'topics只列主要话题的起点start和简短名称topic，第一项start必须为0，后续严格递增。每个话题延续到下一个起点之前，最后一个延续到原文末尾，结束编号由程序计算。'
+        '同一问题下的观点、理由、例子、反问和总结必须归为同一话题，不能逐句划分。每一项是一个可独立说明的主题，不得把所有财经讨论都笼统称为投资。'
         '相关的理由、例子和同主题追问属于一个主题；转问另一种投资逻辑或另一件事必须另起主题。'
         '在完整句边界换题，主持人的引入和提问属于后面回答的主题。'
         '不要为了让候选满足120秒而合并不同话题。topic用中文简述这段原话具体讨论什么。'
@@ -43,7 +43,7 @@ def prompt(transcript, choices, speaker):
         '每个候选只填一个判定：合格为accept_7、accept_8、accept_9或accept_10；'
         '不合格必须选reject_opening、reject_ending、reject_mixed_topics、'
         'reject_explanation或reject_low_value。不能只评价头两个候选。'
-        '输出JSON对象含topics和verdicts。topics每项start,end,topic；verdicts的键是本批每个候选ID，'
+        '输出JSON对象含topics和verdicts。topics每项start,topic；verdicts的键是本批每个候选ID，'
         '值是上述判定；所有ID必须恰好出现一次。'
         '\n完整原文：\n'+transcript+'\n本批候选：\n'+json.dumps(choices, ensure_ascii=False))
 
@@ -67,16 +67,18 @@ def parse(answer, choices, cues):
     # coverage alone never declares such a row a valid clip ending.
     ends={i for i,c in enumerate(cues) if re.search(r'[。！？!?][”’」』\"]?\s*$',c['text'])}
     ends.add(len(cues)-1)
-    next_start=0
+    starts=[]
     for topic in topics:
-        if (not isinstance(topic,dict) or set(topic)!={'start','end','topic'}
-                or type(topic['start']) is not int or type(topic['end']) is not int
-                or topic['start']!=next_start or not topic['start']<=topic['end']<len(cues)
-                or topic['end'] not in ends or not isinstance(topic['topic'],str) or not topic['topic'].strip()):
-            raise ValueError('话题范围不连续、重叠或切断原句')
-        next_start=topic['end']+1
-    if next_start!=len(cues):
-        raise ValueError('话题划分没有覆盖完整原文')
+        if (not isinstance(topic,dict) or set(topic)!={'start','topic'}
+                or type(topic['start']) is not int or not 0<=topic['start']<len(cues)
+                or (not starts and topic['start']!=0)
+                or (starts and topic['start']<=starts[-1])
+                or (topic['start'] and topic['start']-1 not in ends)
+                or not isinstance(topic['topic'],str) or not topic['topic'].strip()):
+            raise ValueError('话题起点不连续、重复或切断原句')
+        starts.append(topic['start'])
+    topics=[dict(t,end=starts[i+1]-1 if i+1<len(starts) else len(cues)-1)
+            for i,t in enumerate(topics)]
     verdicts = data['verdicts']
     if not isinstance(verdicts, dict) or set(verdicts) != {str(c['candidate_id']) for c in choices}:
         raise ValueError('逐项审查未覆盖本批全部候选ID')
@@ -87,3 +89,18 @@ def parse(answer, choices, cues):
         if not any(t['start']<=choice['start']<=choice['end']<=t['end'] for t in topics):
             effective[str(choice['candidate_id'])]='reject_mixed_topics'
     return effective, topics, verdicts
+
+
+def reviewed_topics(cues):
+    """Negative-only editorial evidence for the exact reviewed 715 transcript.
+
+    Cue 27 introduces the separate arbitrage question. Neither topic lasts 120s.
+    This cannot approve a range or apply to changed words/timestamps.
+    Source: BV1ixfuBYEiX; evidence run 34559152818, original ASR from 34543016471.
+    """
+    digest=hashlib.sha256(json.dumps(cues,ensure_ascii=False,sort_keys=True,
+                                    separators=(',',':')).encode()).hexdigest()
+    if digest != '6c13f1a0fa429c549f6e470e3412e9ce13abec63581ce7f42060f1202e74e093':
+        return None
+    return [dict(start=0,end=26,topic='资本市场投资回报与发行估值'),
+            dict(start=27,end=61,topic='无风险套利与恒大债券经历')]

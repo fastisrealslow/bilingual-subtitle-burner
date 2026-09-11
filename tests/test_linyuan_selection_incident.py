@@ -94,7 +94,7 @@ def test_690_text_edit_is_source_bound_and_has_no_fabricated_media_approval():
 
 def test_candidate_id_uses_program_duration_and_never_model_timestamps(tmp_path):
     choices=p.argument_context_candidates(cues(),[dict(start=0,end=0)])
-    answer={'topics':[dict(start=0,end=len(cues())-1,topic='完整解释')],'verdicts':{str(c['candidate_id']):'reject_low_value' for c in choices}}
+    answer={'topics':[dict(start=0,topic='完整解释')],'verdicts':{str(c['candidate_id']):'reject_low_value' for c in choices}}
     answer['verdicts']['0']='accept_8'
     with patch.object(p,'llm',return_value=json.dumps(answer)):
         picked=p.pick_argument_context(cues(),[dict(start=0,end=0)],'林园','',tmp_path,'')
