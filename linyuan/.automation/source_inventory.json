@@ -3,7 +3,7 @@
   "validation_sha256": "7ec7d0dd42022e56f5be2abac0a7bd336006f76d2816a4d65bcab9b9f1153673",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789113417,
+  "updated_at": 1789113684,
   "materials": {
     "weibo_search": {
       "records": 1133,
@@ -6726,9 +6726,9 @@
         "failures": [
           {
             "slug": "ly-0910-340459",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "连续上下文仅明确拒绝2/39个候选，选段未完成；保留ASR，不判整源无合格片"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
           },
           {
             "slug": "ly-0910-340459-context12",
@@ -6923,6 +6923,43 @@
         "family": "BV1EBf9BAEoP",
         "slugs": [
           "ly-0911-1671e2"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-1671e2",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[]，different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1mYU6YpEBs:p1",
+        "source_url": "https://www.bilibili.com/video/BV1mYU6YpEBs",
+        "family": "BV1mYU6YpEBs",
+        "slugs": [
+          "ly-0911-b5ca8c"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1m9mdYcEmr:p1",
+        "source_url": "https://www.bilibili.com/video/BV1m9mdYcEmr",
+        "family": "BV1m9mdYcEmr",
+        "slugs": [
+          "ly-0911-7340f1"
         ],
         "source_sha256": [],
         "failures": [],
@@ -7835,8 +7872,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -7848,8 +7885,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8174,6 +8211,17 @@
         "verified_seconds": 0
       },
       "BV1EBf9BAEoP": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1mYU6YpEBs": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1m9mdYcEmr": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
