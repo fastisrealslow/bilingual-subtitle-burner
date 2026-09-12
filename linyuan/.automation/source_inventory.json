@@ -3,7 +3,7 @@
   "validation_sha256": "9540c35e1237bc064b8434269221d52e080e65d1886fbd69f0d4a5a52b5b6ab0",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789198766,
+  "updated_at": 1789198985,
   "materials": {
     "weibo_search": {
       "records": 1147,
@@ -78,7 +78,7 @@
   },
   "inventory": {
     "verified_live": 3,
-    "verified_audio_card": 2,
+    "verified_audio_card": 3,
     "verified_landscape": 1,
     "landscape_target": 2,
     "daily_mix_usable": 3,
@@ -7300,7 +7300,14 @@
           "ly-0912-52f371"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0912-52f371",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景连续0.03秒缺少人脸"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7314,7 +7321,9 @@
         "slugs": [
           "ly-0912-2380b7"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "221c39620ab4eb90b62a15128aaa9cbe492402c22fb78fb0b18ed171541bdaa6"
+        ],
         "failures": [
           {
             "slug": "ly-0912-2380b7",
@@ -7323,9 +7332,9 @@
             "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：换屏词编号须从1开始、严格递增并覆盖最后一个词。请重新按原文输出全部字幕。"
           }
         ],
-        "verified_available": 0,
+        "verified_available": 1,
         "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_seconds": 120.7,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -8233,8 +8242,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -8405,9 +8414,9 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
+        "terminal_render-layout": 1,
         "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8667,17 +8676,52 @@
       "BV15DiVBpEDH": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1wtaAzCEkx": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 1,
+        "verified_seconds": 120.7
       }
     }
   },
-  "in_flight_placeholders": 5,
+  "in_flight_placeholders": 4,
   "artifacts": [
+    {
+      "slug": "ly-0912-2380b7",
+      "artifact_id": 10293854497,
+      "run_id": 34681224801,
+      "checked_at": 1789198976,
+      "source_url": "https://www.bilibili.com/video/BV1wtaAzCEkx",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final.mp4",
+          "title": "林园：我们的券商的一个，给我们卖股票",
+          "duration_sec": 120.7,
+          "render_mode": "audio_card",
+          "content_type": null,
+          "resolution": {
+            "width": 720,
+            "height": 1280,
+            "short_edge": 720
+          },
+          "source_sha256": "221c39620ab4eb90b62a15128aaa9cbe492402c22fb78fb0b18ed171541bdaa6",
+          "segments": [
+            {
+              "start": 58.2,
+              "end": 178.84,
+              "reason": "林园对当前股市高低判断的完整观点：股市高低不能单纯看指数，需结合经济形势（过剩经济、消费不足）等多因素。他以自身经历为例"
+            }
+          ],
+          "sha256": "bd0a056de0099d465afb249b559d7f5f7de910ac2ecec4d417f9543b43b443fc",
+          "subtitle_sha256": "fc874ccc163f847a9b235bd0d1b1ae9855cc2c7db039c9cf1fc8d5dff4f84799",
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0911-ea0eed",
       "artifact_id": 10195504209,
