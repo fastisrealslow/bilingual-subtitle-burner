@@ -3,7 +3,7 @@
   "validation_sha256": "aceb3e99bf4366c28ed3e8c995c21b580c4ebf57ba90991f7285b60baa2386e3",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789223486,
+  "updated_at": 1789223593,
   "materials": {
     "weibo_search": {
       "records": 1157,
@@ -7376,7 +7376,14 @@
           "ly-0912-10bacd"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0912-10bacd",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "真人取景源区域仅204x152像素，超过2倍放大上限，疑似远景小头像"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8459,9 +8466,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8737,11 +8744,12 @@
       "BV1dJ1eBiE3w": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 7,
   "artifacts": [
     {
       "slug": "ly-0912-a2096b",
