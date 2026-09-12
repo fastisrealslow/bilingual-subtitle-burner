@@ -117,3 +117,37 @@ def test_new_style_is_readable_and_fc_parses_text_without_graphics(w,h,card,tmp_
 @pytest.mark.parametrize('text',['70%来自','有的甚至','他跟银行','我主要从行业'])
 def test_no_dangling_screen_tails(text):
     assert P.unfinished_caption_tail(text)
+
+
+@pytest.mark.parametrize('raw,expected',[
+    ('就是您您刚才说了您观察过很多', '您刚才说了您观察过很多'),
+    ('您，您观察的数据', '您观察的数据'),
+    ('医医疗范围，林林总，眼眼科，中中药，考虑虑', '医疗范围，林总，眼科，中药，考虑'),
+    ('科室科室在在您的观察里面', '科室在您的观察里面'),
+    ('这这个科室真正的消费是大大户，我不不会卖', '这个科室真正的消费是大户，我不会卖'),
+    ('那么就是从您的这个呃对这些数据的观察结果来看哈', '从您对这些数据的观察结果来看'),
+    ('比如像呃心血管，观察结果来看哈', '比如像心血管，观察结果来看'),
+    ('哈哈哈哈哎袁总您好', '哎袁总您好'),
+    ('啊很高兴今天来到这里', '很高兴今天来到这里'),
+    ('涨涨跌跌，实实在在，看看，人人都越来越好，呃逆，哈尔滨，啊？',
+     '涨涨跌跌，实实在在，看看，人人都越来越好，呃逆，哈尔滨，啊？'),
+])
+def test_september12_actual_display_restarts_and_fillers(raw,expected):
+    source=[entry(raw)]
+    out,proof=R.clean_entries(source)
+    assert ''.join(x['zh'] for x in out)==expected
+    assert proof['raw_text']==raw
+    assert source[0]['zh']==raw
+    assert ''.join(c for row in out for c,a,b in row['caption_chars'])==expected
+
+
+def test_short_answer_and_new_speaker_are_not_collapsed():
+    for source in ([entry('有',0,.3),entry('有道理',1,3)],
+                   [entry('您？',0,.3),entry('您请说',.4,2)]):
+        out,proof=R.clean_entries(source)
+        assert ''.join(x['zh'] for x in out)==''.join(x['zh'] for x in source)
+
+
+def test_caption_boundary_output_budget_scales_without_removing_deadline():
+    assert P.caption_output_budget(200)>1000
+    assert P.caption_output_budget(2000)==4096

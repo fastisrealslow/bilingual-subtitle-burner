@@ -192,8 +192,14 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                         no_face+=int(not unknown);blank_streak+=1
                         if context_crop is not None:
                             box=context_crop;role='source_illustration';picture_frames+=1
-                        elif previous is None or blank_streak/fps>2:
+                        elif blank_streak/fps>2:
                             raise ValueError(f'动态取景连续{blank_streak/fps:.2f}秒缺少人脸')
+                        elif previous is None:
+                            # A cut/fade at the opening has no previous face box.
+                            # Preserve the current source frame, never freeze a
+                            # future portrait or shift audio; 80% identity gate
+                            # and the two-second bound still apply.
+                            box=(0,0,width,height);role='source_illustration'
                         else:box=previous
                 x,y,w,h=box
                 region=frame[y:y+h,x:x+w]

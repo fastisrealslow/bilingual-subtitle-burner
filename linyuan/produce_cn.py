@@ -2078,7 +2078,7 @@ def token_breaks_to_char_offsets(selected, tokens):
             or any(type(n) is not int or not 1<=n<=len(tokens) for n in selected)
             or selected[-1]!=len(tokens)
             or any(b<=a for a,b in zip([0]+selected,selected))):
-        raise ValueError('换屏词编号须从1开始、严格递增并覆盖最后一个词')
+        raise ValueError('每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）')
     return [tokens[n-1]['end'] for n in selected]
 
 
@@ -2168,6 +2168,12 @@ def caption_break_schema(token_count, char_count=1, max_group_chars=30):
         'required':['break_after_tokens'],'additionalProperties':False}
 
 
+def caption_output_budget(token_count):
+    # A full list of word boundaries can exceed the old fixed 1000-token cap.
+    # Keep the independent wall-clock deadline and all semantic validators.
+    return min(4096, max(1000, 8 * token_count + 64))
+
+
 def compact_caption_tokens(tokens):
     # Offsets and timestamps belong to the validator, not the language model.
     # The old JSON repeated the transcript three times and sent >23k chars for
@@ -2182,6 +2188,8 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
     capacity=layout['line_capacity']
     cache_path=Path(cache_path)
     write_edit_proof(cache_path.with_suffix('.editing.json'), edit_proof)
+    print('[字幕自动清理] '+json.dumps(dict(version=READABILITY_VERSION,
+        edits=len(edit_proof['edits']),types=edit_proof['edit_counts']),ensure_ascii=False),flush=True)
     # Old raw-text boundaries are invalid after display edits; replan the
     # cleaned transcript. Raw ASR and original reviewed picks remain untouched.
     if edit_proof['edits']:
@@ -2253,7 +2261,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
                 f'最后一个id必须是{len(choices)}。选词id，不是字符位置，不需要计算字数位置。原文：{parent}。'
                 '词序列：'+compact_caption_tokens(choices))
             answer=llm([{'role':'user','content':request}],api_key,
-                       temperature=0,max_tokens=1000,budget_sec=text_budget(45),
+                       temperature=0,max_tokens=caption_output_budget(len(choices)),budget_sec=text_budget(45),
                        response_schema=caption_break_schema(len(choices),len(parent),max_group_chars))
             local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices)
             if (not isinstance(local,list) or not local
@@ -2282,7 +2290,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
     error=''
     for attempt in range(3):
         try:
-            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=1000,
+            response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=caption_output_budget(len(tokens)),
                          budget_sec=text_budget(60),response_schema=caption_break_schema(len(tokens),len(transcript),max_group_chars))
             cache_path.with_suffix(f'.attempt{attempt+1}.txt').write_text(response,encoding='utf-8')
             breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens)

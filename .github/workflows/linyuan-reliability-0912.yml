@@ -1,0 +1,57 @@
+name: 出片与字幕问题实证回归 0912
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-reliability-0912.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证原字幕、保护词与取景时间轴
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          pip install -q pytest jieba requests numpy opencv-contrib-python-headless
+          python -m pytest -q tests/test_linyuan_caption_readability.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_live_tracking.py tests/test_linyuan_reviewed_download.py tests/test_linyuan_state_merge.py tests/test_linyuan_source_supply.py tests/test_linyuan_batch_isolation.py
+      - name: 实际下载并校验此前失败的630MB成片包
+        run: |
+          python - <<'PY'
+          import sys,json,tempfile,zipfile
+          from pathlib import Path
+          sys.path.insert(0,'linyuan/fc')
+          import index as fc
+          with tempfile.TemporaryDirectory() as tmp:
+              target=Path(tmp)/'delivery.zip'
+              size=fc.download_reviewed_zip(10262245814,target,attempts=2)
+              with zipfile.ZipFile(target) as z:
+                  if 'meta.json' not in z.namelist():raise ValueError('Delivery metadata missing')
+              if size!=630024798:raise ValueError('Unexpected artifact size')
+              Path('large-download-verification.json').write_text(json.dumps(dict(artifact_id=10262245814,bytes=size,crc_verified=True)))
+          PY
+      - name: 刷新真实库存并复跑首帧失败母片（验收产物不登记为新稿）
+        run: |
+          gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
+          gh workflow run linyuan-produce-cn.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            -f source=https://www.bilibili.com/video/BV15DiVBpEDH \
+            -f slug=ly-0912-52f371-repair0912 -f speaker=林园 \
+            -f occasion=首帧取景及字幕修复实产验收 -f source_platform=bilibili \
+            -f recovery_run_id=34678651934 -f auto_publish=false -f include_full=false \
+            -f output_layout=portrait -f prefer_live_video=true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reliability-0912-verification
+          path: large-download-verification.json
+          if-no-files-found: warn

@@ -71,10 +71,10 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     proof=json.loads(output.with_suffix('.json').read_text())
     assert proof['passed'] is False
     assert not output.exists()
-    assert proof['failure_source_time']==pytest.approx(3.1 if initial_face else 1.)
-    assert proof['encoded_frames']==(21 if initial_face else 0)
-    assert proof['decoded_frames']==(22 if initial_face else 1)
-    assert proof['consecutive_no_face_seconds']==pytest.approx(2.1 if initial_face else .1)
+    assert proof['failure_source_time']==pytest.approx(3.1 if initial_face else 3.)
+    assert proof['encoded_frames']==(21 if initial_face else 20)
+    assert proof['decoded_frames']==(22 if initial_face else 21)
+    assert proof['consecutive_no_face_seconds']==pytest.approx(2.1)
     directory=tmp_path/proof['evidence_directory']
     assert cv2.imread(str(directory/'failure.jpg')).shape==(120,160,3)
     assert proof['samples'] and all((directory/x['file']).is_file() for x in proof['samples'])

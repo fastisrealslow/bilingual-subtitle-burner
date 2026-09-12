@@ -654,7 +654,7 @@ def diagnose_release_download(event=None, context=None):
         shutil.rmtree(probe_dir, ignore_errors=True)
 
 
-def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=256*1024*1024):
+def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=1024*1024*1024):
     """Refresh signed URLs after a bounded failed/slow read; never expose tokens."""
     import requests
     archive_path=Path(archive_path)
@@ -666,13 +666,13 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
                 allow_redirects=False,timeout=(10,20))
             location=redirect.headers.get('Location','')
             if redirect.status_code!=302 or not location.startswith('https://'):
-                raise RuntimeError('Signed artifact redirect unavailable')
+                raise RuntimeError(f'Signed artifact redirect unavailable: HTTP {redirect.status_code}')
             result=subprocess.run(['curl','-fsSL','--connect-timeout','15',
                 '--max-time',str(timeout_sec),'--speed-time','20','--speed-limit','32768',
                 '--max-filesize',str(max_bytes),'-o',str(archive_path),location],
                 capture_output=True,timeout=timeout_sec+10)
             if result.returncode!=0 or not archive_path.is_file():
-                raise RuntimeError('Bounded artifact transfer failed')
+                raise RuntimeError(f'Bounded artifact transfer failed: curl exit {result.returncode}, limit {max_bytes} bytes')
             size=archive_path.stat().st_size
             if not 0<size<=max_bytes:
                 raise RuntimeError('Reviewed artifact size invalid')
@@ -682,7 +682,7 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
             return size
         except Exception as exc:
             archive_path.unlink(missing_ok=True)
-            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',type(exc).__name__)
+            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
             flush_logs()
     raise RuntimeError(f'Reviewed artifact exhausted {attempts} bounded attempts')
 
@@ -2025,6 +2025,7 @@ def _dispatch_admitted(event=None, context=None):
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
                 'output_layout':entry.get('output_layout','auto'),
                 **({'reviewed_parts':str(entry['reviewed_parts'])} if entry.get('reviewed_parts') else {}),
+                **({'recovery_run_id':str(entry['source_check_run_id'])} if entry.get('source_check_run_id') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
         entry.pop('source_check_retry_after',None)
@@ -2528,7 +2529,7 @@ def artifact_subtitle_error(meta, delivery_dir):
 
 
 def _collect_source_rejections(st):
-    """读取失败工作流的素材质检报告，立即淘汰，避免无成片干等 12 小时。"""
+    """读取失败工作流的素材质检报告，立即淘汰，避免无成片干等 6 小时。"""
     prefixes = ("source-reject-", "production-reject-")
     rejected = 0
     runs = gh("GET", f"/actions/workflows/{WF_PRODUCE}/runs"
@@ -2594,6 +2595,7 @@ def _collect_source_rejections(st):
                 continue
             if report.get('retryable') is True or reason.startswith(('人物 VLM 校验不可用','素材质检不可用')):
                 candidate['source_check_report_id']=artifact['id']
+                candidate['source_check_run_id']=run['id']
                 candidate['last_error']=reason
                 candidate['failure_stage']='quality-service'
                 attempts=int(candidate.get('source_check_attempts') or 0)
@@ -2886,7 +2888,7 @@ def publish_handler(event=None, context=None):
 
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
-    # 超过 12 小时无 artifact → 标记为 failed，避免永远 pending
+    # 超过 6 小时无 artifact → 标记为 failed，避免永远 pending
     e = None
     slug = None
     retried = 0
@@ -2930,8 +2932,8 @@ def publish_handler(event=None, context=None):
         last_retry = candidate.get("last_retry", 0)
         if age > 6 * 3600:
             candidate["failed"] = True
-            log_event("fail", f"{s} 超过 12h 无成片，标记失败", (candidate.get("title") or "")[:60])
-            log.info(f"{s} 超过 12h 无 artifact，标记失败")
+            log_event("fail", f"{s} 超过 6h 无成片，标记失败", (candidate.get("title") or "")[:60])
+            log.info(f"{s} 超过 6h 无 artifact，标记失败")
         elif retries < 2 and now - max(candidate.get("ts", 0), last_retry) > 2 * 3600:
             # 自动重试出片：用之前保存的 asset_url 重新触发 workflow
             # 注意用 max(ts, last_retry)：刚调度的条目（出片还在跑）不能重触发

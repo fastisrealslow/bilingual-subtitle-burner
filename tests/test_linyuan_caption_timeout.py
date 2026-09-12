@@ -16,7 +16,8 @@ def test_caption_prompt_excludes_duplicate_timing_and_offset_tables(monkeypatch,
         prompt=messages[0]['content']
         assert len(prompt)<5000
         assert 'start_sec' not in prompt and '"end"' not in prompt
-        assert kwargs['max_tokens']==1000
+        assert 1000 < kwargs['max_tokens'] <= 4096
+        assert kwargs['budget_sec'] <= 600
         assert kwargs['response_schema']['properties']['break_after_tokens']['items']['type']=='integer'
         raise Captured()
     monkeypatch.setattr(p,'llm',capture)
