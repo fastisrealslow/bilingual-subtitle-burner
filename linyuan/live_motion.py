@@ -27,6 +27,17 @@ def residual_motion(first, second):
                 mean_residual=float(delta.mean()), correlation=float(correlation))
 
 
+def window_for_meta(meta):
+    layout = meta.get('layout_proof') or {}
+    rect = dict(layout.get('live_region') or dict(x=44,y=360,width=632,height=470))
+    subtitles = layout.get('subtitle_region') or {}
+    # Landscape captions overlap the source window. Their changing glyphs
+    # must never serve as evidence that a printed portrait is moving.
+    if subtitles and rect['y'] < subtitles['y'] < rect['y'] + rect['height']:
+        rect['height'] = subtitles['y'] - rect['y']
+    return rect
+
+
 def verify_window(path, rect):
     import cv2
     import numpy as np

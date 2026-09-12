@@ -33,3 +33,12 @@ def test_local_motion_survives_camera_compensation():
     second=first.copy()
     cv2.ellipse(second,(120,110),(20,8),0,0,360,80,-1)
     assert residual_motion(first,second)['moving']
+
+
+def test_landscape_sampling_excludes_overlaid_subtitles():
+    from live_motion import window_for_meta
+    rect=window_for_meta(dict(layout_proof=dict(
+        live_region=dict(x=156,y=0,width=968,height=720),
+        subtitle_region=dict(x=200,y=570,width=880,height=138))))
+    assert rect==dict(x=156,y=0,width=968,height=570)
+    assert window_for_meta({})==dict(x=44,y=360,width=632,height=470)

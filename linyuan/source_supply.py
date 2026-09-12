@@ -40,7 +40,10 @@ def validate_part(meta, directory):
     if meta.get('render_mode') == 'live_video_card':
         # Revalidate old stock from actual encoded pixels. Only this measured,
         # SHA-bound proof may supplement legacy metadata at publication time.
-        motion = live_motion.verify_window(path, dict(x=44,y=360,width=632,height=470))
+        try:
+            motion = live_motion.verify_window(path, live_motion.window_for_meta(meta))
+        except ValueError as exc:
+            return '真人动作验收失败：' + str(exc)
         meta.setdefault('final_live_identity', {})['motion'] = motion
     error = (fc.artifact_quality_error(meta) or fc.artifact_subtitle_error(meta, directory)
              or fc.artifact_cover_error(meta, directory))
