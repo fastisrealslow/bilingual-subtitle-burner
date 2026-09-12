@@ -3,6 +3,7 @@
 
 import base64
 import os
+import time
 from pathlib import Path
 
 
@@ -11,6 +12,19 @@ def required_env(name):
     if not value:
         raise SystemExit(f"缺少环境变量 {name}")
     return value
+
+
+def retry_code_update(update, attempts=3):
+    """SDK marks socket write timeouts unretryable; this exact update is idempotent."""
+    for attempt in range(attempts):
+        try:
+            return update()
+        except Exception as exc:
+            transient=any(token in str(exc).lower() for token in (
+                'timed out','timeout','connection aborted','connection reset','remote disconnected'))
+            if not transient or attempt+1==attempts:raise
+            print(f'部署传输暂时失败，第 {attempt+2}/{attempts} 次重传同一代码包',flush=True)
+            time.sleep(10*(attempt+1))
 
 
 def main():
@@ -47,10 +61,10 @@ def main():
     # The reviewed media makes this request several MB. The SDK's short default
     # socket timeout can expire while writing from an overseas Actions runner.
     # Repeating this exact code/config update is idempotent; it invokes no posts.
-    client.update_function_with_options(
+    retry_code_update(lambda:client.update_function_with_options(
         function_name, fc_models.UpdateFunctionRequest(body=body), {},
-        util_models.RuntimeOptions(connect_timeout=120000, read_timeout=180000,
-                                   autoretry=True, max_attempts=3))
+        util_models.RuntimeOptions(connect_timeout=180000, read_timeout=180000,
+                                   autoretry=False)))
     print(f"✓ 已更新 {region}/{function_name}，代码包 {zip_path.stat().st_size} bytes")
 
 

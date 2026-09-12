@@ -3,6 +3,7 @@
 import importlib.util
 import sys
 import types
+import pytest
 from pathlib import Path
 
 
@@ -92,8 +93,27 @@ def test_deploy_preserves_secrets_and_sets_uploader_limits(monkeypatch, tmp_path
     assert calls["update_fields"]["instance_concurrency"] == 1
     assert calls["config"]["endpoint"] == "fcv3.cn-hangzhou.aliyuncs.com"
     assert calls["runtime"].options == {
-        "connect_timeout": 120000, "read_timeout": 180000,
-        "autoretry": True, "max_attempts": 3}
+        "connect_timeout": 180000, "read_timeout": 180000,
+        "autoretry": False}
+
+
+def test_transient_write_timeout_retries_the_same_update(monkeypatch):
+    module=_load_module();calls=[]
+    monkeypatch.setattr(module.time,'sleep',lambda n:None)
+    def update():
+        calls.append('same update')
+        if len(calls)==1:raise RuntimeError('Connection aborted: write operation timed out')
+        return 'updated'
+    assert module.retry_code_update(update)=='updated'
+    assert calls==['same update','same update']
+
+
+def test_permission_or_parameter_errors_are_not_retried(monkeypatch):
+    module=_load_module();calls=[]
+    def update():
+        calls.append(1);raise RuntimeError('Forbidden')
+    with pytest.raises(RuntimeError,match='Forbidden'):module.retry_code_update(update)
+    assert calls==[1]
 
 
 def test_deploy_workflow_uses_only_aliyun_secrets():

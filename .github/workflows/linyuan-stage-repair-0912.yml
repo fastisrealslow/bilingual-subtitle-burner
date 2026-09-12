@@ -26,7 +26,8 @@ jobs:
       - run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
-          pip install -q pytest requests pillow jieba numpy 'opencv-python-headless<5' rapidocr-onnxruntime fonttools
+          pip install -q pytest requests pillow jieba numpy 'opencv-python<5' rapidocr-onnxruntime fonttools
+          python -c 'import cv2; assert hasattr(cv2,"CascadeClassifier"), cv2.__version__'
           python -m pytest -q tests/test_linyuan_stage_repair.py tests/test_linyuan_stage_revision.py tests/test_linyuan_headline_policy.py tests/test_linyuan_portrait_rejection.py
       - name: 恢复原母片
         id: key
