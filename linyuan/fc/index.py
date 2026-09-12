@@ -2262,8 +2262,9 @@ def obsolete_review_candidates(state, inventory):
         remaining=[p for p in record.get('parts',[])
                    if int(p['index']) not in processed_part_indices(entry)]
         if (remaining and all(p.get('status')=='rejected' for p in remaining)
-                and any('CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核' in str(p.get('reason',''))
-                        for p in remaining)):
+                and any(any(reason in str(p.get('reason','')) for reason in (
+                    'CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核',
+                    '标题存在口头残句、指代不明或语气词')) for p in remaining)):
             yield entry,record
 
 

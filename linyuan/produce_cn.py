@@ -3267,14 +3267,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except Exception as exc:
             last_error = f"文案 JSON 解析失败：{exc}"
     if d is None:
-        d = {"title": _fallback_quote_title(cues, sel, speaker),
-             "desc": f"{speaker}在{occasion}的公开发言精选。",
-             "tags": [speaker, "价值投资"]}
-        last_error = title_quality_error(
-            d["title"], speaker, transcript_text, existing_titles,
-            require_quote=require_quote)
-        if last_error:
-            raise VisualQualityError(f"标题连续三次未通过质量闸门：{last_error}")
+        raise VisualQualityError(f'标题连续三次未通过质量闸门：{last_error}；不再退回关键词摘句发布')
     # 兜底清洗：prompt 说了不许带链接，但 LLM 不一定听话，程序层再洗一遍
     if d.get("desc"):
         clean_desc = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+|@[\w\u4e00-\u9fa5]{2,20}", "", d["desc"])

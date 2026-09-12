@@ -161,3 +161,16 @@ def test_reviewed_family_anecdote_is_scoped_and_readable():
     assert result['cover_copy']['kind']=='reviewed_editorial'
     assert result['cover_title']!='投资观点'
     assert len(V.cover_headline(result['cover_title']))==2
+
+
+def test_source_first_still_reads_full_segment_and_never_falls_back_to_keywords(tmp_path,monkeypatch):
+    monkeypatch.setenv('SOURCE_EDITORIAL_FIRST','true')
+    calls=[]
+    def invalid(*args,**kwargs):
+        calls.append(args)
+        return '{"title":"林园：人少了没办法，它只消费少"}'
+    monkeypatch.setattr(P,'llm',invalid)
+    with pytest.raises(P.VisualQualityError,match='不再退回关键词'):
+        P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
+                    [0],'林园','访谈',None,tmp_path)
+    assert len(calls)==3
