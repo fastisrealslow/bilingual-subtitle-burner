@@ -151,3 +151,12 @@ def test_short_answer_and_new_speaker_are_not_collapsed():
 def test_caption_boundary_output_budget_scales_without_removing_deadline():
     assert P.caption_output_budget(200)>1000
     assert P.caption_output_budget(2000)==4096
+
+
+def test_model_missing_final_boundary_preserves_every_source_word():
+    tokens=[dict(id=i+1,end=(i+1)*2) for i in range(6)]
+    proposed=[2,4]
+    assert P.token_breaks_to_char_offsets(proposed,tokens,complete_tail=True)==[4,8,12]
+    assert proposed==[2,4]
+    for invalid in ([4,2],[2,2],[0,2],[7],[True,2]):
+        with pytest.raises(ValueError):P.token_breaks_to_char_offsets(invalid,tokens,complete_tail=True)

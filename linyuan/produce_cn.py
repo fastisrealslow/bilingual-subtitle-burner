@@ -2072,8 +2072,15 @@ def repair_semantic_boundaries(texts):
     return out
 
 
-def token_breaks_to_char_offsets(selected, tokens):
-    """Map selected whole-word IDs; a model never has to count characters."""
+def token_breaks_to_char_offsets(selected, tokens, complete_tail=False):
+    """Map word IDs; optionally recover an omitted final boundary, never text."""
+    if (complete_tail and isinstance(selected, list) and selected
+            and all(type(n) is int and 1 <= n <= len(tokens) for n in selected)
+            and all(b > a for a,b in zip([0]+selected, selected))
+            and selected[-1] < len(tokens)):
+        # The untouched tail is still subject to word, semantic and duration
+        # validation below. This recovers formatting, not an omitted argument.
+        selected = selected + [len(tokens)]
     if (not isinstance(selected,list) or not selected
             or any(type(n) is not int or not 1<=n<=len(tokens) for n in selected)
             or selected[-1]!=len(tokens)
@@ -2263,7 +2270,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
             answer=llm([{'role':'user','content':request}],api_key,
                        temperature=0,max_tokens=caption_output_budget(len(choices)),budget_sec=text_budget(45),
                        response_schema=caption_break_schema(len(choices),len(parent),max_group_chars))
-            local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices)
+            local=token_breaks_to_char_offsets(_parse_json_object(answer)['break_after_tokens'],choices,complete_tail=True)
             if (not isinstance(local,list) or not local
                     or any(type(n) is not int for n in local)
                     or local[-1]!=len(parent)
@@ -2293,7 +2300,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
             response=llm([{'role':'user','content':prompt+error}],api_key,temperature=0,max_tokens=caption_output_budget(len(tokens)),
                          budget_sec=text_budget(60),response_schema=caption_break_schema(len(tokens),len(transcript),max_group_chars))
             cache_path.with_suffix(f'.attempt{attempt+1}.txt').write_text(response,encoding='utf-8')
-            breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens)
+            breaks=token_breaks_to_char_offsets(_parse_json_object(response)['break_after_tokens'],tokens,complete_tail=True)
             if not isinstance(breaks,list) or not breaks or any(type(n) is not int for n in breaks) or breaks[-1]!=len(transcript) or any(b<=a for a,b in zip([0]+breaks,breaks)):
                 raise ValueError('换屏位置必须严格递增并覆盖全部原文')
             merged=repair_semantic_boundaries([transcript[a:b] for a,b in zip([0]+breaks,breaks)])
