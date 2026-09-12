@@ -20,6 +20,10 @@ def _load_module():
 
 def test_deploy_preserves_secrets_and_sets_uploader_limits(monkeypatch, tmp_path):
     calls = {}
+    # Exercise defaults independently of the runner's actual production config.
+    for name in ('FC_REGION','FC_FUNCTION_NAME','FC_MEMORY_SIZE_MB','FC_CPU',
+                 'FC_TIMEOUT_SECONDS','FC_DISK_SIZE_MB'):
+        monkeypatch.delenv(name,raising=False)
 
     class Config:
         def __init__(self, **kwargs):
