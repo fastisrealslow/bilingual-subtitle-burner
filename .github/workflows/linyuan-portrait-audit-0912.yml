@@ -54,6 +54,7 @@ jobs:
               sha=hashlib.sha256(source.read_bytes()).hexdigest()
               assert sha=='81833e8aa7224716bd682b91e486ffcab5f4f2f4dc6fc00f8d523b08c59067dd',sha
               proofs['source_sha256']=sha
+              subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(source),'-t','129','-c','copy',str(out/'stage-source-excerpt.mp4')],check=True)
               sheet=Image.new('RGB',(1280,1080),'white');draw=ImageDraw.Draw(sheet)
               for i,t in enumerate([5,30,90,180,300,450]):
                   p=out/f'source-{t}.jpg'
@@ -67,7 +68,7 @@ jobs:
         run: |
           gh release view portrait-audit-0912 >/dev/null 2>&1 || gh release create portrait-audit-0912 --title '蓝底头像事故检查 0912' --notes '实际成片动作检测及原母片取景证据，不发布新视频。'
           shopt -s nullglob
-          assets=(portrait-audit/*.json portrait-audit/*.jpg)
+          assets=(portrait-audit/*.json portrait-audit/*.jpg portrait-audit/stage-source-excerpt.mp4)
           gh release upload portrait-audit-0912 "${assets[@]}" --clobber
       - uses: actions/upload-artifact@v4
         if: always()
