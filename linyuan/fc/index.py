@@ -1819,6 +1819,10 @@ def handler(event, context):
             import media_repair
             import sys
             return run_with_lease('publish',lambda:media_repair.repair_known_media(evt,sys.modules[__name__]))
+        if name == 'apply-stage-revision-0912':
+            import stage_revision
+            import sys
+            return run_with_lease('publish', lambda: stage_revision.apply(sys.modules[__name__]))
         if name == 'apply-reviewed-updates-0910':
             import reviewed_updates
             import sys
@@ -2393,7 +2397,7 @@ def artifact_cover_error(meta, directory):
 
 def daily_mix_error(meta, daily):
     """The extra landscape slot preserves the current live-footage-only policy."""
-    if meta.get("render_mode") in {"live_video_card", "direct", "delogo", "crop", "crop_delogo"}:
+    if meta.get("render_mode") in {"live_video_card", "stage_context", "direct", "delogo", "crop", "crop_delogo"}:
         return None
     if meta.get("render_mode") == "audio_card":
         return "音频卡额度不可用，四条日上限均保留真人动态视频"
@@ -2446,7 +2450,10 @@ def artifact_quality_error(meta):
             "authority_reference", "verified_source_frame"}:
         return "封面人物图来源不可验证"
     from headline_policy import complete, body
-    if '完整访谈' not in str(meta.get('title', '')) and not complete(body(meta.get('title'))):
+    from title_rewrite import error as rewrite_error
+    rewritten=meta.get('title_rewrite')
+    if rewritten and rewrite_error(meta.get('title'),rewritten):return '标题重写证明不合格'
+    if not rewritten and '完整访谈' not in str(meta.get('title', '')) and not complete(body(meta.get('title'))):
         return '标题存在口头残句、指代不明或语气词'
     if meta.get("title_quality_verified") is not True:
         return "标题没有通过原话/重复/ASR 污染质检"
@@ -2481,7 +2488,16 @@ def artifact_quality_error(meta):
         confidence = float(visual.get("confidence", 0))
     except (TypeError, ValueError):
         confidence = 0
-    if visual.get("speaker") != "林园" or len(same) < 2 or confidence < 0.75:
+    if meta.get('render_mode')=='stage_context':
+        from stage_context import proof_error
+        stage=meta.get('stage_context') or {}
+        problem=proof_error(stage)
+        if problem:return problem
+        if (stage.get('source_sha256')!=meta.get('source_sha256')
+                or not (stage.get('final_presenter_motion') or {}).get('passed')
+                or not (stage.get('overlay_scan') or {}).get('passed')):
+            return '舞台成片缺少真人动作或旧字幕清理证明'
+    elif visual.get("speaker") != "林园" or len(same) < 2 or confidence < 0.75:
         return "人物多帧核验记录不完整或未通过"
 
     resolution = meta.get("resolution") or {}
@@ -2554,6 +2570,10 @@ def artifact_subtitle_error(meta, delivery_dir):
         return "真实ASS字幕为空"
     if editorial.text_digest(text) != meta.get("subtitle_text_sha256"):
         return "真实ASS字幕与meta文本指纹不一致"
+    if meta.get('title_rewrite'):
+        from title_rewrite import error as rewrite_error
+        problem=rewrite_error(meta.get('title'),meta['title_rewrite'],text)
+        if problem:return problem
     return editorial.transcript_integrity_error(text)
 
 

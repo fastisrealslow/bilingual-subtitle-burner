@@ -118,7 +118,7 @@ def test_cached_copy_gets_current_cover_layout_without_model(tmp_path,monkeypatc
     cues=[dict(text='我们长期持有优秀企业。',start=0,end=5)]
     title='林园：我们长期持有优秀企业'
     cache=dict(title=title,cover_title='片仔癀又呃这个系列产品，他又搞了很多',
-        copy_identity=dict(version=5,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
+        copy_identity=dict(version=6,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
             speaker='林园',occasion='访谈',reviewed_title=None))
     (tmp_path/'copywrite.json').write_text(P.json.dumps(cache,ensure_ascii=False))
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Valid title should be reused'))
@@ -170,7 +170,8 @@ def test_source_first_still_reads_full_segment_and_never_falls_back_to_keywords(
         calls.append(args)
         return '{"title":"林园：人少了没办法，它只消费少"}'
     monkeypatch.setattr(P,'llm',invalid)
-    with pytest.raises(P.VisualQualityError,match='不再退回关键词'):
-        P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
+    result=P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
                     [0],'林园','访谈',None,tmp_path)
-    assert len(calls)==3
+    assert len(calls)==3 and result['title_rewrite']['kind']=='editorial_topic'
+    assert '没办法' not in result['title']
+    assert result['cover_title']==result['title_rewrite']['cover']

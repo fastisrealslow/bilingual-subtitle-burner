@@ -1,0 +1,86 @@
+name: 真人舞台与标题重制 0912
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-stage-repair-0912.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: stage-repair-0912
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      LOCAL_FACE_MODEL_DIR: /tmp/linyuan-face-models
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          pip install -q pytest requests pillow jieba numpy 'opencv-python-headless<5' rapidocr-onnxruntime fonttools
+          python -m pytest -q tests/test_linyuan_stage_repair.py tests/test_linyuan_stage_revision.py tests/test_linyuan_headline_policy.py tests/test_linyuan_portrait_rejection.py
+      - name: 恢复原母片
+        id: key
+        run: |
+          python -c 'import hashlib; print("key="+hashlib.sha256(b"https://www.bilibili.com/video/BV1hh411K7dJ").hexdigest())' >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.key.outputs.key }}-stage-repair
+          restore-keys: source-download-v1-${{ steps.key.outputs.key }}-
+      - name: 重写标题并重制真实舞台画面
+        run: python -u linyuan/build_stage_revision.py --source linyuan/_src/video.mp4 --out stage-revision
+      - uses: actions/upload-artifact@v4
+        id: delivery
+        with:
+          name: stage-revision-0912
+          path: |
+            stage-revision/*.mp4
+            stage-revision/*.ass
+            stage-revision/*.jpg
+            stage-revision/*.json
+          if-no-files-found: error
+      - name: 保存成片与原位替换清单
+        env:
+          ARTIFACT_ID: ${{ steps.delivery.outputs.artifact-id }}
+        run: |
+          gh release view stage-repair-0912 >/dev/null 2>&1 || gh release create stage-repair-0912 --title '真人舞台与标题修复 0912' --notes '同一原声区间重制，原位替换已有稿件，不新增投稿。'
+          shopt -s nullglob
+          files=(stage-revision/*.mp4 stage-revision/*.jpg stage-revision/*.json stage-revision/*.ass)
+          gh release upload stage-repair-0912 "${files[@]}" --clobber
+          python - <<'PY'
+          import json,os,subprocess,base64
+          from pathlib import Path
+          item=json.loads(Path('stage-revision/revision-manifest.json').read_text())
+          item['artifact_id']=int(os.environ['ARTIFACT_ID'])
+          path='linyuan/.automation/stage_revision_BV1CLYd6LEWE.json'
+          repo=os.environ['GITHUB_REPOSITORY']
+          old=subprocess.run(['gh','api',f'repos/{repo}/contents/{path}'],capture_output=True,text=True)
+          payload=dict(message='chore(repair): record verified stage replacement assets',content=base64.b64encode(json.dumps(item,ensure_ascii=False,indent=2).encode()).decode(),branch='main')
+          if old.returncode==0:payload['sha']=json.loads(old.stdout)['sha']
+          subprocess.run(['gh','api','--method','PUT',f'repos/{repo}/contents/{path}','--input','-'],input=json.dumps(payload),text=True,check=True,stdout=subprocess.DEVNULL)
+          PY
+      - name: 等待最新部署成功后原位替换
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: |
+          pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+          python linyuan/fc/invoke_stage_revision.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stage-revision-receipt
+          path: stage-revision-verification.json
+          if-no-files-found: warn

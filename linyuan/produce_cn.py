@@ -3118,7 +3118,7 @@ def _title_text(value):
 
 
 def title_quality_error(title, speaker, transcript_text, existing_titles=None,
-                        require_quote=True):
+                        require_quote=True, rewrite_proof=None):
     """程序化标题闸门：拦 ASR 脏词、摘要腔、编造和批内撞题。"""
     title = re.sub(r"\s+", " ", title or "").strip()
     if not re.match(rf"^(?:股神)?{re.escape(speaker)}[：:]", title):
@@ -3134,6 +3134,11 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         return f"标题长度 {len(compact)} 不在 12~62 字"
     normalized = re.sub(
         rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
+    if rewrite_proof is not None:
+        from title_rewrite import error as rewrite_error
+        problem=rewrite_error(title,rewrite_proof,transcript_text,speaker)
+        if problem:return problem
+        require_quote=False
     from headline_policy import complete
     if require_quote and not complete(normalized):
         return '标题存在口头残句、指代不明或语气词，不能独立理解'
@@ -3171,7 +3176,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
     from headline_policy import attach_copy
-    copy_identity={'version':5,'transcript_sha256':editorial.text_digest(transcript_text),
+    copy_identity={'version':6,'transcript_sha256':editorial.text_digest(transcript_text),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     if suffix=='_full':
@@ -3185,19 +3190,20 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         error=title_quality_error(reviewed_title,speaker,transcript_text,existing_titles,
                                   require_quote=require_quote)
         if error:
-            raise VisualQualityError('编辑标题未通过原话校验：'+error)
-        result=dict(title=reviewed_title,desc=f'{speaker}在{occasion}的公开发言选段。',
-                    tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True)
-        result=attach_copy(result,transcript_text,speaker,existing_titles,reviewed_cover)
-        cache.write_text(json.dumps(result,ensure_ascii=False))
-        return result
+            print('[标题重写] 选段标题不合格，保留素材并生成新文案：'+error,flush=True)
+        else:
+            result=dict(title=reviewed_title,desc=f'{speaker}在{occasion}的公开发言选段。',
+                        tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True)
+            result=attach_copy(result,transcript_text,speaker,existing_titles,reviewed_cover)
+            cache.write_text(json.dumps(result,ensure_ascii=False))
+            return result
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
             error = title_quality_error(
                 cached.get("title"), speaker, transcript_text,
-                existing_titles, require_quote=require_quote)
-            if require_quote and not error:
+                existing_titles, require_quote=require_quote, rewrite_proof=cached.get("title_rewrite"))
+            if require_quote and not error and not cached.get("title_rewrite"):
                 from headline_policy import complete,body
                 if not complete(body(cached.get('title'),speaker)):
                     error='缓存标题不是可独立引用的完整原话'
@@ -3267,7 +3273,17 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except Exception as exc:
             last_error = f"文案 JSON 解析失败：{exc}"
     if d is None:
-        raise VisualQualityError(f'标题连续三次未通过质量闸门：{last_error}；不再退回关键词摘句发布')
+        from title_rewrite import generate
+        try:
+            d=generate(transcript_text,speaker,existing_titles or [])
+            problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
+                                        rewrite_proof=d['title_rewrite'])
+            if problem:raise ValueError(problem)
+        except ValueError as exc:
+            raise VisualQualityError(f'标题自动重写仍未通过：{exc}') from exc
+        d.update(desc=f'{speaker}在{occasion}的公开发言，讨论'+ '、'.join(d['title_rewrite']['labels'])+'。',
+                 tags=[speaker])
+        print('[标题重写] 原话候选未通过，已自动生成主题标题：'+d['title'],flush=True)
     # 兜底清洗：prompt 说了不许带链接，但 LLM 不一定听话，程序层再洗一遍
     if d.get("desc"):
         clean_desc = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+|@[\w\u4e00-\u9fa5]{2,20}", "", d["desc"])
@@ -4626,6 +4642,19 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         reviewed_title=picks[0].get('editorial_title'),
         reviewed_cover=picks[0].get('editorial_cover'))
 
+    # A static screen portrait may match identity better than the tiny live
+    # presenter. Preserve the real stage instead of forcing a close-up.
+    if prefer_live_video and len(picks)==1 and W>H:
+        import stage_context
+        a=cues[picks[0]['start']]['start'];b=cues[picks[0]['end']]['end']
+        stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker)
+        if stage:
+            rows=[dict(start_sec=cues[i]['start']-a,end_sec=cues[i]['end']-a,zh=cues[i]['text']) for i in sel]
+            result=stage_context.render(src,a,b-a,out,work,rows,cw,source_report or {'source_sha256':_sha256_file(src)},stage,suffix,producer=sys.modules[__name__])
+            result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION)
+            print('[舞台适配] 保留真人、讲台和原始舞台；人物动作与屏幕照片分别核验',flush=True)
+            return result
+
     # 质检与成片严格复用同一份清理计划，避免门禁验证 A、实际编码却执行 B。
     source_report = source_report or {}
     strategy = source_report.get("clean_strategy", "direct")
@@ -4896,6 +4925,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "contact_sheet_6": contact_sheet_name,
         "review_assets_verified": True,
         "title_quality_verified": cw.get("title_quality_verified") is True,
+        "title_rewrite":cw.get("title_rewrite"),
         "visual_standard_version": VISUAL_STANDARD_VERSION,
         "cover_standard_version": COVER_STANDARD_VERSION,
         "cover_person_image_verified": True,

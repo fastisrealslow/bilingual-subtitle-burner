@@ -8,7 +8,7 @@ import json
 import math
 import re
 
-VERSION = 2026091201
+VERSION = 2026091301
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -76,7 +76,9 @@ def clean_entries(entries):
     for wrong, right in (('医医疗', '医疗'), ('林林总', '林总'),
                          ('眼眼科', '眼科'), ('中中药', '中药'),
                          ('这这个', '这个'), ('大大户', '大户'),
-                         ('不不会', '不会'), ('考虑虑', '考虑')):
+                         ('不不会', '不会'), ('考虑虑', '考虑'),
+                         ('人人口', '人口'), ('空空档期', '空档期'),
+                         ('做做买卖', '做买卖')):
         for m in re.finditer(re.escape(wrong), original):
             if any(atoms[k+1][1]-atoms[k][2] > .6 for k in range(m.start(),m.end()-1)):
                 continue
@@ -84,6 +86,8 @@ def clean_entries(entries):
                 remove(m.end()-1, m.end(), 'lexical_restart')
             else:
                 remove(m.start(), m.start()+len(wrong)-len(right), 'lexical_restart')
+    for m in re.finditer(r'(?<=越做)(越{2,})(?=大)',original):
+        remove(m.start(1),m.end(1)-1,'lexical_restart')
     # 呃 is hesitation here; exclude lexical 呃逆. Do not erase short answers,
     # questions (啊？), laughter within words, or lexical 哈 (哈尔滨).
     for m in re.finditer(r'呃+[，、]?(?=[\u4e00-\u9fff])', original):

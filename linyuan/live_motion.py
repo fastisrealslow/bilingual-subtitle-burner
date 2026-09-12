@@ -38,17 +38,20 @@ def window_for_meta(meta):
     return rect
 
 
-def verify_window(path, rect):
+def verify_window(path, rect, start=0., duration=None):
     import cv2
     import numpy as np
     cap = cv2.VideoCapture(str(path))
     try:
         fps = cap.get(cv2.CAP_PROP_FPS)
-        duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / fps if fps > 0 else 0
+        available = cap.get(cv2.CAP_PROP_FRAME_COUNT) / fps if fps > 0 else 0
+        duration = available-start if duration is None else duration
+        if start<0 or duration<=0 or start+duration>available+.1:
+            raise ValueError('真人动态验证时间范围无效')
         if duration < 5:
             raise ValueError('真人动态验证无法读取有效视频')
         samples = []
-        for t in np.linspace(1, duration - 2, 12):
+        for t in np.linspace(start+1, start+duration - 2, 12):
             frames = []
             for tt in (t, t + .6):
                 cap.set(cv2.CAP_PROP_POS_MSEC, float(tt) * 1000)
