@@ -3,7 +3,7 @@
   "validation_sha256": "9540c35e1237bc064b8434269221d52e080e65d1886fbd69f0d4a5a52b5b6ab0",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789197037,
+  "updated_at": 1789198766,
   "materials": {
     "weibo_search": {
       "records": 1147,
@@ -7271,28 +7271,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1wtaAzCEkx:p1",
-        "source_url": "https://www.bilibili.com/video/BV1wtaAzCEkx",
-        "family": "BV1wtaAzCEkx",
-        "slugs": [
-          "ly-0912-2380b7"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0912-2380b7",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：换屏词编号须从1开始、严格递增并覆盖最后一个词。请重新按原文输出全部字幕。"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1Qe4y1V7fP:p1",
         "source_url": "https://www.bilibili.com/video/BV1Qe4y1V7fP",
         "family": "BV1Qe4y1V7fP",
@@ -7300,7 +7278,14 @@
           "ly-0912-9ba2dd"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0912-9ba2dd",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；same=[2]，different=[1, 5, 6]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0507, 2: 0.5872, 5: 0.1043, 6: 0.3203}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7316,6 +7301,28 @@
         ],
         "source_sha256": [],
         "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1wtaAzCEkx:p1",
+        "source_url": "https://www.bilibili.com/video/BV1wtaAzCEkx",
+        "family": "BV1wtaAzCEkx",
+        "slugs": [
+          "ly-0912-2380b7"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0912-2380b7",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：换屏词编号须从1开始、严格递增并覆盖最后一个词。请重新按原文输出全部字幕。"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8239,8 +8246,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8399,8 +8406,8 @@
         "verified_available": 1,
         "verified_seconds": 127.2,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8651,24 +8658,25 @@
         "verified_available": 0,
         "verified_seconds": 0
       },
-      "BV1wtaAzCEkx": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1Qe4y1V7fP": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV15DiVBpEDH": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1wtaAzCEkx": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 6,
+  "in_flight_placeholders": 5,
   "artifacts": [
     {
       "slug": "ly-0911-ea0eed",
