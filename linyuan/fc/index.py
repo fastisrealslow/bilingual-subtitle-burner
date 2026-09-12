@@ -2399,6 +2399,21 @@ def daily_mix_error(meta, daily):
     return "内容形态不明，不能计入真人动态配额"
 
 
+def restore_inventory_motion(meta, video, record):
+    """Use measured stock evidence only for the exact downloaded MP4 bytes."""
+    import hashlib
+    proof = record.get('motion') or {}
+    if (record.get('status') != 'verified' or proof.get('version') != 2026091201
+            or proof.get('passed') is not True
+            or record.get('source_sha256') != meta.get('source_sha256')):
+        return False
+    digest = hashlib.sha256(Path(video).read_bytes()).hexdigest()
+    if digest != record.get('sha256') or digest != (meta.get('fingerprints') or {}).get('sha256'):
+        return False
+    meta.setdefault('final_live_identity', {})['motion'] = proof
+    return True
+
+
 def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
@@ -3080,6 +3095,12 @@ def publish_handler(event=None, context=None):
     video = tmp / slug / part.get("final", "final.mp4")
     if not video.exists():
         video = final_videos[k] if k < len(final_videos) else final_videos[0]
+
+    for record in reserve_records:
+        if record.get('slug') == slug and record.get('artifact_id') == art_ids.get(slug):
+            for measured in record.get('parts', []):
+                if measured.get('index') == k:
+                    restore_inventory_motion(part, video, measured)
 
     expected_sha256 = str(event.get("expected_sha256") or "").strip().lower()
     if expected_sha256:

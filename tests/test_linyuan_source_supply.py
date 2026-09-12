@@ -484,3 +484,16 @@ def test_legacy_empty_selection_report_is_not_a_quality_verdict(monkeypatch):
     entry=state['dispatched'][0]
     assert not entry.get('failed') and state['rejected']==[]
     assert entry['source_check_retry_after']>time.time()
+
+
+def test_stock_motion_proof_cannot_move_to_other_video(tmp_path):
+    video=tmp_path/'clip.mp4';video.write_bytes(b'exact encoded bytes')
+    sha=hashlib.sha256(video.read_bytes()).hexdigest()
+    meta=dict(source_sha256='source',fingerprints=dict(sha256=sha))
+    record=dict(status='verified',source_sha256='source',sha256=sha,
+                motion=dict(version=2026091201,passed=True))
+    assert fc.restore_inventory_motion(meta,video,record)
+    video.write_bytes(b'other video')
+    assert not fc.restore_inventory_motion(meta,video,record)
+    video.write_bytes(b'exact encoded bytes')
+    assert not fc.restore_inventory_motion(meta,video,{**record,'source_sha256':'other'})

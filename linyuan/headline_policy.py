@@ -24,6 +24,8 @@ def complete(text):
     # hesitation/repair fragments just because they contain a finance keyword.
     if re.search(r'没办法|怎么办|(?:它|他|她)(?:只|就|都|也)|[，,](?:它|他|她|这个|那个)|呃|[啊哈呀][，,]|(?:做做|越越|人人口)', text):
         return False
+    if re.search(r'(我|他|它|您|在|但|所以|那么|这个|就是|因为|还是)\1',text) or re.search(r'(?:^|[，,])(?:好|嗯|啊|呃|那么|比如说|对一些)(?:[，,]|$)',text):
+        return False
     if re.match(r'^(?:它|他|她|这|那)(?!家企业|些企业)', text):
         return False
     # A source quote can be verbatim yet unreadable: do not promote a false

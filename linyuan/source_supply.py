@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent/'fc'))
 import index as fc
 import source_outcomes
 import headline_policy
+import live_motion
 
 VERSION = 1
 INVENTORY = Path(__file__).parent/'.automation/source_inventory.json'
@@ -27,10 +28,6 @@ def api(path):
 
 def validate_part(meta, directory):
     """A job exit code or metadata approval flag alone is insufficient."""
-    error = (fc.artifact_quality_error(meta) or fc.artifact_subtitle_error(meta, directory)
-             or fc.artifact_cover_error(meta, directory))
-    if error:
-        return error
     name = meta.get('final')
     if not isinstance(name, str) or Path(name).name != name:
         return 'Invalid final filename'
@@ -40,6 +37,15 @@ def validate_part(meta, directory):
     sha = hashlib.sha256(path.read_bytes()).hexdigest()
     if sha != (meta.get('fingerprints') or {}).get('sha256'):
         return 'Actual MP4 fingerprint mismatch'
+    if meta.get('render_mode') == 'live_video_card':
+        # Revalidate old stock from actual encoded pixels. Only this measured,
+        # SHA-bound proof may supplement legacy metadata at publication time.
+        motion = live_motion.verify_window(path, dict(x=44,y=360,width=632,height=470))
+        meta.setdefault('final_live_identity', {})['motion'] = motion
+    error = (fc.artifact_quality_error(meta) or fc.artifact_subtitle_error(meta, directory)
+             or fc.artifact_cover_error(meta, directory))
+    if error:
+        return error
     error = fc.editorial.metadata_error(meta, fc.mp4_duration(path))
     if error:
         return error
@@ -112,7 +118,7 @@ def main():
         raise SystemExit('Production state unavailable; do not replace inventory with empty state')
     previous=json.loads(INVENTORY.read_text()) if INVENTORY.exists() else {}
     validation_sha=hashlib.sha256(Path(__file__).read_bytes()+Path(source_outcomes.__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
-                                 +Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()).hexdigest()
+                                 +Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()+Path(live_motion.__file__).read_bytes()).hexdigest()
     old={r['artifact_id']:r for r in previous.get('artifacts',[])} if (
         previous.get('version')==VERSION and previous.get('validation_sha256')==validation_sha
         and previous.get('quality_gate_version')==fc.QUALITY_GATE_VERSION) else {}
@@ -165,6 +171,7 @@ def main():
                         source_sha256=m.get('source_sha256'),segments=m.get('segments'),
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
                         subtitle_sha256=m.get('subtitle_text_sha256'),
+                        motion=(m.get('final_live_identity') or {}).get('motion'),
                         status='rejected' if error else 'verified',reason=error))
             records.append(record)
         except Exception as exc:

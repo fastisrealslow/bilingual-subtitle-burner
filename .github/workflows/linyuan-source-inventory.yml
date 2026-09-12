@@ -6,6 +6,8 @@ on:
     paths:
       - .github/workflows/linyuan-source-inventory.yml
       - linyuan/source_supply.py
+      - linyuan/live_motion.py
+      - linyuan/headline_policy.py
       - linyuan/source_outcomes.py
       - linyuan/source_rejection_evidence/*.json
   workflow_run:
@@ -36,7 +38,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          pip install -q requests
+          pip install -q requests numpy 'opencv-python-headless<5'
           python linyuan/source_supply.py --max-new 4
       - name: 保存素材台账与成片库存
         run: |

@@ -12,6 +12,7 @@ on:
       - linyuan/fc/reviewed_updates.py
       - linyuan/fc/reviewed_third_video.py
       - linyuan/fc/reviewed_0910/**
+      - linyuan/headline_policy.py
       - linyuan/editorial_policy.py
       - .github/workflows/fc-staging-release.yml
   workflow_dispatch:
@@ -34,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           cd linyuan/fc
-          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../editorial_policy.py media_repair.py reviewed_updates.py reviewed_third_video.py
+          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../headline_policy.py ../editorial_policy.py media_repair.py reviewed_updates.py reviewed_third_video.py
           zip -r "$RUNNER_TEMP/fc-code.zip" reviewed_0910
           unzip -l "$RUNNER_TEMP/fc-code.zip"
 

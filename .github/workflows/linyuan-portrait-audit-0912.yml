@@ -17,6 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: pip install -q pytest jieba requests pillow numpy 'opencv-python<5'
       - run: python -m pytest -q tests/test_linyuan_portrait_rejection.py tests/test_linyuan_headline_policy.py tests/test_linyuan_live_tracking.py
       - name: 生成原母片缓存键
@@ -65,7 +66,9 @@ jobs:
       - name: 保存可核查实证
         run: |
           gh release view portrait-audit-0912 >/dev/null 2>&1 || gh release create portrait-audit-0912 --title '蓝底头像事故检查 0912' --notes '实际成片动作检测及原母片取景证据，不发布新视频。'
-          gh release upload portrait-audit-0912 portrait-audit/*.json portrait-audit/*.jpg --clobber
+          shopt -s nullglob
+          assets=(portrait-audit/*.json portrait-audit/*.jpg)
+          gh release upload portrait-audit-0912 "${assets[@]}" --clobber
       - uses: actions/upload-artifact@v4
         if: always()
         with:
