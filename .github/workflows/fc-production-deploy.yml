@@ -14,6 +14,7 @@ on:
       - linyuan/fc/invoke_third_video.py
       - linyuan/fc/reviewed_0910/**
       - linyuan/fc/invoke_reviewed_updates.py
+      - linyuan/headline_policy.py
       - linyuan/editorial_policy.py
       - linyuan/fc/deploy_code.py
       - linyuan/fc/verify_production.py
@@ -74,7 +75,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/editorial_policy.py linyuan/fc/media_repair.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/fc/media_repair.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
           (cd linyuan/fc && zip -r "$FC_CODE_ZIP" reviewed_0910)
           unzip -t "$FC_CODE_ZIP"
 

@@ -2,7 +2,7 @@
 import re
 import difflib
 
-VERSION = 2026091004
+VERSION = 2026091201
 TOPICS = ('片仔癀','茅台','股息','分红','医药','消费','科技股','机器人','老龄化','现金流','投资','企业')
 QUESTION = re.compile(r'您|请问|想问|请教|聊聊|林总|分享一下|[？?]|你(?:是一直看好|还有哪|有持有|进入了|第一次|是怎么|怎么看|当时|集中投资|充分.{0,4}利用)|你.{0,24}(?:透露过|辞职|毕业之后)')
 CONDITION = re.compile(r'如果|假如|除非|只有|虽然|即使|只要')
@@ -20,13 +20,19 @@ def body(title, speaker='林园'):
 
 
 def complete(text):
+    # Standalone headlines must not depend on a missing antecedent or promote
+    # hesitation/repair fragments just because they contain a finance keyword.
+    if re.search(r'没办法|怎么办|(?:它|他|她)(?:只|就|都|也)|[，,](?:它|他|她|这个|那个)|呃|[啊哈呀][，,]|(?:做做|越越|人人口)', text):
+        return False
+    if re.match(r'^(?:它|他|她|这|那)(?!家企业|些企业)', text):
+        return False
     # A source quote can be verbatim yet unreadable: do not promote a false
     # start, dangling bank clause or repeated filler into a permanent headline.
     if re.search(r'^(?:问题就是|有的甚至|基本上|啊|呃)|(?:这个){2}|(?:那么){2}|我我|他他|去去|不不|还不还|还还|是是|行业的行业',text):
         return False
     if text.count('就是') >= 2 or text.count('这个') >= 2:
         return False
-    dangling = bool(TAIL.search(text)) and not re.search(r'(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text)
+    dangling = bool(TAIL.search(text)) and not re.search(r'(?:机会|社会|体会)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text)
     return bool(text and not QUESTION.search(text) and not dangling
         and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是|和|也看到|是因为)',text)
         and VERB.search(text))

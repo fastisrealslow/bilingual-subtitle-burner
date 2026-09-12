@@ -1,0 +1,73 @@
+name: 蓝底头像事故实证检查
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-portrait-audit-0912.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q pytest jieba requests pillow numpy 'opencv-python<5'
+      - run: python -m pytest -q tests/test_linyuan_portrait_rejection.py tests/test_linyuan_headline_policy.py tests/test_linyuan_live_tracking.py
+      - name: 生成原母片缓存键
+        id: key
+        run: |
+          python -c 'import hashlib; print("key="+hashlib.sha256(b"https://www.bilibili.com/video/BV1hh411K7dJ").hexdigest())' >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.key.outputs.key }}-audit
+          restore-keys: source-download-v1-${{ steps.key.outputs.key }}-
+      - name: 核查照片成片、正常对照与原始全景
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python - <<'PY'
+          import json,hashlib,sys,urllib.request,subprocess
+          from pathlib import Path
+          from PIL import Image,ImageDraw
+          sys.path.insert(0,'linyuan')
+          from live_motion import verify_window
+          out=Path('portrait-audit');out.mkdir()
+          proofs={}
+          for slug,expected in [('ly-0911-171705',False),('ly-0911-b5ca8c',True)]:
+              path=out/(slug+'.mp4')
+              urllib.request.urlretrieve(f'https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/deliver-{slug}/{slug}.final_1.mp4',path)
+              proof=verify_window(path,dict(x=44,y=360,width=632,height=470))
+              assert proof['passed'] is expected,(slug,proof)
+              proof['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+              proofs[slug]=proof
+          source=Path('linyuan/_src/video.mp4')
+          proofs['source_cache_available']=source.exists()
+          if source.exists():
+              sha=hashlib.sha256(source.read_bytes()).hexdigest()
+              assert sha=='81833e8aa7224716bd682b91e486ffcab5f4f2f4dc6fc00f8d523b08c59067dd',sha
+              proofs['source_sha256']=sha
+              sheet=Image.new('RGB',(1280,1080),'white');draw=ImageDraw.Draw(sheet)
+              for i,t in enumerate([5,30,90,180,300,450]):
+                  p=out/f'source-{t}.jpg'
+                  subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(t),'-i',str(source),'-frames:v','1',str(p)],check=True)
+                  im=Image.open(p);im.thumbnail((640,330))
+                  sheet.paste(im,((i%2)*640,(i//2)*360+25));draw.text(((i%2)*640+5,(i//2)*360+5),f'Source {t}s',fill='black')
+              sheet.save(out/'source-overview.jpg')
+          (out/'verification.json').write_text(json.dumps(proofs,ensure_ascii=False,indent=2))
+          PY
+      - name: 保存可核查实证
+        run: |
+          gh release view portrait-audit-0912 >/dev/null 2>&1 || gh release create portrait-audit-0912 --title '蓝底头像事故检查 0912' --notes '实际成片动作检测及原母片取景证据，不发布新视频。'
+          gh release upload portrait-audit-0912 portrait-audit/*.json portrait-audit/*.jpg --clobber
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portrait-audit-0912
+          path: portrait-audit/

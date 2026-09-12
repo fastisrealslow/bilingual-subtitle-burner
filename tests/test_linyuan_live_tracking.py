@@ -46,12 +46,12 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     from types import SimpleNamespace
     from live_tracking import render_tracked
     source=tmp_path/'source.mp4'
-    writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(160,120))
-    for i in range(60):writer.write(np.full((120,160,3),i*3,dtype=np.uint8))
+    writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(640,480))
+    for i in range(60):writer.write(np.full((480,640,3),i*3,dtype=np.uint8))
     writer.release()
     reference=tmp_path/'reference.png'
-    cv2.imwrite(str(reference),np.zeros((120,160,3),dtype=np.uint8))
-    face=np.array([[40,30,30,40,45,40,60,40,50,50,45,60,60,60,.99]],dtype=np.float32)
+    cv2.imwrite(str(reference),np.zeros((480,640,3),dtype=np.uint8))
+    face=np.array([[160,120,120,160,180,160,240,160,200,200,180,240,240,240,.99]],dtype=np.float32)
 
     class Detector:
         calls=0
@@ -76,7 +76,7 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     assert proof['decoded_frames']==(22 if initial_face else 21)
     assert proof['consecutive_no_face_seconds']==pytest.approx(2.1)
     directory=tmp_path/proof['evidence_directory']
-    assert cv2.imread(str(directory/'failure.jpg')).shape==(120,160,3)
+    assert cv2.imread(str(directory/'failure.jpg')).shape==(480,640,3)
     assert proof['samples'] and all((directory/x['file']).is_file() for x in proof['samples'])
 
 
@@ -85,12 +85,12 @@ def test_interview_keeps_broll_frames_and_distinguishes_verified_participants(tm
     from types import SimpleNamespace
     from live_tracking import render_tracked
     source=tmp_path/'interview.mp4';reference=tmp_path/'guest.png';host=tmp_path/'host.png'
-    cv2.imwrite(str(reference),np.full((120,160,3),20,dtype=np.uint8))
-    cv2.imwrite(str(host),np.full((120,160,3),100,dtype=np.uint8))
-    writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(160,120))
-    for n in range(100):writer.write(np.full((120,160,3),20 if n<40 else 100 if n<80 else 180+n-80,dtype=np.uint8))
+    cv2.imwrite(str(reference),np.full((480,640,3),20,dtype=np.uint8))
+    cv2.imwrite(str(host),np.full((480,640,3),100,dtype=np.uint8))
+    writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(640,480))
+    for n in range(100):writer.write(np.full((480,640,3),20 if n<40 else 100 if n<80 else 180+n-80,dtype=np.uint8))
     writer.release()
-    face=np.array([[40,30,30,40,45,40,60,40,50,50,45,60,60,60,.99]],dtype=np.float32)
+    face=np.array([[160,120,120,160,180,160,240,160,200,200,180,240,240,240,.99]],dtype=np.float32)
     detector=SimpleNamespace(setInputSize=lambda *a:None,
         detect=lambda frame:(None,None if frame.mean()>160 else face))
     recognizer=SimpleNamespace(alignCrop=lambda frame,f:frame,
@@ -100,7 +100,7 @@ def test_interview_keeps_broll_frames_and_distinguishes_verified_participants(tm
     monkeypatch.setattr(cv2,'FaceRecognizerSF',SimpleNamespace(create=lambda *a:recognizer))
     output=tmp_path/'tracked.mp4'
     proof=render_tracked(source,0,10,output,reference,('detector','recognizer'),
-        context_crop=(0,0,160,100),participant_reference=host)
+        context_crop=(0,0,640,400),participant_reference=host)
     assert proof['passed'] and proof['source_frames_preserved']
     assert (proof['matched_frames'],proof['other_face_frames'],proof['no_face_frames'])==(40,40,20)
     assert proof['verified_face_ratio']==.8

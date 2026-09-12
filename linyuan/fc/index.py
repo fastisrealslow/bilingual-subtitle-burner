@@ -271,6 +271,7 @@ TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
 REVIEW_PAUSED_SLUGS = {
+    "ly-0911-171705",  # Confirmed blue-background portrait crop; remaining parts quarantined.
     "ly-0907-aba5c6",  # Actual ASS has truncated clauses and corrupt names/numbers in both live parts.
     "ly-0907-f95a57",  # Actual ASS: wrong financial terms and incomplete standalone openings.
     "ly-0904-f47739", "ly-parity-v3-14-0905", "ly-fresh-six-0906-05",
@@ -2428,6 +2429,9 @@ def artifact_quality_error(meta):
     if meta.get("cover_person_image_source") not in {
             "authority_reference", "verified_source_frame"}:
         return "封面人物图来源不可验证"
+    from headline_policy import complete, body
+    if '完整访谈' not in str(meta.get('title', '')) and not complete(body(meta.get('title'))):
+        return '标题存在口头残句、指代不明或语气词'
     if meta.get("title_quality_verified") is not True:
         return "标题没有通过原话/重复/ASR 污染质检"
     if any(word in (meta.get("title") or "") for word in TITLE_ASR_BLACKLIST):
@@ -2484,6 +2488,15 @@ def artifact_quality_error(meta):
     identity_error=final_live_identity_error(meta)
     if identity_error:
         return identity_error
+    if meta.get('render_mode') == 'live_video_card':
+        motion = (meta.get('final_live_identity') or {}).get('motion') or {}
+        if motion.get('version') != 2026091201 or motion.get('passed') is not True:
+            return '缺少去除镜头平移缩放后的真人局部动作证明，须重新验证或制作'
+        for framing in meta.get('framing_proofs') or []:
+            for sample in framing.get('crop_samples') or []:
+                crop = sample.get('crop') or []
+                if len(crop) != 4 or crop[2] < 316 or crop[3] < 235:
+                    return '真人取景源区域过小，不能放大背景板头像'
     if meta.get("subtitle_semantic_groups_verified") is not True:
         return "缺少完整意群字幕复检，旧碎句成片必须重做"
     if (not meta.get("subtitle_files")

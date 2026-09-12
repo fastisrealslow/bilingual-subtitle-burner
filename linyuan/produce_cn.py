@@ -3134,6 +3134,9 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         return f"标题长度 {len(compact)} 不在 12~62 字"
     normalized = re.sub(
         rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
+    from headline_policy import complete
+    if require_quote and not complete(normalized):
+        return '标题存在口头残句、指代不明或语气词，不能独立理解'
     body = _title_text(normalized)
     transcript = _title_text(transcript_text)
     if require_quote and len(body) >= 6:
@@ -3168,7 +3171,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
     from headline_policy import attach_copy
-    copy_identity={'version':4,'transcript_sha256':editorial.text_digest(transcript_text),
+    copy_identity={'version':5,'transcript_sha256':editorial.text_digest(transcript_text),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     if suffix=='_full':
@@ -3206,16 +3209,8 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except ValueError:
             pass
     sample = "\n".join(cues[i]["text"] for i in sel)
-    if os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true':
-        from headline_policy import title_candidates
-        for title in title_candidates(transcript_text,speaker,existing_titles):
-            if title_quality_error(title,speaker,transcript_text,existing_titles,require_quote=require_quote):continue
-            result=attach_copy(dict(title=title,desc=f'{speaker}在{occasion}的公开发言选段。',
-                tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True),
-                transcript_text,speaker,existing_titles)
-            cache.write_text(json.dumps(result,ensure_ascii=False,indent=2))
-            print(f'[原文文案] {title}',flush=True)
-            return result
+    # Source quotes are candidates, not editorial approval. The text model must
+    # read the complete segment before selecting a standalone claim.
     prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选:
 
 {sample}
@@ -3224,6 +3219,8 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
 
 【完整观点标题】
 先读完上面整段内容，识别主要论点，再选能独立理解的原话作为标题。
+标题必须同时交代具体讨论对象与完整观点。不能因含有消费、投资等词就选择口头残句。
+拒绝指代不明的它/他、没办法等半句回应、语病、重复和语气词；宁可选择另一句，不得猜改识别错误。
 不能只复制开头的主持人问题、称呼或半句回应；不得靠常识修正含糊识别内容。
 标题与整条视频的论点、理由、限定条件必须一致，保留否定和数字。
 
@@ -4580,6 +4577,12 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_
         raise VisualQualityError(f'成片动态窗口目标人物不足5/6帧：{len(same)}/6')
     if verdict.get('watermark_texts'):
         raise VisualQualityError('成片动态窗口仍有外部台标/账号：'+str(verdict['watermark_texts']))
+    from live_motion import verify_window
+    motion = verify_window(final, rect)
+    proof['motion'] = motion
+    (directory/'verification.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if not motion['passed']:
+        raise VisualQualityError('动态窗口缺少持续局部动作：疑似照片/背景板，不能作为真人视频发布')
     return proof
 
 

@@ -156,7 +156,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                                   for identity in identities)
                     except cv2.error:
                         continue
-                    if score>=threshold:
+                    if score>=threshold and min(face[2:4])>=96:
                         primary=float(recognizer.match(identities[0],feature,cv2.FaceRecognizerSF_FR_COSINE))
                         candidates.append((score,face,primary))
                     elif participant is not None:
@@ -202,6 +202,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                             box=(0,0,width,height);role='source_illustration'
                         else:box=previous
                 x,y,w,h=box
+                if role in {'guest','participant'} and (w < 316 or h < 235):
+                    raise ValueError(f'真人取景源区域仅{w}x{h}像素，超过2倍放大上限，疑似远景小头像')
                 region=frame[y:y+h,x:x+w]
                 if region.shape[:2]!=(h,w):raise ValueError('动态取景越出源画面')
                 if role=='source_illustration':

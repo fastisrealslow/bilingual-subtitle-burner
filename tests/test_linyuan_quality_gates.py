@@ -698,7 +698,8 @@ def test_partial_qr_blocks_old_live_artifacts():
     meta['full_face_frames'] = 6
     assert '林园本人' in FC.artifact_quality_error(meta)
     meta['final_live_identity'] = dict(speaker='林园',sample_count=6,
-        same_person_frames=[1,2,3,4,5],confidence=.95,watermark_texts=[])
+        same_person_frames=[1,2,3,4,5],confidence=.95,watermark_texts=[],
+        motion=dict(version=2026091201,passed=True))
     assert FC.artifact_quality_error(meta) is None
 
 
