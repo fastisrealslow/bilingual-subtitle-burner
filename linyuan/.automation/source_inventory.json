@@ -3,7 +3,7 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789340759,
+  "updated_at": 1789342196,
   "materials": {
     "weibo_search": {
       "records": 1184,
@@ -8808,28 +8808,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1rYcWeaEtb:p33",
-        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=33",
-        "family": "BV1rYcWeaEtb",
-        "slugs": [
-          "ly-0913-497cf3"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0913-497cf3",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1rYcWeaEtb:p7",
         "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=7",
         "family": "BV1rYcWeaEtb",
@@ -8940,7 +8918,36 @@
           "ly-0913-a42d50"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-a42d50",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "真人取景源区域仅292x218像素，超过2倍放大上限，疑似远景小头像"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1rYcWeaEtb:p33",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=33",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0913-497cf3"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0913-497cf3",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9576,9 +9583,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -9855,8 +9862,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -9868,8 +9875,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -10028,8 +10035,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10328,9 +10335,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -10360,8 +10367,8 @@
         "attempted_mothers": 5,
         "verified_available": 2,
         "verified_seconds": 399.066,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -10483,11 +10490,12 @@
       "BV1trfCBnEUp": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 9,
+  "in_flight_placeholders": 6,
   "artifacts": [
     {
       "slug": "ly-0913-3499ab",
