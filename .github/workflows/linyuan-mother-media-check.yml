@@ -1,0 +1,54 @@
+name: 林园母片独立恢复实测
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-mother-media-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_URL: https://www.bilibili.com/video/BV1hj411X7BL
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-207afee93f23c0471c26f0d171ad8d7741592f452e356d4e885af691ea908948-durable-check
+          restore-keys: source-download-v1-207afee93f23c0471c26f0d171ad8d7741592f452e356d4e885af691ea908948-
+      - name: 校验实际母片来源、大小与哈希
+        run: |
+          python - <<'PY'
+          import sys,os,json
+          sys.path.insert(0,'linyuan')
+          from mother_media_cache import verified
+          assert verified('linyuan/_src',os.environ['SOURCE_URL']), 'No valid cached media'
+          data=json.load(open('linyuan/_src/video.mp4.source.json'))
+          print(json.dumps(dict(size=data['size'],sha256=data['sha256']),ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mother-media-207afee93f23c0471c26f0d171ad8d7741592f452e356d4e885af691ea908948
+          path: |
+            linyuan/_src/video.mp4
+            linyuan/_src/video.mp4.source.json
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+      - name: 从空目录恢复，再核对实际母片哈希
+        run: |
+          python - <<'PY'
+          import sys,os,json
+          sys.path.insert(0,'linyuan')
+          from mother_media_cache import restore,verified
+          assert restore(os.environ['SOURCE_URL'],'/tmp/restored-mother',os.environ['GITHUB_REPOSITORY'])
+          assert verified('/tmp/restored-mother',os.environ['SOURCE_URL'])
+          data=json.load(open('/tmp/restored-mother/video.mp4.source.json'))
+          assert data['sha256']=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47'
+          print('Actual mother media restored from independent artifact and exact hash verified')
+          PY
