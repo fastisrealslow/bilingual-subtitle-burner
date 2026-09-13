@@ -214,6 +214,25 @@ def test_local_text_backend_forwards_json_schema(monkeypatch,tmp_path):
     assert json.loads(P.llm([{'role':'user','content':'x'}],'',response_schema=schema))=={'passed':True}
 
 
+def test_unreviewed_draft_can_refresh_without_disabling_cached_review_verdicts(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    calls=[]
+    class Reply:
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+        def read(self):return json.dumps({'message':{'content':str(len(calls))}}).encode()
+    def open_local(*args,**kwargs):
+        calls.append(1)
+        return Reply()
+    monkeypatch.setattr(P.urllib.request,'urlopen',open_local)
+    prompt=[{'role':'user','content':'same draft'}]
+    assert P.llm(prompt,'')=='1'
+    assert P.llm(prompt,'')=='1' and len(calls)==1
+    assert P.llm(prompt,'',read_cache=False)=='2' and len(calls)==2
+    assert P.llm(prompt,'')=='2' and len(calls)==2
+
+
 def _load_fc():
     spec = importlib.util.spec_from_file_location("quality_fc", ROOT / "linyuan/fc/index.py")
     module = importlib.util.module_from_spec(spec)

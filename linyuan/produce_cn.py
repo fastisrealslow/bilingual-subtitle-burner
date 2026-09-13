@@ -560,7 +560,7 @@ def verify_source_identity(src, work, speaker, api_key):
 
 
 def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
-        response_schema=None):
+        response_schema=None, read_cache=True):
     """Use a loopback Ollama model by default; cloud requires explicit opt-in."""
     cache_dir = BASE / ".llm_cache"
     cache_dir.mkdir(exist_ok=True)
@@ -569,7 +569,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
          "runtime_version":3,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
-    if cf.exists():
+    if read_cache and cf.exists():
         try:
             out = json.loads(cf.read_text(encoding="utf-8"))["content"]
             print("[llm-cache] 命中,不发请求")
@@ -3203,8 +3203,12 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             pass
     from title_rewrite import generate
     def title_model(prompt, schema):
+        # Reuse verified copywrite.json and stable independent review verdicts.
+        # A draft has not passed review: replaying it across recovery jobs can
+        # trap every future attempt in the same three rejected candidates.
         return llm([{"role":"user","content":prompt}],api_key,temperature=.35,
-                   max_tokens=2300,budget_sec=240,response_schema=schema)
+                   max_tokens=2300,budget_sec=240,response_schema=schema,
+                   read_cache='focus' not in schema.get('properties',{}))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title)

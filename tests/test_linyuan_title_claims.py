@@ -110,6 +110,7 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     callback=model(calls)
     def structured(messages,*a,**kwargs):
         assert kwargs['response_schema']['additionalProperties'] is False
+        assert kwargs['read_cache']==('focus' not in kwargs['response_schema']['properties'])
         reply=json.loads(callback(messages[0]['content']))
         if reply.get('candidates'):
             reply['focus']=dict(subject='龙头',evidence_ids=list(range(len(T.source_units(TEXT)))),
