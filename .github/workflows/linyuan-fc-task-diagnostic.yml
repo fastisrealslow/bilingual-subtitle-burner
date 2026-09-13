@@ -13,9 +13,11 @@ jobs:
     env:
       ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
       ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
       FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -29,9 +31,15 @@ jobs:
           from alibabacloud_tea_openapi import models as api
           from alibabacloud_tea_util import models as util
           client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
-          task=client.get_async_task_with_options(os.environ['FC_FUNCTION_NAME'],'ly-stock-dispatch-source-inventory-34756314331',m.GetAsyncTaskRequest(qualifier='LATEST'),{},util.RuntimeOptions(connect_timeout=10000,read_timeout=60000)).body
+          task=client.get_async_task_with_options(os.environ['FC_FUNCTION_NAME'],'ly-811-0913-b49fb3a54a1f6f0b0fb4-a1',m.GetAsyncTaskRequest(qualifier='LATEST'),{},util.RuntimeOptions(connect_timeout=10000,read_timeout=60000)).body
           data=task.to_map()
           # Input here is only a trigger name. Omit it and identifiers unrelated to the error.
           for key in ('payload','Payload','resourceArn','ResourceArn'):data.pop(key,None)
           print(json.dumps(data,ensure_ascii=False,indent=2))
+          import sys
+          sys.path.insert(0,'linyuan')
+          from bili_archive_status import archive_status
+          report=archive_status(['BV11qYB6MEyq'],'275211725',os.environ['BILIBILI_COOKIES'],
+              expected_titles=['林园：高端消费，还是非常好，旺盛，没有问题'])
+          print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
