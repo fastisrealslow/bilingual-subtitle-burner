@@ -48,10 +48,43 @@ permissions:
   actions: read
 
 jobs:
-  editorial-check:
+  title-portrait:
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
-      resume_run_id: '34760249532'
+      fixture: linyuan_0913_title.json
+  title-landscape:
+    uses: ./.github/workflows/linyuan-title-claim-check.yml
+    with:
+      fixture: linyuan_0913_landscape_title.json
+  editorial-check:
+    needs: [title-portrait, title-landscape]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: title-claim-verification-*
+          path: /tmp/title-cases
+      - name: 核对两个独立CPU案例及全部原始响应
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'linyuan')
+          from reuse_title_verification import merge_reports
+          rows=merge_reports('/tmp/title-cases','/tmp/title-combined')
+          print('Both real CPU cases passed:',[r['fixture'] for r in rows])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: title-claim-verification
+          path: /tmp/title-combined
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
   deploy:
     needs: editorial-check
     concurrency:

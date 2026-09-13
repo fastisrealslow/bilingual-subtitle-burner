@@ -92,18 +92,22 @@ def proposal_schema(unit_count, subjects=None, guest_ids=None):
 def reading_schema(unit_count):
     turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
               b_role=dict(type='string',enum=['host','guest','unknown']))
-    fields=dict(a_turn_starts=dict(type='array',minItems=1,maxItems=unit_count,
-        items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)),
-        b_question_premise=dict(type='string'),c_guest_answer=dict(type='string'))
+    # Run 158 assigned alternating roles before understanding the dialogue,
+    # then copied almost the full interview into its answer summary. JSON
+    # grammar order must put the actual meaning before the boundary bookkeeping.
+    fields=dict(a_guest_answer=dict(type='string',maxLength=240),
+        b_question_premise=dict(type='string',maxLength=240),
+        c_turn_starts=dict(type='array',minItems=1,maxItems=unit_count,
+        items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)))
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
 
 
 def bind_reading(reading, units):
     if (not isinstance(reading,dict)
-            or len(compact(reading.get('c_guest_answer')))<12
+            or not 12<=len(compact(reading.get('a_guest_answer')))<=240
             or len(compact(reading.get('b_question_premise')))<4):
         raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
-    starts=reading.get('a_turn_starts')
+    starts=reading.get('c_turn_starts')
     if not isinstance(starts,list) or not starts:
         raise ValueError('先标出真实说话人切换的位置')
     turns=[]
@@ -267,10 +271,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     reader_prompt=f'''只做访谈原文阅读，不拟标题，不比较吸引力。主讲嘉宾是{speaker}。
 先通读全部字幕，找主持人的完整问题和嘉宾实际回复。主持人提问前的背景、假设、举例仍属于主持人；嘉宾短答不等于确认问题全部前提。
 同一人的连续讲话是一个轮次，不能因为换了一条字幕或出现问号就换说话人。字幕标点可能不准，必须连贯理解上下文。
-在a_turn_starts只写真正换说话人的起始编号：从0开始，严格递增；a_start是这一轮开始的字幕编号，b_role是host、guest或unknown。
+先在a_guest_answer用最多三句概括嘉宾明确回答的主要判断及限定条件，不抄整篇字幕，不混入主持人的总结。
+再用b_question_premise概括主持人问题和未确认假设。两个概括各不超过240字。
+读清问答后，最后在c_turn_starts只写真正换说话人的起始编号：从0开始，严格递增；a_start是这一轮开始的字幕编号，b_role是host、guest或unknown。
 下一轮开始前的字幕自动全部属于当前轮次，最后一轮持续到全文末尾；不要计算结束编号，不要逐句交替标host和guest。
 “您觉得”“你怎么看”通常是主持人的提问；“我听懂了”“我来总结”通常是主持人复述，不能当嘉宾原话。
-再用b_question_premise概括主持人问题和未确认假设，用c_guest_answer概括嘉宾明确回答的主要判断及限定条件。
 没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
 按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
     reading=None;roles=None
@@ -311,7 +316,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 subjects={word:ids for word,ids in subjects.items() if ids}
             draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
             if structured_model:
-                draft_prompt+='\n已单独读清的嘉宾回答：'+reading['c_guest_answer']
+                draft_prompt+='\n已单独读清的嘉宾回答：'+reading['a_guest_answer']
                 draft_prompt+='\n主持人问题背景（不可当作嘉宾判断）：'+reading['b_question_premise']
                 draft_prompt+='\n唯一可选的嘉宾原话及原始编号：'+json.dumps({i:units[i] for i in guest_ids},ensure_ascii=False)
             proposal = _json(call(retry_note + draft_prompt,

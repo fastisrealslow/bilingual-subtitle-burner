@@ -68,6 +68,22 @@ def test_model_must_match_actual_cpu_response_evidence(tmp_path):
     with pytest.raises(ValueError,match='model differs'):reuse.model_evidence(tmp_path,'qwen3.5:9b')
 
 
+def test_parallel_cases_require_both_passes_and_consistent_real_responses(tmp_path):
+    rows=fixture_rows()
+    source=tmp_path/'cases';output=tmp_path/'combined'
+    for i,row in enumerate(rows):
+        folder=source/str(i);cache=folder/'linyuan/.llm_cache';cache.mkdir(parents=True)
+        (folder/'title-claim-verification.json').write_text(json.dumps([row]))
+        (cache/f'response-{i}.json').write_text(json.dumps(dict(backend='local',model='qwen3:8b',content='unit-test raw response')))
+    assert reuse.merge_reports(source,output,ROOT)==rows
+    assert len(list((output/'linyuan/.llm_cache').glob('*.json')))==2
+    second=source/'1/title-claim-verification.json'
+    second.unlink()
+    with pytest.raises(ValueError,match='Both exact'):reuse.merge_reports(source,output,ROOT)
+    second.write_text(json.dumps([{**rows[1],'passed':False}]))
+    with pytest.raises(ValueError,match='validated title'):reuse.merge_reports(source,output,ROOT)
+
+
 def test_increased_job_wall_clock_preserves_evidence_but_request_budget_does_not():
     original='jobs:\n  check:\n    timeout-minutes: 40\n    run: actual_cpu(budget_sec=600)\n'
     longer=original.replace('timeout-minutes: 40','timeout-minutes: 90')

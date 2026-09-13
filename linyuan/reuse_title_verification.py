@@ -75,6 +75,30 @@ def model_evidence(directory, expected):
     return records
 
 
+def merge_reports(directory, destination, root=Path('.'), model='qwen3:8b'):
+    """Join independently verified cases; never accept a missing/failed case."""
+    rows={}
+    for path in Path(directory).rglob('title-claim-verification.json'):
+        for row in json.loads(path.read_text()):
+            name=row.get('fixture')
+            if name in rows and rows[name]!=row:
+                raise ValueError('Conflicting CPU results for the same fixture')
+            rows[name]=row
+    expected=['linyuan_0913_title.json','linyuan_0913_landscape_title.json']
+    if set(rows)!=set(expected):raise ValueError('Both exact real subtitle cases are required')
+    ordered=[rows[name] for name in expected]
+    validate_results(ordered,root)
+    evidence=model_evidence(directory,model)
+    target=Path(destination);cache=target/'linyuan/.llm_cache';cache.mkdir(parents=True,exist_ok=True)
+    for path in evidence:
+        out=cache/path.name
+        if out.exists() and out.read_bytes()!=path.read_bytes():
+            raise ValueError('Conflicting raw model responses')
+        shutil.copy2(path,out)
+    (target/'title-claim-verification.json').write_text(json.dumps(ordered,ensure_ascii=False,indent=2))
+    return ordered
+
+
 def gh(*args):
     return subprocess.check_output(['gh',*args],text=True,timeout=60)
 
@@ -104,7 +128,7 @@ def main():
                     or (run.get('head_repository') or {}).get('full_name')!=repo
                     or run.get('path')!='.github/workflows/fc-production-deploy.yml'):continue
             jobs=api(f'actions/runs/{run_id}/jobs?per_page=100')['jobs']
-            passed=any(j['name']=='editorial-check / check' and j['conclusion']=='success' for j in jobs)
+            passed=any(j['name'] in ('editorial-check / check','editorial-check') and j['conclusion']=='success' for j in jobs)
             resume=(str(run_id)==os.environ.get('TITLE_RESUME_RUN_ID') and
                     any(j['name']=='editorial-check / check' and j['conclusion'] in ('cancelled','failure') for j in jobs))
             if not passed and not resume:continue

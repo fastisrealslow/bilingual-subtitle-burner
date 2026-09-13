@@ -5,6 +5,9 @@ name: 标题观点 CPU 实测
       local_text_model:
         type: string
         default: 'qwen3:8b'
+      fixture:
+        type: string
+        default: ''
       # TITLE_REUSE_BEGIN
       resume_run_id:
         type: string
@@ -25,6 +28,7 @@ env:
   TEXT_BACKEND: local
   LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   CUDA_VISIBLE_DEVICES: ''
+  TITLE_CHECK_FIXTURE: ${{ inputs.fixture || '' }}
   TITLE_RESUME_RUN_ID: ${{ inputs.resume_run_id || '' }} # TITLE_REUSE_GUARD
 jobs:
   check:
@@ -42,7 +46,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: steps.prior_check.outputs.reused == 'true' || steps.prior_check.outputs.resumed == 'true'
       with:
-        name: title-proof-reuse
+        name: title-proof-reuse-${{ inputs.fixture || 'all' }}
         path: title-proof-reuse.json
         if-no-files-found: error
     # TITLE_REUSE_END
@@ -125,7 +129,10 @@ jobs:
             p.llm=resume_llm
         # TITLE_REUSE_END
         results=[]; failures=[]
-        for name in ('linyuan_0913_title.json','linyuan_0913_landscape_title.json'):
+        cases=('linyuan_0913_title.json','linyuan_0913_landscape_title.json')
+        selected=os.environ.get('TITLE_CHECK_FIXTURE','')
+        assert not selected or selected in cases, 'Unknown real subtitle case'
+        for name in ((selected,) if selected else cases):
             fixture=json.loads((Path('tests/fixtures')/name).read_text())
             cues=fixture['cues'];result={}
             try:
@@ -151,7 +158,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: title-claim-verification
+        name: title-claim-verification${{ inputs.fixture && format('-{0}', inputs.fixture) || '' }}
         path: |-
           title-claim-verification.json
           /tmp/ollama.log
