@@ -3,7 +3,7 @@
   "validation_sha256": "c0949a0df6c0396788f23adaeec094c530f5328fffdb8c74d3ed9c4916a6c739",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789270356,
+  "updated_at": 1789271865,
   "materials": {
     "weibo_search": {
       "records": 1157,
@@ -77,11 +77,11 @@
     }
   },
   "inventory": {
-    "verified_live": 0,
+    "verified_live": 1,
     "verified_audio_card": 4,
     "verified_landscape": 0,
     "landscape_target": 2,
-    "daily_mix_usable": 0,
+    "daily_mix_usable": 1,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -6268,6 +6268,12 @@
             "stage": "stock-upgrade-title",
             "terminal": true,
             "reason": "新版标题含口吃片段，人工抽帧发现回退，暂停投稿并重做"
+          },
+          {
+            "slug": "ly-0910-interview-clean-v4-wide0911v2",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
           }
         ],
         "verified_available": 0,
@@ -7292,51 +7298,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1hj411X7BL:p1",
-        "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
-        "family": "BV1hj411X7BL",
-        "slugs": [
-          "ly-0912-5dc339"
-        ],
-        "source_sha256": [],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1MZz8BYEGg:p1",
-        "source_url": "https://www.bilibili.com/video/BV1MZz8BYEGg",
-        "family": "BV1MZz8BYEGg",
-        "slugs": [
-          "ly-0912-a7b1c7"
-        ],
-        "source_sha256": [],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1Vt4y1q7fc:p1",
-        "source_url": "https://www.bilibili.com/video/BV1Vt4y1q7fc",
-        "family": "BV1Vt4y1q7fc",
-        "slugs": [
-          "ly-0911-ea0eed"
-        ],
-        "source_sha256": [],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "https://m.weibo.cn/detail/5342360179313684",
         "source_url": "https://m.weibo.cn/detail/5342360179313684",
         "family": "m.weibo.cn",
@@ -7411,6 +7372,74 @@
             "stage": "editorial-or-render",
             "terminal": true,
             "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Vt4y1q7fc:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Vt4y1q7fc",
+        "family": "BV1Vt4y1q7fc",
+        "slugs": [
+          "ly-0911-ea0eed"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-ea0eed",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1MZz8BYEGg:p1",
+        "source_url": "https://www.bilibili.com/video/BV1MZz8BYEGg",
+        "family": "BV1MZz8BYEGg",
+        "slugs": [
+          "ly-0912-a7b1c7"
+        ],
+        "source_sha256": [
+          "d055c54738f54871c15779d93861e3d5622581b52b1609aa8801c8ba09469aee"
+        ],
+        "failures": [
+          {
+            "slug": "ly-0912-a7b1c7",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+          }
+        ],
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 152.3,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1hj411X7BL:p1",
+        "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
+        "family": "BV1hj411X7BL",
+        "slugs": [
+          "ly-0912-5dc339"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0912-5dc339",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
           }
         ],
         "verified_available": 0,
@@ -8323,8 +8352,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -8336,8 +8365,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8495,9 +8524,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8750,21 +8779,6 @@
         "verified_available": 1,
         "verified_seconds": 120.7
       },
-      "BV1hj411X7BL": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1MZz8BYEGg": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1Vt4y1q7fc": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1oxYd6BEaj": {
         "attempted_mothers": 1,
         "verified_available": 1,
@@ -8775,11 +8789,161 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
+      },
+      "BV1Vt4y1q7fc": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1MZz8BYEGg": {
+        "attempted_mothers": 1,
+        "verified_available": 1,
+        "verified_seconds": 152.3
+      },
+      "BV1hj411X7BL": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 1,
+  "in_flight_placeholders": 5,
   "artifacts": [
+    {
+      "slug": "ly-0912-a7b1c7",
+      "artifact_id": 10311138286,
+      "run_id": 34735827010,
+      "checked_at": 1789271858,
+      "source_url": "https://www.bilibili.com/video/BV1MZz8BYEGg",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_1.mp4",
+          "title": "林园：谈消费需求、医药投资与买入时机",
+          "duration_sec": 152.3,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "resolution": {
+            "width": 720,
+            "height": 1280,
+            "short_edge": 720
+          },
+          "source_sha256": "d055c54738f54871c15779d93861e3d5622581b52b1609aa8801c8ba09469aee",
+          "segments": [
+            {
+              "start": 2058.44,
+              "end": 2210.76,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "587072d5901e876b92630edb5335f4010265a4590fa6a214eecc5cee60309e4c",
+          "subtitle_sha256": "76f57654948499cb66b9ab49867fc587f431429d962957b1821e74abbd641063",
+          "motion": {
+            "version": 2026091201,
+            "passed": true,
+            "samples": [
+              {
+                "time": 1.0,
+                "moving": false,
+                "changed_fraction": 0.0064335664335664336,
+                "mean_residual": 1.672097902097902,
+                "correlation": 0.9989801650179366
+              },
+              {
+                "time": 14.572727272727274,
+                "moving": true,
+                "changed_fraction": 0.31153846153846154,
+                "mean_residual": 14.240699300699301,
+                "correlation": 0.9683029547404486
+              },
+              {
+                "time": 28.145454545454548,
+                "moving": true,
+                "changed_fraction": 0.07447552447552448,
+                "mean_residual": 3.9333566433566434,
+                "correlation": 0.9975841702577959
+              },
+              {
+                "time": 41.71818181818182,
+                "moving": true,
+                "changed_fraction": 0.15867132867132866,
+                "mean_residual": 6.303706293706294,
+                "correlation": 0.9939996292406625
+              },
+              {
+                "time": 55.290909090909096,
+                "moving": true,
+                "changed_fraction": 0.06846153846153846,
+                "mean_residual": 3.0606993006993006,
+                "correlation": 0.9965996211899936
+              },
+              {
+                "time": 68.86363636363637,
+                "moving": false,
+                "reason": "alignment_failed"
+              },
+              {
+                "time": 82.43636363636364,
+                "moving": true,
+                "changed_fraction": 0.11286713286713286,
+                "mean_residual": 4.9466433566433565,
+                "correlation": 0.9940274529736786
+              },
+              {
+                "time": 96.00909090909092,
+                "moving": true,
+                "changed_fraction": 0.20566433566433567,
+                "mean_residual": 8.614475524475525,
+                "correlation": 0.9842864502519022
+              },
+              {
+                "time": 109.58181818181819,
+                "moving": true,
+                "changed_fraction": 0.4806293706293706,
+                "mean_residual": 27.410489510489512,
+                "correlation": 0.9085056273064733
+              },
+              {
+                "time": 123.15454545454547,
+                "moving": true,
+                "changed_fraction": 0.3058041958041958,
+                "mean_residual": 13.260349650349651,
+                "correlation": 0.9728302895492033
+              },
+              {
+                "time": 136.72727272727275,
+                "moving": true,
+                "changed_fraction": 0.12916083916083915,
+                "mean_residual": 5.0524475524475525,
+                "correlation": 0.9956912134787245
+              },
+              {
+                "time": 150.3,
+                "moving": true,
+                "changed_fraction": 0.052027972027972026,
+                "mean_residual": 2.997062937062937,
+                "correlation": 0.9985675824652102
+              }
+            ],
+            "moving_by_third": [
+              3,
+              3,
+              4
+            ],
+            "window": {
+              "x": 44,
+              "y": 360,
+              "width": 632,
+              "height": 470
+            },
+            "policy": "affine_compensated_local_motion",
+            "limitation": "Temporal motion evidence; identity is checked separately"
+          },
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-0912-a2096b",
       "artifact_id": 10299691717,
