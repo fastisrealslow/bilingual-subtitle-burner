@@ -1,67 +1,175 @@
-"""Readable topic titles when verbatim speech cannot stand alone as a headline.
-
-This fallback names verified subjects; it adds no forecast, quotation or return
-claim. A failed quote triggers new copy, rather than discarding usable footage.
-"""
-import hashlib
+"""Source-grounded claim titles: propose angles, review them, never list keywords."""
 import difflib
+import hashlib
+import json
 import re
 
-VERSION = 2026091301
-TOPICS = (
-    ('人口变化', ('人口',)), ('消费需求', ('消费',)), ('实业经营', ('实业',)),
-    ('医药投资', ('医药','药品','制药')), ('老龄化', ('老龄化',)),
-    ('企业分红', ('分红',)), ('股息回报', ('股息',)), ('白酒消费', ('白酒',)),
-    ('茅台', ('茅台',)), ('片仔癀', ('片仔癀',)), ('现金流', ('现金流',)),
-    ('企业盈利', ('盈利','利润','赚钱')), ('科技投资', ('科技',)),
-    ('机器人', ('机器人',)), ('持有策略', ('持有',)),
-    ('买入时机', ('买入','择时')), ('股票估值', ('估值',)),
-    ('企业经营', ('企业',)), ('股票投资', ('股票','投资')),
-)
+VERSION = 2026091302
+CHECKS = ('source_supported', 'central_point', 'attribution_correct',
+          'preserves_qualifiers', 'cover_consistent', 'readable')
 
 
-def joined(labels):
-    return labels[0] if len(labels)==1 else '、'.join(labels[:-1])+'与'+labels[-1]
+def compact(text):
+    return re.sub(r'[^0-9A-Za-z\u4e00-\u9fff%％.]', '', str(text or ''))
 
 
-def generate(transcript, speaker='林园', existing_titles=()):
-    counts = [(label, sum(transcript.count(a) for a in anchors), i)
-              for i,(label,anchors) in enumerate(TOPICS)]
-    choices = [r for r in counts if r[1]]
-    # Generic investing labels must not crowd out specific subjects.
-    specific = [r for r in choices if r[2] < 17]
-    pool = specific if len(specific)>=2 else choices
-    chosen = sorted(sorted(pool,key=lambda r:(-r[1],r[2]))[:3],key=lambda r:r[2])
-    if len(chosen)<2:
-        raise ValueError('标题重写缺少两个可追溯的具体主题，须重新提炼选段')
-    labels=[r[0] for r in chosen]
-    compact=lambda s:re.sub(r'[^0-9A-Za-z\u4e00-\u9fff]','',s)
-    options=[f'{speaker}：谈'+joined(labels),f'{speaker}：关于'+joined(labels)+'的公开讨论']
-    title=next((t for t in options if 12<=len(compact(t))<=62
-                and not any(difflib.SequenceMatcher(None,compact(t),compact(old)).ratio()>=.84 for old in existing_titles)),None)
-    if not title:
-        raise ValueError('主题标题与已发布稿件重复，须选择新的具体角度')
-    proof=dict(version=VERSION,kind='editorial_topic',labels=labels,
-        title=title,cover=joined(labels[:2]),
-        source_sha256=hashlib.sha256(transcript.encode()).hexdigest(),
-        evidence={label:[a for a in dict(TOPICS)[label] if a in transcript] for label in labels})
-    return dict(title=title,title_rewrite=proof,title_quality_verified=True,
-                packaging_method='automatic_topic_rewrite')
+def summary_heading(title):
+    body = re.sub(r'^[^：:]+[：:]', '', str(title or ''))
+    return bool(re.match(r'(?:谈|浅谈|关于|聊聊|解读|漫谈).{0,50}(?:与|和|、|讨论|投资|需求|时机)', body)
+                or re.search(r'公开讨论$|投资(?:逻辑|哲学|理念)与|机遇与挑战', body))
+
+
+def _json(text):
+    match = re.search(r'\{.*\}', text, re.S)
+    return json.loads(match.group(0) if match else text)
+
+
+def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
+    title, cover = item.get('title'), item.get('cover_title')
+    if not isinstance(title, str) or not title.startswith(speaker + '：'):
+        return '标题缺少主讲人前缀'
+    if summary_heading(title) or not 12 <= len(compact(title)) <= 62:
+        return '标题必须呈现一个具体观点，不能是主题目录或残句'
+    if not isinstance(cover, str) or not 8 <= len(compact(cover)) <= 18:
+        return '封面短标题须以完整词句排入两行'
+    if check_layout:
+        from headline_policy import cover_fits
+        if not cover_fits(cover):
+            return '封面短标题不能截断词语'
+    if re.search(r'必涨|稳赚|翻倍秘籍|震惊|暴富|内幕曝光|不看后悔|http|@', title + cover):
+        return '标题含收益诱导或空洞夸张'
+    if any(difflib.SequenceMatcher(None, compact(title), compact(old)).ratio() >= .84 for old in existing_titles):
+        return '标题与已有稿件重复'
+    evidence = item.get('evidence')
+    if not isinstance(evidence, list) or not 1 <= len(evidence) <= 4:
+        return '必须提供支撑观点的完整原文句子'
+    source = compact(transcript)
+    if any(not isinstance(q, str) or len(compact(q)) < 8 or compact(q) not in source for q in evidence):
+        return '观点证据不是这段真实原文'
+    subject = item.get('subject')
+    if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12:
+        return '缺少具体讨论对象'
+    if compact(subject) not in compact(title) or not any(compact(subject) in compact(q) for q in evidence):
+        return '标题对象与原文证据不对应'
+    # The semantic review also checks written numbers, attribution and negation.
+    for number in re.findall(r'\d+(?:\.\d+)?[%％]?', title + cover):
+        if number not in re.findall(r'\d+(?:\.\d+)?[%％]?', transcript):
+            return '标题或封面添加了原文没有的数字'
+    return None
+
+
+def _binding(title, cover, subject, evidence):
+    return hashlib.sha256(json.dumps([title, cover, subject, evidence], ensure_ascii=False).encode()).hexdigest()
+
+
+def _package(item, transcript, review, candidates):
+    title, cover = item['title'], item['cover_title']
+    review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'])}
+    proof = dict(version=VERSION, kind='editorial_claim', title=title, cover=cover,
+                 subject=item['subject'], evidence=item['evidence'], review=review,
+                 source_sha256=hashlib.sha256(compact(transcript).encode()).hexdigest())
+    return dict(title=title, cover_title=cover, title_rewrite=proof,
+                title_candidates=[c['title'] for c in candidates], title_quality_verified=True,
+                packaging_method='source_claim_editor', desc='本段讨论：' + title.split('：', 1)[1])
+
+
+def _extractive(transcript, speaker, existing_titles, preferred=None):
+    from headline_policy import title_candidates, body, cover_copy, complete
+    titles = title_candidates(transcript, speaker, existing_titles)
+    if preferred and preferred not in titles:
+        titles.append(preferred)
+    for title in titles:
+        quote = body(title, speaker)
+        if not complete(quote) or compact(quote) not in compact(transcript) or summary_heading(title):
+            continue
+        cover = cover_copy(title, transcript, speaker)
+        if cover.get('reason') == 'needs_editorial_copy':
+            continue
+        # Whole source claims are the fallback; not a list of detected subjects.
+        item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
+        if not 12 <= len(compact(title)) <= 62:
+            continue
+        return _package(item, transcript, dict(method='source_quote', quote=quote), [item])
+    raise ValueError('未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试')
+
+
+def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None):
+    if model is None:
+        return _extractive(transcript, speaker, existing_titles, preferred)
+    prompt = f'''你是视频标题编辑。读完真实字幕，先找这段最主要的一个观点和它的理由。
+不要按出现的关键词凑标题，不要照抄口头残句；不要把主持人的追问当成嘉宾断言。
+为同一个中心观点写3个不同角度的标题：具体判断、原文支持的反常识选择、视频确实回答的问题。
+不必硬造冲突或数字。允许自然改写和设问；保留否定、条件、可能性，不写保证收益。
+每条以“{speaker}：”开头，正文通常18~36字。封面8~18字，两行能完整读完，表达同一个看点。
+拒绝“谈A、B与C”“关于某某的公开讨论”“投资逻辑解析”等目录式标题。
+每条须给出1~4段连续、逐字来自字幕的完整证据句，subject为标题与证据共有的具体对象。
+旧标题仅供识别问题，不是已验收结论：{preferred or '无'}
+只输出JSON：{{"candidates":[{{"title":"","cover_title":"","subject":"","evidence":["原文"]}}]}}
+真实字幕：\n{transcript}'''
+    last_error = ''
+    for attempt in range(3):
+        try:
+            proposal = _json(model(prompt + ('\n上次问题：' + last_error if last_error else '')))
+            candidates = proposal.get('candidates')
+            if not isinstance(candidates, list) or len(candidates) != 3:
+                raise ValueError('必须提供三个不同角度的候选标题')
+            errors = [(_candidate_error(c, transcript, speaker, existing_titles)
+                       if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
+            valid = [c for c, issue in zip(candidates, errors) if not issue]
+            if not valid:
+                raise ValueError('候选需修正：' + '；'.join(str(e) for e in errors))
+            judge = f'''独立核对这些视频标题与完整字幕，只评价标题和封面，不重做选段或字幕审核。
+逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；
+attribution_correct没有把主持人的猜测归为嘉宾断言；preserves_qualifiers保留条件否定和不确定性；
+cover_consistent封面和标题同一观点且没有更强断言；readable自然好懂。
+appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
+返回JSON：{{"reviews":[{{"index":0,"source_supported":true,"central_point":true,
+"attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4,"reason":""}}]}}
+候选：{json.dumps(valid, ensure_ascii=False)}\n完整字幕：{transcript}'''
+            reviews = _json(model(judge)).get('reviews', [])
+            accepted = []
+            for row in reviews:
+                if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)
+                        and all(row.get(k) is True for k in CHECKS)
+                        and type(row.get('appeal')) is int and 3 <= row['appeal'] <= 5):
+                    accepted.append(row)
+            if not accepted:
+                raise ValueError('候选没有通过标题原文核验和可读性检查')
+            winner = max(accepted, key=lambda r:r['appeal'])
+            item = valid[winner['index']]
+            return _package(item, transcript, dict(method='cpu_text_review', **winner), valid)
+        except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+            last_error = str(exc)
+            print(f'[标题观点] 第{attempt + 1}次生成待修正：{last_error}', flush=True)
+    return _extractive(transcript, speaker, existing_titles, preferred)
 
 
 def error(title, proof, transcript=None, speaker='林园'):
-    if not isinstance(proof,dict) or proof.get('version')!=VERSION or proof.get('kind')!='editorial_topic':
-        return '标题重写证明缺失或过期'
-    labels=proof.get('labels') or []
-    if not 2<=len(labels)<=3 or len(set(labels))!=len(labels) or any(x not in dict(TOPICS) for x in labels):
-        return '标题重写主题不在来源词表'
-    valid={f'{speaker}：谈'+joined(labels),f'{speaker}：关于'+joined(labels)+'的公开讨论'}
-    if title not in valid or proof.get('title')!=title or proof.get('cover')!=joined(labels[:2]):
-        return '标题或封面与重写主题不一致'
-    for label in labels:
-        anchors=(proof.get('evidence') or {}).get(label) or []
-        if not anchors or any(a not in dict(TOPICS)[label] for a in anchors):
-            return '标题主题缺少原文证据'
-        if transcript is not None and not any(a in transcript for a in anchors):
-            return '标题主题没有出现在真实字幕中：'+label
+    if (not isinstance(proof, dict) or proof.get('version') != VERSION
+            or proof.get('kind') != 'editorial_claim' or summary_heading(title)):
+        return '标题需重新提炼具体观点，不能使用旧的关键词拼盘'
+    if title != proof.get('title') or not isinstance(proof.get('cover'), str):
+        return '标题或封面与观点证明不一致'
+    evidence = proof.get('evidence')
+    if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
+        return '标题缺少完整原文证据'
+    if transcript is not None and any(compact(q) not in compact(transcript) for q in evidence):
+        return '标题观点不能回溯真实字幕'
+    review = proof.get('review') or {}
+    if review.get('copy_sha256') != _binding(title, proof['cover'], proof.get('subject'), evidence):
+        return '核验后标题、封面或证据发生变化'
+    if review.get('method') == 'source_quote':
+        from headline_policy import body, complete
+        quote = review.get('quote') or ''
+        if (body(title, speaker) != quote or evidence != [quote] or not complete(quote)):
+            return '原话标题的观点或限定条件已变化'
+    elif review.get('method') == 'cpu_text_review':
+        if not all(review.get(k) is True for k in CHECKS) or type(review.get('appeal')) is not int or not 3 <= review['appeal'] <= 5:
+            return '标题尚未通过独立原文核验'
+        item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence)
+        issue = _candidate_error(item, transcript or ''.join(evidence), speaker, (), check_layout=False)
+        if issue:
+            return issue
+    else:
+        return '标题审核方法缺失'
     return None

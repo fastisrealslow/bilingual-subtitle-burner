@@ -3139,6 +3139,9 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         problem=rewrite_error(title,rewrite_proof,transcript_text,speaker)
         if problem:return problem
         require_quote=False
+    from title_rewrite import summary_heading
+    if summary_heading(title):
+        return "标题是关键词目录，必须提炼具体观点"
     from headline_policy import complete
     if require_quote and not complete(normalized):
         return '标题存在口头残句、指代不明或语气词，不能独立理解'
@@ -3167,36 +3170,17 @@ def _fallback_quote_title(cues, sel, speaker):
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
               existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None):
-    """LLM 生成 B站标题/简介/标签(参考原库 scripts/copywrite.py)。
+    """Generate three source-backed angles, review title/cover, and cache evidence.
 
-    钩子式标题:prompt 要求带反常识/数字/冲突钩子（对标竞品高播放标题），但严禁编造，结果落 meta.json,
-    投稿脚本优先读这里,不再用 occasion 硬拼。
-    suffix 区分长视频拆多条的各段缓存（否则每段复用同一条文案）。
+    Slices and full interviews use the same editorial policy. The suffix keeps
+    each selected segment's title cache tied to its own complete transcript.
     """
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
     from headline_policy import attach_copy
-    copy_identity={'version':6,'transcript_sha256':editorial.text_digest(transcript_text),
+    copy_identity={'version':7,'transcript_sha256':editorial.text_digest(transcript_text),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
-    if suffix=='_full':
-        minutes=max(1,round((cues[sel[-1]]['end']-cues[sel[0]]['start'])/60))
-        result=attach_copy(dict(title=f'{speaker}：{minutes}分钟完整访谈原声',
-            desc=f'{speaker}在{occasion}的完整访谈原声。',tags=[speaker,'完整访谈'],
-            copy_identity=copy_identity,title_quality_verified=True),transcript_text,speaker)
-        cache.write_text(json.dumps(result,ensure_ascii=False))
-        return result
-    if reviewed_title:
-        error=title_quality_error(reviewed_title,speaker,transcript_text,existing_titles,
-                                  require_quote=require_quote)
-        if error:
-            print('[标题重写] 选段标题不合格，保留素材并生成新文案：'+error,flush=True)
-        else:
-            result=dict(title=reviewed_title,desc=f'{speaker}在{occasion}的公开发言选段。',
-                        tags=[speaker,'价值投资'],copy_identity=copy_identity,title_quality_verified=True)
-            result=attach_copy(result,transcript_text,speaker,existing_titles,reviewed_cover)
-            cache.write_text(json.dumps(result,ensure_ascii=False))
-            return result
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
@@ -3214,76 +3198,24 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             print(f"[文案] 缓存标题未通过 v3 闸门，重新生成：{error}")
         except ValueError:
             pass
-    sample = "\n".join(cues[i]["text"] for i in sel)
-    # Source quotes are candidates, not editorial approval. The text model must
-    # read the complete segment before selecting a standalone claim.
-    prompt = f"""这是{speaker}在「{occasion}」发言的字幕节选:
-
-{sample}
-
-为它生成 B站投稿文案。
-
-【完整观点标题】
-先读完上面整段内容，识别主要论点，再选能独立理解的原话作为标题。
-标题必须同时交代具体讨论对象与完整观点。不能因含有消费、投资等词就选择口头残句。
-拒绝指代不明的它/他、没办法等半句回应、语病、重复和语气词；宁可选择另一句，不得猜改识别错误。
-不能只复制开头的主持人问题、称呼或半句回应；不得靠常识修正含糊识别内容。
-标题与整条视频的论点、理由、限定条件必须一致，保留否定和数字。
-
-标题要求（严格遵守）:
-1. 必须以「{speaker}：」或「股神{speaker}：」开头
-2. 冒号后面必须是**从字幕里摘出来的他本人的原话**（可精简去口水词、可合并相邻两句，但不能改变意思、不能替换成书面语）
-3. 优先用一句完整原话交代具体对象与明确观点，通常18~36字即可；必要时保留更长的限定条件。
-   不强制数字或冲突，不添加原文没有的回报、身家、价格或态度。数字不是流量保证。
-   避免把同一科技风险观点换一种说法；不要写“机遇与挑战”等空泛总结。
-4. 保留口语感和态度（「我」「你」「不可能」「肯定」这类词不要删）
-5. 严禁编造：字幕里没说的话、没出现的数字，一律不许写
-6. 不要加任何后缀（不要「｜{speaker}」这种尾巴）
-
-简介:
-1. 100字以内，第一人称视角陈述内容要点，末尾注明来源场合
-2. 可以补一句「看点」提示
-3. ⚠️ 严禁出现任何链接或引流信息：不要写 URL、http、https、t.cn 短链、
-   www 开头的地址、@某某账号、"来源见链接"之类。只写文字内容本身。
-   （2026-09-03 用户明确要求：简介里不要放原始链接）
-
-只输出 JSON:
-{{{{"title":"标题","desc":"简介","tags":["标签","最多5个","含主讲人姓名"]}}}}"""
-    d, last_error = None, ""
-    for attempt in range(3):
-        retry = ("" if not last_error else
-                 f"\n上一次标题未通过程序质检：{last_error}。请修正后重新输出 JSON。")
-        try:
-            out = llm([{"role": "user", "content": prompt + retry}],
-                      api_key, temperature=0.35)
-            m = re.search(r"\{.*\}", out, re.S)
-            candidate = json.loads(m.group(0))
-            last_error = title_quality_error(
-                candidate.get("title"), speaker, transcript_text,
-                existing_titles, require_quote=require_quote)
-            if not last_error and require_quote:
-                from headline_policy import compact, body, complete
-                if not complete(body(candidate.get('title'),speaker)):
-                    last_error='标题是未完成的回应或句子片段，需要完整原话观点'
-                elif compact(body(candidate.get('title'),speaker)) not in compact(transcript_text):
-                    last_error='标题必须完整回溯原文，不能靠六字相同混入新数字或断言'
-            if not last_error:
-                d = candidate
-                break
-        except Exception as exc:
-            last_error = f"文案 JSON 解析失败：{exc}"
-    if d is None:
-        from title_rewrite import generate
-        try:
-            d=generate(transcript_text,speaker,existing_titles or [])
-            problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
-                                        rewrite_proof=d['title_rewrite'])
-            if problem:raise ValueError(problem)
-        except ValueError as exc:
-            raise VisualQualityError(f'标题自动重写仍未通过：{exc}') from exc
-        d.update(desc=f'{speaker}在{occasion}的公开发言，讨论'+ '、'.join(d['title_rewrite']['labels'])+'。',
-                 tags=[speaker])
-        print('[标题重写] 原话候选未通过，已自动生成主题标题：'+d['title'],flush=True)
+    from title_rewrite import generate
+    def title_model(prompt):
+        return llm([{"role":"user","content":prompt}],api_key,temperature=.35,
+                   max_tokens=2300,budget_sec=240)
+    try:
+        d=generate(transcript_text,speaker,existing_titles or [],model=title_model,
+                   preferred=reviewed_title)
+        problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
+                                    rewrite_proof=d['title_rewrite'])
+        if problem:raise ValueError(problem)
+    except ValueError as exc:
+        raise EditorialReviewUnavailable('标题文案待重试：'+str(exc)) from exc
+    d.setdefault('tags',[speaker])
+    if suffix=='_full':
+        minutes=max(1,round((cues[sel[-1]]['end']-cues[sel[0]]['start'])/60))
+        d['tags']=[speaker,'完整访谈']
+        d['desc']=f'{speaker}在{occasion}的{minutes}分钟完整访谈原声。'+d['desc']
+    print('[标题观点] 已按完整原文生成并核对标题：'+d['title'],flush=True)
     # 兜底清洗：prompt 说了不许带链接，但 LLM 不一定听话，程序层再洗一遍
     if d.get("desc"):
         clean_desc = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+|@[\w\u4e00-\u9fa5]{2,20}", "", d["desc"])

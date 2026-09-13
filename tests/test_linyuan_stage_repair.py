@@ -13,7 +13,7 @@ def test_bad_quote_becomes_source_grounded_new_title_and_matching_cover(tmp_path
     result=P.copywrite([dict(start=0,end=20,text=text)],[0],'林园','2016年演讲',None,tmp_path,
                       reviewed_title='林园：人少了没办法，它只消费少')
     assert result['title']!='林园：人少了没办法，它只消费少'
-    assert result['title_rewrite']['kind']=='editorial_topic'
+    assert result['title_rewrite']['kind']=='editorial_claim'
     assert result['cover_title']==result['title_rewrite']['cover']
     assert not T.error(result['title'],result['title_rewrite'],text)
     monkeypatch.setattr(P,'llm',lambda *a,**k:(_ for _ in ()).throw(AssertionError('Cache should be reusable')))
@@ -23,7 +23,7 @@ def test_bad_quote_becomes_source_grounded_new_title_and_matching_cover(tmp_path
 
 
 def test_rewritten_title_cannot_introduce_an_unspoken_subject_or_forecast():
-    result=T.generate('人口与消费。人口消费实业。')
+    result=T.generate('人口减少会影响消费，消费需求也要考虑。')
     proof=result['title_rewrite']
     assert T.error(result['title'],proof,'这段只有医药话题')
     assert T.error(result['title']+'明年翻倍',proof,'人口消费实业')

@@ -24,8 +24,12 @@ def test_real_question_and_answer_keep_every_condition_and_timestamp(tmp_path,mo
     with patch.object(p,'llm',side_effect=AssertionError('model must not be required')):
         picks=p.pick_highlights(cues,'林园','',tmp_path)
         assert [(r['start'],r['end']) for r in picks]==[(0,3)]
+    # Title editing now uses the CPU model; an outage may still use a complete
+    # source claim without changing the selected answer or dropping conditions.
+    with patch.object(p,'llm',side_effect=p.LocalTextUnavailable('temporarily unavailable')):
         copy=p.copywrite(cues,list(range(4)),'林园','访谈','',tmp_path)
         assert copy['title_quality_verified']
+        assert copy['title_rewrite']['review']['method']=='source_quote'
     assert json.dumps(cues,ensure_ascii=False)==before
     assert '但是投资仍然有风险' in ''.join(c['text'] for c in cues[:4])
 

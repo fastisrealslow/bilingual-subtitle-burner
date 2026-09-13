@@ -9,6 +9,7 @@ on:
     paths:
       - linyuan/fc/index.py
       - linyuan/fc/stage_revision.py
+      - linyuan/fc/title_revision.py
       - linyuan/fc/media_repair.py
       - linyuan/fc/reviewed_updates.py
       - linyuan/fc/reviewed_third_video.py
@@ -83,7 +84,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/stage_context.py linyuan/title_rewrite.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/fc/media_repair.py linyuan/fc/stage_revision.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/stage_context.py linyuan/title_rewrite.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/fc/media_repair.py linyuan/fc/stage_revision.py linyuan/fc/title_revision.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
           (cd linyuan/fc && zip -r "$FC_CODE_ZIP" reviewed_0910)
           unzip -t "$FC_CODE_ZIP"
 
@@ -93,7 +94,7 @@ jobs:
           python -m pytest -q tests/test_linyuan_state_merge.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py tests/test_linyuan_daily_landscape.py tests/test_linyuan_preflight_recovery.py
           python -m pytest -q tests/test_linyuan_reviewed_updates.py tests/test_linyuan_reviewed_download.py tests/test_linyuan_stage_revision.py
           python -m pytest -q tests/test_linyuan_third_video.py tests/test_fc_deploy_code.py
-          python -m pytest -q tests/test_linyuan_receipt_recovery.py tests/test_linyuan_required_live.py tests/test_linyuan_makeup_slot.py
+          python -m pytest -q tests/test_linyuan_receipt_recovery.py tests/test_linyuan_required_live.py tests/test_linyuan_makeup_slot.py tests/test_linyuan_title_claims.py tests/test_linyuan_title_revision.py
 
       - name: 部署到阿里云函数计算
         run: python linyuan/fc/deploy_code.py
@@ -107,6 +108,14 @@ jobs:
       - name: 原位替换用户追加要求的第三条视频（独立版本回执）
         run: python -u linyuan/fc/invoke_third_video.py
 
+      - name: 原位更新本次用户指出的标题（精确BV，不新增投稿）
+        run: >-
+          python -u -c "import sys; sys.path.insert(0,'linyuan/fc');
+          from invoke_reviewed_updates import main;
+          main(trigger='apply-title-revision-0913', state_key='title_revision_0913',
+          bvids=('BV14PYY6sEbq',), version_file='linyuan/fc/title_revision.py',
+          prefix='title-0913', report='title-revision-verification.json')"
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -115,4 +124,5 @@ jobs:
             production-verification.json
             reviewed-updates-verification.json
             third-video-verification.json
+            title-revision-verification.json
           if-no-files-found: error

@@ -1,0 +1,107 @@
+name: 标题观点 CPU 实测
+'on':
+  push:
+    branches:
+    - main
+    paths:
+    - linyuan/title_rewrite.py
+    - .github/workflows/linyuan-title-claim-check.yml
+    - tests/fixtures/linyuan_0913_title.json
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: title-claim-check
+  cancel-in-progress: true
+env:
+  RUN_TEXT_MODEL: qwen3:4b
+  TEXT_BACKEND: local
+  LOCAL_LLM_MODEL: qwen3:4b
+  CUDA_VISIBLE_DEVICES: ''
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 安装文案排版依赖
+      run: python -m pip install -q jieba pillow numpy
+    - name: 缓存 CPU 本地文本模型
+      id: ollama-cache
+      continue-on-error: true
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.ollama/models
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+    - name: 缓存已校验的 Ollama 安装包
+      uses: actions/cache@v4
+      continue-on-error: true
+      with:
+        path: /tmp/ollama-runtime
+        key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+    - name: 启动 CPU 本地文本模型（禁止云 API）
+      id: local_text
+      env:
+        OLLAMA_VERSION: v0.33.3
+        OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+      run: |
+        set -euo pipefail
+        mkdir -p /tmp/ollama-runtime
+        archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+        if ! echo "${OLLAMA_SHA256}  $archive" | sha256sum -c -; then
+          curl -fsSL --retry 8 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 600 \
+            -o /tmp/ollama-download.tar.zst \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+          echo "${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst" | sha256sum -c -
+          mv /tmp/ollama-download.tar.zst "$archive"
+        fi
+        sudo tar --zstd -xf "$archive" -C /usr
+        OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+          ollama serve > /tmp/ollama.log 2>&1 &
+        for _ in $(seq 1 30); do
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+          sleep 1
+        done
+        curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+        case "$RUN_TEXT_MODEL" in
+          qwen3:4b|qwen3:4b-instruct-2507-q4_K_M) ;;
+          *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;
+        esac
+        ollama pull "$RUN_TEXT_MODEL"
+        ollama show "$RUN_TEXT_MODEL" >/dev/null
+        # Pulling only downloads weights.  Warm them into RAM before the
+        # bounded CPU review budget begins.
+        python -c 'import json,os; print(json.dumps(dict(model=os.environ["RUN_TEXT_MODEL"],messages=[dict(role="user",content="Reply ready")],stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))))' > /tmp/ollama-warmup.json
+        curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
+          -H 'Content-Type: application/json' \
+          --data-binary @/tmp/ollama-warmup.json \
+          | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+    - name: 用真实字幕验证完整标题生成与核对
+      run: |-
+        python -u - <<'PYCODE'
+        import json, sys, tempfile
+        from pathlib import Path
+        sys.path.insert(0, 'linyuan')
+        import produce_cn as p
+        from title_rewrite import error
+        fixture=json.loads(Path('tests/fixtures/linyuan_0913_title.json').read_text())
+        cues=fixture['cues']
+        with tempfile.TemporaryDirectory() as directory:
+            result=p.copywrite(cues,list(range(len(cues))),'林园','访谈','',Path(directory),reviewed_title=fixture['old_title'])
+        Path('title-claim-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+        print(json.dumps(result,ensure_ascii=False,indent=2))
+        assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
+        assert len(result['title_candidates']) >= 2
+        assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
+        PYCODE
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: title-claim-verification
+        path: |-
+          title-claim-verification.json
+          /tmp/ollama.log
+        retention-days: 7

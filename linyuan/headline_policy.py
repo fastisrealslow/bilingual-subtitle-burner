@@ -2,7 +2,7 @@
 import re
 import difflib
 
-VERSION = 2026091301
+VERSION = 2026091302
 TOPICS = ('片仔癀','茅台','股息','分红','医药','消费','科技股','机器人','老龄化','现金流','投资','企业')
 QUESTION = re.compile(r'您|请问|想问|请教|聊聊|林总|分享一下|[？?]|你(?:是一直看好|还有哪|有持有|进入了|第一次|是怎么|怎么看|当时|集中投资|充分.{0,4}利用)|你.{0,24}(?:透露过|辞职|毕业之后)')
 CONDITION = re.compile(r'如果|假如|除非|只有|虽然|即使|只要')
@@ -177,13 +177,13 @@ def attach_copy(result, transcript, speaker='林园', existing_titles=None, revi
     from editorial_policy import publication_tags
     result['tags']=publication_tags(transcript,speaker,result.get('tags'),
                                     'full_interview' if '完整访谈' in result.get('tags',[]) else None)
-    candidates=title_candidates(transcript,speaker,existing_titles)
+    candidates=result.get('title_candidates') or title_candidates(transcript,speaker,existing_titles)
     if result['title'] not in candidates:candidates.insert(0,result['title'])
     if result.get('title_rewrite'):
         from title_rewrite import error as rewrite_error
         error=rewrite_error(result['title'],result['title_rewrite'],transcript,speaker)
         if error:raise ValueError(error)
-        cover=dict(text=result['title_rewrite']['cover'],kind='editorial_topic',evidence=transcript)
+        cover=dict(text=result['title_rewrite']['cover'],kind='editorial_claim',evidence=result['title_rewrite']['evidence'])
     else:
         cover=cover_copy(result['title'],transcript,speaker)
     if reviewed_cover is not None:

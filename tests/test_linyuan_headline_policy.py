@@ -52,7 +52,8 @@ def test_independent_cover_and_candidates_are_saved_for_review():
     assert '8%' in result['cover_title']
 
 
-def test_reviewed_copy_cache_refreshes_old_cover_policy(tmp_path):
+def test_reviewed_copy_cache_refreshes_old_cover_policy(tmp_path,monkeypatch):
+    monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
     title='林园：所有的产品都会变得一文不值'
     cues=[{'text':'所有的产品都会变得一文不值。','start':0,'end':6}]
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,reviewed_title=title)
@@ -92,12 +93,15 @@ def test_extractive_cover_never_drops_negation_or_uncertainty():
     assert '最值得' not in result['text']
 
 
-def test_full_interview_cover_reports_actual_length_without_text_model(tmp_path,monkeypatch):
-    monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('full format must not require a model'))
+def test_full_interview_uses_claim_copy_and_preserves_actual_length(tmp_path,monkeypatch):
+    monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
     result=P.copywrite([dict(text='我们长期持有优秀企业',start=0,end=3472)],[0],
                       '林园','访谈',None,tmp_path,suffix='_full',require_quote=False)
-    assert result['cover_title']=='58分钟完整访谈'
-    assert result['title']=='林园：58分钟完整访谈原声'
+    assert result['title']=='林园：我们长期持有优秀企业'
+    assert result['title_rewrite']['review']['method']=='source_quote'
+    assert '长期持有' in result['cover_title']
+    assert '58分钟完整访谈原声' in result['desc']
+    assert '完整访谈' in result['tags']
 
 
 def test_labeled_transcript_cannot_duplicate_speaker_prefix():
@@ -118,7 +122,7 @@ def test_cached_copy_gets_current_cover_layout_without_model(tmp_path,monkeypatc
     cues=[dict(text='我们长期持有优秀企业。',start=0,end=5)]
     title='林园：我们长期持有优秀企业'
     cache=dict(title=title,cover_title='片仔癀又呃这个系列产品，他又搞了很多',
-        copy_identity=dict(version=6,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
+        copy_identity=dict(version=7,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
             speaker='林园',occasion='访谈',reviewed_title=None))
     (tmp_path/'copywrite.json').write_text(P.json.dumps(cache,ensure_ascii=False))
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Valid title should be reused'))
@@ -172,6 +176,6 @@ def test_source_first_still_reads_full_segment_and_never_falls_back_to_keywords(
     monkeypatch.setattr(P,'llm',invalid)
     result=P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
                     [0],'林园','访谈',None,tmp_path)
-    assert len(calls)==3 and result['title_rewrite']['kind']=='editorial_topic'
+    assert len(calls)==3 and result['title_rewrite']['kind']=='editorial_claim'
     assert '没办法' not in result['title']
     assert result['cover_title']==result['title_rewrite']['cover']

@@ -1872,6 +1872,10 @@ def handler(event, context):
             import reviewed_third_video
             import sys
             return run_with_lease('publish', lambda: reviewed_third_video.apply(sys.modules[__name__]))
+        if name == 'apply-title-revision-0913':
+            import title_revision
+            import sys
+            return run_with_lease('publish', lambda: title_revision.apply(sys.modules[__name__]))
         if name == "publish-tv-wine-review-once":
             return publish_tv_wine_review_once(evt)
         if name == "diagnose-release":
@@ -2497,7 +2501,9 @@ def artifact_quality_error(meta):
             "authority_reference", "verified_source_frame"}:
         return "封面人物图来源不可验证"
     from headline_policy import complete, body
-    from title_rewrite import error as rewrite_error
+    from title_rewrite import error as rewrite_error, summary_heading
+    if summary_heading(meta.get('title')):
+        return '标题是关键词目录，需重新提炼中心观点'
     rewritten=meta.get('title_rewrite')
     if rewritten and rewrite_error(meta.get('title'),rewritten):return '标题重写证明不合格'
     if not rewritten and '完整访谈' not in str(meta.get('title', '')) and not complete(body(meta.get('title'))):
