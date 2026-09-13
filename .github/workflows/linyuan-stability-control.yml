@@ -14,5 +14,16 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: 停止已由新版标题证据顺序取代的部署
-        run: gh run cancel 34758729804 --repo "$GITHUB_REPOSITORY" || true
+      - name: 读取810实际原话与话题划分证据
+        run: |
+          gh run download 34758645112 --repo "$GITHUB_REPOSITORY" --name editorial-ly-0913-a52266-boundary16 --dir /tmp/evidence
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          base=Path('/tmp/evidence')
+          for p in sorted(base.rglob('context_topics*.txt')):
+              print('TOPICS',p.read_text())
+          for p in base.rglob('cues_raw.json'):
+              data=json.loads(p.read_text())
+              print('SOURCE',json.dumps(data,ensure_ascii=False))
+          PY
