@@ -16,6 +16,8 @@ jobs:
       SOURCE_URL: https://www.bilibili.com/video/BV19P4y1m77K?p=35
     steps:
       - uses: actions/checkout@v4
+      - name: 安装合流和实际音视频解码工具
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - uses: actions/cache/restore@v4
         with:
           path: linyuan/_src/
