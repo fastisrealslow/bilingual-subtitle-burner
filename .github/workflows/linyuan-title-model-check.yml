@@ -1,0 +1,13 @@
+name: 标题归属另一CPU模型对照
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-title-model-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    uses: ./.github/workflows/linyuan-title-claim-check.yml
+    with:
+      local_text_model: qwen3.5:9b
