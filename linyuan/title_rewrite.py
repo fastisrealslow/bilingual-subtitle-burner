@@ -205,7 +205,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     last_error = ''
     for attempt in range(3):
         try:
-            proposal = _json(call(prompt + ('\n上次问题：' + last_error if last_error else ''),
+            proposal = _json(call(prompt + (f'\n第{attempt + 1}轮改写；上次问题：' + last_error if last_error else ''),
                                   proposal_schema(len(units), subjects)))
             candidates = proposal.get('candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:
@@ -227,7 +227,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if len({compact(c['title']) for c in valid})!=3:
                 raise ValueError('三个标题必须有不同看点，不能重复同一句话')
             judge = f'''独立核对这些视频标题与完整字幕，只评价标题和封面，不重做选段或字幕审核。
-先在reason用一句话指出原文依据或标题增加的结论，再给判定。不能空填全部true。
+先在reason用一句话指出原文实际表达的意思及标题是否增加结论，再给判定。不能空填全部true。
+不合格时说明原文实际的做法或判断，再指出标题偏差，供下一轮修正中心观点和措辞。
 严格寻找标题/封面新增的比较、因果、收益和安全性判断：控制仓位不等于“更安全”，
 看好某行业不等于“必然上涨”；原文没有明确支持的新增判断必须source_supported=false。
 “没有预期的好但没那么坏”不等于“复苏稳健”；“行业还没有龙头”不等于“未出龙头的公司”。
@@ -248,7 +249,17 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
                         and type(row.get('appeal')) is int and 3 <= row['appeal'] <= 5):
                     accepted.append(row)
             if not accepted:
-                raise ValueError('候选没有通过标题原文核验和可读性检查')
+                feedback=[]
+                for row in reviews:
+                    if not isinstance(row,dict):continue
+                    i=row.get('index')
+                    if type(i) is not int or not 0<=i<len(valid):continue
+                    feedback.append(dict(title=valid[i]['title'],cover_title=valid[i]['cover_title'],
+                        reason=row.get('reason'),
+                        failed_checks=[k for k in CHECKS if row.get(k) is not True],
+                        appeal=row.get('appeal')))
+                raise ValueError('独立复核退回：先按原文修正中心观点，再重写三个角度；具体意见：'
+                                 +json.dumps(feedback,ensure_ascii=False))
             winner = max(accepted, key=lambda r:r['appeal'])
             item = valid[winner['index']]
             return _package(item, transcript, dict(method='cpu_text_review', **winner), valid)

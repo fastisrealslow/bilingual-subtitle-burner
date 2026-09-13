@@ -84,6 +84,18 @@ def test_negative_semantic_review_cannot_pass_as_editorial_rewrite():
     assert not T.summary_heading(result['title'])
 
 
+def test_semantic_rejection_reaches_rewriter_and_each_retry_has_a_new_cache_key():
+    calls=[]
+    T.generate(TEXT,model=model(calls,bad_review=True))
+    proposals_received=calls[::2]
+    assert len(proposals_received)==len(set(proposals_received))==3
+    for prompt in proposals_received[1:]:
+        assert TITLE in prompt
+        assert 'source_supported' in prompt
+        assert '原文直接支持同一观点，标题与封面未增加新结论' in prompt
+        assert '先按原文修正中心观点' in prompt
+
+
 def test_keywords_without_claim_are_retryable_not_source_rejection(tmp_path,monkeypatch):
     monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
     with pytest.raises(P.EditorialReviewUnavailable,match='标题文案待重试'):
