@@ -14,9 +14,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: 检查158实际原文阅读和候选响应
+      - name: 检查161实际原文阅读失败响应
         run: |
-          gh run download 34763327956 --repo "$GITHUB_REPOSITORY" --name title-claim-verification --dir /tmp/title-evidence
+          gh run download 34765298630 --repo "$GITHUB_REPOSITORY" --name title-claim-verification-linyuan_0913_title.json --dir /tmp/title-evidence
           python - <<'PY'
           import json
           from pathlib import Path
