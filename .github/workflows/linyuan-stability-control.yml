@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   switch:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34760310632
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34761116659
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -32,11 +32,11 @@ jobs:
           sys.path.insert(0,'linyuan')
           from register_selection_recovery import read_state,gh,REPO
           from fc import index as fc
-          completed=json.loads(gh('api',f'repos/{REPO}/actions/runs/34760310632'))
+          completed=json.loads(gh('api',f'repos/{REPO}/actions/runs/34761116659'))
           if completed['conclusion']!='success':
               print('完整693MB母片尚未核验成功，保持原生产任务，不重复调度')
               raise SystemExit(0)
-          artifacts=json.loads(gh('api',f'repos/{REPO}/actions/runs/34760310632/artifacts'))['artifacts']
+          artifacts=json.loads(gh('api',f'repos/{REPO}/actions/runs/34761116659/artifacts'))['artifacts']
           assert any(a['name']=='mother-media-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b' and not a['expired'] for a in artifacts)
           slug='ly-0912-5dc339-reserve-13-portrait'
           _,st=read_state()
