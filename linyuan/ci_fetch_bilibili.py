@@ -182,7 +182,7 @@ def remaining_seconds(deadline):
     return remaining
 
 
-def rank_mirrors(op, urls, referer, *, offset=0, expected_total=None, deadline=None):
+def rank_mirrors(op, urls, referer, *, offset=0, expected_total=None, deadline=None, metadata=None):
     """Measure approved mirrors of the SAME stream before a long transfer.
 
     Run 806 spent an hour on a progressing 693 MB stream. A bounded real
@@ -209,25 +209,29 @@ def rank_mirrors(op, urls, referer, *, offset=0, expected_total=None, deadline=N
                 match=re.fullmatch(r'bytes (\d+)-(\d+)/(\d+)',response.headers.get('Content-Range') or '')
                 if (status!=206 or not match or int(match[1])!=offset
                         or int(match[2])!=offset+probe_bytes-1
+                        or int(match[3])<=int(match[2])
                         or expected_total and int(match[3])!=expected_total):
-                    return index,0,0
+                    return index,0,0,{}
+                identity=dict(total=int(match[3]),etag=response.headers.get('ETag'))
                 while received<probe_bytes and time.monotonic()<limit:
                     chunk=response.read(min(65536,probe_bytes-received))
                     if not chunk:break
                     received+=len(chunk)
             rate=received/max(.001,time.monotonic()-started) if received>=65536 else 0
-            return index,rate,received
+            return index,rate,received,identity
         except Exception:
-            return index,0,received
+            return index,0,received,{}
 
     # API-provided alternates only. No lower resolution, transcoding, foreign
     # proxy or guessed host substitution is involved in this measurement.
     with ThreadPoolExecutor(max_workers=min(4,len(urls))) as pool:
         measured=list(pool.map(probe,enumerate(urls[:4])))
     measured.sort(key=lambda row:(-row[1],row[0]))
-    for index,rate,received in measured:
+    if metadata is not None and measured and measured[0][1]>0:
+        metadata.update(measured[0][3])
+    for index,rate,received,_ in measured:
         print(f'[CDN择优] 镜像{index} {received} bytes，{rate/1024:.1f} KiB/s',flush=True)
-    return [urls[index] for index,_,_ in measured]+list(urls[4:])
+    return [urls[index] for index,_,_,_ in measured]+list(urls[4:])
 
 
 def download_one(op, urls, referer, out, attempts=3, deadline=None):
@@ -265,8 +269,15 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
             return
         out.unlink()
     deadline=deadline if deadline is not None else time.monotonic()+1200
+    probe_metadata={}
     urls=rank_mirrors(op,urls,referer,offset=tmp.stat().st_size if tmp.exists() else 0,
-                      expected_total=saved.get('total'),deadline=deadline)
+                      expected_total=saved.get('total'),deadline=deadline,metadata=probe_metadata)
+    if not saved.get('total') and probe_metadata.get('total'):
+        # The cold-download probe already established the exact representation
+        # length. Keep it so the FIRST transfer also uses bounded ranges rather
+        # than spending an hour in a throttled open-ended response.
+        saved.update(probe_metadata)
+        manifest.write_text(json.dumps(saved))
     stalled_rounds=0
     while stalled_rounds<attempts:
         remaining_seconds(deadline)

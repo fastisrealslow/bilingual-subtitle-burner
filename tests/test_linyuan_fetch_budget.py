@@ -221,3 +221,24 @@ def test_large_checkpoint_uses_complete_bounded_ranges_on_fastest_same_mirror(mo
     assert out.read_bytes()==payload
     assert len(requests)==3 and requests[0][0]==offset
     assert all(a[1]+1==z[0] for a,z in zip(requests,requests[1:]))
+
+
+def test_fresh_large_download_reuses_probe_length_before_its_first_transfer(tmp_path):
+    payload=bytes(range(256))*80000
+    requests=[]
+    class Opener:
+        def open(self,request,timeout):
+            assert request.headers.get('Range'), 'Cold media must not start a throttled open-ended response'
+            start,end=map(int,request.headers['Range'].split('=')[1].split('-'))
+            requests.append((start,end))
+            assert end-start+1<=8*(1<<20)
+            return Response(payload[start:end+1],206,dict(
+                **{'Content-Range':f'bytes {start}-{end}/{len(payload)}'},ETag='same'))
+    out=tmp_path/'fresh.m4s'
+    b.download_one(Opener(),['https://one.test/track','https://two.test/track'],'source',out)
+    assert out.read_bytes()==payload
+    transfers=[r for r in requests if r[1]-r[0]+1!=2*(1<<20)]
+    assert len(transfers)==3 and transfers[0]==(0,8*(1<<20)-1)
+    assert all(a[1]+1==z[0] for a,z in zip(transfers,transfers[1:]))
+    manifest=json.loads(out.with_suffix('.m4s.download.json').read_text())
+    assert manifest['total']==len(payload) and manifest['etag']=='same' and manifest['sha256']
