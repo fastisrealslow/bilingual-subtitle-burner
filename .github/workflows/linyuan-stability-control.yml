@@ -1,0 +1,18 @@
+name: 林园稳定性修复切换
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-stability-control.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  switch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: 停止已由新版标题证据顺序取代的部署
+        run: gh run cancel 34758729804 --repo "$GITHUB_REPOSITORY" || true
