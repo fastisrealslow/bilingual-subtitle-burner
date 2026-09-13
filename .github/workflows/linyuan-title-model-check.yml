@@ -6,8 +6,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   compare:
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       local_text_model: qwen3.5:9b
+
+# Compare the separated reading and guest-only drafting flow introduced in f58a085.
