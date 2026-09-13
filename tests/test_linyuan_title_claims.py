@@ -133,11 +133,21 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     monkeypatch.setattr(P,'llm',structured)
     cues=[dict(text=TEXT,start=0,end=150)]
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
-    assert result['title']==TITLE and result['copy_identity']['version']==7
+    assert result['title']==TITLE and result['copy_identity']['version']==8
     if suffix=='_full':assert '完整访谈' in result['tags'] and '完整访谈原声' in result['desc']
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Current verified copy should be reused'))
     cached=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
     assert cached['title']==TITLE and cached['title_rewrite']==result['title_rewrite']
+    # The queued 811 claim had passed an older model review despite quoting
+    # the host. Changing the editor must invalidate that otherwise valid cache.
+    old=dict(cached)
+    old['copy_identity']={**cached['copy_identity'],'title_editor_sha256':'old-editor'}
+    (tmp_path/f'copywrite{suffix}.json').write_text(json.dumps(old,ensure_ascii=False))
+    count=len(calls)
+    monkeypatch.setattr(P,'llm',structured)
+    refreshed=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
+    assert len(calls)>count
+    assert refreshed['copy_identity']==result['copy_identity']
 
 
 def not_draft(properties):

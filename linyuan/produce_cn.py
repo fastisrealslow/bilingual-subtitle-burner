@@ -3219,7 +3219,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     cache = work / f"copywrite{suffix}.json"
     transcript_text = "".join(cues[i]["text"] for i in sel)
     from headline_policy import attach_copy
-    copy_identity={'version':7,'transcript_sha256':editorial.text_digest(transcript_text),
+    import title_rewrite as title_editor
+    # A previous fluent-but-wrong claim can still satisfy structural checks.
+    # Never reuse it after the title reader/reviewer or actual model changes.
+    copy_identity={'version':8,'transcript_sha256':editorial.text_digest(transcript_text),
+                   'title_editor_sha256':_sha256_file(Path(title_editor.__file__)),
+                   'text_backend':TEXT_BACKEND,
+                   'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     if cache.exists():
