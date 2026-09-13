@@ -5,7 +5,7 @@ on:
     paths: [.github/workflows/linyuan-stability-evidence.yml]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
   actions: read
 jobs:
   evidence:
@@ -14,18 +14,16 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-      - name: 导出已完成审查的原文及失败证据
+      - name: 读取实际CPU计算检查点
         run: |
-          mkdir -p /tmp/stability-evidence/799 /tmp/stability-evidence/794
-          gh run download 34752817859 --repo "$GITHUB_REPOSITORY" -n editorial-ly-0913-a52266-boundary16 -D /tmp/stability-evidence/799
-          gh run download 34746500824 --repo "$GITHUB_REPOSITORY" -n editorial-ly-0913-5bb3b9 -D /tmp/stability-evidence/794
+          gh run download 34760249532 --repo "$GITHUB_REPOSITORY" --name title-claim-verification --dir /tmp/cpu154
+          gh run download 34762401393 --repo "$GITHUB_REPOSITORY" --name title-proof-reuse --dir /tmp/cpu156
           python - <<'PY'
-          import json,pathlib
-          root=pathlib.Path('/tmp/stability-evidence')
-          data={str(p.relative_to(root)):p.read_text() for p in root.rglob('*') if p.is_file() and p.suffix in ('.json','.txt') and p.stat().st_size < 2000000}
-          (root/'evidence.json').write_text(json.dumps(data,ensure_ascii=False))
-          print('Preserved files:',len(data))
+          import json
+          from pathlib import Path
+          print('RESUME_PROVENANCE',Path('/tmp/cpu156/title-proof-reuse.json').read_text())
+          for path in sorted(Path('/tmp/cpu154').rglob('*.json')):
+              if '.llm_cache' not in path.parts:continue
+              data=json.loads(path.read_text())
+              print('ACTUAL_CPU_RESPONSE',json.dumps(dict(file=path.name,model=data.get('model'),content=data.get('content')),ensure_ascii=False))
           PY
-          gh release view stability-0913 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create stability-0913 --repo "$GITHUB_REPOSITORY" --title 'September 13 production stability evidence' --notes 'Exact original ASR and diagnostic outputs from completed production runs. No generated acceptance overrides.' --prerelease
-          gh release upload stability-0913 /tmp/stability-evidence/evidence.json --repo "$GITHUB_REPOSITORY" --clobber
