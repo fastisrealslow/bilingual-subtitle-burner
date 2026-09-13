@@ -59,6 +59,11 @@ def main():
     entry={k:origin[k] for k in ('key','video_id','source_url','asset_url','title','source',
            'production_rules_version','required_presentation_version') if k in origin}
     entry.update(slug=NEW,ts=int(time.time()),delay_hours=0,repair_of=OLD,output_layout=layout)
+    # The 818 retry lost selected_parts=1,3, repeated already completed 2,4,
+    # and spent 22 minutes without increasing the unique reserve.
+    for key in ('reviewed_parts','selected_parts'):
+        value=getattr(args,key)
+        if value:entry[key]=value
     for attempt in range(6):
         doc,state=read_state()
         if any(e.get('slug')==NEW for e in state.get('dispatched',[])):return
