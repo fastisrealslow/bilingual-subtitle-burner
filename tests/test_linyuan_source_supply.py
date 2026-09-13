@@ -317,7 +317,7 @@ def test_compare_and_swap_conflict_does_not_dispatch(monkeypatch):
     assert fc.dispatch_handler()['admission_busy']==1
 
 
-def test_catchup_only_fills_current_slot_and_respects_daily_four():
+def test_catchup_respects_due_count_and_daily_four():
     now=datetime(2026,9,7,2,30,tzinfo=timezone.utc).timestamp()
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=0)),now)==1
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-07',count=1)),now)==0
@@ -326,16 +326,19 @@ def test_catchup_only_fills_current_slot_and_respects_daily_four():
     assert fc.catchup_deficit(dict(daily_publish=dict(date='2026-09-06',count=22)),now)==1
 
 
-def test_removed_windows_never_catch_up_and_one_slot_cannot_burst():
+def test_makeup_between_windows_only_fills_existing_scheduled_debts():
     stamp=lambda hour:datetime(2026,9,9,hour-8,30,tzinfo=timezone.utc).timestamp()
     state=dict(daily_publish=dict(date='2026-09-09',count=0))
     for hour in (12,19,22):
         assert not fc.is_regular_publish_hour(stamp(hour))
-        assert fc.catchup_deficit(state,stamp(hour))==0
+        assert fc.catchup_deficit(state,stamp(hour))==1
+        assert all(int(slot[-2:]) in fc.PUBLISH_HOURS
+                   for slot in fc.due_publication_slots(state,stamp(hour)))
     for hour in (10,14,16,21):
         assert fc.catchup_deficit(state,stamp(hour))==1
     state['daily_publish'].update(count=1,published_hours=[16])
-    assert fc.catchup_deficit(state,stamp(16))==0
+    assert fc.catchup_deficit(state,stamp(16))==1
+    assert '2026-09-09 16' not in fc.due_publication_slots(state,stamp(16))
     assert fc.catchup_deficit(state,stamp(21))==1
     state['daily_publish']['count']=4
     assert fc.catchup_deficit(state,stamp(21))==0
@@ -345,7 +348,7 @@ def test_pre_migration_receipts_occupy_their_existing_slot():
     now=datetime(2026,9,9,8,30,tzinfo=timezone.utc).timestamp()
     state=dict(published={'old':dict(parts=[dict(bvid='BVexisting',ts=now-60)])})
     assert fc.slot_published(state,now)
-    assert fc.catchup_deficit(state,now)==0
+    assert fc.due_publication_slots(state,now)==['2026-09-09 10','2026-09-09 14']
     state['published']['old']['parts'][0]['ts']=now-86400
     assert not fc.slot_published(state,now)
 

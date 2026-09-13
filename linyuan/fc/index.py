@@ -357,20 +357,45 @@ def slot_published(st, now=None):
     return False
 
 
+def publication_slot_time(slot):
+    """Parse a scheduled Beijing slot without using the runner's local timezone."""
+    import calendar
+    try:
+        parsed = time.strptime(str(slot), '%Y-%m-%d %H')
+        if time.strftime('%Y-%m-%d %H', parsed) != slot or parsed.tm_hour not in PUBLISH_HOURS:
+            return None
+        return calendar.timegm(parsed) - 8 * 3600
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def due_publication_slots(st, now=None):
+    """Today's unfilled slots stay due after their original hour has ended."""
+    now = time.time() if now is None else now
+    today = time.strftime('%Y-%m-%d', time.gmtime(now + 8 * 3600))
+    return [slot for hour in sorted(PUBLISH_HOURS)
+            for slot in [f'{today} {hour:02d}']
+            if publication_slot_time(slot) <= now
+            and not slot_published(st, publication_slot_time(slot))]
+
+
 def makeup_request_error(event, st, now=None):
-    """The user's single Sep 13 ten-o'clock debt, inside the normal publish lock."""
+    """Bind an exact inspected file to a due slot inside the normal publish lock."""
     slot = event.get('makeup_slot')
     if not slot:
         return None
-    if (slot != '2026-09-13 10' or not event.get('batch_slug') or not event.get('artifact_id')
+    slot_time = publication_slot_time(slot)
+    now = time.time() if now is None else now
+    today = time.strftime('%Y-%m-%d', time.gmtime(now + 8 * 3600))
+    if (slot_time is None or (slot[:10] != today and slot != '2026-09-13 10')
+            or not event.get('batch_slug') or not event.get('artifact_id')
             or event.get('batch_remaining') != 1):
         return 'invalid_makeup_request'
     if not re.fullmatch(r'[a-f0-9]{64}', str(event.get('expected_sha256') or '')):
         return 'invalid_makeup_checksum'
-    now = time.time() if now is None else now
-    if now < 1789264800:
+    if now < slot_time:
         return 'makeup_not_due'
-    if (st.get('makeup_receipts') or {}).get(slot) or slot_published(st, 1789264800):
+    if (st.get('makeup_receipts') or {}).get(slot) or slot_published(st, slot_time):
         return 'makeup_already_completed'
     if any(e.get('uploading') for e in _latest_dispatches(st)):
         return 'makeup_upload_unresolved'
@@ -1952,24 +1977,52 @@ def run_with_lease(kind, action):
 
 def catchup_deficit(st, now=None):
     now=time.time() if now is None else now
-    if not is_regular_publish_hour(now) or slot_published(st, now):
-        return 0
     local=time.gmtime(now+8*3600)
     today=time.strftime('%Y-%m-%d',local)
     daily=st.get('daily_publish') or {}
     count=int(daily.get('count') or 0) if daily.get('date')==today else 0
-    due=sum(h<=local.tm_hour for h in PUBLISH_HOURS)
-    return min(1,max(0,min(MAX_PUBLISH_PER_DAY,due)-count))
+    due = sum(hour <= local.tm_hour for hour in PUBLISH_HOURS)
+    return min(1, max(0, min(MAX_PUBLISH_PER_DAY, due)-count), len(due_publication_slots(st, now)))
+
+
+def inventory_catchup_request(st, payload, now=None):
+    """Select the oldest due slot with a matching, current inspected video."""
+    now = time.time() if now is None else now
+    if not catchup_deficit(st, now) or not source_inventory(st, payload)['inventory_fresh']:
+        return None
+    latest = {e['slug']: e for e in _latest_dispatches(st)}
+    for slot in due_publication_slots(st, now):
+        for record in payload.get('artifacts', []):
+            entry = latest.get(record.get('slug'))
+            if not entry or entry.get('failed') or record['slug'] in REVIEW_PAUSED_SLUGS:
+                continue
+            for part in record.get('parts', []):
+                if (part.get('status') != 'verified'
+                        or int(part.get('index', -1)) in processed_part_indices(entry)
+                        or not content_fits_slot(part, entry, publication_slot_time(slot))
+                        or daily_mix_error(part, st.get('daily_publish') or {})):
+                    continue
+                request = dict(batch_slug=record['slug'], artifact_id=record.get('artifact_id'),
+                    batch_remaining=1, makeup_slot=slot, expected_sha256=part.get('sha256'),
+                    title=part.get('title'), source_url=entry.get('source_url'))
+                if not makeup_request_error(request, st, now):
+                    return request
+    return None
 
 
 def publish_catchup(event, context=None):
     st=load_state()
     if not catchup_deficit(st):
         return {'published':0,'schedule_caught_up':1}
-    stock=source_inventory(st)
+    reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
+    stock=source_inventory(st,reserve)
     if not stock['inventory_fresh'] or stock.get('publishable_now',stock['daily_mix_usable'])<=0:
         return {'published':0,'verified_stock_empty':1}
-    return publish_handler({**event,'force_publish':True,'batch_remaining':1},context)
+    request=inventory_catchup_request(st,reserve)
+    if not request:
+        return {'published':0,'no_verified_content_for_due_slots':1}
+    log_event('catchup', '补发未完成时段 '+request['makeup_slot'], request['batch_slug'])
+    return publish_handler({**event,**request,'force_publish':True},context)
 
 
 def source_inventory(st, payload=None):
@@ -1983,6 +2036,7 @@ def source_inventory(st, payload=None):
            and payload.get('editorial_policy_version')==editorial.VERSION
            and time.time()-float(payload.get('updated_at') or 0)<3*3600)
     latest={e['slug']:e for e in _latest_dispatches(st)}
+    due_times=[publication_slot_time(slot) for slot in due_publication_slots(st)]
     live=audio=landscape=slot_ready=0
     if valid:
         for record in payload.get('artifacts',[]):
@@ -1995,7 +2049,8 @@ def source_inventory(st, payload=None):
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
                 if is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
-                if content_fits_slot(part,e) and part.get('render_mode')!='audio_card':slot_ready+=1
+                if (any(content_fits_slot(part,e,stamp) for stamp in due_times)
+                        and part.get('render_mode')!='audio_card'):slot_ready+=1
     today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
     daily=st.get('daily_publish') or {}
     if daily.get('date')!=today:daily={}
@@ -3132,7 +3187,7 @@ def publish_handler(event=None, context=None):
             continue
         if s in arts:
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
-                                                    now=1789264800 if makeup_slot else (None if batch_slug else now))
+                                                    now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now))
             if selected_part_index is None:
                 log.info('%s 已验证余量暂不符合今日形态比例，继续找真人片',s)
                 continue
@@ -3276,7 +3331,7 @@ def publish_handler(event=None, context=None):
                 {'published': 0, 'no_content_for_slot': 1}, tmp)
         k = k if k in usable else usable[0]
     part = parts[k]
-    if makeup_slot and (not content_fits_slot(part, e, 1789264800)
+    if makeup_slot and (not content_fits_slot(part, e, publication_slot_time(makeup_slot))
                         or part.get('title') != event.get('title')
                         or e.get('source_url') != event.get('source_url')):
         shutil.rmtree(tmp, ignore_errors=True)
