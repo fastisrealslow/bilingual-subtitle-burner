@@ -1,4 +1,4 @@
-name: 隔离807实际画面残留
+name: 恢复成片等待最终画面与部署核验
 on:
   push:
     branches: [main]
@@ -14,19 +14,19 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-      - name: 仅隔离有实际画面缺陷的两条成片，保留素材与回执
+      - name: 恢复成片在最终复检完成前暂缓发布
         run: |
           python - <<'PY'
           import sys,json,base64,time,subprocess
           sys.path.insert(0,'linyuan')
           from register_selection_recovery import read_state,gh,REPO,PATH
-          slug='ly-0912-5dc339-stable-crop-portrait'
+          slug='ly-0912-5dc339-stable-clean-proof-portrait'
           for attempt in range(6):
               doc,st=read_state()
               for entry in st['dispatched']:
                   if entry.get('slug')==slug:
-                      entry.update(failed=True,review_hold=True,failure_stage='visual-review',last_error='实际接触表复检发现真人窗口底部原字幕或免责声明残留，隔离此版产物，保留原母片与转写')
-              body=dict(message='fix: quarantine actual residual source text in batch 807',sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(st,ensure_ascii=False,separators=(',',':')).encode()).decode())
+                      entry.update(failed=True,review_hold=True,failure_stage='release-verification',last_error='等待实际成片画面复检及新版字幕证明校验上线，避免旧发布器误处理新产物')
+              body=dict(message='ops: hold recovered clean-proof clips until final visual and deployed-code verification',sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(st,ensure_ascii=False,separators=(',',':')).encode()).decode())
               try:
                   gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)
                   print(json.dumps(dict(held=slug,daily=st.get('daily_publish'),published=bool(st.get('published',{}).get(slug))),ensure_ascii=False))
