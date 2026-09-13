@@ -68,6 +68,18 @@ def test_jobs_and_unknown_links_are_not_ready_stock():
     assert audit['competitor_reference']['reference_only']==1
 
 
+def test_cross_platform_reencodes_are_one_reserve_before_either_is_published():
+    parts=[dict(index=i,status='verified',render_mode='live_video_card',
+        sha256='encoded-'+str(i),source_sha256='mother-'+str(i),
+        fingerprints=dict(sha256='encoded-'+str(i),
+            transcript_ngrams=[f'same-source-phrase-{n}' for n in range(12)]))
+        for i in range(2)]
+    state=dict(dispatched=[dict(slug='mother')],published={})
+    assert fc.source_inventory(state,payload(parts))['verified_live']==1
+    parts[1]['fingerprints']['transcript_ngrams']=[f'another-argument-{n}' for n in range(12)]
+    assert fc.source_inventory(state,payload(parts))['verified_live']==2
+
+
 def test_six_slots_include_several_source_families_without_losing_candidates():
     candidates=[dict(key=f'a{i}',author='same-uploader',extra=dict(collection_title='old archive',bvid='BVA'))
                 for i in range(8)]

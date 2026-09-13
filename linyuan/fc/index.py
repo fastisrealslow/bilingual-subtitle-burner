@@ -2079,7 +2079,7 @@ def source_inventory(st, payload=None):
     latest={e['slug']:e for e in _latest_dispatches(st)}
     due_times=[publication_slot_time(slot) for slot in due_publication_slots(st)]
     live=audio=landscape=slot_ready=0
-    seen_files=set();seen_sources={}
+    seen_files=set();seen_sources={};seen_fingerprints=[]
     if valid:
         for record in payload.get('artifacts',[]):
             slug=record.get('slug'); e=latest.get(slug)
@@ -2095,8 +2095,11 @@ def source_inventory(st, payload=None):
                 if digest and digest in seen_files:continue
                 previous=seen_sources.get(source,[]) if source else []
                 if any(min(b,d)-max(a,c)>.3 for a,b in spans for c,d in previous):continue
+                fingerprints=part.get('fingerprints') or {'sha256':digest}
+                if any(fingerprint_duplicate(fingerprints,old) for old in seen_fingerprints):continue
                 if digest:seen_files.add(digest)
                 if source:seen_sources.setdefault(source,[]).extend(spans)
+                seen_fingerprints.append(fingerprints)
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
                 if is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
