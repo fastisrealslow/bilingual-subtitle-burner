@@ -1,69 +1,69 @@
-# 阿里云函数计算部署指引（5 步，约 15 分钟）
+# 每天4条的部署与运维
 
-林园流水线的境内执行端：选片调度 + B站投稿。
-cookies 和 GitHub token **只存在你自己的阿里云账号**，不碰公司设备。
+FC负责境内选源调度及B站投稿，GitHub Actions负责CPU离线识别、选段、出片和库存复检。
+修改进入main后，通过FC production deploy部署到已有函数，保留函数凭据和依赖层。
 
-## 1. 开通 + 建函数
+## 发布与库存
 
-1. 登录 [函数计算控制台](https://fcnext.console.aliyun.com/)（个人账号，开通免费）
-2. 「函数」→ 创建函数：
-   - 运行时：**Python 3.10**
-   - 地域：任意（杭州/上海均可）
-   - 上传代码：把本目录 `index.py` 打成 zip 上传（或直接粘贴进在线编辑器）
-   - 执行超时时间：**1800 秒**（可容纳完整版投稿）
-   - 临时磁盘：**10 GB**（FC 只有 512 MB / 10 GB 两档；逐条用完即清理）
-
-## 2. 装依赖层（biliup）
-
-在 Mac 终端执行（注意 `--platform`，FC 是 linux x86_64，不能直接装 Mac 版）：
-
-```bash
-mkdir -p /tmp/fc-layer && cd /tmp/fc-layer
-pip3 install biliup --platform manylinux2014_x86_64 --only-binary=:all: -t python
-zip -qr layer.zip python
-```
-
-然后控制台 →「层」→ 创建层 → 上传 `layer.zip` → 回到函数 →「配置」→ 添加该层。
-
-## 3. 配环境变量
-
-函数「配置」→ 环境变量：
-
-| 变量 | 值 |
+| 项目 | 当前规则 |
 |---|---|
-| `GITHUB_TOKEN` | 你的 GitHub PAT（repo + actions 权限） |
-| `BILIBILI_COOKIES` | `cookies.json` 的**全文**（biliup login 产出的那个文件，原样粘贴） |
+| 每日发布 | 北京时间10、14、16、21点，共4条 |
+| 14点 | 合格横屏真人视频 |
+| 周日21点 | 优先完整访谈，否则合格竖屏补位 |
+| 最低要求 | 至少120秒、连续完整观点、真人动态、字幕及画面通过检查 |
+| 库存目标 | 12条不同内容的合格真人成片，其中至少2条横屏 |
+| 并行生产 | 最多6个实际运行或排队的母片任务 |
+| 定时调度 | FC每小时37分，补足库存 |
+| 抓取 | 每4小时；候选耗尽时可触发刷新，2小时冷却 |
+| 自动补发 | 成片完成后核验实际库存，补当天最早缺失且版式合适的时段 |
 
-## 4. 配两个定时触发器
+库存只计入实际MP4及字幕证据验证通过的内容。同一母片区间的横屏/竖屏版本只算一条，
+已发布片段不算库存。发布回执、文件指纹、母片区间去重、每日总量和时段占用共同防止重复投稿。
+跨天欠账不自动累加到次日配额。
 
-「触发器」→ 创建触发器 → 定时触发器：
+FC触发器使用UTC：
 
-| 名称 | Cron 表达式 | 入口 |
+| 名称 | Cron | qualifier |
 |---|---|---|
-| 每日调度 | `0 0 10 * * *` | `index.dispatch_handler` |
-| 投稿 | `0 30 * * * *` | `index.publish_handler` |
+| dispatch | `0 37 * * * *` | LATEST |
+| publish | `0 0 2,6,8,13 * * *` | LATEST |
 
-投稿触发器可以保持每小时唤醒；代码只在北京时间 9、11、13、15、18、21
-六个窗口处理普通队列。带 `batch_slug` 的专项批次不受该窗口和每日上限限制。
+以verify_production.py的线上读回结果为准，不得依据旧的3条或6条时间表手工覆盖。
 
-## 5. 手动点一次「测试」验证
+## 部署
 
-先测 `dispatch_handler`：看日志里是否出现「候选 N 条 / 已调度 ly-xxxx」。
-再测 `publish_handler`：队列里有成片时会直接投出，日志给 bvid 链接。
+已有函数在仓库Secrets中配置ALIYUN_AK、ALIYUN_SK。
+非默认杭州地域或函数名时，配置Variables FC_REGION、FC_FUNCTION_NAME。
+FC运行环境保留GITHUB_TOKEN、BILIBILI_COOKIES及biliup等依赖层。
+Actions使用仓库登录态下载素材，CPU模型不调用付费ASR或文本API。
 
----
+部署先通过真实字幕的CPU标题生成与复核、配额/去重/回执等回归，随后更新代码。
+当前函数配置为1024MB内存、0.5CPU、7200秒执行上限、10GB临时磁盘、单实例并发1。
+部署后核对代码SHA256、每日4条规则、触发器和既有修改回执。
+普通部署不额外补源；素材刷新可显式使用workflow_dispatch(refill=true)，或由库存复检触发调度。
 
-**状态存哪**：`linyuan/.automation/fc_state.json`（GitHub 仓库里），冷启动不丢进度。
+## 失败处理与验收
 
-**成本**：函数计算每月免费额度 40 万 GB·秒，这套一天跑几分钟，≈0 元。
+| 失败类型 | 处理 |
+|---|---|
+| 发布历史读取失败 | 在下载和ASR之前停止；大于1MiB时按精确blob读取并校验，禁止把空文件当无历史 |
+| 下载断流 | 在总预算内切换镜像/断点续传，保留同源检查点及完整母片缓存 |
+| 文本模型超时 | 不立即连续重发同一请求；保留ASR和已完成推理。标题仅可回退到通过校验的完整原文观点 |
+| 话题审核故障 | 单次生成完整话题图，各批候选共享；结构错误保留为运行故障，不冒充素材无合格片 |
+| 未捕获的出片错误 | 保存可重试失败报告，防止任务只显示失败却没有恢复依据 |
+| 无合格观点/画面无法清理/重复 | 拒绝该产物并换源，不降低120秒、真人或去重门槛 |
+| 新规则使旧片失效 | 按修复版本计算有限重做次数，复用同源原始ASR，保留旧证据 |
+| 投稿请求结果未知 | 查询同一个FC异步任务ID和B站回执，禁止另起上传制造重复 |
 
-## 后续代码自动部署
+验收必须同时看：
 
-函数首次建好后，只需在 GitHub 仓库的 `Settings → Secrets and variables → Actions`
-一次性添加 `ALIYUN_AK` 和 `ALIYUN_SK`。此后 `linyuan/fc/index.py` 进入 `main`
-会由 `FC production deploy` workflow 自动更新函数代码，不再手工上传 ZIP。
+1. FC production deploy线上代码和触发器核验通过。
+2. 林园素材与真实成片库存工作流的实际可用库存数量及最新验证时间。
+3. linyuan/.automation/fc_state.json中当天daily_publish.count、published_hours及各条BV回执。
+4. 投稿后的B站创作中心状态；工作流成功或派发成功本身不能证明已发布。
 
-自动部署只更新代码包，FC 中已有的 `GITHUB_TOKEN`、`BILIBILI_COOKIES`、
-依赖层、凭据和触发器都会保留；自动部署只把超时调整为 1800 秒、临时磁盘
-调整为 10 GB、单实例并发设为 1。若函数不在杭州或名称不是 `fc-develop`，
-再添加仓库 Variables：`FC_REGION`、`FC_FUNCTION_NAME`。
+2026-09-13查明的故障包括发布历史超过1MiB被读成空文件、话题图在每批重算且相互矛盾、
+长原文沿用短标题超时预算、合集子页因标题缺少姓名被误筛、旧重试次数永久耗尽、
+同内容不同版式虚增库存，以及周日完整版缺货后第四个名额无法补位。
+对应修复在publication_history.py、context_review.py、produce_cn.py、title_rewrite.py、
+source_supply.py和fc/index.py；修复提交和回归通过不等于已完成每天4条的实际发布验收。
