@@ -44,12 +44,29 @@ def avoid_overlays(box, face, width, height, exclusions):
 
 def crop_box(face, width, height, ratio=632/470, exclusions=()):
     x,y,w,h=map(float,face[:4])
-    ch=min(height, h*2.1, width/ratio)
-    cw=ch*ratio
-    left=max(0,min(width-cw,x+w/2-cw/2))
-    top=max(0,min(height-ch,y-h*.48))
-    box=tuple(int(v)//2*2 for v in (left,top,cw,ch))
-    return avoid_overlays(box,face,width,height,exclusions)
+    # The preferred half-body framing may be wider than the clean corridor
+    # between two measured corner marks. At a NEW shot choose the widest
+    # feasible crop, preserving the same face margins and pixel minimum.
+    for scale in (2.1,2.0,1.9,1.8,1.7,1.6):
+        ch=min(height,h*scale,width/ratio);cw=ch*ratio
+        if scale<2.1 and (cw<316 or ch<235):break
+        left=max(0,min(width-cw,x+w/2-cw/2))
+        top=max(0,min(height-ch,y-h*.48))
+        box=tuple(int(v)//2*2 for v in (left,top,cw,ch))
+        try:
+            return avoid_overlays(box,face,width,height,exclusions)
+        except ValueError:
+            continue
+    raise ValueError('来源角标无法避开且保留完整人脸，须换取景或素材')
+
+
+def shot_crop(framing,face,width,height,n,exclusions=()):
+    # Run 801 failed on a larger jittered proposal before StableFraming could
+    # reuse its valid locked crop. Reframe only at a source camera cut; keep
+    # scale fixed throughout the shot and still check all measured overlays.
+    proposed=(crop_box(face,width,height,exclusions=exclusions)
+              if framing.box is None or framing.pending_cut else framing.box)
+    return framing.update(proposed,face,width,height,n,exclusions=exclusions)
 
 
 def complete_face(face, width, height):
@@ -183,9 +200,9 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                         if other_score>=threshold:other_candidates.append((other_score,face))
                 if candidates:
                     score,face,primary=max(candidates,key=lambda row:row[0])
-                    box=crop_box(face,width,height,exclusions=source_exclusions);matched+=1;missing=0;blank_streak=0
+                    matched+=1;missing=0;blank_streak=0
                     last_target_time=(first_frame+n)/fps
-                    box=framing.update(box,face,width,height,n,exclusions=source_exclusions)
+                    box=shot_crop(framing,face,width,height,n,source_exclusions)
                     previous=box
                     role='guest';context_frames+=1
                     if primary>=threshold+.03:target_times.append((n+.5)/fps)
@@ -203,8 +220,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                         # aggregate 80% and final independent 5/6 gates still apply.
                         face=(max(other_candidates,key=lambda x:x[0])[1] if context_crop is not None
                               else max(detected,key=lambda f:float(f[2]*f[3])))
-                        box=crop_box(face,width,height,exclusions=source_exclusions)
-                        box=framing.update(box,face,width,height,n,exclusions=source_exclusions);previous=box
+                        box=shot_crop(framing,face,width,height,n,source_exclusions);previous=box
                         other_faces+=1;blank_streak=0
                         role='participant';context_frames+=1
                     else:

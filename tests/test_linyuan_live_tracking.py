@@ -5,6 +5,25 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from live_tracking import crop_box,complete_face
 
 
+def test_actual_801_frame_keeps_valid_shot_scale_and_new_cut_fits_between_marks():
+    import json
+    from live_tracking import shot_crop
+    from stable_framing import StableFraming
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_801_crop.json').read_text())
+    for i,row in enumerate(data['frames']):
+        framing=StableFraming(30)
+        framing.box=tuple(row['last']);framing.pending_cut=bool(i)
+        box=shot_crop(framing,row['face'],data['width'],data['height'],0,row['marks'])
+        x,y,w,h=box;fx,fy,fw,fh=row['face']
+        assert w>=316 and h>=235
+        assert x+8<=fx and fx+fw<=x+w-8
+        assert y+fh*.22<=fy and fy+fh<=y+h-2
+        assert all(not(x<c*1920 and x+w>a*1920 and y<d*1080 and y+h>b*1080)
+                   for a,b,c,d in row['marks'])
+        if i==0:assert box==tuple(row['last'])
+        else:assert box[2]<1264  # Original 2.1x crop cannot fit the clean corridor.
+
+
 def test_right_corner_mark_moves_crop_sideways_without_cutting_head():
     from live_tracking import avoid_overlays
     face=(730,140,350,360)

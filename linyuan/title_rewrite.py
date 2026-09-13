@@ -193,6 +193,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
+先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
+嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
 先读完全部字幕，在focus.claim用一句完整的话写出嘉宾的核心判断、做法及限定条件，
 用focus.evidence_ids选1~4组支撑它的原文编号。不要把主持人的猜测或一处举例当成中心观点。
 再为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
@@ -229,12 +231,12 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
             if len({compact(c['title']) for c in valid})!=3:
                 raise ValueError('三个标题必须有不同看点，不能重复同一句话')
-            judge = f'''独立核对这些视频标题与完整字幕，只评价标题和封面，不重做选段或字幕审核。
-先在reason用一句话指出原文实际表达的意思及标题是否增加结论，再给判定。不能空填全部true。
+            judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。
+先在reason引用本候选实际出现的短语，与原文中对应的回答比较，再给判定。不得指出候选没有写过的词，不能空填全部true。
+区分主持人提问中的猜测和嘉宾明确给出的回答，标题不能把前者归为嘉宾观点。
 不合格时说明原文实际的做法或判断，再指出标题偏差，供下一轮修正中心观点和措辞。
-严格寻找标题/封面新增的比较、因果、收益和安全性判断：控制仓位不等于“更安全”，
-看好某行业不等于“必然上涨”；原文没有明确支持的新增判断必须source_supported=false。
-“没有预期的好但没那么坏”不等于“复苏稳健”；“行业还没有龙头”不等于“未出龙头的公司”。
+严格寻找实际标题/封面新增的比较、因果、收益和安全性判断。只有候选确实写出了新增判断，才能以此判source_supported=false。
+保留原文中的否定、程度、转折和不确定性，不把有限的肯定扩大成整体乐观，不改变讨论对象间的关系。
 拗口的术语堆砌、主体关系错误、把有限的肯定扩大成整体乐观，分别判readable、source_supported、preserves_qualifiers=false。
 逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；
 attribution_correct没有把主持人的猜测归为嘉宾断言；preserves_qualifiers保留条件否定和不确定性；
