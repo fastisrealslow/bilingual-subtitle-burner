@@ -4675,13 +4675,20 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 
-    # 标题与封面共用原文证据，但封面使用独立的完整短句。
-    cw = copywrite(
-        cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
-        existing_titles=existing_titles,
-        require_quote=(pick_cache_suffix != "_full"),
-        reviewed_title=picks[0].get('editorial_title'),
-        reviewed_cover=picks[0].get('editorial_cover'))
+    # Reject unusable source pictures before spending the CPU title budget.
+    # Failed 805/818/p9 sources previously generated copy before their crop,
+    # face or source-overlay checks could reject them.
+    cw = None
+    def get_copy():
+        nonlocal cw
+        if cw is None:
+            cw = copywrite(
+                cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
+                existing_titles=existing_titles,
+                require_quote=(pick_cache_suffix != "_full"),
+                reviewed_title=picks[0].get('editorial_title'),
+                reviewed_cover=picks[0].get('editorial_cover'))
+        return cw
 
     # A static screen portrait may match identity better than the tiny live
     # presenter. Preserve the real stage instead of forcing a close-up.
@@ -4690,6 +4697,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         a=cues[picks[0]['start']]['start'];b=cues[picks[0]['end']]['end']
         stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker)
         if stage:
+            cw = get_copy()
             rows=[dict(start_sec=cues[i]['start']-a,end_sec=cues[i]['end']-a,zh=cues[i]['text']) for i in sel]
             result=stage_context.render(src,a,b-a,out,work,rows,cw,source_report or {'source_sha256':_sha256_file(src)},stage,suffix,producer=sys.modules[__name__])
             result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION)
@@ -4760,6 +4768,34 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if strategy == "audio_card" and prefer_live_video and not use_live_video:
         print("[自动版式] 原画无法安全清理，使用已核验人物资料卡兜底")
 
+    # Keep the actual verified moving windows. They are reused below, so a
+    # successful source is not decoded/tracked twice and a failed one makes
+    # no title or semantic-caption model request.
+    prepared_live = {}
+    if use_live_video:
+        for n, pick in enumerate(picks, 1):
+            s0 = cues[pick['start']]['start']
+            seg_dur = cues[pick['end']]['end'] - s0
+            # Fixed crops become empty when the source switches cameras.
+            # Track identity in the selected interval before composing the card.
+            from live_tracking import render_tracked
+            tracked=work/f'tracked{suffix}{n}.mp4'
+            source_marks=selected_segment_exclusions(src,s0,seg_dur,
+                work/f'source-corners{suffix}{n}',source_report.get('detected_corner_logos') or ())
+            tracking=render_tracked(src,s0,seg_dur,tracked,
+                _download_speaker_reference(speaker,work),_local_face_models(),
+                LOCAL_FACE_COSINE_THRESHOLD,
+                exclusions=source_marks,
+                overlay_probe=lambda frame,index:selected_frame_logos(
+                    frame,work/f'source-corners{suffix}{n}',index),
+                context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
+                participant_reference=participant_reference,
+                reference_samples=[work/f'identity_{i}.jpg' for i in
+                    (source_report.get('visual_identity') or {}).get('same_person_frames',[])
+                    if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
+            prepared_live[n] = (tracked, tracking)
+    cw = get_copy()
+
     brand = brand_watermark_path()
     audio_card = None
     audio_card_portrait = None
@@ -4806,23 +4842,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             if use_live_video:
                 # 只允许横屏源进入动态窗口；按窗口宽高比实裁并精确缩放，
                 # 不使用 pad，因而不会产生右侧黑块。
-                # Fixed crops become empty when the source switches cameras.
-                # Track identity in the selected interval before composing the card.
-                from live_tracking import render_tracked
-                tracked=work/f'tracked{suffix}{n}.mp4'
-                source_marks=selected_segment_exclusions(src,s0,seg_dur,
-                    work/f'source-corners{suffix}{n}',source_report.get('detected_corner_logos') or ())
-                tracking=render_tracked(src,s0,seg_dur,tracked,
-                    _download_speaker_reference(speaker,work),_local_face_models(),
-                    LOCAL_FACE_COSINE_THRESHOLD,
-                    exclusions=source_marks,
-                    overlay_probe=lambda frame,index:selected_frame_logos(
-                        frame,work/f'source-corners{suffix}{n}',index),
-                    context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
-                    participant_reference=participant_reference,
-                    reference_samples=[work/f'identity_{i}.jpg' for i in
-                        (source_report.get('visual_identity') or {}).get('same_person_frames',[])
-                        if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
+                tracked, tracking = prepared_live[n]
                 framing_proofs.append(tracking['framing'])
                 if interview_plan:
                     from interview_graphics import clean_interview_graphics
