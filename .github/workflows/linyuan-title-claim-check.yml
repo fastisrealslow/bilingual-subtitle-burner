@@ -20,9 +20,6 @@ name: 标题观点 CPU 实测
 permissions:
   contents: read
   actions: read # TITLE_REUSE_GUARD
-concurrency:
-  group: title-claim-check-${{ inputs.local_text_model || 'qwen3:8b' }}
-  cancel-in-progress: true
 env:
   RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   TEXT_BACKEND: local

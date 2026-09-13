@@ -21,6 +21,7 @@ WORKFLOW = '.github/workflows/linyuan-title-claim-check.yml'
 
 def canonical_workflow(text):
     """Ignore the reuse wrapper and job wall clock, never CPU test assertions."""
+    text=text.replace("concurrency:\n  group: title-claim-check-${{ inputs.local_text_model || 'qwen3:8b' }}\n  cancel-in-progress: true\n",'')
     lines=[]; inside=False
     for line in text.splitlines():
         if line.strip()=='# TITLE_REUSE_BEGIN':

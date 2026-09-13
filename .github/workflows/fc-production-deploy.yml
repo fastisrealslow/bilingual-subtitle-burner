@@ -47,10 +47,6 @@ permissions:
   contents: read
   actions: read
 
-concurrency:
-  group: fc-production-deploy
-  cancel-in-progress: false
-
 jobs:
   editorial-check:
     uses: ./.github/workflows/linyuan-title-claim-check.yml
@@ -58,6 +54,9 @@ jobs:
       resume_run_id: '34760249532'
   deploy:
     needs: editorial-check
+    concurrency:
+      group: fc-production-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:

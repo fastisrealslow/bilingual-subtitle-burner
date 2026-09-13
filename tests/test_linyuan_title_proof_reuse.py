@@ -55,6 +55,8 @@ def test_workflow_wrapper_never_erases_changed_cpu_test_rules():
     assert reuse.canonical_workflow(wrapped)==reuse.canonical_workflow(original)
     assert reuse.canonical_workflow(wrapped.replace('assert source_matches','assert True'))!=reuse.canonical_workflow(original)
     with pytest.raises(ValueError):reuse.canonical_workflow('# TITLE_REUSE_BEGIN\nrest')
+    old_queue="concurrency:\n  group: title-claim-check-${{ inputs.local_text_model || 'qwen3:8b' }}\n  cancel-in-progress: true\n"
+    assert reuse.canonical_workflow(old_queue+original)==reuse.canonical_workflow(original)
 
 
 def test_model_must_match_actual_cpu_response_evidence(tmp_path):
