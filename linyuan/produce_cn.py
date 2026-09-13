@@ -1528,9 +1528,12 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     topic_evidence=[]
     for offset in range(0,len(choices),review.BATCH_SIZE):
         batch=choices[offset:offset+review.BATCH_SIZE]
-        answer=llm([{'role':'user','content':review.prompt(transcript,batch,speaker)}],
+        topic_prompt = (review.prompt(transcript,batch,speaker)
+                        + '\n可用完整句起点start：' + json.dumps(review.sentence_starts(cues))
+                        + '。只能从这些起点中选择；第一项必须为0，之后严格递增。')
+        answer=llm([{'role':'user','content':topic_prompt}],
                    api_key,temperature=0,max_tokens=1800,budget_sec=text_budget(240),
-                   response_schema=review.schema(batch,len(cues)))
+                   response_schema=review.schema(batch,len(cues),cues))
         (work/f'context_response{suffix}-{offset}.txt').write_text(answer)
         try:
             effective,topics,raw_verdicts=review.parse(answer,batch,cues)

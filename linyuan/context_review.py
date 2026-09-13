@@ -14,10 +14,19 @@ REJECT = {
 }
 
 
-def schema(choices, cue_count):
+def sentence_starts(cues):
+    """Use the same exact cue boundaries for model decoding and validation."""
+    import re
+    return [0] + [i+1 for i, cue in enumerate(cues[:-1])
+                  if re.search(r'[。！？!?][”’」』\"]?\s*$', cue['text'])]
+
+
+def schema(choices, cue_count, cues=None):
     fields = {str(c['candidate_id']): {'type': 'string', 'enum': list(ACCEPT)+list(REJECT)}
               for c in choices}
-    topic_fields={'start':{'type':'integer','minimum':0,'maximum':cue_count-1},
+    start_rule = ({'type':'integer','enum':sentence_starts(cues)} if cues is not None
+                  else {'type':'integer','minimum':0,'maximum':cue_count-1})
+    topic_fields={'start':start_rule,
                   'topic':{'type':'string','minLength':1,'maxLength':50}}
     return {'type': 'object', 'properties': {
         'topics':{'type':'array','minItems':1,'maxItems':cue_count,'items':{
@@ -62,18 +71,14 @@ def parse(answer, choices, cues):
     topics=data['topics']
     if not isinstance(topics,list) or not topics:
         raise ValueError('话题划分为空，不能判定素材不合格')
-    import re
-    # Use complete source sentences, including an unfinished final source row;
-    # coverage alone never declares such a row a valid clip ending.
-    ends={i for i,c in enumerate(cues) if re.search(r'[。！？!?][”’」』\"]?\s*$',c['text'])}
-    ends.add(len(cues)-1)
+    allowed_starts=set(sentence_starts(cues))
     starts=[]
     for topic in topics:
         if (not isinstance(topic,dict) or set(topic)!={'start','topic'}
                 or type(topic['start']) is not int or not 0<=topic['start']<len(cues)
                 or (not starts and topic['start']!=0)
                 or (starts and topic['start']<=starts[-1])
-                or (topic['start'] and topic['start']-1 not in ends)
+                or topic['start'] not in allowed_starts
                 or not isinstance(topic['topic'],str) or not topic['topic'].strip()):
             raise ValueError('话题起点不连续、重复或切断原句')
         starts.append(topic['start'])

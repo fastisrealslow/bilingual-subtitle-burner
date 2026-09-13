@@ -85,6 +85,29 @@ def test_topic_ends_are_derived_so_tail_cannot_be_omitted():
     assert [(t['start'],t['end']) for t in topics]==[(0,26),(27,61)]
 
 
+def test_model_can_only_emit_the_sentence_starts_that_the_parser_accepts():
+    starts=r.schema(DATA['choices'],len(DATA['cues']),DATA['cues'])['properties']['topics']['items']['properties']['start']['enum']
+    assert 0 in starts and 27 in starts and 26 not in starts
+    verdicts={str(i):'accept_7' for i in range(39)}
+    for start in starts:
+        topics=[dict(start=0,topic='首个完整话题')]
+        if start: topics.append(dict(start=start,topic='下一完整话题'))
+        r.parse(json.dumps(dict(topics=topics,verdicts=verdicts)),DATA['choices'],DATA['cues'])
+
+
+def test_actual_selection_call_constrains_topic_boundaries(monkeypatch,tmp_path):
+    monkeypatch.setattr(r,'reviewed_topics',lambda cues:None)
+    monkeypatch.setattr(p,'argument_context_candidates',lambda *a:DATA['choices'])
+    def model(messages,*args,**kwargs):
+        rule=kwargs['response_schema']['properties']['topics']['items']['properties']['start']
+        assert rule['enum']==r.sentence_starts(DATA['cues'])
+        assert '可用完整句起点start' in messages[0]['content']
+        return json.dumps(dict(topics=[dict(start=0,topic='首个话题'),dict(start=27,topic='套利问题')],
+                               verdicts={str(i):'accept_10' for i in range(39)}))
+    monkeypatch.setattr(p,'llm',model)
+    assert p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')==[]
+
+
 def test_reviewed_715_blocks_mixed_ranges_without_model_call(monkeypatch,tmp_path):
     monkeypatch.setattr(p,'argument_context_candidates',lambda *a:DATA['choices'])
     def no_model(*a,**kw):raise AssertionError('Known mixed-topic candidates must not call the model')
