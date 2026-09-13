@@ -18,10 +18,10 @@ jobs:
           python - <<'PY'
           import json,os,subprocess
           repo=os.environ['GITHUB_REPOSITORY']
-          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34760699615']))
-          assert old['head_sha']=='7425786a2f4f4010a709f9fc6562b4daa3f0840b' and old['path']=='.github/workflows/fc-production-deploy.yml'
-          new=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34762401393']))
-          assert new['head_sha']=='3f5e9177c9b11101e22a7a719207df8d6b3df98d'
+          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34762661471']))
+          assert old['head_sha']=='d8739c581b433154afc5d7519fc78ff9410973b7' and old['path']=='.github/workflows/fc-production-deploy.yml'
+          new=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34763327956']))
+          assert new['head_sha']=='f58a085b7a7728447f892711aa8902a07baceecb'
           if old['status']!='completed':
               subprocess.run(['gh','run','cancel',str(old['id']),'--repo',repo],check=True)
           print('旧版本已结束或已请求取消；新修复保持完整校验')
