@@ -119,10 +119,14 @@ def test_623_cover_checks_word_layout_not_just_18_character_count():
 
 
 def test_cached_copy_gets_current_cover_layout_without_model(tmp_path,monkeypatch):
+    import title_rewrite as title_editor
     cues=[dict(text='我们长期持有优秀企业。',start=0,end=5)]
     title='林园：我们长期持有优秀企业'
     cache=dict(title=title,cover_title='片仔癀又呃这个系列产品，他又搞了很多',
-        copy_identity=dict(version=7,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
+        copy_identity=dict(version=8,transcript_sha256=P.editorial.text_digest(cues[0]['text']),
+            title_editor_sha256=P._sha256_file(Path(title_editor.__file__)),
+            text_backend=P.TEXT_BACKEND,
+            text_model=P.LOCAL_LLM_MODEL if P.TEXT_BACKEND=='local' else list(P.MODELS),
             speaker='林园',occasion='访谈',reviewed_title=None))
     (tmp_path/'copywrite.json').write_text(P.json.dumps(cache,ensure_ascii=False))
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Valid title should be reused'))
