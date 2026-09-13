@@ -21,8 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: 停止同源旧取景版本，保留母片与转写检查点
-        run: gh run cancel 34758065381 --repo "$GITHUB_REPOSITORY" || true
+      - name: 归还恢复任务登记期间被自动补源抢占的第七个名额
+        run: gh run cancel 34759030883 --repo "$GITHUB_REPOSITORY" || true
       - name: 等待一个生产名额
         run: |
           python - <<'PY'
