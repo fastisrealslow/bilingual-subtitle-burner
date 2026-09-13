@@ -58,7 +58,7 @@ def subject_catalog(units):
             for word, _ in counts.most_common(48)}
 
 
-def proposal_schema(unit_count, subjects=None):
+def proposal_schema(unit_count, subjects=None, guest_ids=None):
     # Resolve the speakers' meaning before selecting evidence IDs or writing
     # attractive copy. Runs 145/147 otherwise anchored on a host's hypothesis
     # and repeated it in all three drafts despite accurate rejection feedback.
@@ -78,11 +78,43 @@ def proposal_schema(unit_count, subjects=None):
     # The local grammar padded minimum-length strings with spaces/newlines.
     # Check meaningful characters in Python and feed back the exact problem.
     copies=dict(title=dict(type='string'),cover_title=dict(type='string'))
-    return dict(type='object', additionalProperties=False, required=['a_reading','b_focus','c_candidates'], properties={
+    schema=dict(type='object', additionalProperties=False, required=['a_reading','b_focus','c_candidates'], properties={
         'a_reading':dict(type='object',additionalProperties=False,required=list(reading),properties=reading),
         'b_focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
         'c_candidates':dict(type='array', minItems=3, maxItems=3,
             items=dict(type='object', additionalProperties=False, required=list(copies), properties=copies))})
+    if guest_ids is not None:
+        schema['required'].remove('a_reading');schema['properties'].pop('a_reading')
+        fields['b_evidence_ids']['items']=dict(type='integer',enum=list(guest_ids))
+    return schema
+
+
+def reading_schema(unit_count):
+    turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
+              b_role=dict(type='string',enum=['host','guest','unknown']))
+    fields=dict(a_turn_starts=dict(type='array',minItems=1,maxItems=unit_count,
+        items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)),
+        b_question_premise=dict(type='string'),c_guest_answer=dict(type='string'))
+    return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
+
+
+def bind_reading(reading, units):
+    if (not isinstance(reading,dict)
+            or len(compact(reading.get('c_guest_answer')))<12
+            or len(compact(reading.get('b_question_premise')))<4):
+        raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
+    starts=reading.get('a_turn_starts')
+    if not isinstance(starts,list) or not starts:
+        raise ValueError('先标出真实说话人切换的位置')
+    turns=[]
+    for i,row in enumerate(starts):
+        if not isinstance(row,dict):raise ValueError('说话人切换格式无效')
+        start=row.get('a_start')
+        end=starts[i+1].get('a_start') if i+1<len(starts) and isinstance(starts[i+1],dict) else len(units)
+        if type(start) is not int or type(end) is not int:
+            raise ValueError('说话人切换编号必须是整数')
+        turns.append(dict(a_start=start,b_end=end-1,c_role=row.get('b_role')))
+    return bind_turns(turns,units)
 
 
 def review_schema(candidate_count):
@@ -225,20 +257,26 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
+    reader_prompt=f'''只做访谈原文阅读，不拟标题，不比较吸引力。主讲嘉宾是{speaker}。
+先通读全部字幕，找主持人的完整问题和嘉宾实际回复。主持人提问前的背景、假设、举例仍属于主持人；嘉宾短答不等于确认问题全部前提。
+同一人的连续讲话是一个轮次，不能因为换了一条字幕或出现问号就换说话人。字幕标点可能不准，必须连贯理解上下文。
+在a_turn_starts只写真正换说话人的起始编号：从0开始，严格递增；a_start是这一轮开始的字幕编号，b_role是host、guest或unknown。
+下一轮开始前的字幕自动全部属于当前轮次，最后一轮持续到全文末尾；不要计算结束编号，不要逐句交替标host和guest。
+“您觉得”“你怎么看”通常是主持人的提问；“我听懂了”“我来总结”通常是主持人复述，不能当嘉宾原话。
+再用b_question_premise概括主持人问题和未确认假设，用c_guest_answer概括嘉宾明确回答的主要判断及限定条件。
+没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
+按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
+    reading=None;roles=None
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
-先完成a_reading.a_turns：按原始字幕编号逐段标出连续的问答轮次，a_start、b_end是含首尾的编号，c_role是host、guest或unknown。
-必须覆盖所有字幕且不重叠。主持人长段提问一直持续到真正回答开始，不能把问题前半段的背景或假设错标为回答。
-“您觉得”“你怎么看”属于提问，“我听懂了”“我来总结”属于主持人复述；嘉宾短答也不能默认认可提问中全部前提。
-再写b_question_premise和c_guest_answer，分别概括主持人问题与嘉宾亲口回答，没有主持人时写“无主持人提问”。
-此时还不写标题。只能根据guest轮次选择中心观点，不能按主持人的发言长度或关键词次数定中心。
+问答轮次已由单独的原文阅读步骤划分，不能为了写标题而改动说话人。只能根据列出的嘉宾原话选择中心观点。
 再在b_focus.a_claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
 用b_focus.b_evidence_ids选1~4条支撑它的guest原文编号；不能选host或unknown。不要把主持人的猜测或一处举例当成中心观点。
 最后在c_candidates为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
-每条标题必须明确说出讨论对象，并包含至少一个原文对象词：{json.dumps(list(subjects), ensure_ascii=False) if subjects else '用原文中的讨论对象'}。
+每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。
 用日常说话的完整句子。禁止“谈A、B与C”等关键词目录，禁止术语堆砌、换行、空格和无意义尾巴凑字数。
 例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”
@@ -253,8 +291,21 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             # and the same host hypothesis returned in every round.
             retry_note = (f'第{attempt + 1}轮重新阅读；以下是已退回的错误稿，不能当作原文事实：'
                           + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
-            proposal = _json(call(retry_note + prompt,
-                                  proposal_schema(len(units), subjects)))
+            if structured_model and reading is None:
+                proposed_reading=_json(call(retry_note+reader_prompt,reading_schema(len(units))))
+                roles=bind_reading(proposed_reading,units)
+                reading=proposed_reading
+            guest_ids=[i for i,role in enumerate(roles or []) if role=='guest']
+            if structured_model:
+                subjects={word:[i for i in ids if i in guest_ids] for word,ids in subject_catalog(units).items()}
+                subjects={word:ids for word,ids in subjects.items() if ids}
+            draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
+            if structured_model:
+                draft_prompt+='\n已单独读清的嘉宾回答：'+reading['c_guest_answer']
+                draft_prompt+='\n主持人问题背景（不可当作嘉宾判断）：'+reading['b_question_premise']
+                draft_prompt+='\n唯一可选的嘉宾原话及原始编号：'+json.dumps({i:units[i] for i in guest_ids},ensure_ascii=False)
+            proposal = _json(call(retry_note + draft_prompt,
+                                  proposal_schema(len(units), subjects,guest_ids if structured_model else None)))
             candidates = proposal.get('c_candidates' if structured_model else 'candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:
                 raise ValueError('必须提供三个不同角度的候选标题')
@@ -262,14 +313,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if structured_model:
                 raw_focus=proposal.get('b_focus') or {}
                 focus=dict(claim=raw_focus.get('a_claim'),evidence_ids=raw_focus.get('b_evidence_ids'))
-                reading=proposal.get('a_reading') or {}
-                if (not isinstance(reading,dict)
-                        or len(compact(reading.get('c_guest_answer')))<12
-                        or len(compact(reading.get('b_question_premise')))<4):
-                    raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
                 if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
                     raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
-                roles=bind_turns(reading.get('a_turns'),units)
                 focus_ids=focus.get('evidence_ids') or []
                 if any(type(i) is not int or not 0<=i<len(units) or roles[i]!='guest' for i in focus_ids):
                     raise ValueError('标题证据选中了主持人提问或未知归属，必须回到嘉宾实际回答重写')
@@ -326,6 +371,8 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
                         and type(row.get('appeal')) is int and 3 <= row['appeal'] <= 5):
                     accepted.append(row)
             if not accepted:
+                if structured_model and any(row.get('attribution_correct') is not True for row in reviews if isinstance(row,dict)):
+                    reading=None
                 feedback=[]
                 for row in reviews:
                     if not isinstance(row,dict):continue
