@@ -64,6 +64,20 @@ def test_candidate_must_carry_complete_evidence_and_no_new_numbers():
     assert T._candidate_error({**item,'title':'林园：龙头形成前布局小公司更安全'},TEXT,'林园',())
 
 
+def test_actual_165_guest_negation_cannot_be_reversed_even_by_positive_cpu_review():
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_0913_title.json').read_text())
+    cues=fixture['cues'];source=''.join(c['text'] for c in cues)
+    item=dict(title='林园：行业变化时要选龙头，比例控制是关键',cover_title='行业变化时选龙头',
+              subject='比例控制',evidence=[cues[i]['text'] for i in (9,10,20,28)])
+    package=T._package(item,source,dict(method='cpu_text_review',appeal=5,
+        reason='实际165模型误判通过；真实原文说没有龙头，与该标题相反',
+        **{k:True for k in T.CHECKS}),[item]*3)
+    assert '反转' in T.error(package['title'],package['title_rewrite'],source)
+    for title,cover in [('林园：龙头未定，先配置可能成为龙头的公司','龙头未定，如何配置公司'),
+                        ('林园：行业变化时买没有龙头的公司','龙头尚未形成时如何买入')]:
+        assert T.relation_error(title,cover,source) is None
+
+
 def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
     calls=[]
     good=model(calls)

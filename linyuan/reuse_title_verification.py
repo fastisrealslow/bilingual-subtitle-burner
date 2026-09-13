@@ -25,11 +25,13 @@ def validate_guest_fixture(row,root=Path('.')):
             'linyuan_0913_landscape_title.json':[(8,18),(27,31),(46,49)]}
     name=row['fixture']
     cues=json.loads((root/'tests/fixtures'/name).read_text())['cues']
-    from title_rewrite import compact
+    from title_rewrite import compact,relation_error
     guest=[''.join(compact(cues[i]['text']) for i in range(a,b+1)) for a,b in ranges[name]]
     evidence=(row.get('title_rewrite') or {}).get('evidence') or []
     if not evidence or any(not any(compact(q) in block for block in guest) for q in evidence):
         raise ValueError('Known host/unknown lines were used as guest evidence')
+    issue=relation_error(row.get('title',''),row.get('cover_title',''),''.join(guest))
+    if issue:raise ValueError('Known guest negation was reversed: '+issue)
 
 
 def canonical_workflow(text):

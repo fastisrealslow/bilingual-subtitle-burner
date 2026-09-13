@@ -187,6 +187,19 @@ def bind_candidate(item, focus, units, subjects):
     return bound
 
 
+def relation_error(title, cover, source):
+    # The real 165 CPU review approved the opposite of "没有龙头" even
+    # with correctly attributed guest evidence. Preserve this explicit phase
+    # distinction; an already chosen leader is not an emerging future leader.
+    body=compact(source)
+    if re.search(r'没有龙头|龙头还?没(?:有)?(?:走|跑|分)出来|尚未.{0,4}龙头',body):
+        qualifier=r'没有|还没|尚未|未定|未出|未来|以后|最终|最后|真正|成为|成长|形成|走出|跑出|分出|等|可能'
+        for candidate in (title,cover):
+            if '龙头' in candidate and not re.search(qualifier,candidate):
+                return '原文龙头尚未形成，标题不能反转成选择现成龙头；须保留原有阶段和限定'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -217,6 +230,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
                  '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益',
                  '粘性强','粘性更强','黏性强','黏性更强')
     stated=compact(''.join(evidence))
+    relation_issue=relation_error(title,cover,transcript)
+    if relation_issue:return relation_issue
     if any(term in compact(title+cover) and term not in stated for term in risk_claims):
         return '标题新增了所选嘉宾原文没有的比较或经营判断'
     subject = item.get('subject')
@@ -352,6 +367,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 blocked=explicit_host_cues(units)
                 draft_source={i:u for i,u in enumerate(units) if roles[i]=='guest' and i not in blocked}
                 source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
+                if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):
+                    source_heading+='原文明确说龙头尚未形成。写到龙头时，标题与封面必须保留“没有、尚未、未来、可能成为”等原有阶段；不能写成选定现成龙头，不能只添加限定词却保留相反做法。\n'
                 draft_retry=(f'第{attempt+1}轮重新拟稿；上轮未通过原文或文案检查。只从下方嘉宾原话重新提炼判断，不延续上轮措辞。\n' if last_error else '')
             else:
                 draft_source=dict(enumerate(units))

@@ -65,6 +65,12 @@ def test_real_163_trend_adjustment_question_cannot_supply_guest_evidence():
     with pytest.raises(ValueError,match='host/unknown'):reuse.validate_guest_fixture(row,ROOT)
 
 
+def test_real_165_guest_evidence_does_not_authorize_reversed_conclusion():
+    row=fixture_rows()[0]
+    row.update(title='林园：行业变化时要选龙头，比例控制是关键',cover_title='行业变化时选龙头')
+    with pytest.raises(ValueError,match='negation was reversed'):reuse.validate_guest_fixture(row,ROOT)
+
+
 def test_workflow_wrapper_never_erases_changed_cpu_test_rules():
     original='jobs:\n  check:\n    run: assert source_matches\n'
     wrapped='actions: read # TITLE_REUSE_GUARD\n# TITLE_REUSE_BEGIN\ncache_wrapper\n# TITLE_REUSE_END\n'+original
