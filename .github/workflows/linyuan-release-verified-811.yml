@@ -15,14 +15,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34760249532
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34762401393
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      VERIFIED_DEPLOY_RUN: '34760249532'
-      VERIFIED_DEPLOY_HEAD: '8fdd82f18ecf8d729f2091700adf5adf1e0ab089'
+      VERIFIED_DEPLOY_RUN: '34762401393'
+      VERIFIED_DEPLOY_HEAD: '3f5e9177c9b11101e22a7a719207df8d6b3df98d'
       SLUG: ly-0912-5dc339-stable-clean-proof-portrait
     steps:
       - uses: actions/checkout@v4
