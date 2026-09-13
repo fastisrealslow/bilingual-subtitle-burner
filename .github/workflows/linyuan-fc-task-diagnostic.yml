@@ -1,0 +1,37 @@
+name: 林园FC任务失败原因核验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-fc-task-diagnostic.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 只读查询失败任务和错误
+        run: |
+          python - <<'PY'
+          import os,json
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          task=client.get_async_task_with_options(os.environ['FC_FUNCTION_NAME'],'ly-stock-dispatch-source-inventory-34756314331',m.GetAsyncTaskRequest(qualifier='LATEST'),{},util.RuntimeOptions(connect_timeout=10000,read_timeout=60000)).body
+          data=task.to_map()
+          # Input here is only a trigger name. Omit it and identifiers unrelated to the error.
+          for key in ('payload','Payload','resourceArn','ResourceArn'):data.pop(key,None)
+          print(json.dumps(data,ensure_ascii=False,indent=2))
+          PY
