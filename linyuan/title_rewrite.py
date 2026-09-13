@@ -59,8 +59,13 @@ def subject_catalog(units):
 
 
 def proposal_schema(unit_count, subjects=None):
-    # Evidence comes first in the decoding grammar, before any proposed wording.
+    # Resolve the speakers' meaning before selecting evidence IDs or writing
+    # attractive copy. Runs 145/147 otherwise anchored on a host's hypothesis
+    # and repeated it in all three drafts despite accurate rejection feedback.
     fields = {}
+    reading = dict(guest_answer=dict(type='string'),question_premise=dict(type='string'))
+    fields['source_reading'] = dict(type='object',additionalProperties=False,
+        required=list(reading),properties=reading)
     fields['evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
     fields['claim'] = dict(type='string')
@@ -195,7 +200,9 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
-先读完全部字幕，在focus.claim用一句完整的话写出嘉宾的核心判断、做法及限定条件，
+先完成focus.source_reading：guest_answer只概括嘉宾亲口给出的观察、判断和限定条件；
+question_premise只概括主持人的问题和假设，没有主持人时写“无主持人提问”。这一步不写标题，也不根据某个词出现次数定中心。
+再在focus.claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
 用focus.evidence_ids选1~4组支撑它的原文编号。不要把主持人的猜测或一处举例当成中心观点。
 再为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
@@ -218,6 +225,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             # A structured production call never accepts model-authored evidence.
             if structured_model:
                 focus=proposal.get('focus') or {}
+                reading=focus.get('source_reading') or {}
+                if (not isinstance(reading,dict)
+                        or len(compact(reading.get('guest_answer')))<12
+                        or len(compact(reading.get('question_premise')))<4):
+                    raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
                 if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
                     raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
                 candidates = [bind_candidate(c,focus,units,subjects) for c in candidates]
@@ -244,7 +256,9 @@ cover_consistent封面和标题同一观点且没有更强断言；readable自�
 appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
 返回JSON：{{"reviews":[{{"reason":"指出原文依据或新增判断，至少12字","index":0,"source_supported":true,"central_point":true,
 "attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4}}]}}
-候选：{json.dumps([dict(title=c['title'],cover_title=c['cover_title']) for c in valid], ensure_ascii=False)}\n完整字幕：{transcript}'''
+候选及从原文直接取回的依据：{json.dumps([dict(title=c['title'],cover_title=c['cover_title'],evidence=c['evidence']) for c in valid], ensure_ascii=False)}
+原文编号只帮助定位，依据中也可能含主持人的问题，必须与上下文分清说话人。若嘉宾确实说出了某个判断，不能仅因主持人也提到它就判归属错误。
+完整字幕：{transcript}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
             accepted = []
             for row in reviews:

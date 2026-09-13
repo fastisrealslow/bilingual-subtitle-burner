@@ -114,7 +114,9 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
         reply=json.loads(callback(messages[0]['content']))
         if reply.get('candidates'):
             reply['focus']=dict(subject='龙头',evidence_ids=list(range(len(T.source_units(TEXT)))),
-                claim='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
+                claim='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。',
+                source_reading=dict(guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。',
+                                    question_premise='无主持人提问'))
         for candidate in reply.get('candidates',[]):
             candidate.pop('evidence')
             candidate.pop('subject')
@@ -164,6 +166,23 @@ def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     item=proposals()[0]
     item['title']='林园：龙头还没形成，布局整个行业更安全'
     assert T._candidate_error(item,TEXT,'林园',())=='标题新增了原文没有的安全性或收益比较结论'
+
+
+def test_source_reading_precedes_evidence_and_title_in_production_schema():
+    fields=T.proposal_schema(10)['properties']['focus']['properties']
+    assert list(fields)==['source_reading','evidence_ids','claim']
+    assert list(fields['source_reading']['properties'])==['guest_answer','question_premise']
+
+
+def test_missing_guest_question_distinction_cannot_be_an_approved_rewrite():
+    calls=[]
+    def incomplete(prompt,schema):
+        calls.append(prompt)
+        return json.dumps(dict(focus=dict(evidence_ids=[0],claim='主持人问题被误写成嘉宾给出的判断'),
+            candidates=[dict(title=c['title'],cover_title=c['cover_title']) for c in proposals()]),ensure_ascii=False)
+    result=T.generate(TEXT,structured_model=incomplete)
+    assert result['title_rewrite']['review']['method']=='source_quote'
+    assert len(calls)==3 and '分别读清嘉宾实际回答' in calls[1]
 
 
 def test_different_title_angles_use_exact_shared_anchors_without_invented_compounds():
