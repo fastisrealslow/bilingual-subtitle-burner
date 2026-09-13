@@ -26,7 +26,7 @@ def model(calls, bad_review=False):
         calls.append(prompt)
         if '独立核对' not in prompt:
             return json.dumps(dict(candidates=proposals()),ensure_ascii=False)
-        return json.dumps(dict(reviews=[dict(index=i,appeal=5-i,
+        return json.dumps(dict(reviews=[dict(index=i,appeal=5-i,reason='原文直接支持同一观点，标题与封面未增加新结论',
             **{k: not (bad_review and k=='source_supported') for k in T.CHECKS}) for i in range(3)]))
     return call
 
@@ -61,6 +61,18 @@ def test_candidate_must_carry_complete_evidence_and_no_new_numbers():
     assert T._candidate_error({**item,'title':TITLE+'10倍'},TEXT+'100倍','林园',())
     assert T._candidate_error({**item,'evidence':['龙头医药消费']},TEXT,'林园',())
     assert T._candidate_error({**item,'subject':'茅台'},TEXT,'林园',())
+    assert T._candidate_error({**item,'title':'林园：龙头形成前布局小公司更安全'},TEXT,'林园',())
+
+
+def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
+    calls=[]
+    good=model(calls)
+    def incomplete(prompt):
+        reply=json.loads(good(prompt))
+        for item in reply.get('candidates',[])[1:]:item['cover_title']='龙头'
+        return json.dumps(reply,ensure_ascii=False)
+    result=T.generate(TEXT,model=incomplete)
+    assert len(calls)==3 and result['title_rewrite']['review']['method']=='source_quote'
 
 
 def test_negative_semantic_review_cannot_pass_as_editorial_rewrite():

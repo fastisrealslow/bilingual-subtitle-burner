@@ -58,9 +58,10 @@ def proposal_schema(unit_count):
 
 
 def review_schema(candidate_count):
-    fields = {name:dict(type='boolean') for name in CHECKS}
+    fields = {'reason':dict(type='string', minLength=12, maxLength=160)}
+    fields.update({name:dict(type='boolean') for name in CHECKS})
     fields.update(index=dict(type='integer', minimum=0, maximum=candidate_count - 1),
-                  appeal=dict(type='integer', minimum=1, maximum=5), reason=dict(type='string'))
+                  appeal=dict(type='integer', minimum=1, maximum=5))
     return dict(type='object', additionalProperties=False, required=['reviews'], properties={
         'reviews':dict(type='array', minItems=candidate_count, maxItems=candidate_count,
             items=dict(type='object', additionalProperties=False, required=list(fields), properties=fields))})
@@ -100,6 +101,13 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     source = compact(transcript)
     if any(not isinstance(q, str) or len(compact(q)) < 8 or compact(q) not in source for q in evidence):
         return '观点证据不是这段真实原文'
+    # An observed 4B-model false positive inferred "更安全" from position sizing.
+    # Such financial claims need explicit evidence even if a reviewer says true.
+    risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
+                 '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益')
+    stated=compact(''.join(evidence))
+    if any(term in compact(title+cover) and term not in stated for term in risk_claims):
+        return '标题新增了原文没有的安全性或收益比较结论'
     subject = item.get('subject')
     if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12:
         return '缺少具体讨论对象'
@@ -158,6 +166,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 不要按出现的关键词凑标题，不要照抄口头残句；不要把主持人的追问当成嘉宾断言。
 为同一个中心观点写3个不同角度的标题：具体判断、原文支持的反常识选择、视频确实回答的问题。
 不必硬造冲突或数字。允许自然改写和设问；保留否定、条件、可能性，不写保证收益。
+不能把控制仓位、提前布局等行为推断成“更安全”“风险更低”“更赚钱”；原文没说就不能加。
 每条以“{speaker}：”开头，正文通常18~36字。封面8~18字，两行能完整读完，表达同一个看点。
 拒绝“谈A、B与C”“关于某某的公开讨论”“投资逻辑解析”等目录式标题。
 每条用evidence_ids选1~4组原文证据的编号，程序会取回真实原句，不要重新抄写或改写证据。
@@ -180,21 +189,27 @@ subject为标题与所选证据共有的2~12字具体对象；封面必须有8~1
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             valid = [c for c, issue in zip(candidates, errors) if not issue]
-            if not valid:
-                raise ValueError('候选需修正：' + '；'.join(str(e) for e in errors))
+            if len(valid) != 3:
+                issues=[f"{c.get('title','')} / {c.get('cover_title','')}：{issue}"
+                        for c,issue in zip(candidates,errors) if issue]
+                raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
             judge = f'''独立核对这些视频标题与完整字幕，只评价标题和封面，不重做选段或字幕审核。
+先在reason用一句话指出原文依据或标题增加的结论，再给判定。不能空填全部true。
+严格寻找标题/封面新增的比较、因果、收益和安全性判断：控制仓位不等于“更安全”，
+看好某行业不等于“必然上涨”；原文没有明确支持的新增判断必须source_supported=false。
 逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；
 attribution_correct没有把主持人的猜测归为嘉宾断言；preserves_qualifiers保留条件否定和不确定性；
 cover_consistent封面和标题同一观点且没有更强断言；readable自然好懂。
 appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
-返回JSON：{{"reviews":[{{"index":0,"source_supported":true,"central_point":true,
-"attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4,"reason":""}}]}}
+返回JSON：{{"reviews":[{{"reason":"指出原文依据或新增判断，至少12字","index":0,"source_supported":true,"central_point":true,
+"attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4}}]}}
 候选：{json.dumps(valid, ensure_ascii=False)}\n完整字幕：{transcript}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
             accepted = []
             for row in reviews:
                 if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)
                         and all(row.get(k) is True for k in CHECKS)
+                        and isinstance(row.get('reason'),str) and len(compact(row['reason'])) >= 12
                         and type(row.get('appeal')) is int and 3 <= row['appeal'] <= 5):
                     accepted.append(row)
             if not accepted:
@@ -230,6 +245,8 @@ def error(title, proof, transcript=None, speaker='林园'):
     elif review.get('method') == 'cpu_text_review':
         if not all(review.get(k) is True for k in CHECKS) or type(review.get('appeal')) is not int or not 3 <= review['appeal'] <= 5:
             return '标题尚未通过独立原文核验'
+        if not isinstance(review.get('reason'),str) or len(compact(review['reason'])) < 12:
+            return '标题审核缺少原文依据说明'
         item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence)
         issue = _candidate_error(item, transcript or ''.join(evidence), speaker, (), check_layout=False)
         if issue:
