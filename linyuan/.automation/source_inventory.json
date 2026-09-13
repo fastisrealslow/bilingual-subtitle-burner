@@ -3,14 +3,14 @@
   "validation_sha256": "a6a45109e25b6e0ef22de56ae482ad8f8ad68e7e9245097362a0674e8c0101f0",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789311489,
+  "updated_at": 1789312121,
   "materials": {
     "weibo_search": {
-      "records": 1175,
-      "video_candidates": 450,
-      "duration_eligible": 48,
-      "too_short": 46,
-      "long_mother_candidates": 18,
+      "records": 1183,
+      "video_candidates": 452,
+      "too_short": 47,
+      "duration_eligible": 49,
+      "long_mother_candidates": 19,
       "duration_unknown": 356
     },
     "haokan_video": {
@@ -21,11 +21,11 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 1268,
-      "video_candidates": 1262,
+      "records": 1272,
+      "video_candidates": 1266,
       "too_short": 133,
-      "duration_eligible": 929,
-      "long_mother_candidates": 493,
+      "duration_eligible": 933,
+      "long_mother_candidates": 495,
       "over_limit": 96,
       "duration_unknown": 104,
       "reference_only": 6
@@ -69,11 +69,11 @@
       "long_mother_candidates": 6
     },
     "bilibili_collection": {
-      "records": 114,
-      "video_candidates": 114,
-      "over_limit": 1,
-      "duration_eligible": 113,
-      "long_mother_candidates": 97
+      "records": 128,
+      "video_candidates": 128,
+      "duration_eligible": 127,
+      "long_mother_candidates": 109,
+      "over_limit": 1
     }
   },
   "inventory": {
@@ -7781,7 +7781,14 @@
           "ly-0913-fcfc6c"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-fcfc6c",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8949,9 +8956,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -9251,8 +9258,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_release-verification": 1,
-        "terminal_visual-review": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
