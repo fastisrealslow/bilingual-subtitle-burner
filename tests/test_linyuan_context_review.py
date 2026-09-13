@@ -40,7 +40,12 @@ def test_real_715_candidates_can_select_a_later_id_without_timing_invention(monk
     monkeypatch.setattr(p,'argument_context_candidates',lambda *a:DATA['choices'])
     verdicts={str(i):'reject_mixed_topics' for i in range(39)}
     verdicts['38']='accept_8'
-    monkeypatch.setattr(p,'llm',lambda *a,**k:json.dumps({'topics':[dict(start=0,topic='模拟完整主题')],'verdicts':verdicts}))
+    def model(*args,**kwargs):
+        ids=kwargs['response_schema']['properties']['verdicts']['required']
+        assert len(ids)<=16
+        return json.dumps({'topics':[dict(start=0,topic='模拟完整主题')],
+                           'verdicts':{key:verdicts[key] for key in ids}})
+    monkeypatch.setattr(p,'llm',model)
     result=p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')
     assert [(x['start'],x['end']) for x in result]==[(DATA['choices'][38]['start'],DATA['choices'][38]['end'])]
     assert result[0]['score']==8
@@ -102,8 +107,9 @@ def test_actual_selection_call_constrains_topic_boundaries(monkeypatch,tmp_path)
         rule=kwargs['response_schema']['properties']['topics']['items']['properties']['start']
         assert rule['enum']==r.sentence_starts(DATA['cues'])
         assert '可用完整句起点start' in messages[0]['content']
+        ids=kwargs['response_schema']['properties']['verdicts']['required']
         return json.dumps(dict(topics=[dict(start=0,topic='首个话题'),dict(start=27,topic='套利问题')],
-                               verdicts={str(i):'accept_10' for i in range(39)}))
+                               verdicts={key:'accept_10' for key in ids}))
     monkeypatch.setattr(p,'llm',model)
     assert p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')==[]
 

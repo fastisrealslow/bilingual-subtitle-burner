@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--selected-parts',default='')
     parser.add_argument('--origin-slug',default=OLD)
     parser.add_argument('--expected-source',default='https://www.bilibili.com/video/BV1SazbBhE8a')
+    parser.add_argument('--output-layout', choices=('auto','portrait','landscape'), default=None)
     args=parser.parse_args()
     OLD=args.origin_slug
     NEW=OLD+'-'+args.suffix
@@ -39,17 +40,19 @@ def main():
         return
     origin=max((e for e in state['dispatched'] if e.get('slug')==OLD),key=lambda e:e.get('ts',0))
     source=origin['source_url']
+    layout=args.output_layout or origin.get('output_layout','auto')
     assert source==args.expected_source,source
     gh('workflow','run','linyuan-produce-cn.yml','--repo',REPO,'--ref','main',
        '-f',f'source={source}','-f',f'slug={NEW}','-f','speaker=林园',
        '-f',f'occasion={origin.get("title") or "林园公开访谈"}','-f','source_platform=bilibili',
        '-f','auto_publish=false','-f','include_full=false',
+       '-f',f'output_layout={layout}',
        '-f',f'recovery_run_id={args.evidence_run}',
        '-f',f'reviewed_parts={args.reviewed_parts}',
        '-f',f'selected_parts={args.selected_parts}')
     entry={k:origin[k] for k in ('key','video_id','source_url','asset_url','title','source',
            'production_rules_version','required_presentation_version') if k in origin}
-    entry.update(slug=NEW,ts=int(time.time()),delay_hours=0,repair_of=OLD)
+    entry.update(slug=NEW,ts=int(time.time()),delay_hours=0,repair_of=OLD,output_layout=layout)
     for attempt in range(6):
         doc,state=read_state()
         if any(e.get('slug')==NEW for e in state.get('dispatched',[])):return

@@ -3,7 +3,10 @@ import json
 import hashlib
 
 VERSION = 3
-BATCH_SIZE = 48
+# Run 798 exhausted the 600-second CPU budget with batches of up to 48 ranges and
+# the full transcript. Smaller batches retain exhaustive coverage and leave
+# room for the topic map and verdicts without weakening the 120-second rule.
+BATCH_SIZE = 16
 ACCEPT = {f'accept_{score}': score for score in range(7, 11)}
 REJECT = {
     'reject_opening': '开头缺必要上下文',
