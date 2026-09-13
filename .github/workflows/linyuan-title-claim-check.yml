@@ -81,18 +81,24 @@ jobs:
         sys.path.insert(0, 'linyuan')
         import produce_cn as p
         from title_rewrite import error
-        results=[]
+        results=[]; failures=[]
         for name in ('linyuan_0913_title.json','linyuan_0913_landscape_title.json'):
             fixture=json.loads((Path('tests/fixtures')/name).read_text())
             cues=fixture['cues']
-            with tempfile.TemporaryDirectory() as directory:
-                result=p.copywrite(cues,list(range(len(cues))),'林园','访谈','',Path(directory),reviewed_title=fixture['old_title'])
-            results.append(dict(fixture=name,**result))
-            Path('title-claim-verification.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
-            print(json.dumps(results[-1],ensure_ascii=False,indent=2))
-            assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
-            assert len(result['title_candidates']) >= 2
-            assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
+            try:
+                with tempfile.TemporaryDirectory() as directory:
+                    result=p.copywrite(cues,list(range(len(cues))),'林园','访谈','',Path(directory),reviewed_title=fixture['old_title'])
+                assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
+                assert len(result['title_candidates']) == 3
+                assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
+                results.append(dict(fixture=name,passed=True,**result))
+            except Exception as exc:
+                failures.append(name)
+                results.append(dict(fixture=name,passed=False,error=str(exc)))
+            finally:
+                Path('title-claim-verification.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
+                print(json.dumps(results[-1],ensure_ascii=False,indent=2))
+        assert not failures, '真实字幕标题验收未通过：'+','.join(failures)
         PYCODE
     - uses: actions/upload-artifact@v4
       if: always()
