@@ -111,16 +111,20 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     callback=model(calls)
     def structured(messages,*a,**kwargs):
         assert kwargs['response_schema']['additionalProperties'] is False
-        assert kwargs['read_cache']==('focus' not in kwargs['response_schema']['properties'])
+        assert kwargs['read_cache']==('a_reading' not in kwargs['response_schema']['properties'])
         reply=json.loads(callback(messages[0]['content']))
         if reply.get('candidates'):
-            reply['focus']=dict(subject='龙头',evidence_ids=list(range(len(T.source_units(TEXT)))),
-                claim='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。',
-                source_reading=dict(guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。',
-                                    question_premise='无主持人提问'))
-        for candidate in reply.get('candidates',[]):
-            candidate.pop('evidence')
-            candidate.pop('subject')
+            reply['a_reading']=dict(a_question_premise='无主持人提问',
+                b_guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
+            reply['b_focus']=dict(b_evidence_ids=list(range(len(T.source_units(TEXT)))),
+                a_claim='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
+            reply['c_candidates']=reply.pop('candidates')
+            for candidate in reply['c_candidates']:
+                candidate.pop('evidence');candidate.pop('subject')
+        if reply.get('reviews'):
+            reply['reviews']=[dict(a_analysis=dict(a_guest_answer=TEXT,
+                b_question_premise='无主持人提问',c_reason=row.pop('reason')),b_verdict=row)
+                for row in reply['reviews']]
         return json.dumps(reply,ensure_ascii=False)
     monkeypatch.setattr(P,'llm',structured)
     cues=[dict(text=TEXT,start=0,end=150)]
@@ -144,8 +148,8 @@ def test_actual_caption_evidence_is_selected_by_id_and_never_retyped():
     for ids in [[-1],[len(units)],[True],[i,i]]:
         with pytest.raises(ValueError):T.bind_evidence({**item,'evidence_ids':ids},units)
     with pytest.raises(ValueError):T.bind_evidence({**item,'evidence':['人工补写的原文']},units)
-    assert T.proposal_schema(len(units))['properties']['candidates']['minItems']==3
-    assert all(T.review_schema(3)['properties']['reviews']['items']['properties'][k]['type']=='boolean' for k in T.CHECKS)
+    assert T.proposal_schema(len(units))['properties']['c_candidates']['minItems']==3
+    assert all(T.review_schema(3)['properties']['reviews']['items']['properties']['b_verdict']['properties'][k]['type']=='boolean' for k in T.CHECKS)
 
 
 @pytest.mark.parametrize('name',['linyuan_0913_title.json','linyuan_0913_landscape_title.json'])
@@ -158,8 +162,8 @@ def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name
     for subject, ids in catalog.items():
         assert ids and all(subject in units[i] for i in ids)
     proposal=T.proposal_schema(len(units),catalog)['properties']
-    assert 'evidence_ids' in proposal['focus']['properties']
-    assert 'subject' not in proposal['candidates']['items']['properties']
+    assert 'b_evidence_ids' in proposal['b_focus']['properties']
+    assert 'subject' not in proposal['c_candidates']['items']['properties']
     assert '未出龙头公司' not in catalog and '医药消费赛道' not in catalog
 
 
@@ -169,18 +173,22 @@ def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     assert T._candidate_error(item,TEXT,'林园',())=='标题新增了原文没有的安全性或收益比较结论'
 
 
-def test_source_reading_precedes_evidence_and_title_in_production_schema():
-    fields=T.proposal_schema(10)['properties']['focus']['properties']
-    assert list(fields)==['source_reading','evidence_ids','claim']
-    assert list(fields['source_reading']['properties'])==['guest_answer','question_premise']
+def test_source_reading_precedes_evidence_and_title_even_after_schema_key_sorting():
+    schema=json.loads(json.dumps(T.proposal_schema(10),sort_keys=True))
+    assert list(schema['properties'])==['a_reading','b_focus','c_candidates']
+    assert list(schema['properties']['a_reading']['properties'])==['a_question_premise','b_guest_answer']
+    assert list(schema['properties']['b_focus']['properties'])==['a_claim','b_evidence_ids']
+    review=json.loads(json.dumps(T.review_schema(3),sort_keys=True))
+    stages=review['properties']['reviews']['items']['properties']
+    assert list(stages)==['a_analysis','b_verdict']
 
 
 def test_missing_guest_question_distinction_cannot_be_an_approved_rewrite():
     calls=[]
     def incomplete(prompt,schema):
         calls.append(prompt)
-        return json.dumps(dict(focus=dict(evidence_ids=[0],claim='主持人问题被误写成嘉宾给出的判断'),
-            candidates=[dict(title=c['title'],cover_title=c['cover_title']) for c in proposals()]),ensure_ascii=False)
+        return json.dumps(dict(b_focus=dict(b_evidence_ids=[0],a_claim='主持人问题被误写成嘉宾给出的判断'),
+            c_candidates=[dict(title=c['title'],cover_title=c['cover_title']) for c in proposals()]),ensure_ascii=False)
     result=T.generate(TEXT,structured_model=incomplete)
     assert result['title_rewrite']['review']['method']=='source_quote'
     assert len(calls)==3 and '分别读清嘉宾实际回答' in calls[1]

@@ -3232,7 +3232,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # trap every future attempt in the same three rejected candidates.
         return llm([{"role":"user","content":prompt}],api_key,temperature=.35,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
-                   read_cache='focus' not in schema.get('properties',{}))
+                   read_cache='a_reading' not in schema.get('properties',{}))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title)

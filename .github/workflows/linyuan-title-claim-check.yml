@@ -86,7 +86,7 @@ jobs:
     - name: 用真实字幕验证完整标题生成与核对
       run: |-
         python -u - <<'PYCODE'
-        import json, sys, tempfile
+        import json, re, sys, tempfile
         from pathlib import Path
         sys.path.insert(0, 'linyuan')
         import produce_cn as p
@@ -101,6 +101,11 @@ jobs:
                 assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
                 assert len(result['title_candidates']) == 3
                 assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
+                # A model's own true flags are insufficient: run 150 approved
+                # this host hypothesis as the guest's conclusion.
+                if name=='linyuan_0913_landscape_title.json':
+                    for candidate in (result['title'],result['cover_title']):
+                        assert not re.search(r'新品.{0,12}(未达预期|不及预期|遇冷|反馈差)',candidate), '把主持人的新品假设当成嘉宾结论'
                 results.append(dict(fixture=name,passed=True,**result))
             except Exception as exc:
                 failures.append(name)

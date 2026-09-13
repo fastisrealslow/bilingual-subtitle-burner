@@ -62,30 +62,35 @@ def proposal_schema(unit_count, subjects=None):
     # Resolve the speakers' meaning before selecting evidence IDs or writing
     # attractive copy. Runs 145/147 otherwise anchored on a host's hypothesis
     # and repeated it in all three drafts despite accurate rejection feedback.
-    fields = {}
-    reading = dict(guest_answer=dict(type='string'),question_premise=dict(type='string'))
-    fields['source_reading'] = dict(type='object',additionalProperties=False,
-        required=list(reading),properties=reading)
-    fields['evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
+    # Prefix dependent stages: schema serialization/grammar can sort map keys.
+    # A 'focus' object sorts AFTER 'candidates', and 'reason' sorts after all
+    # boolean review decisions. In run 150 this produced fluent but false
+    # attribution even though both model-generated reviews said "passed".
+    fields = {'a_claim':dict(type='string')}
+    reading = dict(a_question_premise=dict(type='string'),b_guest_answer=dict(type='string'))
+    fields['b_evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
-    fields['claim'] = dict(type='string')
     # The local grammar padded minimum-length strings with spaces/newlines.
     # Check meaningful characters in Python and feed back the exact problem.
     copies=dict(title=dict(type='string'),cover_title=dict(type='string'))
-    return dict(type='object', additionalProperties=False, required=['focus','candidates'], properties={
-        'focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
-        'candidates':dict(type='array', minItems=3, maxItems=3,
+    return dict(type='object', additionalProperties=False, required=['a_reading','b_focus','c_candidates'], properties={
+        'a_reading':dict(type='object',additionalProperties=False,required=list(reading),properties=reading),
+        'b_focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
+        'c_candidates':dict(type='array', minItems=3, maxItems=3,
             items=dict(type='object', additionalProperties=False, required=list(copies), properties=copies))})
 
 
 def review_schema(candidate_count):
-    fields = {'reason':dict(type='string', minLength=12, maxLength=160)}
-    fields.update({name:dict(type='boolean') for name in CHECKS})
+    fields = {name:dict(type='boolean') for name in CHECKS}
     fields.update(index=dict(type='integer', minimum=0, maximum=candidate_count - 1),
                   appeal=dict(type='integer', minimum=1, maximum=5))
     return dict(type='object', additionalProperties=False, required=['reviews'], properties={
         'reviews':dict(type='array', minItems=candidate_count, maxItems=candidate_count,
-            items=dict(type='object', additionalProperties=False, required=list(fields), properties=fields))})
+            items=dict(type='object', additionalProperties=False, required=['a_analysis','b_verdict'], properties={
+                'a_analysis':dict(type='object',additionalProperties=False,
+                    required=['a_guest_answer','b_question_premise','c_reason'],properties={
+                        k:dict(type='string') for k in ('a_guest_answer','b_question_premise','c_reason')}),
+                'b_verdict':dict(type='object',additionalProperties=False,required=list(fields),properties=fields)}))})
 
 
 def bind_evidence(item, units):
@@ -200,11 +205,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
-先完成focus.source_reading：guest_answer只概括嘉宾亲口给出的观察、判断和限定条件；
-question_premise只概括主持人的问题和假设，没有主持人时写“无主持人提问”。这一步不写标题，也不根据某个词出现次数定中心。
-再在focus.claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
-用focus.evidence_ids选1~4组支撑它的原文编号。不要把主持人的猜测或一处举例当成中心观点。
-再为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
+先完成a_reading：a_question_premise只概括主持人的问题和假设，没有主持人时写“无主持人提问”；
+b_guest_answer只概括嘉宾亲口给出的观察、判断和限定条件。这一步不写标题，也不根据某个词出现次数定中心。
+再在b_focus.a_claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
+用b_focus.b_evidence_ids选1~4组支撑它的原文编号。不要把主持人的猜测或一处举例当成中心观点。
+最后在c_candidates为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 每条标题必须明确说出讨论对象，并包含至少一个原文对象词：{json.dumps(list(subjects), ensure_ascii=False) if subjects else '用原文中的讨论对象'}。
@@ -224,16 +229,17 @@ question_premise只概括主持人的问题和假设，没有主持人时写“�
                           + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
             proposal = _json(call(retry_note + prompt,
                                   proposal_schema(len(units), subjects)))
-            candidates = proposal.get('candidates')
+            candidates = proposal.get('c_candidates' if structured_model else 'candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:
                 raise ValueError('必须提供三个不同角度的候选标题')
             # A structured production call never accepts model-authored evidence.
             if structured_model:
-                focus=proposal.get('focus') or {}
-                reading=focus.get('source_reading') or {}
+                raw_focus=proposal.get('b_focus') or {}
+                focus=dict(claim=raw_focus.get('a_claim'),evidence_ids=raw_focus.get('b_evidence_ids'))
+                reading=proposal.get('a_reading') or {}
                 if (not isinstance(reading,dict)
-                        or len(compact(reading.get('guest_answer')))<12
-                        or len(compact(reading.get('question_premise')))<4):
+                        or len(compact(reading.get('b_guest_answer')))<12
+                        or len(compact(reading.get('a_question_premise')))<4):
                     raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
                 if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
                     raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
@@ -249,7 +255,9 @@ question_premise只概括主持人的问题和假设，没有主持人时写“�
             if len({compact(c['title']) for c in valid})!=3:
                 raise ValueError('三个标题必须有不同看点，不能重复同一句话')
             judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。
-先在reason引用本候选实际出现的短语，与原文中对应的回答比较，再给判定。不得指出候选没有写过的词，不能空填全部true。
+先完成a_analysis：a_guest_answer只概括嘉宾实际回答，b_question_premise列出主持人的问题前提；
+然后c_reason引用本候选实际出现的短语，与原文中对应的嘉宾回答比较。最后才填b_verdict中的各个判定。
+不得指出候选没有写过的词，不能空填全部true。原文出现某个词不能证明是嘉宾的观点，主持人长段提问中的假设也不算嘉宾确认。
 区分主持人提问中的猜测和嘉宾明确给出的回答，标题不能把前者归为嘉宾观点。
 不合格时说明原文实际的做法或判断，再指出标题偏差，供下一轮修正中心观点和措辞。
 严格寻找实际标题/封面新增的比较、因果、收益和安全性判断。只有候选确实写出了新增判断，才能以此判source_supported=false。
@@ -259,12 +267,23 @@ question_premise只概括主持人的问题和假设，没有主持人时写“�
 attribution_correct没有把主持人的猜测归为嘉宾断言；preserves_qualifiers保留条件否定和不确定性；
 cover_consistent封面和标题同一观点且没有更强断言；readable自然好懂。
 appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
-返回JSON：{{"reviews":[{{"reason":"指出原文依据或新增判断，至少12字","index":0,"source_supported":true,"central_point":true,
-"attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4}}]}}
+返回JSON的reviews数组，每项先a_analysis（a_guest_answer、b_question_premise、c_reason），
+再b_verdict（index、source_supported、central_point、attribution_correct、preserves_qualifiers、cover_consistent、readable、appeal）。
 候选及从原文直接取回的依据：{json.dumps([dict(title=c['title'],cover_title=c['cover_title'],evidence=c['evidence']) for c in valid], ensure_ascii=False)}
 原文编号只帮助定位，依据中也可能含主持人的问题，必须与上下文分清说话人。若嘉宾确实说出了某个判断，不能仅因主持人也提到它就判归属错误。
 完整字幕：{transcript}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
+            if structured_model:
+                normalized=[]
+                for row in reviews:
+                    analysis=row.get('a_analysis') or {}; verdict=row.get('b_verdict') or {}
+                    if (not isinstance(analysis,dict) or not isinstance(verdict,dict)
+                            or len(compact(analysis.get('a_guest_answer')))<12
+                            or len(compact(analysis.get('b_question_premise')))<4
+                            or len(compact(analysis.get('c_reason')))<12):
+                        raise ValueError('独立复核必须先说明嘉宾回答、主持人问题和本候选的原文依据')
+                    normalized.append({**verdict,'reason':analysis['c_reason'],'source_reading':analysis})
+                reviews=normalized
             accepted = []
             for row in reviews:
                 if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)
