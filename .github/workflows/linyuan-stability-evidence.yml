@@ -5,7 +5,7 @@ on:
     paths: [.github/workflows/linyuan-stability-evidence.yml]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   actions: read
 jobs:
   evidence:
@@ -14,16 +14,10 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: 读取实际CPU计算检查点
+      - name: 保存805人物失败帧及818原始字幕计时证据
         run: |
-          gh run download 34760249532 --repo "$GITHUB_REPOSITORY" --name title-claim-verification --dir /tmp/cpu154
-          gh run download 34762401393 --repo "$GITHUB_REPOSITORY" --name title-proof-reuse --dir /tmp/cpu156
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          print('RESUME_PROVENANCE',Path('/tmp/cpu156/title-proof-reuse.json').read_text())
-          for path in sorted(Path('/tmp/cpu154').rglob('*.json')):
-              if '.llm_cache' not in path.parts:continue
-              data=json.loads(path.read_text())
-              print('ACTUAL_CPU_RESPONSE',json.dumps(dict(file=path.name,model=data.get('model'),content=data.get('content')),ensure_ascii=False))
-          PY
+          gh run download 34756033917 --repo "$GITHUB_REPOSITORY" --name render-evidence-ly-0913-be3bb0 --dir /tmp/failure-evidence/805
+          gh run download 34761171240 --repo "$GITHUB_REPOSITORY" --name editorial-ly-0912-5dc339-reserve-13-portrait --dir /tmp/failure-evidence/818
+          cd /tmp/failure-evidence
+          zip -qr /tmp/failure805-818.zip 805 818
+          gh release upload stability-0913 /tmp/failure805-818.zip --repo "$GITHUB_REPOSITORY" --clobber
