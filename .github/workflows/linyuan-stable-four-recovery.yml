@@ -1,0 +1,32 @@
+name: 每日四条真实恢复验收
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-stable-four-recovery.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: stable-four-recovery
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 复用原始ASR与已经选定的区间，重新验证真人竖屏
+        run: >-
+          python linyuan/register_selection_recovery.py
+          --origin-slug ly-0912-5dc339
+          --expected-source https://www.bilibili.com/video/BV1hj411X7BL
+          --suffix stable-four-portrait
+          --output-layout portrait
+          --evidence-run 34743771703
+          --selected-parts 2,4
