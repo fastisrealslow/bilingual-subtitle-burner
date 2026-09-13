@@ -5,6 +5,31 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from live_tracking import crop_box,complete_face
 
 
+def test_right_corner_mark_moves_crop_sideways_without_cutting_head():
+    from live_tracking import avoid_overlays
+    face=(730,140,350,360)
+    box=(420,4,1262,938)
+    logo=(1480/1920,35/1080,1840/1920,135/1080)
+    fixed=avoid_overlays(box,face,1920,1080,[logo])
+    assert fixed[2:]==box[2:] and fixed[1]==box[1]
+    assert fixed[0]+fixed[2]<1480 and fixed[0]<=face[0]
+
+
+def test_stable_pan_cannot_reintroduce_a_source_mark():
+    from stable_framing import StableFraming
+    f=StableFraming(30);f.box=(420.,4.,1262.,938.)
+    face=(730,140,350,360);logo=(1480/1920,35/1080,1840/1920,135/1080)
+    box=f.update((420,4,1262,938),face,1920,1080,30,exclusions=[logo])
+    assert box[0]+box[2]<1480
+    assert f.proof()['crop_samples'][-1]['crop']==list(box)
+
+
+def test_overlay_covering_the_face_cannot_be_cropped_away():
+    from live_tracking import avoid_overlays
+    with pytest.raises(ValueError,match='保留完整人脸'):
+        avoid_overlays((0,0,640,480),(180,120,200,200),640,480,[(.3,.3,.6,.6)])
+
+
 @pytest.mark.parametrize('face',[(120,85,250,270),(390,90,170,220)])
 def test_profile_geometry_keeps_head_and_chin_margins(face):
     assert complete_face(face,632,470)

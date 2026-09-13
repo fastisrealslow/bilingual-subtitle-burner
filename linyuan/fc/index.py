@@ -2320,7 +2320,8 @@ def obsolete_review_candidates(state, inventory):
                 and any(any(reason in str(p.get('reason','')) for reason in (
                     'CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核',
                     '标题存在口头残句、指代不明或语气词',
-                    '标题是关键词目录', '标题重写证明不合格')) for p in remaining)):
+                    '标题是关键词目录', '标题重写证明不合格',
+                    '画面复核发现来源角标','缺少新版间歇角标复核')) for p in remaining)):
             yield entry,record
 
 
@@ -2475,6 +2476,15 @@ def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
         return "meta.json 不是对象"
+    # Actual Sep 13 landscape pixels at 36s retain the Weibo icon/text after
+    # a wide-shot cut. Metadata or a title-only edit cannot make these clean.
+    if (meta.get('fingerprints') or {}).get('sha256')=='165008328d7f0a023e78f3f851638bb30110d62f7c4b2f2b4038ac8c38d7143d':
+        return '画面复核发现来源角标：36秒仍有微博标识，须从原素材重新取景'
+    if meta.get('source_sha256')=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47':
+        review=meta.get('corner_review') or {}
+        if (review.get('version')!=2026091301 or review.get('passed') is not True
+                or review.get('media_sha256')!=(meta.get('fingerprints') or {}).get('sha256')):
+            return '缺少新版间歇角标复核，不能只重编码或改标题后放行'
     try:
         version = int(meta.get("quality_gate_version", 0))
     except (TypeError, ValueError):

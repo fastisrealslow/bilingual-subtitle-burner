@@ -211,7 +211,7 @@ def test_corner_ocr_groups_persistent_boxes(monkeypatch, tmp_path):
     monkeypatch.setattr(P, "_ocr", lambda: OCR())
     found = P.detect_corner_logos_in_images(frames)
     assert len(found) == 1
-    assert found[0][0] > 0.8
+    assert 0.75 < found[0][0] < 0.8  # also covers the icon beside the letters
     assert found[0][1] < 0.1
 
 
@@ -314,8 +314,19 @@ def test_multiple_detections_in_one_frame_do_not_count_as_persistent(monkeypatch
     cv2=pytest.importorskip('cv2');frames=[]
     for i in range(3):
         p=tmp_path/f'frame{i}.jpg';cv2.imwrite(str(p),np.full((480,852,3),127,dtype=np.uint8));frames.append(p)
-    answers=iter([[[[710,30],[830,30],[830,55],[710,55]],'bilibili',.99]])
     box=[[710,30],[830,30],[830,55],[710,55]]
-    responses=iter([[[box,'bilibili',.99]]*3,[],[]])
+    responses=iter([[[box,'来源频道',.99]]*3,[],[]])
     monkeypatch.setattr(P,'_ocr',lambda:lambda *a,**kw:(next(responses),None))
     assert P.detect_corner_logos_in_images(frames)==[]
+
+
+def test_platform_mark_visible_only_after_a_cut_is_still_rejected(monkeypatch,tmp_path):
+    cv2=pytest.importorskip('cv2');frames=[]
+    for i in range(6):
+        p=tmp_path/f'cut{i}.jpg';cv2.imwrite(str(p),np.full((720,968,3),127,dtype=np.uint8));frames.append(p)
+    # Actual OCR of #782 at 36s: the partially cropped word is still certain.
+    box=[[903,41],[967,47],[967,97],[898,91]]
+    responses=iter([[],[[box,'微博',.999271]],[],[],[],[]])
+    monkeypatch.setattr(P,'_ocr',lambda:lambda *a,**kw:(next(responses),None))
+    found=P.detect_corner_logos_in_images(frames,max_area=.04)
+    assert len(found)==1 and found[0][0]<850/968  # excludes the adjacent eye icon

@@ -18,6 +18,17 @@ import source_supply
 fc=source_supply.fc
 
 
+def test_confirmed_landscape_mark_requires_new_pixel_bound_review():
+    source='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47'
+    old='165008328d7f0a023e78f3f851638bb30110d62f7c4b2f2b4038ac8c38d7143d'
+    meta=dict(source_sha256=source,fingerprints=dict(sha256=old))
+    assert '画面复核发现来源角标' in fc.artifact_quality_error(meta)
+    meta['fingerprints']['sha256']='a'*64
+    assert '缺少新版间歇角标复核' in fc.artifact_quality_error(meta)
+    meta['corner_review']=dict(version=2026091301,passed=True,media_sha256=old)
+    assert '缺少新版间歇角标复核' in fc.artifact_quality_error(meta)
+
+
 def test_source_yield_counts_actual_unused_files_and_preserves_failure_stages():
     from source_outcomes import audit
     url='https://www.bilibili.com/video/BVarchive?p=2'

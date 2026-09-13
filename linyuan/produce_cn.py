@@ -2870,7 +2870,9 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             raise VisualQualityError('真人动态区本地人物复检未确认林园本人：'+verdict['reason'])
     return {"live_region_verified": True, "no_qr_verified": True,
             "partial_qr_verified": True, "full_face_frames": full_face_frames,
-            "no_black_bars_verified": True}
+            "no_black_bars_verified": True,
+            "corner_review":dict(version=2026091301,passed=True,sampled_frames=got,
+                media_sha256=_file_sha256(final),policy='platform_or_persistent_text')}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
@@ -3724,7 +3726,7 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
         import cv2
         import math
         engine = _ocr()
-        clusters=[];evidence=[];got=0
+        clusters=[];evidence=[];got=0;explicit=[]
         for frame_no,fp in enumerate(frame_paths):
             f=cv2.imread(str(fp))
             if f is None:continue
@@ -3742,12 +3744,26 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
                 x0,y0,x1,y1=rect
                 if (x1-x0)*(y1-y0)>max_area:continue
                 if not ((x1<.35 or x0>.65) and (y1<.30 or y0>.70)):continue
+                # A known platform name is positive evidence even when camera
+                # cuts show it briefly or move it. Persistence remains required
+                # for arbitrary background text and low-confidence OCR shapes.
+                if float(confidence)>=.9 and any(mark in normalized for mark in
+                        ('微博','weibo','bilibili','哔哩哔哩','抖音','douyin','快手','kuaishou')):
+                    # Include the adjacent platform icon, not just its letters.
+                    rh=y1-y0
+                    mark=(max(0,x0-1.8*rh*H/W),max(0,y0-rh*.25),
+                          min(1,x1+.01),min(1,y1+rh*.25))
+                    if mark not in explicit:explicit.append(mark)
                 hit=next((c for c in clusters if all(abs(rect[k]-c['rect'][k])<.03 for k in range(4))
                           and __import__('difflib').SequenceMatcher(None,normalized,c['text']).ratio()>=.7),None)
                 if hit:hit['frames'].add(frame_no)
                 else:clusters.append(dict(rect=rect,text=normalized,frames={frame_no}))
         if not got:raise VisualQualityError('OCR没有读到任何封面帧')
         found=[c['rect'] for c in clusters if len(c['frames'])>=max(2,math.ceil(got*stable_ratio))]
+        found=[rect for rect in found if not any(
+            mark[0]<=rect[0] and mark[1]<=rect[1] and mark[2]>=rect[2] and mark[3]>=rect[3]
+            for mark in explicit)]
+        found.extend(explicit)
         if frame_paths:
             (Path(frame_paths[0]).parent/'corner_ocr.json').write_text(json.dumps(dict(
                 engine='rapidocr_detection_and_recognition',sampled_frames=got,
@@ -3757,6 +3773,16 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
         raise
     except Exception as e:
         raise VisualQualityError(f'封面OCR角标复检失败：{e}') from e
+
+
+def selected_frame_logos(frame, directory, index):
+    """Inspect selected source shots, including logos missed in a long mother."""
+    import cv2
+    directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
+    path=directory/f'source-{index}.jpg'
+    if not cv2.imwrite(str(path),frame):
+        raise VisualQualityError('选段来源角标抽帧失败')
+    return detect_corner_logos_in_images([path],max_area=.04)
 
 
 def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02,
@@ -4710,6 +4736,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     _download_speaker_reference(speaker,work),_local_face_models(),
                     LOCAL_FACE_COSINE_THRESHOLD,
                     exclusions=source_report.get('detected_corner_logos') or (),
+                    overlay_probe=lambda frame,index:selected_frame_logos(
+                        frame,work/f'source-corners{suffix}{n}',index),
                     context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
                     participant_reference=participant_reference,
                     reference_samples=[work/f'identity_{i}.jpg' for i in

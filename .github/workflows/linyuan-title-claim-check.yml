@@ -8,9 +8,9 @@ concurrency:
   group: title-claim-check
   cancel-in-progress: true
 env:
-  RUN_TEXT_MODEL: qwen3:4b
+  RUN_TEXT_MODEL: qwen3:4b-instruct-2507-q4_K_M
   TEXT_BACKEND: local
-  LOCAL_LLM_MODEL: qwen3:4b
+  LOCAL_LLM_MODEL: qwen3:4b-instruct-2507-q4_K_M
   CUDA_VISIBLE_DEVICES: ''
 jobs:
   check:

@@ -34,7 +34,7 @@ class StableFraming:
                 self.cut_frames.append(n)
         self.previous_image = small
 
-    def update(self, proposed, face, width, height, n):
+    def update(self, proposed, face, width, height, n, exclusions=()):
         reset = self.box is None or self.pending_cut
         if reset:
             self.box = tuple(map(float, proposed))
@@ -55,6 +55,9 @@ class StableFraming:
             self.pan_frames += int(movement > .001)
             self.held_frames += int(movement <= .001)
             self.box = (nx, ny, w, h)
+        if exclusions:
+            from live_tracking import avoid_overlays
+            self.box=avoid_overlays(self.box,face,width,height,exclusions)
         box = tuple(round(v) for v in self.box)
         if reset or n % max(1, round(self.fps)) == 0:
             self.samples.append(dict(frame=n, crop=list(box), reset=reset))

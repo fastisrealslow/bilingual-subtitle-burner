@@ -28,7 +28,7 @@ on:
         description: 'CPU离线文本模型；更新版先用于同源实产验收'
         required: false
         type: choice
-        default: 'qwen3:4b'
+        default: 'qwen3:4b-instruct-2507-q4_K_M'
         options:
           - 'qwen3:4b'
           - 'qwen3:4b-instruct-2507-q4_K_M'
@@ -97,7 +97,7 @@ on:
         type: boolean
 
 env:
-  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:4b' }}
+  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:4b-instruct-2507-q4_K_M' }}
   RUN_SOURCE: ${{ inputs.source || 'https://www.bilibili.com/video/BV1tuCDBhE6C' }}
   RUN_SLUG: ${{ inputs.slug || 'ly-e2e-local-0908' }}
   RUN_SPEAKER: ${{ inputs.speaker || '林园' }}
