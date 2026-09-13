@@ -1,0 +1,34 @@
+name: 恢复漏发修复的部署队列
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-recover-deploy-queue.yml']
+permissions:
+  actions: write
+  contents: read
+jobs:
+  unblock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 仅停止尚未部署的旧模型对比，保留新的实产验收
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          base='repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/34751754853'
+          def get(path):
+              return json.loads(subprocess.check_output(['gh','api',path],text=True))
+          run=get(base)
+          assert run['name']=='FC production deploy'
+          assert run['head_sha']=='579cc8970d496c505e085094dc279b7ca3c413b8'
+          if run['status']=='completed':
+              print('Old comparison already completed')
+          else:
+              jobs=get(base+'/jobs')['jobs']
+              assert not any(j['name']=='deploy' and j['status']!='queued' for j in jobs), 'Do not interrupt a deployment'
+              assert any(j['name']=='editorial-check / check' for j in jobs)
+              subprocess.run(['gh','api','--method','POST',base+'/cancel'],check=True)
+              print('Stopped only the obsolete comparison; production-model verification stays queued')
+          PY
