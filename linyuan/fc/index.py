@@ -855,7 +855,10 @@ def download_release_part(slug, part_index, dest_dir):
             return False
         # v12 checks the actual ASS payload. Fetch it on the normal Release
         # path as well; otherwise every otherwise valid new MP4 is rejected.
-        for subtitle_name in part.get("subtitle_files") or []:
+        companion_files=list(part.get('subtitle_files') or [])
+        if part.get('subtitle_edit_proof_version')==1:
+            companion_files+=list(part.get('subtitle_edit_proofs') or [])
+        for subtitle_name in companion_files:
             if not isinstance(subtitle_name, str) or Path(subtitle_name).name != subtitle_name:
                 return False
             if not download_release_asset(
@@ -882,6 +885,8 @@ def download_inventory_part(artifact_id, part_index, dest_dir):
             parts=payload if isinstance(payload,list) else [payload]
             part=parts[part_index]
             names=[part.get('final'),part.get('cover'),*(part.get('subtitle_files') or [])]
+            if part.get('subtitle_edit_proof_version')==1:
+                names+=list(part.get('subtitle_edit_proofs') or [])
             if any(not isinstance(n,str) or Path(n).name!=n for n in names):
                 raise ValueError('Invalid delivery file path')
             for name in names:
@@ -2627,9 +2632,9 @@ def artifact_quality_error(meta):
         return '画面复核发现来源角标：36秒仍有微博标识，须从原素材重新取景'
     if meta.get('source_sha256')=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47':
         review=meta.get('corner_review') or {}
-        if (review.get('version')!=2026091301 or review.get('passed') is not True
+        if (review.get('version')!=2026091302 or review.get('passed') is not True
                 or review.get('media_sha256')!=(meta.get('fingerprints') or {}).get('sha256')):
-            return '缺少新版间歇角标复核，不能只重编码或改标题后放行'
+            return '缺少新版间歇角标复核（含底部原素材文字），不能只重编码或改标题后放行'
     try:
         version = int(meta.get("quality_gate_version", 0))
     except (TypeError, ValueError):
@@ -2780,8 +2785,30 @@ def artifact_subtitle_error(meta, delivery_dir):
     if editorial.text_digest(text) != meta.get("subtitle_text_sha256"):
         return "真实ASS字幕与meta文本指纹不一致"
     if meta.get('title_rewrite'):
-        from title_rewrite import error as rewrite_error
-        problem=rewrite_error(meta.get('title'),meta['title_rewrite'],text)
+        from title_rewrite import error as rewrite_error, compact
+        source_text=text
+        if meta.get('subtitle_edit_proof_version')==1:
+            try:
+                from caption_readability import replay_edit_proof
+                names=meta.get('subtitle_edit_proofs')
+                if not isinstance(names,list) or not names:raise ValueError('缺少字幕编辑证明文件')
+                originals=[];displays=[]
+                for name in names:
+                    if (not isinstance(name,str) or Path(name).name!=name
+                            or not name.startswith('subtitle_edit_proof') or not name.endswith('.json')):
+                        raise ValueError('字幕编辑证明路径不合法')
+                    proof=json.loads((Path(delivery_dir)/name).read_text())
+                    raw,display=replay_edit_proof(proof)
+                    originals.append(raw);displays.append(display)
+                if editorial.text_digest(''.join(displays))!=editorial.text_digest(text):
+                    raise ValueError('编辑证明与真实ASS字幕不一致')
+                source_text=''.join(originals)
+                import hashlib
+                if hashlib.sha256(compact(source_text).encode()).hexdigest()!=meta['title_rewrite'].get('source_sha256'):
+                    raise ValueError('编辑前原文与标题核对的母片原话不一致')
+            except (OSError,ValueError,KeyError,TypeError) as exc:
+                return '标题/字幕编辑证明无法重放：'+str(exc)
+        problem=rewrite_error(meta.get('title'),meta['title_rewrite'],source_text)
         if problem:return problem
     return editorial.transcript_integrity_error(text)
 

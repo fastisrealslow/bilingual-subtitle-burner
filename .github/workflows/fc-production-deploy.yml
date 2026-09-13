@@ -27,6 +27,8 @@ on:
       - tests/fixtures/linyuan_0913_landscape_title.json
       - linyuan/headline_policy.py
       - linyuan/editorial_policy.py
+      - linyuan/caption_readability.py
+      - tests/test_linyuan_subtitle_edit_delivery.py
       - linyuan/fc/deploy_code.py
       - tests/test_fc_deploy_code.py
       - linyuan/fc/verify_production.py
@@ -90,7 +92,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/stage_context.py linyuan/title_rewrite.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/fc/media_repair.py linyuan/fc/stage_revision.py linyuan/fc/title_revision.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/stage_context.py linyuan/title_rewrite.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/caption_readability.py linyuan/fc/media_repair.py linyuan/fc/stage_revision.py linyuan/fc/title_revision.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
           (cd linyuan/fc && zip -r "$FC_CODE_ZIP" reviewed_0910)
           unzip -t "$FC_CODE_ZIP"
 
@@ -99,7 +101,7 @@ jobs:
           pip install -q pytest jieba requests
           python -m pytest -q tests/test_linyuan_state_merge.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py tests/test_linyuan_daily_landscape.py tests/test_linyuan_preflight_recovery.py tests/test_linyuan_archive_admission.py
           python -m pytest -q tests/test_linyuan_reviewed_updates.py tests/test_linyuan_reviewed_download.py tests/test_linyuan_stage_revision.py
-          python -m pytest -q tests/test_linyuan_third_video.py tests/test_fc_deploy_code.py tests/test_linyuan_config_health.py
+          python -m pytest -q tests/test_linyuan_third_video.py tests/test_fc_deploy_code.py tests/test_linyuan_config_health.py tests/test_linyuan_subtitle_edit_delivery.py
           python -m pytest -q tests/test_linyuan_receipt_recovery.py tests/test_linyuan_required_live.py tests/test_linyuan_makeup_slot.py tests/test_linyuan_missed_slots.py tests/test_linyuan_title_claims.py tests/test_linyuan_title_revision.py
           python -m pytest -q tests/test_stock_upgrade.py
 

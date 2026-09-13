@@ -177,7 +177,10 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 decoded+=1
                 framing.observe(frame, n)
                 if overlay_probe and (n==0 or framing.pending_cut or n%max(1,round(fps*30))==0):
-                    source_exclusions=list(exclusions)
+                    # Full-width source text can disappear briefly at a camera
+                    # cut. Keep its measured band so it cannot re-enter later.
+                    source_exclusions=list(exclusions)+[r for r in source_exclusions
+                        if r[0]==0 and r[2]==1 and r not in exclusions]
                     for rect in overlay_probe(frame,first_frame+n):
                         if rect not in source_exclusions:source_exclusions.append(rect)
                 if n%max(1,round(fps/2))==0:

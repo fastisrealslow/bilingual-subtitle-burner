@@ -139,6 +139,8 @@ def clean_entries(entries):
     counts={}
     for edit in edits:counts[edit['reason']]=counts.get(edit['reason'],0)+1
     proof=dict(version=VERSION, edit_counts=counts, raw_text=original, display_text=cleaned, edits=edits,
+               replay_version=1,
+               raw_entries=[{k:e[k] for k in ('start_sec','end_sec','zh')} for e in entries],
                point_anchors=point_anchors,
                raw_sha256=hashlib.sha256(original.encode()).hexdigest(),
                display_sha256=hashlib.sha256(cleaned.encode()).hexdigest(),
@@ -148,6 +150,20 @@ def clean_entries(entries):
 
 def write_edit_proof(path, proof):
     path.write_text(json.dumps(proof, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+def replay_edit_proof(proof):
+    """Reproduce every display edit; a claimed raw/display text pair is insufficient."""
+    if (not isinstance(proof,dict) or proof.get('replay_version')!=1
+            or proof.get('version')!=VERSION or not isinstance(proof.get('raw_entries'),list)
+            or not proof['raw_entries']):
+        raise ValueError('字幕编辑证明缺少可重放的原始条目')
+    _, expected=clean_entries(proof['raw_entries'])
+    for key in ('raw_text','display_text','edits','raw_sha256','display_sha256',
+                'policy','asr_corrections','point_anchors'):
+        if proof.get(key)!=expected.get(key):
+            raise ValueError('字幕编辑不能按保守规则重放：'+key)
+    return expected['raw_text'],expected['display_text']
 
 
 def ass_font_size(glyph_px, font_name):

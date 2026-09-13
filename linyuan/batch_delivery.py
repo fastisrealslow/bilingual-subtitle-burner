@@ -43,6 +43,12 @@ def archive_accepted(out, slug):
             if Path(name).name != name or not (out / name).is_file():
                 raise ValueError(f'Invalid/missing accepted subtitles: {name}')
             names.add(name)
+        if row.get('subtitle_edit_proof_version')==1:
+            for name in row.get('subtitle_edit_proofs') or []:
+                if (Path(name).name!=name or not name.startswith('subtitle_edit_proof')
+                        or not name.endswith('.json') or not (out/name).is_file()):
+                    raise ValueError(f'Invalid/missing subtitle edit proof: {name}')
+                names.add(name)
         thumb = (row.get('cover_proof') or {}).get('thumbnail')
         if thumb and Path(thumb).name == thumb:
             names.add(thumb)

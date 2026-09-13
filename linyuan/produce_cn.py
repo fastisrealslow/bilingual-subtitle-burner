@@ -23,6 +23,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -2880,6 +2881,9 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
         raise VisualQualityError(f"真人窗口完整人脸抽帧不足：{full_face_frames}/{got}，拒绝裁头/裁下巴或空镜")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
+    edge_text=source_edge_text_exclusions(json.loads((tmp/'corner_ocr.json').read_text())['evidence'])
+    if edge_text:
+        raise VisualQualityError('真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印')
     if logos:
         raise VisualQualityError(f"真人动态区仍有稳定来源角标：{logos}")
     # Rotating uploader watermarks can move between corners and evade a stable
@@ -2892,8 +2896,8 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     return {"live_region_verified": True, "no_qr_verified": True,
             "partial_qr_verified": True, "full_face_frames": full_face_frames,
             "no_black_bars_verified": True,
-            "corner_review":dict(version=2026091301,passed=True,sampled_frames=got,
-                media_sha256=_file_sha256(final),policy='platform_or_persistent_text')}
+            "corner_review":dict(version=2026091302,passed=True,sampled_frames=got,
+                media_sha256=_file_sha256(final),policy='platform_persistent_text_and_source_edge_bands')}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
@@ -3801,6 +3805,24 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
         raise VisualQualityError(f'封面OCR角标复检失败：{e}') from e
 
 
+def source_edge_text_exclusions(evidence):
+    """Long source captions/disclaimers span the middle, outside corner rules."""
+    result=[]
+    for row in evidence:
+        x0,y0,x1,y1=map(float,row['rect'])
+        text=re.sub(r'\W+','',str(row.get('text') or ''))
+        if float(row.get('confidence') or 0)<.75 or len(text)<8 or x1-x0<.35:
+            continue
+        if y0>=.80:
+            rect=(0,max(0,y0-.015),1,1)
+        elif y1<=.18:
+            rect=(0,0,1,min(1,y1+.015))
+        else:
+            continue
+        if rect not in result:result.append(rect)
+    return result
+
+
 def selected_frame_logos(frame, directory, index):
     """Inspect selected source shots, including logos missed in a long mother."""
     import cv2
@@ -3808,7 +3830,27 @@ def selected_frame_logos(frame, directory, index):
     path=directory/f'source-{index}.jpg'
     if not cv2.imwrite(str(path),frame):
         raise VisualQualityError('选段来源角标抽帧失败')
-    return detect_corner_logos_in_images([path],max_area=.04)
+    logos=detect_corner_logos_in_images([path],max_area=.04)
+    evidence=json.loads((directory/'corner_ocr.json').read_text())['evidence']
+    return logos+source_edge_text_exclusions(evidence)
+
+
+def selected_segment_exclusions(src,start,duration,directory,initial=()):
+    """Know recurring source text bands before locking the first shot's scale."""
+    import cv2
+    marks=[tuple(r) for r in initial]
+    cap=cv2.VideoCapture(str(src));fps=cap.get(cv2.CAP_PROP_FPS)
+    try:
+        if fps<=0:raise VisualQualityError('来源文字预检无法读取帧率')
+        for i in range(6):
+            index=round((start+duration*(i+.5)/6)*fps)
+            cap.set(cv2.CAP_PROP_POS_FRAMES,index);ok,frame=cap.read()
+            if not ok:raise VisualQualityError('来源文字预检抽帧不足')
+            for rect in selected_frame_logos(frame,directory,index):
+                if tuple(rect) not in marks:marks.append(tuple(rect))
+    finally:
+        cap.release()
+    return marks
 
 
 def detect_corner_logos(src, frames=10, stable_ratio=0.5, max_area=0.02,
@@ -4754,10 +4796,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 # Track identity in the selected interval before composing the card.
                 from live_tracking import render_tracked
                 tracked=work/f'tracked{suffix}{n}.mp4'
+                source_marks=selected_segment_exclusions(src,s0,seg_dur,
+                    work/f'source-corners{suffix}{n}',source_report.get('detected_corner_logos') or ())
                 tracking=render_tracked(src,s0,seg_dur,tracked,
                     _download_speaker_reference(speaker,work),_local_face_models(),
                     LOCAL_FACE_COSINE_THRESHOLD,
-                    exclusions=source_report.get('detected_corner_logos') or (),
+                    exclusions=source_marks,
                     overlay_probe=lambda frame,index:selected_frame_logos(
                         frame,work/f'source-corners{suffix}{n}',index),
                     context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
@@ -4895,6 +4939,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     subtitle_integrity_error = editorial.transcript_integrity_error(rendered_subtitle_text)
     if subtitle_integrity_error:
         raise VisualQualityError(subtitle_integrity_error)
+    edit_proof_files=[]
+    for n in range(1,len(picks)+1):
+        name=f'subtitle_edit_proof{suffix}-{n}.json'
+        shutil.copy2(work/f'semantic{suffix}-{n}.editing.json',out/name)
+        edit_proof_files.append(name)
     meta = {
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
@@ -4924,7 +4973,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "subtitle_word_boundaries_verified": True,
         "subtitle_semantic_groups_verified": True,
         "subtitle_readability_version": layout["readability_version"],
-        "subtitle_edit_proofs": [f"_tmp/semantic{suffix}-{n}.editing.json" for n in range(1,len(picks)+1)],
+        "subtitle_edit_proof_version": 1,
+        "subtitle_edit_proofs": edit_proof_files,
         **live_checks,
         "duration_sec": round(dur, 1),
         "resolution": {"width": final_w, "height": final_h,
