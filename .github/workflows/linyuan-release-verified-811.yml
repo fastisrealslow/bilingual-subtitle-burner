@@ -129,7 +129,10 @@ jobs:
               print('Inventory catch-up run',run_id,flush=True)
               subprocess.run(['gh','run','watch',str(run_id),'--repo',repo,'--exit-status','--interval','20'],check=True,timeout=1000)
           _,st=read_state()
-          print(json.dumps(dict(daily=st.get('daily_publish')),ensure_ascii=False))
+          daily=st.get('daily_publish') or {}
+          print(json.dumps(dict(daily=daily),ensure_ascii=False))
+          assert daily.get('date')=='2026-09-13' and daily.get('count')==4, '尚未达到今天四条，以实际回执为准'
+          assert set(daily.get('published_hours',[]))=={10,14,16,21}, '仍有未补齐的定时时段'
           PY
       - uses: actions/upload-artifact@v4
         if: always() && steps.gate.outputs.ready == 'true'
