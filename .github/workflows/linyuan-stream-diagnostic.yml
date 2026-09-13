@@ -1,4 +1,4 @@
-name: 林园802竖屏源分辨率核验
+name: 林园在途长源分辨率核验
 on:
   push:
     branches: [main]
@@ -21,10 +21,10 @@ jobs:
           sys.path.insert(0,'linyuan')
           import ci_fetch_bilibili as b
           op=b.opener()
-          cid=b.via_view(op,'BV1PcNh6rErV')
-          url=f'https://api.bilibili.com/x/player/playurl?bvid=BV1PcNh6rErV&cid={cid}&qn=80&fnval=4048&fourk=0&high_quality=1'
-          raw=json.loads(op.open(url,timeout=30).read())
-          print(json.dumps(dict(code=raw.get('code'),streams=[{k:s.get(k) for k in ('id','width','height','codecid','bandwidth')} for s in raw.get('data',{}).get('dash',{}).get('video',[])]),ensure_ascii=False))
-          selected=b.select_streams(raw)
-          print(json.dumps({k:selected.get(k) for k in ('width','height','quality')},ensure_ascii=False))
+          for page in (35,16):
+              cid=b.via_view(op,'BV19P4y1m77K',page)
+              url=f'https://api.bilibili.com/x/player/playurl?bvid=BV19P4y1m77K&cid={cid}&qn=80&fnval=4048&fourk=0&high_quality=1'
+              raw=json.loads(op.open(url,timeout=30).read())
+              selected=b.select_streams(raw)
+              print(json.dumps(dict(page=page,code=raw.get('code'),selected={k:selected.get(k) for k in ('width','height','quality')},streams=[{k:row.get(k) for k in ('id','width','height','codecid','bandwidth')} for row in raw.get('data',{}).get('dash',{}).get('video',[])]),ensure_ascii=False))
           PY
