@@ -144,6 +144,14 @@ def not_draft(properties):
     return not any(k in properties for k in ('a_reading','a_turn_starts','b_focus'))
 
 
+def test_guest_evidence_grammar_never_offers_known_invalid_short_asr_fragments():
+    units=['主持人提出了一个未经嘉宾确认的假设','还有一个','但是我们反过来，我们看这个行业，还是有需求。','嗯']
+    roles=['host','guest','guest','guest']
+    ids=T.guest_evidence_ids(units,roles)
+    assert ids==[2]
+    assert T.proposal_schema(4,guest_ids=ids)['properties']['b_focus']['properties']['b_evidence_ids']['items']['enum']==[2]
+
+
 def test_sparse_speaker_changes_cover_all_cues_without_model_end_index_arithmetic():
     units=['主持人问题背景','主持人实际提问','嘉宾回答判断','嘉宾回答限制','主持人总结复述']
     reading=dict(a_turn_starts=[dict(a_start=0,b_role='host'),dict(a_start=2,b_role='guest'),dict(a_start=4,b_role='host')],

@@ -117,6 +117,13 @@ def bind_reading(reading, units):
     return bind_turns(turns,units)
 
 
+def guest_evidence_ids(units, roles):
+    # The 818 real draft repeatedly selected short ASR cues, then failed the
+    # unchanged eight-character evidence check. Do not offer impossible IDs to
+    # the model; retain every short cue in the full reading/review context.
+    return [i for i,role in enumerate(roles) if role=='guest' and len(compact(units[i]))>=8]
+
+
 def review_schema(candidate_count):
     fields = {name:dict(type='boolean') for name in CHECKS}
     fields.update(index=dict(type='integer', minimum=0, maximum=candidate_count - 1),
@@ -295,7 +302,10 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 proposed_reading=_json(call(retry_note+reader_prompt,reading_schema(len(units))))
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
-            guest_ids=[i for i,role in enumerate(roles or []) if role=='guest']
+            guest_ids=guest_evidence_ids(units,roles) if structured_model else []
+            if structured_model and not guest_ids:
+                reading=None
+                raise ValueError('嘉宾回答中没有达到原文证据长度的条目，不能选主持人或短语凑证据')
             if structured_model:
                 subjects={word:[i for i in ids if i in guest_ids] for word,ids in subject_catalog(units).items()}
                 subjects={word:ids for word,ids in subjects.items() if ids}

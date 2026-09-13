@@ -9,6 +9,20 @@ from presentation import layout_for
 from restore_production_evidence import restore
 
 
+def test_actual_818_pause_timing_does_not_retry_model_or_drop_a_word(monkeypatch,tmp_path):
+    from caption_readability import clean_entries,display_payload_text
+    raw=json.loads((Path(__file__).parent/'fixtures/linyuan_818_caption_timing.json').read_text())
+    clean,_=clean_entries(raw)
+    monkeypatch.setattr(p,'llm',lambda *a,**k:pytest.fail('Sub-frame timing difference must not retry the model'))
+    out=p.semantic_caption_entries(raw,'',layout_for(720,1280,True),tmp_path/'captions.json')
+    assert display_payload_text(''.join(e['zh'] for e in out))==display_payload_text(''.join(e['zh'] for e in clean))
+    assert all(.25<=e['end_sec']-e['start_sec']<=8 for e in out)
+    assert out[-1]['zh']=='这个退市倒闭的这些风险'
+    assert out[-1]['end_sec']==pytest.approx(234.544)
+    assert out[-1]['start_sec']==pytest.approx(226.544)
+    assert p.caption_display_interval(0,8.11)==(0,8.11)  # Larger overruns still need a real split.
+
+
 def test_caption_prompt_excludes_duplicate_timing_and_offset_tables(monkeypatch,tmp_path):
     class Captured(BaseException):pass
     entries=[dict(start_sec=i*3,end_sec=(i+1)*3,zh='守住现金流的企业大家还更愿意买',en='') for i in range(40)]

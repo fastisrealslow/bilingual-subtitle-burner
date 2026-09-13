@@ -1946,6 +1946,18 @@ def caption_timeline(entries):
     return chars,entry_bounds,punctuation_bounds
 
 
+def caption_display_interval(start, end):
+    """Keep complete phrases within 8 s despite sub-100 ms ASR interpolation.
+
+    The actual 818 tail spanned 8.055 s because of a pause inside the phrase.
+    Start its complete caption at most 0.1 s later; never alter speech, text,
+    end time, or permit a caption longer than the eight-second ceiling.
+    """
+    if 8 < end-start <= 8.1:
+        start=end-8
+    return start,end
+
+
 def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
     """Validate source- or model-selected boundaries against text and timing."""
     from presentation import word_spans, wrap_words
@@ -2017,7 +2029,8 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 part = source[a:b]
                 if unfinished_caption_tail(part) or dependent_caption_start(part):
                     continue
-                duration = chars[b-1][2] - chars[a][1]
+                begin,finish=caption_display_interval(chars[a][1],chars[b-1][2])
+                duration = finish-begin
                 if not .25 <= duration <= 8:
                     continue
                 try:
@@ -2053,7 +2066,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         # capacity that preserves every word and shrink this cue only.  The
         # floor remains 38 px, so this is a bounded layout adjustment rather
         # than a quality-gate bypass.
-        a,b=chars[offset][1],chars[end-1][2]
+        a,b=caption_display_interval(chars[offset][1],chars[end-1][2])
         if b-a>8:
             pieces=split_long_group(offset,end)
         else:
@@ -2067,7 +2080,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 except ValueError as split_error:
                     raise ValueError(str(fit_error)+'；原文边界无法安全重分') from split_error
         for lo, hi, piece, cue_capacity, cue_font in pieces:
-            a,b=chars[lo][1],chars[hi-1][2]
+            a,b=caption_display_interval(chars[lo][1],chars[hi-1][2])
             if b-a<.25: raise ValueError('意群字幕过短闪屏')
             group = dict(start_sec=a,end_sec=b,zh=piece,en='',semantic_group=True)
             if cue_capacity > capacity:
@@ -2141,7 +2154,8 @@ def source_caption_groups(entries, layout):
         for b in bounds[i+1:]:
             if b-a>2*max_capacity:break
             part=source[a:b]
-            duration=chars[b-1][2]-chars[a][1]
+            begin,finish=caption_display_interval(chars[a][1],chars[b-1][2])
+            duration=finish-begin
             if duration>layout.get('_phrase_limit',6):break
             if duration<.8:continue
             if unfinished_caption_tail(part) or dependent_caption_start(part):continue
