@@ -3,7 +3,7 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789331278,
+  "updated_at": 1789331421,
   "materials": {
     "weibo_search": {
       "records": 1184,
@@ -8165,7 +8165,14 @@
           "ly-0913-332bbd"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-332bbd",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景连续2.03秒缺少人脸"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8291,7 +8298,14 @@
           "ly-0913-cae582"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-cae582",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "真人取景源区域仅280x208像素，超过2倍放大上限，疑似远景小头像"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8326,6 +8340,36 @@
         "family": "BV19P4y1m77K",
         "slugs": [
           "ly-0913-92ddf1"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p13",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=13",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-bde14e"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p12",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=12",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-3f5f93"
         ],
         "source_sha256": [],
         "failures": [],
@@ -8964,9 +9008,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -9115,11 +9159,11 @@
         "terminal_quality-service": 15
       },
       "BV19P4y1m77K": {
-        "attempted_mothers": 34,
+        "attempted_mothers": 36,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 3,
-        "terminal_editorial-or-render": 14,
+        "terminal_editorial-or-render": 15,
         "terminal_source-quality": 1
       },
       "BV1jg1EBtEg1": {
@@ -9415,8 +9459,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
@@ -9716,8 +9760,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
@@ -9748,7 +9792,7 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 3,
+        "terminal_editorial-or-render": 4,
         "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
