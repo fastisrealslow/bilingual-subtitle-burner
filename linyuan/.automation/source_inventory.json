@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "validation_sha256": "8c2fb24230211e769c581f3d00d6068fefe67b9354ab45d9446cc1efa370f833",
+  "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789319416,
+  "updated_at": 1789319983,
   "materials": {
     "weibo_search": {
-      "records": 1183,
-      "video_candidates": 452,
-      "too_short": 47,
+      "records": 1184,
+      "video_candidates": 453,
+      "too_short": 48,
       "duration_eligible": 49,
       "long_mother_candidates": 19,
       "duration_unknown": 356
@@ -36,11 +36,11 @@
       "duration_unknown": 37
     },
     "reference_origin_search": {
-      "records": 247,
-      "video_candidates": 247,
-      "duration_eligible": 155,
-      "long_mother_candidates": 88,
-      "over_limit": 68,
+      "records": 265,
+      "video_candidates": 265,
+      "duration_eligible": 170,
+      "long_mother_candidates": 98,
+      "over_limit": 71,
       "too_short": 24
     },
     "shareholder_meeting": {
@@ -69,19 +69,19 @@
       "long_mother_candidates": 6
     },
     "bilibili_collection": {
-      "records": 128,
-      "video_candidates": 128,
-      "duration_eligible": 127,
-      "long_mother_candidates": 109,
+      "records": 132,
+      "video_candidates": 132,
+      "duration_eligible": 131,
+      "long_mother_candidates": 113,
       "over_limit": 1
     }
   },
   "inventory": {
-    "verified_live": 2,
+    "verified_live": 1,
     "verified_audio_card": 0,
     "verified_landscape": 0,
     "landscape_target": 2,
-    "daily_mix_usable": 2,
+    "daily_mix_usable": 1,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -7577,11 +7577,11 @@
             "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
           }
         ],
-        "verified_available": 2,
-        "verified_live": 2,
-        "verified_seconds": 336.0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 205.7,
+        "used_source_seconds": 130.24,
+        "historical_receipts": 1
       },
       {
         "source_key": "BV1PcNh6rErV:p1",
@@ -7915,7 +7915,14 @@
           "ly-0913-fd5280"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-fd5280",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8012,6 +8019,21 @@
             "reason": "单片超过1800秒生产预算，保留原始证据并隔离后继续后续片段"
           }
         ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1LG6JB7Ep8:p1",
+        "source_url": "https://www.bilibili.com/video/BV1LG6JB7Ep8",
+        "family": "BV1LG6JB7Ep8",
+        "slugs": [
+          "ly-0913-018375"
+        ],
+        "source_sha256": [],
+        "failures": [],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8647,9 +8669,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1,
-        "terminal_quality-service": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -8925,8 +8947,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -9097,9 +9119,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -9396,11 +9418,11 @@
       },
       "BV1hj411X7BL": {
         "attempted_mothers": 1,
-        "verified_available": 2,
-        "verified_seconds": 336.0,
+        "verified_available": 1,
+        "verified_seconds": 205.7,
+        "terminal_visual-review": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -9431,7 +9453,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 2
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -9443,6 +9465,11 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_source-quality": 1
+      },
+      "BV1LG6JB7Ep8": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
@@ -9452,310 +9479,9 @@
       "slug": "ly-0912-5dc339-stable-clean-proof-portrait",
       "artifact_id": 10321806575,
       "run_id": 34770603155,
-      "checked_at": 1789319405,
+      "checked_at": 1789319973,
       "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
       "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：市场处于牛市初期，大市值公司已上涨",
-          "duration_sec": 130.3,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "resolution": {
-            "width": 720,
-            "height": 1280,
-            "short_edge": 720
-          },
-          "source_sha256": "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47",
-          "segments": [
-            {
-              "start": 661.32,
-              "end": 791.56,
-              "reason": "逐项审查通过完整主题、解释、首尾及观看价值要求"
-            }
-          ],
-          "sha256": "eb149d3134302c0a37c5c2e7df86a38fe294421099227e1d6af3da5d8dd0fc15",
-          "fingerprints": {
-            "version": 1,
-            "sha256": "eb149d3134302c0a37c5c2e7df86a38fe294421099227e1d6af3da5d8dd0fc15",
-            "video_dhash": [
-              "703a397091941718",
-              "703a397899370b18",
-              "703a397899af2f18",
-              "703a397899c78618",
-              "703a397899f06b18",
-              "703a397899ba0f18",
-              "703a397899f48018",
-              "703a397899f48018",
-              "703a397899f48018",
-              "703a397099748018",
-              "703a397099741b18",
-              "703a397899be8e18"
-            ],
-            "audio_chromaprint": [
-              "00043b02",
-              "01062902",
-              "016dbdba",
-              "01edb9ba",
-              "0246ab02",
-              "028da089",
-              "029fb18b",
-              "02edb9ba",
-              "02edbdba",
-              "02ffb58b",
-              "03462902",
-              "09183c1c",
-              "0a2a02c0",
-              "0a2a03c0",
-              "0f6b00a0",
-              "1039eb8c",
-              "106eb40e",
-              "107d0119",
-              "107d450b",
-              "107df137",
-              "107eedcb",
-              "107ef98b",
-              "10a4a126",
-              "10ddb335",
-              "10e4a136",
-              "10e5b337",
-              "10fe0c4e",
-              "10fe340e",
-              "10ff7417",
-              "116db5fa",
-              "11a10746",
-              "11a3e136",
-              "122c2324",
-              "1238d18b",
-              "1246a102",
-              "1246a502",
-              "12578112",
-              "12682104",
-              "12a0403e",
-              "12a0602e",
-              "12a0e02a",
-              "133805cc",
-              "1338e98d",
-              "13a0ec2a",
-              "147eb98a",
-              "14edb9ba",
-              "156db175",
-              "1604a116",
-              "165c3926",
-              "16a81100",
-              "16b70932",
-              "16d41926",
-              "171c2926",
-              "171c2d2e",
-              "173a042c",
-              "176db9b6",
-              "181a1906",
-              "181a1d26",
-              "18380906",
-              "1908252e",
-              "19182c1c",
-              "19380904",
-              "19383904",
-              "1939180c",
-              "1958212e",
-              "1a2538be",
-              "1a5ba8ba",
-              "1a69b0ba",
-              "1a6db1be",
-              "1a7ab89a",
-              "1aa9b5ba",
-              "1aa9bdba",
-              "1b2c4d2c",
-              "1b69b5fe",
-              "1b6db1f6",
-              "1b6dbdfe",
-              "1ba9b1be",
-              "1cbb032b",
-              "1cec24ab",
-              "1d6db9f5",
-              "1d6dbdf4",
-              "1dec20a9",
-              "1e2c4124",
-              "1e6c81af",
-              "1e78c08a",
-              "1ee9819a",
-              "1f1a142c",
-              "1f65bbb6",
-              "1f6830a4",
-              "1f6dbdf4",
-              "1f79508a",
-              "206db9b6",
-              "206db9b7",
-              "206dbdbe",
-              "207db9b5",
-              "216db1b4"
-            ],
-            "transcript_simhash": [
-              "f7cf61dce650e093",
-              "b1ceb9fcf6a8a891",
-              "2e88796b6cbaa451",
-              "6ec178f3640f26fa",
-              "6ed193f2268f6efc",
-              "2f550fbab242ffed",
-              "8f56cf33a34a5fbf",
-              "8f56cf33a3425fbd"
-            ],
-            "transcript_ngrams": [
-              "014f94d1c78ec819",
-              "022d31de4da24116",
-              "02ec659c1120851c",
-              "13ffddf4ddade917",
-              "14076420a18a7711",
-              "1a2112a3d9002201",
-              "1a507dd682e53906",
-              "1a69cd753bd8b305",
-              "2333130e73b9690a",
-              "34e7f4c241d49b05",
-              "3897703674344a1b",
-              "3ef317844a1a760d",
-              "40cb00b25000371b",
-              "44dca41db668670e",
-              "45582b8105f1171f",
-              "49c7913cf5f53c15",
-              "50b1b6d110d9b51e",
-              "5eb0ec087558eb01",
-              "6206a16b6d909413",
-              "7450a169bd39a515",
-              "8288ce5ffd9a9607",
-              "82af2c10f8a3a712",
-              "82b73e5bb7811208",
-              "85b33e046c50ac1e",
-              "8835ccd24b9fea01",
-              "8cc39bec853f5110",
-              "94fd2af3b2ad0604",
-              "9a6449aef714f116",
-              "9b98600f93e68d06",
-              "a05b8b8d0760021e",
-              "a09b8f683894c10f",
-              "a7db45fc782bab0f",
-              "a8a8dec800f60102",
-              "ad5aa125658b6f0a",
-              "b07033c448e39602",
-              "b8d560daa6e0b303",
-              "c32a96cd116cb213",
-              "e29c78aff5a0e207",
-              "e75a5bb7db6e4004",
-              "eb5cd0e8981ef102",
-              "ed7576f74105141f",
-              "edd616967cb02d14",
-              "f14e5bca8771c914",
-              "f25c92164df9310b"
-            ],
-            "transcript_chars": 386
-          },
-          "subtitle_sha256": "6a208ab21712ed24228736177384e7d12321d2469082d93ffdf7af6e44afb498",
-          "motion": {
-            "version": 2026091201,
-            "passed": true,
-            "samples": [
-              {
-                "time": 1.0,
-                "moving": true,
-                "changed_fraction": 0.13685314685314684,
-                "mean_residual": 5.3554545454545455,
-                "correlation": 0.9914007717820563
-              },
-              {
-                "time": 12.566666666666665,
-                "moving": false,
-                "changed_fraction": 0.014195804195804195,
-                "mean_residual": 1.5392307692307692,
-                "correlation": 0.9991116328188797
-              },
-              {
-                "time": 24.13333333333333,
-                "moving": true,
-                "changed_fraction": 0.19125874125874126,
-                "mean_residual": 7.603286713286713,
-                "correlation": 0.9835439908843503
-              },
-              {
-                "time": 35.699999999999996,
-                "moving": true,
-                "changed_fraction": 0.1676223776223776,
-                "mean_residual": 6.305314685314685,
-                "correlation": 0.9869756208509842
-              },
-              {
-                "time": 47.26666666666666,
-                "moving": true,
-                "changed_fraction": 0.06573426573426573,
-                "mean_residual": 3.090699300699301,
-                "correlation": 0.9965871001553933
-              },
-              {
-                "time": 58.83333333333332,
-                "moving": true,
-                "changed_fraction": 0.08475524475524475,
-                "mean_residual": 3.62,
-                "correlation": 0.9958977136998224
-              },
-              {
-                "time": 70.39999999999999,
-                "moving": true,
-                "changed_fraction": 0.3106993006993007,
-                "mean_residual": 13.29916083916084,
-                "correlation": 0.9581527110017096
-              },
-              {
-                "time": 81.96666666666665,
-                "moving": true,
-                "changed_fraction": 0.2621678321678322,
-                "mean_residual": 11.444265734265734,
-                "correlation": 0.9637394296729304
-              },
-              {
-                "time": 93.53333333333332,
-                "moving": true,
-                "changed_fraction": 0.2755244755244755,
-                "mean_residual": 11.027482517482518,
-                "correlation": 0.967313220599191
-              },
-              {
-                "time": 105.09999999999998,
-                "moving": true,
-                "changed_fraction": 0.31566433566433566,
-                "mean_residual": 13.123146853146853,
-                "correlation": 0.9615753964744471
-              },
-              {
-                "time": 116.66666666666664,
-                "moving": true,
-                "changed_fraction": 0.346993006993007,
-                "mean_residual": 15.452797202797203,
-                "correlation": 0.9463456516199047
-              },
-              {
-                "time": 128.23333333333332,
-                "moving": true,
-                "changed_fraction": 0.24993006993006994,
-                "mean_residual": 9.967342657342657,
-                "correlation": 0.9748329773122164
-              }
-            ],
-            "moving_by_third": [
-              3,
-              4,
-              4
-            ],
-            "window": {
-              "x": 44,
-              "y": 360,
-              "width": 632,
-              "height": 470
-            },
-            "policy": "affine_compensated_local_motion",
-            "limitation": "Temporal motion evidence; identity is checked separately"
-          },
-          "status": "verified",
-          "reason": null
-        },
         {
           "index": 1,
           "final": "final_4.mp4",
@@ -10022,84 +9748,84 @@
                 "moving": true,
                 "changed_fraction": 0.08748251748251748,
                 "mean_residual": 4.09013986013986,
-                "correlation": 0.9947276169211356
+                "correlation": 0.9947275686437541
               },
               {
                 "time": 19.424242424242422,
                 "moving": true,
                 "changed_fraction": 0.1537062937062937,
                 "mean_residual": 6.302167832167832,
-                "correlation": 0.9898199258164447
+                "correlation": 0.9898199182754117
               },
               {
                 "time": 37.848484848484844,
                 "moving": true,
                 "changed_fraction": 0.06678321678321679,
                 "mean_residual": 3.374965034965035,
-                "correlation": 0.9972532510736414
+                "correlation": 0.9972532238024392
               },
               {
                 "time": 56.272727272727266,
                 "moving": true,
                 "changed_fraction": 0.1167132867132867,
                 "mean_residual": 4.989020979020979,
-                "correlation": 0.9929067055710918
+                "correlation": 0.9929067333745448
               },
               {
                 "time": 74.69696969696969,
                 "moving": true,
                 "changed_fraction": 0.20293706293706293,
                 "mean_residual": 8.222447552447553,
-                "correlation": 0.9819674734221756
+                "correlation": 0.9819674472442725
               },
               {
                 "time": 93.12121212121211,
                 "moving": false,
                 "changed_fraction": 0.003286713286713287,
                 "mean_residual": 0.7891608391608391,
-                "correlation": 0.9997411772954305
+                "correlation": 0.9997411604034289
               },
               {
                 "time": 111.54545454545453,
                 "moving": true,
                 "changed_fraction": 0.23118881118881118,
                 "mean_residual": 9.006643356643357,
-                "correlation": 0.9823284383006613
+                "correlation": 0.9823284212242174
               },
               {
                 "time": 129.96969696969694,
                 "moving": false,
                 "changed_fraction": 0.008741258741258742,
                 "mean_residual": 1.5885314685314684,
-                "correlation": 0.9990253382107908
+                "correlation": 0.9990253064380161
               },
               {
                 "time": 148.39393939393938,
                 "moving": false,
                 "changed_fraction": 0.0,
                 "mean_residual": 0.4658041958041958,
-                "correlation": 0.9999245992801207
+                "correlation": 0.9999246338138488
               },
               {
                 "time": 166.8181818181818,
                 "moving": true,
                 "changed_fraction": 0.07601398601398601,
                 "mean_residual": 3.2375524475524475,
-                "correlation": 0.9969766520844466
+                "correlation": 0.9969766432749783
               },
               {
                 "time": 185.24242424242422,
                 "moving": true,
                 "changed_fraction": 0.3997902097902098,
-                "mean_residual": 17.125244755244754,
-                "correlation": 0.9250577411654205
+                "mean_residual": 17.125104895104894,
+                "correlation": 0.925059038420117
               },
               {
                 "time": 203.66666666666666,
                 "moving": true,
                 "changed_fraction": 0.03923076923076923,
                 "mean_residual": 2.242377622377622,
-                "correlation": 0.9977950440308312
+                "correlation": 0.9977950481931948
               }
             ],
             "moving_by_third": [
@@ -10118,679 +9844,6 @@
           },
           "status": "verified",
           "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-0912-5dc339",
-      "artifact_id": 10313683706,
-      "run_id": 34743771703,
-      "checked_at": 1789318501,
-      "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：当前市场仍在牛市初期，下跌是调整而非熊市信号",
-          "duration_sec": 130.2,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "resolution": {
-            "width": 1280,
-            "height": 720,
-            "short_edge": 720
-          },
-          "source_sha256": "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47",
-          "segments": [
-            {
-              "start": 661.32,
-              "end": 791.56,
-              "reason": "逐项审查通过完整主题、解释、首尾及观看价值要求"
-            }
-          ],
-          "sha256": "a5d8265f7295178679f7997dd05885fa743e956ce715210e16b50596238e3f98",
-          "fingerprints": {
-            "version": 1,
-            "sha256": "a5d8265f7295178679f7997dd05885fa743e956ce715210e16b50596238e3f98",
-            "video_dhash": [
-              "72b6e2f0b2a28ee8",
-              "72b2f2f0b2a28ee8",
-              "72b2f2f0b2b28ee8",
-              "72b2f2f0b2b28ee8",
-              "72b2f2f0b2928fe8",
-              "72b2f2f0b2a28ee8",
-              "72b2f2f0b2a28ee8",
-              "72b2f2f0b2b28ee8",
-              "72b2f2f0b2b28ee8",
-              "72b6f2f0b2b28ee8",
-              "72b6f2f0b2b28ee8",
-              "72b2f2f0b2a28ef8"
-            ],
-            "audio_chromaprint": [
-              "00043b02",
-              "01062902",
-              "016dbdba",
-              "01edb9ba",
-              "0246ab02",
-              "028da089",
-              "029fb18b",
-              "02edb9ba",
-              "02edbdba",
-              "02ffb58b",
-              "03462902",
-              "09183c1c",
-              "0a2a02c0",
-              "0a2a03c0",
-              "0f6b00a0",
-              "1039eb8c",
-              "106eb40e",
-              "107d0119",
-              "107d450b",
-              "107df137",
-              "107eedcb",
-              "107ef98b",
-              "10a4a126",
-              "10ddb335",
-              "10e4a136",
-              "10e5b337",
-              "10fe0c4e",
-              "10fe340e",
-              "10ff7417",
-              "116db5fa",
-              "11a10746",
-              "11a3e136",
-              "122c2324",
-              "1238d18b",
-              "1246a102",
-              "1246a502",
-              "12578112",
-              "12682104",
-              "12a0403e",
-              "12a0602e",
-              "12a0e02a",
-              "133805cc",
-              "1338e98d",
-              "13a0ec2a",
-              "147eb98a",
-              "14edb9ba",
-              "156db175",
-              "1604a116",
-              "165c3926",
-              "16a81100",
-              "16b70932",
-              "16d41926",
-              "171c2926",
-              "171c2d2e",
-              "173a042c",
-              "176db9b6",
-              "181a1906",
-              "181a1d26",
-              "18380906",
-              "1908252e",
-              "19182c1c",
-              "19380904",
-              "19383904",
-              "1939180c",
-              "1958212e",
-              "1a2538be",
-              "1a5ba8ba",
-              "1a69b0ba",
-              "1a6db1be",
-              "1a7ab89a",
-              "1aa9b5ba",
-              "1aa9bdba",
-              "1b2c4d2c",
-              "1b69b5fe",
-              "1b6db1f6",
-              "1b6dbdfe",
-              "1ba9b1be",
-              "1cbb032b",
-              "1cec24ab",
-              "1d6db9f5",
-              "1d6dbdf4",
-              "1dec20a9",
-              "1e2c4124",
-              "1e6c81af",
-              "1e78c08a",
-              "1ee9819a",
-              "1f1a142c",
-              "1f65bbb6",
-              "1f6830a4",
-              "1f6dbdf4",
-              "1f79508a",
-              "206db9b6",
-              "206db9b7",
-              "206dbdbe",
-              "207db9b5",
-              "216db1b4"
-            ],
-            "transcript_simhash": [
-              "f7cf61dce650e093",
-              "b1ceb9fcf6a8a891",
-              "2e88796b6cbaa451",
-              "6ec178f3640f26fa",
-              "6ed193f2268f6efc",
-              "2f550fbab242ffed",
-              "8f56cf33a34a5fbf",
-              "8f56cf33a3425fbd"
-            ],
-            "transcript_ngrams": [
-              "014f94d1c78ec819",
-              "022d31de4da24116",
-              "02ec659c1120851c",
-              "13ffddf4ddade917",
-              "14076420a18a7711",
-              "1a2112a3d9002201",
-              "1a507dd682e53906",
-              "1a69cd753bd8b305",
-              "2333130e73b9690a",
-              "34e7f4c241d49b05",
-              "3897703674344a1b",
-              "3ef317844a1a760d",
-              "40cb00b25000371b",
-              "44dca41db668670e",
-              "45582b8105f1171f",
-              "49c7913cf5f53c15",
-              "50b1b6d110d9b51e",
-              "5eb0ec087558eb01",
-              "6206a16b6d909413",
-              "7450a169bd39a515",
-              "8288ce5ffd9a9607",
-              "82af2c10f8a3a712",
-              "82b73e5bb7811208",
-              "85b33e046c50ac1e",
-              "8835ccd24b9fea01",
-              "8cc39bec853f5110",
-              "94fd2af3b2ad0604",
-              "9a6449aef714f116",
-              "9b98600f93e68d06",
-              "a05b8b8d0760021e",
-              "a09b8f683894c10f",
-              "a7db45fc782bab0f",
-              "a8a8dec800f60102",
-              "ad5aa125658b6f0a",
-              "b07033c448e39602",
-              "b8d560daa6e0b303",
-              "c32a96cd116cb213",
-              "e29c78aff5a0e207",
-              "e75a5bb7db6e4004",
-              "eb5cd0e8981ef102",
-              "ed7576f74105141f",
-              "edd616967cb02d14",
-              "f14e5bca8771c914",
-              "f25c92164df9310b"
-            ],
-            "transcript_chars": 375
-          },
-          "subtitle_sha256": "6a208ab21712ed24228736177384e7d12321d2469082d93ffdf7af6e44afb498",
-          "motion": {
-            "version": 2026091201,
-            "passed": true,
-            "samples": [
-              {
-                "time": 1.0,
-                "moving": true,
-                "changed_fraction": 0.15965034965034966,
-                "mean_residual": 5.932727272727273,
-                "correlation": 0.990678299360807
-              },
-              {
-                "time": 12.566666666666665,
-                "moving": false,
-                "changed_fraction": 0.017552447552447552,
-                "mean_residual": 1.8411188811188812,
-                "correlation": 0.9987241794157427
-              },
-              {
-                "time": 24.13333333333333,
-                "moving": true,
-                "changed_fraction": 0.2828671328671329,
-                "mean_residual": 12.098531468531469,
-                "correlation": 0.961588967098665
-              },
-              {
-                "time": 35.699999999999996,
-                "moving": true,
-                "changed_fraction": 0.22433566433566435,
-                "mean_residual": 8.171608391608391,
-                "correlation": 0.9843011436485526
-              },
-              {
-                "time": 47.26666666666666,
-                "moving": true,
-                "changed_fraction": 0.06993006993006994,
-                "mean_residual": 3.5685314685314684,
-                "correlation": 0.996323161381859
-              },
-              {
-                "time": 58.83333333333332,
-                "moving": true,
-                "changed_fraction": 0.11258741258741259,
-                "mean_residual": 4.3195804195804195,
-                "correlation": 0.9951199039618857
-              },
-              {
-                "time": 70.39999999999999,
-                "moving": true,
-                "changed_fraction": 0.34398601398601397,
-                "mean_residual": 15.077412587412587,
-                "correlation": 0.9531778704035966
-              },
-              {
-                "time": 81.96666666666665,
-                "moving": true,
-                "changed_fraction": 0.28412587412587414,
-                "mean_residual": 12.102587412587413,
-                "correlation": 0.964638259406171
-              },
-              {
-                "time": 93.53333333333332,
-                "moving": true,
-                "changed_fraction": 0.3069230769230769,
-                "mean_residual": 12.53867132867133,
-                "correlation": 0.9624702129860122
-              },
-              {
-                "time": 105.09999999999998,
-                "moving": true,
-                "changed_fraction": 0.3423076923076923,
-                "mean_residual": 15.116293706293707,
-                "correlation": 0.9453614849541161
-              },
-              {
-                "time": 116.66666666666664,
-                "moving": true,
-                "changed_fraction": 0.32867132867132864,
-                "mean_residual": 14.263986013986013,
-                "correlation": 0.9500363065295416
-              },
-              {
-                "time": 128.23333333333332,
-                "moving": true,
-                "changed_fraction": 0.27692307692307694,
-                "mean_residual": 11.11118881118881,
-                "correlation": 0.9707931434148716
-              }
-            ],
-            "moving_by_third": [
-              3,
-              4,
-              4
-            ],
-            "window": {
-              "x": 156,
-              "y": 0,
-              "width": 968,
-              "height": 570
-            },
-            "policy": "affine_compensated_local_motion",
-            "limitation": "Temporal motion evidence; identity is checked separately"
-          },
-          "status": "rejected",
-          "reason": "缺少新版间歇角标复核（含底部原素材文字），不能只重编码或改标题后放行"
-        },
-        {
-          "index": 1,
-          "final": "final_4.mp4",
-          "title": "林园：普通消费没预期好但也不差，高端消费依然旺盛",
-          "duration_sec": 205.7,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "resolution": {
-            "width": 1280,
-            "height": 720,
-            "short_edge": 720
-          },
-          "source_sha256": "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47",
-          "segments": [
-            {
-              "start": 1401.64,
-              "end": 1607.32,
-              "reason": "林老师对消费板块的积极观点，特别是超高端白酒和一线白酒的经营状况。具体包括：超高端白酒市场表现旺盛，有竞争壁垒的品牌用户"
-            }
-          ],
-          "sha256": "c923cda92a5163acd8434e9fc4cfe823a677a23153e6e472fed8cb41adfa5ea3",
-          "fingerprints": {
-            "version": 1,
-            "sha256": "c923cda92a5163acd8434e9fc4cfe823a677a23153e6e472fed8cb41adfa5ea3",
-            "video_dhash": [
-              "aa9ab6b2b296d4d4",
-              "f872b2f2f1b28eaa",
-              "fa72b2f2f0b28eb2",
-              "f272b2f2f0b296aa",
-              "fa72b2e2f0b28eba",
-              "f872b2f2f1b28ea8",
-              "f872b2f2f1b28ee8",
-              "faf2b2e2f0328eaa",
-              "f872b2f2f0b28ea8",
-              "f872b2f2f0b28e9a",
-              "f872b2f2f0b286ae",
-              "70f0f2f871b1d2f2"
-            ],
-            "audio_chromaprint": [
-              "00122585",
-              "001ecd0d",
-              "0022143a",
-              "0022701a",
-              "0022a902",
-              "0022bf02",
-              "0023093a",
-              "0026340b",
-              "002e091f",
-              "002e0c0b",
-              "002e4580",
-              "003e650c",
-              "003edd81",
-              "0044c5ad",
-              "005249c0",
-              "0057cb8d",
-              "0060a126",
-              "0060b126",
-              "0061a136",
-              "00620387",
-              "0062911e",
-              "0062b302",
-              "00631b1b",
-              "0066e105",
-              "00723385",
-              "007e2608",
-              "007e850d",
-              "007eed05",
-              "009dca65",
-              "00a0ad62",
-              "00a2d203",
-              "00a35200",
-              "00a60ff7",
-              "00ac8f2e",
-              "00bc2208",
-              "00dcc5aa",
-              "00e08962",
-              "00e0e026",
-              "00e2a302",
-              "00e2a5c2",
-              "00e2d302",
-              "00e40be7",
-              "00e603c7",
-              "00f1cc15",
-              "00f26ec0",
-              "00f4d5aa",
-              "00ff4b6f",
-              "01027984",
-              "0121a02f",
-              "0122e01a",
-              "0126603b",
-              "012e8d8c",
-              "013efc81",
-              "017d911f",
-              "01a2fd35",
-              "01e2ef83",
-              "01ec9f2e",
-              "01ecf1a3",
-              "01f2b10e",
-              "02028b1c",
-              "0210c8c0",
-              "0212891c",
-              "021cca46",
-              "02245588",
-              "0227a02f",
-              "0230d8c4",
-              "023caca1",
-              "0242aa0c",
-              "024e9988",
-              "0260542d",
-              "0260793d",
-              "0262b01a",
-              "0264c188",
-              "026e7173",
-              "026e73b3",
-              "027869ac",
-              "02786dac",
-              "027969ec",
-              "027c6024",
-              "0289df8c",
-              "028a958c",
-              "0290bbee",
-              "02a08199",
-              "02a7d29c",
-              "02ae213a",
-              "02b09dae",
-              "02b4c4aa",
-              "02b54700",
-              "02bcace3",
-              "02bd0b30",
-              "02c0916e",
-              "02d09b76",
-              "02d4daa4",
-              "02e380ba",
-              "02e4d3ac",
-              "02e7f294"
-            ],
-            "transcript_simhash": [
-              "d55147b1b47795c7",
-              "d6515175b4ef3b44",
-              "6015f243d0abe224",
-              "508fa301d2810224",
-              "db2e8705f31408b3",
-              "842e73a1c636b6b2",
-              "d26c73e3c2e9b2b0",
-              "d0c43ac3f34bf219",
-              "505bb819d32f7039",
-              "f21f8d5b4a7f4378",
-              "c115cdd7486ec278",
-              "50716a9fc87ed235",
-              "50c9289fda5dad3c",
-              "62ddc89ddb79012c",
-              "0759d844fb394224",
-              "8b693348712dea2e",
-              "47013f3833fbaf3c",
-              "6700bf3830fbaf2e"
-            ],
-            "transcript_ngrams": [
-              "03ab756e1b92e709",
-              "050abaea121c4f03",
-              "0588cd06d6817716",
-              "05ae29296ccb1705",
-              "0a1f57de7cae4204",
-              "0af1d71e52740615",
-              "0b5f7a1e142bf615",
-              "0e38019c2544a203",
-              "0f63ab05d5bbdd08",
-              "10f42eafed8d9e1d",
-              "1107055133a5f114",
-              "14310374fba80314",
-              "1b1f731010842b05",
-              "216e1f1e552bb700",
-              "27194704cc1c8b0f",
-              "2ade6fa2f486c515",
-              "2f03925d68d0150a",
-              "30cafa427520da05",
-              "36a4f19bd49a721a",
-              "36c0c0566c92981f",
-              "384116a5f13b6d1c",
-              "3bfcbabbffa7ac05",
-              "3dfc156a82504112",
-              "3e8258b7180e4509",
-              "3fbe4cdb16740108",
-              "40d1bda5dafe6b11",
-              "42a3b84ca8398e1a",
-              "42aacc6b3eefb009",
-              "42f1597915fc1a00",
-              "45313e4c33f84e04",
-              "455c5d1e1e1dc81d",
-              "4641d399ccb29b11",
-              "4a096b3af193f20d",
-              "4b112ff962866117",
-              "4e634ccd48cd341e",
-              "53bd37c72fe8d51a",
-              "59ce4284b6c6841f",
-              "5ce8182722984c13",
-              "64161f954d60e803",
-              "667f0ffb00557c13",
-              "6787f5dd0dc4cb11",
-              "67e9585792416e1d",
-              "687095fd2acf9a0f",
-              "6edbe225058b5a13",
-              "7492690882543807",
-              "77fbb07eff5cfc0f",
-              "78935d64bd42090d",
-              "79d86b29acc18607",
-              "79e9f4b242e5e71f",
-              "7d573fdc5d842703",
-              "7dba419673894d08",
-              "7edf35d776425e11",
-              "7f5962554daef11f",
-              "80c7019e6dfc0418",
-              "83993e80d1afbe1f",
-              "84e441633cd79b10",
-              "870ed9b0f7af650b",
-              "8935a1e68039741e",
-              "8acb3e0a6493891a",
-              "8ae48a0b9f319216",
-              "8d845742bc854309",
-              "9195f21c234ca100",
-              "9268a62d14f6f009",
-              "93408dbfed5f061e",
-              "97d266904875e61b",
-              "995fddf8e80cba10",
-              "9982f151ff7a4c1e",
-              "9aed4b14ecd88d15",
-              "9bb072d62178e013",
-              "a33952845ef76816",
-              "a5fabb2bf85b2b15",
-              "a729ba7ff8ced917",
-              "aeec9bc9ef67fb13",
-              "b6caa3024fc43e1a",
-              "b760bd1d4f4cff0a",
-              "b78a70c4ab30551f",
-              "b79b13fa217b171f",
-              "ba7d5ceba44aff0b",
-              "bb5500a281d2a90c",
-              "be1656a00966340b",
-              "be176e059cf5e20f",
-              "bf0107d8734a3014",
-              "bf716e5059044f00",
-              "c1ed1cdad4def105",
-              "c380bb96cccde21f",
-              "c8d30cc4918a620e",
-              "cb632561a7b57110",
-              "cc17876215118817",
-              "cdf29cf84f2f4111",
-              "d12631de14e1d31b",
-              "d3823b32a35dd607",
-              "d4700912fc9b9b01",
-              "d5c3bc1ce7e6041b",
-              "d7d6777eb68c771e",
-              "d8bbf33019dca11f",
-              "db1f964dc904a20d"
-            ],
-            "transcript_chars": 874
-          },
-          "subtitle_sha256": "8e00aa0c2dcbc31352901f1cf884c568a59e414d92ae6153c27e9b21c593fa10",
-          "motion": {
-            "version": 2026091201,
-            "passed": true,
-            "samples": [
-              {
-                "time": 1.0,
-                "moving": true,
-                "changed_fraction": 0.09643356643356643,
-                "mean_residual": 4.766013986013986,
-                "correlation": 0.9933560926203797
-              },
-              {
-                "time": 19.424242424242422,
-                "moving": true,
-                "changed_fraction": 0.16412587412587412,
-                "mean_residual": 6.556013986013986,
-                "correlation": 0.9858514294565687
-              },
-              {
-                "time": 37.848484848484844,
-                "moving": true,
-                "changed_fraction": 0.046713286713286714,
-                "mean_residual": 2.8254545454545457,
-                "correlation": 0.9976372371566764
-              },
-              {
-                "time": 56.272727272727266,
-                "moving": true,
-                "changed_fraction": 0.14643356643356642,
-                "mean_residual": 6.276713286713287,
-                "correlation": 0.9896032089168433
-              },
-              {
-                "time": 74.69696969696969,
-                "moving": true,
-                "changed_fraction": 0.22013986013986014,
-                "mean_residual": 9.537552447552448,
-                "correlation": 0.975138261228883
-              },
-              {
-                "time": 93.12121212121211,
-                "moving": false,
-                "changed_fraction": 0.005034965034965035,
-                "mean_residual": 0.838041958041958,
-                "correlation": 0.9996497899152601
-              },
-              {
-                "time": 111.54545454545453,
-                "moving": true,
-                "changed_fraction": 0.24846153846153846,
-                "mean_residual": 9.930909090909092,
-                "correlation": 0.9784034128250204
-              },
-              {
-                "time": 129.96969696969694,
-                "moving": false,
-                "changed_fraction": 0.01041958041958042,
-                "mean_residual": 1.6922377622377622,
-                "correlation": 0.9989541217726993
-              },
-              {
-                "time": 148.39393939393938,
-                "moving": false,
-                "changed_fraction": 0.0004895104895104895,
-                "mean_residual": 0.6554545454545454,
-                "correlation": 0.9998776052944415
-              },
-              {
-                "time": 166.8181818181818,
-                "moving": true,
-                "changed_fraction": 0.0672027972027972,
-                "mean_residual": 3.093006993006993,
-                "correlation": 0.9960966201252324
-              },
-              {
-                "time": 185.24242424242422,
-                "moving": true,
-                "changed_fraction": 0.35853146853146856,
-                "mean_residual": 17.40874125874126,
-                "correlation": 0.9204761562485159
-              },
-              {
-                "time": 203.66666666666666,
-                "moving": true,
-                "changed_fraction": 0.028181818181818183,
-                "mean_residual": 1.7668531468531468,
-                "correlation": 0.9976183881794797
-              }
-            ],
-            "moving_by_third": [
-              4,
-              2,
-              3
-            ],
-            "window": {
-              "x": 156,
-              "y": 0,
-              "width": 968,
-              "height": 570
-            },
-            "policy": "affine_compensated_local_motion",
-            "limitation": "Temporal motion evidence; identity is checked separately"
-          },
-          "status": "rejected",
-          "reason": "缺少新版间歇角标复核（含底部原素材文字），不能只重编码或改标题后放行"
         }
       ]
     }
