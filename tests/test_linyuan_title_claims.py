@@ -113,8 +113,8 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
         assert kwargs['response_schema']['additionalProperties'] is False
         properties=kwargs['response_schema']['properties']
         assert kwargs['read_cache']==not_draft(properties)
-        if 'c_turn_starts' in properties:
-            return json.dumps(dict(c_turn_starts=[dict(a_start=0,b_role='guest')],
+        if 'c_guest_spans' in properties:
+            return json.dumps(dict(c_guest_spans=[dict(a_start=0,b_end=0)],
                 b_question_premise='无主持人提问',a_guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。'),ensure_ascii=False)
         reply=json.loads(callback(messages[0]['content']))
         if reply.get('candidates'):
@@ -141,7 +141,7 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
 
 
 def not_draft(properties):
-    return not any(k in properties for k in ('a_reading','c_turn_starts','b_focus'))
+    return not any(k in properties for k in ('a_reading','c_guest_spans','b_focus'))
 
 
 def test_guest_evidence_grammar_never_offers_known_invalid_short_asr_fragments():
@@ -152,16 +152,17 @@ def test_guest_evidence_grammar_never_offers_known_invalid_short_asr_fragments()
     assert T.proposal_schema(4,guest_ids=ids)['properties']['b_focus']['properties']['b_evidence_ids']['items']['enum']==[2]
 
 
-def test_sparse_speaker_changes_cover_all_cues_without_model_end_index_arithmetic():
-    assert list(T.reading_schema(5)['properties'])==['a_guest_answer','b_question_premise','c_turn_starts']
+def test_guest_reply_ranges_keep_every_unassigned_source_cue_for_independent_review():
+    assert list(T.reading_schema(5)['properties'])==['a_guest_answer','b_question_premise','c_guest_spans']
     units=['主持人问题背景','主持人实际提问','嘉宾回答判断','嘉宾回答限制','主持人总结复述']
-    reading=dict(c_turn_starts=[dict(a_start=0,b_role='host'),dict(a_start=2,b_role='guest'),dict(a_start=4,b_role='host')],
+    reading=dict(c_guest_spans=[dict(a_start=2,b_end=3)],
                  b_question_premise='主持人提出尚未确认的问题前提',a_guest_answer='嘉宾明确说明了实际情况并保留限定条件')
     roles=T.bind_reading(reading,units)
-    assert roles==['host','host','guest','guest','host']
-    for starts in [[dict(a_start=1,b_role='guest')],[dict(a_start=0,b_role='guest'),dict(a_start=0,b_role='host')],
-                   [dict(a_start=0,b_role='guest'),dict(a_start=8,b_role='host')]]:
-        with pytest.raises(ValueError):T.bind_reading({**reading,'c_turn_starts':starts},units)
+    assert roles==['unknown','unknown','guest','guest','unknown']
+    assert len(roles)==len(units)
+    for starts in [[],[dict(a_start=2,b_end=1)],[dict(a_start=0,b_end=2),dict(a_start=2,b_end=3)],
+                   [dict(a_start=0,b_end=8)]]:
+        with pytest.raises(ValueError):T.bind_reading({**reading,'c_guest_spans':starts},units)
     draft=T.proposal_schema(len(units),guest_ids=[2,3])
     assert 'a_reading' not in draft['properties']
     assert draft['properties']['b_focus']['properties']['b_evidence_ids']['items']['enum']==[2,3]

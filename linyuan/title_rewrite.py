@@ -91,13 +91,13 @@ def proposal_schema(unit_count, subjects=None, guest_ids=None):
 
 def reading_schema(unit_count):
     turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
-              b_role=dict(type='string',enum=['host','guest','unknown']))
+              b_end=dict(type='integer',minimum=0,maximum=unit_count-1))
     # Run 158 assigned alternating roles before understanding the dialogue,
     # then copied almost the full interview into its answer summary. JSON
     # grammar order must put the actual meaning before the boundary bookkeeping.
     fields=dict(a_guest_answer=dict(type='string',maxLength=240),
         b_question_premise=dict(type='string',maxLength=240),
-        c_turn_starts=dict(type='array',minItems=1,maxItems=unit_count,
+        c_guest_spans=dict(type='array',minItems=1,maxItems=unit_count,
         items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)))
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
 
@@ -107,18 +107,21 @@ def bind_reading(reading, units):
             or not 12<=len(compact(reading.get('a_guest_answer')))<=240
             or len(compact(reading.get('b_question_premise')))<4):
         raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
-    starts=reading.get('c_turn_starts')
-    if not isinstance(starts,list) or not starts:
-        raise ValueError('先标出真实说话人切换的位置')
-    turns=[]
-    for i,row in enumerate(starts):
-        if not isinstance(row,dict):raise ValueError('说话人切换格式无效')
-        start=row.get('a_start')
-        end=starts[i+1].get('a_start') if i+1<len(starts) and isinstance(starts[i+1],dict) else len(units)
-        if type(start) is not int or type(end) is not int:
-            raise ValueError('说话人切换编号必须是整数')
-        turns.append(dict(a_start=start,b_end=end-1,c_role=row.get('b_role')))
-    return bind_turns(turns,units)
+    spans=reading.get('c_guest_spans')
+    if not isinstance(spans,list) or not spans:
+        raise ValueError('必须找出能够明确归属嘉宾的实际回答，不能只列主持人的提问')
+    # Classify only explicit guest replies. All other original cues remain in
+    # full-source review as unknown, never discarded or silently made guest.
+    # Run 161 emitted four host question starts and no guest reply at all.
+    roles=['unknown']*len(units);last_end=-1
+    for row in spans:
+        if not isinstance(row,dict):raise ValueError('嘉宾回答区间格式无效')
+        start,end=row.get('a_start'),row.get('b_end')
+        if (type(start) is not int or type(end) is not int or start<=last_end
+                or start<0 or end<start or end>=len(units)):
+            raise ValueError('嘉宾回答区间必须顺序、不重叠且位于完整原文内')
+        roles[start:end+1]=['guest']*(end-start+1);last_end=end
+    return roles
 
 
 def guest_evidence_ids(units, roles):
@@ -273,8 +276,9 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 同一人的连续讲话是一个轮次，不能因为换了一条字幕或出现问号就换说话人。字幕标点可能不准，必须连贯理解上下文。
 先在a_guest_answer用最多三句概括嘉宾明确回答的主要判断及限定条件，不抄整篇字幕，不混入主持人的总结。
 再用b_question_premise概括主持人问题和未确认假设。两个概括各不超过240字。
-读清问答后，最后在c_turn_starts只写真正换说话人的起始编号：从0开始，严格递增；a_start是这一轮开始的字幕编号，b_role是host、guest或unknown。
-下一轮开始前的字幕自动全部属于当前轮次，最后一轮持续到全文末尾；不要计算结束编号，不要逐句交替标host和guest。
+读清问答后，最后在c_guest_spans标出嘉宾每段明确回答的原文范围：a_start为回答第一条字幕编号，b_end为回答最后一条字幕编号，两端都包含。
+只列嘉宾的实际回答，不能只列主持人的提问起点。连续回答合为一段，区间按顺序、不重叠；主持人的追问、第三人称概括及结束语必须留在范围外。
+其他字幕全部保留给独立复核，但不会作为嘉宾原话。说话人不清楚的句子不要选入嘉宾范围，不要为了覆盖全文而把主持人算进来。
 “您觉得”“你怎么看”通常是主持人的提问；“我听懂了”“我来总结”通常是主持人复述，不能当嘉宾原话。
 没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
 按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
