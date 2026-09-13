@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34763327956 || github.event.workflow_run.id == 34763958368 || github.event.workflow_run.id == 34764696210 || github.event.workflow_run.id == 34765298630)
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34763327956 || github.event.workflow_run.id == 34763958368 || github.event.workflow_run.id == 34764696210 || github.event.workflow_run.id == 34765298630 || github.event.workflow_run.id == 34765778630)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -35,7 +35,8 @@ jobs:
           import os,json,subprocess
           run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['VERIFIED_DEPLOY_RUN']]))
           expected={'34763327956':'f58a085b7a7728447f892711aa8902a07baceecb','34763958368':'0185b49f10aeafd9d75e2961ee84635f3e2a3e7a','34764696210':'276890d779a5836c68c197a1f05373fb9b316199',
-                    '34765298630':'fdb3493f711d25ba9eb127fc8a1328aa70d0eaf7'}
+                    '34765298630':'fdb3493f711d25ba9eb127fc8a1328aa70d0eaf7',
+                    '34765778630':'01d28b7ad524856309064e6936e0e96b5f3eada6'}
           assert run['head_sha']==expected[os.environ['VERIFIED_DEPLOY_RUN']]
           ready=run['conclusion']=='success'
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('ready='+str(ready).lower()+'\n')
