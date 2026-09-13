@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "validation_sha256": "1dd0aaa32394f48a89667a8383ae018f62241ddc3afa60bc49a39f3346e06603",
+  "validation_sha256": "a1292fea9494811a998a8c63ddba9181cf0118a5ace9b5357884bd554953e4dd",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789282172,
+  "updated_at": 1789282419,
   "materials": {
     "weibo_search": {
       "records": 1166,
@@ -6271,9 +6271,9 @@
           },
           {
             "slug": "ly-0910-interview-clean-v4-wide0911v2",
-            "stage": "workflow-preflight",
+            "stage": "stock-title",
             "terminal": false,
-            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+            "reason": "旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做"
           }
         ],
         "verified_available": 0,
@@ -7320,23 +7320,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1oxYd6BEaj:p1",
-        "source_url": "https://www.bilibili.com/video/BV1oxYd6BEaj",
-        "family": "BV1oxYd6BEaj",
-        "slugs": [
-          "ly-0912-a2096b"
-        ],
-        "source_sha256": [
-          "bf4d2a5a93266c41f61e4cd9905ece8d3e8ccf78800495ca851868751da807b3"
-        ],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1dJ1eBiE3w:p1",
         "source_url": "https://www.bilibili.com/video/BV1dJ1eBiE3w",
         "family": "BV1dJ1eBiE3w",
@@ -7381,30 +7364,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1Vt4y1q7fc:p1",
-        "source_url": "https://www.bilibili.com/video/BV1Vt4y1q7fc",
-        "family": "BV1Vt4y1q7fc",
-        "slugs": [
-          "ly-0911-ea0eed"
-        ],
-        "source_sha256": [
-          "51fcb2870bb3f0a4439f9bc065b3fd5848f011e3aad8911cd964d15971970f68"
-        ],
-        "failures": [
-          {
-            "slug": "ly-0911-ea0eed",
-            "stage": "workflow-preflight",
-            "terminal": false,
-            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1MZz8BYEGg:p1",
         "source_url": "https://www.bilibili.com/video/BV1MZz8BYEGg",
         "family": "BV1MZz8BYEGg",
@@ -7429,30 +7388,6 @@
         "historical_receipts": 1
       },
       {
-        "source_key": "BV1hj411X7BL:p1",
-        "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
-        "family": "BV1hj411X7BL",
-        "slugs": [
-          "ly-0912-5dc339"
-        ],
-        "source_sha256": [
-          "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47"
-        ],
-        "failures": [
-          {
-            "slug": "ly-0912-5dc339",
-            "stage": "workflow-preflight",
-            "terminal": false,
-            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1c8YX6uEDG:p1",
         "source_url": "https://www.bilibili.com/video/BV1c8YX6uEDG",
         "family": "BV1c8YX6uEDG",
@@ -7460,7 +7395,14 @@
           "ly-0913-0482f6"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-0482f6",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 394 < 480（394x854），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7495,6 +7437,65 @@
         "family": "BV16G411m7wQ",
         "slugs": [
           "ly-0913-e7f98a"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1hj411X7BL:p1",
+        "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
+        "family": "BV1hj411X7BL",
+        "slugs": [
+          "ly-0912-5dc339"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0912-5dc339",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Vt4y1q7fc:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Vt4y1q7fc",
+        "family": "BV1Vt4y1q7fc",
+        "slugs": [
+          "ly-0911-ea0eed"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0911-ea0eed",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1oxYd6BEaj:p1",
+        "source_url": "https://www.bilibili.com/video/BV1oxYd6BEaj",
+        "family": "BV1oxYd6BEaj",
+        "slugs": [
+          "ly-0912-a2096b"
         ],
         "source_sha256": [],
         "failures": [],
@@ -8581,8 +8582,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8835,28 +8836,13 @@
         "verified_available": 1,
         "verified_seconds": 120.7
       },
-      "BV1oxYd6BEaj": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1dJ1eBiE3w": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1Vt4y1q7fc": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1MZz8BYEGg": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1hj411X7BL": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
@@ -8864,7 +8850,8 @@
       "BV1c8YX6uEDG": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1WebnzQEAy": {
         "attempted_mothers": 1,
@@ -8876,223 +8863,31 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1hj411X7BL": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1Vt4y1q7fc": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1oxYd6BEaj": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
   "in_flight_placeholders": 5,
   "artifacts": [
     {
-      "slug": "ly-0912-5dc339",
-      "artifact_id": 10311406220,
-      "run_id": 34735834366,
-      "checked_at": 1789282113,
-      "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_4.mp4",
-          "title": "林园：谈消费需求、白酒消费与股票估值",
-          "duration_sec": 205.7,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "resolution": {
-            "width": 1280,
-            "height": 720,
-            "short_edge": 720
-          },
-          "source_sha256": "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47",
-          "segments": [
-            {
-              "start": 1401.64,
-              "end": 1607.32,
-              "reason": "林老师对消费板块的积极观点，特别是超高端白酒和一线白酒的经营状况。具体包括：超高端白酒市场表现旺盛，有竞争壁垒的品牌用户"
-            }
-          ],
-          "sha256": "165008328d7f0a023e78f3f851638bb30110d62f7c4b2f2b4038ac8c38d7143d",
-          "subtitle_sha256": "8e00aa0c2dcbc31352901f1cf884c568a59e414d92ae6153c27e9b21c593fa10",
-          "motion": {
-            "version": 2026091201,
-            "passed": true,
-            "samples": [
-              {
-                "time": 1.0,
-                "moving": true,
-                "changed_fraction": 0.09734265734265735,
-                "mean_residual": 4.771608391608392,
-                "correlation": 0.9933652257475378
-              },
-              {
-                "time": 19.424242424242422,
-                "moving": true,
-                "changed_fraction": 0.16223776223776223,
-                "mean_residual": 6.554825174825175,
-                "correlation": 0.9861284047644732
-              },
-              {
-                "time": 37.848484848484844,
-                "moving": true,
-                "changed_fraction": 0.04664335664335664,
-                "mean_residual": 2.826993006993007,
-                "correlation": 0.9976359039306087
-              },
-              {
-                "time": 56.272727272727266,
-                "moving": true,
-                "changed_fraction": 0.14643356643356642,
-                "mean_residual": 6.276713286713287,
-                "correlation": 0.9896032089168433
-              },
-              {
-                "time": 74.69696969696969,
-                "moving": true,
-                "changed_fraction": 0.21993006993006994,
-                "mean_residual": 9.55083916083916,
-                "correlation": 0.97505340801807
-              },
-              {
-                "time": 93.12121212121211,
-                "moving": false,
-                "changed_fraction": 0.005244755244755245,
-                "mean_residual": 0.8358741258741259,
-                "correlation": 0.9996428184539308
-              },
-              {
-                "time": 111.54545454545453,
-                "moving": true,
-                "changed_fraction": 0.24958041958041957,
-                "mean_residual": 9.944615384615384,
-                "correlation": 0.978370162792766
-              },
-              {
-                "time": 129.96969696969694,
-                "moving": false,
-                "changed_fraction": 0.01041958041958042,
-                "mean_residual": 1.6922377622377622,
-                "correlation": 0.9989541217726993
-              },
-              {
-                "time": 148.39393939393938,
-                "moving": false,
-                "changed_fraction": 0.0004895104895104895,
-                "mean_residual": 0.6554545454545454,
-                "correlation": 0.9998776052944415
-              },
-              {
-                "time": 166.8181818181818,
-                "moving": true,
-                "changed_fraction": 0.06713286713286713,
-                "mean_residual": 3.075594405594406,
-                "correlation": 0.9960961516957878
-              },
-              {
-                "time": 185.24242424242422,
-                "moving": true,
-                "changed_fraction": 0.35853146853146856,
-                "mean_residual": 17.40874125874126,
-                "correlation": 0.9204761562485159
-              },
-              {
-                "time": 203.66666666666666,
-                "moving": true,
-                "changed_fraction": 0.02951048951048951,
-                "mean_residual": 1.7868531468531468,
-                "correlation": 0.9975958371259519
-              }
-            ],
-            "moving_by_third": [
-              4,
-              2,
-              3
-            ],
-            "window": {
-              "x": 156,
-              "y": 0,
-              "width": 968,
-              "height": 570
-            },
-            "policy": "affine_compensated_local_motion",
-            "limitation": "Temporal motion evidence; identity is checked separately"
-          },
-          "status": "rejected",
-          "reason": "标题是关键词目录，需重新提炼中心观点"
-        }
-      ]
-    },
-    {
-      "slug": "ly-0911-ea0eed",
-      "artifact_id": 10310839524,
-      "run_id": 34735820644,
-      "checked_at": 1789282118,
-      "source_url": "https://www.bilibili.com/video/BV1Vt4y1q7fc",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：谈企业盈利与股票投资",
-          "duration_sec": 469.5,
-          "render_mode": "audio_card",
-          "content_type": null,
-          "resolution": {
-            "width": 720,
-            "height": 1280,
-            "short_edge": 720
-          },
-          "source_sha256": "51fcb2870bb3f0a4439f9bc065b3fd5848f011e3aad8911cd964d15971970f68",
-          "segments": [
-            {
-              "start": 304.44,
-              "end": 773.88,
-              "reason": "在讨论股市牛市的形成机制时，受访者明确指出市场不存在真正的'慢牛'，强调股市上涨具有快速、短期的特性。具体表现为：1) "
-            }
-          ],
-          "sha256": "10f26fc8379f282bd04701498be7e22b009ba52ac50ba8d4754ce7ab61902c5c",
-          "subtitle_sha256": "eda1f6dd0fdda93dcd7671c7d6f1eda52db0a9c46b6695d7b8cc1db5d2e90400",
-          "motion": null,
-          "status": "rejected",
-          "reason": "标题是关键词目录，需重新提炼中心观点"
-        }
-      ]
-    },
-    {
-      "slug": "ly-0912-a2096b",
-      "artifact_id": 10299691717,
-      "run_id": 34697538251,
-      "checked_at": 1789282120,
-      "source_url": "https://www.bilibili.com/video/BV1oxYd6BEaj",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final.mp4",
-          "title": "林园：谈企业盈利与科技投资",
-          "duration_sec": 171.2,
-          "render_mode": "audio_card",
-          "content_type": null,
-          "resolution": {
-            "width": 720,
-            "height": 1280,
-            "short_edge": 720
-          },
-          "source_sha256": "bf4d2a5a93266c41f61e4cd9905ece8d3e8ccf78800495ca851868751da807b3",
-          "segments": [
-            {
-              "start": 362.04,
-              "end": 533.24,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "70e65c11b700528f4e2dbf76fdfe0da7e1c08637bb9a38e2ed02747b46f5c691",
-          "subtitle_sha256": "052096519992498665e8c0dab54271110e032cd4c449bec8dc1101266d3a865d",
-          "motion": null,
-          "status": "rejected",
-          "reason": "标题是关键词目录，需重新提炼中心观点"
-        }
-      ]
-    },
-    {
       "slug": "ly-0912-2380b7",
       "artifact_id": 10293854497,
       "run_id": 34681224801,
-      "checked_at": 1789282121,
+      "checked_at": 1789282373,
       "source_url": "https://www.bilibili.com/video/BV1wtaAzCEkx",
       "parts": [
         {
@@ -9127,7 +8922,7 @@
       "slug": "ly-0911-f8d754",
       "artifact_id": 10262245814,
       "run_id": 34575400754,
-      "checked_at": 1789282126,
+      "checked_at": 1789282377,
       "source_url": "https://www.bilibili.com/video/BV1kdzYBhEB6",
       "parts": [
         {
@@ -9513,7 +9308,7 @@
       "slug": "ly-0909-1c3654-u0911r3",
       "artifact_id": 10189360436,
       "run_id": 34574913918,
-      "checked_at": 1789282162,
+      "checked_at": 1789282409,
       "source_url": "https://www.bilibili.com/video/BV1f7C3YGEuk",
       "parts": [
         {
