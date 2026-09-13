@@ -1,0 +1,39 @@
+name: 林园旧任务标题恢复实测
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-title-cache-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 从801实际文件恢复已完成标题
+        run: |
+          gh run download 34755308322 --repo "$GITHUB_REPOSITORY" -n editorial-ly-0912-5dc339-stable-four-portrait -D /tmp/old-editorial
+          python - <<'PY'
+          import json,sys,shutil
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          from restore_production_evidence import main
+          evidence=next(Path('/tmp/old-editorial').rglob('source_quality.json'))
+          original=json.loads(evidence.read_text())
+          assert original['source_sha256']=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47' and original['passed']
+          work=Path('/tmp/title-recovery-check');work.mkdir()
+          shutil.copyfile(evidence,work/'source_quality.json')
+          sys.argv=['restore','--run-id','34755308322','--work',str(work)]
+          main()
+          found=[]
+          for file in work.glob('copywrite*.json'):
+              data=json.loads(file.read_text())
+              found.append(dict(file=file.name,title=data.get('title'),verified=data.get('title_quality_verified'),method=data.get('title_rewrite',{}).get('review',{}).get('method')))
+          print(json.dumps(found,ensure_ascii=False))
+          assert len(found)>=2 and all(row['verified'] for row in found)
+          PY
