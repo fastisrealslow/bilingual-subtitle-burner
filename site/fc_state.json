@@ -8626,7 +8626,11 @@
    "delay_hours": 0,
    "source": "bilibili_collection",
    "author": "给B友们买瓜子去",
-   "publish_time": "2022-11-01T11:49:22+00:00"
+   "publish_time": "2022-11-01T11:49:22+00:00",
+   "failed": true,
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV19P4y1m77K:p39",
@@ -8683,8 +8687,8 @@
    "output_layout": "portrait",
    "source_check_report_id": 10319223287,
    "source_check_run_id": 34761171240,
-   "last_error": "本轮选段没有返回通过120秒和连续上下文检查的候选",
-   "failure_stage": "quality-service",
+   "last_error": "选段参数丢失导致重复生成811已有第2、4段；只保留811发布及独立第3段修复",
+   "failure_stage": "duplicate-selection",
    "source_check_attempts": 1,
    "parts_total": 2,
    "quality_retries": 1,
@@ -8692,7 +8696,30 @@
    "quality_reprocess_artifact_id": 10320556114,
    "last_retry": 1789313060,
    "reprocessing_quality": true,
-   "quality_failure": "缺少新版间歇角标复核，不能只重编码或改标题后放行"
+   "quality_failure": "缺少新版间歇角标复核，不能只重编码或改标题后放行",
+   "failed": true,
+   "review_hold": true,
+   "selected_parts": "1,3"
+  },
+  {
+   "key": "bilibili_search:BV1hj411X7BL",
+   "video_id": "BV1hj411X7BL",
+   "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
+   "asset_url": "https://www.bilibili.com/video/BV1hj411X7BL",
+   "title": "林园红周刊6-10直播访谈开头部分（补发）",
+   "source": "bilibili_search",
+   "production_rules_version": 2026090604,
+   "required_presentation_version": 2,
+   "slug": "ly-0912-5dc339-reserve-3-timing",
+   "ts": 1789313158,
+   "delay_hours": 0,
+   "repair_of": "ly-0912-5dc339",
+   "output_layout": "portrait",
+   "selected_parts": "3",
+   "failed": true,
+   "last_error": "本轮选段没有返回通过120秒和连续上下文检查的候选",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -30135,6 +30162,20 @@
    "video_id": "BV1rYcWeaEtb:p62",
    "ts": 1789310758,
    "error": "本轮选段没有返回通过120秒和连续上下文检查的候选"
+  },
+  {
+   "slug": "ly-0912-5dc339-reserve-3-timing",
+   "key": "bilibili_search:BV1hj411X7BL",
+   "video_id": "BV1hj411X7BL",
+   "ts": 1789313507,
+   "error": "本轮选段没有返回通过120秒和连续上下文检查的候选"
+  },
+  {
+   "slug": "ly-0913-3f593d",
+   "key": "bilibili_search:BV19P4y1m77K:p9",
+   "video_id": "BV19P4y1m77K:p9",
+   "ts": 1789313511,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
