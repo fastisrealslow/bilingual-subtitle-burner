@@ -1,0 +1,27 @@
+name: 林园801取景故障证据
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-crop-801-evidence.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 导出801逐帧取景失败证据
+        run: |
+          mkdir -p /tmp/evidence801/frames /tmp/evidence801/editorial
+          gh run download 34755308322 --repo "$GITHUB_REPOSITORY" -n render-evidence-ly-0912-5dc339-stable-four-portrait -D /tmp/evidence801/frames
+          gh run download 34755308322 --repo "$GITHUB_REPOSITORY" -n editorial-ly-0912-5dc339-stable-four-portrait -D /tmp/evidence801/editorial
+          python - <<'PY'
+          import shutil
+          shutil.make_archive('/tmp/evidence801','zip','/tmp/evidence801')
+          PY
+          gh release upload stability-0913 /tmp/evidence801.zip --repo "$GITHUB_REPOSITORY" --clobber
