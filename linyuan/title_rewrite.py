@@ -4,7 +4,7 @@ import hashlib
 import json
 import re
 
-VERSION = 2026091302
+VERSION = 2026091303
 CHECKS = ('source_supported', 'central_point', 'attribution_correct',
           'preserves_qualifiers', 'cover_consistent', 'readable')
 
@@ -63,11 +63,13 @@ def proposal_schema(unit_count, subjects=None):
     fields = {'subject':dict(type='string', **({'enum':list(subjects)} if subjects else {}))}
     fields['evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
-    fields['title'] = dict(type='string', minLength=12, maxLength=68)
-    fields['cover_title'] = dict(type='string', minLength=8, maxLength=22)
-    return dict(type='object', additionalProperties=False, required=['candidates'], properties={
+    fields['claim'] = dict(type='string', minLength=22, maxLength=160)
+    copies=dict(title=dict(type='string',minLength=22,maxLength=68),
+                cover_title=dict(type='string',minLength=10,maxLength=22))
+    return dict(type='object', additionalProperties=False, required=['focus','candidates'], properties={
+        'focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
         'candidates':dict(type='array', minItems=3, maxItems=3,
-            items=dict(type='object', additionalProperties=False, required=list(fields), properties=fields))})
+            items=dict(type='object', additionalProperties=False, required=list(copies), properties=copies))})
 
 
 def review_schema(candidate_count):
@@ -96,8 +98,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
         return '标题缺少主讲人前缀'
-    if summary_heading(title) or not 12 <= len(compact(title)) <= 62:
+    if summary_heading(title):
         return '标题必须呈现一个具体观点，不能是主题目录或残句'
+    if not 12 <= len(compact(title)) <= 62:
+        return f'标题有效字数为{len(compact(title))}，须12~62字；补全具体判断或问题，不用空格凑长度'
     if not isinstance(cover, str) or not 8 <= len(compact(cover)) <= 18:
         return '封面短标题须以完整词句排入两行'
     if check_layout:
@@ -181,14 +185,16 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 为同一个中心观点写3个不同角度的标题：具体判断、原文支持的反常识选择、视频确实回答的问题。
 不必硬造冲突或数字。允许自然改写和设问；保留否定、条件、可能性，不写保证收益。
 不能把控制仓位、提前布局等行为推断成“更安全”“风险更低”“更赚钱”；原文没说就不能加。
-每条以“{speaker}：”开头，正文通常18~36字。封面8~18字，两行能完整读完，表达同一个看点。
+每条以“{speaker}：”开头，正文18~36字。封面8~18字，两行能完整读完，表达同一个看点；封面不加姓名前缀。
 拒绝“谈A、B与C”“关于某某的公开讨论”“投资逻辑解析”等目录式标题。
-每条用evidence_ids选1~4组原文证据的编号，程序会取回真实原句，不要重新抄写或改写证据。
-先从对象表选subject原词，再选确实支撑观点的证据编号，然后才写标题和封面。
+先填写focus：从对象表选一个subject原词，用evidence_ids选1~4组证据，在claim写清嘉宾的具体判断、做法及限定条件。
+然后围绕这同一个判断写三个不同角度的标题，三条都使用focus的对象和证据，不能各挑不同话题。
+程序会取回真实证据原句，不要重新抄写或改写证据。claim是写作草稿，不能代替真实字幕。
 subject必须逐字出现在标题与至少一组所选证据中，不能自行组合成新词；这只是证据索引，不是标题模板。
 用日常说话表达看点，不写“潜力池”“收益逻辑”“策略解析”等空话。
 标题要让没看过采访的人一遍看懂。用具体的选择、疑问或判断吸引观众，不堆“赛道、控比例、潜力”等词。
 主体关系不能写反：是行业尚未出现龙头，不是“一家公司未出龙头”；原文说“不如预期但没那么坏”，不能升级成“稳健复苏”。
+文风示例（不可套用事实）：原文说“利润涨了但货款收不回，暂时不买”，可写“利润在增长，为什么还要先看回款？”，不能写“回款利润投资逻辑”。
 封面必须有8~18个汉字，不能只有一个短词。
 旧标题仅供识别问题，不是已验收结论：{preferred or '无'}
 只输出符合给定结构的JSON，必须填满3条真实候选，不能返回空字符串。
@@ -205,7 +211,13 @@ subject必须逐字出现在标题与至少一组所选证据中，不能自行�
                 raise ValueError('必须提供三个不同角度的候选标题')
             # A structured production call never accepts model-authored evidence.
             if structured_model:
-                candidates = [bind_evidence(c, units) for c in candidates]
+                focus=proposal.get('focus') or {}
+                if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
+                    raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
+                if focus.get('subject') not in subjects:
+                    raise ValueError('中心对象必须从原词表选取')
+                candidates = [bind_evidence(dict(title=c.get('title'),cover_title=c.get('cover_title'),
+                    subject=focus['subject'],evidence_ids=focus.get('evidence_ids')),units) for c in candidates]
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             valid = [c for c, issue in zip(candidates, errors) if not issue]
@@ -214,6 +226,8 @@ subject必须逐字出现在标题与至少一组所选证据中，不能自行�
                         f"（对象={c.get('subject')},证据编号={c.get('evidence_ids')}）：{issue}"
                         for c,issue in zip(candidates,errors) if issue]
                 raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
+            if len({compact(c['title']) for c in valid})!=3:
+                raise ValueError('三个标题必须有不同看点，不能重复同一句话')
             judge = f'''独立核对这些视频标题与完整字幕，只评价标题和封面，不重做选段或字幕审核。
 先在reason用一句话指出原文依据或标题增加的结论，再给判定。不能空填全部true。
 严格寻找标题/封面新增的比较、因果、收益和安全性判断：控制仓位不等于“更安全”，

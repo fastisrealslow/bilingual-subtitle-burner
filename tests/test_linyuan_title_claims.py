@@ -99,9 +99,12 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     def structured(messages,*a,**kwargs):
         assert kwargs['response_schema']['additionalProperties'] is False
         reply=json.loads(callback(messages[0]['content']))
+        if reply.get('candidates'):
+            reply['focus']=dict(subject='龙头',evidence_ids=list(range(len(T.source_units(TEXT)))),
+                claim='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
         for candidate in reply.get('candidates',[]):
             candidate.pop('evidence')
-            candidate['evidence_ids']=list(range(len(T.source_units(TEXT))))
+            candidate.pop('subject')
         return json.dumps(reply,ensure_ascii=False)
     monkeypatch.setattr(P,'llm',structured)
     cues=[dict(text=TEXT,start=0,end=150)]
@@ -138,8 +141,9 @@ def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name
     assert catalog
     for subject, ids in catalog.items():
         assert ids and all(subject in units[i] for i in ids)
-    schema=T.proposal_schema(len(units),catalog)['properties']['candidates']['items']['properties']
-    assert set(schema['subject']['enum'])==set(catalog)
+    proposal=T.proposal_schema(len(units),catalog)['properties']
+    assert set(proposal['focus']['properties']['subject']['enum'])==set(catalog)
+    schema=proposal['candidates']['items']['properties']
     assert schema['title']['minLength']>=12 and schema['cover_title']['minLength']>=8
     assert '未出龙头公司' not in catalog and '医药消费赛道' not in catalog
 
