@@ -3,7 +3,7 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789331698,
+  "updated_at": 1789331895,
   "materials": {
     "weibo_search": {
       "records": 1184,
@@ -8268,7 +8268,14 @@
           "ly-0913-93a643"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-93a643",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景连续2.03秒缺少人脸"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8370,6 +8377,21 @@
         "family": "BV19P4y1m77K",
         "slugs": [
           "ly-0913-3f5f93"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p11",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=11",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-2486e5"
         ],
         "source_sha256": [],
         "failures": [],
@@ -9159,11 +9181,11 @@
         "terminal_quality-service": 15
       },
       "BV19P4y1m77K": {
-        "attempted_mothers": 36,
+        "attempted_mothers": 37,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 3,
-        "terminal_editorial-or-render": 15,
+        "terminal_editorial-or-render": 16,
         "terminal_source-quality": 1
       },
       "BV1jg1EBtEg1": {
@@ -9300,8 +9322,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -9760,8 +9782,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1,
         "terminal_duplicate-selection": 1
       },
       "BV1PcNh6rErV": {
