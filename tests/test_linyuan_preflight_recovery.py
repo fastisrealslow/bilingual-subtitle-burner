@@ -97,3 +97,31 @@ def test_weekly_reserved_clips_do_not_masquerade_as_daily_inventory():
     assert fc.source_inventory(state, dict(artifacts=records, updated_at=time.time(),
         quality_gate_version=fc.QUALITY_GATE_VERSION,
         editorial_policy_version=fc.editorial.VERSION))['verified_live'] == 1
+
+
+def test_inspected_stock_title_failure_reuses_its_real_evidence_after_exact_fix(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/stock_upgrade_plan.py',failed_step='出片')
+    entry['slug']='ly-0910-interview-clean-v4-wide0911v2'
+    run['id']=34741749753
+    assert fc._recover_preflight_failure(state,entry,run,[])
+    assert entry['failure_stage']=='stock-title'
+    assert entry['source_check_run_id']==34741749753
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+
+
+def test_stock_title_recovery_rejects_unrelated_code_changes(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/title_rewrite.py',failed_step='出片')
+    entry['slug']='ly-0910-interview-clean-v4-wide0911v2'
+    run['id']=34741749753
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+
+
+def test_running_same_slug_is_never_redispatched_or_deleted(monkeypatch):
+    calls=[]
+    def gh(method,path,*args,**kwargs):
+        calls.append((method,path))
+        assert method=='GET'
+        return dict(workflow_runs=[dict(display_title='中文源出片 · mother')])
+    monkeypatch.setattr(fc,'gh',gh)
+    assert not fc._request_quality_reprocess({},dict(slug='mother'),'mother','标题是关键词目录',123)
+    assert len(calls)==2

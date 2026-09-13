@@ -3199,11 +3199,11 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except ValueError:
             pass
     from title_rewrite import generate
-    def title_model(prompt):
+    def title_model(prompt, schema):
         return llm([{"role":"user","content":prompt}],api_key,temperature=.35,
-                   max_tokens=2300,budget_sec=240)
+                   max_tokens=2300,budget_sec=240,response_schema=schema)
     try:
-        d=generate(transcript_text,speaker,existing_titles or [],model=title_model,
+        d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title)
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
                                     rewrite_proof=d['title_rewrite'])

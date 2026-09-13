@@ -24,6 +24,60 @@ def _json(text):
     return json.loads(match.group(0) if match else text)
 
 
+def source_units(transcript):
+    """Number exact source spans; the model selects evidence instead of retyping it."""
+    spans = re.findall(r'.+?(?:[。！？!?；;\n]|$)', transcript, re.S)
+    units, current = [], ''
+    for span in spans:
+        for start in range(0, len(span), 100):
+            chunk = span[start:start + 100]
+            if current and len(current) + len(chunk) > 120:
+                units.append(current)
+                current = ''
+            current += chunk
+            if len(compact(current)) >= 30:
+                units.append(current)
+                current = ''
+    if current:
+        if units and len(compact(current)) < 8:
+            units[-1] += current
+        else:
+            units.append(current)
+    if ''.join(units) != transcript:
+        raise ValueError('原文证据分组改变了字幕')
+    return units
+
+
+def proposal_schema(unit_count):
+    fields = {name:dict(type='string') for name in ('title', 'cover_title', 'subject')}
+    fields['evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
+        items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
+    return dict(type='object', additionalProperties=False, required=['candidates'], properties={
+        'candidates':dict(type='array', minItems=3, maxItems=3,
+            items=dict(type='object', additionalProperties=False, required=list(fields), properties=fields))})
+
+
+def review_schema(candidate_count):
+    fields = {name:dict(type='boolean') for name in CHECKS}
+    fields.update(index=dict(type='integer', minimum=0, maximum=candidate_count - 1),
+                  appeal=dict(type='integer', minimum=1, maximum=5), reason=dict(type='string'))
+    return dict(type='object', additionalProperties=False, required=['reviews'], properties={
+        'reviews':dict(type='array', minItems=candidate_count, maxItems=candidate_count,
+            items=dict(type='object', additionalProperties=False, required=list(fields), properties=fields))})
+
+
+def bind_evidence(item, units):
+    if not isinstance(item, dict):
+        raise ValueError('候选不是JSON对象')
+    ids = item.get('evidence_ids')
+    if (not isinstance(ids, list) or not 1 <= len(ids) <= 4 or len(set(ids)) != len(ids)
+            or any(type(i) is not int or not 0 <= i < len(units) for i in ids)):
+        raise ValueError('原文证据编号无效')
+    if 'evidence' in item:
+        raise ValueError('证据必须从编号取回，不能由模型另写原文')
+    return {**item, 'evidence':[units[i] for i in sorted(ids)]}
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -93,26 +147,36 @@ def _extractive(transcript, speaker, existing_titles, preferred=None):
     raise ValueError('未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试')
 
 
-def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None):
-    if model is None:
+def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None,
+             structured_model=None):
+    if model is None and structured_model is None:
         return _extractive(transcript, speaker, existing_titles, preferred)
+    units = source_units(transcript)
+    def call(prompt, schema):
+        return structured_model(prompt, schema) if structured_model else model(prompt)
     prompt = f'''你是视频标题编辑。读完真实字幕，先找这段最主要的一个观点和它的理由。
 不要按出现的关键词凑标题，不要照抄口头残句；不要把主持人的追问当成嘉宾断言。
 为同一个中心观点写3个不同角度的标题：具体判断、原文支持的反常识选择、视频确实回答的问题。
 不必硬造冲突或数字。允许自然改写和设问；保留否定、条件、可能性，不写保证收益。
 每条以“{speaker}：”开头，正文通常18~36字。封面8~18字，两行能完整读完，表达同一个看点。
 拒绝“谈A、B与C”“关于某某的公开讨论”“投资逻辑解析”等目录式标题。
-每条须给出1~4段连续、逐字来自字幕的完整证据句，subject为标题与证据共有的具体对象。
+每条用evidence_ids选1~4组原文证据的编号，程序会取回真实原句，不要重新抄写或改写证据。
+subject为标题与所选证据共有的2~12字具体对象；封面必须有8~18个汉字，不能只有一个短词。
 旧标题仅供识别问题，不是已验收结论：{preferred or '无'}
-只输出JSON：{{"candidates":[{{"title":"","cover_title":"","subject":"","evidence":["原文"]}}]}}
-真实字幕：\n{transcript}'''
+只输出JSON：{{"candidates":[{{"title":"","cover_title":"","subject":"","evidence_ids":[0,1]}}]}}
+真实字幕：\n{transcript}
+证据编号（每组均为未改写的原文）：\n{json.dumps(dict(enumerate(units)), ensure_ascii=False)}'''
     last_error = ''
     for attempt in range(3):
         try:
-            proposal = _json(model(prompt + ('\n上次问题：' + last_error if last_error else '')))
+            proposal = _json(call(prompt + ('\n上次问题：' + last_error if last_error else ''),
+                                  proposal_schema(len(units))))
             candidates = proposal.get('candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:
                 raise ValueError('必须提供三个不同角度的候选标题')
+            # A structured production call never accepts model-authored evidence.
+            if structured_model:
+                candidates = [bind_evidence(c, units) for c in candidates]
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             valid = [c for c, issue in zip(candidates, errors) if not issue]
@@ -126,7 +190,7 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
 返回JSON：{{"reviews":[{{"index":0,"source_supported":true,"central_point":true,
 "attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4,"reason":""}}]}}
 候选：{json.dumps(valid, ensure_ascii=False)}\n完整字幕：{transcript}'''
-            reviews = _json(model(judge)).get('reviews', [])
+            reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
             accepted = []
             for row in reviews:
                 if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)

@@ -1,12 +1,6 @@
 name: 标题观点 CPU 实测
 'on':
-  push:
-    branches:
-    - main
-    paths:
-    - linyuan/title_rewrite.py
-    - .github/workflows/linyuan-title-claim-check.yml
-    - tests/fixtures/linyuan_0913_title.json
+  workflow_call: {}
   workflow_dispatch: {}
 permissions:
   contents: read
@@ -87,15 +81,18 @@ jobs:
         sys.path.insert(0, 'linyuan')
         import produce_cn as p
         from title_rewrite import error
-        fixture=json.loads(Path('tests/fixtures/linyuan_0913_title.json').read_text())
-        cues=fixture['cues']
-        with tempfile.TemporaryDirectory() as directory:
-            result=p.copywrite(cues,list(range(len(cues))),'林园','访谈','',Path(directory),reviewed_title=fixture['old_title'])
-        Path('title-claim-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
-        print(json.dumps(result,ensure_ascii=False,indent=2))
-        assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
-        assert len(result['title_candidates']) >= 2
-        assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
+        results=[]
+        for name in ('linyuan_0913_title.json','linyuan_0913_landscape_title.json'):
+            fixture=json.loads((Path('tests/fixtures')/name).read_text())
+            cues=fixture['cues']
+            with tempfile.TemporaryDirectory() as directory:
+                result=p.copywrite(cues,list(range(len(cues))),'林园','访谈','',Path(directory),reviewed_title=fixture['old_title'])
+            results.append(dict(fixture=name,**result))
+            Path('title-claim-verification.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
+            print(json.dumps(results[-1],ensure_ascii=False,indent=2))
+            assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
+            assert len(result['title_candidates']) >= 2
+            assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
         PYCODE
     - uses: actions/upload-artifact@v4
       if: always()
@@ -104,4 +101,6 @@ jobs:
         path: |-
           title-claim-verification.json
           /tmp/ollama.log
+          linyuan/.llm_cache/*.json
         retention-days: 7
+        include-hidden-files: true

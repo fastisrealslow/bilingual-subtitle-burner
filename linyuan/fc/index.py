@@ -2319,7 +2319,8 @@ def obsolete_review_candidates(state, inventory):
         if (remaining and all(p.get('status')=='rejected' for p in remaining)
                 and any(any(reason in str(p.get('reason','')) for reason in (
                     'CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核',
-                    '标题存在口头残句、指代不明或语气词')) for p in remaining)):
+                    '标题存在口头残句、指代不明或语气词',
+                    '标题是关键词目录', '标题重写证明不合格')) for p in remaining)):
             yield entry,record
 
 
@@ -2762,7 +2763,7 @@ def _collect_source_rejections(st):
 
 
 def _recover_preflight_failure(st, candidate, run, artifacts):
-    """A failed regression never evaluated the mother; resume after a code fix."""
+    """Resume preflight failures, plus the two inspected obsolete-title failures."""
     if (not candidate or not candidate.get('reprocessing_quality')
             or candidate.get('failed') or not _has_unpublished_part(candidate, st)
             or run.get('conclusion') != 'failure'
@@ -2782,34 +2783,49 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     jobs = gh('GET', f"/actions/runs/{run['id']}/jobs").get('jobs', [])
     failed = [s for j in jobs for s in j.get('steps', []) if s.get('conclusion') == 'failure']
     gate = 'CPU离线ASR与完整观点规则回归（失败不进入实产）'
-    if not failed or any(s.get('name') != gate for s in failed):
+    # Both exact runs stopped in stock_upgrade_plan before rendering because
+    # the old reviewed-title rule refused rewriting. Their logs were inspected;
+    # do not infer that any other rendering failure has the same safe cause.
+    stock_title=(candidate.get('slug')=='ly-0910-interview-clean-v4-wide0911v2'
+                 and run.get('id') in {34735812094,34741749753})
+    expected_step='出片' if stock_title else gate
+    if not failed or any(s.get('name') != expected_step for s in failed):
         return False
     # State/log-only commits do not fix a test failure. Require a changed
     # production module, production workflow, or test before spending a retry.
     changes = gh('GET', f"/compare/{run['head_sha']}...main").get('files', [])
     changed = [f.get('filename', '') for f in changes]
+    if stock_title and 'linyuan/stock_upgrade_plan.py' not in changed:
+        return False
     if not any((p.startswith('linyuan/') and '/fc/' not in p and p.endswith('.py'))
                or (p.startswith('tests/') and p.endswith('.py'))
                or p == '.github/workflows/linyuan-produce-cn.yml' for p in changed):
         return False
     candidate['preflight_failure_run_id'] = run['id']
-    candidate['failure_stage'] = 'workflow-preflight'
-    candidate['last_error'] = '旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复'
+    candidate['failure_stage'] = 'stock-title' if stock_title else 'workflow-preflight'
+    candidate['last_error'] = ('旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做'
+                               if stock_title else '旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复')
     candidate['source_check_retry_after'] = int(time.time()) - 1
     # A preflight-only run contains no ASR artifact. The normal mother-hash
     # cache restores earlier raw evidence; do not request this empty run's ZIP.
-    candidate.pop('source_check_run_id', None)
+    if stock_title:
+        candidate['source_check_run_id']=run['id']
+    else:
+        candidate.pop('source_check_run_id', None)
     save_state(st)
-    log_event('quality', f"{candidate['slug']} 检测到回归失败后的滞留任务，已安排恢复",
+    log_event('quality', f"{candidate['slug']} 检测到已修复规则留下的滞留任务，已安排恢复",
               f"run={run['id']}；旧素材未被判定为不合格")
     return True
 
 
 def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
     """隔离旧 artifact，并用原素材触发新版流水线重新生成。"""
-    active=sum(len(gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30)
-                       .get('workflow_runs',[])) for status in ('in_progress','queued'))
-    if active>=MAX_ACTIVE_SOURCES:
+    active_runs=[r for status in ('in_progress','queued')
+                 for r in gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30)
+                 .get('workflow_runs',[])]
+    if any(r.get('display_title') == '中文源出片 · '+slug for r in active_runs):
+        return False
+    if len(active_runs)>=MAX_ACTIVE_SOURCES:
         e['quality_failure']=reason
         save_state(st)
         log_event('quality',f'{slug} 等待 CPU 重识别空位',reason)

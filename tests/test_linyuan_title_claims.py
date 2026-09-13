@@ -84,7 +84,14 @@ def test_keywords_without_claim_are_retryable_not_source_rejection(tmp_path,monk
 def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,monkeypatch,suffix):
     calls=[]
     callback=model(calls)
-    monkeypatch.setattr(P,'llm',lambda messages,*a,**k:callback(messages[0]['content']))
+    def structured(messages,*a,**kwargs):
+        assert kwargs['response_schema']['additionalProperties'] is False
+        reply=json.loads(callback(messages[0]['content']))
+        for candidate in reply.get('candidates',[]):
+            candidate.pop('evidence')
+            candidate['evidence_ids']=list(range(len(T.source_units(TEXT))))
+        return json.dumps(reply,ensure_ascii=False)
+    monkeypatch.setattr(P,'llm',structured)
     cues=[dict(text=TEXT,start=0,end=150)]
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
     assert result['title']==TITLE and result['copy_identity']['version']==7
@@ -92,3 +99,19 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Current verified copy should be reused'))
     cached=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
     assert cached['title']==TITLE and cached['title_rewrite']==result['title_rewrite']
+
+
+def test_actual_caption_evidence_is_selected_by_id_and_never_retyped():
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_0913_title.json').read_text())
+    text=''.join(c['text'] for c in fixture['cues'])
+    units=T.source_units(text)
+    assert ''.join(units)==text and all(len(T.compact(u))>=8 for u in units)
+    i=next(i for i,u in enumerate(units) if '整个行业' in u)
+    item=dict(title=TITLE,cover_title='龙头未定，如何布局',subject='龙头',evidence_ids=[i])
+    bound=T.bind_evidence(item,units)
+    assert bound['evidence']==[units[i]] and bound['evidence'][0] in text
+    for ids in [[-1],[len(units)],[True],[i,i]]:
+        with pytest.raises(ValueError):T.bind_evidence({**item,'evidence_ids':ids},units)
+    with pytest.raises(ValueError):T.bind_evidence({**item,'evidence':['人工补写的原文']},units)
+    assert T.proposal_schema(len(units))['properties']['candidates']['minItems']==3
+    assert all(T.review_schema(3)['properties']['reviews']['items']['properties'][k]['type']=='boolean' for k in T.CHECKS)

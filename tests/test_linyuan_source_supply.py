@@ -2,6 +2,7 @@
 import base64
 import hashlib
 import json
+import pytest
 from pathlib import Path
 import sys
 import time
@@ -159,10 +160,14 @@ def test_rejected_early_part_does_not_hide_inspected_later_part():
     assert fc.inventory_part_index(entry,456,[record],{})==0
 
 
-def test_obsolete_reviews_reuse_raw_asr_but_never_destroy_usable_stock():
+@pytest.mark.parametrize('reason',[
+    'CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核，不能仅凭旧摘要放行',
+    '标题是关键词目录，需重新提炼中心观点',
+    '标题重写证明不合格',
+])
+def test_obsolete_reviews_reuse_raw_asr_but_never_destroy_usable_stock(reason):
     entry=dict(slug='mother')
     state=dict(dispatched=[entry])
-    reason='CPU Qwen 成片尚未通过逐字开场/结尾与识别疑点复核，不能仅凭旧摘要放行'
     record=dict(slug='mother',artifact_id=123,parts=[dict(index=0,status='rejected',reason=reason)])
     inventory=dict(artifacts=[record])
     assert list(fc.obsolete_review_candidates(state,inventory))==[(entry,record)]
@@ -206,6 +211,9 @@ def test_old_contiguous_progress_remains_compatible_with_sparse_progress():
 
 
 def test_publisher_uses_later_live_part_and_keeps_earlier_audio_artifact(monkeypatch):
+    # Test mixed stock in an ordinary slot, independent of the CI runner clock.
+    # At 14:00 a portrait fixture correctly fails the landscape-only rule.
+    monkeypatch.setattr(fc.time,'time',lambda:1789264800)
     today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
     entry=dict(slug='mother',published_parts=0,ts=time.time(),source_url='')
     state=dict(dispatched=[entry],published={},daily_publish=dict(date=today,count=0))
