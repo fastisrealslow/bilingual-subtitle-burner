@@ -3,7 +3,7 @@
   "validation_sha256": "93c085bbdc19f2bc449bd5618be35df01ac456378be5f2057c933291fe85e401",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789290585,
+  "updated_at": 1789292259,
   "materials": {
     "weibo_search": {
       "records": 1166,
@@ -2971,7 +2971,14 @@
           "ly-0913-f95a57"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-f95a57",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8061,7 +8068,8 @@
       "BV1STzZB3Eu8": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1QFWxeGEGL": {
         "attempted_mothers": 1,
@@ -8437,8 +8445,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -8450,8 +8458,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8609,9 +8617,9 @@
         "attempted_mothers": 1,
         "verified_available": 1,
         "verified_seconds": 127.2,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -8912,7 +8920,7 @@
       }
     }
   },
-  "in_flight_placeholders": 6,
+  "in_flight_placeholders": 5,
   "artifacts": [
     {
       "slug": "ly-0910-interview-clean-v4-wide0911v2",
