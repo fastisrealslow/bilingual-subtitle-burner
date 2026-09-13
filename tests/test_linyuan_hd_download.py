@@ -51,6 +51,31 @@ def test_bilibili_falls_back_to_single_file_stream():
     assert selected["audio"] == []
 
 
+def test_portrait_hd_is_not_discarded_by_landscape_height_limit():
+    streams = [dict(width=w, height=h, codecid=7, baseUrl=f'{w}x{h}')
+               for w, h in [(428,854),(720,1440),(1080,2160),(1440,2880)]]
+    selected = BILI.select_streams({'data': {'dash': {'video': streams}}})
+    assert selected['video'] == ['1080x2160']
+    assert (selected['width'], selected['height']) == (1080,2160)
+
+
+def test_low_resolution_is_rejected_before_downloading_long_source(monkeypatch,tmp_path):
+    import json
+    import sys
+    import pytest
+    monkeypatch.setattr(BILI,'opener',lambda:None)
+    monkeypatch.setattr(BILI,'via_view',lambda *a:123)
+    monkeypatch.setattr(BILI,'playurl',lambda *a:dict(width=428,height=854,video=['low']))
+    def forbidden(*args,**kwargs):raise AssertionError('87-minute low-res source must not download')
+    monkeypatch.setattr(BILI,'download',forbidden)
+    report=tmp_path/'quality.json'
+    monkeypatch.setattr(sys,'argv',['fetch','--url','https://www.bilibili.com/video/BV1PcNh6rErV',
+        '--out',str(tmp_path/'video.mp4'),'--failure-report',str(report)])
+    with pytest.raises(SystemExit,match='428x854'):BILI.main()
+    row=json.loads(report.read_text())
+    assert row['retryable'] is False and row['failure_stage']=='source-quality'
+
+
 def test_bilibili_large_download_resumes_partial_file(tmp_path):
     body = b'x' * 30000
 

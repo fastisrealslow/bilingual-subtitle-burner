@@ -120,20 +120,25 @@ def _urls(stream):
 
 
 def select_streams(info):
-    """优先选择不超过 1080P 的最高画质 DASH，并优先 H.264 兼容编码。"""
+    """按短边选择最高 1080P；竖屏 1080×1920 也属于 1080P。"""
     data = (info or {}).get("data") or (info or {}).get("result") or {}
     dash = data.get("dash") or {}
+    def resolution(stream):
+        width, height = int(stream.get('width') or 0), int(stream.get('height') or 0)
+        return min(width, height) if width and height else height
     videos = [x for x in (dash.get("video") or [])
-              if int(x.get("height") or 0) <= 1080]
+              if resolution(x) <= 1080]
     if videos:
-        top_height = max(int(x.get("height") or 0) for x in videos)
-        top = [x for x in videos if int(x.get("height") or 0) == top_height]
+        top_resolution = max(resolution(x) for x in videos)
+        top = [x for x in videos if resolution(x) == top_resolution]
         avc = [x for x in top if int(x.get("codecid") or 0) == 7]
         video = max(avc or top, key=lambda x: int(x.get("bandwidth") or 0))
         audios = dash.get("audio") or []
         audio = max(audios, key=lambda x: int(x.get("bandwidth") or 0)) if audios else None
         return {"video": _urls(video), "audio": _urls(audio),
-                "height": top_height, "quality": data.get("quality")}
+                "height": int(video.get('height') or 0),
+                "width": int(video.get('width') or 0),
+                "quality": data.get("quality")}
     durl = data.get("durl") or []
     if durl:
         return {"video": _urls(durl[0]), "audio": [],
@@ -163,6 +168,10 @@ def playurl(op, bvid, cid):
 
 
 class FetchBudgetExceeded(TimeoutError):
+    pass
+
+
+class SourceResolutionUnavailable(ValueError):
     pass
 
 
@@ -474,6 +483,10 @@ def main():
             op = opener()
             print(f"→ 策略 {name}",flush=True)
             streams = fn(op)
+            width, height = int(streams.get('width') or 0), int(streams.get('height') or 0)
+            if width and height and min(width, height) < 480:
+                raise SourceResolutionUnavailable(
+                    f'最高可用流短边 {min(width, height)} < 480（{width}x{height}），画质不达标')
             height = streams.get("height") or "未知"
             print(f"  拿到最高可用流（{height}P），下载中...",flush=True)
             download(op, streams, args.url, args.out,deadline=deadline)
@@ -482,13 +495,18 @@ def main():
         except FetchBudgetExceeded as e:
             last=e
             break
+        except SourceResolutionUnavailable as e:
+            last=e
+            break
         except Exception as e:
             last = e
             print(f"  ✗ {e}", file=sys.stderr)
     if args.failure_report:
         args.failure_report.parent.mkdir(parents=True,exist_ok=True)
-        args.failure_report.write_text(json.dumps(dict(passed=False,retryable=True,
-            failure_stage='source-fetch',reason=f'取源未完成：{type(last).__name__}: {last}',
+        low_resolution = isinstance(last, SourceResolutionUnavailable)
+        args.failure_report.write_text(json.dumps(dict(passed=False,retryable=not low_resolution,
+            failure_stage='source-quality' if low_resolution else 'source-fetch',
+            reason=f'取源未完成：{type(last).__name__}: {last}',
             source_url=args.url,budget_seconds=args.budget_seconds),ensure_ascii=False,indent=2))
     sys.exit(f"所有策略失败，最后错误：{last}")
 
