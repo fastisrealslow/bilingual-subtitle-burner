@@ -1,0 +1,28 @@
+name: 取消被新修复替代的旧部署
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-retire-stale-deploy.yml]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: 核对旧版本后取消唯一指定旧任务
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          repo=os.environ['GITHUB_REPOSITORY']
+          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34760699615']))
+          assert old['head_sha']=='7425786a2f4f4010a709f9fc6562b4daa3f0840b' and old['path']=='.github/workflows/fc-production-deploy.yml'
+          new=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34762401393']))
+          assert new['head_sha']=='3f5e9177c9b11101e22a7a719207df8d6b3df98d'
+          if old['status']!='completed':
+              subprocess.run(['gh','run','cancel',str(old['id']),'--repo',repo],check=True)
+          print('旧版本已结束或已请求取消；新修复保持完整校验')
+          PY
