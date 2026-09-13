@@ -3,7 +3,7 @@
   "validation_sha256": "4578cbaf47d0be9964081d4237050064c77cfccef1a9828abf6a77c7bf199db7",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789310588,
+  "updated_at": 1789310724,
   "materials": {
     "weibo_search": {
       "records": 1175,
@@ -7568,6 +7568,12 @@
             "stage": "release-verification",
             "terminal": true,
             "reason": "等待实际成片画面复检及新版字幕证明校验上线，避免旧发布器误处理新产物"
+          },
+          {
+            "slug": "ly-0912-5dc339-reserve-13-portrait",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
           }
         ],
         "verified_available": 0,
@@ -7717,28 +7723,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV19P4y1m77K:p39",
-        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=39",
-        "family": "BV19P4y1m77K",
-        "slugs": [
-          "ly-0913-ce9c0f"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0913-ce9c0f",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV19P4y1m77K:p35",
         "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=35",
         "family": "BV19P4y1m77K",
@@ -7833,6 +7817,43 @@
         "family": "BV19P4y1m77K",
         "slugs": [
           "ly-0913-3f593d"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p39",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=39",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-ce9c0f"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0913-ce9c0f",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1rYcWeaEtb:p54",
+        "source_url": "https://www.bilibili.com/video/BV1rYcWeaEtb?p=54",
+        "family": "BV1rYcWeaEtb",
+        "slugs": [
+          "ly-0913-81a1cc"
         ],
         "source_sha256": [],
         "failures": [],
@@ -8614,7 +8635,7 @@
         "terminal_unclassified": 1
       },
       "BV1rYcWeaEtb": {
-        "attempted_mothers": 55,
+        "attempted_mothers": 56,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 12,
@@ -9222,9 +9243,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_release-verification": 1
+        "terminal_release-verification": 1,
+        "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -9252,7 +9273,7 @@
       }
     }
   },
-  "in_flight_placeholders": 11,
+  "in_flight_placeholders": 12,
   "artifacts": [
     {
       "slug": "ly-0912-5dc339",
