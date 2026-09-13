@@ -9,6 +9,7 @@ import time
 import urllib.request
 
 import index as fc
+from state_read import read_json_get
 
 
 PUBLIC_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -114,8 +115,7 @@ def state():
         f"https://api.github.com/repos/{fc.REPO}/contents/{fc.STATE_KEY}?ref=main",
         headers={"Authorization": "Bearer " + os.environ["GH_TOKEN"],
                  "Accept": "application/vnd.github.raw", "Cache-Control": "no-cache"})
-    with urllib.request.urlopen(req, timeout=60) as response:
-        return json.load(response)
+    return read_json_get(req, timeout=60)
 
 
 def receipts(st):

@@ -4620,9 +4620,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
                  prefer_live_video=False, existing_titles=None,
-                 preselected_picks=None):
+                 preselected_picks=None, require_live_video=False):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
+    prefer_live_video = prefer_live_video or require_live_video
     picks = (preselected_picks if preselected_picks is not None else
              pick_highlights(cues, speaker, api_key, work, pick_cache_suffix,
                              target_sec, allow_empty=allow_empty))
@@ -4718,6 +4719,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             except Exception as exc:
                 print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")
     use_live_video = bool(live_crop)
+    if strategy == "audio_card" and not use_live_video and require_live_video:
+        raise VisualQualityError('原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片')
     if strategy == "audio_card" and prefer_live_video and not use_live_video:
         print("[自动版式] 原画无法安全清理，使用已核验人物资料卡兜底")
 
@@ -5027,6 +5030,8 @@ def main():
                     help="在观点切片后追加一条完整访谈")
     ap.add_argument("--prefer-live-video", action="store_true",
                     help="默认使用裁净后的真人动态画面卡；静态肖像仅作失败回退")
+    ap.add_argument("--require-live-video", action="store_true",
+                    help="自动生产必须保留合格真人动态画面；不可回退为音频卡")
     ap.add_argument("--split-highlights", action="store_true",
                     help="把每个完整金句独立渲染/隔离，单条失败不淘汰同源其他金句")
     args = ap.parse_args()
@@ -5259,6 +5264,7 @@ def main():
                              allow_empty=(len(chunks) > 1 and not args.target_parts),
                              visual_report=visual_report,
                              source_report=source_report,
+                             require_live_video=args.require_live_video,
                              prefer_live_video=args.prefer_live_video and not (preselected_picks
                                  and all(p.get('stock_original_mode')=='audio_card' for p in preselected_picks)),
                              existing_titles=[x["title"] for x in metas],
@@ -5300,6 +5306,7 @@ def main():
                 target_sec=max(1, int(cues[-1]["end"] - cues[0]["start"])),
                 allow_empty=False, visual_report=visual_report,
                 source_report=source_report,
+                require_live_video=args.require_live_video,
                 prefer_live_video=args.prefer_live_video,
                 existing_titles=[x["title"] for x in metas],
                 preselected_picks=full_picks)

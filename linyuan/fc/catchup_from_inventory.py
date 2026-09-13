@@ -20,13 +20,7 @@ def inventory_action(initial, stock):
     return None
 
 
-def main():
-    initial=state()
-    stock=fc.source_inventory(initial)
-    action=inventory_action(initial,stock)
-    if not action:
-        Path('catchup-receipt.json').write_text(json.dumps(dict(skipped=True,inventory=stock),ensure_ascii=False))
-        return
+def run_inventory_task(action):
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
     from alibabacloud_tea_openapi import models as api
@@ -37,6 +31,11 @@ def main():
     runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
     prepare_async_tasks(client,function,m,runtime)
     task_id='ly-stock-'+action+'-'+os.environ['GITHUB_RUN_ID']
+    save_receipt(dict(task_id=task_id,action=action,status='Reconciling',outcome='pending'))
+    return task_id, tracked_request(client,function,m,runtime,action,task_id)
+
+
+def tracked_request(client,function,m,runtime,action,task_id,payload=None,wait_seconds=300):
     def query():
         try:
             return client.get_async_task_with_options(function,task_id,m.GetAsyncTaskRequest(qualifier='LATEST'),{},runtime).body
@@ -45,30 +44,64 @@ def main():
             raise
     task=query()
     if task is None:
-        client.invoke_function_with_options(function,m.InvokeFunctionRequest(qualifier='LATEST',
-            body=io.BytesIO(json.dumps(dict(triggerName=action)).encode())),
-            m.InvokeFunctionHeaders(x_fc_invocation_type='Async',x_fc_async_task_id=task_id),runtime)
-    deadline=time.monotonic()+300
+        try:
+            response=client.invoke_function_with_options(function,m.InvokeFunctionRequest(qualifier='LATEST',
+                body=io.BytesIO(json.dumps(payload or dict(triggerName=action)).encode())),
+                m.InvokeFunctionHeaders(x_fc_invocation_type='Async',x_fc_async_task_id=task_id),runtime)
+            if response.status_code != 202:
+                raise RuntimeError('Tracked inventory task was not accepted')
+        except Exception:
+            # An interrupted response is ambiguous. Reconcile the SAME task ID;
+            # never send another upload/dispatch while its outcome is unknown.
+            if query() is None:
+                raise
+    deadline=time.monotonic()+wait_seconds
     while time.monotonic()<deadline:
         task=query()
         if task and task.status in {'Succeeded','Failed','Stopped','Expired','Invalid'}:break
         time.sleep(15)
-    current=state()
+    return task
+
+
+def save_receipt(result):
+    Path('catchup-receipt.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+    print(json.dumps(result,ensure_ascii=False),flush=True)
+
+
+def main():
+    initial=state()
+    stock=fc.source_inventory(initial)
+    action=inventory_action(initial,stock)
+    if not action:
+        save_receipt(dict(skipped=True,outcome='idle',inventory=stock))
+        return
+    task_id,task=run_inventory_task(action)
     result=dict(task_id=task_id,action=action,status=task.status if task else 'Unknown',
-                daily_publish=current.get('daily_publish'),return_payload=task.return_payload if task else None)
+                return_payload=task.return_payload if task else None)
+    result['outcome']='failed' if result['status'] in {'Failed','Stopped','Expired','Invalid'} else 'pending'
+    save_receipt(result)
+    if not task or task.status!='Succeeded':
+        raise SystemExit('FC task '+result['status']+'; retain task ID and reconcile before retry')
+    # Persist the task before reading remote state: a receipt-read interruption
+    # must not erase the evidence needed to avoid a duplicate invocation.
+    current=state()
+    result['daily_publish']=current.get('daily_publish')
     new=[]
     for info in current.get('published',{}).values():
         for part in info.get('parts',[]):
             if part.get('status')=='published' and part.get('bvid'):
                 new.append(part)
-    if task and task.status=='Succeeded' and new:
+    result['outcome']='completed_without_new_publication'
+    result['new_bvids']=[]
+    if new:
         old_bvs={p.get('bvid') for info in initial.get('published',{}).values() for p in info.get('parts',[])}
         ids=[p['bvid'] for p in new if p['bvid'] not in old_bvs]
         if ids:
+            result.update(new_bvids=sorted(set(ids)),outcome='publication_receipt_found')
+            save_receipt(result)
             from bili_archive_status import archive_status
             result['creator_verification']=archive_status(ids,fc.OWNER_MID,os.environ['BILIBILI_COOKIES'])
-    Path('catchup-receipt.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
-    print(json.dumps(result,ensure_ascii=False))
+    save_receipt(result)
 
 
 if __name__=='__main__':main()

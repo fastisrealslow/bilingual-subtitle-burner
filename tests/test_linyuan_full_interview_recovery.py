@@ -16,6 +16,7 @@ def test_actual_full_entry_range_retry_classification_and_batch_isolation(tmp_pa
     report=dict(passed=True,resolution=dict(width=1280,height=720),visual_identity={})
     full_calls=[]
     def render(src,work,out,rows,*args,**kw):
+        assert kw['require_live_video'] is True
         is_full=kw.get('pick_cache_suffix')=='_full'
         if is_full:
             full_calls.append(kw)
@@ -34,7 +35,7 @@ def test_actual_full_entry_range_retry_classification_and_batch_isolation(tmp_pa
          patch.object(p,'pick_highlights',return_value=[dict(start=0,end=5,score=8)] if has_clip else []), \
          patch.object(p,'_produce_one',side_effect=render), \
          patch.object(sys,'argv',['produce','--source',str(source),'--slug','full-case',
-                                 '--split-highlights','--include-full']):
+                                 '--split-highlights','--include-full','--require-live-video']):
         result=p.main()
     assert len(full_calls)==1
     assert result==(2 if full_fails and not has_clip else 0)

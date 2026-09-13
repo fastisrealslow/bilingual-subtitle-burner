@@ -91,7 +91,7 @@ on:
         default: false
         type: boolean
       prefer_live_video:
-        description: '兼容旧调用；当前自动保留原画比例，不合格原画改人物资料卡'
+        description: '兼容旧调用；当前自动生产必须为合格真人动态画面'
         required: false
         default: true
         type: boolean
@@ -144,7 +144,7 @@ jobs:
         working-directory: .
         run: |
           python -m pip install -q pytest jieba numpy pillow 'opencv-python<5'
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_selection_incident.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_selection_incident.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py tests/test_linyuan_required_live.py tests/test_linyuan_full_interview_recovery.py
 
       - name: 安装素材质检依赖
         run: |
@@ -418,6 +418,7 @@ jobs:
             --source-platform "${{ env.RUN_SOURCE_PLATFORM }}" \
             --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
             --split-highlights \
+            --require-live-video \
             --only-reviewed-parts "$REVIEWED_PARTS" \
             --only-selected-parts "$SELECTED_PARTS" \
             ${{ inputs.target_parts != '' && inputs.target_parts != '0' && format('--target-parts {0}', inputs.target_parts) || '' }} \

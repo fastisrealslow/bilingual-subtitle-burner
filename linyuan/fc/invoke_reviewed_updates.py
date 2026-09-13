@@ -5,13 +5,12 @@ import json
 import os
 from pathlib import Path
 import time
-import urllib.request
+from state_read import read_json_get
 
 
 def persisted_receipts(state_key='reviewed_updates_0910', bvids=('BV16vYT6ME5s','BV16QYK6qEwm','BV1hmYt6SEJd')):
     url = 'https://raw.githubusercontent.com/fastisrealslow/bilingual-subtitle-burner/main/linyuan/.automation/fc_state.json?t=' + str(time.time_ns())
-    with urllib.request.urlopen(url, timeout=30) as response:
-        state = json.load(response)
+    state = read_json_get(url, timeout=30)
     return {b:state.get(state_key,{}).get(b,{}) for b in bvids}
 
 

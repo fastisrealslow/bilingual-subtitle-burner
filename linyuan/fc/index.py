@@ -347,10 +347,51 @@ def slot_published(st, now=None):
     for info in st.get('published', {}).values():
         for part in info.get('parts') or [info]:
             if part.get('bvid') and part.get('status') != 'skipped':
+                if part.get('makeup_slot'):
+                    if part['makeup_slot'] == slot:
+                        return True
+                    continue  # A make-up does not occupy its actual upload hour.
                 old = time.gmtime(float(part.get('ts') or 0) + 8 * 3600)
                 if time.strftime('%Y-%m-%d %H', old) == slot:
                     return True
     return False
+
+
+def makeup_request_error(event, st, now=None):
+    """The user's single Sep 13 ten-o'clock debt, inside the normal publish lock."""
+    slot = event.get('makeup_slot')
+    if not slot:
+        return None
+    if (slot != '2026-09-13 10' or not event.get('batch_slug') or not event.get('artifact_id')
+            or event.get('batch_remaining') != 1):
+        return 'invalid_makeup_request'
+    if not re.fullmatch(r'[a-f0-9]{64}', str(event.get('expected_sha256') or '')):
+        return 'invalid_makeup_checksum'
+    now = time.time() if now is None else now
+    if now < 1789264800:
+        return 'makeup_not_due'
+    if (st.get('makeup_receipts') or {}).get(slot) or slot_published(st, 1789264800):
+        return 'makeup_already_completed'
+    if any(e.get('uploading') for e in _latest_dispatches(st)):
+        return 'makeup_upload_unresolved'
+    return None
+
+
+def record_publication_slot(st, part_receipt, now, makeup_slot=None):
+    """Charge the actual day; the original slot owns an authorized make-up."""
+    local = time.gmtime(now + 8 * 3600)
+    today = time.strftime('%Y-%m-%d', local)
+    daily = st.setdefault('daily_publish', {})
+    if daily.get('date') != today:
+        daily.clear()
+        daily.update(date=today, count=0)
+    daily['count'] = int(daily.get('count') or 0) + 1
+    if makeup_slot:
+        part_receipt['makeup_slot'] = makeup_slot
+        st.setdefault('makeup_receipts', {})[makeup_slot] = dict(part_receipt)
+    if not makeup_slot or makeup_slot[:10] == today:
+        hour = int(makeup_slot[-2:]) if makeup_slot else local.tm_hour
+        daily.setdefault('published_hours', []).append(hour)
 
 
 def is_landscape(meta):
@@ -2884,6 +2925,10 @@ def publish_handler(event=None, context=None):
         log.info(f"北京时间 {hour:02d} 时不在普通投稿窗口，跳过")
         return {"published": 0, "outside_publish_window": 1}
     st = load_state()
+    makeup_slot = event.get('makeup_slot')
+    makeup_error = makeup_request_error(event, st)
+    if makeup_error:
+        return {'published': 0, makeup_error: 1}
     if not batch_slug and slot_published(st):
         return {'published': 0, 'slot_already_published': 1}
     if batch_slug and not any(e.get("slug") == batch_slug
@@ -2951,6 +2996,15 @@ def publish_handler(event=None, context=None):
     arts = {}
     art_ids = {}
     reserve_records = []
+    if makeup_slot:
+        reserve = json.loads(gh('GET', f'/contents/{SOURCE_INVENTORY_KEY}?ref=main', raw=True, timeout=20))
+        if not source_inventory(st, reserve)['inventory_fresh']:
+            return {'published': 0, 'makeup_inventory_stale': 1}
+        reserve_records = [r for r in reserve.get('artifacts', [])
+                           if r.get('slug') == batch_slug and r.get('artifact_id') == requested_artifact_id]
+        if not any(p.get('status') == 'verified' and p.get('sha256') == event['expected_sha256']
+                   for r in reserve_records for p in r.get('parts', [])):
+            return {'published': 0, 'makeup_inventory_mismatch': 1}
     if batch_slug:
         # 用户验收后可绑定精确 Artifact。Release 成品库长期累积后可能达到
         # asset 数量上限；此时不能让可发布视频因为可选镜像失败而丢失。
@@ -3024,7 +3078,7 @@ def publish_handler(event=None, context=None):
             continue
         if s in arts:
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
-                                                    now=None if batch_slug else now)
+                                                    now=1789264800 if makeup_slot else (None if batch_slug else now))
             if selected_part_index is None:
                 log.info('%s 已验证余量暂不符合今日形态比例，继续找真人片',s)
                 continue
@@ -3168,6 +3222,11 @@ def publish_handler(event=None, context=None):
                 {'published': 0, 'no_content_for_slot': 1}, tmp)
         k = k if k in usable else usable[0]
     part = parts[k]
+    if makeup_slot and (not content_fits_slot(part, e, 1789264800)
+                        or part.get('title') != event.get('title')
+                        or e.get('source_url') != event.get('source_url')):
+        shutil.rmtree(tmp, ignore_errors=True)
+        return {'published': 0, 'makeup_content_mismatch': 1}
     video = tmp / slug / part.get("final", "final.mp4")
     if not video.exists():
         video = final_videos[k] if k < len(final_videos) else final_videos[0]
@@ -3350,6 +3409,9 @@ def publish_handler(event=None, context=None):
     e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
     e['upload_part_index'] = k
+    if makeup_slot:
+        e['upload_makeup_slot'] = makeup_slot
+        e['upload_expected_sha256'] = expected_sha256
     save_state(st)
     
     # 设置 PYTHONPATH 环境变量
@@ -3377,9 +3439,14 @@ def publish_handler(event=None, context=None):
         # 记录这次投到第几条了（长视频多条时分次投稿）
         mark_part_processed(e,k)
         e.pop('upload_part_index',None)
-        st["daily_publish"]["count"] = st["daily_publish"].get("count", 0) + 1
-        st['daily_publish'].setdefault('published_hours', []).append(
-            time.gmtime(now + 8 * 3600).tm_hour)
+        # Record slot ownership and the exact hash with the real platform BVID.
+        receipt_time = int(time.time())
+        slot_receipt = dict(status='published', bvid=bvid, title=title, slug=slug,
+                            ts=receipt_time, expected_sha256=expected_sha256,
+                            artifact_id=art_ids.get(slug))
+        record_publication_slot(st, slot_receipt, receipt_time, makeup_slot)
+        e.pop('upload_makeup_slot', None)
+        e.pop('upload_expected_sha256', None)
         mode_counter = "audio_card_count" if part.get("render_mode") == "audio_card" else "live_video_count"
         st["daily_publish"][mode_counter] = st["daily_publish"].get(mode_counter, 0) + 1
         if fresh_budget is not None:
@@ -3390,6 +3457,7 @@ def publish_handler(event=None, context=None):
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          **({'makeup_slot': makeup_slot} if makeup_slot else {}),
                           "part_index": k, "tags": tags.split(","),
                           "resolution": part.get("resolution") or {},
                           "render_mode": part.get("render_mode"),
