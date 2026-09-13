@@ -3,7 +3,7 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789325535,
+  "updated_at": 1789325946,
   "materials": {
     "weibo_search": {
       "records": 1184,
@@ -8058,7 +8058,14 @@
           "ly-0913-12361f"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-12361f",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8133,6 +8140,21 @@
             "reason": "旧取源失败记录不含ASR，缓存恢复已修复，复用本次已通过质检的完整母片"
           }
         ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p8",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=8",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-12c5a9"
+        ],
+        "source_sha256": [],
+        "failures": [],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8768,8 +8790,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
@@ -8919,7 +8941,7 @@
         "terminal_quality-service": 15
       },
       "BV19P4y1m77K": {
-        "attempted_mothers": 26,
+        "attempted_mothers": 27,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 3,
@@ -9046,8 +9068,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -9059,8 +9081,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -9218,9 +9240,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -9519,9 +9541,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -9551,8 +9573,8 @@
         "attempted_mothers": 3,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 3,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 3
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -9584,7 +9606,8 @@
       "BV1gK24YmEMm": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
