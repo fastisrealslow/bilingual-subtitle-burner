@@ -3,7 +3,7 @@
   "validation_sha256": "5e5ebe3abc80f64fa81e3cc9d0bcff3fc19af9c8febab773b0d0526026f5ff07",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789317027,
+  "updated_at": 1789317559,
   "materials": {
     "weibo_search": {
       "records": 1183,
@@ -21,11 +21,11 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 1272,
-      "video_candidates": 1266,
-      "too_short": 133,
-      "duration_eligible": 933,
-      "long_mother_candidates": 495,
+      "records": 1309,
+      "video_candidates": 1303,
+      "duration_eligible": 967,
+      "too_short": 136,
+      "long_mother_candidates": 505,
       "over_limit": 96,
       "duration_unknown": 104,
       "reference_only": 6
@@ -36,12 +36,12 @@
       "duration_unknown": 37
     },
     "reference_origin_search": {
-      "records": 239,
-      "video_candidates": 239,
-      "duration_eligible": 150,
-      "long_mother_candidates": 86,
-      "over_limit": 67,
-      "too_short": 22
+      "records": 247,
+      "video_candidates": 247,
+      "duration_eligible": 155,
+      "long_mother_candidates": 88,
+      "over_limit": 68,
+      "too_short": 24
     },
     "shareholder_meeting": {
       "records": 149
@@ -7788,7 +7788,14 @@
           "ly-0913-99098e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-99098e",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "持续黑区超过安全裁边范围"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7920,6 +7927,21 @@
         "family": "BV1Ns4y157kX",
         "slugs": [
           "ly-0913-fd5280"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Ns4y157kX:p4",
+        "source_url": "https://www.bilibili.com/video/BV1Ns4y157kX?p=4",
+        "family": "BV1Ns4y157kX",
+        "slugs": [
+          "ly-0913-419e43"
         ],
         "source_sha256": [],
         "failures": [],
@@ -8558,9 +8580,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -8713,7 +8735,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 3,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 5
       },
       "BV1jg1EBtEg1": {
         "attempted_mothers": 1,
@@ -8836,8 +8858,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -8849,8 +8871,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -9008,8 +9030,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_render-layout": 1,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
@@ -9309,10 +9331,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_release-verification": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1
+        "terminal_release-verification": 1,
+        "terminal_visual-review": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -9339,7 +9361,7 @@
         "terminal_editorial-or-render": 1
       },
       "BV1Ns4y157kX": {
-        "attempted_mothers": 2,
+        "attempted_mothers": 3,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_layout-rebalance": 1
