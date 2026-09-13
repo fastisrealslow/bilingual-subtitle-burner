@@ -2037,6 +2037,8 @@ def _dispatch_admitted(event=None, context=None):
         entry['ts']=int(time.time())
         save_state(st)
         success+=1
+        log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
+                  entry.get('failure_stage', 'quality-service'))
     for i, c in enumerate(cands):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
@@ -2113,6 +2115,10 @@ def _dispatch_admitted(event=None, context=None):
             _record_failure(st, c, e)
 
     _process_retries(st)
+    if not success:
+        log_event('supply_empty', '本轮未补入生产任务',
+                  f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"
+                  f"库存新鲜={inventory['inventory_fresh']}")
     return {"dispatched": success, "attempted": len(cands)}
 
 
@@ -2591,9 +2597,14 @@ def _collect_source_rejections(st):
         current = by_slug.get(slug)
         if current is None or float(entry.get("ts") or 0) >= float(current.get("ts") or 0):
             by_slug[slug] = entry
+    seen_preflight_slugs = set()
     for run in runs:
         artifacts = gh("GET", f"/actions/runs/{run['id']}/artifacts").get(
             "artifacts", [])
+        run_slug = str(run.get('display_title') or '').partition(' · ')[2].strip()
+        if run_slug and run_slug not in seen_preflight_slugs:
+            seen_preflight_slugs.add(run_slug)
+            _recover_preflight_failure(st, by_slug.get(run_slug), run, artifacts)
         for artifact in artifacts:
             name = artifact.get("name", "")
             prefix = next((p for p in prefixes if name.startswith(p)), None)
@@ -2701,6 +2712,50 @@ def _collect_source_rejections(st):
             except Exception as exc:
                 log.warning(f"删除素材拒绝 artifact 失败: {exc}")
     return rejected
+
+
+def _recover_preflight_failure(st, candidate, run, artifacts):
+    """A failed regression never evaluated the mother; resume after a code fix."""
+    if (not candidate or not candidate.get('reprocessing_quality')
+            or candidate.get('failed') or not _has_unpublished_part(candidate, st)
+            or run.get('conclusion') != 'failure'
+            or candidate.get('preflight_failure_run_id') == run.get('id')
+            or int(candidate.get('source_check_attempts') or 0) >= 2):
+        return False
+    created = str(run.get('created_at') or '')
+    # FC records dispatch a few seconds after GitHub accepts it. Older failures
+    # must not contaminate a newly requested run of the same deterministic slug.
+    earliest = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(
+        max(float(candidate.get('ts') or 0), float(candidate.get('last_retry') or 0)) - 90))
+    if not created or created < earliest or not run.get('head_sha'):
+        return False
+    if any(a.get('name', '').startswith(('deliver-', 'source-reject-', 'production-reject-'))
+           for a in artifacts if not a.get('expired')):
+        return False
+    jobs = gh('GET', f"/actions/runs/{run['id']}/jobs").get('jobs', [])
+    failed = [s for j in jobs for s in j.get('steps', []) if s.get('conclusion') == 'failure']
+    gate = 'CPU离线ASR与完整观点规则回归（失败不进入实产）'
+    if not failed or any(s.get('name') != gate for s in failed):
+        return False
+    # State/log-only commits do not fix a test failure. Require a changed
+    # production module, production workflow, or test before spending a retry.
+    changes = gh('GET', f"/compare/{run['head_sha']}...main").get('files', [])
+    changed = [f.get('filename', '') for f in changes]
+    if not any((p.startswith('linyuan/') and '/fc/' not in p and p.endswith('.py'))
+               or (p.startswith('tests/') and p.endswith('.py'))
+               or p == '.github/workflows/linyuan-produce-cn.yml' for p in changed):
+        return False
+    candidate['preflight_failure_run_id'] = run['id']
+    candidate['failure_stage'] = 'workflow-preflight'
+    candidate['last_error'] = '旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复'
+    candidate['source_check_retry_after'] = int(time.time()) - 1
+    # A preflight-only run contains no ASR artifact. The normal mother-hash
+    # cache restores earlier raw evidence; do not request this empty run's ZIP.
+    candidate.pop('source_check_run_id', None)
+    save_state(st)
+    log_event('quality', f"{candidate['slug']} 检测到回归失败后的滞留任务，已安排恢复",
+              f"run={run['id']}；旧素材未被判定为不合格")
+    return True
 
 
 def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):

@@ -1,6 +1,10 @@
 name: 林园素材与真实成片库存
 # Refresh the actual accepted artifact after the 2026-09-09 review-policy recovery.
 on:
+  schedule:
+    # Refresh after FC's hourly admission. Inspection expires after three hours;
+    # production completion alone cannot keep an idle reserve usable all day.
+    - cron: '45 * * * *'
   push:
     branches: [main]
     paths:
@@ -11,7 +15,7 @@ on:
       - linyuan/source_outcomes.py
       - linyuan/source_rejection_evidence/*.json
   workflow_run:
-    workflows: ['林园监控 · 每日抓取']
+    workflows: ['林园监控 · 每日抓取', 'FC production deploy']
     types: [completed]
   workflow_dispatch:
 permissions:
@@ -22,6 +26,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   inventory:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.name != 'FC production deploy' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

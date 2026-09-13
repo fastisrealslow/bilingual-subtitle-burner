@@ -112,6 +112,8 @@ def inventory_counts(records, state):
         for part in record.get('parts',[]):
             if part.get('status')!='verified' or part['index'] in completed:
                 continue
+            if entry.get('weekly_full_week') and part.get('content_type') != 'full_interview':
+                continue
             if part['render_mode']=='audio_card':audio+=1
             else:live+=1
             if fc.is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
