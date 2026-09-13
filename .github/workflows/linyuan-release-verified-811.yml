@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34763327956 || github.event.workflow_run.id == 34763958368 || github.event.workflow_run.id == 34764696210 || github.event.workflow_run.id == 34765298630 || github.event.workflow_run.id == 34765778630)
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34767021961
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -26,7 +26,7 @@ jobs:
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '34763327956' }}
+      VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '34767021961' }}
 
       SLUG: ly-0912-5dc339-stable-clean-proof-portrait
     steps:
@@ -39,9 +39,7 @@ jobs:
           python - <<'PY'
           import os,json,subprocess
           run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['VERIFIED_DEPLOY_RUN']]))
-          expected={'34763327956':'f58a085b7a7728447f892711aa8902a07baceecb','34763958368':'0185b49f10aeafd9d75e2961ee84635f3e2a3e7a','34764696210':'276890d779a5836c68c197a1f05373fb9b316199',
-                    '34765298630':'fdb3493f711d25ba9eb127fc8a1328aa70d0eaf7',
-                    '34765778630':'01d28b7ad524856309064e6936e0e96b5f3eada6'}
+          expected={'34767021961':'d056947b8550cb84cbec5d91fdc3c710895d6348'}
           assert run['head_sha']==expected[os.environ['VERIFIED_DEPLOY_RUN']]
           ready=run['conclusion']=='success'
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('ready='+str(ready).lower()+'\n')
@@ -114,41 +112,94 @@ jobs:
           assert result.get('released'),result
           print(json.dumps(result,ensure_ascii=False))
           PY
-      - name: 依次刷新库存并补齐两个已到时段
+      - name: 补发已验收成片并核对实际日期与平台回执
         if: steps.gate.outputs.ready == 'true'
         run: |
           python -u - <<'PY'
           import sys,os,json,subprocess,time
-          from datetime import datetime,timezone
+          from pathlib import Path
+          from datetime import datetime,timezone,timedelta
           sys.path.insert(0,'linyuan')
+          sys.path.insert(0,'linyuan/fc')
           from register_selection_recovery import read_state
-          repo=os.environ['GITHUB_REPOSITORY']
-          for attempt in range(2):
-              _,st=read_state()
-              daily=st.get('daily_publish') or {}
-              if daily.get('date')=='2026-09-13' and daily.get('count',0)>=4:break
-              if attempt==1:
-                  # The first completed refresh remains valid; normal catch-up
-                  # reads current receipts and excludes the first consumed clip.
-                  # This invocation has this release run's own stable task ID.
-                  subprocess.run([sys.executable,'linyuan/fc/catchup_from_inventory.py'],check=True,timeout=700)
-                  continue
-              started=datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-              subprocess.run(['gh','workflow','run','linyuan-source-inventory.yml','--repo',repo,'--ref','main'],check=True)
-              run_id=None
-              for _ in range(12):
-                  rows=json.loads(subprocess.check_output(['gh','run','list','--repo',repo,'--workflow','linyuan-source-inventory.yml','--event','workflow_dispatch','--branch','main','--limit','8','--json','databaseId,createdAt']))
-                  candidates=[r for r in rows if r['createdAt']>=started]
-                  if candidates:run_id=min(candidates,key=lambda r:r['databaseId'])['databaseId'];break
-                  time.sleep(5)
-              assert run_id,'Dispatched inventory run not yet identifiable; do not duplicate it'
-              print('Inventory catch-up run',run_id,flush=True)
-              subprocess.run(['gh','run','watch',str(run_id),'--repo',repo,'--exit-status','--interval','20'],check=True,timeout=1000)
-          _,st=read_state()
-          daily=st.get('daily_publish') or {}
-          print(json.dumps(dict(daily=daily),ensure_ascii=False))
-          assert daily.get('date')=='2026-09-13' and daily.get('count')==4, '尚未达到今天四条，以实际回执为准'
-          assert set(daily.get('published_hours',[]))=={10,14,16,21}, '仍有未补齐的定时时段'
+          from catchup_from_inventory import tracked_request
+          from publish_fresh_six import prepare_async_tasks
+          import index as fc
+          from bili_archive_status import archive_status
+          slug=os.environ['SLUG'];repo=os.environ['GITHUB_REPOSITORY']
+          metas=json.loads(Path('/tmp/811/meta.json').read_text())
+          def found(st):
+              return {p.get('fingerprints',{}).get('sha256'):p for p in st.get('published',{}).get(slug,{}).get('parts',[])
+                      if p.get('status')=='published' and p.get('bvid')}
+          today=datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d')
+          _,initial=read_state()
+          if today=='2026-09-13':
+              for attempt in range(2):
+                  _,st=read_state()
+                  if len(found(st))==2:break
+                  if attempt:
+                      subprocess.run([sys.executable,'linyuan/fc/catchup_from_inventory.py'],check=True,timeout=700)
+                      continue
+                  started=datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+                  subprocess.run(['gh','workflow','run','linyuan-source-inventory.yml','--repo',repo,'--ref','main'],check=True)
+                  run_id=None
+                  for _ in range(12):
+                      rows=json.loads(subprocess.check_output(['gh','run','list','--repo',repo,'--workflow','linyuan-source-inventory.yml','--event','workflow_dispatch','--branch','main','--limit','8','--json','databaseId,createdAt']))
+                      candidates=[r for r in rows if r['createdAt']>=started]
+                      if candidates:run_id=min(candidates,key=lambda r:r['databaseId'])['databaseId'];break
+                      time.sleep(5)
+                  assert run_id,'Inventory dispatch unresolved; do not duplicate'
+                  subprocess.run(['gh','run','watch',str(run_id),'--repo',repo,'--exit-status','--interval','20'],check=True,timeout=1000)
+          else:
+              # An overdue upload after midnight belongs to its actual publication day.
+              # Keep the normal daily cap and all media/dedup gates; do not backdate state.
+              assert today>'2026-09-13'
+              from alibabacloud_fc20230330.client import Client
+              from alibabacloud_fc20230330 import models as m
+              from alibabacloud_tea_openapi import models as api
+              from alibabacloud_tea_util import models as util
+              client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],
+                  endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+              function=os.environ['FC_FUNCTION_NAME']
+              runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+              prepare_async_tasks(client,function,m,runtime)
+              tasks=[]
+              for meta in metas:
+                  sha=meta['fingerprints']['sha256']
+                  _,before=read_state()
+                  if sha in found(before):continue
+                  assert not any(e.get('uploading') for e in before['dispatched']),'Existing upload unresolved'
+                  task_id='ly-811-0913-'+sha[:20]+'-a1'
+                  request=dict(triggerName='publish-batch',batch_slug=slug,artifact_id=10318512260,
+                      expected_sha256=sha,batch_remaining=1,title=meta['title'],
+                      source_url='https://www.bilibili.com/video/BV1hj411X7BL')
+                  tasks.append(dict(task_id=task_id,sha256=sha,status='Reconciling'))
+                  Path('catchup-receipt.json').write_text(json.dumps(dict(tasks=tasks),ensure_ascii=False,indent=2))
+                  task=tracked_request(client,function,m,runtime,'publish-batch',task_id,payload=request,wait_seconds=600)
+                  tasks[-1].update(status=task.status if task else 'Unknown',return_payload=task.return_payload if task else None)
+                  Path('catchup-receipt.json').write_text(json.dumps(dict(tasks=tasks),ensure_ascii=False,indent=2))
+                  print(json.dumps(tasks[-1],ensure_ascii=False),flush=True)
+                  assert task and task.status=='Succeeded','Keep stable task ID; reconcile before another upload'
+                  _,after=read_state()
+                  assert sha in found(after),'No exact publication receipt; do not replay the upload'
+          _,st=read_state();receipts=found(st)
+          expected={m['fingerprints']['sha256'] for m in metas}
+          assert expected<=set(receipts),'Two exact clean-file publication receipts are still missing'
+          day_bvs={}
+          for info in st.get('published',{}).values():
+              for part in info.get('parts') or [info]:
+                  if part.get('bvid') and part.get('status')!='skipped' and part.get('ts'):
+                      day=datetime.fromtimestamp(part['ts'],timezone(timedelta(hours=8))).strftime('%Y-%m-%d')
+                      day_bvs.setdefault(day,set()).add(part['bvid'])
+          report=dict(missed_schedule=['2026-09-13 16','2026-09-13 21'],
+              receipts=[receipts[sha] for sha in sorted(expected)],
+              actual_daily_counts={d:len(bvs) for d,bvs in day_bvs.items() if d>='2026-09-13'},
+              daily_publish=st.get('daily_publish'))
+          Path('811-publication-receipts.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False),flush=True)
+          report['creator_verification']=archive_status([receipts[sha]['bvid'] for sha in sorted(expected)],fc.OWNER_MID,os.environ['BILIBILI_COOKIES'])
+          Path('811-publication-receipts.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          assert all(v['public'] for v in report['creator_verification']['videos']),'Bilibili review is pending; preserve receipts and check status without reposting'
           PY
       - uses: actions/upload-artifact@v4
         if: always() && steps.gate.outputs.ready == 'true'
@@ -157,4 +208,5 @@ jobs:
           path: |
             811-release-proof.json
             catchup-receipt.json
+            811-publication-receipts.json
           if-no-files-found: warn
