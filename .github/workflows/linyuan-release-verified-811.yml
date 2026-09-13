@@ -55,6 +55,7 @@ jobs:
           from pathlib import Path
           sys.path.insert(0,'linyuan')
           from source_supply import validate_part
+          from reuse_title_verification import validate_guest_fixture
           proof=json.loads(Path('/tmp/deploy-proof/production-verification.json').read_text())
           assert proof['verification_complete'] is True
           assert proof['health']['code_sha256']==hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
@@ -71,6 +72,8 @@ jobs:
           for meta in metas:
               assert meta['source_sha256']=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47'
               assert meta['fingerprints']['sha256']==expected[meta['final']]
+              if meta['final']=='final_4.mp4':
+                  validate_guest_fixture(dict(fixture='linyuan_0913_landscape_title.json',**meta))
               issue=validate_part(meta,directory)
               assert not issue,issue
               results.append(dict(final=meta['final'],sha256=expected[meta['final']],validated=True))
