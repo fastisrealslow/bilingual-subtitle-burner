@@ -78,6 +78,28 @@ def test_actual_165_guest_negation_cannot_be_reversed_even_by_positive_cpu_revie
         assert T.relation_error(title,cover,source) is None
 
 
+def test_166_cover_uses_complete_title_clause_instead_of_grammar_truncation(monkeypatch):
+    assert 'maxLength' not in T.proposal_schema(2)['properties']['c_candidates']['items']['properties']['cover_title']
+    units=['你去买一些就是没有龙头的东西大家看不清楚','才能找到我们以后所说的真正的龙头']
+    raw=dict(title='林园：龙头尚未形成，要等时间才能找到真正的龙头',
+             cover_title='龙头尚未形成，要等时间才能找到真正的')
+    item=T.bind_candidate(raw,dict(evidence_ids=[0,1]),units,{'龙头':[0,1]})
+    assert item['cover_title']=='要等时间才能找到真正的龙头'
+    assert item['cover_title'] in item['title']
+    assert T._candidate_error(item,''.join(units),'林园',()) is None
+    bad={**item,'cover_title':raw['cover_title']}
+    assert '残句' in T._candidate_error(bad,''.join(units),'林园',())
+    assert T.copy_fragment('林园：龙头还没出现，现在买的是未来可能成为龙头的')
+    assert not T.copy_fragment('林园：控制投资比例是最重要的')
+
+
+def test_good_consumption_cannot_become_above_expectations_without_source_support():
+    source='对一些比如说高端消费还是非常好旺盛没有问题'
+    item=dict(title='林园：消费整体尚可，高端消费表现超预期',cover_title='高端消费表现是否超预期',
+              subject='高端消费',evidence=[source])
+    assert '新增' in T._candidate_error(item,source,'林园',())
+
+
 def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
     calls=[]
     good=model(calls)

@@ -77,7 +77,9 @@ def proposal_schema(unit_count, subjects=None, guest_ids=None):
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
     # The local grammar padded minimum-length strings with spaces/newlines.
     # Check meaningful characters in Python and feed back the exact problem.
-    copies=dict(title=dict(type='string'),cover_title=dict(type='string',maxLength=18))
+    # A grammar maxLength stops generation mid-phrase (real run 166 ended
+    # the cover at "找到真正的"). Validate/derive complete copy afterwards.
+    copies=dict(title=dict(type='string'),cover_title=dict(type='string'))
     schema=dict(type='object', additionalProperties=False, required=['a_reading','b_focus','c_candidates'], properties={
         'a_reading':dict(type='object',additionalProperties=False,required=list(reading),properties=reading),
         'b_focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
@@ -184,7 +186,26 @@ def bind_candidate(item, focus, units, subjects):
     # literal string matching. The full claim still needs independent review.
     anchors=[word for word in subjects if word in title and any(word in q for q in bound['evidence'])]
     bound['subject']=max(anchors,key=len) if anchors else ''
+    if copy_fragment(cover) or not 8<=len(compact(cover))<=18:
+        # An exact complete title clause can serve as the cover without a
+        # second factual rewrite. The independent reviewer sees this final
+        # clause and all original source context before approving anything.
+        from headline_policy import cover_fits
+        clauses=re.split(r'[，,。；;：:！？!?]',title.split('：',1)[-1])
+        choices=[c.strip() for c in clauses if 8<=len(compact(c))<=18
+                 and not copy_fragment(c) and bound['subject'] and bound['subject'] in c
+                 and cover_fits(c)]
+        if choices:
+            bound['cover_title']=min(choices,key=lambda c:abs(len(compact(c))-13))
+            print('[标题观点] 封面采用完整标题子句：'+bound['cover_title'],flush=True)
     return bound
+
+
+def copy_fragment(text):
+    from headline_policy import TAIL
+    text=str(text or '').strip(' ，,。；;！？!?')
+    return bool(TAIL.search(text) and not re.search(
+        r'(?:机会|社会|体会)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text))
 
 
 def relation_error(title, cover, source):
@@ -210,6 +231,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return f'标题有效字数为{len(compact(title))}，须12~62字；补全具体判断或问题，不用空格凑长度'
     if not isinstance(cover, str) or not 8 <= len(compact(cover)) <= 18:
         return f'封面有效字数为{len(compact(cover))}，须8~18字；写成完整问题或判断，不能用空格补长度'
+    if copy_fragment(title) or copy_fragment(cover):
+        return '标题或封面截成残句；补全宾语和判断，不能停在真正的、成为龙头的等半句话'
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -228,7 +251,7 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
                  '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益',
-                 '粘性强','粘性更强','黏性强','黏性更强')
+                 '粘性强','粘性更强','黏性强','黏性更强','超预期')
     stated=compact(''.join(evidence))
     relation_issue=relation_error(title,cover,transcript)
     if relation_issue:return relation_issue
@@ -331,6 +354,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 最后在c_candidates为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
+标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。
 用日常说话的完整句子。禁止“谈A、B与C”等关键词目录，禁止术语堆砌、换行、空格和无意义尾巴凑字数。
