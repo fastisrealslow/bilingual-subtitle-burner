@@ -18,7 +18,13 @@ def gh(*args,body=None):
 
 def read_state():
     doc=json.loads(gh('api',f'repos/{REPO}/contents/{PATH}?ref=main'))
-    return doc,json.loads(base64.b64decode(doc['content']))
+    data=doc
+    if not doc.get('content'):
+        data=json.loads(gh('api',f"repos/{REPO}/git/blobs/{doc['sha']}"))
+        if (data.get('sha') != doc['sha'] or data.get('encoding') != 'base64'
+                or not data.get('content')):
+            raise ValueError('State blob unavailable or mismatched; refusing recovery dispatch')
+    return doc,json.loads(base64.b64decode(data['content']))
 
 
 def main():
@@ -58,7 +64,7 @@ def main():
         if any(e.get('slug')==NEW for e in state.get('dispatched',[])):return
         state.setdefault('dispatched',[]).append(entry)
         body=dict(message='chore: track one selector8 recovery using cached mother ASR',
-            sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(state,ensure_ascii=False,indent=2).encode()).decode())
+            sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(state,ensure_ascii=False,separators=(',',':')).encode()).decode())
         try:
             gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)
             print(f'Dispatched and registered {NEW}; publication remains scheduled and gated')
