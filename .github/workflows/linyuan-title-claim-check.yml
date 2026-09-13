@@ -1,16 +1,26 @@
 name: 标题观点 CPU 实测
 'on':
-  workflow_call: {}
-  workflow_dispatch: {}
+  workflow_call:
+    inputs:
+      local_text_model:
+        type: string
+        default: 'qwen3:8b'
+  workflow_dispatch:
+    inputs:
+      local_text_model:
+        description: '默认核验实产模型；其他模型仅用于显式对比'
+        type: choice
+        default: 'qwen3:8b'
+        options: ['qwen3:8b', 'qwen3.5:9b', 'qwen3:4b']
 permissions:
   contents: read
 concurrency:
-  group: title-claim-check
+  group: title-claim-check-${{ inputs.local_text_model || 'qwen3:8b' }}
   cancel-in-progress: true
 env:
-  RUN_TEXT_MODEL: qwen3.5:9b
+  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   TEXT_BACKEND: local
-  LOCAL_LLM_MODEL: qwen3.5:9b
+  LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   CUDA_VISIBLE_DEVICES: ''
 jobs:
   check:
