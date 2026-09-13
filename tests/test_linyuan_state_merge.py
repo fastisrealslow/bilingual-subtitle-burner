@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 spec=importlib.util.spec_from_file_location('state_merge_fc',Path(__file__).resolve().parents[1]/'linyuan/fc/index.py')
@@ -12,6 +13,48 @@ fc=importlib.util.module_from_spec(spec);spec.loader.exec_module(fc)
 
 def initial():
     return dict(dispatched=[dict(slug='upgrade',ts=1,failed=True,failure_stage='stock-upgrade',stock_upgrade_status='rendering')],published={})
+
+
+def test_transient_state_read_preserves_daily_quota_and_receipts(monkeypatch):
+    import io
+    state=initial();state.update(daily_publish=dict(date='2026-09-13',count=4),
+                                published={'done':{'bvid':'BVexisting'}})
+    calls=[]
+    def request(req,**kwargs):
+        calls.append(req.method)
+        if len(calls)==1:raise TimeoutError('network timeout')
+        response=io.BytesIO(json.dumps(state).encode());response.headers={}
+        return response
+    monkeypatch.setattr(fc.urllib.request,'urlopen',request)
+    monkeypatch.setattr(fc.time,'sleep',lambda _:None)
+    assert fc.load_state()==state
+    assert calls==['GET','GET']
+
+
+def test_truncated_catalogue_read_retries_but_mutation_never_replays(monkeypatch):
+    import io
+    from http.client import IncompleteRead
+    calls=[]
+    class Truncated(io.BytesIO):
+        def read(self,*a):raise IncompleteRead(b'partial',26452)
+    def request(req,**kwargs):
+        calls.append(req.method)
+        response=Truncated() if len(calls)==1 else io.BytesIO(b'{"items":[]}')
+        response.headers={};return response
+    monkeypatch.setattr(fc.urllib.request,'urlopen',request)
+    monkeypatch.setattr(fc.time,'sleep',lambda _:None)
+    assert fc.gh('GET','/catalogue')=={'items':[]}
+    assert calls==['GET','GET']
+    calls.clear()
+    with pytest.raises(IncompleteRead):fc.gh('POST','/dispatch',{})
+    assert calls==['POST']
+
+
+@pytest.mark.parametrize('response',[b'',b'{}',b'{"dispatched":[],"published":[]}'])
+def test_unavailable_or_invalid_history_cannot_become_an_empty_queue(monkeypatch,response):
+    monkeypatch.setattr(fc,'gh',lambda *a,**kw:response)
+    monkeypatch.setattr(fc.time,'sleep',lambda _:None)
+    with pytest.raises(RuntimeError,match='禁止按空历史继续'):fc.load_state()
 
 
 def test_fc_does_not_erase_concurrent_admission_or_new_dispatch():

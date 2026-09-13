@@ -547,13 +547,22 @@ def gh(method, path, payload=None, raw=False, timeout=120):
         "Accept": "application/vnd.github.raw" if raw else "application/vnd.github+json",
         "Content-Type": "application/json", "Accept-Encoding": "gzip"})
     import gzip
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        body = r.read()
-        if r.headers.get("Content-Encoding") == "gzip":
-            body = gzip.decompress(body)
-        if raw:
-            return body
-        return json.loads(body.decode() or "{}")
+    from http.client import HTTPException
+    for attempt in range(3 if method=='GET' else 1):
+        try:
+            with urllib.request.urlopen(req,timeout=min(timeout,45) if method=='GET' else timeout) as r:
+                body=r.read()
+                if r.headers.get('Content-Encoding')=='gzip':body=gzip.decompress(body)
+                return body if raw else json.loads(body.decode() or '{}')
+        except Exception as exc:
+            transient=isinstance(exc,(OSError,TimeoutError,HTTPException,EOFError,json.JSONDecodeError))
+            if isinstance(exc,urllib.error.HTTPError):
+                transient=exc.code in (408,429,500,502,503,504)
+            if method!='GET' or not transient or attempt==2:raise
+            # FC inventory task 429 lost the last 26KB of a 3.3MB catalogue.
+            # Only repeat safe reads; never replay a dispatch or upload POST.
+            log.warning('GitHub只读请求未完成（%s），第%d次重试',type(exc).__name__,attempt+1)
+            time.sleep(2*(attempt+1))
 
 
 def _download_release_asset_parallel(asset, dest, max_time=1620):
@@ -955,11 +964,17 @@ def merge_state_changes(base, local, remote, path=()):
 
 
 def load_state():
+    # A transient GitHub failure is not an empty publishing history. Continuing
+    # from zero could lose today's quota and deduplication decisions before CAS.
     try:
-        raw = gh("GET", f"/contents/{STATE_KEY}?ref=main", raw=True)
-        return StateSnapshot(json.loads(raw.decode()))
-    except Exception:
-        return StateSnapshot({"dispatched": [], "rejected": [], "published": {}})
+        raw=gh('GET',f'/contents/{STATE_KEY}?ref=main',raw=True,timeout=45)
+        state=json.loads(raw.decode())
+        if (not isinstance(state,dict) or not isinstance(state.get('dispatched'),list)
+                or not isinstance(state.get('published'),dict)):
+            raise ValueError('发布状态缺少有效的队列或历史回执')
+        return StateSnapshot(state)
+    except Exception as exc:
+        raise RuntimeError('发布状态读取未完成，保留现有队列和配额，禁止按空历史继续') from exc
 
 
 # ---------- 运行日志（log.html 展示，便于追踪）----------
