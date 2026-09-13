@@ -28,8 +28,9 @@ on:
         description: 'CPU离线文本模型；更新版先用于同源实产验收'
         required: false
         type: choice
-        default: 'qwen3:4b-instruct-2507-q4_K_M'
+        default: 'qwen3:8b'
         options:
+          - 'qwen3:8b'
           - 'qwen3:4b'
           - 'qwen3:4b-instruct-2507-q4_K_M'
       source:
@@ -97,7 +98,7 @@ on:
         type: boolean
 
 env:
-  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:4b-instruct-2507-q4_K_M' }}
+  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   RUN_SOURCE: ${{ inputs.source || 'https://www.bilibili.com/video/BV1tuCDBhE6C' }}
   RUN_SLUG: ${{ inputs.slug || 'ly-e2e-local-0908' }}
   RUN_SPEAKER: ${{ inputs.speaker || '林园' }}
@@ -318,7 +319,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.ollama/models
-          key: ${{ env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+          key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
 
       - name: 缓存已校验的 Ollama 安装包
         uses: actions/cache@v4
@@ -355,7 +356,7 @@ jobs:
           done
           curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
           case "$RUN_TEXT_MODEL" in
-            qwen3:4b|qwen3:4b-instruct-2507-q4_K_M) ;;
+            qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b) ;;
             *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;
           esac
           ollama pull "$RUN_TEXT_MODEL"
@@ -374,7 +375,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/.ollama/models
-          key: ${{ env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+          key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
 
       - name: 出片
         id: render
