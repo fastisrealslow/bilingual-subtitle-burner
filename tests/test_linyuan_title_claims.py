@@ -152,6 +152,17 @@ def test_guest_evidence_grammar_never_offers_known_invalid_short_asr_fragments()
     assert T.proposal_schema(4,guest_ids=ids)['properties']['b_focus']['properties']['b_evidence_ids']['items']['enum']==[2]
 
 
+def test_actual_host_premises_and_closing_summaries_cannot_supply_guest_evidence():
+    root=Path(__file__).parent/'fixtures'
+    for filename,forbidden,retained in [
+            ('linyuan_0913_title.json',set(range(33,46)),{19,20}),
+            ('linyuan_0913_landscape_title.json',{19,20,21,22,23,24,25,26,50,51},{8,14,28,31,46,48})]:
+        cues=[c['text'] for c in json.loads((root/filename).read_text())['cues']]
+        ids=set(T.guest_evidence_ids(cues,['guest']*len(cues)))
+        assert not ids.intersection(forbidden)
+        assert retained<=ids
+
+
 def test_guest_reply_ranges_keep_every_unassigned_source_cue_for_independent_review():
     assert list(T.reading_schema(5)['properties'])==['a_guest_answer','b_question_premise','c_guest_spans']
     units=['主持人问题背景','主持人实际提问','嘉宾回答判断','嘉宾回答限制','主持人总结复述']
@@ -202,7 +213,7 @@ def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name
 def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     item=proposals()[0]
     item['title']='林园：龙头还没形成，布局整个行业更安全'
-    assert T._candidate_error(item,TEXT,'林园',())=='标题新增了原文没有的安全性或收益比较结论'
+    assert T._candidate_error(item,TEXT,'林园',())=='标题新增了所选嘉宾原文没有的比较或经营判断'
 
 
 def test_source_reading_precedes_evidence_and_title_even_after_schema_key_sorting():

@@ -119,6 +119,7 @@ jobs:
         sys.path.insert(0, 'linyuan')
         import produce_cn as p
         from title_rewrite import error
+        from reuse_title_verification import validate_guest_fixture
         # TITLE_REUSE_BEGIN
         import os
         if os.environ.get('TITLE_VERIFICATION_RESUMED')=='true':
@@ -141,6 +142,7 @@ jobs:
                 assert result['title_rewrite']['review']['method']=='cpu_text_review', '本次实测必须经过实际 CPU 生成和复核'
                 assert len(result['title_candidates']) == 3
                 assert not error(result['title'],result['title_rewrite'],''.join(c['text'] for c in cues))
+                validate_guest_fixture(dict(fixture=name,**result))
                 # A model's own true flags are insufficient: run 150 approved
                 # this host hypothesis as the guest's conclusion.
                 if name=='linyuan_0913_landscape_title.json':

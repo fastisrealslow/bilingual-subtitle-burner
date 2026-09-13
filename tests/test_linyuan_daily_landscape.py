@@ -65,6 +65,17 @@ def test_no_audio_card_after_increasing_daily_quota():
     assert fc.daily_mix_error(dict(render_mode='audio_card'),dict(live_video_count=3))
 
 
+def test_inspected_rejected_artifact_never_falls_back_to_first_part():
+    entry=dict(slug='ly-0912-5dc339',published_parts=0)
+    parts=[dict(index=i,status='rejected',reason='缺少新版间歇角标复核',
+                render_mode='live_video_card',resolution=dict(width=1280,height=720)) for i in range(2)]
+    records=[dict(slug=entry['slug'],artifact_id=10313683706,parts=parts)]
+    assert fc.inventory_part_index(entry,10313683706,records,{},now=stamp(21)) is None
+    assert fc.inventory_part_index(entry,10313683706,records,{},now=stamp(14)) is None
+    assert entry['published_parts']==0
+    assert fc.inventory_part_index(entry,999,records,{},now=stamp(14))==0
+
+
 def test_actual_landscape_productions_reserve_only_admission_not_finished_stock():
     state=dict(dispatched=[dict(slug='wide-'+str(i),output_layout='landscape',ts=i) for i in range(6)])
     active=[dict(id=i,status='in_progress',display_title='中文源出片 · wide-'+str(i)) for i in range(4)]

@@ -128,7 +128,26 @@ def guest_evidence_ids(units, roles):
     # The 818 real draft repeatedly selected short ASR cues, then failed the
     # unchanged eight-character evidence check. Do not offer impossible IDs to
     # the model; retain every short cue in the full reading/review context.
-    return [i for i,role in enumerate(roles) if role=='guest' and len(compact(units[i]))>=8]
+    blocked=explicit_host_cues(units)
+    return [i for i,role in enumerate(roles)
+            if role=='guest' and i not in blocked and len(compact(units[i]))>=8]
+
+
+def explicit_host_cues(units):
+    """Exclude explicit questions/summaries; this never certifies a guest cue."""
+    markers=re.compile(r'您(?:觉得|认为|怎么看)|(?:林总|林园总|林远总).*(?:理解|请问|如何|怎么看)'
+        r'|您的(?:过往|观点|意思)|我(?:也|大概|简单|来|再|先|这么|那我)*(?:听懂|听明白|理解|总结)'
+        r'|这样理解|(?:接着|再).*问|话题.*告一段')
+    blocked=set();host=False
+    for i,text in enumerate(units):
+        body=compact(text)
+        if markers.search(body):host=True
+        elif host:
+            opening=re.sub(r'^(?:嗯|啊|哎|呃|那个|这个|那么|现在|所以|就是|好|那)*','',body)
+            if re.match(r'^(?:我觉得|我认为|我个人|我们|对了对|总的来说|总体来说)',opening) or '我老林' in body:
+                host=False
+        if host:blocked.add(i)
+    return blocked
 
 
 def review_schema(candidate_count):
@@ -194,10 +213,11 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     # An observed 4B-model false positive inferred "更安全" from position sizing.
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
-                 '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益')
+                 '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益',
+                 '粘性强','粘性更强','黏性强','黏性更强')
     stated=compact(''.join(evidence))
     if any(term in compact(title+cover) and term not in stated for term in risk_claims):
-        return '标题新增了原文没有的安全性或收益比较结论'
+        return '标题新增了所选嘉宾原文没有的比较或经营判断'
     subject = item.get('subject')
     if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12:
         return '缺少具体讨论对象'
@@ -348,7 +368,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
             if len({compact(c['title']) for c in valid})!=3:
                 raise ValueError('三个标题必须有不同看点，不能重复同一句话')
-            dialogue_context = (json.dumps([dict(id=i,role=roles[i],text=u) for i,u in enumerate(units)],
+            dialogue_context = (json.dumps([dict(id=i,text=u) for i,u in enumerate(units)],
                                 ensure_ascii=False) if structured_model else transcript)
             judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。
 先完成a_analysis：a_guest_answer只概括嘉宾实际回答，b_question_premise列出主持人的问题前提；
@@ -365,9 +385,9 @@ cover_consistent封面和标题同一观点且没有更强断言；readable自�
 appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
 返回JSON的reviews数组，每项先a_analysis（a_guest_answer、b_question_premise、c_reason），
 再b_verdict（index、source_supported、central_point、attribution_correct、preserves_qualifiers、cover_consistent、readable、appeal）。
-候选及从原文直接取回的依据：{json.dumps([dict(title=c['title'],cover_title=c['cover_title'],evidence=c['evidence']) for c in valid], ensure_ascii=False)}
+待独立核对的标题和封面：{json.dumps([dict(title=c['title'],cover_title=c['cover_title']) for c in valid], ensure_ascii=False)}
 原文编号只帮助定位，依据中也可能含主持人的问题，必须与上下文分清说话人。若嘉宾确实说出了某个判断，不能仅因主持人也提到它就判归属错误。
-下方保留每条原始字幕的边界及文本推断的说话轮次。先独立检查轮次归属是否合理，发现归属错误判attribution_correct=false。
+下方只有完整原始字幕，不提供上游的说话人标签或所选证据，以免沿用上游的误判。必须从前后问答独立判断谁说了什么。
 只用guest真正说出的内容支撑标题事实；host只提供问题背景，不能把未被回答确认的假设写进标题。
 完整字幕：{dialogue_context}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])

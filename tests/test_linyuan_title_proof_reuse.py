@@ -17,8 +17,10 @@ def fixture_rows():
     specs=[('linyuan_0913_title.json','龙头','林园：龙头未定，先配置可能成为龙头的公司','龙头未定，如何配置公司'),
            ('linyuan_0913_landscape_title.json','高端消费','林园：高端消费需求旺盛，企业经营压力不大','高端消费需求是否依旧旺盛')]
     for fixture,subject,title,cover in specs:
-        source=''.join(c['text'] for c in json.loads((ROOT/'tests/fixtures'/fixture).read_text())['cues'])
-        item=dict(title=title,cover_title=cover,subject=subject,evidence=[source])
+        cues=json.loads((ROOT/'tests/fixtures'/fixture).read_text())['cues']
+        source=''.join(c['text'] for c in cues)
+        ids=[13,19,20] if fixture=='linyuan_0913_title.json' else [14,48]
+        item=dict(title=title,cover_title=cover,subject=subject,evidence=[cues[i]['text'] for i in ids])
         package=T._package(item,source,dict(method='cpu_text_review',appeal=4,
             reason='单元测试构造的审核证明，用于检验精确来源绑定和不可篡改规则',
             **{k:True for k in T.CHECKS}),[item,item,item])
@@ -39,7 +41,7 @@ def test_only_matching_complete_source_bound_cpu_results_are_reusable():
 
 def test_actual_known_host_hypothesis_is_rejected_even_with_true_cpu_flags():
     rows=fixture_rows();row=rows[1]
-    source=row['title_rewrite']['evidence'][0]
+    source=''.join(c['text'] for c in json.loads((ROOT/'tests/fixtures'/row['fixture']).read_text())['cues'])
     item=dict(title='林园：高端消费表现好，但一线白酒新品市场反馈未达预期？',
               cover_title='高端消费表现好，但新品市场反馈如何？',subject='高端消费',evidence=[source])
     package=T._package(item,source,dict(method='cpu_text_review',appeal=5,
@@ -47,6 +49,13 @@ def test_actual_known_host_hypothesis_is_rejected_even_with_true_cpu_flags():
         **{k:True for k in T.CHECKS}),[item,item,item])
     rows[1]={**row,**package}
     with pytest.raises(ValueError,match='host hypothesis'):reuse.validate_results(rows,ROOT)
+
+
+def test_real_162_host_stickiness_claim_cannot_pass_as_guest_evidence():
+    rows=fixture_rows();row=rows[1]
+    cues=json.loads((ROOT/'tests/fixtures'/row['fixture']).read_text())['cues']
+    row['title_rewrite']['evidence']=[cues[21]['text'],cues[28]['text'],cues[51]['text']]
+    with pytest.raises(ValueError,match='host/unknown'):reuse.validate_guest_fixture(row,ROOT)
 
 
 def test_workflow_wrapper_never_erases_changed_cpu_test_rules():

@@ -137,6 +137,41 @@ def test_running_same_slug_is_never_redispatched_or_deleted(monkeypatch):
     assert len(calls)==2
 
 
+def test_quality_retry_preserves_selected_parts_in_actual_workflow_request(monkeypatch):
+    sent=[]
+    def gh(method,path,*args,**kwargs):
+        if method=='GET':return {'workflow_runs':[]}
+        sent.append(args[0]);return {}
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc,'save_state',lambda s:None)
+    monkeypatch.setattr(fc,'log_event',lambda *a:None)
+    monkeypatch.setattr(fc,'publisher_code_is_current',lambda:True)
+    entry=dict(slug='reserve',source_url='https://www.bilibili.com/video/BV1hj411X7BL',selected_parts='1,3')
+    assert fc._request_quality_reprocess({'dispatched':[entry]},entry,'reserve','字幕运行超时')
+    assert sent[0]['inputs']['selected_parts']=='1,3'
+    assert sent[0]['inputs']['auto_publish']=='false'
+
+
+def test_old_publisher_does_not_spend_retries_reproducing_newer_validators_outputs(monkeypatch):
+    calls=[]
+    monkeypatch.setattr(fc,'gh',lambda method,path,*a,**k: calls.append(method) or {'workflow_runs':[]})
+    monkeypatch.setattr(fc,'save_state',lambda s:None)
+    monkeypatch.setattr(fc,'publisher_code_is_current',lambda:False)
+    entry=dict(slug='reserve',source_url='https://www.bilibili.com/video/BV1hj411X7BL')
+    assert not fc._request_quality_reprocess({},entry,'reserve','缺少新版间歇角标复核',10320556114)
+    assert all(method=='GET' for method in calls)
+    assert 'quality_retries' not in entry and not entry.get('failed')
+    assert '等待新版核验' in entry['quality_failure']
+
+
+def test_publisher_revision_is_compared_to_actual_running_file(monkeypatch):
+    current=Path(fc.__file__).read_bytes()
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:current)
+    assert fc.publisher_code_is_current()
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:current+b'\n# newer publisher')
+    assert not fc.publisher_code_is_current()
+
+
 def test_consumed_exact_native_bug_verdict_can_recover_once_with_history(monkeypatch):
     state,entry,run,calls=evidence(monkeypatch,changed='linyuan/produce_cn.py',failed_step='出片')
     reason='真人取景源区域仅272x202像素，超过2倍放大上限，疑似远景小头像'

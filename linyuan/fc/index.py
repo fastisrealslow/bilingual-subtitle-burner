@@ -749,10 +749,13 @@ def diagnose_release_download(event=None, context=None):
 
 
 def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=1024*1024*1024):
-    """Refresh signed URLs after a bounded failed/slow read; never expose tokens."""
+    """Resume the same immutable artifact within bounded attempts; verify the ZIP."""
     import requests
     archive_path=Path(archive_path)
+    # Only bytes obtained for this exact artifact invocation may be resumed.
+    archive_path.unlink(missing_ok=True)
     for attempt in range(attempts):
+        can_resume=True
         try:
             redirect=requests.get(API+f'/actions/artifacts/{artifact_id}/zip',
                 params={'_':str(time.time_ns())},
@@ -761,12 +764,16 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
             location=redirect.headers.get('Location','')
             if redirect.status_code!=302 or not location.startswith('https://'):
                 raise RuntimeError(f'Signed artifact redirect unavailable: HTTP {redirect.status_code}')
-            result=subprocess.run(['curl','-fsSL','--connect-timeout','15',
+            resume=['--continue-at','-'] if archive_path.is_file() and archive_path.stat().st_size else []
+            result=subprocess.run(['curl','-fsSL',*resume,'--connect-timeout','15',
                 '--max-time',str(timeout_sec),'--speed-time','20','--speed-limit','32768',
                 '--max-filesize',str(max_bytes),'-o',str(archive_path),location],
                 capture_output=True,timeout=timeout_sec+10)
             if result.returncode!=0 or not archive_path.is_file():
+                can_resume=result.returncode in {18,22,28,52,55,56}
                 raise RuntimeError(f'Bounded artifact transfer failed: curl exit {result.returncode}, limit {max_bytes} bytes')
+            # A complete response with invalid ZIP/CRC must start afresh.
+            can_resume=False
             size=archive_path.stat().st_size
             if not 0<size<=max_bytes:
                 raise RuntimeError('Reviewed artifact size invalid')
@@ -775,9 +782,13 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
                     raise RuntimeError('Reviewed artifact CRC invalid')
             return size
         except Exception as exc:
-            archive_path.unlink(missing_ok=True)
-            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
+            retained=archive_path.stat().st_size if archive_path.is_file() else 0
+            if not can_resume or not 0<retained<=max_bytes:
+                archive_path.unlink(missing_ok=True)
+                retained=0
+            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} retained={retained} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
             flush_logs()
+    archive_path.unlink(missing_ok=True)
     raise RuntimeError(f'Reviewed artifact exhausted {attempts} bounded attempts')
 
 
@@ -2239,6 +2250,7 @@ def _dispatch_admitted(event=None, context=None):
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
                 'output_layout':entry.get('output_layout','auto'),
                 **({'reviewed_parts':str(entry['reviewed_parts'])} if entry.get('reviewed_parts') else {}),
+                **({'selected_parts':str(entry['selected_parts'])} if entry.get('selected_parts') else {}),
                 **({'recovery_run_id':str(entry['source_check_run_id'])} if entry.get('source_check_run_id') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
@@ -2463,7 +2475,7 @@ def mark_part_processed(entry, index):
 def inventory_part_index(entry, artifact_id, records, daily, now=None):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
-    None means a known verified reserve is temporarily blocked by today's mix;
+    None means this inspected artifact has no remaining eligible part;
     absent inspection falls back to the normal full checks at the current index.
     """
     for record in records:
@@ -2476,6 +2488,9 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
                          and (now is None or content_fits_slot(p,entry,now))),None)
+        # An inspected rejection/consumed part is not a missing inspection.
+        # Falling back to index zero redownloaded rejected stock at 21:00.
+        return None
     return int(entry.get('published_parts') or 0)
 
 
@@ -2903,6 +2918,11 @@ def _collect_source_rejections(st):
                     # empty report. That report is not a quality verdict.
                     report['retryable'] = True
                     report['reason'] = '旧版空选段报告没有完成审核的证据，保留CPU转写后有界重试'
+                # Selection may legitimately skip an unrelated block before a
+                # selected part fails. Report the actual recoverable failure,
+                # or the final render failure, instead of that first skip.
+                failures=sorted(failures,key=lambda f:(f.get('retryable') is True,
+                    f.get('stage')=='part-quality'),reverse=True)
                 reason = report.get("reason") or (failures[0].get("reason") if failures else None) or reason
             except Exception as exc:
                 log.warning(f"{slug} 素材拒绝报告读取失败: {exc}")
@@ -3061,6 +3081,15 @@ def quality_retries_current(entry):
             if entry.get('quality_reprocess_revision')==QUALITY_REPROCESS_REVISION else 0)
 
 
+def publisher_code_is_current():
+    """An older publisher cannot repair a newer artifact by reproducing it."""
+    import hashlib
+    current=gh('GET','/contents/linyuan/fc/index.py?ref=main',raw=True,timeout=20)
+    if not isinstance(current,bytes) or not current:
+        raise ValueError('无法核对发布器版本，暂缓重复出片')
+    return hashlib.sha256(current).digest()==hashlib.sha256(Path(__file__).read_bytes()).digest()
+
+
 def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
     """隔离旧 artifact，并用原素材触发新版流水线重新生成。"""
     active_runs=[r for status in ('in_progress','queued')
@@ -3082,6 +3111,15 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
         log_event("fail", f"⛔ {slug} 旧成片无法安全重做", reason)
         return False
     try:
+        if not publisher_code_is_current():
+            e['quality_failure']='发布器修复尚未上线，保留现有成片等待新版核验：'+reason
+            save_state(st)
+            return False
+    except Exception as exc:
+        e['quality_failure']='发布器版本核对暂不可用，保留成片并稍后重查：'+type(exc).__name__
+        save_state(st)
+        return False
+    try:
         recovery={}
         if artifact_id:
             # Retain the old evidence and reuse its original ASR. Current
@@ -3100,6 +3138,7 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
                        "delay_hours": "0", "auto_publish": "false",
                        **recovery,
                        **({'reviewed_parts':str(e['reviewed_parts'])} if e.get('reviewed_parts') else {}),
+                       **({'selected_parts':str(e['selected_parts'])} if e.get('selected_parts') else {}),
                        # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
                        # 否则常规模式允许空片段，会出现“运行成功但仅产出 3 条”。
                        **({"include_full": "true"} if e.get("weekly_full_week") else {}),
@@ -3368,16 +3407,15 @@ def publish_handler(event=None, context=None):
             asset_url = candidate.get("asset_url") or candidate.get("source_url")
             if asset_url:
                 try:
-                    gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
-                        "ref": "main",
-                        "inputs": {"source": asset_url, "slug": s,
-                                   "speaker": "林园", "occasion": candidate["title"][:30],
-                                   "delay_hours": "0", "auto_publish": "false",
-                                   "include_full": "true" if candidate.get("weekly_full_week") else "false"}})
-                    candidate["retries"] = retries + 1
-                    candidate["last_retry"] = int(now)
-                    retried += 1
-                    log.info(f"{s} 无 artifact，自动重试出片 ({retries+1}/2)")
+                    # Use the same actual-run admission and parameter-preserving
+                    # path as quality recovery. An elapsed clock alone must not
+                    # duplicate a still-running source or exceed six workers.
+                    if _request_quality_reprocess(st,candidate,s,'运行结束后仍无成片，保留范围恢复',
+                                                  candidate.get('source_check_report_id')):
+                        candidate["retries"] = retries + 1
+                        candidate["last_retry"] = int(now)
+                        retried += 1
+                        log.info(f"{s} 无 artifact，自动重试出片 ({retries+1}/2)")
                 except Exception as retry_err:
                     log.warning(f"{s} 重试触发失败: {retry_err}")
             else:

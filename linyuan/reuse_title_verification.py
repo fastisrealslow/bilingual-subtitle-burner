@@ -19,6 +19,19 @@ TITLE_FILES = (
 WORKFLOW = '.github/workflows/linyuan-title-claim-check.yml'
 
 
+def validate_guest_fixture(row,root=Path('.')):
+    """Independent hand-checked speaker boundaries for these regression cases."""
+    ranges={'linyuan_0913_title.json':[(1,4),(8,13),(17,20),(28,31)],
+            'linyuan_0913_landscape_title.json':[(8,18),(27,31),(46,49)]}
+    name=row['fixture']
+    cues=json.loads((root/'tests/fixtures'/name).read_text())['cues']
+    from title_rewrite import compact
+    guest=[''.join(compact(cues[i]['text']) for i in range(a,b+1)) for a,b in ranges[name]]
+    evidence=(row.get('title_rewrite') or {}).get('evidence') or []
+    if not evidence or any(not any(compact(q) in block for block in guest) for q in evidence):
+        raise ValueError('Known host/unknown lines were used as guest evidence')
+
+
 def canonical_workflow(text):
     """Ignore the reuse wrapper and job wall clock, never CPU test assertions."""
     text=text.replace("concurrency:\n  group: title-claim-check-${{ inputs.local_text_model || 'qwen3:8b' }}\n  cancel-in-progress: true\n",'')
@@ -59,6 +72,7 @@ def validate_results(rows, root=Path('.')):
                 r'新品.{0,12}(未达预期|不及预期|遇冷|反馈差)',row.get(k,''))
                 for k in ('title','cover_title')):
             raise ValueError('Known host hypothesis was falsely approved')
+        validate_guest_fixture(row,root)
 
 
 def model_evidence(directory, expected):
