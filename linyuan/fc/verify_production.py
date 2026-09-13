@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 import os
+import time
 from pathlib import Path
 
 
@@ -10,6 +11,20 @@ def refill_requested(env=None):
     """Keep code-deploy pushes from accidentally starting another production batch."""
     value = (env or os.environ).get('FC_REFILL', '')
     return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def read_config_health(read, attempts=3):
+    """Retry only a read-only configuration probe, never dispatch/publication."""
+    for attempt in range(attempts):
+        try:
+            return read()
+        except Exception as exc:
+            code=str(getattr(exc,'code',''))
+            transient=(isinstance(exc,(TimeoutError,ConnectionError))
+                or code in {'ServiceUnavailable','InternalError','Throttling'}
+                or any(token in str(exc).lower() for token in ('timed out','connection reset','code: 503','code: 502','code: 504')))
+            if not transient or attempt+1==attempts:raise
+            time.sleep(5*(attempt+1))
 
 
 def main():
@@ -33,7 +48,8 @@ def main():
         if isinstance(body,bytes): body=body.decode()
         return json.loads(body)
 
-    health = invoke({'triggerName':'diagnose-production'})
+    Path('production-verification.json').write_text(json.dumps(dict(verification_complete=False,phase='config_health')))
+    health = read_config_health(lambda:invoke({'triggerName':'diagnose-config'}))
     expected = hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
     if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
             or health.get('publish_hours_beijing') != [10, 14, 16, 21]
@@ -72,7 +88,7 @@ def main():
             timer_proof.append({'name':trigger.trigger_name,'qualifier':trigger.qualifier,'config':config})
     dispatch = invoke({'triggerName':'dispatch'}, asynchronous=True) if refill_requested() else {
         'skipped': True, 'reason': 'deploy_without_refill'}
-    result={'health':health,'timers':timer_proof,'dispatch':dispatch}
+    result={'verification_complete':True,'health':health,'timers':timer_proof,'dispatch':dispatch}
     Path('production-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
     print(json.dumps(result,ensure_ascii=False,indent=2))
 

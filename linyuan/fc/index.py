@@ -272,6 +272,7 @@ TITLE_ASR_BLACKLIST = ("手财", "一定折")
 # 用户已明确要求：下列两批在新版真实样片验收前不得继续投稿。
 # 这是发布端的精确熔断，不改历史回执，也不影响其他正常素材。
 REVIEW_PAUSED_SLUGS = {
+    "ly-0912-5dc339-stable-crop-portrait",  # Actual 807 sheets retain source text at the live-window bottom.
     "ly-0911-171705",  # Confirmed blue-background portrait crop; remaining parts quarantined.
     "ly-0907-aba5c6",  # Actual ASS has truncated clauses and corrupt names/numbers in both live parts.
     "ly-0907-f95a57",  # Actual ASS: wrong financial terms and incomplete standalone openings.
@@ -1883,6 +1884,21 @@ def upload_asset(rel_id, path):
 
 # ---------- FC 路由（一个函数挂两个定时触发器）----------
 
+def production_config():
+    """Read local deployed code/config without fetching multi-MB remote ledgers."""
+    import hashlib
+    return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
+            "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
+            "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
+            "cover_styles": ["scene", "photo", "light", "dark"],
+            "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
+            "production_rules_version": PRODUCTION_RULES_VERSION,
+            "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
+            "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
+            "dispatch_workflow_ref": "main", "publish_hours_beijing": sorted(PUBLISH_HOURS)}
+
+
 def handler(event, context):
     """FC 统一入口：按触发器名字路由。
 
@@ -1894,29 +1910,25 @@ def handler(event, context):
     except Exception:
         evt = {}
     name = str(evt.get("triggerName", ""))
+    if name == 'diagnose-config':
+        # Deployment 148 completed its upload but the full inventory diagnostic
+        # hit a synchronous 503. Code/timer validation must not wait for source
+        # discovery or write progress logs before responding.
+        return production_config()
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     # 入口事件立即落盘，长下载/上传即使超时也能证明请求实际进入函数。
     flush_logs()
     try:
         if name == "diagnose-production":
-            import hashlib
             st = load_state()
             payload = json.loads(gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True).decode())
             items = payload if isinstance(payload, list) else payload.get("items", [])
-            return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-                    "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4, "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
-                    "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
-                    "cover_styles": ["scene", "photo", "light", "dark"],
-                    "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
-                    "production_rules_version": PRODUCTION_RULES_VERSION,
-                    "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
-                    "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
-                    "dispatch_workflow_ref": "main",
+            return {**production_config(),
                     "in_flight_placeholders": _pending_final_count(st),
                     "source_inventory": source_inventory(st),
                     "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
-                    "daily_publish": st.get("daily_publish", {}), "publish_hours_beijing": sorted(PUBLISH_HOURS)}
+                    "daily_publish": st.get("daily_publish", {})}
         if name == "diagnose-ping":
             log_event("probe_ok", "FC 同步入口 ping 成功", "")
             return {"ok": True, "ts": int(time.time())}
