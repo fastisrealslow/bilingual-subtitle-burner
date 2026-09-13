@@ -127,3 +127,24 @@ def test_actual_caption_evidence_is_selected_by_id_and_never_retyped():
     with pytest.raises(ValueError):T.bind_evidence({**item,'evidence':['人工补写的原文']},units)
     assert T.proposal_schema(len(units))['properties']['candidates']['minItems']==3
     assert all(T.review_schema(3)['properties']['reviews']['items']['properties'][k]['type']=='boolean' for k in T.CHECKS)
+
+
+@pytest.mark.parametrize('name',['linyuan_0913_title.json','linyuan_0913_landscape_title.json'])
+def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name):
+    fixture=json.loads((Path(__file__).parent/'fixtures'/name).read_text())
+    text=''.join(c['text'] for c in fixture['cues'])
+    units=T.source_units(text)
+    catalog=T.subject_catalog(units)
+    assert catalog
+    for subject, ids in catalog.items():
+        assert ids and all(subject in units[i] for i in ids)
+    schema=T.proposal_schema(len(units),catalog)['properties']['candidates']['items']['properties']
+    assert set(schema['subject']['enum'])==set(catalog)
+    assert schema['title']['minLength']>=12 and schema['cover_title']['minLength']>=8
+    assert '未出龙头公司' not in catalog and '医药消费赛道' not in catalog
+
+
+def test_source_subject_choice_does_not_approve_a_new_financial_claim():
+    item=proposals()[0]
+    item['title']='林园：龙头还没形成，布局整个行业更安全'
+    assert T._candidate_error(item,TEXT,'林园',())=='标题新增了原文没有的安全性或收益比较结论'

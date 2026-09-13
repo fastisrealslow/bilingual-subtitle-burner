@@ -48,10 +48,23 @@ def source_units(transcript):
     return units
 
 
-def proposal_schema(unit_count):
-    fields = {name:dict(type='string') for name in ('title', 'cover_title', 'subject')}
+def subject_catalog(units):
+    """Offer exact source nouns, never model-invented compound evidence anchors."""
+    from collections import Counter
+    import jieba.posseg
+    counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
+                     if tag.startswith(('n', 'vn')) and 2 <= len(compact(word)) <= 8)
+    return {word:[i for i, unit in enumerate(units) if word in unit]
+            for word, _ in counts.most_common(48)}
+
+
+def proposal_schema(unit_count, subjects=None):
+    # Evidence comes first in the decoding grammar, before any proposed wording.
+    fields = {'subject':dict(type='string', **({'enum':list(subjects)} if subjects else {}))}
     fields['evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
+    fields['title'] = dict(type='string', minLength=12, maxLength=68)
+    fields['cover_title'] = dict(type='string', minLength=8, maxLength=22)
     return dict(type='object', additionalProperties=False, required=['candidates'], properties={
         'candidates':dict(type='array', minItems=3, maxItems=3,
             items=dict(type='object', additionalProperties=False, required=list(fields), properties=fields))})
@@ -160,6 +173,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     if model is None and structured_model is None:
         return _extractive(transcript, speaker, existing_titles, preferred)
     units = source_units(transcript)
+    subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
     prompt = f'''你是视频标题编辑。读完真实字幕，先找这段最主要的一个观点和它的理由。
@@ -170,16 +184,20 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 每条以“{speaker}：”开头，正文通常18~36字。封面8~18字，两行能完整读完，表达同一个看点。
 拒绝“谈A、B与C”“关于某某的公开讨论”“投资逻辑解析”等目录式标题。
 每条用evidence_ids选1~4组原文证据的编号，程序会取回真实原句，不要重新抄写或改写证据。
-subject为标题与所选证据共有的2~12字具体对象；封面必须有8~18个汉字，不能只有一个短词。
+先从对象表选subject原词，再选确实支撑观点的证据编号，然后才写标题和封面。
+subject必须逐字出现在标题与至少一组所选证据中，不能自行组合成新词；这只是证据索引，不是标题模板。
+用日常说话表达看点，不写“潜力池”“收益逻辑”“策略解析”等空话。
+封面必须有8~18个汉字，不能只有一个短词。
 旧标题仅供识别问题，不是已验收结论：{preferred or '无'}
-只输出JSON：{{"candidates":[{{"title":"","cover_title":"","subject":"","evidence_ids":[0,1]}}]}}
+只输出符合给定结构的JSON，必须填满3条真实候选，不能返回空字符串。
+对象表（原词：它出现的证据编号）：{json.dumps(subjects, ensure_ascii=False)}
 真实字幕：\n{transcript}
 证据编号（每组均为未改写的原文）：\n{json.dumps(dict(enumerate(units)), ensure_ascii=False)}'''
     last_error = ''
     for attempt in range(3):
         try:
             proposal = _json(call(prompt + ('\n上次问题：' + last_error if last_error else ''),
-                                  proposal_schema(len(units))))
+                                  proposal_schema(len(units), subjects)))
             candidates = proposal.get('candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:
                 raise ValueError('必须提供三个不同角度的候选标题')
@@ -190,7 +208,8 @@ subject为标题与所选证据共有的2~12字具体对象；封面必须有8~1
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             valid = [c for c, issue in zip(candidates, errors) if not issue]
             if len(valid) != 3:
-                issues=[f"{c.get('title','')} / {c.get('cover_title','')}：{issue}"
+                issues=[f"{c.get('title','')} / {c.get('cover_title','')}"
+                        f"（对象={c.get('subject')},证据编号={c.get('evidence_ids')}）：{issue}"
                         for c,issue in zip(candidates,errors) if issue]
                 raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
             judge = f'''独立核对这些视频标题与完整字幕，只评价标题和封面，不重做选段或字幕审核。
