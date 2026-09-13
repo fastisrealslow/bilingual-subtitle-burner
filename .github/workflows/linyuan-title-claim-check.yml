@@ -8,9 +8,9 @@ concurrency:
   group: title-claim-check
   cancel-in-progress: true
 env:
-  RUN_TEXT_MODEL: qwen3:8b
+  RUN_TEXT_MODEL: qwen3.5:9b
   TEXT_BACKEND: local
-  LOCAL_LLM_MODEL: qwen3:8b
+  LOCAL_LLM_MODEL: qwen3.5:9b
   CUDA_VISIBLE_DEVICES: ''
 jobs:
   check:
@@ -29,7 +29,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.ollama/models
-        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' || env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
     - name: 缓存已校验的 Ollama 安装包
       uses: actions/cache@v4
       continue-on-error: true
@@ -61,7 +61,7 @@ jobs:
         done
         curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
         case "$RUN_TEXT_MODEL" in
-          qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b) ;;
+          qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b|qwen3.5:9b) ;;
           *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;
         esac
         ollama pull "$RUN_TEXT_MODEL"
