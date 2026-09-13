@@ -1,0 +1,139 @@
+name: 核验上线后补发811两条成片
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-release-verified-811.yml]
+  workflow_run:
+    workflows: ['FC production deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: release-verified-811
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      VERIFIED_DEPLOY_RUN: '34760249532'
+      VERIFIED_DEPLOY_HEAD: '8fdd82f18ecf8d729f2091700adf5adf1e0ab089'
+      SLUG: ly-0912-5dc339-stable-clean-proof-portrait
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 等待指定修复通过真实CPU核验并上线
+        id: gate
+        run: |
+          python - <<'PY'
+          import os,json,subprocess
+          run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['VERIFIED_DEPLOY_RUN']]))
+          assert run['head_sha']==os.environ['VERIFIED_DEPLOY_HEAD']
+          ready=run['conclusion']=='success'
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('ready='+str(ready).lower()+'\n')
+          print('指定修复已上线，继续核验实际成片' if ready else '指定修复尚未成功上线，保持待审，不投稿')
+          PY
+      - name: 验证部署证明与两条实际文件
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          gh run download "$VERIFIED_DEPLOY_RUN" --repo "$GITHUB_REPOSITORY" --name production-verification --dir /tmp/deploy-proof
+          gh release download "deliver-$SLUG" --repo "$GITHUB_REPOSITORY" --pattern "$SLUG.*" --dir /tmp/811
+          python -m pip install -q requests numpy 'opencv-python-headless<5'
+          python - <<'PY'
+          import sys,os,json,hashlib
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          from source_supply import validate_part
+          proof=json.loads(Path('/tmp/deploy-proof/production-verification.json').read_text())
+          assert proof['verification_complete'] is True
+          assert proof['health']['code_sha256']==hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
+          assert proof['health']['daily_limit']==4 and proof['health']['publish_hours_beijing']==[10,14,16,21]
+          directory=Path('/tmp/811');prefix=os.environ['SLUG']+'.'
+          for path in directory.iterdir():
+              assert path.name.startswith(prefix)
+              path.rename(path.with_name(path.name[len(prefix):]))
+          expected={'final_2.mp4':'eb149d3134302c0a37c5c2e7df86a38fe294421099227e1d6af3da5d8dd0fc15',
+                    'final_4.mp4':'b49fb3a54a1f6f0b0fb4a2c4723491e1cf9a479ca33e8eaf54cf78ef35eb9052'}
+          metas=json.loads((directory/'meta.json').read_text())
+          assert {m['final'] for m in metas}==set(expected)
+          results=[]
+          for meta in metas:
+              assert meta['source_sha256']=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47'
+              assert meta['fingerprints']['sha256']==expected[meta['final']]
+              issue=validate_part(meta,directory)
+              assert not issue,issue
+              results.append(dict(final=meta['final'],sha256=expected[meta['final']],validated=True))
+          Path('811-release-proof.json').write_text(json.dumps(dict(deploy_run=os.environ['VERIFIED_DEPLOY_RUN'],files=results),indent=2))
+          print(json.dumps(results))
+          PY
+      - name: 仅解除这两条已核验成片的临时待审
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          python - <<'PY'
+          import sys,os,json,base64,time,subprocess
+          sys.path.insert(0,'linyuan')
+          from register_selection_recovery import read_state,gh,REPO,PATH
+          from fc import index as fc
+          slug=os.environ['SLUG']
+          def release():
+              for attempt in range(6):
+                  doc,st=read_state()
+                  entries=[e for e in st['dispatched'] if e.get('slug')==slug]
+                  assert entries and all(e['source_url']=='https://www.bilibili.com/video/BV1hj411X7BL' for e in entries)
+                  for entry in entries:
+                      if entry.get('failed'):
+                          assert entry.get('review_hold') and entry.get('failure_stage')=='release-verification'
+                      for key in ('failed','review_hold','failure_stage','last_error'):entry.pop(key,None)
+                      entry['release_verification']=dict(deploy_run=os.environ['VERIFIED_DEPLOY_RUN'],verified_at=int(time.time()),proof_run=os.environ['GITHUB_RUN_ID'])
+                  body=dict(message='ops: release only the two SHA-verified clean 811 clips after production verification',sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(st,ensure_ascii=False,separators=(',',':')).encode()).decode())
+                  try:
+                      gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)
+                      return dict(released=slug,daily=st.get('daily_publish'))
+                  except subprocess.CalledProcessError:
+                      if attempt==5:raise
+                      time.sleep(2)
+          for attempt in range(10):
+              result=fc.run_with_lease('dispatch',release)
+              if result.get('released'):break
+              time.sleep(10)
+          assert result.get('released'),result
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - name: 依次刷新库存并补齐两个已到时段
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          python -u - <<'PY'
+          import sys,os,json,subprocess,time
+          from datetime import datetime,timezone
+          sys.path.insert(0,'linyuan')
+          from register_selection_recovery import read_state
+          repo=os.environ['GITHUB_REPOSITORY']
+          for attempt in range(2):
+              _,st=read_state()
+              daily=st.get('daily_publish') or {}
+              if daily.get('date')=='2026-09-13' and daily.get('count',0)>=4:break
+              started=datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+              subprocess.run(['gh','workflow','run','linyuan-source-inventory.yml','--repo',repo,'--ref','main'],check=True)
+              run_id=None
+              for _ in range(12):
+                  rows=json.loads(subprocess.check_output(['gh','run','list','--repo',repo,'--workflow','linyuan-source-inventory.yml','--event','workflow_dispatch','--branch','main','--limit','8','--json','databaseId,createdAt']))
+                  candidates=[r for r in rows if r['createdAt']>=started]
+                  if candidates:run_id=min(candidates,key=lambda r:r['databaseId'])['databaseId'];break
+                  time.sleep(5)
+              assert run_id,'Dispatched inventory run not yet identifiable; do not duplicate it'
+              print('Inventory catch-up run',run_id,flush=True)
+              subprocess.run(['gh','run','watch',str(run_id),'--repo',repo,'--exit-status','--interval','20'],check=True,timeout=1000)
+          _,st=read_state()
+          print(json.dumps(dict(daily=st.get('daily_publish')),ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.gate.outputs.ready == 'true'
+        with:
+          name: verified-811-release
+          path: 811-release-proof.json
+          if-no-files-found: warn
