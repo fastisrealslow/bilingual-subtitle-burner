@@ -63,6 +63,25 @@ def tracked_request(client,function,m,runtime,action,task_id,payload=None,wait_s
     return task
 
 
+def task_result(task):
+    """FC may put the actual handler result in the terminal event's logTail."""
+    if task is None:return None
+    candidates=[getattr(task,'return_payload',None)]
+    data=task.to_map() if hasattr(task,'to_map') else {}
+    for event in reversed(data.get('events') or []):
+        if event.get('status')!='Succeeded':continue
+        try:
+            detail=json.loads(event.get('eventDetail') or '{}')
+            candidates.append(detail.get('logTail'))
+        except (ValueError,TypeError,AttributeError):continue
+    for raw in candidates:
+        try:
+            parsed=json.loads(raw or '')
+            if isinstance(parsed,dict):return parsed
+        except (ValueError,TypeError):pass
+    return None
+
+
 def save_receipt(result):
     Path('catchup-receipt.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
     print(json.dumps(result,ensure_ascii=False),flush=True)
@@ -77,7 +96,8 @@ def main():
         return
     task_id,task=run_inventory_task(action)
     result=dict(task_id=task_id,action=action,status=task.status if task else 'Unknown',
-                return_payload=task.return_payload if task else None)
+                return_payload=task.return_payload if task else None,
+                function_result=task_result(task))
     result['outcome']='failed' if result['status'] in {'Failed','Stopped','Expired','Invalid'} else 'pending'
     save_receipt(result)
     if not task or task.status!='Succeeded':
@@ -102,6 +122,10 @@ def main():
             from bili_archive_status import archive_status
             result['creator_verification']=archive_status(ids,fc.OWNER_MID,os.environ['BILIBILI_COOKIES'])
     save_receipt(result)
+    if action=='publish-catchup' and not result['new_bvids']:
+        raise SystemExit('Publication task produced no new receipt; inspect function_result and retain task ID')
+    if result.get('creator_verification') and result['creator_verification']['public_count']!=len(result['new_bvids']):
+        raise SystemExit('Publication receipt exists but public visibility is pending; do not reupload')
 
 
 if __name__=='__main__':main()

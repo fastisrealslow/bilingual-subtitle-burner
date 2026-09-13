@@ -409,8 +409,40 @@ def test_weekly_full_request_requires_long_complete_source_and_no_active_request
 def test_publisher_lease_blocks_timer_and_inventory_race(monkeypatch):
     lease=base64.b64encode(json.dumps(dict(expires_at=time.time()+500)).encode()).decode()
     monkeypatch.setattr(fc,'gh',lambda *a,**kw:dict(content=lease,sha='owned'))
-    result=fc.run_with_lease('publish',lambda:(_ for _ in ()).throw(AssertionError('duplicate upload')))
+    result=fc.run_with_lease('publish',lambda:(_ for _ in ()).throw(AssertionError('duplicate upload')),wait_seconds=0)
     assert result['publisher_busy']==1
+
+
+def test_publisher_waits_for_dispatch_then_claims_once(monkeypatch):
+    reads=[];writes=[];calls=[]
+    def gh(method,path,payload=None,**kw):
+        if method=='GET':
+            reads.append(1)
+            lease=dict(owner='dispatch',expires_at=time.time()+500 if len(reads)==1 else 0)
+            return dict(content=base64.b64encode(json.dumps(lease).encode()).decode(),sha='s')
+        writes.append(payload)
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc.time,'sleep',lambda _:None)
+    monkeypatch.setattr(fc,'release_pipeline_lease',lambda *a:True)
+    result=fc.run_with_lease('publish',lambda:calls.append('upload') or dict(published=1))
+    assert result==dict(published=1) and calls==['upload'] and len(writes)==1 and len(reads)==2
+
+
+def test_publisher_cas_race_waits_but_never_steals_lease(monkeypatch):
+    clock=[0];writes=[];events=[]
+    def gh(method,path,payload=None,**kw):
+        if method=='GET':
+            lease=dict(owner='other',expires_at=0 if not writes else time.time()+500)
+            return dict(content=base64.b64encode(json.dumps(lease).encode()).decode(),sha='s')
+        writes.append(payload)
+        raise HTTPError(path,409,'CAS lost',{},None)
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc.time,'monotonic',lambda:clock[0])
+    monkeypatch.setattr(fc.time,'sleep',lambda n:clock.__setitem__(0,clock[0]+n))
+    monkeypatch.setattr(fc,'log_event',lambda *args:events.append(args))
+    result=fc.run_with_lease('publish',lambda:pytest.fail('must not upload'),wait_seconds=10)
+    assert result['publisher_busy']==1 and len(writes)==1 and clock[0]==10
+    assert events[-1][0]=='publish_noop'
 
 
 def test_stock_target_stops_source_expansion(monkeypatch):

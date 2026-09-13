@@ -107,3 +107,21 @@ def test_state_read_failure_preserves_successful_task_for_reconciliation(monkeyp
     receipt=json.loads(Path('catchup-receipt.json').read_text())
     assert receipt['task_id']=='same-id' and receipt['status']=='Succeeded'
     assert receipt['outcome']=='pending'
+
+
+def test_fc_terminal_event_exposes_busy_noop_instead_of_empty_return_payload():
+    task=NS(return_payload='',to_map=lambda:dict(events=[dict(status='Succeeded',
+        eventDetail=json.dumps(dict(logTail=json.dumps(dict(published=0,publisher_busy=1)))))]))
+    assert catchup.task_result(task)==dict(published=0,publisher_busy=1)
+    assert catchup.task_result(NS(return_payload='not json')) is None
+
+
+def test_successful_platform_status_without_publication_fails_gate(monkeypatch,tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(catchup,'state',lambda:{})
+    monkeypatch.setattr(catchup.fc,'source_inventory',lambda _: {})
+    monkeypatch.setattr(catchup,'inventory_action',lambda *args:'publish-catchup')
+    monkeypatch.setattr(catchup,'run_inventory_task',lambda _:('same-id',NS(status='Succeeded',return_payload='{"published":0,"publisher_busy":1}')))
+    with pytest.raises(SystemExit,match='no new receipt'):catchup.main()
+    receipt=json.loads(Path('catchup-receipt.json').read_text())
+    assert receipt['function_result']['publisher_busy']==1 and receipt['new_bvids']==[]

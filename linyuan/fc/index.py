@@ -2009,37 +2009,51 @@ def release_pipeline_lease(owner, kind, attempts=3):
     return False
 
 
-def run_with_lease(kind, action):
+def run_with_lease(kind, action, wait_seconds=120):
     import base64
     import uuid
     from urllib.error import HTTPError
     owner = uuid.uuid4().hex
-    now = int(time.time())
     # Dispatch and publishing share the state file. Serialize both writers so
     # an older dispatch snapshot cannot erase a just-written upload receipt.
     key=DISPATCH_LEASE_KEY
     busy={'dispatched':0,'admission_busy':1} if kind=='dispatch' else {'published':0,'publisher_busy':1}
-    current = None
-    try:
-        current = gh('GET', f'/contents/{key}?ref=main', timeout=20)
-        lease = json.loads(base64.b64decode(current['content']))
-        if int(lease.get('expires_at') or 0) > now:
+    # A short dispatch can win the CAS just before a scheduled upload. Wait
+    # without entering the uploader; never expire/steal another writer's lease.
+    deadline=time.monotonic()+(max(0,wait_seconds) if kind=='publish' else 0)
+    waiting=False
+    while True:
+        now=int(time.time())
+        current=None
+        occupied=False
+        try:
+            current=gh('GET',f'/contents/{key}?ref=main',timeout=20)
+            occupied=int(json.loads(base64.b64decode(current['content'])).get('expires_at') or 0)>now
+        except HTTPError as exc:
+            if exc.code!=404:raise
+        if not occupied:
+            payload=dict(message=f'chore(supply): claim {kind} lease',
+                content=base64.b64encode(json.dumps(dict(owner=owner,kind=kind,expires_at=now+7200)).encode()).decode())
+            if current:payload['sha']=current['sha']
+            try:
+                gh('PUT',f'/contents/{key}',payload,timeout=30)
+                break
+            except HTTPError as exc:
+                if exc.code not in (409,422):raise
+        remaining=deadline-time.monotonic()
+        if remaining<=0:
+            if kind=='publish':
+                log_event('publish_noop','投稿未执行：共享写入锁仍被占用','publisher_busy=1; published=0')
             return busy
-    except HTTPError as exc:
-        if exc.code != 404:
-            raise
-    payload = {'message': f'chore(supply): claim {kind} lease',
-               'content': base64.b64encode(json.dumps(dict(owner=owner,expires_at=now+7200)).encode()).decode()}
-    if current:
-        payload['sha'] = current['sha']
+        if not waiting:
+            log_event('publish_wait','投稿等待现有调度释放写入锁','尚未进入上传器')
+            waiting=True
+        time.sleep(min(5,remaining))
     try:
-        claim = gh('PUT', f'/contents/{key}', payload, timeout=30)
-    except HTTPError as exc:
-        if exc.code in (409,422):
-            return busy
-        raise
-    try:
-        return action()
+        result=action()
+        if kind=='publish' and isinstance(result,dict) and result.get('published')==0:
+            log_event('publish_noop','本次投稿调用未产生新稿件',json.dumps(result,ensure_ascii=False))
+        return result
     finally:
         release_pipeline_lease(owner,kind)
 
