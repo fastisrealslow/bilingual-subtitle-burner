@@ -13,7 +13,7 @@ concurrency:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -21,12 +21,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: 停止已被修复版本替代的标题核验
+        run: gh run cancel 34756087648 --repo "$GITHUB_REPOSITORY" || true
+      - name: 等待一个生产名额
+        run: |
+          python - <<'PY'
+          import json,subprocess,time
+          for _ in range(16):
+              active=sum(len(json.loads(subprocess.check_output(['gh','api','repos/'+__import__('os').environ['GITHUB_REPOSITORY']+'/actions/workflows/linyuan-produce-cn.yml/runs?status='+status+'&per_page=100']))['workflow_runs']) for status in ('in_progress','queued'))
+              if active<6:break
+              time.sleep(20)
+          else:raise SystemExit('Six source tasks remain active; no duplicate dispatch')
+          PY
       - name: 复用原始ASR与已经选定的区间，重新验证真人竖屏
         run: >-
           python linyuan/register_selection_recovery.py
           --origin-slug ly-0912-5dc339
           --expected-source https://www.bilibili.com/video/BV1hj411X7BL
-          --suffix stable-four-portrait
+          --suffix stable-crop-portrait
           --output-layout portrait
-          --evidence-run 34743771703
+          --evidence-run 34755308322
           --selected-parts 2,4
