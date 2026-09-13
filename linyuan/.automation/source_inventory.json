@@ -3,7 +3,7 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789339896,
+  "updated_at": 1789340759,
   "materials": {
     "weibo_search": {
       "records": 1184,
@@ -8815,7 +8815,14 @@
           "ly-0913-497cf3"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-497cf3",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9569,8 +9576,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_unclassified": 1,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
@@ -10020,9 +10027,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
