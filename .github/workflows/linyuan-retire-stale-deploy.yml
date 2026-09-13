@@ -13,14 +13,14 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: 停止把没有龙头反转为要选龙头的165部署
+      - name: 停止封面被长度语法截断的166部署
         run: |
           python - <<'PY'
           import json,os,subprocess
           repo=os.environ['GITHUB_REPOSITORY']
-          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34768501748']))
-          assert old['head_sha']=='723833796b8c19d750e4a85f8a0e2e1e40197bfa' and old['path']=='.github/workflows/fc-production-deploy.yml'
+          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34769234478']))
+          assert old['head_sha']=='12ae5acda3d8c4da668dc0a0580cbdafd25fd96a' and old['path']=='.github/workflows/fc-production-deploy.yml'
           if old['status']!='completed':
               subprocess.run(['gh','run','cancel',str(old['id']),'--repo',repo],check=True)
-          print('已停止否定关系反转的部署；保留实际失败证据')
+          print('已停止封面截成残句的部署；保留实际失败证据')
           PY
