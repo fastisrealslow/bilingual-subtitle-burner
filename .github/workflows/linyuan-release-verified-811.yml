@@ -56,6 +56,7 @@ jobs:
           sys.path.insert(0,'linyuan')
           from source_supply import validate_part
           from reuse_title_verification import validate_guest_fixture
+          from repair_811_copy import repair
           proof=json.loads(Path('/tmp/deploy-proof/production-verification.json').read_text())
           assert proof['verification_complete'] is True
           assert proof['health']['code_sha256']==hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
@@ -64,6 +65,7 @@ jobs:
           for path in directory.iterdir():
               assert path.name.startswith(prefix)
               path.rename(path.with_name(path.name[len(prefix):]))
+          repair(directory)
           expected={'final_2.mp4':'eb149d3134302c0a37c5c2e7df86a38fe294421099227e1d6af3da5d8dd0fc15',
                     'final_4.mp4':'b49fb3a54a1f6f0b0fb4a2c4723491e1cf9a479ca33e8eaf54cf78ef35eb9052'}
           metas=json.loads((directory/'meta.json').read_text())
@@ -80,8 +82,18 @@ jobs:
           Path('811-release-proof.json').write_text(json.dumps(dict(deploy_run=os.environ['VERIFIED_DEPLOY_RUN'],files=results),indent=2))
           print(json.dumps(results))
           PY
+      - uses: actions/upload-artifact@v4
+        if: steps.gate.outputs.ready == 'true'
+        id: fixed_delivery
+        with:
+          name: deliver-ly-0912-5dc339-stable-clean-proof-portrait
+          path: /tmp/811
+          if-no-files-found: error
+          retention-days: 14
       - name: 仅解除这两条已核验成片的临时待审
         if: steps.gate.outputs.ready == 'true'
+        env:
+          VERIFIED_ARTIFACT_ID: ${{ steps.fixed_delivery.outputs.artifact-id }}
         run: |
           python - <<'PY'
           import sys,os,json,base64,time,subprocess
@@ -98,7 +110,7 @@ jobs:
                       if entry.get('failed'):
                           assert entry.get('review_hold') and entry.get('failure_stage')=='release-verification'
                       for key in ('failed','review_hold','failure_stage','last_error'):entry.pop(key,None)
-                      entry['release_verification']=dict(deploy_run=os.environ['VERIFIED_DEPLOY_RUN'],verified_at=int(time.time()),proof_run=os.environ['GITHUB_RUN_ID'])
+                      entry['release_verification']=dict(deploy_run=os.environ['VERIFIED_DEPLOY_RUN'],verified_at=int(time.time()),proof_run=os.environ['GITHUB_RUN_ID'],artifact_id=int(os.environ['VERIFIED_ARTIFACT_ID']))
                   body=dict(message='ops: release only the two SHA-verified clean 811 clips after production verification',sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(st,ensure_ascii=False,separators=(',',':')).encode()).decode())
                   try:
                       gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)
@@ -115,6 +127,8 @@ jobs:
           PY
       - name: 补发已验收成片并核对实际日期与平台回执
         if: steps.gate.outputs.ready == 'true'
+        env:
+          VERIFIED_ARTIFACT_ID: ${{ steps.fixed_delivery.outputs.artifact-id }}
         run: |
           python -u - <<'PY'
           import sys,os,json,subprocess,time
@@ -171,7 +185,7 @@ jobs:
                   if sha in found(before):continue
                   assert not any(e.get('uploading') for e in before['dispatched']),'Existing upload unresolved'
                   task_id='ly-811-0913-'+sha[:20]+'-a1'
-                  request=dict(triggerName='publish-batch',batch_slug=slug,artifact_id=10318512260,
+                  request=dict(triggerName='publish-batch',batch_slug=slug,artifact_id=int(os.environ['VERIFIED_ARTIFACT_ID']),
                       expected_sha256=sha,batch_remaining=1,title=meta['title'],
                       source_url='https://www.bilibili.com/video/BV1hj411X7BL')
                   tasks.append(dict(task_id=task_id,sha256=sha,status='Reconciling'))
