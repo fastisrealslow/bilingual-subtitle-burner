@@ -95,3 +95,39 @@ def test_contiguous_completion_never_regresses_on_parallel_save():
     remote['dispatched'][0]['published_parts']=3
     merged=fc.merge_state_changes(base,local,remote)
     assert merged['dispatched'][0]['published_parts']==3
+
+
+def test_state_above_github_inline_limit_reads_exact_blob_before_cas(monkeypatch):
+    stored=initial()
+    stored['large_evidence']='x'*(1024*1024)
+    st=fc.StateSnapshot(stored)
+    st['published']['wide']={'bvid':'BV1t3Yq6KEyo'}
+    calls=[]
+    def gh(method,path,payload=None,**kwargs):
+        calls.append((method,path))
+        if method=='GET' and fc.STATE_KEY in path:
+            return {'sha':'large-sha','content':'','encoding':'none'}
+        if method=='GET' and path=='/git/blobs/large-sha':
+            return {'sha':'large-sha','encoding':'base64',
+                    'content':base64.b64encode(json.dumps(stored).encode()).decode()}
+        if method=='PUT' and fc.STATE_KEY in path:
+            assert payload['sha']=='large-sha'
+            saved=json.loads(base64.b64decode(payload['content']))
+            assert saved['large_evidence']==stored['large_evidence']
+            assert saved['published']['wide']['bvid']=='BV1t3Yq6KEyo'
+        return {'sha':'mirror'}
+    monkeypatch.setattr(fc,'gh',gh)
+    assert fc.save_state(st) is True
+    assert ('GET','/git/blobs/large-sha') in calls
+
+
+def test_mismatched_large_state_blob_never_writes(monkeypatch):
+    calls=[]
+    def gh(method,path,*args,**kwargs):
+        calls.append(method)
+        return {'sha':'other' if '/git/blobs/' in path else 'expected',
+                'content':'','encoding':'none'}
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(fc.time,'sleep',lambda _:None)
+    assert fc.save_state(fc.StateSnapshot(initial()),retries=1) is False
+    assert calls==['GET','GET']

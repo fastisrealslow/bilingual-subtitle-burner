@@ -1006,9 +1006,17 @@ def save_state(st, retries=3):
     for attempt in range(retries):
         try:
             cur = gh("GET", f"/contents/{STATE_KEY}?ref=main&_={time.time()}")
-            if not isinstance(cur,dict) or not cur.get('sha') or not cur.get('content'):
+            if not isinstance(cur,dict) or not cur.get('sha'):
                 raise ValueError('Latest state unavailable; refusing a blind overwrite')
-            remote = json.loads(base64.b64decode(cur['content']))
+            # GitHub omits inline content above 1 MiB. Read the immutable blob
+            # matching the CAS SHA; an empty content field is not an empty state.
+            document = cur
+            if not cur.get('content'):
+                document = gh('GET', f"/git/blobs/{cur['sha']}")
+                if (not isinstance(document, dict) or document.get('sha') != cur['sha']
+                        or document.get('encoding') != 'base64' or not document.get('content')):
+                    raise ValueError('State blob unavailable or mismatched; refusing overwrite')
+            remote = json.loads(base64.b64decode(document['content']))
             merged = merge_state_changes(base, local, remote)
             content = base64.b64encode(json.dumps(merged,ensure_ascii=False,indent=1).encode()).decode()
             payload = {"message": "chore(fc): 更新流水线状态", "content": content, "sha":cur['sha']}
@@ -1025,7 +1033,7 @@ def save_state(st, retries=3):
         _log_buffer.append({"ts": int(time.time()), "kind": "state_lost",
                             "msg": "⚠️ 状态保存失败！本轮状态未落盘（可能造成重复投稿/日志页不准）",
                             "detail": ""})
-        return
+        return False
     # 镜像到 site/ 供 GitHub Pages 日志页读取（best-effort，失败不影响主流程）
     try:
         payload = {"message": "chore(fc): 同步日志页状态", "content": content}
@@ -1038,6 +1046,7 @@ def save_state(st, retries=3):
         gh("PUT", f"/contents/{SITE_STATE_KEY}", payload)
     except Exception as e:
         log.warning(f"site 镜像同步失败（不影响主流程）：{e}")
+    return True
 
 
 # ---------- 选片 ----------
@@ -3521,7 +3530,9 @@ def publish_handler(event=None, context=None):
     if makeup_slot:
         e['upload_makeup_slot'] = makeup_slot
         e['upload_expected_sha256'] = expected_sha256
-    save_state(st)
+    if save_state(st) is False:
+        shutil.rmtree(tmp, ignore_errors=True)
+        return {'published': 0, 'upload_intent_not_saved': 1}
     
     # 设置 PYTHONPATH 环境变量
     env = os.environ.copy()
