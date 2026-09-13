@@ -2779,8 +2779,14 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     # verified native video; preserve the historical retry counters.
     native_interview=bool(candidate and candidate.get('slug')=='ly-0910-interview-clean-v4-wide0911v2'
                           and run.get('id')==34743799382)
+    native_crop_error='真人取景源区域仅272x202像素，超过2倍放大上限，疑似远景小头像'
+    inspected_native_rejection=bool(native_interview and candidate.get('failed')
+        and candidate.get('source_quality_rejected')
+        and candidate.get('failure_stage')=='editorial-or-render'
+        and candidate.get('last_error')==native_crop_error)
     if (not candidate or not candidate.get('reprocessing_quality')
-            or candidate.get('failed') or not _has_unpublished_part(candidate, st)
+            or (candidate.get('failed') and not inspected_native_rejection)
+            or not _has_unpublished_part(candidate, st)
             or run.get('conclusion') != 'failure'
             or candidate.get('preflight_failure_run_id') == run.get('id')
             or (int(candidate.get('source_check_attempts') or 0) >= 2 and not native_interview)):
@@ -2818,6 +2824,14 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
                or (p.startswith('tests/') and p.endswith('.py'))
                or p == '.github/workflows/linyuan-produce-cn.yml' for p in changed):
         return False
+    if inspected_native_rejection:
+        # The collector may already have consumed the render report. Reopen
+        # only its exact audited routing failure; retain the rejection history
+        # and all counters, and never reopen a different media-quality verdict.
+        candidate['failed']=False
+        candidate['source_quality_rejected']=False
+        candidate['recovered_render_failure']={
+            'run_id':run['id'],'reason':native_crop_error,'ts':int(time.time())}
     candidate['preflight_failure_run_id'] = run['id']
     candidate['failure_stage'] = 'native-interview' if native_interview else 'stock-title' if stock_title else 'workflow-preflight'
     candidate['last_error'] = ('横屏原画已验收，旧代码强制放大远景人脸失败；保留原区间以原画恢复'

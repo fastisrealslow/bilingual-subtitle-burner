@@ -135,3 +135,30 @@ def test_running_same_slug_is_never_redispatched_or_deleted(monkeypatch):
     monkeypatch.setattr(fc,'gh',gh)
     assert not fc._request_quality_reprocess({},dict(slug='mother'),'mother','标题是关键词目录',123)
     assert len(calls)==2
+
+
+def test_consumed_exact_native_bug_verdict_can_recover_once_with_history(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/produce_cn.py',failed_step='出片')
+    reason='真人取景源区域仅272x202像素，超过2倍放大上限，疑似远景小头像'
+    entry.update(slug='ly-0910-interview-clean-v4-wide0911v2',source_check_attempts=2,
+                 failed=True,source_quality_rejected=True,
+                 failure_stage='editorial-or-render',last_error=reason)
+    state['rejected']=[dict(slug=entry['slug'],error=reason)]
+    history=deepcopy(state['rejected'])
+    run['id']=34743799382
+    assert fc._recover_preflight_failure(state,entry,run,[])
+    assert not entry['failed'] and not entry['source_quality_rejected']
+    assert entry['recovered_render_failure']['reason']==reason
+    assert entry['source_check_attempts']==2 and state['rejected']==history
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+
+
+@pytest.mark.parametrize('reason',['角标未清理','原素材清晰度不足'])
+def test_exact_native_run_does_not_reopen_other_quality_verdicts(monkeypatch,reason):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/produce_cn.py',failed_step='出片')
+    entry.update(slug='ly-0910-interview-clean-v4-wide0911v2',source_check_attempts=2,
+                 failed=True,source_quality_rejected=True,
+                 failure_stage='editorial-or-render',last_error=reason)
+    run['id']=34743799382
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+    assert entry['failed'] and calls==[]
