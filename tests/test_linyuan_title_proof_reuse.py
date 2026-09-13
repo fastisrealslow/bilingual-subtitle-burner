@@ -64,3 +64,11 @@ def test_model_must_match_actual_cpu_response_evidence(tmp_path):
     path.write_text(json.dumps(dict(backend='local',model='qwen3:8b',content='actual result')))
     assert reuse.model_evidence(tmp_path,'qwen3:8b')==[path]
     with pytest.raises(ValueError,match='model differs'):reuse.model_evidence(tmp_path,'qwen3.5:9b')
+
+
+def test_increased_job_wall_clock_preserves_evidence_but_request_budget_does_not():
+    original='jobs:\n  check:\n    timeout-minutes: 40\n    run: actual_cpu(budget_sec=600)\n'
+    longer=original.replace('timeout-minutes: 40','timeout-minutes: 90')
+    assert reuse.canonical_workflow(original)==reuse.canonical_workflow(longer)
+    assert reuse.canonical_workflow(original)!=reuse.canonical_workflow(longer.replace('budget_sec=600','budget_sec=10'))
+    assert reuse.canonical_workflow(original)!=reuse.canonical_workflow(original.replace('timeout-minutes: 40','timeout-minutes: 1'))

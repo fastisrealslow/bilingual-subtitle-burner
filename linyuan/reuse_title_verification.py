@@ -20,7 +20,7 @@ WORKFLOW = '.github/workflows/linyuan-title-claim-check.yml'
 
 
 def canonical_workflow(text):
-    """Ignore only the marked reuse wrapper, never the actual CPU test body."""
+    """Ignore the reuse wrapper and job wall clock, never CPU test assertions."""
     lines=[]; inside=False
     for line in text.splitlines():
         if line.strip()=='# TITLE_REUSE_BEGIN':
@@ -30,6 +30,11 @@ def canonical_workflow(text):
             if not inside:raise ValueError('Unmatched reuse block')
             inside=False
         elif not inside and '# TITLE_REUSE_GUARD' not in line:
+            # An increased job wall clock preserves the same completed CPU
+            # computation. Only the old 40 and new 90 minute ceilings qualify;
+            # per-request budgets, prompts and assertions still match exactly.
+            if line in ('    timeout-minutes: 40','    timeout-minutes: 90'):
+                line='    timeout-minutes: <cpu-verification-wall-clock>'
             lines.append(line)
     if inside:raise ValueError('Unclosed reuse block')
     return '\n'.join(lines).strip()
