@@ -1,8 +1,5 @@
 name: 核验上线后补发811两条成片
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/linyuan-release-verified-811.yml]
   workflow_run:
     workflows: ['FC production deploy']
     types: [completed]
@@ -15,7 +12,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34767021961
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34767021961 && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -42,6 +39,7 @@ jobs:
           expected={'34767021961':'d056947b8550cb84cbec5d91fdc3c710895d6348'}
           assert run['head_sha']==expected[os.environ['VERIFIED_DEPLOY_RUN']]
           ready=run['conclusion']=='success'
+          assert ready,'指定部署没有成功完成，未投稿；不能将等待状态报告为发布成功'
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('ready='+str(ready).lower()+'\n')
           print('指定修复已上线，继续核验实际成片' if ready else '指定修复尚未成功上线，保持待审，不投稿')
           PY
