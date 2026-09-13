@@ -8152,7 +8152,11 @@
    "quality_reprocess_artifact_id": 10299691717,
    "last_retry": 1789282303,
    "reprocessing_quality": true,
-   "quality_failure": "当前母片需重新执行逐字原文审核，复用实际CPU原始转写"
+   "quality_failure": "当前母片需重新执行逐字原文审核，复用实际CPU原始转写",
+   "failed": true,
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1nt4y1o74A",
@@ -8167,7 +8171,7 @@
    "ts": 1789282313,
    "delay_hours": 0,
    "repair_of": "ly-0910-interview-clean-v4-wide0911",
-   "failed": false,
+   "failed": true,
    "stock_upgrade_status": "verified",
    "landscape_run_id": 34585929787,
    "parts_total": 1,
@@ -8180,11 +8184,12 @@
    "reprocessing_quality": true,
    "quality_failure": "当前母片需重新执行逐字原文审核，复用实际CPU原始转写",
    "preflight_failure_run_id": 34741749753,
-   "failure_stage": "stock-title",
-   "last_error": "旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做",
+   "failure_stage": "editorial-or-render",
+   "last_error": "真人取景源区域仅272x202像素，超过2倍放大上限，疑似远景小头像",
    "source_check_attempts": 2,
    "retries": 1,
-   "source_check_run_id": 34741749753
+   "source_check_run_id": 34741749753,
+   "source_quality_rejected": true
   }
  ],
  "pending_retry": [
@@ -29045,6 +29050,20 @@
    "video_id": "BV16G411m7wQ",
    "ts": 1789282444,
    "error": "动态窗口缺少持续局部动作：疑似照片/背景板，不能作为真人视频发布"
+  },
+  {
+   "slug": "ly-0910-interview-clean-v4-wide0911v2",
+   "key": "bilibili_search:BV1nt4y1o74A",
+   "video_id": "BV1nt4y1o74A",
+   "ts": 1789282715,
+   "error": "真人取景源区域仅272x202像素，超过2倍放大上限，疑似远景小头像"
+  },
+  {
+   "slug": "ly-0912-a2096b",
+   "key": "bilibili_search:BV1oxYd6BEaj",
+   "video_id": "BV1oxYd6BEaj",
+   "ts": 1789282719,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "scheduled": [
