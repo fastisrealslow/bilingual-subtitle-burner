@@ -182,6 +182,54 @@ def remaining_seconds(deadline):
     return remaining
 
 
+def rank_mirrors(op, urls, referer, *, offset=0, expected_total=None, deadline=None):
+    """Measure approved mirrors of the SAME stream before a long transfer.
+
+    Run 806 spent an hour on a progressing 693 MB stream. A bounded real
+    comparison found its backup 8x faster; waiting for socket failure never
+    switches away from a slow-but-progressing primary.
+    """
+    if len(urls)<2 or deadline is not None and deadline-time.monotonic()<24:
+        return urls
+    from concurrent.futures import ThreadPoolExecutor
+    probe_bytes=2*1024*1024
+    if expected_total:
+        probe_bytes=min(probe_bytes,max(0,expected_total-offset))
+    if probe_bytes<65536:return urls
+
+    def probe(item):
+        index,url=item;started=time.monotonic();received=0
+        try:
+            limit=min(started+12,deadline) if deadline is not None else started+12
+            request=urllib.request.Request(url,headers={
+                'User-Agent':UA,'Referer':referer,
+                'Range':f'bytes={offset}-{offset+probe_bytes-1}'})
+            with op.open(request,timeout=min(6,max(.1,limit-time.monotonic()))) as response:
+                status=getattr(response,'status',None) or response.getcode()
+                match=re.fullmatch(r'bytes (\d+)-(\d+)/(\d+)',response.headers.get('Content-Range') or '')
+                if (status!=206 or not match or int(match[1])!=offset
+                        or int(match[2])!=offset+probe_bytes-1
+                        or expected_total and int(match[3])!=expected_total):
+                    return index,0,0
+                while received<probe_bytes and time.monotonic()<limit:
+                    chunk=response.read(min(65536,probe_bytes-received))
+                    if not chunk:break
+                    received+=len(chunk)
+            rate=received/max(.001,time.monotonic()-started) if received>=65536 else 0
+            return index,rate,received
+        except Exception:
+            return index,0,received
+
+    # API-provided alternates only. No lower resolution, transcoding, foreign
+    # proxy or guessed host substitution is involved in this measurement.
+    with ThreadPoolExecutor(max_workers=min(4,len(urls))) as pool:
+        measured=list(pool.map(probe,enumerate(urls[:4])))
+    measured.sort(key=lambda row:(-row[1],row[0]))
+    for index,rate,received in measured:
+        print(f'[CDN择优] 镜像{index} {received} bytes，{rate/1024:.1f} KiB/s',flush=True)
+    return [urls[index] for index,_,_ in measured]+list(urls[4:])
+
+
 def download_one(op, urls, referer, out, attempts=3, deadline=None):
     """镜像轮换 + 断点续传 + Content-Length 校验，避免长母片反复从零下载。"""
     out = Path(out)
@@ -217,6 +265,8 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
             return
         out.unlink()
     deadline=deadline if deadline is not None else time.monotonic()+1200
+    urls=rank_mirrors(op,urls,referer,offset=tmp.stat().st_size if tmp.exists() else 0,
+                      expected_total=saved.get('total'),deadline=deadline)
     stalled_rounds=0
     while stalled_rounds<attempts:
         remaining_seconds(deadline)

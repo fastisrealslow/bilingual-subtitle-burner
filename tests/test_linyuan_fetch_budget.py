@@ -150,3 +150,51 @@ def test_completed_mux_is_reused_and_changed_source_or_damage_redownloads(monkey
     assert len(calls)==6 and b.validate_media(out)['audio_streams']==1
     b.download(None,{**rotated,'height':720},'source-b',out)
     assert len(calls)==8
+
+
+def test_mirror_speed_ranking_keeps_range_identity_and_ignores_wrong_responses(monkeypatch):
+    import concurrent.futures
+    tick=[0.0]
+    monkeypatch.setattr(b.time,'monotonic',lambda:tick[0])
+    class Sequential:
+        def __init__(self,**kw):pass
+        def __enter__(self):return self
+        def __exit__(self,*a):pass
+        def map(self,fn,items):return map(fn,items)
+    monkeypatch.setattr(concurrent.futures,'ThreadPoolExecutor',Sequential)
+    class Measured(Response):
+        def __init__(self,step,status=206,offset=100000):
+            super().__init__(b'x'*2097152,status,{'Content-Range':f'bytes {offset}-2197151/3000000'})
+            self.step=step
+        def read(self,size=-1):
+            tick[0]+=self.step
+            return super().read(size)
+    class Opener:
+        def open(self,request,timeout):
+            assert request.headers['Range']=='bytes=100000-2197151'
+            assert request.headers['Referer']=='same-source' and timeout<=6
+            if 'wrong' in request.full_url:return Measured(.001,offset=0)
+            if 'ignored' in request.full_url:return Measured(.001,status=200)
+            return Measured(.01 if 'fast' in request.full_url else .5)
+    urls=['https://cdn/slow','https://cdn/fast','https://cdn/wrong','https://cdn/ignored']
+    ranked=b.rank_mirrors(Opener(),urls,'same-source',offset=100000,expected_total=3000000)
+    assert ranked[:2]==[urls[1],urls[0]] and set(ranked)==set(urls)
+
+
+def test_faster_mirror_resumes_the_existing_partial_without_erasing_it(monkeypatch,tmp_path):
+    payload=b'a'*15000+b'b'*15000;out=tmp_path/'video.m4s'
+    urls=['https://slow/video','https://fast/video']
+    out.with_suffix('.m4s.part').write_bytes(payload[:15000])
+    manifest=out.with_suffix('.m4s.download.json')
+    manifest.write_text(json.dumps(dict(identity=dict(source='same-source',paths=['/video']),total=30000)))
+    def choose(op,mirrors,referer,**kw):
+        assert kw['offset']==15000 and kw['expected_total']==30000
+        return list(reversed(mirrors))
+    monkeypatch.setattr(b,'rank_mirrors',choose)
+    class Opener:
+        def open(self,request,timeout):
+            assert request.full_url==urls[1] and request.headers['Range']=='bytes=15000-'
+            return Response(payload[15000:],206,{'Content-Range':'bytes 15000-29999/30000','Content-Length':'15000'})
+    b.download_one(Opener(),urls,'same-source',out)
+    assert out.read_bytes()==payload
+    assert json.loads(manifest.read_text())['identity']==dict(source='same-source',paths=['/video'])
