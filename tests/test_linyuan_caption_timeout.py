@@ -78,3 +78,30 @@ def test_source_planner_preserves_negation_entities_and_timing(monkeypatch,tmp_p
 def test_caption_schema_cannot_accept_one_screen_for_713_characters():
     schema=p.caption_break_schema(400,713,30)
     assert schema['properties']['break_after_tokens']['minItems']==24
+
+
+def test_old_editorial_artifact_supplements_verified_titles_from_debug(monkeypatch,tmp_path):
+    import restore_production_evidence as recovery
+    work=tmp_path/'current';work.mkdir()
+    source=dict(source_sha256='a'*64,passed=True)
+    (work/'source_quality.json').write_text(json.dumps(source))
+    (work/'cues_raw.json').write_text('current source-bound ASR')
+    (work/'highlights_current.json').write_text('current selection')
+    monkeypatch.setattr(sys,'argv',['restore','--run-id','801','--work',str(work)])
+    monkeypatch.setattr(recovery.subprocess,'check_output',lambda *a:json.dumps(dict(artifacts=[
+        dict(name='editorial-old',expired=False),dict(name='debug-old',expired=False)])).encode())
+    names=[]
+    def download(command,**kwargs):
+        name=command[command.index('--name')+1];names.append(name)
+        root=Path(command[command.index('--dir')+1])/'_tmp';root.mkdir()
+        (root/'source_quality.json').write_text(json.dumps(source))
+        if name=='debug-old':
+            (root/'copywrite_2.json').write_text('verified-title-evidence')
+            (root/'highlights_current.json').write_text('older selection must not overwrite')
+            (root/'cues_raw.json').write_text('older ASR must not overwrite')
+    monkeypatch.setattr(recovery.subprocess,'run',download)
+    recovery.main()
+    assert names==['editorial-old','debug-old']
+    assert (work/'copywrite_2.json').read_text()=='verified-title-evidence'
+    assert (work/'cues_raw.json').read_text()=='current source-bound ASR'
+    assert (work/'highlights_current.json').read_text()=='current selection'
