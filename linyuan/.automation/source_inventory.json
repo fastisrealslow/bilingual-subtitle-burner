@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "validation_sha256": "d9c57d9a50ffbcf8c05dc5a97816e4093fa09d83dc43da9e00877de74d95650f",
+  "validation_sha256": "baddd966da2aab7fc7766fae47b38a9abef40477ead20f210e6b1d4e36456e1f",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789303613,
+  "updated_at": 1789304654,
   "materials": {
     "weibo_search": {
       "records": 1175,
@@ -7485,38 +7485,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1hj411X7BL:p1",
-        "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
-        "family": "BV1hj411X7BL",
-        "slugs": [
-          "ly-0912-5dc339",
-          "ly-0912-5dc339-stable-crop-portrait",
-          "ly-0912-5dc339-stable-four-portrait"
-        ],
-        "source_sha256": [
-          "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47"
-        ],
-        "failures": [
-          {
-            "slug": "ly-0912-5dc339",
-            "stage": "workflow-preflight",
-            "terminal": false,
-            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
-          },
-          {
-            "slug": "ly-0912-5dc339-stable-four-portrait",
-            "stage": "editorial-or-render",
-            "terminal": true,
-            "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1oxYd6BEaj:p1",
         "source_url": "https://www.bilibili.com/video/BV1oxYd6BEaj",
         "family": "BV1oxYd6BEaj",
@@ -7552,6 +7520,44 @@
             "stage": "quality-service",
             "terminal": true,
             "reason": "话题起点不连续、重复或切断原句；保留ASR，不判整源无合格片"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1hj411X7BL:p1",
+        "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
+        "family": "BV1hj411X7BL",
+        "slugs": [
+          "ly-0912-5dc339",
+          "ly-0912-5dc339-stable-crop-portrait",
+          "ly-0912-5dc339-stable-four-portrait"
+        ],
+        "source_sha256": [
+          "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47"
+        ],
+        "failures": [
+          {
+            "slug": "ly-0912-5dc339-stable-four-portrait",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
+          },
+          {
+            "slug": "ly-0912-5dc339-stable-crop-portrait",
+            "stage": "visual-review",
+            "terminal": true,
+            "reason": "实际接触表复检发现真人窗口底部原字幕或免责声明残留，隔离此版产物，保留原母片与转写"
+          },
+          {
+            "slug": "ly-0912-5dc339",
+            "stage": "workflow-preflight",
+            "terminal": false,
+            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
           }
         ],
         "verified_available": 0,
@@ -8570,8 +8576,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -8583,8 +8589,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -8742,9 +8748,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -9026,12 +9032,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1hj411X7BL": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0,
-        "terminal_editorial-or-render": 1
-      },
       "BV1oxYd6BEaj": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -9043,6 +9043,13 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 1
+      },
+      "BV1hj411X7BL": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -9063,686 +9070,13 @@
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 7,
   "artifacts": [
-    {
-      "slug": "ly-0912-5dc339-stable-crop-portrait",
-      "artifact_id": 10317864523,
-      "run_id": 34756715459,
-      "checked_at": 1789303578,
-      "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：牛市初期大市值公司已涨，代表公司也恢复性上涨",
-          "duration_sec": 130.3,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "resolution": {
-            "width": 720,
-            "height": 1280,
-            "short_edge": 720
-          },
-          "source_sha256": "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47",
-          "segments": [
-            {
-              "start": 661.32,
-              "end": 791.56,
-              "reason": "逐项审查通过完整主题、解释、首尾及观看价值要求"
-            }
-          ],
-          "sha256": "71a2f9d8cfedc33363b4b0785b248b901ff8beeb0d5fc73bc48bcd2cb790ca5b",
-          "fingerprints": {
-            "version": 1,
-            "sha256": "71a2f9d8cfedc33363b4b0785b248b901ff8beeb0d5fc73bc48bcd2cb790ca5b",
-            "video_dhash": [
-              "787871634b551718",
-              "7878717343310b18",
-              "78787173432b2f18",
-              "787871715315a618",
-              "7878717353716b18",
-              "78787173633b0f18",
-              "7878717343718018",
-              "7878717343718018",
-              "7878717363718018",
-              "787871736b718018",
-              "787871733b691b18",
-              "78787173633b8e18"
-            ],
-            "audio_chromaprint": [
-              "00043b02",
-              "01062902",
-              "016dbdba",
-              "01edb9ba",
-              "0246ab02",
-              "028da089",
-              "029fb18b",
-              "02edb9ba",
-              "02edbdba",
-              "02ffb58b",
-              "03462902",
-              "09183c1c",
-              "0a2a02c0",
-              "0a2a03c0",
-              "0f6b00a0",
-              "1039eb8c",
-              "106eb40e",
-              "107d0119",
-              "107d450b",
-              "107df137",
-              "107eedcb",
-              "107ef98b",
-              "10a4a126",
-              "10ddb335",
-              "10e4a136",
-              "10e5b337",
-              "10fe0c4e",
-              "10fe340e",
-              "10ff7417",
-              "116db5fa",
-              "11a10746",
-              "11a3e136",
-              "122c2324",
-              "1238d18b",
-              "1246a102",
-              "1246a502",
-              "12578112",
-              "12682104",
-              "12a0403e",
-              "12a0602e",
-              "12a0e02a",
-              "133805cc",
-              "1338e98d",
-              "13a0ec2a",
-              "147eb98a",
-              "14edb9ba",
-              "156db175",
-              "1604a116",
-              "165c3926",
-              "16a81100",
-              "16b70932",
-              "16d41926",
-              "171c2926",
-              "171c2d2e",
-              "173a042c",
-              "176db9b6",
-              "181a1906",
-              "181a1d26",
-              "18380906",
-              "1908252e",
-              "19182c1c",
-              "19380904",
-              "19383904",
-              "1939180c",
-              "1958212e",
-              "1a2538be",
-              "1a5ba8ba",
-              "1a69b0ba",
-              "1a6db1be",
-              "1a7ab89a",
-              "1aa9b5ba",
-              "1aa9bdba",
-              "1b2c4d2c",
-              "1b69b5fe",
-              "1b6db1f6",
-              "1b6dbdfe",
-              "1ba9b1be",
-              "1cbb032b",
-              "1cec24ab",
-              "1d6db9f5",
-              "1d6dbdf4",
-              "1dec20a9",
-              "1e2c4124",
-              "1e6c81af",
-              "1e78c08a",
-              "1ee9819a",
-              "1f1a142c",
-              "1f65bbb6",
-              "1f6830a4",
-              "1f6dbdf4",
-              "1f79508a",
-              "206db9b6",
-              "206db9b7",
-              "206dbdbe",
-              "207db9b5",
-              "216db1b4"
-            ],
-            "transcript_simhash": [
-              "f7cf61dce650e093",
-              "b1ceb9fcf6a8a891",
-              "2e88796b6cbaa451",
-              "6ec178f3640f26fa",
-              "6ed193f2268f6efc",
-              "2f550fbab242ffed",
-              "8f56cf33a34a5fbf",
-              "8f56cf33a3425fbd"
-            ],
-            "transcript_ngrams": [
-              "014f94d1c78ec819",
-              "022d31de4da24116",
-              "02ec659c1120851c",
-              "13ffddf4ddade917",
-              "14076420a18a7711",
-              "1a2112a3d9002201",
-              "1a507dd682e53906",
-              "1a69cd753bd8b305",
-              "2333130e73b9690a",
-              "34e7f4c241d49b05",
-              "3897703674344a1b",
-              "3ef317844a1a760d",
-              "40cb00b25000371b",
-              "44dca41db668670e",
-              "45582b8105f1171f",
-              "49c7913cf5f53c15",
-              "50b1b6d110d9b51e",
-              "5eb0ec087558eb01",
-              "6206a16b6d909413",
-              "7450a169bd39a515",
-              "8288ce5ffd9a9607",
-              "82af2c10f8a3a712",
-              "82b73e5bb7811208",
-              "85b33e046c50ac1e",
-              "8835ccd24b9fea01",
-              "8cc39bec853f5110",
-              "94fd2af3b2ad0604",
-              "9a6449aef714f116",
-              "9b98600f93e68d06",
-              "a05b8b8d0760021e",
-              "a09b8f683894c10f",
-              "a7db45fc782bab0f",
-              "a8a8dec800f60102",
-              "ad5aa125658b6f0a",
-              "b07033c448e39602",
-              "b8d560daa6e0b303",
-              "c32a96cd116cb213",
-              "e29c78aff5a0e207",
-              "e75a5bb7db6e4004",
-              "eb5cd0e8981ef102",
-              "ed7576f74105141f",
-              "edd616967cb02d14",
-              "f14e5bca8771c914",
-              "f25c92164df9310b"
-            ],
-            "transcript_chars": 386
-          },
-          "subtitle_sha256": "6a208ab21712ed24228736177384e7d12321d2469082d93ffdf7af6e44afb498",
-          "motion": {
-            "version": 2026091201,
-            "passed": true,
-            "samples": [
-              {
-                "time": 1.0,
-                "moving": true,
-                "changed_fraction": 0.13125874125874126,
-                "mean_residual": 5.068041958041958,
-                "correlation": 0.9911840411050536
-              },
-              {
-                "time": 12.566666666666665,
-                "moving": false,
-                "changed_fraction": 0.012727272727272728,
-                "mean_residual": 1.5617482517482517,
-                "correlation": 0.9991376069136106
-              },
-              {
-                "time": 24.13333333333333,
-                "moving": true,
-                "changed_fraction": 0.15664335664335666,
-                "mean_residual": 6.743566433566434,
-                "correlation": 0.9836384441580027
-              },
-              {
-                "time": 35.699999999999996,
-                "moving": true,
-                "changed_fraction": 0.16916083916083915,
-                "mean_residual": 6.651538461538461,
-                "correlation": 0.9863082313448862
-              },
-              {
-                "time": 47.26666666666666,
-                "moving": true,
-                "changed_fraction": 0.07223776223776224,
-                "mean_residual": 3.266783216783217,
-                "correlation": 0.9955047127919837
-              },
-              {
-                "time": 58.83333333333332,
-                "moving": true,
-                "changed_fraction": 0.08874125874125874,
-                "mean_residual": 3.538951048951049,
-                "correlation": 0.9957990766821598
-              },
-              {
-                "time": 70.39999999999999,
-                "moving": true,
-                "changed_fraction": 0.2931468531468531,
-                "mean_residual": 13.185594405594406,
-                "correlation": 0.9589227525107661
-              },
-              {
-                "time": 81.96666666666665,
-                "moving": true,
-                "changed_fraction": 0.2567132867132867,
-                "mean_residual": 11.615594405594406,
-                "correlation": 0.9626799805370994
-              },
-              {
-                "time": 93.53333333333332,
-                "moving": true,
-                "changed_fraction": 0.2409090909090909,
-                "mean_residual": 9.874965034965035,
-                "correlation": 0.966181149293618
-              },
-              {
-                "time": 105.09999999999998,
-                "moving": true,
-                "changed_fraction": 0.2888811188811189,
-                "mean_residual": 12.370909090909091,
-                "correlation": 0.9605939678060436
-              },
-              {
-                "time": 116.66666666666664,
-                "moving": true,
-                "changed_fraction": 0.3057342657342657,
-                "mean_residual": 14.150139860139861,
-                "correlation": 0.9455205021426052
-              },
-              {
-                "time": 128.23333333333332,
-                "moving": true,
-                "changed_fraction": 0.21384615384615385,
-                "mean_residual": 8.921818181818182,
-                "correlation": 0.9747360322356351
-              }
-            ],
-            "moving_by_third": [
-              3,
-              4,
-              4
-            ],
-            "window": {
-              "x": 44,
-              "y": 360,
-              "width": 632,
-              "height": 470
-            },
-            "policy": "affine_compensated_local_motion",
-            "limitation": "Temporal motion evidence; identity is checked separately"
-          },
-          "status": "rejected",
-          "reason": "标题观点不能回溯真实字幕"
-        },
-        {
-          "index": 1,
-          "final": "final_4.mp4",
-          "title": "林园：超高端白酒经营压力不大，信心足",
-          "duration_sec": 205.7,
-          "render_mode": "live_video_card",
-          "content_type": null,
-          "resolution": {
-            "width": 720,
-            "height": 1280,
-            "short_edge": 720
-          },
-          "source_sha256": "e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47",
-          "segments": [
-            {
-              "start": 1401.64,
-              "end": 1607.32,
-              "reason": "林老师对消费板块的积极观点，特别是超高端白酒和一线白酒的经营状况。具体包括：超高端白酒市场表现旺盛，有竞争壁垒的品牌用户"
-            }
-          ],
-          "sha256": "00d0f9a8061510eb136b879e8e3c347f81dbc89e1cd85a18a97704e0b15f2263",
-          "fingerprints": {
-            "version": 1,
-            "sha256": "00d0f9a8061510eb136b879e8e3c347f81dbc89e1cd85a18a97704e0b15f2263",
-            "video_dhash": [
-              "787c493397968018",
-              "787c7171336b8018",
-              "787c3978b9b58e18",
-              "787c3978b9258018",
-              "787c3978b9374b18",
-              "787c7171734a8018",
-              "787c717173531318",
-              "787c71f1730b1718",
-              "787c7171734b2718",
-              "787c7071330a1b18",
-              "787c7071332aae18",
-              "787c7172b1f98018"
-            ],
-            "audio_chromaprint": [
-              "00122585",
-              "001ecd0d",
-              "0022143a",
-              "0022701a",
-              "0022a902",
-              "0022bf02",
-              "0023093a",
-              "0026340b",
-              "002e091f",
-              "002e0c0b",
-              "002e4580",
-              "003e650c",
-              "003edd81",
-              "0044c5ad",
-              "005249c0",
-              "0057cb8d",
-              "0060a126",
-              "0060b126",
-              "0061a136",
-              "00620387",
-              "0062911e",
-              "0062b302",
-              "00631b1b",
-              "0066e105",
-              "00723385",
-              "007e2608",
-              "007e850d",
-              "007eed05",
-              "009dca65",
-              "00a0ad62",
-              "00a2d203",
-              "00a35200",
-              "00a60ff7",
-              "00ac8f2e",
-              "00bc2208",
-              "00dcc5aa",
-              "00e08962",
-              "00e0e026",
-              "00e2a302",
-              "00e2a5c2",
-              "00e2d302",
-              "00e40be7",
-              "00e603c7",
-              "00f1cc15",
-              "00f26ec0",
-              "00f4d5aa",
-              "00ff4b6f",
-              "01027984",
-              "0121a02f",
-              "0122e01a",
-              "0126603b",
-              "012e8d8c",
-              "013efc81",
-              "017d911f",
-              "01a2fd35",
-              "01e2ef83",
-              "01ec9f2e",
-              "01ecf1a3",
-              "01f2b10e",
-              "02028b1c",
-              "0210c8c0",
-              "0212891c",
-              "021cca46",
-              "02245588",
-              "0227a02f",
-              "0230d8c4",
-              "023caca1",
-              "0242aa0c",
-              "024e9988",
-              "0260542d",
-              "0260793d",
-              "0262b01a",
-              "0264c188",
-              "026e7173",
-              "026e73b3",
-              "027869ac",
-              "02786dac",
-              "027969ec",
-              "027c6024",
-              "0289df8c",
-              "028a958c",
-              "0290bbee",
-              "02a08199",
-              "02a7d29c",
-              "02ae213a",
-              "02b09dae",
-              "02b4c4aa",
-              "02b54700",
-              "02bcace3",
-              "02bd0b30",
-              "02c0916e",
-              "02d09b76",
-              "02d4daa4",
-              "02e380ba",
-              "02e4d3ac",
-              "02e7f294"
-            ],
-            "transcript_simhash": [
-              "d55147b1b47795c7",
-              "d6515175b4ef3b44",
-              "6015f243d0abe224",
-              "508fa301d2810224",
-              "db2e8705f31408b3",
-              "842e73a1c636b6b2",
-              "d26c73e3c2e9b2b0",
-              "d0c43ac3f34bf219",
-              "505bb819d32f7039",
-              "f21f8d5b4a7f4378",
-              "c115cdd7486ec278",
-              "50716a9fc87ed235",
-              "50c9289fda5dad3c",
-              "62ddc89ddb79012c",
-              "0759d844fb394224",
-              "8b693348712dea2e",
-              "47013f3833fbaf3c",
-              "6700bf3830fbaf2e"
-            ],
-            "transcript_ngrams": [
-              "03ab756e1b92e709",
-              "050abaea121c4f03",
-              "0588cd06d6817716",
-              "05ae29296ccb1705",
-              "0a1f57de7cae4204",
-              "0af1d71e52740615",
-              "0b5f7a1e142bf615",
-              "0e38019c2544a203",
-              "0f63ab05d5bbdd08",
-              "10f42eafed8d9e1d",
-              "1107055133a5f114",
-              "14310374fba80314",
-              "1b1f731010842b05",
-              "216e1f1e552bb700",
-              "27194704cc1c8b0f",
-              "2ade6fa2f486c515",
-              "2f03925d68d0150a",
-              "30cafa427520da05",
-              "36a4f19bd49a721a",
-              "36c0c0566c92981f",
-              "384116a5f13b6d1c",
-              "3bfcbabbffa7ac05",
-              "3dfc156a82504112",
-              "3e8258b7180e4509",
-              "3fbe4cdb16740108",
-              "40d1bda5dafe6b11",
-              "42a3b84ca8398e1a",
-              "42aacc6b3eefb009",
-              "42f1597915fc1a00",
-              "45313e4c33f84e04",
-              "455c5d1e1e1dc81d",
-              "4641d399ccb29b11",
-              "4a096b3af193f20d",
-              "4b112ff962866117",
-              "4e634ccd48cd341e",
-              "53bd37c72fe8d51a",
-              "59ce4284b6c6841f",
-              "5ce8182722984c13",
-              "64161f954d60e803",
-              "667f0ffb00557c13",
-              "6787f5dd0dc4cb11",
-              "67e9585792416e1d",
-              "687095fd2acf9a0f",
-              "6edbe225058b5a13",
-              "7492690882543807",
-              "77fbb07eff5cfc0f",
-              "78935d64bd42090d",
-              "79d86b29acc18607",
-              "79e9f4b242e5e71f",
-              "7d573fdc5d842703",
-              "7dba419673894d08",
-              "7edf35d776425e11",
-              "7f5962554daef11f",
-              "80c7019e6dfc0418",
-              "83993e80d1afbe1f",
-              "84e441633cd79b10",
-              "870ed9b0f7af650b",
-              "8935a1e68039741e",
-              "8acb3e0a6493891a",
-              "8ae48a0b9f319216",
-              "8d845742bc854309",
-              "9195f21c234ca100",
-              "9268a62d14f6f009",
-              "93408dbfed5f061e",
-              "97d266904875e61b",
-              "995fddf8e80cba10",
-              "9982f151ff7a4c1e",
-              "9aed4b14ecd88d15",
-              "9bb072d62178e013",
-              "a33952845ef76816",
-              "a5fabb2bf85b2b15",
-              "a729ba7ff8ced917",
-              "aeec9bc9ef67fb13",
-              "b6caa3024fc43e1a",
-              "b760bd1d4f4cff0a",
-              "b78a70c4ab30551f",
-              "b79b13fa217b171f",
-              "ba7d5ceba44aff0b",
-              "bb5500a281d2a90c",
-              "be1656a00966340b",
-              "be176e059cf5e20f",
-              "bf0107d8734a3014",
-              "bf716e5059044f00",
-              "c1ed1cdad4def105",
-              "c380bb96cccde21f",
-              "c8d30cc4918a620e",
-              "cb632561a7b57110",
-              "cc17876215118817",
-              "cdf29cf84f2f4111",
-              "d12631de14e1d31b",
-              "d3823b32a35dd607",
-              "d4700912fc9b9b01",
-              "d5c3bc1ce7e6041b",
-              "d7d6777eb68c771e",
-              "d8bbf33019dca11f",
-              "db1f964dc904a20d"
-            ],
-            "transcript_chars": 886
-          },
-          "subtitle_sha256": "8e00aa0c2dcbc31352901f1cf884c568a59e414d92ae6153c27e9b21c593fa10",
-          "motion": {
-            "version": 2026091201,
-            "passed": true,
-            "samples": [
-              {
-                "time": 1.0,
-                "moving": true,
-                "changed_fraction": 0.08727272727272728,
-                "mean_residual": 4.118951048951049,
-                "correlation": 0.9947256798062707
-              },
-              {
-                "time": 19.424242424242422,
-                "moving": true,
-                "changed_fraction": 0.1537062937062937,
-                "mean_residual": 6.302167832167832,
-                "correlation": 0.9898199258164447
-              },
-              {
-                "time": 37.848484848484844,
-                "moving": true,
-                "changed_fraction": 0.06678321678321679,
-                "mean_residual": 3.3751748251748253,
-                "correlation": 0.9972532200924865
-              },
-              {
-                "time": 56.272727272727266,
-                "moving": true,
-                "changed_fraction": 0.11678321678321678,
-                "mean_residual": 4.988321678321678,
-                "correlation": 0.9929007133683728
-              },
-              {
-                "time": 74.69696969696969,
-                "moving": true,
-                "changed_fraction": 0.20286713286713287,
-                "mean_residual": 8.223146853146853,
-                "correlation": 0.9819676207876213
-              },
-              {
-                "time": 93.12121212121211,
-                "moving": false,
-                "changed_fraction": 0.003286713286713287,
-                "mean_residual": 0.7891608391608391,
-                "correlation": 0.9997411692402465
-              },
-              {
-                "time": 111.54545454545453,
-                "moving": true,
-                "changed_fraction": 0.2313986013986014,
-                "mean_residual": 9.006573426573427,
-                "correlation": 0.982328818795185
-              },
-              {
-                "time": 129.96969696969694,
-                "moving": false,
-                "changed_fraction": 0.007692307692307693,
-                "mean_residual": 1.5327972027972028,
-                "correlation": 0.9990071530041782
-              },
-              {
-                "time": 148.39393939393938,
-                "moving": false,
-                "changed_fraction": 0.0,
-                "mean_residual": 0.4658041958041958,
-                "correlation": 0.9999246221039507
-              },
-              {
-                "time": 166.8181818181818,
-                "moving": true,
-                "changed_fraction": 0.07601398601398601,
-                "mean_residual": 3.2375524475524475,
-                "correlation": 0.9969766024199971
-              },
-              {
-                "time": 185.24242424242422,
-                "moving": true,
-                "changed_fraction": 0.3504895104895105,
-                "mean_residual": 14.685524475524476,
-                "correlation": 0.9215957739472715
-              },
-              {
-                "time": 203.66666666666666,
-                "moving": true,
-                "changed_fraction": 0.03895104895104895,
-                "mean_residual": 2.240839160839161,
-                "correlation": 0.9977569500616641
-              }
-            ],
-            "moving_by_third": [
-              4,
-              2,
-              3
-            ],
-            "window": {
-              "x": 44,
-              "y": 360,
-              "width": 632,
-              "height": 470
-            },
-            "policy": "affine_compensated_local_motion",
-            "limitation": "Temporal motion evidence; identity is checked separately"
-          },
-          "status": "rejected",
-          "reason": "标题观点不能回溯真实字幕"
-        }
-      ]
-    },
     {
       "slug": "ly-0912-5dc339",
       "artifact_id": 10313683706,
       "run_id": 34743771703,
-      "checked_at": 1789303583,
+      "checked_at": 1789304593,
       "source_url": "https://www.bilibili.com/video/BV1hj411X7BL",
       "parts": [
         {
@@ -10044,7 +9378,7 @@
             "limitation": "Temporal motion evidence; identity is checked separately"
           },
           "status": "rejected",
-          "reason": "缺少新版间歇角标复核，不能只重编码或改标题后放行"
+          "reason": "缺少新版间歇角标复核（含底部原素材文字），不能只重编码或改标题后放行"
         },
         {
           "index": 1,
@@ -10407,7 +9741,7 @@
             "limitation": "Temporal motion evidence; identity is checked separately"
           },
           "status": "rejected",
-          "reason": "缺少新版间歇角标复核，不能只重编码或改标题后放行"
+          "reason": "缺少新版间歇角标复核（含底部原素材文字），不能只重编码或改标题后放行"
         }
       ]
     },
@@ -10415,7 +9749,7 @@
       "slug": "ly-0912-2380b7",
       "artifact_id": 10293854497,
       "run_id": 34681224801,
-      "checked_at": 1789303587,
+      "checked_at": 1789304602,
       "source_url": "https://www.bilibili.com/video/BV1wtaAzCEkx",
       "parts": [
         {
@@ -10623,7 +9957,7 @@
       "slug": "ly-0911-f8d754",
       "artifact_id": 10262245814,
       "run_id": 34575400754,
-      "checked_at": 1789303591,
+      "checked_at": 1789304607,
       "source_url": "https://www.bilibili.com/video/BV1kdzYBhEB6",
       "parts": [
         {
