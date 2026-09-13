@@ -2789,7 +2789,7 @@ def artifact_subtitle_error(meta, delivery_dir):
         source_text=text
         if meta.get('subtitle_edit_proof_version')==1:
             try:
-                from caption_readability import replay_edit_proof
+                from caption_readability import replay_edit_proof, display_payload_text
                 names=meta.get('subtitle_edit_proofs')
                 if not isinstance(names,list) or not names:raise ValueError('缺少字幕编辑证明文件')
                 originals=[];displays=[]
@@ -2800,7 +2800,7 @@ def artifact_subtitle_error(meta, delivery_dir):
                     proof=json.loads((Path(delivery_dir)/name).read_text())
                     raw,display=replay_edit_proof(proof)
                     originals.append(raw);displays.append(display)
-                if editorial.text_digest(''.join(displays))!=editorial.text_digest(text):
+                if display_payload_text(''.join(displays))!=display_payload_text(text):
                     raise ValueError('编辑证明与真实ASS字幕不一致')
                 source_text=''.join(originals)
                 import hashlib

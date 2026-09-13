@@ -67,7 +67,12 @@ def proposal_schema(unit_count, subjects=None):
     # boolean review decisions. In run 150 this produced fluent but false
     # attribution even though both model-generated reviews said "passed".
     fields = {'a_claim':dict(type='string')}
-    reading = dict(a_question_premise=dict(type='string'),b_guest_answer=dict(type='string'))
+    turn_fields=dict(a_start=dict(type='integer',minimum=0,maximum=max(0,unit_count-1)),
+        b_end=dict(type='integer',minimum=0,maximum=max(0,unit_count-1)),
+        c_role=dict(type='string',enum=['host','guest','unknown']))
+    reading = dict(a_turns=dict(type='array',minItems=1,maxItems=min(120,unit_count),
+        items=dict(type='object',additionalProperties=False,required=list(turn_fields),properties=turn_fields)),
+        b_question_premise=dict(type='string'),c_guest_answer=dict(type='string'))
     fields['b_evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
     # The local grammar padded minimum-length strings with spaces/newlines.
@@ -194,21 +199,42 @@ def _extractive(transcript, speaker, existing_titles, preferred=None):
     raise ValueError('未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试')
 
 
+def bind_turns(turns, units):
+    """Keep every original cue and reject overlaps, omissions, or invented roles."""
+    if not isinstance(turns,list) or not turns:
+        raise ValueError('先按原始字幕边界区分完整问答轮次')
+    roles=[]
+    for turn in turns:
+        start,end=turn.get('a_start'),turn.get('b_end');role=turn.get('c_role')
+        if (type(start) is not int or type(end) is not int or start!=len(roles)
+                or end<start or end>=len(units) or role not in ('host','guest','unknown')):
+            raise ValueError('问答轮次必须按顺序完整覆盖字幕，不能遗漏或交叠')
+        roles.extend([role]*(end-start+1))
+    if len(roles)!=len(units) or 'guest' not in roles:
+        raise ValueError('问答轮次未覆盖全部字幕或没有明确嘉宾回答')
+    return roles
+
+
 def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None,
-             structured_model=None):
+             structured_model=None, source_cues=None):
     if model is None and structured_model is None:
         return _extractive(transcript, speaker, existing_titles, preferred)
-    units = source_units(transcript)
+    units = list(source_cues) if source_cues else source_units(transcript)
+    if any(not isinstance(u,str) for u in units) or ''.join(units)!=transcript:
+        raise ValueError('标题原始字幕边界与完整原文不一致')
     subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
-先完成a_reading：a_question_premise只概括主持人的问题和假设，没有主持人时写“无主持人提问”；
-b_guest_answer只概括嘉宾亲口给出的观察、判断和限定条件。这一步不写标题，也不根据某个词出现次数定中心。
+先完成a_reading.a_turns：按原始字幕编号逐段标出连续的问答轮次，a_start、b_end是含首尾的编号，c_role是host、guest或unknown。
+必须覆盖所有字幕且不重叠。主持人长段提问一直持续到真正回答开始，不能把问题前半段的背景或假设错标为回答。
+“您觉得”“你怎么看”属于提问，“我听懂了”“我来总结”属于主持人复述；嘉宾短答也不能默认认可提问中全部前提。
+再写b_question_premise和c_guest_answer，分别概括主持人问题与嘉宾亲口回答，没有主持人时写“无主持人提问”。
+此时还不写标题。只能根据guest轮次选择中心观点，不能按主持人的发言长度或关键词次数定中心。
 再在b_focus.a_claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
-用b_focus.b_evidence_ids选1~4组支撑它的原文编号。不要把主持人的猜测或一处举例当成中心观点。
+用b_focus.b_evidence_ids选1~4条支撑它的guest原文编号；不能选host或unknown。不要把主持人的猜测或一处举例当成中心观点。
 最后在c_candidates为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
@@ -238,11 +264,15 @@ b_guest_answer只概括嘉宾亲口给出的观察、判断和限定条件。这
                 focus=dict(claim=raw_focus.get('a_claim'),evidence_ids=raw_focus.get('b_evidence_ids'))
                 reading=proposal.get('a_reading') or {}
                 if (not isinstance(reading,dict)
-                        or len(compact(reading.get('b_guest_answer')))<12
-                        or len(compact(reading.get('a_question_premise')))<4):
+                        or len(compact(reading.get('c_guest_answer')))<12
+                        or len(compact(reading.get('b_question_premise')))<4):
                     raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
                 if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
                     raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
+                roles=bind_turns(reading.get('a_turns'),units)
+                focus_ids=focus.get('evidence_ids') or []
+                if any(type(i) is not int or not 0<=i<len(units) or roles[i]!='guest' for i in focus_ids):
+                    raise ValueError('标题证据选中了主持人提问或未知归属，必须回到嘉宾实际回答重写')
                 candidates = [bind_candidate(c,focus,units,subjects) for c in candidates]
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
@@ -254,6 +284,8 @@ b_guest_answer只概括嘉宾亲口给出的观察、判断和限定条件。这
                 raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
             if len({compact(c['title']) for c in valid})!=3:
                 raise ValueError('三个标题必须有不同看点，不能重复同一句话')
+            dialogue_context = (json.dumps([dict(id=i,role=roles[i],text=u) for i,u in enumerate(units)],
+                                ensure_ascii=False) if structured_model else transcript)
             judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。
 先完成a_analysis：a_guest_answer只概括嘉宾实际回答，b_question_premise列出主持人的问题前提；
 然后c_reason引用本候选实际出现的短语，与原文中对应的嘉宾回答比较。最后才填b_verdict中的各个判定。
@@ -271,7 +303,9 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
 再b_verdict（index、source_supported、central_point、attribution_correct、preserves_qualifiers、cover_consistent、readable、appeal）。
 候选及从原文直接取回的依据：{json.dumps([dict(title=c['title'],cover_title=c['cover_title'],evidence=c['evidence']) for c in valid], ensure_ascii=False)}
 原文编号只帮助定位，依据中也可能含主持人的问题，必须与上下文分清说话人。若嘉宾确实说出了某个判断，不能仅因主持人也提到它就判归属错误。
-完整字幕：{transcript}'''
+下方保留每条原始字幕的边界及文本推断的说话轮次。先独立检查轮次归属是否合理，发现归属错误判attribution_correct=false。
+只用guest真正说出的内容支撑标题事实；host只提供问题背景，不能把未被回答确认的假设写进标题。
+完整字幕：{dialogue_context}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
             if structured_model:
                 normalized=[]

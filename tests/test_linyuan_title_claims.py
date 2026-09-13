@@ -114,9 +114,9 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
         assert kwargs['read_cache']==('a_reading' not in kwargs['response_schema']['properties'])
         reply=json.loads(callback(messages[0]['content']))
         if reply.get('candidates'):
-            reply['a_reading']=dict(a_question_premise='无主持人提问',
-                b_guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
-            reply['b_focus']=dict(b_evidence_ids=list(range(len(T.source_units(TEXT)))),
+            reply['a_reading']=dict(a_turns=[dict(a_start=0,b_end=0,c_role='guest')],b_question_premise='无主持人提问',
+                c_guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
+            reply['b_focus']=dict(b_evidence_ids=[0],
                 a_claim='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
             reply['c_candidates']=reply.pop('candidates')
             for candidate in reply['c_candidates']:
@@ -176,7 +176,7 @@ def test_source_subject_choice_does_not_approve_a_new_financial_claim():
 def test_source_reading_precedes_evidence_and_title_even_after_schema_key_sorting():
     schema=json.loads(json.dumps(T.proposal_schema(10),sort_keys=True))
     assert list(schema['properties'])==['a_reading','b_focus','c_candidates']
-    assert list(schema['properties']['a_reading']['properties'])==['a_question_premise','b_guest_answer']
+    assert list(schema['properties']['a_reading']['properties'])==['a_turns','b_question_premise','c_guest_answer']
     assert list(schema['properties']['b_focus']['properties'])==['a_claim','b_evidence_ids']
     review=json.loads(json.dumps(T.review_schema(3),sort_keys=True))
     stages=review['properties']['reviews']['items']['properties']
@@ -201,3 +201,18 @@ def test_different_title_angles_use_exact_shared_anchors_without_invented_compou
     assert bound['subject'] in bound['title']
     assert any(bound['subject'] in q for q in bound['evidence'])
     assert not T._candidate_error(bound,TEXT,'林园',())
+
+
+def test_real_dialogue_cue_boundaries_do_not_merge_host_hypothesis_into_answer():
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_0913_landscape_title.json').read_text())
+    units=[c['text'] for c in fixture['cues']]
+    turns=[dict(a_start=a,b_end=b,c_role=r) for a,b,r in
+           [(0,7,'host'),(8,18,'guest'),(19,26,'host'),(27,31,'guest'),
+            (32,45,'host'),(46,49,'guest'),(50,51,'host')]]
+    roles=T.bind_turns(turns,units)
+    assert roles[42]=='host' and '反馈好像' in units[42]
+    assert roles[48]=='guest' and '经营压力' in units[48]
+    for bad in ([dict(a_start=1,b_end=51,c_role='guest')],
+                [dict(a_start=0,b_end=30,c_role='guest'),dict(a_start=30,b_end=51,c_role='host')],
+                [dict(a_start=0,b_end=50,c_role='guest')]):
+        with pytest.raises(ValueError):T.bind_turns(bad,units)

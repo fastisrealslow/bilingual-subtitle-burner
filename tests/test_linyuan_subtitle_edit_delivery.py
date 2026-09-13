@@ -90,3 +90,20 @@ def test_actual_bottom_disclaimer_is_excluded_with_full_face_intact():
     assert x+8 <= fx and fx+fw <= x+w-8 and y+fh*.22 <= fy and fy+fh <= y+h-2
     assert not source_edge_text_exclusions([{**rows[0], 'confidence':.3}])
     assert not source_edge_text_exclusions([{**rows[0], 'rect':[.2,.4,.8,.5]}])
+
+
+def test_layout_separators_do_not_hide_question_tone_numbers_or_negation():
+    original='利润下降1.5%，不是上涨。你看明白了吗？不能说变好了！'
+    displayed='利润下降1.5%不是上涨你看明白了吗？不能说变好了！'
+    assert C.display_payload_text(original)==C.display_payload_text(displayed)
+    for changed in (displayed.replace('1.5','15'), displayed.replace('不能','能'),
+                    displayed.replace('？',''),displayed.replace('！','')):
+        assert C.display_payload_text(original)!=C.display_payload_text(changed)
+
+
+def test_actual_811_files_replay_after_caption_layout(tmp_path):
+    cases=json.loads((Path(__file__).parent/'fixtures/linyuan_811_subtitle_delivery.json').read_text())
+    for case in cases:
+        for name,content in case['files'].items():
+            (tmp_path/name).write_text(content)
+        assert FC.artifact_subtitle_error(case['meta'],tmp_path) is None

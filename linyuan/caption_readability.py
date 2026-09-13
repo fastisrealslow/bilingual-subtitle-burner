@@ -166,6 +166,16 @@ def replay_edit_proof(proof):
     return expected['raw_text'],expected['display_text']
 
 
+def display_payload_text(text):
+    """Compare displayed words after the existing Chinese separator layout.
+
+    The caption planner omits Chinese commas/periods between visual groups.
+    Keep question/exclamation marks, decimals, signs and every spoken character;
+    this is not a general punctuation or alphanumeric-only normalization.
+    """
+    return re.sub(r'[\s，。；：、]','',text)
+
+
 def ass_font_size(glyph_px, font_name):
     # libass uses the hhea ascent/descent, not the em-square. Noto CJK's 1448
     # units per 1000 em made the old "48px" captions only ~33 visible pixels.

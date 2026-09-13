@@ -25,7 +25,7 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -94,7 +94,7 @@ jobs:
         results=[]; failures=[]
         for name in ('linyuan_0913_title.json','linyuan_0913_landscape_title.json'):
             fixture=json.loads((Path('tests/fixtures')/name).read_text())
-            cues=fixture['cues']
+            cues=fixture['cues'];result={}
             try:
                 with tempfile.TemporaryDirectory() as directory:
                     result=p.copywrite(cues,list(range(len(cues))),'林园','访谈','',Path(directory),reviewed_title=fixture['old_title'])
@@ -109,7 +109,7 @@ jobs:
                 results.append(dict(fixture=name,passed=True,**result))
             except Exception as exc:
                 failures.append(name)
-                results.append(dict(fixture=name,passed=False,error=str(exc)))
+                results.append(dict(fixture=name,passed=False,error=str(exc),**result))
             finally:
                 Path('title-claim-verification.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
                 print(json.dumps(results[-1],ensure_ascii=False,indent=2))

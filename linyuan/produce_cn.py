@@ -3235,7 +3235,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    read_cache='a_reading' not in schema.get('properties',{}))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
-                   preferred=reviewed_title)
+                   preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel])
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
                                     rewrite_proof=d['title_rewrite'])
         if problem:raise ValueError(problem)
