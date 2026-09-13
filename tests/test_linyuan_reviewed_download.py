@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 import types
 import zipfile
+import io
 
 import pytest
 
@@ -58,3 +59,52 @@ def test_size_limit_failure_reports_artifact_and_curl_code_not_signed_url(tmp_pa
     with pytest.raises(RuntimeError):fc.download_reviewed_zip(10262245814,tmp_path/'large.zip',attempts=1)
     assert '10262245814' in str(logs) and 'curl exit 63' in str(logs)
     assert 'secret' not in str(logs) and 'https://' not in str(logs)
+
+
+def test_interrupted_same_artifact_resumes_verified_bytes(tmp_path,monkeypatch):
+    import requests
+    data=io.BytesIO()
+    with zipfile.ZipFile(data,'w') as z:z.writestr('meta.json','{"complete":true}')
+    payload=data.getvalue();cut=len(payload)//2;calls=[]
+    monkeypatch.setattr(requests,'get',lambda *a,**k:types.SimpleNamespace(
+        status_code=302,headers={'Location':'https://example.test/signed'}))
+    def transfer(command,**kwargs):
+        path=Path(command[command.index('-o')+1]);calls.append(command)
+        if len(calls)==1:
+            assert '--continue-at' not in command and not path.exists()
+            path.write_bytes(payload[:cut])
+            return types.SimpleNamespace(returncode=28)
+        assert command[command.index('--continue-at')+1]=='-'
+        assert path.read_bytes()==payload[:cut]
+        with path.open('ab') as f:f.write(payload[cut:])
+        return types.SimpleNamespace(returncode=0)
+    monkeypatch.setattr(fc.subprocess,'run',transfer)
+    monkeypatch.setattr(fc,'log_event',lambda *a:None)
+    monkeypatch.setattr(fc,'flush_logs',lambda:None)
+    path=tmp_path/'artifact.zip';path.write_bytes(b'unrelated old file')
+    assert fc.download_reviewed_zip(123,path,attempts=2)==len(payload)
+    assert path.read_bytes()==payload and len(calls)==2
+
+
+@pytest.mark.parametrize('failure',['unsupported_range','bad_zip'])
+def test_resume_or_integrity_failure_restarts_cleanly(tmp_path,monkeypatch,failure):
+    import requests
+    calls=[]
+    monkeypatch.setattr(requests,'get',lambda *a,**k:types.SimpleNamespace(
+        status_code=302,headers={'Location':'https://example.test/signed'}))
+    def transfer(command,**kwargs):
+        path=Path(command[command.index('-o')+1]);calls.append(command)
+        if len(calls)==1:
+            path.write_bytes(b'partial');return types.SimpleNamespace(returncode=28)
+        if len(calls)==2:
+            assert '--continue-at' in command
+            if failure=='bad_zip':path.write_bytes(b'not a complete ZIP')
+            return types.SimpleNamespace(returncode=33 if failure=='unsupported_range' else 0)
+        assert '--continue-at' not in command and not path.exists()
+        with zipfile.ZipFile(path,'w') as z:z.writestr('meta.json','{}')
+        return types.SimpleNamespace(returncode=0)
+    monkeypatch.setattr(fc.subprocess,'run',transfer)
+    monkeypatch.setattr(fc,'log_event',lambda *a:None)
+    monkeypatch.setattr(fc,'flush_logs',lambda:None)
+    assert fc.download_reviewed_zip(123,tmp_path/'artifact.zip')>0
+    assert len(calls)==3

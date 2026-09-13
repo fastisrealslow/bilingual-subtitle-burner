@@ -749,10 +749,13 @@ def diagnose_release_download(event=None, context=None):
 
 
 def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=1024*1024*1024):
-    """Refresh signed URLs after a bounded failed/slow read; never expose tokens."""
+    """Resume the same immutable artifact within bounded attempts; verify the ZIP."""
     import requests
     archive_path=Path(archive_path)
+    # Only bytes obtained for this exact artifact invocation may be resumed.
+    archive_path.unlink(missing_ok=True)
     for attempt in range(attempts):
+        can_resume=True
         try:
             redirect=requests.get(API+f'/actions/artifacts/{artifact_id}/zip',
                 params={'_':str(time.time_ns())},
@@ -761,12 +764,16 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
             location=redirect.headers.get('Location','')
             if redirect.status_code!=302 or not location.startswith('https://'):
                 raise RuntimeError(f'Signed artifact redirect unavailable: HTTP {redirect.status_code}')
-            result=subprocess.run(['curl','-fsSL','--connect-timeout','15',
+            resume=['--continue-at','-'] if archive_path.is_file() and archive_path.stat().st_size else []
+            result=subprocess.run(['curl','-fsSL',*resume,'--connect-timeout','15',
                 '--max-time',str(timeout_sec),'--speed-time','20','--speed-limit','32768',
                 '--max-filesize',str(max_bytes),'-o',str(archive_path),location],
                 capture_output=True,timeout=timeout_sec+10)
             if result.returncode!=0 or not archive_path.is_file():
+                can_resume=result.returncode in {18,22,28,52,55,56}
                 raise RuntimeError(f'Bounded artifact transfer failed: curl exit {result.returncode}, limit {max_bytes} bytes')
+            # A complete response with invalid ZIP/CRC must start afresh.
+            can_resume=False
             size=archive_path.stat().st_size
             if not 0<size<=max_bytes:
                 raise RuntimeError('Reviewed artifact size invalid')
@@ -775,9 +782,13 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
                     raise RuntimeError('Reviewed artifact CRC invalid')
             return size
         except Exception as exc:
-            archive_path.unlink(missing_ok=True)
-            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
+            retained=archive_path.stat().st_size if archive_path.is_file() else 0
+            if not can_resume or not 0<retained<=max_bytes:
+                archive_path.unlink(missing_ok=True)
+                retained=0
+            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} retained={retained} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
             flush_logs()
+    archive_path.unlink(missing_ok=True)
     raise RuntimeError(f'Reviewed artifact exhausted {attempts} bounded attempts')
 
 
@@ -2438,7 +2449,7 @@ def mark_part_processed(entry, index):
 def inventory_part_index(entry, artifact_id, records, daily, now=None):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
-    None means a known verified reserve is temporarily blocked by today's mix;
+    None means this inspected artifact has no remaining eligible part;
     absent inspection falls back to the normal full checks at the current index.
     """
     for record in records:
@@ -2451,6 +2462,9 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
                          and (now is None or content_fits_slot(p,entry,now))),None)
+        # An inspected rejection/consumed part is not a missing inspection.
+        # Falling back to index zero redownloaded rejected stock at 21:00.
+        return None
     return int(entry.get('published_parts') or 0)
 
 
