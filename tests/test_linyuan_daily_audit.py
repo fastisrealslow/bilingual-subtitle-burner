@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
-from daily_publication_audit import BEIJING,daily_receipts
+from daily_publication_audit import BEIJING,daily_receipts,opening_stock_check
 
 
 def part(bvid,sha,when):
@@ -44,3 +44,22 @@ def test_missing_hash_and_excess_daily_uploads_fail_closed():
         if count==4:selected[0]={**selected[0],'fingerprints':{}}
         report=daily_receipts(dict(published={'batch':dict(parts=selected)}),datetime(2026,9,13,23,50,tzinfo=BEIJING))
         assert report['receipt_check_passed'] is False
+
+
+def test_opening_stock_cannot_count_running_jobs_or_stale_inspections():
+    now=datetime(2026,9,14,9,30,tzinfo=BEIJING)
+    receipt=dict(unique_verified_file_count=0)
+    assert not opening_stock_check(receipt,dict(in_flight_placeholders=12,inventory_fresh=True),now)['passed']
+    stock=dict(verified_live=4,verified_landscape=1,inventory_fresh=True)
+    assert opening_stock_check(receipt,stock,now)['passed']
+    assert not opening_stock_check(receipt,{**stock,'inventory_fresh':False},now)['passed']
+    assert not opening_stock_check(receipt,{**stock,'verified_landscape':0},now)['passed']
+
+
+def test_midnight_makeup_reduces_real_remaining_stock_requirement():
+    now=datetime(2026,9,14,9,30,tzinfo=BEIJING)
+    receipt=dict(unique_verified_file_count=2)
+    stock=dict(verified_live=2,verified_landscape=1,inventory_fresh=True)
+    report=opening_stock_check(receipt,stock,now)
+    assert report['required_live']==2 and report['passed']
+    assert opening_stock_check(receipt,stock,now.replace(hour=10)) is None
