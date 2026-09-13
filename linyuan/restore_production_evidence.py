@@ -11,8 +11,16 @@ def restore(evidence, work, *, titles_only=False):
     evidence,work=Path(evidence),Path(work)
     current=json.loads((work/'source_quality.json').read_text())
     old=json.loads((evidence/'source_quality.json').read_text())
-    if (not current.get('passed') or not current.get('source_sha256')
-            or current['source_sha256']!=old.get('source_sha256')):
+    if not current.get('passed') or not current.get('source_sha256'):
+        raise ValueError('本次母片尚未通过素材检查，不能恢复证据')
+    if (old.get('passed') is False and old.get('failure_stage')=='source-fetch'
+            and not old.get('source_sha256')):
+        # A fetch timeout has no complete mother or ASR to restore. The Sep 13
+        # 806 retry completed its 693 MB download, then this optional cache
+        # restore falsely treated the old missing hash as a new source failure.
+        print('旧任务仅取源失败，没有可复用的完整母片证据；使用本次已核验母片继续离线识别')
+        return False
+    if current['source_sha256']!=old.get('source_sha256'):
         raise ValueError('恢复证据与本次通过质检的母片哈希不一致')
     copied=[]
     from mother_asr_cache import transfer
@@ -43,7 +51,7 @@ def main():
                         '--name',names[0],'--dir',directory],check=True)
         reports=list(Path(directory).rglob('source_quality.json'))
         if len(reports)!=1:raise ValueError('需要唯一的失败母片证据')
-        restore(reports[0].parent,args.work)
+        if restore(reports[0].parent,args.work) is False:return
         # Run 801's preferred editorial artifact retained ASR but omitted every
         # validated copywrite file. The full debug artifact still has them.
         # Supplement titles only; don't replace current ASR or quality evidence.

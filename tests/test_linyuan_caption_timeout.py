@@ -105,3 +105,19 @@ def test_old_editorial_artifact_supplements_verified_titles_from_debug(monkeypat
     assert (work/'copywrite_2.json').read_text()=='verified-title-evidence'
     assert (work/'cues_raw.json').read_text()=='current source-bound ASR'
     assert (work/'highlights_current.json').read_text()=='current selection'
+
+
+def test_fetch_only_failure_is_cache_miss_after_fresh_source_passes(tmp_path):
+    old=tmp_path/'old';work=tmp_path/'work';old.mkdir();work.mkdir()
+    fresh=dict(passed=True,source_sha256='b'*64)
+    (work/'source_quality.json').write_text(json.dumps(fresh))
+    (old/'source_quality.json').write_text(json.dumps(dict(passed=False,retryable=True,
+        failure_stage='source-fetch',reason='FetchBudgetExceeded')))
+    (old/'copywrite.json').write_text('must never import from incomplete source')
+    assert restore(old,work) is False
+    assert not (work/'copywrite.json').exists()
+    assert json.loads((work/'source_quality.json').read_text())==fresh
+    (old/'source_quality.json').write_text(json.dumps(dict(passed=True,source_sha256='a'*64)))
+    with pytest.raises(ValueError,match='哈希不一致'):restore(old,work)
+    (work/'source_quality.json').write_text(json.dumps(dict(passed=False,source_sha256='b'*64)))
+    with pytest.raises(ValueError,match='本次母片尚未'):restore(old,work)
