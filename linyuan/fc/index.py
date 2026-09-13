@@ -322,6 +322,20 @@ def title_has_target_speaker(title):
         return False
     return bool(DIRECT_SPEECH_PAT.search(title) or FULL_TITLE_PAT.search(title))
 
+
+def item_has_target_speaker(item,extra):
+    if title_has_target_speaker(item.get('title')):return True
+    # Archive episode titles often contain only the TV programme/date. Their
+    # API-backed parent identifies the subject; pixel/audio gates still apply.
+    parent=extra.get('collection_title') or ''
+    return (item.get('source')=='bilibili_collection'
+            and extra.get('direct_dispatch') is True
+            and extra.get('source_role')=='mother_candidate'
+            and extra.get('metadata_status')=='known_duration'
+            and bool(extra.get('cid')) and bool(item.get('author'))
+            and bool(re.match(r'^[【\[]?林园[】\]]?(?:[（(]\d{4}.*\d{4}[）)]|.*(?:合集|访谈|演讲|直播|实录|课程|讲座))',parent))
+            and not THIRD_PARTY_TITLE_PAT.search(item.get('title') or ''))
+
 # 普通投稿好时段（北京时间）。FC 的兼容触发器仍可每小时唤醒，但只有这些
 # 小时真正检查并投稿；批量任务带 batch_slug，明确绕过本限制。
 PUBLISH_HOURS = {10, 14, 16, 21}
@@ -1363,7 +1377,7 @@ def pick(items, st, n):
         if AI_NOISE.search(title):
             continue                                     # AI 问答噪音（元宝/豆包等，非林园本人视频）
         # 标题必须能证明是林园本人发言；只“提到林园”的二手解说不再放行。
-        if not title_has_target_speaker(title):
+        if not item_has_target_speaker(it,extra):
             continue
         # 已发主题两周内不再调度。最终成片标题和三重内容指纹还会在投稿前复检，
         # 这里先挡住明显重复，避免浪费下载、ASR 和编码算力。
@@ -2224,6 +2238,14 @@ def _dispatch_admitted(event=None, context=None):
             _record_failure(st, c, e)
 
     _process_retries(st)
+    if not cands and not success and time.time()-st.get('source_refresh_requested_at',0)>2*3600:
+        try:
+            gh('POST','/actions/workflows/linyuan-monitor.yml/dispatches',{'ref':'main'})
+            st['source_refresh_requested_at']=int(time.time())
+            save_state(st)
+            log_event('source_refresh','候选耗尽，已请求自动补源','两小时内不重复请求')
+        except Exception as exc:
+            log.warning('自动补源请求失败：%s',type(exc).__name__)
     if not success:
         log_event('supply_empty', '本轮未补入生产任务',
                   f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"

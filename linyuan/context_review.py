@@ -2,7 +2,7 @@
 import json
 import hashlib
 
-VERSION = 3
+VERSION = 4
 # Run 798 exhausted the 600-second CPU budget with batches of up to 48 ranges and
 # the full transcript. Smaller batches retain exhaustive coverage and leave
 # room for the topic map and verdicts without weakening the 120-second rule.
@@ -58,6 +58,68 @@ def prompt(transcript, choices, speaker):
         '输出JSON对象含topics和verdicts。topics每项start,topic；verdicts的键是本批每个候选ID，'
         '值是上述判定；所有ID必须恰好出现一次。'
         '\n完整原文：\n'+transcript+'\n本批候选：\n'+json.dumps(choices, ensure_ascii=False))
+
+
+def topic_schema(cues):
+    result=schema([],len(cues),cues)
+    result['properties'].pop('verdicts')
+    result['required']=['topics']
+    return result
+
+
+def topic_prompt(transcript,cues,speaker):
+    return (f'你是{speaker}访谈编辑。只给完整原文划分主要话题，不逐句概括。'
+        '同一问题下的观点、解释、案例、交易细节、反问和总结属于同一话题；'
+        '同义名称、同一事件的细节或叙述进展不能单独另起话题。'
+        '主持人转问另一个独立问题或发言转向另一种投资逻辑时才换题。'
+        '不得为了达到时长要求合并无关问题；也不得把一个连续故事拆成逐句目录。'
+        '每项只写起点start及不超过20字的主题topic；第一项必须从0开始，后续严格递增。'
+        '完整原句不能切断。只输出JSON对象topics，不写候选判定。'
+        '\n可用完整句起点start：'+json.dumps(sentence_starts(cues))+
+        '\n完整原文：\n'+transcript)
+
+
+def parse_topics(answer,cues):
+    data=json.loads(answer)
+    if not isinstance(data,dict) or set(data)!={'topics'}:
+        raise ValueError('完整话题图格式无效')
+    _,topics,_=parse(json.dumps(dict(topics=data['topics'],verdicts={})),[],cues)
+    if any(a['topic'].strip()==b['topic'].strip() for a,b in zip(topics,topics[1:])):
+        raise ValueError('相邻同一主题被重复拆分，不能据此淘汰素材')
+    return topics
+
+
+def verdict_schema(choices):
+    result=schema(choices,1)
+    result['properties'].pop('topics')
+    result['required']=['verdicts']
+    return result
+
+
+def verdict_prompt(transcript,choices,topics,speaker):
+    return (f'你是{speaker}访谈编辑。以下话题图已确定，禁止重新切分或改写它。'
+        '逐项检查候选是否独立可懂、解释充分、结尾自然、有至少7分观看价值。'
+        '一个问题下的理由和例子不是混杂话题。每个候选只能给一个判定。'
+        '合格用accept_7到accept_10；不合格用'+','.join(REJECT)+
+        '。所有候选ID必须恰好出现一次。只输出JSON对象verdicts，不重复输出话题图。'
+        '\n话题图：'+json.dumps(topics,ensure_ascii=False)+
+        '\n完整原文：\n'+transcript+'\n本批候选：'+json.dumps(choices,ensure_ascii=False))
+
+
+def parse_verdicts(answer,choices,topics,cues):
+    data=json.loads(answer,object_pairs_hook=unique_object)
+    if not isinstance(data,dict) or set(data)!={'verdicts'}:
+        raise ValueError('逐项判定格式无效')
+    compact=[{k:v for k,v in t.items() if k!='end'} for t in topics]
+    return parse(json.dumps(dict(topics=compact,verdicts=data['verdicts'])),choices,cues)[0]
+
+
+def unique_object(pairs):
+    result={}
+    for key,value in pairs:
+        if key in result:raise ValueError('逐项审查包含重复候选ID或字段')
+        result[key]=value
+    return result
 
 
 def parse(answer, choices, cues):

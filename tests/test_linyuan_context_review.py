@@ -41,10 +41,11 @@ def test_real_715_candidates_can_select_a_later_id_without_timing_invention(monk
     verdicts={str(i):'reject_mixed_topics' for i in range(39)}
     verdicts['38']='accept_8'
     def model(*args,**kwargs):
+        if 'topics' in kwargs['response_schema']['properties']:
+            return json.dumps({'topics':[dict(start=0,topic='模拟完整主题')]})
         ids=kwargs['response_schema']['properties']['verdicts']['required']
         assert len(ids)<=16
-        return json.dumps({'topics':[dict(start=0,topic='模拟完整主题')],
-                           'verdicts':{key:verdicts[key] for key in ids}})
+        return json.dumps({'verdicts':{key:verdicts[key] for key in ids}})
     monkeypatch.setattr(p,'llm',model)
     result=p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')
     assert [(x['start'],x['end']) for x in result]==[(DATA['choices'][38]['start'],DATA['choices'][38]['end'])]
@@ -57,7 +58,7 @@ def test_malformed_later_batch_never_writes_complete_proof(monkeypatch,tmp_path)
     monkeypatch.setattr(r,'reviewed_topics',lambda cues:None)
     monkeypatch.setattr(p,'argument_context_candidates',lambda *a:DATA['choices'])
     monkeypatch.setattr(r,'BATCH_SIZE',20)
-    responses=iter([json.dumps({'topics':[dict(start=0,topic='模拟完整主题')],'verdicts':{str(i):'reject_mixed_topics' for i in range(20)}}),'{"verdicts":{}}'])
+    responses=iter([json.dumps({'topics':[dict(start=0,topic='模拟完整主题')]}),json.dumps({'verdicts':{str(i):'reject_mixed_topics' for i in range(20)}}),'{"verdicts":{}}'])
     monkeypatch.setattr(p,'llm',lambda *a,**k:next(responses))
     with pytest.raises(p.SelectionIncomplete):
         p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')
@@ -107,9 +108,7 @@ def test_actual_selection_call_constrains_topic_boundaries(monkeypatch,tmp_path)
         rule=kwargs['response_schema']['properties']['topics']['items']['properties']['start']
         assert rule['enum']==r.sentence_starts(DATA['cues'])
         assert '可用完整句起点start' in messages[0]['content']
-        ids=kwargs['response_schema']['properties']['verdicts']['required']
-        return json.dumps(dict(topics=[dict(start=0,topic='首个话题'),dict(start=27,topic='套利问题')],
-                               verdicts={key:'accept_10' for key in ids}))
+        return json.dumps(dict(topics=[dict(start=0,topic='首个话题'),dict(start=27,topic='套利问题')]))
     monkeypatch.setattr(p,'llm',model)
     assert p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')==[]
 
@@ -130,3 +129,24 @@ def test_reviewed_boundaries_never_match_changed_transcript_or_timing():
     for field,value in [('text','changed'),('start',0.33)]:
         cues=copy.deepcopy(DATA['cues']);cues[0][field]=value
         assert r.reviewed_topics(cues) is None
+
+
+def test_all_batches_share_one_topic_map_and_crossing_ranges_need_no_model(monkeypatch,tmp_path):
+    monkeypatch.setattr(r,'reviewed_topics',lambda cues:None)
+    monkeypatch.setattr(p,'argument_context_candidates',lambda *a:DATA['choices'])
+    calls=[]
+    def model(*args,**kwargs):
+        calls.append(kwargs)
+        assert 'topics' in kwargs['response_schema']['properties']
+        return json.dumps(dict(topics=[dict(start=0,topic='投资回报'),dict(start=27,topic='套利')]))
+    monkeypatch.setattr(p,'llm',model)
+    assert p.pick_argument_context(DATA['cues'],[dict(start=0,end=2)],'林园','',tmp_path,'')==[]
+    assert len(calls)==1
+    proof=json.loads((tmp_path/'context_review.json').read_text())
+    assert proof['reviewed_count']==len(DATA['choices'])
+
+
+def test_duplicate_topic_fragmentation_is_not_a_valid_rejection():
+    with pytest.raises(ValueError,match='重复拆分'):
+        r.parse_topics(json.dumps(dict(topics=[dict(start=0,topic='同一主题'),
+            dict(start=27,topic='同一主题')])),DATA['cues'])

@@ -96,7 +96,7 @@ def test_candidate_id_uses_program_duration_and_never_model_timestamps(tmp_path)
     choices=p.argument_context_candidates(cues(),[dict(start=0,end=0)])
     answer={'topics':[dict(start=0,topic='完整解释')],'verdicts':{str(c['candidate_id']):'reject_low_value' for c in choices}}
     answer['verdicts']['0']='accept_8'
-    with patch.object(p,'llm',return_value=json.dumps(answer)):
+    with patch.object(p,'llm',side_effect=[json.dumps({'topics':answer['topics']}),json.dumps({'verdicts':answer['verdicts']})]):
         picked=p.pick_argument_context(cues(),[dict(start=0,end=0)],'林园','',tmp_path,'')
     assert p.editorial.range_seconds(cues(),picked[0])==120
 

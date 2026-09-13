@@ -7,8 +7,8 @@ name: 林园监控 · 每日抓取
 
 on:
   schedule:
-    # 北京时间每天 09:17、18:17；FC仍负责既有发布与生产调度。
-    - cron: '17 1,10 * * *'
+    # 每四小时提前补源；不能等发布窗口才发现候选耗尽。
+    - cron: '17 */4 * * *'
   # Editing this workflow is also an explicit, auditable way to perform an
   # immediate refresh when GitHub's scheduled delivery is late.  Other source
   # or state commits do not retrigger the crawler.

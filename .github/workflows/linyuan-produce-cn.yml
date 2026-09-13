@@ -145,7 +145,13 @@ jobs:
         working-directory: .
         run: |
           python -m pip install -q pytest jieba numpy pillow 'opencv-python<5'
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_selection_incident.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py tests/test_linyuan_required_live.py tests/test_linyuan_full_interview_recovery.py tests/test_linyuan_title_claims.py
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_selection_incident.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py tests/test_linyuan_required_live.py tests/test_linyuan_full_interview_recovery.py tests/test_linyuan_title_claims.py tests/test_linyuan_context_review.py tests/test_linyuan_production_history.py
+
+      - name: 读取并校验发布历史
+        id: publication_history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python publication_history.py --out _publication_state.json
 
       - name: 安装素材质检依赖
         run: |
@@ -305,7 +311,8 @@ jobs:
           ls -lh sensevoice_model/
 
       - name: 复用 LLM 缓存
-        uses: actions/cache@v4
+        id: llm-cache
+        uses: actions/cache/restore@v4
         with:
           path: linyuan/.llm_cache
           key: llm-cn-${{ env.RUN_SLUG }}-${{ github.run_id }}
@@ -405,8 +412,8 @@ jobs:
           OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
         run: |
           set -euo pipefail
-          # Read actual receipts so a cached mother does not re-render used excerpts.
-          gh api "repos/$GITHUB_REPOSITORY/contents/linyuan/.automation/fc_state.json?ref=main" --jq '.content' | base64 --decode > "$PUBLICATION_STATE_PATH"
+          # The history snapshot was validated before downloads or inference.
+          python -c 'from publication_history import read; read("_publication_state.json")'
           if [ -n "$REPAIR_BVID" ]; then
             test '${{ inputs.auto_publish }}' != 'true'
             python media_revision.py --bvid "$REPAIR_BVID" --slug "$RENDER_SLUG" --state "$PUBLICATION_STATE_PATH"
@@ -426,6 +433,20 @@ jobs:
             ${{ inputs.include_full && '--include-full' || '' }} \
             ${{ (github.event_name == 'push' || inputs.prefer_live_video) && '--prefer-live-video' || '' }}
 
+      - name: 为未捕获的运行错误保存恢复报告
+        if: failure()
+        env:
+          PRODUCTION_STEPS: ${{ toJSON(steps) }}
+        run: python production_failure_report.py
+
+      - name: 保存已经完成的文本推理（后续失败仍保留）
+        if: always() && steps.llm-cache.outcome == 'success' && steps.render.outcome != 'skipped'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: linyuan/.llm_cache
+          key: llm-cn-${{ env.RUN_SLUG }}-${{ github.run_id }}
+
       - name: 留存完整观点与原始ASR核验材料
         if: always() && steps.render.outcome != 'skipped'
         uses: actions/upload-artifact@v4
@@ -438,6 +459,7 @@ jobs:
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_response*.txt
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_topics*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_review*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_candidates*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/editorial_review*.json
@@ -527,7 +549,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: 上传整源无合格片结果供自动补位
-        if: failure() && steps.render.outcome == 'failure' && inputs.repair_bvid == ''
+        if: failure() && inputs.repair_bvid == ''
         uses: actions/upload-artifact@v4
         with:
           name: production-reject-${{ env.RUN_SLUG }}

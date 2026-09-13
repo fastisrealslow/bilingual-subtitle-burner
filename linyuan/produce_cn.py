@@ -1524,21 +1524,30 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
         print(f'[连续上下文] 已核对原文话题边界：{len(choices)}/{len(choices)}个候选均跨话题；没有合格长段',flush=True)
         return []
     selected=[]
-    verdicts={}
-    topic_evidence=[]
-    for offset in range(0,len(choices),review.BATCH_SIZE):
-        batch=choices[offset:offset+review.BATCH_SIZE]
-        topic_prompt = (review.prompt(transcript,batch,speaker)
-                        + '\n可用完整句起点start：' + json.dumps(review.sentence_starts(cues))
-                        + '。只能从这些起点中选择；第一项必须为0，之后严格递增。')
-        answer=llm([{'role':'user','content':topic_prompt}],
-                   api_key,temperature=0,max_tokens=1800,budget_sec=text_budget(240),
-                   response_schema=review.schema(batch,len(cues),cues))
+    # The same transcript used to be mapped again for every overlapping range
+    # batch. Run 799 spent 35 minutes generating five inconsistent topic maps.
+    answer=llm([{'role':'user','content':review.topic_prompt(transcript,cues,speaker)}],
+               api_key,temperature=0,max_tokens=1400,budget_sec=text_budget(240),
+               response_schema=review.topic_schema(cues))
+    (work/f'context_topics{suffix}.txt').write_text(answer)
+    try:
+        topics=review.parse_topics(answer,cues)
+    except (ValueError,TypeError) as exc:
+        raise SelectionIncomplete(f'{exc}；保留ASR，不判整源无合格片') from exc
+    verdicts={str(c['candidate_id']):'reject_mixed_topics' for c in choices
+              if not any(t['start']<=c['start']<=c['end']<=t['end'] for t in topics)}
+    eligible=[c for c in choices if str(c['candidate_id']) not in verdicts]
+    topic_evidence=[dict(origin='single_source_topic_map',topics=topics)]
+    print(f'[连续上下文] 统一话题图：{len(topics)}个主题，{len(eligible)}/{len(choices)}个候选在单一主题内',flush=True)
+    for offset in range(0,len(eligible),review.BATCH_SIZE):
+        batch=eligible[offset:offset+review.BATCH_SIZE]
+        answer=llm([{'role':'user','content':review.verdict_prompt(transcript,batch,topics,speaker)}],
+                   api_key,temperature=0,max_tokens=800,budget_sec=text_budget(240),
+                   response_schema=review.verdict_schema(batch))
         (work/f'context_response{suffix}-{offset}.txt').write_text(answer)
         try:
-            effective,topics,raw_verdicts=review.parse(answer,batch,cues)
+            effective=review.parse_verdicts(answer,batch,topics,cues)
             verdicts.update(effective)
-            topic_evidence.append(dict(offset=offset,topics=topics,model_verdicts=raw_verdicts))
         except (ValueError,TypeError) as exc:
             raise SelectionIncomplete(f'{exc}；保留ASR，不判整源无合格片') from exc
     # Only a valid judgment for EVERY offered range can produce an empty result.
@@ -5004,6 +5013,11 @@ def main():
                     help="把每个完整金句独立渲染/隔离，单条失败不淘汰同源其他金句")
     args = ap.parse_args()
 
+    publication_state={}
+    if not args.source_check_only and os.environ.get('PUBLICATION_STATE_PATH'):
+        from publication_history import read
+        publication_state=read(os.environ['PUBLICATION_STATE_PATH'])
+
     src = Path(args.source)
     if not src.is_file():
         sys.exit(f"找不到源:{src}")
@@ -5163,11 +5177,6 @@ def main():
             raise ValueError('不能同时指定人工核对与自动选段编号')
         retry_parts=selected_part_numbers(args.only_selected_parts,work_items)
     metas, rejected = [], list(selection_failures)
-    publication_state={}
-    if os.environ.get('PUBLICATION_STATE_PATH'):
-        publication_state=json.loads(Path(os.environ['PUBLICATION_STATE_PATH']).read_text())
-        if not isinstance(publication_state.get('published'),dict):
-            raise ValueError('发布历史不可用，不能把未核对的母片当成未使用')
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint():
