@@ -22,11 +22,17 @@ jobs:
         with:
           python-version: '3.12'
       - name: 归还恢复任务登记期间被自动补源抢占的第七个名额
-        run: gh run cancel 34759030883 --repo "$GITHUB_REPOSITORY" || true
+        run: |
+          gh run cancel 34759030883 --repo "$GITHUB_REPOSITORY" || true
+          gh run cancel 34758729804 --repo "$GITHUB_REPOSITORY" || true
       - name: 等待一个生产名额
         run: |
           python - <<'PY'
-          import json,subprocess,time
+          import json,subprocess,time,sys
+          sys.path.insert(0,'linyuan')
+          from register_selection_recovery import read_state
+          if any(e.get('slug')=='ly-0912-5dc339-stable-clean-proof-portrait' for e in read_state()[1].get('dispatched',[])):
+              raise SystemExit(0)
           for _ in range(16):
               active=sum(len(json.loads(subprocess.check_output(['gh','api','repos/'+__import__('os').environ['GITHUB_REPOSITORY']+'/actions/workflows/linyuan-produce-cn.yml/runs?status='+status+'&per_page=100']))['workflow_runs']) for status in ('in_progress','queued'))
               if active<6:break
