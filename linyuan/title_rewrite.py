@@ -217,7 +217,12 @@ question_premise只概括主持人的问题和假设，没有主持人时写“�
     last_error = ''
     for attempt in range(3):
         try:
-            proposal = _json(call(prompt + (f'\n第{attempt + 1}轮改写；上次问题：' + last_error if last_error else ''),
+            # Finish with the source, not three repetitions of a rejected claim.
+            # In run 147 the retry feedback outweighed the actual guest answer
+            # and the same host hypothesis returned in every round.
+            retry_note = (f'第{attempt + 1}轮重新阅读；以下是已退回的错误稿，不能当作原文事实：'
+                          + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
+            proposal = _json(call(retry_note + prompt,
                                   proposal_schema(len(units), subjects)))
             candidates = proposal.get('candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:
