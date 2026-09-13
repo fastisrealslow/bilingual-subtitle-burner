@@ -21,8 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: 停止已被修复版本替代的标题核验
-        run: gh run cancel 34756087648 --repo "$GITHUB_REPOSITORY" || true
+      - name: 停止同源旧取景版本，保留母片与转写检查点
+        run: gh run cancel 34758065381 --repo "$GITHUB_REPOSITORY" || true
       - name: 等待一个生产名额
         run: |
           python - <<'PY'
@@ -38,7 +38,7 @@ jobs:
           python linyuan/register_selection_recovery.py
           --origin-slug ly-0912-5dc339
           --expected-source https://www.bilibili.com/video/BV1hj411X7BL
-          --suffix stable-crop-portrait
+          --suffix stable-clean-proof-portrait
           --output-layout portrait
           --evidence-run 34755308322
           --selected-parts 2,4
