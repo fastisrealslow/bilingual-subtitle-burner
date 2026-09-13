@@ -749,13 +749,10 @@ def diagnose_release_download(event=None, context=None):
 
 
 def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=1024*1024*1024):
-    """Resume the same immutable artifact within bounded attempts; verify the ZIP."""
+    """Refresh signed URLs after a bounded failed/slow read; never expose tokens."""
     import requests
     archive_path=Path(archive_path)
-    # Only bytes obtained for this exact artifact invocation may be resumed.
-    archive_path.unlink(missing_ok=True)
     for attempt in range(attempts):
-        can_resume=True
         try:
             redirect=requests.get(API+f'/actions/artifacts/{artifact_id}/zip',
                 params={'_':str(time.time_ns())},
@@ -764,16 +761,12 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
             location=redirect.headers.get('Location','')
             if redirect.status_code!=302 or not location.startswith('https://'):
                 raise RuntimeError(f'Signed artifact redirect unavailable: HTTP {redirect.status_code}')
-            resume=['--continue-at','-'] if archive_path.is_file() and archive_path.stat().st_size else []
-            result=subprocess.run(['curl','-fsSL',*resume,'--connect-timeout','15',
+            result=subprocess.run(['curl','-fsSL','--connect-timeout','15',
                 '--max-time',str(timeout_sec),'--speed-time','20','--speed-limit','32768',
                 '--max-filesize',str(max_bytes),'-o',str(archive_path),location],
                 capture_output=True,timeout=timeout_sec+10)
             if result.returncode!=0 or not archive_path.is_file():
-                can_resume=result.returncode in {18,22,28,52,55,56}
                 raise RuntimeError(f'Bounded artifact transfer failed: curl exit {result.returncode}, limit {max_bytes} bytes')
-            # A complete response with invalid ZIP/CRC must start afresh.
-            can_resume=False
             size=archive_path.stat().st_size
             if not 0<size<=max_bytes:
                 raise RuntimeError('Reviewed artifact size invalid')
@@ -782,13 +775,9 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
                     raise RuntimeError('Reviewed artifact CRC invalid')
             return size
         except Exception as exc:
-            retained=archive_path.stat().st_size if archive_path.is_file() else 0
-            if not can_resume or not 0<retained<=max_bytes:
-                archive_path.unlink(missing_ok=True)
-                retained=0
-            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} retained={retained} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
+            archive_path.unlink(missing_ok=True)
+            log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
             flush_logs()
-    archive_path.unlink(missing_ok=True)
     raise RuntimeError(f'Reviewed artifact exhausted {attempts} bounded attempts')
 
 
@@ -2159,6 +2148,24 @@ def source_inventory(st, payload=None):
                 inventory_fresh=valid)
 
 
+def landscape_admission_deficit(inventory, state, active_runs):
+    """Plan source jobs without counting unfinished jobs as usable stock.
+
+    The Sep 13 queue accumulated four landscape jobs because every refill saw
+    zero finished landscapes and ignored the ones already being produced.
+    One real active mother reserves one production opportunity, not a final.
+    """
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    planned=set()
+    for run in active_runs:
+        if run.get('status') not in ('queued','in_progress'):continue
+        slug=str(run.get('display_title') or run.get('name') or '').split(' · ')[-1]
+        entry=latest.get(slug) or {}
+        if entry.get('output_layout')=='landscape' and not entry.get('weekly_full_week'):
+            planned.add(slug)
+    return max(0,TARGET_LANDSCAPE_RESERVE-int(inventory.get('verified_landscape',0))-len(planned))
+
+
 def _dispatch_admitted(event=None, context=None):
     st = load_state()
     # Production/source gate failures happen in Actions after dispatch returns.
@@ -2185,8 +2192,10 @@ def _dispatch_admitted(event=None, context=None):
     landscape_needed=max(0,TARGET_LANDSCAPE_RESERVE-inventory.get('verified_landscape',0))
     if inventory['daily_mix_usable']>=TARGET_READY_RESERVE and not landscape_needed:
         return {'dispatched':0,'reserve_full':1,**inventory}
-    active=sum(len(gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30)
-                       .get('workflow_runs',[])) for status in ('in_progress','queued'))
+    active_runs=[run for status in ('in_progress','queued') for run in
+        gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
+    active=len(active_runs)
+    landscape_admissions=landscape_admission_deficit(inventory,st,active_runs)
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
     target=min(target,MAX_ACTIVE_SOURCES-active,max(landscape_needed,TARGET_READY_RESERVE-inventory['daily_mix_usable']))
@@ -2207,9 +2216,11 @@ def _dispatch_admitted(event=None, context=None):
         if source_inventory(st,reserve)['inventory_fresh']:
             for entry,record in obsolete_review_candidates(st,reserve):
                 if success>=target:break
+                if entry.get('output_layout')=='landscape' and landscape_admissions<=0:continue
                 reason='当前母片需重新执行逐字原文审核，复用实际CPU原始转写'
                 if _request_quality_reprocess(st,entry,entry['slug'],reason,record['artifact_id']):
                     success+=1
+                    if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
     except Exception as exc:
         log.warning('原始转写再利用队列暂不可读：%s',type(exc).__name__)
     # A unavailable checker is not evidence of a bad mother. Retry its exact
@@ -2219,6 +2230,7 @@ def _dispatch_admitted(event=None, context=None):
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
+        if entry.get('output_layout')=='landscape' and landscape_admissions<=0:continue
         source=entry.get('asset_url') or entry.get('source_url')
         if not source:continue
         gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{
@@ -2234,6 +2246,7 @@ def _dispatch_admitted(event=None, context=None):
         entry['ts']=int(time.time())
         save_state(st)
         success+=1
+        if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
     for i, c in enumerate(cands):
@@ -2283,7 +2296,7 @@ def _dispatch_admitted(event=None, context=None):
             else:
                 raise RuntimeError("无可用 URL")
             full_week = weekly_full_request(c, st)
-            output_layout = "landscape" if not full_week and success < landscape_needed else "portrait"
+            output_layout = "landscape" if not full_week and landscape_admissions>0 else "portrait"
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
@@ -2305,6 +2318,7 @@ def _dispatch_admitted(event=None, context=None):
                                      "publish_time": c.get("publish_time", "")})
             save_state(st)
             success += 1
+            if output_layout=='landscape':landscape_admissions=max(0,landscape_admissions-1)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
         except Exception as e:
@@ -2449,7 +2463,7 @@ def mark_part_processed(entry, index):
 def inventory_part_index(entry, artifact_id, records, daily, now=None):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
-    None means this inspected artifact has no remaining eligible part;
+    None means a known verified reserve is temporarily blocked by today's mix;
     absent inspection falls back to the normal full checks at the current index.
     """
     for record in records:
@@ -2462,9 +2476,6 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
                          and (now is None or content_fits_slot(p,entry,now))),None)
-        # An inspected rejection/consumed part is not a missing inspection.
-        # Falling back to index zero redownloaded rejected stock at 21:00.
-        return None
     return int(entry.get('published_parts') or 0)
 
 
@@ -2970,7 +2981,8 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
         and candidate.get('source_quality_rejected')
         and candidate.get('failure_stage')=='editorial-or-render'
         and candidate.get('last_error')==native_crop_error)
-    if (not candidate or not candidate.get('reprocessing_quality')
+    if (not candidate or not (candidate.get('reprocessing_quality') or
+            candidate.get('source_check_run_id') and int(candidate.get('source_check_attempts') or 0)>0)
             or (candidate.get('failed') and not inspected_native_rejection)
             or not _has_unpublished_part(candidate, st)
             or run.get('conclusion') != 'failure'
@@ -2995,7 +3007,13 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     # do not infer that any other rendering failure has the same safe cause.
     stock_title=(candidate.get('slug')=='ly-0910-interview-clean-v4-wide0911v2'
                  and run.get('id') in {34735812094,34741749753})
-    expected_step='出片' if stock_title or native_interview else gate
+    restore_step='复用同源失败任务的已完成证据'
+    restore_failure=bool(candidate.get('source_check_run_id') and failed
+        and all(s.get('name')==restore_step for s in failed)
+        and any(s.get('name')=='素材质量门禁' and s.get('conclusion')=='success'
+                for j in jobs for s in j.get('steps',[])))
+    if not candidate.get('reprocessing_quality') and not restore_failure:return False
+    expected_step=restore_step if restore_failure else '出片' if stock_title or native_interview else gate
     if not failed or any(s.get('name') != expected_step for s in failed):
         return False
     # State/log-only commits do not fix a test failure. Require a changed
@@ -3005,6 +3023,8 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     if stock_title and 'linyuan/stock_upgrade_plan.py' not in changed:
         return False
     if native_interview and 'linyuan/produce_cn.py' not in changed:
+        return False
+    if restore_failure and 'linyuan/restore_production_evidence.py' not in changed:
         return False
     if not any((p.startswith('linyuan/') and '/fc/' not in p and p.endswith('.py'))
                or (p.startswith('tests/') and p.endswith('.py'))
@@ -3019,14 +3039,14 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
         candidate['recovered_render_failure']={
             'run_id':run['id'],'reason':native_crop_error,'ts':int(time.time())}
     candidate['preflight_failure_run_id'] = run['id']
-    candidate['failure_stage'] = 'native-interview' if native_interview else 'stock-title' if stock_title else 'workflow-preflight'
-    candidate['last_error'] = ('横屏原画已验收，旧代码强制放大远景人脸失败；保留原区间以原画恢复'
+    candidate['failure_stage'] = 'cache-recovery' if restore_failure else 'native-interview' if native_interview else 'stock-title' if stock_title else 'workflow-preflight'
+    candidate['last_error'] = ('旧取源失败记录不含ASR，缓存恢复已修复，复用本次已通过质检的完整母片' if restore_failure else '横屏原画已验收，旧代码强制放大远景人脸失败；保留原区间以原画恢复'
                                if native_interview else '旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做'
                                if stock_title else '旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复')
     candidate['source_check_retry_after'] = int(time.time()) - 1
     # A preflight-only run contains no ASR artifact. The normal mother-hash
     # cache restores earlier raw evidence; do not request this empty run's ZIP.
-    if stock_title or native_interview:
+    if stock_title or native_interview or restore_failure:
         candidate['source_check_run_id']=run['id']
     else:
         candidate.pop('source_check_run_id', None)

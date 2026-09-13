@@ -5,6 +5,11 @@ name: 标题观点 CPU 实测
       local_text_model:
         type: string
         default: 'qwen3:8b'
+      # TITLE_REUSE_BEGIN
+      resume_run_id:
+        type: string
+        default: ''
+      # TITLE_REUSE_END
   workflow_dispatch:
     inputs:
       local_text_model:
@@ -14,6 +19,7 @@ name: 标题观点 CPU 实测
         options: ['qwen3:8b', 'qwen3.5:9b', 'qwen3:4b']
 permissions:
   contents: read
+  actions: read # TITLE_REUSE_GUARD
 concurrency:
   group: title-claim-check-${{ inputs.local_text_model || 'qwen3:8b' }}
   cancel-in-progress: true
@@ -22,18 +28,36 @@ env:
   TEXT_BACKEND: local
   LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   CUDA_VISIBLE_DEVICES: ''
+  TITLE_RESUME_RUN_ID: ${{ inputs.resume_run_id || '' }} # TITLE_REUSE_GUARD
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
     - uses: actions/checkout@v4
+    # TITLE_REUSE_BEGIN
+    - name: 复用相同代码及规则的近期真实CPU验收
+      id: prior_check
+      continue-on-error: true
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: python linyuan/reuse_title_verification.py
+    - uses: actions/upload-artifact@v4
+      if: steps.prior_check.outputs.reused == 'true' || steps.prior_check.outputs.resumed == 'true'
+      with:
+        name: title-proof-reuse
+        path: title-proof-reuse.json
+        if-no-files-found: error
+    # TITLE_REUSE_END
     - uses: actions/setup-python@v5
+      if: steps.prior_check.outputs.reused != 'true' # TITLE_REUSE_GUARD
       with:
         python-version: '3.11'
     - name: 安装文案排版依赖
+      if: steps.prior_check.outputs.reused != 'true' # TITLE_REUSE_GUARD
       run: python -m pip install -q jieba pillow numpy
     - name: 缓存 CPU 本地文本模型
+      if: steps.prior_check.outputs.reused != 'true' # TITLE_REUSE_GUARD
       id: ollama-cache
       continue-on-error: true
       uses: actions/cache@v4
@@ -41,12 +65,14 @@ jobs:
         path: ~/.ollama/models
         key: ${{ env.RUN_TEXT_MODEL == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' || env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
     - name: 缓存已校验的 Ollama 安装包
+      if: steps.prior_check.outputs.reused != 'true' # TITLE_REUSE_GUARD
       uses: actions/cache@v4
       continue-on-error: true
       with:
         path: /tmp/ollama-runtime
         key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
     - name: 启动 CPU 本地文本模型（禁止云 API）
+      if: steps.prior_check.outputs.reused != 'true' # TITLE_REUSE_GUARD
       id: local_text
       env:
         OLLAMA_VERSION: v0.33.3
@@ -84,6 +110,7 @@ jobs:
           --data-binary @/tmp/ollama-warmup.json \
           | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
     - name: 用真实字幕验证完整标题生成与核对
+      if: steps.prior_check.outputs.reused != 'true' # TITLE_REUSE_GUARD
       run: |-
         python -u - <<'PYCODE'
         import json, re, sys, tempfile
@@ -91,6 +118,15 @@ jobs:
         sys.path.insert(0, 'linyuan')
         import produce_cn as p
         from title_rewrite import error
+        # TITLE_REUSE_BEGIN
+        import os
+        if os.environ.get('TITLE_VERIFICATION_RESUMED')=='true':
+            original_llm=p.llm
+            def resume_llm(*args,**kwargs):
+                kwargs['read_cache']=True
+                return original_llm(*args,**kwargs)
+            p.llm=resume_llm
+        # TITLE_REUSE_END
         results=[]; failures=[]
         for name in ('linyuan_0913_title.json','linyuan_0913_landscape_title.json'):
             fixture=json.loads((Path('tests/fixtures')/name).read_text())

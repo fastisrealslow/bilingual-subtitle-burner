@@ -162,3 +162,27 @@ def test_exact_native_run_does_not_reopen_other_quality_verdicts(monkeypatch,rea
     run['id']=34743799382
     assert not fc._recover_preflight_failure(state,entry,run,[])
     assert entry['failed'] and calls==[]
+
+
+def test_source_fetch_retry_survives_empty_old_cache_without_resetting_history(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch)
+    entry.update(reprocessing_quality=False,source_check_attempts=1)
+    def checked(method,path,*a,**kw):
+        if path.endswith('/jobs'):
+            return dict(jobs=[dict(steps=[dict(name='素材质量门禁',conclusion='success'),
+                dict(name='复用同源失败任务的已完成证据',conclusion='failure')])])
+        return dict(files=[dict(filename='linyuan/restore_production_evidence.py')])
+    monkeypatch.setattr(fc,'gh',checked)
+    assert fc._recover_preflight_failure(state,entry,run,[])
+    assert entry['source_check_run_id']==run['id'] and entry['source_check_attempts']==1
+    assert entry['failure_stage']=='cache-recovery' and not entry.get('failed')
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+
+
+def test_cache_recovery_does_not_retry_after_failed_source_gate(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch)
+    entry.update(reprocessing_quality=False,source_check_attempts=1)
+    monkeypatch.setattr(fc,'gh',lambda *a,**kw:dict(jobs=[dict(steps=[
+        dict(name='素材质量门禁',conclusion='failure'),
+        dict(name='复用同源失败任务的已完成证据',conclusion='failure')])]))
+    assert not fc._recover_preflight_failure(state,entry,run,[])

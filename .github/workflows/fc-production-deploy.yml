@@ -22,6 +22,9 @@ on:
       - tests/test_linyuan_required_live.py
       - linyuan/stage_context.py
       - linyuan/title_rewrite.py
+      - linyuan/reuse_title_verification.py
+      - tests/test_linyuan_title_proof_reuse.py
+      - tests/test_linyuan_daily_landscape.py
       - linyuan/stock_upgrade_plan.py
       - .github/workflows/linyuan-title-claim-check.yml
       - tests/fixtures/linyuan_0913_landscape_title.json
@@ -42,6 +45,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: fc-production-deploy
@@ -50,6 +54,8 @@ concurrency:
 jobs:
   editorial-check:
     uses: ./.github/workflows/linyuan-title-claim-check.yml
+    with:
+      resume_run_id: '34760249532'
   deploy:
     needs: editorial-check
     runs-on: ubuntu-latest
@@ -99,7 +105,7 @@ jobs:
       - name: 单片隔离与每日配额回归
         run: |
           pip install -q pytest jieba requests
-          python -m pytest -q tests/test_linyuan_state_merge.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py tests/test_linyuan_daily_landscape.py tests/test_linyuan_preflight_recovery.py tests/test_linyuan_archive_admission.py
+          python -m pytest -q tests/test_linyuan_state_merge.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_source_supply.py tests/test_linyuan_media_revision.py tests/test_linyuan_daily_landscape.py tests/test_linyuan_title_proof_reuse.py tests/test_linyuan_preflight_recovery.py tests/test_linyuan_archive_admission.py
           python -m pytest -q tests/test_linyuan_reviewed_updates.py tests/test_linyuan_reviewed_download.py tests/test_linyuan_stage_revision.py
           python -m pytest -q tests/test_linyuan_third_video.py tests/test_fc_deploy_code.py tests/test_linyuan_config_health.py tests/test_linyuan_subtitle_edit_delivery.py
           python -m pytest -q tests/test_linyuan_receipt_recovery.py tests/test_linyuan_required_live.py tests/test_linyuan_makeup_slot.py tests/test_linyuan_missed_slots.py tests/test_linyuan_title_claims.py tests/test_linyuan_title_revision.py
