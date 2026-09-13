@@ -8033,11 +8033,13 @@
    "last_retry": 1789279268,
    "reprocessing_quality": true,
    "quality_failure": "当前母片需重新执行逐字原文审核，复用实际CPU原始转写",
-   "preflight_failure_run_id": 34696316691,
-   "failure_stage": "workflow-preflight",
-   "last_error": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
+   "preflight_failure_run_id": 34741749753,
+   "failure_stage": "stock-title",
+   "last_error": "旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做",
    "source_check_attempts": 1,
-   "retries": 1
+   "retries": 1,
+   "source_check_retry_after": 1789282200,
+   "source_check_run_id": 34741749753
   },
   {
    "key": "bilibili_search:BV1Vt4y1q7fc",
@@ -8132,7 +8134,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "黑光圣徒",
-   "publish_time": "2026-09-12T11:36:41+00:00"
+   "publish_time": "2026-09-12T11:36:41+00:00",
+   "failed": true,
+   "last_error": "原始素材短边 394 < 480（394x854），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1WebnzQEAy",
@@ -29017,6 +29023,13 @@
    "video_id": "BV1WebnzQEAy",
    "ts": 1789281365,
    "error": "原始素材短边 438 < 480（438x854），画质不达标"
+  },
+  {
+   "slug": "ly-0913-0482f6",
+   "key": "bilibili_search:BV1c8YX6uEDG",
+   "video_id": "BV1c8YX6uEDG",
+   "ts": 1789282198,
+   "error": "原始素材短边 394 < 480（394x854），画质不达标"
   }
  ],
  "scheduled": [
