@@ -115,6 +115,19 @@ def test_mix_limit_and_used_parts_reduce_real_reserve():
     assert fc.source_inventory(state,p)['daily_mix_usable']==0
 
 
+def test_two_layouts_of_one_argument_cannot_inflate_ready_stock(monkeypatch):
+    state=dict(dispatched=[dict(slug=s,source_url='https://www.bilibili.com/video/BVsource')
+                           for s in ('portrait','wide')],published={})
+    records=[dict(slug=s,parts=[dict(index=0,status='verified',source_sha256='mother',
+        sha256=s,segments=[dict(start=0,end=130)],render_mode='live_video_card')]) for s in ('portrait','wide')]
+    assert source_supply.inventory_counts(records,state)['verified_live']==1
+    state['published']['other']=dict(source_url=state['dispatched'][0]['source_url'],parts=[
+        dict(bvid='BVposted',source_sha256='mother',source_segments=[dict(start=0,end=130)])])
+    assert source_supply.inventory_counts(records,state)['verified_live']==0
+    records[1]['parts'][0]['segments']=[dict(start=150,end=280)]
+    assert source_supply.inventory_counts(records,state)['verified_live']==1
+
+
 def test_last_audio_card_uses_today_live_receipts_without_inflating_reserve():
     today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
     state=dict(dispatched=[dict(slug='mother')],published={},

@@ -61,6 +61,13 @@ def test_title_timeout_does_not_start_three_immediate_full_transcript_requests()
     def unavailable(*args):
         calls.append(args)
         raise producer.LocalTextUnavailable('CPU timed out')
+    transcript=('您对医药股有什么判断？医药行业需求随着老龄化增长，我们长期持有这些企业。'
+                '但是投资仍然有风险，价格和需求都要看，不能只看过去。'
+                '企业产品有需求，投资才有长期增长的基础。')
+    result=title_rewrite.generate(transcript,structured_model=unavailable)
+    assert result['title_rewrite']['review']['method']=='source_quote'
+    assert len(calls)==1
+    calls.clear()
     with pytest.raises(producer.LocalTextUnavailable):
-        title_rewrite.generate('这个行业需求会增长，但是没有合适价格就不买。',structured_model=unavailable)
+        title_rewrite.generate('残句',structured_model=unavailable)
     assert len(calls)==1

@@ -2028,6 +2028,7 @@ def inventory_catchup_request(st, payload, now=None):
                 for part in record.get('parts', []):
                     if (part.get('status') != 'verified'
                             or int(part.get('index', -1)) in processed_part_indices(entry)
+                            or inventory_publication_error(part,entry,st)
                             or not content_fits_slot(part, entry, publication_slot_time(slot),fallback)
                             or daily_mix_error(part, st.get('daily_publish') or {})):
                         continue
@@ -2055,6 +2056,16 @@ def publish_catchup(event, context=None):
     return publish_handler({**event,**request,'force_publish':True},context)
 
 
+def inventory_publication_error(part,entry,state):
+    error=editorial.source_reuse_error(part,entry.get('source_url'),state)
+    if error:return error
+    fingerprints=part.get('fingerprints') or {'sha256':part.get('sha256')}
+    if find_content_duplicate(fingerprints,state):return '库存与已发布内容重复'
+    if find_recent_topic(part.get('title'),state,exclude_slug=entry.get('slug')):
+        return '库存主题仍在已发布主题冷却期'
+    return None
+
+
 def source_inventory(st, payload=None):
     """Count actual inspected MP4s separately from running workflow jobs."""
     if payload is None:
@@ -2068,6 +2079,7 @@ def source_inventory(st, payload=None):
     latest={e['slug']:e for e in _latest_dispatches(st)}
     due_times=[publication_slot_time(slot) for slot in due_publication_slots(st)]
     live=audio=landscape=slot_ready=0
+    seen_files=set();seen_sources={}
     if valid:
         for record in payload.get('artifacts',[]):
             slug=record.get('slug'); e=latest.get(slug)
@@ -2076,6 +2088,15 @@ def source_inventory(st, payload=None):
             for part in record.get('parts',[]):
                 if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
                 if e.get('weekly_full_week') and part.get('content_type') != 'full_interview':continue
+                if inventory_publication_error(part,e,st):continue
+                digest=part.get('sha256')
+                source=part.get('source_sha256') or editorial.source_key(e.get('source_url'))
+                spans=editorial.intervals(part.get('segments')) or []
+                if digest and digest in seen_files:continue
+                previous=seen_sources.get(source,[]) if source else []
+                if any(min(b,d)-max(a,c)>.3 for a,b in spans for c,d in previous):continue
+                if digest:seen_files.add(digest)
+                if source:seen_sources.setdefault(source,[]).extend(spans)
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
                 if is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1

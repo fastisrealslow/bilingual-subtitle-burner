@@ -102,24 +102,12 @@ def audit_materials(items):
 
 
 def inventory_counts(records, state):
-    latest={e['slug']:e for e in fc._latest_dispatches(state)}
-    live=audio=landscape=0
-    for record in records:
-        slug=record['slug']; entry=latest.get(slug,{})
-        if slug in fc.REVIEW_PAUSED_SLUGS or entry.get('failed'):
-            continue
-        completed=fc.processed_part_indices(entry)
-        for part in record.get('parts',[]):
-            if part.get('status')!='verified' or part['index'] in completed:
-                continue
-            if entry.get('weekly_full_week') and part.get('content_type') != 'full_interview':
-                continue
-            if part['render_mode']=='audio_card':audio+=1
-            else:live+=1
-            if fc.is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
-    return dict(verified_live=live,verified_audio_card=audio,verified_landscape=landscape,
-                landscape_target=fc.TARGET_LANDSCAPE_RESERVE,
-                daily_mix_usable=live, target_reserve=fc.TARGET_READY_RESERVE)
+    # Use exactly the publisher's current receipts, topic cooldowns and duplicate
+    # exclusions. Two layouts of the same speech are only one usable item.
+    stock=fc.source_inventory(state,dict(quality_gate_version=fc.QUALITY_GATE_VERSION,
+        editorial_policy_version=fc.editorial.VERSION,updated_at=time.time(),artifacts=records))
+    return {k:stock[k] for k in ('verified_live','verified_audio_card','verified_landscape',
+            'landscape_target','daily_mix_usable','target_reserve')}
 
 
 def main():
@@ -183,6 +171,7 @@ def main():
                         content_type=m.get('content_type'),resolution=m.get('resolution') or {},
                         source_sha256=m.get('source_sha256'),segments=m.get('segments'),
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
+                        fingerprints=m.get('fingerprints') or {},
                         subtitle_sha256=m.get('subtitle_text_sha256'),
                         motion=(m.get('final_live_identity') or {}).get('motion'),
                         status='rejected' if error else 'verified',reason=error))

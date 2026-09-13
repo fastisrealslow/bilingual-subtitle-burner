@@ -270,7 +270,12 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
             if getattr(exc,'retryable_service',False):
                 # A timed-out model is not editorial feedback. Do not enqueue
                 # three full-transcript requests behind the still-busy server.
-                raise
+                # Preserve the existing complete-source-quote fallback; it must
+                # pass its own evidence/readability checks before use.
+                try:
+                    return _extractive(transcript,speaker,existing_titles,preferred)
+                except ValueError:
+                    raise exc
             last_error = str(exc)
             print(f'[标题观点] 第{attempt + 1}次生成待修正：{last_error}', flush=True)
     return _extractive(transcript, speaker, existing_titles, preferred)
