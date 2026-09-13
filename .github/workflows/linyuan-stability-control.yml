@@ -46,7 +46,12 @@ jobs:
           duplicate=json.loads(gh('api',f'repos/{REPO}/actions/runs/34759757325'))
           assert duplicate['display_title']=='中文源出片 · ly-0913-f3a207'
           if duplicate['status']!='completed':
-              gh('run','cancel','34759757325','--repo',REPO)
+              jobs=json.loads(gh('api',f'repos/{REPO}/actions/runs/34759757325/jobs'))['jobs']
+              steps=[s['name'] for j in jobs for s in j.get('steps',[]) if s['status']=='in_progress']
+              if steps==['取源']:
+                  gh('run','cancel','34759757325','--repo',REPO)
+              else:
+                  print('原任务已离开取源阶段，保留其转写和出片，等待真实空位')
           def admit():
               active=[]
               for status in ('queued','in_progress'):
