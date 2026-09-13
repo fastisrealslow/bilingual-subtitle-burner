@@ -3,7 +3,7 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789328008,
+  "updated_at": 1789328436,
   "materials": {
     "weibo_search": {
       "records": 1184,
@@ -8122,9 +8122,9 @@
         "failures": [
           {
             "slug": "ly-0913-f3a207",
-            "stage": "cache-recovery",
-            "terminal": false,
-            "reason": "旧取源失败记录不含ASR，缓存恢复已修复，复用本次已通过质检的完整母片"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
           }
         ],
         "verified_available": 0,
@@ -8194,6 +8194,21 @@
             "reason": "单片超过1800秒生产预算，保留原始证据并隔离后继续后续片段"
           }
         ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p24",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=24",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-7cb34e"
+        ],
+        "source_sha256": [],
+        "failures": [],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -8830,8 +8845,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -8980,11 +8995,11 @@
         "terminal_quality-service": 15
       },
       "BV19P4y1m77K": {
-        "attempted_mothers": 29,
+        "attempted_mothers": 30,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 3,
-        "terminal_editorial-or-render": 9
+        "terminal_editorial-or-render": 10
       },
       "BV1jg1EBtEg1": {
         "attempted_mothers": 1,
@@ -9280,8 +9295,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
