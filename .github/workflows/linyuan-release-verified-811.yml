@@ -15,14 +15,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34763327956 || github.event.workflow_run.id == 34763958368)
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34763327956 || github.event.workflow_run.id == 34763958368 || github.event.workflow_run.id == 34764696210)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id == 34763958368 && '34763958368' || '34763327956' }}
-      VERIFIED_DEPLOY_HEAD: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id == 34763958368 && '0185b49f10aeafd9d75e2961ee84635f3e2a3e7a' || 'f58a085b7a7728447f892711aa8902a07baceecb' }}
+      VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '34763327956' }}
+
       SLUG: ly-0912-5dc339-stable-clean-proof-portrait
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,8 @@ jobs:
           python - <<'PY'
           import os,json,subprocess
           run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['VERIFIED_DEPLOY_RUN']]))
-          assert run['head_sha']==os.environ['VERIFIED_DEPLOY_HEAD']
+          expected={'34763327956':'f58a085b7a7728447f892711aa8902a07baceecb','34763958368':'0185b49f10aeafd9d75e2961ee84635f3e2a3e7a','34764696210':'276890d779a5836c68c197a1f05373fb9b316199'}
+          assert run['head_sha']==expected[os.environ['VERIFIED_DEPLOY_RUN']]
           ready=run['conclusion']=='success'
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('ready='+str(ready).lower()+'\n')
           print('指定修复已上线，继续核验实际成片' if ready else '指定修复尚未成功上线，保持待审，不投稿')
