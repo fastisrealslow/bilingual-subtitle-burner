@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34769234478 && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34769815061 && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -23,7 +23,7 @@ jobs:
       FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '34769234478' }}
+      VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '34769815061' }}
 
       SLUG: ly-0912-5dc339-stable-clean-proof-portrait
     steps:
@@ -36,7 +36,7 @@ jobs:
           python - <<'PY'
           import os,json,subprocess
           run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['VERIFIED_DEPLOY_RUN']]))
-          expected={'34769234478':'12ae5acda3d8c4da668dc0a0580cbdafd25fd96a'}
+          expected={'34769815061':'81bf9f19bbd12c61cc67e989c5a2f5bf02195fb1'}
           assert run['head_sha']==expected[os.environ['VERIFIED_DEPLOY_RUN']]
           ready=run['conclusion']=='success'
           assert ready,'指定部署没有成功完成，未投稿；不能将等待状态报告为发布成功'
