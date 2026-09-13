@@ -5,24 +5,52 @@ on:
     paths: [.github/workflows/linyuan-retire-stale-deploy.yml]
 permissions:
   actions: write
-  contents: read
+  contents: write
 jobs:
   retire:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     env:
       GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
-      - name: 核对旧版本后取消唯一指定旧任务
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 暂停选段参数丢失导致的重复任务，保留待上线的811成片
         run: |
-          python - <<'PY'
-          import json,os,subprocess
-          repo=os.environ['GITHUB_REPOSITORY']
-          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34762661471']))
-          assert old['head_sha']=='d8739c581b433154afc5d7519fc78ff9410973b7' and old['path']=='.github/workflows/fc-production-deploy.yml'
-          new=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34763327956']))
-          assert new['head_sha']=='f58a085b7a7728447f892711aa8902a07baceecb'
-          if old['status']!='completed':
-              subprocess.run(['gh','run','cancel',str(old['id']),'--repo',repo],check=True)
-          print('旧版本已结束或已请求取消；新修复保持完整校验')
+          python -u - <<'PY'
+          import sys,json,time,subprocess,base64
+          sys.path.insert(0,'linyuan')
+          from register_selection_recovery import read_state,gh,REPO,PATH
+          from fc import index as fc
+          run=json.loads(gh('api',f'repos/{REPO}/actions/runs/34765496673'))
+          assert run['head_sha']=='f2ffb2f7650eed427171484095d463b5d7a78ac0'
+          assert run['display_title']=='中文源出片 · ly-0912-5dc339-reserve-13-portrait'
+          def freeze():
+              for attempt in range(6):
+                  doc,st=read_state()
+                  rows=[e for e in st['dispatched'] if e['slug']=='ly-0912-5dc339-reserve-13-portrait']
+                  assert len(rows)==1
+                  e=rows[0]
+                  assert e['source_url']=='https://www.bilibili.com/video/BV1hj411X7BL'
+                  assert e.get('quality_reprocess_artifact_id')==10320556114
+                  e.update(failed=True,review_hold=True,failure_stage='duplicate-selection',
+                           last_error='选段参数丢失导致重复生成811已有第2、4段；只保留811发布及独立第3段修复',
+                           selected_parts='1,3')
+                  body=dict(message='ops: stop exact duplicate selection retry without touching verified 811 clips',
+                      sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(st,ensure_ascii=False,separators=(',',':')).encode()).decode())
+                  try:
+                      gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)
+                      return dict(held=e['slug'])
+                  except subprocess.CalledProcessError:
+                      if attempt==5:raise
+                      time.sleep(2)
+          for _ in range(20):
+              result=fc.run_with_lease('dispatch',freeze)
+              if result.get('held'):break
+              time.sleep(5)
+          else:raise RuntimeError('未取得状态锁，未取消任何任务')
+          if run['status']!='completed':gh('run','cancel','34765496673','--repo',REPO)
+          print(json.dumps(result,ensure_ascii=False))
           PY
