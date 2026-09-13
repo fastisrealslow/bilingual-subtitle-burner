@@ -3,25 +3,64 @@ on:
   push:
     branches: [main]
     paths: [.github/workflows/linyuan-stability-control.yml]
+  workflow_run:
+    workflows: ['林园806断点择优下载实测']
+    types: [completed]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   actions: write
+concurrency:
+  group: linyuan-reserve-13-recovery
+  cancel-in-progress: false
 jobs:
   switch:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.id == 34760310632
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 12
     env:
       GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
-      - name: 读取153标题实际模型回答
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 完整母片验证后释放重复下载任务并补竖屏储备
         run: |
-          gh run download 34759050925 --repo "$GITHUB_REPOSITORY" --name title-claim-verification --dir /tmp/evidence
-          python - <<'PY'
-          from pathlib import Path
-          import json
-          for p in sorted(Path('/tmp/evidence').rglob('*.json')):
-              if p.name=='title-claim-verification.json':continue
-              data=json.loads(p.read_text())
-              print('MODEL_RESPONSE',json.dumps(data,ensure_ascii=False))
+          python -u - <<'PY'
+          import sys,json,time,subprocess
+          sys.path.insert(0,'linyuan')
+          from register_selection_recovery import read_state,gh,REPO
+          from fc import index as fc
+          completed=json.loads(gh('api',f'repos/{REPO}/actions/runs/34760310632'))
+          if completed['conclusion']!='success':
+              print('完整693MB母片尚未核验成功，保持原生产任务，不重复调度')
+              raise SystemExit(0)
+          artifacts=json.loads(gh('api',f'repos/{REPO}/actions/runs/34760310632/artifacts'))['artifacts']
+          assert any(a['name']=='mother-media-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b' and not a['expired'] for a in artifacts)
+          slug='ly-0912-5dc339-reserve-13-portrait'
+          _,st=read_state()
+          if any(e.get('slug')==slug for e in st['dispatched']):
+              print('该竖屏储备任务已登记，不重复调度')
+              raise SystemExit(0)
+          duplicate=json.loads(gh('api',f'repos/{REPO}/actions/runs/34759757325'))
+          assert duplicate['display_title']=='中文源出片 · ly-0913-f3a207'
+          if duplicate['status']!='completed':
+              gh('run','cancel','34759757325','--repo',REPO)
+          def admit():
+              active=[]
+              for status in ('queued','in_progress'):
+                  active.extend(json.loads(gh('api',f'repos/{REPO}/actions/workflows/linyuan-produce-cn.yml/runs?status={status}&per_page=100'))['workflow_runs'])
+              if len(active)>=6:return dict(waiting_for_source_slot=True)
+              subprocess.run([sys.executable,'linyuan/register_selection_recovery.py',
+                  '--origin-slug','ly-0912-5dc339','--expected-source','https://www.bilibili.com/video/BV1hj411X7BL',
+                  '--suffix','reserve-13-portrait','--output-layout','portrait',
+                  '--evidence-run','34755308322','--selected-parts','1,3'],check=True)
+              return dict(dispatched=slug,active_before=len(active))
+          for _ in range(32):
+              result=fc.run_with_lease('dispatch',admit)
+              if result.get('dispatched'):
+                  print(json.dumps(result,ensure_ascii=False));break
+              time.sleep(15)
+          else:raise RuntimeError('没有空余生产名额，保持现有队列，不超额调度')
           PY
