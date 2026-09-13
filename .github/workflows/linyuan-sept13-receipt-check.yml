@@ -1,0 +1,34 @@
+name: 林园9月13日补发回执核验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-sept13-receipt-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 只读核对横屏稿件的公开状态
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/bili_archive_status.py --bvid BV1t3Yq6KEyo --out sept13-landscape-receipt.json
+      - name: 确认稿件已经公开
+        run: |
+          python - <<'PY'
+          import json
+          report=json.load(open('sept13-landscape-receipt.json'))
+          assert report.get('public_count') == 1, 'Upload receipt exists but public visibility is not yet confirmed; do not reupload'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sept13-landscape-receipt
+          path: sept13-landscape-receipt.json
+          if-no-files-found: error
