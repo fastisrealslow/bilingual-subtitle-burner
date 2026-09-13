@@ -116,6 +116,16 @@ def test_stock_title_recovery_rejects_unrelated_code_changes(monkeypatch):
     assert not fc._recover_preflight_failure(state,entry,run,[])
 
 
+def test_exact_native_interview_bug_gets_one_repair_without_resetting_retry_history(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/produce_cn.py',failed_step='出片')
+    entry.update(slug='ly-0910-interview-clean-v4-wide0911v2',source_check_attempts=2)
+    run['id']=34743799382
+    assert fc._recover_preflight_failure(state,entry,run,[])
+    assert entry['failure_stage']=='native-interview' and entry['source_check_attempts']==2
+    assert entry['source_check_run_id']==34743799382
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+
+
 def test_running_same_slug_is_never_redispatched_or_deleted(monkeypatch):
     calls=[]
     def gh(method,path,*args,**kwargs):

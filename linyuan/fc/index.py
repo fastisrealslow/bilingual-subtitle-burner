@@ -2774,11 +2774,16 @@ def _collect_source_rejections(st):
 
 def _recover_preflight_failure(st, candidate, run, artifacts):
     """Resume preflight failures, plus the two inspected obsolete-title failures."""
+    # Exact inspected failure: native 1838x864 cleaning passed, but the old
+    # question branch forced a 272x202 face crop. One repair after routing to
+    # verified native video; preserve the historical retry counters.
+    native_interview=bool(candidate and candidate.get('slug')=='ly-0910-interview-clean-v4-wide0911v2'
+                          and run.get('id')==34743799382)
     if (not candidate or not candidate.get('reprocessing_quality')
             or candidate.get('failed') or not _has_unpublished_part(candidate, st)
             or run.get('conclusion') != 'failure'
             or candidate.get('preflight_failure_run_id') == run.get('id')
-            or int(candidate.get('source_check_attempts') or 0) >= 2):
+            or (int(candidate.get('source_check_attempts') or 0) >= 2 and not native_interview)):
         return False
     created = str(run.get('created_at') or '')
     # FC records dispatch a few seconds after GitHub accepts it. Older failures
@@ -2798,7 +2803,7 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     # do not infer that any other rendering failure has the same safe cause.
     stock_title=(candidate.get('slug')=='ly-0910-interview-clean-v4-wide0911v2'
                  and run.get('id') in {34735812094,34741749753})
-    expected_step='出片' if stock_title else gate
+    expected_step='出片' if stock_title or native_interview else gate
     if not failed or any(s.get('name') != expected_step for s in failed):
         return False
     # State/log-only commits do not fix a test failure. Require a changed
@@ -2807,18 +2812,21 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     changed = [f.get('filename', '') for f in changes]
     if stock_title and 'linyuan/stock_upgrade_plan.py' not in changed:
         return False
+    if native_interview and 'linyuan/produce_cn.py' not in changed:
+        return False
     if not any((p.startswith('linyuan/') and '/fc/' not in p and p.endswith('.py'))
                or (p.startswith('tests/') and p.endswith('.py'))
                or p == '.github/workflows/linyuan-produce-cn.yml' for p in changed):
         return False
     candidate['preflight_failure_run_id'] = run['id']
-    candidate['failure_stage'] = 'stock-title' if stock_title else 'workflow-preflight'
-    candidate['last_error'] = ('旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做'
+    candidate['failure_stage'] = 'native-interview' if native_interview else 'stock-title' if stock_title else 'workflow-preflight'
+    candidate['last_error'] = ('横屏原画已验收，旧代码强制放大远景人脸失败；保留原区间以原画恢复'
+                               if native_interview else '旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做'
                                if stock_title else '旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复')
     candidate['source_check_retry_after'] = int(time.time()) - 1
     # A preflight-only run contains no ASR artifact. The normal mother-hash
     # cache restores earlier raw evidence; do not request this empty run's ZIP.
-    if stock_title:
+    if stock_title or native_interview:
         candidate['source_check_run_id']=run['id']
     else:
         candidate.pop('source_check_run_id', None)

@@ -15,6 +15,31 @@ import monitor_v2 as M  # noqa: E402
 import produce_cn as P  # noqa: E402
 
 
+def test_clean_native_interview_does_not_enlarge_a_distant_face(tmp_path,monkeypatch):
+    import stage_context,source_geometry
+    monkeypatch.setattr(P,'argument_record_for_render',lambda *a:{})
+    monkeypatch.setattr(P,'copywrite',lambda *a,**k:{})
+    monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:tmp_path/'reference.jpg')
+    monkeypatch.setattr(P,'_local_face_models',lambda:('detector','recognizer'))
+    monkeypatch.setattr(stage_context,'plan',lambda *a:None)
+    (tmp_path/'identity_1.jpg').write_bytes(b'previously verified host frame')
+    native=dict(clean_strategy='crop',clean_video_filter='crop=1838:864:0:0',
+                clean_output_resolution=dict(width=1838,height=864))
+    monkeypatch.setattr(P,'selected_native_clean_plan',lambda *a:native)
+    class NativeReached(Exception):pass
+    def native_geometry(src,vf,w,h,*a,**k):
+        assert (vf,w,h)==('crop=1838:864:0:0',1838,864)
+        raise NativeReached
+    monkeypatch.setattr(source_geometry,'refine_native_crop',native_geometry)
+    monkeypatch.setattr(P,'audio_card_live_crop',lambda *a:pytest.fail('Native source must not become a close-up'))
+    with pytest.raises(NativeReached):
+        P._produce_one(tmp_path/'source.mp4',tmp_path,tmp_path,
+            [dict(start=329.4,end=456.6,text='林总，能不能谈谈您怎么看这个问题？')],
+            '林园','访谈','',False,1920,1080,'',
+            source_report=dict(clean_strategy='audio_card',visual_identity=dict(different_person_frames=[1])),
+            preselected_picks=[dict(start=0,end=0)],require_live_video=True)
+
+
 def test_selected_preview_uses_selected_interval_not_whole_mother(tmp_path,monkeypatch):
     calls=[]
     monkeypatch.setattr(P.subprocess,'run',lambda cmd,**kwargs:calls.append(cmd))

@@ -35,7 +35,7 @@ def test_three_angles_then_independent_review_choose_central_claim_and_cover(mon
     calls=[]
     result=T.generate(TEXT,model=model(calls))
     assert result['title']==TITLE and len(calls)==2
-    assert TEXT in calls[0] and TEXT in calls[1]
+    assert all(unit in calls[0] for unit in T.source_units(TEXT)) and TEXT in calls[1]
     assert len(result['title_candidates'])==3
     assert result['cover_title']=='龙头未定，如何布局'
     assert not T.error(result['title'],result['title_rewrite'],TEXT)
@@ -142,9 +142,8 @@ def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name
     for subject, ids in catalog.items():
         assert ids and all(subject in units[i] for i in ids)
     proposal=T.proposal_schema(len(units),catalog)['properties']
-    assert set(proposal['focus']['properties']['subject']['enum'])==set(catalog)
-    schema=proposal['candidates']['items']['properties']
-    assert schema['title']['minLength']>=12 and schema['cover_title']['minLength']>=8
+    assert 'evidence_ids' in proposal['focus']['properties']
+    assert 'subject' not in proposal['candidates']['items']['properties']
     assert '未出龙头公司' not in catalog and '医药消费赛道' not in catalog
 
 
@@ -152,3 +151,12 @@ def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     item=proposals()[0]
     item['title']='林园：龙头还没形成，布局整个行业更安全'
     assert T._candidate_error(item,TEXT,'林园',())=='标题新增了原文没有的安全性或收益比较结论'
+
+
+def test_different_title_angles_use_exact_shared_anchors_without_invented_compounds():
+    units=T.source_units(TEXT);catalog=T.subject_catalog(units)
+    bound=T.bind_candidate(dict(title='林园：为什么先买整个行业，再控制每个标的比例？',
+        cover_title='整个行业，怎么配置'),dict(evidence_ids=list(range(len(units)))),units,catalog)
+    assert bound['subject'] in bound['title']
+    assert any(bound['subject'] in q for q in bound['evidence'])
+    assert not T._candidate_error(bound,TEXT,'林园',())

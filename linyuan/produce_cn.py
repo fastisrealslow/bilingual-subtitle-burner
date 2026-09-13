@@ -2658,9 +2658,10 @@ def detect_external_logos_after_render(final, strategy, width, height):
     """复检真实原画；音频卡是自有模板，不把模板文字当第三方角标。"""
     if strategy == "audio_card":
         return []
-    remaining = detect_corner_logos(final, frames=6, strict=True)
-    return [box for box in remaining
-            if not _inside_brand_watermark_region(box, width, height)]
+    directory=Path(final).parent/'_tmp'/('native-corners-'+Path(final).stem)
+    directory.mkdir(parents=True,exist_ok=True)
+    frames,_=_sample_visual_frames(final,directory,count=6)
+    return detect_corner_logos_in_images(frames,max_area=.04)
 
 
 def reviewed_source_live_crop(source_report, width, height):
@@ -3741,6 +3742,7 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
                 normalized=re.sub(r'\W+','',text).casefold()
                 evidence.append(dict(frame=frame_no,text=text,confidence=float(confidence),rect=rect))
                 if not normalized or float(confidence)<.75:continue
+                if normalized=='园来滚雪球' and _inside_brand_watermark_region(rect,W,H):continue
                 x0,y0,x1,y1=rect
                 if (x1-x0)*(y1-y0)>max_area:continue
                 if not ((x1<.35 or x0>.65) and (y1<.30 or y0>.70)):continue
@@ -4622,16 +4624,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'])
         if native_plan:
-            from source_selection import sentence_units,QUESTION
-            units=sentence_units(cues[picks[0]['start']:picks[0]['end']+1])
-            others=(source_report.get('visual_identity') or {}).get('different_person_frames') or []
-            reference=work/f'identity_{others[0]}.jpg' if len(others)==1 else None
-            if units and QUESTION.search(units[0]['text']) and reference and reference.is_file():
-                interview_plan=native_plan;participant_reference=reference
-                print('[访谈适配] 分别核验嘉宾与提问者；插图按原始时间保留，不用静态头像覆盖',flush=True)
-            else:
-                source_report={**source_report,**native_plan}
-                strategy=source_report['clean_strategy']
+            # A host's opening question is not a reason to discard an already
+            # verified native crop. Preserve both participants and the original
+            # cuts instead of enlarging a distant face beyond the 2x limit.
+            source_report={**source_report,**native_plan}
+            strategy=source_report['clean_strategy']
+            print('[访谈适配] 原画清理通过，保留横屏人物、切镜与插图，不强制放大单人窗口',flush=True)
     clean_vf = source_report.get("clean_video_filter") or f"crop={W//2*2}:{H//2*2}:0:0"
     clean_resolution = source_report.get("clean_output_resolution") or {}
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
@@ -4816,6 +4814,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     else:
         external_logos = detect_external_logos_after_render(
             final, strategy, final_w, final_h)
+        if strategy!='audio_card' and not external_logos:
+            live_checks['corner_review']=dict(version=2026091301,passed=True,sampled_frames=6,
+                media_sha256=_file_sha256(final),policy='platform_or_persistent_text')
     if external_logos:
         raise VisualQualityError(f"成片清理后仍检出外部角标：{external_logos}")
     transcript_text = "".join(cues[i]["text"] for i in sel)

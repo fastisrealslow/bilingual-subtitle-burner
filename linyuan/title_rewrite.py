@@ -60,12 +60,13 @@ def subject_catalog(units):
 
 def proposal_schema(unit_count, subjects=None):
     # Evidence comes first in the decoding grammar, before any proposed wording.
-    fields = {'subject':dict(type='string', **({'enum':list(subjects)} if subjects else {}))}
+    fields = {}
     fields['evidence_ids'] = dict(type='array', minItems=1, maxItems=4, uniqueItems=True,
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
-    fields['claim'] = dict(type='string', minLength=22, maxLength=160)
-    copies=dict(title=dict(type='string',minLength=22,maxLength=68),
-                cover_title=dict(type='string',minLength=10,maxLength=22))
+    fields['claim'] = dict(type='string')
+    # The local grammar padded minimum-length strings with spaces/newlines.
+    # Check meaningful characters in Python and feed back the exact problem.
+    copies=dict(title=dict(type='string'),cover_title=dict(type='string'))
     return dict(type='object', additionalProperties=False, required=['focus','candidates'], properties={
         'focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
         'candidates':dict(type='array', minItems=3, maxItems=3,
@@ -92,6 +93,17 @@ def bind_evidence(item, units):
     if 'evidence' in item:
         raise ValueError('证据必须从编号取回，不能由模型另写原文')
     return {**item, 'evidence':[units[i] for i in sorted(ids)]}
+
+
+def bind_candidate(item, focus, units, subjects):
+    title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
+    cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
+    bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units)
+    # Derive the exact shared anchor instead of asking the model to perform
+    # literal string matching. The full claim still needs independent review.
+    anchors=[word for word in subjects if word in title and any(word in q for q in bound['evidence'])]
+    bound['subject']=max(anchors,key=len) if anchors else ''
+    return bound
 
 
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
@@ -180,27 +192,16 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
-    prompt = f'''你是视频标题编辑。读完真实字幕，先找这段最主要的一个观点和它的理由。
-不要按出现的关键词凑标题，不要照抄口头残句；不要把主持人的追问当成嘉宾断言。
-为同一个中心观点写3个不同角度的标题：具体判断、原文支持的反常识选择、视频确实回答的问题。
-不必硬造冲突或数字。允许自然改写和设问；保留否定、条件、可能性，不写保证收益。
-不能把控制仓位、提前布局等行为推断成“更安全”“风险更低”“更赚钱”；原文没说就不能加。
-每条以“{speaker}：”开头，正文18~36字。封面8~18字，两行能完整读完，表达同一个看点；封面不加姓名前缀。
-拒绝“谈A、B与C”“关于某某的公开讨论”“投资逻辑解析”等目录式标题。
-先填写focus：从对象表选一个subject原词，用evidence_ids选1~4组证据，在claim写清嘉宾的具体判断、做法及限定条件。
-然后围绕这同一个判断写三个不同角度的标题，三条都使用focus的对象和证据，不能各挑不同话题。
-程序会取回真实证据原句，不要重新抄写或改写证据。claim是写作草稿，不能代替真实字幕。
-subject必须逐字出现在标题与至少一组所选证据中，不能自行组合成新词；这只是证据索引，不是标题模板。
-用日常说话表达看点，不写“潜力池”“收益逻辑”“策略解析”等空话。
-标题要让没看过采访的人一遍看懂。用具体的选择、疑问或判断吸引观众，不堆“赛道、控比例、潜力”等词。
-主体关系不能写反：是行业尚未出现龙头，不是“一家公司未出龙头”；原文说“不如预期但没那么坏”，不能升级成“稳健复苏”。
-文风示例（不可套用事实）：原文说“利润涨了但货款收不回，暂时不买”，可写“利润在增长，为什么还要先看回款？”，不能写“回款利润投资逻辑”。
-封面必须有8~18个汉字，不能只有一个短词。
-旧标题仅供识别问题，不是已验收结论：{preferred or '无'}
-只输出符合给定结构的JSON，必须填满3条真实候选，不能返回空字符串。
-对象表（原词：它出现的证据编号）：{json.dumps(subjects, ensure_ascii=False)}
-真实字幕：\n{transcript}
-证据编号（每组均为未改写的原文）：\n{json.dumps(dict(enumerate(units)), ensure_ascii=False)}'''
+    prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
+先读完全部字幕，在focus.claim用一句完整的话写出嘉宾的核心判断、做法及限定条件，
+用focus.evidence_ids选1~4组支撑它的原文编号。不要把主持人的猜测或一处举例当成中心观点。
+再为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
+每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
+用日常说话的完整句子。禁止“谈A、B与C”等关键词目录，禁止术语堆砌、换行、空格和无意义尾巴凑字数。
+例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”
+这个例子只说明文风，不能套用它的事实。不得夸大收益、安全性、因果或删掉否定和不确定性。
+只输出JSON。下面是按原顺序编号的完整字幕，未删改：
+{json.dumps(dict(enumerate(units)), ensure_ascii=False)}'''
     last_error = ''
     for attempt in range(3):
         try:
@@ -214,10 +215,7 @@ subject必须逐字出现在标题与至少一组所选证据中，不能自行�
                 focus=proposal.get('focus') or {}
                 if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
                     raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
-                if focus.get('subject') not in subjects:
-                    raise ValueError('中心对象必须从原词表选取')
-                candidates = [bind_evidence(dict(title=c.get('title'),cover_title=c.get('cover_title'),
-                    subject=focus['subject'],evidence_ids=focus.get('evidence_ids')),units) for c in candidates]
+                candidates = [bind_candidate(c,focus,units,subjects) for c in candidates]
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             valid = [c for c, issue in zip(candidates, errors) if not issue]
@@ -240,7 +238,7 @@ cover_consistent封面和标题同一观点且没有更强断言；readable自�
 appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
 返回JSON：{{"reviews":[{{"reason":"指出原文依据或新增判断，至少12字","index":0,"source_supported":true,"central_point":true,
 "attribution_correct":true,"preserves_qualifiers":true,"cover_consistent":true,"readable":true,"appeal":4}}]}}
-候选：{json.dumps(valid, ensure_ascii=False)}\n完整字幕：{transcript}'''
+候选：{json.dumps([dict(title=c['title'],cover_title=c['cover_title']) for c in valid], ensure_ascii=False)}\n完整字幕：{transcript}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
             accepted = []
             for row in reviews:
