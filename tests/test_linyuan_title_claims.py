@@ -155,7 +155,7 @@ def test_guest_evidence_grammar_never_offers_known_invalid_short_asr_fragments()
 def test_actual_host_premises_and_closing_summaries_cannot_supply_guest_evidence():
     root=Path(__file__).parent/'fixtures'
     for filename,forbidden,retained in [
-            ('linyuan_0913_title.json',set(range(33,46)),{19,20}),
+            ('linyuan_0913_title.json',set(range(33,46))|{5,6,7,14,15,16,23,24,25,26,27},{19,20}),
             ('linyuan_0913_landscape_title.json',{19,20,21,22,23,24,25,26,50,51},{8,14,28,31,46,48})]:
         cues=[c['text'] for c in json.loads((root/filename).read_text())['cues']]
         ids=set(T.guest_evidence_ids(cues,['guest']*len(cues)))

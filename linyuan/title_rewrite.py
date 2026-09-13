@@ -77,7 +77,7 @@ def proposal_schema(unit_count, subjects=None, guest_ids=None):
         items=dict(type='integer', minimum=0, maximum=max(0, unit_count - 1)))
     # The local grammar padded minimum-length strings with spaces/newlines.
     # Check meaningful characters in Python and feed back the exact problem.
-    copies=dict(title=dict(type='string'),cover_title=dict(type='string'))
+    copies=dict(title=dict(type='string'),cover_title=dict(type='string',maxLength=18))
     schema=dict(type='object', additionalProperties=False, required=['a_reading','b_focus','c_candidates'], properties={
         'a_reading':dict(type='object',additionalProperties=False,required=list(reading),properties=reading),
         'b_focus':dict(type='object',additionalProperties=False,required=list(fields),properties=fields),
@@ -135,7 +135,8 @@ def guest_evidence_ids(units, roles):
 
 def explicit_host_cues(units):
     """Exclude explicit questions/summaries; this never certifies a guest cue."""
-    markers=re.compile(r'您(?:觉得|认为|怎么看)|(?:林总|林园总|林远总).*(?:理解|请问|如何|怎么看)'
+    markers=re.compile(r'(?:您|你)(?:觉得|认为|怎么看|看好哪个)|你们.*(?:可能|会|如何|怎么)'
+        r'|我可以这么理解|(?:林总|林园总|林远总).*(?:理解|请问|如何|怎么看)'
         r'|您的(?:过往|观点|意思)|我(?:也|大概|简单|来|再|先|这么|那我)*(?:听懂|听明白|理解|总结)'
         r'|这样理解|(?:接着|再).*问|话题.*告一段')
     blocked=set();host=False
@@ -291,7 +292,10 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
+    host_ids=sorted(explicit_host_cues(units))
     reader_prompt=f'''只做访谈原文阅读，不拟标题，不比较吸引力。主讲嘉宾是{speaker}。
+根据明确的第二人称提问、主持人复述及紧接的问句上下文，以下编号不能归为嘉宾回答：{host_ids}。
+这些只是排除项；其余编号的说话人仍须通读全文判断，不能自动视为嘉宾。
 先通读全部字幕，找主持人的完整问题和嘉宾实际回复。主持人提问前的背景、假设、举例仍属于主持人；嘉宾短答不等于确认问题全部前提。
 同一人的连续讲话是一个轮次，不能因为换了一条字幕或出现问号就换说话人。字幕标点可能不准，必须连贯理解上下文。
 先在a_guest_answer用最多三句概括嘉宾明确回答的主要判断及限定条件，不抄整篇字幕，不混入主持人的总结。
@@ -387,7 +391,8 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
 再b_verdict（index、source_supported、central_point、attribution_correct、preserves_qualifiers、cover_consistent、readable、appeal）。
 待独立核对的标题和封面：{json.dumps([dict(title=c['title'],cover_title=c['cover_title']) for c in valid], ensure_ascii=False)}
 原文编号只帮助定位，依据中也可能含主持人的问题，必须与上下文分清说话人。若嘉宾确实说出了某个判断，不能仅因主持人也提到它就判归属错误。
-下方只有完整原始字幕，不提供上游的说话人标签或所选证据，以免沿用上游的误判。必须从前后问答独立判断谁说了什么。
+不提供上游模型的说话人标签或所选证据，必须从前后问答独立判断谁说了什么。
+只提供由明确提问/复述句式得到的排除编号：{host_ids}。这些句子及延续的问题不能当成嘉宾原话；其他句子仍须独立判断。
 只用guest真正说出的内容支撑标题事实；host只提供问题背景，不能把未被回答确认的假设写进标题。
 完整字幕：{dialogue_context}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])

@@ -58,6 +58,13 @@ def test_real_162_host_stickiness_claim_cannot_pass_as_guest_evidence():
     with pytest.raises(ValueError,match='host/unknown'):reuse.validate_guest_fixture(row,ROOT)
 
 
+def test_real_163_trend_adjustment_question_cannot_supply_guest_evidence():
+    row=fixture_rows()[0]
+    cues=json.loads((ROOT/'tests/fixtures'/row['fixture']).read_text())['cues']
+    row['title_rewrite']['evidence']=[cues[14]['text'],cues[15]['text']]
+    with pytest.raises(ValueError,match='host/unknown'):reuse.validate_guest_fixture(row,ROOT)
+
+
 def test_workflow_wrapper_never_erases_changed_cpu_test_rules():
     original='jobs:\n  check:\n    run: assert source_matches\n'
     wrapped='actions: read # TITLE_REUSE_GUARD\n# TITLE_REUSE_BEGIN\ncache_wrapper\n# TITLE_REUSE_END\n'+original
