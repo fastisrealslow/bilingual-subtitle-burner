@@ -1,0 +1,38 @@
+name: 林园每日四条实际发布验收
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-daily-publication-audit.yml, linyuan/daily_publication_audit.py]
+  schedule:
+    - cron: '20 2,6,8,13 * * *'
+    - cron: '50 15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-daily-publication-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 核对实际日期、独立文件、稿件回执与公开状态
+        run: python linyuan/daily_publication_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-publication-audit
+          path: daily-publication-audit.json
+          if-no-files-found: error
+          retention-days: 30
