@@ -25,6 +25,21 @@ def restore(evidence, work, *, titles_only=False):
     copied=[]
     from mother_asr_cache import transfer
     restored_asr=transfer(evidence,work,current['source_sha256']) if not titles_only else False
+    if not titles_only and not restored_asr:
+        # Keep unfinished hypotheses separate from accepted ASR evidence. The
+        # CPU worker checks audio SHA, model/config and each core before reuse;
+        # the existing full-coverage validator still gates completed subtitles.
+        partial=evidence/'qwen_cpu'
+        if (partial/'recognition.json').is_file():
+            report=json.loads((partial/'recognition.json').read_text())
+            if report.get('source_video_sha256')!=current['source_sha256']:
+                raise ValueError('分段转写断点与本次母片哈希不一致')
+            target=work/'_partial_qwen_cpu'
+            if target.exists():shutil.rmtree(target)
+            target.mkdir(parents=True)
+            for name in ('recognition.json','aligned.json'):
+                if (partial/name).is_file():shutil.copy2(partial/name,target/name)
+            print('恢复未完成的转写断点；完整音频覆盖检查通过前不作为字幕或合格成片')
     # Never restore source/identity approvals, final outputs or delivery metadata.
     # Every cache below is revalidated by the existing production functions.
     for pattern in (('copywrite*.json',) if titles_only else ('highlights*.json','copywrite*.json')):
