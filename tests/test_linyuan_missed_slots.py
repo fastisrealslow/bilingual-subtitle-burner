@@ -97,3 +97,20 @@ def test_no_automatic_debts_from_past_days_or_future_slots(monkeypatch):
     request = dict(batch_slug='ready', artifact_id=123, batch_remaining=1, expected_sha256='a'*64)
     for slot in ('2026-09-12 14', '2026-09-13 15', '2026-09-13 14', 'invalid'):
         assert fc.makeup_request_error({**request, 'makeup_slot': slot}, state)
+
+
+def test_sunday_fourth_slot_prefers_full_but_can_use_verified_portrait(monkeypatch):
+    now=TEN+11*3600
+    state,payload=reserve(monkeypatch,now,landscape=False)
+    state['daily_publish'].update(count=3,published_hours=[10,14,16])
+    request=fc.inventory_catchup_request(state,payload)
+    assert request['makeup_slot']=='2026-09-13 21' and request['weekly_full_fallback']
+    assert fc.source_inventory(state,payload)['publishable_now']==1
+    full=dict(slug='full',weekly_full_week='2026-W37',source_url='full-source')
+    state['dispatched'].append(full)
+    payload['artifacts'].append(dict(slug='full',artifact_id=456,parts=[dict(index=0,
+        status='verified',sha256='b'*64,title='完整版',render_mode='crop',content_type='full_interview')]))
+    request=fc.inventory_catchup_request(state,payload)
+    assert request['batch_slug']=='full' and not request.get('weekly_full_fallback')
+    fc.record_publication_slot(state,dict(status='published',bvid='BVfull'),now,request['makeup_slot'])
+    assert fc.inventory_catchup_request(state,payload) is None

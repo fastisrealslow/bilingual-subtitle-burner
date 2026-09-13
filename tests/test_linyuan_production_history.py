@@ -45,3 +45,22 @@ def test_source_rejection_is_not_relabelled_as_runtime_failure(tmp_path):
     path=tmp_path/'batch_report.json'
     assert not failure.report_missing(path,{'source_gate':{'outcome':'failure'}},'mother')
     assert not path.exists()
+
+
+def test_full_interview_cpu_prefill_is_not_capped_at_short_title_budget(monkeypatch):
+    monkeypatch.setattr(producer,'TEXT_BACKEND','local')
+    # Run 794 made three identical 240-second failures on 11,385 source chars.
+    assert producer.title_inference_budget('文'*11385,full=True)>600
+    assert producer.title_inference_budget('文'*11385,full=False)<=600
+    assert producer.title_inference_budget('文'*100000,full=True)<=1800
+
+
+def test_title_timeout_does_not_start_three_immediate_full_transcript_requests():
+    import title_rewrite
+    calls=[]
+    def unavailable(*args):
+        calls.append(args)
+        raise producer.LocalTextUnavailable('CPU timed out')
+    with pytest.raises(producer.LocalTextUnavailable):
+        title_rewrite.generate('这个行业需求会增长，但是没有合适价格就不买。',structured_model=unavailable)
+    assert len(calls)==1

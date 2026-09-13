@@ -187,10 +187,13 @@ def test_obsolete_reviews_reuse_raw_asr_but_never_destroy_usable_stock(reason):
     fc.mark_part_processed(entry,1)
     assert list(fc.obsolete_review_candidates(state,inventory))==[(entry,record)]
     entry['quality_reprocess_artifact_id']=123
+    entry['quality_reprocess_revision']=fc.QUALITY_REPROCESS_REVISION
     assert not list(fc.obsolete_review_candidates(state,inventory))
     entry.pop('quality_reprocess_artifact_id')
     entry['quality_retries']=2
     assert not list(fc.obsolete_review_candidates(state,inventory))
+    entry['quality_reprocess_revision']=fc.QUALITY_REPROCESS_REVISION-1
+    assert list(fc.obsolete_review_candidates(state,inventory))==[(entry,record)]
 
 
 def test_inventory_event_replenishes_before_the_next_publish_window(monkeypatch):

@@ -178,6 +178,7 @@ class EditorialReviewUnavailable(VisualQualityError):
 
 class LocalTextUnavailable(EditorialReviewUnavailable):
     """Local inference did not finish; do not reject or cache an empty selection."""
+    retryable_service = True
 
 
 class SelectionIncomplete(LocalTextUnavailable):
@@ -197,6 +198,13 @@ def text_budget(cloud_seconds):
     if TEXT_BACKEND == 'local':
         return min(600, max(cloud_seconds, float(os.environ.get('LOCAL_LLM_TIMEOUT_SEC', '600'))))
     return cloud_seconds
+
+
+def title_inference_budget(prompt, full=False):
+    """Full interviews keep all source text and get a bounded CPU prefill budget."""
+    if TEXT_BACKEND!='local':return 240
+    ordinary=text_budget(240)
+    return min(1800,max(ordinary,len(prompt)*.1)) if full else ordinary
 
 
 def load_key():
@@ -599,7 +607,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
         try:
             request=urllib.request.Request(LOCAL_LLM_URL,data=payload,
                 headers={'Content-Type':'application/json'})
-            with urllib.request.urlopen(request,timeout=min(600,remaining)) as response:
+            with urllib.request.urlopen(request,timeout=min(1800,remaining)) as response:
                 data=json.loads(response.read().decode())
             metrics={k:data.get(k) for k in ('prompt_eval_count','prompt_eval_duration',
                      'eval_count','eval_duration','load_duration','done_reason')}
@@ -3219,7 +3227,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
         return llm([{"role":"user","content":prompt}],api_key,temperature=.35,
-                   max_tokens=2300,budget_sec=240,response_schema=schema,
+                   max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
                    read_cache='focus' not in schema.get('properties',{}))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,

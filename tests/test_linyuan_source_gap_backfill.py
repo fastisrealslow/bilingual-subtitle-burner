@@ -20,6 +20,22 @@ def test_first_page_reuses_search_identity_and_missing_author_stays_blocked():
     assert json.loads(row['extra'])['direct_dispatch'] is False
 
 
+def test_parent_api_outage_reuses_known_uploader_from_another_page():
+    conn=sqlite3.connect(':memory:')
+    conn.execute('CREATE TABLE items(id TEXT,author TEXT,publish_time TEXT,extra TEXT)')
+    conn.executemany('INSERT INTO items VALUES(?,?,?,?)',[
+        ('bilibili_search:BVseries','', '', '{}'),
+        ('bilibili_search:BVseries:p5','上传者','2026-09-01','{"collection_title":"林园全网合集"}'),
+        ('bilibili_search:BVother:p5','别的人','2026-09-01','{}')])
+    parent=gaps.cached_collection_parent(conn,'BVseries')
+    row=gaps.collection_item('BVseries',dict(page=2,cid=2,duration=1200,part='第二集'),parent)
+    assert row['author']=='上传者' and json.loads(row['extra'])['direct_dispatch']
+    conn.execute('INSERT INTO items VALUES(?,?,?,?)',('bilibili_search:BVseries:p6','矛盾账号','','{}'))
+    import pytest
+    with pytest.raises(ValueError,match='Conflicting'):gaps.cached_collection_parent(conn,'BVseries')
+    conn.close()
+
+
 def test_lineage_keeps_hypotheses_and_blocks_reference_reposts():
     conn=sqlite3.connect(':memory:')
     conn.execute('CREATE TABLE items(id TEXT,url TEXT,extra TEXT)')

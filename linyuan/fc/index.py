@@ -55,6 +55,7 @@ MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合
 MAX_PUBLISH_PER_DAY = 4                  # 三个原时段 + 每天14点一条横屏
 TARGET_READY_RESERVE = 12
 TARGET_LANDSCAPE_RESERVE = 2
+QUALITY_REPROCESS_REVISION = 2026091304
 MAX_ACTIVE_SOURCES = 6
 SOURCE_INVENTORY_KEY = 'linyuan/.automation/source_inventory.json'
 DISPATCH_LEASE_KEY = 'linyuan/.automation/pipeline_lease.json'
@@ -442,12 +443,14 @@ def is_landscape(meta):
         return False
 
 
-def content_fits_slot(meta, entry=None, now=None):
+def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
     full_slot = (local.tm_wday, local.tm_hour) == WEEKLY_FULL_SLOT
     full = meta.get('content_type') == 'full_interview'
     if (entry or {}).get('weekly_full_week') and not full:
         return False  # Keep this mother's full interview unused for Sunday.
+    if full_slot and weekly_fallback and not full:
+        return not is_landscape(meta) and meta.get('render_mode') != 'audio_card'
     if full_slot or full:
         return full == full_slot
     # Reserve all landscape clips for the added daily slot, including catch-up.
@@ -2015,21 +2018,25 @@ def inventory_catchup_request(st, payload, now=None):
         return None
     latest = {e['slug']: e for e in _latest_dispatches(st)}
     for slot in due_publication_slots(st, now):
-        for record in payload.get('artifacts', []):
-            entry = latest.get(record.get('slug'))
-            if not entry or entry.get('failed') or record['slug'] in REVIEW_PAUSED_SLUGS:
-                continue
-            for part in record.get('parts', []):
-                if (part.get('status') != 'verified'
-                        or int(part.get('index', -1)) in processed_part_indices(entry)
-                        or not content_fits_slot(part, entry, publication_slot_time(slot))
-                        or daily_mix_error(part, st.get('daily_publish') or {})):
+        # Prefer Sunday's full interview. Missing optional long-form stock must
+        # not make the fourth daily slot impossible when a good portrait exists.
+        for fallback in (False, True):
+            for record in payload.get('artifacts', []):
+                entry = latest.get(record.get('slug'))
+                if not entry or entry.get('failed') or record['slug'] in REVIEW_PAUSED_SLUGS:
                     continue
-                request = dict(batch_slug=record['slug'], artifact_id=record.get('artifact_id'),
-                    batch_remaining=1, makeup_slot=slot, expected_sha256=part.get('sha256'),
-                    title=part.get('title'), source_url=entry.get('source_url'))
-                if not makeup_request_error(request, st, now):
-                    return request
+                for part in record.get('parts', []):
+                    if (part.get('status') != 'verified'
+                            or int(part.get('index', -1)) in processed_part_indices(entry)
+                            or not content_fits_slot(part, entry, publication_slot_time(slot),fallback)
+                            or daily_mix_error(part, st.get('daily_publish') or {})):
+                        continue
+                    request = dict(batch_slug=record['slug'], artifact_id=record.get('artifact_id'),
+                        batch_remaining=1, makeup_slot=slot, expected_sha256=part.get('sha256'),
+                        title=part.get('title'), source_url=entry.get('source_url'))
+                    if fallback:request['weekly_full_fallback']=True
+                    if not makeup_request_error(request, st, now):
+                        return request
     return None
 
 
@@ -2072,7 +2079,7 @@ def source_inventory(st, payload=None):
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:live+=1
                 if is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
-                if (any(content_fits_slot(part,e,stamp) for stamp in due_times)
+                if (any(content_fits_slot(part,e,stamp,weekly_fallback=True) for stamp in due_times)
                         and part.get('render_mode')!='audio_card'):slot_ready+=1
     today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
     daily=st.get('daily_publish') or {}
@@ -2397,8 +2404,9 @@ def obsolete_review_candidates(state, inventory):
     for record in inventory.get('artifacts',[]):
         entry=latest.get(record.get('slug'))
         if (not entry or entry.get('failed') or entry['slug'] in REVIEW_PAUSED_SLUGS
-                or int(entry.get('quality_retries') or 0)>=2
-                or entry.get('quality_reprocess_artifact_id')==record.get('artifact_id')):
+                or quality_retries_current(entry)>=2
+                or (entry.get('quality_reprocess_revision')==QUALITY_REPROCESS_REVISION
+                    and entry.get('quality_reprocess_artifact_id')==record.get('artifact_id'))):
             continue
         remaining=[p for p in record.get('parts',[])
                    if int(p['index']) not in processed_part_indices(entry)]
@@ -2936,6 +2944,11 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     return True
 
 
+def quality_retries_current(entry):
+    return (int(entry.get('quality_retries') or 0)
+            if entry.get('quality_reprocess_revision')==QUALITY_REPROCESS_REVISION else 0)
+
+
 def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
     """隔离旧 artifact，并用原素材触发新版流水线重新生成。"""
     active_runs=[r for status in ('in_progress','queued')
@@ -2948,15 +2961,8 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
         save_state(st)
         log_event('quality',f'{slug} 等待 CPU 重识别空位',reason)
         return False
-    if artifact_id:
-        try:
-            gh("DELETE", f"/actions/artifacts/{artifact_id}")
-            log.info(f"✓ 已隔离旧 artifact: deliver-{slug}")
-        except Exception as exc:
-            log.warning(f"隔离旧 artifact 失败（仍不会放行）: {exc}")
-
     source = e.get("asset_url") or e.get("source_url")
-    retries = e.get("quality_retries", 0)
+    retries = quality_retries_current(e)
     if not source or retries >= 2:
         e["failed"] = True
         e["quality_failure"] = reason
@@ -2964,12 +2970,23 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
         log_event("fail", f"⛔ {slug} 旧成片无法安全重做", reason)
         return False
     try:
+        recovery={}
+        if artifact_id:
+            # Retain the old evidence and reuse its original ASR. Current
+            # inventory gates keep it unpublished while the new run validates.
+            try:
+                old=gh('GET',f'/actions/artifacts/{artifact_id}')
+                if (old.get('workflow_run') or {}).get('id'):
+                    recovery['recovery_run_id']=str(old['workflow_run']['id'])
+            except Exception:
+                pass
         gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
             "ref": "main",
             "inputs": {"source": source, "slug": slug,
                        "speaker": "林园", "occasion": e.get("title", "")[:30],
                        "output_layout": e.get("output_layout", "auto"),
                        "delay_hours": "0", "auto_publish": "false",
+                       **recovery,
                        **({'reviewed_parts':str(e['reviewed_parts'])} if e.get('reviewed_parts') else {}),
                        # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
                        # 否则常规模式允许空片段，会出现“运行成功但仅产出 3 条”。
@@ -2982,6 +2999,7 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
         log_event("fail", f"⛔ {slug} 旧成片重做触发失败", str(exc)[:120])
         return False
     e["quality_retries"] = retries + 1
+    e['quality_reprocess_revision']=QUALITY_REPROCESS_REVISION
     e['quality_reprocess_artifact_id']=artifact_id
     e["last_retry"] = int(time.time())
     e["reprocessing_quality"] = True
@@ -3362,7 +3380,8 @@ def publish_handler(event=None, context=None):
                 {'published': 0, 'no_content_for_slot': 1}, tmp)
         k = k if k in usable else usable[0]
     part = parts[k]
-    if makeup_slot and (not content_fits_slot(part, e, publication_slot_time(makeup_slot))
+    if makeup_slot and (not content_fits_slot(part, e, publication_slot_time(makeup_slot),
+                                             weekly_fallback=bool(event.get('weekly_full_fallback')))
                         or part.get('title') != event.get('title')
                         or e.get('source_url') != event.get('source_url')):
         shutil.rmtree(tmp, ignore_errors=True)

@@ -73,6 +73,20 @@ def apply_lineage(conn, catalog):
     conn.commit()
 
 
+def cached_collection_parent(conn,bvid):
+    """A known uploader on any exact-BV page identifies that same collection."""
+    key='bilibili_search:'+bvid
+    rows=conn.execute('SELECT id,author,publish_time,extra FROM items WHERE id=? OR id LIKE ?',
+                      (key,key+':p%')).fetchall()
+    authors={r[1] for r in rows if r[1]}
+    if len(authors)>1:raise ValueError('Conflicting collection uploader metadata')
+    author=next(iter(authors),'')
+    known=next((r for r in rows if r[1]==author and author),rows[0] if rows else None)
+    title=next((json.loads(r[3] or '{}').get('collection_title') for r in rows
+                if json.loads(r[3] or '{}').get('collection_title')),'')
+    return dict(owner=dict(name=author),pubdate=known[2] if known else '',title=title)
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--offline',action='store_true')
@@ -107,9 +121,7 @@ def main():
             except Exception:
                 pages=get_api('/x/player/pagelist?bvid='+bvid)
                 with sqlite3.connect(monitor.DB_PATH) as conn:
-                    old=conn.execute('SELECT author,publish_time,extra FROM items WHERE id=?',('bilibili_search:'+bvid,)).fetchone()
-                parent=dict(owner=dict(name=old[0] if old else ''),pubdate=old[1] if old else '',
-                    title=json.loads(old[2]).get('collection_title','') if old else '')
+                    parent=cached_collection_parent(conn,bvid)
             report['new_collection_ids']=[r['id'] for r in monitor.upsert_items([collection_item(bvid,p,parent) for p in pages])]
             report['collection_api_pages']=len(pages)
         except Exception as exc:
