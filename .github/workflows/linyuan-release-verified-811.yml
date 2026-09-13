@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
       VERIFIED_DEPLOY_RUN: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '34763327956' }}
@@ -48,7 +53,7 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           gh run download "$VERIFIED_DEPLOY_RUN" --repo "$GITHUB_REPOSITORY" --name production-verification --dir /tmp/deploy-proof
           gh release download "deliver-$SLUG" --repo "$GITHUB_REPOSITORY" --pattern "$SLUG.*" --dir /tmp/811
-          python -m pip install -q requests numpy 'opencv-python-headless<5'
+          python -m pip install -q requests numpy 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
           python - <<'PY'
           import sys,os,json,hashlib
           from pathlib import Path
@@ -122,6 +127,12 @@ jobs:
               _,st=read_state()
               daily=st.get('daily_publish') or {}
               if daily.get('date')=='2026-09-13' and daily.get('count',0)>=4:break
+              if attempt==1:
+                  # The first completed refresh remains valid; normal catch-up
+                  # reads current receipts and excludes the first consumed clip.
+                  # This invocation has this release run's own stable task ID.
+                  subprocess.run([sys.executable,'linyuan/fc/catchup_from_inventory.py'],check=True,timeout=700)
+                  continue
               started=datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
               subprocess.run(['gh','workflow','run','linyuan-source-inventory.yml','--repo',repo,'--ref','main'],check=True)
               run_id=None
@@ -143,5 +154,7 @@ jobs:
         if: always() && steps.gate.outputs.ready == 'true'
         with:
           name: verified-811-release
-          path: 811-release-proof.json
+          path: |
+            811-release-proof.json
+            catchup-receipt.json
           if-no-files-found: warn
