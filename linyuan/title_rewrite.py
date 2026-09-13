@@ -321,8 +321,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 用日常说话的完整句子。禁止“谈A、B与C”等关键词目录，禁止术语堆砌、换行、空格和无意义尾巴凑字数。
 例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”
 这个例子只说明文风，不能套用它的事实。不得夸大收益、安全性、因果或删掉否定和不确定性。
-只输出JSON。下面是按原顺序编号的完整字幕，未删改：
-{json.dumps(dict(enumerate(units)), ensure_ascii=False)}'''
+只输出JSON。__TITLE_SOURCE__'''
     last_error = ''
     for attempt in range(3):
         try:
@@ -343,11 +342,22 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 subjects={word:[i for i in ids if i in guest_ids] for word,ids in subject_catalog(units).items()}
                 subjects={word:ids for word,ids in subjects.items() if ids}
             draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
+            draft_retry=retry_note
             if structured_model:
-                draft_prompt+='\n已单独读清的嘉宾回答：'+reading['a_guest_answer']
-                draft_prompt+='\n主持人问题背景（不可当作嘉宾判断）：'+reading['b_question_premise']
-                draft_prompt+='\n唯一可选的嘉宾原话及原始编号：'+json.dumps({i:units[i] for i in guest_ids},ensure_ascii=False)
-            proposal = _json(call(retry_note + draft_prompt,
+                # Run 164 selected real guest evidence yet copied "粘性强"
+                # from the host/raw reading summary into every rejected draft.
+                # The reader and independent reviewer retain the full dialogue;
+                # factual drafting receives only guest source statements. Keep
+                # short guest cues too: they may contain a negation/qualifier.
+                blocked=explicit_host_cues(units)
+                draft_source={i:u for i,u in enumerate(units) if roles[i]=='guest' and i not in blocked}
+                source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
+                draft_retry=(f'第{attempt+1}轮重新拟稿；上轮未通过原文或文案检查。只从下方嘉宾原话重新提炼判断，不延续上轮措辞。\n' if last_error else '')
+            else:
+                draft_source=dict(enumerate(units))
+                source_heading='下面是按原顺序编号的完整字幕，未删改：\n'
+            draft_prompt=draft_prompt.replace('__TITLE_SOURCE__',source_heading+json.dumps(draft_source,ensure_ascii=False))
+            proposal = _json(call(draft_retry + draft_prompt,
                                   proposal_schema(len(units), subjects,guest_ids if structured_model else None)))
             candidates = proposal.get('c_candidates' if structured_model else 'candidates')
             if not isinstance(candidates, list) or len(candidates) != 3:

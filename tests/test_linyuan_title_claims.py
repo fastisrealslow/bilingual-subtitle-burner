@@ -184,6 +184,22 @@ def test_guest_reply_ranges_keep_every_unassigned_source_cue_for_independent_rev
     for starts in [[],[dict(a_start=2,b_end=1)],[dict(a_start=0,b_end=2),dict(a_start=2,b_end=3)],
                    [dict(a_start=0,b_end=8)]]:
         with pytest.raises(ValueError):T.bind_reading({**reading,'c_guest_spans':starts},units)
+
+
+def test_drafting_never_receives_host_claims_or_an_incorrect_reader_summary():
+    units=['您觉得品牌的用户粘性更强，需求会更高吗？',
+           '我觉得高端消费还是非常好，需求旺盛。', '但是', '普通消费没有预期的好。']
+    class DraftSeen(Exception):pass
+    def structured(prompt,schema):
+        if 'c_guest_spans' in schema['properties']:
+            assert units[0] in prompt  # Full source remains in the reader.
+            return json.dumps(dict(a_guest_answer='错误摘要说用户粘性更强、需求会更高。',
+                b_question_premise=units[0],c_guest_spans=[dict(a_start=1,b_end=3)]),ensure_ascii=False)
+        assert '用户粘性' not in prompt and '错误摘要' not in prompt
+        assert all(unit in prompt for unit in units[1:])
+        raise DraftSeen()
+    with pytest.raises(DraftSeen):
+        T.generate(''.join(units),source_cues=units,structured_model=structured)
     draft=T.proposal_schema(len(units),guest_ids=[2,3])
     assert 'a_reading' not in draft['properties']
     assert draft['properties']['b_focus']['properties']['b_evidence_ids']['items']['enum']==[2,3]
