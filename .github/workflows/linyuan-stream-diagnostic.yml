@@ -1,4 +1,4 @@
-name: 林园在途长源分辨率核验
+name: 林园慢速源镜像测速
 on:
   push:
     branches: [main]
@@ -12,19 +12,35 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: 只读取清晰度元数据，不下载视频
+      - name: 对相同高清流的镜像做有界小范围读取
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: |
-          python - <<'PY'
-          import sys,json
+          python -u - <<'PY'
+          import sys,json,time,hashlib,concurrent.futures,urllib.request,urllib.parse
           sys.path.insert(0,'linyuan')
           import ci_fetch_bilibili as b
-          op=b.opener()
-          for page in (35,16):
-              cid=b.via_view(op,'BV19P4y1m77K',page)
-              url=f'https://api.bilibili.com/x/player/playurl?bvid=BV19P4y1m77K&cid={cid}&qn=80&fnval=4048&fourk=0&high_quality=1'
-              raw=json.loads(op.open(url,timeout=30).read())
-              selected=b.select_streams(raw)
-              print(json.dumps(dict(page=page,code=raw.get('code'),selected={k:selected.get(k) for k in ('width','height','quality')},streams=[{k:row.get(k) for k in ('id','width','height','codecid','bandwidth')} for row in raw.get('data',{}).get('dash',{}).get('video',[])]),ensure_ascii=False))
+          op=b.opener();source='https://www.bilibili.com/video/BV19P4y1m77K?p=35'
+          streams=b.playurl(op,'BV19P4y1m77K',b.via_view(op,'BV19P4y1m77K',35))
+          print(json.dumps({k:streams.get(k) for k in ('width','height','quality')}))
+          def probe(row):
+              i,url=row;begin=time.monotonic();data=b''
+              result=dict(mirror=i,host=urllib.parse.urlparse(url).hostname)
+              try:
+                  request=urllib.request.Request(url,headers={'User-Agent':b.UA,'Referer':source,'Range':'bytes=0-2097151'})
+                  with op.open(request,timeout=8) as response:
+                      result.update(status=response.status,content_range=response.headers.get('Content-Range'))
+                      while len(data)<2097152 and time.monotonic()-begin<24:
+                          part=response.read(min(65536,2097152-len(data)))
+                          if not part:break
+                          data+=part
+                  result.update(bytes=len(data),seconds=round(time.monotonic()-begin,2),
+                      kib_per_sec=round(len(data)/1024/max(.001,time.monotonic()-begin),1),
+                      first_64k_sha256=hashlib.sha256(data[:65536]).hexdigest() if len(data)>=65536 else None)
+              except Exception as exc:
+                  result['error']=type(exc).__name__
+              return result
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+              for result in pool.map(probe,enumerate(streams['video'][:4])):
+                  print(json.dumps(result,ensure_ascii=False),flush=True)
           PY
