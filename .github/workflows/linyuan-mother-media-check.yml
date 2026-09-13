@@ -1,4 +1,4 @@
-name: 林园母片独立恢复实测
+name: 林园806断点择优下载实测
 on:
   push:
     branches: [main]
@@ -13,42 +13,42 @@ jobs:
     timeout-minutes: 12
     env:
       GH_TOKEN: ${{ github.token }}
-      SOURCE_URL: https://www.bilibili.com/video/BV1hj411X7BL
+      SOURCE_URL: https://www.bilibili.com/video/BV19P4y1m77K?p=35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache/restore@v4
         with:
           path: linyuan/_src/
-          key: source-download-v1-207afee93f23c0471c26f0d171ad8d7741592f452e356d4e885af691ea908948-durable-check
-          restore-keys: source-download-v1-207afee93f23c0471c26f0d171ad8d7741592f452e356d4e885af691ea908948-
-      - name: 校验实际母片来源、大小与哈希
+          key: source-download-v1-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b-mirror-resume-${{ github.run_id }}
+          restore-keys: source-download-v1-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b-
+      - name: 用同一高清流的更快镜像继续已保存断点
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python -u linyuan/ci_fetch_bilibili.py --url "$SOURCE_URL" --out linyuan/_src/video.mp4 --budget-seconds 360 --failure-report /tmp/source-fetch-report.json
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b-mirror-resume-${{ github.run_id }}
+      - name: 核对实际完整音视频与母片哈希
         run: |
           python - <<'PY'
           import sys,os,json
           sys.path.insert(0,'linyuan')
           from mother_media_cache import verified
-          assert verified('linyuan/_src',os.environ['SOURCE_URL']), 'No valid cached media'
+          from ci_fetch_bilibili import validate_media
+          assert verified('linyuan/_src',os.environ['SOURCE_URL'])
           data=json.load(open('linyuan/_src/video.mp4.source.json'))
-          print(json.dumps(dict(size=data['size'],sha256=data['sha256']),ensure_ascii=False))
+          media=validate_media('linyuan/_src/video.mp4')
+          print(json.dumps(dict(size=data['size'],sha256=data['sha256'],media=media),ensure_ascii=False))
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: mother-media-207afee93f23c0471c26f0d171ad8d7741592f452e356d4e885af691ea908948
+          name: mother-media-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b
           path: |
             linyuan/_src/video.mp4
             linyuan/_src/video.mp4.source.json
           compression-level: 0
           retention-days: 3
           if-no-files-found: error
-      - name: 从空目录恢复，再核对实际母片哈希
-        run: |
-          python - <<'PY'
-          import sys,os,json
-          sys.path.insert(0,'linyuan')
-          from mother_media_cache import restore,verified
-          assert restore(os.environ['SOURCE_URL'],'/tmp/restored-mother',os.environ['GITHUB_REPOSITORY'])
-          assert verified('/tmp/restored-mother',os.environ['SOURCE_URL'])
-          data=json.load(open('/tmp/restored-mother/video.mp4.source.json'))
-          assert data['sha256']=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47'
-          print('Actual mother media restored from independent artifact and exact hash verified')
-          PY
