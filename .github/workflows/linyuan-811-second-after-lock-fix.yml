@@ -1,0 +1,99 @@
+name: 811第二条锁冲突核对后补发
+on:
+  workflow_run:
+    workflows: ['FC production deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: release-verified-811
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.id == 34771136185 && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 验证已上线锁修复且仅原任务明确未上传时继续
+        run: |
+          gh run download 34771136185 --repo "$GITHUB_REPOSITORY" --name production-verification --dir /tmp/deploy-proof
+          python - <<'PY'
+          import os,sys,json,hashlib,subprocess
+          from pathlib import Path
+          sys.path.insert(0,'linyuan');sys.path.insert(0,'linyuan/fc')
+          from register_selection_recovery import read_state
+          from catchup_from_inventory import tracked_request,task_result
+          from publish_fresh_six import prepare_async_tasks
+          from bili_archive_status import archive_status
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/34771136185']))
+          assert run['conclusion']=='success' and run['head_sha']=='c8f6c987a4f50a5be6c534a729203e295f5e1a2a'
+          proof=json.loads(Path('/tmp/deploy-proof/production-verification.json').read_text())
+          assert proof['verification_complete'] is True
+          assert proof['health']['code_sha256']==hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
+          slug='ly-0912-5dc339-stable-clean-proof-portrait'
+          sha='b49fb3a54a1f6f0b0fb4a2c4723491e1cf9a479ca33e8eaf54cf78ef35eb9052'
+          title='林园：高端消费，还是非常好，旺盛，没有问题'
+          def receipts(st):
+              return {p.get('fingerprints',{}).get('sha256'):p for p in st.get('published',{}).get(slug,{}).get('parts',[])
+                      if p.get('status')=='published' and p.get('bvid')}
+          _,st=read_state();report={}
+          if sha not in receipts(st):
+              assert not any(e.get('uploading') for e in st['dispatched']),'An upload is unresolved; do not invoke'
+              client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],
+                  endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+              runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+              function=os.environ['FC_FUNCTION_NAME']
+              old=client.get_async_task_with_options(function,'ly-811-0913-b49fb3a54a1f6f0b0fb4-a1',
+                  m.GetAsyncTaskRequest(qualifier='LATEST'),{},runtime).body
+              report['previous_result']=task_result(old)
+              assert old.status=='Succeeded' and report['previous_result']==dict(published=0,publisher_busy=1)
+              check=archive_status(['BV11qYB6MEyq'],'275211725',os.environ['BILIBILI_COOKIES'],expected_titles=[title])
+              report['before']=check
+              assert check.get('api_code')==0 and not check.get('http_status')
+              assert not any(v.get('title')==title for v in check['videos']),'Matching archive already exists; reconcile it instead'
+              task_id='ly-811-0913-b49fb3a54a1f6f0b0fb4-a2'
+              report.update(task_id=task_id,status='Reconciling')
+              Path('811-second-receipt.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+              prepare_async_tasks(client,function,m,runtime)
+              task=tracked_request(client,function,m,runtime,'publish-batch',task_id,wait_seconds=600,
+                  payload=dict(triggerName='publish-batch',batch_slug=slug,artifact_id=10321806575,
+                  expected_sha256=sha,batch_remaining=1,title=title,source_url='https://www.bilibili.com/video/BV1hj411X7BL'))
+              report.update(status=task.status if task else 'Unknown',function_result=task_result(task))
+              Path('811-second-receipt.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+              assert task and task.status=='Succeeded','Retain the same task ID and reconcile; never replay'
+          _,st=read_state();parts=receipts(st)
+          assert sha in parts,'No exact receipt; inspect function_result without reuploading'
+          report['receipts']=[{k:p.get(k) for k in ('bvid','title','ts','part_index')} for p in parts.values()]
+          report['daily_publish']=st.get('daily_publish')
+          report['creator_verification']=archive_status([p['bvid'] for p in parts.values()],'275211725',os.environ['BILIBILI_COOKIES'])
+          Path('811-second-receipt.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          assert report['creator_verification']['public_count']==2,'Review pending; check visibility without reposting'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 811-second-receipt
+          path: 811-second-receipt.json
+          if-no-files-found: error
