@@ -178,6 +178,14 @@ jobs:
           key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: source-download-v1-${{ steps.source_cache_key.outputs.key }}-
 
+      - name: 下载缓存被淘汰时恢复独立母片检查点
+        if: contains(env.RUN_SOURCE, 'bilibili.com/video/BV')
+        continue-on-error: true
+        timeout-minutes: 12
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python mother_media_cache.py --source "$RUN_SOURCE"
+
       - name: 取源
         id: src
         # Long sources in #675/#678/#680 were progressing at the old 20m cutoff.
@@ -252,6 +260,19 @@ jobs:
         with:
           path: linyuan/_src/
           key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: 独立保存已通过素材检查的完整母片
+        if: steps.source_gate.outcome == 'success' && contains(env.RUN_SOURCE, 'bilibili.com/video/BV')
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: mother-media-${{ steps.source_cache_key.outputs.key }}
+          path: |
+            linyuan/_src/video.mp4
+            linyuan/_src/video.mp4.source.json
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
 
       # 只有素材通过后才安装 ASR、恢复大模型并下载权重。低清、双字幕、
       # 错人物素材不会再消耗 1~3 小时转写/编码资源。
