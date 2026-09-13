@@ -3,7 +3,7 @@
   "validation_sha256": "dd955b2911e68784922f02be3f4381810155c123d35b2c70f689b501290b9823",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789305067,
+  "updated_at": 1789305243,
   "materials": {
     "weibo_search": {
       "records": 1175,
@@ -7559,6 +7559,12 @@
             "stage": "workflow-preflight",
             "terminal": false,
             "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+          },
+          {
+            "slug": "ly-0912-5dc339-stable-clean-proof-portrait",
+            "stage": "release-verification",
+            "terminal": true,
+            "reason": "等待实际成片画面复检及新版字幕证明校验上线，避免旧发布器误处理新产物"
           }
         ],
         "verified_available": 0,
@@ -7619,7 +7625,14 @@
           "ly-0913-5a2799"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0913-5a2799",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "真人取景源区域仅238x178像素，超过2倍放大上限，疑似远景小头像"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -7684,6 +7697,21 @@
         "family": "BV1rYcWeaEtb",
         "slugs": [
           "ly-0913-0f81ca"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV19P4y1m77K:p33",
+        "source_url": "https://www.bilibili.com/video/BV19P4y1m77K?p=33",
+        "family": "BV19P4y1m77K",
+        "slugs": [
+          "ly-0913-e0918e"
         ],
         "source_sha256": [],
         "failures": [],
@@ -8322,8 +8350,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -8472,7 +8500,7 @@
         "terminal_quality-service": 15
       },
       "BV19P4y1m77K": {
-        "attempted_mothers": 17,
+        "attempted_mothers": 18,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 3,
@@ -8771,8 +8799,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_render-layout": 1,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
@@ -9072,7 +9100,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_visual-review": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_release-verification": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -9089,11 +9118,12 @@
       "BV1tgCtBaEaX": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 9,
+  "in_flight_placeholders": 8,
   "artifacts": [
     {
       "slug": "ly-0912-5dc339",
