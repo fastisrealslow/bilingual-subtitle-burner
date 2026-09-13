@@ -276,7 +276,15 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
             try:
                 existing = tmp.stat().st_size if tmp.exists() else 0
                 headers = {"User-Agent": UA, "Referer": referer}
-                if existing:
+                # The 806 full-transfer experiment showed a fast 2 MiB probe
+                # still throttled on an open-ended response. Bound subsequent
+                # requests to 8 MiB on the SAME representation and keep the
+                # fastest mirror after every complete range.
+                requested_end=None
+                if len(urls)>1 and (saved.get('total') or 0)>8*(1<<20):
+                    requested_end=min(existing+8*(1<<20),saved['total'])-1
+                    headers["Range"]=f"bytes={existing}-{requested_end}"
+                elif existing:
                     headers["Range"] = f"bytes={existing}-"
                 req = urllib.request.Request(
                     url, headers=headers)
@@ -289,8 +297,10 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                         existing = 0
                     content_range = response.headers.get("Content-Range") or ""
                     match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+|\*)", content_range)
-                    if resumed and (not match or int(match.group(1)) != existing):
+                    if status==206 and (not match or int(match.group(1)) != existing):
                         raise RuntimeError("CDN断点区间不连续")
+                    if status==206 and requested_end is not None and int(match.group(2))!=requested_end:
+                        raise RuntimeError('CDN有界下载返回了不同区间')
                     expected = (int(match.group(3)) if match and match.group(3) != '*'
                                 else existing + int(response.headers.get("Content-Length") or 0))
                     etag = response.headers.get('ETag')
@@ -315,6 +325,11 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                                 print(f'[下载进度] {current}/{expected or "?"} bytes',flush=True)
                                 last_logged=current
                 actual = tmp.stat().st_size
+                if (status==206 and requested_end is not None
+                        and actual==requested_end+1 and actual<expected):
+                    # Complete requested chunk, not a failing/truncated stream.
+                    # Start the next contiguous range on the measured primary.
+                    break
                 if actual < 10240 or (expected and actual != expected):
                     raise RuntimeError(f"下载不完整：{actual}/{expected or '?'} bytes")
                 tmp.replace(out)

@@ -10,7 +10,7 @@ permissions:
 jobs:
   checkpoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 24
     env:
       GH_TOKEN: ${{ github.token }}
       SOURCE_URL: https://www.bilibili.com/video/BV19P4y1m77K?p=35
@@ -21,11 +21,11 @@ jobs:
           path: linyuan/_src/
           key: source-download-v1-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b-mirror-resume-${{ github.run_id }}
           restore-keys: source-download-v1-0be23b7f0bf4a41655de79cca4b6fe76a3e0c898c2c01fbf5f52abd24c796b5b-
-      - name: 用同一高清流的更快镜像继续已保存断点
+      - name: 用有界Range持续下载同一高清流的已保存断点
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: |
-          python -u linyuan/ci_fetch_bilibili.py --url "$SOURCE_URL" --out linyuan/_src/video.mp4 --budget-seconds 360 --failure-report /tmp/source-fetch-report.json
+          python -u linyuan/ci_fetch_bilibili.py --url "$SOURCE_URL" --out linyuan/_src/video.mp4 --budget-seconds 1200 --failure-report /tmp/source-fetch-report.json
       - uses: actions/cache/save@v4
         if: always()
         with:

@@ -198,3 +198,26 @@ def test_faster_mirror_resumes_the_existing_partial_without_erasing_it(monkeypat
     b.download_one(Opener(),urls,'same-source',out)
     assert out.read_bytes()==payload
     assert json.loads(manifest.read_text())['identity']==dict(source='same-source',paths=['/video'])
+
+
+def test_large_checkpoint_uses_complete_bounded_ranges_on_fastest_same_mirror(monkeypatch,tmp_path):
+    payload=(bytes(range(256))*100000)
+    urls=['https://fast.test/track','https://slow.test/track']
+    out=tmp_path/'video.m4s';offset=1024*1024
+    out.with_suffix('.m4s.part').write_bytes(payload[:offset])
+    out.with_suffix('.m4s.download.json').write_text(json.dumps(dict(
+        identity=dict(source='source',paths=['/track']),total=len(payload),etag='same')))
+    monkeypatch.setattr(b,'rank_mirrors',lambda op,urls,ref,**kw:urls)
+    requests=[]
+    class Opener:
+        def open(self,request,timeout):
+            assert request.full_url==urls[0]
+            start,end=map(int,request.headers['Range'].split('=')[1].split('-'))
+            assert end-start+1<=8*(1<<20)
+            requests.append((start,end))
+            return Response(payload[start:end+1],206,dict(
+                **{'Content-Range':f'bytes {start}-{end}/{len(payload)}'},ETag='same'))
+    b.download_one(Opener(),urls,'source',out)
+    assert out.read_bytes()==payload
+    assert len(requests)==3 and requests[0][0]==offset
+    assert all(a[1]+1==z[0] for a,z in zip(requests,requests[1:]))
