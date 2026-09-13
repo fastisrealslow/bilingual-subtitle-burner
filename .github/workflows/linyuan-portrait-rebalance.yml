@@ -1,0 +1,88 @@
+name: 恢复一份竖屏储备
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-portrait-rebalance.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-portrait-rebalance-84deda
+  cancel-in-progress: false
+jobs:
+  rebalance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 保留已完整下载母片，将一个横屏任务恢复为竖屏
+        run: |
+          python -u - <<'PY'
+          import sys,json,time,base64,subprocess
+          sys.path.insert(0,'linyuan')
+          from register_selection_recovery import read_state,gh,REPO,PATH
+          from fc import index as fc
+          original='ly-0913-84deda';target=original+'-portrait-stock'
+          source='https://www.bilibili.com/video/BV1Ns4y157kX?p=9'
+          run_id=34765916798
+          def rebalance():
+              _,state=read_state()
+              if any(e.get('slug')==target for e in state['dispatched']):
+                  return dict(already_registered=target)
+              run=json.loads(gh('api',f'repos/{REPO}/actions/runs/{run_id}'))
+              assert run['head_sha']=='82d02f567626b75280a7fd164813cd48bafcdc95'
+              assert run['display_title']=='中文源出片 · '+original
+              arts=json.loads(gh('api',f'repos/{REPO}/actions/runs/{run_id}/artifacts'))['artifacts']
+              assert any(a['id']==10320457716 and not a['expired'] and a['name'].startswith('mother-media-') for a in arts)
+              # The old allocator launched six landscape jobs. Preserve this
+              # exact mother's download and cancellation evidence; only its
+              # portrait recovery may become publishable afterward.
+              for attempt in range(6):
+                  doc,state=read_state()
+                  assert not (state.get('published',{}).get(original) or {}).get('bvid')
+                  entries=[e for e in state['dispatched'] if e.get('slug')==original]
+                  assert entries and all(e['source_url']==source and not e.get('uploading') for e in entries)
+                  for entry in entries:
+                      entry.update(failed=True,review_hold=True,failure_stage='layout-rebalance',
+                          last_error='横屏任务占满生产位，保留母片与转写证据，改由独立竖屏恢复任务入库',
+                          portrait_recovery_slug=target)
+                  body=dict(message='ops: reserve one actual source worker for portrait stock',sha=doc['sha'],branch='main',
+                      content=base64.b64encode(json.dumps(state,ensure_ascii=False,separators=(',',':')).encode()).decode())
+                  try:
+                      gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)
+                      break
+                  except subprocess.CalledProcessError:
+                      if attempt==5:raise
+                      time.sleep(2)
+              if run['status']!='completed':
+                  try:
+                      gh('run','cancel',str(run_id),'--repo',REPO)
+                  except subprocess.CalledProcessError:
+                      run=json.loads(gh('api',f'repos/{REPO}/actions/runs/{run_id}'))
+                      if run['status']!='completed':raise
+              for _ in range(24):
+                  run=json.loads(gh('api',f'repos/{REPO}/actions/runs/{run_id}'))
+                  if run['status']=='completed':break
+                  time.sleep(10)
+              assert run['status']=='completed','Original source worker still running; do not exceed six'
+              active=[]
+              for status in ('queued','in_progress'):
+                  active.extend(json.loads(gh('api',f'repos/{REPO}/actions/workflows/linyuan-produce-cn.yml/runs?status={status}&per_page=100'))['workflow_runs'])
+              assert len(active)<6,'No actual source worker available; do not duplicate admission'
+              subprocess.run([sys.executable,'linyuan/register_selection_recovery.py',
+                  '--origin-slug',original,'--expected-source',source,'--suffix','portrait-stock',
+                  '--output-layout','portrait','--evidence-run',str(run_id)],check=True)
+              return dict(dispatched=target,active_before=len(active),source=source,output_layout='portrait')
+          for _ in range(12):
+              result=fc.run_with_lease('dispatch',rebalance)
+              if result.get('dispatched') or result.get('already_registered'):
+                  print(json.dumps(result,ensure_ascii=False));break
+              time.sleep(10)
+          else:raise RuntimeError('Dispatch lease unavailable; no extra source worker was started')
+          PY
