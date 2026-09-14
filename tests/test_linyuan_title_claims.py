@@ -141,6 +141,31 @@ def test_keywords_without_claim_are_retryable_not_source_rejection(tmp_path,monk
     assert not (tmp_path/'copywrite.json').exists()
 
 
+def test_structured_retry_keeps_failed_checks_without_copying_rejected_claims():
+    drafts=[]
+    class RetrySeen(Exception):pass
+    def structured(prompt,schema):
+        props=schema['properties']
+        if 'c_guest_spans' in props:
+            return json.dumps(dict(a_guest_answer=TEXT,b_question_premise='无主持人提问',
+                c_guest_spans=[dict(a_start=0,b_end=0)]),ensure_ascii=False)
+        if 'c_candidates' in props:
+            drafts.append(prompt)
+            if len(drafts)==2:
+                assert 'preserves_qualifiers：同一对象的正反两面判断必须一起保留' in prompt
+                assert '错误审核声称保证翻倍' not in prompt
+                assert TITLE not in prompt
+                assert prompt.endswith(json.dumps({0:TEXT},ensure_ascii=False))
+                raise RetrySeen()
+            return json.dumps(dict(b_focus=dict(a_claim=TEXT,b_evidence_ids=[0]),
+                c_candidates=[dict(title=c['title'],cover_title=c['cover_title']) for c in proposals()]),ensure_ascii=False)
+        return json.dumps(dict(reviews=[dict(a_analysis=dict(a_guest_answer=TEXT,
+            b_question_premise='无主持人提问',c_reason='错误审核声称保证翻倍，但这里仅传递检查项，不传递这句事实。'),
+            b_verdict=dict(index=i,appeal=4,**{k:k!='preserves_qualifiers' for k in T.CHECKS})) for i in range(3)]),ensure_ascii=False)
+    with pytest.raises(RetrySeen):
+        T.generate(TEXT,source_cues=[TEXT],structured_model=structured)
+
+
 @pytest.mark.parametrize('suffix',['','_full'])
 def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,monkeypatch,suffix):
     calls=[]

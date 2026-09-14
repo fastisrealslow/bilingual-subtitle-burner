@@ -348,6 +348,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
+同一对象同时有正反两面判断时，应一起保留；相对预期的比较不能替代实际情况的程度限定，标题和封面都不能只摘其中一面。
 问答轮次已由单独的原文阅读步骤划分，不能为了写标题而改动说话人。只能根据列出的嘉宾原话选择中心观点。
 再在b_focus.a_claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
 用b_focus.b_evidence_ids选1~4条支撑它的guest原文编号；不能选host或unknown。不要把主持人的猜测或一处举例当成中心观点。
@@ -362,6 +363,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 这个例子只说明文风，不能套用它的事实。不得夸大收益、安全性、因果或删掉否定和不确定性。
 只输出JSON。__TITLE_SOURCE__'''
     last_error = ''
+    repair_checks=set()
     for attempt in range(3):
         try:
             # Finish with the source, not three repetitions of a rejected claim.
@@ -394,6 +396,20 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):
                     source_heading+='原文明确说龙头尚未形成。写到龙头时，标题与封面必须保留“没有、尚未、未来、可能成为”等原有阶段；不能写成选定现成龙头，不能只添加限定词却保留相反做法。\n'
                 draft_retry=(f'第{attempt+1}轮重新拟稿；上轮未通过原文或文案检查。只从下方嘉宾原话重新提炼判断，不延续上轮措辞。\n' if last_error else '')
+                # Preserve actionable failed checks, without injecting the old
+                # fabricated claim into factual drafting. Run169 discarded all
+                # qualifier feedback and repeated the same omission three times.
+                repairs={
+                    'preserves_qualifiers':'同一对象的正反两面判断必须一起保留，包括相对预期的比较和对实际情况的限定；不能只写其中一面，也不能扩大讨论对象的范围。',
+                    'source_supported':'逐项删除原话没有明说的比较、因果和结论，不从主持人问题或常识补事实。',
+                    'attribution_correct':'只写明确属于嘉宾回答的判断，不能把提问里的假设归给嘉宾。',
+                    'central_point':'重新选择有完整解释支持的主要判断，不能只摘旁枝例子。',
+                    'cover_consistent':'封面必须对应标题同一个对象与判断，不能比标题更肯定。',
+                    'readable':'用自然完整的中文短句，保留对象、动作和宾语，不能拼术语或截半句。',
+                }
+                if repair_checks:
+                    draft_retry+='上轮退回的检查项及本轮必须执行的修正（不是事实来源）：\n'+ '\n'.join(
+                        k+'：'+repairs[k] for k in CHECKS if k in repair_checks)+'\n'
             else:
                 draft_source=dict(enumerate(units))
                 source_heading='下面是按原顺序编号的完整字幕，未删改：\n'
@@ -433,6 +449,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 不合格时说明原文实际的做法或判断，再指出标题偏差，供下一轮修正中心观点和措辞。
 严格寻找实际标题/封面新增的比较、因果、收益和安全性判断。只有候选确实写出了新增判断，才能以此判source_supported=false。
 保留原文中的否定、程度、转折和不确定性，不把有限的肯定扩大成整体乐观，不改变讨论对象间的关系。
+判断限定是否保留要比较实际含义，不能仅因使用等义的日常表达而拒绝。完整问句可以是标题或封面；不能仅因它未提前揭示答案就判不完整，但问题前提仍必须有原文支持。
 拗口的术语堆砌、主体关系错误、把有限的肯定扩大成整体乐观，分别判readable、source_supported、preserves_qualifiers=false。
 逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；
 attribution_correct没有把主持人的猜测归为嘉宾断言；preserves_qualifiers保留条件否定和不确定性；
@@ -466,6 +483,8 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严�
                         and type(row.get('appeal')) is int and 3 <= row['appeal'] <= 5):
                     accepted.append(row)
             if not accepted:
+                repair_checks={k for row in reviews if isinstance(row,dict)
+                               for k in CHECKS if row.get(k) is not True}
                 if structured_model and any(row.get('attribution_correct') is not True for row in reviews if isinstance(row,dict)):
                     reading=None
                 feedback=[]
