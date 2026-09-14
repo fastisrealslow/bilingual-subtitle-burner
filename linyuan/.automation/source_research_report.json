@@ -1,8 +1,8 @@
 {
-  "run_id": "34857668160",
+  "run_id": "34859537672",
   "processed": 3,
-  "inspected": 22,
-  "pending": 32,
+  "inspected": 23,
+  "pending": 31,
   "audio_matches": [],
   "reference_refresh": {
     "status": "searched",
@@ -840,8 +840,33 @@
       "role": "mother",
       "family": "investor_call",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0
+      "status": "inspected",
+      "attempts": 0,
+      "last_attempt_at": 1789398814.5899854,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "ad0249a3829ec2298a09a69416494eb5762243bdc6284f13a5be675dcd7c3213",
+        "duration_sec": 600.1,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 300.05
+          }
+        ],
+        "audio_fingerprint_count": 4825,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "34859537672"
     },
     "ffb987ed1865e1f13321": {
       "url": "https://www.bilibili.com/video/BV1gLL36dEEQ",
@@ -888,8 +913,11 @@
       "role": "mother",
       "family": "investor_call",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0
+      "status": "retry_wait",
+      "attempts": 1,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1789398495.2677662,
+      "next_retry_at": 1789420095.2677662
     },
     "e2682e85459d428af0eb": {
       "url": "https://www.bilibili.com/video/BV17u411b7M3",
@@ -934,8 +962,11 @@
       "role": "mother",
       "family": "maotai_table_exchange",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0
+      "status": "retry_wait",
+      "attempts": 1,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1789398795.2715676,
+      "next_retry_at": 1789420395.2715676
     },
     "5d20bd5ee126e5c516e9": {
       "url": "https://www.bilibili.com/video/BV1wi3X6UE2t",
@@ -1038,8 +1069,8 @@
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
       "status": "searched",
-      "checked_at": 1789349908.5954242,
-      "next_retry_at": 1789393108.5954242,
+      "checked_at": 1789398194.3641458,
+      "next_retry_at": 1789441394.3641458,
       "found": 4,
       "new_ids": []
     },
