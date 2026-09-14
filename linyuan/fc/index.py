@@ -748,12 +748,21 @@ def diagnose_release_download(event=None, context=None):
         shutil.rmtree(probe_dir, ignore_errors=True)
 
 
-def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=1024*1024*1024):
+def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120, max_bytes=1024*1024*1024,
+                          preserve_partial=False):
     """Resume the same immutable artifact within bounded attempts; verify the ZIP."""
     import requests
     archive_path=Path(archive_path)
-    # Only bytes obtained for this exact artifact invocation may be resumed.
-    archive_path.unlink(missing_ok=True)
+    # Only a sidecar bound to this immutable artifact permits cross-call resume.
+    identity_path=archive_path.with_suffix('.artifact-id')
+    try:
+        same=identity_path.read_text()==str(artifact_id)
+    except OSError:
+        same=False
+    if not preserve_partial or not same:
+        archive_path.unlink(missing_ok=True)
+    if preserve_partial:
+        identity_path.write_text(str(artifact_id))
     for attempt in range(attempts):
         can_resume=True
         try:
@@ -788,7 +797,8 @@ def download_reviewed_zip(artifact_id, archive_path, attempts=3, timeout_sec=120
                 retained=0
             log_event('download_retry',f'成片取件重试 {attempt+1}/{attempts}',f'artifact={artifact_id} retained={retained} '+(str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__))
             flush_logs()
-    archive_path.unlink(missing_ok=True)
+    if not preserve_partial:
+        archive_path.unlink(missing_ok=True)
     raise RuntimeError(f'Reviewed artifact exhausted {attempts} bounded attempts')
 
 
@@ -888,9 +898,23 @@ def download_release_part(slug, part_index, dest_dir):
 def download_inventory_part(artifact_id, part_index, dest_dir):
     """Use the inspected artifact's own metadata and actual ASS, with a deadline."""
     dest_dir=Path(dest_dir)
-    archive_path=dest_dir/'inventory.zip'
+    # Invocation temp directories are deleted after a transient failure. Keep
+    # only the exact artifact checkpoint outside them, and bound disk retention.
+    cache=Path(tempfile.gettempdir())/'linyuan-artifact-cache'
+    cache.mkdir(parents=True,exist_ok=True)
+    archive_path=cache/f'{int(artifact_id)}.zip'
+    others=sorted((p for p in cache.glob('*.zip') if p!=archive_path),
+                  key=lambda p:p.stat().st_mtime,reverse=True)
+    for i,path in enumerate(others):
+        if i>=2 or time.time()-path.stat().st_mtime>24*3600:
+            path.unlink(missing_ok=True)
+            path.with_suffix('.artifact-id').unlink(missing_ok=True)
+    completed=False
     try:
-        download_reviewed_zip(artifact_id,archive_path,attempts=2)
+        # The 14:00 bundle exceeded the former 2x120s allowance while making
+        # steady progress. Six resumable slices remain bounded to 12 minutes.
+        download_reviewed_zip(artifact_id,archive_path,attempts=6,preserve_partial=True)
+        completed=True
         with zipfile.ZipFile(archive_path) as archive:
             payload=json.loads(archive.read('meta.json'))
             parts=payload if isinstance(payload,list) else [payload]
@@ -908,7 +932,9 @@ def download_inventory_part(artifact_id, part_index, dest_dir):
         log.warning('Bounded inventory download unavailable: %s',type(exc).__name__)
         return False
     finally:
-        archive_path.unlink(missing_ok=True)
+        if completed:
+            archive_path.unlink(missing_ok=True)
+            archive_path.with_suffix('.artifact-id').unlink(missing_ok=True)
 
 
 class StateSnapshot(dict):
@@ -2064,8 +2090,13 @@ def catchup_deficit(st, now=None):
     today=time.strftime('%Y-%m-%d',local)
     daily=st.get('daily_publish') or {}
     count=int(daily.get('count') or 0) if daily.get('date')==today else 0
-    due = sum(hour <= local.tm_hour for hour in PUBLISH_HOURS)
-    return min(1, max(0, min(MAX_PUBLISH_PER_DAY, due)-count), len(due_publication_slots(st, now)))
+    if daily.get('date')==today and 'published_hours' not in daily:
+        # Legacy snapshots without slot receipts cannot safely infer a gap.
+        due=sum(hour<=local.tm_hour for hour in PUBLISH_HOURS)
+        return min(1,max(0,min(MAX_PUBLISH_PER_DAY,due)-count),len(due_publication_slots(st,now)))
+    # Off-hour receipts (including last night's late uploads) cannot fill the
+    # 14:00 slot. #0914 had [1, 1, 10]; due-count hid its failed landscape upload.
+    return min(1, max(0, MAX_PUBLISH_PER_DAY-count), len(due_publication_slots(st, now)))
 
 
 def inventory_catchup_request(st, payload, now=None):

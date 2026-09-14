@@ -56,6 +56,16 @@ def test_sixteen_remains_due_after_twenty_one_has_published(monkeypatch):
     assert fc.catchup_deficit(state) == 0
 
 
+def test_0914_off_hour_uploads_do_not_hide_failed_fourteen(monkeypatch):
+    now=TEN+5*3600
+    state,payload=reserve(monkeypatch,now)
+    state['daily_publish'].update(count=3,published_hours=[1,1,10])
+    assert fc.catchup_deficit(state)==1
+    assert fc.inventory_catchup_request(state,payload)['makeup_slot']=='2026-09-13 14'
+    state['daily_publish']['count']=fc.MAX_PUBLISH_PER_DAY
+    assert fc.catchup_deficit(state)==0
+
+
 def test_weekly_full_is_not_consumed_to_cover_a_short_clip_debt(monkeypatch):
     now = TEN + 7*3600
     state, payload = reserve(monkeypatch, now, full=True)

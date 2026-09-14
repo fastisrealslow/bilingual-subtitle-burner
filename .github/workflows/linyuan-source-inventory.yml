@@ -28,7 +28,7 @@ jobs:
   inventory:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.name != 'FC production deploy' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}

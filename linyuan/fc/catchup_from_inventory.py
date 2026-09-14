@@ -32,7 +32,7 @@ def run_inventory_task(action):
     prepare_async_tasks(client,function,m,runtime)
     task_id='ly-stock-'+action+'-'+os.environ['GITHUB_RUN_ID']
     save_receipt(dict(task_id=task_id,action=action,status='Reconciling',outcome='pending'))
-    return task_id, tracked_request(client,function,m,runtime,action,task_id)
+    return task_id, tracked_request(client,function,m,runtime,action,task_id,wait_seconds=1200)
 
 
 def tracked_request(client,function,m,runtime,action,task_id,payload=None,wait_seconds=300):

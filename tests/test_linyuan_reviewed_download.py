@@ -108,3 +108,31 @@ def test_resume_or_integrity_failure_restarts_cleanly(tmp_path,monkeypatch,failu
     monkeypatch.setattr(fc,'flush_logs',lambda:None)
     assert fc.download_reviewed_zip(123,tmp_path/'artifact.zip')>0
     assert len(calls)==3
+
+
+def test_0914_next_invocation_resumes_same_artifact_only(tmp_path,monkeypatch):
+    import requests
+    payload=io.BytesIO()
+    with zipfile.ZipFile(payload,'w') as z:z.writestr('meta.json','{}')
+    data=payload.getvalue();cut=len(data)//2;calls=[]
+    monkeypatch.setattr(requests,'get',lambda *a,**k:types.SimpleNamespace(
+        status_code=302,headers={'Location':'https://example.test/signed'}))
+    monkeypatch.setattr(fc,'log_event',lambda *a:None)
+    monkeypatch.setattr(fc,'flush_logs',lambda:None)
+    def transfer(command,**kwargs):
+        path=Path(command[command.index('-o')+1]);calls.append(command)
+        if len(calls)==1:
+            path.write_bytes(data[:cut]);return types.SimpleNamespace(returncode=28)
+        assert '--continue-at' in command and path.read_bytes()==data[:cut]
+        path.write_bytes(data);return types.SimpleNamespace(returncode=0)
+    monkeypatch.setattr(fc.subprocess,'run',transfer)
+    path=tmp_path/'artifact.zip'
+    with pytest.raises(RuntimeError):
+        fc.download_reviewed_zip(123,path,attempts=1,preserve_partial=True)
+    assert path.read_bytes()==data[:cut]
+    assert fc.download_reviewed_zip(123,path,attempts=1,preserve_partial=True)==len(data)
+    def foreign(command,**kwargs):
+        assert '--continue-at' not in command and not path.exists()
+        path.write_bytes(data);return types.SimpleNamespace(returncode=0)
+    monkeypatch.setattr(fc.subprocess,'run',foreign)
+    assert fc.download_reviewed_zip(456,path,attempts=1,preserve_partial=True)==len(data)
