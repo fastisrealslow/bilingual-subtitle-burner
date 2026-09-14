@@ -3,7 +3,7 @@
   "validation_sha256": "eb76020421bc03c44f53cd9f4afc1f9893dea0cdc87b754d59ed1a5e4a2063e5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789380933,
+  "updated_at": 1789382793,
   "materials": {
     "weibo_search": {
       "records": 1197,
@@ -9131,7 +9131,14 @@
           "ly-0914-4ac007"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0914-4ac007",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9767,9 +9774,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -10046,8 +10053,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -10059,8 +10066,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -10218,9 +10225,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10521,8 +10528,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
@@ -10553,8 +10560,8 @@
         "attempted_mothers": 5,
         "verified_available": 2,
         "verified_seconds": 399.066,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -10716,11 +10723,12 @@
       "BV1Nu4m1G7nG": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 7,
   "artifacts": [
     {
       "slug": "ly-0914-72120a",
