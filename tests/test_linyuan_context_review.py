@@ -11,6 +11,26 @@ import produce_cn as p
 DATA=json.loads((Path(__file__).parent/'fixtures/linyuan_715_selection.json').read_text())
 
 
+def test_actual_870_sentence_outline_is_not_terminal_source_evidence():
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_870_topics.json').read_text())
+    assert len(data['topics']['topics'])==34
+    with pytest.raises(ValueError,match='过度逐句拆分'):
+        r.parse_topics(json.dumps(data['topics']),data['cues'])
+
+
+def test_fragmented_map_gets_one_uncached_retry_then_stays_recoverable(monkeypatch,tmp_path):
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_870_topics.json').read_text())
+    calls=[]
+    def model(*args,**kwargs):
+        calls.append(kwargs)
+        return json.dumps(data['topics'])
+    monkeypatch.setattr(p,'llm',model)
+    with pytest.raises(p.SelectionIncomplete,match='过度逐句拆分'):
+        p.pick_argument_context(data['cues'],[dict(start=0,end=38)],'林园','',tmp_path,'')
+    assert len(calls)==2 and calls[-1]['read_cache'] is False
+    assert not (tmp_path/'context_review.json').exists()
+
+
 def test_actual_715_contradictory_partial_response_cannot_be_a_verdict():
     assert len(DATA['choices'])==39
     assert all(x['accepted'] and x['score']==0 for x in DATA['old_response']['picks'])

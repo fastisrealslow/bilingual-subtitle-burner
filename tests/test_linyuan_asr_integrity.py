@@ -10,6 +10,18 @@ P = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(P)
 
 
+def test_actual_887_sparse_asr_cannot_pass_via_tiny_cue_durations():
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_887_sparse_asr.json').read_text())
+    assert sum(len(c['text']) for c in data['cues'])==3
+    with pytest.raises(RuntimeError,match='ASR 识别异常'):
+        P._asr_quality_gate(data['cues'],data['audio_seconds'])
+
+
+def test_meaningful_sparse_speech_is_not_rejected_by_catastrophic_floor():
+    cues=[dict(start=100,end=120,text='长期持有优秀企业需要先理解企业的经营模式和竞争优势。'*4)]
+    P._asr_quality_gate(cues,300)
+
+
 def test_loop_cleanup_preserves_following_information():
     assert P._de_loop_text('我我我我买了100股，后来卖了20股') == '我我买了100股，后来卖了20股'
 

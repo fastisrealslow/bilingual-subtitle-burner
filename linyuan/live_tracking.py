@@ -48,8 +48,12 @@ def crop_box(face, width, height, ratio=632/470, exclusions=()):
     # between two measured corner marks. At a NEW shot choose the widest
     # feasible crop, preserving the same face margins and pixel minimum.
     for scale in (2.1,2.0,1.9,1.8,1.7,1.6):
-        ch=min(height,h*scale,width/ratio);cw=ch*ratio
-        if scale<2.1 and (cw<316 or ch<235):break
+        # A small face does not imply the source is low resolution. #879/#883
+        # cropped a clean interview down to 208–292px and then rejected the
+        # resulting upscaling. Retain more real surrounding pixels first.
+        minimum_h=math.ceil(max(470/2,632/2/ratio)/2)*2
+        ch=min(height,max(h*scale,minimum_h),width/ratio);cw=ch*ratio
+        if cw<316 or ch<235:break
         left=max(0,min(width-cw,x+w/2-cw/2))
         top=max(0,min(height-ch,y-h*.48))
         box=tuple(int(v)//2*2 for v in (left,top,cw,ch))

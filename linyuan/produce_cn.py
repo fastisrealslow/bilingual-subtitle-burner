@@ -1065,6 +1065,11 @@ def _asr_quality_gate(cues, audio_sec):
           f"{chars} 字 / {len(cues)} 条 / 音频 {audio_sec:.0f}s")
     if not cues:
         raise RuntimeError("ASR 质量不合格：没有识别出任何字幕，放弃出片")
+    # #887 contained just three characters in 1421 seconds. Tiny aligned
+    # intervals inflated the inner rate to 37.5 chars/s, bypassing the AND
+    # condition below and incorrectly ending as a terminal selection failure.
+    if audio_sec>=60 and (density<.15 or inner/audio_sec<.01):
+        raise RuntimeError("ASR 识别异常：长音频仅有极少有效字幕；保留原始音频和转写供恢复，不能判为无合格选段")
     if rate < ASR_MIN_SPEECH_RATE and density < ASR_MIN_DENSITY:
         raise RuntimeError(
             f"ASR 质量不合格：条内语速 {rate:.2f}（阈值 {ASR_MIN_SPEECH_RATE}）"
@@ -1542,7 +1547,18 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     try:
         topics=review.parse_topics(answer,cues)
     except (ValueError,TypeError) as exc:
-        raise SelectionIncomplete(f'{exc}；保留ASR，不判整源无合格片') from exc
+        # Retry the malformed map once, without replaying the cached outline.
+        correction=review.topic_prompt(transcript,cues,speaker)+(
+            '\n上次输出无效：'+str(exc)+
+            '。请重新通读全文，只在独立问题改变时换题；解释、举例、反问和回答的推进不是新主题。')
+        answer=llm([{'role':'user','content':correction}],api_key,temperature=0,
+                   max_tokens=1400,budget_sec=text_budget(240),
+                   response_schema=review.topic_schema(cues),read_cache=False)
+        (work/f'context_topics{suffix}.retry.txt').write_text(answer)
+        try:
+            topics=review.parse_topics(answer,cues)
+        except (ValueError,TypeError) as retry_exc:
+            raise SelectionIncomplete(f'{retry_exc}；保留ASR，不判整源无合格片') from retry_exc
     verdicts={str(c['candidate_id']):'reject_mixed_topics' for c in choices
               if not any(t['start']<=c['start']<=c['end']<=t['end'] for t in topics)}
     eligible=[c for c in choices if str(c['candidate_id']) not in verdicts]
@@ -2729,7 +2745,7 @@ def select_interview_face(faces, width, height):
     return max(candidates,key=lambda b:b[0]+b[2]/2)
 
 
-def audio_card_live_crop(width, height, src=None, at=None):
+def audio_card_live_crop(width, height, src=None, at=None, exclusions=()):
     """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
     if width <= height:
         return None
@@ -2750,11 +2766,12 @@ def audio_card_live_crop(width, height, src=None, at=None):
         cap.release()
         if len(boxes)>=2:
             fx,fy,fw,fh=[statistics.median([b[k] for b in boxes]) for k in range(4)]
-            ch=min(height,int(fh*1.8))//2*2; cw=min(width,int(ch*target_ratio))//2*2
-            if cw>=160 and ch>=120:
-                cx=max(0,min(width-cw,int(fx+fw/2-cw/2)))//2*2
-                cy=max(0,min(height-ch,int(fy-fh*.38)))//2*2
+            from live_tracking import crop_box
+            try:
+                cx,cy,cw,ch=crop_box((fx,fy,fw,fh),width,height,target_ratio,exclusions)
                 return f"crop={cw}:{ch}:{cx}:{cy},scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:flags=lanczos,setsar=1"
+            except ValueError:
+                return None  # Measured marks intersect the available face crop.
     # 横屏访谈优先取人物上半身，主动避开底部常驻字幕/栏目条。
     # 旧版取 78% 高度会把 0.73~0.95H 的来源条带一起带进真人窗口，
     # 导致本来可用的 1080P 双人访谈全部退回 audio_card。
@@ -4748,7 +4765,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
     if strategy == "audio_card" and prefer_live_video:
         candidate_crop = (reviewed_source_live_crop(source_report,W,H) or
-                          audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"]))
+                          audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"],_logos))
         if candidate_crop:
             try:
                 preview_pick=picks[0]

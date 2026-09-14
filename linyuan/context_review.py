@@ -2,7 +2,7 @@
 import json
 import hashlib
 
-VERSION = 4
+VERSION = 5
 # Run 798 exhausted the 600-second CPU budget with batches of up to 48 ranges and
 # the full transcript. Smaller batches retain exhaustive coverage and leave
 # room for the topic map and verdicts without weakening the 120-second rule.
@@ -86,7 +86,18 @@ def parse_topics(answer,cues):
     _,topics,_=parse(json.dumps(dict(topics=data['topics'],verdicts={})),[],cues)
     if any(a['topic'].strip()==b['topic'].strip() for a,b in zip(topics,topics[1:])):
         raise ValueError('相邻同一主题被重复拆分，不能据此淘汰素材')
+    # #870 labelled a 250s explanation as 34 topics ("继续讲", "解释为何").
+    # This is a sentence outline, not reliable negative evidence about ranges.
+    if fragmented_topics(topics,cues):
+        raise ValueError('话题图过度逐句拆分，须重新按主要问题划分，不能据此淘汰素材')
     return topics
+
+
+def fragmented_topics(topics,cues):
+    if len(topics)<6 or not cues:return False
+    duration=cues[-1]['end']-cues[0]['start']
+    short=sum(cues[t['end']]['end']-cues[t['start']]['start']<20 for t in topics)
+    return len(topics)>duration/30 and short/len(topics)>=.7
 
 
 def verdict_schema(choices):

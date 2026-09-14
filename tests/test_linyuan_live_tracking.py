@@ -5,6 +5,18 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from live_tracking import crop_box,complete_face
 
 
+@pytest.mark.parametrize('face',[(885,200,90,104),(860,210,70,74)])
+def test_883_retains_more_source_pixels_before_rejecting_small_crop(face):
+    x,y,w,h=crop_box(face,1280,640)
+    assert w>=316 and h>=235 and 632/w<=2 and 470/h<=2
+    fx,fy,fw,fh=face
+    assert x<fx and y<fy and x+w>fx+fw and y+h>fy+fh
+
+
+def test_small_source_still_cannot_be_upscaled_past_two():
+    with pytest.raises(ValueError):crop_box((50,50,60,60),300,200)
+
+
 def test_actual_801_frame_keeps_valid_shot_scale_and_new_cut_fits_between_marks():
     import json
     from live_tracking import shot_crop
