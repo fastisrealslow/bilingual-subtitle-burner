@@ -3,14 +3,14 @@
   "validation_sha256": "c968c857ddf145f57e1e8f5ef289bbfdaa440c635c8b38b7a158711711490503",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789361960,
+  "updated_at": 1789362687,
   "materials": {
     "weibo_search": {
-      "records": 1194,
-      "video_candidates": 456,
-      "duration_eligible": 52,
+      "records": 1195,
+      "video_candidates": 457,
+      "duration_eligible": 53,
+      "long_mother_candidates": 20,
       "too_short": 48,
-      "long_mother_candidates": 19,
       "duration_unknown": 356
     },
     "haokan_video": {
@@ -21,10 +21,10 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 1378,
-      "video_candidates": 1372,
-      "duration_eligible": 1030,
-      "long_mother_candidates": 548,
+      "records": 1380,
+      "video_candidates": 1374,
+      "duration_eligible": 1032,
+      "long_mother_candidates": 549,
       "over_limit": 99,
       "too_short": 139,
       "duration_unknown": 104,
@@ -9019,7 +9019,14 @@
           "ly-0914-31921f"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0914-31921f",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9956,8 +9963,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -9969,8 +9976,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -10430,10 +10437,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_visual-review": 1
+        "terminal_visual-review": 1,
+        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -10463,8 +10470,8 @@
         "attempted_mothers": 5,
         "verified_available": 2,
         "verified_seconds": 399.066,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -10608,7 +10615,8 @@
       "BV1KUzYBTEhj": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1yY4y147x1": {
         "attempted_mothers": 1,
@@ -10618,7 +10626,7 @@
       }
     }
   },
-  "in_flight_placeholders": 4,
+  "in_flight_placeholders": 3,
   "artifacts": [
     {
       "slug": "ly-0913-3499ab",
