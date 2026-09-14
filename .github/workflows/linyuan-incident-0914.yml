@@ -26,9 +26,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           pip install -q pytest requests jieba pillow numpy 'opencv-contrib-python-headless<5'
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_context_review.py tests/test_linyuan_live_tracking.py tests/test_linyuan_clean_source_plan.py tests/test_linyuan_required_live.py tests/test_linyuan_visual_before_copy.py tests/test_linyuan_reviewed_download.py tests/test_linyuan_missed_slots.py tests/test_linyuan_source_supply.py tests/test_linyuan_state_merge.py
+          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_context_review.py tests/test_linyuan_selection_incident.py tests/test_linyuan_source_selection.py tests/test_linyuan_live_tracking.py tests/test_linyuan_clean_source_plan.py tests/test_linyuan_required_live.py tests/test_linyuan_visual_before_copy.py tests/test_linyuan_reviewed_download.py tests/test_linyuan_missed_slots.py tests/test_linyuan_source_supply.py tests/test_linyuan_state_merge.py
       - name: 复用母片与转写恢复三个受修复影响的任务
         run: |
-          python linyuan/register_selection_recovery.py --suffix repair0914 --origin-slug ly-0913-a42d50 --expected-source 'https://www.bilibili.com/video/BV1trfCBnEUp' --evidence-run 34787080636
-          python linyuan/register_selection_recovery.py --suffix repair0914 --origin-slug ly-0914-31921f --expected-source 'https://www.bilibili.com/video/BV1KUzYBTEhj' --evidence-run 34807238478
-          python linyuan/register_selection_recovery.py --suffix repair0914 --origin-slug ly-0913-3a3572 --expected-source 'https://www.bilibili.com/video/BV1EYaZzZEAJ' --evidence-run 34783518587
+          python linyuan/register_selection_recovery.py --suffix repair0914v2 --origin-slug ly-0913-a42d50 --expected-source 'https://www.bilibili.com/video/BV1trfCBnEUp' --evidence-run 34787080636
+          python linyuan/register_selection_recovery.py --suffix repair0914v2 --origin-slug ly-0914-31921f --expected-source 'https://www.bilibili.com/video/BV1KUzYBTEhj' --evidence-run 34807238478
+          python linyuan/register_selection_recovery.py --suffix repair0914v2 --origin-slug ly-0913-3a3572 --expected-source 'https://www.bilibili.com/video/BV1EYaZzZEAJ' --evidence-run 34783518587

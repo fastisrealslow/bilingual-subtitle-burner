@@ -1547,6 +1547,8 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     try:
         topics=review.parse_topics(answer,cues)
     except (ValueError,TypeError) as exc:
+        if not any(reason in str(exc) for reason in ('过度逐句拆分','相邻同一主题')):
+            raise SelectionIncomplete(f'{exc}；保留ASR，不判整源无合格片') from exc
         # Retry the malformed map once, without replaying the cached outline.
         correction=review.topic_prompt(transcript,cues,speaker)+(
             '\n上次输出无效：'+str(exc)+
