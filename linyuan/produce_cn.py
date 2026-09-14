@@ -1613,7 +1613,7 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 14}
+    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 15}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
