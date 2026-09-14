@@ -3,7 +3,7 @@
   "validation_sha256": "eb76020421bc03c44f53cd9f4afc1f9893dea0cdc87b754d59ed1a5e4a2063e5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789372060,
+  "updated_at": 1789372759,
   "materials": {
     "weibo_search": {
       "records": 1196,
@@ -77,11 +77,11 @@
     }
   },
   "inventory": {
-    "verified_live": 4,
+    "verified_live": 3,
     "verified_audio_card": 0,
-    "verified_landscape": 4,
+    "verified_landscape": 3,
     "landscape_target": 2,
-    "daily_mix_usable": 4,
+    "daily_mix_usable": 3,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -8654,7 +8654,8 @@
         "slugs": [
           "ly-0913-3a3572",
           "ly-0913-3a3572-repair0914",
-          "ly-0913-3a3572-repair0914v2"
+          "ly-0913-3a3572-repair0914v2",
+          "ly-0913-3a3572-repair0914v3"
         ],
         "source_sha256": [],
         "failures": [
@@ -8663,6 +8664,12 @@
             "stage": "editorial-or-render",
             "terminal": true,
             "reason": "本轮选段没有返回通过120秒和连续上下文检查的候选"
+          },
+          {
+            "slug": "ly-0913-3a3572-repair0914v2",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "话题图过度逐句拆分，须重新按主要问题划分，不能据此淘汰素材；保留ASR，不判整源无合格片"
           }
         ],
         "verified_available": 0,
@@ -8907,6 +8914,12 @@
             "stage": "editorial-or-render",
             "terminal": true,
             "reason": "真人取景源区域仅292x218像素，超过2倍放大上限，疑似远景小头像"
+          },
+          {
+            "slug": "ly-0913-a42d50-repair0914v2",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景目标人物匹配不足80%：0/4147帧（0.0%），其他人脸4147帧，无人脸0帧；已保存取景证据"
           }
         ],
         "verified_available": 0,
@@ -9014,11 +9027,11 @@
           "6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d"
         ],
         "failures": [],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 126.1,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 126.08,
+        "historical_receipts": 1
       },
       {
         "source_key": "BV1KUzYBTEhj:p1",
@@ -9716,9 +9729,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -9995,8 +10008,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -10167,8 +10180,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
@@ -10469,10 +10482,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_duplicate-selection": 1,
+        "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -10502,8 +10515,8 @@
         "attempted_mothers": 5,
         "verified_available": 2,
         "verified_seconds": 399.066,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -10642,8 +10655,8 @@
       },
       "BV1se411H7tj": {
         "attempted_mothers": 1,
-        "verified_available": 1,
-        "verified_seconds": 126.1
+        "verified_available": 0,
+        "verified_seconds": 0
       },
       "BV1KUzYBTEhj": {
         "attempted_mothers": 1,
