@@ -9,6 +9,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'linyuan'))
 import produce_cn as p
 
 
+def test_870_followup_request_retains_the_actual_continuous_answer():
+    from source_selection import select,boundary_error
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_870_source_selection.json').read_text())
+    rows=fixture['cues']
+    picks=select(rows,whole_source=True)
+    assert len(picks)==1
+    pick=picks[0]
+    assert (pick['start'],pick['end'])==(1,77)
+    assert p.editorial.range_seconds(rows,pick)==pytest.approx(242.76)
+    assert boundary_error(rows,pick) is None
+    assert pick['selection_method']=='source_question_answer_v2'
+    assert pick.get('editorial_review') is None
+
+
 def cues():
     return [dict(start=i*30, end=(i+1)*30, text='同一观点的完整解释。') for i in range(10)]
 
