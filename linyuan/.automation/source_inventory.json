@@ -3,7 +3,7 @@
   "validation_sha256": "3b434244fe5c0f79e6e31df93d0c9d4d9bff7d88b00febb6d1d0c62f0678b4ea",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789458721,
+  "updated_at": 1789460200,
   "materials": {
     "weibo_search": {
       "records": 1211,
@@ -77,11 +77,11 @@
     }
   },
   "inventory": {
-    "verified_live": 1,
+    "verified_live": 0,
     "verified_audio_card": 0,
     "verified_landscape": 0,
     "landscape_target": 2,
-    "daily_mix_usable": 1,
+    "daily_mix_usable": 0,
     "target_reserve": 12
   },
   "source_outcomes": {
@@ -9099,11 +9099,11 @@
           "d8ec6a5c43b806f64b477180eb0204a80dc4232c49ef81715658be8df32f8631"
         ],
         "failures": [],
-        "verified_available": 1,
-        "verified_live": 1,
-        "verified_seconds": 181.2,
-        "used_source_seconds": 120.72,
-        "historical_receipts": 1
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 301.92,
+        "historical_receipts": 2
       },
       {
         "source_key": "BV1khD5Y1ESW:p1",
@@ -9283,7 +9283,14 @@
           "ly-0915-db53d8"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0915-db53d8",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9296,6 +9303,21 @@
         "family": "BV1GQSDBsE5z",
         "slugs": [
           "ly-0915-c66cd7"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1HC4y1A7BW:p1",
+        "source_url": "https://www.bilibili.com/video/BV1HC4y1A7BW",
+        "family": "BV1HC4y1A7BW",
+        "slugs": [
+          "ly-0915-6e57d9"
         ],
         "source_sha256": [],
         "failures": [],
@@ -9348,8 +9370,8 @@
     "families": {
       "m.weibo.cn": {
         "attempted_mothers": 75,
-        "verified_available": 1,
-        "verified_seconds": 181.2,
+        "verified_available": 0,
+        "verified_seconds": 0,
         "terminal_unclassified": 29,
         "terminal_editorial-or-render": 4,
         "terminal_quality-service": 1
@@ -9934,9 +9956,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -10385,9 +10407,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10688,8 +10710,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_visual-review": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_duplicate-selection": 1
       },
       "BV1PcNh6rErV": {
@@ -10720,8 +10742,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -10931,6 +10953,11 @@
         "verified_seconds": 0
       },
       "BV1GQSDBsE5z": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1HC4y1A7BW": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
