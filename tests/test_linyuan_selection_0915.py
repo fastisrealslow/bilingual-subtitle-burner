@@ -125,7 +125,9 @@ def test_real_source_can_avoid_the_wordmark_without_losing_the_face_or_resolutio
         fx,fy,fw,fh=face
         assert w>=316 and h>=235
         assert x+8<=fx and fx+fw<=x+w-8 and y+max(8,fh*.22)<=fy and fy+fh<=y+h-2
-        assert y+h<bands[0][1]*data['source_dimensions'][1]
+        # Source slices are half-open: ending at the exclusion's first row
+        # retains none of that row. The OCR box still has its two-pixel border.
+        assert y+h<=bands[0][1]*data['source_dimensions'][1]
 
 
 @pytest.mark.parametrize('digest',[

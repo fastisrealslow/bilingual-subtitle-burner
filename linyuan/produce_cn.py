@@ -3810,7 +3810,8 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
                 xs=[pt[0] for pt in box];ys=[pt[1] for pt in box]
                 rect=(min(xs)/W,min(ys)/H,max(xs)/W,max(ys)/H)
                 normalized=re.sub(r'\W+','',text).casefold()
-                evidence.append(dict(frame=frame_no,text=text,confidence=float(confidence),rect=rect))
+                evidence.append(dict(frame=frame_no,text=text,confidence=float(confidence),rect=rect,
+                                     image_height=H))
                 if not normalized or float(confidence)<.75:continue
                 if normalized=='园来滚雪球' and _inside_brand_watermark_region(rect,W,H):continue
                 x0,y0,x1,y1=rect
@@ -3860,7 +3861,13 @@ def source_edge_text_exclusions(evidence):
         # on the final live region too. Never erase/paint over source pixels.
         if (float(row.get('confidence') or 0)>=.85 and y0>=.55
                 and re.search(r'[听昕]初果复利',text)):
-            rect=(0,max(0,y0-.005),1,1)
+            # OCR boxes are in source pixels. Keep a measured two-pixel safety
+            # border instead of a fractional-height margin: 0.005 became 3.1px
+            # on the real 620px source and lost the last usable chin margin.
+            # Legacy evidence without dimensions retains its conservative band.
+            height=float(row.get('image_height') or 0)
+            top=(int(y0*height+1e-6)-2)/height if height>0 else y0-.005
+            rect=(0,max(0,top),1,1)
             if rect not in result:result.append(rect)
             continue
         if float(row.get('confidence') or 0)<.75 or len(text)<8 or x1-x0<.35:
