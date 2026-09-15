@@ -216,3 +216,15 @@ def test_888_complete_short_reply_does_not_send_the_entire_clip_back_to_a_model(
     assert p.unfinished_caption_tail('是')
     assert not p.caption_affirmation_ends([dict(zh='问题是。')])
     assert not p.caption_affirmation_ends([dict(zh='哎，是')])
+
+
+def test_measured_888_news_panel_crop_is_scoped_to_the_reviewed_source_interval():
+    report=dict(source_sha256='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d')
+    crop=p.reviewed_native_cleanup(report,1920,1080,459,747.24)
+    w,h,x,y=crop
+    assert y+h<789 and min(w,h)>=720 and h>=1080*.7
+    from presentation import layout_for
+    assert layout_for(1742,1080,False)['subtitle_region']['y']>=h
+    assert p.reviewed_native_cleanup({},1920,1080,459,747.24) is None
+    assert p.reviewed_native_cleanup(report,1920,1080,1302.44,1428.52) is None
+    assert p.reviewed_native_cleanup(report,1280,720,459,747.24) is None

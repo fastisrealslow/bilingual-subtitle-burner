@@ -2673,7 +2673,22 @@ def build_clean_source_plan(src, work, width, height, duration,
     }
 
 
-def selected_native_clean_plan(src, work, width, height, start, end):
+def reviewed_native_cleanup(source_report, width, height, start, end):
+    """Measured lower-third repair for the exact #888 source and interval.
+
+    Native review 34933295617 showed the news panel beginning at source y=789.
+    Keep the upper 70% (756px), above the entire panel and its station emblem;
+    preserve native pixels and both participants. This is only a proposal:
+    selected_native_clean_plan must render and verify it before use.
+    """
+    if (source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
+            and (width,height)==(1920,1080)
+            and abs(start-459.0)<.01 and abs(end-747.24)<.01):
+        return (1920,756,0,0)
+    return None
+
+
+def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None):
     """Reassess the selected interview before forcing a face-only window.
 
     A mother-level card decision can come from an unrelated introduction or a
@@ -2693,15 +2708,27 @@ def selected_native_clean_plan(src, work, width, height, start, end):
         # This fallback must not interpret an unavailable OCR service as a
         # clean frame. It is useful even when the old mother cache says card.
         before=ocr_row_coverage(sample,frames=12,strict=True)
-        crop=safe_crop_plan(sample,width,height,coverage=before)
+        crop=proposed_crop or safe_crop_plan(sample,width,height,coverage=before)
         if crop is None:
             raise VisualQualityError('选段没有可验证的原画裁切方案')
         cw,ch,cx,cy=crop
+        if proposed_crop and (cx!=0 or cw!=width or cy<0 or cy+ch>height
+                or ch<height*.7 or not _face_survives(sample,cy,ch)):
+            raise VisualQualityError('核对后的原画裁切未通过原有30%范围与人物保留检查')
         if min(cw,ch)<MIN_SHORT_EDGE:
             raise VisualQualityError('原画裁切后短边不足，不能放大冒充清晰源')
         logos=detect_corner_logos(sample,frames=12,strict=True)
         filters=[delogo_filter(logos,width,height) if logos else '',
                  f'crop={cw}:{ch}:{cx}:{cy}']
+        output_h=ch
+        if proposed_crop:
+            # Give our captions their own strip below the measured source
+            # crop. Moving the normal lower captions up with a shorter canvas
+            # would cover the chin in the source's close-ups. Every video frame
+            # is still the original contemporaneous frame; this is spatial
+            # caption layout, never frame freezing or duration padding.
+            filters.append(f'pad={cw}:{height}:0:0:color=white')
+            output_h=height
         vf=','.join(x for x in filters if x)
         subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(sample),
             '-vf',vf,'-an','-c:v','libx264','-preset','ultrafast','-crf','23',
@@ -2714,9 +2741,10 @@ def selected_native_clean_plan(src, work, width, height, start, end):
                      sampled_frames=12,raw_row_coverage=before,
                      clean_row_coverage=ocr_row_coverage(cleaned,frames=12,strict=True),
                      old_subtitles_removed=True,external_logos_removed=True)
+        if proposed_crop:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
         print(f'[原画适配] {start:.2f}–{end:.2f}秒可裁净旧字幕，保留横屏切镜和原始插图：{cw}x{ch}',flush=True)
         return dict(clean_strategy='crop_delogo' if logos else 'crop',
-            clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=ch),
+            clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=output_h),
             native_context_proof=proof,geometry_source=str(sample))
     except (VisualQualityError,subprocess.SubprocessError,OSError,ValueError) as exc:
         proof['reason']=str(exc)
@@ -4785,9 +4813,14 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     source_report = source_report or {}
     strategy = source_report.get("clean_strategy", "direct")
     native_plan=None;interview_plan=None;participant_reference=None
-    if strategy=='audio_card' and prefer_live_video and len(picks)==1:
+    proposed_native=(reviewed_native_cleanup(source_report,W,H,
+        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 else None)
+    if proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1:
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
-            cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'])
+            cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
+            **({'proposed_crop':proposed_native} if proposed_native else {}))
+        if proposed_native and not native_plan:
+            raise VisualQualityError('已确认原新闻字幕条残留；重新取景未通过，禁止复用旧原画方案')
         if native_plan:
             # A host's opening question is not a reason to discard an already
             # verified native crop. Preserve both participants and the original
@@ -5061,6 +5094,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if display_payload_text(proof_display)!=display_payload_text(rendered_subtitle_text):
         raise VisualQualityError('字幕编辑证明与真实ASS字幕不一致，拒绝输出为合格成片')
     meta = {
+        **({'native_cleanup_proof':native_plan['native_context_proof']} if proposed_native else {}),
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
         "subtitle_files": subtitle_files,

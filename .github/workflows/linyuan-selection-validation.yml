@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34931105983' # verified title; source-punctuated reply needs no model retry
+          RECOVERY_RUN_ID: '34933295617' # complete title and caption boundaries; recheck lower-third cleanup
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
@@ -530,6 +530,8 @@ jobs:
           if isinstance(metas,dict): metas=[metas]
           assert all(m['corner_review']['moving_wordmark_version']==2026091501 for m in metas if m['render_mode']=='live_video_card')
           assert all(m['watermark_verified'] and m['subtitles_burned'] for m in metas)
+          assert all(m['native_cleanup_proof']['passed'] and m['native_cleanup_proof']['crop_xywh']==[0,0,1920,756] for m in metas)
+          assert all(m['native_cleanup_proof']['subtitle_strip_xywh']==[0,756,1920,324] for m in metas)
           for meta in metas:
               problem=publication_gate.artifact_subtitle_error(meta,root)
               assert problem is None, problem
