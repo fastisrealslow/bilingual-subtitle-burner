@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34933295617' # complete boundaries; match the actual fading emblem with renderer PTS
+          RECOVERY_RUN_ID: '34933295617' # complete boundaries; trim the long source before recording frame PTS
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 

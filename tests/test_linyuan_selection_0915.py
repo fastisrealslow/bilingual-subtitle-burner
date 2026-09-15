@@ -249,7 +249,7 @@ def test_emblem_filter_is_inactive_when_the_host_occupies_its_location(tmp_path)
     negative=cv2.imread(str(Path(__file__).parent/'fixtures/linyuan_888_emblem_negative.png'))
     video=tmp_path/'emblem.mp4'
     writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),10,(96,96))
-    for i in range(20):
+    for i in range(30):
         frame=negative.copy()
         if 4<=i<8:frame[7:90,7:90]=template
         writer.write(frame)

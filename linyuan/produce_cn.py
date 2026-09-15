@@ -2706,7 +2706,7 @@ def measured_emblem_intervals(src, start, end, rect):
     with tempfile.TemporaryFile() as log:
         cmd=['ffmpeg','-nostdin','-hide_banner','-loglevel','info','-ss',str(start),
              '-i',str(src),'-t',str(end-start),'-vf',
-             f'setpts=PTS-STARTPTS,crop={w}:{h}:{x0}:{y0},showinfo',
+             f'setpts=PTS-STARTPTS,trim=duration={end-start},crop={w}:{h}:{x0}:{y0},showinfo',
              '-an','-fps_mode','passthrough','-pix_fmt','gray','-f','rawvideo','pipe:1']
         process=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=log)
         try:
@@ -2723,7 +2723,7 @@ def measured_emblem_intervals(src, start, end, rect):
         log.seek(0);details=log.read().decode(errors='replace')
     if code or not found:raise VisualQualityError('台标原始帧解码检查失败')
     times=[float(t) for t in re.findall(r'\bn:\s*\d+\s+pts:\s*-?\d+\s+pts_time:([\d.eE+-]+)',details)]
-    if len(times)!=len(found):raise VisualQualityError('台标解码帧与原时间戳不一致')
+    if len(times)!=len(found):raise VisualQualityError(f'台标解码帧与原时间戳不一致：{len(found)}/{len(times)}')
     runs=[]
     for i,present in enumerate(found):
         if present:
