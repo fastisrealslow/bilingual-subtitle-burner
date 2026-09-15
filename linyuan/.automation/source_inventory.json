@@ -3,7 +3,7 @@
   "validation_sha256": "3b434244fe5c0f79e6e31df93d0c9d4d9bff7d88b00febb6d1d0c62f0678b4ea",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789463924,
+  "updated_at": 1789464125,
   "materials": {
     "weibo_search": {
       "records": 1211,
@@ -9216,28 +9216,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1eGzeBSEWw:p1",
-        "source_url": "https://www.bilibili.com/video/BV1eGzeBSEWw",
-        "family": "BV1eGzeBSEWw",
-        "slugs": [
-          "ly-0915-4b179d"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0915-4b179d",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1HFd6YhEhC:p1",
         "source_url": "https://www.bilibili.com/video/BV1HFd6YhEhC",
         "family": "BV1HFd6YhEhC",
@@ -9333,27 +9311,12 @@
           "ly-0915-6e57d9"
         ],
         "source_sha256": [],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1Y4411k7a4:p1",
-        "source_url": "https://www.bilibili.com/video/BV1Y4411k7a4",
-        "family": "BV1Y4411k7a4",
-        "slugs": [
-          "ly-0915-db53d8"
-        ],
-        "source_sha256": [],
         "failures": [
           {
-            "slug": "ly-0915-db53d8",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
+            "slug": "ly-0915-6e57d9",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
           }
         ],
         "verified_available": 0,
@@ -9395,6 +9358,50 @@
         "failures": [
           {
             "slug": "ly-0915-4092a3",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1eGzeBSEWw:p1",
+        "source_url": "https://www.bilibili.com/video/BV1eGzeBSEWw",
+        "family": "BV1eGzeBSEWw",
+        "slugs": [
+          "ly-0915-4b179d"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0915-4b179d",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Y4411k7a4:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Y4411k7a4",
+        "family": "BV1Y4411k7a4",
+        "slugs": [
+          "ly-0915-db53d8"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0915-db53d8",
             "stage": "quality-service",
             "terminal": false,
             "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
@@ -10327,8 +10334,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -10486,9 +10493,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10788,10 +10795,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_duplicate-selection": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -10821,8 +10828,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -11006,11 +11013,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1eGzeBSEWw": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1HFd6YhEhC": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -11038,12 +11040,8 @@
       "BV1HC4y1A7BW": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1Y4411k7a4": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1bPdDYBErQ": {
         "attempted_mothers": 1,
@@ -11055,10 +11053,20 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1eGzeBSEWw": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1Y4411k7a4": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 6,
+  "in_flight_placeholders": 5,
   "artifacts": [
     {
       "slug": "ly-0914-72120a",
