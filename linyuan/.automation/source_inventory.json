@@ -3,7 +3,7 @@
   "validation_sha256": "3b434244fe5c0f79e6e31df93d0c9d4d9bff7d88b00febb6d1d0c62f0678b4ea",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789460639,
+  "updated_at": 1789460765,
   "materials": {
     "weibo_search": {
       "records": 1211,
@@ -9349,7 +9349,14 @@
           "ly-0915-4092a3"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0915-4092a3",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -10000,9 +10007,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -10452,8 +10459,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10753,9 +10760,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1
       },
       "BV1PcNh6rErV": {
