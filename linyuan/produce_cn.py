@@ -2931,6 +2931,7 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             "partial_qr_verified": True, "full_face_frames": full_face_frames,
             "no_black_bars_verified": True,
             "corner_review":dict(version=2026091302,passed=True,sampled_frames=got,
+                moving_wordmark_version=2026091501,
                 media_sha256=_file_sha256(final),policy='platform_persistent_text_and_source_edge_bands')}
 
 
@@ -3852,6 +3853,16 @@ def source_edge_text_exclusions(evidence):
     for row in evidence:
         x0,y0,x1,y1=map(float,row['rect'])
         text=re.sub(r'\W+','',str(row.get('text') or ''))
+        # Actual 0915 render: a moving red “听初果复利” source wordmark
+        # crossed the guest's chest. OCR read it as “昕初果复利” with .929
+        # confidence, but the generic 8-character/edge rule discarded it.
+        # Keep the measured band before locking the shot crop, and reject it
+        # on the final live region too. Never erase/paint over source pixels.
+        if (float(row.get('confidence') or 0)>=.85 and y0>=.55
+                and re.search(r'[听昕]初果复利',text)):
+            rect=(0,max(0,y0-.005),1,1)
+            if rect not in result:result.append(rect)
+            continue
         if float(row.get('confidence') or 0)<.75 or len(text)<8 or x1-x0<.35:
             continue
         if y0>=.80:

@@ -287,6 +287,13 @@ def source_attribution_error(source_sha, speaker):
 
 
 def metadata_error(meta, actual_seconds=None):
+    # Actual final pixels at ~120.8s retain the moving red source wordmark.
+    # These two exact files were manually checked; other clips from the same
+    # mother remain eligible. Re-rendering still needs every normal media gate.
+    if (meta.get('fingerprints') or {}).get('sha256') in {
+            '1bb0d11ecff2e072f19e2817d55daf4e0deede035167a1e16dc0737439d4ff05',
+            'edf7eeeabc0ab08b8d1b38c2082fd5ad3ef9e713707324271f8ba4c820f13127'}:
+        return '实际画面复核发现红色来源水印残留，须避开水印重新取景；旧通过记录不可复用'
     source_error=source_attribution_error(meta.get('source_sha256'),meta.get('speaker'))
     if source_error:return source_error
     attribution=title_attribution_error(meta.get('title'))

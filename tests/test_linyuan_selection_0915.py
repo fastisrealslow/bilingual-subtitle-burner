@@ -102,3 +102,34 @@ def test_short_speech_cannot_use_next_question_for_duration():
     cues=[dict(start=0,end=110,text='企业的长期增长取决于持续的需求。'),
           dict(start=110,end=145,text='您对科技股怎么看？')]
     assert select(cues,whole_source=True)==[]
+
+
+def test_actual_moving_wordmark_is_not_discarded_as_short_background_text():
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_0915_moving_wordmark.json').read_text())
+    # These are actual OCR results in source coordinates and final-window
+    # coordinates. The prior 8-character rule ignored both despite .929 OCR.
+    for row in (data['source_ocr'],data['final_ocr']):
+        bands=p.source_edge_text_exclusions([row])
+        assert len(bands)==1 and bands[0][0]==0 and bands[0][2:]==(1,1)
+        assert bands[0][1]<row['rect'][1]
+        assert not p.source_edge_text_exclusions([{**row,'confidence':.3}])
+        assert not p.source_edge_text_exclusions([{**row,'text':'企业产品说明'}])
+
+
+def test_real_source_can_avoid_the_wordmark_without_losing_the_face_or_resolution():
+    from live_tracking import crop_box
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_0915_moving_wordmark.json').read_text())
+    bands=p.source_edge_text_exclusions([data['source_ocr']])
+    for face in data['source_faces']:
+        x,y,w,h=crop_box(face,*data['source_dimensions'],exclusions=data['source_marks']+bands)
+        fx,fy,fw,fh=face
+        assert w>=316 and h>=235
+        assert x+8<=fx and fx+fw<=x+w-8 and y+max(8,fh*.22)<=fy and fy+fh<=y+h-2
+        assert y+h<bands[0][1]*data['source_dimensions'][1]
+
+
+@pytest.mark.parametrize('digest',[
+    '1bb0d11ecff2e072f19e2817d55daf4e0deede035167a1e16dc0737439d4ff05',
+    'edf7eeeabc0ab08b8d1b38c2082fd5ad3ef9e713707324271f8ba4c820f13127'])
+def test_manually_verified_dirty_files_cannot_reenter_publication(digest):
+    assert '红色来源水印' in p.editorial.metadata_error(dict(fingerprints=dict(sha256=digest)))

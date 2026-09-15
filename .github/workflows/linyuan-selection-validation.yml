@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34808764007'
+          RECOVERY_RUN_ID: '34925922320'
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
@@ -549,6 +549,7 @@ jobs:
           name: render-evidence-${{ env.RUN_SLUG }}
           path: |
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/rejected/
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source-corners*/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.evidence/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/live-region-*/
