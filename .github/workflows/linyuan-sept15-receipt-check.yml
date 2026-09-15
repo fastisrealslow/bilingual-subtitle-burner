@@ -1,0 +1,27 @@
+name: 0915 优化补产投稿状态核验
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-sept15-receipt-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 查询已取得回执的单条稿件
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/bili_archive_status.py --bvid BV1cHeE66Euf --out sept15-receipt.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sept15-receipt
+          path: sept15-receipt.json
+          if-no-files-found: error
