@@ -3,18 +3,15 @@
   "validation_sha256": "3b434244fe5c0f79e6e31df93d0c9d4d9bff7d88b00febb6d1d0c62f0678b4ea",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789489541,
+  "updated_at": 1789494344,
   "materials": {
     "weibo_search": {
-      "records": 1213,
+      "records": 1214,
       "video_candidates": 464,
       "duration_eligible": 56,
       "long_mother_candidates": 23,
       "too_short": 52,
       "duration_unknown": 356
-    },
-    "shareholder_meeting": {
-      "records": 151
     },
     "haokan_video": {
       "records": 25,
@@ -23,23 +20,26 @@
       "duration_eligible": 11,
       "long_mother_candidates": 8
     },
+    "shareholder_meeting": {
+      "records": 151
+    },
     "bilibili_search": {
-      "records": 1803,
-      "video_candidates": 1797,
-      "duration_eligible": 1411,
-      "long_mother_candidates": 752,
-      "over_limit": 116,
-      "too_short": 172,
+      "records": 1847,
+      "video_candidates": 1841,
+      "duration_eligible": 1447,
+      "long_mother_candidates": 762,
+      "over_limit": 117,
+      "too_short": 179,
       "duration_unknown": 98,
       "reference_only": 6
     },
     "reference_origin_search": {
-      "records": 358,
-      "video_candidates": 358,
+      "records": 364,
+      "video_candidates": 364,
       "too_short": 35,
-      "over_limit": 97,
-      "duration_eligible": 226,
-      "long_mother_candidates": 129
+      "over_limit": 100,
+      "duration_eligible": 229,
+      "long_mother_candidates": 131
     },
     "netease_video": {
       "records": 38,
@@ -71,9 +71,9 @@
     "bilibili_collection": {
       "records": 132,
       "video_candidates": 132,
-      "over_limit": 1,
       "duration_eligible": 131,
-      "long_mother_candidates": 113
+      "long_mother_candidates": 113,
+      "over_limit": 1
     }
   },
   "inventory": {
@@ -9513,7 +9513,7 @@
           {
             "slug": "ly-0915-f4ed15",
             "stage": "quality-service",
-            "terminal": false,
+            "terminal": true,
             "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
           }
         ],
@@ -10152,8 +10152,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
@@ -10603,8 +10603,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
         "terminal_render-review": 1,
+        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
@@ -10905,10 +10905,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -11204,11 +11204,12 @@
       "BV1ioeH6VEWq": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_quality-service": 1
       }
     }
   },
-  "in_flight_placeholders": 2,
+  "in_flight_placeholders": 1,
   "artifacts": [
     {
       "slug": "ly-0914-72120a",
