@@ -3,7 +3,7 @@
   "validation_sha256": "3b434244fe5c0f79e6e31df93d0c9d4d9bff7d88b00febb6d1d0c62f0678b4ea",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789494517,
+  "updated_at": 1789494647,
   "materials": {
     "weibo_search": {
       "records": 1214,
@@ -9531,7 +9531,14 @@
           "ly-0915-61271e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0915-61271e",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（480x360），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9576,7 +9583,14 @@
           "ly-0915-fd36a3"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0915-fd36a3",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9591,7 +9605,14 @@
           "ly-0915-e03486"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0915-e03486",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（480x360），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -10521,8 +10542,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -10534,8 +10555,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -10694,8 +10715,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10995,8 +11016,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1
       },
@@ -11300,7 +11321,8 @@
       "BV11o1kBVEj6": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1bWAKeaE9H": {
         "attempted_mothers": 1,
@@ -11315,12 +11337,14 @@
       "BV1bo4y1P7aR": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1UV4UekEWT": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1RD3Cz4EYG": {
         "attempted_mothers": 1,
@@ -11329,7 +11353,7 @@
       }
     }
   },
-  "in_flight_placeholders": 7,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-0914-72120a",
