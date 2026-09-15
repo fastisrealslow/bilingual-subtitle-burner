@@ -3,7 +3,7 @@
   "validation_sha256": "3b434244fe5c0f79e6e31df93d0c9d4d9bff7d88b00febb6d1d0c62f0678b4ea",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789472893,
+  "updated_at": 1789476280,
   "materials": {
     "weibo_search": {
       "records": 1212,
@@ -13,6 +13,9 @@
       "too_short": 52,
       "duration_unknown": 356
     },
+    "shareholder_meeting": {
+      "records": 151
+    },
     "haokan_video": {
       "records": 25,
       "video_candidates": 25,
@@ -21,20 +24,20 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 1769,
-      "video_candidates": 1763,
-      "too_short": 166,
-      "duration_eligible": 1383,
-      "long_mother_candidates": 743,
-      "over_limit": 114,
-      "duration_unknown": 100,
+      "records": 1790,
+      "video_candidates": 1784,
+      "too_short": 169,
+      "duration_eligible": 1402,
+      "long_mother_candidates": 749,
+      "over_limit": 115,
+      "duration_unknown": 98,
       "reference_only": 6
     },
     "reference_origin_search": {
-      "records": 341,
-      "video_candidates": 341,
-      "over_limit": 89,
-      "duration_eligible": 218,
+      "records": 344,
+      "video_candidates": 344,
+      "over_limit": 91,
+      "duration_eligible": 219,
       "long_mother_candidates": 123,
       "too_short": 34
     },
@@ -42,9 +45,6 @@
       "records": 38,
       "video_candidates": 37,
       "duration_unknown": 37
-    },
-    "shareholder_meeting": {
-      "records": 149
     },
     "competitor_reference": {
       "records": 982,
@@ -9424,9 +9424,9 @@
         "failures": [
           {
             "slug": "ly-0915-53a621",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
           }
         ],
         "verified_available": 0,
@@ -10515,9 +10515,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -10818,9 +10818,9 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1,
-        "terminal_visual-review": 1
+        "terminal_workflow-preflight": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -11092,11 +11092,12 @@
       "BV1KkvsBeEM8": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 3,
+  "in_flight_placeholders": 2,
   "artifacts": [
     {
       "slug": "ly-0914-72120a",
