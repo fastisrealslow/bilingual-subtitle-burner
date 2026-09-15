@@ -1614,8 +1614,10 @@ def editorial_sentence_units(cues):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 15}
+    from source_selection import boundary_error, VERSION as selector_version
+    source_first = os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true'
+    identity = {'editorial': editorial.plan_identity(cues, target),
+                'selector_version': selector_version, 'source_first': source_first}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1629,13 +1631,12 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             pass
     if not cues or cues[-1]['end']-cues[0]['start'] < editorial.MIN_SECONDS:
         return []
-    if os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true':
+    if source_first:
         from source_selection import select
         selected=select(cues)
-        if selected:
-            print(f'[原文选段] {len(selected)}条连续候选；无需等待文本模型，逐条进入实片质检',flush=True)
-            cache.write_text(json.dumps({'identity':identity,'picks':selected},ensure_ascii=False,indent=2))
-            return selected
+        print(f'[原文选段] {len(selected)}条有明确边界的连续候选；不调用模型拆话题或判完整性',flush=True)
+        cache.write_text(json.dumps({'identity':identity,'picks':selected},ensure_ascii=False,indent=2))
+        return selected
     numbered_rows=[]
     for unit in editorial_sentence_units(cues):
         a,b=unit['start'],unit['end']
@@ -2940,10 +2941,11 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     # #630/#651: the visible subject is Lin Yuan, but the audio explicitly
     # belongs to his friend Wang Hong. Face matching cannot establish authorship.
     source_hash=_file_sha256(src)
-    if speaker=='林园' and source_hash=='87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
+    attribution_error=editorial.source_attribution_error(source_hash,speaker)
+    if attribution_error:
         report=dict(quality_gate_version=QUALITY_GATE_VERSION,source_sha256=source_hash,
             speaker=speaker,passed=False,retryable=False,failure_stage='source-quality',
-            reason='已核对原始转写：王红讲述自己与林园的经历，非林园本人发言，禁止错误署名')
+            reason=attribution_error)
         report_path.write_text(json.dumps(report,ensure_ascii=False,indent=2))
         return report
     # An obsolete cached verdict is a cache miss, not a verdict about this
@@ -3034,8 +3036,8 @@ def load_source_quality_report(src, report_path):
         raise VisualQualityError("素材质检报告版本过旧")
     if report.get("source_sha256") != _file_sha256(src):
         raise VisualQualityError("素材质检报告与当前视频不匹配")
-    if report.get('speaker')=='林园' and report.get('source_sha256')=='87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
-        raise VisualQualityError('已核对：该源为王红讲述林园，历史人脸通过记录不能证明声音归属')
+    attribution_error=editorial.source_attribution_error(report.get('source_sha256'),report.get('speaker'))
+    if attribution_error:raise VisualQualityError(attribution_error)
     if report.get("passed") is not True:
         raise VisualQualityError(report.get("reason") or "素材质检未通过")
     if report.get("has_existing_subtitles") is not False:
@@ -5208,9 +5210,19 @@ def main():
     from stock_upgrade_plan import source_ranges as stock_ranges
     stock=stock_ranges(cues,source_report.get('source_sha256'),args.slug)
     if stock is not None:curated=stock
+    source_picks=[]
+    if (curated is None and args.split_highlights and not args.target_parts
+            and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
+        from source_selection import select
+        source_picks=select(cues,whole_source=True,limit=6)
+        (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]
         print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')
+    elif source_picks:
+        # Plan on the source before mechanical chunking or model deduplication.
+        # Publication-history and actual accepted-range dedup still run below.
+        chunks=[(p['start'],p['end']) for p in source_picks]
     elif args.target_parts:
         if args.target_parts != 13:
             sys.exit("当前对标模式只支持已核验的 13 条结构")
@@ -5219,7 +5231,8 @@ def main():
         chunks = _chunk_by_time(cues)
         # 去重：先字符级（逐字重复兜底），再 LLM 观点去重（语义重复）
         chunks = _dedup_chunks_char(chunks, cues)
-        chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
+        if os.environ.get('SOURCE_EDITORIAL_FIRST')!='true':
+            chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
         # Give the editor context across mechanical chunk boundaries. Final
         # outputs are still individual continuous arguments and content-deduped.
         expanded=[]
@@ -5233,7 +5246,7 @@ def main():
         chunks=expanded
     if args.dry_run:
         # dry-run 只看金句，不切分
-        p = pick_highlights(cues, args.speaker, api_key, work)
+        p = source_picks or pick_highlights(cues, args.speaker, api_key, work)
         for pp in p:
             print(f"\n── {pp['reason']} ──")
             for i in range(pp["start"], pp["end"] + 1):
@@ -5244,15 +5257,9 @@ def main():
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
     selection_failures = []
     work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
-    source_picks=[]
-    if (curated is None and args.split_highlights and not args.target_parts
-            and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
-        from source_selection import select
-        source_picks=select(cues,whole_source=True)
-        if source_picks:
-            work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
-            (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
-            print(f'[原文选段] 直接保留{len(source_picks)}组原始提问及连续回答，跳过模型选段',flush=True)
+    if source_picks:
+        work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
+        print(f'[原文选段] 保留{len(source_picks)}组连续原文，跳过模型选段及话题拆分',flush=True)
     if curated is None and args.split_highlights and not args.target_parts and not source_picks:
         work_items = []
         for block_no, (a, b) in enumerate(chunks, 1):
@@ -5269,9 +5276,11 @@ def main():
                 print(f'[完整观点] 运行故障，保留第{block_no}块原始转写：{exc}',flush=True)
                 continue
             if not picks:
+                structural=os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'
                 selection_failures.append(dict(stage='editorial-selection', part=block_no,
-                    reason='本轮选段没有返回通过120秒和连续上下文检查的候选',
-                    error_type='NoEligibleArgument', retryable=False))
+                    reason=('原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复'
+                            if structural else '本轮选段没有返回通过120秒和连续上下文检查的候选'),
+                    error_type='NoStructuralCandidate' if structural else 'NoEligibleArgument', retryable=False))
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])
                 if 0 <= lo <= hi < len(block_cues):

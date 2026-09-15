@@ -1,5 +1,5 @@
-name: 中文源出片
-run-name: 中文源出片 · ${{ inputs.slug || 'ly-e2e-local-0908' }}
+name: 0915 选段与实片验收
+run-name: 0915 选段与实片验收 · ${{ inputs.slug || 'ly-selection-0915-validation' }}
 
 # 中文素材使用 SenseVoice CPU 离线识别；不预下载未使用的 Whisper。
 # 模型比较见 linyuan-asr-cpu-benchmark.yml，识别阶段禁用网络。
@@ -9,8 +9,8 @@ on:
   # entry point when workflow_dispatch is unavailable. Ordinary commits do not
   # start production; changing this marker is an explicit one-shot test.
   push:
-    branches: [main]
-    paths: ['.github/linyuan-e2e.trigger']
+    branches: [fix/selection-0915]
+    paths: ['.github/workflows/linyuan-selection-validation.yml']
   workflow_dispatch:
     inputs:
       output_layout:
@@ -99,19 +99,19 @@ on:
 
 env:
   RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
-  RUN_SOURCE: ${{ inputs.source || 'https://www.bilibili.com/video/BV1tuCDBhE6C' }}
-  RUN_SLUG: ${{ inputs.slug || 'ly-e2e-local-0908' }}
+  RUN_SOURCE: ${{ inputs.source || 'https://m.weibo.cn/detail/5343032035509648' }}
+  RUN_SLUG: ${{ inputs.slug || 'ly-selection-0915-validation' }}
   RUN_SPEAKER: ${{ inputs.speaker || '林园' }}
-  RUN_OCCASION: ${{ inputs.occasion || '2025年11月2日林园演讲，CPU离线端到端验收' }}
-  RUN_SOURCE_PLATFORM: ${{ inputs.source_platform || 'bilibili' }}
-  RUN_REVIEWED_PARTS: ${{ github.event_name == 'push' && '1' || inputs.reviewed_parts }}
+  RUN_OCCASION: ${{ inputs.occasion || '林园公开访谈，选段优化实片验收' }}
+  RUN_SOURCE_PLATFORM: ${{ inputs.source_platform || 'weibo' }}
+  RUN_REVIEWED_PARTS: ''
 
 permissions:
   contents: write
   actions: write
 
 concurrency:
-  group: produce-cn-${{ inputs.slug || 'ly-e2e-local-0908' }}
+  group: produce-cn-${{ inputs.slug || 'ly-selection-0915-validation' }}
   # 同一 slug 的新版验收会取代旧版；不同日常 slug 仍可并行，不影响正常出片。
   cancel-in-progress: true
 
@@ -293,10 +293,10 @@ jobs:
         run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY" --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - name: 复用同源失败任务的已完成证据
-        if: inputs.recovery_run_id != ''
+        if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: ${{ inputs.recovery_run_id }}
+          RECOVERY_RUN_ID: '34808764007'
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
@@ -511,6 +511,21 @@ jobs:
           path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
           key: mother-asr-${{ env.MOTHER_ASR_KEY }}
 
+      - name: 验证新选择器确实产出通过全部门禁的真人成片
+        run: |
+          python - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          root=Path('deliver')/os.environ['RUN_SLUG']
+          report=json.loads((root/'batch_report.json').read_text())
+          assert report['accepted'] >= 1 and report['audio_card'] == 0, report
+          picks=json.loads((root/'_tmp/source_question_answers.json').read_text())
+          assert len(picks) >= 3, picks
+          assert all(p['selection_method']=='source_question_answer_v2' for p in picks)
+          assert not list((root/'_tmp').glob('context_topics*'))
+          print(json.dumps(dict(accepted=report['accepted'],source_candidates=len(picks),model_topic_calls=0),ensure_ascii=False))
+          PYCODE
+
       - name: 整理归档（slug 命名，留存可分析产物）
         run: |
           set -euo pipefail
@@ -522,23 +537,10 @@ jobs:
       - name: 上传成片到 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deliver-${{ env.RUN_SLUG }}
+          name: validation-deliver-${{ env.RUN_SLUG }}
           path: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/
           retention-days: 90
           if-no-files-found: error
-
-      - name: 上传成片到 Release
-        # The accepted Artifact above is the publication source of truth.
-        # A colliding thumbnail in this optional mirror must not lose a batch.
-        continue-on-error: true
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: deliver-${{ env.RUN_SLUG }}
-          name: 成品库 · ${{ env.RUN_SLUG }}
-          files: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/${{ env.RUN_SLUG }}.*
-          fail_on_unmatched_files: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 保留部分失败的实际成片与逐帧取景证据
         if: always()
@@ -612,45 +614,3 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # ── B 站自动投稿（可选，默认关闭）─────────────────────────────
-      # 开启方式：本机跑 linyuan/setup_bilibili_cookies.sh，扫码登录后
-      # cookies.json 会写进 BILIBILI_COOKIES secret。
-      #
-      # 这里分两步，理由：
-      # 1. secret 里装的是 cookies.json 全文（内容），不是路径 —— 直接当
-      #    路径传给脚本必然报「文件不存在」。
-      # 2. secrets 不能出现在步骤级 if 里 —— 必须由准备步骤把「配没配好」
-      #    翻译成 GITHUB_ENV 变量，投稿步骤再判断。
-      - name: 准备 B站登录态
-        env:
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: |
-          set -euo pipefail
-          python3 bili_cookies.py \
-            --out "$RUNNER_TEMP/bili_cookies.json" \
-            --github-env "$GITHUB_ENV"
-
-      - name: B 站投稿
-        if: env.BILI_COOKIES_FILE != '' && inputs.auto_publish
-        env:
-          RUST_LOG: info
-        run: |
-          set -euo pipefail
-          # 跨太平洋疑似 MTU 黑洞：小包全通、大包全丢、16m20s 确定性超时
-          # （≈tcp_retries2 上限）。压低 MSS 强制对端按小包收发。
-          sudo iptables -t mangle -A OUTPUT -p tcp --tcp-flags SYN,RST SYN \
-            -j TCPMSS --set-mss 1300
-          echo "MSS 已压到 1300"
-          python -m pip install -q biliup
-          DTIME=0
-          if [ "${{ inputs.delay_hours }}" != "0" ]; then
-            DTIME=$(date -d "+${{ inputs.delay_hours }} hours" +%s)
-            echo "定时发布：$(date -d "@$DTIME" '+%Y-%m-%d %H:%M') UTC"
-          fi
-          python3 publish_bilibili_cn.py --slug "${{ env.RUN_SLUG }}" --dtime "$DTIME"
-
-      - name: 明确触发库存核验与自动补位
-        if: always() && !cancelled()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
