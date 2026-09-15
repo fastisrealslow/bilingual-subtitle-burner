@@ -276,10 +276,26 @@ def title_attribution_error(title):
     return None
 
 
+def source_attribution_error(source_sha, speaker):
+    if speaker != '林园':return None
+    return {
+        '87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
+            '已核对该源为王红谈林园，不能作为林园本人原声发布',
+        '986f27e2b949037caa9f80b0661812c86ea3fb4ed6f6d3e2bedfe65c0fc08d06':
+            '已核对 #902 原始转写：第三方引用旧访谈讲解股价与估值，不能将解说署为林园本人原声',
+    }.get(source_sha)
+
+
 def metadata_error(meta, actual_seconds=None):
-    if (meta.get('speaker')=='林园' and meta.get('source_sha256')==
-            '87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1'):
-        return '已核对该源为王红谈林园，不能作为林园本人原声发布'
+    # Actual final pixels at ~120.8s retain the moving red source wordmark.
+    # These two exact files were manually checked; other clips from the same
+    # mother remain eligible. Re-rendering still needs every normal media gate.
+    if (meta.get('fingerprints') or {}).get('sha256') in {
+            '1bb0d11ecff2e072f19e2817d55daf4e0deede035167a1e16dc0737439d4ff05',
+            'edf7eeeabc0ab08b8d1b38c2082fd5ad3ef9e713707324271f8ba4c820f13127'}:
+        return '实际画面复核发现红色来源水印残留，须避开水印重新取景；旧通过记录不可复用'
+    source_error=source_attribution_error(meta.get('source_sha256'),meta.get('speaker'))
+    if source_error:return source_error
     attribution=title_attribution_error(meta.get('title'))
     if attribution:return attribution
     try:
