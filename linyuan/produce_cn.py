@@ -1977,11 +1977,19 @@ def caption_display_interval(start, end):
     return start,end
 
 
+def caption_affirmation_ends(entries):
+    """A source-punctuated standalone 是/对 is a complete short reply."""
+    raw=''.join(e.get('zh','') for e in entries)
+    return {len(re.sub(r'[\s，。！？；：、]','',raw[:m.end()]))
+            for m in re.finditer(r'(?:^|[，。！？；：、])(?:是|对)(?=[。！？；])',raw)}
+
+
 def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
     """Validate source- or model-selected boundaries against text and timing."""
     from presentation import word_spans, wrap_words
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
     chars,entry_bounds,punctuation_bounds=caption_timeline(entries)
+    affirmation_ends=caption_affirmation_ends(entries)
     source=''.join(c[0] for c in chars)
     if not isinstance(texts,list) or not texts or not all(isinstance(t,str) and strip(t) for t in texts):
         raise ValueError('完整意群分组为空或格式错误')
@@ -2065,7 +2073,8 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 if b <= a or b > end:
                     continue
                 part = source[a:b]
-                if unfinished_caption_tail(part) or dependent_caption_start(part):
+                if (unfinished_caption_tail(part) and b not in affirmation_ends
+                        or dependent_caption_start(part)):
                     continue
                 begin,finish=caption_display_interval(chars[a][1],chars[b-1][2])
                 duration = finish-begin
@@ -2094,7 +2103,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         text=re.sub(r'\s+','',original_text); end=offset+len(strip(text))
         text=source_punctuation(text,offset)
         if end not in bounds: raise ValueError('意群分组切断完整词')
-        if unfinished_caption_tail(strip(text)):
+        if unfinished_caption_tail(strip(text)) and end not in affirmation_ends:
             raise ValueError('意群以未完成的连接词结束：'+text)
         if dependent_caption_start(strip(text)):
             raise ValueError('意群不能以依附上一屏的成分开头：'+text)
@@ -2173,6 +2182,7 @@ def source_caption_groups(entries, layout):
     from presentation import word_spans,wrap_words
     import jieba.posseg as posseg
     chars,entry_bounds,punctuation_bounds=caption_timeline(entries)
+    affirmation_ends=caption_affirmation_ends(entries)
     source=''.join(c[0] for c in chars)
     if not source:raise ValueError('字幕原文为空')
     bounds=sorted({0,len(source)}|{b for a,b in word_spans(source)}|punctuation_bounds)
@@ -2198,7 +2208,8 @@ def source_caption_groups(entries, layout):
             duration=finish-begin
             if duration>layout.get('_phrase_limit',6):break
             if duration<.8:continue
-            if unfinished_caption_tail(part) or dependent_caption_start(part):continue
+            if (unfinished_caption_tail(part) and b not in affirmation_ends
+                    or dependent_caption_start(part)):continue
             if part.startswith('的话'):continue
             if b<len(source) and (re.search(r'(?:就像|比如说|确实|不会|不能|应该|必须|需要|认为|觉得)$',part)
                     or part.endswith('会') and not part.endswith(('社会','机会','体会','学会','协会','大会'))):
@@ -2214,7 +2225,7 @@ def source_caption_groups(entries, layout):
                     or tail_tag.startswith('v')
                     or tail_tag.startswith('r') and next_tag.startswith(('v','d'))
                     or tail_tag.startswith(('a','s','f','b','n')) and next_tag.startswith('n'))
-            if b<len(source) and (hard_tail or b not in punctuation_bounds and dependent_pair):
+            if b<len(source) and b not in affirmation_ends and (hard_tail or b not in punctuation_bounds and dependent_pair):
                 continue
             if b<len(source) and part.endswith(('国内','国外','海外')) and next_tag.startswith(('n','r')):continue
             if following in {'的','地','得'}:continue

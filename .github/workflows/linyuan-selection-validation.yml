@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34931105983'
+          RECOVERY_RUN_ID: '34931105983' # verified title; source-punctuated reply needs no model retry
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 

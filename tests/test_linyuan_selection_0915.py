@@ -200,3 +200,19 @@ def test_888_displayed_ass_keeps_every_source_question_in_the_edit_proof(tmp_pat
     actual=p.editorial.subtitle_files_text(tmp_path,[ass.name])
     assert display_payload_text(actual)==display_payload_text(proof['display_text'])
     assert '是不是？' in actual
+
+
+def test_888_complete_short_reply_does_not_send_the_entire_clip_back_to_a_model(tmp_path,monkeypatch):
+    from caption_readability import clean_entries,display_payload_text
+    from presentation import layout_for
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_888_source_selection.json').read_text())
+    entries=[dict(start_sec=c['start']-459,end_sec=c['end']-459,zh=c['text'],en='')
+             for c in data['cues'][171:290]]
+    cleaned,proof=clean_entries(entries)
+    monkeypatch.setattr(p,'llm',lambda *a,**kw:pytest.fail('A source-punctuated reply needs no model retry'))
+    captions=p.semantic_caption_entries(entries,'',layout_for(1742,972,False),tmp_path/'semantic.json')
+    assert display_payload_text(''.join(c['zh'] for c in captions))==display_payload_text(proof['display_text'])
+    assert captions[-1]['end_sec']==pytest.approx(p.caption_timeline(cleaned)[0][-1][2])
+    assert p.unfinished_caption_tail('是')
+    assert not p.caption_affirmation_ends([dict(zh='问题是。')])
+    assert not p.caption_affirmation_ends([dict(zh='哎，是')])
