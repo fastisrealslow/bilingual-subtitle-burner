@@ -10488,9 +10488,11 @@
    "publish_time": "2023-03-13T22:05:00+00:00",
    "source_check_report_id": 10403325976,
    "source_check_run_id": 34982922774,
-   "last_error": "取源未完成：RuntimeError: embed 页没有 __playinfo__",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "人物不一致或无法确认：林园；same=[6]，different=[1, 3, 4, 5]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1967, 3: 0.1769, 4: 0.1818, 5: 0.2534, 6: 0.8536}",
+   "failure_stage": "source-quality",
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -35645,6 +35647,13 @@
    "video_id": "BV1hC4y1p7sM",
    "ts": 1789484709,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 396 < 480（680x396），画质不达标"
+  },
+  {
+   "slug": "ly-0915-94976f",
+   "key": "bilibili_search:BV1NT411Y7sF",
+   "video_id": "BV1NT411Y7sF",
+   "ts": 1789487085,
+   "error": "人物不一致或无法确认：林园；same=[6]，different=[1, 3, 4, 5]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1967, 3: 0.1769, 4: 0.1818, 5: 0.2534, 6: 0.8536}"
   }
  ],
  "reviewed_third_video_0910": {
