@@ -1,0 +1,23 @@
+name: 0915 选段优化后的合格库存补产
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-selection-recover-0915.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-selection-recover-0915
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 复用已验收的母片转写和标题，补产干净真人片
+        run: |
+          python linyuan/register_selection_recovery.py --suffix clean0915 --origin-slug ly-0914-8791b8 --expected-source 'https://www.bilibili.com/video/BV1se411H7tj' --source-platform bilibili --evidence-run 34937156133

@@ -42,7 +42,12 @@ def restore(evidence, work, *, titles_only=False):
             print('恢复未完成的转写断点；完整音频覆盖检查通过前不作为字幕或合格成片')
     # Never restore source/identity approvals, final outputs or delivery metadata.
     # Every cache below is revalidated by the existing production functions.
-    for pattern in (('copywrite*.json',) if titles_only else ('highlights*.json','copywrite*.json')):
+    # Reuse only completed caption boundary suggestions. The current producer
+    # revalidates every character, timestamp and layout, and regenerates the
+    # edit proof. Never copy old semantic approvals or editing proofs.
+    patterns=(('copywrite*.json',) if titles_only else
+              ('highlights*.json','copywrite*.json','semantic*.readable-*.json'))
+    for pattern in patterns:
         for path in evidence.glob(pattern):
             shutil.copy2(path,work/path.name);copied.append(path.name)
     print(json.dumps(dict(restored=copied,restored_asr=restored_asr,source_sha256=current['source_sha256']),ensure_ascii=False))

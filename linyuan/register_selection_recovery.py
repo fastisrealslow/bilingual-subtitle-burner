@@ -36,6 +36,7 @@ def main():
     parser.add_argument('--selected-parts',default='')
     parser.add_argument('--origin-slug',default=OLD)
     parser.add_argument('--expected-source',default='https://www.bilibili.com/video/BV1SazbBhE8a')
+    parser.add_argument('--source-platform',default='bilibili')
     parser.add_argument('--output-layout', choices=('auto','portrait','landscape'), default=None)
     args=parser.parse_args()
     OLD=args.origin_slug
@@ -50,7 +51,7 @@ def main():
     assert source==args.expected_source,source
     gh('workflow','run','linyuan-produce-cn.yml','--repo',REPO,'--ref','main',
        '-f',f'source={source}','-f',f'slug={NEW}','-f','speaker=林园',
-       '-f',f'occasion={origin.get("title") or "林园公开访谈"}','-f','source_platform=bilibili',
+       '-f',f'occasion={origin.get("title") or "林园公开访谈"}','-f',f'source_platform={args.source_platform}',
        '-f','auto_publish=false','-f','include_full=false',
        '-f',f'output_layout={layout}',
        '-f',f'recovery_run_id={args.evidence_run}',
@@ -68,7 +69,7 @@ def main():
         doc,state=read_state()
         if any(e.get('slug')==NEW for e in state.get('dispatched',[])):return
         state.setdefault('dispatched',[]).append(entry)
-        body=dict(message='chore: track one selector8 recovery using cached mother ASR',
+        body=dict(message=f'chore: track {NEW} using verified source evidence',
             sha=doc['sha'],branch='main',content=base64.b64encode(json.dumps(state,ensure_ascii=False,separators=(',',':')).encode()).decode())
         try:
             gh('api','--method','PUT',f'repos/{REPO}/contents/{PATH}','--input','-',body=body)

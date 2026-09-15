@@ -1614,8 +1614,10 @@ def editorial_sentence_units(cues):
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
     """Select complete continuous arguments; short quotations never enter daily work."""
     target = target_sec or TARGET_SEC
-    from source_selection import boundary_error
-    identity = {'editorial': editorial.plan_identity(cues, target), 'selector_version': 15}
+    from source_selection import boundary_error, VERSION as selector_version
+    source_first = os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true'
+    identity = {'editorial': editorial.plan_identity(cues, target),
+                'selector_version': selector_version, 'source_first': source_first}
     cache = work / f"highlights{suffix}.json"
     if cache.exists():
         try:
@@ -1629,13 +1631,12 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
             pass
     if not cues or cues[-1]['end']-cues[0]['start'] < editorial.MIN_SECONDS:
         return []
-    if os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true':
+    if source_first:
         from source_selection import select
         selected=select(cues)
-        if selected:
-            print(f'[原文选段] {len(selected)}条连续候选；无需等待文本模型，逐条进入实片质检',flush=True)
-            cache.write_text(json.dumps({'identity':identity,'picks':selected},ensure_ascii=False,indent=2))
-            return selected
+        print(f'[原文选段] {len(selected)}条有明确边界的连续候选；不调用模型拆话题或判完整性',flush=True)
+        cache.write_text(json.dumps({'identity':identity,'picks':selected},ensure_ascii=False,indent=2))
+        return selected
     numbered_rows=[]
     for unit in editorial_sentence_units(cues):
         a,b=unit['start'],unit['end']
@@ -1976,16 +1977,43 @@ def caption_display_interval(start, end):
     return start,end
 
 
+def caption_affirmation_ends(entries):
+    """A source-punctuated standalone 是/对 is a complete short reply."""
+    raw=''.join(e.get('zh','') for e in entries)
+    return {len(re.sub(r'[\s，。！？；：、]','',raw[:m.end()]))
+            for m in re.finditer(r'(?:^|[，。！？；：、])(?:是|对)(?=[。！？；])',raw)}
+
+
 def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):
     """Validate source- or model-selected boundaries against text and timing."""
     from presentation import word_spans, wrap_words
     strip = lambda t: re.sub(r'[\s，。！？；：、]', '', t)
     chars,entry_bounds,punctuation_bounds=caption_timeline(entries)
+    affirmation_ends=caption_affirmation_ends(entries)
     source=''.join(c[0] for c in chars)
     if not isinstance(texts,list) or not texts or not all(isinstance(t,str) and strip(t) for t in texts):
         raise ValueError('完整意群分组为空或格式错误')
     if ''.join(strip(t) for t in texts)!=source:
         raise ValueError('意群分组改写或丢失原话，拒绝烧录')
+    # Planning uses punctuation-free character offsets. Restore source question
+    # and exclamation marks at EVERY offset, including inside a merged screen
+    # and after a local split. #888 lost the question in “是不是？是…” when
+    # only screen-final marks were restored, invalidating its edit proof.
+    terminal_marks={}; cursor=0
+    for char in ''.join(e.get('zh','') for e in entries):
+        if char in '！？':terminal_marks[cursor]=terminal_marks.get(cursor,'')+char
+        elif strip(char):cursor+=1
+
+    def source_punctuation(text, start):
+        result=[terminal_marks.get(0,'')] if start==0 else []
+        cursor=start
+        for char in text:
+            if char in '！？':continue
+            result.append(char)
+            if strip(char):
+                cursor+=1
+                result.append(terminal_marks.get(cursor,''))
+        return ''.join(result)
     # A spoken filler/call-out can flash even when its text is a whole
     # word. Remove that screen boundary while preserving the original times
     # and every character. The merged group still faces all layout/8s gates.
@@ -2045,12 +2073,14 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 if b <= a or b > end:
                     continue
                 part = source[a:b]
-                if unfinished_caption_tail(part) or dependent_caption_start(part):
+                if (unfinished_caption_tail(part) and b not in affirmation_ends
+                        or dependent_caption_start(part)):
                     continue
                 begin,finish=caption_display_interval(chars[a][1],chars[b-1][2])
                 duration = finish-begin
                 if not .25 <= duration <= 8:
                     continue
+                part=source_punctuation(part,a)
                 try:
                     cue_capacity, cue_font = fit_lines(part)
                 except ValueError:
@@ -2071,8 +2101,9 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     result=[]; offset=0
     for original_text in texts:
         text=re.sub(r'\s+','',original_text); end=offset+len(strip(text))
+        text=source_punctuation(text,offset)
         if end not in bounds: raise ValueError('意群分组切断完整词')
-        if unfinished_caption_tail(strip(text)):
+        if unfinished_caption_tail(strip(text)) and end not in affirmation_ends:
             raise ValueError('意群以未完成的连接词结束：'+text)
         if dependent_caption_start(strip(text)):
             raise ValueError('意群不能以依附上一屏的成分开头：'+text)
@@ -2151,6 +2182,7 @@ def source_caption_groups(entries, layout):
     from presentation import word_spans,wrap_words
     import jieba.posseg as posseg
     chars,entry_bounds,punctuation_bounds=caption_timeline(entries)
+    affirmation_ends=caption_affirmation_ends(entries)
     source=''.join(c[0] for c in chars)
     if not source:raise ValueError('字幕原文为空')
     bounds=sorted({0,len(source)}|{b for a,b in word_spans(source)}|punctuation_bounds)
@@ -2176,7 +2208,8 @@ def source_caption_groups(entries, layout):
             duration=finish-begin
             if duration>layout.get('_phrase_limit',6):break
             if duration<.8:continue
-            if unfinished_caption_tail(part) or dependent_caption_start(part):continue
+            if (unfinished_caption_tail(part) and b not in affirmation_ends
+                    or dependent_caption_start(part)):continue
             if part.startswith('的话'):continue
             if b<len(source) and (re.search(r'(?:就像|比如说|确实|不会|不能|应该|必须|需要|认为|觉得)$',part)
                     or part.endswith('会') and not part.endswith(('社会','机会','体会','学会','协会','大会'))):
@@ -2192,7 +2225,7 @@ def source_caption_groups(entries, layout):
                     or tail_tag.startswith('v')
                     or tail_tag.startswith('r') and next_tag.startswith(('v','d'))
                     or tail_tag.startswith(('a','s','f','b','n')) and next_tag.startswith('n'))
-            if b<len(source) and (hard_tail or b not in punctuation_bounds and dependent_pair):
+            if b<len(source) and b not in affirmation_ends and (hard_tail or b not in punctuation_bounds and dependent_pair):
                 continue
             if b<len(source) and part.endswith(('国内','国外','海外')) and next_tag.startswith(('n','r')):continue
             if following in {'的','地','得'}:continue
@@ -2640,7 +2673,69 @@ def build_clean_source_plan(src, work, width, height, duration,
     }
 
 
-def selected_native_clean_plan(src, work, width, height, start, end):
+def reviewed_native_cleanup(source_report, width, height, start, end):
+    """Measured lower-third repair for the exact #888 source and interval.
+
+    Native review 34933295617 showed the news panel beginning at source y=789.
+    Keep the upper 70% (756px), above the entire panel and its station emblem;
+    preserve native pixels and both participants. This is only a proposal:
+    selected_native_clean_plan must render and verify it before use.
+    """
+    if (source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
+            and (width,height)==(1920,1080)
+            and abs(start-459.0)<.01 and abs(end-747.24)<.01):
+        return (1920,756,0,0)
+    return None
+
+
+def measured_emblem_intervals(src, start, end, rect):
+    """Match the exact reviewed emblem using the renderer's decoded frame PTS.
+
+    A red-pixel threshold misses the fading white emblem and can match skin.
+    The tiny reference is bound by the caller to one exact source/interval.
+    Decode with FFmpeg, as the renderer does, rather than approximating VFR
+    timestamps by frame_index / OpenCV's average frame rate.
+    """
+    import cv2
+    import numpy as np
+    import tempfile
+    template=cv2.imread(str(Path(__file__).parent/'assets/source-emblem-6f5ddecc.png'),0)
+    if template is None:raise VisualQualityError('缺少已核对台标图案，不能放行')
+    x0,y0,x1,y1=rect;w=x1-x0;h=y1-y0
+    size=w*h;found=[]
+    with tempfile.TemporaryFile() as log:
+        cmd=['ffmpeg','-nostdin','-hide_banner','-loglevel','info','-ss',str(start),
+             '-i',str(src),'-t',str(end-start),'-vf',
+             f'setpts=PTS-STARTPTS,trim=duration={end-start},crop={w}:{h}:{x0}:{y0},showinfo',
+             '-an','-fps_mode','passthrough','-pix_fmt','gray','-f','rawvideo','pipe:1']
+        process=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=log)
+        try:
+            while True:
+                raw=process.stdout.read(size)
+                if not raw:break
+                if len(raw)!=size:raise VisualQualityError('台标时间检查出现不完整帧')
+                frame=np.frombuffer(raw,dtype=np.uint8).reshape(h,w)
+                found.append(float(cv2.matchTemplate(frame,template,cv2.TM_CCOEFF_NORMED).max())>.55)
+            code=process.wait(timeout=180)
+        finally:
+            process.stdout.close()
+            if process.poll() is None:process.kill();process.wait()
+        log.seek(0);details=log.read().decode(errors='replace')
+    if code or not found:raise VisualQualityError('台标原始帧解码检查失败')
+    times=[float(t) for t in re.findall(r'\bn:\s*\d+\s+pts:\s*-?\d+\s+pts_time:([\d.eE+-]+)',details)]
+    if len(times)!=len(found):raise VisualQualityError(f'台标解码帧与原时间戳不一致：{len(found)}/{len(times)}')
+    runs=[]
+    for i,present in enumerate(found):
+        if present:
+            if runs and i==runs[-1][1]+1:runs[-1][1]=i
+            else:runs.append([i,i])
+    # showinfo prints rounded decimal PTS. One millisecond encloses that exact
+    # frame while remaining far below the next original 30fps frame.
+    return [(max(0,times[a]-.001),min(end-start,times[b]+.001)) for a,b in runs]
+
+
+def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None,
+                               proposed_logos=()):
     """Reassess the selected interview before forcing a face-only window.
 
     A mother-level card decision can come from an unrelated introduction or a
@@ -2660,30 +2755,57 @@ def selected_native_clean_plan(src, work, width, height, start, end):
         # This fallback must not interpret an unavailable OCR service as a
         # clean frame. It is useful even when the old mother cache says card.
         before=ocr_row_coverage(sample,frames=12,strict=True)
-        crop=safe_crop_plan(sample,width,height,coverage=before)
+        crop=proposed_crop or safe_crop_plan(sample,width,height,coverage=before)
         if crop is None:
             raise VisualQualityError('选段没有可验证的原画裁切方案')
         cw,ch,cx,cy=crop
+        if proposed_crop and (cx!=0 or cw!=width or cy<0 or cy+ch>height
+                or ch<height*.7 or not _face_survives(sample,cy,ch)):
+            raise VisualQualityError('核对后的原画裁切未通过原有30%范围与人物保留检查')
         if min(cw,ch)<MIN_SHORT_EDGE:
             raise VisualQualityError('原画裁切后短边不足，不能放大冒充清晰源')
         logos=detect_corner_logos(sample,frames=12,strict=True)
         filters=[delogo_filter(logos,width,height) if logos else '',
                  f'crop={cw}:{ch}:{cx}:{cy}']
+        if proposed_logos:
+            intervals=measured_emblem_intervals(src,start,end,(1728,52,1824,148))
+            if intervals:
+                active='+'.join(f'between(t,{a:.6f},{b-.000001:.6f})' for a,b in intervals)
+                filters.insert(0,delogo_filter(proposed_logos,width,height)+f":enable='{active}'")
+            proof['measured_emblem_intervals']=intervals
+        output_h=ch
+        if proposed_crop:
+            # Give our captions their own strip below the measured source
+            # crop. Moving the normal lower captions up with a shorter canvas
+            # would cover the chin in the source's close-ups. Every video frame
+            # is still the original contemporaneous frame; this is spatial
+            # caption layout, never frame freezing or duration padding.
+            filters.append(f'pad={cw}:{height}:0:0:color=white')
+            output_h=height
         vf=','.join(x for x in filters if x)
-        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(sample),
-            '-vf',vf,'-an','-c:v','libx264','-preset','ultrafast','-crf','23',
+        clean_input=(['-ss',str(start),'-i',str(src),'-t',str(end-start)]
+                     if proposed_logos else ['-i',str(sample)])
+        # Evaluate time-dependent cleanup on the original frame timestamps;
+        # fps=2 chooses representative frames and must run after that cleanup.
+        preview_vf='setpts=PTS-STARTPTS,'+vf+',fps=2' if proposed_logos else vf
+        subprocess.run(['ffmpeg','-y','-loglevel','error',*clean_input,
+            '-vf',preview_vf,'-an','-c:v','libx264','-preset','ultrafast','-crf','23',
             '-threads','2',str(cleaned)],check=True,capture_output=True,timeout=120)
         if has_existing_subtitles(cleaned,strict=True,frames=12):
             raise VisualQualityError('裁切后仍有持续原字幕或大标题')
         if detect_corner_logos(cleaned,frames=12,strict=True):
             raise VisualQualityError('裁切后仍有来源角标')
+        if proposed_logos and measured_emblem_intervals(cleaned,0,int((end-start)*2)/2,
+                                                        (1728,52,1824,148)):
+            raise VisualQualityError('实际清理预览仍有已确认红色台标')
         proof.update(passed=True,video_filter=vf,crop_xywh=[cx,cy,cw,ch],
                      sampled_frames=12,raw_row_coverage=before,
                      clean_row_coverage=ocr_row_coverage(cleaned,frames=12,strict=True),
                      old_subtitles_removed=True,external_logos_removed=True)
+        if proposed_crop:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
         print(f'[原画适配] {start:.2f}–{end:.2f}秒可裁净旧字幕，保留横屏切镜和原始插图：{cw}x{ch}',flush=True)
-        return dict(clean_strategy='crop_delogo' if logos else 'crop',
-            clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=ch),
+        return dict(clean_strategy='crop_delogo' if logos or proposed_logos else 'crop',
+            clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=output_h),
             native_context_proof=proof,geometry_source=str(sample))
     except (VisualQualityError,subprocess.SubprocessError,OSError,ValueError) as exc:
         proof['reason']=str(exc)
@@ -2930,6 +3052,7 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             "partial_qr_verified": True, "full_face_frames": full_face_frames,
             "no_black_bars_verified": True,
             "corner_review":dict(version=2026091302,passed=True,sampled_frames=got,
+                moving_wordmark_version=2026091501,
                 media_sha256=_file_sha256(final),policy='platform_persistent_text_and_source_edge_bands')}
 
 
@@ -2940,10 +3063,11 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
     # #630/#651: the visible subject is Lin Yuan, but the audio explicitly
     # belongs to his friend Wang Hong. Face matching cannot establish authorship.
     source_hash=_file_sha256(src)
-    if speaker=='林园' and source_hash=='87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
+    attribution_error=editorial.source_attribution_error(source_hash,speaker)
+    if attribution_error:
         report=dict(quality_gate_version=QUALITY_GATE_VERSION,source_sha256=source_hash,
             speaker=speaker,passed=False,retryable=False,failure_stage='source-quality',
-            reason='已核对原始转写：王红讲述自己与林园的经历，非林园本人发言，禁止错误署名')
+            reason=attribution_error)
         report_path.write_text(json.dumps(report,ensure_ascii=False,indent=2))
         return report
     # An obsolete cached verdict is a cache miss, not a verdict about this
@@ -3034,8 +3158,8 @@ def load_source_quality_report(src, report_path):
         raise VisualQualityError("素材质检报告版本过旧")
     if report.get("source_sha256") != _file_sha256(src):
         raise VisualQualityError("素材质检报告与当前视频不匹配")
-    if report.get('speaker')=='林园' and report.get('source_sha256')=='87e4dcea6b1292f184edb15188c38c4075a4fa94fc1b272ac2fc385f862faff1':
-        raise VisualQualityError('已核对：该源为王红讲述林园，历史人脸通过记录不能证明声音归属')
+    attribution_error=editorial.source_attribution_error(report.get('source_sha256'),report.get('speaker'))
+    if attribution_error:raise VisualQualityError(attribution_error)
     if report.get("passed") is not True:
         raise VisualQualityError(report.get("reason") or "素材质检未通过")
     if report.get("has_existing_subtitles") is not False:
@@ -3432,7 +3556,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
                "-i", str(src)]
         if video_filter:
-            cmd += ["-vf", video_filter]
+            frame_filter=video_filter.replace('between(t,',f'between(t+{t-seg_start:.6f},')
+            cmd += ["-vf", frame_filter]
         cmd += ["-frames:v", "1", str(fp)]
         subprocess.run(cmd,
                        check=True, capture_output=True)
@@ -3686,6 +3811,27 @@ def _ocr():
     return _OCR_ENGINE
 
 
+def verified_ocr_text_boxes(frame, boxes, engine):
+    """Confirm unusually tall detector regions before treating them as text.
+
+    Actual #888 close-ups produced 30%-high face boxes, sometimes recognized
+    as one hallucinated character (香). Real subtitle lines retain their raw
+    detection sensitivity. Tall titles must have multiple recognized characters;
+    vertical multi-character titles remain supported.
+    """
+    def tall(box):
+        return max(pt[1] for pt in box)-min(pt[1] for pt in box)>frame.shape[0]*.15
+    if not any(tall(box) for box in boxes):return boxes
+    recognized,_=engine(frame,use_det=True,use_rec=True,use_cls=True)
+    supported=[]
+    for box,text,confidence in recognized or []:
+        if len(re.sub(r'\W+','',text))>=2 and float(confidence)>=.75:
+            supported.append(box)
+    return [box for box in boxes if not tall(box) or any(
+        max(abs(float(a)-float(b)) for pa,pb in zip(box,other)
+            for a,b in zip(pa,pb))<3 for other in supported)]
+
+
 def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
     """抽帧 OCR，统计每 1% 行位置被文字框覆盖的「帧比例」(长度 100 的列表)。
 
@@ -3720,7 +3866,7 @@ def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
             res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
             got += 1
             rows = np.zeros(100, bool)
-            for box in (res or []):
+            for box in verified_ocr_text_boxes(f,res or [],engine):
                 ys = [pt[1] for pt in box]
                 a = max(0, min(99, int(min(ys) / H * 100)))
                 b = max(0, min(100, int(max(ys) / H * 100) + 1))
@@ -3807,7 +3953,8 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
                 xs=[pt[0] for pt in box];ys=[pt[1] for pt in box]
                 rect=(min(xs)/W,min(ys)/H,max(xs)/W,max(ys)/H)
                 normalized=re.sub(r'\W+','',text).casefold()
-                evidence.append(dict(frame=frame_no,text=text,confidence=float(confidence),rect=rect))
+                evidence.append(dict(frame=frame_no,text=text,confidence=float(confidence),rect=rect,
+                                     image_height=H))
                 if not normalized or float(confidence)<.75:continue
                 if normalized=='园来滚雪球' and _inside_brand_watermark_region(rect,W,H):continue
                 x0,y0,x1,y1=rect
@@ -3850,6 +3997,22 @@ def source_edge_text_exclusions(evidence):
     for row in evidence:
         x0,y0,x1,y1=map(float,row['rect'])
         text=re.sub(r'\W+','',str(row.get('text') or ''))
+        # Actual 0915 render: a moving red “听初果复利” source wordmark
+        # crossed the guest's chest. OCR read it as “昕初果复利” with .929
+        # confidence, but the generic 8-character/edge rule discarded it.
+        # Keep the measured band before locking the shot crop, and reject it
+        # on the final live region too. Never erase/paint over source pixels.
+        if (float(row.get('confidence') or 0)>=.85 and y0>=.55
+                and re.search(r'[听昕]初果复利',text)):
+            # OCR boxes are in source pixels. Keep a measured two-pixel safety
+            # border instead of a fractional-height margin: 0.005 became 3.1px
+            # on the real 620px source and lost the last usable chin margin.
+            # Legacy evidence without dimensions retains its conservative band.
+            height=float(row.get('image_height') or 0)
+            top=(int(y0*height+1e-6)-2)/height if height>0 else y0-.005
+            rect=(0,max(0,top),1,1)
+            if rect not in result:result.append(rect)
+            continue
         if float(row.get('confidence') or 0)<.75 or len(text)<8 or x1-x0<.35:
             continue
         if y0>=.80:
@@ -4733,9 +4896,17 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     source_report = source_report or {}
     strategy = source_report.get("clean_strategy", "direct")
     native_plan=None;interview_plan=None;participant_reference=None
-    if strategy=='audio_card' and prefer_live_video and len(picks)==1:
+    proposed_native=(reviewed_native_cleanup(source_report,W,H,
+        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 else None)
+    if proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1:
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
-            cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'])
+            cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
+            **({'proposed_crop':proposed_native,
+                # Measured non-text station emblem, missed by text OCR.
+                'proposed_logos':[(1728/W,52/H,1824/W,148/H)]}
+               if proposed_native else {}))
+        if proposed_native and not native_plan:
+            raise VisualQualityError('已确认原新闻字幕条残留；重新取景未通过，禁止复用旧原画方案')
         if native_plan:
             # A host's opening question is not a reason to discard an already
             # verified native crop. Preserve both participants and the original
@@ -5003,7 +5174,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         name=f'subtitle_edit_proof{suffix}-{n}.json'
         shutil.copy2(work/f'semantic{suffix}-{n}.editing.json',out/name)
         edit_proof_files.append(name)
+    from caption_readability import replay_edit_proof, display_payload_text
+    proof_display=''.join(replay_edit_proof(json.loads((out/name).read_text()))[1]
+                          for name in edit_proof_files)
+    if display_payload_text(proof_display)!=display_payload_text(rendered_subtitle_text):
+        raise VisualQualityError('字幕编辑证明与真实ASS字幕不一致，拒绝输出为合格成片')
     meta = {
+        **({'native_cleanup_proof':native_plan['native_context_proof']} if proposed_native else {}),
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
         "subtitle_files": subtitle_files,
@@ -5208,9 +5385,19 @@ def main():
     from stock_upgrade_plan import source_ranges as stock_ranges
     stock=stock_ranges(cues,source_report.get('source_sha256'),args.slug)
     if stock is not None:curated=stock
+    source_picks=[]
+    if (curated is None and args.split_highlights and not args.target_parts
+            and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
+        from source_selection import select
+        source_picks=select(cues,whole_source=True,limit=6)
+        (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]
         print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')
+    elif source_picks:
+        # Plan on the source before mechanical chunking or model deduplication.
+        # Publication-history and actual accepted-range dedup still run below.
+        chunks=[(p['start'],p['end']) for p in source_picks]
     elif args.target_parts:
         if args.target_parts != 13:
             sys.exit("当前对标模式只支持已核验的 13 条结构")
@@ -5219,7 +5406,8 @@ def main():
         chunks = _chunk_by_time(cues)
         # 去重：先字符级（逐字重复兜底），再 LLM 观点去重（语义重复）
         chunks = _dedup_chunks_char(chunks, cues)
-        chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
+        if os.environ.get('SOURCE_EDITORIAL_FIRST')!='true':
+            chunks = _dedup_chunks_by_llm(chunks, cues, api_key, work)
         # Give the editor context across mechanical chunk boundaries. Final
         # outputs are still individual continuous arguments and content-deduped.
         expanded=[]
@@ -5233,7 +5421,7 @@ def main():
         chunks=expanded
     if args.dry_run:
         # dry-run 只看金句，不切分
-        p = pick_highlights(cues, args.speaker, api_key, work)
+        p = source_picks or pick_highlights(cues, args.speaker, api_key, work)
         for pp in p:
             print(f"\n── {pp['reason']} ──")
             for i in range(pp["start"], pp["end"] + 1):
@@ -5244,15 +5432,9 @@ def main():
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
     selection_failures = []
     work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
-    source_picks=[]
-    if (curated is None and args.split_highlights and not args.target_parts
-            and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
-        from source_selection import select
-        source_picks=select(cues,whole_source=True)
-        if source_picks:
-            work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
-            (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
-            print(f'[原文选段] 直接保留{len(source_picks)}组原始提问及连续回答，跳过模型选段',flush=True)
+    if source_picks:
+        work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
+        print(f'[原文选段] 保留{len(source_picks)}组连续原文，跳过模型选段及话题拆分',flush=True)
     if curated is None and args.split_highlights and not args.target_parts and not source_picks:
         work_items = []
         for block_no, (a, b) in enumerate(chunks, 1):
@@ -5269,9 +5451,11 @@ def main():
                 print(f'[完整观点] 运行故障，保留第{block_no}块原始转写：{exc}',flush=True)
                 continue
             if not picks:
+                structural=os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'
                 selection_failures.append(dict(stage='editorial-selection', part=block_no,
-                    reason='本轮选段没有返回通过120秒和连续上下文检查的候选',
-                    error_type='NoEligibleArgument', retryable=False))
+                    reason=('原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复'
+                            if structural else '本轮选段没有返回通过120秒和连续上下文检查的候选'),
+                    error_type='NoStructuralCandidate' if structural else 'NoEligibleArgument', retryable=False))
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])
                 if 0 <= lo <= hi < len(block_cues):
@@ -5306,7 +5490,7 @@ def main():
                  "watermark_verified": bool(m.get("watermark_verified")),
                  "visual_identity": visual_report,
                  "subtitles_burned": True, "has_existing_subtitles": False,
-                 "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles")),
+                 "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles") or m.get("native_cleanup_proof")),
                  "clean_filter_verified": bool(source_report.get("clean_filter_verified")),
                  "vertical": m["resolution"]["height"] > m["resolution"]["width"],
                  "asr_model": ASR_BACKEND,
