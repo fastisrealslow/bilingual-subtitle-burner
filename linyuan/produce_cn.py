@@ -2758,8 +2758,13 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
             filters.append(f'pad={cw}:{height}:0:0:color=white')
             output_h=height
         vf=','.join(x for x in filters if x)
-        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(sample),
-            '-vf',vf,'-an','-c:v','libx264','-preset','ultrafast','-crf','23',
+        clean_input=(['-ss',str(start),'-i',str(src),'-t',str(end-start)]
+                     if proposed_logos else ['-i',str(sample)])
+        # Evaluate time-dependent cleanup on the original frame timestamps;
+        # fps=2 chooses representative frames and must run after that cleanup.
+        preview_vf='setpts=PTS-STARTPTS,'+vf+',fps=2' if proposed_logos else vf
+        subprocess.run(['ffmpeg','-y','-loglevel','error',*clean_input,
+            '-vf',preview_vf,'-an','-c:v','libx264','-preset','ultrafast','-crf','23',
             '-threads','2',str(cleaned)],check=True,capture_output=True,timeout=120)
         if has_existing_subtitles(cleaned,strict=True,frames=12):
             raise VisualQualityError('裁切后仍有持续原字幕或大标题')
@@ -3526,7 +3531,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
                "-i", str(src)]
         if video_filter:
-            cmd += ["-vf", video_filter]
+            frame_filter=video_filter.replace('between(t,',f'between(t+{t-seg_start:.6f},')
+            cmd += ["-vf", frame_filter]
         cmd += ["-frames:v", "1", str(fp)]
         subprocess.run(cmd,
                        check=True, capture_output=True)
