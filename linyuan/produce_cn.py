@@ -2689,24 +2689,49 @@ def reviewed_native_cleanup(source_report, width, height, start, end):
 
 
 def measured_emblem_intervals(src, start, end, rect):
-    """Find the reviewed red emblem on every source frame, never blur its empty location."""
+    """Match the exact reviewed emblem using the renderer's decoded frame PTS.
+
+    A red-pixel threshold misses the fading white emblem and can match skin.
+    The tiny reference is bound by the caller to one exact source/interval.
+    Decode with FFmpeg, as the renderer does, rather than approximating VFR
+    timestamps by frame_index / OpenCV's average frame rate.
+    """
     import cv2
-    cap=cv2.VideoCapture(str(src));fps=cap.get(cv2.CAP_PROP_FPS)
-    if fps<=0:raise VisualQualityError('台标时间检查无法读取源帧率')
-    first=round(start*fps);last=round(end*fps)
-    cap.set(cv2.CAP_PROP_POS_FRAMES,first)
-    x0,y0,x1,y1=rect;runs=[]
-    try:
-        for i in range(last-first):
-            ok,frame=cap.read()
-            if not ok:raise VisualQualityError('台标时间检查未读完整源区间')
-            b,g,r=cv2.split(frame[y0:y1,x0:x1].astype('int16'))
-            present=((r>g+45)&(r>b+35)&(g<130)).mean()>.005
-            if present:
-                if runs and i==runs[-1][1]+1:runs[-1][1]=i
-                else:runs.append([i,i])
-    finally:cap.release()
-    return [(a/fps,(b+1)/fps) for a,b in runs]
+    import numpy as np
+    import tempfile
+    template=cv2.imread(str(Path(__file__).parent/'assets/source-emblem-6f5ddecc.png'),0)
+    if template is None:raise VisualQualityError('缺少已核对台标图案，不能放行')
+    x0,y0,x1,y1=rect;w=x1-x0;h=y1-y0
+    size=w*h;found=[]
+    with tempfile.TemporaryFile() as log:
+        cmd=['ffmpeg','-nostdin','-hide_banner','-loglevel','info','-ss',str(start),
+             '-i',str(src),'-t',str(end-start),'-vf',
+             f'setpts=PTS-STARTPTS,crop={w}:{h}:{x0}:{y0},showinfo',
+             '-an','-fps_mode','passthrough','-pix_fmt','gray','-f','rawvideo','pipe:1']
+        process=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=log)
+        try:
+            while True:
+                raw=process.stdout.read(size)
+                if not raw:break
+                if len(raw)!=size:raise VisualQualityError('台标时间检查出现不完整帧')
+                frame=np.frombuffer(raw,dtype=np.uint8).reshape(h,w)
+                found.append(float(cv2.matchTemplate(frame,template,cv2.TM_CCOEFF_NORMED).max())>.55)
+            code=process.wait(timeout=180)
+        finally:
+            process.stdout.close()
+            if process.poll() is None:process.kill();process.wait()
+        log.seek(0);details=log.read().decode(errors='replace')
+    if code or not found:raise VisualQualityError('台标原始帧解码检查失败')
+    times=[float(t) for t in re.findall(r'\bn:\s*\d+\s+pts:\s*-?\d+\s+pts_time:([\d.eE+-]+)',details)]
+    if len(times)!=len(found):raise VisualQualityError('台标解码帧与原时间戳不一致')
+    runs=[]
+    for i,present in enumerate(found):
+        if present:
+            if runs and i==runs[-1][1]+1:runs[-1][1]=i
+            else:runs.append([i,i])
+    # showinfo prints rounded decimal PTS. One millisecond encloses that exact
+    # frame while remaining far below the next original 30fps frame.
+    return [(max(0,times[a]-.001),min(end-start,times[b]+.001)) for a,b in runs]
 
 
 def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None,

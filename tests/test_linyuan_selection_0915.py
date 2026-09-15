@@ -244,11 +244,16 @@ def test_actual_face_detection_is_not_a_persistent_title():
 def test_emblem_filter_is_inactive_when_the_host_occupies_its_location(tmp_path):
     import cv2
     import numpy as np
+    assets=Path(p.__file__).parent/'assets'
+    template=cv2.imread(str(assets/'source-emblem-6f5ddecc.png'))
+    negative=cv2.imread(str(Path(__file__).parent/'fixtures/linyuan_888_emblem_negative.png'))
     video=tmp_path/'emblem.mp4'
-    writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),10,(100,100))
+    writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),10,(96,96))
     for i in range(20):
-        frame=np.full((100,100,3),(160,175,195),dtype=np.uint8)
-        if 4<=i<8:frame[10:40,60:90]=(30,30,210)
+        frame=negative.copy()
+        if 4<=i<8:frame[7:90,7:90]=template
         writer.write(frame)
     writer.release()
-    assert p.measured_emblem_intervals(video,0,2,(60,10,90,40))==[(.4,.8)]
+    intervals=p.measured_emblem_intervals(video,0,2,(0,0,96,96))
+    assert len(intervals)==1
+    assert intervals[0]==pytest.approx((.399,.701))
