@@ -2688,7 +2688,29 @@ def reviewed_native_cleanup(source_report, width, height, start, end):
     return None
 
 
-def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None):
+def measured_emblem_intervals(src, start, end, rect):
+    """Find the reviewed red emblem on every source frame, never blur its empty location."""
+    import cv2
+    cap=cv2.VideoCapture(str(src));fps=cap.get(cv2.CAP_PROP_FPS)
+    if fps<=0:raise VisualQualityError('台标时间检查无法读取源帧率')
+    first=round(start*fps);last=round(end*fps)
+    cap.set(cv2.CAP_PROP_POS_FRAMES,first)
+    x0,y0,x1,y1=rect;runs=[]
+    try:
+        for i in range(last-first):
+            ok,frame=cap.read()
+            if not ok:raise VisualQualityError('台标时间检查未读完整源区间')
+            b,g,r=cv2.split(frame[y0:y1,x0:x1].astype('int16'))
+            present=((r>g+45)&(r>b+35)&(g<130)).mean()>.005
+            if present:
+                if runs and i==runs[-1][1]+1:runs[-1][1]=i
+                else:runs.append([i,i])
+    finally:cap.release()
+    return [(a/fps,(b+1)/fps) for a,b in runs]
+
+
+def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None,
+                               proposed_logos=()):
     """Reassess the selected interview before forcing a face-only window.
 
     A mother-level card decision can come from an unrelated introduction or a
@@ -2720,6 +2742,12 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
         logos=detect_corner_logos(sample,frames=12,strict=True)
         filters=[delogo_filter(logos,width,height) if logos else '',
                  f'crop={cw}:{ch}:{cx}:{cy}']
+        if proposed_logos:
+            intervals=measured_emblem_intervals(src,start,end,(1728,52,1824,148))
+            if intervals:
+                active='+'.join(f'between(t,{a:.6f},{b-.000001:.6f})' for a,b in intervals)
+                filters.insert(0,delogo_filter(proposed_logos,width,height)+f":enable='{active}'")
+            proof['measured_emblem_intervals']=intervals
         output_h=ch
         if proposed_crop:
             # Give our captions their own strip below the measured source
@@ -2737,13 +2765,16 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
             raise VisualQualityError('裁切后仍有持续原字幕或大标题')
         if detect_corner_logos(cleaned,frames=12,strict=True):
             raise VisualQualityError('裁切后仍有来源角标')
+        if proposed_logos and measured_emblem_intervals(cleaned,0,int((end-start)*2)/2,
+                                                        (1728,52,1824,148)):
+            raise VisualQualityError('实际清理预览仍有已确认红色台标')
         proof.update(passed=True,video_filter=vf,crop_xywh=[cx,cy,cw,ch],
                      sampled_frames=12,raw_row_coverage=before,
                      clean_row_coverage=ocr_row_coverage(cleaned,frames=12,strict=True),
                      old_subtitles_removed=True,external_logos_removed=True)
         if proposed_crop:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
         print(f'[原画适配] {start:.2f}–{end:.2f}秒可裁净旧字幕，保留横屏切镜和原始插图：{cw}x{ch}',flush=True)
-        return dict(clean_strategy='crop_delogo' if logos else 'crop',
+        return dict(clean_strategy='crop_delogo' if logos or proposed_logos else 'crop',
             clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=output_h),
             native_context_proof=proof,geometry_source=str(sample))
     except (VisualQualityError,subprocess.SubprocessError,OSError,ValueError) as exc:
@@ -3749,6 +3780,27 @@ def _ocr():
     return _OCR_ENGINE
 
 
+def verified_ocr_text_boxes(frame, boxes, engine):
+    """Confirm unusually tall detector regions before treating them as text.
+
+    Actual #888 close-ups produced 30%-high face boxes, sometimes recognized
+    as one hallucinated character (香). Real subtitle lines retain their raw
+    detection sensitivity. Tall titles must have multiple recognized characters;
+    vertical multi-character titles remain supported.
+    """
+    def tall(box):
+        return max(pt[1] for pt in box)-min(pt[1] for pt in box)>frame.shape[0]*.15
+    if not any(tall(box) for box in boxes):return boxes
+    recognized,_=engine(frame,use_det=True,use_rec=True,use_cls=True)
+    supported=[]
+    for box,text,confidence in recognized or []:
+        if len(re.sub(r'\W+','',text))>=2 and float(confidence)>=.75:
+            supported.append(box)
+    return [box for box in boxes if not tall(box) or any(
+        max(abs(float(a)-float(b)) for pa,pb in zip(box,other)
+            for a,b in zip(pa,pb))<3 for other in supported)]
+
+
 def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
     """抽帧 OCR，统计每 1% 行位置被文字框覆盖的「帧比例」(长度 100 的列表)。
 
@@ -3783,7 +3835,7 @@ def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
             res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
             got += 1
             rows = np.zeros(100, bool)
-            for box in (res or []):
+            for box in verified_ocr_text_boxes(f,res or [],engine):
                 ys = [pt[1] for pt in box]
                 a = max(0, min(99, int(min(ys) / H * 100)))
                 b = max(0, min(100, int(max(ys) / H * 100) + 1))
@@ -4818,7 +4870,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1:
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
-            **({'proposed_crop':proposed_native} if proposed_native else {}))
+            **({'proposed_crop':proposed_native,
+                # Measured non-text station emblem, missed by text OCR.
+                'proposed_logos':[(1728/W,52/H,1824/W,148/H)]}
+               if proposed_native else {}))
         if proposed_native and not native_plan:
             raise VisualQualityError('已确认原新闻字幕条残留；重新取景未通过，禁止复用旧原画方案')
         if native_plan:
@@ -5404,7 +5459,7 @@ def main():
                  "watermark_verified": bool(m.get("watermark_verified")),
                  "visual_identity": visual_report,
                  "subtitles_burned": True, "has_existing_subtitles": False,
-                 "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles")),
+                 "raw_has_existing_subtitles": bool(source_report.get("raw_has_existing_subtitles") or m.get("native_cleanup_proof")),
                  "clean_filter_verified": bool(source_report.get("clean_filter_verified")),
                  "vertical": m["resolution"]["height"] > m["resolution"]["width"],
                  "asr_model": ASR_BACKEND,

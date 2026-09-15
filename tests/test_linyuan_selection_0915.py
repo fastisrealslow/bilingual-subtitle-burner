@@ -228,3 +228,27 @@ def test_measured_888_news_panel_crop_is_scoped_to_the_reviewed_source_interval(
     assert p.reviewed_native_cleanup({},1920,1080,459,747.24) is None
     assert p.reviewed_native_cleanup(report,1920,1080,1302.44,1428.52) is None
     assert p.reviewed_native_cleanup(report,1280,720,459,747.24) is None
+
+
+def test_actual_face_detection_is_not_a_persistent_title():
+    import numpy as np
+    frame=np.zeros((360,640,3),dtype=np.uint8)
+    face=[[259.,57.],[339.,57.],[339.,162.],[259.,162.]]
+    subtitle=[[30.,300.],[610.,300.],[610.,320.],[30.,320.]]
+    def face_ocr(*args,**kwargs):return [(face,'香',.900245)],None
+    assert p.verified_ocr_text_boxes(frame,[face,subtitle],face_ocr)==[subtitle]
+    def title_ocr(*args,**kwargs):return [(face,'投资观点',.99)],None
+    assert p.verified_ocr_text_boxes(frame,[face,subtitle],title_ocr)==[face,subtitle]
+
+
+def test_emblem_filter_is_inactive_when_the_host_occupies_its_location(tmp_path):
+    import cv2
+    import numpy as np
+    video=tmp_path/'emblem.mp4'
+    writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),10,(100,100))
+    for i in range(20):
+        frame=np.full((100,100,3),(160,175,195),dtype=np.uint8)
+        if 4<=i<8:frame[10:40,60:90]=(30,30,210)
+        writer.write(frame)
+    writer.release()
+    assert p.measured_emblem_intervals(video,0,2,(60,10,90,40))==[(.4,.8)]
