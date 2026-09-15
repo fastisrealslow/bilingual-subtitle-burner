@@ -133,3 +133,23 @@ def test_real_source_can_avoid_the_wordmark_without_losing_the_face_or_resolutio
     'edf7eeeabc0ab08b8d1b38c2082fd5ad3ef9e713707324271f8ba4c820f13127'])
 def test_manually_verified_dirty_files_cannot_reenter_publication(digest):
     assert '红色来源水印' in p.editorial.metadata_error(dict(fingerprints=dict(sha256=digest)))
+
+
+def test_actual_799s_head_movement_keeps_shot_scale_without_entering_text_band():
+    from live_tracking import shot_crop
+    from stable_framing import StableFraming
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_0915_moving_wordmark.json').read_text())
+    marks=data['source_marks']+p.source_edge_text_exclusions([data['source_ocr']])
+    framing=StableFraming(30)
+    shape=None
+    for i,row in enumerate(data['motion_samples']):
+        face=row['face']
+        for repeat in range(15):
+            box=shot_crop(framing,face,1280,620,i*15+repeat,marks)
+            if shape is None:shape=box[2:]
+            assert box[2:]==shape
+            x,y,w,h=box;fx,fy,fw,fh=face
+            assert w>=316 and h>=235
+            assert x+8<=fx and fx+fw<=x+w-8 and y+fh*.22<=fy and fy+fh<=y+h-2
+            assert all(not(x<c*1280 and x+w>a*1280 and y<d*620 and y+h>b*620)
+                       for a,b,c,d in marks)

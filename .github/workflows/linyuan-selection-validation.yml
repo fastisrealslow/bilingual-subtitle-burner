@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34925922320'
+          RECOVERY_RUN_ID: '34928160433'
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
@@ -523,6 +523,9 @@ jobs:
           assert len(picks) >= 3, picks
           assert all(p['selection_method']=='source_question_answer_v2' for p in picks)
           assert not list((root/'_tmp').glob('context_topics*'))
+          metas=json.loads((root/'meta.json').read_text())
+          if isinstance(metas,dict): metas=[metas]
+          assert all(m['corner_review']['moving_wordmark_version']==2026091501 for m in metas)
           print(json.dumps(dict(accepted=report['accepted'],source_candidates=len(picks),model_topic_calls=0),ensure_ascii=False))
           PYCODE
 

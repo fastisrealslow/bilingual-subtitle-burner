@@ -29,9 +29,14 @@ def avoid_overlays(box, face, width, height, exclusions):
     if not overlaps(x,y):return box
     fx,fy,fw,fh=map(float,face[:4])
     xs={x};ys={y}
-    for a,b,c,d in marks:
+    for original,(a,b,c,d) in zip(exclusions,marks):
         xs.update((math.floor((a-w-4)/2)*2,math.ceil((c+4)/2)*2))
-        ys.update((math.floor((b-h-4)/2)*2,math.ceil((d+4)/2)*2))
+        # Full-width text bands already include their OCR safety expansion.
+        # Adding another 4px and rounding again can miss a valid 2px-grid
+        # position beside the chin (#0915 at source 799.1s). The final overlap
+        # and complete-face checks below remain mandatory for every proposal.
+        pad=0 if original[0]==0 and original[2]==1 else 4
+        ys.update((math.floor((b-h-pad)/2)*2,math.ceil((d+pad)/2)*2))
     valid=[(px,py,w,h) for px in xs for py in ys
            if 0<=px<=width-w and 0<=py<=height-h
            and px+8<=fx and fx+fw<=px+w-8
@@ -44,6 +49,7 @@ def avoid_overlays(box, face, width, height, exclusions):
 
 def crop_box(face, width, height, ratio=632/470, exclusions=()):
     x,y,w,h=map(float,face[:4])
+    candidates=[]
     # The preferred half-body framing may be wider than the clean corridor
     # between two measured corner marks. At a NEW shot choose the widest
     # feasible crop, preserving the same face margins and pixel minimum.
@@ -58,9 +64,18 @@ def crop_box(face, width, height, ratio=632/470, exclusions=()):
         top=max(0,min(height-ch,y-h*.48))
         box=tuple(int(v)//2*2 for v in (left,top,cw,ch))
         try:
-            return avoid_overlays(box,face,width,height,exclusions)
+            clean=avoid_overlays(box,face,width,height,exclusions)
+            # A wide window translated far above/beside the face can lock a
+            # shot against two overlays and fail on the next small head move.
+            # Prefer a slightly tighter, centred window over a large forced
+            # translation. Pixel minima and complete-face margins are unchanged.
+            displacement=abs(clean[0]-box[0])/box[2]+abs(clean[1]-box[1])/box[3]
+            cost=displacement+.2*(2.1-scale)
+            candidates.append((cost,clean))
+            if cost==0:return clean
         except ValueError:
             continue
+    if candidates:return min(candidates,key=lambda row:row[0])[1]
     raise ValueError('来源角标无法避开且保留完整人脸，须换取景或素材')
 
 
