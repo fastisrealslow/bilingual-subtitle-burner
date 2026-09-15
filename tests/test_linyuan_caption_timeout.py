@@ -54,9 +54,13 @@ def test_recovery_matches_source_and_never_restores_approvals(tmp_path):
         (root/'source_quality.json').write_text(json.dumps(dict(source_sha256='a'*64,passed=True)))
     (old/'highlights_block_1.json').write_text('{"picks":[]}')
     (old/'source_identity.json').write_text('obsolete approval')
+    (old/'semantic-1.readable-2026091301.json').write_text('["待重新验证的原文分屏"]')
+    (old/'semantic-1.editing.json').write_text('obsolete edit proof')
     restore(old,new)
     assert (new/'highlights_block_1.json').exists()
     assert not (new/'source_identity.json').exists()
+    assert (new/'semantic-1.readable-2026091301.json').exists()
+    assert not (new/'semantic-1.editing.json').exists()
     (new/'source_quality.json').write_text(json.dumps(dict(source_sha256='b'*64,passed=True)))
     with pytest.raises(ValueError,match='哈希不一致'):restore(old,new)
 

@@ -182,3 +182,21 @@ def test_888_guest_rhetorical_questions_do_not_cut_off_the_continuing_answer():
     # The bearish-market preamble at 566s keeps its actual reply from 582s;
     # the next host turn about investment books at 747s stays out.
     assert '凡是认为这个牛市' in ''.join(c['text'] for c in cues[171:290])
+
+
+def test_888_displayed_ass_keeps_every_source_question_in_the_edit_proof(tmp_path,monkeypatch):
+    from caption_readability import clean_entries,display_payload_text
+    from presentation import layout_for
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_888_caption_entries.json').read_text())
+    entries=data['raw_entries']
+    cleaned,proof=clean_entries(entries)
+    layout=layout_for(1742,972,False)
+    cache=tmp_path/'semantic-1.json'
+    cache.with_name('semantic-1.readable-2026091301.json').write_text(json.dumps(data['cached_groups']))
+    monkeypatch.setattr(p,'llm',lambda *a,**kw:pytest.fail('Validated source boundaries must be reusable'))
+    captions=p.semantic_caption_entries(entries,'',layout,cache)
+    ass=tmp_path/'subtitles.ass'
+    p.make_ass(captions,ass,1742,972)
+    actual=p.editorial.subtitle_files_text(tmp_path,[ass.name])
+    assert display_payload_text(actual)==display_payload_text(proof['display_text'])
+    assert '是不是？' in actual

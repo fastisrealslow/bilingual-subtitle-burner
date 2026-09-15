@@ -1987,6 +1987,25 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
         raise ValueError('完整意群分组为空或格式错误')
     if ''.join(strip(t) for t in texts)!=source:
         raise ValueError('意群分组改写或丢失原话，拒绝烧录')
+    # Planning uses punctuation-free character offsets. Restore source question
+    # and exclamation marks at EVERY offset, including inside a merged screen
+    # and after a local split. #888 lost the question in “是不是？是…” when
+    # only screen-final marks were restored, invalidating its edit proof.
+    terminal_marks={}; cursor=0
+    for char in ''.join(e.get('zh','') for e in entries):
+        if char in '！？':terminal_marks[cursor]=terminal_marks.get(cursor,'')+char
+        elif strip(char):cursor+=1
+
+    def source_punctuation(text, start):
+        result=[terminal_marks.get(0,'')] if start==0 else []
+        cursor=start
+        for char in text:
+            if char in '！？':continue
+            result.append(char)
+            if strip(char):
+                cursor+=1
+                result.append(terminal_marks.get(cursor,''))
+        return ''.join(result)
     # A spoken filler/call-out can flash even when its text is a whole
     # word. Remove that screen boundary while preserving the original times
     # and every character. The merged group still faces all layout/8s gates.
@@ -2052,6 +2071,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                 duration = finish-begin
                 if not .25 <= duration <= 8:
                     continue
+                part=source_punctuation(part,a)
                 try:
                     cue_capacity, cue_font = fit_lines(part)
                 except ValueError:
@@ -2072,6 +2092,7 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     result=[]; offset=0
     for original_text in texts:
         text=re.sub(r'\s+','',original_text); end=offset+len(strip(text))
+        text=source_punctuation(text,offset)
         if end not in bounds: raise ValueError('意群分组切断完整词')
         if unfinished_caption_tail(strip(text)):
             raise ValueError('意群以未完成的连接词结束：'+text)
@@ -5023,6 +5044,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         name=f'subtitle_edit_proof{suffix}-{n}.json'
         shutil.copy2(work/f'semantic{suffix}-{n}.editing.json',out/name)
         edit_proof_files.append(name)
+    from caption_readability import replay_edit_proof, display_payload_text
+    proof_display=''.join(replay_edit_proof(json.loads((out/name).read_text()))[1]
+                          for name in edit_proof_files)
+    if display_payload_text(proof_display)!=display_payload_text(rendered_subtitle_text):
+        raise VisualQualityError('字幕编辑证明与真实ASS字幕不一致，拒绝输出为合格成片')
     meta = {
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
