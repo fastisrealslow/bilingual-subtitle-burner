@@ -155,3 +155,30 @@ def test_actual_799s_head_movement_keeps_shot_scale_without_entering_text_band()
             assert x+8<=fx and fx+fw<=x+w-8 and y+fh*.22<=fy and fy+fh<=y+h-2
             assert all(not(x<c*1280 and x+w>a*1280 and y<d*620 and y+h>b*620)
                        for a,b,c,d in marks)
+
+
+def test_actual_873s_frame_is_rejected_when_face_and_watermark_margins_conflict():
+    from live_tracking import avoid_overlays
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_0915_moving_wordmark.json').read_text())
+    # Run 34930079177, source frame 26210. This is a genuine quality rejection,
+    # not an excuse to trim the chin or relax the watermark safety boundary.
+    face=[377.7059631347656,299.3099670410156,146.926025390625,196.7473602294922]
+    marks=data['source_marks']+p.source_edge_text_exclusions([data['source_ocr']])
+    with pytest.raises(ValueError,match='完整人脸'):
+        avoid_overlays((234,181,428,318),face,1280,620,marks)
+
+
+def test_888_guest_rhetorical_questions_do_not_cut_off_the_continuing_answer():
+    from source_selection import QUESTION
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_888_source_selection.json').read_text())
+    cues=data['cues']
+    for text in ('你没花都不是钱，都不是你的，没用，明白？',
+                 '当然你们认为，他是靠人赚钱的那种人，是吧？',
+                 '你如果投资方向没错的话呢，就管理自己。'):
+        assert not QUESTION.search(text)
+    picks=select(cues,limit=6,whole_source=True)
+    assert [(p['start'],p['end']) for p in picks]==[(171,289)]
+    assert cues[171]['start']==459.0 and cues[289]['end']==747.24
+    # The bearish-market preamble at 566s keeps its actual reply from 582s;
+    # the next host turn about investment books at 747s stays out.
+    assert '凡是认为这个牛市' in ''.join(c['text'] for c in cues[171:290])

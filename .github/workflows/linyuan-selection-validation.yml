@@ -520,8 +520,9 @@ jobs:
           report=json.loads((root/'batch_report.json').read_text())
           assert report['accepted'] >= 1 and report['audio_card'] == 0, report
           picks=json.loads((root/'_tmp/source_question_answers.json').read_text())
-          assert len(picks) >= 3, picks
+          assert len(picks) == 1, picks
           assert all(p['selection_method']=='source_question_answer_v2' for p in picks)
+          assert [(p['start'],p['end']) for p in picks] == [(171,289)], picks
           assert not list((root/'_tmp').glob('context_topics*'))
           metas=json.loads((root/'meta.json').read_text())
           if isinstance(metas,dict): metas=[metas]
