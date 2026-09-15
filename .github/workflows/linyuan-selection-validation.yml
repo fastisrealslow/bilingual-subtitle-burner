@@ -1,5 +1,5 @@
 name: 0915 选段与实片验收
-run-name: 0915 选段与实片验收 · ${{ inputs.slug || 'ly-selection-0915-validation' }}
+run-name: 0915 选段与实片验收 · ${{ inputs.slug || 'ly-selection-0915-clean-source' }}
 
 # 中文素材使用 SenseVoice CPU 离线识别；不预下载未使用的 Whisper。
 # 模型比较见 linyuan-asr-cpu-benchmark.yml，识别阶段禁用网络。
@@ -99,11 +99,11 @@ on:
 
 env:
   RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
-  RUN_SOURCE: ${{ inputs.source || 'https://m.weibo.cn/detail/5343032035509648' }}
-  RUN_SLUG: ${{ inputs.slug || 'ly-selection-0915-validation' }}
+  RUN_SOURCE: ${{ inputs.source || 'https://www.bilibili.com/video/BV1se411H7tj' }}
+  RUN_SLUG: ${{ inputs.slug || 'ly-selection-0915-clean-source' }}
   RUN_SPEAKER: ${{ inputs.speaker || '林园' }}
-  RUN_OCCASION: ${{ inputs.occasion || '林园公开访谈，选段优化实片验收' }}
-  RUN_SOURCE_PLATFORM: ${{ inputs.source_platform || 'weibo' }}
+  RUN_OCCASION: ${{ inputs.occasion || '【“中国巴菲特”--林园】凤凰财经对话林园最新访谈' }}
+  RUN_SOURCE_PLATFORM: ${{ inputs.source_platform || 'bilibili' }}
   RUN_REVIEWED_PARTS: ''
 
 permissions:
@@ -111,7 +111,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: produce-cn-${{ inputs.slug || 'ly-selection-0915-validation' }}
+  group: produce-cn-${{ inputs.slug || 'ly-selection-0915-clean-source' }}
   # 同一 slug 的新版验收会取代旧版；不同日常 slug 仍可并行，不影响正常出片。
   cancel-in-progress: true
 
@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34928882261'
+          RECOVERY_RUN_ID: '34807229142'
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
@@ -525,7 +525,8 @@ jobs:
           assert not list((root/'_tmp').glob('context_topics*'))
           metas=json.loads((root/'meta.json').read_text())
           if isinstance(metas,dict): metas=[metas]
-          assert all(m['corner_review']['moving_wordmark_version']==2026091501 for m in metas)
+          assert all(m['corner_review']['moving_wordmark_version']==2026091501 for m in metas if m['render_mode']=='live_video_card')
+          assert all(m['watermark_verified'] and m['subtitles_burned'] for m in metas)
           print(json.dumps(dict(accepted=report['accepted'],source_candidates=len(picks),model_topic_calls=0),ensure_ascii=False))
           PYCODE
 
