@@ -296,7 +296,7 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          RECOVERY_RUN_ID: '34807229142'
+          RECOVERY_RUN_ID: '34931105983'
         run: |
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
@@ -514,7 +514,9 @@ jobs:
       - name: 验证新选择器确实产出通过全部门禁的真人成片
         run: |
           python - <<'PYCODE'
-          import json, os
+          import json, os, sys
+          sys.path.insert(0,'fc')
+          import index as publication_gate
           from pathlib import Path
           root=Path('deliver')/os.environ['RUN_SLUG']
           report=json.loads((root/'batch_report.json').read_text())
@@ -528,6 +530,9 @@ jobs:
           if isinstance(metas,dict): metas=[metas]
           assert all(m['corner_review']['moving_wordmark_version']==2026091501 for m in metas if m['render_mode']=='live_video_card')
           assert all(m['watermark_verified'] and m['subtitles_burned'] for m in metas)
+          for meta in metas:
+              problem=publication_gate.artifact_subtitle_error(meta,root)
+              assert problem is None, problem
           print(json.dumps(dict(accepted=report['accepted'],source_candidates=len(picks),model_topic_calls=0),ensure_ascii=False))
           PYCODE
 
