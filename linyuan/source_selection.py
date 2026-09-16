@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 22
+VERSION = 23
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -48,7 +48,11 @@ SPEECH_CHANGE = re.compile(
     # They prevent arbitrary fixed-length slicing while exposing two complete
     # 120-330s source spans to every unchanged media/editorial gate.
     r'|我再讲一下[^。！？]{0,24}接下来我们应该投什么'
-    r'|我指的是药物[，,]一定是药物')
+    r'|我指的是药物[，,]一定是药物'
+    # #79 changes both subject and camera after completing the domestic-crisis
+    # examples. End that complete statement before the source switches to a
+    # wide stage shot; do not weaken the continuous-face requirement.
+    r'|这是境内的[，,]境外的')
 OUTRO = re.compile(
     r'(?:本期|今天的|这次的|本次)(?:节目|对谈|访谈|对话).{0,12}(?:结束|到这里|告一段落)'
     r'|今天.{0,8}就到这里|由于时间.{0,12}(?:不再|结束)'
