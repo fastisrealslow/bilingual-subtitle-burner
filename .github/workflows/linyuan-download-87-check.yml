@@ -17,6 +17,12 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+    - name: 安装并核验媒体依赖
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq --no-install-recommends ffmpeg
+        ffmpeg -version
+        ffprobe -version
     - id: key
       env:
         SOURCE: https://www.bilibili.com/video/BV1fT421m76m
