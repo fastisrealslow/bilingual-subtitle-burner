@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789553713,
+  "updated_at": 1789553837,
   "inventory_updated_at": 1789553712,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789553712,
+    "updated_at": 1789553837,
     "records": 4926,
     "video_records": 4020,
     "initial_candidates": 70,
@@ -107,14 +107,14 @@
   },
   "counts": {
     "complete": 74,
-    "failed": 506,
+    "failed": 508,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 1,
-    "running": 5,
-    "retry_queued": 2,
-    "interrupted": 3
+    "running": 6,
+    "retry_queued": 1,
+    "interrupted": 1
   },
   "tasks": [
     {
@@ -10474,24 +10474,6 @@
       "run_updated_at": "2026-09-16T09:01:30Z"
     },
     {
-      "slug": "ly-0915-c6ca30",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1789549501,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1789549500,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 35071862165,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35071862165",
-      "run_started_at": "2026-09-16T08:05:07Z",
-      "run_updated_at": "2026-09-16T08:08:44Z"
-    },
-    {
       "slug": "ly-0916-d1715b",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -10781,11 +10763,11 @@
     },
     {
       "slug": "ly-0916-38c3e1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789553400,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10799,11 +10781,11 @@
     },
     {
       "slug": "ly-0916-7f517c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1789553411,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10886,6 +10868,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35083813124",
       "run_started_at": "2026-09-16T10:13:33Z",
       "run_updated_at": "2026-09-16T10:13:36Z"
+    },
+    {
+      "slug": "ly-0915-c6ca30",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1789553805,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35084108867,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35084108867",
+      "run_started_at": "2026-09-16T10:16:45Z",
+      "run_updated_at": "2026-09-16T10:16:48Z"
     }
   ],
   "runs": {
@@ -12815,14 +12815,14 @@
       "display_title": "中文源出片 · ly-0915-f4ed15"
     },
     "ly-0915-c6ca30": {
-      "id": 35071862165,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T08:05:07Z",
-      "updated_at": "2026-09-16T08:08:44Z",
-      "run_started_at": "2026-09-16T08:05:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35071862165",
-      "run_number": 984,
+      "id": 35084108867,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-16T10:16:45Z",
+      "updated_at": "2026-09-16T10:16:48Z",
+      "run_started_at": "2026-09-16T10:16:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35084108867",
+      "run_number": 1017,
       "display_title": "中文源出片 · ly-0915-c6ca30"
     },
     "ly-0916-436140": {
