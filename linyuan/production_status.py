@@ -103,6 +103,7 @@ def classify(entry, state, inventory, run, now):
     if parts and fresh:
         verified = [p for p in parts if p.get('status') == 'verified']
         usable = [p for p in verified if not fc.inventory_publication_error(p, entry, state)
+                  and not fc.daily_mix_error(p, state.get('daily_publish') or {})
                   and (not entry.get('weekly_full_week') or p.get('content_type') == 'full_interview')]
         if usable:
             if entry.get('weekly_full_week'):

@@ -53,11 +53,17 @@ def test_success_does_not_claim_inspected_or_publishable_stock():
 
 def test_verified_full_is_reserved_not_stuck(monkeypatch):
     e=entry(weekly_full_week='2026-W38')
-    p=dict(index=0,status='verified',content_type='full_interview')
+    p=dict(index=0,status='verified',content_type='full_interview',render_mode='crop_delogo')
     monkeypatch.setattr(status.fc,'inventory_publication_error',lambda *a:None)
     assert status.classify(e,state(e),inventory([p]),run(),NOW)[0] == 'reserved'
     old=inventory([p]);old['updated_at']=NOW-4*3600
     assert status.classify(e,state(e),old,run(),NOW)[0] == 'awaiting_validation'
+
+
+def test_audio_card_is_not_reported_as_ready_under_live_only_policy(monkeypatch):
+    e=entry()
+    monkeypatch.setattr(status.fc,'inventory_publication_error',lambda *a:None)
+    assert status.classify(e,state(e),inventory([dict(index=0,status='verified',render_mode='audio_card')]),run(),NOW)[0] == 'excluded'
 
 
 def test_processed_noncontiguous_parts_cannot_become_ready_again(monkeypatch):
