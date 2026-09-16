@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789545495,
+  "updated_at": 1789545592,
   "inventory_updated_at": 1789545494,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789545494,
+    "updated_at": 1789545591,
     "records": 4926,
     "video_records": 4020,
     "initial_candidates": 84,
@@ -216,7 +216,8 @@
     "validation_failed": 1,
     "reserved": 1,
     "running": 6,
-    "retry_queued": 3
+    "retry_queued": 2,
+    "interrupted": 1
   },
   "tasks": [
     {
@@ -10504,24 +10505,6 @@
       "run_updated_at": "2026-09-16T07:10:10Z"
     },
     {
-      "slug": "ly-0915-53a621",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1789544004,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1789544003,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 35054007360,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35054007360",
-      "run_started_at": "2026-09-16T04:01:33Z",
-      "run_updated_at": "2026-09-16T04:05:29Z"
-    },
-    {
       "slug": "ly-0915-c6ca30",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -10703,8 +10686,8 @@
     },
     {
       "slug": "ly-0915-4b179d",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1789545253,
         "failed": false,
@@ -10717,7 +10700,7 @@
       "run_id": 35070912020,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35070912020",
       "run_started_at": "2026-09-16T07:54:13Z",
-      "run_updated_at": "2026-09-16T07:54:17Z"
+      "run_updated_at": "2026-09-16T07:58:48Z"
     },
     {
       "slug": "ly-0916-7e7ece",
@@ -10754,18 +10737,36 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35071147855",
       "run_started_at": "2026-09-16T07:56:58Z",
       "run_updated_at": "2026-09-16T07:57:02Z"
+    },
+    {
+      "slug": "ly-0915-53a621",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1789545565,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35071349632,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35071349632",
+      "run_started_at": "2026-09-16T07:59:25Z",
+      "run_updated_at": "2026-09-16T07:59:29Z"
     }
   ],
   "runs": {
     "ly-0915-53a621": {
-      "id": 35054007360,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T04:01:33Z",
-      "updated_at": "2026-09-16T04:05:29Z",
-      "run_started_at": "2026-09-16T04:01:33Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35054007360",
-      "run_number": 955,
+      "id": 35071349632,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-16T07:59:25Z",
+      "updated_at": "2026-09-16T07:59:29Z",
+      "run_started_at": "2026-09-16T07:59:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35071349632",
+      "run_number": 983,
       "display_title": "中文源出片 · ly-0915-53a621"
     },
     "ly-0915-c6ca30": {
@@ -12805,10 +12806,10 @@
     },
     "ly-0915-4b179d": {
       "id": 35070912020,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-09-16T07:54:13Z",
-      "updated_at": "2026-09-16T07:54:17Z",
+      "updated_at": "2026-09-16T07:58:48Z",
       "run_started_at": "2026-09-16T07:54:13Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35070912020",
       "run_number": 980,
