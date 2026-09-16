@@ -103,6 +103,32 @@ def test_preview_outage_preserves_all_candidates_and_writes_no_approval(tmp_path
     assert proof['error'] and proof['final_quality_approved'] is False
 
 
+def test_picture_ranking_retains_only_its_bounded_preview_frames(monkeypatch,tmp_path):
+    frame=np.zeros((360,640,3),np.uint8)
+    class Capture:
+        def get(self,*a):return 30
+        def set(self,*a):pass
+        def read(self):return True,frame.copy()
+        def release(self):pass
+    class Detector:
+        def setInputSize(self,*a):pass
+        def detect(self,image):
+            return None,np.array([[220,70,160,190]+[0]*11],dtype=np.float32)
+    class Recognizer:
+        def alignCrop(self,image,face):return image
+        def feature(self,image):return np.ones((1,4),np.float32)
+        def match(self,*a):return .9
+    monkeypatch.setattr(cv2,'VideoCapture',lambda *a:Capture())
+    monkeypatch.setattr(cv2.FaceDetectorYN,'create',lambda *a,**k:Detector())
+    monkeypatch.setattr(cv2.FaceRecognizerSF,'create',lambda *a,**k:Recognizer())
+    monkeypatch.setattr(cv2,'imread',lambda *a:frame.copy())
+    cues=[dict(start=0,end=145,text='完整原话')]
+    engine=lambda *a,**k:([],None)
+    rank('source.mp4',cues,[dict(start=0,end=0)],tmp_path,'reference.jpg',
+         ('face.onnx','recognition.onnx'),engine,lambda *a:[])
+    assert len(list(tmp_path.glob('frame-*.jpg')))==6
+
+
 def test_selector_exposes_later_complete_answers_without_borrowing_time():
     cues=[]
     for i in range(8):

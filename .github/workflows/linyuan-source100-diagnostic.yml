@@ -9,7 +9,8 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Source77-only replay validates literal keynote chapter boundaries;
+    # Source77-only replay validates literal keynote chapter boundaries and
+    # retains its bounded pre-ranking frames for geometric review;
     # acceptance gates and the fixed100 denominator remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:

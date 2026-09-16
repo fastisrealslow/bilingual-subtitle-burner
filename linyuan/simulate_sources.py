@@ -281,6 +281,14 @@ def report():
             target = evidence / 'evidence' / path.relative_to(out)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
+    # The cheap pre-ranking pass can reject every crop before the tracker
+    # starts. Retain its existing six-per-candidate samples for diagnosis;
+    # they are not renders and can never count as accepted media.
+    for path in out.glob('_tmp/visual-selection/frame-*.jpg'):
+        if path.is_file() and path.stat().st_size <= 2 * 1024 * 1024:
+            target = evidence / 'evidence' / path.relative_to(out)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, target)
     # Keep the bounded failure frames already emitted by the tracker. A text
     # exception alone cannot distinguish a detector bug from a genuinely
     # obstructed face; these are diagnostics, never accepted media.

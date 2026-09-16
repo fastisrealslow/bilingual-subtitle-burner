@@ -59,6 +59,10 @@ def rank(src,cues,picks,work,reference,models,engine,verify_boxes,threshold=.363
                 if not ok:continue
                 h,w=frame.shape[:2]
                 small=cv2.resize(frame,(min(640,w),round(h*min(640,w)/w)))
+                # Preserve only the already-sampled preview frame.  Without
+                # this bounded evidence, a geometric rejection cannot be
+                # distinguished from an overly conservative face/mark box.
+                cv2.imwrite(str(work/f'frame-{i+1}-{n+1}.jpg'),small)
                 boxes,_=engine(small,use_det=True,use_rec=False,use_cls=False)
                 samples.append(dict(frame=small,boxes=verify_boxes(small,boxes or [],engine),row=row))
                 candidates=[]
