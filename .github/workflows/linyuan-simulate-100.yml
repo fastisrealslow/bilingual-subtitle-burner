@@ -1,0 +1,329 @@
+# Isolated benchmark. Read-only token; simulation artifacts never enter production.
+name: 100素材离线模拟（不投稿）
+run-name: 100素材模拟 · ${{ github.sha }}
+'on':
+  push:
+    branches:
+    - main
+    paths:
+    - linyuan/simulations/source100-20260916.json
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: source100-simulation-20260916
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 核验100源与只读隔离
+      run: |
+        python -m pip install pytest pyyaml
+        python -m pytest -q tests/test_linyuan_simulation.py
+    - id: matrix
+      run: echo "matrix=$(python linyuan/simulate_sources.py matrix)" >> "$GITHUB_OUTPUT"
+  simulate:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    name: 模拟 ${{ matrix.id }} · ${{ matrix.slug }}
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: linyuan
+    env:
+      RUN_TEXT_MODEL: qwen3:8b
+      RUN_SOURCE: ${{ matrix.source_url }}
+      RUN_SLUG: ${{ matrix.slug }}
+      RUN_SOURCE_PLATFORM: ${{ matrix.source_platform }}
+      RUN_SPEAKER: 林园
+      CUDA_VISIBLE_DEVICES: ''
+      SIMULATION_ONLY: 'true'
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 安装 ffmpeg 与中文字体
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq --no-install-recommends \
+          ffmpeg fonts-noto-cjk poppler-utils libgl1 libglib2.0-0 zstd
+        fc-cache -f
+        ffprobe -version | head -1
+    - name: 固定本次提交的发布历史快照（只读）
+      id: publication_history
+      run: |
+        cp .automation/fc_state.json _publication_state.json
+        python -c 'from publication_history import read; read("_publication_state.json")'
+    - name: 安装素材质检依赖
+      run: |
+        python -m pip install --upgrade pip
+        # opencv 必须锁 <5：OpenCV 5.0 移除了 cv2.CascadeClassifier，会静默打断封面人脸检测
+        # （2026-09-01 实测：装到 5.0.0 后人脸检测全失败，封面退化成取第一帧）
+        pip install yt-dlp pillow 'opencv-python<5' rapidocr-onnxruntime
+    - name: 缓存 CPU 本地人物模型
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.tool_cache }}/linyuan-face-models
+        key: opencv-yunet-sface-2023mar-2021dec-v1
+    - name: 生成母片下载缓存键
+      id: source_cache_key
+      run: |
+        python -c 'import hashlib,os; print("key="+hashlib.sha256(os.environ["RUN_SOURCE"].encode()).hexdigest())' >> "$GITHUB_OUTPUT"
+    - name: 恢复同源未完成下载
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/_src/
+        key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: source-download-v1-${{ steps.source_cache_key.outputs.key }}-
+    - name: 下载缓存被淘汰时恢复独立母片检查点
+      if: contains(env.RUN_SOURCE, 'bilibili.com/video/BV')
+      continue-on-error: true
+      timeout-minutes: 12
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: python mother_media_cache.py --source "$RUN_SOURCE"
+    - name: 取源
+      id: src
+      timeout-minutes: 65
+      env:
+        SOURCE: ${{ env.RUN_SOURCE }}
+        BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      run: |
+        set -euo pipefail
+        if [[ "$SOURCE" =~ bilibili\.com/video/BV ]]; then
+          # B站 API 在 GitHub runner 上反而通（监控每天在调），
+          # yt-dlp 裸请求会被 412，走自己的指纹会话下载器
+          mkdir -p _src
+          python3 -u ci_fetch_bilibili.py --url "$SOURCE" --out _src/video.mp4 \
+            --budget-seconds 3600 \
+            --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+          echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
+        elif [[ "$SOURCE" =~ yicai\.com/video/ ]]; then
+          python3 ci_fetch_yicai.py --url "$SOURCE" --out _src/video.mp4
+          echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
+        elif [[ "$RUN_SOURCE_PLATFORM" =~ ^(netease|haokan|tencent)$ ]]; then
+          python -u simulate_sources.py fetch-domestic-source
+        elif [[ "$SOURCE" =~ ^https?:// ]]; then
+          mkdir -p _src
+          # FC 上传的 staging release 素材：releases/download/<tag>/<slug>.mp4
+          # 公开仓库的 download 链接无需 token，直接 curl（yt-dlp 不认这种链接）
+          if [[ "$SOURCE" =~ github\.com/.*/releases/download/ ]]; then
+            echo "GitHub release 素材，直接下载"
+            curl -sfL --retry 3 --max-time 600 -o _src/video.mp4 "$SOURCE"
+            [ -s _src/video.mp4 ] || { echo "::error::release 素材下载失败"; exit 1; }
+            echo "path=_src/video.mp4" >> $GITHUB_OUTPUT
+          else
+            python3 -u ci_fetch_generic.py --url "$SOURCE" --directory _src \
+              --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
+              --github-output "$GITHUB_OUTPUT"
+          fi
+        else
+          [ -f "$SOURCE" ] || { echo "::error::找不到 $SOURCE"; exit 1; }
+          echo "path=$SOURCE" >> $GITHUB_OUTPUT
+        fi
+    - name: 素材质量门禁
+      id: source_gate
+      env:
+        LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
+      run: |
+        set -euo pipefail
+        # 所有渠道都确认音视频轨、时长漂移与头尾可解码；
+        # 避免 DASH/HLS 合流“命令成功但下到半截”继续进 ASR。
+        python3 ci_fetch_bilibili.py --validate-only "${{ steps.src.outputs.path }}" \
+          --failure-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+        python3 -u produce_cn.py \
+          --source "${{ steps.src.outputs.path }}" \
+          --slug "${{ env.RUN_SLUG }}" \
+          --speaker "${{ env.RUN_SPEAKER }}" \
+          --source-check-only \
+          --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 安装出片依赖
+      run: |
+        pip install fonttools jieba sherpa-onnx==1.13.7
+    - name: 读取已验证的CPU离线识别配置
+      run: python prepare_asr_runtime.py select --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 恢复相同母片的离线识别缓存
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+        key: mother-asr-${{ env.MOTHER_ASR_KEY }}
+    - name: 按母片哈希载入原始转写
+      run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY"
+        --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 复用同源失败任务的已完成证据
+      if: matrix.recovery_run_id != ''
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RECOVERY_RUN_ID: ${{ matrix.recovery_run_id }}
+      run: |
+        python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
+      continue-on-error: true
+    - name: 检查原始识别证据，避免重复下载和推理
+      run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 准备CPU离线Qwen识别及逐字对齐
+      if: env.ASR_BACKEND == 'qwen3' && env.ASR_EVIDENCE_READY != 'true'
+      env:
+        GH_TOKEN: ${{ github.token }}
+        CUDA_VISIBLE_DEVICES: ''
+        ASR_SOURCE_SLUG: ${{ matrix.original_slug || env.RUN_SLUG }}
+      run: |
+        pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+        pip install qwen-asr
+        python prepare_asr_runtime.py prepare --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 缓存 SenseVoice CPU 模型
+      id: sensevoice-cache
+      if: env.ASR_BACKEND == 'sensevoice'
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/sensevoice_model
+        key: sensevoice-int8-v1
+    - name: 下载 SenseVoice 模型
+      if: env.ASR_BACKEND == 'sensevoice' && steps.sensevoice-cache.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p sensevoice_model
+        curl -sfL --retry 3 --max-time 600 -o /tmp/sv.tar.bz2 \
+          "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2"
+        tar xjf /tmp/sv.tar.bz2 -C sensevoice_model --strip-components=1
+        ls -lh sensevoice_model/
+    - name: 复用 LLM 缓存
+      id: llm-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/.llm_cache
+        key: llm-cn-${{ matrix.original_slug }}-${{ github.run_id }}
+        restore-keys: |
+          llm-cn-${{ matrix.original_slug }}-
+          llm-cn-
+    - name: 缓存 CPU 本地文本模型
+      id: ollama-cache
+      continue-on-error: true
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.ollama/models
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1'
+          || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+    - name: 缓存已校验的 Ollama 安装包
+      uses: actions/cache/restore@v4
+      continue-on-error: true
+      with:
+        path: /tmp/ollama-runtime
+        key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+    - name: 启动 CPU 本地文本模型（禁止云 API）
+      id: local_text
+      continue-on-error: true
+      env:
+        OLLAMA_VERSION: v0.33.3
+        OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+      run: |
+        set -euo pipefail
+        mkdir -p /tmp/ollama-runtime
+        archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+        if ! echo "${OLLAMA_SHA256}  $archive" | sha256sum -c -; then
+          curl -fsSL --retry 8 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 600 \
+            -o /tmp/ollama-download.tar.zst \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+          echo "${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst" | sha256sum -c -
+          mv /tmp/ollama-download.tar.zst "$archive"
+        fi
+        sudo tar --zstd -xf "$archive" -C /usr
+        OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+          ollama serve > /tmp/ollama.log 2>&1 &
+        for _ in $(seq 1 30); do
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+          sleep 1
+        done
+        curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+        case "$RUN_TEXT_MODEL" in
+          qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b) ;;
+          *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;
+        esac
+        ollama pull "$RUN_TEXT_MODEL"
+        ollama show "$RUN_TEXT_MODEL" >/dev/null
+        # Pulling only downloads weights.  Warm them into RAM before the
+        # bounded CPU review budget begins.
+        python -c 'import json,os; print(json.dumps(dict(model=os.environ["RUN_TEXT_MODEL"],messages=[dict(role="user",content="Reply ready")],stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))))' > /tmp/ollama-warmup.json
+        curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
+          -H 'Content-Type: application/json' \
+          --data-binary @/tmp/ollama-warmup.json \
+          | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+    - name: 真实出片模拟（每个素材首条合格成片后停止）
+      id: render
+      env:
+        ASR_CPU_THREADS: '2'
+        CUDA_VISIBLE_DEVICES: ''
+        TEXT_BACKEND: local
+        SOURCE_EDITORIAL_FIRST: 'true'
+        TEXT_RUNTIME_UNAVAILABLE: ${{ steps.local_text.outcome != 'success' }}
+        LOCAL_LLM_URL: http://127.0.0.1:11434/api/chat
+        LOCAL_LLM_MODEL: ${{ env.RUN_TEXT_MODEL }}
+        LOCAL_LLM_TIMEOUT_SEC: '600'
+        PART_RENDER_BUDGET_SEC: '3600'
+        SENSEVOICE_MODEL_DIR: sensevoice_model
+        ZH_FONT: Noto Sans CJK SC
+        EN_FONT: DejaVu Sans
+        COVER_STYLE: auto
+        GH_TOKEN: ${{ github.token }}
+        SOURCE_ORIGIN_URL: ${{ env.RUN_SOURCE }}
+        PUBLICATION_STATE_PATH: _publication_state.json
+        OUTPUT_LAYOUT: auto
+        LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
+      run: |
+        python -u simulate_sources.py run --source "${{ steps.src.outputs.path }}"
+    - name: 逐样本核验并保存结果（失败也记录）
+      id: report
+      if: always()
+      env:
+        SIMULATION_STEPS: ${{ toJSON(steps) }}
+      run: python simulate_sources.py report
+    - name: 上传独立模拟报告
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: simulation-report-${{ matrix.slug }}
+        path: linyuan/simulation-reports/${{ matrix.slug }}/
+        retention-days: 30
+        if-no-files-found: error
+    - name: 上传测试成片（无生产库存入口）
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: simulation-media-${{ matrix.slug }}
+        path: linyuan/deliver/${{ matrix.slug }}/_accepted/
+        retention-days: 7
+        compression-level: 0
+        if-no-files-found: ignore
+  summary:
+    needs:
+    - prepare
+    - simulate
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
+      continue-on-error: true
+      with:
+        pattern: simulation-report-*
+        path: simulation-results
+    - name: 固定100为分母，缺失报告列为未确定
+      run: python linyuan/simulate_sources.py aggregate --reports simulation-results
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: simulation-summary-100
+        path: simulation-results/summary.*
+        retention-days: 30
+        if-no-files-found: error
