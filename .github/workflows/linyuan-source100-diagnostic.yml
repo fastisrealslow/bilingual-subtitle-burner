@@ -9,10 +9,10 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Source48-only replay retains exact black-edge frames and measurements;
+    # Source77-only replay validates literal keynote chapter boundaries;
     # acceptance gates and the fixed100 denominator remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '48'
+      sample_ids: '77'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

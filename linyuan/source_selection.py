@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 23
+VERSION = 24
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -53,6 +53,16 @@ SPEECH_CHANGE = re.compile(
     # examples. End that complete statement before the source switches to a
     # wide stage shot; do not weaken the continuous-face requirement.
     r'|这是境内的[，,]境外的')
+
+# Long keynotes also announce numbered chapters without phrasing them as a
+# question.  These are observable source boundaries, not semantic guesses or
+# fixed-duration cuts.  Keep the expressions narrow: a casual “first/second”
+# inside an example must not split a speech.
+KEYNOTE_SECTION = re.compile(
+    r'(?:那么)?投资啊[^。！？]{0,24}今天讲第一最重要的'
+    r'|那么第二个[，,][^。！？]{0,24}投资要赚大钱'
+    r'|(?:好了[，,]?)?接下来(?:就是)?我们要谈成长性'
+    r'|(?:好了[，,]?)?接下来我就讲这个投资')
 OUTRO = re.compile(
     r'(?:本期|今天的|这次的|本次)(?:节目|对谈|访谈|对话).{0,12}(?:结束|到这里|告一段落)'
     r'|今天.{0,8}就到这里|由于时间.{0,12}(?:不再|结束)'
@@ -224,7 +234,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     # a 3-minute chunk edge or a row crossing 120s never does. Question-bearing
     # sections stay on the Q&A path above, so they cannot borrow another answer.
     cuts=sorted(set([0]+[i for i,u in enumerate(units) if
-        TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])]))
+        TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
+        or KEYNOTE_SECTION.search(u['text'])]))
     for k,i in enumerate(cuts):
         if k+1<len(cuts):j=cuts[k+1]-1
         elif natural_end:j=len(units)-1
@@ -233,6 +244,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if j<=i or any(i<=q<=j for q in questions):continue
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or
+                KEYNOTE_SECTION.search(units[i]['text']) or
                 speech_opening(units[i]['text'])):continue
         if re.search(r'[？?]',units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']

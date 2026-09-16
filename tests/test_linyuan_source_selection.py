@@ -146,6 +146,26 @@ def test_actual_685_accepted_answer_survives_boundary_fixes():
     assert [{k:p[k] for k in ('start','end')} for p in picks]==[data['expected_pick']]
 
 
+def test_source77_explicit_keynote_chapters_are_not_one_oversized_speech():
+    # Literal chapter announcements from fixed source100 #77.  The timestamps
+    # preserve the observed source intervals; no 120/180-second cut is used.
+    cues=[
+        dict(start=662.84,end=669.64,text='那么投资啊，就是我今天讲第一最重要的，就是投垄断。'),
+        dict(start=669.64,end=780.0,text='所有的竞争都能造成风险，独家生意能够减少竞争带来的风险。'),
+        dict(start=780.0,end=870.36,text='今天我就讲，所以这个垄断是很重要的，独家买卖最好是独家买卖。'),
+        dict(start=875.32,end=885.56,text='那么第二个，我们投资要赚大钱的话，就是投资未来的大行业。'),
+        dict(start=885.56,end=1903.96,text='方向不能错，选择长期有需求的行业。'),
+        dict(start=1905.48,end=1908.12,text='接下来就是我们要谈成长性。'),
+        dict(start=1908.12,end=2010.0,text='成长不是短期热闹，行业选择和持续需求必须连在一起。'),
+        dict(start=2010.0,end=2103.8,text='从行业选择和成长性的角度，要用常识判断长期空间。'),
+        dict(start=2106.44,end=2109.56,text='好了，接下来我就讲这个投资。'),
+        dict(start=2109.56,end=2410.0,text='投资还要讲买入和长期坚持。'),
+    ]
+    picks=select(cues,limit=None,whole_source=True)
+    assert [(cues[p['start']]['start'],cues[p['end']]['end']) for p in picks]==[
+        (662.84,870.36),(1905.48,2103.8),(2106.44,2410.0)]
+
+
 def test_actual_686_interviewer_stock_claim_cannot_be_guest_title():
     from headline_policy import title_candidates
     text=('二零二一年你在茅台股东大会上面透露过，'
