@@ -66,6 +66,14 @@ def test_audio_card_is_not_reported_as_ready_under_live_only_policy(monkeypatch)
     assert status.classify(e,state(e),inventory([dict(index=0,status='verified',render_mode='audio_card')]),run(),NOW)[0] == 'excluded'
 
 
+def test_real_0911_weekly_batch_explains_rejected_full_despite_two_valid_clips():
+    e=entry(weekly_full_week='2026-W37')
+    parts=[dict(index=i,status='verified',render_mode='crop_delogo') for i in range(2)]
+    parts.append(dict(index=2,status='rejected',content_type='full_interview',reason='缺少真人局部动作证明'))
+    result=status.classify(e,state(e),inventory(parts),run(),NOW)
+    assert result[0]=='validation_failed' and '真人局部动作证明' in result[1]
+
+
 def test_processed_noncontiguous_parts_cannot_become_ready_again(monkeypatch):
     e=entry(published_parts=1,processed_part_indices=[2],parts_total=3)
     s=state(e);s['published']['mother']=dict(parts_total=3)

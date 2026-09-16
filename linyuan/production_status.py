@@ -101,7 +101,13 @@ def classify(entry, state, inventory, run, now):
              and inventory.get('quality_gate_version') == fc.QUALITY_GATE_VERSION
              and inventory.get('editorial_policy_version') == fc.editorial.VERSION)
     if parts and fresh:
-        verified = [p for p in parts if p.get('status') == 'verified']
+        # A weekly mother can contain accepted short clips and a rejected full
+        # interview. Explain the full interview's failure, not a vague exclusion.
+        eligible_parts = [p for p in parts if not entry.get('weekly_full_week')
+                          or p.get('content_type') == 'full_interview']
+        if not eligible_parts:
+            return 'excluded', '完整访谈发布位尚无完整成片，现有切片不计入该发布位'
+        verified = [p for p in eligible_parts if p.get('status') == 'verified']
         usable = [p for p in verified if not fc.inventory_publication_error(p, entry, state)
                   and not fc.daily_mix_error(p, state.get('daily_publish') or {})
                   and (not entry.get('weekly_full_week') or p.get('content_type') == 'full_interview')]
@@ -111,7 +117,7 @@ def classify(entry, state, inventory, run, now):
             return 'ready', f'{len(usable)} 条成片已验收，等待发布时段及配额'
         if verified:
             return 'excluded', '已有成片，但剩余片段受去重或发布规则限制'
-        return 'validation_failed', '成片复验未通过：' + str(parts[0].get('reason') or '无可发布片段')
+        return 'validation_failed', '成片复验未通过：' + str(eligible_parts[0].get('reason') or '无可发布片段')
     if records and not parts and fc.processed_part_indices(entry):
         return 'complete', '库存内的成片已全部处理'
     if current_run and run.get('status') == 'completed':
