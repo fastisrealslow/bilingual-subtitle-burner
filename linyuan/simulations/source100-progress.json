@@ -1,6 +1,6 @@
 {
-  "active_until": null,
-  "active_work": null,
+  "active_until": "2026-09-16T14:34:59.646Z",
+  "active_work": "Observe source79 keynote-boundary targeted run 35105484172 after verified channel repair; collect round2 run35098194067 without starting another full batch.",
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -13,7 +13,9 @@
     "Recovered source3 structural selection is blocked by genuine publication history lacking source time ranges; do not bypass deduplication.",
     "Source79 source SHA 8749fee3a7345c3e1c2fe2e14fc0b33d33d66829f5ff48a25ca6f6daee5ae41f: three 12s probes at 10/50/90% show stereo correlation -0.99595/-0.99804/-0.99736 and mono/channel RMS ratios 0.048/0.034/0.039. Default downmix cancels speech; preserve source left channel in recognition and final audio; invalidate incompatible evidence. Actual new ASR and final acceptance pending.",
     "Source6 topic cards contain multiple distinct short Q&A turns and a promotional outro; do not merge them into a 195s video. Selector21 recognizes the observed financial question forms; all existing selection regression tests pass.",
-    "Source5 failed frame at70.37s shows the speaker leaning below the original video panel; no evidence that lowering crop/face gates would preserve the whole face. Keep rejection pending a separate valid continuous segment."
+    "Source5 failed frame at70.37s shows the speaker leaning below the original video panel; no evidence that lowering crop/face gates would preserve the whole face. Keep rejection pending a separate valid continuous segment.",
+    "Source79 corrected left-channel offline Qwen run35102043136 produced 4667 characters / 348 cues across 1097.48s and completed forced alignment; ASR quality gate passed. Its remaining rejection was selector21 requiring a question or recognized keynote boundary.",
+    "Source79 contains literal speaker-announced boundaries at 573.88s ('接下来我们应该投什么') and 824.36s ('我指的是药物，一定是药物'). Selector22 exposes the resulting 250.08s and 273.12s continuous spans without fixed-length slicing; all downstream gates unchanged."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -58,7 +60,7 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Verify source79 corrected-channel fresh offline CPU transcription and unchanged acceptance gates in targeted run.",
+    "Collect source79 targeted selector22 result; count it only if an actual MP4 passes all final gates.",
     "Collect complete round2 summary, retaining failed and unknown cases; do not merge scores with diagnostics.",
     "After targeted repair succeeds, run one same-100-source benchmark at a single revision and fixed publication snapshot.",
     "Inspect remaining source5/21/29/48 geometry evidence without lowering target-face or crop gates."
@@ -79,6 +81,17 @@
         "sample_id": 39,
         "baseline_source_hash_matches": true,
         "bytes": 10931904
+      },
+      {
+        "sample_id": 95,
+        "report_artifact_id": 10449188315,
+        "media_artifact_id": 10448954863,
+        "final_sha256": "2012ee042fe811d2adaf970a39a4808fb2eb1ebfb1c4389f95cec10b14822ff8",
+        "duration_sec": 126.821333,
+        "reported_status": "passed",
+        "final_bytes_locally_verified": true,
+        "baseline_source_hash_matches": true,
+        "bytes": 9228806
       }
     ]
   },
@@ -88,9 +101,17 @@
     "github_regression": {
       "run_id": 35102042622,
       "conclusion": "success"
+    },
+    "selector22_local": {
+      "passed": 65,
+      "real_source79_candidate_spans": 2
+    },
+    "selector22_github": {
+      "run_id": 35105483686,
+      "status": "in_progress"
     }
   },
-  "updated_at": "2026-09-16T13:29:08.636Z",
+  "updated_at": "2026-09-16T13:59:59.646Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -98,10 +119,36 @@
     "sample_ids": [
       79
     ],
-    "status": "in_progress",
+    "status": "asr_recovered_selection_fix_retesting",
     "counts_as_full_benchmark": false,
     "policy": "left-channel-v1",
-    "real_asr_and_final_acceptance": "pending",
-    "evidence_path": "linyuan/simulations/evidence/source79-audio-35100640388.json"
+    "real_asr_and_final_acceptance": "ASR verified; final acceptance pending",
+    "evidence_path": "linyuan/simulations/evidence/source79-audio-35100640388.json",
+    "verified_asr": {
+      "run_id": 35102043136,
+      "duration_sec": 1097.48,
+      "cues": 348,
+      "characters": 4667,
+      "alignment_completed": true,
+      "quality_gate_passed": true,
+      "old_empty_evidence_reused": false
+    },
+    "selection_fix": {
+      "commit": "312cdc57d5a9a1a1cc86231f236af3b9c3f22852",
+      "run_id": 35105484172,
+      "status": "in_progress",
+      "selector_version": 22,
+      "boundaries_sec": [
+        [
+          573.88,
+          823.96
+        ],
+        [
+          824.36,
+          1097.48
+        ]
+      ],
+      "final_acceptance_pending": true
+    }
   }
 }
