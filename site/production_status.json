@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1789548085,
+  "updated_at": 1789548207,
   "inventory_updated_at": 1789548084,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789548084,
+    "updated_at": 1789548207,
     "records": 4926,
     "video_records": 4020,
-    "initial_candidates": 75,
-    "duration_eligible_records": 13,
-    "candidate_count": 13,
-    "known_duration_candidates": 12,
+    "initial_candidates": 74,
+    "duration_eligible_records": 12,
+    "candidate_count": 12,
+    "known_duration_candidates": 11,
     "unknown_duration_candidates": 1,
     "excluded": {
       "no_video": 906,
-      "already_attempted_or_cooling": 698,
+      "already_attempted_or_cooling": 699,
       "speaker_unconfirmed": 2012,
       "noise": 107,
       "clip_title": 985,
@@ -28,20 +28,20 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV19P4y1m77K:p44",
-        "title": "林园 P44 2020.12.05 【⭐⭐⭐】《雪球嘉年华》up第一次了解林园的视频",
-        "source": "bilibili_collection",
-        "author": "给B友们买瓜子去",
-        "url": "https://www.bilibili.com/video/BV19P4y1m77K?p=44",
-        "duration_sec": 1171.0
-      },
-      {
         "key": "bilibili_search:BV19P4y1m77K:p42",
         "title": "林园 P42 2020.10.26 【⭐⭐⭐⭐⭐⭐】《赢家财经~大讲堂》",
         "source": "bilibili_collection",
         "author": "给B友们买瓜子去",
         "url": "https://www.bilibili.com/video/BV19P4y1m77K?p=42",
         "duration_sec": 1429.0
+      },
+      {
+        "key": "bilibili_search:BV19P4y1m77K:p25",
+        "title": "林园 P25 2018.03.15 私募基金高峰论坛",
+        "source": "bilibili_collection",
+        "author": "给B友们买瓜子去",
+        "url": "https://www.bilibili.com/video/BV19P4y1m77K?p=25",
+        "duration_sec": 1638.0
       },
       {
         "key": "bilibili_search:BV1yP426gE1Q",
@@ -108,14 +108,6 @@
         "duration_sec": 0
       },
       {
-        "key": "bilibili_search:BV19P4y1m77K:p25",
-        "title": "林园 P25 2018.03.15 私募基金高峰论坛",
-        "source": "bilibili_collection",
-        "author": "给B友们买瓜子去",
-        "url": "https://www.bilibili.com/video/BV19P4y1m77K?p=25",
-        "duration_sec": 1638.0
-      },
-      {
         "key": "bilibili_search:BV19P4y1m77K:p15",
         "title": "林园 P15 2012.06.24【⭐⭐⭐】《中国经营者》",
         "source": "bilibili_collection",
@@ -147,12 +139,11 @@
   },
   "counts": {
     "complete": 74,
-    "failed": 505,
+    "failed": 507,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "running": 6,
-    "interrupted": 1
+    "running": 6
   },
   "tasks": [
     {
@@ -10621,11 +10612,11 @@
     },
     {
       "slug": "ly-0916-d3a2ac",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1789545419,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10783,11 +10774,11 @@
     },
     {
       "slug": "ly-0916-32cd3a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；same=[]，different=[1, 2, 3, 4, 5, 6]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1479, 2: 0.1458, 3: 0.1655, 4: 0.0817, 5: 0.2621, 6: 0.1799}",
       "signature": {
         "ts": 1789547906,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10797,7 +10788,7 @@
       "run_id": 35074883675,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35074883675",
       "run_started_at": "2026-09-16T08:38:25Z",
-      "run_updated_at": "2026-09-16T08:38:30Z"
+      "run_updated_at": "2026-09-16T08:41:37Z"
     },
     {
       "slug": "ly-0916-acabd0",
@@ -10834,6 +10825,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35075038280",
       "run_started_at": "2026-09-16T08:40:09Z",
       "run_updated_at": "2026-09-16T08:40:16Z"
+    },
+    {
+      "slug": "ly-0916-7f517c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1789548171,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35075291017,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35075291017",
+      "run_started_at": "2026-09-16T08:42:51Z",
+      "run_updated_at": "2026-09-16T08:42:56Z"
     }
   ],
   "runs": {
@@ -12960,6 +12969,17 @@
       "run_number": 982,
       "display_title": "中文源出片 · ly-0916-d3a2ac"
     },
+    "ly-0916-7f517c": {
+      "id": 35075291017,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-16T08:42:51Z",
+      "updated_at": "2026-09-16T08:42:56Z",
+      "run_started_at": "2026-09-16T08:42:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35075291017",
+      "run_number": 994,
+      "display_title": "中文源出片 · ly-0916-7f517c"
+    },
     "ly-0916-beb8c9": {
       "id": 35075038280,
       "status": "in_progress",
@@ -12984,10 +13004,10 @@
     },
     "ly-0916-32cd3a": {
       "id": 35074883675,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-09-16T08:38:25Z",
-      "updated_at": "2026-09-16T08:38:30Z",
+      "updated_at": "2026-09-16T08:41:37Z",
       "run_started_at": "2026-09-16T08:38:25Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35074883675",
       "run_number": 991,
