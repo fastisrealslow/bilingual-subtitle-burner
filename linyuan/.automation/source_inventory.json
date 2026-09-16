@@ -3,7 +3,7 @@
   "validation_sha256": "eebd80277e9d63875abb4c6688eb8d9a93af1138d8fc2e065ae0b5223ffa5ef1",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789562252,
+  "updated_at": 1789562331,
   "materials": {
     "weibo_search": {
       "records": 1223,
@@ -90,7 +90,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1789562253,
+    "updated_at": 1789562333,
     "records": 4948,
     "video_records": 4037,
     "initial_candidates": 63,
@@ -10655,7 +10655,14 @@
           "ly-0916-73f486"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0916-73f486",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -11351,8 +11358,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -11801,8 +11808,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
@@ -12642,7 +12649,8 @@
       "BV1wq421P7AY": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1FS421d7U1": {
         "attempted_mothers": 1,
@@ -12663,7 +12671,7 @@
       }
     }
   },
-  "in_flight_placeholders": 5,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-0916-f9570a",
