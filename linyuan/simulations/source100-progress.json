@@ -1,10 +1,6 @@
 {
-  "active_until": "2026-09-16T22:30:00Z",
-  "active_work": {
-    "owner": "automation-source100-geometry",
-    "started_at": "2026-09-16T18:17:00Z",
-    "task": "Review bounded picture evidence for fixed sources 15, 46 and 76"
-  },
+  "active_until": null,
+  "active_work": null,
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -26,7 +22,8 @@
     "Source79 selector23 run35116931936 preserved the intended 194.72s span and passed continuous tracking/identity, but remained rejected: the live window contains persistent 21st Century Business Herald venue/media branding; candidate2 still lacks a continuous face. No final MP4 was produced.",
     "Source48 round2 selected the complete 287.96s source and tracked the target face in 8639/8639 frames. Its only rejection was the black-edge heuristic, whose old report discarded the measured frames; retain those frames and exact edge metrics before deciding whether this is encoded padding or a dark-scene false positive.",
     "Source48 run35129429485 proved the black-edge rejection is genuine, not an algorithmic false positive: all six sampled windows had 100% dark columns on both 8% edges, and the image is a person cutout on a full black field. Adjacent 48-second samples changed only 0-0.0111% of pixels above 12 levels. Do not crop or relax the gate.",
-    "Source77 selector24 recovered two literal keynote chapters (662.84-870.36 and 1905.48-2103.80) without fixed-duration slicing, but runs35131476262/35132701870 produced no final: all retained samples are the same static promotional portrait with embedded date/title, source subtitles and platform branding. The unchanged live-video gate is correctly rejecting it."
+    "Source77 selector24 recovered two literal keynote chapters (662.84-870.36 and 1905.48-2103.80) without fixed-duration slicing, but runs35131476262/35132701870 produced no final: all retained samples are the same static promotional portrait with embedded date/title, source subtitles and platform branding. The unchanged live-video gate is correctly rejecting it.",
+    "Sources15/46/76 run35133465694 retained the exact rejected frames. Source15 contains permanent program header, player chrome, embedded captions and black side bars, with the speaker repeatedly leaning beyond safe headroom. Source46 contains embedded subtitles plus an upper-right platform/owner mark around the speaker. Source76 contains an upper-left show mark, a large permanent red lower-third, embedded subtitles and a bottom risk disclaimer. Their geometry/overlay rejections are genuine; do not relax or crop through these elements."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -71,9 +68,9 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Run bounded picture-evidence diagnostics for existing complete candidates 15, 46 and 76; only adjust geometry if retained frames prove a false rejection.",
-    "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
-    "Retain source60/65 as unresolved until the original URLs can be fetched; do not call them failures or successes."
+    "Inspect a different failure family; keep sources15,46,48,76,77 and79 rejected on retained picture evidence.",
+    "Prioritize sources with complete selections and no persistent source overlays, or source fetch recovery for unresolved 60/65.",
+    "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot."
   ],
   "round2": {
     "commit": "c0c041f1d344bc81bde6fced9aede6836d63b501",
@@ -180,7 +177,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-16T18:17:05.247Z",
+  "updated_at": "2026-09-16T18:26:32.543Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -282,6 +279,23 @@
         2103.8
       ]
     ],
+    "counts_as_final": false
+  },
+  "geometry_review": {
+    "run_id": 35133465694,
+    "commit": "363162bff6cbcef23c95272bdc4c71d60b8d4a87",
+    "sample_ids": [
+      15,
+      46,
+      76
+    ],
+    "status": "completed_no_accepted_final",
+    "report_artifact_ids": {
+      "15": 10462616772,
+      "46": 10462711336,
+      "76": 10462831604
+    },
+    "counts_as_full_benchmark": false,
     "counts_as_final": false
   }
 }
