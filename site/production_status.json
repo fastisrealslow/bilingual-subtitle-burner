@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789557618,
+  "updated_at": 1789557743,
   "inventory_updated_at": 1789557616,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789557617,
+    "updated_at": 1789557743,
     "records": 4926,
     "video_records": 4020,
     "initial_candidates": 62,
@@ -42,12 +42,12 @@
   },
   "counts": {
     "complete": 74,
-    "failed": 518,
+    "failed": 519,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 2,
-    "interrupted": 2,
+    "interrupted": 1,
     "running": 2
   },
   "tasks": [
@@ -10931,11 +10931,11 @@
     },
     {
       "slug": "ly-0916-27801c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1789556984,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
