@@ -2987,7 +2987,10 @@ def _recover_changed_production_rule(st, candidate, run):
     since=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime(candidate.get('ts',0)))
     if finished and finished<=since:return False
     reason=str(candidate.get('last_error') or '')
-    cases=[('live-geometry-v1',('来源角标无法避开','原画无法通过真人画面清理门禁'),
+    cases=[('scene-aware-selection-v1',('来源角标无法避开','原画无法通过真人画面清理门禁',
+                                      '真人动态区仍有原素材字幕','整段取景预检'),
+            ('linyuan/scene_text.py','linyuan/visual_selection.py')),
+           ('live-geometry-v1',('来源角标无法避开','原画无法通过真人画面清理门禁'),
             ('linyuan/live_tracking.py',)),
            ('download-prefix-v2',('CDN内容版本改变','取源达到总时间预算',
                                 '取源未完成：RuntimeError: embed 页没有 __playinfo__'),

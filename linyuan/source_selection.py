@@ -150,7 +150,11 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         options.append((max(map(score,quotes)),dict(start=a,end=b,score=7,
             reason='保留源片完整连续陈述及自然句界；未声称模型语义审核通过',
             selection_method='source_continuous_speech_v1')))
-    selected=sorted([p for _,p in sorted(options,key=lambda x:x[0],reverse=True)[:limit]],key=lambda p:p['start'])
+    # limit=None exposes every structurally valid interval to picture ranking.
+    # Never change an answer boundary merely to fit a cleaner frame.
+    ranked=[dict(p,editorial_rank=rank) for rank,(_,p) in
+            enumerate(sorted(options,key=lambda x:x[0],reverse=True))]
+    selected=sorted(ranked[:limit],key=lambda p:p['start'])
     if diagnostics is not None:
         diagnostics.update(accepted=len(selected),picks=selected,
             outcome='selected' if selected else 'no_structural_candidate')

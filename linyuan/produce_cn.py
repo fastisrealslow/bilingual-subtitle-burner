@@ -2757,6 +2757,7 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
         # This fallback must not interpret an unavailable OCR service as a
         # clean frame. It is useful even when the old mother cache says card.
         before=ocr_row_coverage(sample,frames=12,strict=True)
+        proof['scene_text_evidence']=scene_text_evidence(sample)
         crop=proposed_crop or safe_crop_plan(sample,width,height,coverage=before)
         if crop is None:
             raise VisualQualityError('选段没有可验证的原画裁切方案')
@@ -3111,6 +3112,7 @@ def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
             "width": width, "height": height, "short_edge": min(width, height),
         }
         report["raw_has_existing_subtitles"] = has_existing_subtitles(src)
+        report['scene_text_evidence']=scene_text_evidence(src)
         report["visual_identity"] = verify_source_identity(
             src, work, speaker, api_key)
         report.update(build_clean_source_plan(
@@ -3807,6 +3809,11 @@ def _json_default(o):
 _OVERLAY_CACHE = {}
 _OCR_ENGINE = None
 _OCR_COV_CACHE = {}
+_OCR_SCENE_PROOFS = {}
+
+
+def scene_text_evidence(src):
+    return [proof for key,proof in _OCR_SCENE_PROOFS.items() if key[0]==str(Path(src))]
 
 
 def _ocr():
@@ -3854,6 +3861,7 @@ def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
     if key in _OCR_COV_CACHE:
         return _OCR_COV_CACHE[key]
     cov = [0.0] * 100
+    cap = None
     try:
         import cv2
         import numpy as np
@@ -3861,6 +3869,7 @@ def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
         cap = cv2.VideoCapture(str(src))
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         hit = np.zeros(100)
+        samples = []
         got = 0
         for i in range(frames):
             cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * (i + 0.5) / max(1, frames)))
@@ -3873,22 +3882,38 @@ def ocr_row_coverage(src, frames=6, max_w=640, strict=False):
                 H, W = f.shape[:2]
             res, _ = engine(f, use_det=True, use_rec=False, use_cls=False)
             got += 1
+            samples.append(dict(frame=f, boxes=verified_ocr_text_boxes(f,res or [],engine)))
+        cap.release()
+        if strict and got!=frames:
+            raise VisualQualityError(f'OCR实际抽帧不足：{got}/{frames}')
+        from scene_text import classify, VERSION as scene_version
+        scene_error = None
+        try:
+            kept, decisions = classify(samples)
+        except Exception as exc:
+            # Scene classification is an optional disambiguation, not a
+            # replacement for OCR. Retain every detected box on any outage.
+            kept, decisions = [sample['boxes'] for sample in samples], []
+            scene_error = f'{type(exc).__name__}: {exc}'
+        _OCR_SCENE_PROOFS[key] = dict(version=scene_version,source=str(src),
+            sampled_frames=got,scene_text=decisions,error=scene_error,final_quality_approved=False)
+        for sample, boxes in zip(samples, kept):
+            H = sample['frame'].shape[0]
             rows = np.zeros(100, bool)
-            for box in verified_ocr_text_boxes(f,res or [],engine):
+            for box in boxes:
                 ys = [pt[1] for pt in box]
                 a = max(0, min(99, int(min(ys) / H * 100)))
                 b = max(0, min(100, int(max(ys) / H * 100) + 1))
                 rows[a:b] = True
             hit += rows
-        cap.release()
-        if strict and got!=frames:
-            raise VisualQualityError(f'OCR实际抽帧不足：{got}/{frames}')
         if got:
             cov = (hit / got).tolist()
     except Exception as e:
         if strict:
             raise VisualQualityError('OCR未完成，不能证明原画字幕已清理') from e
         print(f"[OCR] 行覆盖统计失败: {e}", file=sys.stderr)
+    finally:
+        if cap is not None:cap.release()
     _OCR_COV_CACHE[key] = cov
     return cov
 
@@ -5433,7 +5458,12 @@ def main():
             and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
         from source_selection import select
         diagnostics={}
-        source_picks=select(cues,whole_source=True,limit=6,diagnostics=diagnostics)
+        source_picks=select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
+        if source_picks and args.require_live_video and not args.dry_run:
+            from visual_selection import rank
+            source_picks=rank(src,cues,source_picks,work/'visual-selection',
+                _download_speaker_reference(args.speaker,work),_local_face_models(),
+                _ocr(),verified_ocr_text_boxes,LOCAL_FACE_COSINE_THRESHOLD)
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     if curated is not None:
@@ -5556,6 +5586,10 @@ def main():
             "quality_gate_version": QUALITY_GATE_VERSION})
 
     for ci, (a, b, preselected_picks) in enumerate(work_items):
+        # Keep backup complete answers after a picture failure. The old six
+        # text picks could exhaust a mother despite later usable answers.
+        if source_picks and len(metas)>=6:
+            break
         if retry_parts is not None and ci+1 not in retry_parts:
             continue
         suffix = "" if len(work_items) == 1 else f"_{ci + 1}"
