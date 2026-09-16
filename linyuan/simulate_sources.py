@@ -261,6 +261,7 @@ def report():
                  validation_error=error, source_sha256=source.get('source_sha256'),
                  batch=batch, source_quality=source, execution=execution, steps=steps,
                  tested_sha=os.environ.get('GITHUB_SHA'), run_id=os.environ.get('GITHUB_RUN_ID'),
+                 diagnostic_subset=bool(os.environ.get('SIMULATION_SAMPLE_IDS')),
                  code_hashes={f:digest(BASE/f) for f in code},
                  publication_snapshot_sha256=digest(BASE/'_publication_state.json') if (BASE/'_publication_state.json').exists() else None)
     write(evidence / 'report.json', value)
@@ -343,6 +344,20 @@ def restore_simulation_evidence():
         restore(Path(directory)/'evidence/_tmp',BASE/'deliver'/slug/'_tmp')
 
 
+def matrix_samples(manifest, requested=''):
+    samples=validate_manifest(manifest)
+    if not requested:return samples
+    # Only original manifest IDs, never replacement URLs or a new denominator.
+    fields=requested.split(',')
+    if not all(field.isdigit() for field in fields):
+        raise ValueError('Diagnostic sample IDs must be comma-separated integers')
+    ids=[int(field) for field in fields]
+    available={row['id'] for row in samples}
+    if len(ids)!=len(set(ids)) or not set(ids)<=available:
+        raise ValueError('Diagnostic samples must be unique IDs from the fixed 100')
+    return [row for row in samples if row['id'] in ids]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', choices=['sample','matrix','run','report','aggregate','fetch-domestic-source','prepare-snapshot','restore-simulation-evidence'])
@@ -356,7 +371,8 @@ def main():
     elif args.mode == 'sample':
         build_manifest()
     elif args.mode == 'matrix':
-        print(json.dumps(dict(include=validate_manifest(read(MANIFEST))), ensure_ascii=False, separators=(',',':')))
+        print(json.dumps(dict(include=matrix_samples(read(MANIFEST),os.environ.get('SIMULATION_SAMPLE_IDS',''))),
+                         ensure_ascii=False, separators=(',',':')))
     elif args.mode == 'fetch-domestic-source':
         fetch_domestic_source()
     elif args.mode == 'run':
@@ -364,6 +380,8 @@ def main():
     elif args.mode == 'report':
         report()
     else:
+        if os.environ.get('SIMULATION_SAMPLE_IDS'):
+            raise ValueError('A diagnostic subset cannot produce a 100-source acceptance summary')
         reports = [read(p) for p in Path(args.reports).rglob('report.json')]
         summary = aggregate(read(MANIFEST), reports)
         dest = Path(args.reports) / 'summary.json'

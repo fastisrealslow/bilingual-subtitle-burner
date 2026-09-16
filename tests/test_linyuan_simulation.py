@@ -89,4 +89,21 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert render['env']['TEXT_BACKEND']=='local'
     assert render['env']['SOURCE_EDITORIAL_FIRST']=='true'
     assert 'simulate_sources.py run' in render['run']
-    assert 'inputs.' not in raw
+    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids'}
+    assert workflow['jobs']['summary']['if']=='${{ always() && !inputs.sample_ids }}'
+    assert simulate['env']['SIMULATION_SAMPLE_IDS']=="${{ inputs.sample_ids || '' }}"
+
+
+def test_diagnostic_matrix_retains_exact_fixed_source_records():
+    manifest=sim.read(sim.MANIFEST)
+    original=sim.validate_manifest(manifest)
+    assert sim.matrix_samples(manifest)==original
+    assert sim.matrix_samples(manifest,'87,5,9')==[r for r in original if r['id'] in (5,9,87)]
+    for invalid in ('0','101','5,5','5,','5;echo bad','https://example.com'):
+        with pytest.raises(ValueError):sim.matrix_samples(manifest,invalid)
+
+
+def test_diagnostic_mode_cannot_emit_full_acceptance_summary(monkeypatch):
+    monkeypatch.setenv('SIMULATION_SAMPLE_IDS','5,9')
+    monkeypatch.setattr(sys,'argv',['simulate_sources.py','aggregate'])
+    with pytest.raises(ValueError,match='diagnostic subset'):sim.main()

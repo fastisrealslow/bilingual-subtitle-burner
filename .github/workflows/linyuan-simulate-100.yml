@@ -1,6 +1,6 @@
 # Isolated benchmark. Read-only token; simulation artifacts never enter production.
 name: 100素材离线模拟（不投稿）
-run-name: 100素材模拟 · ${{ github.sha }}
+run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids) || '100素材模拟' }} · ${{ github.sha }}
 'on':
   push:
     branches:
@@ -8,11 +8,19 @@ run-name: 100素材模拟 · ${{ github.sha }}
     paths:
     - linyuan/simulations/source100-20260916.json
   workflow_dispatch: {}
+  workflow_call:
+    inputs:
+      sample_ids:
+        type: string
+        required: true
+    secrets:
+      BILIBILI_COOKIES:
+        required: false
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: source100-simulation-20260916
+  group: ${{ inputs.sample_ids && format('source100-diagnostic-{0}', inputs.sample_ids) || 'source100-simulation-20260916' }}
   cancel-in-progress: false
 jobs:
   prepare:
@@ -29,6 +37,8 @@ jobs:
         python -m pip install pytest pyyaml pillow jieba
         python -m pytest -q tests/test_linyuan_simulation.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_source_selection.py
     - id: matrix
+      env:
+        SIMULATION_SAMPLE_IDS: ${{ inputs.sample_ids || '' }}
       run: echo "matrix=$(python linyuan/simulate_sources.py matrix)" >> "$GITHUB_OUTPUT"
   simulate:
     needs: prepare
@@ -50,6 +60,7 @@ jobs:
       RUN_SPEAKER: 林园
       CUDA_VISIBLE_DEVICES: ''
       SIMULATION_ONLY: 'true'
+      SIMULATION_SAMPLE_IDS: ${{ inputs.sample_ids || '' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -134,6 +145,10 @@ jobs:
           [ -f "$SOURCE" ] || { echo "::error::找不到 $SOURCE"; exit 1; }
           echo "path=$SOURCE" >> $GITHUB_OUTPUT
         fi
+    - name: 诊断稀疏识别素材的原始声道（不修改音频）
+      if: ${{ inputs.sample_ids != '' && matrix.id == 79 }}
+      continue-on-error: true
+      run: python audio_signal_probe.py --source "${{ steps.src.outputs.path }}" --out "deliver/$RUN_SLUG/_tmp/audio_signal_diagnostic.json"
     - name: 素材质量门禁
       id: source_gate
       env:
@@ -315,7 +330,7 @@ jobs:
     needs:
     - prepare
     - simulate
-    if: always()
+    if: ${{ always() && !inputs.sample_ids }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
