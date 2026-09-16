@@ -102,6 +102,10 @@ a:hover { text-decoration: underline; }
     <div id="published"></div>
   </div>
   <div class="section">
+    <h2>原始素材候选</h2>
+    <div id="source-admission"></div>
+  </div>
+  <div class="section">
     <h2>⏳ 生产与待发布</h2>
     <div id="production-freshness" class="ps-note"></div>
     <div id="pending"></div>
@@ -131,6 +135,7 @@ const LOG_KINDS = {
   dispatch_ok: {icon: '📤', cls: 'log-ok'},
   publish_ok: {icon: '✅', cls: 'log-ok'},
   dedup: {icon: '🛡️', cls: 'log-dedup'},
+  source_admission: {icon: '🔎', cls: 'log-run'},
   fail: {icon: '❌', cls: 'log-fail'},
   state_lost: {icon: '⚠️', cls: 'log-fail'},
   retry: {icon: '🔁', cls: 'log-retry'}
@@ -233,6 +238,22 @@ async function load() {
       if (response.ok) snapshot = await response.json();
     } catch (_) { /* The state still loads; missing evidence is shown as unknown. */ }
     const production = ProductionStatus.reconcile(state, snapshot);
+    const admission = snapshot && snapshot.source_admission;
+    const admissionFresh = admission && Date.now()/1000 - admission.updated_at < 3*3600;
+    const reasons = {no_video:'无视频线索', no_source_url:'缺少来源地址',
+      already_attempted_or_cooling:'已尝试或冷却中', published_video:'已发布视频',
+      clip_title:'切片或二创标题', unrelated:'无关内容', noise:'噪音内容', ai_content:'AI 内容',
+      speaker_unconfirmed:'标题或来源信息不足以确认本人', published_topic_cooldown:'已发布主题冷却',
+      reference_only:'仅供参考，不直接出片', too_short:'不足 2 分钟', over_limit:'超过 90 分钟',
+      duplicate_source:'同一来源重复记录'};
+    document.getElementById('source-admission').innerHTML = admissionFresh
+      ? `<p>采集记录 <b>${Number(admission.records)}</b> 条，其中带视频线索 ${Number(admission.video_records)} 条。<br>
+         当前待验证原片候选 <b>${Number(admission.candidate_count)}</b> 条：已知时长合格 ${Number(admission.known_duration_candidates)} 条，时长待查 ${Number(admission.unknown_duration_candidates)} 条。</p>
+         <p class="ps-note">核对于 ${escapeHtml(formatDate(admission.updated_at*1000))}。候选需继续验证下载、本人画面、选段和成片质量；候选数量不等于可发布数量。</p>
+         <details><summary>查看筛选原因和候选来源</summary>
+         <p>${Object.entries(admission.excluded || {}).filter(([,n])=>n>0).map(([reason,n])=>`${escapeHtml(reasons[reason] || reason)} ${Number(n)} 条`).join('；')}</p>
+         ${(admission.candidates || []).map(c=>`<div class="item"><div class="item-title">${escapeHtml(c.title)}</div><div class="item-meta">${escapeHtml(c.author)} · ${escapeHtml(formatDuration(c.duration_sec))} ${safeLink(c.url) ? `<a href="${safeLink(c.url)}" target="_blank" rel="noopener">查看来源</a>` : ''}</div></div>`).join('')}</details>`
+      : '<div class="empty">素材候选统计暂不可用或已过期，不能据此判断没有素材。</div>';
     const latestDispatches = ProductionStatus.latestDispatches(state);
 
     const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));

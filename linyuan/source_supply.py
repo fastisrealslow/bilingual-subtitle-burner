@@ -211,6 +211,7 @@ def main():
     result=dict(version=VERSION,validation_sha256=validation_sha,quality_gate_version=fc.QUALITY_GATE_VERSION,
         editorial_policy_version=fc.editorial.VERSION,updated_at=int(time.time()),
         materials=audit_materials(items),inventory=inventory_counts(records,state),
+        source_admission=fc.source_admission_audit(items,state),
         source_outcomes=source_outcomes.audit(state,records,fc._latest_dispatches(state),
             fc.processed_part_indices,fc.REVIEW_PAUSED_SLUGS),
         in_flight_placeholders=fc._pending_final_count(state),artifacts=records)
@@ -218,7 +219,7 @@ def main():
     INVENTORY.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     status_path.parent.mkdir(parents=True,exist_ok=True)
     status_path.write_text(json.dumps(production_status.build(state,result,runs),ensure_ascii=False,indent=2)+'\n')
-    print(json.dumps({k:result[k] for k in ['updated_at','inventory','materials']},ensure_ascii=False))
+    print(json.dumps({k:result[k] for k in ['updated_at','inventory','materials','source_admission']},ensure_ascii=False))
 
 
 if __name__=='__main__':main()

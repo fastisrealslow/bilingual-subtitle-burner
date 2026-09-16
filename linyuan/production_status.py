@@ -145,6 +145,8 @@ def build(state, inventory, runs, now=None):
                           run_started_at=run.get('run_started_at'),
                           run_updated_at=run.get('updated_at')))
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
+                source_admission=inventory.get('source_admission'),
+                inventory=inventory.get('inventory'),
                 counts=dict(Counter(t['status'] for t in tasks)), tasks=tasks, runs=runs)
 
 
@@ -159,6 +161,12 @@ def main():
     previous = json.loads(args.out.read_text()) if args.out.exists() else {}
     runs = collect_runs(state, api, previous)
     inventory = json.loads(INVENTORY.read_text()) if INVENTORY.exists() else {}
+    # Catch-up may have dispatched sources since the inventory was inspected.
+    # Recompute the waiting pool from current state instead of displaying those
+    # same sources as both waiting and running.
+    payload = json.loads((Path(__file__).parent / 'dashboard/data.json').read_text())
+    items = payload if isinstance(payload, list) else payload.get('items', [])
+    inventory['source_admission'] = fc.source_admission_audit(items, state)
     result = build(state, inventory, runs)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     tmp = args.out.with_suffix('.tmp')

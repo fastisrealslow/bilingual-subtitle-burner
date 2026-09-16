@@ -1197,57 +1197,41 @@ def title_similarity(a, b):
     return common / max(len(a), len(b))
 
 
+def candidate_duration(candidate):
+    """Unknown or malformed metadata remains subject to actual-file checks."""
+    import math
+    extra = candidate.get('extra') or {}
+    if isinstance(extra, str):
+        try:
+            extra = json.loads(extra)
+        except ValueError:
+            extra = {}
+    try:
+        duration = float(extra.get('duration') or 0)
+    except (AttributeError, TypeError, ValueError):
+        return 0
+    return duration if math.isfinite(duration) and duration > 0 else 0
+
+
 def dedup_by_title(cands, threshold=0.6):
-    """同内容去重：标题相似度 > threshold 只保留一条。
-    保留质量更好的：有直链 > 无直链，时长更长的优先。
+    """Keep the compatibility name, but deduplicate only an exact source/page.
+
+    Titles are discovery hints, not content fingerprints. The old character
+    overlap/prefix rules erased different interviews, including all 30 eligible
+    sources on 2026-09-16. Cross-URL reuploads are checked against actual media
+    and publication receipts later. Never discard their better source here.
     """
-    result = []
-    for c in cands:
-        dup = False
-        for i, r in enumerate(result):
-            # Different cids in one collection are separate recordings even
-            # when their series title is shared. Final media fingerprints still
-            # reject an episode duplicated under another URL.
-            ce, re_ = c.get('extra') or {}, r.get('extra') or {}
-            if (isinstance(ce, dict) and isinstance(re_, dict)
-                    and ce.get('bvid') == re_.get('bvid')
-                    and ce.get('cid') and re_.get('cid')
-                    and ce['cid'] != re_['cid']):
-                continue
-            if title_similarity(c["title"], r["title"]) >= threshold:
-                # 比较质量：有直链的优先，都没有直链的看 extra 中的时长
-                c_score = (1 if c.get("video_url") else 0)
-                r_score = (1 if r.get("video_url") else 0)
-                c_extra = c.get("extra", {})
-                r_extra = r.get("extra", {})
-                # extra 可能是 JSON 字符串，需要解析
-                if isinstance(c_extra, str):
-                    try:
-                        c_extra = json.loads(c_extra)
-                    except Exception:
-                        c_extra = {}
-                if isinstance(r_extra, str):
-                    try:
-                        r_extra = json.loads(r_extra)
-                    except Exception:
-                        r_extra = {}
-                # 有 duration 信息的优先
-                c_dur = c_extra.get("duration", 0)
-                r_dur = r_extra.get("duration", 0)
-                if isinstance(c_dur, str):
-                    c_dur = 0
-                if isinstance(r_dur, str):
-                    r_dur = 0
-                c_score += c_dur / 10000  # 时长加权
-                r_score += r_dur / 10000
-                
-                if c_score > r_score:
-                    result[i] = c
-                dup = True
-                break
-        if not dup:
-            result.append(c)
-    return result
+    result = {}
+    for index, candidate in enumerate(cands):
+        source = editorial.source_key(candidate.get('page_url') or candidate.get('video_url'))
+        key = source or candidate.get('key') or ('unknown', index)
+        previous = result.get(key)
+        def score(row):
+            duration = candidate_duration(row)
+            return (MIN_DUR <= duration <= MAX_DUR, bool(row.get('video_url')), duration)
+        if previous is None or score(candidate) > score(previous):
+            result[key] = candidate
+    return list(result.values())
 
 
 _TOPIC_BOILERPLATE = re.compile(
@@ -1385,8 +1369,11 @@ def diversify_source_candidates(candidates, limit, per_family=2):
     return selected
 
 
-def pick(items, st, n):
+def pick(items, st, n, audit=None):
     now = time.time()
+    from collections import Counter
+    excluded = Counter()
+    video_records = 0
     done = {e.get("key") for e in st["dispatched"] if e.get("key")} | {e.get("key") for e in st["rejected"] if e.get("key")}
     # 已发布过的 key/source_url：绝不能因 pending_retry 残留被重新派发
     # （2026-08-25 事故：同一视频 BV1yM8x6ZEZy 连续 4 天被重复投稿）
@@ -1431,48 +1418,63 @@ def pick(items, st, n):
                 extra = json.loads(extra)
             except Exception:
                 extra = {}
+        if not isinstance(extra, dict):
+            extra = {}
         if not url:
             url = extra.get("video_url", "") or extra.get("mp4_url", "")
         # 必须有视频：有直链、或B站链接、或腾讯页面（dispatch 会解析）、或 extra 标记 has_video
         has_video = (bool(url) or "bilibili.com/video/" in page
                      or "news.qq.com" in page or extra.get("has_video", False))
         if not has_video:
+            excluded['no_video'] += 1
             continue
+        video_records += 1
         # 有直链或B站链接 → 可用；有页面链接 → 也可用
         if not url and "bilibili.com/video/" not in page and not page:
+            excluded['no_source_url'] += 1
             continue
         key = it.get("id") or page or url
         vid = video_id_of(page, url)
         if not key or key in done or vid in cooling:
+            excluded['already_attempted_or_cooling'] += 1
             continue
         # 排除已发布的视频（BV 号匹配）
         if vid in published_bvs:
+            excluded['published_video'] += 1
             continue
         title = it.get("title") or ""
         # 剪辑二创（碎片/标题党）→ 拒；完整原片 → 收
         if CLIP_TITLE_PAT.search(title) and not FULL_TITLE_PAT.search(title):
+            excluded['clip_title'] += 1
             continue
         if NOISE.search(title):
+            excluded['unrelated'] += 1
             continue                                     # 老虎公园不是林园
         if NOISE_EXTRA.search(title):
+            excluded['noise'] += 1
             continue                                     # 微博噪音
         if AI_NOISE.search(title):
+            excluded['ai_content'] += 1
             continue                                     # AI 问答噪音（元宝/豆包等，非林园本人视频）
         # 标题必须能证明是林园本人发言；只“提到林园”的二手解说不再放行。
         if not item_has_target_speaker(it,extra):
+            excluded['speaker_unconfirmed'] += 1
             continue
         # 已发主题两周内不再调度。最终成片标题和三重内容指纹还会在投稿前复检，
         # 这里先挡住明显重复，避免浪费下载、ASR 和编码算力。
         topic_dup = find_recent_topic(title, st, now=now)
         if topic_dup:
-            log_event("dedup", f"候选主题冷却中，跳过 {key}",
-                      f"与 {topic_dup['bvid'] or topic_dup['slug']} 相似 {topic_dup['score']:.0%}")
+            excluded['published_topic_cooldown'] += 1
+            if audit is None:
+                log_event("dedup", f"候选主题冷却中，跳过 {key}",
+                          f"与 {topic_dup['bvid'] or topic_dup['slug']} 相似 {topic_dup['score']:.0%}")
             continue
         # 竞品目录全部进入素材库作溯源线索，但永不直接调度。除了作者名，
         # 再检查 source_role，避免后续改作者字段时意外把参考条目当成片源。
         if (it.get("author", "") in COMPETITOR_AUTHORS
                 or extra.get("source_role") == "reference"
                 or extra.get("direct_dispatch") is False):
+            excluded['reference_only'] += 1
             continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
@@ -1481,40 +1483,25 @@ def pick(items, st, n):
                       "author": it.get("author", ""),
                       "publish_time": it.get("publish_time") or "",
                       "extra": extra})
-    # 同内容去重：标题相似度 > 60% 只保留一条，保留质量更好的
-    # 同内容提前去重：微博同条内容被大量转发/重发，重复候选会污染排序。
-    # 进池子前就按标题相似度去重（阈值 0.6），只留质量最好的 1 条。
-    cands = dedup_by_title(cands)
-    # 二次去重：标题前 12 字完全相同也视为同内容（转发时只改尾部的场景）
-    seen_prefix = set()
-    deduped = []
+    initial_candidates = len(cands)
+    eligible = []
     for c in cands:
-        pfx = (('cid', c['extra']['cid']) if c.get('extra', {}).get('cid')
-               else (c["title"] or "")[:12])
-        if pfx in seen_prefix:
+        duration = candidate_duration(c)
+        # Apply hard eligibility before selecting among copies. An unusable
+        # nine-hour compilation must never suppress a usable interview.
+        if duration and not MIN_DUR <= duration <= MAX_DUR:
+            excluded['too_short' if duration < MIN_DUR else 'over_limit'] += 1
             continue
-        seen_prefix.add(pfx)
-        deduped.append(c)
-    cands = deduped
-    # 过滤时长过短的（< 60 秒）和过长的（> 30 分钟）
-    def _dur_ok(c):
-        extra = c.get("extra") or {}
-        if isinstance(extra, str):
-            try:
-                extra = json.loads(extra)
-            except Exception:
-                extra = {}
-        dur = extra.get("duration", 0) or 0
-        if isinstance(dur, str):
-            try:
-                dur = int(dur)
-            except Exception:
-                dur = 0
-        # 2026-09-02 修正：上限原为 1800（30分钟），与常量 MAX_DUR=5400 不一致，
-        # 导致「奖励完整原片」的打分被架空 —— 40~60 分钟的完整采访（如被 9 个号
-        # 搬运的 59 分钟财联社直播）在打分前就被过滤掉了。
-        return MIN_DUR <= dur <= MAX_DUR or dur == 0  # 0=未知交给下载后检查
-    cands = [c for c in cands if _dur_ok(c)]
+        eligible.append(c)
+    cands = dedup_by_title(eligible)
+    excluded['duplicate_source'] += len(eligible) - len(cands)
+    if audit is not None:
+        audit.update(version=1, updated_at=int(now), records=len(items),
+                     video_records=video_records, initial_candidates=initial_candidates,
+                     duration_eligible_records=len(eligible), candidate_count=len(cands),
+                     known_duration_candidates=sum(candidate_duration(c) > 0 for c in cands),
+                     unknown_duration_candidates=sum(candidate_duration(c) == 0 for c in cands),
+                     excluded=dict(excluded))
 
     def source_score(c):
         """来源权威性评分。注意：B站搜索很多是二创，不绝对优先。"""
@@ -1581,18 +1568,7 @@ def pick(items, st, n):
 
     def duration_score(c):
         """已知时长且合适的加分。"""
-        extra = c.get("extra") or {}
-        if isinstance(extra, str):
-            try:
-                extra = json.loads(extra)
-            except Exception:
-                extra = {}
-        dur = extra.get("duration", 0) or 0
-        if isinstance(dur, str):
-            try:
-                dur = int(dur)
-            except Exception:
-                dur = 0
+        dur = candidate_duration(c)
         # 2026-09-01 修正：原规则给 120~600s 最高分，而那正是「短二创切片」的时长，
         # 直接导致一直抓二创。素材应该是「完整原片」，短片由我们自己拆条产出。
         # 依据：同期 B站林园内容实测，10~30 分钟完整版播放中位 1055（最高段），
@@ -1629,6 +1605,15 @@ def pick(items, st, n):
     # 按综合质量分降序
     cands.sort(key=lambda c: quality_score(c), reverse=True)
     return diversify_source_candidates(cands,n)
+
+
+def source_admission_audit(items, state):
+    """Read-only ledger of the exact dispatch gate, not a second approximation."""
+    audit = {}
+    candidates = pick(items, state, len(items), audit=audit)
+    audit['candidates'] = [dict(key=c['key'], title=c['title'], source=c['source'],
+        author=c['author'], url=c['page_url'], duration_sec=candidate_duration(c)) for c in candidates]
+    return audit
 
 
 # ---------- 下载 ----------
@@ -1987,10 +1972,12 @@ def handler(event, context):
             st = load_state()
             payload = json.loads(gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True).decode())
             items = payload if isinstance(payload, list) else payload.get("items", [])
+            admission = source_admission_audit(items, st)
             return {**production_config(),
                     "in_flight_placeholders": _pending_final_count(st),
                     "source_inventory": source_inventory(st),
-                    "candidate_count": len(pick(items, st, MAX_ATTEMPTS)),
+                    "candidate_count": admission['candidate_count'],
+                    "source_admission": admission,
                     "daily_publish": st.get("daily_publish", {})}
         if name == "diagnose-ping":
             log_event("probe_ok", "FC 同步入口 ping 成功", "")
@@ -2280,7 +2267,11 @@ def _dispatch_admitted(event=None, context=None):
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
-    cands = pick(items, st, MAX_ATTEMPTS)
+    admission = {}
+    cands = pick(items, st, MAX_ATTEMPTS, audit=admission)
+    log_event('source_admission',
+              f"采集 {admission['records']} 条 → 待验证原片候选 {admission['candidate_count']} 条",
+              json.dumps(admission, ensure_ascii=False))
     log.info(f"候选 {len(cands)} 条，本轮目标成功 {target} 条")
 
     rel = staging_release_id()
