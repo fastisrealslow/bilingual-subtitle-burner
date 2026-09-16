@@ -80,3 +80,19 @@ def test_topic_cards_without_second_person_cannot_join_unrelated_short_answers()
     assert all(selection.question_unit(q) for q in questions)
     assert selection.select(cues,limit=None,whole_source=True)==[]
     assert not selection.question_unit('比如说，年轻股民该怎么炒股？')
+
+
+def test_keynote_uses_literal_speaker_boundaries_not_fixed_length_slices():
+    cues=[
+        dict(start=0,end=110,text='前一部分继续说明当前市场估值与过去周期的差异。'),
+        dict(start=111,end=115,text='我再讲一下，这个市场，接下来我们应该投什么？'),
+        dict(start=116,end=220,text='我们找到了未来长期增长的行业，接下来布局大健康。'),
+        dict(start=221,end=347,text='人口结构决定长期需求，所以重点投三大病预防和并发症治疗药物。'),
+        dict(start=348,end=370,text='我指的是药物，一定是药物，因为我本人是学医的。'),
+        dict(start=371,end=485,text='医生需要终身学习，我一直留意医药和医疗的新进展。'),
+        dict(start=486,end=620,text='三大病的并发症需要长期控制，所以我们只投大健康赛道。'),
+    ]
+    picks=selection.select(cues,limit=None,whole_source=True)
+    assert [(cues[p['start']]['start'],cues[p['end']]['end']) for p in picks] == [
+        (111,347),(348,620)]
+    assert all(p['selection_method']=='source_continuous_speech_v1' for p in picks)

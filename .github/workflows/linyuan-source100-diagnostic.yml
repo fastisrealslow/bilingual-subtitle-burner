@@ -9,6 +9,7 @@ permissions:
   actions: read
 jobs:
   diagnose:
+    # Source79-only replay after source-bound channel and keynote-boundary fixes.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
       sample_ids: '79'
