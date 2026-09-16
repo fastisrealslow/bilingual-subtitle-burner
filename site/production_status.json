@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1789556032,
+  "updated_at": 1789556154,
   "inventory_updated_at": 1789556030,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789556031,
+    "updated_at": 1789556154,
     "records": 4926,
     "video_records": 4020,
-    "initial_candidates": 65,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 2,
+    "initial_candidates": 64,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 1,
     "excluded": {
       "no_video": 906,
-      "already_attempted_or_cooling": 708,
+      "already_attempted_or_cooling": 709,
       "speaker_unconfirmed": 2012,
       "noise": 107,
       "clip_title": 985,
@@ -27,14 +27,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1fp421C7fh",
-        "title": "21视频采访林园！（2023.10.16）",
-        "source": "reference_origin_search",
-        "author": "账号已注销",
-        "url": "https://www.bilibili.com/video/BV1fp421C7fh",
-        "duration_sec": 636.0
-      },
       {
         "key": "bilibili_search:BV1rYcWeaEtb:p25",
         "title": "林园 P25 林园2011年央视采访02",
@@ -67,12 +59,12 @@
   },
   "counts": {
     "complete": 74,
-    "failed": 512,
+    "failed": 515,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 1,
-    "interrupted": 3,
+    "interrupted": 1,
     "running": 6
   },
   "tasks": [
@@ -10776,11 +10768,11 @@
     },
     {
       "slug": "ly-0916-d3fd2c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789553613,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10866,11 +10858,11 @@
     },
     {
       "slug": "ly-0916-2904d9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1789554507,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10920,11 +10912,11 @@
     },
     {
       "slug": "ly-0916-71bcf2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 240 < 480（320x240），画质不达标",
       "signature": {
         "ts": 1789555965,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10934,7 +10926,25 @@
       "run_id": 35087332853,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087332853",
       "run_started_at": "2026-09-16T10:52:45Z",
-      "run_updated_at": "2026-09-16T10:52:48Z"
+      "run_updated_at": "2026-09-16T10:53:56Z"
+    },
+    {
+      "slug": "ly-0916-cedd92",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1789556126,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35087569013,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087569013",
+      "run_started_at": "2026-09-16T10:55:26Z",
+      "run_updated_at": "2026-09-16T10:55:30Z"
     }
   ],
   "runs": {
@@ -13171,12 +13181,23 @@
       "run_number": 1016,
       "display_title": "中文源出片 · ly-0916-d3fd2c"
     },
-    "ly-0916-71bcf2": {
-      "id": 35087332853,
+    "ly-0916-cedd92": {
+      "id": 35087569013,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-09-16T10:55:26Z",
+      "updated_at": "2026-09-16T10:55:30Z",
+      "run_started_at": "2026-09-16T10:55:26Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087569013",
+      "run_number": 1025,
+      "display_title": "中文源出片 · ly-0916-cedd92"
+    },
+    "ly-0916-71bcf2": {
+      "id": 35087332853,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-09-16T10:52:45Z",
-      "updated_at": "2026-09-16T10:52:48Z",
+      "updated_at": "2026-09-16T10:53:56Z",
       "run_started_at": "2026-09-16T10:52:45Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087332853",
       "run_number": 1024,
