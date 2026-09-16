@@ -31,8 +31,8 @@
       const matches = fresh && saved && signatureKeys.every(k =>
         JSON.stringify(entry[k] ?? null) === JSON.stringify((saved.signature || {})[k] ?? null));
       let status = 'unknown', detail = '状态尚未核对，不计为生产中';
-      if (matches) ({status, detail} = saved);
-      else if (!remaining(entry, state)) { status = 'complete'; detail = '本批次已处理完毕'; }
+      if (!remaining(entry, state)) { status = 'complete'; detail = '本批次已处理完毕'; }
+      else if (matches) ({status, detail} = saved);
       else if (entry.failed) { status = 'failed'; detail = entry.last_error || '素材验收未通过'; }
       return {...entry, ...(matches ? saved : {}), status, detail};
     });

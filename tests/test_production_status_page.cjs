@@ -35,6 +35,12 @@ test('state write after snapshot supersedes stale running status',()=>{
   const result=reconcile({dispatched:[{...e,failed:true}]},snapshot(e,'running'),now);
   assert.equal(result.tasks[0].status,'failed');
 });
+test('new publication receipt beats a previously ready snapshot',()=>{
+  const e={slug:'mother',ts:1};
+  const result=reconcile({dispatched:[e],published:{mother:{bvid:'BVdone',parts_total:1}}},snapshot(e,'ready'),now);
+  assert.equal(result.tasks[0].status,'complete');
+  assert.equal(result.pending.length,0);
+});
 test('noncontiguous processed indices and single published receipts close batches',()=>{
   assert.equal(remaining({slug:'m'}, {published:{m:{parts_total:1,bvid:'BVdone'}}}),false);
   assert.equal(remaining({slug:'m',published_parts:1,processed_part_indices:[1,2]},
