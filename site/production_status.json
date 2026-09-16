@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789561781,
+  "updated_at": 1789561906,
   "inventory_updated_at": 1789561779,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789561780,
+    "updated_at": 1789561906,
     "records": 4948,
     "video_records": 4037,
     "initial_candidates": 63,
@@ -42,14 +42,13 @@
   },
   "counts": {
     "complete": 74,
-    "failed": 520,
+    "failed": 521,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 3,
-    "interrupted": 2,
-    "running": 2,
-    "retry_queued": 1
+    "interrupted": 1,
+    "running": 3
   },
   "tasks": [
     {
@@ -10932,11 +10931,11 @@
     },
     {
       "slug": "ly-0916-ea489e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789558232,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11004,21 +11003,21 @@
     },
     {
       "slug": "ly-0916-cedd92",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "running",
+      "detail": "正在出片",
       "signature": {
-        "ts": 1789559703,
+        "ts": 1789561876,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": 1789561840,
+        "source_check_retry_after": null,
         "weekly_full_week": ""
       },
       "history_count": 1,
-      "run_id": 35092893662,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35092893662",
-      "run_started_at": "2026-09-16T11:55:03Z",
-      "run_updated_at": "2026-09-16T11:59:35Z"
+      "run_id": 35096308050,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35096308050",
+      "run_started_at": "2026-09-16T12:31:16Z",
+      "run_updated_at": "2026-09-16T12:31:20Z"
     }
   ],
   "runs": {
@@ -13333,14 +13332,14 @@
       "display_title": "中文源出片 · ly-0916-f9570a"
     },
     "ly-0916-cedd92": {
-      "id": 35092893662,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T11:55:03Z",
-      "updated_at": "2026-09-16T11:59:35Z",
-      "run_started_at": "2026-09-16T11:55:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35092893662",
-      "run_number": 1031,
+      "id": 35096308050,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-16T12:31:16Z",
+      "updated_at": "2026-09-16T12:31:20Z",
+      "run_started_at": "2026-09-16T12:31:16Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35096308050",
+      "run_number": 1032,
       "display_title": "中文源出片 · ly-0916-cedd92"
     },
     "ly-0916-35da05": {
@@ -13353,6 +13352,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35090739279",
       "run_number": 1030,
       "display_title": "中文源出片 · ly-0916-35da05"
+    },
+    "ly-0916-ea489e": {
+      "id": 35090687366,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-16T11:30:32Z",
+      "updated_at": "2026-09-16T12:28:57Z",
+      "run_started_at": "2026-09-16T11:30:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35090687366",
+      "run_number": 1027,
+      "display_title": "中文源出片 · ly-0916-ea489e"
     },
     "ly-0916-788726": {
       "id": 35090722468,
@@ -13375,17 +13385,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35090703361",
       "run_number": 1028,
       "display_title": "中文源出片 · ly-0916-73f486"
-    },
-    "ly-0916-ea489e": {
-      "id": 35090687366,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T11:30:32Z",
-      "updated_at": "2026-09-16T12:28:57Z",
-      "run_started_at": "2026-09-16T11:30:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35090687366",
-      "run_number": 1027,
-      "display_title": "中文源出片 · ly-0916-ea489e"
     }
   }
 }
