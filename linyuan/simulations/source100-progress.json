@@ -1,9 +1,9 @@
 {
-  "active_until": "2026-09-16T21:30:00Z",
+  "active_until": "2026-09-16T22:30:00Z",
   "active_work": {
-    "owner": "automation-source100-77",
-    "started_at": "2026-09-16T18:00:00Z",
-    "task": "Validate explicit keynote section boundaries on fixed source77 without weakening gates"
+    "owner": "automation-source100-geometry",
+    "started_at": "2026-09-16T18:17:00Z",
+    "task": "Review bounded picture evidence for fixed sources 15, 46 and 76"
   },
   "baseline": {
     "passed": 7,
@@ -25,7 +25,8 @@
     "Source79 selector22 candidate 573.88-823.96 kept the target face through 768.60s, then the source changed to a wide stage shot and failed the unchanged 2.03s continuous-face gate around 772s. The literal boundary '这是境内的，境外的' starts at768.92s, so selector23 ends the prior complete domestic-example statement at768.60s.",
     "Source79 selector23 run35116931936 preserved the intended 194.72s span and passed continuous tracking/identity, but remained rejected: the live window contains persistent 21st Century Business Herald venue/media branding; candidate2 still lacks a continuous face. No final MP4 was produced.",
     "Source48 round2 selected the complete 287.96s source and tracked the target face in 8639/8639 frames. Its only rejection was the black-edge heuristic, whose old report discarded the measured frames; retain those frames and exact edge metrics before deciding whether this is encoded padding or a dark-scene false positive.",
-    "Source48 run35129429485 proved the black-edge rejection is genuine, not an algorithmic false positive: all six sampled windows had 100% dark columns on both 8% edges, and the image is a person cutout on a full black field. Adjacent 48-second samples changed only 0-0.0111% of pixels above 12 levels. Do not crop or relax the gate."
+    "Source48 run35129429485 proved the black-edge rejection is genuine, not an algorithmic false positive: all six sampled windows had 100% dark columns on both 8% edges, and the image is a person cutout on a full black field. Adjacent 48-second samples changed only 0-0.0111% of pixels above 12 levels. Do not crop or relax the gate.",
+    "Source77 selector24 recovered two literal keynote chapters (662.84-870.36 and 1905.48-2103.80) without fixed-duration slicing, but runs35131476262/35132701870 produced no final: all retained samples are the same static promotional portrait with embedded date/title, source subtitles and platform branding. The unchanged live-video gate is correctly rejecting it."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -70,7 +71,7 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Inspect other round2 candidate-quality reports for an evidence-backed structural selection or picture false rejection; keep source48 and source79 rejected.",
+    "Run bounded picture-evidence diagnostics for existing complete candidates 15, 46 and 76; only adjust geometry if retained frames prove a false rejection.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
     "Retain source60/65 as unresolved until the original URLs can be fetched; do not call them failures or successes."
   ],
@@ -168,9 +169,18 @@
       "run_id": 35129429246,
       "status": "completed",
       "conclusion": "success"
+    },
+    "source77_keynote_local": {
+      "passed": 89,
+      "command": "python -m pytest: selection, visual gate, simulation, source100 recovery, ASR integrity, Qwen evidence, audio preprocessing"
+    },
+    "source77_keynote_github": {
+      "run_id": 35131475807,
+      "status": "completed",
+      "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-16T17:56:08.961Z",
+  "updated_at": "2026-09-16T18:17:05.247Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -227,7 +237,8 @@
       "report_artifact_id": 10457706206,
       "final_acceptance_pending": false,
       "result": "candidate1 passed 5764/5842 target-face tracking and final identity but retained persistent venue/media branding; candidate2 failed continuous-face gate; no final"
-    }
+    },
+    "final_acceptance_pending": false
   },
   "source48_black_edge": {
     "counts_as_full_benchmark": false,
@@ -251,5 +262,26 @@
     "right_dark_column_fraction": 1,
     "max_adjacent_changed_fraction_gt12": 0.00011109614866684622,
     "decision": "keep rejected; no threshold or crop change"
+  },
+  "source77_keynote": {
+    "selector_commit": "51e1564ba7f14e62be4e886f738724952c48c22d",
+    "evidence_commit": "b2a97f39d1a9b010d53473a05bc0da9696e895c0",
+    "runs": [
+      35131476262,
+      35132701870
+    ],
+    "report_artifact_id": 10462150511,
+    "status": "rejected_static_promotional_card",
+    "candidate_spans_sec": [
+      [
+        662.84,
+        870.36
+      ],
+      [
+        1905.48,
+        2103.8
+      ]
+    ],
+    "counts_as_final": false
   }
 }
