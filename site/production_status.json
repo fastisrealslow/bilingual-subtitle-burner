@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789559619,
+  "updated_at": 1789559731,
   "inventory_updated_at": 1789559617,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789559619,
+    "updated_at": 1789559731,
     "records": 4948,
     "video_records": 4037,
     "initial_candidates": 63,
@@ -48,8 +48,7 @@
     "reserved": 1,
     "ready": 3,
     "interrupted": 1,
-    "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -10913,24 +10912,6 @@
       "run_updated_at": "2026-09-16T10:53:56Z"
     },
     {
-      "slug": "ly-0916-cedd92",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1789556126,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1789559067,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 35087569013,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087569013",
-      "run_started_at": "2026-09-16T10:55:26Z",
-      "run_updated_at": "2026-09-16T11:27:48Z"
-    },
-    {
       "slug": "ly-0916-27801c",
       "status": "failed",
       "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
@@ -11019,6 +11000,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35090739279",
       "run_started_at": "2026-09-16T11:31:03Z",
       "run_updated_at": "2026-09-16T11:31:07Z"
+    },
+    {
+      "slug": "ly-0916-cedd92",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1789559703,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35092893662,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35092893662",
+      "run_started_at": "2026-09-16T11:55:03Z",
+      "run_updated_at": "2026-09-16T11:55:07Z"
     }
   ],
   "runs": {
@@ -13322,15 +13321,26 @@
       "display_title": "中文源出片 · ly-0916-27801c"
     },
     "ly-0916-cedd92": {
-      "id": 35087569013,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T10:55:26Z",
-      "updated_at": "2026-09-16T11:27:48Z",
-      "run_started_at": "2026-09-16T10:55:26Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087569013",
-      "run_number": 1025,
+      "id": 35092893662,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-16T11:55:03Z",
+      "updated_at": "2026-09-16T11:55:07Z",
+      "run_started_at": "2026-09-16T11:55:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35092893662",
+      "run_number": 1031,
       "display_title": "中文源出片 · ly-0916-cedd92"
+    },
+    "ly-0916-f9570a": {
+      "id": 35087318410,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-09-16T10:52:34Z",
+      "updated_at": "2026-09-16T11:52:36Z",
+      "run_started_at": "2026-09-16T10:52:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087318410",
+      "run_number": 1023,
+      "display_title": "中文源出片 · ly-0916-f9570a"
     },
     "ly-0916-35da05": {
       "id": 35090739279,
@@ -13375,17 +13385,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35090687366",
       "run_number": 1027,
       "display_title": "中文源出片 · ly-0916-ea489e"
-    },
-    "ly-0916-f9570a": {
-      "id": 35087318410,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-09-16T10:52:34Z",
-      "updated_at": "2026-09-16T11:52:36Z",
-      "run_started_at": "2026-09-16T10:52:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087318410",
-      "run_number": 1023,
-      "display_title": "中文源出片 · ly-0916-f9570a"
     }
   }
 }
