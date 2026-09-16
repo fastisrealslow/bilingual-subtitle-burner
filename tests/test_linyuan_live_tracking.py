@@ -101,6 +101,9 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     import json
     from types import SimpleNamespace
     from live_tracking import render_tracked
+    # This case exercises the full decoder's failure evidence; preflight has
+    # its own identity/rewind tests and must not consume this stateful mock.
+    monkeypatch.setattr('live_tracking.preflight_geometry',lambda *a:None)
     source=tmp_path/'source.mp4'
     writer=cv2.VideoWriter(str(source),cv2.VideoWriter_fourcc(*'mp4v'),10,(640,480))
     for i in range(60):writer.write(np.full((480,640,3),i*3,dtype=np.uint8))

@@ -26,9 +26,15 @@ def avoid_overlays(box, face, width, height, exclusions):
     marks=[(a*width,b*height,c*width,d*height) for a,b,c,d in exclusions]
     def overlaps(px,py):
         return any(px<c and px+w>a and py<d and py+h>b for a,b,c,d in marks)
-    if not overlaps(x,y):return box
     fx,fy,fw,fh=map(float,face[:4])
-    xs={x};ys={y}
+    # Feasible face margins are boundaries too. Only trying the original
+    # centre and logo edges missed clean windows between them (#d1715b).
+    xmin=max(0,fx+fw+8-w);xmax=min(width-w,fx-8)
+    ymin=max(0,fy+fh+2-h);ymax=min(height-h,fy-max(8,fh*.22))
+    if xmin>xmax or ymin>ymax:
+        raise ValueError('来源取景无法保留完整人脸及头顶余量')
+    xs={x,math.ceil(xmin/2)*2,math.floor(xmax/2)*2}
+    ys={y,math.ceil(ymin/2)*2,math.floor(ymax/2)*2}
     for original,(a,b,c,d) in zip(exclusions,marks):
         xs.update((math.floor((a-w-4)/2)*2,math.ceil((c+4)/2)*2))
         # Full-width text bands already include their OCR safety expansion.
@@ -53,7 +59,7 @@ def crop_box(face, width, height, ratio=632/470, exclusions=()):
     # The preferred half-body framing may be wider than the clean corridor
     # between two measured corner marks. At a NEW shot choose the widest
     # feasible crop, preserving the same face margins and pixel minimum.
-    for scale in (2.1,2.0,1.9,1.8,1.7,1.6):
+    for scale in (2.1,2.0,1.9,1.8,1.7,1.6,1.5,1.4,1.3):
         # A small face does not imply the source is low resolution. #879/#883
         # cropped a clean interview down to 208–292px and then rejected the
         # resulting upscaling. Retain more real surrounding pixels first.
@@ -86,6 +92,71 @@ def shot_crop(framing,face,width,height,n,exclusions=()):
     proposed=(crop_box(face,width,height,exclusions=exclusions)
               if framing.box is None or framing.pending_cut else framing.box)
     return framing.update(proposed,face,width,height,n,exclusions=exclusions)
+
+
+def geometry_obstruction(face, width, height, exclusions=()):
+    """A necessary condition for every crop, independent of zoom or pan.
+
+    Reject only when even the smallest rectangle retaining the same mandatory
+    face margins is outside the source or intersects an excluded source mark.
+    Passing is not approval: tracking and final picture gates still run.
+    """
+    x,y,w,h=map(float,face[:4])
+    region=(x-8,y-max(8,h*.22),x+w+8,y+h+2)
+    a,b,c,d=region
+    if a<0 or b<0 or c>width or d>height:
+        return dict(reason='原始画面不足以保留完整人脸及头顶余量',required_region=list(region))
+    for mark in exclusions:
+        mx,my,mr,mb=mark
+        if a<mr*width and c>mx*width and b<mb*height and d>my*height:
+            return dict(reason='来源角标覆盖必须保留的人脸或头顶区域',
+                        required_region=list(region),source_mark=list(mark))
+    return None
+
+
+def preflight_geometry(cap, first_frame, count, fps, matching_face, exclusions, output):
+    """Check the entire selected interval before per-frame recognition/encoding.
+
+    Only a mathematically impossible crop is an early rejection. Missing face
+    detections remain inconclusive and never approve or reject the whole clip.
+    Always rewind the decoder to the original exact start frame.
+    """
+    import cv2
+    samples=[];obstruction=None
+    indices=sorted({first_frame+min(count-1,int(count*(i+.5)/12)) for i in range(12)})
+    try:
+        for index in indices:
+            cap.set(cv2.CAP_PROP_POS_FRAMES,index);ok,frame=cap.read()
+            if not ok:
+                samples.append(dict(frame=index,status='unreadable'))
+                continue
+            face=matching_face(frame)
+            if face is None:
+                samples.append(dict(frame=index,status='identity_inconclusive'))
+                continue
+            height,width=frame.shape[:2]
+            problem=geometry_obstruction(face,width,height,exclusions)
+            row=dict(frame=index,source_time=index/fps,face=list(map(float,face[:4])),
+                     status='impossible' if problem else 'not_excluded')
+            if problem:
+                row.update(problem);obstruction=row
+                evidence=Path(output).with_suffix('.evidence');evidence.mkdir(exist_ok=True)
+                cv2.imwrite(str(evidence/'preflight-failure.jpg'),frame)
+            samples.append(row)
+            if obstruction:break
+    finally:
+        cap.set(cv2.CAP_PROP_POS_FRAMES,first_frame)
+    proof=dict(version=1,stage='selected-geometry-preflight',
+        source_start=first_frame/fps,duration=count/fps,samples=samples,
+        outcome='impossible' if obstruction else 'requires_full_verification',
+        final_quality_approved=False)
+    Path(output).with_suffix('.preflight.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if obstruction:
+        proof.update(passed=False,error=obstruction['reason'],
+                     failure_source_time=obstruction['source_time'])
+        Path(output).with_suffix('.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        raise ValueError(f"整段取景预检：源 {obstruction['source_time']:.2f}s，{obstruction['reason']}")
+    return proof
 
 
 def complete_face(face, width, height):
@@ -164,6 +235,24 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     first_frame,count=frame_interval(start,duration,fps,round(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
     cap.set(cv2.CAP_PROP_POS_FRAMES,first_frame)
     output=Path(output); log=output.with_suffix('.ffmpeg.log')
+    if context_crop is None:
+        def matching_face(frame):
+            matches=[]
+            for face in faces(frame):
+                if min(face[2:4])<96:continue
+                try:
+                    feature=recognizer.feature(recognizer.alignCrop(frame,face))
+                    score=max(float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+                              for identity in identities)
+                except cv2.error:
+                    continue
+                if score>=threshold:matches.append((score,face))
+            return max(matches,key=lambda row:row[0])[1] if matches else None
+        try:
+            preflight_geometry(cap,first_frame,count,fps,matching_face,exclusions,output)
+        except BaseException:
+            cap.release()
+            raise
     matched=0;missing=0;longest_missing=0;previous=None;first=None;last=None
     other_faces=0;no_face=0;blank_streak=0
     decoded=0;encoded=0;frame=None;n=0;recent=deque(maxlen=7)
