@@ -1,6 +1,6 @@
 {
-  "active_until": "2026-09-16T14:34:59.646Z",
-  "active_work": "Observe source79 keynote-boundary targeted run 35105484172 after verified channel repair; collect round2 run35098194067 without starting another full batch.",
+  "active_until": null,
+  "active_work": null,
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -60,8 +60,8 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Collect source79 targeted selector22 result; count it only if an actual MP4 passes all final gates.",
-    "Collect complete round2 summary, retaining failed and unknown cases; do not merge scores with diagnostics.",
+    "Collect source79 targeted selector22 result from run35105484172; count it only if an actual MP4 passes all final gates.",
+    "Collect final source87 and aggregate round2 run35098194067; retain any failure and do not merge scores across revisions.",
     "After targeted repair succeeds, run one same-100-source benchmark at a single revision and fixed publication snapshot.",
     "Inspect remaining source5/21/29/48 geometry evidence without lowering target-face or crop gates."
   ],
@@ -69,7 +69,7 @@
     "commit": "c0c041f1d344bc81bde6fced9aede6836d63b501",
     "final_success_rate": null,
     "run_id": 35098194067,
-    "status": "running",
+    "status": "running_one_sample_remaining",
     "verified_new_successes": [
       {
         "duration_sec": 181.621333,
@@ -93,6 +93,23 @@
         "baseline_source_hash_matches": true,
         "bytes": 9228806
       }
+    ],
+    "interim_confirmed_passed": 9,
+    "interim_failed": 90,
+    "interim_unresolved": 1,
+    "pending_sample_ids": [
+      87
+    ],
+    "interim_success_ids": [
+      8,
+      28,
+      32,
+      39,
+      49,
+      58,
+      66,
+      90,
+      95
     ]
   },
   "tests": {
@@ -108,10 +125,11 @@
     },
     "selector22_github": {
       "run_id": 35105483686,
-      "status": "in_progress"
+      "status": "completed",
+      "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-16T13:59:59.646Z",
+  "updated_at": "2026-09-16T14:20:21.906Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -136,7 +154,7 @@
     "selection_fix": {
       "commit": "312cdc57d5a9a1a1cc86231f236af3b9c3f22852",
       "run_id": 35105484172,
-      "status": "in_progress",
+      "status": "in_progress_rendering",
       "selector_version": 22,
       "boundaries_sec": [
         [
@@ -148,7 +166,8 @@
           1097.48
         ]
       ],
-      "final_acceptance_pending": true
+      "final_acceptance_pending": true,
+      "last_observed_step": "真实出片模拟（每个素材首条合格成片后停止）"
     }
   }
 }
