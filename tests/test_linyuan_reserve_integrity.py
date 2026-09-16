@@ -163,3 +163,21 @@ def test_rejected_old_delivery_never_becomes_six_hour_missing_file(monkeypatch):
     assert not state['dispatched'][0].get('failed')
     assert not state['dispatched'][0].get('retries')
     assert payload['artifacts'][0]['parts'][0]['reason']=='实际画面存在来源水印'
+
+
+def test_unknown_inventory_requests_bounded_refresh_instead_of_producing_more(monkeypatch):
+    state, _ = reserve('p',monkeypatch)
+    monkeypatch.setattr(fc,'load_state',lambda:state)
+    monkeypatch.setattr(fc,'source_inventory',lambda _:dict(inventory_fresh=False,daily_mix_usable=0))
+    monkeypatch.setattr(fc,'_collect_source_rejections',lambda _:0)
+    monkeypatch.setattr(fc,'save_state',lambda _:None)
+    monkeypatch.setattr(fc,'log_event',lambda *args:None)
+    calls=[]
+    def api(method,path,body):
+        calls.append((method,path,body))
+        assert method=='POST' and path=='/actions/workflows/linyuan-source-inventory.yml/dispatches'
+    monkeypatch.setattr(fc,'gh',api)
+    for _ in range(2):
+        result=fc._dispatch_admitted()
+        assert result['dispatched']==0 and result['inventory_unavailable']==1
+    assert len(calls)==1 and state['inventory_refresh_requested_at']==NOW

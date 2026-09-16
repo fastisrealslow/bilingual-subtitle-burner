@@ -2299,6 +2299,18 @@ def _dispatch_admitted(event=None, context=None):
     if isinstance(event, dict) and event.get("_refill_count"):
         target = max(1, min(MAX_PER_DAY, int(event["_refill_count"])))
     inventory=source_inventory(st)
+    if inventory.get('inventory_fresh') is False:
+        # Unknown stock is not empty stock. Refresh evidence first; repeated
+        # hourly dispatches must not create batches during an inventory outage.
+        if time.time()-float(st.get('inventory_refresh_requested_at') or 0)>15*60:
+            try:
+                gh('POST','/actions/workflows/linyuan-source-inventory.yml/dispatches',{'ref':'main'})
+                st['inventory_refresh_requested_at']=int(time.time())
+                save_state(st)
+                log_event('inventory_refresh','成片库存证据不可用，已请求自动复核','复核完成前不按零库存扩产')
+            except Exception as exc:
+                log.warning('库存复核请求暂不可用：%s',type(exc).__name__)
+        return {'dispatched':0,'inventory_unavailable':1,**inventory}
     deficits=reserve_deficits(inventory)
     landscape_needed=deficits['landscape']
     if not any(deficits.values()):
