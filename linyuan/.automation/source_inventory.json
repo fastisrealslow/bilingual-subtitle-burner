@@ -3,7 +3,7 @@
   "validation_sha256": "b2ca5e668a61c011590233a7947f3e8b9a7fd306f7d95acfd9aca64c01c260bb",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789538699,
+  "updated_at": 1789538842,
   "materials": {
     "weibo_search": {
       "records": 1218,
@@ -9924,7 +9924,14 @@
           "ly-0916-f40fe6"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0916-f40fe6",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -10604,9 +10611,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -11055,9 +11062,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -11357,10 +11364,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_duplicate-selection": 1,
+        "terminal_visual-review": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -11769,7 +11776,8 @@
       "BV1Ny1sBbEiY": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1n5411n714": {
         "attempted_mothers": 1,
@@ -11785,7 +11793,7 @@
       }
     }
   },
-  "in_flight_placeholders": 1,
+  "in_flight_placeholders": 0,
   "artifacts": [
     {
       "slug": "ly-0915-1d2ba6",
