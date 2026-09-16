@@ -255,6 +255,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             raise
     matched=0;missing=0;longest_missing=0;previous=None;first=None;last=None
     other_faces=0;no_face=0;blank_streak=0
+    small_target_frames=0;largest_target_short_edge=0.
     decoded=0;encoded=0;frame=None;n=0;recent=deque(maxlen=7)
     last_target_time=None
     target_times=[];roles=[];context_frames=0;picture_frames=0;unmatched_detections=0
@@ -267,6 +268,9 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             source_first_frame=first_frame,encoded_duration=encoded/fps,
             frames=count,decoded_frames=decoded,encoded_frames=encoded,
             matched_frames=matched,other_face_frames=other_faces,no_face_frames=no_face,
+            identity_matched_below_min_size_frames=small_target_frames,
+            largest_identity_matched_short_edge=largest_target_short_edge,
+            minimum_target_short_edge=96,
             longest_unmatched_seconds=longest_missing/fps,
             first_crop=first,last_crop=last,threshold=threshold,
             passed=error is None and (context_frames/count>=.7 and len(target_times)>=6
@@ -321,7 +325,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                     saved,jpeg=cv2.imencode('.jpg',frame)
                     if saved:recent.append((n,jpeg.tobytes()))
                 height,width=frame.shape[:2]; candidates=[];other_candidates=[];role=None
-                detected=faces(frame)
+                detected=faces(frame);small_target=False
                 for face in detected:
                     try:
                         feature=recognizer.feature(recognizer.alignCrop(frame,face))
@@ -329,12 +333,17 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                                   for identity in identities)
                     except cv2.error:
                         continue
+                    if score>=threshold:
+                        edge=float(min(face[2:4]))
+                        largest_target_short_edge=max(largest_target_short_edge,edge)
+                        small_target=small_target or edge<96
                     if score>=threshold and min(face[2:4])>=96:
                         primary=float(recognizer.match(identities[0],feature,cv2.FaceRecognizerSF_FR_COSINE))
                         candidates.append((score,face,primary))
                     elif participant is not None:
                         other_score=float(recognizer.match(participant,feature,cv2.FaceRecognizerSF_FR_COSINE))
                         if other_score>=threshold:other_candidates.append((other_score,face))
+                small_target_frames+=int(small_target and not candidates)
                 if candidates:
                     score,face,primary=max(candidates,key=lambda row:row[0])
                     matched+=1;missing=0;blank_streak=0
@@ -395,7 +404,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 proc.stdin.write(result.tobytes())
                 encoded+=1
                 if context_crop is None and matched+(count-decoded)<math.ceil(count*.8):
-                    raise ValueError(f'动态取景剩余帧即使全部匹配也达不到80%：已匹配{matched}/{decoded}，总帧数{count}')
+                    raise ValueError(f'动态取景剩余帧即使全部匹配也达不到80%：已匹配{matched}/{decoded}，总帧数{count}；'
+                                     f'身份匹配但人脸短边不足96px的帧数{small_target_frames}')
                 if first is None:first=list(box)
                 last=list(box)
                 if n%max(1,round(fps*30))==0:

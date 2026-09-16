@@ -383,7 +383,12 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                 if (status==206 and requested_end is not None
                         and actual==requested_end+1 and actual<expected):
                     # Complete requested chunk, not a failing/truncated stream.
-                    # Start the next contiguous range on the measured primary.
+                    # Stay on the mirror that actually completed this range.
+                    # Returning to a failed primary on every 8 MiB chunk causes
+                    # mirror/ETag ping-pong and repeated whole-prefix downloads
+                    # (source100 #87). All range and byte-identity checks above
+                    # still run when a later failure requires another mirror.
+                    urls=[url]+[candidate for candidate in urls if candidate!=url]
                     break
                 if actual < 10240 or (expected and actual != expected):
                     raise RuntimeError(f"下载不完整：{actual}/{expected or '?'} bytes")

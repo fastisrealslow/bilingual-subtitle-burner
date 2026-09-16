@@ -1,0 +1,46 @@
+# Focused transport regression; no rendering, publishing, or production writes.
+name: 100素材第87条下载复核（不投稿）
+'on':
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-download-87-check.yml]
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - id: key
+      env:
+        SOURCE: https://www.bilibili.com/video/BV1fT421m76m
+      run: python -c 'import os,hashlib; print("key="+hashlib.sha256(os.environ["SOURCE"].encode()).hexdigest())' >> "$GITHUB_OUTPUT"
+    - uses: actions/cache/restore@v4
+      with:
+        path: linyuan/_src/
+        key: source-download-v1-${{ steps.key.outputs.key }}-${{ github.run_id }}
+        restore-keys: source-download-v1-${{ steps.key.outputs.key }}-
+    - name: 真实下载并核验音视频（下载成功不等于出片）
+      env:
+        BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      run: |
+        set -o pipefail
+        mkdir -p diagnostic-87
+        python -u linyuan/ci_fetch_bilibili.py \
+          --url https://www.bilibili.com/video/BV1fT421m76m \
+          --out linyuan/_src/video.mp4 --budget-seconds 3600 \
+          --failure-report diagnostic-87/fetch-failure.json 2>&1 | tee diagnostic-87/download.log
+        python linyuan/ci_fetch_bilibili.py --validate-only linyuan/_src/video.mp4 > diagnostic-87/media-validation.json
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: simulation-download-diagnostic-87
+        path: diagnostic-87/
+        retention-days: 14
+        if-no-files-found: error

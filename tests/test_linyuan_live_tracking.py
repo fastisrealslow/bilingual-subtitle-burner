@@ -94,8 +94,8 @@ def test_measured_station_logo_is_excluded_without_cutting_wide_shot_head():
     assert corrected[1]<=face[1]-face[3]*.22
 
 
-@pytest.mark.parametrize('initial_face',[True,False])
-def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initial_face):
+@pytest.mark.parametrize('initial_face,face_width',[(True,120),(False,120),(True,80)])
+def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initial_face,face_width):
     import cv2
     import numpy as np
     import json
@@ -111,6 +111,7 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     reference=tmp_path/'reference.png'
     cv2.imwrite(str(reference),np.zeros((480,640,3),dtype=np.uint8))
     face=np.array([[160,120,120,160,180,160,240,160,200,200,180,240,240,240,.99]],dtype=np.float32)
+    face[0,2]=face_width
 
     class Detector:
         calls=0
@@ -132,9 +133,12 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     assert not output.exists()
     # The exact remaining-frame bound now proves failure before the old
     # two-second no-face timeout. Evidence must still name the actual frame.
-    assert proof['failure_source_time']==pytest.approx(1.9 if initial_face else 1.8)
-    assert proof['encoded_frames']==proof['decoded_frames']==(10 if initial_face else 9)
-    assert proof['consecutive_no_face_seconds']==pytest.approx(.9)
+    accepted_initial=initial_face and face_width>=96
+    assert proof['failure_source_time']==pytest.approx(1.9 if accepted_initial else 1.8)
+    assert proof['encoded_frames']==proof['decoded_frames']==(10 if accepted_initial else 9)
+    assert proof['consecutive_no_face_seconds']==pytest.approx(.8 if initial_face and face_width<96 else .9)
+    assert proof['identity_matched_below_min_size_frames']==int(initial_face and face_width<96)
+    assert proof['largest_identity_matched_short_edge']==(face_width if initial_face else 0)
     directory=tmp_path/proof['evidence_directory']
     assert cv2.imread(str(directory/'failure.jpg')).shape==(480,640,3)
     assert proof['samples'] and all((directory/x['file']).is_file() for x in proof['samples'])

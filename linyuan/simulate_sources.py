@@ -255,6 +255,7 @@ def report():
     status, stage = classify(finals, error, batch, source, execution, steps)
     evidence = BASE / 'simulation-reports' / slug
     code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'source_selection.py',
+            'live_tracking.py', 'ci_fetch_bilibili.py',
             'simulate_sources.py', 'asr_production_config.json']
     value = dict(sample=row, status=status, stage=stage, finals=finals,
                  validation_error=error, source_sha256=source.get('source_sha256'),
@@ -270,6 +271,19 @@ def report():
                 target = evidence / 'evidence' / path.relative_to(out)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(path, target)
+    # Keep the bounded failure frames already emitted by the tracker. A text
+    # exception alone cannot distinguish a detector bug from a genuinely
+    # obstructed face; these are diagnostics, never accepted media.
+    remaining=24*1024*1024
+    for directory in sorted((out/'_tmp').glob('*.evidence')):
+        if not directory.is_dir():continue
+        paths=sorted(directory.glob('*.jpg'),key=lambda p:('failure' not in p.name,p.name))
+        for path in paths[:9]:
+            size=path.stat().st_size
+            if size>2*1024*1024 or size>remaining:continue
+            target=evidence/'evidence'/path.relative_to(out)
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(path,target);remaining-=size
     print(json.dumps(dict(sample=row['id'], status=status, stage=stage, finals=len(finals)), ensure_ascii=False))
 
 

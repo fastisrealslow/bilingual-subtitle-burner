@@ -242,3 +242,29 @@ def test_fresh_large_download_reuses_probe_length_before_its_first_transfer(tmp_
     assert all(a[1]+1==z[0] for a,z in zip(transfers,transfers[1:]))
     manifest=json.loads(out.with_suffix('.m4s.download.json').read_text())
     assert manifest['total']==len(payload) and manifest['etag']=='same' and manifest['sha256']
+
+
+def test_successful_backup_stays_primary_after_a_complete_range(monkeypatch,tmp_path):
+    # Actual #87 repeatedly returned to a failing initially-fast mirror. Every
+    # switch of CDN ETag then re-downloaded ALL retained bytes for comparison.
+    payload=bytes(range(256))*80000
+    urls=['https://initial.test/track','https://backup.test/track']
+    out=tmp_path/'video.m4s';offset=1024*1024
+    out.with_suffix('.m4s.part').write_bytes(payload[:offset])
+    out.with_suffix('.m4s.download.json').write_text(json.dumps(dict(
+        identity=dict(source='source',paths=['/track']),total=len(payload),etag='initial')))
+    monkeypatch.setattr(b,'rank_mirrors',lambda op,urls,ref,**kw:urls)
+    requests=[]
+    class Opener:
+        def open(self,request,timeout):
+            requests.append((request.full_url,request.headers['Range']))
+            if request.full_url==urls[0]:raise TimeoutError('primary stalled')
+            start,end=map(int,request.headers['Range'].split('=')[1].split('-'))
+            return Response(payload[start:end+1],206,dict(
+                **{'Content-Range':f'bytes {start}-{end}/{len(payload)}'},ETag='backup'))
+    b.download_one(Opener(),urls,'source',out)
+    assert out.read_bytes()==payload
+    assert sum(url==urls[0] for url,_ in requests)==1
+    # The first switch must still prove every byte of the retained prefix.
+    assert (urls[1],f'bytes=0-{offset-1}') in requests
+    assert json.loads(out.with_suffix('.m4s.download.json').read_text())['etag']=='backup'
