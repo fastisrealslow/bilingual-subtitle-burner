@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1789557435,
+  "updated_at": 1789557565,
   "inventory_updated_at": 1789557434,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789557434,
+    "updated_at": 1789557564,
     "records": 4926,
     "video_records": 4020,
-    "initial_candidates": 63,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
+    "initial_candidates": 62,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
     "known_duration_candidates": 0,
-    "unknown_duration_candidates": 1,
+    "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 906,
-      "already_attempted_or_cooling": 710,
+      "already_attempted_or_cooling": 711,
       "speaker_unconfirmed": 2012,
       "noise": 107,
       "clip_title": 985,
@@ -26,16 +26,7 @@
       "over_limit": 9,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "netease_video:VA141AOVR",
-        "title": "时隔近两年，片仔癀迎来首个涨停！上月林园现身年度股东会，首个发言力挺片仔癀",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VA141AOVR.html",
-        "duration_sec": 0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 5,
@@ -51,13 +42,13 @@
   },
   "counts": {
     "complete": 74,
-    "failed": 517,
+    "failed": 518,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 2,
     "interrupted": 2,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -10724,11 +10715,11 @@
     },
     {
       "slug": "ly-0916-ac8424",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1789553433,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10940,8 +10931,8 @@
     },
     {
       "slug": "ly-0916-27801c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1789556984,
         "failed": null,
@@ -10954,7 +10945,7 @@
       "run_id": 35088826177,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35088826177",
       "run_started_at": "2026-09-16T11:09:44Z",
-      "run_updated_at": "2026-09-16T11:09:48Z"
+      "run_updated_at": "2026-09-16T11:18:42Z"
     }
   ],
   "runs": {
@@ -13235,12 +13226,23 @@
       "run_number": 1022,
       "display_title": "中文源出片 · ly-0916-a38f87"
     },
+    "ly-0916-ac8424": {
+      "id": 35083543639,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-16T10:10:33Z",
+      "updated_at": "2026-09-16T11:16:36Z",
+      "run_started_at": "2026-09-16T10:10:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35083543639",
+      "run_number": 1014,
+      "display_title": "中文源出片 · ly-0916-ac8424"
+    },
     "ly-0916-27801c": {
       "id": 35088826177,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-09-16T11:09:44Z",
-      "updated_at": "2026-09-16T11:09:48Z",
+      "updated_at": "2026-09-16T11:18:42Z",
       "run_started_at": "2026-09-16T11:09:44Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35088826177",
       "run_number": 1026,
@@ -13267,17 +13269,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35087318410",
       "run_number": 1023,
       "display_title": "中文源出片 · ly-0916-f9570a"
-    },
-    "ly-0916-ac8424": {
-      "id": 35083543639,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T10:10:33Z",
-      "updated_at": "2026-09-16T11:16:36Z",
-      "run_started_at": "2026-09-16T10:10:33Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35083543639",
-      "run_number": 1014,
-      "display_title": "中文源出片 · ly-0916-ac8424"
     }
   }
 }
