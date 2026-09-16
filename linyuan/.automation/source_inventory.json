@@ -3,7 +3,7 @@
   "validation_sha256": "b2ca5e668a61c011590233a7947f3e8b9a7fd306f7d95acfd9aca64c01c260bb",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789537305,
+  "updated_at": 1789537460,
   "materials": {
     "weibo_search": {
       "records": 1218,
@@ -9939,7 +9939,14 @@
           "ly-0916-8b48bd"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0916-8b48bd",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -9954,7 +9961,14 @@
           "ly-0916-c3a2fa"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0916-c3a2fa",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -10590,9 +10604,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -10869,8 +10883,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -10882,8 +10896,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -11041,9 +11055,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -11343,10 +11357,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_workflow-preflight": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_visual-review": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -11760,16 +11774,18 @@
       "BV1n5411n714": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV14jaZzzEja": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 4,
+  "in_flight_placeholders": 2,
   "artifacts": [
     {
       "slug": "ly-0915-1d2ba6",
