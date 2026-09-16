@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789544646,
+  "updated_at": 1789544752,
   "inventory_updated_at": 1789544645,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789544645,
+    "updated_at": 1789544751,
     "records": 4926,
     "video_records": 4020,
     "initial_candidates": 87,
@@ -235,13 +235,12 @@
   },
   "counts": {
     "complete": 73,
-    "failed": 488,
+    "failed": 490,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "running": 5,
-    "retry_queued": 7,
-    "interrupted": 2
+    "running": 6,
+    "retry_queued": 6
   },
   "tasks": [
     {
@@ -10619,24 +10618,6 @@
       "run_updated_at": "2026-09-16T04:01:01Z"
     },
     {
-      "slug": "ly-0915-bfd53d",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1789544054,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1789544053,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 35052332443,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35052332443",
-      "run_started_at": "2026-09-16T03:34:49Z",
-      "run_updated_at": "2026-09-16T03:38:43Z"
-    },
-    {
       "slug": "ly-0916-6eaaca",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -10656,11 +10637,11 @@
     },
     {
       "slug": "ly-0916-3982c4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789544387,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10674,11 +10655,11 @@
     },
     {
       "slug": "ly-0916-04b5de",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789544400,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -10725,6 +10706,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35069927881",
       "run_started_at": "2026-09-16T07:42:46Z",
       "run_updated_at": "2026-09-16T07:42:51Z"
+    },
+    {
+      "slug": "ly-0915-bfd53d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1789544725,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35070159767,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35070159767",
+      "run_started_at": "2026-09-16T07:45:25Z",
+      "run_updated_at": "2026-09-16T07:45:29Z"
     }
   ],
   "runs": {
@@ -10784,14 +10783,14 @@
       "display_title": "中文源出片 · ly-0915-db53d8"
     },
     "ly-0915-bfd53d": {
-      "id": 35052332443,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-16T03:34:49Z",
-      "updated_at": "2026-09-16T03:38:43Z",
-      "run_started_at": "2026-09-16T03:34:49Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35052332443",
-      "run_number": 949,
+      "id": 35070159767,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-16T07:45:25Z",
+      "updated_at": "2026-09-16T07:45:29Z",
+      "run_started_at": "2026-09-16T07:45:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35070159767",
+      "run_number": 976,
       "display_title": "中文源出片 · ly-0915-bfd53d"
     },
     "ly-0915-09c14d": {
