@@ -9,11 +9,11 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Source77-only replay validates literal keynote chapter boundaries and
-    # retains its bounded pre-ranking frames for geometric review;
+    # Recheck three structurally complete candidates whose prior failures were
+    # limited to picture geometry; retain bounded pre-ranking evidence;
     # acceptance gates and the fixed100 denominator remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '77'
+      sample_ids: '15,46,76'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
