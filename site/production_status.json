@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789560014,
+  "updated_at": 1789560124,
   "inventory_updated_at": 1789560013,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789560014,
+    "updated_at": 1789560124,
     "records": 4948,
     "video_records": 4037,
     "initial_candidates": 63,
@@ -47,8 +47,9 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 3,
-    "interrupted": 2,
-    "running": 4
+    "interrupted": 1,
+    "running": 4,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -11003,14 +11004,14 @@
     },
     {
       "slug": "ly-0916-cedd92",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1789559703,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1789561840,
         "weekly_full_week": ""
       },
       "history_count": 1,
