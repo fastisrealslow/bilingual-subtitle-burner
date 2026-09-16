@@ -1,6 +1,6 @@
 {
-  "active_until": null,
-  "active_work": null,
+  "active_until": "2026-09-16T16:16:01.753Z",
+  "active_work": "Observe source79 verified topic/camera-boundary retest run35116931936; do not start another full100 while targeted proof is pending.",
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -15,7 +15,10 @@
     "Source6 topic cards contain multiple distinct short Q&A turns and a promotional outro; do not merge them into a 195s video. Selector21 recognizes the observed financial question forms; all existing selection regression tests pass.",
     "Source5 failed frame at70.37s shows the speaker leaning below the original video panel; no evidence that lowering crop/face gates would preserve the whole face. Keep rejection pending a separate valid continuous segment.",
     "Source79 corrected left-channel offline Qwen run35102043136 produced 4667 characters / 348 cues across 1097.48s and completed forced alignment; ASR quality gate passed. Its remaining rejection was selector21 requiring a question or recognized keynote boundary.",
-    "Source79 contains literal speaker-announced boundaries at 573.88s ('接下来我们应该投什么') and 824.36s ('我指的是药物，一定是药物'). Selector22 exposes the resulting 250.08s and 273.12s continuous spans without fixed-length slicing; all downstream gates unchanged."
+    "Source79 contains literal speaker-announced boundaries at 573.88s ('接下来我们应该投什么') and 824.36s ('我指的是药物，一定是药物'). Selector22 exposes the resulting 250.08s and 273.12s continuous spans without fixed-length slicing; all downstream gates unchanged.",
+    "Round2 run35098194067 completed at one revision and the fixed publication snapshot: 9 passed, 88 rejected, 3 unresolved (60/65 source fetch; 79 producer runtime under the old mono path). Target 30 not met.",
+    "Source87 transport succeeded, but final candidates were legitimately rejected: one had >2.03s without the target face and one could not avoid source corner marks while preserving a complete face. Do not count download recovery as a final.",
+    "Source79 selector22 candidate 573.88-823.96 kept the target face through 768.60s, then the source changed to a wide stage shot and failed the unchanged 2.03s continuous-face gate around 772s. The literal boundary '这是境内的，境外的' starts at768.92s, so selector23 ends the prior complete domestic-example statement at768.60s."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -60,16 +63,16 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Collect source79 targeted selector22 result from run35105484172; count it only if an actual MP4 passes all final gates.",
-    "Collect final source87 and aggregate round2 run35098194067; retain any failure and do not merge scores across revisions.",
-    "After targeted repair succeeds, run one same-100-source benchmark at a single revision and fixed publication snapshot.",
-    "Inspect remaining source5/21/29/48 geometry evidence without lowering target-face or crop gates."
+    "Collect source79 selector23 run35116931936; count only an actual accepted MP4.",
+    "Classify and target real algorithmic false rejections among round2 candidate-quality failures using retained evidence; do not loosen gates.",
+    "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
+    "Retain source60/65 as unresolved until the original URLs can be fetched; do not call them failures or successes."
   ],
   "round2": {
     "commit": "c0c041f1d344bc81bde6fced9aede6836d63b501",
-    "final_success_rate": null,
+    "final_success_rate": 9,
     "run_id": 35098194067,
-    "status": "running_one_sample_remaining",
+    "status": "completed",
     "verified_new_successes": [
       {
         "duration_sec": 181.621333,
@@ -94,13 +97,13 @@
         "bytes": 9228806
       }
     ],
-    "interim_confirmed_passed": 9,
-    "interim_failed": 90,
-    "interim_unresolved": 1,
-    "pending_sample_ids": [
-      87
-    ],
-    "interim_success_ids": [
+    "passed": 9,
+    "rejected": 88,
+    "unresolved": 3,
+    "complete": false,
+    "target_met": false,
+    "summary_artifact_id": 10452200179,
+    "success_ids": [
       8,
       28,
       32,
@@ -110,7 +113,19 @@
       66,
       90,
       95
-    ]
+    ],
+    "unresolved_ids": [
+      60,
+      65,
+      79
+    ],
+    "stage_counts": {
+      "candidate-quality": 54,
+      "source-quality": 34,
+      "final-accepted": 9,
+      "src": 2,
+      "producer-runtime": 1
+    }
   },
   "tests": {
     "command": "pytest: selection, simulation, ASR integrity, evidence supply, Qwen checkpoints, channel preprocessing and diagnostics",
@@ -127,9 +142,20 @@
       "run_id": 35105483686,
       "status": "completed",
       "conclusion": "success"
+    },
+    "selector23_local": {
+      "passed": 65,
+      "real_source79_candidate_span_sec": [
+        573.88,
+        768.6
+      ]
+    },
+    "selector23_github": {
+      "run_id": 35116931451,
+      "status": "in_progress"
     }
   },
-  "updated_at": "2026-09-16T14:20:21.906Z",
+  "updated_at": "2026-09-16T15:41:01.753Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -154,7 +180,7 @@
     "selection_fix": {
       "commit": "312cdc57d5a9a1a1cc86231f236af3b9c3f22852",
       "run_id": 35105484172,
-      "status": "in_progress_rendering",
+      "status": "failed_picture_after_valid_selection",
       "selector_version": 22,
       "boundaries_sec": [
         [
@@ -167,7 +193,22 @@
         ]
       ],
       "final_acceptance_pending": true,
-      "last_observed_step": "真实出片模拟（每个素材首条合格成片后停止）"
+      "last_observed_step": "真实出片模拟（每个素材首条合格成片后停止）",
+      "result_run_id": 35105484172,
+      "result": "both candidates rejected by unchanged continuous-face gate"
+    },
+    "visual_boundary_fix": {
+      "commit": "e2bb9a3feb683c743a82c18a3effe2770ab599ea",
+      "run_id": 35116931936,
+      "status": "in_progress",
+      "selector_version": 23,
+      "selected_span_sec": [
+        573.88,
+        768.6
+      ],
+      "duration_sec": 194.72,
+      "reason": "literal topic boundary aligns with source change to a wide stage shot",
+      "all_quality_gates_unchanged": true
     }
   }
 }
