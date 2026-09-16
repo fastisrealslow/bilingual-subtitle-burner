@@ -68,3 +68,15 @@ def test_comparison_snapshot_mismatch_is_not_silently_accepted(monkeypatch,tmp_p
     monkeypatch.setattr(sim.urllib.request,'urlopen',lambda *a,**k:Response())
     with pytest.raises(ValueError,match='snapshot hash mismatch'):sim.prepare_snapshot()
     assert not (tmp_path/'_publication_state.json').exists()
+def test_topic_cards_without_second_person_cannot_join_unrelated_short_answers():
+    import source_selection as selection
+    questions=['对股市散户有什么投资建议？','有哪些炒股的书值得推荐？',
+               '年轻股民该怎么炒股？','未来中国股市会蓬勃发展吗？']
+    cues=[]
+    for n,q in enumerate(questions):
+        t=n*40
+        cues.extend([dict(start=t,end=t+3,text=q),
+                     dict(start=t+4,end=t+39,text='企业经营需要控制风险，长期投资必须研究实际经营情况。')])
+    assert all(selection.question_unit(q) for q in questions)
+    assert selection.select(cues,limit=None,whole_source=True)==[]
+    assert not selection.question_unit('比如说，年轻股民该怎么炒股？')

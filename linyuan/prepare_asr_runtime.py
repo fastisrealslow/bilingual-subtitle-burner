@@ -8,6 +8,7 @@ import hashlib
 import re
 import tempfile
 import zipfile
+from audio_preprocessing import policy, matches
 
 
 def restore_raw_qwen_evidence(archive, directory, source_sha, revisions):
@@ -17,6 +18,7 @@ def restore_raw_qwen_evidence(archive, directory, source_sha, revisions):
         if len(names)!=1 or z.getinfo(names[0]).file_size>20*1024*1024:return False
         reports=json.loads(z.read(names[0]))
     if not isinstance(reports,list) or not reports:return False
+    if not matches(reports,policy(source_sha)):return False
     for report in reports:
         alignment=report.get('alignment') or {}
         if (report.get('source_video_sha256')!=source_sha or report.get('device')!='cpu'
@@ -56,7 +58,7 @@ def cached_evidence(report_path,choice):
     directory=Path(report_path).parent/'qwen_cpu'
     reports=load_reports(directory)
     revisions=choice.get('model_revisions') or {}
-    if not reports:return None
+    if not reports or not matches(reports,policy(choice['source_sha256'])):return None
     for report in reports:
         alignment=report.get('alignment') or {}
         if (report.get('source_video_sha256')!=choice['source_sha256']

@@ -27,7 +27,7 @@ def save(path, data):
 
 IDENTITY_FIELDS=('version','source_pcm_sha256','source_video_sha256','model_id',
                  'model_revision','device','threads','networking_during_inference',
-                 'core_range','duration')
+                 'core_range','duration','audio_preprocessing')
 CHUNK_FIELDS=('offset','duration','core_start','core_end','text')
 
 
@@ -84,6 +84,7 @@ def main():
     parser.add_argument('--part',type=int,choices=[0,1,2])
     parser.add_argument('--weights')
     parser.add_argument('--source-video-sha')
+    parser.add_argument('--audio-preprocessing',default='ffmpeg-mono-v1',choices=['ffmpeg-mono-v1','left-channel-v1'])
     parser.add_argument('--out',required=True)
     args=parser.parse_args()
     import numpy as np
@@ -110,7 +111,7 @@ def main():
     report_path=output/'recognition.json'
     partial=output.parent/'_partial_qwen_cpu'
     if args.mode=='decode':
-        report={'version':1,'source_pcm_sha256':pcm_sha,
+        report={'version':1,'source_pcm_sha256':pcm_sha,'audio_preprocessing':args.audio_preprocessing,
                 'source_video_sha256':args.source_video_sha or (SOURCE_VIDEO_SHA if args.part is not None else None),
                 'model_id':model_id,'model_revision':weights.name,'device':'cpu','threads':2,
                 'networking_during_inference':False,'core_range':[first,last],'duration':duration,'chunks':[]}

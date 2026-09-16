@@ -107,3 +107,16 @@ def test_diagnostic_mode_cannot_emit_full_acceptance_summary(monkeypatch):
     monkeypatch.setenv('SIMULATION_SAMPLE_IDS','5,9')
     monkeypatch.setattr(sys,'argv',['simulate_sources.py','aggregate'])
     with pytest.raises(ValueError,match='diagnostic subset'):sim.main()
+
+
+def test_acceptance_cannot_merge_best_results_across_diagnostics_or_revisions():
+    manifest=sim.read(sim.MANIFEST)
+    samples=sim.validate_manifest(manifest)
+    base=[dict(sample=samples[i],status='rejected',stage='candidate-quality',finals=[],
+        tested_sha='a'*40,run_id='123',publication_snapshot_sha256=manifest['comparison']['publication_sha256'])
+        for i in range(2)]
+    assert sim.aggregate(manifest,base)['total']==100
+    for field,value in [('diagnostic_subset',True),('tested_sha','b'*40),('run_id','124'),
+                        ('publication_snapshot_sha256','c'*64),('tested_sha',None)]:
+        changed=[dict(base[0]),{**base[1],field:value}]
+        with pytest.raises(ValueError):sim.aggregate(manifest,changed)

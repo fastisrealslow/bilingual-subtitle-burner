@@ -290,6 +290,16 @@ def report():
 
 def aggregate(manifest, reports):
     samples = validate_manifest(manifest)
+    # A diagnostic or a best-of merge across runs is not one benchmark.
+    if any(r.get('diagnostic_subset') for r in reports):
+        raise ValueError('Diagnostic subset reports cannot enter full acceptance')
+    for field in ('tested_sha','run_id','publication_snapshot_sha256'):
+        values={str(r[field]) for r in reports if r.get(field)}
+        if len(values)>1 or values and any(not r.get(field) for r in reports):
+            raise ValueError('Mixed or incomplete report provenance: '+field)
+    expected=(manifest.get('comparison') or {}).get('publication_sha256')
+    if expected and any(r.get('publication_snapshot_sha256') not in (None,expected) for r in reports):
+        raise ValueError('Reports used a different publication snapshot')
     by_slug = {}
     for report in reports:
         slug = report['sample']['slug']

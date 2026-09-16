@@ -687,6 +687,9 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
+from audio_preprocessing import policy as audio_policy, matches as audio_matches, asr_args as audio_asr_args, render_prefix as audio_render_prefix
+
+
 def _asr_cache_identity(src, work=None):
     if ASR_BACKEND == 'qwen3':
         source_sha = _sha256_file(src)
@@ -696,6 +699,8 @@ def _asr_cache_identity(src, work=None):
         if evidence is not None and evidence.is_dir():
             from qwen_asr_evidence import load_reports
             reports = load_reports(evidence)
+        if not audio_matches(reports,audio_policy(source_sha)):
+            reports = []
         if reports:
             config = json.loads((BASE / 'asr_production_config.json').read_text())
             choice = {**config, **config.get('source_overrides', {}).get(source_sha, {})}
@@ -753,6 +758,8 @@ def transcribe(src, work, api_key=None):
     work.mkdir(parents=True, exist_ok=True)
     cache, provenance = work / "cues_raw.json", work / "asr_cache.json"
     identity = _asr_cache_identity(src,work)
+    selected_audio=audio_policy(identity['source_sha256'])
+    if selected_audio!='ffmpeg-mono-v1':identity['audio_preprocessing']=selected_audio
     meta={}
     if cache.exists() and provenance.exists():
         try:
@@ -794,6 +801,7 @@ def transcribe(src, work, api_key=None):
     _asr_quality_gate(cues, _audio_duration(src))
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     if ASR_BACKEND=='qwen3':identity=_asr_cache_identity(src,work)
+    if selected_audio!='ffmpeg-mono-v1':identity['audio_preprocessing']=selected_audio
     tmp = provenance.with_suffix(".tmp")
     tmp.write_text(json.dumps(dict(identity=identity, cues_sha256=_sha256_file(cache)),
                               ensure_ascii=False, indent=2), encoding="utf-8")
@@ -806,22 +814,31 @@ def _transcribe_qwen_cpu(src,work):
     import wave
     from qwen_asr_evidence import validated_words,load_reports,punctuated_words
     from reviewed_asr_corrections import apply_reviewed_corrections
+    video_sha=_sha256_file(src)
+    selected_audio=audio_policy(video_sha)
     wav=work/'audio_16k.wav'
     if wav.resolve()!=src.resolve():
         subprocess.run(['ffmpeg','-y','-v','error','-i',str(src),'-vn','-ar','16000',
-            '-ac','1','-c:a','pcm_s16le',str(wav)],check=True,timeout=600)
+            *audio_asr_args(selected_audio),'-c:a','pcm_s16le',str(wav)],check=True,timeout=600)
     with wave.open(str(wav)) as stream:
         duration=stream.getnframes()/stream.getframerate()
         pcm_sha=hashlib.sha256(stream.readframes(stream.getnframes())).hexdigest()
     video_sha=_sha256_file(src)
     evidence=Path(os.environ.get('QWEN3_EVIDENCE_DIR') or work/'qwen_cpu')
     reports=load_reports(evidence)
+    if not audio_matches(reports,selected_audio):
+        reports=[]
+        evidence=work/'qwen_cpu'
+        if evidence.exists():
+            archive=work/'asr_stale'/str(time.time_ns())
+            archive.mkdir(parents=True)
+            evidence.replace(archive/'qwen_cpu')
     if not reports:
         evidence.mkdir(parents=True,exist_ok=True)
         for mode,env in [('decode','QWEN3_ASR_DIR'),('align','QWEN3_ALIGNER_DIR')]:
             subprocess.run([sys.executable,str(BASE/'qwen_cpu_transcript.py'),mode,
                 '--audio',str(wav),'--out',str(evidence),'--weights',os.environ[env],
-                '--source-video-sha',video_sha],check=True,timeout=max(600,int(duration*4)))
+                '--source-video-sha',video_sha,'--audio-preprocessing',selected_audio],check=True,timeout=max(600,int(duration*4)))
         reports=load_reports(evidence)
     config=json.loads((BASE/'asr_production_config.json').read_text())
     choice={**config,**config.get('source_overrides',{}).get(video_sha,{})}
@@ -5079,6 +5096,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
     en_map = {}
     parts = []
+    render_audio=audio_render_prefix(audio_policy(_sha256_file(src)))
     interview_tracking=None
     framing_proofs=[]
     for n, p in enumerate(picks, 1):
@@ -5138,7 +5156,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 "-map", "[outv]", "-map", "0:a:0",
             ]
         cmd += [
-            "-af", "asetpts=PTS-STARTPTS,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
+            "-af", render_audio+"asetpts=PTS-STARTPTS,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11",
             "-c:v", "libx264", "-preset", ("veryfast" if use_live_video else "slow"),
             "-crf", ("20" if use_live_video else "18"),
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-r", "30",

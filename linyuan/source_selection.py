@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 20
+VERSION = 21
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -25,7 +25,16 @@ QUESTION = re.compile(
     r'|(?:好[，,]|好的|另外|我们(?:最近讨论|就放眼|在操作中)|如果真的要投资)'
     r'.{0,220}(?:是不是|会不会|哪些|什么方法|怎么样|哪一条|哪一句|能否)[^。！？?]*[？?]'
     r'|(?:那么就目前来看|当前配置|如果用一句话来指导投资者|哪一句话来体现)'
-    r'[^。！？?]{0,100}[？?]')
+    r'[^。！？?]{0,100}[？?]'
+    # Source100 #6 uses short topic cards without 您/你. Missing these
+    # questions falsely joined seven unrelated answers into a 195s clip.
+    r'|^(?:对[^。！？?]{1,30}(?:有什么|有何)(?:投资)?(?:建议|看法|期待)'
+    r'|有哪些[^。！？?]{1,30}值得推荐'
+    r'|(?:年轻|普通|新入市的)(?:股民|投资者)[^。！？?]{0,12}该怎么[^。！？?]{1,25}'
+    r'|想成为[^。！？?]{1,20}需要做到[^。！？?]{1,20}'
+    r'|未来(?:中国|我国)?(?:股市|资本市场)[^。！？?]{0,30}吗'
+    r'|(?:个股涨跌|股市大势)[^。！？?]{1,40}有没有[^。！？?]{1,20}'
+    r'|最近[^。！？?]{0,12}有什么[^。！？?]{0,12}新的(?:认识|看法)吗)[？?]$')
 TOPIC_CHANGE = re.compile(r'(?:我们|咱们).{0,8}(?:下面|下一个|另外一个|换个).{0,5}话题|(?:我们|咱们).{0,5}(?:来聊聊|再来谈)')
 FOLLOWUP = re.compile(r'(?:我|我们).{0,12}(?:有所担心|想追问|想进一步问|顺带.{0,3}问)|(?:这个|这一).{0,20}(?:我|我们).{0,5}(?:完全认同|完全同意)')
 TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)
@@ -39,6 +48,7 @@ OUTRO = re.compile(
     r'|今天交流了非常多.{0,12}收获'
     # Reviewed #686: the host's retrospective begins before the formal goodbye.
     r'|今天的对谈.{0,16}林总其实很克制')
+PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_BRIDGE = re.compile(
     r'^(?:啊[，,]?|嗯[，,]?|那|好的[，,]?)*'
     r'(?:感谢林总|谢谢林总|林总(?:也|是|阐述|提到)|小林总也是|您时刻提醒我们)'
@@ -128,7 +138,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     units=sentence_units(cues)
     # A host's closing narration is not the guest's final answer. It must not
     # turn a short farewell into a 120-second "guest" clip.
-    end=next((i for i,u in enumerate(units) if OUTRO.search(u['text'])),len(units))
+    end=next((i for i,u in enumerate(units) if OUTRO.search(u['text'])
+              or i>0 and PROMOTIONAL_REINTRO.search(u['text'])),len(units))
     natural_end=(end<len(units) or bool(whole_source and units and units[-1]['end']==len(cues)-1))
     units=units[:end]
     questions=[i for i,u in enumerate(units) if question_unit(u['text'])]
@@ -137,7 +148,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             (i>questions[k-1]+1 and not all(re.search(r'[？?]$',units[t]['text'])
                 for t in range(questions[k-1]+1,i)))]
     # Keep a host's lead-in with that question, not with the preceding answer.
-    leadin=re.compile(r'您|采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)')
+    leadin=re.compile(r'采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)')
     question_starts=list(starts)
     for k,q in enumerate(question_starts):
         lower=(question_starts[k-1]+1 if k else 0)
