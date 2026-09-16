@@ -1,6 +1,6 @@
 {
-  "active_until": "2026-09-16T13:56:49.754Z",
-  "active_work": "Source79 measured anti-phase correction, provenance-bound ASR re-decode and targeted acceptance; inspect round2 complete evidence.",
+  "active_until": null,
+  "active_work": null,
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -12,7 +12,8 @@
     "Some sources identify the speaker but fail the existing 96px target-face minimum. New diagnostics expose this separately; acceptance thresholds unchanged.",
     "Recovered source3 structural selection is blocked by genuine publication history lacking source time ranges; do not bypass deduplication.",
     "Source79 source SHA 8749fee3a7345c3e1c2fe2e14fc0b33d33d66829f5ff48a25ca6f6daee5ae41f: three 12s probes at 10/50/90% show stereo correlation -0.99595/-0.99804/-0.99736 and mono/channel RMS ratios 0.048/0.034/0.039. Default downmix cancels speech; preserve source left channel in recognition and final audio; invalidate incompatible evidence. Actual new ASR and final acceptance pending.",
-    "Source6 topic cards contain multiple distinct short Q&A turns and a promotional outro; do not merge them into a 195s video. Selector21 recognizes the observed financial question forms; all existing selection regression tests pass."
+    "Source6 topic cards contain multiple distinct short Q&A turns and a promotional outro; do not merge them into a 195s video. Selector21 recognizes the observed financial question forms; all existing selection regression tests pass.",
+    "Source5 failed frame at70.37s shows the speaker leaning below the original video panel; no evidence that lowering crop/face gates would preserve the whole face. Keep rejection pending a separate valid continuous segment."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -21,19 +22,35 @@
     "Do not combine best results across revisions",
     "No simulation publishing; no lowering final gates"
   ],
+  "diagnostics": {
+    "commit": "ea448f1520014637d1c90e3bca124f8eece0a6c0",
+    "counts_as_full_benchmark": false,
+    "run_id": 35100640388,
+    "sample_ids": [
+      5,
+      6,
+      9,
+      21,
+      29,
+      47,
+      48,
+      79
+    ],
+    "status": "completed_no_accepted_final"
+  },
   "download_check": {
-    "fix_commit": "6fa0dc9696961b7e2e9d72001f8bfaa256a39606",
-    "run_id": 35100748124,
-    "status": "download_and_media_validation_passed",
-    "video_bytes": 693415117,
-    "audio_bytes": 50818207,
-    "tracks_completed": true,
-    "media_validation_passed": true,
     "action": "Full acceptance still requires ASR, selection, rendering and all final gates.",
+    "artifact_id": 10448605859,
+    "audio_bytes": 50818207,
+    "counts_as_final": false,
     "dependency_fix_commit": "ca64b5c02a624310d3b3babb7958d2c3285c638a",
     "duration_sec": 3146,
-    "artifact_id": 10448605859,
-    "counts_as_final": false
+    "fix_commit": "6fa0dc9696961b7e2e9d72001f8bfaa256a39606",
+    "media_validation_passed": true,
+    "run_id": 35100748124,
+    "status": "download_and_media_validation_passed",
+    "tracks_completed": true,
+    "video_bytes": 693415117
   },
   "goal": {
     "definition": "At least one actual final MP4 accepted per source; no publishing.",
@@ -53,36 +70,38 @@
     "status": "running",
     "verified_new_successes": [
       {
-        "sample_id": 39,
-        "report_artifact_id": 10449015602,
-        "media_artifact_id": 10448576955,
-        "final_sha256": "03de71a1332ebe03fe24adaae4c34be0a61671179ff83e2aefe9f82b3d8f45f7",
         "duration_sec": 181.621333,
+        "final_bytes_locally_verified": true,
+        "final_sha256": "03de71a1332ebe03fe24adaae4c34be0a61671179ff83e2aefe9f82b3d8f45f7",
+        "media_artifact_id": 10448576955,
+        "report_artifact_id": 10449015602,
         "reported_status": "passed",
-        "final_bytes_locally_verified": false
+        "sample_id": 39,
+        "baseline_source_hash_matches": true,
+        "bytes": 10931904
       }
     ]
   },
-  "updated_at": "2026-09-16T13:26:49.754Z",
-  "version": 1,
-  "diagnostics": {
-    "run_id": 35100640388,
-    "commit": "ea448f1520014637d1c90e3bca124f8eece0a6c0",
-    "sample_ids": [
-      5,
-      6,
-      9,
-      21,
-      29,
-      47,
-      48,
-      79
-    ],
-    "status": "running",
-    "counts_as_full_benchmark": false
-  },
   "tests": {
     "command": "pytest: selection, simulation, ASR integrity, evidence supply, Qwen checkpoints, channel preprocessing and diagnostics",
-    "passed": 159
+    "passed": 159,
+    "github_regression": {
+      "run_id": 35102042622,
+      "conclusion": "success"
+    }
+  },
+  "updated_at": "2026-09-16T13:29:08.636Z",
+  "version": 1,
+  "audio_repair": {
+    "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
+    "run_id": 35102043136,
+    "sample_ids": [
+      79
+    ],
+    "status": "in_progress",
+    "counts_as_full_benchmark": false,
+    "policy": "left-channel-v1",
+    "real_asr_and_final_acceptance": "pending",
+    "evidence_path": "linyuan/simulations/evidence/source79-audio-35100640388.json"
   }
 }
