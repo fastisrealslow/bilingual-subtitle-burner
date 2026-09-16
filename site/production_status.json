@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "updated_at": 1789537550,
-  "inventory_updated_at": 1789537460,
+  "updated_at": 1789538700,
+  "inventory_updated_at": 1789538699,
   "counts": {
     "complete": 72,
-    "failed": 494,
+    "failed": 495,
     "paused": 5,
-    "validation_failed": 2,
+    "validation_failed": 1,
     "reserved": 1,
-    "running": 1
+    "interrupted": 1
   },
   "tasks": [
     {
@@ -9485,11 +9485,11 @@
     },
     {
       "slug": "ly-0914-72120a",
-      "status": "validation_failed",
-      "detail": "成片复验未通过：实际画面复核发现红色来源水印残留，须避开水印重新取景；旧通过记录不可复用",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1789362740,
-        "failed": null,
+        "failed": true,
         "published_parts": 1,
         "processed_part_indices": [
           2
@@ -10315,8 +10315,8 @@
     },
     {
       "slug": "ly-0916-f40fe6",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1789536751,
         "failed": null,
@@ -10329,7 +10329,7 @@
       "run_id": 35059924360,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35059924360",
       "run_started_at": "2026-09-16T05:32:30Z",
-      "run_updated_at": "2026-09-16T05:32:35Z"
+      "run_updated_at": "2026-09-16T06:04:26Z"
     },
     {
       "slug": "ly-0916-8b48bd",
@@ -12351,10 +12351,10 @@
     },
     "ly-0916-f40fe6": {
       "id": 35059924360,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-09-16T05:32:30Z",
-      "updated_at": "2026-09-16T05:32:35Z",
+      "updated_at": "2026-09-16T06:04:26Z",
       "run_started_at": "2026-09-16T05:32:30Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35059924360",
       "run_number": 962,
