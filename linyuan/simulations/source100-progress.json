@@ -1,6 +1,6 @@
 {
-  "active_until": "2026-09-16T18:32:48.347Z",
-  "active_work": "Collect source48 exact black-edge frames and measurements from the targeted fixed-source diagnostic; do not start another full100 meanwhile.",
+  "active_until": null,
+  "active_work": null,
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -20,7 +20,8 @@
     "Source87 transport succeeded, but final candidates were legitimately rejected: one had >2.03s without the target face and one could not avoid source corner marks while preserving a complete face. Do not count download recovery as a final.",
     "Source79 selector22 candidate 573.88-823.96 kept the target face through 768.60s, then the source changed to a wide stage shot and failed the unchanged 2.03s continuous-face gate around 772s. The literal boundary '这是境内的，境外的' starts at768.92s, so selector23 ends the prior complete domestic-example statement at768.60s.",
     "Source79 selector23 run35116931936 preserved the intended 194.72s span and passed continuous tracking/identity, but remained rejected: the live window contains persistent 21st Century Business Herald venue/media branding; candidate2 still lacks a continuous face. No final MP4 was produced.",
-    "Source48 round2 selected the complete 287.96s source and tracked the target face in 8639/8639 frames. Its only rejection was the black-edge heuristic, whose old report discarded the measured frames; retain those frames and exact edge metrics before deciding whether this is encoded padding or a dark-scene false positive."
+    "Source48 round2 selected the complete 287.96s source and tracked the target face in 8639/8639 frames. Its only rejection was the black-edge heuristic, whose old report discarded the measured frames; retain those frames and exact edge metrics before deciding whether this is encoded padding or a dark-scene false positive.",
+    "Source48 run35129429485 proved the black-edge rejection is genuine, not an algorithmic false positive: all six sampled windows had 100% dark columns on both 8% edges, and the image is a person cutout on a full black field. Adjacent 48-second samples changed only 0-0.0111% of pixels above 12 levels. Do not crop or relax the gate."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -65,9 +66,7 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Collect the source48 targeted diagnostic; classify black-edge evidence before any crop or gate change.",
-    "If source48 proves a safely removable structural border, implement a bounded crop repair and retest source48 through all unchanged gates.",
-    "Classify and target other real algorithmic false rejections among round2 candidate-quality failures using retained evidence; do not loosen gates.",
+    "Inspect other round2 candidate-quality reports for an evidence-backed structural selection or picture false rejection; keep source48 and source79 rejected.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
     "Retain source60/65 as unresolved until the original URLs can be fetched; do not call them failures or successes."
   ],
@@ -160,9 +159,14 @@
     "black_edge_evidence_local": {
       "passed": 62,
       "command": "pytest tests/test_linyuan_visual_gate.py tests/test_linyuan_simulation.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_source_selection.py"
+    },
+    "black_edge_evidence_github": {
+      "run_id": 35129429246,
+      "status": "completed",
+      "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-16T17:37:48.347Z",
+  "updated_at": "2026-09-16T17:50:25.883Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -232,7 +236,16 @@
     ],
     "matched_frames": 8639,
     "total_frames": 8639,
-    "status": "diagnostic_pending",
-    "gates_changed": false
+    "status": "confirmed_genuine_quality_rejection",
+    "gates_changed": false,
+    "diagnostic_commit": "08b34ffd5e98ca3d32498a3731e7aeb269970b32",
+    "run_id": 35129429485,
+    "report_artifact_id": 10461061875,
+    "sampled_frames": 6,
+    "edge_hits": 6,
+    "left_dark_column_fraction": 1,
+    "right_dark_column_fraction": 1,
+    "max_adjacent_changed_fraction_gt12": 0.00011109614866684622,
+    "decision": "keep rejected; no threshold or crop change"
   }
 }
