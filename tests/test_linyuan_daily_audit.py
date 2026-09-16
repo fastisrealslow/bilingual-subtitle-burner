@@ -63,3 +63,16 @@ def test_midnight_makeup_reduces_real_remaining_stock_requirement():
     report=opening_stock_check(receipt,stock,now)
     assert report['required_live']==2 and report['passed']
     assert opening_stock_check(receipt,stock,now.replace(hour=10)) is None
+
+
+def test_only_sunday_can_use_one_reserved_full_in_opening_plan():
+    now=datetime(2026,9,20,9,30,tzinfo=BEIJING)
+    receipt=dict(unique_verified_file_count=0)
+    stock=dict(verified_live=4,daily_mix_usable=3,verified_portrait=2,
+               verified_landscape=1,verified_weekly_full=1,inventory_fresh=True)
+    sunday=opening_stock_check(receipt,stock,now)
+    assert sunday['passed'] and sunday['usable_weekly_full']==1
+    assert sunday['required_portrait']==2
+    assert not opening_stock_check(receipt,stock,now.replace(day=21))['passed']
+    stock.update(verified_portrait=0,daily_mix_usable=1,verified_weekly_full=10)
+    assert not opening_stock_check(receipt,stock,now)['passed']

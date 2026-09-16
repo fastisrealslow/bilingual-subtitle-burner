@@ -40,8 +40,13 @@ def opening_stock_check(receipts, stock, now):
     ready=int(stock.get('daily_mix_usable', stock.get('verified_live') or 0))
     wide=int(stock.get('verified_landscape') or 0)
     portrait=int(stock.get('verified_portrait', max(0, ready-wide)))
-    portrait_needed=max(0,needed-wide_needed)
+    # Only Sunday's 21:00 slot may consume one reserved full interview.
+    # It cannot cover another day's deficit or several daily slots at once.
+    full=int(now.weekday()==6 and needed>wide_needed and stock.get('verified_weekly_full',0)>0)
+    ready+=full
+    portrait_needed=max(0,needed-wide_needed-full)
     return dict(required_live=needed,verified_live=ready,required_landscape=wide_needed,
+        usable_weekly_full=full,
         required_portrait=portrait_needed,verified_portrait=portrait,
         verified_landscape=wide,inventory_fresh=stock.get('inventory_fresh') is True,
         passed=needed==0 or (stock.get('inventory_fresh') is True and ready>=needed
