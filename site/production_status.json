@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789547194,
+  "updated_at": 1789547381,
   "inventory_updated_at": 1789547193,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789547194,
+    "updated_at": 1789547380,
     "records": 4926,
     "video_records": 4020,
     "initial_candidates": 80,
@@ -179,13 +179,12 @@
   },
   "counts": {
     "complete": 73,
-    "failed": 503,
+    "failed": 504,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "running": 4,
-    "ready": 1,
-    "interrupted": 1
+    "ready": 1
   },
   "tasks": [
     {
@@ -10439,12 +10438,12 @@
     {
       "slug": "ly-0916-258fea",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1789540443,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -10780,11 +10779,11 @@
     },
     {
       "slug": "ly-0916-8fb761",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；same=[1, 5]，different=[2, 3, 4, 6]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/6帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.7868, 2: 0.1201, 3: 0.1028, 4: 0.0959, 5: 0.7459, 6: 0.1156}",
       "signature": {
         "ts": 1789546965,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -12888,6 +12887,17 @@
       "run_number": 989,
       "display_title": "中文源出片 · ly-0916-8fb761"
     },
+    "ly-0916-258fea": {
+      "id": 35064301640,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-09-16T06:34:03Z",
+      "updated_at": "2026-09-16T08:25:37Z",
+      "run_started_at": "2026-09-16T06:34:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35064301640",
+      "run_number": 970,
+      "display_title": "中文源出片 · ly-0916-258fea"
+    },
     "ly-0916-38c3e1": {
       "id": 35072604803,
       "status": "in_progress",
@@ -12920,17 +12930,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35071147855",
       "run_number": 982,
       "display_title": "中文源出片 · ly-0916-d3a2ac"
-    },
-    "ly-0916-258fea": {
-      "id": 35064301640,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-09-16T06:34:03Z",
-      "updated_at": "2026-09-16T08:25:37Z",
-      "run_started_at": "2026-09-16T06:34:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35064301640",
-      "run_number": 970,
-      "display_title": "中文源出片 · ly-0916-258fea"
     },
     "ly-0916-5cc2b6": {
       "id": 35064255035,
