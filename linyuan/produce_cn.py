@@ -1633,7 +1633,9 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
         return []
     if source_first:
         from source_selection import select
-        selected=select(cues)
+        diagnostics={}
+        selected=select(cues,diagnostics=diagnostics)
+        (work/f'selection_diagnostics{suffix}.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         print(f'[原文选段] {len(selected)}条有明确边界的连续候选；不调用模型拆话题或判完整性',flush=True)
         cache.write_text(json.dumps({'identity':identity,'picks':selected},ensure_ascii=False,indent=2))
         return selected
@@ -2869,7 +2871,7 @@ def select_interview_face(faces, width, height):
     return max(candidates,key=lambda b:b[0]+b[2]/2)
 
 
-def audio_card_live_crop(width, height, src=None, at=None, exclusions=()):
+def audio_card_live_crop(width, height, src=None, at=None, exclusions=(),reference=None,model_paths=None):
     """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
     if width <= height:
         return None
@@ -2877,17 +2879,23 @@ def audio_card_live_crop(width, height, src=None, at=None, exclusions=()):
     if src is not None:
         import cv2
         import statistics
-        cap=cv2.VideoCapture(str(src)); boxes=[]
-        detector=_cascade(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+        cap=cv2.VideoCapture(str(src)); boxes=[];frames=[]
+        detector=None if reference else _cascade(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
         for seconds in ((float(at or 0)+.5),(float(at or 0)+2),(float(at or 0)+4)):
             cap.set(cv2.CAP_PROP_POS_MSEC,seconds*1000)
             ok,frame=cap.read()
             if not ok: continue
+            if reference:
+                frames.append(frame);continue
             faces=detector.detectMultiScale(cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY),1.1,4,minSize=(48,48))
             face=select_interview_face(faces,width,height)
             if face is not None:
                 boxes.append(face)
         cap.release()
+        if reference:
+            from live_tracking import reference_faces
+            boxes=reference_faces(frames,reference,model_paths,LOCAL_FACE_COSINE_THRESHOLD)
+            if len(boxes)<2:return None
         if len(boxes)>=2:
             fx,fy,fw,fh=[statistics.median([b[k] for b in boxes]) for k in range(4)]
             from live_tracking import crop_box
@@ -4923,10 +4931,40 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         # OCR cleaning does not detect encoded black bars (#682). Measure the
         # actual cleaned source before deciding caption and watermark geometry.
         from source_geometry import refine_native_crop
-        clean_vf, crop_w, crop_h, border_proof = refine_native_crop(
-            source_report.get('geometry_source') or src, clean_vf, crop_w, crop_h, work, minimum=MIN_SHORT_EDGE)
-        (work / f'border_geometry{suffix}.json').write_text(
-            json.dumps(border_proof, ensure_ascii=False, indent=2))
+        geometry_source=source_report.get('geometry_source') or src
+        geometry_start=0 if source_report.get('geometry_source') else cues[picks[0]['start']]['start']
+        geometry_duration=cues[picks[-1]['end']]['end']-cues[picks[0]['start']]['start']
+        try:
+            clean_vf, crop_w, crop_h, border_proof = refine_native_crop(
+                geometry_source, clean_vf, crop_w, crop_h, work, minimum=MIN_SHORT_EDGE,
+                start=geometry_start,duration=None if source_report.get('geometry_source') else geometry_duration)
+            (work / f'border_geometry{suffix}.json').write_text(
+                json.dumps(border_proof, ensure_ascii=False, indent=2))
+            # Inspect the whole selected interval with the final predicates.
+            # A 24-second mother preview cannot approve other camera shots.
+            native_preview=work/f'native-preflight{suffix}.mp4'
+            subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(geometry_start),
+                '-i',str(geometry_source),'-t',str(geometry_duration),
+                '-vf',clean_vf+',fps=1','-an','-c:v','libx264','-preset','ultrafast',
+                '-crf','18','-threads','2',str(native_preview)],check=True,timeout=180)
+            from presentation import verify_render,layout_for
+            verify_render(native_preview,layout_for(crop_w,crop_h,False))
+            if has_existing_subtitles(native_preview,strict=True,frames=12):
+                raise VisualQualityError('选段原画仍有原字幕或免责声明')
+            if detect_corner_logos(native_preview,strict=True,frames=12):
+                raise VisualQualityError('选段原画仍有来源角标')
+        except ValueError as exc:
+            # Only a deterministic picture rejection selects another framing.
+            # Runtime/OCR outages remain recoverable errors, never approval.
+            if not (isinstance(exc,VisualQualityError) or '黑' in str(exc)):
+                raise
+            if not prefer_live_video:raise
+            print(f'[选段画面预检] 原画未通过，自动尝试动态取景：{exc}',flush=True)
+            (work/f'native-rejection{suffix}.json').write_text(json.dumps(
+                dict(reason=str(exc),source_start=geometry_start,duration=geometry_duration),ensure_ascii=False))
+            strategy='audio_card';border_proof=None
+            native_plan=None;proposed_native=None
+            crop_w,crop_h=AUDIO_CARD_WIDTH,AUDIO_CARD_HEIGHT
     _logos = source_report.get("detected_corner_logos") or []
     print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
     # A failed source-cleaning gate must never be bypassed by putting the same
@@ -4938,7 +4976,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
     if strategy == "audio_card" and prefer_live_video:
         candidate_crop = (reviewed_source_live_crop(source_report,W,H) or
-                          audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"],_logos))
+                          audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"],_logos,
+                              _download_speaker_reference(speaker,work),_local_face_models()))
         if candidate_crop:
             try:
                 preview_pick=picks[0]
@@ -4990,6 +5029,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     (source_report.get('visual_identity') or {}).get('same_person_frames',[])
                     if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
             prepared_live[n] = (tracked, tracking)
+            # The prepared moving window is the exact one composed below.
+            # Check its subtitles, logos, QR, borders and face geometry now,
+            # before title/caption inference. Final checks still run again.
+            verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
     cw = get_copy()
 
     brand = brand_watermark_path()
@@ -5389,7 +5432,9 @@ def main():
     if (curated is None and args.split_highlights and not args.target_parts
             and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
         from source_selection import select
-        source_picks=select(cues,whole_source=True,limit=6)
+        diagnostics={}
+        source_picks=select(cues,whole_source=True,limit=6,diagnostics=diagnostics)
+        (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]

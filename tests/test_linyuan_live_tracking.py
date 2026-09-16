@@ -122,15 +122,16 @@ def test_mid_render_failure_keeps_exact_source_frames(tmp_path,monkeypatch,initi
     monkeypatch.setattr(cv2,'FaceDetectorYN',SimpleNamespace(create=lambda *args,**kwargs:detector))
     monkeypatch.setattr(cv2,'FaceRecognizerSF',SimpleNamespace(create=lambda *args:recognizer))
     output=tmp_path/'tracked.mp4'
-    with pytest.raises(ValueError,match='缺少人脸'):
+    with pytest.raises(ValueError,match='缺少人脸|达不到80%'):
         render_tracked(source,1,4,output,reference,('detector','recognizer'))
     proof=json.loads(output.with_suffix('.json').read_text())
     assert proof['passed'] is False
     assert not output.exists()
-    assert proof['failure_source_time']==pytest.approx(3.1 if initial_face else 3.)
-    assert proof['encoded_frames']==(21 if initial_face else 20)
-    assert proof['decoded_frames']==(22 if initial_face else 21)
-    assert proof['consecutive_no_face_seconds']==pytest.approx(2.1)
+    # The exact remaining-frame bound now proves failure before the old
+    # two-second no-face timeout. Evidence must still name the actual frame.
+    assert proof['failure_source_time']==pytest.approx(1.9 if initial_face else 1.8)
+    assert proof['encoded_frames']==proof['decoded_frames']==(10 if initial_face else 9)
+    assert proof['consecutive_no_face_seconds']==pytest.approx(.9)
     directory=tmp_path/proof['evidence_directory']
     assert cv2.imread(str(directory/'failure.jpg')).shape==(480,640,3)
     assert proof['samples'] and all((directory/x['file']).is_file() for x in proof['samples'])

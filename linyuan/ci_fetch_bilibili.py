@@ -234,6 +234,39 @@ def rank_mirrors(op, urls, referer, *, offset=0, expected_total=None, deadline=N
     return [urls[index] for index,_,_,_ in measured]+list(urls[4:])
 
 
+def identical_prefix(op, url, referer, partial, total, etag, deadline):
+    """Prove byte identity when CDN entity tags differ, never just ignore tags.
+
+    ETags are opaque validators of a response, not portable content hashes.
+    Compare ALL retained bytes, in bounded ranges, before joining mirrors.
+    A timeout leaves the checkpoint intact and is not a content mismatch.
+    """
+    size = partial.stat().st_size
+    with partial.open('rb') as local:
+        for start in range(0, size, 8 * (1 << 20)):
+            end = min(size, start + 8 * (1 << 20)) - 1
+            req = urllib.request.Request(url, headers={'User-Agent': UA,
+                'Referer': referer, 'Range': f'bytes={start}-{end}'})
+            with op.open(req, timeout=min(60, remaining_seconds(deadline))) as response:
+                status = getattr(response, 'status', None) or response.getcode()
+                expected_range = f'bytes {start}-{end}/{total}'
+                if status != 206 or response.headers.get('Content-Range') != expected_range:
+                    raise RuntimeError('CDN前缀核对未返回所请求区间，保留断点')
+                tag = response.headers.get('ETag')
+                if etag and tag and etag != tag:
+                    raise RuntimeError('CDN前缀核对期间版本不稳定，保留断点')
+                left = end - start + 1
+                while left:
+                    remaining_seconds(deadline)
+                    chunk = response.read(min(1 << 20, left))
+                    if not chunk:
+                        raise RuntimeError('CDN前缀核对响应截断，保留断点')
+                    if chunk != local.read(len(chunk)):
+                        return False
+                    left -= len(chunk)
+    return True
+
+
 def download_one(op, urls, referer, out, attempts=3, deadline=None):
     """镜像轮换 + 断点续传 + Content-Length 校验，避免长母片反复从零下载。"""
     out = Path(out)
@@ -315,12 +348,23 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                     expected = (int(match.group(3)) if match and match.group(3) != '*'
                                 else existing + int(response.headers.get("Content-Length") or 0))
                     etag = response.headers.get('ETag')
-                    if resumed and ((saved.get('total') and expected != saved['total'])
-                                    or (etag and saved.get('etag') and etag != saved['etag'])):
-                        tmp.unlink(missing_ok=True)
-                        saved = dict(identity=identity)
-                        manifest.write_text(json.dumps(saved))
-                        raise RuntimeError('CDN内容版本改变，丢弃旧断点后重新下载')
+                    length_changed = bool(saved.get('total') and expected != saved['total'])
+                    tag_changed = bool(etag and saved.get('etag') and etag != saved['etag'])
+                    if resumed and (length_changed or tag_changed):
+                        print('[CDN版本核对] '+json.dumps(dict(host=urlparse(url).hostname,
+                            retained=existing,old_total=saved.get('total'),new_total=expected,
+                            etag_changed=tag_changed),ensure_ascii=False),flush=True)
+                        if not length_changed and identical_prefix(
+                                op,url,referer,tmp,expected,etag,deadline):
+                            print(f'[断点核对通过] {existing}字节完全一致，保留下载进度',flush=True)
+                        else:
+                            # Confirmed different bytes/length: restart exactly
+                            # this representation, not an unverified splice.
+                            # Keep total so the restart still uses bounded ranges.
+                            tmp.unlink(missing_ok=True)
+                            saved = dict(identity=identity,total=expected,etag=etag)
+                            manifest.write_text(json.dumps(saved))
+                            raise RuntimeError('CDN内容实际改变，已清理不兼容断点并有界重试')
                     saved.update(total=expected, etag=etag)
                     manifest.write_text(json.dumps(saved))
                     with tmp.open("ab" if resumed else "wb") as handle:
@@ -553,7 +597,10 @@ def main():
     if page == 1:
         strategies.append(("embed __playinfo__", lambda op: via_embed(op, bvid)))
     last = None
+    failures=[]
+    last_download_error=None
     for name, fn in strategies:
+        downloading=False
         try:
             remaining_seconds(deadline)
             op = opener()
@@ -565,24 +612,30 @@ def main():
                     f'最高可用流短边 {min(width, height)} < 480（{width}x{height}），画质不达标')
             height = streams.get("height") or "未知"
             print(f"  拿到最高可用流（{height}P），下载中...",flush=True)
+            downloading=True
             download(op, streams, args.url, args.out,deadline=deadline)
             print(f"✓ {name} 成功")
             return
         except FetchBudgetExceeded as e:
             last=e
+            failures.append(dict(strategy=name,stage='download' if downloading else 'resolve',reason=str(e)))
+            if downloading:last_download_error=e
             break
         except SourceResolutionUnavailable as e:
             last=e
             break
         except Exception as e:
             last = e
+            failures.append(dict(strategy=name,stage='download' if downloading else 'resolve',reason=str(e)))
+            if downloading:last_download_error=e
             print(f"  ✗ {e}", file=sys.stderr)
     if args.failure_report:
         args.failure_report.parent.mkdir(parents=True,exist_ok=True)
         low_resolution = isinstance(last, SourceResolutionUnavailable)
+        primary=last if low_resolution else last_download_error or last
         args.failure_report.write_text(json.dumps(dict(passed=False,retryable=not low_resolution,
             failure_stage='source-quality' if low_resolution else 'source-fetch',
-            reason=f'取源未完成：{type(last).__name__}: {last}',
+            reason=f'取源未完成：{type(primary).__name__}: {primary}',strategy_failures=failures,
             source_url=args.url,budget_seconds=args.budget_seconds),ensure_ascii=False,indent=2))
     sys.exit(f"所有策略失败，最后错误：{last}")
 

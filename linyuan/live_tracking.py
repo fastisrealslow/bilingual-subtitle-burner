@@ -94,6 +94,32 @@ def complete_face(face, width, height):
             and x+w<=width-8 and y+h<=height-2)
 
 
+def reference_faces(frames,reference,model_paths,threshold=.363):
+    """Find the configured guest before choosing a preview crop, not the host."""
+    import cv2
+    detector=cv2.FaceDetectorYN.create(str(model_paths[0]),'',(320,320),
+        score_threshold=.8,nms_threshold=.3,top_k=5000)
+    recognizer=cv2.FaceRecognizerSF.create(str(model_paths[1]),'')
+    def detect(frame):
+        if frame is None:raise ValueError('人物取景预检读取参考图失败')
+        detector.setInputSize((frame.shape[1],frame.shape[0]))
+        _,found=detector.detect(frame)
+        return [] if found is None else found
+    ref=cv2.imread(str(reference));found=detect(ref)
+    if not len(found):raise ValueError('人物取景预检参考照没有人脸')
+    face=max(found,key=lambda f:float(f[2]*f[3]))
+    identity=recognizer.feature(recognizer.alignCrop(ref,face))
+    matches=[]
+    for frame in frames:
+        candidates=[]
+        for face in detect(frame):
+            feature=recognizer.feature(recognizer.alignCrop(frame,face))
+            score=float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))
+            if score>=threshold:candidates.append((score,face[:4]))
+        if candidates:matches.append(max(candidates,key=lambda item:item[0])[1])
+    return matches
+
+
 def render_tracked(src,start,duration,output,reference,model_paths,threshold=.363,exclusions=(),
                    context_crop=None,participant_reference=None,reference_samples=(),overlay_probe=None):
     """Track the reference identity through camera cuts, with no static fallback."""
@@ -279,6 +305,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                     else:roles.append(dict(role=role,start_frame=n,end_frame=n+1))
                 proc.stdin.write(result.tobytes())
                 encoded+=1
+                if context_crop is None and matched+(count-decoded)<math.ceil(count*.8):
+                    raise ValueError(f'动态取景剩余帧即使全部匹配也达不到80%：已匹配{matched}/{decoded}，总帧数{count}')
                 if first is None:first=list(box)
                 last=list(box)
                 if n%max(1,round(fps*30))==0:

@@ -145,7 +145,7 @@ jobs:
         working-directory: .
         run: |
           python -m pip install -q pytest jieba numpy pillow 'opencv-python<5'
-          python -m pytest -q tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_qwen_checkpoint.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_selection_0915.py tests/test_linyuan_selection_incident.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py tests/test_linyuan_required_live.py tests/test_linyuan_visual_before_copy.py tests/test_linyuan_full_interview_recovery.py tests/test_linyuan_title_claims.py tests/test_linyuan_context_review.py tests/test_linyuan_production_history.py
+          python -m pytest -q tests/test_linyuan_robust_recovery.py tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py tests/test_linyuan_qwen_checkpoint.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py tests/test_linyuan_source_selection.py tests/test_linyuan_selection_0915.py tests/test_linyuan_selection_incident.py tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py tests/test_linyuan_required_live.py tests/test_linyuan_visual_before_copy.py tests/test_linyuan_full_interview_recovery.py tests/test_linyuan_title_claims.py tests/test_linyuan_context_review.py tests/test_linyuan_production_history.py
 
       - name: 读取并校验发布历史
         id: publication_history
@@ -485,6 +485,9 @@ jobs:
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/copywrite*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/selection_diagnostics*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/native-rejection*.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/border*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_response*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_topics*.txt
@@ -653,4 +656,9 @@ jobs:
         if: always() && !cancelled()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
+        run: |
+          for attempt in 1 2 3; do
+            gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main && exit 0
+            sleep $((attempt * 3))
+          done
+          exit 1

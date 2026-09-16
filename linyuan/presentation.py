@@ -427,11 +427,8 @@ def verify_render(path, layout, samples=12):
                 decoded=bool(text),finder_match=bool(finder_match))))
         if text or finder_match:
             cap.release(); raise ValueError(f'成片第{i}个抽检帧存在二维码候选')
-        gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        # Uniform near-black outer borders, not naturally dark image content.
-        edges=[gray[:max(2,height//40),:],gray[-max(2,height//40):,:],
-               gray[:,:max(2,width//40)],gray[:,-max(2,width//40):]]
-        black+=int(any(float(e.mean())<5 and float(e.std())<2 for e in edges))
+        from source_geometry import has_black_fill
+        black+=int(has_black_fill(frame))
     cap.release()
     if black>=max(2,samples//2):
         raise ValueError('成片存在持续黑色填充边')

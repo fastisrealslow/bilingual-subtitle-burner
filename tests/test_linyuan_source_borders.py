@@ -36,3 +36,19 @@ def test_large_black_area_remains_a_quality_rejection():
         image[:, :800] = 0
     with pytest.raises(ValueError, match='安全裁边'):
         black_border_crop(frames)
+
+
+def test_selected_interval_geometry_does_not_sample_an_unrelated_intro(tmp_path):
+    import cv2
+    from source_geometry import refine_native_crop,has_black_fill
+    video=tmp_path/'source.mp4'
+    writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),10,(640,480))
+    for i in range(40):
+        image=np.full((480,640,3),100,dtype=np.uint8)
+        if i>=20:image[:,:40]=0
+        writer.write(image)
+    writer.release()
+    vf,w,h,proof=refine_native_crop(video,'null',640,480,tmp_path,minimum=360,start=2,duration=2)
+    assert (w,h)==(600,480) and vf.endswith('crop=600:480:40:0')
+    assert proof['source_start']==2 and proof['remaining_black_edge_hits']==0
+    assert not has_black_fill(np.full((480,600,3),100,dtype=np.uint8))

@@ -1136,34 +1136,55 @@ def video_id_of(page_url, video_url):
 
 
 def mp4_duration(path):
-    """纯 Python 读 mvhd atom，FC 没有 ffmpeg。
-    moov atom 可能 在文件头部或尾部，两头都找。
+    """Read the actual moov/mvhd boxes without ffmpeg or scanning media bytes.
+
+    Long files can have a trailing moov larger than 500 KB. Searching just the
+    file's ends misses its header; searching raw bytes can match compressed
+    media instead. Seek over bounded boxes, including extended-size boxes.
+    Invalid or unknown duration stays zero and never satisfies admission.
     """
-    f = Path(path).open("rb")
-    # 先读头部 500KB
-    data = f.read(500_000)
-    i = data.find(b"mvhd")
-    if i < 0:
-        # 头部没找到 → 读尾部 500KB
+    with Path(path).open('rb') as f:
         f.seek(0, 2)
         size = f.tell()
-        tail = min(500_000, size)
-        f.seek(-tail, 2)
-        data = f.read(tail)
-        i = data.find(b"mvhd")
-    f.close()
-    if i < 0:
-        return 0
-    ver = data[i + 4]
-    if ver == 1:
-        # mvhd: type(4) + version(1) + flags(3) + creation(8) + modification(8) + timescale(4) + duration(8)
-        ts = int.from_bytes(data[i+20:i+24], "big")
-        dur = int.from_bytes(data[i+24:i+32], "big")
-    else:
-        # mvhd: type(4) + version(1) + flags(3) + creation(4) + modification(4) + timescale(4) + duration(4)
-        ts = int.from_bytes(data[i+16:i+20], "big")
-        dur = int.from_bytes(data[i+20:i+24], "big")
-    return dur / ts if ts else 0
+        def boxes(start, end):
+            for _ in range(10000):
+                if start + 8 > end:
+                    return
+                f.seek(start)
+                header = f.read(8)
+                length = int.from_bytes(header[:4], 'big')
+                kind = header[4:8]
+                header_size = 8
+                if length == 1:
+                    if start + 16 > end:
+                        return
+                    length = int.from_bytes(f.read(8), 'big')
+                    header_size = 16
+                elif length == 0:
+                    length = end - start
+                if length < header_size or start + length > end:
+                    return
+                yield kind, start + header_size, start + length
+                start += length
+        for kind, start, end in boxes(0, size):
+            if kind != b'moov':
+                continue
+            for child, payload, child_end in boxes(start, end):
+                if child != b'mvhd':
+                    continue
+                f.seek(payload)
+                data = f.read(min(32, child_end - payload))
+                if not data or data[0] not in (0, 1):
+                    return 0
+                offset, width = (20, 8) if data[0] == 1 else (12, 4)
+                if len(data) < offset + 4 + width:
+                    return 0
+                scale = int.from_bytes(data[offset:offset+4], 'big')
+                duration = int.from_bytes(data[offset+4:offset+4+width], 'big')
+                if not scale or duration == (1 << (8 * width)) - 1:
+                    return 0
+                return duration / scale
+    return 0
 
 
 def title_similarity(a, b):
@@ -2898,6 +2919,49 @@ def artifact_subtitle_error(meta, delivery_dir):
     return editorial.transcript_integrity_error(text)
 
 
+def _recover_changed_production_rule(st, candidate, run):
+    """Reopen affected old failures once per repair, never quality in general.
+
+    The failure history and lifetime counters remain. Admission uses the normal
+    active-source ceiling, and publication still requires accepted artifacts.
+    """
+    if (not candidate or not candidate.get('failed') or run.get('conclusion')!='failure'
+            or candidate['slug'] in REVIEW_PAUSED_SLUGS
+            or candidate['slug'] in st.get('published',{})
+            or candidate.get('repair_bvid') or not candidate.get('source_url')):
+        return False
+    # A finished report must not supersede a more recent dispatch intent.
+    finished=str(run.get('updated_at') or '')
+    since=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime(candidate.get('ts',0)))
+    if finished and finished<=since:return False
+    reason=str(candidate.get('last_error') or '')
+    cases=[('download-prefix-v2',('CDN内容版本改变','取源达到总时间预算',
+                                '取源未完成：RuntimeError: embed 页没有 __playinfo__'),
+            ('linyuan/ci_fetch_bilibili.py',)),
+           ('source-boundaries-v19',('原文中未找到满足120秒','NoStructuralCandidate'),
+            ('linyuan/source_selection.py',)),
+           ('visual-preflight-v2',('持续黑色填充边','来源角标无法避开','真人动态区仍有原素材字幕',
+                                  '原画无法通过真人画面清理门禁'),
+            ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
+    case=next((x for x in cases if any(s in reason for s in x[1])),None)
+    if not case:return False
+    version,_,paths=case
+    history=candidate.setdefault('automatic_rule_recoveries',{})
+    if version in history:return False
+    changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
+    if not any(f.get('filename') in paths for f in changed):return False
+    history[version]=dict(run_id=run['id'],reason=reason,ts=int(time.time()))
+    candidate.update(failed=False,source_quality_rejected=False,source_check_exhausted=False,
+        source_check_retry_after=int(time.time())-1,recovery_origin_run_id=run['id'],ts=int(time.time()))
+    # Download-only failures have no ASR. Other recoveries restore the original
+    # evidence; the restore helper validates source identity before reuse.
+    if version.startswith('download-'):candidate.pop('source_check_run_id',None)
+    else:candidate['source_check_run_id']=run['id']
+    save_state(st)
+    log_event('quality',f"{candidate['slug']} 已检测到对应代码修复，自动恢复一次",version)
+    return True
+
+
 def _collect_source_rejections(st):
     """读取失败工作流的素材质检报告，立即淘汰，避免无成片干等 6 小时。"""
     prefixes = ("source-reject-", "production-reject-")
@@ -2920,6 +2984,7 @@ def _collect_source_rejections(st):
         if run_slug and run_slug not in seen_preflight_slugs:
             seen_preflight_slugs.add(run_slug)
             _recover_preflight_failure(st, by_slug.get(run_slug), run, artifacts)
+            _recover_changed_production_rule(st, by_slug.get(run_slug), run)
         for artifact in artifacts:
             name = artifact.get("name", "")
             prefix = next((p for p in prefixes if name.startswith(p)), None)
@@ -2977,7 +3042,7 @@ def _collect_source_rejections(st):
                 candidate['source_check_report_id']=artifact['id']
                 candidate['source_check_run_id']=run['id']
                 candidate['last_error']=reason
-                candidate['failure_stage']='quality-service'
+                candidate['failure_stage']=report.get('failure_stage') or 'quality-service'
                 attempts=int(candidate.get('source_check_attempts') or 0)
                 # 402 means the configured visual service cannot accept more
                 # work. Retrying other mothers only burns Actions minutes and

@@ -8,7 +8,7 @@ import produce_cn as p
 import live_tracking
 
 
-@pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', None])
+@pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', None])
 def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path, failure):
     calls = []
     monkeypatch.setattr(p, 'argument_record_for_render', lambda *a: {})
@@ -38,6 +38,13 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
         raise CopyReached()
 
     monkeypatch.setattr(live_tracking, 'render_tracked', track)
+    def verify_window(path,**kwargs):
+        assert path.name=='tracked1.mp4'
+        assert kwargs['live_region']==dict(x=0,y=0,width=632,height=470)
+        calls.append('prepared window checked')
+        if failure=='final_window':raise p.VisualQualityError('原字幕仍然残留')
+        return {}
+    monkeypatch.setattr(p,'verify_live_region_after_render',verify_window)
     monkeypatch.setattr(p, 'copywrite', copy)
     expected = p.VisualQualityError if failure else CopyReached
     with pytest.raises(expected):
@@ -48,4 +55,4 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
     if failure:
         assert 'CPU title request' not in calls
     else:
-        assert calls == ['actual moving window', 'CPU title request']
+        assert calls == ['actual moving window', 'prepared window checked', 'CPU title request']
