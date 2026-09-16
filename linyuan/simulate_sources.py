@@ -272,6 +272,15 @@ def report():
                 target = evidence / 'evidence' / path.relative_to(out)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(path, target)
+    # Failed live-window checks used to retain only a generic reason while the
+    # six measured frames were discarded. Keep those small, already-sampled
+    # images so padding can be distinguished from a naturally dark scene
+    # without uploading the mother video or an unaccepted render.
+    for path in out.glob('_tmp/**/live-region-*/frame-*.jpg'):
+        if path.is_file() and path.stat().st_size <= 2 * 1024 * 1024:
+            target = evidence / 'evidence' / path.relative_to(out)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, target)
     # Keep the bounded failure frames already emitted by the tracker. A text
     # exception alone cannot distinguish a detector bug from a genuinely
     # obstructed face; these are diagnostics, never accepted media.

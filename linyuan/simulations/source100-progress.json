@@ -1,6 +1,6 @@
 {
-  "active_until": "2026-09-16T16:16:01.753Z",
-  "active_work": "Observe source79 verified topic/camera-boundary retest run35116931936; do not start another full100 while targeted proof is pending.",
+  "active_until": "2026-09-16T18:32:48.347Z",
+  "active_work": "Collect source48 exact black-edge frames and measurements from the targeted fixed-source diagnostic; do not start another full100 meanwhile.",
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -18,7 +18,9 @@
     "Source79 contains literal speaker-announced boundaries at 573.88s ('接下来我们应该投什么') and 824.36s ('我指的是药物，一定是药物'). Selector22 exposes the resulting 250.08s and 273.12s continuous spans without fixed-length slicing; all downstream gates unchanged.",
     "Round2 run35098194067 completed at one revision and the fixed publication snapshot: 9 passed, 88 rejected, 3 unresolved (60/65 source fetch; 79 producer runtime under the old mono path). Target 30 not met.",
     "Source87 transport succeeded, but final candidates were legitimately rejected: one had >2.03s without the target face and one could not avoid source corner marks while preserving a complete face. Do not count download recovery as a final.",
-    "Source79 selector22 candidate 573.88-823.96 kept the target face through 768.60s, then the source changed to a wide stage shot and failed the unchanged 2.03s continuous-face gate around 772s. The literal boundary '这是境内的，境外的' starts at768.92s, so selector23 ends the prior complete domestic-example statement at768.60s."
+    "Source79 selector22 candidate 573.88-823.96 kept the target face through 768.60s, then the source changed to a wide stage shot and failed the unchanged 2.03s continuous-face gate around 772s. The literal boundary '这是境内的，境外的' starts at768.92s, so selector23 ends the prior complete domestic-example statement at768.60s.",
+    "Source79 selector23 run35116931936 preserved the intended 194.72s span and passed continuous tracking/identity, but remained rejected: the live window contains persistent 21st Century Business Herald venue/media branding; candidate2 still lacks a continuous face. No final MP4 was produced.",
+    "Source48 round2 selected the complete 287.96s source and tracked the target face in 8639/8639 frames. Its only rejection was the black-edge heuristic, whose old report discarded the measured frames; retain those frames and exact edge metrics before deciding whether this is encoded padding or a dark-scene false positive."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -63,8 +65,9 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Collect source79 selector23 run35116931936; count only an actual accepted MP4.",
-    "Classify and target real algorithmic false rejections among round2 candidate-quality failures using retained evidence; do not loosen gates.",
+    "Collect the source48 targeted diagnostic; classify black-edge evidence before any crop or gate change.",
+    "If source48 proves a safely removable structural border, implement a bounded crop repair and retest source48 through all unchanged gates.",
+    "Classify and target other real algorithmic false rejections among round2 candidate-quality failures using retained evidence; do not loosen gates.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
     "Retain source60/65 as unresolved until the original URLs can be fetched; do not call them failures or successes."
   ],
@@ -153,9 +156,13 @@
     "selector23_github": {
       "run_id": 35116931451,
       "status": "in_progress"
+    },
+    "black_edge_evidence_local": {
+      "passed": 62,
+      "command": "pytest tests/test_linyuan_visual_gate.py tests/test_linyuan_simulation.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_source_selection.py"
     }
   },
-  "updated_at": "2026-09-16T15:41:01.753Z",
+  "updated_at": "2026-09-16T17:37:48.347Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -200,7 +207,7 @@
     "visual_boundary_fix": {
       "commit": "e2bb9a3feb683c743a82c18a3effe2770ab599ea",
       "run_id": 35116931936,
-      "status": "in_progress",
+      "status": "rejected_persistent_source_branding",
       "selector_version": 23,
       "selected_span_sec": [
         573.88,
@@ -208,7 +215,24 @@
       ],
       "duration_sec": 194.72,
       "reason": "literal topic boundary aligns with source change to a wide stage shot",
-      "all_quality_gates_unchanged": true
+      "all_quality_gates_unchanged": true,
+      "report_artifact_id": 10457706206,
+      "final_acceptance_pending": false,
+      "result": "candidate1 passed 5764/5842 target-face tracking and final identity but retained persistent venue/media branding; candidate2 failed continuous-face gate; no final"
     }
+  },
+  "source48_black_edge": {
+    "counts_as_full_benchmark": false,
+    "source_sha256": "9a6410d3d4d8624225537bfb66421d7e562637c57e95174cdc695d73becbe157",
+    "round2_run_id": 35098194067,
+    "round2_report_artifact_id": 10447149982,
+    "selected_span_sec": [
+      0,
+      287.96
+    ],
+    "matched_frames": 8639,
+    "total_frames": 8639,
+    "status": "diagnostic_pending",
+    "gates_changed": false
   }
 }

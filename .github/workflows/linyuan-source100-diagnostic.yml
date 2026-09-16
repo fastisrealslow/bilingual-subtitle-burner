@@ -9,9 +9,10 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Source79-only replay after source-bound channel and verified shot boundary fixes.
+    # Source48-only replay retains exact black-edge frames and measurements;
+    # acceptance gates and the fixed100 denominator remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '79'
+      sample_ids: '48'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

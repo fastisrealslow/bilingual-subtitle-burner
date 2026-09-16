@@ -2990,6 +2990,7 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
     sample_indices=sorted({int(total*(i+.5)/max(1,frames)) for i in range(frames)}|junction_indices|actor_indices)
     frame_paths = []
     black_edge_hits = 0
+    black_edge_frames = []
     qr_hits = 0
     partial_qr_hits = 0
     full_face_frames = 0
@@ -3019,8 +3020,15 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             partial_qr_hits += int(partial_qr_finder_score(gray) >= 0.70)
             dark_columns = np.mean(gray < 18, axis=0) > 0.92
             edge = max(8, int(w * 0.08))
-            if (dark_columns[:edge].mean() > 0.45
-                    or dark_columns[-edge:].mean() > 0.45):
+            left_dark=float(dark_columns[:edge].mean())
+            right_dark=float(dark_columns[-edge:].mean())
+            black_edge_hit=left_dark > 0.45 or right_dark > 0.45
+            black_edge_frames.append(dict(frame=i,
+                time_sec=round(frame_index/fps,3),edge_width=edge,
+                left_dark_column_fraction=round(left_dark,6),
+                right_dark_column_fraction=round(right_dark,6),
+                hit=bool(black_edge_hit)))
+            if black_edge_hit:
                 black_edge_hits += 1
             try:
                 _decoded, points, _straight = qr.detectAndDecode(region)
@@ -3035,6 +3043,16 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
                 pass
     finally:
         cap.release()
+
+    # Retain the exact measurements behind a black-edge rejection. A dark
+    # studio background and encoded padding can otherwise produce the same
+    # one-line error, making a safe crop repair impossible to verify. This is
+    # diagnostic evidence only; thresholds and acceptance remain unchanged.
+    (tmp/'black_edge.json').write_text(json.dumps(dict(version=1,
+        sampled_frames=got,hits=black_edge_hits,
+        required_hits=max(2,got//2),pixel_threshold=18,
+        dark_pixel_ratio_per_column=.92,edge_fraction=.08,
+        dark_column_fraction_threshold=.45,frames=black_edge_frames),indent=2))
 
     if got < max(3, frames // 2):
         raise VisualQualityError("真人动态区复检抽帧不足")

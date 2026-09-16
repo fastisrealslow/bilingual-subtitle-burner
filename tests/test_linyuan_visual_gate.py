@@ -215,6 +215,28 @@ def test_corner_ocr_groups_persistent_boxes(monkeypatch, tmp_path):
     assert found[0][1] < 0.1
 
 
+def test_live_region_black_edge_rejection_retains_exact_measurements(monkeypatch,
+                                                                      tmp_path):
+    cv2 = pytest.importorskip("cv2")
+    video = tmp_path / "dark-edge.mp4"
+    writer = cv2.VideoWriter(str(video), cv2.VideoWriter_fourcc(*"mp4v"),
+                             6, (632, 470))
+    for _ in range(18):
+        frame = np.full((470, 632, 3), 120, dtype=np.uint8)
+        frame[:, :52] = 0
+        writer.write(frame)
+    writer.release()
+    monkeypatch.setattr(P, 'partial_qr_finder_score', lambda gray: 0)
+    with pytest.raises(P.VisualQualityError, match='持续黑边'):
+        P.verify_live_region_after_render(
+            video, frames=3,
+            live_region=dict(x=0, y=0, width=632, height=470))
+    proof=json.loads((tmp_path/'_tmp/live-region-dark-edge/black_edge.json').read_text())
+    assert proof['hits']==3 and proof['required_hits']==2
+    assert all(row['left_dark_column_fraction']>.45 and row['hit']
+               for row in proof['frames'])
+
+
 def test_brand_watermark_filter_places_asset_at_top_right():
     vf = P.brand_overlay_filter("crop=1280:720:0:0", 1280, 720)
     assert "scale=192:-1" in vf
