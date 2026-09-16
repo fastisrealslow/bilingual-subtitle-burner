@@ -26,8 +26,8 @@ jobs:
         python-version: '3.11'
     - name: 核验100源与只读隔离
       run: |
-        python -m pip install pytest pyyaml
-        python -m pytest -q tests/test_linyuan_simulation.py
+        python -m pip install pytest pyyaml pillow
+        python -m pytest -q tests/test_linyuan_simulation.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_source_selection.py
     - id: matrix
       run: echo "matrix=$(python linyuan/simulate_sources.py matrix)" >> "$GITHUB_OUTPUT"
   simulate:
@@ -65,7 +65,7 @@ jobs:
     - name: 固定本次提交的发布历史快照（只读）
       id: publication_history
       run: |
-        cp .automation/fc_state.json _publication_state.json
+        python simulate_sources.py prepare-snapshot
         python -c 'from publication_history import read; read("_publication_state.json")'
     - name: 安装素材质检依赖
       run: |
@@ -171,6 +171,12 @@ jobs:
       run: |
         python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
       continue-on-error: true
+    - name: 恢复同一100样本的原始识别证据（母片哈希必须一致）
+      continue-on-error: true
+      timeout-minutes: 5
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: python simulate_sources.py restore-simulation-evidence
     - name: 检查原始识别证据，避免重复下载和推理
       run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
     - name: 准备CPU离线Qwen识别及逐字对齐

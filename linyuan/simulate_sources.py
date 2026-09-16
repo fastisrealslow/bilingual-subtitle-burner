@@ -13,6 +13,8 @@ import shutil
 import subprocess
 import sys
 import traceback
+import tempfile
+import urllib.request
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
@@ -218,11 +220,20 @@ def classify(finals, validation_error, batch, source, execution, steps):
     # Runtime and service failures are not evidence of unusable material.
     rejects = batch.get('rejected') or []
     quality_types = {'VisualQualityError', 'NoStructuralCandidate', 'NoEligibleArgument'}
-    if rejects and all(r.get('error_type') in quality_types and not r.get('retryable') for r in rejects):
+    visual_reasons=('来源取景无法保留完整人脸', '来源角标无法避开', '整段取景预检：',
+                    '动态取景剩余帧即使全部匹配', '动态取景连续', '动态取景目标人物匹配不足',
+                    '真人取景源区域仅')
+    def quality_rejection(r):
+        return (not r.get('retryable') and (r.get('error_type') in quality_types or
+            (r.get('error_type')=='ValueError' and r.get('stage')=='part-quality'
+             and str(r.get('reason','')).startswith(visual_reasons))))
+    if rejects and all(quality_rejection(r) for r in rejects):
         return 'rejected', 'candidate-quality'
     if batch.get('retryable') or rejects:
         return 'unresolved', 'candidate-runtime'
-    if source.get('passed') is False and source.get('retryable') is False:
+    source_reason=str(source.get('reason',''))
+    duration_rejection=bool(re.search(r'(?:时长 \d+(?:\.\d+)?s 不在|Resolved duration outside production source bounds)',source_reason))
+    if source.get('passed') is False and (source.get('retryable') is False or duration_rejection):
         return 'rejected', 'source-quality'
     failed = [k for k, v in steps.items() if v.get('outcome') in ('failure', 'cancelled')]
     return 'unresolved', failed[0] if failed else 'missing-final-evidence'
@@ -278,6 +289,8 @@ def aggregate(manifest, reports):
     known = 100-unresolved
     hashes = Counter(r.get('source_sha256') for r in rows if r.get('source_sha256'))
     return dict(total=100, passed=passed, rejected=counts['rejected'], unresolved=unresolved,
+                target_passed=int((manifest.get('comparison') or {}).get('target_passed',30)),
+                target_met=passed>=int((manifest.get('comparison') or {}).get('target_passed',30)),
                 confirmed_success_percent=passed, possible_success_percent_range=[passed,passed+unresolved],
                 resolved_success_percent=round(100*passed/known,2) if known else None,
                 complete=unresolved == 0, stages=dict(Counter(r['stage'] for r in rows)),
@@ -285,13 +298,48 @@ def aggregate(manifest, reports):
                 samples=rows)
 
 
+def prepare_snapshot():
+    """Use the exact same publication exclusions as the baseline experiment."""
+    manifest=read(MANIFEST)
+    comparison=manifest.get('comparison') or {}
+    if not comparison:
+        shutil.copy2(BASE/'.automation/fc_state.json',BASE/'_publication_state.json')
+        return
+    commit=comparison['publication_commit']
+    if not re.fullmatch(r'[0-9a-f]{40}',commit):raise ValueError('Invalid baseline commit')
+    url=f'https://raw.githubusercontent.com/fastisrealslow/bilingual-subtitle-burner/{commit}/linyuan/.automation/fc_state.json'
+    data=urllib.request.urlopen(url,timeout=60).read()
+    if hashlib.sha256(data).hexdigest()!=comparison['publication_sha256']:
+        raise ValueError('Baseline publication snapshot hash mismatch')
+    (BASE/'_publication_state.json').write_bytes(data)
+
+
+def restore_simulation_evidence():
+    """Reuse ASR only for this sample and these exact downloaded source bytes."""
+    comparison=read(MANIFEST).get('comparison') or {}
+    if not comparison.get('run_id'):return
+    slug=os.environ['RUN_SLUG']
+    assert slug in {r['slug'] for r in validate_manifest(read(MANIFEST))}
+    repo=os.environ.get('GITHUB_REPOSITORY','fastisrealslow/bilingual-subtitle-burner')
+    with tempfile.TemporaryDirectory(prefix='simulation-asr-') as directory:
+        subprocess.run(['gh','run','download',str(int(comparison['run_id'])),
+            '--repo',repo,'--name','simulation-report-'+slug,'--dir',directory],
+            check=True,timeout=180)
+        from restore_production_evidence import restore
+        restore(Path(directory)/'evidence/_tmp',BASE/'deliver'/slug/'_tmp')
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('mode', choices=['sample','matrix','run','report','aggregate','fetch-domestic-source'])
+    parser.add_argument('mode', choices=['sample','matrix','run','report','aggregate','fetch-domestic-source','prepare-snapshot','restore-simulation-evidence'])
     parser.add_argument('--source')
     parser.add_argument('--reports', default='simulation-reports')
     args = parser.parse_args()
-    if args.mode == 'sample':
+    if args.mode == 'prepare-snapshot':
+        prepare_snapshot()
+    elif args.mode == 'restore-simulation-evidence':
+        restore_simulation_evidence()
+    elif args.mode == 'sample':
         build_manifest()
     elif args.mode == 'matrix':
         print(json.dumps(dict(include=validate_manifest(read(MANIFEST))), ensure_ascii=False, separators=(',',':')))
@@ -308,7 +356,7 @@ def main():
         write(dest, summary)
         text = (f"100素材模拟：已确认成功 {summary['passed']}/100，质量拒绝 {summary['rejected']}/100，"
                 f"未确定 {summary['unresolved']}/100。\n"
-                f"确认成功率下限 {summary['confirmed_success_percent']}%，可能范围 {summary['possible_success_percent_range']}%。\n"
+                f"本轮确认成功率 {summary['confirmed_success_percent']}%；目标 {summary['target_passed']}%，达标 {summary['target_met']}。\n"
                 "以每个源URL至少一条真实合格测试片为成功；未投稿。未确定不等同质量失败。\n\n"
                 '|ID|状态|阶段|成片数|\n|---|---|---|---|\n' +
                 '\n'.join(f"|{r['sample']['id']}|{r['status']}|{r['stage']}|{len(r.get('finals',[]))}|" for r in summary['samples']))

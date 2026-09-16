@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 19
+VERSION = 20
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -47,6 +47,54 @@ HOST_BRIDGE = re.compile(
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)')
 
 
+# Follow-up turns may clarify the same subject; a new question alone is not
+# evidence of a new topic. These anchors are deliberately concrete. Broad
+# words such as 投资/市场/公司 must never join unrelated answers.
+TOPIC_ANCHORS = (
+    ('科技', '人工智能', '机器人', 'AI'),
+    ('创新药',), ('医药', '药品'), ('中药', '中成药'),
+    ('股息', '分红'), ('关税',), ('核心资产',),
+    ('茅台',), ('五粮液',), ('片仔癀',), ('房地产',),
+)
+NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来谈谈|来聊聊|但我们今天采访')
+
+
+def question_unit(text):
+    # Quoted examples and a speaker's rhetorical self-questions are not a host
+    # turn. Explicit 您/请问 remains a real question even in a long sentence.
+    if not re.search(r'您|请问|请教', text) and re.search(
+            r'比如|就像|我说[：:]|很多人问我|所以很多人问我|我的意思', text):
+        return False
+    return bool(QUESTION.search(text))
+
+
+def speech_opening(text):
+    # Headline fluency is stricter than spoken source fluency. Keep every byte
+    # of a topical spoken opening, including hesitations and rhetorical 是吧.
+    normalized=re.sub(r'(?:[，,]?(?:是吧|对吧)[？?])$', '。', text)
+    normalized=re.sub(r'^(?:嗯|啊|呃)[，, ]*', '', normalized)
+    if complete(normalized.strip('。！？!?')):
+        return True
+    if re.match(r'^(?:它|他|她|这|那|因为|所以|但是|并|虽然)',normalized):
+        return False
+    return bool(re.match(r'^(?:我(?:们)?(?:今年|认为|今天|特别|对)|三十.{0,8}以上的人)',normalized)
+        and re.search(r'医药|中药|中医|投资|创业|消费|资产|股票|行业',normalized)
+        and re.search(r'有效|重要|认为|不要|别|应该|方向|增长|有|是',normalized)
+        and STOP.search(normalized))
+
+
+def topic_anchors(text):
+    text=re.sub(r'非科技(?:股)?','',text)
+    return {i for i,words in enumerate(TOPIC_ANCHORS) if any(w in text for w in words)}
+
+
+def same_topic_followup(first, following):
+    if NEW_SUBJECT.search(following) or TOPIC_CHANGE.search(following):
+        return False
+    anchors=topic_anchors(first)
+    return bool(anchors and anchors & topic_anchors(following))
+
+
 def sentence_units(cues):
     units=[]; start=0; text=''
     for i,c in enumerate(cues):
@@ -70,7 +118,7 @@ def boundary_error(cues,pick):
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
         if FOLLOWUP.search(u['text']):
-            question=next((j for j in range(i,len(units)) if QUESTION.search(units[j]['text'])),None)
+            question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
                 return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
     return None
@@ -83,9 +131,19 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     end=next((i for i,u in enumerate(units) if OUTRO.search(u['text'])),len(units))
     natural_end=(end<len(units) or bool(whole_source and units and units[-1]['end']==len(cues)-1))
     units=units[:end]
-    questions=[i for i,u in enumerate(units) if QUESTION.search(u['text'])]
+    questions=[i for i,u in enumerate(units) if question_unit(u['text'])]
     # Adjacent questions from the same interviewer turn belong together.
-    starts=[i for k,i in enumerate(questions) if k==0 or i>questions[k-1]+1]
+    starts=[i for k,i in enumerate(questions) if k==0 or
+            (i>questions[k-1]+1 and not all(re.search(r'[？?]$',units[t]['text'])
+                for t in range(questions[k-1]+1,i)))]
+    # Keep a host's lead-in with that question, not with the preceding answer.
+    leadin=re.compile(r'您|采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)')
+    question_starts=list(starts)
+    for k,q in enumerate(question_starts):
+        lower=(question_starts[k-1]+1 if k else 0)
+        for t in range(max(lower,q-3),q):
+            if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
+                starts[k]=t;break
     transitions=[i for i,u in enumerate(units) if TRANSITION.search(u['text'])]
     options=[]
     if diagnostics is not None:
@@ -96,19 +154,34 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if diagnostics is not None:
             diagnostics['candidates'].append(dict(kind=kind,start=cues[a]['start'],
                 end=cues[b]['end'],duration=round(cues[b]['end']-cues[a]['start'],3),reason=reason))
+    turn_ends=[]
     for k,i in enumerate(starts):
-        if k+1<len(starts):j=starts[k+1]-1
-        elif natural_end:j=len(units)-1
-        else:continue  # A mechanical chunk end is not a natural answer ending.
+        j=(starts[k+1]-1 if k+1<len(starts) else len(units)-1 if natural_end else None)
+        if j is None:
+            turn_ends.append(None);continue
         j=min([j]+[t-1 for t in transitions if i<t<=j])
-        # A multi-sentence host summary belongs to the next interviewer turn.
-        # Looking only at the last sentence lets its unmarked continuation
-        # inflate a short guest answer (#891 risk discussion).
         j=min([j]+[t-1 for t in range(i+1,j+1) if HOST_BRIDGE.search(units[t]['text'])])
-        # Keep the final answer, not the next unanswered question or farewell.
-        while j>i and (HOST_BRIDGE.search(units[j]['text'])
-                      or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])):j-=1
-        if j<=i or QUESTION.search(units[j]['text']) or re.search(r'[？?]',units[j]['text']):continue
+        while j>i and (HOST_BRIDGE.search(units[j]['text']) or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])):j-=1
+        turn_ends.append(j)
+    spans=[(i,turn_ends[k]) for k,i in enumerate(starts)]
+    for k,i in enumerate(starts):
+        anchor=''.join(u['text'] for u in units[i:question_starts[k]+1])
+        for n in range(k+1,min(len(starts),k+5)):
+            q=starts[n]
+            # Include immediately preceding host context in the comparison,
+            # but never include that preamble as the previous answer's ending.
+            following=''.join(u['text'] for u in units[q:question_starts[n]+1])
+            for t in range(max(starts[n-1]+1,q-2),q):
+                if re.match(r'^(?:那这个|那我们|那所以|但是我们|我们看|那林总)',units[t]['text']):
+                    following=units[t]['text']+following
+            if not same_topic_followup(anchor,following):break
+            j=turn_ends[n]
+            if j is None or any(i<t<=q for t in transitions):break
+            if cues[units[j]['end']]['end']-cues[units[i]['start']]['start']>330:break
+            spans.append((i,j))
+    for i,j in spans:
+        if j is None:continue
+        if j<=i or question_unit(units[j]['text']) or re.search(r'[？?]',units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
@@ -134,10 +207,11 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if k+1<len(cuts):j=cuts[k+1]-1
         elif natural_end:j=len(units)-1
         else:continue
+        while j>i and re.fullmatch(r'(?:好吧[，,]?|好的[，,]?|啊[，,]?)*(?:谢谢|感谢)(?:林总|大家|您)?[。！!]*',units[j]['text']):j-=1
         if j<=i or any(i<=q<=j for q in questions):continue
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or
-                complete(units[i]['text'].strip('。！？!?'))):continue
+                speech_opening(units[i]['text'])):continue
         if re.search(r'[？?]',units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']

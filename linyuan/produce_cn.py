@@ -2744,7 +2744,7 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
     missed narrow subtitle band. Keep camera cuts and original illustrations
     when the actual interval can be cropped cleanly at native resolution.
     """
-    if width<=height or end<=start:return None
+    if end<=start:return None
     work=Path(work);work.mkdir(parents=True,exist_ok=True)
     sample=work/'source-sample.mp4';cleaned=work/'clean-sample.mp4'
     proof=dict(version=1,source_start=start,source_end=end,
@@ -2872,17 +2872,19 @@ def select_interview_face(faces, width, height):
     return max(candidates,key=lambda b:b[0]+b[2]/2)
 
 
-def audio_card_live_crop(width, height, src=None, at=None, exclusions=(),reference=None,model_paths=None):
+def audio_card_live_crop(width, height, src=None, at=None, exclusions=(),reference=None,model_paths=None,duration=None):
     """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
     if width <= height:
         return None
     target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
     if src is not None:
         import cv2
-        import statistics
         cap=cv2.VideoCapture(str(src)); boxes=[];frames=[]
         detector=None if reference else _cascade(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
-        for seconds in ((float(at or 0)+.5),(float(at or 0)+2),(float(at or 0)+4)):
+        times=[float(at or 0)+offset for offset in (.5,2,4)]
+        if duration:
+            times += [float(at or 0)+duration*f for f in (.2,.4,.6,.8)]
+        for seconds in times:
             cap.set(cv2.CAP_PROP_POS_MSEC,seconds*1000)
             ok,frame=cap.read()
             if not ok: continue
@@ -2898,13 +2900,17 @@ def audio_card_live_crop(width, height, src=None, at=None, exclusions=(),referen
             boxes=reference_faces(frames,reference,model_paths,LOCAL_FACE_COSINE_THRESHOLD)
             if len(boxes)<2:return None
         if len(boxes)>=2:
-            fx,fy,fw,fh=[statistics.median([b[k] for b in boxes]) for k in range(4)]
+            # Across camera cuts, medians can describe an empty location.
+            # Try actual matched observations; an obstructed close-up must not
+            # discard another clean shot. This remains only a tracking hint.
             from live_tracking import crop_box
-            try:
-                cx,cy,cw,ch=crop_box((fx,fy,fw,fh),width,height,target_ratio,exclusions)
-                return f"crop={cw}:{ch}:{cx}:{cy},scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:flags=lanczos,setsar=1"
-            except ValueError:
-                return None  # Measured marks intersect the available face crop.
+            for face in sorted(boxes,key=lambda b:b[2]*b[3],reverse=True):
+                try:
+                    cx,cy,cw,ch=crop_box(face,width,height,target_ratio,exclusions)
+                    return f"crop={cw}:{ch}:{cx}:{cy},scale={LIVE_REGION['width']}:{LIVE_REGION['height']}:flags=lanczos,setsar=1"
+                except ValueError:
+                    continue
+            return None
     # 横屏访谈优先取人物上半身，主动避开底部常驻字幕/栏目条。
     # 旧版取 78% 高度会把 0.73~0.95H 的来源条带一起带进真人窗口，
     # 导致本来可用的 1080P 双人访谈全部退回 audio_card。
@@ -4218,26 +4224,22 @@ def safe_crop_plan(src, W, H, stable=0.4, clean=0.24, max_cut=0.30, coverage=Non
     if not persistent_band:
         print('[裁切] 未检出持续底部字幕带，无需裁切')
         return None
-    # 从底部往上找「最底下那一块连续文字」，只裁它。
-    # 上一版是「35% 内出现任何文字就一路裁到那里」，结果 26 条全部触顶放弃（0 条裁切）。
+    # Remove every measured persistent lower band. Stopping after the bottom
+    # line left a second subtitle row, then the final gate rejected the source.
+    # Keep the original crop budget; never clamp an over-budget plan into one
+    # that knowingly retains source text.
     limit = int(max_cut * 100)
-    i = 99
-    while i >= 100 - limit and cov[i] < stable:     # 跳过底部干净区
-        i -= 1
-    bot = 0
-    if i >= 100 - limit:
-        gap = 0
-        j = i
-        while j >= 100 - limit:
-            if cov[j] >= stable:
-                gap = 0
-                bot = 100 - j
-            else:
-                gap += 1
-                if gap >= 3:                        # 连续 3% 干净 → 文字块到头
-                    break
-            j -= 1
-        bot = min(limit, bot + 3)                   # 多裁 3% 余量
+    bands=[];begin=None
+    for i in range(55,99):
+        if i<98 and cov[i]>=stable:
+            if begin is None:begin=i
+        elif begin is not None:
+            if i-begin>=2:bands.append((begin,i))
+            begin=None
+    bot=(100-min(a for a,b in bands)+3) if bands else 0
+    if bot>limit:
+        print(f'[裁切] 完整字幕带需要裁{bot}%，超过{limit}%上限')
+        return None
     # 顶部：只裁小块（大块说明是标题包装，这种素材本就该在选片淘汰）
     top = 0
     for i in range(0, 20):
@@ -5000,28 +5002,29 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # 直接退化成静态音频卡。候选窗口必须再次实渲染并确认无持续字幕/角标；
     # 最终成片还会继续经过 QR、黑边和角标复检，因此不降低 V11 安全门槛。
     if strategy == "audio_card" and prefer_live_video:
-        candidate_crop = (reviewed_source_live_crop(source_report,W,H) or
-                          audio_card_live_crop(W, H, src, cues[picks[0]["start"]]["start"],_logos,
-                              _download_speaker_reference(speaker,work),_local_face_models()))
+        preview_pick=picks[0]
+        preview_start=cues[preview_pick['start']]['start']
+        preview_duration=cues[preview_pick['end']]['end']-preview_start
+        reviewed_crop=reviewed_source_live_crop(source_report,W,H)
+        candidate_crop = (reviewed_crop or
+                          audio_card_live_crop(W, H, src, preview_start, _logos,
+                              _download_speaker_reference(speaker,work),_local_face_models(),
+                              preview_duration))
+        if candidate_crop and reviewed_crop:
+            # Explicit fixed source profiles retain their original fixed-crop
+            # verification. Only automatically proposed moving crops use the
+            # per-frame route. Neither path grants a final approval here.
+            fixed_preview=_render_clean_preview(src,work,candidate_crop,preview_duration,
+                                                source_start=preview_start)
+            if detect_corner_logos(fixed_preview,frames=6,strict=True):
+                candidate_crop=None
         if candidate_crop:
-            try:
-                preview_pick=picks[0]
-                preview_start=cues[preview_pick['start']]['start']
-                preview_duration=cues[preview_pick['end']]['end']-preview_start
-                live_preview = _render_clean_preview(
-                    src, work, candidate_crop, preview_duration,source_start=preview_start)
-                # V11 原来把任何持续文字都视为不可用，导致大量官方访谈即使
-                # 文字只落在动态窗口边缘也直接退成静态卡。这里不再用整帧
-                # has_existing_subtitles 一票否决，而是以最终窗口的角标/二维码/
-                # 黑边复检为硬门槛。人物身份门禁仍保持不变。
-                remaining = detect_corner_logos(live_preview, frames=6, strict=True)
-                if remaining:
-                    print("[自动版式] 真人窗口仍有稳定来源角标，保留人物资料卡兜底")
-                else:
-                    live_crop = candidate_crop
-                    print("[自动版式] 当前选段的窗口角标抽检通过；仍须逐帧取景及成片人物复检")
-            except Exception as exc:
-                print(f"[自动版式] 真人动态窗口预检失败，安全回退资料卡：{exc}")
+            # This is only a proposal for the tracker below, not a picture
+            # approval. A fixed crop on another camera shot used to veto a
+            # moving crop before it ran. The full original interval now goes
+            # through per-frame identity/geometry/OCR and final-window gates.
+            live_crop=candidate_crop
+            print('[动态取景] 找到原始匹配人脸；进入全选段逐帧核验，尚未通过画面门禁',flush=True)
     use_live_video = bool(live_crop)
     if strategy == "audio_card" and not use_live_video and require_live_video:
         raise VisualQualityError('原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片')
