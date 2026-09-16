@@ -95,6 +95,10 @@ def classify(entry, state, inventory, run, now):
     if entry.get('failed'):
         return 'failed', entry.get('last_error') or '素材验收未通过'
     records = [r for r in inventory.get('artifacts', []) if r.get('slug') == slug]
+    available = [r for r in records if fc.inventory_record_current(r, now)]
+    if records and not available:
+        return 'unknown', '已验收成片文件过期或不可用，不计入储备，等待恢复'
+    records = available
     parts = [p for r in records for p in r.get('parts', [])
              if int(p.get('index', -1)) not in fc.processed_part_indices(entry)]
     fresh = (now - float(inventory.get('updated_at') or 0) < 3 * 3600

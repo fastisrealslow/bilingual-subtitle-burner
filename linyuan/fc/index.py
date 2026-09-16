@@ -55,6 +55,7 @@ MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合
 MAX_PUBLISH_PER_DAY = 4                  # 三个原时段 + 每天14点一条横屏
 TARGET_READY_RESERVE = 12
 TARGET_LANDSCAPE_RESERVE = 2
+TARGET_PORTRAIT_RESERVE = TARGET_READY_RESERVE - TARGET_LANDSCAPE_RESERVE
 QUALITY_REPROCESS_REVISION = 2026091304
 MAX_ACTIVE_SOURCES = 6
 SOURCE_INVENTORY_KEY = 'linyuan/.automation/source_inventory.json'
@@ -2118,6 +2119,7 @@ def inventory_catchup_request(st, payload, now=None):
         # not make the fourth daily slot impossible when a good portrait exists.
         for fallback in (False, True):
             for record in payload.get('artifacts', []):
+                if not inventory_record_current(record, now):continue
                 entry = latest.get(record.get('slug'))
                 if not entry or entry.get('failed') or record['slug'] in REVIEW_PAUSED_SLUGS:
                     continue
@@ -2162,6 +2164,30 @@ def inventory_publication_error(part,entry,state):
     return None
 
 
+def inventory_record_current(record, now=None):
+    """A fresh inventory snapshot cannot renew an expired artifact."""
+    if record.get('expired'):
+        return False
+    expires = record.get('expires_at')
+    if not expires:
+        return True  # Legacy records are replaced by the next live artifact audit.
+    from datetime import datetime
+    try:
+        expiry = datetime.fromisoformat(str(expires).replace('Z', '+00:00')).timestamp()
+    except (ValueError, TypeError):
+        return False
+    return expiry > (time.time() if now is None else now)
+
+
+def reserve_deficits(inventory):
+    """Count each daily layout separately; Sunday reservations are not daily stock."""
+    wide = int(inventory.get('verified_landscape') or 0)
+    portrait = int(inventory.get('verified_portrait',
+                                max(0, int(inventory.get('daily_mix_usable') or 0) - wide)))
+    return dict(portrait=max(0, TARGET_PORTRAIT_RESERVE - portrait),
+                landscape=max(0, TARGET_LANDSCAPE_RESERVE - wide))
+
+
 def source_inventory(st, payload=None):
     """Count actual inspected MP4s separately from running workflow jobs."""
     if payload is None:
@@ -2174,12 +2200,14 @@ def source_inventory(st, payload=None):
            and time.time()-float(payload.get('updated_at') or 0)<3*3600)
     latest={e['slug']:e for e in _latest_dispatches(st)}
     due_times=[publication_slot_time(slot) for slot in due_publication_slots(st)]
-    live=audio=landscape=slot_ready=0
+    live=audio=landscape=portrait=weekly=0
+    slot_choices=[]
     seen_files=set();seen_sources={};seen_fingerprints=[]
     if valid:
         for record in payload.get('artifacts',[]):
             slug=record.get('slug'); e=latest.get(slug)
-            if not e or e.get('failed') or slug in REVIEW_PAUSED_SLUGS:continue
+            if not e or e.get('failed') or e.get('uploading') or slug in REVIEW_PAUSED_SLUGS:continue
+            if not inventory_record_current(record) or not _has_unpublished_part(e,st):continue
             done=processed_part_indices(e)
             for part in record.get('parts',[]):
                 if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
@@ -2197,18 +2225,36 @@ def source_inventory(st, payload=None):
                 if source:seen_sources.setdefault(source,[]).extend(spans)
                 seen_fingerprints.append(fingerprints)
                 if part.get('render_mode')=='audio_card':audio+=1
-                else:live+=1
-                if is_landscape(part) and part.get('content_type')!='full_interview':landscape+=1
-                if (any(content_fits_slot(part,e,stamp,weekly_fallback=True) for stamp in due_times)
-                        and part.get('render_mode')!='audio_card'):slot_ready+=1
+                else:
+                    live+=1
+                    if part.get('content_type')=='full_interview':weekly+=1
+                    elif is_landscape(part):landscape+=1
+                    else:portrait+=1
+                if part.get('render_mode')!='audio_card':
+                    slot_choices.append([i for i,stamp in enumerate(due_times)
+                                         if content_fits_slot(part,e,stamp,weekly_fallback=True)])
     today=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))
     daily=st.get('daily_publish') or {}
     if daily.get('date')!=today:daily={}
-    audio_now=bool(audio and not daily_mix_error(dict(render_mode='audio_card'),daily))
-    publishable=max(0,min(slot_ready+int(audio_now),MAX_PUBLISH_PER_DAY-int(daily.get('count') or 0)))
+    # One missing 14:00 slot can consume one landscape, not all landscapes in
+    # stock. Match files to distinct due slots before reporting today's capacity.
+    assigned={}
+    def assign(part_index, visited):
+        for slot in slot_choices[part_index]:
+            if slot in visited:continue
+            visited.add(slot)
+            if slot not in assigned or assign(assigned[slot],visited):
+                assigned[slot]=part_index
+                return True
+        return False
+    for i in range(len(slot_choices)):
+        assign(i,set())
+    publishable=max(0,min(len(assigned),MAX_PUBLISH_PER_DAY-int(daily.get('count') or 0)))
     return dict(verified_live=live,verified_audio_card=audio,verified_landscape=landscape,
+                verified_portrait=portrait,verified_weekly_full=weekly,
+                portrait_target=TARGET_PORTRAIT_RESERVE,
                 landscape_target=TARGET_LANDSCAPE_RESERVE,publishable_now=publishable,
-                daily_mix_usable=live,target_reserve=TARGET_READY_RESERVE,
+                daily_mix_usable=portrait+landscape,target_reserve=TARGET_READY_RESERVE,
                 inventory_fresh=valid)
 
 
@@ -2253,8 +2299,9 @@ def _dispatch_admitted(event=None, context=None):
     if isinstance(event, dict) and event.get("_refill_count"):
         target = max(1, min(MAX_PER_DAY, int(event["_refill_count"])))
     inventory=source_inventory(st)
-    landscape_needed=max(0,TARGET_LANDSCAPE_RESERVE-inventory.get('verified_landscape',0))
-    if inventory['daily_mix_usable']>=TARGET_READY_RESERVE and not landscape_needed:
+    deficits=reserve_deficits(inventory)
+    landscape_needed=deficits['landscape']
+    if not any(deficits.values()):
         return {'dispatched':0,'reserve_full':1,**inventory}
     active_runs=[run for status in ('in_progress','queued') for run in
         gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
@@ -2262,7 +2309,7 @@ def _dispatch_admitted(event=None, context=None):
     landscape_admissions=landscape_admission_deficit(inventory,st,active_runs)
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
-    target=min(target,MAX_ACTIVE_SOURCES-active,max(landscape_needed,TARGET_READY_RESERVE-inventory['daily_mix_usable']))
+    target=min(target,MAX_ACTIVE_SOURCES-active,sum(deficits.values()))
     # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
@@ -2538,6 +2585,8 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
     for record in records:
         if record.get('slug')!=entry['slug'] or record.get('artifact_id')!=artifact_id:
             continue
+        if not inventory_record_current(record):
+            return None
         ready=sorted((p for p in record.get('parts',[])
                       if p.get('status')=='verified'
                       and int(p['index']) not in processed_part_indices(entry)),
@@ -3447,7 +3496,9 @@ def publish_handler(event=None, context=None):
                 reserve_records=reserve.get('artifacts',[])
                 for record in reserve.get('artifacts',[]):
                     s=record['slug']
-                    if s not in arts and any(p.get('status')=='verified' for p in record.get('parts',[])):
+                    # Rejected deliveries still exist. Omitting them made old
+                    # inspected batches hit the false "6h without a file" path.
+                    if s not in arts and inventory_record_current(record):
                         aid=int(record['artifact_id'])
                         arts[s]=API+f'/actions/artifacts/{aid}/zip'
                         art_ids[s]=aid
@@ -3490,7 +3541,10 @@ def publish_handler(event=None, context=None):
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
                                                     now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now))
             if selected_part_index is None:
-                log.info('%s 已验证余量暂不符合今日形态比例，继续找真人片',s)
+                reasons=[p.get('reason') for r in reserve_records if r.get('slug')==s
+                         for p in r.get('parts',[]) if p.get('reason')]
+                log.info('%s 已有成片，本时段无可发布片段：%s',s,
+                         '；'.join(reasons) or '已处理、预留或发布形态限制')
                 continue
             e = candidate
             slug = s

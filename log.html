@@ -102,6 +102,10 @@ a:hover { text-decoration: underline; }
     <div id="published"></div>
   </div>
   <div class="section">
+    <h2>成片储备</h2>
+    <div id="ready-reserve"></div>
+  </div>
+  <div class="section">
     <h2>原始素材候选</h2>
     <div id="source-admission"></div>
   </div>
@@ -238,6 +242,13 @@ async function load() {
       if (response.ok) snapshot = await response.json();
     } catch (_) { /* The state still loads; missing evidence is shown as unknown. */ }
     const production = ProductionStatus.reconcile(state, snapshot);
+    const stock = snapshot && snapshot.inventory;
+    const stockFresh = stock && Date.now()/1000 - Number(snapshot.inventory_updated_at || 0) < 3*3600;
+    document.getElementById('ready-reserve').innerHTML = stockFresh && Number.isFinite(stock.verified_portrait)
+      ? `<p>日常竖屏 <b>${Number(stock.verified_portrait)}</b> / ${Number(stock.portrait_target)} 条；日常横屏 <b>${Number(stock.verified_landscape)}</b> / ${Number(stock.landscape_target)} 条。<br>
+         周日完整访谈预留 <b>${Number(stock.verified_weekly_full)}</b> 条，单独计算。当前缺失发布位可匹配 <b>${Number(stock.publishable_now)}</b> 条。</p>
+         <p class="ps-note">核对于 ${escapeHtml(formatDate(snapshot.inventory_updated_at*1000))}。仅统计已验收、未处理且文件仍可用的成片；候选和生产中任务不计入储备。</p>`
+      : '<div class="empty">成片储备统计暂不可用或需刷新，不能据此判断库存已满。</div>';
     const admission = snapshot && snapshot.source_admission;
     const admissionFresh = admission && Date.now()/1000 - admission.updated_at < 3*3600;
     const reasons = {no_video:'无视频线索', no_source_url:'缺少来源地址',

@@ -109,10 +109,27 @@ def inventory_counts(records, state):
     stock=fc.source_inventory(state,dict(quality_gate_version=fc.QUALITY_GATE_VERSION,
         editorial_policy_version=fc.editorial.VERSION,updated_at=time.time(),artifacts=records))
     return {k:stock[k] for k in ('verified_live','verified_audio_card','verified_landscape',
-            'landscape_target','daily_mix_usable','target_reserve')}
+            'verified_portrait','verified_weekly_full','portrait_target',
+            'landscape_target','daily_mix_usable','target_reserve','publishable_now')}
 
 
-def find_deliveries(candidates, api, runs):
+def cached_artifact(api, artifact_id):
+    """404 is evidence of removal; transient/auth failures must not erase stock."""
+    try:
+        return api(f'actions/artifacts/{int(artifact_id)}')
+    except (subprocess.CalledProcessError, urllib.error.HTTPError) as exc:
+        if getattr(exc, 'code', None) == 404:
+            return None
+        try:
+            response = json.loads(getattr(exc, 'output', None) or '{}')
+        except (ValueError, TypeError):
+            response = {}
+        if str(response.get('status')) == '404' or response.get('message') == 'Not Found':
+            return None
+        raise
+
+
+def find_deliveries(candidates, api, runs, previous=()):
     """Use the recent artifact index plus exact older runs, never a 300-file horizon."""
     found = {}
     for page in range(1, 4):
@@ -120,7 +137,7 @@ def find_deliveries(candidates, api, runs):
         for artifact in rows:
             slug = artifact['name'].removeprefix('deliver-')
             if (artifact['name'].startswith('deliver-') and slug in candidates
-                    and not artifact.get('expired')):
+                    and fc.inventory_record_current(artifact)):
                 found.setdefault(slug, artifact)
         if len(rows) < 100:
             break
@@ -130,9 +147,20 @@ def find_deliveries(candidates, api, runs):
             continue
         # A partial batch can upload a valid delivery even if its final job failed.
         rows = api(f"actions/runs/{run['id']}/artifacts").get('artifacts', [])
-        matches = [a for a in rows if a['name'] == 'deliver-' + slug and not a.get('expired')]
+        matches = [a for a in rows if a['name'] == 'deliver-' + slug and fc.inventory_record_current(a)]
         if matches:
             found[slug] = max(matches, key=lambda a: a['id'])
+    # Cached acceptance is not proof that GitHub still holds the file. Resolve
+    # exact IDs beyond the recent pages instead of keeping ghost stock for 80d.
+    for record in previous:
+        slug = record.get('slug')
+        if slug not in candidates or slug in found:
+            continue
+        artifact = cached_artifact(api, record['artifact_id'])
+        if (artifact and artifact.get('name') == 'deliver-' + slug
+                and int(artifact.get('id', 0)) == int(record['artifact_id'])
+                and fc.inventory_record_current(artifact)):
+            found[slug] = artifact
     return found
 
 
@@ -158,7 +186,7 @@ def main():
     status_path=production_status.STATUS_PATH
     snapshot=json.loads(status_path.read_text()) if status_path.exists() else {}
     runs=production_status.collect_runs(state,api,snapshot)
-    found=find_deliveries(candidates,api,runs)
+    found=find_deliveries(candidates,api,runs,previous.get('artifacts',[]))
     # A rule upgrade invalidates cached approvals, but must not publish a
     # partially rechecked stock count (four new batches used to hide older
     # reserves and trigger unnecessary refills). Finish the full recheck first.
@@ -166,10 +194,11 @@ def main():
     records=[];checked=0
     for slug,a in found.items():
         if a['id'] in old:
-            records.append(old[a['id']]);continue
+            records.append({**old[a['id']], 'expires_at':a.get('expires_at')});continue
         if checked>=validation_budget:continue
         checked+=1
         record=dict(slug=slug,artifact_id=a['id'],run_id=a['workflow_run']['id'],
+                    expires_at=a.get('expires_at'),
                     checked_at=int(time.time()),source_url=candidates[slug].get('source_url'),parts=[])
         try:
             with tempfile.TemporaryDirectory() as tmp:
@@ -202,10 +231,7 @@ def main():
         except Exception as exc:
             # A network failure is retryable. Do not cache it as a media verdict.
             print('Inventory transfer/validation unavailable',slug,type(exc).__name__)
-    # Keep unexpired previously inspected reserves not reached by pagination.
-    current_slugs={r['slug'] for r in records}
-    records.extend(r for r in old.values() if r['slug'] in candidates and r['slug'] not in current_slugs
-                   and r['slug'] not in found and time.time()-r['checked_at']<80*86400)
+    # Only records whose exact artifact is still present can refresh inventory.
     payload=json.loads((Path(__file__).parent/'dashboard/data.json').read_text())
     items=payload if isinstance(payload,list) else payload.get('items',[])
     result=dict(version=VERSION,validation_sha256=validation_sha,quality_gate_version=fc.QUALITY_GATE_VERSION,

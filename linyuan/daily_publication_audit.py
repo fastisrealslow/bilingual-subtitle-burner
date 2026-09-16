@@ -37,11 +37,15 @@ def opening_stock_check(receipts, stock, now):
     if now.hour>=HOURS[0]:return None
     needed=max(0,4-receipts['unique_verified_file_count'])
     wide_needed=int(needed>0)
-    ready=int(stock.get('verified_live') or 0)
+    ready=int(stock.get('daily_mix_usable', stock.get('verified_live') or 0))
     wide=int(stock.get('verified_landscape') or 0)
+    portrait=int(stock.get('verified_portrait', max(0, ready-wide)))
+    portrait_needed=max(0,needed-wide_needed)
     return dict(required_live=needed,verified_live=ready,required_landscape=wide_needed,
+        required_portrait=portrait_needed,verified_portrait=portrait,
         verified_landscape=wide,inventory_fresh=stock.get('inventory_fresh') is True,
-        passed=needed==0 or (stock.get('inventory_fresh') is True and ready>=needed and wide>=wide_needed))
+        passed=needed==0 or (stock.get('inventory_fresh') is True and ready>=needed
+                            and wide>=wide_needed and portrait>=portrait_needed))
 
 
 def main():
@@ -72,7 +76,8 @@ def main():
     if report.get('opening_stock'):
         opening=report['opening_stock']
         summary+=(f" 开播前库存需 {opening['required_live']} 条，已验收 {opening['verified_live']} 条；"
-                  f"横屏需 {opening['required_landscape']} 条，已验收 {opening['verified_landscape']} 条。")
+                  f"横屏需 {opening['required_landscape']} 条，已验收 {opening['verified_landscape']} 条；"
+                  f"竖屏需 {opening['required_portrait']} 条，已验收 {opening['verified_portrait']} 条。")
         print(json.dumps(opening,ensure_ascii=False),flush=True)
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
