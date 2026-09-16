@@ -3,7 +3,7 @@
   "validation_sha256": "017b7590e23fa56e5c5e316ba8703098e552ca0fb1d798aba2e1dee2272331db",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789531368,
+  "updated_at": 1789531576,
   "materials": {
     "weibo_search": {
       "records": 1217,
@@ -9727,9 +9727,9 @@
         "failures": [
           {
             "slug": "ly-0915-f4ed15",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "取源未完成：RuntimeError: embed 页没有 __playinfo__"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
           }
         ],
         "verified_available": 0,
@@ -10433,9 +10433,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -10712,8 +10712,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -10725,8 +10725,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -11186,9 +11186,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1
       },
       "BV1PcNh6rErV": {
@@ -11543,7 +11543,8 @@
       "BV1ioeH6VEWq": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1oeVB66Eqe": {
         "attempted_mothers": 1,
@@ -11563,7 +11564,7 @@
       }
     }
   },
-  "in_flight_placeholders": 5,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-0915-1d2ba6",
