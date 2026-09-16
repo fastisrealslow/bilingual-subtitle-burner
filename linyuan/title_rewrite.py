@@ -364,6 +364,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 只输出JSON。__TITLE_SOURCE__'''
     last_error = ''
     repair_checks=set()
+    candidate_pool={}
     for attempt in range(3):
         try:
             # Finish with the source, not three repetitions of a rejected claim.
@@ -431,14 +432,24 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 candidates = [bind_candidate(c,focus,units,subjects) for c in candidates]
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
-            valid = [c for c, issue in zip(candidates, errors) if not issue]
+            # A malformed third draft must not discard two source-bound good
+            # drafts. Accumulate distinct, structurally valid candidates within
+            # the same three-attempt budget, then review the actual final trio.
+            # These are proposals, never approvals or cross-source cache data.
+            for candidate,issue in zip(candidates,errors):
+                if not issue:
+                    candidate_pool[compact(candidate['title'])]=candidate
+            valid = list(candidate_pool.values())[:3]
             if len(valid) != 3:
                 issues=[f"{c.get('title','')} / {c.get('cover_title','')}"
                         f"（对象={c.get('subject')},证据编号={c.get('evidence_ids')}）：{issue}"
                         for c,issue in zip(candidates,errors) if issue]
-                raise ValueError('三个角度均须合格再比较；需修正：' + '；'.join(issues))
+                raise ValueError(f'已保留{len(valid)}/3个不同角度；三个角度均须合格再比较；需修正：' + '；'.join(issues))
             if len({compact(c['title']) for c in valid})!=3:
                 raise ValueError('三个标题必须有不同看点，不能重复同一句话')
+            # If semantic review rejects the set (or fails to return a valid
+            # verdict), the next attempt must not silently reuse rejected copy.
+            candidate_pool.clear()
             dialogue_context = (json.dumps([dict(id=i,text=u) for i,u in enumerate(units)],
                                 ensure_ascii=False) if structured_model else transcript)
             judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。

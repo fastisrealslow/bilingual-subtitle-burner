@@ -111,6 +111,36 @@ def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
     assert len(calls)==3 and result['title_rewrite']['review']['method']=='source_quote'
 
 
+def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_0913_title.json').read_text())
+    actual=json.loads((Path(__file__).parent/'fixtures/linyuan_title_retry_0916.json').read_text())
+    cues=[c['text'] for c in fixture['cues']];source=''.join(cues)
+    drafts=[];reviewed=[]
+    def structured(prompt,schema):
+        if 'c_guest_spans' in schema['properties']:
+            return json.dumps(actual['reading'],ensure_ascii=False)
+        if 'c_candidates' in schema['properties']:
+            drafts.append(prompt)
+            return json.dumps(actual['drafts'][len(drafts)-1],ensure_ascii=False)
+        marker='待独立核对的标题和封面：'
+        trio=json.loads(prompt.split(marker)[1].split('\n')[0]);reviewed.extend(trio)
+        assert len(trio)==3 and len({c['title'] for c in trio})==3
+        assert all('龙头' in c['title'] for c in trio)
+        assert not any('还在寻找中' in c['title'] or c['title']=='林园：投资方向要控制比例' for c in trio)
+        # This mock tests candidate retention only. Production still runs the
+        # independent CPU reviewer on all three actual source-backed drafts.
+        return json.dumps(dict(reviews=[dict(a_analysis=dict(
+            a_guest_answer='嘉宾说龙头还没有形成，需要时间才能找到真正的龙头。',
+            b_question_premise='主持人询问如何在好赛道中选择投资标的。',
+            c_reason='标题保留了龙头尚未形成以及需要时间观察的原文限定。'),
+            b_verdict=dict(index=i,appeal=5-i,**{k:True for k in T.CHECKS}))
+            for i in range(3)]),ensure_ascii=False)
+    result=T.generate(source,structured_model=structured,source_cues=cues)
+    assert len(drafts)==2 and len(reviewed)==3
+    assert result['title_candidates']==[c['title'] for c in reviewed]
+    assert T.error(result['title'],result['title_rewrite'],source) is None
+
+
 def test_negative_semantic_review_cannot_pass_as_editorial_rewrite():
     calls=[]
     result=T.generate(TEXT,model=model(calls,bad_review=True))
