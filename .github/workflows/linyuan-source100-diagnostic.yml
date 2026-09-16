@@ -9,11 +9,11 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Recheck three structurally complete candidates whose prior failures were
-    # limited to picture geometry; retain bounded pre-ranking evidence;
+    # Recover source65's fixed URL by removing only a bounded unmatched media
+    # tail, then run every unchanged source, editorial and picture gate;
     # acceptance gates and the fixed100 denominator remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '15,46,76'
+      sample_ids: '65'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

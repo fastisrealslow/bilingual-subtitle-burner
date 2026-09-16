@@ -54,6 +54,31 @@ def test_actual_download_path_ignores_stale_jpg_and_sidecars(monkeypatch, tmp_pa
     assert checked == [media]
 
 
+def test_small_unpaired_tail_is_trimmed_then_fully_revalidated(tmp_path):
+    media=tmp_path/'video.mp4'
+    subprocess.run([
+        'ffmpeg','-y','-loglevel','error','-f','lavfi','-i',
+        'color=size=96x64:rate=5:duration=125','-f','lavfi','-i',
+        'sine=frequency=440:sample_rate=8000:duration=121.6',
+        '-c:v','libx264','-preset','ultrafast','-c:a','aac',str(media),
+    ],check=True)
+    with pytest.raises(RuntimeError,match='时长漂移'):
+        b.validate_media(media)
+    proof=g.normalize_small_unpaired_tail(media)
+    result=b.validate_media(media)
+    assert 3.0<proof['trimmed_tail_sec']<4.0
+    assert 120<result['duration']<123
+
+
+def test_large_or_short_track_mismatch_is_never_trimmed(monkeypatch,tmp_path):
+    media=tmp_path/'video.mp4';media.write_bytes(b'media')
+    result=subprocess.CompletedProcess([],0,json.dumps(dict(streams=[
+        dict(codec_type='video',duration='125'),dict(codec_type='audio',duration='118')])), '')
+    monkeypatch.setattr(g.subprocess,'run',lambda *a,**k:result)
+    with pytest.raises(RuntimeError,match='不在安全修复范围'):
+        g.normalize_small_unpaired_tail(media)
+
+
 def test_missing_real_format_writes_retryable_report(monkeypatch, tmp_path):
     (tmp_path/'downloaded-path.txt').write_text('stale path\n')
     def fail(*args, **kwargs):

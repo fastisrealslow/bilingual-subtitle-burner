@@ -2,6 +2,7 @@
 import argparse
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 
@@ -12,6 +13,46 @@ from ci_fetch_bilibili import validate_media
 FORMAT = ('(bv*[height<=1080]+ba/b[height<=1080]/b)'
           '[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]')
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mhtml'}
+
+
+def normalize_small_unpaired_tail(media, max_trim=5.0, minimum_kept=120.0):
+    """Drop a small unmatched A/V tail without padding or re-encoding.
+
+    Some single-file social-media MP4s legitimately end one track a few
+    seconds before the other.  Rejecting before packet-tail validation makes
+    those sources unrecoverable.  We only repair a bounded tail on an otherwise
+    long source, then run the full media validator again on the new bytes.
+    """
+    media=Path(media)
+    probe=subprocess.run([
+        'ffprobe','-v','error','-show_entries','stream=codec_type,duration',
+        '-of','json',str(media),
+    ],capture_output=True,text=True,timeout=60,check=True)
+    streams=json.loads(probe.stdout).get('streams') or []
+    durations={}
+    for row in streams:
+        if row.get('codec_type') not in ('video','audio') or row.get('codec_type') in durations:
+            continue
+        try:durations[row['codec_type']]=float(row.get('duration') or 0)
+        except (TypeError,ValueError):pass
+    if set(durations)!= {'video','audio'}:
+        raise RuntimeError('无法核对待修复文件的音视频时长')
+    kept=min(durations.values());trim=abs(durations['video']-durations['audio'])
+    if kept<minimum_kept or not 0<trim<=max_trim:
+        raise RuntimeError(f'音视频尾部差异不在安全修复范围：保留{kept:.2f}s，裁切{trim:.2f}s')
+    temp=media.with_name(media.stem+'.tail-normalized.mp4')
+    temp.unlink(missing_ok=True)
+    try:
+        subprocess.run([
+            'ffmpeg','-y','-loglevel','error','-i',str(media),
+            '-map','0:v:0','-map','0:a:0','-c','copy','-shortest',
+            '-movflags','+faststart',str(temp),
+        ],check=True,timeout=300)
+        validate_media(temp)
+        temp.replace(media)
+    finally:
+        temp.unlink(missing_ok=True)
+    return dict(original_durations=durations,trimmed_tail_sec=trim,kept_duration_sec=kept)
 
 
 def fetch(url, directory, failure_report):
@@ -33,7 +74,13 @@ def fetch(url, directory, failure_report):
         media = Path(paths[0]).resolve()
         if media.parent != directory or media.suffix.lower() in IMAGE_EXTENSIONS:
             raise ValueError('下载结果不是本次目录中的音视频文件，拒绝预览图')
-        validate_media(media)
+        try:
+            validate_media(media)
+        except RuntimeError as exc:
+            if not re.search(r'合流后音视频时长漂移 [0-9.]+s',str(exc)):
+                raise
+            proof=normalize_small_unpaired_tail(media)
+            print('[取源修复] 已裁去无配对尾部：'+json.dumps(proof,ensure_ascii=False),flush=True)
         return media
     except Exception as exc:
         report = Path(failure_report)
