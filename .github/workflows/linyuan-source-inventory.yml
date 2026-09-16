@@ -10,6 +10,7 @@ on:
     paths:
       - .github/workflows/linyuan-source-inventory.yml
       - linyuan/source_supply.py
+      - linyuan/production_status.py
       - linyuan/live_motion.py
       - linyuan/headline_policy.py
       - linyuan/source_outcomes.py
@@ -43,13 +44,15 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          pip install -q requests numpy 'opencv-python-headless<5'
+          pip install -q requests numpy 'opencv-python-headless<5' pytest
+          python -m pytest -q tests/test_linyuan_production_status.py
+          node --test tests/test_production_status_page.cjs
           python linyuan/source_supply.py --max-new 4
       - name: 保存素材台账与成片库存
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -f linyuan/.automation/source_inventory.json
+          git add -f linyuan/.automation/source_inventory.json site/production_status.json
           if git diff --staged --quiet; then exit 0; fi
           git commit -m 'chore(supply): verify actual reserve and refresh material ledger'
           for attempt in 1 2 3 4 5; do
@@ -67,6 +70,20 @@ jobs:
         run: |
           pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
           python linyuan/fc/catchup_from_inventory.py
+      - name: 回读真实运行状态并更新日志页
+        if: always()
+        run: |
+          python linyuan/production_status.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add site/production_status.json
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m 'chore(status): reconcile production runs and verified inventory'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 3
+          done
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:

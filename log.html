@@ -102,8 +102,13 @@ a:hover { text-decoration: underline; }
     <div id="published"></div>
   </div>
   <div class="section">
-    <h2>⏳ 待发布</h2>
+    <h2>⏳ 生产与待发布</h2>
+    <div id="production-freshness" class="ps-note"></div>
     <div id="pending"></div>
+  </div>
+  <div class="section">
+    <h2>📁 暂停、历史未完成与待核对</h2>
+    <div id="production-history"></div>
   </div>
   <div class="section">
     <h2>📋 运行日志</h2>
@@ -114,6 +119,7 @@ a:hover { text-decoration: underline; }
     <div id="rejected"></div>
   </div>
 </div>
+<script src="./site/production-status.js"></script>
 <script>
 // 优先走 GitHub Pages 同域镜像（FC 会同步写 site/fc_state.json），
 // 避免 raw.githubusercontent.com 的跨域/加载失败问题。
@@ -188,16 +194,51 @@ function isWithinDays(ts, dateStr, days) {
   return diffMs < days * 24 * 60 * 60 * 1000;
 }
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+}
+
+function safeLink(value) {
+  try {
+    const u = new URL(value);
+    return ['http:', 'https:'].includes(u.protocol) ? escapeHtml(u.href) : '';
+  } catch (_) { return ''; }
+}
+
+function productionCard(entry) {
+  const source = safeLink(entry.source_url), run = safeLink(entry.run_url);
+  const stamp = entry.status === 'running' || entry.status === 'queued'
+    ? `本次运行开始于 ${formatDate(entry.run_started_at)}`
+    : `最近调度 ${formatDate((entry.ts || 0) * 1000)}`;
+  return `<div class="item">
+    <div class="item-title">${escapeHtml(entry.title || entry.slug)}</div>
+    <div class="item-meta">${escapeHtml(entry.slug)} · ${escapeHtml(stamp)}
+      ${entry.author ? `<span class="src-author">@${escapeHtml(entry.author)}</span>` : ''}
+      ${source ? `<a class="src-link" href="${source}" target="_blank" rel="noopener">查看源</a>` : ''}
+      ${run ? `<a href="${run}" target="_blank" rel="noopener">查看实际运行</a>` : ''}
+      ${entry.history_count > 1 ? `<span>已合并 ${entry.history_count} 次历史调度记录</span>` : ''}
+    </div>
+    <div class="item-meta">${escapeHtml(entry.detail)}</div>
+  </div>`;
+}
+
 async function load() {
   try {
     const resp = await fetch(STATE_URL + '?t=' + Date.now(), {cache: 'no-store'});
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const state = await resp.json();
+    let snapshot = null;
+    try {
+      const response = await fetch('./site/production_status.json?t=' + Date.now(), {cache: 'no-store'});
+      if (response.ok) snapshot = await response.json();
+    } catch (_) { /* The state still loads; missing evidence is shown as unknown. */ }
+    const production = ProductionStatus.reconcile(state, snapshot);
+    const latestDispatches = ProductionStatus.latestDispatches(state);
 
     const published = Object.entries(state.published || {}).map(([slug, info]) => ({slug, ...info}));
     // slug → dispatched 来源信息（author/url），published 展示时反查（2026-08-29 便于审查来源）
     const dispatchMeta = {};
-    (state.dispatched || []).forEach(d => {
+    latestDispatches.forEach(d => {
       if (d.slug) dispatchMeta[d.slug] = {author: d.author || '', url: d.source_url || ''};
     });
     // 平铺：长视频拆多条的每个 part 独立成一条；按 part 的 bvid 去重（同源拦截的幽灵记录）
@@ -223,24 +264,21 @@ async function load() {
         });
       });
     });
-    // 待发布：只算真正的 pending（排除已失败、已发布）
-    // 待发布：完全没投的 + 长视频拆多条「投了部分还有剩余 part」的（2026-08-29 修复漏算）
-    const pending = (state.dispatched || []).filter(e => {
-      if (!e.slug || e.failed) return false;
-      const pub = (state.published || {})[e.slug];
-      if (!pub) return true;                       // 完全没投
-      const partsTotal = pub.parts_total || 1;
-      if (partsTotal <= 1) return false;           // 单条已投完
-      return (e.published_parts || 0) < partsTotal; // 长视频还有未投 part
-    });
-    const failedSlugs = new Set((state.dispatched || []).filter(e => e.failed).map(e => e.slug));
-    const rejectedCount = (state.rejected || []).length;
-    const failedCount = failedSlugs.size;
+    const pending = production.pending;
+    const knownKeys = new Set(latestDispatches.map(e => e.key).filter(Boolean));
+    const rejectedByKey = new Map();
+    for (const entry of state.rejected || []) {
+      const key = entry.key || entry.video_id;
+      if (!key || knownKeys.has(key)) continue;
+      if (!rejectedByKey.has(key) || (entry.ts || 0) >= (rejectedByKey.get(key).ts || 0)) rejectedByKey.set(key, entry);
+    }
+    const rejected = [...rejectedByKey.values()];
+    const failedCount = production.failures.length + rejected.length;
 
     document.getElementById('stats').innerHTML = `
       <div class="stat stat-published"><div class="stat-num">${flatPublished.length}</div><div class="stat-label">已发布</div></div>
-      <div class="stat stat-pending"><div class="stat-num">${pending.length}</div><div class="stat-label">待发布</div></div>
-      <div class="stat stat-rejected"><div class="stat-num">${failedCount + rejectedCount}</div><div class="stat-label">失败/拒绝</div></div>
+      <div class="stat stat-pending"><div class="stat-num">${pending.length}</div><div class="stat-label">生产 / 待验收 / 待发布</div></div>
+      <div class="stat stat-rejected"><div class="stat-num">${failedCount}</div><div class="stat-label">失败/拒绝</div></div>
     `;
 
     // 已发布：按投稿时间 ts 分组，只显示最近 7 天（不能再用 publish_time，那是源视频发布时间，可能几个月前）
@@ -310,23 +348,17 @@ async function load() {
           </div>
         `).join('') : '<div class="empty">最近 7 天暂无</div>';
 
-    document.getElementById('pending').innerHTML = pending.length ?
-      pending.map(e => {
-        const age = Math.floor((Date.now()/1000 - (e.ts||0))/3600);
-        const status = age > 6 ? '⏳ 出片可能卡住' : '⏳ 等待出片 + 投稿';
-        const pauthor = (e.author || '').replace(/[<>&]/g, '');
-        const purl = e.source_url || '';
-        const psrc = (pauthor || purl)
-          ? `<span class="src-wrap">${pauthor ? `<span class="src-author">@${pauthor}</span>` : ''}${purl ? `<a class="src-link" href="${purl}" target="_blank">查看源</a>` : ''}</span>`
-          : '';
-        return `
-        <div class="item">
-          <div class="item-title">${e.title || e.slug}</div>
-          <div class="item-meta">${e.slug} · 已等待 ${age} 小时 ${psrc}</div>
-          <div class="item-status pending">${status}</div>
-        </div>
-      `;
-      }).join('') : '<div class="empty">暂无（干净）</div>';
+    document.getElementById('production-freshness').textContent = production.fresh
+      ? `状态核对于 ${formatDate(snapshot.updated_at * 1000)}；同一任务只显示最新状态，运行次数不代表成片数量。`
+      : '运行状态暂不可用或已过期；无法核实的任务列入待核对，不按等待时长猜测卡住。';
+    document.getElementById('pending').innerHTML = pending.length
+      ? pending.sort((a,b) => (b.ts || 0) - (a.ts || 0)).map(productionCard).join('')
+      : '<div class="empty">暂无已核实的生产或待发布任务</div>';
+    const historyRows = production.history.sort((a,b) => (b.ts || 0) - (a.ts || 0));
+    document.getElementById('production-history').innerHTML = historyRows.length
+      ? historyRows.slice(0, 20).map(productionCard).join('')
+        + (historyRows.length > 20 ? `<details><summary>查看更早的 ${historyRows.length - 20} 个历史任务</summary>${historyRows.slice(20).map(productionCard).join('')}</details>` : '')
+      : '<div class="empty">暂无</div>';
 
     // 失败/拒绝：合并 dispatched 的 failed + rejected，显示原因，只显示最近 7 天
     function failReason(f) {
@@ -340,9 +372,9 @@ async function load() {
       return '其他';
     }
     const failures = [
-      ...(state.dispatched || []).filter(e => e.failed && !(state.published || {})[e.slug])
-        .map(e => ({title: e.title || e.slug, ts: e.ts, reason: failReason(e)})),
-      ...(state.rejected || [])
+      ...production.failures
+        .map(e => ({title: e.title || e.slug, ts: e.ts, reason: failReason({...e,last_error:e.detail}), detail:e.detail})),
+      ...rejected
         .filter(e => isWithinDays(e.ts, null, 7))
         .map(e => ({title: (e.video_id || e.key || ''), ts: e.ts, reason: failReason(e)}))
     ].filter(f => isWithinDays(f.ts, null, 7))
@@ -359,22 +391,18 @@ async function load() {
       ? `<div class="reason-summary">近 7 天失败 ${failures.length} 条：${reasonSummary}</div>` +
         failures.slice(0, 20).map(f => `
         <div class="item">
-          <div class="item-title">${f.title}</div>
+          <div class="item-title">${escapeHtml(f.title)}</div>
           <div class="item-meta"><span class="tag tag-watermark">${f.reason}</span> · ${new Date((f.ts||0)*1000).toLocaleString('zh-CN', {month:'short',day:'numeric'})}</div>
+          ${f.detail ? `<div class="item-meta">${escapeHtml(f.detail)}</div>` : ''}
         </div>
       `).join('')
       : '<div class="empty">近 7 天无失败</div>';
 
     const alerts = [];
     const now = Date.now() / 1000;
-    const stuck = pending.filter(e => now - (e.ts||0) > 86400);
-    if (stuck.length > 0) {
-      alerts.push(`${stuck.length} 条待发布视频超过 24 小时未发布，可能出片失败`);
-    }
-    const recentPub = published.filter(e => now - (e.ts||0) < 21600);
-    if (pending.length > 0 && recentPub.length === 0) {
-      alerts.push('最近 6 小时无新发布，可能 FC publish 未运行');
-    }
+    if (!production.fresh) alerts.push('生产状态快照缺失或超过 3 小时未更新，请查看库存核对工作流。');
+    const unresolved = production.tasks.filter(e => ['unknown', 'interrupted'].includes(e.status));
+    if (unresolved.length) alerts.push(`${unresolved.length} 个任务缺少完成证据或运行已中断，详见历史与待核对列表。`);
 
     if (alerts.length > 0) {
       document.getElementById('alerts-section').hidden = false;

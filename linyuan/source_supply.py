@@ -20,6 +20,7 @@ import live_motion
 import title_rewrite
 import stage_context
 import caption_readability
+import production_status
 
 VERSION = 1
 INVENTORY = Path(__file__).parent/'.automation/source_inventory.json'
@@ -111,6 +112,30 @@ def inventory_counts(records, state):
             'landscape_target','daily_mix_usable','target_reserve')}
 
 
+def find_deliveries(candidates, api, runs):
+    """Use the recent artifact index plus exact older runs, never a 300-file horizon."""
+    found = {}
+    for page in range(1, 4):
+        rows = api(f'actions/artifacts?per_page=100&page={page}').get('artifacts', [])
+        for artifact in rows:
+            slug = artifact['name'].removeprefix('deliver-')
+            if (artifact['name'].startswith('deliver-') and slug in candidates
+                    and not artifact.get('expired')):
+                found.setdefault(slug, artifact)
+        if len(rows) < 100:
+            break
+    for slug in candidates.keys() - found.keys():
+        run = runs.get(slug) or {}
+        if run.get('status') != 'completed':
+            continue
+        # A partial batch can upload a valid delivery even if its final job failed.
+        rows = api(f"actions/runs/{run['id']}/artifacts").get('artifacts', [])
+        matches = [a for a in rows if a['name'] == 'deliver-' + slug and not a.get('expired')]
+        if matches:
+            found[slug] = max(matches, key=lambda a: a['id'])
+    return found
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--max-new',type=int,default=4)
@@ -127,17 +152,13 @@ def main():
     rules_changed=previous.get('validation_sha256')!=validation_sha
     candidates={e['slug']:e for e in fc._latest_dispatches(state)
                 if not e.get('failed') and e.get('production_rules_version')==fc.PRODUCTION_RULES_VERSION
-                and e['slug'] not in fc.REVIEW_PAUSED_SLUGS}
+                and e['slug'] not in fc.REVIEW_PAUSED_SLUGS and production_status.remaining(e,state)}
     # The artifact index survives beyond the most recent 30 production runs.
     # Metadata refresh can therefore no longer make older reserve clips vanish.
-    found={}
-    for page in range(1,4):
-        rows=api(f'actions/artifacts?per_page=100&page={page}').get('artifacts',[])
-        for a in rows:
-            slug=a['name'].removeprefix('deliver-')
-            if a['name'].startswith('deliver-') and slug in candidates and not a.get('expired'):
-                found.setdefault(slug,a)
-        if len(rows)<100:break
+    status_path=production_status.STATUS_PATH
+    snapshot=json.loads(status_path.read_text()) if status_path.exists() else {}
+    runs=production_status.collect_runs(state,api,snapshot)
+    found=find_deliveries(candidates,api,runs)
     # A rule upgrade invalidates cached approvals, but must not publish a
     # partially rechecked stock count (four new batches used to hide older
     # reserves and trigger unnecessary refills). Finish the full recheck first.
@@ -195,6 +216,8 @@ def main():
         in_flight_placeholders=fc._pending_final_count(state),artifacts=records)
     INVENTORY.parent.mkdir(parents=True,exist_ok=True)
     INVENTORY.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+    status_path.parent.mkdir(parents=True,exist_ok=True)
+    status_path.write_text(json.dumps(production_status.build(state,result,runs),ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ['updated_at','inventory','materials']},ensure_ascii=False))
 
 
