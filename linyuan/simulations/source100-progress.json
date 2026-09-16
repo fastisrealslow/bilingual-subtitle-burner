@@ -1,6 +1,10 @@
 {
-  "active_until": null,
-  "active_work": null,
+  "active_until": "2026-09-16T23:30:00Z",
+  "active_work": {
+    "owner": "automation-source100-65",
+    "started_at": "2026-09-16T18:32:00Z",
+    "task": "Recover fixed source65 by bounded removal of <=5s unpaired A/V tail, then run full acceptance"
+  },
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -23,7 +27,9 @@
     "Source48 round2 selected the complete 287.96s source and tracked the target face in 8639/8639 frames. Its only rejection was the black-edge heuristic, whose old report discarded the measured frames; retain those frames and exact edge metrics before deciding whether this is encoded padding or a dark-scene false positive.",
     "Source48 run35129429485 proved the black-edge rejection is genuine, not an algorithmic false positive: all six sampled windows had 100% dark columns on both 8% edges, and the image is a person cutout on a full black field. Adjacent 48-second samples changed only 0-0.0111% of pixels above 12 levels. Do not crop or relax the gate.",
     "Source77 selector24 recovered two literal keynote chapters (662.84-870.36 and 1905.48-2103.80) without fixed-duration slicing, but runs35131476262/35132701870 produced no final: all retained samples are the same static promotional portrait with embedded date/title, source subtitles and platform branding. The unchanged live-video gate is correctly rejecting it.",
-    "Sources15/46/76 run35133465694 retained the exact rejected frames. Source15 contains permanent program header, player chrome, embedded captions and black side bars, with the speaker repeatedly leaning beyond safe headroom. Source46 contains embedded subtitles plus an upper-right platform/owner mark around the speaker. Source76 contains an upper-left show mark, a large permanent red lower-third, embedded subtitles and a bottom risk disclaimer. Their geometry/overlay rejections are genuine; do not relax or crop through these elements."
+    "Sources15/46/76 run35133465694 retained the exact rejected frames. Source15 contains permanent program header, player chrome, embedded captions and black side bars, with the speaker repeatedly leaning beyond safe headroom. Source46 contains embedded subtitles plus an upper-right platform/owner mark around the speaker. Source76 contains an upper-left show mark, a large permanent red lower-third, embedded subtitles and a bottom risk disclaimer. Their geometry/overlay rejections are genuine; do not relax or crop through these elements.",
+    "Source60 fixed URL BV1SR3j6fE6J is unavailable: Bilibili view and pagelist APIs both return -404 and the embed page has no playinfo. Under the fixed-URL rule it remains unresolved; do not substitute another upload.",
+    "Source65 round2 downloaded a real Weibo MP4 but generic fetch rejected it before source quality because video/audio stream durations differ by 3.40s. A bounded repair may remove only <=5s of unpaired tail on sources retaining >=120s, then rerun every media validation check; no silence or frames may be fabricated."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -68,8 +74,8 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Inspect a different failure family; keep sources15,46,48,76,77 and79 rejected on retained picture evidence.",
-    "Prioritize sources with complete selections and no persistent source overlays, or source fetch recovery for unresolved 60/65.",
+    "Validate the bounded source65 tail normalization on the original fixed URL, then run all downstream gates if and only if the normalized mother media passes full validation.",
+    "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot."
   ],
   "round2": {
@@ -177,7 +183,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-16T18:26:32.543Z",
+  "updated_at": "2026-09-16T18:30:11.819Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
