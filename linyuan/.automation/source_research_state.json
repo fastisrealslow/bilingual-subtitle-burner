@@ -1680,16 +1680,44 @@
       "role": "mother",
       "family": "maotai_table_exchange",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0
+      "status": "inspected",
+      "attempts": 0,
+      "last_attempt_at": 1789599617.2284226,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "eeb35bad7e20c107c75d547476829e93d40544be605fba189a7a063a8b0ac77e",
+        "duration_sec": 263.430385,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 131.72
+          }
+        ],
+        "audio_fingerprint_count": 2106,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "35160155517"
     },
     "55bfa5443bcbad7535e4": {
       "url": "https://www.bilibili.com/video/BV1pnZTBNEq2",
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0
+      "status": "retry_wait",
+      "attempts": 1,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1789599917.2347121,
+      "next_retry_at": 1789621517.2347121
     },
     "d778ca80f01afc33b888": {
       "url": "https://www.bilibili.com/video/BV1TBeA6CEcc",
@@ -1704,8 +1732,11 @@
       "role": "mother",
       "family": "hnw_course",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0
+      "status": "retry_wait",
+      "attempts": 1,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1789600217.2390587,
+      "next_retry_at": 1789621817.2390587
     },
     "02d227fc09891fb12ea4": {
       "url": "https://www.bilibili.com/video/BV19NmmB3Evo",
@@ -1802,8 +1833,8 @@
     "status": "searched",
     "new_bvids": []
   },
-  "search_cursor": 5,
-  "updated_at": 1789595275,
-  "last_run_id": "35153442016",
+  "search_cursor": 1,
+  "updated_at": 1789600221,
+  "last_run_id": "35160155517",
   "audio_match_candidates": []
 }
