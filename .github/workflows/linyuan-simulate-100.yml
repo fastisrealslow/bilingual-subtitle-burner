@@ -13,12 +13,18 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
       sample_ids:
         type: string
         required: true
+      manifest_path:
+        type: string
+        required: false
+        default: simulations/source100-20260916.json
     secrets:
       BILIBILI_COOKIES:
         required: false
 permissions:
   contents: read
   actions: read
+env:
+  SIMULATION_MANIFEST_PATH: ${{ inputs.manifest_path || 'simulations/source100-20260916.json' }}
 concurrency:
   group: ${{ inputs.sample_ids && format('source100-diagnostic-{0}', inputs.sample_ids) || 'source100-simulation-20260916' }}
   cancel-in-progress: false
