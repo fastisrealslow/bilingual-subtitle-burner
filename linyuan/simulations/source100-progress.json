@@ -122,7 +122,8 @@
     "Source8 regression root cause proved by retained landscape_9 OCR and actual logs: own generated subtitles were treated as old-source captions after optional landscape conversion. Portrait checks had passed. Commit011fde29229046e21b3cb4b939ed75f30dbb1e12 isolates the optional transform failure, retaining only byte-identical verified portrait assets in auto mode. Real acceptance run35202944591 pending; no success imported into round3.",
     "Round3 run35194448958 finished all100 reports at f9e32ad with fixed publication snapshot:10 verified accepted,89 rejected,1 unresolved(source60 fetch). Final84/87 are candidate-quality rejections. All10 report MP4 hashes match the independently downloaded verification index. Source8 fix validation35202944591 is a separate revision still running; do not add it to round3.",
     "Source27 original question is semantically complete but lacks explicit 您/你, so selector25 produced zero candidates; its ASR tail '核心就是它有没有。' is a bare modal and incomplete despite punctuation. Selector26 commit a1f75e9a generically recognizes object-scoped 关注哪/什么 questions and trims only bare-modal candidate tails; 65 regressions pass and fixed-source run35207264689 is executing.",
-    "Source27 run35207264689 proved selector26 works on the fixed source: one 129.64s Q&A candidate was attempted. It remains a genuine picture-quality rejection because the source carries persistent embedded captions, upper-left uploader/Bilibili branding and black side bars; no static audio-card fallback and no final MP4."
+    "Source27 run35207264689 proved selector26 works on the fixed source: one 129.64s Q&A candidate was attempted. It remains a genuine picture-quality rejection because the source carries persistent embedded captions, upper-left uploader/Bilibili branding and black side bars; no static audio-card fallback and no final MP4.",
+    "Source8 automatic-layout repair run35202944591 completed with a real accepted final: 183.621333s, 11,961,286 bytes, SHA256 3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881, H.264 720x1280 + AAC, live_video=1/audio_card=0. Report and downloaded MP4 hash agree. It remains separate from round3 until a same-revision full100 run."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -168,8 +169,8 @@
     "required_passed": 30
   },
   "next_steps": [
+    "Source8 repair is proven. Keep its regression and include it in the next one-revision fixed100 benchmark; do not add this targeted result to round3.",
     "Do not retest source27 selection: the structural fix is proven, but unchanged picture quality legitimately rejects the fixed upload. Prioritize a separate general failure class.",
-    "Monitor source8 automatic-layout recovery run35202944591 and verify actual accepted MP4/report. Do not duplicate it or import this newer version into round3. Explicit landscape requests still fail closed.",
     "Monitor round3 full fixed100 acceptance launched by the manifest round/launch_revision change. Do not repeat the successful7/68 diagnostic or duplicate the full run. Verify accepted MP4s and classify all rejected/unresolved reports at this one revision.",
     "Keep source-identity negative controls failing closed; the full round3 benchmark is already running and must not be duplicated.",
     "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
@@ -282,7 +283,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T09:54:55.303Z",
+  "updated_at": "2026-09-17T10:53:35.362Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -447,7 +448,7 @@
     "purpose": "use a denser source-only contiguous-window check while preserving all independent candidate/final gates"
   },
   "source8_optional_layout": {
-    "status": "fixed_pending_real_acceptance",
+    "status": "completed_verified_accepted",
     "commit": "011fde29229046e21b3cb4b939ed75f30dbb1e12",
     "run_id": 35202944591,
     "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
@@ -458,8 +459,22 @@
     "fix": "Only OUTPUT_LAYOUT=auto may retain the original portrait after an optional landscape VisualQualityError; all original media, cover, subtitle, review and editing-proof hashes must match. Explicit landscape still fails; changed bytes or missing proofs cannot fall back; downstream acceptance/dedup unchanged.",
     "regression": "69 passed: optional layout, landscape, visual gate, source100 recovery, simulation",
     "trigger_audit": "Only presentation-rules-test and fixed-source diagnostic matched main push; no FC, publishing or downstream workflow_run",
-    "counts_as_final": false,
-    "claim_released": "2026-09-17T09:03:00Z"
+    "counts_as_final": true,
+    "claim_released": "2026-09-17T09:03:00Z",
+    "report_artifact_id": 10491230364,
+    "media_artifact_id": 10490835722,
+    "accepted_final": {
+      "file": "final_9.mp4",
+      "duration_sec": 183.621333,
+      "bytes": 11961286,
+      "sha256": "3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881",
+      "video": "h264 720x1280",
+      "audio": "aac",
+      "live_video": 1,
+      "audio_card": 0,
+      "local_hash_stream_duration_verified": true
+    },
+    "result": "Run35202944591 passed all unchanged acceptance gates and produced one verified real MP4. This targeted newer revision is not imported into completed round3; a same-revision full100 rerun is required for a new percentage."
   },
   "source27_question_tail_recovery": {
     "status": "completed_selection_recovered_genuine_picture_rejection",
