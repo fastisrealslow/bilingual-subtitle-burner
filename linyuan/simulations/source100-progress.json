@@ -1,96 +1,79 @@
 {
   "active_until": null,
   "active_work": null,
-  "keynote_boundary_recovery": {
-    "selector_version": 25,
-    "sample_ids": [
-      7,
-      68
-    ],
-    "status": "completed_two_verified_accepted_sources",
-    "commit": "d61450dc0b787050bcb8187e5d951000c11943da",
-    "run_id": 35190487788,
-    "claim_released": "2026-09-17T06:36:00Z",
-    "regression": "81 passed: source100 recovery, source selection, selection incident, selection0915, simulation",
-    "actions_regression": "run35190487335: 440 passed, 1 skipped, 1 deselected; full100 launch checks:46 passed",
+  "audio_repair": {
+    "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
     "counts_as_full_benchmark": false,
-    "accepted_mp4s": 2,
-    "verified_finals": [
-      {
-        "sample_id": 7,
-        "duration_sec": 156.341333,
-        "bytes": 11931958,
-        "sha256": "c876c71a5ce00696bc17fb0f996fa379d7bfb45423c2271e5208131edb86a37a",
-        "report_artifact": 10483229277,
-        "media_artifact": 10483144398,
-        "local_hash_stream_duration_verified": true
-      },
-      {
-        "sample_id": 68,
-        "duration_sec": 250.4,
-        "bytes": 20468908,
-        "sha256": "5fe4b4f13cb38496efa41fc521f26a91eecb6df2e79d475f3f4f531b3aef1eec",
-        "report_artifact": 10484690991,
-        "media_artifact": 10484830669,
-        "local_hash_stream_duration_verified": true
-      }
+    "evidence_path": "linyuan/simulations/evidence/source79-audio-35100640388.json",
+    "final_acceptance_pending": false,
+    "policy": "left-channel-v1",
+    "real_asr_and_final_acceptance": "ASR verified; final acceptance pending",
+    "run_id": 35102043136,
+    "sample_ids": [
+      79
     ],
-    "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered"
-  },
-  "round3": {
-    "status": "completed",
-    "run_id": 35194448958,
-    "commit": "f9e32ad1c3b0fd139e531a1db11627446d3a11ca",
-    "selector_version": 25,
-    "targeted_validation_run": 35190487788,
-    "confirmed_passed": 10,
-    "verified_sample_ids": [
-      7,
-      28,
-      32,
-      39,
-      49,
-      58,
-      66,
-      68,
-      90,
-      95
-    ],
-    "verification_index": "source100-round3-verified.json",
-    "note": "Do not import the two targeted successes or the prior nine. Count this full run alone after actual acceptance reports and MP4 verification.",
-    "passed": 10,
-    "rejected": 89,
-    "unresolved": 1,
-    "unresolved_ids": [
-      60
-    ],
-    "execution_complete": true,
-    "complete": false,
-    "final_success_rate": 10,
-    "target_met": false,
-    "summary_artifact_id": 10489747808,
-    "stage_counts": {
-      "candidate-quality": 61,
-      "source-quality": 28,
-      "final-accepted": 10,
-      "src": 1
+    "selection_fix": {
+      "boundaries_sec": [
+        [
+          573.88,
+          823.96
+        ],
+        [
+          824.36,
+          1097.48
+        ]
+      ],
+      "commit": "312cdc57d5a9a1a1cc86231f236af3b9c3f22852",
+      "final_acceptance_pending": true,
+      "last_observed_step": "真实出片模拟（每个素材首条合格成片后停止）",
+      "result": "both candidates rejected by unchanged continuous-face gate",
+      "result_run_id": 35105484172,
+      "run_id": 35105484172,
+      "selector_version": 22,
+      "status": "failed_picture_after_valid_selection"
+    },
+    "status": "asr_recovered_selection_fix_retesting",
+    "verified_asr": {
+      "alignment_completed": true,
+      "characters": 4667,
+      "cues": 348,
+      "duration_sec": 1097.48,
+      "old_empty_evidence_reused": false,
+      "quality_gate_passed": true,
+      "run_id": 35102043136
+    },
+    "visual_boundary_fix": {
+      "all_quality_gates_unchanged": true,
+      "commit": "e2bb9a3feb683c743a82c18a3effe2770ab599ea",
+      "duration_sec": 194.72,
+      "final_acceptance_pending": false,
+      "reason": "literal topic boundary aligns with source change to a wide stage shot",
+      "report_artifact_id": 10457706206,
+      "result": "candidate1 passed 5764/5842 target-face tracking and final identity but retained persistent venue/media branding; candidate2 failed continuous-face gate; no final",
+      "run_id": 35116931936,
+      "selected_span_sec": [
+        573.88,
+        768.6
+      ],
+      "selector_version": 23,
+      "status": "rejected_persistent_source_branding"
     }
-  },
-  "boundary_audio_evidence": {
-    "status": "completed_both_source_hashes_verified",
-    "sample_ids": [
-      27,
-      67
-    ],
-    "counts_as_full_benchmark": false,
-    "purpose": "Hash-verified original audio/video context for generic host-handoff and truncated-tail repair; automatic opening25s/ending180s windows are diagnostic evidence only, never production cut points",
-    "run_id": 35200009293,
-    "commit": "efbf18cabaf71c349bdb4d1d6e8e7d7585582140"
   },
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
     "total": 100
+  },
+  "boundary_audio_evidence": {
+    "commit": "efbf18cabaf71c349bdb4d1d6e8e7d7585582140",
+    "counts_as_full_benchmark": false,
+    "purpose": "Hash-verified original audio/video context for generic host-handoff and truncated-tail repair; automatic opening25s/ending180s windows are diagnostic evidence only, never production cut points",
+    "run_id": 35200009293,
+    "sample_ids": [
+      27,
+      67
+    ],
+    "status": "completed_both_source_hashes_verified"
   },
   "confirmed_findings": [
     "Original narrow runtime category included nonretryable picture errors. Reclassification is not recovery.",
@@ -123,7 +106,8 @@
     "Round3 run35194448958 finished all100 reports at f9e32ad with fixed publication snapshot:10 verified accepted,89 rejected,1 unresolved(source60 fetch). Final84/87 are candidate-quality rejections. All10 report MP4 hashes match the independently downloaded verification index. Source8 fix validation35202944591 is a separate revision still running; do not add it to round3.",
     "Source27 original question is semantically complete but lacks explicit 您/你, so selector25 produced zero candidates; its ASR tail '核心就是它有没有。' is a bare modal and incomplete despite punctuation. Selector26 commit a1f75e9a generically recognizes object-scoped 关注哪/什么 questions and trims only bare-modal candidate tails; 65 regressions pass and fixed-source run35207264689 is executing.",
     "Source27 run35207264689 proved selector26 works on the fixed source: one 129.64s Q&A candidate was attempted. It remains a genuine picture-quality rejection because the source carries persistent embedded captions, upper-left uploader/Bilibili branding and black side bars; no static audio-card fallback and no final MP4.",
-    "Source8 automatic-layout repair run35202944591 completed with a real accepted final: 183.621333s, 11,961,286 bytes, SHA256 3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881, H.264 720x1280 + AAC, live_video=1/audio_card=0. Report and downloaded MP4 hash agree. It remains separate from round3 until a same-revision full100 run."
+    "Source8 automatic-layout repair run35202944591 completed with a real accepted final: 183.621333s, 11,961,286 bytes, SHA256 3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881, H.264 720x1280 + AAC, live_video=1/audio_card=0. Report and downloaded MP4 hash agree. It remains separate from round3 until a same-revision full100 run.",
+    "Round4 run35219007898 completed at dad6f695 and the fixed publication snapshot:12 verified accepted,87 rejected,1 unresolved(source60 exact URL unavailable). Source79 is now a real accepted194.741333s MP4 after the generic stereo-channel, keynote-boundary and automatic pipeline fixes. Target30 not met."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -163,13 +147,105 @@
     "tracks_completed": true,
     "video_bytes": 693415117
   },
+  "evening_review": {
+    "checked_at": "2026-09-17T12:04:08.935Z",
+    "evidence_commit": "2f0058d4f0bd95e4dabfd01ac2b1bd69e2dd86a5",
+    "evidence_report": "source100-evening-evidence-20260917.json",
+    "report_deadline": "2026-09-17T20:30:00+08:00",
+    "report_scheduled_for": "2026-09-17T20:25:00+08:00",
+    "source67": "Word alignment confirms guest complete clause249.72s, farewell251.72s, addressed thanks starts252.04s; original sentence unit merges guest+host. Generic automatic handoff normalization is still unimplemented. Picture constraints remain.",
+    "source70": "Observed forest/template overlay and source text; exact clean-preview geometry1024x422. No proof of false rejection; retain480 gate."
+  },
+  "geometry_review": {
+    "commit": "363162bff6cbcef23c95272bdc4c71d60b8d4a87",
+    "counts_as_final": false,
+    "counts_as_full_benchmark": false,
+    "report_artifact_ids": {
+      "15": 10462616772,
+      "46": 10462711336,
+      "76": 10462831604
+    },
+    "run_id": 35133465694,
+    "sample_ids": [
+      15,
+      46,
+      76
+    ],
+    "status": "completed_no_accepted_final"
+  },
   "goal": {
     "definition": "At least one actual final MP4 accepted per source; no publishing.",
     "fixed_sources": 100,
     "required_passed": 30
   },
+  "identity_sparse_review": {
+    "advanced_sample_ids": [
+      30,
+      31,
+      56,
+      84
+    ],
+    "counts_as_full_benchmark": false,
+    "evidence_commit": "e4546ce04bc22b834868e329857f8755f9a6421a",
+    "evidence_run_id": 35165978130,
+    "fix_commit": "7492544d9660204bb62455401ff8f6439fa23796",
+    "purpose": "use a denser source-only contiguous-window check while preserving all independent candidate/final gates",
+    "sample_ids": [
+      30,
+      31,
+      52,
+      56,
+      84,
+      93,
+      98
+    ],
+    "status": "completed_zero_accepted",
+    "still_source_rejected_sample_ids": [
+      52,
+      93,
+      98
+    ],
+    "validation_run_id": 35166698979
+  },
+  "keynote_boundary_recovery": {
+    "accepted_mp4s": 2,
+    "actions_regression": "run35190487335: 440 passed, 1 skipped, 1 deselected; full100 launch checks:46 passed",
+    "claim_released": "2026-09-17T06:36:00Z",
+    "commit": "d61450dc0b787050bcb8187e5d951000c11943da",
+    "counts_as_full_benchmark": false,
+    "regression": "81 passed: source100 recovery, source selection, selection incident, selection0915, simulation",
+    "run_id": 35190487788,
+    "sample_ids": [
+      7,
+      68
+    ],
+    "selector_version": 25,
+    "status": "completed_two_verified_accepted_sources",
+    "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered",
+    "verified_finals": [
+      {
+        "bytes": 11931958,
+        "duration_sec": 156.341333,
+        "local_hash_stream_duration_verified": true,
+        "media_artifact": 10483144398,
+        "report_artifact": 10483229277,
+        "sample_id": 7,
+        "sha256": "c876c71a5ce00696bc17fb0f996fa379d7bfb45423c2271e5208131edb86a37a"
+      },
+      {
+        "bytes": 20468908,
+        "duration_sec": 250.4,
+        "local_hash_stream_duration_verified": true,
+        "media_artifact": 10484830669,
+        "report_artifact": 10484690991,
+        "sample_id": 68,
+        "sha256": "5fe4b4f13cb38496efa41fc521f26a91eecb6df2e79d475f3f4f531b3aef1eec"
+      }
+    ]
+  },
   "next_steps": [
-    "Finish round4 run35219007898:11 real same-version MP4s verified,4 samples still running. Do not start another full100 run. Classify all reports after completion.",
+    "Do not launch a duplicate round4. Use its final12/87/1 evidence to select the next bounded general failure class; only rerun the full100 after a real targeted recovery.",
+    "For the expanded pool, keep61 metadata candidates separate from source100. Add CPU media/source-quality and same-event content-dedup screening before any production admission or yield claim; no FC or posting.",
     "Keep the new61 metadata candidates separate from the fixed100 benchmark. CPU-only discovery audit35225570402 passed; validate real downloaded media/content dedup before any quality or yield claim.",
     "Use evening evidence for generic word-aligned invited-speaker handoff research on67. Exact diagnostic timecodes are not production instructions. Source70 now deprioritized: inspected raw frames have full-frame template overlay; do not lower480px minimum.",
     "Source8 repair is proven. Keep its regression and include it in the next one-revision fixed100 benchmark; do not add this targeted result to round3.",
@@ -181,39 +257,19 @@
   ],
   "round2": {
     "commit": "c0c041f1d344bc81bde6fced9aede6836d63b501",
+    "complete": false,
     "final_success_rate": 9,
-    "run_id": 35098194067,
-    "status": "completed",
-    "verified_new_successes": [
-      {
-        "duration_sec": 181.621333,
-        "final_bytes_locally_verified": true,
-        "final_sha256": "03de71a1332ebe03fe24adaae4c34be0a61671179ff83e2aefe9f82b3d8f45f7",
-        "media_artifact_id": 10448576955,
-        "report_artifact_id": 10449015602,
-        "reported_status": "passed",
-        "sample_id": 39,
-        "baseline_source_hash_matches": true,
-        "bytes": 10931904
-      },
-      {
-        "sample_id": 95,
-        "report_artifact_id": 10449188315,
-        "media_artifact_id": 10448954863,
-        "final_sha256": "2012ee042fe811d2adaf970a39a4808fb2eb1ebfb1c4389f95cec10b14822ff8",
-        "duration_sec": 126.821333,
-        "reported_status": "passed",
-        "final_bytes_locally_verified": true,
-        "baseline_source_hash_matches": true,
-        "bytes": 9228806
-      }
-    ],
     "passed": 9,
     "rejected": 88,
-    "unresolved": 3,
-    "complete": false,
-    "target_met": false,
-    "summary_artifact_id": 10452200179,
+    "run_id": 35098194067,
+    "stage_counts": {
+      "candidate-quality": 54,
+      "final-accepted": 9,
+      "producer-runtime": 1,
+      "source-quality": 34,
+      "src": 2
+    },
+    "status": "completed",
     "success_ids": [
       8,
       28,
@@ -225,157 +281,345 @@
       90,
       95
     ],
+    "summary_artifact_id": 10452200179,
+    "target_met": false,
+    "unresolved": 3,
     "unresolved_ids": [
       60,
       65,
       79
     ],
+    "verified_new_successes": [
+      {
+        "baseline_source_hash_matches": true,
+        "bytes": 10931904,
+        "duration_sec": 181.621333,
+        "final_bytes_locally_verified": true,
+        "final_sha256": "03de71a1332ebe03fe24adaae4c34be0a61671179ff83e2aefe9f82b3d8f45f7",
+        "media_artifact_id": 10448576955,
+        "report_artifact_id": 10449015602,
+        "reported_status": "passed",
+        "sample_id": 39
+      },
+      {
+        "baseline_source_hash_matches": true,
+        "bytes": 9228806,
+        "duration_sec": 126.821333,
+        "final_bytes_locally_verified": true,
+        "final_sha256": "2012ee042fe811d2adaf970a39a4808fb2eb1ebfb1c4389f95cec10b14822ff8",
+        "media_artifact_id": 10448954863,
+        "report_artifact_id": 10449188315,
+        "reported_status": "passed",
+        "sample_id": 95
+      }
+    ]
+  },
+  "round3": {
+    "commit": "f9e32ad1c3b0fd139e531a1db11627446d3a11ca",
+    "complete": false,
+    "confirmed_passed": 10,
+    "execution_complete": true,
+    "final_success_rate": 10,
+    "note": "Do not import the two targeted successes or the prior nine. Count this full run alone after actual acceptance reports and MP4 verification.",
+    "passed": 10,
+    "rejected": 89,
+    "run_id": 35194448958,
+    "selector_version": 25,
     "stage_counts": {
-      "candidate-quality": 54,
-      "source-quality": 34,
-      "final-accepted": 9,
-      "src": 2,
-      "producer-runtime": 1
-    }
-  },
-  "tests": {
-    "command": "pytest: selection, simulation, ASR integrity, evidence supply, Qwen checkpoints, channel preprocessing and diagnostics",
-    "passed": 159,
-    "github_regression": {
-      "run_id": 35102042622,
-      "conclusion": "success"
+      "candidate-quality": 61,
+      "final-accepted": 10,
+      "source-quality": 28,
+      "src": 1
     },
-    "selector22_local": {
-      "passed": 65,
-      "real_source79_candidate_spans": 2
-    },
-    "selector22_github": {
-      "run_id": 35105483686,
-      "status": "completed",
-      "conclusion": "success"
-    },
-    "selector23_local": {
-      "passed": 65,
-      "real_source79_candidate_span_sec": [
-        573.88,
-        768.6
-      ]
-    },
-    "selector23_github": {
-      "run_id": 35116931451,
-      "status": "in_progress"
-    },
-    "black_edge_evidence_local": {
-      "passed": 62,
-      "command": "pytest tests/test_linyuan_visual_gate.py tests/test_linyuan_simulation.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_source_selection.py"
-    },
-    "black_edge_evidence_github": {
-      "run_id": 35129429246,
-      "status": "completed",
-      "conclusion": "success"
-    },
-    "source77_keynote_local": {
-      "passed": 89,
-      "command": "python -m pytest: selection, visual gate, simulation, source100 recovery, ASR integrity, Qwen evidence, audio preprocessing"
-    },
-    "source77_keynote_github": {
-      "run_id": 35131475807,
-      "status": "completed",
-      "conclusion": "success"
-    }
-  },
-  "updated_at": "2026-09-17T13:14:48.863Z",
-  "version": 1,
-  "audio_repair": {
-    "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
-    "run_id": 35102043136,
-    "sample_ids": [
-      79
+    "status": "completed",
+    "summary_artifact_id": 10489747808,
+    "target_met": false,
+    "targeted_validation_run": 35190487788,
+    "unresolved": 1,
+    "unresolved_ids": [
+      60
     ],
-    "status": "asr_recovered_selection_fix_retesting",
-    "counts_as_full_benchmark": false,
-    "policy": "left-channel-v1",
-    "real_asr_and_final_acceptance": "ASR verified; final acceptance pending",
-    "evidence_path": "linyuan/simulations/evidence/source79-audio-35100640388.json",
-    "verified_asr": {
-      "run_id": 35102043136,
-      "duration_sec": 1097.48,
-      "cues": 348,
-      "characters": 4667,
-      "alignment_completed": true,
-      "quality_gate_passed": true,
-      "old_empty_evidence_reused": false
-    },
-    "selection_fix": {
-      "commit": "312cdc57d5a9a1a1cc86231f236af3b9c3f22852",
-      "run_id": 35105484172,
-      "status": "failed_picture_after_valid_selection",
-      "selector_version": 22,
-      "boundaries_sec": [
-        [
-          573.88,
-          823.96
-        ],
-        [
-          824.36,
-          1097.48
+    "verification_index": "source100-round3-verified.json",
+    "verified_sample_ids": [
+      7,
+      28,
+      32,
+      39,
+      49,
+      58,
+      66,
+      68,
+      90,
+      95
+    ]
+  },
+  "round4": {
+    "commit": "dad6f695cb1f0e253253bc0aa86dc9cdd8143ca7",
+    "confirmed_passed": 12,
+    "final_success_rate": 12,
+    "last_observed_at": "2026-09-17T13:14:48.863Z",
+    "note": "Completed same-revision fixed100 run only. 12 actual accepted MP4s; 87 rejected; fixed URL source60 unresolved. Do not import prior or targeted successes.",
+    "publication_snapshot_sha256": "c6cfe93b1c3dc23eb475e60d8c4f4d9e4957c798bc855267859c963b3b90e694",
+    "reason": "Include source8 optional-layout repair already verified on real MP4, with selector26 regression; no speculative source67/70 gate changes.",
+    "remaining_unverified": 0,
+    "reported_samples": 100,
+    "run_id": 35219007898,
+    "running_sample_ids": [],
+    "same_fixed_samples": true,
+    "selector_version": 26,
+    "started_at": "2026-09-17T12:04:08.935Z",
+    "status": "completed",
+    "target_met": false,
+    "verified_finals": {
+      "7": {
+        "artifact_id": 10497016561,
+        "duration_sec": 156.341333,
+        "sha256": "68021ee654ce0d10fd2d8766fc1cca119a88975979c028f537985a2eebd25c06"
+      },
+      "8": {
+        "artifact_id": 10498502473,
+        "bytes": 11965877,
+        "duration": 183.621333,
+        "duration_sec": 183.621333,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10498587337,
+        "sample_id": 8,
+        "sha256": "35db59b14420ce5c8920e7931170d99b712a9c47fed8a68a9b4eba8f660dfadc",
+        "streams": [
+          "h264",
+          "aac"
         ]
-      ],
-      "final_acceptance_pending": true,
-      "last_observed_step": "真实出片模拟（每个素材首条合格成片后停止）",
-      "result_run_id": 35105484172,
-      "result": "both candidates rejected by unchanged continuous-face gate"
+      },
+      "28": {
+        "artifact_id": 10496842460,
+        "duration_sec": 144.487696,
+        "sha256": "61f5a162a88586ac38dab5a33fed1e5005d6fa799927b9e854f921280431a9e1"
+      },
+      "32": {
+        "artifact_id": 10497630330,
+        "duration_sec": 205.454362,
+        "sha256": "2d162650e64b158f6644c0f86b29f689bac3953ec153183c733b94a392c8571e"
+      },
+      "39": {
+        "artifact_id": 10498255791,
+        "bytes": 11004084,
+        "duration": 181.621333,
+        "duration_sec": 181.621333,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10498011169,
+        "sample_id": 39,
+        "sha256": "4cdbd094166b6d067bbef20c8012878dda58a9054bceb98c591b2da35b7a3dd9",
+        "streams": [
+          "h264",
+          "aac"
+        ]
+      },
+      "49": {
+        "artifact_id": 10497677630,
+        "audio": "aac",
+        "bytes": 8165888,
+        "duration_sec": 147.621333,
+        "sha256": "34289c2105d0b821b312abb367deb61c3e4cf916061286753260cd4309b47403",
+        "video": "h264 720x1280"
+      },
+      "58": {
+        "artifact_id": 10498100465,
+        "bytes": 7111169,
+        "duration": 133.181333,
+        "duration_sec": 133.181333,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10498165445,
+        "sample_id": 58,
+        "sha256": "a414bc9060f496731d8dc736f24763c8e1ef2550902d2e6fb26143fc9f9f2187",
+        "streams": [
+          "h264",
+          "aac"
+        ]
+      },
+      "66": {
+        "artifact_id": 10496599677,
+        "bytes": 8336169,
+        "duration": 128.821333,
+        "duration_sec": 128.821333,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10497029154,
+        "sample_id": 66,
+        "sha256": "ed41dac5cf1d73fc99c571e70151c2ecf2afa5afae76f80835e643b7eaa82b5c",
+        "streams": [
+          "h264",
+          "aac"
+        ]
+      },
+      "68": {
+        "artifact_id": 10498910487,
+        "bytes": 20493287,
+        "duration": 250.4,
+        "duration_sec": 250.4,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10498585691,
+        "sample_id": 68,
+        "sha256": "5646d08f2eadab9af3dc09f46fb98476480363c19c78b33ce12809fd0a69ddf7",
+        "streams": [
+          "h264",
+          "aac"
+        ]
+      },
+      "79": {
+        "artifact_id": 10499831319,
+        "report_artifact_id": 10500175875,
+        "duration_sec": 194.741333,
+        "bytes": 11180956,
+        "sha256": "8020f2dc1d10f91baf02593ae366bb61bd59c80ea94a1dfe776c43b1f6db2b4b",
+        "video": "h264 720x1280",
+        "audio": "aac",
+        "source_sha256": "8749fee3a7345c3e1c2fe2e14fc0b33d33d66829f5ff48a25ca6f6daee5ae41f",
+        "local_hash_stream_duration_verified": true
+      },
+      "90": {
+        "artifact_id": 10498217196,
+        "bytes": 8080909,
+        "duration_sec": 133.181333,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10498112323,
+        "sample_id": 90,
+        "sha256": "af2f457ba9fce40d7cb7fa0b576011e7745ad6a030ad42b9e592b9e1716da2f5",
+        "streams": [
+          "h264",
+          "aac"
+        ]
+      },
+      "95": {
+        "artifact_id": 10498913865,
+        "bytes": 9228806,
+        "duration_sec": 126.821333,
+        "local_hash_stream_duration_verified": true,
+        "report_artifact_id": 10498539182,
+        "sample_id": 95,
+        "sha256": "2012ee042fe811d2adaf970a39a4808fb2eb1ebfb1c4389f95cec10b14822ff8",
+        "streams": [
+          "h264",
+          "aac"
+        ]
+      }
     },
-    "visual_boundary_fix": {
-      "commit": "e2bb9a3feb683c743a82c18a3effe2770ab599ea",
-      "run_id": 35116931936,
-      "status": "rejected_persistent_source_branding",
-      "selector_version": 23,
-      "selected_span_sec": [
-        573.88,
-        768.6
-      ],
-      "duration_sec": 194.72,
-      "reason": "literal topic boundary aligns with source change to a wide stage shot",
-      "all_quality_gates_unchanged": true,
-      "report_artifact_id": 10457706206,
-      "final_acceptance_pending": false,
-      "result": "candidate1 passed 5764/5842 target-face tracking and final identity but retained persistent venue/media branding; candidate2 failed continuous-face gate; no final"
-    },
-    "final_acceptance_pending": false
+    "verified_sample_ids": [
+      7,
+      8,
+      28,
+      32,
+      39,
+      49,
+      58,
+      66,
+      68,
+      79,
+      90,
+      95
+    ],
+    "completed_at": "2026-09-17T13:48:02Z",
+    "passed": 12,
+    "rejected": 87,
+    "unresolved": 1,
+    "unresolved_ids": [
+      60
+    ],
+    "complete": false,
+    "execution_complete": true,
+    "summary_artifact_id": 10500661708,
+    "stage_counts": {
+      "candidate-quality": 60,
+      "source-quality": 27,
+      "final-accepted": 12,
+      "src": 1
+    }
+  },
+  "seed_expansion": {
+    "accepted_mp4s": 0,
+    "already_cataloged": 3,
+    "artifact_id": 10497998758,
+    "audio_only_title": 2,
+    "automatic_refresh": "daily read-only Actions CPU metadata audit",
+    "commit": "e48ae89b9b66fbbcb4d58f0fc5849522fd73d577",
+    "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
+    "manifest": "linyuan/seed_expansion.json",
+    "new_metadata_candidates": 61,
+    "next_step": "CPU media validation and same-event content dedup before considering these sources usable; no FC or posting.",
+    "outside_duration": 4,
+    "pages": 70,
+    "production_dispatch": false,
+    "report": "linyuan/simulations/seed-expansion-20260917.json",
+    "requested_at": "2026-09-17",
+    "run_id": 35225570402,
+    "seeds_added": 3,
+    "status": "metadata_audit_passed",
+    "total_candidate_seconds": 143952
+  },
+  "source27_question_tail_recovery": {
+    "candidate_span_sec": [
+      0.08,
+      129.72
+    ],
+    "claim_released": "2026-09-17T09:50:51.818Z",
+    "commit": "a1f75e9a326e70e20f4b184767dea2375b68e5c8",
+    "counts_as_final": false,
+    "counts_as_full_benchmark": false,
+    "fix": "Recognize object-scoped 关注哪/什么 investment questions and trim only bare modal endings at candidate tails. No sample IDs, manual timestamps, relaxed duration, picture, identity, deduplication or final gates.",
+    "real_evidence": "Run35207264689 completed: selector26 recovered129.64s candidate but unchanged picture gate rejected it; no MP4.",
+    "regression": "65 passed: source100 recovery, source selection, selection incident, simulation",
+    "report_artifact_id": 10490620421,
+    "result": "Selector26 recovered exactly one 129.64s Q&A candidate automatically, but the unchanged picture gate rejected it: persistent embedded subtitles, upper-left uploader/Bilibili marks and black side bars; static audio-card fallback is disabled. No MP4.",
+    "root_cause": "A complete investment question ended in '关注哪几个关键的东西呢？' without explicit 您/你, so the automatic selector missed the Q&A; the ASR tail ended with a bare modal '有没有' despite terminal punctuation.",
+    "run_id": 35207264689,
+    "sample_ids": [
+      27
+    ],
+    "selector_version": 26,
+    "source_sha256": "a56629f31e84a677415491a4a98c3c5df401a4989c9c35c6c9e9ffe65bea2b0b",
+    "status": "completed_selection_recovered_genuine_picture_rejection",
+    "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression matched; no FC deploy/call, publishing, production inventory or workflow_run chain.",
+    "verified_candidate_span_sec": [
+      0.08,
+      129.72
+    ]
   },
   "source48_black_edge": {
     "counts_as_full_benchmark": false,
-    "source_sha256": "9a6410d3d4d8624225537bfb66421d7e562637c57e95174cdc695d73becbe157",
-    "round2_run_id": 35098194067,
+    "decision": "keep rejected; no threshold or crop change",
+    "diagnostic_commit": "08b34ffd5e98ca3d32498a3731e7aeb269970b32",
+    "edge_hits": 6,
+    "gates_changed": false,
+    "left_dark_column_fraction": 1,
+    "matched_frames": 8639,
+    "max_adjacent_changed_fraction_gt12": 0.00011109614866684622,
+    "report_artifact_id": 10461061875,
+    "right_dark_column_fraction": 1,
     "round2_report_artifact_id": 10447149982,
+    "round2_run_id": 35098194067,
+    "run_id": 35129429485,
+    "sampled_frames": 6,
     "selected_span_sec": [
       0,
       287.96
     ],
-    "matched_frames": 8639,
-    "total_frames": 8639,
+    "source_sha256": "9a6410d3d4d8624225537bfb66421d7e562637c57e95174cdc695d73becbe157",
     "status": "confirmed_genuine_quality_rejection",
+    "total_frames": 8639
+  },
+  "source65_tail_repair": {
+    "attempted_candidates": 9,
+    "cleanup_crop_limit_fraction": 0.3,
+    "cleanup_crop_required_fraction": 0.36,
+    "commit": "a6c541a37de1ac2e3f3f490b252bc230d38562e9",
+    "counts_as_final": false,
+    "final_status": "rejected_genuine_picture_quality",
+    "fixed_url": "https://m.weibo.cn/detail/5330980149657603",
     "gates_changed": false,
-    "diagnostic_commit": "08b34ffd5e98ca3d32498a3731e7aeb269970b32",
-    "run_id": 35129429485,
-    "report_artifact_id": 10461061875,
-    "sampled_frames": 6,
-    "edge_hits": 6,
-    "left_dark_column_fraction": 1,
-    "right_dark_column_fraction": 1,
-    "max_adjacent_changed_fraction_gt12": 0.00011109614866684622,
-    "decision": "keep rejected; no threshold or crop change"
+    "report_artifact_id": 10465163030,
+    "run_id": 35134850962,
+    "source_sha256": "724513781ca7287346f143bff3c50c704ce8e741453a65d6691c90cd33b525a1",
+    "transport_status": "bounded_tail_normalization_passed_full_media_validation"
   },
   "source77_keynote": {
-    "selector_commit": "51e1564ba7f14e62be4e886f738724952c48c22d",
-    "evidence_commit": "b2a97f39d1a9b010d53473a05bc0da9696e895c0",
-    "runs": [
-      35131476262,
-      35132701870
-    ],
-    "report_artifact_id": 10462150511,
-    "status": "rejected_static_promotional_card",
     "candidate_spans_sec": [
       [
         662.84,
@@ -386,131 +630,51 @@
         2103.8
       ]
     ],
-    "counts_as_final": false
-  },
-  "geometry_review": {
-    "run_id": 35133465694,
-    "commit": "363162bff6cbcef23c95272bdc4c71d60b8d4a87",
-    "sample_ids": [
-      15,
-      46,
-      76
-    ],
-    "status": "completed_no_accepted_final",
-    "report_artifact_ids": {
-      "15": 10462616772,
-      "46": 10462711336,
-      "76": 10462831604
-    },
-    "counts_as_full_benchmark": false,
-    "counts_as_final": false
-  },
-  "source65_tail_repair": {
-    "commit": "a6c541a37de1ac2e3f3f490b252bc230d38562e9",
-    "run_id": 35134850962,
-    "report_artifact_id": 10465163030,
-    "source_sha256": "724513781ca7287346f143bff3c50c704ce8e741453a65d6691c90cd33b525a1",
-    "fixed_url": "https://m.weibo.cn/detail/5330980149657603",
-    "transport_status": "bounded_tail_normalization_passed_full_media_validation",
-    "final_status": "rejected_genuine_picture_quality",
-    "attempted_candidates": 9,
-    "cleanup_crop_required_fraction": 0.36,
-    "cleanup_crop_limit_fraction": 0.3,
     "counts_as_final": false,
-    "gates_changed": false
-  },
-  "identity_sparse_review": {
-    "evidence_commit": "e4546ce04bc22b834868e329857f8755f9a6421a",
-    "fix_commit": "7492544d9660204bb62455401ff8f6439fa23796",
-    "evidence_run_id": 35165978130,
-    "validation_run_id": 35166698979,
-    "sample_ids": [
-      30,
-      31,
-      52,
-      56,
-      84,
-      93,
-      98
+    "evidence_commit": "b2a97f39d1a9b010d53473a05bc0da9696e895c0",
+    "report_artifact_id": 10462150511,
+    "runs": [
+      35131476262,
+      35132701870
     ],
-    "status": "completed_zero_accepted",
-    "advanced_sample_ids": [
-      30,
-      31,
-      56,
-      84
-    ],
-    "still_source_rejected_sample_ids": [
-      52,
-      93,
-      98
-    ],
-    "counts_as_full_benchmark": false,
-    "purpose": "use a denser source-only contiguous-window check while preserving all independent candidate/final gates"
+    "selector_commit": "51e1564ba7f14e62be4e886f738724952c48c22d",
+    "status": "rejected_static_promotional_card"
   },
   "source8_optional_layout": {
-    "status": "completed_verified_accepted",
+    "accepted_final": {
+      "audio": "aac",
+      "audio_card": 0,
+      "bytes": 11961286,
+      "duration_sec": 183.621333,
+      "file": "final_9.mp4",
+      "live_video": 1,
+      "local_hash_stream_duration_verified": true,
+      "sha256": "3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881",
+      "video": "h264 720x1280"
+    },
+    "claim_released": "2026-09-17T09:03:00Z",
     "commit": "011fde29229046e21b3cb4b939ed75f30dbb1e12",
-    "run_id": 35202944591,
-    "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+    "counts_as_final": true,
+    "fix": "Only OUTPUT_LAYOUT=auto may retain the original portrait after an optional landscape VisualQualityError; all original media, cover, subtitle, review and editing-proof hashes must match. Explicit landscape still fails; changed bytes or missing proofs cannot fall back; downstream acceptance/dedup unchanged.",
+    "media_artifact_id": 10490835722,
     "raw_cues_sha256": "629abd2cb4f8258dc59ece580f1c6b660044a5bd534097c528cd6eb7affae8c4",
+    "regression": "69 passed: optional layout, landscape, visual gate, source100 recovery, simulation",
+    "report_artifact_id": 10491230364,
+    "result": "Run35202944591 passed all unchanged acceptance gates and produced one verified real MP4. This targeted newer revision is not imported into completed round3; a same-revision full100 rerun is required for a new percentage.",
+    "root_cause": "Same mother and byte-identical raw cues. The candidate still passes portrait live checks, then optional landscape converts it and the unscoped edge-text gate rejects generated ASS subtitles (five actual OCR rows). Entire source is discarded although original verified portrait bytes remain unchanged.",
     "round2_report_artifact": 10450172748,
     "round3_report_artifact": 10487028390,
-    "root_cause": "Same mother and byte-identical raw cues. The candidate still passes portrait live checks, then optional landscape converts it and the unscoped edge-text gate rejects generated ASS subtitles (five actual OCR rows). Entire source is discarded although original verified portrait bytes remain unchanged.",
-    "fix": "Only OUTPUT_LAYOUT=auto may retain the original portrait after an optional landscape VisualQualityError; all original media, cover, subtitle, review and editing-proof hashes must match. Explicit landscape still fails; changed bytes or missing proofs cannot fall back; downstream acceptance/dedup unchanged.",
-    "regression": "69 passed: optional layout, landscape, visual gate, source100 recovery, simulation",
-    "trigger_audit": "Only presentation-rules-test and fixed-source diagnostic matched main push; no FC, publishing or downstream workflow_run",
-    "counts_as_final": true,
-    "claim_released": "2026-09-17T09:03:00Z",
-    "report_artifact_id": 10491230364,
-    "media_artifact_id": 10490835722,
-    "accepted_final": {
-      "file": "final_9.mp4",
-      "duration_sec": 183.621333,
-      "bytes": 11961286,
-      "sha256": "3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881",
-      "video": "h264 720x1280",
-      "audio": "aac",
-      "live_video": 1,
-      "audio_card": 0,
-      "local_hash_stream_duration_verified": true
-    },
-    "result": "Run35202944591 passed all unchanged acceptance gates and produced one verified real MP4. This targeted newer revision is not imported into completed round3; a same-revision full100 rerun is required for a new percentage."
-  },
-  "source27_question_tail_recovery": {
-    "status": "completed_selection_recovered_genuine_picture_rejection",
-    "commit": "a1f75e9a326e70e20f4b184767dea2375b68e5c8",
-    "run_id": 35207264689,
-    "selector_version": 26,
-    "sample_ids": [
-      27
-    ],
-    "source_sha256": "a56629f31e84a677415491a4a98c3c5df401a4989c9c35c6c9e9ffe65bea2b0b",
-    "candidate_span_sec": [
-      0.08,
-      129.72
-    ],
-    "counts_as_full_benchmark": false,
-    "counts_as_final": false,
-    "root_cause": "A complete investment question ended in '关注哪几个关键的东西呢？' without explicit 您/你, so the automatic selector missed the Q&A; the ASR tail ended with a bare modal '有没有' despite terminal punctuation.",
-    "fix": "Recognize object-scoped 关注哪/什么 investment questions and trim only bare modal endings at candidate tails. No sample IDs, manual timestamps, relaxed duration, picture, identity, deduplication or final gates.",
-    "regression": "65 passed: source100 recovery, source selection, selection incident, simulation",
-    "real_evidence": "Run35207264689 completed: selector26 recovered129.64s candidate but unchanged picture gate rejected it; no MP4.",
-    "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression matched; no FC deploy/call, publishing, production inventory or workflow_run chain.",
-    "claim_released": "2026-09-17T09:50:51.818Z",
-    "report_artifact_id": 10490620421,
-    "result": "Selector26 recovered exactly one 129.64s Q&A candidate automatically, but the unchanged picture gate rejected it: persistent embedded subtitles, upper-left uploader/Bilibili marks and black side bars; static audio-card fallback is disabled. No MP4.",
-    "verified_candidate_span_sec": [
-      0.08,
-      129.72
-    ]
+    "run_id": 35202944591,
+    "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+    "status": "completed_verified_accepted",
+    "trigger_audit": "Only presentation-rules-test and fixed-source diagnostic matched main push; no FC, publishing or downstream workflow_run"
   },
   "space_assessment": {
     "assessed_at": "2026-09-17T11:41:19.870Z",
-    "source_run_id": 35194448958,
-    "source_commit": "f9e32ad1c3b0fd139e531a1db11627446d3a11ca",
-    "report": "source100-space-assessment-20260917.md",
-    "report_commit": "d5f3dcc4f7184f679bfd912222971f2cb7803933",
+    "conclusion": "Continue bounded general automation fixes; insufficient evidence that fixed100 can reach30%. Do not equate failed tested candidates with permanently unusable whole long source.",
+    "interpretation": "18 current source limitations are excluded from expected near-term software recovery, not from denominator. Other71 rejects include genuine constraints and unknown algorithmic errors, not71 recoverable sources. 74 duration uses resolver rejection plus frozen102.722s metadata, not independently decoded mother.",
+    "next_priority": "Read-only investigation of source70 full-source cleanup rejection: native1024x576 vs estimated422px cleaned short edge. Preserve actual geometry evidence; do not lower480px gate.",
+    "optimistic_selection_only_scenario": "10 retained + source8 repeat pass + all15 selection sources =26; conditional arithmetic only, not forecast. Need >=4 further outside selection even under this overoptimistic premise.",
     "partition": {
       "accepted": [
         7,
@@ -523,6 +687,16 @@
         68,
         90,
         95
+      ],
+      "dedup_evidence": [
+        3,
+        16,
+        23,
+        24,
+        40,
+        45,
+        89,
+        96
       ],
       "duration": [
         2,
@@ -539,39 +713,15 @@
         97,
         100
       ],
+      "fetch_unresolved": [
+        60
+      ],
       "highest_available_resolution": [
         18,
         20,
         37,
         86,
         94
-      ],
-      "dedup_evidence": [
-        3,
-        16,
-        23,
-        24,
-        40,
-        45,
-        89,
-        96
-      ],
-      "selection": [
-        1,
-        6,
-        17,
-        19,
-        25,
-        26,
-        27,
-        30,
-        34,
-        38,
-        42,
-        54,
-        61,
-        67,
-        81
       ],
       "picture_or_cleanup": [
         4,
@@ -614,6 +764,23 @@
         92,
         99
       ],
+      "selection": [
+        1,
+        6,
+        17,
+        19,
+        25,
+        26,
+        27,
+        30,
+        34,
+        38,
+        42,
+        54,
+        61,
+        67,
+        81
+      ],
       "source_identity": [
         44,
         50,
@@ -624,201 +791,59 @@
         91,
         93,
         98
-      ],
-      "fetch_unresolved": [
-        60
       ]
     },
-    "interpretation": "18 current source limitations are excluded from expected near-term software recovery, not from denominator. Other71 rejects include genuine constraints and unknown algorithmic errors, not71 recoverable sources. 74 duration uses resolver rejection plus frozen102.722s metadata, not independently decoded mother.",
-    "optimistic_selection_only_scenario": "10 retained + source8 repeat pass + all15 selection sources =26; conditional arithmetic only, not forecast. Need >=4 further outside selection even under this overoptimistic premise.",
-    "next_priority": "Read-only investigation of source70 full-source cleanup rejection: native1024x576 vs estimated422px cleaned short edge. Preserve actual geometry evidence; do not lower480px gate.",
-    "conclusion": "Continue bounded general automation fixes; insufficient evidence that fixed100 can reach30%. Do not equate failed tested candidates with permanently unusable whole long source."
+    "report": "source100-space-assessment-20260917.md",
+    "report_commit": "d5f3dcc4f7184f679bfd912222971f2cb7803933",
+    "source_commit": "f9e32ad1c3b0fd139e531a1db11627446d3a11ca",
+    "source_run_id": 35194448958
   },
-  "round4": {
-    "run_id": 35219007898,
-    "commit": "dad6f695cb1f0e253253bc0aa86dc9cdd8143ca7",
-    "status": "in_progress",
-    "started_at": "2026-09-17T12:04:08.935Z",
-    "same_fixed_samples": true,
-    "publication_snapshot_sha256": "c6cfe93b1c3dc23eb475e60d8c4f4d9e4957c798bc855267859c963b3b90e694",
-    "selector_version": 26,
-    "reason": "Include source8 optional-layout repair already verified on real MP4, with selector26 regression; no speculative source67/70 gate changes.",
-    "confirmed_passed": 11,
-    "verified_sample_ids": [
-      7,
-      8,
-      28,
-      32,
-      39,
-      49,
-      58,
-      66,
-      68,
-      90,
-      95
-    ],
-    "reported_samples": 96,
-    "remaining_unverified": 4,
-    "final_success_rate": null,
-    "target_met": false,
-    "note": "Same dad6f695 revision: 96 sample reports uploaded; 11 actual MP4s hash/streams/duration verified. 73/79/84/87 still running; 85 other reports await this pass's rejection/unknown classification. Final percentage remains pending. Prior completed round3 is10/100. No seed-expansion candidates are imported.",
-    "last_observed_at": "2026-09-17T13:14:48.863Z",
-    "verified_finals": {
-      "7": {
-        "artifact_id": 10497016561,
-        "duration_sec": 156.341333,
-        "sha256": "68021ee654ce0d10fd2d8766fc1cca119a88975979c028f537985a2eebd25c06"
-      },
-      "8": {
-        "bytes": 11965877,
-        "duration": 183.621333,
-        "sample_id": 8,
-        "sha256": "35db59b14420ce5c8920e7931170d99b712a9c47fed8a68a9b4eba8f660dfadc",
-        "streams": [
-          "h264",
-          "aac"
-        ],
-        "artifact_id": 10498502473,
-        "report_artifact_id": 10498587337,
-        "duration_sec": 183.621333,
-        "local_hash_stream_duration_verified": true
-      },
-      "28": {
-        "artifact_id": 10496842460,
-        "duration_sec": 144.487696,
-        "sha256": "61f5a162a88586ac38dab5a33fed1e5005d6fa799927b9e854f921280431a9e1"
-      },
-      "32": {
-        "artifact_id": 10497630330,
-        "duration_sec": 205.454362,
-        "sha256": "2d162650e64b158f6644c0f86b29f689bac3953ec153183c733b94a392c8571e"
-      },
-      "39": {
-        "bytes": 11004084,
-        "duration": 181.621333,
-        "sample_id": 39,
-        "sha256": "4cdbd094166b6d067bbef20c8012878dda58a9054bceb98c591b2da35b7a3dd9",
-        "streams": [
-          "h264",
-          "aac"
-        ],
-        "artifact_id": 10498255791,
-        "report_artifact_id": 10498011169,
-        "duration_sec": 181.621333,
-        "local_hash_stream_duration_verified": true
-      },
-      "49": {
-        "artifact_id": 10497677630,
-        "duration_sec": 147.621333,
-        "sha256": "34289c2105d0b821b312abb367deb61c3e4cf916061286753260cd4309b47403",
-        "bytes": 8165888,
-        "video": "h264 720x1280",
-        "audio": "aac"
-      },
-      "58": {
-        "bytes": 7111169,
-        "duration": 133.181333,
-        "sample_id": 58,
-        "sha256": "a414bc9060f496731d8dc736f24763c8e1ef2550902d2e6fb26143fc9f9f2187",
-        "streams": [
-          "h264",
-          "aac"
-        ],
-        "artifact_id": 10498100465,
-        "report_artifact_id": 10498165445,
-        "duration_sec": 133.181333,
-        "local_hash_stream_duration_verified": true
-      },
-      "66": {
-        "bytes": 8336169,
-        "duration": 128.821333,
-        "sample_id": 66,
-        "sha256": "ed41dac5cf1d73fc99c571e70151c2ecf2afa5afae76f80835e643b7eaa82b5c",
-        "streams": [
-          "h264",
-          "aac"
-        ],
-        "artifact_id": 10496599677,
-        "report_artifact_id": 10497029154,
-        "duration_sec": 128.821333,
-        "local_hash_stream_duration_verified": true
-      },
-      "68": {
-        "bytes": 20493287,
-        "duration": 250.4,
-        "sample_id": 68,
-        "sha256": "5646d08f2eadab9af3dc09f46fb98476480363c19c78b33ce12809fd0a69ddf7",
-        "streams": [
-          "h264",
-          "aac"
-        ],
-        "artifact_id": 10498910487,
-        "report_artifact_id": 10498585691,
-        "duration_sec": 250.4,
-        "local_hash_stream_duration_verified": true
-      },
-      "90": {
-        "artifact_id": 10498217196,
-        "bytes": 8080909,
-        "duration_sec": 133.181333,
-        "local_hash_stream_duration_verified": true,
-        "report_artifact_id": 10498112323,
-        "sample_id": 90,
-        "sha256": "af2f457ba9fce40d7cb7fa0b576011e7745ad6a030ad42b9e592b9e1716da2f5",
-        "streams": [
-          "h264",
-          "aac"
-        ]
-      },
-      "95": {
-        "artifact_id": 10498913865,
-        "bytes": 9228806,
-        "duration_sec": 126.821333,
-        "local_hash_stream_duration_verified": true,
-        "report_artifact_id": 10498539182,
-        "sample_id": 95,
-        "sha256": "2012ee042fe811d2adaf970a39a4808fb2eb1ebfb1c4389f95cec10b14822ff8",
-        "streams": [
-          "h264",
-          "aac"
-        ]
-      }
+  "tests": {
+    "black_edge_evidence_github": {
+      "conclusion": "success",
+      "run_id": 35129429246,
+      "status": "completed"
     },
-    "running_sample_ids": [
-      73,
-      79,
-      84,
-      87
-    ]
+    "black_edge_evidence_local": {
+      "command": "pytest tests/test_linyuan_visual_gate.py tests/test_linyuan_simulation.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_source_selection.py",
+      "passed": 62
+    },
+    "command": "pytest: selection, simulation, ASR integrity, evidence supply, Qwen checkpoints, channel preprocessing and diagnostics",
+    "github_regression": {
+      "conclusion": "success",
+      "run_id": 35102042622
+    },
+    "passed": 159,
+    "selector22_github": {
+      "conclusion": "success",
+      "run_id": 35105483686,
+      "status": "completed"
+    },
+    "selector22_local": {
+      "passed": 65,
+      "real_source79_candidate_spans": 2
+    },
+    "selector23_github": {
+      "run_id": 35116931451,
+      "status": "in_progress"
+    },
+    "selector23_local": {
+      "passed": 65,
+      "real_source79_candidate_span_sec": [
+        573.88,
+        768.6
+      ]
+    },
+    "source77_keynote_github": {
+      "conclusion": "success",
+      "run_id": 35131475807,
+      "status": "completed"
+    },
+    "source77_keynote_local": {
+      "command": "python -m pytest: selection, visual gate, simulation, source100 recovery, ASR integrity, Qwen evidence, audio preprocessing",
+      "passed": 89
+    }
   },
-  "evening_review": {
-    "checked_at": "2026-09-17T12:04:08.935Z",
-    "evidence_report": "source100-evening-evidence-20260917.json",
-    "evidence_commit": "2f0058d4f0bd95e4dabfd01ac2b1bd69e2dd86a5",
-    "source70": "Observed forest/template overlay and source text; exact clean-preview geometry1024x422. No proof of false rejection; retain480 gate.",
-    "source67": "Word alignment confirms guest complete clause249.72s, farewell251.72s, addressed thanks starts252.04s; original sentence unit merges guest+host. Generic automatic handoff normalization is still unimplemented. Picture constraints remain.",
-    "report_deadline": "2026-09-17T20:30:00+08:00",
-    "report_scheduled_for": "2026-09-17T20:25:00+08:00"
-  },
-  "seed_expansion": {
-    "requested_at": "2026-09-17",
-    "commit": "e48ae89b9b66fbbcb4d58f0fc5849522fd73d577",
-    "manifest": "linyuan/seed_expansion.json",
-    "report": "linyuan/simulations/seed-expansion-20260917.json",
-    "run_id": 35225570402,
-    "artifact_id": 10497998758,
-    "status": "metadata_audit_passed",
-    "seeds_added": 3,
-    "pages": 70,
-    "already_cataloged": 3,
-    "outside_duration": 4,
-    "audio_only_title": 2,
-    "new_metadata_candidates": 61,
-    "total_candidate_seconds": 143952,
-    "accepted_mp4s": 0,
-    "production_dispatch": false,
-    "automatic_refresh": "daily read-only Actions CPU metadata audit",
-    "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
-    "next_step": "CPU media validation and same-event content dedup before considering these sources usable; no FC or posting."
-  }
+  "updated_at": "2026-09-17T14:40:37.750Z",
+  "version": 1
 }
