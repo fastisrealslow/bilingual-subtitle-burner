@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "linyuan"))
-from seed_media_preflight import select_candidates, summarize
+from seed_media_preflight import _load_exclusions, select_candidates, summarize
 
 
 def row(seed, page, title="访谈", duration=1200):
@@ -40,3 +40,23 @@ def test_summary_keeps_source_pass_separate_from_finished_clip(tmp_path):
     assert result["source_quality_passed"] == 1
     assert result["accepted_mp4_count"] == 0
     assert result["production_dispatch"] is False
+
+
+def test_previous_acceptance_manifest_is_excluded(tmp_path):
+    previous = tmp_path / "seed-expansion-acceptance-previous.json"
+    previous.write_text(json.dumps({"samples": [
+        {"id": 201, "source_url": "https://www.bilibili.com/video/BV1111111111?p=1"},
+    ]}), encoding="utf-8")
+    excluded_ids, excluded_urls = _load_exclusions([previous])
+    report = {"candidates": [
+        row("BV1111111111", 1, "林园访谈", 1500),
+        row("BV1111111111", 2, "林园访谈", 1400),
+        row("BV2222222222", 1, "投资者交流会", 1300),
+    ]}
+    selected = select_candidates(report, limit=2, per_seed=2,
+                                 excluded_ids=excluded_ids,
+                                 excluded_urls=excluded_urls)
+    assert {item["url"] for item in selected} == {
+        "https://www.bilibili.com/video/BV2222222222?p=1",
+        "https://www.bilibili.com/video/BV1111111111?p=2",
+    }

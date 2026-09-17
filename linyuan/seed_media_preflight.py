@@ -32,13 +32,33 @@ def _score(row):
     )
 
 
-def select_candidates(report, limit=6, per_seed=2):
+def _load_exclusions(paths):
+    """Return source IDs/URLs already assigned to an immutable acceptance batch."""
+    ids, urls = set(), set()
+    for path in paths:
+        try:
+            payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        for row in payload.get("samples") or []:
+            if row.get("id") is not None:
+                ids.add(str(row["id"]))
+            if row.get("source_url"):
+                urls.add(row["source_url"])
+    return ids, urls
+
+
+def select_candidates(report, limit=6, per_seed=2, excluded_ids=(), excluded_urls=()):
     """Round-robin across seed families so one collection cannot consume a run."""
     if limit < 1 or per_seed < 1:
         raise ValueError("limit and per_seed must be positive")
+    excluded_ids = {str(value) for value in excluded_ids}
+    excluded_urls = set(excluded_urls)
     groups = defaultdict(list)
     for row in report.get("candidates") or []:
         if row.get("status") != "new_metadata_candidate":
+            continue
+        if str(row.get("id")) in excluded_ids or row.get("url") in excluded_urls:
             continue
         if row.get("direct_dispatch") or row.get("media_verified"):
             raise ValueError("metadata candidate unexpectedly claims admission")
@@ -95,14 +115,21 @@ def main():
     matrix.add_argument("--report", type=Path, required=True)
     matrix.add_argument("--limit", type=int, default=6)
     matrix.add_argument("--per-seed", type=int, default=2)
+    matrix.add_argument("--exclude-manifest", type=Path, action="append", default=[])
     summary = sub.add_parser("summary")
     summary.add_argument("--reports", type=Path, required=True)
     summary.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "matrix":
         report = json.loads(args.report.read_text(encoding="utf-8"))
+        exclusion_paths = list(args.exclude_manifest)
+        if not exclusion_paths:
+            exclusion_paths = sorted(Path("linyuan/simulations").glob(
+                "seed-expansion-acceptance-*.json"))
+        excluded_ids, excluded_urls = _load_exclusions(exclusion_paths)
         print(json.dumps({"include": select_candidates(
-            report, args.limit, args.per_seed)}, ensure_ascii=False, separators=(",", ":")))
+            report, args.limit, args.per_seed, excluded_ids, excluded_urls)},
+            ensure_ascii=False, separators=(",", ":")))
         return 0
     result = summarize(args.reports)
     args.output.parent.mkdir(parents=True, exist_ok=True)
