@@ -107,7 +107,8 @@
     "Source27 original question is semantically complete but lacks explicit 您/你, so selector25 produced zero candidates; its ASR tail '核心就是它有没有。' is a bare modal and incomplete despite punctuation. Selector26 commit a1f75e9a generically recognizes object-scoped 关注哪/什么 questions and trims only bare-modal candidate tails; 65 regressions pass and fixed-source run35207264689 is executing.",
     "Source27 run35207264689 proved selector26 works on the fixed source: one 129.64s Q&A candidate was attempted. It remains a genuine picture-quality rejection because the source carries persistent embedded captions, upper-left uploader/Bilibili branding and black side bars; no static audio-card fallback and no final MP4.",
     "Source8 automatic-layout repair run35202944591 completed with a real accepted final: 183.621333s, 11,961,286 bytes, SHA256 3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881, H.264 720x1280 + AAC, live_video=1/audio_card=0. Report and downloaded MP4 hash agree. It remains separate from round3 until a same-revision full100 run.",
-    "Round4 run35219007898 completed at dad6f695 and the fixed publication snapshot:12 verified accepted,87 rejected,1 unresolved(source60 exact URL unavailable). Source79 is now a real accepted194.741333s MP4 after the generic stereo-channel, keynote-boundary and automatic pipeline fixes. Target30 not met."
+    "Round4 run35219007898 completed at dad6f695 and the fixed publication snapshot:12 verified accepted,87 rejected,1 unresolved(source60 exact URL unavailable). Source79 is now a real accepted194.741333s MP4 after the generic stereo-channel, keynote-boundary and automatic pipeline fixes. Target30 not met.",
+    "Expanded-seed CPU preflight run35239663311 tested six real mother videos: four passed the unchanged source-quality gate, one remained a retryable CDN failure, and BV1c54y1A7Bc?p=5 exposed a fetch-identity defect (1347s page metadata but valid 20s media). Commit9f0063f binds cid+declared duration to downloaded media and classifies mismatches as retryable source-fetch failures; validation run35246787437 is active. No item counts as an accepted MP4."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -244,6 +245,7 @@
     ]
   },
   "next_steps": [
+    "Wait for expanded-seed validation run35246787437. If duration identity is correct, send the four source-quality passes through CPU offline ASR, content deduplication and full final acceptance; keep their yield separate from fixed100.",
     "Do not launch a duplicate round4. Use its final12/87/1 evidence to select the next bounded general failure class; only rerun the full100 after a real targeted recovery.",
     "For the expanded pool, keep61 metadata candidates separate from source100. Add CPU media/source-quality and same-event content-dedup screening before any production admission or yield claim; no FC or posting.",
     "Keep the new61 metadata candidates separate from the fixed100 benchmark. CPU-only discovery audit35225570402 passed; validate real downloaded media/content dedup before any quality or yield claim.",
@@ -845,5 +847,34 @@
     }
   },
   "updated_at": "2026-09-17T14:40:37.750Z",
-  "version": 1
+  "version": 1,
+  "seed_media_preflight": {
+    "accepted_mp4_count": 0,
+    "counts_as_fixed100_benchmark": false,
+    "discovery_run_id": 35225570402,
+    "candidate_pool": {
+      "collection_pages": 70,
+      "metadata_candidates": 61,
+      "estimated_hours": 39.99
+    },
+    "first_run": {
+      "run_id": 35239663311,
+      "commit": "59116d1bfe4b87ea18b6002d1b77ecad1088164e",
+      "summary_artifact_id": 10507775689,
+      "tested": 6,
+      "source_quality_passed": 4,
+      "technical_unknown": 1,
+      "technical_misclassified_pending_fix": 1,
+      "note": "BV1c54y1A7Bc?p=5 metadata 1347s but a valid 20s MP4 was returned; this is a fetch identity mismatch, not a material-quality rejection."
+    },
+    "duration_identity_fix": {
+      "commit": "9f0063f147d96b1ff48e2109c405c12bdb3443f7",
+      "regression": "61 passed locally",
+      "rule": "Bind requested page cid+metadata duration to the resolved streams and reject downloaded media outside max(15s,5%) as retryable source-fetch mismatch.",
+      "all_quality_gates_unchanged": true,
+      "no_fc_or_posting": true
+    },
+    "validation_run_id": 35246787437,
+    "status": "duration_identity_fix_validation_running"
+  }
 }
