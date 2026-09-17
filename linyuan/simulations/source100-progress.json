@@ -108,7 +108,8 @@
     "Source27 run35207264689 proved selector26 works on the fixed source: one 129.64s Q&A candidate was attempted. It remains a genuine picture-quality rejection because the source carries persistent embedded captions, upper-left uploader/Bilibili branding and black side bars; no static audio-card fallback and no final MP4.",
     "Source8 automatic-layout repair run35202944591 completed with a real accepted final: 183.621333s, 11,961,286 bytes, SHA256 3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881, H.264 720x1280 + AAC, live_video=1/audio_card=0. Report and downloaded MP4 hash agree. It remains separate from round3 until a same-revision full100 run.",
     "Round4 run35219007898 completed at dad6f695 and the fixed publication snapshot:12 verified accepted,87 rejected,1 unresolved(source60 exact URL unavailable). Source79 is now a real accepted194.741333s MP4 after the generic stereo-channel, keynote-boundary and automatic pipeline fixes. Target30 not met.",
-    "Expanded-seed CPU preflight run35239663311 tested six real mother videos: four passed the unchanged source-quality gate, one remained a retryable CDN failure, and BV1c54y1A7Bc?p=5 exposed a fetch-identity defect (1347s page metadata but valid 20s media). Commit9f0063f binds cid+declared duration to downloaded media and classifies mismatches as retryable source-fetch failures; validation run35246787437 is active. No item counts as an accepted MP4."
+    "Expanded-seed CPU preflight run35239663311 tested six real mother videos: four passed the unchanged source-quality gate, one remained a retryable CDN failure, and BV1c54y1A7Bc?p=5 exposed a fetch-identity defect (1347s page metadata but valid 20s media). Commit9f0063f binds cid+declared duration to downloaded media and classifies mismatches as retryable source-fetch failures; validation run35246787437 is active. No item counts as an accepted MP4.",
+    "Expanded-seed duration-identity validation run35246787437 completed: all six fixed URLs now return duration-matched real media and pass unchanged source-quality gates (0 accepted finals at this stage). Full CPU acceptance run35251572571 covers the exact six URLs with offline ASR, deduplication, rendering and final gates; no FC or posting."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -245,7 +246,7 @@
     ]
   },
   "next_steps": [
-    "Wait for expanded-seed validation run35246787437. If duration identity is correct, send the four source-quality passes through CPU offline ASR, content deduplication and full final acceptance; keep their yield separate from fixed100.",
+    "Observe expanded-seed full CPU acceptance run35251572571; count only hash-verified final MP4s, then classify every non-final as quality rejection or unresolved. Keep results separate from fixed100 formal12%.",
     "Do not launch a duplicate round4. Use its final12/87/1 evidence to select the next bounded general failure class; only rerun the full100 after a real targeted recovery.",
     "For the expanded pool, keep61 metadata candidates separate from source100. Add CPU media/source-quality and same-event content-dedup screening before any production admission or yield claim; no FC or posting.",
     "Keep the new61 metadata candidates separate from the fixed100 benchmark. CPU-only discovery audit35225570402 passed; validate real downloaded media/content dedup before any quality or yield claim.",
@@ -875,6 +876,33 @@
       "no_fc_or_posting": true
     },
     "validation_run_id": 35246787437,
-    "status": "duration_identity_fix_validation_running"
+    "status": "full_cpu_acceptance_running",
+    "validation_summary_artifact_id": 10507139377,
+    "validation_commit": "8d397b3ba5e5d3bac14c70b6fc571d4e4f0a5016",
+    "validation_result": {
+      "tested": 6,
+      "source_quality_passed": 6,
+      "technical_unknown": 0,
+      "source_quality_rejected": 0,
+      "accepted_mp4_count": 0,
+      "note": "All six exact URLs downloaded real media whose durations match page metadata and passed the unchanged source-quality gate. These are mother-media passes, not finals."
+    },
+    "full_acceptance": {
+      "run_id": 35251572571,
+      "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918.json",
+      "sample_ids": [
+        201,
+        202,
+        203,
+        204,
+        205,
+        206
+      ],
+      "commit": "937ce35b3b6d5d95322f3cc54619ec5957ad939c",
+      "pipeline": "CPU offline ASR + fixed publication snapshot/content dedup + selection + render + all final acceptance gates",
+      "no_fc_or_posting": true,
+      "accepted_mp4_count": 0,
+      "status": "queued"
+    }
   }
 }
