@@ -9,10 +9,10 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Validate selector25 on fixed sources with hash-verified CPU recognition
-    # evidence. Identity, picture, deduplication and final gates stay unchanged.
+    # Validate automatic format-failure isolation on the same source8 mother.
+    # Reuse hash-verified CPU ASR; every original acceptance gate stays active.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '7,68'
+      sample_ids: '8'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

@@ -5380,11 +5380,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                      for p in picks],
     }
     meta['source_sha256']=source_report.get('source_sha256')
-    from landscape import selected, reframe
+    from landscape import selected, optional_reframe
     requested=os.environ.get('OUTPUT_LAYOUT','auto')
     if not os.environ.get('REPAIR_BVID') and selected(meta,requested):
         print('[横版] 保留已核验真人窗口与完整音频，重新排字幕并复检实际成片',flush=True)
-        meta=reframe(meta,out,work/f'landscape{suffix}',speaker,api_key)
+        meta=optional_reframe(meta,out,work/f'landscape{suffix}',speaker,api_key,
+                              requested=requested)
     return meta
 
 

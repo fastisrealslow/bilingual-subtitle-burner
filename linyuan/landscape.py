@@ -66,6 +66,53 @@ def read_captions(directory, names):
     return rows
 
 
+def optional_reframe(meta, directory, work, speaker='林园', api_key=None,
+                     requested='auto'):
+    """An optional format must not discard a byte-identical verified portrait.
+
+    Explicit landscape requests still fail closed. A rejected landscape is
+    never returned or admitted; only the already verified original and its
+    unchanged review/subtitle assets can survive an automatic-format failure.
+    """
+    import copy
+    import produce_cn as producer
+    directory = Path(directory)
+    original = copy.deepcopy(meta)
+    required = ('live_region_verified', 'no_qr_verified', 'no_black_bars_verified',
+                'review_assets_verified', 'subtitle_word_boundaries_verified',
+                'subtitle_semantic_groups_verified', 'title_quality_verified')
+    if (meta.get('render_mode') != 'live_video_card'
+            or meta.get('layout_proof', {}).get('canvas') != {'width':720, 'height':1280}
+            or any(meta.get(key) is not True for key in required)
+            or meta.get('corner_review', {}).get('passed') is not True):
+        raise producer.VisualQualityError('可选横版转换缺少已验收竖版证明')
+    names = [meta.get(key) for key in ('final', 'cover', 'preview_30s', 'contact_sheet_6')]
+    names += list(meta.get('subtitle_files', [])) + list(meta.get('subtitle_edit_proofs', []))
+    if (not meta.get('subtitle_files') or not meta.get('subtitle_edit_proofs')
+            or any(not name or Path(name).name != name for name in names)):
+        raise producer.VisualQualityError('可选横版转换缺少原始交付资产')
+    hashes = {name: producer._file_sha256(directory/name) for name in names}
+    if (hashes[meta['final']] != meta.get('fingerprints', {}).get('sha256')
+            or hashes[meta['final']] != meta['corner_review'].get('media_sha256')):
+        raise producer.VisualQualityError('可选横版转换前竖版指纹与验收证明不一致')
+    try:
+        return reframe(copy.deepcopy(meta), directory, work, speaker, api_key)
+    except producer.VisualQualityError as exc:
+        if requested != 'auto':
+            raise
+        # reframe replaces the input only after its media checks. If a later
+        # operation fails, never label the changed file with portrait proofs.
+        if any(not (directory/name).is_file()
+               or producer._file_sha256(directory/name) != digest
+               for name, digest in hashes.items()):
+            raise producer.VisualQualityError('横版失败且原交付资产已变化，禁止回退') from exc
+        print('[横版] 可选转换未通过；保留指纹及验收证明未变化的竖版：'+str(exc), flush=True)
+        return {**original, 'layout_fallback': dict(
+            version=1, requested='auto', rejected_layout='landscape',
+            retained_layout='portrait', reason=str(exc),
+            retained_asset_sha256=hashes, rejected_layout_accepted=False)}
+
+
 def reframe(meta, directory, work, speaker='林园', api_key=None):
     """Reuse verified source pixels/audio and timing, then verify the actual new file."""
     import produce_cn as producer
