@@ -3,7 +3,10 @@ on:
   push:
     branches: [main]
     paths:
+      - linyuan/ci_fetch_bilibili.py
       - linyuan/seed_media_preflight.py
+      - tests/test_linyuan_bilibili_discovery.py
+      - tests/test_linyuan_hd_download.py
       - tests/test_linyuan_seed_media_preflight.py
       - .github/workflows/linyuan-seed-media-preflight.yml
   workflow_dispatch:
