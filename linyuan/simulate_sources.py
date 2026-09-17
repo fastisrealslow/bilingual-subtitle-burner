@@ -239,6 +239,18 @@ def classify(finals, validation_error, batch, source, execution, steps):
     return 'unresolved', failed[0] if failed else 'missing-final-evidence'
 
 
+def retain_identity_evidence(out, evidence):
+    """Copy the bounded source-identity samples, never source or final media."""
+    copied = 0
+    for path in sorted((out / '_tmp').glob('identity_*.jpg'))[:6]:
+        if path.is_file() and path.stat().st_size <= 2 * 1024 * 1024:
+            target = evidence / 'evidence' / path.relative_to(out)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, target)
+            copied += 1
+    return copied
+
+
 def report():
     slug = os.environ['RUN_SLUG']
     row = next(r for r in validate_manifest(read(MANIFEST)) if r['slug'] == slug)
@@ -272,6 +284,11 @@ def report():
                 target = evidence / 'evidence' / path.relative_to(out)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(path, target)
+    # Source identity can fail before source_identity.json is written. Retain
+    # its six already-sampled frames so a wrong-person rejection can be
+    # distinguished from sparse host/audience cutaways. These are evidence
+    # only and can never count as an accepted render.
+    retain_identity_evidence(out, evidence)
     # Failed live-window checks used to retain only a generic reason while the
     # six measured frames were discarded. Keep those small, already-sampled
     # images so padding can be distinguished from a naturally dark scene

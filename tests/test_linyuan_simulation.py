@@ -109,6 +109,26 @@ def test_diagnostic_mode_cannot_emit_full_acceptance_summary(monkeypatch):
     with pytest.raises(ValueError,match='diagnostic subset'):sim.main()
 
 
+def test_report_retains_only_bounded_source_identity_frames(tmp_path):
+    out = tmp_path / 'deliver' / 'sample'
+    evidence = tmp_path / 'simulation-reports' / 'sample'
+    source_tmp = out / '_tmp'
+    source_tmp.mkdir(parents=True)
+    for index in range(1, 8):
+        (source_tmp / f'identity_{index}.jpg').write_bytes(
+            f'identity-{index}'.encode())
+    (source_tmp / 'identity_notes.txt').write_text('not an image')
+    (source_tmp / 'identity_0.png').write_bytes(b'not a jpeg')
+
+    assert sim.retain_identity_evidence(out, evidence) == 6
+    retained = sorted((evidence / 'evidence' / '_tmp').glob('identity_*.jpg'))
+    assert [path.name for path in retained] == [
+        'identity_1.jpg', 'identity_2.jpg', 'identity_3.jpg',
+        'identity_4.jpg', 'identity_5.jpg', 'identity_6.jpg',
+    ]
+    assert not (evidence / 'evidence' / '_tmp' / 'identity_0.png').exists()
+
+
 def test_acceptance_cannot_merge_best_results_across_diagnostics_or_revisions():
     manifest=sim.read(sim.MANIFEST)
     samples=sim.validate_manifest(manifest)
