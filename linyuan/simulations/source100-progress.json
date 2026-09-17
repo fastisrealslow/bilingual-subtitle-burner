@@ -121,7 +121,8 @@
     "Round3 source8 mother hash is unchanged (4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0), but12 current candidates all fail original picture gates. Root cause remains unconfirmed; reportartifact10487028390 records failure. Original-audio evidence run35200009293 completed both27/67 with audited mother hashes, no ASR inference/production posting.",
     "Source8 regression root cause proved by retained landscape_9 OCR and actual logs: own generated subtitles were treated as old-source captions after optional landscape conversion. Portrait checks had passed. Commit011fde29229046e21b3cb4b939ed75f30dbb1e12 isolates the optional transform failure, retaining only byte-identical verified portrait assets in auto mode. Real acceptance run35202944591 pending; no success imported into round3.",
     "Round3 run35194448958 finished all100 reports at f9e32ad with fixed publication snapshot:10 verified accepted,89 rejected,1 unresolved(source60 fetch). Final84/87 are candidate-quality rejections. All10 report MP4 hashes match the independently downloaded verification index. Source8 fix validation35202944591 is a separate revision still running; do not add it to round3.",
-    "Source27 original question is semantically complete but lacks explicit 您/你, so selector25 produced zero candidates; its ASR tail '核心就是它有没有。' is a bare modal and incomplete despite punctuation. Selector26 commit a1f75e9a generically recognizes object-scoped 关注哪/什么 questions and trims only bare-modal candidate tails; 65 regressions pass and fixed-source run35207264689 is executing."
+    "Source27 original question is semantically complete but lacks explicit 您/你, so selector25 produced zero candidates; its ASR tail '核心就是它有没有。' is a bare modal and incomplete despite punctuation. Selector26 commit a1f75e9a generically recognizes object-scoped 关注哪/什么 questions and trims only bare-modal candidate tails; 65 regressions pass and fixed-source run35207264689 is executing.",
+    "Source27 run35207264689 proved selector26 works on the fixed source: one 129.64s Q&A candidate was attempted. It remains a genuine picture-quality rejection because the source carries persistent embedded captions, upper-left uploader/Bilibili branding and black side bars; no static audio-card fallback and no final MP4."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -167,7 +168,7 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Monitor source27 selector26 run35207264689; count only a verified report plus actual MP4 after every unchanged gate passes. If accepted, keep it separate from round3.",
+    "Do not retest source27 selection: the structural fix is proven, but unchanged picture quality legitimately rejects the fixed upload. Prioritize a separate general failure class.",
     "Monitor source8 automatic-layout recovery run35202944591 and verify actual accepted MP4/report. Do not duplicate it or import this newer version into round3. Explicit landscape requests still fail closed.",
     "Monitor round3 full fixed100 acceptance launched by the manifest round/launch_revision change. Do not repeat the successful7/68 diagnostic or duplicate the full run. Verify accepted MP4s and classify all rejected/unresolved reports at this one revision.",
     "Keep source-identity negative controls failing closed; the full round3 benchmark is already running and must not be duplicated.",
@@ -281,7 +282,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T09:50:51.818Z",
+  "updated_at": "2026-09-17T09:54:55.303Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -461,14 +462,14 @@
     "claim_released": "2026-09-17T09:03:00Z"
   },
   "source27_question_tail_recovery": {
-    "status": "fix_committed_real_acceptance_running",
+    "status": "completed_selection_recovered_genuine_picture_rejection",
     "commit": "a1f75e9a326e70e20f4b184767dea2375b68e5c8",
     "run_id": 35207264689,
     "selector_version": 26,
     "sample_ids": [
       27
     ],
-    "source_sha256": "a56629f71df23da1e482ea239ed43c71ee1a24d2092aec8b457ae2ed88f46c13",
+    "source_sha256": "a56629f31e84a677415491a4a98c3c5df401a4989c9c35c6c9e9ffe65bea2b0b",
     "candidate_span_sec": [
       0.08,
       129.72
@@ -480,6 +481,12 @@
     "regression": "65 passed: source100 recovery, source selection, selection incident, simulation",
     "real_evidence": "Hash-matched round3 CPU cues produce one automatic 0.08-129.72 candidate; unchanged raw cues; actual end-to-end acceptance pending in run35207264689.",
     "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression matched; no FC deploy/call, publishing, production inventory or workflow_run chain.",
-    "claim_released": "2026-09-17T09:50:51.818Z"
+    "claim_released": "2026-09-17T09:50:51.818Z",
+    "report_artifact_id": 10490620421,
+    "result": "Selector26 recovered exactly one 129.64s Q&A candidate automatically, but the unchanged picture gate rejected it: persistent embedded subtitles, upper-left uploader/Bilibili marks and black side bars; static audio-card fallback is disabled. No MP4.",
+    "verified_candidate_span_sec": [
+      0.08,
+      129.72
+    ]
   }
 }
