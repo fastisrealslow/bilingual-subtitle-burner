@@ -1,10 +1,6 @@
 {
-  "active_until": "2026-09-17T09:40:00Z",
-  "active_work": {
-    "owner": "source100-regression8-20260917T0855Z",
-    "purpose": "Compare same-mother source8 lost accepted interval; bounded automatic selector fix and CPU validation only",
-    "started_at": "2026-09-17T08:55:11Z"
-  },
+  "active_until": null,
+  "active_work": null,
   "keynote_boundary_recovery": {
     "selector_version": 25,
     "sample_ids": [
@@ -105,7 +101,8 @@
     "Run35166698979 completed with zero accepted MP4s: 30 had no structural candidate; all five candidates each for31/56 failed picture/continuous-face checks; both84 candidates failed identity; 52/93/98 remained source-rejected. The expired claim was replaced on2026-09-17T06:32Z.",
     "Selector25 recovers literal speaker-announced chapters from hash-verified CPU evidence: source7 177.80-334.12 and335.56-570.36; source68 129.48-379.88. Source68 outro at498.36 truncates the remaining chapter to114.72s, which remains rejected. Candidates do not count as MP4 success. Fixed-source real acceptance is pending.",
     "Audited15 zero-candidate sources: 1/7/17/19/25/26/27/30/34/38/42/54/61/67/68. Even recovering all15 while retaining9 only reaches24/100. Sources27/67 require original-audio/word-alignment review;19 has two distinct short topics and must not be merged;30 has significant real overlays/occlusions. Other failure categories must supply at least6 further successes.",
-    "Round3 source8 mother hash is unchanged (4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0), but12 current candidates all fail original picture gates. Root cause remains unconfirmed; reportartifact10487028390 records failure. Original-audio evidence run35200009293 completed both27/67 with audited mother hashes, no ASR inference/production posting."
+    "Round3 source8 mother hash is unchanged (4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0), but12 current candidates all fail original picture gates. Root cause remains unconfirmed; reportartifact10487028390 records failure. Original-audio evidence run35200009293 completed both27/67 with audited mother hashes, no ASR inference/production posting.",
+    "Source8 regression root cause proved by retained landscape_9 OCR and actual logs: own generated subtitles were treated as old-source captions after optional landscape conversion. Portrait checks had passed. Commit011fde29229046e21b3cb4b939ed75f30dbb1e12 isolates the optional transform failure, retaining only byte-identical verified portrait assets in auto mode. Real acceptance run35202944591 pending; no success imported into round3."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -151,14 +148,15 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Investigate source8 regression: same mother hash as round2, formerly accepted final12 (192.421s), now all12 candidates rejected for headroom/overlays. Compare source segment mapping and retained geometry evidence before modifying any gate; do not add old final into round3.",
+    "Monitor source8 automatic-layout recovery run35202944591 and verify actual accepted MP4/report. Do not duplicate it or import this newer version into round3. Explicit landscape requests still fail closed.",
     "Monitor round3 full fixed100 acceptance launched by the manifest round/launch_revision change. Do not repeat the successful7/68 diagnostic or duplicate the full run. Verify accepted MP4s and classify all rejected/unresolved reports at this one revision.",
     "Keep source-identity negative controls failing closed; the full round3 benchmark is already running and must not be duplicated.",
     "Retrieve diagnostic-only-boundary-27/67 artifacts, listen to original audio and inspect speaker handoff. No production interval may be guessed from punctuation or manually added per sample.",
     "Next independent repair investigation: sources27/67 original-audio and forced-alignment role boundaries; do not trim unfinished speech or join different questions. Audit missing-range publication evidence for3/23/24/45/89/96 without editing the frozen publication snapshot or bypassing deduplication.",
     "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
-    "Evaluate selector boundary rules on same-class sources outside the repaired examples. Do not replace missing general selection capability with manually specified per-source intervals."
+    "Evaluate selector boundary rules on same-class sources outside the repaired examples. Do not replace missing general selection capability with manually specified per-source intervals.",
+    "Follow-up landscape correctness: distinguish authored subtitles from source overlays with pixel-bound pre-overlay and final-caption evidence; do not broadly exempt text bands. Current bounded fix only retains a previously verified portrait for optional auto conversion failures."
   ],
   "round2": {
     "commit": "c0c041f1d344bc81bde6fced9aede6836d63b501",
@@ -265,7 +263,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T08:55:11Z",
+  "updated_at": "2026-09-17T09:03:00Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -428,5 +426,20 @@
     ],
     "counts_as_full_benchmark": false,
     "purpose": "use a denser source-only contiguous-window check while preserving all independent candidate/final gates"
+  },
+  "source8_optional_layout": {
+    "status": "fixed_pending_real_acceptance",
+    "commit": "011fde29229046e21b3cb4b939ed75f30dbb1e12",
+    "run_id": 35202944591,
+    "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+    "raw_cues_sha256": "629abd2cb4f8258dc59ece580f1c6b660044a5bd534097c528cd6eb7affae8c4",
+    "round2_report_artifact": 10450172748,
+    "round3_report_artifact": 10487028390,
+    "root_cause": "Same mother and byte-identical raw cues. The candidate still passes portrait live checks, then optional landscape converts it and the unscoped edge-text gate rejects generated ASS subtitles (five actual OCR rows). Entire source is discarded although original verified portrait bytes remain unchanged.",
+    "fix": "Only OUTPUT_LAYOUT=auto may retain the original portrait after an optional landscape VisualQualityError; all original media, cover, subtitle, review and editing-proof hashes must match. Explicit landscape still fails; changed bytes or missing proofs cannot fall back; downstream acceptance/dedup unchanged.",
+    "regression": "69 passed: optional layout, landscape, visual gate, source100 recovery, simulation",
+    "trigger_audit": "Only presentation-rules-test and fixed-source diagnostic matched main push; no FC, publishing or downstream workflow_run",
+    "counts_as_final": false,
+    "claim_released": "2026-09-17T09:03:00Z"
   }
 }
