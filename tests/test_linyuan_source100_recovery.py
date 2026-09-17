@@ -40,6 +40,41 @@ def test_generic_rhetorical_phrases_do_not_create_keynote_chapters(text):
     assert not selection.SPEECH_CHANGE.search(text)
 
 
+def test_implicit_industry_question_keeps_complete_answer_and_drops_bare_modal_tail():
+    # Same linguistic failure class as fixed source100 #27: the interviewer
+    # omits 您/你, while the final ASR sentence has a modal but no predicate.
+    cues=[
+        dict(start=.08,end=3.28,text='零六，像我估计，就是在选择这个'),
+        dict(start=3.36,end=6.48,text='股票的时候，如果说这个医药行业里面，'),
+        dict(start=9.76,end=13.36,text='要关注哪几个关键的东西呢？'),
+        dict(start=15.52,end=24.48,text='不管什么行业，投资最核心的还是盈利能力。'),
+        dict(start=24.64,end=55.00,text='首先要看盈利的轻松程度，以及产品能否持续满足需求。'),
+        dict(start=55.20,end=92.00,text='核心产品形成差异后，竞争对手很难在短期内替代。'),
+        dict(start=92.20,end=126.44,text='扣非后的净资产收益率如果长期较高，说明经营质量较好。'),
+        dict(start=126.68,end=129.72,text='明眼人一看，这个企业就值得继续研究。'),
+        dict(start=133.48,end=136.52,text='这个核心就是它有没有。'),
+    ]
+    before=json.dumps(cues,ensure_ascii=False)
+    picks=selection.select(cues,whole_source=True,limit=None)
+    assert [(cues[p['start']]['start'],cues[p['end']]['end']) for p in picks]==[(.08,129.72)]
+    assert all(p['selection_method']=='source_question_answer_v2' for p in picks)
+    assert json.dumps(cues,ensure_ascii=False)==before
+
+
+@pytest.mark.parametrize('text',[
+    '这家公司有没有价值。',
+    '企业能不能保持长期增长。',
+    '现在是不是合理的估值。',
+])
+def test_complete_modal_predicate_is_not_trimmed(text):
+    assert not selection.INCOMPLETE_TAIL.search(text)
+
+
+@pytest.mark.parametrize('text',['核心就是它有没有。','最后要看它能不能！'])
+def test_bare_modal_tail_is_detected(text):
+    assert selection.INCOMPLETE_TAIL.search(text)
+
+
 def test_real_followups_are_kept_but_the_next_medical_topic_is_excluded():
     cues=json.loads(FIXTURE.read_text())['3']
     picks=selection.select(cues,whole_source=True,limit=None)

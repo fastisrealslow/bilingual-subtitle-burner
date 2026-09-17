@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 25
+VERSION = 26
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -26,6 +26,11 @@ QUESTION = re.compile(
     r'.{0,220}(?:是不是|会不会|哪些|什么方法|怎么样|哪一条|哪一句|能否)[^。！？?]*[？?]'
     r'|(?:那么就目前来看|当前配置|如果用一句话来指导投资者|哪一句话来体现)'
     r'[^。！？?]{0,100}[？?]'
+    # Interviewers sometimes omit 您/你 and ask directly which factors to
+    # watch when selecting a stock/company in an industry. Require both the
+    # investment object and the concrete “关注哪/什么” request so a guest's
+    # rhetorical question is not promoted into a host turn.
+    r'|(?:股票|公司|行业)[^。！？?]{0,120}关注(?:哪|什么)[^。！？?]{0,30}[？?]'
     # Source100 #6 uses short topic cards without 您/你. Missing these
     # questions falsely joined seven unrelated answers into a 195s clip.
     r'|^(?:对[^。！？?]{1,30}(?:有什么|有何)(?:投资)?(?:建议|看法|期待)'
@@ -38,6 +43,11 @@ QUESTION = re.compile(
 TOPIC_CHANGE = re.compile(r'(?:我们|咱们).{0,8}(?:下面|下一个|另外一个|换个).{0,5}话题|(?:我们|咱们).{0,5}(?:来聊聊|再来谈)')
 FOLLOWUP = re.compile(r'(?:我|我们).{0,12}(?:有所担心|想追问|想进一步问|顺带.{0,3}问)|(?:这个|这一).{0,20}(?:我|我们).{0,5}(?:完全认同|完全同意)')
 TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)
+# A final bare modal question has no object or predicate (e.g. “它有没有。”).
+# It is an ASR/truncated-source tail, not a complete ending. Remove only that
+# trailing sentence; never shorten an interior sentence or a complete phrase
+# such as “有没有价值”。
+INCOMPLETE_TAIL = re.compile(r'(?:有没有|能不能|会不会|是不是|要不要|可不可以)[。！!]*\s*$')
 SPEECH_CHANGE = re.compile(
     r'(?:我|我们)(?:接下来|下面|现在).{0,12}(?:谈谈|讲讲|说说|介绍一下)'
     r'|(?:我|我们).{0,4}对(?:今天|当前|现在)的?[^。！？]{0,15}(?:市场|经济)'
@@ -203,7 +213,9 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             turn_ends.append(None);continue
         j=min([j]+[t-1 for t in transitions if i<t<=j])
         j=min([j]+[t-1 for t in range(i+1,j+1) if HOST_BRIDGE.search(units[t]['text'])])
-        while j>i and (HOST_BRIDGE.search(units[j]['text']) or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])):j-=1
+        while j>i and (HOST_BRIDGE.search(units[j]['text'])
+                or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])
+                or INCOMPLETE_TAIL.search(units[j]['text'])):j-=1
         turn_ends.append(j)
     spans=[(i,turn_ends[k]) for k,i in enumerate(starts)]
     for k,i in enumerate(starts):
@@ -250,7 +262,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if k+1<len(cuts):j=cuts[k+1]-1
         elif natural_end:j=len(units)-1
         else:continue
-        while j>i and re.fullmatch(r'(?:好吧[，,]?|好的[，,]?|啊[，,]?)*(?:谢谢|感谢)(?:林总|大家|您)?[。！!]*',units[j]['text']):j-=1
+        while j>i and (re.fullmatch(r'(?:好吧[，,]?|好的[，,]?|啊[，,]?)*(?:谢谢|感谢)(?:林总|大家|您)?[。！!]*',units[j]['text'])
+                or INCOMPLETE_TAIL.search(units[j]['text'])):j-=1
         if j<=i or any(i<=q<=j for q in questions):continue
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or

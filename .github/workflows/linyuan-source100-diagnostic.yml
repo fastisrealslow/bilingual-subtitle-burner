@@ -9,10 +9,10 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Validate automatic format-failure isolation on the same source8 mother.
+    # Validate generic implicit-question and incomplete-tail recovery on source27.
     # Reuse hash-verified CPU ASR; every original acceptance gate stays active.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '8'
+      sample_ids: '27'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
