@@ -9,11 +9,11 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Recover source65's fixed URL by removing only a bounded unmatched media
-    # tail, then run every unchanged source, editorial and picture gate;
-    # acceptance gates and the fixed100 denominator remain unchanged.
+    # Retain real source-identity frames for sparse-match interview/keynote
+    # failures. This is evidence collection only: identity, picture,
+    # deduplication and final acceptance thresholds remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '65'
+      sample_ids: '30,31,52,56,84,93,98'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
