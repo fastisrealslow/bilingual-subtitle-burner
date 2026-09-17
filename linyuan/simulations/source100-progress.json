@@ -109,7 +109,8 @@
     "Source8 automatic-layout repair run35202944591 completed with a real accepted final: 183.621333s, 11,961,286 bytes, SHA256 3e06d6e99790916b68e7db6bf221f685a17b358d27f53ccda4ea0d97c717b881, H.264 720x1280 + AAC, live_video=1/audio_card=0. Report and downloaded MP4 hash agree. It remains separate from round3 until a same-revision full100 run.",
     "Round4 run35219007898 completed at dad6f695 and the fixed publication snapshot:12 verified accepted,87 rejected,1 unresolved(source60 exact URL unavailable). Source79 is now a real accepted194.741333s MP4 after the generic stereo-channel, keynote-boundary and automatic pipeline fixes. Target30 not met.",
     "Expanded-seed CPU preflight run35239663311 tested six real mother videos: four passed the unchanged source-quality gate, one remained a retryable CDN failure, and BV1c54y1A7Bc?p=5 exposed a fetch-identity defect (1347s page metadata but valid 20s media). Commit9f0063f binds cid+declared duration to downloaded media and classifies mismatches as retryable source-fetch failures; validation run35246787437 is active. No item counts as an accepted MP4.",
-    "Expanded-seed duration-identity validation run35246787437 completed: all six fixed URLs now return duration-matched real media and pass unchanged source-quality gates (0 accepted finals at this stage). Full CPU acceptance run35251572571 covers the exact six URLs with offline ASR, deduplication, rendering and final gates; no FC or posting."
+    "Expanded-seed duration-identity validation run35246787437 completed: all six fixed URLs now return duration-matched real media and pass unchanged source-quality gates (0 accepted finals at this stage). Full CPU acceptance run35251572571 covers the exact six URLs with offline ASR, deduplication, rendering and final gates; no FC or posting.",
+    "Expanded-seed first full CPU acceptance run35251699299 completed all six exact URLs at commit dd8993e6: 2 verified accepted MP4s (205:148.421333s SHA336743... H.264/AAC; 206:151.781333s SHAdddf956... H.264/AAC), 4 genuine rejections, 0 unresolved. 201/202 had no explicit >=120s structural candidate; 203 failed unchanged 96px/continuous-face gates; 204 could not preserve complete face/headroom. Fixed100 formal result remains12/100; no FC or posting."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -246,10 +247,10 @@
     ]
   },
   "next_steps": [
-    "Observe expanded-seed full CPU acceptance run35251572571; count only hash-verified final MP4s, then classify every non-final as quality rejection or unresolved. Keep results separate from fixed100 formal12%.",
+    "Use expanded-seed run35251699299 as a measured 2/6 full-acceptance yield only for the expanded pool; never add it to fixed100 round4 formal12/100.",
+    "Rank the remaining55 metadata candidates, then run bounded CPU-only exact-media/source-quality/content-dedup/full-acceptance batches. Preserve all gates; no FC or posting.",
+    "For expanded rejects201/202, inspect same-class transcript boundaries only for a generic unattended selector improvement; do not add per-source timecodes. Keep203/204 as quality rejects unless new evidence proves an algorithmic false rejection.",
     "Do not launch a duplicate round4. Use its final12/87/1 evidence to select the next bounded general failure class; only rerun the full100 after a real targeted recovery.",
-    "For the expanded pool, keep61 metadata candidates separate from source100. Add CPU media/source-quality and same-event content-dedup screening before any production admission or yield claim; no FC or posting.",
-    "Keep the new61 metadata candidates separate from the fixed100 benchmark. CPU-only discovery audit35225570402 passed; validate real downloaded media/content dedup before any quality or yield claim.",
     "Use evening evidence for generic word-aligned invited-speaker handoff research on67. Exact diagnostic timecodes are not production instructions. Source70 now deprioritized: inspected raw frames have full-frame template overlay; do not lower480px minimum.",
     "Source8 repair is proven. Keep its regression and include it in the next one-revision fixed100 benchmark; do not add this targeted result to round3.",
     "Do not retest source27 selection: the structural fix is proven, but unchanged picture quality legitimately rejects the fixed upload. Prioritize a separate general failure class.",
@@ -537,7 +538,7 @@
     }
   },
   "seed_expansion": {
-    "accepted_mp4s": 0,
+    "accepted_mp4s": 2,
     "already_cataloged": 3,
     "artifact_id": 10497998758,
     "audio_only_title": 2,
@@ -546,7 +547,7 @@
     "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
     "manifest": "linyuan/seed_expansion.json",
     "new_metadata_candidates": 61,
-    "next_step": "CPU media validation and same-event content dedup before considering these sources usable; no FC or posting.",
+    "next_step": "Rank the remaining 55 metadata candidates, apply exact media identity/source gates and content dedup, then run bounded CPU-only full acceptance batches; keep accepted expansion yield separate from fixed100.",
     "outside_duration": 4,
     "pages": 70,
     "production_dispatch": false,
@@ -554,8 +555,45 @@
     "requested_at": "2026-09-17",
     "run_id": 35225570402,
     "seeds_added": 3,
-    "status": "metadata_audit_passed",
-    "total_candidate_seconds": 143952
+    "status": "first_full_acceptance_completed_2_of_6",
+    "total_candidate_seconds": 143952,
+    "acceptance_total": 6,
+    "rejected": 4,
+    "unresolved": 0,
+    "acceptance_run_id": 35251699299,
+    "acceptance_commit": "dd8993e6d847500052790b12b4d5a590eceb021e",
+    "acceptance_manifest": "linyuan/simulations/seed-expansion-acceptance-20260918.json",
+    "acceptance_results": {
+      "accepted": [
+        {
+          "sample_id": 205,
+          "title": "2025.04.10《湾财首席观》视频采访",
+          "duration_sec": 148.421333,
+          "sha256": "33674390885a9948fa9b6660466a1b0e68bbb6602acd4580ee8f80ae3337100d",
+          "media_artifact_id": 10513630070,
+          "report_artifact_id": 10513445150,
+          "streams": "H.264 720x1280 + AAC",
+          "independently_downloaded_and_verified": true
+        },
+        {
+          "sample_id": 206,
+          "title": "2023.02.14 湘财证券采访",
+          "duration_sec": 151.781333,
+          "sha256": "dddf956ac4077be80c24b7ea16b1a22f0b4ada67fe71feb5da1c963fc0ef9f14",
+          "media_artifact_id": 10512656337,
+          "report_artifact_id": 10512756288,
+          "streams": "H.264 720x1280 + AAC",
+          "independently_downloaded_and_verified": true
+        }
+      ],
+      "rejected": {
+        "201": "five parts: no >=120s continuous candidate with explicit complete boundaries",
+        "202": "five parts: no >=120s continuous candidate with explicit complete boundaries",
+        "203": "two candidates: target face below 96px or continuous face absence",
+        "204": "five candidates: crop cannot preserve complete face and headroom"
+      }
+    },
+    "formal_fixed100_unchanged": "round4 remains 12/100; expanded-source results are reported separately and never added to that denominator"
   },
   "source27_question_tail_recovery": {
     "candidate_span_sec": [
@@ -847,7 +885,7 @@
       "passed": 89
     }
   },
-  "updated_at": "2026-09-17T14:40:37.750Z",
+  "updated_at": "2026-09-17T18:41:00Z",
   "version": 1,
   "seed_media_preflight": {
     "accepted_mp4_count": 0,
