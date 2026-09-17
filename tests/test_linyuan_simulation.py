@@ -120,11 +120,11 @@ def test_report_retains_only_bounded_source_identity_frames(tmp_path):
     (source_tmp / 'identity_notes.txt').write_text('not an image')
     (source_tmp / 'identity_0.png').write_bytes(b'not a jpeg')
 
-    assert sim.retain_identity_evidence(out, evidence) == 6
+    assert sim.retain_identity_evidence(out, evidence) == 7
     retained = sorted((evidence / 'evidence' / '_tmp').glob('identity_*.jpg'))
     assert [path.name for path in retained] == [
         'identity_1.jpg', 'identity_2.jpg', 'identity_3.jpg',
-        'identity_4.jpg', 'identity_5.jpg', 'identity_6.jpg',
+        'identity_4.jpg', 'identity_5.jpg', 'identity_6.jpg', 'identity_7.jpg',
     ]
     assert not (evidence / 'evidence' / '_tmp' / 'identity_0.png').exists()
 

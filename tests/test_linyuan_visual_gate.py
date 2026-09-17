@@ -38,6 +38,18 @@ def test_identity_gate_ignores_invalid_and_overlapping_frame_numbers():
     assert P.identity_verdict_passes(verdict, 3) is True
 
 
+def test_dense_identity_scan_requires_an_unchanged_passing_window():
+    verdict = {
+        "same_person_frames": [4, 5, 11],
+        "different_person_frames": [1, 2, 7, 8, 9, 12],
+        "uncertain_frames": [3, 6, 10],
+        "confidence": 0.91,
+    }
+    assert P.identity_passing_window(verdict, 12) == [3, 4, 5]
+    verdict["same_person_frames"] = [4, 11]
+    assert P.identity_passing_window(verdict, 12) == []
+
+
 def test_markdown_wrapped_identity_json_is_accepted():
     assert P._parse_json_object(
         '```json\n{"same_person_frames":[1,2],"confidence":0.9}\n```'
@@ -192,6 +204,40 @@ def test_source_identity_returns_only_a_verified_cover_time(monkeypatch,
         Path("good.mp4"), tmp_path, "林园", "sk-test")
     assert report["best_cover_time"] == 40
     assert report["same_person_frames"] == [2, 4, 6]
+
+
+def test_source_identity_uses_dense_window_but_keeps_the_same_gate(monkeypatch,
+                                                                    tmp_path):
+    reference = tmp_path / "reference.jpg"
+    reference.write_bytes(b"reference")
+    initial = [tmp_path / f"initial-{i}.jpg" for i in range(6)]
+    scan = [tmp_path / f"scan-{i}.jpg" for i in range(18)]
+    monkeypatch.setattr(P, "_download_speaker_reference",
+                        lambda *args: reference)
+
+    def samples(_src, _work, count=6, prefix="identity"):
+        assert (count, prefix) in ((6, "identity"), (18, "identity_scan"))
+        frames = initial if count == 6 else scan
+        return frames, [float(i * 10) for i in range(1, count + 1)]
+
+    verdicts = iter([
+        {"same_person_frames": [4], "different_person_frames": [1, 2, 3, 5, 6],
+         "uncertain_frames": [], "best_cover_frame": 4, "confidence": .91,
+         "reason": "整片抽样混有主持人"},
+        {"same_person_frames": [7, 8], "different_person_frames": [1, 2, 3, 10],
+         "uncertain_frames": [4, 5, 6, 9, 11, 12, 13, 14, 15, 16, 17, 18],
+         "best_cover_frame": 8, "confidence": .92,
+         "reason": "连续窗口确认目标人物"},
+    ])
+    monkeypatch.setattr(P, "_sample_visual_frames", samples)
+    monkeypatch.setattr(P, "_local_identity_verdict",
+                        lambda *args: next(verdicts))
+
+    report = P.verify_source_identity(Path("interview.mp4"), tmp_path,
+                                      "林园", "")
+    assert report["verified_window_frames"] == [6, 7, 8]
+    assert report["best_cover_time"] == 80.0
+    assert report["same_person_frames"] == [7, 8]
 
 
 def test_corner_ocr_groups_persistent_boxes(monkeypatch, tmp_path):

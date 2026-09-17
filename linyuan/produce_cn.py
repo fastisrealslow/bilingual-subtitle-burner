@@ -260,6 +260,23 @@ def identity_verdict_passes(verdict, frame_count):
             and confidence >= VISUAL_MIN_CONFIDENCE)
 
 
+def identity_passing_window(verdict, frame_count, window_size=3):
+    """Return a target-dense contiguous window that passes the unchanged gate."""
+    if frame_count < window_size or not isinstance(verdict, dict):
+        return []
+    for start in range(1, frame_count - window_size + 2):
+        stop = start + window_size
+        local = dict(verdict)
+        for field in ("same_person_frames", "different_person_frames",
+                      "uncertain_frames"):
+            local[field] = [index - start + 1
+                            for index in verdict.get(field, [])
+                            if isinstance(index, int) and start <= index < stop]
+        if identity_verdict_passes(local, window_size):
+            return list(range(start, stop))
+    return []
+
+
 def _retry_identity_vlm_in_chunks(reference, frames, speaker, api_key,
                                   chunk_size=3):
     """首轮多图判定失败时分组复核，避免 VLM 漏填后半组帧号。
@@ -336,7 +353,8 @@ def _download_speaker_reference(speaker, work):
     return out
 
 
-def _sample_visual_frames(src, work, count=VISUAL_SAMPLE_COUNT):
+def _sample_visual_frames(src, work, count=VISUAL_SAMPLE_COUNT,
+                          prefix="identity"):
     """均匀抽取整片多帧；片头片尾不取，避免节目包装和转场。"""
     try:
         duration = float(probe(src, "format=duration") or 0)
@@ -348,7 +366,7 @@ def _sample_visual_frames(src, work, count=VISUAL_SAMPLE_COUNT):
     times = []
     for i in range(count):
         t = duration * (i + 1) / (count + 1)
-        fp = work / f"identity_{i + 1}.jpg"
+        fp = work / f"{prefix}_{i + 1}.jpg"
         r = subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.2f}",
              "-i", str(src), "-frames:v", "1", "-q:v", "2", str(fp)],
@@ -538,13 +556,30 @@ def verify_source_identity(src, work, speaker, api_key):
     reference = _download_speaker_reference(speaker, work)
     frames, times = _sample_visual_frames(src, work)
     verdict = _local_identity_verdict(reference,frames,speaker)
-    if not identity_verdict_passes(verdict, len(frames)):
+    verified_window = list(range(1, len(frames) + 1)) \
+        if identity_verdict_passes(verdict, len(frames)) else []
+    initial_verdict = verdict
+    if not verified_window:
+        # A whole-program sample mixes host, audience and B-roll with the
+        # target in normal interviews/keynotes. Scan more densely and accept
+        # only when one contiguous three-frame window passes the exact same
+        # identity threshold used everywhere else. Final candidates still go
+        # through their independent six-frame gate below in the pipeline.
+        scan_frames, scan_times = _sample_visual_frames(
+            src, work, 18, "identity_scan")
+        scan_verdict = _local_identity_verdict(reference, scan_frames, speaker)
+        verified_window = identity_passing_window(
+            scan_verdict, len(scan_frames), window_size=3)
+        if verified_window:
+            frames, times, verdict = scan_frames, scan_times, scan_verdict
+    if not verified_window:
         raise VisualQualityError(
             f"人物不一致或无法确认：{speaker}；"
-            f"same={verdict.get('same_person_frames', [])}，"
-            f"different={verdict.get('different_person_frames', [])}，"
-            f"confidence={verdict.get('confidence', 0)}，"
-            f"reason={verdict.get('reason', '')}")
+            f"initial_same={initial_verdict.get('same_person_frames', [])}，"
+            f"scan_same={scan_verdict.get('same_person_frames', [])}，"
+            f"scan_different={scan_verdict.get('different_person_frames', [])}，"
+            f"confidence={scan_verdict.get('confidence', 0)}，"
+            f"reason={scan_verdict.get('reason', '')}")
     same = [i for i in verdict.get("same_person_frames", [])
             if isinstance(i, int) and 1 <= i <= len(times)]
     best = verdict.get("best_cover_frame")
@@ -556,6 +591,7 @@ def verify_source_identity(src, work, speaker, api_key):
         "speaker": speaker,
         "same_person_frames": same,
         "different_person_frames": verdict.get("different_person_frames", []),
+        "verified_window_frames": verified_window,
         "confidence": verdict.get("confidence", 0),
         "reason": verdict.get("reason", ""),
         "watermark_texts": verdict.get("watermark_texts", []),

@@ -241,13 +241,15 @@ def classify(finals, validation_error, batch, source, execution, steps):
 
 def retain_identity_evidence(out, evidence):
     """Copy the bounded source-identity samples, never source or final media."""
-    copied = 0
-    for path in sorted((out / '_tmp').glob('identity_*.jpg'))[:6]:
-        if path.is_file() and path.stat().st_size <= 2 * 1024 * 1024:
+    copied, remaining = 0, 24 * 1024 * 1024
+    for path in sorted((out / '_tmp').glob('identity_*.jpg'))[:24]:
+        size = path.stat().st_size if path.is_file() else 0
+        if 0 < size <= 2 * 1024 * 1024 and size <= remaining:
             target = evidence / 'evidence' / path.relative_to(out)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
             copied += 1
+            remaining -= size
     return copied
 
 
