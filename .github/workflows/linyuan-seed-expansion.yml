@@ -1,0 +1,39 @@
+name: Seed expansion metadata CPU audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/seed_expansion.py
+      - linyuan/seed_expansion.json
+      - tests/test_linyuan_seed_expansion.py
+      - .github/workflows/linyuan-seed-expansion.yml
+  schedule:
+    - cron: '35 2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: seed-expansion-metadata
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest
+      - run: python -m pytest -q tests/test_linyuan_seed_expansion.py
+      - name: Refresh metadata only; no production dispatch
+        run: python linyuan/seed_expansion.py --output seed-expansion-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seed-expansion-metadata
+          path: seed-expansion-report.json
+          if-no-files-found: warn
+          retention-days: 30
