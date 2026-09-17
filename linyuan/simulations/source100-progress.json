@@ -38,7 +38,7 @@
     "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered"
   },
   "round3": {
-    "status": "in_progress",
+    "status": "completed",
     "run_id": 35194448958,
     "commit": "f9e32ad1c3b0fd139e531a1db11627446d3a11ca",
     "selector_version": 25,
@@ -57,7 +57,24 @@
       95
     ],
     "verification_index": "source100-round3-verified.json",
-    "note": "Do not import the two targeted successes or the prior nine. Count this full run alone after actual acceptance reports and MP4 verification."
+    "note": "Do not import the two targeted successes or the prior nine. Count this full run alone after actual acceptance reports and MP4 verification.",
+    "passed": 10,
+    "rejected": 89,
+    "unresolved": 1,
+    "unresolved_ids": [
+      60
+    ],
+    "execution_complete": true,
+    "complete": false,
+    "final_success_rate": 10,
+    "target_met": false,
+    "summary_artifact_id": 10489747808,
+    "stage_counts": {
+      "candidate-quality": 61,
+      "source-quality": 28,
+      "final-accepted": 10,
+      "src": 1
+    }
   },
   "boundary_audio_evidence": {
     "status": "completed_both_source_hashes_verified",
@@ -102,7 +119,8 @@
     "Selector25 recovers literal speaker-announced chapters from hash-verified CPU evidence: source7 177.80-334.12 and335.56-570.36; source68 129.48-379.88. Source68 outro at498.36 truncates the remaining chapter to114.72s, which remains rejected. Candidates do not count as MP4 success. Fixed-source real acceptance is pending.",
     "Audited15 zero-candidate sources: 1/7/17/19/25/26/27/30/34/38/42/54/61/67/68. Even recovering all15 while retaining9 only reaches24/100. Sources27/67 require original-audio/word-alignment review;19 has two distinct short topics and must not be merged;30 has significant real overlays/occlusions. Other failure categories must supply at least6 further successes.",
     "Round3 source8 mother hash is unchanged (4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0), but12 current candidates all fail original picture gates. Root cause remains unconfirmed; reportartifact10487028390 records failure. Original-audio evidence run35200009293 completed both27/67 with audited mother hashes, no ASR inference/production posting.",
-    "Source8 regression root cause proved by retained landscape_9 OCR and actual logs: own generated subtitles were treated as old-source captions after optional landscape conversion. Portrait checks had passed. Commit011fde29229046e21b3cb4b939ed75f30dbb1e12 isolates the optional transform failure, retaining only byte-identical verified portrait assets in auto mode. Real acceptance run35202944591 pending; no success imported into round3."
+    "Source8 regression root cause proved by retained landscape_9 OCR and actual logs: own generated subtitles were treated as old-source captions after optional landscape conversion. Portrait checks had passed. Commit011fde29229046e21b3cb4b939ed75f30dbb1e12 isolates the optional transform failure, retaining only byte-identical verified portrait assets in auto mode. Real acceptance run35202944591 pending; no success imported into round3.",
+    "Round3 run35194448958 finished all100 reports at f9e32ad with fixed publication snapshot:10 verified accepted,89 rejected,1 unresolved(source60 fetch). Final84/87 are candidate-quality rejections. All10 report MP4 hashes match the independently downloaded verification index. Source8 fix validation35202944591 is a separate revision still running; do not add it to round3."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -263,7 +281,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T09:03:00Z",
+  "updated_at": "2026-09-17T09:37:57.713Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
