@@ -9,10 +9,9 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Re-run after e4546ce retained the real source-identity frames for these
-    # sparse-match interview/keynote failures. This is evidence collection
-    # only: identity, picture, deduplication and final acceptance thresholds
-    # remain unchanged.
+    # Validate 7492544's dense contiguous identity-window recheck against the
+    # same seven real fixed sources. Candidate identity, picture, deduplication
+    # and final acceptance thresholds remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
       sample_ids: '30,31,52,56,84,93,98'
