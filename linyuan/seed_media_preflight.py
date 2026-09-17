@@ -48,6 +48,24 @@ def _load_exclusions(paths):
     return ids, urls
 
 
+def latest_acceptance_batch(root):
+    """Choose the immutable acceptance manifest with the highest sample ID."""
+    choices = []
+    for path in Path(root).glob("seed-expansion-acceptance-*.json"):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            ids = [int(row["id"]) for row in payload.get("samples") or []]
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+        if ids:
+            choices.append((max(ids), path.name, ids))
+    if not choices:
+        raise ValueError("no valid immutable seed acceptance manifest")
+    _, name, ids = max(choices)
+    return {"sample_ids": ",".join(str(value) for value in ids),
+            "manifest_path": f"simulations/{name}"}
+
+
 def select_candidates(report, limit=6, per_seed=2, excluded_ids=(), excluded_urls=()):
     """Round-robin across seed families so one collection cannot consume a run."""
     if limit < 1 or per_seed < 1:
@@ -116,10 +134,16 @@ def main():
     matrix.add_argument("--limit", type=int, default=6)
     matrix.add_argument("--per-seed", type=int, default=2)
     matrix.add_argument("--exclude-manifest", type=Path, action="append", default=[])
+    batch = sub.add_parser("acceptance-batch")
+    batch.add_argument("--root", type=Path, required=True)
     summary = sub.add_parser("summary")
     summary.add_argument("--reports", type=Path, required=True)
     summary.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.command == "acceptance-batch":
+        print(json.dumps(latest_acceptance_batch(args.root),
+                         ensure_ascii=False, separators=(",", ":")))
+        return 0
     if args.command == "matrix":
         report = json.loads(args.report.read_text(encoding="utf-8"))
         exclusion_paths = list(args.exclude_manifest)

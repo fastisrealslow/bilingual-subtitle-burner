@@ -5,15 +5,32 @@ on:
     branches: [main]
     paths:
       - .github/workflows/linyuan-seed-acceptance.yml
-      - linyuan/simulations/seed-expansion-acceptance-20260918.json
+      - linyuan/simulations/seed-expansion-acceptance-*.json
   workflow_dispatch:
 permissions:
   contents: read
   actions: read
 jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      sample_ids: ${{ steps.batch.outputs.sample_ids }}
+      manifest_path: ${{ steps.batch.outputs.manifest_path }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          batch="$(python linyuan/seed_media_preflight.py acceptance-batch --root linyuan/simulations)"
+          echo "sample_ids=$(jq -r .sample_ids <<<"$batch")" >> "$GITHUB_OUTPUT"
+          echo "manifest_path=$(jq -r .manifest_path <<<"$batch")" >> "$GITHUB_OUTPUT"
   acceptance:
+    needs: select
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '201,202,203,204,205,206'
-      manifest_path: simulations/seed-expansion-acceptance-20260918.json
+      sample_ids: ${{ needs.select.outputs.sample_ids }}
+      manifest_path: ${{ needs.select.outputs.manifest_path }}
     secrets: inherit

@@ -3,7 +3,12 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "linyuan"))
-from seed_media_preflight import _load_exclusions, select_candidates, summarize
+from seed_media_preflight import (
+    _load_exclusions,
+    latest_acceptance_batch,
+    select_candidates,
+    summarize,
+)
 
 
 def row(seed, page, title="访谈", duration=1200):
@@ -59,4 +64,17 @@ def test_previous_acceptance_manifest_is_excluded(tmp_path):
     assert {item["url"] for item in selected} == {
         "https://www.bilibili.com/video/BV2222222222?p=1",
         "https://www.bilibili.com/video/BV1111111111?p=2",
+    }
+
+
+def test_latest_acceptance_batch_uses_highest_sample_id(tmp_path):
+    (tmp_path / "seed-expansion-acceptance-old.json").write_text(json.dumps({
+        "samples": [{"id": 201}, {"id": 202}],
+    }), encoding="utf-8")
+    (tmp_path / "seed-expansion-acceptance-next.json").write_text(json.dumps({
+        "samples": [{"id": 207}, {"id": 208}, {"id": 209}],
+    }), encoding="utf-8")
+    assert latest_acceptance_batch(tmp_path) == {
+        "sample_ids": "207,208,209",
+        "manifest_path": "simulations/seed-expansion-acceptance-next.json",
     }

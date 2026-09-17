@@ -103,8 +103,11 @@ jobs:
           except Exception as exc:quality={'reason':f'missing/invalid source report: {exc}'}
           media=Path(os.environ['RUNNER_TEMP'])/'source/video.mp4'
           fetch_rc=int(os.environ['FETCH_RC']);gate_rc=int(os.environ['GATE_RC'])
+          quality_rejected=(fetch_rc==0 and gate_rc==2) or (
+              quality.get('failure_stage')=='source-quality' and
+              quality.get('retryable') is False)
           status=('source_quality_passed' if fetch_rc==0 and gate_rc==0
-                  else 'source_quality_rejected' if fetch_rc==0 and gate_rc==2
+                  else 'source_quality_rejected' if quality_rejected
                   else 'technical_unknown')
           result={'id':os.environ['SOURCE_ID'],'title':os.environ['SOURCE_TITLE'],
                   'url':os.environ['SOURCE_URL'],'bvid':os.environ['SOURCE_BVID'],
