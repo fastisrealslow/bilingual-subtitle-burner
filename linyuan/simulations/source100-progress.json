@@ -3,7 +3,8 @@
   "active_work": {
     "owner": "automation-source100-identity",
     "started_at": "2026-09-17T00:03:14Z",
-    "task": "Retain real frames for fixed samples 30/31/52/56/84/93/98 and test whether sparse six-frame source identity rejection is an algorithmic false reject; do not lower identity or final gates"
+    "task": "Retain real frames for fixed samples 30/31/52/56/84/93/98 and test whether sparse six-frame source identity rejection is an algorithmic false reject; do not lower identity or final gates",
+    "run_id": 35165206520
   },
   "baseline": {
     "passed": 7,
@@ -185,7 +186,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T00:03:14Z",
+  "updated_at": "2026-09-17T00:07:10Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -319,5 +320,21 @@
     "cleanup_crop_limit_fraction": 0.3,
     "counts_as_final": false,
     "gates_changed": false
+  },
+  "identity_sparse_review": {
+    "commit": "cb2e66fb3c774f5ca8fdfed3a5255bd0d69e46db",
+    "run_id": 35165206520,
+    "sample_ids": [
+      30,
+      31,
+      52,
+      56,
+      84,
+      93,
+      98
+    ],
+    "status": "in_progress",
+    "counts_as_full_benchmark": false,
+    "purpose": "retain exact source-identity frames and test six-frame sampling bias without changing any gate"
   }
 }
