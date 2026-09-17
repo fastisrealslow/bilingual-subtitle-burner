@@ -888,7 +888,7 @@
       "note": "All six exact URLs downloaded real media whose durations match page metadata and passed the unchanged source-quality gate. These are mother-media passes, not finals."
     },
     "full_acceptance": {
-      "run_id": 35251572571,
+      "run_id": 35251699299,
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918.json",
       "sample_ids": [
         201,
@@ -898,11 +898,14 @@
         205,
         206
       ],
-      "commit": "937ce35b3b6d5d95322f3cc54619ec5957ad939c",
+      "commit": "dd8993e6d847500052790b12b4d5a590eceb021e",
       "pipeline": "CPU offline ASR + fixed publication snapshot/content dedup + selection + render + all final acceptance gates",
       "no_fc_or_posting": true,
       "accepted_mp4_count": 0,
-      "status": "queued"
+      "status": "six_jobs_running",
+      "initial_run_id": 35251572571,
+      "initial_result": "setup regression failed because seed-manifest env leaked into fixed100 regression tests; no media job started",
+      "manifest_isolation_fix_commit": "3f88b575babaa5a77006f39d81bca31ebda6c43b"
     }
   }
 }
