@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 24
+VERSION = 25
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -52,7 +52,14 @@ SPEECH_CHANGE = re.compile(
     # #79 changes both subject and camera after completing the domestic-crisis
     # examples. End that complete statement before the source switches to a
     # wide stage shot; do not weaken the continuous-face requirement.
-    r'|这是境内的[，,]境外的')
+    r'|这是境内的[，,]境外的'
+    # Reviewed CPU transcripts #7/#68 explicitly announce these chapter
+    # changes. Generic rhetorical questions are not chapter boundaries.
+    r'|那么我就详细就讲一下'
+    r'|那么我们又找到了一个今天投资'
+    r'|我再讲一下为什么我说重要'
+    r'|那我们怎么想呢[？?]所以未来的投资方向'
+    r'|那剩下的就是你[，,]你就炒股')
 
 # Long keynotes also announce numbered chapters without phrasing them as a
 # question.  These are observable source boundaries, not semantic guesses or
@@ -68,7 +75,10 @@ OUTRO = re.compile(
     r'|今天.{0,8}就到这里|由于时间.{0,12}(?:不再|结束)'
     r'|今天交流了非常多.{0,12}收获'
     # Reviewed #686: the host's retrospective begins before the formal goodbye.
-    r'|今天的对谈.{0,16}林总其实很克制')
+    r'|今天的对谈.{0,16}林总其实很克制'
+    # #68 ends before the host resumes. Its final 114.72s chapter must not
+    # borrow the outro/host narration to reach the unchanged 120s minimum.
+    r'|我今天就讲这么多')
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_BRIDGE = re.compile(
     r'^(?:啊[，,]?|嗯[，,]?|那|好的[，,]?)*'

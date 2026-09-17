@@ -12,6 +12,34 @@ import simulate_sources as sim
 FIXTURE=Path(__file__).parent/'fixtures/source100_recovery.json'
 
 
+@pytest.mark.parametrize('sample,expected',[
+    ('7',[(177.80,334.12),(335.56,570.36)]),
+    ('68',[(129.48,379.88)]),
+])
+def test_real_keynote_chapters_use_observed_boundaries_and_exclude_host(sample,expected):
+    evidence=json.loads((FIXTURE.parent/'source100_keynote_boundaries.json').read_text())[sample]
+    cues=evidence['cues']
+    before=json.dumps(cues,ensure_ascii=False)
+    picks=selection.select(cues,whole_source=True,limit=None)
+    spans=[(cues[p['start']]['start'],cues[p['end']]['end']) for p in picks]
+    assert spans==expected
+    assert json.dumps(cues,ensure_ascii=False)==before
+    assert all(p['selection_method']=='source_continuous_speech_v1' for p in picks)
+    if sample=='68':
+        # The last guest chapter is 114.72s; host/outro text cannot pad it.
+        assert all(end<498.36 for _,end in spans)
+        assert not any(start==380.44 for start,_ in spans)
+
+
+@pytest.mark.parametrize('text',[
+    '那我们怎么想呢？投资需要控制风险。',
+    '我再讲一下今天市场的情况。',
+    '那么我们又找到了一个问题。',
+])
+def test_generic_rhetorical_phrases_do_not_create_keynote_chapters(text):
+    assert not selection.SPEECH_CHANGE.search(text)
+
+
 def test_real_followups_are_kept_but_the_next_medical_topic_is_excluded():
     cues=json.loads(FIXTURE.read_text())['3']
     picks=selection.select(cues,whole_source=True,limit=None)

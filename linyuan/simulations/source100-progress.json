@@ -6,6 +6,15 @@
     "task": "Implement and regress literal keynote boundaries for sources7/68, then run Actions CPU final acceptance; release this claim after dispatch",
     "run_id": null
   },
+  "keynote_boundary_recovery": {
+    "selector_version": 25,
+    "sample_ids": [7, 68],
+    "status": "ready_for_targeted_actions_acceptance",
+    "regression": "81 passed: source100 recovery, source selection, selection incident, selection0915, simulation",
+    "counts_as_full_benchmark": false,
+    "accepted_mp4s": 0,
+    "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered"
+  },
   "baseline": {
     "passed": 7,
     "run_id": 35080669830,
@@ -34,7 +43,9 @@
     "Source65 bounded <=5s unmatched A/V tail normalization (commit a6c541a37de1ac2e3f3f490b252bc230d38562e9) recovered the fixed Weibo source and passed source/ASR gates. Run35134850962 then rejected all 9 candidates at unchanged picture gates: permanent title card/platform mark/'完整版'/embedded subtitles/large black bands/two-person layout require 36% cleanup crop (>30%). This is a genuine candidate-quality rejection; no final MP4.",
     "Run35165978130 retained all six real source-identity frames for fixed samples30/31/52/56/84/93/98 after evidence-only commit e4546ce04bc22b834868e329857f8755f9a6421a. The frames prove the source-level whole-program ratio conflates host/B-roll with the target in real interviews (31/56) and repeatedly classifies the same side-profile keynote speaker as different or uncertain (30/52/98); no final was counted.",
     "Commit7492544d9660204bb62455401ff8f6439fa23796 adds an 18-frame source-only rescan and requires a contiguous three-frame window to pass the unchanged identity_verdict_passes threshold. Independent candidate/final six-frame identity, picture, deduplication and acceptance gates are unchanged; 45 related regressions pass. Real fixed-source validation is run35166698979.",
-    "Run35166698979 early result: samples30/31/56/84 passed the repaired source-identity stage and continued into downstream processing; 52/93/98 still failed closed because no three-frame window met the unchanged threshold. No final MP4 is counted until the four continuing jobs complete all gates."
+    "Run35166698979 completed with zero accepted MP4s: 30 had no structural candidate; all five candidates each for31/56 failed picture/continuous-face checks; both84 candidates failed identity; 52/93/98 remained source-rejected. The expired claim was replaced on2026-09-17T06:32Z.",
+    "Selector25 recovers literal speaker-announced chapters from hash-verified CPU evidence: source7 177.80-334.12 and335.56-570.36; source68 129.48-379.88. Source68 outro at498.36 truncates the remaining chapter to114.72s, which remains rejected. Candidates do not count as MP4 success. Fixed-source real acceptance is pending.",
+    "Audited15 zero-candidate sources: 1/7/17/19/25/26/27/30/34/38/42/54/61/67/68. Even recovering all15 while retaining9 only reaches24/100. Sources27/67 require original-audio/word-alignment review;19 has two distinct short topics and must not be merged;30 has significant real overlays/occlusions. Other failure categories must supply at least6 further successes."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -79,7 +90,7 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Wait for run35166698979 on fixed samples30/31/52/56/84/93/98; inspect every source report and only count actual accepted MP4s after all unchanged downstream gates.",
+    "Inspect selector25 targeted acceptance on fixed sources7/68; reuse only mother/model/config hash-verified CPU evidence and count only final accepted MP4s. Do not launch duplicate diagnostics.",
     "Validate the dense-window source check on a true wrong-person control before any full benchmark; keep sources with no passing contiguous window rejected.",
     "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot."
@@ -189,7 +200,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T00:35:00Z",
+  "updated_at": "2026-09-17T06:38:00Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -338,7 +349,7 @@
       93,
       98
     ],
-    "status": "validation_in_progress_4_advanced_3_source_rejected",
+    "status": "completed_zero_accepted",
     "advanced_sample_ids": [
       30,
       31,

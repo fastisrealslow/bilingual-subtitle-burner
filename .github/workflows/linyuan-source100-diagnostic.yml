@@ -9,11 +9,10 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Validate 7492544's dense contiguous identity-window recheck against the
-    # same seven real fixed sources. Candidate identity, picture, deduplication
-    # and final acceptance thresholds remain unchanged.
+    # Validate selector25 on fixed sources with hash-verified CPU recognition
+    # evidence. Identity, picture, deduplication and final gates stay unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '30,31,52,56,84,93,98'
+      sample_ids: '7,68'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
