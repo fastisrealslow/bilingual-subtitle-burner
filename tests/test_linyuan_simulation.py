@@ -89,7 +89,7 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert render['env']['TEXT_BACKEND']=='local'
     assert render['env']['SOURCE_EDITORIAL_FIRST']=='true'
     assert 'simulate_sources.py run' in render['run']
-    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids'}
+    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path'}
     assert workflow['jobs']['summary']['if']=='${{ always() && !inputs.sample_ids }}'
     assert simulate['env']['SIMULATION_SAMPLE_IDS']=="${{ inputs.sample_ids || '' }}"
 
@@ -101,6 +101,16 @@ def test_diagnostic_matrix_retains_exact_fixed_source_records():
     assert sim.matrix_samples(manifest,'87,5,9')==[r for r in original if r['id'] in (5,9,87)]
     for invalid in ('0','101','5,5','5,','5;echo bad','https://example.com'):
         with pytest.raises(ValueError):sim.matrix_samples(manifest,invalid)
+
+
+def test_bounded_seed_acceptance_manifest_keeps_exact_urls():
+    rows=[dict(id=201,slug='seed-accept-0123456789ab',
+        source_url='https://www.bilibili.com/video/BVseed?p=2',
+        source_preflight_sha256='a'*64)]
+    manifest=dict(kind='seed_expansion_acceptance',source_preflight_run_id=123,
+                  samples=rows)
+    assert sim.validate_manifest(manifest)==rows
+    assert sim.matrix_samples(manifest,'201')==rows
 
 
 def test_diagnostic_mode_cannot_emit_full_acceptance_summary(monkeypatch):
