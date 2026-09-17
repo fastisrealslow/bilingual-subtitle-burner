@@ -4,14 +4,27 @@
   "keynote_boundary_recovery": {
     "selector_version": 25,
     "sample_ids": [7, 68],
-    "status": "targeted_actions_acceptance_in_progress",
+    "status": "completed_two_verified_accepted_sources",
     "commit": "d61450dc0b787050bcb8187e5d951000c11943da",
     "run_id": 35190487788,
     "claim_released": "2026-09-17T06:36:00Z",
     "regression": "81 passed: source100 recovery, source selection, selection incident, selection0915, simulation",
+    "actions_regression": "run35190487335: 440 passed, 1 skipped, 1 deselected; full100 launch checks:46 passed",
     "counts_as_full_benchmark": false,
-    "accepted_mp4s": 0,
+    "accepted_mp4s": 2,
+    "verified_finals": [
+      {"sample_id": 7, "duration_sec": 156.341333, "bytes": 11931958, "sha256": "c876c71a5ce00696bc17fb0f996fa379d7bfb45423c2271e5208131edb86a37a", "report_artifact": 10483229277, "media_artifact": 10483144398, "local_hash_stream_duration_verified": true},
+      {"sample_id": 68, "duration_sec": 250.4, "bytes": 20468908, "sha256": "5fe4b4f13cb38496efa41fc521f26a91eecb6df2e79d475f3f4f531b3aef1eec", "report_artifact": 10484690991, "media_artifact": 10484830669, "local_hash_stream_duration_verified": true}
+    ],
     "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered"
+  },
+  "round3": {
+    "status": "launching_full_fixed_100_acceptance",
+    "run_id": null,
+    "selector_version": 25,
+    "targeted_validation_run": 35190487788,
+    "confirmed_passed": 0,
+    "note": "Do not import the two targeted successes or the prior nine. Count this full run alone after actual acceptance reports and MP4 verification."
   },
   "baseline": {
     "passed": 7,
@@ -88,7 +101,7 @@
     "required_passed": 30
   },
   "next_steps": [
-    "Inspect selector25 targeted acceptance on fixed sources7/68; reuse only mother/model/config hash-verified CPU evidence and count only final accepted MP4s. Do not launch duplicate diagnostics.",
+    "Monitor round3 full fixed100 acceptance launched by the manifest round/launch_revision change. Do not repeat the successful7/68 diagnostic or duplicate the full run. Verify accepted MP4s and classify all rejected/unresolved reports at this one revision.",
     "Validate the dense-window source check on a true wrong-person control before any full benchmark; keep sources with no passing contiguous window rejected.",
     "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot."
@@ -198,7 +211,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T06:36:00Z",
+  "updated_at": "2026-09-17T07:25:00Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
