@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-17T12:03:38.612Z",
+  "counts_as_accepted": false,
+  "quality_gates_changed": false,
+  "source70": {
+    "run_id": 35194448958,
+    "artifact_id": 10486203945,
+    "source_sha256": "80f84cc706dcffd5b2ad54db328ed16d09a0aaadcc63d8cebaa66e86ca54f2cd",
+    "native_resolution": [
+      1024,
+      576
+    ],
+    "clean_preview": {
+      "source_start": 648.33019825,
+      "duration": 24,
+      "video_filter": "delogo=x=20:y=8:w=75:h=23,delogo=x=939:y=8:w=65:h=24,crop=1024:422:0:40"
+    },
+    "observed_frames": [
+      "identity_1.jpg",
+      "identity_5.jpg"
+    ],
+    "observations": "Both inspected source frames have a superimposed forest/template graphic covering the live region, corner branding and lower English text; one also shows large yellow embedded subtitles.",
+    "conclusion": "Existing measured plan fails unchanged 480px minimum. Not evidence of a false resolution rejection or a recoverable clean candidate. Native576 alone cannot establish recoverability; do not exempt gate. Not a proof that every interval is unusable."
+  },
+  "source67": {
+    "report_run_id": 35194448958,
+    "report_artifact_id": 10486376890,
+    "boundary_run_id": 35200009293,
+    "boundary_artifact_id": 10487700454,
+    "source_sha256": "5b113d6a14166acf84167e9767fc634e4efba0736f832cfcae2d69b993a26472",
+    "cues_sha256": "2e5baeb942629949e89cefc824f335ff024f10d03e49a5dbbbdfdcc6986f2754",
+    "model_revision": "5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+    "aligner_revision": "c7cbfc2048c462b0d63a45797104fc9db3ad62b7",
+    "all_cue_characters_match_aligned_tokens": true,
+    "cue_characters": 1556,
+    "observed_handoff": {
+      "guest_complete_clause_end": 249.72,
+      "guest_farewell_end": 251.72,
+      "thanks_start": 252.04,
+      "addressed_name_start": 252.76,
+      "host_sentence_end": 265.56
+    },
+    "root_cause": "Display cues77–82 combine guest final statement/farewell and host addressed thanks in one sentence unit. No whole-source structural candidate. Word alignment contains an exact boundary, so future repair can split at automatically detected handoff rather than manual timecodes.",
+    "visual_caveat": "Ending-context frames at source≈248.6 and254.6 show persistent top/bottom black regions and embedded yellow subtitles; first shows multiple people, second cuts to wide hall. Selecting a guest interval is not proof it can pass picture gates.",
+    "next_step": "Implement generic paired invitation/handoff detection only with exact transcript-to-word alignment and validated mother/model/config hashes; negative regression for quoted thanks, ambiguous speaker changes and missing timestamps. Preserve full thought, leave final visual/dedup gates unchanged; no source-ID timestamps in production."
+  },
+  "validation": {
+    "command": "python -m pytest -q tests/test_linyuan_optional_layout.py tests/test_linyuan_source100_recovery.py tests/test_linyuan_simulation.py",
+    "passed": 44
+  },
+  "trigger_audit": "For manifest/progress/evidence paths, only 100素材离线模拟（不投稿） push matches manifest. All four workflow_run listeners target production workflows, not this simulation. No FC or posting chain.",
+  "decision": "Run one fresh same-revision fixed100 benchmark incorporating proven source8 optional-layout recovery and selector26. Do not forecast 11% or30%; report actual progress before20:30."
+}
