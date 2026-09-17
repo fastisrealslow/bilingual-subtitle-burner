@@ -33,7 +33,7 @@ def _score(row):
 
 
 def _load_exclusions(paths):
-    """Return source IDs/URLs already assigned to an immutable acceptance batch."""
+    """Return IDs/URLs already assigned to or screened by an immutable batch."""
     ids, urls = set(), set()
     for path in paths:
         try:
@@ -45,6 +45,21 @@ def _load_exclusions(paths):
                 ids.add(str(row["id"]))
             if row.get("source_url"):
                 urls.add(row["source_url"])
+        for row in payload.get("results") or []:
+            if row.get("id") is not None:
+                ids.add(str(row["id"]))
+            if row.get("url"):
+                urls.add(row["url"])
+            if row.get("source_url"):
+                urls.add(row["source_url"])
+        for row in payload.get("screened_urls") or []:
+            if isinstance(row, str):
+                urls.add(row)
+                continue
+            if row.get("id") is not None:
+                ids.add(str(row["id"]))
+            if row.get("url"):
+                urls.add(row["url"])
     return ids, urls
 
 
@@ -148,8 +163,9 @@ def main():
         report = json.loads(args.report.read_text(encoding="utf-8"))
         exclusion_paths = list(args.exclude_manifest)
         if not exclusion_paths:
-            exclusion_paths = sorted(Path("linyuan/simulations").glob(
-                "seed-expansion-acceptance-*.json"))
+            root = Path("linyuan/simulations")
+            exclusion_paths = sorted(root.glob("seed-expansion-acceptance-*.json"))
+            exclusion_paths += sorted(root.glob("seed-expansion-screened-*.json"))
         excluded_ids, excluded_urls = _load_exclusions(exclusion_paths)
         print(json.dumps({"include": select_candidates(
             report, args.limit, args.per_seed, excluded_ids, excluded_urls)},

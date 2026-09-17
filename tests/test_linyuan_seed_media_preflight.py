@@ -67,6 +67,28 @@ def test_previous_acceptance_manifest_is_excluded(tmp_path):
     }
 
 
+def test_screened_quality_reject_is_excluded(tmp_path):
+    screened = tmp_path / "seed-expansion-screened-previous.json"
+    screened.write_text(json.dumps({"results": [
+        {
+            "id": "bilibili_search:BV1111111111:p1",
+            "url": "https://www.bilibili.com/video/BV1111111111?p=1",
+            "status": "source_quality_rejected",
+        },
+    ]}), encoding="utf-8")
+    excluded_ids, excluded_urls = _load_exclusions([screened])
+    report = {"candidates": [
+        row("BV1111111111", 1, "林园访谈", 1500),
+        row("BV1111111111", 2, "林园访谈", 1400),
+    ]}
+    selected = select_candidates(report, limit=2, per_seed=2,
+                                 excluded_ids=excluded_ids,
+                                 excluded_urls=excluded_urls)
+    assert [item["url"] for item in selected] == [
+        "https://www.bilibili.com/video/BV1111111111?p=2",
+    ]
+
+
 def test_latest_acceptance_batch_uses_highest_sample_id(tmp_path):
     (tmp_path / "seed-expansion-acceptance-old.json").write_text(json.dumps({
         "samples": [{"id": 201}, {"id": 202}],
