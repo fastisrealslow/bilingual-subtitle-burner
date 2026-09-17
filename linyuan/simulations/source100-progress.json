@@ -283,7 +283,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T12:04:08.935Z",
+  "updated_at": "2026-09-17T12:39:59.496Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -642,13 +642,44 @@
     "publication_snapshot_sha256": "c6cfe93b1c3dc23eb475e60d8c4f4d9e4957c798bc855267859c963b3b90e694",
     "selector_version": 26,
     "reason": "Include source8 optional-layout repair already verified on real MP4, with selector26 regression; no speculative source67/70 gate changes.",
-    "confirmed_passed": 0,
-    "verified_sample_ids": [],
-    "reported_samples": 0,
-    "remaining_unverified": 100,
+    "confirmed_passed": 4,
+    "verified_sample_ids": [
+      7,
+      28,
+      32,
+      49
+    ],
+    "reported_samples": 61,
+    "remaining_unverified": 39,
     "final_success_rate": null,
     "target_met": false,
-    "note": "Do not import prior round10 or targeted source8. This is a fresh one-revision100-source benchmark; observed0 is not final0%."
+    "note": "Stage evidence only: 61/100 reports uploaded, four same-version real MP4s locally hash/stream/duration verified; 39 remain without reports. Do not import prior round3 or targeted source8. Final percentage waits for all100.",
+    "last_observed_at": "2026-09-17T12:39:59.494Z",
+    "verified_finals": {
+      "7": {
+        "artifact_id": 10497016561,
+        "duration_sec": 156.341333,
+        "sha256": "68021ee654ce0d10fd2d8766fc1cca119a88975979c028f537985a2eebd25c06"
+      },
+      "28": {
+        "artifact_id": 10496842460,
+        "duration_sec": 144.487696,
+        "sha256": "61f5a162a88586ac38dab5a33fed1e5005d6fa799927b9e854f921280431a9e1"
+      },
+      "32": {
+        "artifact_id": 10497630330,
+        "duration_sec": 205.454362,
+        "sha256": "2d162650e64b158f6644c0f86b29f689bac3953ec153183c733b94a392c8571e"
+      },
+      "49": {
+        "artifact_id": 10497677630,
+        "duration_sec": 147.621333,
+        "sha256": "34289c2105d0b821b312abb367deb61c3e4cf916061286753260cd4309b47403",
+        "bytes": 8165888,
+        "video": "h264 720x1280",
+        "audio": "aac"
+      }
+    }
   },
   "evening_review": {
     "checked_at": "2026-09-17T12:04:08.935Z",
