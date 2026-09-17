@@ -81,13 +81,25 @@ def requested_page(url):
 
 
 def page_cid(pages, page):
+    return page_metadata(pages, page)['cid']
+
+
+def page_metadata(pages, page):
+    """Bind a requested collection page to both its cid and declared duration."""
     matches = [p for p in pages if int(p.get('page', 0)) == page]
     if len(matches) != 1 or not matches[0].get('cid'):
         raise ValueError(f'Bilibili page {page} is missing or ambiguous; never substitute page 1')
-    return matches[0]['cid']
+    result = {'cid': matches[0]['cid']}
+    try:
+        duration = float(matches[0].get('duration') or 0)
+    except (TypeError, ValueError):
+        duration = 0
+    if duration > 0:
+        result['expected_duration'] = duration
+    return result
 
 
-def via_view(op, bvid, page=1):
+def via_view(op, bvid, page=1, include_metadata=False):
     """策略 A：view API 拿 cid。"""
     v = json.loads(op.open(
         f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}", timeout=30).read())
@@ -95,19 +107,28 @@ def via_view(op, bvid, page=1):
         raise RuntimeError(f"view code={v.get('code')}")
     data = v['data']
     if data.get('pages'):
-        return page_cid(data['pages'], page)
+        metadata = page_metadata(data['pages'], page)
+        return metadata if include_metadata else metadata['cid']
     if page != 1:
         raise ValueError(f'No page {page} metadata')
-    return data['cid']
+    metadata = {'cid': data['cid']}
+    try:
+        duration = float(data.get('duration') or 0)
+    except (TypeError, ValueError):
+        duration = 0
+    if duration > 0:
+        metadata['expected_duration'] = duration
+    return metadata if include_metadata else metadata['cid']
 
 
-def via_pagelist(op, bvid, page=1):
+def via_pagelist(op, bvid, page=1, include_metadata=False):
     """策略 B：pagelist 拿 cid（风控级别和 view 不同）。"""
     r = json.loads(op.open(
         f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}", timeout=30).read())
     if r.get("code") != 0 or not r.get("data"):
         raise RuntimeError(f"pagelist code={r.get('code')}")
-    return page_cid(r['data'], page)
+    metadata = page_metadata(r['data'], page)
+    return metadata if include_metadata else metadata['cid']
 
 
 def _urls(stream):
@@ -158,13 +179,29 @@ def via_embed(op, bvid, page=1):
     return select_streams(json.loads(m.group(1)))
 
 
-def playurl(op, bvid, cid):
+def playurl(op, bvid, cid, expected_duration=None):
     p = json.loads(op.open(
         f"https://api.bilibili.com/x/player/playurl?bvid={bvid}&cid={cid}"
         "&qn=80&fnval=4048&fourk=0&high_quality=1", timeout=30).read())
     if p.get("code") != 0:
         raise RuntimeError(f"playurl code={p.get('code')}")
-    return select_streams(p)
+    streams = select_streams(p)
+    if expected_duration:
+        streams['expected_duration'] = float(expected_duration)
+    return streams
+
+
+def playurl_for_page(op, bvid, page_metadata_or_cid):
+    """Resolve one exact page while preserving its duration identity.
+
+    The numeric fallback keeps older callers and test doubles compatible, but
+    production resolvers return metadata so a valid-yet-wrong CDN asset cannot
+    be mistaken for the requested collection episode.
+    """
+    if isinstance(page_metadata_or_cid, dict):
+        return playurl(op, bvid, page_metadata_or_cid['cid'],
+                       page_metadata_or_cid.get('expected_duration'))
+    return playurl(op, bvid, page_metadata_or_cid)
 
 
 class FetchBudgetExceeded(TimeoutError):
@@ -172,6 +209,10 @@ class FetchBudgetExceeded(TimeoutError):
 
 
 class SourceResolutionUnavailable(ValueError):
+    pass
+
+
+class SourceMediaMismatch(RuntimeError):
     pass
 
 
@@ -492,6 +533,25 @@ def validate_media(path, max_track_drift=2.0, max_tail_gap=5.0):
             "audio_streams": len(audio)}
 
 
+def validate_expected_duration(actual, expected, max_relative_drift=0.05,
+                               max_absolute_drift=15.0):
+    """Reject a decodable CDN asset that is not the requested page.
+
+    Page metadata is rounded and containers can differ by a few seconds, so
+    this is deliberately tolerant. It catches the observed 1347s page that
+    produced a valid 20s MP4 without turning ordinary tail drift into a quality
+    rejection.
+    """
+    if not expected:
+        return
+    actual, expected = float(actual), float(expected)
+    tolerance = max(max_absolute_drift, expected * max_relative_drift)
+    if abs(actual - expected) > tolerance:
+        raise SourceMediaMismatch(
+            f'下载媒体时长 {actual:.2f}s 与请求页面 {expected:.2f}s 不匹配'
+            f'（容差 {tolerance:.2f}s）')
+
+
 def download(op, streams, referer, out, deadline=None):
     out = Path(out)
     out.parent.mkdir(parents=True,exist_ok=True)
@@ -508,7 +568,8 @@ def download(op, streams, referer, out, deadline=None):
                 digest=hashlib.file_digest(handle,'sha256').hexdigest()
             if (saved.get('identity')==identity and saved.get('sha256')==digest
                     and saved.get('size')==out.stat().st_size):
-                validate_media(out)
+                report = validate_media(out)
+                validate_expected_duration(report['duration'], streams.get('expected_duration'))
                 print('[取源复用] 已校验完整母片，无需重新下载音视频轨',flush=True)
                 return
         except (ValueError,OSError,RuntimeError):
@@ -524,7 +585,13 @@ def download(op, streams, referer, out, deadline=None):
 
     if not streams.get("audio"):
         download_one(op, streams["video"], referer, out,deadline=deadline)
-        validate_media(out)
+        report = validate_media(out)
+        try:
+            validate_expected_duration(report['duration'], streams.get('expected_duration'))
+        except Exception:
+            out.unlink(missing_ok=True)
+            out.with_suffix(out.suffix + '.download.json').unlink(missing_ok=True)
+            raise
         remember()
         return
     video = out.with_suffix(".video.m4s")
@@ -539,7 +606,8 @@ def download(op, streams, referer, out, deadline=None):
             "-c", "copy", "-shortest", "-movflags", "+faststart", str(out),
         ], check=True)
         try:
-            validate_media(out)
+            report = validate_media(out)
+            validate_expected_duration(report['duration'], streams.get('expected_duration'))
         except Exception:
             # Network checkpoints are reusable; an independently proven broken
             # media file is not. Force a clean download on the next attempt.
@@ -594,8 +662,10 @@ def main():
     page = requested_page(args.url)
 
     strategies = [
-        ("view→playurl", lambda op: playurl(op, bvid, via_view(op, bvid, page))),
-        ("pagelist→playurl", lambda op: playurl(op, bvid, via_pagelist(op, bvid, page))),
+        ("view→playurl", lambda op: playurl_for_page(
+            op, bvid, via_view(op, bvid, page, True))),
+        ("pagelist→playurl", lambda op: playurl_for_page(
+            op, bvid, via_pagelist(op, bvid, page, True))),
     ]
     # Embedded pages do not prove which cid their playinfo belongs to. Keep
     # the legacy fallback only for page 1, never silently download the wrong P.
