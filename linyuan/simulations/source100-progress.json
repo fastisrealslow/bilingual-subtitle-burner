@@ -1,16 +1,14 @@
 {
   "active_until": "2026-09-18T00:30:00Z",
   "active_work": {
-    "purpose": "expanded seed batch2 full CPU acceptance and duplicate-safe next preflight",
+    "purpose": "expanded seed batch3 full CPU acceptance",
     "owner": "scheduled-source100-worker",
     "run_ids": [
-      35270352523,
-      35276412363
+      35279743574
     ],
-    "commit": "3640a0a43c7d8645cff83cadeb453bd837ca03ec",
+    "commit": "63791e816ff7fee705302735d4a20cb12cb9a13e",
     "write_scope": [
-      "linyuan/seed_media_preflight.py",
-      "tests/test_linyuan_seed_media_preflight.py",
+      "linyuan/simulations/seed-expansion-acceptance-20260918-batch3.json",
       "linyuan/simulations/seed-expansion-screened-20260918.json",
       "linyuan/simulations/source100-progress.json"
     ]
@@ -564,7 +562,7 @@
     "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
     "manifest": "linyuan/seed_expansion.json",
     "new_metadata_candidates": 61,
-    "next_step": "Observe batch2 sample210 and duplicate-safe preflight run35276412363; only final verified MP4s count. Promote passed source-preflight URLs to a later immutable acceptance batch without mixing expansion yield into fixed100.",
+    "next_step": "Observe full acceptance run35279743574. Download and independently verify any media artifact before counting; keep expansion yield separate from fixed100 formal 12/100.",
     "outside_duration": 4,
     "pages": 70,
     "production_dispatch": false,
@@ -572,10 +570,10 @@
     "requested_at": "2026-09-17",
     "run_id": 35225570402,
     "seeds_added": 3,
-    "status": "first_full_acceptance_completed_2_of_6",
+    "status": "two_of_ten_full_acceptance_accepted_batch3_running",
     "total_candidate_seconds": 143952,
-    "acceptance_total": 6,
-    "rejected": 4,
+    "acceptance_total": 10,
+    "rejected": 8,
     "unresolved": 0,
     "acceptance_run_id": 35251699299,
     "acceptance_commit": "dd8993e6d847500052790b12b4d5a590eceb021e",
@@ -657,7 +655,7 @@
       "fc_or_posting": false
     },
     "batch2_acceptance": {
-      "status": "running_3_quality_rejected_1_running",
+      "status": "completed_0_accepted_4_quality_rejected",
       "run_id": 35270352523,
       "commit": "a33f92b299783a8f6d7c019837d3dad8375326eb",
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch2.json",
@@ -668,12 +666,21 @@
         210
       ],
       "accepted_mp4s": 0,
-      "note": "All four matrix jobs started; no candidate/download counts as a final.",
-      "rejected": {
+      "rejected": 4,
+      "unresolved": 0,
+      "report_artifact_ids": [
+        10519765945,
+        10519722617,
+        10520316975,
+        10521475167
+      ],
+      "reasons": {
         "207": "no >=120s continuous candidate with explicit complete boundaries",
         "208": "two candidates fail unchanged corner-logo/full-face framing gates",
-        "209": "three candidates have target face below unchanged 96px minimum"
-      }
+        "209": "three candidates have target face below unchanged 96px minimum",
+        "210": "seven candidates fail unchanged corner-logo, continuous black-edge or complete-face/headroom gates"
+      },
+      "no_fc_or_posting": true
     },
     "following_preflight": {
       "status": "completed_3_pass_3_quality_reject",
@@ -686,14 +693,40 @@
       "note": "Two prior quality rejects were reselected; only four URLs were new. This run is source preflight only and does not count as finished clips."
     },
     "screened_url_ledger": {
-      "status": "fixed_and_next_preflight_running",
+      "status": "completed_and_batch3_started",
       "commit": "3640a0a43c7d8645cff83cadeb453bd837ca03ec",
       "path": "linyuan/simulations/seed-expansion-screened-20260918.json",
-      "unique_urls": 10,
+      "unique_urls": 16,
       "fix": "Planner now excludes immutable accepted and rejected source-preflight results, preventing repeated CPU checks of known quality rejects.",
       "regression": "27 relevant tests passed locally; next matrix contains six previously unscreened URLs.",
       "run_id": 35276412363,
       "no_fc_or_posting": true
+    },
+    "duplicate_safe_preflight": {
+      "status": "completed_5_pass_1_quality_reject",
+      "run_id": 35276412363,
+      "commit": "3640a0a43c7d8645cff83cadeb453bd837ca03ec",
+      "summary_artifact_id": 10521094021,
+      "source_quality_passed": 5,
+      "source_quality_rejected": 1,
+      "technical_unknown": 0,
+      "accepted_mp4_count": 0,
+      "note": "All six URLs were previously unscreened. Passes are mother-media passes only."
+    },
+    "batch3_acceptance": {
+      "status": "running",
+      "run_id": 35279743574,
+      "commit": "63791e816ff7fee705302735d4a20cb12cb9a13e",
+      "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch3.json",
+      "sample_ids": [
+        211,
+        212,
+        213,
+        214,
+        215
+      ],
+      "accepted_mp4s": 0,
+      "note": "Five exact source-quality passes entered CPU offline ASR, fixed-snapshot dedup, automatic selection, render and unchanged final gates; no candidate counts as a final."
     }
   },
   "source27_question_tail_recovery": {
@@ -986,7 +1019,7 @@
       "passed": 89
     }
   },
-  "updated_at": "2026-09-17T21:24:26.846Z",
+  "updated_at": "2026-09-17T22:00:50.482Z",
   "version": 1,
   "seed_media_preflight": {
     "accepted_mp4_count": 0,
