@@ -3,7 +3,10 @@
   "active_work": null,
   "keynote_boundary_recovery": {
     "selector_version": 25,
-    "sample_ids": [7, 68],
+    "sample_ids": [
+      7,
+      68
+    ],
     "status": "completed_two_verified_accepted_sources",
     "commit": "d61450dc0b787050bcb8187e5d951000c11943da",
     "run_id": 35190487788,
@@ -13,8 +16,24 @@
     "counts_as_full_benchmark": false,
     "accepted_mp4s": 2,
     "verified_finals": [
-      {"sample_id": 7, "duration_sec": 156.341333, "bytes": 11931958, "sha256": "c876c71a5ce00696bc17fb0f996fa379d7bfb45423c2271e5208131edb86a37a", "report_artifact": 10483229277, "media_artifact": 10483144398, "local_hash_stream_duration_verified": true},
-      {"sample_id": 68, "duration_sec": 250.4, "bytes": 20468908, "sha256": "5fe4b4f13cb38496efa41fc521f26a91eecb6df2e79d475f3f4f531b3aef1eec", "report_artifact": 10484690991, "media_artifact": 10484830669, "local_hash_stream_duration_verified": true}
+      {
+        "sample_id": 7,
+        "duration_sec": 156.341333,
+        "bytes": 11931958,
+        "sha256": "c876c71a5ce00696bc17fb0f996fa379d7bfb45423c2271e5208131edb86a37a",
+        "report_artifact": 10483229277,
+        "media_artifact": 10483144398,
+        "local_hash_stream_duration_verified": true
+      },
+      {
+        "sample_id": 68,
+        "duration_sec": 250.4,
+        "bytes": 20468908,
+        "sha256": "5fe4b4f13cb38496efa41fc521f26a91eecb6df2e79d475f3f4f531b3aef1eec",
+        "report_artifact": 10484690991,
+        "media_artifact": 10484830669,
+        "local_hash_stream_duration_verified": true
+      }
     ],
     "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered"
   },
@@ -64,7 +83,8 @@
     "Model completeness review remains disabled",
     "Same 100 URLs and fixed publication snapshot",
     "Do not combine best results across revisions",
-    "No simulation publishing; no lowering final gates"
+    "No simulation publishing; no lowering final gates",
+    "User reaffirmed 2026-09-17: the end goal is unattended automation. Repairs must run automatically in the normal pipeline, generalize to the same failure class, include regression coverage and recover/classify failures without per-video manual timeline edits or sample-ID exceptions. Diagnostic human inspection is evidence gathering, not a production dependency."
   ],
   "diagnostics": {
     "commit": "ea448f1520014637d1c90e3bca124f8eece0a6c0",
@@ -106,7 +126,8 @@
     "Validate the dense-window source check on a true wrong-person control before any full benchmark; keep sources with no passing contiguous window rejected.",
     "Next independent repair investigation: sources27/67 original-audio and forced-alignment role boundaries; do not trim unfinished speech or join different questions. Audit missing-range publication evidence for3/23/24/45/89/96 without editing the frozen publication snapshot or bypassing deduplication.",
     "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
-    "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot."
+    "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
+    "Evaluate selector boundary rules on same-class sources outside the repaired examples. Do not replace missing general selection capability with manually specified per-source intervals."
   ],
   "round2": {
     "commit": "c0c041f1d344bc81bde6fced9aede6836d63b501",
