@@ -1,0 +1,149 @@
+name: Seed expansion media CPU preflight
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/seed_media_preflight.py
+      - tests/test_linyuan_seed_media_preflight.py
+      - .github/workflows/linyuan-seed-media-preflight.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: seed-expansion-media-preflight
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify isolated planner and refresh metadata
+        run: |
+          python -m pip install -q pytest
+          python -m pytest -q tests/test_linyuan_seed_expansion.py tests/test_linyuan_seed_media_preflight.py
+          python linyuan/seed_expansion.py --output /tmp/seed-expansion-report.json
+      - id: matrix
+        run: echo "matrix=$(python linyuan/seed_media_preflight.py matrix --report /tmp/seed-expansion-report.json --limit 6 --per-seed 2)" >> "$GITHUB_OUTPUT"
+  preflight:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      SOURCE_URL: ${{ matrix.url }}
+      SOURCE_SLUG: ${{ matrix.slug }}
+      SOURCE_ID: ${{ matrix.id }}
+      SOURCE_TITLE: ${{ matrix.title }}
+      SOURCE_BVID: ${{ matrix.bvid }}
+      SOURCE_PAGE: ${{ matrix.page }}
+      SOURCE_DURATION: ${{ matrix.duration_seconds }}
+      CUDA_VISIBLE_DEVICES: ''
+      SIMULATION_ONLY: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source-gate dependencies only
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-cjk libgl1 libglib2.0-0
+          python -m pip install -q pillow 'opencv-python<5' rapidocr-onnxruntime
+      - name: Restore CPU face models
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.tool_cache }}/linyuan-face-models
+          key: opencv-yunet-sface-2023mar-2021dec-v1
+      - name: Download and validate actual source without dispatch
+        id: check
+        working-directory: linyuan
+        env:
+          LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          set +e
+          mkdir -p "$RUNNER_TEMP/source" "$RUNNER_TEMP/result"
+          python -u ci_fetch_bilibili.py --url "$SOURCE_URL" --out "$RUNNER_TEMP/source/video.mp4" \
+            --budget-seconds 3600 --failure-report "$RUNNER_TEMP/result/source_quality.json"
+          fetch_rc=$?
+          gate_rc=99
+          if [ "$fetch_rc" -eq 0 ]; then
+            python -u ci_fetch_bilibili.py --validate-only "$RUNNER_TEMP/source/video.mp4" \
+              --failure-report "$RUNNER_TEMP/result/source_quality.json"
+            fetch_rc=$?
+          fi
+          if [ "$fetch_rc" -eq 0 ]; then
+            python -u produce_cn.py --source "$RUNNER_TEMP/source/video.mp4" \
+              --slug "$SOURCE_SLUG" --speaker 林园 --source-check-only \
+              --source-report "$RUNNER_TEMP/result/source_quality.json"
+            gate_rc=$?
+          fi
+          FETCH_RC="$fetch_rc" GATE_RC="$gate_rc" python - <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'result'
+          report=out/'source_quality.json'
+          try:quality=json.loads(report.read_text())
+          except Exception as exc:quality={'reason':f'missing/invalid source report: {exc}'}
+          media=Path(os.environ['RUNNER_TEMP'])/'source/video.mp4'
+          fetch_rc=int(os.environ['FETCH_RC']);gate_rc=int(os.environ['GATE_RC'])
+          status=('source_quality_passed' if fetch_rc==0 and gate_rc==0
+                  else 'source_quality_rejected' if fetch_rc==0 and gate_rc==2
+                  else 'technical_unknown')
+          result={'id':os.environ['SOURCE_ID'],'title':os.environ['SOURCE_TITLE'],
+                  'url':os.environ['SOURCE_URL'],'bvid':os.environ['SOURCE_BVID'],
+                  'page':int(os.environ['SOURCE_PAGE']),
+                  'metadata_duration_seconds':int(os.environ['SOURCE_DURATION']),
+                  'status':status,'fetch_rc':fetch_rc,'gate_rc':gate_rc,
+                  'source_quality':quality,'accepted_mp4_count':0,
+                  'production_dispatch':False}
+          if media.is_file():
+              result['source_sha256']=hashlib.sha256(media.read_bytes()).hexdigest()
+              result['source_bytes']=media.stat().st_size
+              try:
+                  probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(media)]))
+                  result['probe']=probe
+              except Exception as exc:result['probe_error']=str(exc)
+          (out/'preflight-result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps({'id':result['id'],'status':status,'reason':quality.get('reason')},ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seed-media-${{ matrix.slug }}
+          path: ${{ runner.temp }}/result/
+          if-no-files-found: error
+          retention-days: 30
+  summarize:
+    needs: [prepare, preflight]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: seed-media-*
+          path: reports
+      - name: Summarize without admitting or dispatching media
+        run: python linyuan/seed_media_preflight.py summary --reports reports --output seed-media-preflight-summary.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seed-media-preflight-summary
+          path: seed-media-preflight-summary.json
+          if-no-files-found: error
+          retention-days: 30
