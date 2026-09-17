@@ -1,0 +1,99 @@
+name: 固定素材原音边界取证（不出片不投稿）
+'on':
+  push:
+    branches: [main]
+    paths: [.github/workflows/linyuan-source100-boundary-evidence.yml]
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: source100-boundary-evidence
+  cancel-in-progress: false
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - id: 27
+          source_sha256: a56629f31e84a677415491a4a98c3c5df401a4989c9c35c6c9e9ffe65bea2b0b
+        - id: 67
+          source_sha256: 5b113d6a14166acf84167e9767fc634e4efba0736f832cfcae2d69b993a26472
+    defaults:
+      run:
+        working-directory: linyuan
+    env:
+      SAMPLE_ID: ${{ matrix.id }}
+      EXPECTED_SOURCE_SHA256: ${{ matrix.source_sha256 }}
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 安装媒体检查依赖（无识别模型或云API）
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq --no-install-recommends ffmpeg
+    - id: source
+      name: 只从固定100清单选择原URL
+      run: |
+        python - <<'PY'
+        import os,json,hashlib
+        manifest=json.load(open('simulations/source100-20260916.json'))
+        rows=manifest['samples'];assert len(rows)==100
+        row=next(r for r in rows if r['id']==int(os.environ['SAMPLE_ID']))
+        url=row['source_url'];assert url.startswith('https://www.bilibili.com/video/BV')
+        with open(os.environ['GITHUB_ENV'],'a') as f:f.write('SOURCE_URL='+url+'\n')
+        with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('key='+hashlib.sha256(url.encode()).hexdigest()+'\n')
+        PY
+    - uses: actions/cache/restore@v4
+      with:
+        path: linyuan/_src/
+        key: source-download-v1-${{ steps.source.outputs.key }}-${{ github.run_id }}
+        restore-keys: source-download-v1-${{ steps.source.outputs.key }}-
+    - name: 缓存淘汰时恢复相同母片检查点
+      continue-on-error: true
+      timeout-minutes: 10
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: python mother_media_cache.py --source "$SOURCE_URL"
+    - name: 核验实际母片（禁止替换URL）
+      env:
+        BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      run: |
+        mkdir -p boundary-evidence
+        python ci_fetch_bilibili.py --url "$SOURCE_URL" --out _src/video.mp4 --budget-seconds 900 --failure-report boundary-evidence/fetch-failure.json
+    - name: 自动导出片头及片尾上下文（不作为合格成片）
+      run: |
+        python - <<'PY'
+        import hashlib,json,os,pathlib,subprocess
+        src=pathlib.Path('_src/video.mp4');out=pathlib.Path('boundary-evidence')
+        h=hashlib.sha256()
+        with src.open('rb') as f:
+            for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
+        assert h.hexdigest()==os.environ['EXPECTED_SOURCE_SHA256'],'Mother hash differs from audited ASR evidence'
+        probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(src)]))
+        duration=float(probe['format']['duration'])
+        # These generic diagnostic windows are NOT production clip boundaries.
+        windows=[('opening',0,min(25,duration)),('ending',max(0,duration-180),duration)]
+        proof={'sample_id':int(os.environ['SAMPLE_ID']),'source_url':os.environ['SOURCE_URL'],
+               'source_sha256':h.hexdigest(),'duration':duration,'counts_as_accepted':False,'windows':[]}
+        for name,start,end in windows:
+            dest=out/(name+'.mp4')
+            subprocess.run(['ffmpeg','-v','error','-y','-ss',str(start),'-i',str(src),'-t',str(end-start),
+                            '-map','0:v:0','-map','0:a:0','-vf','scale=640:-2','-c:v','libx264','-preset','fast',
+                            '-crf','26','-c:a','aac','-b:a','96k',str(dest)],check=True)
+            proof['windows'].append({'file':dest.name,'start':start,'end':end,'sha256':hashlib.sha256(dest.read_bytes()).hexdigest()})
+        (out/'evidence.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        PY
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: diagnostic-only-boundary-${{ matrix.id }}
+        path: linyuan/boundary-evidence/
+        retention-days: 14
+        if-no-files-found: error

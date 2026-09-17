@@ -38,13 +38,22 @@
     "trigger_audit": "Only fixed-source diagnostic and presentation-rules regression match changed paths; no FC deploy, production run or workflow_run publishing/inventory chain is triggered"
   },
   "round3": {
-    "status": "queued",
+    "status": "in_progress",
     "run_id": 35194448958,
     "commit": "f9e32ad1c3b0fd139e531a1db11627446d3a11ca",
     "selector_version": 25,
     "targeted_validation_run": 35190487788,
-    "confirmed_passed": 0,
+    "confirmed_passed": 8,
+    "verified_sample_ids": [7, 28, 32, 39, 49, 58, 66, 68],
+    "verification_index": "source100-round3-verified.json",
     "note": "Do not import the two targeted successes or the prior nine. Count this full run alone after actual acceptance reports and MP4 verification."
+  },
+  "boundary_audio_evidence": {
+    "status": "launching",
+    "sample_ids": [27, 67],
+    "counts_as_full_benchmark": false,
+    "purpose": "Hash-verified original audio/video context for generic host-handoff and truncated-tail repair; automatic opening25s/ending180s windows are diagnostic evidence only, never production cut points",
+    "run_id": null
   },
   "baseline": {
     "passed": 7,
@@ -123,7 +132,8 @@
   },
   "next_steps": [
     "Monitor round3 full fixed100 acceptance launched by the manifest round/launch_revision change. Do not repeat the successful7/68 diagnostic or duplicate the full run. Verify accepted MP4s and classify all rejected/unresolved reports at this one revision.",
-    "Validate the dense-window source check on a true wrong-person control before any full benchmark; keep sources with no passing contiguous window rejected.",
+    "Keep source-identity negative controls failing closed; the full round3 benchmark is already running and must not be duplicated.",
+    "Retrieve diagnostic-only-boundary-27/67 artifacts, listen to original audio and inspect speaker handoff. No production interval may be guessed from punctuation or manually added per sample.",
     "Next independent repair investigation: sources27/67 original-audio and forced-alignment role boundaries; do not trim unfinished speech or join different questions. Audit missing-range publication evidence for3/23/24/45/89/96 without editing the frozen publication snapshot or bypassing deduplication.",
     "Keep source60 unresolved unless its exact original URL becomes available again; do not replace it.",
     "Only after bounded fixes validate on affected samples, start one same-100-source benchmark on one revision and fixed publication snapshot.",
@@ -234,7 +244,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T07:25:00Z",
+  "updated_at": "2026-09-17T08:29:42Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
