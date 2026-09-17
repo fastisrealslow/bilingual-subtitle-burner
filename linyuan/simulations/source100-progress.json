@@ -1,19 +1,17 @@
 {
   "active_until": "2026-09-18T00:30:00Z",
   "active_work": {
-    "purpose": "expanded seed batch2 full CPU acceptance and next preflight observation",
+    "purpose": "expanded seed batch2 full CPU acceptance and duplicate-safe next preflight",
     "owner": "scheduled-source100-worker",
     "run_ids": [
       35270352523,
-      35270352136
+      35276412363
     ],
-    "commit": "a33f92b299783a8f6d7c019837d3dad8375326eb",
+    "commit": "3640a0a43c7d8645cff83cadeb453bd837ca03ec",
     "write_scope": [
       "linyuan/seed_media_preflight.py",
       "tests/test_linyuan_seed_media_preflight.py",
-      ".github/workflows/linyuan-seed-media-preflight.yml",
-      ".github/workflows/linyuan-seed-acceptance.yml",
-      "linyuan/simulations/seed-expansion-acceptance-20260918-batch2.json",
+      "linyuan/simulations/seed-expansion-screened-20260918.json",
       "linyuan/simulations/source100-progress.json"
     ]
   },
@@ -566,7 +564,7 @@
     "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
     "manifest": "linyuan/seed_expansion.json",
     "new_metadata_candidates": 61,
-    "next_step": "Rank the remaining 55 metadata candidates, apply exact media identity/source gates and content dedup, then run bounded CPU-only full acceptance batches; keep accepted expansion yield separate from fixed100.",
+    "next_step": "Observe batch2 sample210 and duplicate-safe preflight run35276412363; only final verified MP4s count. Promote passed source-preflight URLs to a later immutable acceptance batch without mixing expansion yield into fixed100.",
     "outside_duration": 4,
     "pages": 70,
     "production_dispatch": false,
@@ -659,7 +657,7 @@
       "fc_or_posting": false
     },
     "batch2_acceptance": {
-      "status": "running",
+      "status": "running_3_quality_rejected_1_running",
       "run_id": 35270352523,
       "commit": "a33f92b299783a8f6d7c019837d3dad8375326eb",
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch2.json",
@@ -670,12 +668,32 @@
         210
       ],
       "accepted_mp4s": 0,
-      "note": "All four matrix jobs started; no candidate/download counts as a final."
+      "note": "All four matrix jobs started; no candidate/download counts as a final.",
+      "rejected": {
+        "207": "no >=120s continuous candidate with explicit complete boundaries",
+        "208": "two candidates fail unchanged corner-logo/full-face framing gates",
+        "209": "three candidates have target face below unchanged 96px minimum"
+      }
     },
     "following_preflight": {
-      "status": "running",
+      "status": "completed_3_pass_3_quality_reject",
       "run_id": 35270352136,
-      "note": "Planner correctly excluded both immutable acceptance batches but selected the two batch2 source-quality rejects again because rejected preflight URLs are not yet persisted outside acceptance manifests. Observe this run, then persist all screened URLs before starting another batch; do not count duplicate checks as new coverage."
+      "summary_artifact_id": 10519605010,
+      "source_quality_passed": 3,
+      "source_quality_rejected": 3,
+      "technical_unknown": 0,
+      "accepted_mp4_count": 0,
+      "note": "Two prior quality rejects were reselected; only four URLs were new. This run is source preflight only and does not count as finished clips."
+    },
+    "screened_url_ledger": {
+      "status": "fixed_and_next_preflight_running",
+      "commit": "3640a0a43c7d8645cff83cadeb453bd837ca03ec",
+      "path": "linyuan/simulations/seed-expansion-screened-20260918.json",
+      "unique_urls": 10,
+      "fix": "Planner now excludes immutable accepted and rejected source-preflight results, preventing repeated CPU checks of known quality rejects.",
+      "regression": "27 relevant tests passed locally; next matrix contains six previously unscreened URLs.",
+      "run_id": 35276412363,
+      "no_fc_or_posting": true
     }
   },
   "source27_question_tail_recovery": {
@@ -968,7 +986,7 @@
       "passed": 89
     }
   },
-  "updated_at": "2026-09-17T20:24:30Z",
+  "updated_at": "2026-09-17T21:24:26.846Z",
   "version": 1,
   "seed_media_preflight": {
     "accepted_mp4_count": 0,
