@@ -9,9 +9,10 @@ permissions:
   actions: read
 jobs:
   diagnose:
-    # Retain real source-identity frames for sparse-match interview/keynote
-    # failures. This is evidence collection only: identity, picture,
-    # deduplication and final acceptance thresholds remain unchanged.
+    # Re-run after e4546ce retained the real source-identity frames for these
+    # sparse-match interview/keynote failures. This is evidence collection
+    # only: identity, picture, deduplication and final acceptance thresholds
+    # remain unchanged.
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
       sample_ids: '30,31,52,56,84,93,98'
