@@ -51,6 +51,13 @@ def test_bilibili_falls_back_to_single_file_stream():
     assert selected["audio"] == []
 
 
+def test_requested_page_duration_rejects_valid_but_wrong_short_asset():
+    import pytest
+    with pytest.raises(BILI.SourceMediaMismatch, match='1347.00s'):
+        BILI.validate_expected_duration(20, 1347)
+    BILI.validate_expected_duration(1339.5, 1347)
+
+
 def test_portrait_hd_is_not_discarded_by_landscape_height_limit():
     streams = [dict(width=w, height=h, codecid=7, baseUrl=f'{w}x{h}')
                for w, h in [(428,854),(720,1440),(1080,2160),(1440,2880)]]
