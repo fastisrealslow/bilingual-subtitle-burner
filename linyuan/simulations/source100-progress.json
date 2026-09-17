@@ -33,7 +33,8 @@
     "Source65 round2 downloaded a real Weibo MP4 but generic fetch rejected it before source quality because video/audio stream durations differ by 3.40s. A bounded repair may remove only <=5s of unpaired tail on sources retaining >=120s, then rerun every media validation check; no silence or frames may be fabricated.",
     "Source65 bounded <=5s unmatched A/V tail normalization (commit a6c541a37de1ac2e3f3f490b252bc230d38562e9) recovered the fixed Weibo source and passed source/ASR gates. Run35134850962 then rejected all 9 candidates at unchanged picture gates: permanent title card/platform mark/'完整版'/embedded subtitles/large black bands/two-person layout require 36% cleanup crop (>30%). This is a genuine candidate-quality rejection; no final MP4.",
     "Run35165978130 retained all six real source-identity frames for fixed samples30/31/52/56/84/93/98 after evidence-only commit e4546ce04bc22b834868e329857f8755f9a6421a. The frames prove the source-level whole-program ratio conflates host/B-roll with the target in real interviews (31/56) and repeatedly classifies the same side-profile keynote speaker as different or uncertain (30/52/98); no final was counted.",
-    "Commit7492544d9660204bb62455401ff8f6439fa23796 adds an 18-frame source-only rescan and requires a contiguous three-frame window to pass the unchanged identity_verdict_passes threshold. Independent candidate/final six-frame identity, picture, deduplication and acceptance gates are unchanged; 45 related regressions pass. Real fixed-source validation is run35166698979."
+    "Commit7492544d9660204bb62455401ff8f6439fa23796 adds an 18-frame source-only rescan and requires a contiguous three-frame window to pass the unchanged identity_verdict_passes threshold. Independent candidate/final six-frame identity, picture, deduplication and acceptance gates are unchanged; 45 related regressions pass. Real fixed-source validation is run35166698979.",
+    "Run35166698979 early result: samples30/31/56/84 passed the repaired source-identity stage and continued into downstream processing; 52/93/98 still failed closed because no three-frame window met the unchanged threshold. No final MP4 is counted until the four continuing jobs complete all gates."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -188,7 +189,7 @@
       "conclusion": "success"
     }
   },
-  "updated_at": "2026-09-17T00:30:00Z",
+  "updated_at": "2026-09-17T00:35:00Z",
   "version": 1,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
@@ -337,7 +338,18 @@
       93,
       98
     ],
-    "status": "validation_in_progress",
+    "status": "validation_in_progress_4_advanced_3_source_rejected",
+    "advanced_sample_ids": [
+      30,
+      31,
+      56,
+      84
+    ],
+    "still_source_rejected_sample_ids": [
+      52,
+      93,
+      98
+    ],
     "counts_as_full_benchmark": false,
     "purpose": "use a denser source-only contiguous-window check while preserving all independent candidate/final gates"
   }
