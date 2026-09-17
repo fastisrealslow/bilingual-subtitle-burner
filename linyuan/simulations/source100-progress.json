@@ -1,13 +1,19 @@
 {
-  "active_until": "2026-09-17T21:50:00Z",
+  "active_until": "2026-09-18T00:30:00Z",
   "active_work": {
-    "purpose": "expanded seed next-batch CPU media preflight after automatic exclusion fix",
+    "purpose": "expanded seed batch2 full CPU acceptance and next preflight observation",
     "owner": "scheduled-source100-worker",
-    "run_id": 35267065608,
-    "commit": "c98264f30435753f08116c66603c2274acadf06b",
+    "run_ids": [
+      35270352523,
+      35270352136
+    ],
+    "commit": "a33f92b299783a8f6d7c019837d3dad8375326eb",
     "write_scope": [
       "linyuan/seed_media_preflight.py",
       "tests/test_linyuan_seed_media_preflight.py",
+      ".github/workflows/linyuan-seed-media-preflight.yml",
+      ".github/workflows/linyuan-seed-acceptance.yml",
+      "linyuan/simulations/seed-expansion-acceptance-20260918-batch2.json",
       "linyuan/simulations/source100-progress.json"
     ]
   },
@@ -121,7 +127,8 @@
     "Expanded-seed CPU preflight run35239663311 tested six real mother videos: four passed the unchanged source-quality gate, one remained a retryable CDN failure, and BV1c54y1A7Bc?p=5 exposed a fetch-identity defect (1347s page metadata but valid 20s media). Commit9f0063f binds cid+declared duration to downloaded media and classifies mismatches as retryable source-fetch failures; validation run35246787437 is active. No item counts as an accepted MP4.",
     "Expanded-seed duration-identity validation run35246787437 completed: all six fixed URLs now return duration-matched real media and pass unchanged source-quality gates (0 accepted finals at this stage). Full CPU acceptance run35251572571 covers the exact six URLs with offline ASR, deduplication, rendering and final gates; no FC or posting.",
     "Expanded-seed first full CPU acceptance run35251699299 completed all six exact URLs at commit dd8993e6: 2 verified accepted MP4s (205:148.421333s SHA336743... H.264/AAC; 206:151.781333s SHAdddf956... H.264/AAC), 4 genuine rejections, 0 unresolved. 201/202 had no explicit >=120s structural candidate; 203 failed unchanged 96px/continuous-face gates; 204 could not preserve complete face/headroom. Fixed100 formal result remains12/100; no FC or posting.",
-    "Commit c98264f generically excludes every URL already present in immutable seed-expansion acceptance manifests before planning the next media preflight. This prevents unattended expansion from repeatedly retesting the first six sources; 25 relevant regressions passed. Run35267065608 is the next six-source CPU preflight; it does not dispatch production, invoke FC or post."
+    "Commit c98264f generically excludes every URL already present in immutable seed-expansion acceptance manifests before planning the next media preflight. This prevents unattended expansion from repeatedly retesting the first six sources; 25 relevant regressions passed. Run35267065608 is the next six-source CPU preflight; it does not dispatch production, invoke FC or post.",
+    "Run35267065608 completed its next six-source CPU media preflight: four exact media passed unchanged source gates and two are definitive quality rejects (382px source and 384px post-clean short edge, both below480px). Commit a33f92b makes low-resolution nonretryable source-quality failures classify as rejected rather than technical unknown, generalizes the acceptance wrapper to select the highest immutable manifest, and starts batch2 run35270352523 for samples207-210; 59 relevant regressions pass."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -258,8 +265,9 @@
     ]
   },
   "next_steps": [
-    "Observe next-batch expanded-seed CPU media preflight run35267065608. Do not launch another preflight while it is active.",
-    "After run35267065608 completes, create an immutable acceptance manifest only for exact duration/hash-verified source-quality passes, then run one bounded full CPU acceptance batch; keep results separate from fixed100.",
+    "Observe expanded-seed batch2 full CPU acceptance run35270352523; count only independently hash/stream/duration-verified final MP4 artifacts. Fixed100 remains formal12/100.",
+    "Observe preflight run35270352136. Before any following preflight, persist every tested URL including quality rejects so the planner cannot retest p3/p25 or the four newly screened URLs; do not start a duplicate while this run is active.",
+    "After batch2 acceptance, classify all non-finals and update expanded-pool yield separately from fixed100; no FC or posting.",
     "For expanded rejects201/202, inspect same-class transcript boundaries only for a generic unattended selector improvement; do not add per-source timecodes. Keep203/204 as quality rejects unless new evidence proves an algorithmic false rejection.",
     "Do not launch a duplicate round4. Use its final12/87/1 evidence to select the next bounded general failure class; only rerun the full100 after a real targeted recovery.",
     "Use evening evidence for generic word-aligned invited-speaker handoff research on67. Exact diagnostic timecodes are not production instructions. Source70 now deprioritized: inspected raw frames have full-frame template overlay; do not lower480px minimum.",
@@ -606,13 +614,68 @@
     },
     "formal_fixed100_unchanged": "round4 remains 12/100; expanded-source results are reported separately and never added to that denominator",
     "next_batch_preflight": {
-      "status": "running",
+      "status": "completed_4_pass_2_quality_reject",
       "run_id": 35267065608,
       "commit": "c98264f30435753f08116c66603c2274acadf06b",
-      "fix": "generic automatic exclusion of all URLs already assigned to immutable seed-expansion acceptance manifests",
-      "regression": "25 relevant tests passed locally",
-      "expected_selection": "six new metadata candidates, diversified across seed families; no production dispatch",
+      "summary_artifact_id": 10518080146,
+      "source_quality_passed": 4,
+      "source_quality_rejected": 2,
+      "technical_unknown": 0,
+      "accepted_mp4_count": 0,
+      "passed": [
+        {
+          "sample_id": 207,
+          "url": "https://www.bilibili.com/video/BV1c54y1A7Bc?p=8",
+          "source_sha256": "75f26df715b727f09d8c92cc7a8328ea1fa64f453342a98e68b06e539c957cae"
+        },
+        {
+          "sample_id": 208,
+          "url": "https://www.bilibili.com/video/BV1difDY4E39?p=18",
+          "source_sha256": "ad21046d0848cdd58eeb48ce6e2cf93bbb1ffe3fc0a26e55d262d9be713ce44f"
+        },
+        {
+          "sample_id": 209,
+          "url": "https://www.bilibili.com/video/BV1uN4y1H7kS?p=18",
+          "source_sha256": "7e1a7d22ea7d54dd732d7704463b53ebade9edbcf596709ee39c44916fff5f64"
+        },
+        {
+          "sample_id": 210,
+          "url": "https://www.bilibili.com/video/BV1difDY4E39?p=2",
+          "source_sha256": "2ba4d6435593cf4d3bd94287e88e4caa8bb8db91d9184d0a70f8da28f7523079"
+        }
+      ],
+      "rejected": [
+        {
+          "url": "https://www.bilibili.com/video/BV1uN4y1H7kS?p=3",
+          "reason": "cleanup leaves short edge 384px below unchanged 480px minimum"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV1c54y1A7Bc?p=25",
+          "reason": "highest available stream short edge 382px below unchanged 480px minimum"
+        }
+      ],
+      "classification_fix_commit": "a33f92b299783a8f6d7c019837d3dad8375326eb",
+      "regression": "59 relevant tests passed locally",
       "fc_or_posting": false
+    },
+    "batch2_acceptance": {
+      "status": "running",
+      "run_id": 35270352523,
+      "commit": "a33f92b299783a8f6d7c019837d3dad8375326eb",
+      "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch2.json",
+      "sample_ids": [
+        207,
+        208,
+        209,
+        210
+      ],
+      "accepted_mp4s": 0,
+      "note": "All four matrix jobs started; no candidate/download counts as a final."
+    },
+    "following_preflight": {
+      "status": "running",
+      "run_id": 35270352136,
+      "note": "Planner correctly excluded both immutable acceptance batches but selected the two batch2 source-quality rejects again because rejected preflight URLs are not yet persisted outside acceptance manifests. Observe this run, then persist all screened URLs before starting another batch; do not count duplicate checks as new coverage."
     }
   },
   "source27_question_tail_recovery": {
@@ -905,7 +968,7 @@
       "passed": 89
     }
   },
-  "updated_at": "2026-09-17T19:49:30Z",
+  "updated_at": "2026-09-17T20:24:30Z",
   "version": 1,
   "seed_media_preflight": {
     "accepted_mp4_count": 0,
