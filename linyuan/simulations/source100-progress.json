@@ -1,6 +1,16 @@
 {
-  "active_until": null,
-  "active_work": null,
+  "active_until": "2026-09-17T21:50:00Z",
+  "active_work": {
+    "purpose": "expanded seed next-batch CPU media preflight after automatic exclusion fix",
+    "owner": "scheduled-source100-worker",
+    "run_id": 35267065608,
+    "commit": "c98264f30435753f08116c66603c2274acadf06b",
+    "write_scope": [
+      "linyuan/seed_media_preflight.py",
+      "tests/test_linyuan_seed_media_preflight.py",
+      "linyuan/simulations/source100-progress.json"
+    ]
+  },
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
     "counts_as_full_benchmark": false,
@@ -110,7 +120,8 @@
     "Round4 run35219007898 completed at dad6f695 and the fixed publication snapshot:12 verified accepted,87 rejected,1 unresolved(source60 exact URL unavailable). Source79 is now a real accepted194.741333s MP4 after the generic stereo-channel, keynote-boundary and automatic pipeline fixes. Target30 not met.",
     "Expanded-seed CPU preflight run35239663311 tested six real mother videos: four passed the unchanged source-quality gate, one remained a retryable CDN failure, and BV1c54y1A7Bc?p=5 exposed a fetch-identity defect (1347s page metadata but valid 20s media). Commit9f0063f binds cid+declared duration to downloaded media and classifies mismatches as retryable source-fetch failures; validation run35246787437 is active. No item counts as an accepted MP4.",
     "Expanded-seed duration-identity validation run35246787437 completed: all six fixed URLs now return duration-matched real media and pass unchanged source-quality gates (0 accepted finals at this stage). Full CPU acceptance run35251572571 covers the exact six URLs with offline ASR, deduplication, rendering and final gates; no FC or posting.",
-    "Expanded-seed first full CPU acceptance run35251699299 completed all six exact URLs at commit dd8993e6: 2 verified accepted MP4s (205:148.421333s SHA336743... H.264/AAC; 206:151.781333s SHAdddf956... H.264/AAC), 4 genuine rejections, 0 unresolved. 201/202 had no explicit >=120s structural candidate; 203 failed unchanged 96px/continuous-face gates; 204 could not preserve complete face/headroom. Fixed100 formal result remains12/100; no FC or posting."
+    "Expanded-seed first full CPU acceptance run35251699299 completed all six exact URLs at commit dd8993e6: 2 verified accepted MP4s (205:148.421333s SHA336743... H.264/AAC; 206:151.781333s SHAdddf956... H.264/AAC), 4 genuine rejections, 0 unresolved. 201/202 had no explicit >=120s structural candidate; 203 failed unchanged 96px/continuous-face gates; 204 could not preserve complete face/headroom. Fixed100 formal result remains12/100; no FC or posting.",
+    "Commit c98264f generically excludes every URL already present in immutable seed-expansion acceptance manifests before planning the next media preflight. This prevents unattended expansion from repeatedly retesting the first six sources; 25 relevant regressions passed. Run35267065608 is the next six-source CPU preflight; it does not dispatch production, invoke FC or post."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -247,8 +258,8 @@
     ]
   },
   "next_steps": [
-    "Use expanded-seed run35251699299 as a measured 2/6 full-acceptance yield only for the expanded pool; never add it to fixed100 round4 formal12/100.",
-    "Rank the remaining55 metadata candidates, then run bounded CPU-only exact-media/source-quality/content-dedup/full-acceptance batches. Preserve all gates; no FC or posting.",
+    "Observe next-batch expanded-seed CPU media preflight run35267065608. Do not launch another preflight while it is active.",
+    "After run35267065608 completes, create an immutable acceptance manifest only for exact duration/hash-verified source-quality passes, then run one bounded full CPU acceptance batch; keep results separate from fixed100.",
     "For expanded rejects201/202, inspect same-class transcript boundaries only for a generic unattended selector improvement; do not add per-source timecodes. Keep203/204 as quality rejects unless new evidence proves an algorithmic false rejection.",
     "Do not launch a duplicate round4. Use its final12/87/1 evidence to select the next bounded general failure class; only rerun the full100 after a real targeted recovery.",
     "Use evening evidence for generic word-aligned invited-speaker handoff research on67. Exact diagnostic timecodes are not production instructions. Source70 now deprioritized: inspected raw frames have full-frame template overlay; do not lower480px minimum.",
@@ -593,7 +604,16 @@
         "204": "five candidates: crop cannot preserve complete face and headroom"
       }
     },
-    "formal_fixed100_unchanged": "round4 remains 12/100; expanded-source results are reported separately and never added to that denominator"
+    "formal_fixed100_unchanged": "round4 remains 12/100; expanded-source results are reported separately and never added to that denominator",
+    "next_batch_preflight": {
+      "status": "running",
+      "run_id": 35267065608,
+      "commit": "c98264f30435753f08116c66603c2274acadf06b",
+      "fix": "generic automatic exclusion of all URLs already assigned to immutable seed-expansion acceptance manifests",
+      "regression": "25 relevant tests passed locally",
+      "expected_selection": "six new metadata candidates, diversified across seed families; no production dispatch",
+      "fc_or_posting": false
+    }
   },
   "source27_question_tail_recovery": {
     "candidate_span_sec": [
@@ -885,7 +905,7 @@
       "passed": 89
     }
   },
-  "updated_at": "2026-09-17T18:41:00Z",
+  "updated_at": "2026-09-17T19:49:30Z",
   "version": 1,
   "seed_media_preflight": {
     "accepted_mp4_count": 0,
