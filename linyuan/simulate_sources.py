@@ -18,7 +18,11 @@ import urllib.request
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
-MANIFEST = BASE / 'simulations/source100-20260916.json'
+_manifest_relative = os.environ.get(
+    'SIMULATION_MANIFEST_PATH', 'simulations/source100-20260916.json')
+MANIFEST = (BASE / _manifest_relative).resolve()
+if BASE.resolve() not in MANIFEST.parents:
+    raise ValueError('Simulation manifest must stay inside linyuan')
 
 
 def read(path, default=None):
@@ -58,10 +62,19 @@ def sample(pool, count=100, seed='source100-20260916-v1'):
 def validate_manifest(manifest):
     from editorial_policy import source_key
     rows = manifest['samples']
-    assert len(rows) == 100, 'Exactly 100 source samples are required'
-    assert len({source_key(r['source_url']) for r in rows}) == 100
-    assert len({r['id'] for r in rows}) == 100
-    assert all(re.fullmatch(r'sim-0916-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
+    kind = manifest.get('kind') or 'fixed100'
+    if kind == 'fixed100':
+        assert len(rows) == 100, 'Exactly 100 source samples are required'
+        assert all(re.fullmatch(r'sim-0916-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
+    elif kind == 'seed_expansion_acceptance':
+        assert 1 <= len(rows) <= 20, 'Seed acceptance batches must remain bounded'
+        assert all(re.fullmatch(r'seed-accept-[a-f0-9]{12}', r['slug']) for r in rows)
+        assert manifest.get('source_preflight_run_id')
+        assert all(r.get('source_preflight_sha256') for r in rows)
+    else:
+        raise ValueError('Unknown simulation manifest kind')
+    assert len({source_key(r['source_url']) for r in rows}) == len(rows)
+    assert len({r['id'] for r in rows}) == len(rows)
     assert all(r['source_url'].startswith('https://') for r in rows)
     return rows
 
@@ -400,7 +413,7 @@ def matrix_samples(manifest, requested=''):
     ids=[int(field) for field in fields]
     available={row['id'] for row in samples}
     if len(ids)!=len(set(ids)) or not set(ids)<=available:
-        raise ValueError('Diagnostic samples must be unique IDs from the fixed 100')
+        raise ValueError('Diagnostic samples must be unique IDs from the selected manifest')
     return [row for row in samples if row['id'] in ids]
 
 
