@@ -72,6 +72,12 @@ def test_page_lookup_never_silently_downloads_first_episode():
         fetcher.requested_page('https://www.bilibili.com/video/BVseries?p=0')
 
 
+def test_page_metadata_binds_cid_to_declared_duration():
+    pages = [dict(page=5, cid=555, duration=1347)]
+    assert fetcher.page_metadata(pages, 5) == {
+        'cid': 555, 'expected_duration': 1347.0}
+
+
 def test_collection_falls_back_from_view_without_guessing_author(monkeypatch):
     def get(url,**kw):
         if '/view?' in url:raise RuntimeError('view unavailable')
