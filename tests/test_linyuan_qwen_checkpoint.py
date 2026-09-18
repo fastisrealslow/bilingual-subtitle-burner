@@ -5,7 +5,8 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
-from qwen_cpu_transcript import invalid_word_timings, resume_recognition, resume_alignment
+from qwen_cpu_transcript import (excessive_repetition, invalid_word_timings,
+    retry_repetitive_transcript, resume_recognition, resume_alignment)
 from qwen_asr_evidence import validated_words
 from restore_production_evidence import restore
 
@@ -100,3 +101,31 @@ def test_invalid_word_timings_reports_only_out_of_chunk_values():
     assert invalid_word_timings(words,27,63)==[
         dict(index=1,text='坏',start=63.11,end=63.2),
         dict(index=2,text='乱',start=30.0,end=29.0)]
+
+
+def test_dense_exact_decoder_loop_is_redecoded_as_shorter_windows():
+    prefix=''.join(chr(0x4e00+index) for index in range(80))
+    repeated=''.join(chr(0x5000+index) for index in range(40))
+    original=prefix+repeated*3
+    replacement=prefix+repeated
+
+    class Result:
+        def __init__(self,text):self.text=text
+    class Model:
+        def __init__(self):self.values=iter((replacement[:60],replacement[60:]))
+        def transcribe(self,**kwargs):return [Result(next(self.values))]
+
+    assert excessive_repetition(original,30)
+    recovered,detail=retry_repetitive_transcript(Model(),[0]*480000,16000,original)
+    assert recovered==replacement
+    assert detail['accepted'] is True
+    assert not excessive_repetition(recovered,30)
+
+
+def test_recognition_checkpoint_stops_before_dense_decoder_loop(tmp_path):
+    saved=report();saved['chunks'][1]['text']='甲'*100+('这是三十二个字以上的重复识别窗口用于测试边界条件。'*4)
+    saved['chunks'][1]['duration']=33
+    target=report();target['chunks']=[]
+    assert excessive_repetition(saved['chunks'][1]['text'],33)
+    assert resume_recognition(target,write(tmp_path/'recognition.json',saved))==1
+    assert target['chunks']==report()['chunks'][:1]
