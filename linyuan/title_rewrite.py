@@ -352,7 +352,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 问答轮次已由单独的原文阅读步骤划分，不能为了写标题而改动说话人。只能根据列出的嘉宾原话选择中心观点。
 再在b_focus.a_claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
 用b_focus.b_evidence_ids选1~4条支撑它的guest原文编号；不能选host或unknown。不要把主持人的猜测或一处举例当成中心观点。
-最后在c_candidates为同一观点写3个不同角度的标题，可突出具体选择、反常识判断或这段确实回答的问题。
+最后在c_candidates为同一观点写3个不同角度的标题：原话中的鲜明判断、具体做法、这段确实回答的问题。不要三个角度都写成“为什么”。
+文风像嘉宾在当面说话，不像编辑在写研究报告。优先保留嘉宾原话里有辨识度的动词、语气和具体对象，把最有看点的判断放在前半句。
+嘉宾明确说自己的选择时，可以保留“我买”“我不卖”“我看的是”等第一人称；原文没说，不能为了像林园而编一句“金句”，也不能把主持人的话改成“我”。
+不要在原话之外补“投资逻辑解析”“深度解读”“核心策略”“价值重估”等总结包装；原文确实讨论这些概念时，可以用，但仍要说出具体判断。
+吸引力来自原文里真实的分歧、选择或反问，不来自收益承诺、吓人字眼或故意藏起讨论对象。转折、否定、条件和“可能”等限定必须保留。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
@@ -465,7 +469,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；
 attribution_correct没有把主持人的猜测归为嘉宾断言；preserves_qualifiers保留条件否定和不确定性；
 cover_consistent封面和标题同一观点且没有更强断言；readable自然好懂。
-appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。严格输出布尔值，不因文字流畅而放过编造。
+appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相同事实下优先嘉宾原话式的鲜明判断和自然短句；研究报告式总结、模板套话、三个角度重复的问题句应低分。
+第一人称必须是嘉宾自己的选择，不能把主持人问题包装成嘉宾金句。口语化不能省略原文的否定、条件、比较对象或不确定性。严格输出布尔值，不因文字流畅而放过编造。
 返回JSON的reviews数组，每项先a_analysis（a_guest_answer、b_question_premise、c_reason），
 再b_verdict（index、source_supported、central_point、attribution_correct、preserves_qualifiers、cover_consistent、readable、appeal）。
 待独立核对的标题和封面：{json.dumps([dict(title=c['title'],cover_title=c['cover_title']) for c in valid], ensure_ascii=False)}
