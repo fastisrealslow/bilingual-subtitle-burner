@@ -31,6 +31,24 @@ IDENTITY_FIELDS=('version','source_pcm_sha256','source_video_sha256','model_id',
 CHUNK_FIELDS=('offset','duration','core_start','core_end','text')
 
 
+def invalid_word_timings(words, start, end):
+    """Return bounded diagnostics for timings outside their source chunk."""
+    invalid=[]
+    for index,word in enumerate(words):
+        try:
+            word_start=float(word['start']);word_end=float(word['end'])
+            valid=(math.isfinite(word_start+word_end)
+                   and start<=word_start<=word_end<=end+.1)
+        except (KeyError,TypeError,ValueError):
+            word_start=word.get('start') if isinstance(word,dict) else None
+            word_end=word.get('end') if isinstance(word,dict) else None
+            valid=False
+        if not valid:
+            invalid.append(dict(index=index,text=word.get('text') if isinstance(word,dict) else None,
+                                start=word_start,end=word_end))
+    return invalid
+
+
 def resume_recognition(report, checkpoint):
     """Reuse only a contiguous prefix from this exact audio and model."""
     try:
@@ -145,8 +163,22 @@ def main():
             a=chunk['offset'];b=a+chunk['duration']
             words=model.align(audio=(audio[int(a*sr):int(b*sr)],sr),text=chunk['text'],language='Chinese')[0]
             chunk['words']=[{'text':w.text,'start':float(w.start_time)+a,'end':float(w.end_time)+a} for w in words]
-            if any(not a<=w['start']<=w['end']<=b+.1 for w in chunk['words']):
-                raise ValueError('Forced alignment produced invalid word timing')
+            invalid=invalid_word_timings(chunk['words'],a,b)
+            if invalid:
+                # Keep the raw aligner output separate from aligned.json.  It
+                # cannot become accepted subtitle evidence, but it makes a
+                # deterministic model/timing failure diagnosable on the next
+                # retry instead of collapsing it into a generic traceback.
+                save(output/'alignment_error.json',dict(
+                    version=1,source_pcm_sha256=report['source_pcm_sha256'],
+                    source_video_sha256=report['source_video_sha256'],
+                    model_revision=weights.name,core_start=chunk['core_start'],
+                    offset=a,duration=chunk['duration'],text=chunk['text'],
+                    word_count=len(chunk['words']),invalid_words=invalid))
+                del chunk['words']
+                raise ValueError(
+                    f'Forced alignment produced invalid word timing at core '
+                    f'{chunk["core_start"]}: {len(invalid)}/{len(words)} words')
             report['alignment']={'model_id':model_id,'model_revision':weights.name,
                 'device':'cpu','threads':2,'networking_during_inference':False,
                 'elapsed_seconds':round(time.monotonic()-started,2),
