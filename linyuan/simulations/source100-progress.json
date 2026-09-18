@@ -4,9 +4,10 @@
     "purpose": "source214 forced-alignment diagnostic retry after completed expanded seed batch3",
     "owner": "scheduled-source100-worker",
     "run_ids": [
-      35291289517
+      35291289517,
+      35291407362
     ],
-    "commit": "4640dcbdd17d87dd125617e9296958c1a8c99196",
+    "commit": "42ac217afd9b3329c2d9765d982f408fe72ff47a",
     "write_scope": [
       "linyuan/qwen_cpu_transcript.py",
       "tests/test_linyuan_qwen_checkpoint.py",
@@ -767,8 +768,10 @@
       "source_url": "https://www.bilibili.com/video/BV1difDY4E39?p=10",
       "source_sha256": "82416bcd553b0ba2e96ab367203dc0a8a41f7b30effd00a3b9a44e6dbcec6ae7",
       "recovery_run_id": 35279743574,
-      "run_id": 35291289517,
-      "commit": "4640dcbdd17d87dd125617e9296958c1a8c99196",
+      "run_id": 35291407362,
+      "commit": "42ac217afd9b3329c2d9765d982f408fe72ff47a",
+      "superseded_prepare_failure_run_id": 35291289517,
+      "superseded_prepare_failure": "Retry slug violated the existing immutable seed-accept-<12hex> schema; corrected before any source download or ASR ran.",
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch4.json",
       "change": "Retain bounded raw invalid-timing diagnostics outside aligned.json; never treat failed alignment as subtitle evidence.",
       "no_gate_relaxation": true,
