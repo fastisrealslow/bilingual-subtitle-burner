@@ -3,7 +3,7 @@
   "validation_sha256": "1b6b93b4be6fcbf67b99b30fd1d54ee87e44fc60ef359fd9bc8a0f1fee86114c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789724562,
+  "updated_at": 1789724744,
   "materials": {
     "weibo_search": {
       "records": 1310,
@@ -90,7 +90,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1789724562,
+    "updated_at": 1789724744,
     "records": 5410,
     "video_records": 4443,
     "initial_candidates": 75,
@@ -11167,19 +11167,56 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1E8eC63EDj:p1",
-        "source_url": "https://www.bilibili.com/video/BV1E8eC63EDj",
-        "family": "BV1E8eC63EDj",
+        "source_key": "BV1Dxz4BoE6A:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Dxz4BoE6A",
+        "family": "BV1Dxz4BoE6A",
         "slugs": [
-          "ly-0918-0aba43"
+          "ly-0918-752136"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1bSeC6tEgR:p1",
+        "source_url": "https://www.bilibili.com/video/BV1bSeC6tEgR",
+        "family": "BV1bSeC6tEgR",
+        "slugs": [
+          "ly-0918-a5427d"
         ],
         "source_sha256": [],
         "failures": [
           {
-            "slug": "ly-0918-0aba43",
-            "stage": "workflow-preflight",
-            "terminal": false,
-            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
+            "slug": "ly-0918-a5427d",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；initial_same=[1, 2]，scan_same=[4, 11]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18]，confidence=0.766，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2874, 2: 0.3303, 3: 0.3526, 4: 0.37, 5: 0.2806, 6: 0.2763, 7: 0.1839, 8: 0.1124, 9: 0.2647, 10: 0.2313, 11: 0.3777, 12: 0.2495, 13: 0.3256, 14: 0.2822, 15: 0.3209, 16: 0.3002, 17: 0.2388, 18: 0.313}"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "https://m.weibo.cn/detail/5344392888189085",
+        "source_url": "https://m.weibo.cn/detail/5344392888189085",
+        "family": "m.weibo.cn",
+        "slugs": [
+          "ly-0918-ded267"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0918-ded267",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 368 < 480（368x640），画质不达标"
           }
         ],
         "verified_available": 0,
@@ -11211,53 +11248,16 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1Dxz4BoE6A:p1",
-        "source_url": "https://www.bilibili.com/video/BV1Dxz4BoE6A",
-        "family": "BV1Dxz4BoE6A",
+        "source_key": "BV1E8eC63EDj:p1",
+        "source_url": "https://www.bilibili.com/video/BV1E8eC63EDj",
+        "family": "BV1E8eC63EDj",
         "slugs": [
-          "ly-0918-752136"
-        ],
-        "source_sha256": [],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1bSeC6tEgR:p1",
-        "source_url": "https://www.bilibili.com/video/BV1bSeC6tEgR",
-        "family": "BV1bSeC6tEgR",
-        "slugs": [
-          "ly-0918-a5427d"
+          "ly-0918-0aba43"
         ],
         "source_sha256": [],
         "failures": [
           {
-            "slug": "ly-0918-a5427d",
-            "stage": "workflow-preflight",
-            "terminal": false,
-            "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "https://m.weibo.cn/detail/5344392888189085",
-        "source_url": "https://m.weibo.cn/detail/5344392888189085",
-        "family": "m.weibo.cn",
-        "slugs": [
-          "ly-0918-ded267"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0918-ded267",
+            "slug": "ly-0918-0aba43",
             "stage": "workflow-preflight",
             "terminal": false,
             "reason": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复"
@@ -11317,7 +11317,8 @@
         "terminal_unclassified": 29,
         "terminal_editorial-or-render": 4,
         "terminal_quality-service": 1,
-        "terminal_workflow-preflight": 3
+        "terminal_workflow-preflight": 3,
+        "terminal_source-quality": 1
       },
       "BV1H4Na6kEFd": {
         "attempted_mothers": 1,
@@ -11899,9 +11900,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -12350,9 +12351,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -12652,10 +12653,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_workflow-preflight": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_workflow-preflight": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -13328,11 +13329,6 @@
         "verified_available": 0,
         "verified_seconds": 0
       },
-      "BV1E8eC63EDj": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1Dxz4BoE6A": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -13341,11 +13337,17 @@
       "BV1bSeC6tEgR": {
         "attempted_mothers": 1,
         "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1E8eC63EDj": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 6,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-0915-1d2ba6",
