@@ -1,22 +1,6 @@
 {
-  "active_until": "2026-09-18T05:00:00Z",
-  "active_work": {
-    "purpose": "source214 generic dense decoder-loop recovery and exact-source CPU acceptance",
-    "owner": "scheduled-source100-worker",
-    "run_ids": [
-      35291407362,
-      35295104163
-    ],
-    "commit": "d00d8659d6e0ef976fb0efd7fa5e93ab67021208",
-    "write_scope": [
-      "linyuan/qwen_cpu_transcript.py",
-      "linyuan/restore_production_evidence.py",
-      "tests/test_linyuan_qwen_checkpoint.py",
-      ".github/workflows/linyuan-simulate-100.yml",
-      "linyuan/simulations/seed-expansion-acceptance-20260918-batch5.json",
-      "linyuan/simulations/source100-progress.json"
-    ]
-  },
+  "active_until": "2026-09-18T02:55:52Z",
+  "active_work": null,
   "audio_repair": {
     "commit": "84a08d897c92ec6a880d808be19bc93f0afb3634",
     "counts_as_full_benchmark": false,
@@ -128,7 +112,8 @@
     "Expanded-seed duration-identity validation run35246787437 completed: all six fixed URLs now return duration-matched real media and pass unchanged source-quality gates (0 accepted finals at this stage). Full CPU acceptance run35251572571 covers the exact six URLs with offline ASR, deduplication, rendering and final gates; no FC or posting.",
     "Expanded-seed first full CPU acceptance run35251699299 completed all six exact URLs at commit dd8993e6: 2 verified accepted MP4s (205:148.421333s SHA336743... H.264/AAC; 206:151.781333s SHAdddf956... H.264/AAC), 4 genuine rejections, 0 unresolved. 201/202 had no explicit >=120s structural candidate; 203 failed unchanged 96px/continuous-face gates; 204 could not preserve complete face/headroom. Fixed100 formal result remains12/100; no FC or posting.",
     "Commit c98264f generically excludes every URL already present in immutable seed-expansion acceptance manifests before planning the next media preflight. This prevents unattended expansion from repeatedly retesting the first six sources; 25 relevant regressions passed. Run35267065608 is the next six-source CPU preflight; it does not dispatch production, invoke FC or post.",
-    "Run35267065608 completed its next six-source CPU media preflight: four exact media passed unchanged source gates and two are definitive quality rejects (382px source and 384px post-clean short edge, both below480px). Commit a33f92b makes low-resolution nonretryable source-quality failures classify as rejected rather than technical unknown, generalizes the acceptance wrapper to select the highest immutable manifest, and starts batch2 run35270352523 for samples207-210; 59 relevant regressions pass."
+    "Run35267065608 completed its next six-source CPU media preflight: four exact media passed unchanged source gates and two are definitive quality rejects (382px source and 384px post-clean short edge, both below480px). Commit a33f92b makes low-resolution nonretryable source-quality failures classify as rejected rather than technical unknown, generalizes the acceptance wrapper to select the highest immutable manifest, and starts batch2 run35270352523 for samples207-210; 59 relevant regressions pass.",
+    "Expanded source214 run35295104163 verified the generic dense decoder-loop repair in the real CPU pipeline: core570 split-window replacement similarity0.7247 completed alignment and yielded11 structural candidates. All11 then failed unchanged picture gates for unavoidable corner marks or incomplete face/headroom; classify as genuine quality rejection, not technical unknown; no MP4."
   ],
   "constraints": [
     "CPU offline ASR/text only",
@@ -557,7 +542,7 @@
     }
   },
   "seed_expansion": {
-    "accepted_mp4s": 2,
+    "accepted_mp4s": 3,
     "already_cataloged": 3,
     "artifact_id": 10497998758,
     "audio_only_title": 2,
@@ -566,7 +551,7 @@
     "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
     "manifest": "linyuan/seed_expansion.json",
     "new_metadata_candidates": 61,
-    "next_step": "Observe the source214 diagnostic retry. Use its retained raw invalid timings to implement only an evidence-bounded generic repair; keep expansion yield separate from fixed100 formal 12/100.",
+    "next_step": "Continue unattended screening of the remaining expanded-seed candidate pool; keep expanded-source yield separate from fixed100 formal 12/100.",
     "outside_duration": 4,
     "pages": 70,
     "production_dispatch": false,
@@ -574,11 +559,11 @@
     "requested_at": "2026-09-17",
     "run_id": 35225570402,
     "seeds_added": 3,
-    "status": "three_of_fifteen_full_acceptance_accepted_source214_diagnostic_pending",
+    "status": "three_of_fifteen_full_acceptance_accepted_source214_technical_repair_passed_then_quality_rejected",
     "total_candidate_seconds": 143952,
     "acceptance_total": 15,
-    "rejected": 11,
-    "unresolved": 1,
+    "rejected": 12,
+    "unresolved": 0,
     "acceptance_run_id": 35251699299,
     "acceptance_commit": "dd8993e6d847500052790b12b4d5a590eceb021e",
     "acceptance_manifest": "linyuan/simulations/seed-expansion-acceptance-20260918.json",
@@ -728,7 +713,7 @@
       "note": "All six URLs were previously unscreened. Passes are mother-media passes only."
     },
     "batch3_acceptance": {
-      "status": "completed_1_accepted_3_quality_rejected_1_technical_unresolved",
+      "status": "completed_1_accepted_4_quality_rejected_0_unresolved",
       "run_id": 35279743574,
       "commit": "63791e816ff7fee705302735d4a20cb12cb9a13e",
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch3.json",
@@ -740,8 +725,8 @@
         215
       ],
       "accepted_mp4s": 1,
-      "rejected": 3,
-      "unresolved": 1,
+      "rejected": 4,
+      "unresolved": 0,
       "accepted": {
         "sample_id": 213,
         "duration_sec": 283.941333,
@@ -754,19 +739,14 @@
       "reasons": {
         "211": "three blocks; no >=120s structurally complete automatic candidate",
         "212": "three candidates fail unchanged 96px target-face minimum or 80% identity continuity",
+        "214": "Dense decoder-loop repair passed alignment and produced 11 structural candidates; all failed unchanged picture gates for unavoidable source corner marks or inability to preserve complete face/headroom.",
         "215": "one candidate fails unchanged 96px target-face minimum"
       },
-      "technical_unresolved": {
-        "sample_id": 214,
-        "stage": "producer-runtime",
-        "reason": "Qwen CPU recognition completed; forced alignment stopped at core570 after 19 valid checkpointed chunks because the aligner returned an out-of-chunk word timing.",
-        "report_artifact_id": 10523182479,
-        "counts_as_accepted": false
-      },
+      "technical_unresolved": null,
       "no_fc_or_posting": true
     },
     "source214_alignment_diagnostic": {
-      "status": "diagnosis_complete_generic_repair_pending_retry",
+      "status": "completed_generic_repair_verified_genuine_picture_rejection",
       "source_url": "https://www.bilibili.com/video/BV1difDY4E39?p=10",
       "source_sha256": "82416bcd553b0ba2e96ab367203dc0a8a41f7b30effd00a3b9a44e6dbcec6ae7",
       "recovery_run_id": 35279743574,
@@ -785,7 +765,13 @@
       "repair_run_id": 35295104163,
       "repair_commit": "d00d8659d6e0ef976fb0efd7fa5e93ab67021208",
       "no_gate_relaxation": true,
-      "no_fc_or_posting": true
+      "no_fc_or_posting": true,
+      "repair_report_artifact_id": 10529527429,
+      "repair_result": "The split-window CPU repair was accepted at core570 (similarity 0.7247), removed the exact loop, completed forced alignment, and exposed 11 structural candidates. No MP4 passed: candidates failed unchanged corner-mark/full-face/headroom picture gates.",
+      "accepted_mp4": false,
+      "quality_rejected": true,
+      "unresolved": false,
+      "claim_released_at": "2026-09-18T02:55:52Z"
     }
   },
   "source27_question_tail_recovery": {
@@ -1078,7 +1064,7 @@
       "passed": 89
     }
   },
-  "updated_at": "2026-09-17T22:00:50.482Z",
+  "updated_at": "2026-09-18T02:55:52Z",
   "version": 1,
   "seed_media_preflight": {
     "accepted_mp4_count": 0,
