@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789741972,
+  "updated_at": 1789742064,
   "inventory_updated_at": 1789741971,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789741972,
+    "updated_at": 1789742064,
     "records": 5509,
     "video_records": 4538,
     "initial_candidates": 75,
@@ -46,7 +46,8 @@
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "interrupted": 3
+    "interrupted": 2,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -11667,14 +11668,14 @@
     },
     {
       "slug": "ly-0918-0985e7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1789737753,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1789742898,
         "weekly_full_week": ""
       },
       "history_count": 1,
