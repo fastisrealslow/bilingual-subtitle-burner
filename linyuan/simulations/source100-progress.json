@@ -1,15 +1,16 @@
 {
-  "active_until": "2026-09-18T00:30:00Z",
+  "active_until": "2026-09-18T03:30:00Z",
   "active_work": {
-    "purpose": "expanded seed batch3 full CPU acceptance",
+    "purpose": "source214 forced-alignment diagnostic retry after completed expanded seed batch3",
     "owner": "scheduled-source100-worker",
     "run_ids": [
       35279743574
     ],
-    "commit": "63791e816ff7fee705302735d4a20cb12cb9a13e",
+    "commit": "pending-main-commit",
     "write_scope": [
-      "linyuan/simulations/seed-expansion-acceptance-20260918-batch3.json",
-      "linyuan/simulations/seed-expansion-screened-20260918.json",
+      "linyuan/qwen_cpu_transcript.py",
+      "tests/test_linyuan_qwen_checkpoint.py",
+      "linyuan/simulations/seed-expansion-acceptance-20260918-batch4.json",
       "linyuan/simulations/source100-progress.json"
     ]
   },
@@ -225,7 +226,7 @@
     "validation_run_id": 35166698979
   },
   "keynote_boundary_recovery": {
-    "accepted_mp4s": 2,
+    "accepted_mp4s": 3,
     "actions_regression": "run35190487335: 440 passed, 1 skipped, 1 deselected; full100 launch checks:46 passed",
     "claim_released": "2026-09-17T06:36:00Z",
     "commit": "d61450dc0b787050bcb8187e5d951000c11943da",
@@ -562,7 +563,7 @@
     "limits": "URL/CID novelty only, repost/event duplicates remain unverified; source100 denominator and URLs unchanged.",
     "manifest": "linyuan/seed_expansion.json",
     "new_metadata_candidates": 61,
-    "next_step": "Observe full acceptance run35279743574. Download and independently verify any media artifact before counting; keep expansion yield separate from fixed100 formal 12/100.",
+    "next_step": "Observe the source214 diagnostic retry. Use its retained raw invalid timings to implement only an evidence-bounded generic repair; keep expansion yield separate from fixed100 formal 12/100.",
     "outside_duration": 4,
     "pages": 70,
     "production_dispatch": false,
@@ -570,11 +571,11 @@
     "requested_at": "2026-09-17",
     "run_id": 35225570402,
     "seeds_added": 3,
-    "status": "two_of_ten_full_acceptance_accepted_batch3_running",
+    "status": "three_of_fifteen_full_acceptance_accepted_source214_diagnostic_pending",
     "total_candidate_seconds": 143952,
-    "acceptance_total": 10,
-    "rejected": 8,
-    "unresolved": 0,
+    "acceptance_total": 15,
+    "rejected": 11,
+    "unresolved": 1,
     "acceptance_run_id": 35251699299,
     "acceptance_commit": "dd8993e6d847500052790b12b4d5a590eceb021e",
     "acceptance_manifest": "linyuan/simulations/seed-expansion-acceptance-20260918.json",
@@ -598,6 +599,16 @@
           "media_artifact_id": 10512656337,
           "report_artifact_id": 10512756288,
           "streams": "H.264 720x1280 + AAC",
+          "independently_downloaded_and_verified": true
+        },
+        {
+          "sample_id": 213,
+          "title": "林园：投资靠持有阶段赚大钱，必须选对赛道",
+          "duration_sec": 283.941333,
+          "sha256": "59501caf76f2968c2203505b5120e64755c872d7344486319b095153b7236d9c",
+          "media_artifact_id": 10524277972,
+          "report_artifact_id": 10524527516,
+          "streams": "H.264 1278x548 + AAC",
           "independently_downloaded_and_verified": true
         }
       ],
@@ -714,7 +725,7 @@
       "note": "All six URLs were previously unscreened. Passes are mother-media passes only."
     },
     "batch3_acceptance": {
-      "status": "running",
+      "status": "completed_1_accepted_3_quality_rejected_1_technical_unresolved",
       "run_id": 35279743574,
       "commit": "63791e816ff7fee705302735d4a20cb12cb9a13e",
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch3.json",
@@ -725,8 +736,41 @@
         214,
         215
       ],
-      "accepted_mp4s": 0,
-      "note": "Five exact source-quality passes entered CPU offline ASR, fixed-snapshot dedup, automatic selection, render and unchanged final gates; no candidate counts as a final."
+      "accepted_mp4s": 1,
+      "rejected": 3,
+      "unresolved": 1,
+      "accepted": {
+        "sample_id": 213,
+        "duration_sec": 283.941333,
+        "sha256": "59501caf76f2968c2203505b5120e64755c872d7344486319b095153b7236d9c",
+        "media_artifact_id": 10524277972,
+        "report_artifact_id": 10524527516,
+        "streams": "H.264 1278x548 + AAC",
+        "independently_downloaded_and_verified": true
+      },
+      "reasons": {
+        "211": "three blocks; no >=120s structurally complete automatic candidate",
+        "212": "three candidates fail unchanged 96px target-face minimum or 80% identity continuity",
+        "215": "one candidate fails unchanged 96px target-face minimum"
+      },
+      "technical_unresolved": {
+        "sample_id": 214,
+        "stage": "producer-runtime",
+        "reason": "Qwen CPU recognition completed; forced alignment stopped at core570 after 19 valid checkpointed chunks because the aligner returned an out-of-chunk word timing.",
+        "report_artifact_id": 10523182479,
+        "counts_as_accepted": false
+      },
+      "no_fc_or_posting": true
+    },
+    "source214_alignment_diagnostic": {
+      "status": "pending_targeted_cpu_retry",
+      "source_url": "https://www.bilibili.com/video/BV1difDY4E39?p=10",
+      "source_sha256": "82416bcd553b0ba2e96ab367203dc0a8a41f7b30effd00a3b9a44e6dbcec6ae7",
+      "recovery_run_id": 35279743574,
+      "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch4.json",
+      "change": "Retain bounded raw invalid-timing diagnostics outside aligned.json; never treat failed alignment as subtitle evidence.",
+      "no_gate_relaxation": true,
+      "no_fc_or_posting": true
     }
   },
   "source27_question_tail_recovery": {
