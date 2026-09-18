@@ -19,3 +19,11 @@
 
 提交前已完成语法、diff及测试清单核对。本地依赖下载超时，实际回归以本提交触发的 GitHub Actions CPU 结果为准；不能先记为通过。
 通过前置回归只表示该阻塞解除，恢复真实成片及平台公开仍须分别核验。未把库存或投稿恢复写为完成。
+
+## Actions 实测结果
+
+- 修复提交：`c5dbe7752478e09c813c69fa40405795fa36779a`。
+- CPU 回归：[run 35329045077](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35329045077)，success；631 passed, 1 skipped, 1 deselected，23.32秒。
+- 两项原失败用例未修改断言且已包含在通过的测试组内；主生产前置21个测试文件全部包含。
+- 本提交触发记录只有CPU回归与既有Pages更新，无FC部署或生产/投稿任务。
+- 状态：前置回归阻塞已解除；修复后的真实成片、公开投稿仍待独立核验。
