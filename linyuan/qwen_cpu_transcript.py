@@ -4,11 +4,13 @@ Recognition and alignment run in separate processes to release model memory.
 No transcript is accepted merely because a newer model produced it.
 """
 import argparse
+from difflib import SequenceMatcher
 import hashlib
 import json
 import math
 import os
 from pathlib import Path
+import re
 import resource
 import time
 import wave
@@ -29,6 +31,45 @@ IDENTITY_FIELDS=('version','source_pcm_sha256','source_video_sha256','model_id',
                  'model_revision','device','threads','networking_during_inference',
                  'core_range','duration','audio_preprocessing')
 CHUNK_FIELDS=('offset','duration','core_start','core_end','text')
+CONTENT_RE=re.compile(r'[\s，。！？；：、,.!?;:]+')
+
+
+def transcript_content(text):
+    return CONTENT_RE.sub('',text or '')
+
+
+def excessive_repetition(text, duration):
+    """Detect only dense, long exact loops that cannot fit their audio."""
+    value=transcript_content(text)
+    if len(value)<max(96,math.ceil(float(duration)*5.5)):
+        return False
+    window=32;seen={}
+    for index in range(len(value)-window+1):
+        part=value[index:index+window]
+        previous=seen.setdefault(part,index)
+        if index-previous>=window:
+            return True
+    return False
+
+
+def retry_repetitive_transcript(model, audio, sample_rate, text):
+    """Re-decode a suspicious full window as two bounded CPU windows."""
+    duration=len(audio)/sample_rate
+    if not excessive_repetition(text,duration):
+        return text,None
+    middle=len(audio)//2
+    parts=[]
+    for samples in (audio[:middle],audio[middle:]):
+        parts.append(model.transcribe(audio=(samples,sample_rate),language='Chinese')[0].text)
+    candidate=''.join(parts)
+    original_content=transcript_content(text);candidate_content=transcript_content(candidate)
+    similarity=SequenceMatcher(None,original_content,candidate_content,autojunk=False).ratio()
+    accepted=(len(candidate_content)>=max(12,len(original_content)//4)
+              and not excessive_repetition(candidate,duration) and similarity>=.35)
+    detail=dict(strategy='split-halves-v1',accepted=accepted,
+                original_text=text,candidate_text=candidate,
+                similarity=round(similarity,4),duration=duration)
+    return (candidate if accepted else text),detail
 
 
 def invalid_word_timings(words, start, end):
@@ -61,6 +102,11 @@ def resume_recognition(report, checkpoint):
             if (core>=last or chunk['core_start']!=core or chunk['core_end']!=min(core+CORE_SECONDS,last)
                     or chunk['offset']!=a or chunk['duration']!=b-a or not isinstance(chunk['text'],str)):
                 return 0
+            # A complete checkpoint can still contain a deterministic decoder
+            # loop.  Resume only the trustworthy prefix so the same CPU model
+            # re-decodes this and subsequent windows with the bounded retry.
+            if excessive_repetition(chunk['text'],chunk['duration']):
+                break
             chunks.append({k:chunk[k] for k in CHUNK_FIELDS})
         report['chunks']=chunks
         return len(chunks)
@@ -144,6 +190,11 @@ def main():
             if core>=last:break
             a=max(0,core-OVERLAP_SECONDS);b=min(duration,core+CORE_SECONDS+OVERLAP_SECONDS)
             text=model.transcribe(audio=(audio[int(a*sr):int(b*sr)],sr),language='Chinese')[0].text
+            text,retry=retry_repetitive_transcript(
+                model,audio[int(a*sr):int(b*sr)],sr,text)
+            if retry:
+                report.setdefault('decode_repairs',[]).append({
+                    'core_start':core,**retry})
             report['chunks'].append({'offset':a,'duration':b-a,'core_start':core,
                 'core_end':min(core+CORE_SECONDS,last),'text':text})
             report['elapsed_seconds']=round(time.monotonic()-started,2)
