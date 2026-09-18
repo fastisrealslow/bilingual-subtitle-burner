@@ -7,6 +7,50 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'linyuan'))
 from source_geometry import black_border_crop
 
 
+def wide_preview(tmp_path):
+    import cv2
+    video = tmp_path / 'wide.mp4'
+    writer = cv2.VideoWriter(str(video), cv2.VideoWriter_fourcc(*'mp4v'), 1, (1280, 540))
+    for _ in range(8):
+        writer.write(np.full((540, 1280, 3), 100, dtype=np.uint8))
+    writer.release()
+    return video
+
+
+def test_wide_interview_fits_16_9_without_scaling_or_vertical_crop(tmp_path):
+    from source_geometry import landscape_crop_plan
+    crop, proof = landscape_crop_plan(wide_preview(tmp_path), 1280, 540,
+        lambda: lambda frame: [(550, 100, 160, 180)])
+    assert crop == (960, 540, 160, 0)
+    assert proof['samples'] == 8 and proof['applied']
+    assert proof['final_quality_approved'] is False
+
+
+def test_crop_moves_to_keep_a_speaker_near_the_edge(tmp_path):
+    from source_geometry import landscape_crop_plan
+    crop, _ = landscape_crop_plan(wide_preview(tmp_path), 1280, 540,
+        lambda: lambda frame: [(170, 100, 160, 180)])
+    assert crop == (960, 540, 10, 0)
+
+
+@pytest.mark.parametrize('last_faces', [[], [(0, 100, 160, 180)],
+    [(400, 100, 160, 180), (900, 100, 160, 180)]])
+def test_late_camera_change_or_group_shot_keeps_original_view(tmp_path, last_faces):
+    from source_geometry import landscape_crop_plan
+    faces = iter([[(800, 100, 160, 180)]] * 7 + [last_faces])
+    crop, proof = landscape_crop_plan(wide_preview(tmp_path), 1280, 540,
+        lambda: lambda frame: next(faces))
+    assert crop is None and not proof['applied']
+
+
+@pytest.mark.parametrize('width,height', [(1280, 720), (720, 1280), (640, 480), (2560, 720)])
+def test_existing_aspects_and_excessive_crops_do_not_start_face_inference(width, height):
+    from source_geometry import landscape_crop_plan
+    crop, proof = landscape_crop_plan('unused', width, height,
+        lambda: pytest.fail('This source must keep its composition'))
+    assert crop is None and not proof['applied']
+
+
 def frame():
     image = np.full((1080, 1920, 3), 100, dtype=np.uint8)
     image[:, :64] = 0

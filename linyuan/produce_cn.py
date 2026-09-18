@@ -104,11 +104,11 @@ SUBTITLE_REGION = {"x": 38, "y": 874, "width": 644, "height": 166}
 SAFE_MARGIN = {"left": 38, "right": 38, "bottom": 64}
 
 # 自有品牌水印：先清掉来源平台/搬运账号角标，再在同一次编码中叠加到右上角。
-# 参数可通过环境变量微调，但生产默认值必须保持小尺寸、半透明，避免遮挡内容。
+# 参数可通过环境变量微调；默认宽度18%，保持半透明及边距，提升移动端辨识度。
 BRAND_WATERMARK = Path(os.environ.get("BRAND_WATERMARK") or
                        (BASE / "assets" / "yuanlai-snowball-watermark.png"))
 BRAND_WATERMARK_WIDTH_RATIO = float(
-    os.environ.get("BRAND_WATERMARK_WIDTH_RATIO") or 0.15)
+    os.environ.get("BRAND_WATERMARK_WIDTH_RATIO") or 0.18)
 BRAND_WATERMARK_OPACITY = float(
     os.environ.get("BRAND_WATERMARK_OPACITY") or 0.68)
 BRAND_WATERMARK_MARGIN_RATIO = float(
@@ -2653,6 +2653,19 @@ def brand_overlay_filter(base_vf, width, height):
     )
 
 
+def native_landscape_detector():
+    """Reuse the offline CPU face detector for native horizontal framing."""
+    import cv2
+    detector_path, _ = _local_face_models()
+    detector = cv2.FaceDetectorYN.create(str(detector_path), '', (320, 320),
+                                       score_threshold=.80, nms_threshold=.3, top_k=5000)
+    def detect(frame):
+        h, w = frame.shape[:2]
+        detector.setInputSize((w, h))
+        return detector.detect(frame)[1]
+    return detect
+
+
 def _render_clean_preview(src, work, video_filter, duration, source_start=0.0):
     """渲染一小段清理后预览，供硬字幕二次复检。"""
     preview = Path(work) / "clean_preview.mp4"
@@ -5025,6 +5038,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
     crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
     border_proof = None
+    landscape_proof = None
     if strategy != 'audio_card':
         # OCR cleaning does not detect encoded black bars (#682). Measure the
         # actual cleaned source before deciding caption and watermark geometry.
@@ -5045,6 +5059,21 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 '-i',str(geometry_source),'-t',str(geometry_duration),
                 '-vf',clean_vf+',fps=1','-an','-c:v','libx264','-preset','ultrafast',
                 '-crf','18','-threads','2',str(native_preview)],check=True,timeout=180)
+            from source_geometry import landscape_crop_plan
+            crop, landscape_proof = landscape_crop_plan(
+                native_preview, crop_w, crop_h, native_landscape_detector,
+                minimum=MIN_SHORT_EDGE)
+            if crop:
+                crop_w, crop_h, cx, cy = crop
+                clean_vf += f',crop={crop_w}:{crop_h}:{cx}:{cy}'
+                # Re-render from the source, not the compressed preflight.
+                # Subtitles, cover and logo will use these final dimensions.
+                subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',str(geometry_start),
+                    '-i',str(geometry_source),'-t',str(geometry_duration),
+                    '-vf',clean_vf+',fps=1','-an','-c:v','libx264','-preset','ultrafast',
+                    '-crf','18','-threads','2',str(native_preview)],check=True,timeout=180)
+            (work / f'landscape_geometry{suffix}.json').write_text(
+                json.dumps(landscape_proof, ensure_ascii=False, indent=2))
             from presentation import verify_render,layout_for
             verify_render(native_preview,layout_for(crop_w,crop_h,False))
             if has_existing_subtitles(native_preview,strict=True,frames=12):
@@ -5061,12 +5090,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             (work/f'native-rejection{suffix}.json').write_text(json.dumps(
                 dict(reason=str(exc),source_start=geometry_start,duration=geometry_duration),ensure_ascii=False))
             strategy='audio_card';border_proof=None
+            landscape_proof=None
             native_plan=None;proposed_native=None
             crop_w,crop_h=AUDIO_CARD_WIDTH,AUDIO_CARD_HEIGHT
     _logos = source_report.get("detected_corner_logos") or []
     print(f"[干净画面] strategy={strategy} output={crop_w}x{crop_h}")
     # A failed source-cleaning gate must never be bypassed by putting the same
-    # dirty source into a guessed fixed crop. Native clean sources retain aspect;
+    # dirty source into a guessed fixed crop. Native crops retain pixel geometry;
     # genuinely unusable pictures become an explicitly labelled portrait/audio card.
     live_crop = None
     # 原画因字幕/包装无法作为整屏成片时，优先尝试“真人动态窗口”而不是
@@ -5363,6 +5393,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "watermark_verified": True,
         "clean_strategy": strategy,
         "native_context_proof":(native_plan or {}).get('native_context_proof'),
+        "native_landscape_proof":landscape_proof,
         "interview_context":interview_tracking,
         "framing_proofs":framing_proofs,
         "audio_card_template": (AUDIO_CARD_TEMPLATE

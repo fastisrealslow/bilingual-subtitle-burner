@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 
 CANVAS = (1280, 720)
+BRAND_WIDTH = 180
 # Keep the 632:470 clean window's aspect ratio to within one encoded pixel.
 LIVE_REGION = dict(x=156, y=0, width=968, height=720)
 
@@ -22,7 +23,7 @@ def selected(meta, requested='auto'):
     if requested not in {'auto', 'portrait', 'landscape'}:
         raise ValueError('未知横竖屏选择')
     if meta.get('render_mode') != 'live_video_card':
-        return False  # Native footage keeps its original aspect; audio cards stay portrait.
+        return False  # Native footage is framed before subtitles; audio cards stay portrait.
     if requested == 'auto' and len(meta.get('subtitle_files', [])) != 1:
         return False
     if requested != 'auto':
@@ -155,7 +156,7 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
                 f"x=(w-tw)/2:y=540:enable='{condition}'")
     filters=(f'[0:v]crop={window["width"]}:{window["height"]}:{window["x"]}:{window["y"]},scale={region["width"]}:{region["height"]}:flags=lanczos,setsar=1{card_footer}[v];'
              f'[1:v][v]overlay={region["x"]}:{region["y"]}:shortest=1,ass={subtitle}[base];'
-             '[2:v]format=rgba,colorchannelmixer=aa=0.68,scale=124:-1[brand];'
+             f'[2:v]format=rgba,colorchannelmixer=aa=0.68,scale={BRAND_WIDTH}:-1[brand];'
              '[base][brand]overlay=W-w-16:22:shortest=1[outv]')
     subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(original),
         '-loop','1','-framerate',rate,'-i',str(bg),'-loop','1','-framerate',rate,'-i',str(brand),'-filter_complex',filters,
@@ -187,7 +188,7 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
             'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v2',
-            'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':124/1280},
+            'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
             'landscape_reframe':dict(version=2,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,

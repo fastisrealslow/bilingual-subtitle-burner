@@ -3,6 +3,58 @@ from pathlib import Path
 import subprocess
 
 
+def landscape_crop_plan(preview, width, height, detector_factory, minimum=480):
+    """Plan a fixed 16:9 crop from the whole-interval 1fps clean preview.
+
+    Retain each face plus a face-width on both sides for shoulders. Missing
+    faces, group shots and incompatible camera cuts keep the original view.
+    This framing evidence never replaces the final picture/identity gates.
+    """
+    import cv2
+    import math
+    target = int(height * 16 / 9) // 2 * 2
+    proof = dict(version=1, applied=False, input=[width, height],
+                 target_aspect='16:9', final_quality_approved=False)
+    if width <= target + 2 or min(target, height) < minimum:
+        return None, {**proof, 'reason': 'already_fits_or_not_wide'}
+    if (width - target) / width > .30:
+        return None, {**proof, 'reason': 'crop_would_remove_over_30_percent'}
+    cap = cv2.VideoCapture(str(preview))
+    expected = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    count = 0
+    lower, upper = 0, width - target
+    try:
+        detect = detector_factory()
+        while True:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            count += 1
+            if frame.shape[:2] != (height, width):
+                raise ValueError('横屏取景预检尺寸不一致')
+            faces = detect(frame)
+            if faces is None or len(faces) != 1:
+                return None, {**proof, 'samples': count, 'reason': 'missing_or_multiple_faces'}
+            x, y, fw, fh = map(float, faces[0][:4])
+            if (not all(math.isfinite(v) for v in (x, y, fw, fh))
+                    or fw <= 0 or fh <= 0 or x < 0 or y < 0
+                    or x + fw > width or y + fh > height):
+                return None, {**proof, 'samples': count, 'reason': 'incomplete_face'}
+            left, right = max(0, x - fw), min(width, x + 2 * fw)
+            lower, upper = max(lower, right - target), min(upper, left)
+            if math.ceil(lower / 2) * 2 > math.floor(upper / 2) * 2:
+                return None, {**proof, 'samples': count, 'reason': 'subject_crosses_crop'}
+    finally:
+        cap.release()
+    if count < 6 or expected <= 0 or count != expected:
+        raise ValueError('横屏取景预检未完整解码选段')
+    lower, upper = math.ceil(lower / 2) * 2, math.floor(upper / 2) * 2
+    x = int(max(lower, min(upper, (width - target) // 4 * 2)))
+    crop = (target, height, x, 0)
+    return crop, {**proof, 'applied': True, 'samples': count, 'crop': list(crop),
+                  'reason': 'whole_interval_face_and_shoulder_margin'}
+
+
 def black_border_crop(frames, max_fraction=.15):
     """Only trim uniform black strips present in every decoded sample.
 

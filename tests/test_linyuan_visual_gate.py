@@ -285,7 +285,7 @@ def test_live_region_black_edge_rejection_retains_exact_measurements(monkeypatch
 
 def test_brand_watermark_filter_places_asset_at_top_right():
     vf = P.brand_overlay_filter("crop=1280:720:0:0", 1280, 720)
-    assert "scale=192:-1" in vf
+    assert "scale=230:-1" in vf
     assert "overlay=x=main_w-overlay_w-25:y=14" in vf
     assert "colorchannelmixer=aa=0.68" in vf
     assert P.brand_watermark_path().name == "yuanlai-snowball-watermark.png"
