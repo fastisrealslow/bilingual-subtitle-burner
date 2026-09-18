@@ -57,6 +57,7 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--run-id',required=True,type=int)
     parser.add_argument('--work',required=True,type=Path)
+    parser.add_argument('--artifact-name')
     args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix='production-evidence-') as directory:
         # Successful batches retain raw ASR in editorial artifacts, while older
@@ -64,8 +65,10 @@ def main():
         repo=__import__('os').environ.get('GITHUB_REPOSITORY','fastisrealslow/bilingual-subtitle-burner')
         artifacts=json.loads(subprocess.check_output(['gh','api',
             f'repos/{repo}/actions/runs/{args.run_id}/artifacts']))['artifacts']
-        names=[a['name'] for prefix in ('editorial-','debug-') for a in artifacts
-               if a['name'].startswith(prefix) and not a.get('expired')]
+        requested=[a['name'] for a in artifacts
+                   if args.artifact_name and a['name']==args.artifact_name and not a.get('expired')]
+        names=requested or [a['name'] for prefix in ('editorial-','debug-') for a in artifacts
+                            if a['name'].startswith(prefix) and not a.get('expired')]
         if not names:raise ValueError('原任务没有可用的转写证据')
         subprocess.run(['gh','run','download',str(args.run_id),'--repo',repo,
                         '--name',names[0],'--dir',directory],check=True)
