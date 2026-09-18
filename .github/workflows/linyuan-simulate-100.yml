@@ -189,8 +189,10 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
         RECOVERY_RUN_ID: ${{ matrix.recovery_run_id }}
+        ASR_SOURCE_SLUG: ${{ matrix.original_slug || env.RUN_SLUG }}
       run: |
-        python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
+        python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp" \
+          --artifact-name "simulation-report-$ASR_SOURCE_SLUG"
       continue-on-error: true
     - name: 恢复同一100样本的原始识别证据（母片哈希必须一致）
       continue-on-error: true
