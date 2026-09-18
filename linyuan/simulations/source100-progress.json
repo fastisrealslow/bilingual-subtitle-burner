@@ -1,17 +1,18 @@
 {
-  "active_until": "2026-09-18T03:30:00Z",
+  "active_until": "2026-09-18T05:00:00Z",
   "active_work": {
-    "purpose": "source214 forced-alignment diagnostic retry after completed expanded seed batch3",
+    "purpose": "source214 generic dense decoder-loop recovery and exact-source CPU acceptance",
     "owner": "scheduled-source100-worker",
     "run_ids": [
-      35291289517,
       35291407362
     ],
-    "commit": "42ac217afd9b3329c2d9765d982f408fe72ff47a",
+    "commit": "pending-main-commit",
     "write_scope": [
       "linyuan/qwen_cpu_transcript.py",
+      "linyuan/restore_production_evidence.py",
       "tests/test_linyuan_qwen_checkpoint.py",
-      "linyuan/simulations/seed-expansion-acceptance-20260918-batch4.json",
+      ".github/workflows/linyuan-simulate-100.yml",
+      "linyuan/simulations/seed-expansion-acceptance-20260918-batch5.json",
       "linyuan/simulations/source100-progress.json"
     ]
   },
@@ -764,7 +765,7 @@
       "no_fc_or_posting": true
     },
     "source214_alignment_diagnostic": {
-      "status": "targeted_cpu_retry_running",
+      "status": "diagnosis_complete_generic_repair_pending_retry",
       "source_url": "https://www.bilibili.com/video/BV1difDY4E39?p=10",
       "source_sha256": "82416bcd553b0ba2e96ab367203dc0a8a41f7b30effd00a3b9a44e6dbcec6ae7",
       "recovery_run_id": 35279743574,
@@ -774,6 +775,12 @@
       "superseded_prepare_failure": "Retry slug violated the existing immutable seed-accept-<12hex> schema; corrected before any source download or ASR ran.",
       "manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch4.json",
       "change": "Retain bounded raw invalid-timing diagnostics outside aligned.json; never treat failed alignment as subtitle evidence.",
+      "result": "Run completed unresolved with no MP4. The 36-second core570 transcript contained 224 content characters and a repeated 48-character suffix; the aligner placed words176-223 after the 603.0-second chunk boundary, reaching629.08 seconds.",
+      "diagnostic_artifact_id": 10528030083,
+      "root_cause": "Deterministic dense exact decoder loop, not floating-point drift and not a quality-gate false rejection.",
+      "repair": "Detect only dense >=32-character exact loops, re-decode the same audio as two bounded CPU windows, accept the replacement only when it retains >=35% sequence similarity, has meaningful length and removes the loop; then rerun the unchanged aligner and all final gates.",
+      "repair_regression": "95 relevant tests passed locally",
+      "repair_manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch5.json",
       "no_gate_relaxation": true,
       "no_fc_or_posting": true
     }
