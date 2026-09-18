@@ -5,7 +5,7 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
-from qwen_cpu_transcript import resume_recognition, resume_alignment
+from qwen_cpu_transcript import invalid_word_timings, resume_recognition, resume_alignment
 from qwen_asr_evidence import validated_words
 from restore_production_evidence import restore
 
@@ -91,3 +91,12 @@ def test_incident_restore_keeps_partial_work_out_of_accepted_evidence(tmp_path):
     assert not (work/'qwen_cpu').exists()
     assert not (work/'cues_raw.json').exists()
     assert not (work/'asr_cache.json').exists()
+
+
+def test_invalid_word_timings_reports_only_out_of_chunk_values():
+    words=[dict(text='好',start=27,end=27.2),
+           dict(text='坏',start=63.11,end=63.2),
+           dict(text='乱',start=30,end=29)]
+    assert invalid_word_timings(words,27,63)==[
+        dict(index=1,text='坏',start=63.11,end=63.2),
+        dict(index=2,text='乱',start=30.0,end=29.0)]
