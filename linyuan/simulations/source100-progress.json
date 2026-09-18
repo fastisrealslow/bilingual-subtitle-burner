@@ -4,9 +4,10 @@
     "purpose": "source214 generic dense decoder-loop recovery and exact-source CPU acceptance",
     "owner": "scheduled-source100-worker",
     "run_ids": [
-      35291407362
+      35291407362,
+      35295104163
     ],
-    "commit": "pending-main-commit",
+    "commit": "d00d8659d6e0ef976fb0efd7fa5e93ab67021208",
     "write_scope": [
       "linyuan/qwen_cpu_transcript.py",
       "linyuan/restore_production_evidence.py",
@@ -781,6 +782,8 @@
       "repair": "Detect only dense >=32-character exact loops, re-decode the same audio as two bounded CPU windows, accept the replacement only when it retains >=35% sequence similarity, has meaningful length and removes the loop; then rerun the unchanged aligner and all final gates.",
       "repair_regression": "95 relevant tests passed locally",
       "repair_manifest": "linyuan/simulations/seed-expansion-acceptance-20260918-batch5.json",
+      "repair_run_id": 35295104163,
+      "repair_commit": "d00d8659d6e0ef976fb0efd7fa5e93ab67021208",
       "no_gate_relaxation": true,
       "no_fc_or_posting": true
     }
