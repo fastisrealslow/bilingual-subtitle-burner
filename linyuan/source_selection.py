@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 26
+VERSION = 27
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -219,6 +219,14 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         turn_ends.append(j)
     spans=[(i,turn_ends[k]) for k,i in enumerate(starts)]
     for k,i in enumerate(starts):
+        # A complete, independently long-enough answer is already a candidate.
+        # Sharing an industry keyword with the next question is not a reason
+        # to merge it again: overlapping copies crowd out later clean answers.
+        # Keep the existing same-topic recovery only for short source turns.
+        own_end=turn_ends[k]
+        if own_end is None:continue
+        if cues[units[own_end]['end']]['end']-cues[units[i]['start']]['start']>=editorial.MIN_SECONDS:
+            continue
         anchor=''.join(u['text'] for u in units[i:question_starts[k]+1])
         for n in range(k+1,min(len(starts),k+5)):
             q=starts[n]

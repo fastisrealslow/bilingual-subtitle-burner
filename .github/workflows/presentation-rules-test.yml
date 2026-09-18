@@ -22,6 +22,7 @@ on:
       - linyuan/ci_fetch_bilibili.py
       - linyuan/source_geometry.py
       - tests/test_linyuan_source_selection.py
+      - tests/test_linyuan_scene_selection.py
       - tests/test_linyuan_fetch_budget.py
       - tests/test_linyuan_source_borders.py
       - tests/fixtures/linyuan_685_selection.json
@@ -68,6 +69,11 @@ jobs:
           tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py
           tests/test_linyuan_optional_layout.py tests/test_linyuan_landscape.py
           tests/test_linyuan_title_claims.py tests/test_linyuan_visual_gate.py
+          tests/test_linyuan_scene_selection.py tests/test_linyuan_geometry_preflight.py
+          tests/test_linyuan_robust_recovery.py tests/test_linyuan_qwen_checkpoint.py
+          tests/test_linyuan_selection_0915.py tests/test_linyuan_required_live.py
+          tests/test_linyuan_visual_before_copy.py tests/test_linyuan_full_interview_recovery.py
+          tests/test_linyuan_production_history.py
           -k 'not test_review_paused_batch_cannot_publish'
         # 该历史用例要求已获用户授权继续执行的 14 条批次仍被暂停，与现行状态不符；
         # 此工作流不改变该批次开关，只验证通用规则及其余质量门禁。
