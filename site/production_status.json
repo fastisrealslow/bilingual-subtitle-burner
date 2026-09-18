@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1789696221,
-  "inventory_updated_at": 1789696144,
+  "updated_at": 1789703280,
+  "inventory_updated_at": 1789703279,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789696220,
-    "records": 5342,
-    "video_records": 4397,
-    "initial_candidates": 75,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1789703279,
+    "records": 5356,
+    "video_records": 4404,
+    "initial_candidates": 76,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 2324,
+      "no_video": 952,
+      "speaker_unconfirmed": 2330,
       "clip_title": 990,
-      "no_video": 945,
       "already_attempted_or_cooling": 747,
       "noise": 109,
       "reference_only": 66,
@@ -26,28 +26,37 @@
       "over_limit": 11,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1bSeC6tEgR",
+        "title": "林园：我今天拍胸脯说：美国那些AI迟早要倒霉的，你去投！",
+        "source": "bilibili_search",
+        "author": "唐晶晶的价值观",
+        "url": "https://www.bilibili.com/video/BV1bSeC6tEgR",
+        "duration_sec": 627.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 2,
+    "verified_live": 1,
     "verified_audio_card": 0,
     "verified_landscape": 0,
-    "verified_portrait": 1,
+    "verified_portrait": 0,
     "verified_weekly_full": 1,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 1,
+    "daily_mix_usable": 0,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
     "complete": 76,
-    "failed": 534,
+    "failed": 549,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "ready": 1,
-    "interrupted": 16
+    "excluded": 1,
+    "interrupted": 1
   },
   "tasks": [
     {
@@ -10192,12 +10201,12 @@
     },
     {
       "slug": "ly-0916-5cc2b6",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1789540408,
         "failed": null,
-        "published_parts": 2,
+        "published_parts": 3,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
@@ -11182,11 +11191,11 @@
     },
     {
       "slug": "ly-0917-1976b3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789638839,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11200,11 +11209,11 @@
     },
     {
       "slug": "ly-0916-beb8c9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789650062,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11218,11 +11227,11 @@
     },
     {
       "slug": "ly-0916-d3fd2c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1789650076,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11236,11 +11245,11 @@
     },
     {
       "slug": "ly-0915-6e57d9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789650090,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11254,11 +11263,11 @@
     },
     {
       "slug": "ly-0917-19d774",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789650162,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11272,11 +11281,11 @@
     },
     {
       "slug": "ly-0917-37e681",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789650175,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11290,11 +11299,11 @@
     },
     {
       "slug": "ly-0917-1386cc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789650188,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11308,11 +11317,11 @@
     },
     {
       "slug": "ly-0917-77ec61",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789650201,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11326,11 +11335,11 @@
     },
     {
       "slug": "ly-0917-23db48",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1789652483,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11344,11 +11353,11 @@
     },
     {
       "slug": "ly-0917-c87103",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1789656880,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11362,11 +11371,11 @@
     },
     {
       "slug": "ly-0917-c209c6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1789656891,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11380,11 +11389,11 @@
     },
     {
       "slug": "ly-0917-589d70",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789659500,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11398,11 +11407,11 @@
     },
     {
       "slug": "ly-0917-3c8ded",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789659512,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11416,11 +11425,11 @@
     },
     {
       "slug": "ly-0917-a36571",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
       "signature": {
         "ts": 1789659523,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -11434,11 +11443,11 @@
     },
     {
       "slug": "ly-0917-38accf",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1789674650,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
