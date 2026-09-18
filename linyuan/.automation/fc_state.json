@@ -12825,9 +12825,11 @@
    "quality_failure": "运行结束后仍无成片，保留范围恢复",
    "retries": 2,
    "preflight_failure_run_id": 35322481250,
-   "failure_stage": "workflow-preflight",
-   "last_error": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
-   "source_check_attempts": 1
+   "failure_stage": "source-quality",
+   "last_error": "人物不一致或无法确认：林园；initial_same=[1, 2]，scan_same=[4, 11]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18]，confidence=0.766，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2874, 2: 0.3303, 3: 0.3526, 4: 0.37, 5: 0.2806, 6: 0.2763, 7: 0.1839, 8: 0.1124, 9: 0.2647, 10: 0.2313, 11: 0.3777, 12: 0.2495, 13: 0.3256, 14: 0.2822, 15: 0.3209, 16: 0.3002, 17: 0.2388, 18: 0.313}",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:5344392888189085",
@@ -12853,9 +12855,11 @@
    "quality_failure": "运行结束后仍无成片，保留范围恢复",
    "retries": 2,
    "preflight_failure_run_id": 35322462836,
-   "failure_stage": "workflow-preflight",
-   "last_error": "旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复",
-   "source_check_attempts": 1
+   "failure_stage": "source-quality",
+   "last_error": "原始素材短边 368 < 480（368x640），画质不达标",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -42158,6 +42162,20 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2609/18/8pz8vxd5vxq/SD/8pz8vxd5vxq-mobile.mp4",
    "ts": 1789709896,
    "error": "时长 10s 不在 [120,5400]"
+  },
+  {
+   "slug": "ly-0918-ded267",
+   "key": "weibo_search:5344392888189085",
+   "video_id": "http://f.video.weibocdn.com/o0/UlgpG0Bclx08ASYI8yTe010412064DvU0E030.mp4",
+   "ts": 1789724587,
+   "error": "原始素材短边 368 < 480（368x640），画质不达标"
+  },
+  {
+   "slug": "ly-0918-a5427d",
+   "key": "bilibili_search:BV1bSeC6tEgR",
+   "video_id": "BV1bSeC6tEgR",
+   "ts": 1789724590,
+   "error": "人物不一致或无法确认：林园；initial_same=[1, 2]，scan_same=[4, 11]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18]，confidence=0.766，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2874, 2: 0.3303, 3: 0.3526, 4: 0.37, 5: 0.2806, 6: 0.2763, 7: 0.1839, 8: 0.1124, 9: 0.2647, 10: 0.2313, 11: 0.3777, 12: 0.2495, 13: 0.3256, 14: 0.2822, 15: 0.3209, 16: 0.3002, 17: 0.2388, 18: 0.313}"
   }
  ],
  "reviewed_third_video_0910": {
