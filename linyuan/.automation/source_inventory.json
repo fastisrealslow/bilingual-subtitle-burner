@@ -3,7 +3,7 @@
   "validation_sha256": "1b6b93b4be6fcbf67b99b30fd1d54ee87e44fc60ef359fd9bc8a0f1fee86114c",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1789793745,
+  "updated_at": 1789793896,
   "materials": {
     "weibo_search": {
       "records": 1357,
@@ -13,6 +13,11 @@
       "too_short": 70,
       "duration_unknown": 356
     },
+    "netease_video": {
+      "records": 48,
+      "video_candidates": 47,
+      "duration_unknown": 47
+    },
     "haokan_video": {
       "records": 25,
       "video_candidates": 25,
@@ -21,10 +26,10 @@
       "long_mother_candidates": 8
     },
     "bilibili_search": {
-      "records": 2391,
-      "video_candidates": 2385,
-      "duration_eligible": 1884,
-      "long_mother_candidates": 982,
+      "records": 2395,
+      "video_candidates": 2389,
+      "duration_eligible": 1888,
+      "long_mother_candidates": 985,
       "too_short": 227,
       "over_limit": 181,
       "duration_unknown": 93,
@@ -33,16 +38,11 @@
     "shareholder_meeting": {
       "records": 152
     },
-    "netease_video": {
-      "records": 47,
-      "video_candidates": 46,
-      "duration_unknown": 46
-    },
     "reference_origin_search": {
-      "records": 470,
-      "video_candidates": 470,
-      "duration_eligible": 298,
-      "long_mother_candidates": 180,
+      "records": 472,
+      "video_candidates": 472,
+      "duration_eligible": 300,
+      "long_mother_candidates": 182,
       "over_limit": 125,
       "too_short": 47
     },
@@ -90,16 +90,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1789793745,
-    "records": 5623,
-    "video_records": 4641,
-    "initial_candidates": 76,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
-    "unknown_duration_candidates": 0,
+    "updated_at": 1789793896,
+    "records": 5630,
+    "video_records": 4648,
+    "initial_candidates": 78,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 1,
+    "unknown_duration_candidates": 1,
     "excluded": {
-      "speaker_unconfirmed": 2515,
+      "speaker_unconfirmed": 2520,
       "noise": 111,
       "already_attempted_or_cooling": 791,
       "no_video": 982,
@@ -112,7 +112,24 @@
       "over_limit": 11,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1Gz4y1C74V",
+        "title": "【完整合集】】 20201209首发！股神林园2021年的投资策略和您所不了解的股神林园。",
+        "source": "reference_origin_search",
+        "author": "复利整合创新",
+        "url": "https://www.bilibili.com/video/BV1Gz4y1C74V",
+        "duration_sec": 3050.0
+      },
+      {
+        "key": "netease_video:VI68OS22U",
+        "title": "林园：英伟达市值太大了，早晚得倒霉",
+        "source": "netease_video",
+        "author": "网易视频",
+        "url": "https://www.163.com/v/video/VI68OS22U.html",
+        "duration_sec": 0
+      }
+    ]
   },
   "source_outcomes": {
     "mothers": [
@@ -11734,7 +11751,14 @@
           "ly-0919-9a7707"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-0919-9a7707",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -11787,7 +11811,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
-        "terminal_editorial-or-render": 10,
+        "terminal_editorial-or-render": 11,
         "terminal_quality-service": 1,
         "terminal_workflow-preflight": 3,
         "terminal_source-quality": 2
@@ -12652,8 +12676,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -12665,8 +12689,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -13126,10 +13150,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1
       },
       "BV1PcNh6rErV": {
         "attempted_mothers": 1,
@@ -13159,8 +13183,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -13904,7 +13928,7 @@
       }
     }
   },
-  "in_flight_placeholders": 1,
+  "in_flight_placeholders": 0,
   "artifacts": [
     {
       "slug": "ly-0918-06da95",
