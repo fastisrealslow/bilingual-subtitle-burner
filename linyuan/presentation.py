@@ -75,6 +75,32 @@ def layout_for(width, height, card=False):
             'line_capacity':max(8, int((region['width']-32)/(font*1.05)))}
 
 
+def footer_layout_for(width, height):
+    """Opt-in caption band outside the original image; never cover a mouth.
+
+    Source pixels keep their original size and aspect. This changes the output
+    canvas, so the caller must apply footer_filter before burning this layout.
+    """
+    layout = layout_for(width, height)
+    width, height = int(width), int(height)
+    band = (int(layout['subtitle_font_px'] * 2 * 1.448) + 33) // 2 * 2
+    canvas_h = height + band
+    layout.update(canvas=dict(width=width,height=canvas_h),
+        mode='landscape' if width>canvas_h*1.15 else ('portrait' if canvas_h>width*1.15 else 'square'),
+        source_region=dict(x=0,y=0,width=width,height=height),
+        subtitle_position='dedicated_footer',subtitle_style='white-outline',
+        footer_color='#101c2b')
+    layout['subtitle_region']={**layout['subtitle_region'],'y':height+8,'height':band-16}
+    return layout
+
+
+def footer_filter(layout):
+    if layout.get('subtitle_position') != 'dedicated_footer':
+        return 'null'
+    canvas=layout['canvas']
+    return f"pad={canvas['width']}:{canvas['height']}:0:0:color=0x101c2b"
+
+
 def prepare_captions(entries, layout):
     """Reconnect ASR fragments across nearby cues, then segment on words/pauses.
 

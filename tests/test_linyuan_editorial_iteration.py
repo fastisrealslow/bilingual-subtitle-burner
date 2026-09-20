@@ -11,6 +11,26 @@ import production_diagnostics as D
 import editorial_cover as C
 
 
+@pytest.mark.parametrize('size',[(1280,634),(720,1280),(1280,720)])
+def test_footer_subtitles_stay_outside_source_and_ass_uses_same_canvas(tmp_path,size):
+    import presentation as V
+    import produce_cn as P
+    w,h=size
+    layout=V.footer_layout_for(w,h)
+    region=layout['subtitle_region']
+    assert region['y']>=h and region['y']+region['height']<=layout['canvas']['height']
+    assert layout['source_region']==dict(x=0,y=0,width=w,height=h)
+    assert region['height']>=2*layout['subtitle_font_px']*1.448
+    assert V.footer_filter(layout).startswith(f'pad={w}:{layout["canvas"]["height"]}:0:0:')
+    path=tmp_path/'footer.ass'
+    entries=[dict(start_sec=0,end_sec=3,zh='医药股经营不好就不能买入',en='')]
+    prepared=P.make_ass(entries,path,w,h,layout_override=layout)
+    text=path.read_text(encoding='utf-8-sig')
+    assert f'PlayResY: {layout["canvas"]["height"]}' in text
+    assert f'pos({w//2},{region["y"]+region["height"]//2})' in text
+    assert ''.join(prepared[0]['lines'])==entries[0]['zh']
+
+
 def test_lookup_of_fund_value_does_not_support_reassurance_about_drawdown():
     source='投资者自己知道净值，不知道也可以到网上去查阅。'
     item=dict(title='林园：产品净值有回撤，但投资者自己能查，不用怕',

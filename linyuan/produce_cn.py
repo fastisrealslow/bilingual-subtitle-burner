@@ -2463,7 +2463,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
     raise CaptionPlanningUnavailable('字幕分屏未完成，保留原始转写供重试；'+error)
 
 
-def make_ass(entries, path, W, H, card_style=False):
+def make_ass(entries, path, W, H, card_style=False, layout_override=None):
     """竖版适配:字号按高度算、抬到安全区。burner 的 make_ass 是按 16:9 调的,
     720x1280 下算出来才 29px,且会被平台底部 UI 遮住。
 
@@ -2473,7 +2473,7 @@ def make_ass(entries, path, W, H, card_style=False):
     # Chinese production uses the same semantic segmenter in every layout.
     if not any(e.get("en") for e in entries):
         from presentation import layout_for, write_ass
-        return write_ass(entries, path, layout_for(W, H, card_style),
+        return write_ass(entries, path, layout_override or layout_for(W, H, card_style),
                          os.environ.get("ZH_FONT", "Microsoft YaHei"))
     font_zh = os.environ.get("ZH_FONT", "Microsoft YaHei")
     font_en = os.environ.get("EN_FONT", "Arial")
@@ -5269,6 +5269,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             portrait_path=audio_card_portrait, require_portrait=True, live_video=use_live_video)
     from presentation import layout_for, VERSION as PRESENTATION_VERSION
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
+    # Rehearsal-only until the actual native video has been visually reviewed.
+    if strategy != 'audio_card' and os.environ.get('SUBTITLE_LAYOUT') == 'footer':
+        from presentation import footer_layout_for
+        layout = footer_layout_for(crop_w, crop_h)
     en_map = {}
     parts = []
     render_audio=audio_render_prefix(audio_policy(_sha256_file(src)))
@@ -5284,7 +5288,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json",
                                            reviewed_groups=p.get('editorial_subtitles'))
         make_ass(entries, ass, crop_w, crop_h,
-                 card_style=(strategy == "audio_card"))
+                 card_style=(strategy == "audio_card"), layout_override=layout)
         seg = work / f"seg{suffix}{n}.mp4"
         vertical = H > W
         seg_dur = s1 - s0
@@ -5322,7 +5326,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 cmd += ["-filter_complex", f"[0:v]{vf}[outv]",
                         "-map", "[outv]", "-map", "1:a:0"]
         else:
-            vf = f"setpts=PTS-STARTPTS,{clean_vf},setsar=1,ass={ass},{fade}"
+            from presentation import footer_filter
+            vf = f"setpts=PTS-STARTPTS,{clean_vf},setsar=1,{footer_filter(layout)},ass={ass},{fade}"
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
                 "-t", str(seg_dur), "-i", str(src),

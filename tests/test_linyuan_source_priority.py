@@ -34,3 +34,20 @@ def test_published_receipts_outweigh_stale_failure_flag_and_old_history_expires(
     assert observed_priorities(state,1000+31*86400)=={}
     assert family(dict(author='访谈频道',page_url='https://m.bilibili.com/video/x'))==family(entries[0])
     assert family(dict(author='访谈频道',page_url='https://www.163.com/video/x'))!=family(entries[0])
+
+
+def test_placeholder_authors_are_neutral_and_weibo_hosts_share_a_family():
+    for name in ('账号已注销','网易视频','好看视频'):
+        assert family(dict(author=name,page_url='https://www.bilibili.com/video/x')) is None
+    assert family(dict(author='访谈频道',page_url='https://m.weibo.cn/detail/1')) == family(
+        dict(author='访谈频道',page_url='https://weibo.com/1'))
+
+
+def test_later_retry_cannot_erase_an_earlier_receipt_for_the_same_mother():
+    originals=[entry(i) for i in range(3)]
+    retries=[{**e,'slug':e['slug']+'-retry','ts':1000,'failed':True,
+              'last_error':'来源取景无法保留完整人脸'} for e in originals]
+    state=dict(dispatched=originals+retries,
+               published={e['slug']:dict(bvid='BVdelivered') for e in originals})
+    counts=observed_priorities(state,1001)[family(originals[0])]
+    assert counts['delivered_mothers']==3 and counts['quality_rejected_mothers']==0
