@@ -5,12 +5,13 @@ import json
 import os
 from pathlib import Path
 import random
+import re
 import time
 import urllib.request
 
 from qwen_style_trial import CASE_INDICES, ROOT, array, obj, text
 
-VERSION = 'qwen-style-v3.1'
+VERSION = 'qwen-style-v3.2'
 CHECKS = ('source_supported', 'speaker_correct', 'qualifiers_preserved',
           'natural', 'terminology_clear', 'style_preserved', 'cover_consistent')
 
@@ -27,6 +28,11 @@ def choose(comparison, count=3):
     return ranking[0]
 
 
+def normalize_cover(draft):
+    """Remove only a redundant speaker label, never rewrite title/body wording."""
+    return dict(draft, cover=re.sub(r'^\s*林园\s*[:：]\s*', '', draft.get('cover', '')).strip())
+
+
 def format_issues(draft):
     title, cover = draft.get('title', ''), draft.get('cover', '')
     issues = []
@@ -34,6 +40,8 @@ def format_issues(draft):
         issues.append('title_prefix_or_length')
     if not 8 <= len(cover) <= 18 or '林园' in cover:
         issues.append('cover_length_or_repeated_name')
+    if re.search(r'稳赚|稳拿收益|保证收益|必涨|不看后悔|震惊|暴富|http|@', title + cover):
+        issues.append('unsupported_hype')
     return issues
 
 
@@ -165,7 +173,8 @@ ranking按最好到最差输出全部三个index。reasons每个index给一句�
         row['comparison'] = comparison
         index = choose(comparison)
         row['style_selected_index'] = index
-        chosen = row['drafts'][index]
+        chosen = normalize_cover(row['drafts'][index])
+        row['prepared_candidate'] = chosen
         row['audit'] = audit(chosen, 'audit')
         row['validation_issues'] = validation_issues(row['audit'], chosen, cues)
         if audit_ok(row['audit'], chosen, cues):
@@ -181,7 +190,8 @@ ranking按最好到最差输出全部三个index。reasons每个index给一句�
 疑似字幕错词没有原音确认时，避开不确定术语，不新增事实。不得把主持人的问题当嘉宾结论。
 标题以林园：开头，12~62字；封面8~18字，不含林园姓名。changes说明改了什么，最多60字。
 原始字幕：{full}''', obj(dict(title=text(), cover=text(), changes=text())), tokens=500)
-            fixed = {k:row['repair'][k] for k in ('title','cover')}
+            fixed = normalize_cover({k:row['repair'][k] for k in ('title','cover')})
+            row['prepared_repair'] = fixed
             row['final_audit'] = audit(fixed, 'audit_repair')
             row['final_validation_issues'] = validation_issues(row['final_audit'], fixed, cues)
             if audit_ok(row['final_audit'], fixed, cues):

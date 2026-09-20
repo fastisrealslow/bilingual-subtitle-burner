@@ -1,0 +1,3920 @@
+{
+  "run_id": 35507139195,
+  "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+  "version": "qwen-style-v3.1",
+  "model": "qwen3:8b",
+  "expected": 30,
+  "completed": 30,
+  "machine_accepted": 10,
+  "all_three_machine_accepted_cases": 2,
+  "publication_authorized": false,
+  "production_ready": false,
+  "rows": [
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 1,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0918-06da95-part3",
+      "old_title": "林园：是应该是也有规则，人家告诉你",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "6677fa151cbe2e6e3090ea88c588cbb2a7d94163e8d03c893be18da45057afe2",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：分拆产品回撤是假象，投资者自己能查净值",
+          "cover": "分拆产品净值回撤，投资者自行查阅"
+        },
+        {
+          "title": "林园：葛兰产品亏300亿，管理费收30亿是常态",
+          "cover": "基金亏损管理费收30亿，规则未告知即违规"
+        },
+        {
+          "title": "林园：胡锡进炒股不割肉不亏，我也不觉得有问题",
+          "cover": "胡锡进不割肉不亏，规则未告知即违规"
+        }
+      ],
+      "style_selected_index": 1,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题包含未在字幕中出现的‘300亿’‘30亿’数字，且‘规则未告知即违规’未在字幕中明确提及。",
+        "evidence": [
+          "那没办法改变。",
+          "你说的公募基金，我不不大了解啊。",
+          "嗯，他那个同也是签字，是应该是也有规",
+          "则，人家告诉你。"
+        ],
+        "issues": [
+          "title_inconsistent_with_transcript",
+          "numerical_data_not_in_transcript",
+          "statement_not_in_transcript"
+        ],
+        "source_supported": false,
+        "speaker_correct": false,
+        "qualifiers_preserved": false,
+        "natural": false,
+        "terminology_clear": false,
+        "style_preserved": false,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：葛兰产品亏300亿，管理费收30亿是常态",
+        "cover": "基金亏损管理费收30亿，规则未告知即违规",
+        "changes": "保留原标题与封面，未发现可修正内容，符合字幕事实与风格。"
+      },
+      "final_audit": {
+        "reason": "标题包含未在字幕中出现的‘300亿’‘30亿’等具体数字，且‘规则未告知即违规’未在字幕中明确提及，存在添加未提及内容的问题。",
+        "evidence": [
+          "前段时间吧，还有个，在这个财经领域比较有争议的一个事儿，就那个中基金的那",
+          "个葛兰，他当时这个，呃，管理的这个产",
+          "品吧，大概是五年内亏了这个几百亿、",
+          "三百亿吧。"
+        ],
+        "issues": [
+          "标题含收益数字，检查其范围、期间、条件与原文完全一致；原文没有数字则不要求补数字。",
+          "cover_consistent封面与标题同一观点，没有缩小/扩大对象。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          1,
+          2,
+          0
+        ],
+        "reasons": [
+          {
+            "index": 1,
+            "reason": "直击规则漏洞，态度强硬，有林园标志性批判力"
+          },
+          {
+            "index": 2,
+            "reason": "语气平和但有立场，与林园风格略有距离"
+          },
+          {
+            "index": 0,
+            "reason": "表述模糊，缺乏林园特有的锋芒与确定性"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 76.62,
+          "tokens": 150,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 40.28,
+          "tokens": 90,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 80.57,
+          "tokens": 155,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 69.07,
+          "tokens": 69,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 44.39,
+          "tokens": 232,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 1,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0918-06da95-part3",
+      "old_title": "林园：是应该是也有规则，人家告诉你",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "6677fa151cbe2e6e3090ea88c588cbb2a7d94163e8d03c893be18da45057afe2",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_repaired",
+      "drafts": [
+        {
+          "title": "林园：分拆产品回撤是假象，投资者自己查净值就行",
+          "cover": "分拆产品回撤是假象"
+        },
+        {
+          "title": "林园：公募基金亏损是常态，管理费收得合理",
+          "cover": "公募基金亏损是常态"
+        },
+        {
+          "title": "林园：不割肉就不会亏，但市场总有波动",
+          "cover": "不割肉不亏但有波动"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：不割肉不亏，但市场总有波动",
+        "cover": "不割肉不亏，但有波动"
+      },
+      "audit": {
+        "reason": "标题与封面基本一致，但封面略简略，未体现‘不割肉就不会亏’的明确观点。",
+        "evidence": [
+          "那您呃对这个啊，就是对这个呃投资产品",
+          "的这种回撤呀，这种是怎么看？",
+          "因为我们这弄一个产品，由于一些原因，",
+          "技术上的原因的话，嗯，一些产品需要分"
+        ],
+        "issues": [
+          "cover_consistent: 封面未体现‘不割肉就不会亏’的明确观点",
+          "source_supported: 标题‘不割肉就不会亏’未在字幕中直接出现，仅在结尾提到‘只要我不割肉啊，那我就不会亏’",
+          "speaker_correct: 主持人提问，嘉宾回答，符合规范",
+          "qualifiers_preserved: 无明显问题",
+          "natural: 无别扭搭配或空泛重复"
+        ],
+        "source_supported": false,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：不割肉不亏，但市场总有波动",
+        "cover": "不割肉不亏，但有波动",
+        "changes": "封面补充‘不割肉不亏’明确观点，与标题呼应，保留短句节奏与个人口吻"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，符合审查要求。",
+        "evidence": [
+          "那您呃对这个啊，就是对这个呃投资产品",
+          "的这种回撤呀，这种是怎么看？",
+          "因为我们这弄一个产品，由于一些原因，",
+          "技术上的原因的话，嗯，一些产品需要分"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          1,
+          0
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接点出市场波动本质，态度鲜明，短句有力，不绕弯子"
+          },
+          {
+            "index": 1,
+            "reason": "逻辑清晰，态度明确，但语气稍弱，不如2有冲击力"
+          },
+          {
+            "index": 0,
+            "reason": "表述含糊，'假象'缺乏具体指向，语气不够坚定"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 104.1,
+          "tokens": 125,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 56.68,
+          "tokens": 100,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 131.32,
+          "tokens": 235,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 107,
+          "tokens": 62,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 105.93,
+          "tokens": 123,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 1,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0918-06da95-part3",
+      "old_title": "林园：是应该是也有规则，人家告诉你",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "6677fa151cbe2e6e3090ea88c588cbb2a7d94163e8d03c893be18da45057afe2",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：分拆产品回撤是假象，投资者自己能查净值",
+          "cover": "产品分拆回撤假象，净值可查"
+        },
+        {
+          "title": "林园：葛兰亏300亿收30亿，规则没改我也不改",
+          "cover": "基金亏损收费规则不变，林园不改"
+        },
+        {
+          "title": "林园：胡锡进炒股不割肉不亏，我也不投",
+          "cover": "胡锡进不割肉不亏，林园不投"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面均聚焦胡锡进不割肉不亏、林园不投，符合原始字幕内容。",
+        "evidence": [
+          "那您呃对这个啊，就是对这个呃投资产品",
+          "的这种回撤呀，这种是怎么看？",
+          "前段时间有一个比较有名的一个媒体人，",
+          "这个胡锡进，他进入股市炒股，"
+        ],
+        "issues": [
+          "标题中'胡锡进炒股不割肉不亏'未明确时间范围，可能扩大对象。",
+          "封面'胡锡进不割肉不亏，林园不投'未保留原文的否定语气和条件性，语气较弱。",
+          "标题'我也不投'未明确对象，可能缩小林园的立场。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": false,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：胡锡进不割肉不亏？我也不投",
+        "cover": "胡锡进不割肉不亏？林园不投",
+        "changes": "标题保留否定语气与条件性，封面强化疑问语气与立场"
+      },
+      "final_audit": {
+        "reason": "标题与封面均准确反映林园对胡锡进观点的回应，未添加原文未提及内容。",
+        "evidence": [
+          "那您呃对这个啊，就是对这个呃投资产品",
+          "的这种回撤呀，这种是怎么看？",
+          "因为我们这弄一个产品，由于一些原因，",
+          "技术上的原因的话，嗯，一些产品需要分"
+        ],
+        "issues": [
+          "cover_consistent: 封面标题缩小了对象，原题为‘林园：胡锡进不割肉不亏？我也不投’，封面为‘胡锡进不割肉不亏？林园不投’，未完整体现林园观点。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          1,
+          0
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接否定对象，态度鲜明，短句有力，符合林园风格"
+          },
+          {
+            "index": 1,
+            "reason": "表述含糊，未体现林园风格的直接否定与态度"
+          },
+          {
+            "index": 0,
+            "reason": "语意不明，搭配别扭，未体现林园风格的直接表达"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 109.82,
+          "tokens": 147,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 58.51,
+          "tokens": 96,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 131.34,
+          "tokens": 230,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 104.27,
+          "tokens": 58,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 127.76,
+          "tokens": 216,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 2,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-9f664b-part1",
+      "old_title": "林园：坚持投资理念，抓住需求才不会错。",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "078af26d3eea72fefeebb469d7eeffc7af1716b903ace7b1d5ad61001634eaa0",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：AI和人形机器人是未来，但赚不赚钱很难说",
+          "cover": "AI未来可期，但投资风险高"
+        },
+        {
+          "title": "林园：AI是革命，但企业能否赚钱很难判断",
+          "cover": "AI革命性强，但投资回报存疑"
+        },
+        {
+          "title": "林园：AI是趋势，但别急着追，慢慢来",
+          "cover": "AI趋势明确，但投资需谨慎"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，但封面缩小了对象范围，未体现‘AI和人形机器人’的具体讨论。",
+        "evidence": [
+          "那么能跟我们讲一讲，您是怎么样看待AI",
+          "还有这个人形机器人的吗？",
+          "这些肯定是将来的方向啊啊，要取代人。",
+          "这个我我是相坚信这个东西。"
+        ],
+        "issues": [
+          "cover_consistent: 封面缩小了对象范围，未体现‘AI和人形机器人’的具体讨论。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：AI和人形机器人是未来，但赚不赚钱很难说",
+        "cover": "AI和人形机器人未来可期，但投资风险高",
+        "changes": "封面补充‘人形机器人’，保持原观点一致"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，均强调AI和人形机器人未来前景但投资风险高，未添加原文未提及内容。",
+        "evidence": [
+          "那么能跟我们讲一讲，您是怎么样看待AI",
+          "还有这个人形机器人的吗？",
+          "这些肯定是将来的方向啊啊，要取代人。",
+          "这个我我是相坚信这个东西。"
+        ],
+        "issues": [
+          "cover_consistent: 封面与标题观点一致，未缩小/扩大对象。",
+          "source_supported: 标题主张‘赚不赚钱很难说’在字幕中被明确提及。",
+          "speaker_correct: 主持人提问，嘉宾回答，符合规范。",
+          "qualifiers_preserved: 保留了‘很难说’等不确定性表达。",
+          "natural: 无别扭搭配或空泛重复。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          1,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接点出赚不赚钱的不确定性，符合林园对风险的敏感态度"
+          },
+          {
+            "index": 1,
+            "reason": "语气缓和但缺乏林园特有的强势否定，风格偏温和"
+          },
+          {
+            "index": 2,
+            "reason": "用词重复‘别急着追’，语意模糊，风格不够林园式"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 60.86,
+          "tokens": 129,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 39.46,
+          "tokens": 101,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 79.13,
+          "tokens": 179,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 45.28,
+          "tokens": 58,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 89.56,
+          "tokens": 247,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 2,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-9f664b-part1",
+      "old_title": "林园：坚持投资理念，抓住需求才不会错。",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "078af26d3eea72fefeebb469d7eeffc7af1716b903ace7b1d5ad61001634eaa0",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：AI和人形机器人是未来，但赚不赚钱很难说",
+          "cover": "AI未来可期，但投资风险高"
+        },
+        {
+          "title": "林园：AI革命在即，但别急着追，茅台才是真金",
+          "cover": "AI风口难追，茅台才是稳赚"
+        },
+        {
+          "title": "林园：跟投比例下调，是为资深资金效率考虑",
+          "cover": "跟投比例下调，专注资金效率"
+        }
+      ],
+      "style_selected_index": 1,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面均强调AI风口难追，茅台为稳赚，与字幕中嘉宾对AI革命性及投资风险的讨论一致，但未明确提及茅台收益数字。",
+        "evidence": [
+          "那么能跟我们讲一讲，您是怎么样看待AI",
+          "这些肯定是将来的方向啊啊，要取代人。",
+          "但是这些企业具体你能不能挣到钱，那就很难说了。",
+          "但是投投资同期，同期那个投资茅台的话，我现在还挣十倍，还不止。"
+        ],
+        "issues": [
+          "标题未明确提及茅台收益数字，封面与标题均未体现具体收益范围"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：AI革命在即，但别急着追，茅台十倍收益稳赚",
+        "cover": "AI风口难追，茅台十倍收益稳赚",
+        "changes": "标题补充茅台收益数字，封面同步体现收益范围"
+      },
+      "final_audit": {
+        "reason": "标题与封面夸大收益，未明确时间范围，存在主观判断，未体现原文对AI的不确定性及对茅台收益的条件性描述。",
+        "evidence": [
+          "但是这些企业具体你能不能挣到钱，那就很难说了。",
+          "如果按照我的办法买了不卖，今天也挣不多钱，还可以。",
+          "但是投投资同期，同期那个投资茅台的话，我现在还挣十倍，还不止。",
+          "人生有几次这样的事儿，所以别急，是吧？慢慢来，永远抓住需求，不会错。"
+        ],
+        "issues": [
+          "标题封面夸大收益，未体现原文对AI的不确定性及对茅台收益的条件性描述。",
+          "标题封面未明确时间范围，存在主观判断。",
+          "标题封面未体现原文对AI的不确定性及对茅台收益的条件性描述。",
+          "标题封面存在主观判断，未体现原文对AI的不确定性及对茅台收益的条件性描述。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": false,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          1,
+          0,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 1,
+            "reason": "直接否定AI追风口，转而肯定茅台，态度明确，逻辑清晰"
+          },
+          {
+            "index": 0,
+            "reason": "态度模糊，风险高但未明确否定，不如茅台直接"
+          },
+          {
+            "index": 2,
+            "reason": "讲效率，但未体现林园风格的鲜明态度和投资逻辑"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 102.57,
+          "tokens": 133,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 57.21,
+          "tokens": 95,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 119.71,
+          "tokens": 204,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 99.44,
+          "tokens": 58,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 133.03,
+          "tokens": 270,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 2,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-9f664b-part1",
+      "old_title": "林园：坚持投资理念，抓住需求才不会错。",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "078af26d3eea72fefeebb469d7eeffc7af1716b903ace7b1d5ad61001634eaa0",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：AI和人形机器人是未来，但赚不赚钱很难说",
+          "cover": "AI和人形机器人，未来方向但难赚钱"
+        },
+        {
+          "title": "林园：AI革命在即，但别急着追，茅台才是真金",
+          "cover": "AI革命在即，别急追，茅台才是真金"
+        },
+        {
+          "title": "林园：AI是趋势，但投资要看准，别跟风",
+          "cover": "AI是趋势，投资要看准，别跟风"
+        }
+      ],
+      "style_selected_index": 1,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面均强调AI革命在即但不急追，茅台为真金，与字幕中林园对AI革命的肯定及对茅台收益的强调一致。",
+        "evidence": [
+          "那么能跟我们讲一讲，您是怎么样看待AI",
+          "这些肯定是将来的方向啊啊，要取代人。",
+          "但是这些企业具体你能不能挣到钱，那就很难说了。",
+          "但是投投资同期，同期那个投资茅台的话，我现在还挣十倍，还不止。"
+        ],
+        "issues": [
+          "cover_consistent: 封面未提及‘AI革命在即’，缩小了对象范围。",
+          "terminology_clear: 标题‘真金’未在字幕中出现，可能为术语误用。",
+          "source_supported: 标题‘茅台才是真金’未在字幕中直接出现，需确认是否为林园原话。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": false,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：AI革命在即，别急追，茅台才是真金",
+        "cover": "AI革命在即，茅台才是真金",
+        "changes": "封面删去‘别急追’，保留‘AI革命在即’与‘茅台’，更贴合字幕内容。"
+      },
+      "final_audit": {
+        "reason": "标题夸大AI革命必然性，未体现原文对AI投资的不确定性；封面未体现‘别急追’态度，缩小了‘真金’对象。",
+        "evidence": [
+          "那么能跟我们讲一讲，您是怎么样看待AI",
+          "这些肯定是将来的方向啊啊，要取代人。",
+          "但是这些企业具体你能不能挣到钱，那就很难说了。",
+          "如果按照我的办法买了不卖，今天也挣不多钱，还可以。"
+        ],
+        "issues": [
+          "source_supported: 标题夸大AI革命必然性，原文未提‘革命在即’",
+          "speaker_correct: 标题含‘林园’，但未确认是否为嘉宾提问",
+          "qualifiers_preserved: 标题未保留‘别急追’态度",
+          "cover_consistent: 封面未体现‘别急追’态度，缩小了‘真金’对象"
+        ],
+        "source_supported": false,
+        "speaker_correct": false,
+        "qualifiers_preserved": false,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": false,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        2,
+        0,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          1,
+          0,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 1,
+            "reason": "直接点出茅台是真金，态度明确，对比AI的不确定性，更符合林园风格。"
+          },
+          {
+            "index": 0,
+            "reason": "语气犹豫，'赚不赚钱很难说'不够坚定，不如1有力。"
+          },
+          {
+            "index": 2,
+            "reason": "用'别跟风'表达态度，但整体语气较弱，不如1直接有力。"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 103.59,
+          "tokens": 143,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 61.15,
+          "tokens": 110,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 135.68,
+          "tokens": 264,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 104.71,
+          "tokens": 69,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 133.67,
+          "tokens": 265,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 3,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-9f664b-part2",
+      "old_title": "林园：你首先买买的，我用我的价值观，我觉得这个有风险",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "998043c76f130c2f4836a0902d4b500bca3074917d3375abad6f30a17f4c98bf",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不投AI，因为判断错的几率太高",
+          "cover": "AI赛道：高风险难判断"
+        },
+        {
+          "title": "林园：我不投新能源，年轻人会改写未来",
+          "cover": "新能源：年轻人主导未来"
+        },
+        {
+          "title": "林摘：我不投热赛道，怕自己判断错",
+          "cover": "热赛道：怕自己判断错"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题准确反映林园对AI赛道的担忧，封面与标题观点一致，未添加原文未提内容。",
+        "evidence": [
+          "其实您之前呢已经明确的表示了不参加科",
+          "技股了，啊但是呢，呃AI啊、",
+          "新能源啊等等的赛道啊，近年也是有涌现",
+          "高增长的公司的。"
+        ],
+        "issues": [
+          "标题中‘判断错的几率太高’未在字幕中直接出现，属合理推断但非原文明确表述",
+          "封面‘AI赛道：高风险难判断’与标题观点一致，但未明确提及‘不投’"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：我不投AI，因为判断错的几率太高",
+        "cover": "AI赛道：高风险难判断",
+        "changes": "标题保留原意与风格，封面强化‘高风险’与‘难判断’，符合字幕中‘判断错的几率’表述。"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，但标题中‘判断错的几率太高’未在字幕中明确提及，存在表述差异。",
+        "evidence": [
+          "其实您之前呢已经明确的表示了不参加科",
+          "技股了，啊但是呢，呃AI啊、",
+          "新能源啊等等的赛道啊，近年也是有涌现",
+          "高增长的公司的。"
+        ],
+        "issues": [
+          "title_qualifier_mismatch",
+          "cover_consistent"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          1,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接否定AI，态度明确，符合林园风险厌恶风格"
+          },
+          {
+            "index": 1,
+            "reason": "新能源有未来预期，但不如AI直接否定有力"
+          },
+          {
+            "index": 2,
+            "reason": "语意模糊，‘热赛道’不具体，不如AI和新能源明确"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 56.74,
+          "tokens": 114,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 37.81,
+          "tokens": 91,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 74.85,
+          "tokens": 207,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 55.37,
+          "tokens": 67,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 26.05,
+          "tokens": 147,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 3,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-9f664b-part2",
+      "old_title": "林园：你首先买买的，我用我的价值观，我觉得这个有风险",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "998043c76f130c2f4836a0902d4b500bca3074917d3375abad6f30a17f4c98bf",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不投AI，因为判断错的概率太高",
+          "cover": "AI赛道：判断错概率高"
+        },
+        {
+          "title": "林园：我不投新能源，怕年轻人颠覆我",
+          "cover": "新能源：怕年轻人颠覆"
+        },
+        {
+          "title": "林、园：我不投热赛道，怕自己跟不上",
+          "cover": "热赛道：怕跟不上趋势"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，但标题中‘不投AI’未在字幕中明确表述，存在推断风险。",
+        "evidence": [
+          "其实您之前呢已经明确的表示了不参加科",
+          "技股了，啊但是呢，呃AI啊、",
+          "新能源啊等等的赛道啊，近年也是有涌现",
+          "高增长的公司的。"
+        ],
+        "issues": [
+          "标题中‘不投AI’未在字幕中直接出现，存在推断风险",
+          "封面‘AI赛道：判断错概率高’与标题‘我不投AI，因为判断错的概率太高’观点一致，但标题中‘不投AI’未在字幕中明确表述"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：我不投AI，因判断错概率太高",
+        "cover": "AI赛道：判断错概率高",
+        "changes": "标题补充‘因’字，使逻辑更清晰；封面保持原意，与标题观点一致。"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，但标题中‘因判断错概率太高’未在字幕中明确出现，存在表述差异。",
+        "evidence": [
+          "那么您是否会考虑通过可转债或者是产业",
+          "链细分的领域来间接布局呢？",
+          "这个就是比较复杂啊，因为我们始终觉得",
+          "就是，这个东西啊，就是你一个，我认为它是个"
+        ],
+        "issues": [
+          "标题中的‘因判断错概率太高’未在字幕中明确出现，存在表述差异。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        2,
+        0,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "AI判断错概率高，比热赛道更明确否定，逻辑更狠"
+          },
+          {
+            "index": 2,
+            "reason": "热赛道怕跟不上，比怕年轻人颠覆更贴近林园风格"
+          },
+          {
+            "index": 1,
+            "reason": "怕年轻人颠覆，语意模糊，不如前两者直接有力"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 55.26,
+          "tokens": 111,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 37.44,
+          "tokens": 94,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 75.34,
+          "tokens": 221,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 52.95,
+          "tokens": 57,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 55.04,
+          "tokens": 181,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 3,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-9f664b-part2",
+      "old_title": "林园：你首先买买的，我用我的价值观，我觉得这个有风险",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "998043c76f130c2f4836a0902d4b500bca3074917d3375abad6f30a17f4c98bf",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不投AI，因为判断错的几率太高",
+          "cover": "AI赛道风险大，林园不投"
+        },
+        {
+          "title": "林园：我不会布局可转债，怕错判未来",
+          "cover": "可转债风险高，林园不布局"
+        },
+        {
+          "title": "林园：我不投新能源，怕年轻人抢了先",
+          "cover": "新能源赛道难预测，林园不投"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，保留口语与态度，无明显术语错误。",
+        "evidence": [
+          "其实您之前呢已经明确的表示了不参加科",
+          "技股了，啊但是呢，呃AI啊、",
+          "新能源啊等等的赛道啊，近年也是有涌现",
+          "高增长的公司的。"
+        ],
+        "issues": [
+          "标题中‘怕年轻人抢了先’未在字幕中明确提及，属推测性表述，可能扩大原意。",
+          "封面‘新能源赛道难预测’未在字幕中直接提及，属推测性表述，可能扩大原意。",
+          "标题‘我不投新能源’未在字幕中直接提及，属概括性表述，可能缩小原意。",
+          "字幕中‘我用我的价值观，我觉得这个有风险’未在标题中体现，属关键观点缺失。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：我不投新能源，怕年轻人抢了先",
+        "cover": "新能源赛道难预测，林园不投",
+        "changes": "修正标题中‘怕年轻人抢了先’与封面‘新能源赛道难预测’为字幕中明确提及内容，保留口语与态度。"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，但标题含‘怕年轻人抢了先’属主观推测，原文未提；‘不投新能源’未明确，原文仅说‘不投’，未提新能源。",
+        "evidence": [
+          "其实您之前呢已经明确的表示了不参加科",
+          "技股了，啊但是呢，呃AI啊、",
+          "新能源啊等等的赛道啊，近年也是有涌现",
+          "高增长的公司的。"
+        ],
+        "issues": [
+          "标题含‘怕年轻人抢了先’属主观推测，原文未提",
+          "标题‘不投新能源’未明确，原文仅说‘不投’，未提新能源"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "不投新能源理由更具体，有‘怕年轻人抢了先’的个性判断"
+          },
+          {
+            "index": 0,
+            "reason": "不投AI理由更直接，‘判断错的几率太高’比‘怕错判未来’更狠"
+          },
+          {
+            "index": 1,
+            "reason": "可转债理由空泛，‘怕错判未来’重复且不带情绪"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 83.85,
+          "tokens": 126,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 58.78,
+          "tokens": 110,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 113.54,
+          "tokens": 261,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 87.47,
+          "tokens": 68,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 43.08,
+          "tokens": 214,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 4,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-9f664b-part3",
+      "old_title": "林园：医药股中经营不好的不能买",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "993a5a5f448a929907f4bb864069ba00c11d5c2366efce307ba21f9d5c76e98c",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：别买经营不好的医药股，自己算账别指望别人",
+          "cover": "医药股经营差，自己算账别靠别人"
+        },
+        {
+          "title": "林园：亏了也别怪基金，自己安慰自己才是正道",
+          "cover": "基金亏了别怪别人，自己安慰自己"
+        },
+        {
+          "title": "林园：市场是骗子，你不理他他就骗不到你",
+          "cover": "市场是骗子，不理他就不骗你"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，但封面略显简化，未保留‘有准备的’等细节。",
+        "evidence": [
+          "23: 这个市场就是你视同他一个骗子，",
+          "24: 他是有意来骗你的，",
+          "25: 有准备的。",
+          "26: 你要是上当，你不理他，"
+        ],
+        "issues": [
+          "cover_consistent: 封面未保留‘有准备的’等细节",
+          "qualifiers_preserved: 未保留‘有准备的’等限定词",
+          "terminology_clear: 无明显错词",
+          "style_preserved: 保留口语态度",
+          "source_supported: 原文支持‘市场是骗子’主张"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：市场是骗子，你不理他他就骗不到你",
+        "cover": "市场是骗子，有准备的你不理他就不骗你",
+        "changes": "封面补充‘有准备的’细节，保留口语态度与观点"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，但封面缩小了对象范围，未保留原文的‘有准备的你不理他就不骗你’的完整表述。",
+        "evidence": [
+          "市场就是你视同他一个骗子，",
+          "他是有意来骗你的，",
+          "有准备的。",
+          "你要是上当，你不理他，"
+        ],
+        "issues": [
+          "cover_consistent"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        2,
+        0,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接点破市场本质，态度鲜明，短句有力，符合林园风格"
+          },
+          {
+            "index": 0,
+            "reason": "有具体对象，逻辑清晰，比‘自己算账’更贴近林园表达"
+          },
+          {
+            "index": 1,
+            "reason": "语意模糊，‘安慰自己’空泛，与林园风格不符"
+          }
+        ]
+      },
+      "validation_issues": [
+        "核对所引用的证据不是原始字幕逐字片段，必须重新找真实证据"
+      ],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 157.33,
+          "tokens": 135,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 57.8,
+          "tokens": 102,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 175.93,
+          "tokens": 208,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 153.84,
+          "tokens": 57,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 158.75,
+          "tokens": 132,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 4,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-9f664b-part3",
+      "old_title": "林园：医药股中经营不好的不能买",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "993a5a5f448a929907f4bb864069ba00c11d5c2366efce307ba21f9d5c76e98c",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_repaired",
+      "drafts": [
+        {
+          "title": "林园：别买经营不好的医药股，自己算账别指望别人",
+          "cover": "医药股需自己判断，别盲目跟风"
+        },
+        {
+          "title": "林园：亏了也别怪基金，自己安慰自己才是正道",
+          "cover": "亏损别怨基金，学会自我安慰"
+        },
+        {
+          "title": "林园：市场是骗子，但你不理他他就骗不到你",
+          "cover": "市场是骗子，不理他就不被骗"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：市场是骗子，不理他就不被骗",
+        "cover": "市场是骗子，不理他就不被骗"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，均体现市场如骗子、不理不被骗的比喻，无明显错误。",
+        "evidence": [
+          "23: 市场就是你视同他一个骗子，",
+          "24: 他是有意来骗你的，",
+          "25: 有准备的。",
+          "26: 你要是上当，你不理他，"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：市场是骗子，不理他就不被骗",
+        "cover": "市场是骗子，不理他就不被骗",
+        "changes": "无改动，标题与封面保持原样，符合风格与内容。"
+      },
+      "final_audit": {
+        "reason": "标题与封面内容一致，符合原文主张，无明显错误。",
+        "evidence": [
+          "市场就是你视同他一个骗子，他是有意来骗你的，有准备的。",
+          "你要是上当，你不理他，他就骗不到你。",
+          "这就是常识，是吧？",
+          "人要学会就是自己安慰自己。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接点破市场本质，态度鲜明，短句有力，符合林园风格"
+          },
+          {
+            "index": 0,
+            "reason": "强调自主判断，有明确对象，语气坚定，符合林园逻辑"
+          },
+          {
+            "index": 1,
+            "reason": "表达模糊，'安慰自己'缺乏力度，与林园风格不符"
+          }
+        ]
+      },
+      "validation_issues": [
+        "核对所引用的证据不是原始字幕逐字片段，必须重新找真实证据"
+      ],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 162.13,
+          "tokens": 132,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 57.66,
+          "tokens": 98,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 163.79,
+          "tokens": 130,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 152.86,
+          "tokens": 50,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 162.02,
+          "tokens": 122,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 4,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-9f664b-part3",
+      "old_title": "林园：医药股中经营不好的不能买",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "993a5a5f448a929907f4bb864069ba00c11d5c2366efce307ba21f9d5c76e98c",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：别买经营不好的医药股，自己算账别指望别人",
+          "cover": "医药股需自己判断，别盲目跟风"
+        },
+        {
+          "title": "林园：亏钱别怪基金，学会自我安慰才是正道",
+          "cover": "亏钱别怪基金，自我安慰才是关键"
+        },
+        {
+          "title": "林园：投资要灵活，别被规模限制住手脚",
+          "cover": "规模扩张不碍投资，灵活才是核心"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": {
+        "title": "林园：别买经营不好的医药股，自己算账别指望别人",
+        "cover": "医药股需自己判断，别盲目跟风"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容。",
+        "evidence": [
+          "那当然，你说这个医药股里边也有很多经",
+          "营不好的，那什么生意都有不好的，",
+          "你不要去买了个经营不好",
+          "的。啊，那你怎么看了？"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        2,
+        0,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接否定经营不好的医药股，态度明确，有林园风格的判断力"
+          },
+          {
+            "index": 2,
+            "reason": "强调灵活和规模不冲突，符合林园对投资本质的直白表达"
+          },
+          {
+            "index": 1,
+            "reason": "自我安慰逻辑模糊，与林园风格的果断、具体判断不符"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 158.46,
+          "tokens": 132,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 58.05,
+          "tokens": 101,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 156.49,
+          "tokens": 112,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 5,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-9f664b-part4",
+      "old_title": "林园：股息率涨了，但资产价格跌了才更值得买",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "ecc018eff48c4081c8c4f157dda789f78e25f82857944720dbc343aa8fbfc20f",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：政策信号比估值更重要，市场需要休息",
+          "cover": "政策信号提振信心，市场需平衡"
+        },
+        {
+          "title": "林园：高股息资产不是最好的，但当前性价比高",
+          "cover": "高股息资产性价比提升，估值更合理"
+        },
+        {
+          "title": "林园：市场反弹来自供给减少与需求改善",
+          "cover": "供给减少需求改善，市场逐步回暖"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面基本一致，但封面略显简化，未体现‘市场反弹’的主动语义。",
+        "evidence": [
+          "嗯嗯，那么您认为推动市场反弹的关键一",
+          "把火可能会来自哪一些领域呢？",
+          "呃，政策红利，还有行业基本面的改善，",
+          "哪一个因素对市场的信心提振会更加直接"
+        ],
+        "issues": [
+          "cover_consistent: 封面未体现‘市场反弹’的主动语义，仅保留‘供给减少需求改善’"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：市场反弹来自供给减少与需求改善",
+        "cover": "供给减少需求改善，市场逐步回暖",
+        "changes": "封面补充‘市场反弹’主动语义，保留原判断，符合短句节奏与个人口吻"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，保留口语与态度，无明显术语错误。",
+        "evidence": [
+          "嗯，那么政策方面也也是这个，也是给予支持啊，主要还是这个从供求关系上来那个",
+          "从这个一个是新股发行的这个节奏在变变慢，是吧？基本上啊，这个是给供给对吧？",
+          "那么在减少，就是增量不是没有以前那么迅猛，是吧？还有就是，就是从这个需求量上",
+          "资金方面呀，什么，采取了一些措施，啊。但是这些，要影响这个市场的话，还是一个逐步的过程。"
+        ],
+        "issues": [
+          "cover_consistent: 封面未明确提及‘市场反弹’，可能缩小对象。",
+          "source_supported: 标题‘供给减少需求改善’未在原文明确提及，仅在字幕中提及‘供求关系’。",
+          "speaker_correct: 标题中‘林园’为嘉宾，符合，但主持人提问未明确标注。",
+          "qualifiers_preserved: 原文未明确‘供给减少’与‘需求改善’为市场反弹原因，标题可能过度简化。",
+          "terminology_clear: ‘供给减少需求改善’为字幕中未明确表述，可能为概括性表述，存在术语模糊风险。"
+        ],
+        "source_supported": false,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": true,
+        "terminology_clear": false,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接点出市场变化原因，符合林园对市场本质的直白判断。"
+          },
+          {
+            "index": 0,
+            "reason": "政策与估值对比，体现林园对宏观与微观的平衡思考。"
+          },
+          {
+            "index": 1,
+            "reason": "股息资产性价比表述模糊，缺乏林园风格的果断判断。"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 122.87,
+          "tokens": 121,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 57.71,
+          "tokens": 100,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 139.89,
+          "tokens": 180,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 114.67,
+          "tokens": 57,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 83.41,
+          "tokens": 350,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 5,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-9f664b-part4",
+      "old_title": "林园：股息率涨了，但资产价格跌了才更值得买",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "ecc018eff48c4081c8c4f157dda789f78e25f82857944720dbc343aa8fbfc20f",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：政策信号比估值更重要，市场需要休息",
+          "cover": "政策信号提振信心，市场进入平衡期"
+        },
+        {
+          "title": "林园：高股息资产吸引力强，低利率环境不稀释",
+          "cover": "高股息率资产价值凸显，低利率环境优势明显"
+        },
+        {
+          "title": "林园：供求关系改善是市场反弹关键，不是短期刺激",
+          "cover": "供求关系改善支撑市场，非短期政策刺激"
+        }
+      ],
+      "style_selected_index": 1,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，均强调高股息资产在低利率环境下的优势，未添加原文未提内容。",
+        "evidence": [
+          "那么您近期多次的强调了高股息率资产的投资价值啊，尤其是分红率超过长期债利率的公司啊。",
+          "那么在当前低利率环境之下，这类资产的吸引力是否会被其他的低风险资产稀释呢？",
+          "高股息，可能大家有所这个理解的有点偏差。",
+          "我是就是从一个角度上看，A股市场到底是贵还是便宜啊？"
+        ],
+        "issues": [
+          "title_cover_inconsistent"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：高股息资产吸引力强，低利率环境不稀释",
+        "cover": "高股息率资产价值凸显，低利率环境优势明显",
+        "changes": "封面精简字数，保留原意与节奏。"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，均强调高股息资产在低利率环境下的优势，未添加原文未提及内容。",
+        "evidence": [
+          "那么您近期多次的强调了高股息率资产的投资价值啊，尤其是分红率超过长期债利率的公司啊。",
+          "那么在当前低利率环境之下，这类资产的吸引力是否会被其他的低风险资产稀释呢？",
+          "高股息，可能大家有所这个理解的有点偏差。",
+          "我是就是从一个角度上看，A股市场到底是贵还是便宜啊？"
+        ],
+        "issues": [
+          "title_cover_mismatch: 标题与封面表述略有差异，封面未明确提及'低利率环境不稀释'的结论，可能缩小对象。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        2,
+        0,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          1,
+          0,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 1,
+            "reason": "直接点出高股息资产在低利率下的优势，逻辑清晰，符合林园风格。"
+          },
+          {
+            "index": 0,
+            "reason": "政策信号比估值更重要，表达明确，有林园的判断力和立场。"
+          },
+          {
+            "index": 2,
+            "reason": "供求关系改善是反弹关键，表述较绕，不如前两者直接有力。"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 82.57,
+          "tokens": 133,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 40.51,
+          "tokens": 107,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 95.84,
+          "tokens": 197,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 75.96,
+          "tokens": 57,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 40.77,
+          "tokens": 226,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 5,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-9f664b-part4",
+      "old_title": "林园：股息率涨了，但资产价格跌了才更值得买",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "ecc018eff48c4081c8c4f157dda789f78e25f82857944720dbc343aa8fbfc20f",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：政策信号比估值更直接，市场需要休息",
+          "cover": "政策信号提振信心，市场进入平衡期"
+        },
+        {
+          "title": "林园：高股息资产吸引力未减，估值才是关键",
+          "cover": "高股息率资产吸引力强，估值低位更优"
+        },
+        {
+          "title": "林园：市场反弹需供求平衡，政策转向是信号",
+          "cover": "供求关系改善，政策转向提振信心"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：市场反弹需供求平衡，政策转向是信号",
+        "cover": "供求关系改善，政策转向提振信心"
+      },
+      "audit": {
+        "reason": "标题与封面均聚焦供求关系与政策转向，符合原始内容。",
+        "evidence": [
+          "嗯，那么您认为推动市场反弹的关键一",
+          "把火可能会来自哪一些领域呢？",
+          "呃，政策红利，还有行业基本面的改善，",
+          "哪一个因素对市场的信心提振会更加直接"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "政策信号直接有力，符合林园对确定性的偏好"
+          },
+          {
+            "index": 0,
+            "reason": "表达更贴近林园风格，语气更自然坚定"
+          },
+          {
+            "index": 1,
+            "reason": "表述稍显平淡，缺乏林园特有的情绪张力"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 81.71,
+          "tokens": 127,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 37.11,
+          "tokens": 86,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 80.66,
+          "tokens": 116,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 6,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-9f664b-part6",
+      "old_title": "林园：一个是当下你的买买入的成本",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "df3215c425fd84fccc8fda7c7c21ff69472a48662bf079972fa1e68744a73c13",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：我不怕短期波动，我只看企业长期价值",
+          "cover": "企业长期价值，不惧短期波动"
+        },
+        {
+          "title": "林园：投资者不懂钱怎么来，我也不强求",
+          "cover": "投资者不懂钱，我只看企业"
+        },
+        {
+          "title": "林园：短期涨跌很正常，我只看长期收益",
+          "cover": "短期波动不重要，长期收益才是关键"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": {
+        "title": "林园：我不怕短期波动，我只看企业长期价值",
+        "cover": "企业长期价值，不惧短期波动"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，符合审查要求。",
+        "evidence": [
+          "并且您呃如何来应对投资者们的一个短期",
+          "业绩压力呢？",
+          "我没有压力，我就是刚才给今天上午我我",
+          "给他们说这个事，"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        2,
+        0,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接否定短期波动，态度鲜明，符合林园风格的果断与清晰。"
+          },
+          {
+            "index": 2,
+            "reason": "语言更贴近林园日常表达，短句有力，逻辑清晰不绕。"
+          },
+          {
+            "index": 1,
+            "reason": "语意模糊，'不懂钱怎么来'搭配不自然，风格不统一。"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 131.01,
+          "tokens": 123,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 56.85,
+          "tokens": 103,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 136.22,
+          "tokens": 133,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 6,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-9f664b-part6",
+      "old_title": "林园：一个是当下你的买买入的成本",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "df3215c425fd84fccc8fda7c7c21ff69472a48662bf079972fa1e68744a73c13",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：我不怕短期波动，我只看长期价值",
+          "cover": "长期价值，短期波动不惧"
+        },
+        {
+          "title": "林园：投资者不懂钱怎么来，我也不强求",
+          "cover": "投资者不懂钱，我只看企业"
+        },
+        {
+          "title": "林园：我只信企业成长，不看短期涨跌",
+          "cover": "企业成长，短期涨跌不惧"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：我只信企业成长，不看短期涨跌",
+        "cover": "企业成长，短期涨跌不惧"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，符合审查要求。",
+        "evidence": [
+          "并且您呃如何来应对投资者们的一个短期",
+          "业绩压力呢？",
+          "我没有压力，我就是刚才给今天上午我我",
+          "给他们说这个事，"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接否定短期涨跌，态度明确，符合林园一贯的坚定风格"
+          },
+          {
+            "index": 0,
+            "reason": "强调长期价值，语气坚定，比‘不怕波动’更有逻辑支撑"
+          },
+          {
+            "index": 1,
+            "reason": "语意模糊，‘不懂钱怎么来’与‘只看企业’矛盾，表达不清晰"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 131.76,
+          "tokens": 121,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 56.74,
+          "tokens": 103,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 137.5,
+          "tokens": 133,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 6,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-9f664b-part6",
+      "old_title": "林园：一个是当下你的买买入的成本",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "df3215c425fd84fccc8fda7c7c21ff69472a48662bf079972fa1e68744a73c13",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_repaired",
+      "drafts": [
+        {
+          "title": "林园：我不怕短期波动，我只看企业长期价值",
+          "cover": "企业长期价值大于短期波动"
+        },
+        {
+          "title": "林园：投资者不懂钱怎么来，我也不强求他们理解",
+          "cover": "投资者不懂钱怎么来"
+        },
+        {
+          "title": "林园：我只相信长期盈利，短期波动我视而不见",
+          "cover": "长期盈利大于短期波动"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：短期波动我扛着，长期盈利我盯着",
+        "cover": "短期波动我扛着，长期盈利我盯着"
+      },
+      "audit": {
+        "reason": "标题夸大林园观点，封面缩小对象，未保留口语与不确定性。",
+        "evidence": [
+          "这个东西它波动是完全有可能的。",
+          "这个就是我跟别人为什么不一样，就是我当时那是个人个人买的股票，他们都卖了，我为什么没卖？",
+          "所以相对于这些小的波，就是涨涨跌跌，涨多了就要跌，跌多了就要。",
+          "我们如果一个一个相对长时间的来看，我们不会错，"
+        ],
+        "issues": [
+          "cover_consistent: 封面缩小对象，将‘长期盈利’与‘短期波动’对立，而原文强调两者共存。",
+          "style_preserved: 标题过于正式，未保留林园口语化、不确定语气。",
+          "qualifiers_preserved: 标题未保留‘视而不见’的不确定性，且‘只相信’过于绝对。",
+          "source_supported: 标题‘我只相信长期盈利’未在原文直接出现，属概括性表述。",
+          "terminology_clear: ‘视而不见’属口语化表达，标题未保留，可能影响准确性。"
+        ],
+        "source_supported": false,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": false,
+        "terminology_clear": false,
+        "style_preserved": false,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：短期波动我扛着，长期盈利我盯着",
+        "cover": "短期波动我扛着，长期盈利我盯着",
+        "changes": "保留口语化与不确定性，修正标题与封面的对立表述，使两者共存。"
+      },
+      "final_audit": {
+        "reason": "标题与封面内容一致，符合嘉宾观点，无明显错误。",
+        "evidence": [
+          "并且您呃如何来应对投资者们的一个短期",
+          "业绩压力呢？",
+          "我没有压力，我就是刚才给今天上午我我",
+          "给他们说这个事，"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        2,
+        1,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接点明长期盈利大于短期波动，态度明确，不绕弯子"
+          },
+          {
+            "index": 0,
+            "reason": "表达更贴近林园风格，强调企业价值，语气坚定"
+          },
+          {
+            "index": 1,
+            "reason": "语意模糊，‘不懂钱怎么来’不具林园风格的锋利与直接"
+          }
+        ]
+      },
+      "validation_issues": [
+        "核对所引用的证据不是原始字幕逐字片段，必须重新找真实证据"
+      ],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 75.95,
+          "tokens": 118,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 40.77,
+          "tokens": 100,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 135.87,
+          "tokens": 303,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 61.48,
+          "tokens": 58,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 79.24,
+          "tokens": 130,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 7,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-dadf7b-part1",
+      "old_title": "林园：国家鼓励分红，为什么现在配置低估值公司？",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "7d9e0802ef65cc1d1e9bb6db511aa0265df96237fd59c310f242c4c3f3636248",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：我不投新赛道，只买自己熟的公司",
+          "cover": "熟公司配置，低估值布局"
+        },
+        {
+          "title": "林园：分红率高才是真金，不碰新风口",
+          "cover": "高分红配置，稳中求胜"
+        },
+        {
+          "title": "林园：垄断才是核心，不跟风不盲投",
+          "cover": "垄断行业布局，稳拿收益"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：垄断才是核心，不跟风不盲投",
+        "cover": "垄断行业布局，稳拿收益"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，均强调垄断行业布局，未添加原文未提内容。",
+        "evidence": [
+          "比如说我们现在找到一个公司，这个不是一点啊，在香港市场顶多的。",
+          "他现在的分红率百分之三十，他的派息率百分之六或者百分之七。",
+          "如果他响应国家政策，他派到百分之六十，那不是百分之十几了。",
+          "所以这个时候又要强调垄断性。你企业的这，我们投资的核心就是垄断。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接否定新赛道，态度鲜明，符合林园风格的果断与逻辑"
+          },
+          {
+            "index": 0,
+            "reason": "强调熟悉公司，逻辑清晰，比高分红更贴近林园的实战思维"
+          },
+          {
+            "index": 1,
+            "reason": "‘垄断’表述模糊，‘不跟风’与‘不盲投’重复，风格不够林园"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 92.37,
+          "tokens": 121,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 43.87,
+          "tokens": 107,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 101.05,
+          "tokens": 150,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 7,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-dadf7b-part1",
+      "old_title": "林园：国家鼓励分红，为什么现在配置低估值公司？",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "7d9e0802ef65cc1d1e9bb6db511aa0265df96237fd59c310f242c4c3f3636248",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：我不投新行业，只买自己熟的公司",
+          "cover": "熟公司配置，不碰新赛道"
+        },
+        {
+          "title": "林园：我只买有现金流的垄断企业",
+          "cover": "现金流稳定，垄断行业配置"
+        },
+        {
+          "title": "林园：我配置低估值公司，不跟风新热点",
+          "cover": "低估值配置，不追热点"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": {
+        "title": "林园：我配置低估值公司，不跟风新热点",
+        "cover": "低估值配置，不追热点"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容。",
+        "evidence": [
+          "比如说我们现在找到一个公司，这个不是一点啊，在香港市场顶多的。",
+          "啊，他现在的分红率百分之三十，他的派息率百分之六或者百分之七。",
+          "如果他响应国家政策，他派到百分之六十，那不是百分之十几了。",
+          "这种我在一五年以前，实际上我们做这种事儿的，现在都是这样。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        2,
+        1,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          1,
+          0
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "低估值配置更贴近林园对安全边际的执着，比垄断企业更符合他‘不跟风’的风格。"
+          },
+          {
+            "index": 1,
+            "reason": "现金流和垄断是林园常提的关键词，但相比低估值，它少了对市场情绪的克制。"
+          },
+          {
+            "index": 0,
+            "reason": "‘熟公司’是林园的口头禅，但‘不碰新赛道’的表述不够锋利，不如低估值直接。"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 166.05,
+          "tokens": 118,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 60.98,
+          "tokens": 131,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 174.46,
+          "tokens": 146,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 7,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-dadf7b-part1",
+      "old_title": "林园：国家鼓励分红，为什么现在配置低估值公司？",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "7d9e0802ef65cc1d1e9bb6db511aa0265df96237fd59c310f242c4c3f3636248",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "accepted_initial",
+      "drafts": [
+        {
+          "title": "林园：我不投新赛道，只买自己熟的公司",
+          "cover": "熟公司配置，低估值布局"
+        },
+        {
+          "title": "林园：现在重点在分红股，不碰新行业",
+          "cover": "分红股配置，现金流优先"
+        },
+        {
+          "title": "林园：垄断才是核心，不碰新赛道",
+          "cover": "垄断企业布局，不碰新行业"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": {
+        "title": "林园：我不投新赛道，只买自己熟的公司",
+        "cover": "熟公司配置，低估值布局"
+      },
+      "audit": {
+        "reason": "标题与封面观点一致，均体现‘熟公司’与‘低估值’策略，未添加原文未提内容。",
+        "evidence": [
+          "比如说我们现在找到一个公司，这个不是一点啊，在香港市场顶多的。",
+          "他现在的分红率百分之三十，他的派息率百分之六或者百分之七。",
+          "如果他响应国家政策，他派到百分之六十，那不是百分之十几了。",
+          "所以这个时候又要强调垄断性。你企业的这，我们投资的核心就是垄断。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": null,
+      "final_audit": null,
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          1,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "熟公司有底气，不投新赛道更显林园风格的稳重与克制"
+          },
+          {
+            "index": 1,
+            "reason": "分红股是林园明确偏好，比垄断说法更贴近他一贯的逻辑"
+          },
+          {
+            "index": 2,
+            "reason": "垄断说法模糊，不如熟公司和分红股直接体现林园风格"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 147.71,
+          "tokens": 117,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 59.08,
+          "tokens": 102,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 161.88,
+          "tokens": 157,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 8,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-dadf7b-part2",
+      "old_title": "林园：我是永远不会卖，一股都不会卖",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "b3e56bf20264fed5fb5d7812c0bb59fb95a051a61ad4487d6c6de2e2eda290bb",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不会卖，我只会加仓",
+          "cover": "林园：持仓不卖，只加不减"
+        },
+        {
+          "title": "林园：我只信自己判断，不看涨跌",
+          "cover": "林园：持仓不卖，只看自己"
+        },
+        {
+          "title": "林园：我不会卖，我只看长期",
+          "cover": "林园：持仓不卖，只看长期"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面表述一致，均体现林园长期持有不卖的观点，无明显错误。",
+        "evidence": [
+          "那您觉得现在的话，A股这样的公司，",
+          "就现在我们还有机会找到这种改变命运的",
+          "公司的机会？",
+          "肯定有。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：我不会卖，我只看长期",
+        "cover": "林园：持仓不卖，只看长期",
+        "changes": "无修改，标题与封面表述一致，符合原字幕内容与风格。"
+      },
+      "final_audit": {
+        "reason": "标题与封面表述一致，均体现林园长期持有不卖的观点，无明显错误。",
+        "evidence": [
+          "那您觉得现在的话，A股这样的公司，",
+          "就现在我们还有机会找到这种改变命运的",
+          "公司的机会？",
+          "肯定有。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        2,
+        1,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          1,
+          0
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "林园：我不会卖，我只看长期 —— 语气坚定，聚焦长期逻辑，符合林园风格的稳重与确定性。"
+          },
+          {
+            "index": 1,
+            "reason": "林园：我只信自己判断，不看涨跌 —— 语意模糊，‘不看涨跌’与‘只信自己’重复，风格不够林园。"
+          },
+          {
+            "index": 0,
+            "reason": "林园：我不会卖，我只会加仓 —— 语意矛盾，‘不会卖’与‘只会加仓’逻辑不清，风格不纯。"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 101.38,
+          "tokens": 124,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 80.33,
+          "tokens": 158,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 98.24,
+          "tokens": 109,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 80.9,
+          "tokens": 54,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 37.02,
+          "tokens": 109,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 8,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-dadf7b-part2",
+      "old_title": "林园：我是永远不会卖，一股都不会卖",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "b3e56bf20264fed5fb5d7812c0bb59fb95a051a61ad4487d6c6de2e2eda290bb",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不会卖，我只会加仓",
+          "cover": "林园：持仓不卖，只加仓"
+        },
+        {
+          "title": "林园：我只看长期，不看短期涨跌",
+          "cover": "林园：不看涨跌，只看长期"
+        },
+        {
+          "title": "林园：我只相信自己判断，不卖",
+          "cover": "林园：只信自己，不卖"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面表述一致，未添加原文未提及内容，保留口语化表达。",
+        "evidence": [
+          "我这一亩三分地，我了解的情况，我判断的，我这个基本判，判断，我是永远不会卖，一股都不会卖，我只会增加，不会卖。",
+          "我反正涨价，我我我把好的东西拿着，我永远不卖。",
+          "这个已经在过去已经证实了，我是对的，国内国外都是对的。",
+          "我没觉得错。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：我不会卖，我只会加仓",
+        "cover": "林园：持仓不卖，只加仓",
+        "changes": "无修改，标题与封面表述一致，保留口语化表达，符合原始字幕内容。"
+      },
+      "final_audit": {
+        "reason": "标题与封面表述一致，未添加原文未提内容，保留口语态度，无明显术语错误。",
+        "evidence": [
+          "我这一亩三分地，我了解的情况，我判断的，我这个基本判，判断，我是永远不会卖，一股都不会卖，我只会增加，不会卖。",
+          "我反正涨价，我我我把好的东西拿着，我永远不卖。",
+          "这个已经在过去已经证实了，我是对的，国内国外都是对的。",
+          "我根本就不可能这几年我都不去看一次。这是事实。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          1,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接表达持仓逻辑，语气果断，符合林园风格"
+          },
+          {
+            "index": 1,
+            "reason": "表述模糊，缺乏林园特有的强势判断力"
+          },
+          {
+            "index": 2,
+            "reason": "语意重复，不够有力，风格不够林园"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name",
+        "核对所引用的证据不是原始字幕逐字片段，必须重新找真实证据"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name",
+        "核对所引用的证据不是原始字幕逐字片段，必须重新找真实证据"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 101.35,
+          "tokens": 123,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 56.67,
+          "tokens": 84,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 121.6,
+          "tokens": 174,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 87.44,
+          "tokens": 57,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 63.82,
+          "tokens": 187,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 8,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-dadf7b-part2",
+      "old_title": "林园：我是永远不会卖，一股都不会卖",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "b3e56bf20264fed5fb5d7812c0bb59fb95a051a61ad4487d6c6de2e2eda290bb",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：现在还有机会找到改变命运的公司，但我不买",
+          "cover": "林园：不买不卖，只看长期"
+        },
+        {
+          "title": "林园：新经济可能走出来，但我不投",
+          "cover": "林园：新经济不投，只看判断"
+        },
+        {
+          "title": "林园：我永远不卖，只拿好的东西",
+          "cover": "林园：不卖只拿，看谁厉害"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，保留口语态度，无明显术语错误。",
+        "evidence": [
+          "那您觉得现在的话，A股这样的公司，",
+          "就现在我们还有机会找到这种改变命运的",
+          "公司的机会？",
+          "肯定有。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：现在还有机会找到改变命运的公司，但我不买",
+        "cover": "林园：不买不卖，只看长期",
+        "changes": "封面修正长度，避免重复姓名，保留原意与风格"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，符合审查要求。",
+        "evidence": [
+          "那您觉得现在的话，A股这样的公司，",
+          "就现在我们还有机会找到这种改变命运的",
+          "公司的机会？",
+          "肯定有。"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        0,
+        2,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接说不买，态度明确，符合林园风格"
+          },
+          {
+            "index": 2,
+            "reason": "强调不卖只拿，逻辑清晰，符合林园长期持有逻辑"
+          },
+          {
+            "index": 1,
+            "reason": "新经济不投表述模糊，不如直接不买有力"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 101.6,
+          "tokens": 129,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 55.19,
+          "tokens": 90,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 105.92,
+          "tokens": 135,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 90.89,
+          "tokens": 55,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 26.94,
+          "tokens": 130,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 9,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-dadf7b-part5",
+      "old_title": "林园：持有能改变命运的公司，能赚到几万倍。",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "555b5377d1819c8b807142f73307ee1e1aba5257866340044e6e8370369dbaa3",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不碰不懂的行业，只专注医药快销",
+          "cover": "医药快销，林园专注"
+        },
+        {
+          "title": "林园：我持有不卖，睡得着才叫投资",
+          "cover": "持有不卖，林园睡得着"
+        },
+        {
+          "title": "林园：我只搞自己懂的，不卖就是赚",
+          "cover": "林园不卖，赚得明白"
+        }
+      ],
+      "style_selected_index": 1,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面均体现林园持有不卖、睡得着的投资理念，符合原始字幕内容。",
+        "evidence": [
+          "我的钱都是靠泡沫靠持有赚钱，是吧？我不是靠炒作的。",
+          "我要能睡得着觉。我要睡不觉，就怎么去持有，是吧？",
+          "我持有的东西，我不会说去卖，我永远都不会卖。",
+          "我是了一根筋儿走到底的人，最后没准几十年以后我是最大的股东。"
+        ],
+        "issues": [
+          "cover_consistent: 封面标题‘持有不卖，林园睡得着’与主标题‘林园：我持有不卖，睡得着才叫投资’观点一致，对象未缩小或扩大。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：我持有不卖，睡得着才叫投资",
+        "cover": "持有不卖，睡得着才叫投资",
+        "changes": "封面去掉‘林园’，统一用‘持有不卖，睡得着才叫投资’，更简洁有力。"
+      },
+      "final_audit": {
+        "reason": "标题与封面一致，保留了嘉宾原话核心观点，未添加原文未提内容。",
+        "evidence": [
+          "我的钱都是靠泡沫靠持有赚钱，是吧？我不是靠炒作的。",
+          "我要能睡得着觉。我要睡不觉，就怎么去持有，是吧？",
+          "我持有的东西，我不会说去卖，我永远都不会卖。",
+          "我是了一根筋儿走到底的人，最后没准几十年以后我是最大的股东。"
+        ],
+        "issues": [
+          "cover_consistent: 封面与标题观点一致，未缩小/扩大对象。",
+          "source_supported: 标题主张均来自原始字幕，未添加原文未提内容。",
+          "speaker_correct: 无主持人提问内容。",
+          "qualifiers_preserved: 保留了‘睡得着’‘永远不卖’等原话表达。",
+          "natural: 无别扭搭配或空泛重复。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        0,
+        1,
+        2
+      ],
+      "comparison": {
+        "ranking": [
+          1,
+          0,
+          2
+        ],
+        "reasons": [
+          {
+            "index": 1,
+            "reason": "睡得着才叫投资，直击本质，态度鲜明，短句有力。"
+          },
+          {
+            "index": 0,
+            "reason": "专注医药快销，对象明确，但不如睡得着有穿透力。"
+          },
+          {
+            "index": 2,
+            "reason": "不卖就是赚，语意模糊，重复‘不卖’，不如睡得着有感染力。"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 111.19,
+          "tokens": 124,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 57.9,
+          "tokens": 109,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 138.31,
+          "tokens": 229,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 111.82,
+          "tokens": 66,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 148.87,
+          "tokens": 269,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 9,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-dadf7b-part5",
+      "old_title": "林园：持有能改变命运的公司，能赚到几万倍。",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "555b5377d1819c8b807142f73307ee1e1aba5257866340044e6e8370369dbaa3",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不碰不懂的行业，只做自己擅长的领域",
+          "cover": "医药快销，林园坚守"
+        },
+        {
+          "title": "林园：持有是赚，炒作是赔，我只睡得着才持有",
+          "cover": "持有赚钱，林园睡得着"
+        },
+        {
+          "title": "林园：我不卖，我就是最大的股东，不卖就是赢",
+          "cover": "不卖就是赢，林园持股到底"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，保留口语态度，无明显术语错误。",
+        "evidence": [
+          "您为啥不投？",
+          "我的认知不够，我算了。",
+          "嗯，您是觉得就是如果要是说对这个行业",
+          "不够了解的话，即便认为它好，"
+        ],
+        "issues": [
+          "cover_consistent: 封面缩小了对象，原题是‘林园：我不碰不懂的行业，只做自己擅长的领域’，封面仅提‘医药快销’，未体现‘不懂的行业’的完整观点。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：我不碰不懂的行业，只做自己擅长的领域",
+        "cover": "医药快销，林园坚守",
+        "changes": "封面补充‘林园坚守’，完整体现‘只做自己擅长的领域’观点。"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，未添加原文未提内容，符合审查要求。",
+        "evidence": [
+          "您为啥不投？",
+          "我的认知不够，我算了。",
+          "嗯，您是觉得就是如果要是说对这个行业",
+          "不够了解的话，即便认为它好，"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        0,
+        2,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接讲行业选择，态度明确，符合林园风格"
+          },
+          {
+            "index": 2,
+            "reason": "强调持股逻辑，与林园‘不卖就是赢’理念一致"
+          },
+          {
+            "index": 1,
+            "reason": "‘睡得着’表述不够林园风格，逻辑较弱"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 114.47,
+          "tokens": 130,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 56.71,
+          "tokens": 92,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 132.39,
+          "tokens": 196,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 107.74,
+          "tokens": 58,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 30.75,
+          "tokens": 134,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 9,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-dadf7b-part5",
+      "old_title": "林园：持有能改变命运的公司，能赚到几万倍。",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "555b5377d1819c8b807142f73307ee1e1aba5257866340044e6e8370369dbaa3",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：我不碰不懂的行业，只专注医药快销",
+          "cover": "医药快销，林园专注"
+        },
+        {
+          "title": "林园：持有是赚大钱的路，我不靠炒作",
+          "cover": "持有赚大钱，林园不炒作"
+        },
+        {
+          "title": "林园：我不卖，我就是最大的股东",
+          "cover": "林园不卖，成最大股东"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面基本一致，但封面略简略，未体现‘不碰不懂的行业’核心观点。",
+        "evidence": [
+          "您为啥不投？",
+          "我的认知不够，我算了。",
+          "嗯，您是觉得就是如果要是说对这个行业",
+          "不够了解的话，即便认为它好，"
+        ],
+        "issues": [
+          "cover_consistent: 封面未体现‘不碰不懂的行业’核心观点，缩小了林园的投资策略范围。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：我不碰不懂的行业，只专注医药快销",
+        "cover": "林园：不碰不懂的行业，专注医药快销",
+        "changes": "封面补充‘不碰不懂的行业’，保留核心观点，增强个人风格。"
+      },
+      "final_audit": {
+        "reason": "标题与封面表述一致，未添加原文未提内容，保留口语化表达，无明显术语错误。",
+        "evidence": [
+          "您为啥不投？",
+          "我的认知不够，我算了。",
+          "嗯，您是觉得就是如果要是说对这个行业",
+          "不够了解的话，即便认为它好，"
+        ],
+        "issues": [],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "presentation_order": [
+        0,
+        2,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接说不碰不懂的行业，态度明确，符合林园风格"
+          },
+          {
+            "index": 2,
+            "reason": "强调不卖成最大股东，有林园标志性语气和逻辑"
+          },
+          {
+            "index": 1,
+            "reason": "‘持有赚大钱’说法不够林园式，‘不靠炒作’语意模糊"
+          }
+        ]
+      },
+      "validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "final_validation_issues": [
+        "cover_length_or_repeated_name"
+      ],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 109.3,
+          "tokens": 120,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 55.37,
+          "tokens": 100,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 123.88,
+          "tokens": 173,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 104.76,
+          "tokens": 61,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 116.24,
+          "tokens": 140,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 10,
+      "repeat": 1,
+      "seed": 20260920,
+      "case": "ly-0919-dadf7b-part6",
+      "old_title": "林园：股市现在不能炒，得是一种存钱的方式",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "645f658a69e1b5b70dac04fcb6978201f13688f975e783a095f7fcfc76ac87d5",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：现在买打折资产是存钱的最优解，十年回本有保障",
+          "cover": "打折资产十年回本，存钱更稳妥"
+        },
+        {
+          "title": "林园：股市不能炒，现在是存钱的黄金时机，风险可控",
+          "cover": "股市存钱黄金期，风险可控更安心"
+        },
+        {
+          "title": "林园：存钱要趁早，现在是买低估资产的好时机",
+          "cover": "低估资产趁早买，存钱更省心"
+        }
+      ],
+      "style_selected_index": 0,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面均强调打折资产十年回本、存钱稳妥，与字幕中嘉宾主张一致，未添加原文未提内容。",
+        "evidence": [
+          "比如说我们在在在在在这个一些中国资产，呃，公共事业啊这些，嗯，它资产很便宜，比如说只有金资产的百分",
+          "之十几、二十这样，股息率有百分之六七，是吧？",
+          "所以您觉得您觉得现在这个阶段是买这种打折资产、买这种被低估的资产特别好的一个时候。",
+          "嗯。那么这个时候，我只需要十年。为什么？就是因为过去一年或者多的时间开始，就是它的拍戏率增加了。"
+        ],
+        "issues": [
+          "cover_consistent: 封面‘打折资产十年回本，存钱更稳妥’与标题‘林园：现在买打折资产是存钱的最优解，十年回本有保障’观点一致，未缩小/扩大对象。",
+          "source_supported: 标题主张‘十年回本有保障’在字幕中对应‘我只需要十年’，但未提‘保障’，存在轻微夸大。",
+          "qualifiers_preserved: 字幕中‘十年就拍回来’未提保障，标题‘有保障’属添加，不符合保留不确定性的要求。",
+          "terminology_clear: 字幕中‘拍戏率’疑似错词，未确认，标题未使用该词，符合规范。",
+          "style_preserved: 标题保留嘉宾口语化表达，符合原风格。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": true,
+        "terminology_clear": true,
+        "style_preserved": true,
+        "cover_consistent": true
+      },
+      "repair": {
+        "title": "林园：现在买打折资产是存钱最优解，十年回本",
+        "cover": "打折资产十年回本，存钱更稳妥",
+        "changes": "删去标题‘有保障’，保留口语化短句与原意"
+      },
+      "final_audit": {
+        "reason": "标题与封面均强调打折资产十年回本、存钱稳妥，与字幕中嘉宾主张一致。",
+        "evidence": [
+          "所以您觉得您觉得现在这个阶段是买这种打折资产、买这种被低估的资产特别好的一个时候。",
+          "嗯。那么这个时候，我只需要十年。为什么？就是因为过去一年或者多的时间开始，就是它的拍戏率增加了。",
+          "比如说，他现在拍戏率能达到百分之五或者六，十年就拍回来。",
+          "所以您是回归了一种投资的本质，就是说股市现在是不能炒的，就得是一种存钱的方式，是一种你找到合适的这个赛道去存钱。"
+        ],
+        "issues": [
+          "cover_consistent: 封面缩小了对象，将‘打折资产’改为‘打折资产十年回本’，未完全对应标题观点。",
+          "terminology_clear: 字幕中‘拍戏率’疑似错词，未确认原音，可能为‘股息率’或其他术语，建议避开不确定术语。",
+          "qualifiers_preserved: 原文未明确说明‘十年回本’的条件、范围或不确定性，标题和封面未保留相关限定词。"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": false,
+        "natural": true,
+        "terminology_clear": false,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        0,
+        2,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          0,
+          2,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 0,
+            "reason": "直接点出打折资产十年回本，比存钱更稳妥，态度明确"
+          },
+          {
+            "index": 2,
+            "reason": "强调低估资产趁早买，比股市存钱更具体，有操作性"
+          },
+          {
+            "index": 1,
+            "reason": "股市不能炒说法空泛，风险可控不如低估资产有说服力"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 102.88,
+          "tokens": 141,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 39.81,
+          "tokens": 100,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 151.25,
+          "tokens": 390,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 105.58,
+          "tokens": 58,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 137.32,
+          "tokens": 318,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 10,
+      "repeat": 2,
+      "seed": 20260921,
+      "case": "ly-0919-dadf7b-part6",
+      "old_title": "林园：股市现在不能炒，得是一种存钱的方式",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "645f658a69e1b5b70dac04fcb6978201f13688f975e783a095f7fcfc76ac87d5",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：现在是买打折资产的好时机，股息率高能回本",
+          "cover": "打折资产回本快，风险可控"
+        },
+        {
+          "title": "林园：股市不能炒，得当成存钱方式，谨慎是本能",
+          "cover": "股市存钱谨慎，风险可控"
+        },
+        {
+          "title": "林园：现在买被低估资产，十年能回本，不投是错的",
+          "cover": "低估资产十年回本，不投是错的"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面均强调‘低估资产十年回本，不投是错的’，与字幕中‘过去二十年回本，现在十年回本’及‘不投是错的’一致。",
+        "evidence": [
+          "所以您觉得您觉得现在这个阶段是买这种打折资产、买这种被低估的资产特别好的一个时候。",
+          "嗯。那么这个时候，我只需要十年。为什么？就是因为过去一年或者多的时间开始，就是它的拍戏率增加了。",
+          "比如说，他现在拍戏率能达到百分之五或者六，十年就拍回来。",
+          "如果不增长，十年都拍回来百分之五六十了。"
+        ],
+        "issues": [
+          "标题中‘十年能回本’未明确时间范围，字幕中仅提到‘十年’，未提具体期间。",
+          "‘不投是错的’在字幕中为‘不投是错的’，但未明确是否为林园本人观点，需确认是否为嘉宾发言。",
+          "‘拍戏率’疑似错词，字幕中未确认，应避开不确定术语。",
+          "封面与标题内容一致，但未体现‘林园’这一主体，可能缩小对象。"
+        ],
+        "source_supported": true,
+        "speaker_correct": false,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": false,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：现在买被低估资产，十年回本，不投是错的",
+        "cover": "低估资产十年回本，不投是错的",
+        "changes": "修正‘拍戏率’为‘股息率’，明确‘十年’为‘现在十年’，保留林园主体，封面保留原意。"
+      },
+      "final_audit": {
+        "reason": "标题与封面均强调‘低估资产十年回本，不投是错的’，与字幕中‘过去二十年回本，现在十年回本’及‘不投是错的’一致。",
+        "evidence": [
+          "过去一只股票，我们在疯狂的时候，我觉得那个时候需要二十年，做好二十年回本的准备。",
+          "嗯。那么这个时候，我只需要十年。",
+          "为什么？就是因为过去一年或者多的时间开始，就是它的拍戏率增加了。",
+          "比如说，他现在拍戏率能达到百分之五或者六，十年就拍回来。"
+        ],
+        "issues": [
+          "标题中‘被低估资产’未在字幕中明确出现，可能缩小对象。",
+          "‘十年回本’在字幕中为‘十年就拍回来’，‘拍回来’非标准术语，可能影响术语清晰度。",
+          "‘不投是错的’在字幕中为‘不投是错的’，但未明确是谁说的，可能影响speaker_correct判断。",
+          "‘十年回本’在字幕中为‘十年就拍回来’，未明确是否为‘十年回本’，可能影响terminology_clear判断。"
+        ],
+        "source_supported": true,
+        "speaker_correct": false,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": false,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        0,
+        2,
+        1
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接否定不投是错的，态度强硬，符合林园风格"
+          },
+          {
+            "index": 0,
+            "reason": "强调回本快，但语气不如2句有力"
+          },
+          {
+            "index": 1,
+            "reason": "语意模糊，'存钱方式'不贴合林园风格"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 153.94,
+          "tokens": 137,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 56.25,
+          "tokens": 92,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 203.97,
+          "tokens": 323,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 162.54,
+          "tokens": 78,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 204.94,
+          "tokens": 319,
+          "done_reason": "stop"
+        }
+      ]
+    },
+    {
+      "version": "qwen-style-v3.1",
+      "case_number": 10,
+      "repeat": 3,
+      "seed": 20260922,
+      "case": "ly-0919-dadf7b-part6",
+      "old_title": "林园：股市现在不能炒，得是一种存钱的方式",
+      "model": "qwen3:8b",
+      "commit": "00e21a9d2fbf59d396ebcf39e748a95eef5853f4",
+      "run_id": "35507139195",
+      "transcript_sha256": "645f658a69e1b5b70dac04fcb6978201f13688f975e783a095f7fcfc76ac87d5",
+      "reference_sha256": "6d7e28dbecbd846ef5778999e8814aad9bcf2124a8bb56ee770794e3f8c71bd4",
+      "code_sha256": "8271c49ec0ccfe4021b479bb6b8f04564412a80abdf2c561e21dd4ad7fa157c9",
+      "publication_authorized": false,
+      "status": "rejected",
+      "drafts": [
+        {
+          "title": "林园：现在是买打折资产的好时机，股息率高能回本",
+          "cover": "打折资产回本快，风险可控"
+        },
+        {
+          "title": "林园：股市不能炒，得当成存钱方式，谨慎是本能",
+          "cover": "股市存钱谨慎，风险可控"
+        },
+        {
+          "title": "林园：现在便宜是因拍戏率高，十年能回本",
+          "cover": "拍戏率高回本快，存钱方式"
+        }
+      ],
+      "style_selected_index": 2,
+      "final_candidate": null,
+      "audit": {
+        "reason": "标题与封面观点一致，但'拍戏率'术语不明确，'存钱方式'未在原文直接出现。",
+        "evidence": [
+          "比如说我们过去一只股票，我们在疯狂的时候，我觉得那个时候需要二十年，做好二十年回本的准备。",
+          "嗯。那么这个时候，我只需要十年。为什么？就是因为过去一年或者多的时间开始，就是它的拍戏率增加了。",
+          "比如说，他现在拍戏率能达到百分之五或者六，十年就拍回来。",
+          "所以您是回归了一种投资的本质，就是说股市现在是不能炒的，就得是一种存钱的方式，是一种你找到合适的这个赛道去存钱。"
+        ],
+        "issues": [
+          "terminology_clear: '拍戏率'术语不明确，未在原始字幕中确认其含义",
+          "cover_consistent: '存钱方式'未在原文直接出现，封面标题扩大了原意"
+        ],
+        "source_supported": true,
+        "speaker_correct": true,
+        "qualifiers_preserved": true,
+        "natural": true,
+        "terminology_clear": false,
+        "style_preserved": true,
+        "cover_consistent": false
+      },
+      "repair": {
+        "title": "林园：现在便宜因拍戏率高，十年能回本",
+        "cover": "拍戏率高回本快，存钱方式",
+        "changes": "修正‘拍戏率’术语不明确问题，保留原意与短句节奏"
+      },
+      "final_audit": {
+        "reason": "标题与封面观点一致，但'拍戏率'术语不明确，'存钱方式'未在原文直接出现。",
+        "evidence": [
+          "所以您觉得您觉得现在这个阶段是买这种",
+          "打折资产、买这种被低估的资产特别好的",
+          "一个时候。",
+          "我当然存钱嘛。"
+        ],
+        "issues": [
+          "terminology_clear",
+          "cover_consistent",
+          "source_supported",
+          "speaker_correct",
+          "qualifiers_preserved"
+        ],
+        "source_supported": false,
+        "speaker_correct": false,
+        "qualifiers_preserved": false,
+        "natural": false,
+        "terminology_clear": false,
+        "style_preserved": false,
+        "cover_consistent": false
+      },
+      "presentation_order": [
+        1,
+        2,
+        0
+      ],
+      "comparison": {
+        "ranking": [
+          2,
+          0,
+          1
+        ],
+        "reasons": [
+          {
+            "index": 2,
+            "reason": "直接点出‘便宜是因拍戏率高’，比‘打折资产’更贴近林园风格的直白判断。"
+          },
+          {
+            "index": 0,
+            "reason": "‘股息率高能回本’比‘风险可控’更符合林园对收益的执着表达。"
+          },
+          {
+            "index": 1,
+            "reason": "‘股市不能炒’语意模糊，与林园风格的果断、具体判断不符。"
+          }
+        ]
+      },
+      "validation_issues": [],
+      "final_validation_issues": [],
+      "inference_summary": [
+        {
+          "stage": "draft",
+          "seconds": 152.05,
+          "tokens": 134,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "compare",
+          "seconds": 60.92,
+          "tokens": 123,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit",
+          "seconds": 184.21,
+          "tokens": 261,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "repair",
+          "seconds": 150.54,
+          "tokens": 60,
+          "done_reason": "stop"
+        },
+        {
+          "stage": "audit_repair",
+          "seconds": 158.42,
+          "tokens": 149,
+          "done_reason": "stop"
+        }
+      ]
+    }
+  ]
+}

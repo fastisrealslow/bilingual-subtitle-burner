@@ -50,3 +50,13 @@ def test_summary_keeps_missing_and_rejected_trials_in_denominator(tmp_path):
     assert result['machine_accepted'] == 1
     assert result['all_three_accepted_cases'] == 0
     assert result['rows'][2]['status'] == 'missing'
+
+
+def test_format_cleanup_preserves_title_and_blocks_guaranteed_return_copy():
+    original = dict(title='林园：我不会卖，我只会加仓', cover='林园：持仓不卖，只加仓')
+    fixed = trial.normalize_cover(original)
+    assert fixed == dict(title=original['title'], cover='持仓不卖，只加仓')
+    assert original['cover'].startswith('林园：')
+    assert not trial.format_issues(fixed)
+    assert 'unsupported_hype' in trial.format_issues(dict(fixed, cover='垄断行业布局，稳拿收益'))
+    assert trial.normalize_cover(dict(original, cover='林园说要买熟悉公司'))['cover'] == '林园说要买熟悉公司'
