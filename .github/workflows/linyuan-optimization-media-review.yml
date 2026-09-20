@@ -1,5 +1,4 @@
-# Bounded rehearsal derived from production at 3563b92. No publication history is mutated.
-# Repeated source is intentional; isolated artifact names cannot enter normal inventory.
+# Isolated fixed-byte rehearsal; no release, publication or inventory notification.
 name: 林园固定母片隔离样片
 'on':
   push:
@@ -16,12 +15,13 @@ concurrency:
   cancel-in-progress: false
 env:
   RUN_TEXT_MODEL: qwen3:8b
-  RUN_SOURCE: https://www.bilibili.com/video/BV1ADetzQEuE
-  RUN_SLUG: codex-review-medicine-20260920
+  RUN_SOURCE: https://www.bilibili.com/video/BV1h6QWYsEz5
+  RUN_SLUG: codex-review-medical-part3-20260920
   RUN_SPEAKER: 林园
-  RUN_OCCASION: 固定母片开发复核，禁止投稿
+  RUN_OCCASION: 历史医药股片段同源复核，禁止投稿
   RUN_SOURCE_PLATFORM: bilibili
   RUN_REVIEWED_PARTS: '1'
+  EXPECTED_SOURCE_SHA: 4c711fb59cdec677f1eacc7f6603f27d5b4231f6ab841fc4d421a0079b5d2846
 jobs:
   review:
     runs-on: ubuntu-latest
@@ -72,47 +72,35 @@ jobs:
         >> "$GITHUB_OUTPUT"
 
         '
-    - name: 恢复同源未完成下载
-      uses: actions/cache/restore@v4
+    - name: 下载固定历史母片，不重新选择CDN版本
+      uses: actions/download-artifact@v4
       with:
-        path: linyuan/_src/
-        key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt
-          }}
-        restore-keys: source-download-v1-${{ steps.source_cache_key.outputs.key }}-
-    - name: 下载缓存被淘汰时恢复独立母片检查点
-      if: contains(env.RUN_SOURCE, 'bilibili.com/video/BV')
-      continue-on-error: true
-      timeout-minutes: 12
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: python mother_media_cache.py --source "$RUN_SOURCE"
-    - name: 取源
+        github-token: ${{ github.token }}
+        run-id: 35427552199
+        name: mother-media-eae5d9cb1a9bd2990ec4fcd81d3c319007878c1dbe4ce3260c9b03a0df02df3d
+        path: linyuan/_src
+    - name: 核对固定母片来源与完整指纹
       id: src
-      timeout-minutes: 25
-      env:
-        SOURCE: ${{ env.RUN_SOURCE }}
-      run: "set -euo pipefail\nif [[ \"$SOURCE\" =~ bilibili\\.com/video/BV ]]; then\n  # B站 API 在 GitHub runner\
-        \ 上反而通（监控每天在调），\n  # yt-dlp 裸请求会被 412，走自己的指纹会话下载器\n  mkdir -p _src\n  python3 -u ci_fetch_bilibili.py --url\
-        \ \"$SOURCE\" --out _src/video.mp4 \\\n    --budget-seconds 1200 \\\n    --failure-report \"deliver/${{\
-        \ env.RUN_SLUG }}/_tmp/source_quality.json\"\n  echo \"path=_src/video.mp4\" >> $GITHUB_OUTPUT\nelif [[\
-        \ \"$SOURCE\" =~ yicai\\.com/video/ ]]; then\n  python3 ci_fetch_yicai.py --url \"$SOURCE\" --out _src/video.mp4\n\
-        \  echo \"path=_src/video.mp4\" >> $GITHUB_OUTPUT\nelif [[ \"$SOURCE\" =~ ^https?:// ]]; then\n  mkdir -p\
-        \ _src\n  # FC 上传的 staging release 素材：releases/download/<tag>/<slug>.mp4\n  # 公开仓库的 download 链接无需 token，直接\
-        \ curl（yt-dlp 不认这种链接）\n  if [[ \"$SOURCE\" =~ github\\.com/.*/releases/download/ ]]; then\n    echo \"GitHub\
-        \ release 素材，直接下载\"\n    curl -sfL --retry 3 --max-time 600 -o _src/video.mp4 \"$SOURCE\"\n    [ -s _src/video.mp4\
-        \ ] || { echo \"::error::release 素材下载失败\"; exit 1; }\n    echo \"path=_src/video.mp4\" >> $GITHUB_OUTPUT\n\
-        \  else\n    python3 -u ci_fetch_generic.py --url \"$SOURCE\" --directory _src \\\n      --failure-report\
-        \ \"deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json\" \\\n      --github-output \"$GITHUB_OUTPUT\"\n\
-        \  fi\nelse\n  [ -f \"$SOURCE\" ] || { echo \"::error::找不到 $SOURCE\"; exit 1; }\n  echo \"path=$SOURCE\"\
-        \ >> $GITHUB_OUTPUT\nfi\n"
-    - name: 保存未完成下载供下一次续传
-      if: failure() && steps.src.outcome == 'failure'
-      continue-on-error: true
-      uses: actions/cache/save@v4
-      with:
-        path: linyuan/_src/
-        key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt
-          }}
+      run: 'set -euo pipefail
+
+        python - <<''CHECK''
+
+        import hashlib,os
+
+        from pathlib import Path
+
+        from mother_media_cache import verified
+
+        assert verified(''_src'',os.environ[''RUN_SOURCE'']), ''Mother artifact is not source-bound''
+
+        assert hashlib.sha256(Path(''_src/video.mp4'').read_bytes()).hexdigest()==os.environ[''EXPECTED_SOURCE_SHA''],
+        ''Mother bytes changed''
+
+        CHECK
+
+        echo ''path=_src/video.mp4'' >> "$GITHUB_OUTPUT"
+
+        '
     - name: 素材质量门禁
       id: source_gate
       env:
@@ -122,28 +110,16 @@ jobs:
         \npython3 -u produce_cn.py \\\n  --source \"${{ steps.src.outputs.path }}\" \\\n  --slug \"${{ env.RUN_SLUG\
         \ }}\" \\\n  --speaker \"${{ env.RUN_SPEAKER }}\" \\\n  --source-check-only \\\n  --source-report \"deliver/${{\
         \ env.RUN_SLUG }}/_tmp/source_quality.json\"\n"
-    - name: 保存完整母片供后续取景失败及选段重试复用
-      if: steps.source_gate.outcome == 'success'
-      continue-on-error: true
-      uses: actions/cache/save@v4
-      with:
-        path: linyuan/_src/
-        key: source-download-v1-${{ steps.source_cache_key.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt
-          }}
-    - name: 独立保存已通过素材检查的完整母片
-      if: steps.source_gate.outcome == 'success' && contains(env.RUN_SOURCE, 'bilibili.com/video/BV')
-      continue-on-error: true
-      uses: actions/upload-artifact@v4
-      with:
-        name: optimization-review-mother-media-${{ steps.source_cache_key.outputs.key }}
-        path: 'linyuan/_src/video.mp4
-
-          linyuan/_src/video.mp4.source.json
-
-          '
-        compression-level: 0
-        retention-days: 14
-        if-no-files-found: error
+    - name: 固定历史原文边界，所有实产门禁仍须重新通过
+      run: "python - <<'PLAN'\nimport json,os,re\nfrom pathlib import Path\ncase=json.loads(Path('simulations/title-batch-20260920/corpus.json').read_text())[3]\n\
+        assert case['id']=='ly-0919-9f664b-part3'\ncues=case['cues']\nsource=json.loads(Path('deliver',os.environ['RUN_SLUG'],'_tmp/source_quality.json').read_text())\n\
+        assert source['passed'] is True and source['source_sha256']==os.environ['EXPECTED_SOURCE_SHA']\nnormalize=lambda\
+        \ s: re.sub(r'[\\s，。！？；：、,.!?;:]','',s)\nrow=dict(start=cues[0]['start'],end=cues[-1]['end'],topic='固定历史医药股原话，质量待复核',\n\
+        \ opening=normalize(cues[0]['text'])[:18],ending=normalize(''.join(c['text'] for c in cues[-2:]))[-18:])\n\
+        # This checkout exists only in the isolated review runner. No live config is edited.\nprofile=Path('editorial_source_profiles.json');data=json.loads(profile.read_text())\n\
+        data['sources'][os.environ['EXPECTED_SOURCE_SHA']]=[row]\nprofile.write_text(json.dumps(data,ensure_ascii=False,indent=2))\n\
+        Path('deliver',os.environ['RUN_SLUG'],'_tmp/fixed_review_plan.json').write_text(json.dumps(dict(\n review_only=True,publication_authorized=False,source_sha256=source['source_sha256'],range=row),ensure_ascii=False,indent=2))\n\
+        PLAN\n"
     - name: 安装出片依赖
       run: 'pip install fonttools jieba sherpa-onnx==1.13.7
 
@@ -158,6 +134,11 @@ jobs:
     - name: 按母片哈希载入原始转写
       run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY"
         --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 恢复同一母片原始ASR，所有指纹仍重新核对
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: python restore_production_evidence.py --run-id 35427552199 --work "deliver/$RUN_SLUG/_tmp" --artifact-name
+        editorial-ly-0919-9f664b
     - name: 检查原始识别证据，避免重复下载和推理
       run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
     - name: 准备CPU离线Qwen识别及逐字对齐
@@ -324,6 +305,9 @@ jobs:
           linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
 
           linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
+
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/fixed_review_plan.json
 
           '
         retention-days: 14
