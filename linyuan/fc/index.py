@@ -2024,6 +2024,19 @@ def dispatch_handler(event=None, context=None):
     return run_with_lease('dispatch',lambda:_dispatch_admitted(event,context))
 
 
+def dispatch_requires_mainland(candidate):
+    """Keep the existing domestic transfer routes when admission runs on CI."""
+    page = candidate.get('page_url') or ''
+    video = candidate.get('video_url') or ''
+    if not video and 'bilibili.com/video/' in page:
+        return False
+    if 'news.qq.com' in page:
+        return True
+    if 'weibo.c' in page:
+        return False
+    return bool(video)
+
+
 def release_pipeline_lease(owner, kind, attempts=3):
     """Retry ref conflicts, but never release a lease that changed owners."""
     import base64
@@ -2381,6 +2394,11 @@ def _dispatch_admitted(event=None, context=None):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
+        if (event or {}).get('execution_backend') == 'github' and dispatch_requires_mainland(c):
+            # Leave this source untouched. Release the shared lease before the
+            # runner requests the existing domestic dispatcher, which rechecks
+            # current stock, concurrency and deduplication before downloading.
+            return {'dispatched': success, 'requires_mainland_transfer': True}
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
                     hashlib.md5(c["key"].encode()).hexdigest()[:6]

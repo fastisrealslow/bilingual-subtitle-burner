@@ -93,6 +93,12 @@ def main():
     if not action:
         save_receipt(dict(skipped=True,outcome='idle',inventory=stock))
         return
+    if action == 'dispatch-source-inventory':
+        from dispatch_on_runner import main as dispatch_on_runner
+        result = dispatch_on_runner()
+        save_receipt(dict(action=action, backend='github', dispatch=result,
+                          new_bvids=[], outcome='completed_without_new_publication'))
+        return
     task_id,task=run_inventory_task(action)
     result=dict(task_id=task_id,action=action,status=task.status if task else 'Unknown',
                 return_payload=task.return_payload if task else None,

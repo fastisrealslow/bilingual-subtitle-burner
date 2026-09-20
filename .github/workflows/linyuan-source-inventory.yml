@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
-  actions: read
+  actions: write
 concurrency:
   group: linyuan-source-inventory
   cancel-in-progress: false
@@ -47,6 +47,7 @@ jobs:
           pip install -q requests numpy 'opencv-python-headless<5' pytest
           python -m pytest -q tests/test_linyuan_production_status.py tests/test_linyuan_source_admission.py
           python -m pytest -q tests/test_linyuan_reserve_integrity.py
+          python -m pytest -q tests/test_linyuan_runner_dispatch.py
           node --test tests/test_production_status_page.cjs
           python linyuan/source_supply.py --max-new 4
       - name: 保存素材台账与成片库存
@@ -92,5 +93,6 @@ jobs:
           path: |
             linyuan/.automation/source_inventory.json
             catchup-receipt.json
+            github-dispatch-receipt.json
           include-hidden-files: true
           if-no-files-found: warn

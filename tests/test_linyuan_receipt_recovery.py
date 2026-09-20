@@ -90,7 +90,9 @@ def test_successful_empty_dispatch_and_existing_video_are_not_new_publications(m
     monkeypatch.setattr(catchup,'state',lambda:existing)
     monkeypatch.setattr(catchup.fc,'source_inventory',lambda _: {})
     monkeypatch.setattr(catchup,'inventory_action',lambda *args:'dispatch-source-inventory')
-    monkeypatch.setattr(catchup,'run_inventory_task',lambda _:('same-id',NS(status='Succeeded',return_payload='{"dispatched":0}')))
+    import dispatch_on_runner
+    monkeypatch.setattr(dispatch_on_runner,'main',lambda:dict(completed=True,dispatch_result={'dispatched':0}))
+    monkeypatch.setattr(catchup,'run_inventory_task',lambda _:pytest.fail('Empty dispatch must stay on GitHub'))
     catchup.main()
     receipt=json.loads(Path('catchup-receipt.json').read_text())
     assert receipt['new_bvids']==[]
