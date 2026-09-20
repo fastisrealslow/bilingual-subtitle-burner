@@ -21,9 +21,9 @@ summary = dict(expected=10, accepted=sum(r['status']=='accepted' for r in ordere
 lines = ['# Qwen3 8B：园园风格历史标题实测', '',
          '真实CPU推理；旧标题仅用于输出比较，不输入模型。拟稿温度0.35，阅读/复核温度0，固定seed。',
          '模型复核通过不等于用户认可或点击率提高。拒绝和失败保留，不以人工改写补齐。', '',
-         '| # | 原标题 | Qwen自动选中标题 | 状态 |', '|---:|---|---|---|']
+         '| # | 原标题 | Qwen风格首选（不代表发布合格） | 事实及格式检查状态 |', '|---:|---|---|---|']
 for r in ordered:
-    i = r.get('selected_index')
+    i = r.get('style_selected_index', r.get('selected_index'))
     title = r['drafts'][i]['title'] if i is not None else '未通过，无自动选中标题'
     lines.append(f"| {r['case_number']} | {r.get('old_title','')} | {title} | {r['status']} |")
     print('QWEN_CASE ' + json.dumps({k:v for k,v in r.items() if k not in ('calls','model_details')},ensure_ascii=False))

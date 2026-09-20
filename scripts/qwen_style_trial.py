@@ -16,7 +16,26 @@ from title_rewrite import copy_fragment, relation_error
 
 CASE_INDICES = (0, 1, 2, 3, 4, 5, 6, 7, 10, 11)
 FACT_CHECKS = ('source_supported', 'speaker_correct', 'qualifiers_preserved', 'central_point', 'cover_consistent')
-VERSION = 'qwen-style-v1'
+VERSION = 'qwen-style-v2'
+STYLE_DIMENSIONS = ('voice', 'stance', 'specificity', 'rhythm')
+
+
+def style_choice(drafts, reviews):
+    """Offline style preference, explicitly separate from publication approval."""
+    ranked = []
+    for i, candidate in enumerate(drafts):
+        matches = [r for r in reviews if type(r.get('index')) is int and r['index'] == i]
+        if len(matches) != 1:
+            continue
+        review = matches[0]
+        scores = review.get('style_scores', {})
+        if (not candidate.get('title', '').startswith('林园：')
+                or not 12 <= len(candidate['title']) <= 62
+                or copy_fragment(candidate['title'])
+                or not all(type(scores.get(k)) is int and 0 <= scores[k] <= 2 for k in STYLE_DIMENSIONS)):
+            continue
+        ranked.append((sum(scores.values()), i))
+    return max(ranked, key=lambda item: (item[0], -item[1]))[1] if ranked else None
 
 
 def obj(properties):
@@ -89,7 +108,8 @@ def main():
                transcript_sha256=case['transcript_sha256'], source_run=case['run_id'],
                code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                reference_sha256=hashlib.sha256(references.read_bytes()).hexdigest(),
-               status='running', calls=[], drafts=[], reviews=[], selected_index=None)
+               status='running', calls=[], drafts=[], reviews=[], selected_index=None,
+               style_selected_index=None, publication_authorized=False)
 
     def save():
         target.write_text(json.dumps(row, ensure_ascii=False, indent=2))
@@ -137,15 +157,24 @@ c_evidence_ids（支撑核心判断的嘉宾原文编号，连续断句可选多
         draft = call('draft', f'''你为林园真实访谈写B站标题，学习“园园滚雪球”的口吻。
 以下样本只用于学习表达节奏，里面的公司、数字、观点不是本片事实，严禁搬入新标题：
 {examples}
-风格：把有明确对象的鲜明判断或个人选择放前面，后面接真实理由；像本人讲话，用具体动词。
+本轮目标：先对齐园园文风。写成林园本人对着观众讲话，别写成旁观者总结。态度、对象、理由都要具体。
+第一句先亮出嘉宾确实表达的选择、判断或感受；第二句接他原话里的具体理由或真实反差。
+允许两三句连着说，允许有力的否定和适度重复强调；不要为了书面工整把语气磨平。
+强调重复必须带来新意思。例如表态后要解释为什么，不能连续三遍“我不卖”却没有对象和理由。
+写“我不投”前必须确认本段确实说了不投；认可前景但说赚钱难，不能硬套成不投。
+少用“因为……所以……”的报告句式，直接用日常口吻把原因接上；不必每条有感叹号。
+避免“我坚持长期”“坚持投资理念”“核心逻辑”“配置策略”“林园给出理由”等空泛标签；从原文找一个具体做法代替。
+保留有辨识度的原话，但删掉“我不会说去卖”“这个那个”这种没有信息的绕口填充。
+封面不要重复姓名，用具体对象＋明确判断，不写“林园给出理由”。
 仅在嘉宾确实说了自己选择时用“我”；不要每条都写为什么，不要研究报告腔或泛泛总结。
 不能凭空添加“不投”“赚大钱”等立场；保留“我”“可能”“如果”等必要限定。
 事实只来自本片字幕。下面的阅读摘要只是辅助，可能有误，必须核对原文。
 阅读摘要：{json.dumps(reading, ensure_ascii=False)}
 初选嘉宾证据：{json.dumps(evidence, ensure_ascii=False)}
 完整字幕供核对：{full}
-为同一个核心判断写3个不同表达的候选：鲜明判断、个人选择或理由、真实反差。
-title以“林园：”开头，正文16~38字，完整自然。cover为8~18字的完整短句，与标题同一判断。
+为同一个核心判断写3个不同表达的候选：A直给态度＋理由；B原文真实反差；C具体做法＋理由。
+三个候选不能只替换一个词或标点。不要为了满足某种结构凭空制造对立或因果。
+title以“林园：”开头，正文22~52字，最多两三个短句，不凑长度，完整自然。cover为8~18字的完整短句，与标题同一判断。
 不截断，不抄整段口吃，不把主持人观点改成嘉宾断言。每个候选附2~8个实际嘉宾证据编号。
 只输出JSON candidates数组，每项title、cover、evidence_ids。''', obj(dict(candidates=array(obj(dict(
             title=text(), cover=text(), evidence_ids=array(dict(type='integer', minimum=0,
@@ -160,17 +189,24 @@ title以“林园：”开头，正文16~38字，完整自然。cover为8~18字�
         fields = dict(a_reason=text(), index=dict(type='integer', minimum=0, maximum=2))
         fields.update({k: dict(type='boolean') for k in FACT_CHECKS})
         fields.update(natural=dict(type='boolean'), style_fit=dict(type='integer', minimum=1, maximum=5))
+        fields['style_scores'] = obj({k: dict(type='integer', minimum=0, maximum=2) for k in STYLE_DIMENSIONS})
         review = call('review', f'''独立核对3个候选标题与封面。不要修改标题，不相信上游模型选的事实。
 逐句阅读完整字幕，区分主持人的问题/假设/总结与嘉宾实际回答，避免把短答当成确认所有提问前提。
 source_supported原文支持；speaker_correct观点确属嘉宾；qualifiers_preserved保留否定、条件、范围和不确定性；
 central_point有充分内容支持，不是片尾未回答的问题；cover_consistent封面与标题一致且没扩大结论；
 natural独立可懂，没有口吃、术语堆砌、主语丢失；style_fit为1~5的园园口吻贴近度：具体对象＋鲜明个人选择或判断＋自然理由。
 风格像本人说话，不能以感叹号数量评判；空泛的“理念重要”“核心逻辑”最多2分。风格分不能代替事实检查。
+本轮把风格偏好与事实检查分开记录。style_scores四项分别0~2分：
+voice：是否像本人自然说话，而非研究报告；stance：是否一开头有明确态度或判断；
+specificity：有没有具体对象/理由，避免“坚持长期”空话；rhythm：短句有推进，强调有作用，避免重复三遍同一句。
+贴近参考样本的有力语气应保留，不要仅因措辞鲜明而扣风格分；事实偏差单独在对应布尔检查中标明。
+风格参考（只看表达方式，不作为本片事实）：{examples}
 对每条先用a_reason说明谁说了什么、标题的具体依据或问题，再给布尔结论。必须评完索引0、1、2。
 候选：{json.dumps([dict(index=i, title=c['title'], cover=c['cover']) for i,c in enumerate(row['drafts'])], ensure_ascii=False)}
 完整原文：{full}
 只输出reviews数组。''', obj(dict(reviews=array(obj(fields), 3, 3))), 0, 1400)
         row['reviews'] = review['reviews']
+        row['style_selected_index'] = style_choice(row['drafts'], row['reviews'])
         row['selected_index'] = select(row['drafts'], row['reviews'], source)
         row['status'] = 'accepted' if row['selected_index'] is not None else 'rejected'
     except Exception as exc:

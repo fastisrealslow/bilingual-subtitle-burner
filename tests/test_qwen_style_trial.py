@@ -29,3 +29,12 @@ def test_ten_cases_match_user_comparison_and_no_manual_answers_are_inputs():
     source = Path(trial.__file__).read_text()
     assert 'reviewed_title=' not in source
     assert '127.0.0.1:11434/api/chat' in source
+
+
+def test_style_preview_does_not_approve_publication():
+    drafts = [dict(title='林园：医药股也有差公司，经营不好就别买', cover='医药股也要看经营好坏')]
+    reviews = [dict(index=0, a_reason='这句话像本人口吻，但事实没有通过检查',
+                    **{k:False for k in trial.FACT_CHECKS}, natural=True, style_fit=5,
+                    style_scores={k:2 for k in trial.STYLE_DIMENSIONS})]
+    assert trial.style_choice(drafts, reviews) == 0
+    assert trial.select(drafts, reviews, '原文') is None
