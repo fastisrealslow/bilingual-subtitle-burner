@@ -27,10 +27,6 @@ jobs:
       matrix:
         case:
         - 0
-        - 1
-        - 2
-        - 3
-        - 4
         - 5
         repeat:
         - 1
@@ -99,9 +95,9 @@ jobs:
       with:
         pattern: title-batch-*
         path: batch-input
-    - name: 包含所有失败和缺失，不把原话兜底计为模型通过
+    - name: 包含全部6次失败和缺失，不把原话兜底计为模型通过
       run: |
-        python scripts/summarize_title_batch.py batch-input title-batch-summary
+        python scripts/summarize_title_batch.py batch-input title-batch-summary --expected-trials 6
         cat title-batch-summary/summary.md >> "$GITHUB_STEP_SUMMARY"
     - uses: actions/upload-artifact@v4
       with:

@@ -3764,11 +3764,15 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     if style == 'editorial':
         from editorial_cover import render, font_path
         try:
+            if identity_proof.get('sharpness', 0) < 60:
+                raise ValueError('文字封面源人物清晰度不足，不能靠排版掩盖模糊人脸')
             font = font_path()
             proof = render(img, out_path, best_face, title, speaker, font)
+            proof.update(source_kind='verified_source_frame', source_identity=identity_proof,
+                         source_resolution=dict(width=w, height=h))
             if scene_fallback_reason:
                 proof['scene_fallback_reason'] = scene_fallback_reason
-                Path(str(out_path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+            Path(str(out_path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
         except ValueError as exc:
             raise VisualQualityError(str(exc)) from exc
         finally:

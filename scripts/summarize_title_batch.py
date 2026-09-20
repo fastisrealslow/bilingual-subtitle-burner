@@ -5,7 +5,9 @@ from pathlib import Path
 import sys
 
 
-def summarize(directory, output):
+def summarize(directory, output, expected_trials=18):
+    if expected_trials < 1:
+        raise ValueError('expected_trials must be positive')
     paths=list(Path(directory).rglob('case-*-repeat-*.json'))
     rows=[];seen=set()
     for path in sorted(paths):
@@ -16,8 +18,10 @@ def summarize(directory, output):
     for r in rows:groups[r['case']].append(r)
     finished=[r for r in rows if r.get('status') in ('generated','unresolved')]
     generated=[r for r in rows if r.get('status')=='generated']
-    summary=dict(expected_trials=18,received_trials=len(rows),finished_trials=len(finished),
-        missing_or_interrupted=18-len(finished),generated=len(generated),
+    if len(rows)>expected_trials:
+        raise ValueError('more results than scheduled trials')
+    summary=dict(expected_trials=expected_trials,received_trials=len(rows),finished_trials=len(finished),
+        missing_or_interrupted=expected_trials-len(finished),generated=len(generated),
         model_reviewed=sum(r.get('method')=='cpu_text_review' for r in generated),
         quote_fallback=sum(r.get('method')=='source_quote' for r in generated),
         unresolved=sum(r.get('status')=='unresolved' for r in rows),
@@ -32,7 +36,7 @@ def summarize(directory, output):
     if len(summary['code_hashes'])>1: raise ValueError('mixed title code versions')
     out=Path(output);out.mkdir(parents=True,exist_ok=True)
     (out/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2))
-    lines=['# 标题重复生成批测','',f"计划18次；完成{len(finished)}次，缺失/中断{18-len(finished)}次。",
+    lines=['# 标题重复生成批测','',f"计划{expected_trials}次；完成{len(finished)}次，缺失/中断{expected_trials-len(finished)}次。",
         f"独立模型审核输出{summary['model_reviewed']}；原话兜底{summary['quote_fallback']}；未解决{summary['unresolved']}。",
         '',summary['disclaimer'],'','| 案例 | 重复 | 标题 | 路径 | 筛查提示 |','|---|---:|---|---|---|']
     for r in rows:
@@ -42,4 +46,9 @@ def summarize(directory, output):
     return summary
 
 if __name__=='__main__':
-    print(json.dumps(summarize(sys.argv[1],sys.argv[2]),ensure_ascii=False,indent=2))
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('directory');parser.add_argument('output')
+    parser.add_argument('--expected-trials',type=int,default=18)
+    args=parser.parse_args()
+    print(json.dumps(summarize(args.directory,args.output,args.expected_trials),ensure_ascii=False,indent=2))
