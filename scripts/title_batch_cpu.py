@@ -1,0 +1,79 @@
+"""Read-only replay of real title inputs. Never loads credentials or renders/posts."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import sys
+import tempfile
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'linyuan'))
+
+
+def signals(title):
+    # Screening flags only; not a substitute for semantic or human acceptance.
+    rules = {
+        'verbal_repair': r'是应该是|买买|对人人体|你首先买买的',
+        'missing_object': r'^林园[：:]?(?:都是|一个是|我是永远|是应该)|人家告诉你$',
+        'report_voice': r'配置低估值|坚持投资理念|趋势明确|确定性增长|核心逻辑|深度解析',
+        'return_claim_needs_review': r'几万倍|稳赚|保证|一定赚',
+    }
+    return [name for name, pattern in rules.items() if re.search(pattern, title)]
+
+
+def cases():
+    corpus = json.loads((ROOT/'linyuan/simulations/title-batch-20260920/corpus.json').read_text())
+    selected = [corpus[i] for i in (0, 3, 6, 8, 10)]
+    old = json.loads((ROOT/'tests/fixtures/linyuan_0913_landscape_title.json').read_text())
+    selected.append(dict(id='host-premise-control', cues=old['cues'], old_title=old['old_title']))
+    return selected
+
+
+def main():
+    ap=argparse.ArgumentParser();ap.add_argument('--case', type=int, required=True);ap.add_argument('--repeat', type=int, required=True)
+    args=ap.parse_args()
+    assert os.environ.get('TEXT_BACKEND') == 'local'
+    assert os.environ.get('LOCAL_LLM_MODEL') == 'qwen3:8b'
+    import produce_cn as p
+    import editorial_policy as ep
+    import title_rewrite as te
+    case=cases()[args.case];text=''.join(c['text'] for c in case['cues'])
+    if case.get('transcript_sha256'): assert ep.text_digest(text)==case['transcript_sha256']
+    out=Path('title-batch-results');out.mkdir(exist_ok=True)
+    row=dict(case=case['id'],repeat=args.repeat,old_title=case['old_title'],old_signals=signals(case['old_title']),
+             transcript_sha256=ep.text_digest(text),source_artifact=case.get('artifact_id'),
+             title_code_sha256=hashlib.sha256(Path(te.__file__).read_bytes()).hexdigest(),
+             commit=os.environ.get('GITHUB_SHA'),model=p.LOCAL_LLM_MODEL,temperature=.35,
+             num_ctx=16384,max_tokens=2300,cache_reads=False,calls=[])
+    target=out/f'case-{args.case}-repeat-{args.repeat}.json'
+    def save(): target.write_text(json.dumps(row, ensure_ascii=False, indent=2))
+    original=p.llm
+    def uncached(*a, **kw):
+        kw['read_cache']=False
+        call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()
+        try:
+            result=original(*a, **kw);call['response']=result;return result
+        except Exception as exc:
+            call['error']=str(exc);raise
+        finally:
+            call['seconds']=round(time.monotonic()-t,2);row['calls'].append(call);save()
+    p.llm=uncached
+    start=time.monotonic();save()
+    try:
+        with tempfile.TemporaryDirectory() as work:
+            result=p.copywrite(case['cues'],list(range(len(case['cues']))),'林园','访谈','',Path(work))
+        row['result']=result
+        row['proof_error']=te.error(result['title'],result['title_rewrite'],text)
+        row['method']=result['title_rewrite']['review']['method']
+        row['screening_signals']=signals(result['title'])
+        row['status']='generated'
+    except Exception as exc:
+        row['status']='unresolved';row['error']=f'{type(exc).__name__}: {exc}'
+    row['seconds']=round(time.monotonic()-start,2);save()
+    print(json.dumps({k:v for k,v in row.items() if k not in ('calls','result')},ensure_ascii=False))
+    if row.get('result'):print('TITLE:',row['result']['title'])
+
+if __name__=='__main__': main()
