@@ -127,7 +127,7 @@ def test_cached_copy_gets_current_cover_layout_without_model(tmp_path,monkeypatc
             title_editor_sha256=P._sha256_file(Path(title_editor.__file__)),
             text_backend=P.TEXT_BACKEND,
             text_model=P.LOCAL_LLM_MODEL if P.TEXT_BACKEND=='local' else list(P.MODELS),
-            speaker='林园',occasion='访谈',reviewed_title=None))
+            speaker='林园',occasion='访谈',reviewed_title=None,**P._copy_style_identity('林园')))
     (tmp_path/'copywrite.json').write_text(P.json.dumps(cache,ensure_ascii=False))
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Valid title should be reused'))
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path)

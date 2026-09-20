@@ -3452,6 +3452,65 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
+TITLE_STYLE_PROFILE = 'yuanyuan-v2-20260920'
+# Same six real benchmark titles used in the user-approved V2 trial.
+# These are style examples only; the existing guest evidence and reviewer remain authoritative.
+TITLE_STYLE_EXAMPLES = (
+    '股神林园：我受不了！我觉得有风险的、看不明白的，我就不投，远离！你真赚了，那可能害了你，人是管不住自己的！',
+    '股神林园：分红很重要！账上的现金是判断一个公司的试金石！账面上的钱和分红完全是两回事！',
+    '股神林园：投资是投未来的确定性！新兴科技不符合我买了不卖的原则，我的钱都是不卖才能来的！',
+    '股神林园：白酒行业是有泡沫的，我不买、但持有；涨不涨要看它能不能持续盈利，它跟大基建、房地产、收入水平有关系',
+    '股神林园：我不想栽这个跟头！AI那么高的投入、甚至没有PE，不合算！',
+    '股神林园：现在消费和医药的回报是我从事资本市场以来最值得的时候',
+)
+
+
+def _copy_style_identity(speaker):
+    if speaker != '林园':
+        return {}
+    return dict(title_style_profile=TITLE_STYLE_PROFILE,
+                title_style_sha256=_sha256_file(Path(__file__)))
+
+
+def _title_style_prompt(prompt, schema, speaker):
+    """Apply the approved V2 voice to production drafting, not the source reader."""
+    if speaker != '林园':
+        return prompt
+    properties = schema.get('properties', {})
+    if 'c_candidates' in properties:
+        start = prompt.index('最后在c_candidates')
+        end = prompt.index('每条标题必须明确说出讨论对象', start)
+        style = f'''最后在c_candidates为同一个核心判断写3个不同表达的候选：A直给态度＋理由；B原文真实反差；C具体做法＋理由。
+三个候选不能只替换一个词或标点。不要为了满足某种结构凭空制造对立或因果。
+学习“园园滚雪球”的口吻。以下样本只用于表达节奏，里面的公司、数字、观点不是本片事实，严禁搬入新标题：
+{json.dumps(TITLE_STYLE_EXAMPLES, ensure_ascii=False)}
+写成林园本人对着观众讲话，别写成旁观者总结。态度、对象、理由都要具体。
+第一句先亮出嘉宾确实表达的选择、判断或感受；第二句接他原话里的具体理由或真实反差。
+允许两三句连着说，允许有力的否定和适度重复强调；不要为了书面工整把语气磨平。
+强调重复必须带来新意思。例如表态后要解释为什么，不能连续三遍“我不卖”却没有对象和理由。
+写“我不投”前必须确认本段确实说了不投；认可前景但说赚钱难，不能硬套成不投。
+少用“因为……所以……”的报告句式，直接用日常口吻把原因接上；不必每条有感叹号。
+避免“我坚持长期”“坚持投资理念”“核心逻辑”“配置策略”“林园给出理由”等空泛标签；从原文找一个具体做法代替。
+保留有辨识度的原话，但删掉“我不会说去卖”“这个那个”这种没有信息的绕口填充。
+仅在嘉宾确实说了自己选择时用“我”；不要每条都写为什么，不要研究报告腔或泛泛总结。
+事实只来自下方嘉宾字幕。不能凭空添加立场或收益，保留条件、否定、比较对象和不确定性。
+title以“林园：”开头，正文22~52字，最多两三个短句，不凑长度，完整自然。
+cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。
+'''
+        prompt = prompt[:start] + style + prompt[end:]
+        # Remove the old unrelated factual illustration; the approved references above replace it.
+        prompt = prompt.replace('例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”\n', '')
+        prompt = prompt.replace('这个例子只说明文风，不能套用它的事实。', '')
+    elif 'reviews' in properties:
+        # Preserve independent factual review; only update its preference among valid drafts.
+        marker = '返回JSON的reviews数组'
+        prompt = prompt.replace(marker, '''风格选择采用园园第二版：口语自然、开头态度明确、对象和理由具体、短句有推进。
+在原文支持的候选中，优先本人直接讲话、态度后接具体理由；避免空泛总结、报告腔和没有新信息的重复。
+不要仅因措辞鲜明或使用有力的否定而降低appeal，也不要以感叹号数量评判。事实检查独立，不因风格加分放过编造。
+''' + marker)
+    return prompt
+
+
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
               existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None):
     """Generate three source-backed angles, review title/cover, and cache evidence.
@@ -3470,6 +3529,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_backend':TEXT_BACKEND,
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
+                   **_copy_style_identity(speaker),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     if cache.exists():
         try:
@@ -3493,12 +3553,19 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # Reuse verified copywrite.json and stable independent review verdicts.
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
-        return llm([{"role":"user","content":prompt}],api_key,temperature=.35,
+        prompt = _title_style_prompt(prompt, schema, speaker)
+        drafting = 'c_candidates' in schema.get('properties', {})
+        if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
+            print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
+        temperature = (.35 if drafting else 0) if speaker == '林园' else .35
+        return llm([{"role":"user","content":prompt}],api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
                    read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','b_focus')))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel])
+        if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
+            d['title_rewrite']['style_profile'] = TITLE_STYLE_PROFILE
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
                                     rewrite_proof=d['title_rewrite'])
         if problem:raise ValueError(problem)

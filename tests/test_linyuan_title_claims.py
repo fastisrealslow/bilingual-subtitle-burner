@@ -205,9 +205,18 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
         properties=kwargs['response_schema']['properties']
         assert kwargs['read_cache']==not_draft(properties)
         if 'c_guest_spans' in properties:
+            assert kwargs['temperature']==0
+            assert '园园滚雪球' not in messages[0]['content']
             return json.dumps(dict(c_guest_spans=[dict(a_start=0,b_end=0)],
                 b_question_premise='无主持人提问',a_guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。'),ensure_ascii=False)
         reply=json.loads(callback(messages[0]['content']))
+        if 'c_candidates' in properties:
+            assert kwargs['temperature']==.35
+            assert '园园滚雪球' in messages[0]['content']
+            assert '正文22~52字' in messages[0]['content']
+            assert '正文15~30个汉字' not in messages[0]['content']
+        else:
+            assert kwargs['temperature']==0
         if reply.get('candidates'):
             reply['a_reading']=dict(a_turns=[dict(a_start=0,b_end=0,c_role='guest')],b_question_premise='无主持人提问',
                 c_guest_answer='行业尚未出现龙头，先配置可能成为龙头的公司并控制比例。')
@@ -225,6 +234,8 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     cues=[dict(text=TEXT,start=0,end=150)]
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
     assert result['title']==TITLE and result['copy_identity']['version']==8
+    assert result['title_rewrite']['style_profile']==P.TITLE_STYLE_PROFILE
+    assert result['copy_identity']['title_style_profile']==P.TITLE_STYLE_PROFILE
     if suffix=='_full':assert '完整访谈' in result['tags'] and '完整访谈原声' in result['desc']
     monkeypatch.setattr(P,'llm',lambda *a,**k:pytest.fail('Current verified copy should be reused'))
     cached=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
@@ -239,6 +250,12 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
     refreshed=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
     assert len(calls)>count
     assert refreshed['copy_identity']==result['copy_identity']
+    old=dict(refreshed)
+    old['copy_identity']={k:v for k,v in old['copy_identity'].items() if not k.startswith('title_style_')}
+    (tmp_path/f'copywrite{suffix}.json').write_text(json.dumps(old,ensure_ascii=False))
+    count=len(calls)
+    P.copywrite(cues,[0],'林园','访谈',None,tmp_path,suffix=suffix,reviewed_title='林园：谈消费需求、医药投资与买入时机')
+    assert len(calls)>count
 
 
 def not_draft(properties):
