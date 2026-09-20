@@ -8,6 +8,13 @@ import presentation as V
 import produce_cn as P
 
 
+def guest_reading_then_invalid_draft(*args, **kwargs):
+    if 'c_guest_spans' in (kwargs.get('response_schema') or {}).get('properties', {}):
+        return P.json.dumps(dict(a_guest_answer='嘉宾明确表达了自己的投资判断和持有方式。',
+            b_question_premise='无主持人提问',c_guest_spans=[dict(a_start=0,b_end=0)]))
+    return '{}'
+
+
 def test_real_truncated_cover_uses_complete_clause_not_ellipsis():
     title='林园：现在消费和医药的回报是我从事资本市场最值得的最好的时候，曙光就在眼前'
     result=H.cover_copy(title)
@@ -53,7 +60,7 @@ def test_independent_cover_and_candidates_are_saved_for_review():
 
 
 def test_reviewed_copy_cache_refreshes_old_cover_policy(tmp_path,monkeypatch):
-    monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
+    monkeypatch.setattr(P,'llm',guest_reading_then_invalid_draft)
     title='林园：所有的产品都会变得一文不值'
     cues=[{'text':'所有的产品都会变得一文不值。','start':0,'end':6}]
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,reviewed_title=title)
@@ -94,7 +101,7 @@ def test_extractive_cover_never_drops_negation_or_uncertainty():
 
 
 def test_full_interview_uses_claim_copy_and_preserves_actual_length(tmp_path,monkeypatch):
-    monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
+    monkeypatch.setattr(P,'llm',guest_reading_then_invalid_draft)
     result=P.copywrite([dict(text='我们长期持有优秀企业',start=0,end=3472)],[0],
                       '林园','访谈',None,tmp_path,suffix='_full',require_quote=False)
     assert result['title']=='林园：我们长期持有优秀企业'
@@ -178,8 +185,7 @@ def test_source_first_still_reads_full_segment_and_never_falls_back_to_keywords(
         calls.append(args)
         return '{"title":"林园：人少了没办法，它只消费少"}'
     monkeypatch.setattr(P,'llm',invalid)
-    result=P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
+    with pytest.raises(P.EditorialReviewUnavailable,match='未确认嘉宾原话归属'):
+        P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
                     [0],'林园','访谈',None,tmp_path)
-    assert len(calls)==3 and result['title_rewrite']['kind']=='editorial_claim'
-    assert '没办法' not in result['title']
-    assert result['cover_title']==result['title_rewrite']['cover']
+    assert len(calls)==3

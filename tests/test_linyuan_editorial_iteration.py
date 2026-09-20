@@ -11,6 +11,41 @@ import production_diagnostics as D
 import editorial_cover as C
 
 
+def test_lookup_of_fund_value_does_not_support_reassurance_about_drawdown():
+    source='投资者自己知道净值，不知道也可以到网上去查阅。'
+    item=dict(title='林园：产品净值有回撤，但投资者自己能查，不用怕',
+        cover_title='产品净值，投资者自己能查',subject='净值',evidence=[source])
+    assert '没有' in T._candidate_error(item,source,'林园',(),check_layout=False)
+
+
+def test_quote_fallback_keeps_guest_attribution_and_full_source_fingerprint():
+    host='消费医药现在最值得买入，我们看好长期机会。'
+    guest='医药股经营不好，我不会买入。'
+    units=[host,guest]
+    def model(prompt,schema):
+        if 'c_guest_spans' in schema.get('properties',{}):
+            return json.dumps(dict(a_guest_answer='嘉宾明确说经营不好的医药股不会买入。',
+                b_question_premise='主持人建议买入消费医药，未获嘉宾确认。',
+                c_guest_spans=[dict(a_start=1,b_end=1)]))
+        return '{}'
+    result=T.generate(''.join(units),structured_model=model,source_cues=units,
+                      preferred='林园：'+host.rstrip('。'))
+    assert result['title_rewrite']['review']['method']=='source_quote'
+    assert result['title_rewrite']['review']['attribution']=='reader_guest_passage'
+    assert T.compact(result['title'].split('：')[1]) in T.compact(guest)
+    assert not T.error(result['title'],result['title_rewrite'],''.join(units))
+
+
+def test_quote_fallback_cannot_join_across_host_turn(monkeypatch):
+    import headline_policy as H
+    units=['医药股经营不好，','主持人的另一个问题。','我是不会买的。']
+    # Even a preferred/cache candidate cannot bridge two distinct guest turns.
+    quote='医药股经营不好，我是不会买的'
+    monkeypatch.setattr(H,'title_candidates',lambda *a: ['林园：'+quote])
+    with pytest.raises(ValueError,match='未提炼'):
+        T._extractive(''.join(units),'林园',(),guest_passages=[units[0],units[2]])
+
+
 def test_tied_model_scores_do_not_choose_generic_first_by_position():
     source='买医药股要先看经营，经营不好的医药股我不买。'
     items=[dict(title='林园：坚持投资理念，医药股需要长期研究', subject='医药股', evidence=[source]),

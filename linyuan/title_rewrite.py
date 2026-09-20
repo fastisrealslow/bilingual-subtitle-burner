@@ -254,6 +254,7 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
                  '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益',
+                 '不用怕','不用担心','不必担心','无需担心','放心买','没风险',
                  '粘性强','粘性更强','黏性强','黏性更强','超预期')
     stated=compact(''.join(evidence))
     relation_issue=relation_error(title,cover,transcript)
@@ -315,23 +316,31 @@ def _package(item, transcript, review, candidates):
                 packaging_method='source_claim_editor', desc='本段讨论：' + title.split('：', 1)[1])
 
 
-def _extractive(transcript, speaker, existing_titles, preferred=None):
+def _extractive(transcript, speaker, existing_titles, preferred=None, guest_passages=None):
     from headline_policy import title_candidates, body, cover_copy, complete
-    titles = title_candidates(transcript, speaker, existing_titles)
+    # Never stitch across a host turn or pick a host's more fluent question.
+    passages = [transcript] if guest_passages is None else guest_passages
+    titles = [title for passage in passages
+              for title in title_candidates(passage, speaker, existing_titles)]
     if preferred and preferred not in titles:
         titles.append(preferred)
     for title in titles:
         quote = body(title, speaker)
         if not complete(quote) or compact(quote) not in compact(transcript) or summary_heading(title):
             continue
-        cover = cover_copy(title, transcript, speaker)
+        if not any(compact(quote) in compact(passage) for passage in passages):
+            continue
+        cover = cover_copy(title, quote, speaker)
         if cover.get('reason') == 'needs_editorial_copy':
             continue
         # Whole source claims are the fallback; not a list of detected subjects.
         item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
         if not 12 <= len(compact(title)) <= 62:
             continue
-        return _package(item, transcript, dict(method='source_quote', quote=quote), [item])
+        review = dict(method='source_quote', quote=quote)
+        if guest_passages is not None:
+            review['attribution'] = 'reader_guest_passage'
+        return _package(item, transcript, review, [item])
     raise ValueError('未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试')
 
 
@@ -376,6 +385,22 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
 按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
     reading=None;roles=None
+    def fallback():
+        if not structured_model:
+            return _extractive(transcript, speaker, existing_titles, preferred)
+        if reading is None or roles is None:
+            raise ValueError('未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试')
+        blocked = explicit_host_cues(units)
+        passages=[]; current=[]
+        for i, unit in enumerate(units):
+            if roles[i] == 'guest' and i not in blocked:
+                current.append(unit)
+            elif current:
+                passages.append(''.join(current)); current=[]
+        if current:
+            passages.append(''.join(current))
+        return _extractive(transcript, speaker, existing_titles, preferred,
+                           guest_passages=passages)
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
@@ -572,12 +597,12 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                 # Preserve the existing complete-source-quote fallback; it must
                 # pass its own evidence/readability checks before use.
                 try:
-                    return _extractive(transcript,speaker,existing_titles,preferred)
+                    return fallback()
                 except ValueError:
                     raise exc
             last_error = str(exc)
             print(f'[标题观点] 第{attempt + 1}次生成待修正：{last_error}', flush=True)
-    return _extractive(transcript, speaker, existing_titles, preferred)
+    return fallback()
 
 
 def error(title, proof, transcript=None, speaker='林园'):

@@ -369,8 +369,8 @@ def test_missing_guest_question_distinction_cannot_be_an_approved_rewrite():
         calls.append(prompt)
         return json.dumps(dict(b_focus=dict(b_evidence_ids=[0],a_claim='主持人问题被误写成嘉宾给出的判断'),
             c_candidates=[dict(title=c['title'],cover_title=c['cover_title']) for c in proposals()]),ensure_ascii=False)
-    result=T.generate(TEXT,structured_model=incomplete)
-    assert result['title_rewrite']['review']['method']=='source_quote'
+    with pytest.raises(ValueError, match='未确认嘉宾原话归属'):
+        T.generate(TEXT,structured_model=incomplete)
     assert len(calls)==3 and '分别读清嘉宾实际回答' in calls[1]
 
 
