@@ -19,7 +19,21 @@ def body(title, speaker='林园'):
     return re.sub(rf'【重制试看】|[｜|]{re.escape(speaker)}$|\s+','',text).strip('，。；,; ')
 
 
+def verbal_fragment(text):
+    """Reject transcription repairs and context-dependent list tails in copy.
+
+    This only rejects the proposed title; it never edits the source transcript.
+    Ordinary emphatic repetition (不卖，一股都不卖) remains allowed.
+    """
+    text=body(text).strip('。！？!?')
+    return bool(re.search(
+        r'^(?:是)?应该是(?:也|还)|^都是|^一个是|'
+        r'(买|卖)\1(?:的|入|出)|对人人体', text))
+
+
 def complete(text):
+    if verbal_fragment(text):
+        return False
     # Standalone headlines must not depend on a missing antecedent or promote
     # hesitation/repair fragments just because they contain a finance keyword.
     if re.search(r'没办法|怎么办|(?:它|他|她)(?:只|就|都|也)|[，,](?:它|他|她|这个|那个)|呃|[啊哈呀][，,]|(?:做做|越越|人人口)', text):

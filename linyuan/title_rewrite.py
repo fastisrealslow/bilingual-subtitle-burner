@@ -202,6 +202,9 @@ def bind_candidate(item, focus, units, subjects):
 
 
 def copy_fragment(text):
+    from headline_policy import verbal_fragment
+    if verbal_fragment(text):
+        return True
     from headline_policy import TAIL
     text=str(text or '').strip(' ，,。；;！？!?')
     return bool(TAIL.search(text) and not re.search(
