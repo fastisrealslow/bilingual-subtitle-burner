@@ -1,0 +1,31 @@
+name: 标题批测只读汇总
+on:
+  workflow_run:
+    workflows: ['标题吸引力与稳定性 CPU 批测']
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          pattern: title-batch-*
+          path: batch-input
+      - name: 保留全部18次的失败、缺失和原话兜底
+        run: |
+          python scripts/summarize_title_batch.py batch-input title-batch-summary
+          cat title-batch-summary/summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: title-batch-summary-${{ github.event.workflow_run.id }}
+          path: title-batch-summary
+          retention-days: 30
