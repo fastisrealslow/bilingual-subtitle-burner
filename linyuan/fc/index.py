@@ -1625,9 +1625,17 @@ def pick(items, st, n, audit=None):
         a = (c.get("author") or "").strip()
         return -12 if a in HEAVY_PACKAGING else 0
 
+    from source_priority import family as source_family, observed_priorities
+    source_history = observed_priorities(st, now)
+    for candidate in cands:
+        evidence = source_history.get(source_family(candidate))
+        if evidence:
+            candidate['source_priority_evidence'] = evidence
+
     def quality_score(c):
         return (source_score(c) + title_score(c["title"]) +
-                freshness_score(c) + duration_score(c) + packaging_score(c))
+                freshness_score(c) + duration_score(c) + packaging_score(c) +
+                (c.get('source_priority_evidence') or {}).get('adjustment', 0))
 
     # 按综合质量分降序
     cands.sort(key=lambda c: quality_score(c), reverse=True)
@@ -1965,7 +1973,7 @@ def production_config():
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
             "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
-            "cover_styles": ["scene", "photo", "light", "dark"],
+            "cover_styles": ["scene", "editorial", "photo", "light", "dark"],
             "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
             "production_rules_version": PRODUCTION_RULES_VERSION,
             "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,

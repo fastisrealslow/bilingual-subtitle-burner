@@ -22,6 +22,8 @@ on:
       - tests/test_linyuan_required_live.py
       - linyuan/stage_context.py
       - linyuan/title_rewrite.py
+      - linyuan/source_priority.py
+      - linyuan/production_diagnostics.py
       - linyuan/reuse_title_verification.py
       - tests/test_linyuan_title_proof_reuse.py
       - tests/test_linyuan_daily_landscape.py
@@ -134,7 +136,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/stage_context.py linyuan/title_rewrite.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/caption_readability.py linyuan/fc/media_repair.py linyuan/fc/stage_revision.py linyuan/fc/title_revision.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
+          zip -j "$FC_CODE_ZIP" linyuan/fc/index.py linyuan/stage_context.py linyuan/title_rewrite.py linyuan/headline_policy.py linyuan/editorial_policy.py linyuan/caption_readability.py linyuan/source_priority.py linyuan/production_diagnostics.py linyuan/fc/media_repair.py linyuan/fc/stage_revision.py linyuan/fc/title_revision.py linyuan/fc/reviewed_updates.py linyuan/fc/reviewed_third_video.py
           (cd linyuan/fc && zip -r "$FC_CODE_ZIP" reviewed_0910)
           unzip -t "$FC_CODE_ZIP"
 

@@ -14,7 +14,7 @@ curl -fsS --max-time 3 http://127.0.0.1:11434/api/tags >/dev/null || {
 
 export TEXT_BACKEND=local
 export LOCAL_LLM_URL=http://127.0.0.1:11434/api/chat
-export LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL:-qwen3:4b}
+export LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL:-qwen3:8b}
 export LOCAL_FACE_MODEL_DIR=${LOCAL_FACE_MODEL_DIR:-/tmp/linyuan-face-models}
 unset SILICONFLOW_API_KEY ALIYUN_AK ALIYUN_SK FC_REFILL
 

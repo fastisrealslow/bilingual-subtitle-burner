@@ -231,21 +231,16 @@ def cover_headline(title, speaker='林园'):
 
 
 def select_cover_style(clean_source, title, requested='auto'):
-    """Keep real-scene covers for clean footage; stable variety for audio cards."""
-    import hashlib
-    if requested not in ('auto','scene','photo','light','dark'):
-        raise ValueError('封面风格只支持 auto/scene/photo/light/dark')
-    if requested in ('scene','photo') and not clean_source:
+    """Consistent readable default; legacy designs remain explicit choices."""
+    if requested not in ('auto','editorial','scene','photo','light','dark'):
+        raise ValueError('封面风格只支持 auto/editorial/scene/photo/light/dark')
+    if requested in ('editorial','scene','photo') and not clean_source:
         raise ValueError('原画未通过清理，不能强制原画封面')
     if requested != 'auto':
         return requested
-    # 四套封面稳定轮换：现场无字 scene、实景大字 photo、浅色 light、深色 dark。
-    # 用标题哈希保证同一条重跑不会随机变脸，同时避免主页连续全是同一种模板。
-    # scene/photo 仅在原画通过清理时可选；scene 另验清晰度和横向构图。
-    bucket = hashlib.sha256(title.encode()).digest()[0]
-    if clean_source:
-        return ('scene','photo','light','dark')[bucket % 4]
-    return ('light','dark')[bucket % 2]
+    # Reference-account inspection: clean expressive scene first. The renderer
+    # may fall back to editorial copy if the real frame cannot pass scene QA.
+    return 'scene' if clean_source else 'dark'
 
 
 def save_scene_cover(image, path, face, identity):

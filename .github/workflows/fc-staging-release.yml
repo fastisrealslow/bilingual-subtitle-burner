@@ -16,6 +16,8 @@ on:
       - linyuan/fc/reviewed_0910/**
       - linyuan/stage_context.py
       - linyuan/title_rewrite.py
+      - linyuan/source_priority.py
+      - linyuan/production_diagnostics.py
       - linyuan/headline_policy.py
       - linyuan/editorial_policy.py
       - .github/workflows/fc-staging-release.yml
@@ -39,7 +41,7 @@ jobs:
         run: |
           set -euo pipefail
           cd linyuan/fc
-          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../stage_context.py ../title_rewrite.py ../headline_policy.py ../editorial_policy.py media_repair.py stage_revision.py title_revision.py reviewed_updates.py reviewed_third_video.py
+          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../stage_context.py ../title_rewrite.py ../headline_policy.py ../editorial_policy.py ../source_priority.py ../production_diagnostics.py media_repair.py stage_revision.py title_revision.py reviewed_updates.py reviewed_third_video.py
           zip -r "$RUNNER_TEMP/fc-code.zip" reviewed_0910
           unzip -l "$RUNNER_TEMP/fc-code.zip"
 
@@ -56,4 +58,3 @@ jobs:
               --prerelease
           fi
           gh release upload staging "$RUNNER_TEMP/fc-code.zip" --clobber
-

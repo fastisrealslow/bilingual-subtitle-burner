@@ -57,7 +57,7 @@ VISION_MODEL = os.environ.get("VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"
 TEXT_BACKEND = (os.environ.get("TEXT_BACKEND") or "local").strip().lower()
 LOCAL_LLM_URL = (os.environ.get("LOCAL_LLM_URL") or
                  "http://127.0.0.1:11434/api/chat").strip()
-LOCAL_LLM_MODEL = (os.environ.get("LOCAL_LLM_MODEL") or "qwen3:4b").strip()
+LOCAL_LLM_MODEL = (os.environ.get("LOCAL_LLM_MODEL") or "qwen3:8b").strip()
 LOCAL_FACE_MODEL_DIR = Path(os.environ.get("LOCAL_FACE_MODEL_DIR") or "/tmp/linyuan-face-models")
 LOCAL_FACE_DETECTOR_URL = ("https://github.com/opencv/opencv_zoo/raw/main/models/"
     "face_detection_yunet/face_detection_yunet_2023mar.onnx")
@@ -3697,7 +3697,8 @@ def select_verified_cover_face(frames, reference_path):
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
-               video_filter="", preferred_time=None, reference_path=None, style="photo"):
+               video_filter="", preferred_time=None, reference_path=None, style="photo",
+               allow_editorial_fallback=False):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
     竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
@@ -3743,18 +3744,37 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
+    scene_fallback_reason = None
     if style == 'scene':
         from presentation import save_scene_cover
         try:
             save_scene_cover(img, out_path, best_face, identity_proof)
         except ValueError as exc:
+            if not allow_editorial_fallback:
+                for fp in frames:
+                    fp.unlink(missing_ok=True)
+                raise VisualQualityError(str(exc)) from exc
+            scene_fallback_reason = str(exc)
+            style = 'editorial'
+        else:
+            for fp in frames:
+                fp.unlink(missing_ok=True)
+            print(f'[封面] {out_path.name} 现场原画，无叠加标题')
+            return
+    if style == 'editorial':
+        from editorial_cover import render, font_path
+        try:
+            font = font_path()
+            proof = render(img, out_path, best_face, title, speaker, font)
+            if scene_fallback_reason:
+                proof['scene_fallback_reason'] = scene_fallback_reason
+                Path(str(out_path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        except ValueError as exc:
             raise VisualQualityError(str(exc)) from exc
         finally:
             for fp in frames:
                 fp.unlink(missing_ok=True)
-        print(f'[封面] {out_path.name} 现场原画，无叠加标题')
         return
-
     # 以人脸为中心裁切,保持目标比例
     vertical = h > w
     portrait_foreground = None
@@ -5370,7 +5390,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         from presentation import select_cover_style
         selected_cover_style = select_cover_style(strategy != "audio_card", cw["title"],
                                                   os.environ.get("COVER_STYLE", "auto"))
-        if selected_cover_style not in {"photo", "scene"}:
+        if selected_cover_style not in {"photo", "scene", "editorial"}:
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
                     work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
@@ -5384,10 +5404,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
                            cw["cover_title"], speaker, cover, video_filter=clean_vf,
                            preferred_time=(visual_report or {}).get("best_cover_time"),
-                           reference_path=work / "speaker_reference.jpg", style=selected_cover_style)
+                           reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
+                           allow_editorial_fallback=os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
-                if os.environ.get('COVER_STYLE','auto') in {'photo','scene'}:raise
+                if os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
                 cover_fallback_reason=str(exc)
                 selected_cover_style=select_cover_style(False,cw['title'])
                 if audio_card_portrait is None:
@@ -5432,6 +5453,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "video_title_proof":(json.loads(Path(str(audio_card)+'.title-proof.json').read_text())
                              if audio_card else None),
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
+        "editorial_selection":cw.get('editorial_selection'),
         "cover_fallback_reason":cover_fallback_reason,
         "cover": cover.name if cover else None,
         "preview_30s": preview_name,
@@ -5727,6 +5749,7 @@ def main():
             raise ValueError('不能同时指定人工核对与自动选段编号')
         retry_parts=selected_part_numbers(args.only_selected_parts,work_items)
     metas, rejected = [], list(selection_failures)
+    part_attempts = []
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint():
@@ -5752,6 +5775,9 @@ def main():
         live = sum(m.get("render_mode") != "audio_card" for m in metas)
         write_json(out / "batch_report.json", {
             "slug": args.slug, "accepted": len(metas), "rejected": rejected,
+            "part_attempts": part_attempts,
+            "retryable_parts": [r['part'] for r in rejected if r.get('retryable')
+                                and r.get('stage') == 'part-quality'],
             "accepted_finals": [m["final"] for m in metas],
             "live_video": live, "audio_card": len(metas) - live,
             "live_ratio": live / len(metas) if metas else 0,
@@ -5773,6 +5799,7 @@ def main():
                       (TARGET_SEC_MID if ci == mid_idx else TARGET_SEC))
         if ci == mid_idx:
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
+        part_started = time.monotonic()
         try:
             if preselected_picks and publication_state:
                 segments=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end'])
@@ -5808,6 +5835,11 @@ def main():
             failure = {"stage": "part-quality", "reason": str(e), "part": ci + 1,
                        "error_type": type(e).__name__,
                        "retryable":isinstance(e,EditorialReviewUnavailable) or service_timeout}
+            from production_diagnostics import failure_category
+            failure['category'] = failure_category(e)
+            part_attempts.append(dict(part=ci+1, outcome='rejected',
+                elapsed_seconds=round(time.monotonic()-part_started, 3),
+                category=failure['category'], retryable=failure['retryable']))
             print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
             quarantine_part(out, suffix)
             rejected.append(failure)
@@ -5816,6 +5848,8 @@ def main():
         if m is not None:
             m["part"] = ci + 1
             metas.append(m)
+        part_attempts.append(dict(part=ci+1, outcome='accepted' if m else 'no_selection',
+            elapsed_seconds=round(time.monotonic()-part_started, 3)))
         checkpoint()
 
     if args.target_parts and len(metas) != args.target_parts:

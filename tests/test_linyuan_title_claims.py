@@ -26,8 +26,9 @@ def model(calls, bad_review=False):
         calls.append(prompt)
         if '独立核对' not in prompt:
             return json.dumps(dict(candidates=proposals()),ensure_ascii=False)
+        rows=json.loads(prompt.split('待独立核对的标题和封面：')[1].split('\n')[0])
         return json.dumps(dict(reviews=[dict(index=i,appeal=5-i,reason='原文直接支持同一观点，标题与封面未增加新结论',
-            **{k: not (bad_review and k=='source_supported') for k in T.CHECKS}) for i in range(3)]))
+            **{k: not (bad_review and k=='source_supported') for k in T.CHECKS}) for i in range(len(rows))]))
     return call
 
 
@@ -100,7 +101,7 @@ def test_good_consumption_cannot_become_above_expectations_without_source_suppor
     assert '新增' in T._candidate_error(item,source,'林园',())
 
 
-def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
+def test_one_valid_candidate_still_gets_full_review_without_discarding_it():
     calls=[]
     good=model(calls)
     def incomplete(prompt):
@@ -108,10 +109,12 @@ def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
         for item in reply.get('candidates',[])[1:]:item['cover_title']='龙头'
         return json.dumps(reply,ensure_ascii=False)
     result=T.generate(TEXT,model=incomplete)
-    assert len(calls)==3 and result['title_rewrite']['review']['method']=='source_quote'
+    assert len(calls)==2 and result['title_rewrite']['review']['method']=='cpu_text_review'
+    assert result['title']==TITLE
+    assert result['editorial_selection']['reviewed_count']==1
 
 
-def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
+def test_real_0916_valid_drafts_are_reviewed_without_requiring_three():
     fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_0913_title.json').read_text())
     actual=json.loads((Path(__file__).parent/'fixtures/linyuan_title_retry_0916.json').read_text())
     cues=[c['text'] for c in fixture['cues']];source=''.join(cues)
@@ -124,7 +127,7 @@ def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
             return json.dumps(actual['drafts'][len(drafts)-1],ensure_ascii=False)
         marker='待独立核对的标题和封面：'
         trio=json.loads(prompt.split(marker)[1].split('\n')[0]);reviewed.extend(trio)
-        assert len(trio)==3 and len({c['title'] for c in trio})==3
+        assert 1<=len(trio)<=3 and len({c['title'] for c in trio})==len(trio)
         assert all('龙头' in c['title'] for c in trio)
         assert not any('还在寻找中' in c['title'] or c['title']=='林园：投资方向要控制比例' for c in trio)
         # This mock tests candidate retention only. Production still runs the
@@ -134,9 +137,9 @@ def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
             b_question_premise='主持人询问如何在好赛道中选择投资标的。',
             c_reason='标题保留了龙头尚未形成以及需要时间观察的原文限定。'),
             b_verdict=dict(index=i,appeal=5-i,**{k:True for k in T.CHECKS}))
-            for i in range(3)]),ensure_ascii=False)
+            for i in range(len(trio))]),ensure_ascii=False)
     result=T.generate(source,structured_model=structured,source_cues=cues)
-    assert len(drafts)==2 and len(reviewed)==3
+    assert len(drafts)==1 and 1<=len(reviewed)<=3
     assert result['title_candidates']==[c['title'] for c in reviewed]
     assert T.error(result['title'],result['title_rewrite'],source) is None
 

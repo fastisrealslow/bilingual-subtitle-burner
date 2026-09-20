@@ -276,6 +276,34 @@ def _binding(title, cover, subject, evidence):
     return hashlib.sha256(json.dumps([title, cover, subject, evidence], ensure_ascii=False).encode()).hexdigest()
 
 
+def editorial_features(item):
+    """Tie-break fact-checked copy, not a prediction of clicks or factuality."""
+    title = item['title'].split('：', 1)[-1]
+    evidence = ''.join(item.get('evidence') or [])
+    subject = item.get('subject') or ''
+    # Only reward an observable contrast/first-person choice also in evidence.
+    contrast = r'但是|但|却|不是|不买|不卖|不能|不要|而是'
+    first_person = r'我(?:们)?(?:买|不买|不卖|持有|看|投)'
+    return dict(
+        subject_early=bool(subject and 0 <= title.find(subject) < 12),
+        sourced_contrast=bool(re.search(contrast, title) and re.search(contrast, evidence)),
+        sourced_voice=bool(re.search(first_person, title) and re.search(first_person, evidence)),
+        concise=18 <= len(compact(title)) <= 52,
+        generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)),
+    )
+
+
+def select_reviewed_candidate(accepted, candidates):
+    """Retain the review gate; resolve ubiquitous 4/5 ties by explicit features."""
+    def key(row):
+        f = editorial_features(candidates[row['index']])
+        return (row['appeal'], not f['generic'], f['sourced_contrast'],
+                f['subject_early'], f['sourced_voice'], f['concise'])
+    # Lexical final tie-break makes candidate order irrelevant.
+    return sorted(accepted, key=lambda r: (tuple(-int(x) for x in key(r)),
+                  candidates[r['index']]['title']))[0]
+
+
 def _package(item, transcript, review, candidates):
     title, cover = item['title'], item['cover_title']
     review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'])}
@@ -371,7 +399,6 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 只输出JSON。__TITLE_SOURCE__'''
     last_error = ''
     repair_checks=set()
-    candidate_pool={}
     for attempt in range(3):
         try:
             # Finish with the source, not three repetitions of a rejected claim.
@@ -436,27 +463,31 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 focus_ids=focus.get('evidence_ids') or []
                 if any(type(i) is not int or not 0<=i<len(units) or roles[i]!='guest' for i in focus_ids):
                     raise ValueError('标题证据选中了主持人提问或未知归属，必须回到嘉宾实际回答重写')
-                candidates = [bind_candidate(c,focus,units,subjects) for c in candidates]
+                # One malformed sibling must not discard source-bound drafts.
+                bound = []
+                for candidate in candidates:
+                    try:
+                        bound.append(bind_candidate(candidate,focus,units,subjects))
+                    except (ValueError, TypeError, KeyError, AttributeError):
+                        bound.append({})
+                candidates = bound
             errors = [(_candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
-            # A malformed third draft must not discard two source-bound good
-            # drafts. Accumulate distinct, structurally valid candidates within
-            # the same three-attempt budget, then review the actual final trio.
+            # Review every distinct, structurally valid draft in this attempt.
+            # A malformed sibling is not a reason to regenerate good copy.
             # These are proposals, never approvals or cross-source cache data.
+            candidate_pool={}
             for candidate,issue in zip(candidates,errors):
                 if not issue:
                     candidate_pool[compact(candidate['title'])]=candidate
             valid = list(candidate_pool.values())[:3]
-            if len(valid) != 3:
+            if not valid:
                 issues=[f"{c.get('title','')} / {c.get('cover_title','')}"
                         f"（对象={c.get('subject')},证据编号={c.get('evidence_ids')}）：{issue}"
                         for c,issue in zip(candidates,errors) if issue]
-                raise ValueError(f'已保留{len(valid)}/3个不同角度；三个角度均须合格再比较；需修正：' + '；'.join(issues))
-            if len({compact(c['title']) for c in valid})!=3:
-                raise ValueError('三个标题必须有不同看点，不能重复同一句话')
+                raise ValueError('没有可送独立复核的候选；需修正：' + '；'.join(issues))
             # If semantic review rejects the set (or fails to return a valid
             # verdict), the next attempt must not silently reuse rejected copy.
-            candidate_pool.clear()
             dialogue_context = (json.dumps([dict(id=i,text=u) for i,u in enumerate(units)],
                                 ensure_ascii=False) if structured_model else transcript)
             judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。
@@ -483,6 +514,8 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
 只用guest真正说出的内容支撑标题事实；host只提供问题背景，不能把未被回答确认的假设写进标题。
 完整字幕：{dialogue_context}'''
             reviews = _json(call(judge, review_schema(len(valid)))).get('reviews', [])
+            if not isinstance(reviews, list) or len(reviews) != len(valid):
+                raise ValueError('独立复核必须逐一覆盖实际送审候选')
             if structured_model:
                 normalized=[]
                 for row in reviews:
@@ -494,6 +527,10 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                         raise ValueError('独立复核必须先说明嘉宾回答、主持人问题和本候选的原文依据')
                     normalized.append({**verdict,'reason':analysis['c_reason'],'source_reading':analysis})
                 reviews=normalized
+            indices = [row.get('index') if isinstance(row, dict) else None for row in reviews]
+            if (any(type(i) is not int for i in indices)
+                    or sorted(indices) != list(range(len(valid)))):
+                raise ValueError('独立复核编号重复、遗漏或越界，不能据此选稿')
             accepted = []
             for row in reviews:
                 if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)
@@ -517,9 +554,17 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                         appeal=row.get('appeal')))
                 raise ValueError('独立复核退回：先按原文修正中心观点，再重写三个角度；具体意见：'
                                  +json.dumps(feedback,ensure_ascii=False))
-            winner = max(accepted, key=lambda r:r['appeal'])
+            winner = select_reviewed_candidate(accepted, valid)
             item = valid[winner['index']]
-            return _package(item, transcript, dict(method='cpu_text_review', **winner), valid)
+            result = _package(item, transcript, dict(method='cpu_text_review', **winner), valid)
+            result['editorial_selection'] = dict(
+                policy='review_then_source_features_v1', attempt=attempt+1,
+                reviewed_count=len(valid), accepted_count=len(accepted),
+                selected_index=winner['index'],
+                candidates=[dict(title=c['title'], features=editorial_features(c),
+                    accepted=i in {r['index'] for r in accepted}) for i,c in enumerate(valid)],
+                note='同分排序依据，不代表点击率或新增事实核验')
+            return result
         except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
             if getattr(exc,'retryable_service',False):
                 # A timed-out model is not editorial feedback. Do not enqueue

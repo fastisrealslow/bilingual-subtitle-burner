@@ -133,9 +133,9 @@ def test_question_ending_is_not_left_on_a_flashing_screen():
 
 
 def test_cover_styles_preserve_scene_and_offer_safe_choice():
-    assert {V.select_cover_style(True,str(n)) for n in range(30)}=={'scene','photo','light','dark'}
+    assert {V.select_cover_style(True,str(n)) for n in range(30)}=={'scene'}
     assert V.select_cover_style(True,'访谈主题','photo')=='photo'
-    assert {V.select_cover_style(False,str(n)) for n in range(20)}=={'light','dark'}
+    assert {V.select_cover_style(False,str(n)) for n in range(20)}=={'dark'}
     assert V.select_cover_style(True,'访谈主题','dark')=='dark'
     with pytest.raises(ValueError):
         V.select_cover_style(False,'不合格原画','photo')
