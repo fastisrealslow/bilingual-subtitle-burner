@@ -1,4 +1,4 @@
-name: Qwen 园园风格 V3 十条三次稳定性实测
+name: Qwen 园园风格 V3.1 十条三次稳定性实测
 'on':
   push:
     branches:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 concurrency:
   group: qwen-title-style-v3-20260920
-  cancel-in-progress: false
+  cancel-in-progress: true
 env:
   RUN_TEXT_MODEL: qwen3:8b
   LOCAL_LLM_MODEL: qwen3:8b

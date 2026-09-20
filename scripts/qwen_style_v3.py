@@ -10,7 +10,7 @@ import urllib.request
 
 from qwen_style_trial import CASE_INDICES, ROOT, array, obj, text
 
-VERSION = 'qwen-style-v3'
+VERSION = 'qwen-style-v3.1'
 CHECKS = ('source_supported', 'speaker_correct', 'qualifiers_preserved',
           'natural', 'terminology_clear', 'style_preserved', 'cover_consistent')
 
@@ -46,6 +46,15 @@ def audit_ok(audit, draft, cues):
     # Model-supplied evidence must actually occur in the original transcript.
     source = ''.join(cues)
     return bool(evidence) and all(isinstance(q, str) and len(q) >= 4 and q in source for q in evidence)
+
+
+def validation_issues(audit, draft, cues):
+    issues = format_issues(draft)
+    source = ''.join(cues)
+    if not audit.get('evidence') or any(not isinstance(q,str) or len(q)<4 or q not in source
+                                      for q in audit.get('evidence', [])):
+        issues.append('核对所引用的证据不是原始字幕逐字片段，必须重新找真实证据')
+    return issues
 
 
 def main():
@@ -117,9 +126,9 @@ qualifiers_preserved保留范围、条件、否定及不确定性；natural没�
 terminology_clear没有明显字幕错词或无法确认的术语；style_preserved保留本人讲话的鲜明态度和口语；
 cover_consistent封面与标题同一观点，没有缩小/扩大对象。
 明显的否定、有力语气本身不是问题。不要把观点改成报告腔。
-原文未说不投就不能补不投，不能凭风格参考添加泡沫、AI收益等事实。
+原文未说不投就不能补不投，原文没有的对象、理由、数值、立场都不能添加。
 如果字幕有疑似错词，不能原样带到标题，也不能未经原音确认宣称已纠正；可避开不确定术语。
-“十年回本”和“十年收回五六成”不是一回事。必须检查标题中具体收益数字对应的条件。
+若标题含收益数字，检查其范围、期间、条件与原文完全一致；原文没有数字则不要求补数字。
 evidence只从原始字幕连续逐字摘录1~4段证据，不改错字，每段最多45字。
 issues列出具体问题，无问题时为空数组。任何问题对应检查必须false。
 标题封面：{json.dumps(candidate, ensure_ascii=False)}
@@ -128,7 +137,7 @@ issues列出具体问题，无问题时为空数组。任何问题对应检查�
     try:
         row['model_details'] = json.load(urllib.request.urlopen('http://127.0.0.1:11434/api/tags', timeout=15))
         draft = call('draft', f'''为真实林园访谈写3个不同角度的B站标题及封面，只输出JSON。
-风格参考仅用于口吻，其事实绝不能搬入本片：{examples}
+只根据以下字幕中的嘉宾回答拟稿；不存在其他事实参考。
 保持园园风格：本人直接讲话，先亮态度/判断，再接具体理由；两三句连着说，后一句增加信息。
 允许鲜明否定和适度强调，不强求感叹号，不写研究报告。“我”只用于嘉宾自己的立场。
 保留有辨识度的原话，去掉口吃填充；避免空泛“坚持长期/核心逻辑/理念”、重复三遍不卖。
@@ -158,6 +167,7 @@ ranking按最好到最差输出全部三个index。reasons每个index给一句�
         row['style_selected_index'] = index
         chosen = row['drafts'][index]
         row['audit'] = audit(chosen, 'audit')
+        row['validation_issues'] = validation_issues(row['audit'], chosen, cues)
         if audit_ok(row['audit'], chosen, cues):
             row['final_candidate'] = chosen
             row['status'] = 'accepted_initial'
@@ -166,12 +176,14 @@ ranking按最好到最差输出全部三个index。reasons每个index给一句�
 只修列出的问题，不把标题重写成报告腔；无法局部修正时，从同段原文另选有依据的具体判断。
 原候选：{json.dumps(chosen, ensure_ascii=False)}
 核对问题：{json.dumps(row['audit'], ensure_ascii=False)}
-程序格式问题：{json.dumps(format_issues(chosen), ensure_ascii=False)}
+程序检查问题：{json.dumps(row['validation_issues'], ensure_ascii=False)}
+核对意见也可能误判：只修原始字幕能够证实的问题，严禁把核对意见里的新增事实搬进标题。
 疑似字幕错词没有原音确认时，避开不确定术语，不新增事实。不得把主持人的问题当嘉宾结论。
 标题以林园：开头，12~62字；封面8~18字，不含林园姓名。changes说明改了什么，最多60字。
 原始字幕：{full}''', obj(dict(title=text(), cover=text(), changes=text())), tokens=500)
             fixed = {k:row['repair'][k] for k in ('title','cover')}
             row['final_audit'] = audit(fixed, 'audit_repair')
+            row['final_validation_issues'] = validation_issues(row['final_audit'], fixed, cues)
             if audit_ok(row['final_audit'], fixed, cues):
                 row['final_candidate'] = fixed
                 row['status'] = 'accepted_repaired'

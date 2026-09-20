@@ -24,6 +24,8 @@ def test_false_or_fabricated_evidence_cannot_approve_output():
     assert trial.audit_ok(audit, draft, cues)
     assert not trial.audit_ok(dict(audit, speaker_correct=False), draft, cues)
     assert not trial.audit_ok(dict(audit, evidence=['经营不好必然亏损']), draft, cues)
+    assert trial.validation_issues(dict(audit, evidence=['经营不好必然亏损']), draft, cues)
+    assert trial.validation_issues(audit, draft, cues) == []
     assert not trial.audit_ok(dict(audit, issues=['还存在一个问题']), draft, cues)
     assert not trial.audit_ok(audit, dict(draft, cover='林园：经营不好不能买'), cues)
 
