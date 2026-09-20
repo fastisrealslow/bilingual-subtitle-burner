@@ -71,6 +71,7 @@ jobs:
           FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
         run: |
           pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+          python -m pytest -q tests/test_linyuan_dispatch_retry.py
           python linyuan/fc/catchup_from_inventory.py
       - name: 回读真实运行状态并更新日志页
         if: always()

@@ -42,6 +42,7 @@ jobs:
       - name: 核对供片、锁、恢复与投稿保护
         run: >-
           python -m pytest -q tests/test_linyuan_runner_dispatch.py
+          tests/test_linyuan_dispatch_retry.py
           tests/test_linyuan_reserve_integrity.py tests/test_linyuan_state_merge.py
           tests/test_linyuan_preflight_recovery.py tests/test_linyuan_makeup_slot.py
           tests/test_linyuan_missed_slots.py tests/test_linyuan_config_health.py

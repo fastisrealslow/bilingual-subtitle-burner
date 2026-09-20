@@ -22,6 +22,7 @@ import difflib
 import io
 import json
 import logging
+import math
 import os
 import re
 import shutil
@@ -1370,6 +1371,22 @@ def diversify_source_candidates(candidates, limit, per_family=2):
     return selected
 
 
+class SourceDurationRejected(RuntimeError):
+    """A positive, measured duration is outside the source admission policy."""
+
+    def __init__(self, duration):
+        self.duration = duration
+        super().__init__(f"时长 {duration:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]")
+
+
+def validate_source_duration(duration):
+    # Unknown/invalid media may be a partial download; keep its normal retry.
+    if not math.isfinite(duration) or duration <= 0:
+        raise RuntimeError("源片时长无法确认，保留下载重试")
+    if not MIN_DUR <= duration <= MAX_DUR:
+        raise SourceDurationRejected(duration)
+
+
 def pick(items, st, n, audit=None):
     now = time.time()
     from collections import Counter
@@ -1383,18 +1400,27 @@ def pick(items, st, n, audit=None):
     published_srcs = {info.get("source_url", "") for info in st.get("published", {}).values() if info.get("source_url")}
     # 重试项：3 次失败后会进 rejected，这里从 retry_list 重新加回候选
     retry_ready = []
+    rejected_keys = {x.get('key') for x in st['rejected'] if x.get('key')}
+    rejected_vids = {x.get('video_id') for x in st['rejected'] if x.get('video_id')}
+    retry_waiting = []
     for x in st.get("pending_retry", []):
+        if x.get('key') in rejected_keys or x.get('video_id') in rejected_vids:
+            continue
         if x.get("key") in published_keys:
             continue  # 已发布过，不再重试
         if (x.get("page_url") or "").strip() in published_srcs:
             continue
         if now - x.get("ts", 0) > 30 * 60 and x.get("retries", 0) < 3:
             retry_ready.append(x)
+        else:
+            retry_waiting.append(x)
     done -= {x["key"] for x in retry_ready}
+    done |= {x['key'] for x in retry_waiting if x.get('key')}
     cooling = {e.get("video_id") for e in st["dispatched"]
                if e.get("video_id") and now - e.get("ts", 0) < SAME_VIDEO_COOLDOWN}
     cooling |= {e.get("video_id") for e in st["rejected"] if e.get("video_id")}
     cooling -= {x["video_id"] for x in retry_ready}
+    cooling |= {x['video_id'] for x in retry_waiting if x.get('video_id')}
     # 排除已发布的视频（防止重复采集自己发的）
     published_bvs = {info.get("bvid", "") for info in st.get("published", {}).values()}
     # 微博噪音：不是林园本人视频的常见噪音关键词
@@ -1900,8 +1926,7 @@ def _download_inner(cand, dest):
                 f.write(chunk)
     dur = mp4_duration(dest)
     log.info(f"    文件大小: {dest.stat().st_size/1024:.0f} KB, 时长: {dur:.0f}s")
-    if not (MIN_DUR <= dur <= MAX_DUR):
-        raise RuntimeError(f"时长 {dur:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]")
+    validate_source_duration(dur)
     return dur
 
 
@@ -2414,7 +2439,7 @@ def _dispatch_admitted(event=None, context=None):
                 # 腾讯新闻：yt-dlp 下不了 blob 页面，FC 直接解析真直链下载
                 vurl, dur_hint = tencent_resolve_url(c["page_url"])
                 if dur_hint and not (MIN_DUR <= dur_hint <= MAX_DUR):
-                    raise RuntimeError(f"腾讯时长预检 {dur_hint:.0f}s 不在 [{MIN_DUR},{MAX_DUR}]")
+                    validate_source_duration(dur_hint)
                 dest = tmp / f"{c['slug']}.mp4"
                 c2 = dict(c)
                 c2["video_url"] = vurl
@@ -2488,8 +2513,19 @@ def _dispatch_admitted(event=None, context=None):
 
 
 def _record_failure(st, c, e):
-    """记录调度失败，3 次后才真正 rejected。"""
+    """Reject measured policy failures immediately; retry transient failures."""
     retry_list = st.setdefault("pending_retry", [])
+    if isinstance(e, SourceDurationRejected):
+        if not any(x.get('key') == c['key'] for x in st['rejected']):
+            st['rejected'].append({'key': c['key'], 'video_id': c['video_id'],
+                'ts': int(time.time()), 'error': str(e),
+                'reason_code': 'source_duration_out_of_range',
+                'duration_sec': e.duration})
+        st['pending_retry'] = [x for x in retry_list
+                               if x.get('key') != c['key'] and x.get('video_id') != c['video_id']]
+        save_state(st)
+        log_event('source_rejected', '源片时长不合格，停止重复下载', str(e))
+        return
     existing = next((x for x in retry_list if x.get("key") == c["key"]), None)
     if existing:
         existing["retries"] = existing.get("retries", 0) + 1
