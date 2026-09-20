@@ -17,7 +17,7 @@ bash scripts/check_linyuan_local.sh
 open output/optimization-v1/index.html
 ```
 
-回归不调用付费模型、不触发云端生产、不投稿。封面预览使用工程已留存的肖像与同一条历史文案，是排版比较，不是新成片验收。新下载的参考账号封面只用于对照，不作为我们的生产素材。
+回归不调用付费模型、不触发云端生产、不投稿。页面会读取本轮已下载的完整样片和字幕对照；单独重建脚本不会下载这些产物。封面排版演示使用已留存肖像和同一条历史文案，与真实样片分开展示。新下载的参考账号封面只用于对照，不作为我们的生产素材。
 
 ## 在其他机器重建
 
@@ -47,8 +47,21 @@ OpenCV 在本机首次加载耗时较长；这不代表出片程序已经运行�
 - `COVER_STYLE=editorial/photo/light/dark` 可显式选择。舞台专用分支仍使用原来的经过验证的封面路径。
 - 来源历史只小幅影响顺序：30天内至少三个不同母片的明确结果才生效，重试不重复计数，服务故障不惩罚素材来源，不封禁未知来源。
 - 普通分片的耗时、失败分类、可重试分片编号加入 `batch_report.json`；这版没有把部分失败自动重新投稿，也不修改配额。
+- `SUBTITLE_LAYOUT=footer`：普通原画视频的实验字幕带，追加画布高度并保留原画；不改变默认字幕。舞台专用与纯音频路径不在本轮实测范围内。
 - 时长门槛暂时仍为120秒；90秒短观点策略需要同步生产和投稿端，不能只改选段器。
 
 ## 上线前验收
 
 先用固定真实字幕重复生成，记录标题通过/兜底/失败与耗时；然后用固定母片实产，对照实际画面、声音和字幕。最后才考虑合并、FC 部署与线上观察。线上恢复与发布流程见 `linyuan/fc/README.md`，以真实成片和投稿回执为准。
+
+## 已下载的真实验收产物
+
+`output/optimization-v1/index.html` 可直接用浏览器打开，包含：
+
+- `fixed-review/10608098788/final.mp4`：固定母片生成的 267.7 秒完整样片，另有封面及 30 秒预览。[运行记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35520397101)。
+- `caption-footer-preview/before.mp4` 与 `footer.mp4`：同字幕、同时间的真实 30 秒布局比较。[运行记录](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35521088500)。
+- `title-summary/` 与 `title-guard-summary/`：首批 18 次、追加 6 次的独立汇总，不将两次代码版本混算。
+
+上述目录被 Git 忽略，换机器时需从对应 Actions artifacts 恢复，不能只靠 clone 得到视频。精简的最终标题、证据、代码指纹和复核备注已提交至 `linyuan/simulations/title-batch-20260920/optimization-review.json`；原始完整模型调用保存在 artifacts。
+
+本机当前离线检查为 249 passed、1 skipped；需要 ffmpeg 的媒体检查明确跳过。真实云端编码通过并不代表本机已具备全部生产依赖。完整结论及尚未解决的标题语义问题见 [本轮验收报告](LINYUAN_OPTIMIZATION_2026-09-20.md)。
