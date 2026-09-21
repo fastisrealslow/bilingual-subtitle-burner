@@ -299,9 +299,9 @@ def unsupported_hedge_error(title, cover, evidence):
     selected guest evidence. This narrow check catches that family, not every
     paraphrase or semantic error; ambiguous cases still need review.
     """
-    invented = re.search(r'(?:未来|后市|趋势|走势).{0,8}(?:不确定|需(?:要)?观察)|仍(?:需|要)观察',
+    invented = re.search(r'(?:未来|后市|趋势|走势).{0,8}(?:不确定|需(?:要)?观察|(?:仍|还)?要看.{0,4}(?:变化|情况|走势))|仍(?:需|要)观察',
                          title + '。' + cover)
-    stated = re.search(r'可能|也许|未必|不确定|不一定|不好说|难说|说不准|判断不了|无法判断|不能判断|不能确定|不敢判断|不知道|需.{0,3}观察|再看看',
+    stated = re.search(r'可能|也许|未必|不确定|不一定|不好说|难说|说不准|判断不了|无法判断|不能判断|不能确定|不敢判断|不知道|需.{0,3}观察|再看看|要看.{0,4}(?:变化|情况|走势)',
                        ''.join(evidence))
     if invented and not stated:
         return '标题新增了嘉宾证据中没有的不确定判断；不能用审慎套话改写原话的明确观点'

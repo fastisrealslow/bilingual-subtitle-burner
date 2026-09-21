@@ -65,7 +65,7 @@ def test_range_variants_and_exact_quantities_with_other_units():
         ('年',12,13,'十二三年'), ('年',23,23,'二十三年'), ('倍',2,3,'两三倍')]
 
 
-@pytest.mark.parametrize('ending',['但未来趋势不确定','但未来仍需观察'])
+@pytest.mark.parametrize('ending',['但未来趋势不确定','但未来仍需观察','但未来仍要看变化'])
 def test_real_source28_approved_review_cannot_add_a_cautious_tail(ending):
     source='但是我们的对这个未来趋势的判断，现在就是牛市初期。'
     title='林园：牛市初期形态明显，'+ending
