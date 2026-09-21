@@ -342,6 +342,10 @@ def unresolved_subject_error(title, cover):
         if (re.search(r'这(?:两|三|几)种病',copy)
                 and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):
             return '文案只有“这几种病”的未解释指代；写出疾病或实际讨论的并发症产品，不复制问题残句'
+        body=re.sub(r'^[^：:]+[：:]', '', copy)
+        if (re.match(r'要有时间|不排除(?:十|十二|12)个月', body)
+                and not re.search(r'市场|指数|牛市|突破|回本|收益|盈利|投资', body)):
+            return '时间原话缺少发生什么的对象；摘录真实短句也不能让观众猜十二个月指什么'
     return None
 
 
@@ -357,6 +361,15 @@ def unsupported_hedge_error(title, cover, evidence):
     # about this separate claim. Keep this object-specific, not a blanket ban
     # on question titles or on the word 可能 elsewhere in the answer.
     source = compact(''.join(evidence))
+    claim=compact(title+'。'+cover)
+    # Real replay 35564387599: the critic checked only the first clause and
+    # approved an invented efficacy assessment in the second. A discussion of
+    # disease-related products does not itself support a claim about efficacy.
+    if (re.search(r'疗效|(?:药物|药品|产品).{0,4}(?:效果|是否有效)', claim)
+            and not re.search(r'疗效|效果|有效|无效|起作用|管用', source)):
+        return '原文未评价药物或产品效果，标题不能新增疗效好坏、待验证或不确定的判断'
+    if '空间估值' in claim and not re.search(r'估值|市盈率|PE|pe', source):
+        return '原文讨论市场空间，不能改成估值倍数'
     questioning_rule = re.search(r'(?:得|要|需)看.{0,5}(?:是不是|是否).{0,4}规律', title+'。'+cover)
     if (questioning_rule and re.search(r'就是.{0,6}规律', source)
             and not re.search(r'(?:是不是|是否|算不算|不一定|未必).{0,6}规律', source)):
@@ -533,6 +546,10 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             continue
         if quantity_range_error(title, cover['text'], transcript):
             continue
+        if (forecast_copy_error(title, cover['text'], transcript)
+                or unresolved_subject_error(title, cover['text'])
+                or unsupported_hedge_error(title, cover['text'], [quote])):
+            continue
         # Whole source claims are the fallback; not a list of detected subjects.
         item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
         if not 12 <= len(compact(title)) <= 62:
@@ -607,6 +624,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 同一对象同时有正反两面判断时，应一起保留；相对预期的比较不能替代实际情况的程度限定，标题和封面都不能只摘其中一面。
 问答轮次已由单独的原文阅读步骤划分，不能为了写标题而改动说话人。只能根据列出的嘉宾原话选择中心观点。
 再在b_focus.a_claim用一句完整的话写出上述嘉宾回答里信息最充分的核心判断、做法及限定条件，
+“不是A，而是B”的回答要写清B，不能只摘否定的前半句。市场空间不等于估值；提到药物不等于评价疗效，不能自行加“效果待观察”。
 用b_focus.b_evidence_ids选1~4条支撑它的guest原文编号；不能选host或unknown。不要把主持人的猜测或一处举例当成中心观点。
 最后在c_candidates为同一观点写3个不同角度的标题：原话中的鲜明判断、具体做法、这段确实回答的问题。不要三个角度都写成“为什么”。
 文风像嘉宾在当面说话，不像编辑在写研究报告。优先保留嘉宾原话里有辨识度的动词、语气和具体对象，把最有看点的判断放在前半句。
@@ -832,6 +850,11 @@ def error(title, proof, transcript=None, speaker='林园'):
     range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
     if range_issue:
         return range_issue
+    for issue in (forecast_copy_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  unresolved_subject_error(title, proof['cover']),
+                  unsupported_hedge_error(title, proof['cover'], evidence)):
+        if issue:
+            return issue
     if transcript is not None and any(compact(q) not in compact(transcript) for q in evidence):
         return '标题观点不能回溯真实字幕'
     review = proof.get('review') or {}

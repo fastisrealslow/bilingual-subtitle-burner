@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import random
+import re
 import time
 import urllib.request
 
@@ -63,6 +64,45 @@ def validate_input(row, expected, stage, profile):
         raise ValueError('input artifact belongs to another source, code, run or model arm')
     if row.get('status') != 'completed':
         raise ValueError('upstream stage did not complete; retain this case as unresolved')
+
+
+def partition_drafts(candidates, brief, units):
+    accepted=[];rejected=[]
+    for index,draft in enumerate(candidates):
+        values=draft.get('evidence_ids')
+        if (not isinstance(values,list) or not values or len(set(values))!=len(values)
+                or any(type(i) is not int or not 0<=i<len(units) for i in values)
+                or not set(values)&set(brief['d_core_ids'])):
+            rejected.append(dict(index=index,draft=draft,error='draft is not bound to core answer IDs'))
+        else:
+            accepted.append({**draft,'draft_index':index})
+    return accepted,rejected
+
+
+def copy_clauses(copy):
+    # Server-side enumeration prevents a fluent critic from simply omitting
+    # an unsupported second clause. Keep title and cover as separate copies.
+    clauses=[]
+    for field in ('title','cover_title'):
+        body=re.sub(r'^林园[：:]', '', copy[field])
+        for part in re.split(r'[，,。；;！？!?]',body):
+            if part.strip():clauses.append(dict(id=len(clauses),field=field,text=part.strip()))
+    return clauses
+
+
+def validate_clause_checks(checks, clauses, units):
+    if (not isinstance(checks,list) or any(not isinstance(x,dict) for x in checks)
+            or any(type(x.get('a_id')) is not int for x in checks)
+            or sorted(x['a_id'] for x in checks)!=list(range(len(clauses)))):
+        raise ValueError('critic omitted or repeated a copy clause')
+    for check in checks:
+        evidence=check.get('c_source_ids')
+        if (not isinstance(evidence,list) or any(type(i) is not int or not 0<=i<len(units) for i in evidence)
+                or type(check.get('d_supported')) is not bool
+                or not isinstance(check.get('b_reason'),str) or not check['b_reason'].strip()
+                or (check['d_supported'] and not evidence)):
+            raise ValueError('invalid clause evidence or verdict')
+    return all(c['d_supported'] for c in checks)
 
 
 def ask(prompt, schema, model, row, save):
@@ -139,19 +179,16 @@ a_evidence_ids必须包含核心回答的原文编号，先找证据再填写b_a
             if not isinstance(candidates,list) or len(candidates)!=3:raise ValueError('expected three drafts')
             candidates=[dict(evidence_ids=c.get('a_evidence_ids'),angle=c.get('b_angle'),
                 title=c.get('c_title'),cover_title=c.get('d_cover_title')) for c in candidates]
-            for draft in candidates:
-                values=draft.get('evidence_ids')
-                if (not isinstance(values,list) or not values or len(set(values))!=len(values)
-                        or any(type(i) is not int or not 0<=i<len(units) for i in values)
-                        or not set(values)&set(brief['d_core_ids'])):
-                    raise ValueError('draft is not bound to core answer IDs')
+            candidates,rejected=partition_drafts(candidates,brief,units)
+            row['rejected_drafts']=rejected;row['proposed_draft_count']=3
+            if not candidates:raise ValueError('no draft is bound to core answer IDs')
             row['result']=dict(candidates=candidates)
         else:
             prior=json.loads(args.input.read_text());validate_input(prior,bound,'write',args.profile)
             row['input_sha256']=hashlib.sha256(args.input.read_bytes()).hexdigest()
             copies=[dict(origin='old',title=case['old_title'],cover_title=case['old_cover']),
                 dict(origin='manual_control',title=case['manual_control']['title'],cover_title=case['manual_control']['cover_title'])]
-            copies += [dict(origin='generated-'+str(i),title=c['title'],cover_title=c['cover_title']) for i,c in enumerate(prior['result']['candidates'])]
+            copies += [dict(origin='generated-'+str(c.get('draft_index',i)),title=c['title'],cover_title=c['cover_title']) for i,c in enumerate(prior['result']['candidates'])]
             random.Random(20260921+args.case).shuffle(copies)
             row['blind_map']=copies
             # Reviewer receives neither reader summary, draft evidence selections,
@@ -170,8 +207,26 @@ qualifiers_kept：两种文案都保留必要否定、可能性、条件、时�
 逐条检查，不能因语法通顺全部打true。原文说没买不能写安心持有；例子不能代替主要投资选择；
 十二个月不是十二月；点位不明不能自行填数；只说“这三种病”但没有病名或独立讨论对象不算清楚。
 这不是点击率预测。只输出指定JSON。完整原文：\n'''+source+'\n待审文案：\n'+json.dumps(shown,ensure_ascii=False)
-            result=ask(prompt,schema,model,row,save)
-            reviews=[dict(**r['a_analysis'],**r['b_verdict']) for r in result.get('reviews',[])]
+            reviews=[]
+            for index,copy in enumerate(copies):
+                clauses=copy_clauses(copy)
+                clause_schema=obj(dict(a_id=dict(type='integer',minimum=0,maximum=len(clauses)-1),
+                    b_reason=dict(type='string'),c_source_ids=ids(len(units),0),d_supported=dict(type='boolean')))
+                single_fields={**fields,'a0_clause_checks':dict(type='array',minItems=len(clauses),
+                    maxItems=len(clauses),items=clause_schema)}
+                single_schema=obj(single_fields)
+                # Each call contains exactly one copy; previous reviews and
+                # other candidates cannot leak phrases into this verdict.
+                single_prompt=prompt.split('\n待审文案：')[0]+'\n待审文案：'+json.dumps(
+                    dict(id=index,title=copy['title'],cover_title=copy['cover_title']),ensure_ascii=False)
+                single_prompt+='\n本次只审核这一条。逐句编号由程序给出，不能遗漏标题后半句或封面：'+json.dumps(clauses,ensure_ascii=False)
+                single_prompt+='\n先逐句写a0_clause_checks，逐句核对原文，找不到原文依据就判d_supported=false；语义等同的表达不因措辞不同扣分。再写a_analysis和b_verdict。只输出单条对象，不用reviews数组。'
+                result=ask(single_prompt,single_schema,model,row,save)
+                clause_supported=validate_clause_checks(result.get('a0_clause_checks'),clauses,units)
+                review=dict(**result['a_analysis'],**result['b_verdict'],clause_checks=result['a0_clause_checks'])
+                if review.get('id')!=index:raise ValueError('critic returned another copy ID')
+                if not clause_supported:review['faithful']=False
+                reviews.append(review);row['partial_reviews']=reviews;save()
             if sorted(r.get('id',-1) for r in reviews)!=list(range(len(copies))):raise ValueError('missing/duplicate critic verdict')
             for review in reviews:
                 if any(type(review.get(k)) is not bool for k in checks):raise ValueError('invalid critic verdict type')

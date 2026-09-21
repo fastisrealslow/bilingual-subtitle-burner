@@ -27,6 +27,31 @@ def test_standalone_product_subject_is_not_forced_to_list_all_disease_names():
     assert T.unresolved_subject_error('林园：看好三种病的并发症相关产品','我看好的是并发症相关产品') is None
 
 
+def test_actual_34_efficacy_and_valuation_inventions_fail_even_with_positive_review():
+    case=json.loads((Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/content-stage-corpus.json').read_text())[2]
+    source=''.join(c['text'] for c in case['cues'])
+    evidence=[''.join(c['text'] for c in case['cues'][7:])]
+    for title in ('林园：空间估值在百倍到五百倍之间，但药物产品效果不确定',
+                  '林园：市场空间很大，但药物疗效还需验证'):
+        item=dict(title=title,cover_title='药物产品效果还需验证',subject='药物',evidence=evidence)
+        package=T._package(item,source,dict(method='cpu_text_review',appeal=5,
+            reason='实际模型只核对前半句就错误放行了未被原文支持的后半句',**{k:True for k in T.CHECKS}),[item])
+        assert '疗效' in T.error(title,package['title_rewrite'],source)
+    assert '估值' in T.unsupported_hedge_error('空间估值在百倍到五百倍之间','市场空间很大',evidence)
+    assert T.unsupported_hedge_error('药物疗效还需验证','药物疗效还需验证',['这些药物的效果还没有确定，仍然需要验证。']) is None
+
+
+def test_extractive_fallback_cannot_bypass_missing_subject_guard(monkeypatch):
+    import headline_policy as H
+    quote='要有时间，不排除十二个月'
+    monkeypatch.setattr(H,'title_candidates',lambda *_:['林园：'+quote])
+    monkeypatch.setattr(H,'cover_copy',lambda *_:{'text':quote})
+    with pytest.raises(ValueError):T._extractive(quote,'林园',())
+    item=dict(title='林园：'+quote,cover_title=quote,subject=quote,evidence=[quote])
+    package=T._package(item,quote,dict(method='source_quote',quote=quote),[item])
+    assert '对象' in T.error(item['title'],package['title_rewrite'],quote)
+
+
 def test_actual_source46_ends_before_explicit_recap_without_changing_cues(monkeypatch):
     record=json.loads((Path(__file__).parent/'fixtures/linyuan_source46_summary_boundary.json').read_text())
     cues=record['cues'];before=deepcopy(cues)
