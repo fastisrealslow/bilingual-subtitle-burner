@@ -318,6 +318,17 @@ def incremental_cost_error(title, cover, evidence):
     return None
 
 
+def personal_action_error(title, cover, evidence):
+    """A contrast in what the guest favors is not a stated refusal to invest."""
+    claim=title+'。'+cover
+    refusal=re.search(r'(?:我(?:们)?(?:就|也|从来|绝对)?|^|[，。：])不(?:投(?:资)?|买(?:入)?)',claim)
+    source=compact(''.join(evidence))
+    stated=re.search(r'不(?:会|想|去|再|愿|能)?(?:投(?:资)?|买(?:入)?|碰)|没有(?:投|买)',source)
+    if refusal and not stated:
+        return '原文未明确说不投或不买，不能把偏好或讨论对象的对比改成投资行动'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -356,6 +367,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     cost_issue = incremental_cost_error(title, cover, evidence)
     if cost_issue:
         return cost_issue
+    action_issue = personal_action_error(title, cover, evidence)
+    if action_issue:
+        return action_issue
     # An observed 4B-model false positive inferred "更安全" from position sizing.
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',

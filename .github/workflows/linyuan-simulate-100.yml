@@ -28,7 +28,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ inputs.sample_ids && format('source100-diagnostic-{0}', inputs.sample_ids) || 'source100-simulation-20260916' }}
+  group: ${{ format('linyuan-simulation-{0}-{1}-{2}', inputs.manifest_path || 'simulations/source100-20260916.json', inputs.content_policy || 'legacy120', inputs.sample_ids || 'all') }}
   cancel-in-progress: false
 jobs:
   prepare:
@@ -345,6 +345,8 @@ jobs:
     - simulate
     if: ${{ always() && !inputs.sample_ids }}
     runs-on: ubuntu-latest
+    env:
+      SIMULATION_MANIFEST_PATH: ${{ inputs.manifest_path || 'simulations/source100-20260916.json' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
@@ -352,12 +354,12 @@ jobs:
       with:
         pattern: simulation-report-*
         path: simulation-results
-    - name: 固定100为分母，缺失报告列为未确定
+    - name: 固定清单为分母，缺失报告列为未确定
       run: python linyuan/simulate_sources.py aggregate --reports simulation-results
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: simulation-summary-100
+        name: simulation-summary
         path: simulation-results/summary.*
         retention-days: 30
         if-no-files-found: error

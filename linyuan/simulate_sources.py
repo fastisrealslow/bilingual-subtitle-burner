@@ -462,9 +462,10 @@ def main():
         summary = aggregate(read(MANIFEST), reports)
         dest = Path(args.reports) / 'summary.json'
         write(dest, summary)
-        text = (f"100素材模拟：已确认成功 {summary['passed']}/100，质量拒绝 {summary['rejected']}/100，"
-                f"未确定 {summary['unresolved']}/100。\n"
-                f"本轮确认成功率 {summary['confirmed_success_percent']}%；目标 {summary['target_passed']}%，达标 {summary['target_met']}。\n"
+        total=summary['total']
+        text = (f"{total}素材模拟：已确认成功 {summary['passed']}/{total}，质量拒绝 {summary['rejected']}/{total}，"
+                f"未确定 {summary['unresolved']}/{total}。\n"
+                f"本轮确认成功率 {summary['confirmed_success_percent']}%；目标 {summary['target_passed']}/{total}条，达标 {summary['target_met']}。\n"
                 "以每个源URL至少一条真实合格测试片为成功；未投稿。未确定不等同质量失败。\n\n"
                 '|ID|状态|阶段|成片数|\n|---|---|---|---|\n' +
                 '\n'.join(f"|{r['sample']['id']}|{r['status']}|{r['stage']}|{len(r.get('finals',[]))}|" for r in summary['samples']))

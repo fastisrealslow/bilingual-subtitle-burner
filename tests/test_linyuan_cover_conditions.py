@@ -85,3 +85,13 @@ def test_real_source32_business_increment_cannot_become_no_cost_profit():
                                         '不必追加投入，利润还能扩大',evidence)
     assert not T.incremental_cost_error('林园：这个活动不用花钱', '参与活动不需要花钱',
                                         ['这次活动完全免费，不需要花钱。'])
+
+
+def test_real_short_source34_contrast_is_not_an_investment_refusal():
+    source=['我们看好的不是治疗这三种病的药物，是防止并发症的相关产品。']
+    assert T.personal_action_error('林园：药物治疗这三种病我不投，但预防并发症的产品我看好',
+                                   '不投治疗药，看好防并发症',source)
+    assert not T.personal_action_error('林园：我看好的是预防并发症的相关产品',
+                                       '我看好预防并发症的产品',source)
+    assert not T.personal_action_error('林园：经营不好的公司再便宜我也不买',
+                                       '经营不好，再便宜也不买',['经营不好的公司我是不会买入的。'])

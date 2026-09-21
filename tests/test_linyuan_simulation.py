@@ -108,6 +108,8 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert workflow['on']['workflow_call']['inputs']['content_policy']['default']=='legacy120'
     assert simulate['env']['LINYUAN_CONTENT_POLICY']=="${{ inputs.content_policy || 'legacy120' }}"
     assert workflow['jobs']['summary']['if']=='${{ always() && !inputs.sample_ids }}'
+    assert workflow['jobs']['summary']['env']['SIMULATION_MANIFEST_PATH']==simulate['env']['SIMULATION_MANIFEST_PATH']
+    assert 'inputs.manifest_path' in workflow['concurrency']['group']
     assert simulate['env']['SIMULATION_SAMPLE_IDS']=="${{ inputs.sample_ids || '' }}"
 
 

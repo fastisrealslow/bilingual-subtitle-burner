@@ -1,0 +1,17 @@
+name: 新版园园路线固定100验收（独立版本、固定分母、不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-reference100-acceptance.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: ''
+      content_policy: reference_v1
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
