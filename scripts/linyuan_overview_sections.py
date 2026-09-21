@@ -113,6 +113,9 @@ def quality_iteration():
         return '<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+str(run_id)+'">'+esc(label)+'</a>'
     experiment=d['content_experiment'];replay=d['title_replay'];audio=d['audio_crosscheck'];boundary=d['boundary']
     body='<section id="content-quality"><h2>内容判断：这轮真实实验发现了什么</h2><p class="warning">仍未证明整体优于线上。文案容量实验固定代码 '+esc(d['candidate_sha'][:7])+'；'+esc(d['stopping_rule'])+'</p>'
+    pending=d.get('pending_media_runs',{})
+    if pending.get('fixed100'):
+        body+='<p>后续固定版本 '+esc(pending['commit'][:7])+' 的 '+run(pending['fixed100'],'新100条完整复验')+' 已启动，结果尚未汇入此快照。上方17%仍属于cc5113b旧轮次，不能当作最新代码的成绩。</p>'
     body+='<h3>拆成多个Action后，质量是否自然提高？</h3><p>'+run(experiment['run_id'],'阅读 → 拟稿 → 独立盲审的完整实验')+'：'+esc(experiment['conclusion'])+'</p>'
     body+=table(['素材','阅读模型','阅读耗时','拟稿执行','盲审自动放行（非编辑通过）'],[
         [r['case'],r['profile'],str(r['read_seconds'])+'秒',r['write_status'],','.join(r['automatic_critic_passes']) or '无'] for r in experiment['arms']])
@@ -137,7 +140,7 @@ def quality_iteration():
     if landscape:
         body+='<h3>横版实片：修复自己的字幕触发来源残字检查</h3><p>'+run(landscape['run_id'],'两条同片版式复测')+'。'+esc(landscape['scope'])+' 原版6次横版尝试均退回竖版；本次固定复测4、8均通过，下载后再次核对文件哈希并完整解码。没有调低来源文字、人物或二维码检查。</p><div class="side">'
         for r in landscape['rows']:
-            body+='<article><h4>素材'+str(r['id'])+' · 新横版</h4><video controls preload="none" src="'+asset(r['file'])+'"></video><img loading="lazy" src="'+asset(r['contact'])+'" alt="横版六帧检查"><p>'+esc(r['title'])+'</p><p>'+esc(r['visual_review'])+'</p></article>'
+            body+='<article><h4>素材'+str(r['id'])+' · 新横版</h4><video controls preload="none" src="'+asset(r['file'])+'" poster="'+asset(r['poster'])+'"></video><img loading="lazy" src="'+asset(r['contact'])+'" alt="横版六帧检查"><p>'+esc(r['title'])+'</p><p>'+esc(r['visual_review'])+'</p></article>'
         body+='</div><p>前方三列中仍保留原cc5113b成片；这里仅展示之后的格式修复。没有增加两条出片，也没有把旧标题算作编辑合格。</p>'
     openings=d.get('short_opening_replay')
     if openings:
