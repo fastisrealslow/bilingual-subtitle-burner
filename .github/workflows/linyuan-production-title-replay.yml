@@ -1,11 +1,17 @@
-name: 真实成片标题复核：回本条件与明确观点（素材7、28）
+name: 真实成片标题复核：投资拒绝不能变成安心（素材13）
 'on':
   push:
     branches:
     - codex/linyuan-reliability-packaging
     paths:
     - .github/workflows/linyuan-production-title-replay.yml
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      case_ids:
+        description: '语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿'
+        required: false
+        default: '[3]'
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -25,9 +31,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case:
-        - 0
-        - 2
+        case: ${{ fromJSON(inputs.case_ids || '[3]') }}
         repeat:
         - 1
     steps:

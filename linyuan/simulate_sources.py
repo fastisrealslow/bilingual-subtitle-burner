@@ -247,7 +247,7 @@ def classify(finals, validation_error, batch, source, execution, steps):
     quality_types = {'VisualQualityError', 'NoStructuralCandidate', 'NoEligibleArgument'}
     visual_reasons=('来源取景无法保留完整人脸', '来源角标无法避开', '整段取景预检：',
                     '动态取景剩余帧即使全部匹配', '动态取景连续', '动态取景目标人物匹配不足',
-                    '真人取景源区域仅')
+                    '真人取景源区域仅', '成片存在持续黑色填充边')
     def quality_rejection(r):
         return (not r.get('retryable') and (r.get('error_type') in quality_types or
             (r.get('error_type')=='ValueError' and r.get('stage')=='part-quality'

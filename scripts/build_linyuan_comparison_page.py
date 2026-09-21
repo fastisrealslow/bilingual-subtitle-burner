@@ -77,6 +77,18 @@ def main():
     stats = ('<table><tr><th>版本</th><th>报告通过</th><th>质量拒绝</th><th>未确定/待返回</th><th>尚缺报告</th></tr>'+''.join(stat_rows)+'</table>'
              if stat_rows else '<p>本地尚未汇入本批报告。</p>')
     stats += '<p class="small">仅统计本地已汇入的报告；运行期间数字不是最终成绩。自动通过不等于编辑合格。</p>'
+    inventory=read(ROOT/'output/baseline-comparison-20260921/results/media-inventory-audit.json',{})
+    for name,row in inventory.get('variants',{}).items():
+        stats+='<p class="small">'+esc(name)+'：已完整解码 '+str(row['decoded_finals'])+' 份，按现有投稿去重规则保留 '+str(row['retained_by_publication_rule'])+' 份；这也不是人工质量通过数。</p>'
+    cohorts=[]
+    for label,path,run in (
+        ('新版时长策略 · 固定100 · a6e50f7',ROOT/'output/reference100-20260921/results/local-summary.json','35557015452'),
+        ('素材库固定20 · 21f6d81',OUT/'library-35556200021/local-summary.json','35556200021')):
+        row=read(path,{})
+        if row:
+            cohorts.append('<tr><td><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+run+'">'+esc(label)+'</a></td><td>'+str(row['passed'])+'/'+str(row['total'])+'</td><td>'+str(row['rejected'])+'</td><td>'+str(row['unresolved'])+'</td></tr>')
+    if cohorts:
+        stats+='<h3>其他固定批次，分开统计</h3><table><tr><th>批次 / 固定版本</th><th>报告通过 / 全部分母</th><th>拒绝</th><th>未确定 / 待返回</th></tr>'+''.join(cohorts)+'</table><p class="small">这些批次之后还有代码修复；不能把多轮最好结果合并为当前候选版的成功率。</p>'
     actual_cards = []
     media = read(ROOT/'output/baseline-comparison-20260921/results/media-verification.json', [])
     judgments = {r['id']: r for r in read(RECORDS/'production-pair-review.json', [])}

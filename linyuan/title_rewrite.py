@@ -405,7 +405,7 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
                  '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益',
-                 '不用怕','不用担心','不必担心','无需担心','放心买','没风险',
+                 '不用怕','不用担心','不必担心','无需担心','放心买','没风险','让我安心','让人安心',
                  '粘性强','粘性更强','黏性强','黏性更强','超预期')
     stated=compact(''.join(evidence))
     relation_issue=relation_error(title,cover,transcript)

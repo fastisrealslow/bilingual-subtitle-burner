@@ -80,6 +80,17 @@ def test_runtime_failure_is_not_quality_rejection():
     assert sim.classify(batch={},**dict(args,finals=[{'file':'accepted.mp4'}]))[0] == 'passed'
 
 
+def test_observed_black_padding_is_quality_rejection_but_timeout_is_not():
+    from production_diagnostics import failure_category
+    reason='成片存在持续黑色填充边'
+    row=dict(stage='part-quality',error_type='ValueError',reason=reason,retryable=False)
+    args=dict(finals=[],validation_error='',source={},execution={},steps={})
+    assert sim.classify(batch={'rejected':[row]},**args)==('rejected','candidate-quality')
+    assert failure_category(reason)=='framing'
+    row['retryable']=True
+    assert sim.classify(batch={'rejected':[row]},**args)==('unresolved','candidate-runtime')
+
+
 def test_workflow_cannot_publish_or_mutate_production():
     path=ROOT/'.github/workflows/linyuan-simulate-100.yml'
     raw=path.read_text()

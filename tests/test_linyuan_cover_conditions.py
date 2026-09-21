@@ -121,3 +121,10 @@ def test_real_short_source34_contrast_is_not_an_investment_refusal():
                                        '我看好预防并发症的产品',source)
     assert not T.personal_action_error('林园：经营不好的公司再便宜我也不买',
                                        '经营不好，再便宜也不买',['经营不好的公司我是不会买入的。'])
+
+
+def test_real_source13_refusal_cannot_become_reassurance():
+    source='中石油我没买，因为它不符合我的标准。石油也可能有替代产品，这个我把握不住。'
+    item=dict(title='林园：中石油垄断地位让我安心，但石油有替代品风险',
+              cover_title='中石油垄断地位让我安心',subject='中石油',evidence=[source])
+    assert '原文没有' in T._candidate_error(item,source,'林园',(),check_layout=False)
