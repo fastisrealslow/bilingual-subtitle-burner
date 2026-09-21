@@ -20,6 +20,7 @@ export OPENCV_VIDEOIO_PRIORITY_LIST=FFMPEG
   tests/test_linyuan_source_priority.py \
   tests/test_linyuan_runner_dispatch.py \
   tests/test_linyuan_title_model_lab.py \
+  tests/test_linyuan_source100_ab.py \
   tests/test_linyuan_dispatch_retry.py \
   tests/test_linyuan_batch_isolation.py \
   tests/test_linyuan_visual_before_copy.py "$@"
