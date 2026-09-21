@@ -19,6 +19,21 @@ def test_manifest_has_100_different_fixed_sources():
     assert {r['platform'] for r in samples} >= {'weibo_search', 'bilibili_search', 'yicai_video'}
 
 
+def test_library_sample_is_bound_to_all_pending_sources_and_keeps_20_denominator():
+    import copy
+    manifest=sim.read(ROOT/'linyuan/simulations/library20-20260921.json')
+    rows=sim.validate_manifest(manifest)
+    assert len(rows)==20 and manifest['pool_count']==73
+    summary=sim.aggregate(manifest,[])
+    assert summary['unresolved']==20 and summary['passed']==0
+    for change in ('url','snapshot','missing'):
+        broken=copy.deepcopy(manifest)
+        if change=='url':broken['samples'][0]['source_url']='https://www.bilibili.com/video/BV0000000000'
+        elif change=='snapshot':broken['library_snapshot_sha256']='0'*64
+        else:broken['samples'].pop()
+        with pytest.raises(AssertionError):sim.validate_manifest(broken)
+
+
 def test_sample_reproducible_independent_of_pool_order():
     pool = [dict(page_url=f'https://www.bilibili.com/video/BV{i:010d}', key=str(i)) for i in range(150)]
     assert sim.sample(pool) == sim.sample(list(reversed(pool)))

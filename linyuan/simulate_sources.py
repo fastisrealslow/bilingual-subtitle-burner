@@ -71,6 +71,15 @@ def validate_manifest(manifest):
         assert all(re.fullmatch(r'seed-accept-[a-f0-9]{12}', r['slug']) for r in rows)
         assert manifest.get('source_preflight_run_id')
         assert all(r.get('source_preflight_sha256') for r in rows)
+    elif kind == 'source_library_acceptance':
+        assert len(rows) == 20, 'Library acceptance uses a fixed 20-source denominator'
+        assert all(re.fullmatch(r'library-0921-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
+        audit_path=(BASE / manifest['library_snapshot']).resolve()
+        assert BASE.resolve() in audit_path.parents
+        assert digest(audit_path)==manifest['library_snapshot_sha256'], 'Library snapshot changed'
+        pool=read(audit_path)['profiles']['20']['top']
+        chosen=sample(pool,count=20,seed=manifest['seed'])
+        assert [r['source_url'] for r in rows]==[r['source_url'] for r in chosen], 'Library sample changed'
     else:
         raise ValueError('Unknown simulation manifest kind')
     assert len({source_key(r['source_url']) for r in rows}) == len(rows)
@@ -342,6 +351,8 @@ def report():
 
 def aggregate(manifest, reports):
     samples = validate_manifest(manifest)
+    total=len(samples)
+    expected_samples={s['slug']:s for s in samples}
     # A diagnostic or a best-of merge across runs is not one benchmark.
     if any(r.get('diagnostic_subset') for r in reports):
         raise ValueError('Diagnostic subset reports cannot enter full acceptance')
@@ -355,20 +366,23 @@ def aggregate(manifest, reports):
     by_slug = {}
     for report in reports:
         slug = report['sample']['slug']
+        if slug not in expected_samples or report['sample']['source_url']!=expected_samples[slug]['source_url']:
+            raise ValueError('Unexpected or replaced source report: '+slug)
         if slug in by_slug:
             raise ValueError('Duplicate sample report: ' + slug)
         by_slug[slug] = report
     rows = [by_slug.get(s['slug'], dict(sample=s, status='unresolved', stage='missing-report', finals=[])) for s in samples]
     counts = Counter(r['status'] for r in rows)
-    assert sum(counts.values()) == 100
+    assert sum(counts.values()) == total
     passed = counts['passed']
     unresolved = counts['unresolved']
-    known = 100-unresolved
+    known = total-unresolved
+    target=int((manifest.get('comparison') or {}).get('target_passed',(total*30+99)//100))
     hashes = Counter(r.get('source_sha256') for r in rows if r.get('source_sha256'))
-    return dict(total=100, passed=passed, rejected=counts['rejected'], unresolved=unresolved,
-                target_passed=int((manifest.get('comparison') or {}).get('target_passed',30)),
-                target_met=passed>=int((manifest.get('comparison') or {}).get('target_passed',30)),
-                confirmed_success_percent=passed, possible_success_percent_range=[passed,passed+unresolved],
+    return dict(total=total, manifest_kind=manifest.get('kind','fixed100'), passed=passed, rejected=counts['rejected'], unresolved=unresolved,
+                target_passed=target, target_met=passed>=target,
+                confirmed_success_percent=round(100*passed/total,2),
+                possible_success_percent_range=[round(100*passed/total,2),round(100*(passed+unresolved)/total,2)],
                 resolved_success_percent=round(100*passed/known,2) if known else None,
                 complete=unresolved == 0, stages=dict(Counter(r['stage'] for r in rows)),
                 identical_mother_hash_groups={k:n for k,n in hashes.items() if n>1},

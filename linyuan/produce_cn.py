@@ -2824,9 +2824,15 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
         # clean frame. It is useful even when the old mother cache says card.
         before=ocr_row_coverage(sample,frames=12,strict=True)
         proof['scene_text_evidence']=scene_text_evidence(sample)
+        proof['raw_row_coverage']=before
         crop=proposed_crop or safe_crop_plan(sample,width,height,coverage=before)
         if crop is None:
-            raise VisualQualityError('选段没有可验证的原画裁切方案')
+            # None also means that the selected interval needs no crop. The
+            # mother may have been classified as a card because of its intro.
+            # Try original geometry, then run the same strict text/logo checks.
+            # An unsafe crop proposal can never bypass those checks this way.
+            crop=(width//2*2,height//2*2,0,0)
+            proof['uncropped_proposal']=True
         cw,ch,cx,cy=crop
         if proposed_crop and (cx!=0 or cw!=width or cy<0 or cy+ch>height
                 or ch<height*.7 or not _face_survives(sample,cy,ch)):
