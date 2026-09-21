@@ -5,6 +5,7 @@ import html
 import json
 import os
 from linyuan_overview_sections import sections as overview_sections, CSS as overview_css
+from linyuan_threeway_review import build_threeway, CSS as threeway_css, JS as threeway_js
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'output/benchmark-20260921'
@@ -84,6 +85,7 @@ def main():
     cohorts=[]
     for label,path,run in (
         ('新版时长策略 · 固定100 · a6e50f7',ROOT/'output/reference100-20260921/results/local-summary.json','35557015452'),
+        ('稳定性修复 · 固定100 · cc5113b',ROOT/'output/candidate100-35565180877/results/local-summary.json','35565180877'),
         ('素材库固定20 · 21f6d81',OUT/'library-35556200021/local-summary.json','35556200021')):
         row=read(path,{})
         if row:
@@ -143,9 +145,13 @@ document.querySelectorAll('textarea').forEach(t=>{t.value=notes[t.dataset.note]|
 document.querySelectorAll('video').forEach(v=>v.onplay=()=>document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause()}));
 </script></html>'''
     body = body.replace('</style>', overview_css + '</style>')
+    body = body.replace('</style>', threeway_css + '</style>')
+    body = body.replace('</script>',threeway_js+'</script>')
     body = body.replace('<h1>先看能稳定做出多少，再看每条差在哪里</h1>', '')
-    body = body.replace('<nav>', '<nav><a href="#overview">成功率总览</a><a href="#sources">素材来源</a><a href="#subtitles">字幕前后</a><a href="#packaging">标题封面</a><a href="#gap">园园差距</a>')
-    body = body.replace('</nav>', '</nav>' + overview_sections(), 1)
+    body = body.replace('<nav>', '<nav><a href="#threeway">三列看实片</a><a href="#overview">成功率总览</a><a href="#sources">素材来源</a><a href="#subtitles">字幕前后</a><a href="#packaging">标题封面</a><a href="#gap">园园差距</a>')
+    overview=overview_sections()
+    intro,separator,remaining=overview.partition('</section>')
+    body = body.replace('</nav>', '</nav>'+intro+separator+build_threeway(reference_media,player)+remaining, 1)
     (OUT/'comparison.html').write_text(body)
     print(OUT/'comparison.html')
 

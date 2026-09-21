@@ -1,0 +1,675 @@
+{
+  "checked_at": "2026-09-21T14:38:39.811778+00:00",
+  "candidate_sha": "790faa7d64a3e166b01b4bb385fb5db7e0de21d1",
+  "superiority_demonstrated": false,
+  "production_replacement_ready": false,
+  "stopping_rule": "同批输入、母片哈希和固定代码比较自动出片、去重成片及逐片内容质量；不能以增加模型、任务成功或拼接各轮最好结果结束验收。",
+  "content_experiment": {
+    "run_id": 35563950038,
+    "commit": "c99e7699d9407062be51e0ba53f5dac1eea50c88",
+    "arms": [
+      {
+        "case": "reference100-13",
+        "profile": "8b-reader",
+        "reading": {
+          "a_question": "您当时这个中石油上市的时候，你买了吗？",
+          "b_main_answer": "没买，因为我我觉得它不符合我的标准。",
+          "c_subject": "中石油",
+          "d_core_ids": [
+            0,
+            1
+          ],
+          "e_example_ids": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "f_qualifier_ids": [
+            10,
+            11,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "g_missing_context": "无"
+        },
+        "read_seconds": 72.9,
+        "write_status": "unresolved",
+        "write_error": "ValueError: draft is not bound to core answer IDs",
+        "candidates": [],
+        "review_status": "unresolved",
+        "automatic_critic_passes": [],
+        "editorial_approved": false
+      },
+      {
+        "case": "reference100-13",
+        "profile": "9b-reader",
+        "reading": {
+          "a_question": "主持人询问嘉宾在中石油上市时是否购买，并追问其不符合投资标准的具体原因，特别是关于垄断性质及替代产品可能性的讨论。",
+          "b_main_answer": "嘉宾未购买是因为中石油作为全球唯一的石油垄断企业缺乏替代产品且该状态需历史检验，一旦技术出现替代将导致投资者无法把握风险。",
+          "c_subject": "中石油",
+          "d_core_ids": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "e_example_ids": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            20,
+            21
+          ],
+          "f_qualifier_ids": [
+            5,
+            9,
+            10,
+            18,
+            20
+          ],
+          "g_missing_context": "无"
+        },
+        "read_seconds": 100.3,
+        "write_status": "completed",
+        "write_error": null,
+        "candidates": [
+          {
+            "evidence_ids": [
+              1,
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              20
+            ],
+            "angle": "直接判断",
+            "title": "林园：中石油缺乏替代产品，风险难以把握",
+            "cover_title": "林园：中石油风险难以把握"
+          },
+          {
+            "evidence_ids": [
+              1,
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              20
+            ],
+            "angle": "直接判断",
+            "title": "林园：中石油垄断状态需历史检验",
+            "cover_title": "林园：中石油垄断需历史检验"
+          },
+          {
+            "evidence_ids": [
+              1,
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              20
+            ],
+            "angle": "直接判断",
+            "title": "林园：中石油可能有替代产品，风险难测",
+            "cover_title": "林园：中石油风险难测"
+          }
+        ],
+        "review_status": "completed",
+        "automatic_critic_passes": [
+          "generated-1",
+          "manual_control"
+        ],
+        "editorial_approved": false
+      },
+      {
+        "case": "reference100-58",
+        "profile": "8b-reader",
+        "reading": {
+          "a_question": "主持人询问嘉宾预计什么时候可以到达某个点位。",
+          "b_main_answer": "嘉宾认为十二个月的可能性是存在的，非常大。",
+          "c_subject": "点位",
+          "d_core_ids": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "e_example_ids": [],
+          "f_qualifier_ids": [
+            8
+          ],
+          "g_missing_context": "无"
+        },
+        "read_seconds": 43.12,
+        "write_status": "completed",
+        "write_error": null,
+        "candidates": [
+          {
+            "evidence_ids": [
+              7,
+              8,
+              9,
+              10
+            ],
+            "angle": "直接判断",
+            "title": "林园：点位十二个月可能性非常大",
+            "cover_title": "林园：点位十二个月可能性非常大"
+          },
+          {
+            "evidence_ids": [
+              7,
+              8,
+              9,
+              10
+            ],
+            "angle": "直接判断",
+            "title": "林园：点位十二个月可能性存在",
+            "cover_title": "林园：点位十二个月可能性存在"
+          },
+          {
+            "evidence_ids": [
+              7,
+              8,
+              9,
+              10
+            ],
+            "angle": "直接判断",
+            "title": "林园：点位十二个月可能性很大",
+            "cover_title": "林园：点位十二个月可能性很大"
+          }
+        ],
+        "review_status": "completed",
+        "automatic_critic_passes": [
+          "generated-1"
+        ],
+        "editorial_approved": false
+      },
+      {
+        "case": "reference100-58",
+        "profile": "9b-reader",
+        "reading": {
+          "a_question": "主持人询问嘉宾预计何时能到达之前反复提及的那个难以突破的点位（即进入牛市），并隐含了该点位多年未突破的背景假设。",
+          "b_main_answer": "嘉宾认为无法预测具体时间点，但判断未来十二个月内市场会向该点位运行，且不排除十个月的可能性，认为这种可能性非常大。",
+          "c_subject": "这个点位",
+          "d_core_ids": [
+            2,
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "e_example_ids": [],
+          "f_qualifier_ids": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "g_missing_context": "无"
+        },
+        "read_seconds": 57.56,
+        "write_status": "completed",
+        "write_error": null,
+        "candidates": [
+          {
+            "evidence_ids": [
+              5,
+              7,
+              8,
+              9,
+              10
+            ],
+            "angle": "直接判断",
+            "title": "林园：这个点位未来十二个月内可能到达",
+            "cover_title": "林园：这个点位未来十二个月内可能到达"
+          },
+          {
+            "evidence_ids": [
+              5,
+              7,
+              8,
+              9,
+              10
+            ],
+            "angle": "直接判断",
+            "title": "林园：这个点位未来十个月可能性非常大",
+            "cover_title": "林园：这个点位未来十个月可能性非常大"
+          },
+          {
+            "evidence_ids": [
+              5,
+              7,
+              8,
+              9,
+              10
+            ],
+            "angle": "直接判断",
+            "title": "林园：这个点位未来时间难以预测",
+            "cover_title": "林园：这个点位未来时间难以预测"
+          }
+        ],
+        "review_status": "completed",
+        "automatic_critic_passes": [],
+        "editorial_approved": false
+      },
+      {
+        "case": "reference100-34",
+        "profile": "8b-reader",
+        "reading": {
+          "a_question": "您现在认为这个市场的空间还有多少？",
+          "b_main_answer": "我们看好的不是治疗这三种病的这个药物，是治疗它这个三种病引发的这个呃防止三者，引发的一个这个并发症的这些相关的产品。",
+          "c_subject": "市场",
+          "d_core_ids": [
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "e_example_ids": [],
+          "f_qualifier_ids": [
+            7
+          ],
+          "g_missing_context": "无"
+        },
+        "read_seconds": 52.07,
+        "write_status": "completed",
+        "write_error": null,
+        "candidates": [
+          {
+            "evidence_ids": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "angle": "直接判断",
+            "title": "林园：市场空间可能在一百倍到五百倍之间",
+            "cover_title": "林园：市场空间可能在一百倍到五百倍之间"
+          },
+          {
+            "evidence_ids": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "angle": "直接判断",
+            "title": "林园：市场看好的不是治疗三病药物，而是并发症产品",
+            "cover_title": "林园：市场看好的不是治疗三病药物，而是并发症产品"
+          },
+          {
+            "evidence_ids": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "angle": "直接判断",
+            "title": "林园：市场空间可能在一百倍到五百倍之间",
+            "cover_title": "林园：市场空间可能在一百倍到五百倍之间"
+          }
+        ],
+        "review_status": "completed",
+        "automatic_critic_passes": [],
+        "editorial_approved": false
+      },
+      {
+        "case": "reference100-34",
+        "profile": "9b-reader",
+        "reading": {
+          "a_question": "主持人询问嘉宾看好心脏病、糖尿病和高血压这三个方向的原因是否受中国人口老龄化影响，并进一步询问当前市场空间大小及具体看好的产品范围（是治疗疾病本身还是并发症）。",
+          "b_main_answer": "嘉宾认为市场空间在一百倍到五百倍之间，且明确表示看好的不是治疗这三种病本身的药物，而是防止由这三种病引发的并发症的相关产品。",
+          "c_subject": "心脏病、糖尿病和高血压",
+          "d_core_ids": [
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "e_example_ids": [],
+          "f_qualifier_ids": [
+            7,
+            8
+          ],
+          "g_missing_context": "无"
+        },
+        "read_seconds": 30.85,
+        "write_status": "completed",
+        "write_error": null,
+        "candidates": [
+          {
+            "evidence_ids": [
+              7,
+              8
+            ],
+            "angle": "直接判断",
+            "title": "林园：看好的不是治疗三大病药物，而是并发症产品",
+            "cover_title": "林园：看好的不是治疗三大病药物，而是并发症产品"
+          },
+          {
+            "evidence_ids": [
+              7,
+              8
+            ],
+            "angle": "直接判断",
+            "title": "林园：看好的是三大病引发并发症的产品",
+            "cover_title": "林园：看好的是三大病引发并发症的产品"
+          },
+          {
+            "evidence_ids": [
+              7,
+              8
+            ],
+            "angle": "直接判断",
+            "title": "林园：看好的不是治疗三大病药物，而是并发症相关产品",
+            "cover_title": "林园：看好的不是治疗三大病药物，而是并发症相关产品"
+          }
+        ],
+        "review_status": "completed",
+        "automatic_critic_passes": [
+          "old",
+          "generated-2",
+          "generated-0"
+        ],
+        "editorial_approved": false
+      }
+    ],
+    "conclusion": "6个阅读任务完成，5个拟稿任务完成，5个盲审任务完成；这些是执行状态。9B阅读可把假设变成事实，批量盲审会串用其他候选的句子、漏看后半句。不能据此接管生产。",
+    "next_run": 35565647180,
+    "next_change": "保留有效候选、分别核对每条文案、由程序枚举标题及封面每个子句并要求完整覆盖",
+    "second_round": {
+      "run_id": 35565647180,
+      "commit": "4f53cfced87a96f449143719086a846cf5042ed8",
+      "status": "completed",
+      "rows": [
+        {
+          "case": "reference100-13",
+          "profile": "8b-reader",
+          "status": "completed",
+          "seconds": 607.8,
+          "automatic_critic_passes": [
+            "manual_control"
+          ],
+          "passed_copies": [
+            {
+              "origin": "manual_control",
+              "title": "林园：我没买中石油，石油可能有替代品，垄断还要时间检验",
+              "cover_title": "石油可能被替代，我没买"
+            }
+          ],
+          "editorial_approved": false
+        },
+        {
+          "case": "reference100-58",
+          "profile": "8b-reader",
+          "status": "completed",
+          "seconds": 819.18,
+          "automatic_critic_passes": [
+            "generated-2"
+          ],
+          "passed_copies": [
+            {
+              "origin": "generated-2",
+              "title": "林园：点位十二个月可能性很大",
+              "cover_title": "林园：点位十二个月可能性很大"
+            }
+          ],
+          "editorial_approved": false
+        },
+        {
+          "case": "reference100-34",
+          "profile": "8b-reader",
+          "status": "completed",
+          "seconds": 795.88,
+          "automatic_critic_passes": [],
+          "passed_copies": [],
+          "editorial_approved": false
+        },
+        {
+          "case": "reference100-13",
+          "profile": "9b-reader",
+          "status": "completed",
+          "seconds": 828.74,
+          "automatic_critic_passes": [
+            "generated-2",
+            "generated-1",
+            "manual_control"
+          ],
+          "passed_copies": [
+            {
+              "origin": "generated-2",
+              "title": "林园：中石油可能有替代产品，风险难测",
+              "cover_title": "林园：中石油风险难测"
+            },
+            {
+              "origin": "generated-1",
+              "title": "林园：中石油垄断状态需历史检验",
+              "cover_title": "林园：中石油垄断需历史检验"
+            },
+            {
+              "origin": "manual_control",
+              "title": "林园：我没买中石油，石油可能有替代品，垄断还要时间检验",
+              "cover_title": "石油可能被替代，我没买"
+            }
+          ],
+          "editorial_approved": false
+        },
+        {
+          "case": "reference100-58",
+          "profile": "9b-reader",
+          "status": "completed",
+          "seconds": 885.79,
+          "automatic_critic_passes": [
+            "manual_control"
+          ],
+          "passed_copies": [
+            {
+              "origin": "manual_control",
+              "title": "林园：牛市启动时间不好预测，点位判断只是个人看法",
+              "cover_title": "牛市何时启动，我不好预测"
+            }
+          ],
+          "editorial_approved": false
+        },
+        {
+          "case": "reference100-34",
+          "profile": "9b-reader",
+          "status": "completed",
+          "seconds": 820.38,
+          "automatic_critic_passes": [
+            "generated-1",
+            "generated-0"
+          ],
+          "passed_copies": [
+            {
+              "origin": "generated-1",
+              "title": "林园：看好的是三大病引发并发症的产品",
+              "cover_title": "林园：看好的是三大病引发并发症的产品"
+            },
+            {
+              "origin": "generated-0",
+              "title": "林园：看好的不是治疗三大病药物，而是并发症产品",
+              "cover_title": "林园：看好的不是治疗三大病药物，而是并发症产品"
+            }
+          ],
+          "editorial_approved": false
+        }
+      ],
+      "conclusion": "18个阶段任务全部完成，逐句覆盖避免部分漏审与候选串扰；仍错误放行“点位十二个月可能性很大”和有语法歧义的并发症产品标题。人工预设对照不计模型生成成果。尚不能接管生产。"
+    }
+  },
+  "title_replay": {
+    "run_id": 35564387599,
+    "commit": "7452fd9d098548ec9a575a3771fe96d13392e0d1",
+    "cases": [
+      {
+        "id": 58,
+        "result": "要有时间，不排除十二个月",
+        "issue": "原话摘录仍缺少发生什么的对象；不能算编辑通过"
+      },
+      {
+        "id": 34,
+        "result": "空间估值在百倍到五百倍之间，但药物产品效果不确定",
+        "issue": "把市场空间写成估值，并新增药物效果判断；模型误判通过"
+      }
+    ],
+    "next_run": 35565647222,
+    "fix": "补疗效编造、估值混淆检查；原话回退与证明复用也检查指代、时长单位",
+    "second_run": 35565647222,
+    "second_results": [
+      {
+        "id": 34,
+        "title": "这类药物空间在百倍到五百倍之间",
+        "issue": "估值和疗效编造消失，但仍把被否定的药物当作看好对象"
+      },
+      {
+        "id": 58,
+        "title": "十二个月可能性大，但得耐心等",
+        "issue": "删除不明点位后仍缺少事件，模型再次误判自然完整"
+      }
+    ],
+    "next_fix": "790faa7修复生产风格提示覆盖事实约束的问题；保留独立的条件、数字、时间与指代要求；逐句检查否定转折对象。",
+    "latest_run": 35566377399,
+    "latest_results": [
+      {
+        "id": 34,
+        "title": "林园：药物空间在百倍到五百倍，但重点在并发症治疗。",
+        "issue": "并发症词已保留，但前半句仍把被排除的药物当市场空间对象；并不能靠后半句加关键词修复"
+      },
+      {
+        "id": 58,
+        "title": "林园：十二个月可能性大，但得耐心等。",
+        "issue": "时间单位保留，但仍未说明什么可能发生；未通过编辑核对"
+      }
+    ]
+  },
+  "audio_crosscheck": {
+    "run_id": 35565180839,
+    "model": "Systran/faster-whisper-large-v3",
+    "revision": "53ecf83a5bedc5597eb8c8b34eac29e5345520ff",
+    "rows": [
+      {
+        "id": 7,
+        "primary": "P一",
+        "secondary": "很便宜那我们看这个上任宗那P现在十二三倍那我们看这个就是我们最坏的结果那就是",
+        "file": "output/benchmark-20260921/audio-crosscheck-35565180839/audio-crosscheck-0/original-audio.wav",
+        "seconds": 30.91,
+        "source_sha256": "64fa677c6235f9121dc444b0d432990e1b49e3fb69cc0d590f851a93c88dea6b",
+        "final_sha256": "cb8b78b1c7c2cba30580485bd35eafbe4c76e444311b6c4fdef0ae218d09d362",
+        "audio_sha256": "1ea71cfa14aade9e2cfd6fa22bf7623afd78959ee47253353d636c93ccf72348",
+        "editorial_approved": false,
+        "subtitles_modified": false
+      },
+      {
+        "id": 8,
+        "primary": "偏仔黄",
+        "secondary": "这方面有本质的趣比如说像茅台比如说像片仔黄这些您都是感受到了一个乐观的情绪我可以这样理解吗他们的",
+        "file": "output/benchmark-20260921/audio-crosscheck-35565180839/audio-crosscheck-1/original-audio.wav",
+        "seconds": 34.37,
+        "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+        "final_sha256": "404429d557cf960a31670eb419e3e1e70aec1a60124f3484fae5cf5d8a2b2783",
+        "audio_sha256": "5dc3607a27a6e8296eea4ec511b03952c4fe531d89d1ec3cedbe9d9857981da0",
+        "editorial_approved": false,
+        "subtitles_modified": false
+      },
+      {
+        "id": 49,
+        "primary": "陈以健",
+        "secondary": "他们需要就是吃了得了病以后你必须去吃吃一辈子我们说他的就是相当于一个成瘾性可以不吃这个这三个病我们做了统计医药去在医药整",
+        "file": "output/benchmark-20260921/audio-crosscheck-35565180839/audio-crosscheck-2/original-audio.wav",
+        "seconds": 39.04,
+        "source_sha256": "15ec6a8ca0178dac741f0fa75b6cbc18f7776a42cd30ee4ac0f3c95b63f51820",
+        "final_sha256": "fc16527f3d617d56aa5e557b997a4b4f5a9796d4034e9f22c408a84bf3102d3b",
+        "audio_sha256": "0407a232e66c5d1158b1511a0591706a63d1175fe723ab3789fc6b42978ca2d5",
+        "editorial_approved": false,
+        "subtitles_modified": false
+      }
+    ],
+    "conclusion": "独立转写能定位分歧，也会错认上证综指和药名。只保留原声与两份转写对照，不自动替换字幕。"
+  },
+  "boundary": {
+    "run_id": 35564387812,
+    "commit": "7452fd9d098548ec9a575a3771fe96d13392e0d1",
+    "id": 46,
+    "same_source_sha256": "312d4ce3bdcd58f11cacbe70fdb9e3992d5d9b66ddebf459e65c0dc8203fe710",
+    "before_seconds": 191.65,
+    "after_seconds": 187.341333,
+    "last_subtitle": "这是全世界的规律了",
+    "fixed": "去掉214.6秒开始的新总结章节，原片结束在214.12秒的完整回答；实际视频和音轨已完整解码。",
+    "remaining": "新标题“龙头靠持有阶段赚大钱”主语仍不准确，不能把边界修复当整片编辑通过。",
+    "editorial_approved": false
+  },
+  "queued_acceptance": {
+    "run_id": 35565180877,
+    "commit": "cc5113b01408dabc2e6a119a9862e1537b9a40bc",
+    "status": "completed",
+    "note": "固定100整轮已结束：17自动成片、78拒绝、5运行未确定。相对a6e50f7，68恢复、5因原字幕残留被拒。代码早于后续标题修复；不拼接两轮最好结果。",
+    "passed": 17,
+    "rejected": 78,
+    "unresolved": 5
+  },
+  "capacity_experiment": {
+    "run_id": 35613314961,
+    "commit": "790faa7d64a3e166b01b4bb385fb5db7e0de21d1",
+    "status": "in_progress",
+    "models": [
+      "qwen3:8b",
+      "qwen3:14b"
+    ],
+    "cases": [
+      13,
+      58,
+      34
+    ],
+    "scope": "固定真实字幕、同一生产拟稿和审核流程；仅模型容量对照，不计出片率",
+    "production_default": "qwen3:8b",
+    "editorial_approved": false
+  },
+  "current_repairs_pending_media": [
+    "时间概率缺少事件且阅读范围漏掉原文市场对象时，重新核对完整问答归属；不会自动把遗漏句归给嘉宾。",
+    "短源开头沿用20秒检查预算，不再因完整开头位于第四个ASR句子就丢弃整条；原声不改写，仍过全部生产门禁。",
+    "横版真人窗口与新增字幕分开布局；来源字幕、二维码、人物完整性检查不放宽。6个旧横版失败保留，准备复测同一实片4、8。"
+  ],
+  "landscape_failure_audit": {
+    "run_id": 35565180877,
+    "attempted_ids": [
+      4,
+      8,
+      13,
+      32,
+      46,
+      79
+    ],
+    "verified_landscape_reframes": 0,
+    "portrait_fallbacks": 6,
+    "observed_error": "真人动态区仍有原素材字幕或免责声明条",
+    "code_finding": "v2横版把新增字幕放进真人窗口，来源文字扫描又扫描整个人物窗口；新footer布局把二者分开，待实际复测。"
+  }
+}

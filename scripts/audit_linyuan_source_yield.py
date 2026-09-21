@@ -94,7 +94,8 @@ def main():
         batches[variant] = aggregate(manifest, reports)
     for key, manifest, folder in (
         ('reference100', 'source100-20260916.json', 'output/reference100-20260921/results'),
-        ('library20', 'library20-20260921.json', 'output/benchmark-20260921/library-35556200021')):
+        ('library20', 'library20-20260921.json', 'output/benchmark-20260921/library-35556200021'),
+        ('candidate100', 'source100-20260916.json', 'output/candidate100-35565180877/results')):
         reports = [read(p) for p in (ROOT / folder).glob('simulation-report-*/report.json')]
         summary = aggregate(read(ROOT / 'linyuan/simulations' / manifest), reports)
         (ROOT / folder / 'local-summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -107,6 +108,24 @@ def main():
             tested_shas=sorted({r['tested_sha'] for r in rows if r.get('tested_sha')}),
             run_ids=sorted({str(r['run_id']) for r in rows if r.get('run_id')}),
             platforms=grouped(rows, library), authors=grouped(rows, library, True))
+    # Same URL is not enough: download bytes can change between runs.
+    baseline = {r['sample']['id']: r for r in batches['baseline']['samples']}
+    for key in ('optimized', 'reference100', 'candidate100'):
+        pairs = defaultdict(list)
+        for row in batches[key]['samples']:
+            ident = row['sample']['id']; old = baseline[ident]
+            if not old.get('source_sha256') or not row.get('source_sha256'):
+                kind = 'missing_source_hash'
+            elif old['source_sha256'] != row['source_sha256']:
+                kind = 'different_source_bytes'
+            elif 'unresolved' in (old['status'], row['status']):
+                kind = 'same_source_unresolved'
+            else:
+                kind = {('passed','passed'):'both_passed', ('rejected','passed'):'gain',
+                        ('passed','rejected'):'loss', ('rejected','rejected'):'both_rejected'}[
+                            old['status'], row['status']]
+            pairs[kind].append(ident)
+        cohorts[key]['paired_against_baseline'] = dict(pairs)
     research = read(OUT / 'source_research_report.json')
     jobs = list(research.get('jobs', {}).values())
     # GitHub's Linux monitor emits naive UTC created_at. This is discovery time,

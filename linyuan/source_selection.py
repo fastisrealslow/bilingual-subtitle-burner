@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 31
+VERSION = 32
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -315,7 +315,12 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             and units and not questions and len(cuts)==1
             and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<120
             and not speech_opening(units[0]['text'])):
-        for i in range(1,min(3,len(units))):
+        # Several short ASR sentences/fillers can precede the first complete
+        # opening. Keep the existing 20-second budget, not an unrelated
+        # two-sentence cap (real sources63/82 had a valid fourth sentence).
+        for i in range(1,len(units)):
+            if cues[units[i]['start']]['start']-cues[units[0]['start']]['start']>20:
+                break
             opening=units[i]['text']
             if (cues[units[i]['start']]['start']-cues[units[0]['start']]['start']<=20
                     and SPOKEN_SUBJECT.search(opening)

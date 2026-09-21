@@ -1,4 +1,4 @@
-name: 总结章节自然边界实片验证（素材46，不计100分成绩）
+name: 短素材开场完整句实片验证（63、82，不计100分成绩）
 on:
   push:
     branches: [codex/linyuan-reliability-packaging]
@@ -11,7 +11,7 @@ jobs:
   verify:
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '46'
+      sample_ids: '63,82'
       content_policy: reference_v1
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

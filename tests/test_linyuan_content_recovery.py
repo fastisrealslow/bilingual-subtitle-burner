@@ -87,3 +87,57 @@ def test_guest_can_have_a_complete_independent_recap(monkeypatch):
           dict(start=15,end=36,text='我更看重持续的需求，这是我选择企业的办法。')]
     assert S.boundary_error(cues,dict(start=0,end=1)) is None
     assert S.select(cues,whole_source=True)
+
+
+def test_incremental_investment_is_not_no_cost_profit():
+    source=['它不需要再去投资，利润扩大不需要再去花钱来产生利润。']
+    assert T.incremental_cost_error('林园：我投的是不花钱也能赚的生意','不花钱也能赚',source)
+    assert T.incremental_cost_error('林园：这种企业利润扩大不用追加投入','利润扩大不用追加投入',source) is None
+
+
+def test_missing_forecast_event_rereads_full_dialogue_without_forcing_guest_roles():
+    units=['您预计什么时候可以到达这个点位？',
+           '进入牛市的时间我不好预测。',
+           '我个人判断十二个月可能性很大，但仍然需要时间。']
+    reading_calls=[];drafts=[]
+    def model(prompt,schema):
+        props=schema['properties']
+        if 'c_guest_spans' in props:
+            reading_calls.append(prompt)
+            if len(reading_calls)==2:
+                assert '重新通读完整问答' in prompt
+                assert '但得耐心等' not in prompt
+            return json.dumps(dict(a_guest_answer='个人认为十二个月有可能，但具体时间不好预测。',
+                b_question_premise='主持人询问到达点位的时间。',
+                c_guest_spans=[dict(a_start=2 if len(reading_calls)==1 else 1,b_end=2)]),ensure_ascii=False)
+        if 'c_candidates' in props:
+            drafts.append(prompt)
+            if len(drafts)==1:
+                title='林园：十二个月可能性大，但得耐心等';cover='十二个月可能性很大';ids=[2]
+            else:
+                title='林园：牛市启动的时间我不好预测';cover='牛市启动时间不好预测';ids=[1]
+            return json.dumps(dict(b_focus=dict(a_claim='牛市的具体启动时间不好预测，只是个人判断。',b_evidence_ids=ids),
+                c_candidates=[dict(title=title,cover_title=cover)]*3),ensure_ascii=False)
+        return json.dumps(dict(reviews=[dict(a_analysis=dict(a_guest_answer='嘉宾明确表示牛市的具体启动时间不好预测。',
+            b_question_premise='主持人询问到达点位的时间。',c_reason='标题和封面均保留原文具体事件及不好预测的限定。'),
+            b_verdict=dict(index=0,appeal=4,**{k:True for k in T.CHECKS}))]),ensure_ascii=False)
+    result=T.generate(''.join(units),source_cues=units,structured_model=model)
+    assert len(reading_calls)==2 and len(drafts)==2
+    assert result['title']=='林园：牛市启动的时间我不好预测'
+    assert T.error(result['title'],result['title_rewrite'],''.join(units)) is None
+
+
+def test_short_source_opening_budget_uses_time_not_asr_sentence_count(monkeypatch):
+    records=json.loads((Path(__file__).parent/'fixtures/linyuan_short_opening_budget_20260921.json').read_text())
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    for row in records:
+        cues=row['cues'];original=deepcopy(cues);units=S.sentence_units(cues)
+        picks=S.select(cues,whole_source=True)
+        assert len(picks)==1 and picks[0]['start']==units[3]['start']
+        assert picks[0]['end']==len(cues)-1 and cues==original
+        # The same later sentence must not rescue a source whose missing
+        # context/preamble lasts longer than the unchanged 20-second budget.
+        late=deepcopy(cues)
+        for cue in late[units[3]['start']:]:cue['start']+=25;cue['end']+=25
+        assert S.select(late,whole_source=True)==[]

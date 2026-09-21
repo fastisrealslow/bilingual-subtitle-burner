@@ -8,7 +8,11 @@ from pathlib import Path
 CANVAS = (1280, 720)
 BRAND_WIDTH = 180
 # Keep the 632:470 clean window's aspect ratio to within one encoded pixel.
-LIVE_REGION = dict(x=156, y=0, width=968, height=720)
+# Final source-text inspection scans the whole live window. V2 placed our
+# generated captions inside that window; all six cc5113b landscape attempts
+# were then mistaken for dirty source footage. Keep every source-pixel check
+# unchanged and place our captions in a separate footer.
+LIVE_REGION = dict(x=270, y=0, width=740, height=550)
 
 
 def source_window(meta):
@@ -37,7 +41,7 @@ def layout():
     result = layout_for(*CANVAS)
     result.update(live_region=dict(LIVE_REGION), subtitle_region=dict(x=200,y=570,width=880,height=138),
                   subtitle_font_px=44, line_capacity=18, subtitle_style='white-outline',
-                  template='landscape-live-v2', preserve_display_text=True)
+                  template='landscape-live-v3-footer', preserve_display_text=True)
     return result
 
 
@@ -187,9 +191,9 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     return {**meta,**checks,'layout_proof':spec,'resolution':dict(width=1280,height=720,short_edge=720),
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
-            'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v2',
+            'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v3-footer',
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=2,input_sha256=original_sha,source_window=window,
+            'landscape_reframe':dict(version=3,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
                 source_frame_rate=rate,subtitle_timing_preserved=True)}

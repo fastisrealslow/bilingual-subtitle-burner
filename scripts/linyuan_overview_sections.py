@@ -45,7 +45,8 @@ def sections():
     if not d:
         return '<p>来源统计尚未生成，请先运行 scripts/audit_linyuan_source_yield.py。</p>'
     labels = {'baseline':'原主线 · 同批100', 'optimized':'早期优化版 · 同批100',
-              'reference100':'新时长策略 · 独立100（进行中）', 'library20':'当前素材库 · 固定20'}
+              'reference100':'新时长策略 · 固定100', 'library20':'当前素材库 · 固定20',
+              'candidate100':'稳定性修复 · 固定100（cc5113b）'}
     batchrows = []
     charts = []
     groups = []
@@ -61,9 +62,9 @@ def sections():
         groups.append('<div class="source-cohort" data-cohort="'+key+'"'+(' hidden' if key!='library20' else '')+'><h3>'+esc(labels[key])+'</h3>'+table(headers,group_rows('platforms'))+ \
             '<details><summary>展开按上传作者统计（作者不是原始拍摄方）</summary>'+table(headers,group_rows('authors'))+'</details></div>')
     intro = '<section id="overview"><div class="eyebrow">整体验收 / 2026-09-21</div><h1>形式更接近了，稳定性还没达标。</h1><p class="lead">目标是每100条素材至少30条能稳定出片，并且内容值得发布。目前还不能交出这个结论。</p><p class="small">本地报告快照：'+esc(d['checked_at'])+'；主线数据 '+d['snapshot_main_sha'][:7]+'。页面不会自动更新；不同固定版本分别统计。</p>'+ \
-        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>10%</b><span>早期优化 · 同批100自动出片</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
+        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>'+str(d['cohorts']['candidate100']['passed'])+'%</b><span>cc5113b · 同批100自动出片</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
         '<p class="small">绿色＝自动通过；红色＝质量拒绝；灰色＝未确定，含运行失败与尚缺报告。颜色不表示人工编辑质量。</p>'+table(['批次','固定代码','自动出片率','拒绝','未确定'],batchrows)+ \
-        '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。最新候选 fa315ca 尚无完整100条验收，不能拼接多轮最好结果声称达标。</p>'+ \
+        '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。cc5113b整轮已结束，仍有运行未确定项；更晚的标题修复尚未完成整批验收，具体代码与模型实验见下方；不能拼接多轮最好结果声称达标。</p>'+ \
         '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></section>'
     admission=d['admission']
     sources='<section id="sources"><h2>素材：有更新，但大库不等于可用库存</h2><p>主线当前收录 '+str(d['library_records'])+' 条记录。北京时间9月21日新增 '+str(d['discovered_today'])+' 条：B站搜索36、来源定向搜索4、微博7、网易1、园园参考2。48条候选来源加2条参考，不能说成新增50条可用母片。</p>'+ \
@@ -102,7 +103,38 @@ def sections():
         if v and proof:
             recent.append('<article><h3><a href="https://www.bilibili.com/video/'+bvid+'">'+esc(v['title'])+'</a></h3><video controls preload="none" src="reference/'+bvid+'/preview-video-only.mp4" poster="reference/'+bvid+'/cover.jpg"></video><p>'+esc(note)+'</p><p class="small">9月20日作品；本轮补充发现，不混入固定20。平台原始尺寸1988×1118，本地仅854×480无声预览，已取'+str(round(proof['decoded_duration'],1))+'秒；只做抽帧视觉观察。</p></article>')
     fresh='<section id="fresh-reference"><h2>这次补看的园园新作</h2><p>这些近作提示我们：跟随内容保留真实圆桌镜头，有时比统一黑卡更合适。黑底只是可用形式之一。</p><div class="side">'+''.join(recent)+'</div></section>'
-    return intro+sources+subtitles+titles+gaps+fresh
+    return intro+quality_iteration()+sources+subtitles+titles+gaps+fresh
+
+
+def quality_iteration():
+    d=read(ROOT/'linyuan/simulations/benchmark-20260921/content-quality-iteration.json',{})
+    if not d:return ''
+    def run(run_id,label):
+        return '<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+str(run_id)+'">'+esc(label)+'</a>'
+    experiment=d['content_experiment'];replay=d['title_replay'];audio=d['audio_crosscheck'];boundary=d['boundary']
+    body='<section id="content-quality"><h2>内容判断：这轮真实实验发现了什么</h2><p class="warning">仍未证明整体优于线上。文案容量实验固定代码 '+esc(d['candidate_sha'][:7])+'；'+esc(d['stopping_rule'])+'</p>'
+    body+='<h3>拆成多个Action后，质量是否自然提高？</h3><p>'+run(experiment['run_id'],'阅读 → 拟稿 → 独立盲审的完整实验')+'：'+esc(experiment['conclusion'])+'</p>'
+    body+=table(['素材','阅读模型','阅读耗时','拟稿执行','盲审自动放行（非编辑通过）'],[
+        [r['case'],r['profile'],str(r['read_seconds'])+'秒',r['write_status'],','.join(r['automatic_critic_passes']) or '无'] for r in experiment['arms']])
+    body+='<p>old＝旧标题；manual_control＝人工预设对照，不是模型生成成果；generated＝模型候选。放行旧错误标题或误拒合理表达都保留记录。'+esc(experiment['next_change'])+'，'+run(experiment['next_run'],'新一轮实验')+'已完成。</p>'
+    second=experiment.get('second_round',{})
+    if second:
+        body+='<p>'+esc(second['conclusion'])+'</p>'+table(['素材','阅读模型','审核耗时','盲审放行（非编辑通过）'],[
+            [r['case'],r['profile'],str(r['seconds'])+'秒',','.join(r['automatic_critic_passes']) or '无'] for r in second['rows']])
+    body+='<h3>任务成功，也可能输出不合格标题</h3>'+table(['素材','实际返回标题','逐条核对发现'],[[r['id'],r['result'],r['issue']] for r in replay['cases']])
+    body+='<p>'+run(replay['run_id'],'保留原始失败证据')+'。本轮修复：'+esc(replay['fix'])+'；'+run(replay['next_run'],'真实模型复测')+'。</p>'
+    if replay.get('latest_results'):
+        body+='<h4>最近返回的实际标题</h4>'+table(['素材','f5ce5c4实际返回','剩余问题'],[[r['id'],r['title'],r['issue']] for r in replay['latest_results']])
+        body+='<p>'+run(replay['latest_run'],'完整原始回放')+'。'+esc(replay['next_fix'])+'</p>'
+    capacity=d.get('capacity_experiment')
+    if capacity:
+        body+='<p>'+run(capacity['run_id'],'8B / 14B相同输入与代码对照')+'：'+esc(capacity['status'])+'。'+esc(capacity['scope'])+'；生产默认保持8B。尚无质量改善结论。</p>'
+    body+='<h3>独立语音复核：能发现分歧，不能直接替换字幕</h3><p>'+esc(audio['conclusion'])+' '+run(audio['run_id'],'固定模型与原声哈希的3个窗口')+'</p><div class="side">'
+    for row in audio['rows']:
+        body+='<article><h4>素材'+str(row['id'])+' · 原识别“'+esc(row['primary'])+'”</h4><audio controls preload="none" src="'+asset(row['file'])+'"></audio><p>独立转写：'+esc(row['secondary'])+'</p><small>仅播放该疑点附近原声；未修改字幕，不等于全片听音验收。</small></article>'
+    body+='</div><h3>片尾修复：已经有实际视频证据</h3><p>素材46：'+str(boundary['before_seconds'])+'秒 → '+str(round(boundary['after_seconds'],2))+'秒，同一母片。'+esc(boundary['fixed'])+' '+run(boundary['run_id'],'查看本轮Action')+'</p>'
+    body+='<p>最后字幕：“'+esc(boundary['last_subtitle'])+'”。'+esc(boundary['remaining'])+'</p><p>新100验收：'+run(d['queued_acceptance']['run_id'],d['queued_acceptance']['commit'][:7])+'。'+esc(d['queued_acceptance']['note'])+'</p></section>'
+    return body
 
 
 CSS = '''.eyebrow{letter-spacing:.15em;color:#257365;font-weight:700}.lead{font-size:21px;max-width:900px}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.metric-grid b{font-size:40px;display:block}.metric-grid span{font-size:14px}.bar-row{margin:14px 0}.bar-row b{display:block;font-size:14px;margin-bottom:5px}.bar{height:27px;display:flex;background:#cdd2d6;overflow:hidden;border-radius:5px}.bar span{text-align:center;color:white;font-size:13px;overflow:hidden;min-width:0}.good{background:#207a64}.bad{background:#b5584c}.pending{background:#7c8893}.warning{border-left:4px solid #b66b32;background:#fff0df;padding:15px 20px}.table-scroll{overflow-x:auto}select{padding:10px;font:inherit}.transcript{white-space:pre-wrap;max-height:450px;overflow:auto;font:14px/1.7 system-ui}details{margin:15px 0}summary{cursor:pointer;color:#206e78}#subtitles article{margin:20px 0}#subtitles img{max-height:480px;width:100%}#sources,#packaging,#gap{background:#fff;padding:22px;border-radius:8px;margin-top:28px}td{vertical-align:top}#overview .small{max-width:1000px}@media(max-width:700px){.metric-grid{grid-template-columns:1fr 1fr}.metric-grid b{font-size:30px}td,th{min-width:85px}nav{position:static}}'''

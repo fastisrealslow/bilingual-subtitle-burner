@@ -418,7 +418,7 @@ def incremental_cost_error(title, cover, evidence):
     """Do not turn low incremental business investment into no-cost profit."""
     source=compact(''.join(evidence))
     incremental=re.search(r'不(?:需要|用|必).{0,3}再.{0,8}(?:花钱|投资|投入)|不(?:需要|用|必).{0,3}追加',source)
-    absolute=re.search(r'(?:不靠|不用|无需|不需要)(?:我|去)?花钱|不(?:用|需|需要)投入|零(?:成本|投入)',title+'。'+cover)
+    absolute=re.search(r'不花钱|(?:不靠|不用|无需|不需要)(?:我|去)?花钱|不(?:用|需|需要)投入|零(?:成本|投入)',title+'。'+cover)
     if incremental and absolute:
         return '原文说不必追加投入，标题不能丢掉“再、追加”的范围变成无需成本或投入'
     return None
@@ -637,6 +637,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
 按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
     reading=None;roles=None
+    reading_repair_note=''
     def fallback():
         if not structured_model:
             return _extractive(transcript, speaker, existing_titles, preferred)
@@ -685,7 +686,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             retry_note = (f'第{attempt + 1}轮重新阅读；以下是已退回的错误稿，不能当作原文事实：'
                           + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
             if structured_model and reading is None:
-                proposed_reading=_json(call(retry_note+reader_prompt,reading_schema(len(units))))
+                proposed_reading=_json(call((reading_repair_note or retry_note)+reader_prompt,reading_schema(len(units))))
+                reading_repair_note=''
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
             guest_ids=guest_evidence_ids(units,roles) if structured_model else []
@@ -760,6 +762,19 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                     candidate_pool[compact(candidate['title'])]=candidate
             valid = list(candidate_pool.values())[:3]
             if not valid:
+                # Real replay 35613314961: reading omitted the guest's earlier
+                # 牛市 / 不好预测 cues, so three writers could not name the
+                # forecast event. Request a fresh reading; never relabel the
+                # omitted cues as guest ourselves or bypass attribution review.
+                guest_text=''.join(draft_source.values())
+                if (structured_model
+                        and any(issue and '时间概率缺少具体事件' in issue for issue in errors)
+                        and re.search(r'牛市|指数|市场',transcript)
+                        and not re.search(r'牛市|指数|市场',guest_text)):
+                    reading=None;roles=None
+                    reading_repair_note=(f'第{attempt+2}轮重新阅读：可用嘉宾范围缺少时间判断的具体事件，'
+                        '拟稿无法独立说明发生什么。请重新通读完整问答，检查是否误把回答前半段当成问题；'
+                        '不能因需要对象而把主持人假设归给嘉宾。若确实缺少语境，应保留未知，不补写事实。\n')
                 issues=[f"{c.get('title','')} / {c.get('cover_title','')}"
                         f"（对象={c.get('subject')},证据编号={c.get('evidence_ids')}）：{issue}"
                         for c,issue in zip(candidates,errors) if issue]
