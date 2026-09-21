@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 29
+VERSION = 30
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -110,7 +110,7 @@ TOPIC_ANCHORS = (
     ('茅台',), ('五粮液',), ('片仔癀',), ('房地产',),
 )
 NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来谈谈|来聊聊|但我们今天采访')
-SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值')
+SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值|波段|短线')
 
 
 def question_unit(text):
@@ -120,6 +120,16 @@ def question_unit(text):
             r'比如|就像|我说[：:]|很多人问我|所以很多人问我|我的意思', text):
         return False
     return bool(QUESTION.search(text))
+
+
+def unresolved_question_tail(text):
+    if not re.search(r'[？?]',text):return False
+    if editorial.CONTENT_POLICY!='reference_v1':return True
+    # Raw ASR can put a rhetorical “对吧？” and the next full statement in
+    # one timestamped cue. Keep that cue; do not mistake an interior question
+    # mark for an unanswered final question. A short “嗯/好的” is not an answer.
+    after=re.split(r'[？?]',text)[-1]
+    return len(re.sub(r'[\W_]','',after))<8 or not STOP.search(after)
 
 
 def speech_opening(text):
@@ -136,6 +146,10 @@ def speech_opening(text):
         spoken=re.sub(r'[啊嗯呃呀](?=[，,。！？!?])','',normalized)
         spoken=re.sub(r'(是[^，,。！？!?]{1,14})的([。！？!?]?)$',r'\1\2',spoken)
         if SPOKEN_SUBJECT.search(spoken) and complete(spoken.strip('。！？!?')):
+            return True
+        if SPOKEN_SUBJECT.search(spoken) and (
+                re.fullmatch(r'我(?:们)?(?:为什么|为何|怎么|如何)[^。！？!?]{2,40}[？?]',spoken)
+                or re.fullmatch(r'我(?:们)?(?:从来|一直|现在|就|也|都)?(?:不|不会|不想)(?:做|买|卖|投|追|碰)[^，,。！？!?]{2,12}(?:[，,](?:不做|不买|不卖|不投))?[。！!]',spoken)):
             return True
         if re.match(r'^我(?:先|再)?(?:给(?:你|大家|你们))?(?:讲|说|举).{0,4}(?:故事|例子|经历)[。！!]$',spoken):
             return True
@@ -259,7 +273,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             spans.append((i,j))
     for i,j in spans:
         if j is None:continue
-        if j<=i or question_unit(units[j]['text']) or re.search(r'[？?]',units[j]['text']):continue
+        if j<=i or question_unit(units[j]['text']) or unresolved_question_tail(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
@@ -270,9 +284,13 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if editorial.transcript_integrity_error(text):
             reject('question_answer',a,b,'transcript_integrity');continue
         quotes=quote_candidates(text)
-        if not quotes:
+        if not quotes and editorial.CONTENT_POLICY!='reference_v1':
             reject('question_answer',a,b,'no_supported_title_quote');continue
-        options.append((max(map(score,quotes)),dict(start=a,end=b,score=7,
+        # A complete Q&A need not contain a ready-made short headline. It will
+        # still pass the independent title reader/writer and all media gates.
+        # Prefer literal quote opportunities, but do not confuse their absence
+        # with missing source context.
+        options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
             reason='保留原始提问和其后连续回答；未声称模型语义审核通过',
             selection_method='source_question_answer_v2')))
     # Short, uninterrupted source speeches need no invented interviewer.
@@ -308,7 +326,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if not (SPEECH_CHANGE.search(units[i]['text']) or
                 KEYNOTE_SECTION.search(units[i]['text']) or
                 speech_opening(units[i]['text'])):continue
-        if re.search(r'[？?]',units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
+        if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
@@ -316,8 +334,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         text=''.join(c['text'] for c in cues[a:b+1])
         if editorial.transcript_integrity_error(text) or boundary_error(cues,dict(start=a,end=b)):continue
         quotes=quote_candidates(text)
-        if not quotes:continue
-        options.append((max(map(score,quotes)),dict(start=a,end=b,score=7,
+        if not quotes and editorial.CONTENT_POLICY!='reference_v1':continue
+        options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
             reason='保留源片完整连续陈述及自然句界；未声称模型语义审核通过',
             selection_method='source_continuous_speech_v1')))
     # limit=None exposes every structurally valid interval to picture ranking.

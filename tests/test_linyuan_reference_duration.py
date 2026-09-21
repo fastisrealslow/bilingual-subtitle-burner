@@ -74,7 +74,9 @@ print(json.dumps(dict(policy=e.CONTENT_POLICY,minimum=e.MIN_SECONDS,source_minim
     old,new=results['legacy120'],results['reference_v1']
     assert old['picks']==[]
     assert new['minimum']==new['source_minimum']==new['dispatch_minimum']==20
-    assert len(new['picks'])==6
+    # Two complete Q&As lack a ready-made headline quote, but still have
+    # complete answers. They now proceed to independent title generation.
+    assert len(new['picks'])==8
     assert all(20<=p['duration']<120 for p in new['picks'])
     assert all(a['end']<=b['start'] for a,b in zip(new['picks'],new['picks'][1:]))
     assert old['identity']!=new['identity']
@@ -95,3 +97,21 @@ def test_real_short_openings_keep_speech_bytes_and_do_not_invent_context(monkeyp
     assert observed=={2:[(15.36,52.28)],14:[(0.16,65.96)],55:[]}
     assert not selection.speech_opening('可能我的想法跟你平时的感受啊，和你们的感受还是不一样，太紧张啊，这些焦虑没有。')
     assert not selection.speech_opening('这个啊，是便宜的。')
+
+
+def test_library_complete_qa_and_first_person_speech_do_not_require_title_quotes(monkeypatch):
+    import source_selection as selection
+    monkeypatch.setattr(policy,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(policy,'MIN_SECONDS',20)
+    corpus=json.loads((ROOT/'tests/fixtures/linyuan_library_short_speech.json').read_text())
+    observed={}
+    for row in corpus:
+        cues=row['cues'];before=json.dumps(cues,ensure_ascii=False)
+        picks=selection.select(cues,whole_source=True,limit=None)
+        observed[row['id']]=[(cues[p['start']]['start'],cues[p['end']]['end']) for p in picks]
+        assert json.dumps(cues,ensure_ascii=False)==before
+    assert observed=={204:[(2.32,34.44)],208:[(0.24,51.64)],212:[(0.16,65.0)]}
+    assert selection.unresolved_question_tail('未来会怎么样？嗯。')
+    assert selection.unresolved_question_tail('未来会怎么样？')
+    assert not selection.speech_opening('我们为什么能做到这个？')
+    assert not selection.speech_opening('你们为什么能拿得动股票？')
