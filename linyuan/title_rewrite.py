@@ -52,8 +52,11 @@ def subject_catalog(units):
     """Offer exact source nouns, never model-invented compound evidence anchors."""
     from collections import Counter
     import jieba.posseg
+    # Jieba tags some concrete multiword subjects (e.g. 并发症) as "l"
+    # (fixed expression), not "n". Excluding them forced real source34 drafts
+    # to anchor on 空间/药物 while dropping the actual answer's subject.
     counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
-                     if tag.startswith(('n', 'vn')) and 2 <= len(compact(word)) <= 8)
+                     if (tag.startswith(('n', 'vn')) or tag == 'l') and 2 <= len(compact(word)) <= 8)
     return {word:[i for i, unit in enumerate(units) if word in unit]
             for word, _ in counts.most_common(48)}
 
@@ -383,6 +386,15 @@ def unsupported_hedge_error(title, cover, evidence):
     return None
 
 
+def product_contrast_error(title, cover, transcript):
+    source=compact(transcript)
+    if (re.search(r'看好的不是治疗.{0,18}药物',source) and '并发症' in source):
+        for copy in (title,cover):
+            if re.search(r'药物|药品|三(?:种|大)病',copy) and '并发症' not in copy:
+                return '原文明确转向并发症相关产品，不能把被排除的药物写成看好对象或只留下否定的半句'
+    return None
+
+
 def incremental_cost_error(title, cover, evidence):
     """Do not turn low incremental business investment into no-cost profit."""
     source=compact(''.join(evidence))
@@ -431,6 +443,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     subject_issue = unresolved_subject_error(title,cover)
     if subject_issue:
         return subject_issue
+    contrast_issue = product_contrast_error(title,cover,transcript)
+    if contrast_issue:
+        return contrast_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -548,6 +563,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             continue
         if (forecast_copy_error(title, cover['text'], transcript)
                 or unresolved_subject_error(title, cover['text'])
+                or product_contrast_error(title, cover['text'], transcript)
                 or unsupported_hedge_error(title, cover['text'], [quote])):
             continue
         # Whole source claims are the fallback; not a list of detected subjects.
@@ -852,6 +868,7 @@ def error(title, proof, transcript=None, speaker='林园'):
         return range_issue
     for issue in (forecast_copy_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unresolved_subject_error(title, proof['cover']),
+                  product_contrast_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
             return issue

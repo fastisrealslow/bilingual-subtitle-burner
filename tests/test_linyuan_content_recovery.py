@@ -36,7 +36,8 @@ def test_actual_34_efficacy_and_valuation_inventions_fail_even_with_positive_rev
         item=dict(title=title,cover_title='药物产品效果还需验证',subject='药物',evidence=evidence)
         package=T._package(item,source,dict(method='cpu_text_review',appeal=5,
             reason='实际模型只核对前半句就错误放行了未被原文支持的后半句',**{k:True for k in T.CHECKS}),[item])
-        assert '疗效' in T.error(title,package['title_rewrite'],source)
+        assert T.error(title,package['title_rewrite'],source)
+        assert '疗效' in T.unsupported_hedge_error(title,item['cover_title'],evidence)
     assert '估值' in T.unsupported_hedge_error('空间估值在百倍到五百倍之间','市场空间很大',evidence)
     assert T.unsupported_hedge_error('药物疗效还需验证','药物疗效还需验证',['这些药物的效果还没有确定，仍然需要验证。']) is None
 
@@ -50,6 +51,18 @@ def test_extractive_fallback_cannot_bypass_missing_subject_guard(monkeypatch):
     item=dict(title='林园：'+quote,cover_title=quote,subject=quote,evidence=[quote])
     package=T._package(item,quote,dict(method='source_quote',quote=quote),[item])
     assert '对象' in T.error(item['title'],package['title_rewrite'],quote)
+
+
+def test_actual_34_subject_catalog_keeps_complication_term_and_positive_answer():
+    case=json.loads((Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/content-stage-corpus.json').read_text())[2]
+    units=[c['text'] for c in case['cues']]
+    ids=T.guest_evidence_ids(units,['unknown']*7+['guest']*5)
+    subjects={w:[i for i in locations if i in ids] for w,locations in T.subject_catalog(units).items()}
+    assert subjects['并发症']==[10]
+    source=''.join(units)
+    assert T.product_contrast_error('林园：这类药物空间在百倍到五百倍之间','药物空间百倍到五百倍',source)
+    assert T.product_contrast_error('林园：我们看好的是并发症相关产品','看好的是并发症相关产品',source) is None
+    assert T.product_contrast_error('林园：看好药物市场的需求空间','看好药物市场需求','我们看好药物市场需求，并发症也值得研究。') is None
 
 
 def test_actual_source46_ends_before_explicit_recap_without_changing_cues(monkeypatch):
