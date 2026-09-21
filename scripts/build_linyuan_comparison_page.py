@@ -4,6 +4,7 @@ from pathlib import Path
 import html
 import json
 import os
+from linyuan_overview_sections import sections as overview_sections, CSS as overview_css
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'output/benchmark-20260921'
@@ -124,6 +125,7 @@ def main():
         targeted.append('<article><h3>素材 '+str(row['id'])+' · '+esc(row.get('cohort','后续修复验证'))+'</h3><div class="side"><div>'+ours+
             '</div><div>'+player(*reference_media(row['reference_bvid']))+'</div></div><p>'+esc(row['comparison'])+'</p></article>')
     actual_section+='<section id="targeted"><h2>后续修复与素材库的真实成片</h2><p>短片、收尾和黑底版式单独验证；素材库20条实验与固定100分开。保留失败的文案与画面问题，不以产出文件代替质量验收。</p>'+''.join(targeted)+'</section>'
+    stats = stats.replace('<table>', '<div class="table-scroll"><table>').replace('</table>', '</table></div>')
     state = '已结束，仍需核对媒体与编辑质量' if status.get('status') == 'completed' else '运行中，当前不是最终成绩'
     body = '''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>林园：固定100素材与20条参考对照</title>
 <style>body{margin:0;background:#f0efe9;color:#172536;font:16px/1.65 system-ui}main{max-width:1320px;margin:40px auto;padding:0 22px}h1{font-size:38px;line-height:1.3}h2{margin-top:45px}h3{font-size:18px}.note{background:#dce8e1;border-left:4px solid #2b7268;padding:16px 22px}a{color:#206e78}nav{position:sticky;top:0;background:#f0efeff2;padding:12px 0;z-index:2;display:flex;gap:16px;flex-wrap:wrap}nav a,button{padding:8px 12px;border:1px solid #b8c8c4;background:white;border-radius:5px}section{scroll-margin-top:85px}.pair{margin:24px 0}.side{display:grid;grid-template-columns:1fr 1fr;gap:22px}.side>div{min-width:0}article{background:#fff;border-radius:8px;padding:18px;min-width:0}video{background:#080808;width:100%;height:370px;object-fit:contain}img{max-width:100%;max-height:370px;object-fit:contain}.small,small{color:#61717d;font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.grid video{height:300px}textarea{display:block;width:100%;box-sizing:border-box;min-height:65px;border:1px solid #ccd6d1;padding:9px}table{border-collapse:collapse;width:100%}td,th{padding:10px;border-bottom:1px solid #d5ded9;text-align:left}.hidden{display:none}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}video{height:290px}}@media(max-width:580px){.side,.grid{grid-template-columns:1fr}h1{font-size:29px}}</style>
@@ -140,6 +142,10 @@ let notes={};try{notes=JSON.parse(localStorage.getItem('linyuan-pair-review-2026
 document.querySelectorAll('textarea').forEach(t=>{t.value=notes[t.dataset.note]||'';t.oninput=()=>{notes[t.dataset.note]=t.value;try{localStorage.setItem('linyuan-pair-review-20260921',JSON.stringify(notes))}catch(e){}}});
 document.querySelectorAll('video').forEach(v=>v.onplay=()=>document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause()}));
 </script></html>'''
+    body = body.replace('</style>', overview_css + '</style>')
+    body = body.replace('<h1>先看能稳定做出多少，再看每条差在哪里</h1>', '')
+    body = body.replace('<nav>', '<nav><a href="#overview">成功率总览</a><a href="#sources">素材来源</a><a href="#subtitles">字幕前后</a><a href="#packaging">标题封面</a><a href="#gap">园园差距</a>')
+    body = body.replace('</nav>', '</nav>' + overview_sections(), 1)
     (OUT/'comparison.html').write_text(body)
     print(OUT/'comparison.html')
 
