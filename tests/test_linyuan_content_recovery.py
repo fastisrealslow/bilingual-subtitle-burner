@@ -68,6 +68,22 @@ def test_actual_34_subject_catalog_keeps_complication_term_and_positive_answer()
     assert T.product_contrast_error('林园：看好药物市场的需求空间','看好药物市场需求','我们看好药物市场需求，并发症也值得研究。') is None
 
 
+@pytest.mark.parametrize('title,cover', [
+    ('林园：看好的不是药物本身，而是并发症防治','看好的不是药物而是并发症'),
+    ('林园：不是治这三种病，而是防并发症！','不是治疗疾病，而是预防并发症'),
+    ('林园：看好并发症相关产品','看好的不是药物而是并发症'),
+])
+def test_actual_8b_and_14b_replays_cannot_drop_investment_product_object(title,cover):
+    source='我们看好的不是治疗这三种病的药物，是防止并发症的相关产品。'
+    assert '产品对象' in T.product_contrast_error(title,cover,source)
+    assert T.product_contrast_error('林园：我看好并发症相关产品','并发症产品而非原病药物',source) is None
+    assert T.product_contrast_error(title,cover,'不是治这三种病，而是防并发症。') is None
+    item=dict(title=title,cover_title=cover,subject='并发症',evidence=[source])
+    package=T._package(item,source,dict(method='cpu_text_review',appeal=5,
+        reason='模型错误放行了省略投资产品语境的疾病标题与封面',**{k:True for k in T.CHECKS}),[item])
+    assert T.error(title,package['title_rewrite'],source)
+
+
 def test_actual_source46_ends_before_explicit_recap_without_changing_cues(monkeypatch):
     record=json.loads((Path(__file__).parent/'fixtures/linyuan_source46_summary_boundary.json').read_text())
     cues=record['cues'];before=deepcopy(cues)

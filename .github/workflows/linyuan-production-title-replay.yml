@@ -1,4 +1,4 @@
-name: 缺失事件触发原文回读的真实标题复核（34、58）
+name: 产品对象保留的真实标题复核（34）
 'on':
   push:
     branches:
@@ -10,7 +10,7 @@ name: 缺失事件触发原文回读的真实标题复核（34、58）
       case_ids:
         description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
         required: false
-        default: '[4,5]'
+        default: '[5]'
         type: string
 permissions:
   contents: read
@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[4,5]') }}
+        case: ${{ fromJSON(inputs.case_ids || '[5]') }}
         repeat:
         - 1
     steps:

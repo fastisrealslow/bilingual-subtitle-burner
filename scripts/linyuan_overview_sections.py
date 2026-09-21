@@ -67,7 +67,7 @@ def sections():
         '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。cc5113b整轮已结束，仍有运行未确定项；更晚的标题修复尚未完成整批验收，具体代码与模型实验见下方；不能拼接多轮最好结果声称达标。</p>'+ \
         '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></section>'
     admission=d['admission']
-    sources='<section id="sources"><h2>素材：有更新，但大库不等于可用库存</h2><p>主线当前收录 '+str(d['library_records'])+' 条记录。北京时间9月21日新增 '+str(d['discovered_today'])+' 条：B站搜索36、来源定向搜索4、微博7、网易1、园园参考2。48条候选来源加2条参考，不能说成新增50条可用母片。</p>'+ \
+    sources='<section id="sources"><h2>素材：有更新，但大库不等于可用库存</h2><p>冻结主线f794ce7素材库收录 '+str(d['library_records'])+' 条记录。北京时间9月21日新增 '+str(d['discovered_today'])+' 条：B站搜索36、来源定向搜索4、微博7、网易1、园园参考2。48条候选来源加2条参考，不能说成新增50条可用母片。</p>'+ \
         '<p>今早 <a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(d['research_run'])+'">06:28–06:36 的监控</a>确实执行了抓取。来源研究累计74个母片下载任务，54个已完成媒体检查、17个待重试、3个待处理；参考视频另算22个，其中17个已检查。此次3个媒体任务是1个抖音母片失败、1个参考片成功、1个参考片失败，所以不能宣称“今早已下载一批新的合格母片”。</p>'+ \
         table(['同一5996条库 / 同一发布状态','元信息可进入后续处理','说明'],[['旧120秒门槛',admission['120']['candidate_count'],'源端先排除了大量完整短观点'],['新20秒下限 + 完整内容策略',admission['20']['candidate_count'],'候选增多，仍须身份、画面、选段与文案验收']])+ \
         '<p>此前固定20是从当时73条候选中抽取；本次刷新重算得到76条，原20条实验的抽样与分母保持不变。素材214的AI行业/公司选择、218的泡沫观点、220的运气故事已出实片；216下载修复后与220内容重复，不能增加一条独立库存。</p>'+ \
@@ -127,8 +127,21 @@ def quality_iteration():
         body+='<h4>最近返回的实际标题</h4>'+table(['素材','f5ce5c4实际返回','剩余问题'],[[r['id'],r['title'],r['issue']] for r in replay['latest_results']])
         body+='<p>'+run(replay['latest_run'],'完整原始回放')+'。'+esc(replay['next_fix'])+'</p>'
     capacity=d.get('capacity_experiment')
+    reread=d.get('latest_title_reread')
+    if reread:
+        body+='<p>'+run(reread['run_id'],'9a19eb2重读复测')+'：'+esc(reread['note'])+'</p>'+table(['素材','实际标题','实际封面','剩余问题'],[[r['case'],r.get('title') or '未生成',r.get('cover_title') or '未生成',r['issue']] for r in reread['rows']])
     if capacity:
-        body+='<p>'+run(capacity['run_id'],'8B / 14B相同输入与代码对照')+'：'+esc(capacity['status'])+'。'+esc(capacity['scope'])+'；生产默认保持8B。尚无质量改善结论。</p>'
+        body+='<p>'+run(capacity['run_id'],'8B / 14B相同输入与代码对照')+'：'+esc(capacity['status'])+'。'+esc(capacity['scope'])+'；生产默认保持8B。'+esc(capacity.get('note','尚无质量改善结论。'))+'</p>'
+        body+=table(['素材','模型','耗时','实际标题','核对结果'],[[r['case'],r['model'],str(r['seconds'])+'秒',r.get('title') or '未生成',r.get('review_note','待复核')] for r in capacity.get('results',[])])
+    landscape=d.get('landscape_replay')
+    if landscape:
+        body+='<h3>横版实片：修复自己的字幕触发来源残字检查</h3><p>'+run(landscape['run_id'],'两条同片版式复测')+'。'+esc(landscape['scope'])+' 原版6次横版尝试均退回竖版；本次固定复测4、8均通过，下载后再次核对文件哈希并完整解码。没有调低来源文字、人物或二维码检查。</p><div class="side">'
+        for r in landscape['rows']:
+            body+='<article><h4>素材'+str(r['id'])+' · 新横版</h4><video controls preload="none" src="'+asset(r['file'])+'"></video><img loading="lazy" src="'+asset(r['contact'])+'" alt="横版六帧检查"><p>'+esc(r['title'])+'</p><p>'+esc(r['visual_review'])+'</p></article>'
+        body+='</div><p>前方三列中仍保留原cc5113b成片；这里仅展示之后的格式修复。没有增加两条出片，也没有把旧标题算作编辑合格。</p>'
+    openings=d.get('short_opening_replay')
+    if openings:
+        body+='<h3>短素材开头：已找到候选，画面仍不合格</h3><p>'+run(openings['run_id'],'63 / 82实际生产复测')+'。'+esc(openings['note'])+'</p>'+table(['素材','候选数','结果','具体失败'],[[r['id'],r['attempted_candidates'],r['status'],r['reason']] for r in openings['rows']])
     body+='<h3>独立语音复核：能发现分歧，不能直接替换字幕</h3><p>'+esc(audio['conclusion'])+' '+run(audio['run_id'],'固定模型与原声哈希的3个窗口')+'</p><div class="side">'
     for row in audio['rows']:
         body+='<article><h4>素材'+str(row['id'])+' · 原识别“'+esc(row['primary'])+'”</h4><audio controls preload="none" src="'+asset(row['file'])+'"></audio><p>独立转写：'+esc(row['secondary'])+'</p><small>仅播放该疑点附近原声；未修改字幕，不等于全片听音验收。</small></article>'

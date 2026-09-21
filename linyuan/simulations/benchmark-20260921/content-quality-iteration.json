@@ -638,7 +638,7 @@
   "capacity_experiment": {
     "run_id": 35613314961,
     "commit": "790faa7d64a3e166b01b4bb385fb5db7e0de21d1",
-    "status": "in_progress",
+    "status": "completed",
     "models": [
       "qwen3:8b",
       "qwen3:14b"
@@ -650,12 +650,91 @@
     ],
     "scope": "固定真实字幕、同一生产拟稿和审核流程；仅模型容量对照，不计出片率",
     "production_default": "qwen3:8b",
-    "editorial_approved": false
+    "editorial_approved": false,
+    "results": [
+      {
+        "case": "reference100-13",
+        "model": "qwen3:14b",
+        "model_digest": "bdbd181c33f2ed1b31c972991882db3cf4d192569092138a7d29e973cd9debe8",
+        "status": "generated",
+        "seconds": 451.04,
+        "error": null,
+        "method": "cpu_text_review",
+        "editorial_approved": false,
+        "title": "林园：石油不符合我的标准，它可能有替代产品，垄断也未必长久。",
+        "cover_title": "石油垄断未必长久，替代产品可能到来",
+        "review_note": "较接近投资标准，但中石油扩大成石油，尚未通过编辑复核。"
+      },
+      {
+        "case": "reference100-58",
+        "model": "qwen3:14b",
+        "model_digest": "bdbd181c33f2ed1b31c972991882db3cf4d192569092138a7d29e973cd9debe8",
+        "status": "unresolved",
+        "seconds": 1059.36,
+        "error": "EditorialReviewUnavailable: 标题文案待重试：未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试",
+        "method": null,
+        "editorial_approved": false,
+        "title": null,
+        "cover_title": null,
+        "review_note": "没有返回通过生产检查的标题。"
+      },
+      {
+        "case": "reference100-34",
+        "model": "qwen3:14b",
+        "model_digest": "bdbd181c33f2ed1b31c972991882db3cf4d192569092138a7d29e973cd9debe8",
+        "status": "generated",
+        "seconds": 2196.3,
+        "error": null,
+        "method": "cpu_text_review",
+        "editorial_approved": false,
+        "title": "林园：不是治这三种病，而是防并发症！",
+        "cover_title": "不是治疗疾病，而是预防并发症",
+        "review_note": "这三种病未解释，标题和封面省略投资产品语境，易读成医疗建议；自动审核误放行。"
+      },
+      {
+        "case": "reference100-13",
+        "model": "qwen3:8b",
+        "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+        "status": "generated",
+        "seconds": 915.44,
+        "error": null,
+        "method": "source_quote",
+        "editorial_approved": false,
+        "title": "林园：而且它石油也可能有替代产品",
+        "cover_title": "而且它石油也可能有替代产品",
+        "review_note": "回退口语摘句，开头而且依赖上文，对象不够明确。"
+      },
+      {
+        "case": "reference100-58",
+        "model": "qwen3:8b",
+        "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+        "status": "unresolved",
+        "seconds": 568.27,
+        "error": "EditorialReviewUnavailable: 标题文案待重试：未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试",
+        "method": null,
+        "editorial_approved": false,
+        "title": null,
+        "cover_title": null,
+        "review_note": "没有返回通过生产检查的标题。"
+      },
+      {
+        "case": "reference100-34",
+        "model": "qwen3:8b",
+        "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+        "status": "unresolved",
+        "seconds": 335.69,
+        "error": "EditorialReviewUnavailable: 标题文案待重试：未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试",
+        "method": null,
+        "editorial_approved": false,
+        "title": null,
+        "cover_title": null,
+        "review_note": "没有返回通过生产检查的标题。"
+      }
+    ],
+    "note": "6/6案例完成。8B返回1/3，14B返回2/3；均未获编辑批准。14B的34耗时2196.3秒且仍有语境缺失，不能据此换模型或声称质量提升。"
   },
   "current_repairs_pending_media": [
-    "时间概率缺少事件且阅读范围漏掉原文市场对象时，重新核对完整问答归属；不会自动把遗漏句归给嘉宾。",
-    "短源开头沿用20秒检查预算，不再因完整开头位于第四个ASR句子就丢弃整条；原声不改写，仍过全部生产门禁。",
-    "横版真人窗口与新增字幕分开布局；来源字幕、二维码、人物完整性检查不放宽。6个旧横版失败保留，准备复测同一实片4、8。"
+    "新检查要求并发症产品的标题和封面保留产品对象，避免缩成看好疾病；待新模型复测。"
   ],
   "landscape_failure_audit": {
     "run_id": 35565180877,
@@ -670,6 +749,231 @@
     "verified_landscape_reframes": 0,
     "portrait_fallbacks": 6,
     "observed_error": "真人动态区仍有原素材字幕或免责声明条",
-    "code_finding": "v2横版把新增字幕放进真人窗口，来源文字扫描又扫描整个人物窗口；新footer布局把二者分开，待实际复测。"
+    "code_finding": "v2新增字幕与真人扫描区重叠；新footer布局分开二者，同素材4、8已通过原画检查、哈希和完整音视频解码。"
+  },
+  "pending_media_runs": {
+    "commit": "9a19eb2b7d088efcc1071e2be75b4bc622f453fa"
+  },
+  "latest_main_code_check": {
+    "baseline_sha": "1c662a175a75b9295deb0d12eae4d2d1d34c5657",
+    "main_sha": "ebc76d1ad666bce7f5623dc9e8956a92c30ab908",
+    "same_production_python_and_workflow": true,
+    "scope": "git diff baseline..origin/main -- linyuan/*.py .github/workflows/linyuan-produce-cn.yml was empty; runtime source/publish state differs and remains frozen in benchmark."
+  },
+  "landscape_replay": {
+    "run_id": 35616565163,
+    "commit": "9a19eb2b7d088efcc1071e2be75b4bc622f453fa",
+    "scope": "同一音视频与文案的版式复测，不增加出片数。",
+    "rows": [
+      {
+        "id": 4,
+        "commit": "9a19eb2b7d088efcc1071e2be75b4bc622f453fa",
+        "run_id": "35616565163",
+        "input_run_id": "35565180877",
+        "source_sha256": "b543df6714f7088d859df456b533c0ce4995da1c57b630017b7f4fd091d0c151",
+        "input_final_sha256": "efc1ed2d909c238670ca79cd295a32722857f46af232757c0fbcaf129de471a4",
+        "status": "layout_verified",
+        "editorial_approved": false,
+        "source_yield_credit": false,
+        "scope": "Same video/audio/copy; layout-only diagnostic. Not a new source pass.",
+        "output_final_sha256": "24232dda72dc2df7876ca488c3d1ca586b0e52e1c36aecd3233b24b33bcb5974",
+        "layout_proof": {
+          "version": 2,
+          "mode": "landscape",
+          "canvas": {
+            "width": 1280,
+            "height": 720
+          },
+          "subtitle_region": {
+            "x": 200,
+            "y": 570,
+            "width": 880,
+            "height": 138
+          },
+          "subtitle_font_px": 44,
+          "subtitle_max_lines": 2,
+          "subtitle_vertical_alignment": "center",
+          "subtitle_layout_version": 4,
+          "readability_version": 2026091301,
+          "subtitle_style": "white-outline",
+          "subtitle_font_unit": "visible-glyph-px",
+          "subtitle_preferred_max_seconds": 6.0,
+          "subtitle_max_seconds": 8.0,
+          "subtitle_target_seconds": 3.5,
+          "word_boundary_policy": "semantic-v1",
+          "terminal_punctuation_policy": "no-comma-period",
+          "line_capacity": 18,
+          "live_region": {
+            "x": 270,
+            "y": 0,
+            "width": 740,
+            "height": 550
+          },
+          "template": "landscape-live-v3-footer",
+          "preserve_display_text": true
+        },
+        "reframe": {
+          "version": 3,
+          "input_sha256": "efc1ed2d909c238670ca79cd295a32722857f46af232757c0fbcaf129de471a4",
+          "source_window": {
+            "x": 44,
+            "y": 360,
+            "width": 632,
+            "height": 470
+          },
+          "output_window": {
+            "x": 270,
+            "y": 0,
+            "width": 740,
+            "height": 550
+          },
+          "audio_stream_copied": true,
+          "audio_stream_sha256": "SHA256=2db38d7fafb8210f56a58e88f52817eae21ba303b4d316b23d714624a5ea38e7",
+          "source_frame_rate": "30/1",
+          "subtitle_timing_preserved": true
+        },
+        "video_audio_full_decode": true,
+        "title": "林园：这些公司长期有机会，不会有什么问题。",
+        "seconds": 40.58,
+        "original_unchanged": true,
+        "local_hash_verified": true,
+        "local_full_decode": true,
+        "file": "output/benchmark-20260921/landscape-35616565163/landscape-caption-4/media/final_2.mp4",
+        "contact": "output/benchmark-20260921/landscape-35616565163/landscape-caption-4/media/contact_sheet_6-landscape.jpg",
+        "visual_review": "六帧确认新字幕位于真人窗口下方，人物头部完整；两侧留白较大，原画清晰度与旧标题问题仍在。"
+      },
+      {
+        "id": 8,
+        "commit": "9a19eb2b7d088efcc1071e2be75b4bc622f453fa",
+        "run_id": "35616565163",
+        "input_run_id": "35565180877",
+        "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+        "input_final_sha256": "958d611944087936dd23e74603b9d24939487b57d679532d9d607d97bf7f6577",
+        "status": "layout_verified",
+        "editorial_approved": false,
+        "source_yield_credit": false,
+        "scope": "Same video/audio/copy; layout-only diagnostic. Not a new source pass.",
+        "output_final_sha256": "7c4a3f37b204920315b66b805689bc7c32315dad79f629943e0b818e305f776d",
+        "layout_proof": {
+          "version": 2,
+          "mode": "landscape",
+          "canvas": {
+            "width": 1280,
+            "height": 720
+          },
+          "subtitle_region": {
+            "x": 200,
+            "y": 570,
+            "width": 880,
+            "height": 138
+          },
+          "subtitle_font_px": 44,
+          "subtitle_max_lines": 2,
+          "subtitle_vertical_alignment": "center",
+          "subtitle_layout_version": 4,
+          "readability_version": 2026091301,
+          "subtitle_style": "white-outline",
+          "subtitle_font_unit": "visible-glyph-px",
+          "subtitle_preferred_max_seconds": 6.0,
+          "subtitle_max_seconds": 8.0,
+          "subtitle_target_seconds": 3.5,
+          "word_boundary_policy": "semantic-v1",
+          "terminal_punctuation_policy": "no-comma-period",
+          "line_capacity": 18,
+          "live_region": {
+            "x": 270,
+            "y": 0,
+            "width": 740,
+            "height": 550
+          },
+          "template": "landscape-live-v3-footer",
+          "preserve_display_text": true
+        },
+        "reframe": {
+          "version": 3,
+          "input_sha256": "958d611944087936dd23e74603b9d24939487b57d679532d9d607d97bf7f6577",
+          "source_window": {
+            "x": 44,
+            "y": 360,
+            "width": 632,
+            "height": 470
+          },
+          "output_window": {
+            "x": 270,
+            "y": 0,
+            "width": 740,
+            "height": 550
+          },
+          "audio_stream_copied": true,
+          "audio_stream_sha256": "SHA256=c588c8e36c40253568148320c5a7e581addb1dfa165c05f673e163407bdeb785",
+          "source_frame_rate": "30/1",
+          "subtitle_timing_preserved": true
+        },
+        "video_audio_full_decode": true,
+        "title": "林园：茅台这类公司，经营者对市场是乐观的，和今天赚明天亏的人不一样。",
+        "seconds": 155.94,
+        "original_unchanged": true,
+        "local_hash_verified": true,
+        "local_full_decode": true,
+        "file": "output/benchmark-20260921/landscape-35616565163/landscape-caption-8/media/final_9.mp4",
+        "contact": "output/benchmark-20260921/landscape-35616565163/landscape-caption-8/media/contact_sheet_6-landscape.jpg",
+        "visual_review": "六帧确认新字幕位于真人窗口下方，人物头部完整；两侧留白较大，原画清晰度与旧标题问题仍在。"
+      }
+    ]
+  },
+  "short_opening_replay": {
+    "run_id": 35616565799,
+    "passed": 0,
+    "rejected": 2,
+    "rows": [
+      {
+        "id": 63,
+        "status": "rejected",
+        "source_sha256": "5702f2a82aaa09a8f7e52c69deaf64dab722ff040f44960639a813b8aba531f8",
+        "attempted_candidates": 1,
+        "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+      },
+      {
+        "id": 82,
+        "status": "rejected",
+        "source_sha256": "4e32d2cc217e55f736cd6dabe40ef6102f237a4be6e71419b0f6aad94e1d4384",
+        "attempted_candidates": 1,
+        "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+      }
+    ],
+    "note": "两条均找到候选，仍未产出成片。63与97同内容，不能重复计数。"
+  },
+  "regression": {
+    "run_id": 35616570471,
+    "commit": "9a19eb2b7d088efcc1071e2be75b4bc622f453fa",
+    "linux_passed": 1081,
+    "linux_skipped": 1
+  },
+  "latest_title_reread": {
+    "run_id": 35616565071,
+    "commit": "9a19eb2b7d088efcc1071e2be75b4bc622f453fa",
+    "rows": [
+      {
+        "case": "reference100-58",
+        "status": "unresolved",
+        "seconds": 697.82,
+        "error": "EditorialReviewUnavailable: 标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+        "title": null,
+        "cover_title": null,
+        "editorial_approved": false,
+        "issue": "重读三次仍未确认嘉宾范围，没有生成合格标题。"
+      },
+      {
+        "case": "reference100-34",
+        "status": "generated",
+        "seconds": 739.97,
+        "error": null,
+        "title": "林园：看好的不是药物本身，而是并发症防治",
+        "cover_title": "看好的不是药物而是并发症",
+        "editorial_approved": false,
+        "issue": "封面省略产品，把看好相关产品变成看好并发症；新增对象保留检查，尚待新模型复测。"
+      }
+    ],
+    "note": "重读并未解决58的说话人误判；34虽返回文案仍有语境错误，二者均不计编辑通过。"
   }
 }

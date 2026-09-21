@@ -17,7 +17,8 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 标题和封面须各自说清对象，不写未解释的“这个点、此点、这三种病”。原文没有点位数值就不补数值，可改写为原文明确的预测边界。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 时间概率必须说明什么事件可能发生，不能仅删除不明点位，留下“十二个月可能性大”。
-“不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。"""
+“不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。
+讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。"""
 
 
 def compact(text):
@@ -405,6 +406,13 @@ def product_contrast_error(title, cover, transcript):
     source=compact(transcript)
     if (re.search(r'看好的不是治疗.{0,18}药物',source) and '并发症' in source):
         for copy in (title,cover):
+            # Actual 35616565071: the critic approved “看好的不是药物而是
+            # 并发症”. A drug mentioned only on the negated side cannot
+            # supply the missing product object on the affirmative side.
+            positive=re.split(r'而是|不是.+?[，,](?:是)?',copy)[-1]
+            if ('并发症' in positive
+                    and not re.search(r'产品|药物|药品|器械|用品',positive)):
+                return '原文看好的是并发症相关产品，标题和封面须保留产品对象，不能变成看好疾病或诊疗建议'
             if re.search(r'药物|药品|三(?:种|大)病',copy) and '并发症' not in copy:
                 return '原文明确转向并发症相关产品，不能把被排除的药物写成看好对象或只留下否定的半句'
             for clause in re.split(r'[，,。；;！？!?]',copy):
