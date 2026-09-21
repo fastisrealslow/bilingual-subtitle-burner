@@ -212,12 +212,15 @@ def validate_finals(out):
             raise ValueError('Final MP4 SHA mismatch')
         probe = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-show_streams',
                             '-show_format', '-of', 'json', str(video)]))
-        if float(probe['format']['duration']) < 120:
-            raise ValueError('Final shorter than 120 seconds')
+        duration_error = fc.editorial.metadata_error(row, float(probe['format']['duration']))
+        if duration_error:
+            raise ValueError(duration_error)
         if not {'audio', 'video'} <= {s['codec_type'] for s in probe['streams']}:
             raise ValueError('Missing video/audio stream')
         finals.append(dict(file=name, sha256=sha, duration=float(probe['format']['duration']),
-                           title=row['title'], source_sha256=row.get('source_sha256')))
+                           title=row['title'], source_sha256=row.get('source_sha256'),
+                           content_policy=row.get('content_policy','legacy120'),
+                           content_format=row.get('content_format','complete_view')))
     if finals:
         archive_accepted(out, out.name)
     return finals

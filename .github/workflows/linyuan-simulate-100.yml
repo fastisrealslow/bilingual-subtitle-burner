@@ -17,6 +17,10 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
         type: string
         required: false
         default: simulations/source100-20260916.json
+      content_policy:
+        type: string
+        required: false
+        default: legacy120
     secrets:
       BILIBILI_COOKIES:
         required: false
@@ -58,6 +62,7 @@ jobs:
       run:
         working-directory: linyuan
     env:
+      LINYUAN_CONTENT_POLICY: ${{ inputs.content_policy || 'legacy120' }}
       RUN_TEXT_MODEL: qwen3:8b
       RUN_SOURCE: ${{ matrix.source_url }}
       RUN_SLUG: ${{ matrix.slug }}

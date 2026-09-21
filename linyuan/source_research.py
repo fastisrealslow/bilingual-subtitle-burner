@@ -15,6 +15,7 @@ import sys
 import time
 from urllib.parse import urlsplit
 import monitor_v2 as monitor
+import editorial_policy as editorial
 from source_gap_backfill import reference_metadata
 
 BASE=Path(__file__).resolve().parent
@@ -133,7 +134,7 @@ def discover(catalog,state,max_queries):
                 extra=json.loads(row['extra'])
                 if row.get('author') in monitor.BLACKLIST_AUTHORS|{'园园滚雪球'}:continue
                 duration=extra.get('duration',0)
-                if '林园' not in row['title'] or duration<120 or duration>5400:continue
+                if '林园' not in row['title'] or duration<editorial.MIN_SECONDS or duration>5400:continue
                 extra.update(source_family=family,origin_role='unverified_publisher',
                     source_role='mother_candidate',direct_dispatch=True,reference_match_status='needs_media_match',
                     discovery_query=query)

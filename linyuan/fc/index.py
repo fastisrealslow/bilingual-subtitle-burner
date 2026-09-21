@@ -49,7 +49,7 @@ DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
 DELIVERY_RELEASE_TAG = "deliver"
 
-MIN_DUR, MAX_DUR = 120, 5400            # 源片须足够产出至少2分钟的连续完整观点
+MIN_DUR, MAX_DUR = int(editorial.MIN_SECONDS), 5400
 # 竞品号：监控但不抄（视频在 data.json 供分析，选片/出片时跳过，2026-08-29）
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片

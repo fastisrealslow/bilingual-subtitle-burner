@@ -1665,7 +1665,7 @@ def editorial_sentence_units(cues):
 
 
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
-    """Select complete continuous arguments; short quotations never enter daily work."""
+    """Select continuous, complete source turns under the declared length policy."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error, VERSION as selector_version
     source_first = os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true'
@@ -1699,17 +1699,17 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     numbered="\n".join(numbered_rows)
     prompt = (
         f"你是{speaker}访谈编辑。以下是带原始时间戳的CPU离线ASR。"
-        "字幕序号之间不一定是词句边界，请连起来读。用户明确拒绝十几秒、几十秒摘句。"
-        "选1到2个不同的、连续完整观点，每条以120到180秒为主，"
-        "需要解释时可更长。每个区间实际结束时间减起始时间必须至少120秒。"
+        "字幕序号之间不一定是词句边界，请连起来读。不能只截一个脱离上下文的金句。"
+        f"选1到2个不同的、连续完整观点；至少{editorial.MIN_SECONDS:g}秒，解释需要时保留更长上下文。"
+        "短观点保留明确判断和必要的理由、条件或回应；时长由内容决定。"
         "一条必须讲清一个主题，有观点、有理由或案例、自然结论；保留必要限定与否定。"
         "不要只取结论、不要拼不相关问题、不要为了数量硬凑。无法满足就返回[]。"
         "开场第一句话须明确主题并独立可懂，不要求三秒内说完；不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
         "也不能删掉理解这句话所必需的上下文。可以保留同一主题内有用的追问。"
         "输入已将显示换行接回完整句，字幕a-b表示这一整句占用的原始字幕编号。"
         "start/end仍是原始字幕编号，不是句子序号或秒数。先找同一主题问答的自然起止，"
-        "再核算时长，不能直接从开头截到恰好120秒；不得把片头预告、寒暄和正式采访混成一段。"
-        "片尾必须包含回答及结论，不能用下一个未回答的问题凑够120秒。"
+        "再核算时长，不能按固定秒数机械切段；不得把片头预告、寒暄和正式采访混成一段。"
+        "片尾必须包含回答及结论，不能用下一个未回答的问题凑时长。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
         '只返回JSON对象，picks字段为数组，每项包含start,end,score(至少7),reason(完整主题)。'
         '没有合格选段返回{"picks":[]}。\n'+numbered)
@@ -5109,7 +5109,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             cw = get_copy()
             rows=[dict(start_sec=cues[i]['start']-a,end_sec=cues[i]['end']-a,zh=cues[i]['text']) for i in sel]
             result=stage_context.render(src,a,b-a,out,work,rows,cw,source_report or {'source_sha256':_sha256_file(src)},stage,suffix,producer=sys.modules[__name__])
-            result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION)
+            result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION,
+                          **editorial.duration_metadata(result['duration_sec']))
             print('[舞台适配] 保留真人、讲台和原始舞台；人物动作与屏幕照片分别核验',flush=True)
             return result
 
@@ -5371,7 +5372,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
     if dur < editorial.MIN_SECONDS:
-        raise VisualQualityError('实际成片不足120秒，隔离后更换完整观点')
+        raise VisualQualityError(f'实际成片不足{editorial.MIN_SECONDS:g}秒，隔离后更换完整观点')
     final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
     # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
     # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
@@ -5470,6 +5471,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if display_payload_text(proof_display)!=display_payload_text(rendered_subtitle_text):
         raise VisualQualityError('字幕编辑证明与真实ASS字幕不一致，拒绝输出为合格成片')
     meta = {
+        **editorial.duration_metadata(round(dur, 3)),
         **({'native_cleanup_proof':native_plan['native_context_proof']} if proposed_native else {}),
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
@@ -5503,7 +5505,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "subtitle_edit_proof_version": 1,
         "subtitle_edit_proofs": edit_proof_files,
         **live_checks,
-        "duration_sec": round(dur, 1),
+        "duration_sec": round(dur, 3),
         "resolution": {"width": final_w, "height": final_h,
                        "short_edge": min(final_w, final_h)},
         "fingerprints": fingerprints,
@@ -5753,8 +5755,8 @@ def main():
             if not picks:
                 structural=os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'
                 selection_failures.append(dict(stage='editorial-selection', part=block_no,
-                    reason=('原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复'
-                            if structural else '本轮选段没有返回通过120秒和连续上下文检查的候选'),
+                    reason=(f'原文中未找到满足{editorial.MIN_SECONDS:g}秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复'
+                            if structural else f'本轮选段没有返回通过{editorial.MIN_SECONDS:g}秒和连续上下文检查的候选'),
                     error_type='NoStructuralCandidate' if structural else 'NoEligibleArgument', retryable=False))
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])

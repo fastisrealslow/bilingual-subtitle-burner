@@ -252,7 +252,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
-            reject('question_answer',a,b,'duration_outside_120_330');continue
+            reject('question_answer',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_330');continue
         if boundary_error(cues,dict(start=a,end=b)):
             reject('question_answer',a,b,'incomplete_boundary');continue
         text=''.join(c['text'] for c in cues[a:b+1])
@@ -286,7 +286,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
-            reject('speech',a,b,'duration_outside_120_330');continue
+            reject('speech',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_330');continue
         text=''.join(c['text'] for c in cues[a:b+1])
         if editorial.transcript_integrity_error(text) or boundary_error(cues,dict(start=a,end=b)):continue
         quotes=quote_candidates(text)

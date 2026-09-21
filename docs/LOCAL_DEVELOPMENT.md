@@ -67,4 +67,6 @@ OpenCV 在本机首次加载耗时较长；这不代表出片程序已经运行�
 
 上述目录被 Git 忽略，换机器时需从对应 Actions artifacts 恢复，不能只靠 clone 得到视频。精简的最终标题、证据、代码指纹和复核备注已提交至 `linyuan/simulations/title-batch-20260920/optimization-review.json`；原始完整模型调用保存在 artifacts。
 
-2026-09-21本机离线检查为322 passed，已包含真实编码、黑边范围和动态取景回归；不再因缺少FFmpeg跳过这些检查。真实云端编码通过并不代表本机已具备全部生产依赖。历史结论见 [首轮验收报告](LINYUAN_OPTIMIZATION_2026-09-20.md)，最新100素材与20参考对照见 [主线比较](LINYUAN_MAIN_COMPARISON_2026-09-21.md)。
+2026-09-21本机离线检查为342 passed，已包含真实编码、黑边范围和动态取景回归；不再因缺少FFmpeg跳过这些检查。真实云端编码通过并不代表本机已具备全部生产依赖。历史结论见 [首轮验收报告](LINYUAN_OPTIMIZATION_2026-09-20.md)，最新100素材与20参考对照见 [主线比较](LINYUAN_MAIN_COMPARISON_2026-09-21.md)。
+
+生产默认 `LINYUAN_CONTENT_POLICY=reference_v1`，按参考内容允许20秒起的完整连续观点；旧规则可显式设 `legacy120`。历史测试夹具显式沿用旧规则，新策略测试在独立进程校验默认值、源片/选段/最终MP4时长及新旧库存隔离。固定100 A/B工作流仍显式使用旧规则。
