@@ -2939,8 +2939,13 @@ def select_interview_face(faces, width, height):
 
 
 def audio_card_live_crop(width, height, src=None, at=None, exclusions=(),reference=None,model_paths=None,duration=None):
-    """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
-    if width <= height:
+    """Propose an identity-bound window; portrait sources cannot use guessed crops.
+
+    Some portrait files contain a clean landscape interview inside their old
+    packaging. Aspect ratio alone is not a picture failure. They still require
+    actual reference matches, feasible face geometry and full tracked/render QA.
+    """
+    if width <= height and (src is None or reference is None or model_paths is None):
         return None
     target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
     if src is not None:
@@ -5313,7 +5318,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 "-ss", str(s0), "-t", str(seg_dur), "-i", str(src),
             ]
             if use_live_video:
-                # 只允许横屏源进入动态窗口；按窗口宽高比实裁并精确缩放，
+                # 原画已通过人物匹配与取景预检；按窗口宽高比实裁并精确缩放，
                 # 不使用 pad，因而不会产生右侧黑块。
                 tracked, tracking = prepared_live[n]
                 framing_proofs.append(tracking['framing'])
