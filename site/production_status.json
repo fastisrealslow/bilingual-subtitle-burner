@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1790025450,
+  "updated_at": 1790025497,
   "inventory_updated_at": 1790025449,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790025450,
+    "updated_at": 1790025497,
     "records": 6159,
     "video_records": 5100,
     "initial_candidates": 120,
@@ -99,12 +99,11 @@
   },
   "counts": {
     "complete": 78,
-    "failed": 608,
+    "failed": 609,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 3,
-    "interrupted": 1,
     "running": 1
   },
   "tasks": [
@@ -12626,11 +12625,11 @@
     },
     {
       "slug": "ly-0921-aa4044",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1041, 2: 0.0061, 3: 0.0959, 4: 0.039, 5: 0.176, 6: 0.1519, 7: 0.1516, 8: 0.1725, 9: 0.1841, 10: -0.0167, 11: 0.0487, 12: -0.0527, 13: 0.1314, 14: 0.1106, 15: 0.0693, 16: 0.0828, 17: 0.0078, 18: 0.098}",
       "signature": {
         "ts": 1790023159,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16002,17 +16001,6 @@
       "run_number": 1186,
       "display_title": "中文源出片 · ly-0921-d253f4"
     },
-    "ly-0921-59a162": {
-      "id": 35652440683,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-09-21T20:39:29Z",
-      "updated_at": "2026-09-21T20:39:34Z",
-      "run_started_at": "2026-09-21T20:39:29Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35652440683",
-      "run_number": 1187,
-      "display_title": "中文源出片 · ly-0921-59a162"
-    },
     "ly-0921-aa4044": {
       "id": 35652425409,
       "status": "completed",
@@ -16023,6 +16011,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35652425409",
       "run_number": 1185,
       "display_title": "中文源出片 · ly-0921-aa4044"
+    },
+    "ly-0921-59a162": {
+      "id": 35652440683,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-21T20:39:29Z",
+      "updated_at": "2026-09-21T20:39:34Z",
+      "run_started_at": "2026-09-21T20:39:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35652440683",
+      "run_number": 1187,
+      "display_title": "中文源出片 · ly-0921-59a162"
     }
   }
 }
