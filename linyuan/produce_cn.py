@@ -4219,7 +4219,36 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
 def source_edge_text_exclusions(evidence):
     """Long source captions/disclaimers span the middle, outside corner rules."""
     result=[]
-    for row in evidence:
+    # OCR splits a wide header into adjacent words. Measure the whole line
+    # before applying the width/length rule, without changing recognized text.
+    lines=[]
+    for row in sorted(evidence,key=lambda r:(str(r.get('frame')),r['rect'][0])):
+        if float(row.get('confidence') or 0)<.75:
+            continue
+        x0,y0,x1,y1=map(float,row['rect'])
+        if y1>.18:
+            continue
+        line=next((g for g in lines if g['frame']==row.get('frame')
+            and min(g['rect'][3],y1)-max(g['rect'][1],y0)>=min(g['rect'][3]-g['rect'][1],y1-y0)*.5
+            and x0<=g['rect'][2]+.04 and x1>=g['rect'][0]-.04),None)
+        if line:
+            a,b,c,d=line['rect'];line['rect']=[min(a,x0),min(b,y0),max(c,x1),max(d,y1)]
+            line['text']+=str(row.get('text') or '')
+        else:
+            lines.append(dict(row,rect=[x0,y0,x1,y1],frame=row.get('frame'),text=str(row.get('text') or '')))
+    # In actual source66 renders, a cropped-off header stayed in every frame
+    # but recognition confidence fell below .75 precisely because letters were
+    # cut in half. Require repeated geometry at the top edge, not readable text.
+    clipped=[r for r in evidence if float(r.get('confidence') or 0)>=.5
+        and len(re.sub(r'\W+','',str(r.get('text') or '')))>=3
+        and r['rect'][1]<=.005 and .03<=r['rect'][3]-r['rect'][1]<=.10
+        and r['rect'][2]-r['rect'][0]>=.4]
+    for row in clipped:
+        near=[r for r in clipped if max(abs(a-b) for a,b in zip(r['rect'],row['rect']))<=.03]
+        if len({r.get('frame') for r in near if r.get('frame') is not None})>=3:
+            result.append((0,0,1,min(1,max(r['rect'][3] for r in near)+.015)))
+            break
+    for row in [*evidence,*lines]:
         x0,y0,x1,y1=map(float,row['rect'])
         text=re.sub(r'\W+','',str(row.get('text') or ''))
         # Actual 0915 render: a moving red “听初果复利” source wordmark

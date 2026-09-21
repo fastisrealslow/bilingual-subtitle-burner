@@ -75,3 +75,13 @@ def test_real_source28_approved_review_cannot_add_a_cautious_tail(ending):
     package=T._package(item,source,verdict,[item])
     assert '不确定' in T.error(title,package['title_rewrite'],source)
     assert not T.unsupported_hedge_error(title,item['cover_title'],['这个市场未来走势我判断不了，不知道。'])
+
+
+def test_real_source32_business_increment_cannot_become_no_cost_profit():
+    evidence=['它利润的扩大不需要再去我去花钱，来产生利润。']
+    assert T.incremental_cost_error('林园：这种企业利润不靠我花钱，我投小钱产大钱',
+                                    '利润不靠花钱，小钱产大钱',evidence)
+    assert not T.incremental_cost_error('林园：我喜欢不必追加投入，利润还能扩大的生意',
+                                        '不必追加投入，利润还能扩大',evidence)
+    assert not T.incremental_cost_error('林园：这个活动不用花钱', '参与活动不需要花钱',
+                                        ['这次活动完全免费，不需要花钱。'])

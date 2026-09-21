@@ -1,0 +1,17 @@
+name: 来源标题残边实片验证（素材66，单列修复结果）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-header-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '66'
+      content_policy: reference_v1
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

@@ -107,3 +107,13 @@ def test_actual_811_files_replay_after_caption_layout(tmp_path):
         for name,content in case['files'].items():
             (tmp_path/name).write_text(content)
         assert FC.artifact_subtitle_error(case['meta'],tmp_path) is None
+
+
+def test_real_split_header_is_avoided_and_clipped_residue_is_not_accepted():
+    from produce_cn import source_edge_text_exclusions
+    rows=json.loads((Path(__file__).parent/'fixtures/linyuan_source66_header.json').read_text())
+    assert any(r[1]==0 and r[3]>=.157 for r in source_edge_text_exclusions(rows['source']))
+    assert any(r[1]==0 and r[3]>=.061 for r in source_edge_text_exclusions(rows['final']))
+    assert not source_edge_text_exclusions(rows['final'][:1])
+    assert not source_edge_text_exclusions([{**r,'confidence':.3} for r in rows['final']])
+    assert not source_edge_text_exclusions([{**r,'rect':[.1,.3,.7,.36]} for r in rows['final']])

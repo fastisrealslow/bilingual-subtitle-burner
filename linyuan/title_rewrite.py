@@ -308,6 +308,16 @@ def unsupported_hedge_error(title, cover, evidence):
     return None
 
 
+def incremental_cost_error(title, cover, evidence):
+    """Do not turn low incremental business investment into no-cost profit."""
+    source=compact(''.join(evidence))
+    incremental=re.search(r'不(?:需要|用|必).{0,3}再.{0,8}(?:花钱|投资|投入)|不(?:需要|用|必).{0,3}追加',source)
+    absolute=re.search(r'(?:不靠|不用|无需|不需要)(?:我|去)?花钱|不(?:用|需|需要)投入|零(?:成本|投入)',title+'。'+cover)
+    if incremental and absolute:
+        return '原文说不必追加投入，标题不能丢掉“再、追加”的范围变成无需成本或投入'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -343,6 +353,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     hedge_issue = unsupported_hedge_error(title, cover, evidence)
     if hedge_issue:
         return hedge_issue
+    cost_issue = incremental_cost_error(title, cover, evidence)
+    if cost_issue:
+        return cost_issue
     # An observed 4B-model false positive inferred "更安全" from position sizing.
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
@@ -514,6 +527,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 不要在原话之外补“投资逻辑解析”“深度解读”“核心策略”“价值重估”等总结包装；原文确实讨论这些概念时，可以用，但仍要说出具体判断。
 吸引力来自原文里真实的分歧、选择或反问，不来自收益承诺、吓人字眼或故意藏起讨论对象。转折、否定、条件和“可能”等限定必须保留。
 原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
+保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
