@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1789988787,
-  "inventory_updated_at": 1789988771,
+  "updated_at": 1790001024,
+  "inventory_updated_at": 1790001023,
   "source_admission": {
     "version": 1,
-    "updated_at": 1789988787,
+    "updated_at": 1790001024,
     "records": 6026,
     "video_records": 4993,
     "initial_candidates": 89,
@@ -75,12 +75,11 @@
   },
   "counts": {
     "complete": 78,
-    "failed": 602,
+    "failed": 604,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "ready": 2,
-    "interrupted": 2
+    "ready": 2
   },
   "tasks": [
     {
@@ -12493,11 +12492,11 @@
     },
     {
       "slug": "ly-0921-a508a8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1789973876,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -12511,11 +12510,11 @@
     },
     {
       "slug": "ly-0921-8d2c1e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标",
       "signature": {
         "ts": 1789973881,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
