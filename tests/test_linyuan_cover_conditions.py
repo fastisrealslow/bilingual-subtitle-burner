@@ -63,3 +63,15 @@ def test_range_variants_and_exact_quantities_with_other_units():
     assert not T.quantity_range_error('发生在二零零三年', '二零零三年发生', '两三年后发生在二零零三年。')
     assert T._quantity_intervals('十二三年 二十三年 两三倍') == [
         ('年',12,13,'十二三年'), ('年',23,23,'二十三年'), ('倍',2,3,'两三倍')]
+
+
+@pytest.mark.parametrize('ending',['但未来趋势不确定','但未来仍需观察'])
+def test_real_source28_approved_review_cannot_add_a_cautious_tail(ending):
+    source='但是我们的对这个未来趋势的判断，现在就是牛市初期。'
+    title='林园：牛市初期形态明显，'+ending
+    item=dict(title=title,cover_title='牛市初期形态已经形成',subject='牛市',evidence=[source])
+    verdict=dict(method='cpu_text_review',appeal=5,reason='模拟实际审核将确定判断当成未来不确定',
+                 **{k:True for k in T.CHECKS})
+    package=T._package(item,source,verdict,[item])
+    assert '不确定' in T.error(title,package['title_rewrite'],source)
+    assert not T.unsupported_hedge_error(title,item['cover_title'],['这个市场未来走势我判断不了，不知道。'])

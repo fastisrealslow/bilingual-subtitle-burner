@@ -292,6 +292,22 @@ def quantity_range_error(title, cover, source):
     return None
 
 
+def unsupported_hedge_error(title, cover, evidence):
+    """An invented hedge also changes the speaker's claim, even if cautious.
+
+    The real source28 review twice approved uncertainty absent from its
+    selected guest evidence. This narrow check catches that family, not every
+    paraphrase or semantic error; ambiguous cases still need review.
+    """
+    invented = re.search(r'(?:未来|后市|趋势|走势).{0,8}(?:不确定|需(?:要)?观察)|仍(?:需|要)观察',
+                         title + '。' + cover)
+    stated = re.search(r'可能|也许|未必|不确定|不一定|不好说|难说|说不准|判断不了|无法判断|不能判断|不能确定|不敢判断|不知道|需.{0,3}观察|再看看',
+                       ''.join(evidence))
+    if invented and not stated:
+        return '标题新增了嘉宾证据中没有的不确定判断；不能用审慎套话改写原话的明确观点'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -324,6 +340,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     source = compact(transcript)
     if any(not isinstance(q, str) or len(compact(q)) < 8 or compact(q) not in source for q in evidence):
         return '观点证据不是这段真实原文'
+    hedge_issue = unsupported_hedge_error(title, cover, evidence)
+    if hedge_issue:
+        return hedge_issue
     # An observed 4B-model false positive inferred "更安全" from position sizing.
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
@@ -386,6 +405,7 @@ def _package(item, transcript, review, candidates):
                  subject=item['subject'], evidence=item['evidence'], review=review,
                  cover_qualifier_policy=2026092101,
                  quantity_range_policy=2026092101,
+                 source_hedge_policy=2026092101,
                  source_sha256=hashlib.sha256(compact(transcript).encode()).hexdigest())
     return dict(title=title, cover_title=cover, title_rewrite=proof,
                 title_candidates=[c['title'] for c in candidates], title_quality_verified=True,
@@ -493,6 +513,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 嘉宾明确说自己的选择时，可以保留“我买”“我不卖”“我看的是”等第一人称；原文没说，不能为了像林园而编一句“金句”，也不能把主持人的话改成“我”。
 不要在原话之外补“投资逻辑解析”“深度解读”“核心策略”“价值重估”等总结包装；原文确实讨论这些概念时，可以用，但仍要说出具体判断。
 吸引力来自原文里真实的分歧、选择或反问，不来自收益承诺、吓人字眼或故意藏起讨论对象。转折、否定、条件和“可能”等限定必须保留。
+原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
@@ -605,6 +626,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 不合格时说明原文实际的做法或判断，再指出标题偏差，供下一轮修正中心观点和措辞。
 严格寻找实际标题/封面新增的比较、因果、收益和安全性判断。只有候选确实写出了新增判断，才能以此判source_supported=false。
 保留原文中的否定、程度、转折和不确定性，不把有限的肯定扩大成整体乐观，不改变讨论对象间的关系。
+同时检查是否凭空添加审慎结尾：明确判断不能被改写成不确定判断。更谨慎的句子也可能不忠于原话。
 判断限定是否保留要比较实际含义，不能仅因使用等义的日常表达而拒绝。完整问句可以是标题或封面；不能仅因它未提前揭示答案就判不完整，但问题前提仍必须有原文支持。
 拗口的术语堆砌、主体关系错误、把有限的肯定扩大成整体乐观，分别判readable、source_supported、preserves_qualifiers=false。
 逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；

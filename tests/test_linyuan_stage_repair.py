@@ -1,4 +1,4 @@
-import sys,copy
+import sys,copy,json
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 import title_rewrite as T
@@ -9,7 +9,12 @@ import stage_context as S
 
 def test_bad_quote_becomes_source_grounded_new_title_and_matching_cover(tmp_path,monkeypatch):
     text='我们做实业要注意人口变化。人口减少会影响消费，消费需求也要考虑。'
-    monkeypatch.setattr(P,'llm',lambda *a,**k:'{"title":"林园：人少了没办法，它只消费少"}')
+    def reader_then_bad_draft(*a, **kwargs):
+        if 'c_guest_spans' in kwargs.get('response_schema',{}).get('properties',{}):
+            return json.dumps(dict(a_guest_answer='人口变化会影响消费需求，做实业要考虑人口变化。',
+                b_question_premise='无主持人提问。',c_guest_spans=[dict(a_start=0,b_end=0)]))
+        return '{"title":"林园：人少了没办法，它只消费少"}'
+    monkeypatch.setattr(P,'llm',reader_then_bad_draft)
     result=P.copywrite([dict(start=0,end=20,text=text)],[0],'林园','2016年演讲',None,tmp_path,
                       reviewed_title='林园：人少了没办法，它只消费少')
     assert result['title']!='林园：人少了没办法，它只消费少'

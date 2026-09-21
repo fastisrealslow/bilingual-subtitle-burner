@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 28
+VERSION = 29
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -110,6 +110,7 @@ TOPIC_ANCHORS = (
     ('茅台',), ('五粮液',), ('片仔癀',), ('房地产',),
 )
 NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来谈谈|来聊聊|但我们今天采访')
+SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值')
 
 
 def question_unit(text):
@@ -128,6 +129,16 @@ def speech_opening(text):
     normalized=re.sub(r'^(?:嗯|啊|呃)[，, ]*', '', normalized)
     if complete(normalized.strip('。！？!?')):
         return True
+    if editorial.CONTENT_POLICY == 'reference_v1':
+        # Spoken openings are not permanent headlines. Fillers and a natural
+        # “是…的” ending must not reject an otherwise explicit subject/claim.
+        # This string is classification-only: original cues remain untouched.
+        spoken=re.sub(r'[啊嗯呃呀](?=[，,。！？!?])','',normalized)
+        spoken=re.sub(r'(是[^，,。！？!?]{1,14})的([。！？!?]?)$',r'\1\2',spoken)
+        if SPOKEN_SUBJECT.search(spoken) and complete(spoken.strip('。！？!?')):
+            return True
+        if re.match(r'^我(?:先|再)?(?:给(?:你|大家|你们))?(?:讲|说|举).{0,4}(?:故事|例子|经历)[。！!]$',spoken):
+            return True
     if re.match(r'^(?:它|他|她|这|那|因为|所以|但是|并|虽然)',normalized):
         return False
     return bool(re.match(r'^(?:我(?:们)?(?:今年|认为|今天|特别|对)|三十.{0,8}以上的人)',normalized)
@@ -271,6 +282,21 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     cuts=sorted(set([0]+[i for i,u in enumerate(units) if
         TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
         or KEYNOTE_SECTION.search(u['text'])]))
+    # An already short source may start with an answer dependent on a missing
+    # question. Propose the first self-contained sentence in its opening,
+    # retaining everything afterwards up to the original natural end. Never
+    # pick a late punchline or join separate topics to reach a duration floor.
+    if (editorial.CONTENT_POLICY=='reference_v1' and whole_source and natural_end
+            and units and not questions and len(cuts)==1
+            and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<120
+            and not speech_opening(units[0]['text'])):
+        for i in range(1,min(3,len(units))):
+            opening=units[i]['text']
+            if (cues[units[i]['start']]['start']-cues[units[0]['start']]['start']<=20
+                    and SPOKEN_SUBJECT.search(opening)
+                    and not re.match(r'^(?:人家|他们|这些|那些|这个|那个)',opening)
+                    and speech_opening(opening)):
+                cuts=[i];break
     for k,i in enumerate(cuts):
         if k+1<len(cuts):j=cuts[k+1]-1
         elif natural_end:j=len(units)-1

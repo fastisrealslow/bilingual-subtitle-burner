@@ -78,3 +78,20 @@ print(json.dumps(dict(policy=e.CONTENT_POLICY,minimum=e.MIN_SECONDS,source_minim
     assert all(20<=p['duration']<120 for p in new['picks'])
     assert all(a['end']<=b['start'] for a,b in zip(new['picks'],new['picks'][1:]))
     assert old['identity']!=new['identity']
+
+
+def test_real_short_openings_keep_speech_bytes_and_do_not_invent_context(monkeypatch):
+    import source_selection as selection
+    monkeypatch.setattr(policy,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(policy,'MIN_SECONDS',20)
+    corpus=json.loads((ROOT/'tests/fixtures/linyuan_short_source_openings.json').read_text())
+    observed={}
+    for row in corpus:
+        cues=row['cues'];before=json.dumps(cues,ensure_ascii=False)
+        picks=selection.select(cues,whole_source=True,limit=None)
+        observed[row['id']]=[(cues[p['start']]['start'],cues[p['end']]['end']) for p in picks]
+        assert json.dumps(cues,ensure_ascii=False)==before
+        assert selection.select(cues,whole_source=False,limit=None)==[]
+    assert observed=={2:[(15.36,52.28)],14:[(0.16,65.96)],55:[]}
+    assert not selection.speech_opening('可能我的想法跟你平时的感受啊，和你们的感受还是不一样，太紧张啊，这些焦虑没有。')
+    assert not selection.speech_opening('这个啊，是便宜的。')
