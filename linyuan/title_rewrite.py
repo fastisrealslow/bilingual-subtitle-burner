@@ -243,6 +243,25 @@ def cover_qualifier_error(title, cover):
     return None
 
 
+def source_payback_condition_error(title, cover, transcript):
+    """Source7 can omit the income premise from BOTH title and evidence.
+
+    Inspect the complete transcript, not just model-selected snippets. This
+    narrow observed construction does not claim general entailment checking.
+    """
+    source=compact(transcript)
+    if not re.search(r'(?:基于|前提).{0,65}人均收入.{0,14}不(?:减少|下降|降低)',source):
+        return None
+    for copy in (title,cover):
+        if '回本' not in copy:
+            continue
+        question=re.search(r'(?:什么|哪些|怎样的|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)',copy)
+        income_floor=re.search(r'(?:人均)?收入.{0,8}(?:不减|不降|持平|至少不低)',compact(copy))
+        if not question and not income_floor:
+            return '回本判断遗漏完整原文中的收入前提；标题与封面不能一起省掉条件，证据选句也不能避开限定'
+    return None
+
+
 def _quantity_intervals(text):
     """Conservative reading of small Chinese quantities, including 十二三年.
 
@@ -299,6 +318,15 @@ def unsupported_hedge_error(title, cover, evidence):
     selected guest evidence. This narrow check catches that family, not every
     paraphrase or semantic error; ambiguous cases still need review.
     """
+    # Library220's reviewer treated “就是这么个规律” as support for
+    # “但得看它是不是规律”. A nearby 可能 about luck is not uncertainty
+    # about this separate claim. Keep this object-specific, not a blanket ban
+    # on question titles or on the word 可能 elsewhere in the answer.
+    source = compact(''.join(evidence))
+    questioning_rule = re.search(r'(?:得|要|需)看.{0,5}(?:是不是|是否).{0,4}规律', title+'。'+cover)
+    if (questioning_rule and re.search(r'就是.{0,6}规律', source)
+            and not re.search(r'(?:是不是|是否|算不算|不一定|未必).{0,6}规律', source)):
+        return '标题把原文明确说的规律改成待确认的规律；不能新增嘉宾没有提出的怀疑'
     invented = re.search(r'(?:未来|后市|趋势|走势).{0,8}(?:不确定|需(?:要)?观察|(?:仍|还)?要看.{0,4}(?:变化|情况|走势))|仍(?:需|要)观察',
                          title + '。' + cover)
     stated = re.search(r'可能|也许|未必|不确定|不一定|不好说|难说|说不准|判断不了|无法判断|不能判断|不能确定|不敢判断|不知道|需.{0,3}观察|再看看|要看.{0,4}(?:变化|情况|走势)',
@@ -344,6 +372,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     qualifier_issue = cover_qualifier_error(title, cover)
     if qualifier_issue:
         return qualifier_issue
+    source_condition_issue = source_payback_condition_error(title, cover, transcript)
+    if source_condition_issue:
+        return source_condition_issue
     range_issue = quantity_range_error(title, cover, transcript)
     if range_issue:
         return range_issue
@@ -457,6 +488,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         if cover.get('reason') == 'needs_editorial_copy':
             continue
         if cover_qualifier_error(title, cover['text']):
+            continue
+        if source_payback_condition_error(title, cover['text'], transcript):
             continue
         if quantity_range_error(title, cover['text'], transcript):
             continue
@@ -655,6 +688,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 严格寻找实际标题/封面新增的比较、因果、收益和安全性判断。只有候选确实写出了新增判断，才能以此判source_supported=false。
 保留原文中的否定、程度、转折和不确定性，不把有限的肯定扩大成整体乐观，不改变讨论对象间的关系。
 同时检查是否凭空添加审慎结尾：明确判断不能被改写成不确定判断。更谨慎的句子也可能不忠于原话。
+逐个判断核对语气：别处出现“可能”不代表整段观点都不确定。“就是这么个规律”不支持“得看是不是规律”。
+如果全段没有主持人讲话，b_question_premise写“无主持人提问”，不要补出一段未出现的问题或引导。
 判断限定是否保留要比较实际含义，不能仅因使用等义的日常表达而拒绝。完整问句可以是标题或封面；不能仅因它未提前揭示答案就判不完整，但问题前提仍必须有原文支持。
 拗口的术语堆砌、主体关系错误、把有限的肯定扩大成整体乐观，分别判readable、source_supported、preserves_qualifiers=false。
 逐条检查：source_supported原文支持；central_point抓住中心而不是举例或旁枝；
@@ -746,6 +781,9 @@ def error(title, proof, transcript=None, speaker='林园'):
     qualifier_issue = cover_qualifier_error(title, proof['cover'])
     if qualifier_issue:
         return qualifier_issue
+    source_condition_issue = source_payback_condition_error(title, proof['cover'], transcript or '')
+    if source_condition_issue:
+        return source_condition_issue
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'

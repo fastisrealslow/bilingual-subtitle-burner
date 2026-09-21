@@ -48,6 +48,22 @@ def test_exact_quote_path_cannot_bypass_cover_condition_check():
     assert '前提' in T.error(TITLE, package['title_rewrite'], quote)
 
 
+def test_income_premise_cannot_be_dropped_from_both_title_and_selected_evidence():
+    source='十二三年你今天的投资能回本。这个是基于十二三年以后，我们的生活水平就是人人均收入啊，比今天不减少。'
+    title='林园：A股估值便宜，但回本要十二三年'
+    cover='投资回本需要十二三年'
+    evidence=['十二三年你今天的投资能回本。']
+    item=dict(title=title,cover_title=cover,subject='投资',evidence=evidence)
+    verdict=dict(method='cpu_text_review',appeal=4,reason='模拟新100实验中标题与封面同时丢失限定',**{k:True for k in T.CHECKS})
+    package=T._package(item,source,verdict,[item])
+    assert '收入前提' in T.error(title,package['title_rewrite'],source)
+    assert not T.source_payback_condition_error('林园：收入不降，十二三年投资回本', '收入不降，十二三年回本', source)
+    assert not T.source_payback_condition_error('林园：十二三年回本有什么前提？', '回本有什么前提？', source)
+    assert not T.source_payback_condition_error(title,cover,'这家企业十二三年能回本。')
+    with pytest.raises(ValueError):
+        T._extractive(source,'林园',[],preferred='林园：十二三年你今天的投资能回本')
+
+
 @pytest.mark.parametrize('source, title, cover', [
     ('十二三年回本，目前估值也是十二三倍。', '林园：十二三倍估值，回本需十二三年', '十二三倍估值回本需十二年'),
     ('预计要花两三年时间做研究。', '林园：研究这家公司需要两三年', '研究公司要花两年时间'),
@@ -85,6 +101,16 @@ def test_real_source32_business_increment_cannot_become_no_cost_profit():
                                         '不必追加投入，利润还能扩大',evidence)
     assert not T.incremental_cost_error('林园：这个活动不用花钱', '参与活动不需要花钱',
                                         ['这次活动完全免费，不需要花钱。'])
+
+
+def test_real_library220_uncertainty_must_apply_to_the_same_claim():
+    evidence=['十亿一个跟头，可能哪一年碰到运气好的，', '几十年的。它就是这么这么个规律。']
+    assert T.unsupported_hedge_error('林园：运气能赚十亿，但得看它是不是规律。',
+                                      '运气与规律的博弈', evidence)
+    assert not T.unsupported_hedge_error('林园：赚到一亿后，再赚十亿就很容易了',
+                                          '赚到一亿后再赚十亿很容易', evidence)
+    assert not T.unsupported_hedge_error('林园：运气能赚十亿，但得看它是不是规律。',
+                                          '运气与规律有什么关系？', ['这次可能有运气，是不是规律还不好说。'])
 
 
 def test_real_short_source34_contrast_is_not_an_investment_refusal():

@@ -4248,6 +4248,20 @@ def source_edge_text_exclusions(evidence):
         if len({r.get('frame') for r in near if r.get('frame') is not None})>=3:
             result.append((0,0,1,min(1,max(r['rect'][3] for r in near)+.015)))
             break
+    # Source5's short clip retained changing subtitle bottoms: after cropping,
+    # OCR read only “样坚定” / “由器产”, below the old eight-character rule.
+    # Two different Chinese fragments at the same bottom band are stronger
+    # evidence of captions than one incidental sign or an isolated OCR guess.
+    bottom_fragments=[r for r in evidence if float(r.get('confidence') or 0)>=.65
+        and len(re.findall(r'[\u4e00-\u9fff]',str(r.get('text') or '')))>=3
+        and r.get('frame') is not None and r['rect'][1]>=.85 and r['rect'][3]>=.975
+        and .025<=r['rect'][3]-r['rect'][1]<=.15
+        and r['rect'][2]-r['rect'][0]>=.25]
+    for row in bottom_fragments:
+        near=[r for r in bottom_fragments if abs(r['rect'][1]-row['rect'][1])<=.025]
+        if len({r['frame'] for r in near})>=2 and len({r['text'] for r in near})>=2:
+            result.append((0,max(0,min(r['rect'][1] for r in near)-.015),1,1))
+            break
     for row in [*evidence,*lines]:
         x0,y0,x1,y1=map(float,row['rect'])
         text=re.sub(r'\W+','',str(row.get('text') or ''))
@@ -4276,6 +4290,29 @@ def source_edge_text_exclusions(evidence):
         else:
             continue
         if rect not in result:result.append(rect)
+    # Library220 has a two-line headline: its first line ends at .138,
+    # while the second ends at .196. The old .18 edge cutoff removed only
+    # the first line, leaving unrecognizable yellow letter bottoms in finals.
+    # Extend only an established header with aligned, nearby lines in the
+    # SAME frame. Never classify arbitrary central scene text as a header.
+    wide=[r for r in [*evidence,*lines] if float(r.get('confidence') or 0)>=.75
+          and len(re.sub(r'\W+','',str(r.get('text') or '')))>=8
+          and r['rect'][2]-r['rect'][0]>=.35]
+    for anchor in wide:
+        if anchor.get('frame') is None or anchor['rect'][3]>.18:
+            continue
+        current=anchor
+        for _ in range(2):
+            a,b,c,d=map(float,current['rect'])
+            adjacent=[r for r in wide if r.get('frame')==anchor.get('frame')
+                and r['rect'][1]>=d and r['rect'][3]<=.27
+                and r['rect'][1]-d<=min(d-b,r['rect'][3]-r['rect'][1])*.65
+                and abs(r['rect'][0]-a)<=.06 and abs(r['rect'][2]-c)<=.06]
+            if not adjacent:
+                break
+            current=min(adjacent,key=lambda r:r['rect'][1])
+            band=(0,0,1,min(1,float(current['rect'][3])+.015))
+            if band not in result:result.append(band)
     return result
 
 

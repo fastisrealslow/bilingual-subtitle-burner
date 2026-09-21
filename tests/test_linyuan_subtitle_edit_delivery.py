@@ -117,3 +117,28 @@ def test_real_split_header_is_avoided_and_clipped_residue_is_not_accepted():
     assert not source_edge_text_exclusions(rows['final'][:1])
     assert not source_edge_text_exclusions([{**r,'confidence':.3} for r in rows['final']])
     assert not source_edge_text_exclusions([{**r,'rect':[.1,.3,.7,.36]} for r in rows['final']])
+
+
+def test_real_library220_preserves_both_lines_of_source_header_exclusion():
+    from produce_cn import source_edge_text_exclusions
+    rows=json.loads((Path(__file__).parent/'fixtures/linyuan_library220_header.json').read_text())['evidence']
+    upper,lower=rows[2:4]
+    def bottom(evidence):
+        return max((r[3] for r in source_edge_text_exclusions(evidence) if r[1]==0),default=0)
+    assert bottom(rows) >= lower['rect'][3]+.014
+    assert bottom([upper]) < lower['rect'][1]+.01
+    assert bottom([upper,{**lower,'frame':1}]) < lower['rect'][1]+.01
+    assert bottom([upper,{**lower,'confidence':.3}]) < lower['rect'][1]+.01
+    assert bottom([upper,{**lower,'rect':[.12,.4,.88,.45]}]) < .17
+    # Without an established top header, central text is not a header band.
+    assert bottom([lower]) == 0
+
+
+def test_real_source5_changing_clipped_subtitles_do_not_pass_as_clean():
+    from produce_cn import source_edge_text_exclusions
+    rows=json.loads((Path(__file__).parent/'fixtures/linyuan_source5_caption_fragments.json').read_text())['evidence']
+    assert any(r[1]>.8 and r[3]==1 for r in source_edge_text_exclusions(rows))
+    assert not source_edge_text_exclusions(rows[:1])
+    assert not source_edge_text_exclusions([{**r,'confidence':.3} for r in rows])
+    assert not source_edge_text_exclusions([{**r,'rect':[.2,.5,.6,.6]} for r in rows])
+    assert not source_edge_text_exclusions([{**r,'frame':0} for r in rows])

@@ -21,6 +21,8 @@ export OPENCV_VIDEOIO_PRIORITY_LIST=FFMPEG
   tests/test_linyuan_portrait_window.py \
   tests/test_linyuan_stable_framing.py \
   tests/test_linyuan_live_tracking.py \
+  tests/test_linyuan_clean_source_plan.py \
+  tests/test_linyuan_subtitle_edit_delivery.py \
   tests/test_linyuan_title_claims.py \
   tests/test_linyuan_title_batch_regressions.py \
   tests/test_linyuan_headline_policy.py \
