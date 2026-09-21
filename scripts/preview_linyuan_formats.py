@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'linyuan'))
-from editorial_cover import font_path
+from editorial_cover import font_path, font_face_index
 from presentation import word_spans
 
 SOURCE_SHA='4c711fb59cdec677f1eacc7f6603f27d5b4231f6ab841fc4d421a0079b5d2846'
@@ -48,7 +48,9 @@ STYLES=[
 
 
 @lru_cache(maxsize=80)
-def font(size):return ImageFont.truetype(str(font_path()),size)
+def font(size):
+    path=font_path()
+    return ImageFont.truetype(str(path),size,index=font_face_index(path))
 
 def text_block(im,text,box,size,color,outline=0,align='center'):
     d=ImageDraw.Draw(im);x,y,w,h=box

@@ -32,11 +32,16 @@ def main():
         lines=[]
         for i,c in enumerate(row.get('candidates',[])):
             v=verdict.get(i,{});flags=[k for k in ('source_supported','speaker_correct','qualifiers_preserved','natural','distinctive') if v.get(k) is False]
-            lines.append('<tr><td>'+esc(c.get('angle',''))+'</td><td>'+esc(c.get('title',''))+'</td><td>'+esc(c.get('hook_quote',''))+'</td><td>'+esc('、'.join(c.get('binding_errors',[])+flags) or '机器未标错，仍需人工看')+'</td></tr>')
-        models.append(f'<details><summary>{esc(row["profile"])} · {esc(row["case"])} · {row.get("seconds",0):.1f}秒 · {esc(row["status"])}</summary><div class="scroll"><table><tr><th>角度</th><th>实际生成标题</th><th>原文锚点</th><th>检查结果</th></tr>'+''.join(lines)+'</table></div><p>'+esc(row.get('error',''))+'</p></details>')
+            lines.append('<tr><td>'+esc(c.get('angle',''))+'</td><td>'+esc(c.get('title',''))+'</td><td>'+esc(c.get('cover',''))+'</td><td>'+esc(c.get('hook_quote',''))+'</td><td>'+esc('、'.join(c.get('binding_errors',[])+flags) or '机器未标错，仍需人工看')+'</td></tr>')
+        models.append(f'<details><summary>{esc(row["profile"])} · {esc(row["case"])} · {row.get("seconds",0):.1f}秒 · {esc(row["status"])}</summary><div class="scroll"><table><tr><th>角度</th><th>实际生成标题</th><th>实际封面文案</th><th>原文锚点</th><th>检查结果</th></tr>'+''.join(lines)+'</table></div><p>'+esc(row.get('error',''))+'</p></details>')
     covers=[]
     for i,label in enumerate(['干净真人近景','近景加短句','留白与人物分栏','现场图加底部观点']):
         if (OUT/f'variants/cover-{i}.jpg').exists():covers.append(f'<article><img loading="lazy" src="variants/cover-{i}.jpg"><h3>{label}</h3><img class="thumb" src="variants/cover-{i}-160.jpg"><small>160×90 列表尺寸</small></article>')
+    stories=[]
+    for r in read(OUT/'story/manifest.json',[]):
+        k=r['aspect'];stories.append(f'<article><div class="badge">{esc(k)} · 29.68秒原声经历</div><video controls preload="none" poster="story/{k}.jpg" src="story/{k}.mp4"></video><h3>{esc(r["title"])}</h3></article>')
+    drafts=read(ROOT/'linyuan/simulations/benchmark-20260921/editorial-drafts.json',[])
+    draft_table=''.join('<tr><td>'+esc(r['angle'])+'</td><td>'+esc(r['title'])+'</td><td>'+esc(r['cover'])+'</td><td><details><summary>对应字幕</summary>'+esc(r['source_quote'])+'</details></td></tr>' for r in drafts)
     failures=read(ROOT/'linyuan/simulations/benchmark-20260921/actions-review.json',[])
     error_table=''.join(f'<tr><td><a href="{r["url"]}">{r["id"]}</a></td><td>{esc(r["reason"])}</td><td>{esc(r["implication"])}</td></tr>' for r in failures)
     body='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>林园 × 园园 · 16种样式实验</title>
@@ -48,12 +53,13 @@ def main():
 <p><button onclick="filter('variant','all')">全部</button> <button onclick="filter('variant','portrait')">竖版 8 个</button> <button onclick="filter('variant','landscape')">横版 8 个</button></p><div class="grid">'''+''.join(variants)+'''</div></section>
 <section id="covers"><h2>封面不必等于视频顶部标题</h2><p>参考的真人视频多数使用干净近景封面；竖屏播放时才显示顶部观点条。这里分开比较封面、投稿标题、片内常驻文字。</p><div class="grid">'''+''.join(covers)+'''</div></section>
 <section id="reference"><h2>参考作品：看画面，也看原话的力度</h2><p>历史高播放组6竖2横；近期所选6条均为横版画布，其中婚礼视频是竖拍置入横版。另有插画音频卡和活动拼图。这个样本用于研究做法，不代表整个账号的比例。</p><p><button onclick="filter('reference','all')">全部</button> <button onclick="filter('reference','portrait')">竖版</button> <button onclick="filter('reference','landscape')">横版画布</button></p><div class="grid reference-grid">'''+''.join(refs)+'''</div></section>
-<section id="content"><h2>先选最值得听的一段，再给它一个标题</h2><p>我们上一版267.7秒“医药股”片段，开头约12秒谈医药经营，后面转到自我安慰、房租、管理规模、车厂调研。标题再好，也不能让这些话题自动变成一条集中内容。下面是同一母片可拆出的编辑草案，均需进一步听音验收。</p>
+<section id="content"><h2>先选最值得听的一段，再给它一个标题</h2><div class="grid">'''+''.join(stories)+'''</div><p>新增约30秒内容试剪：保留完整原声、结尾“当然我也希望他把钱给我”，没有剪成“不要房租”。字幕合并断句并省去口头填充，一处歧义转写暂留空待听音；仍是试剪，未投稿。</p><p>我们上一版267.7秒“医药股”片段，开头约12秒谈医药经营，后面转到自我安慰、房租、管理规模、车厂调研。标题再好，也不能让这些话题自动变成一条集中内容。下面是同一母片可拆出的编辑草案，均需进一步听音验收。</p>
 <table><tr><th>原片区间</th><th>独立内容</th><th>可尝试的标题草案</th></tr>
 <tr><td>2489.48–2501.64</td><td>医药公司也有经营不好的</td><td>林园：医药股也有经营不好的，别乱买</td></tr>
 <tr><td>2584.36–2614.04</td><td>被拖欠半年房租，先让租客腾房</td><td>林园：半年没付我房租，我先让他把房子腾回来</td></tr>
 <tr><td>2696.76–2735.16</td><td>回应车厂调研，解释只是跟朋友转一圈</td><td>林园：我就跟朋友去车厂转一圈，没太多精力放上面</td></tr></table><p>后两种更有个人经历、具体对象或反差；有力表达来自原话。不要为了“雷霆”给他补一句没说过的话。16条参考里6条不足120秒，当前120秒硬门槛也值得另开短观点实验。</p></section>
-<section id="models"><h2>8B / 9B / 9B思考：同原文对比</h2><p>4组实际字幕 × 3种模型配置 × 6种表达角度，最多72个候选。另加一组只含29.68秒房租经历的实验，允许1–3个候选，不强行凑满6种。两组输入不同，应分别比较。每项有独立生成和审核请求，记录耗时、引用、缺失和失败。机器通过不能替代逐条编辑验收；未自动写入生产标题。</p><p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35545423737">查看完整片段实验</a> · <a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35546700511">查看单观点实验</a></p>'''+(''.join(models) or '<p>本地尚未汇入模型结果。</p>')+'''</section>
+<h3>7个编辑标题草案：把林园原话里的态度留下来</h3><p>以下是依据实际字幕写出的编辑草案，与上面的布局试样、下面的模型原始输出分别标注；尚待听音核对。“我”“没准”等限定保留，封面不把个人经历改成普遍承诺。</p><div class="scroll"><table><tr><th>切入点</th><th>标题草案</th><th>封面草案</th><th>来源</th></tr>'''+draft_table+'''</table></div>
+<section id="models"><h2>8B / 9B / 9B思考：同原文对比</h2><p class="note">15项实验全部收齐：完整片段的8B、9B非思考各完成4/4项，但均有语义错误；9B思考4/4超过20分钟请求上限。单观点中8B用222秒、9B非思考173秒，9B思考685秒后耗尽输出预算，没有完整结果。本轮不替换生产默认模型。</p><p>4组实际字幕 × 3种模型配置 × 6种表达角度，最多72个候选。另加一组只含29.68秒房租经历的实验，允许1–3个候选，不强行凑满6种。两组输入不同，应分别比较。每项有独立生成和审核请求，记录耗时、引用、缺失和失败。机器通过不能替代逐条编辑验收；未自动写入生产标题。</p><p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35545423737">查看完整片段实验</a> · <a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35546700511">查看单观点实验</a></p>'''+(''.join(models) or '<p>本地尚未汇入模型结果。</p>')+'''</section>
 <section id="errors"><h2>最近Actions到底卡在哪里</h2><div class="scroll"><table><tr><th>运行</th><th>实际错误</th><th>处理方向</th></tr>'''+error_table+'''</table></div><p>已修复：队首需要大陆中转时，后续可直接交给GitHub的来源不再被一起挡住；账户欠费单独记入失败回执，不算素材劣质。账户本身尚未恢复，改动尚未部署。</p></section>
 <p><a href="../../docs/LINYUAN_BENCHMARK_2026-09-21.md">查看完整分析与实现说明</a></p></main>
 <script>
