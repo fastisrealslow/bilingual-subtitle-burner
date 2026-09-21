@@ -10,6 +10,7 @@ def failure_category(reason):
     reason = str(reason or '')
     # Operational failures must not be presented as evidence against footage.
     groups = (
+        ('cloud_account_billing', ('Current user is in debt', '账户欠费', 'Account in debt')),
         ('service_or_timeout', ('不可用', '时间预算', '生产预算', 'timeout', 'Timeout',
                                 'HTTP Error', '工作流步骤失败', 'LLM 调用')),
         ('identity', ('人物不一致', '人物身份', '未找到与林园参考照匹配')),

@@ -2423,15 +2423,17 @@ def _dispatch_admitted(event=None, context=None):
         if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
+    mainland_deferred = 0
     for i, c in enumerate(cands):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
         if (event or {}).get('execution_backend') == 'github' and dispatch_requires_mainland(c):
-            # Leave this source untouched. Release the shared lease before the
-            # runner requests the existing domestic dispatcher, which rechecks
-            # current stock, concurrency and deduplication before downloading.
-            return {'dispatched': success, 'requires_mainland_transfer': True}
+            # A domestic-only source must not block later Bilibili/Weibo
+            # candidates. Keep it untouched, finish runnable admissions, then
+            # release the lease before requesting FC for any remaining gap.
+            mainland_deferred += 1
+            continue
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
                     hashlib.md5(c["key"].encode()).hexdigest()[:6]
@@ -2504,6 +2506,8 @@ def _dispatch_admitted(event=None, context=None):
             log_event("fail", f"调度失败 {c.get('slug', c['key'])}", str(e)[:150])
             _record_failure(st, c, e)
 
+    if mainland_deferred and success < target:
+        return {'dispatched': success, 'requires_mainland_transfer': True}
     _process_retries(st)
     if not cands and not success and time.time()-st.get('source_refresh_requested_at',0)>2*3600:
         try:

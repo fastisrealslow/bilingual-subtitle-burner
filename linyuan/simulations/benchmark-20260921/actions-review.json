@@ -1,0 +1,44 @@
+[
+  {
+    "id": 35542300592,
+    "kind": "framing",
+    "reason": "动态取景连续2.03秒缺少人脸",
+    "implication": "实际失败画面是资料插图；此前1018帧中954帧身份匹配但人脸低于96像素，合格目标帧为0，最大95.85。不是单纯放宽2秒无脸规则就能解决。",
+    "url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35542300592"
+  },
+  {
+    "id": 35542292753,
+    "kind": "identity",
+    "reason": "匹配0/18帧，阈值0.363；源短边1078",
+    "implication": "实际抽帧为带旧字幕/标识的远景多人论坛；整帧1080p不代表人脸足够大。不能据0/18自动断言不是林园，也不能直接降低阈值。优先找同场近景原片。",
+    "url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35542292753"
+  },
+  {
+    "id": 35531042226,
+    "kind": "format_policy",
+    "reason": "原画无法通过真人清理门禁；自动发布禁用音频卡",
+    "implication": "可做音频卡实验；恢复生产须独立验证人物与原音频，不能当默认逃生通道",
+    "url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35531042226"
+  },
+  {
+    "id": 35542769755,
+    "kind": "cloud_account_billing",
+    "reason": "阿里云403: Current user is in debt.",
+    "implication": "账户依赖阻塞，不是素材失败；已修后续可直达来源被队首堵住的路径",
+    "url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35542769755"
+  },
+  {
+    "id": 35542300581,
+    "kind": "cloud_account_billing",
+    "reason": "阿里云403: Current user is in debt.",
+    "implication": "同一外部账户问题会让库存和调度两个workflow重复报错",
+    "url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35542300581"
+  },
+  {
+    "id": 35528659528,
+    "kind": "publication_audit",
+    "reason": "每日4条实际发布验收未通过",
+    "implication": "结果性告警；不可与母片质量失败混算",
+    "url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35528659528"
+  }
+]
