@@ -218,6 +218,8 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
             assert '园园滚雪球' in messages[0]['content']
             assert '正文22~52字' in messages[0]['content']
             assert '正文15~30个汉字' not in messages[0]['content']
+            # Real production style previously removed these fact constraints.
+            assert T.COPY_FACT_CONSTRAINTS in messages[0]['content']
         else:
             assert kwargs['temperature']==0
         if reply.get('candidates'):

@@ -3468,7 +3468,7 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
-TITLE_STYLE_PROFILE = 'yuanyuan-v2-20260920'
+TITLE_STYLE_PROFILE = 'yuanyuan-v3-source-constraints-20260921'
 # Same six real benchmark titles used in the user-approved V2 trial.
 # These are style examples only; the existing guest evidence and reviewer remain authoritative.
 TITLE_STYLE_EXAMPLES = (
@@ -3495,6 +3495,8 @@ def _title_style_prompt(prompt, schema, speaker):
     properties = schema.get('properties', {})
     if 'c_candidates' in properties:
         start = prompt.index('最后在c_candidates')
+        # Only the voice/length block is replaceable. Factual invariants live
+        # after this boundary in title_rewrite.COPY_FACT_CONSTRAINTS.
         end = prompt.index('每条标题必须明确说出讨论对象', start)
         style = f'''最后在c_candidates为同一个核心判断写3个不同表达的候选：A直给态度＋理由；B原文真实反差；C具体做法＋理由。
 三个候选不能只替换一个词或标点。不要为了满足某种结构凭空制造对立或因果。

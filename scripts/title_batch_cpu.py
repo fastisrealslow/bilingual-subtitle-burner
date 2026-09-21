@@ -8,6 +8,7 @@ import re
 import sys
 import tempfile
 import time
+import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'linyuan'))
@@ -34,10 +35,12 @@ def cases():
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--case', type=int, required=True);ap.add_argument('--repeat', type=int, required=True)
+    ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b'], default='qwen3:8b',
+                    help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
-    assert os.environ.get('LOCAL_LLM_MODEL') == 'qwen3:8b'
+    assert os.environ.get('LOCAL_LLM_MODEL') == args.model
     import produce_cn as p
     import editorial_policy as ep
     import title_rewrite as te
@@ -67,6 +70,12 @@ def main():
     p.llm=uncached
     start=time.monotonic();save()
     try:
+        with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as response:
+            tags=json.load(response)
+        actual=next((m for m in tags.get('models',[]) if m.get('name')==args.model or m.get('model')==args.model),None)
+        if not actual or not actual.get('digest'):
+            raise ValueError('loaded model digest unavailable')
+        row['model_digest']=actual['digest'];save()
         with tempfile.TemporaryDirectory() as work:
             result=p.copywrite(case['cues'],list(range(len(case['cues']))),'林园','访谈','',Path(work))
         row['result']=result

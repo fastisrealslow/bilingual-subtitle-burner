@@ -20,6 +20,7 @@ def test_actual_point_forecast_cover_cannot_drop_qualifier_or_antecedent():
     assert '不确定性' in T.forecast_copy_error('林园：十二个月后市场可能突破','十二个月后市场突破',source)
     assert '指代' in T.forecast_copy_error('林园：十二个月后可能到这个点','牛市何时到来不好预测',source)
     assert T.forecast_copy_error('林园：牛市启动时间我不好预测','牛市何时到来不好预测',source) is None
+    assert '具体事件' in T.forecast_copy_error('林园：十二个月可能性大，但得耐心等','十二个月可能性大',source)
 
 
 def test_standalone_product_subject_is_not_forced_to_list_all_disease_names():
@@ -61,6 +62,8 @@ def test_actual_34_subject_catalog_keeps_complication_term_and_positive_answer()
     assert subjects['并发症']==[10]
     source=''.join(units)
     assert T.product_contrast_error('林园：这类药物空间在百倍到五百倍之间','药物空间百倍到五百倍',source)
+    assert T.product_contrast_error('林园：药物空间在百倍到五百倍，但重点在并发症治疗','药物空间大，但看并发症',source)
+    assert T.product_contrast_error('林园：看好的不是三大病药物，而是并发症产品','看好并发症相关产品',source) is None
     assert T.product_contrast_error('林园：我们看好的是并发症相关产品','看好的是并发症相关产品',source) is None
     assert T.product_contrast_error('林园：看好药物市场的需求空间','看好药物市场需求','我们看好药物市场需求，并发症也值得研究。') is None
 
