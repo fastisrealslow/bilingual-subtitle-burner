@@ -611,7 +611,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
         {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
-         "runtime_version":3,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
+         "runtime_version":4,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if read_cache and cf.exists():
@@ -637,6 +637,10 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
                             # A shared 640-token cap truncated real editorial
                             # reports long before their wall-clock deadline.
                             'options':{'temperature':temperature,
+                                       # Stable per request: transport retries do
+                                       # not randomly change the editorial draft.
+                                       # A corrected prompt gets a different seed.
+                                       'seed':int(ckey[:8],16) & 0x7fffffff,
                                        'num_ctx':16384,
                                        'num_predict':max_tokens}}).encode()
         started = time.monotonic()
@@ -649,6 +653,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
             metrics={k:data.get(k) for k in ('prompt_eval_count','prompt_eval_duration',
                      'eval_count','eval_duration','load_duration','done_reason')}
             metrics['wall_seconds']=round(time.monotonic()-started,2)
+            metrics['seed']=int(ckey[:8],16) & 0x7fffffff
             print('[local-llm] '+json.dumps(metrics), flush=True)
             if data.get('done_reason') == 'length':
                 raise ValueError('本地模型输出达到长度上限，审核未完成')
