@@ -34,19 +34,23 @@ def cases():
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--case', type=int, required=True);ap.add_argument('--repeat', type=int, required=True)
+    ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
     assert os.environ.get('LOCAL_LLM_MODEL') == 'qwen3:8b'
     import produce_cn as p
     import editorial_policy as ep
     import title_rewrite as te
-    case=cases()[args.case];text=''.join(c['text'] for c in case['cues'])
+    corpus=json.loads(args.corpus.read_text()) if args.corpus else cases()
+    case=corpus[args.case];text=''.join(c['text'] for c in case['cues'])
     if case.get('transcript_sha256'): assert ep.text_digest(text)==case['transcript_sha256']
     out=Path('title-batch-results');out.mkdir(exist_ok=True)
     row=dict(case=case['id'],repeat=args.repeat,old_title=case['old_title'],old_signals=signals(case['old_title']),
              transcript_sha256=ep.text_digest(text),source_artifact=case.get('artifact_id'),
              title_code_sha256=hashlib.sha256(Path(te.__file__).read_bytes()).hexdigest(),
              commit=os.environ.get('GITHUB_SHA'),model=p.LOCAL_LLM_MODEL,temperature=.35,
+             source_run_id=case.get('source_run_id'),source_sha256=case.get('source_sha256'),
+             editorial_approved=False,scope='Text-only replay; not a produced video or source100 pass',
              num_ctx=16384,max_tokens=2300,cache_reads=False,calls=[])
     target=out/f'case-{args.case}-repeat-{args.repeat}.json'
     def save(): target.write_text(json.dumps(row, ensure_ascii=False, indent=2))

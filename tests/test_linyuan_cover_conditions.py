@@ -46,3 +46,20 @@ def test_exact_quote_path_cannot_bypass_cover_condition_check():
     item = dict(title=TITLE, cover_title='投资回本需十二三年', subject=quote, evidence=[quote])
     package = T._package(item, quote, dict(method='source_quote', quote=quote), [item])
     assert '前提' in T.error(TITLE, package['title_rewrite'], quote)
+
+
+@pytest.mark.parametrize('source, title, cover', [
+    ('十二三年回本，目前估值也是十二三倍。', '林园：十二三倍估值，回本需十二三年', '十二三倍估值回本需十二年'),
+    ('预计要花两三年时间做研究。', '林园：研究这家公司需要两三年', '研究公司要花两年时间'),
+    ('十二到十三年回本。', '林园：十二到十三年回本', '十三年能收回投资成本'),
+])
+def test_observed_range_endpoint_must_not_become_exact_quantity(source, title, cover):
+    assert '范围' in T.quantity_range_error(title, cover, source)
+
+
+def test_range_variants_and_exact_quantities_with_other_units():
+    assert not T.quantity_range_error('十二到十三年回本', '回本要十二三年', '回本需要十二三年。')
+    assert not T.quantity_range_error('用了十二年时间', '用了十二年时间', '估值十二三倍，我研究了十二年。')
+    assert not T.quantity_range_error('发生在二零零三年', '二零零三年发生', '两三年后发生在二零零三年。')
+    assert T._quantity_intervals('十二三年 二十三年 两三倍') == [
+        ('年',12,13,'十二三年'), ('年',23,23,'二十三年'), ('倍',2,3,'两三倍')]

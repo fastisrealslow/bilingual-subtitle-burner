@@ -243,6 +243,55 @@ def cover_qualifier_error(title, cover):
     return None
 
 
+def _quantity_intervals(text):
+    """Conservative reading of small Chinese quantities, including 十二三年.
+
+    Unrecognized numerals are left to semantic review. Parse whole tokens so
+    a year such as 二零零三年 cannot accidentally become 三年.
+    """
+    digits = {c: n for n, c in enumerate('零一二三四五六七八九')}
+    def integer(raw):
+        raw = raw.replace('两', '二').replace('〇', '零')
+        if raw in digits:
+            return digits[raw]
+        match = re.fullmatch(r'([一二三四五六七八九]?)十([一二三四五六七八九]?)', raw)
+        if match:
+            return (digits.get(match[1], 1) * 10) + digits.get(match[2], 0)
+        return None
+    number = r'[零〇一二两三四五六七八九十百千万亿]+'
+    pattern = rf'(?<![零〇一二两三四五六七八九十百千万亿0-9])({number})(?:(?:到|至|[~～—-])({number}))?(年|倍|个月|月|天)'
+    rows = []
+    for match in re.finditer(pattern, text):
+        a, b, unit = match.groups()
+        low, high = integer(a), integer(b) if b else integer(a)
+        if not b and low is None:
+            approx = re.fullmatch(r'([一二三四五六七八九]?十)?([一二两三四五六七八九])([一二三四五六七八九])', a)
+            if approx:
+                prefix, first, second = approx.groups()
+                base = integer(prefix) if prefix else 0
+                low = base + integer(first)
+                high = base + integer(second)
+                if high != low + 1:
+                    continue
+        if low is not None and high is not None and low <= high:
+            rows.append((unit, low, high, match[0]))
+    return rows
+
+
+def quantity_range_error(title, cover, source):
+    source_rows = _quantity_intervals(source)
+    # This catches an observed model-approved precision change, not all
+    # possible numerical errors or whether a quantity supports the claim.
+    for text in (title, cover):
+        for unit, low, high, raw in _quantity_intervals(text):
+            if low != high or any(u == unit and a == b == low for u, a, b, _ in source_rows):
+                continue
+            enclosing = next((q for u, a, b, q in source_rows if u == unit and a < b and a <= low <= b), None)
+            if enclosing:
+                return f'原文“{enclosing}”是范围，不能在标题或封面中缩成确定的“{raw}”'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -258,6 +307,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     qualifier_issue = cover_qualifier_error(title, cover)
     if qualifier_issue:
         return qualifier_issue
+    range_issue = quantity_range_error(title, cover, transcript)
+    if range_issue:
+        return range_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -333,6 +385,7 @@ def _package(item, transcript, review, candidates):
     proof = dict(version=VERSION, kind='editorial_claim', title=title, cover=cover,
                  subject=item['subject'], evidence=item['evidence'], review=review,
                  cover_qualifier_policy=2026092101,
+                 quantity_range_policy=2026092101,
                  source_sha256=hashlib.sha256(compact(transcript).encode()).hexdigest())
     return dict(title=title, cover_title=cover, title_rewrite=proof,
                 title_candidates=[c['title'] for c in candidates], title_quality_verified=True,
@@ -357,6 +410,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         if cover.get('reason') == 'needs_editorial_copy':
             continue
         if cover_qualifier_error(title, cover['text']):
+            continue
+        if quantity_range_error(title, cover['text'], transcript):
             continue
         # Whole source claims are the fallback; not a list of detected subjects.
         item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
@@ -441,6 +496,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
+数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。
@@ -643,6 +699,9 @@ def error(title, proof, transcript=None, speaker='林园'):
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'
+    range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
+    if range_issue:
+        return range_issue
     if transcript is not None and any(compact(q) not in compact(transcript) for q in evidence):
         return '标题观点不能回溯真实字幕'
     review = proof.get('review') or {}

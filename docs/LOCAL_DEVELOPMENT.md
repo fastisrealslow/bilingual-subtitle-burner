@@ -6,15 +6,17 @@
 
 - 完整 Git checkout：`/Users/liwenbo/codex-test/bilingual-subtitle-burner`
 - 本轮分支：`codex/linyuan-reliability-packaging`
-- 基线：`3563b92b2c34bdc2d395d9b4ac03b161c5971fae`
+- 原始开发基线：`3563b92b2c34bdc2d395d9b4ac03b161c5971fae`；固定100对照使用更新的主线 `1c662a1`，版本和规则见下方对照文档。
 - Python 3.11.16，虚拟环境 `.venv311`；依赖见 `requirements-dev.txt`。
-- 输出和对标图片只放 `output/optimization-v1/`，已被 Git 忽略。
+- 输出和参考证据位于 `output/optimization-v1/`、`output/benchmark-20260921/`、`output/baseline-comparison-20260921/`，已被 Git 忽略。
 
 ```bash
 cd /Users/liwenbo/codex-test/bilingual-subtitle-burner
 bash scripts/check_linyuan_local.sh
 .venv311/bin/python scripts/preview_linyuan_iteration.py
 open output/optimization-v1/index.html
+.venv311/bin/python scripts/build_linyuan_comparison_page.py
+open output/benchmark-20260921/comparison.html
 ```
 
 回归不调用付费模型、不触发云端生产、不投稿。页面会读取本轮已下载的完整样片和字幕对照；单独重建脚本不会下载这些产物。封面排版演示使用已留存肖像和同一条历史文案，与真实样片分开展示。新下载的参考账号封面只用于对照，不作为我们的生产素材。
@@ -35,7 +37,7 @@ OpenCV 在本机首次加载耗时较长；这不代表出片程序已经运行�
 
 ## 真正出片还需要什么
 
-开发依赖不含 ffmpeg/ffprobe、Ollama、语音模型、OCR 模型或原始母片。本轮没有下载多 GB 的文本/语音模型，也没有在本机执行完整 ASR—渲染—发布链路。
+开发依赖现在包含 `imageio-ffmpeg` 提供的 FFmpeg。没有系统 FFmpeg 时，检查脚本只在被忽略的 `output/local-tools/` 建立可执行链接并对本次进程生效。它不包含 ffprobe、Ollama、语音模型、OCR 模型或原始母片；本机尚未执行完整 ASR—渲染—发布链路。
 
 生产环境准备仍以 `linyuan/ASR_OFFLINE.md` 和 `linyuan/asr_production_config.json` 为准。本文不把“能跑测试”写成“能稳定出片”。本地与线上标题默认模型均为 `qwen3:8b`；显式更换模型时应重新执行真实字幕批测，不能复用旧模型的审核结论。
 
@@ -45,6 +47,7 @@ OpenCV 在本机首次加载耗时较长；这不代表出片程序已经运行�
 - 同分选稿记录在 `editorial_selection`，它是选择依据，不是点击率预测。
 - `COVER_STYLE=auto`：合格现场原画优先；现场构图不合适时复用已核验帧生成 `editorial` 文字版；再失败才走原有参考人物图回退。显式 `scene` 保持严格模式。
 - `COVER_STYLE=editorial/photo/light/dark` 可显式选择。舞台专用分支仍使用原来的经过验证的封面路径。
+- 真人动态窗口也优先从已验画面选封面，不因内部使用卡片合成而固定使用资料照。`LIVE_CARD_THEME=contrast/light` 选择真人竖卡的黑底或浅色；默认黑底，窗口与字幕几何不变。
 - 来源历史只小幅影响顺序：30天内至少三个不同母片的明确结果才生效，重试不重复计数，服务故障不惩罚素材来源，不封禁未知来源。
 - 普通分片的耗时、失败分类、可重试分片编号加入 `batch_report.json`；这版没有把部分失败自动重新投稿，也不修改配额。
 - `SUBTITLE_LAYOUT=footer`：普通原画视频的实验字幕带，追加画布高度并保留原画；不改变默认字幕。舞台专用与纯音频路径不在本轮实测范围内。
@@ -64,4 +67,4 @@ OpenCV 在本机首次加载耗时较长；这不代表出片程序已经运行�
 
 上述目录被 Git 忽略，换机器时需从对应 Actions artifacts 恢复，不能只靠 clone 得到视频。精简的最终标题、证据、代码指纹和复核备注已提交至 `linyuan/simulations/title-batch-20260920/optimization-review.json`；原始完整模型调用保存在 artifacts。
 
-本机当前离线检查为 249 passed、1 skipped；需要 ffmpeg 的媒体检查明确跳过。真实云端编码通过并不代表本机已具备全部生产依赖。完整结论及尚未解决的标题语义问题见 [本轮验收报告](LINYUAN_OPTIMIZATION_2026-09-20.md)。
+2026-09-21本机离线检查为320 passed，已包含真实编码、黑边范围和动态取景回归；不再因缺少FFmpeg跳过这些检查。真实云端编码通过并不代表本机已具备全部生产依赖。历史结论见 [首轮验收报告](LINYUAN_OPTIMIZATION_2026-09-20.md)，最新100素材与20参考对照见 [主线比较](LINYUAN_MAIN_COMPARISON_2026-09-21.md)。
