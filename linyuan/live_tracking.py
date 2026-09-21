@@ -88,7 +88,17 @@ def crop_box(face, width, height, ratio=632/470, exclusions=()):
 def shot_crop(framing,face,width,height,n,exclusions=()):
     # Run 801 failed on a larger jittered proposal before StableFraming could
     # reuse its valid locked crop. Reframe only at a source camera cut; keep
-    # scale fixed throughout the shot and still check all measured overlays.
+    # scale fixed while that crop remains feasible. Embedded black margins can
+    # hide a real source cut from whole-frame cut detection; a valid new window
+    # must not be rejected just because the previous shot's scale is too small.
+    if framing.box is not None and not framing.pending_cut:
+        try:
+            avoid_overlays(framing.box,face,width,height,exclusions)
+        except ValueError as exc:
+            replacement=crop_box(face,width,height,exclusions=exclusions)
+            framing.geometry_reframes.append(dict(frame=n,previous=list(framing.box),
+                replacement=list(replacement),reason=str(exc)))
+            framing.box=None
     proposed=(crop_box(face,width,height,exclusions=exclusions)
               if framing.box is None or framing.pending_cut else framing.box)
     return framing.update(proposed,face,width,height,n,exclusions=exclusions)

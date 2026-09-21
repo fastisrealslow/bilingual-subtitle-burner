@@ -1,7 +1,7 @@
 """Suppress detector jitter without inventing source camera movement."""
 import math
 
-VERSION = 2026091001
+VERSION = 2026092101
 
 
 class StableFraming:
@@ -16,6 +16,7 @@ class StableFraming:
         self.box = None
         self.pending_cut = False
         self.cut_frames = []
+        self.geometry_reframes = []
         self.pan_frames = 0
         self.held_frames = 0
         self.max_pan_output_px = 0.
@@ -66,5 +67,6 @@ class StableFraming:
     def proof(self):
         return dict(version=VERSION, policy='shot_scale_lock_deadzone_pan',
                     cut_frames=self.cut_frames, pan_frames=self.pan_frames,
+                    geometry_reframes=self.geometry_reframes,
                     held_frames=self.held_frames, max_pan_output_px=self.max_pan_output_px,
                     crop_samples=self.samples)
