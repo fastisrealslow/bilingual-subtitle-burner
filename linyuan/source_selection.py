@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 27
+VERSION = 28
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -90,12 +90,14 @@ OUTRO = re.compile(
     # borrow the outro/host narration to reach the unchanged 120s minimum.
     r'|我今天就讲这么多')
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
+HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
 HOST_BRIDGE = re.compile(
     r'^(?:啊[，,]?|嗯[，,]?|那|好的[，,]?)*'
     r'(?:感谢林总|谢谢林总|林总(?:也|是|阐述|提到)|小林总也是|您时刻提醒我们)'
     r'|^我们都知道林总|^(?:我看|看)(?:你|您)之前(?:也有|有|说)'
     r'|^(?:嗯[，,]?|好[，,]?|呃[，,]?|那么)*我们知道(?:现在|呢)'
-    r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)')
+    r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
+    r'|'+HOST_RECAP)
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
@@ -168,7 +170,7 @@ def boundary_error(cues,pick):
     for i,u in enumerate(units):
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
-        if FOLLOWUP.search(u['text']):
+        if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
             question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
                 return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
@@ -189,7 +191,10 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             (i>questions[k-1]+1 and not all(re.search(r'[？?]$',units[t]['text'])
                 for t in range(questions[k-1]+1,i)))]
     # Keep a host's lead-in with that question, not with the preceding answer.
-    leadin=re.compile(r'采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)')
+    # A recap inside a sentence unit may share a raw ASR cue with the
+    # preceding answer. Do not invent an intra-cue time or move the guest's
+    # conclusion into the next question. That mixed unit cannot end a clip.
+    leadin=re.compile(r'采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)|^'+HOST_RECAP)
     question_starts=list(starts)
     for k,q in enumerate(question_starts):
         lower=(question_starts[k-1]+1 if k else 0)

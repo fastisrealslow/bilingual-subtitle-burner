@@ -37,7 +37,7 @@ def main():
                        tested_sha=report['tested_sha'], run_id=report['run_id'],
                        source_sha256=report['source_sha256'],
                        video_audio_full_decode=False, editorial_approved=False,
-                       editorial_scope='Visual frames, cover, title and subtitle text; not a full audio semantic review')
+                       editorial_scope='Automatic hash, duration and full audio/video decode only; manual observations are recorded separately')
             try:
                 name = final['file']
                 if Path(name).name != name:

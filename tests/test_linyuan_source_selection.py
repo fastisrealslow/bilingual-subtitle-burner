@@ -38,6 +38,31 @@ def test_short_answer_cannot_borrow_next_question_to_reach_120():
     assert select(cues)==[]
 
 
+def test_real_source32_host_recap_cannot_end_the_previous_answer():
+    from source_selection import boundary_error
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_source32_host_recap.json').read_text())
+    cues=data['cues']; original=json.dumps(cues,ensure_ascii=False)
+    picks=select(cues,limit=None,whole_source=True)
+    assert [(p['start'],p['end']) for p in picks]==[(0,data['expected_previous_end'])]
+    # The raw cue spans “西。啊。好的，刚刚说到消费”: do not guess a
+    # timestamp inside it or cut the preceding “东西” word in half.
+    assert cues[picks[0]['end']]['text']=='就投入小，产出大，而且就是一劳永逸。'
+    assert cues[picks[0]['end']]['end']==708.92
+    assert boundary_error(cues,dict(start=0,end=data['old_end']))
+    assert boundary_error(cues,picks[0]) is None
+    assert json.dumps(cues,ensure_ascii=False)==original
+
+
+def test_host_recap_cannot_extend_short_answer_but_guest_recap_is_allowed():
+    cues=dialogue()[:4]
+    cues[-1]['end']=115
+    cues += [dict(start=115,end=145,text='好的，刚刚说到消费，接下来聊一个新问题。'),
+             dict(start=145,end=150,text='您对科技股怎么看？')]
+    assert select(cues)==[]
+    cues=dialogue();cues[2]['text']='我刚刚说到企业需求，现在把价格也讲清楚。'
+    assert [(x['start'],x['end']) for x in select(cues)]==[(0,3)]
+
+
 def test_mechanical_chunk_end_is_not_an_answer_boundary():
     assert select(dialogue()[:-1])==[]
     assert select(dialogue()[:-1],whole_source=True)

@@ -1,0 +1,16 @@
+name: 主持人下一问边界实片验证（素材32，不计100分成绩）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-boundary-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '32'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
