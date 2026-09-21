@@ -224,6 +224,25 @@ def relation_error(title, cover, source):
     return None
 
 
+def cover_qualifier_error(title, cover):
+    """Catch explicit conditions lost in compression, even after model approval.
+
+    This deliberately checks only unambiguous condition constructions. It is
+    not a substitute for reviewing negation, attribution, or the full source.
+    A question asking for the condition makes no unconditional promise.
+    """
+    conditions = re.findall(r'(?:前提是|前提为|条件是)([^，。；！？,;!?]+)', title)
+    conditions += re.findall(
+        r'(?:^|[，,；;])(?:但)?([^，。；！？,;!?]+?)(?:才是|是)前提', title)
+    if not conditions:
+        return None
+    asks_condition = re.search(
+        r'(?:什么|哪些|怎样的|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)', cover)
+    if not asks_condition and any(compact(c) not in compact(cover) for c in conditions):
+        return '封面遗漏标题的明确前提；保留完整条件，或改成询问该条件的完整问题，不能直接承诺结果'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -236,6 +255,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return f'封面有效字数为{len(compact(cover))}，须8~18字；写成完整问题或判断，不能用空格补长度'
     if copy_fragment(title) or copy_fragment(cover):
         return '标题或封面截成残句；补全宾语和判断，不能停在真正的、成为龙头的等半句话'
+    qualifier_issue = cover_qualifier_error(title, cover)
+    if qualifier_issue:
+        return qualifier_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -310,6 +332,7 @@ def _package(item, transcript, review, candidates):
     review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'])}
     proof = dict(version=VERSION, kind='editorial_claim', title=title, cover=cover,
                  subject=item['subject'], evidence=item['evidence'], review=review,
+                 cover_qualifier_policy=2026092101,
                  source_sha256=hashlib.sha256(compact(transcript).encode()).hexdigest())
     return dict(title=title, cover_title=cover, title_rewrite=proof,
                 title_candidates=[c['title'] for c in candidates], title_quality_verified=True,
@@ -332,6 +355,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             continue
         cover = cover_copy(title, quote, speaker)
         if cover.get('reason') == 'needs_editorial_copy':
+            continue
+        if cover_qualifier_error(title, cover['text']):
             continue
         # Whole source claims are the fallback; not a list of detected subjects.
         item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
@@ -415,6 +440,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 吸引力来自原文里真实的分歧、选择或反问，不来自收益承诺、吓人字眼或故意藏起讨论对象。转折、否定、条件和“可能”等限定必须保留。
 每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
+如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。
@@ -611,6 +637,9 @@ def error(title, proof, transcript=None, speaker='林园'):
         return '标题需重新提炼具体观点，不能使用旧的关键词拼盘'
     if title != proof.get('title') or not isinstance(proof.get('cover'), str):
         return '标题或封面与观点证明不一致'
+    qualifier_issue = cover_qualifier_error(title, proof['cover'])
+    if qualifier_issue:
+        return qualifier_issue
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'

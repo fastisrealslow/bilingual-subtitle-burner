@@ -75,6 +75,17 @@ def layout_for(width, height, card=False):
             'line_capacity':max(8, int((region['width']-32)/(font*1.05)))}
 
 
+def live_card_layout(theme='contrast'):
+    """Same verified moving window and caption geometry, two visual treatments."""
+    if theme not in ('contrast', 'light'):
+        raise ValueError('真人卡风格只支持 contrast/light')
+    layout = layout_for(720, 1280, True)
+    layout['live_card_theme'] = theme
+    if theme == 'contrast':
+        layout['subtitle_style'] = 'white-outline'
+    return layout
+
+
 def footer_layout_for(width, height):
     """Opt-in caption band outside the original image; never cover a mouth.
 
@@ -449,11 +460,15 @@ def verify_render(path, layout, samples=12):
         if text or finder_match:
             cap.release(); raise ValueError(f'成片第{i}个抽检帧存在二维码候选')
         from source_geometry import has_black_fill
-        black+=int(has_black_fill(frame))
+        # Generated card margins are intentional typography space. Inspect
+        # actual source pixels, so a light template cannot hide source bars
+        # and a dark template cannot be mistaken for failed source framing.
+        black+=int(has_black_fill(qr_frame))
     cap.release()
     if black>=max(2,samples//2):
         raise ValueError('成片存在持续黑色填充边')
     return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True,
             'render_checks':{'version':VERSION,'frames_checked':checked,
                              'dimensions_match':True,'qr_detected':False,'black_edge_hits':black,
+                             'black_edge_scope':'source_window' if layout['mode']=='audio_card' or layout.get('live_region') else 'full_frame',
                              'qr_scope':'source_window' if layout['mode']=='audio_card' or layout.get('live_region') else 'full_frame'}}

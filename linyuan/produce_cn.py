@@ -4779,7 +4779,8 @@ def extract_audio_card_portrait(reference_image, out_path):
 
 
 def make_audio_card(out_path, speaker, topic, width=None, height=None,
-                    portrait_path=None, require_portrait=False, cover_style=None, live_video=False):
+                    portrait_path=None, require_portrait=False, cover_style=None, live_video=False,
+                    live_theme=None):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
@@ -4790,10 +4791,11 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
     width = int(width or AUDIO_CARD_WIDTH)
     height = int(height or AUDIO_CARD_HEIGHT)
     vertical = height > width
-
-    # 对标账号的高播放音频卡不是深色科技模板，而是「浅灰底 + 人物视觉 +
-    # 红黄标题 + 黄字字幕」。这里复刻信息层级和观看习惯，不复制它的插画、
-    # 照片、署名或其他受保护资产。浅暖灰比纯白更耐看，也能承托金色品牌色。
+    from presentation import live_card_layout
+    live_theme = live_theme or os.environ.get('LIVE_CARD_THEME', 'contrast')
+    contrast = live_video and vertical and live_card_layout(live_theme)['live_card_theme'] == 'contrast'
+    # Recent reference inspection distinguishes native landscape interviews
+    # from black portrait quote cards. Keep verified geometry, change paint only.
     image = Image.new("RGB", (width, height), (232, 231, 226))
     draw = ImageDraw.Draw(image)
     for y in range(height):
@@ -4801,6 +4803,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         color = (int(238 - 15 * blend), int(237 - 14 * blend),
                  int(232 - 12 * blend))
         draw.line((0, y, width, y), fill=color)
+    if contrast:
+        draw.rectangle((0, 0, width, height), fill=(10, 10, 10))
 
     font_path = next((x for x in (
         os.environ.get("AUDIO_CARD_FONT_FILE"),
@@ -4833,7 +4837,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         tag_w = tag_bbox[2] - tag_bbox[0] + int(28 * unit)
         draw.rounded_rectangle(
             (48, 96, 48 + tag_w, 142), radius=max(8, int(10 * unit)),
-            fill=(35, 86, 170))
+            fill=(38, 38, 38) if contrast else (35, 86, 170))
         draw.text((48 + int(14 * unit), 101), tag, font=small_font,
                   fill=(255, 255, 255))
 
@@ -4846,7 +4850,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         title_boxes = []
         for i, line in enumerate(lines):
             draw.text((48, title_y + i * line_h), line, font=topic_font,
-                      fill=(24, 44, 66))
+                      fill=((255, 220, 72) if i == 0 else (255, 255, 255)) if contrast else (24, 44, 66))
             title_boxes.append(draw.textbbox((48,title_y+i*line_h),line,
                                font=topic_font))
         if len(lines)>2 or any(b[0]<38 or b[2]>682 or b[1]<150 or b[3]>325
@@ -4855,6 +4859,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         Path(str(out_path)+'.title-proof.json').write_text(json.dumps({
             'version':1,'title':topic,'headline_lines':lines,'font_px':topic_size,
             'text_boxes':title_boxes,'max_lines':2,'bottom_limit':325,
+            'live_card_theme':live_theme if live_video else None,
             'matches_cover_headline':True},ensure_ascii=False,indent=2))
 
         x0, y0, x1, y1 = 44, 360, 676, 830
@@ -4886,14 +4891,15 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
             draw.rounded_rectangle((170, 590, 550, 790), radius=100,
                                    fill=(35, 48, 64))
 
-        draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
-                               fill=(249, 249, 247),
-                               outline=(214, 210, 200), width=2)
+        if not contrast:
+            draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
+                                   fill=(249, 249, 247),
+                                   outline=(214, 210, 200), width=2)
         draw.text((48, 1080), ("公开发言原声｜原始访谈画面" if live_video else
                              "公开发言原声｜人物资料图，非现场画面"),
-                  font=small_font, fill=(89, 94, 99))
+                  font=small_font, fill=(175, 175, 175) if contrast else (89, 94, 99))
         draw.text((48, 1120), AUDIO_CARD_DISCLAIMER, font=small_font,
-                  fill=(105, 105, 105))
+                  fill=(160, 160, 160) if contrast else (105, 105, 105))
     else:
         # 16:9 封面：结论在左、人物在右且占 35%~45%，缩略图仍可辨认。
         panel = (46, 74, width - 46, height - 74)
@@ -5269,6 +5275,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             portrait_path=audio_card_portrait, require_portrait=True, live_video=use_live_video)
     from presentation import layout_for, VERSION as PRESENTATION_VERSION
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
+    if use_live_video:
+        from presentation import live_card_layout
+        layout = live_card_layout(os.environ.get('LIVE_CARD_THEME', 'contrast'))
     # Rehearsal-only until the actual native video has been visually reviewed.
     if strategy != 'audio_card' and os.environ.get('SUBTITLE_LAYOUT') == 'footer':
         from presentation import footer_layout_for
@@ -5397,7 +5406,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         from presentation import select_cover_style
-        selected_cover_style = select_cover_style(strategy != "audio_card", cw["title"],
+        selected_cover_style = select_cover_style(strategy != "audio_card" or use_live_video, cw["title"],
                                                   os.environ.get("COVER_STYLE", "auto"))
         if selected_cover_style not in {"photo", "scene", "editorial"}:
             if audio_card_portrait is None:
@@ -5410,9 +5419,15 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             cover_person_image_source = "authority_reference"
         else:
             try:
-                make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
-                           cw["cover_title"], speaker, cover, video_filter=clean_vf,
-                           preferred_time=(visual_report or {}).get("best_cover_time"),
+                # A tracked window already passed source identity/overlay QA.
+                # Sample its relative timeline, not original mother timestamps.
+                cover_src = prepared_live[1][0] if use_live_video else src
+                cover_start = 0 if use_live_video else cues[p0['start']]['start']
+                cover_end = (cues[p0['end']]['end'] - cues[p0['start']]['start']
+                             if use_live_video else cues[p0['end']]['end'])
+                make_cover(cover_src, cover_start, cover_end,
+                           cw["cover_title"], speaker, cover, video_filter='' if use_live_video else clean_vf,
+                           preferred_time=None if use_live_video else (visual_report or {}).get("best_cover_time"),
                            reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
                            allow_editorial_fallback=os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"
