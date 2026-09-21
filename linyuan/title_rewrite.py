@@ -271,13 +271,15 @@ def _quantity_intervals(text):
     digits = {c: n for n, c in enumerate('零一二三四五六七八九')}
     def integer(raw):
         raw = raw.replace('两', '二').replace('〇', '零')
+        if raw.isdigit():
+            return int(raw)
         if raw in digits:
             return digits[raw]
         match = re.fullmatch(r'([一二三四五六七八九]?)十([一二三四五六七八九]?)', raw)
         if match:
             return (digits.get(match[1], 1) * 10) + digits.get(match[2], 0)
         return None
-    number = r'[零〇一二两三四五六七八九十百千万亿]+'
+    number = r'(?:[零〇一二两三四五六七八九十百千万亿]+|[0-9]+)'
     pattern = rf'(?<![零〇一二两三四五六七八九十百千万亿0-9])({number})(?:(?:到|至|[~～—-])({number}))?(年|倍|个月|月|天)'
     rows = []
     for match in re.finditer(pattern, text):
@@ -308,6 +310,38 @@ def quantity_range_error(title, cover, source):
             enclosing = next((q for u, a, b, q in source_rows if u == unit and a < b and a <= low <= b), None)
             if enclosing:
                 return f'原文“{enclosing}”是范围，不能在标题或封面中缩成确定的“{raw}”'
+    return None
+
+
+def forecast_copy_error(title, cover, transcript):
+    """Preserve duration units and uncertainty in the observed point forecast.
+
+    This narrow rule catches the actual source58 failure. It neither invents a
+    missing index level/date nor claims to solve general semantic entailment.
+    """
+    quantities=_quantity_intervals(transcript)
+    durations={(a,b) for unit,a,b,_ in quantities if unit=='个月'}
+    calendars={(a,b) for unit,a,b,_ in quantities if unit=='月'}
+    for copy in (title,cover):
+        rows=_quantity_intervals(copy)
+        if any(unit=='月' and (a,b) in durations and (a,b) not in calendars for unit,a,b,_ in rows):
+            return '原文的月份时长不能变成日历月份；十二个月不是十二月，标题与封面都须保留单位'
+        if re.search(r'这个点(?:位)?|此点(?:位)?',copy) and not re.search(r'[0-9]{3,5}点',copy):
+            return '点位指代没有解释，标题与封面不能让观众猜“这个点”；不得擅自补点位'
+        # A short qualifier in another ASR cue is still part of this prediction.
+        forecast=bool(rows and re.search(r'市场|指数|点位|牛市|突破|涨到',copy))
+        uncertain=re.search(r'可能性.{0,8}(?:大|存在)|不好预测|判断不了',transcript)
+        qualified=re.search(r'可能|不确定|不好预测|判断不了|(?:我|个人)(?:的)?(?:判断|预测|估计)|多久|何时|什么时候|能否|[？?]',copy)
+        if forecast and uncertain and not qualified:
+            return '点位或牛市的时间判断丢失原文不确定性；标题和封面都不能写成确定的时间承诺'
+    return None
+
+
+def unresolved_subject_error(title, cover):
+    for copy in (title,cover):
+        if (re.search(r'这(?:两|三|几)种病',copy)
+                and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):
+            return '文案只有“这几种病”的未解释指代；写出疾病或实际讨论的并发症产品，不复制问题残句'
     return None
 
 
@@ -378,6 +412,12 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     range_issue = quantity_range_error(title, cover, transcript)
     if range_issue:
         return range_issue
+    forecast_issue = forecast_copy_error(title,cover,transcript)
+    if forecast_issue:
+        return forecast_issue
+    subject_issue = unresolved_subject_error(title,cover)
+    if subject_issue:
+        return subject_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -579,6 +619,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
+“十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
+标题和封面须各自说清对象，不写未解释的“这个点、此点、这三种病”。原文没有点位数值就不补数值，可改写为原文明确的预测边界。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。

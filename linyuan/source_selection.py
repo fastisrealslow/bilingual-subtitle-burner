@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 30
+VERSION = 31
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -80,6 +80,11 @@ KEYNOTE_SECTION = re.compile(
     r'|那么第二个[，,][^。！？]{0,24}投资要赚大钱'
     r'|(?:好了[，,]?)?接下来(?:就是)?我们要谈成长性'
     r'|(?:好了[，,]?)?接下来我就讲这个投资')
+# Source46 ends its answer, then starts a separate recap at an exact cue.
+# Treat the explicit new section as a boundary, without guessing its speaker.
+# A long, complete recap may still be selected independently below.
+SUMMARY_SECTION = re.compile(r'^(?:简单|我(?:们)?(?:再|来)?|那我(?:们)?(?:再|来)?)?'
+    r'总结(?:一)?下(?:这)?几个关键词[：:]')
 OUTRO = re.compile(
     r'(?:本期|今天的|这次的|本次)(?:节目|对谈|访谈|对话).{0,12}(?:结束|到这里|告一段落)'
     r'|今天.{0,8}就到这里|由于时间.{0,12}(?:不再|结束)'
@@ -193,6 +198,8 @@ def boundary_error(cues,pick):
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
     for i,u in enumerate(units):
+        if i and SUMMARY_SECTION.search(u['text']):
+            return '选段跨入明确的总结章节；在原声边界分开，不能把总结开头接在上一段结论后'
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
         if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
@@ -226,7 +233,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         for t in range(max(lower,q-3),q):
             if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
                 starts[k]=t;break
-    transitions=[i for i,u in enumerate(units) if TRANSITION.search(u['text'])]
+    transitions=[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]
     options=[]
     if diagnostics is not None:
         diagnostics.update(selector_version=VERSION,cue_count=len(cues),sentence_count=len(units),
@@ -299,7 +306,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     # sections stay on the Q&A path above, so they cannot borrow another answer.
     cuts=sorted(set([0]+[i for i,u in enumerate(units) if
         TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
-        or KEYNOTE_SECTION.search(u['text'])]))
+        or KEYNOTE_SECTION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     # An already short source may start with an answer dependent on a missing
     # question. Propose the first self-contained sentence in its opening,
     # retaining everything afterwards up to the original natural end. Never
