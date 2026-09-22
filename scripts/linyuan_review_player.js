@@ -44,5 +44,5 @@ document.querySelectorAll('.review-player').forEach(box => {
   });
 });
 if (location.protocol === 'file:') {
-  document.querySelector('#playback-help').hidden = false;
+  document.querySelector('#playback-help')?.removeAttribute('hidden');
 }

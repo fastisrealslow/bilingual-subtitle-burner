@@ -3,6 +3,7 @@
 from pathlib import Path
 import html
 import json
+from build_linyuan_comparison_page import player
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'output/benchmark-20260921'
 esc=html.escape
@@ -21,7 +22,7 @@ def main():
     trials=read(OUT/'variants/manifest.json',[]);variants=[]
     for r in trials:
         k=r['id'];variants.append(f'''<article class="variant" data-aspect="{r['aspect']}"><div class="badge">{k.upper()} · {esc(r['label'])} · {r['dimensions'][0]}×{r['dimensions'][1]}</div>
-<video controls preload="none" poster="variants/{k}.jpg" src="variants/{k}.mp4"></video>
+{player('variants/'+k+'.mp4','variants/'+k+'.jpg','有原声的排版试样')}
 <h3>{esc(r['title'])}</h3><p>同一段 {r['duration']:.1f} 秒原音频；这是排版试样，不是新库存。</p>
 <button class="pick" data-id="{k}">☆ 留作候选</button><textarea data-note="{k}" placeholder="记下喜欢或需要改的地方（仅保存在本机浏览器）"></textarea></article>''')
     models=[]
@@ -39,7 +40,7 @@ def main():
         if (OUT/f'variants/cover-{i}.jpg').exists():covers.append(f'<article><img loading="lazy" src="variants/cover-{i}.jpg"><h3>{label}</h3><img class="thumb" src="variants/cover-{i}-160.jpg"><small>160×90 列表尺寸</small></article>')
     stories=[]
     for r in read(OUT/'story/manifest.json',[]):
-        k=r['aspect'];stories.append(f'<article><div class="badge">{esc(k)} · 29.68秒原声经历</div><video controls preload="none" poster="story/{k}.jpg" src="story/{k}.mp4"></video><h3>{esc(r["title"])}</h3></article>')
+        k=r['aspect'];stories.append(f'<article><div class="badge">{esc(k)} · 29.68秒原声经历</div>'+player('story/'+k+'.mp4','story/'+k+'.jpg','原声经历试剪')+f'<h3>{esc(r["title"])}</h3></article>')
     drafts=read(ROOT/'linyuan/simulations/benchmark-20260921/editorial-drafts.json',[])
     draft_table=''.join('<tr><td>'+esc(r['angle'])+'</td><td>'+esc(r['title'])+'</td><td>'+esc(r['cover'])+'</td><td><details><summary>对应字幕</summary>'+esc(r['source_quote'])+'</details></td></tr>' for r in drafts)
     failures=read(ROOT/'linyuan/simulations/benchmark-20260921/actions-review.json',[])
@@ -70,6 +71,8 @@ document.querySelectorAll('.pick').forEach(b=>{function paint(){b.classList.togg
 document.querySelectorAll('textarea').forEach(t=>{t.value=saved[t.dataset.note]?.note||'';t.oninput=()=>{saved[t.dataset.note]??={};saved[t.dataset.note].note=t.value;save()}})
 document.querySelectorAll('video').forEach(v=>v.onplay=()=>document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause()}));
 </script></html>'''
+    body=body.replace('<nav>','<nav><a href="comparison.html">当前成片三列对比</a>',1)
+    body=body.replace('</script>',(ROOT/'scripts/linyuan_review_player.js').read_text()+'</script>')
     (OUT/'index.html').write_text(body,encoding='utf-8');print(OUT/'index.html')
 
 if __name__=='__main__':main()

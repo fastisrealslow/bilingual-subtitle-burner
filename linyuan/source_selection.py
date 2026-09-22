@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 32
+VERSION = 33
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -188,6 +188,32 @@ def sentence_units(cues):
     return units
 
 
+def floor_handover_ranges(cues):
+    """Observable microphone handovers, without assigning semantic approval.
+
+    A sentence shared with the next speaker is excluded in full. Never invent
+    an intra-cue timestamp to keep a few more seconds of the guest's ending.
+    """
+    units=sentence_units(cues)
+    invitation=re.compile(r'把话筒交给|话筒交给|请.{1,12}(?:发言|谈谈|讲几句)')
+    thanks=re.compile(r'(?:谢谢|感谢)(?:谢谢|感谢)?(?:我们)?[^，。！？!?]{1,10}(?:总|先生|老师|董事长)[啊，。！!,]')
+    spans=[]
+    for i,u in enumerate(units[:-1]):
+        # A bare 有请 inside a quoted anecdote is insufficient. Require the
+        # actual invitation immediately before it and an exact short cue.
+        context=''.join(x['text'] for x in units[max(0,i-1):i+1])
+        if not re.fullmatch(r'(?:嗯[，,。]?|好[，,。]?)*有请[。！!]',u['text'].strip()):continue
+        if not invitation.search(context):continue
+        for j in range(i+2,len(units)):
+            if not thanks.search(units[j]['text']):continue
+            # The host acknowledgement may be in the same ASR sentence as
+            # the guest's final words. Retain only prior complete sentences.
+            a,b=units[i+1]['start'],units[j-1]['end']
+            spans.append((a,b))
+            break
+    return spans
+
+
 def boundary_error(cues,pick):
     """Apply observable boundaries to model/cache candidates too.
 
@@ -350,6 +376,20 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
             reason='保留源片完整连续陈述及自然句界；未声称模型语义审核通过',
             selection_method='source_continuous_speech_v1')))
+    # Shareholder meetings use microphone handovers, not interview questions.
+    # Source67 previously lost the whole 228s statement because neither the
+    # opening host invitation nor the closing acknowledgement was recognized.
+    # Offer this exact continuous range to the same argument/face/title gates.
+    if whole_source and editorial.CONTENT_POLICY=='reference_v1':
+        for a,b in floor_handover_ranges(cues):
+            duration=cues[b]['end']-cues[a]['start']
+            if not editorial.MIN_SECONDS<=duration<=330:continue
+            text=''.join(c['text'] for c in cues[a:b+1])
+            if editorial.transcript_integrity_error(text) or boundary_error(cues,dict(start=a,end=b)):continue
+            quotes=quote_candidates(text)
+            options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
+                reason='明确交接话筒后至主持人致谢前的完整句；仍需观点与身份审核',
+                selection_method='source_floor_handover_v1')))
     # limit=None exposes every structurally valid interval to picture ranking.
     # Never change an answer boundary merely to fit a cleaner frame.
     ranked=[dict(p,editorial_rank=rank) for rank,(_,p) in

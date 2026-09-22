@@ -40,7 +40,7 @@ def subtitle_panel(row, label):
     return '<div><h3>'+esc(label)+'</h3>'+photo+'<p>'+esc(row['title'])+'</p><details><summary>展开实际字幕全文与时间轴（'+str(len(lines))+'条）</summary><pre class="transcript">'+esc('\n'.join(lines))+'</pre></details></div>'
 
 
-def sections():
+def sections(player):
     d = read(OUT/'source-audit/yield-audit.json', {})
     if not d:
         return '<p>来源统计尚未生成，请先运行 scripts/audit_linyuan_source_yield.py。</p>'
@@ -102,12 +102,12 @@ def sections():
         v=read(folder/'view.json',{})
         proof=read(folder/'inspection.json',{})
         if v and proof:
-            recent.append('<article><h3><a href="https://www.bilibili.com/video/'+bvid+'">'+esc(v['title'])+'</a></h3><video controls preload="none" src="reference/'+bvid+'/preview-video-only.mp4" poster="reference/'+bvid+'/cover.jpg"></video><p>'+esc(note)+'</p><p class="small">9月20日作品；本轮补充发现，不混入固定20。平台原始尺寸1988×1118，本地仅854×480无声预览，已取'+str(round(proof['decoded_duration'],1))+'秒；只做抽帧视觉观察。</p></article>')
+            recent.append('<article><h3><a href="https://www.bilibili.com/video/'+bvid+'">'+esc(v['title'])+'</a></h3>'+player('reference/'+bvid+'/preview-video-only.mp4','reference/'+bvid+'/cover.jpg','无声画面参考')+'<p>'+esc(note)+'</p><p class="small">9月20日作品；本轮补充发现，不混入固定20。平台原始尺寸1988×1118，本地仅854×480无声预览，已取'+str(round(proof['decoded_duration'],1))+'秒；只做抽帧视觉观察。</p></article>')
     fresh='<section id="fresh-reference"><h2>这次补看的园园新作</h2><p>这些近作提示我们：跟随内容保留真实圆桌镜头，有时比统一黑卡更合适。黑底只是可用形式之一。</p><div class="side">'+''.join(recent)+'</div></section>'
-    return intro+quality_iteration()+sources+subtitles+titles+gaps+fresh
+    return intro+quality_iteration(player)+sources+subtitles+titles+gaps+fresh
 
 
-def quality_iteration():
+def quality_iteration(player):
     d=read(ROOT/'linyuan/simulations/benchmark-20260921/content-quality-iteration.json',{})
     if not d:return ''
     def run(run_id,label):
@@ -150,7 +150,7 @@ def quality_iteration():
     if landscape:
         body+='<h3>横版实片：修复自己的字幕触发来源残字检查</h3><p>'+run(landscape['run_id'],'两条同片版式复测')+'。'+esc(landscape['scope'])+' 原版6次横版尝试均退回竖版；本次固定复测4、8均通过，下载后再次核对文件哈希并完整解码。没有调低来源文字、人物或二维码检查。</p><div class="side">'
         for r in landscape['rows']:
-            body+='<article><h4>素材'+str(r['id'])+' · 新横版</h4><video controls preload="none" src="'+asset(r['file'])+'" poster="'+asset(r['poster'])+'"></video><img loading="lazy" src="'+asset(r['contact'])+'" alt="横版六帧检查"><p>'+esc(r['title'])+'</p><p>'+esc(r['visual_review'])+'</p></article>'
+            body+='<article><h4>素材'+str(r['id'])+' · 新横版</h4>'+player(os.path.relpath(ROOT/r['file'],OUT),os.path.relpath(ROOT/r['poster'],OUT),'独立横版复测')+'<img loading="lazy" src="'+asset(r['contact'])+'" alt="横版六帧检查"><p>'+esc(r['title'])+'</p><p>'+esc(r['visual_review'])+'</p></article>'
         body+='</div><p>前方三列已换成最新e93fa87同轮实片；这里保留此前9a19eb2的隔离格式复测。没有增加两条出片，也没有把旧标题算作编辑合格。</p>'
     openings=d.get('short_opening_replay')
     if openings:
