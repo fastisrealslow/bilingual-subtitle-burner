@@ -639,6 +639,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         cover = cover_copy(title, quote, speaker)
         if cover.get('reason') == 'needs_editorial_copy':
             continue
+        if copy_fragment(cover['text']) or research_scope_error(title, cover['text'], transcript):
+            continue
         if cover_qualifier_error(title, cover['text']):
             continue
         if source_payback_condition_error(title, cover['text'], transcript):
@@ -966,6 +968,7 @@ def error(title, proof, transcript=None, speaker='林园'):
     for issue in (forecast_copy_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unresolved_subject_error(title, proof['cover']),
                   product_contrast_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  research_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
             return issue

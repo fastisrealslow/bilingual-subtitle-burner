@@ -12,6 +12,7 @@ import title_rewrite as T
     '林园：一个是当下你的买买入的成本',
     '林园：都是直接给我们带来的是一些回报',
     '林园：炒股是钱拿来炒，是对人人体的磨练。',
+    '林园：我没有没有特意去研究，但是我好像有人给我说是光伏光伏能源这一块',
 ])
 def test_real_fragments_cannot_pass_either_copy_path(title):
     assert not H.complete(H.body(title))
@@ -32,3 +33,16 @@ def test_real_fragments_cannot_pass_either_copy_path(title):
 def test_complete_conversational_judgments_remain_allowed(title):
     assert not H.verbal_fragment(title)
     assert not T.copy_fragment(title)
+
+
+def test_quote_fallback_cannot_drop_researched_company_scope(monkeypatch):
+    source='我们研究的公司，医药公司业绩增长，股价却在下跌。'
+    title='林园：医药公司业绩增长，股价却在下跌'
+    monkeypatch.setattr(H,'title_candidates',lambda *a,**k:[title])
+    monkeypatch.setattr(H,'cover_copy',lambda *a,**k:dict(text='医药公司业绩增长',kind='quote'))
+    with pytest.raises(ValueError,match='未提炼出'):
+        T._extractive(source,'林园',())
+    quote=H.body(title)
+    proof=T._package(dict(title=title,cover_title='医药公司业绩增长',evidence=[quote],subject=quote),
+        source,dict(method='source_quote',quote=quote),[])['title_rewrite']
+    assert '研究公司范围' in T.error(title,proof,source)

@@ -28,7 +28,7 @@ def verbal_fragment(text):
     text=body(text).strip('。！？!?')
     return bool(re.search(
         r'^(?:是)?应该是(?:也|还)|^都是|^一个是|'
-        r'(买|卖)\1(?:的|入|出)|对人人体', text))
+        r'(买|卖)\1(?:的|入|出)|对人人体|没有没有', text))
 
 
 def complete(text):
