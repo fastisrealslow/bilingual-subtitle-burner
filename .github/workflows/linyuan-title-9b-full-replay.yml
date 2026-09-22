@@ -1,0 +1,19 @@
+name: 9B原话限定标题：17完整出片验证（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-title-9b-full-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '17'
+      content_policy: reference_v1
+      text_model: qwen3.5:9b
+      title_draft_profile: source_limits
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

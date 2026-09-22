@@ -115,8 +115,10 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert render['env']['TEXT_BACKEND']=='local'
     assert render['env']['SOURCE_EDITORIAL_FIRST']=='true'
     assert 'simulate_sources.py run' in render['run']
-    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters'}
+    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile'}
     assert workflow['on']['workflow_call']['inputs']['visual_chapters']==dict(type='boolean',required=False,default=False)
+    assert workflow['on']['workflow_call']['inputs']['text_model']['default']=='qwen3:8b'
+    assert workflow['on']['workflow_call']['inputs']['title_draft_profile']['default']=='production'
     assert workflow['on']['workflow_call']['inputs']['content_policy']['default']=='legacy120'
     assert simulate['env']['LINYUAN_CONTENT_POLICY']=="${{ inputs.content_policy || 'legacy120' }}"
     assert workflow['jobs']['summary']['if']=='${{ always() && !inputs.sample_ids }}'

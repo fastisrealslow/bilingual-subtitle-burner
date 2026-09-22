@@ -3486,8 +3486,13 @@ TITLE_STYLE_PROFILE = 'yuanyuan-v4-source-only-20260922'
 def _copy_style_identity(speaker):
     if speaker != '林园':
         return {}
+    profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
+    if profile not in ('production','concise','source_limits'):
+        raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
-                title_style_sha256=_sha256_file(Path(__file__)))
+                title_style_sha256=_sha256_file(Path(__file__)),
+                title_draft_profile=profile,
+                title_draft_profile_sha256=_sha256_file(Path(__file__).with_name('title_draft_profiles.py')))
 
 
 def _title_style_prompt(prompt, schema, speaker):
@@ -3575,10 +3580,19 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
         drafting = 'c_candidates' in schema.get('properties', {})
+        messages=[{'role':'user','content':prompt}]
+        profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
+        if drafting and profile!='production':
+            from title_draft_profiles import concise_messages,source_limits_messages,source_limits_schema
+            if profile=='source_limits':
+                schema=source_limits_schema(schema)
+                messages=source_limits_messages(messages,schema)
+            else:
+                messages=concise_messages(messages,schema)
         if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
             print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
-        return llm([{"role":"user","content":prompt}],api_key,temperature=temperature,
+        return llm(messages,api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
                    read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','b_focus')))
     try:

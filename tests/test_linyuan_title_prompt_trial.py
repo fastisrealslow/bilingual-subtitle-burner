@@ -54,3 +54,17 @@ def test_short_prompt_keeps_retry_identity_without_copying_rejected_claims():
     result=concise_draft(prompt,{'properties':{'c_candidates':{}}})
     assert result.startswith('第2轮重新拟稿')
     assert result.endswith(source)
+
+
+def test_runtime_profile_is_bound_to_copy_cache_identity(monkeypatch):
+    import produce_cn as p
+    monkeypatch.delenv('LINYUAN_TITLE_DRAFT_PROFILE',raising=False)
+    before=p._copy_style_identity('林园')
+    assert before['title_draft_profile']=='production'
+    monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','source_limits')
+    changed=p._copy_style_identity('林园')
+    assert changed!=before and changed['title_draft_profile']=='source_limits'
+    assert len(changed['title_draft_profile_sha256'])==64
+    monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','unknown')
+    with pytest.raises(ValueError,match='未知标题'):
+        p._copy_style_identity('林园')
