@@ -218,7 +218,8 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
             assert '本人态度、原话理由、短句推进' in messages[0]['content']
             assert '白酒行业是有泡沫的' not in messages[0]['content']
             assert '甚至没有PE' not in messages[0]['content']
-            assert '正文22~52字' in messages[0]['content']
+            assert '正文12~52字' in messages[0]['content']
+            assert '不要补第二句凑长度' in messages[0]['content']
             assert '正文15~30个汉字' not in messages[0]['content']
             # Real production style previously removed these fact constraints.
             assert T.COPY_FACT_CONSTRAINTS in messages[0]['content']
@@ -391,6 +392,20 @@ def test_actual_model_covers_use_complete_title_spans_before_review():
     assert bound['cover_title']=='但牛市未明，不建议加杠杆'
     assert not T.copy_fragment(bound['cover_title'])
     assert 'review' not in bound
+
+
+def test_real17_completed_question_does_not_hide_the_answer_object():
+    path=Path(__file__).parent/'fixtures/linyuan_source17_72_host_tail.json'
+    units=[c['text'] for c in json.loads(path.read_text())[0]['cues'][:6]]
+    assert T.explicit_host_cues(units)=={1}
+    roles=T.bind_reading(dict(a_guest_answer='没有特意研究光伏能源，听别人说存在污染，因此没参与。',
+        b_question_premise='主持人问光伏能源怎么看。',c_guest_spans=[dict(a_start=2,b_end=5)]),units)
+    assert 2 in T.guest_evidence_ids(units,roles)
+    # The release is not an attribution decision: a reader may still leave
+    # the following background unknown; no automatic guest role is added.
+    roles=T.bind_reading(dict(a_guest_answer='所以我们没有参与相关行业。',
+        b_question_premise='主持人问光伏能源怎么看。',c_guest_spans=[dict(a_start=5,b_end=5)]),units)
+    assert roles[2]=='unknown' and 2 not in T.guest_evidence_ids(units,roles)
 
 
 def test_source_subject_choice_does_not_approve_a_new_financial_claim():

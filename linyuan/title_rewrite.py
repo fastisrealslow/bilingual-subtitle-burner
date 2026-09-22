@@ -168,6 +168,17 @@ def explicit_host_cues(units):
         body=compact(text)
         if markers.search(body):host=True
         elif host:
+            # A completed question followed by an explicit topical reply can
+            # end the deterministic exclusion. A '?' alone is insufficient:
+            # real interviewers also continue with premises after a question.
+            # Source17: “光伏能源你怎么看呢？” was followed by “光伏能源是
+            # 这样的，就是我没有…”, but the sticky flag hid that whole answer
+            # until “我们没参与”. Release it to the independent reader; this
+            # does not automatically relabel the next cue as guest.
+            reply=re.match(r'^([\u4e00-\u9fffA-Za-z]{2,12})是这样的(?:就是)?我',body)
+            if (i and reply and reply[1] in compact(units[i-1])
+                    and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])):
+                host=False
             opening=re.sub(r'^(?:嗯|啊|哎|呃|那个|这个|那么|现在|所以|就是|好|那)*','',body)
             if re.match(r'^(?:我觉得|我认为|我个人|我们|对了对|总的来说|总体来说)',opening) or '我老林' in body:
                 host=False
