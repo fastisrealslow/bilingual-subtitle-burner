@@ -222,7 +222,10 @@ def bind_candidate(item, focus, units, subjects):
     # literal string matching. The full claim still needs independent review.
     anchors=[word for word in subjects if word in title and any(word in q for q in bound['evidence'])]
     bound['subject']=max(anchors,key=len) if anchors else ''
-    if (copy_fragment(cover) or summary_heading(cover.removeprefix(speaker))
+    source_text=''.join(units)
+    scope_lost_on_cover=(research_scope_error(title,cover,source_text)
+                         and not research_scope_error(title,title,source_text))
+    if (copy_fragment(cover) or summary_heading(cover.removeprefix(speaker)) or scope_lost_on_cover
             or not 8<=len(compact(cover))<=18):
         # An exact complete title clause can serve as the cover without a
         # second factual rewrite. The independent reviewer sees this final
@@ -233,6 +236,7 @@ def bind_candidate(item, focus, units, subjects):
         choices=[c.strip() for c in complete_spans if 8<=len(compact(c))<=18
                  and not copy_fragment(c) and bound['subject'] and bound['subject'] in c
                  and not summary_heading(c)
+                 and not research_scope_error(title,c,source_text)
                  and cover_fits(c)]
         if choices:
             bound['cover_title']=min(choices,key=lambda c:abs(len(compact(c))-13))

@@ -380,6 +380,17 @@ def test_real95_scope_is_kept_even_when_evidence_omits_short_qualifier():
     assert T.research_scope_error('林园：医药企业业绩增长','医药企业业绩在增长','整个医药行业业绩增长。') is None
 
 
+def test_actual95_correct_title_can_supply_complete_scoped_cover_before_review():
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/title-sep22-corpus.json'
+    units=[c['text'] for c in json.loads(path.read_text())[1]['cues']]
+    title='林园：研究的医药公司业绩增长，股价却下跌'
+    bound=T.bind_candidate(dict(title=title,cover_title='医药公司业绩增长股价下跌'),
+        dict(evidence_ids=[16,18,19,20]),units,T.subject_catalog(units))
+    assert T.research_scope_error(title,bound['cover_title'],''.join(units)) is None
+    assert bound['cover_title'] in title
+    assert 'review' not in bound
+
+
 def test_actual_model_covers_use_complete_title_spans_before_review():
     units=['一个买卖，如果能够长期做下去，才是一个好的买卖。']
     bound=T.bind_candidate(dict(title='林园：长期做下去才是好买卖',
