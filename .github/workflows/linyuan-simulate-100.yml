@@ -21,6 +21,10 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
         type: string
         required: false
         default: legacy120
+      visual_chapters:
+        type: boolean
+        required: false
+        default: false
     secrets:
       BILIBILI_COOKIES:
         required: false
@@ -63,6 +67,7 @@ jobs:
         working-directory: linyuan
     env:
       LINYUAN_CONTENT_POLICY: ${{ inputs.content_policy || 'legacy120' }}
+      SOURCE_VISUAL_CHAPTERS: ${{ inputs.visual_chapters && 'true' || 'false' }}
       RUN_TEXT_MODEL: qwen3:8b
       RUN_SOURCE: ${{ matrix.source_url }}
       RUN_SLUG: ${{ matrix.slug }}

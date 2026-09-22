@@ -293,7 +293,7 @@ def report():
         error = f'{type(exc).__name__}: {exc}'
     status, stage = classify(finals, error, batch, source, execution, steps)
     evidence = BASE / 'simulation-reports' / slug
-    code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'temporal_source_text.py', 'source_selection.py',
+    code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'temporal_source_text.py', 'source_selection.py', 'source_question_cards.py',
             'live_tracking.py', 'ci_fetch_bilibili.py',
             'simulate_sources.py', 'asr_production_config.json']
     value = dict(sample=row, status=status, stage=stage, finals=finals,
@@ -316,6 +316,13 @@ def report():
     # distinguished from sparse host/audience cutaways. These are evidence
     # only and can never count as an accepted render.
     retain_identity_evidence(out, evidence)
+    remaining=12*1024*1024
+    for path in sorted(out.glob('_tmp/visual-question-cards/card-*.jpg'))[:80]:
+        size=path.stat().st_size
+        if size>2*1024*1024 or size>remaining:continue
+        target=evidence/'evidence'/path.relative_to(out)
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(path,target);remaining-=size
     # Failed live-window checks used to retain only a generic reason while the
     # six measured frames were discarded. Keep those small, already-sampled
     # images so padding can be distinguished from a naturally dark scene
