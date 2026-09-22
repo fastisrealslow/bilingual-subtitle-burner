@@ -366,6 +366,33 @@ def test_real_source66_business_nouns_do_not_discard_natural_draft():
     assert '买卖' not in T.subject_catalog(['长期坚持才有结果。'])
 
 
+def test_real95_scope_is_kept_even_when_evidence_omits_short_qualifier():
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/title-sep22-corpus.json'
+    text=''.join(c['text'] for c in json.loads(path.read_text())[1]['cues'])
+    assert T.research_scope(text)
+    assert T.research_scope_error('林园：医药企业业绩增长但股价下跌，因过去被炒高。',
+        '医药企业业绩增长股价却跌',text)
+    title='林园：我研究的医药公司业绩在涨，股价为什么却跌了？'
+    assert T.research_scope_error(title,'医药股业绩增长股价却跌',text)
+    assert T.research_scope_error(title,'调研公司业绩涨股价跌',text) is None
+    assert T.research_scope_error('林园：我没有研究房地产，也不看好。','房地产我没有研究',text) is None
+    assert T.research_scope_error('林园：医药企业业绩增长','医药企业业绩在增长','整个医药行业业绩增长。') is None
+
+
+def test_actual_model_covers_use_complete_title_spans_before_review():
+    units=['一个买卖，如果能够长期做下去，才是一个好的买卖。']
+    bound=T.bind_candidate(dict(title='林园：长期做下去才是好买卖',
+        cover_title='林园：长期做买卖才是好'),dict(evidence_ids=[0]),units,{'买卖':[0]})
+    assert bound['cover_title']=='长期做下去才是好买卖'
+    assert 'review' not in bound
+    units=['现在A股确实是好机会，真的牛市没来之前说不清楚，我不建议加杠杆。']
+    bound=T.bind_candidate(dict(title='林园：当前A股是好机会，但牛市未明，不建议加杠杆。',
+        cover_title='林园谈A股机会与杠杆风险'),dict(evidence_ids=[0]),units,{'杠杆':[0]})
+    assert bound['cover_title']=='但牛市未明，不建议加杠杆'
+    assert not T.copy_fragment(bound['cover_title'])
+    assert 'review' not in bound
+
+
 def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     item=proposals()[0]
     item['title']='林园：龙头还没形成，布局整个行业更安全'

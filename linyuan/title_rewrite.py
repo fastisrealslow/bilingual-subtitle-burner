@@ -203,19 +203,25 @@ def bind_evidence(item, units):
 def bind_candidate(item, focus, units, subjects):
     title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
     cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
+    speaker=title.split('：',1)[0] if '：' in title else ''
+    if speaker and cover.startswith(speaker+'：'):
+        cover=cover[len(speaker)+1:].strip()
     bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units)
     # Derive the exact shared anchor instead of asking the model to perform
     # literal string matching. The full claim still needs independent review.
     anchors=[word for word in subjects if word in title and any(word in q for q in bound['evidence'])]
     bound['subject']=max(anchors,key=len) if anchors else ''
-    if copy_fragment(cover) or not 8<=len(compact(cover))<=18:
+    if (copy_fragment(cover) or summary_heading(cover.removeprefix(speaker))
+            or not 8<=len(compact(cover))<=18):
         # An exact complete title clause can serve as the cover without a
         # second factual rewrite. The independent reviewer sees this final
         # clause and all original source context before approving anything.
         from headline_policy import cover_fits
         clauses=re.split(r'[，,。；;：:！？!?]',title.split('：',1)[-1])
-        choices=[c.strip() for c in clauses if 8<=len(compact(c))<=18
+        complete_spans=clauses+['，'.join(clauses[i:i+2]) for i in range(len(clauses)-1)]
+        choices=[c.strip() for c in complete_spans if 8<=len(compact(c))<=18
                  and not copy_fragment(c) and bound['subject'] and bound['subject'] in c
+                 and not summary_heading(c)
                  and cover_fits(c)]
         if choices:
             bound['cover_title']=min(choices,key=lambda c:abs(len(compact(c))-13))
@@ -233,6 +239,8 @@ def copy_fragment(text):
     # 杠杆 disappeared although it remained in the title. Keep a full clause
     # available for bind_candidate's existing pre-review cover repair.
     if re.search(r'(?:别|不要)(?:急着|急于)加$',text):
+        return True
+    if re.search(r'(?:才|就)是好$',text):
         return True
     return bool(TAIL.search(text) and not re.search(
         r'(?:机会|社会|体会)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text))
@@ -455,6 +463,23 @@ def personal_action_error(title, cover, evidence):
     return None
 
 
+def research_scope(text):
+    """Observed-company qualifiers must not become industry-wide results."""
+    return re.search(r'(?:我|我们)(?:所)?(?:研究|调研|跟踪|考察)(?:过|的)?(?:这些|这几家|的)?公司',compact(text))
+
+
+def research_scope_error(title, cover, transcript):
+    # Actual source95 said 我们研究的公司. Both 8B and 14B reviewers
+    # approved a sector-wide rewrite, omitting that short standalone cue.
+    if not research_scope(transcript):
+        return None
+    for copy in (title, cover):
+        if (re.search(r'业绩|营收|利润|股价',copy)
+                and not re.search(r'(?:研究|调研|跟踪|考察)(?:过)?的?[\u4e00-\u9fff]{0,6}(?:公司|企业|药企)',copy)):
+            return '业绩或股价判断须保留研究公司范围；不能把有限样本改成整个行业，标题与封面分别保留范围'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
@@ -465,6 +490,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return f'标题有效字数为{len(compact(title))}，须12~62字；补全具体判断或问题，不用空格凑长度'
     if not isinstance(cover, str) or not 8 <= len(compact(cover)) <= 18:
         return f'封面有效字数为{len(compact(cover))}，须8~18字；写成完整问题或判断，不能用空格补长度'
+    if summary_heading(cover.removeprefix(speaker)):
+        return '封面仍是主题目录；要写出这个片段的具体判断或完整问题'
     if copy_fragment(title) or copy_fragment(cover):
         return '标题或封面截成残句；补全宾语和判断，不能停在真正的、成为龙头的等半句话'
     qualifier_issue = cover_qualifier_error(title, cover)
@@ -485,6 +512,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     contrast_issue = product_contrast_error(title,cover,transcript)
     if contrast_issue:
         return contrast_issue
+    scope_issue = research_scope_error(title,cover,transcript)
+    if scope_issue:
+        return scope_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -728,6 +758,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 blocked=explicit_host_cues(units)
                 draft_source={i:u for i,u in enumerate(units) if roles[i]=='guest' and i not in blocked}
                 source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
+                if research_scope(''.join(draft_source.values())):
+                    source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
                 if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):
                     source_heading+='原文明确说龙头尚未形成。写到龙头时，标题与封面必须保留“没有、尚未、未来、可能成为”等原有阶段；不能写成选定现成龙头，不能只添加限定词却保留相反做法。\n'
                 draft_retry=(f'第{attempt+1}轮重新拟稿；上轮未通过原文或文案检查。只从下方嘉宾原话重新提炼判断，不延续上轮措辞。\n' if last_error else '')
