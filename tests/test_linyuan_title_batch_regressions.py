@@ -46,3 +46,17 @@ def test_quote_fallback_cannot_drop_researched_company_scope(monkeypatch):
     proof=T._package(dict(title=title,cover_title='医药公司业绩增长',evidence=[quote],subject=quote),
         source,dict(method='source_quote',quote=quote),[])['title_rewrite']
     assert '研究公司范围' in T.error(title,proof,source)
+
+
+def test_complete_participation_verb_is_not_a_dangling_conjunction():
+    assert not T.copy_fragment('林园：光伏能源我没有研究，也没有参与')
+    assert H.complete('光伏能源我没有研究，也没有参与')
+    assert T.copy_fragment('林园：光伏与')
+    assert not H.complete('光伏与')
+
+
+def test_source_abbreviation_is_an_evidence_anchor_not_an_invented_object():
+    units=['光伏能源是这样的，就是我没有没有特意去研究。']
+    subjects=T.subject_catalog(units)
+    assert subjects['光伏']==[0]
+    assert '风电' not in subjects

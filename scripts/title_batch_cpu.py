@@ -38,7 +38,7 @@ def main():
     ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b','qwen3.5:9b'], default='qwen3:8b',
                     help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
-    ap.add_argument('--draft-profile', choices=['production', 'concise'], default='production')
+    ap.add_argument('--draft-profile', choices=['production', 'concise', 'source_limits'], default='production')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
     assert os.environ.get('LOCAL_LLM_MODEL') == args.model
@@ -61,9 +61,13 @@ def main():
     original=p.llm
     def uncached(*a, **kw):
         kw['read_cache']=False
-        if args.draft_profile == 'concise':
-            from linyuan_title_prompt_trial import concise_messages
-            messages=concise_messages(a[0],kw.get('response_schema'))
+        if args.draft_profile in ('concise','source_limits'):
+            from linyuan_title_prompt_trial import concise_messages, source_limits_schema, source_limits_messages
+            if args.draft_profile == 'source_limits':
+                kw['response_schema']=source_limits_schema(kw.get('response_schema'))
+                messages=source_limits_messages(a[0],kw.get('response_schema'))
+            else:
+                messages=concise_messages(a[0],kw.get('response_schema'))
             if messages is not a[0]:row['draft_interventions']+=1
             a=(messages,)+a[1:]
         call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()

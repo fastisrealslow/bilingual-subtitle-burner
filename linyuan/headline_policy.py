@@ -31,6 +31,13 @@ def verbal_fragment(text):
         r'(买|卖)\1(?:的|入|出)|对人人体|没有没有', text))
 
 
+def dangling_tail(text):
+    # A final conjunction is incomplete, but 与 inside the complete verb
+    # 参与 is not a dangling conjunction (observed source17 model drafts).
+    return bool(TAIL.search(text) and not re.search(
+        r'(?:机会|社会|体会|参与)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text))
+
+
 def complete(text):
     if verbal_fragment(text):
         return False
@@ -48,7 +55,7 @@ def complete(text):
         return False
     if text.count('就是') >= 2 or text.count('这个') >= 2:
         return False
-    dangling = bool(TAIL.search(text)) and not re.search(r'(?:机会|社会|体会)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text)
+    dangling = dangling_tail(text)
     return bool(text and not QUESTION.search(text) and not dangling
         and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是|和|也看到|是因为)',text)
         and VERB.search(text))

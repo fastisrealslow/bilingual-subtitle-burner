@@ -45,4 +45,28 @@ def reference_speech():
 
 
 def sections():
-    return title_trials()+reference_speech()
+    return title_trials()+followup_trials()+reference_speech()
+
+
+def followup_trials():
+    path=RECORDS/'sep22-followup-results.json'
+    if not path.exists():return ''
+    data=json.loads(path.read_text())
+    link=lambda run:'https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+str(run)
+    body='<section id="title-followup"><h2>最新实测：9B、重复稳定性与实际失败视频</h2>'
+    body+='<p>独立Action已经运行。9B在66号保住了生意原意，但95号改动统计对象、遗漏时间范围；8B同设置重复运行也会选出不同且有问题的标题。暂不切换线上默认模型。</p>'
+    for key,label in [('title9b','同3份字幕：8B与9B短提示'),('cover_scope','修复后：95号研究公司范围'),('repeat8b','同设置重复：8B输出是否稳定')]:
+        batch=data[key]
+        body+='<h3>'+label+'</h3><p><a href="'+link(batch['run_id'])+'">查看这批实际Action</a></p><div class="grid">'
+        for row in sorted(batch['rows'],key=lambda r:(r['case'],r['model'],r['repeat'])):
+            body+='<article><h4>'+esc(row['case']+' · '+row['model']+' · 第'+str(row['repeat'])+'次')+'</h4><p>'+esc(row['title'])+'</p><p><strong>封面：</strong>'+esc(row['cover'])+'</p><p class="warning">'+esc(row['review_note'])+'</p><small>'+esc(row['status'])+' · '+esc(row['seconds'])+'秒 · '+esc(row['commit'][:7])+'</small></article>'
+        body+='</div>'
+    body+='<p class="small">以上均为文案重放，不是新增成片或发布验收；时间只含单条文本生成和复核，未包含下载模型、排队或渲染。</p>'
+    row=data['source17']
+    body+='<h3>17号：能生成MP4，标题依然不能交付</h3><p class="warning">'+esc(row['review_note'])+'</p>'
+    body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放视频</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开视频</a> · <a href="'+esc(row['file'])+'" download>下载视频</a><p class="small" role="status" aria-live="polite"></p></div>'
+    body+='<p>实际标题：'+esc(row['title'])+'<br>实际封面：'+esc(row['cover'])+'</p><p class="small">'+esc(row['duration'])+'秒 · 代码'+esc(row['tested_sha'][:7])+' · <a href="'+link(row['run_id'])+'">实片运行</a>；单条诊断，不加入固定100的历史成绩。</p>'
+    body+='<h3>模型选段：建议仍需核实前后文</h3><p>两份长素材分别交8B、9B提出连续片段。8B有一段停在“为什么”，却漏掉后面的回答；9B也会在理由中描述实际选段外的内容。候选理由写得完整，不代表剪辑完整。</p><p><a href="'+link(data['selection']['run_id'])+'">查看4组原始选段实验</a>；尚未接入生产选段，也未增加成片数。</p>'
+    batch=data['full100']
+    body+='<h3>修复版整批100条复验</h3><p>'+esc(batch['note'])+'</p><p><a href="'+link(batch['run_id'])+'">查看固定100进度</a> · 固定代码 '+esc(batch['tested_sha'][:7])+ '</p>'
+    return body+'</section>'

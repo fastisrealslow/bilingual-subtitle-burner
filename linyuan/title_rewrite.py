@@ -74,7 +74,7 @@ def subject_catalog(units):
     # accepting every verb would also admit context-free actions as subjects.
     business_nouns = {'生意', '买卖'}
     counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
-                     if (tag.startswith(('n', 'vn')) or tag == 'l' or word in business_nouns)
+                     if (tag.startswith(('n', 'vn')) or tag in ('l', 'j') or word in business_nouns)
                      and 2 <= len(compact(word)) <= 8)
     return {word:[i for i, unit in enumerate(units) if word in unit]
             for word, _ in counts.most_common(48)}
@@ -248,7 +248,7 @@ def copy_fragment(text):
     from headline_policy import verbal_fragment
     if verbal_fragment(text):
         return True
-    from headline_policy import TAIL
+    from headline_policy import dangling_tail
     text=str(text or '').strip(' ，,。；;！？!?')
     # Actual fixed100 / 99 ended its cover with “别急着加”: the object
     # 杠杆 disappeared although it remained in the title. Keep a full clause
@@ -257,8 +257,7 @@ def copy_fragment(text):
         return True
     if re.search(r'(?:才|就)是好$',text):
         return True
-    return bool(TAIL.search(text) and not re.search(
-        r'(?:机会|社会|体会)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text))
+    return dangling_tail(text)
 
 
 def relation_error(title, cover, source):
