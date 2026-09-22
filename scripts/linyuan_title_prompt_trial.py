@@ -1,6 +1,15 @@
 """Isolated drafting intervention; source reading and independent review stay intact."""
 
 
+def concise_messages(messages, schema):
+    if 'c_candidates' not in (schema or {}).get('properties', {}):
+        return messages
+    if (not isinstance(messages, list) or len(messages) != 1
+            or messages[0].get('role') != 'user' or not isinstance(messages[0].get('content'), str)):
+        raise TypeError('Unexpected production title message shape')
+    return [{**messages[0], 'content': concise_draft(messages[0]['content'], schema)}]
+
+
 def concise_draft(prompt, schema):
     if 'c_candidates' not in (schema or {}).get('properties', {}):
         return prompt

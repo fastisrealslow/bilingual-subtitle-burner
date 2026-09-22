@@ -3,7 +3,7 @@ import sys
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from linyuan_title_prompt_trial import concise_draft
+from linyuan_title_prompt_trial import concise_draft, concise_messages
 
 
 def test_only_drafting_is_changed_and_guest_source_is_preserved():
@@ -16,3 +16,14 @@ def test_only_drafting_is_changed_and_guest_source_is_preserved():
         assert concise_draft(original, {'properties':properties}) == original
     with pytest.raises(ValueError):
         concise_draft('没有已归属的原文', {'properties':{'c_candidates':{}}})
+
+
+def test_actual_llm_message_list_reaches_the_model_with_new_draft():
+    schema={'properties':{'c_candidates':{}}}
+    original=[{'role':'user','content':'旧提示里的样例。以下是可用于标题事实的嘉宾原话：完整原话'}]
+    changed=concise_messages(original,schema)
+    assert changed[0]['role']=='user'
+    assert changed[0]['content'].startswith('你是访谈短视频编辑')
+    assert changed[0]['content'].endswith('嘉宾原话：完整原话')
+    assert original[0]['content'].startswith('旧提示')
+    assert concise_messages(original,{'properties':{'reviews':{}}}) is original

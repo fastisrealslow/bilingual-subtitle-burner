@@ -55,15 +55,17 @@ def main():
              commit=os.environ.get('GITHUB_SHA'),model=p.LOCAL_LLM_MODEL,temperature=.35,draft_profile=args.draft_profile,
              source_run_id=case.get('source_run_id'),source_sha256=case.get('source_sha256'),
              editorial_approved=False,scope='Text-only replay; not a produced video or source100 pass',
-             num_ctx=16384,max_tokens=2300,cache_reads=False,calls=[])
+             num_ctx=16384,max_tokens=2300,cache_reads=False,draft_interventions=0,calls=[])
     target=out/f'case-{args.case}-repeat-{args.repeat}.json'
     def save(): target.write_text(json.dumps(row, ensure_ascii=False, indent=2))
     original=p.llm
     def uncached(*a, **kw):
         kw['read_cache']=False
         if args.draft_profile == 'concise':
-            from linyuan_title_prompt_trial import concise_draft
-            a=(concise_draft(a[0],kw.get('response_schema')),)+a[1:]
+            from linyuan_title_prompt_trial import concise_messages
+            messages=concise_messages(a[0],kw.get('response_schema'))
+            if messages is not a[0]:row['draft_interventions']+=1
+            a=(messages,)+a[1:]
         call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()
         try:
             result=original(*a, **kw);call['response']=result;return result
@@ -90,6 +92,8 @@ def main():
     except Exception as exc:
         row['status']='unresolved';row['error']=f'{type(exc).__name__}: {exc}'
     row['seconds']=round(time.monotonic()-start,2);save()
+    row['experiment_valid'] = args.draft_profile == 'production' or row['draft_interventions'] > 0
+    save()
     print(json.dumps({k:v for k,v in row.items() if k not in ('calls','result')},ensure_ascii=False))
     if row.get('result'):print('TITLE:',row['result']['title'])
 
