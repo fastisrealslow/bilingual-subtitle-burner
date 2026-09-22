@@ -34,7 +34,9 @@ def reference_media(bvid):
 
 
 def player(src, poster, label):
-    media = (f'<video controls preload="none" src="{esc(src)}" poster="{esc(poster)}"></video>'
+    media = (f'<div class="review-player"><video controls playsinline preload="none" data-src="{esc(src)}" poster="{esc(poster)}"></video>'
+             f'<button type="button">播放视频</button> <a href="{esc(src)}" target="_blank" rel="noopener">单独打开视频</a>'
+             f' · <a href="{esc(src)}" download>下载视频</a><p class="small" role="status" aria-live="polite"></p></div>'
              if src else f'<img loading="lazy" src="{esc(poster)}">')
     return media + '<p class="small">' + esc(label) + '</p>'
 
@@ -148,6 +150,8 @@ document.querySelectorAll('video').forEach(v=>v.onplay=()=>document.querySelecto
     body = body.replace('</style>', overview_css + '</style>')
     body = body.replace('</style>', threeway_css + '</style>')
     body = body.replace('</script>',threeway_js+'</script>')
+    body = body.replace('</script>', (ROOT/'scripts/linyuan_review_player.js').read_text()+'</script>')
+    body = body.replace('</nav>', '</nav><p id="playback-help" class="note" hidden>若内置预览打不开视频，请在 Chrome / Safari 打开 <a href="http://127.0.0.1:8765/output/benchmark-20260921/comparison.html">本机浏览地址</a>。需先运行本地预览服务；视频与网页必须保留完整目录，不能只移动 HTML。</p>', 1)
     body = body.replace('<h1>先看能稳定做出多少，再看每条差在哪里</h1>', '')
     body = body.replace('<nav>', '<nav><a href="#threeway">三列看实片</a><a href="#overview">成功率总览</a><a href="#sources">素材来源</a><a href="#subtitles">字幕前后</a><a href="#packaging">标题封面</a><a href="#gap">园园差距</a>')
     overview=overview_sections()

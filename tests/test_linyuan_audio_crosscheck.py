@@ -15,7 +15,9 @@ def test_wrong_media_bytes_never_reach_asr_or_extraction(tmp_path,monkeypatch):
 
 def test_manifest_windows_are_short_and_bound_to_actual_final_sha():
     rows=json.loads(A.CORPUS.read_text())
-    assert len(rows)==3
+    assert rows
+    identities = [(case['run_id'], case['id'], case['window']['start'], case['window']['end']) for case in rows]
+    assert len(identities) == len(set(identities))
     for case in rows:
         assert len(case['final_sha256'])==64 and len(case['source_sha256'])==64
         assert 0<case['window']['end']-case['window']['start']<30

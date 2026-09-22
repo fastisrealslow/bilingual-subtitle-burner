@@ -38,6 +38,7 @@ def main():
     ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b'], default='qwen3:8b',
                     help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
+    ap.add_argument('--draft-profile', choices=['production', 'concise'], default='production')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
     assert os.environ.get('LOCAL_LLM_MODEL') == args.model
@@ -51,7 +52,7 @@ def main():
     row=dict(case=case['id'],repeat=args.repeat,old_title=case['old_title'],old_signals=signals(case['old_title']),
              transcript_sha256=ep.text_digest(text),source_artifact=case.get('artifact_id'),
              title_code_sha256=hashlib.sha256(Path(te.__file__).read_bytes()).hexdigest(),
-             commit=os.environ.get('GITHUB_SHA'),model=p.LOCAL_LLM_MODEL,temperature=.35,
+             commit=os.environ.get('GITHUB_SHA'),model=p.LOCAL_LLM_MODEL,temperature=.35,draft_profile=args.draft_profile,
              source_run_id=case.get('source_run_id'),source_sha256=case.get('source_sha256'),
              editorial_approved=False,scope='Text-only replay; not a produced video or source100 pass',
              num_ctx=16384,max_tokens=2300,cache_reads=False,calls=[])
@@ -60,6 +61,9 @@ def main():
     original=p.llm
     def uncached(*a, **kw):
         kw['read_cache']=False
+        if args.draft_profile == 'concise':
+            from linyuan_title_prompt_trial import concise_draft
+            a=(concise_draft(a[0],kw.get('response_schema')),)+a[1:]
         call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()
         try:
             result=original(*a, **kw);call['response']=result;return result
