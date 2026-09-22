@@ -115,6 +115,9 @@ def quality_iteration(player):
     experiment=d['content_experiment'];replay=d['title_replay'];audio=d['audio_crosscheck'];boundary=d['boundary']
     body='<section id="content-quality"><h2>内容判断：这轮真实实验发现了什么</h2><p class="warning">仍未证明整体优于线上。文案容量实验固定代码 '+esc(d['candidate_sha'][:7])+'；'+esc(d['stopping_rule'])+'</p>'
     latest=d.get('latest_acceptance')
+    playback=read(ROOT/'linyuan/simulations/benchmark-20260921/browser-playback-sep22.json',{})
+    if playback:
+        body+='<p>网页播放复核：Chrome通过'+str(playback['unique_media'])+'个不同视频的实际播放及中段跳转，失败'+str(playback['failed'])+'个。播放器按需加载，切换时释放上一条资源。可用“单独打开视频”或下载入口；这不等于内容质量验收。</p>'
     if latest:
         body+='<p class="warning">最新整轮自动出片18/100，18条文件均已核对哈希并完整解码，投稿去重仍18。新增88在六帧里有明显白/绿色原字幕，与新字幕叠加，是自动检查漏检。不能把18%宣传为合格率，也不能简单宣布优于上一轮17%。</p>'
         audit=d.get('source_text_recheck')
@@ -158,6 +161,9 @@ def quality_iteration(player):
     body+='<h3>独立语音复核：能发现分歧，不能直接替换字幕</h3><p>'+esc(audio['conclusion'])+' '+run(audio['run_id'],'固定模型与原声哈希的3个窗口')+'</p><div class="side">'
     for row in audio['rows']:
         body+='<article><h4>素材'+str(row['id'])+' · 原识别“'+esc(row['primary'])+'”</h4><audio controls preload="none" src="'+asset(row['file'])+'"></audio><p>独立转写：'+esc(row['secondary'])+'</p><small>仅播放该疑点附近原声；未修改字幕，不等于全片听音验收。</small></article>'
+    followup=audio.get('followup')
+    if followup:
+        body+='<article><h4>素材66 · 追加独立语音复核</h4><audio controls preload="none" src="'+asset(followup['file'])+'"></audio><p>'+esc(followup['note'])+'</p>'+run(followup['run_id'],'查看独立24秒原声核对')+'</article>'
     body+='</div><h3>片尾修复：已经有实际视频证据</h3><p>素材46：'+str(boundary['before_seconds'])+'秒 → '+str(round(boundary['after_seconds'],2))+'秒，同一母片。'+esc(boundary['fixed'])+' '+run(boundary['run_id'],'查看本轮Action')+'</p>'
     body+='<p>最后字幕：“'+esc(boundary['last_subtitle'])+'”。'+esc(boundary['remaining'])+'</p><p>新100验收：'+run(d['queued_acceptance']['run_id'],d['queued_acceptance']['commit'][:7])+'。'+esc(d['queued_acceptance']['note'])+'</p></section>'
     return body
