@@ -63,6 +63,27 @@ def test_host_recap_cannot_extend_short_answer_but_guest_recap_is_allowed():
     assert [(x['start'],x['end']) for x in select(cues)]==[(0,3)]
 
 
+def test_real17_and72_cannot_borrow_host_tail_to_make_a_complete_clip(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    cases=json.loads((Path(__file__).parent/'fixtures/linyuan_source17_72_host_tail.json').read_text())
+    for case in cases:
+        cues=case['cues'];before=json.dumps(cues,ensure_ascii=False)
+        assert S.boundary_error(cues,dict(start=0,end=len(cues)-1))
+        picks=select(cues,limit=None,whole_source=True)
+        if case['id']==17:
+            assert [(p['start'],p['end']) for p in picks]==[(0,5)]
+            assert cues[5]['end']==1376.44
+            assert '好像有人给我说' in ''.join(c['text'] for c in cues[:6])
+            assert S.boundary_error(cues,picks[0]) is None
+        else:
+            # Actual answer lasts <20s. Do not use next-topic host narration
+            # to pad it into a successful video, or silently lower the floor.
+            assert picks==[]
+        assert json.dumps(cues,ensure_ascii=False)==before
+
+
 def test_mechanical_chunk_end_is_not_an_answer_boundary():
     assert select(dialogue()[:-1])==[]
     assert select(dialogue()[:-1],whole_source=True)

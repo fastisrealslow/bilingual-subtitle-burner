@@ -215,7 +215,9 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
         reply=json.loads(callback(messages[0]['content']))
         if 'c_candidates' in properties:
             assert kwargs['temperature']==.35
-            assert '园园滚雪球' in messages[0]['content']
+            assert '本人态度、原话理由、短句推进' in messages[0]['content']
+            assert '白酒行业是有泡沫的' not in messages[0]['content']
+            assert '甚至没有PE' not in messages[0]['content']
             assert '正文22~52字' in messages[0]['content']
             assert '正文15~30个汉字' not in messages[0]['content']
             # Real production style previously removed these fact constraints.

@@ -3477,17 +3477,10 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
-TITLE_STYLE_PROFILE = 'yuanyuan-v3-source-constraints-20260921'
-# Same six real benchmark titles used in the user-approved V2 trial.
-# These are style examples only; the existing guest evidence and reviewer remain authoritative.
-TITLE_STYLE_EXAMPLES = (
-    '股神林园：我受不了！我觉得有风险的、看不明白的，我就不投，远离！你真赚了，那可能害了你，人是管不住自己的！',
-    '股神林园：分红很重要！账上的现金是判断一个公司的试金石！账面上的钱和分红完全是两回事！',
-    '股神林园：投资是投未来的确定性！新兴科技不符合我买了不卖的原则，我的钱都是不卖才能来的！',
-    '股神林园：白酒行业是有泡沫的，我不买、但持有；涨不涨要看它能不能持续盈利，它跟大基建、房地产、收入水平有关系',
-    '股神林园：我不想栽这个跟头！AI那么高的投入、甚至没有PE，不合算！',
-    '股神林园：现在消费和医药的回报是我从事资本市场以来最值得的时候',
-)
+TITLE_STYLE_PROFILE = 'yuanyuan-v4-source-only-20260922'
+# Keep reference titles in the comparison corpus, outside the writer's context.
+# Real source17 discussed solar power, but all three drafting attempts copied
+# wine/AI claims from style examples despite the "not facts" instruction.
 
 
 def _copy_style_identity(speaker):
@@ -3509,8 +3502,8 @@ def _title_style_prompt(prompt, schema, speaker):
         end = prompt.index('每条标题必须明确说出讨论对象', start)
         style = f'''最后在c_candidates为同一个核心判断写3个不同表达的候选：A直给态度＋理由；B原文真实反差；C具体做法＋理由。
 三个候选不能只替换一个词或标点。不要为了满足某种结构凭空制造对立或因果。
-学习“园园滚雪球”的口吻。以下样本只用于表达节奏，里面的公司、数字、观点不是本片事实，严禁搬入新标题：
-{json.dumps(TITLE_STYLE_EXAMPLES, ensure_ascii=False)}
+学习参考视频的表达方式：具体对象、本人态度、原话理由、短句推进。
+这里不提供其他视频的公司、数字或观点。事实只取下方本片嘉宾原话。
 写成林园本人对着观众讲话，别写成旁观者总结。态度、对象、理由都要具体。
 第一句先亮出嘉宾确实表达的选择、判断或感受；第二句接他原话里的具体理由或真实反差。
 允许两三句连着说，允许有力的否定和适度重复强调；不要为了书面工整把语气磨平。
@@ -3525,7 +3518,7 @@ title以“林园：”开头，正文22~52字，最多两三个短句，不凑�
 cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。
 '''
         prompt = prompt[:start] + style + prompt[end:]
-        # Remove the old unrelated factual illustration; the approved references above replace it.
+        # Do not give the writer unrelated illustrative facts to imitate.
         prompt = prompt.replace('例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”\n', '')
         prompt = prompt.replace('这个例子只说明文风，不能套用它的事实。', '')
     elif 'reviews' in properties:

@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 33
+VERSION = 34
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -97,11 +97,12 @@ OUTRO = re.compile(
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
 HOST_BRIDGE = re.compile(
-    r'^(?:啊[，,]?|嗯[，,]?|那|好的[，,]?)*'
+    r'^(?:啊[，,]?|嗯[，,]?|那|好(?:的|了)?[，,]?)*'
     r'(?:感谢林总|谢谢林总|林总(?:也|是|阐述|提到)|小林总也是|您时刻提醒我们)'
     r'|^我们都知道林总|^(?:我看|看)(?:你|您)之前(?:也有|有|说)'
     r'|^(?:嗯[，,]?|好[，,]?|呃[，,]?|那么)*我们知道(?:现在|呢)'
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
+    r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
     r'|'+HOST_RECAP)
 
 
