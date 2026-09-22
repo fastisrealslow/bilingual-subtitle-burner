@@ -67,8 +67,15 @@ def subject_catalog(units):
     # Jieba tags some concrete multiword subjects (e.g. 并发症) as "l"
     # (fixed expression), not "n". Excluding them forced real source34 drafts
     # to anchor on 空间/药物 while dropping the actual answer's subject.
+    # Real source66: jieba labels 生意/买卖 as verbs, excluding two ordinary
+    # business nouns. This rejected a complete source-backed draft while
+    # allowing the ASR error 折远 (tagged as a person's name) to anchor copy.
+    # These lexical exceptions still require literal guest-source evidence;
+    # accepting every verb would also admit context-free actions as subjects.
+    business_nouns = {'生意', '买卖'}
     counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
-                     if (tag.startswith(('n', 'vn')) or tag == 'l') and 2 <= len(compact(word)) <= 8)
+                     if (tag.startswith(('n', 'vn')) or tag == 'l' or word in business_nouns)
+                     and 2 <= len(compact(word)) <= 8)
     return {word:[i for i, unit in enumerate(units) if word in unit]
             for word, _ in counts.most_common(48)}
 

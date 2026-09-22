@@ -349,6 +349,21 @@ def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name
     assert '未出龙头公司' not in catalog and '医药消费赛道' not in catalog
 
 
+def test_real_source66_business_nouns_do_not_discard_natural_draft():
+    # The 14B replay actually proposed this draft, but jieba tagged 买卖 as v.
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/title-sep22-corpus.json'
+    units=[c['text'] for c in json.loads(path.read_text())[0]['cues']]
+    catalog=T.subject_catalog(units)
+    assert '买卖' in catalog and '生意' in catalog
+    bound=T.bind_candidate(dict(title='林园：一个买卖能长期做下去，才是好买卖。',
+        cover_title='长期做下去才是好买卖'),dict(evidence_ids=[7,9,10,11]),units,catalog)
+    assert bound['subject']=='买卖'
+    assert T._candidate_error(bound,''.join(units),'林园',[]) is None
+    # This grants entry to the independent semantic review, not approval.
+    assert 'review' not in bound
+    assert '买卖' not in T.subject_catalog(['长期坚持才有结果。'])
+
+
 def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     item=proposals()[0]
     item['title']='林园：龙头还没形成，布局整个行业更安全'
