@@ -111,6 +111,18 @@ def test_incremental_investment_is_not_no_cost_profit():
     assert T.incremental_cost_error('林园：这种企业利润扩大不用追加投入','利润扩大不用追加投入',source) is None
 
 
+def test_actual99_incomplete_cover_is_repaired_before_review():
+    units=['牛市有迹象，但没来之前别急着加杠杆。']
+    item=dict(title='林园：牛市有迹象，但没来之前别急着加杠杆',cover_title='牛市有迹象，别急着加')
+    assert T.copy_fragment(item['cover_title'])
+    assert not T.copy_fragment('牛市没来之前别急着加杠杆')
+    assert not T.copy_fragment('长期需求还会增加')
+    bound=T.bind_candidate(item,dict(evidence_ids=[0]),units,{'杠杆':[0]})
+    assert bound['cover_title']=='但没来之前别急着加杠杆'
+    # This is only a repaired proposal; no model review is fabricated.
+    assert 'review' not in bound
+
+
 def test_missing_forecast_event_rereads_full_dialogue_without_forcing_guest_roles():
     units=['您预计什么时候可以到达这个点位？',
            '进入牛市的时间我不好预测。',

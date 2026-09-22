@@ -2854,6 +2854,12 @@ def artifact_quality_error(meta):
     # a wide-shot cut. Metadata or a title-only edit cannot make these clean.
     if (meta.get('fingerprints') or {}).get('sha256')=='165008328d7f0a023e78f3f851638bb30110d62f7c4b2f2b4038ac8c38d7143d':
         return '画面复核发现来源角标：36秒仍有微博标识，须从原素材重新取景'
+    # Fixed100 35618921193 / 88 passed the old edge-only scan with animated
+    # source subtitles over the face. Quarantine these exact audited bytes so
+    # an old cached approval cannot bypass the new temporal source-text gate.
+    # Other clips from this mother remain eligible for normal verification.
+    if (meta.get('fingerprints') or {}).get('sha256')=='ff83ec0b2505bf302d610af0ae2ba4c3b2427aff800a27644a3921a769cbaec3':
+        return '实际成片人物区残留动态原字幕；旧通过证明失效，须重新取景并复核'
     if meta.get('source_sha256')=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47':
         review=meta.get('corner_review') or {}
         if (review.get('version')!=2026091302 or review.get('passed') is not True

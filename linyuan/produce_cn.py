@@ -3151,7 +3151,15 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
         raise VisualQualityError(f"真人窗口完整人脸抽帧不足：{full_face_frames}/{got}，拒绝裁头/裁下巴或空镜")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
-    edge_text=source_edge_text_exclusions(json.loads((tmp/'corner_ocr.json').read_text())['evidence'])
+    text_evidence=json.loads((tmp/'corner_ocr.json').read_text())['evidence']
+    from temporal_source_text import changing_text_tracks, VERSION as TEMPORAL_TEXT_VERSION
+    changing_text=changing_text_tracks(text_evidence)
+    (tmp/'changing_source_text.json').write_text(json.dumps(dict(
+        version=TEMPORAL_TEXT_VERSION,source_only_region=True,
+        sampled_frames=got,tracks=changing_text),ensure_ascii=False,indent=2))
+    if changing_text:
+        raise VisualQualityError('真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕')
+    edge_text=source_edge_text_exclusions(text_evidence)
     if edge_text:
         raise VisualQualityError('真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印')
     if logos:
@@ -3168,7 +3176,8 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             "no_black_bars_verified": True,
             "corner_review":dict(version=2026091302,passed=True,sampled_frames=got,
                 moving_wordmark_version=2026091501,
-                media_sha256=_file_sha256(final),policy='platform_persistent_text_and_source_edge_bands')}
+                changing_source_text_version=TEMPORAL_TEXT_VERSION,
+                media_sha256=_file_sha256(final),policy='platform_persistent_text_source_edges_and_changing_captions')}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):

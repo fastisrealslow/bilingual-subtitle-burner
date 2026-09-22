@@ -46,7 +46,8 @@ def sections():
         return '<p>来源统计尚未生成，请先运行 scripts/audit_linyuan_source_yield.py。</p>'
     labels = {'baseline':'原主线 · 同批100', 'optimized':'早期优化版 · 同批100',
               'reference100':'新时长策略 · 固定100', 'library20':'当前素材库 · 固定20',
-              'candidate100':'稳定性修复 · 固定100（cc5113b）'}
+              'candidate100':'稳定性修复 · 固定100（cc5113b）',
+              'latest100':'最新复验 · 固定100（e93fa87）'}
     batchrows = []
     charts = []
     groups = []
@@ -62,9 +63,9 @@ def sections():
         groups.append('<div class="source-cohort" data-cohort="'+key+'"'+(' hidden' if key!='library20' else '')+'><h3>'+esc(labels[key])+'</h3>'+table(headers,group_rows('platforms'))+ \
             '<details><summary>展开按上传作者统计（作者不是原始拍摄方）</summary>'+table(headers,group_rows('authors'))+'</details></div>')
     intro = '<section id="overview"><div class="eyebrow">整体验收 / 2026-09-21</div><h1>形式更接近了，稳定性还没达标。</h1><p class="lead">目标是每100条素材至少30条能稳定出片，并且内容值得发布。目前还不能交出这个结论。</p><p class="small">本地报告快照：'+esc(d['checked_at'])+'；主线数据 '+d['snapshot_main_sha'][:7]+'。页面不会自动更新；不同固定版本分别统计。</p>'+ \
-        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>'+str(d['cohorts']['candidate100']['passed'])+'%</b><span>cc5113b · 同批100自动出片</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
+        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>'+str(d['cohorts']['latest100']['passed'])+'%</b><span>e93fa87 · 自动出片，含88漏检</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
         '<p class="small">绿色＝自动通过；红色＝质量拒绝；灰色＝未确定，含运行失败与尚缺报告。颜色不表示人工编辑质量。</p>'+table(['批次','固定代码','自动出片率','拒绝','未确定'],batchrows)+ \
-        '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。cc5113b整轮已结束，仍有运行未确定项；更晚的标题修复尚未完成整批验收，具体代码与模型实验见下方；不能拼接多轮最好结果声称达标。</p>'+ \
+        '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。e93fa87整轮已结束：18出片、78拒绝、4运行未确定。新增88有中央原字幕残留，不能把自动18%当作编辑合格；具体问题与后续修复见下方；不能拼接多轮最好结果声称达标。</p>'+ \
         '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></section>'
     admission=d['admission']
     sources='<section id="sources"><h2>素材：有更新，但大库不等于可用库存</h2><p>冻结主线f794ce7素材库收录 '+str(d['library_records'])+' 条记录。北京时间9月21日新增 '+str(d['discovered_today'])+' 条：B站搜索36、来源定向搜索4、微博7、网易1、园园参考2。48条候选来源加2条参考，不能说成新增50条可用母片。</p>'+ \
@@ -113,9 +114,18 @@ def quality_iteration():
         return '<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+str(run_id)+'">'+esc(label)+'</a>'
     experiment=d['content_experiment'];replay=d['title_replay'];audio=d['audio_crosscheck'];boundary=d['boundary']
     body='<section id="content-quality"><h2>内容判断：这轮真实实验发现了什么</h2><p class="warning">仍未证明整体优于线上。文案容量实验固定代码 '+esc(d['candidate_sha'][:7])+'；'+esc(d['stopping_rule'])+'</p>'
+    latest=d.get('latest_acceptance')
+    if latest:
+        body+='<p class="warning">最新整轮自动出片18/100，18条文件均已核对哈希并完整解码，投稿去重仍18。新增88在六帧里有明显白/绿色原字幕，与新字幕叠加，是自动检查漏检。不能把18%宣传为合格率，也不能简单宣布优于上一轮17%。</p>'
+        audit=d.get('source_text_recheck')
+        if audit:
+            body+='<p>漏检修复实测：对17个明确的源画面窗口重新OCR，88被跨帧文字检查发现，另外16个未新增标记；99没有独立源画面区，本项不适用。对88实际MP4再次调用完整画面检查，已以中央原字幕拒绝。静态背景文字、单帧猜测与轻微OCR拼写差异不能触发这项新检查；没有把其他16条算作编辑合格。</p>'
+        product=d.get('latest_product_title',{})
+        if product:
+            body+='<p>'+run(product['run_id'],'并发症产品对象回放')+'：标题“'+esc(product['title'])+'”；封面“'+esc(product['cover'])+'”。'+esc(product['note'])+'</p>'
     pending=d.get('pending_media_runs',{})
     if pending.get('fixed100'):
-        body+='<p>后续固定版本 '+esc(pending['commit'][:7])+' 的 '+run(pending['fixed100'],'新100条完整复验')+' 已启动，结果尚未汇入此快照。上方17%仍属于cc5113b旧轮次，不能当作最新代码的成绩。</p>'
+        body+='<p>最近固定版本 '+esc(pending['commit'][:7])+' 的 '+run(pending['fixed100'],'新100条完整复验')+' 已收齐100份报告、18条视频全部解码并去重；其中88存在原字幕漏检，新检查正对实际样本复核。历史17%仍保留为独立轮次。</p>'
     body+='<h3>拆成多个Action后，质量是否自然提高？</h3><p>'+run(experiment['run_id'],'阅读 → 拟稿 → 独立盲审的完整实验')+'：'+esc(experiment['conclusion'])+'</p>'
     body+=table(['素材','阅读模型','阅读耗时','拟稿执行','盲审自动放行（非编辑通过）'],[
         [r['case'],r['profile'],str(r['read_seconds'])+'秒',r['write_status'],','.join(r['automatic_critic_passes']) or '无'] for r in experiment['arms']])
@@ -141,7 +151,7 @@ def quality_iteration():
         body+='<h3>横版实片：修复自己的字幕触发来源残字检查</h3><p>'+run(landscape['run_id'],'两条同片版式复测')+'。'+esc(landscape['scope'])+' 原版6次横版尝试均退回竖版；本次固定复测4、8均通过，下载后再次核对文件哈希并完整解码。没有调低来源文字、人物或二维码检查。</p><div class="side">'
         for r in landscape['rows']:
             body+='<article><h4>素材'+str(r['id'])+' · 新横版</h4><video controls preload="none" src="'+asset(r['file'])+'" poster="'+asset(r['poster'])+'"></video><img loading="lazy" src="'+asset(r['contact'])+'" alt="横版六帧检查"><p>'+esc(r['title'])+'</p><p>'+esc(r['visual_review'])+'</p></article>'
-        body+='</div><p>前方三列中仍保留原cc5113b成片；这里仅展示之后的格式修复。没有增加两条出片，也没有把旧标题算作编辑合格。</p>'
+        body+='</div><p>前方三列已换成最新e93fa87同轮实片；这里保留此前9a19eb2的隔离格式复测。没有增加两条出片，也没有把旧标题算作编辑合格。</p>'
     openings=d.get('short_opening_replay')
     if openings:
         body+='<h3>短素材开头：已找到候选，画面仍不合格</h3><p>'+run(openings['run_id'],'63 / 82实际生产复测')+'。'+esc(openings['note'])+'</p>'+table(['素材','候选数','结果','具体失败'],[[r['id'],r['attempted_candidates'],r['status'],r['reason']] for r in openings['rows']])

@@ -293,7 +293,7 @@ def report():
         error = f'{type(exc).__name__}: {exc}'
     status, stage = classify(finals, error, batch, source, execution, steps)
     evidence = BASE / 'simulation-reports' / slug
-    code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'source_selection.py',
+    code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'temporal_source_text.py', 'source_selection.py',
             'live_tracking.py', 'ci_fetch_bilibili.py',
             'simulate_sources.py', 'asr_production_config.json']
     value = dict(sample=row, status=status, stage=stage, finals=finals,

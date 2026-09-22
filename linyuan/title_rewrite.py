@@ -222,6 +222,11 @@ def copy_fragment(text):
         return True
     from headline_policy import TAIL
     text=str(text or '').strip(' ，,。；;！？!?')
+    # Actual fixed100 / 99 ended its cover with “别急着加”: the object
+    # 杠杆 disappeared although it remained in the title. Keep a full clause
+    # available for bind_candidate's existing pre-review cover repair.
+    if re.search(r'(?:别|不要)(?:急着|急于)加$',text):
+        return True
     return bool(TAIL.search(text) and not re.search(
         r'(?:机会|社会|体会)$|(?:最厉害|最便宜|最重要|最有价值|可以入场|值得持有)的$',text))
 
@@ -890,6 +895,8 @@ def error(title, proof, transcript=None, speaker='林园'):
         return '标题需重新提炼具体观点，不能使用旧的关键词拼盘'
     if title != proof.get('title') or not isinstance(proof.get('cover'), str):
         return '标题或封面与观点证明不一致'
+    if copy_fragment(title) or copy_fragment(proof['cover']):
+        return '标题或封面截成残句，旧审核证明不能替代完整对象'
     qualifier_issue = cover_qualifier_error(title, proof['cover'])
     if qualifier_issue:
         return qualifier_issue

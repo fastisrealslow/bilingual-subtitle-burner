@@ -1,4 +1,4 @@
-name: 独立语音复核：同原声窗口核对P一、偏仔黄、陈以健
+name: 独立语音复核：新100素材66的原声疑点
 on:
   push:
     branches: [codex/linyuan-reliability-packaging]
@@ -19,12 +19,9 @@ jobs:
       max-parallel: 3
       matrix:
         include:
-          - case: 0
-            artifact: simulation-media-sim-0916-007-93e7ab
-          - case: 1
-            artifact: simulation-media-sim-0916-008-868622
-          - case: 2
-            artifact: simulation-media-sim-0916-049-63fa5e
+          - case: 3
+            artifact: simulation-media-sim-0916-066-4c4baf
+            source_run: 35618921193
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,7 +32,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           ARTIFACT: ${{ matrix.artifact }}
-        run: gh run download 35557015452 --name "$ARTIFACT" --dir actual-media
+          SOURCE_RUN: ${{ matrix.source_run }}
+        run: gh run download "$SOURCE_RUN" --name "$ARTIFACT" --dir actual-media
       - name: 安装独立CPU转写引擎
         run: |
           sudo apt-get update -qq

@@ -734,7 +734,9 @@
     "note": "6/6案例完成。8B返回1/3，14B返回2/3；均未获编辑批准。14B的34耗时2196.3秒且仍有语境缺失，不能据此换模型或声称质量提升。"
   },
   "current_repairs_pending_media": [
-    "新检查要求并发症产品的标题和封面保留产品对象，避免缩成看好疾病；待新模型复测。"
+    "已完成88原文件新门禁实测与17个源窗口复核；不重写原100轮次成绩。",
+    "99封面缺宾语可在送审前改用完整原标题子句；仍需真实文案回放。",
+    "66疑似折远错词的24秒原声复核将由独立ASR执行，不提示预期词。"
   ],
   "landscape_failure_audit": {
     "run_id": 35565180877,
@@ -980,5 +982,69 @@
       }
     ],
     "note": "重读并未解决58的说话人误判；34虽返回文案仍有语境错误，二者均不计编辑通过。"
+  },
+  "latest_acceptance": {
+    "run_id": 35618921193,
+    "commit": "e93fa87e7c2cb1384a425414961d53772ba13865",
+    "total": 100,
+    "passed": 18,
+    "rejected": 78,
+    "unresolved": 4,
+    "fully_decoded": 18,
+    "publication_unique": 18,
+    "known_visual_false_pass_ids": [
+      88
+    ],
+    "editorial_pass_rate": null,
+    "note": "较cc5113b仅88由运行未确定变为自动通过，但原字幕漏检；不能以18对17声称质量提升。"
+  },
+  "latest_product_title": {
+    "run_id": 35618920930,
+    "case": 34,
+    "seconds": 572.91,
+    "title": "林园：不看治疗三种病的药物，看并发症相关产品。",
+    "cover": "不看治疗病药物，看并发症产品",
+    "editorial_approved": false,
+    "note": "产品对象保留，但封面拗口；文本回放不是生产100中的新云南白药片段。"
+  },
+  "source_text_recheck": {
+    "original_run_id": 35618921193,
+    "decoded_finals": 18,
+    "inspected_source_windows": 17,
+    "flagged_ids": [
+      88
+    ],
+    "unchanged_ids": [
+      4,
+      7,
+      8,
+      13,
+      28,
+      32,
+      34,
+      39,
+      46,
+      49,
+      58,
+      66,
+      68,
+      79,
+      90,
+      95
+    ],
+    "not_applicable_ids": [
+      99
+    ],
+    "full_gate_replay": {
+      "id": 88,
+      "original_run_id": 35618921193,
+      "original_status": "passed",
+      "file": "output/candidate100-35618921193/results/simulation-media-sim-0916-088-0b9309/final.mp4",
+      "media_modified": false,
+      "new_check_status": "rejected",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+    },
+    "scope": "实际源画面窗口重新OCR；99的新字幕在原画内，不能用这项检查扫整帧。16个其他窗口无新增标记，不代表全部画面合格。",
+    "editorial_approved": false
   }
 }
