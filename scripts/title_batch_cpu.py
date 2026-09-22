@@ -35,7 +35,7 @@ def cases():
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--case', type=int, required=True);ap.add_argument('--repeat', type=int, required=True)
-    ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b'], default='qwen3:8b',
+    ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b','qwen3.5:9b'], default='qwen3:8b',
                     help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
     ap.add_argument('--draft-profile', choices=['production', 'concise'], default='production')
