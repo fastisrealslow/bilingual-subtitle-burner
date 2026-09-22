@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1790041761,
+  "updated_at": 1790041818,
   "inventory_updated_at": 1790041760,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790041761,
+    "updated_at": 1790041817,
     "records": 6159,
     "video_records": 5100,
-    "initial_candidates": 117,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 2,
+    "initial_candidates": 116,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 832,
+      "already_attempted_or_cooling": 833,
       "clip_title": 1011,
       "no_video": 1059,
       "speaker_unconfirmed": 2867,
@@ -27,14 +27,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1nKxjeNE3u",
-        "title": "林园：买未来的国家名片",
-        "source": "bilibili_search",
-        "author": "有竞争就有风险",
-        "url": "https://www.bilibili.com/video/BV1nKxjeNE3u",
-        "duration_sec": 1130.0
-      },
       {
         "key": "netease_video:VX6CMNO2R",
         "title": "林园：投资关键是选对企业，否则，任何努力都是白搭！",
@@ -75,13 +67,12 @@
   },
   "counts": {
     "complete": 78,
-    "failed": 610,
+    "failed": 611,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 3,
-    "running": 2,
-    "interrupted": 1
+    "running": 3
   },
   "tasks": [
     {
@@ -12692,11 +12683,11 @@
     },
     {
       "slug": "ly-0922-77e718",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 330 < 480（640x330），画质不达标",
       "signature": {
         "ts": 1790041593,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -12707,6 +12698,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35677019718",
       "run_started_at": "2026-09-22T01:46:32Z",
       "run_updated_at": "2026-09-22T01:48:13Z"
+    },
+    {
+      "slug": "ly-0922-afe2bc",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790041804,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35677225470,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35677225470",
+      "run_started_at": "2026-09-22T01:50:03Z",
+      "run_updated_at": "2026-09-22T01:50:08Z"
     }
   ],
   "runs": {
@@ -16064,6 +16073,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35677019718",
       "run_number": 1191,
       "display_title": "中文源出片 · ly-0922-77e718"
+    },
+    "ly-0922-afe2bc": {
+      "id": 35677225470,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-22T01:50:03Z",
+      "updated_at": "2026-09-22T01:50:08Z",
+      "run_started_at": "2026-09-22T01:50:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35677225470",
+      "run_number": 1192,
+      "display_title": "中文源出片 · ly-0922-afe2bc"
     },
     "ly-0922-5c5aea": {
       "id": 35677014186,
