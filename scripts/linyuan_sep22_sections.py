@@ -142,7 +142,9 @@ def latest_library():
             body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放新素材实际成片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div></article>'
     for key,label in [('boundary_recovery_trial','选段修复复验'),('topic_split_trial','关税与人工智能分段复验'),
                       ('identity_gallery_trial','同源姿态核验后恢复312完整视频'),
-                      ('spoken_focus_trial','先选观点的8B／9B标题实验'),('ordered_focus_trial','修正实际生成顺序后的复验')]:
+                      ('spoken_focus_trial','先选观点的8B／9B标题实验'),('ordered_focus_trial','修正实际生成顺序后的复验'),
+                      ('source_choices_trial','每个候选独立选择原文观点'),('publisher_source_trial','凤凰网新源实际验收'),
+                      ('stage_border_trial','舞台裁边恢复与已有成片回归')]:
         row=review.get(key)
         if row:
             body+='<h3>'+label+'</h3><p>'+esc(row['note'])+'</p><p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(row['run_id'])+'">查看运行</a> · '+esc(row['status'])+'</p>'

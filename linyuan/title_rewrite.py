@@ -222,7 +222,7 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
     raw=item.get('a_focus',raw_focus)
     if not isinstance(raw,dict):raise ValueError('候选缺少自己的原文判断')
     claim=raw.get('a_claim');ids=raw.get('b_evidence_ids')
-    if not isinstance(claim,str) or len(compact(claim))<12:
+    if not isinstance(claim,str) or len(compact(claim))<8:
         raise ValueError('先写清有原文依据的完整判断和限定，再写标题')
     if not isinstance(ids,list) or any(type(i) is not int or i not in guest_ids for i in ids):
         raise ValueError('候选证据属于主持人或未知归属，须回到嘉宾原话')
@@ -585,6 +585,9 @@ def reported_claim_error(title,cover,transcript):
 
 def population_scope_error(title,cover,transcript):
     """Do not turn an age-group increase into total-population growth."""
+    from title_quantity_context import error as quantity_context_error
+    issue=quantity_context_error(title,cover,transcript)
+    if issue:return issue
     source=compact(transcript)
     if not re.search(r'老龄|老人|老年|年龄越来越大|[五六七八九十0-9]{1,3}岁以上',source):
         return None
@@ -615,8 +618,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return '标题缺少主讲人前缀'
     if summary_heading(title):
         return '标题必须呈现一个具体观点，不能是主题目录或残句'
-    if not 12 <= len(compact(title)) <= 62:
-        return f'标题有效字数为{len(compact(title))}，须12~62字；补全具体判断或问题，不用空格凑长度'
+    if not 8 <= len(compact(title.split('：',1)[-1])) <= 52:
+        return '标题正文须8~52个有效字；补全具体判断或问题，不用空格凑长度'
     if not isinstance(cover, str) or not 8 <= len(compact(cover)) <= 18:
         return f'封面有效字数为{len(compact(cover))}，须8~18字；写成完整问题或判断，不能用空格补长度'
     if summary_heading(cover.removeprefix(speaker)):
@@ -716,7 +719,7 @@ def editorial_features(item):
         subject_early=bool(subject and 0 <= title.find(subject) < 12),
         sourced_contrast=bool(re.search(contrast, title) and re.search(contrast, evidence)),
         sourced_voice=bool(re.search(first_person, title) and re.search(first_person, evidence)),
-        concise=18 <= len(compact(title)) <= 52,
+        concise=8 <= len(compact(title)) <= 24,
         generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)),
     )
 
@@ -783,7 +786,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             continue
         # Whole source claims are the fallback; not a list of detected subjects.
         item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
-        if not 12 <= len(compact(title)) <= 62:
+        if not 8 <= len(compact(title.split('：',1)[-1])) <= 52:
             continue
         review = dict(method='source_quote', quote=quote)
         if guest_passages is not None:
@@ -863,7 +866,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 嘉宾明确说自己的选择时，可以保留“我买”“我不卖”“我看的是”等第一人称；原文没说，不能为了像林园而编一句“金句”，也不能把主持人的话改成“我”。
 不要在原话之外补“投资逻辑解析”“深度解读”“核心策略”“价值重估”等总结包装；原文确实讨论这些概念时，可以用，但仍要说出具体判断。
 吸引力来自原文里真实的分歧、选择或反问，不来自收益承诺、吓人字眼或故意藏起讨论对象。转折、否定、条件和“可能”等限定必须保留。
-每条title以“{speaker}：”开头，正文15~30个汉字；cover_title为8~18个汉字，不加姓名。
+每条title以“{speaker}：”开头，正文8~52个汉字；cover_title为8~18个汉字，不加姓名。
 封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
 每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。

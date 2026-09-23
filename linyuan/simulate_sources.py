@@ -318,7 +318,7 @@ def report():
     evidence = BASE / 'simulation-reports' / slug
     code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'temporal_source_text.py', 'source_selection.py', 'source_question_cards.py', 'source_publisher_marks.py',
             'live_tracking.py', 'ci_fetch_bilibili.py', 'ci_fetch_ifeng.py',
-            'simulate_sources.py', 'asr_production_config.json']
+            'simulate_sources.py', 'title_rewrite.py', 'title_quantity_context.py', 'asr_production_config.json']
     value = dict(sample=row, status=status, stage=stage, finals=finals,
                  validation_error=error, source_sha256=source.get('source_sha256'),
                  batch=batch, source_quality=source, execution=execution, steps=steps,

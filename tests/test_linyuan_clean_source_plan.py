@@ -21,7 +21,7 @@ def test_clean_native_interview_does_not_enlarge_a_distant_face(tmp_path,monkeyp
     monkeypatch.setattr(P,'copywrite',lambda *a,**k:{})
     monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:tmp_path/'reference.jpg')
     monkeypatch.setattr(P,'_local_face_models',lambda:('detector','recognizer'))
-    monkeypatch.setattr(stage_context,'plan',lambda *a:None)
+    monkeypatch.setattr(stage_context,'plan',lambda *a,**k:None)
     (tmp_path/'identity_1.jpg').write_bytes(b'previously verified host frame')
     native=dict(clean_strategy='crop',clean_video_filter='crop=1838:864:0:0',
                 clean_output_resolution=dict(width=1838,height=864))

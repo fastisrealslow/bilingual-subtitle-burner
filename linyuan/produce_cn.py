@@ -3492,7 +3492,8 @@ def _copy_style_identity(speaker):
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
-                title_draft_profile_sha256=_sha256_file(Path(__file__).with_name('title_draft_profiles.py')))
+                title_draft_profile_sha256=_sha256_file(Path(__file__).with_name('title_draft_profiles.py')),
+                title_quantity_context_sha256=_sha256_file(Path(__file__).with_name('title_quantity_context.py')))
 
 
 def _title_style_prompt(prompt, schema, speaker):
@@ -3519,7 +3520,7 @@ def _title_style_prompt(prompt, schema, speaker):
 保留有辨识度的原话，但删掉“我不会说去卖”“这个那个”这种没有信息的绕口填充。
 仅在嘉宾确实说了自己选择时用“我”；不要每条都写为什么，不要研究报告腔或泛泛总结。
 事实只来自下方嘉宾字幕。不能凭空添加立场或收益，保留条件、否定、比较对象和不确定性。
-title以“林园：”开头，正文12~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
+title以“林园：”开头，正文8~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
 cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。
 '''
         prompt = prompt[:start] + style + prompt[end:]

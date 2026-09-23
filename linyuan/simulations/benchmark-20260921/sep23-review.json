@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-23",
+  "checked_at": "2026-09-23T07:50:51.894409+00:00",
   "run_id": "35682602969",
   "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
   "baseline_run": "35548212133",
@@ -1628,17 +1628,22 @@
   "fresh_library_trial": {
     "run_id": "35823163836",
     "tested_sha": "f89a75c1a4bdd17f64a19856ed2d8caac0036837",
-    "status": "in_progress",
+    "status": "completed_with_unresolved",
     "denominator": 17,
-    "completed_reports_at_update": 14,
+    "completed_reports_at_update": 17,
     "automatic_passes_at_update": 2,
-    "rejected_at_update": 11,
-    "note": "独立17条阶段结果；生成的视频还存在带货结尾、泛指标题与混题问题，未编辑通过。未完成的条目保留在分母。",
-    "unresolved_at_update": 1,
-    "pending_at_update": 3,
+    "rejected_at_update": 13,
+    "note": "首次固定17条全部返回：2条自动生成、13条拒绝、2条运行未确定（311转写异常、316标题归属未确认）。首次2/17=11.76%；后续修复312后累计3/17单列，不改写首次结果。尚无编辑通过率结论。",
+    "unresolved_at_update": 2,
+    "pending_at_update": 0,
     "rows": [
       {
         "id": 301,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 302,
         "status": "rejected",
         "stage": "candidate-quality"
       },
@@ -1683,6 +1688,11 @@
         "stage": "source-quality"
       },
       {
+        "id": 311,
+        "status": "unresolved",
+        "stage": "producer-runtime"
+      },
+      {
         "id": 312,
         "status": "rejected",
         "stage": "candidate-quality"
@@ -1696,6 +1706,11 @@
         "id": 314,
         "status": "passed",
         "stage": "final-accepted"
+      },
+      {
+        "id": 315,
+        "status": "rejected",
+        "stage": "candidate-quality"
       },
       {
         "id": 316,
@@ -1877,8 +1892,76 @@
   "ordered_focus_trial": {
     "run_id": "35828458711",
     "tested_sha": "f79f8c243f63e8c694f1345ff59989ed32939bc7",
-    "status": "queued",
-    "note": "同三条原始字幕×8B/9B，检查实际返回顺序必须先看点、再限定、再判断；尚未返回结果，不预判改善。"
+    "status": "completed",
+    "note": "6份全部返回并验证生成顺序；9B在79号抓到更鲜明的原话，其他仍有重复、泛指和报告腔，不能认定新模型整体更好。",
+    "rows": [
+      {
+        "case": "source100-17",
+        "model": "qwen3:8b",
+        "title": "林园：未研究光伏能源，听说污染大，所以没参与",
+        "cover": "听说光伏污染大，没参与",
+        "seconds": 501.44,
+        "review_note": "保留听说，句子较短；标题仍偏转述。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-order-35828458711/spoken-focus-8b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3:8b",
+        "title": "林园：定方向后应坚持持有心血管和糖尿病相关企业。",
+        "cover": "定方向后坚持持有",
+        "seconds": 886.19,
+        "review_note": "封面定方向后坚持持有，没有说明持有什么。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-order-35828458711/spoken-focus-8b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3:8b",
+        "title": "林园：医药行业是符合增长的赛道，我选择投它",
+        "cover": "医药行业是符合增长的赛道",
+        "seconds": 486.54,
+        "review_note": "照抄转写符合增长，未能选出自然的具体判断。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-order-35828458711/spoken-focus-8b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json"
+      },
+      {
+        "case": "source100-17",
+        "model": "qwen3.5:9b",
+        "title": "林园：光伏光伏污染大是听说的，因此我们没参与",
+        "cover": "仅听说光伏污染大故选择未参与投资",
+        "seconds": 511.64,
+        "review_note": "重复光伏光伏；封面仅字扩大因果且报告腔。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-order-35828458711/spoken-focus-9b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3.5:9b",
+        "title": "林园：定下方向买指数坚持，最后赚得让你不敢相信",
+        "cover": "定方向买指数坚持能赚",
+        "seconds": 489.6,
+        "review_note": "大胆语气来自原文，但定方向、买指数、坚持连写仍拗口。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-order-35828458711/spoken-focus-9b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3.5:9b",
+        "title": "林园：就投医药别的不搞，买危机永远不会错",
+        "cover": "买危机永远不会错",
+        "seconds": 614.33,
+        "review_note": "抓到原话就投医药、买危机永远不会错，比行业总结鲜明；仅文本实验，未完成视频编辑验收。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-order-35828458711/spoken-focus-9b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json"
+      }
+    ]
   },
   "identity_gallery_trial": {
     "run_id": "35826906406",
@@ -1902,8 +1985,57 @@
     ]
   },
   "publisher_source_trial": {
-    "status": "downloaded_pending_production",
-    "note": "已从凤凰网财经文章正文的唯一视频附件取得106.56秒720×1280采访，SHA与完整解码记录已保存。文章注明9月16日论坛；发布时间9月19日，不能混为同一日期。接下来独立验收，不加入原100或新17条分母。",
-    "source_file": "source-origin-sep23/ifeng-AI-20260919.mp4"
+    "status": "rejected",
+    "note": "官方新源106.56秒已实际跑完整条跟踪：2653/2653帧人物匹配，但裁后留下会场背景字样，被稳定角标检查拒绝。未产出成片，不计成功；保留原始来源与拒绝证据。",
+    "source_file": "source-origin-sep23/ifeng-AI-20260919.mp4",
+    "run_id": "35830160681",
+    "tested_sha": "650b5fdef302896669386a816d48e83ee41704c9"
+  },
+  "source_choices_trial": {
+    "run_id": "35830857335",
+    "tested_sha": "8ce86299c0ab6f6dce565c79ac71facf602ff001",
+    "status": "completed",
+    "note": "3份独立观点候选实验：17未生成、68仍偏总结、79遗漏年份和年龄限定。已定位短句长度门槛及数量限定缺口，修复后再复验；本轮不作为编辑通过。",
+    "rows": [
+      {
+        "case": "source100-17",
+        "model": "qwen3:8b",
+        "title": "未生成",
+        "cover": "—",
+        "seconds": 335.92,
+        "review_note": "短句被长度门槛挡掉，三次重写仍未送入审核。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-choices-35830857335/source-choices-8b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3:8b",
+        "title": "林园：查看企业生产什么药以判断投资",
+        "cover": "看药企生产什么药",
+        "seconds": 293.54,
+        "review_note": "查看企业生产什么药以判断投资，仍是编辑报告式总结。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-choices-35830857335/source-choices-8b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3:8b",
+        "title": "林园：中国五亿老人是医药行业核心市场",
+        "cover": "中国五亿老人是医药行业核心市场",
+        "seconds": 689.18,
+        "review_note": "五亿老人标题没有2057年份、60岁以上与接近的限定；模型判通过也不计编辑合格。",
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-choices-35830857335/source-choices-8b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json"
+      }
+    ]
+  },
+  "stage_border_trial": {
+    "run_id": "35833029578",
+    "tested_sha": "145043d5e85609f1ab6f5cf88d197f99dc55d42b",
+    "status": "in_progress",
+    "note": "315两段实际因持续黑边拒绝；已接入裁边预检并保护真人、投影身份和动作区域，另跑68已有舞台成片回归。尚未回传成功视频。"
   }
 }

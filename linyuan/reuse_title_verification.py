@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 
 TITLE_FILES = (
-    'linyuan/produce_cn.py', 'linyuan/title_rewrite.py',
+    'linyuan/produce_cn.py', 'linyuan/title_rewrite.py', 'linyuan/title_quantity_context.py',
     'linyuan/caption_readability.py', 'linyuan/headline_policy.py',
     'linyuan/editorial_policy.py', 'linyuan/presentation.py', 'requirements.txt',
     'tests/fixtures/linyuan_0913_title.json',
