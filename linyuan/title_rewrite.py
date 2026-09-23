@@ -243,6 +243,11 @@ def bind_candidate(item, focus, units, subjects):
     speaker=title.split('：',1)[0] if '：' in title else ''
     if speaker and cover.startswith(speaker+'：'):
         cover=cover[len(speaker)+1:].strip()
+    elif speaker and re.match(re.escape(speaker)+r'(?:听说|认为|表示|重点选择|选择|看好|不看好|没参与|不会买|买入|卖出)',cover):
+        # Actual 8B drafts repeated the speaker label without a colon. Remove
+        # only this attributed reporting prefix, before length/meaning review;
+        # never strip names inside entities such as 林园投资公司.
+        cover=cover[len(speaker):].strip()
     bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units)
     # Derive the exact shared anchor instead of asking the model to perform
     # literal string matching. The full claim still needs independent review.

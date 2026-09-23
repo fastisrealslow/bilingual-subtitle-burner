@@ -3,11 +3,18 @@ import argparse
 from collections import Counter
 from datetime import datetime, timezone
 import json
+import re
 from pathlib import Path
 
 
 def failure_category(reason):
     reason = str(reason or '')
+    # The tracker includes the minimum face size in its diagnostic even when
+    # zero frames failed that size check. Do not recommend higher resolution
+    # for host cutaways / identity mismatches (actual library302).
+    if '剩余帧即使全部匹配也达不到80%' in reason:
+        small=re.search(r'人脸短边不足\d+px的帧数(\d+)',reason)
+        return 'resolution' if small and int(small.group(1)) > 0 else 'identity'
     # Operational failures must not be presented as evidence against footage.
     groups = (
         ('cloud_account_billing', ('Current user is in debt', '账户欠费', 'Account in debt')),

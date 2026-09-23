@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-23T08:11:03.650289+00:00",
+  "checked_at": "2026-09-23T08:30:46.026804+00:00",
   "run_id": "35682602969",
   "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
   "baseline_run": "35548212133",
@@ -1445,7 +1445,7 @@
     "editorial_approved": false,
     "note": "实际MP4保住听说与未研究的限定，但“因、且、故”式封面生硬；仅一条实片，不并入固定100，不证明9B全面胜出。"
   },
-  "current_fix_sha": "de8e37d2a96570b55c9f365c5a205f7800c68ad4",
+  "current_fix_sha": "a13610f89f724bc738fc3623389c92c7da315aa4",
   "current_trials": {
     "text": "35819873471",
     "video": "35819873928"
@@ -2035,8 +2035,8 @@
   "stage_border_trial": {
     "run_id": "35833029578",
     "tested_sha": "145043d5e85609f1ab6f5cf88d197f99dc55d42b",
-    "status": "in_progress",
-    "note": "68已实际生成250.4秒完整舞台片，原生裁边未损伤已有舞台路径；315仍在运行。68选中了另一章节，保留分段与标题差异，不宣称同一剪辑质量提升。",
+    "status": "completed_with_editorial_failure",
+    "note": "68与315均生成并完成本地音视频解码。315恢复的是裁边路径；两者来自同场演讲，现有发布去重检出转写片段重合86%，两条输出只保留一条。315标题含再能活个三十多岁的疑句，不能算新增优质内容。新17条首次2/17不改，单项重试另列。",
     "media": [
       {
         "id": 68,
@@ -2050,8 +2050,43 @@
         "file": "stage-border-35833029578/simulation-media-sim-0916-068-4b4c30/final_2.mp4",
         "poster": "stage-border-35833029578/simulation-media-sim-0916-068-4b4c30/cover_2.jpg",
         "note": "68仍可出片，裁边保持640×296原画及舞台身份关系。首段标题待重试后改选250.4秒另一章节，不能称同一114秒片的质量提升；标题仍概括，转写有口吃。已完整解码、查看6帧及全部字幕，未编辑放行。"
+      },
+      {
+        "id": 315,
+        "title": "林园：就我们这一代人，大概再能活个三十多岁",
+        "cover_title": "就我们这一代人，大概再能活个三十多岁",
+        "sha256": "fc68fd5a4931ad27bedca858ff4ef27a5fb2fe1ccd731dd340afdc1cf356fbe0",
+        "source_sha256": "fba8ea13a542368205e147b2d2773b2acee1d883a8007a98fe120b3121267dd4",
+        "duration": 262.8,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "stage-border-35833029578/simulation-media-library-0923-015-0d8d58/final_1.mp4",
+        "poster": "stage-border-35833029578/simulation-media-library-0923-015-0d8d58/cover_1.jpg",
+        "duplicate_of_id": 68,
+        "note": "逐字节匹配、完整音视频解码、六帧与全部ASS已检查。没有恢复成新增独立内容：与68同场演讲重复。人物远、开头依赖前文、标题寿命单位疑词、字幕口吃仍未解决，未编辑放行。"
       }
-    ]
+    ],
+    "inventory_audit": {
+      "variants": {
+        "simulation": {
+          "decoded_finals": 2,
+          "retained_by_publication_rule": 1,
+          "retained_ids": [
+            68
+          ],
+          "duplicates": [
+            {
+              "id": 315,
+              "matches_id": 68,
+              "reason": "转写片段重合 86%",
+              "sha256": "fc68fd5a4931ad27bedca858ff4ef27a5fb2fe1ccd731dd340afdc1cf356fbe0",
+              "matches_sha256": "451c9cb46f628d36e7aa056165a5125e1020679f563211739a42e6b98fc1a505"
+            }
+          ]
+        }
+      },
+      "scope": "Downloaded, fully decoded media only; deterministic source-ID order; existing production dedup rule; not editorial acceptance"
+    }
   },
   "short_title_trial": {
     "run_id": "35833966809",
@@ -2146,13 +2181,54 @@
     "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
     "status": "in_progress",
     "denominator": 100,
-    "received": 16,
+    "received": 30,
     "counts": {
-      "passed": 1,
-      "rejected": 15,
-      "unresolved": 0
+      "rejected": 25,
+      "passed": 3,
+      "unresolved": 2
     },
-    "pending": 84,
-    "note": "已回传16/100条：1通过、15拒绝、0未确定。尚未完成，不能拿已返回子集比例作为最终成片率。发布历史快照与原基线相同；逐条还需核对源文件SHA。该轮87a0099不含随后de8e37d的最终短句入口修复。"
+    "pending": 70,
+    "note": "已回传30/100条：3通过、25拒绝、2未确定。尚未完成，不能拿已返回子集比例作为最终成片率。该轮87a0099不含随后de8e37d最终短句入口修复；其中17现为待重试，另跑最新完整视频复验。"
+  },
+  "final_short_title_trial": {
+    "run_id": "35835447786",
+    "tested_sha": "de8e37d2a96570b55c9f365c5a205f7800c68ad4",
+    "status": "completed",
+    "note": "三个同源标题文本都生成成功。79连续两轮保留个人选择；17和68仍有封面姓名与报告腔问题。另跑17、79完整视频，纯文本结果不计出片率。",
+    "rows": [
+      {
+        "case": "source100-17",
+        "model": "qwen3:8b",
+        "title": "林园：听说光伏能源污染大",
+        "cover": "林园听说光伏污染大",
+        "seconds": 302.93,
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-final-short-35835447786/source-choices-8b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json",
+        "review_note": "短句入口修复后可生成；封面重复姓名，最新代码在送审前清理。保留听说，仍偏转述。"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3:8b",
+        "title": "林园：重点选择心血管和糖尿病相关企业",
+        "cover": "林园重点选择心血管和糖尿病相关企业",
+        "seconds": 483.33,
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-final-short-35835447786/source-choices-8b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json",
+        "review_note": "能说明具体企业对象，仍偏研究报告式，封面重复姓名。尚不计编辑通过。"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3:8b",
+        "title": "林园：我们锁定医药赛道，别的不搞",
+        "cover": "我们锁定医药赛道，别的不搞",
+        "seconds": 663.26,
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-final-short-35835447786/source-choices-8b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json",
+        "review_note": "再次生成我们锁定医药赛道，别的不搞，态度与对象来自原文；两轮一致不是全库稳定性证明。"
+      }
+    ]
   }
 }

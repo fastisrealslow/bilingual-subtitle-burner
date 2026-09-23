@@ -1,0 +1,19 @@
+name: 原话观点标题进入完整视频复验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-source-choices-video-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '17,79'
+      content_policy: reference_v1
+      title_draft_profile: source_choices
+      recovery_run_id: '35682602969'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

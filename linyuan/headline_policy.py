@@ -26,6 +26,11 @@ def verbal_fragment(text):
     Ordinary emphatic repetition (不卖，一股都不卖) remains allowed.
     """
     text=body(text).strip('。！？!?')
+    # Source315's verbatim fallback used “再能活个三十多岁”. Remaining
+    # lifetime is a duration; 岁 denotes age. Reject the proposed headline,
+    # never guess 年 or alter the ASR. “活到九十岁” remains valid.
+    if re.search(r'(?:再(?:能)?|还(?:能|可以)?|又)活(?:个)?[零〇一二两三四五六七八九十百\d]+(?:多|几|来)?岁',text):
+        return True
     return bool(re.search(
         r'^(?:是)?应该是(?:也|还)|^都是|^一个是|'
         r'(买|卖)\1(?:的|入|出)|对人人体|没有没有', text))
