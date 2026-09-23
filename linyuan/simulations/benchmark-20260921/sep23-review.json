@@ -23,6 +23,7 @@
   "known_quality_issue_ids": [
     4,
     17,
+    32,
     34,
     68,
     79
@@ -1444,12 +1445,12 @@
     "editorial_approved": false,
     "note": "实际MP4保住听说与未研究的限定，但“因、且、故”式封面生硬；仅一条实片，不并入固定100，不证明9B全面胜出。"
   },
-  "current_fix_sha": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+  "current_fix_sha": "c8fc232e280a7121cf83ca896215d6c409978e11",
   "current_trials": {
     "text": "35819873471",
     "video": "35819873928"
   },
-  "current_trials_status": "text_partial; video_completed_with_editorial_failure",
+  "current_trials_status": "6/6文本完成；9B两次光伏实片与舞台实片均有编辑问题；字幕分屏改善已在完整实片确认",
   "trial9b_recheck": {
     "run_id": "35819873928",
     "tested_sha": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
@@ -1465,24 +1466,38 @@
   "stage_trial": {
     "run_id": "35820841835",
     "tested_sha": "390550824a1fdaef0f10c1c287f4e0146af9a96f",
-    "status": "in_progress"
+    "status": "completed_with_editorial_failure",
+    "title": "林园：定方向后买指数坚持，心血管糖尿病药企不会错。",
+    "cover": "定方向买指数，心血管糖尿病药企不亏",
+    "file": "stage68-full-35820841835/media/final_1.mp4",
+    "poster": "stage68-full-35820841835/media/cover_1.jpg",
+    "sha256": "6085efe5d00b10e9b0212523c98ceb1b7fd5cfedf5a46993a3b8ada4f019c70d",
+    "video_audio_full_decode": true,
+    "duration": 114.733,
+    "source_sha256": "81833e8aa7224716bd682b91e486ffcab5f4f2f4dc6fc00f8d523b08c59067dd",
+    "subtitle_screen_count": 25,
+    "original_cleaned_cue_count": 37,
+    "editorial_approved": false,
+    "note": "完整114.73秒实片，哈希及音视频解码通过，六帧和全部ASS已检查；37个字幕碎片分成25屏，的/定不再单字占屏。仍有识别疑点与铺垫；封面不亏超出不会错的方向判断，不能交付。"
   },
   "source49_retry": {
     "run_id": "35682602969",
     "original_job": 106602646054,
-    "note": "只重跑缺报告的49号；原第一轮17/79/4冻结，恢复结果按新attempt另列。"
+    "note": "49号单独重试恢复147.62秒MP4，哈希及音视频完整解码通过，六帧与全部ASS已检查。原标题仍像摘要，原文三类病扩大成慢性病需编辑复核，并有陈以健等识别疑点。首次17/79/4保留；加本次恢复后累计自动出片18、拒绝79、未确定3，未计编辑合格。",
+    "attempt": 2,
+    "status": "automatic_pass_editorial_not_approved",
+    "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
+    "source_sha256": "15ec6a8ca0178dac741f0fa75b6cbc18f7776a42cd30ee4ac0f3c95b63f51820",
+    "sha256": "7e16bf0d5cea661317a962f878351fbb6cc4d20b97cd5c123f021e2591654e9e",
+    "video_audio_full_decode": true,
+    "title": "林园：慢性病是医药销售主力，但患者常自行用药",
+    "cover": "慢性病是医药销售主力",
+    "file": "source49-retry-35682602969/media/final_1.mp4",
+    "poster": "source49-retry-35682602969/media/cover_1.jpg",
+    "duration": 147.621333,
+    "editorial_approved": false
   },
   "title_trials": [
-    {
-      "case": "source100-17",
-      "model": "qwen3.5:9b",
-      "seconds": 354.64,
-      "status": "generated",
-      "title": "林园：对光伏没做研究，只听说污染大就不碰",
-      "cover": "未研究光伏且仅听说其污染大不投资",
-      "review_note": "保留转述和本人做法，主标题更口语；封面仍堆限定。只听说就不碰的语气需核音，未计编辑验收。",
-      "editorial_approved": false
-    },
     {
       "case": "source100-17",
       "model": "qwen3:8b",
@@ -1491,7 +1506,10 @@
       "title": "林园：光伏能源对环境污染大，未研究但听说",
       "cover": "光伏能源对环境污染大，未研究但听说",
       "review_note": "保住听说，但限定放在断言后面，未研究但听说仍像拼接摘要。",
-      "editorial_approved": false
+      "editorial_approved": false,
+      "commit": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+      "draft_profile": "source_limits",
+      "transcript_sha256": "4b3265a91952f81f1bb3080ca46d2df7cdc142173e8385adf99ffeed39ef6b6c"
     },
     {
       "case": "source100-68",
@@ -1501,7 +1519,68 @@
       "title": "林园：确定方向后，选择心血管和糖尿病相关企业不会错",
       "cover": "选心血管和糖尿病企业",
       "review_note": "具体对象比这些明确，但糖尿病企业不够自然；此段为独白，模型却误称自问为主持人提问，归属判断仍不可靠。",
-      "editorial_approved": false
+      "editorial_approved": false,
+      "commit": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+      "draft_profile": "source_limits",
+      "transcript_sha256": "f6432b8e3375aae299b6017997fedccdab5bccf095fce1963e0c4786c0ac00db"
+    },
+    {
+      "case": "source100-79",
+      "model": "qwen3:8b",
+      "seconds": 636.94,
+      "status": "generated",
+      "title": "林园：锁定医药赛道，不搞其他",
+      "cover": "锁定医药赛道，不搞其他",
+      "review_note": "个人选择有原话支持，避免把老龄化写成人口增长，比旧摘要更明确；仅单次文字结果，没有点击或留存验证。",
+      "editorial_approved": false,
+      "commit": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+      "draft_profile": "source_limits",
+      "transcript_sha256": "90ea8c9be4cac67bde697e769ad4e4f1aaf7c1480fea26ec48392f85df3cc8e9"
+    },
+    {
+      "case": "source100-17",
+      "model": "qwen3.5:9b",
+      "seconds": 354.64,
+      "status": "generated",
+      "title": "林园：对光伏没做研究，只听说污染大就不碰",
+      "cover": "未研究光伏且仅听说其污染大不投资",
+      "review_note": "保留转述和本人做法，主标题更口语；封面仍堆限定。只听说就不碰的语气需核音，未计编辑验收。",
+      "editorial_approved": false,
+      "commit": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+      "draft_profile": "source_limits",
+      "transcript_sha256": "4b3265a91952f81f1bb3080ca46d2df7cdc142173e8385adf99ffeed39ef6b6c"
+    },
+    {
+      "case": "source100-68",
+      "model": "qwen3.5:9b",
+      "seconds": 488.93,
+      "status": "generated",
+      "title": "林园：定方向后买指数坚持，心血管糖尿病药企不会错。",
+      "cover": "定方向买指数，心血管糖尿病药企不亏",
+      "review_note": "标题对象已明确，但封面把不会错换成不亏，新增了损益判断；独立审核误放行，完整实片也复现了错误。",
+      "editorial_approved": false,
+      "commit": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+      "draft_profile": "source_limits",
+      "transcript_sha256": "f6432b8e3375aae299b6017997fedccdab5bccf095fce1963e0c4786c0ac00db"
+    },
+    {
+      "case": "source100-79",
+      "model": "qwen3.5:9b",
+      "seconds": 1093.64,
+      "status": "generated",
+      "title": "林园：锁定大健康赛道，买危机中的医药股。",
+      "cover": "锁定大健康，买入医药危机股。",
+      "review_note": "选择与危机背景有原话支持，修复旧人口范围问题；仍像摘要，买入医药危机股生硬。审核把独白自问误作主持人提问。",
+      "editorial_approved": false,
+      "commit": "ff20e5afde0cbe3003726d974e95bf506b0b23e9",
+      "draft_profile": "source_limits",
+      "transcript_sha256": "90ea8c9be4cac67bde697e769ad4e4f1aaf7c1480fea26ec48392f85df3cc8e9"
     }
-  ]
+  ],
+  "publisher_trial": {
+    "run_id": "35821892580",
+    "tested_sha": "c8fc232e280a7121cf83ca896215d6c409978e11",
+    "status": "in_progress",
+    "note": "34号中央出版方背景标识按实际镜头避让；几何回归与Linux CI通过，等待实际成片验证。"
+  }
 }

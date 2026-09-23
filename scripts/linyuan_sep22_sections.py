@@ -97,6 +97,19 @@ def latest_results():
     body+='<h3>这次继续修什么</h3><p>ff20e5a补上未研究＋转述的限定、独立标题对象与人口范围检查，覆盖拟稿、原话回退和旧证明复用；其后继续拦截没参与变退出、追加投入变零成本的错误；累计97项相关测试通过。拟稿优先具体个人选择，不强塞整段理由。8B／9B同3份原文重放与9B完整成片复验单列，结果不增加上面的固定100成绩。</p>'
     body+='<p><a href="'+link(d['current_trials']['text'])+'">新8B／9B对照</a> · <a href="'+link(d['current_trials']['video'])+'">新9B实片复验</a> · 当前状态：'+esc(d['current_trials_status'])+'</p>'
     body+='<p>画面问题卡恢复了54号的3段连续回答，但实际角标贴近头部、源画面缺少头顶余量，仍全部被拒绝。这次没有因此增加成片；也不降低现有画面标准换取出片率。</p>'
+    if d.get('stage_trial',{}).get('file'):
+        row=d['stage_trial']
+        body+='<h3>舞台68完整复验：字幕改善，封面仍不合格</h3><p class="warning">'+esc(row['note'])+'</p>'
+        body+='<p>实际标题：'+esc(row['title'])+'<br>实际封面：'+esc(row['cover'])+'</p>'
+        body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放完整复验片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
+        body+='<p><a href="'+link(row['run_id'])+'">完整生产运行</a>；单条修复复验，不增加固定100成绩。新检查拒绝将方向判断写成不亏或保本。</p>'
+    if d.get('source49_retry',{}).get('file'):
+        row=d['source49_retry']
+        body+='<h3>49号重试恢复：首次失败仍保留</h3><p>'+esc(row['note'])+'</p><p>实际标题：'+esc(row['title'])+'<br>封面：'+esc(row['cover'])+'</p>'
+        body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放重试恢复片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
+    if d.get('publisher_trial'):
+        row=d['publisher_trial']
+        body+='<h3>34号背景残字取景修复</h3><p>'+esc(row['note'])+'</p><p><a href="'+link(row['run_id'])+'">实际复验运行</a> · '+esc(row['status'])+'</p>'
     body+='<h3>舞台字幕：修掉单字一屏的分组漏洞</h3><p>同一68号原文从37个识别碎片重新分为25屏，保留文字与时间依据，18项相关测试通过。下方仅重烧前30秒字幕作显示诊断，原标题仍不合格；不是新一轮自动出片、不计成功数。预览使用本机Arial Unicode MS字体，生产使用Noto Sans CJK SC。</p>'
     body+='<div class="review-player"><video controls playsinline preload="none" data-src="stage68-captions-sep23/caption-only-preview.mp4" poster="stage68-captions-sep23/frame.jpg"></video><button type="button">播放字幕诊断片</button> <a href="stage68-captions-sep23/caption-only-preview.mp4" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
     return body+'</section>'

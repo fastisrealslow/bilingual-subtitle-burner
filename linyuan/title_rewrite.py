@@ -10,7 +10,7 @@ CHECKS = ('source_supported', 'central_point', 'attribution_correct',
 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
-保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。
+保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
 “十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
@@ -484,6 +484,19 @@ def personal_action_error(title, cover, evidence):
     return None
 
 
+def loss_claim_error(title, cover, transcript):
+    """A directional choice is not an explicit no-loss outcome.
+
+    Observed source68: the 9B critic approved 不亏 on a cover from 不会错.
+    Exact source support only bypasses this narrow guard; normal attribution,
+    time/condition and independent review still apply afterwards.
+    """
+    for term in ('不亏', '不会亏', '不会赔', '不赔钱', '保本'):
+        if term in compact(title + '。' + cover) and term not in compact(transcript):
+            return '不能把选方向不会错改成不亏或保本；标题与封面的损益判断须有原话支持'
+    return None
+
+
 def participation_phase_error(title,cover,transcript):
     # Actual 9B full replay changed 没参与 to 退出, implying a prior position.
     source=compact(transcript)
@@ -598,6 +611,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     if hearsay_issue:return hearsay_issue
     population_issue=population_scope_error(title,cover,transcript)
     if population_issue:return population_issue
+    loss_issue=loss_claim_error(title,cover,transcript)
+    if loss_issue:return loss_issue
     phase_issue=participation_phase_error(title,cover,transcript)
     if phase_issue:return phase_issue
     if check_layout:
@@ -721,6 +736,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         if (forecast_copy_error(title, cover['text'], transcript)
                 or unresolved_subject_error(title, cover['text'])
                 or population_scope_error(title, cover['text'], transcript)
+                or loss_claim_error(title, cover['text'], transcript)
                 or participation_phase_error(title, cover['text'], transcript)
                 or incremental_cost_error(title, cover['text'], [transcript])
                 or product_contrast_error(title, cover['text'], transcript)
@@ -1047,6 +1063,7 @@ def error(title, proof, transcript=None, speaker='林园'):
                   research_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   reported_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   population_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  loss_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   participation_phase_error(title, proof['cover'], transcript or ''.join(evidence)),
                   incremental_cost_error(title, proof['cover'], [transcript or ''.join(evidence)]),
                   unsupported_hedge_error(title, proof['cover'], evidence)):

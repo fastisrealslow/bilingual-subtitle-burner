@@ -90,3 +90,19 @@ def test_incremental_cost_must_read_full_source_not_just_model_chosen_cues():
     proof=T._package(item,source,dict(method='cpu_text_review',appeal=4,
         reason='实际32号省掉追加投入的范围，所选证据不含限定',**{k:True for k in T.CHECKS}),[])['title_rewrite']
     assert '追加' in T.error(item['title'],proof,source)
+
+
+@pytest.mark.parametrize('copy',['心血管糖尿病药企不亏','买入医药股不会亏','坚持买入指数保本'])
+def test_choice_correctness_cannot_become_no_loss(copy):
+    source='把方向定下来以后，你就买这个指数，都是不会错的。心血管，然后糖尿病，反正与心血管有关系的，这个你都不会错。'
+    title='林园：定方向后买指数坚持，心血管糖尿病药企不会错。'
+    item=dict(title=title,cover_title=copy,subject='方向',evidence=[source])
+    proof=T._package(item,source,dict(method='cpu_text_review',appeal=4,
+        reason='实际68号9B把方向判断压成了不亏，独立审核错误通过',**{k:True for k in T.CHECKS}),[])['title_rewrite']
+    assert '损益判断' in T.error(title,proof,source)
+    assert '损益判断' in T._candidate_error(item,source,"林园",[],check_layout=False)
+
+
+def test_source_stated_loss_claim_still_goes_to_normal_review():
+    assert T.loss_claim_error('林园：这个方向不会错','心血管相关企业不会错','这个方向不会错。') is None
+    assert T.loss_claim_error('林园：我那次没赚也不亏','那次不亏','我那次没赚也不亏。') is None
