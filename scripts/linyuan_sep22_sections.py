@@ -107,9 +107,16 @@ def latest_results():
         row=d['source49_retry']
         body+='<h3>49号重试恢复：首次失败仍保留</h3><p>'+esc(row['note'])+'</p><p>实际标题：'+esc(row['title'])+'<br>封面：'+esc(row['cover'])+'</p>'
         body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放重试恢复片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
+    if d.get('stage_loss_trial'):
+        row=d['stage_loss_trial']
+        body+='<h3>舞台68再次复验：不亏已拦住，表达仍生硬</h3><p class="warning">'+esc(row['note'])+'</p><p>实际标题：'+esc(row['title'])+'<br>封面：'+esc(row['cover'])+'</p>'
+        body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放新标题实片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
     if d.get('publisher_trial'):
         row=d['publisher_trial']
         body+='<h3>34号背景残字取景修复</h3><p>'+esc(row['note'])+'</p><p><a href="'+link(row['run_id'])+'">实际复验运行</a> · '+esc(row['status'])+'</p>'
+        if row.get('file'):
+            body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放取景复验片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
+
     body+='<h3>舞台字幕：修掉单字一屏的分组漏洞</h3><p>同一68号原文从37个识别碎片重新分为25屏，保留文字与时间依据，18项相关测试通过。下方仅重烧前30秒字幕作显示诊断，原标题仍不合格；不是新一轮自动出片、不计成功数。预览使用本机Arial Unicode MS字体，生产使用Noto Sans CJK SC。</p>'
     body+='<div class="review-player"><video controls playsinline preload="none" data-src="stage68-captions-sep23/caption-only-preview.mp4" poster="stage68-captions-sep23/frame.jpg"></video><button type="button">播放字幕诊断片</button> <a href="stage68-captions-sep23/caption-only-preview.mp4" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
     return body+'</section>'
@@ -125,5 +132,5 @@ def latest_library():
     body+='<div class="table-scroll"><table><thead><tr><th>来源</th><th>固定100样本</th><th>首次自动出片</th><th>自动出片率</th></tr></thead><tbody>'
     for row in d['fixed100_platforms']:
         body+='<tr><td>'+esc(row['source'])+'</td><td>'+str(row['total'])+'</td><td>'+str(row['passed'])+'</td><td>'+str(row['percent'])+'%</td></tr>'
-    body+='</tbody></table></div><p class="small">这些是固定样本的自动出片统计，不是全平台可用率或编辑通过率；小样本不能代表来源质量。新发现17条独立验收的结果尚未出来。</p>'
+    body+='</tbody></table></div><p class="small">这些是固定样本的自动出片统计，不是全平台可用率或编辑通过率；小样本不能代表来源质量。新发现17条正在独立验收，阶段结果不能推算最终通过率。</p>'
     return body+'</section>'

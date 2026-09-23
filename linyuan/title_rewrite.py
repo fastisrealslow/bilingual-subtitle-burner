@@ -397,7 +397,13 @@ def unresolved_subject_error(title, cover):
     for copy in (title,cover):
         # Exact quotations also need a self-contained object on the cover.
         # Preserve explicit apposition (例如“这些医药公司”) and first-person voice.
-        if re.search(r'这(?:些|类|种|几个|几家)(?:公司|企业|东西|有关系|相关)',copy):
+        vague=re.search(r'这(?:些|类|种|几个|几家)(?:公司|企业|东西|有关系|相关)',copy)
+        # Real source46 already names 龙头 before qualifying these companies
+        # as rare. Do not reject the qualifier we need the editor to preserve.
+        antecedent=(vague and re.search(
+            r'龙头(?:公司|企业)?|(?:医药|白酒|科技|半导体|食品|光伏|能源)(?:公司|企业)',
+            copy[:vague.start()]))
+        if vague and not antecedent:
             return '标题或封面的讨论对象只有未解释的指代；写明具体对象，不能把原文中的“这些”单独摘成标题'
         if (re.search(r'这(?:两|三|几)种病',copy)
                 and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):

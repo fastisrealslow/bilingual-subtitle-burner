@@ -106,3 +106,11 @@ def test_choice_correctness_cannot_become_no_loss(copy):
 def test_source_stated_loss_claim_still_goes_to_normal_review():
     assert T.loss_claim_error('林园：这个方向不会错','心血管相关企业不会错','这个方向不会错。') is None
     assert T.loss_claim_error('林园：我那次没赚也不亏','那次不亏','我那次没赚也不亏。') is None
+
+
+def test_same_copy_antecedent_preserves_rare_company_qualifier():
+    title='林园：龙头靠持有阶段赚一万倍，但这类公司非常少。'
+    assert T.unresolved_subject_error(title,'龙头企业非常少') is None
+    # The cover must stand alone; a named subject in the title cannot rescue it.
+    assert T.unresolved_subject_error(title,'这类公司非常少')
+    assert T.unresolved_subject_error('林园：医药企业里这些公司值得研究','医药企业值得研究') is None

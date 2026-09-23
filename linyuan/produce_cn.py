@@ -4352,8 +4352,9 @@ def selected_frame_logos(frame, directory, index, shot_local=False):
     if shot_local:
         # A central backdrop follows the camera, unlike a global corner
         # overlay. The tracker replaces these boxes on each detected cut.
-        from source_publisher_marks import central_publisher_rects
+        from source_publisher_marks import central_publisher_rects, corner_publisher_rects
         marks+=central_publisher_rects(evidence)
+        marks+=corner_publisher_rects(evidence,frame)
     return marks
 
 

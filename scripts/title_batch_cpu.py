@@ -42,6 +42,9 @@ def main():
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
     assert os.environ.get('LOCAL_LLM_MODEL') == args.model
+    # Exercise the same drafting path and cache identity as full production.
+    # Older lab runs injected the profile after identity was built.
+    os.environ['LINYUAN_TITLE_DRAFT_PROFILE']=args.draft_profile
     import produce_cn as p
     import editorial_policy as ep
     import title_rewrite as te
@@ -61,15 +64,13 @@ def main():
     original=p.llm
     def uncached(*a, **kw):
         kw['read_cache']=False
-        if args.draft_profile in ('concise','source_limits'):
-            from linyuan_title_prompt_trial import concise_messages, source_limits_schema, source_limits_messages
+        schema=kw.get('response_schema') or {}
+        if args.draft_profile != 'production' and 'c_candidates' in schema.get('properties',{}):
             if args.draft_profile == 'source_limits':
-                kw['response_schema']=source_limits_schema(kw.get('response_schema'))
-                messages=source_limits_messages(a[0],kw.get('response_schema'))
-            else:
-                messages=concise_messages(a[0],kw.get('response_schema'))
-            if messages is not a[0]:row['draft_interventions']+=1
-            a=(messages,)+a[1:]
+                focus=schema['properties']['b_focus']
+                if 'a_0_source_limits' not in focus['properties']:
+                    raise ValueError('Production path did not apply source-limits schema')
+            row['draft_interventions']+=1
         call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()
         try:
             result=original(*a, **kw);call['response']=result;return result

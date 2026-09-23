@@ -23,7 +23,10 @@ def frame_interval(start,duration,fps,total_frames):
 def avoid_overlays(box, face, width, height, exclusions):
     """Translate the same-size crop around measured marks, preserving the face."""
     x,y,w,h=box
-    marks=[(a*width,b*height,c*width,d*height) for a,b,c,d in exclusions]
+    # Normalized integer pixel bounds can round-trip as 156.00000000000003.
+    # Remove only floating-point noise, not actual overlap or face margins.
+    marks=[tuple(round(v*scale,6) for v,scale in zip(rect,(width,height,width,height)))
+           for rect in exclusions]
     def overlaps(px,py):
         return any(px<c and px+w>a and py<d and py+h>b for a,b,c,d in marks)
     fx,fy,fw,fh=map(float,face[:4])
