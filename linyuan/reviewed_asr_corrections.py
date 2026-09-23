@@ -21,6 +21,11 @@ SOURCE_RULES={SOURCE_SHA: dict(
     (1440,1445,'这个话题呢八年','这个话题九八年','原访谈报道确认此处回顾1998年已有的讨论'),
     (1254,1258,'真正爱的那些人','真正厉害的那些人','原片字幕caption-005020.jpg清楚显示真正厉害的那些人；保留整短语原时间范围'),
 ]),
+'312d4ce3bdcd58f11cacbe70fdb9e3992d5d9b66ddebf459e65c0dc8203fe710': dict(
+    evidence_url='https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35917091267',
+    rules=[
+        (37,42,'凌源投资','林园投资','同哈希母片original-39.50.jpg原字幕清楚显示我们林园投资是在全球范围内；仅修正这段机构名称，不根据第二ASR的零元投资猜测'),
+    ]),
 '15ec6a8ca0178dac741f0fa75b6cbc18f7776a42cd30ee4ac0f3c95b63f51820': dict(
     evidence_url='https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35890912542',
     rules=[

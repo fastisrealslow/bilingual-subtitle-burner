@@ -1,0 +1,98 @@
+name: 疑词追加原字幕取证（不改稿不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-next-caption-proof.yml]
+  workflow_dispatch:
+    inputs:
+      source_ids:
+        description: 待取证素材编号JSON数组
+        type: string
+        default: '[7,39,46,49]'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-next-caption-proof
+  cancel-in-progress: false
+jobs:
+  frames:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        source_id: ${{ fromJSON(inputs.source_ids || '[7,39,46,49]') }}
+    defaults:
+      run:
+        working-directory: linyuan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装下载与原帧提取工具
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install yt-dlp requests
+      - name: 固定同一原片与疑词时刻
+        id: source
+        env:
+          SOURCE_ID: ${{ matrix.source_id }}
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          rows=json.load(open('simulations/benchmark-20260921/next-caption-windows.json'))
+          row=next(r for r in rows if r['source_id']==int(os.environ['SOURCE_ID']))
+          from urllib.parse import urlsplit
+          url=row['source_url'];assert urlsplit(url).hostname in ('www.bilibili.com','m.weibo.cn')
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('SOURCE_URL='+url+'\n')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('key='+hashlib.sha256(url.encode()).hexdigest()+'\n')
+          json.dump(row,open('/tmp/caption-target.json','w'))
+          PY
+      - uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.source.outputs.key }}-${{ github.run_id }}
+          restore-keys: source-download-v1-${{ steps.source.outputs.key }}-
+      - name: 恢复同源母片检查点
+        if: contains(env.SOURCE_URL, 'bilibili.com/video/BV')
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python mother_media_cache.py --source "$SOURCE_URL"
+      - name: 取原始母片
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          if [[ "$SOURCE_URL" == https://www.bilibili.com/video/BV* ]]; then
+            python ci_fetch_bilibili.py --url "$SOURCE_URL" --out _src/video.mp4 --budget-seconds 600
+          else
+            python ci_fetch_generic.py --url "$SOURCE_URL" --directory _src --github-output "$GITHUB_OUTPUT" --failure-report caption-proof/fetch-failure.json
+          fi
+      - name: 哈希一致才提取原字幕画面
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          src=Path('_src/video.mp4');row=json.load(open('/tmp/caption-target.json'))
+          h=hashlib.file_digest(src.open('rb'),'sha256').hexdigest()
+          assert h==row['source_sha256'],'Different mother bytes; no evidence substitution allowed'
+          out=Path('caption-proof');out.mkdir(exist_ok=True)
+          row.update(run_id=os.environ['GITHUB_RUN_ID'],commit=os.environ['GITHUB_SHA'],frames=[])
+          for t in row['timestamps']:
+              dest=out/f'original-{t:.2f}.jpg'
+              subprocess.run(['ffmpeg','-v','error','-y','-ss',str(t),'-i',str(src),'-frames:v','1','-q:v','2',str(dest)],check=True,timeout=90)
+              row['frames'].append(dict(file=dest.name,seconds=t,sha256=hashlib.sha256(dest.read_bytes()).hexdigest()))
+          (out/'evidence.json').write_text(json.dumps(row,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final100-original-caption-${{ matrix.source_id }}
+          path: linyuan/caption-proof/
+          retention-days: 30
+          if-no-files-found: warn
