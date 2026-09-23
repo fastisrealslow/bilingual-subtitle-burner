@@ -136,9 +136,15 @@ def answer_reading_units(cues, speaker='林园'):
         # characters rather than cutting an arbitrary word or inventing a stop.
         if current and (boundary!=previous or i in handoffs or len(current)+len(cue)>200):
             units.append(current);current=''
-        current+=cue;previous=boundary
-        if re.search(r'[。！？!?；;][”’」』\"]?\s*$',cue):
-            units.append(current);current=''
+        previous=boundary
+        start=0
+        # One displayed cue can contain the end of a host's question and
+        # the start of the guest's reply (actual 311). Split every original
+        # sentence stop, including stops inside a cue, before joining tails.
+        for stop in re.finditer(r'[。！？!?；;]+[”’」』\"]?',cue):
+            current+=cue[start:stop.end()]
+            units.append(current);current='';start=stop.end()
+        current+=cue[start:]
     if current:units.append(current)
     if ''.join(units)!=''.join(cues):
         raise ValueError('阅读分句改变了原始字幕')

@@ -36,6 +36,19 @@ def test_grouping_keeps_questions_and_named_other_speakers_out_of_guest_evidence
     assert not any(cues[3] in u and cues[4] in u for u in units)
 
 
+def test_question_end_inside_display_cue_does_not_swallow_guest_rebuttal():
+    cues=['这这一点是怎么做到的呢？这你说的这个事儿啊，',
+          '牛熊日，这这动洞察先机，我也洞察不了。']
+    units=T.answer_reading_units(cues)
+    assert units==['这这一点是怎么做到的呢？',
+                  '这你说的这个事儿啊，牛熊日，这这动洞察先机，我也洞察不了。']
+    assert ''.join(units)==''.join(cues)
+    roles=T.bind_reading(dict(a_guest_answer='嘉宾说自己也无法洞察牛熊先机，没有确认主持人的前提。',
+        b_question_premise='主持人问如何提前洞察熊市。',
+        c_sentence_roles=dict(u0000='host',u0001='guest')),units)
+    assert T.bind_answer_focus(dict(d_main_answer_quote=units[1]),units,roles)==[1]
+
+
 def test_complete_short_main_answer_is_evidence_but_list_tail_is_not():
     units=['您觉得进入牛市了吗？','这个位置应该是不高。','还没有进入牛市。','还有一个','嗯']
     assert T.guest_evidence_ids(units,['host','guest','guest','guest','guest']) == [1,2]

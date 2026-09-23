@@ -18,6 +18,12 @@ def read(path, default=None):
 
 
 def reference_media(bvid):
+    latest=OUT/'reference-latest-35850453720'/('reference-latest-'+bvid)
+    proof=read(latest/'inspection.json',{})
+    if proof.get('complete_timeline') and (latest/'full-review.mp4').exists():
+        return (str((latest/'full-review.mp4').relative_to(OUT)),
+                str((latest/'frame-00.jpg').relative_to(OUT)),
+                f"近期完整原声 · 源流 {proof['actual_dimensions'][0]}×{proof['actual_dimensions'][1]} · 页面预览最高1280边长 · {proof['duration']:.1f}秒")
     folder = OUT / 'reference-complete' / ('reference20-' + bvid)
     proof = read(folder / 'inspection.json', {})
     if proof.get('complete_timeline'):
@@ -59,7 +65,7 @@ def latest_references():
             +media+'<p>'+esc(row.get('observation','尚未完成逐项内容比较。'))+'</p><small>平台时长 '
             +str(row['duration'])+'秒；核对时 '+str(row['views'])+' 次播放；'+esc(row['published_at'])+'</small></article>')
     return ('<section id="refs-latest"><h2>最新补充：9月23日重新核对的近期作品</h2>'
-        '<p>公开合集最新8条中，有4条不在原固定20条内，在此单独补充。它们不是播放量最高的4条，也不替换原有对照。已取得的两条横版基本铺满画面、字幕贴底，没有常驻大标题；原声转写继续核对，抽帧不等于逐秒听看。</p>'
+        '<p>公开合集最新8条中，有4条不在原固定20条内，在此单独补充。它们不是播放量最高的4条，也不替换原有对照。3条取得完整原声视频，其中2条林园相关作品已完成机器转写与全文阅读；1条仅返回不完整媒体。横版基本铺满画面、字幕贴底，没有常驻大标题。抽帧和机器转写不等于逐秒人工听看。</p>'
         '<div class="grid">'+''.join(cards)+'</div></section>')
 
 

@@ -2321,6 +2321,12 @@
       "verification_file": "caption17-35842176532/media-verification.json",
       "sha256": "676ca9d6546f11e07737284d9006615975c06189adea46762e806c85dce328ce",
       "comparison": "最新20.9秒实片已采用2026092301字幕规则：林总保持完整词，光伏光伏清理为光伏；没有没有及没参与没参与保留。标题仍是听说光伏影响环境，没有猜改事实。完整解码、六帧及全部5屏ASS已查。画面占比仍小，未编辑放行。"
+    },
+    {
+      "id": 49,
+      "verification_file": "../sep23-full100-35833967072/media-verification.json",
+      "sha256": "f01252792b5d0d22a7908ac4fb462e7dd0dfe158ce92fa60a2c08dde7da0d2a5",
+      "comparison": "补入新一轮100条实际取得的147.6秒竖版视频，代码87a0099；旧06815b4批次的缺失结果仍保留在原统计。完整音视频解码、六帧和全部ASS已核对。标题仍偏总结语气，未认定编辑通过，不用本次恢复重写旧批次分数。"
     }
   ],
   "channel_source_trial": {
@@ -4639,6 +4645,106 @@
         "review_note": "选择“我说它便宜，它还要跌”半边解释，生成缺对象的“它”标题；3轮未生成合格文案。",
         "editorial_approved": false,
         "raw_file": "exact-focus-35848819019/source-choices-8b-6/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-6-repeat-1.json"
+      }
+    ]
+  },
+  "sentence_focus_trial": {
+    "run_id": "35850815645",
+    "tested_sha": "5c3494dcff0dcbfebe5cc1999e0eab58a99c26fc",
+    "status": "completed",
+    "note": "同4条实片字幕：4条都生成，8、28、32阅读主旨较前轮改善，但28漏对象与语气、32扩大判断、311仍选错重点。生成率4/4不能当作质量通过率4/4。",
+    "rows": [
+      {
+        "case": "sep23-source8",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 416.69,
+        "title": "林园：当前位置还没进入牛市",
+        "cover": "当前位置还没进入牛市",
+        "review_note": "阅读和标题回到尚未进入牛市，较旁枝市值标题直接；仍待实际渲染和录制背景核对，不算新成片。",
+        "editorial_approved": false,
+        "raw_file": "sentence-focus-35850815645/source-choices-8b-3/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-3-repeat-1.json"
+      },
+      {
+        "case": "sep23-source28",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 299.22,
+        "title": "林园：两个大行业未来爆发性增长",
+        "cover": "两个大行业未来爆发性增长",
+        "review_note": "阅读终于选中未来增长的回答，但标题只有两个大行业，没有眼科牙科，且漏掉我相信；不能编辑放行。",
+        "editorial_approved": false,
+        "raw_file": "sentence-focus-35850815645/source-choices-8b-4/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-4-repeat-1.json"
+      },
+      {
+        "case": "sep23-source32",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 742.95,
+        "title": "林园：独门生意是长期盈利的保障",
+        "cover": "独门生意是长期盈利的保障",
+        "review_note": "完整主语不再遗漏，读中了独门生意；标题把公司特性写成长期盈利的保障，仍扩大判断、偏总结腔。",
+        "editorial_approved": false,
+        "raw_file": "sentence-focus-35850815645/source-choices-8b-5/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-5-repeat-1.json"
+      },
+      {
+        "case": "sep23-source311-complete-question",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 547.3,
+        "title": "林园：可能提前预测到他会高，泡沫会破裂",
+        "cover": "可能提前预测到他会高，泡沫会破裂",
+        "review_note": "标题仍选泡沫破裂旁枝，保留不明他字。进一步检查发现同一显示行包含主持人问号和嘉宾反驳，正在修复阅读分句；本轮不判通过。",
+        "editorial_approved": false,
+        "raw_file": "sentence-focus-35850815645/source-choices-8b-6/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-6-repeat-1.json"
+      }
+    ]
+  },
+  "reference_overrides": [
+    {
+      "id": 79,
+      "bvid": "BV1v8ez6REPd",
+      "reason": "个人投资选择的近期表达参考，非同素材对照"
+    }
+  ],
+  "handoff_trial": {
+    "run_id": "35852795888",
+    "tested_sha": "6fa9100abb3049eef40a8fefa30667742449d95c",
+    "status": "in_progress",
+    "note": "同4条逐句归属复验后，8号直接交接独立标题结果到完整渲染，不重新随机生成标题。须同时匹配母片、完整字幕、代码、模型权重和配置，复核当前标题证明；尚未完成实际实片验证，不计出片。",
+    "rows": [
+      {
+        "case": "sep23-source8",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 284.16,
+        "title": "林园：当前市场还没进入牛市",
+        "cover": "当前市场还没进入牛市",
+        "review_note": "主要回答保持正确，本轮284秒得到；其他素材仍在验证，完整视频渲染和交接验证待完成。",
+        "editorial_approved": false,
+        "raw_file": "title-handoff-35852795888/source-choices-8b-3/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-3-repeat-1.json"
+      },
+      {
+        "case": "sep23-source28",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 572.79,
+        "title": "林园：眼科牙科未来爆发性增长",
+        "cover": "眼科牙科爆发性增长",
+        "review_note": "已补回眼科、牙科两个具体对象，但仍删掉我相信，封面还省略未来，个人预测被写成断言；未编辑通过。",
+        "editorial_approved": false,
+        "raw_file": "title-handoff-35852795888/source-choices-8b-4/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-4-repeat-1.json"
+      },
+      {
+        "case": "sep23-source32",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 745.46,
+        "title": "林园：独门生意是长期盈利的保障",
+        "cover": "独门生意，长期盈利",
+        "review_note": "再次把长期赚钱公司的特性写成盈利保障，扩大原意；独立模型复核未发现，不切换为默认。",
+        "editorial_approved": false,
+        "raw_file": "title-handoff-35852795888/source-choices-8b-5/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-5-repeat-1.json"
       }
     ]
   }

@@ -41,6 +41,9 @@ def build_threeway(reference_media, player):
     review=read(RECORDS/'sep23-review.json',{})
     for row in review.get('rows',[]):
         judgments[row['id']]=row
+    for row in review.get('reference_overrides',[]):
+        judgments[row['id']]={**judgments.get(row['id'],{}),
+                              'reference_bvid':row['bvid']}
     # Selected, reviewed artifacts can replace the middle player. Keep cohort
     # statistics frozen; showing a later recovery does not rewrite its result.
     originals={}
@@ -55,6 +58,7 @@ def build_threeway(reference_media, player):
         judgments[ident]={**judgments.get(ident,{}),'known_quality_issue':True,
                           'comparison':override['comparison']}
     references={r['bvid']:r for r in read(RECORDS/'references-20.json',{'rows':[]})['rows']}
+    references.update({r['bvid']:r for r in read(RECORDS/'references-latest-sep23.json',{'rows':[]})['rows']})
 
     def column(row, label, ident, folder, prefix):
         content='<div class="comparison-column"><h4>'+label+'</h4>'
@@ -99,8 +103,8 @@ def build_threeway(reference_media, player):
         else:content+='<div class="comparison-column"><h4>园园参考</h4><p>尚未建立可核对的对应项。</p></div>'
         warning=('<p class="warning"><strong>已确认存在质量问题：本条保留作失败对照，不能计编辑合格。</strong></p>'
                  if note.get('known_quality_issue') else '')
-        cards.append('<article class="threeway-card" data-kind="'+pair+'"><h3>素材 '+str(ident)+'</h3><p class="small">'+source_note+'</p>'+warning+'<div class="threeway-grid">'+content+'</div><p class="review-note">'+esc(note.get('comparison','尚待逐条内容核对，不按自动出片判优。'))+'</p></article>')
-    return '<section id="threeway"><h2>三列直接看：线上主线、优化版、园园</h2><p>左列是主线固定版本复跑，右列是园园原作，按主题或形式作参考，并非同素材实验。中列以06815b4固定批次为基础，8、17、79已更新到后续核验的实片，每条标明实际代码版本，原批次视频仍可展开播放。所有展示的成片已核对哈希、完整音视频解码、六帧及字幕；尚未逐秒听音验收。新8的主要回答未进标题、17的口吃与画面占比、34残字、4/68对象不明、79字幕识别疑点等问题照实保留。49保留本轮优化缺报告的空位。专项恢复只更新播放器，不回填17/100成绩。</p><p><button onclick="threewayFilter(\'all\')">全部</button> <button onclick="threewayFilter(\'both\')">两版都有成片</button> <button onclick="threewayFilter(\'new\')">自动出片新增（含质量问题）</button> <button onclick="threewayFilter(\'missing\')">优化未出片</button></p>'+''.join(cards)+'</section>'
+        cards.append('<article id="source-'+str(ident)+'" class="threeway-card" data-kind="'+pair+'"><h3>素材 '+str(ident)+'</h3><p class="small">'+source_note+'</p>'+warning+'<div class="threeway-grid">'+content+'</div><p class="review-note">'+esc(note.get('comparison','尚待逐条内容核对，不按自动出片判优。'))+'</p></article>')
+    return '<section id="threeway"><h2>三列直接看：线上主线、优化版、园园</h2><p>左列是主线固定版本复跑，中列是已核验的优化实片，右列是园园的主题或形式参考。每条保留实际版本和已发现的问题。</p><details><summary>查看版本、验收范围与统计口径</summary><p>中列以06815b4固定批次为基础，8、17、49、79补入后续实片；已有旧片仍可展开播放。所有成片已核对哈希、完整音视频解码、六帧及字幕，尚未逐秒听音验收。园园作品不是同素材A/B。播放器更新不回填固定批次成绩，技术出片也不等于编辑质量合格。</p></details><p><button onclick="threewayFilter(\'all\')">全部</button> <button onclick="threewayFilter(\'both\')">两版都有成片</button> <button onclick="threewayFilter(\'new\')">自动出片新增（含质量问题）</button> <button onclick="threewayFilter(\'missing\')">优化未出片</button></p>'+''.join(cards)+'</section>'
 
 
 CSS='''.threeway-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.comparison-column{min-width:0}.comparison-column h4{padding:10px;background:#e8eee9;border-radius:5px}.threeway-card{margin:24px 0}.threeway-grid video{height:310px}.copy-title{font-weight:650}.review-note{border-left:4px solid #b28248;padding:12px 16px;background:#fff6e8}.missing-video{height:280px;padding:16px;box-sizing:border-box;background:#ebedeb;color:#52606a}.threeway-grid .transcript{font-size:13px}@media(max-width:700px){.threeway-grid{grid-template-columns:1fr}.threeway-grid video{height:330px}.missing-video{height:auto;min-height:120px}}'''

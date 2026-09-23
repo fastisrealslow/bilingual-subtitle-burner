@@ -170,6 +170,8 @@ def latest_library():
                       ('answer_focus_trial','主要回答编号实验：成功生成仍可能偏题'),
                       ('quote_focus_trial','连续引文实验：原文绑定与概括仍需改善'),
                       ('exact_focus_trial','完整原句选择复验：一条回到重点，仍有语义误放行'),
+                      ('sentence_focus_trial','合并显示短行：读对主旨增多，拟稿仍有遗漏'),
+                      ('handoff_trial','独立标题交接到实片：核对后复用同一份结果'),
                       ('quiet_landscape_trial','深灰底横版完整实片：画面更大，标题仍不稳定'),
                       ('sep23_full100_trial','9月23日固定100条完整复验')]:
         row=review.get(key)

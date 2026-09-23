@@ -65,11 +65,15 @@ def sections(player):
         headers=['来源','输入数','已取到母片¹','源检查通过','自动出片 / 输入','拒绝','未确定']
         groups.append('<div class="source-cohort" data-cohort="'+key+'"'+(' hidden' if key!='library20' else '')+'><h3>'+esc(labels[key])+'</h3>'+table(headers,group_rows('platforms'))+ \
             '<details><summary>展开按上传作者统计（作者不是原始拍摄方）</summary>'+table(headers,group_rows('authors'))+'</details></div>')
+    current=d['cohorts']['sep23_full100']
+    inventory=read(ROOT/'output/sep23-full100-35833967072/media-inventory-audit.json',{})
+    unique=inventory.get('variants',{}).get('simulation',{}).get('retained_by_publication_rule','待核对')
     intro = '<section id="overview"><div class="eyebrow">整体验收 / 2026-09-23</div><h1>形式更接近了，稳定性还没达标。</h1><p class="lead">目标是每100条素材至少30条能稳定出片，并且内容值得发布。目前还不能交出这个结论。</p><p class="small">本地报告快照：'+esc(d['checked_at'])+'；主线数据 '+d['snapshot_main_sha'][:7]+'。页面不会自动更新；不同固定版本分别统计。</p>'+ \
-        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>'+str(d['cohorts']['sep23']['passed'])+'%</b><span>06815b4 · 自动出片，含内容误放行</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
+        '<div class="metric-grid"><article><b>11/100</b><span>主线 · 同批素材技术出片</span></article><article><b>'+str(current['passed'])+'/100</b><span>本轮技术出片 · 已返回'+str(current['total']-current['missing'])+'/100</span></article><article><b>'+str(unique)+'组</b><span>本轮文件经现有规则去重 · 非编辑合格数</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+ \
+        '<p>第95与99条是同一段谈话的横竖版，分开计技术出片，只计一组内容。标题、画面和语义质量仍须逐条检查；没有把专项修复混进固定批次成绩。</p><p><a href="#source-79">先看79：标题前后</a> · <a href="#source-17">17：字幕修复</a> · <a href="#source-8">8：发言归属</a> · <a href="#refs-latest">园园近期完整视频</a></p><details><summary>展开各轮完整统计与比较口径</summary>'+''.join(charts)+ \
         '<p class="small">绿色＝自动通过；红色＝质量拒绝；灰色＝未确定，含运行失败与尚缺报告。颜色不表示人工编辑质量。</p>'+table(['批次','固定代码','自动出片率','拒绝','未确定'],batchrows)+ \
         '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。06815b4整轮已结束：17出片、79拒绝、4未确定。17份文件均已核对哈希并完整解码；仍发现听说变事实、对象指代不清、老龄化变人口增长与残字等问题，不能把17%当作编辑合格率。前轮e93fa87为18/78/4，其中88的中央原字幕漏检已在本轮拦截。后续修复与9B单条试验分开，不拼接多轮最好结果。</p>'+ \
-        '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></section>'
+        '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></details></section>'
     admission=d['admission']
     sources='<section id="sources"><h2>素材：有更新，但大库不等于可用库存</h2><p>冻结主线f794ce7素材库收录 '+str(d['library_records'])+' 条记录。北京时间9月21日新增 '+str(d['discovered_today'])+' 条：B站搜索36、来源定向搜索4、微博7、网易1、园园参考2。48条候选来源加2条参考，不能说成新增50条可用母片。</p>'+ \
         '<p>今早 <a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(d['research_run'])+'">06:28–06:36 的监控</a>确实执行了抓取。来源研究累计74个母片下载任务，54个已完成媒体检查、17个待重试、3个待处理；参考视频另算22个，其中17个已检查。此次3个媒体任务是1个抖音母片失败、1个参考片成功、1个参考片失败，所以不能宣称“今早已下载一批新的合格母片”。</p>'+ \
@@ -123,7 +127,7 @@ def quality_iteration(player):
     if playback:
         body+='<p>网页播放复核：Chrome通过'+str(playback['unique_media'])+'个不同视频的实际播放及中段跳转，失败'+str(playback['failed'])+'个。播放器按需加载，切换时释放上一条资源。可用“单独打开视频”或下载入口；这不等于内容质量验收。</p>'
     if latest:
-        body+='<p class="warning">最新整轮自动出片18/100，18条文件均已核对哈希并完整解码，投稿去重仍18。新增88在六帧里有明显白/绿色原字幕，与新字幕叠加，是自动检查漏检。不能把18%宣传为合格率，也不能简单宣布优于上一轮17%。</p>'
+        body+='<p class="warning">历史e93fa87整轮自动出片18/100，18条文件均已核对哈希并完整解码，投稿去重仍18。新增88在六帧里有明显白/绿色原字幕，与新字幕叠加，是自动检查漏检。不能把18%宣传为合格率，也不能简单宣布优于上一轮17%。</p>'
         audit=d.get('source_text_recheck')
         if audit:
             body+='<p>漏检修复实测：对17个明确的源画面窗口重新OCR，88被跨帧文字检查发现，另外16个未新增标记；99没有独立源画面区，本项不适用。对88实际MP4再次调用完整画面检查，已以中央原字幕拒绝。静态背景文字、单帧猜测与轻微OCR拼写差异不能触发这项新检查；没有把其他16条算作编辑合格。</p>'
@@ -132,7 +136,7 @@ def quality_iteration(player):
             body+='<p>'+run(product['run_id'],'并发症产品对象回放')+'：标题“'+esc(product['title'])+'”；封面“'+esc(product['cover'])+'”。'+esc(product['note'])+'</p>'
     pending=d.get('pending_media_runs',{})
     if pending.get('fixed100'):
-        body+='<p>最近固定版本 '+esc(pending['commit'][:7])+' 的 '+run(pending['fixed100'],'新100条完整复验')+' 已收齐100份报告、18条视频全部解码并去重；其中88存在原字幕漏检，新检查正对实际样本复核。历史17%仍保留为独立轮次。</p>'
+        body+='<p>当时固定版本 '+esc(pending['commit'][:7])+' 的 '+run(pending['fixed100'],'新100条完整复验')+' 已收齐100份报告、18条视频全部解码并去重；其中88存在原字幕漏检，新检查正对实际样本复核。历史17%仍保留为独立轮次。</p>'
     body+='<h3>拆成多个Action后，质量是否自然提高？</h3><p>'+run(experiment['run_id'],'阅读 → 拟稿 → 独立盲审的完整实验')+'：'+esc(experiment['conclusion'])+'</p>'
     body+=table(['素材','阅读模型','阅读耗时','拟稿执行','盲审自动放行（非编辑通过）'],[
         [r['case'],r['profile'],str(r['read_seconds'])+'秒',r['write_status'],','.join(r['automatic_critic_passes']) or '无'] for r in experiment['arms']])
