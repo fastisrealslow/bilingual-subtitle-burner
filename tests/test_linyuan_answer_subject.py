@@ -65,3 +65,13 @@ def test_complete_handoff_keeps_subject_and_final_independent_review():
     assert stages==['read','write','review']
     assert result['answer_focus_reading']['subject']['name']=='中石油'
     assert T.error(title,result['title_rewrite'],''.join(units)) is None
+
+
+@pytest.mark.parametrize('name',['这个行业','这个赛道','这些公司','上述企业','当前市场'])
+def test_literal_presence_does_not_make_a_vague_subject_concrete(name):
+    # Real 8B source312 supplied 这个行业 after the first reader retry. The
+    # literal lookup found it, but it still does not tell a viewer what it is.
+    with pytest.raises(ValueError,match='具体名称'):
+        T.bind_answer_subject(dict(e_subject_name=name),[name+'我也不知道投什么。'],['guest'])
+    assert T.bind_answer_subject(dict(e_subject_name='科技赛道'),
+        ['这不是针对AI，所有科技赛道。'],['guest'])['name']=='科技赛道'

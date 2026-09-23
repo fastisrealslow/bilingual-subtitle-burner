@@ -468,3 +468,20 @@ def test_real_dialogue_cue_boundaries_do_not_merge_host_hypothesis_into_answer()
                 [dict(a_start=0,b_end=30,c_role='guest'),dict(a_start=30,b_end=51,c_role='host')],
                 [dict(a_start=0,b_end=50,c_role='guest')]):
         with pytest.raises(ValueError):T.bind_turns(bad,units)
+
+
+def test_small_market_value_does_not_mean_not_worth_investing():
+    # Actual 79 caption-fix run wrote 医药行业不值 despite its own reader
+    # reporting that the guest explicitly plans to invest in this industry.
+    source='医药行业市值跟别人差得太远了。我们从投资的角度上，我们倾向于买危机。'
+    item=dict(title='林园：医药行业不值，但危机里有大机会',
+        cover_title='医药行业不值，但危机里有大机会',subject='医药行业',evidence=[source])
+    proof=T._package(item,source,dict(method='cpu_text_review',appeal=5,
+        reason='真实失败稿中所有自动语义标志均为真，不能代替当前检查',**{k:True for k in T.CHECKS}),[])['title_rewrite']
+    assert '原文没有' in T.error(item['title'],proof,source)
+    assert '原文没有' in T._candidate_error(item,source,'林园',[],check_layout=False)
+    # An explicit negative guest opinion is still allowed; do not censor it.
+    negative='我认为这个价格的医药行业不值得投资，暂时不买。'
+    item=dict(title='林园：医药行业不值得投资',cover_title='医药行业不值得投资',
+              subject='医药行业',evidence=[negative])
+    assert T._candidate_error(item,negative,'林园',[],check_layout=False) is None
