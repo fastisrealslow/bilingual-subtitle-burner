@@ -1,6 +1,7 @@
 """All current outputs, their actual copy, and explicitly unrendered edit ideas."""
 from pathlib import Path
 import html
+import hashlib
 import json
 import os
 
@@ -29,6 +30,10 @@ def build_all_output_review(reference_media, player):
     references = {r['bvid']:r for filename in ('references-20.json','references-latest-sep23.json')
                   for r in read(RECORDS/filename, {'rows':[]})['rows']}
     model_rows={}
+    model_notes=read(RECORDS/'all-output-model-review.json',{})
+    layout_rows={r['id']:r for r in read(OUT/'fixed-copy-layout-35885583458/media-verification.json',[])
+                 if r.get('video_audio_full_decode') and r.get('source_yield_credit') is False}
+    rendered_copies=read(OUT/'source32-title-35884655321/media-verification.json',[])
     for path in (OUT/'all-current-titles-35881680084').rglob('case-*-repeat-1.json'):
         model=read(path)
         case=next((c for c in corpus if c['id']==model.get('case')),None)
@@ -40,7 +45,17 @@ def build_all_output_review(reference_media, player):
         model_rows[case['id']]=dict(status=model.get('status'),title=result.get('title'),
             cover=result.get('cover_title'),seconds=model.get('seconds'),error=model.get('error'),
             proof_error=model.get('proof_error'),experiment_valid=model.get('experiment_valid'),
-            file=os.path.relpath(path,OUT),rendered=False,editorial_approved=False)
+            file=os.path.relpath(path,OUT),rendered=False,editorial_approved=False,
+            editorial_note=model_notes.get(case['id'],'尚未完成本稿的编辑复核。'))
+        for video in rendered_copies:
+            if not video.get('video_audio_full_decode') or video['id']!=case['source_id']:continue
+            meta=read((ROOT/video['file']).parent/'meta.json',{})
+            handoff=meta.get('title_handoff',{})
+            if handoff.get('record_sha256')!=hashlib.sha256(path.read_bytes()).hexdigest():continue
+            if (video['title']!=result.get('title') or video['cover_title']!=result.get('cover_title')
+                    or meta.get('source_sha256')!=case['source_sha256']):
+                raise ValueError('Rendered model copy differs from its exact title-stage record')
+            model_rows[case['id']].update(rendered=True,rendered_media=video)
     rows=[]; cards=[]
 
     def model_copy(case):
@@ -48,9 +63,27 @@ def build_all_output_review(reference_media, player):
         if not row:return '<p class="small">本轮独立模型复验：结果尚未取回。</p>'
         detail=('<p>标题：'+esc(row['title'])+'</p><p>封面：'+esc(row['cover'])+'</p>'
                 if row['status']=='generated' else '<p>'+esc(row.get('error'))+'</p>')
-        return ('<details><summary>本轮模型稿 · '+esc(row['status'])+' · 尚未烧入视频</summary>'
-            +detail+'<p class="small">用时 '+esc(row['seconds'])+'秒；自动核验不等于编辑合格。'
+        media=row.get('rendered_media');clip=''
+        if media:
+            clip=player(os.path.relpath(ROOT/media['file'],OUT),os.path.relpath(ROOT/media['cover'],OUT),'独立标题Action的原稿已用于完整190秒出片')
+            clip+='<p class="small">完整解码、六帧和全部显示字幕已核对；字幕仍有“垄垄断”“虽虽然”等问题。标题改善不等于整片编辑合格，也不计新增素材。</p>'
+        return ('<details><summary>本轮模型稿 · '+esc(row['status'])+(' · 已有完整实片' if media else ' · 尚未烧入视频')+'</summary>'
+            +detail+'<p><b>这稿是否改善：</b>'+esc(row['editorial_note'])+'</p>'
+            +clip
+            +'<p class="small">用时 '+esc(row['seconds'])+'秒；自动核验不等于编辑合格。'
             +'<a href="'+esc(row['file'])+'">完整请求与响应</a></p></details>')
+
+    def layout_trial(case):
+        row=layout_rows.get(case['source_id'])
+        if not row or row['input_run_id']!=case['source_run_id']:return ''
+        final=ROOT/row['file'];meta=read(final.parent/'meta.json',{})
+        if (meta.get('fingerprints',{}).get('sha256')!=row['sha256']
+                or row['title']!=case['old_title'] or row['cover_title']!=case['old_cover']):
+            raise ValueError('Fixed-copy layout does not match the reviewed original')
+        return ('<details><summary>同文案横版对照 · '+esc(row['duration'])+'秒</summary>'
+            +player(os.path.relpath(final,OUT),os.path.relpath(ROOT/row['cover'],OUT),'固定标题、封面、字幕与音轨的横版重排')
+            +'<p>真人窗口扩大、取消持续占屏的红色标题栏。标题和封面没有重新生成，便于单独比较排版；不能把它算作新增出片。</p>'
+            +'<p class="small">完整音视频解码与六帧已检查。底栏字幕由原44px改为38px，手机阅读仍有取舍；素材原来的字幕用词和剪辑问题仍须处理，尚未认定整体追平。</p></details>')
 
     def actual(case):
         final=ROOT/case['final_file']
@@ -64,7 +97,7 @@ def build_all_output_review(reference_media, player):
         return (player(os.path.relpath(final,OUT),os.path.relpath(cover,OUT),label)
             +'<p class="copy-title">'+esc(case['old_title'])+'</p><p>实际封面字：'+esc(case['old_cover'])+'</p>'
             +'<p class="small">'+esc('现场核验帧' if meta.get('cover_person_image_source')=='verified_source_frame' else '人物资料照回退')
-            +('；'+esc(meta['cover_fallback_reason']) if meta.get('cover_fallback_reason') else '')+'</p>'+model_copy(case))
+            +('；'+esc(meta['cover_fallback_reason']) if meta.get('cover_fallback_reason') else '')+'</p>'+model_copy(case)+layout_trial(case))
 
     for ident in sorted(plans):
         plan=plans[ident]; cases=[r for r in corpus if r['source_id']==ident]
@@ -122,7 +155,8 @@ def build_all_output_review(reference_media, player):
         scope='All 26 frozen current outputs, including failed editorial versions; not all historical experiment artifacts',
         sources=len(plans),versions=len(corpus),rows=rows,
         review_scope='Full source transcript and actual cover inspection; earlier decode/frame/ASS evidence retained; full audio semantic review incomplete',
-        model_run_id=35881680084,model_results_imported=len(model_rows),quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
+        model_run_id=35881680084,model_results_imported=len(model_rows),
+        fixed_copy_layouts=list(layout_rows.values()),quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
     return ('<section id="all-outputs"><h2>全部成片逐条改：标题、封面与内容</h2>'
         '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个实际版本、22个素材编号。95与99仍为重复内容；同素材不同版本也不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。下方建议稿不是模型实测成绩，也尚未烧入视频；没有把它们算成编辑合格。</p>'
         '<p>18字以内不是必须凑满：能独立理解的个人选择可以更短。金句须有具体对象、真实态度和完整条件；强烈发言可以保留，不能改造出盈利保证。</p>'
