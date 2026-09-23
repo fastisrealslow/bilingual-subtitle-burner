@@ -4339,7 +4339,7 @@ def source_edge_text_exclusions(evidence):
     return result
 
 
-def selected_frame_logos(frame, directory, index):
+def selected_frame_logos(frame, directory, index, shot_local=False):
     """Inspect selected source shots, including logos missed in a long mother."""
     import cv2
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
@@ -4348,7 +4348,13 @@ def selected_frame_logos(frame, directory, index):
         raise VisualQualityError('选段来源角标抽帧失败')
     logos=detect_corner_logos_in_images([path],max_area=.04)
     evidence=json.loads((directory/'corner_ocr.json').read_text())['evidence']
-    return logos+source_edge_text_exclusions(evidence)
+    marks=logos+source_edge_text_exclusions(evidence)
+    if shot_local:
+        # A central backdrop follows the camera, unlike a global corner
+        # overlay. The tracker replaces these boxes on each detected cut.
+        from source_publisher_marks import central_publisher_rects
+        marks+=central_publisher_rects(evidence)
+    return marks
 
 
 def selected_segment_exclusions(src,start,duration,directory,initial=()):
@@ -5349,7 +5355,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 LOCAL_FACE_COSINE_THRESHOLD,
                 exclusions=source_marks,
                 overlay_probe=lambda frame,index:selected_frame_logos(
-                    frame,work/f'source-corners{suffix}{n}',index),
+                    frame,work/f'source-corners{suffix}{n}',index,shot_local=True),
                 context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
                 participant_reference=participant_reference,
                 reference_samples=[work/f'identity_{i}.jpg' for i in
