@@ -53,6 +53,27 @@ def emit(name,value):
         stream.write(f'{name}={value}\n')
 
 
+def mother_cache_key(choice, root=None):
+    """Key only the selected source and inference inputs, not other sources.
+
+    configuration() includes the global source_overrides dictionary. Hashing
+    that dictionary invalidated every unrelated mother whenever one source's
+    audio channel or incident-evidence location changed.
+    """
+    from audio_preprocessing import DEFAULT
+    root=Path(root) if root is not None else Path(__file__).parent
+    identity={key:choice[key] for key in ('source_sha256','backend','model_revisions')}
+    identity['audio_preprocessing']=choice.get('audio_preprocessing',DEFAULT)
+    digest=hashlib.sha256(json.dumps(identity,sort_keys=True).encode())
+    production=(root/'produce_cn.py').read_text()
+    version=re.search(r'^ASR_PIPELINE_VERSION\s*=\s*\d+',production,re.M)
+    if not version:raise ValueError('Missing ASR pipeline version')
+    digest.update(version.group(0).encode())
+    for name in ('qwen_cpu_transcript.py','qwen_asr_evidence.py','reviewed_asr_corrections.py'):
+        digest.update((root/name).read_bytes())
+    return choice['source_sha256']+'-'+digest.hexdigest()[:20]
+
+
 def cached_evidence(report_path,choice):
     from qwen_asr_evidence import load_reports
     directory=Path(report_path).parent/'qwen_cpu'
@@ -89,19 +110,11 @@ def main():
         emit('ASR_BACKEND',choice['backend'])
         # Cache recognition once per exact mother video, model and code. This
         # remains a hypothesis cache, never a substitute for editorial review.
-        digest=hashlib.sha256(json.dumps(choice,sort_keys=True).encode())
         # Rendering/editorial edits must not invalidate expensive recognition.
         # The cue-conversion version does invalidate the mother cue cache, but
         # still reuses immutable decoder/alignment evidence instead of decoding
         # the audio again. Other rendering/editorial edits stay out of this key.
-        production=(Path(__file__).parent/'produce_cn.py').read_text()
-        version=re.search(r'^ASR_PIPELINE_VERSION\s*=\s*\d+',production,re.M)
-        if not version:
-            raise ValueError('Missing ASR pipeline version')
-        digest.update(version.group(0).encode())
-        for name in ('qwen_cpu_transcript.py','qwen_asr_evidence.py','reviewed_asr_corrections.py'):
-            digest.update((Path(__file__).parent/name).read_bytes())
-        emit('MOTHER_ASR_KEY',choice['source_sha256']+'-'+digest.hexdigest()[:20])
+        emit('MOTHER_ASR_KEY',mother_cache_key(choice))
         print('CPU offline ASR backend:',choice['backend'])
         return
     if choice['backend']!='qwen3':return

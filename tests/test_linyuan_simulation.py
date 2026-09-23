@@ -101,8 +101,16 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert workflow['jobs']['simulate']['strategy']['max-parallel'] <= 12
     assert workflow['jobs']['simulate']['strategy']['fail-fast'] is False
     for forbidden in ('publish_bilibili', 'action-gh-release', 'workflow run', 'repository_dispatch',
-                      'git push', 'ALIBABA', 'ALICLOUD', 'actions/cache/save', 'actions/cache@'):
+                      'git push', 'ALIBABA', 'ALICLOUD', 'actions/cache@'):
         assert forbidden not in raw
+    # Simulation may retain source-bound ASR hypotheses in its own namespace.
+    # It must never populate the production mother-asr cache or other state.
+    saves=[s for s in workflow['jobs']['simulate']['steps']
+           if s.get('uses','').startswith('actions/cache/save')]
+    assert len(saves)==1
+    assert saves[0]['with']=={
+        'path':'linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}',
+        'key':'simulation-mother-asr-v1-${{ env.MOTHER_ASR_KEY }}'}
     for job in workflow['jobs'].values():
         assert 'permissions' not in job
         for step in job['steps']:
@@ -115,7 +123,7 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert render['env']['TEXT_BACKEND']=='local'
     assert render['env']['SOURCE_EDITORIAL_FIRST']=='true'
     assert 'simulate_sources.py run' in render['run']
-    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile'}
+    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile','recovery_run_id'}
     assert workflow['on']['workflow_call']['inputs']['visual_chapters']==dict(type='boolean',required=False,default=False)
     assert workflow['on']['workflow_call']['inputs']['text_model']['default']=='qwen3:8b'
     assert workflow['on']['workflow_call']['inputs']['title_draft_profile']['default']=='production'

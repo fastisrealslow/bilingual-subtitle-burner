@@ -144,7 +144,10 @@ def latest_library():
                       ('identity_gallery_trial','同源姿态核验后恢复312完整视频'),
                       ('spoken_focus_trial','先选观点的8B／9B标题实验'),('ordered_focus_trial','修正实际生成顺序后的复验'),
                       ('source_choices_trial','每个候选独立选择原文观点'),('publisher_source_trial','凤凰网新源实际验收'),
-                      ('stage_border_trial','舞台裁边恢复与已有成片回归')]:
+                      ('stage_border_trial','舞台裁边恢复与已有成片回归'),
+                      ('short_title_trial','完整短句与数字限定的实际结果'),
+                      ('channel_trial','311原声修复：听同一个片段'),
+                      ('sep23_full100_trial','9月23日固定100条完整复验')]:
         row=review.get(key)
         if row:
             body+='<h3>'+label+'</h3><p>'+esc(row['note'])+'</p><p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(row['run_id'])+'">查看运行</a> · '+esc(row['status'])+'</p>'
@@ -155,6 +158,15 @@ def latest_library():
                 body+='<div class="grid">'
                 for result in row['rows']:
                     body+='<article><h4>'+esc(result['case'])+' · '+esc(result['model'])+'</h4><p>'+esc(result['title'])+'<br>封面：'+esc(result['cover'])+'</p><p class="warning">'+esc(result['review_note'])+'</p><p class="small">'+esc(result['seconds'])+'秒；纯文本实验，不计成片率。</p></article>'
+                body+='</div>'
+            if row.get('audio_pairs'):
+                body+='<div class="grid">'
+                for pair in row['audio_pairs']:
+                    body+='<article><h4>原片 '+esc(pair['start'])+' 秒起 · 18秒对照</h4>'
+                    for key,label in [('mono','原混合单声道'),('left','保留原始左声道')]:
+                        clip=pair[key]
+                        body+='<p>'+label+'</p><audio controls preload="none" src="'+esc(clip['file'])+'" style="width:100%"></audio><p class="small">机器转写：'+esc(clip['text'])+'</p>'
+                    body+='</article>'
                 body+='</div>'
     layout=review.get('cover_layout_trial')
     if layout:

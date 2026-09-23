@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-23T07:50:51.894409+00:00",
+  "checked_at": "2026-09-23T08:11:03.650289+00:00",
   "run_id": "35682602969",
   "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
   "baseline_run": "35548212133",
@@ -1445,7 +1445,7 @@
     "editorial_approved": false,
     "note": "实际MP4保住听说与未研究的限定，但“因、且、故”式封面生硬；仅一条实片，不并入固定100，不证明9B全面胜出。"
   },
-  "current_fix_sha": "c8fc232e280a7121cf83ca896215d6c409978e11",
+  "current_fix_sha": "de8e37d2a96570b55c9f365c5a205f7800c68ad4",
   "current_trials": {
     "text": "35819873471",
     "video": "35819873928"
@@ -2036,6 +2036,123 @@
     "run_id": "35833029578",
     "tested_sha": "145043d5e85609f1ab6f5cf88d197f99dc55d42b",
     "status": "in_progress",
-    "note": "315两段实际因持续黑边拒绝；已接入裁边预检并保护真人、投影身份和动作区域，另跑68已有舞台成片回归。尚未回传成功视频。"
+    "note": "68已实际生成250.4秒完整舞台片，原生裁边未损伤已有舞台路径；315仍在运行。68选中了另一章节，保留分段与标题差异，不宣称同一剪辑质量提升。",
+    "media": [
+      {
+        "id": 68,
+        "title": "林园：医疗行业确定性高，未来二十年发展大",
+        "cover_title": "医疗行业确定性高",
+        "sha256": "451c9cb46f628d36e7aa056165a5125e1020679f563211739a42e6b98fc1a505",
+        "source_sha256": "81833e8aa7224716bd682b91e486ffcab5f4f2f4dc6fc00f8d523b08c59067dd",
+        "duration": 250.4,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "stage-border-35833029578/simulation-media-sim-0916-068-4b4c30/final_2.mp4",
+        "poster": "stage-border-35833029578/simulation-media-sim-0916-068-4b4c30/cover_2.jpg",
+        "note": "68仍可出片，裁边保持640×296原画及舞台身份关系。首段标题待重试后改选250.4秒另一章节，不能称同一114秒片的质量提升；标题仍概括，转写有口吃。已完整解码、查看6帧及全部字幕，未编辑放行。"
+      }
+    ]
+  },
+  "short_title_trial": {
+    "run_id": "35833966809",
+    "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
+    "status": "completed",
+    "note": "79标题改为我们锁定医药赛道，别的不搞，避免了此前五亿老人缺年份的错误；17和68暴露最后一处长度检查不一致。最新de8e37d已修复，尚未回传稳定性结果。",
+    "rows": [
+      {
+        "case": "source100-17",
+        "model": "qwen3:8b",
+        "title": "未生成",
+        "cover": "—",
+        "seconds": 653.13,
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-short-35833966809/source-choices-8b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json",
+        "review_note": "草稿进入了后续流程，却被最终生产入口遗留的12字门槛挡回；已补齐最终入口并增加贯穿测试，另跑复验。"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3:8b",
+        "title": "未生成",
+        "cover": "—",
+        "seconds": 538.16,
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-short-35833966809/source-choices-8b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json",
+        "review_note": "草稿进入了后续流程，却被最终生产入口遗留的12字门槛挡回；已补齐最终入口并增加贯穿测试，另跑复验。"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3:8b",
+        "title": "林园：我们锁定医药赛道，别的不搞",
+        "cover": "我们锁定医药赛道，别的不搞",
+        "seconds": 692.73,
+        "editorial_approved": false,
+        "planning_order_verified": true,
+        "raw_file": "title-short-35833966809/source-choices-8b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json",
+        "review_note": "抓到嘉宾具体选择，原文支持锁定医药与别的不搞，比人口行业总结更鲜明。仅本次文本结果，尚未证明重复稳定或视频质量。"
+      }
+    ]
+  },
+  "channel_trial": {
+    "run_id": "35834704672",
+    "tested_sha": "940086de25804f380650d5138a2259c91bcc14a4",
+    "status": "diagnostic_complete_recovery_pending",
+    "note": "Action逐字节核对同一失败母片，再比较同三个窗口。原左右声道反相，混音损伤语音；保留左声道后机器转写恢复连贯问答。可以直接听原声差异。只确认输入问题与修复方向，不把三段识别当完整出片成功，也不据此自动更改字幕。",
+    "audio_pairs": [
+      {
+        "start": 240,
+        "mono": {
+          "text": "当时我们会在街上买几场，以及我们去的，在当时有一个社区，因为是一个啊，社区的社区，所以也有嘛，一些社区的朋友们可以在社区里面。",
+          "file": "channel311-35834704672/240-mono.wav",
+          "pcm_sha256": "8383b60a2258eac3848be3a4efde39779088e780806e9a77cbeecae4b51385a0"
+        },
+        "left": {
+          "text": "几百倍的钱。当时您就在接受媒体采访的时候就说：“这个在当时也比较正常。”那您觉得，呃，像这种是时代的产物吗？就是说，现在还有没有可能再出现这样的神话？呃，应该不不会了。那说是他做供求关系。",
+          "file": "channel311-35834704672/240-left.wav",
+          "pcm_sha256": "adb1137d54868f92724e9c1335d9b1aca1c78164f430b881128af2254d9d3187"
+        }
+      },
+      {
+        "start": 1198,
+        "mono": {
+          "text": "是爸爸的，是爸爸的，是爸爸的，是爸爸的，是爸爸的，是爸爸的，是爸爸的。不是，不是，不是，不是，不是，不是，不是，不是。不是，不是，不是，不是，不是，不是，不是，不是，不是。不是。",
+          "file": "channel311-35834704672/1198-mono.wav",
+          "pcm_sha256": "06a8ad75a4d2586bfa71542378e1b72616a2a0b5c41913dd9008dc70f1392da3"
+        },
+        "left": {
+          "text": "媒体报道的事实：谁说我骗了他们？就是看到一些媒体报道说的，投资人。我的投资人都是都是，都是认识我的，极个别的不认识我，都认识我。您最长的一个投资人跟您一起多少年了？最长的投资人。",
+          "file": "channel311-35834704672/1198-left.wav",
+          "pcm_sha256": "35d84313b54083a7aa22c550447ce1ce46d9d852cf3f9442bb9adfdef0aea74f"
+        }
+      },
+      {
+        "start": 2156,
+        "mono": {
+          "text": "成为了历史。我也曾经对历史有些失望，就可能开始对历史的了解，因为对历史渴望，就可能开始对历史产生过一种崇高的追求，但是后来。",
+          "file": "channel311-35834704672/2156-mono.wav",
+          "pcm_sha256": "0d975dcdf780ad2365a6a418c230671bad6a9e53f7484aeadaa4e301bbda4a2e"
+        },
+        "left": {
+          "text": "他的朋友都是做投资的吗？对，都做投资。我觉得你是天生本来对投投资是比较有兴趣。嗯。就可能真的是不是因为，不是因为你非常渴望，就是能够赚到很多钱，然后才做投资。可能刚开始的动机是这个，但是后来。",
+          "file": "channel311-35834704672/2156-left.wav",
+          "pcm_sha256": "cc39a9a539f28dbe8dbc4222afc0fff62523cb232de9bb6736785e7a2906defa"
+        }
+      }
+    ]
+  },
+  "sep23_full100_trial": {
+    "run_id": "35833967072",
+    "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
+    "status": "in_progress",
+    "denominator": 100,
+    "received": 16,
+    "counts": {
+      "passed": 1,
+      "rejected": 15,
+      "unresolved": 0
+    },
+    "pending": 84,
+    "note": "已回传16/100条：1通过、15拒绝、0未确定。尚未完成，不能拿已返回子集比例作为最终成片率。发布历史快照与原基线相同；逐条还需核对源文件SHA。该轮87a0099不含随后de8e37d的最终短句入口修复。"
   }
 }
