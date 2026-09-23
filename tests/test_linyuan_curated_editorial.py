@@ -66,3 +66,31 @@ def test_reviewed_argument_is_bound_to_exact_corrected_transcript(monkeypatch,tm
     pick['editorial_review']={**review,'transcript_sha256':'stale'}
     with pytest.raises(production.VisualQualityError,match='不匹配'):
         production.review_complete_argument(cues,[pick],'林园','',tmp_path/'stale','')
+
+
+def test_actual_documentary_keeps_one_continuous_guest_argument(monkeypatch):
+    import curated_editorial as curated
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_source42_documentary.json').read_text())
+    cues=fixture['cues'];before=json.dumps(cues,ensure_ascii=False)
+    monkeypatch.setattr(curated.editorial,'MIN_SECONDS',20.)
+    a,b,picks=curated.source_ranges(cues,fixture['source_sha256'])[0]
+    assert (cues[a]['start'],cues[b]['end'])==(119.56,149.56)
+    assert len(picks)==1 and (picks[0]['start'],picks[0]['end'])==(0,b-a)
+    assert '我有定价权' in ''.join(c['text'] for c in cues[a:b+1])
+    assert not any('林源' in c['text'] for c in cues[a:b+1])
+    assert 'editorial_review' not in picks[0] or picks[0]['editorial_review'] is None
+    assert json.dumps(cues,ensure_ascii=False)==before
+    assert curated.source_ranges(cues,'different_source') is None
+    monkeypatch.setattr(curated.editorial,'MIN_SECONDS',120.)
+    with pytest.raises(ValueError,match='duration or sentence boundary'):
+        curated.source_ranges(cues,fixture['source_sha256'])
+
+
+def test_short_curated_range_still_obeys_shared_floor(monkeypatch,tmp_path):
+    import curated_editorial as curated
+    monkeypatch.setattr(curated.editorial,'MIN_SECONDS',20.)
+    path=tmp_path/'profile.json'
+    path.write_text(json.dumps({'sources':{'source':[dict(start=1,end=20,
+        opening='独立话题',ending='完整结论',topic='讨论')]}}))
+    with pytest.raises(ValueError,match='duration or sentence boundary'):
+        curated.source_ranges([dict(start=1,end=20,text='独立话题完整结论。')],'source',path)
