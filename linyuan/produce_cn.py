@@ -5876,6 +5876,14 @@ def main():
                          ensure_ascii=False), file=sys.stderr)
         return 2
 
+    from reviewed_source_context import context_for
+    source_context = context_for(source_report.get('source_sha256'))
+    if source_context:
+        # An upload title is not evidence that a historical speech happened today.
+        # Preserve the original supplied occasion separately for audit.
+        source_context['supplied_occasion'] = args.occasion
+        args.occasion = source_context['occasion']
+
     resolution = source_report["resolution"]
     W, H = int(resolution["width"]), int(resolution["height"])
     clean_resolution = source_report.get("clean_output_resolution") or resolution
@@ -6028,6 +6036,7 @@ def main():
     def checkpoint():
         rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
                  "occasion": args.occasion, **m,
+                 **({'source_context': source_context} if source_context else {}),
                  "quality_gate_version": QUALITY_GATE_VERSION,
                  "source_sha256": source_report.get('source_sha256'),
                  "source_platform": platform,

@@ -115,3 +115,21 @@ def test_original_caption_confirms_investment_firm_without_global_name_replaceme
     assert apply_reviewed_corrections(words,'unrelated-mother')==(words,[])
     shifted=[{**w,'start':w['start']+100,'end':w['end']+100} for w in words]
     assert apply_reviewed_corrections(shifted,source)==(shifted,[])
+
+
+@pytest.mark.parametrize('source,start,before,after',[
+    ('312d4ce3bdcd58f11cacbe70fdb9e3992d5d9b66ddebf459e65c0dc8203fe710',157.,'十个子头能赌出来的','十个指头能数出来的'),
+    ('64fa677c6235f9121dc444b0d432990e1b49e3fb69cc0d590f851a93c88dea6b',180.,'这是个打击','这是个大机会'),
+    ('64fa677c6235f9121dc444b0d432990e1b49e3fb69cc0d590f851a93c88dea6b',191.,'P一','PE'),
+])
+def test_additional_original_captions_correct_only_verified_source_and_interval(source,start,before,after):
+    from reviewed_asr_corrections import apply_reviewed_corrections
+    words=[dict(text=c,start=start+i*.12,end=start+(i+1)*.12) for i,c in enumerate(before)]
+    fixed,proof=apply_reviewed_corrections(words,source)
+    assert ''.join(w['text'] for w in fixed)==after
+    assert fixed[0]['start']==words[0]['start'] and fixed[-1]['end']==words[-1]['end']
+    assert ''.join(w['text'] for w in words)==before
+    assert len(proof)==1
+    assert apply_reviewed_corrections(words,'different-source')==(words,[])
+    shifted=[{**w,'start':w['start']+30,'end':w['end']+30} for w in words]
+    assert apply_reviewed_corrections(shifted,source)==(shifted,[])

@@ -200,6 +200,33 @@ def focused_failure_trials(row):
     return ''.join(panels)
 
 
+def production_default_retest(row, player):
+    folder=OUT/'all-finals-regression-35921175272'
+    commit='0fba8b2bf03c59cf67b3690128b0072080ddae52'
+    notes=read(RECORDS/'all-finals-default-review.json',{})
+    reports=[read(p,{}) for p in folder.glob('simulation-report-*/report.json')]
+    report=next((r for r in reports if r['sample']['id']==row['id']),None)
+    if not report:return ''
+    if (str(report.get('run_id'))!='35921175272' or report.get('tested_sha')!=commit
+            or report.get('source_sha256') not in (None,'',row['source_sha256'])):
+        raise ValueError('Default regression is not bound to the same mother')
+    result='<p><b>最新生产默认复验 · 原来已出片的全部17个素材</b></p>'
+    if report['status']!='passed':
+        reasons=[r.get('reason','') for r in (report.get('batch') or {}).get('rejected',[])]
+        return result+'<p class="warning">本条本轮未出片：'+esc('；'.join(reasons) or report.get('stage',''))+'</p>'
+    actual=next((r for r in read(folder/'media-verification.json',[]) if r['id']==row['id']
+                 and r.get('video_audio_full_decode')),None)
+    if not actual:return result+'<p>报告通过，实际媒体尚待完整解码；暂不放空播放器。</p>'
+    if actual['tested_sha']!=commit or actual['source_sha256']!=row['source_sha256']:
+        raise ValueError('Default regression media belongs to another version')
+    cover=ROOT/actual['cover'];key=actual['sha256']+':'+hashlib.sha256(cover.read_bytes()).hexdigest()
+    return (result+player(os.path.relpath(ROOT/actual['file'],OUT),os.path.relpath(cover,OUT),
+        f"生产默认完整实片 · {actual['duration']:.1f}秒")
+        +'<p>实际标题：'+esc(actual['title'])+'</p><p>实际封面字：'+esc(actual['cover_title'])+'</p>'
+        +'<p>'+esc(notes.get(key,'新文件已解码，尚未完成本稿编辑复核；不能算质量通过。'))+'</p>'
+        +'<p class="small">运行35921175272，代码0fba8b2；这是17个既有成功素材的回归，不是17条新素材，也不并入冻结100条成绩。</p>')
+
+
 def section(reference_media, player):
     summary = read(RESULTS / 'local-summary.json', {})
     status = read(RESULTS.parent / 'run-status.json', {})
@@ -234,6 +261,7 @@ def section(reference_media, player):
                 current.append('<p>媒体尚未核验通过：'+esc(row.get('verification_error', '待下载'))+'</p>')
                 continue
             folder = (ROOT / row['file']).parent
+            current.append(production_default_retest(row, player))
             revision = focused_revision(row, player)
             if revision:
                 current.append(revision)
@@ -341,6 +369,11 @@ def section(reference_media, player):
         '<p>一条素材可能有多个候选失败，原因不可相加当失败素材总数。标题失败与画面、下载失败分开查看。</p>'
         '<div class="table-scroll"><table><thead><tr><th>编号</th><th>原素材</th><th>状态</th><th>实际报告</th></tr>'
         '</thead><tbody>'+''.join(status_rows)+'</tbody></table></div></details>')
+    retest=read(OUT/'all-finals-regression-35921175272/regression-summary.json',{})
+    regression_status=('<p><b>后续最新生产默认：</b>原来已出片的全部17个素材重新运行；目前报告 '
+        +str(retest.get('reports',0))+'/17，自动出片 '+str(retest.get('passed',0))+'，拒绝 '
+        +str(retest.get('rejected',0))+'，未确定 '+str(retest.get('unresolved',0))+'，报告待返回 '
+        +str(retest.get('pending',17))+'。单独验证新版是否丢片，不用这个有意挑选的17条计算整体素材成功率。</p>')
     return ('<section id="final-batch"><h2>冻结候选：完整100条的最终复验</h2>'
         '<p class="note">代码固定为 bfd29f6；'+esc(state)+'。报告已取回 '+str(returned)+'/'+str(total)
         +'，自动出片 '+str(summary.get('passed', 0))+'/'+str(total)+'，拒绝 '+str(summary.get('rejected', 0))
@@ -349,7 +382,7 @@ def section(reference_media, player):
         +'<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+RUN+'">查看本轮 Actions</a></p>'
         '<p>实际媒体已完整解码 '+str(decoded)+' 份，按现有规则去重 '+str(unique)+' 组；本稿编辑观察已记录 '
         +str(reviewed)+' 份。这轮单独统计，之前的定向改稿、横竖重排和本地字幕预览不计入。</p>'
-        +comparison+diagnostics
+        +comparison+regression_status+diagnostics
         +'<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35907787202">另开的8B与14B标题对照</a>：使用本轮7、8号实片的同一原始字幕，比较原流程和额外事实范围检查；全部结果返回后逐份记录，不默认切换生产模型，也不计新增出片。</p>'
         +('<p>尚未取回本轮成片。下方“各轮实片与改稿”保留可播放的已有结果，并标明各自版本。</p>' if not cards else '')
         +''.join(cards)+'</section>')
