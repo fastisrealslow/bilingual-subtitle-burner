@@ -77,10 +77,19 @@ def latest_results():
     if not path.exists():return ''
     d=json.loads(path.read_text());r=d['trial9b']
     link=lambda run:'https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+str(run)
-    body='<section id="latest-results"><h2>9月23日复核：数量改善，质量尚不能判优</h2>'
-    body+='<p>同一固定100条：主线11自动出片／87拒绝／2未确定；最新整轮17／79／4。17份MP4均已核对哈希和完整解码，按现有去重规则仍是17份。编辑通过率尚未测定，目标30%未达成。</p>'
-    body+='<p>严格同母片且两边完成判定的88对里：新增自动出片7、两边均出片10、两边均拒绝71。新增含误放行；另11条缺少可比母片哈希、1条运行未确定。主线有片的49号本轮缺报告，不算配对回退，也不能忽略其运行失败。</p>'
-    body+='<p><a href="'+link(d['run_id'])+'">固定100完整运行</a> · <a href="../../linyuan/simulations/benchmark-20260921/sep23-review.json">逐条核查记录</a> · <a href="#threeway">三列实片与问题</a></p>'
+    body='<section id="latest-results"><h2>9月23日复核：技术出片增加，新增6条仍需编辑</h2>'
+    current=d['sep23_full100_trial'];counts=current['counts']
+    body+='<p>最新完整100条：'+str(counts['passed'])+'技术通过／'+str(counts['rejected'])+'拒绝／'+str(counts['unresolved'])+'未确定；主线固定版本复跑11／87／2。17份视频按现有规则去重为16组内容。目标30%未达到，技术出片不等于编辑合格。</p>'
+    body+='<p>严格同母片且结果明确的86对：6新增、11双方通过、69双方拒绝、0技术回退；其余14条不计配对胜负。</p><p><a href="'+link(current['run_id'])+'">最新完整100条运行</a> · <a href="#threeway">三列实片与问题</a></p>'
+    six_path=RECORDS/'additional-six-review-20260923.json'
+    if six_path.exists():
+        six=json.loads(six_path.read_text())
+        body+='<div id="six-gains"><h3>新增6条到底是什么质量？</h3><p class="warning">'+esc(six['conclusion'])+'目前没有一条获准直接发布；13主要需改文案，其余有语义、选段或重复问题。</p><div class="table-scroll"><table><thead><tr><th>素材／长度</th><th>实际标题</th><th>判断</th><th>问题与修改方向</th></tr></thead><tbody>'
+        for item in six['rows']:
+            media='../'+item['file'].removeprefix('output/')
+            body+='<tr><td><a href="'+esc(media)+'">'+str(item['id'])+'／'+str(round(item['duration'],1))+'秒</a></td><td>'+esc(item['title'])+'</td><td>'+esc(item['verdict'])+'</td><td>'+esc(item['problem'])+'<br>'+esc(item['next_action'])+'</td></tr>'
+        body+='</tbody></table></div><p class="small">六帧和全部实际字幕已逐条核对；尚未完成逐秒听音。此表针对87a0099实片，不沿用旧版本的缺陷结论。</p></div>'
+    body+='<details><summary>较早06815b4批次：单独保留历史结果</summary><p>旧批次17通过／79拒绝／4未确定，17组去重内容；严格配对88条中7新增、10双方通过、71双方拒绝。49旧批次缺报告。不能与上面新整轮的6新增混算。</p><a href="'+link(d['run_id'])+'">历史完整运行</a></details>'
     body+='<h3>单独9B Action的真实成片</h3><p>'+esc(r['note'])+'</p>'
     body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(r['file'])+'" poster="'+esc(r['poster'])+'"></video><button type="button">播放视频</button> <a href="'+esc(r['file'])+'" target="_blank" rel="noopener">单独打开视频</a> · <a href="'+esc(r['file'])+'" download>下载视频</a><p class="small" role="status" aria-live="polite"></p></div>'
     body+='<p>实际标题：'+esc(r['title'])+'<br>封面：'+esc(r['cover'])+'</p><p><a href="'+link(r['run_id'])+'">9B完整生产流程</a> · 固定代码 '+esc(r['tested_sha'][:7])+' · 20.89秒</p>'

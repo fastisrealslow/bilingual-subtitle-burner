@@ -49,7 +49,7 @@ def sections(player):
               'candidate100':'稳定性修复 · 固定100（cc5113b）',
               'latest100':'前轮复验 · 固定100（e93fa87）',
               'sep23':'已收齐 · 固定100（06815b4）',
-              'sep23_full100':'9月23日复验 · 固定100（含待返回）',
+              'sep23_full100':'9月23日复验 · 固定100（已收齐）',
               'sep23_library17':'新发现17条 · 首次验收'}
     batchrows = []
     charts = []
