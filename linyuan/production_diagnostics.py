@@ -20,7 +20,7 @@ def failure_category(reason):
         ('cloud_account_billing', ('Current user is in debt', '账户欠费', 'Account in debt')),
         ('service_or_timeout', ('不可用', '时间预算', '生产预算', 'timeout', 'Timeout',
                                 'HTTP Error', '工作流步骤失败', 'LLM 调用')),
-        ('identity', ('人物不一致', '人物身份', '未找到与林园参考照匹配')),
+        ('identity', ('人物不一致', '人物身份', '未找到与林园参考照匹配', '发言归属', '其他嘉宾')),
         ('resolution', ('短边', '清晰度')),
         ('framing', ('取景', '角标', '原画', '人脸', '水印', '黑边', '黑色填充边')),
         ('selection', ('连续候选', '120秒', '完整观点', '选段')),

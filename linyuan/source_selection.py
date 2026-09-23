@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 36
+VERSION = 37
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -97,6 +97,8 @@ OUTRO = re.compile(
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
 HOST_BRIDGE = re.compile(
+    r'总结来看[^。！？!?]{0,24}(?:两位|几位|各位)(?:两位|几位|的|这个|[，,])*嘉宾'
+    r'|'
     r'^(?:啊[，,]?|嗯[，,]?|那|好(?:的|了)?[，,]?)*'
     r'(?:感谢林总|谢谢林总|林总(?:也|是|阐述|提到)|小林总也是|您时刻提醒我们)'
     r'|^我们都知道林总|^(?:我看|看)(?:你|您)之前(?:也有|有|说)'
@@ -270,6 +272,9 @@ def boundary_error(cues,pick):
     preamble alone cannot supply the missing seconds of the preceding answer.
     This is a structural check, not a claimed semantic-model approval.
     """
+    from speaker_attribution import selection_error
+    attribution_error=selection_error(cues,pick)
+    if attribution_error:return attribution_error
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
     if declared_investment_sections(units,selected):
@@ -306,11 +311,21 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     # conclusion into the next question. That mixed unit cannot end a clip.
     leadin=re.compile(r'采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)|^'+HOST_RECAP)
     question_starts=list(starts)
+    from speaker_attribution import named_handoffs
+    handoff_cues={row['cue'] for row in named_handoffs([c['text'] for c in cues])}
     for k,q in enumerate(question_starts):
         lower=(question_starts[k-1]+1 if k else 0)
         for t in range(max(lower,q-3),q):
             if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
                 starts[k]=t;break
+        # Keep the named hand-off's premise with its actual question. Real
+        # source8 says 林总之前...四千五百点 before asking 您的这个观点...;
+        # starting at that second sentence loses the numerical premise.
+        named=[t for t in range(max(lower,q-3),q+1)
+               if any(units[t]['start']<=c<=units[t]['end'] for c in handoff_cues)
+               and cues[units[q]['start']]['start']-cues[units[t]['start']]['start']<=30
+               and not any(question_unit(units[j]['text']) for j in range(t,q))]
+        if named:starts[k]=min(starts[k],max(named))
     investment_sections=declared_investment_sections(units,cues) if editorial.CONTENT_POLICY=='reference_v1' else []
     transitions=sorted(set(investment_sections+[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     options=[]
@@ -364,8 +379,9 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
             reject('question_answer',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_330');continue
-        if boundary_error(cues,dict(start=a,end=b)):
-            reject('question_answer',a,b,'incomplete_boundary');continue
+        boundary_issue=boundary_error(cues,dict(start=a,end=b))
+        if boundary_issue:
+            reject('question_answer',a,b,boundary_issue);continue
         text=''.join(c['text'] for c in cues[a:b+1])
         if editorial.transcript_integrity_error(text):
             reject('question_answer',a,b,'transcript_integrity');continue

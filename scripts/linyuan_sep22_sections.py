@@ -169,6 +169,9 @@ def latest_library():
                         body+='<p>'+label+'</p><audio controls preload="none" src="'+esc(clip['file'])+'" style="width:100%"></audio><p class="small">机器转写：'+esc(clip['text'])+'</p>'
                     body+='</article>'
                 body+='</div>'
+    attribution=review.get('multi_guest_finding')
+    if attribution:
+        body+='<h3>素材8：人物在画面中，不代表这段原声属于他</h3><p class="warning">'+esc(attribution['note'])+'</p>'
     layout=review.get('cover_layout_trial')
     if layout:
         body+='<h3>308封面断句：保留完整谓语</h3><p>'+esc(layout['note'])+'</p><div class="grid">'

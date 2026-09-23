@@ -17,6 +17,7 @@ on:
       - linyuan/stage_context.py
       - linyuan/title_rewrite.py
       - linyuan/title_quantity_context.py
+      - linyuan/speaker_attribution.py
       - linyuan/source_priority.py
       - linyuan/production_diagnostics.py
       - linyuan/headline_policy.py
@@ -42,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           cd linyuan/fc
-          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../stage_context.py ../title_rewrite.py ../title_quantity_context.py ../headline_policy.py ../editorial_policy.py ../source_priority.py ../production_diagnostics.py media_repair.py stage_revision.py title_revision.py reviewed_updates.py reviewed_third_video.py
+          zip -j "$RUNNER_TEMP/fc-code.zip" index.py ../stage_context.py ../title_rewrite.py ../title_quantity_context.py ../speaker_attribution.py ../headline_policy.py ../editorial_policy.py ../source_priority.py ../production_diagnostics.py media_repair.py stage_revision.py title_revision.py reviewed_updates.py reviewed_third_video.py
           zip -r "$RUNNER_TEMP/fc-code.zip" reviewed_0910
           unzip -l "$RUNNER_TEMP/fc-code.zip"
 

@@ -3493,7 +3493,8 @@ def _copy_style_identity(speaker):
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
                 title_draft_profile_sha256=_sha256_file(Path(__file__).with_name('title_draft_profiles.py')),
-                title_quantity_context_sha256=_sha256_file(Path(__file__).with_name('title_quantity_context.py')))
+                title_quantity_context_sha256=_sha256_file(Path(__file__).with_name('title_quantity_context.py')),
+                speaker_attribution_sha256=_sha256_file(Path(__file__).with_name('speaker_attribution.py')))
 
 
 def _title_style_prompt(prompt, schema, speaker):

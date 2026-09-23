@@ -148,11 +148,12 @@ def bind_reading(reading, units):
     return roles
 
 
-def guest_evidence_ids(units, roles):
+def guest_evidence_ids(units, roles, speaker='林园'):
     # The 818 real draft repeatedly selected short ASR cues, then failed the
     # unchanged eight-character evidence check. Do not offer impossible IDs to
     # the model; retain every short cue in the full reading/review context.
-    blocked=explicit_host_cues(units)
+    from speaker_attribution import other_guest_indices
+    blocked=explicit_host_cues(units) | other_guest_indices(units,speaker)
     return [i for i,role in enumerate(roles)
             if role=='guest' and i not in blocked and len(compact(units[i]))>=8]
 
@@ -163,7 +164,8 @@ def explicit_host_cues(units):
         r'|我可以这么理解|(?:林总|林园总|林远总).*(?:理解|请问|如何|怎么看)'
         r'|您的(?:过往|观点|意思)|我(?:也|大概|简单|来|再|先|这么|那我)*(?:听懂|听明白|理解|总结)'
         r'|这样理解|(?:接着|再).*问|话题.*告一段')
-    blocked=set();host=False;recap=False
+    from speaker_attribution import named_handoffs
+    blocked={turn['cue'] for turn in named_handoffs(units)};host=False;recap=False
     for i,text in enumerate(units):
         body=compact(text)
         # Actual library314: this host recap was selected as guest evidence.
@@ -626,6 +628,9 @@ def research_scope_error(title, cover, transcript):
 
 
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
+    from speaker_attribution import other_guest_indices
+    if other_guest_indices([transcript],speaker):
+        return '片段包含指名其他嘉宾的轮次，不能把多位嘉宾的原声统一归给主讲人'
     title, cover = item.get('title'), item.get('cover_title')
     if not isinstance(title, str) or not title.startswith(speaker + '：'):
         return '标题缺少主讲人前缀'
@@ -765,6 +770,9 @@ def _package(item, transcript, review, candidates):
 def _extractive(transcript, speaker, existing_titles, preferred=None, guest_passages=None):
     from headline_policy import title_candidates, body, cover_copy, complete
     # Never stitch across a host turn or pick a host's more fluent question.
+    from speaker_attribution import other_guest_indices
+    if guest_passages is None and other_guest_indices([transcript],speaker):
+        raise ValueError('包含明确指名其他嘉宾的回答，不能用全文摘句归给主讲人')
     passages = [transcript] if guest_passages is None else guest_passages
     titles = [title for passage in passages
               for title in title_candidates(passage, speaker, existing_titles)]
@@ -834,9 +842,10 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
-    host_ids=sorted(explicit_host_cues(units))
+    from speaker_attribution import other_guest_indices
+    host_ids=sorted(explicit_host_cues(units) | other_guest_indices(units,speaker))
     reader_prompt=f'''只做访谈原文阅读，不拟标题，不比较吸引力。主讲嘉宾是{speaker}。
-根据明确的第二人称提问、主持人复述及紧接的问句上下文，以下编号不能归为嘉宾回答：{host_ids}。
+根据明确的提问、主持人复述与指名其他嘉宾的轮次，以下编号不能归为{speaker}回答：{host_ids}。
 这些只是排除项；其余编号的说话人仍须通读全文判断，不能自动视为嘉宾。
 先通读全部字幕，找主持人的完整问题和嘉宾实际回复。主持人提问前的背景、假设、举例仍属于主持人；嘉宾短答不等于确认问题全部前提。
 同一人的连续讲话是一个轮次，不能因为换了一条字幕或出现问号就换说话人。字幕标点可能不准，必须连贯理解上下文。
@@ -855,7 +864,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             return _extractive(transcript, speaker, existing_titles, preferred)
         if reading is None or roles is None:
             raise ValueError('未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试')
-        blocked = explicit_host_cues(units)
+        from speaker_attribution import other_guest_indices
+        blocked = explicit_host_cues(units) | other_guest_indices(units,speaker)
         passages=[]; current=[]
         for i, unit in enumerate(units):
             if roles[i] == 'guest' and i not in blocked:
@@ -902,7 +912,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 reading_repair_note=''
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
-            guest_ids=guest_evidence_ids(units,roles) if structured_model else []
+            guest_ids=guest_evidence_ids(units,roles,speaker) if structured_model else []
             if structured_model and not guest_ids:
                 reading=None
                 raise ValueError('嘉宾回答中没有达到原文证据长度的条目，不能选主持人或短语凑证据')
@@ -1087,6 +1097,9 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
 
 
 def error(title, proof, transcript=None, speaker='林园'):
+    from speaker_attribution import other_guest_indices
+    if transcript and other_guest_indices([transcript],speaker):
+        return '标题原文包含指名其他嘉宾的轮次，须重新核对发言归属'
     if (not isinstance(proof, dict) or proof.get('version') != VERSION
             or proof.get('kind') != 'editorial_claim' or summary_heading(title)):
         return '标题需重新提炼具体观点，不能使用旧的关键词拼盘'
