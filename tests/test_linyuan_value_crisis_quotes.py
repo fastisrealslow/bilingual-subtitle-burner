@@ -36,3 +36,8 @@ def test_personal_predicate_requires_a_complete_subject_and_object():
     assert complete('我们拒绝诱惑')
     for fragment in ('我喜欢','我喜欢的人','喜欢危机','我喜欢这些','我喜欢什么'):
         assert not complete(fragment)
+
+
+def test_actual_old_model_approval_cannot_bypass_crisis_meaning_check():
+    case=json.loads((ROOT/'tests/fixtures/linyuan_crisis_title_regression.json').read_text())
+    assert '不能为制造反差' in T.error(case['title'],case['proof'],case['transcript'])
