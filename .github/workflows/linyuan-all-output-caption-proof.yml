@@ -71,7 +71,7 @@ jobs:
           if [[ "$SOURCE_URL" == https://www.bilibili.com/video/BV* ]]; then
             python ci_fetch_bilibili.py --url "$SOURCE_URL" --out _src/video.mp4 --budget-seconds 600
           else
-            python ci_fetch_generic.py --url "$SOURCE_URL" --directory _src --failure-report caption-proof/fetch-failure.json
+            python ci_fetch_generic.py --url "$SOURCE_URL" --directory _src --github-output "$GITHUB_OUTPUT" --failure-report caption-proof/fetch-failure.json
           fi
       - name: 哈希一致才提取原字幕画面
         run: |

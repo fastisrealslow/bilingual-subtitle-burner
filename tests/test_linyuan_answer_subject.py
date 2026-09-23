@@ -11,12 +11,12 @@ import title_rewrite as T
 def test_object_only_in_host_question_is_not_guest_evidence():
     units=['中石油粘性很强，您买了吗？','没买，因为它不符合我的标准。','它中石油还有可能被替代。']
     roles=['host','guest','guest']
-    reading=dict(e_subject_name='中石油',f_subject_evidence_ids=[2])
+    reading=dict(e_subject_name='中石油')
     bound=T.bind_answer_subject(reading,units,roles)
     assert bound['exact_source']==[units[2]]
-    for ids in ([0],[True],[2,2],[99],[],[0,2]):
-        with pytest.raises(ValueError):
-            T.bind_answer_subject({**reading,'f_subject_evidence_ids':ids},units,roles)
+    assert bound['evidence_ids']==[2]
+    # Model-authored IDs from older experiments cannot alter program evidence.
+    assert T.bind_answer_subject({**reading,'f_subject_evidence_ids':[0,1,99]},units,roles)==bound
     with pytest.raises(ValueError):
         T.bind_answer_subject({**reading,'e_subject_name':'粘性很强'},units,roles)
     with pytest.raises(ValueError):
@@ -33,7 +33,8 @@ def test_reader_object_must_survive_both_copy_fields_and_evidence():
 
 def test_answer_subject_is_optional_and_does_not_change_existing_reader_schema():
     assert 'e_subject_name' not in T.reading_schema(3,True)['properties']
-    assert T.reading_schema(3,True,answer_subject=True)['properties']['f_subject_evidence_ids']['items']['maximum']==2
+    assert 'e_subject_name' in T.reading_schema(3,True,answer_subject=True)['properties']
+    assert 'f_subject_evidence_ids' not in T.reading_schema(3,True,answer_subject=True)['properties']
 
 
 def test_complete_handoff_keeps_subject_and_final_independent_review():
@@ -46,7 +47,7 @@ def test_complete_handoff_keeps_subject_and_final_independent_review():
             return json.dumps(dict(a_guest_answer='嘉宾说自己没有买中石油，认为它不符合自己的标准。',
                 b_question_premise='主持人问中石油上市时买了没有。',
                 c_sentence_roles=dict(u0000='host',u0001='guest',u0002='guest'),
-                d_main_answer_quote=units[1],e_subject_name='中石油',f_subject_evidence_ids=[2]))
+                d_main_answer_quote=units[1],e_subject_name='中石油'))
         if 'c_candidates' in props:
             stages.append('write')
             assert '阅读阶段确认的本回答对象及嘉宾原句' in prompt

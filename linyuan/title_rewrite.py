@@ -192,8 +192,6 @@ def reading_schema(unit_count, answer_focus=False, units=None, answer_subject=Fa
             fields['d_main_answer_quote']['enum']=quotes
         if answer_subject:
             fields['e_subject_name']=dict(type='string',minLength=2,maxLength=24)
-            fields['f_subject_evidence_ids']=dict(type='array',minItems=1,maxItems=4,
-                uniqueItems=True,items=dict(type='integer',minimum=0,maximum=unit_count-1))
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
 
 
@@ -233,15 +231,16 @@ def bind_answer_subject(reading, units, roles, speaker='林园'):
     This verifies provenance, not coreference semantics. The independent
     full-dialogue reviewer must still check that it is this answer's object.
     """
-    name=reading.get('e_subject_name');ids=reading.get('f_subject_evidence_ids')
+    name=reading.get('e_subject_name')
     if (not isinstance(name,str) or not 2<=len(name)<=24 or name!=name.strip()
             or not re.fullmatch(r'[\w\u4e00-\u9fff]+',name)
             or not subject_catalog([name])):
         raise ValueError('主要回答对象必须是原文中的具体名称，不能用代词、标准或原因代替')
-    allowed=set(guest_evidence_ids(units,roles,speaker))
-    if (not isinstance(ids,list) or not 1<=len(ids)<=4
-            or any(type(i) is not int or i not in allowed for i in ids)
-            or len(ids)!=len(set(ids)) or any(name not in units[i] for i in ids)):
+    # Actual 8B identified 中石油 but supplied ID 1 (only 它); 9B gave
+    # [1,5,6,16] although only 5 contains that name. Locating a literal name
+    # is deterministic bookkeeping, not another semantic task for the model.
+    ids=[i for i in guest_evidence_ids(units,roles,speaker) if name in units[i]]
+    if not ids:
         raise ValueError('主要回答对象没有逐字匹配已确认嘉宾原句；主持人假设不能充当对象证据')
     return dict(name=name,evidence_ids=ids,exact_source=[units[i] for i in ids])
 
@@ -1061,7 +1060,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 仅输出JSON。'''
         if answer_subject:
             reader_prompt+='''\n在e_subject_name写明这项主要回答实际讨论的具体对象（产品、公司、行业或市场的名称），不能用它、原因、标准等泛词。须逐字摘取原文中的名称，不自行扩成整个行业。
-用f_subject_evidence_ids引用包含这个名称的已确认嘉宾句子，可以是同一问答中的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
+程序会在已确认的嘉宾原句中逐字定位这个名称，可以出现在同一问答的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
     reading_repair_note=''
     def fallback():
         if answer_focus:
