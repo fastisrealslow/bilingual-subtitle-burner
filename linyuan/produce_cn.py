@@ -3589,7 +3589,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                 spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
             if profile in ('source_choices','answer_focus'):
                 schema=source_choices_schema(schema)
-                messages=source_choices_messages(messages,schema)
+                messages=source_choices_messages(messages,schema,same_answer=profile=='answer_focus')
             elif profile=='spoken_focus':
                 schema=spoken_focus_schema(schema)
                 messages=spoken_focus_messages(messages,schema)

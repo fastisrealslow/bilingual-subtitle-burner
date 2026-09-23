@@ -112,6 +112,12 @@ def test_independent_source_choices_have_separate_claims_and_exact_allowed_evide
     result=source_choices_messages([dict(role='user',content='旧风格'+source)],schema)
     assert result[0]['content'].endswith(source)
     assert '不必把三个标题都绑在同一句行业总结' in result[0]['content']
+    focused=source_choices_messages([dict(role='user',content='旧风格'+source)],schema,same_answer=True)[0]['content']
+    assert focused.endswith(source)
+    assert '围绕这一个判断' in focused
+    assert '分别选择三个' not in focused
+    assert '第一个候选优先呈现嘉宾自己的实际选择' not in focused
+    assert '不必把三个标题都绑在同一句' not in focused
     units=['主持人问题假设。','光伏能源我没研究过，也没有参与。','别人告诉我光伏可能污染环境。']
     item=dict(a_focus=dict(a_claim='光伏能源我没研究过，也没有参与。',b_evidence_ids=[1]),
               title='林园：光伏能源我没研究过，也没有参与',cover_title='光伏我没研究过也没参与')

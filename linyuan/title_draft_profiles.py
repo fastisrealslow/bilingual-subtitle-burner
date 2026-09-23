@@ -16,7 +16,7 @@ def source_choices_schema(schema):
                 properties={'c_candidates':copies})
 
 
-def source_choices_messages(messages,schema):
+def source_choices_messages(messages,schema, same_answer=False):
     result=concise_messages(messages,schema)
     if result is messages:return messages
     marker='以下是可用于标题事实的嘉宾原话'
@@ -30,6 +30,14 @@ def source_choices_messages(messages,schema):
 title以“林园：”开头，正文8至52字；cover_title为8至18字的完整短句，不加姓名。标题和封面各自说明具体对象、同一个观点和必要限定，不截断。用字数更短的自然句子，不把词组硬拼起来。
 只使用下方嘉宾原话，编号只能选择允许的原文编号。输出规定JSON。
 '''
+    if same_answer:
+        # answer_focus inherits this drafting machinery, but not the competing
+        # instruction to abandon its selected answer for three different topics.
+        _,_,rest=instruction.split('\n',2)
+        instruction='''你是访谈短视频编辑。下方已逐字标出主要回答原话，围绕这一个判断写三个自然表达，不重新选择旁枝话题。
+三个候选保留同一个对象、实际判断与必要限定，可以直接说、保留说话人的语气，或提出这句话确实回答的问题；不强迫每段都写个人行动。
+原话已有简洁完整的表达时可以直接用，不为改写而更换关键对象、动作和程度，不把具体生意判断升格成抽象道理。
+'''+rest
     result[0]['content']=(attempt.group(0) if attempt else '')+instruction+source
     return result
 
