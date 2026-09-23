@@ -1,0 +1,21 @@
+name: 个人感受与市场阶段生产检查复验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-market-impression-recheck.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '7,8'
+      content_policy: reference_v1
+      title_draft_profile: production
+      output_layout: auto
+      landscape_style: quiet
+      recovery_run_id: '35902748400'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

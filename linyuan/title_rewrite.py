@@ -627,6 +627,10 @@ def forecast_copy_error(title, cover, transcript):
     This narrow rule catches the actual source58 failure. It neither invents a
     missing index level/date nor claims to solve general semantic entailment.
     """
+    from title_market_impression import impression_error
+    impression_issue = impression_error(title, cover, transcript)
+    if impression_issue:
+        return impression_issue
     intent_issue = earnings_intent_error(title, cover, transcript)
     if intent_issue:
         return intent_issue
