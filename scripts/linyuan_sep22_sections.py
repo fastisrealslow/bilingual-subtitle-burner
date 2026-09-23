@@ -147,6 +147,7 @@ def latest_library():
                       ('stage_border_trial','舞台裁边恢复与已有成片回归'),
                       ('short_title_trial','完整短句与数字限定的实际结果'),
                       ('final_short_title_trial','修复最终入口后的三条标题复验'),
+                      ('source_choices_video_trial','原话标题进入完整视频：实片复验'),
                       ('channel_trial','311原声修复：听同一个片段'),
                       ('sep23_full100_trial','9月23日固定100条完整复验')]:
         row=review.get(key)

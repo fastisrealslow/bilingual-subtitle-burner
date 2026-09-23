@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-23T08:45:19.835074+00:00",
+  "checked_at": "2026-09-23T08:51:55.479742+00:00",
   "run_id": "35682602969",
   "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
   "baseline_run": "35548212133",
@@ -2238,6 +2238,29 @@
     "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
     "status": "code_fixed_full_video_pending",
     "editorial_approved": false,
-    "note": "原自动通过素材8含明确的其他嘉宾提问和回答：主持人先问郭总，后在378.76秒转向林总。视觉匹配不能证明原声属于画中人。新规则排除其他嘉宾轮次，保留明确转回林园的回答；来源整体仍保留。旧17/100是自动检查结果，并不代表17条编辑合格。"
+    "note": "原自动通过素材8含明确的其他嘉宾提问和回答：主持人先问郭总，后在378.76秒转向林总。视觉匹配不能证明原声属于画中人。新规则排除其他嘉宾轮次，保留明确转回林园的回答；来源整体仍保留。旧17/100是自动检查结果，并不代表17条编辑合格。 新规则还要求原文同时出现明确的目标嘉宾与另一位嘉宾交接，避免把单个ASR错姓当作换人。",
+    "run_id": "35839087903",
+    "tested_sha": "28497e9fc82e0545753ad325c35e9ffcb89dd6ac"
+  },
+  "source_choices_video_trial": {
+    "run_id": "35837686332",
+    "tested_sha": "b153d54fc0cc824a9496342c1d7b5e9578cd4b49",
+    "status": "in_progress",
+    "note": "17已经完整出片，修复了上一轮的短句入口失败，标题为听说光伏影响环境；79尚未返回。文本测试和完整成片分别列出，不外推100条成功率。",
+    "media": [
+      {
+        "id": 17,
+        "title": "林园：听说光伏影响环境",
+        "cover_title": "听说光伏影响环境",
+        "sha256": "fd5ffe7cceb796094ecb60cb9977193892dadbdad282dc757076bc186646db11",
+        "source_sha256": "5dfcadd9388903cd0474bf261fd5e16b03d2c5ed9e56fb920db3fb26aed1b0f2",
+        "duration": 20.866666666666667,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "source-choices-video-35837686332/simulation-media-sim-0916-017-bd1d98/final_1.mp4",
+        "poster": "source-choices-video-35837686332/simulation-media-sim-0916-017-bd1d98/cover_1.jpg",
+        "note": "20.9秒完整问答，保留听说；已核对SHA、完整音视频解码、六帧及所有ASS。比旧的口吃长标题清楚，但人物画面占比仍小，字幕出现林／总断词及重复。断词已另修，此视频仍展示实际旧缺陷，未编辑放行。"
+      }
+    ]
   }
 }

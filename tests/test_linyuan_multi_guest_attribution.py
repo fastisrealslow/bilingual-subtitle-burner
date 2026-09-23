@@ -23,7 +23,7 @@ def test_actual_other_guest_answer_is_excluded_and_target_turn_remains():
     assert not A.selection_error(cues,dict(start=57,end=100))
     assert not set(T.guest_evidence_ids(texts,['guest']*len(texts)))&blocked
     with pytest.raises(ValueError,match='其他嘉宾'):
-        T._extractive(''.join(texts[3:57]),'林园',())
+        T._extractive(''.join(texts[3:]),'林园',())
 
 
 def test_actual_target_selection_keeps_named_premise_and_stops_before_host_recap(monkeypatch):
@@ -65,3 +65,9 @@ def test_mentions_quotes_and_target_questions_do_not_create_other_guest_turn(tex
 def test_explicit_named_invitation_can_end_other_guest_exclusion():
     texts=['请问陈老师，您怎么看？','我认为科技机会更多。','让林总回答一下这个问题。','我的选择是消费和医药。']
     assert A.other_guest_indices(texts)=={0,1}
+
+
+def test_lone_asr_surname_is_not_evidence_of_a_second_guest():
+    texts=['尹总您好，我先问您一个最简单粗暴的问题。','我选择消费和医药行业。']
+    assert A.named_handoffs(texts)
+    assert not A.other_guest_indices(texts)

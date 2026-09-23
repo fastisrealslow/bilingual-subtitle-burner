@@ -31,6 +31,14 @@ def test_name_inside_company_is_not_removed():
     assert result['cover_title']=='林园投资公司重点选择医药企业'
 
 
+def test_actual_source17_caption_does_not_split_speaker_honorific():
+    from presentation import wrap_words
+    text='嗯那下面这个问题是林总光伏能源你怎么看呢？'
+    lines=wrap_words(text,13)
+    assert ''.join(lines)==text
+    assert any('林总' in line for line in lines)
+
+
 @pytest.mark.parametrize('copy', ['就我们这一代人，大概再能活个三十多岁',
                                 '我们还能活二十岁', '我们又活十岁'])
 def test_remaining_lifetime_cannot_be_promoted_as_age(copy):

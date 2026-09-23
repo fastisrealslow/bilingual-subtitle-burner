@@ -56,6 +56,12 @@ def named_handoffs(texts, speaker='林园'):
 
 def other_guest_indices(texts, speaker='林园'):
     turns=named_handoffs(texts,speaker);blocked=set()
+    # A lone surname can be an ASR error (real #690 renders 林总 as 尹总).
+    # Require an explicit target hand-off as well as another named addressee
+    # before applying the multi-guest exclusion. No alias correction or voice
+    # identity is inferred from an isolated honorific.
+    if not any(t['target'] for t in turns) or not any(not t['target'] for t in turns):
+        return blocked
     for i,turn in enumerate(turns):
         if turn['target']:continue
         end=turns[i+1]['cue'] if i+1<len(turns) else len(texts)
