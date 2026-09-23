@@ -130,7 +130,7 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert handoff['if']=="inputs.title_handoff_run_id != ''"
     assert "['gh','run','download'" in handoff['run']
     assert workflow['on']['workflow_call']['inputs']['output_layout']['default']=='auto'
-    assert workflow['on']['workflow_call']['inputs']['landscape_style']['default']=='classic'
+    assert workflow['on']['workflow_call']['inputs']['landscape_style']['default']=='quiet'
     producer=next(s for s in simulate['steps'] if 'simulate_sources.py run --source' in s.get('run',''))
     effective={**simulate['env'],**producer.get('env',{})}
     # The real producing step used to silently override a forced landscape
