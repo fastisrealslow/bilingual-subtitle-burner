@@ -1,0 +1,19 @@
+name: 舞台68：对象标题与字幕分屏完整复验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-stage-caption-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '68'
+      content_policy: reference_v1
+      text_model: qwen3.5:9b
+      title_draft_profile: source_limits
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

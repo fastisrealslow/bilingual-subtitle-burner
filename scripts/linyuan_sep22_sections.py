@@ -45,7 +45,7 @@ def reference_speech():
 
 
 def sections():
-    return title_trials()+followup_trials()+reference_speech()
+    return latest_results()+title_trials()+followup_trials()+reference_speech()
 
 
 def followup_trials():
@@ -69,4 +69,24 @@ def followup_trials():
     body+='<h3>模型选段：建议仍需核实前后文</h3><p>两份长素材分别交8B、9B提出连续片段。8B有一段停在“为什么”，却漏掉后面的回答；9B也会在理由中描述实际选段外的内容。候选理由写得完整，不代表剪辑完整。</p><p><a href="'+link(data['selection']['run_id'])+'">查看4组原始选段实验</a>；尚未接入生产选段，也未增加成片数。</p>'
     batch=data['full100']
     body+='<h3>修复版整批100条复验</h3><p>'+esc(batch['note'])+'</p><p><a href="'+link(batch['run_id'])+'">查看固定100进度</a> · 固定代码 '+esc(batch['tested_sha'][:7])+ '</p>'
+    return body+'</section>'
+
+
+def latest_results():
+    path=RECORDS/'sep23-review.json'
+    if not path.exists():return ''
+    d=json.loads(path.read_text());r=d['trial9b']
+    link=lambda run:'https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+str(run)
+    body='<section id="latest-results"><h2>9月23日复核：数量改善，质量尚不能判优</h2>'
+    body+='<p>同一固定100条：主线11自动出片／87拒绝／2未确定；最新整轮17／79／4。17份MP4均已核对哈希和完整解码，按现有去重规则仍是17份。编辑通过率尚未测定，目标30%未达成。</p>'
+    body+='<p>严格同母片且两边完成判定的88对里：新增自动出片7、两边均出片10、两边均拒绝71。新增含误放行；另11条缺少可比母片哈希、1条运行未确定。主线有片的49号本轮缺报告，不算配对回退，也不能忽略其运行失败。</p>'
+    body+='<p><a href="'+link(d['run_id'])+'">固定100完整运行</a> · <a href="../../linyuan/simulations/benchmark-20260921/sep23-review.json">逐条核查记录</a> · <a href="#threeway">三列实片与问题</a></p>'
+    body+='<h3>单独9B Action的真实成片</h3><p>'+esc(r['note'])+'</p>'
+    body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(r['file'])+'" poster="'+esc(r['poster'])+'"></video><button type="button">播放视频</button> <a href="'+esc(r['file'])+'" target="_blank" rel="noopener">单独打开视频</a> · <a href="'+esc(r['file'])+'" download>下载视频</a><p class="small" role="status" aria-live="polite"></p></div>'
+    body+='<p>实际标题：'+esc(r['title'])+'<br>封面：'+esc(r['cover'])+'</p><p><a href="'+link(r['run_id'])+'">9B完整生产流程</a> · 固定代码 '+esc(r['tested_sha'][:7])+' · 20.89秒</p>'
+    body+='<h3>这次继续修什么</h3><p>ff20e5a补上未研究＋转述的限定、独立标题对象与人口范围检查，覆盖拟稿、原话回退和旧证明复用；76项相关测试通过。拟稿优先具体个人选择，不强塞整段理由。8B／9B同3份原文重放与9B完整成片复验单列，结果不增加上面的固定100成绩。</p>'
+    body+='<p><a href="'+link(d['current_trials']['text'])+'">新8B／9B对照</a> · <a href="'+link(d['current_trials']['video'])+'">新9B实片复验</a> · 当前状态：'+esc(d['current_trials_status'])+'</p>'
+    body+='<p>画面问题卡恢复了54号的3段连续回答，但实际角标贴近头部、源画面缺少头顶余量，仍全部被拒绝。这次没有因此增加成片；也不降低现有画面标准换取出片率。</p>'
+    body+='<h3>舞台字幕：修掉单字一屏的分组漏洞</h3><p>同一68号原文从37个识别碎片重新分为25屏，保留文字与时间依据，18项相关测试通过。下方仅重烧前30秒字幕作显示诊断，原标题仍不合格；不是新一轮自动出片、不计成功数。预览使用本机Arial Unicode MS字体，生产使用Noto Sans CJK SC。</p>'
+    body+='<div class="review-player"><video controls playsinline preload="none" data-src="stage68-captions-sep23/caption-only-preview.mp4" poster="stage68-captions-sep23/frame.jpg"></video><button type="button">播放字幕诊断片</button> <a href="stage68-captions-sep23/caption-only-preview.mp4" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
     return body+'</section>'

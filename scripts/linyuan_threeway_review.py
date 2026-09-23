@@ -32,12 +32,14 @@ def subtitle_details(folder):
 
 def build_threeway(reference_media, player):
     baseline_folder=ROOT/'output/baseline-comparison-20260921/results'
-    current_folder=ROOT/'output/candidate100-35618921193/results'
+    current_folder=ROOT/'output/candidate100-35682602969/results'
     old={r['id']:r for r in read(baseline_folder/'media-verification.json',[]) if r['variant']=='baseline'}
     new={r['id']:r for r in read(current_folder/'media-verification.json',[])}
     judgments={r['id']:r for r in read(RECORDS/'production-pair-review.json',[])}
     for row in sorted(read(RECORDS/'targeted-production-review.json',[]),key=lambda x:int(x['run_id'])):
         if row['id'] in new and str(row['run_id'])==str(new[row['id']]['run_id']):judgments[row['id']]=row
+    for row in read(RECORDS/'sep23-review.json',{}).get('rows',[]):
+        judgments[row['id']]=row
     references={r['bvid']:r for r in read(RECORDS/'references-20.json',{'rows':[]})['rows']}
 
     def column(row, label, ident, folder, prefix):
@@ -76,10 +78,10 @@ def build_threeway(reference_media, player):
             content+='<div class="comparison-column"><h4>园园 · 对应内容形式参考</h4>'+player(*reference_media(bvid))
             content+='<p><a href="https://www.bilibili.com/video/'+esc(bvid)+'">'+esc(title)+'</a></p><small>独立作品，不是同母片A/B；实际画面与音轨状态已标明，不冒充最高分辨率。</small></div>'
         else:content+='<div class="comparison-column"><h4>园园参考</h4><p>尚未建立可核对的对应项。</p></div>'
-        warning=('<p class="warning"><strong>已确认画面不合格：原自动检查漏检。本条保留作失败对照。</strong></p>'
-                 if note.get('known_visual_false_pass') else '')
+        warning=('<p class="warning"><strong>已确认存在质量问题：本条保留作失败对照，不能计编辑合格。</strong></p>'
+                 if note.get('known_quality_issue') else '')
         cards.append('<article class="threeway-card" data-kind="'+pair+'"><h3>素材 '+str(ident)+'</h3><p class="small">'+source_note+'</p>'+warning+'<div class="threeway-grid">'+content+'</div><p class="review-note">'+esc(note.get('comparison','尚待逐条内容核对，不按自动出片判优。'))+'</p></article>')
-    return '<section id="threeway"><h2>三列直接看：线上主线、优化版、园园</h2><p>左列是线上主线代码在固定素材上的复跑，右列是园园原作。中列统一使用e93fa87这轮已下载核验的18条实片；每条标注实际代码。88虽然自动通过，但抽帧复核发现原字幕残留，明确保留失败样片，不算质量改善。后续修复单列，不用旧图伪装新成片。</p><p><button onclick="threewayFilter(\'all\')">全部</button> <button onclick="threewayFilter(\'both\')">两版都有成片</button> <button onclick="threewayFilter(\'new\')">自动出片新增（含质量问题）</button> <button onclick="threewayFilter(\'missing\')">优化未出片</button></p>'+''.join(cards)+'</section>'
+    return '<section id="threeway"><h2>三列直接看：线上主线、优化版、园园</h2><p>左列是主线固定版本复跑，右列是园园原作，按主题或形式作参考，并非同素材实验。中列统一使用06815b4这轮17条实片，全部完成哈希核对与音视频解码，并逐条检查六帧画面和字幕；尚未逐秒听音验收。17号转述失真、34号残字、4/68号对象不明、79号范围改写等问题照实保留。49号保留主线有片、优化缺报告的空位。后续9B重放单列，不拼接成绩。</p><p><button onclick="threewayFilter(\'all\')">全部</button> <button onclick="threewayFilter(\'both\')">两版都有成片</button> <button onclick="threewayFilter(\'new\')">自动出片新增（含质量问题）</button> <button onclick="threewayFilter(\'missing\')">优化未出片</button></p>'+''.join(cards)+'</section>'
 
 
 CSS='''.threeway-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.comparison-column{min-width:0}.comparison-column h4{padding:10px;background:#e8eee9;border-radius:5px}.threeway-card{margin:24px 0}.threeway-grid video{height:310px}.copy-title{font-weight:650}.review-note{border-left:4px solid #b28248;padding:12px 16px;background:#fff6e8}.missing-video{height:280px;padding:16px;box-sizing:border-box;background:#ebedeb;color:#52606a}.threeway-grid .transcript{font-size:13px}@media(max-width:700px){.threeway-grid{grid-template-columns:1fr}.threeway-grid video{height:330px}.missing-video{height:auto;min-height:120px}}'''

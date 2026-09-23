@@ -101,6 +101,22 @@ def check_overlays(src,start,duration,crop,ocr):
     finally:cap.release()
 
 
+def caption_plan(captions, spec, producer):
+    """Validate wide-stage screens just like other production captions.
+
+    Raw ASR cues can end halfway through a word. Marking every cleaned cue as
+    a semantic group previously bypassed regrouping, producing single-character
+    screens in source68. Timing/text checks must precede that flag.
+    """
+    from caption_readability import clean_entries, display_payload_text
+    cleaned, proof=clean_entries(captions)
+    groups=producer.source_caption_groups(cleaned,spec)
+    grouped=producer.apply_semantic_groups(cleaned,groups,spec['line_capacity'],spec['subtitle_font_px'])
+    if display_payload_text(''.join(row['zh'] for row in grouped))!=display_payload_text(proof['display_text']):
+        raise ValueError('舞台字幕分屏改变原文，拒绝烧录')
+    return grouped, proof
+
+
 def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix='',producer=None):
     """Build the same deliverable contract as the normal producer."""
     import hashlib
@@ -108,7 +124,7 @@ def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix=''
     from PIL import Image,ImageDraw,ImageFont
     import presentation as V
     import editorial_policy as E
-    from caption_readability import clean_entries
+    from caption_readability import display_payload_text
     from live_motion import verify_window
     P=producer
     out,work=Path(out),Path(work);out.mkdir(parents=True,exist_ok=True);work.mkdir(parents=True,exist_ok=True)
@@ -121,10 +137,12 @@ def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix=''
     spec.update(live_region=dict(x=rx,y=ry,width=rw,height=rh),
         subtitle_region=dict(x=64,y=590,width=1152,height=112),subtitle_font_px=44,
         line_capacity=24,subtitle_style='light-panel-dark-text',template='wide-stage-v1')
-    cleaned,edit_proof=clean_entries(captions)
-    for row in cleaned:row['semantic_group']=True
-    ass=out/f'subtitles{suffix}.ass';V.write_ass(cleaned,ass,spec,'Noto Sans CJK SC')
-    (out/f'caption-edits{suffix}.json').write_text(json.dumps(edit_proof,ensure_ascii=False,indent=2))
+    grouped,edit_proof=caption_plan(captions,spec,P)
+    ass=out/f'subtitles{suffix}.ass';V.write_ass(grouped,ass,spec,'Noto Sans CJK SC')
+    edit_name=f'subtitle_edit_proof{suffix}.json'
+    (out/edit_name).write_text(json.dumps(edit_proof,ensure_ascii=False,indent=2))
+    if display_payload_text(E.subtitle_files_text(out,[ass.name]))!=display_payload_text(edit_proof['display_text']):
+        raise ValueError('舞台ASS字幕与可重放原文不一致，拒绝渲染')
     family=subprocess.check_output(['fc-match','-f','%{family}','Noto Sans CJK SC'],text=True)
     if 'Noto Sans CJK SC' not in family:raise ValueError('舞台标题和字幕缺少中文字体')
     font=subprocess.check_output(['fc-match','-f','%{file}','Noto Sans CJK SC'],text=True)
@@ -163,6 +181,7 @@ def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix=''
         review_assets_verified=True,title_quality_verified=True,presentation_version=V.VERSION,layout_proof=spec,
         cover_proof=json.loads(Path(str(cover)+'.proof.json').read_text()),
         subtitle_files=[ass.name],subtitle_text_sha256=E.text_digest(transcript),
+        subtitle_edit_proof_version=1,subtitle_edit_proofs=[edit_name],
         subtitle_word_boundaries_verified=True,subtitle_semantic_groups_verified=True,
         subtitle_readability_version=spec['readability_version'],subtitles_burned=True,has_existing_subtitles=False,
         watermark_verified=True,clean_filter_verified=True,brand_watermark_applied=True,fingerprints=fingerprints,**checks)

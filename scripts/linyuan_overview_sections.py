@@ -47,7 +47,8 @@ def sections(player):
     labels = {'baseline':'原主线 · 同批100', 'optimized':'早期优化版 · 同批100',
               'reference100':'新时长策略 · 固定100', 'library20':'当前素材库 · 固定20',
               'candidate100':'稳定性修复 · 固定100（cc5113b）',
-              'latest100':'最新复验 · 固定100（e93fa87）'}
+              'latest100':'前轮复验 · 固定100（e93fa87）',
+              'sep23':'最新收齐 · 固定100（06815b4）'}
     batchrows = []
     charts = []
     groups = []
@@ -62,10 +63,10 @@ def sections(player):
         headers=['来源','输入数','已取到母片¹','源检查通过','自动出片 / 输入','拒绝','未确定']
         groups.append('<div class="source-cohort" data-cohort="'+key+'"'+(' hidden' if key!='library20' else '')+'><h3>'+esc(labels[key])+'</h3>'+table(headers,group_rows('platforms'))+ \
             '<details><summary>展开按上传作者统计（作者不是原始拍摄方）</summary>'+table(headers,group_rows('authors'))+'</details></div>')
-    intro = '<section id="overview"><div class="eyebrow">整体验收 / 2026-09-21</div><h1>形式更接近了，稳定性还没达标。</h1><p class="lead">目标是每100条素材至少30条能稳定出片，并且内容值得发布。目前还不能交出这个结论。</p><p class="small">本地报告快照：'+esc(d['checked_at'])+'；主线数据 '+d['snapshot_main_sha'][:7]+'。页面不会自动更新；不同固定版本分别统计。</p>'+ \
-        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>'+str(d['cohorts']['latest100']['passed'])+'%</b><span>e93fa87 · 自动出片，含88漏检</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
+    intro = '<section id="overview"><div class="eyebrow">整体验收 / 2026-09-23</div><h1>形式更接近了，稳定性还没达标。</h1><p class="lead">目标是每100条素材至少30条能稳定出片，并且内容值得发布。目前还不能交出这个结论。</p><p class="small">本地报告快照：'+esc(d['checked_at'])+'；主线数据 '+d['snapshot_main_sha'][:7]+'。页面不会自动更新；不同固定版本分别统计。</p>'+ \
+        '<div class="metric-grid"><article><b>11%</b><span>主线 · 固定100自动出片</span></article><article><b>'+str(d['cohorts']['sep23']['passed'])+'%</b><span>06815b4 · 自动出片，含内容误放行</span></article><article><b>'+str(d['cohorts']['library20']['passed'])+'/20</b><span>素材库抽样 · 自动出片</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+''.join(charts)+ \
         '<p class="small">绿色＝自动通过；红色＝质量拒绝；灰色＝未确定，含运行失败与尚缺报告。颜色不表示人工编辑质量。</p>'+table(['批次','固定代码','自动出片率','拒绝','未确定'],batchrows)+ \
-        '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。e93fa87整轮已结束：18出片、78拒绝、4运行未确定。新增88有中央原字幕残留，不能把自动18%当作编辑合格；具体问题与后续修复见下方；不能拼接多轮最好结果声称达标。</p>'+ \
+        '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。06815b4整轮已结束：17出片、79拒绝、4未确定。17份文件均已核对哈希并完整解码；仍发现听说变事实、对象指代不清、老龄化变人口增长与残字等问题，不能把17%当作编辑合格率。前轮e93fa87为18/78/4，其中88的中央原字幕漏检已在本轮拦截。后续修复与9B单条试验分开，不拼接多轮最好结果。</p>'+ \
         '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></section>'
     admission=d['admission']
     sources='<section id="sources"><h2>素材：有更新，但大库不等于可用库存</h2><p>冻结主线f794ce7素材库收录 '+str(d['library_records'])+' 条记录。北京时间9月21日新增 '+str(d['discovered_today'])+' 条：B站搜索36、来源定向搜索4、微博7、网易1、园园参考2。48条候选来源加2条参考，不能说成新增50条可用母片。</p>'+ \
