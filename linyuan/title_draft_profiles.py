@@ -3,6 +3,37 @@ import copy
 import re
 
 
+def source_choices_schema(schema):
+    """Each alternative chooses and binds its own source claim before wording."""
+    limited=source_limits_schema(schema)
+    if limited is schema:return schema
+    focus=limited['properties']['b_focus']
+    copies=copy.deepcopy(limited['properties']['c_candidates'])
+    fields={'a_focus':focus,**copies['items']['properties']}
+    copies['items']['properties']=fields
+    copies['items']['required']=list(fields)
+    return dict(type='object',additionalProperties=False,required=['c_candidates'],
+                properties={'c_candidates':copies})
+
+
+def source_choices_messages(messages,schema):
+    result=concise_messages(messages,schema)
+    if result is messages:return messages
+    marker='以下是可用于标题事实的嘉宾原话'
+    content=result[0]['content'];source=marker+content.rsplit(marker,1)[1]
+    attempt=re.match(r'第\d+轮重新拟稿[^\n]*\n',content)
+    instruction='''你是访谈短视频编辑。读完下方嘉宾原话，分别选择三个有原文依据的看点，不必把三个标题都绑在同一句行业总结上。
+第一个候选优先呈现嘉宾自己的实际选择或行动；第二个呈现原话中最鲜明的具体判断；第三个提出本段确实回答的具体问题。没有对应看点就另选完整判断，不编造个人选择、经历或反差。
+每个候选只说清一件事。先在自己的a_focus中逐字摘出该观点必须保留的限定a_0_source_limits，再用a_claim写清完整判断，用b_evidence_ids指出依据及必要上下文，最后才写title和cover_title。
+标题谈具体做法时，只写对象和实际动作也可以，不必把全段的理由、背景、数据都塞进去。写了理由或数字，就必须保留听说、是否研究、时间、统计对象、单位、前提和不确定性。
+用本人自然说话的短句。保留原话大胆的语气和明确否定，不改成报告总结；也不增加原文没有的因果、收益承诺或谨慎建议。不能只复制转写的口吃、重复或不通顺词语；有疑点就选本段其他清楚的判断，不猜字。
+title以“林园：”开头，正文12至52字；cover_title为8至18字的完整短句，不加姓名。标题和封面各自说明具体对象、同一个观点和必要限定，不截断。用字数更短的自然句子，不把词组硬拼起来。
+只使用下方嘉宾原话，编号只能选择允许的原文编号。输出规定JSON。
+'''
+    result[0]['content']=(attempt.group(0) if attempt else '')+instruction+source
+    return result
+
+
 def spoken_focus_schema(schema):
     """Bounded source alternatives before selecting one angle, not free thinking."""
     result=source_limits_schema(schema)

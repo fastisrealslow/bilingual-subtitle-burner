@@ -3487,7 +3487,7 @@ def _copy_style_identity(speaker):
     if speaker != '林园':
         return {}
     profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
-    if profile not in ('production','concise','source_limits','spoken_focus'):
+    if profile not in ('production','concise','source_limits','spoken_focus','source_choices'):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
                 title_style_sha256=_sha256_file(Path(__file__)),
@@ -3584,8 +3584,11 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
         if drafting and profile!='production':
             from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
-                spoken_focus_messages,spoken_focus_schema)
-            if profile=='spoken_focus':
+                spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
+            if profile=='source_choices':
+                schema=source_choices_schema(schema)
+                messages=source_choices_messages(messages,schema)
+            elif profile=='spoken_focus':
                 schema=spoken_focus_schema(schema)
                 messages=spoken_focus_messages(messages,schema)
             elif profile=='source_limits':
@@ -3598,7 +3601,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
         return llm(messages,api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
-                   read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','b_focus')))
+                   read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','b_focus','c_candidates')))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel])

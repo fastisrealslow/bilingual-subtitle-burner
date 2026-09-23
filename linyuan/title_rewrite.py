@@ -218,6 +218,17 @@ def bind_evidence(item, units):
     return {**item, 'evidence':[units[i] for i in sorted(ids)]}
 
 
+def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
+    raw=item.get('a_focus',raw_focus)
+    if not isinstance(raw,dict):raise ValueError('候选缺少自己的原文判断')
+    claim=raw.get('a_claim');ids=raw.get('b_evidence_ids')
+    if not isinstance(claim,str) or len(compact(claim))<12:
+        raise ValueError('先写清有原文依据的完整判断和限定，再写标题')
+    if not isinstance(ids,list) or any(type(i) is not int or i not in guest_ids for i in ids):
+        raise ValueError('候选证据属于主持人或未知归属，须回到嘉宾原话')
+    return bind_candidate(item,dict(claim=claim,evidence_ids=ids),units,subjects)
+
+
 def bind_candidate(item, focus, units, subjects):
     title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
     cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
@@ -680,6 +691,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return '缺少具体讨论对象'
     if compact(subject) not in compact(title) or not any(compact(subject) in compact(q) for q in evidence):
         return '标题对象与原文证据不对应'
+    if any(compact(subject)*2 in compact(copy) for copy in (title,cover)):
+        return '标题或封面重复写了同一对象，不能把转写口吃当标题'
     # The semantic review also checks written numbers, attribution and negation.
     for number in re.findall(r'\d+(?:\.\d+)?[%％]?', title + cover):
         if number not in re.findall(r'\d+(?:\.\d+)?[%％]?', transcript):
@@ -924,17 +937,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             # A structured production call never accepts model-authored evidence.
             if structured_model:
                 raw_focus=proposal.get('b_focus') or {}
-                focus=dict(claim=raw_focus.get('a_claim'),evidence_ids=raw_focus.get('b_evidence_ids'))
-                if not isinstance(focus.get('claim'),str) or len(compact(focus['claim']))<12:
-                    raise ValueError('先写清有原文依据的中心判断和限定条件，再写标题')
-                focus_ids=focus.get('evidence_ids') or []
-                if any(type(i) is not int or not 0<=i<len(units) or roles[i]!='guest' for i in focus_ids):
-                    raise ValueError('标题证据选中了主持人提问或未知归属，必须回到嘉宾实际回答重写')
                 # One malformed sibling must not discard source-bound drafts.
                 bound = []
                 for candidate in candidates:
                     try:
-                        bound.append(bind_candidate(candidate,focus,units,subjects))
+                        bound.append(bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids))
                     except (ValueError, TypeError, KeyError, AttributeError):
                         bound.append({})
                 candidates = bound

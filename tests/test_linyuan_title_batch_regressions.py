@@ -60,3 +60,11 @@ def test_source_abbreviation_is_an_evidence_anchor_not_an_invented_object():
     subjects=T.subject_catalog(units)
     assert subjects['光伏']==[0]
     assert '风电' not in subjects
+
+
+def test_actual_9b_repeated_source_noun_is_not_a_publishable_title():
+    source='光伏污染大是我听说的，我没有研究过，所以我们没参与。'
+    item=dict(title='林园：光伏光伏污染大是听说的，因此我们没参与',
+        cover_title='听说光伏污染大所以没参与',subject='光伏',evidence=[source])
+    assert '重复' in T._candidate_error(item,source,'林园',[])
+    assert T._candidate_error({**item,'title':'林园：光伏污染大是听说的，所以我没参与'},source,'林园',[]) is None

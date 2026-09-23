@@ -97,3 +97,27 @@ def test_spoken_focus_keeps_exact_guest_ids_and_isolated_reader_reviewer(monkeyp
     old=p._copy_style_identity('林园')
     monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','spoken_focus')
     assert p._copy_style_identity('林园')!=old
+
+
+def test_independent_source_choices_have_separate_claims_and_exact_allowed_evidence():
+    import title_rewrite as t
+    from title_draft_profiles import source_choices_schema,source_choices_messages
+    schema=source_choices_schema(t.proposal_schema(8,guest_ids=[1,2,6,7]))
+    assert list(schema['properties'])==['c_candidates']
+    fields=schema['properties']['c_candidates']['items']['properties']
+    assert list(fields)==['a_focus','title','cover_title']
+    assert list(fields['a_focus']['properties'])==['a_0_source_limits','a_claim','b_evidence_ids']
+    assert fields['a_focus']['properties']['b_evidence_ids']['items']['enum']==[1,2,6,7]
+    source='以下是可用于标题事实的嘉宾原话：{"1":"光伏我没研究过，也没有参与。"}'
+    result=source_choices_messages([dict(role='user',content='旧风格'+source)],schema)
+    assert result[0]['content'].endswith(source)
+    assert '不必把三个标题都绑在同一句行业总结' in result[0]['content']
+    units=['主持人问题假设。','光伏能源我没研究过，也没有参与。','别人告诉我光伏可能污染环境。']
+    item=dict(a_focus=dict(a_claim='光伏能源我没研究过，也没有参与。',b_evidence_ids=[1]),
+              title='林园：光伏能源我没研究过，也没有参与',cover_title='光伏我没研究过也没参与')
+    bound=t.bind_guest_candidate(item,{},units,{'光伏能源':[1]},[1,2])
+    assert bound['evidence']==[units[1]]
+    with pytest.raises(ValueError,match='主持人'):
+        t.bind_guest_candidate({**item,'a_focus':{**item['a_focus'],'b_evidence_ids':[0]}},{},units,{},[1,2])
+    with pytest.raises(ValueError,match='编号无效'):
+        t.bind_guest_candidate({**item,'a_focus':{**item['a_focus'],'b_evidence_ids':[1,1]}},{},units,{},[1,2])
