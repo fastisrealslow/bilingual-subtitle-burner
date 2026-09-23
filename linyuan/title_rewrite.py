@@ -478,9 +478,19 @@ def personal_action_error(title, cover, evidence):
     claim=title+'。'+cover
     refusal=re.search(r'(?:我(?:们)?(?:就|也|从来|绝对)?|^|[，。：])不(?:投(?:资)?|买(?:入)?)',claim)
     source=compact(''.join(evidence))
-    stated=re.search(r'不(?:会|想|去|再|愿|能)?(?:投(?:资)?|买(?:入)?|碰)|没有(?:投|买)',source)
+    stated=re.search(r'不(?:会|想|去|再|愿|能)?(?:投(?:资)?|买(?:入)?|碰)|没(?:有)?(?:投|买|参与)',source)
     if refusal and not stated:
         return '原文未明确说不投或不买，不能把偏好或讨论对象的对比改成投资行动'
+    return None
+
+
+def participation_phase_error(title,cover,transcript):
+    # Actual 9B full replay changed 没参与 to 退出, implying a prior position.
+    source=compact(transcript)
+    if re.search(r'没(?:有)?(?:参与|投(?:资)?|买(?:入)?)',source):
+        for action in ('退出','撤资','清仓','卖出','减仓'):
+            if action in title+'。'+cover and action not in source:
+                return '原文未参与不等于先参与再退出；不得新增退出、卖出或减仓的行动经历'
     return None
 
 
@@ -588,6 +598,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     if hearsay_issue:return hearsay_issue
     population_issue=population_scope_error(title,cover,transcript)
     if population_issue:return population_issue
+    phase_issue=participation_phase_error(title,cover,transcript)
+    if phase_issue:return phase_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -605,7 +617,7 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     hedge_issue = unsupported_hedge_error(title, cover, evidence)
     if hedge_issue:
         return hedge_issue
-    cost_issue = incremental_cost_error(title, cover, evidence)
+    cost_issue = incremental_cost_error(title, cover, [transcript])
     if cost_issue:
         return cost_issue
     action_issue = personal_action_error(title, cover, evidence)
@@ -709,6 +721,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         if (forecast_copy_error(title, cover['text'], transcript)
                 or unresolved_subject_error(title, cover['text'])
                 or population_scope_error(title, cover['text'], transcript)
+                or participation_phase_error(title, cover['text'], transcript)
+                or incremental_cost_error(title, cover['text'], [transcript])
                 or product_contrast_error(title, cover['text'], transcript)
                 or unsupported_hedge_error(title, cover['text'], [quote])):
             continue
@@ -838,7 +852,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
                 if unresearched_reports(''.join(draft_source.values())):
-                    source_heading+='原话明确未研究，并只转述别人说法。涉及这条转述的判断时，标题与封面各自保留“听说”；仅写“未研究”不等于保留转述。也可以只写本人明确的做法，不把转述写成已证实的结论。\n'
+                    source_heading+='原话明确未研究，并只转述别人说法。涉及这条转述的判断时，标题与封面各自保留“听说”；仅写“未研究”不等于保留转述。也可以只写本人明确的做法，不把转述写成已证实的结论。“没参与”是没有参加，不是先参加再“退出”，不可新增持仓经历。\n'
                 if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):
                     source_heading+='原文明确说龙头尚未形成。写到龙头时，标题与封面必须保留“没有、尚未、未来、可能成为”等原有阶段；不能写成选定现成龙头，不能只添加限定词却保留相反做法。\n'
                 draft_retry=(f'第{attempt+1}轮重新拟稿；上轮未通过原文或文案检查。只从下方嘉宾原话重新提炼判断，不延续上轮措辞。\n' if last_error else '')
@@ -1033,6 +1047,8 @@ def error(title, proof, transcript=None, speaker='林园'):
                   research_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   reported_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   population_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  participation_phase_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  incremental_cost_error(title, proof['cover'], [transcript or ''.join(evidence)]),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
             return issue

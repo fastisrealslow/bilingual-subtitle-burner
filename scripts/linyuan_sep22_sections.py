@@ -84,7 +84,17 @@ def latest_results():
     body+='<h3>单独9B Action的真实成片</h3><p>'+esc(r['note'])+'</p>'
     body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(r['file'])+'" poster="'+esc(r['poster'])+'"></video><button type="button">播放视频</button> <a href="'+esc(r['file'])+'" target="_blank" rel="noopener">单独打开视频</a> · <a href="'+esc(r['file'])+'" download>下载视频</a><p class="small" role="status" aria-live="polite"></p></div>'
     body+='<p>实际标题：'+esc(r['title'])+'<br>封面：'+esc(r['cover'])+'</p><p><a href="'+link(r['run_id'])+'">9B完整生产流程</a> · 固定代码 '+esc(r['tested_sha'][:7])+' · 20.89秒</p>'
-    body+='<h3>这次继续修什么</h3><p>ff20e5a补上未研究＋转述的限定、独立标题对象与人口范围检查，覆盖拟稿、原话回退和旧证明复用；76项相关测试通过。拟稿优先具体个人选择，不强塞整段理由。8B／9B同3份原文重放与9B完整成片复验单列，结果不增加上面的固定100成绩。</p>'
+    if d.get('trial9b_recheck'):
+        row=d['trial9b_recheck']
+        body+='<h3>第二次9B完整复验：仍有新的语义误放行</h3><p class="warning">'+esc(row['note'])+'</p><p>实际标题：'+esc(row['title'])+'<br>封面：'+esc(row['cover'])+'</p>'
+        body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放复验片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
+        body+='<p><a href="'+link(row['run_id'])+'">实际运行</a>；文件完整解码通过，内容不因此通过。</p>'
+    if d.get('title_trials'):
+        body+='<h3>本轮8B／9B逐条文本结果</h3><div class="grid">'
+        for row in d['title_trials']:
+            body+='<article><h4>'+esc(row['case']+' · '+row['model'])+'</h4><p>'+esc(row['title'])+'</p><p>封面：'+esc(row['cover'])+'</p><p class="warning">'+esc(row['review_note'])+'</p><small>'+esc(row['status'])+' · '+esc(row['seconds'])+'秒；文本重放，不计出片</small></article>'
+        body+='</div>'
+    body+='<h3>这次继续修什么</h3><p>ff20e5a补上未研究＋转述的限定、独立标题对象与人口范围检查，覆盖拟稿、原话回退和旧证明复用；其后继续拦截没参与变退出、追加投入变零成本的错误；累计97项相关测试通过。拟稿优先具体个人选择，不强塞整段理由。8B／9B同3份原文重放与9B完整成片复验单列，结果不增加上面的固定100成绩。</p>'
     body+='<p><a href="'+link(d['current_trials']['text'])+'">新8B／9B对照</a> · <a href="'+link(d['current_trials']['video'])+'">新9B实片复验</a> · 当前状态：'+esc(d['current_trials_status'])+'</p>'
     body+='<p>画面问题卡恢复了54号的3段连续回答，但实际角标贴近头部、源画面缺少头顶余量，仍全部被拒绝。这次没有因此增加成片；也不降低现有画面标准换取出片率。</p>'
     body+='<h3>舞台字幕：修掉单字一屏的分组漏洞</h3><p>同一68号原文从37个识别碎片重新分为25屏，保留文字与时间依据，18项相关测试通过。下方仅重烧前30秒字幕作显示诊断，原标题仍不合格；不是新一轮自动出片、不计成功数。预览使用本机Arial Unicode MS字体，生产使用Noto Sans CJK SC。</p>'

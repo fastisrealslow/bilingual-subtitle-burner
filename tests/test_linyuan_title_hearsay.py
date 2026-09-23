@@ -64,3 +64,29 @@ def test_age_group_is_not_total_population():
     for copy in ['医药消费量随老年人口增长扩大','林园：年龄越大，医药消费量越大']:
         assert T.population_scope_error(copy,copy,source) is None
     assert T.population_scope_error('林园：人口增长带来更多消费','人口增长带来更多消费',source+'总人口持续增长。') is None
+
+
+def test_actual_9b_cannot_turn_nonparticipation_into_exit():
+    title='林园：因有人说是光伏污染大且自己未研究所以退出'
+    cover='未研究仅听说不参与光伏能源'
+    assert T.participation_phase_error(title,cover,SOURCE)
+    item=dict(title=title,cover_title=cover,subject='光伏',evidence=[SOURCE])
+    proof=T._package(item,SOURCE,dict(method='cpu_text_review',appeal=4,
+        reason='实际9B审核漏看退出暗示的参与经历',**{k:True for k in T.CHECKS}),[])['title_rewrite']
+    assert '退出' in T.error(title,proof,SOURCE)
+    assert T.participation_phase_error('林园：光伏能源我没研究也没参与','光伏我没研究也没参与',SOURCE) is None
+    assert T.participation_phase_error('林园：我后来退出了','后来退出了','我没有参与光伏，后来退出了其他项目。') is None
+
+
+def test_explicit_nonparticipation_can_support_personal_investment_choice():
+    assert T.personal_action_error('林园：光伏我没参与','光伏我没有参与',['所以我们就没参与。']) is None
+    assert T.personal_action_error('林园：我不投光伏能源','我不投光伏能源',['所以我们就没参与。']) is None
+    assert T.personal_action_error('林园：我不投光伏能源','我不投光伏能源',['这是对环境污染很大。'])
+
+
+def test_incremental_cost_must_read_full_source_not_just_model_chosen_cues():
+    source='它利润的扩大不需要再去我去花钱来产生利润。这种企业就是我投小钱产大钱。'
+    item=dict(title='林园：我投小钱产大钱，利润扩大不需要花钱',cover_title='小钱产大钱，利润不靠花钱',subject='利润',evidence=['这种企业就是我投小钱产大钱。'])
+    proof=T._package(item,source,dict(method='cpu_text_review',appeal=4,
+        reason='实际32号省掉追加投入的范围，所选证据不含限定',**{k:True for k in T.CHECKS}),[])['title_rewrite']
+    assert '追加' in T.error(item['title'],proof,source)
