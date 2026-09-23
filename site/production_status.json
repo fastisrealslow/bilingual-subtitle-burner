@@ -1,22 +1,22 @@
 {
   "version": 1,
-  "updated_at": 1790196579,
-  "inventory_updated_at": 1790196524,
+  "updated_at": 1790202522,
+  "inventory_updated_at": 1790202520,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790196579,
+    "updated_at": 1790202521,
     "records": 6419,
     "video_records": 5333,
-    "initial_candidates": 148,
-    "duration_eligible_records": 18,
-    "candidate_count": 18,
-    "known_duration_candidates": 15,
+    "initial_candidates": 147,
+    "duration_eligible_records": 17,
+    "candidate_count": 17,
+    "known_duration_candidates": 14,
     "unknown_duration_candidates": 3,
     "excluded": {
       "clip_title": 1016,
       "no_video": 1086,
       "noise": 118,
-      "already_attempted_or_cooling": 845,
+      "already_attempted_or_cooling": 846,
       "speaker_unconfirmed": 3046,
       "unrelated": 57,
       "ai_content": 33,
@@ -34,14 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1XeVR6yEsx",
-        "title": "林园5月23日复旦大学演讲：价值投资的过去、现在和未来。（有聊到科技、嘴巴经济、老龄化、量化交易、茅台和片仔癀等）",
-        "source": "reference_origin_search",
-        "author": "刘钊泽",
-        "url": "https://www.bilibili.com/video/BV1XeVR6yEsx",
-        "duration_sec": 2063.0
       },
       {
         "key": "bilibili_search:BV1nb421e7UD",
@@ -192,7 +184,8 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 4,
-    "retry_queued": 1
+    "running": 1,
+    "interrupted": 1
   },
   "tasks": [
     {
@@ -12911,21 +12904,39 @@
     },
     {
       "slug": "ly-0923-9acb6e",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "running",
+      "detail": "正在出片",
       "signature": {
-        "ts": 1790193052,
+        "ts": 1790202400,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": 1790197442,
+        "source_check_retry_after": null,
         "weekly_full_week": ""
       },
       "history_count": 1,
-      "run_id": 35912031067,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35912031067",
-      "run_started_at": "2026-09-23T19:50:52Z",
-      "run_updated_at": "2026-09-23T20:48:09Z"
+      "run_id": 35928371588,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35928371588",
+      "run_started_at": "2026-09-23T22:26:40Z",
+      "run_updated_at": "2026-09-23T22:26:44Z"
+    },
+    {
+      "slug": "ly-0923-0f4468",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1790202406,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 35928380466,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35928380466",
+      "run_started_at": "2026-09-23T22:26:46Z",
+      "run_updated_at": "2026-09-23T22:27:57Z"
     }
   ],
   "runs": {
@@ -16362,15 +16373,26 @@
       "display_title": "中文源出片 · ly-0923-4802c2"
     },
     "ly-0923-9acb6e": {
-      "id": 35912031067,
+      "id": 35928371588,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-23T22:26:40Z",
+      "updated_at": "2026-09-23T22:26:44Z",
+      "run_started_at": "2026-09-23T22:26:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35928371588",
+      "run_number": 1198,
+      "display_title": "中文源出片 · ly-0923-9acb6e"
+    },
+    "ly-0923-0f4468": {
+      "id": 35928380466,
       "status": "completed",
       "conclusion": "failure",
-      "created_at": "2026-09-23T19:50:52Z",
-      "updated_at": "2026-09-23T20:48:09Z",
-      "run_started_at": "2026-09-23T19:50:52Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35912031067",
-      "run_number": 1197,
-      "display_title": "中文源出片 · ly-0923-9acb6e"
+      "created_at": "2026-09-23T22:26:46Z",
+      "updated_at": "2026-09-23T22:27:57Z",
+      "run_started_at": "2026-09-23T22:26:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35928380466",
+      "run_number": 1199,
+      "display_title": "中文源出片 · ly-0923-0f4468"
     }
   }
 }
