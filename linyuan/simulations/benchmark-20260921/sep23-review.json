@@ -2180,16 +2180,16 @@
   "sep23_full100_trial": {
     "run_id": "35833967072",
     "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
-    "status": "in_progress",
+    "status": "completed",
     "denominator": 100,
-    "received": 99,
+    "received": 100,
     "counts": {
       "passed": 17,
       "rejected": 78,
-      "unresolved": 4
+      "unresolved": 5
     },
-    "pending": 1,
-    "note": "已回传99/100条：17通过、78拒绝、4未确定，1待返回。17个实际文件全部解码、逐片六帧和全部字幕已检查，尚非编辑合格。95和99是同一段82.7秒谈话，现有发布查重规则命中83%转写重合；技术17份只有16组未被规则判重复的内容，不是17条独立内容。该轮未包含后续标题、字幕与归属修复。",
+    "pending": 0,
+    "note": "100份报告已全部返回：17技术通过、78拒绝、5运行未确定。17个实际文件全部解码、逐片六帧和全部字幕已检查，尚非编辑合格。95和99是同一段82.7秒谈话，发布查重命中83%转写重合；技术17份只有16组未被规则判重复的内容。72尝试12个片段，9个真人动作检查失败、2个角标与人脸冲突、1个标题待重试，生产阶段共145分钟。该轮未包含后续标题、字幕与归属修复。",
     "duplicate_content_pairs": [
       {
         "ids": [
@@ -2551,7 +2551,7 @@
       "passed": 17,
       "rejected": 78,
       "unresolved": 5,
-      "missing": 1,
+      "missing": 0,
       "tested_shas": [
         "87a00992e228c1cea6d07e252d1086fe8b988f25"
       ],
@@ -2570,9 +2570,9 @@
           "percent": 21.62,
           "reasons": {
             "selection": 6,
-            "framing": 34,
-            "unclassified": 10,
             "title": 6,
+            "unclassified": 10,
+            "framing": 34,
             "resolution": 17,
             "identity": 18,
             "publication_history": 4,
@@ -2661,16 +2661,18 @@
           "passed": 1,
           "rejected": 17,
           "unresolved": 1,
-          "downloaded": 18,
-          "source_gate_passed": 17,
+          "downloaded": 19,
+          "source_gate_passed": 18,
           "percent": 5.26,
           "reasons": {
             "publication_history": 3,
             "captions": 3,
             "duplicate": 1,
-            "framing": 9,
+            "framing": 10,
             "identity": 1,
-            "resolution": 1
+            "resolution": 1,
+            "unclassified": 1,
+            "title": 1
           },
           "ids": [
             3,
@@ -2777,8 +2779,8 @@
           "percent": 40.0,
           "reasons": {
             "selection": 1,
-            "framing": 5,
             "unclassified": 2,
+            "framing": 5,
             "resolution": 1,
             "identity": 3
           },
@@ -2805,8 +2807,8 @@
           "source_gate_passed": 6,
           "percent": 16.67,
           "reasons": {
-            "framing": 6,
             "title": 2,
+            "framing": 6,
             "resolution": 2,
             "unclassified": 2,
             "identity": 1
@@ -2855,8 +2857,8 @@
           "reasons": {
             "resolution": 2,
             "duplicate": 1,
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             9,
@@ -2895,9 +2897,9 @@
           "percent": 0.0,
           "reasons": {
             "resolution": 2,
-            "framing": 1,
+            "identity": 1,
             "unclassified": 1,
-            "identity": 1
+            "framing": 1
           },
           "ids": [
             37,
@@ -2985,9 +2987,9 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "unclassified": 1,
             "title": 1,
+            "unclassified": 1,
+            "framing": 1,
             "identity": 1
           },
           "ids": [
@@ -3023,8 +3025,8 @@
           "source_gate_passed": 2,
           "percent": 0.0,
           "reasons": {
-            "framing": 2,
-            "identity": 1
+            "identity": 1,
+            "framing": 2
           },
           "ids": [
             56,
@@ -3227,8 +3229,8 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             35
@@ -3386,8 +3388,8 @@
           "source_gate_passed": 1,
           "percent": 100.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             13
@@ -3501,8 +3503,8 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             10
@@ -3638,10 +3640,14 @@
           "passed": 0,
           "rejected": 0,
           "unresolved": 1,
-          "downloaded": 0,
-          "source_gate_passed": 0,
+          "downloaded": 1,
+          "source_gate_passed": 1,
           "percent": 0.0,
-          "reasons": {},
+          "reasons": {
+            "unclassified": 1,
+            "title": 1,
+            "framing": 1
+          },
           "ids": [
             72
           ]
@@ -3927,7 +3933,8 @@
         ],
         "same_source_unresolved": [
           4,
-          17
+          17,
+          72
         ],
         "both_passed": [
           7,
@@ -3957,7 +3964,6 @@
           25,
           37,
           60,
-          72,
           74,
           86,
           94,
@@ -3992,8 +3998,8 @@
           "percent": 11.76,
           "reasons": {
             "selection": 5,
-            "framing": 4,
             "identity": 2,
+            "framing": 4,
             "resolution": 4,
             "title": 1
           },
@@ -4029,8 +4035,8 @@
           "source_gate_passed": 3,
           "percent": 0.0,
           "reasons": {
-            "framing": 2,
-            "identity": 2
+            "identity": 2,
+            "framing": 2
           },
           "ids": [
             302,
@@ -4711,7 +4717,7 @@
     "run_id": "35852795888",
     "tested_sha": "6fa9100abb3049eef40a8fefa30667742449d95c",
     "status": "in_progress",
-    "note": "同4条逐句归属复验后，8号直接交接独立标题结果到完整渲染，不重新随机生成标题。须同时匹配母片、完整字幕、代码、模型权重和配置，复核当前标题证明；尚未完成实际实片验证，不计出片。",
+    "note": "4条标题均已生成，但28仍遗漏个人预测语气，32新增盈利保障，311对象不明且封面更绝对，不能把4生成当4优质。8号标题已在同代码隔离环境证明无需再调用模型即可原样交接，完整渲染正在运行。",
     "rows": [
       {
         "case": "sep23-source8",
@@ -4745,6 +4751,17 @@
         "review_note": "再次把长期赚钱公司的特性写成盈利保障，扩大原意；独立模型复核未发现，不切换为默认。",
         "editorial_approved": false,
         "raw_file": "title-handoff-35852795888/source-choices-8b-5/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-5-repeat-1.json"
+      },
+      {
+        "case": "sep23-source311-complete-question",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 744.91,
+        "title": "林园：说低了，我甚至融资买",
+        "cover": "林园说低了就融资买",
+        "review_note": "说低了缺少估值对象；封面的就融资买比原话或者甚至融资买更绝对。混合显示句仍把我也洞察不了标成主持人，未通过编辑验收。",
+        "editorial_approved": false,
+        "raw_file": "title-handoff-35852795888/source-choices-8b-6/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-6-repeat-1.json"
       }
     ]
   }
