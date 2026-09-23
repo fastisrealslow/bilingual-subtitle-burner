@@ -169,3 +169,9 @@ def test_short_source_opening_budget_uses_time_not_asr_sentence_count(monkeypatc
         late=deepcopy(cues)
         for cue in late[units[3]['start']:]:cue['start']+=25;cue['end']+=25
         assert S.select(late,whole_source=True)==[]
+def test_real_source34_space_range_is_an_estimate_in_both_copies():
+    source='空间应该在一百倍到五百倍之间。我们看好的是并发症相关产品。'
+    assert T.forecast_copy_error('林园：并发症产品空间在一百到五百倍之间','并发症产品空间达一百至五百倍',source)
+    assert T.forecast_copy_error('林园：并发症产品空间应在一百到五百倍之间','并发症产品空间达一百至五百倍',source)
+    assert T.forecast_copy_error('林园：并发症产品空间应在一百到五百倍之间','并发症产品空间应有百倍到五百倍',source) is None
+    assert T.forecast_copy_error('林园：投资应该研究企业','应该研究企业','应该研究企业，利润增长了一倍。') is None

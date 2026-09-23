@@ -2801,8 +2801,17 @@ def cover_quality_error(cover):
         except (TypeError,ValueError):
             good = False
         return None if good else '现场原画封面缺少身份、清晰度或无字画面证明'
+    lines=cover.get('headline_lines') or []
+    boxes=cover.get('text_boxes') or []
+    try:
+        three_line=(len(lines)==3 and cover.get('headline_layout')=='three_line_statement'
+            and cover.get('style') in ('dark','editorial') and len(boxes)==3
+            and all(len(b)==4 and 48<=b[0]<b[2]<=912 and 190<=b[1]<b[3]<=600 for b in boxes)
+            and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
+    except (TypeError,ValueError):
+        three_line=False
     if (cover.get("font_px",0)<96 or cover.get("thumbnail_font_px",0)<12
-            or not 1<=len(cover.get("headline_lines") or [])<=2
+            or not (1<=len(lines)<=2 or three_line)
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
     return None

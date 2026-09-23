@@ -378,6 +378,16 @@ def forecast_copy_error(title, cover, transcript):
     This narrow rule catches the actual source58 failure. It neither invents a
     missing index level/date nor claims to solve general semantic entailment.
     """
+    # Actual source34 says 空间应该在一百倍到五百倍之间. Both model
+    # reviews approved a cover asserting the range as established fact.
+    # Bound this check to a quantified market-space estimate, not every
+    # occurrence of 应该 (which can also express an instruction).
+    estimated_space=re.search(r'空间[^。！？!?]{0,8}(?:应该|应当|可能|估计|预计)[^。！？!?]{0,24}倍',transcript)
+    if estimated_space:
+        for copy in (title,cover):
+            if (re.search(r'空间[^。！？!?]{0,20}倍',copy)
+                    and not re.search(r'应该|应当|应有|应在|可能|估计|预计|有望|或有|能否|是否',copy)):
+                return '市场空间倍数是原话的估计，标题和封面都须保留应该、可能或估计的语气'
     quantities=_quantity_intervals(transcript)
     durations={(a,b) for unit,a,b,_ in quantities if unit=='个月'}
     calendars={(a,b) for unit,a,b,_ in quantities if unit=='月'}

@@ -72,10 +72,17 @@ def main():
                     raise ValueError('Production path did not apply source-limits schema')
                 if args.draft_profile=='spoken_focus' and 'a_00_hook_options' not in focus['properties']:
                     raise ValueError('Production path did not apply spoken-focus schema')
+                expected=(['a_00_hook_options'] if args.draft_profile=='spoken_focus' else [])+['a_0_source_limits','a_claim','b_evidence_ids']
+                if list(focus['properties'])!=expected:
+                    raise ValueError('Source planning fields must precede the claim in the actual request')
             row['draft_interventions']+=1
         call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()
         try:
-            result=original(*a, **kw);call['response']=result;return result
+            result=original(*a, **kw);call['response']=result
+            if args.draft_profile in ('source_limits','spoken_focus') and 'c_candidates' in schema.get('properties',{}):
+                parsed=json.loads(result) if isinstance(result,str) else result
+                call['source_plan_before_claim']=list(parsed.get('b_focus',{}))==expected
+            return result
         except Exception as exc:
             call['error']=str(exc);raise
         finally:
@@ -100,6 +107,10 @@ def main():
         row['status']='unresolved';row['error']=f'{type(exc).__name__}: {exc}'
     row['seconds']=round(time.monotonic()-start,2);save()
     row['experiment_valid'] = args.draft_profile == 'production' or row['draft_interventions'] > 0
+    if args.draft_profile in ('source_limits','spoken_focus'):
+        observed=[c['source_plan_before_claim'] for c in row['calls'] if 'source_plan_before_claim' in c]
+        row['planning_order_verified']=bool(observed) and all(observed)
+        row['experiment_valid']=row['experiment_valid'] and row['planning_order_verified']
     save()
     print(json.dumps({k:v for k,v in row.items() if k not in ('calls','result')},ensure_ascii=False))
     if row.get('result'):print('TITLE:',row['result']['title'])

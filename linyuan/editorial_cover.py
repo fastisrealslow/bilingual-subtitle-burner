@@ -92,10 +92,10 @@ def render(image, path, face, headline, speaker, font, font_index=None):
     title_font = ImageFont.truetype(font, 96, index=font_index)
     draw.text((48, 66), speaker, font=label, fill='#efbd58')
     draw.text((48, 134), '访谈摘录', font=small, fill='#adbac9')
-    lines = cover_headline(headline, speaker)
+    lines = cover_headline(headline, speaker, max_lines=3)
     boxes = []
     for i, line in enumerate(lines):
-        xy = (48, 272+i*132)
+        xy = (48, 204+i*122) if len(lines)==3 else (48, 272+i*132)
         box = draw.textbbox(xy, line, font=title_font)
         if box[2] > 912:
             raise ValueError('封面文案超出文字区；不能缩成小字或覆盖人脸')

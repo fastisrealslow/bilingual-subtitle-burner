@@ -55,6 +55,33 @@ def test_shared_rules_are_active_in_both_production_consumers():
     assert callable(FC.presentation_quality_error)
 
 
+def test_actual_308_cover_keeps_predicate_whole_without_losing_words():
+    text='大牛股的利润不是靠投入，而是市场无限大'
+    lines=V.cover_headline(text,max_lines=3)
+    assert lines==['大牛股的利润','不是靠投入','而是市场无限大']
+    assert ''.join(lines)==text.replace('，','')
+    # Vertical video headers still have only two safe lines.
+    assert len(V.cover_headline(text))==2
+    assert V.cover_headline('母亲用片仔癀，不敢乱给她吃',max_lines=3)==['母亲用片仔癀','不敢乱给她吃']
+
+
+def test_three_line_cover_requires_real_nonoverlapping_text_area(tmp_path):
+    from PIL import Image
+    image=Image.new('RGB',(1280,720))
+    boxes=[[48,230,624,326],[48,350,528,446],[48,470,720,566]]
+    lines=['大牛股的利润','不是靠投入','而是市场无限大']
+    proof=V.cover_proof(image,tmp_path/'cover.jpg',lines,96,boxes,style='dark')
+    assert FC.cover_quality_error(proof) is None
+    for bad in ([[48,230,950,326],*boxes[1:]], [boxes[0],[48,310,528,446],boxes[2]],
+                [*boxes[:2],[48,510,720,620]]):
+        with pytest.raises(ValueError,match='边界验收'):
+            V.cover_proof(image,tmp_path/'bad.jpg',lines,96,bad,style='dark')
+        assert FC.cover_quality_error({**proof,'text_boxes':bad})
+    assert FC.cover_quality_error({**proof,'headline_layout':None})
+    with pytest.raises(ValueError):
+        V.cover_proof(image,tmp_path/'bad.jpg',lines,96,boxes,style='light')
+
+
 @pytest.mark.parametrize('w,h,mode', [(1280,720,'landscape'), (720,1280,'portrait'),
                                     (720,720,'square'), (1640,720,'landscape')])
 def test_native_aspect_and_center(w,h,mode):

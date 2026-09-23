@@ -37,6 +37,7 @@ def test_source_limits_trial_leaves_reader_reviewer_and_input_schema_unchanged()
     before=copy.deepcopy(schema);changed=source_limits_schema(schema)
     assert schema==before
     assert changed['properties']['b_focus']['required'][0]=='a_0_source_limits'
+    assert list(changed['properties']['b_focus']['properties'])[0]=='a_0_source_limits'
     source='以下是可用于标题事实的嘉宾原话：{"3":"我好像有人给我说。"}'
     messages=[dict(role='user',content='旧风格'+source)]
     written=source_limits_messages(messages,changed)
@@ -79,6 +80,8 @@ def test_spoken_focus_keeps_exact_guest_ids_and_isolated_reader_reviewer(monkeyp
     changed=spoken_focus_schema(schema)
     assert schema==before
     options=changed['properties']['b_focus']['properties']['a_00_hook_options']
+    assert list(changed['properties']['b_focus']['properties'])==[
+        'a_00_hook_options','a_0_source_limits','a_claim','b_evidence_ids']
     assert options['maxItems']==3
     assert options['items']['properties']['b_evidence_ids']['items']['enum']==[1,2,5]
     source='以下是可用于标题事实的嘉宾原话：{"1":"我没研究过光伏。","2":"我也没参与。"}'

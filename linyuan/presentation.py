@@ -255,7 +255,7 @@ def write_ass(entries, path, layout, font_name):
     return prepared
 
 
-def cover_headline(title, speaker='林园'):
+def cover_headline(title, speaker='林园', max_lines=2):
     from headline_policy import cover_copy, body, compact
     # A caller may supply already-reviewed cover copy. Rendering must not
     # reinterpret it as a new title and replace its words with a topic label.
@@ -264,7 +264,24 @@ def cover_headline(title, speaker='林园'):
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
     if len(clauses)==2 and all(len(part)<=9 for part in clauses):
         return clauses
-    return wrap_words(''.join(clauses),9)
+    text=''.join(clauses)
+    initial=wrap_words(text,9)
+    if len(initial)==1:return initial
+    # A dictionary protects words but still splits "不是靠 / 投入". Prefer a
+    # complete predicate. Three lines are opt-in only for layouts with room.
+    def dangling(line):
+        return bool(re.search(r'(?:不是|而是|因为|所以|取决于|来自|靠|把|被|的)$',line))
+    points=[b for a,b in word_spans(text) if b<len(text)]
+    pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=9]
+    best=min(pairs,key=lambda ls:(sum(dangling(x) for x in ls[:-1]),abs(len(ls[0])-len(ls[1]))))
+    if not dangling(best[0]) or max_lines<3:return best
+    triples=[[text[:a],text[a:b],text[b:]] for a in points for b in points
+             if a<b and max(a,b-a,len(text)-b)<=9 and min(a,b-a,len(text)-b)>=3]
+    complete=[ls for ls in triples if not any(dangling(x) for x in ls[:-1])]
+    if not complete:return best
+    # Keep contrast markers with their clause; otherwise prefer balanced lines.
+    return min(complete,key=lambda ls:(-sum(x.startswith(('不是','而是')) for x in ls[1:]),
+                                      max(map(len,ls))-min(map(len,ls))))
 
 
 def select_cover_style(clean_source, title, requested='auto'):
@@ -339,9 +356,9 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
     tagfont=ImageFont.truetype(font_path,30,index=font_index)
     draw.text((48,75),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
     font=ImageFont.truetype(font_path,96,index=font_index)
-    lines=cover_headline(title,speaker); boxes=[]
+    lines=cover_headline(title,speaker,max_lines=3); boxes=[]
     for i,line in enumerate(lines):
-        xy=(48,228+i*134)
+        xy=(48,210+i*120) if len(lines)==3 else (48,228+i*134)
         draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
         boxes.append(draw.textbbox(xy,line,font=font))
     draw.text((48,640),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
@@ -351,7 +368,10 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
 def cover_proof(image, path, lines, font_size, boxes, style=None):
     import json
     from PIL import Image
-    if len(lines)>2 or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
+    three_line=(len(lines)==3 and style in ('dark','editorial') and len(boxes)==3
+        and all(b[0]>=48 and b[1]>=190 and b[2]<=912 and b[3]<=600 for b in boxes)
+        and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
+    if (len(lines)>2 and not three_line) or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
         raise ValueError('封面大字/边界验收失败')
     thumb=Path(path).with_name(Path(path).stem+'_list_160.jpg')
     image.resize((160,90),Image.Resampling.LANCZOS).save(thumb,quality=95)
@@ -360,6 +380,8 @@ def cover_proof(image, path, lines, font_size, boxes, style=None):
            'text_boxes':boxes,'no_overflow':True}
     if style:
         proof['style']=style
+    if three_line:
+        proof['headline_layout']='three_line_statement'
     Path(str(path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return proof
 

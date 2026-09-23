@@ -13,7 +13,10 @@ def spoken_focus_schema(schema):
         required=['a_angle','b_evidence_ids'],properties={
             'a_angle':dict(type='string',enum=['个人选择','明确判断','具体经历','真实反问']),
             'b_evidence_ids':ids})
-    focus['properties']['a_00_hook_options']=dict(type='array',minItems=1,maxItems=3,items=option)
+    # JSON-schema grammars follow property insertion order, not `required`.
+    # Appending this field made the real model write the claim before its hooks.
+    focus['properties']={'a_00_hook_options':dict(type='array',minItems=1,maxItems=3,items=option),
+                         **focus['properties']}
     focus['required']=['a_00_hook_options',*focus['required']]
     return result
 
@@ -38,8 +41,8 @@ def source_limits_schema(schema):
         return schema
     result=copy.deepcopy(schema)
     focus=result['properties']['b_focus']
-    focus['properties']['a_0_source_limits']=dict(type='array',minItems=0,maxItems=4,
-        items=dict(type='string',maxLength=100))
+    focus['properties']={'a_0_source_limits':dict(type='array',minItems=0,maxItems=4,
+        items=dict(type='string',maxLength=100)),**focus['properties']}
     focus['required']=['a_0_source_limits',*focus['required']]
     return result
 
