@@ -84,6 +84,16 @@ def validate_manifest(manifest):
         eligible=sorted(audit['new_eligible_candidates'],key=lambda r:source_key(r['url']))
         assert len(rows)==audit['new_metadata_candidates_20s']==len(eligible)
         assert [r['source_url'] for r in rows]==[r['url'] for r in eligible], 'Do not cherry-pick newly discovered sources'
+    elif kind == 'publisher_source_acceptance':
+        assert 1<=len(rows)<=5, 'Publisher probes are a separate bounded denominator'
+        assert manifest['denominator']==len(rows)
+        assert all(re.fullmatch(r'publisher-0923-\d{3}-[a-f0-9]{6}',r['slug']) for r in rows)
+        origin_path=(BASE/manifest['origin_evidence']).resolve()
+        assert BASE.resolve() in origin_path.parents
+        assert digest(origin_path)==manifest['origin_evidence_sha256'], 'Publisher evidence changed'
+        origins=read(origin_path)['media']
+        assert len(rows)==len(origins)
+        assert [(r['source_url'],r['source_preflight_sha256']) for r in rows]==[(r['article'],r['sha256']) for r in origins]
     elif kind == 'source_library_acceptance':
         assert len(rows) == 20, 'Library acceptance uses a fixed 20-source denominator'
         assert all(re.fullmatch(r'library-0921-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
@@ -307,7 +317,7 @@ def report():
     status, stage = classify(finals, error, batch, source, execution, steps)
     evidence = BASE / 'simulation-reports' / slug
     code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'temporal_source_text.py', 'source_selection.py', 'source_question_cards.py', 'source_publisher_marks.py',
-            'live_tracking.py', 'ci_fetch_bilibili.py',
+            'live_tracking.py', 'ci_fetch_bilibili.py', 'ci_fetch_ifeng.py',
             'simulate_sources.py', 'asr_production_config.json']
     value = dict(sample=row, status=status, stage=stage, finals=finals,
                  validation_error=error, source_sha256=source.get('source_sha256'),

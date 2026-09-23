@@ -26,6 +26,7 @@ QUERIES={
  'gelong_conversation':['格隆对话林园 完整版','格隆博士会客厅 林园'],
  'hnw_course':['林园 高净值研究院 2026 完整版'],
  'investor_call':['林园 投资者连线 完整版'],
+ 'phoenix_2026_09':['林园 凤凰湾区财经论坛 2026 完整版','凤凰网财经 林园 AI 2026 9月'],
 }
 
 
@@ -72,6 +73,8 @@ def fetch_media(url,path,budget):
     elif host in {'m.weibo.cn','weibo.com','www.weibo.com','www.douyin.com'}:
         command=[sys.executable,'-m','yt_dlp','--continue','--socket-timeout','30','--retries','2',
             '-f','bv*[height<=1080]+ba/b[height<=1080]/b','--merge-output-format','mp4','-o',str(path),url]
+    elif host in {'original.ifeng.com','finance.ifeng.com','v.ifeng.com'}:
+        command=[sys.executable,str(BASE/'ci_fetch_ifeng.py'),'--url',url,'--out',str(path)]
     else:raise ValueError('Unsupported source host')
     bounded_run(command,budget,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 

@@ -146,6 +146,16 @@ def test_bounded_seed_acceptance_manifest_keeps_exact_urls():
     assert sim.matrix_samples(manifest,'201')==rows
 
 
+def test_publisher_probe_stays_bound_to_actual_download_and_separate_denominator():
+    import copy
+    manifest=sim.read(ROOT/'linyuan/simulations/publisher1-20260923.json')
+    assert len(sim.validate_manifest(manifest))==1
+    assert sim.aggregate(manifest,[])['total']==1
+    for field,value in [('source_url','https://original.ifeng.com/c/other'),('source_preflight_sha256','a'*64)]:
+        broken=copy.deepcopy(manifest);broken['samples'][0][field]=value
+        with pytest.raises(AssertionError):sim.validate_manifest(broken)
+
+
 def test_diagnostic_mode_cannot_emit_full_acceptance_summary(monkeypatch):
     monkeypatch.setenv('SIMULATION_SAMPLE_IDS','5,9')
     monkeypatch.setattr(sys,'argv',['simulate_sources.py','aggregate'])

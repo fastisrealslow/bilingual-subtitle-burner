@@ -140,8 +140,24 @@ def latest_library():
         for row in trial.get('media',[]):
             body+='<article><h4>新增素材 '+esc(str(row['id']))+'</h4><p>'+esc(row['title'])+'<br>封面：'+esc(row['cover_title'])+'</p><p class="warning">'+esc(row['note'])+'</p>'
             body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放新素材实际成片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div></article>'
-    for key,label in [('boundary_recovery_trial','选段修复复验'),('spoken_focus_trial','先选观点的8B／9B标题实验')]:
+    for key,label in [('boundary_recovery_trial','选段修复复验'),('topic_split_trial','关税与人工智能分段复验'),
+                      ('identity_gallery_trial','同源姿态核验后恢复312完整视频'),
+                      ('spoken_focus_trial','先选观点的8B／9B标题实验'),('ordered_focus_trial','修正实际生成顺序后的复验')]:
         row=review.get(key)
         if row:
             body+='<h3>'+label+'</h3><p>'+esc(row['note'])+'</p><p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(row['run_id'])+'">查看运行</a> · '+esc(row['status'])+'</p>'
+            for media in row.get('media',[]):
+                body+='<article><h4>素材 '+esc(media['id'])+' · 修复后的实际结果</h4><p>'+esc(media['title'])+'<br>封面：'+esc(media['cover_title'])+'</p><p class="warning">'+esc(media['note'])+'</p>'
+                body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(media['file'])+'" poster="'+esc(media['poster'])+'"></video><button type="button">播放完整复验片</button> <a href="'+esc(media['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div></article>'
+            if row.get('rows'):
+                body+='<div class="grid">'
+                for result in row['rows']:
+                    body+='<article><h4>'+esc(result['case'])+' · '+esc(result['model'])+'</h4><p>'+esc(result['title'])+'<br>封面：'+esc(result['cover'])+'</p><p class="warning">'+esc(result['review_note'])+'</p><p class="small">'+esc(result['seconds'])+'秒；纯文本实验，不计成片率。</p></article>'
+                body+='</div>'
+    layout=review.get('cover_layout_trial')
+    if layout:
+        body+='<h3>308封面断句：保留完整谓语</h3><p>'+esc(layout['note'])+'</p><div class="grid">'
+        for key,label in [('before','实际旧封面'),('after','新布局本地预览')]:
+            body+='<figure><img loading="lazy" src="'+esc(layout[key])+'" alt="'+label+'" style="width:100%;height:auto"><figcaption>'+label+'</figcaption></figure>'
+        body+='</div>'
     return body+'</section>'

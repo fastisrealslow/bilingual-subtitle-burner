@@ -1630,12 +1630,12 @@
     "tested_sha": "f89a75c1a4bdd17f64a19856ed2d8caac0036837",
     "status": "in_progress",
     "denominator": 17,
-    "completed_reports_at_update": 12,
+    "completed_reports_at_update": 14,
     "automatic_passes_at_update": 2,
-    "rejected_at_update": 9,
+    "rejected_at_update": 11,
     "note": "独立17条阶段结果；生成的视频还存在带货结尾、泛指标题与混题问题，未编辑通过。未完成的条目保留在分母。",
     "unresolved_at_update": 1,
-    "pending_at_update": 5,
+    "pending_at_update": 3,
     "rows": [
       {
         "id": 301,
@@ -1648,12 +1648,22 @@
         "stage": "candidate-quality"
       },
       {
+        "id": 304,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
         "id": 305,
         "status": "rejected",
         "stage": "source-quality"
       },
       {
         "id": 306,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 307,
         "status": "rejected",
         "stage": "candidate-quality"
       },
@@ -1710,7 +1720,7 @@
         "editorial_approved": false,
         "file": "library17-35823163836/simulation-media-library-0923-008-716206/final.mp4",
         "poster": "library17-35823163836/simulation-media-library-0923-008-716206/cover_16x9.jpg",
-        "note": "原片最后带入小黄车广告；已按原始句界修复选段，实片复验中。红色蓝筹股插画来自原片，风格与其他镜头跳变。"
+        "note": "首次123.40秒片尾包含小黄车广告；后续119.10秒复验已按原始句界移除，两个版本分别保留。红色蓝筹股插画来自原片，风格与其他镜头跳变。"
       },
       {
         "id": 314,
@@ -1723,21 +1733,104 @@
         "editorial_approved": false,
         "file": "library17-35823163836/simulation-media-library-0923-014-56fd06/final_1.mp4",
         "poster": "library17-35823163836/simulation-media-library-0923-014-56fd06/cover_1.jpg",
-        "note": "标题“看不准，所以不投”缺少具体对象，封面只说新旧东西；前两分多钟谈关税，后面才谈人工智能投资。最新代码将两话题分成完整连续候选，待实片复验。"
+        "note": "首次273秒片混合关税与人工智能两个话题，标题缺具体对象；后续147秒片已分离话题，原片保留对照。"
       }
     ]
   },
   "boundary_recovery_trial": {
     "run_id": "35825387399",
     "tested_sha": "6bc63efb3389c7739e2a6ef5c7c3f240d57215e7",
-    "status": "in_progress",
-    "note": "303、312已恢复完整选段，但分别被源字幕遮脸和逐帧身份匹配比例拦截；306、308仍待回报。不计为新增成片。"
+    "status": "completed",
+    "note": "四条选段修复复验完成：308自动出片，303和306被画面门禁拦下，312被身份比例拦下。308原先已有片，因此本轮没有新增自动出片数量。",
+    "media": [
+      {
+        "id": 308,
+        "title": "林园：大牛股的利润不是靠投入，而是市场无限大",
+        "cover_title": "大牛股的利润不是靠投入，而是市场无限大",
+        "file": "library4-35825387399/simulation-media-library-0923-008-716206/final.mp4",
+        "poster": "library4-35825387399/simulation-media-library-0923-008-716206/cover_16x9.jpg",
+        "duration": 119.101333,
+        "sha256": "3764b01fe0fbef094b33afc81d2d10eb5bd75c2c61857f6839cafd8bdb9519ab",
+        "source_sha256": "b0c41c31d979084c2aa782936da4e14f79f233b9a7a5559c5d8eaee5728cb792",
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "note": "实际新片已去掉小黄车带货结尾；六帧、完整ASS与音视频解码已查。封面将不是靠投入断开，本地布局修复预览另列，未悄悄替换这份实际结果。"
+      }
+    ]
   },
   "spoken_focus_trial": {
     "run_id": "35825675621",
     "tested_sha": "5c8dc8a51ff86c96b9553b94e755c0fc8b0d0a1f",
-    "status": "queued",
-    "note": "同三份真实原文，8B／9B独立测试先选一个看点再拟标题；尚无生成结果。"
+    "status": "completed_with_planning_order_failure",
+    "note": "六组都生成文本，但原始JSON均先写判断、后列看点，未执行预期规划顺序；不能视为先选看点策略有效。9B未稳定优于8B。最新代码修正实际字段顺序，再次隔离复验。",
+    "rows": [
+      {
+        "case": "source100-17",
+        "model": "qwen3:8b",
+        "title": "林园：听说光伏污染大，所以没参与。",
+        "cover": "林园没参与光伏，因听说污染",
+        "seconds": 217.4,
+        "review_note": "保留听说，表达比之前短；封面仍为旁观者转述，未编辑放行。",
+        "editorial_approved": false,
+        "planning_order_verified": false,
+        "raw_file": "title-focus-35825675621/spoken-focus-8b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3:8b",
+        "title": "林园：确定方向后，坚持持有心血管和糖尿病相关企业不会错",
+        "cover": "定方向后持有心血管企业",
+        "seconds": 787.21,
+        "review_note": "心血管企业不自然；审核又把独白误认为主持人问题。",
+        "editorial_approved": false,
+        "planning_order_verified": false,
+        "raw_file": "title-focus-35825675621/spoken-focus-8b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3:8b",
+        "title": "林园：我为什么选择医药行业？因为它是未来三十年增长百分之三十的赛道。",
+        "cover": "我为什么选择医药行业",
+        "seconds": 689.7,
+        "review_note": "原话包含年增长语境，标题写成三十年增长30%，统计周期被改动。",
+        "editorial_approved": false,
+        "planning_order_verified": false,
+        "raw_file": "title-focus-35825675621/spoken-focus-8b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json"
+      },
+      {
+        "case": "source100-17",
+        "model": "qwen3.5:9b",
+        "title": "林园：仅凭听说光伏污染大，自己就没去投资",
+        "cover": "听说光伏污染大，自己选择不参与",
+        "seconds": 443.52,
+        "review_note": "仅凭添加了原文未明确的唯一原因；未研究被省略，未编辑放行。",
+        "editorial_approved": false,
+        "planning_order_verified": false,
+        "raw_file": "title-focus-35825675621/spoken-focus-9b-0/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-0-repeat-1.json"
+      },
+      {
+        "case": "source100-68",
+        "model": "qwen3.5:9b",
+        "title": "林园：定好方向买指数坚持，最后赚得让你不敢相信",
+        "cover": "定好方向买指数坚持",
+        "seconds": 535.87,
+        "review_note": "最后赚得不敢相信来自原话，语气更鲜明；买指数坚持仍有词组堆叠，未编辑放行。",
+        "editorial_approved": false,
+        "planning_order_verified": false,
+        "raw_file": "title-focus-35825675621/spoken-focus-9b-1/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-1-repeat-1.json"
+      },
+      {
+        "case": "source100-79",
+        "model": "qwen3.5:9b",
+        "title": "林园：锁定未来三十年增长赛道，五亿老人就是生意。",
+        "cover": "锁定未来三十年，做五亿人生意。",
+        "seconds": 404.43,
+        "review_note": "五亿统计丢掉2057年与接近，封面还丢掉老人范围，审核误放行。",
+        "editorial_approved": false,
+        "planning_order_verified": false,
+        "raw_file": "title-focus-35825675621/spoken-focus-9b-2/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-2-repeat-1.json"
+      }
+    ]
   },
   "publisher_trial_previous": {
     "run_id": "35821892580",
@@ -1753,5 +1846,64 @@
     "duration": 34.887696,
     "editorial_approved": false,
     "note": "完整34.89秒复验：中央大字避开，但左上仍有一截红色笔画，编辑不通过。源图分析确认角落出版方书法笔画伸出OCR文字框，正在按实际颜色边界修复，不把Action成功当画面合格。"
+  },
+  "topic_split_trial": {
+    "run_id": "35826503113",
+    "tested_sha": "90c0879c93982bb51f8447e2cc97d89444c1ea4c",
+    "status": "completed_with_editorial_failure",
+    "note": "314同母片完整复验已输出147秒关税讨论，避免原273秒片与人工智能混题。字幕仍有疑似漏字，原画多窗口顶部留有截断来源文字；标题把可能改成肯定、封面只保留正面判断，未编辑通过。",
+    "media": [
+      {
+        "id": 314,
+        "title": "林园：关税政策长期对全球平衡友好，但短期会带来痛苦。",
+        "cover_title": "关税政策长期对全球平衡友好",
+        "file": "library314-35826503113/simulation-media-library-0923-014-56fd06/final_2.mp4",
+        "poster": "library314-35826503113/simulation-media-library-0923-014-56fd06/cover_2.jpg",
+        "duration": 147.26666666666668,
+        "sha256": "350860f1b6a2ef5ee37ec43abed9ba613d68c4deb4ca8769cadd9499ee68db2e",
+        "source_sha256": "3ba57259c99bc12e1eaa81d39eb6648127e827a9c02e0129fc227563b15bbc1e",
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "note": "314同母片完整复验已输出147秒关税讨论，避免原273秒片与人工智能混题。字幕仍有疑似漏字，原画多窗口顶部留有截断来源文字；标题把可能改成肯定、封面只保留正面判断，未编辑通过。"
+      }
+    ]
+  },
+  "cover_layout_trial": {
+    "before": "library4-35825387399/simulation-media-library-0923-008-716206/cover_16x9.jpg",
+    "after": "cover308-layout/new.jpg",
+    "note": "同一18字文案、96px Noto字体与实际旧封面人物区域。新布局分成“大牛股的利润／不是靠投入／而是市场无限大”，不丢词、不缩字。只用于本地排版比较，未替换上方真实Action的旧封面，也不是新增成片。",
+    "tested_sha": "f79f8c243f63e8c694f1345ff59989ed32939bc7"
+  },
+  "ordered_focus_trial": {
+    "run_id": "35828458711",
+    "tested_sha": "f79f8c243f63e8c694f1345ff59989ed32939bc7",
+    "status": "queued",
+    "note": "同三条原始字幕×8B/9B，检查实际返回顺序必须先看点、再限定、再判断；尚未返回结果，不预判改善。"
+  },
+  "identity_gallery_trial": {
+    "run_id": "35826906406",
+    "tested_sha": "85f069894ea1a11dcd16f3273e830586cb6195af",
+    "status": "completed_with_editorial_failure",
+    "note": "312完整77.74秒复验成功，逐帧身份匹配94.81%。新增3个同源姿态都先与原参考照直接核验，阈值、96px与80%门禁未降低。相对原17条的首次结果新增1条自动出片；首次2/17保持不改，重试累计3/17另计。标题“但要看人”仍偏概括，未编辑放行。",
+    "media": [
+      {
+        "id": 312,
+        "title": "林园：科技赛道是百分百风险，但要看人",
+        "cover_title": "科技赛道风险高，关键在人",
+        "file": "library312-35826906406/simulation-media-library-0923-012-153821/final.mp4",
+        "poster": "library312-35826906406/simulation-media-library-0923-012-153821/cover_16x9.jpg",
+        "duration": 77.7,
+        "sha256": "150df32afd9b6825873a5a77fbeeec11fc90415bd041276ddb02ece669a8b941",
+        "source_sha256": "ebec81a954ba240de2d28aefa8ade545cc61bde7bc0ebadd7cab332830a48360",
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "note": "同母片通过哈希、完整音视频解码、六帧和全部ASS检查。保留自然主持人切换；尚未逐秒人工听音。标题仍需要更具体的个人选择和原因。"
+      }
+    ]
+  },
+  "publisher_source_trial": {
+    "status": "downloaded_pending_production",
+    "note": "已从凤凰网财经文章正文的唯一视频附件取得106.56秒720×1280采访，SHA与完整解码记录已保存。文章注明9月16日论坛；发布时间9月19日，不能混为同一日期。接下来独立验收，不加入原100或新17条分母。",
+    "source_file": "source-origin-sep23/ifeng-AI-20260919.mp4"
   }
 }
