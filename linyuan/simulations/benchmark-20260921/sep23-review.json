@@ -2305,12 +2305,6 @@
   },
   "threeway_overrides": [
     {
-      "id": 8,
-      "verification_file": "multi-guest-35839087903/media-verification.json",
-      "sha256": "60c6f29ff273624098355ef8d691130aafaf331b837709ffe432cf505105006b",
-      "comparison": "同母片修复后已实际出片117.43秒：从378.76秒主持人明确转问林总开始，在下一次总结前结束，避开原来其他嘉宾回答。完整音视频解码、六帧和全部ASS已核对。标题却选了后段K型结构解释，未抓住前面的还没有进入牛市；主持人开场约22秒、口吃及画面占比也待改善。不能计编辑通过，未知说话人仍不自动认证。"
-    },
-    {
       "id": 79,
       "verification_file": "source-choices-video-35837686332/media-verification.json",
       "sha256": "fdef9ebebf9b8906748cf61c6920efc39ac977e1a079e1307e82ae0da209ad2d",
@@ -2327,6 +2321,12 @@
       "verification_file": "../sep23-full100-35833967072/media-verification.json",
       "sha256": "f01252792b5d0d22a7908ac4fb462e7dd0dfe158ce92fa60a2c08dde7da0d2a5",
       "comparison": "补入新一轮100条实际取得的147.6秒竖版视频，代码87a0099；旧06815b4批次的缺失结果仍保留在原统计。完整音视频解码、六帧和全部ASS已核对。标题仍偏总结语气，未认定编辑通过，不用本次恢复重写旧批次分数。"
+    },
+    {
+      "id": 8,
+      "verification_file": "title-handoff-35852795888/media-verification.json",
+      "sha256": "ff35db9e4546fb38ec17c217538d5a4572a25faeeb4199bf5fe8e3618c481a5c",
+      "comparison": "最新117.43秒实片已采用“林园：当前市场还没进入牛市”，标题和封面从独立8B Action原样交接，避免出片时再次随机改选旁枝。母片与此前相同，仍是378.76–496.2秒林园回答；实际记录哈希、完整音视频解码、六帧和全部25屏字幕已核对。主持人约22秒开场、字幕口吃与疑词、小画面及原录制日期背景仍待改善；未编辑通过，不回填整批17/100。"
     }
   ],
   "channel_source_trial": {
@@ -4716,8 +4716,8 @@
   "handoff_trial": {
     "run_id": "35852795888",
     "tested_sha": "6fa9100abb3049eef40a8fefa30667742449d95c",
-    "status": "in_progress",
-    "note": "4条标题均已生成，但28仍遗漏个人预测语气，32新增盈利保障，311对象不明且封面更绝对，不能把4生成当4优质。8号标题已在同代码隔离环境证明无需再调用模型即可原样交接，完整渲染正在运行。",
+    "status": "completed",
+    "note": "4条标题均生成；28遗漏个人预测语气、32新增盈利保障、311对象不明且封面更绝对，不能把4生成当4优质。8号已完成117.43秒实片，标题与封面逐字沿用独立Action结果，元数据交接指纹与原记录一致；完整音视频解码、六帧、全部25屏字幕已检查。仍有口吃、疑词、小画面与录制日期背景缺失，不计编辑通过或新增素材出片。",
     "rows": [
       {
         "case": "sep23-source8",
@@ -4726,7 +4726,7 @@
         "seconds": 284.16,
         "title": "林园：当前市场还没进入牛市",
         "cover": "当前市场还没进入牛市",
-        "review_note": "主要回答保持正确，本轮284秒得到；其他素材仍在验证，完整视频渲染和交接验证待完成。",
+        "review_note": "主要回答保持正确，实际117.43秒视频和封面均沿用同一生成结果，交接记录哈希匹配；尚非编辑合格。",
         "editorial_approved": false,
         "raw_file": "title-handoff-35852795888/source-choices-8b-3/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-3-repeat-1.json"
       },
@@ -4763,6 +4763,30 @@
         "editorial_approved": false,
         "raw_file": "title-handoff-35852795888/source-choices-8b-6/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-6-repeat-1.json"
       }
-    ]
+    ],
+    "video": {
+      "id": 8,
+      "slug": "sim-0916-008-868622",
+      "variant": "simulation",
+      "tested_sha": "6fa9100abb3049eef40a8fefa30667742449d95c",
+      "run_id": "35852795888",
+      "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+      "video_audio_full_decode": true,
+      "editorial_approved": false,
+      "editorial_scope": "Automatic hash, duration and full audio/video decode only; manual observations are recorded separately",
+      "sha256": "ff35db9e4546fb38ec17c217538d5a4572a25faeeb4199bf5fe8e3618c481a5c",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "duration": 117.43333333333334,
+      "file": "output/benchmark-20260921/title-handoff-35852795888/simulation-media-sim-0916-008-868622/final_1.mp4",
+      "title": "林园：当前市场还没进入牛市",
+      "cover_title": "当前市场还没进入牛市",
+      "cover": "output/benchmark-20260921/title-handoff-35852795888/simulation-media-sim-0916-008-868622/cover_1.jpg",
+      "contact_sheet": "output/benchmark-20260921/title-handoff-35852795888/simulation-media-sim-0916-008-868622/contact_sheet_6-landscape.jpg",
+      "current_title_gate_issue": null
+    },
+    "video_handoff_verified": true
   }
 }
