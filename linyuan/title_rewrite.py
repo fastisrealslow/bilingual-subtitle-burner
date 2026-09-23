@@ -538,6 +538,14 @@ def forecast_copy_error(title, cover, transcript):
     This narrow rule catches the actual source58 failure. It neither invents a
     missing index level/date nor claims to solve general semantic entailment.
     """
+    # Real source28 lost 我相信 in BOTH fields after the cover-only repair.
+    # Match the same distinctive growth claim in the source, rather than
+    # treating every nearby personal opinion as a qualifier for all claims.
+    beliefs=re.findall(r'我(?:相信|觉得|判断|认为)[^。！？!?]{0,16}(?:未来|将来|今后)[^。！？!?]{0,24}(爆发性增长)',transcript)
+    for claim in beliefs:
+        for copy in (title,cover):
+            if claim in copy and not re.search(r'我(?:相信|觉得|判断|认为)|预计|有望|可能|能否|会不会|是否|[？?]',copy):
+                return '个人的未来增长判断丢失原有判断语气；标题和封面都须保留我相信等限定，不能一起改成事实'
     # Actual source34 says 空间应该在一百倍到五百倍之间. Both model
     # reviews approved a cover asserting the range as established fact.
     # Bound this check to a quantified market-space estimate, not every

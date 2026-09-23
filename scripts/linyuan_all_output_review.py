@@ -37,7 +37,8 @@ def build_all_output_review(reference_media, player):
                      +read(OUT/'source17-title-35886863820/media-verification.json',[]))
     trials=[('all-current-titles-35881680084','bfd2fff9bf8893fa9cda0de9d314af5b514595f2'),
             ('direct-answer-35883544757','70e1c355942d224f445e2c95542d8f0917dce4f3'),
-            ('object-answer-35885982275','244409b2b137e535b52833acb1cf20e419dbe0d2')]
+            ('object-answer-35885982275','244409b2b137e535b52833acb1cf20e419dbe0d2'),
+            ('retry-repair-35888015034','1ed1a368acf8a6739c119f206048d1d1dba9f1fb')]
     paths=[(path,commit,index==0) for index,(folder,commit) in enumerate(trials)
            for path in (OUT/folder).rglob('case-*-repeat-1.json')]
     for path,commit,primary in paths:
@@ -66,7 +67,43 @@ def build_all_output_review(reference_media, player):
             row.update(rendered=True,rendered_media=video)
         if primary:model_rows[case['id']]=row
         else:additional_rows.setdefault(case['id'],[]).append(row)
+    audio_rows=[]
+    frozen_audio=read(RECORDS/'all-output-audio-doubts.json',[])
+    for path in sorted((OUT/'all-output-audio-35888624098').rglob('result.json')):
+        result=read(path);case=result.get('case',{})
+        if case not in frozen_audio or result.get('run_id')!='35888624098':
+            raise ValueError('Independent ASR result is not from the frozen audio experiment')
+        if result.get('status')!='transcribed':continue
+        audio=path.parent/'original-audio.wav'
+        if hashlib.sha256(audio.read_bytes()).hexdigest()!=result['audio_sha256']:
+            raise ValueError('Independent ASR audio changed')
+        audio_rows.append(dict(source_id=case['source_id'],case_id=case['id'],
+            original=' '.join(c['text'] for c in case['primary_asr_excerpt']),
+            secondary=result['recognized_text'],file=os.path.relpath(audio,OUT),
+            result_file=os.path.relpath(path,OUT),source_run_id=case['source_run_id'],
+            window=case['window'],subtitles_modified=False))
+    fresh_rows=read(ROOT/'output/replacement100-35887065004/results/media-verification.json',[])
+    fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
     rows=[]; cards=[]
+
+    def audio_doubts(ident):
+        items=[r for r in audio_rows if r['source_id']==ident]
+        if not items:return ''
+        return ('<details><summary>疑词原声复核 · '+str(len(items))+' 段</summary>'
+            '<p>第二个识别器提供核对线索，不等于听音验收；尚未据此修改字幕。原片字幕取证正在单独运行。</p>'
+            +''.join('<p><b>'+esc(r['case_id'])+'</b> · 成片 '+esc(r['source_run_id'])+' 的 '
+                +esc(r['window']['start'])+'–'+esc(r['window']['end'])+' 秒</p>'
+                +'<audio controls preload="none" src="'+esc(r['file'])+'"></audio>'
+                +'<p>原识别：'+esc(r['original'])+'</p><p>独立识别：'+esc(r['secondary'])+'</p>'
+                +'<a href="'+esc(r['result_file'])+'">固定模型和原声哈希记录</a>' for r in items)+'</details>')
+
+    def fresh_outputs(ident):
+        items=[r for r in fresh_rows if r['id']==ident and r.get('video_audio_full_decode')]
+        return ''.join('<details><summary>完整100条新回归实片 · '+esc(r['tested_sha'][:7])+'</summary>'
+            +player(os.path.relpath(ROOT/r['file'],OUT),os.path.relpath(ROOT/r['cover'],OUT),
+                    f"新回归实际成片 · {r['duration']:.1f}秒")
+            +'<p>标题：'+esc(r['title'])+'</p><p>封面：'+esc(r['cover_title'])+'</p>'
+            +'<p>'+esc(fresh_notes.get(r['sha256'],'尚未完成本稿的编辑复核。'))+'</p></details>' for r in items)
 
     def model_copy(case):
         items=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])
@@ -157,7 +194,7 @@ def build_all_output_review(reference_media, player):
                            else '母片哈希不同，不作严格同素材质量胜负。')+'</small>'
         else:
             old+='<p>本批没有对应的已核验主线成片；新素材没有另补主线对跑，不能据此宣布胜出。</p>'
-        current='<h4>优化版 · 实际成片</h4>'+actual(selected)
+        current='<h4>优化版 · 实际成片</h4>'+actual(selected)+fresh_outputs(ident)+audio_doubts(ident)
         for case in cases:
             if case['id']==selected['id']:continue
             current+='<details><summary>另一个实际版本 · '+esc(case['source_run_id'])+'</summary>'+actual(case)+'</details>'
@@ -180,7 +217,8 @@ def build_all_output_review(reference_media, player):
         sources=len(plans),versions=len(corpus),rows=rows,
         review_scope='Full source transcript and actual cover inspection; earlier decode/frame/ASS evidence retained; full audio semantic review incomplete',
         model_run_id=35881680084,model_results_imported=len(model_rows),
-        fixed_copy_layouts=list(layout_rows.values()),quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
+        fixed_copy_layouts=list(layout_rows.values()),audio_crosschecks=audio_rows,
+        fresh_full100_outputs=fresh_rows,quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
     return ('<section id="all-outputs"><h2>全部成片逐条改：标题、封面与内容</h2>'
         '<p class="note">新一轮完整100条回归（e1ac6a6）正在运行：<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35887065004">查看全部作业</a>。此前17/100属于旧87a0099整轮结果，不能当作新代码已经验证的成绩；专项标题和排版不加进分子。</p>'
         '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个实际版本、22个素材编号。95与99仍为重复内容；同素材不同版本也不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。下方建议稿不是模型实测成绩，也尚未烧入视频；没有把它们算成编辑合格。</p>'

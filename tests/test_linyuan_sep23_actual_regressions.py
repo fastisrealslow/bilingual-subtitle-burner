@@ -66,3 +66,9 @@ def test_real_batch_failures_do_not_hide_title_retries_or_missing_publication_ra
     assert D.failure_category('同一来源URL的母片内容哈希已改变，须核对旧段对应关系')=='publication_history'
     assert D.failure_category('与已经发布的母片时间段重叠，保留其他完整观点')=='duplicate'
     assert D.failure_category('原文中未找到连续候选；重复模型请求无助于恢复')=='selection'
+
+
+def test_pre_title_and_post_render_motion_failures_have_the_same_cause():
+    for reason in ['动态窗口缺少持续局部动作：疑似照片/背景板，不能作为真人视频发布',
+                   '标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算']:
+        assert D.failure_category(reason)=='motion'

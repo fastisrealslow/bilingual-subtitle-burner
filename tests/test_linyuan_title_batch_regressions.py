@@ -101,3 +101,17 @@ def test_real_all_output_growth_cover_cannot_discard_belief():
     assert T.cover_qualifier_error(title,'我相信眼科牙科会爆发性增长') is None
     assert T.cover_qualifier_error(title,'眼科牙科会不会爆发性增长？') is None
     assert T.cover_qualifier_error('林园：眼科牙科已经增长','眼科牙科已经增长') is None
+
+
+def test_actual_second_growth_trial_cannot_drop_belief_from_both_fields():
+    source='这这都是两个大行业，我相信未来这两个行业还是会有爆发性增长。'
+    title='林园：眼科牙科未来爆发性增长'
+    cover='眼科牙科未来爆发性增长'
+    assert '判断语气' in T.forecast_copy_error(title,cover,source)
+    item=dict(title=title,cover_title=cover,subject='眼科',evidence=[source])
+    assert '判断语气' in T._candidate_error(item,source,'林园',[],check_layout=False)
+    assert T.forecast_copy_error('我相信眼科牙科未来会有爆发性增长',
+                                '眼科牙科会不会爆发性增长？',source) is None
+    # A different historical claim must not acquire an invented hedge.
+    assert T.forecast_copy_error('营收已经增长','营收已经增长',source) is None
+    assert T.forecast_copy_error(title,cover,'这两个行业已经出现爆发性增长。') is None

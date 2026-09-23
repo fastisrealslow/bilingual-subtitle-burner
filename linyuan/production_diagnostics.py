@@ -28,6 +28,9 @@ def failure_category(reason):
         # Missing legacy ranges are a ledger gap, not evidence of duplicate
         # content; title retries often also contain the words 完整观点.
         ('publication_history', ('同源历史缺少可核对的起止段', '母片内容哈希已改变')),
+        # A pre-title motion rejection mentions 标题/字幕 only to explain work
+        # avoided. It is still a visual failure, not a copy-generation error.
+        ('motion', ('缺少持续局部动作', '动态证据不足', '疑似照片/背景板')),
         ('title', ('标题', '封面文案', '文案')),
         ('captions', ('字幕', '分屏', '断词')),
         ('selection', ('连续候选', '120秒', '完整观点', '选段')),
