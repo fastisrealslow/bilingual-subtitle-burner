@@ -208,7 +208,10 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     checks.update(producer.verify_live_region_after_render(target,actor_times=times or (),live_region=region))
     identity=producer.verify_final_live_identity(target,work,speaker,api_key,'-landscape',
                                                   target_times=times,live_region=region)
-    external_logos=producer.detect_corner_logos(target,frames=12,strict=True)
+    # Recognition-aware final-image inspection distinguishes our generated
+    # brand from third-party source text; the old shape-only source detector
+    # reports our own quiet-layout wordmark as an external logo.
+    external_logos=producer.detect_external_logos_after_render(target,'crop',*CANVAS)
     if external_logos:raise producer.VisualQualityError('重排成片仍有外部角标：'+str(external_logos))
     actual=float(producer.probe(target,'format=duration'))
     if abs(actual-meta['duration_sec'])>.15:raise ValueError('横版重排改变了时长')
