@@ -29,24 +29,32 @@ def build_all_output_review(reference_media, player):
     preferred = {8:'35852795888',17:'35842176532',79:'35837686332'}
     references = {r['bvid']:r for filename in ('references-20.json','references-latest-sep23.json')
                   for r in read(RECORDS/filename, {'rows':[]})['rows']}
-    model_rows={}
+    model_rows={};additional_rows={}
     model_notes=read(RECORDS/'all-output-model-review.json',{})
     layout_rows={r['id']:r for r in read(OUT/'fixed-copy-layout-35885583458/media-verification.json',[])
                  if r.get('video_audio_full_decode') and r.get('source_yield_credit') is False}
-    rendered_copies=read(OUT/'source32-title-35884655321/media-verification.json',[])
-    for path in (OUT/'all-current-titles-35881680084').rglob('case-*-repeat-1.json'):
+    rendered_copies=(read(OUT/'source32-title-35884655321/media-verification.json',[])
+                     +read(OUT/'source17-title-35886863820/media-verification.json',[]))
+    trials=[('all-current-titles-35881680084','bfd2fff9bf8893fa9cda0de9d314af5b514595f2'),
+            ('direct-answer-35883544757','70e1c355942d224f445e2c95542d8f0917dce4f3'),
+            ('object-answer-35885982275','244409b2b137e535b52833acb1cf20e419dbe0d2')]
+    paths=[(path,commit,index==0) for index,(folder,commit) in enumerate(trials)
+           for path in (OUT/folder).rglob('case-*-repeat-1.json')]
+    for path,commit,primary in paths:
         model=read(path)
         case=next((c for c in corpus if c['id']==model.get('case')),None)
-        if (case is None or model.get('commit')!='bfd2fff9bf8893fa9cda0de9d314af5b514595f2'
+        if (case is None or model.get('commit')!=commit
                 or model.get('source_final_sha256')!=case['final_sha256']
                 or model.get('transcript_sha256')!=case['transcript_sha256']):
             raise ValueError('Model replay is not bound to this frozen actual output')
         result=model.get('result',{})
-        model_rows[case['id']]=dict(status=model.get('status'),title=result.get('title'),
+        row=dict(status=model.get('status'),title=result.get('title'),
             cover=result.get('cover_title'),seconds=model.get('seconds'),error=model.get('error'),
             proof_error=model.get('proof_error'),experiment_valid=model.get('experiment_valid'),
             file=os.path.relpath(path,OUT),rendered=False,editorial_approved=False,
-            editorial_note=model_notes.get(case['id'],'尚未完成本稿的编辑复核。'))
+            run_id=model.get('run_id'),model=model.get('model'),
+            editorial_note=model_notes.get(case['id'] if primary else str(model.get('run_id'))+':'+case['id'],
+                                            '尚未完成本稿的编辑复核。'))
         for video in rendered_copies:
             if not video.get('video_audio_full_decode') or video['id']!=case['source_id']:continue
             meta=read((ROOT/video['file']).parent/'meta.json',{})
@@ -55,19 +63,25 @@ def build_all_output_review(reference_media, player):
             if (video['title']!=result.get('title') or video['cover_title']!=result.get('cover_title')
                     or meta.get('source_sha256')!=case['source_sha256']):
                 raise ValueError('Rendered model copy differs from its exact title-stage record')
-            model_rows[case['id']].update(rendered=True,rendered_media=video)
+            row.update(rendered=True,rendered_media=video)
+        if primary:model_rows[case['id']]=row
+        else:additional_rows.setdefault(case['id'],[]).append(row)
     rows=[]; cards=[]
 
     def model_copy(case):
-        row=model_rows.get(case['id'])
-        if not row:return '<p class="small">本轮独立模型复验：结果尚未取回。</p>'
+        items=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])
+        return (''.join(model_detail(row,case) for row in items) if items
+                else '<p class="small">本轮独立模型复验：结果尚未取回。</p>')
+
+    def model_detail(row,case):
         detail=('<p>标题：'+esc(row['title'])+'</p><p>封面：'+esc(row['cover'])+'</p>'
                 if row['status']=='generated' else '<p>'+esc(row.get('error'))+'</p>')
         media=row.get('rendered_media');clip=''
         if media:
-            clip=player(os.path.relpath(ROOT/media['file'],OUT),os.path.relpath(ROOT/media['cover'],OUT),'独立标题Action的原稿已用于完整190秒出片')
-            clip+='<p class="small">完整解码、六帧和全部显示字幕已核对；字幕仍有“垄垄断”“虽虽然”等问题。标题改善不等于整片编辑合格，也不计新增素材。</p>'
-        return ('<details><summary>本轮模型稿 · '+esc(row['status'])+(' · 已有完整实片' if media else ' · 尚未烧入视频')+'</summary>'
+            clip=player(os.path.relpath(ROOT/media['file'],OUT),os.path.relpath(ROOT/media['cover'],OUT),f"独立标题原稿完整出片 · {media['duration']:.1f}秒")
+            subtitle_note=('字幕仍有“垄垄断”“虽虽然”等问题。' if case['source_id']==32 else '竖版保留完整问答，显示字幕仍有“没有没有”“没参与没参与”等重复。')
+            clip+='<p class="small">完整解码、六帧和全部显示字幕已核对；'+subtitle_note+'标题改善不等于整片编辑合格，也不计新增素材。</p>'
+        return ('<details><summary>模型稿 · '+esc(row['model'])+' · '+esc(row['run_id'])+' · '+esc(row['status'])+(' · 已有完整实片' if media else ' · 尚未烧入视频')+'</summary>'
             +detail+'<p><b>这稿是否改善：</b>'+esc(row['editorial_note'])+'</p>'
             +clip
             +'<p class="small">用时 '+esc(row['seconds'])+'秒；自动核验不等于编辑合格。'
@@ -94,10 +108,19 @@ def build_all_output_review(reference_media, player):
         if meta.get('fingerprints',{}).get('sha256')!=case['final_sha256']:
             raise ValueError('Actual final metadata does not match frozen review case')
         label=f"实际版本 {case['source_code'][:7]} · {case['duration']:.1f}秒 · 运行 {case['source_run_id']}"
-        return (player(os.path.relpath(final,OUT),os.path.relpath(cover,OUT),label)
+        original=(player(os.path.relpath(final,OUT),os.path.relpath(cover,OUT),label)
             +'<p class="copy-title">'+esc(case['old_title'])+'</p><p>实际封面字：'+esc(case['old_cover'])+'</p>'
             +'<p class="small">'+esc('现场核验帧' if meta.get('cover_person_image_source')=='verified_source_frame' else '人物资料照回退')
-            +('；'+esc(meta['cover_fallback_reason']) if meta.get('cover_fallback_reason') else '')+'</p>'+model_copy(case)+layout_trial(case))
+            +('；'+esc(meta['cover_fallback_reason']) if meta.get('cover_fallback_reason') else '')+'</p>')
+        drafts=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])
+        improved=next((r['rendered_media'] for r in drafts if r.get('rendered') and case['source_id'] in (17,32)),None)
+        if improved:
+            latest=player(os.path.relpath(ROOT/improved['file'],OUT),os.path.relpath(ROOT/improved['cover'],OUT),
+                          f"本条最新标题实片 · {improved['duration']:.1f}秒 · {improved['tested_sha'][:7]}")
+            latest+='<p class="copy-title">'+esc(improved['title'])+'</p><p>实际封面字：'+esc(improved['cover_title'])+'</p>'
+            latest+='<p class="small">标题有具体改善，整片仍有待处理问题；不作为新增出片数。</p>'
+            original=latest+'<details><summary>查看本轮冻结前的实际版本</summary>'+original+'</details>'
+        return original+model_copy(case)+layout_trial(case)
 
     for ident in sorted(plans):
         plan=plans[ident]; cases=[r for r in corpus if r['source_id']==ident]
@@ -118,6 +141,7 @@ def build_all_output_review(reference_media, player):
                 proposed_title=plan['proposed_title'],proposed_cover=plan['proposed_cover'],
                 proposal_rendered=False,next_edit=plan['next_edit'])
             row['model_replay']=model_rows.get(case['id'],dict(status='not_imported'))
+            row['additional_model_replays']=additional_rows.get(case['id'],[])
             if ident==8 and case['source_run_id']=='35833967072':
                 row['title_problem']='错误说话人：本段主要是郭总回答，不能通过换标题冒充林园。此版本须淘汰，不能复用建议稿。'
             if ident==79 and case['source_run_id']=='35837686332':
@@ -158,6 +182,7 @@ def build_all_output_review(reference_media, player):
         model_run_id=35881680084,model_results_imported=len(model_rows),
         fixed_copy_layouts=list(layout_rows.values()),quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
     return ('<section id="all-outputs"><h2>全部成片逐条改：标题、封面与内容</h2>'
+        '<p class="note">新一轮完整100条回归（e1ac6a6）正在运行：<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35887065004">查看全部作业</a>。此前17/100属于旧87a0099整轮结果，不能当作新代码已经验证的成绩；专项标题和排版不加进分子。</p>'
         '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个实际版本、22个素材编号。95与99仍为重复内容；同素材不同版本也不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。下方建议稿不是模型实测成绩，也尚未烧入视频；没有把它们算成编辑合格。</p>'
         '<p>18字以内不是必须凑满：能独立理解的个人选择可以更短。金句须有具体对象、真实态度和完整条件；强烈发言可以保留，不能改造出盈利保证。</p>'
         '<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35881680084">26份原始输入的独立8B标题Action</a>'

@@ -1,0 +1,79 @@
+name: 全成片疑词复核：9段原声独立ASR
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-all-output-audio-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-all-output-audio-check
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - case: 0
+            artifact: simulation-media-sim-0916-008-868622
+            source_run: 35852795888
+          - case: 1
+            artifact: simulation-media-sim-0916-032-b93410
+            source_run: 35833967072
+          - case: 2
+            artifact: simulation-media-sim-0916-039-8d737f
+            source_run: 35833967072
+          - case: 3
+            artifact: simulation-media-sim-0916-039-8d737f
+            source_run: 35833967072
+          - case: 4
+            artifact: simulation-media-sim-0916-049-63fa5e
+            source_run: 35833967072
+          - case: 5
+            artifact: simulation-media-sim-0916-068-4b4c30
+            source_run: 35833967072
+          - case: 6
+            artifact: simulation-media-sim-0916-079-e9db06
+            source_run: 35833967072
+          - case: 7
+            artifact: simulation-media-sim-0916-079-e9db06
+            source_run: 35833967072
+          - case: 8
+            artifact: simulation-media-library-0923-011-f9c5ca
+            source_run: 35842906796
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 下载已绑定哈希的实际成片
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ARTIFACT: ${{ matrix.artifact }}
+          SOURCE_RUN: ${{ matrix.source_run }}
+        run: gh run download "$SOURCE_RUN" --name "$ARTIFACT" --dir actual-media
+      - name: 安装独立CPU转写引擎
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install faster-whisper==1.2.1
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.cache/huggingface/hub
+          key: whisper-large-v3-53ecf83a5bed-v1
+      - name: 固定20秒左右原声，不提示预期答案
+        run: python -u scripts/linyuan_audio_crosscheck.py --case "${{ matrix.case }}" --media actual-media --corpus linyuan/simulations/benchmark-20260921/all-output-audio-doubts.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: all-output-audio-${{ matrix.case }}
+          path: audio-crosscheck-results/
+          retention-days: 30
+          if-no-files-found: warn

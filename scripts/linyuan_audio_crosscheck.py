@@ -40,8 +40,9 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--case',type=int,required=True)
     ap.add_argument('--media',type=Path,required=True)
+    ap.add_argument('--corpus',type=Path,default=CORPUS)
     ap.add_argument('--out',type=Path,default=Path('audio-crosscheck-results'))
-    args=ap.parse_args();case=json.loads(CORPUS.read_text())[args.case]
+    args=ap.parse_args();case=json.loads(args.corpus.read_text())[args.case]
     args.out.mkdir(parents=True,exist_ok=True);target=args.out/'result.json'
     row=dict(case=case,model=MODEL,revision=REVISION,commit=os.environ.get('GITHUB_SHA'),
         run_id=os.environ.get('GITHUB_RUN_ID'),status='unresolved',editorial_approved=False,
