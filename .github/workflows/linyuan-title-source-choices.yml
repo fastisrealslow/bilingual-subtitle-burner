@@ -1,4 +1,4 @@
-name: 完整短句全链路：8B实片字幕复验（不投稿）
+name: 主要回答原文绑定：8B三段实际字幕完整标题链路
 'on':
   push:
     branches:
@@ -10,7 +10,7 @@ name: 完整短句全链路：8B实片字幕复验（不投稿）
       case_ids:
         description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
         required: false
-        default: '[0,1,2]'
+        default: '[3,4,5]'
         type: string
 permissions:
   contents: read
@@ -29,10 +29,10 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[0,1,2]') }}
+        case: ${{ fromJSON(inputs.case_ids || '[3,4,5]') }}
         variant:
         - model: qwen3:8b
-          profile: source_choices
+          profile: answer_focus
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -85,7 +85,7 @@ jobs:
         message\") or {}).get(\"content\")'\n"
     - name: 重放实片的同一份完整字幕，不计出片成绩
       run: python -u scripts/title_batch_cpu.py --case "${{ matrix.case }}" --repeat
-        1 --corpus linyuan/simulations/benchmark-20260921/title-sep23-corpus.json
+        1 --corpus linyuan/simulations/benchmark-20260921/content-stage-corpus.json
         --model "${{ matrix.variant.model }}" --draft-profile "${{ matrix.variant.profile
         }}"
     - uses: actions/upload-artifact@v4

@@ -113,7 +113,7 @@ def proposal_schema(unit_count, subjects=None, guest_ids=None):
     return schema
 
 
-def reading_schema(unit_count):
+def reading_schema(unit_count, answer_focus=False):
     turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
               b_end=dict(type='integer',minimum=0,maximum=unit_count-1))
     # Run 158 assigned alternating roles before understanding the dialogue,
@@ -123,7 +123,25 @@ def reading_schema(unit_count):
         b_question_premise=dict(type='string',maxLength=240),
         c_guest_spans=dict(type='array',minItems=1,maxItems=unit_count,
         items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)))
+    if answer_focus:
+        fields['d_main_answer_ids']=dict(type='array',minItems=1,maxItems=8,uniqueItems=True,
+            items=dict(type='integer',minimum=0,maximum=unit_count-1))
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
+
+
+def bind_answer_focus(reading, guest_ids):
+    ids=reading.get('d_main_answer_ids')
+    if (not isinstance(ids,list) or not 1<=len(ids)<=8
+            or any(type(i) is not int or i not in guest_ids for i in ids)
+            or len(set(ids))!=len(ids)):
+        raise ValueError('主要回答编号必须来自已确认的嘉宾原话，不能用主持人或未知句子补齐')
+    return ids
+
+
+def require_answer_focus(candidate, main_ids):
+    if not set(candidate.get('evidence_ids',[])) & set(main_ids):
+        raise ValueError('标题只引用旁枝解释，未引用独立阅读选出的主要回答')
+    return candidate
 
 
 def bind_reading(reading, units):
@@ -148,14 +166,25 @@ def bind_reading(reading, units):
     return roles
 
 
+def evidence_usable(text):
+    if not isinstance(text,str):return False
+    n=len(compact(text))
+    if n>=8:return True
+    if n<4:return False
+    # Source8's main answer “还没有进入牛市” is seven characters, whereas
+    # the rejected 818 fragment “还有一个” is four. A fixed eight-character
+    # floor made the writer choose longer secondary explanations. Short cues
+    # must themselves be complete predicates, never dangling enumerations.
+    from headline_policy import complete
+    return complete(text.strip('。！？!?；;')) and not re.search(
+        r'(?:[一二两三四五几]个|首先|其次|另外|还有|就是说)[。！？!?；;]*$',text)
+
+
 def guest_evidence_ids(units, roles, speaker='林园'):
-    # The 818 real draft repeatedly selected short ASR cues, then failed the
-    # unchanged eight-character evidence check. Do not offer impossible IDs to
-    # the model; retain every short cue in the full reading/review context.
     from speaker_attribution import other_guest_indices
     blocked=explicit_host_cues(units) | other_guest_indices(units,speaker)
     return [i for i,role in enumerate(roles)
-            if role=='guest' and i not in blocked and len(compact(units[i]))>=8]
+            if role=='guest' and i not in blocked and evidence_usable(units[i])]
 
 
 def explicit_host_cues(units):
@@ -187,6 +216,16 @@ def explicit_host_cues(units):
             reply=re.match(r'^([\u4e00-\u9fffA-Za-z]{2,12})是这样的(?:就是)?我',body)
             if (i and reply and reply[1] in compact(units[i-1])
                     and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])):
+                host=False
+            # Source8 answers the completed market question directly with
+            # “这个位置应该是不高”, without an 我 opening. The sticky host
+            # flag otherwise hid it and “还没有进入牛市”, leaving only later
+            # 市值 explanations available to the writer. Release this explicit
+            # topical answer for independent attribution, never label it guest.
+            if (i and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])
+                    and re.search(r'位置|估值|大盘|牛市|市场',''.join(units[max(0,i-8):i]))
+                    and re.match(r'^(?:这个|目前的?|现在的?)?(?:位置|估值)(?:应该|目前|现在|确实|还是)*(?:是)?(?:不高|不低|高|低|便宜|贵)',body)
+                    and not re.search(r'[？?]|吗|呢',text)):
                 host=False
             opening=re.sub(r'^(?:嗯|啊|哎|呃|那个|这个|那么|现在|所以|就是|好|那)*','',body)
             if re.match(r'^(?:我觉得|我认为|我个人|我们|对了对|总的来说|总体来说)',opening) or '我老林' in body:
@@ -685,7 +724,7 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     if not isinstance(evidence, list) or not 1 <= len(evidence) <= 4:
         return '必须提供支撑观点的完整原文句子'
     source = compact(transcript)
-    if any(not isinstance(q, str) or len(compact(q)) < 8 or compact(q) not in source for q in evidence):
+    if any(not evidence_usable(q) or compact(q) not in source for q in evidence):
         return '观点证据不是这段真实原文'
     hedge_issue = unsupported_hedge_error(title, cover, evidence)
     if hedge_issue:
@@ -833,7 +872,7 @@ def bind_turns(turns, units):
 
 
 def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None,
-             structured_model=None, source_cues=None):
+             structured_model=None, source_cues=None, answer_focus=False):
     if model is None and structured_model is None:
         return _extractive(transcript, speaker, existing_titles, preferred)
     units = list(source_cues) if source_cues else source_units(transcript)
@@ -858,8 +897,13 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
 按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
     reading=None;roles=None
+    main_ids=[]
+    if answer_focus:
+        reader_prompt+='\n在看不到任何标题时，最后用d_main_answer_ids指出直接回答本段主要问题的嘉宾原句编号，包含原有必要限定。不要把后面的解释、比喻或主持人问题当主要回答。只选原文，不补写缺失前提。'
     reading_repair_note=''
     def fallback():
+        if answer_focus:
+            raise ValueError('主要回答标题尚未通过，保留重试；不回退到旁枝摘句')
         if not structured_model:
             return _extractive(transcript, speaker, existing_titles, preferred)
         if reading is None or roles is None:
@@ -908,11 +952,17 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             retry_note = (f'第{attempt + 1}轮重新阅读；以下是已退回的错误稿，不能当作原文事实：'
                           + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
             if structured_model and reading is None:
-                proposed_reading=_json(call((reading_repair_note or retry_note)+reader_prompt,reading_schema(len(units))))
+                proposed_reading=_json(call((reading_repair_note or retry_note)+reader_prompt,reading_schema(len(units),answer_focus)))
                 reading_repair_note=''
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
             guest_ids=guest_evidence_ids(units,roles,speaker) if structured_model else []
+            if answer_focus:
+                try:
+                    main_ids=bind_answer_focus(reading,guest_ids)
+                except ValueError:
+                    reading=None;roles=None
+                    raise
             if structured_model and not guest_ids:
                 reading=None
                 raise ValueError('嘉宾回答中没有达到原文证据长度的条目，不能选主持人或短语凑证据')
@@ -930,6 +980,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 blocked=explicit_host_cues(units)
                 draft_source={i:u for i,u in enumerate(units) if roles[i]=='guest' and i not in blocked}
                 source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
+                if answer_focus:
+                    source_heading+=f'独立阅读在未看到候选标题时选出的主要回答编号：{main_ids}。每个候选必须表达其中的主要判断，并引用至少一条该编号，不能只往旁枝标题附上编号。保留该判断自己的应该、可能、我相信等语气，不能只摘后面的例子或解释。其他原文只用于理解和补足同一判断的限定；阅读步骤的概括不作为新事实。\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
                 if unresearched_reports(''.join(draft_source.values())):
@@ -967,7 +1019,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 bound = []
                 for candidate in candidates:
                     try:
-                        bound.append(bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids))
+                        item=bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids)
+                        bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
                     except (ValueError, TypeError, KeyError, AttributeError):
                         bound.append({})
                 candidates = bound
@@ -1073,6 +1126,12 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
             winner = select_reviewed_candidate(accepted, valid)
             item = valid[winner['index']]
             result = _package(item, transcript, dict(method='cpu_text_review', **winner), valid)
+            if answer_focus:
+                result['answer_focus_reading']=dict(main_answer_ids=main_ids,
+                    exact_source=[units[i] for i in main_ids],reader=reading,
+                    transcript_sha256=hashlib.sha256(transcript.encode()).hexdigest(),
+                    independent_review_unchanged=True,
+                    limitation='Source-bound main-answer proposal, not a human editorial approval')
             result['editorial_selection'] = dict(
                 policy='review_then_source_features_v1', attempt=attempt+1,
                 reviewed_count=len(valid), accepted_count=len(accepted),

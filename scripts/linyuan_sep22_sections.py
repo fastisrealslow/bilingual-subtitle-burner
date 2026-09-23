@@ -148,6 +148,7 @@ def latest_library():
                       ('short_title_trial','完整短句与数字限定的实际结果'),
                       ('final_short_title_trial','修复最终入口后的三条标题复验'),
                       ('source_choices_video_trial','原话标题进入完整视频：实片复验'),
+                      ('caption_video_trial','17最新字幕：完整词与精确口吃清理已进入实片'),
                       ('multi_guest_finding','素材8：多嘉宾原声归属修复后的实片'),
                       ('channel_trial','311原声修复：听同一个片段'),
                       ('channel_source_trial','311保留原始左声道后的完整实片'),
@@ -172,6 +173,13 @@ def latest_library():
                         body+='<p>'+label+'</p><audio controls preload="none" src="'+esc(clip['file'])+'" style="width:100%"></audio><p class="small">机器转写：'+esc(clip['text'])+'</p>'
                     body+='</article>'
                 body+='</div>'
+    preview=review.get('landscape_layout_preview')
+    if preview:
+        body+='<h3>横版排版：同一段39秒，比较人物占比</h3><p class="warning">'+esc(preview['note'])+'</p><div class="grid">'
+        for row in preview['variants']:
+            body+='<article><h4>'+esc(row['label'])+'</h4><p>实际画面占画布 '+esc(round(row['live_area_fraction']*100,1))+'%</p>'
+            body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放排版试看</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div></article>'
+        body+='</div>'
     layout=review.get('cover_layout_trial')
     if layout:
         body+='<h3>308封面断句：保留完整谓语</h3><p>'+esc(layout['note'])+'</p><div class="grid">'
