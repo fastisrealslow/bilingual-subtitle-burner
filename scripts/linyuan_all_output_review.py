@@ -86,6 +86,8 @@ def build_all_output_review(reference_media, player):
             window=case['window'],subtitles_modified=False))
     fresh_rows=read(ROOT/'output/replacement100-35887065004/results/media-verification.json',[])
     caption_replays=read(OUT/'verified-caption-35891979620/media-verification.json',[])
+    focused_replays=read(OUT/'source42-focused-35896658093/media-verification.json',[])
+    caption_cleanup=read(OUT/'source32-caption-cleanup-sep24/review.json',{})
     fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
     caption_rows=read(RECORDS/'all-output-caption-review.json',[])
     rows=[]; cards=[]; index_rows=[]
@@ -111,14 +113,26 @@ def build_all_output_review(reference_media, player):
                 +'<a href="'+esc(r['result_file'])+'">固定模型和原声哈希记录</a>' for r in items)+'</details>')
 
     def fresh_outputs(ident):
-        items=[r for r in fresh_rows+caption_replays if r['id']==ident and r.get('video_audio_full_decode')]
-        return ''.join('<details><summary>'
-            +('字幕修复专项实际产出' if str(r['run_id'])=='35891979620' else '完整100条新回归实片')
+        items=[r for r in fresh_rows+caption_replays+focused_replays if r['id']==ident and r.get('video_audio_full_decode')]
+        result=''.join('<details><summary>'
+            +({'35891979620':'字幕修复专项实际产出','35896658093':'报道聚焦本人观点 · 实际30秒'}
+              .get(str(r['run_id']),'完整100条新回归实片'))
             +' · '+esc(r['tested_sha'][:7])+'</summary>'
             +player(os.path.relpath(ROOT/r['file'],OUT),os.path.relpath(ROOT/r['cover'],OUT),
                     f"新回归实际成片 · {r['duration']:.1f}秒")
             +'<p>标题：'+esc(r['title'])+'</p><p>封面：'+esc(r['cover_title'])+'</p>'
             +'<p>'+esc(fresh_notes.get(r['sha256'],'尚未完成本稿的编辑复核。'))+'</p></details>' for r in items)
+        if ident==32 and caption_cleanup.get('full_av_decode'):
+            row=caption_cleanup
+            if (row.get('source_yield_credit')!=0 or not row.get('audio_stream_unchanged')
+                    or hashlib.sha256((ROOT/row['source_file']).read_bytes()).hexdigest()!=row['source_sha256']
+                    or hashlib.sha256((ROOT/row['file']).read_bytes()).hexdigest()!=row['sha256']):
+                raise ValueError('Caption cleanup no longer matches its frozen source or reviewed output')
+            result+='<details><summary>32号两处口吃修复 · 完整190秒同音轨对照</summary>'
+            result+=player(os.path.relpath(ROOT/row['file'],OUT),os.path.relpath(ROOT/row['cover'],OUT),
+                '完整190秒字幕显示修复；标题、封面、音轨和原时间轴保持不变')
+            result+='<p>实际画面已核对“垄垄断→垄断”“虽虽然→虽然”；两处删除均可由原始字幕和新版规则重放。其他疑词仍保留。此为重新编码的完整对照片，已解码并验证音轨相同，尚未重新执行全部生产画面闸门，不计新增出片。</p></details>'
+        return result
 
     def model_copy(case):
         items=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])

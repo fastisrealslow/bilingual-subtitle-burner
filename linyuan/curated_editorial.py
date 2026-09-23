@@ -30,6 +30,7 @@ def source_ranges(cues,source_sha,profile_path=None):
         picks=[dict(start=0,end=b-a,score=8,reason=row['topic'],
                     editorial_source_sha256=source_sha,
                     editorial_title=row.get('title'),
+                    **({'editorial_prefer_exact_quote': True} if row.get('prefer_exact_quote') is True else {}),
                     editorial_subtitles=row.get('subtitle_groups'),
                     editorial_review=row.get('editorial_review'))]
         if row.get('omit'):

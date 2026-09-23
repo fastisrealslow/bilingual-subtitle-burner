@@ -1008,7 +1008,8 @@ def _package(item, transcript, review, candidates):
                 packaging_method='source_claim_editor', desc='本段讨论：' + title.split('：', 1)[1])
 
 
-def _extractive(transcript, speaker, existing_titles, preferred=None, guest_passages=None):
+def _extractive(transcript, speaker, existing_titles, preferred=None, guest_passages=None,
+                only_preferred=False):
     from headline_policy import title_candidates, body, cover_copy, complete
     # Never stitch across a host turn or pick a host's more fluent question.
     from speaker_attribution import other_guest_indices
@@ -1019,7 +1020,12 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
               for title in title_candidates(passage, speaker, existing_titles)]
     if preferred and preferred not in titles:
         titles.append(preferred)
+    if only_preferred:
+        titles = [preferred] if preferred else []
     for title in titles:
+        if only_preferred and any(difflib.SequenceMatcher(None, compact(title), compact(old)).ratio() >= .84
+                                  for old in existing_titles):
+            continue
         quote = body(title, speaker)
         if not complete(quote) or compact(quote) not in compact(transcript) or summary_heading(title):
             continue
@@ -1074,7 +1080,10 @@ def bind_turns(turns, units):
 
 
 def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None,
-             structured_model=None, source_cues=None, answer_focus=False, answer_subject=False):
+             structured_model=None, source_cues=None, answer_focus=False, answer_subject=False,
+             prefer_reviewed_quote=False):
+    if prefer_reviewed_quote and (not preferred or not structured_model or answer_focus):
+        raise ValueError('核对过的金句须提供原句并先完成完整嘉宾归属阅读')
     if answer_subject and not answer_focus:
         raise ValueError('对象交接仅适用于独立阅读主要回答的实验配置')
     if model is None and structured_model is None:
@@ -1121,7 +1130,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             reader_prompt+='''\n在e_subject_name写明这项主要回答实际讨论的具体对象（产品、公司、行业或市场的名称），不能用它、原因、标准等泛词。须逐字摘取原文中的名称，不自行扩成整个行业。
 程序会在已确认的嘉宾原句中逐字定位这个名称，可以出现在同一问答的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
     reading_repair_note=''
-    def fallback():
+    def fallback(only_preferred=False):
         if answer_focus:
             raise ValueError('主要回答标题尚未通过，保留重试；不回退到旁枝摘句')
         if not structured_model:
@@ -1139,7 +1148,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
         if current:
             passages.append(''.join(current))
         return _extractive(transcript, speaker, existing_titles, preferred,
-                           guest_passages=passages)
+                           guest_passages=passages, only_preferred=only_preferred)
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
@@ -1190,6 +1199,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if structured_model and not guest_ids:
                 reading=None
                 raise ValueError('嘉宾回答中没有达到原文证据长度的条目，不能选主持人或短语凑证据')
+            if prefer_reviewed_quote:
+                return fallback(only_preferred=True)
             if structured_model:
                 subjects={word:[i for i in ids if i in guest_ids] for word,ids in subject_catalog(units).items()}
                 subjects={word:ids for word,ids in subjects.items() if ids}
@@ -1386,12 +1397,12 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                 # Preserve the existing complete-source-quote fallback; it must
                 # pass its own evidence/readability checks before use.
                 try:
-                    return fallback()
+                    return fallback(only_preferred=prefer_reviewed_quote)
                 except ValueError:
                     raise exc
             last_error = str(exc)
             print(f'[标题观点] 第{attempt + 1}次生成待修正：{last_error}', flush=True)
-    return fallback()
+    return fallback(only_preferred=prefer_reviewed_quote)
 
 
 def error(title, proof, transcript=None, speaker='林园'):

@@ -3543,7 +3543,7 @@ cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋�
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
               existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None,
-              source_sha256=None):
+              source_sha256=None, prefer_reviewed_quote=False):
     """Generate three source-backed angles, review title/cover, and cache evidence.
 
     Slices and full interviews use the same editorial policy. The suffix keeps
@@ -3561,6 +3561,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **_copy_style_identity(speaker),
+                   **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     handoff=os.environ.get('LINYUAN_TITLE_HANDOFF')
     if handoff:
@@ -3629,6 +3630,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
+                   **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'answer_focus':True,'answer_subject':os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_subject'} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE') in ('answer_focus','answer_subject') else {}))
         if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
             d['title_rewrite']['style_profile'] = TITLE_STYLE_PROFILE
@@ -5261,6 +5263,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 require_quote=(pick_cache_suffix != "_full"),
                 reviewed_title=picks[0].get('editorial_title'),
                 reviewed_cover=picks[0].get('editorial_cover'),
+                prefer_reviewed_quote=picks[0].get('editorial_prefer_exact_quote',False),
                 source_sha256=(source_report or {}).get('source_sha256'))
         return cw
 
