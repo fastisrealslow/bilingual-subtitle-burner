@@ -3756,10 +3756,20 @@ def select_verified_cover_face(frames, reference_path):
             sharp=float(cv2.Laplacian(cv2.cvtColor(crop,cv2.COLOR_BGR2GRAY),cv2.CV_64F).var())
             matched.append((score,sharp,fw*fh,path,(x,y,fw,fh)))
     if not matched:raise VisualQualityError('现场封面未找到与林园参考照匹配的人脸')
-    score,sharp,area,path,box=max(matched,key=lambda r:(r[0],r[1],r[2]))
+    # Identity is a gate, not a reason to prefer a blurred frame. The old
+    # identity-first maximum could discard every usable scene even when a
+    # different, verified frame already met the renderer's sharpness floor.
+    sharp_matches=[row for row in matched if row[1]>=60]
+    previous=max(matched,key=lambda r:(r[0],r[1],r[2]))
+    score,sharp,area,path,box=max(sharp_matches or matched,key=lambda r:(r[0],r[1],r[2]))
     return path,box,{'engine':'opencv_yunet_sface_cpu','cosine_score':round(score,4),
                      'threshold':LOCAL_FACE_COSINE_THRESHOLD,'face_box':list(box),
-                     'matched_faces':len(matched),'sharpness':round(sharp,2)}
+                     'matched_faces':len(matched),'sharpness':round(sharp,2),
+                     'sharp_matching_faces':len(sharp_matches),
+                     'identity_first_sharpness':round(previous[1],2),
+                     'selection_changed':path!=previous[3] or box!=previous[4],
+                     'selected_frame':path.name,
+                     'selection_policy':'identity_then_sharpness_gate_v2'}
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
@@ -5178,6 +5188,26 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_
     return proof
 
 
+def verify_prepared_live_motion(tracked, proof_path):
+    """Reject a static prepared window before expensive title/caption inference.
+
+    This is additional early rejection only. The final, composed video still
+    goes through verify_final_live_identity and the unchanged motion policy.
+    """
+    from live_motion import verify_window
+    rect=dict(x=0,y=0,width=632,height=470)
+    try:
+        motion=verify_window(tracked,rect)
+    except ValueError as exc:
+        raise VisualQualityError('标题前动态窗口核验不可用：'+str(exc)) from exc
+    proof={**motion,'stage':'prepared_window_before_copy',
+           'source_sha256':_file_sha256(tracked),'final_checks_required':True}
+    Path(proof_path).write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if not motion['passed']:
+        raise VisualQualityError('标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算')
+    return proof
+
+
 def argument_record_for_render(cues,picks,speaker,api_key,work,suffix):
     """Record the user's disabled model review; retain source integrity gates."""
     # Omitting words within an argument still needs its existing meaning check.
@@ -5399,6 +5429,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             # Check its subtitles, logos, QR, borders and face geometry now,
             # before title/caption inference. Final checks still run again.
             verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
+            verify_prepared_live_motion(tracked,work/f'tracked-motion{suffix}{n}.json')
     cw = get_copy()
 
     brand = brand_watermark_path()

@@ -100,6 +100,34 @@ def test_extractive_cover_never_drops_negation_or_uncertainty():
     assert '最值得' not in result['text']
 
 
+def test_sharp_verified_guest_beats_blurred_better_identity_match(tmp_path,monkeypatch):
+    import cv2
+    import numpy as np
+    reference=tmp_path/'ref.jpg';reference.touch()
+    paths=[tmp_path/(name+'.jpg') for name in ('blur','clear','host')]
+    monkeypatch.setattr(P,'_local_face_models',lambda:('detector','recognizer'))
+    ids={'ref':0,'blur':1,'clear':2,'host':3}
+    monkeypatch.setattr(cv2,'imread',lambda path:np.full((400,600,3),ids[Path(path).stem],dtype=np.uint8))
+    class Detector:
+        def setInputSize(self,*_):pass
+        def detect(self,im):return True,np.array([[80,50,140,180,{0:1,1:.9,2:.6,3:.2}[int(im[0,0,0])]]])
+    class Recognizer:
+        def alignCrop(self,im,face):return face[-1]
+        def feature(self,aligned):return aligned
+        def match(self,ref,feature,*_):return feature
+    monkeypatch.setattr(cv2.FaceDetectorYN,'create',lambda *a,**k:Detector())
+    monkeypatch.setattr(cv2.FaceRecognizerSF,'create',lambda *a,**k:Recognizer())
+    monkeypatch.setattr(cv2,'Laplacian',lambda im,*a:np.array([0,2 if im[0,0]==1 else 40]))
+    path,_,proof=P.select_verified_cover_face(paths,reference)
+    assert path.stem=='clear'
+    assert proof['cosine_score']==.6 and proof['sharpness']>=60
+    assert proof['matched_faces']==2 and proof['sharp_matching_faces']==1
+    # An unrelated sharp host can never rescue an entirely blurred guest set.
+    path,_,proof=P.select_verified_cover_face([paths[0],paths[2]],reference)
+    assert path.stem=='blur' and proof['sharp_matching_faces']==0
+    assert proof['sharpness']<60  # The renderer still rejects this frame.
+
+
 def test_full_interview_uses_claim_copy_and_preserves_actual_length(tmp_path,monkeypatch):
     monkeypatch.setattr(P,'llm',guest_reading_then_invalid_draft)
     result=P.copywrite([dict(text='我们长期持有优秀企业',start=0,end=3472)],[0],

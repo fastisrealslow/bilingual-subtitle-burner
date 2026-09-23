@@ -120,7 +120,16 @@ def main_answer_quotes(units):
     # “目前/还是” and dropped fillers, so an otherwise correct answer failed).
     # Do not force arbitrary length cuts or merge across sentence boundaries.
     return list(dict.fromkeys(s for s in re.findall(r'[^。！？!?；;]+[。！？!?；;]*',''.join(units))
-                              if 4<=len(compact(s))<=160 and len(s)<=200))
+                              if 4<=len(compact(s))<=160 and len(s)<=200
+                              and not answer_setup(s)))
+
+
+def answer_setup(text):
+    """A promise to explain a question is not the explanation itself."""
+    return bool(re.match(
+        r'^(?:那么|那|所以|现在|今天|接下来|啊|呃)*(?:我|我们)(?:就|再|先|要|来|详细|给大家|跟大家)*'
+        r'(?:讲一下|讲一讲|讲讲|说一下|说一说|解释一下)(?:就是|是|关于|这个|一下)*'
+        r'(?:为什么|怎么|如何|什么)',compact(text)))
 
 
 def answer_reading_units(cues, speaker='林园'):
@@ -187,6 +196,8 @@ def bind_answer_focus(reading, units, roles, speaker='林园'):
     quote=reading.get('d_main_answer_quote')
     if not isinstance(quote,str) or not 4<=len(compact(quote))<=160:
         raise ValueError('主要回答必须是一段完整的连续原话，不能列段落起点或自行概括')
+    if answer_setup(quote):
+        raise ValueError('讲一下为什么只是开场预告，主要回答须选择实际判断或行动，不能把预告当结论')
     from speaker_attribution import other_guest_indices
     blocked=explicit_host_cues(units) | other_guest_indices(units,speaker)
     # Preserve short continuation/negation cues. Length is a writer-evidence
@@ -568,6 +579,9 @@ def unresolved_subject_error(title, cover):
                 and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):
             return '文案只有“这几种病”的未解释指代；写出疾病或实际讨论的并发症产品，不复制问题残句'
         body=re.sub(r'^[^：:]+[：:]', '', copy)
+        if re.search(r'(?:这个|那个|这一个)(?:位置|价位)',body) and not re.search(
+                r'A股|股市|市场|上证|沪指|指数|牛市|熊市|估值|股价|股息|医药|消费|白酒|光伏|中石油|茅台|片仔癀',body):
+            return '标题或封面的这个位置没有具体对象；须说明原文所指市场或产品，不能让观众猜位置'
         if re.search(r'(?:新|旧|这个|那个)东西',body) and not re.search(
                 r'人工智能|AI|新能源(?:汽车)?|医药|白酒|半导体|制造业|服务业|技术|产品|企业|公司',body):
             return '标题或封面只写新东西、旧东西，没有具体对象；不能用泛指词充当标题主题'
@@ -987,6 +1001,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 主持人提问的背景、假设和复述仍是主持人；嘉宾短答不等于确认全部前提。相邻句可能属于同一人，不因问号就换人；不清楚时保留unknown，不能猜身份。
 以下编号已有明确提问或其他嘉宾轮次证据，不能作为{speaker}原话：{host_ids}。其他编号仍须独立判断。
 最后在d_main_answer_quote选一段最直接回答主要问题的连续原句，保留否定、条件和语气。不能用例子代替回答，也不能改写原句。选出的原句必须属于已确认的guest。
+先分清主要问题是在问实际选择、经历、判断，还是理由。问买没买、参没参与，而嘉宾明确回答了买或没买、参与或没参与时，这项实际选择就是直接回答；后面的原因和行业解释用于说明它，不能自动替代它。只有原文确实回答了个人选择才按此处理，不能从看好前景推断已经买入。
+从直接回答与解释中，选择最能说明嘉宾实际答复的一句。含代词的直接答复仍可按原句保留，拟稿时再从已确认的嘉宾上下文补足对象；不能为了句子更像书面总结而跳过这句回答。“我讲一下为什么”等开场预告不是实际回答。
 完整原文：{json.dumps({f'u{i:04d}':u for i,u in enumerate(units)},ensure_ascii=False)}
 精确原句选项（包含主持人原句，并不代表归属已确认）：{json.dumps(main_answer_quotes(units),ensure_ascii=False)}
 仅输出JSON。'''

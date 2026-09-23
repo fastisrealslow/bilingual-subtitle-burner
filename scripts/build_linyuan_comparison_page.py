@@ -6,6 +6,7 @@ import json
 import os
 from linyuan_overview_sections import sections as overview_sections, CSS as overview_css
 from linyuan_threeway_review import build_threeway, CSS as threeway_css, JS as threeway_js
+from linyuan_all_output_review import build_all_output_review
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'output/benchmark-20260921'
@@ -177,13 +178,14 @@ document.querySelectorAll('textarea').forEach(t=>{t.value=notes[t.dataset.note]|
 document.querySelectorAll('video').forEach(v=>v.onplay=()=>document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause()}));
 </script></html>'''
     body = body.replace('<section id="refs">',latest_references()+'<section id="refs">',1)
+    body = body.replace('<section id="ab">',build_all_output_review(reference_media,player)+'<section id="ab">',1)
     body = body.replace('</style>', overview_css + '</style>')
     body = body.replace('</style>', threeway_css + '</style>')
     body = body.replace('</script>',threeway_js+'</script>')
     body = body.replace('</script>', (ROOT/'scripts/linyuan_review_player.js').read_text()+'</script>')
     body = body.replace('</nav>', '</nav><p id="playback-help" class="note" hidden>若内置预览打不开视频，请在 Chrome / Safari 打开 <a href="http://127.0.0.1:8765/output/benchmark-20260921/comparison.html">本机浏览地址</a>。需先运行本地预览服务；视频与网页必须保留完整目录，不能只移动 HTML。</p>', 1)
     body = body.replace('<h1>先看能稳定做出多少，再看每条差在哪里</h1>', '')
-    body = body.replace('<nav>', '<nav><a href="#threeway">三列看实片</a><a href="#overview">成功率总览</a><a href="#latest-results">最新实测与9B实片</a><a href="#title-sep22">标题实验</a><a href="#reference-speech">园园内容拆解</a><a href="#sources">素材来源</a><a href="#subtitles">字幕前后</a><a href="#packaging">标题封面</a><a href="#gap">园园差距</a>')
+    body = body.replace('<nav>', '<nav><a href="#all-outputs">全部成片逐条改</a><a href="#threeway">三列看实片</a><a href="#overview">成功率总览</a><a href="#latest-results">最新实测与9B实片</a><a href="#title-sep22">标题实验</a><a href="#reference-speech">园园内容拆解</a><a href="#sources">素材来源</a><a href="#subtitles">字幕前后</a><a href="#packaging">标题封面</a><a href="#gap">园园差距</a>')
     overview=overview_sections(player)
     intro,separator,remaining=overview.partition('</section>')
     body = body.replace('</nav>', '</nav>'+intro+separator+build_threeway(reference_media,player)+remaining, 1)

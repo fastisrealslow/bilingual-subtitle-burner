@@ -8,7 +8,7 @@ import produce_cn as p
 import live_tracking
 
 
-@pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', None])
+@pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', 'static_window', None])
 def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path, failure):
     calls = []
     monkeypatch.setattr(p, 'argument_record_for_render', lambda *a: {})
@@ -45,6 +45,12 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
         if failure=='final_window':raise p.VisualQualityError('原字幕仍然残留')
         return {}
     monkeypatch.setattr(p,'verify_live_region_after_render',verify_window)
+    def motion(path,proof_path):
+        assert path.name=='tracked1.mp4'
+        calls.append('prepared motion checked')
+        if failure=='static_window':raise p.VisualQualityError('疑似照片/背景板')
+        return {}
+    monkeypatch.setattr(p,'verify_prepared_live_motion',motion)
     monkeypatch.setattr(p, 'copywrite', copy)
     expected = p.VisualQualityError if failure else CopyReached
     with pytest.raises(expected):
@@ -55,4 +61,21 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
     if failure:
         assert 'CPU title request' not in calls
     else:
-        assert calls == ['actual moving window', 'prepared window checked', 'CPU title request']
+        assert calls == ['actual moving window', 'prepared window checked', 'prepared motion checked', 'CPU title request']
+
+
+def test_prepared_motion_failure_keeps_byte_bound_rejection_evidence(tmp_path,monkeypatch):
+    import json
+    import hashlib
+    import live_motion
+    tracked=tmp_path/'tracked.mp4';tracked.write_bytes(b'fixture')
+    proof=tmp_path/'motion.json'
+    def verify(path,rect):
+        assert path==tracked and rect==dict(x=0,y=0,width=632,height=470)
+        return dict(passed=False,moving_by_third=[0,0,0],version=live_motion.VERSION)
+    monkeypatch.setattr(live_motion,'verify_window',verify)
+    with pytest.raises(p.VisualQualityError,match='疑似照片'):
+        p.verify_prepared_live_motion(tracked,proof)
+    saved=json.loads(proof.read_text())
+    assert saved['source_sha256']==hashlib.sha256(b'fixture').hexdigest()
+    assert saved['passed'] is False and saved['final_checks_required'] is True

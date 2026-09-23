@@ -88,6 +88,24 @@ def test_optional_reader_runs_before_drafts_and_keeps_default_schema():
     assert new['properties']['d_main_answer_quote']['type']=='string'
 
 
+def test_real_setup_is_not_accepted_as_the_main_answer():
+    setup='那么我就详细就讲一下，就是为什么我们说今天这是个打击。'
+    answer='今天这个位置就是不挣钱，但是值得投资的。'
+    units=[setup,answer]
+    assert T.main_answer_quotes(units)==[answer]
+    with pytest.raises(ValueError,match='开场预告'):
+        T.bind_answer_focus(dict(d_main_answer_quote=setup),units,['guest','guest'])
+    assert T.bind_answer_focus(dict(d_main_answer_quote=answer),units,['guest','guest'])==[1]
+    assert not T.answer_setup('我先讲一下我的选择，我没有买入这家公司。')
+
+
+def test_standalone_market_copy_cannot_only_say_this_position():
+    ambiguous='今天这个位置不挣钱但值得投资'
+    assert '位置' in T.unresolved_subject_error('林园：'+ambiguous,ambiguous)
+    assert T.unresolved_subject_error('林园：我觉得A股这个位置值得投资','A股这个位置值得投资') is None
+    assert T.unresolved_subject_error('林园：这个位置不高，还没进入牛市','还没进入牛市') is None
+
+
 def test_each_sentence_must_be_attributed_without_guessing_omissions():
     units=['眼科牙科的投资价值如何？','这两个行业我相信还有增长空间。','这句话归属不清。']
     reading=dict(a_guest_answer='嘉宾相信眼科牙科这两个行业还有增长空间。',
