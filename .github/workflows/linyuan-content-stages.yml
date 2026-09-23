@@ -1,4 +1,4 @@
-name: 内容理解分阶段实验：保留有效候选、9B逐条逐句盲审
+name: 实片重点复验：8／28／32先读主要回答，再写标题、逐句盲审
 'on':
   push:
     branches:
@@ -20,9 +20,9 @@ jobs:
       max-parallel: 3
       matrix:
         case:
-        - 0
-        - 1
-        - 2
+        - 3
+        - 4
+        - 5
         profile:
         - 8b-reader
         - 9b-reader
@@ -88,9 +88,9 @@ jobs:
       max-parallel: 3
       matrix:
         case:
-        - 0
-        - 1
-        - 2
+        - 3
+        - 4
+        - 5
         profile:
         - 8b-reader
         - 9b-reader
@@ -163,9 +163,9 @@ jobs:
       max-parallel: 3
       matrix:
         case:
-        - 0
-        - 1
-        - 2
+        - 3
+        - 4
+        - 5
         profile:
         - 8b-reader
         - 9b-reader

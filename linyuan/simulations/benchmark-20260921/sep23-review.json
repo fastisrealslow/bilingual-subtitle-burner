@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-23T08:51:55.479742+00:00",
+  "checked_at": "2026-09-23T09:15:50.457716+00:00",
   "run_id": "35682602969",
   "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
   "baseline_run": "35548212133",
@@ -2182,14 +2182,14 @@
     "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
     "status": "in_progress",
     "denominator": 100,
-    "received": 30,
+    "received": 61,
     "counts": {
-      "rejected": 25,
-      "passed": 3,
-      "unresolved": 2
+      "rejected": 51,
+      "passed": 7,
+      "unresolved": 3
     },
-    "pending": 70,
-    "note": "已回传30/100条：3通过、25拒绝、2未确定。尚未完成，不能拿已返回子集比例作为最终成片率。该轮87a0099不含随后de8e37d最终短句入口修复；其中17现为待重试，另跑最新完整视频复验。"
+    "pending": 39,
+    "note": "已回传61/100条：7通过、51拒绝、3未确定。尚未完成，不能拿已返回子集比例作为最终成片率。该轮87a0099不含随后短句入口和多嘉宾归属修复；17与8的专项复验另列，不混入本轮结果。"
   },
   "final_short_title_trial": {
     "run_id": "35835447786",
@@ -2236,11 +2236,26 @@
     "source_id": 8,
     "source_run_id": "35833967072",
     "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
-    "status": "code_fixed_full_video_pending",
+    "status": "completed",
     "editorial_approved": false,
-    "note": "原自动通过素材8含明确的其他嘉宾提问和回答：主持人先问郭总，后在378.76秒转向林总。视觉匹配不能证明原声属于画中人。新规则排除其他嘉宾轮次，保留明确转回林园的回答；来源整体仍保留。旧17/100是自动检查结果，并不代表17条编辑合格。 新规则还要求原文同时出现明确的目标嘉宾与另一位嘉宾交接，避免把单个ASR错姓当作换人。",
+    "note": "同母片修复后已实际出片117.43秒：从378.76秒主持人明确转问林总开始，在下一次总结前结束，避开原来其他嘉宾回答。完整音视频解码、六帧和全部ASS已核对。标题却选了后段K型结构解释，未抓住前面的还没有进入牛市；主持人开场约22秒、口吃及画面占比也待改善。不能计编辑通过，未知说话人仍不自动认证。",
     "run_id": "35839087903",
-    "tested_sha": "28497e9fc82e0545753ad325c35e9ffcb89dd6ac"
+    "tested_sha": "28497e9fc82e0545753ad325c35e9ffcb89dd6ac",
+    "media": [
+      {
+        "id": 8,
+        "title": "林园：K型结构下跌部分占市值大",
+        "cover_title": "K型结构下跌市值大",
+        "sha256": "60c6f29ff273624098355ef8d691130aafaf331b837709ffe432cf505105006b",
+        "source_sha256": "4db788d874c192fc249167020aacde03ecf4ead18f33df1857819237ee96bcc0",
+        "duration": 117.43333333333334,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "multi-guest-35839087903/simulation-media-sim-0916-008-868622/final_1.mp4",
+        "poster": "multi-guest-35839087903/simulation-media-sim-0916-008-868622/cover_1.jpg",
+        "note": "已避开另一嘉宾回答；标题偏后段解释，主要回答和看点仍未抓好。不是对齐园园的合格样片。"
+      }
+    ]
   },
   "source_choices_video_trial": {
     "run_id": "35837686332",
@@ -2262,5 +2277,19 @@
         "note": "20.9秒完整问答，保留听说；已核对SHA、完整音视频解码、六帧及所有ASS。比旧的口吃长标题清楚，但人物画面占比仍小，字幕出现林／总断词及重复。断词已另修，此视频仍展示实际旧缺陷，未编辑放行。"
       }
     ]
-  }
+  },
+  "threeway_overrides": [
+    {
+      "id": 8,
+      "verification_file": "multi-guest-35839087903/media-verification.json",
+      "sha256": "60c6f29ff273624098355ef8d691130aafaf331b837709ffe432cf505105006b",
+      "comparison": "同母片修复后已实际出片117.43秒：从378.76秒主持人明确转问林总开始，在下一次总结前结束，避开原来其他嘉宾回答。完整音视频解码、六帧和全部ASS已核对。标题却选了后段K型结构解释，未抓住前面的还没有进入牛市；主持人开场约22秒、口吃及画面占比也待改善。不能计编辑通过，未知说话人仍不自动认证。"
+    },
+    {
+      "id": 17,
+      "verification_file": "source-choices-video-35837686332/media-verification.json",
+      "sha256": "fd5ffe7cceb796094ecb60cb9977193892dadbdad282dc757076bc186646db11",
+      "comparison": "20.9秒完整问答，保留听说；已核对SHA、完整音视频解码、六帧及所有ASS。比旧的口吃长标题清楚，但人物画面占比仍小，字幕出现林／总断词及重复。断词已另修，此视频仍展示实际旧缺陷，未编辑放行。"
+    }
+  ]
 }

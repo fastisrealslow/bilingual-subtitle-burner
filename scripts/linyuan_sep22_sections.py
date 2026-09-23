@@ -148,6 +148,7 @@ def latest_library():
                       ('short_title_trial','完整短句与数字限定的实际结果'),
                       ('final_short_title_trial','修复最终入口后的三条标题复验'),
                       ('source_choices_video_trial','原话标题进入完整视频：实片复验'),
+                      ('multi_guest_finding','素材8：多嘉宾原声归属修复后的实片'),
                       ('channel_trial','311原声修复：听同一个片段'),
                       ('sep23_full100_trial','9月23日固定100条完整复验')]:
         row=review.get(key)
@@ -170,9 +171,6 @@ def latest_library():
                         body+='<p>'+label+'</p><audio controls preload="none" src="'+esc(clip['file'])+'" style="width:100%"></audio><p class="small">机器转写：'+esc(clip['text'])+'</p>'
                     body+='</article>'
                 body+='</div>'
-    attribution=review.get('multi_guest_finding')
-    if attribution:
-        body+='<h3>素材8：人物在画面中，不代表这段原声属于他</h3><p class="warning">'+esc(attribution['note'])+'</p>'
     layout=review.get('cover_layout_trial')
     if layout:
         body+='<h3>308封面断句：保留完整谓语</h3><p>'+esc(layout['note'])+'</p><div class="grid">'

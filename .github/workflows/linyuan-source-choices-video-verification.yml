@@ -1,4 +1,4 @@
-name: 原话观点标题进入完整视频复验（不投稿）
+name: 字幕口吃与林总断词修复后实片17复验（不投稿）
 on:
   push:
     branches: [codex/linyuan-reliability-packaging]
@@ -11,9 +11,9 @@ jobs:
   verify:
     uses: ./.github/workflows/linyuan-simulate-100.yml
     with:
-      sample_ids: '17,79'
+      sample_ids: '17'
       content_policy: reference_v1
       title_draft_profile: source_choices
-      recovery_run_id: '35682602969'
+      recovery_run_id: '35837686332'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
