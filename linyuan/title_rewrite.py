@@ -626,6 +626,14 @@ def forecast_copy_error(title, cover, transcript):
     hypothetical_issue = hypothetical_exclusivity_error(title, cover, transcript)
     if hypothetical_issue:
         return hypothetical_issue
+    # Actual source99 explicitly says the bull market has not arrived yet.
+    # A rhetorical question mark after an earnings multiple is no qualifier.
+    if re.search(r'牛市[，,\s]*(?:还)?没来之前', transcript):
+        for copy in (title, cover):
+            if (re.search(r'牛市(?:已经)?来了', copy)
+                    and re.search(r'[挣赚][^。！？!?]{0,12}倍', copy)
+                    and not re.search(r'(?:等(?:到)?|到|如果|假如|若|一旦)牛市|牛市来了(?:之后|以后|时|后)', copy)):
+                return '原文说牛市没来之前说不清楚；标题和封面不能删去到、等或如果，把未来情境中的收益倍数写成已发生的行情'
     # Real source28 lost 我相信 in BOTH fields after the cover-only repair.
     # Match the same distinctive growth claim in the source, rather than
     # treating every nearby personal opinion as a qualifier for all claims.

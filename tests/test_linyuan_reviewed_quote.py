@@ -60,3 +60,24 @@ def test_no_reader_or_no_exact_quote_cannot_skip_attribution():
                    {'structured_model':reader(units, [])}):
         with pytest.raises(ValueError, match='嘉宾归属'):
             T.generate(''.join(units), prefer_reviewed_quote=True, **kwargs)
+
+
+def test_source99_keeps_question_and_all_followup_limits(monkeypatch):
+    data = json.loads((ROOT / 'tests/fixtures/linyuan_source99_leverage.json').read_text())
+    monkeypatch.setattr(curated.editorial, 'MIN_SECONDS', 20.)
+    a, b, picks = curated.source_ranges(data['cues'], data['source_sha256'])[0]
+    units = [c['text'] for c in data['cues'][a:b+1]]
+    assert (data['cues'][a]['start'], data['cues'][b]['end']) == (1146.44, 1184.44)
+    assert '点杠杆行不行' in ''.join(units[:2])
+    assert '但是我不去加' in ''.join(units)
+    assert '到第三期之间都都可以来一点' in ''.join(units)
+    assert '几十倍' not in ''.join(units)
+    def model(prompt, schema):
+        return json.dumps(dict(a_guest_answer='不建议加杠杆，谈到牛市的条件，但本人不去加。',
+            b_question_premise='主持人询问看准行情能否加杠杆',
+            c_guest_spans=[dict(a_start=2,b_end=len(units)-1)]), ensure_ascii=False)
+    r = T.generate(''.join(units), source_cues=units, structured_model=model,
+        preferred=picks[0]['editorial_title'], prefer_reviewed_quote=True)
+    assert r['title'] == '林园：杠杆不要加，不提倡'
+    assert r['cover_title'] == '杠杆不要加，不提倡'
+    assert T.error(r['title'],r['title_rewrite'],''.join(units)) is None

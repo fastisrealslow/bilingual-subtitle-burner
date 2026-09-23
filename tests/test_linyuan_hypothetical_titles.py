@@ -39,3 +39,12 @@ def test_safe_angle_and_explicit_hypothesis_remain_available():
 def test_actual_exclusivity_or_different_subject_is_not_rejected():
     assert T.hypothetical_exclusivity_error('林园：中石油全球唯一', '中石油全球唯一', '中石油全世界就这一家。') is None
     assert T.hypothetical_exclusivity_error('林园：可口可乐全球唯一', '可口可乐全世界就这一家', source13()) is None
+
+
+def test_actual_source99_future_market_is_not_current_return_claim():
+    source = '到牛市来了，挣挣个几十倍。真的牛市，没来之前你说不清楚。'
+    assert '未来情境' in T.forecast_copy_error('林园：牛市来了，挣个几十倍，是吧？', '牛市来了，挣个几十倍', source)
+    assert T.forecast_copy_error('林园：等牛市来了，挣个几十倍', '牛市来了，挣个几十倍', source)
+    assert T.forecast_copy_error('林园：等牛市来了，挣个几十倍', '等牛市来了，挣个几十倍', source) is None
+    assert T.forecast_copy_error('林园：牛市来了，挣个几十倍', '牛市来了，挣个几十倍', '牛市已经来了，我挣了几十倍。') is None
+    assert T.forecast_copy_error('林园：牛市来了怎么办？', '牛市来了怎么办？', source) is None
