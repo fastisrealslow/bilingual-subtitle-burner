@@ -1,0 +1,20 @@
+name: 素材库316归属失败恢复（同生产代码，不投稿）
+on:
+  push:
+    branches: [codex/linyuan-library316-recovery]
+    paths: [.github/workflows/linyuan-library316-recovery.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  recovery:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '316'
+      manifest_path: simulations/library17-20260923.json
+      content_policy: reference_v1
+      title_draft_profile: production
+      recovery_run_id: '35823163836'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
