@@ -1,0 +1,25 @@
+name: 中石油没买：复用已生成主回答标题，完整清爽横版出片（不投稿）
+permissions:
+  contents: read
+  actions: read
+jobs:
+  focused:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '13'
+      content_policy: reference_v1
+      title_draft_profile: answer_subject
+      recovery_run_id: '35902748400'
+      title_handoff_run_id: '35911265032'
+      title_handoff_artifact: source13-answer-8b-0
+      output_layout: landscape
+      landscape_style: quiet
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+'on':
+  push:
+    branches:
+    - codex/linyuan-impression-title-check
+    paths:
+    - .github/workflows/linyuan-source13-title-render-check.yml
+  workflow_dispatch: null

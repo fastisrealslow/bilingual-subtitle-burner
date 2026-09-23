@@ -22,6 +22,13 @@ def source_window(meta):
         raise ValueError('原片动态黄色大字遮挡人物，不能以裁切冒充干净横版')
     spec=meta.get('layout_proof',{})
     if spec.get('canvas')==dict(width=1280,height=720):
+        # Read older quiet outputs only when both recorded regions match the
+        # previous renderer exactly; never guess a crop for unknown layouts.
+        if spec.get('template')=='landscape-live-v4-quiet-footer':
+            if (spec.get('live_region')!=dict(x=237,y=0,width=806,height=600)
+                    or spec.get('subtitle_region')!=dict(x=180,y=600,width=920,height=120)):
+                raise ValueError('旧横版输入的真人窗口或字幕区域已变化')
+            return dict(spec['live_region'])
         styles={layout('classic')['template']:'classic',layout('quiet')['template']:'quiet'}
         style=styles.get(spec.get('template'))
         if (not style or spec.get('live_region')!=layout(style)['live_region']
@@ -58,13 +65,12 @@ def layout(style=None):
                   subtitle_font_px=44, line_capacity=18, subtitle_style='white-outline',
                   template='landscape-live-v3-footer', preserve_display_text=True)
     if style=='quiet':
-        # Keep the full clean source window. At 720p, 38 visible caption px
-        # leave enough line-height for two lines outside the 600px picture.
-        # No generated subtitle may be hidden from the source-pixel scan.
-        result.update(live_region=dict(x=237,y=0,width=806,height=600),
-                      subtitle_region=dict(x=180,y=600,width=920,height=120),
-                      subtitle_font_px=38,line_capacity=22,
-                      template='landscape-live-v4-quiet-footer')
+        # Full-video trials retain 44 visible caption pixels and two lines
+        # outside the 584px picture. Keep every source pixel in the scan.
+        result.update(live_region=dict(x=248,y=0,width=784,height=584),
+                      subtitle_region=dict(x=180,y=584,width=920,height=136),
+                      subtitle_font_px=44,line_capacity=20,
+                      template='landscape-live-v5-quiet-readable-footer')
     return result
 
 
@@ -228,6 +234,6 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
             'video_title':None,'video_title_proof':None,'audio_card_template':spec['template'],
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=4 if chosen_style=='quiet' else 3,style=chosen_style,input_sha256=original_sha,source_window=window,
+            'landscape_reframe':dict(version=5 if chosen_style=='quiet' else 3,style=chosen_style,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
                 source_frame_rate=rate,subtitle_timing_preserved=True)}

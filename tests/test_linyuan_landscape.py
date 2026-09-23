@@ -81,6 +81,18 @@ def test_quiet_reflow_keeps_actual_words_and_original_cue_times(tmp_path):
     assert L.read_captions(tmp_path,['quiet.ass'])==old
 
 
+def test_readable_quiet_preserves_font_size_and_recognizes_exact_legacy_crop():
+    spec=L.layout('quiet')
+    assert spec['subtitle_font_px']==44
+    assert L.source_window({'layout_proof':spec})==spec['live_region']
+    old=dict(canvas=dict(width=1280,height=720),template='landscape-live-v4-quiet-footer',
+             live_region=dict(x=237,y=0,width=806,height=600),
+             subtitle_region=dict(x=180,y=600,width=920,height=120))
+    assert L.source_window({'layout_proof':old})==old['live_region']
+    old['live_region']['y']=1
+    with pytest.raises(ValueError):L.source_window({'layout_proof':old})
+
+
 def test_queue_migration_cannot_overwrite_another_render_or_accepted_stock():
     from run_landscape_stock import reserve
     plan=dict(old_slug='old',new_slug='new')
