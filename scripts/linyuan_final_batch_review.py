@@ -126,7 +126,8 @@ def focused_revision(row, player):
         ('source34-reaction-35912591408', 'e239134c742c567241b979da01cc9b9f656afcad'),
         ('source13-title-render-35913230331', '4260fcdb692c324de78c19b5b1876e430138b15d'),
         ('source8-58-quotes-35913668238', '63462f1d024fe4b3d5e4163f65a433c9e29aaeab'),
-        ('source28-title-render-35916185508', 'a9ca34faf7e8e70f8cfd2667f4c670a0e2441df7')):
+        ('source28-title-render-35916185508', 'a9ca34faf7e8e70f8cfd2667f4c670a0e2441df7'),
+        ('final-three-quotes-35917091586', 'c6bac2d8234231d7fabdb079f6ed8622233b0b5b')):
         for revised in read(OUT / folder / 'media-verification.json', []):
             if revised['id'] != row['id'] or not revised.get('video_audio_full_decode'):
                 continue
@@ -142,6 +143,58 @@ def focused_revision(row, player):
                 +'<p class="small">运行 '+esc(revised['run_id'])+'，代码 '+esc(commit[:7])
                 +'。同素材后续优化，不追加到冻结100条的出片数。</p>')
     return ''
+
+
+def independent_audio_trials(row):
+    """Expose disagreements for listening without treating a second ASR as truth."""
+    notes = read(RECORDS / 'final100-audio-review.json', {})
+    panels = []
+    for path in sorted((OUT / 'final100-audio-35916043585').rglob('result.json')):
+        trial = read(path, {})
+        case = trial.get('case', {})
+        if case.get('final_sha256') != row['sha256']:
+            continue
+        if (str(trial.get('run_id')) != '35916043585'
+                or trial.get('commit') != 'd5e93e953113b5369e5092ad92a0ac3b66a52579'
+                or case.get('source_id') != row['id']
+                or str(case.get('source_run_id')) != RUN
+                or trial.get('subtitles_modified') is not False
+                or trial.get('editorial_approved') is not False):
+            raise ValueError('Independent ASR is not bound to this frozen final')
+        wav = path.parent / 'original-audio.wav'
+        if hashlib.sha256(wav.read_bytes()).hexdigest() != trial.get('audio_sha256'):
+            raise ValueError('Independent ASR audio differs from its record')
+        window = case['window']
+        primary = '\n'.join(c['text'] for c in case['primary_asr_excerpt'])
+        second = '\n'.join(c['text'] for c in trial.get('segments', []))
+        panels.append('<details><summary>字幕疑点原音 · '+esc(window['start'])+'–'
+            +esc(window['end'])+'秒 · 独立模型交叉检查</summary>'
+            +'<audio controls preload="none" style="width:100%" src="'
+            +esc(os.path.relpath(wav, OUT))+'"></audio>'
+            +'<p>'+esc(notes.get(case['id'], '待复核，未修改成片字幕。'))+'</p>'
+            +'<p>原成片识别：</p><pre class="transcript">'+esc(primary)+'</pre>'
+            +'<p>独立识别：</p><pre class="transcript">'+esc(second)+'</pre>'
+            +'<p class="small">第二次识别只是分歧线索，不是正确答案，也不是人工听音验收。'
+            +'<a href="'+esc(os.path.relpath(path, OUT))+'">原始记录</a></p></details>')
+    return ''.join(panels)
+
+
+def focused_failure_trials(row):
+    notes = read(RECORDS / 'focused-failures-review.json', {})
+    panels = []
+    for path in sorted((OUT / 'final-three-quotes-35917091586').glob('simulation-report-*/report.json')):
+        report = read(path, {})
+        if report.get('sample', {}).get('id') != row['id'] or report.get('status') == 'passed':
+            continue
+        if (report.get('source_sha256') != row['source_sha256']
+                or str(report.get('run_id')) != '35917091586'
+                or report.get('tested_sha') != 'c6bac2d8234231d7fabdb079f6ed8622233b0b5b'):
+            raise ValueError('Focused failure belongs to another source or code')
+        key = '35917091586:'+str(row['id'])
+        panels.append('<details><summary>专项改版未通过 · 保留失败记录</summary><p>'
+            +esc(notes.get(key, '这次改版没有合格实片，不能记作改善。'))
+            +'</p><a href="'+esc(os.path.relpath(path, OUT))+'">实际失败报告</a></details>')
+    return ''.join(panels)
 
 
 def section(reference_media, player):
@@ -194,6 +247,8 @@ def section(reference_media, player):
                 current.append('<p class="warning">本稿的标题、封面和完整语义尚未完成编辑复核；不能算质量通过。</p>')
             current.append(title_trials(row))
             current.append(answer_subject_trials(row))
+            current.append(independent_audio_trials(row))
+            current.append(focused_failure_trials(row))
             current.append(cover_word_trial(row))
             current.append(returned_layout_trial(row, player))
             # Landscape renders store their final captions under a different prefix.

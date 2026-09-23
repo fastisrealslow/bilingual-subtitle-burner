@@ -1,0 +1,21 @@
+name: 原话标题保持旧区间与封面完整词复验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-quote-framing-recheck.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '39,95'
+      content_policy: reference_v1
+      title_draft_profile: production
+      output_layout: auto
+      landscape_style: quiet
+      recovery_run_id: '35902748400'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
