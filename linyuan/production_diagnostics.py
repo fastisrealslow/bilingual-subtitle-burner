@@ -15,6 +15,8 @@ def failure_category(reason):
     if '剩余帧即使全部匹配也达不到80%' in reason:
         small=re.search(r'人脸短边不足\d+px的帧数(\d+)',reason)
         return 'resolution' if small and int(small.group(1)) > 0 else 'identity'
+    if '与已经发布的母片时间段重叠' in reason:
+        return 'duplicate'
     # Operational failures must not be presented as evidence against footage.
     groups = (
         ('cloud_account_billing', ('Current user is in debt', '账户欠费', 'Account in debt')),
@@ -23,9 +25,12 @@ def failure_category(reason):
         ('identity', ('人物不一致', '人物身份', '未找到与林园参考照匹配', '发言归属', '其他嘉宾')),
         ('resolution', ('短边', '清晰度')),
         ('framing', ('取景', '角标', '原画', '人脸', '水印', '黑边', '黑色填充边')),
-        ('selection', ('连续候选', '120秒', '完整观点', '选段')),
+        # Missing legacy ranges are a ledger gap, not evidence of duplicate
+        # content; title retries often also contain the words 完整观点.
+        ('publication_history', ('同源历史缺少可核对的起止段', '母片内容哈希已改变')),
         ('title', ('标题', '封面文案', '文案')),
         ('captions', ('字幕', '分屏', '断词')),
+        ('selection', ('连续候选', '120秒', '完整观点', '选段')),
         ('duplicate', ('重复', '重叠', '冷却')),
     )
     return next((name for name, words in groups if any(w in reason for w in words)), 'unclassified')

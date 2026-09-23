@@ -132,8 +132,22 @@ def latest_library():
     body+='<div class="table-scroll"><table><thead><tr><th>来源</th><th>固定100样本</th><th>首次自动出片</th><th>自动出片率</th></tr></thead><tbody>'
     for row in d['fixed100_platforms']:
         body+='<tr><td>'+esc(row['source'])+'</td><td>'+str(row['total'])+'</td><td>'+str(row['passed'])+'</td><td>'+str(row['percent'])+'%</td></tr>'
-    body+='</tbody></table></div><p class="small">这些是固定样本的自动出片统计，不是全平台可用率或编辑通过率；小样本不能代表来源质量。新发现17条正在独立验收，阶段结果不能推算最终通过率。</p>'
+    body+='</tbody></table></div><p class="small">这些是固定样本的自动出片统计，不是全平台可用率或编辑通过率；小样本不能代表来源质量。新发现17条首次验收已完成，后续修复结果另列。</p>'
     review=json.loads((RECORDS/'sep23-review.json').read_text())
+    for key,label in [('sep23_full100','新一轮固定100（含待返回）'),('sep23_library17','新发现17条：首次验收')]:
+        cohort=review.get('recent_source_cohorts',{}).get(key)
+        if not cohort:continue
+        body+='<h3>'+label+'：分来源可用率</h3><p class="small">分母保留全部抽样来源；未确定含 '+esc(cohort['missing'])+' 条尚未返回。不合并后续救回结果。通过指自动技术门禁，含已发现的标题反例。</p>'
+        body+='<div class="table-scroll"><table><tr><th>来源</th><th>通过／全部</th><th>拒绝</th><th>未确定／待返回</th></tr>'
+        for row in cohort['platforms']:
+            body+='<tr><td>'+esc(row['source'])+'</td><td>'+esc(row['passed'])+' / '+esc(row['total'])+'</td><td>'+esc(row['rejected'])+'</td><td>'+esc(row['unresolved'])+'</td></tr>'
+        body+='</table></div><details><summary>按上传者看同一批素材（小样本，不是排名）</summary><div class="table-scroll"><table><tr><th>平台／上传者</th><th>通过／全部</th><th>拒绝</th><th>未确定</th></tr>'
+        for row in cohort['authors']:
+            body+='<tr><td>'+esc(row['source'])+'</td><td>'+esc(row['passed'])+' / '+esc(row['total'])+'</td><td>'+esc(row['rejected'])+'</td><td>'+esc(row['unresolved'])+'</td></tr>'
+        body+='</table></div></details>'
+    history=review.get('legacy_history_audit')
+    if history:
+        body+='<h3>历史素材整理：找回记录仍需核对母片</h3><p>找回5份旧出片元数据中的时间段；3份归档母片与当前下载文件哈希不同，2份归档母片取不到。暂未回填线上历史、未恢复放行，也未增加成片率。旧记录还暴露出重叠片段被反复拼入同一视频的问题；当前连续选段检查用于拦截此类重复。</p>'
     trial=review.get('fresh_library_trial',{})
     if trial:
         body+='<h3>新17条实际返回结果</h3><p>'+esc(str(trial.get('automatic_passes_at_update',0)))+' 条自动生成，'+esc(str(trial.get('rejected_at_update',0)))+' 条拒绝，'+esc(str(trial.get('unresolved_at_update',0)))+' 条运行未确定，'+esc(str(trial.get('pending_at_update',0)))+' 条尚未返回。'+esc(trial['note'])+'</p>'

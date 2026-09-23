@@ -113,7 +113,16 @@ def proposal_schema(unit_count, subjects=None, guest_ids=None):
     return schema
 
 
-def reading_schema(unit_count, answer_focus=False):
+def main_answer_quotes(units):
+    # Copy exact sentence spans mechanically. The model chooses meaning; it
+    # must not recreate an ASR quotation from memory (run 35846866976 added
+    # “目前/还是” and dropped fillers, so an otherwise correct answer failed).
+    # Do not force arbitrary length cuts or merge across sentence boundaries.
+    return list(dict.fromkeys(s for s in re.findall(r'[^。！？!?；;]+[。！？!?；;]*',''.join(units))
+                              if 4<=len(compact(s))<=160 and len(s)<=200))
+
+
+def reading_schema(unit_count, answer_focus=False, units=None):
     turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
               b_end=dict(type='integer',minimum=0,maximum=unit_count-1))
     # Run 158 assigned alternating roles before understanding the dialogue,
@@ -128,6 +137,11 @@ def reading_schema(unit_count, answer_focus=False):
         # cue of every paragraph, including incomplete tails. Ask for one
         # actual claim in words; bind it back to cues ourselves, before drafts.
         fields['d_main_answer_quote']=dict(type='string',minLength=4,maxLength=200)
+        if units is not None:
+            quotes=main_answer_quotes(units)
+            if not quotes:
+                raise ValueError('没有可逐字绑定的完整长度原句，保留素材等待核对')
+            fields['d_main_answer_quote']['enum']=quotes
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
 
 
@@ -967,7 +981,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             retry_note = (f'第{attempt + 1}轮重新阅读；以下是已退回的错误稿，不能当作原文事实：'
                           + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
             if structured_model and reading is None:
-                proposed_reading=_json(call((reading_repair_note or retry_note)+reader_prompt,reading_schema(len(units),answer_focus)))
+                proposed_reading=_json(call((reading_repair_note or retry_note)+reader_prompt,
+                    reading_schema(len(units),answer_focus,units if answer_focus else None)))
                 reading_repair_note=''
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading

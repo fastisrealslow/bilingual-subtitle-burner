@@ -103,7 +103,9 @@ def main():
         ('library20', 'library20-20260921.json', 'output/benchmark-20260921/library-35556200021'),
         ('candidate100', 'source100-20260916.json', 'output/candidate100-35565180877/results'),
         ('latest100', 'source100-20260916.json', 'output/candidate100-35618921193/results'),
-        ('sep23', 'source100-20260916.json', 'output/candidate100-35682602969/results')):
+        ('sep23', 'source100-20260916.json', 'output/candidate100-35682602969/results'),
+        ('sep23_full100', 'source100-20260916.json', 'output/sep23-full100-35833967072'),
+        ('sep23_library17', 'library17-20260923.json', 'output/benchmark-20260921/library17-35823163836')):
         reports = [read(p) for p in (ROOT / folder).glob('simulation-report-*/report.json')]
         summary = aggregate(read(ROOT / 'linyuan/simulations' / manifest), reports)
         (ROOT / folder / 'local-summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -118,7 +120,7 @@ def main():
             platforms=grouped(rows, library), authors=grouped(rows, library, True))
     # Same URL is not enough: download bytes can change between runs.
     baseline = {r['sample']['id']: r for r in batches['baseline']['samples']}
-    for key in ('optimized', 'reference100', 'candidate100', 'latest100', 'sep23'):
+    for key in ('optimized', 'reference100', 'candidate100', 'latest100', 'sep23', 'sep23_full100'):
         pairs = defaultdict(list)
         for row in batches[key]['samples']:
             ident = row['sample']['id']; old = baseline[ident]

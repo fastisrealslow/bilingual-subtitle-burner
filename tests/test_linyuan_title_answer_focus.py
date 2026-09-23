@@ -69,6 +69,22 @@ def test_real32_paragraph_tail_failure_is_replaced_by_a_bound_whole_claim():
     assert T.bind_answer_focus({'d_main_answer_quote':''.join(units[48:51])},units,roles)==[48,49,50]
 
 
+def test_real8_quote_grammar_copies_actual_words_instead_of_recreating_them():
+    import json
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/content-stage-corpus.json'
+    case=next(r for r in json.loads(path.read_text()) if r['id']=='sep23-source8')
+    units=[c['text'] for c in case['cues']]
+    quotes=T.reading_schema(len(units),True,units)['properties']['d_main_answer_quote']['enum']
+    assert ''.join(units[7:11]) in quotes
+    assert '目前这个位置应该还是不高，还没有进入牛市。' not in quotes
+    assert all(q in ''.join(units) for q in quotes)
+    assert all(4<=len(T.compact(q))<=160 for q in quotes)
+    # Grammar candidacy is not speaker approval.
+    host=next(q for q in quotes if '上车' in q)
+    with pytest.raises(ValueError):
+        T.bind_answer_focus({'d_main_answer_quote':host},units,['host']*7+['guest']*(len(units)-7))
+
+
 def test_answer_profile_has_a_distinct_cache_identity(monkeypatch):
     import produce_cn as P
     monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','source_choices')

@@ -58,3 +58,11 @@ def test_tracker_failure_distinguishes_actual_small_faces_from_threshold_label(s
     reason=f'动态取景剩余帧即使全部匹配也达不到80%：已匹配510/921，总帧数2052；身份匹配但人脸短边不足96px的帧数{small}'
     assert D.failure_category(reason)==category
     assert D.failure_category('源片短边不足480')=='resolution'
+
+
+def test_real_batch_failures_do_not_hide_title_retries_or_missing_publication_ranges():
+    assert D.failure_category('标题文案待重试：未提炼出有原文支撑的完整观点标题')=='title'
+    assert D.failure_category('同源历史缺少可核对的起止段，不能确认是未用内容')=='publication_history'
+    assert D.failure_category('同一来源URL的母片内容哈希已改变，须核对旧段对应关系')=='publication_history'
+    assert D.failure_category('与已经发布的母片时间段重叠，保留其他完整观点')=='duplicate'
+    assert D.failure_category('原文中未找到连续候选；重复模型请求无助于恢复')=='selection'
