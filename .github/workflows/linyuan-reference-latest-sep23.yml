@@ -1,0 +1,67 @@
+name: 园园近期四条补充对照（只读不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-reference-latest-sep23.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-reference-latest-sep23
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        run: |
+          python - <<'PY'
+          import json,os
+          rows=json.load(open('linyuan/simulations/benchmark-20260921/references-latest-sep23.json'))['rows']
+          assert len(rows)==len({r['bvid'] for r in rows})==4
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('matrix='+json.dumps({'bvid':[r['bvid'] for r in rows]})+'\n')
+          PY
+  evidence:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装媒体工具
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg
+      - name: 按现有授权取得最高可用完整视频（不替换来源）
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+          REFERENCE_BVID: ${{ matrix.bvid }}
+        run: |
+          python linyuan/ci_fetch_bilibili.py --url "https://www.bilibili.com/video/$REFERENCE_BVID" \
+            --out "reference-work/$REFERENCE_BVID/source.mp4" --budget-seconds 900 \
+            --failure-report "reference-evidence/$REFERENCE_BVID/fetch-failure.json"
+      - name: 保存完整原声时间轴和原始像素抽帧
+        env:
+          REFERENCE_BVID: ${{ matrix.bvid }}
+        run: |
+          python scripts/inspect_linyuan_reference.py --records linyuan/simulations/benchmark-20260921/references-latest-sep23.json --bvid "$REFERENCE_BVID" \
+            --source "reference-work/$REFERENCE_BVID/source.mp4" \
+            --out "reference-evidence/$REFERENCE_BVID"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reference-latest-${{ matrix.bvid }}
+          path: reference-evidence/${{ matrix.bvid }}/
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: error

@@ -126,6 +126,12 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile','recovery_run_id','output_layout','landscape_style'}
     assert workflow['on']['workflow_call']['inputs']['output_layout']['default']=='auto'
     assert workflow['on']['workflow_call']['inputs']['landscape_style']['default']=='classic'
+    producer=next(s for s in simulate['steps'] if 'simulate_sources.py run --source' in s.get('run',''))
+    effective={**simulate['env'],**producer.get('env',{})}
+    # The real producing step used to silently override a forced landscape
+    # input with OUTPUT_LAYOUT=auto, invalidating explicit-format trials.
+    assert effective['OUTPUT_LAYOUT']==simulate['env']['OUTPUT_LAYOUT']
+    assert effective['LINYUAN_LANDSCAPE_STYLE']==simulate['env']['LINYUAN_LANDSCAPE_STYLE']
     assert workflow['on']['workflow_call']['inputs']['visual_chapters']==dict(type='boolean',required=False,default=False)
     assert workflow['on']['workflow_call']['inputs']['text_model']['default']=='qwen3:8b'
     assert workflow['on']['workflow_call']['inputs']['title_draft_profile']['default']=='production'

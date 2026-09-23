@@ -12,9 +12,10 @@ def main():
     ap.add_argument('--bvid', required=True)
     ap.add_argument('--source', type=Path, required=True)
     ap.add_argument('--out', type=Path, required=True)
+    ap.add_argument('--records', type=Path, help='Frozen reference cohort; defaults to the original twenty')
     a = ap.parse_args()
     root = Path(__file__).resolve().parents[1]
-    records = json.loads((root/'linyuan/simulations/benchmark-20260921/references-20.json').read_text())
+    records = json.loads((a.records or root/'linyuan/simulations/benchmark-20260921/references-20.json').read_text())
     reference = next(r for r in records['rows'] if r['bvid'] == a.bvid)
     probe = json.loads(subprocess.check_output([
         'ffprobe', '-v', 'error', '-show_format', '-show_streams', '-of', 'json', str(a.source)]))

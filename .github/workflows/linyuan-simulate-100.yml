@@ -349,7 +349,6 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         SOURCE_ORIGIN_URL: ${{ env.RUN_SOURCE }}
         PUBLICATION_STATE_PATH: _publication_state.json
-        OUTPUT_LAYOUT: auto
         LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
       run: |
         python -u simulate_sources.py run --source "${{ steps.src.outputs.path }}"

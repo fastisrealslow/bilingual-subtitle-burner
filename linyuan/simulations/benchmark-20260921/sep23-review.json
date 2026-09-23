@@ -2182,14 +2182,26 @@
     "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
     "status": "in_progress",
     "denominator": 100,
-    "received": 96,
+    "received": 98,
     "counts": {
-      "rejected": 76,
-      "passed": 16,
+      "passed": 17,
+      "rejected": 77,
       "unresolved": 4
     },
-    "pending": 4,
-    "note": "已回传96/100条：16通过、76拒绝、4未确定，4待返回。分母仍为100，当前结果不是最终成绩。该轮不含随后短句入口、多嘉宾归属和字幕修复。16个实际文件已完整解码、逐片检查六帧和全部字幕，不等于编辑合格。"
+    "pending": 2,
+    "note": "已回传98/100条：17通过、77拒绝、4未确定，2待返回。17个实际文件全部解码、逐片六帧和全部字幕已检查，尚非编辑合格。95和99是同一段82.7秒谈话，现有发布查重规则命中83%转写重合；技术17份只有16组未被规则判重复的内容，不是17条独立内容。该轮未包含后续标题、字幕与归属修复。",
+    "duplicate_content_pairs": [
+      {
+        "ids": [
+          95,
+          99
+        ],
+        "reason": "转写片段重合 83%",
+        "manual_observation": "六帧和全部25屏字幕对照，是同一段谈话的横竖版；两份均为82.7秒。",
+        "editorial_approved": false
+      }
+    ],
+    "content_groups_by_existing_dedup": 16
   },
   "final_short_title_trial": {
     "run_id": "35835447786",
@@ -2530,10 +2542,10 @@
   "recent_source_cohorts": {
     "sep23_full100": {
       "total": 100,
-      "passed": 16,
-      "rejected": 76,
-      "unresolved": 8,
-      "missing": 4,
+      "passed": 17,
+      "rejected": 77,
+      "unresolved": 6,
+      "missing": 2,
       "tested_shas": [
         "87a00992e228c1cea6d07e252d1086fe8b988f25"
       ],
@@ -2544,19 +2556,19 @@
         {
           "source": "B站",
           "total": 74,
-          "passed": 15,
-          "rejected": 52,
-          "unresolved": 7,
-          "downloaded": 64,
-          "source_gate_passed": 55,
-          "percent": 20.27,
+          "passed": 16,
+          "rejected": 53,
+          "unresolved": 5,
+          "downloaded": 66,
+          "source_gate_passed": 57,
+          "percent": 21.62,
           "reasons": {
             "selection": 6,
-            "framing": 31,
-            "title": 5,
             "unclassified": 10,
+            "title": 6,
+            "framing": 33,
             "resolution": 17,
-            "identity": 17,
+            "identity": 18,
             "publication_history": 4,
             "duplicate": 2
           },
@@ -2759,9 +2771,9 @@
           "percent": 40.0,
           "reasons": {
             "selection": 1,
-            "framing": 5,
-            "resolution": 1,
             "unclassified": 2,
+            "resolution": 1,
+            "framing": 5,
             "identity": 3
           },
           "ids": [
@@ -2787,8 +2799,8 @@
           "source_gate_passed": 6,
           "percent": 16.67,
           "reasons": {
-            "framing": 6,
             "title": 2,
+            "framing": 6,
             "resolution": 2,
             "unclassified": 2,
             "identity": 1
@@ -2805,16 +2817,16 @@
         {
           "source": "B站 / 巴菲特思想研究院",
           "total": 5,
-          "passed": 1,
+          "passed": 2,
           "rejected": 3,
-          "unresolved": 1,
-          "downloaded": 3,
-          "source_gate_passed": 3,
-          "percent": 20.0,
+          "unresolved": 0,
+          "downloaded": 4,
+          "source_gate_passed": 4,
+          "percent": 40.0,
           "reasons": {
-            "framing": 3,
-            "title": 1,
+            "framing": 4,
             "unclassified": 1,
+            "title": 2,
             "resolution": 2
           },
           "ids": [
@@ -2829,14 +2841,16 @@
           "source": "B站 / 人人の股神",
           "total": 3,
           "passed": 0,
-          "rejected": 2,
-          "unresolved": 1,
-          "downloaded": 2,
-          "source_gate_passed": 2,
+          "rejected": 3,
+          "unresolved": 0,
+          "downloaded": 3,
+          "source_gate_passed": 3,
           "percent": 0.0,
           "reasons": {
             "resolution": 2,
-            "duplicate": 1
+            "duplicate": 1,
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             9,
@@ -2875,9 +2889,9 @@
           "percent": 0.0,
           "reasons": {
             "resolution": 2,
-            "framing": 1,
+            "unclassified": 1,
             "identity": 1,
-            "unclassified": 1
+            "framing": 1
           },
           "ids": [
             37,
@@ -2965,9 +2979,9 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "title": 1,
             "unclassified": 1,
+            "title": 1,
+            "framing": 1,
             "identity": 1
           },
           "ids": [
@@ -3003,8 +3017,8 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             56,
@@ -3021,8 +3035,8 @@
           "source_gate_passed": 2,
           "percent": 0.0,
           "reasons": {
-            "framing": 2,
-            "resolution": 1
+            "resolution": 1,
+            "framing": 2
           },
           "ids": [
             75,
@@ -3057,8 +3071,8 @@
           "source_gate_passed": 2,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
             "captions": 1,
+            "framing": 1,
             "publication_history": 1
           },
           "ids": [
@@ -3207,8 +3221,8 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             35
@@ -3366,8 +3380,8 @@
           "source_gate_passed": 1,
           "percent": 100.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             13
@@ -3415,9 +3429,9 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
             "resolution": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             80
@@ -3481,8 +3495,8 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "identity": 1
+            "identity": 1,
+            "framing": 1
           },
           "ids": [
             10
@@ -3893,6 +3907,7 @@
           81,
           82,
           83,
+          84,
           85,
           88,
           89,
@@ -3917,7 +3932,8 @@
           66,
           68,
           79,
-          90
+          90,
+          95
         ],
         "gain": [
           13,
@@ -3936,11 +3952,9 @@
           60,
           72,
           74,
-          84,
           86,
           87,
           94,
-          95,
           100
         ],
         "different_source_bytes": [
@@ -3972,8 +3986,8 @@
           "percent": 11.76,
           "reasons": {
             "selection": 5,
-            "framing": 4,
             "identity": 2,
+            "framing": 4,
             "resolution": 4,
             "title": 1
           },
@@ -4009,8 +4023,8 @@
           "source_gate_passed": 3,
           "percent": 0.0,
           "reasons": {
-            "framing": 2,
-            "identity": 2
+            "identity": 2,
+            "framing": 2
           },
           "ids": [
             302,
@@ -4078,8 +4092,8 @@
           "source_gate_passed": 1,
           "percent": 0.0,
           "reasons": {
-            "framing": 1,
-            "resolution": 1
+            "resolution": 1,
+            "framing": 1
           },
           "ids": [
             307
@@ -4508,6 +4522,71 @@
         "status": "different_bytes",
         "publication_history_changed": false,
         "note": "历史起止段已找到；缺少同一母片字节匹配，不能直接回填当前来源历史或声称恢复成片。"
+      }
+    ]
+  },
+  "quote_focus_trial": {
+    "run_id": "35846866976",
+    "tested_sha": "fcf9ed97b713385f16a118636080dbe1ce0c391e",
+    "status": "completed",
+    "note": "连续摘录实验四条：2条生成、2条未生成，生成稿也有过度概括。没有提高生产默认配置；已定位原话重写与拟稿指令冲突，另跑修正版。",
+    "rows": [
+      {
+        "case": "sep23-source311-complete-question",
+        "model": "qwen3:8b",
+        "title": "未生成",
+        "cover": "—",
+        "seconds": 412.76,
+        "review_note": "未生成：摘录改写并混入主持人的规律性复述。完整原文仍保留，未用手写标题替代模型结果。",
+        "editorial_approved": false,
+        "raw_file": "quote-focus-35846866976/source-choices-8b-6/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-6-repeat-1.json"
+      },
+      {
+        "case": "sep23-source32",
+        "model": "qwen3:8b",
+        "title": "林园：独特性是企业生存的关键",
+        "cover": "独特性决定企业生存",
+        "seconds": 632.03,
+        "review_note": "生成但不接受：将长期赚钱、独门生意改成独特性决定企业生存，概括过度且偏报告腔。",
+        "editorial_approved": false,
+        "raw_file": "quote-focus-35846866976/source-choices-8b-5/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-5-repeat-1.json"
+      },
+      {
+        "case": "sep23-source8",
+        "model": "qwen3:8b",
+        "title": "未生成",
+        "cover": "—",
+        "seconds": 339.42,
+        "review_note": "未生成：读懂主要回答，但摘录增加目前/还是并删除口吃，绑定失败后转选旁枝。新实验改为原文句子枚举。",
+        "editorial_approved": false,
+        "raw_file": "quote-focus-35846866976/source-choices-8b-3/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-3-repeat-1.json"
+      },
+      {
+        "case": "sep23-source28",
+        "model": "qwen3:8b",
+        "title": "林园：眼科是未来最严重的后遗症",
+        "cover": "眼科后遗症将成大问题",
+        "seconds": 778.68,
+        "review_note": "生成但不接受：眼科是未来最严重的后遗症不通顺，最严重缺少原文依据，也没有抓住两个行业的增长判断。",
+        "editorial_approved": false,
+        "raw_file": "quote-focus-35846866976/source-choices-8b-4/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-4-repeat-1.json"
+      }
+    ]
+  },
+  "quiet_landscape_trial": {
+    "run_id": "35845140252",
+    "tested_sha": "e0cdaecbc6679cb9a5024c580a0bdbb54498619e",
+    "status": "completed",
+    "note": "79同源194.7秒完整视频：深灰底、806×600真人窗，画面占比52.5%；38px可见字幕位于独立底栏，原声直接保留。技术门禁、完整解码、六帧和全部字幕已检查。画面更大但字幕比旧44px小；标题又选到旁枝，未设为默认或认定整体胜出。",
+    "media": [
+      {
+        "id": 79,
+        "title": "林园：美国六十岁以上老人催生医药行业巨头",
+        "cover_title": "美国六十岁以上老人催生医药行业巨头",
+        "file": "quiet79-35845140252/simulation-media-sim-0916-079-e9db06/final_2.mp4",
+        "poster": "quiet79-35845140252/simulation-media-sim-0916-079-e9db06/contact_sheet_6-landscape.jpg",
+        "sha256": "0132a332ac8bdda916e2d84a05880a467531501f76fc1cfb9c6be12d55c9169c",
+        "note": "新标题选了美国人口举例，明显不如前版“我们锁定医药赛道，别的不搞”直接。原字幕仍有年符合增长、五板等疑点；排版没有修复这些识别问题。"
       }
     ]
   }
