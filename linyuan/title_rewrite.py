@@ -225,7 +225,9 @@ def bind_candidate(item, focus, units, subjects):
     source_text=''.join(units)
     scope_lost_on_cover=(research_scope_error(title,cover,source_text)
                          and not research_scope_error(title,title,source_text))
-    if (copy_fragment(cover) or summary_heading(cover.removeprefix(speaker)) or scope_lost_on_cover
+    hearsay_lost=(reported_claim_error(title,cover,source_text)
+                 and not reported_claim_error(title,title,source_text))
+    if (copy_fragment(cover) or summary_heading(cover.removeprefix(speaker)) or scope_lost_on_cover or hearsay_lost
             or not 8<=len(compact(cover))<=18):
         # An exact complete title clause can serve as the cover without a
         # second factual rewrite. The independent reviewer sees this final
@@ -237,6 +239,7 @@ def bind_candidate(item, focus, units, subjects):
                  and not copy_fragment(c) and bound['subject'] and bound['subject'] in c
                  and not summary_heading(c)
                  and not research_scope_error(title,c,source_text)
+                 and not reported_claim_error(title,c,source_text)
                  and cover_fits(c)]
         if choices:
             bound['cover_title']=min(choices,key=lambda c:abs(len(compact(c))-13))
@@ -392,6 +395,10 @@ def forecast_copy_error(title, cover, transcript):
 
 def unresolved_subject_error(title, cover):
     for copy in (title,cover):
+        # Exact quotations also need a self-contained object on the cover.
+        # Preserve explicit apposition (例如“这些医药公司”) and first-person voice.
+        if re.search(r'这(?:些|类|种|几个|几家)(?:公司|企业|东西|有关系|相关)',copy):
+            return '标题或封面的讨论对象只有未解释的指代；写明具体对象，不能把原文中的“这些”单独摘成标题'
         if (re.search(r'这(?:两|三|几)种病',copy)
                 and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):
             return '文案只有“这几种病”的未解释指代；写出疾病或实际讨论的并发症产品，不复制问题残句'
@@ -482,6 +489,54 @@ def research_scope(text):
     return re.search(r'(?:我|我们)(?:所)?(?:研究|调研|跟踪|考察)(?:过|的)?(?:这些|这几家|的)?公司',compact(text))
 
 
+def unresearched_reports(transcript):
+    """Identify the explicit 'not researched, someone told me' construction.
+
+    This is a bounded safeguard for observed source17, not a general claim
+    entailment model. Preserve sentence scope rather than treating every
+    statement in a long interview as hearsay.
+    """
+    reports=[]
+    for sentence in re.split(r'[。！？!?；;]',transcript):
+        for match in re.finditer(r'(?:听别人说|听说|听闻|有人(?:给|跟|对)我(?:们)?说)(.{4,160})',sentence):
+            before=sentence[:match.start()]
+            if re.search(r'(?:没|没有)(?:没有)?(?:特意|专门|亲自)?(?:去)?(?:研究|调研|核实|调查|验证)',before):
+                reports.append(match[1])
+    return reports
+
+
+def reported_claim_error(title,cover,transcript):
+    reports=unresearched_reports(transcript)
+    if not reports:return None
+    import jieba
+    import jieba.posseg
+    # Search segmentation exposes a verbal component inside a noun compound
+    # such as 环境污染; ordinary POS segmentation emits only the whole noun.
+    predicates={word for report in reports for token in jieba.cut_for_search(report)
+                for word,tag in jieba.posseg.cut(token)
+                if tag.startswith('v') and len(compact(word))>=2
+                and word not in {'研究','调研','认为','知道','告诉','说过','参与'}}
+    for text in (title,cover):
+        if (any(word in text for word in predicates)
+                and not re.search(r'听说|听闻|听别人说|有人.{0,6}说|转述|据说',text)):
+            return '原话未研究且仅转述他人说法；涉及该判断时标题与封面都须保留听说，未研究不能替代转述限定'
+    return None
+
+
+def population_scope_error(title,cover,transcript):
+    """Do not turn an age-group increase into total-population growth."""
+    source=compact(transcript)
+    if not re.search(r'老龄|老人|老年|年龄越来越大|[五六七八九十0-9]{1,3}岁以上',source):
+        return None
+    # An explicit total-population claim in the source needs normal review.
+    if re.search(r'(?:总人口|人口总量|人口数量|人口)(?:在|持续|不断)?(?:增长|增加|扩大)',source):
+        return None
+    for copy in (title,cover):
+        if re.search(r'(?<!老年)(?<!老龄)人口(?:的)?(?:增长|增加|扩大)',copy):
+            return '原文讨论老龄人口或年龄增长，不能改写成总人口增长；标题与封面分别保留对象范围'
+    return None
+
+
 def research_scope_error(title, cover, transcript):
     # Actual source95 said 我们研究的公司. Both 8B and 14B reviewers
     # approved a sector-wide rewrite, omitting that short standalone cue.
@@ -529,6 +584,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     scope_issue = research_scope_error(title,cover,transcript)
     if scope_issue:
         return scope_issue
+    hearsay_issue=reported_claim_error(title,cover,transcript)
+    if hearsay_issue:return hearsay_issue
+    population_issue=population_scope_error(title,cover,transcript)
+    if population_issue:return population_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -638,7 +697,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         cover = cover_copy(title, quote, speaker)
         if cover.get('reason') == 'needs_editorial_copy':
             continue
-        if copy_fragment(cover['text']) or research_scope_error(title, cover['text'], transcript):
+        if (copy_fragment(cover['text']) or research_scope_error(title, cover['text'], transcript)
+                or reported_claim_error(title,cover['text'],transcript)):
             continue
         if cover_qualifier_error(title, cover['text']):
             continue
@@ -648,6 +708,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             continue
         if (forecast_copy_error(title, cover['text'], transcript)
                 or unresolved_subject_error(title, cover['text'])
+                or population_scope_error(title, cover['text'], transcript)
                 or product_contrast_error(title, cover['text'], transcript)
                 or unsupported_hedge_error(title, cover['text'], [quote])):
             continue
@@ -776,6 +837,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
+                if unresearched_reports(''.join(draft_source.values())):
+                    source_heading+='原话明确未研究，并只转述别人说法。涉及这条转述的判断时，标题与封面各自保留“听说”；仅写“未研究”不等于保留转述。也可以只写本人明确的做法，不把转述写成已证实的结论。\n'
                 if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):
                     source_heading+='原文明确说龙头尚未形成。写到龙头时，标题与封面必须保留“没有、尚未、未来、可能成为”等原有阶段；不能写成选定现成龙头，不能只添加限定词却保留相反做法。\n'
                 draft_retry=(f'第{attempt+1}轮重新拟稿；上轮未通过原文或文案检查。只从下方嘉宾原话重新提炼判断，不延续上轮措辞。\n' if last_error else '')
@@ -968,6 +1031,8 @@ def error(title, proof, transcript=None, speaker='林园'):
                   unresolved_subject_error(title, proof['cover']),
                   product_contrast_error(title, proof['cover'], transcript or ''.join(evidence)),
                   research_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  reported_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  population_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
             return issue

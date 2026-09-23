@@ -1,4 +1,4 @@
-name: 先列原文限定再拟稿：8B与9B对照
+name: 9月23日：明确对象与个人选择标题复验
 'on':
   push:
     branches:
@@ -10,7 +10,7 @@ name: 先列原文限定再拟稿：8B与9B对照
       case_ids:
         description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
         required: false
-        default: '[0,1]'
+        default: '[0,1,2]'
         type: string
 permissions:
   contents: read
@@ -27,9 +27,9 @@ jobs:
     timeout-minutes: 50
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[0,1]') }}
+        case: ${{ fromJSON(inputs.case_ids || '[0,1,2]') }}
         variant:
         - model: qwen3:8b
           profile: source_limits
@@ -87,7 +87,7 @@ jobs:
         message\") or {}).get(\"content\")'\n"
     - name: 重放实片的同一份完整字幕，不计出片成绩
       run: python -u scripts/title_batch_cpu.py --case "${{ matrix.case }}" --repeat
-        1 --corpus linyuan/simulations/benchmark-20260921/title-source-limits-corpus.json
+        1 --corpus linyuan/simulations/benchmark-20260921/title-sep23-corpus.json
         --model "${{ matrix.variant.model }}" --draft-profile "${{ matrix.variant.profile
         }}"
     - uses: actions/upload-artifact@v4
