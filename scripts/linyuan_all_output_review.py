@@ -268,8 +268,8 @@ def build_all_output_review(reference_media, player):
         focused_replays=focused_replays,preferred_focused_outputs=list(preferred_focused.values()),
         caption_cleanup=caption_cleanup,
         quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
-    return ('<section id="all-outputs"><h2>全部成片逐条改：标题、封面与内容</h2>'
-        '<p class="note">新一轮完整100条回归（e1ac6a6）正在运行：<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35887065004">查看全部作业</a>。此前17/100属于旧87a0099整轮结果，不能当作新代码已经验证的成绩；专项标题和排版不加进分子。</p>'
+    return ('<section id="all-outputs"><h2>各轮实片与改稿：全部标题、封面与内容</h2>'
+        '<p class="note">此处集中展示各轮已核验实片，保留更好的专项版本作为对照。最终候选 bfd29f6 的整轮成绩在上方单独展示；这里不拼接历史最好结果，也不把标题或排版专项计入新增出片。</p>'
         '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个冻结版本、22个素材编号；新回归和专项实片另列。冻结批次95与99重复，新回归改选后的内容另行去重。同素材不同版本不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。已完成的42、99号聚焦版优先展示；下方其他建议稿不冒充实测成绩。</p>'
         '<p>18字以内不是必须凑满：能独立理解的个人选择可以更短。金句须有具体对象、真实态度和完整条件；强烈发言可以保留，不能改造出盈利保证。</p>'
         '<details><summary>素材去重与历史成片：为什么不能只数链接和文件</summary>'
