@@ -8,6 +8,7 @@ from headline_policy import copy_length_ok
 VERSION = 2026091303
 CHECKS = ('source_supported', 'central_point', 'attribution_correct',
           'preserves_qualifiers', 'cover_consistent', 'readable')
+ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', '时候', '方面', '东西'})
 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
@@ -76,7 +77,7 @@ def subject_catalog(units):
     business_nouns = {'生意', '买卖'}
     counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
                      if (tag.startswith(('n', 'vn')) or tag in ('l', 'j') or word in business_nouns)
-                     and 2 <= len(compact(word)) <= 8)
+                     and 2 <= len(compact(word)) <= 8 and word not in ABSTRACT_ANCHORS)
     return {word:[i for i, unit in enumerate(units) if word in unit]
             for word, _ in counts.most_common(48)}
 
@@ -372,7 +373,7 @@ def bind_candidate(item, focus, units, subjects):
     speaker=title.split('：',1)[0] if '：' in title else ''
     if speaker and cover.startswith(speaker+'：'):
         cover=cover[len(speaker)+1:].strip()
-    elif speaker and re.match(re.escape(speaker)+r'(?:听说|认为|表示|重点选择|选择|看好|不看好|没参与|不会买|买入|卖出)',cover):
+    elif speaker and re.match(re.escape(speaker)+r'(?:听说|认为|表示|重点选择|选择|看好|不看好|没参与|没买|没有买|不买|不会买|买入|卖出)',cover):
         # Actual 8B drafts repeated the speaker label without a colon. Remove
         # only this attributed reporting prefix, before length/meaning review;
         # never strip names inside entities such as 林园投资公司.
@@ -443,6 +444,12 @@ def cover_qualifier_error(title, cover):
     not a substitute for reviewing negation, attribution, or the full source.
     A question asking for the condition makes no unconditional promise.
     """
+    # Actual all-output case28 kept a future belief in the title but turned
+    # it into an accomplished fact on the cover, despite two positive reviews.
+    if (re.search(r'我(?:相信|觉得|判断|认为).{0,12}(?:未来|将来|今后).{0,20}增长', title)
+            and '增长' in cover
+            and not re.search(r'我(?:相信|觉得|判断|认为)|预计|有望|可能|能否|会不会|是否|[？?]', cover)):
+        return '封面把个人的未来增长判断写成事实；保留我相信等原有判断语气，或提出完整问题'
     conditions = re.findall(r'(?:前提是|前提为|条件是)([^，。；！？,;!?]+)', title)
     conditions += re.findall(
         r'(?:^|[，,；;])(?:但)?([^，。；！？,;!?]+?)(?:才是|是)前提', title)
@@ -579,6 +586,12 @@ def unresolved_subject_error(title, cover):
                 and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):
             return '文案只有“这几种病”的未解释指代；写出疾病或实际讨论的并发症产品，不复制问题残句'
         body=re.sub(r'^[^：:]+[：:]', '', copy)
+        if (re.search(r'(?:我|我们)?(?:没买|没有买|不买)[，,。；;]', body)
+                and re.search(r'(?:它|这|那).{0,8}(?:不符合|符合).{0,6}标准', body)
+                and not subject_catalog([body])):
+            return '没买什么没有说清；不能用它和标准代替具体对象，须从已确认嘉宾上下文补足并引用证据'
+        if re.search(r'这原因那原因|(?:这|那)(?:个)?原因',body) and not subject_catalog([body]):
+            return '原因没有具体对象；原话虽真实，也不能把离开上下文的泛指句当成标题'
         if re.search(r'(?:这个|那个|这一个)(?:位置|价位)',body) and not re.search(
                 r'A股|股市|市场|上证|沪指|指数|牛市|熊市|估值|股价|股息|医药|消费|白酒|光伏|中石油|茅台|片仔癀',body):
             return '标题或封面的这个位置没有具体对象；须说明原文所指市场或产品，不能让观众猜位置'
@@ -840,7 +853,7 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     if any(term in compact(title+cover) and term not in stated for term in risk_claims):
         return '标题新增了所选嘉宾原文没有的比较或经营判断'
     subject = item.get('subject')
-    if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12:
+    if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12 or subject in ABSTRACT_ANCHORS:
         return '缺少具体讨论对象'
     if compact(subject) not in compact(title) or not any(compact(subject) in compact(q) for q in evidence):
         return '标题对象与原文证据不对应'

@@ -68,3 +68,36 @@ def test_actual_9b_repeated_source_noun_is_not_a_publishable_title():
         cover_title='听说光伏污染大所以没参与',subject='光伏',evidence=[source])
     assert '重复' in T._candidate_error(item,source,'林园',[])
     assert T._candidate_error({**item,'title':'林园：光伏污染大是听说的，所以我没参与'},source,'林园',[]) is None
+
+
+@pytest.mark.parametrize('copy',[
+    '林园：我没买，因为我觉得它不符合我的标准。',
+    '你找这原因那原因，其实都不是原因',
+])
+def test_actual_all_output_drafts_need_a_concrete_object(copy):
+    assert T.unresolved_subject_error(copy,copy)
+
+
+def test_abstract_words_cannot_supply_missing_investment_object():
+    units=['没买，因为我觉得它不符合我的标准。','中石油的产品可能被替代。']
+    catalog=T.subject_catalog(units)
+    assert '标准' not in catalog and '石油' in catalog
+    assert T.unresolved_subject_error('林园：我没买中石油','我没买中石油') is None
+    bound=T.bind_candidate(dict(title='林园：我没买中石油',cover_title='林园没买中石油'),
+        dict(evidence_ids=[0,1]),units,catalog)
+    assert bound['cover_title']=='没买中石油'
+    assert bound['subject']=='石油'
+
+
+def test_real_all_output_growth_cover_cannot_discard_belief():
+    title='林园：我相信未来眼科牙科会有爆发性增长'
+    source='我相信未来眼科牙科会有爆发性增长。'
+    for cover in ['眼科牙科爆发性增长','眼科牙科未来爆发性增长']:
+        item=dict(title=title,cover_title=cover,subject='眼科',evidence=[source])
+        assert '判断语气' in T._candidate_error(item,source,'林园',[],check_layout=False)
+        proof=T._package(item,source,dict(method='cpu_text_review',appeal=5,
+            reason='真实模型把个人预期误审为事实',**{k:True for k in T.CHECKS}),[])['title_rewrite']
+        assert '判断语气' in T.error(title,proof,source)
+    assert T.cover_qualifier_error(title,'我相信眼科牙科会爆发性增长') is None
+    assert T.cover_qualifier_error(title,'眼科牙科会不会爆发性增长？') is None
+    assert T.cover_qualifier_error('林园：眼科牙科已经增长','眼科牙科已经增长') is None
