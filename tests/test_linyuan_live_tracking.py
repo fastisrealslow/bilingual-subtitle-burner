@@ -5,6 +5,24 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from live_tracking import crop_box,complete_face
 
 
+def test_same_source_gallery_requires_direct_primary_match_without_identity_drift(tmp_path):
+    from live_tracking import verified_identity_gallery,source_reference_samples
+    for i in (1,2,3):(tmp_path/f'identity_{i}.jpg').write_bytes(bytes([i]))
+    report=dict(passed=True,visual_identity=dict(same_person_frames=[1,2,2,'../3',True,99],different_person_frames=[3]))
+    paths=source_reference_samples(tmp_path,report)
+    assert [p.name for p in paths]==['identity_1.jpg','identity_2.jpg']
+    assert source_reference_samples(tmp_path,{**report,'passed':False})==[]
+    # The second face resembles the admitted side pose but not the original
+    # reference. It cannot enter the bank through that intermediate match.
+    values={'identity_1.jpg':['side'],'identity_2.jpg':['other']}
+    scores={('primary','side'):.58,('primary','other'):.20,('side','other'):.90}
+    features,proof=verified_identity_gallery('primary',paths,lambda p:values[p.name],
+        lambda a,b:scores[(a,b)],.363)
+    assert features==['primary','side']
+    assert proof[1]['accepted_primary_scores']==[]
+    assert all(len(p['sha256'])==64 for p in proof)
+
+
 @pytest.mark.parametrize('face',[(885,200,90,104),(860,210,70,74)])
 def test_883_retains_more_source_pixels_before_rejecting_small_crop(face):
     x,y,w,h=crop_box(face,1280,640)

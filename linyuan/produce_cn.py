@@ -5351,7 +5351,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             seg_dur = cues[pick['end']]['end'] - s0
             # Fixed crops become empty when the source switches cameras.
             # Track identity in the selected interval before composing the card.
-            from live_tracking import render_tracked
+            from live_tracking import render_tracked,source_reference_samples
             tracked=work/f'tracked{suffix}{n}.mp4'
             source_marks=selected_segment_exclusions(src,s0,seg_dur,
                 work/f'source-corners{suffix}{n}',source_report.get('detected_corner_logos') or ())
@@ -5363,9 +5363,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     frame,work/f'source-corners{suffix}{n}',index,shot_local=True),
                 context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
                 participant_reference=participant_reference,
-                reference_samples=[work/f'identity_{i}.jpg' for i in
-                    (source_report.get('visual_identity') or {}).get('same_person_frames',[])
-                    if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
+                reference_samples=source_reference_samples(work,source_report))
             prepared_live[n] = (tracked, tracking)
             # The prepared moving window is the exact one composed below.
             # Check its subtitles, logos, QR, borders and face geometry now,
