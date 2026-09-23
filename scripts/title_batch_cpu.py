@@ -39,7 +39,7 @@ def main():
                     help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
     ap.add_argument('--occasion', default='访谈', help='Exact production occasion for later title handoff')
-    ap.add_argument('--draft-profile', choices=['production', 'concise', 'source_limits', 'spoken_focus', 'source_choices', 'answer_focus'], default='production')
+    ap.add_argument('--draft-profile', choices=['production', 'concise', 'source_limits', 'spoken_focus', 'source_choices', 'answer_focus', 'answer_subject'], default='production')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
     assert os.environ.get('LOCAL_LLM_MODEL') == args.model
@@ -70,7 +70,7 @@ def main():
         kw['read_cache']=False
         schema=kw.get('response_schema') or {}
         if args.draft_profile != 'production' and 'c_candidates' in schema.get('properties',{}):
-            if args.draft_profile in ('source_choices','answer_focus'):
+            if args.draft_profile in ('source_choices','answer_focus','answer_subject'):
                 fields=schema['properties']['c_candidates']['items']['properties']
                 if list(fields)!=['a_focus','title','cover_title'] or 'b_focus' in schema['properties']:
                     raise ValueError('Each independent draft must plan its own source claim first')
@@ -90,7 +90,7 @@ def main():
             if args.draft_profile in ('source_limits','spoken_focus') and 'c_candidates' in schema.get('properties',{}):
                 parsed=json.loads(result) if isinstance(result,str) else result
                 call['source_plan_before_claim']=list(parsed.get('b_focus',{}))==expected
-            elif args.draft_profile in ('source_choices','answer_focus') and 'c_candidates' in schema.get('properties',{}):
+            elif args.draft_profile in ('source_choices','answer_focus','answer_subject') and 'c_candidates' in schema.get('properties',{}):
                 parsed=json.loads(result) if isinstance(result,str) else result
                 candidates=parsed.get('c_candidates') or []
                 call['source_plan_before_claim']=len(candidates)==3 and all(
@@ -124,7 +124,7 @@ def main():
         row['status']='unresolved';row['error']=f'{type(exc).__name__}: {exc}'
     row['seconds']=round(time.monotonic()-start,2);save()
     row['experiment_valid'] = args.draft_profile == 'production' or row['draft_interventions'] > 0
-    if args.draft_profile in ('source_limits','spoken_focus','source_choices','answer_focus'):
+    if args.draft_profile in ('source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         observed=[c['source_plan_before_claim'] for c in row['calls'] if 'source_plan_before_claim' in c]
         row['planning_order_verified']=bool(observed) and all(observed)
         row['experiment_valid']=row['experiment_valid'] and row['planning_order_verified']

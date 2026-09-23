@@ -52,6 +52,23 @@ def test_reviewed_0907_mothers_only_replace_verified_phrases():
         assert untouched==words
 
 
+def test_actual_all_output_alignment_preserves_timing_and_unreviewed_words():
+    import json
+    from reviewed_asr_corrections import apply_reviewed_corrections
+    cases=json.loads((Path(__file__).resolve().parents[1]/
+        'linyuan/simulations/benchmark-20260921/verified-caption-word-windows.json').read_text())
+    for case in cases:
+        words=case['words'];before=copy.deepcopy(words)
+        revised,changes=apply_reviewed_corrections(words,case['source_sha256'])
+        assert words==before
+        assert len(changes)==(1 if case['source_id']==49 else 2)
+        assert [(w['start'],w['end']) for w in revised]==[(w['start'],w['end']) for w in words]
+        assert ''.join(w['text'] for w in revised)==''.join(w['text'] for w in words).replace('陈以健','成瘾性').replace('符合增长','复合增长')
+        assert apply_reviewed_corrections(words,'different-source')==(words,[])
+        shifted=[dict(w,start=w['start']+100,end=w['end']+100) for w in words]
+        assert apply_reviewed_corrections(shifted,case['source_sha256'])==(shifted,[])
+
+
 def report():
     return dict(source_pcm_sha256='pcm',source_video_sha256='video',device='cpu',
         networking_during_inference=False,model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr-revision',

@@ -4,6 +4,11 @@ on:
     branches: [codex/linyuan-reliability-packaging]
     paths: [.github/workflows/linyuan-all-output-caption-proof.yml]
   workflow_dispatch:
+    inputs:
+      source_ids:
+        description: 待取证素材编号JSON数组
+        type: string
+        default: '[8]'
 permissions:
   contents: read
   actions: read
@@ -18,7 +23,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        source_id: [8, 32, 39, 49, 68, 79, 311]
+        source_id: ${{ fromJSON(inputs.source_ids || '[8]') }}
     defaults:
       run:
         working-directory: linyuan
@@ -41,7 +46,8 @@ jobs:
           import hashlib,json,os
           rows=json.load(open('simulations/benchmark-20260921/all-output-caption-windows.json'))
           row=next(r for r in rows if r['source_id']==int(os.environ['SOURCE_ID']))
-          url=row['source_url'];assert url.startswith('https://www.bilibili.com/video/BV')
+          from urllib.parse import urlsplit
+          url=row['source_url'];assert urlsplit(url).hostname in ('www.bilibili.com','m.weibo.cn')
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('SOURCE_URL='+url+'\n')
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('key='+hashlib.sha256(url.encode()).hexdigest()+'\n')
           json.dump(row,open('/tmp/caption-target.json','w'))
@@ -52,6 +58,7 @@ jobs:
           key: source-download-v1-${{ steps.source.outputs.key }}-${{ github.run_id }}
           restore-keys: source-download-v1-${{ steps.source.outputs.key }}-
       - name: 恢复同源母片检查点
+        if: contains(env.SOURCE_URL, 'bilibili.com/video/BV')
         continue-on-error: true
         timeout-minutes: 8
         env:
@@ -60,7 +67,12 @@ jobs:
       - name: 取原始母片
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: python ci_fetch_bilibili.py --url "$SOURCE_URL" --out _src/video.mp4 --budget-seconds 600
+        run: |
+          if [[ "$SOURCE_URL" == https://www.bilibili.com/video/BV* ]]; then
+            python ci_fetch_bilibili.py --url "$SOURCE_URL" --out _src/video.mp4 --budget-seconds 600
+          else
+            python ci_fetch_generic.py --url "$SOURCE_URL" --directory _src --failure-report caption-proof/fetch-failure.json
+          fi
       - name: 哈希一致才提取原字幕画面
         run: |
           python - <<'PY'

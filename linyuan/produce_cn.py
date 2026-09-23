@@ -3490,7 +3490,7 @@ def _copy_style_identity(speaker):
     if speaker != '林园':
         return {}
     profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
-    if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus'):
+    if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
                 title_style_sha256=_sha256_file(Path(__file__)),
@@ -3609,9 +3609,9 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         if drafting and profile!='production':
             from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
                 spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
-            if profile in ('source_choices','answer_focus'):
+            if profile in ('source_choices','answer_focus','answer_subject'):
                 schema=source_choices_schema(schema)
-                messages=source_choices_messages(messages,schema,same_answer=profile=='answer_focus')
+                messages=source_choices_messages(messages,schema,same_answer=profile in ('answer_focus','answer_subject'))
             elif profile=='spoken_focus':
                 schema=spoken_focus_schema(schema)
                 messages=spoken_focus_messages(messages,schema)
@@ -3629,7 +3629,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
-                   **({'answer_focus':True} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_focus' else {}))
+                   **({'answer_focus':True,'answer_subject':os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_subject'} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE') in ('answer_focus','answer_subject') else {}))
         if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
             d['title_rewrite']['style_profile'] = TITLE_STYLE_PROFILE
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,

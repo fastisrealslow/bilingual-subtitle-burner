@@ -162,7 +162,7 @@ def answer_reading_units(cues, speaker='林园'):
     return units
 
 
-def reading_schema(unit_count, answer_focus=False, units=None):
+def reading_schema(unit_count, answer_focus=False, units=None, answer_subject=False):
     turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
               b_end=dict(type='integer',minimum=0,maximum=unit_count-1))
     # Run 158 assigned alternating roles before understanding the dialogue,
@@ -190,6 +190,10 @@ def reading_schema(unit_count, answer_focus=False, units=None):
             if not quotes:
                 raise ValueError('没有可逐字绑定的完整长度原句，保留素材等待核对')
             fields['d_main_answer_quote']['enum']=quotes
+        if answer_subject:
+            fields['e_subject_name']=dict(type='string',minLength=2,maxLength=24)
+            fields['f_subject_evidence_ids']=dict(type='array',minItems=1,maxItems=4,
+                uniqueItems=True,items=dict(type='integer',minimum=0,maximum=unit_count-1))
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
 
 
@@ -220,6 +224,32 @@ def bind_answer_focus(reading, units, roles, speaker='林园'):
 def require_answer_focus(candidate, main_ids):
     if not set(candidate.get('evidence_ids',[])) & set(main_ids):
         raise ValueError('标题只引用旁枝解释，未引用独立阅读选出的主要回答')
+    return candidate
+
+
+def bind_answer_subject(reading, units, roles, speaker='林园'):
+    """Carry a source-grounded object across the reader/writer boundary.
+
+    This verifies provenance, not coreference semantics. The independent
+    full-dialogue reviewer must still check that it is this answer's object.
+    """
+    name=reading.get('e_subject_name');ids=reading.get('f_subject_evidence_ids')
+    if (not isinstance(name,str) or not 2<=len(name)<=24 or name!=name.strip()
+            or not re.fullmatch(r'[\w\u4e00-\u9fff]+',name)
+            or not subject_catalog([name])):
+        raise ValueError('主要回答对象必须是原文中的具体名称，不能用代词、标准或原因代替')
+    allowed=set(guest_evidence_ids(units,roles,speaker))
+    if (not isinstance(ids,list) or not 1<=len(ids)<=4
+            or any(type(i) is not int or i not in allowed for i in ids)
+            or len(ids)!=len(set(ids)) or any(name not in units[i] for i in ids)):
+        raise ValueError('主要回答对象没有逐字匹配已确认嘉宾原句；主持人假设不能充当对象证据')
+    return dict(name=name,evidence_ids=ids,exact_source=[units[i] for i in ids])
+
+
+def require_answer_subject(candidate, subject):
+    if (not set(candidate.get('evidence_ids',[])) & set(subject['evidence_ids'])
+            or any(subject['name'] not in candidate.get(k,'') for k in ('title','cover_title'))):
+        raise ValueError('标题与封面都须写明阅读阶段确认的具体对象，并引用该对象对应的嘉宾原句')
     return candidate
 
 
@@ -986,7 +1016,9 @@ def bind_turns(turns, units):
 
 
 def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None,
-             structured_model=None, source_cues=None, answer_focus=False):
+             structured_model=None, source_cues=None, answer_focus=False, answer_subject=False):
+    if answer_subject and not answer_focus:
+        raise ValueError('对象交接仅适用于独立阅读主要回答的实验配置')
     if model is None and structured_model is None:
         return _extractive(transcript, speaker, existing_titles, preferred)
     units = list(source_cues) if source_cues else source_units(transcript)
@@ -1013,7 +1045,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 没有主持人时写“无主持人提问”。必须阅读所有字幕，不因某段提问较长就把它当嘉宾观点。只输出JSON。
 按原顺序编号的完整字幕：{json.dumps(dict(enumerate(units)),ensure_ascii=False)}'''
     reading=None;roles=None
-    main_ids=[]
+    main_ids=[];bound_subject=None
     if answer_focus:
         reader_prompt=f'''完整阅读这段访谈，主讲嘉宾是{speaker}。此时不拟标题、不评价吸引力。
 显示换行已合并到原有句末，文字一个未改。先读到全文结尾，区分问题、回答、理由与举例。
@@ -1027,6 +1059,9 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 完整原文：{json.dumps({f'u{i:04d}':u for i,u in enumerate(units)},ensure_ascii=False)}
 精确原句选项（包含主持人原句，并不代表归属已确认）：{json.dumps(main_answer_quotes(units),ensure_ascii=False)}
 仅输出JSON。'''
+        if answer_subject:
+            reader_prompt+='''\n在e_subject_name写明这项主要回答实际讨论的具体对象（产品、公司、行业或市场的名称），不能用它、原因、标准等泛词。须逐字摘取原文中的名称，不自行扩成整个行业。
+用f_subject_evidence_ids引用包含这个名称的已确认嘉宾句子，可以是同一问答中的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
     reading_repair_note=''
     def fallback():
         if answer_focus:
@@ -1081,7 +1116,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                           + last_error + '\n\n请回到下面完整原文重新判断：\n' if last_error else '')
             if structured_model and reading is None:
                 proposed_reading=_json(call((reading_repair_note or retry_note)+reader_prompt,
-                    reading_schema(len(units),answer_focus,units if answer_focus else None)))
+                    reading_schema(len(units),answer_focus,units if answer_focus else None,answer_subject)))
                 reading_repair_note=''
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
@@ -1089,6 +1124,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if answer_focus:
                 try:
                     main_ids=bind_answer_focus(reading,units,roles,speaker)
+                    if answer_subject:
+                        bound_subject=bind_answer_subject(reading,units,roles,speaker)
                 except ValueError:
                     reading=None;roles=None
                     raise
@@ -1112,6 +1149,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 if answer_focus:
                     source_heading+=f'独立阅读在未看到候选标题时选出的主要回答编号：{main_ids}。主要回答原话：{reading["d_main_answer_quote"]}。三个候选都围绕这个判断换说法，每个候选必须表达它并引用至少一条对应编号，不能只往旁枝标题附上编号。保留该判断自己的应该、可能、我相信等语气，不能只摘后面的例子或解释。其他原文只用于理解和补足同一判断的限定；阅读步骤的概括不作为新事实。\n'
                     source_heading+='以下原文对象词及编号只用于定位上下文，不代表已经确定主回答对象；补足代词时须读取对应完整嘉宾句子并列入证据：'+json.dumps(subjects,ensure_ascii=False)+'\n'
+                    if bound_subject:
+                        source_heading+='阅读阶段确认的本回答对象及嘉宾原句：'+json.dumps(bound_subject,ensure_ascii=False)+'。每个候选的标题和封面都写明此对象，并引用主要回答和对象原句；不能只留下没买、这个位置等片段。\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
                 if unresearched_reports(''.join(draft_source.values())):
@@ -1152,6 +1191,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 for candidate in candidates:
                     try:
                         item=bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids)
+                        if bound_subject:
+                            item=require_answer_subject(item,bound_subject)
                         bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
                     except (ValueError, TypeError, KeyError, AttributeError):
                         bound.append({})
@@ -1270,6 +1311,8 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                     reading_unit_policy='exact_continuations_preserve_exclusions_v1',
                     independent_review_unchanged=True,
                     limitation='Source-bound main-answer proposal, not a human editorial approval')
+                if bound_subject:
+                    result['answer_focus_reading']['subject']=bound_subject
             result['editorial_selection'] = dict(
                 policy='review_then_source_features_v1', attempt=attempt+1,
                 reviewed_count=len(valid), accepted_count=len(accepted),

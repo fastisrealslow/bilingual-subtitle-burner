@@ -1,0 +1,18 @@
+name: 原片证据确认后的字幕修复出片（49与79，不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-verified-caption-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '49,79'
+      content_policy: reference_v1
+      recovery_run_id: '35833967072'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

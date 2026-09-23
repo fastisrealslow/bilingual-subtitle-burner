@@ -84,13 +84,23 @@ def build_all_output_review(reference_media, player):
             window=case['window'],subtitles_modified=False))
     fresh_rows=read(ROOT/'output/replacement100-35887065004/results/media-verification.json',[])
     fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
+    caption_rows=read(RECORDS/'all-output-caption-review.json',[])
     rows=[]; cards=[]
 
     def audio_doubts(ident):
         items=[r for r in audio_rows if r['source_id']==ident]
         if not items:return ''
+        captions=[r for r in caption_rows if r['source_id']==ident]
+        proof=''
+        for r in captions:
+            proof+='<p><b>原片画面核对：</b>'+esc(r['finding'])+'</p>'
+            for frame in r['frames']:
+                path=ROOT/r['local_dir']/frame['file']
+                if hashlib.sha256(path.read_bytes()).hexdigest()!=frame['sha256']:
+                    raise ValueError('Original caption evidence changed')
+                proof+='<a href="'+esc(os.path.relpath(path,OUT))+'">原片 '+esc(frame['seconds'])+' 秒</a> '
         return ('<details><summary>疑词原声复核 · '+str(len(items))+' 段</summary>'
-            '<p>第二个识别器提供核对线索，不等于听音验收；尚未据此修改字幕。原片字幕取证正在单独运行。</p>'
+            '<p>第二个识别器提供核对线索，不等于听音验收；这里只展示证据，不把旧实片说成字幕已修正。</p>'+proof
             +''.join('<p><b>'+esc(r['case_id'])+'</b> · 成片 '+esc(r['source_run_id'])+' 的 '
                 +esc(r['window']['start'])+'–'+esc(r['window']['end'])+' 秒</p>'
                 +'<audio controls preload="none" src="'+esc(r['file'])+'"></audio>'

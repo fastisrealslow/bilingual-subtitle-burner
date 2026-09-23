@@ -21,6 +21,17 @@ SOURCE_RULES={SOURCE_SHA: dict(
     (1440,1445,'这个话题呢八年','这个话题九八年','原访谈报道确认此处回顾1998年已有的讨论'),
     (1254,1258,'真正爱的那些人','真正厉害的那些人','原片字幕caption-005020.jpg清楚显示真正厉害的那些人；保留整短语原时间范围'),
 ]),
+'15ec6a8ca0178dac741f0fa75b6cbc18f7776a42cd30ee4ac0f3c95b63f51820': dict(
+    evidence_url='https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35890912542',
+    rules=[
+        (781,786,'陈以健','成瘾性','同哈希母片original-783.36.jpg与785.26.jpg原字幕明确显示成瘾性；独立ASR同词。保留嘉宾原话，不作为药理结论'),
+    ]),
+'8749fee3a7345c3e1c2fe2e14fc0b33d33d66829f5ff48a25ca6f6daee5ae41f': dict(
+    evidence_url='https://www.21jingji.com/article/20231207/herald/799a67d22a76b64fff0d4085c6c17fcb.html',
+    rules=[
+        (578,583,'符合增长','复合增长','同哈希母片original-580.60.jpg原字幕为复合增长，主办方同场报道也使用复合增长；两种ASR均误识为符合'),
+        (583,587,'符合增长','复合增长','同哈希母片original-584.32.jpg原字幕第二次出现复合增长，主办方同场报道用词一致'),
+    ]),
 'a7c6c8ccefd617c019f215f817c46379626008ec51da2f8ad215bfc217148b9b': dict(
     evidence_url='https://xueqiu.com/1127455234/359724421',
     rules=[
