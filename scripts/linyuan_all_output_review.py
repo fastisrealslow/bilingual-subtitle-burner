@@ -38,7 +38,9 @@ def build_all_output_review(reference_media, player):
     trials=[('all-current-titles-35881680084','bfd2fff9bf8893fa9cda0de9d314af5b514595f2'),
             ('direct-answer-35883544757','70e1c355942d224f445e2c95542d8f0917dce4f3'),
             ('object-answer-35885982275','244409b2b137e535b52833acb1cf20e419dbe0d2'),
-            ('retry-repair-35888015034','1ed1a368acf8a6739c119f206048d1d1dba9f1fb')]
+            ('retry-repair-35888015034','1ed1a368acf8a6739c119f206048d1d1dba9f1fb'),
+            ('answer-subject-35891979409','0d492b43cae5a9489548d5fa52f177acd0835db1'),
+            ('literal-subject-35894427585','431c48d1df0680235297473717bec1a9714c1e01')]
     paths=[(path,commit,index==0) for index,(folder,commit) in enumerate(trials)
            for path in (OUT/folder).rglob('case-*-repeat-1.json')]
     for path,commit,primary in paths:
@@ -83,6 +85,7 @@ def build_all_output_review(reference_media, player):
             result_file=os.path.relpath(path,OUT),source_run_id=case['source_run_id'],
             window=case['window'],subtitles_modified=False))
     fresh_rows=read(ROOT/'output/replacement100-35887065004/results/media-verification.json',[])
+    caption_replays=read(OUT/'verified-caption-35891979620/media-verification.json',[])
     fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
     caption_rows=read(RECORDS/'all-output-caption-review.json',[])
     rows=[]; cards=[]
@@ -108,8 +111,10 @@ def build_all_output_review(reference_media, player):
                 +'<a href="'+esc(r['result_file'])+'">固定模型和原声哈希记录</a>' for r in items)+'</details>')
 
     def fresh_outputs(ident):
-        items=[r for r in fresh_rows if r['id']==ident and r.get('video_audio_full_decode')]
-        return ''.join('<details><summary>完整100条新回归实片 · '+esc(r['tested_sha'][:7])+'</summary>'
+        items=[r for r in fresh_rows+caption_replays if r['id']==ident and r.get('video_audio_full_decode')]
+        return ''.join('<details><summary>'
+            +('字幕修复专项实际产出' if str(r['run_id'])=='35891979620' else '完整100条新回归实片')
+            +' · '+esc(r['tested_sha'][:7])+'</summary>'
             +player(os.path.relpath(ROOT/r['file'],OUT),os.path.relpath(ROOT/r['cover'],OUT),
                     f"新回归实际成片 · {r['duration']:.1f}秒")
             +'<p>标题：'+esc(r['title'])+'</p><p>封面：'+esc(r['cover_title'])+'</p>'
@@ -228,11 +233,16 @@ def build_all_output_review(reference_media, player):
         review_scope='Full source transcript and actual cover inspection; earlier decode/frame/ASS evidence retained; full audio semantic review incomplete',
         model_run_id=35881680084,model_results_imported=len(model_rows),
         fixed_copy_layouts=list(layout_rows.values()),audio_crosschecks=audio_rows,
-        fresh_full100_outputs=fresh_rows,quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
+        fresh_full100_outputs=fresh_rows,verified_caption_replays=caption_replays,
+        quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
     return ('<section id="all-outputs"><h2>全部成片逐条改：标题、封面与内容</h2>'
         '<p class="note">新一轮完整100条回归（e1ac6a6）正在运行：<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35887065004">查看全部作业</a>。此前17/100属于旧87a0099整轮结果，不能当作新代码已经验证的成绩；专项标题和排版不加进分子。</p>'
         '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个实际版本、22个素材编号。95与99仍为重复内容；同素材不同版本也不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。下方建议稿不是模型实测成绩，也尚未烧入视频；没有把它们算成编辑合格。</p>'
         '<p>18字以内不是必须凑满：能独立理解的个人选择可以更短。金句须有具体对象、真实态度和完整条件；强烈发言可以保留，不能改造出盈利保证。</p>'
+        '<details><summary>素材去重与历史成片：为什么不能只数链接和文件</summary>'
+        '<p>3、23、24、45、89号是高度重合的同场采访，来自5个链接。23号历史三片已与当前母片逐段核对原声；89号只有第3片完成匹配，另两片仍不能恢复历史区间。这不是5份新增可用内容，也未解除发布去重。</p>'
+        '<p>历史8月归档中还发现一条把同一188.88秒片段重复3次、拼成566.8秒的视频。它不属于当前主线固定100条对跑，不能拿来夸大本轮胜负；但说明还需要检查连续内容、重复率，而非只看是否生成MP4。</p>'
+        '<p><a href="../../linyuan/simulations/benchmark-20260921/legacy-range-review.json">完整素材与原声核对记录</a></p></details>'
         '<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35881680084">26份原始输入的独立8B标题Action</a>'
         ' · 已取回 '+str(len(model_rows))+'/'+str(len(corpus))+' 份结果（不代表编辑通过）'
         ' · <a href="all-output-editorial-review.json">逐版本审查记录</a></p>'+''.join(cards)+'</section>')

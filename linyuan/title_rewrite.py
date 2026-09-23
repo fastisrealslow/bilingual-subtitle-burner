@@ -15,6 +15,7 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
+“我要赚够一万倍”是本人目标，不能改写为公司“能赚到一万倍”；标题和封面各自保留目标或意愿，不把愿望当已经验证的回报。
 “十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
 标题和封面须各自说清对象，不写未解释的“这个点、此点、这三种病”。原文没有点位数值就不补数值，可改写为原文明确的预测边界。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
@@ -561,12 +562,38 @@ def quantity_range_error(title, cover, source):
     return None
 
 
+def earnings_intent_error(title, cover, transcript):
+    """Do not turn an explicit numerical earnings goal into a return claim.
+
+    This catches the actual source46 full-run regression. It is deliberately
+    confined to the same literal multiple; general intent/entailment and
+    alternative number spellings still require the independent reviewer.
+    """
+    number = r'[零〇一二两三四五六七八九十百千万亿0-9]+'
+    targets = re.findall(rf'(?:我|我们)(?:就是|一定|还)?(?:要|想|希望)(?:能)?赚(?:到|够)?(?:这)?({number}倍)', transcript)
+    for target in targets:
+        literal = re.escape(target)
+        # A genuine completed-result statement elsewhere is a different
+        # source claim, not automatically negated by the stated future goal.
+        if re.search(rf'(?:已经|曾经|过去)[^。！？!?]{{0,10}}赚(?:了|到|过|够)?{literal}|赚(?:(?:到|够)?了|过){literal}', transcript):
+            continue
+        for copy in (title, cover):
+            if not re.search(rf'赚(?:到|够|得)?(?:这)?{literal}', copy):
+                continue
+            if not re.search(r'目标|希望|想赚|(?:我|我们)(?:就|还)?要赚|能否|能不能|[？?]', copy):
+                return '原话的收益倍数是本人目标；标题和封面不能把我要赚改成企业能赚或确定回报'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
     This narrow rule catches the actual source58 failure. It neither invents a
     missing index level/date nor claims to solve general semantic entailment.
     """
+    intent_issue = earnings_intent_error(title, cover, transcript)
+    if intent_issue:
+        return intent_issue
     # Real source28 lost 我相信 in BOTH fields after the cover-only repair.
     # Match the same distinctive growth claim in the source, rather than
     # treating every nearby personal opinion as a qualifier for all claims.
