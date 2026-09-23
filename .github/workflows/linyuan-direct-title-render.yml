@@ -1,0 +1,21 @@
+name: 光伏实际选择标题完整出片，复用独立标题结果（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-direct-title-render70]
+    paths: [.github/workflows/linyuan-direct-title-render.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  render17:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '17'
+      content_policy: reference_v1
+      title_draft_profile: answer_focus
+      recovery_run_id: '35842176532'
+      title_handoff_run_id: '35883544757'
+      title_handoff_artifact: direct-answer-8b-18
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
