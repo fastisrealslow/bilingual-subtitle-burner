@@ -65,3 +65,18 @@ def test_actual_market_quotes_keep_source_scope_and_complete_intervals(monkeypat
     result=_extractive(source,'林园',[],preferred=case['quote'],guest_passages=[source],only_preferred=True)
     assert result['title']==case['quote']
     assert result['cover_title']==case['quote'].split('：',1)[1]
+
+
+@pytest.mark.parametrize("index",[0,1,2])
+def test_returned_sources_keep_literal_attitude_and_do_not_invent_contrasts(monkeypatch,index):
+    import curated_editorial as curated
+    cases=json.loads((Path(__file__).parent/"fixtures/linyuan_final_three_quotes.json").read_text())
+    case=cases[index];cues=case["cues"];source="".join(c["text"] for c in cues)
+    monkeypatch.setattr(curated.editorial,"MIN_SECONDS",20.)
+    a,b,picks=curated.source_ranges(cues,case["source_sha256"])[0]
+    assert (cues[a]["start"],cues[b]["end"])==(case["start"],case["end"])
+    assert picks[0]["editorial_prefer_exact_quote"] is True
+    assert not picks[0].get("editorial_review")
+    result=_extractive(source,"林园",[],preferred=case["title"],guest_passages=[source],only_preferred=True)
+    assert result["title"]==case["title"]
+    assert result["cover_title"]==case["title"].split("：",1)[1]

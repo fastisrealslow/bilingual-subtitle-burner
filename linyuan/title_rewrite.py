@@ -751,6 +751,13 @@ def unsupported_hedge_error(title, cover, evidence):
 
 def product_contrast_error(title, cover, transcript):
     source=compact(transcript)
+    # The actual short source95 says 科技成分 (technological content),
+    # not drug ingredients. The model invented an opposing selection rule
+    # from the shared word 成分 despite a positive independent verdict.
+    if ('科技成分' in source and '成分' not in source.replace('科技成分','')):
+        for copy in (title, cover):
+            if re.search(r'(?:不(?:能|要|应|该)|别).{0,4}看(?:药物|药品|中药)?成分', compact(copy)):
+                return '原文科技成分不是药物成分，不能据此编造不看成分的选药或投资规则'
     if (re.search(r'看好的不是治疗.{0,18}药物',source) and '并发症' in source):
         for copy in (title,cover):
             # Actual 35616565071: the critic approved “看好的不是药物而是

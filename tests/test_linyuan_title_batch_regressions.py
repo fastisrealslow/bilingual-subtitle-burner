@@ -115,3 +115,15 @@ def test_actual_second_growth_trial_cannot_drop_belief_from_both_fields():
     # A different historical claim must not acquire an invented hedge.
     assert T.forecast_copy_error('营收已经增长','营收已经增长',source) is None
     assert T.forecast_copy_error(title,cover,'这两个行业已经出现爆发性增长。') is None
+
+
+def test_actual_short95_technology_content_is_not_drug_ingredients():
+    source="我们说的投资实际上最核心的东西是垄断。它是带科技成分的高科技，门槛很高。"
+    title="林园：医药投资不能只看成分，要盯住垄断"
+    item=dict(title=title,cover_title="医药投资不能只看成分，要盯住垄断",subject="垄断",evidence=[source])
+    verdict=dict(method="cpu_text_review",appeal=5,reason="实际新32秒片段的模型误审",**{k:True for k in T.CHECKS})
+    package=T._package(item,source,verdict,[item])
+    assert "科技成分" in T._candidate_error(item,source,"林园",(),check_layout=False)
+    assert "科技成分" in T.error(title,package["title_rewrite"],source)
+    assert not T.product_contrast_error("林园：投资最核心的东西是垄断", "投资最核心的东西是垄断", source)
+    assert not T.product_contrast_error(title,item['cover_title'],source+"不能只看药物成分。")

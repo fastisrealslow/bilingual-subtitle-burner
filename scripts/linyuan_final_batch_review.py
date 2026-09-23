@@ -70,26 +70,31 @@ def cover_word_trial(row):
 
 
 def answer_subject_trials(row):
-    folder = OUT / 'source13-answer-35911265032'
-    notes = read(RECORDS / 'source13-answer-review.json', {})
     panels = []
-    for path in folder.rglob('case-0-repeat-1.json'):
-        trial = read(path, {})
-        if trial.get('source_final_sha256') != row['sha256']:
-            continue
-        if (trial.get('commit') != '8dc24cc7f4b5b02fa7b31c07e48094340ff2aa7d'
-                or str(trial.get('run_id')) != '35911265032'
-                or trial.get('source_sha256') != row['source_sha256']
-                or trial.get('draft_profile') != 'answer_subject'):
-            raise ValueError('Main-answer trial does not match this frozen input')
-        result = trial.get('result', {})
-        detail = ('<p>标题：'+esc(result.get('title'))+'</p><p>封面字：'
-                  +esc(result.get('cover_title'))+'</p>' if trial.get('status') == 'generated'
-                  else '<p>'+esc(trial.get('error', trial.get('status')))+'</p>')
-        panels.append('<details><summary>先确认主要回答和对象 · '+esc(trial['model'])+'</summary>'
-            +detail+'<p>'+esc(notes.get(trial['model']+':'+str(row['id']), '尚未完成编辑复核。'))+'</p>'
-            +'<p class="small">本次标题任务用时 '+esc(trial.get('seconds'))+' 秒，尚不计作视频出片。'
-            +'<a href="'+esc(os.path.relpath(path, OUT))+'">完整来源及请求记录</a></p></details>')
+    configurations = (
+        ('source13-answer-35911265032', '8dc24cc7f4b5b02fa7b31c07e48094340ff2aa7d',
+         '35911265032', 'source13-answer-review.json'),
+        ('remaining7-answer-35914066216', '9ab2d34038b25dccc48af9eb1e6ba98e6517ccb4',
+         '35914066216', 'remaining7-answer-review.json'),
+    )
+    for folder, commit, run, note_file in configurations:
+        notes = read(RECORDS / note_file, {})
+        for path in sorted((OUT / folder).rglob('case-*-repeat-1.json')):
+            trial = read(path, {})
+            if trial.get('source_final_sha256') != row['sha256']:
+                continue
+            if (trial.get('commit') != commit or str(trial.get('run_id')) != run
+                    or trial.get('source_sha256') != row['source_sha256']
+                    or trial.get('draft_profile') != 'answer_subject'):
+                raise ValueError('Main-answer trial does not match this frozen input')
+            result = trial.get('result', {})
+            detail = ('<p>标题：'+esc(result.get('title'))+'</p><p>封面字：'
+                      +esc(result.get('cover_title'))+'</p>' if trial.get('status') == 'generated'
+                      else '<p>'+esc(trial.get('error', trial.get('status')))+'</p>')
+            panels.append('<details><summary>先确认主要回答和对象 · '+esc(trial['model'])+'</summary>'
+                +detail+'<p>'+esc(notes.get(trial['model']+':'+str(row['id']), '尚未完成编辑复核。'))+'</p>'
+                +'<p class="small">本次标题任务用时 '+esc(trial.get('seconds'))+' 秒，文案试验不计作视频出片。'
+                +'<a href="'+esc(os.path.relpath(path, OUT))+'">完整来源及请求记录</a></p></details>')
     return ''.join(panels)
 
 
@@ -120,7 +125,8 @@ def focused_revision(row, player):
     for folder, commit in (
         ('source34-reaction-35912591408', 'e239134c742c567241b979da01cc9b9f656afcad'),
         ('source13-title-render-35913230331', '4260fcdb692c324de78c19b5b1876e430138b15d'),
-        ('source8-58-quotes-35913668238', '63462f1d024fe4b3d5e4163f65a433c9e29aaeab')):
+        ('source8-58-quotes-35913668238', '63462f1d024fe4b3d5e4163f65a433c9e29aaeab'),
+        ('source28-title-render-35916185508', 'a9ca34faf7e8e70f8cfd2667f4c670a0e2441df7')):
         for revised in read(OUT / folder / 'media-verification.json', []):
             if revised['id'] != row['id'] or not revised.get('video_audio_full_decode'):
                 continue
