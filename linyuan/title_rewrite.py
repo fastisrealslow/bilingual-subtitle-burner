@@ -586,6 +586,34 @@ def earnings_intent_error(title, cover, transcript):
     return None
 
 
+def hypothetical_exclusivity_error(title, cover, transcript):
+    """Preserve source13's hypothetical sole supplier, including in questions.
+
+    This bounded check covers the observed 'only one company' construction;
+    it is not a general verifier of counterfactual reasoning or causality.
+    """
+    exclusive = r'(?:就(?:这|那)?一|只有一|仅有一|只此一)家|(?:全球|全世界)唯一'
+    condition = r'如果|假如|假设|要是'
+    sentences = re.split(r'[。！？!?；;]', transcript)
+    hypothetical = [s for s in sentences if re.search(condition, s) and re.search(exclusive, s)]
+    if not hypothetical:
+        return None
+    # Do not let a hypothetical about one company block a different subject.
+    subjects = {name for s in hypothetical for name in subject_catalog([s])
+                if name not in {'全世界', '全球', '世界', '公司', '企业', '说法'}}
+    for copy in (title, cover):
+        if not re.search(exclusive, copy) or re.search(condition, copy):
+            continue
+        named = [name for name in subjects if name in copy]
+        if not named:
+            continue
+        if any(name in s and re.search(exclusive, s) and not re.search(condition, s)
+               for name in named for s in sentences):
+            continue
+        return '全球唯一只是原文假设，标题和封面须保留如果；不能把假设当事实或已确认的没买原因，问号也不能消除这个错误前提'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -595,6 +623,9 @@ def forecast_copy_error(title, cover, transcript):
     intent_issue = earnings_intent_error(title, cover, transcript)
     if intent_issue:
         return intent_issue
+    hypothetical_issue = hypothetical_exclusivity_error(title, cover, transcript)
+    if hypothetical_issue:
+        return hypothetical_issue
     # Real source28 lost 我相信 in BOTH fields after the cover-only repair.
     # Match the same distinctive growth claim in the source, rather than
     # treating every nearby personal opinion as a qualifier for all claims.

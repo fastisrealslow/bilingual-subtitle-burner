@@ -88,7 +88,7 @@ def build_all_output_review(reference_media, player):
     caption_replays=read(OUT/'verified-caption-35891979620/media-verification.json',[])
     fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
     caption_rows=read(RECORDS/'all-output-caption-review.json',[])
-    rows=[]; cards=[]
+    rows=[]; cards=[]; index_rows=[]
 
     def audio_doubts(ident):
         items=[r for r in audio_rows if r['source_id']==ident]
@@ -177,6 +177,12 @@ def build_all_output_review(reference_media, player):
     for ident in sorted(plans):
         plan=plans[ident]; cases=[r for r in corpus if r['source_id']==ident]
         selected=next((r for r in cases if r['source_run_id']==preferred.get(ident)),cases[0])
+        displayed=next((r for r in rendered_copies if r['id']==ident and ident in (17,32)
+                        and r.get('video_audio_full_decode')),None)
+        index_rows.append('<tr><td><a href="#all-source-'+str(ident)+'">'+str(ident)+'</a></td>'
+            +'<td>'+esc(displayed['title'] if displayed else selected['old_title'])+'</td>'
+            +'<td>'+esc(displayed['cover_title'] if displayed else selected['old_cover'])+'</td>'
+            +'<td>'+esc(plan['next_edit'])+'</td></tr>')
         evidence=[]
         for anchor in plan['quote_anchors']:
             matches=[c for c in selected['cues'] if anchor in c['text']]
@@ -245,4 +251,8 @@ def build_all_output_review(reference_media, player):
         '<p><a href="../../linyuan/simulations/benchmark-20260921/legacy-range-review.json">完整素材与原声核对记录</a></p></details>'
         '<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35881680084">26份原始输入的独立8B标题Action</a>'
         ' · 已取回 '+str(len(model_rows))+'/'+str(len(corpus))+' 份结果（不代表编辑通过）'
-        ' · <a href="all-output-editorial-review.json">逐版本审查记录</a></p>'+''.join(cards)+'</section>')
+        ' · <a href="all-output-editorial-review.json">逐版本审查记录</a></p>'
+        '<details><summary>先总览全部22个素材的标题、封面和下一步修改</summary>'
+        '<p>列出下方优先展示的实际文案，未渲染建议不混在此表。点击编号直达三列实片；后续实验保留在各条展开项。</p>'
+        '<div style="max-width:100%;overflow-x:auto"><table><thead><tr><th>素材</th><th>实际标题</th><th>实际封面字</th><th>待补项</th></tr></thead><tbody>'
+        +''.join(index_rows)+'</tbody></table></div></details>'+''.join(cards)+'</section>')
