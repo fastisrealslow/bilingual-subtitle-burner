@@ -52,6 +52,10 @@ def player(src, poster, label):
 def latest_references():
     rows=read(RECORDS/'references-latest-sep23.json',{'rows':[]})['rows']
     if not rows:return ''
+    check=read(RECORDS/'references-latest-sep24-check.json',{})
+    refresh=('<p class="small">9月24日再次核对该公开合集的最新8条，均在现有参考记录中；没有把合集检查扩大为账号全部投稿。'
+             '<a href="../../linyuan/simulations/benchmark-20260921/references-latest-sep24-check.json">核对时间与原始编号</a></p>'
+             if check and not check.get('new_bvids') else '')
     cards=[]
     for row in rows:
         folder=OUT/'reference-latest-35850453720'/('reference-latest-'+row['bvid'])
@@ -68,7 +72,7 @@ def latest_references():
             +str(row['duration'])+'秒；核对时 '+str(row['views'])+' 次播放；'+esc(row['published_at'])+'</small></article>')
     return ('<section id="refs-latest"><h2>最新补充：9月23日重新核对的近期作品</h2>'
         '<p>公开合集最新8条中，有4条不在原固定20条内，在此单独补充。它们不是播放量最高的4条，也不替换原有对照。3条取得完整原声视频，其中2条林园相关作品已完成机器转写与全文阅读；1条仅返回不完整媒体。横版基本铺满画面、字幕贴底，没有常驻大标题。抽帧和机器转写不等于逐秒人工听看。</p>'
-        '<div class="grid">'+''.join(cards)+'</div></section>')
+        +refresh+'<div class="grid">'+''.join(cards)+'</div></section>')
 
 
 def main():
@@ -165,7 +169,7 @@ def main():
     state = '已结束，仍需核对媒体与编辑质量' if status.get('status') == 'completed' else '运行中，当前不是最终成绩'
     body = '''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>林园：固定100素材与20条参考对照</title>
 <style>body{margin:0;background:#f0efe9;color:#172536;font:16px/1.65 system-ui}main{max-width:1320px;margin:40px auto;padding:0 22px}h1{font-size:38px;line-height:1.3}h2{margin-top:45px}h3{font-size:18px}.note{background:#dce8e1;border-left:4px solid #2b7268;padding:16px 22px}a{color:#206e78}nav{position:sticky;top:0;background:#f0efeff2;padding:12px 0;z-index:2;display:flex;gap:16px;flex-wrap:wrap}nav a,button{padding:8px 12px;border:1px solid #b8c8c4;background:white;border-radius:5px}section{scroll-margin-top:85px}.pair{margin:24px 0}.side{display:grid;grid-template-columns:1fr 1fr;gap:22px}.side>div{min-width:0}article{background:#fff;border-radius:8px;padding:18px;min-width:0}video{background:#080808;width:100%;height:370px;object-fit:contain}img{max-width:100%;max-height:370px;object-fit:contain}.small,small{color:#61717d;font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.grid video{height:300px}textarea{display:block;width:100%;box-sizing:border-box;min-height:65px;border:1px solid #ccd6d1;padding:9px}table{border-collapse:collapse;width:100%}td,th{padding:10px;border-bottom:1px solid #d5ded9;text-align:left}.hidden{display:none}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}video{height:290px}}@media(max-width:580px){.side,.grid{grid-template-columns:1fr}h1{font-size:29px}}</style>
-<main><small>2026-09-23 续验 · 冻结9月21日批次 · 真实证据与待验部分分别标注</small><h1>先看能稳定做出多少，再看每条差在哪里</h1>
+<main><small>2026-09-24 最终复验 · 历史批次与待验结果分别标注</small><h1>先看能稳定做出多少，再看每条差在哪里</h1>
 <nav><a href="#ab">固定100素材</a><a href="#actual">实际自动成片</a><a href="#pairs">18个试样逐项对照</a><a href="#refs">20条参考</a><a href="index.html">封面与模型实验</a></nav>
 <section id="ab"><h2>同100条输入、两个固定版本</h2><p class="note">'''+state+'''。每个素材有一条合格MP4即止，测量可出片素材数，不把手工试样计入。两边分母均为100，未返回和失败不从分母删除；母片哈希不同不计配对胜负。报告通过后，还要独立核验媒体及内容。</p>'''+stats+'''<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35548212133">查看本批Actions</a> · <a href="../../docs/LINYUAN_MAIN_COMPARISON_2026-09-21.md">比较规则与主线差异</a></p></section>
 '''+actual_section+'''<section id="pairs"><h2>每个试样，都说清哪里接近、哪里还差</h2><p>16个12.2秒版式试样，加横竖两个约30秒完整经历试剪。它们与自动生产成片分开；“优先验证”是编辑判断，不是点击率胜出。参考账号的图像未用于我们的试片。</p>

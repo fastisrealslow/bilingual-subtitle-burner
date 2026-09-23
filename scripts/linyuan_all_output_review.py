@@ -33,6 +33,8 @@ def build_all_output_review(reference_media, player):
     model_notes=read(RECORDS/'all-output-model-review.json',{})
     layout_rows={r['id']:r for r in read(OUT/'fixed-copy-layout-35885583458/media-verification.json',[])
                  if r.get('video_audio_full_decode') and r.get('source_yield_credit') is False}
+    readable_rows={r['id']:r for r in read(OUT/'readable-layout-35909339863/media-verification.json',[])
+                   if r.get('video_audio_full_decode') and r.get('source_yield_credit') is False}
     rendered_copies=(read(OUT/'source32-title-35884655321/media-verification.json',[])
                      +read(OUT/'source17-title-35886863820/media-verification.json',[]))
     trials=[('all-current-titles-35881680084','bfd2fff9bf8893fa9cda0de9d314af5b514595f2'),
@@ -157,16 +159,25 @@ def build_all_output_review(reference_media, player):
             +'<a href="'+esc(row['file'])+'">完整请求与响应</a></p></details>')
 
     def layout_trial(case):
-        row=layout_rows.get(case['source_id'])
-        if not row or row['input_run_id']!=case['source_run_id']:return ''
-        final=ROOT/row['file'];meta=read(final.parent/'meta.json',{})
-        if (meta.get('fingerprints',{}).get('sha256')!=row['sha256']
-                or row['title']!=case['old_title'] or row['cover_title']!=case['old_cover']):
-            raise ValueError('Fixed-copy layout does not match the reviewed original')
-        return ('<details><summary>同文案横版对照 · '+esc(row['duration'])+'秒</summary>'
-            +player(os.path.relpath(final,OUT),os.path.relpath(ROOT/row['cover'],OUT),'固定标题、封面、字幕与音轨的横版重排')
-            +'<p>真人窗口扩大、取消持续占屏的红色标题栏。标题和封面没有重新生成，便于单独比较排版；不能把它算作新增出片。</p>'
-            +'<p class="small">完整音视频解码与六帧已检查。底栏字幕由原44px改为38px，手机阅读仍有取舍；素材原来的字幕用词和剪辑问题仍须处理，尚未认定整体追平。</p></details>')
+        panels=[]
+        for rows, label, note in (
+            (layout_rows, '38px底栏字幕', '底栏字幕由原44px改为38px，手机阅读有取舍。'),
+            (readable_rows, '44px底栏字幕', '字幕恢复44px、每行最多20字，底栏增高16px；人物窗口相应缩小一点。已检查三个完整成片的六帧，尚未认定整体追平。')):
+            row=rows.get(case['source_id'])
+            if not row or row['input_run_id']!=case['source_run_id']:continue
+            final=ROOT/row['file'];meta=read(final.parent/'meta.json',{})
+            proof=read(final.parent.parent/'result.json',{})
+            if (meta.get('fingerprints',{}).get('sha256')!=row['sha256']
+                    or row['title']!=case['old_title'] or row['cover_title']!=case['old_cover']
+                    or proof.get('input_final_sha256')!=case['final_sha256']
+                    or not proof.get('copy_and_cover_unchanged')
+                    or not proof.get('reframe',{}).get('audio_stream_copied')):
+                raise ValueError('Fixed-copy layout does not match the reviewed original')
+            panels.append('<details><summary>同文案横版对照 · '+label+' · '+esc(row['duration'])+'秒</summary>'
+                +player(os.path.relpath(final,OUT),os.path.relpath(ROOT/row['cover'],OUT),'固定标题、封面、字幕原文与音轨的横版重排')
+                +'<p>真人窗口扩大、取消持续占屏的红色标题栏。标题和封面没有重新生成；这是排版试验，不计新增出片。</p>'
+                +'<p class="small">完整音视频解码通过。'+note+' 原来的字幕用词和剪辑问题仍须处理。</p></details>')
+        return ''.join(panels)
 
     def actual(case):
         final=ROOT/case['final_file']

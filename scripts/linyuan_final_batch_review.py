@@ -1,6 +1,7 @@
 """Display every final from one frozen run, separately from curated experiments."""
 from pathlib import Path
 import html
+import hashlib
 import json
 import os
 import re
@@ -16,6 +17,56 @@ esc = lambda value: html.escape(str(value))
 
 def read(path, default):
     return json.loads(path.read_text()) if path.is_file() else default
+
+
+def title_trials(row):
+    folder = OUT / 'source78-impression-35907787202'
+    notes = read(RECORDS / 'source78-impression-review.json', {})
+    items = []
+    for path in sorted(folder.rglob('case-*-repeat-1.json')):
+        trial = read(path, {})
+        if trial.get('source_final_sha256') != row['sha256']:
+            continue
+        if (trial.get('commit') != '7840382cc8b4b13c86e25ca169633745ddfe247e'
+                or str(trial.get('run_id')) != '35907787202'
+                or trial.get('source_sha256') != row['source_sha256']):
+            raise ValueError('Title trial does not match the frozen actual output')
+        intervention = trial.get('intervention', {})
+        mode = intervention.get('mode')
+        if mode not in ('control', 'guard') or intervention.get('production_default_changed') is not False:
+            raise ValueError('Missing isolated intervention provenance')
+        key = trial['model']+':'+mode+':'+str(row['id'])
+        result = trial.get('result', {})
+        detail = ('<p>标题：'+esc(result.get('title'))+'</p><p>封面字：'+esc(result.get('cover_title'))+'</p>'
+                  if trial.get('status') == 'generated' else '<p>'+esc(trial.get('error', trial.get('status')))+'</p>')
+        items.append('<details><summary>'+esc(trial['model'])+' · '
+            +('原有流程控制组' if mode == 'control' else '增加个人感受与市场状态检查')
+            +' · '+esc(trial.get('status'))+'</summary>'+detail
+            +'<p>'+esc(notes.get(key, '这份新稿尚未完成编辑检查，模型生成成功不等于标题更好。'))+'</p>'
+            +'<p class="small">本条同一原始字幕，用时 '+esc(trial.get('seconds'))+' 秒；未烧入视频，不计出片率。'
+            +'<a href="'+esc(os.path.relpath(path, OUT))+'">完整输入、输出和耗时记录</a></p></details>')
+    return ''.join(items)
+
+
+def cover_word_trial(row):
+    trial = read(OUT / 'cover-word-boundary-check/review.json', {})
+    match = next((r for r in trial.get('changed', [])
+                  if r['source_final_sha256'] == row['sha256']), None)
+    if not match:
+        return ''
+    if trial.get('rendered_video') is not False or trial.get('source_yield_credit') is not False:
+        raise ValueError('Cover-only test cannot claim a new video')
+    panels = []
+    for key, label in (('before', '原断行'), ('after', '保护完整词组后')):
+        path = ROOT / trial[key+'_image']
+        if hashlib.sha256(path.read_bytes()).hexdigest() != trial[key+'_sha256']:
+            raise ValueError('Cover diagnostic image changed')
+        panels.append('<p>'+label+'：'+esc(' / '.join(match[key]['3']))+'</p>'
+            +'<img loading="lazy" style="width:100%;height:auto" src="'
+            +esc(os.path.relpath(path, OUT))+'" alt="'+label+'封面重绘对照">')
+    return ('<details><summary>封面断行修复预览 · 同一文案与人物图</summary>'
+            +'<p>'+esc(trial['note'])+'</p>'+''.join(panels)
+            +'<p>已检查 '+str(trial['cases'])+' 份实际封面文案的两行和三行排版；没有删改文字。</p></details>')
 
 
 def section(reference_media, player):
@@ -62,7 +113,12 @@ def section(reference_media, player):
                 current.append('<p><b>本稿逐项检查：</b>'+esc(note)+'</p>')
             else:
                 current.append('<p class="warning">本稿的标题、封面和完整语义尚未完成编辑复核；不能算质量通过。</p>')
-            subtitles = sorted(folder.glob('subtitles*.ass'))
+            current.append(title_trials(row))
+            current.append(cover_word_trial(row))
+            # Landscape renders store their final captions under a different prefix.
+            # Ignore artifact-prefixed duplicates and prefer the file actually burned.
+            subtitles = (sorted(folder.glob('landscape-subtitles*.ass'))
+                         or sorted(folder.glob('subtitles*.ass')))
             if subtitles:
                 cues = []
                 for line in subtitles[0].read_text().splitlines():
@@ -97,10 +153,43 @@ def section(reference_media, player):
     state = {'pending': '等待前轮作业结束', 'queued': '等待运行', 'in_progress': '运行中',
              'completed': '作业已结束'}.get(status.get('status'), '等待更新运行状态')
     returned = sum(r.get('stage') != 'missing-report' for r in samples)
+    if returned and status.get('status') in ('pending', 'queued'):
+        state = '已开始出报告，整轮状态仍在刷新'
     total = summary.get('total', 100)
     decoded = sum(bool(r.get('video_audio_full_decode')) for r in media)
     inventory = read(RESULTS / 'media-inventory-audit.json', {}).get('variants', {}).get('simulation', {})
     unique = inventory.get('retained_by_publication_rule', 0)
+    audit = read(OUT / 'source-audit/yield-audit.json', {}).get('cohorts', {}).get('final100', {})
+    pairs = audit.get('paired_against_baseline', {})
+    paired = sum(len(pairs.get(k, [])) for k in ('both_passed', 'both_rejected', 'gain', 'loss'))
+    comparison = ('<p>与主线母片字节相同、且双方结果已确定的 '+str(paired)+' 对：两边都出片 '
+        +str(len(pairs.get('both_passed', [])))+'，技术出片恢复 '+str(len(pairs.get('gain', [])))
+        +'，技术出片回退 '+str(len(pairs.get('loss', [])))+'，两边都未出片 '
+        +str(len(pairs.get('both_rejected', [])))+'。母片不同、缺哈希和未确定项不算配对胜负。</p>')
+    for key, label in (('gain', '恢复的素材'), ('loss', '回退的素材')):
+        if pairs.get(key):
+            comparison += '<p>'+label+'：'+', '.join('<a href="#final-status-'+str(i)+'">'+str(i)+'</a>'
+                for i in pairs[key])+'。这是技术出片变化，仍须逐条检查质量。</p>'
+    states = {'passed': '自动出片', 'rejected': '质量拒绝', 'unresolved': '未确定'}
+    status_rows = []
+    for row in samples:
+        reasons = [r.get('reason', '') for r in (row.get('batch') or {}).get('rejected', [])]
+        reasons += [row.get('validation_error', ''), (row.get('source_quality') or {}).get('reason', '')]
+        reasons = list(dict.fromkeys(r for r in reasons if r))
+        if row.get('stage') == 'missing-report':
+            reasons = ['报告尚未返回，仍计入100条分母。']
+        elif row['status'] == 'passed':
+            reasons = ['技术出片；编辑观察与实际视频见上方本条卡片。']
+        elif not reasons:
+            reasons = ['执行未完成或缺少详细错误；保留未确定状态，不推断素材不合格。']
+        ident = row['sample']['id']
+        status_rows.append('<tr id="final-status-'+str(ident)+'"><td>'+str(ident)+'</td><td>'
+            +esc(row['sample'].get('title', ''))+'</td><td>'+esc(states[row['status']])
+            +'</td><td>'+'<br>'.join(esc(r) for r in reasons)+'</td></tr>')
+    diagnostics = ('<details><summary>全部100条的状态与拒绝原因（含未出片素材）</summary>'
+        '<p>一条素材可能有多个候选失败，原因不可相加当失败素材总数。标题失败与画面、下载失败分开查看。</p>'
+        '<div class="table-scroll"><table><thead><tr><th>编号</th><th>原素材</th><th>状态</th><th>实际报告</th></tr>'
+        '</thead><tbody>'+''.join(status_rows)+'</tbody></table></div></details>')
     return ('<section id="final-batch"><h2>冻结候选：完整100条的最终复验</h2>'
         '<p class="note">代码固定为 bfd29f6；'+esc(state)+'。报告已取回 '+str(returned)+'/'+str(total)
         +'，自动出片 '+str(summary.get('passed', 0))+'/'+str(total)+'，拒绝 '+str(summary.get('rejected', 0))
@@ -109,5 +198,7 @@ def section(reference_media, player):
         +'<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+RUN+'">查看本轮 Actions</a></p>'
         '<p>实际媒体已完整解码 '+str(decoded)+' 份，按现有规则去重 '+str(unique)+' 组；本稿编辑观察已记录 '
         +str(reviewed)+' 份。这轮单独统计，之前的定向改稿、横竖重排和本地字幕预览不计入。</p>'
+        +comparison+diagnostics
+        +'<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35907787202">另开的8B与14B标题对照</a>：使用本轮7、8号实片的同一原始字幕，比较原流程和额外事实范围检查；全部结果返回后逐份记录，不默认切换生产模型，也不计新增出片。</p>'
         +('<p>尚未取回本轮成片。下方“各轮实片与改稿”保留可播放的已有结果，并标明各自版本。</p>' if not cards else '')
         +''.join(cards)+'</section>')
