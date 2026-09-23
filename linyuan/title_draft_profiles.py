@@ -3,6 +3,35 @@ import copy
 import re
 
 
+def spoken_focus_schema(schema):
+    """Bounded source alternatives before selecting one angle, not free thinking."""
+    result=source_limits_schema(schema)
+    if result is schema:return schema
+    focus=result['properties']['b_focus']
+    ids=copy.deepcopy(focus['properties']['b_evidence_ids'])
+    option=dict(type='object',additionalProperties=False,
+        required=['a_angle','b_evidence_ids'],properties={
+            'a_angle':dict(type='string',enum=['个人选择','明确判断','具体经历','真实反问']),
+            'b_evidence_ids':ids})
+    focus['properties']['a_00_hook_options']=dict(type='array',minItems=1,maxItems=3,items=option)
+    focus['required']=['a_00_hook_options',*focus['required']]
+    return result
+
+
+def spoken_focus_messages(messages,schema):
+    result=source_limits_messages(messages,schema)
+    if result is messages:return messages
+    instruction='''先用a_00_hook_options从嘉宾原话找1至3个可独立说清的看点，记录类型与原文编号；没有的类型不凑数。这是待选素材，不是把它们全部写进标题。
+从中只选一个最鲜明、依据完整的判断。先在a_0_source_limits记录这一个判断所需的限定，再写入a_claim，并用b_evidence_ids保留该判断及必要上下文。
+可直接表述清楚的个人选择，不要改写成含三个观点的行业总结。若一个判断有必要的正反两面，必须保留；若是同段另一件事，就不要用“且、并、同时”硬塞进来。
+先写最自然的完整短句，再核对原文。第一人称、动作和态度只能来自嘉宾确实说过的话，不能替他编理由。标题不是审稿说明，不把“已核对、有限定”等编辑过程写给观众。
+同一个观点写三个表达：直接说出选择或判断、保留原话语气、提出本段确实回答的具体问题。不强行凑反差，也不写三个同义词替换稿。
+封面也写完整口语，宁可保留自然动词，不压成“企业会第一”“医药危机股”这样的词组。对象和必要条件不能为了短而丢失。
+'''
+    result[0]['content']=result[0]['content'].replace('先填写b_focus.a_0_source_limits',instruction+'先填写b_focus.a_0_source_limits',1)
+    return result
+
+
 def source_limits_schema(schema):
     """Brief source constraints before drafting; no unbounded thinking mode."""
     if 'c_candidates' not in (schema or {}).get('properties', {}):

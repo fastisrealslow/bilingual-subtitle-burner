@@ -38,7 +38,7 @@ def main():
     ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b','qwen3.5:9b'], default='qwen3:8b',
                     help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
-    ap.add_argument('--draft-profile', choices=['production', 'concise', 'source_limits'], default='production')
+    ap.add_argument('--draft-profile', choices=['production', 'concise', 'source_limits', 'spoken_focus'], default='production')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
     assert os.environ.get('LOCAL_LLM_MODEL') == args.model
@@ -66,10 +66,12 @@ def main():
         kw['read_cache']=False
         schema=kw.get('response_schema') or {}
         if args.draft_profile != 'production' and 'c_candidates' in schema.get('properties',{}):
-            if args.draft_profile == 'source_limits':
+            if args.draft_profile in ('source_limits','spoken_focus'):
                 focus=schema['properties']['b_focus']
                 if 'a_0_source_limits' not in focus['properties']:
                     raise ValueError('Production path did not apply source-limits schema')
+                if args.draft_profile=='spoken_focus' and 'a_00_hook_options' not in focus['properties']:
+                    raise ValueError('Production path did not apply spoken-focus schema')
             row['draft_interventions']+=1
         call=dict(prompt=a[0],schema=kw.get('response_schema'),budget=kw.get('budget_sec'));t=time.monotonic()
         try:

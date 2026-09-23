@@ -68,3 +68,29 @@ def test_runtime_profile_is_bound_to_copy_cache_identity(monkeypatch):
     monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','unknown')
     with pytest.raises(ValueError,match='未知标题'):
         p._copy_style_identity('林园')
+
+
+def test_spoken_focus_keeps_exact_guest_ids_and_isolated_reader_reviewer(monkeypatch):
+    import copy
+    import title_rewrite as t
+    import produce_cn as p
+    from title_draft_profiles import spoken_focus_schema,spoken_focus_messages
+    schema=t.proposal_schema(6,guest_ids=[1,2,5]);before=copy.deepcopy(schema)
+    changed=spoken_focus_schema(schema)
+    assert schema==before
+    options=changed['properties']['b_focus']['properties']['a_00_hook_options']
+    assert options['maxItems']==3
+    assert options['items']['properties']['b_evidence_ids']['items']['enum']==[1,2,5]
+    source='以下是可用于标题事实的嘉宾原话：{"1":"我没研究过光伏。","2":"我也没参与。"}'
+    messages=[dict(role='user',content='旧提示的其他公司观点。'+source)]
+    result=spoken_focus_messages(messages,changed)
+    assert result[0]['content'].endswith(source)
+    assert '其他公司观点' not in result[0]['content']
+    for stage in ('reviews','c_guest_spans'):
+        other={'properties':{stage:{}}}
+        assert spoken_focus_schema(other) is other
+        assert spoken_focus_messages(messages,other) is messages
+    monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','source_limits')
+    old=p._copy_style_identity('林园')
+    monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','spoken_focus')
+    assert p._copy_style_identity('林园')!=old

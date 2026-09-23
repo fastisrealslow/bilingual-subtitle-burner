@@ -3487,7 +3487,7 @@ def _copy_style_identity(speaker):
     if speaker != '林园':
         return {}
     profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
-    if profile not in ('production','concise','source_limits'):
+    if profile not in ('production','concise','source_limits','spoken_focus'):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
                 title_style_sha256=_sha256_file(Path(__file__)),
@@ -3583,8 +3583,12 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         messages=[{'role':'user','content':prompt}]
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
         if drafting and profile!='production':
-            from title_draft_profiles import concise_messages,source_limits_messages,source_limits_schema
-            if profile=='source_limits':
+            from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
+                spoken_focus_messages,spoken_focus_schema)
+            if profile=='spoken_focus':
+                schema=spoken_focus_schema(schema)
+                messages=spoken_focus_messages(messages,schema)
+            elif profile=='source_limits':
                 schema=source_limits_schema(schema)
                 messages=source_limits_messages(messages,schema)
             else:
