@@ -61,9 +61,15 @@ def complete(text):
     if text.count('就是') >= 2 or text.count('这个') >= 2:
         return False
     dangling = dangling_tail(text)
+    # Source79's complete personal statement “我这个人最喜欢危机”
+    # contains none of the old finance verbs. Do not force such speech into
+    # a buy/sell summary. Require an explicit first-person subject and object;
+    # source attribution and meaning checks still run afterwards.
+    personal_predicate=re.search(
+        r'我(?:们|这个人)?(?:最|更|特别|很)?(?:喜欢|讨厌|害怕|担心|拒绝)(?!的|什么|哪个)[\u4e00-\u9fff]{2,}$',text)
     return bool(text and not QUESTION.search(text) and not dangling
         and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是|和|也看到|是因为)',text)
-        and VERB.search(text))
+        and (VERB.search(text) or personal_predicate))
 
 
 def copy_length_ok(text, maximum=52):

@@ -460,6 +460,9 @@ def relation_error(title, cover, source):
     # with correctly attributed guest evidence. Preserve this explicit phase
     # distinction; an already chosen leader is not an emerging future leader.
     body=compact(source)
+    if re.search(r'喜欢危机|倾向于买危机',body) and not re.search(r'不是危机|并非危机',body):
+        if any(re.search(r'不是危机|并非危机',copy) for copy in (title,cover)):
+            return '原话明确喜欢或买危机，不能为制造反差改写成不是危机；可保留本人原话和实际对象'
     if re.search(r'没有龙头|龙头还?没(?:有)?(?:走|跑|分)出来|尚未.{0,4}龙头',body):
         qualifier=r'没有|还没|尚未|未定|未出|未来|以后|最终|最后|真正|成为|成长|形成|走出|跑出|分出|等|可能'
         for candidate in (title,cover):
