@@ -1,0 +1,71 @@
+name: 完整三片同文案：44px横版字幕可读性复验（不投稿）
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-readable-layout-check
+  cancel-in-progress: true
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+        - sample: 8
+          run: '35852795888'
+          artifact: simulation-media-sim-0916-008-868622
+        - sample: 17
+          run: '35842176532'
+          artifact: simulation-media-sim-0916-017-bd1d98
+        - sample: 79
+          run: '35837686332'
+          artifact: simulation-media-sim-0916-079-e9db06
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 安装画面检查与渲染依赖
+      run: 'sudo apt-get update -qq
+
+        sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-cjk libgl1 libglib2.0-0
+
+        python -m pip install -q pillow numpy ''opencv-python<5'' jieba rapidocr-onnxruntime fonttools
+
+        fc-cache -f
+
+        '
+    - uses: actions/cache@v4
+      with:
+        path: /tmp/linyuan-face-models
+        key: opencv-yunet-sface-2023mar-2021dec-v1
+    - uses: actions/download-artifact@v4
+      with:
+        github-token: ${{ github.token }}
+        run-id: ${{ matrix.run }}
+        name: ${{ matrix.artifact }}
+        path: replay-input
+    - name: 同一完整原片：字号44px，保留全部字幕与音轨
+      env:
+        TEXT_BACKEND: local
+        LINYUAN_LANDSCAPE_STYLE: quiet
+        OMP_NUM_THREADS: '2'
+      run: python -u scripts/replay_linyuan_readable_layout.py --input replay-input --output layout-replay
+        --sample '${{ matrix.sample }}' --input-run-id '${{ matrix.run }}'
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: readable-layout-${{ matrix.sample }}
+        path: layout-replay
+        retention-days: 30
+        if-no-files-found: error
+'on':
+  push:
+    branches:
+    - codex/linyuan-impression-title-check
+    paths:
+    - .github/workflows/linyuan-readable-layout-check.yml
+  workflow_dispatch: null
