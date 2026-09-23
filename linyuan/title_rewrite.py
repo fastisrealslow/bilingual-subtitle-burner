@@ -1063,6 +1063,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 只输出JSON。__TITLE_SOURCE__'''
     last_error = ''
     repair_checks=set()
+    structural_repairs=[]
     for attempt in range(3):
         try:
             # Finish with the source, not three repetitions of a rejected claim.
@@ -1102,6 +1103,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
                 if answer_focus:
                     source_heading+=f'独立阅读在未看到候选标题时选出的主要回答编号：{main_ids}。主要回答原话：{reading["d_main_answer_quote"]}。三个候选都围绕这个判断换说法，每个候选必须表达它并引用至少一条对应编号，不能只往旁枝标题附上编号。保留该判断自己的应该、可能、我相信等语气，不能只摘后面的例子或解释。其他原文只用于理解和补足同一判断的限定；阅读步骤的概括不作为新事实。\n'
+                    source_heading+='以下原文对象词及编号只用于定位上下文，不代表已经确定主回答对象；补足代词时须读取对应完整嘉宾句子并列入证据：'+json.dumps(subjects,ensure_ascii=False)+'\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
                 if unresearched_reports(''.join(draft_source.values())):
@@ -1120,9 +1122,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                     'cover_consistent':'封面必须对应标题同一个对象与判断，不能比标题更肯定。',
                     'readable':'用自然完整的中文短句，保留对象、动作和宾语，不能拼术语或截半句。',
                 }
-                if repair_checks:
-                    draft_retry+='上轮退回的检查项及本轮必须执行的修正（不是事实来源）：\n'+ '\n'.join(
-                        k+'：'+repairs[k] for k in CHECKS if k in repair_checks)+'\n'
+                corrections=[k+'：'+repairs[k] for k in CHECKS if k in repair_checks]
+                if answer_focus:
+                    corrections += ['structural：'+issue for issue in structural_repairs]
+                if corrections:
+                    draft_retry+='上轮退回的检查项及本轮必须执行的修正（不是事实来源）：\n'+'\n'.join(corrections)+'\n'
             else:
                 draft_source=dict(enumerate(units))
                 source_heading='下面是按原顺序编号的完整字幕，未删改：\n'
@@ -1155,6 +1159,10 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                     candidate_pool[compact(candidate['title'])]=candidate
             valid = list(candidate_pool.values())[:3]
             if not valid:
+                # Real source13 retried the same missing-object draft three
+                # times. Feed back the program's checks, not its failed copy.
+                if answer_focus:
+                    structural_repairs=list(dict.fromkeys(issue for issue in errors if issue))[:3]
                 # Real replay 35613314961: reading omitted the guest's earlier
                 # 牛市 / 不好预测 cues, so three writers could not name the
                 # forecast event. Request a fresh reading; never relabel the

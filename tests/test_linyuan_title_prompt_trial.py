@@ -57,6 +57,27 @@ def test_short_prompt_keeps_retry_identity_without_copying_rejected_claims():
     assert result.endswith(source)
 
 
+@pytest.mark.parametrize('profile',['concise','source_limits','spoken_focus','source_choices','answer_focus'])
+def test_every_profile_preserves_actionable_retry_checks_without_failed_copy(profile):
+    import title_draft_profiles as P
+    import title_rewrite as T
+    source='以下是可用于标题事实的嘉宾原话：{"1":"没买。","5":"中石油有替代产品的可能。"}'
+    feedback=('上轮退回的检查项及本轮必须执行的修正（不是事实来源）：\n'
+              'preserves_qualifiers：标题和封面都保留原话限定。\n'
+              'structural：缺少具体讨论对象。\n')
+    prompt='第2轮重新拟稿；上轮未通过检查。\n'+feedback+'你是编辑。错误稿：这公司稳赚不亏。\n'+source
+    messages=[dict(role='user',content=prompt)];schema=T.proposal_schema(6,guest_ids=[1,5])
+    if profile in ('source_choices','answer_focus'):
+        schema=P.source_choices_schema(schema)
+        changed=P.source_choices_messages(messages,schema,same_answer=profile=='answer_focus')
+    else:
+        changed=getattr(P,profile+'_messages')(messages,schema)
+    content=changed[0]['content']
+    assert content.startswith('第2轮重新拟稿') and feedback in content
+    assert content.count('structural：')==1 and '稳赚不亏' not in content
+    assert content.endswith(source) and messages[0]['content']==prompt
+
+
 def test_runtime_profile_is_bound_to_copy_cache_identity(monkeypatch):
     import produce_cn as p
     monkeypatch.delenv('LINYUAN_TITLE_DRAFT_PROFILE',raising=False)

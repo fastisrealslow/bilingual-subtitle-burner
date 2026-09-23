@@ -208,3 +208,35 @@ def test_main_answer_survives_the_complete_generate_and_final_proof_path():
     assert result['title']==title
     assert T.error(title,result['title_rewrite'],''.join(units)) is None
     assert result['answer_focus_reading']['exact_source']==units[1:3]
+
+
+def test_missing_object_retry_reaches_profile_writer_with_source_context():
+    import json
+    from title_draft_profiles import source_choices_messages
+    units=['您买中石油了吗？','没买，因为它不符合我的标准。','中石油的产品也可能有替代产品。']
+    writes=[]
+    def model(prompt,schema):
+        props=schema['properties']
+        if 'c_sentence_roles' in props:
+            return json.dumps(dict(a_guest_answer='没有买中石油，因为不符合自己的标准，也可能有替代产品。',
+                b_question_premise='主持人问是否买中石油。',
+                c_sentence_roles=dict(u0000='host',u0001='guest',u0002='guest'),d_main_answer_quote=units[1]))
+        if 'c_candidates' in props:
+            actual=source_choices_messages([dict(role='user',content=prompt)],schema,same_answer=True)[0]['content']
+            writes.append(actual)
+            if len(writes)==1:
+                candidate=dict(title='林园：没买，因为它不符合我的标准',cover_title='没买，因为它不符合我的标准',
+                    a_focus=dict(a_claim=units[1],b_evidence_ids=[1]))
+            else:
+                assert 'structural：' in actual and '没买什么没有说清' in actual
+                assert '原文对象词及编号' in actual and units[2] in actual
+                assert '林园：没买，因为它不符合我的标准' not in actual
+                candidate=dict(title='林园：我没买中石油',cover_title='我没买中石油',
+                    a_focus=dict(a_claim='我没买中石油，因为不符合我的标准。',b_evidence_ids=[1,2]))
+            return json.dumps(dict(c_candidates=[candidate]*3))
+        return json.dumps(dict(reviews=[dict(a_analysis=dict(a_guest_answer='嘉宾明确表示没有买中石油。',
+            b_question_premise='主持人问是否购买中石油。',c_reason='标题保留嘉宾没买的动作，对象来自同一问答的嘉宾原话。'),
+            b_verdict=dict(index=0,appeal=4,**{k:True for k in T.CHECKS}))]))
+    result=T.generate(''.join(units),source_cues=units,structured_model=model,answer_focus=True)
+    assert len(writes)==2 and result['title']=='林园：我没买中石油'
+    assert T.error(result['title'],result['title_rewrite'],''.join(units)) is None

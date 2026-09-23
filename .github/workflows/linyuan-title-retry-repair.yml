@@ -1,0 +1,109 @@
+name: 标题重试修复：8B与9B同源对照
+'on':
+  push:
+    branches:
+    - codex/linyuan-reliability-packaging
+    paths:
+    - .github/workflows/linyuan-title-retry-repair.yml
+  workflow_dispatch:
+    inputs:
+      case_ids:
+        description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
+        required: false
+        default: '[0, 2, 3, 23]'
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-retry-repair-copy
+  cancel-in-progress: true
+env:
+  TEXT_BACKEND: local
+  CUDA_VISIBLE_DEVICES: ''
+  LOCAL_LLM_TIMEOUT_SEC: '600'
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        case: ${{ fromJSON(inputs.case_ids || '[0, 2, 3, 23]') }}
+        variant:
+        - model: qwen3:8b
+          id: 8b
+          profile: answer_focus
+        - model: qwen3.5:9b
+          id: 9b
+          profile: answer_focus
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 记录实验机器资源与预算
+      run: '{ free -m; df -h /; lscpu; } > /tmp/runner-resources.txt
+
+        cat /tmp/runner-resources.txt'
+    - name: 安装文案排版依赖
+      run: python -m pip install -q jieba pillow numpy
+    - name: 缓存 CPU 本地文本模型
+      id: ollama-cache
+      continue-on-error: true
+      uses: actions/cache@v4
+      with:
+        path: ~/.ollama/models
+        key: ${{ matrix.variant.model == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' ||
+          'ollama-qwen3-8b-v1' }}
+    - name: 缓存已校验的 Ollama 安装包
+      uses: actions/cache@v4
+      continue-on-error: true
+      with:
+        path: /tmp/ollama-runtime
+        key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+    - name: 启动 CPU 本地文本模型（禁止云 API）
+      id: local_text
+      env:
+        OLLAMA_VERSION: v0.33.3
+        OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+      run: "set -euo pipefail\nmkdir -p /tmp/ollama-runtime\narchive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst\n\
+        if ! echo \"${OLLAMA_SHA256}  $archive\" | sha256sum -c -; then\n  curl -fsSL\
+        \ --retry 8 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time\
+        \ 600 \\\n    -o /tmp/ollama-download.tar.zst \\\n    \"https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst\"\
+        \n  echo \"${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst\" | sha256sum -c\
+        \ -\n  mv /tmp/ollama-download.tar.zst \"$archive\"\nfi\nsudo tar --zstd -xf\
+        \ \"$archive\" -C /usr\nOLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h\
+        \ OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \\\n  ollama serve > /tmp/ollama.log\
+        \ 2>&1 &\nfor _ in $(seq 1 30); do\n  curl -fsS http://127.0.0.1:11434/api/tags\
+        \ >/dev/null && break\n  sleep 1\ndone\ncurl -fsS http://127.0.0.1:11434/api/tags\
+        \ >/dev/null\ncase \"$RUN_TEXT_MODEL\" in\n  qwen3:8b|qwen3.5:9b) ;;\n  *)\
+        \ echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;\nesac\nollama pull \"$RUN_TEXT_MODEL\"\
+        \nollama show \"$RUN_TEXT_MODEL\" >/dev/null\n# Pulling only downloads weights.\
+        \  Warm them into RAM before the\n# bounded CPU review budget begins.\npython\
+        \ -c 'import json,os; print(json.dumps(dict(model=os.environ[\"RUN_TEXT_MODEL\"\
+        ],messages=[dict(role=\"user\",content=\"Reply ready\")],stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))))'\
+        \ > /tmp/ollama-warmup.json\ncurl -fsS --max-time 600 http://127.0.0.1:11434/api/chat\
+        \ \\\n  -H 'Content-Type: application/json' \\\n  --data-binary @/tmp/ollama-warmup.json\
+        \ \\\n  | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get(\"\
+        message\") or {}).get(\"content\")'\n"
+    - name: 重放实片的同一份完整字幕，不计出片成绩
+      run: python -u scripts/title_batch_cpu.py --case "${{ matrix.case }}" --repeat
+        1 --occasion '' --corpus linyuan/simulations/benchmark-20260921/all-current-title-corpus.json
+        --model "${{ matrix.variant.model }}" --draft-profile "${{ matrix.variant.profile
+        }}"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: retry-repair-${{ matrix.variant.id }}-${{ matrix.case }}
+        path: 'title-batch-results
+
+          /tmp/ollama.log
+
+          /tmp/runner-resources.txt'
+        retention-days: 30
+        if-no-files-found: error
+    env:
+      RUN_TEXT_MODEL: ${{ matrix.variant.model }}
+      LOCAL_LLM_MODEL: ${{ matrix.variant.model }}

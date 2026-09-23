@@ -3,6 +3,16 @@ import copy
 import re
 
 
+def retry_prefix(prompt):
+    """Keep program-generated check instructions, never rejected model copy."""
+    preamble=prompt.split('以下是可用于标题事实的嘉宾原话',1)[0]
+    attempt=re.match(r'第\d+轮重新拟稿[^\n]*\n',preamble)
+    checks=re.search(r'^上轮退回的检查项及本轮必须执行的修正（不是事实来源）：\n'
+        r'(?:(?:source_supported|central_point|attribution_correct|preserves_qualifiers|cover_consistent|readable|structural)：[^\n]*\n)+',
+        preamble,re.M)
+    return (attempt.group(0) if attempt else '')+(checks.group(0) if checks else '')
+
+
 def source_choices_schema(schema):
     """Each alternative chooses and binds its own source claim before wording."""
     limited=source_limits_schema(schema)
@@ -21,7 +31,6 @@ def source_choices_messages(messages,schema, same_answer=False):
     if result is messages:return messages
     marker='以下是可用于标题事实的嘉宾原话'
     content=result[0]['content'];source=marker+content.rsplit(marker,1)[1]
-    attempt=re.match(r'第\d+轮重新拟稿[^\n]*\n',content)
     instruction='''你是访谈短视频编辑。读完下方嘉宾原话，分别选择三个有原文依据的看点，不必把三个标题都绑在同一句行业总结上。
 第一个候选优先呈现嘉宾自己的实际选择或行动；第二个呈现原话中最鲜明的具体判断；第三个提出本段确实回答的具体问题。没有对应看点就另选完整判断，不编造个人选择、经历或反差。
 每个候选只说清一件事。先在自己的a_focus中逐字摘出该观点必须保留的限定a_0_source_limits，再用a_claim写清完整判断，用b_evidence_ids指出依据及必要上下文，最后才写title和cover_title。
@@ -43,7 +52,7 @@ title以“林园：”开头，正文4至52字；cover_title为4至18字的完�
 不把“都有某种特性”倒写成“该特性保障结果”；不把“等某事发生时”写成“已经发生”。原句中的我相信、我觉得、我判断，是说话人的声音，写在限定里后也须保留在实际文案中。
 封面优先沿用标题中最有看点的完整一句，允许与标题相同。不为了显得专业换成“保障、关键、核心、逻辑”等总结词，不把原话大胆程度再推高。
 '''+rest
-    result[0]['content']=(attempt.group(0) if attempt else '')+instruction+source
+    result[0]['content']=retry_prefix(content)+instruction+source
     return result
 
 
@@ -124,8 +133,7 @@ def concise_draft(prompt, schema):
     source = marker + prompt.rsplit(marker, 1)[1]
     # Keep the attempt marker so a deterministic retry is not the identical
     # prompt again. Do not reintroduce facts from previously rejected drafts.
-    attempt=re.match(r'第\d+轮重新拟稿[^\n]*\n',prompt)
-    retry=attempt.group(0) if attempt else ''
+    retry=retry_prefix(prompt)
     return retry+'''你是访谈短视频编辑。只根据下面嘉宾的原话拟标题。
 先在b_focus.a_claim写清一个有看点的完整判断及必要条件，用b_evidence_ids标出原文依据。
 再在c_candidates写3个不同角度的自然标题：鲜明判断、具体选择、这段回答的问题。观点必须相同。
