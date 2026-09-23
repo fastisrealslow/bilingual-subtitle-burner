@@ -14405,9 +14405,11 @@
    "publish_time": "2023-03-30T08:43:53+00:00",
    "source_check_report_id": 10775513722,
    "source_check_run_id": 35912031067,
-   "last_error": "取源未完成：SourceMediaMismatch: 下载媒体时长 1495.00s 与请求页面 1751.00s 不匹配（容差 87.55s）",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "last_error": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV1XeVR6yEsx",
@@ -14428,7 +14430,8 @@
    "failed": true,
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（548x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -45905,6 +45908,13 @@
    "video_id": "BV1XeVR6yEsx",
    "ts": 1790202536,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（548x360），画质不达标"
+  },
+  {
+   "slug": "ly-0923-9acb6e",
+   "key": "bilibili_search:BV1XN411P71X",
+   "video_id": "BV1XN411P71X",
+   "ts": 1790204537,
+   "error": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
