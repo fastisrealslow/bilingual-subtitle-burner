@@ -1,0 +1,21 @@
+name: 全成片文案复验后的32实片，复用独立标题结果（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-title-render-bfd]
+    paths: [.github/workflows/linyuan-all-title-render.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  render32:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '32'
+      content_policy: reference_v1
+      title_draft_profile: answer_focus
+      recovery_run_id: '35833967072'
+      title_handoff_run_id: '35881680084'
+      title_handoff_artifact: all-current-8b-4
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
