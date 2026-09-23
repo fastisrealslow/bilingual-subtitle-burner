@@ -1630,9 +1630,113 @@
     "tested_sha": "f89a75c1a4bdd17f64a19856ed2d8caac0036837",
     "status": "in_progress",
     "denominator": 17,
-    "completed_reports_at_update": 7,
-    "automatic_passes_at_update": 0,
-    "rejected_at_update": 7,
-    "note": "阶段结果，仍有10条未完成，不能据此推算最终通过率。"
+    "completed_reports_at_update": 12,
+    "automatic_passes_at_update": 2,
+    "rejected_at_update": 9,
+    "note": "独立17条阶段结果；生成的视频还存在带货结尾、泛指标题与混题问题，未编辑通过。未完成的条目保留在分母。",
+    "unresolved_at_update": 1,
+    "pending_at_update": 5,
+    "rows": [
+      {
+        "id": 301,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 303,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 305,
+        "status": "rejected",
+        "stage": "source-quality"
+      },
+      {
+        "id": 306,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 308,
+        "status": "passed",
+        "stage": "final-accepted"
+      },
+      {
+        "id": 309,
+        "status": "rejected",
+        "stage": "source-quality"
+      },
+      {
+        "id": 310,
+        "status": "rejected",
+        "stage": "source-quality"
+      },
+      {
+        "id": 312,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 313,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      },
+      {
+        "id": 314,
+        "status": "passed",
+        "stage": "final-accepted"
+      },
+      {
+        "id": 316,
+        "status": "unresolved",
+        "stage": "candidate-runtime"
+      },
+      {
+        "id": 317,
+        "status": "rejected",
+        "stage": "candidate-quality"
+      }
+    ],
+    "media": [
+      {
+        "id": 308,
+        "title": "林园：大牛股的利润不是靠投入，而是市场无限大",
+        "cover_title": "大牛股利润不靠投入",
+        "sha256": "9e161af61a7a9b6663817b502125bca881bb06cfd50a423b73e9f2d054d902ea",
+        "source_sha256": "b0c41c31d979084c2aa782936da4e14f79f233b9a7a5559c5d8eaee5728cb792",
+        "duration": 123.4,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "library17-35823163836/simulation-media-library-0923-008-716206/final.mp4",
+        "poster": "library17-35823163836/simulation-media-library-0923-008-716206/cover_16x9.jpg",
+        "note": "原片最后带入小黄车广告；已按原始句界修复选段，实片复验中。红色蓝筹股插画来自原片，风格与其他镜头跳变。"
+      },
+      {
+        "id": 314,
+        "title": "林园：看不准，所以不投，怕被新东西取代。",
+        "cover_title": "看不准新东西取代旧东西",
+        "sha256": "1692b19114415a869de3ff622c7725f19d5d53d74d3472e08aed9f0d11f4daf0",
+        "source_sha256": "3ba57259c99bc12e1eaa81d39eb6648127e827a9c02e0129fc227563b15bbc1e",
+        "duration": 273.03333333333336,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "library17-35823163836/simulation-media-library-0923-014-56fd06/final_1.mp4",
+        "poster": "library17-35823163836/simulation-media-library-0923-014-56fd06/cover_1.jpg",
+        "note": "标题“看不准，所以不投”缺少具体对象，封面只说新旧东西；前两分多钟谈关税，后面才谈人工智能投资。最新代码将两话题分成完整连续候选，待实片复验。"
+      }
+    ]
+  },
+  "boundary_recovery_trial": {
+    "run_id": "35825387399",
+    "tested_sha": "6bc63efb3389c7739e2a6ef5c7c3f240d57215e7",
+    "status": "in_progress",
+    "note": "303、312已恢复完整选段，但分别被源字幕遮脸和逐帧身份匹配比例拦截；306、308仍待回报。不计为新增成片。"
+  },
+  "spoken_focus_trial": {
+    "run_id": "35825675621",
+    "tested_sha": "5c8dc8a51ff86c96b9553b94e755c0fc8b0d0a1f",
+    "status": "queued",
+    "note": "同三份真实原文，8B／9B独立测试先选一个看点再拟标题；尚无生成结果。"
   }
 }

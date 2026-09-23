@@ -114,3 +114,14 @@ def test_same_copy_antecedent_preserves_rare_company_qualifier():
     # The cover must stand alone; a named subject in the title cannot rescue it.
     assert T.unresolved_subject_error(title,'这类公司非常少')
     assert T.unresolved_subject_error('林园：医药企业里这些公司值得研究','医药企业值得研究') is None
+def test_real_library314_vague_new_things_is_not_a_title_subject():
+    assert T.unresolved_subject_error('林园：看不准，所以不投，怕被新东西取代。','看不准新东西取代旧东西')
+    assert T.unresolved_subject_error('林园：人工智能企业变化太快，我不敢投','人工智能企业变化太快') is None
+    assert T.unresolved_subject_error('林园：新技术不断取代旧东西','新技术不断取代旧东西') is None
+
+
+def test_host_recap_cannot_be_guest_evidence_or_hide_following_rebuttal():
+    units=['就是我们看好这个行业，但是我不敢投。',
+           '你还是主张啊，看准了再投，看准了就下','重手。',
+           '这个东西看不准啊。','它变化太快，我们不敢投。']
+    assert T.explicit_host_cues(units)=={1,2}

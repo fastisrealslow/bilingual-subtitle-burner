@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 35
+VERSION = 36
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -204,6 +204,29 @@ def same_topic_followup(first, following):
     return bool(anchors and anchors & topic_anchors(following))
 
 
+def declared_investment_sections(units,cues):
+    """A named new sector plus an explicit personal investment stance.
+
+    Library314 moves from tariffs to AI without announcing 换个话题. Only
+    propose that original sentence boundary when a different topic precedes
+    it and the speaker states a choice immediately afterwards. Mentioning a
+    sector inside an example or adding a title keyword is not a boundary.
+    """
+    cuts=[]
+    for i,u in enumerate(units):
+        if not i or not re.match(r'^(?:人工智能|医药|白酒|科技|创新药|中药|房地产)(?:啊[，,]?|[，,])',u['text']):
+            continue
+        start=cues[u['start']]['start'];current=topic_anchors(u['text'])
+        prior=''.join(v['text'] for v in units[:i] if start-cues[v['end']]['end']<=180)
+        previous=topic_anchors(prior)
+        if not current or not previous or current & previous:continue
+        following=''.join(c['text'] for c in cues[u['start']:units[-1]['end']+1]
+                          if c['start']-start<=30)
+        if re.search(r'我(?:们)?(?:看好[^。！？!?]{0,20}[，,]但是我)?(?:不敢投|不投|只投|不会买|不买|不参与)',following):
+            cuts.append(i)
+    return cuts
+
+
 def sentence_units(cues):
     units=[]; start=0; text=''
     for i,c in enumerate(cues):
@@ -249,6 +272,8 @@ def boundary_error(cues,pick):
     """
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if declared_investment_sections(units,selected):
+        return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
         if i and SUMMARY_SECTION.search(u['text']):
             return '选段跨入明确的总结章节；在原声边界分开，不能把总结开头接在上一段结论后'
@@ -286,7 +311,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         for t in range(max(lower,q-3),q):
             if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
                 starts[k]=t;break
-    transitions=[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]
+    investment_sections=declared_investment_sections(units,cues) if editorial.CONTENT_POLICY=='reference_v1' else []
+    transitions=sorted(set(investment_sections+[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     options=[]
     if diagnostics is not None:
         diagnostics.update(selector_version=VERSION,cue_count=len(cues),sentence_count=len(units),
@@ -357,7 +383,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     # Only the actual source end or an explicit topic change closes a speech;
     # a 3-minute chunk edge or a row crossing 120s never does. Question-bearing
     # sections stay on the Q&A path above, so they cannot borrow another answer.
-    cuts=sorted(set([0]+[i for i,u in enumerate(units) if
+    cuts=sorted(set([0]+investment_sections+[i for i,u in enumerate(units) if
         TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
         or KEYNOTE_SECTION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     # An already short source may start with an answer dependent on a missing
@@ -391,7 +417,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or
                 KEYNOTE_SECTION.search(units[i]['text']) or
-                speech_opening(units[i]['text']) or
+                speech_opening(units[i]['text']) or i in investment_sections or
                 (whole_source and editorial.CONTENT_POLICY=='reference_v1' and contextual_self_answer(units,cues,i))):continue
         if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']

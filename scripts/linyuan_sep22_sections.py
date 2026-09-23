@@ -133,4 +133,15 @@ def latest_library():
     for row in d['fixed100_platforms']:
         body+='<tr><td>'+esc(row['source'])+'</td><td>'+str(row['total'])+'</td><td>'+str(row['passed'])+'</td><td>'+str(row['percent'])+'%</td></tr>'
     body+='</tbody></table></div><p class="small">这些是固定样本的自动出片统计，不是全平台可用率或编辑通过率；小样本不能代表来源质量。新发现17条正在独立验收，阶段结果不能推算最终通过率。</p>'
+    review=json.loads((RECORDS/'sep23-review.json').read_text())
+    trial=review.get('fresh_library_trial',{})
+    if trial:
+        body+='<h3>新17条实际返回结果</h3><p>'+esc(str(trial.get('automatic_passes_at_update',0)))+' 条自动生成，'+esc(str(trial.get('rejected_at_update',0)))+' 条拒绝，'+esc(str(trial.get('unresolved_at_update',0)))+' 条运行未确定，'+esc(str(trial.get('pending_at_update',0)))+' 条尚未返回。'+esc(trial['note'])+'</p>'
+        for row in trial.get('media',[]):
+            body+='<article><h4>新增素材 '+esc(str(row['id']))+'</h4><p>'+esc(row['title'])+'<br>封面：'+esc(row['cover_title'])+'</p><p class="warning">'+esc(row['note'])+'</p>'
+            body+='<div class="review-player"><video controls playsinline preload="none" data-src="'+esc(row['file'])+'" poster="'+esc(row['poster'])+'"></video><button type="button">播放新素材实际成片</button> <a href="'+esc(row['file'])+'" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div></article>'
+    for key,label in [('boundary_recovery_trial','选段修复复验'),('spoken_focus_trial','先选观点的8B／9B标题实验')]:
+        row=review.get(key)
+        if row:
+            body+='<h3>'+label+'</h3><p>'+esc(row['note'])+'</p><p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(row['run_id'])+'">查看运行</a> · '+esc(row['status'])+'</p>'
     return body+'</section>'

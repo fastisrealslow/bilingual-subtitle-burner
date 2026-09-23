@@ -256,3 +256,28 @@ def test_self_question_needs_its_answer_and_named_topic_in_opening():
     assert contextual_self_answer(units,cues,0)
     assert not contextual_self_answer([{**units[0],'text':'这个行业现在是不是牛市？'},units[1]],cues,0)
     assert not contextual_self_answer([units[0]],cues,0)
+
+
+def test_real_library314_tariffs_and_ai_are_independent_complete_candidates(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_library314_selection.json').read_text())
+    cues=data['cues'];before=json.dumps(cues,ensure_ascii=False)
+    ranges=[(cues[r['start']]['start'],cues[r['end']]['end']) for r in S.select(cues,limit=None,whole_source=True)]
+    assert (366.44,513.72) in ranges
+    assert (515.32,639.48) in ranges
+    assert not any(a<515.32<b for a,b in ranges)
+    assert S.boundary_error(cues,dict(start=123,end=206))
+    assert S.boundary_error(cues,dict(start=170,end=206)) is None
+    assert json.dumps(cues,ensure_ascii=False)==before
+
+
+def test_sector_mentions_and_same_sector_followups_do_not_create_chapters():
+    from source_selection import declared_investment_sections,sentence_units
+    for first,second,last in [
+        ('医药行业值得长期研究。','医药啊，我只投资能看懂的公司。','我们要长期观察。'),
+        ('关税影响产能。','比如人工智能啊，我不敢投。','这是一个举例。'),
+        ('关税影响产能。','人工智能啊，提高了生产效率。','我们观察技术进步。')]:
+        cues=[dict(start=i*10,end=i*10+9,text=t) for i,t in enumerate([first,second,last])]
+        assert not declared_investment_sections(sentence_units(cues),cues)

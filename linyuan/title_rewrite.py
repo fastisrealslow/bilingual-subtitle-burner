@@ -163,9 +163,16 @@ def explicit_host_cues(units):
         r'|我可以这么理解|(?:林总|林园总|林远总).*(?:理解|请问|如何|怎么看)'
         r'|您的(?:过往|观点|意思)|我(?:也|大概|简单|来|再|先|这么|那我)*(?:听懂|听明白|理解|总结)'
         r'|这样理解|(?:接着|再).*问|话题.*告一段')
-    blocked=set();host=False
+    blocked=set();host=False;recap=False
     for i,text in enumerate(units):
         body=compact(text)
+        # Actual library314: this host recap was selected as guest evidence.
+        # Exclude through its original full stop, then let the independent
+        # reader identify the next reply; do not swallow the guest's rebuttal.
+        if recap or re.match(r'^(?:所以)?(?:你|您)还是主张',body):
+            blocked.add(i)
+            recap=not bool(re.search(r'[。！？!?][”’」』\"]?\s*$',text))
+            continue
         if markers.search(body):host=True
         elif host:
             # A completed question followed by an explicit topical reply can
@@ -409,6 +416,9 @@ def unresolved_subject_error(title, cover):
                 and not re.search(r'心脏病|糖尿病|高血压|并发症',copy)):
             return '文案只有“这几种病”的未解释指代；写出疾病或实际讨论的并发症产品，不复制问题残句'
         body=re.sub(r'^[^：:]+[：:]', '', copy)
+        if re.search(r'(?:新|旧|这个|那个)东西',body) and not re.search(
+                r'人工智能|AI|新能源(?:汽车)?|医药|白酒|半导体|制造业|服务业|技术|产品|企业|公司',body):
+            return '标题或封面只写新东西、旧东西，没有具体对象；不能用泛指词充当标题主题'
         if (re.match(r'要有时间|不排除(?:十|十二|12)个月', body)
                 and not re.search(r'市场|指数|牛市|突破|回本|收益|盈利|投资', body)):
             return '时间原话缺少发生什么的对象；摘录真实短句也不能让观众猜十二个月指什么'
