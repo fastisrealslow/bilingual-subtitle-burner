@@ -5461,21 +5461,44 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             tracked=work/f'tracked{suffix}{n}.mp4'
             source_marks=selected_segment_exclusions(src,s0,seg_dur,
                 work/f'source-corners{suffix}{n}',source_report.get('detected_corner_logos') or ())
-            tracking=render_tracked(src,s0,seg_dur,tracked,
-                _download_speaker_reference(speaker,work),_local_face_models(),
-                LOCAL_FACE_COSINE_THRESHOLD,
-                exclusions=source_marks,
-                overlay_probe=lambda frame,index:selected_frame_logos(
-                    frame,work/f'source-corners{suffix}{n}',index,shot_local=True),
-                context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
-                participant_reference=participant_reference,
-                reference_samples=source_reference_samples(work,source_report))
-            prepared_live[n] = (tracked, tracking)
+            def render_window(path, marks):
+                return render_tracked(src,s0,seg_dur,path,
+                    _download_speaker_reference(speaker,work),_local_face_models(),
+                    LOCAL_FACE_COSINE_THRESHOLD,
+                    exclusions=marks,
+                    overlay_probe=lambda frame,index:selected_frame_logos(
+                        frame,work/f'source-corners{suffix}{n}',index,shot_local=True),
+                    context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
+                    participant_reference=participant_reference,
+                    reference_samples=source_reference_samples(work,source_report))
+            tracking=render_window(tracked,source_marks)
             # The prepared moving window is the exact one composed below.
             # Check its subtitles, logos, QR, borders and face geometry now,
             # before title/caption inference. Final checks still run again.
-            verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
+            try:
+                verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
+            except VisualQualityError as exc:
+                if not str(exc).startswith('真人动态区仍有稳定来源角标：'):
+                    raise
+                from static_corner_repair import source_exclusions
+                ocr_path=tracked.parent/'_tmp'/('live-region-'+tracked.stem)/'corner_ocr.json'
+                ocr=json.loads(ocr_path.read_text())
+                extra=source_exclusions(tracking,ocr.get('logos',[]),W,H)
+                if not extra:
+                    raise
+                # Keep the failed render and all its evidence; only one new
+                # crop is attempted. The same complete gates run again.
+                repair=tracked.with_name(tracked.stem+'-corner-repair.mp4')
+                (work/f'corner-repair{suffix}{n}.json').write_text(json.dumps(dict(
+                    source_sha256=source_report.get('source_sha256'),source_start=s0,
+                    duration=seg_dur,original=str(tracked),repaired=str(repair),
+                    reason=str(exc),source_exclusions=extra,original_tracking=tracking,
+                    original_ocr=ocr,final_quality_approved=False),ensure_ascii=False,indent=2))
+                tracking=render_window(repair,list(source_marks)+extra)
+                verify_live_region_after_render(repair,live_region=dict(x=0,y=0,width=632,height=470))
+                tracked=repair
             verify_prepared_live_motion(tracked,work/f'tracked-motion{suffix}{n}.json')
+            prepared_live[n] = (tracked, tracking)
     cw = get_copy()
 
     brand = brand_watermark_path()

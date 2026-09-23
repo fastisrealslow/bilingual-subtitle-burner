@@ -8,7 +8,8 @@ import produce_cn as p
 import live_tracking
 
 
-@pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', 'static_window', None])
+@pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', 'static_window',
+                                   'repaired_corner', 'unclean_repair', 'moving_corner', None])
 def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path, failure):
     calls = []
     monkeypatch.setattr(p, 'argument_record_for_render', lambda *a: {})
@@ -28,6 +29,13 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
         calls.append('actual moving window')
         if failure == 'face_or_crop':
             raise p.VisualQualityError('来源角标无法避开且保留完整人脸')
+        if failure in ('repaired_corner', 'unclean_repair', 'moving_corner'):
+            if 'corner-repair' in output.name:
+                assert kwargs['exclusions']  # The second crop must actually avoid the finding.
+            return dict(engine='yunet_sface_per_frame_cpu',passed=True,frames=3,
+                decoded_frames=3,encoded_frames=3,first_crop=[200,200,400,300],last_crop=[200,200,400,300],
+                framing=dict(held_frames=2,pan_frames=int(failure=='moving_corner'),cut_frames=[],
+                    geometry_reframes=[],crop_samples=[dict(crop=[200,200,400,300])]))
         return {'framing': {'validated': True}}
 
     class CopyReached(Exception):
@@ -39,29 +47,37 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
 
     monkeypatch.setattr(live_tracking, 'render_tracked', track)
     def verify_window(path,**kwargs):
-        assert path.name=='tracked1.mp4'
+        assert path.name in ('tracked1.mp4','tracked1-corner-repair.mp4')
         assert kwargs['live_region']==dict(x=0,y=0,width=632,height=470)
         calls.append('prepared window checked')
         if failure=='final_window':raise p.VisualQualityError('原字幕仍然残留')
+        if failure in ('repaired_corner','unclean_repair','moving_corner'):
+            if path.name=='tracked1.mp4':
+                import json
+                evidence=path.parent/'_tmp'/'live-region-tracked1';evidence.mkdir(parents=True)
+                (evidence/'corner_ocr.json').write_text(json.dumps({'logos':[[.02,.02,.12,.12]]}))
+                raise p.VisualQualityError('真人动态区仍有稳定来源角标：fixture')
+            if failure=='unclean_repair':raise p.VisualQualityError('原字幕仍然残留')
         return {}
     monkeypatch.setattr(p,'verify_live_region_after_render',verify_window)
     def motion(path,proof_path):
-        assert path.name=='tracked1.mp4'
+        assert path.name==('tracked1-corner-repair.mp4' if failure=='repaired_corner' else 'tracked1.mp4')
         calls.append('prepared motion checked')
         if failure=='static_window':raise p.VisualQualityError('疑似照片/背景板')
         return {}
     monkeypatch.setattr(p,'verify_prepared_live_motion',motion)
     monkeypatch.setattr(p, 'copywrite', copy)
-    expected = p.VisualQualityError if failure else CopyReached
+    expected = CopyReached if failure in (None,'repaired_corner') else p.VisualQualityError
     with pytest.raises(expected):
         p._produce_one(tmp_path / 'source.mp4', tmp_path, tmp_path,
             [dict(start=120, end=300, text='完整来源原话')], '林园', '', '', False, 720, 1280, '',
             source_report={'clean_strategy': 'audio_card'},
             preselected_picks=[dict(start=0, end=0)], require_live_video=True)
-    if failure:
+    if failure and failure!='repaired_corner':
         assert 'CPU title request' not in calls
     else:
-        assert calls == ['actual moving window', 'prepared window checked', 'prepared motion checked', 'CPU title request']
+        prefix=['actual moving window', 'prepared window checked']
+        assert calls == prefix*(2 if failure=='repaired_corner' else 1)+['prepared motion checked', 'CPU title request']
 
 
 def test_prepared_motion_failure_keeps_byte_bound_rejection_evidence(tmp_path,monkeypatch):
