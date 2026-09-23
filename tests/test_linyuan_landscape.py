@@ -44,7 +44,8 @@ def test_landscape_keeps_aspect_and_generated_subtitles_outside_source_scan():
     assert 2*spec['subtitle_font_px']*1.448+8<=sub['height']
 
 
-def test_actual_qr_in_landscape_window_is_rejected(tmp_path):
+@pytest.mark.parametrize('style',['classic','quiet'])
+def test_actual_qr_in_landscape_window_is_rejected(tmp_path,style):
     import cv2
     import numpy as np
     frame=np.full((720,1280,3),90,dtype=np.uint8)
@@ -54,7 +55,30 @@ def test_actual_qr_in_landscape_window_is_rejected(tmp_path):
     writer=cv2.VideoWriter(str(video),cv2.VideoWriter_fourcc(*'mp4v'),12,(1280,720))
     for _ in range(12):writer.write(frame)
     writer.release()
-    with pytest.raises(ValueError,match='二维码'):V.verify_render(video,L.layout())
+    with pytest.raises(ValueError,match='二维码'):V.verify_render(video,L.layout(style))
+
+
+def test_optional_quiet_layout_grows_picture_without_hiding_source_checks(monkeypatch):
+    old=L.layout('classic')
+    monkeypatch.setenv('LINYUAN_LANDSCAPE_STYLE','quiet')
+    spec=L.layout();live=spec['live_region'];sub=spec['subtitle_region']
+    assert live['width']*live['height']>old['live_region']['width']*old['live_region']['height']
+    assert abs(live['width']/live['height']-632/470)<.003
+    assert sub['y']>=live['y']+live['height']
+    assert sub['y']+sub['height']<=720
+    assert 2*spec['subtitle_font_px']*1.448+8<=sub['height']
+    assert live['x']+live['width']<1280-L.BRAND_WIDTH-16
+    assert L.layout('classic')==old
+    with pytest.raises(ValueError):L.layout('unknown')
+
+
+def test_quiet_reflow_keeps_actual_words_and_original_cue_times(tmp_path):
+    cues=[dict(start_sec=0,end_sec=3.84,zh='我们锁定医药赛道，别的不搞',semantic_group=True),
+          dict(start_sec=4.12,end_sec=8.52,zh='股价还可能再跌，但便宜的时候我还在买',semantic_group=True)]
+    V.write_ass(cues,tmp_path/'classic.ass',L.layout('classic'),'Noto Sans CJK SC')
+    old=L.read_captions(tmp_path,['classic.ass'])
+    V.write_ass(old,tmp_path/'quiet.ass',L.layout('quiet'),'Noto Sans CJK SC')
+    assert L.read_captions(tmp_path,['quiet.ass'])==old
 
 
 def test_queue_migration_cannot_overwrite_another_render_or_accepted_stock():

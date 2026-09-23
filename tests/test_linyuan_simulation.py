@@ -123,7 +123,9 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert render['env']['TEXT_BACKEND']=='local'
     assert render['env']['SOURCE_EDITORIAL_FIRST']=='true'
     assert 'simulate_sources.py run' in render['run']
-    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile','recovery_run_id'}
+    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile','recovery_run_id','output_layout','landscape_style'}
+    assert workflow['on']['workflow_call']['inputs']['output_layout']['default']=='auto'
+    assert workflow['on']['workflow_call']['inputs']['landscape_style']['default']=='classic'
     assert workflow['on']['workflow_call']['inputs']['visual_chapters']==dict(type='boolean',required=False,default=False)
     assert workflow['on']['workflow_call']['inputs']['text_model']['default']=='qwen3:8b'
     assert workflow['on']['workflow_call']['inputs']['title_draft_profile']['default']=='production'

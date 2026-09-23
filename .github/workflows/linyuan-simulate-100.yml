@@ -33,6 +33,14 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
         type: string
         required: false
         default: production
+      output_layout:
+        type: string
+        required: false
+        default: auto
+      landscape_style:
+        type: string
+        required: false
+        default: classic
       recovery_run_id:
         description: 复验时读取原运行的同名素材证据，仍须通过母片与模型配置核验
         type: string
@@ -83,6 +91,8 @@ jobs:
       SOURCE_VISUAL_CHAPTERS: ${{ inputs.visual_chapters && 'true' || 'false' }}
       RUN_TEXT_MODEL: ${{ inputs.text_model || 'qwen3:8b' }}
       LINYUAN_TITLE_DRAFT_PROFILE: ${{ inputs.title_draft_profile || 'production' }}
+      OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
+      LINYUAN_LANDSCAPE_STYLE: ${{ inputs.landscape_style || 'classic' }}
       RUN_SOURCE: ${{ matrix.source_url }}
       RUN_SLUG: ${{ matrix.slug }}
       RUN_SOURCE_PLATFORM: ${{ matrix.source_platform }}

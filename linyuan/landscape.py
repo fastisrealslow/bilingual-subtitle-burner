@@ -36,17 +36,35 @@ def selected(meta, requested='auto'):
     return hashlib.sha256(key.encode()).digest()[0] % 3 == 0
 
 
-def layout():
+def style_name(value=None):
+    value=value or os.environ.get('LINYUAN_LANDSCAPE_STYLE','classic')
+    if value not in ('classic','quiet'):raise ValueError('未知横版画面样式')
+    return value
+
+
+def layout(style=None):
     from presentation import layout_for
+    style=style_name(style)
     result = layout_for(*CANVAS)
     result.update(live_region=dict(LIVE_REGION), subtitle_region=dict(x=200,y=570,width=880,height=138),
                   subtitle_font_px=44, line_capacity=18, subtitle_style='white-outline',
                   template='landscape-live-v3-footer', preserve_display_text=True)
+    if style=='quiet':
+        # Keep the full clean source window. At 720p, 38 visible caption px
+        # leave enough line-height for two lines outside the 600px picture.
+        # No generated subtitle may be hidden from the source-pixel scan.
+        result.update(live_region=dict(x=237,y=0,width=806,height=600),
+                      subtitle_region=dict(x=180,y=600,width=920,height=120),
+                      subtitle_font_px=38,line_capacity=22,
+                      template='landscape-live-v4-quiet-footer')
     return result
 
 
-def background(path):
+def background(path, style=None):
     from PIL import Image, ImageDraw
+    if style_name(style)=='quiet':
+        Image.new('RGB',CANVAS,(23,25,28)).save(path)
+        return
     image = Image.new('RGB', CANVAS, (117, 34, 47))
     draw = ImageDraw.Draw(image)
     # Original understated snowball motif; no borrowed artwork or account mark.
@@ -131,7 +149,10 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     if producer._file_sha256(original)!=meta['fingerprints']['sha256']:
         raise ValueError('横版重排输入视频指纹变化')
     work.mkdir(parents=True,exist_ok=True)
-    spec=layout();region=spec['live_region']
+    # Existing illustrated chart footers have source-bound coordinates. Keep
+    # their proven layout until a separate chart layout has been verified.
+    chosen_style='classic' if (meta.get('interview_context') or {}).get('illustration_cards') else style_name()
+    spec=layout(chosen_style);region=spec['live_region']
     font=os.environ.get('ZH_FONT','Noto Sans CJK SC')
     matched=subprocess.check_output(['fc-match','-f','%{family}',font],text=True)
     if font.casefold() not in matched.casefold():
@@ -141,7 +162,7 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     presentation.write_ass(captions,subtitle,spec,font)
     if text_digest(subtitle_files_text(directory,[subtitle.name])) != meta['subtitle_text_sha256']:
         raise ValueError('横版重排改变了字幕文字')
-    bg=work/'landscape-background.png';background(bg)
+    bg=work/'landscape-background.png';background(bg,chosen_style)
     target=work/'landscape.mp4';brand=producer.brand_watermark_path()
     window=source_window(meta)
     rate=subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
@@ -191,9 +212,9 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     return {**meta,**checks,'layout_proof':spec,'resolution':dict(width=1280,height=720,short_edge=720),
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
-            'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v3-footer',
+            'video_title':None,'video_title_proof':None,'audio_card_template':spec['template'],
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=3,input_sha256=original_sha,source_window=window,
+            'landscape_reframe':dict(version=4 if chosen_style=='quiet' else 3,style=chosen_style,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
                 source_frame_rate=rate,subtitle_timing_preserved=True)}
