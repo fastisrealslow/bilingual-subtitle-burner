@@ -222,8 +222,6 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     return {**meta,**checks,'layout_proof':spec,'resolution':dict(width=1280,height=720,short_edge=720),
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
-            'corner_review':dict(version=producer.VISUAL_GATE_VERSION,passed=True,frames=12,
-                                 media_sha256=fingerprints['sha256'],policy='platform_or_persistent_text'),
             'video_title':None,'video_title_proof':None,'audio_card_template':spec['template'],
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,

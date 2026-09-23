@@ -56,6 +56,11 @@ def main():
                 or meta.get('corner_review',{}).get('passed') is not True):
             raise ValueError('layout replay needs a byte-bound accepted input')
         revised = landscape.reframe(meta, output, args.output/'work')
+        corner=revised.get('corner_review',{})
+        if (corner.get('version')!=2026091302 or corner.get('passed') is not True
+                or corner.get('media_sha256')!=revised['fingerprints']['sha256']
+                or corner.get('policy')!='platform_persistent_text_source_edges_and_changing_captions'):
+            raise ValueError('Reframed media lost its full source-text review evidence')
         for key in ('title','cover_title','source_sha256','segments','subtitle_text_sha256'):
             if revised[key]!=meta[key]:raise ValueError('Layout-only replay changed '+key)
         if producer._file_sha256(output/revised['cover'])!=producer._file_sha256(args.input/meta['cover']):
