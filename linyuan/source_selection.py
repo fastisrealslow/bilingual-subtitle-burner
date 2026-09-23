@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 34
+VERSION = 35
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -119,6 +119,29 @@ NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来
 SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值|波段|短线')
 
 
+def promotional_cta(text):
+    # Actual library308 ends with a seller's 小黄车 pitch. Preserve the raw
+    # source, but do not make that extra commercial sentence our own outro.
+    if re.search(r'比如|举例|有人说|他说|不要|不能|不是',text):
+        return False
+    return bool(re.fullmatch(
+        r'(?:[^。！？!?]{1,18}[，,])?(?:下[面方](?:的)?(?:小黄车|购物车)|(?:小黄车|购物车|商品橱窗))'
+        r'.{0,6}(?:有售|购买|下单|拍下)[。！!]*',text))
+
+
+def contextual_self_answer(units,cues,index):
+    """Keep a source's opening question AND answer when its topic follows."""
+    text=units[index]['text']
+    if not re.fullmatch(r'(?:这个|该)行业[^。！？!?]{0,12}是不是[^。！？!?]{1,12}[？?]是[^。！？!?]{1,12}[。！!]',text):
+        return False
+    start=cues[units[index]['start']]['start']
+    # A sentence beginning at 12s can finish after 20s. Judge topic presence
+    # from its original timed cue, not the end of the whole joined sentence.
+    opening=''.join(c['text'] for c in cues[units[index]['start']:units[-1]['end']+1]
+                    if c['start']-start<=20)
+    return bool(re.search(r'AI|人工智能|医药|白酒|半导体|新能源|食品饮料',opening))
+
+
 def question_unit(text):
     # Quoted examples and a speaker's rhetorical self-questions are not a host
     # turn. Explicit 您/请问 remains a real question even in a long sentence.
@@ -146,6 +169,8 @@ def speech_opening(text):
     if complete(normalized.strip('。！？!?')):
         return True
     if editorial.CONTENT_POLICY == 'reference_v1':
+        if re.match(r'^(?:作为我本人|对我来说|就我自己而言)[，,](?:我)?(?:没有|不会|不想|不|是|要)',normalized) and STOP.search(normalized):
+            return True
         # Spoken openings are not permanent headlines. Fillers and a natural
         # “是…的” ending must not reject an otherwise explicit subject/claim.
         # This string is classification-only: original cues remain untouched.
@@ -227,6 +252,7 @@ def boundary_error(cues,pick):
     for i,u in enumerate(units):
         if i and SUMMARY_SECTION.search(u['text']):
             return '选段跨入明确的总结章节；在原声边界分开，不能把总结开头接在上一段结论后'
+        if promotional_cta(u['text']):return '选段包含原片带货收尾，须在原始句界结束，不能保留小黄车广告'
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
         if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
@@ -240,7 +266,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     units=sentence_units(cues)
     # A host's closing narration is not the guest's final answer. It must not
     # turn a short farewell into a 120-second "guest" clip.
-    end=next((i for i,u in enumerate(units) if OUTRO.search(u['text'])
+    end=next((i for i,u in enumerate(units) if OUTRO.search(u['text']) or promotional_cta(u['text'])
               or i>0 and PROMOTIONAL_REINTRO.search(u['text'])),len(units))
     natural_end=(end<len(units) or bool(whole_source and units and units[-1]['end']==len(cues)-1))
     units=units[:end]
@@ -341,7 +367,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     if (editorial.CONTENT_POLICY=='reference_v1' and whole_source and natural_end
             and units and not questions and len(cuts)==1
             and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<120
-            and not speech_opening(units[0]['text'])):
+            and not speech_opening(units[0]['text'])
+            and not contextual_self_answer(units,cues,0)):
         # Several short ASR sentences/fillers can precede the first complete
         # opening. Keep the existing 20-second budget, not an unrelated
         # two-sentence cap (real sources63/82 had a valid fourth sentence).
@@ -364,12 +391,14 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or
                 KEYNOTE_SECTION.search(units[i]['text']) or
-                speech_opening(units[i]['text'])):continue
+                speech_opening(units[i]['text']) or
+                (whole_source and editorial.CONTENT_POLICY=='reference_v1' and contextual_self_answer(units,cues,i))):continue
         if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
-        if not editorial.MIN_SECONDS<=duration<=330:
-            reject('speech',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_330');continue
+        maximum=720 if whole_source and editorial.CONTENT_POLICY=='reference_v1' else 330
+        if not editorial.MIN_SECONDS<=duration<=maximum:
+            reject('speech',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_{maximum}');continue
         text=''.join(c['text'] for c in cues[a:b+1])
         if editorial.transcript_integrity_error(text) or boundary_error(cues,dict(start=a,end=b)):continue
         quotes=quote_candidates(text)
