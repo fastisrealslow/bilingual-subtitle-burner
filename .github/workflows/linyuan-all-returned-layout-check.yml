@@ -1,0 +1,86 @@
+name: 本轮全部8份真人卡片：44px完整横版排版对照（不增加出片率）
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-all-returned-layout-check
+  cancel-in-progress: true
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+        - sample: 7
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-007-93e7ab
+        - sample: 8
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-008-868622
+        - sample: 13
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-013-3ffe12
+        - sample: 28
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-028-54f05e
+        - sample: 32
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-032-b93410
+        - sample: 46
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-046-eec3a9
+        - sample: 49
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-049-63fa5e
+        - sample: 66
+          run: '35902748400'
+          artifact: simulation-media-sim-0916-066-4c4baf
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: 安装画面检查与渲染依赖
+      run: 'sudo apt-get update -qq
+
+        sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-cjk libgl1 libglib2.0-0
+
+        python -m pip install -q pillow numpy ''opencv-python<5'' jieba rapidocr-onnxruntime fonttools
+
+        fc-cache -f
+
+        '
+    - uses: actions/cache@v4
+      with:
+        path: /tmp/linyuan-face-models
+        key: opencv-yunet-sface-2023mar-2021dec-v1
+    - uses: actions/download-artifact@v4
+      with:
+        github-token: ${{ github.token }}
+        run-id: ${{ matrix.run }}
+        name: ${{ matrix.artifact }}
+        path: replay-input
+    - name: 同一完整原片：字号44px，保留全部字幕与音轨
+      env:
+        TEXT_BACKEND: local
+        LINYUAN_LANDSCAPE_STYLE: quiet
+        OMP_NUM_THREADS: '2'
+      run: python -u scripts/replay_linyuan_readable_layout.py --input replay-input --output layout-replay
+        --sample '${{ matrix.sample }}' --input-run-id '${{ matrix.run }}'
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: returned-layout-${{ matrix.sample }}
+        path: layout-replay
+        retention-days: 30
+        if-no-files-found: error
+'on':
+  push:
+    branches:
+    - codex/linyuan-impression-title-check
+    paths:
+    - .github/workflows/linyuan-all-returned-layout-check.yml
+  workflow_dispatch: null
