@@ -5213,7 +5213,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if prefer_live_video and len(picks)==1 and W>H:
         import stage_context
         a=cues[picks[0]['start']]['start'];b=cues[picks[0]['end']]['end']
-        stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker)
+        stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker,
+            exclusions=(source_report or {}).get('detected_corner_logos') or ())
         if stage:
             cw = get_copy()
             rows=[dict(start_sec=cues[i]['start']-a,end_sec=cues[i]['end']-a,zh=cues[i]['text']) for i in sel]

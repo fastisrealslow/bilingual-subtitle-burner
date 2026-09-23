@@ -42,3 +42,16 @@ def test_contextual_identity_cannot_claim_biometric_verification():
     assert S.proof_error({**proof,'biometric_presenter_match':True})
     wrong=copy.deepcopy(proof);wrong['presenter']['motion']['passed']=False
     assert S.proof_error(wrong)
+
+
+def test_stage_crop_preserves_actual_68_and_avoids_315_top_overlay():
+    # Existing 640x480 source68 remains a wide context, never a face close-up.
+    actor=[86.6155,264.9849,15.2261,17.9485]
+    photo=[250.1831,215.0773,25.47,32.2599]
+    assert S.stage_crop(640,480,actor,photo)==[0,96,640,296]
+    # Library315's measured top-left overlay ends at 28.33% of source height.
+    source_actor=[260,590,40,45];source_photo=[640,475,75,85]
+    crop=S.stage_crop(1920,1080,source_actor,source_photo,[(.04,.05,.09,.2833333333333333)])
+    assert crop==[0,314,1920,570]
+    assert S.stage_crop(1920,1080,[260,320,40,45],source_photo,[(.04,.05,.09,.32)]) is None
+    assert S.stage_crop(1920,1080,source_actor,[640,260,75,85],[(.04,.05,.09,.32)]) is None
