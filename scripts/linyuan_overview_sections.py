@@ -67,12 +67,12 @@ def sections(player):
         headers=['来源','输入数','已取到母片¹','源检查通过','自动出片 / 输入','拒绝','未确定']
         groups.append('<div class="source-cohort" data-cohort="'+key+'"'+(' hidden' if key!='library20' else '')+'><h3>'+esc(labels[key])+'</h3>'+table(headers,group_rows('platforms'))+ \
             '<details><summary>展开按上传作者统计（作者不是原始拍摄方）</summary>'+table(headers,group_rows('authors'))+'</details></div>')
-    current=d['cohorts']['sep23_full100']
-    inventory=read(ROOT/'output/sep23-full100-35833967072/media-inventory-audit.json',{})
+    current=d['cohorts']['final100']
+    inventory=read(ROOT/'output/final100-35902748400/results/media-inventory-audit.json',{})
     unique=inventory.get('variants',{}).get('simulation',{}).get('retained_by_publication_rule','待核对')
     intro = '<section id="overview"><div class="eyebrow">整体验收 / 2026-09-24</div><h1>形式更接近了，稳定性还没达标。</h1><p class="lead">目标是每100条素材至少30条能稳定出片，并且内容值得发布。目前还不能交出这个结论。</p><p class="small">本地报告快照：'+esc(d['checked_at'])+'；主线数据 '+d['snapshot_main_sha'][:7]+'。页面不会自动更新；不同固定版本分别统计。</p>'+ \
-        '<div class="metric-grid"><article><b>11/100</b><span>主线 · 同批素材技术出片</span></article><article><b>'+str(current['passed'])+'/100</b><span>旧87a0099技术出片 · 已返回'+str(current['total']-current['missing'])+'/100</span></article><article><b>'+str(unique)+'组</b><span>旧87a0099去重 · 非编辑合格数</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+ \
-        '<p>旧87a0099批次的第95与99条是同一段谈话的横竖版，分开计技术出片，只计一组内容。标题、画面和语义质量仍须逐条检查；没有把专项修复混进固定批次成绩。</p><p><a href="#source-79">先看79：标题前后</a> · <a href="#source-17">17：字幕修复</a> · <a href="#source-8">8：发言归属</a> · <a href="#refs-latest">园园近期完整视频</a></p><details><summary>展开各轮完整统计与比较口径</summary>'+''.join(charts)+ \
+        '<div class="metric-grid"><article><b>11/100</b><span>主线 · 同批素材技术出片</span></article><article><b>'+str(current['passed'])+'/100</b><span>冻结bfd29f6技术出片 · 已返回'+str(current['total']-current['missing'])+'/100</span></article><article><b>'+str(unique)+'组</b><span>冻结bfd29f6去重 · 非编辑合格数</span></article><article><b>30%</b><span>目标 · 尚未达到</span></article></div>'+ \
+        '<p>顶部统计为冻结bfd29f6的完整100素材复验；后续17个成功素材用统一默认配置复跑17/17出片，仅证明这组已知素材的技术稳定性。逐片标题、封面、字幕与未解决问题见下方全部对照；专项改稿不混进固定批次成绩。</p><p><a href="#source-79">79：历史标题前后</a> · <a href="#source-17">17：字幕修复</a> · <a href="#source-8">8：发言归属</a> · <a href="#refs-latest">园园近期完整视频</a></p><details><summary>展开各轮完整统计与比较口径</summary>'+''.join(charts)+ \
         '<p class="small">绿色＝自动通过；红色＝质量拒绝；灰色＝未确定，含运行失败与尚缺报告。颜色不表示人工编辑质量。</p>'+table(['批次','固定代码','自动出片率','拒绝','未确定'],batchrows)+ \
         '<p class="warning">线上历史真实出片率仍不可精确还原：“任务完成”不等于“产出合格视频”。上表11%是主线代码在固定100素材上的实测，不冒充线上长期统计；10%是早期优化版本。06815b4整轮已结束：17出片、79拒绝、4未确定。17份文件均已核对哈希并完整解码；仍发现听说变事实、对象指代不清、老龄化变人口增长与残字等问题，不能把17%当作编辑合格率。前轮e93fa87为18/78/4，其中88的中央原字幕漏检已在本轮拦截。后续修复与9B单条试验分开，不拼接多轮最好结果。</p>'+ \
         '<p>旧100对照已收齐两边各100份报告。主线11份、早期优化10份实际MP4已完整解码；按当前投稿去重规则分别保留10份和9份。素材58两边下载字节不同，不计同母片胜负；素材95是一次自动出片回退。所有自动通过结果仍需内容验收，尚无经完整听音确认的编辑通过率。</p></details></section>'

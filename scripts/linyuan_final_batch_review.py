@@ -5,8 +5,10 @@ import hashlib
 import json
 import os
 import re
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 OUT = ROOT / 'output/benchmark-20260921'
 RESULTS = ROOT / 'output/final100-35902748400/results'
 RECORDS = ROOT / 'linyuan/simulations/benchmark-20260921'
@@ -17,6 +19,41 @@ esc = lambda value: html.escape(str(value))
 
 def read(path, default):
     return json.loads(path.read_text()) if path.is_file() else default
+
+
+def source_context_note(row):
+    from linyuan.reviewed_source_context import context_for
+    context = context_for(row['source_sha256'])
+    if not context:
+        return ''
+    folder = OUT / ('next-captions-'+context['evidence_run_id']) / ('final100-original-caption-'+str(row['id']))
+    frame = folder / context['evidence_frame']
+    evidence = read(folder/'evidence.json', {})
+    link = ''
+    if (frame.is_file() and evidence.get('source_sha256') == row['source_sha256']
+            and hashlib.sha256(frame.read_bytes()).hexdigest() == context['evidence_frame_sha256']):
+        link = ' <a href="'+esc(os.path.relpath(frame, OUT))+'">核对原片画面</a>'
+    return ('<p><b>已核实的来源标注：</b>'+esc(context['occasion'])+link+'</p>'
+            +'<p class="small">'+esc(context['scope'])+'这是补充来源信息，不代表下方旧视频已重烧日期。</p>')
+
+
+def cover_phrase_preview(row):
+    report=read(OUT/'cover-phrase-break-check/review.json', {})
+    preview=next((p for p in report.get('previews', []) if p['source_id']==row['id']), None)
+    if not preview:
+        return ''
+    if (preview['source_sha256']!=row['source_sha256'] or report.get('source_yield_credit') is not False
+            or report.get('accepted_assets_modified') is not False):
+        raise ValueError('Cover preview scope or source changed')
+    parts=[]
+    for key,label in [('before','原断行'),('after','修复后断行')]:
+        item=preview['images'][key];path=ROOT/item['file']
+        if hashlib.sha256(path.read_bytes()).hexdigest()!=item['sha256']:
+            raise ValueError('Cover phrase preview bytes changed')
+        parts.append('<p>'+label+'：'+esc(' / '.join(item['lines']))+'</p>'
+            +'<img loading="lazy" style="width:100%;height:auto" src="'
+            +esc(os.path.relpath(path,OUT))+'" alt="'+label+'预览">')
+    return '<details><summary>封面短语断行 · 两张对照预览</summary><p>'+esc(report['note'])+'</p>'+''.join(parts)+'</details>'
 
 
 def title_trials(row):
@@ -123,6 +160,10 @@ def returned_layout_trial(row, player):
 def focused_revision(row, player):
     notes = read(RECORDS / 'focused-final-review.json', {})
     for folder, commit in (
+        ('value-crisis-quote-recheck-35924821047', '8372aa9e4c54e6d2a4120a270f3e708060a6d772'),
+        ('reviewed-title-recheck-35924215271', '35e279b2e1dae1c029f1feec02e319a340dfde34'),
+        ('market-impression-recheck-35923132531', '6aa6cd57612de01076ae50ce7eb97a06c1a5fe94'),
+        ('verified-caption-recheck-35922352855', '2ac74799a961b828bb2f5412c85a38b324a5eddb'),
         ('quote-framing-recheck-35918417208', '6f9a260d833ee29b1c53fdc621fa416a61bd2c31'),
         ('source34-reaction-35912591408', 'e239134c742c567241b979da01cc9b9f656afcad'),
         ('source13-title-render-35913230331', '4260fcdb692c324de78c19b5b1876e430138b15d'),
@@ -210,7 +251,7 @@ def production_default_retest(row, player):
     if (str(report.get('run_id'))!='35921175272' or report.get('tested_sha')!=commit
             or report.get('source_sha256') not in (None,'',row['source_sha256'])):
         raise ValueError('Default regression is not bound to the same mother')
-    result='<p><b>最新生产默认复验 · 原来已出片的全部17个素材</b></p>'
+    result='<p><b>统一生产配置复验 · 原来已出片的全部17个素材 · 0fba8b2</b></p>'
     if report['status']!='passed':
         reasons=[r.get('reason','') for r in (report.get('batch') or {}).get('rejected',[])]
         return result+'<p class="warning">本条本轮未出片：'+esc('；'.join(reasons) or report.get('stage',''))+'</p>'
@@ -261,11 +302,13 @@ def section(reference_media, player):
                 current.append('<p>媒体尚未核验通过：'+esc(row.get('verification_error', '待下载'))+'</p>')
                 continue
             folder = (ROOT / row['file']).parent
-            current.append(production_default_retest(row, player))
+            current.append(source_context_note(row))
             revision = focused_revision(row, player)
             if revision:
                 current.append(revision)
-                current.append('<details><summary>本轮100条测量的原版、缺点与各项对照</summary>')
+                current.append('<details><summary>统一配置复验、冻结100条原版与修改记录</summary>')
+            current.append(production_default_retest(row, player))
+            current.append(cover_phrase_preview(row))
             current.append(player(os.path.relpath(ROOT / row['file'], OUT),
                 os.path.relpath(ROOT / row['cover'], OUT),
                 f"冻结候选实际成片 · {row['duration']:.1f}秒 · 完整音视频解码通过"))

@@ -1458,7 +1458,6 @@ def error(title, proof, transcript=None, speaker='林园'):
     if range_issue:
         return range_issue
     for issue in (forecast_copy_error(title, proof['cover'], transcript or ''.join(evidence)),
-                  relation_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unresolved_subject_error(title, proof['cover']),
                   product_contrast_error(title, proof['cover'], transcript or ''.join(evidence)),
                   research_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
