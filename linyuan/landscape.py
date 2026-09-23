@@ -20,6 +20,14 @@ def source_window(meta):
     # A tighter crop cannot remove these without cutting the face.
     if meta.get('fingerprints',{}).get('sha256')=='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec':
         raise ValueError('原片动态黄色大字遮挡人物，不能以裁切冒充干净横版')
+    spec=meta.get('layout_proof',{})
+    if spec.get('canvas')==dict(width=1280,height=720):
+        styles={layout('classic')['template']:'classic',layout('quiet')['template']:'quiet'}
+        style=styles.get(spec.get('template'))
+        if (not style or spec.get('live_region')!=layout(style)['live_region']
+                or spec.get('subtitle_region')!=layout(style)['subtitle_region']):
+            raise ValueError('横版输入的真人窗口或字幕区域不是已知的独立区域')
+        return dict(spec['live_region'])
     return dict(x=44,y=360,width=632,height=470)
 
 
@@ -143,8 +151,9 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     from editorial_policy import subtitle_files_text, text_digest
     directory,work=Path(directory),Path(work)
     if meta.get('render_mode')!='live_video_card':raise ValueError('横版真人模板需要实际动态画面')
-    if meta['layout_proof']['canvas']!={'width':720,'height':1280}:
-        raise ValueError('横版重排输入不是已验证的竖版真人窗口')
+    if meta['layout_proof']['canvas'] not in ({'width':720,'height':1280}, {'width':1280,'height':720}):
+        raise ValueError('横版重排输入不是支持的真人窗口布局')
+    window=source_window(meta)  # Validate a known caption-free window before writing.
     original=directory/meta['final']
     if producer._file_sha256(original)!=meta['fingerprints']['sha256']:
         raise ValueError('横版重排输入视频指纹变化')
@@ -164,7 +173,6 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
         raise ValueError('横版重排改变了字幕文字')
     bg=work/'landscape-background.png';background(bg,chosen_style)
     target=work/'landscape.mp4';brand=producer.brand_watermark_path()
-    window=source_window(meta)
     rate=subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
         '-show_entries','stream=avg_frame_rate','-of','default=nw=1:nk=1',str(original)],text=True).strip()
     card_footer=''
@@ -200,6 +208,8 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     checks.update(producer.verify_live_region_after_render(target,actor_times=times or (),live_region=region))
     identity=producer.verify_final_live_identity(target,work,speaker,api_key,'-landscape',
                                                   target_times=times,live_region=region)
+    external_logos=producer.detect_corner_logos(target,frames=12,strict=True)
+    if external_logos:raise producer.VisualQualityError('重排成片仍有外部角标：'+str(external_logos))
     actual=float(producer.probe(target,'format=duration'))
     if abs(actual-meta['duration_sec'])>.15:raise ValueError('横版重排改变了时长')
     fingerprints=producer.build_content_fingerprints(target,subtitle_files_text(directory,[subtitle.name]))
@@ -212,6 +222,8 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     return {**meta,**checks,'layout_proof':spec,'resolution':dict(width=1280,height=720,short_edge=720),
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
+            'corner_review':dict(version=producer.VISUAL_GATE_VERSION,passed=True,frames=12,
+                                 media_sha256=fingerprints['sha256'],policy='platform_or_persistent_text'),
             'video_title':None,'video_title_proof':None,'audio_card_template':spec['template'],
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
