@@ -13,10 +13,12 @@ import prepare_asr_runtime as runtime
 from qwen_cpu_transcript import resume_recognition
 
 SOURCE79='8749fee3a7345c3e1c2fe2e14fc0b33d33d66829f5ff48a25ca6f6daee5ae41f'
+SOURCE311='753efbca9d8f40551bf32b7b02a74c9185be33ab411499e91571b4547f530da0'
 
 
 def test_exact_source_binding_and_real_ffmpeg_channel_preservation(tmp_path):
     assert audio.policy(SOURCE79)==audio.LEFT
+    assert audio.policy(SOURCE311)==audio.LEFT
     assert audio.policy('another-source')==audio.DEFAULT
     signal=(np.sin(np.arange(32000)*2*np.pi*440/16000)*12000).astype('<i2')
     source=tmp_path/'source.wav'

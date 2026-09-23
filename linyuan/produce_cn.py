@@ -3439,10 +3439,10 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
     if re.search(r"https?://|www\.|t\.cn/|@[\w\u4e00-\u9fff]+", title, re.I):
         return "标题含链接或引流信息"
     compact = _title_text(title)
-    if not 12 <= len(compact) <= 62:
-        return f"标题长度 {len(compact)} 不在 12~62 字"
     normalized = re.sub(
         rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
+    if not 8 <= len(_title_text(normalized)) <= 52:
+        return "标题正文须8~52个有效字；完整短句不凑长度"
     if rewrite_proof is not None:
         from title_rewrite import error as rewrite_error
         problem=rewrite_error(title,rewrite_proof,transcript_text,speaker)

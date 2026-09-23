@@ -50,6 +50,12 @@ def test_actual_personal_choice_is_not_rejected_to_pad_title():
     candidate=T.bind_guest_candidate(raw,{},units,T.subject_catalog(units),[0])
     assert T._candidate_error(candidate,''.join(units),'林园',()) is None
     assert T.editorial_features(candidate)['concise']
+    import produce_cn as P
+    package=T._package(candidate,''.join(units),dict(method='cpu_text_review',appeal=4,
+        reason='完整短句必须通过最终生产入口，不能被第二处长度门槛挡回。',
+        **{k:True for k in T.CHECKS}),[])
+    assert P.title_quality_error(package['title'],'林园',''.join(units),
+        rewrite_proof=package['title_rewrite']) is None
     candidate['title']='林园：光伏能源'
     assert T._candidate_error(candidate,''.join(units),'林园',())
 

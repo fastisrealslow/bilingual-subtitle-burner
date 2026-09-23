@@ -226,7 +226,15 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
         raise ValueError('先写清有原文依据的完整判断和限定，再写标题')
     if not isinstance(ids,list) or any(type(i) is not int or i not in guest_ids for i in ids):
         raise ValueError('候选证据属于主持人或未知归属，须回到嘉宾原话')
-    return bind_candidate(item,dict(claim=claim,evidence_ids=ids),units,subjects)
+    if not 1<=len(ids)<=4:raise ValueError('原文证据编号数量无效')
+    # JSON-schema uniqueItems is not enforced by every local grammar. Real
+    # 8B drafts repeated 27/30 and discarded otherwise reviewable copy. Exact
+    # duplicate IDs add no evidence: deduplicate only after guest attribution
+    # and type/range checks, then retrieve the original bytes as before.
+    unique=list(dict.fromkeys(ids))
+    result=bind_candidate(item,dict(claim=claim,evidence_ids=unique),units,subjects)
+    if unique!=ids:result['evidence_id_normalization']=dict(raw=ids,unique=unique)
+    return result
 
 
 def bind_candidate(item, focus, units, subjects):

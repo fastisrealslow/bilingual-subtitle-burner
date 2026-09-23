@@ -119,5 +119,8 @@ def test_independent_source_choices_have_separate_claims_and_exact_allowed_evide
     assert bound['evidence']==[units[1]]
     with pytest.raises(ValueError,match='主持人'):
         t.bind_guest_candidate({**item,'a_focus':{**item['a_focus'],'b_evidence_ids':[0]}},{},units,{},[1,2])
-    with pytest.raises(ValueError,match='编号无效'):
-        t.bind_guest_candidate({**item,'a_focus':{**item['a_focus'],'b_evidence_ids':[1,1]}},{},units,{},[1,2])
+    repeated=t.bind_guest_candidate({**item,'a_focus':{**item['a_focus'],'b_evidence_ids':[1,1]}},{},units,{},[1,2])
+    assert repeated['evidence']==[units[1]]
+    assert repeated['evidence_id_normalization']==dict(raw=[1,1],unique=[1])
+    with pytest.raises(ValueError,match='主持人'):
+        t.bind_guest_candidate({**item,'a_focus':{**item['a_focus'],'b_evidence_ids':[1,0,1]}},{},units,{},[1,2])
