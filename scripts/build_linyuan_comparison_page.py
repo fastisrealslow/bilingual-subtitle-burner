@@ -41,6 +41,28 @@ def player(src, poster, label):
     return media + '<p class="small">' + esc(label) + '</p>'
 
 
+def latest_references():
+    rows=read(RECORDS/'references-latest-sep23.json',{'rows':[]})['rows']
+    if not rows:return ''
+    cards=[]
+    for row in rows:
+        folder=OUT/'reference-latest-35850453720'/('reference-latest-'+row['bvid'])
+        proof=read(folder/'inspection.json',{})
+        if proof.get('complete_timeline') and (folder/'full-review.mp4').exists():
+            media=player(str((folder/'full-review.mp4').relative_to(OUT)),
+                str((folder/'frame-00.jpg').relative_to(OUT)),
+                f"完整原声时间轴 · 实取 {proof['actual_dimensions'][0]}×{proof['actual_dimensions'][1]} · {proof['duration']:.1f}秒")
+        else:
+            failure=read(folder/'fetch-failure.json',{})
+            media='<p class="warning">'+esc(failure.get('reason','完整视频正在取得，暂不放入不可播放的视频框。'))+'</p>'
+        cards.append('<article><h3><a href="'+esc(row['url'])+'">'+esc(row['title'])+'</a></h3>'
+            +media+'<p>'+esc(row.get('observation','尚未完成逐项内容比较。'))+'</p><small>平台时长 '
+            +str(row['duration'])+'秒；核对时 '+str(row['views'])+' 次播放；'+esc(row['published_at'])+'</small></article>')
+    return ('<section id="refs-latest"><h2>最新补充：9月23日重新核对的近期作品</h2>'
+        '<p>公开合集最新8条中，有4条不在原固定20条内，在此单独补充。它们不是播放量最高的4条，也不替换原有对照。已取得的两条横版基本铺满画面、字幕贴底，没有常驻大标题；原声转写继续核对，抽帧不等于逐秒听看。</p>'
+        '<div class="grid">'+''.join(cards)+'</div></section>')
+
+
 def main():
     refs = read(RECORDS/'references-20.json', {'rows': []})['rows']
     by_bvid = {r['bvid']: r for r in refs}
@@ -148,6 +170,7 @@ let notes={};try{notes=JSON.parse(localStorage.getItem('linyuan-pair-review-2026
 document.querySelectorAll('textarea').forEach(t=>{t.value=notes[t.dataset.note]||'';t.oninput=()=>{notes[t.dataset.note]=t.value;try{localStorage.setItem('linyuan-pair-review-20260921',JSON.stringify(notes))}catch(e){}}});
 document.querySelectorAll('video').forEach(v=>v.onplay=()=>document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause()}));
 </script></html>'''
+    body = body.replace('<section id="refs">',latest_references()+'<section id="refs">',1)
     body = body.replace('</style>', overview_css + '</style>')
     body = body.replace('</style>', threeway_css + '</style>')
     body = body.replace('</script>',threeway_js+'</script>')
