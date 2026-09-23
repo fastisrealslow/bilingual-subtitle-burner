@@ -7,6 +7,35 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'linyuan'))
 import title_rewrite as T
 
 
+def test_actual_display_line_breaks_do_not_hide_the_subject_of_a_claim():
+    import json
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/content-stage-corpus.json'
+    cases=json.loads(path.read_text())
+    for case in cases:
+        cues=[c['text'] for c in case['cues']]
+        units=T.answer_reading_units(cues)
+        assert ''.join(units)==''.join(cues)
+    case=next(r for r in cases if r['id']=='sep23-source32')
+    cues=[c['text'] for c in case['cues']]
+    units=T.answer_reading_units(cues)
+    assert ''.join(cues[5:8]) in units
+    assert ''.join(cues[:2]) in units
+    assert len(units)<len(cues)
+
+
+def test_grouping_keeps_questions_and_named_other_speakers_out_of_guest_evidence():
+    cues=['请问王总，您怎么看这个行业，','是否还会有空间？',
+          '我认为这个行业以后还有很大发展空间。',
+          '请问林总，您觉得现在进入牛市了吗？',
+          '这个位置应该是不高，','还没有进入牛市。']
+    units=T.answer_reading_units(cues)
+    from speaker_attribution import other_guest_indices
+    blocked=other_guest_indices(units)
+    assert not set(T.guest_evidence_ids(units,['guest']*len(units)))&blocked
+    assert cues[-2]+cues[-1] in units
+    assert not any(cues[3] in u and cues[4] in u for u in units)
+
+
 def test_complete_short_main_answer_is_evidence_but_list_tail_is_not():
     units=['您觉得进入牛市了吗？','这个位置应该是不高。','还没有进入牛市。','还有一个','嗯']
     assert T.guest_evidence_ids(units,['host','guest','guest','guest','guest']) == [1,2]

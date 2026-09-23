@@ -4589,5 +4589,57 @@
         "note": "新标题选了美国人口举例，明显不如前版“我们锁定医药赛道，别的不搞”直接。原字幕仍有年符合增长、五板等疑点；排版没有修复这些识别问题。"
       }
     ]
+  },
+  "exact_focus_trial": {
+    "run_id": "35848819019",
+    "tested_sha": "cc99ab0499b3dcb998b42eae2f4513fdf3b09aa4",
+    "status": "completed",
+    "note": "4条相同实片字幕：2生成、2未生成。8号主要判断改善，28号仍有明显语义误放行，32和311不能交付；未证明稳定优于默认，不启用为默认。",
+    "rows": [
+      {
+        "case": "sep23-source8",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 504.08,
+        "title": "林园：现在不是牛市位置",
+        "cover": "当前市场未进入牛市",
+        "review_note": "回到了尚未进入牛市这一主要判断，优于只谈下跌市值的旁枝；但“不是牛市位置”措辞生硬，仍未交付编辑验收。",
+        "editorial_approved": false,
+        "raw_file": "exact-focus-35848819019/source-choices-8b-3/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-3-repeat-1.json"
+      },
+      {
+        "case": "sep23-source28",
+        "model": "qwen3:8b",
+        "status": "generated",
+        "seconds": 489.35,
+        "title": "林园：眼科一定是一个后遗症",
+        "cover": "眼科后遗症不可忽视",
+        "review_note": "仍把眼科和后遗症混成一类；把论据当成中心，漏掉眼科、牙科未来增长的投资判断。模型却误判5分，不能当人工通过。",
+        "editorial_approved": false,
+        "raw_file": "exact-focus-35848819019/source-choices-8b-4/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-4-repeat-1.json"
+      },
+      {
+        "case": "sep23-source32",
+        "model": "qwen3:8b",
+        "status": "unresolved",
+        "seconds": 223.94,
+        "title": "未生成",
+        "cover": "",
+        "review_note": "阅读只确认了6至13号显示短行，遗漏5号公司主语，又反复选择区间之外原句；3轮未生成。",
+        "editorial_approved": false,
+        "raw_file": "exact-focus-35848819019/source-choices-8b-5/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-5-repeat-1.json"
+      },
+      {
+        "case": "sep23-source311-complete-question",
+        "model": "qwen3:8b",
+        "status": "unresolved",
+        "seconds": 326.7,
+        "title": "未生成",
+        "cover": "",
+        "review_note": "选择“我说它便宜，它还要跌”半边解释，生成缺对象的“它”标题；3轮未生成合格文案。",
+        "editorial_approved": false,
+        "raw_file": "exact-focus-35848819019/source-choices-8b-6/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-6-repeat-1.json"
+      }
+    ]
   }
 }

@@ -122,6 +122,29 @@ def main_answer_quotes(units):
                               if 4<=len(compact(s))<=160 and len(s)<=200))
 
 
+def answer_reading_units(cues, speaker='林园'):
+    """Join display-line continuations, preserving all text and excluded turns."""
+    from speaker_attribution import other_guest_indices, named_handoffs
+    host=explicit_host_cues(cues)
+    other=other_guest_indices(cues,speaker)
+    handoffs={r['cue'] for r in named_handoffs(cues,speaker)}
+    units=[];current='';previous=None
+    for i,cue in enumerate(cues):
+        boundary=(i in host,i in other)
+        # Do not glue an excluded question/other speaker to an eligible reply.
+        # If punctuation is absent, keep the original cue boundary at 200
+        # characters rather than cutting an arbitrary word or inventing a stop.
+        if current and (boundary!=previous or i in handoffs or len(current)+len(cue)>200):
+            units.append(current);current=''
+        current+=cue;previous=boundary
+        if re.search(r'[。！？!?；;][”’」』\"]?\s*$',cue):
+            units.append(current);current=''
+    if current:units.append(current)
+    if ''.join(units)!=''.join(cues):
+        raise ValueError('阅读分句改变了原始字幕')
+    return units
+
+
 def reading_schema(unit_count, answer_focus=False, units=None):
     turn=dict(a_start=dict(type='integer',minimum=0,maximum=unit_count-1),
               b_end=dict(type='integer',minimum=0,maximum=unit_count-1))
@@ -907,6 +930,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     units = list(source_cues) if source_cues else source_units(transcript)
     if any(not isinstance(u,str) for u in units) or ''.join(units)!=transcript:
         raise ValueError('标题原始字幕边界与完整原文不一致')
+    if answer_focus:
+        units=answer_reading_units(units,speaker)
     subjects = subject_catalog(units) if structured_model else {}
     def call(prompt, schema):
         return structured_model(prompt, schema) if structured_model else model(prompt)
@@ -928,7 +953,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     reading=None;roles=None
     main_ids=[]
     if answer_focus:
-        reader_prompt+='\n最后在d_main_answer_quote逐字摘录一段最直接回答主要问题的连续嘉宾原话，4至160字，跨字幕时按原顺序拼接。只选一个完整判断及其必要的否定、条件、语气；不能只列各段的开头，不能用后面的例子代替主要回答，也不能概括改写。这个摘录必须包含在你刚标出的嘉宾范围内。此时不拟标题。'
+        reader_prompt+='\n这些编号是原话连续句，显示换行已合并，文字一个未改。先读到全文结尾，再判断问题究竟在问什么，以及哪些话是回答、理由、例子或后续补充。主要回答不一定在开头；不能看到首个原因就停止阅读。\n最后在d_main_answer_quote选择一段最直接回答主要问题的完整连续嘉宾原话，保留它的否定、条件和语气。可选择的精确原句如下（包括主持人原句，仍须先确认归属；不能改写，不能用举例代替回答）：\n'+json.dumps(main_answer_quotes(units),ensure_ascii=False)
     reading_repair_note=''
     def fallback():
         if answer_focus:
@@ -1161,6 +1186,7 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                     main_answer_quote=reading['d_main_answer_quote'],
                     exact_source=[units[i] for i in main_ids],reader=reading,
                     transcript_sha256=hashlib.sha256(transcript.encode()).hexdigest(),
+                    reading_unit_policy='exact_continuations_preserve_exclusions_v1',
                     independent_review_unchanged=True,
                     limitation='Source-bound main-answer proposal, not a human editorial approval')
             result['editorial_selection'] = dict(
