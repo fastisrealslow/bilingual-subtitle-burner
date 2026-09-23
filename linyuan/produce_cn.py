@@ -3581,6 +3581,28 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             return cached
         except (OSError,ValueError,TypeError,KeyError) as exc:
             raise EditorialReviewUnavailable('独立标题交接未通过：'+str(exc)) from exc
+    # A title actually inspected in a completed render should not randomly
+    # revert to a weaker summary next time. This is explicit editorial input
+    # for an identical passage, not a claim that today's model generated it.
+    from reviewed_title_records import lookup as reviewed_copy
+    try:
+        reviewed=reviewed_copy(source_sha256,transcript_text,speaker)
+        if reviewed:
+            cached,proof=reviewed
+            error=title_quality_error(cached['title'],speaker,transcript_text,
+                existing_titles,require_quote=require_quote,rewrite_proof=cached['title_rewrite'])
+            if error:
+                raise ValueError(error)
+            title,cover=cached['title'],cached['cover_title']
+            cached=attach_copy(cached,transcript_text,speaker,existing_titles)
+            if (cached['title'],cached['cover_title'])!=(title,cover):
+                raise ValueError('编辑标题在排版附加阶段发生变化')
+            cached.update(copy_identity=copy_identity,reviewed_title_record=proof)
+            cache.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
+            print('[文案] 保留同母片同选段已实片核对的标题；本轮重新检查证据与排版')
+            return cached
+    except (OSError,ValueError,TypeError,KeyError) as exc:
+        raise EditorialReviewUnavailable('已核对标题复用未通过：'+str(exc)) from exc
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
@@ -5721,6 +5743,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
         "editorial_selection":cw.get('editorial_selection'),
         **({'title_handoff':cw['title_handoff']} if cw.get('title_handoff') else {}),
+        **({'reviewed_title_record':cw['reviewed_title_record']} if cw.get('reviewed_title_record') else {}),
         "cover_fallback_reason":cover_fallback_reason,
         "cover": cover.name if cover else None,
         "preview_30s": preview_name,

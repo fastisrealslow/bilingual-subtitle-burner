@@ -297,14 +297,19 @@ def cover_headline(title, speaker='林园', max_lines=2):
     # A dictionary protects words but still splits "不是靠 / 投入". Prefer a
     # complete predicate. Three lines are opt-in only for layouts with room.
     def dangling(line):
-        return bool(re.search(r'(?:不是|而是|因为|所以|取决于|来自|靠|把|被|的)$',line))
+        return bool(re.search(r'(?:不是|而是|因为|所以|取决于|来自|靠|把|被|的|才)$',line))
+    def broken_phrase(lines):
+        # Actual covers split “才 / 是最好模式” and “最核心 / 的东西”.
+        # These penalties choose another dictionary boundary without deleting
+        # words, shrinking type, or claiming a complete syntactic parser.
+        return sum(dangling(x) for x in lines[:-1]) + sum(x.startswith('的') for x in lines[1:])
     points=[b for a,b in word_spans(text) if b<len(text)]
     pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=9]
-    best=min(pairs,key=lambda ls:(sum(dangling(x) for x in ls[:-1]),abs(len(ls[0])-len(ls[1]))))
-    if not dangling(best[0]) or max_lines<3:return best
+    best=min(pairs,key=lambda ls:(broken_phrase(ls),abs(len(ls[0])-len(ls[1]))))
+    if not broken_phrase(best) or max_lines<3:return best
     triples=[[text[:a],text[a:b],text[b:]] for a in points for b in points
              if a<b and max(a,b-a,len(text)-b)<=9 and min(a,b-a,len(text)-b)>=3]
-    complete=[ls for ls in triples if not any(dangling(x) for x in ls[:-1])]
+    complete=[ls for ls in triples if not broken_phrase(ls)]
     if not complete:return best
     # Keep contrast markers with their clause; otherwise prefer balanced lines.
     return min(complete,key=lambda ls:(-sum(x.startswith(('不是','而是')) for x in ls[1:]),

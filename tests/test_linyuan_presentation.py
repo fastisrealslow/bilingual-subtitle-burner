@@ -507,3 +507,15 @@ def test_long_second_clause_does_not_move_its_subject_to_the_previous_line():
     assert ''.join(lines)==title.split('：',1)[1].replace('，','')
     assert max(map(len,lines))<=9
     assert len(V.cover_headline(title,max_lines=2))==2
+
+
+@pytest.mark.parametrize('text,expected', [
+    ('长久生意才是最好模式', ['长久生意', '才是最好模式']),
+    ('投资实际上最核心的东西是垄断', ['投资实际上', '最核心的东西是垄断']),
+])
+def test_actual_covers_preserve_predicate_and_attributive_phrase(text, expected):
+    for count in (2, 3):
+        lines=V.cover_headline(text, max_lines=count)
+        assert lines==expected
+        assert ''.join(lines)==text
+        assert max(map(len,lines))<=9
