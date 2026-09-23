@@ -1,0 +1,38 @@
+name: 释放旧版复验队列（仅固定测试运行）
+on:
+  push:
+    branches: [codex/linyuan-benchmark-queue-helper]
+    paths: [.github/workflows/linyuan-benchmark-queue-helper.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 保留99份报告后取消被替代的旧测试
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import json, os, urllib.request
+          root = 'https://api.github.com/repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/35887065004'
+          def request(url, method='GET'):
+              req = urllib.request.Request(url, method=method, headers={'Authorization': 'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  raw=r.read()
+                  return json.loads(raw) if raw else {}
+          run=request(root)
+          assert run['head_sha']=='e1ac6a63780444075a580a95fb99d6f7bbbc6115', 'Unexpected old commit'
+          assert run['head_branch']=='codex/linyuan-reliability-packaging', 'Unexpected branch'
+          if run['status']=='completed':
+              print('Old run already completed; no cancellation needed.')
+          else:
+              artifacts=[]
+              for page in (1,2):
+                  artifacts += request(root+'/artifacts?per_page=100&page='+str(page))['artifacts']
+              reports=[a for a in artifacts if a['name'].startswith('simulation-report-') and not a['expired']]
+              assert len(reports)>=99, 'Preserve all 99 finished reports before cancelling'
+              request(root+'/cancel', 'POST')
+              print('Cancelled only superseded run 35887065004; preserved',len(reports),'reports. Source 87 remains unresolved in old cohort. Final run 35902748400 is unchanged.')
