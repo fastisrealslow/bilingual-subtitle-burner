@@ -71,8 +71,20 @@ def test_optional_reader_runs_before_drafts_and_keeps_default_schema():
     old=T.reading_schema(10)
     assert 'd_main_answer_quote' not in old['properties']
     new=T.reading_schema(10,answer_focus=True)
-    assert list(new['properties'])==['a_guest_answer','b_question_premise','c_guest_spans','d_main_answer_quote']
+    assert list(new['properties'])==['a_guest_answer','b_question_premise','c_sentence_roles','d_main_answer_quote']
     assert new['properties']['d_main_answer_quote']['type']=='string'
+
+
+def test_each_sentence_must_be_attributed_without_guessing_omissions():
+    units=['眼科牙科的投资价值如何？','这两个行业我相信还有增长空间。','这句话归属不清。']
+    reading=dict(a_guest_answer='嘉宾相信眼科牙科这两个行业还有增长空间。',
+        b_question_premise='主持人问眼科和牙科。',
+        c_sentence_roles=dict(u0000='host',u0001='guest',u0002='unknown'))
+    roles=T.bind_reading(reading,units)
+    assert T.guest_evidence_ids(units,roles)==[1]
+    for mapping in (dict(u0000='host',u0001='guest'),dict(u0000='host',u0001='guest',u0002=True),
+                    dict(u0000='host',u0001='guest',u0002='unknown',u0003='guest')):
+        with pytest.raises(ValueError):T.bind_reading({**reading,'c_sentence_roles':mapping},units)
 
 
 def test_main_quote_can_include_short_continuations_but_cannot_bridge_host_or_unknown():
@@ -139,12 +151,13 @@ def test_main_answer_survives_the_complete_generate_and_final_proof_path():
     stages=[]
     def model(prompt,schema):
         props=schema['properties']
-        if 'c_guest_spans' in props:
+        if 'c_sentence_roles' in props:
             stages.append('read')
             assert title not in prompt
             return json.dumps(dict(a_guest_answer='位置应该不高，目前还没有进入牛市，要看有多少人赚钱。',
                 b_question_premise='主持人问目前是否进入牛市。',
-                c_guest_spans=[dict(a_start=1,b_end=4)],d_main_answer_quote=''.join(units[1:3])))
+                c_sentence_roles={f'u{i:04d}':'host' if i==0 else 'guest' for i in range(len(units))},
+                d_main_answer_quote=''.join(units[1:3])))
         if 'c_candidates' in props:
             stages.append('write')
             assert '主要回答编号：[1, 2]' in prompt

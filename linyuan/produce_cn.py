@@ -3539,7 +3539,8 @@ cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋�
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
-              existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None):
+              existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None,
+              source_sha256=None):
     """Generate three source-backed angles, review title/cover, and cache evidence.
 
     Slices and full interviews use the same editorial policy. The suffix keeps
@@ -3558,6 +3559,24 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **_copy_style_identity(speaker),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
+    handoff=os.environ.get('LINYUAN_TITLE_HANDOFF')
+    if handoff:
+        from title_handoff import load_result
+        try:
+            cached,proof=load_result(handoff,copy_identity,source_sha256,
+                os.environ.get('LINYUAN_TITLE_HANDOFF_MODEL_DIGEST'))
+            error=title_quality_error(cached.get('title'),speaker,transcript_text,
+                existing_titles,require_quote=require_quote,rewrite_proof=cached.get('title_rewrite'))
+            if error:raise ValueError(error)
+            cached=attach_copy(cached,transcript_text,speaker,existing_titles)
+            if cached.get('title')!=proof['title'] or cached.get('cover_title')!=proof['cover_title']:
+                raise ValueError('独立标题结果在排版附加阶段发生变化')
+            cached['title_handoff']=proof
+            cache.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
+            print('[文案] 复用同母片、同选段和同配置的独立标题结果；本片不重新拟标题')
+            return cached
+        except (OSError,ValueError,TypeError,KeyError) as exc:
+            raise EditorialReviewUnavailable('独立标题交接未通过：'+str(exc)) from exc
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
@@ -3603,7 +3622,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
         return llm(messages,api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
-                   read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','b_focus','c_candidates')))
+                   read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','c_sentence_roles','b_focus','c_candidates')))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
@@ -5208,7 +5227,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 existing_titles=existing_titles,
                 require_quote=(pick_cache_suffix != "_full"),
                 reviewed_title=picks[0].get('editorial_title'),
-                reviewed_cover=picks[0].get('editorial_cover'))
+                reviewed_cover=picks[0].get('editorial_cover'),
+                source_sha256=(source_report or {}).get('source_sha256'))
         return cw
 
     # A static screen portrait may match identity better than the tiny live
@@ -5596,6 +5616,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                              if audio_card else None),
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
         "editorial_selection":cw.get('editorial_selection'),
+        **({'title_handoff':cw['title_handoff']} if cw.get('title_handoff') else {}),
         "cover_fallback_reason":cover_fallback_reason,
         "cover": cover.name if cover else None,
         "preview_30s": preview_name,

@@ -38,6 +38,7 @@ def main():
     ap.add_argument('--model', choices=['qwen3:8b','qwen3:14b','qwen3.5:9b'], default='qwen3:8b',
                     help='Isolated replay model; production default is unchanged')
     ap.add_argument('--corpus', type=Path, help='Optional frozen, source-hashed production inputs')
+    ap.add_argument('--occasion', default='访谈', help='Exact production occasion for later title handoff')
     ap.add_argument('--draft-profile', choices=['production', 'concise', 'source_limits', 'spoken_focus', 'source_choices', 'answer_focus'], default='production')
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND') == 'local'
@@ -55,7 +56,9 @@ def main():
     row=dict(case=case['id'],repeat=args.repeat,old_title=case['old_title'],old_signals=signals(case['old_title']),
              transcript_sha256=ep.text_digest(text),source_artifact=case.get('artifact_id'),
              title_code_sha256=hashlib.sha256(Path(te.__file__).read_bytes()).hexdigest(),
-             commit=os.environ.get('GITHUB_SHA'),model=p.LOCAL_LLM_MODEL,temperature=.35,draft_profile=args.draft_profile,
+             commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
+             model=p.LOCAL_LLM_MODEL,temperature=.35,draft_profile=args.draft_profile,
+             occasion=args.occasion,
              source_run_id=case.get('source_run_id'),source_sha256=case.get('source_sha256'),
              editorial_approved=False,scope='Text-only replay; not a produced video or source100 pass',
              num_ctx=16384,max_tokens=2300,cache_reads=False,draft_interventions=0,calls=[])
@@ -107,7 +110,7 @@ def main():
             raise ValueError('loaded model digest unavailable')
         row['model_digest']=actual['digest'];save()
         with tempfile.TemporaryDirectory() as work:
-            result=p.copywrite(case['cues'],list(range(len(case['cues']))),'林园','访谈','',Path(work))
+            result=p.copywrite(case['cues'],list(range(len(case['cues']))),'林园',args.occasion,'',Path(work))
         row['result']=result
         row['proof_error']=te.error(result['title'],result['title_rewrite'],text)
         row['method']=result['title_rewrite']['review']['method']

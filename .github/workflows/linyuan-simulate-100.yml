@@ -41,6 +41,14 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
         type: string
         required: false
         default: classic
+      title_handoff_run_id:
+        type: string
+        required: false
+        default: ''
+      title_handoff_artifact:
+        type: string
+        required: false
+        default: ''
       recovery_run_id:
         description: 复验时读取原运行的同名素材证据，仍须通过母片与模型配置核验
         type: string
@@ -330,6 +338,33 @@ jobs:
           -H 'Content-Type: application/json' \
           --data-binary @/tmp/ollama-warmup.json \
           | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+    - name: 取得独立标题任务结果（完整母片及配置仍须在生产时核对）
+      if: inputs.title_handoff_run_id != ''
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        TITLE_HANDOFF_RUN: ${{ inputs.title_handoff_run_id }}
+        TITLE_HANDOFF_ARTIFACT: ${{ inputs.title_handoff_artifact }}
+      run: |
+        python - <<'PY'
+        import json, os, subprocess, urllib.request
+        from pathlib import Path
+        run=os.environ['TITLE_HANDOFF_RUN']
+        assert run.isdigit() and int(run)>0
+        artifact=os.environ['TITLE_HANDOFF_ARTIFACT']
+        assert artifact and not artifact.startswith('-')
+        subprocess.run(['gh','run','download',run,'--name',artifact,'--dir','_title_handoff'],check=True)
+        rows=list(Path('_title_handoff').rglob('case-*-repeat-1.json'))
+        assert len(rows)==1, 'Expected exactly one frozen title result'
+        with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as response:
+            models=json.load(response)['models']
+        model=next(m for m in models if m.get('name')==os.environ['RUN_TEXT_MODEL'] or m.get('model')==os.environ['RUN_TEXT_MODEL'])
+        digest=model['digest']
+        assert digest and '\n' not in digest
+        with open(os.environ['GITHUB_ENV'],'a') as env:
+            env.write('LINYUAN_TITLE_HANDOFF='+str(rows[0].resolve())+'\n')
+            env.write('LINYUAN_TITLE_HANDOFF_MODEL_DIGEST='+digest+'\n')
+        PY
     - name: 真实出片模拟（每个素材首条合格成片后停止）
       id: render
       env:

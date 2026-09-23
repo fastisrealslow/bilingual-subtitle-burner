@@ -123,7 +123,12 @@ def test_workflow_cannot_publish_or_mutate_production():
     assert render['env']['TEXT_BACKEND']=='local'
     assert render['env']['SOURCE_EDITORIAL_FIRST']=='true'
     assert 'simulate_sources.py run' in render['run']
-    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile','recovery_run_id','output_layout','landscape_style'}
+    assert set(workflow['on']['workflow_call']['inputs'])=={'sample_ids','manifest_path','content_policy','visual_chapters','text_model','title_draft_profile','recovery_run_id','output_layout','landscape_style','title_handoff_run_id','title_handoff_artifact'}
+    for field in ('title_handoff_run_id','title_handoff_artifact'):
+        assert workflow['on']['workflow_call']['inputs'][field]['default']==''
+    handoff=next(s for s in simulate['steps'] if 'TITLE_HANDOFF_RUN' in s.get('env',{}))
+    assert handoff['if']=="inputs.title_handoff_run_id != ''"
+    assert "['gh','run','download'" in handoff['run']
     assert workflow['on']['workflow_call']['inputs']['output_layout']['default']=='auto'
     assert workflow['on']['workflow_call']['inputs']['landscape_style']['default']=='classic'
     producer=next(s for s in simulate['steps'] if 'simulate_sources.py run --source' in s.get('run',''))

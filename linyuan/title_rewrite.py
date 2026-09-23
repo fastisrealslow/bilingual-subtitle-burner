@@ -156,6 +156,14 @@ def reading_schema(unit_count, answer_focus=False, units=None):
         c_guest_spans=dict(type='array',minItems=1,maxItems=unit_count,
         items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)))
     if answer_focus:
+        # A short span list repeatedly omitted the antecedent of “这两个行业”
+        # (real run 35850815645). Account for every complete sentence, without
+        # silently turning unlabelled text into guest speech.
+        fields.pop('c_guest_spans')
+        sentence_roles={f'u{i:04d}':dict(type='string',enum=['host','guest','unknown'])
+                        for i in range(unit_count)}
+        fields['c_sentence_roles']=dict(type='object',additionalProperties=False,
+            required=list(sentence_roles),properties=sentence_roles)
         # Run 35844419694 confused a list of main-answer IDs with the first
         # cue of every paragraph, including incomplete tails. Ask for one
         # actual claim in words; bind it back to cues ourselves, before drafts.
@@ -201,6 +209,16 @@ def bind_reading(reading, units):
             or not 12<=len(compact(reading.get('a_guest_answer')))<=240
             or len(compact(reading.get('b_question_premise')))<4):
         raise ValueError('先分别读清嘉宾实际回答与主持人的问题前提，不能直接凭关键词写标题')
+    if 'c_sentence_roles' in reading:
+        mapping=reading['c_sentence_roles']
+        expected=[f'u{i:04d}' for i in range(len(units))]
+        if (not isinstance(mapping,dict) or set(mapping)!=set(expected)
+                or any(mapping[k] not in ('host','guest','unknown') for k in expected)):
+            raise ValueError('完整句子的说话人必须逐句核对；不能遗漏、猜补或改变编号')
+        roles=[mapping[k] for k in expected]
+        if 'guest' not in roles:
+            raise ValueError('完整阅读未确认任何嘉宾回答')
+        return roles
     spans=reading.get('c_guest_spans')
     if not isinstance(spans,list) or not spans:
         raise ValueError('必须找出能够明确归属嘉宾的实际回答，不能只列主持人的提问')
@@ -953,7 +971,16 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     reading=None;roles=None
     main_ids=[]
     if answer_focus:
-        reader_prompt+='\n这些编号是原话连续句，显示换行已合并，文字一个未改。先读到全文结尾，再判断问题究竟在问什么，以及哪些话是回答、理由、例子或后续补充。主要回答不一定在开头；不能看到首个原因就停止阅读。\n最后在d_main_answer_quote选择一段最直接回答主要问题的完整连续嘉宾原话，保留它的否定、条件和语气。可选择的精确原句如下（包括主持人原句，仍须先确认归属；不能改写，不能用举例代替回答）：\n'+json.dumps(main_answer_quotes(units),ensure_ascii=False)
+        reader_prompt=f'''完整阅读这段访谈，主讲嘉宾是{speaker}。此时不拟标题、不评价吸引力。
+显示换行已合并到原有句末，文字一个未改。先读到全文结尾，区分问题、回答、理由与举例。
+先在a_guest_answer用最多三句说清嘉宾实际回答的主要判断与限定，b_question_premise说明主持人问什么、哪些前提嘉宾没有确认；无主持人则写无主持人提问。主要回答不一定在开头。
+然后在c_sentence_roles逐句标出说话人：guest仅指{speaker}本人，host是提问者、主持人或其他嘉宾，unknown表示不能确认。每个u编号都要判断，不只标主要回答；明确的其他回答、理由和例子也须按说话人保留，不能因不适合做标题就省略。
+主持人提问的背景、假设和复述仍是主持人；嘉宾短答不等于确认全部前提。相邻句可能属于同一人，不因问号就换人；不清楚时保留unknown，不能猜身份。
+以下编号已有明确提问或其他嘉宾轮次证据，不能作为{speaker}原话：{host_ids}。其他编号仍须独立判断。
+最后在d_main_answer_quote选一段最直接回答主要问题的连续原句，保留否定、条件和语气。不能用例子代替回答，也不能改写原句。选出的原句必须属于已确认的guest。
+完整原文：{json.dumps({f'u{i:04d}':u for i,u in enumerate(units)},ensure_ascii=False)}
+精确原句选项（包含主持人原句，并不代表归属已确认）：{json.dumps(main_answer_quotes(units),ensure_ascii=False)}
+仅输出JSON。'''
     reading_repair_note=''
     def fallback():
         if answer_focus:

@@ -1,4 +1,4 @@
-name: 主要回答原句选择：合并显示短行并提供完整原句选项
+name: 主要回答逐句归属与独立标题交接实片验证
 'on':
   push:
     branches:
@@ -14,8 +14,9 @@ name: 主要回答原句选择：合并显示短行并提供完整原句选项
         type: string
 permissions:
   contents: read
+  actions: read
 concurrency:
-  group: linyuan-title-exact-quotes
+  group: linyuan-title-complete-sentence-roles
   cancel-in-progress: true
 env:
   TEXT_BACKEND: local
@@ -85,7 +86,7 @@ jobs:
         message\") or {}).get(\"content\")'\n"
     - name: 重放实片的同一份完整字幕，不计出片成绩
       run: python -u scripts/title_batch_cpu.py --case "${{ matrix.case }}" --repeat
-        1 --corpus linyuan/simulations/benchmark-20260921/content-stage-corpus.json
+        1 --occasion '' --corpus linyuan/simulations/benchmark-20260921/content-stage-corpus.json
         --model "${{ matrix.variant.model }}" --draft-profile "${{ matrix.variant.profile
         }}"
     - uses: actions/upload-artifact@v4
@@ -102,3 +103,16 @@ jobs:
     env:
       RUN_TEXT_MODEL: ${{ matrix.variant.model }}
       LOCAL_LLM_MODEL: ${{ matrix.variant.model }}
+  render8:
+    needs: batch
+    if: contains(fromJSON(inputs.case_ids || '[3,4,5,6]'), 3)
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '8'
+      content_policy: reference_v1
+      title_draft_profile: answer_focus
+      recovery_run_id: '35844419974'
+      title_handoff_run_id: ${{ github.run_id }}
+      title_handoff_artifact: source-choices-8b-3
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
