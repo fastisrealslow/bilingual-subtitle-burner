@@ -1634,7 +1634,7 @@
     "completed_reports_at_update": 17,
     "automatic_passes_at_update": 2,
     "rejected_at_update": 13,
-    "note": "首次固定17条全部返回：2条自动生成、13条拒绝、2条运行未确定（311转写异常、316标题归属未确认）。首次2/17=11.76%；后续修复312后累计3/17单列，不改写首次结果。尚无编辑通过率结论。",
+    "note": "首次固定17条全部返回：2条自动生成、13条拒绝、2条运行未确定。首次2/17=11.76%；312身份取景及311声道修复后的累计恢复另列为4个来源，不改写首次结果。315虽恢复成片但与已有68内容重复，不计新增可用内容。尚无编辑通过率结论。",
     "unresolved_at_update": 2,
     "pending_at_update": 0,
     "rows": [
@@ -2260,8 +2260,8 @@
   "source_choices_video_trial": {
     "run_id": "35837686332",
     "tested_sha": "b153d54fc0cc824a9496342c1d7b5e9578cd4b49",
-    "status": "in_progress",
-    "note": "17已经完整出片，修复了上一轮的短句入口失败，标题为听说光伏影响环境；79尚未返回。文本测试和完整成片分别列出，不外推100条成功率。",
+    "status": "completed",
+    "note": "17和79均完整出片。79的本人表态标题与前两轮纯标题结果一致，17保留听说。两条均有字幕与画面问题，不等于编辑通过，也不回填100条批次。",
     "media": [
       {
         "id": 17,
@@ -2275,6 +2275,19 @@
         "file": "source-choices-video-35837686332/simulation-media-sim-0916-017-bd1d98/final_1.mp4",
         "poster": "source-choices-video-35837686332/simulation-media-sim-0916-017-bd1d98/cover_1.jpg",
         "note": "20.9秒完整问答，保留听说；已核对SHA、完整音视频解码、六帧及所有ASS。比旧的口吃长标题清楚，但人物画面占比仍小，字幕出现林／总断词及重复。断词已另修，此视频仍展示实际旧缺陷，未编辑放行。"
+      },
+      {
+        "id": 79,
+        "title": "林园：我们锁定医药赛道，别的不搞",
+        "cover_title": "我们锁定医药赛道，别的不搞",
+        "sha256": "fdef9ebebf9b8906748cf61c6920efc39ac977e1a079e1307e82ae0da209ad2d",
+        "source_sha256": "8749fee3a7345c3e1c2fe2e14fc0b33d33d66829f5ff48a25ca6f6daee5ae41f",
+        "duration": 194.7,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "source-choices-video-35837686332/simulation-media-sim-0916-079-e9db06/final_2.mp4",
+        "poster": "source-choices-video-35837686332/simulation-media-sim-0916-079-e9db06/cover_2.jpg",
+        "note": "194.7秒实片已经采用“我们锁定医药赛道，别的不搞”，与两轮纯标题实验一致；原文有明确个人选择，避免旧人口预测范围被改写。完整解码、六帧及全部ASS已查。字幕仍有符合／复合等识别疑点、五／接近五亿的断句，人物窗口偏小；未编辑放行。"
       }
     ]
   },
@@ -2290,6 +2303,33 @@
       "verification_file": "source-choices-video-35837686332/media-verification.json",
       "sha256": "fd5ffe7cceb796094ecb60cb9977193892dadbdad282dc757076bc186646db11",
       "comparison": "20.9秒完整问答，保留听说；已核对SHA、完整音视频解码、六帧及所有ASS。比旧的口吃长标题清楚，但人物画面占比仍小，字幕出现林／总断词及重复。断词已另修，此视频仍展示实际旧缺陷，未编辑放行。"
+    },
+    {
+      "id": 79,
+      "verification_file": "source-choices-video-35837686332/media-verification.json",
+      "sha256": "fdef9ebebf9b8906748cf61c6920efc39ac977e1a079e1307e82ae0da209ad2d",
+      "comparison": "194.7秒实片已经采用“我们锁定医药赛道，别的不搞”，与两轮纯标题实验一致；原文有明确个人选择，避免旧人口预测范围被改写。完整解码、六帧及全部ASS已查。字幕仍有符合／复合等识别疑点、五／接近五亿的断句，人物窗口偏小；未编辑放行。"
     }
-  ]
+  ],
+  "channel_source_trial": {
+    "run_id": "35835448194",
+    "tested_sha": "de8e37d2a96570b55c9f365c5a205f7800c68ad4",
+    "status": "completed",
+    "note": "同一母片保留原始左声道后，138.49秒实际出片。完整音视频解码、六帧和所有ASS已查，成片音轨为单声道。开头“但在你那里”缺少前提，之后混合两轮问答；新选段规则已补提问背景并拆出后一轮，等待新实片。仍有口吃和源角标，未编辑放行。",
+    "media": [
+      {
+        "id": 311,
+        "title": "林园：股价高低难预测，但便宜就买",
+        "cover_title": "股价高低难预测，便宜就买",
+        "sha256": "9f419b2a7f9769418c22db9ab083fe68569c937bca8bf88f73ced31c7d7f5678",
+        "source_sha256": "753efbca9d8f40551bf32b7b02a74c9185be33ab411499e91571b4547f530da0",
+        "duration": 138.46666666666667,
+        "video_audio_full_decode": true,
+        "editorial_approved": false,
+        "file": "channel-source-35835448194/simulation-media-library-0923-011-f9c5ca/final_3.mp4",
+        "poster": "channel-source-35835448194/simulation-media-library-0923-011-f9c5ca/cover_3.jpg",
+        "note": "同一母片保留原始左声道后，138.49秒实际出片。完整音视频解码、六帧和所有ASS已查，成片音轨为单声道。开头“但在你那里”缺少前提，之后混合两轮问答；新选段规则已补提问背景并拆出后一轮，等待新实片。仍有口吃和源角标，未编辑放行。"
+      }
+    ]
+  }
 }

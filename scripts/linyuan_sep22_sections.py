@@ -150,6 +150,7 @@ def latest_library():
                       ('source_choices_video_trial','原话标题进入完整视频：实片复验'),
                       ('multi_guest_finding','素材8：多嘉宾原声归属修复后的实片'),
                       ('channel_trial','311原声修复：听同一个片段'),
+                      ('channel_source_trial','311保留原始左声道后的完整实片'),
                       ('sep23_full100_trial','9月23日固定100条完整复验')]:
         row=review.get(key)
         if row:

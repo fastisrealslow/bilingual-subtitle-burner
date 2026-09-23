@@ -1,4 +1,4 @@
-name: 素材311保留原始左声道后的完整出片复验（不投稿）
+name: 素材311恢复提问前提并拆分完整问答后的实片复验（不投稿）
 on:
   push:
     branches: [codex/linyuan-reliability-packaging]
@@ -14,5 +14,7 @@ jobs:
       sample_ids: '311'
       manifest_path: simulations/library17-20260923.json
       content_policy: reference_v1
+      title_draft_profile: source_choices
+      recovery_run_id: '35835448194'
     secrets:
       BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

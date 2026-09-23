@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 37
+VERSION = 38
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -119,6 +119,28 @@ TOPIC_ANCHORS = (
 )
 NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来谈谈|来聊聊|但我们今天采访')
 SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值|波段|短线')
+HOST_PREMISE = re.compile(
+    r'^(?:(?:但是|但|那么|那|嗯|呃)[，,、 ]?)*'
+    r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
+    r'(?:在)?我们看到(?:你|您)(?:整个的|的)(?:投资|经历|选择))')
+BACKREF_QUESTION = re.compile(r'^(?:这{1,2}|那{1,2})(?:一)?点(?:是)?(?:怎么|如何)[^。！？?]{0,40}[？?]')
+
+
+def host_premise_start(units, cues, question, lower=0):
+    """Recover an explicit addressed premise, never invent an antecedent.
+
+    Source311 starts a selected question with “但在你那里…是吗” after
+    dropping the host's 牛熊 premise. Its next “这一点是怎么做到的” is
+    another question only because a direct addressed host premise precedes it.
+    Bound the lookup by real sentence ends, time, and intervening questions.
+    """
+    for i in range(question - 1, max(lower, question - 3) - 1, -1):
+        if (cues[units[question]['start']]['start']-cues[units[i]['start']]['start']>30
+                or question_unit(units[i]['text'])):
+            break
+        if HOST_PREMISE.search(units[i]['text']):
+            return i
+    return None
 
 
 def promotional_cta(text):
@@ -275,6 +297,12 @@ def boundary_error(cues,pick):
     from speaker_attribution import selection_error
     attribution_error=selection_error(cues,pick)
     if attribution_error:return attribution_error
+    full_units=sentence_units(cues)
+    for q,u in enumerate(full_units):
+        if u['start']!=pick['start']:continue
+        if (question_unit(u['text']) or BACKREF_QUESTION.search(u['text'])) and host_premise_start(full_units,cues,q) is not None:
+            return '选段省略了主持人明确的提问前提；须从原始背景句开始，不以指代问题开场'
+        break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
     if declared_investment_sections(units,selected):
@@ -300,7 +328,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
               or i>0 and PROMOTIONAL_REINTRO.search(u['text'])),len(units))
     natural_end=(end<len(units) or bool(whole_source and units and units[-1]['end']==len(cues)-1))
     units=units[:end]
-    questions=[i for i,u in enumerate(units) if question_unit(u['text'])]
+    questions=[i for i,u in enumerate(units) if question_unit(u['text'])
+               or BACKREF_QUESTION.search(u['text']) and host_premise_start(units,cues,i) is not None]
     # Adjacent questions from the same interviewer turn belong together.
     starts=[i for k,i in enumerate(questions) if k==0 or
             (i>questions[k-1]+1 and not all(re.search(r'[？?]$',units[t]['text'])
@@ -315,6 +344,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     handoff_cues={row['cue'] for row in named_handoffs([c['text'] for c in cues])}
     for k,q in enumerate(question_starts):
         lower=(question_starts[k-1]+1 if k else 0)
+        premise=host_premise_start(units,cues,q,lower)
+        if premise is not None:starts[k]=premise
         for t in range(max(lower,q-3),q):
             if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
                 starts[k]=t;break
