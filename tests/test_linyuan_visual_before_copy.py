@@ -11,6 +11,7 @@ import live_tracking
 @pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', 'static_window',
                                    'repaired_corner', 'unclean_repair', 'moving_corner', None])
 def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path, failure):
+    monkeypatch.setenv('LINYUAN_STATIC_CORNER_REPAIR','1')
     calls = []
     monkeypatch.setattr(p, 'argument_record_for_render', lambda *a: {})
     monkeypatch.setattr(p, 'selected_native_clean_plan', lambda *a: None)

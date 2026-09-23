@@ -5478,7 +5478,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             try:
                 verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
             except VisualQualityError as exc:
-                if not str(exc).startswith('真人动态区仍有稳定来源角标：'):
+                if (os.environ.get('LINYUAN_STATIC_CORNER_REPAIR', '0') != '1'
+                        or not str(exc).startswith('真人动态区仍有稳定来源角标：')):
                     raise
                 from static_corner_repair import source_exclusions
                 ocr_path=tracked.parent/'_tmp'/('live-region-'+tracked.stem)/'corner_ocr.json'

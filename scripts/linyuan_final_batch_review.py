@@ -123,6 +123,7 @@ def returned_layout_trial(row, player):
 def focused_revision(row, player):
     notes = read(RECORDS / 'focused-final-review.json', {})
     for folder, commit in (
+        ('quote-framing-recheck-35918417208', '6f9a260d833ee29b1c53fdc621fa416a61bd2c31'),
         ('source34-reaction-35912591408', 'e239134c742c567241b979da01cc9b9f656afcad'),
         ('source13-title-render-35913230331', '4260fcdb692c324de78c19b5b1876e430138b15d'),
         ('source8-58-quotes-35913668238', '63462f1d024fe4b3d5e4163f65a433c9e29aaeab'),
@@ -131,7 +132,9 @@ def focused_revision(row, player):
         for revised in read(OUT / folder / 'media-verification.json', []):
             if revised['id'] != row['id'] or not revised.get('video_audio_full_decode'):
                 continue
-            if revised['sha256'] not in notes:
+            cover_path = ROOT/revised['cover']
+            review_key = str(revised['run_id'])+':'+revised['sha256']+':'+hashlib.sha256(cover_path.read_bytes()).hexdigest()
+            if review_key not in notes:
                 continue
             if revised['tested_sha'] != commit or revised['source_sha256'] != row['source_sha256']:
                 raise ValueError('Focused revision does not match this source')
@@ -139,7 +142,7 @@ def focused_revision(row, player):
                 +player(os.path.relpath(ROOT/revised['file'], OUT), os.path.relpath(ROOT/revised['cover'], OUT),
                         f"专项新版完整实片 · {revised['duration']:.1f}秒")
                 +'<p><b>实际标题：</b>'+esc(revised['title'])+'</p><p><b>实际封面字：</b>'+esc(revised['cover_title'])+'</p>'
-                +'<p>'+esc(notes[revised['sha256']])+'</p>'
+                +'<p>'+esc(notes[review_key])+'</p>'
                 +'<p class="small">运行 '+esc(revised['run_id'])+'，代码 '+esc(commit[:7])
                 +'。同素材后续优化，不追加到冻结100条的出片数。</p>')
     return ''
@@ -206,6 +209,7 @@ def section(reference_media, player):
     media = read(RESULTS / 'media-verification.json', [])
     plans = {r['source_id']: r for r in read(RECORDS / 'all-output-editorial-directions.json', [])}
     notes = read(RECORDS / 'final100-editorial-review.json', {})
+    actions = read(RECORDS / 'final100-editorial-actions.json', {})
     references = {r['bvid']: r for filename in ('references-20.json', 'references-latest-sep23.json')
                   for r in read(RECORDS / filename, {'rows': []})['rows']}
     samples = summary.get('samples', [])
@@ -245,6 +249,15 @@ def section(reference_media, player):
                 current.append('<p><b>本稿逐项检查：</b>'+esc(note)+'</p>')
             else:
                 current.append('<p class="warning">本稿的标题、封面和完整语义尚未完成编辑复核；不能算质量通过。</p>')
+            action = actions.get(row['sha256'])
+            if action:
+                if action.get('source_id') != row['id']:
+                    raise ValueError('Editorial proposal belongs to another final')
+                current.append('<details><summary>这条还可以怎么改 · 标题、封面、内容</summary>'
+                    +'<p><b>标题方向：</b>'+esc(action['title_direction'])+'</p>'
+                    +'<p><b>封面判断：</b>'+esc(action['cover_assessment'])+'</p>'
+                    +'<p><b>下一步：</b>'+esc(action['next_edit'])+'</p>'
+                    +'<p class="small">这是针对本稿的编辑方案；尚未出实片的改动不算已完成，吸引力也未经点击率实验验证。</p></details>')
             current.append(title_trials(row))
             current.append(answer_subject_trials(row))
             current.append(independent_audio_trials(row))

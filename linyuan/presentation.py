@@ -265,6 +265,23 @@ def cover_headline(title, speaker='林园', max_lines=2):
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
     if len(clauses)==2 and all(len(part)<=9 for part in clauses):
         return clauses
+    if max_lines>=3 and len(clauses)==2 and sum(len(part)>9 for part in clauses)==1:
+        # Keep the actual clause boundary in source46's quote. Balancing the
+        # entire text put the next clause's "你" at the end of the first line.
+        lines=[]
+        for part in clauses:
+            if len(part)<=9:
+                lines.append(part)
+                continue
+            cuts=[b for _,b in word_spans(part) if b<len(part)
+                  and max(b,len(part)-b)<=9]
+            if not cuts:
+                break
+            cut=min(cuts,key=lambda b:(bool(re.search(r'(?:你|我|他|她|要|是|的|把|被)$',part[:b])),
+                                       abs(b-len(part)/2)))
+            lines.extend([part[:cut],part[cut:]])
+        if len(lines)==3:
+            return lines
     # Actual source42 quote was balanced into "垄断了好我有 / 定价权我说了算".
     # Preserve its complete clauses before trying character-balanced breaks.
     if len(clauses)==3 and all(3<=len(part)<=9 for part in clauses):

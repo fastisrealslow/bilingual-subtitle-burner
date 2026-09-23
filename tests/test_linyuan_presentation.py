@@ -498,3 +498,12 @@ def test_actual_medicine_quote_cover_keeps_sector_name_whole():
         lines=V.cover_headline(text,max_lines=count)
         assert "".join(lines)==text
         assert any("中药板块" in line for line in lines)
+
+
+def test_long_second_clause_does_not_move_its_subject_to_the_previous_line():
+    title='林园：你要是个投资家，你要首先是一个观察家'
+    lines=V.cover_headline(title,max_lines=3)
+    assert lines==['你要是个投资家','你要首先','是一个观察家']
+    assert ''.join(lines)==title.split('：',1)[1].replace('，','')
+    assert max(map(len,lines))<=9
+    assert len(V.cover_headline(title,max_lines=2))==2
