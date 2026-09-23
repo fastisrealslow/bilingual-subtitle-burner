@@ -1,0 +1,21 @@
+name: 34号完整心情问答：保留亏钱不高兴原话（不投稿）
+permissions:
+  contents: read
+  actions: read
+jobs:
+  focused:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '34'
+      content_policy: reference_v1
+      title_draft_profile: production
+      recovery_run_id: '35902748400'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+'on':
+  push:
+    branches:
+    - codex/linyuan-impression-title-check
+    paths:
+    - .github/workflows/linyuan-source34-reaction-check.yml
+  workflow_dispatch: null
