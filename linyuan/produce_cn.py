@@ -3793,11 +3793,15 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     # 没有核验时间时才退回原来的段内多帧策略。
     frames = []
     lo=max(0,seg_start);hi=max(lo,seg_end-.1)
+    ignored_preferred_time=None
+    if preferred_time is not None and not lo<=preferred_time<=hi:
+        ignored_preferred_time=preferred_time
+        preferred_time=None  # Whole-mother identity time is not this clip's time.
     center=min(hi,max(lo,preferred_time)) if preferred_time is not None else mid
     offsets=(-.6,0,.6) if preferred_time is not None else tuple(
         p*(seg_end-seg_start) for p in (-.3,-.2,-.1,0,.1,.2,.3))
     sample_times=sorted({min(hi,max(lo,center+d)) for d in offsets})
-    for idx, t in enumerate(sample_times):
+    def extract_frame(t, idx):
         fp = tmp.with_suffix(f".{idx}.png")
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
                "-i", str(src)]
@@ -3807,7 +3811,10 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         cmd += ["-frames:v", "1", str(fp)]
         subprocess.run(cmd,
                        check=True, capture_output=True)
-        if fp.exists():
+        return fp if fp.exists() else None
+    for idx, t in enumerate(sample_times):
+        fp = extract_frame(t, idx)
+        if fp is not None:
             frames.append(fp)
 
     if not frames:
@@ -3816,7 +3823,43 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     if remaining:
         raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
 
-    best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+    initial_identity_error=None
+    try:
+        best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+    except VisualQualityError as exc:
+        if '未找到与林园参考照匹配的人脸' not in str(exc):
+            raise
+        initial_identity_error=exc
+        identity_proof={}
+    # The identity frame can catch a blink or motion blur. If its three nearby
+    # frames are all blurred, search a bounded set across this same selected
+    # clip before falling back to a generic reference portrait. Every extra
+    # frame still passes the original source-text and face-identity gates.
+    if identity_proof.get('sharpness', 0) < 60:
+        extra_times=[lo+(hi-lo)*fraction for fraction in (.10,.25,.40,.55,.70,.85,.95)
+                     if all(abs(lo+(hi-lo)*fraction-t)>.75 for t in sample_times)]
+        clean_extra=[]
+        for idx,t in enumerate(extra_times):
+            try:
+                fp=extract_frame(t,'wide-'+str(idx))
+            except subprocess.CalledProcessError:
+                continue  # An optional sample cannot invalidate the original.
+            if fp is None:continue
+            if detect_corner_logos_in_images([fp]):
+                fp.unlink(missing_ok=True)
+                continue
+            clean_extra.append(fp)
+        if clean_extra:
+            frames.extend(clean_extra)
+            best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+            initial_identity_error=None
+        if initial_identity_error is not None:
+            raise initial_identity_error
+        identity_proof={**identity_proof,'wide_sampling_attempted':True,
+            'wide_sample_times':extra_times,'wide_clean_frame_count':len(clean_extra),
+            'sharpness_floor_unchanged':60}
+    if ignored_preferred_time is not None:
+        identity_proof={**identity_proof,'ignored_out_of_segment_time':ignored_preferred_time}
     Path(str(out_path)+'.identity.json').write_text(
         json.dumps(identity_proof,ensure_ascii=False,indent=2))
 

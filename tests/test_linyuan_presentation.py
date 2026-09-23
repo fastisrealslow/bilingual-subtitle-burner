@@ -65,6 +65,16 @@ def test_actual_308_cover_keeps_predicate_whole_without_losing_words():
     assert V.cover_headline('母亲用片仔癀，不敢乱给她吃',max_lines=3)==['母亲用片仔癀','不敢乱给她吃']
 
 
+def test_actual_42_quote_keeps_three_complete_clauses_and_two_line_fallback():
+    text='垄断了好，我有定价权，我说了算'
+    assert V.cover_headline(text,max_lines=3)==['垄断了好','我有定价权','我说了算']
+    assert V.cover_headline(text)==['垄断了好','我有定价权我说了算']
+    for count in (2,3):
+        lines=V.cover_headline(text,max_lines=count)
+        assert ''.join(lines)==text.replace('，','')
+        assert not any(line.endswith('我有') for line in lines)
+
+
 def test_three_line_cover_requires_real_nonoverlapping_text_area(tmp_path):
     from PIL import Image
     image=Image.new('RGB',(1280,720))

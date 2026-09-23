@@ -87,6 +87,9 @@ def build_all_output_review(reference_media, player):
     fresh_rows=read(ROOT/'output/replacement100-35887065004/results/media-verification.json',[])
     caption_replays=read(OUT/'verified-caption-35891979620/media-verification.json',[])
     focused_replays=read(OUT/'source42-focused-35896658093/media-verification.json',[])
+    preferred_focused={r['id']:r for folder in ('source42-quote-35900471003','source99-focused-35901097631')
+                       for r in read(OUT/folder/'media-verification.json',[])
+                       if r.get('video_audio_full_decode')}
     caption_cleanup=read(OUT/'source32-caption-cleanup-sep24/review.json',{})
     fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
     caption_rows=read(RECORDS/'all-output-caption-review.json',[])
@@ -180,11 +183,18 @@ def build_all_output_review(reference_media, player):
             +('；'+esc(meta['cover_fallback_reason']) if meta.get('cover_fallback_reason') else '')+'</p>')
         drafts=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])
         improved=next((r['rendered_media'] for r in drafts if r.get('rendered') and case['source_id'] in (17,32)),None)
+        focused=preferred_focused.get(case['source_id'])
+        if focused:
+            if focused['source_sha256']!=case['source_sha256']:
+                raise ValueError('Focused replacement belongs to different source bytes')
+            improved=focused
         if improved:
             latest=player(os.path.relpath(ROOT/improved['file'],OUT),os.path.relpath(ROOT/improved['cover'],OUT),
                           f"本条最新标题实片 · {improved['duration']:.1f}秒 · {improved['tested_sha'][:7]}")
             latest+='<p class="copy-title">'+esc(improved['title'])+'</p><p>实际封面字：'+esc(improved['cover_title'])+'</p>'
-            latest+='<p class="small">标题有具体改善，整片仍有待处理问题；不作为新增出片数。</p>'
+            latest+='<p class="small">选段或标题有具体改善，整片仍有待处理问题；不作为新增出片数。</p>'
+            if focused:
+                latest+='<p>'+esc(fresh_notes.get(focused['sha256'],'此版尚未完成编辑复核。'))+'</p>'
             original=latest+'<details><summary>查看本轮冻结前的实际版本</summary>'+original+'</details>'
         return original+model_copy(case)+layout_trial(case)
 
@@ -193,6 +203,7 @@ def build_all_output_review(reference_media, player):
         selected=next((r for r in cases if r['source_run_id']==preferred.get(ident)),cases[0])
         displayed=next((r for r in rendered_copies if r['id']==ident and ident in (17,32)
                         and r.get('video_audio_full_decode')),None)
+        displayed=preferred_focused.get(ident,displayed)
         index_rows.append('<tr><td><a href="#all-source-'+str(ident)+'">'+str(ident)+'</a></td>'
             +'<td>'+esc(displayed['title'] if displayed else selected['old_title'])+'</td>'
             +'<td>'+esc(displayed['cover_title'] if displayed else selected['old_cover'])+'</td>'
@@ -240,8 +251,8 @@ def build_all_output_review(reference_media, player):
         quote='\n'.join(f"原素材 {c['start']:.2f}–{c['end']:.2f}秒：{c['text']}" for c in evidence)
         cards.append('<article class="threeway-card" id="all-source-'+str(ident)+'"><h3>素材 '+str(ident)
             +' · '+str(len(cases))+' 个实际版本</h3><div class="threeway-grid"><div>'+old+'</div><div>'+current
-            +'</div><div>'+reference+'</div></div><p><b>标题问题：</b>'+esc(plan['title_problem'])+'</p>'
-            +'<p><b>封面问题：</b>'+esc(plan['cover_problem'])+'</p><div class="review-note">'
+            +'</div><div>'+reference+'</div></div><p><b>冻结版本的标题问题：</b>'+esc(plan['title_problem'])+'</p>'
+            +'<p><b>冻结版本的封面问题：</b>'+esc(plan['cover_problem'])+'</p><div class="review-note">'
             +'<b>待验证改稿 · 尚未烧入视频</b><p>标题：'+esc(plan['proposed_title'])+'</p>'
             +'<p>封面：'+esc(plan['proposed_cover'])+'</p><p>其他解法：'+esc(plan['next_edit'])+'</p>'
             +'<p>向参考靠近的地方：'+esc(plan['why_closer'])+'</p></div>'
@@ -254,10 +265,12 @@ def build_all_output_review(reference_media, player):
         model_run_id=35881680084,model_results_imported=len(model_rows),
         fixed_copy_layouts=list(layout_rows.values()),audio_crosschecks=audio_rows,
         fresh_full100_outputs=fresh_rows,verified_caption_replays=caption_replays,
+        focused_replays=focused_replays,preferred_focused_outputs=list(preferred_focused.values()),
+        caption_cleanup=caption_cleanup,
         quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
     return ('<section id="all-outputs"><h2>全部成片逐条改：标题、封面与内容</h2>'
         '<p class="note">新一轮完整100条回归（e1ac6a6）正在运行：<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35887065004">查看全部作业</a>。此前17/100属于旧87a0099整轮结果，不能当作新代码已经验证的成绩；专项标题和排版不加进分子。</p>'
-        '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个实际版本、22个素材编号。95与99仍为重复内容；同素材不同版本也不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。下方建议稿不是模型实测成绩，也尚未烧入视频；没有把它们算成编辑合格。</p>'
+        '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个冻结版本、22个素材编号；新回归和专项实片另列。冻结批次95与99重复，新回归改选后的内容另行去重。同素材不同版本不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。已完成的42、99号聚焦版优先展示；下方其他建议稿不冒充实测成绩。</p>'
         '<p>18字以内不是必须凑满：能独立理解的个人选择可以更短。金句须有具体对象、真实态度和完整条件；强烈发言可以保留，不能改造出盈利保证。</p>'
         '<details><summary>素材去重与历史成片：为什么不能只数链接和文件</summary>'
         '<p>3、23、24、45、89号是高度重合的同场采访，来自5个链接。23号历史三片已与当前母片逐段核对原声；89号只有第3片完成匹配，另两片仍不能恢复历史区间。这不是5份新增可用内容，也未解除发布去重。</p>'

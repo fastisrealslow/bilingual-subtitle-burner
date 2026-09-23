@@ -264,6 +264,15 @@ def cover_headline(title, speaker='林园', max_lines=2):
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
     if len(clauses)==2 and all(len(part)<=9 for part in clauses):
         return clauses
+    # Actual source42 quote was balanced into "垄断了好我有 / 定价权我说了算".
+    # Preserve its complete clauses before trying character-balanced breaks.
+    if len(clauses)==3 and all(3<=len(part)<=9 for part in clauses):
+        if max_lines>=3:
+            return clauses
+        clause_pairs=[[''.join(clauses[:i]),''.join(clauses[i:])] for i in (1,2)]
+        clause_pairs=[pair for pair in clause_pairs if max(map(len,pair))<=9]
+        if clause_pairs:
+            return min(clause_pairs,key=lambda pair:abs(len(pair[0])-len(pair[1])))
     text=''.join(clauses)
     initial=wrap_words(text,9)
     if len(initial)==1:return initial
