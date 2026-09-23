@@ -71,6 +71,19 @@ def validate_manifest(manifest):
         assert all(re.fullmatch(r'seed-accept-[a-f0-9]{12}', r['slug']) for r in rows)
         assert manifest.get('source_preflight_run_id')
         assert all(r.get('source_preflight_sha256') for r in rows)
+    elif kind == 'new_library_acceptance':
+        assert 1 <= len(rows) <= 20, 'New-library acceptance batches must remain bounded'
+        assert manifest.get('denominator') == len(rows), 'Keep every discovered eligible source in the denominator'
+        assert all(re.fullmatch(r'library-0923-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
+        audit_path=(BASE / manifest['library_snapshot']).resolve()
+        assert BASE.resolve() in audit_path.parents
+        assert digest(audit_path)==manifest['library_snapshot_sha256'], 'Library snapshot changed'
+        audit=read(audit_path)
+        assert manifest['snapshot_main_sha']==audit['snapshot_main_sha']
+        assert manifest['discovery_cutoff_utc']==audit['discovery_cutoff_utc']
+        eligible=sorted(audit['new_eligible_candidates'],key=lambda r:source_key(r['url']))
+        assert len(rows)==audit['new_metadata_candidates_20s']==len(eligible)
+        assert [r['source_url'] for r in rows]==[r['url'] for r in eligible], 'Do not cherry-pick newly discovered sources'
     elif kind == 'source_library_acceptance':
         assert len(rows) == 20, 'Library acceptance uses a fixed 20-source denominator'
         assert all(re.fullmatch(r'library-0921-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)

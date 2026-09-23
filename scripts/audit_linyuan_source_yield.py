@@ -66,9 +66,15 @@ def grouped(rows, library, by_author=False):
 
 
 def main():
+    global OUT
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--snapshot-ref', help='Read this Git commit into the isolated audit folder, never production state')
+    parser.add_argument('--output', type=Path, default=OUT, help='Isolated snapshot/report directory')
+    parser.add_argument('--discovered-since', default='2026-09-20T16:00:00', help='UTC discovery cutoff, not recording date')
     args = parser.parse_args()
+    OUT = args.output.resolve()
+    datetime.fromisoformat(args.discovered_since)  # reject malformed cutoff before writing
+
     provenance_path = OUT / 'snapshot.json'
     if args.snapshot_ref:
         sha = subprocess.check_output(['git', 'rev-parse', '--verify', args.snapshot_ref+'^{commit}'], cwd=ROOT, text=True).strip()
@@ -132,7 +138,7 @@ def main():
     jobs = list(research.get('jobs', {}).values())
     # GitHub's Linux monitor emits naive UTC created_at. This is discovery time,
     # not recording time; publish_time may be a repost date.
-    new = [r for r in library if r.get('created_at', '') >= '2026-09-20T16:00:00']
+    new = [r for r in library if r.get('created_at', '') >= args.discovered_since]
     slim = lambda r: {k: r.get(k) for k in ('id', 'source', 'title', 'url', 'author', 'publish_time', 'created_at')}
     research_groups = {}
     for role in ('mother', 'reference'):
@@ -152,7 +158,7 @@ def main():
     result = dict(checked_at=datetime.now(timezone.utc).isoformat(),
         snapshot_main_sha=provenance['commit'],
         library_records=len(library), library_sources=dict(Counter(r['source'] for r in library)),
-        discovered_today=len(new), discovered_today_sources=dict(Counter(r['source'] for r in new)),
+        discovery_cutoff_utc=args.discovered_since, discovered_today=len(new), discovered_today_sources=dict(Counter(r['source'] for r in new)),
         new_records=[slim(r) for r in new], research_run=research['run_id'], research=research_groups,
         recent_media_attempts=sorted([dict(url=r['url'], role=r['role'], status=r['status'],
             checked_at=r.get('last_attempt_at'), evidence_run=r.get('evidence_run_id')) for r in jobs],

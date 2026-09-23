@@ -45,7 +45,7 @@ def reference_speech():
 
 
 def sections():
-    return latest_results()+title_trials()+followup_trials()+reference_speech()
+    return latest_results()+latest_library()+title_trials()+followup_trials()+reference_speech()
 
 
 def followup_trials():
@@ -112,4 +112,18 @@ def latest_results():
         body+='<h3>34号背景残字取景修复</h3><p>'+esc(row['note'])+'</p><p><a href="'+link(row['run_id'])+'">实际复验运行</a> · '+esc(row['status'])+'</p>'
     body+='<h3>舞台字幕：修掉单字一屏的分组漏洞</h3><p>同一68号原文从37个识别碎片重新分为25屏，保留文字与时间依据，18项相关测试通过。下方仅重烧前30秒字幕作显示诊断，原标题仍不合格；不是新一轮自动出片、不计成功数。预览使用本机Arial Unicode MS字体，生产使用Noto Sans CJK SC。</p>'
     body+='<div class="review-player"><video controls playsinline preload="none" data-src="stage68-captions-sep23/caption-only-preview.mp4" poster="stage68-captions-sep23/frame.jpg"></video><button type="button">播放字幕诊断片</button> <a href="stage68-captions-sep23/caption-only-preview.mp4" target="_blank" rel="noopener">单独打开</a><p class="small" role="status" aria-live="polite"></p></div>'
+    return body+'</section>'
+
+
+def latest_library():
+    path=RECORDS/'source-audit-sep23.json'
+    if not path.exists():return ''
+    d=json.loads(path.read_text())
+    body='<section id="latest-library"><h2>9月23日最新素材库：发现记录不等于可用母片</h2>'
+    body+='<p>线上快照 '+esc(d['snapshot_main_sha'][:7])+'：共 '+str(d['library_records'])+' 条记录，今天新发现 '+str(d['discovered_today'])+' 条；筛出 '+str(d['new_metadata_candidates_20s'])+' 条新发现、满足元数据准入条件的候选。已冻结全部17条另开完整出片验收；不拼进历史100，不把发现日期当录制日期。</p>'
+    body+='<p>整库按120秒门槛有 '+str(d['admission']['120']['candidate_count'])+' 条可尝试，按20秒门槛有 '+str(d['admission']['20']['candidate_count'])+' 条；这里只通过元数据筛选，没有保证画面、身份、字幕或成片合格。主线生产代码与原对照基线相同，期间14个素材／运行状态文件更新。</p>'
+    body+='<div class="table-scroll"><table><thead><tr><th>来源</th><th>固定100样本</th><th>首次自动出片</th><th>自动出片率</th></tr></thead><tbody>'
+    for row in d['fixed100_platforms']:
+        body+='<tr><td>'+esc(row['source'])+'</td><td>'+str(row['total'])+'</td><td>'+str(row['passed'])+'</td><td>'+str(row['percent'])+'%</td></tr>'
+    body+='</tbody></table></div><p class="small">这些是固定样本的自动出片统计，不是全平台可用率或编辑通过率；小样本不能代表来源质量。新发现17条独立验收的结果尚未出来。</p>'
     return body+'</section>'

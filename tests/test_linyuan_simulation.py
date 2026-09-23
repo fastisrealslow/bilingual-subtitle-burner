@@ -183,3 +183,17 @@ def test_acceptance_cannot_merge_best_results_across_diagnostics_or_revisions():
                         ('publication_snapshot_sha256','c'*64),('tested_sha',None)]:
         changed=[dict(base[0]),{**base[1],field:value}]
         with pytest.raises(ValueError):sim.aggregate(manifest,changed)
+
+
+def test_new_library_batch_keeps_all_seventeen_eligible_sources():
+    import copy
+    manifest=sim.read(sim.BASE/'simulations/library17-20260923.json')
+    assert len(sim.validate_manifest(manifest))==17
+    for change in ('drop','swap','cutoff','snapshot'):
+        broken=copy.deepcopy(manifest)
+        if change=='drop':
+            broken['samples'].pop();broken['denominator']=16
+        elif change=='swap':broken['samples'][0]['source_url']='https://www.bilibili.com/video/BV1xx411c7mD'
+        elif change=='cutoff':broken['discovery_cutoff_utc']='2026-09-20T00:00:00'
+        else:broken['library_snapshot_sha256']='0'*64
+        with pytest.raises(AssertionError):sim.validate_manifest(broken)
