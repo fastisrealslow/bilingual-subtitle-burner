@@ -3441,8 +3441,9 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
     compact = _title_text(title)
     normalized = re.sub(
         rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
-    if not 8 <= len(_title_text(normalized)) <= 52:
-        return "标题正文须8~52个有效字；完整短句不凑长度"
+    from headline_policy import copy_length_ok
+    if not copy_length_ok(normalized,52):
+        return "标题正文须4~52个有效字；短于8字须有完整对象和动作，不用残句或标签凑长度"
     if rewrite_proof is not None:
         from title_rewrite import error as rewrite_error
         problem=rewrite_error(title,rewrite_proof,transcript_text,speaker)
@@ -3456,10 +3457,12 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         return '标题存在口头残句、指代不明或语气词，不能独立理解'
     body = _title_text(normalized)
     transcript = _title_text(transcript_text)
-    if require_quote and len(body) >= 6:
-        # 允许删除口水词或合并相邻句，但至少要有一段 6 字原话可回溯。
-        if not any(body[i:i + 6] in transcript
-                   for i in range(max(1, len(body) - 5))):
+    if require_quote and len(body) >= 4:
+        # Four/five-character quotes must match in full; admitting short copy
+        # must never skip source traceability because the old window was six.
+        window=min(6,len(body))
+        if not any(body[i:i + window] in transcript
+                   for i in range(max(1, len(body) - window + 1))):
             return "标题缺少可回溯到所选字幕的连续原话"
     for previous in existing_titles or []:
         a, b = _title_text(previous), compact
@@ -3521,8 +3524,8 @@ def _title_style_prompt(prompt, schema, speaker):
 保留有辨识度的原话，但删掉“我不会说去卖”“这个那个”这种没有信息的绕口填充。
 仅在嘉宾确实说了自己选择时用“我”；不要每条都写为什么，不要研究报告腔或泛泛总结。
 事实只来自下方嘉宾字幕。不能凭空添加立场或收益，保留条件、否定、比较对象和不确定性。
-title以“林园：”开头，正文8~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
-cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。
+title以“林园：”开头，正文4~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
+cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。短于8字须有明确对象和动作，不能仅列名词。
 '''
         prompt = prompt[:start] + style + prompt[end:]
         # Do not give the writer unrelated illustrative facts to imitate.

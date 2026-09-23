@@ -7,7 +7,7 @@ TOPICS = ('片仔癀','茅台','股息','分红','医药','消费','科技股','
 QUESTION = re.compile(r'您|请问|想问|请教|聊聊|林总|分享一下|[？?]|你(?:是一直看好|还有哪|有持有|进入了|第一次|是怎么|怎么看|当时|集中投资|充分.{0,4}利用)|你.{0,24}(?:透露过|辞职|毕业之后)')
 CONDITION = re.compile(r'如果|假如|除非|只有|虽然|即使|只要|基于|前提|条件是')
 TAIL = re.compile(r'(?:因为|所以|如果|虽然|但是|以及|而且|关于|对于|我们说的买入|我本人学医的|我们认为|我们说的|能够|可以|需要|这些|那些|这个|那个|的话|是否|的|是|与|把|被|比|更|还|在|会)$')
-VERB = re.compile(r'判断|考虑|布局|核心|买|卖|投|持有|涨|跌|赚|亏|值|回报|增长|增加|下降|风险|降价|涨价|机会|不|有|够|活|重要|便宜|贵|少|多|强|弱|完|老龄化|股息率')
+VERB = re.compile(r'判断|考虑|布局|核心|买|卖|投|持有|参与|研究|进入|到来|没来|涨|跌|赚|亏|值|回报|增长|增加|下降|风险|降价|涨价|机会|不|有|够|活|重要|便宜|贵|少|多|强|弱|完|老龄化|股息率')
 
 
 def compact(text):
@@ -64,6 +64,31 @@ def complete(text):
     return bool(text and not QUESTION.search(text) and not dangling
         and not re.search(r'…|\.{3}|^(?:作为|关于|对于|至于|因为|所以|但是|那么|那个|这些|那些|就是|和|也看到|是因为)',text)
         and VERB.search(text))
+
+
+def copy_length_ok(text, maximum=52):
+    """Short complete speech is not a keyword label; never pad to eight chars.
+
+    This only admits copy to the existing attribution/evidence/meaning checks.
+    Short positive or negative actions still need an object. Bare topic nouns,
+    enumeration tails and an omitted object cannot use the shorter floor.
+    """
+    value=body(text).strip('。！？!?；;')
+    size=len(compact(value))
+    if not 4 <= size <= maximum:
+        return False
+    if size >= 8:
+        return True
+    if not complete(value):
+        return False
+    action=r'(?:买|卖|投|持有|参与|研究|看好)(?![了过的着]+$)[\u4e00-\u9fffA-Za-z0-9]+'
+    finite=r'(?:不|没|没有|未|不会|不能|只|会|要|继续)(?:再|去|再去)?'
+    return bool(re.search(finite+action,compact(value))
+                or re.match(r'我(?:们)?'+action,compact(value))
+                or re.match(r'^[\u4e00-\u9fffA-Za-z]{2,4}我(?:们)?'+finite+r'(?:买|卖|投|持有|参与|研究|看好)$',compact(value))
+                or re.search(finite+r'加杠杆',compact(value))
+                or re.search(r'(?:没有|没|未|还没)(?:进入|到来|来).+',compact(value))
+                or re.search(r'.+(?:没有|没|未|还没)(?:到来|来)$',compact(value)))
 
 
 def clean_quote(text):
@@ -213,7 +238,7 @@ def attach_copy(result, transcript, speaker='林园', existing_titles=None, revi
     else:
         cover=cover_copy(result['title'],transcript,speaker)
     if reviewed_cover is not None:
-        if not cover_fits(reviewed_cover) or not 8<=len(compact(reviewed_cover))<=18:
+        if not cover_fits(reviewed_cover) or not copy_length_ok(reviewed_cover,18):
             raise ValueError('编辑封面必须以完整词句排入两行')
         cover={'text':reviewed_cover,'kind':'reviewed_editorial','evidence':transcript}
     elif cover.get('reason')=='needs_editorial_copy' or cover['text'] in {'投资观点','投资逻辑','价值投资'}:

@@ -1,4 +1,4 @@
-name: 主要回答逐句归属与独立标题交接实片验证
+name: 全部成片标题与封面：原声短句完整复验
 'on':
   push:
     branches:
@@ -10,13 +10,13 @@ name: 主要回答逐句归属与独立标题交接实片验证
       case_ids:
         description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
         required: false
-        default: '[3,4,5,6]'
+        default: '[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]'
         type: string
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: linyuan-title-complete-sentence-roles
+  group: linyuan-all-current-title-copy
   cancel-in-progress: true
 env:
   TEXT_BACKEND: local
@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[3,4,5,6]') }}
+        case: ${{ fromJSON(inputs.case_ids || '[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]') }}
         variant:
         - model: qwen3:8b
           profile: answer_focus
@@ -86,13 +86,13 @@ jobs:
         message\") or {}).get(\"content\")'\n"
     - name: 重放实片的同一份完整字幕，不计出片成绩
       run: python -u scripts/title_batch_cpu.py --case "${{ matrix.case }}" --repeat
-        1 --occasion '' --corpus linyuan/simulations/benchmark-20260921/content-stage-corpus.json
+        1 --occasion '' --corpus linyuan/simulations/benchmark-20260921/all-current-title-corpus.json
         --model "${{ matrix.variant.model }}" --draft-profile "${{ matrix.variant.profile
         }}"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: source-choices-8b-${{ matrix.case }}
+        name: all-current-8b-${{ matrix.case }}
         path: 'title-batch-results
 
           /tmp/ollama.log
@@ -103,16 +103,3 @@ jobs:
     env:
       RUN_TEXT_MODEL: ${{ matrix.variant.model }}
       LOCAL_LLM_MODEL: ${{ matrix.variant.model }}
-  render8:
-    needs: batch
-    if: contains(fromJSON(inputs.case_ids || '[3,4,5,6]'), 3)
-    uses: ./.github/workflows/linyuan-simulate-100.yml
-    with:
-      sample_ids: '8'
-      content_policy: reference_v1
-      title_draft_profile: answer_focus
-      recovery_run_id: '35844419974'
-      title_handoff_run_id: ${{ github.run_id }}
-      title_handoff_artifact: source-choices-8b-3
-    secrets:
-      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

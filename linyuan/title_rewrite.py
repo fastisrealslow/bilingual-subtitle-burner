@@ -3,6 +3,7 @@ import difflib
 import hashlib
 import json
 import re
+from headline_policy import copy_length_ok
 
 VERSION = 2026091303
 CHECKS = ('source_supported', 'central_point', 'attribution_correct',
@@ -339,7 +340,7 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
     raw=item.get('a_focus',raw_focus)
     if not isinstance(raw,dict):raise ValueError('候选缺少自己的原文判断')
     claim=raw.get('a_claim');ids=raw.get('b_evidence_ids')
-    if not isinstance(claim,str) or len(compact(claim))<8:
+    if not isinstance(claim,str) or not copy_length_ok(claim,500):
         raise ValueError('先写清有原文依据的完整判断和限定，再写标题')
     if not isinstance(ids,list) or any(type(i) is not int or i not in guest_ids for i in ids):
         raise ValueError('候选证据属于主持人或未知归属，须回到嘉宾原话')
@@ -376,14 +377,14 @@ def bind_candidate(item, focus, units, subjects):
     hearsay_lost=(reported_claim_error(title,cover,source_text)
                  and not reported_claim_error(title,title,source_text))
     if (copy_fragment(cover) or summary_heading(cover.removeprefix(speaker)) or scope_lost_on_cover or hearsay_lost
-            or not 8<=len(compact(cover))<=18):
+            or not copy_length_ok(cover,18)):
         # An exact complete title clause can serve as the cover without a
         # second factual rewrite. The independent reviewer sees this final
         # clause and all original source context before approving anything.
         from headline_policy import cover_fits
         clauses=re.split(r'[，,。；;：:！？!?]',title.split('：',1)[-1])
         complete_spans=clauses+['，'.join(clauses[i:i+2]) for i in range(len(clauses)-1)]
-        choices=[c.strip() for c in complete_spans if 8<=len(compact(c))<=18
+        choices=[c.strip() for c in complete_spans if copy_length_ok(c,18)
                  and not copy_fragment(c) and bound['subject'] and bound['subject'] in c
                  and not summary_heading(c)
                  and not research_scope_error(title,c,source_text)
@@ -751,10 +752,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return '标题缺少主讲人前缀'
     if summary_heading(title):
         return '标题必须呈现一个具体观点，不能是主题目录或残句'
-    if not 8 <= len(compact(title.split('：',1)[-1])) <= 52:
-        return '标题正文须8~52个有效字；补全具体判断或问题，不用空格凑长度'
-    if not isinstance(cover, str) or not 8 <= len(compact(cover)) <= 18:
-        return f'封面有效字数为{len(compact(cover))}，须8~18字；写成完整问题或判断，不能用空格补长度'
+    if not copy_length_ok(title.split('：',1)[-1],52):
+        return '标题正文须4~52个有效字；短于8字须有明确对象和完整动作，不能写成标签或凑字数'
+    if not isinstance(cover, str) or not copy_length_ok(cover,18):
+        return f'封面有效字数为{len(compact(cover))}，须4~18字；短于8字须有明确对象和完整动作，不能只写名词标签'
     if summary_heading(cover.removeprefix(speaker)):
         return '封面仍是主题目录；要写出这个片段的具体判断或完整问题'
     if copy_fragment(title) or copy_fragment(cover):
@@ -815,6 +816,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
                  '收益更高','回报更高','更赚钱','最赚钱','稳赚','保证收益',
+                 '盈利的保障','盈利保障','赚钱的保障','赚钱保障','收益的保障','收益保障',
+                 '确保盈利','确保赚钱','保证盈利','保证赚钱',
                  '不用怕','不用担心','不必担心','无需担心','放心买','没风险','让我安心','让人安心',
                  '粘性强','粘性更强','黏性强','黏性更强','超预期')
     stated=compact(''.join(evidence))
@@ -852,7 +855,7 @@ def editorial_features(item):
         subject_early=bool(subject and 0 <= title.find(subject) < 12),
         sourced_contrast=bool(re.search(contrast, title) and re.search(contrast, evidence)),
         sourced_voice=bool(re.search(first_person, title) and re.search(first_person, evidence)),
-        concise=8 <= len(compact(title)) <= 24,
+        concise=copy_length_ok(title,24),
         generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)),
     )
 
@@ -922,7 +925,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             continue
         # Whole source claims are the fallback; not a list of detected subjects.
         item = dict(title=title, cover_title=cover['text'], evidence=[quote], subject=quote)
-        if not 8 <= len(compact(title.split('：',1)[-1])) <= 52:
+        if not copy_length_ok(title.split('：',1)[-1],52):
             continue
         review = dict(method='source_quote', quote=quote)
         if guest_passages is not None:
@@ -1020,8 +1023,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 嘉宾明确说自己的选择时，可以保留“我买”“我不卖”“我看的是”等第一人称；原文没说，不能为了像林园而编一句“金句”，也不能把主持人的话改成“我”。
 不要在原话之外补“投资逻辑解析”“深度解读”“核心策略”“价值重估”等总结包装；原文确实讨论这些概念时，可以用，但仍要说出具体判断。
 吸引力来自原文里真实的分歧、选择或反问，不来自收益承诺、吓人字眼或故意藏起讨论对象。转折、否定、条件和“可能”等限定必须保留。
-每条title以“{speaker}：”开头，正文8~52个汉字；cover_title为8~18个汉字，不加姓名。
-封面建议写12~16个汉字的完整问题或判断，避免只有六七个字的短标签。
+每条title以“{speaker}：”开头，正文4~52个汉字；cover_title为4~18个汉字，不加姓名。
+完整短句不凑字数；短于8字时须明确说出对象和动作，不能仅列名词。封面不强求填满两行。
 每条标题必须明确说出讨论对象，并包含至少一个嘉宾原文对象词：__TITLE_SUBJECTS__。
 保留这些词本身及其关系，不把原文对象换成“潜力股”等含义不同的金融标签。
 {COPY_FACT_CONSTRAINTS}

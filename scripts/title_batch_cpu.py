@@ -58,7 +58,8 @@ def main():
              title_code_sha256=hashlib.sha256(Path(te.__file__).read_bytes()).hexdigest(),
              commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
              model=p.LOCAL_LLM_MODEL,temperature=.35,draft_profile=args.draft_profile,
-             occasion=args.occasion,
+             occasion=case.get('occasion',args.occasion),
+             source_final_sha256=case.get('final_sha256'),
              source_run_id=case.get('source_run_id'),source_sha256=case.get('source_sha256'),
              editorial_approved=False,scope='Text-only replay; not a produced video or source100 pass',
              num_ctx=16384,max_tokens=2300,cache_reads=False,draft_interventions=0,calls=[])
@@ -110,7 +111,10 @@ def main():
             raise ValueError('loaded model digest unavailable')
         row['model_digest']=actual['digest'];save()
         with tempfile.TemporaryDirectory() as work:
-            result=p.copywrite(case['cues'],list(range(len(case['cues']))),'林园',args.occasion,'',Path(work))
+            result=p.copywrite(case['cues'],list(range(len(case['cues']))),'林园',
+                case.get('occasion',args.occasion),'',Path(work),case.get('copy_suffix',''),
+                require_quote=case.get('copy_suffix')!='_full',
+                reviewed_title=case.get('reviewed_title'))
         row['result']=result
         row['proof_error']=te.error(result['title'],result['title_rewrite'],text)
         row['method']=result['title_rewrite']['review']['method']

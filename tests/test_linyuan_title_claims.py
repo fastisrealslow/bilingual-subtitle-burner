@@ -218,7 +218,7 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
             assert '本人态度、原话理由、短句推进' in messages[0]['content']
             assert '白酒行业是有泡沫的' not in messages[0]['content']
             assert '甚至没有PE' not in messages[0]['content']
-            assert '正文8~52字' in messages[0]['content']
+            assert '正文4~52字' in messages[0]['content']
             assert '不要补第二句凑长度' in messages[0]['content']
             assert '正文15~30个汉字' not in messages[0]['content']
             # Real production style previously removed these fact constraints.
