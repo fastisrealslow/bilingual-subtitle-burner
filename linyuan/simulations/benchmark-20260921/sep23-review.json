@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-23T09:15:50.457716+00:00",
+  "checked_at": "2026-09-23T10:04:19.203862+00:00",
   "run_id": "35682602969",
   "tested_sha": "06815b4c1943017a3c3b293597c6673b1da44ece",
   "baseline_run": "35548212133",
@@ -2182,14 +2182,14 @@
     "tested_sha": "87a00992e228c1cea6d07e252d1086fe8b988f25",
     "status": "in_progress",
     "denominator": 100,
-    "received": 61,
+    "received": 94,
     "counts": {
-      "rejected": 51,
-      "passed": 7,
-      "unresolved": 3
+      "rejected": 75,
+      "passed": 15,
+      "unresolved": 4
     },
-    "pending": 39,
-    "note": "已回传61/100条：7通过、51拒绝、3未确定。尚未完成，不能拿已返回子集比例作为最终成片率。该轮87a0099不含随后短句入口和多嘉宾归属修复；17与8的专项复验另列，不混入本轮结果。"
+    "pending": 6,
+    "note": "已回传94/100条：15通过、75拒绝、4未确定。整轮未完成，分母仍为100。该轮不含随后短句入口、多嘉宾归属和字幕修复；专项复验不能混入本轮成绩。15个实际文件已核对哈希并完整解码，不等于编辑质量通过。"
   },
   "final_short_title_trial": {
     "run_id": "35835447786",
@@ -2457,6 +2457,62 @@
         "poster": "layout-preview-sep23-79/live-overlay.jpg",
         "clip_audio_sha256": "SHA256=28dff24c5a4a0cb494ac9c8a147623dbb21381af75796181f5a8a4209c009dbe",
         "full_av_decode": true
+      }
+    ]
+  },
+  "answer_focus_trial": {
+    "run_id": "35844419694",
+    "tested_sha": "87339505f3d9b7a7e622c27e1edfeaeffdda80fb",
+    "status": "completed",
+    "note": "主要回答编号实验：3条里2条生成、1条未生成。生成的2条也不足以证明标题抓住主要回答。这是实验失败记录，不计成片率，也未设为默认。",
+    "rows": [
+      {
+        "case": "sep23-source32",
+        "model": "qwen3:8b",
+        "title": "未生成",
+        "cover": "—",
+        "seconds": 523.98,
+        "review_note": "未生成。阅读器选择“样。”等短尾作为主要编号，连续三次无法绑定。已针对该机制改为连续原话摘录，等待新实验。",
+        "editorial_approved": false,
+        "raw_file": "answer-focus-35844419694/source-choices-8b-5/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-5-repeat-1.json"
+      },
+      {
+        "case": "sep23-source8",
+        "model": "qwen3:8b",
+        "title": "林园：下跌部分占总市值大",
+        "cover": "下跌部分占总市值大",
+        "seconds": 752.32,
+        "review_note": "失败反例：仍选成“下跌部分占总市值大”，主要回答锚点被模型错误填成各段起点，未达到预期。",
+        "editorial_approved": false,
+        "raw_file": "answer-focus-35844419694/source-choices-8b-3/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-3-repeat-1.json"
+      },
+      {
+        "case": "sep23-source28",
+        "model": "qwen3:8b",
+        "title": "林园：中国人牙科消费量太小",
+        "cover": "中国人牙科消费量太小",
+        "seconds": 648.11,
+        "review_note": "补回“中国人”限定，但只写牙科，未充分概括整段眼科/牙科的主回答；不计编辑通过。",
+        "editorial_approved": false,
+        "raw_file": "answer-focus-35844419694/source-choices-8b-4/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/title-batch-results/case-4-repeat-1.json"
+      }
+    ]
+  },
+  "premise_video_trial": {
+    "run_id": "35842906796",
+    "tested_sha": "c34e7c57c26e111b44e8165426e93ba226108610",
+    "status": "completed",
+    "note": "311同源复验：完整问题得到保留，选段612.04–716.28秒，约104秒，完整音视频解码通过。新标题仍偏题，因此只确认选段修复，不宣称整片优于前版。",
+    "media": [
+      {
+        "id": 311,
+        "title": "林园：他可能提前预测到泡沫会破裂",
+        "cover_title": "他可能提前预测到泡沫会破裂",
+        "file": "premise311-35842906796/simulation-media-library-0923-011-f9c5ca/final_3.mp4",
+        "poster": "premise311-35842906796/simulation-media-library-0923-011-f9c5ca/contact_sheet_6_3.jpg",
+        "sha256": "09984b7ea23cf44e27302d7b0d4005cf1c13d4621ca3b5f41c88ab7fff370429",
+        "editorial_approved": false,
+        "note": "原标题为“股价高低难预测，但便宜就买”；新版封面“他可能提前预测到泡沫会破裂”指代不明，偏离承认无法预测股价、按估值买入的主线。开头问题完整，字幕仍有洞洞察等口吃。"
       }
     ]
   }

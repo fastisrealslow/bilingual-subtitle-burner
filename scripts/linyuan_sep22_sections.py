@@ -152,6 +152,8 @@ def latest_library():
                       ('multi_guest_finding','素材8：多嘉宾原声归属修复后的实片'),
                       ('channel_trial','311原声修复：听同一个片段'),
                       ('channel_source_trial','311保留原始左声道后的完整实片'),
+                      ('premise_video_trial','311完整问题复验：选段改善，标题仍需修正'),
+                      ('answer_focus_trial','主要回答编号实验：成功生成仍可能偏题'),
                       ('sep23_full100_trial','9月23日固定100条完整复验')]:
         row=review.get(key)
         if row:

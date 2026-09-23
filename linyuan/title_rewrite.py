@@ -124,18 +124,33 @@ def reading_schema(unit_count, answer_focus=False):
         c_guest_spans=dict(type='array',minItems=1,maxItems=unit_count,
         items=dict(type='object',additionalProperties=False,required=list(turn),properties=turn)))
     if answer_focus:
-        fields['d_main_answer_ids']=dict(type='array',minItems=1,maxItems=8,uniqueItems=True,
-            items=dict(type='integer',minimum=0,maximum=unit_count-1))
+        # Run 35844419694 confused a list of main-answer IDs with the first
+        # cue of every paragraph, including incomplete tails. Ask for one
+        # actual claim in words; bind it back to cues ourselves, before drafts.
+        fields['d_main_answer_quote']=dict(type='string',minLength=4,maxLength=200)
     return dict(type='object',additionalProperties=False,required=list(fields),properties=fields)
 
 
-def bind_answer_focus(reading, guest_ids):
-    ids=reading.get('d_main_answer_ids')
-    if (not isinstance(ids,list) or not 1<=len(ids)<=8
-            or any(type(i) is not int or i not in guest_ids for i in ids)
-            or len(set(ids))!=len(ids)):
-        raise ValueError('主要回答编号必须来自已确认的嘉宾原话，不能用主持人或未知句子补齐')
-    return ids
+def bind_answer_focus(reading, units, roles, speaker='林园'):
+    quote=reading.get('d_main_answer_quote')
+    if not isinstance(quote,str) or not 4<=len(compact(quote))<=160:
+        raise ValueError('主要回答必须是一段完整的连续原话，不能列段落起点或自行概括')
+    from speaker_attribution import other_guest_indices
+    blocked=explicit_host_cues(units) | other_guest_indices(units,speaker)
+    # Preserve short continuation/negation cues. Length is a writer-evidence
+    # constraint, not a speaker identity test. Never bridge unknown/host cues.
+    passage='';owners=[];needle=compact(quote)
+    for i,unit in enumerate(units):
+        if roles[i]!='guest' or i in blocked:
+            passage='';owners=[]
+            continue
+        text=compact(unit);passage+=text;owners.extend([i]*len(text))
+        start=passage.find(needle)
+        if start>=0:
+            ids=list(dict.fromkeys(owners[start:start+len(needle)]))
+            if set(ids)&set(guest_evidence_ids(units,roles,speaker)):
+                return ids
+    raise ValueError('主要回答原话未匹配到连续的已确认嘉宾回答；不能改写、拼接或借用主持人/未知句子')
 
 
 def require_answer_focus(candidate, main_ids):
@@ -899,7 +914,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
     reading=None;roles=None
     main_ids=[]
     if answer_focus:
-        reader_prompt+='\n在看不到任何标题时，最后用d_main_answer_ids指出直接回答本段主要问题的嘉宾原句编号，包含原有必要限定。不要把后面的解释、比喻或主持人问题当主要回答。只选原文，不补写缺失前提。'
+        reader_prompt+='\n最后在d_main_answer_quote逐字摘录一段最直接回答主要问题的连续嘉宾原话，4至160字，跨字幕时按原顺序拼接。只选一个完整判断及其必要的否定、条件、语气；不能只列各段的开头，不能用后面的例子代替主要回答，也不能概括改写。这个摘录必须包含在你刚标出的嘉宾范围内。此时不拟标题。'
     reading_repair_note=''
     def fallback():
         if answer_focus:
@@ -959,7 +974,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             guest_ids=guest_evidence_ids(units,roles,speaker) if structured_model else []
             if answer_focus:
                 try:
-                    main_ids=bind_answer_focus(reading,guest_ids)
+                    main_ids=bind_answer_focus(reading,units,roles,speaker)
                 except ValueError:
                     reading=None;roles=None
                     raise
@@ -981,7 +996,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 draft_source={i:u for i,u in enumerate(units) if roles[i]=='guest' and i not in blocked}
                 source_heading='以下是可用于标题事实的嘉宾原话，按原始编号排列。保留短句中的转折和限定；不得补充问题假设或常识推断：\n'
                 if answer_focus:
-                    source_heading+=f'独立阅读在未看到候选标题时选出的主要回答编号：{main_ids}。每个候选必须表达其中的主要判断，并引用至少一条该编号，不能只往旁枝标题附上编号。保留该判断自己的应该、可能、我相信等语气，不能只摘后面的例子或解释。其他原文只用于理解和补足同一判断的限定；阅读步骤的概括不作为新事实。\n'
+                    source_heading+=f'独立阅读在未看到候选标题时选出的主要回答编号：{main_ids}。主要回答原话：{reading["d_main_answer_quote"]}。三个候选都围绕这个判断换说法，每个候选必须表达它并引用至少一条对应编号，不能只往旁枝标题附上编号。保留该判断自己的应该、可能、我相信等语气，不能只摘后面的例子或解释。其他原文只用于理解和补足同一判断的限定；阅读步骤的概括不作为新事实。\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
                 if unresearched_reports(''.join(draft_source.values())):
@@ -1128,6 +1143,7 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
             result = _package(item, transcript, dict(method='cpu_text_review', **winner), valid)
             if answer_focus:
                 result['answer_focus_reading']=dict(main_answer_ids=main_ids,
+                    main_answer_quote=reading['d_main_answer_quote'],
                     exact_source=[units[i] for i in main_ids],reader=reading,
                     transcript_sha256=hashlib.sha256(transcript.encode()).hexdigest(),
                     independent_review_unchanged=True,

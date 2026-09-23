@@ -1,4 +1,4 @@
-name: 主要回答原文绑定：8B三段实际字幕完整标题链路
+name: 主要回答连续原话：四段实片标题复验
 'on':
   push:
     branches:
@@ -10,7 +10,7 @@ name: 主要回答原文绑定：8B三段实际字幕完整标题链路
       case_ids:
         description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
         required: false
-        default: '[3,4,5]'
+        default: '[3,4,5,6]'
         type: string
 permissions:
   contents: read
@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[3,4,5]') }}
+        case: ${{ fromJSON(inputs.case_ids || '[3,4,5,6]') }}
         variant:
         - model: qwen3:8b
           profile: answer_focus
