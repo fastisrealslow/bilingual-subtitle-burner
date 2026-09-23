@@ -40,7 +40,7 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
       landscape_style:
         type: string
         required: false
-        default: classic
+        default: quiet
       title_handoff_run_id:
         type: string
         required: false
@@ -100,7 +100,7 @@ jobs:
       RUN_TEXT_MODEL: ${{ inputs.text_model || 'qwen3:8b' }}
       LINYUAN_TITLE_DRAFT_PROFILE: ${{ inputs.title_draft_profile || 'production' }}
       OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
-      LINYUAN_LANDSCAPE_STYLE: ${{ inputs.landscape_style || 'classic' }}
+      LINYUAN_LANDSCAPE_STYLE: ${{ inputs.landscape_style || 'quiet' }}
       RUN_SOURCE: ${{ matrix.source_url }}
       RUN_SLUG: ${{ matrix.slug }}
       RUN_SOURCE_PLATFORM: ${{ matrix.source_platform }}

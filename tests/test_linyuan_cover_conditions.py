@@ -128,3 +128,16 @@ def test_real_source13_refusal_cannot_become_reassurance():
     item=dict(title='林园：中石油垄断地位让我安心，但石油有替代品风险',
               cover_title='中石油垄断地位让我安心',subject='中石油',evidence=[source])
     assert '原文没有' in T._candidate_error(item,source,'林园',(),check_layout=False)
+
+
+def test_actual_14b_cover_cannot_turn_my_standard_into_objective_rejection():
+    source="没买，因为我觉得它不符合我的标准。按我们的说法，如果到石油，就中石油全世界这一家。"
+    title="林园：中石油不符合我的标准，所以我没买。"
+    item=dict(title=title,cover_title="中石油不符合标准",subject="中石油",evidence=[source])
+    verdict=dict(method="cpu_text_review",appeal=4,reason="实际14B通过但封面遗漏个人范围",**{k:True for k in T.CHECKS})
+    package=T._package(item,source,verdict,[item])
+    assert "个人标准" in T._candidate_error(item,source,"林园",(),check_layout=False)
+    assert "个人标准" in T.error(title,package["title_rewrite"],source)
+    for cover in ("没买中石油", "中石油不符合我的标准", "中石油不符合我投资标准"):
+        assert not T.cover_qualifier_error(title,cover)
+    assert not T.cover_qualifier_error("林园：这家公司不符合上市标准", "公司不符合上市标准")

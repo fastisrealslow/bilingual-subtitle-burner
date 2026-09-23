@@ -481,6 +481,13 @@ def cover_qualifier_error(title, cover):
             and '增长' in cover
             and not re.search(r'我(?:相信|觉得|判断|认为)|预计|有望|可能|能否|会不会|是否|[？?]', cover)):
         return '封面把个人的未来增长判断写成事实；保留我相信等原有判断语气，或提出完整问题'
+    # Actual 14B replay kept MY standards in the title but made the cover
+    # sound like an objective company qualification. Do not require a reason
+    # when a cover only states the speaker's sourced choice (e.g. 没买中石油).
+    if (re.search(r'不符合(?:我|我们)(?:自己)?的?(?:投资)?标准', compact(title))
+            and re.search(r'不符合.{0,8}标准', compact(cover))
+            and not re.search(r'不符合(?:我|我们)(?:自己)?的?(?:投资)?标准', compact(cover))):
+        return '封面遗漏个人标准的范围；保留我的标准，或仅写有原文依据的本人选择'
     conditions = re.findall(r'(?:前提是|前提为|条件是)([^，。；！？,;!?]+)', title)
     conditions += re.findall(
         r'(?:^|[，,；;])(?:但)?([^，。；！？,;!?]+?)(?:才是|是)前提', title)

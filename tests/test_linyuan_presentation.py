@@ -92,6 +92,16 @@ def test_three_line_cover_requires_real_nonoverlapping_text_area(tmp_path):
         V.cover_proof(image,tmp_path/'bad.jpg',lines,96,boxes,style='light')
 
 
+def test_actual_49_cover_keeps_buy_and_sell_systems_whole():
+    text='风控就是买入系统和卖出系统'
+    for count in (2,3):
+        lines=V.cover_headline(text,max_lines=count)
+        assert ''.join(lines)==text
+        assert len(lines)<=count and max(map(len,lines))<=9
+        assert any('买入系统' in line for line in lines)
+        assert any('卖出系统' in line for line in lines)
+
+
 @pytest.mark.parametrize('w,h,mode', [(1280,720,'landscape'), (720,1280,'portrait'),
                                     (720,720,'square'), (1640,720,'landscape')])
 def test_native_aspect_and_center(w,h,mode):
@@ -480,3 +490,11 @@ def test_scene_cover_keeps_pixels_without_headline_and_checks_identity(tmp_path)
     with pytest.raises(ValueError):
         V.select_cover_style(False,'脏原画','scene')
     assert V.select_cover_style(True,'访谈','scene')=='scene'
+
+
+def test_actual_medicine_quote_cover_keeps_sector_name_whole():
+    text="我们觉得中药板块并没有高估"
+    for count in (2,3):
+        lines=V.cover_headline(text,max_lines=count)
+        assert "".join(lines)==text
+        assert any("中药板块" in line for line in lines)

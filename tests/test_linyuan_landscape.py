@@ -9,11 +9,19 @@ import presentation as V
 from editorial_policy import subtitle_files_text
 
 
-def test_rotation_only_selects_continuous_live_cards():
+def test_auto_selects_known_horizontal_windows_independent_of_hash():
     base = dict(render_mode='live_video_card', subtitle_files=['one.ass'], source_sha256='a', segments=[dict(start=1,end=130)])
     assert L.selected(base, 'landscape')
     assert not L.selected(base, 'portrait')
-    assert L.selected(base) == L.selected(dict(base))
+    assert not L.selected(base)
+    base.update(audio_card_template='live_editorial_v4_readable',
+                layout_proof=dict(canvas=dict(width=720,height=1280)))
+    for source in ('a','b','c','d','e'):
+        assert L.selected({**base,'source_sha256':source})
+    assert not L.selected({**base,'audio_card_template':'unknown'})
+    assert not L.selected({**base,'layout_proof':dict(canvas=dict(width=1280,height=720))})
+    assert not L.selected({**base,'layout_proof':dict(canvas=dict(width=720,height=1280),
+        live_region=dict(x=44,y=360,width=470,height=632))})
     assert not L.selected({**base, 'subtitle_files':['one.ass','two.ass']})
     for mode in ('audio_card', 'direct', 'crop'):
         assert not L.selected({**base, 'render_mode':mode}, 'landscape')
@@ -33,7 +41,7 @@ def test_reflow_preserves_every_displayed_character_and_cue_time(tmp_path):
 
 
 def test_landscape_keeps_aspect_and_generated_subtitles_outside_source_scan():
-    spec=L.layout();live=spec['live_region'];sub=spec['subtitle_region']
+    spec=L.layout('classic');live=spec['live_region'];sub=spec['subtitle_region']
     assert spec['canvas']==dict(width=1280,height=720)
     assert abs(live['width']/live['height']-632/470)<.003
     assert live['y']==0 and live['height']==550
@@ -81,6 +89,18 @@ def test_quiet_reflow_keeps_actual_words_and_original_cue_times(tmp_path):
     assert L.read_captions(tmp_path,['quiet.ass'])==old
 
 
+def test_readable_quiet_preserves_font_size_and_recognizes_exact_legacy_crop():
+    spec=L.layout('quiet')
+    assert spec['subtitle_font_px']==44
+    assert L.source_window({'layout_proof':spec})==spec['live_region']
+    old=dict(canvas=dict(width=1280,height=720),template='landscape-live-v4-quiet-footer',
+             live_region=dict(x=237,y=0,width=806,height=600),
+             subtitle_region=dict(x=180,y=600,width=920,height=120))
+    assert L.source_window({'layout_proof':old})==old['live_region']
+    old['live_region']['y']=1
+    with pytest.raises(ValueError):L.source_window({'layout_proof':old})
+
+
 def test_queue_migration_cannot_overwrite_another_render_or_accepted_stock():
     from run_landscape_stock import reserve
     plan=dict(old_slug='old',new_slug='new')
@@ -97,3 +117,11 @@ def test_known_moving_source_captions_are_held_instead_of_cropping_the_face():
     with pytest.raises(ValueError,match='遮挡人物'):
         L.source_window(dict(fingerprints=dict(sha256='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec')))
     assert L.source_window(dict(fingerprints=dict(sha256='other'))) == dict(x=44,y=360,width=632,height=470)
+
+
+def test_default_quiet_keeps_readable_captions_and_classic_override(monkeypatch):
+    monkeypatch.delenv("LINYUAN_LANDSCAPE_STYLE", raising=False)
+    assert L.layout()==L.layout("quiet")
+    assert L.layout()["subtitle_font_px"]==44
+    monkeypatch.setenv("LINYUAN_LANDSCAPE_STYLE","classic")
+    assert L.layout()==L.layout("classic")

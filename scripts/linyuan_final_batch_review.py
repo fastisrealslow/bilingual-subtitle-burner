@@ -69,6 +69,75 @@ def cover_word_trial(row):
             +'<p>已检查 '+str(trial['cases'])+' 份实际封面文案的两行和三行排版；没有删改文字。</p></details>')
 
 
+def answer_subject_trials(row):
+    folder = OUT / 'source13-answer-35911265032'
+    notes = read(RECORDS / 'source13-answer-review.json', {})
+    panels = []
+    for path in folder.rglob('case-0-repeat-1.json'):
+        trial = read(path, {})
+        if trial.get('source_final_sha256') != row['sha256']:
+            continue
+        if (trial.get('commit') != '8dc24cc7f4b5b02fa7b31c07e48094340ff2aa7d'
+                or str(trial.get('run_id')) != '35911265032'
+                or trial.get('source_sha256') != row['source_sha256']
+                or trial.get('draft_profile') != 'answer_subject'):
+            raise ValueError('Main-answer trial does not match this frozen input')
+        result = trial.get('result', {})
+        detail = ('<p>标题：'+esc(result.get('title'))+'</p><p>封面字：'
+                  +esc(result.get('cover_title'))+'</p>' if trial.get('status') == 'generated'
+                  else '<p>'+esc(trial.get('error', trial.get('status')))+'</p>')
+        panels.append('<details><summary>先确认主要回答和对象 · '+esc(trial['model'])+'</summary>'
+            +detail+'<p>'+esc(notes.get(trial['model']+':'+str(row['id']), '尚未完成编辑复核。'))+'</p>'
+            +'<p class="small">本次标题任务用时 '+esc(trial.get('seconds'))+' 秒，尚不计作视频出片。'
+            +'<a href="'+esc(os.path.relpath(path, OUT))+'">完整来源及请求记录</a></p></details>')
+    return ''.join(panels)
+
+
+def returned_layout_trial(row, player):
+    rows = read(OUT / 'returned-layout-35911965164/media-verification.json', [])
+    trial = next((r for r in rows if r['id'] == row['id']), None)
+    if not trial or not trial.get('video_audio_full_decode'):
+        return ''
+    path = ROOT / trial['file']
+    proof = read(path.parent.parent / 'result.json', {})
+    if (str(trial['run_id']) != '35911965164'
+            or trial['tested_sha'] != '105cafb8c98b2d88f65b5745a189f08330e4a523'
+            or proof.get('input_final_sha256') != row['sha256']
+            or proof.get('source_sha256') != row['source_sha256']
+            or not proof.get('copy_and_cover_unchanged')
+            or trial.get('source_yield_credit') is not False):
+        raise ValueError('Layout diagnostic is not bound to this exact final')
+    notes = read(RECORDS / 'returned-layout-review.json', {})
+    return ('<details><summary>本条完整清爽横版 · 44px字幕 · 同标题与音轨</summary>'
+            +player(os.path.relpath(path, OUT), os.path.relpath(ROOT/trial['cover'], OUT),
+                    '同一实际成片的完整排版对照，非新增素材出片')
+            +'<p>'+esc(notes.get(trial['sha256'], '完整解码通过，画面尚待逐项复核。'))+'</p>'
+            +'<p>原标题、封面及字幕用词问题仍保留；不能把排版通过当成整片编辑合格。</p></details>')
+
+
+def focused_revision(row, player):
+    notes = read(RECORDS / 'focused-final-review.json', {})
+    for folder, commit in (
+        ('source34-reaction-35912591408', 'e239134c742c567241b979da01cc9b9f656afcad'),
+        ('source13-title-render-35913230331', '4260fcdb692c324de78c19b5b1876e430138b15d'),
+        ('source8-58-quotes-35913668238', '63462f1d024fe4b3d5e4163f65a433c9e29aaeab')):
+        for revised in read(OUT / folder / 'media-verification.json', []):
+            if revised['id'] != row['id'] or not revised.get('video_audio_full_decode'):
+                continue
+            if revised['sha256'] not in notes:
+                continue
+            if revised['tested_sha'] != commit or revised['source_sha256'] != row['source_sha256']:
+                raise ValueError('Focused revision does not match this source')
+            return ('<p><b>进一步优化 · 已生成完整新版</b></p>'
+                +player(os.path.relpath(ROOT/revised['file'], OUT), os.path.relpath(ROOT/revised['cover'], OUT),
+                        f"专项新版完整实片 · {revised['duration']:.1f}秒")
+                +'<p><b>实际标题：</b>'+esc(revised['title'])+'</p><p><b>实际封面字：</b>'+esc(revised['cover_title'])+'</p>'
+                +'<p>'+esc(notes[revised['sha256']])+'</p>'
+                +'<p class="small">运行 '+esc(revised['run_id'])+'，代码 '+esc(commit[:7])
+                +'。同素材后续优化，不追加到冻结100条的出片数。</p>')
+    return ''
+
+
 def section(reference_media, player):
     summary = read(RESULTS / 'local-summary.json', {})
     status = read(RESULTS.parent / 'run-status.json', {})
@@ -102,6 +171,10 @@ def section(reference_media, player):
                 current.append('<p>媒体尚未核验通过：'+esc(row.get('verification_error', '待下载'))+'</p>')
                 continue
             folder = (ROOT / row['file']).parent
+            revision = focused_revision(row, player)
+            if revision:
+                current.append(revision)
+                current.append('<details><summary>本轮100条测量的原版、缺点与各项对照</summary>')
             current.append(player(os.path.relpath(ROOT / row['file'], OUT),
                 os.path.relpath(ROOT / row['cover'], OUT),
                 f"冻结候选实际成片 · {row['duration']:.1f}秒 · 完整音视频解码通过"))
@@ -114,7 +187,9 @@ def section(reference_media, player):
             else:
                 current.append('<p class="warning">本稿的标题、封面和完整语义尚未完成编辑复核；不能算质量通过。</p>')
             current.append(title_trials(row))
+            current.append(answer_subject_trials(row))
             current.append(cover_word_trial(row))
+            current.append(returned_layout_trial(row, player))
             # Landscape renders store their final captions under a different prefix.
             # Ignore artifact-prefixed duplicates and prefer the file actually burned.
             subtitles = (sorted(folder.glob('landscape-subtitles*.ass'))
@@ -129,6 +204,8 @@ def section(reference_media, player):
                             cues.append(fields[1]+'–'+fields[2]+' '+text)
                 current.append('<details><summary>本次实片全部字幕（'+str(len(cues))+'条）</summary>'
                     +'<pre class="transcript">'+esc('\n'.join(cues))+'</pre></details>')
+            if revision:
+                current.append('</details>')
         if not current:
             current = ['<p>报告已返回成片，实际媒体正在取回。核验完成前不放置空播放器。</p>']
         old = baseline.get(ident)
