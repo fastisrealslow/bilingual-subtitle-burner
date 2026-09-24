@@ -62,8 +62,12 @@ def build(preview_root,baseline_metadata,reference_root,reference_index,output):
             verdict='编辑验收拒绝，禁止发布' if rejected else '自动产物：待核对实际内容，未据此认定可发布'
             note='<p class="notice">'+verdict+'</p>'
             if rejected:note+='<ul>'+''.join('<li>'+esc(x)+'</li>' for x in status.get('rejection_reasons',[]))+'</ul>'
-            before=next(((r,v) for r,v in originals if r.get('source_sha256')==row.get('source_sha256')),originals[0] if originals else None)
-            baseline=card(*before,'线上已发布文件（选段可能不同）') if before else '<article>缺少可核对的线上原文件</article>'
+            same=[(r,v) for r,v in originals if r.get('source_sha256')==row.get('source_sha256')]
+            def overlap(item):
+                return sum(max(0,min(a['end'],b['end'])-max(a['start'],b['start']))
+                    for a in row.get('segments',[]) for b in item[0].get('segments',[]))
+            before=max(same,key=overlap) if same else (originals[0] if originals else None)
+            baseline=card(*before,'线上版本实际产物；按同源时间重叠匹配，不代表均已发布') if before else '<article>缺少可核对的线上原文件</article>'
             ref=min(references,key=lambda r:abs(float(r[1]['duration'])-float(row.get('duration_sec',0)))) if references else None
             reference=('<article><small>园园形式参考，按时长接近匹配；非同素材 A/B</small><h2>'+esc(ref[0]['title'])+'</h2>'
                 +player(ref[2],ref[2].parent/'frame-00.jpg')+'<a href="'+esc(ref[0]['url'])+'">查看原投稿</a><p>'
@@ -71,12 +75,23 @@ def build(preview_root,baseline_metadata,reference_root,reference_index,output):
             articles.append('<section><h2>自动预览 '+esc(run)+'</h2>'+note+'<div class="grid">'+baseline+card(row,video,'全自动预览实际产物')+reference+'</div></section>')
     current=status.get('next_attempt',{})
     body='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>全自动出片实测</title><style>
-body{margin:0;background:#f2f3ef;color:#182b32;font:16px/1.65 system-ui}main{max-width:1450px;margin:auto;padding:28px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}article{background:white;padding:18px;border-radius:10px;min-width:0}h1{font-size:32px}h2{font-size:20px}video,img{width:100%;max-height:350px;object-fit:contain;background:#111}a{color:#125c70}.notice{padding:16px;background:#fff1d4}small,code{color:#556970}section{margin:32px 0}@media(max-width:850px){.grid{grid-template-columns:1fr}}</style><main><h1>线上 · 全自动预览 · 园园参考</h1>
+body{margin:0;background:#f2f3ef;color:#182b32;font:16px/1.65 system-ui}main{max-width:1450px;margin:auto;padding:28px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}article{background:white;padding:18px;border-radius:10px;min-width:0}h1{font-size:32px}h2{font-size:20px}video,img{width:100%;max-height:350px;object-fit:contain;background:#111}a{color:#125c70}.notice{padding:16px;background:#fff1d4}small,code{color:#556970}td,th{padding:8px 14px;text-align:left;border-bottom:1px solid #ccd4d1}table{border-collapse:collapse}section{margin:32px 0}@media(max-width:850px){.grid{grid-template-columns:1fr}}</style><main><h1>线上 · 全自动预览 · 园园参考</h1>
 <p>直接展示实际 MP4、实际封面和生成标题。缺文件或视频哈希不符时不生成播放器。此页不提供人工标题、字幕或选段给生产系统。</p>
 <p class="notice">这里是单源预览，不能据此计算固定 100 条素材的出片率；历史 11% / 17% 也不代表本轮全自动流程的成绩。工作流通过、内容验收通过、发布成功分别核对。</p>'''
     if current.get('run'):
         body+='<p>后续任务 <a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(current['run'])+'">'+esc(current['run'])+'</a> · '+esc(current.get('status','未知'))+' · '+esc(current.get('model',''))+'</p>'
     body+=''.join(articles) or '<p>尚无文件哈希核对通过的自动产物。</p>'
+    snapshot=read(preview_root/'source-snapshot/audit.json',{})
+    if snapshot:
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        checked=datetime.fromtimestamp(snapshot['checked_at'],ZoneInfo('Asia/Shanghai')).isoformat(timespec='seconds')
+        body+='<section><h2>现有素材库快照</h2><p>'+esc(checked)+' · 主线 '+esc(snapshot.get('snapshot_commit','')[:7])+'</p>'
+        body+='<p>共 '+esc(snapshot.get('records'))+' 条记录。以下“时长符合”只是取源候选条件，不代表已下载、内容合格或已经出片；参考账号记录不进入生产素材。</p>'
+        body+='<div style="overflow:auto"><table><tr><th>来源</th><th>记录数</th><th>视频候选</th><th>已知时长符合</th><th>时长未知</th><th>仅供参考</th></tr>'
+        for name,counts in snapshot.get('materials',{}).items():
+            body+='<tr><td>'+esc(name)+'</td>'+''.join('<td>'+esc(counts.get(k,0))+'</td>' for k in ('records','video_candidates','duration_eligible','duration_unknown','reference_only'))+'</tr>'
+        body+='</table></div><p>这是已有线上流程的快照，不是本轮新代码的出片率。<a href="'+esc(url(preview_root/'source-snapshot/audit.json'))+'">完整统计及失败阶段记录</a></p></section>'
     body+='''</main><script>document.querySelectorAll('video').forEach(v=>{v.addEventListener('play',()=>document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause()}));v.addEventListener('error',()=>{const p=document.createElement('p');p.textContent='播放器未能加载，请通过同目录的本地 HTTP 服务打开，或使用上方原文件链接。';v.after(p)},{once:true})});</script></html>'''
     output.parent.mkdir(parents=True,exist_ok=True);output.write_text(body)
     return len(seen)
