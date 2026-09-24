@@ -1783,7 +1783,9 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
 
 
 def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
-    if automatic_only() and any(any(k.startswith('editorial_') for k in p) for p in picks):
+    manual_fields={'editorial_title','editorial_cover','editorial_review','editorial_subtitles',
+                   'editorial_prefer_exact_quote','editorial_source_sha256','stock_original_mode'}
+    if automatic_only() and any(manual_fields.intersection(p) for p in picks):
         raise VisualQualityError('Automatic production cannot use per-source editorial overrides')
     omitted_text=None
     if len(picks)==1:

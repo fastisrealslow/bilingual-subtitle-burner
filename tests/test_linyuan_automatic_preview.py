@@ -1,5 +1,6 @@
 """Preview must exercise production gates without publication or manual answers."""
 import importlib.util
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -76,3 +77,19 @@ def test_automatic_copy_cache_cannot_reuse_assisted_identity(monkeypatch):
     monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
     automatic=p._copy_style_identity('林园')
     assert automatic!=assisted and automatic['automatic_only'] is True
+
+
+def test_automatic_source_ranking_is_not_a_manual_editorial_override(monkeypatch,tmp_path):
+    monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
+    text='企业需要现金流，因为支付货款需要现金。'
+    response=dict(analysis=dict(claim_quote=text,reasoning_quote=text,conclusion_quote=text,
+        opening_quote=text,ending_quote=text,summary='现金流与支付能力',
+        completeness_reason='观点与理由在同一句中',audio_issues=[]),verdict=dict(
+        standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False))
+    calls=[]
+    monkeypatch.setattr(p,'llm',lambda *a,**k:calls.append(k) or json.dumps(response))
+    result=p.review_complete_argument([dict(start=0,end=140,text=text)],
+        [dict(start=0,end=0,editorial_rank=0,selection_method='source_complete_answer_v1')],
+        '林园','',tmp_path,'')
+    assert calls and result['automatic_only'] is True and result['complete_argument'] is True
