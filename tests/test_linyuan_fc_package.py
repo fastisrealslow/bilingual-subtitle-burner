@@ -1,5 +1,6 @@
 """Run the actual FC archive outside the checkout, with production defaults."""
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -66,3 +67,30 @@ def test_packaging_rejects_missing_lazy_dependency(tmp_path, monkeypatch):
                                                if p != 'title_market_impression.py'))
     with pytest.raises(ValueError, match='missing runtime module title_market_impression'):
         package.build(tmp_path/'broken.zip')
+
+
+def test_default_package_excludes_only_historical_mp4_and_explicit_mode_keeps_exact_bytes(tmp_path):
+    package=module('package_code')
+    small=package.build(tmp_path/'runtime.zip')
+    full=package.build(tmp_path/'historical.zip',include_reviewed_videos=True)
+    with zipfile.ZipFile(small) as normal,zipfile.ZipFile(full) as historical:
+        omitted=set(historical.namelist())-set(normal.namelist())
+        assert omitted=={'reviewed_0910/video.mp4','reviewed_0910/third-video.mp4'}
+        for name in normal.namelist():assert normal.read(name)==historical.read(name)
+        for name in omitted:
+            assert hashlib.sha256(historical.read(name)).digest()==hashlib.sha256((ROOT/'linyuan/fc'/name).read_bytes()).digest()
+    assert small.stat().st_size<1024**2
+
+
+def test_missing_historical_media_fails_before_any_external_edit(tmp_path,monkeypatch):
+    updates=module('reviewed_updates')
+    monkeypatch.setattr(updates,'DIRECTORY',tmp_path)
+    with pytest.raises(ValueError,match='apply_archive_edits=true'):
+        updates.asset('video.mp4','unused')
+
+
+def test_production_only_opts_into_historical_videos_for_explicit_archive_edit():
+    text=(ROOT/'.github/workflows/fc-production-deploy.yml').read_text()
+    assert "FC_INCLUDE_REVIEWED_VIDEOS: ${{ github.event_name == 'workflow_dispatch' && inputs.apply_archive_edits && 'true' || 'false' }}" in text
+    assert 'if [[ "$FC_INCLUDE_REVIEWED_VIDEOS" == \'true\' ]]; then' in text
+    assert 'deploy_package_args+=(--include-reviewed-videos)' in text
