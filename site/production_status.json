@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1790279049,
+  "updated_at": 1790279132,
   "inventory_updated_at": 1790279046,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790279049,
+    "updated_at": 1790279132,
     "records": 6494,
     "video_records": 5398,
-    "initial_candidates": 114,
-    "duration_eligible_records": 67,
-    "candidate_count": 67,
-    "known_duration_candidates": 64,
+    "initial_candidates": 112,
+    "duration_eligible_records": 65,
+    "candidate_count": 65,
+    "known_duration_candidates": 62,
     "unknown_duration_candidates": 3,
     "excluded": {
-      "already_attempted_or_cooling": 884,
+      "already_attempted_or_cooling": 886,
       "no_video": 1096,
       "noise": 121,
       "speaker_unconfirmed": 3103,
@@ -50,22 +50,6 @@
         "author": "好看视频",
         "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=4655177794519463990",
         "duration_sec": 67.0
-      },
-      {
-        "key": "bilibili_search:BV1Uiev6NEAm",
-        "title": "林园：人赚到一亿后再赚十亿就很容易了",
-        "source": "bilibili_search",
-        "author": "-大道至简返璞归真",
-        "url": "https://www.bilibili.com/video/BV1Uiev6NEAm",
-        "duration_sec": 22.0
-      },
-      {
-        "key": "bilibili_search:BV1VhWFzvEC2",
-        "title": "林园：因为网下打新需要匹配市值，买了寒武纪后一直很煎熬",
-        "source": "bilibili_search",
-        "author": "-大道至简返璞归真",
-        "url": "https://www.bilibili.com/video/BV1VhWFzvEC2",
-        "duration_sec": 233.0
       },
       {
         "key": "bilibili_search:BV1nWVPz8EAf",
@@ -114,22 +98,6 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1MHDmB3EjE",
         "duration_sec": 90.0
-      },
-      {
-        "key": "bilibili_search:BV1KieY64E1S",
-        "title": "林园：投资是要投资企业的，你方向对了，你企业选不对也是个问题。AI肯定是改变人类的大行业，但具体投哪个企业，我没有这个本",
-        "source": "bilibili_search",
-        "author": "我真的是大川啊",
-        "url": "https://www.bilibili.com/video/BV1KieY64E1S",
-        "duration_sec": 107.0
-      },
-      {
-        "key": "bilibili_search:BV1knv9B3EDV",
-        "title": "林园：老龄化社会来了以后，片仔癀的用途和作用对很多领域都是有效的。（2025-12-19）",
-        "source": "bilibili_search",
-        "author": "我真的是大川啊",
-        "url": "https://www.bilibili.com/video/BV1knv9B3EDV",
-        "duration_sec": 104.0
       },
       {
         "key": "bilibili_search:BV1xLTg6tEhx",
@@ -210,6 +178,22 @@
         "author": "复利整合创新",
         "url": "https://www.bilibili.com/video/BV1oD4y1X7Au",
         "duration_sec": 34.0
+      },
+      {
+        "key": "bilibili_search:BV1KieY64E1S",
+        "title": "林园：投资是要投资企业的，你方向对了，你企业选不对也是个问题。AI肯定是改变人类的大行业，但具体投哪个企业，我没有这个本",
+        "source": "bilibili_search",
+        "author": "我真的是大川啊",
+        "url": "https://www.bilibili.com/video/BV1KieY64E1S",
+        "duration_sec": 107.0
+      },
+      {
+        "key": "bilibili_search:BV1knv9B3EDV",
+        "title": "林园：老龄化社会来了以后，片仔癀的用途和作用对很多领域都是有效的。（2025-12-19）",
+        "source": "bilibili_search",
+        "author": "我真的是大川啊",
+        "url": "https://www.bilibili.com/video/BV1knv9B3EDV",
+        "duration_sec": 104.0
       },
       {
         "key": "bilibili_search:BV16m4y1P7Uc",
@@ -579,15 +563,15 @@
   },
   "counts": {
     "complete": 79,
-    "failed": 644,
+    "failed": 645,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 6,
-    "retry_queued": 2,
-    "interrupted": 3,
+    "retry_queued": 3,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -13954,14 +13938,14 @@
     },
     {
       "slug": "ly-0924-f8d884",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1790278479,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1790279967,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -13990,11 +13974,11 @@
     },
     {
       "slug": "ly-0924-89ac4c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790278609,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14023,6 +14007,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36049970905",
       "run_started_at": "2026-09-24T19:42:36Z",
       "run_updated_at": "2026-09-24T19:42:41Z"
+    },
+    {
+      "slug": "ly-0924-bf0ef2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790279090,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36050219281,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36050219281",
+      "run_started_at": "2026-09-24T19:44:50Z",
+      "run_updated_at": "2026-09-24T19:44:59Z"
+    },
+    {
+      "slug": "ly-0924-ee5c85",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790279095,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36050227611,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36050227611",
+      "run_started_at": "2026-09-24T19:44:55Z",
+      "run_updated_at": "2026-09-24T19:44:59Z"
     }
   ],
   "runs": {
@@ -17843,17 +17863,6 @@
       "run_number": 1259,
       "display_title": "中文源出片 · ly-0924-89ac4c"
     },
-    "ly-0924-a7c53b": {
-      "id": 36049970905,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-09-24T19:42:36Z",
-      "updated_at": "2026-09-24T19:42:41Z",
-      "run_started_at": "2026-09-24T19:42:36Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36049970905",
-      "run_number": 1260,
-      "display_title": "中文源出片 · ly-0924-a7c53b"
-    },
     "ly-0924-f8d884": {
       "id": 36049087468,
       "status": "completed",
@@ -17864,6 +17873,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36049087468",
       "run_number": 1257,
       "display_title": "中文源出片 · ly-0924-f8d884"
+    },
+    "ly-0924-ee5c85": {
+      "id": 36050227611,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T19:44:55Z",
+      "updated_at": "2026-09-24T19:44:59Z",
+      "run_started_at": "2026-09-24T19:44:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36050227611",
+      "run_number": 1262,
+      "display_title": "中文源出片 · ly-0924-ee5c85"
+    },
+    "ly-0924-bf0ef2": {
+      "id": 36050219281,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T19:44:50Z",
+      "updated_at": "2026-09-24T19:44:59Z",
+      "run_started_at": "2026-09-24T19:44:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36050219281",
+      "run_number": 1261,
+      "display_title": "中文源出片 · ly-0924-bf0ef2"
+    },
+    "ly-0924-a7c53b": {
+      "id": 36049970905,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T19:42:36Z",
+      "updated_at": "2026-09-24T19:42:41Z",
+      "run_started_at": "2026-09-24T19:42:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36049970905",
+      "run_number": 1260,
+      "display_title": "中文源出片 · ly-0924-a7c53b"
     },
     "ly-0924-54f58d": {
       "id": 36048792387,
