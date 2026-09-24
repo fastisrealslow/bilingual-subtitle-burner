@@ -1,22 +1,22 @@
 {
   "version": 1,
-  "updated_at": 1790272289,
+  "updated_at": 1790272373,
   "inventory_updated_at": 1790272288,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790272289,
+    "updated_at": 1790272373,
     "records": 6494,
     "video_records": 5398,
-    "initial_candidates": 151,
-    "duration_eligible_records": 104,
-    "candidate_count": 104,
-    "known_duration_candidates": 101,
+    "initial_candidates": 150,
+    "duration_eligible_records": 103,
+    "candidate_count": 103,
+    "known_duration_candidates": 100,
     "unknown_duration_candidates": 3,
     "excluded": {
+      "already_attempted_or_cooling": 848,
       "no_video": 1096,
       "noise": 121,
       "speaker_unconfirmed": 3103,
-      "already_attempted_or_cooling": 847,
       "clip_title": 1016,
       "unrelated": 57,
       "ai_content": 33,
@@ -27,14 +27,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5346785570326047",
-        "title": "林园：经商的原则就是不和任何人打交道 http://t.cn/AXWvk7GU ​​​",
-        "source": "weibo_search",
-        "author": "文史趣谈君",
-        "url": "https://m.weibo.cn/detail/5346785570326047",
-        "duration_sec": 94.0
-      },
       {
         "key": "bilibili_search:BV1da4y1W7CF",
         "title": "林园：投机和投资没有区别（2012年）",
@@ -875,14 +867,13 @@
   },
   "counts": {
     "complete": 79,
-    "failed": 612,
+    "failed": 613,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 4,
     "retry_queued": 1,
-    "running": 5,
-    "interrupted": 1
+    "running": 6
   },
   "tasks": [
     {
@@ -13565,11 +13556,11 @@
     },
     {
       "slug": "ly-0913-3a3572-repair0914v3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 14.83s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1790271554,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -13652,6 +13643,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36037004515",
       "run_started_at": "2026-09-24T17:49:43Z",
       "run_updated_at": "2026-09-24T17:49:48Z"
+    },
+    {
+      "slug": "ly-0924-61c085",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790272333,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36037292747,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36037292747",
+      "run_started_at": "2026-09-24T17:52:13Z",
+      "run_updated_at": "2026-09-24T17:52:17Z"
     }
   ],
   "runs": {
@@ -17054,6 +17063,28 @@
       "run_number": 1215,
       "display_title": "中文源出片 · ly-0913-3a3572-repair0914v2"
     },
+    "ly-0913-3a3572-repair0914v3": {
+      "id": 36035799345,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-24T17:39:13Z",
+      "updated_at": "2026-09-24T17:51:13Z",
+      "run_started_at": "2026-09-24T17:39:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36035799345",
+      "run_number": 1216,
+      "display_title": "中文源出片 · ly-0913-3a3572-repair0914v3"
+    },
+    "ly-0924-61c085": {
+      "id": 36037292747,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T17:52:13Z",
+      "updated_at": "2026-09-24T17:52:17Z",
+      "run_started_at": "2026-09-24T17:52:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36037292747",
+      "run_number": 1221,
+      "display_title": "中文源出片 · ly-0924-61c085"
+    },
     "ly-0924-140a3a": {
       "id": 36037004515,
       "status": "in_progress",
@@ -17086,17 +17117,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36036744459",
       "run_number": 1218,
       "display_title": "中文源出片 · ly-0914-31921f"
-    },
-    "ly-0913-3a3572-repair0914v3": {
-      "id": 36035799345,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-24T17:39:13Z",
-      "updated_at": "2026-09-24T17:51:13Z",
-      "run_started_at": "2026-09-24T17:39:13Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36035799345",
-      "run_number": 1216,
-      "display_title": "中文源出片 · ly-0913-3a3572-repair0914v3"
     },
     "ly-0914-069fe8": {
       "id": 36035773613,
