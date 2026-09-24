@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1790275055,
+  "updated_at": 1790275132,
   "inventory_updated_at": 1790275053,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790275055,
+    "updated_at": 1790275131,
     "records": 6494,
     "video_records": 5398,
-    "initial_candidates": 136,
-    "duration_eligible_records": 89,
-    "candidate_count": 89,
-    "known_duration_candidates": 86,
+    "initial_candidates": 135,
+    "duration_eligible_records": 88,
+    "candidate_count": 88,
+    "known_duration_candidates": 85,
     "unknown_duration_candidates": 3,
     "excluded": {
-      "already_attempted_or_cooling": 862,
+      "already_attempted_or_cooling": 863,
       "no_video": 1096,
       "noise": 121,
       "speaker_unconfirmed": 3103,
@@ -34,14 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5346045695103422",
-        "title": "林园：AI行业的牛市才刚刚开始！\n#私募排排网# #股票# #私募基金# #A股# #人工智能# http://t.cn",
-        "source": "weibo_search",
-        "author": "排排网",
-        "url": "https://m.weibo.cn/detail/5346045695103422",
-        "duration_sec": 77.0
       },
       {
         "key": "weibo_search:5346368244941599",
@@ -760,9 +752,8 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 5,
-    "retry_queued": 1,
-    "running": 5,
-    "interrupted": 1
+    "retry_queued": 2,
+    "running": 6
   },
   "tasks": [
     {
@@ -13751,14 +13742,14 @@
     },
     {
       "slug": "ly-0924-6b13a2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1790274520,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1790276870,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -13802,6 +13793,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36042195267",
       "run_started_at": "2026-09-24T18:34:37Z",
       "run_updated_at": "2026-09-24T18:34:42Z"
+    },
+    {
+      "slug": "ly-0924-e72fb3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790275093,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36042610601,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36042610601",
+      "run_started_at": "2026-09-24T18:38:13Z",
+      "run_updated_at": "2026-09-24T18:38:18Z"
     }
   ],
   "runs": {
@@ -17369,6 +17378,28 @@
       "run_number": 1229,
       "display_title": "中文源出片 · ly-0924-8f3718"
     },
+    "ly-0924-6b13a2": {
+      "id": 36041495008,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-24T18:28:40Z",
+      "updated_at": "2026-09-24T18:36:25Z",
+      "run_started_at": "2026-09-24T18:28:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36041495008",
+      "run_number": 1234,
+      "display_title": "中文源出片 · ly-0924-6b13a2"
+    },
+    "ly-0924-e72fb3": {
+      "id": 36042610601,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T18:38:13Z",
+      "updated_at": "2026-09-24T18:38:18Z",
+      "run_started_at": "2026-09-24T18:38:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36042610601",
+      "run_number": 1237,
+      "display_title": "中文源出片 · ly-0924-e72fb3"
+    },
     "ly-0924-2b9d27": {
       "id": 36042195267,
       "status": "in_progress",
@@ -17390,17 +17421,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36041508282",
       "run_number": 1235,
       "display_title": "中文源出片 · ly-0924-a6e802"
-    },
-    "ly-0924-6b13a2": {
-      "id": 36041495008,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-24T18:28:40Z",
-      "updated_at": "2026-09-24T18:36:25Z",
-      "run_started_at": "2026-09-24T18:28:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36041495008",
-      "run_number": 1234,
-      "display_title": "中文源出片 · ly-0924-6b13a2"
     },
     "ly-0924-f82b1f": {
       "id": 36037557068,
