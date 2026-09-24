@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1790277974,
+  "updated_at": 1790278063,
   "inventory_updated_at": 1790277971,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790277973,
+    "updated_at": 1790278062,
     "records": 6494,
     "video_records": 5398,
-    "initial_candidates": 123,
-    "duration_eligible_records": 76,
-    "candidate_count": 76,
-    "known_duration_candidates": 73,
+    "initial_candidates": 122,
+    "duration_eligible_records": 75,
+    "candidate_count": 75,
+    "known_duration_candidates": 72,
     "unknown_duration_candidates": 3,
     "excluded": {
-      "already_attempted_or_cooling": 875,
+      "already_attempted_or_cooling": 876,
       "no_video": 1096,
       "noise": 121,
       "speaker_unconfirmed": 3103,
@@ -34,14 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5344634196726110",
-        "title": "#a股##投资# 林园：不爱和别人打交道。尽量不让别人影响你——人性的威力。\n——\n“道不贱卖，法不轻传，医不叩门，师不",
-        "source": "weibo_search",
-        "author": "A股幽灵",
-        "url": "https://m.weibo.cn/detail/5344634196726110",
-        "duration_sec": 58.0
       },
       {
         "key": "haokan_video:4342017134504712894",
@@ -656,10 +648,9 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 6,
-    "retry_queued": 1,
-    "running": 5,
-    "excluded": 1,
-    "interrupted": 1
+    "retry_queued": 2,
+    "running": 6,
+    "excluded": 1
   },
   "tasks": [
     {
@@ -13864,14 +13855,14 @@
     },
     {
       "slug": "ly-0924-f82b1f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1790277552,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1790279794,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -13933,6 +13924,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36047678938",
       "run_started_at": "2026-09-24T19:22:17Z",
       "run_updated_at": "2026-09-24T19:22:21Z"
+    },
+    {
+      "slug": "ly-0924-dd56ca",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790278023,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36048223713,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36048223713",
+      "run_started_at": "2026-09-24T19:27:03Z",
+      "run_updated_at": "2026-09-24T19:27:07Z"
     }
   ],
   "runs": {
@@ -17653,6 +17662,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36047330621",
       "run_number": 1248,
       "display_title": "中文源出片 · ly-0924-f82b1f"
+    },
+    "ly-0924-dd56ca": {
+      "id": 36048223713,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T19:27:03Z",
+      "updated_at": "2026-09-24T19:27:07Z",
+      "run_started_at": "2026-09-24T19:27:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36048223713",
+      "run_number": 1252,
+      "display_title": "中文源出片 · ly-0924-dd56ca"
     },
     "ly-0924-05c927": {
       "id": 36047678938,
