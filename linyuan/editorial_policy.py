@@ -2,13 +2,31 @@
 import hashlib
 import json
 import math
+import os
 import re
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 VERSION = 2026090604
-MIN_SECONDS = 120.0
+DURATION_POLICIES = {'legacy120': 120.0, 'reference_v1': 20.0}
+CONTENT_POLICY = os.environ.get('LINYUAN_CONTENT_POLICY', 'reference_v1')
+if CONTENT_POLICY not in DURATION_POLICIES:
+    raise ValueError('Unknown LINYUAN_CONTENT_POLICY: ' + CONTENT_POLICY)
+MIN_SECONDS = DURATION_POLICIES[CONTENT_POLICY]
 TARGET_SECONDS = 180.0
+# 2026-09-21: user explicitly replaced the universal 120s floor with the
+# reference creator's complete short/medium/long formats. Legacy metadata
+# retains its original contract; a short MP4 must declare the new policy.
+DURATION_POLICY_VERSION = 2026092101
+
+
+def content_format(seconds):
+    return 'short_view' if seconds < 120 else 'complete_view' if seconds <= 330 else 'long_interview'
+
+
+def duration_metadata(seconds):
+    return dict(content_policy=CONTENT_POLICY, content_format=content_format(seconds),
+                duration_policy_version=DURATION_POLICY_VERSION)
 # 2026-09-09: user removed the mandatory model opinion-completeness review.
 # This is a declared omission of that review, never a synthetic positive verdict.
 MODEL_REVIEW_POLICY_VERSION = 2026090901
@@ -237,6 +255,7 @@ def subtitle_files_text(base_dir, names):
 
 def plan_identity(cues, target_seconds):
     return text_digest(json.dumps({'version': VERSION, 'target': target_seconds,
+                                   'content_policy': CONTENT_POLICY, 'min_seconds': MIN_SECONDS,
                                    'cues': cues}, ensure_ascii=False, sort_keys=True))
 
 
@@ -246,7 +265,7 @@ def range_seconds(cues, pick):
         raise ValueError('选段必须使用有效的0起始字幕序号')
     duration = float(cues[b]['end']) - float(cues[a]['start'])
     if not math.isfinite(duration) or duration < MIN_SECONDS:
-        raise ValueError('完整观点不足120秒，换段或补足同一观点上下文，禁止短摘句凑数')
+        raise ValueError(f'完整观点不足{MIN_SECONDS:g}秒，换段或补足同一观点上下文，禁止短摘句凑数')
     return duration
 
 
@@ -300,12 +319,20 @@ def metadata_error(meta, actual_seconds=None):
     if attribution:return attribution
     try:
         duration = float(meta.get('duration_sec', 0))
-        if not math.isfinite(duration) or duration < MIN_SECONDS:
-            return '成片不足120秒，不符合用户要求的2～3分钟完整观点'
+        policy = meta.get('content_policy', 'legacy120')
+        if policy not in DURATION_POLICIES:
+            return '未知成片时长策略，不能跳过时长验收'
+        minimum = DURATION_POLICIES[policy]
+        if not math.isfinite(duration) or duration < minimum:
+            return f'成片不足{minimum:g}秒，不符合声明的完整内容策略'
+        if policy == 'reference_v1' and (
+                meta.get('duration_policy_version') != DURATION_POLICY_VERSION
+                or meta.get('content_format') != content_format(duration)):
+            return '短观点/完整观点/长访谈格式证明与实际时长不符'
         if actual_seconds is not None:
             actual = float(actual_seconds)
-            if not math.isfinite(actual) or actual < MIN_SECONDS:
-                return '实际MP4不足120秒，拒绝用元数据冒充长片'
+            if not math.isfinite(actual) or actual < minimum:
+                return f'实际MP4不足{minimum:g}秒，拒绝用元数据冒充合格成片'
             if abs(actual - duration) > 1.0:
                 return '实际MP4时长与验收记录不一致'
         segments = meta.get('segments') or []

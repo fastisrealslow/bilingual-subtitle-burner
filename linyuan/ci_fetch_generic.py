@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from urllib.parse import urlsplit
 
 from ci_fetch_bilibili import validate_media
 
@@ -61,6 +62,14 @@ def fetch(url, directory, failure_report):
     manifest = directory / 'downloaded-path.txt'
     manifest.unlink(missing_ok=True)
     try:
+        from ci_fetch_ifeng import ARTICLE_HOSTS
+        if urlsplit(url).hostname in ARTICLE_HOSTS:
+            from ci_fetch_ifeng import fetch as fetch_ifeng
+            media=fetch_ifeng(url,directory/'video.mp4')
+            origin=Path(failure_report).parent/'source_origin.json'
+            origin.parent.mkdir(parents=True,exist_ok=True)
+            origin.write_text(media.with_suffix('.origin.json').read_text())
+            return media
         subprocess.run([
             sys.executable, '-m', 'yt_dlp', '--no-playlist', '--continue',
             '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10',

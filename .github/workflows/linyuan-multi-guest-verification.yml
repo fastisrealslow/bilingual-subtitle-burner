@@ -1,0 +1,19 @@
+name: 主要回答与完整短证据修复后素材8完整出片（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-multi-guest-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '8'
+      content_policy: reference_v1
+      title_draft_profile: answer_focus
+      recovery_run_id: '35839087903'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

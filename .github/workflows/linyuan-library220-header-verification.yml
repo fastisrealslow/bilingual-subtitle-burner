@@ -1,0 +1,18 @@
+name: 素材库双行来源标题与观点复核（220，单列修复）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-library220-header-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '220'
+      manifest_path: simulations/library20-20260921.json
+      content_policy: reference_v1
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

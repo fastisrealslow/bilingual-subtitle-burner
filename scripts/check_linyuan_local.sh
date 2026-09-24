@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root=$(cd "$(dirname "$0")/.." && pwd)
+cd "$project_root"
+python_bin=${PYTHON_BIN:-"$project_root/.venv311/bin/python"}
+if [[ ! -x "$python_bin" ]]; then
+  echo "先按 docs/LOCAL_DEVELOPMENT.md 创建 .venv311，或设置 PYTHON_BIN。" >&2
+  exit 2
+fi
+if ! command -v ffmpeg >/dev/null 2>&1; then
+  local_ffmpeg=$("$python_bin" -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+  mkdir -p "$project_root/output/local-tools"
+  ln -sf "$local_ffmpeg" "$project_root/output/local-tools/ffmpeg"
+  export PATH="$project_root/output/local-tools:$PATH"
+fi
+export OPENCV_VIDEOIO_PRIORITY_LIST=FFMPEG
+"$python_bin" -m pytest -q \
+  tests/test_linyuan_editorial_iteration.py \
+  tests/test_linyuan_cover_conditions.py \
+  tests/test_linyuan_live_card_theme.py \
+  tests/test_linyuan_portrait_window.py \
+  tests/test_linyuan_stable_framing.py \
+  tests/test_linyuan_live_tracking.py \
+  tests/test_linyuan_clean_source_plan.py \
+  tests/test_linyuan_subtitle_edit_delivery.py \
+  tests/test_linyuan_title_claims.py \
+  tests/test_linyuan_title_batch_regressions.py \
+  tests/test_linyuan_headline_policy.py \
+  tests/test_linyuan_editorial_policy.py \
+  tests/test_linyuan_reference_duration.py \
+  tests/test_linyuan_simulation.py \
+  tests/test_linyuan_production_history.py \
+  tests/test_linyuan_source_selection.py \
+  tests/test_linyuan_presentation.py \
+  tests/test_linyuan_source_priority.py \
+  tests/test_linyuan_runner_dispatch.py \
+  tests/test_linyuan_title_model_lab.py \
+  tests/test_linyuan_source100_ab.py \
+  tests/test_linyuan_dispatch_retry.py \
+  tests/test_linyuan_batch_isolation.py \
+  tests/test_linyuan_visual_before_copy.py "$@"

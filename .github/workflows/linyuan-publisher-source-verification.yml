@@ -1,0 +1,16 @@
+name: 凤凰网正文新素材完整验收（独立1条，不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-publisher-source-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '401'
+      manifest_path: simulations/publisher1-20260923.json
+      content_policy: reference_v1

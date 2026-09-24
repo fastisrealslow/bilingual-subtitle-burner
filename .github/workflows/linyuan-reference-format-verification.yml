@@ -1,0 +1,17 @@
+name: 园园时长路线验证（16条原固定素材，单列新口径）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-reference-format-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '2,6,14,17,19,34,53,55,63,69,74,82,83,85,97,100'
+      content_policy: reference_v1
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

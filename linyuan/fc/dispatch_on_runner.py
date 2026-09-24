@@ -78,6 +78,19 @@ def main():
         receipt['timers'] = retire_timer()
         receipt['completed'] = True
         return receipt
+    except Exception as exc:
+        message = str(exc).lower()
+        if 'current user is in debt' in message or 'account in debt' in message:
+            receipt['failure'] = {
+                'category': 'cloud_account_billing', 'provider': 'aliyun_fc',
+                'retryable_without_external_change': False,
+                'material_rejected': False,
+                'reason': '阿里云账户欠费，中转/控制面不可用；恢复账户后再试'}
+        else:
+            receipt['failure'] = {'category': 'dispatch_runtime',
+                                  'error_type': type(exc).__name__,
+                                  'material_rejected': False}
+        raise
     finally:
         fc.flush_logs()
         Path('github-dispatch-receipt.json').write_text(

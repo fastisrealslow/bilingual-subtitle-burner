@@ -21,7 +21,7 @@ def test_clean_native_interview_does_not_enlarge_a_distant_face(tmp_path,monkeyp
     monkeypatch.setattr(P,'copywrite',lambda *a,**k:{})
     monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:tmp_path/'reference.jpg')
     monkeypatch.setattr(P,'_local_face_models',lambda:('detector','recognizer'))
-    monkeypatch.setattr(stage_context,'plan',lambda *a:None)
+    monkeypatch.setattr(stage_context,'plan',lambda *a,**k:None)
     (tmp_path/'identity_1.jpg').write_bytes(b'previously verified host frame')
     native=dict(clean_strategy='crop',clean_video_filter='crop=1838:864:0:0',
                 clean_output_resolution=dict(width=1838,height=864))
@@ -270,6 +270,23 @@ def test_selected_native_plan_checks_whole_interval_and_keeps_native_pixels(monk
         assert plan['clean_output_resolution']['width']==1838
         assert 'scale=' not in plan['clean_video_filter']
         assert plan['native_context_proof']['sampled_frames']==12
+
+
+@pytest.mark.parametrize('dirty,logos',[(False,False),(True,False),(False,True)])
+def test_uncropped_native_interval_must_still_pass_text_and_logo_gates(monkeypatch,tmp_path,dirty,logos):
+    monkeypatch.setattr(P.subprocess,'run',lambda *a,**kw:None)
+    monkeypatch.setattr(P,'ocr_row_coverage',lambda *a,**kw:[0.0]*100)
+    monkeypatch.setattr(P,'has_existing_subtitles',lambda *a,**kw:dirty)
+    monkeypatch.setattr(P,'detect_corner_logos',lambda *a,**kw:[(.1,.1,.2,.2)] if logos else [])
+    plan=P.selected_native_clean_plan('mother.mp4',tmp_path,1280,720,30,75)
+    proof=json.loads((tmp_path/'native-plan.json').read_text())
+    assert proof['uncropped_proposal'] is True
+    assert proof['passed'] is (not dirty and not logos)
+    if dirty or logos:
+        assert plan is None
+    else:
+        assert plan['clean_video_filter']=='crop=1280:720:0:0'
+        assert plan['clean_output_resolution']==dict(width=1280,height=720)
 
 
 def test_audio_card_fails_closed_without_chinese_font(monkeypatch, tmp_path):

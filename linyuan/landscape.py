@@ -1,5 +1,4 @@
 """Landscape presentation of a verified moving window; never stretch a portrait card."""
-import hashlib
 import os
 import re
 import subprocess
@@ -8,7 +7,11 @@ from pathlib import Path
 CANVAS = (1280, 720)
 BRAND_WIDTH = 180
 # Keep the 632:470 clean window's aspect ratio to within one encoded pixel.
-LIVE_REGION = dict(x=156, y=0, width=968, height=720)
+# Final source-text inspection scans the whole live window. V2 placed our
+# generated captions inside that window; all six cc5113b landscape attempts
+# were then mistaken for dirty source footage. Keep every source-pixel check
+# unchanged and place our captions in a separate footer.
+LIVE_REGION = dict(x=270, y=0, width=740, height=550)
 
 
 def source_window(meta):
@@ -16,6 +19,21 @@ def source_window(meta):
     # A tighter crop cannot remove these without cutting the face.
     if meta.get('fingerprints',{}).get('sha256')=='a0a1a9c3674e4620ad36595fde0b17abca69ddb44e17376a1734d25d76d302ec':
         raise ValueError('原片动态黄色大字遮挡人物，不能以裁切冒充干净横版')
+    spec=meta.get('layout_proof',{})
+    if spec.get('canvas')==dict(width=1280,height=720):
+        # Read older quiet outputs only when both recorded regions match the
+        # previous renderer exactly; never guess a crop for unknown layouts.
+        if spec.get('template')=='landscape-live-v4-quiet-footer':
+            if (spec.get('live_region')!=dict(x=237,y=0,width=806,height=600)
+                    or spec.get('subtitle_region')!=dict(x=180,y=600,width=920,height=120)):
+                raise ValueError('旧横版输入的真人窗口或字幕区域已变化')
+            return dict(spec['live_region'])
+        styles={layout('classic')['template']:'classic',layout('quiet')['template']:'quiet'}
+        style=styles.get(spec.get('template'))
+        if (not style or spec.get('live_region')!=layout(style)['live_region']
+                or spec.get('subtitle_region')!=layout(style)['subtitle_region']):
+            raise ValueError('横版输入的真人窗口或字幕区域不是已知的独立区域')
+        return dict(spec['live_region'])
     return dict(x=44,y=360,width=632,height=470)
 
 
@@ -28,21 +46,44 @@ def selected(meta, requested='auto'):
         return False
     if requested != 'auto':
         return requested == 'landscape'
-    key = str(meta.get('source_sha256')) + repr(meta.get('segments'))
-    return hashlib.sha256(key.encode()).digest()[0] % 3 == 0
+    # Format follows verified picture geometry, not a source-hash lottery.
+    # This generated portrait template holds a horizontal 632x470 window.
+    # Native portrait/stage footage and unknown layouts keep their own frame.
+    spec = meta.get('layout_proof') or {}
+    return (meta.get('audio_card_template') == 'live_editorial_v4_readable'
+            and spec.get('canvas') == dict(width=720, height=1280)
+            and spec.get('live_region', dict(x=44,y=360,width=632,height=470))
+                == dict(x=44,y=360,width=632,height=470))
 
 
-def layout():
+def style_name(value=None):
+    value=value or os.environ.get('LINYUAN_LANDSCAPE_STYLE','quiet')
+    if value not in ('classic','quiet'):raise ValueError('未知横版画面样式')
+    return value
+
+
+def layout(style=None):
     from presentation import layout_for
+    style=style_name(style)
     result = layout_for(*CANVAS)
     result.update(live_region=dict(LIVE_REGION), subtitle_region=dict(x=200,y=570,width=880,height=138),
                   subtitle_font_px=44, line_capacity=18, subtitle_style='white-outline',
-                  template='landscape-live-v2', preserve_display_text=True)
+                  template='landscape-live-v3-footer', preserve_display_text=True)
+    if style=='quiet':
+        # Full-video trials retain 44 visible caption pixels and two lines
+        # outside the 584px picture. Keep every source pixel in the scan.
+        result.update(live_region=dict(x=248,y=0,width=784,height=584),
+                      subtitle_region=dict(x=180,y=584,width=920,height=136),
+                      subtitle_font_px=44,line_capacity=20,
+                      template='landscape-live-v5-quiet-readable-footer')
     return result
 
 
-def background(path):
+def background(path, style=None):
     from PIL import Image, ImageDraw
+    if style_name(style)=='quiet':
+        Image.new('RGB',CANVAS,(23,25,28)).save(path)
+        return
     image = Image.new('RGB', CANVAS, (117, 34, 47))
     draw = ImageDraw.Draw(image)
     # Original understated snowball motif; no borrowed artwork or account mark.
@@ -121,13 +162,17 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     from editorial_policy import subtitle_files_text, text_digest
     directory,work=Path(directory),Path(work)
     if meta.get('render_mode')!='live_video_card':raise ValueError('横版真人模板需要实际动态画面')
-    if meta['layout_proof']['canvas']!={'width':720,'height':1280}:
-        raise ValueError('横版重排输入不是已验证的竖版真人窗口')
+    if meta['layout_proof']['canvas'] not in ({'width':720,'height':1280}, {'width':1280,'height':720}):
+        raise ValueError('横版重排输入不是支持的真人窗口布局')
+    window=source_window(meta)  # Validate a known caption-free window before writing.
     original=directory/meta['final']
     if producer._file_sha256(original)!=meta['fingerprints']['sha256']:
         raise ValueError('横版重排输入视频指纹变化')
     work.mkdir(parents=True,exist_ok=True)
-    spec=layout();region=spec['live_region']
+    # Existing illustrated chart footers have source-bound coordinates. Keep
+    # their proven layout until a separate chart layout has been verified.
+    chosen_style='classic' if (meta.get('interview_context') or {}).get('illustration_cards') else style_name()
+    spec=layout(chosen_style);region=spec['live_region']
     font=os.environ.get('ZH_FONT','Noto Sans CJK SC')
     matched=subprocess.check_output(['fc-match','-f','%{family}',font],text=True)
     if font.casefold() not in matched.casefold():
@@ -137,9 +182,8 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     presentation.write_ass(captions,subtitle,spec,font)
     if text_digest(subtitle_files_text(directory,[subtitle.name])) != meta['subtitle_text_sha256']:
         raise ValueError('横版重排改变了字幕文字')
-    bg=work/'landscape-background.png';background(bg)
+    bg=work/'landscape-background.png';background(bg,chosen_style)
     target=work/'landscape.mp4';brand=producer.brand_watermark_path()
-    window=source_window(meta)
     rate=subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
         '-show_entries','stream=avg_frame_rate','-of','default=nw=1:nk=1',str(original)],text=True).strip()
     card_footer=''
@@ -175,6 +219,11 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     checks.update(producer.verify_live_region_after_render(target,actor_times=times or (),live_region=region))
     identity=producer.verify_final_live_identity(target,work,speaker,api_key,'-landscape',
                                                   target_times=times,live_region=region)
+    # Recognition-aware final-image inspection distinguishes our generated
+    # brand from third-party source text; the old shape-only source detector
+    # reports our own quiet-layout wordmark as an external logo.
+    external_logos=producer.detect_external_logos_after_render(target,'crop',*CANVAS)
+    if external_logos:raise producer.VisualQualityError('重排成片仍有外部角标：'+str(external_logos))
     actual=float(producer.probe(target,'format=duration'))
     if abs(actual-meta['duration_sec'])>.15:raise ValueError('横版重排改变了时长')
     fingerprints=producer.build_content_fingerprints(target,subtitle_files_text(directory,[subtitle.name]))
@@ -187,9 +236,9 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     return {**meta,**checks,'layout_proof':spec,'resolution':dict(width=1280,height=720,short_edge=720),
             'vertical':False,'duration_sec':round(actual,1),'final_live_identity':identity,
             'fingerprints':fingerprints,'subtitle_files':[subtitle.name],
-            'video_title':None,'video_title_proof':None,'audio_card_template':'landscape-live-v2',
+            'video_title':None,'video_title_proof':None,'audio_card_template':spec['template'],
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=2,input_sha256=original_sha,source_window=window,
+            'landscape_reframe':dict(version=5 if chosen_style=='quiet' else 3,style=chosen_style,input_sha256=original_sha,source_window=window,
                 output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
                 source_frame_rate=rate,subtitle_timing_preserved=True)}

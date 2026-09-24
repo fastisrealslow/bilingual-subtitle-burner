@@ -71,6 +71,38 @@ def validate_manifest(manifest):
         assert all(re.fullmatch(r'seed-accept-[a-f0-9]{12}', r['slug']) for r in rows)
         assert manifest.get('source_preflight_run_id')
         assert all(r.get('source_preflight_sha256') for r in rows)
+    elif kind == 'new_library_acceptance':
+        assert 1 <= len(rows) <= 20, 'New-library acceptance batches must remain bounded'
+        assert manifest.get('denominator') == len(rows), 'Keep every discovered eligible source in the denominator'
+        assert all(re.fullmatch(r'library-0923-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
+        audit_path=(BASE / manifest['library_snapshot']).resolve()
+        assert BASE.resolve() in audit_path.parents
+        assert digest(audit_path)==manifest['library_snapshot_sha256'], 'Library snapshot changed'
+        audit=read(audit_path)
+        assert manifest['snapshot_main_sha']==audit['snapshot_main_sha']
+        assert manifest['discovery_cutoff_utc']==audit['discovery_cutoff_utc']
+        eligible=sorted(audit['new_eligible_candidates'],key=lambda r:source_key(r['url']))
+        assert len(rows)==audit['new_metadata_candidates_20s']==len(eligible)
+        assert [r['source_url'] for r in rows]==[r['url'] for r in eligible], 'Do not cherry-pick newly discovered sources'
+    elif kind == 'publisher_source_acceptance':
+        assert 1<=len(rows)<=5, 'Publisher probes are a separate bounded denominator'
+        assert manifest['denominator']==len(rows)
+        assert all(re.fullmatch(r'publisher-0923-\d{3}-[a-f0-9]{6}',r['slug']) for r in rows)
+        origin_path=(BASE/manifest['origin_evidence']).resolve()
+        assert BASE.resolve() in origin_path.parents
+        assert digest(origin_path)==manifest['origin_evidence_sha256'], 'Publisher evidence changed'
+        origins=read(origin_path)['media']
+        assert len(rows)==len(origins)
+        assert [(r['source_url'],r['source_preflight_sha256']) for r in rows]==[(r['article'],r['sha256']) for r in origins]
+    elif kind == 'source_library_acceptance':
+        assert len(rows) == 20, 'Library acceptance uses a fixed 20-source denominator'
+        assert all(re.fullmatch(r'library-0921-\d{3}-[a-f0-9]{6}', r['slug']) for r in rows)
+        audit_path=(BASE / manifest['library_snapshot']).resolve()
+        assert BASE.resolve() in audit_path.parents
+        assert digest(audit_path)==manifest['library_snapshot_sha256'], 'Library snapshot changed'
+        pool=read(audit_path)['profiles']['20']['top']
+        chosen=sample(pool,count=20,seed=manifest['seed'])
+        assert [r['source_url'] for r in rows]==[r['source_url'] for r in chosen], 'Library sample changed'
     else:
         raise ValueError('Unknown simulation manifest kind')
     assert len({source_key(r['source_url']) for r in rows}) == len(rows)
@@ -212,12 +244,15 @@ def validate_finals(out):
             raise ValueError('Final MP4 SHA mismatch')
         probe = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-show_streams',
                             '-show_format', '-of', 'json', str(video)]))
-        if float(probe['format']['duration']) < 120:
-            raise ValueError('Final shorter than 120 seconds')
+        duration_error = fc.editorial.metadata_error(row, float(probe['format']['duration']))
+        if duration_error:
+            raise ValueError(duration_error)
         if not {'audio', 'video'} <= {s['codec_type'] for s in probe['streams']}:
             raise ValueError('Missing video/audio stream')
         finals.append(dict(file=name, sha256=sha, duration=float(probe['format']['duration']),
-                           title=row['title'], source_sha256=row.get('source_sha256')))
+                           title=row['title'], source_sha256=row.get('source_sha256'),
+                           content_policy=row.get('content_policy','legacy120'),
+                           content_format=row.get('content_format','complete_view')))
     if finals:
         archive_accepted(out, out.name)
     return finals
@@ -235,7 +270,7 @@ def classify(finals, validation_error, batch, source, execution, steps):
     quality_types = {'VisualQualityError', 'NoStructuralCandidate', 'NoEligibleArgument'}
     visual_reasons=('来源取景无法保留完整人脸', '来源角标无法避开', '整段取景预检：',
                     '动态取景剩余帧即使全部匹配', '动态取景连续', '动态取景目标人物匹配不足',
-                    '真人取景源区域仅')
+                    '真人取景源区域仅', '成片存在持续黑色填充边')
     def quality_rejection(r):
         return (not r.get('retryable') and (r.get('error_type') in quality_types or
             (r.get('error_type')=='ValueError' and r.get('stage')=='part-quality'
@@ -281,9 +316,9 @@ def report():
         error = f'{type(exc).__name__}: {exc}'
     status, stage = classify(finals, error, batch, source, execution, steps)
     evidence = BASE / 'simulation-reports' / slug
-    code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'source_selection.py',
-            'live_tracking.py', 'ci_fetch_bilibili.py',
-            'simulate_sources.py', 'asr_production_config.json']
+    code = ['produce_cn.py', 'visual_selection.py', 'scene_text.py', 'temporal_source_text.py', 'source_selection.py', 'source_question_cards.py', 'source_publisher_marks.py',
+            'live_tracking.py', 'static_corner_repair.py', 'ci_fetch_bilibili.py', 'ci_fetch_ifeng.py',
+            'simulate_sources.py', 'title_rewrite.py', 'title_quantity_context.py', 'asr_production_config.json']
     value = dict(sample=row, status=status, stage=stage, finals=finals,
                  validation_error=error, source_sha256=source.get('source_sha256'),
                  batch=batch, source_quality=source, execution=execution, steps=steps,
@@ -304,6 +339,13 @@ def report():
     # distinguished from sparse host/audience cutaways. These are evidence
     # only and can never count as an accepted render.
     retain_identity_evidence(out, evidence)
+    remaining=12*1024*1024
+    for path in sorted(out.glob('_tmp/visual-question-cards/card-*.jpg'))[:80]:
+        size=path.stat().st_size
+        if size>2*1024*1024 or size>remaining:continue
+        target=evidence/'evidence'/path.relative_to(out)
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(path,target);remaining-=size
     # Failed live-window checks used to retain only a generic reason while the
     # six measured frames were discarded. Keep those small, already-sampled
     # images so padding can be distinguished from a naturally dark scene
@@ -339,6 +381,8 @@ def report():
 
 def aggregate(manifest, reports):
     samples = validate_manifest(manifest)
+    total=len(samples)
+    expected_samples={s['slug']:s for s in samples}
     # A diagnostic or a best-of merge across runs is not one benchmark.
     if any(r.get('diagnostic_subset') for r in reports):
         raise ValueError('Diagnostic subset reports cannot enter full acceptance')
@@ -352,20 +396,23 @@ def aggregate(manifest, reports):
     by_slug = {}
     for report in reports:
         slug = report['sample']['slug']
+        if slug not in expected_samples or report['sample']['source_url']!=expected_samples[slug]['source_url']:
+            raise ValueError('Unexpected or replaced source report: '+slug)
         if slug in by_slug:
             raise ValueError('Duplicate sample report: ' + slug)
         by_slug[slug] = report
     rows = [by_slug.get(s['slug'], dict(sample=s, status='unresolved', stage='missing-report', finals=[])) for s in samples]
     counts = Counter(r['status'] for r in rows)
-    assert sum(counts.values()) == 100
+    assert sum(counts.values()) == total
     passed = counts['passed']
     unresolved = counts['unresolved']
-    known = 100-unresolved
+    known = total-unresolved
+    target=int((manifest.get('comparison') or {}).get('target_passed',(total*30+99)//100))
     hashes = Counter(r.get('source_sha256') for r in rows if r.get('source_sha256'))
-    return dict(total=100, passed=passed, rejected=counts['rejected'], unresolved=unresolved,
-                target_passed=int((manifest.get('comparison') or {}).get('target_passed',30)),
-                target_met=passed>=int((manifest.get('comparison') or {}).get('target_passed',30)),
-                confirmed_success_percent=passed, possible_success_percent_range=[passed,passed+unresolved],
+    return dict(total=total, manifest_kind=manifest.get('kind','fixed100'), passed=passed, rejected=counts['rejected'], unresolved=unresolved,
+                target_passed=target, target_met=passed>=target,
+                confirmed_success_percent=round(100*passed/total,2),
+                possible_success_percent_range=[round(100*passed/total,2),round(100*(passed+unresolved)/total,2)],
                 resolved_success_percent=round(100*passed/known,2) if known else None,
                 complete=unresolved == 0, stages=dict(Counter(r['stage'] for r in rows)),
                 identical_mother_hash_groups={k:n for k,n in hashes.items() if n>1},
@@ -445,9 +492,10 @@ def main():
         summary = aggregate(read(MANIFEST), reports)
         dest = Path(args.reports) / 'summary.json'
         write(dest, summary)
-        text = (f"100素材模拟：已确认成功 {summary['passed']}/100，质量拒绝 {summary['rejected']}/100，"
-                f"未确定 {summary['unresolved']}/100。\n"
-                f"本轮确认成功率 {summary['confirmed_success_percent']}%；目标 {summary['target_passed']}%，达标 {summary['target_met']}。\n"
+        total=summary['total']
+        text = (f"{total}素材模拟：已确认成功 {summary['passed']}/{total}，质量拒绝 {summary['rejected']}/{total}，"
+                f"未确定 {summary['unresolved']}/{total}。\n"
+                f"本轮确认成功率 {summary['confirmed_success_percent']}%；目标 {summary['target_passed']}/{total}条，达标 {summary['target_met']}。\n"
                 "以每个源URL至少一条真实合格测试片为成功；未投稿。未确定不等同质量失败。\n\n"
                 '|ID|状态|阶段|成片数|\n|---|---|---|---|\n' +
                 '\n'.join(f"|{r['sample']['id']}|{r['status']}|{r['stage']}|{len(r.get('finals',[]))}|" for r in summary['samples']))

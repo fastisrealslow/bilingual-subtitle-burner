@@ -8,6 +8,13 @@ import presentation as V
 import produce_cn as P
 
 
+def guest_reading_then_invalid_draft(*args, **kwargs):
+    if 'c_guest_spans' in (kwargs.get('response_schema') or {}).get('properties', {}):
+        return P.json.dumps(dict(a_guest_answer='嘉宾明确表达了自己的投资判断和持有方式。',
+            b_question_premise='无主持人提问',c_guest_spans=[dict(a_start=0,b_end=0)]))
+    return '{}'
+
+
 def test_real_truncated_cover_uses_complete_clause_not_ellipsis():
     title='林园：现在消费和医药的回报是我从事资本市场最值得的最好的时候，曙光就在眼前'
     result=H.cover_copy(title)
@@ -53,7 +60,7 @@ def test_independent_cover_and_candidates_are_saved_for_review():
 
 
 def test_reviewed_copy_cache_refreshes_old_cover_policy(tmp_path,monkeypatch):
-    monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
+    monkeypatch.setattr(P,'llm',guest_reading_then_invalid_draft)
     title='林园：所有的产品都会变得一文不值'
     cues=[{'text':'所有的产品都会变得一文不值。','start':0,'end':6}]
     result=P.copywrite(cues,[0],'林园','访谈',None,tmp_path,reviewed_title=title)
@@ -93,8 +100,36 @@ def test_extractive_cover_never_drops_negation_or_uncertainty():
     assert '最值得' not in result['text']
 
 
+def test_sharp_verified_guest_beats_blurred_better_identity_match(tmp_path,monkeypatch):
+    import cv2
+    import numpy as np
+    reference=tmp_path/'ref.jpg';reference.touch()
+    paths=[tmp_path/(name+'.jpg') for name in ('blur','clear','host')]
+    monkeypatch.setattr(P,'_local_face_models',lambda:('detector','recognizer'))
+    ids={'ref':0,'blur':1,'clear':2,'host':3}
+    monkeypatch.setattr(cv2,'imread',lambda path:np.full((400,600,3),ids[Path(path).stem],dtype=np.uint8))
+    class Detector:
+        def setInputSize(self,*_):pass
+        def detect(self,im):return True,np.array([[80,50,140,180,{0:1,1:.9,2:.6,3:.2}[int(im[0,0,0])]]])
+    class Recognizer:
+        def alignCrop(self,im,face):return face[-1]
+        def feature(self,aligned):return aligned
+        def match(self,ref,feature,*_):return feature
+    monkeypatch.setattr(cv2.FaceDetectorYN,'create',lambda *a,**k:Detector())
+    monkeypatch.setattr(cv2.FaceRecognizerSF,'create',lambda *a,**k:Recognizer())
+    monkeypatch.setattr(cv2,'Laplacian',lambda im,*a:np.array([0,2 if im[0,0]==1 else 40]))
+    path,_,proof=P.select_verified_cover_face(paths,reference)
+    assert path.stem=='clear'
+    assert proof['cosine_score']==.6 and proof['sharpness']>=60
+    assert proof['matched_faces']==2 and proof['sharp_matching_faces']==1
+    # An unrelated sharp host can never rescue an entirely blurred guest set.
+    path,_,proof=P.select_verified_cover_face([paths[0],paths[2]],reference)
+    assert path.stem=='blur' and proof['sharp_matching_faces']==0
+    assert proof['sharpness']<60  # The renderer still rejects this frame.
+
+
 def test_full_interview_uses_claim_copy_and_preserves_actual_length(tmp_path,monkeypatch):
-    monkeypatch.setattr(P,'llm',lambda *a,**k:'{}')
+    monkeypatch.setattr(P,'llm',guest_reading_then_invalid_draft)
     result=P.copywrite([dict(text='我们长期持有优秀企业',start=0,end=3472)],[0],
                       '林园','访谈',None,tmp_path,suffix='_full',require_quote=False)
     assert result['title']=='林园：我们长期持有优秀企业'
@@ -178,8 +213,7 @@ def test_source_first_still_reads_full_segment_and_never_falls_back_to_keywords(
         calls.append(args)
         return '{"title":"林园：人少了没办法，它只消费少"}'
     monkeypatch.setattr(P,'llm',invalid)
-    result=P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
+    with pytest.raises(P.EditorialReviewUnavailable,match='未确认嘉宾原话归属'):
+        P.copywrite([dict(text='我们长期持有优秀企业。人少了没办法，它只消费少。',start=0,end=15)],
                     [0],'林园','访谈',None,tmp_path)
-    assert len(calls)==3 and result['title_rewrite']['kind']=='editorial_claim'
-    assert '没办法' not in result['title']
-    assert result['cover_title']==result['title_rewrite']['cover']
+    assert len(calls)==3

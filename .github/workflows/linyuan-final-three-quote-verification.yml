@@ -1,0 +1,21 @@
+name: 三条新返回视频原话封面与自动横版复验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-final-three-quote-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '39,46,95'
+      content_policy: reference_v1
+      title_draft_profile: production
+      output_layout: auto
+      landscape_style: quiet
+      recovery_run_id: '35902748400'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

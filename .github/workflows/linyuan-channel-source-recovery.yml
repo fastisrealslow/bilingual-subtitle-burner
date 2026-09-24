@@ -1,0 +1,20 @@
+name: 素材311恢复提问前提并拆分完整问答后的实片复验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-channel-source-recovery.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '311'
+      manifest_path: simulations/library17-20260923.json
+      content_policy: reference_v1
+      title_draft_profile: source_choices
+      recovery_run_id: '35835448194'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

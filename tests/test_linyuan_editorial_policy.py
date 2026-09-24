@@ -149,8 +149,13 @@ def test_title_generation_reads_the_entire_long_argument():
     cues=[dict(start=i*6,end=(i+1)*6,text='前面的解释。') for i in range(25)]
     cues[-1]['text']='长期持有才是我们一贯坚持的方法。'
     response='{"title":"林园：长期持有才是我们一贯坚持的方法","desc":"公开发言","tags":["林园"]}'
+    def reply(*args, **kwargs):
+        if 'c_guest_spans' in kwargs['response_schema'].get('properties',{}):
+            return json.dumps(dict(a_guest_answer='嘉宾说明长期持有才是一贯坚持的方法。',
+                b_question_premise='无主持人提问',c_guest_spans=[dict(a_start=0,b_end=24)]))
+        return response
     with tempfile.TemporaryDirectory() as tmp:
-        with patch.object(produce,'llm',return_value=response) as ask:
+        with patch.object(produce,'llm',side_effect=reply) as ask:
             produce.copywrite(cues,list(range(len(cues))),'林园','访谈','test',Path(tmp))
         assert cues[-1]['text'] in ask.call_args.args[0][0]['content']
 

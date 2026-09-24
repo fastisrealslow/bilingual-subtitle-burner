@@ -57,7 +57,7 @@ VISION_MODEL = os.environ.get("VISION_MODEL") or "Qwen/Qwen3-VL-8B-Instruct"
 TEXT_BACKEND = (os.environ.get("TEXT_BACKEND") or "local").strip().lower()
 LOCAL_LLM_URL = (os.environ.get("LOCAL_LLM_URL") or
                  "http://127.0.0.1:11434/api/chat").strip()
-LOCAL_LLM_MODEL = (os.environ.get("LOCAL_LLM_MODEL") or "qwen3:4b").strip()
+LOCAL_LLM_MODEL = (os.environ.get("LOCAL_LLM_MODEL") or "qwen3:8b").strip()
 LOCAL_FACE_MODEL_DIR = Path(os.environ.get("LOCAL_FACE_MODEL_DIR") or "/tmp/linyuan-face-models")
 LOCAL_FACE_DETECTOR_URL = ("https://github.com/opencv/opencv_zoo/raw/main/models/"
     "face_detection_yunet/face_detection_yunet_2023mar.onnx")
@@ -611,7 +611,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
     cache_dir.mkdir(exist_ok=True)
     ckey = hashlib.sha256(json.dumps(
         {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
-         "runtime_version":3,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
+         "runtime_version":4,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if read_cache and cf.exists():
@@ -637,6 +637,10 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
                             # A shared 640-token cap truncated real editorial
                             # reports long before their wall-clock deadline.
                             'options':{'temperature':temperature,
+                                       # Stable per request: transport retries do
+                                       # not randomly change the editorial draft.
+                                       # A corrected prompt gets a different seed.
+                                       'seed':int(ckey[:8],16) & 0x7fffffff,
                                        'num_ctx':16384,
                                        'num_predict':max_tokens}}).encode()
         started = time.monotonic()
@@ -649,6 +653,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
             metrics={k:data.get(k) for k in ('prompt_eval_count','prompt_eval_duration',
                      'eval_count','eval_duration','load_duration','done_reason')}
             metrics['wall_seconds']=round(time.monotonic()-started,2)
+            metrics['seed']=int(ckey[:8],16) & 0x7fffffff
             print('[local-llm] '+json.dumps(metrics), flush=True)
             if data.get('done_reason') == 'length':
                 raise ValueError('本地模型输出达到长度上限，审核未完成')
@@ -1665,7 +1670,7 @@ def editorial_sentence_units(cues):
 
 
 def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, allow_empty=False):
-    """Select complete continuous arguments; short quotations never enter daily work."""
+    """Select continuous, complete source turns under the declared length policy."""
     target = target_sec or TARGET_SEC
     from source_selection import boundary_error, VERSION as selector_version
     source_first = os.environ.get('SOURCE_EDITORIAL_FIRST') == 'true'
@@ -1699,17 +1704,17 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
     numbered="\n".join(numbered_rows)
     prompt = (
         f"你是{speaker}访谈编辑。以下是带原始时间戳的CPU离线ASR。"
-        "字幕序号之间不一定是词句边界，请连起来读。用户明确拒绝十几秒、几十秒摘句。"
-        "选1到2个不同的、连续完整观点，每条以120到180秒为主，"
-        "需要解释时可更长。每个区间实际结束时间减起始时间必须至少120秒。"
+        "字幕序号之间不一定是词句边界，请连起来读。不能只截一个脱离上下文的金句。"
+        f"选1到2个不同的、连续完整观点；至少{editorial.MIN_SECONDS:g}秒，解释需要时保留更长上下文。"
+        "短观点保留明确判断和必要的理由、条件或回应；时长由内容决定。"
         "一条必须讲清一个主题，有观点、有理由或案例、自然结论；保留必要限定与否定。"
         "不要只取结论、不要拼不相关问题、不要为了数量硬凑。无法满足就返回[]。"
         "开场第一句话须明确主题并独立可懂，不要求三秒内说完；不能从半句话、无指代对象的回应、主持人称呼或寒暄开始；"
         "也不能删掉理解这句话所必需的上下文。可以保留同一主题内有用的追问。"
         "输入已将显示换行接回完整句，字幕a-b表示这一整句占用的原始字幕编号。"
         "start/end仍是原始字幕编号，不是句子序号或秒数。先找同一主题问答的自然起止，"
-        "再核算时长，不能直接从开头截到恰好120秒；不得把片头预告、寒暄和正式采访混成一段。"
-        "片尾必须包含回答及结论，不能用下一个未回答的问题凑够120秒。"
+        "再核算时长，不能按固定秒数机械切段；不得把片头预告、寒暄和正式采访混成一段。"
+        "片尾必须包含回答及结论，不能用下一个未回答的问题凑时长。"
         "保留原话，不修正或补造ASR内容，不把口语重复当成内容不完整。"
         '只返回JSON对象，picks字段为数组，每项包含start,end,score(至少7),reason(完整主题)。'
         '没有合格选段返回{"picks":[]}。\n'+numbered)
@@ -2463,7 +2468,7 @@ def semantic_caption_entries(entries, api_key, layout, cache_path, reviewed_grou
     raise CaptionPlanningUnavailable('字幕分屏未完成，保留原始转写供重试；'+error)
 
 
-def make_ass(entries, path, W, H, card_style=False):
+def make_ass(entries, path, W, H, card_style=False, layout_override=None):
     """竖版适配:字号按高度算、抬到安全区。burner 的 make_ass 是按 16:9 调的,
     720x1280 下算出来才 29px,且会被平台底部 UI 遮住。
 
@@ -2473,7 +2478,7 @@ def make_ass(entries, path, W, H, card_style=False):
     # Chinese production uses the same semantic segmenter in every layout.
     if not any(e.get("en") for e in entries):
         from presentation import layout_for, write_ass
-        return write_ass(entries, path, layout_for(W, H, card_style),
+        return write_ass(entries, path, layout_override or layout_for(W, H, card_style),
                          os.environ.get("ZH_FONT", "Microsoft YaHei"))
     font_zh = os.environ.get("ZH_FONT", "Microsoft YaHei")
     font_en = os.environ.get("EN_FONT", "Arial")
@@ -2824,9 +2829,15 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
         # clean frame. It is useful even when the old mother cache says card.
         before=ocr_row_coverage(sample,frames=12,strict=True)
         proof['scene_text_evidence']=scene_text_evidence(sample)
+        proof['raw_row_coverage']=before
         crop=proposed_crop or safe_crop_plan(sample,width,height,coverage=before)
         if crop is None:
-            raise VisualQualityError('选段没有可验证的原画裁切方案')
+            # None also means that the selected interval needs no crop. The
+            # mother may have been classified as a card because of its intro.
+            # Try original geometry, then run the same strict text/logo checks.
+            # An unsafe crop proposal can never bypass those checks this way.
+            crop=(width//2*2,height//2*2,0,0)
+            proof['uncropped_proposal']=True
         cw,ch,cx,cy=crop
         if proposed_crop and (cx!=0 or cw!=width or cy<0 or cy+ch>height
                 or ch<height*.7 or not _face_survives(sample,cy,ch)):
@@ -2939,8 +2950,13 @@ def select_interview_face(faces, width, height):
 
 
 def audio_card_live_crop(width, height, src=None, at=None, exclusions=(),reference=None,model_paths=None,duration=None):
-    """为横屏原片生成与卡片窗口同宽高比的裁切；竖屏源禁止硬嵌。"""
-    if width <= height:
+    """Propose an identity-bound window; portrait sources cannot use guessed crops.
+
+    Some portrait files contain a clean landscape interview inside their old
+    packaging. Aspect ratio alone is not a picture failure. They still require
+    actual reference matches, feasible face geometry and full tracked/render QA.
+    """
+    if width <= height and (src is None or reference is None or model_paths is None):
         return None
     target_ratio = LIVE_REGION["width"] / LIVE_REGION["height"]
     if src is not None:
@@ -3135,7 +3151,15 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
         raise VisualQualityError(f"真人窗口完整人脸抽帧不足：{full_face_frames}/{got}，拒绝裁头/裁下巴或空镜")
     logos = detect_corner_logos_in_images(frame_paths, stable_ratio=0.5,
                                           max_area=0.04)
-    edge_text=source_edge_text_exclusions(json.loads((tmp/'corner_ocr.json').read_text())['evidence'])
+    text_evidence=json.loads((tmp/'corner_ocr.json').read_text())['evidence']
+    from temporal_source_text import changing_text_tracks, VERSION as TEMPORAL_TEXT_VERSION
+    changing_text=changing_text_tracks(text_evidence)
+    (tmp/'changing_source_text.json').write_text(json.dumps(dict(
+        version=TEMPORAL_TEXT_VERSION,source_only_region=True,
+        sampled_frames=got,tracks=changing_text),ensure_ascii=False,indent=2))
+    if changing_text:
+        raise VisualQualityError('真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕')
+    edge_text=source_edge_text_exclusions(text_evidence)
     if edge_text:
         raise VisualQualityError('真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印')
     if logos:
@@ -3152,7 +3176,8 @@ def verify_live_region_after_render(final, frames=6, api_key=None,
             "no_black_bars_verified": True,
             "corner_review":dict(version=2026091302,passed=True,sampled_frames=got,
                 moving_wordmark_version=2026091501,
-                media_sha256=_file_sha256(final),policy='platform_persistent_text_and_source_edge_bands')}
+                changing_source_text_version=TEMPORAL_TEXT_VERSION,
+                media_sha256=_file_sha256(final),policy='platform_persistent_text_source_edges_and_changing_captions')}
 
 
 def run_source_quality_gate(src, work, speaker, api_key, report_path=None):
@@ -3414,10 +3439,11 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
     if re.search(r"https?://|www\.|t\.cn/|@[\w\u4e00-\u9fff]+", title, re.I):
         return "标题含链接或引流信息"
     compact = _title_text(title)
-    if not 12 <= len(compact) <= 62:
-        return f"标题长度 {len(compact)} 不在 12~62 字"
     normalized = re.sub(
         rf"^(?:股神)?{re.escape(speaker)}[：:]", "", title).strip()
+    from headline_policy import copy_length_ok
+    if not copy_length_ok(normalized,52):
+        return "标题正文须4~52个有效字；短于8字须有完整对象和动作，不用残句或标签凑长度"
     if rewrite_proof is not None:
         from title_rewrite import error as rewrite_error
         problem=rewrite_error(title,rewrite_proof,transcript_text,speaker)
@@ -3431,10 +3457,12 @@ def title_quality_error(title, speaker, transcript_text, existing_titles=None,
         return '标题存在口头残句、指代不明或语气词，不能独立理解'
     body = _title_text(normalized)
     transcript = _title_text(transcript_text)
-    if require_quote and len(body) >= 6:
-        # 允许删除口水词或合并相邻句，但至少要有一段 6 字原话可回溯。
-        if not any(body[i:i + 6] in transcript
-                   for i in range(max(1, len(body) - 5))):
+    if require_quote and len(body) >= 4:
+        # Four/five-character quotes must match in full; admitting short copy
+        # must never skip source traceability because the old window was six.
+        window=min(6,len(body))
+        if not any(body[i:i + window] in transcript
+                   for i in range(max(1, len(body) - window + 1))):
             return "标题缺少可回溯到所选字幕的连续原话"
     for previous in existing_titles or []:
         a, b = _title_text(previous), compact
@@ -3452,24 +3480,24 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
-TITLE_STYLE_PROFILE = 'yuanyuan-v2-20260920'
-# Same six real benchmark titles used in the user-approved V2 trial.
-# These are style examples only; the existing guest evidence and reviewer remain authoritative.
-TITLE_STYLE_EXAMPLES = (
-    '股神林园：我受不了！我觉得有风险的、看不明白的，我就不投，远离！你真赚了，那可能害了你，人是管不住自己的！',
-    '股神林园：分红很重要！账上的现金是判断一个公司的试金石！账面上的钱和分红完全是两回事！',
-    '股神林园：投资是投未来的确定性！新兴科技不符合我买了不卖的原则，我的钱都是不卖才能来的！',
-    '股神林园：白酒行业是有泡沫的，我不买、但持有；涨不涨要看它能不能持续盈利，它跟大基建、房地产、收入水平有关系',
-    '股神林园：我不想栽这个跟头！AI那么高的投入、甚至没有PE，不合算！',
-    '股神林园：现在消费和医药的回报是我从事资本市场以来最值得的时候',
-)
+TITLE_STYLE_PROFILE = 'yuanyuan-v4-source-only-20260922'
+# Keep reference titles in the comparison corpus, outside the writer's context.
+# Real source17 discussed solar power, but all three drafting attempts copied
+# wine/AI claims from style examples despite the "not facts" instruction.
 
 
 def _copy_style_identity(speaker):
     if speaker != '林园':
         return {}
+    profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
+    if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
+        raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
-                title_style_sha256=_sha256_file(Path(__file__)))
+                title_style_sha256=_sha256_file(Path(__file__)),
+                title_draft_profile=profile,
+                title_draft_profile_sha256=_sha256_file(Path(__file__).with_name('title_draft_profiles.py')),
+                title_quantity_context_sha256=_sha256_file(Path(__file__).with_name('title_quantity_context.py')),
+                speaker_attribution_sha256=_sha256_file(Path(__file__).with_name('speaker_attribution.py')))
 
 
 def _title_style_prompt(prompt, schema, speaker):
@@ -3479,11 +3507,13 @@ def _title_style_prompt(prompt, schema, speaker):
     properties = schema.get('properties', {})
     if 'c_candidates' in properties:
         start = prompt.index('最后在c_candidates')
+        # Only the voice/length block is replaceable. Factual invariants live
+        # after this boundary in title_rewrite.COPY_FACT_CONSTRAINTS.
         end = prompt.index('每条标题必须明确说出讨论对象', start)
         style = f'''最后在c_candidates为同一个核心判断写3个不同表达的候选：A直给态度＋理由；B原文真实反差；C具体做法＋理由。
 三个候选不能只替换一个词或标点。不要为了满足某种结构凭空制造对立或因果。
-学习“园园滚雪球”的口吻。以下样本只用于表达节奏，里面的公司、数字、观点不是本片事实，严禁搬入新标题：
-{json.dumps(TITLE_STYLE_EXAMPLES, ensure_ascii=False)}
+学习参考视频的表达方式：具体对象、本人态度、原话理由、短句推进。
+这里不提供其他视频的公司、数字或观点。事实只取下方本片嘉宾原话。
 写成林园本人对着观众讲话，别写成旁观者总结。态度、对象、理由都要具体。
 第一句先亮出嘉宾确实表达的选择、判断或感受；第二句接他原话里的具体理由或真实反差。
 允许两三句连着说，允许有力的否定和适度重复强调；不要为了书面工整把语气磨平。
@@ -3494,11 +3524,11 @@ def _title_style_prompt(prompt, schema, speaker):
 保留有辨识度的原话，但删掉“我不会说去卖”“这个那个”这种没有信息的绕口填充。
 仅在嘉宾确实说了自己选择时用“我”；不要每条都写为什么，不要研究报告腔或泛泛总结。
 事实只来自下方嘉宾字幕。不能凭空添加立场或收益，保留条件、否定、比较对象和不确定性。
-title以“林园：”开头，正文22~52字，最多两三个短句，不凑长度，完整自然。
-cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。
+title以“林园：”开头，正文4~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
+cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。短于8字须有明确对象和动作，不能仅列名词。
 '''
         prompt = prompt[:start] + style + prompt[end:]
-        # Remove the old unrelated factual illustration; the approved references above replace it.
+        # Do not give the writer unrelated illustrative facts to imitate.
         prompt = prompt.replace('例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”\n', '')
         prompt = prompt.replace('这个例子只说明文风，不能套用它的事实。', '')
     elif 'reviews' in properties:
@@ -3512,7 +3542,8 @@ cover_title为8~18个汉字的完整短句，不加姓名，用具体对象＋�
 
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
-              existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None):
+              existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None,
+              source_sha256=None, prefer_reviewed_quote=False):
     """Generate three source-backed angles, review title/cover, and cache evidence.
 
     Slices and full interviews use the same editorial policy. The suffix keeps
@@ -3530,7 +3561,48 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **_copy_style_identity(speaker),
+                   **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
+    handoff=os.environ.get('LINYUAN_TITLE_HANDOFF')
+    if handoff:
+        from title_handoff import load_result
+        try:
+            cached,proof=load_result(handoff,copy_identity,source_sha256,
+                os.environ.get('LINYUAN_TITLE_HANDOFF_MODEL_DIGEST'))
+            error=title_quality_error(cached.get('title'),speaker,transcript_text,
+                existing_titles,require_quote=require_quote,rewrite_proof=cached.get('title_rewrite'))
+            if error:raise ValueError(error)
+            cached=attach_copy(cached,transcript_text,speaker,existing_titles)
+            if cached.get('title')!=proof['title'] or cached.get('cover_title')!=proof['cover_title']:
+                raise ValueError('独立标题结果在排版附加阶段发生变化')
+            cached['title_handoff']=proof
+            cache.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
+            print('[文案] 复用同母片、同选段和同配置的独立标题结果；本片不重新拟标题')
+            return cached
+        except (OSError,ValueError,TypeError,KeyError) as exc:
+            raise EditorialReviewUnavailable('独立标题交接未通过：'+str(exc)) from exc
+    # A title actually inspected in a completed render should not randomly
+    # revert to a weaker summary next time. This is explicit editorial input
+    # for an identical passage, not a claim that today's model generated it.
+    from reviewed_title_records import lookup as reviewed_copy
+    try:
+        reviewed=reviewed_copy(source_sha256,transcript_text,speaker)
+        if reviewed:
+            cached,proof=reviewed
+            error=title_quality_error(cached['title'],speaker,transcript_text,
+                existing_titles,require_quote=require_quote,rewrite_proof=cached['title_rewrite'])
+            if error:
+                raise ValueError(error)
+            title,cover=cached['title'],cached['cover_title']
+            cached=attach_copy(cached,transcript_text,speaker,existing_titles)
+            if (cached['title'],cached['cover_title'])!=(title,cover):
+                raise ValueError('编辑标题在排版附加阶段发生变化')
+            cached.update(copy_identity=copy_identity,reviewed_title_record=proof)
+            cache.write_text(json.dumps(cached,ensure_ascii=False,indent=2))
+            print('[文案] 保留同母片同选段已实片核对的标题；本轮重新检查证据与排版')
+            return cached
+    except (OSError,ValueError,TypeError,KeyError) as exc:
+        raise EditorialReviewUnavailable('已核对标题复用未通过：'+str(exc)) from exc
     if cache.exists():
         try:
             cached = json.loads(cache.read_text(encoding="utf-8"))
@@ -3555,15 +3627,33 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
         drafting = 'c_candidates' in schema.get('properties', {})
+        messages=[{'role':'user','content':prompt}]
+        profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
+        if drafting and profile!='production':
+            from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
+                spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
+            if profile in ('source_choices','answer_focus','answer_subject'):
+                schema=source_choices_schema(schema)
+                messages=source_choices_messages(messages,schema,same_answer=profile in ('answer_focus','answer_subject'))
+            elif profile=='spoken_focus':
+                schema=spoken_focus_schema(schema)
+                messages=spoken_focus_messages(messages,schema)
+            elif profile=='source_limits':
+                schema=source_limits_schema(schema)
+                messages=source_limits_messages(messages,schema)
+            else:
+                messages=concise_messages(messages,schema)
         if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
             print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
-        return llm([{"role":"user","content":prompt}],api_key,temperature=temperature,
+        return llm(messages,api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
-                   read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','b_focus')))
+                   read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','c_sentence_roles','b_focus','c_candidates')))
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
-                   preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel])
+                   preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
+                   **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
+                   **({'answer_focus':True,'answer_subject':os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_subject'} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE') in ('answer_focus','answer_subject') else {}))
         if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
             d['title_rewrite']['style_profile'] = TITLE_STYLE_PROFILE
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
@@ -3690,14 +3780,25 @@ def select_verified_cover_face(frames, reference_path):
             sharp=float(cv2.Laplacian(cv2.cvtColor(crop,cv2.COLOR_BGR2GRAY),cv2.CV_64F).var())
             matched.append((score,sharp,fw*fh,path,(x,y,fw,fh)))
     if not matched:raise VisualQualityError('现场封面未找到与林园参考照匹配的人脸')
-    score,sharp,area,path,box=max(matched,key=lambda r:(r[0],r[1],r[2]))
+    # Identity is a gate, not a reason to prefer a blurred frame. The old
+    # identity-first maximum could discard every usable scene even when a
+    # different, verified frame already met the renderer's sharpness floor.
+    sharp_matches=[row for row in matched if row[1]>=60]
+    previous=max(matched,key=lambda r:(r[0],r[1],r[2]))
+    score,sharp,area,path,box=max(sharp_matches or matched,key=lambda r:(r[0],r[1],r[2]))
     return path,box,{'engine':'opencv_yunet_sface_cpu','cosine_score':round(score,4),
                      'threshold':LOCAL_FACE_COSINE_THRESHOLD,'face_box':list(box),
-                     'matched_faces':len(matched),'sharpness':round(sharp,2)}
+                     'matched_faces':len(matched),'sharpness':round(sharp,2),
+                     'sharp_matching_faces':len(sharp_matches),
+                     'identity_first_sharpness':round(previous[1],2),
+                     'selection_changed':path!=previous[3] or box!=previous[4],
+                     'selected_frame':path.name,
+                     'selection_policy':'identity_then_sharpness_gate_v2'}
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
-               video_filter="", preferred_time=None, reference_path=None, style="photo"):
+               video_filter="", preferred_time=None, reference_path=None, style="photo",
+               allow_editorial_fallback=False):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
     竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
@@ -3714,11 +3815,15 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     # 没有核验时间时才退回原来的段内多帧策略。
     frames = []
     lo=max(0,seg_start);hi=max(lo,seg_end-.1)
+    ignored_preferred_time=None
+    if preferred_time is not None and not lo<=preferred_time<=hi:
+        ignored_preferred_time=preferred_time
+        preferred_time=None  # Whole-mother identity time is not this clip's time.
     center=min(hi,max(lo,preferred_time)) if preferred_time is not None else mid
     offsets=(-.6,0,.6) if preferred_time is not None else tuple(
         p*(seg_end-seg_start) for p in (-.3,-.2,-.1,0,.1,.2,.3))
     sample_times=sorted({min(hi,max(lo,center+d)) for d in offsets})
-    for idx, t in enumerate(sample_times):
+    def extract_frame(t, idx):
         fp = tmp.with_suffix(f".{idx}.png")
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
                "-i", str(src)]
@@ -3728,7 +3833,10 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         cmd += ["-frames:v", "1", str(fp)]
         subprocess.run(cmd,
                        check=True, capture_output=True)
-        if fp.exists():
+        return fp if fp.exists() else None
+    for idx, t in enumerate(sample_times):
+        fp = extract_frame(t, idx)
+        if fp is not None:
             frames.append(fp)
 
     if not frames:
@@ -3737,24 +3845,83 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     if remaining:
         raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
 
-    best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+    initial_identity_error=None
+    try:
+        best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+    except VisualQualityError as exc:
+        if '未找到与林园参考照匹配的人脸' not in str(exc):
+            raise
+        initial_identity_error=exc
+        identity_proof={}
+    # The identity frame can catch a blink or motion blur. If its three nearby
+    # frames are all blurred, search a bounded set across this same selected
+    # clip before falling back to a generic reference portrait. Every extra
+    # frame still passes the original source-text and face-identity gates.
+    if identity_proof.get('sharpness', 0) < 60:
+        extra_times=[lo+(hi-lo)*fraction for fraction in (.10,.25,.40,.55,.70,.85,.95)
+                     if all(abs(lo+(hi-lo)*fraction-t)>.75 for t in sample_times)]
+        clean_extra=[]
+        for idx,t in enumerate(extra_times):
+            try:
+                fp=extract_frame(t,'wide-'+str(idx))
+            except subprocess.CalledProcessError:
+                continue  # An optional sample cannot invalidate the original.
+            if fp is None:continue
+            if detect_corner_logos_in_images([fp]):
+                fp.unlink(missing_ok=True)
+                continue
+            clean_extra.append(fp)
+        if clean_extra:
+            frames.extend(clean_extra)
+            best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+            initial_identity_error=None
+        if initial_identity_error is not None:
+            raise initial_identity_error
+        identity_proof={**identity_proof,'wide_sampling_attempted':True,
+            'wide_sample_times':extra_times,'wide_clean_frame_count':len(clean_extra),
+            'sharpness_floor_unchanged':60}
+    if ignored_preferred_time is not None:
+        identity_proof={**identity_proof,'ignored_out_of_segment_time':ignored_preferred_time}
     Path(str(out_path)+'.identity.json').write_text(
         json.dumps(identity_proof,ensure_ascii=False,indent=2))
 
     img = Image.open(best_frame).convert("RGB")
     w, h = img.size
+    scene_fallback_reason = None
     if style == 'scene':
         from presentation import save_scene_cover
         try:
             save_scene_cover(img, out_path, best_face, identity_proof)
         except ValueError as exc:
+            if not allow_editorial_fallback:
+                for fp in frames:
+                    fp.unlink(missing_ok=True)
+                raise VisualQualityError(str(exc)) from exc
+            scene_fallback_reason = str(exc)
+            style = 'editorial'
+        else:
+            for fp in frames:
+                fp.unlink(missing_ok=True)
+            print(f'[封面] {out_path.name} 现场原画，无叠加标题')
+            return
+    if style == 'editorial':
+        from editorial_cover import render, font_path
+        try:
+            if identity_proof.get('sharpness', 0) < 60:
+                raise ValueError('文字封面源人物清晰度不足，不能靠排版掩盖模糊人脸')
+            font = font_path()
+            proof = render(img, out_path, best_face, title, speaker, font)
+            proof.update(source_kind='verified_source_frame', source_identity=identity_proof,
+                         source_resolution=dict(width=w, height=h))
+            if scene_fallback_reason:
+                proof['scene_fallback_reason'] = scene_fallback_reason
+            Path(str(out_path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+        except ValueError as exc:
             raise VisualQualityError(str(exc)) from exc
         finally:
             for fp in frames:
                 fp.unlink(missing_ok=True)
-        print(f'[封面] {out_path.name} 现场原画，无叠加标题')
         return
-
     # 以人脸为中心裁切,保持目标比例
     vertical = h > w
     portrait_foreground = None
@@ -4184,7 +4351,50 @@ def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
 def source_edge_text_exclusions(evidence):
     """Long source captions/disclaimers span the middle, outside corner rules."""
     result=[]
-    for row in evidence:
+    # OCR splits a wide header into adjacent words. Measure the whole line
+    # before applying the width/length rule, without changing recognized text.
+    lines=[]
+    for row in sorted(evidence,key=lambda r:(str(r.get('frame')),r['rect'][0])):
+        if float(row.get('confidence') or 0)<.75:
+            continue
+        x0,y0,x1,y1=map(float,row['rect'])
+        if y1>.18:
+            continue
+        line=next((g for g in lines if g['frame']==row.get('frame')
+            and min(g['rect'][3],y1)-max(g['rect'][1],y0)>=min(g['rect'][3]-g['rect'][1],y1-y0)*.5
+            and x0<=g['rect'][2]+.04 and x1>=g['rect'][0]-.04),None)
+        if line:
+            a,b,c,d=line['rect'];line['rect']=[min(a,x0),min(b,y0),max(c,x1),max(d,y1)]
+            line['text']+=str(row.get('text') or '')
+        else:
+            lines.append(dict(row,rect=[x0,y0,x1,y1],frame=row.get('frame'),text=str(row.get('text') or '')))
+    # In actual source66 renders, a cropped-off header stayed in every frame
+    # but recognition confidence fell below .75 precisely because letters were
+    # cut in half. Require repeated geometry at the top edge, not readable text.
+    clipped=[r for r in evidence if float(r.get('confidence') or 0)>=.5
+        and len(re.sub(r'\W+','',str(r.get('text') or '')))>=3
+        and r['rect'][1]<=.005 and .03<=r['rect'][3]-r['rect'][1]<=.10
+        and r['rect'][2]-r['rect'][0]>=.4]
+    for row in clipped:
+        near=[r for r in clipped if max(abs(a-b) for a,b in zip(r['rect'],row['rect']))<=.03]
+        if len({r.get('frame') for r in near if r.get('frame') is not None})>=3:
+            result.append((0,0,1,min(1,max(r['rect'][3] for r in near)+.015)))
+            break
+    # Source5's short clip retained changing subtitle bottoms: after cropping,
+    # OCR read only “样坚定” / “由器产”, below the old eight-character rule.
+    # Two different Chinese fragments at the same bottom band are stronger
+    # evidence of captions than one incidental sign or an isolated OCR guess.
+    bottom_fragments=[r for r in evidence if float(r.get('confidence') or 0)>=.65
+        and len(re.findall(r'[\u4e00-\u9fff]',str(r.get('text') or '')))>=3
+        and r.get('frame') is not None and r['rect'][1]>=.85 and r['rect'][3]>=.975
+        and .025<=r['rect'][3]-r['rect'][1]<=.15
+        and r['rect'][2]-r['rect'][0]>=.25]
+    for row in bottom_fragments:
+        near=[r for r in bottom_fragments if abs(r['rect'][1]-row['rect'][1])<=.025]
+        if len({r['frame'] for r in near})>=2 and len({r['text'] for r in near})>=2:
+            result.append((0,max(0,min(r['rect'][1] for r in near)-.015),1,1))
+            break
+    for row in [*evidence,*lines]:
         x0,y0,x1,y1=map(float,row['rect'])
         text=re.sub(r'\W+','',str(row.get('text') or ''))
         # Actual 0915 render: a moving red “听初果复利” source wordmark
@@ -4212,10 +4422,33 @@ def source_edge_text_exclusions(evidence):
         else:
             continue
         if rect not in result:result.append(rect)
+    # Library220 has a two-line headline: its first line ends at .138,
+    # while the second ends at .196. The old .18 edge cutoff removed only
+    # the first line, leaving unrecognizable yellow letter bottoms in finals.
+    # Extend only an established header with aligned, nearby lines in the
+    # SAME frame. Never classify arbitrary central scene text as a header.
+    wide=[r for r in [*evidence,*lines] if float(r.get('confidence') or 0)>=.75
+          and len(re.sub(r'\W+','',str(r.get('text') or '')))>=8
+          and r['rect'][2]-r['rect'][0]>=.35]
+    for anchor in wide:
+        if anchor.get('frame') is None or anchor['rect'][3]>.18:
+            continue
+        current=anchor
+        for _ in range(2):
+            a,b,c,d=map(float,current['rect'])
+            adjacent=[r for r in wide if r.get('frame')==anchor.get('frame')
+                and r['rect'][1]>=d and r['rect'][3]<=.27
+                and r['rect'][1]-d<=min(d-b,r['rect'][3]-r['rect'][1])*.65
+                and abs(r['rect'][0]-a)<=.06 and abs(r['rect'][2]-c)<=.06]
+            if not adjacent:
+                break
+            current=min(adjacent,key=lambda r:r['rect'][1])
+            band=(0,0,1,min(1,float(current['rect'][3])+.015))
+            if band not in result:result.append(band)
     return result
 
 
-def selected_frame_logos(frame, directory, index):
+def selected_frame_logos(frame, directory, index, shot_local=False):
     """Inspect selected source shots, including logos missed in a long mother."""
     import cv2
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
@@ -4224,7 +4457,14 @@ def selected_frame_logos(frame, directory, index):
         raise VisualQualityError('选段来源角标抽帧失败')
     logos=detect_corner_logos_in_images([path],max_area=.04)
     evidence=json.loads((directory/'corner_ocr.json').read_text())['evidence']
-    return logos+source_edge_text_exclusions(evidence)
+    marks=logos+source_edge_text_exclusions(evidence)
+    if shot_local:
+        # A central backdrop follows the camera, unlike a global corner
+        # overlay. The tracker replaces these boxes on each detected cut.
+        from source_publisher_marks import central_publisher_rects, corner_publisher_rects
+        marks+=central_publisher_rects(evidence)
+        marks+=corner_publisher_rects(evidence,frame)
+    return marks
 
 
 def selected_segment_exclusions(src,start,duration,directory,initial=()):
@@ -4755,7 +4995,8 @@ def extract_audio_card_portrait(reference_image, out_path):
 
 
 def make_audio_card(out_path, speaker, topic, width=None, height=None,
-                    portrait_path=None, require_portrait=False, cover_style=None, live_video=False):
+                    portrait_path=None, require_portrait=False, cover_style=None, live_video=False,
+                    live_theme=None):
     """生成不携带第三方字幕/角标的品牌音频卡。
 
     只在原画无法安全清理时使用。背景、文案和品牌均由本流水线生成；原素材
@@ -4766,10 +5007,11 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
     width = int(width or AUDIO_CARD_WIDTH)
     height = int(height or AUDIO_CARD_HEIGHT)
     vertical = height > width
-
-    # 对标账号的高播放音频卡不是深色科技模板，而是「浅灰底 + 人物视觉 +
-    # 红黄标题 + 黄字字幕」。这里复刻信息层级和观看习惯，不复制它的插画、
-    # 照片、署名或其他受保护资产。浅暖灰比纯白更耐看，也能承托金色品牌色。
+    from presentation import live_card_layout
+    live_theme = live_theme or os.environ.get('LIVE_CARD_THEME', 'contrast')
+    contrast = live_video and vertical and live_card_layout(live_theme)['live_card_theme'] == 'contrast'
+    # Recent reference inspection distinguishes native landscape interviews
+    # from black portrait quote cards. Keep verified geometry, change paint only.
     image = Image.new("RGB", (width, height), (232, 231, 226))
     draw = ImageDraw.Draw(image)
     for y in range(height):
@@ -4777,6 +5019,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         color = (int(238 - 15 * blend), int(237 - 14 * blend),
                  int(232 - 12 * blend))
         draw.line((0, y, width, y), fill=color)
+    if contrast:
+        draw.rectangle((0, 0, width, height), fill=(10, 10, 10))
 
     font_path = next((x for x in (
         os.environ.get("AUDIO_CARD_FONT_FILE"),
@@ -4809,7 +5053,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         tag_w = tag_bbox[2] - tag_bbox[0] + int(28 * unit)
         draw.rounded_rectangle(
             (48, 96, 48 + tag_w, 142), radius=max(8, int(10 * unit)),
-            fill=(35, 86, 170))
+            fill=(38, 38, 38) if contrast else (35, 86, 170))
         draw.text((48 + int(14 * unit), 101), tag, font=small_font,
                   fill=(255, 255, 255))
 
@@ -4822,7 +5066,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         title_boxes = []
         for i, line in enumerate(lines):
             draw.text((48, title_y + i * line_h), line, font=topic_font,
-                      fill=(24, 44, 66))
+                      fill=((255, 220, 72) if i == 0 else (255, 255, 255)) if contrast else (24, 44, 66))
             title_boxes.append(draw.textbbox((48,title_y+i*line_h),line,
                                font=topic_font))
         if len(lines)>2 or any(b[0]<38 or b[2]>682 or b[1]<150 or b[3]>325
@@ -4831,6 +5075,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         Path(str(out_path)+'.title-proof.json').write_text(json.dumps({
             'version':1,'title':topic,'headline_lines':lines,'font_px':topic_size,
             'text_boxes':title_boxes,'max_lines':2,'bottom_limit':325,
+            'live_card_theme':live_theme if live_video else None,
             'matches_cover_headline':True},ensure_ascii=False,indent=2))
 
         x0, y0, x1, y1 = 44, 360, 676, 830
@@ -4862,14 +5107,15 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
             draw.rounded_rectangle((170, 590, 550, 790), radius=100,
                                    fill=(35, 48, 64))
 
-        draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
-                               fill=(249, 249, 247),
-                               outline=(214, 210, 200), width=2)
+        if not contrast:
+            draw.rounded_rectangle((38, 874, 682, 1040), radius=18,
+                                   fill=(249, 249, 247),
+                                   outline=(214, 210, 200), width=2)
         draw.text((48, 1080), ("公开发言原声｜原始访谈画面" if live_video else
                              "公开发言原声｜人物资料图，非现场画面"),
-                  font=small_font, fill=(89, 94, 99))
+                  font=small_font, fill=(175, 175, 175) if contrast else (89, 94, 99))
         draw.text((48, 1120), AUDIO_CARD_DISCLAIMER, font=small_font,
-                  fill=(105, 105, 105))
+                  fill=(160, 160, 160) if contrast else (105, 105, 105))
     else:
         # 16:9 封面：结论在左、人物在右且占 35%~45%，缩略图仍可辨认。
         panel = (46, 74, width - 46, height - 74)
@@ -5009,6 +5255,26 @@ def verify_final_live_identity(final, work, speaker, api_key, suffix="", target_
     return proof
 
 
+def verify_prepared_live_motion(tracked, proof_path):
+    """Reject a static prepared window before expensive title/caption inference.
+
+    This is additional early rejection only. The final, composed video still
+    goes through verify_final_live_identity and the unchanged motion policy.
+    """
+    from live_motion import verify_window
+    rect=dict(x=0,y=0,width=632,height=470)
+    try:
+        motion=verify_window(tracked,rect)
+    except ValueError as exc:
+        raise VisualQualityError('标题前动态窗口核验不可用：'+str(exc)) from exc
+    proof={**motion,'stage':'prepared_window_before_copy',
+           'source_sha256':_file_sha256(tracked),'final_checks_required':True}
+    Path(proof_path).write_text(json.dumps(proof,ensure_ascii=False,indent=2))
+    if not motion['passed']:
+        raise VisualQualityError('标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算')
+    return proof
+
+
 def argument_record_for_render(cues,picks,speaker,api_key,work,suffix):
     """Record the user's disabled model review; retain source integrity gates."""
     # Omitting words within an argument still needs its existing meaning check.
@@ -5061,7 +5327,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 existing_titles=existing_titles,
                 require_quote=(pick_cache_suffix != "_full"),
                 reviewed_title=picks[0].get('editorial_title'),
-                reviewed_cover=picks[0].get('editorial_cover'))
+                reviewed_cover=picks[0].get('editorial_cover'),
+                prefer_reviewed_quote=picks[0].get('editorial_prefer_exact_quote',False),
+                source_sha256=(source_report or {}).get('source_sha256'))
         return cw
 
     # A static screen portrait may match identity better than the tiny live
@@ -5069,12 +5337,14 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if prefer_live_video and len(picks)==1 and W>H:
         import stage_context
         a=cues[picks[0]['start']]['start'];b=cues[picks[0]['end']]['end']
-        stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker)
+        stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker,
+            exclusions=(source_report or {}).get('detected_corner_logos') or ())
         if stage:
             cw = get_copy()
             rows=[dict(start_sec=cues[i]['start']-a,end_sec=cues[i]['end']-a,zh=cues[i]['text']) for i in sel]
             result=stage_context.render(src,a,b-a,out,work,rows,cw,source_report or {'source_sha256':_sha256_file(src)},stage,suffix,producer=sys.modules[__name__])
-            result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION)
+            result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION,
+                          **editorial.duration_metadata(result['duration_sec']))
             print('[舞台适配] 保留真人、讲台和原始舞台；人物动作与屏幕照片分别核验',flush=True)
             return result
 
@@ -5209,26 +5479,49 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             seg_dur = cues[pick['end']]['end'] - s0
             # Fixed crops become empty when the source switches cameras.
             # Track identity in the selected interval before composing the card.
-            from live_tracking import render_tracked
+            from live_tracking import render_tracked,source_reference_samples
             tracked=work/f'tracked{suffix}{n}.mp4'
             source_marks=selected_segment_exclusions(src,s0,seg_dur,
                 work/f'source-corners{suffix}{n}',source_report.get('detected_corner_logos') or ())
-            tracking=render_tracked(src,s0,seg_dur,tracked,
-                _download_speaker_reference(speaker,work),_local_face_models(),
-                LOCAL_FACE_COSINE_THRESHOLD,
-                exclusions=source_marks,
-                overlay_probe=lambda frame,index:selected_frame_logos(
-                    frame,work/f'source-corners{suffix}{n}',index),
-                context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
-                participant_reference=participant_reference,
-                reference_samples=[work/f'identity_{i}.jpg' for i in
-                    (source_report.get('visual_identity') or {}).get('same_person_frames',[])
-                    if (work/f'identity_{i}.jpg').is_file()] if interview_plan else ())
-            prepared_live[n] = (tracked, tracking)
+            def render_window(path, marks):
+                return render_tracked(src,s0,seg_dur,path,
+                    _download_speaker_reference(speaker,work),_local_face_models(),
+                    LOCAL_FACE_COSINE_THRESHOLD,
+                    exclusions=marks,
+                    overlay_probe=lambda frame,index:selected_frame_logos(
+                        frame,work/f'source-corners{suffix}{n}',index,shot_local=True),
+                    context_crop=(interview_plan['native_context_proof']['crop_xywh'] if interview_plan else None),
+                    participant_reference=participant_reference,
+                    reference_samples=source_reference_samples(work,source_report))
+            tracking=render_window(tracked,source_marks)
             # The prepared moving window is the exact one composed below.
             # Check its subtitles, logos, QR, borders and face geometry now,
             # before title/caption inference. Final checks still run again.
-            verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
+            try:
+                verify_live_region_after_render(tracked,live_region=dict(x=0,y=0,width=632,height=470))
+            except VisualQualityError as exc:
+                if (os.environ.get('LINYUAN_STATIC_CORNER_REPAIR', '0') != '1'
+                        or not str(exc).startswith('真人动态区仍有稳定来源角标：')):
+                    raise
+                from static_corner_repair import source_exclusions
+                ocr_path=tracked.parent/'_tmp'/('live-region-'+tracked.stem)/'corner_ocr.json'
+                ocr=json.loads(ocr_path.read_text())
+                extra=source_exclusions(tracking,ocr.get('logos',[]),W,H)
+                if not extra:
+                    raise
+                # Keep the failed render and all its evidence; only one new
+                # crop is attempted. The same complete gates run again.
+                repair=tracked.with_name(tracked.stem+'-corner-repair.mp4')
+                (work/f'corner-repair{suffix}{n}.json').write_text(json.dumps(dict(
+                    source_sha256=source_report.get('source_sha256'),source_start=s0,
+                    duration=seg_dur,original=str(tracked),repaired=str(repair),
+                    reason=str(exc),source_exclusions=extra,original_tracking=tracking,
+                    original_ocr=ocr,final_quality_approved=False),ensure_ascii=False,indent=2))
+                tracking=render_window(repair,list(source_marks)+extra)
+                verify_live_region_after_render(repair,live_region=dict(x=0,y=0,width=632,height=470))
+                tracked=repair
+            verify_prepared_live_motion(tracked,work/f'tracked-motion{suffix}{n}.json')
+            prepared_live[n] = (tracked, tracking)
     cw = get_copy()
 
     brand = brand_watermark_path()
@@ -5245,6 +5538,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             portrait_path=audio_card_portrait, require_portrait=True, live_video=use_live_video)
     from presentation import layout_for, VERSION as PRESENTATION_VERSION
     layout = layout_for(crop_w, crop_h, strategy == "audio_card")
+    if use_live_video:
+        from presentation import live_card_layout
+        layout = live_card_layout(os.environ.get('LIVE_CARD_THEME', 'contrast'))
+    # Rehearsal-only until the actual native video has been visually reviewed.
+    if strategy != 'audio_card' and os.environ.get('SUBTITLE_LAYOUT') == 'footer':
+        from presentation import footer_layout_for
+        layout = footer_layout_for(crop_w, crop_h)
     en_map = {}
     parts = []
     render_audio=audio_render_prefix(audio_policy(_sha256_file(src)))
@@ -5260,7 +5560,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json",
                                            reviewed_groups=p.get('editorial_subtitles'))
         make_ass(entries, ass, crop_w, crop_h,
-                 card_style=(strategy == "audio_card"))
+                 card_style=(strategy == "audio_card"), layout_override=layout)
         seg = work / f"seg{suffix}{n}.mp4"
         vertical = H > W
         seg_dur = s1 - s0
@@ -5276,7 +5576,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 "-ss", str(s0), "-t", str(seg_dur), "-i", str(src),
             ]
             if use_live_video:
-                # 只允许横屏源进入动态窗口；按窗口宽高比实裁并精确缩放，
+                # 原画已通过人物匹配与取景预检；按窗口宽高比实裁并精确缩放，
                 # 不使用 pad，因而不会产生右侧黑块。
                 tracked, tracking = prepared_live[n]
                 framing_proofs.append(tracking['framing'])
@@ -5298,7 +5598,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 cmd += ["-filter_complex", f"[0:v]{vf}[outv]",
                         "-map", "[outv]", "-map", "1:a:0"]
         else:
-            vf = f"setpts=PTS-STARTPTS,{clean_vf},setsar=1,ass={ass},{fade}"
+            from presentation import footer_filter
+            vf = f"setpts=PTS-STARTPTS,{clean_vf},setsar=1,{footer_filter(layout)},ass={ass},{fade}"
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error", "-ss", str(s0),
                 "-t", str(seg_dur), "-i", str(src),
@@ -5328,7 +5629,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
          "-of", "default=nw=1:nk=1", str(final)],
         capture_output=True, text=True).stdout.strip() or 0)
     if dur < editorial.MIN_SECONDS:
-        raise VisualQualityError('实际成片不足120秒，隔离后更换完整观点')
+        raise VisualQualityError(f'实际成片不足{editorial.MIN_SECONDS:g}秒，隔离后更换完整观点')
     final_w, final_h = ensure_min_short_edge(final, label="裁切后成片")
     # audio_card 的整张画布、标题、字幕和水印均由本流程生成，人物图也来自
     # 权威参考照；再用通用角标 OCR 扫它只会把模板自有标题误报为第三方角标。
@@ -5368,9 +5669,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         from presentation import select_cover_style
-        selected_cover_style = select_cover_style(strategy != "audio_card", cw["title"],
+        selected_cover_style = select_cover_style(strategy != "audio_card" or use_live_video, cw["title"],
                                                   os.environ.get("COVER_STYLE", "auto"))
-        if selected_cover_style not in {"photo", "scene"}:
+        if selected_cover_style not in {"photo", "scene", "editorial"}:
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
                     work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
@@ -5381,13 +5682,20 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             cover_person_image_source = "authority_reference"
         else:
             try:
-                make_cover(src, cues[p0["start"]]["start"], cues[p0["end"]]["end"],
-                           cw["cover_title"], speaker, cover, video_filter=clean_vf,
-                           preferred_time=(visual_report or {}).get("best_cover_time"),
-                           reference_path=work / "speaker_reference.jpg", style=selected_cover_style)
+                # A tracked window already passed source identity/overlay QA.
+                # Sample its relative timeline, not original mother timestamps.
+                cover_src = prepared_live[1][0] if use_live_video else src
+                cover_start = 0 if use_live_video else cues[p0['start']]['start']
+                cover_end = (cues[p0['end']]['end'] - cues[p0['start']]['start']
+                             if use_live_video else cues[p0['end']]['end'])
+                make_cover(cover_src, cover_start, cover_end,
+                           cw["cover_title"], speaker, cover, video_filter='' if use_live_video else clean_vf,
+                           preferred_time=None if use_live_video else (visual_report or {}).get("best_cover_time"),
+                           reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
+                           allow_editorial_fallback=os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
-                if os.environ.get('COVER_STYLE','auto') in {'photo','scene'}:raise
+                if os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
                 cover_fallback_reason=str(exc)
                 selected_cover_style=select_cover_style(False,cw['title'])
                 if audio_card_portrait is None:
@@ -5420,6 +5728,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if display_payload_text(proof_display)!=display_payload_text(rendered_subtitle_text):
         raise VisualQualityError('字幕编辑证明与真实ASS字幕不一致，拒绝输出为合格成片')
     meta = {
+        **editorial.duration_metadata(round(dur, 3)),
         **({'native_cleanup_proof':native_plan['native_context_proof']} if proposed_native else {}),
         "editorial_review": argument_review,
         "editorial_policy_version": editorial.VERSION,
@@ -5432,6 +5741,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "video_title_proof":(json.loads(Path(str(audio_card)+'.title-proof.json').read_text())
                              if audio_card else None),
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
+        "editorial_selection":cw.get('editorial_selection'),
+        **({'title_handoff':cw['title_handoff']} if cw.get('title_handoff') else {}),
+        **({'reviewed_title_record':cw['reviewed_title_record']} if cw.get('reviewed_title_record') else {}),
         "cover_fallback_reason":cover_fallback_reason,
         "cover": cover.name if cover else None,
         "preview_30s": preview_name,
@@ -5452,7 +5764,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "subtitle_edit_proof_version": 1,
         "subtitle_edit_proofs": edit_proof_files,
         **live_checks,
-        "duration_sec": round(dur, 1),
+        "duration_sec": round(dur, 3),
         "resolution": {"width": final_w, "height": final_h,
                        "short_edge": min(final_w, final_h)},
         "fingerprints": fingerprints,
@@ -5587,6 +5899,14 @@ def main():
                          ensure_ascii=False), file=sys.stderr)
         return 2
 
+    from reviewed_source_context import context_for
+    source_context = context_for(source_report.get('source_sha256'))
+    if source_context:
+        # An upload title is not evidence that a historical speech happened today.
+        # Preserve the original supplied occasion separately for audit.
+        source_context['supplied_occasion'] = args.occasion
+        args.occasion = source_context['occasion']
+
     resolution = source_report["resolution"]
     W, H = int(resolution["width"]), int(resolution["height"])
     clean_resolution = source_report.get("clean_output_resolution") or resolution
@@ -5633,6 +5953,12 @@ def main():
         from source_selection import select
         diagnostics={}
         source_picks=select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
+        if (not source_picks and editorial.CONTENT_POLICY=='reference_v1'
+                and os.environ.get('SOURCE_VISUAL_CHAPTERS')=='true'):
+            from source_question_cards import propose
+            source_picks=propose(src,cues,work/'visual-question-cards',_ocr(),
+                source_report.get('source_sha256'),min_seconds=editorial.MIN_SECONDS)
+            diagnostics['visual_question_card_candidates']=len(source_picks)
         if source_picks and args.require_live_video and not args.dry_run:
             from visual_selection import rank
             source_picks=rank(src,cues,source_picks,work/'visual-selection',
@@ -5702,8 +6028,8 @@ def main():
             if not picks:
                 structural=os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'
                 selection_failures.append(dict(stage='editorial-selection', part=block_no,
-                    reason=('原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复'
-                            if structural else '本轮选段没有返回通过120秒和连续上下文检查的候选'),
+                    reason=(f'原文中未找到满足{editorial.MIN_SECONDS:g}秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复'
+                            if structural else f'本轮选段没有返回通过{editorial.MIN_SECONDS:g}秒和连续上下文检查的候选'),
                     error_type='NoStructuralCandidate' if structural else 'NoEligibleArgument', retryable=False))
             for pick in picks:
                 lo, hi = int(pick["start"]), int(pick["end"])
@@ -5727,11 +6053,13 @@ def main():
             raise ValueError('不能同时指定人工核对与自动选段编号')
         retry_parts=selected_part_numbers(args.only_selected_parts,work_items)
     metas, rejected = [], list(selection_failures)
+    part_attempts = []
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint():
         rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
                  "occasion": args.occasion, **m,
+                 **({'source_context': source_context} if source_context else {}),
                  "quality_gate_version": QUALITY_GATE_VERSION,
                  "source_sha256": source_report.get('source_sha256'),
                  "source_platform": platform,
@@ -5752,6 +6080,9 @@ def main():
         live = sum(m.get("render_mode") != "audio_card" for m in metas)
         write_json(out / "batch_report.json", {
             "slug": args.slug, "accepted": len(metas), "rejected": rejected,
+            "part_attempts": part_attempts,
+            "retryable_parts": [r['part'] for r in rejected if r.get('retryable')
+                                and r.get('stage') == 'part-quality'],
             "accepted_finals": [m["final"] for m in metas],
             "live_video": live, "audio_card": len(metas) - live,
             "live_ratio": live / len(metas) if metas else 0,
@@ -5773,6 +6104,7 @@ def main():
                       (TARGET_SEC_MID if ci == mid_idx else TARGET_SEC))
         if ci == mid_idx:
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
+        part_started = time.monotonic()
         try:
             if preselected_picks and publication_state:
                 segments=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end'])
@@ -5808,6 +6140,11 @@ def main():
             failure = {"stage": "part-quality", "reason": str(e), "part": ci + 1,
                        "error_type": type(e).__name__,
                        "retryable":isinstance(e,EditorialReviewUnavailable) or service_timeout}
+            from production_diagnostics import failure_category
+            failure['category'] = failure_category(e)
+            part_attempts.append(dict(part=ci+1, outcome='rejected',
+                elapsed_seconds=round(time.monotonic()-part_started, 3),
+                category=failure['category'], retryable=failure['retryable']))
             print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
             quarantine_part(out, suffix)
             rejected.append(failure)
@@ -5816,6 +6153,8 @@ def main():
         if m is not None:
             m["part"] = ci + 1
             metas.append(m)
+        part_attempts.append(dict(part=ci+1, outcome='accepted' if m else 'no_selection',
+            elapsed_seconds=round(time.monotonic()-part_started, 3)))
         checkpoint()
 
     if args.target_parts and len(metas) != args.target_parts:

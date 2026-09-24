@@ -42,6 +42,24 @@ def test_local_text_backend_never_calls_cloud(monkeypatch,tmp_path):
     assert seen['payload']['options']['num_ctx']==16384
 
 
+def test_uncached_transport_retries_keep_seed_but_corrected_prompt_changes_it(monkeypatch,tmp_path):
+    monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'BASE',tmp_path)
+    calls=[]
+    class Reply:
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+        def read(self):return b'{"message":{"content":"source-bound text"}}'
+    def open_local(request,timeout):
+        calls.append(json.loads(request.data));return Reply()
+    monkeypatch.setattr(P.urllib.request,'urlopen',open_local)
+    for text in ('same original','same original','same original; retain uncertainty'):
+        P.llm([{'role':'user','content':text}],'',temperature=.35,read_cache=False)
+    seeds=[c['options']['seed'] for c in calls]
+    assert seeds[0]==seeds[1] and seeds[0]!=seeds[2]
+    assert all(0<=s<2**31 for s in seeds)
+
+
 def test_local_timeout_remains_retryable_and_never_caches_no_highlights(monkeypatch,tmp_path):
     monkeypatch.setattr(P,'TEXT_BACKEND','local')
     monkeypatch.setattr(P,'BASE',tmp_path)

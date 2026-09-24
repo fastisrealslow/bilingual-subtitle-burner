@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 27
+VERSION = 38
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -80,6 +80,11 @@ KEYNOTE_SECTION = re.compile(
     r'|那么第二个[，,][^。！？]{0,24}投资要赚大钱'
     r'|(?:好了[，,]?)?接下来(?:就是)?我们要谈成长性'
     r'|(?:好了[，,]?)?接下来我就讲这个投资')
+# Source46 ends its answer, then starts a separate recap at an exact cue.
+# Treat the explicit new section as a boundary, without guessing its speaker.
+# A long, complete recap may still be selected independently below.
+SUMMARY_SECTION = re.compile(r'^(?:简单|我(?:们)?(?:再|来)?|那我(?:们)?(?:再|来)?)?'
+    r'总结(?:一)?下(?:这)?几个关键词[：:]')
 OUTRO = re.compile(
     r'(?:本期|今天的|这次的|本次)(?:节目|对谈|访谈|对话).{0,12}(?:结束|到这里|告一段落)'
     r'|今天.{0,8}就到这里|由于时间.{0,12}(?:不再|结束)'
@@ -90,12 +95,17 @@ OUTRO = re.compile(
     # borrow the outro/host narration to reach the unchanged 120s minimum.
     r'|我今天就讲这么多')
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
+HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
 HOST_BRIDGE = re.compile(
-    r'^(?:啊[，,]?|嗯[，,]?|那|好的[，,]?)*'
+    r'总结来看[^。！？!?]{0,24}(?:两位|几位|各位)(?:两位|几位|的|这个|[，,])*嘉宾'
+    r'|'
+    r'^(?:啊[，,]?|嗯[，,]?|那|好(?:的|了)?[，,]?)*'
     r'(?:感谢林总|谢谢林总|林总(?:也|是|阐述|提到)|小林总也是|您时刻提醒我们)'
     r'|^我们都知道林总|^(?:我看|看)(?:你|您)之前(?:也有|有|说)'
     r'|^(?:嗯[，,]?|好[，,]?|呃[，,]?|那么)*我们知道(?:现在|呢)'
-    r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)')
+    r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
+    r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
+    r'|'+HOST_RECAP)
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
@@ -108,6 +118,52 @@ TOPIC_ANCHORS = (
     ('茅台',), ('五粮液',), ('片仔癀',), ('房地产',),
 )
 NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来谈谈|来聊聊|但我们今天采访')
+SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值|波段|短线')
+HOST_PREMISE = re.compile(
+    r'^(?:(?:但是|但|那么|那|嗯|呃)[，,、 ]?)*'
+    r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
+    r'(?:在)?我们看到(?:你|您)(?:整个的|的)(?:投资|经历|选择))')
+BACKREF_QUESTION = re.compile(r'^(?:这{1,2}|那{1,2})(?:一)?点(?:是)?(?:怎么|如何)[^。！？?]{0,40}[？?]')
+
+
+def host_premise_start(units, cues, question, lower=0):
+    """Recover an explicit addressed premise, never invent an antecedent.
+
+    Source311 starts a selected question with “但在你那里…是吗” after
+    dropping the host's 牛熊 premise. Its next “这一点是怎么做到的” is
+    another question only because a direct addressed host premise precedes it.
+    Bound the lookup by real sentence ends, time, and intervening questions.
+    """
+    for i in range(question - 1, max(lower, question - 3) - 1, -1):
+        if (cues[units[question]['start']]['start']-cues[units[i]['start']]['start']>30
+                or question_unit(units[i]['text'])):
+            break
+        if HOST_PREMISE.search(units[i]['text']):
+            return i
+    return None
+
+
+def promotional_cta(text):
+    # Actual library308 ends with a seller's 小黄车 pitch. Preserve the raw
+    # source, but do not make that extra commercial sentence our own outro.
+    if re.search(r'比如|举例|有人说|他说|不要|不能|不是',text):
+        return False
+    return bool(re.fullmatch(
+        r'(?:[^。！？!?]{1,18}[，,])?(?:下[面方](?:的)?(?:小黄车|购物车)|(?:小黄车|购物车|商品橱窗))'
+        r'.{0,6}(?:有售|购买|下单|拍下)[。！!]*',text))
+
+
+def contextual_self_answer(units,cues,index):
+    """Keep a source's opening question AND answer when its topic follows."""
+    text=units[index]['text']
+    if not re.fullmatch(r'(?:这个|该)行业[^。！？!?]{0,12}是不是[^。！？!?]{1,12}[？?]是[^。！？!?]{1,12}[。！!]',text):
+        return False
+    start=cues[units[index]['start']]['start']
+    # A sentence beginning at 12s can finish after 20s. Judge topic presence
+    # from its original timed cue, not the end of the whole joined sentence.
+    opening=''.join(c['text'] for c in cues[units[index]['start']:units[-1]['end']+1]
+                    if c['start']-start<=20)
+    return bool(re.search(r'AI|人工智能|医药|白酒|半导体|新能源|食品饮料',opening))
 
 
 def question_unit(text):
@@ -119,6 +175,16 @@ def question_unit(text):
     return bool(QUESTION.search(text))
 
 
+def unresolved_question_tail(text):
+    if not re.search(r'[？?]',text):return False
+    if editorial.CONTENT_POLICY!='reference_v1':return True
+    # Raw ASR can put a rhetorical “对吧？” and the next full statement in
+    # one timestamped cue. Keep that cue; do not mistake an interior question
+    # mark for an unanswered final question. A short “嗯/好的” is not an answer.
+    after=re.split(r'[？?]',text)[-1]
+    return len(re.sub(r'[\W_]','',after))<8 or not STOP.search(after)
+
+
 def speech_opening(text):
     # Headline fluency is stricter than spoken source fluency. Keep every byte
     # of a topical spoken opening, including hesitations and rhetorical 是吧.
@@ -126,6 +192,22 @@ def speech_opening(text):
     normalized=re.sub(r'^(?:嗯|啊|呃)[，, ]*', '', normalized)
     if complete(normalized.strip('。！？!?')):
         return True
+    if editorial.CONTENT_POLICY == 'reference_v1':
+        if re.match(r'^(?:作为我本人|对我来说|就我自己而言)[，,](?:我)?(?:没有|不会|不想|不|是|要)',normalized) and STOP.search(normalized):
+            return True
+        # Spoken openings are not permanent headlines. Fillers and a natural
+        # “是…的” ending must not reject an otherwise explicit subject/claim.
+        # This string is classification-only: original cues remain untouched.
+        spoken=re.sub(r'[啊嗯呃呀](?=[，,。！？!?])','',normalized)
+        spoken=re.sub(r'(是[^，,。！？!?]{1,14})的([。！？!?]?)$',r'\1\2',spoken)
+        if SPOKEN_SUBJECT.search(spoken) and complete(spoken.strip('。！？!?')):
+            return True
+        if SPOKEN_SUBJECT.search(spoken) and (
+                re.fullmatch(r'我(?:们)?(?:为什么|为何|怎么|如何)[^。！？!?]{2,40}[？?]',spoken)
+                or re.fullmatch(r'我(?:们)?(?:从来|一直|现在|就|也|都)?(?:不|不会|不想)(?:做|买|卖|投|追|碰)[^，,。！？!?]{2,12}(?:[，,](?:不做|不买|不卖|不投))?[。！!]',spoken)):
+            return True
+        if re.match(r'^我(?:先|再)?(?:给(?:你|大家|你们))?(?:讲|说|举).{0,4}(?:故事|例子|经历)[。！!]$',spoken):
+            return True
     if re.match(r'^(?:它|他|她|这|那|因为|所以|但是|并|虽然)',normalized):
         return False
     return bool(re.match(r'^(?:我(?:们)?(?:今年|认为|今天|特别|对)|三十.{0,8}以上的人)',normalized)
@@ -146,6 +228,29 @@ def same_topic_followup(first, following):
     return bool(anchors and anchors & topic_anchors(following))
 
 
+def declared_investment_sections(units,cues):
+    """A named new sector plus an explicit personal investment stance.
+
+    Library314 moves from tariffs to AI without announcing 换个话题. Only
+    propose that original sentence boundary when a different topic precedes
+    it and the speaker states a choice immediately afterwards. Mentioning a
+    sector inside an example or adding a title keyword is not a boundary.
+    """
+    cuts=[]
+    for i,u in enumerate(units):
+        if not i or not re.match(r'^(?:人工智能|医药|白酒|科技|创新药|中药|房地产)(?:啊[，,]?|[，,])',u['text']):
+            continue
+        start=cues[u['start']]['start'];current=topic_anchors(u['text'])
+        prior=''.join(v['text'] for v in units[:i] if start-cues[v['end']]['end']<=180)
+        previous=topic_anchors(prior)
+        if not current or not previous or current & previous:continue
+        following=''.join(c['text'] for c in cues[u['start']:units[-1]['end']+1]
+                          if c['start']-start<=30)
+        if re.search(r'我(?:们)?(?:看好[^。！？!?]{0,20}[，,]但是我)?(?:不敢投|不投|只投|不会买|不买|不参与)',following):
+            cuts.append(i)
+    return cuts
+
+
 def sentence_units(cues):
     units=[]; start=0; text=''
     for i,c in enumerate(cues):
@@ -156,6 +261,32 @@ def sentence_units(cues):
     return units
 
 
+def floor_handover_ranges(cues):
+    """Observable microphone handovers, without assigning semantic approval.
+
+    A sentence shared with the next speaker is excluded in full. Never invent
+    an intra-cue timestamp to keep a few more seconds of the guest's ending.
+    """
+    units=sentence_units(cues)
+    invitation=re.compile(r'把话筒交给|话筒交给|请.{1,12}(?:发言|谈谈|讲几句)')
+    thanks=re.compile(r'(?:谢谢|感谢)(?:谢谢|感谢)?(?:我们)?[^，。！？!?]{1,10}(?:总|先生|老师|董事长)[啊，。！!,]')
+    spans=[]
+    for i,u in enumerate(units[:-1]):
+        # A bare 有请 inside a quoted anecdote is insufficient. Require the
+        # actual invitation immediately before it and an exact short cue.
+        context=''.join(x['text'] for x in units[max(0,i-1):i+1])
+        if not re.fullmatch(r'(?:嗯[，,。]?|好[，,。]?)*有请[。！!]',u['text'].strip()):continue
+        if not invitation.search(context):continue
+        for j in range(i+2,len(units)):
+            if not thanks.search(units[j]['text']):continue
+            # The host acknowledgement may be in the same ASR sentence as
+            # the guest's final words. Retain only prior complete sentences.
+            a,b=units[i+1]['start'],units[j-1]['end']
+            spans.append((a,b))
+            break
+    return spans
+
+
 def boundary_error(cues,pick):
     """Apply observable boundaries to model/cache candidates too.
 
@@ -163,12 +294,26 @@ def boundary_error(cues,pick):
     preamble alone cannot supply the missing seconds of the preceding answer.
     This is a structural check, not a claimed semantic-model approval.
     """
+    from speaker_attribution import selection_error
+    attribution_error=selection_error(cues,pick)
+    if attribution_error:return attribution_error
+    full_units=sentence_units(cues)
+    for q,u in enumerate(full_units):
+        if u['start']!=pick['start']:continue
+        if (question_unit(u['text']) or BACKREF_QUESTION.search(u['text'])) and host_premise_start(full_units,cues,q) is not None:
+            return '选段省略了主持人明确的提问前提；须从原始背景句开始，不以指代问题开场'
+        break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if declared_investment_sections(units,selected):
+        return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
+        if i and SUMMARY_SECTION.search(u['text']):
+            return '选段跨入明确的总结章节；在原声边界分开，不能把总结开头接在上一段结论后'
+        if promotional_cta(u['text']):return '选段包含原片带货收尾，须在原始句界结束，不能保留小黄车广告'
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
-        if FOLLOWUP.search(u['text']):
+        if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
             question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
                 return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
@@ -179,24 +324,41 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     units=sentence_units(cues)
     # A host's closing narration is not the guest's final answer. It must not
     # turn a short farewell into a 120-second "guest" clip.
-    end=next((i for i,u in enumerate(units) if OUTRO.search(u['text'])
+    end=next((i for i,u in enumerate(units) if OUTRO.search(u['text']) or promotional_cta(u['text'])
               or i>0 and PROMOTIONAL_REINTRO.search(u['text'])),len(units))
     natural_end=(end<len(units) or bool(whole_source and units and units[-1]['end']==len(cues)-1))
     units=units[:end]
-    questions=[i for i,u in enumerate(units) if question_unit(u['text'])]
+    questions=[i for i,u in enumerate(units) if question_unit(u['text'])
+               or BACKREF_QUESTION.search(u['text']) and host_premise_start(units,cues,i) is not None]
     # Adjacent questions from the same interviewer turn belong together.
     starts=[i for k,i in enumerate(questions) if k==0 or
             (i>questions[k-1]+1 and not all(re.search(r'[？?]$',units[t]['text'])
                 for t in range(questions[k-1]+1,i)))]
     # Keep a host's lead-in with that question, not with the preceding answer.
-    leadin=re.compile(r'采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)')
+    # A recap inside a sentence unit may share a raw ASR cue with the
+    # preceding answer. Do not invent an intra-cue time or move the guest's
+    # conclusion into the next question. That mixed unit cannot end a clip.
+    leadin=re.compile(r'采访您|^我们看其实|^那我们知道林|^那这个.{0,20}(?:问题|行业|个股)|^'+HOST_RECAP)
     question_starts=list(starts)
+    from speaker_attribution import named_handoffs
+    handoff_cues={row['cue'] for row in named_handoffs([c['text'] for c in cues])}
     for k,q in enumerate(question_starts):
         lower=(question_starts[k-1]+1 if k else 0)
+        premise=host_premise_start(units,cues,q,lower)
+        if premise is not None:starts[k]=premise
         for t in range(max(lower,q-3),q):
             if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
                 starts[k]=t;break
-    transitions=[i for i,u in enumerate(units) if TRANSITION.search(u['text'])]
+        # Keep the named hand-off's premise with its actual question. Real
+        # source8 says 林总之前...四千五百点 before asking 您的这个观点...;
+        # starting at that second sentence loses the numerical premise.
+        named=[t for t in range(max(lower,q-3),q+1)
+               if any(units[t]['start']<=c<=units[t]['end'] for c in handoff_cues)
+               and cues[units[q]['start']]['start']-cues[units[t]['start']]['start']<=30
+               and not any(question_unit(units[j]['text']) for j in range(t,q))]
+        if named:starts[k]=min(starts[k],max(named))
+    investment_sections=declared_investment_sections(units,cues) if editorial.CONTENT_POLICY=='reference_v1' else []
+    transitions=sorted(set(investment_sections+[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     options=[]
     if diagnostics is not None:
         diagnostics.update(selector_version=VERSION,cue_count=len(cues),sentence_count=len(units),
@@ -243,29 +405,55 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             spans.append((i,j))
     for i,j in spans:
         if j is None:continue
-        if j<=i or question_unit(units[j]['text']) or re.search(r'[？?]',units[j]['text']):continue
+        if j<=i or question_unit(units[j]['text']) or unresolved_question_tail(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
-            reject('question_answer',a,b,'duration_outside_120_330');continue
-        if boundary_error(cues,dict(start=a,end=b)):
-            reject('question_answer',a,b,'incomplete_boundary');continue
+            reject('question_answer',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_330');continue
+        boundary_issue=boundary_error(cues,dict(start=a,end=b))
+        if boundary_issue:
+            reject('question_answer',a,b,boundary_issue);continue
         text=''.join(c['text'] for c in cues[a:b+1])
         if editorial.transcript_integrity_error(text):
             reject('question_answer',a,b,'transcript_integrity');continue
         quotes=quote_candidates(text)
-        if not quotes:
+        if not quotes and editorial.CONTENT_POLICY!='reference_v1':
             reject('question_answer',a,b,'no_supported_title_quote');continue
-        options.append((max(map(score,quotes)),dict(start=a,end=b,score=7,
+        # A complete Q&A need not contain a ready-made short headline. It will
+        # still pass the independent title reader/writer and all media gates.
+        # Prefer literal quote opportunities, but do not confuse their absence
+        # with missing source context.
+        options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
             reason='保留原始提问和其后连续回答；未声称模型语义审核通过',
             selection_method='source_question_answer_v2')))
     # Short, uninterrupted source speeches need no invented interviewer.
     # Only the actual source end or an explicit topic change closes a speech;
     # a 3-minute chunk edge or a row crossing 120s never does. Question-bearing
     # sections stay on the Q&A path above, so they cannot borrow another answer.
-    cuts=sorted(set([0]+[i for i,u in enumerate(units) if
+    cuts=sorted(set([0]+investment_sections+[i for i,u in enumerate(units) if
         TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
-        or KEYNOTE_SECTION.search(u['text'])]))
+        or KEYNOTE_SECTION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
+    # An already short source may start with an answer dependent on a missing
+    # question. Propose the first self-contained sentence in its opening,
+    # retaining everything afterwards up to the original natural end. Never
+    # pick a late punchline or join separate topics to reach a duration floor.
+    if (editorial.CONTENT_POLICY=='reference_v1' and whole_source and natural_end
+            and units and not questions and len(cuts)==1
+            and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<120
+            and not speech_opening(units[0]['text'])
+            and not contextual_self_answer(units,cues,0)):
+        # Several short ASR sentences/fillers can precede the first complete
+        # opening. Keep the existing 20-second budget, not an unrelated
+        # two-sentence cap (real sources63/82 had a valid fourth sentence).
+        for i in range(1,len(units)):
+            if cues[units[i]['start']]['start']-cues[units[0]['start']]['start']>20:
+                break
+            opening=units[i]['text']
+            if (cues[units[i]['start']]['start']-cues[units[0]['start']]['start']<=20
+                    and SPOKEN_SUBJECT.search(opening)
+                    and not re.match(r'^(?:人家|他们|这些|那些|这个|那个)',opening)
+                    and speech_opening(opening)):
+                cuts=[i];break
     for k,i in enumerate(cuts):
         if k+1<len(cuts):j=cuts[k+1]-1
         elif natural_end:j=len(units)-1
@@ -276,19 +464,35 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or
                 KEYNOTE_SECTION.search(units[i]['text']) or
-                speech_opening(units[i]['text'])):continue
-        if re.search(r'[？?]',units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
+                speech_opening(units[i]['text']) or i in investment_sections or
+                (whole_source and editorial.CONTENT_POLICY=='reference_v1' and contextual_self_answer(units,cues,i))):continue
+        if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
-        if not editorial.MIN_SECONDS<=duration<=330:
-            reject('speech',a,b,'duration_outside_120_330');continue
+        maximum=720 if whole_source and editorial.CONTENT_POLICY=='reference_v1' else 330
+        if not editorial.MIN_SECONDS<=duration<=maximum:
+            reject('speech',a,b,f'duration_outside_{editorial.MIN_SECONDS:g}_{maximum}');continue
         text=''.join(c['text'] for c in cues[a:b+1])
         if editorial.transcript_integrity_error(text) or boundary_error(cues,dict(start=a,end=b)):continue
         quotes=quote_candidates(text)
-        if not quotes:continue
-        options.append((max(map(score,quotes)),dict(start=a,end=b,score=7,
+        if not quotes and editorial.CONTENT_POLICY!='reference_v1':continue
+        options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
             reason='保留源片完整连续陈述及自然句界；未声称模型语义审核通过',
             selection_method='source_continuous_speech_v1')))
+    # Shareholder meetings use microphone handovers, not interview questions.
+    # Source67 previously lost the whole 228s statement because neither the
+    # opening host invitation nor the closing acknowledgement was recognized.
+    # Offer this exact continuous range to the same argument/face/title gates.
+    if whole_source and editorial.CONTENT_POLICY=='reference_v1':
+        for a,b in floor_handover_ranges(cues):
+            duration=cues[b]['end']-cues[a]['start']
+            if not editorial.MIN_SECONDS<=duration<=330:continue
+            text=''.join(c['text'] for c in cues[a:b+1])
+            if editorial.transcript_integrity_error(text) or boundary_error(cues,dict(start=a,end=b)):continue
+            quotes=quote_candidates(text)
+            options.append((max(map(score,quotes),default=0),dict(start=a,end=b,score=7,
+                reason='明确交接话筒后至主持人致谢前的完整句；仍需观点与身份审核',
+                selection_method='source_floor_handover_v1')))
     # limit=None exposes every structurally valid interval to picture ranking.
     # Never change an answer boundary merely to fit a cleaner frame.
     ranked=[dict(p,editorial_rank=rank) for rank,(_,p) in

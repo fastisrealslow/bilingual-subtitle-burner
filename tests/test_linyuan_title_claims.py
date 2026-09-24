@@ -26,8 +26,9 @@ def model(calls, bad_review=False):
         calls.append(prompt)
         if '独立核对' not in prompt:
             return json.dumps(dict(candidates=proposals()),ensure_ascii=False)
+        rows=json.loads(prompt.split('待独立核对的标题和封面：')[1].split('\n')[0])
         return json.dumps(dict(reviews=[dict(index=i,appeal=5-i,reason='原文直接支持同一观点，标题与封面未增加新结论',
-            **{k: not (bad_review and k=='source_supported') for k in T.CHECKS}) for i in range(3)]))
+            **{k: not (bad_review and k=='source_supported') for k in T.CHECKS}) for i in range(len(rows))]))
     return call
 
 
@@ -100,7 +101,7 @@ def test_good_consumption_cannot_become_above_expectations_without_source_suppor
     assert '新增' in T._candidate_error(item,source,'林园',())
 
 
-def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
+def test_one_valid_candidate_still_gets_full_review_without_discarding_it():
     calls=[]
     good=model(calls)
     def incomplete(prompt):
@@ -108,10 +109,12 @@ def test_one_valid_candidate_cannot_skip_comparison_of_three_angles():
         for item in reply.get('candidates',[])[1:]:item['cover_title']='龙头'
         return json.dumps(reply,ensure_ascii=False)
     result=T.generate(TEXT,model=incomplete)
-    assert len(calls)==3 and result['title_rewrite']['review']['method']=='source_quote'
+    assert len(calls)==2 and result['title_rewrite']['review']['method']=='cpu_text_review'
+    assert result['title']==TITLE
+    assert result['editorial_selection']['reviewed_count']==1
 
 
-def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
+def test_real_0916_valid_drafts_are_reviewed_without_requiring_three():
     fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_0913_title.json').read_text())
     actual=json.loads((Path(__file__).parent/'fixtures/linyuan_title_retry_0916.json').read_text())
     cues=[c['text'] for c in fixture['cues']];source=''.join(cues)
@@ -124,7 +127,7 @@ def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
             return json.dumps(actual['drafts'][len(drafts)-1],ensure_ascii=False)
         marker='待独立核对的标题和封面：'
         trio=json.loads(prompt.split(marker)[1].split('\n')[0]);reviewed.extend(trio)
-        assert len(trio)==3 and len({c['title'] for c in trio})==3
+        assert 1<=len(trio)<=3 and len({c['title'] for c in trio})==len(trio)
         assert all('龙头' in c['title'] for c in trio)
         assert not any('还在寻找中' in c['title'] or c['title']=='林园：投资方向要控制比例' for c in trio)
         # This mock tests candidate retention only. Production still runs the
@@ -134,9 +137,9 @@ def test_real_0916_drafts_accumulate_without_approving_an_invalid_candidate():
             b_question_premise='主持人询问如何在好赛道中选择投资标的。',
             c_reason='标题保留了龙头尚未形成以及需要时间观察的原文限定。'),
             b_verdict=dict(index=i,appeal=5-i,**{k:True for k in T.CHECKS}))
-            for i in range(3)]),ensure_ascii=False)
+            for i in range(len(trio))]),ensure_ascii=False)
     result=T.generate(source,structured_model=structured,source_cues=cues)
-    assert len(drafts)==2 and len(reviewed)==3
+    assert len(drafts)==1 and 1<=len(reviewed)<=3
     assert result['title_candidates']==[c['title'] for c in reviewed]
     assert T.error(result['title'],result['title_rewrite'],source) is None
 
@@ -212,9 +215,14 @@ def test_valid_title_is_cached_with_current_policy_and_same_evidence(tmp_path,mo
         reply=json.loads(callback(messages[0]['content']))
         if 'c_candidates' in properties:
             assert kwargs['temperature']==.35
-            assert '园园滚雪球' in messages[0]['content']
-            assert '正文22~52字' in messages[0]['content']
+            assert '本人态度、原话理由、短句推进' in messages[0]['content']
+            assert '白酒行业是有泡沫的' not in messages[0]['content']
+            assert '甚至没有PE' not in messages[0]['content']
+            assert '正文4~52字' in messages[0]['content']
+            assert '不要补第二句凑长度' in messages[0]['content']
             assert '正文15~30个汉字' not in messages[0]['content']
+            # Real production style previously removed these fact constraints.
+            assert T.COPY_FACT_CONSTRAINTS in messages[0]['content']
         else:
             assert kwargs['temperature']==0
         if reply.get('candidates'):
@@ -344,6 +352,73 @@ def test_real_source_subjects_are_exact_options_with_corresponding_evidence(name
     assert '未出龙头公司' not in catalog and '医药消费赛道' not in catalog
 
 
+def test_real_source66_business_nouns_do_not_discard_natural_draft():
+    # The 14B replay actually proposed this draft, but jieba tagged 买卖 as v.
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/title-sep22-corpus.json'
+    units=[c['text'] for c in json.loads(path.read_text())[0]['cues']]
+    catalog=T.subject_catalog(units)
+    assert '买卖' in catalog and '生意' in catalog
+    bound=T.bind_candidate(dict(title='林园：一个买卖能长期做下去，才是好买卖。',
+        cover_title='长期做下去才是好买卖'),dict(evidence_ids=[7,9,10,11]),units,catalog)
+    assert bound['subject']=='买卖'
+    assert T._candidate_error(bound,''.join(units),'林园',[]) is None
+    # This grants entry to the independent semantic review, not approval.
+    assert 'review' not in bound
+    assert '买卖' not in T.subject_catalog(['长期坚持才有结果。'])
+
+
+def test_real95_scope_is_kept_even_when_evidence_omits_short_qualifier():
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/title-sep22-corpus.json'
+    text=''.join(c['text'] for c in json.loads(path.read_text())[1]['cues'])
+    assert T.research_scope(text)
+    assert T.research_scope_error('林园：医药企业业绩增长但股价下跌，因过去被炒高。',
+        '医药企业业绩增长股价却跌',text)
+    title='林园：我研究的医药公司业绩在涨，股价为什么却跌了？'
+    assert T.research_scope_error(title,'医药股业绩增长股价却跌',text)
+    assert T.research_scope_error(title,'调研公司业绩涨股价跌',text) is None
+    assert T.research_scope_error('林园：我没有研究房地产，也不看好。','房地产我没有研究',text) is None
+    assert T.research_scope_error('林园：医药企业业绩增长','医药企业业绩在增长','整个医药行业业绩增长。') is None
+
+
+def test_actual95_correct_title_can_supply_complete_scoped_cover_before_review():
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/title-sep22-corpus.json'
+    units=[c['text'] for c in json.loads(path.read_text())[1]['cues']]
+    title='林园：研究的医药公司业绩增长，股价却下跌'
+    bound=T.bind_candidate(dict(title=title,cover_title='医药公司业绩增长股价下跌'),
+        dict(evidence_ids=[16,18,19,20]),units,T.subject_catalog(units))
+    assert T.research_scope_error(title,bound['cover_title'],''.join(units)) is None
+    assert bound['cover_title'] in title
+    assert 'review' not in bound
+
+
+def test_actual_model_covers_use_complete_title_spans_before_review():
+    units=['一个买卖，如果能够长期做下去，才是一个好的买卖。']
+    bound=T.bind_candidate(dict(title='林园：长期做下去才是好买卖',
+        cover_title='林园：长期做买卖才是好'),dict(evidence_ids=[0]),units,{'买卖':[0]})
+    assert bound['cover_title']=='长期做下去才是好买卖'
+    assert 'review' not in bound
+    units=['现在A股确实是好机会，真的牛市没来之前说不清楚，我不建议加杠杆。']
+    bound=T.bind_candidate(dict(title='林园：当前A股是好机会，但牛市未明，不建议加杠杆。',
+        cover_title='林园谈A股机会与杠杆风险'),dict(evidence_ids=[0]),units,{'杠杆':[0]})
+    assert bound['cover_title']=='但牛市未明，不建议加杠杆'
+    assert not T.copy_fragment(bound['cover_title'])
+    assert 'review' not in bound
+
+
+def test_real17_completed_question_does_not_hide_the_answer_object():
+    path=Path(__file__).parent/'fixtures/linyuan_source17_72_host_tail.json'
+    units=[c['text'] for c in json.loads(path.read_text())[0]['cues'][:6]]
+    assert T.explicit_host_cues(units)=={1}
+    roles=T.bind_reading(dict(a_guest_answer='没有特意研究光伏能源，听别人说存在污染，因此没参与。',
+        b_question_premise='主持人问光伏能源怎么看。',c_guest_spans=[dict(a_start=2,b_end=5)]),units)
+    assert 2 in T.guest_evidence_ids(units,roles)
+    # The release is not an attribution decision: a reader may still leave
+    # the following background unknown; no automatic guest role is added.
+    roles=T.bind_reading(dict(a_guest_answer='所以我们没有参与相关行业。',
+        b_question_premise='主持人问光伏能源怎么看。',c_guest_spans=[dict(a_start=5,b_end=5)]),units)
+    assert roles[2]=='unknown' and 2 not in T.guest_evidence_ids(units,roles)
+
+
 def test_source_subject_choice_does_not_approve_a_new_financial_claim():
     item=proposals()[0]
     item['title']='林园：龙头还没形成，布局整个行业更安全'
@@ -366,8 +441,8 @@ def test_missing_guest_question_distinction_cannot_be_an_approved_rewrite():
         calls.append(prompt)
         return json.dumps(dict(b_focus=dict(b_evidence_ids=[0],a_claim='主持人问题被误写成嘉宾给出的判断'),
             c_candidates=[dict(title=c['title'],cover_title=c['cover_title']) for c in proposals()]),ensure_ascii=False)
-    result=T.generate(TEXT,structured_model=incomplete)
-    assert result['title_rewrite']['review']['method']=='source_quote'
+    with pytest.raises(ValueError, match='未确认嘉宾原话归属'):
+        T.generate(TEXT,structured_model=incomplete)
     assert len(calls)==3 and '分别读清嘉宾实际回答' in calls[1]
 
 
@@ -393,3 +468,20 @@ def test_real_dialogue_cue_boundaries_do_not_merge_host_hypothesis_into_answer()
                 [dict(a_start=0,b_end=30,c_role='guest'),dict(a_start=30,b_end=51,c_role='host')],
                 [dict(a_start=0,b_end=50,c_role='guest')]):
         with pytest.raises(ValueError):T.bind_turns(bad,units)
+
+
+def test_small_market_value_does_not_mean_not_worth_investing():
+    # Actual 79 caption-fix run wrote 医药行业不值 despite its own reader
+    # reporting that the guest explicitly plans to invest in this industry.
+    source='医药行业市值跟别人差得太远了。我们从投资的角度上，我们倾向于买危机。'
+    item=dict(title='林园：医药行业不值，但危机里有大机会',
+        cover_title='医药行业不值，但危机里有大机会',subject='医药行业',evidence=[source])
+    proof=T._package(item,source,dict(method='cpu_text_review',appeal=5,
+        reason='真实失败稿中所有自动语义标志均为真，不能代替当前检查',**{k:True for k in T.CHECKS}),[])['title_rewrite']
+    assert '原文没有' in T.error(item['title'],proof,source)
+    assert '原文没有' in T._candidate_error(item,source,'林园',[],check_layout=False)
+    # An explicit negative guest opinion is still allowed; do not censor it.
+    negative='我认为这个价格的医药行业不值得投资，暂时不买。'
+    item=dict(title='林园：医药行业不值得投资',cover_title='医药行业不值得投资',
+              subject='医药行业',evidence=[negative])
+    assert T._candidate_error(item,negative,'林园',[],check_layout=False) is None

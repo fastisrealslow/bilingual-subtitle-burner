@@ -52,6 +52,23 @@ def test_reviewed_0907_mothers_only_replace_verified_phrases():
         assert untouched==words
 
 
+def test_actual_all_output_alignment_preserves_timing_and_unreviewed_words():
+    import json
+    from reviewed_asr_corrections import apply_reviewed_corrections
+    cases=json.loads((Path(__file__).resolve().parents[1]/
+        'linyuan/simulations/benchmark-20260921/verified-caption-word-windows.json').read_text())
+    for case in cases:
+        words=case['words'];before=copy.deepcopy(words)
+        revised,changes=apply_reviewed_corrections(words,case['source_sha256'])
+        assert words==before
+        assert len(changes)==(1 if case['source_id']==49 else 2)
+        assert [(w['start'],w['end']) for w in revised]==[(w['start'],w['end']) for w in words]
+        assert ''.join(w['text'] for w in revised)==''.join(w['text'] for w in words).replace('陈以健','成瘾性').replace('符合增长','复合增长')
+        assert apply_reviewed_corrections(words,'different-source')==(words,[])
+        shifted=[dict(w,start=w['start']+100,end=w['end']+100) for w in words]
+        assert apply_reviewed_corrections(shifted,case['source_sha256'])==(shifted,[])
+
+
 def report():
     return dict(source_pcm_sha256='pcm',source_video_sha256='video',device='cpu',
         networking_during_inference=False,model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr-revision',
@@ -83,3 +100,36 @@ def test_only_cpu_offline_evidence_can_enter_production():
     r=report();r['networking_during_inference']=True
     with pytest.raises(ValueError,match='inference provenance'):
         validated_words([r],'pcm','video',10)
+
+
+def test_original_caption_confirms_investment_firm_without_global_name_replacement():
+    from reviewed_asr_corrections import apply_reviewed_corrections
+    source='312d4ce3bdcd58f11cacbe70fdb9e3992d5d9b66ddebf459e65c0dc8203fe710'
+    text='我们凌源投资是在全球范围内'
+    words=[dict(text=c,start=38.29+i*.16,end=38.29+(i+1)*.16) for i,c in enumerate(text)]
+    original=[dict(w) for w in words]
+    changed,proof=apply_reviewed_corrections(words,source)
+    assert ''.join(w['text'] for w in changed)=='我们林园投资是在全球范围内'
+    assert [(w['start'],w['end']) for w in changed]==[(w['start'],w['end']) for w in words]
+    assert words==original and proof[0]['before']=='凌源投资'
+    assert apply_reviewed_corrections(words,'unrelated-mother')==(words,[])
+    shifted=[{**w,'start':w['start']+100,'end':w['end']+100} for w in words]
+    assert apply_reviewed_corrections(shifted,source)==(shifted,[])
+
+
+@pytest.mark.parametrize('source,start,before,after',[
+    ('312d4ce3bdcd58f11cacbe70fdb9e3992d5d9b66ddebf459e65c0dc8203fe710',157.,'十个子头能赌出来的','十个指头能数出来的'),
+    ('64fa677c6235f9121dc444b0d432990e1b49e3fb69cc0d590f851a93c88dea6b',180.,'这是个打击','这是个大机会'),
+    ('64fa677c6235f9121dc444b0d432990e1b49e3fb69cc0d590f851a93c88dea6b',191.,'P一','PE'),
+])
+def test_additional_original_captions_correct_only_verified_source_and_interval(source,start,before,after):
+    from reviewed_asr_corrections import apply_reviewed_corrections
+    words=[dict(text=c,start=start+i*.12,end=start+(i+1)*.12) for i,c in enumerate(before)]
+    fixed,proof=apply_reviewed_corrections(words,source)
+    assert ''.join(w['text'] for w in fixed)==after
+    assert fixed[0]['start']==words[0]['start'] and fixed[-1]['end']==words[-1]['end']
+    assert ''.join(w['text'] for w in words)==before
+    assert len(proof)==1
+    assert apply_reviewed_corrections(words,'different-source')==(words,[])
+    shifted=[{**w,'start':w['start']+30,'end':w['end']+30} for w in words]
+    assert apply_reviewed_corrections(shifted,source)==(shifted,[])

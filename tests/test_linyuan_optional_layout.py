@@ -97,3 +97,18 @@ def test_successful_landscape_is_still_returned(monkeypatch, tmp_path):
     expected = dict(vertical=False, landscape_reframe=dict(version=2))
     monkeypatch.setattr(L, 'reframe', lambda *a, **kw: expected)
     assert L.optional_reframe(portrait(tmp_path), tmp_path, tmp_path/'work') == expected
+
+
+@pytest.mark.parametrize('style',['classic','quiet'])
+def test_layout_only_replay_can_use_known_landscape_without_old_captions(style):
+    spec=L.layout(style)
+    meta=dict(render_mode='live_video_card',layout_proof=spec)
+    window=L.source_window(meta)
+    assert window==spec['live_region']
+    assert window['y']+window['height']<=spec['subtitle_region']['y']
+    for change in ('live_region','subtitle_region','template'):
+        changed=copy.deepcopy(meta)
+        if change=='template':changed['layout_proof'][change]='unverified'
+        else:changed['layout_proof'][change]['y']+=10
+        with pytest.raises(ValueError,match='不是已知'):
+            L.source_window(changed)

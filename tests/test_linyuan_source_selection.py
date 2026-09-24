@@ -24,12 +24,11 @@ def test_real_question_and_answer_keep_every_condition_and_timestamp(tmp_path,mo
     with patch.object(p,'llm',side_effect=AssertionError('model must not be required')):
         picks=p.pick_highlights(cues,'林园','',tmp_path)
         assert [(r['start'],r['end']) for r in picks]==[(0,3)]
-    # Title editing now uses the CPU model; an outage may still use a complete
-    # source claim without changing the selected answer or dropping conditions.
+    # Selection survives an outage, but unknown speaker attribution must not
+    # turn into an automatically approved source-quote title.
     with patch.object(p,'llm',side_effect=p.LocalTextUnavailable('temporarily unavailable')):
-        copy=p.copywrite(cues,list(range(4)),'林园','访谈','',tmp_path)
-        assert copy['title_quality_verified']
-        assert copy['title_rewrite']['review']['method']=='source_quote'
+        with pytest.raises(p.LocalTextUnavailable):
+            p.copywrite(cues,list(range(4)),'林园','访谈','',tmp_path)
     assert json.dumps(cues,ensure_ascii=False)==before
     assert '但是投资仍然有风险' in ''.join(c['text'] for c in cues[:4])
 
@@ -37,6 +36,52 @@ def test_real_question_and_answer_keep_every_condition_and_timestamp(tmp_path,mo
 def test_short_answer_cannot_borrow_next_question_to_reach_120():
     cues=dialogue();cues[3]['end']=115;cues[4]['start']=115
     assert select(cues)==[]
+
+
+def test_real_source32_host_recap_cannot_end_the_previous_answer():
+    from source_selection import boundary_error
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_source32_host_recap.json').read_text())
+    cues=data['cues']; original=json.dumps(cues,ensure_ascii=False)
+    picks=select(cues,limit=None,whole_source=True)
+    assert [(p['start'],p['end']) for p in picks]==[(0,data['expected_previous_end'])]
+    # The raw cue spans “西。啊。好的，刚刚说到消费”: do not guess a
+    # timestamp inside it or cut the preceding “东西” word in half.
+    assert cues[picks[0]['end']]['text']=='就投入小，产出大，而且就是一劳永逸。'
+    assert cues[picks[0]['end']]['end']==708.92
+    assert boundary_error(cues,dict(start=0,end=data['old_end']))
+    assert boundary_error(cues,picks[0]) is None
+    assert json.dumps(cues,ensure_ascii=False)==original
+
+
+def test_host_recap_cannot_extend_short_answer_but_guest_recap_is_allowed():
+    cues=dialogue()[:4]
+    cues[-1]['end']=115
+    cues += [dict(start=115,end=145,text='好的，刚刚说到消费，接下来聊一个新问题。'),
+             dict(start=145,end=150,text='您对科技股怎么看？')]
+    assert select(cues)==[]
+    cues=dialogue();cues[2]['text']='我刚刚说到企业需求，现在把价格也讲清楚。'
+    assert [(x['start'],x['end']) for x in select(cues)]==[(0,3)]
+
+
+def test_real17_and72_cannot_borrow_host_tail_to_make_a_complete_clip(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    cases=json.loads((Path(__file__).parent/'fixtures/linyuan_source17_72_host_tail.json').read_text())
+    for case in cases:
+        cues=case['cues'];before=json.dumps(cues,ensure_ascii=False)
+        assert S.boundary_error(cues,dict(start=0,end=len(cues)-1))
+        picks=select(cues,limit=None,whole_source=True)
+        if case['id']==17:
+            assert [(p['start'],p['end']) for p in picks]==[(0,5)]
+            assert cues[5]['end']==1376.44
+            assert '好像有人给我说' in ''.join(c['text'] for c in cues[:6])
+            assert S.boundary_error(cues,picks[0]) is None
+        else:
+            # Actual answer lasts <20s. Do not use next-topic host narration
+            # to pad it into a successful video, or silently lower the floor.
+            assert picks==[]
+        assert json.dumps(cues,ensure_ascii=False)==before
 
 
 def test_mechanical_chunk_end_is_not_an_answer_boundary():
@@ -173,3 +218,66 @@ def test_actual_686_interviewer_stock_claim_cannot_be_guest_title():
           '医药行业需求随着老龄化增长，我们长期持有这些企业。')
     titles=title_candidates(text)
     assert titles and all('百分之' not in title and '茅台' not in title for title in titles)
+
+
+def test_sep23_real_short_speeches_keep_their_original_opening_and_end(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_sep23_selection.json').read_text())
+    for case in data:
+        cues=case['cues'];before=json.dumps(cues,ensure_ascii=False)
+        picks=S.select(cues,limit=None,whole_source=True)
+        end=len(cues)-2 if case['id']==308 else len(cues)-1
+        assert any(r['start']==0 and r['end']==end for r in picks), (case['id'],picks)
+        assert json.dumps(cues,ensure_ascii=False)==before
+        assert all(not S.boundary_error(cues,r) for r in picks)
+    # 306 is an uninterrupted 332-second speech, just beyond the old 330 cap.
+    case=next(r for r in data if r['id']==306)
+    assert case['cues'][-1]['end']-case['cues'][0]['start']>330
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','legacy120')
+    assert not S.select(case['cues'],limit=None,whole_source=True)
+
+
+def test_seller_cta_is_not_added_to_our_video_or_confused_with_discussion():
+    from source_selection import promotional_cta,boundary_error
+    assert promotional_cta('林园炒股秘籍，下面小黄车有售。')
+    assert not promotional_cta('比如，有人说小黄车有售。')
+    assert not promotional_cta('我不想买小黄车里那些商品。')
+    cues=[dict(start=0,end=30,text='我们只投资自己能看懂的公司。'),
+          dict(start=31,end=34,text='林园炒股秘籍，下面小黄车有售。')]
+    assert '带货' in boundary_error(cues,dict(start=0,end=1))
+
+
+def test_self_question_needs_its_answer_and_named_topic_in_opening():
+    from source_selection import contextual_self_answer
+    cues=[dict(start=0,end=3,text='这个行业现在是不是牛市？是牛市。'),dict(start=4,end=9,text='这里讲的是AI这个行业。')]
+    units=[dict(start=i,end=i,text=c['text']) for i,c in enumerate(cues)]
+    assert contextual_self_answer(units,cues,0)
+    assert not contextual_self_answer([{**units[0],'text':'这个行业现在是不是牛市？'},units[1]],cues,0)
+    assert not contextual_self_answer([units[0]],cues,0)
+
+
+def test_real_library314_tariffs_and_ai_are_independent_complete_candidates(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_library314_selection.json').read_text())
+    cues=data['cues'];before=json.dumps(cues,ensure_ascii=False)
+    ranges=[(cues[r['start']]['start'],cues[r['end']]['end']) for r in S.select(cues,limit=None,whole_source=True)]
+    assert (366.44,513.72) in ranges
+    assert (515.32,639.48) in ranges
+    assert not any(a<515.32<b for a,b in ranges)
+    assert S.boundary_error(cues,dict(start=123,end=206))
+    assert S.boundary_error(cues,dict(start=170,end=206)) is None
+    assert json.dumps(cues,ensure_ascii=False)==before
+
+
+def test_sector_mentions_and_same_sector_followups_do_not_create_chapters():
+    from source_selection import declared_investment_sections,sentence_units
+    for first,second,last in [
+        ('医药行业值得长期研究。','医药啊，我只投资能看懂的公司。','我们要长期观察。'),
+        ('关税影响产能。','比如人工智能啊，我不敢投。','这是一个举例。'),
+        ('关税影响产能。','人工智能啊，提高了生产效率。','我们观察技术进步。')]:
+        cues=[dict(start=i*10,end=i*10+9,text=t) for i,t in enumerate([first,second,last])]
+        assert not declared_investment_sections(sentence_units(cues),cues)

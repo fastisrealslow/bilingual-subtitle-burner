@@ -6,9 +6,10 @@ import re
 from pathlib import Path
 
 VERSION = 2
-PROTECTED = ('贵州茅台', '茅台', '五粮液', '片仔癀', '达仁堂', '林园',
+PROTECTED = ('贵州茅台', '茅台', '五粮液', '片仔癀', '达仁堂', '林园', '林总',
              '价值投资者', '长期投资者', '价值投资', '现金流', '人工智能', '机器人', '不可能', '不会',
-             '不能', '没有', '不是', '不应该', '不代表', '基础能源', '新能源', '老能源')
+             '不能', '没有', '不是', '不应该', '不代表', '基础能源', '新能源', '老能源',
+             '买入系统', '卖出系统', '中药板块', '最核心')
 UNIT = re.compile(r'(?:\d+(?:\.\d+)?(?:年|月|日|倍|亿|万|元|%|％|个百分点|小时|分钟|秒))+')
 CLOSE = '，。！？；：、,.!?;:%％）】》」』”’'
 
@@ -73,6 +74,43 @@ def layout_for(width, height, card=False):
             'word_boundary_policy':'semantic-v1',
             'terminal_punctuation_policy':'no-comma-period',
             'line_capacity':max(8, int((region['width']-32)/(font*1.05)))}
+
+
+def live_card_layout(theme='contrast'):
+    """Same verified moving window and caption geometry, two visual treatments."""
+    if theme not in ('contrast', 'light'):
+        raise ValueError('真人卡风格只支持 contrast/light')
+    layout = layout_for(720, 1280, True)
+    layout['live_card_theme'] = theme
+    if theme == 'contrast':
+        layout['subtitle_style'] = 'white-outline'
+    return layout
+
+
+def footer_layout_for(width, height):
+    """Opt-in caption band outside the original image; never cover a mouth.
+
+    Source pixels keep their original size and aspect. This changes the output
+    canvas, so the caller must apply footer_filter before burning this layout.
+    """
+    layout = layout_for(width, height)
+    width, height = int(width), int(height)
+    band = (int(layout['subtitle_font_px'] * 2 * 1.448) + 33) // 2 * 2
+    canvas_h = height + band
+    layout.update(canvas=dict(width=width,height=canvas_h),
+        mode='landscape' if width>canvas_h*1.15 else ('portrait' if canvas_h>width*1.15 else 'square'),
+        source_region=dict(x=0,y=0,width=width,height=height),
+        subtitle_position='dedicated_footer',subtitle_style='white-outline',
+        footer_color='#101c2b')
+    layout['subtitle_region']={**layout['subtitle_region'],'y':height+8,'height':band-16}
+    return layout
+
+
+def footer_filter(layout):
+    if layout.get('subtitle_position') != 'dedicated_footer':
+        return 'null'
+    canvas=layout['canvas']
+    return f"pad={canvas['width']}:{canvas['height']}:0:0:color=0x101c2b"
 
 
 def prepare_captions(entries, layout):
@@ -218,7 +256,7 @@ def write_ass(entries, path, layout, font_name):
     return prepared
 
 
-def cover_headline(title, speaker='林园'):
+def cover_headline(title, speaker='林园', max_lines=2):
     from headline_policy import cover_copy, body, compact
     # A caller may supply already-reviewed cover copy. Rendering must not
     # reinterpret it as a new title and replace its words with a topic label.
@@ -227,25 +265,68 @@ def cover_headline(title, speaker='林园'):
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
     if len(clauses)==2 and all(len(part)<=9 for part in clauses):
         return clauses
-    return wrap_words(''.join(clauses),9)
+    if max_lines>=3 and len(clauses)==2 and sum(len(part)>9 for part in clauses)==1:
+        # Keep the actual clause boundary in source46's quote. Balancing the
+        # entire text put the next clause's "你" at the end of the first line.
+        lines=[]
+        for part in clauses:
+            if len(part)<=9:
+                lines.append(part)
+                continue
+            cuts=[b for _,b in word_spans(part) if b<len(part)
+                  and max(b,len(part)-b)<=9]
+            if not cuts:
+                break
+            cut=min(cuts,key=lambda b:(bool(re.search(r'(?:你|我|他|她|要|是|的|把|被)$',part[:b])),
+                                       abs(b-len(part)/2)))
+            lines.extend([part[:cut],part[cut:]])
+        if len(lines)==3:
+            return lines
+    # Actual source42 quote was balanced into "垄断了好我有 / 定价权我说了算".
+    # Preserve its complete clauses before trying character-balanced breaks.
+    if len(clauses)==3 and all(3<=len(part)<=9 for part in clauses):
+        if max_lines>=3:
+            return clauses
+        clause_pairs=[[''.join(clauses[:i]),''.join(clauses[i:])] for i in (1,2)]
+        clause_pairs=[pair for pair in clause_pairs if max(map(len,pair))<=9]
+        if clause_pairs:
+            return min(clause_pairs,key=lambda pair:abs(len(pair[0])-len(pair[1])))
+    text=''.join(clauses)
+    initial=wrap_words(text,9)
+    if len(initial)==1:return initial
+    # A dictionary protects words but still splits "不是靠 / 投入". Prefer a
+    # complete predicate. Three lines are opt-in only for layouts with room.
+    def dangling(line):
+        return bool(re.search(r'(?:不是|而是|因为|所以|取决于|来自|靠|把|被|的|才)$',line))
+    def broken_phrase(lines):
+        # Actual covers split “才 / 是最好模式” and “最核心 / 的东西”.
+        # These penalties choose another dictionary boundary without deleting
+        # words, shrinking type, or claiming a complete syntactic parser.
+        return sum(dangling(x) for x in lines[:-1]) + sum(x.startswith('的') for x in lines[1:])
+    points=[b for a,b in word_spans(text) if b<len(text)]
+    pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=9]
+    best=min(pairs,key=lambda ls:(broken_phrase(ls),abs(len(ls[0])-len(ls[1]))))
+    if not broken_phrase(best) or max_lines<3:return best
+    triples=[[text[:a],text[a:b],text[b:]] for a in points for b in points
+             if a<b and max(a,b-a,len(text)-b)<=9 and min(a,b-a,len(text)-b)>=3]
+    complete=[ls for ls in triples if not broken_phrase(ls)]
+    if not complete:return best
+    # Keep contrast markers with their clause; otherwise prefer balanced lines.
+    return min(complete,key=lambda ls:(-sum(x.startswith(('不是','而是')) for x in ls[1:]),
+                                      max(map(len,ls))-min(map(len,ls))))
 
 
 def select_cover_style(clean_source, title, requested='auto'):
-    """Keep real-scene covers for clean footage; stable variety for audio cards."""
-    import hashlib
-    if requested not in ('auto','scene','photo','light','dark'):
-        raise ValueError('封面风格只支持 auto/scene/photo/light/dark')
-    if requested in ('scene','photo') and not clean_source:
+    """Consistent readable default; legacy designs remain explicit choices."""
+    if requested not in ('auto','editorial','scene','photo','light','dark'):
+        raise ValueError('封面风格只支持 auto/editorial/scene/photo/light/dark')
+    if requested in ('editorial','scene','photo') and not clean_source:
         raise ValueError('原画未通过清理，不能强制原画封面')
     if requested != 'auto':
         return requested
-    # 四套封面稳定轮换：现场无字 scene、实景大字 photo、浅色 light、深色 dark。
-    # 用标题哈希保证同一条重跑不会随机变脸，同时避免主页连续全是同一种模板。
-    # scene/photo 仅在原画通过清理时可选；scene 另验清晰度和横向构图。
-    bucket = hashlib.sha256(title.encode()).digest()[0]
-    if clean_source:
-        return ('scene','photo','light','dark')[bucket % 4]
-    return ('light','dark')[bucket % 2]
+    # Reference-account inspection: clean expressive scene first. The renderer
+    # may fall back to editorial copy if the real frame cannot pass scene QA.
+    return 'scene' if clean_source else 'dark'
 
 
 def save_scene_cover(image, path, face, identity):
@@ -307,9 +388,9 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
     tagfont=ImageFont.truetype(font_path,30,index=font_index)
     draw.text((48,75),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
     font=ImageFont.truetype(font_path,96,index=font_index)
-    lines=cover_headline(title,speaker); boxes=[]
+    lines=cover_headline(title,speaker,max_lines=3); boxes=[]
     for i,line in enumerate(lines):
-        xy=(48,228+i*134)
+        xy=(48,210+i*120) if len(lines)==3 else (48,228+i*134)
         draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
         boxes.append(draw.textbbox(xy,line,font=font))
     draw.text((48,640),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
@@ -319,7 +400,10 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
 def cover_proof(image, path, lines, font_size, boxes, style=None):
     import json
     from PIL import Image
-    if len(lines)>2 or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
+    three_line=(len(lines)==3 and style in ('dark','editorial') and len(boxes)==3
+        and all(b[0]>=48 and b[1]>=190 and b[2]<=912 and b[3]<=600 for b in boxes)
+        and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
+    if (len(lines)>2 and not three_line) or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
         raise ValueError('封面大字/边界验收失败')
     thumb=Path(path).with_name(Path(path).stem+'_list_160.jpg')
     image.resize((160,90),Image.Resampling.LANCZOS).save(thumb,quality=95)
@@ -328,6 +412,8 @@ def cover_proof(image, path, lines, font_size, boxes, style=None):
            'text_boxes':boxes,'no_overflow':True}
     if style:
         proof['style']=style
+    if three_line:
+        proof['headline_layout']='three_line_statement'
     Path(str(path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return proof
 
@@ -428,11 +514,15 @@ def verify_render(path, layout, samples=12):
         if text or finder_match:
             cap.release(); raise ValueError(f'成片第{i}个抽检帧存在二维码候选')
         from source_geometry import has_black_fill
-        black+=int(has_black_fill(frame))
+        # Generated card margins are intentional typography space. Inspect
+        # actual source pixels, so a light template cannot hide source bars
+        # and a dark template cannot be mistaken for failed source framing.
+        black+=int(has_black_fill(qr_frame))
     cap.release()
     if black>=max(2,samples//2):
         raise ValueError('成片存在持续黑色填充边')
     return {'live_region_verified':True,'no_qr_verified':True,'no_black_bars_verified':True,
             'render_checks':{'version':VERSION,'frames_checked':checked,
                              'dimensions_match':True,'qr_detected':False,'black_edge_hits':black,
+                             'black_edge_scope':'source_window' if layout['mode']=='audio_card' or layout.get('live_region') else 'full_frame',
                              'qr_scope':'source_window' if layout['mode']=='audio_card' or layout.get('live_region') else 'full_frame'}}

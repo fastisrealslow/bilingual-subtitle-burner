@@ -17,6 +17,43 @@ run-name: ${{ inputs.sample_ids && format('定向诊断 {0}', inputs.sample_ids)
         type: string
         required: false
         default: simulations/source100-20260916.json
+      content_policy:
+        type: string
+        required: false
+        default: legacy120
+      visual_chapters:
+        type: boolean
+        required: false
+        default: false
+      text_model:
+        type: string
+        required: false
+        default: qwen3:8b
+      title_draft_profile:
+        type: string
+        required: false
+        default: production
+      output_layout:
+        type: string
+        required: false
+        default: auto
+      landscape_style:
+        type: string
+        required: false
+        default: quiet
+      title_handoff_run_id:
+        type: string
+        required: false
+        default: ''
+      title_handoff_artifact:
+        type: string
+        required: false
+        default: ''
+      recovery_run_id:
+        description: 复验时读取原运行的同名素材证据，仍须通过母片与模型配置核验
+        type: string
+        required: false
+        default: ''
     secrets:
       BILIBILI_COOKIES:
         required: false
@@ -24,7 +61,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ inputs.sample_ids && format('source100-diagnostic-{0}', inputs.sample_ids) || 'source100-simulation-20260916' }}
+  group: ${{ format('linyuan-simulation-{0}-{1}-{2}', inputs.manifest_path || 'simulations/source100-20260916.json', inputs.content_policy || 'legacy120', inputs.sample_ids || 'all') }}
   cancel-in-progress: false
 jobs:
   prepare:
@@ -58,7 +95,12 @@ jobs:
       run:
         working-directory: linyuan
     env:
-      RUN_TEXT_MODEL: qwen3:8b
+      LINYUAN_CONTENT_POLICY: ${{ inputs.content_policy || 'legacy120' }}
+      SOURCE_VISUAL_CHAPTERS: ${{ inputs.visual_chapters && 'true' || 'false' }}
+      RUN_TEXT_MODEL: ${{ inputs.text_model || 'qwen3:8b' }}
+      LINYUAN_TITLE_DRAFT_PROFILE: ${{ inputs.title_draft_profile || 'production' }}
+      OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
+      LINYUAN_LANDSCAPE_STYLE: ${{ inputs.landscape_style || 'quiet' }}
       RUN_SOURCE: ${{ matrix.source_url }}
       RUN_SLUG: ${{ matrix.slug }}
       RUN_SOURCE_PLATFORM: ${{ matrix.source_platform }}
@@ -177,18 +219,26 @@ jobs:
     - name: 读取已验证的CPU离线识别配置
       run: python prepare_asr_runtime.py select --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
     - name: 恢复相同母片的离线识别缓存
+      id: mother_asr_cache
       uses: actions/cache/restore@v4
       with:
         path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
         key: mother-asr-${{ env.MOTHER_ASR_KEY }}
+    - name: 恢复模拟专用识别缓存
+      id: simulation_asr_cache
+      if: steps.mother_asr_cache.outputs.cache-hit != 'true'
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+        key: simulation-mother-asr-v1-${{ env.MOTHER_ASR_KEY }}
     - name: 按母片哈希载入原始转写
       run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY"
         --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
     - name: 复用同源失败任务的已完成证据
-      if: matrix.recovery_run_id != ''
+      if: matrix.recovery_run_id != '' || inputs.recovery_run_id != ''
       env:
         GH_TOKEN: ${{ github.token }}
-        RECOVERY_RUN_ID: ${{ matrix.recovery_run_id }}
+        RECOVERY_RUN_ID: ${{ inputs.recovery_run_id || matrix.recovery_run_id }}
         ASR_SOURCE_SLUG: ${{ matrix.original_slug || env.RUN_SLUG }}
       run: |
         python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp" \
@@ -242,7 +292,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/.ollama/models
-        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1'
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' || env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1'
           || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
     - name: 缓存已校验的 Ollama 安装包
       uses: actions/cache/restore@v4
@@ -276,7 +326,7 @@ jobs:
         done
         curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
         case "$RUN_TEXT_MODEL" in
-          qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b) ;;
+          qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b|qwen3.5:9b) ;;
           *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;
         esac
         ollama pull "$RUN_TEXT_MODEL"
@@ -288,6 +338,33 @@ jobs:
           -H 'Content-Type: application/json' \
           --data-binary @/tmp/ollama-warmup.json \
           | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+    - name: 取得独立标题任务结果（完整母片及配置仍须在生产时核对）
+      if: inputs.title_handoff_run_id != ''
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        TITLE_HANDOFF_RUN: ${{ inputs.title_handoff_run_id }}
+        TITLE_HANDOFF_ARTIFACT: ${{ inputs.title_handoff_artifact }}
+      run: |
+        python - <<'PY'
+        import json, os, subprocess, urllib.request
+        from pathlib import Path
+        run=os.environ['TITLE_HANDOFF_RUN']
+        assert run.isdigit() and int(run)>0
+        artifact=os.environ['TITLE_HANDOFF_ARTIFACT']
+        assert artifact and not artifact.startswith('-')
+        subprocess.run(['gh','run','download',run,'--name',artifact,'--dir','_title_handoff'],check=True)
+        rows=list(Path('_title_handoff').rglob('case-*-repeat-1.json'))
+        assert len(rows)==1, 'Expected exactly one frozen title result'
+        with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as response:
+            models=json.load(response)['models']
+        model=next(m for m in models if m.get('name')==os.environ['RUN_TEXT_MODEL'] or m.get('model')==os.environ['RUN_TEXT_MODEL'])
+        digest=model['digest']
+        assert digest and '\n' not in digest
+        with open(os.environ['GITHUB_ENV'],'a') as env:
+            env.write('LINYUAN_TITLE_HANDOFF='+str(rows[0].resolve())+'\n')
+            env.write('LINYUAN_TITLE_HANDOFF_MODEL_DIGEST='+digest+'\n')
+        PY
     - name: 真实出片模拟（每个素材首条合格成片后停止）
       id: render
       env:
@@ -307,7 +384,6 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         SOURCE_ORIGIN_URL: ${{ env.RUN_SOURCE }}
         PUBLICATION_STATE_PATH: _publication_state.json
-        OUTPUT_LAYOUT: auto
         LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
       run: |
         python -u simulate_sources.py run --source "${{ steps.src.outputs.path }}"
@@ -317,6 +393,24 @@ jobs:
       env:
         SIMULATION_STEPS: ${{ toJSON(steps) }}
       run: python simulate_sources.py report
+    - name: 保存已完成的同源识别（画面或标题失败也保留）
+      id: persist_mother_asr
+      if: always() && env.MOTHER_ASR_KEY != '' && steps.source_gate.outcome == 'success'
+      continue-on-error: true
+      run: |
+        python mother_asr_cache.py save --work "deliver/$RUN_SLUG/_tmp" \
+          --cache ".mother_asr/$MOTHER_ASR_KEY" \
+          --source-report "deliver/$RUN_SLUG/_tmp/source_quality.json"
+        if [ -f ".mother_asr/$MOTHER_ASR_KEY/asr_cache.json" ]; then
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+        fi
+    - name: 缓存核对通过的原始转写，不缓存选段与质量放行
+      if: always() && steps.persist_mother_asr.outputs.ready == 'true' && steps.mother_asr_cache.outputs.cache-hit != 'true' && steps.simulation_asr_cache.outputs.cache-hit != 'true'
+      continue-on-error: true
+      uses: actions/cache/save@v4
+      with:
+        path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+        key: simulation-mother-asr-v1-${{ env.MOTHER_ASR_KEY }}
     - name: 上传独立模拟报告
       if: always()
       uses: actions/upload-artifact@v4
@@ -340,6 +434,8 @@ jobs:
     - simulate
     if: ${{ always() && !inputs.sample_ids }}
     runs-on: ubuntu-latest
+    env:
+      SIMULATION_MANIFEST_PATH: ${{ inputs.manifest_path || 'simulations/source100-20260916.json' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
@@ -347,12 +443,12 @@ jobs:
       with:
         pattern: simulation-report-*
         path: simulation-results
-    - name: 固定100为分母，缺失报告列为未确定
+    - name: 固定清单为分母，缺失报告列为未确定
       run: python linyuan/simulate_sources.py aggregate --reports simulation-results
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: simulation-summary-100
+        name: simulation-summary
         path: simulation-results/summary.*
         retention-days: 30
         if-no-files-found: error

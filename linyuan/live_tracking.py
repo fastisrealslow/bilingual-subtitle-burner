@@ -1,9 +1,40 @@
 """CPU source-face tracking; every output frame comes from the same source time."""
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import math
 from collections import deque
+
+
+def source_reference_samples(work,source_report):
+    """Reuse source-gate matches for every layout, never unlabelled frames."""
+    if source_report.get('passed') is not True:return []
+    found=[]
+    for i in (source_report.get('visual_identity') or {}).get('same_person_frames',[]):
+        if type(i) is not int or not 1<=i<=6:continue
+        path=Path(work)/f'identity_{i}.jpg'
+        if path.is_file() and path not in found:found.append(path)
+    return found
+
+
+def verified_identity_gallery(identity,paths,load_features,similarity,threshold):
+    """Every additional pose must match the original reference directly.
+
+    Never grow the gallery transitively from newly accepted video frames.
+    That would let a long shot gradually drift to a different participant.
+    """
+    identities=[identity];evidence=[]
+    for path in paths:
+        scores=[]
+        for feature in load_features(path):
+            score=float(similarity(identity,feature))
+            if score>=threshold:
+                identities.append(feature);scores.append(score)
+        evidence.append(dict(file=Path(path).name,
+            sha256=hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+            accepted_primary_scores=scores))
+    return identities,evidence
 
 
 def frame_interval(start,duration,fps,total_frames):
@@ -23,7 +54,10 @@ def frame_interval(start,duration,fps,total_frames):
 def avoid_overlays(box, face, width, height, exclusions):
     """Translate the same-size crop around measured marks, preserving the face."""
     x,y,w,h=box
-    marks=[(a*width,b*height,c*width,d*height) for a,b,c,d in exclusions]
+    # Normalized integer pixel bounds can round-trip as 156.00000000000003.
+    # Remove only floating-point noise, not actual overlap or face margins.
+    marks=[tuple(round(v*scale,6) for v,scale in zip(rect,(width,height,width,height)))
+           for rect in exclusions]
     def overlaps(px,py):
         return any(px<c and px+w>a and py<d and py+h>b for a,b,c,d in marks)
     fx,fy,fw,fh=map(float,face[:4])
@@ -88,7 +122,17 @@ def crop_box(face, width, height, ratio=632/470, exclusions=()):
 def shot_crop(framing,face,width,height,n,exclusions=()):
     # Run 801 failed on a larger jittered proposal before StableFraming could
     # reuse its valid locked crop. Reframe only at a source camera cut; keep
-    # scale fixed throughout the shot and still check all measured overlays.
+    # scale fixed while that crop remains feasible. Embedded black margins can
+    # hide a real source cut from whole-frame cut detection; a valid new window
+    # must not be rejected just because the previous shot's scale is too small.
+    if framing.box is not None and not framing.pending_cut:
+        try:
+            avoid_overlays(framing.box,face,width,height,exclusions)
+        except ValueError as exc:
+            replacement=crop_box(face,width,height,exclusions=exclusions)
+            framing.geometry_reframes.append(dict(frame=n,previous=list(framing.box),
+                replacement=list(replacement),reason=str(exc)))
+            framing.box=None
     proposed=(crop_box(face,width,height,exclusions=exclusions)
               if framing.box is None or framing.pending_cut else framing.box)
     return framing.update(proposed,face,width,height,n,exclusions=exclusions)
@@ -215,13 +259,11 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     if not len(refs):raise ValueError('动态取景参考照未检出人脸')
     rf=max(refs,key=lambda f:float(f[2]*f[3]))
     identity=recognizer.feature(recognizer.alignCrop(ref,rf))
-    identities=[identity]
-    for path in reference_samples:
+    def load_features(path):
         extra=cv2.imread(str(path));found=faces(extra)
-        for face in found:
-            feature=recognizer.feature(recognizer.alignCrop(extra,face))
-            if float(recognizer.match(identity,feature,cv2.FaceRecognizerSF_FR_COSINE))>=threshold:
-                identities.append(feature)
+        return [recognizer.feature(recognizer.alignCrop(extra,face)) for face in found]
+    identities,gallery_evidence=verified_identity_gallery(identity,reference_samples,load_features,
+        lambda a,b:recognizer.match(a,b,cv2.FaceRecognizerSF_FR_COSINE),threshold)
     participant=None
     if participant_reference is not None:
         other=cv2.imread(str(participant_reference));found=faces(other)
@@ -276,6 +318,9 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             passed=error is None and (context_frames/count>=.7 and len(target_times)>=6
                 if context_crop is not None else matched/count>=.8),matched_ratio=matched/count)
         proof['framing'] = framing.proof()
+        proof['reference_gallery']=dict(primary_sha256=hashlib.sha256(Path(reference).read_bytes()).hexdigest(),
+            feature_count=len(identities),samples=gallery_evidence,
+            admission='Every sample face independently matches the original reference; no online expansion')
         if context_crop is not None:
             strong=[]
             for t in target_times:

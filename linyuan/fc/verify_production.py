@@ -57,6 +57,24 @@ def configure_timers(client, function, m, read_runtime):
     return timer_proof
 
 
+def verify_config_health(health, root=None):
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
+    expected = hashlib.sha256((root/'linyuan/fc/index.py').read_bytes()).hexdigest()
+    if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
+            or health.get('publish_hours_beijing') != [10, 14, 16, 21]
+            or health.get('live_min_per_day') != 4
+            or health.get('cover_styles') != ['scene','editorial','photo','light','dark']
+            or health.get('landscape_hour_beijing') != 14 or health.get('audio_max_per_day') != 0
+            or health.get('weekly_full_slot_beijing') != {'weekday': 6, 'hour': 21}
+            or health.get('editorial_policy_version') != 2026090604
+            or health.get('minimum_final_seconds') != 20
+            or health.get('content_policy') != 'reference_v1'
+            or health.get('duration_policy_version') != 2026092101
+            or health.get('editorial_code_sha256') != hashlib.sha256((root/'linyuan/editorial_policy.py').read_bytes()).hexdigest()
+            or health.get('dispatch_workflow_ref') != 'main'):
+        raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
+
+
 def main():
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
@@ -80,18 +98,7 @@ def main():
 
     Path('production-verification.json').write_text(json.dumps(dict(verification_complete=False,phase='config_health')))
     health = read_config_health(lambda:invoke({'triggerName':'diagnose-config'}))
-    expected = hashlib.sha256(Path('linyuan/fc/index.py').read_bytes()).hexdigest()
-    if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
-            or health.get('publish_hours_beijing') != [10, 14, 16, 21]
-            or health.get('live_min_per_day') != 4
-            or health.get('cover_styles') != ['scene','photo','light','dark']
-            or health.get('landscape_hour_beijing') != 14 or health.get('audio_max_per_day') != 0
-            or health.get('weekly_full_slot_beijing') != {'weekday': 6, 'hour': 21}
-            or health.get('editorial_policy_version') != 2026090604
-            or health.get('minimum_final_seconds') != 120
-            or health.get('editorial_code_sha256') != hashlib.sha256(Path('linyuan/editorial_policy.py').read_bytes()).hexdigest()
-            or health.get('dispatch_workflow_ref') != 'main'):
-        raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
+    verify_config_health(health)
     read_runtime = util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,
                                        autoretry=True,max_attempts=3)
     timer_proof = configure_timers(client, function, m, read_runtime)

@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import re
+import editorial_policy as editorial
 
 
 def source_ranges(cues,source_sha,profile_path=None):
@@ -18,7 +19,7 @@ def source_ranges(cues,source_sha,profile_path=None):
             raise ValueError('Reviewed source range is absent from current ASR')
         a,b=selected[0],selected[-1]
         if (abs(cues[a]['start']-row['start'])>.5 or abs(cues[b]['end']-row['end'])>.5
-                or not 120<=cues[b]['end']-cues[a]['start']<=330):
+                or not editorial.MIN_SECONDS<=cues[b]['end']-cues[a]['start']<=330):
             raise ValueError('Reviewed source range changed duration or sentence boundary')
         beginning=normalize(''.join(c['text'] for c in cues[a:min(b+1,a+5)]))
         ending=normalize(''.join(c['text'] for c in cues[max(a,b-3):b+1]))
@@ -29,6 +30,7 @@ def source_ranges(cues,source_sha,profile_path=None):
         picks=[dict(start=0,end=b-a,score=8,reason=row['topic'],
                     editorial_source_sha256=source_sha,
                     editorial_title=row.get('title'),
+                    **({'editorial_prefer_exact_quote': True} if row.get('prefer_exact_quote') is True else {}),
                     editorial_subtitles=row.get('subtitle_groups'),
                     editorial_review=row.get('editorial_review'))]
         if row.get('omit'):

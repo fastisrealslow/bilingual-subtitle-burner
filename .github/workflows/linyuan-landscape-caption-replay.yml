@@ -1,0 +1,54 @@
+name: 横版字幕与来源文字检查隔离实片复测（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-landscape-caption-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sample: 4
+            artifact: simulation-media-sim-0916-004-0c066a
+          - sample: 8
+            artifact: simulation-media-sim-0916-008-868622
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装画面检查与渲染依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-cjk libgl1 libglib2.0-0
+          python -m pip install -q pillow numpy 'opencv-python<5' jieba rapidocr-onnxruntime fonttools
+          fc-cache -f
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/linyuan-face-models
+          key: opencv-yunet-sface-2023mar-2021dec-v1
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 35565180877
+          name: ${{ matrix.artifact }}
+          path: replay-input
+      - name: 同一实片只改横版布局，保留全部来源检查
+        env:
+          TEXT_BACKEND: local
+          OMP_NUM_THREADS: '2'
+        run: python -u scripts/replay_linyuan_layout.py --input replay-input --output layout-replay --sample '${{ matrix.sample }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: landscape-caption-${{ matrix.sample }}
+          path: layout-replay
+          retention-days: 30
+          if-no-files-found: error

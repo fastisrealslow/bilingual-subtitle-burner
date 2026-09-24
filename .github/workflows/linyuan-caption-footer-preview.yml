@@ -1,0 +1,42 @@
+name: 林园字幕避让人物实景对照
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths:
+      - .github/workflows/linyuan-caption-footer-preview.yml
+      - scripts/preview_linyuan_caption_footer.py
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 35427552199
+          name: mother-media-eae5d9cb1a9bd2990ec4fcd81d3c319007878c1dbe4ce3260c9b03a0df02df3d
+          path: review-input/mother
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 35427552199
+          name: editorial-ly-0919-9f664b
+          path: review-input/editorial
+      - name: 同一原画、同一字幕与时序，渲染30秒比较
+        run: python scripts/preview_linyuan_caption_footer.py --source review-input/mother/video.mp4 --evidence review-input/editorial --out caption-footer-preview
+      - uses: actions/upload-artifact@v4
+        with:
+          name: optimization-caption-footer-preview
+          path: caption-footer-preview
+          retention-days: 14

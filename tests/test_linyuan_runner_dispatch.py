@@ -160,3 +160,54 @@ def test_later_deployment_preserves_dispatch_migration_state(enabled):
     assert configs['dispatch']['enable'] is enabled
     assert configs['publish']['enable'] is True
     assert configs['publish']['cronExpression'] == '0 0 2,6,8,13 * * *'
+
+
+@pytest.mark.parametrize('target,need_domestic', [(1,False),(2,True)])
+def test_domestic_head_does_not_block_later_runner_compatible_source(monkeypatch,target,need_domestic):
+    state=dict(dispatched=[],published={},pending_retry=[],rejected=[])
+    blocked=dict(page_url='https://news.qq.com/rain/a/source',video_url='',key='domestic')
+    direct=dict(page_url='https://www.bilibili.com/video/BVsource',video_url='',key='direct',
+                title='林园完整访谈',video_id='BVsource',source='bilibili')
+    stock=dict(inventory_fresh=True,verified_portrait=0,verified_landscape=0,daily_mix_usable=0)
+    calls=[]
+    monkeypatch.setattr(fc,'load_state',lambda:state)
+    monkeypatch.setattr(fc,'_collect_source_rejections',lambda _:0)
+    monkeypatch.setattr(fc,'source_inventory',lambda *a:stock)
+    monkeypatch.setattr(fc,'reserve_deficits',lambda _:dict(landscape=0,portrait=2))
+    monkeypatch.setattr(fc,'landscape_admission_deficit',lambda *a:0)
+    monkeypatch.setattr(fc,'staging_release_id',lambda:1)
+    monkeypatch.setattr(fc,'obsolete_review_candidates',lambda *a:[])
+    monkeypatch.setattr(fc,'weekly_full_request',lambda *a:None)
+    monkeypatch.setattr(fc,'save_state',lambda _:None)
+    monkeypatch.setattr(fc,'log_event',lambda *a:None)
+    monkeypatch.setattr(fc,'_process_retries',lambda _:None)
+    def gh(method,path,*args,**kwargs):
+        if method=='POST':calls.append(args[0]);return {}
+        if fc.DATA_JSON in path:return b'[]'
+        if fc.SOURCE_INVENTORY_KEY in path:return b'{}'
+        return dict(workflow_runs=[])
+    monkeypatch.setattr(fc,'gh',gh)
+    def pick(items,st,limit,audit):
+        audit.update(records=2,candidate_count=2);return [blocked,direct]
+    monkeypatch.setattr(fc,'pick',pick)
+    for name in ('download','tencent_resolve_url','upload_asset','_record_failure'):
+        monkeypatch.setattr(fc,name,lambda *a:pytest.fail('No media download or source rejection'))
+    result=fc._dispatch_admitted(dict(execution_backend='github',_refill_count=target))
+    assert result['dispatched']==1
+    assert bool(result.get('requires_mainland_transfer')) is need_domestic
+    assert len(calls)==1 and calls[0]['inputs']['source']==direct['page_url']
+    assert 'slug' not in blocked and state['rejected']==[]
+    assert [x['key'] for x in state['dispatched']]==['direct']
+
+
+def test_billing_failure_receipt_distinguishes_account_from_bad_footage(monkeypatch,runner_env):
+    monkeypatch.setattr(fc,'dispatch_handler',lambda _:dict(dispatched=1,requires_mainland_transfer=True))
+    def debt(_):raise RuntimeError('AccessDenied 403: Current user is in debt.')
+    monkeypatch.setattr(catchup,'run_inventory_task',debt)
+    monkeypatch.setattr(runner,'retire_timer',lambda:pytest.fail('Do not alter timers on billing failure'))
+    with pytest.raises(RuntimeError,match='in debt'):runner.main()
+    receipt=json.loads(Path('github-dispatch-receipt.json').read_text())
+    assert receipt['dispatch_result']['dispatched']==1 and receipt['completed'] is False
+    assert receipt['failure']['category']=='cloud_account_billing'
+    assert receipt['failure']['material_rejected'] is False
+    assert receipt['failure']['retryable_without_external_change'] is False

@@ -1,0 +1,21 @@
+name: 全部17份已出片素材生产默认复验（不混入100素材分母）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-all-finals-regression.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '7,8,13,28,32,34,39,42,46,49,58,66,68,79,90,95,99'
+      content_policy: reference_v1
+      title_draft_profile: production
+      output_layout: auto
+      landscape_style: quiet
+      recovery_run_id: '35902748400'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

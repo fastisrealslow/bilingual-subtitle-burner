@@ -1,0 +1,55 @@
+name: 独立语音复核：新100素材66的原声疑点
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-audio-crosscheck.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-audio-crosscheck
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - case: 3
+            artifact: simulation-media-sim-0916-066-4c4baf
+            source_run: 35618921193
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 下载已绑定哈希的实际成片
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ARTIFACT: ${{ matrix.artifact }}
+          SOURCE_RUN: ${{ matrix.source_run }}
+        run: gh run download "$SOURCE_RUN" --name "$ARTIFACT" --dir actual-media
+      - name: 安装独立CPU转写引擎
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install faster-whisper==1.2.1
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.cache/huggingface/hub
+          key: whisper-large-v3-53ecf83a5bed-v1
+      - name: 固定20秒左右原声，不提示预期答案
+        run: python -u scripts/linyuan_audio_crosscheck.py --case "${{ matrix.case }}" --media actual-media
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audio-crosscheck-${{ matrix.case }}
+          path: audio-crosscheck-results/
+          retention-days: 30
+          if-no-files-found: warn

@@ -5,6 +5,24 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from live_tracking import crop_box,complete_face
 
 
+def test_same_source_gallery_requires_direct_primary_match_without_identity_drift(tmp_path):
+    from live_tracking import verified_identity_gallery,source_reference_samples
+    for i in (1,2,3):(tmp_path/f'identity_{i}.jpg').write_bytes(bytes([i]))
+    report=dict(passed=True,visual_identity=dict(same_person_frames=[1,2,2,'../3',True,99],different_person_frames=[3]))
+    paths=source_reference_samples(tmp_path,report)
+    assert [p.name for p in paths]==['identity_1.jpg','identity_2.jpg']
+    assert source_reference_samples(tmp_path,{**report,'passed':False})==[]
+    # The second face resembles the admitted side pose but not the original
+    # reference. It cannot enter the bank through that intermediate match.
+    values={'identity_1.jpg':['side'],'identity_2.jpg':['other']}
+    scores={('primary','side'):.58,('primary','other'):.20,('side','other'):.90}
+    features,proof=verified_identity_gallery('primary',paths,lambda p:values[p.name],
+        lambda a,b:scores[(a,b)],.363)
+    assert features==['primary','side']
+    assert proof[1]['accepted_primary_scores']==[]
+    assert all(len(p['sha256'])==64 for p in proof)
+
+
 @pytest.mark.parametrize('face',[(885,200,90,104),(860,210,70,74)])
 def test_883_retains_more_source_pixels_before_rejecting_small_crop(face):
     x,y,w,h=crop_box(face,1280,640)
@@ -59,6 +77,30 @@ def test_overlay_covering_the_face_cannot_be_cropped_away():
     from live_tracking import avoid_overlays
     with pytest.raises(ValueError,match='保留完整人脸'):
         avoid_overlays((0,0,640,480),(180,120,200,200),640,480,[(.3,.3,.6,.6)])
+
+
+def test_source4_larger_closeup_can_reframe_without_lowering_face_margins():
+    from live_tracking import shot_crop, avoid_overlays
+    from stable_framing import StableFraming
+    # Actual failed frame re-detected with the production 960px YuNet path.
+    # The 398x296 locked shot cannot contain the newly larger 221x271 face.
+    face=(829.0,419.7,221.0,270.9)
+    framing=StableFraming(30)
+    framing.box=(1100.,452.,398.,296.)
+    marks=[(.198,.203,.246,.293),(.742,.653,.815,.786)]
+    with pytest.raises(ValueError):
+        avoid_overlays(framing.box,face,1920,1080,marks)
+    fixed=shot_crop(framing,face,1920,1080,528,marks)
+    assert avoid_overlays(fixed,face,1920,1080,marks)==fixed
+    assert fixed[2]>398 and fixed[3]>296
+    assert framing.proof()['cut_frames']==[]  # not falsely called a detected cut
+    assert len(framing.proof()['geometry_reframes'])==1
+    for n in range(529,560):
+        next_box=shot_crop(framing,face,1920,1080,n,marks)
+        assert next_box[2:]==fixed[2:]
+    assert len(framing.proof()['geometry_reframes'])==1
+    with pytest.raises(ValueError):
+        shot_crop(framing,face,1920,1080,560,[(.4,.35,.6,.7)])
 
 
 @pytest.mark.parametrize('face',[(120,85,250,270),(390,90,170,220)])

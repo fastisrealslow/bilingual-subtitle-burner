@@ -1,0 +1,67 @@
+name: 历史剪辑范围与现母片音频核对（只取证）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-legacy-range-audit.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        source_id: [23,89]
+    defaults:
+      run:
+        working-directory: linyuan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装音频取证工具
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install numpy requests yt-dlp
+      - name: 绑定原素材
+        id: source
+        env:
+          SOURCE_ID: ${{ matrix.source_id }}
+        run: |
+          python - <<'PY'
+          import os,json,hashlib
+          row=next(r for r in json.load(open('simulations/benchmark-20260921/legacy-range-cases.json')) if r['source_id']==int(os.environ['SOURCE_ID']))
+          url=row['source_url'];assert url.startswith('https://www.bilibili.com/video/BV')
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('SOURCE_URL='+url+'\n')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('key='+hashlib.sha256(url.encode()).hexdigest()+'\n')
+          PY
+      - uses: actions/cache/restore@v4
+        with:
+          path: linyuan/_src/
+          key: source-download-v1-${{ steps.source.outputs.key }}-${{ github.run_id }}
+          restore-keys: source-download-v1-${{ steps.source.outputs.key }}-
+      - name: 恢复已保存母片
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python mother_media_cache.py --source "$SOURCE_URL"
+      - name: 取源后核对每个历史片段
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python ci_fetch_bilibili.py --url "$SOURCE_URL" --out _src/video.mp4 --budget-seconds 600
+          python ../scripts/audit_linyuan_legacy_ranges.py --source-id '${{ matrix.source_id }}' --source _src/video.mp4 --out legacy-range-proof
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-range-${{ matrix.source_id }}
+          path: linyuan/legacy-range-proof/
+          retention-days: 30
+          if-no-files-found: warn

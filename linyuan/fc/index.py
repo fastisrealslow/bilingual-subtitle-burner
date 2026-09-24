@@ -49,7 +49,7 @@ DATA_JSON = "linyuan/dashboard/data.json"
 RELEASE_TAG = "staging"
 DELIVERY_RELEASE_TAG = "deliver"
 
-MIN_DUR, MAX_DUR = 120, 5400            # 源片须足够产出至少2分钟的连续完整观点
+MIN_DUR, MAX_DUR = int(editorial.MIN_SECONDS), 5400
 # 竞品号：监控但不抄（视频在 data.json 供分析，选片/出片时跳过，2026-08-29）
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
@@ -1625,9 +1625,17 @@ def pick(items, st, n, audit=None):
         a = (c.get("author") or "").strip()
         return -12 if a in HEAVY_PACKAGING else 0
 
+    from source_priority import family as source_family, observed_priorities
+    source_history = observed_priorities(st, now)
+    for candidate in cands:
+        evidence = source_history.get(source_family(candidate))
+        if evidence:
+            candidate['source_priority_evidence'] = evidence
+
     def quality_score(c):
         return (source_score(c) + title_score(c["title"]) +
-                freshness_score(c) + duration_score(c) + packaging_score(c))
+                freshness_score(c) + duration_score(c) + packaging_score(c) +
+                (c.get('source_priority_evidence') or {}).get('adjustment', 0))
 
     # 按综合质量分降序
     cands.sort(key=lambda c: quality_score(c), reverse=True)
@@ -1965,10 +1973,12 @@ def production_config():
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
             "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
-            "cover_styles": ["scene", "photo", "light", "dark"],
+            "cover_styles": ["scene", "editorial", "photo", "light", "dark"],
             "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
             "production_rules_version": PRODUCTION_RULES_VERSION,
             "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
+            "content_policy": editorial.CONTENT_POLICY,
+            "duration_policy_version": editorial.DURATION_POLICY_VERSION,
             "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
             "dispatch_workflow_ref": "main", "publish_hours_beijing": sorted(PUBLISH_HOURS)}
 
@@ -2415,15 +2425,17 @@ def _dispatch_admitted(event=None, context=None):
         if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
+    mainland_deferred = 0
     for i, c in enumerate(cands):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
         if (event or {}).get('execution_backend') == 'github' and dispatch_requires_mainland(c):
-            # Leave this source untouched. Release the shared lease before the
-            # runner requests the existing domestic dispatcher, which rechecks
-            # current stock, concurrency and deduplication before downloading.
-            return {'dispatched': success, 'requires_mainland_transfer': True}
+            # A domestic-only source must not block later Bilibili/Weibo
+            # candidates. Keep it untouched, finish runnable admissions, then
+            # release the lease before requesting FC for any remaining gap.
+            mainland_deferred += 1
+            continue
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
                     hashlib.md5(c["key"].encode()).hexdigest()[:6]
@@ -2496,6 +2508,8 @@ def _dispatch_admitted(event=None, context=None):
             log_event("fail", f"调度失败 {c.get('slug', c['key'])}", str(e)[:150])
             _record_failure(st, c, e)
 
+    if mainland_deferred and success < target:
+        return {'dispatched': success, 'requires_mainland_transfer': True}
     _process_retries(st)
     if not cands and not success and time.time()-st.get('source_refresh_requested_at',0)>2*3600:
         try:
@@ -2789,8 +2803,17 @@ def cover_quality_error(cover):
         except (TypeError,ValueError):
             good = False
         return None if good else '现场原画封面缺少身份、清晰度或无字画面证明'
+    lines=cover.get('headline_lines') or []
+    boxes=cover.get('text_boxes') or []
+    try:
+        three_line=(len(lines)==3 and cover.get('headline_layout')=='three_line_statement'
+            and cover.get('style') in ('dark','editorial') and len(boxes)==3
+            and all(len(b)==4 and 48<=b[0]<b[2]<=912 and 190<=b[1]<b[3]<=600 for b in boxes)
+            and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
+    except (TypeError,ValueError):
+        three_line=False
     if (cover.get("font_px",0)<96 or cover.get("thumbnail_font_px",0)<12
-            or not 1<=len(cover.get("headline_lines") or [])<=2
+            or not (1<=len(lines)<=2 or three_line)
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
     return None
@@ -2842,6 +2865,12 @@ def artifact_quality_error(meta):
     # a wide-shot cut. Metadata or a title-only edit cannot make these clean.
     if (meta.get('fingerprints') or {}).get('sha256')=='165008328d7f0a023e78f3f851638bb30110d62f7c4b2f2b4038ac8c38d7143d':
         return '画面复核发现来源角标：36秒仍有微博标识，须从原素材重新取景'
+    # Fixed100 35618921193 / 88 passed the old edge-only scan with animated
+    # source subtitles over the face. Quarantine these exact audited bytes so
+    # an old cached approval cannot bypass the new temporal source-text gate.
+    # Other clips from this mother remain eligible for normal verification.
+    if (meta.get('fingerprints') or {}).get('sha256')=='ff83ec0b2505bf302d610af0ae2ba4c3b2427aff800a27644a3921a769cbaec3':
+        return '实际成片人物区残留动态原字幕；旧通过证明失效，须重新取景并复核'
     if meta.get('source_sha256')=='e6e7afee52ec9f7cb8ba390c312a1071489aab445130d64a7e123b4d5b413f47':
         review=meta.get('corner_review') or {}
         if (review.get('version')!=2026091302 or review.get('passed') is not True

@@ -97,7 +97,7 @@ def audit_materials(items):
         counts['video_candidates']+=1
         try:duration=float(extra.get('duration') or 0)
         except (TypeError,ValueError):duration=0
-        counts['duration_unknown' if duration<=0 else 'too_short' if duration<120
+        counts['duration_unknown' if duration<=0 else 'too_short' if duration<fc.MIN_DUR
                else 'over_limit' if duration>5400 else 'duration_eligible']+=1
         if 600<=duration<=5400:counts['long_mother_candidates']+=1
     return result

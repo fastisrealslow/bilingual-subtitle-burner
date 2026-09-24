@@ -1,0 +1,19 @@
+name: 99号聚焦杠杆完整问答与本人原句（不投稿、不加出片率）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-source99-focused-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  focused:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '99'
+      content_policy: reference_v1
+      title_draft_profile: production
+      recovery_run_id: '35833967072'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

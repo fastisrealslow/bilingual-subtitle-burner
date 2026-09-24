@@ -1,0 +1,36 @@
+name: 素材311原声与单声道相消核对（仅诊断）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-channel-crosscheck.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装固定识别流程的CPU依赖
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-asr
+      - name: 取得原失败素材，逐字节核对母片
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/ci_fetch_bilibili.py --url https://www.bilibili.com/video/BV1gv411y75r --out source.mp4
+      - name: 同模型对照三个固定18秒窗口，不回写字幕
+        run: python -u scripts/linyuan_channel_crosscheck.py --source source.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: library311-channel-crosscheck
+          path: channel-crosscheck/
+          retention-days: 30

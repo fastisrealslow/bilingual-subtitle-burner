@@ -1,0 +1,19 @@
+name: 42号报道聚焦30秒本人金句（核对归属后保留原句，不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-source42-focused-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  focused:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '42'
+      content_policy: reference_v1
+      title_draft_profile: production
+      recovery_run_id: '35833967072'
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

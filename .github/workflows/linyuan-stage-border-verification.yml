@@ -1,0 +1,25 @@
+name: 舞台315裁边恢复与68已有成片回归（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-stage-border-verification.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  new_source:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '315'
+      manifest_path: simulations/library17-20260923.json
+      content_policy: reference_v1
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+  prior_stage:
+    uses: ./.github/workflows/linyuan-simulate-100.yml
+    with:
+      sample_ids: '68'
+      content_policy: reference_v1
+    secrets:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}

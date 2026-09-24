@@ -1,0 +1,296 @@
+"""All current outputs, their actual copy, and explicitly unrendered edit ideas."""
+from pathlib import Path
+import html
+import hashlib
+import json
+import os
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / 'output/benchmark-20260921'
+RECORDS = ROOT / 'linyuan/simulations/benchmark-20260921'
+esc = lambda value: html.escape(str(value))
+
+
+def read(path, default=None):
+    return json.loads(path.read_text()) if path.is_file() else default
+
+
+def build_all_output_review(reference_media, player):
+    corpus = read(RECORDS/'all-current-title-corpus.json', [])
+    directions = read(RECORDS/'all-output-editorial-directions.json', [])
+    if not corpus or not directions:
+        return ''
+    plans = {r['source_id']: r for r in directions}
+    if set(plans) != {r['source_id'] for r in corpus}:
+        raise ValueError('Every reviewed source needs an explicit editorial direction')
+    baseline = {r['id']: r for r in read(ROOT/'output/baseline-comparison-20260921/results/media-verification.json', [])
+                if r['variant']=='baseline' and r.get('video_audio_full_decode')}
+    # A later render does not automatically mean better copy.
+    preferred = {8:'35852795888',17:'35842176532',79:'35837686332'}
+    references = {r['bvid']:r for filename in ('references-20.json','references-latest-sep23.json')
+                  for r in read(RECORDS/filename, {'rows':[]})['rows']}
+    model_rows={};additional_rows={}
+    model_notes=read(RECORDS/'all-output-model-review.json',{})
+    layout_rows={r['id']:r for r in read(OUT/'fixed-copy-layout-35885583458/media-verification.json',[])
+                 if r.get('video_audio_full_decode') and r.get('source_yield_credit') is False}
+    readable_rows={r['id']:r for r in read(OUT/'readable-layout-35909339863/media-verification.json',[])
+                   if r.get('video_audio_full_decode') and r.get('source_yield_credit') is False}
+    rendered_copies=(read(OUT/'source32-title-35884655321/media-verification.json',[])
+                     +read(OUT/'source17-title-35886863820/media-verification.json',[]))
+    trials=[('all-current-titles-35881680084','bfd2fff9bf8893fa9cda0de9d314af5b514595f2'),
+            ('direct-answer-35883544757','70e1c355942d224f445e2c95542d8f0917dce4f3'),
+            ('object-answer-35885982275','244409b2b137e535b52833acb1cf20e419dbe0d2'),
+            ('retry-repair-35888015034','1ed1a368acf8a6739c119f206048d1d1dba9f1fb'),
+            ('answer-subject-35891979409','0d492b43cae5a9489548d5fa52f177acd0835db1'),
+            ('literal-subject-35894427585','431c48d1df0680235297473717bec1a9714c1e01')]
+    paths=[(path,commit,index==0) for index,(folder,commit) in enumerate(trials)
+           for path in (OUT/folder).rglob('case-*-repeat-1.json')]
+    for path,commit,primary in paths:
+        model=read(path)
+        case=next((c for c in corpus if c['id']==model.get('case')),None)
+        if (case is None or model.get('commit')!=commit
+                or model.get('source_final_sha256')!=case['final_sha256']
+                or model.get('transcript_sha256')!=case['transcript_sha256']):
+            raise ValueError('Model replay is not bound to this frozen actual output')
+        result=model.get('result',{})
+        row=dict(status=model.get('status'),title=result.get('title'),
+            cover=result.get('cover_title'),seconds=model.get('seconds'),error=model.get('error'),
+            proof_error=model.get('proof_error'),experiment_valid=model.get('experiment_valid'),
+            file=os.path.relpath(path,OUT),rendered=False,editorial_approved=False,
+            run_id=model.get('run_id'),model=model.get('model'),
+            editorial_note=model_notes.get(case['id'] if primary else str(model.get('run_id'))+':'+case['id'],
+                                            '尚未完成本稿的编辑复核。'))
+        for video in rendered_copies:
+            if not video.get('video_audio_full_decode') or video['id']!=case['source_id']:continue
+            meta=read((ROOT/video['file']).parent/'meta.json',{})
+            handoff=meta.get('title_handoff',{})
+            if handoff.get('record_sha256')!=hashlib.sha256(path.read_bytes()).hexdigest():continue
+            if (video['title']!=result.get('title') or video['cover_title']!=result.get('cover_title')
+                    or meta.get('source_sha256')!=case['source_sha256']):
+                raise ValueError('Rendered model copy differs from its exact title-stage record')
+            row.update(rendered=True,rendered_media=video)
+        if primary:model_rows[case['id']]=row
+        else:additional_rows.setdefault(case['id'],[]).append(row)
+    audio_rows=[]
+    frozen_audio=read(RECORDS/'all-output-audio-doubts.json',[])
+    for path in sorted((OUT/'all-output-audio-35888624098').rglob('result.json')):
+        result=read(path);case=result.get('case',{})
+        if case not in frozen_audio or result.get('run_id')!='35888624098':
+            raise ValueError('Independent ASR result is not from the frozen audio experiment')
+        if result.get('status')!='transcribed':continue
+        audio=path.parent/'original-audio.wav'
+        if hashlib.sha256(audio.read_bytes()).hexdigest()!=result['audio_sha256']:
+            raise ValueError('Independent ASR audio changed')
+        audio_rows.append(dict(source_id=case['source_id'],case_id=case['id'],
+            original=' '.join(c['text'] for c in case['primary_asr_excerpt']),
+            secondary=result['recognized_text'],file=os.path.relpath(audio,OUT),
+            result_file=os.path.relpath(path,OUT),source_run_id=case['source_run_id'],
+            window=case['window'],subtitles_modified=False))
+    fresh_rows=read(ROOT/'output/replacement100-35887065004/results/media-verification.json',[])
+    caption_replays=read(OUT/'verified-caption-35891979620/media-verification.json',[])
+    focused_replays=read(OUT/'source42-focused-35896658093/media-verification.json',[])
+    preferred_focused={r['id']:r for folder in ('source42-quote-35900471003','source99-focused-35901097631')
+                       for r in read(OUT/folder/'media-verification.json',[])
+                       if r.get('video_audio_full_decode')}
+    caption_cleanup=read(OUT/'source32-caption-cleanup-sep24/review.json',{})
+    fresh_notes=read(RECORDS/'replacement100-editorial-review.json',{})
+    caption_rows=read(RECORDS/'all-output-caption-review.json',[])
+    rows=[]; cards=[]; index_rows=[]
+
+    def audio_doubts(ident):
+        items=[r for r in audio_rows if r['source_id']==ident]
+        if not items:return ''
+        captions=[r for r in caption_rows if r['source_id']==ident]
+        proof=''
+        for r in captions:
+            proof+='<p><b>原片画面核对：</b>'+esc(r['finding'])+'</p>'
+            for frame in r['frames']:
+                path=ROOT/r['local_dir']/frame['file']
+                if hashlib.sha256(path.read_bytes()).hexdigest()!=frame['sha256']:
+                    raise ValueError('Original caption evidence changed')
+                proof+='<a href="'+esc(os.path.relpath(path,OUT))+'">原片 '+esc(frame['seconds'])+' 秒</a> '
+        return ('<details><summary>疑词原声复核 · '+str(len(items))+' 段</summary>'
+            '<p>第二个识别器提供核对线索，不等于听音验收；这里只展示证据，不把旧实片说成字幕已修正。</p>'+proof
+            +''.join('<p><b>'+esc(r['case_id'])+'</b> · 成片 '+esc(r['source_run_id'])+' 的 '
+                +esc(r['window']['start'])+'–'+esc(r['window']['end'])+' 秒</p>'
+                +'<audio controls preload="none" src="'+esc(r['file'])+'"></audio>'
+                +'<p>原识别：'+esc(r['original'])+'</p><p>独立识别：'+esc(r['secondary'])+'</p>'
+                +'<a href="'+esc(r['result_file'])+'">固定模型和原声哈希记录</a>' for r in items)+'</details>')
+
+    def fresh_outputs(ident):
+        items=[r for r in fresh_rows+caption_replays+focused_replays if r['id']==ident and r.get('video_audio_full_decode')]
+        result=''.join('<details><summary>'
+            +({'35891979620':'字幕修复专项实际产出','35896658093':'报道聚焦本人观点 · 实际30秒'}
+              .get(str(r['run_id']),'完整100条新回归实片'))
+            +' · '+esc(r['tested_sha'][:7])+'</summary>'
+            +player(os.path.relpath(ROOT/r['file'],OUT),os.path.relpath(ROOT/r['cover'],OUT),
+                    f"新回归实际成片 · {r['duration']:.1f}秒")
+            +'<p>标题：'+esc(r['title'])+'</p><p>封面：'+esc(r['cover_title'])+'</p>'
+            +'<p>'+esc(fresh_notes.get(r['sha256'],'尚未完成本稿的编辑复核。'))+'</p></details>' for r in items)
+        if ident==32 and caption_cleanup.get('full_av_decode'):
+            row=caption_cleanup
+            if (row.get('source_yield_credit')!=0 or not row.get('audio_stream_unchanged')
+                    or hashlib.sha256((ROOT/row['source_file']).read_bytes()).hexdigest()!=row['source_sha256']
+                    or hashlib.sha256((ROOT/row['file']).read_bytes()).hexdigest()!=row['sha256']):
+                raise ValueError('Caption cleanup no longer matches its frozen source or reviewed output')
+            result+='<details><summary>32号两处口吃修复 · 完整190秒同音轨对照</summary>'
+            result+=player(os.path.relpath(ROOT/row['file'],OUT),os.path.relpath(ROOT/row['cover'],OUT),
+                '完整190秒字幕显示修复；标题、封面、音轨和原时间轴保持不变')
+            result+='<p>实际画面已核对“垄垄断→垄断”“虽虽然→虽然”；两处删除均可由原始字幕和新版规则重放。其他疑词仍保留。此为重新编码的完整对照片，已解码并验证音轨相同，尚未重新执行全部生产画面闸门，不计新增出片。</p></details>'
+        return result
+
+    def model_copy(case):
+        items=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])
+        return (''.join(model_detail(row,case) for row in items) if items
+                else '<p class="small">本轮独立模型复验：结果尚未取回。</p>')
+
+    def model_detail(row,case):
+        detail=('<p>标题：'+esc(row['title'])+'</p><p>封面：'+esc(row['cover'])+'</p>'
+                if row['status']=='generated' else '<p>'+esc(row.get('error'))+'</p>')
+        media=row.get('rendered_media');clip=''
+        if media:
+            clip=player(os.path.relpath(ROOT/media['file'],OUT),os.path.relpath(ROOT/media['cover'],OUT),f"独立标题原稿完整出片 · {media['duration']:.1f}秒")
+            subtitle_note=('字幕仍有“垄垄断”“虽虽然”等问题。' if case['source_id']==32 else '竖版保留完整问答，显示字幕仍有“没有没有”“没参与没参与”等重复。')
+            clip+='<p class="small">完整解码、六帧和全部显示字幕已核对；'+subtitle_note+'标题改善不等于整片编辑合格，也不计新增素材。</p>'
+        return ('<details><summary>模型稿 · '+esc(row['model'])+' · '+esc(row['run_id'])+' · '+esc(row['status'])+(' · 已有完整实片' if media else ' · 尚未烧入视频')+'</summary>'
+            +detail+'<p><b>这稿是否改善：</b>'+esc(row['editorial_note'])+'</p>'
+            +clip
+            +'<p class="small">用时 '+esc(row['seconds'])+'秒；自动核验不等于编辑合格。'
+            +'<a href="'+esc(row['file'])+'">完整请求与响应</a></p></details>')
+
+    def layout_trial(case):
+        panels=[]
+        for rows, label, note in (
+            (layout_rows, '38px底栏字幕', '底栏字幕由原44px改为38px，手机阅读有取舍。'),
+            (readable_rows, '44px底栏字幕', '字幕恢复44px、每行最多20字，底栏增高16px；人物窗口相应缩小一点。已检查三个完整成片的六帧，尚未认定整体追平。')):
+            row=rows.get(case['source_id'])
+            if not row or row['input_run_id']!=case['source_run_id']:continue
+            final=ROOT/row['file'];meta=read(final.parent/'meta.json',{})
+            proof=read(final.parent.parent/'result.json',{})
+            if (meta.get('fingerprints',{}).get('sha256')!=row['sha256']
+                    or row['title']!=case['old_title'] or row['cover_title']!=case['old_cover']
+                    or proof.get('input_final_sha256')!=case['final_sha256']
+                    or not proof.get('copy_and_cover_unchanged')
+                    or not proof.get('reframe',{}).get('audio_stream_copied')):
+                raise ValueError('Fixed-copy layout does not match the reviewed original')
+            panels.append('<details><summary>同文案横版对照 · '+label+' · '+esc(row['duration'])+'秒</summary>'
+                +player(os.path.relpath(final,OUT),os.path.relpath(ROOT/row['cover'],OUT),'固定标题、封面、字幕原文与音轨的横版重排')
+                +'<p>真人窗口扩大、取消持续占屏的红色标题栏。标题和封面没有重新生成；这是排版试验，不计新增出片。</p>'
+                +'<p class="small">完整音视频解码通过。'+note+' 原来的字幕用词和剪辑问题仍须处理。</p></details>')
+        return ''.join(panels)
+
+    def actual(case):
+        final=ROOT/case['final_file']
+        meta=read(final.parent/'meta.json', {})
+        cover=final.parent/meta.get('cover','missing-cover')
+        if not final.is_file() or not cover.is_file():
+            return '<p>本地实片或封面缺失，暂不放置播放器。</p>'
+        if meta.get('fingerprints',{}).get('sha256')!=case['final_sha256']:
+            raise ValueError('Actual final metadata does not match frozen review case')
+        label=f"实际版本 {case['source_code'][:7]} · {case['duration']:.1f}秒 · 运行 {case['source_run_id']}"
+        original=(player(os.path.relpath(final,OUT),os.path.relpath(cover,OUT),label)
+            +'<p class="copy-title">'+esc(case['old_title'])+'</p><p>实际封面字：'+esc(case['old_cover'])+'</p>'
+            +'<p class="small">'+esc('现场核验帧' if meta.get('cover_person_image_source')=='verified_source_frame' else '人物资料照回退')
+            +('；'+esc(meta['cover_fallback_reason']) if meta.get('cover_fallback_reason') else '')+'</p>')
+        drafts=([model_rows[case['id']]] if case['id'] in model_rows else [])+additional_rows.get(case['id'],[])
+        improved=next((r['rendered_media'] for r in drafts if r.get('rendered') and case['source_id'] in (17,32)),None)
+        focused=preferred_focused.get(case['source_id'])
+        if focused:
+            if focused['source_sha256']!=case['source_sha256']:
+                raise ValueError('Focused replacement belongs to different source bytes')
+            improved=focused
+        if improved:
+            latest=player(os.path.relpath(ROOT/improved['file'],OUT),os.path.relpath(ROOT/improved['cover'],OUT),
+                          f"本条最新标题实片 · {improved['duration']:.1f}秒 · {improved['tested_sha'][:7]}")
+            latest+='<p class="copy-title">'+esc(improved['title'])+'</p><p>实际封面字：'+esc(improved['cover_title'])+'</p>'
+            latest+='<p class="small">选段或标题有具体改善，整片仍有待处理问题；不作为新增出片数。</p>'
+            if focused:
+                latest+='<p>'+esc(fresh_notes.get(focused['sha256'],'此版尚未完成编辑复核。'))+'</p>'
+            original=latest+'<details><summary>查看本轮冻结前的实际版本</summary>'+original+'</details>'
+        return original+model_copy(case)+layout_trial(case)
+
+    for ident in sorted(plans):
+        plan=plans[ident]; cases=[r for r in corpus if r['source_id']==ident]
+        selected=next((r for r in cases if r['source_run_id']==preferred.get(ident)),cases[0])
+        displayed=next((r for r in rendered_copies if r['id']==ident and ident in (17,32)
+                        and r.get('video_audio_full_decode')),None)
+        displayed=preferred_focused.get(ident,displayed)
+        index_rows.append('<tr><td><a href="#all-source-'+str(ident)+'">'+str(ident)+'</a></td>'
+            +'<td>'+esc(displayed['title'] if displayed else selected['old_title'])+'</td>'
+            +'<td>'+esc(displayed['cover_title'] if displayed else selected['old_cover'])+'</td>'
+            +'<td>'+esc(plan['next_edit'])+'</td></tr>')
+        evidence=[]
+        for anchor in plan['quote_anchors']:
+            matches=[c for c in selected['cues'] if anchor in c['text']]
+            if not matches:
+                raise ValueError(f'Missing source evidence for {ident}: {anchor}')
+            for cue in matches:
+                item=dict(start=cue['start'],end=cue['end'],text=cue['text'])
+                if item not in evidence:evidence.append(item)
+        for case in cases:
+            row=dict(case_id=case['id'],source_id=ident,final_sha256=case['final_sha256'],
+                actual_title=case['old_title'],actual_cover=case['old_cover'],
+                technical_decode_verified=True,editorial_approved=False,
+                title_problem=plan['title_problem'],cover_problem=plan['cover_problem'],
+                proposed_title=plan['proposed_title'],proposed_cover=plan['proposed_cover'],
+                proposal_rendered=False,next_edit=plan['next_edit'])
+            row['model_replay']=model_rows.get(case['id'],dict(status='not_imported'))
+            row['additional_model_replays']=additional_rows.get(case['id'],[])
+            if ident==8 and case['source_run_id']=='35833967072':
+                row['title_problem']='错误说话人：本段主要是郭总回答，不能通过换标题冒充林园。此版本须淘汰，不能复用建议稿。'
+            if ident==79 and case['source_run_id']=='35837686332':
+                row['title_problem']='本版已有明确个人选择，建议保留文案；字幕和现场封面仍待改善。'
+            rows.append(row)
+        a=baseline.get(ident)
+        old='<h4>线上主线 · 固定版本复跑</h4>'
+        if a:
+            old+=player(os.path.relpath(ROOT/a['file'],OUT),os.path.relpath(ROOT/a['cover'],OUT),
+                        f"代码 {a['tested_sha'][:7]} · {a['duration']:.1f}秒")
+            old+='<p>'+esc(a['title'])+'</p><p class="small">封面字：'+esc(a.get('cover_title',''))+'</p>'
+            old+='<small>'+('母片哈希相同，选段仍可能不同。' if a['source_sha256']==selected['source_sha256']
+                           else '母片哈希不同，不作严格同素材质量胜负。')+'</small>'
+        else:
+            old+='<p>本批没有对应的已核验主线成片；新素材没有另补主线对跑，不能据此宣布胜出。</p>'
+        current='<h4>优化版 · 实际成片</h4>'+actual(selected)+fresh_outputs(ident)+audio_doubts(ident)
+        for case in cases:
+            if case['id']==selected['id']:continue
+            current+='<details><summary>另一个实际版本 · '+esc(case['source_run_id'])+'</summary>'+actual(case)+'</details>'
+        bvid=plan['reference_bvid']
+        reference='<h4>园园 · 内容表达参考</h4>'+player(*reference_media(bvid))
+        reference+='<p><a href="https://www.bilibili.com/video/'+esc(bvid)+'">'+esc(references[bvid]['title'])+'</a></p>'
+        reference+='<small>独立作品；不是同母片对跑，也不是点击率胜负证据。</small>'
+        quote='\n'.join(f"原素材 {c['start']:.2f}–{c['end']:.2f}秒：{c['text']}" for c in evidence)
+        cards.append('<article class="threeway-card" id="all-source-'+str(ident)+'"><h3>素材 '+str(ident)
+            +' · '+str(len(cases))+' 个实际版本</h3><div class="threeway-grid"><div>'+old+'</div><div>'+current
+            +'</div><div>'+reference+'</div></div><p><b>冻结版本的标题问题：</b>'+esc(plan['title_problem'])+'</p>'
+            +'<p><b>冻结版本的封面问题：</b>'+esc(plan['cover_problem'])+'</p><div class="review-note">'
+            +'<b>待验证改稿 · 尚未烧入视频</b><p>标题：'+esc(plan['proposed_title'])+'</p>'
+            +'<p>封面：'+esc(plan['proposed_cover'])+'</p><p>其他解法：'+esc(plan['next_edit'])+'</p>'
+            +'<p>向参考靠近的地方：'+esc(plan['why_closer'])+'</p></div>'
+            +'<details><summary>核对本条原始字幕依据</summary><pre class="transcript">'+esc(quote)+'</pre>'
+            +'<p class="small">原始机器字幕未在此悄悄修正；时间对应原素材，不是成片时间。建议仍须经过说话人、完整语义和实际排版检查。</p></details></article>')
+    (OUT/'all-output-editorial-review.json').write_text(json.dumps(dict(
+        scope='All 26 frozen current outputs, including failed editorial versions; not all historical experiment artifacts',
+        sources=len(plans),versions=len(corpus),rows=rows,
+        review_scope='Full source transcript and actual cover inspection; earlier decode/frame/ASS evidence retained; full audio semantic review incomplete',
+        model_run_id=35881680084,model_results_imported=len(model_rows),
+        fixed_copy_layouts=list(layout_rows.values()),audio_crosschecks=audio_rows,
+        fresh_full100_outputs=fresh_rows,verified_caption_replays=caption_replays,
+        focused_replays=focused_replays,preferred_focused_outputs=list(preferred_focused.values()),
+        caption_cleanup=caption_cleanup,
+        quality_parity_verified=False),ensure_ascii=False,indent=2)+'\n')
+    return ('<section id="all-outputs"><h2>各轮实片与改稿：全部标题、封面与内容</h2>'
+        '<p class="note">此处集中展示各轮已核验实片，保留更好的专项版本作为对照。最终候选 bfd29f6 的整轮成绩在上方单独展示；这里不拼接历史最好结果，也不把标题或排版专项计入新增出片。</p>'
+        '<p class="note">这轮覆盖全部17份固定批次成片及后续修复、新素材成片，共26个冻结版本、22个素材编号；新回归和专项实片另列。冻结批次95与99重复，新回归改选后的内容另行去重。同素材不同版本不算新增。全部读过原始字幕并检查实际封面，尚未逐秒听音验收。已完成的42、99号聚焦版优先展示；下方其他建议稿不冒充实测成绩。</p>'
+        '<p>18字以内不是必须凑满：能独立理解的个人选择可以更短。金句须有具体对象、真实态度和完整条件；强烈发言可以保留，不能改造出盈利保证。</p>'
+        '<details><summary>素材去重与历史成片：为什么不能只数链接和文件</summary>'
+        '<p>3、23、24、45、89号是高度重合的同场采访，来自5个链接。23号历史三片已与当前母片逐段核对原声；89号只有第3片完成匹配，另两片仍不能恢复历史区间。这不是5份新增可用内容，也未解除发布去重。</p>'
+        '<p>历史8月归档中还发现一条把同一188.88秒片段重复3次、拼成566.8秒的视频。它不属于当前主线固定100条对跑，不能拿来夸大本轮胜负；但说明还需要检查连续内容、重复率，而非只看是否生成MP4。</p>'
+        '<p><a href="../../linyuan/simulations/benchmark-20260921/legacy-range-review.json">完整素材与原声核对记录</a></p></details>'
+        '<p><a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/35881680084">26份原始输入的独立8B标题Action</a>'
+        ' · 已取回 '+str(len(model_rows))+'/'+str(len(corpus))+' 份结果（不代表编辑通过）'
+        ' · <a href="all-output-editorial-review.json">逐版本审查记录</a></p>'
+        '<details><summary>先总览全部22个素材的标题、封面和下一步修改</summary>'
+        '<p>列出下方优先展示的实际文案，未渲染建议不混在此表。点击编号直达三列实片；后续实验保留在各条展开项。</p>'
+        '<div style="max-width:100%;overflow-x:auto"><table><thead><tr><th>素材</th><th>实际标题</th><th>实际封面字</th><th>待补项</th></tr></thead><tbody>'
+        +''.join(index_rows)+'</tbody></table></div></details>'+''.join(cards)+'</section>')

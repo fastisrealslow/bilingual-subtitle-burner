@@ -11,7 +11,21 @@ import subprocess
 VERSION=2026091301
 
 
-def plan(src,start,duration,reference,model_paths,speaker='林园'):
+def stage_crop(width,height,actor_face,photo_face,exclusions=()):
+    """Keep the stage and its identity context below measured top overlays."""
+    top=int(height*.20)//2*2;bottom=int(height*.82)//2*2
+    for left,upper,right,lower in exclusions:
+        if upper<.4 and .2<lower<=.4:
+            top=max(top,math.ceil((lower*height+8)/2)*2)
+    crop=[0,top,width//2*2,bottom-top]
+    ax,ay,aw,ah=actor_face
+    px,py,pw,ph=photo_face
+    if (crop[3]<235 or not (ay-ah*.5>=top and ay+ah*6<=bottom)
+            or py<top or py+ph>bottom):return None
+    return crop
+
+
+def plan(src,start,duration,reference,model_paths,speaker='林园',exclusions=()):
     import cv2
     from live_motion import verify_window
     detector=cv2.FaceDetectorYN.create(str(model_paths[0]),'',(320,320),score_threshold=.70)
@@ -45,10 +59,9 @@ def plan(src,start,duration,reference,model_paths,speaker='林园'):
     if len(photos)!=1 or len(actors)!=1 or photos[0] is actors[0]:return None
     actor=actors[0];photo=photos[0]
     # Keep the entire horizontal stage; trim only the top/bottom overlay zones.
-    top=int(h*.20)//2*2;bottom=int(h*.82)//2*2
-    crop=[0,top,w//2*2,bottom-top]
+    crop=stage_crop(w,h,actor['face'],photo['face'],exclusions)
+    if crop is None:return None
     ax,ay,aw,ah=actor['face']
-    if not (ay-ah*.5>=top and ay+ah*6<=bottom):return None
     presence=[];cap=cv2.VideoCapture(str(src))
     for i in range(6):
         t=start+duration*(i+.5)/6;cap.set(cv2.CAP_PROP_POS_MSEC,t*1000);ok,f=cap.read()
@@ -62,7 +75,7 @@ def plan(src,start,duration,reference,model_paths,speaker='林园'):
         identity_basis='single_live_presenter_with_matching_stage_portrait',
         biometric_presenter_match=False,source_start=start,duration=duration,
         source_resolution=[w,h],crop_xywh=crop,presenter=actor,stage_portrait=photo,
-        presenter_presence=presence,source_frames_preserved=True)
+        presenter_presence=presence,source_frames_preserved=True,source_overlay_exclusions=list(exclusions))
 
 
 def proof_error(proof):
@@ -101,6 +114,22 @@ def check_overlays(src,start,duration,crop,ocr):
     finally:cap.release()
 
 
+def caption_plan(captions, spec, producer):
+    """Validate wide-stage screens just like other production captions.
+
+    Raw ASR cues can end halfway through a word. Marking every cleaned cue as
+    a semantic group previously bypassed regrouping, producing single-character
+    screens in source68. Timing/text checks must precede that flag.
+    """
+    from caption_readability import clean_entries, display_payload_text
+    cleaned, proof=clean_entries(captions)
+    groups=producer.source_caption_groups(cleaned,spec)
+    grouped=producer.apply_semantic_groups(cleaned,groups,spec['line_capacity'],spec['subtitle_font_px'])
+    if display_payload_text(''.join(row['zh'] for row in grouped))!=display_payload_text(proof['display_text']):
+        raise ValueError('舞台字幕分屏改变原文，拒绝烧录')
+    return grouped, proof
+
+
 def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix='',producer=None):
     """Build the same deliverable contract as the normal producer."""
     import hashlib
@@ -108,12 +137,30 @@ def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix=''
     from PIL import Image,ImageDraw,ImageFont
     import presentation as V
     import editorial_policy as E
-    from caption_readability import clean_entries
+    from caption_readability import display_payload_text
     from live_motion import verify_window
     P=producer
     out,work=Path(out),Path(work);out.mkdir(parents=True,exist_ok=True);work.mkdir(parents=True,exist_ok=True)
     error=proof_error(stage)
     if error:raise ValueError(error)
+    # The native path already measures encoded margins. The stage path used
+    # to skip it, rendering a whole clip before rejecting a 2.5% black strip
+    # (actual library315). Use the same bounded strip detector, never pad or
+    # enlarge the tiny presenter, and retain both faces and the motion region.
+    from source_geometry import refine_native_crop
+    x,y,w,h=stage['crop_xywh']
+    _,cw_width,cw_height,border=refine_native_crop(src,f'crop={w}:{h}:{x}:{y}',w,h,work,
+        minimum=235,start=start,duration=duration)
+    _,_,dx,dy=border['crop'];crop=[x+dx,y+dy,cw_width,cw_height]
+    left,top,width,height=crop
+    roi=stage['presenter']['motion']['window']
+    regions=[roi,*(dict(x=f[0],y=f[1],width=f[2],height=f[3])
+        for f in (stage['presenter']['face'],stage['stage_portrait']['face']))]
+    if any(r['x']<left or r['y']<top or r['x']+r['width']>left+width or
+           r['y']+r['height']>top+height for r in regions):
+        raise ValueError('舞台裁边会损伤原人物或身份上下文，不能裁切')
+    stage={**stage,'original_crop_xywh':stage['crop_xywh'],'crop_xywh':crop,'border_geometry':border}
+    (work/f'stage_geometry{suffix}.json').write_text(json.dumps(stage,ensure_ascii=False,indent=2))
     stage={**stage,'overlay_scan':check_overlays(src,start,duration,stage['crop_xywh'],P._ocr())}
     x,y,w,h=stage['crop_xywh'];scale=min(1.6,1120/w,480/h)
     rw,rh=round(w*scale)//2*2,round(h*scale)//2*2;rx,ry=(1280-rw)//2,84
@@ -121,10 +168,12 @@ def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix=''
     spec.update(live_region=dict(x=rx,y=ry,width=rw,height=rh),
         subtitle_region=dict(x=64,y=590,width=1152,height=112),subtitle_font_px=44,
         line_capacity=24,subtitle_style='light-panel-dark-text',template='wide-stage-v1')
-    cleaned,edit_proof=clean_entries(captions)
-    for row in cleaned:row['semantic_group']=True
-    ass=out/f'subtitles{suffix}.ass';V.write_ass(cleaned,ass,spec,'Noto Sans CJK SC')
-    (out/f'caption-edits{suffix}.json').write_text(json.dumps(edit_proof,ensure_ascii=False,indent=2))
+    grouped,edit_proof=caption_plan(captions,spec,P)
+    ass=out/f'subtitles{suffix}.ass';V.write_ass(grouped,ass,spec,'Noto Sans CJK SC')
+    edit_name=f'subtitle_edit_proof{suffix}.json'
+    (out/edit_name).write_text(json.dumps(edit_proof,ensure_ascii=False,indent=2))
+    if display_payload_text(E.subtitle_files_text(out,[ass.name]))!=display_payload_text(edit_proof['display_text']):
+        raise ValueError('舞台ASS字幕与可重放原文不一致，拒绝渲染')
     family=subprocess.check_output(['fc-match','-f','%{family}','Noto Sans CJK SC'],text=True)
     if 'Noto Sans CJK SC' not in family:raise ValueError('舞台标题和字幕缺少中文字体')
     font=subprocess.check_output(['fc-match','-f','%{file}','Noto Sans CJK SC'],text=True)
@@ -163,6 +212,7 @@ def render(src,start,duration,out,work,captions,cw,source_report,stage,suffix=''
         review_assets_verified=True,title_quality_verified=True,presentation_version=V.VERSION,layout_proof=spec,
         cover_proof=json.loads(Path(str(cover)+'.proof.json').read_text()),
         subtitle_files=[ass.name],subtitle_text_sha256=E.text_digest(transcript),
+        subtitle_edit_proof_version=1,subtitle_edit_proofs=[edit_name],
         subtitle_word_boundaries_verified=True,subtitle_semantic_groups_verified=True,
         subtitle_readability_version=spec['readability_version'],subtitles_burned=True,has_existing_subtitles=False,
         watermark_verified=True,clean_filter_verified=True,brand_watermark_applied=True,fingerprints=fingerprints,**checks)

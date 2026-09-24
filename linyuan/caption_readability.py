@@ -8,7 +8,10 @@ import json
 import math
 import re
 
-VERSION = 2026091301
+LEGACY_VERSION = 2026091301
+SEPT23_VERSION = 2026092301
+VERSION = 2026092401
+SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, VERSION)
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -20,7 +23,9 @@ STUTTERS = ('我们', '你们', '他们', '这个', '那个', '那么', '就是'
 PUNCTUATION = '，。！？；：、,.!?;:'
 
 
-def clean_entries(entries):
+def clean_entries(entries, *, policy_version=VERSION):
+    if type(policy_version) is not int or policy_version not in SUPPORTED_VERSIONS:
+        raise ValueError('未知字幕编辑规则版本')
     atoms = []
     point_anchors = []
     for i, entry in enumerate(entries):
@@ -63,7 +68,10 @@ def clean_entries(entries):
     # 嗯 (an affirmative answer), monetary 额 and lexical 那么 are not removed.
     for m in re.finditer(r'(?:^|[，。！？；：、])([啊呃嗯]+[，、]?)(?=那么|这个|那个|我|你|他|它)', original):
         remove(*m.span(1), 'opening_filler')
-    for word in STUTTERS:
+    # Exact lexical restarts observed in source17 and source8. Do not add
+    # negatives (没有没有) or repeated claims (赚了钱): those may be emphasis.
+    stutters = STUTTERS + (('光伏', '所以') if policy_version >= SEPT23_VERSION else ())
+    for word in stutters:
         for m in re.finditer(r'(?<![A-Za-z0-9])(?:'+re.escape(word)+r')(?:[，、,]?'+re.escape(word)+r'){1,}', original):
             # Reject a time gap between the deleted words and the kept copy too.
             pause_limit = (3 if word in {'我们','你们','他们','这个','那个','那么','就是','我','你','他','它','去','就','都'}
@@ -73,12 +81,17 @@ def clean_entries(entries):
             remove(m.start(), m.end()-len(word), 'stutter')
     # Verified display defects in the September 12 deliveries. These are
     # lexical restarts, not a blanket doubled-character regex (涨涨跌跌 stays).
-    for wrong, right in (('医医疗', '医疗'), ('林林总', '林总'),
+    lexical_restarts = (('医医疗', '医疗'), ('林林总', '林总'),
                          ('眼眼科', '眼科'), ('中中药', '中药'),
                          ('这这个', '这个'), ('大大户', '大户'),
                          ('不不会', '不会'), ('考虑虑', '考虑'),
                          ('人人口', '人口'), ('空空档期', '空档期'),
-                         ('做做买卖', '做买卖')):
+                         ('做做买卖', '做买卖'))
+    # Source32 actual output: partial-word restarts, not repeated opinions.
+    # Keep the earlier policies reproducible for already rendered subtitles.
+    if policy_version == VERSION:
+        lexical_restarts += (('垄垄断', '垄断'), ('虽虽然', '虽然'))
+    for wrong, right in lexical_restarts:
         for m in re.finditer(re.escape(wrong), original):
             if any(atoms[k+1][1]-atoms[k][2] > .6 for k in range(m.start(),m.end()-1)):
                 continue
@@ -138,7 +151,7 @@ def clean_entries(entries):
     cleaned=''.join(e['zh'] for e in result)
     counts={}
     for edit in edits:counts[edit['reason']]=counts.get(edit['reason'],0)+1
-    proof=dict(version=VERSION, edit_counts=counts, raw_text=original, display_text=cleaned, edits=edits,
+    proof=dict(version=policy_version, edit_counts=counts, raw_text=original, display_text=cleaned, edits=edits,
                replay_version=1,
                raw_entries=[{k:e[k] for k in ('start_sec','end_sec','zh')} for e in entries],
                point_anchors=point_anchors,
@@ -155,10 +168,12 @@ def write_edit_proof(path, proof):
 def replay_edit_proof(proof):
     """Reproduce every display edit; a claimed raw/display text pair is insufficient."""
     if (not isinstance(proof,dict) or proof.get('replay_version')!=1
-            or proof.get('version')!=VERSION or not isinstance(proof.get('raw_entries'),list)
+            or type(proof.get('version')) is not int
+            or proof.get('version') not in SUPPORTED_VERSIONS
+            or not isinstance(proof.get('raw_entries'),list)
             or not proof['raw_entries']):
         raise ValueError('字幕编辑证明缺少可重放的原始条目')
-    _, expected=clean_entries(proof['raw_entries'])
+    _, expected=clean_entries(proof['raw_entries'], policy_version=proof['version'])
     for key in ('raw_text','display_text','edits','raw_sha256','display_sha256',
                 'policy','asr_corrections','point_anchors'):
         if proof.get(key)!=expected.get(key):

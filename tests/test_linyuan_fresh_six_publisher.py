@@ -54,6 +54,9 @@ def test_complete_receipts_skip_upload_path(monkeypatch, tmp_path):
         for i, (sha, item) in enumerate(publisher.fc.FRESH_SIX_APPROVED.items())
     }
     monkeypatch.chdir(tmp_path)
+    # Exercise the receipt path within its original one-day authorization;
+    # never extend production authorization to make this regression pass.
+    monkeypatch.setattr(publisher.time, "strftime", lambda *a: publisher.fc.FRESH_SIX_DATE)
     monkeypatch.setattr(publisher, "state", lambda: {})
     monkeypatch.setattr(publisher, "receipts", lambda value: complete)
     monkeypatch.setattr(
@@ -61,7 +64,7 @@ def test_complete_receipts_skip_upload_path(monkeypatch, tmp_path):
         lambda: (_ for _ in ()).throw(AssertionError("must not upload again")))
     monkeypatch.setattr(
         publisher, "runner_publication_status",
-        lambda found: {"receipts": len(found), "public_count": len(found),
+        lambda found: {"receipts": len(found), "public_count": len(found), "verified_count": len(found),
                        "videos": []})
     publisher.main()
     assert json.loads(Path("fresh-six-receipts.json").read_text()) == complete

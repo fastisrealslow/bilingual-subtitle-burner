@@ -1,0 +1,57 @@
+name: 园园最新两条完整原声与标题对照（独立转写，不出片）
+on:
+  push:
+    branches: [codex/linyuan-reliability-packaging]
+    paths: [.github/workflows/linyuan-reference-audio-latest.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-reference-audio-latest
+  cancel-in-progress: false
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        case: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 下载原有取证文件，避免混入变化的来源
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CASE: ${{ matrix.case }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          row = json.loads(Path('linyuan/simulations/benchmark-20260921/reference-audio-latest-sep23.json').read_text())[int(os.environ['CASE'])]
+          subprocess.run(['gh', 'run', 'download', str(row['source_run']), '--name', row['artifact'], '--dir', 'reference-media'], check=True)
+          PY
+      - name: 安装固定语音引擎
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install faster-whisper==1.2.1
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.cache/huggingface/hub
+          key: whisper-large-v3-53ecf83a5bed-v1
+      - name: 完整转写，不提供标题作为提示
+        run: python -u scripts/linyuan_reference_audio.py --case "${{ matrix.case }}" --media reference-media --corpus linyuan/simulations/benchmark-20260921/reference-audio-latest-sep23.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reference-latest-audio-${{ matrix.case }}
+          path: reference-audio-results/
+          retention-days: 30
+          if-no-files-found: warn

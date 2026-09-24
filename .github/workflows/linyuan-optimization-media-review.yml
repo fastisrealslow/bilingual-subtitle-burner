@@ -1,0 +1,391 @@
+# Isolated fixed-byte rehearsal; no release, publication or inventory notification.
+name: 林园固定母片隔离样片
+'on':
+  push:
+    branches:
+    - codex/linyuan-reliability-packaging
+    paths:
+    - .github/workflows/linyuan-optimization-media-review.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-optimization-media-review
+  cancel-in-progress: false
+env:
+  RUN_TEXT_MODEL: qwen3:8b
+  RUN_SOURCE: https://www.bilibili.com/video/BV1h6QWYsEz5
+  RUN_SLUG: codex-review-medical-part3-20260920
+  RUN_SPEAKER: 林园
+  RUN_OCCASION: 历史医药股片段同源复核，禁止投稿
+  RUN_SOURCE_PLATFORM: bilibili
+  RUN_REVIEWED_PARTS: '1'
+  EXPECTED_SOURCE_SHA: 4c711fb59cdec677f1eacc7f6603f27d5b4231f6ab841fc4d421a0079b5d2846
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        working-directory: linyuan
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: pip
+    - name: 安装 ffmpeg 与中文字体
+      run: "sudo apt-get update -qq\nsudo apt-get install -y -qq --no-install-recommends \\\n  ffmpeg fonts-noto-cjk\
+        \ poppler-utils libgl1 libglib2.0-0 zstd\nfc-cache -f\nffprobe -version | head -1\n"
+    - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
+      working-directory: .
+      run: 'python -m pip install -q pytest jieba numpy pillow ''opencv-python<5''
+
+        python -m pytest -q tests/test_linyuan_scene_selection.py tests/test_linyuan_geometry_preflight.py tests/test_linyuan_robust_recovery.py
+        tests/test_linyuan_asr_integrity.py tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py
+        tests/test_linyuan_qwen_checkpoint.py tests/test_linyuan_caption_timeout.py tests/test_linyuan_caption_readability.py
+        tests/test_linyuan_source_selection.py tests/test_linyuan_selection_0915.py tests/test_linyuan_selection_incident.py
+        tests/test_linyuan_fetch_budget.py tests/test_linyuan_source_borders.py tests/test_linyuan_live_tracking.py
+        tests/test_linyuan_required_live.py tests/test_linyuan_visual_before_copy.py tests/test_linyuan_full_interview_recovery.py
+        tests/test_linyuan_title_claims.py tests/test_linyuan_context_review.py tests/test_linyuan_production_history.py
+
+        '
+    - name: 安装素材质检依赖
+      run: 'python -m pip install --upgrade pip
+
+        # opencv 必须锁 <5：OpenCV 5.0 移除了 cv2.CascadeClassifier，会静默打断封面人脸检测
+
+        # （2026-09-01 实测：装到 5.0.0 后人脸检测全失败，封面退化成取第一帧）
+
+        pip install yt-dlp pillow ''opencv-python<5'' rapidocr-onnxruntime
+
+        '
+    - name: 缓存 CPU 本地人物模型
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.tool_cache }}/linyuan-face-models
+        key: opencv-yunet-sface-2023mar-2021dec-v1
+    - name: 生成母片下载缓存键
+      id: source_cache_key
+      run: 'python -c ''import hashlib,os; print("key="+hashlib.sha256(os.environ["RUN_SOURCE"].encode()).hexdigest())''
+        >> "$GITHUB_OUTPUT"
+
+        '
+    - name: 下载固定历史母片，不重新选择CDN版本
+      uses: actions/download-artifact@v4
+      with:
+        github-token: ${{ github.token }}
+        run-id: 35427552199
+        name: mother-media-eae5d9cb1a9bd2990ec4fcd81d3c319007878c1dbe4ce3260c9b03a0df02df3d
+        path: linyuan/_src
+    - name: 核对固定母片来源与完整指纹
+      id: src
+      run: 'set -euo pipefail
+
+        python - <<''CHECK''
+
+        import hashlib,os
+
+        from pathlib import Path
+
+        from mother_media_cache import verified
+
+        assert verified(''_src'',os.environ[''RUN_SOURCE'']), ''Mother artifact is not source-bound''
+
+        assert hashlib.sha256(Path(''_src/video.mp4'').read_bytes()).hexdigest()==os.environ[''EXPECTED_SOURCE_SHA''],
+        ''Mother bytes changed''
+
+        CHECK
+
+        echo ''path=_src/video.mp4'' >> "$GITHUB_OUTPUT"
+
+        '
+    - name: 素材质量门禁
+      id: source_gate
+      env:
+        LOCAL_FACE_MODEL_DIR: ${{ runner.tool_cache }}/linyuan-face-models
+      run: "set -euo pipefail\n# 所有渠道都确认音视频轨、时长漂移与头尾可解码；\n# 避免 DASH/HLS 合流“命令成功但下到半截”继续进 ASR。\npython3 ci_fetch_bilibili.py\
+        \ --validate-only \"${{ steps.src.outputs.path }}\" \\\n  --failure-report \"deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json\"\
+        \npython3 -u produce_cn.py \\\n  --source \"${{ steps.src.outputs.path }}\" \\\n  --slug \"${{ env.RUN_SLUG\
+        \ }}\" \\\n  --speaker \"${{ env.RUN_SPEAKER }}\" \\\n  --source-check-only \\\n  --source-report \"deliver/${{\
+        \ env.RUN_SLUG }}/_tmp/source_quality.json\"\n"
+    - name: 固定历史原文边界，所有实产门禁仍须重新通过
+      run: "python - <<'PLAN'\nimport json,os,re\nfrom pathlib import Path\ncase=json.loads(Path('simulations/title-batch-20260920/corpus.json').read_text())[3]\n\
+        assert case['id']=='ly-0919-9f664b-part3'\ncues=case['cues']\nsource=json.loads(Path('deliver',os.environ['RUN_SLUG'],'_tmp/source_quality.json').read_text())\n\
+        assert source['passed'] is True and source['source_sha256']==os.environ['EXPECTED_SOURCE_SHA']\nnormalize=lambda\
+        \ s: re.sub(r'[\\s，。！？；：、,.!?;:]','',s)\nrow=dict(start=cues[0]['start'],end=cues[-1]['end'],topic='固定历史医药股原话，质量待复核',\n\
+        \ opening=normalize(cues[0]['text'])[:18],ending=normalize(''.join(c['text'] for c in cues[-2:]))[-18:])\n\
+        # This checkout exists only in the isolated review runner. No live config is edited.\nprofile=Path('editorial_source_profiles.json');data=json.loads(profile.read_text())\n\
+        data['sources'][os.environ['EXPECTED_SOURCE_SHA']]=[row]\nprofile.write_text(json.dumps(data,ensure_ascii=False,indent=2))\n\
+        Path('deliver',os.environ['RUN_SLUG'],'_tmp/fixed_review_plan.json').write_text(json.dumps(dict(\n review_only=True,publication_authorized=False,source_sha256=source['source_sha256'],range=row),ensure_ascii=False,indent=2))\n\
+        PLAN\n"
+    - name: 安装出片依赖
+      run: 'pip install fonttools jieba sherpa-onnx==1.13.7
+
+        '
+    - name: 读取已验证的CPU离线识别配置
+      run: python prepare_asr_runtime.py select --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 恢复相同母片的离线识别缓存
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+        key: mother-asr-${{ env.MOTHER_ASR_KEY }}
+    - name: 按母片哈希载入原始转写
+      run: python mother_asr_cache.py restore --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY"
+        --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 恢复同一母片原始ASR，所有指纹仍重新核对
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: python restore_production_evidence.py --run-id 35427552199 --work "deliver/$RUN_SLUG/_tmp" --artifact-name
+        editorial-ly-0919-9f664b
+    - name: 检查原始识别证据，避免重复下载和推理
+      run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - name: 准备CPU离线Qwen识别及逐字对齐
+      if: env.ASR_BACKEND == 'qwen3' && env.ASR_EVIDENCE_READY != 'true'
+      env:
+        GH_TOKEN: ${{ github.token }}
+        CUDA_VISIBLE_DEVICES: ''
+        ASR_SOURCE_SLUG: ${{ env.RUN_SLUG }}
+      run: 'pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+        pip install qwen-asr
+
+        python prepare_asr_runtime.py prepare --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+
+        '
+    - name: 缓存 SenseVoice CPU 模型
+      id: sensevoice-cache
+      if: env.ASR_BACKEND == 'sensevoice'
+      uses: actions/cache@v4
+      with:
+        path: linyuan/sensevoice_model
+        key: sensevoice-int8-v1
+    - name: 下载 SenseVoice 模型
+      if: env.ASR_BACKEND == 'sensevoice' && steps.sensevoice-cache.outputs.cache-hit != 'true'
+      run: "mkdir -p sensevoice_model\ncurl -sfL --retry 3 --max-time 600 -o /tmp/sv.tar.bz2 \\\n  \"https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2\"\
+        \ntar xjf /tmp/sv.tar.bz2 -C sensevoice_model --strip-components=1\nls -lh sensevoice_model/\n"
+    - name: 复用 LLM 缓存
+      id: llm-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: linyuan/.llm_cache
+        key: llm-cn-${{ env.RUN_SLUG }}-${{ github.run_id }}
+        restore-keys: 'llm-cn-${{ env.RUN_SLUG }}-
+
+          llm-cn-
+
+          '
+    - name: 缓存 CPU 本地文本模型
+      id: ollama-cache
+      continue-on-error: true
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.ollama/models
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' &&
+          'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+    - name: 缓存已校验的 Ollama 安装包
+      uses: actions/cache@v4
+      continue-on-error: true
+      with:
+        path: /tmp/ollama-runtime
+        key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+    - name: 启动 CPU 本地文本模型（禁止云 API）
+      id: local_text
+      continue-on-error: true
+      env:
+        OLLAMA_VERSION: v0.33.3
+        OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+      run: "set -euo pipefail\nmkdir -p /tmp/ollama-runtime\narchive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst\n\
+        if ! echo \"${OLLAMA_SHA256}  $archive\" | sha256sum -c -; then\n  curl -fsSL --retry 8 --retry-all-errors\
+        \ --retry-delay 5 --retry-max-time 300 --max-time 600 \\\n    -o /tmp/ollama-download.tar.zst \\\n    \"\
+        https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst\"\n  echo\
+        \ \"${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst\" | sha256sum -c -\n  mv /tmp/ollama-download.tar.zst\
+        \ \"$archive\"\nfi\nsudo tar --zstd -xf \"$archive\" -C /usr\nOLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h\
+        \ OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \\\n  ollama serve > /tmp/ollama.log 2>&1 &\nfor _ in\
+        \ $(seq 1 30); do\n  curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break\n  sleep 1\ndone\ncurl\
+        \ -fsS http://127.0.0.1:11434/api/tags >/dev/null\ncase \"$RUN_TEXT_MODEL\" in\n  qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b)\
+        \ ;;\n  *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;\nesac\nollama pull \"$RUN_TEXT_MODEL\"\nollama show \"$RUN_TEXT_MODEL\"\
+        \ >/dev/null\n# Pulling only downloads weights.  Warm them into RAM before the\n# bounded CPU review budget\
+        \ begins.\npython -c 'import json,os; print(json.dumps(dict(model=os.environ[\"RUN_TEXT_MODEL\"],messages=[dict(role=\"\
+        user\",content=\"Reply ready\")],stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))))'\
+        \ > /tmp/ollama-warmup.json\ncurl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \\\n  -H 'Content-Type:\
+        \ application/json' \\\n  --data-binary @/tmp/ollama-warmup.json \\\n  | python -c 'import json,sys; d=json.load(sys.stdin);\
+        \ assert (d.get(\"message\") or {}).get(\"content\")'\n"
+    - name: 保存 CPU 本地文本模型缓存
+      if: steps.local_text.outcome == 'success' && steps.ollama-cache.outputs.cache-hit != 'true'
+      continue-on-error: true
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.ollama/models
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' &&
+          'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+    - name: 出片
+      id: render
+      env:
+        ASR_CPU_THREADS: '2'
+        CUDA_VISIBLE_DEVICES: ''
+        TEXT_BACKEND: local
+        SOURCE_EDITORIAL_FIRST: 'true'
+        TEXT_RUNTIME_UNAVAILABLE: ${{ steps.local_text.outcome != 'success' }}
+        LOCAL_LLM_URL: http://127.0.0.1:11434/api/chat
+        LOCAL_LLM_MODEL: ${{ env.RUN_TEXT_MODEL }}
+        LOCAL_LLM_TIMEOUT_SEC: '600'
+        PART_RENDER_BUDGET_SEC: '3600'
+        SENSEVOICE_MODEL_DIR: sensevoice_model
+        ZH_FONT: Noto Sans CJK SC
+        EN_FONT: DejaVu Sans
+        COVER_STYLE: auto
+        REVIEWED_PARTS: ${{ env.RUN_REVIEWED_PARTS }}
+        GH_TOKEN: ${{ github.token }}
+        SOURCE_ORIGIN_URL: ${{ env.RUN_SOURCE }}
+        RENDER_SLUG: ${{ env.RUN_SLUG }}
+        OUTPUT_LAYOUT: auto
+      run: "set -euo pipefail\npython3 -u produce_cn.py \\\n  --source \"${{ steps.src.outputs.path }}\" \\\n  --slug\
+        \ \"$RUN_SLUG\" --speaker \"$RUN_SPEAKER\" \\\n  --occasion \"$RUN_OCCASION\" --source-platform bilibili\
+        \ \\\n  --source-report \"deliver/$RUN_SLUG/_tmp/source_quality.json\" \\\n  --split-highlights --require-live-video\
+        \ --prefer-live-video \\\n  --only-reviewed-parts 1\n"
+    - name: 为未捕获的运行错误保存恢复报告
+      if: failure()
+      env:
+        PRODUCTION_STEPS: ${{ toJSON(steps) }}
+      run: python production_failure_report.py
+    - name: 保存已经完成的文本推理（后续失败仍保留）
+      if: always() && steps.llm-cache.outcome == 'success' && steps.render.outcome != 'skipped'
+      continue-on-error: true
+      uses: actions/cache/save@v4
+      with:
+        path: linyuan/.llm_cache
+        key: llm-cn-${{ env.RUN_SLUG }}-${{ github.run_id }}
+    - name: 留存完整观点与原始ASR核验材料
+      if: always() && steps.render.outcome != 'skipped'
+      uses: actions/upload-artifact@v4
+      with:
+        name: optimization-review-editorial-${{ env.RUN_SLUG }}
+        path: 'linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/asr*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/qwen_cpu/*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/cues_raw.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/copywrite*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/selection_diagnostics*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/native-rejection*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/border*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.txt
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_response*.txt
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_topics*.txt
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_review*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/context_candidates*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/editorial_review*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/qr_review/
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/semantic*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/semantic*.txt
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/batch_report.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
+
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/fixed_review_plan.json
+
+          '
+        retention-days: 14
+        if-no-files-found: ignore
+    - name: 保存已完成的母片转写供后续选段复用
+      if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
+      run: python mother_asr_cache.py save --work "deliver/${{ env.RUN_SLUG }}/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY"
+        --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
+    - uses: actions/cache/save@v4
+      if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
+      with:
+        path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
+        key: mother-asr-${{ env.MOTHER_ASR_KEY }}
+    - name: 整理归档（slug 命名，留存可分析产物）
+      run: 'set -euo pipefail
+
+        cd "deliver/${{ env.RUN_SLUG }}"
+
+        python3 -c ''import sys; sys.path.insert(0,"../.."); from batch_delivery import archive_accepted; archive_accepted(".",sys.argv[1])''
+        "${{ env.RUN_SLUG }}"
+
+        echo "归档产物："
+
+        ls -la _accepted/
+
+        '
+    - name: 上传成片到 Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: optimization-review-deliver-${{ env.RUN_SLUG }}
+        path: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/
+        retention-days: 14
+        if-no-files-found: error
+    - name: 保留部分失败的实际成片与逐帧取景证据
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: optimization-review-render-evidence-${{ env.RUN_SLUG }}
+        path: 'linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/rejected/
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/tracked*.evidence/
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/live-region-*/
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/final_identity*/
+
+          '
+        retention-days: 14
+        if-no-files-found: ignore
+    - name: 保存本地模型运行日志
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: optimization-review-local-text-runtime-${{ env.RUN_SLUG }}
+        path: /tmp/ollama.log
+        if-no-files-found: ignore
+        retention-days: 14
+    - name: 失败时上传中间产物
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: optimization-review-debug-${{ env.RUN_SLUG }}
+        path: 'linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/batch_report.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/final*.mp4
+
+          '
+        retention-days: 14
+        if-no-files-found: ignore
+    - name: 摘要
+      if: always()
+      run: "{\n  echo \"## ${{ env.RUN_SLUG }}\"\n  # cwd 是 linyuan/（job 级 working-directory），路径不带前缀；\n  # 只有 actions/*\
+        \ 的 with.path 才相对仓库根、需要 linyuan/ 前缀。\n  if [ -f \"deliver/${{ env.RUN_SLUG }}/meta.json\" ]; then\n    echo\
+        \ '```json'\n    cat \"deliver/${{ env.RUN_SLUG }}/meta.json\"\n    echo '```'\n  else\n    echo \"未产出 meta.json，见\
+        \ debug artifact\"\n  fi\n} >> \"$GITHUB_STEP_SUMMARY\"\n"
