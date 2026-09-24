@@ -15305,7 +15305,8 @@
    "failed": true,
    "last_error": "动态取景连续2.03秒缺少人脸",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5344634196726110",
@@ -15322,7 +15323,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "A股幽灵",
-   "publish_time": "2026-09-18T22:59:14+08:00"
+   "publish_time": "2026-09-18T22:59:14+08:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1gv411y75r",
@@ -15356,7 +15361,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "复利整合创新",
-   "publish_time": "2020-11-13T22:17:16+00:00"
+   "publish_time": "2020-11-13T22:17:16+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1DSUXYFEym",
@@ -47866,6 +47875,20 @@
    "video_id": "http://f.video.weibocdn.com/o0/BlvdmtAElx08AWwDAKwg01041200cVxb0E010.mp4",
    "ts": 1790278301,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-0924-7228c7",
+   "key": "bilibili_search:BV1cp4y1r78s",
+   "video_id": "BV1cp4y1r78s",
+   "ts": 1790278457,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-0924-dd56ca",
+   "key": "weibo_search:5344634196726110",
+   "video_id": "http://f.video.weibocdn.com/u0/GV8aGxACgx08AU2zoDHi01041200ajCa0E010.mp4",
+   "ts": 1790278458,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
