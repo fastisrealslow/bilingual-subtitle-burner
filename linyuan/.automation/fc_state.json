@@ -14783,7 +14783,8 @@
    "failed": true,
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1168, 2: 0.146, 3: 0.0627, 4: 0.1722, 5: 0.1787, 6: 0.1353, 7: 0.1237, 8: 0.0854, 9: 0.208, 10: 0.1496, 11: 0.1941, 12: 0.0647, 13: 0.1231, 14: 0.1398, 15: 0.1448, 16: 0.271, 17: 0.0897, 18: 0.2021}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1A5vDeFEsq",
@@ -14848,7 +14849,8 @@
    "failed": true,
    "last_error": "人物不一致或无法确认：林园；initial_same=[1]，scan_same=[3]，scan_different=[1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.757，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.102, 2: 0.0919, 3: 0.3675, 4: 0.0812, 5: 0.094, 6: 0.0992, 7: 0.0609, 8: 0.095, 9: 0.0713, 10: 0.0141, 11: 0.0595, 12: 0.1021, 13: 0.1077, 14: 0.1306, 15: 0.109, 16: 0.062, 17: 0.114, 18: 0.0955}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV17X7D6DEvm",
@@ -14865,7 +14867,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "私募排排网",
-   "publish_time": "2026-06-07T09:51:00+00:00"
+   "publish_time": "2026-06-07T09:51:00+00:00",
+   "failed": true,
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1iMhJ6tEG5",
@@ -14899,7 +14905,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "九哥一点半_",
-   "publish_time": "2025-02-10T17:30:55+00:00"
+   "publish_time": "2025-02-10T17:30:55+00:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1g64y1s7BE",
@@ -14916,7 +14926,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "模型预测",
-   "publish_time": "2021-08-06T12:12:57+00:00"
+   "publish_time": "2021-08-06T12:12:57+00:00",
+   "failed": true,
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -47266,6 +47280,27 @@
    "video_id": "BV1nb421e7UD",
    "ts": 1790273496,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1168, 2: 0.146, 3: 0.0627, 4: 0.1722, 5: 0.1787, 6: 0.1353, 7: 0.1237, 8: 0.0854, 9: 0.208, 10: 0.1496, 11: 0.1941, 12: 0.0647, 13: 0.1231, 14: 0.1398, 15: 0.1448, 16: 0.271, 17: 0.0897, 18: 0.2021}"
+  },
+  {
+   "slug": "ly-0924-82dfe1",
+   "key": "bilibili_search:BV1g64y1s7BE",
+   "video_id": "BV1g64y1s7BE",
+   "ts": 1790274202,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-0924-dcab02",
+   "key": "bilibili_search:BV1dhNheDEC8",
+   "video_id": "BV1dhNheDEC8",
+   "ts": 1790274203,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-0924-daf538",
+   "key": "bilibili_search:BV17X7D6DEvm",
+   "video_id": "BV17X7D6DEvm",
+   "ts": 1790274205,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
