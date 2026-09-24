@@ -33,6 +33,41 @@ def test_second_invented_source_quote_does_not_hide_behind_first_true_quote():
     assert T.review_source_quote_error('与原文中「需求一直增长」以及「产能充足」一致。','需求一直增长。')
 
 
+@pytest.mark.parametrize('left,right', [('“','”'), ('‘','’'), ('"','"'), ("'","'"), ('「','」')])
+def test_quote_style_cannot_bypass_verbatim_source_check(left, right):
+    reason=f'候选表达对应原文{left}需求一直增长{right}和{left}产能充足{right}。'
+    assert '产能充足' in T.review_source_quote_error(reason, '需求一直增长。')
+    assert not T.review_source_quote_error(reason, '需求一直增长，产能充足。')
+
+
+@pytest.mark.parametrize('title,cover,source', [
+    ('林园：中国是全世界最好的经济，美国风险大', '中国是全世界最好的经济', '我说中国的经济是全世界最好的。'),
+    ('林园：甲公司的现金流很好', '甲公司是很好的现金流', '甲公司的现金流很好。'),
+    ('林园：这家企业是最高的股息率', '股息率还有比较优势', '这家企业的股息率是最高的。'),
+])
+def test_compression_must_not_turn_owner_into_its_attribute(title, cover, source):
+    assert T.subject_attribute_error(title, cover, source)
+
+
+@pytest.mark.parametrize('title,cover,source', [
+    ('林园：中国的经济是全世界最好的', '中国经济是最好的', '我说中国的经济是全世界最好的。'),
+    ('林园：中国是经济强国', '中国是经济强国', '中国的经济很好。'),
+    ('林园：评价企业要看现金流', '现金流是关键', '这家企业的现金流很好。'),
+    ('林园：核心是公司的现金流', '核心是现金流', '公司的现金流很好。'),
+])
+def test_complete_attributes_and_normal_predicates_remain_allowed(title, cover, source):
+    assert not T.subject_attribute_error(title, cover, source)
+
+
+def test_published_owner_attribute_mismatch_rejects_cached_and_new_candidates():
+    case=json.loads((ROOT/'tests/fixtures/linyuan_published_subject_regression.json').read_text())
+    proof=case['proof']
+    assert all(proof['review'][k] is True for k in T.CHECKS)
+    assert '丢失被评价的对象' in T.error(case['title'],proof,case['transcript'])
+    item=dict(title=case['title'],cover_title=proof['cover'],subject=proof['subject'],evidence=proof['evidence'])
+    assert '丢失被评价的对象' in T._candidate_error(item,case['transcript'],'林园',(),False)
+
+
 @pytest.mark.parametrize('reason',[
     '原文中“需求一直增长”和“产能充足”对应标题，引用完整。',
     '原文说：“需求一直增长”，标题保留了需求变化。',
