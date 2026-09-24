@@ -3767,7 +3767,7 @@ def publish_handler(event=None, context=None):
             return {"published": 0}
         subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
     else:
-        log.info(f"{slug} 使用 Release 逐条下载，未拉取整批 Artifact")
+        log.info(f"{slug} 已取到目标成片及配套文件；具体传输方式见取件日志")
     # 长视频拆多条：检测所有 final*.mp4（final.mp4 / final_1.mp4 ...）
     final_videos = sorted((tmp / slug).glob("final*.mp4"), key=lambda p: p.name)
     if not final_videos:
