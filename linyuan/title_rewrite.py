@@ -452,6 +452,11 @@ def copy_fragment(text):
         return True
     if re.search(r'(?:才|就)是好$',text):
         return True
+    # Production deployment 35946591309: the reviewer approved a cover
+    # ending “未来可能成为” and a title ending “成为龙头的要时间看”.
+    # Neither supplies a complete, naturally ordered clause.
+    if re.search(r'成为$|成为[^，,。；;！？!?]{1,12}的要时间(?:找|看)$',text):
+        return True
     return dangling_tail(text)
 
 

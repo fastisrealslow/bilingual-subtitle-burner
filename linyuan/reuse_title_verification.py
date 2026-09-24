@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 
 TITLE_FILES = (
+    'linyuan/reuse_title_verification.py',
     'linyuan/produce_cn.py', 'linyuan/title_rewrite.py', 'linyuan/title_quantity_context.py',
     'linyuan/speaker_attribution.py',
     'linyuan/caption_readability.py', 'linyuan/headline_policy.py',
@@ -18,6 +19,30 @@ TITLE_FILES = (
     'tests/fixtures/linyuan_0913_landscape_title.json',
 )
 WORKFLOW = '.github/workflows/linyuan-title-claim-check.yml'
+
+
+def validate_candidate_pool(row):
+    """Draft three, but verify the distinct survivors actually sent to review."""
+    from title_rewrite import compact
+    candidates=row.get('title_candidates')
+    if (not isinstance(candidates,list) or not 1<=len(candidates)<=3
+            or any(not isinstance(t,str) or not compact(t) for t in candidates)
+            or len({compact(t) for t in candidates})!=len(candidates)):
+        raise ValueError('CPU candidate pool must contain 1–3 distinct nonempty titles')
+    review=(row.get('title_rewrite') or {}).get('review') or {}
+    index=review.get('index')
+    selection=row.get('editorial_selection') or {}
+    audited=selection.get('candidates') or []
+    if (type(index) is not int or not 0<=index<len(candidates)
+            or candidates[index]!=row.get('title')
+            or selection.get('selected_index')!=index
+            or selection.get('reviewed_count')!=len(candidates)
+            or len(audited)!=len(candidates)
+            or any(not isinstance(c,dict) or c.get('title')!=t
+                   or type(c.get('accepted')) is not bool for c,t in zip(audited,candidates))
+            or audited[index].get('accepted') is not True
+            or selection.get('accepted_count')!=sum(c['accepted'] for c in audited)):
+        raise ValueError('Selected title is not bound to the actual CPU-reviewed candidate pool')
 
 
 def validate_guest_fixture(row,root=Path('.')):
@@ -67,10 +92,10 @@ def validate_results(rows, root=Path('.')):
         source=''.join(c['text'] for c in fixture['cues'])
         proof=row.get('title_rewrite') or {}
         if (row.get('passed') is not True or proof.get('review',{}).get('method')!='cpu_text_review'
-                or len(row.get('title_candidates') or [])!=3
                 or proof.get('source_sha256')!=hashlib.sha256(compact(source).encode()).hexdigest()
                 or error(row.get('title'),proof,source)):
             raise ValueError('CPU result lacks source-bound, validated title evidence')
+        validate_candidate_pool(row)
         if row['fixture']==expected[1] and any(re.search(
                 r'新品.{0,12}(未达预期|不及预期|遇冷|反馈差)',row.get(k,''))
                 for k in ('title','cover_title')):
