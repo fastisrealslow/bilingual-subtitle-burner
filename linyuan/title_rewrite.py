@@ -496,7 +496,7 @@ def cover_qualifier_error(title, cover):
             and re.search(r'不符合.{0,8}标准', compact(cover))
             and not re.search(r'不符合(?:我|我们)(?:自己)?的?(?:投资)?标准', compact(cover))):
         return '封面遗漏个人标准的范围；保留我的标准，或仅写有原文依据的本人选择'
-    conditions = re.findall(r'(?:前提是|前提为|条件是)([^，。；！？,;!?]+)', title)
+    conditions = re.findall(r'(?:前提是|前提为|条件是|只要)([^，。；！？,;!?]+)', title)
     conditions += re.findall(
         r'(?:^|[，,；;])(?:但)?([^，。；！？,;!?]+?)(?:才是|是)前提', title)
     if not conditions:
@@ -505,6 +505,26 @@ def cover_qualifier_error(title, cover):
         r'(?:什么|哪些|怎样的|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)', cover)
     if not asks_condition and any(compact(c) not in compact(cover) for c in conditions):
         return '封面遗漏标题的明确前提；保留完整条件，或改成询问该条件的完整问题，不能直接承诺结果'
+    return None
+
+
+def review_source_quote_error(reason, transcript):
+    """A judge's purported verbatim source quotes must exist in the source.
+
+    Candidate quotes and ordinary paraphrases remain allowed. Only quoted
+    spans explicitly attributed to the original text are checked here.
+    """
+    if not isinstance(reason,str) or not transcript:
+        return None
+    quote = r'[“‘「『"]([^”’」』"\n]{2,160})[”’」』"]'
+    attributed = (r'(?:原文|原话|字幕)(?:中|里)?(?:的|提到|写道|说道|说|是|为)?'
+                  r'\s*[：:]?\s*' + quote +
+                  r'(?:\s*(?:和|、|以及|及|与)\s*' + quote + r')*')
+    source=compact(transcript)
+    for match in re.finditer(attributed,reason):
+        for literal in re.findall(quote,match.group(0)):
+            if compact(literal) not in source:
+                return '复核说明引用了原文中不存在的话：'+literal+'；须重新核对原文，不能用模型自评代替证据'
     return None
 
 
@@ -1382,6 +1402,11 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                 raise ValueError('独立复核编号重复、遗漏或越界，不能据此选稿')
             accepted = []
             for row in reviews:
+                if isinstance(row,dict):
+                    quote_issue=review_source_quote_error(row.get('reason'),transcript)
+                    if quote_issue:
+                        row['source_supported']=False
+                        row['reason']=quote_issue
                 if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)
                         and all(row.get(k) is True for k in CHECKS)
                         and isinstance(row.get('reason'),str) and len(compact(row['reason'])) >= 12
@@ -1489,6 +1514,11 @@ def error(title, proof, transcript=None, speaker='林园'):
             return '标题尚未通过独立原文核验'
         if not isinstance(review.get('reason'),str) or len(compact(review['reason'])) < 12:
             return '标题审核缺少原文依据说明'
+        # A cached proof's selected evidence may omit other real source lines.
+        # Only declare a source quote absent when the full transcript is given.
+        quote_issue=review_source_quote_error(review['reason'], transcript)
+        if quote_issue:
+            return quote_issue
         item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence)
         issue = _candidate_error(item, transcript or ''.join(evidence), speaker, (), check_layout=False)
         if issue:

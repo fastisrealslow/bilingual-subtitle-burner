@@ -56,6 +56,22 @@ def test_old_keyword_title_and_changed_claim_cannot_reuse_review():
     assert T.error(TITLE,proof,'这里只谈医药消费，没有讨论行业配置')
 
 
+def test_positive_judge_with_invented_source_quotes_cannot_select_any_draft(monkeypatch):
+    calls=[];normal=model(calls)
+    def judge(prompt):
+        result=json.loads(normal(prompt))
+        for row in result.get('reviews',[]):
+            row['reason']='原文中“所有行业都稳赚”的表述支持了标题，没有增加新结论'
+        return json.dumps(result,ensure_ascii=False)
+    def no_quote_fallback(*a,**k):
+        raise ValueError('No independent quote fallback in this test')
+    monkeypatch.setattr(T,'_extractive',no_quote_fallback)
+    with pytest.raises(ValueError,match='No independent quote fallback'):
+        T.generate(TEXT,model=judge)
+    assert sum('独立核对' in p for p in calls)==3
+    assert any('原文中不存在' in p for p in calls[2:])
+
+
 def test_candidate_must_carry_complete_evidence_and_no_new_numbers():
     item=proposals()[0]
     assert not T._candidate_error(item,TEXT,'林园',())
