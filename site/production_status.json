@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1790274184,
+  "updated_at": 1790274272,
   "inventory_updated_at": 1790274183,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790274184,
+    "updated_at": 1790274271,
     "records": 6494,
     "video_records": 5398,
-    "initial_candidates": 140,
-    "duration_eligible_records": 93,
-    "candidate_count": 93,
-    "known_duration_candidates": 90,
+    "initial_candidates": 138,
+    "duration_eligible_records": 91,
+    "candidate_count": 91,
+    "known_duration_candidates": 88,
     "unknown_duration_candidates": 3,
     "excluded": {
-      "already_attempted_or_cooling": 858,
+      "already_attempted_or_cooling": 860,
       "no_video": 1096,
       "noise": 121,
       "speaker_unconfirmed": 3103,
@@ -34,22 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5344425140290991",
-        "title": "主持人太会了！现场用AI搜索嘉宾观点，搜出林园认为“投AI风险99.8%”，然后直接让他本人回应。这开场就火花四射，不愧",
-        "source": "weibo_search",
-        "author": "每天学点价值投资",
-        "url": "https://m.weibo.cn/detail/5344425140290991",
-        "duration_sec": 33.0
-      },
-      {
-        "key": "weibo_search:5344977790177839",
-        "title": "投资大佬林园谈银行股，认为其市值全球领先违背常识。他拿房地产类比，说过去的首富榜都被地产商占据，“那能对吗？不倒霉才怪了",
-        "source": "weibo_search",
-        "author": "每天学点价值投资",
-        "url": "https://m.weibo.cn/detail/5344977790177839",
-        "duration_sec": 50.0
       },
       {
         "key": "bilibili_search:BV1Lu4y1W7Yx",
@@ -787,14 +771,13 @@
   },
   "counts": {
     "complete": 79,
-    "failed": 621,
+    "failed": 624,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 4,
     "retry_queued": 2,
-    "running": 4,
-    "interrupted": 3
+    "running": 6
   },
   "tasks": [
     {
@@ -13693,11 +13676,11 @@
     },
     {
       "slug": "ly-0924-daf538",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1790273523,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -13729,11 +13712,11 @@
     },
     {
       "slug": "ly-0924-dcab02",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790273538,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -13747,11 +13730,11 @@
     },
     {
       "slug": "ly-0924-82dfe1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1790274036,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -13762,6 +13745,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36040554234",
       "run_started_at": "2026-09-24T18:20:35Z",
       "run_updated_at": "2026-09-24T18:22:06Z"
+    },
+    {
+      "slug": "ly-0924-2ec8cf",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790274228,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36040929227,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36040929227",
+      "run_started_at": "2026-09-24T18:23:47Z",
+      "run_updated_at": "2026-09-24T18:23:54Z"
+    },
+    {
+      "slug": "ly-0924-dc2995",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790274234,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36040940484,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36040940484",
+      "run_started_at": "2026-09-24T18:23:53Z",
+      "run_updated_at": "2026-09-24T18:23:59Z"
     }
   ],
   "runs": {
@@ -17306,6 +17325,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36039595197",
       "run_number": 1230,
       "display_title": "中文源出片 · ly-0924-dcab02"
+    },
+    "ly-0924-dc2995": {
+      "id": 36040940484,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T18:23:53Z",
+      "updated_at": "2026-09-24T18:23:59Z",
+      "run_started_at": "2026-09-24T18:23:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36040940484",
+      "run_number": 1233,
+      "display_title": "中文源出片 · ly-0924-dc2995"
+    },
+    "ly-0924-2ec8cf": {
+      "id": 36040929227,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T18:23:47Z",
+      "updated_at": "2026-09-24T18:23:54Z",
+      "run_started_at": "2026-09-24T18:23:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36040929227",
+      "run_number": 1232,
+      "display_title": "中文源出片 · ly-0924-2ec8cf"
     },
     "ly-0924-8f3718": {
       "id": 36039582547,
