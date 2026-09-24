@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1790275711,
+  "updated_at": 1790275788,
   "inventory_updated_at": 1790275708,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790275711,
+    "updated_at": 1790275788,
     "records": 6494,
     "video_records": 5398,
-    "initial_candidates": 133,
-    "duration_eligible_records": 86,
-    "candidate_count": 86,
-    "known_duration_candidates": 83,
+    "initial_candidates": 132,
+    "duration_eligible_records": 85,
+    "candidate_count": 85,
+    "known_duration_candidates": 82,
     "unknown_duration_candidates": 3,
     "excluded": {
-      "already_attempted_or_cooling": 865,
+      "already_attempted_or_cooling": 866,
       "no_video": 1096,
       "noise": 121,
       "speaker_unconfirmed": 3103,
@@ -34,22 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1JR4y1v7AQ",
-        "title": "林园2023-2-14最新访谈：我的投资座右铭",
-        "source": "bilibili_search",
-        "author": "老牛实盘",
-        "url": "https://www.bilibili.com/video/BV1JR4y1v7AQ",
-        "duration_sec": 102.0
-      },
-      {
-        "key": "bilibili_search:BV1To4y1k7oK",
-        "title": "林园：用一个指标即可选择印钞机型公司",
-        "source": "bilibili_search",
-        "author": "老牛实盘",
-        "url": "https://www.bilibili.com/video/BV1To4y1k7oK",
-        "duration_sec": 34.0
       },
       {
         "key": "bilibili_search:BV14E421T7qF",
@@ -484,6 +468,14 @@
         "duration_sec": 113.0
       },
       {
+        "key": "bilibili_search:BV1To4y1k7oK",
+        "title": "林园：用一个指标即可选择印钞机型公司",
+        "source": "bilibili_search",
+        "author": "老牛实盘",
+        "url": "https://www.bilibili.com/video/BV1To4y1k7oK",
+        "duration_sec": 34.0
+      },
+      {
         "key": "bilibili_search:BV1QE421V7iE",
         "title": "林园：股的基因 #林园炒股秘籍 #资本市场三十",
         "source": "reference_origin_search",
@@ -731,14 +723,13 @@
   },
   "counts": {
     "complete": 79,
-    "failed": 628,
+    "failed": 629,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 5,
     "retry_queued": 2,
-    "running": 5,
-    "interrupted": 1
+    "running": 6
   },
   "tasks": [
     {
@@ -13799,11 +13790,11 @@
     },
     {
       "slug": "ly-0924-7ccfa4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790275309,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -13832,6 +13823,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36043631196",
       "run_started_at": "2026-09-24T18:46:59Z",
       "run_updated_at": "2026-09-24T18:47:03Z"
+    },
+    {
+      "slug": "ly-0924-f5f8d5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790275750,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36043881196,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36043881196",
+      "run_started_at": "2026-09-24T18:49:10Z",
+      "run_updated_at": "2026-09-24T18:49:14Z"
     }
   ],
   "runs": {
@@ -17442,6 +17451,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36043026515",
       "run_number": 1238,
       "display_title": "中文源出片 · ly-0924-7ccfa4"
+    },
+    "ly-0924-f5f8d5": {
+      "id": 36043881196,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T18:49:10Z",
+      "updated_at": "2026-09-24T18:49:14Z",
+      "run_started_at": "2026-09-24T18:49:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36043881196",
+      "run_number": 1240,
+      "display_title": "中文源出片 · ly-0924-f5f8d5"
     },
     "ly-0924-43864e": {
       "id": 36043631196,
