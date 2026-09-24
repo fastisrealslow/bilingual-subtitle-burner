@@ -12,6 +12,13 @@ import title_rewrite as T
 ROOT=Path(__file__).resolve().parents[1]
 
 
+def test_real_cpu_workflow_inline_python_compiles():
+    import textwrap
+    text=(ROOT/reuse.WORKFLOW).read_text()
+    script=text.split("python -u - <<'PYCODE'\n",1)[1].split('\n        PYCODE',1)[0]
+    compile(textwrap.dedent(script),reuse.WORKFLOW,'exec')
+
+
 def single_candidate_audit(package):
     package['title_candidates']=[package['title']]
     package['title_rewrite']['review']['index']=0
