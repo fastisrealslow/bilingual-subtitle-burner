@@ -1977,6 +1977,8 @@ def production_config():
             "presentation_versions": [1, 2], "quality_gate_version": QUALITY_GATE_VERSION,
             "production_rules_version": PRODUCTION_RULES_VERSION,
             "editorial_policy_version": editorial.VERSION, "minimum_final_seconds": editorial.MIN_SECONDS,
+            "content_policy": editorial.CONTENT_POLICY,
+            "duration_policy_version": editorial.DURATION_POLICY_VERSION,
             "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
             "dispatch_workflow_ref": "main", "publish_hours_beijing": sorted(PUBLISH_HOURS)}
 
