@@ -29,7 +29,7 @@ def packaged_health(tmp_path_factory):
            if k not in ('PYTHONPATH', 'LINYUAN_CONTENT_POLICY', 'GITHUB_TOKEN', 'BILIBILI_COOKIES')}
     script = '''import sys,json
 sys.path.insert(0,sys.argv[1])
-import index,title_rewrite,headline_policy,stage_context,source_geometry,live_motion
+import index,title_rewrite,headline_policy,stage_context,source_geometry,live_motion,artifact_range
 def forbidden(*a,**k): raise AssertionError('health check must be read-only and local')
 for name in ('gh','load_state','flush_logs','log_event','source_inventory','pick'):
     setattr(index,name,forbidden)

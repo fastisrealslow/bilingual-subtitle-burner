@@ -483,6 +483,7 @@ def test_mother_cache_restores_external_alignment_as_raw_evidence(tmp_path):
 
 
 def test_sparse_artifact_part_download_preserves_required_ass(tmp_path,monkeypatch):
+    monkeypatch.setattr(fc,'download_inventory_range_part',lambda *a:False)
     meta=[dict(final='final_3.mp4',cover='cover_3.jpg',subtitle_files=['subtitles_3.ass'])]
     def download(aid,path,**kw):
         assert aid==77
