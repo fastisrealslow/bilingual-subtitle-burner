@@ -214,8 +214,9 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/.ollama/models
-        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' &&
-          'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' || env.RUN_TEXT_MODEL == 'qwen3:8b'
+          && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1'
+          }}
     - name: 缓存已校验的 Ollama 安装包
       uses: actions/cache@v4
       continue-on-error: true
@@ -236,7 +237,7 @@ jobs:
         \ \"$archive\"\nfi\nsudo tar --zstd -xf \"$archive\" -C /usr\nOLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h\
         \ OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \\\n  ollama serve > /tmp/ollama.log 2>&1 &\nfor _ in\
         \ $(seq 1 30); do\n  curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break\n  sleep 1\ndone\ncurl\
-        \ -fsS http://127.0.0.1:11434/api/tags >/dev/null\ncase \"$RUN_TEXT_MODEL\" in\n  qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b)\
+        \ -fsS http://127.0.0.1:11434/api/tags >/dev/null\ncase \"$RUN_TEXT_MODEL\" in\n  qwen3:4b|qwen3:4b-instruct-2507-q4_K_M|qwen3:8b|qwen3.5:9b)\
         \ ;;\n  *) echo '只允许已列明的CPU离线模型' >&2; exit 1 ;;\nesac\nollama pull \"$RUN_TEXT_MODEL\"\nollama show \"$RUN_TEXT_MODEL\"\
         \ >/dev/null\n# Pulling only downloads weights.  Warm them into RAM before the\n# bounded CPU review budget\
         \ begins.\npython -c 'import json,os; print(json.dumps(dict(model=os.environ[\"RUN_TEXT_MODEL\"],messages=[dict(role=\"\
@@ -250,8 +251,9 @@ jobs:
       uses: actions/cache/save@v4
       with:
         path: ~/.ollama/models
-        key: ${{ env.RUN_TEXT_MODEL == 'qwen3:8b' && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' &&
-          'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1' }}
+        key: ${{ env.RUN_TEXT_MODEL == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' || env.RUN_TEXT_MODEL == 'qwen3:8b'
+          && 'ollama-qwen3-8b-v1' || env.RUN_TEXT_MODEL == 'qwen3:4b' && 'ollama-qwen3-4b-v1' || 'ollama-qwen3-4b-instruct-2507-q4-v1'
+          }}
     - name: 出片
       id: render
       env:

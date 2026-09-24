@@ -93,3 +93,47 @@ def test_automatic_source_ranking_is_not_a_manual_editorial_override(monkeypatch
         [dict(start=0,end=0,editorial_rank=0,selection_method='source_complete_answer_v1')],
         '林园','',tmp_path,'')
     assert calls and result['automatic_only'] is True and result['complete_argument'] is True
+
+
+@pytest.mark.parametrize('model,profile',[
+    ('qwen3:8b','production'),('qwen3.5:9b','answer_subject')])
+def test_preview_supports_bounded_model_and_automatic_profile(model,profile):
+    result=script('linyuan_preview_request').parse(dict(source='https://example.com/video',
+        local_text_model=model,draft_profile=profile))
+    assert result['RUN_TEXT_MODEL']==model
+    assert result['LINYUAN_TITLE_DRAFT_PROFILE']==profile
+
+
+@pytest.mark.parametrize('field,value',[
+    ('local_text_model','unlisted-model'),('draft_profile','manual-answer'),
+    ('local_text_model','qwen3.5:9b\nRUN_REVIEWED_PARTS=1')])
+def test_preview_rejects_unbounded_model_or_profile(field,value):
+    with pytest.raises(ValueError):
+        script('linyuan_preview_request').parse({'source':'https://example.com/video',field:value})
+
+
+def test_automatic_boundary_rejects_old_model_approval_before_model_or_cache(monkeypatch,tmp_path):
+    monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
+    cues=json.loads((ROOT/'tests/fixtures/linyuan_automatic_topic_tail.json').read_text())['cues']
+    monkeypatch.setattr(p,'llm',lambda *a,**k:pytest.fail('structural failure reached model'))
+    with pytest.raises(p.VisualQualityError,match='换题'):
+        p.review_complete_argument(cues,[dict(start=0,end=len(cues)-1)],'林园','',tmp_path,'')
+    assert not (tmp_path/'editorial_review.json').exists()
+
+
+def test_automatic_claim_cannot_use_interviewer_question(monkeypatch,tmp_path):
+    monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
+    question='您对医药行业怎么看？'
+    answer='医药需求长期存在，因为人会衰老，所以我们长期关注。'
+    cues=[dict(start=0,end=10,text=question),dict(start=10,end=140,text=answer)]
+    analysis=dict(claim_quote=question,reasoning_quote=answer,conclusion_quote=answer,
+        opening_quote=question,ending_quote=answer,summary='医药需求',
+        completeness_reason='保留观点与理由',audio_issues=[])
+    verdict=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+        natural_ending=True,requires_audio_review=False)
+    monkeypatch.setattr(p,'llm',lambda *a,**k:json.dumps(dict(analysis=analysis,verdict=verdict)))
+    with pytest.raises(p.EditorialReviewUnavailable,match='采访者提问'):
+        p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')
+    assert not (tmp_path/'editorial_review.json').exists()
+    analysis['claim_quote']=answer
+    assert p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')['complete_argument'] is True

@@ -1787,6 +1787,11 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                    'editorial_prefer_exact_quote','editorial_source_sha256','stock_original_mode'}
     if automatic_only() and any(manual_fields.intersection(p) for p in picks):
         raise VisualQualityError('Automatic production cannot use per-source editorial overrides')
+    if automatic_only():
+        from source_selection import boundary_error
+        for pick in picks:
+            issue=boundary_error(cues,pick)
+            if issue:raise VisualQualityError(issue)
     omitted_text=None
     if len(picks)==1:
         editorial.range_seconds(cues,picks[0])
@@ -1810,7 +1815,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==6
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==7
                     and (not automatic_only() or saved.get('automatic_only') is True)
                     and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
@@ -1861,6 +1866,10 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '所有quote必须逐字取自原话。opening_quote从第一个字开始，ending_quote覆盖最后一个字，'
         '各不超过100字。audio_issues每项将quote和影响原意的reason配对；没有则为空数组。'
         '每个判定须与摘录的证据一致；缺什么写具体，不要凭空提出片内未问的新问题。\n原话：'+text)
+    prompt+=('\n特别核对：claim_quote必须是嘉宾的实际判断，不能拿主持人的提问作为观点证据。'
+        'conclusion_quote必须收束已回答的话题，宣布接下来聊另一话题不属于本段结论。'
+        '不要因为句子出现在字幕里，就认为其中的公司名、专有名词或搭配一定识别正确；'
+        '若实体或关键断言明显不自然、存在影响理解的同音疑点，应逐字列入audio_issues，不能猜改成正确答案。')
     # Whole-sentence evidence prevents a display row ending mid-sentence from
     # becoming a spurious "missing object". Evidence and verdict are separate
     # objects because Ollama's grammar orders property names alphabetically.
@@ -1929,6 +1938,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 # A positive decision needs actual source support, not just flags.
                 if proof.get('complete_argument') is True and not analysis['claim_quote']:
                     raise ValueError('完整观点通过却没有原文观点证据')
+                from source_selection import question_unit
+                if proof.get('complete_argument') is True and question_unit(analysis['claim_quote']):
+                    raise ValueError('观点证据包含采访者提问；须摘录嘉宾本人的独立陈述')
                 if proof.get('reasoning_present') is True and not analysis['reasoning_quote']:
                     raise ValueError('理由通过却没有原文理由证据')
             for name in ('opening_quote','ending_quote'):
@@ -1951,7 +1963,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=6,review_model=LOCAL_LLM_MODEL)
+                 review_prompt_version=7,review_model=LOCAL_LLM_MODEL)
     if automatic_only():proof['automatic_only']=True
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
