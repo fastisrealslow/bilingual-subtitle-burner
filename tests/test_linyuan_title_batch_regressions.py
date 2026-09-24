@@ -6,6 +6,32 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 import headline_policy as H
 import title_rewrite as T
 
+@pytest.mark.parametrize('copy',[
+    '龙头尚未形成，未来可能成为',
+    '林园：现在没龙头，未来可能成为龙头的要时间看',
+    '林园：现在还没龙头，未来可能成为龙头的要时间找',
+])
+def test_actual_deployment_copy_cannot_pass_as_complete(copy):
+    assert T.copy_fragment(copy)
+
+
+@pytest.mark.parametrize('copy',[
+    '林园：龙头尚未形成，要花时间找',
+    '未来可能成为龙头的公司',
+    '林园：现在没龙头，未来谁能成为龙头要时间看',
+])
+def test_complete_future_leader_clauses_are_not_rejected(copy):
+    assert not T.copy_fragment(copy)
+
+
+def test_incomplete_cover_is_repaired_before_independent_review():
+    units=['你去买一些就是没有龙头的东西大家看不清楚',
+           '才能找到我们以后所说的真正的龙头']
+    item=dict(title='林园：龙头尚未形成，要花时间找',cover_title='龙头尚未形成，未来可能成为')
+    bound=T.bind_candidate(item,dict(evidence_ids=[0,1]),units,T.subject_catalog(units))
+    assert bound['cover_title']=='龙头尚未形成，要花时间找'
+    assert not T.copy_fragment(bound['cover_title'])
+
 @pytest.mark.parametrize('title',[
     '林园：是应该是也有规则，人家告诉你',
     '林园：你首先买买的，我用我的价值观，我觉得这个有风险',

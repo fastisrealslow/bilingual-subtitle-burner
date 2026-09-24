@@ -12,6 +12,14 @@ import title_rewrite as T
 ROOT=Path(__file__).resolve().parents[1]
 
 
+def single_candidate_audit(package):
+    package['title_candidates']=[package['title']]
+    package['title_rewrite']['review']['index']=0
+    package['editorial_selection']=dict(selected_index=0,reviewed_count=1,accepted_count=1,
+        candidates=[dict(title=package['title'],accepted=True)])
+    return package
+
+
 def fixture_rows():
     rows=[]
     specs=[('linyuan_0913_title.json','龙头','林园：龙头未定，先配置可能成为龙头的公司','龙头未定，如何配置公司'),
@@ -24,7 +32,7 @@ def fixture_rows():
         package=T._package(item,source,dict(method='cpu_text_review',appeal=4,
             reason='单元测试构造的审核证明，用于检验精确来源绑定和不可篡改规则',
             **{k:True for k in T.CHECKS}),[item,item,item])
-        rows.append(dict(fixture=fixture,passed=True,**package))
+        rows.append(dict(fixture=fixture,passed=True,**single_candidate_audit(package)))
     return rows
 
 
@@ -39,6 +47,29 @@ def test_only_matching_complete_source_bound_cpu_results_are_reusable():
         with pytest.raises(ValueError):reuse.validate_results(changed,ROOT)
 
 
+@pytest.mark.parametrize('count',[1,2,3])
+def test_filtered_cpu_pool_keeps_review_and_selected_title_binding(count):
+    rows=fixture_rows();row=rows[0]
+    for i in range(1,count):
+        title=f'林园：第{i}个单元测试候选'
+        row['title_candidates'].append(title)
+        row['editorial_selection']['candidates'].append(dict(title=title,accepted=False))
+    row['editorial_selection']['reviewed_count']=count
+    reuse.validate_results(rows,ROOT)
+    mutations=[lambda r:r.update(title_candidates=[]),
+        lambda r:r['title_candidates'].append(r['title']),
+        lambda r:r['title_rewrite']['review'].update(index=99),
+        lambda r:r['title_rewrite']['review'].update(index=True),
+        lambda r:r['editorial_selection'].update(selected_index=99),
+        lambda r:r['editorial_selection'].update(reviewed_count=99),
+        lambda r:r['editorial_selection'].update(accepted_count=99),
+        lambda r:r['editorial_selection']['candidates'][0].update(accepted=False),
+        lambda r:r['editorial_selection']['candidates'][0].update(title='篡改后的候选')]
+    for mutate in mutations:
+        changed=deepcopy(rows);mutate(changed[0])
+        with pytest.raises(ValueError):reuse.validate_results(changed,ROOT)
+
+
 def test_actual_known_host_hypothesis_is_rejected_even_with_true_cpu_flags():
     rows=fixture_rows();row=rows[1]
     source=''.join(c['text'] for c in json.loads((ROOT/'tests/fixtures'/row['fixture']).read_text())['cues'])
@@ -47,7 +78,7 @@ def test_actual_known_host_hypothesis_is_rejected_even_with_true_cpu_flags():
     package=T._package(item,source,dict(method='cpu_text_review',appeal=5,
         reason='这是旧真实模型曾错误通过的主持人假设，不能作为嘉宾结论',
         **{k:True for k in T.CHECKS}),[item,item,item])
-    rows[1]={**row,**package}
+    rows[1]={**row,**single_candidate_audit(package)}
     with pytest.raises(ValueError,match='host hypothesis'):reuse.validate_results(rows,ROOT)
 
 
