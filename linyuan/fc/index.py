@@ -897,9 +897,34 @@ def download_release_part(slug, part_index, dest_dir):
         return False
 
 
+def download_inventory_range_part(artifact_id, part_index, dest_dir):
+    """Fetch only the selected immutable ZIP members; retain normal gates."""
+    import requests
+    from artifact_range import extract_part
+    try:
+        redirect=requests.get(API+f'/actions/artifacts/{int(artifact_id)}/zip',
+            params={'_':str(time.time_ns())},headers={'Authorization':f'Bearer {TOKEN}'},
+            allow_redirects=False,timeout=(10,20))
+        location=redirect.headers.get('Location','')
+        if redirect.status_code!=302 or not location.startswith('https://'):
+            return False
+        result=extract_part(location,part_index,dest_dir,timeout_sec=480)
+        log_event('download_part_ok','按实际所需文件取件',json.dumps(dict(artifact_id=artifact_id,**result)))
+        flush_logs()
+        return True
+    except Exception as exc:
+        # Signed URLs and auth-bearing request exceptions must not enter logs.
+        log.warning('Selected artifact ranges unavailable: %s',type(exc).__name__)
+        return False
+
+
 def download_inventory_part(artifact_id, part_index, dest_dir):
     """Use the inspected artifact's own metadata and actual ASS, with a deadline."""
     dest_dir=Path(dest_dir)
+    started=time.monotonic()
+    if download_inventory_range_part(artifact_id,part_index,dest_dir):
+        return True
+    fallback_attempts=max(1,6-int((time.monotonic()-started)//120))
     # Invocation temp directories are deleted after a transient failure. Keep
     # only the exact artifact checkpoint outside them, and bound disk retention.
     cache=Path(tempfile.gettempdir())/'linyuan-artifact-cache'
@@ -913,9 +938,10 @@ def download_inventory_part(artifact_id, part_index, dest_dir):
             path.with_suffix('.artifact-id').unlink(missing_ok=True)
     completed=False
     try:
-        # The 14:00 bundle exceeded the former 2x120s allowance while making
-        # steady progress. Six resumable slices remain bounded to 12 minutes.
-        download_reviewed_zip(artifact_id,archive_path,attempts=6,preserve_partial=True)
+        # Share the existing transfer budget with the selected-member attempt;
+        # an unsupported range falls back quickly, a slow range leaves fewer
+        # whole-bundle slices. Keep its immutable checkpoint for later retries.
+        download_reviewed_zip(artifact_id,archive_path,attempts=fallback_attempts,preserve_partial=True)
         completed=True
         with zipfile.ZipFile(archive_path) as archive:
             payload=json.loads(archive.read('meta.json'))
@@ -3741,7 +3767,7 @@ def publish_handler(event=None, context=None):
             return {"published": 0}
         subprocess.run(["unzip", "-oq", str(zf), "-d", str(tmp / slug)], check=True)
     else:
-        log.info(f"{slug} 使用 Release 逐条下载，未拉取整批 Artifact")
+        log.info(f"{slug} 已取到目标成片及配套文件；具体传输方式见取件日志")
     # 长视频拆多条：检测所有 final*.mp4（final.mp4 / final_1.mp4 ...）
     final_videos = sorted((tmp / slug).glob("final*.mp4"), key=lambda p: p.name)
     if not final_videos:
