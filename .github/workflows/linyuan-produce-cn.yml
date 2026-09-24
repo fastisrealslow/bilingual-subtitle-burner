@@ -104,7 +104,10 @@ env:
   RUN_SPEAKER: ${{ inputs.speaker || '林园' }}
   RUN_OCCASION: ${{ inputs.occasion || '2025年11月2日林园演讲，CPU离线端到端验收' }}
   RUN_SOURCE_PLATFORM: ${{ inputs.source_platform || 'bilibili' }}
-  RUN_REVIEWED_PARTS: ${{ github.event_name == 'push' && '1' || inputs.reviewed_parts }}
+  RUN_REVIEWED_PARTS: ${{ inputs.reviewed_parts }}
+  # Normal production must generate its own decisions. Explicit historical
+  # repair inputs retain their legacy path and never count as automatic proof.
+  LINYUAN_AUTOMATIC_ONLY: ${{ inputs.reviewed_parts == '' && (inputs.target_parts == '' || inputs.target_parts == '0') && 'true' || 'false' }}
 
 permissions:
   contents: write
