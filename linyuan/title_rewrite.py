@@ -18,6 +18,7 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 “我要赚够一万倍”是本人目标，不能改写为公司“能赚到一万倍”；标题和封面各自保留目标或意愿，不把愿望当已经验证的回报。
 “十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
 标题和封面须各自说清对象，不写未解释的“这个点、此点、这三种病”。原文没有点位数值就不补数值，可改写为原文明确的预测边界。
+压缩时保留真正被评价的对象：“某公司的现金流很好”评价的是现金流，不能写成“某公司是很好的现金流”；不能把对象的属性变成对象本身。
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 时间概率必须说明什么事件可能发生，不能仅删除不明点位，留下“十二个月可能性大”。
 “不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。
@@ -516,7 +517,7 @@ def review_source_quote_error(reason, transcript):
     """
     if not isinstance(reason,str) or not transcript:
         return None
-    quote = r'[“‘「『"]([^”’」』"\n]{2,160})[”’」』"]'
+    quote = r'''[“‘「『"']([^”’」』"'\n]{2,160})[”’」』"']'''
     attributed = (r'(?:原文|原话|字幕)(?:中|里)?(?:的|提到|写道|说道|说|是|为)?'
                   r'\s*[：:]?\s*' + quote +
                   r'(?:\s*(?:和|、|以及|及|与)\s*' + quote + r')*')
@@ -525,6 +526,27 @@ def review_source_quote_error(reason, transcript):
         for literal in re.findall(quote,match.group(0)):
             if compact(literal) not in source:
                 return '复核说明引用了原文中不存在的话：'+literal+'；须重新核对原文，不能用模型自评代替证据'
+    return None
+
+
+def subject_attribute_error(title, cover, transcript):
+    """Keep the source's evaluated attribute when compressing a noun phrase.
+
+    Ground this narrow identity check in an explicit X的Y source phrase.
+    It is not a list of countries, companies, or individual bad titles.
+    """
+    attributes = r'经济|现金流|利润|收入|负债|股价|估值|业绩|需求|竞争力|增长率|股息率|价格|质量'
+    source = compact(transcript)
+    for copy in (title, cover):
+        clauses = re.split(r'[：:，,。；;！？!?]', str(copy or ''))
+        for clause in clauses:
+            match = re.fullmatch(rf'(.{{2,16}}?)是.{{0,18}}?({attributes})', clause.strip())
+            if not match:
+                continue
+            owner, attribute = match.groups()
+            if compact(owner + '的' + attribute) in source:
+                return ('标题或封面压缩时丢失被评价的对象：原文讨论的是'
+                        + owner + '的' + attribute + '，不能把' + owner + '本身写成' + attribute)
     return None
 
 
@@ -937,6 +959,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return '封面仍是主题目录；要写出这个片段的具体判断或完整问题'
     if copy_fragment(title) or copy_fragment(cover):
         return '标题或封面截成残句；补全宾语和判断，不能停在真正的、成为龙头的等半句话'
+    attribute_issue = subject_attribute_error(title, cover, transcript)
+    if attribute_issue:
+        return attribute_issue
     qualifier_issue = cover_qualifier_error(title, cover)
     if qualifier_issue:
         return qualifier_issue
@@ -1088,7 +1113,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         cover = cover_copy(title, quote, speaker)
         if cover.get('reason') == 'needs_editorial_copy':
             continue
-        if (copy_fragment(cover['text']) or research_scope_error(title, cover['text'], transcript)
+        if (copy_fragment(cover['text']) or subject_attribute_error(title, cover['text'], transcript)
+                or research_scope_error(title, cover['text'], transcript)
                 or reported_claim_error(title,cover['text'],transcript)):
             continue
         if cover_qualifier_error(title, cover['text']):
@@ -1359,6 +1385,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             judge = f'''独立核对这些视频标题与完整字幕，只评价下方实际候选的标题和封面，不重做选段或字幕审核。
 先完成a_analysis：a_guest_answer只概括嘉宾实际回答，b_question_premise列出主持人的问题前提；
 然后c_reason引用本候选实际出现的短语，与原文中对应的嘉宾回答比较。最后才填b_verdict中的各个判定。
+标为“原文”“原话”“字幕”的引号内容必须逐字复制实际字幕，不能把自己的概括放进原文引号；概括须明确写为概括。
 不得指出候选没有写过的词，不能空填全部true。原文出现某个词不能证明是嘉宾的观点，主持人长段提问中的假设也不算嘉宾确认。
 区分主持人提问中的猜测和嘉宾明确给出的回答，标题不能把前者归为嘉宾观点。
 不合格时说明原文实际的做法或判断，再指出标题偏差，供下一轮修正中心观点和措辞。
@@ -1488,6 +1515,7 @@ def error(title, proof, transcript=None, speaker='林园'):
     if range_issue:
         return range_issue
     for issue in (forecast_copy_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  subject_attribute_error(title, proof['cover'], transcript or ''.join(evidence)),
                   unresolved_subject_error(title, proof['cover']),
                   product_contrast_error(title, proof['cover'], transcript or ''.join(evidence)),
                   research_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
