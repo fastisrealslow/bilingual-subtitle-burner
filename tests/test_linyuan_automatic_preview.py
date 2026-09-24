@@ -30,6 +30,8 @@ def test_preview_matches_production_steps_and_has_no_publication_capability():
     for forbidden in ('ALIYUN_', 'fc/', 'workflow run', 'action-gh-release', 'publish_bilibili'):
         assert forbidden not in text
     steps=doc['jobs']['preview']['steps']
+    preflight=next(s for s in steps if s.get('name','').startswith('CPU离线ASR'))
+    assert preflight['env']['LINYUAN_TITLE_DRAFT_PROFILE']=='production'
     render=next(s for s in steps if s.get('id')=='render')
     assert '--max-outputs "$RUN_MAX_OUTPUTS"' in render['run']
     assert '\n+' not in render['run']
