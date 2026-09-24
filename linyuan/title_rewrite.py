@@ -671,6 +671,27 @@ def hypothetical_exclusivity_error(title, cover, transcript):
     return None
 
 
+def example_duration_error(title, cover, transcript):
+    """An explicitly illustrative waiting period is not a definite deadline."""
+    from title_quantity_context import number
+    duration = r'([0-9零〇一二两三四五六七八九十百千万]+)(个?月|年|天)'
+    examples = re.findall(r'(?:比如|例如|比方)(?:说)?[，,\s]*(?:通过|经过|等待|等|花|用|需要)' + duration, transcript)
+    illustrated = {(number(n), unit.removeprefix('个')) for n, unit in examples if number(n) is not None}
+    if not illustrated:
+        return None
+    realized = re.findall(r'(?:实际|确实|已经|最终|当时)(?:等了|花了|用了|经历了)' + duration, transcript)
+    illustrated -= {(number(n), unit.removeprefix('个')) for n, unit in realized}
+    for copy in (title, cover):
+        for clause in re.split(r'[。！？!?；;]', str(copy or '')):
+            if re.search(r'比如|例如|比方|举例|假设', clause):
+                continue
+            if not re.search(r'要|需要|得|等|才|年后|月后|天后', clause):
+                continue
+            if any((number(n), unit.removeprefix('个')) in illustrated for n, unit in re.findall(duration, clause)):
+                return '原文期限只是举例，标题和封面不能写成确定等待期限；保留举例语气，或不用这个具体数字'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -678,6 +699,9 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    example_issue = example_duration_error(title, cover, transcript)
+    if example_issue:
+        return example_issue
     impression_issue = impression_error(title, cover, transcript)
     if impression_issue:
         return impression_issue
