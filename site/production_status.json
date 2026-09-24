@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790284485,
+  "updated_at": 1790284587,
   "inventory_updated_at": 1790284481,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790284485,
+    "updated_at": 1790284586,
     "records": 6533,
     "video_records": 5434,
-    "initial_candidates": 109,
-    "duration_eligible_records": 61,
-    "candidate_count": 61,
-    "known_duration_candidates": 58,
+    "initial_candidates": 107,
+    "duration_eligible_records": 59,
+    "candidate_count": 59,
+    "known_duration_candidates": 56,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1099,
-      "already_attempted_or_cooling": 898,
+      "already_attempted_or_cooling": 900,
       "speaker_unconfirmed": 3131,
       "clip_title": 1016,
       "noise": 120,
@@ -66,22 +66,6 @@
         "author": "网易视频",
         "url": "https://www.163.com/v/video/VY6BU9OPQ.html",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1wGYYzFEnC",
-        "title": "林园：现在买白酒套牢20年准备",
-        "source": "reference_origin_search",
-        "author": "尧的投研",
-        "url": "https://www.bilibili.com/video/BV1wGYYzFEnC",
-        "duration_sec": 72.0
-      },
-      {
-        "key": "bilibili_search:BV1yNCYBgEdS",
-        "title": "专家德龙对话股神林园：创新药看不看好投资机会？",
-        "source": "reference_origin_search",
-        "author": "尧的投研",
-        "url": "https://www.bilibili.com/video/BV1yNCYBgEdS",
-        "duration_sec": 94.0
       },
       {
         "key": "bilibili_search:BV1M5411p7Zw",
@@ -531,15 +515,16 @@
   },
   "counts": {
     "complete": 79,
-    "failed": 655,
+    "failed": 656,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 8,
     "retry_queued": 1,
-    "interrupted": 2,
+    "interrupted": 3,
     "excluded": 2,
-    "running": 5
+    "running": 4,
+    "awaiting_validation": 1
   },
   "tasks": [
     {
@@ -14050,8 +14035,8 @@
     },
     {
       "slug": "ly-0924-5d4436",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "awaiting_validation",
+      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
       "signature": {
         "ts": 1790281800,
         "failed": null,
@@ -14064,7 +14049,7 @@
       "run_id": 36055269085,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36055269085",
       "run_started_at": "2026-09-24T20:30:00Z",
-      "run_updated_at": "2026-09-24T20:30:05Z"
+      "run_updated_at": "2026-09-24T21:15:17Z"
     },
     {
       "slug": "ly-0924-91a33b",
@@ -14158,11 +14143,11 @@
     },
     {
       "slug": "ly-0924-739b3b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/121，总帧数602；身份匹配但人脸短边不足96px的帧数121",
       "signature": {
         "ts": 1790283987,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14176,8 +14161,8 @@
     },
     {
       "slug": "ly-0924-9c85e6",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1790283994,
         "failed": null,
@@ -14190,12 +14175,12 @@
       "run_id": 36059319667,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059319667",
       "run_started_at": "2026-09-24T21:06:34Z",
-      "run_updated_at": "2026-09-24T21:06:44Z"
+      "run_updated_at": "2026-09-24T21:15:48Z"
     },
     {
       "slug": "ly-0924-24a6aa",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1790284127,
         "failed": null,
@@ -14208,7 +14193,43 @@
       "run_id": 36059559966,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059559966",
       "run_started_at": "2026-09-24T21:08:47Z",
-      "run_updated_at": "2026-09-24T21:08:51Z"
+      "run_updated_at": "2026-09-24T21:15:31Z"
+    },
+    {
+      "slug": "ly-0924-d026eb",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790284538,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36060308922,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36060308922",
+      "run_started_at": "2026-09-24T21:15:38Z",
+      "run_updated_at": "2026-09-24T21:15:43Z"
+    },
+    {
+      "slug": "ly-0924-ec1cd1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790284545,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36060321706,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36060321706",
+      "run_started_at": "2026-09-24T21:15:45Z",
+      "run_updated_at": "2026-09-24T21:15:53Z"
     }
   ],
   "runs": {
@@ -18161,28 +18182,6 @@
       "run_number": 1267,
       "display_title": "中文源出片 · ly-0924-674699"
     },
-    "ly-0924-24a6aa": {
-      "id": 36059559966,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-09-24T21:08:47Z",
-      "updated_at": "2026-09-24T21:08:51Z",
-      "run_started_at": "2026-09-24T21:08:47Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059559966",
-      "run_number": 1278,
-      "display_title": "中文源出片 · ly-0924-24a6aa"
-    },
-    "ly-0924-9c85e6": {
-      "id": 36059319667,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-09-24T21:06:34Z",
-      "updated_at": "2026-09-24T21:06:44Z",
-      "run_started_at": "2026-09-24T21:06:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059319667",
-      "run_number": 1277,
-      "display_title": "中文源出片 · ly-0924-9c85e6"
-    },
     "ly-0924-739b3b": {
       "id": 36059306801,
       "status": "completed",
@@ -18193,6 +18192,50 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059306801",
       "run_number": 1276,
       "display_title": "中文源出片 · ly-0924-739b3b"
+    },
+    "ly-0924-ec1cd1": {
+      "id": 36060321706,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T21:15:45Z",
+      "updated_at": "2026-09-24T21:15:53Z",
+      "run_started_at": "2026-09-24T21:15:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36060321706",
+      "run_number": 1280,
+      "display_title": "中文源出片 · ly-0924-ec1cd1"
+    },
+    "ly-0924-d026eb": {
+      "id": 36060308922,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T21:15:38Z",
+      "updated_at": "2026-09-24T21:15:43Z",
+      "run_started_at": "2026-09-24T21:15:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36060308922",
+      "run_number": 1279,
+      "display_title": "中文源出片 · ly-0924-d026eb"
+    },
+    "ly-0924-24a6aa": {
+      "id": 36059559966,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-24T21:08:47Z",
+      "updated_at": "2026-09-24T21:15:31Z",
+      "run_started_at": "2026-09-24T21:08:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059559966",
+      "run_number": 1278,
+      "display_title": "中文源出片 · ly-0924-24a6aa"
+    },
+    "ly-0924-9c85e6": {
+      "id": 36059319667,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-24T21:06:34Z",
+      "updated_at": "2026-09-24T21:15:48Z",
+      "run_started_at": "2026-09-24T21:06:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36059319667",
+      "run_number": 1277,
+      "display_title": "中文源出片 · ly-0924-9c85e6"
     },
     "ly-0924-ee6dbd": {
       "id": 36057990677,
@@ -18207,10 +18250,10 @@
     },
     "ly-0924-5d4436": {
       "id": 36055269085,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-09-24T20:30:00Z",
-      "updated_at": "2026-09-24T20:30:05Z",
+      "updated_at": "2026-09-24T21:15:17Z",
       "run_started_at": "2026-09-24T20:30:00Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36055269085",
       "run_number": 1270,
