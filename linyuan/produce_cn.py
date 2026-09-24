@@ -6260,4 +6260,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # Direct CLI production follows the same default as scheduled production.
+    # Legacy per-source repairs require an explicit opt-out.
+    os.environ.setdefault("LINYUAN_AUTOMATIC_ONLY", "true")
     sys.exit(main())

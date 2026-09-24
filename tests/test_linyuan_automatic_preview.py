@@ -139,3 +139,13 @@ def test_automatic_claim_cannot_use_interviewer_question(monkeypatch,tmp_path):
     assert not (tmp_path/'editorial_review.json').exists()
     analysis['claim_quote']=answer
     assert p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')['complete_argument'] is True
+
+
+def test_direct_cli_defaults_to_automatic_without_workflow_environment():
+    import os
+    env=dict(os.environ);env.pop('LINYUAN_AUTOMATIC_ONLY',None)
+    result=subprocess.run([sys.executable,str(ROOT/'linyuan/produce_cn.py'),
+        '--source','missing.mp4','--slug','cli-test','--target-parts','1'],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode!=0
+    assert 'Automatic mode cannot use reviewed ranges or fixed editorial structures' in result.stderr
