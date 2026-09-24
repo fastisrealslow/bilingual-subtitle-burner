@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790280754,
+  "updated_at": 1790280844,
   "inventory_updated_at": 1790280752,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790280754,
+    "updated_at": 1790280844,
     "records": 6533,
     "video_records": 5434,
-    "initial_candidates": 117,
-    "duration_eligible_records": 69,
-    "candidate_count": 69,
-    "known_duration_candidates": 66,
+    "initial_candidates": 116,
+    "duration_eligible_records": 68,
+    "candidate_count": 68,
+    "known_duration_candidates": 65,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1099,
-      "already_attempted_or_cooling": 890,
+      "already_attempted_or_cooling": 891,
       "speaker_unconfirmed": 3131,
       "clip_title": 1016,
       "noise": 120,
@@ -27,14 +27,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1gN411V7cC",
-        "title": "林园访谈基金年会",
-        "source": "bilibili_search",
-        "author": "小李13123",
-        "url": "https://www.bilibili.com/video/BV1gN411V7cC",
-        "duration_sec": 901.0
-      },
       {
         "key": "bilibili_search:BV1JVzbByE3C",
         "title": "林园经典采访-2017.11.10-CCTV-2投资者说（完整版）",
@@ -600,10 +592,10 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 7,
-    "retry_queued": 2,
-    "interrupted": 2,
+    "retry_queued": 3,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14096,14 +14088,14 @@
     },
     {
       "slug": "ly-0924-f8d884",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1790280208,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1790282575,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -14129,6 +14121,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36053115004",
       "run_started_at": "2026-09-24T20:10:50Z",
       "run_updated_at": "2026-09-24T20:10:55Z"
+    },
+    {
+      "slug": "ly-0924-3900a8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790280805,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36053402996,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36053402996",
+      "run_started_at": "2026-09-24T20:13:25Z",
+      "run_updated_at": "2026-09-24T20:13:30Z"
     }
   ],
   "runs": {
@@ -18003,6 +18013,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36052290473",
       "run_number": 1266,
       "display_title": "中文源出片 · ly-0924-f8d884"
+    },
+    "ly-0924-3900a8": {
+      "id": 36053402996,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T20:13:25Z",
+      "updated_at": "2026-09-24T20:13:30Z",
+      "run_started_at": "2026-09-24T20:13:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36053402996",
+      "run_number": 1268,
+      "display_title": "中文源出片 · ly-0924-3900a8"
     },
     "ly-0924-674699": {
       "id": 36053115004,
