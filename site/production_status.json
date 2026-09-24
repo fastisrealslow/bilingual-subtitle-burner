@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790281747,
+  "updated_at": 1790281842,
   "inventory_updated_at": 1790281744,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790281747,
+    "updated_at": 1790281842,
     "records": 6533,
     "video_records": 5434,
-    "initial_candidates": 116,
-    "duration_eligible_records": 68,
-    "candidate_count": 68,
-    "known_duration_candidates": 65,
+    "initial_candidates": 115,
+    "duration_eligible_records": 67,
+    "candidate_count": 67,
+    "known_duration_candidates": 64,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1099,
-      "already_attempted_or_cooling": 891,
+      "already_attempted_or_cooling": 892,
       "speaker_unconfirmed": 3131,
       "clip_title": 1016,
       "noise": 120,
@@ -27,14 +27,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1JVzbByE3C",
-        "title": "林园经典采访-2017.11.10-CCTV-2投资者说（完整版）",
-        "source": "bilibili_search",
-        "author": "巴菲特思想研究院",
-        "url": "https://www.bilibili.com/video/BV1JVzbByE3C",
-        "duration_sec": 833.0
-      },
       {
         "key": "tencent_live:20260922V0ACJ100",
         "title": "林园：AI行业的牛市才刚刚开始！",
@@ -592,10 +584,10 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 7,
-    "retry_queued": 2,
-    "interrupted": 2,
+    "retry_queued": 3,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14124,14 +14116,14 @@
     },
     {
       "slug": "ly-0924-54f58d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1790281231,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1790283568,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -14139,6 +14131,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36054206685",
       "run_started_at": "2026-09-24T20:20:30Z",
       "run_updated_at": "2026-09-24T20:28:11Z"
+    },
+    {
+      "slug": "ly-0924-5d4436",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790281800,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36055269085,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36055269085",
+      "run_started_at": "2026-09-24T20:30:00Z",
+      "run_updated_at": "2026-09-24T20:30:05Z"
     }
   ],
   "runs": {
@@ -18024,6 +18034,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36054206685",
       "run_number": 1269,
       "display_title": "中文源出片 · ly-0924-54f58d"
+    },
+    "ly-0924-5d4436": {
+      "id": 36055269085,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-24T20:30:00Z",
+      "updated_at": "2026-09-24T20:30:05Z",
+      "run_started_at": "2026-09-24T20:30:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36055269085",
+      "run_number": 1270,
+      "display_title": "中文源出片 · ly-0924-5d4436"
     },
     "ly-0924-3900a8": {
       "id": 36053402996,
