@@ -24,6 +24,8 @@ def validated_asset(fc, item):
             or item.get('video') != 'third-video.mp4'):
         raise ValueError('Unrecognized third-video revision')
     video = DIRECTORY / item['video']
+    if not video.is_file():
+        raise ValueError('Reviewed video not packaged; deploy with apply_archive_edits=true before historical replacements')
     digest = hashlib.sha256(video.read_bytes()).hexdigest()
     proof = json.loads((DIRECTORY / 'third-video-proof.json').read_text())
     if (digest != item['video_sha256'] or digest != proof.get('sha256')
