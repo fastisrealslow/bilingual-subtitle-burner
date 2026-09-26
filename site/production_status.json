@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1790409634,
+  "updated_at": 1790409742,
   "inventory_updated_at": 1790409628,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790409634,
+    "updated_at": 1790409741,
     "records": 6698,
     "video_records": 5588,
     "initial_candidates": 117,
@@ -586,14 +586,15 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 82,
+    "complete": 83,
     "failed": 662,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
-    "ready": 10,
-    "interrupted": 2,
-    "excluded": 3
+    "ready": 9,
+    "interrupted": 1,
+    "excluded": 3,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -14104,13 +14105,13 @@
     },
     {
       "slug": "ly-0924-5d4436",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1790281800,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -14392,14 +14393,14 @@
     },
     {
       "slug": "ly-0926-897bec",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1790400124,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1790410515,
         "weekly_full_week": ""
       },
       "history_count": 1,
