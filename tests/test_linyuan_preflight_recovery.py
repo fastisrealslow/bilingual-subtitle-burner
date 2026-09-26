@@ -137,7 +137,8 @@ def test_running_same_slug_is_never_redispatched_or_deleted(monkeypatch):
     assert len(calls)==2
 
 
-def test_quality_retry_preserves_selected_parts_in_actual_workflow_request(monkeypatch):
+@pytest.mark.parametrize('slug',['reserve','ly-parity-v3-14-0905'])
+def test_automatic_quality_retry_does_not_inherit_manual_choices(monkeypatch,slug):
     sent=[]
     def gh(method,path,*args,**kwargs):
         if method=='GET':return {'workflow_runs':[]}
@@ -146,9 +147,10 @@ def test_quality_retry_preserves_selected_parts_in_actual_workflow_request(monke
     monkeypatch.setattr(fc,'save_state',lambda s:None)
     monkeypatch.setattr(fc,'log_event',lambda *a:None)
     monkeypatch.setattr(fc,'publisher_code_is_current',lambda:True)
-    entry=dict(slug='reserve',source_url='https://www.bilibili.com/video/BV1hj411X7BL',selected_parts='1,3')
-    assert fc._request_quality_reprocess({'dispatched':[entry]},entry,'reserve','字幕运行超时')
-    assert sent[0]['inputs']['selected_parts']=='1,3'
+    entry=dict(slug=slug,source_url='https://example.com/video',selected_parts='1,3',reviewed_parts='7')
+    assert fc._request_quality_reprocess({'dispatched':[entry]},entry,slug,'字幕运行超时')
+    assert not {'selected_parts','reviewed_parts','target_parts','include_full'}.intersection(sent[0]['inputs'])
+    assert entry['selected_parts']=='1,3' and entry['reviewed_parts']=='7'
     assert sent[0]['inputs']['auto_publish']=='false'
 
 

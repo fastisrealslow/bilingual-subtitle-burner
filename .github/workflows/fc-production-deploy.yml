@@ -121,6 +121,7 @@ jobs:
       # 普通代码部署只核验，不应顺带启动另一批生产。只有素材刷新
       # 显式 workflow_dispatch(refill=true) 才补队列。
       FC_REFILL: ${{ github.event_name == 'workflow_dispatch' && inputs.refill && 'true' || 'false' }}
+      FC_INCLUDE_REVIEWED_VIDEOS: ${{ github.event_name == 'workflow_dispatch' && inputs.apply_archive_edits && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -145,7 +146,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python linyuan/fc/package_code.py "$FC_CODE_ZIP"
+          deploy_package_args=()
+          if [[ "$FC_INCLUDE_REVIEWED_VIDEOS" == 'true' ]]; then
+            deploy_package_args+=(--include-reviewed-videos)
+          fi
+          python linyuan/fc/package_code.py "$FC_CODE_ZIP" "${deploy_package_args[@]}"
           unzip -t "$FC_CODE_ZIP"
 
       - name: 单片隔离与每日配额回归

@@ -34,6 +34,8 @@ def asset(name, digest):
     if Path(name).name != name:
         raise ValueError('Invalid reviewed asset path')
     path = DIRECTORY / name
+    if not path.is_file():
+        raise ValueError('Reviewed asset not packaged; deploy with apply_archive_edits=true before historical replacements')
     if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
         raise ValueError('Reviewed asset bytes changed: ' + name)
     return path
