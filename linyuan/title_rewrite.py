@@ -12,6 +12,7 @@ ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', 
 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
+标题和封面各自保留假设条件；“如果发生某事”不是“已经发生某事”。逐项核对谁做了什么：本人没买不等于国家或企业不买；不需要不等于没有购买。不能从不同分句拼接主体和行动。
 保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
@@ -650,6 +651,82 @@ def earnings_intent_error(title, cover, transcript):
     return None
 
 
+def negative_actor_error(title, cover, transcript):
+    """Do not transfer a speaker's nonparticipation to a named actor.
+
+    This deliberately checks explicit negative actions, not arbitrary semantic
+    entailment. Countries, people and institutions come from the actual copy;
+    there is no source or country whitelist. Ordinary topic-fronted objects
+    such as '黄金不买' are left to the independent semantic review.
+    """
+    negative = r'(?:没有|没|不会|从不|不曾|不)(?:再|去|继续)?'
+    action = r'(?:买入|卖出|购买|持有|参与|投资|借钱|贷款|买|卖)'
+    source = transcript or ''
+    personal = set(re.findall(r'(?:我|我们)(?:自己|也|都|一直|从来|现在|目前|就|还)*'
+                              + negative + '(' + action + ')', source))
+    if not personal:
+        return None
+    import jieba.posseg
+    speaker = re.match(r'^([^：:]+)[：:]', title)
+    speaker = speaker[1] if speaker else ''
+    clauses = re.split(r'[，,。！？!?；;\n]', source)
+    for copy in (title, cover):
+        body = re.sub(r'^[^：:]+[：:]', '', copy or '')
+        for clause in re.split(r'[，,。！？!?；;]', body):
+            match = re.match(r'^(.{2,20}?)(?:也|都|仍然|还|一直|从来|现在|目前)*'
+                             + negative + '(' + action + ')', clause.strip())
+            if not match:
+                continue
+            actor, verb = match.groups()
+            if actor in ('我们', speaker) or verb not in personal:
+                continue
+            tags = list(jieba.posseg.cut(actor))
+            named = tags and all(t.flag in ('nr','ns','nt') for t in tags)
+            institution = re.search(r'(?:公司|企业|银行|机构|政府|基金|集团|家庭)$', actor)
+            if not (named or institution):
+                continue
+            # The same named actor must own the action in a source clause.
+            # A nearby first-person statement or question is not that evidence.
+            pattern = re.escape(actor) + r'([^，,。！？!?；;]{0,12}?)' + negative + re.escape(verb)
+            supported = any(not re.search(r'我|你|他|她|谁|是否|怎么|为什么|如果|假如', m[1])
+                            for unit in clauses for m in re.finditer(pattern, unit))
+            if not supported:
+                return '不能把嘉宾本人的否定行动转移给其他主体；标题和封面的主体与行动须有同一原文分句支持'
+    return None
+
+
+def hypothetical_clause_error(title, cover, transcript):
+    """Keep an explicit hypothesis attached to a literally reused premise.
+
+    Only compare complete comma-delimited clauses, not keywords or inferred
+    paraphrases. A separate unconditional occurrence is independent evidence.
+    This also catches a title and cover dropping the same source condition.
+    """
+    marker = r'如果|假如|假设|要是'
+    padding = r'^(?:(?:说|这个|那个)|[呃啊嗯\s])+'
+
+    def clean(value):
+        return compact(re.sub(padding, '', value.strip()))
+
+    premises = set()
+    independent = set()
+    for sentence in re.split(r'[。！？!?；;\n]', transcript or ''):
+        matches = list(re.finditer(marker, sentence))
+        if not matches:
+            independent.update(clean(c) for c in re.split(r'[，,:：]', sentence))
+            continue
+        for match in matches:
+            premise = clean(re.split(r'[，,]', sentence[match.end():], 1)[0])
+            if 6 <= len(premise) <= 52:
+                premises.add(premise)
+    premises -= independent
+    for copy in (title, cover):
+        for clause in re.split(r'[，,。！？!?；;：:]', copy or ''):
+            if clean(clause) in premises:
+                return '原文中的完整分句仅是假设；标题和封面须各自保留如果等条件，不能把假设前提写成事实'
+    return None
+
+
 def hypothetical_exclusivity_error(title, cover, transcript):
     """Preserve source13's hypothetical sole supplier, including in questions.
 
@@ -706,6 +783,12 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    actor_issue = negative_actor_error(title, cover, transcript)
+    if actor_issue:
+        return actor_issue
+    clause_issue = hypothetical_clause_error(title, cover, transcript)
+    if clause_issue:
+        return clause_issue
     example_issue = example_duration_error(title, cover, transcript)
     if example_issue:
         return example_issue

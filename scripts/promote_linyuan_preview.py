@@ -57,6 +57,9 @@ def verify_directory(directory,request,slug,validator=None):
             or row.get('reviewed_title_record') or row.get('title_handoff')
             or review.get('automatic_only') is not True
             or review.get('review_protocol')!=2
+            or type(review.get('review_prompt_version')) is not int
+            or review['review_prompt_version']<8
+            or review.get('evidence_protocol')!='source_sentence_ranges_v1'
             or editorial_policy.model_review_skipped(review)
             or editorial_policy.review_error(review)
             or ((row.get('title_rewrite') or {}).get('review') or {}).get('method')!='cpu_text_review'):
