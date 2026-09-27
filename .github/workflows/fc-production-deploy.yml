@@ -47,6 +47,7 @@ on:
       - tests/test_fc_deploy_code.py
       - linyuan/fc/verify_production.py
       - .github/workflows/fc-production-deploy.yml
+      - .github/linyuan-release-policy.json
   workflow_dispatch:
     inputs:
       apply_archive_edits:
@@ -63,11 +64,35 @@ permissions:
   actions: read
 
 jobs:
+  release-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      allowed: ${{ steps.policy.outputs.allowed }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: policy
+        name: Check deployment hold before using FC credentials
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path('.github/linyuan-release-policy.json')
+          policy = json.loads(path.read_text()) if path.exists() else {}
+          allowed = policy.get('deployment_paused') is False
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write('allowed=' + str(allowed).lower() + '\n')
+          print('Deployment enabled' if allowed else 'Deployment held: accepted automatic sample required')
+          PY
   title-portrait:
+    needs: release-policy
+    if: needs.release-policy.outputs.allowed == 'true'
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       fixture: linyuan_0913_title.json
   title-landscape:
+    needs: release-policy
+    if: needs.release-policy.outputs.allowed == 'true'
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       fixture: linyuan_0913_landscape_title.json
