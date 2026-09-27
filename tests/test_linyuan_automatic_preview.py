@@ -149,3 +149,24 @@ def test_direct_cli_defaults_to_automatic_without_workflow_environment():
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode!=0
     assert 'Automatic mode cannot use reviewed ranges or fixed editorial structures' in result.stderr
+
+
+def test_final_reason_can_close_answer_and_old_prompt_cache_is_rechecked(monkeypatch,tmp_path):
+    monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
+    cues=[dict(start=0,end=60,text='我们暂时不买这家公司。'),
+          dict(start=60,end=140,text='它的需求还不确定，所以我们继续观察。')]
+    response=dict(analysis=dict(claim_range=[0,0],reasoning_range=[1,1],conclusion_range=[1,1],
+        summary='等待需求明确',completeness_reason='最后一句完整解释了继续观察的理由',audio_issues=[]),
+        verdict=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
+                     natural_ending=True,requires_audio_review=False))
+    calls=[]
+    def review(*a,**k):
+        calls.append(a)
+        return json.dumps(response,ensure_ascii=False)
+    monkeypatch.setattr(p,'llm',review)
+    proof=p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')
+    assert proof['conclusion_quote']==proof['reasoning_quote']==cues[-1]['text']
+    proof['review_prompt_version']=8
+    (tmp_path/'editorial_review.json').write_text(json.dumps(proof,ensure_ascii=False))
+    checked=p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')
+    assert len(calls)==2 and checked['review_prompt_version']==9

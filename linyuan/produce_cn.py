@@ -1815,7 +1815,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==8
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==9
                     and (not automatic_only() or saved.get('automatic_only') is True)
                     and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
@@ -1853,7 +1853,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         return proof
     prompt=(f'审核{speaker}的一段访谈能否独立成片。任务是判断剪辑是否保留完整表达，'
         '不是审查投资判断的正确性，也不是要求研究报告式的严密论证。\n'
-        '先阅读全部原话，在analysis中逐字摘录观点、至少一个理由或例子、收束语；不存在则填空字符串。'
+        '先阅读全部原话，在analysis中逐字摘录观点、至少一个理由或例子、最后一句完整解释或结论；最后一句可以同时作为理由。'
+        '确实没有相应内容才填空字符串。'
         '然后填写verdict。观点加上片内理由、自然完成回答即可构成完整表达；'
         '结尾可以是最后一条解释，不必再次重述观点。不要求定义常见行业名词或提供数据证明。'
         '主持人已说出话题再提问可以独立开场，提及过去直播日期不等于依赖片外上下文。\n'
@@ -1867,7 +1868,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '各不超过100字。audio_issues每项将quote和影响原意的reason配对；没有则为空数组。'
         '每个判定须与摘录的证据一致；缺什么写具体，不要凭空提出片内未问的新问题。\n原话：'+text)
     prompt+=('\n特别核对：claim_quote必须是嘉宾的实际判断，不能拿主持人的提问作为观点证据。'
-        'conclusion_quote必须收束已回答的话题，宣布接下来聊另一话题不属于本段结论。'
+        'conclusion_quote取本题回答最后的完整判断或解释，不要求专门的总结句。'
+        '不需要主持人总结，也不需要宣布进入新话题；这些串场不属于嘉宾的回答证据。'
         '不要因为句子出现在字幕里，就认为其中的公司名、专有名词或搭配一定识别正确；'
         '若实体或关键断言明显不自然、存在影响理解的同音疑点，应逐字列入audio_issues，不能猜改成正确答案。')
     # Whole-sentence evidence prevents a display row ending mid-sentence from
@@ -1899,7 +1901,12 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         prompt+=('\n自动证据协议：不复写quote，不改字或标点。claim_range、reasoning_range、conclusion_range各填'
             '[起始句编号,结束句编号]，两端包含；缺少证据填[-1,-1]。只能选择连续原句，不能拿主持人的问题作观点。'
             'audio_issues每项填sentence_id和reason。开场和结尾由程序固定为第一句和最后一句，'
-            'standalone_opening及natural_ending必须针对这两句判断。缺少收束、主持人总结或进入新话题都不能当嘉宾结论。'
+            'standalone_opening及natural_ending必须针对这两句判断。'
+            'conclusion_range可以和reasoning_range相同或重叠，指本题最后的完整判断或解释，不是必须另有总结。'
+            '例如“我暂时不买。需求还不确定。”已经给出判断和理由，最后一句自然结束；不需要主持人总结或新话题过渡。'
+            '反例：“我暂时不买。因为主要原因是”属于切断；“那下一个问题呢？”没有回答；“聊了这么多大家都学到了”是主持人串场。'
+            '不得仅因没有正式收束语、没有主持人总结或没有进入新话题而拒绝。'
+            'claim_range只选嘉宾判断的最小连续原句，理由单独放reasoning_range，不把中间的主持人提问包进claim_range。'
             '只需输出schema里的字段。完整编号原句：'+json.dumps(dict(enumerate(bound_evidence)),ensure_ascii=False))
     fields={name:{'type':'boolean'} for name in ('standalone_opening',
         'complete_argument','reasoning_present','natural_ending','requires_audio_review')}
@@ -1973,11 +1980,11 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             (work/f'editorial_service_error{suffix}-{attempt}.txt').write_text(type(exc).__name__+': '+str(exc))
             if attempt:
                 raise EditorialReviewUnavailable('观点审核服务未提供可对照的实际原文证据：'+str(exc)) from exc
-            prompt+='\n上次响应未提供可逐字核对的证据。请重新独立审核，只从实际保留原话摘录引用，不要复制审核规则。'
+            prompt+='\n上次响应的具体错误：'+str(exc)+'。请重新独立审核并修正证据范围，只从实际保留原话取证，不要复制审核规则。'
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=8,review_model=LOCAL_LLM_MODEL)
+                 review_prompt_version=9,review_model=LOCAL_LLM_MODEL)
     if automatic_only():
         proof.update(automatic_only=True,evidence_protocol='source_sentence_ranges_v1')
     if omitted_text:
