@@ -466,6 +466,13 @@ def relation_error(title, cover, source):
     # with correctly attributed guest evidence. Preserve this explicit phase
     # distinction; an already chosen leader is not an emerging future leader.
     body=compact(source)
+    # A decision remaining unchanged does not imply that the underlying
+    # activity or its outcomes are unaffected. Preserve the decision object.
+    decision_object=r'(?:决策|决定|安排|计划|选择|方案)'
+    if re.search(r'不影响[^。！？；]{0,30}'+decision_object,source):
+        for candidate in (title,cover):
+            if '不影响' in candidate and not re.search(decision_object,candidate):
+                return '不影响决策或安排不能扩大成不影响活动本身；标题和封面分别保留原判断对象'
     if re.search(r'喜欢危机|倾向于买危机',body) and not re.search(r'不是危机|并非危机',body):
         if any(re.search(r'不是危机|并非危机',copy) for copy in (title,cover)):
             return '原话明确喜欢或买危机，不能为制造反差改写成不是危机；可保留本人原话和实际对象'

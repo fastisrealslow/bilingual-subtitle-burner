@@ -84,8 +84,8 @@ def test_automatic_copy_cache_cannot_reuse_assisted_identity(monkeypatch):
 def test_automatic_source_ranking_is_not_a_manual_editorial_override(monkeypatch,tmp_path):
     monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
     text='企业需要现金流，因为支付货款需要现金。'
-    response=dict(analysis=dict(claim_quote=text,reasoning_quote=text,conclusion_quote=text,
-        opening_quote=text,ending_quote=text,summary='现金流与支付能力',
+    response=dict(analysis=dict(claim_range=[0,0],reasoning_range=[0,0],conclusion_range=[0,0],
+        summary='现金流与支付能力',
         completeness_reason='观点与理由在同一句中',audio_issues=[]),verdict=dict(
         standalone_opening=True,complete_argument=True,reasoning_present=True,
         natural_ending=True,requires_audio_review=False))
@@ -128,8 +128,8 @@ def test_automatic_claim_cannot_use_interviewer_question(monkeypatch,tmp_path):
     question='您对医药行业怎么看？'
     answer='医药需求长期存在，因为人会衰老，所以我们长期关注。'
     cues=[dict(start=0,end=10,text=question),dict(start=10,end=140,text=answer)]
-    analysis=dict(claim_quote=question,reasoning_quote=answer,conclusion_quote=answer,
-        opening_quote=question,ending_quote=answer,summary='医药需求',
+    analysis=dict(claim_range=[0,0],reasoning_range=[1,1],conclusion_range=[1,1],
+        summary='医药需求',
         completeness_reason='保留观点与理由',audio_issues=[])
     verdict=dict(standalone_opening=True,complete_argument=True,reasoning_present=True,
         natural_ending=True,requires_audio_review=False)
@@ -137,7 +137,7 @@ def test_automatic_claim_cannot_use_interviewer_question(monkeypatch,tmp_path):
     with pytest.raises(p.EditorialReviewUnavailable,match='采访者提问'):
         p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')
     assert not (tmp_path/'editorial_review.json').exists()
-    analysis['claim_quote']=answer
+    analysis['claim_range']=[1,1]
     assert p.review_complete_argument(cues,[dict(start=0,end=1)],'林园','',tmp_path,'')['complete_argument'] is True
 
 

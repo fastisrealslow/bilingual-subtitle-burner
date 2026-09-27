@@ -1815,7 +1815,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==7
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==8
                     and (not automatic_only() or saved.get('automatic_only') is True)
                     and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
@@ -1891,6 +1891,16 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 'reason':{'type':'string','maxLength':60}},
             'required':['quote','reason'],'additionalProperties':False}},
     }
+    bound_evidence=None
+    if automatic_only():
+        import editorial_evidence
+        bound_evidence=editorial_evidence.sentences(text)
+        analysis_fields=editorial_evidence.schema(bound_evidence)
+        prompt+=('\n自动证据协议：不复写quote，不改字或标点。claim_range、reasoning_range、conclusion_range各填'
+            '[起始句编号,结束句编号]，两端包含；缺少证据填[-1,-1]。只能选择连续原句，不能拿主持人的问题作观点。'
+            'audio_issues每项填sentence_id和reason。开场和结尾由程序固定为第一句和最后一句，'
+            'standalone_opening及natural_ending必须针对这两句判断。缺少收束、主持人总结或进入新话题都不能当嘉宾结论。'
+            '只需输出schema里的字段。完整编号原句：'+json.dumps(dict(enumerate(bound_evidence)),ensure_ascii=False))
     fields={name:{'type':'boolean'} for name in ('standalone_opening',
         'complete_argument','reasoning_present','natural_ending','requires_audio_review')}
     if omitted_text:
@@ -1920,10 +1930,14 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)
+            if bound_evidence is not None and not {'analysis','verdict'}.issubset(proof):
+                raise ValueError('自动观点审核缺少编号证据和独立判定')
             if 'analysis' in proof or 'verdict' in proof:
                 analysis,verdict=proof.get('analysis'),proof.get('verdict')
                 if not isinstance(analysis,dict) or not isinstance(verdict,dict):
                     raise ValueError('缺少证据或判定对象')
+                if bound_evidence is not None:
+                    analysis=editorial_evidence.bind(analysis,bound_evidence)
                 for name in ('claim_quote','reasoning_quote','conclusion_quote'):
                     quote=analysis.get(name)
                     if not isinstance(quote,str) or (quote and quote not in text):
@@ -1963,8 +1977,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=7,review_model=LOCAL_LLM_MODEL)
-    if automatic_only():proof['automatic_only']=True
+                 review_prompt_version=8,review_model=LOCAL_LLM_MODEL)
+    if automatic_only():
+        proof.update(automatic_only=True,evidence_protocol='source_sentence_ranges_v1')
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))

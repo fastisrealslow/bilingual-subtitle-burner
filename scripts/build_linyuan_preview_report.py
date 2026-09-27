@@ -58,10 +58,11 @@ def build(preview_root,baseline_metadata,reference_root,reference_index,output):
             if digest in seen:continue
             seen.add(digest)
             run=row.get('slug','').removeprefix('preview-')
-            rejected=(str(status.get('producer_run'))==run and status.get('status')=='rejected_editorial_quality')
+            decision=status.get('reviews',{}).get(run,{})
+            rejected=(decision.get('status')=='rejected' or (str(status.get('producer_run'))==run and status.get('status')=='rejected_editorial_quality'))
             verdict='编辑验收拒绝，禁止发布' if rejected else '自动产物：待核对实际内容，未据此认定可发布'
             note='<p class="notice">'+verdict+'</p>'
-            if rejected:note+='<ul>'+''.join('<li>'+esc(x)+'</li>' for x in status.get('rejection_reasons',[]))+'</ul>'
+            if rejected:note+='<ul>'+''.join('<li>'+esc(x)+'</li>' for x in decision.get('reasons',status.get('rejection_reasons',[])))+'</ul>'
             same=[(r,v) for r,v in originals if r.get('source_sha256')==row.get('source_sha256')]
             def overlap(item):
                 return sum(max(0,min(a['end'],b['end'])-max(a['start'],b['start']))
