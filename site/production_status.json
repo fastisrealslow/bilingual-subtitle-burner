@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790512213,
+  "updated_at": 1790512297,
   "inventory_updated_at": 1790512206,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790512213,
+    "updated_at": 1790512297,
     "records": 6831,
     "video_records": 5714,
-    "initial_candidates": 120,
-    "duration_eligible_records": 70,
-    "candidate_count": 70,
-    "known_duration_candidates": 67,
+    "initial_candidates": 119,
+    "duration_eligible_records": 69,
+    "candidate_count": 69,
+    "known_duration_candidates": 66,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1117,
-      "already_attempted_or_cooling": 916,
+      "already_attempted_or_cooling": 917,
       "speaker_unconfirmed": 3374,
       "clip_title": 1019,
       "noise": 125,
@@ -34,14 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1TFzhBwE64",
-        "title": "林园经典采访-2020.06.04-红周刊",
-        "source": "bilibili_search",
-        "author": "巴菲特思想研究院",
-        "url": "https://www.bilibili.com/video/BV1TFzhBwE64",
-        "duration_sec": 3415.0
       },
       {
         "key": "bilibili_search:BV1FZa46cEZy",
@@ -603,13 +595,14 @@
   },
   "counts": {
     "complete": 88,
-    "failed": 666,
+    "failed": 667,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 9,
-    "interrupted": 2,
-    "excluded": 4
+    "interrupted": 1,
+    "excluded": 4,
+    "running": 1
   },
   "tasks": [
     {
@@ -14588,11 +14581,11 @@
     },
     {
       "slug": "ly-0927-79d803",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1790510673,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14603,6 +14596,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36317786008",
       "run_started_at": "2026-09-27T12:04:33Z",
       "run_updated_at": "2026-09-27T12:29:28Z"
+    },
+    {
+      "slug": "ly-0927-3d46ae",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790512262,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36319245532,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36319245532",
+      "run_started_at": "2026-09-27T12:31:02Z",
+      "run_updated_at": "2026-09-27T12:31:05Z"
     }
   ],
   "runs": {
@@ -18818,6 +18829,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36317786008",
       "run_number": 1298,
       "display_title": "中文源出片 · ly-0927-79d803"
+    },
+    "ly-0927-3d46ae": {
+      "id": 36319245532,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-27T12:31:02Z",
+      "updated_at": "2026-09-27T12:31:05Z",
+      "run_started_at": "2026-09-27T12:31:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36319245532",
+      "run_number": 1299,
+      "display_title": "中文源出片 · ly-0927-3d46ae"
     }
   }
 }
