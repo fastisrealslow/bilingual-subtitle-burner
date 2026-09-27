@@ -40,7 +40,7 @@ def build():
                        'paths': ['.github/linyuan-preview-request.json', '.github/workflows/linyuan-automatic-preview.yml']},
                'workflow_dispatch': {}},
         'permissions': {'contents': 'read', 'actions': 'read'},
-        'concurrency': {'group': 'linyuan-automatic-preview', 'cancel-in-progress': False},
+        'concurrency': {'group': 'linyuan-automatic-preview', 'cancel-in-progress': True},
         'env': env, 'jobs': {'preview': job}})
 
 

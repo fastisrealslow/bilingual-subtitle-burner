@@ -309,6 +309,8 @@ jobs:
           python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
 
       - name: 检查原始识别证据，避免重复下载和推理
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - name: 准备CPU离线Qwen识别及逐字对齐
@@ -511,6 +513,15 @@ jobs:
             linyuan/deliver/${{ env.RUN_SLUG }}/batch_report.json
             linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
             linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: 独立保存原始识别检查点（缓存淘汰后仍可复用）
+        if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-asr-${{ env.MOTHER_ASR_KEY }}
+          path: linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/asr_raw_chunks.json
           retention-days: 30
           if-no-files-found: ignore
 

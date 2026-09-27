@@ -14,7 +14,7 @@ permissions:
   actions: read
 concurrency:
   group: linyuan-automatic-preview
-  cancel-in-progress: false
+  cancel-in-progress: true
 env:
   RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
   RUN_SOURCE: ''
@@ -173,6 +173,8 @@ jobs:
       run: python mother_asr_cache.py restore --work "deliver/$RUN_SLUG/_tmp" --cache ".mother_asr/$MOTHER_ASR_KEY"
         --source-report "deliver/$RUN_SLUG/_tmp/source_quality.json"
     - name: 检查原始识别证据，避免重复下载和推理
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: python prepare_asr_runtime.py cache --source-report "deliver/$RUN_SLUG/_tmp/source_quality.json"
     - name: 准备CPU离线Qwen识别及逐字对齐
       if: env.ASR_BACKEND == 'qwen3' && env.ASR_EVIDENCE_READY != 'true'
@@ -356,6 +358,14 @@ jobs:
           linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
 
           '
+        retention-days: 30
+        if-no-files-found: ignore
+    - name: 独立保存原始识别检查点（缓存淘汰后仍可复用）
+      if: always() && steps.render.outcome != 'skipped' && env.MOTHER_ASR_KEY != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: preview-raw-asr-${{ env.MOTHER_ASR_KEY }}
+        path: linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/asr_raw_chunks.json
         retention-days: 30
         if-no-files-found: ignore
     - name: 保存已完成的母片转写供后续选段复用
