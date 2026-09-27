@@ -202,6 +202,8 @@ def main():
             save(report_path,report)
             print(json.dumps({'core':core,'text':text,'elapsed':report['elapsed_seconds']},ensure_ascii=False),flush=True)
     else:
+        # A resumed attempt must not inherit the previous failure as its own.
+        (output/'alignment_error.json').unlink(missing_ok=True)
         report=json.loads(report_path.read_text())
         resumed=resume_alignment(report,partial/'aligned.json',weights.name)
         print(json.dumps({'resumed_alignment_cores':resumed}),flush=True)
