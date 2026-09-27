@@ -643,6 +643,38 @@ def earnings_intent_error(title, cover, transcript):
     return None
 
 
+def hypothetical_clause_error(title, cover, transcript):
+    """Keep an explicit hypothesis attached to a literally reused premise.
+
+    Only compare complete comma-delimited clauses, not keywords or inferred
+    paraphrases. A separate unconditional occurrence is independent evidence.
+    This also catches a title and cover dropping the same source condition.
+    """
+    marker = r'如果|假如|假设|要是'
+    padding = r'^(?:(?:说|这个|那个)|[呃啊嗯\s])+'
+
+    def clean(value):
+        return compact(re.sub(padding, '', value.strip()))
+
+    premises = set()
+    independent = set()
+    for sentence in re.split(r'[。！？!?；;\n]', transcript or ''):
+        matches = list(re.finditer(marker, sentence))
+        if not matches:
+            independent.update(clean(c) for c in re.split(r'[，,:：]', sentence))
+            continue
+        for match in matches:
+            premise = clean(re.split(r'[，,]', sentence[match.end():], 1)[0])
+            if 6 <= len(premise) <= 52:
+                premises.add(premise)
+    premises -= independent
+    for copy in (title, cover):
+        for clause in re.split(r'[，,。！？!?；;：:]', copy or ''):
+            if clean(clause) in premises:
+                return '原文中的完整分句仅是假设；标题和封面须各自保留如果等条件，不能把假设前提写成事实'
+    return None
+
+
 def hypothetical_exclusivity_error(title, cover, transcript):
     """Preserve source13's hypothetical sole supplier, including in questions.
 
@@ -699,6 +731,9 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    clause_issue = hypothetical_clause_error(title, cover, transcript)
+    if clause_issue:
+        return clause_issue
     example_issue = example_duration_error(title, cover, transcript)
     if example_issue:
         return example_issue
