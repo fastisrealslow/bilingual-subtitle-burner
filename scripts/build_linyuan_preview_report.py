@@ -51,13 +51,14 @@ def build(preview_root,baseline_metadata,reference_root,reference_index,output):
             if proof.get('complete_timeline') and video.is_file():
                 references.append((row,proof,video));break
     status=read(preview_root/'status.json',{})
-    articles=[];seen=set()
+    articles=[];seen=set();seen_runs=set()
     for metadata in sorted(preview_root.glob('**/preview-deliver-*/meta.json')):
         for row,video in actual_rows(metadata):
             digest=row['fingerprints']['sha256']
             if digest in seen:continue
             seen.add(digest)
             run=row.get('slug','').removeprefix('preview-')
+            seen_runs.add(run)
             decision=status.get('reviews',{}).get(run,{})
             rejected=(decision.get('status')=='rejected' or (str(status.get('producer_run'))==run and status.get('status')=='rejected_editorial_quality'))
             verdict='编辑验收拒绝，禁止发布' if rejected else '自动产物：待核对实际内容，未据此认定可发布'
@@ -68,7 +69,9 @@ def build(preview_root,baseline_metadata,reference_root,reference_index,output):
                 return sum(max(0,min(a['end'],b['end'])-max(a['start'],b['start']))
                     for a in row.get('segments',[]) for b in item[0].get('segments',[]))
             before=max(same,key=overlap) if same else (originals[0] if originals else None)
-            baseline=card(*before,'线上版本实际产物；按同源时间重叠匹配，不代表均已发布') if before else '<article>缺少可核对的线上原文件</article>'
+            label=('线上版本同源重叠选段；不代表均已发布' if before and same and overlap(before)>0
+                   else '线上版本不同选段，仅比较形式；不是同一内容的前后对比')
+            baseline=card(*before,label) if before else '<article>缺少可核对的线上原文件</article>'
             ref=min(references,key=lambda r:abs(float(r[1]['duration'])-float(row.get('duration_sec',0)))) if references else None
             reference=('<article><small>园园形式参考，按时长接近匹配；非同素材 A/B</small><h2>'+esc(ref[0]['title'])+'</h2>'
                 +player(ref[2],ref[2].parent/'frame-00.jpg')+'<a href="'+esc(ref[0]['url'])+'">查看原投稿</a><p>'
@@ -81,6 +84,9 @@ body{margin:0;background:#f2f3ef;color:#182b32;font:16px/1.65 system-ui}main{max
 <p class="notice">这里是单源预览，不能据此计算固定 100 条素材的出片率；历史 11% / 17% 也不代表本轮全自动流程的成绩。工作流通过、内容验收通过、发布成功分别核对。</p>'''
     if current.get('run'):
         body+='<p>后续任务 <a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/'+esc(current['run'])+'">'+esc(current['run'])+'</a> · '+esc(current.get('status','未知'))+' · '+esc(current.get('model',''))+'</p>'
+    for run,decision in status.get('reviews',{}).items():
+        if str(run) not in seen_runs and decision.get('status')=='failed':
+            body+='<p class="notice">运行 '+esc(run)+' 未产出合格视频，不显示空播放器：'+esc('；'.join(decision.get('reasons',[])))+'</p>'
     body+=''.join(articles) or '<p>尚无文件哈希核对通过的自动产物。</p>'
     snapshot=read(preview_root/'source-snapshot/audit.json',{})
     if snapshot:
