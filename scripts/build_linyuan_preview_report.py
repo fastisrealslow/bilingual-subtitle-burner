@@ -5,6 +5,7 @@ import hashlib
 import html
 import json
 import os
+import re
 from pathlib import Path
 from urllib.parse import quote
 
@@ -38,9 +39,31 @@ def build(preview_root,baseline_metadata,reference_root,reference_index,output):
     def card(row,video,label):
         cover=video.parent/row.get('cover','')
         valid_cover=cover.is_file() and cover.parent==video.parent
+        subtitles=[]
+        for name in row.get('subtitle_files',[]):
+            if not isinstance(name,str) or Path(name).name!=name:continue
+            path=video.parent/name
+            if not path.is_file():continue
+            cues=[]
+            for line in path.read_text().splitlines():
+                if not line.startswith('Dialogue:'):continue
+                fields=line.split(',',9)
+                if len(fields)!=10:continue
+                visible=re.sub(r'\{[^}]*\}','',fields[9]).replace(r'\N',' / ').replace(r'\n',' / ')
+                cues.append('<p><small>'+esc(fields[1])+' — '+esc(fields[2])+'</small><br>'+esc(visible)+'</p>')
+            subtitles.append('<a href="'+esc(url(path))+'">下载原始字幕文件</a>'+''.join(cues))
+        caption_detail=('<details><summary>完整字幕与显示时间</summary>'+''.join(subtitles)+'</details>'
+                        if subtitles else '<p>字幕文件尚未取得，仅能从视频画面核对。</p>')
+        kind={'authority_reference':'核验人物资料照，并非本段现场截图',
+              'verified_source_frame':'从本段原片自动选取并核对人物的现场画面'}.get(row.get('cover_person_image_source'),'来源记录未提供')
+        layout=row.get('layout_proof') or {}
+        caption_style={'light-panel-dark-text':'浅色底板、深色字'}.get(layout.get('subtitle_style'),layout.get('subtitle_style','未记录'))
+        caption_description=('字幕：'+str(caption_style)+'；字号 '+str(layout.get('subtitle_font_px','未记录'))
+                             +' px；最多 '+str(layout.get('subtitle_max_lines','未记录'))+' 行。')
         return ('<article><small>'+esc(label)+'</small><h2>'+esc(row.get('title',''))+'</h2>'
             +player(video,cover if valid_cover else None)+'<p>实际封面文案：'+esc(row.get('cover_title',''))+'</p>'
             +('<details><summary>实际封面图片</summary><img loading="lazy" src="'+esc(url(cover))+'"></details>' if valid_cover else '')
+            +'<p>封面人物来源：'+esc(kind)+'</p><p>'+esc(caption_description)+'</p>'+caption_detail
             +'<p>时长 '+esc(row.get('duration_sec','未知'))+' 秒</p><code>'+esc(row['fingerprints']['sha256'][:16])+'</code></article>')
     originals=actual_rows(baseline_metadata)
     references=[]
