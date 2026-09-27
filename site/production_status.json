@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790498234,
+  "updated_at": 1790498327,
   "inventory_updated_at": 1790498228,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790498234,
+    "updated_at": 1790498326,
     "records": 6831,
     "video_records": 5714,
-    "initial_candidates": 125,
-    "duration_eligible_records": 75,
-    "candidate_count": 75,
-    "known_duration_candidates": 72,
+    "initial_candidates": 124,
+    "duration_eligible_records": 74,
+    "candidate_count": 74,
+    "known_duration_candidates": 71,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1117,
-      "already_attempted_or_cooling": 911,
+      "already_attempted_or_cooling": 912,
       "speaker_unconfirmed": 3374,
       "clip_title": 1019,
       "noise": 125,
@@ -27,14 +27,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5347519020406757",
-        "title": "什么样的公司是好的“挣钱机器”？投资大佬林园的答案出人意料：要像守财奴“葛朗台”一样！他认为投入小、产出大、不轻易再投资",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5347519020406757",
-        "duration_sec": 54.0
-      },
       {
         "key": "tencent_live:20260922V0ACJ100",
         "title": "林园：AI行业的牛市才刚刚开始！",
@@ -643,13 +635,14 @@
   },
   "counts": {
     "complete": 88,
-    "failed": 663,
+    "failed": 664,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 9,
-    "interrupted": 2,
-    "excluded": 2
+    "interrupted": 1,
+    "excluded": 2,
+    "running": 1
   },
   "tasks": [
     {
@@ -14538,11 +14531,11 @@
     },
     {
       "slug": "ly-0927-65379a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 330 < 480（640x330），画质不达标",
       "signature": {
         "ts": 1790498095,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14553,6 +14546,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36306643993",
       "run_started_at": "2026-09-27T08:34:55Z",
       "run_updated_at": "2026-09-27T08:36:27Z"
+    },
+    {
+      "slug": "ly-0927-f24c30",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790498290,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36306814529,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36306814529",
+      "run_started_at": "2026-09-27T08:38:09Z",
+      "run_updated_at": "2026-09-27T08:38:15Z"
     }
   ],
   "runs": {
@@ -18713,6 +18724,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36306643993",
       "run_number": 1293,
       "display_title": "中文源出片 · ly-0927-65379a"
+    },
+    "ly-0927-f24c30": {
+      "id": 36306814529,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-27T08:38:09Z",
+      "updated_at": "2026-09-27T08:38:15Z",
+      "run_started_at": "2026-09-27T08:38:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36306814529",
+      "run_number": 1294,
+      "display_title": "中文源出片 · ly-0927-f24c30"
     }
   }
 }
