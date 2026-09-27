@@ -21,6 +21,7 @@ def failure_category(reason):
     groups = (
         ('cloud_account_billing', ('Current user is in debt', '账户欠费', 'Account in debt')),
         ('asr_alignment', ('ASR强制对齐时序无效', 'Forced alignment produced invalid word timing')),
+        ('asr_transcript', ('原始ASR存在影响理解的疑点', 'ASR中的完整嘉宾称呼')),
         ('service_or_timeout', ('不可用', '时间预算', '生产预算', 'timeout', 'Timeout',
                                 'HTTP Error', '工作流步骤失败', 'LLM 调用')),
         ('identity', ('人物不一致', '人物身份', '未找到与林园参考照匹配', '发言归属', '其他嘉宾')),

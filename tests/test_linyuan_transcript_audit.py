@@ -34,7 +34,7 @@ def test_real_host_followup_questions_still_blocked(followup):
 
 def test_issue_is_bound_to_untouched_source_and_cannot_be_overridden_by_passed_flag(tmp_path):
     text='我们暂时观察。这个词语无法理解。'
-    response=dict(passed=True,issues=[dict(sentence_id=1,kind='unintelligible_term',reason='原词影响理解')],explanation='需复核原音')
+    response=dict(passed=True,issues=[dict(sentence_id=1,suspect_quote='词语',kind='unintelligible_term',reason='原词影响理解')],explanation='需复核原音')
     proof=A.review(text,'嘉宾','cpu-model',lambda *a:json.dumps(response),tmp_path/'audit.json')
     assert proof['passed'] is False and proof['audio_verified'] is False
     assert proof['issues'][0]['quote']=='这个词语无法理解。'
@@ -56,6 +56,31 @@ def test_invalid_sentence_id_is_retried_but_never_guessed_or_clamped(tmp_path):
     calls=[]
     def call(prompt,schema):
         calls.append(prompt)
-        return json.dumps(dict(issues=[dict(sentence_id=9,kind='broken_syntax',reason='句意不明')],explanation='有疑点'))
+        return json.dumps(dict(issues=[dict(sentence_id=9,suspect_quote='原句',kind='unintelligible_term',reason='句意不明')],explanation='有疑点'))
     with pytest.raises(ValueError):A.review('一条真实原句。','嘉宾','model',call,tmp_path/'audit.json')
     assert len(calls)==2 and not (tmp_path/'audit.json').exists()
+
+
+@pytest.mark.parametrize('quote',['现金现金','公司公司','机会机会','我们我们','嗯'])
+def test_normal_disfluency_is_recorded_but_does_not_reject_untouched_speech(tmp_path,quote):
+    text='原话：'+quote+'。'
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote=quote,kind='unintelligible_term',reason='不够流畅')],explanation='口吃')
+    proof=A.review(text,'嘉宾','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    assert proof['passed'] and proof['issues']==[]
+    assert proof['ignored_style_objections'][0]['suspect_quote']==quote
+    assert proof['transcript_sha256']==A.text_digest(text)
+
+
+@pytest.mark.parametrize('quote',['不不','一万一万','未买未买','道琼市指数道琼市指数'])
+def test_repetition_cannot_waive_negation_number_or_unrecognized_term(quote):
+    assert not A.ordinary_disfluency(quote)
+
+
+def test_unbound_suspect_quote_cannot_become_rejection_evidence(tmp_path):
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='原文没有',kind='unintelligible_term',reason='坏词')],explanation='疑点')
+    with pytest.raises(ValueError):A.review('这里有原话。','嘉宾','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+
+
+def test_transcript_issue_is_not_a_duplicate_video_due_to_quoted_word_repeat():
+    from production_diagnostics import failure_category
+    assert failure_category('原始ASR存在影响理解的疑点：重复两个字')=='asr_transcript'

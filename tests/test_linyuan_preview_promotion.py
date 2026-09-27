@@ -41,7 +41,7 @@ def test_promotion_requires_real_review_hash_and_final_validator(tmp_path):
         review_prompt_version=9,evidence_protocol='source_sentence_ranges_v1',
         standalone_opening=True,complete_argument=True,reasoning_present=True,
         natural_ending=True,requires_audio_review=False,transcript_sha256='source',summary='实际观点与理由')
-    review['transcript_audit']=dict(version=1,passed=True,issues=[],transcript_sha256='source')
+    review['transcript_audit']=dict(version=2,passed=True,issues=[],transcript_sha256='source')
     row=dict(slug='preview-123',automatic_only=True,final='final.mp4',fingerprints=dict(sha256=request['sha256']),
         editorial_review=review,title_rewrite=dict(review=dict(method='cpu_text_review')))
     def save(data):(tmp_path/'meta.json').write_text(json.dumps(data))
