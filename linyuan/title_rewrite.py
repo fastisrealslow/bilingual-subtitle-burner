@@ -328,6 +328,14 @@ def explicit_host_cues(units):
             continue
         if markers.search(body):host=True
         elif host:
+            # A question about a third party can receive a declarative answer
+            # about 'he/she/it'. Requiring an 'I/we' opening excluded the whole
+            # substantive answer. Release only for independent attribution;
+            # this does not mark the sentence as guest speech.
+            if (i and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])
+                    and re.match(r'^(?:他|她|它)(?:们)?(?:首先|主要|之所以|最初|起初)',body)
+                    and not re.search(r'是不是|会不会|是否|为什么|怎么|您|吗|呢',body)):
+                host=False
             # A completed question followed by an explicit topical reply can
             # end the deterministic exclusion. A '?' alone is insufficient:
             # real interviewers also continue with premises after a question.

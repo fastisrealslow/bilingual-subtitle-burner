@@ -41,6 +41,7 @@ def test_promotion_requires_real_review_hash_and_final_validator(tmp_path):
         review_prompt_version=9,evidence_protocol='source_sentence_ranges_v1',
         standalone_opening=True,complete_argument=True,reasoning_present=True,
         natural_ending=True,requires_audio_review=False,transcript_sha256='source',summary='实际观点与理由')
+    review['transcript_audit']=dict(version=1,passed=True,issues=[],transcript_sha256='source')
     row=dict(slug='preview-123',automatic_only=True,final='final.mp4',fingerprints=dict(sha256=request['sha256']),
         editorial_review=review,title_rewrite=dict(review=dict(method='cpu_text_review')))
     def save(data):(tmp_path/'meta.json').write_text(json.dumps(data))
@@ -54,6 +55,8 @@ def test_promotion_requires_real_review_hash_and_final_validator(tmp_path):
                     {**row,'editorial_review':{**review,'review_prompt_version':8}},
                     {**row,'editorial_review':{**review,'review_prompt_version':None}},
                     {**row,'editorial_review':{**review,'evidence_protocol':'free_quote'}},
+                    {**row,'editorial_review':{**review,'transcript_audit':{}}},
+                    {**row,'editorial_review':{**review,'transcript_audit':{**review['transcript_audit'],'issues':['unresolved']}}},
                     {**row,'editorial_review':{**review,'status':'skipped','review_protocol':'model-review-disabled-v1'}}]:
         save(changed)
         with pytest.raises(ValueError):p.verify_directory(tmp_path,request,'preview-123',lambda *a:None)

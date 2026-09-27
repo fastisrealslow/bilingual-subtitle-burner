@@ -1792,6 +1792,12 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         for pick in picks:
             issue=boundary_error(cues,pick)
             if issue:raise VisualQualityError(issue)
+        from speaker_attribution import named_handoffs
+        retained=[c['text'] for pick in picks for c in cues[pick['start']:pick['end']+1]]
+        unknown=[r for r in named_handoffs(retained,speaker) if len(r['addressee'])>1 and not r['target']]
+        if unknown:
+            raise EditorialReviewUnavailable('ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：'
+                                             +json.dumps(unknown,ensure_ascii=False))
     omitted_text=None
     if len(picks)==1:
         editorial.range_seconds(cues,picks[0])
@@ -3681,7 +3687,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except ValueError:
             pass
     from title_rewrite import generate
+    title_call_number=0
     def title_model(prompt, schema):
+        nonlocal title_call_number
+        title_call_number+=1
         # Reuse verified copywrite.json and stable independent review verdicts.
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
@@ -3706,9 +3715,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
             print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
-        return llm(messages,api_key,temperature=temperature,
+        (work/f'title_request{suffix}-{title_call_number}.json').write_text(json.dumps(
+            dict(messages=messages,schema=schema),ensure_ascii=False))
+        response=llm(messages,api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
                    read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','c_sentence_roles','b_focus','c_candidates')))
+        (work/f'title_response{suffix}-{title_call_number}.txt').write_text(response)
+        return response
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
@@ -5374,6 +5387,20 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         return None
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
+    if automatic_only():
+        from transcript_audit import review as audit_transcript
+        def audit_call(prompt,schema):
+            return llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                       max_tokens=1200,budget_sec=text_budget(180),response_schema=schema)
+        try:
+            audit=audit_transcript(''.join(cues[i]['text'] for i in sel),speaker,LOCAL_LLM_MODEL,
+                                   audit_call,work/f'transcript_audit{suffix}.json')
+        except (ValueError,TypeError) as exc:
+            raise EditorialReviewUnavailable('独立文字识别疑点审核不可用：'+str(exc)) from exc
+        if not audit['passed']:
+            raise VisualQualityError('原始ASR存在影响理解的疑点，禁止猜改后发布：'
+                                     +json.dumps(audit['issues'],ensure_ascii=False))
+        argument_review={**argument_review,'transcript_audit':audit}
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 

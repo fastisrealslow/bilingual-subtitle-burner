@@ -53,6 +53,7 @@ def verify_directory(directory,request,slug,validator=None):
     if len(rows)!=1 or not isinstance(rows[0],dict):
         raise ValueError('Single-video promotion requires exactly one accepted output')
     row=rows[0];review=row.get('editorial_review') or {}
+    audit=review.get('transcript_audit') or {}
     if (row.get('slug')!=slug or row.get('automatic_only') is not True
             or row.get('reviewed_title_record') or row.get('title_handoff')
             or review.get('automatic_only') is not True
@@ -60,6 +61,9 @@ def verify_directory(directory,request,slug,validator=None):
             or type(review.get('review_prompt_version')) is not int
             or review['review_prompt_version']<9
             or review.get('evidence_protocol')!='source_sentence_ranges_v1'
+            or audit.get('version')!=1 or audit.get('passed') is not True
+            or audit.get('issues')!=[]
+            or audit.get('transcript_sha256')!=review.get('transcript_sha256')
             or editorial_policy.model_review_skipped(review)
             or editorial_policy.review_error(review)
             or ((row.get('title_rewrite') or {}).get('review') or {}).get('method')!='cpu_text_review'):

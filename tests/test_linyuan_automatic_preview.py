@@ -151,6 +151,17 @@ def test_direct_cli_defaults_to_automatic_without_workflow_environment():
     assert 'Automatic mode cannot use reviewed ranges or fixed editorial structures' in result.stderr
 
 
+@pytest.mark.parametrize('speaker,address',[('林园','林远'),('张伟','张韦'),('李明','陈明')])
+def test_ambiguous_named_addressee_is_not_silently_corrected_or_attributed(monkeypatch,tmp_path,speaker,address):
+    monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
+    cues=[dict(start=0,end=10,text=f'想问一下{address}总，您怎么看这个行业？'),
+          dict(start=10,end=140,text='这个行业需求稳定，我们长期关注。')]
+    monkeypatch.setattr(p,'llm',lambda *a,**k:pytest.fail('ambiguous addressee reached costly model inference'))
+    with pytest.raises(p.EditorialReviewUnavailable,match='称呼'):
+        p.review_complete_argument(cues,[dict(start=0,end=1)],speaker,'',tmp_path,'')
+    assert address in cues[0]['text']
+
+
 def test_final_reason_can_close_answer_and_old_prompt_cache_is_rechecked(monkeypatch,tmp_path):
     monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
     cues=[dict(start=0,end=60,text='我们暂时不买这家公司。'),
