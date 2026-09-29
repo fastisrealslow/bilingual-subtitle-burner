@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790710892,
+  "updated_at": 1790710981,
   "inventory_updated_at": 1790710887,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790710891,
+    "updated_at": 1790710981,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 118,
-    "duration_eligible_records": 68,
-    "candidate_count": 68,
-    "known_duration_candidates": 65,
+    "initial_candidates": 117,
+    "duration_eligible_records": 67,
+    "candidate_count": 67,
+    "known_duration_candidates": 64,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 933,
+      "already_attempted_or_cooling": 934,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -50,14 +50,6 @@
         "author": "好看视频",
         "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=4655177794519463990",
         "duration_sec": 67.0
-      },
-      {
-        "key": "bilibili_search:BV1UjaY6pEwv",
-        "title": "林园谈AI：只拿5%试水，人性会诱使你全部押入",
-        "source": "reference_origin_search",
-        "author": "复利财务自由",
-        "url": "https://www.bilibili.com/video/BV1UjaY6pEwv",
-        "duration_sec": 188.0
       },
       {
         "key": "bilibili_search:BV1sQSkBHENq",
@@ -587,14 +579,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 677,
+    "failed": 678,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14807,11 +14799,11 @@
     },
     {
       "slug": "ly-0929-b1d4ea",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790709321,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14894,6 +14886,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36620842634",
       "run_started_at": "2026-09-29T19:39:54Z",
       "run_updated_at": "2026-09-29T19:39:59Z"
+    },
+    {
+      "slug": "ly-0929-09f827",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790710941,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36621128529,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36621128529",
+      "run_started_at": "2026-09-29T19:42:20Z",
+      "run_updated_at": "2026-09-29T19:42:28Z"
     }
   ],
   "runs": {
@@ -19231,6 +19241,28 @@
       "run_number": 1305,
       "display_title": "中文源出片 · ly-0929-40f09b"
     },
+    "ly-0929-b1d4ea": {
+      "id": 36617928872,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-29T19:15:21Z",
+      "updated_at": "2026-09-29T19:40:47Z",
+      "run_started_at": "2026-09-29T19:15:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617928872",
+      "run_number": 1311,
+      "display_title": "中文源出片 · ly-0929-b1d4ea"
+    },
+    "ly-0929-09f827": {
+      "id": 36621128529,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:42:20Z",
+      "updated_at": "2026-09-29T19:42:28Z",
+      "run_started_at": "2026-09-29T19:42:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36621128529",
+      "run_number": 1316,
+      "display_title": "中文源出片 · ly-0929-09f827"
+    },
     "ly-0929-58abbe": {
       "id": 36620842634,
       "status": "in_progress",
@@ -19263,17 +19295,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36618917309",
       "run_number": 1313,
       "display_title": "中文源出片 · ly-0929-fd0b98"
-    },
-    "ly-0929-b1d4ea": {
-      "id": 36617928872,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-29T19:15:21Z",
-      "updated_at": "2026-09-29T19:40:47Z",
-      "run_started_at": "2026-09-29T19:15:21Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617928872",
-      "run_number": 1311,
-      "display_title": "中文源出片 · ly-0929-b1d4ea"
     },
     "ly-0929-67cf91": {
       "id": 36617295014,
