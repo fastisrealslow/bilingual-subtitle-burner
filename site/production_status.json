@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790710429,
+  "updated_at": 1790710516,
   "inventory_updated_at": 1790710424,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790710429,
+    "updated_at": 1790710516,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 120,
-    "duration_eligible_records": 70,
-    "candidate_count": 70,
-    "known_duration_candidates": 67,
+    "initial_candidates": 119,
+    "duration_eligible_records": 69,
+    "candidate_count": 69,
+    "known_duration_candidates": 66,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 931,
+      "already_attempted_or_cooling": 932,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -50,14 +50,6 @@
         "author": "好看视频",
         "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=4655177794519463990",
         "duration_sec": 67.0
-      },
-      {
-        "key": "bilibili_search:BV1jK411A7sg",
-        "title": "【大咖说】林园：未来20年只投医药这三种病 财富再添2个零",
-        "source": "bilibili_search",
-        "author": "bili_602893685",
-        "url": "https://www.bilibili.com/video/BV1jK411A7sg",
-        "duration_sec": 125.0
       },
       {
         "key": "bilibili_search:BV1X64y127VU",
@@ -603,14 +595,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 675,
+    "failed": 676,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14805,11 +14797,11 @@
     },
     {
       "slug": "ly-0929-99361d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/137，总帧数683；身份匹配但人脸短边不足96px的帧数137",
       "signature": {
         "ts": 1790709173,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14874,6 +14866,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36618917309",
       "run_started_at": "2026-09-29T19:23:38Z",
       "run_updated_at": "2026-09-29T19:23:43Z"
+    },
+    {
+      "slug": "ly-0929-bc9c43",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790710480,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36620226517,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36620226517",
+      "run_started_at": "2026-09-29T19:34:39Z",
+      "run_updated_at": "2026-09-29T19:34:44Z"
     }
   ],
   "runs": {
@@ -19189,6 +19199,28 @@
       "run_number": 1312,
       "display_title": "中文源出片 · ly-0929-45602d"
     },
+    "ly-0929-99361d": {
+      "id": 36617634457,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-29T19:12:53Z",
+      "updated_at": "2026-09-29T19:32:53Z",
+      "run_started_at": "2026-09-29T19:12:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617634457",
+      "run_number": 1310,
+      "display_title": "中文源出片 · ly-0929-99361d"
+    },
+    "ly-0929-bc9c43": {
+      "id": 36620226517,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:34:39Z",
+      "updated_at": "2026-09-29T19:34:44Z",
+      "run_started_at": "2026-09-29T19:34:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36620226517",
+      "run_number": 1314,
+      "display_title": "中文源出片 · ly-0929-bc9c43"
+    },
     "ly-0929-fd0b98": {
       "id": 36618917309,
       "status": "in_progress",
@@ -19210,17 +19242,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617928872",
       "run_number": 1311,
       "display_title": "中文源出片 · ly-0929-b1d4ea"
-    },
-    "ly-0929-99361d": {
-      "id": 36617634457,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-29T19:12:53Z",
-      "updated_at": "2026-09-29T19:32:53Z",
-      "run_started_at": "2026-09-29T19:12:53Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617634457",
-      "run_number": 1310,
-      "display_title": "中文源出片 · ly-0929-99361d"
     },
     "ly-0929-67cf91": {
       "id": 36617295014,
