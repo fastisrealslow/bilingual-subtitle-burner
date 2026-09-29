@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790708635,
+  "updated_at": 1790708734,
   "inventory_updated_at": 1790708632,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790708635,
+    "updated_at": 1790708733,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 128,
-    "duration_eligible_records": 78,
-    "candidate_count": 78,
-    "known_duration_candidates": 75,
+    "initial_candidates": 126,
+    "duration_eligible_records": 76,
+    "candidate_count": 76,
+    "known_duration_candidates": 73,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 923,
+      "already_attempted_or_cooling": 925,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -34,22 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1FZa46cEZy",
-        "title": "林园：千万不要封锁年轻人的思想，放开胆子",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1FZa46cEZy",
-        "duration_sec": 160.0
-      },
-      {
-        "key": "bilibili_search:BV1aFen6YEF8",
-        "title": "林园：跑出来一个你就可以改变命运",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1aFen6YEF8",
-        "duration_sec": 63.0
       },
       {
         "key": "bilibili_search:BV1EwaA6HEP9",
@@ -234,6 +218,22 @@
         "author": "临园指路",
         "url": "https://www.bilibili.com/video/BV1QE421V7iE",
         "duration_sec": 125.0
+      },
+      {
+        "key": "bilibili_search:BV1UdTZ6vESM",
+        "title": "林园：人生就是不断地抓机会",
+        "source": "bilibili_search",
+        "author": "唐晶晶的价值观",
+        "url": "https://www.bilibili.com/video/BV1UdTZ6vESM",
+        "duration_sec": 36.0
+      },
+      {
+        "key": "bilibili_search:BV1Ya5S6vEjv",
+        "title": "【林园】林园：重点投下重手，可以改变命运！《收藏经典》",
+        "source": "bilibili_search",
+        "author": "唐晶晶的价值观",
+        "url": "https://www.bilibili.com/video/BV1Ya5S6vEjv",
+        "duration_sec": 63.0
       },
       {
         "key": "bilibili_search:BV1ANjA6sE1M",
@@ -434,22 +434,6 @@
         "author": "旺财学堂",
         "url": "https://www.bilibili.com/video/BV1bh41127zM",
         "duration_sec": 84.0
-      },
-      {
-        "key": "bilibili_search:BV1UdTZ6vESM",
-        "title": "林园：人生就是不断地抓机会",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1UdTZ6vESM",
-        "duration_sec": 36.0
-      },
-      {
-        "key": "bilibili_search:BV1Ya5S6vEjv",
-        "title": "【林园】林园：重点投下重手，可以改变命运！《收藏经典》",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1Ya5S6vEjv",
-        "duration_sec": 63.0
       },
       {
         "key": "bilibili_search:BV1oD4y1X7Au",
@@ -667,14 +651,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 668,
+    "failed": 670,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 3,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 3
+    "running": 5
   },
   "tasks": [
     {
@@ -14725,11 +14709,11 @@
     },
     {
       "slug": "ly-0929-25ff5f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1790708245,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14743,11 +14727,11 @@
     },
     {
       "slug": "ly-0929-5d4229",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1790708251,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14794,6 +14778,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616184256",
       "run_started_at": "2026-09-29T19:00:46Z",
       "run_updated_at": "2026-09-29T19:00:51Z"
+    },
+    {
+      "slug": "ly-0929-3d8d83",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790708687,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36616673555,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616673555",
+      "run_started_at": "2026-09-29T19:04:47Z",
+      "run_updated_at": "2026-09-29T19:04:52Z"
+    },
+    {
+      "slug": "ly-0929-191fbb",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790708694,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36616686365,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616686365",
+      "run_started_at": "2026-09-29T19:04:53Z",
+      "run_updated_at": "2026-09-29T19:04:58Z"
     }
   ],
   "runs": {
@@ -19043,6 +19063,39 @@
       "run_number": 1302,
       "display_title": "中文源出片 · ly-0929-25ff5f"
     },
+    "ly-0929-5d4229": {
+      "id": 36615784662,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-29T18:57:31Z",
+      "updated_at": "2026-09-29T19:02:31Z",
+      "run_started_at": "2026-09-29T18:57:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36615784662",
+      "run_number": 1303,
+      "display_title": "中文源出片 · ly-0929-5d4229"
+    },
+    "ly-0929-191fbb": {
+      "id": 36616686365,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:04:53Z",
+      "updated_at": "2026-09-29T19:04:58Z",
+      "run_started_at": "2026-09-29T19:04:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616686365",
+      "run_number": 1307,
+      "display_title": "中文源出片 · ly-0929-191fbb"
+    },
+    "ly-0929-3d8d83": {
+      "id": 36616673555,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:04:47Z",
+      "updated_at": "2026-09-29T19:04:52Z",
+      "run_started_at": "2026-09-29T19:04:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616673555",
+      "run_number": 1306,
+      "display_title": "中文源出片 · ly-0929-3d8d83"
+    },
     "ly-0929-40f09b": {
       "id": 36616184256,
       "status": "in_progress",
@@ -19064,17 +19117,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616170632",
       "run_number": 1304,
       "display_title": "中文源出片 · ly-0929-cfeb34"
-    },
-    "ly-0929-5d4229": {
-      "id": 36615784662,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-29T18:57:31Z",
-      "updated_at": "2026-09-29T19:02:31Z",
-      "run_started_at": "2026-09-29T18:57:31Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36615784662",
-      "run_number": 1303,
-      "display_title": "中文源出片 · ly-0929-5d4229"
     },
     "ly-0929-376b62": {
       "id": 36610854991,
