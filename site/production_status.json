@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790708941,
+  "updated_at": 1790709046,
   "inventory_updated_at": 1790708938,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790708941,
+    "updated_at": 1790709046,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 126,
-    "duration_eligible_records": 76,
-    "candidate_count": 76,
-    "known_duration_candidates": 73,
+    "initial_candidates": 124,
+    "duration_eligible_records": 74,
+    "candidate_count": 74,
+    "known_duration_candidates": 71,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 925,
+      "already_attempted_or_cooling": 927,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -34,22 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1EwaA6HEP9",
-        "title": "《Into The Wilds (Main Theme)》之林园·篮球场之完整版",
-        "source": "bilibili_search",
-        "author": "神福仙",
-        "url": "https://www.bilibili.com/video/BV1EwaA6HEP9",
-        "duration_sec": 129.0
-      },
-      {
-        "key": "bilibili_search:BV1jqQNYyEgy",
-        "title": "林园经典演讲，受益匪浅",
-        "source": "bilibili_search",
-        "author": "牛牛札记",
-        "url": "https://www.bilibili.com/video/BV1jqQNYyEgy",
-        "duration_sec": 890.0
       },
       {
         "key": "bilibili_search:BV1gL411j76W",
@@ -651,14 +635,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 670,
+    "failed": 671,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -14745,11 +14729,11 @@
     },
     {
       "slug": "ly-0929-cfeb34",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 23.13s，原始画面不足以保留完整人脸及头顶余量",
       "signature": {
         "ts": 1790708440,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14814,6 +14798,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616686365",
       "run_started_at": "2026-09-29T19:04:53Z",
       "run_updated_at": "2026-09-29T19:04:58Z"
+    },
+    {
+      "slug": "ly-0929-357a0c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790708995,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36617279124,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617279124",
+      "run_started_at": "2026-09-29T19:09:55Z",
+      "run_updated_at": "2026-09-29T19:09:59Z"
+    },
+    {
+      "slug": "ly-0929-67cf91",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790709003,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36617295014,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617295014",
+      "run_started_at": "2026-09-29T19:10:03Z",
+      "run_updated_at": "2026-09-29T19:10:09Z"
     }
   ],
   "runs": {
@@ -19074,6 +19094,39 @@
       "run_number": 1303,
       "display_title": "中文源出片 · ly-0929-5d4229"
     },
+    "ly-0929-cfeb34": {
+      "id": 36616170632,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-29T19:00:40Z",
+      "updated_at": "2026-09-29T19:08:02Z",
+      "run_started_at": "2026-09-29T19:00:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616170632",
+      "run_number": 1304,
+      "display_title": "中文源出片 · ly-0929-cfeb34"
+    },
+    "ly-0929-67cf91": {
+      "id": 36617295014,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:10:03Z",
+      "updated_at": "2026-09-29T19:10:09Z",
+      "run_started_at": "2026-09-29T19:10:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617295014",
+      "run_number": 1309,
+      "display_title": "中文源出片 · ly-0929-67cf91"
+    },
+    "ly-0929-357a0c": {
+      "id": 36617279124,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:09:55Z",
+      "updated_at": "2026-09-29T19:09:59Z",
+      "run_started_at": "2026-09-29T19:09:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36617279124",
+      "run_number": 1308,
+      "display_title": "中文源出片 · ly-0929-357a0c"
+    },
     "ly-0929-191fbb": {
       "id": 36616686365,
       "status": "in_progress",
@@ -19106,17 +19159,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616184256",
       "run_number": 1305,
       "display_title": "中文源出片 · ly-0929-40f09b"
-    },
-    "ly-0929-cfeb34": {
-      "id": 36616170632,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-29T19:00:40Z",
-      "updated_at": "2026-09-29T19:08:02Z",
-      "run_started_at": "2026-09-29T19:00:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36616170632",
-      "run_number": 1304,
-      "display_title": "中文源出片 · ly-0929-cfeb34"
     },
     "ly-0929-376b62": {
       "id": 36610854991,
