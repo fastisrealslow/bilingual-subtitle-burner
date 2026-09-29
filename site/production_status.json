@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790709770,
+  "updated_at": 1790709856,
   "inventory_updated_at": 1790709765,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790709770,
+    "updated_at": 1790709855,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 121,
-    "duration_eligible_records": 71,
-    "candidate_count": 71,
-    "known_duration_candidates": 68,
+    "initial_candidates": 120,
+    "duration_eligible_records": 70,
+    "candidate_count": 70,
+    "known_duration_candidates": 67,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 930,
+      "already_attempted_or_cooling": 931,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -34,14 +34,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20260922V0ACJ100",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1f7KX6AEd2",
-        "title": "百亿大咖林园震撼发言：医药市场未来势不可挡，很多人不懂！#林园#价值投资#老登股",
-        "source": "bilibili_search",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1f7KX6AEd2",
-        "duration_sec": 506.0
       },
       {
         "key": "haokan_video:4342017134504712894",
@@ -611,14 +603,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 674,
+    "failed": 675,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14849,11 +14841,11 @@
     },
     {
       "slug": "ly-0929-45602d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1285, 2: 0.0363, 3: 0.0703, 4: 0.1366, 5: 0.0376, 6: 0.1546, 7: 0.1143, 8: 0.1841, 9: -0.0862, 10: 0.1873, 11: 0.1035, 12: -0.035, 13: 0.1114, 14: 0.0181, 15: 0.0438, 16: 0.0864, 17: 0.0534, 18: 0.0678}",
       "signature": {
         "ts": 1790709537,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14864,6 +14856,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36618357989",
       "run_started_at": "2026-09-29T19:18:57Z",
       "run_updated_at": "2026-09-29T19:22:03Z"
+    },
+    {
+      "slug": "ly-0929-fd0b98",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790709818,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36618917309,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36618917309",
+      "run_started_at": "2026-09-29T19:23:38Z",
+      "run_updated_at": "2026-09-29T19:23:43Z"
     }
   ],
   "runs": {
@@ -19178,6 +19188,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36618357989",
       "run_number": 1312,
       "display_title": "中文源出片 · ly-0929-45602d"
+    },
+    "ly-0929-fd0b98": {
+      "id": 36618917309,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:23:38Z",
+      "updated_at": "2026-09-29T19:23:43Z",
+      "run_started_at": "2026-09-29T19:23:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36618917309",
+      "run_number": 1313,
+      "display_title": "中文源出片 · ly-0929-fd0b98"
     },
     "ly-0929-b1d4ea": {
       "id": 36617928872,
