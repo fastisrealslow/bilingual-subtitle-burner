@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790713886,
+  "updated_at": 1790713975,
   "inventory_updated_at": 1790713883,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790713886,
+    "updated_at": 1790713974,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 107,
-    "duration_eligible_records": 57,
-    "candidate_count": 57,
-    "known_duration_candidates": 54,
+    "initial_candidates": 106,
+    "duration_eligible_records": 56,
+    "candidate_count": 56,
+    "known_duration_candidates": 53,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 944,
+      "already_attempted_or_cooling": 945,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -50,14 +50,6 @@
         "author": "好看视频",
         "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=4655177794519463990",
         "duration_sec": 67.0
-      },
-      {
-        "key": "bilibili_search:BV1ANjA6sE1M",
-        "title": "林园：现在是我上大台阶的时候！",
-        "source": "bilibili_search",
-        "author": "滚雪球财务自由",
-        "url": "https://www.bilibili.com/video/BV1ANjA6sE1M",
-        "duration_sec": 37.0
       },
       {
         "key": "bilibili_search:BV1tUNheuEpv",
@@ -499,14 +491,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 688,
+    "failed": 689,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14989,11 +14981,11 @@
     },
     {
       "slug": "ly-0929-7eff44",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0441, 3: 0.091, 4: 0.0889, 5: 0.1775, 6: 0.0117, 7: 0.0165, 8: -0.0875, 9: -0.0157, 10: 0.0951, 11: 0.0872, 12: 0.0682, 13: 0.0393, 14: 0.0583, 15: 0.0944, 16: 0.0706, 17: 0.1152, 18: 0.0933}",
       "signature": {
         "ts": 1790713730,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -15004,6 +14996,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36626626848",
       "run_started_at": "2026-09-29T20:28:50Z",
       "run_updated_at": "2026-09-29T20:30:36Z"
+    },
+    {
+      "slug": "ly-0929-93098b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790713934,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36627030599,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36627030599",
+      "run_started_at": "2026-09-29T20:32:14Z",
+      "run_updated_at": "2026-09-29T20:32:19Z"
     }
   ],
   "runs": {
@@ -19472,6 +19482,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36626626848",
       "run_number": 1326,
       "display_title": "中文源出片 · ly-0929-7eff44"
+    },
+    "ly-0929-93098b": {
+      "id": 36627030599,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T20:32:14Z",
+      "updated_at": "2026-09-29T20:32:19Z",
+      "run_started_at": "2026-09-29T20:32:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36627030599",
+      "run_number": 1327,
+      "display_title": "中文源出片 · ly-0929-93098b"
     },
     "ly-0929-c5197a": {
       "id": 36625134971,
