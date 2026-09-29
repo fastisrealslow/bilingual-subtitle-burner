@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790711100,
+  "updated_at": 1790711191,
   "inventory_updated_at": 1790711094,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790711100,
+    "updated_at": 1790711191,
     "records": 7220,
     "video_records": 6065,
-    "initial_candidates": 117,
-    "duration_eligible_records": 67,
-    "candidate_count": 67,
-    "known_duration_candidates": 64,
+    "initial_candidates": 116,
+    "duration_eligible_records": 66,
+    "candidate_count": 66,
+    "known_duration_candidates": 63,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 3701,
       "no_video": 1155,
-      "already_attempted_or_cooling": 934,
+      "already_attempted_or_cooling": 935,
       "clip_title": 1024,
       "noise": 129,
       "unrelated": 57,
@@ -50,22 +50,6 @@
         "author": "好看视频",
         "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=4655177794519463990",
         "duration_sec": 67.0
-      },
-      {
-        "key": "bilibili_search:BV1sQSkBHENq",
-        "title": "林园：茅台要上大台阶了（林园最新 2025.11.27 茅台股东大会）",
-        "source": "reference_origin_search",
-        "author": "与林园大师同行",
-        "url": "https://www.bilibili.com/video/BV1sQSkBHENq",
-        "duration_sec": 88.0
-      },
-      {
-        "key": "bilibili_search:BV1jHmqBSEuK",
-        "title": "林园：片仔H我的成本40多块（2025.12.13）",
-        "source": "bilibili_search",
-        "author": "与林园大师同行",
-        "url": "https://www.bilibili.com/video/BV1jHmqBSEuK",
-        "duration_sec": 91.0
       },
       {
         "key": "bilibili_search:BV12K4y1q799",
@@ -300,6 +284,22 @@
         "duration_sec": 31.0
       },
       {
+        "key": "bilibili_search:BV1jHmqBSEuK",
+        "title": "林园：片仔H我的成本40多块（2025.12.13）",
+        "source": "bilibili_search",
+        "author": "与林园大师同行",
+        "url": "https://www.bilibili.com/video/BV1jHmqBSEuK",
+        "duration_sec": 91.0
+      },
+      {
+        "key": "bilibili_search:BV16419BYEwi",
+        "title": "林园：买黄金发不了财",
+        "source": "reference_origin_search",
+        "author": "与林园大师同行",
+        "url": "https://www.bilibili.com/video/BV16419BYEwi",
+        "duration_sec": 167.0
+      },
+      {
         "key": "bilibili_search:BV16m4y1P7Uc",
         "title": "林园：我不给别人出主意，我只说常识",
         "source": "bilibili_search",
@@ -394,14 +394,6 @@
         "author": "好看视频",
         "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=3890918188261611602",
         "duration_sec": 35.0
-      },
-      {
-        "key": "bilibili_search:BV16419BYEwi",
-        "title": "林园：买黄金发不了财",
-        "source": "reference_origin_search",
-        "author": "与林园大师同行",
-        "url": "https://www.bilibili.com/video/BV16419BYEwi",
-        "duration_sec": 167.0
       },
       {
         "key": "bilibili_search:BV1P2gr6JEPd",
@@ -579,14 +571,14 @@
   },
   "counts": {
     "complete": 93,
-    "failed": 678,
+    "failed": 679,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 8,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -14853,11 +14845,11 @@
     },
     {
       "slug": "ly-0929-bc9c43",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790710480,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -14904,6 +14896,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36621128529",
       "run_started_at": "2026-09-29T19:42:20Z",
       "run_updated_at": "2026-09-29T19:42:28Z"
+    },
+    {
+      "slug": "ly-0929-4ebdd8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790711152,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36621543550,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36621543550",
+      "run_started_at": "2026-09-29T19:45:52Z",
+      "run_updated_at": "2026-09-29T19:45:57Z"
     }
   ],
   "runs": {
@@ -19252,6 +19262,28 @@
       "run_number": 1311,
       "display_title": "中文源出片 · ly-0929-b1d4ea"
     },
+    "ly-0929-bc9c43": {
+      "id": 36620226517,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-09-29T19:34:39Z",
+      "updated_at": "2026-09-29T19:44:08Z",
+      "run_started_at": "2026-09-29T19:34:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36620226517",
+      "run_number": 1314,
+      "display_title": "中文源出片 · ly-0929-bc9c43"
+    },
+    "ly-0929-4ebdd8": {
+      "id": 36621543550,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-29T19:45:52Z",
+      "updated_at": "2026-09-29T19:45:57Z",
+      "run_started_at": "2026-09-29T19:45:52Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36621543550",
+      "run_number": 1317,
+      "display_title": "中文源出片 · ly-0929-4ebdd8"
+    },
     "ly-0929-09f827": {
       "id": 36621128529,
       "status": "in_progress",
@@ -19273,17 +19305,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36620842634",
       "run_number": 1315,
       "display_title": "中文源出片 · ly-0929-58abbe"
-    },
-    "ly-0929-bc9c43": {
-      "id": 36620226517,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-29T19:34:39Z",
-      "updated_at": "2026-09-29T19:44:08Z",
-      "run_started_at": "2026-09-29T19:34:39Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36620226517",
-      "run_number": 1314,
-      "display_title": "中文源出片 · ly-0929-bc9c43"
     },
     "ly-0929-fd0b98": {
       "id": 36618917309,
