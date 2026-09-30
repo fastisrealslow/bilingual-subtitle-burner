@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790761105,
+  "updated_at": 1790761212,
   "inventory_updated_at": 1790761098,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790761104,
+    "updated_at": 1790761211,
     "records": 7293,
     "video_records": 6134,
-    "initial_candidates": 86,
-    "duration_eligible_records": 36,
-    "candidate_count": 36,
-    "known_duration_candidates": 33,
+    "initial_candidates": 85,
+    "duration_eligible_records": 35,
+    "candidate_count": 35,
+    "known_duration_candidates": 32,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1159,
       "speaker_unconfirmed": 3765,
-      "already_attempted_or_cooling": 970,
+      "already_attempted_or_cooling": 971,
       "clip_title": 1025,
       "noise": 129,
       "unrelated": 57,
@@ -67,6 +67,22 @@
         "duration_sec": 0
       },
       {
+        "key": "bilibili_search:BV1Zw411w788",
+        "title": "林园：重点布局中药还是西药呢？",
+        "source": "bilibili_search",
+        "author": "大佬投资思维",
+        "url": "https://www.bilibili.com/video/BV1Zw411w788",
+        "duration_sec": 69.0
+      },
+      {
+        "key": "bilibili_search:BV1vw411i75D",
+        "title": "林园：股市里赚的钱是用来“看”而不是用来“花”的",
+        "source": "bilibili_search",
+        "author": "大佬投资思维",
+        "url": "https://www.bilibili.com/video/BV1vw411i75D",
+        "duration_sec": 61.0
+      },
+      {
         "key": "bilibili_search:BV1amsoeeEA1",
         "title": "林园：别做苦命人",
         "source": "bilibili_search",
@@ -81,22 +97,6 @@
         "author": "有竞争就有风险",
         "url": "https://www.bilibili.com/video/BV193HyefE2T",
         "duration_sec": 66.0
-      },
-      {
-        "key": "bilibili_search:BV1894y1A74f",
-        "title": "林园：上大台阶的机会，人生抓住一次就够了",
-        "source": "bilibili_search",
-        "author": "大佬投资思维",
-        "url": "https://www.bilibili.com/video/BV1894y1A74f",
-        "duration_sec": 105.0
-      },
-      {
-        "key": "bilibili_search:BV1Zw411w788",
-        "title": "林园：重点布局中药还是西药呢？",
-        "source": "bilibili_search",
-        "author": "大佬投资思维",
-        "url": "https://www.bilibili.com/video/BV1Zw411w788",
-        "duration_sec": 69.0
       },
       {
         "key": "bilibili_search:BV1LoMJzsED6",
@@ -251,14 +251,6 @@
         "duration_sec": 53.0
       },
       {
-        "key": "bilibili_search:BV1vw411i75D",
-        "title": "林园：股市里赚的钱是用来“看”而不是用来“花”的",
-        "source": "bilibili_search",
-        "author": "大佬投资思维",
-        "url": "https://www.bilibili.com/video/BV1vw411i75D",
-        "duration_sec": 61.0
-      },
-      {
         "key": "bilibili_search:BV1BCQpYYErF",
         "title": "林园谈组合的集中策略",
         "source": "reference_origin_search",
@@ -330,14 +322,14 @@
   },
   "counts": {
     "complete": 95,
-    "failed": 714,
+    "failed": 715,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 10,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
-    "running": 1
+    "running": 2
   },
   "tasks": [
     {
@@ -15288,11 +15280,11 @@
     },
     {
       "slug": "ly-0930-497213",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790760617,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -15303,6 +15295,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36696531822",
       "run_started_at": "2026-09-30T09:30:17Z",
       "run_updated_at": "2026-09-30T09:37:02Z"
+    },
+    {
+      "slug": "ly-0930-85bda9",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790761171,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36697501933,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36697501933",
+      "run_started_at": "2026-09-30T09:39:31Z",
+      "run_updated_at": "2026-09-30T09:39:35Z"
     }
   ],
   "runs": {
@@ -20101,6 +20111,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36696531822",
       "run_number": 1352,
       "display_title": "中文源出片 · ly-0930-497213"
+    },
+    "ly-0930-85bda9": {
+      "id": 36697501933,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-30T09:39:31Z",
+      "updated_at": "2026-09-30T09:39:35Z",
+      "run_started_at": "2026-09-30T09:39:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36697501933",
+      "run_number": 1353,
+      "display_title": "中文源出片 · ly-0930-85bda9"
     },
     "ly-0930-7319dd": {
       "id": 36693688410,
