@@ -17411,7 +17411,8 @@
    "failed": true,
    "last_error": "整段取景预检：源 35.27s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1jp421y7KK",
@@ -17428,7 +17429,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "有竞争就有风险",
-   "publish_time": "2024-04-04T12:23:52+00:00"
+   "publish_time": "2024-04-04T12:23:52+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[6]，scan_different=[8]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{6: 0.5347, 8: 0.0645}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -58631,6 +58636,13 @@
    "video_id": "BV193HyefE2T",
    "ts": 1790763383,
    "error": "整段取景预检：源 35.27s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-0930-d62dc5",
+   "key": "bilibili_search:BV1jp421y7KK",
+   "video_id": "BV1jp421y7KK",
+   "ts": 1790763647,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[6]，scan_different=[8]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{6: 0.5347, 8: 0.0645}"
   }
  ],
  "reviewed_third_video_0910": {
