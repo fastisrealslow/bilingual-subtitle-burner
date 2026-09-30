@@ -1,21 +1,21 @@
 {
   "version": 1,
-  "updated_at": 1790758835,
+  "updated_at": 1790758925,
   "inventory_updated_at": 1790758831,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790758834,
+    "updated_at": 1790758925,
     "records": 7293,
     "video_records": 6134,
-    "initial_candidates": 91,
-    "duration_eligible_records": 41,
-    "candidate_count": 41,
-    "known_duration_candidates": 38,
+    "initial_candidates": 90,
+    "duration_eligible_records": 40,
+    "candidate_count": 40,
+    "known_duration_candidates": 37,
     "unknown_duration_candidates": 3,
     "excluded": {
       "no_video": 1159,
       "speaker_unconfirmed": 3765,
-      "already_attempted_or_cooling": 965,
+      "already_attempted_or_cooling": 966,
       "clip_title": 1025,
       "noise": 129,
       "unrelated": 57,
@@ -26,14 +26,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1tean6pExQ",
-        "title": "2026.01.26林园演讲:投资看真实现金流，企业要有实实在在落袋的利润，不炒作题材、概念故事。垄断是盈利核心，企业必",
-        "source": "bilibili_search",
-        "author": "复利的奇迹",
-        "url": "https://www.bilibili.com/video/BV1tean6pExQ",
-        "duration_sec": 5102.0
-      },
       {
         "key": "bilibili_search:BV15h4y147P9",
         "title": "林园2023年5月24日排排网最新访谈",
@@ -370,13 +362,14 @@
   },
   "counts": {
     "complete": 95,
-    "failed": 710,
+    "failed": 711,
     "paused": 5,
     "validation_failed": 2,
     "reserved": 1,
     "ready": 10,
-    "interrupted": 2,
-    "excluded": 1
+    "interrupted": 1,
+    "excluded": 1,
+    "running": 1
   },
   "tasks": [
     {
@@ -15237,11 +15230,11 @@
     },
     {
       "slug": "ly-0930-4ee5e3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 434 < 480（852x434），画质不达标",
       "signature": {
         "ts": 1790758672,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -15252,6 +15245,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36693021860",
       "run_started_at": "2026-09-30T08:57:52Z",
       "run_updated_at": "2026-09-30T08:59:43Z"
+    },
+    {
+      "slug": "ly-0930-78984b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790758886,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36693410958,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36693410958",
+      "run_started_at": "2026-09-30T09:01:25Z",
+      "run_updated_at": "2026-09-30T09:01:30Z"
     }
   ],
   "runs": {
@@ -20006,6 +20017,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36693021860",
       "run_number": 1347,
       "display_title": "中文源出片 · ly-0930-4ee5e3"
+    },
+    "ly-0930-78984b": {
+      "id": 36693410958,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-30T09:01:25Z",
+      "updated_at": "2026-09-30T09:01:30Z",
+      "run_started_at": "2026-09-30T09:01:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36693410958",
+      "run_number": 1348,
+      "display_title": "中文源出片 · ly-0930-78984b"
     }
   }
 }
