@@ -17562,7 +17562,8 @@
    "failed": true,
    "last_error": "选段原画仍有来源角标",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1HZaf6nEn8",
@@ -17627,7 +17628,8 @@
    "failed": true,
    "last_error": "整段取景预检：源 2.37s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1To4y1k7oK",
@@ -17644,7 +17646,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "老牛实盘",
-   "publish_time": "2023-03-05T09:03:10+00:00"
+   "publish_time": "2023-03-05T09:03:10+00:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1LoMJzsED6",
@@ -17661,7 +17667,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "人人の股神",
-   "publish_time": "2025-06-11T10:53:12+00:00"
+   "publish_time": "2025-06-11T10:53:12+00:00",
+   "failed": true,
+   "last_error": "真人动态区检出持续黑边/错误取景",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Hfo3YHEVK",
@@ -17678,7 +17688,11 @@
    "delay_hours": 0,
    "source": "reference_origin_search",
    "author": "人人の股神",
-   "publish_time": "2025-04-14T02:25:08+00:00"
+   "publish_time": "2025-04-14T02:25:08+00:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1tu411W7Qe",
@@ -17695,7 +17709,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "理财有我",
-   "publish_time": "2023-06-04T06:22:09+00:00"
+   "publish_time": "2023-06-04T06:22:09+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1rb4y1z7zd",
@@ -17712,7 +17730,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "理财有我",
-   "publish_time": "2021-08-05T14:20:01+00:00"
+   "publish_time": "2021-08-05T14:20:01+00:00",
+   "failed": true,
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -60654,6 +60676,41 @@
    "video_id": "http://f.video.weibocdn.com/o0/9fJQtasZlx08B6BDihE401041200aqQa0E010.mp4",
    "ts": 1790870987,
    "error": "选段原画仍有来源角标"
+  },
+  {
+   "slug": "ly-1001-2ffebb",
+   "key": "bilibili_search:BV1rb4y1z7zd",
+   "video_id": "BV1rb4y1z7zd",
+   "ts": 1790871799,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1001-da3689",
+   "key": "bilibili_search:BV1tu411W7Qe",
+   "video_id": "BV1tu411W7Qe",
+   "ts": 1790871801,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1001-9e0b05",
+   "key": "bilibili_search:BV1Hfo3YHEVK",
+   "video_id": "BV1Hfo3YHEVK",
+   "ts": 1790871802,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1001-334db4",
+   "key": "bilibili_search:BV1LoMJzsED6",
+   "video_id": "BV1LoMJzsED6",
+   "ts": 1790871804,
+   "error": "真人动态区检出持续黑边/错误取景"
+  },
+  {
+   "slug": "ly-1001-daa64e",
+   "key": "bilibili_search:BV1To4y1k7oK",
+   "video_id": "BV1To4y1k7oK",
+   "ts": 1790871805,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
