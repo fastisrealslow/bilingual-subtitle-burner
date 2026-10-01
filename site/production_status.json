@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790879208,
+  "updated_at": 1790879408,
   "inventory_updated_at": 1790879204,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790879207,
+    "updated_at": 1790879408,
     "records": 7461,
     "video_records": 6282,
-    "initial_candidates": 52,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 1,
-    "unknown_duration_candidates": 1,
+    "initial_candidates": 50,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
+    "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 1016,
       "no_video": 1179,
-      "already_attempted_or_cooling": 1014,
       "clip_title": 1027,
       "speaker_unconfirmed": 3899,
       "noise": 130,
@@ -25,24 +25,7 @@
       "over_limit": 16,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1Jkaz6fEP9",
-        "title": "林园早年精彩采访，讲述自己选股思路",
-        "source": "bilibili_search",
-        "author": "潜伏c",
-        "url": "https://www.bilibili.com/video/BV1Jkaz6fEP9",
-        "duration_sec": 1195.0
-      },
-      {
-        "key": "netease_video:VI78VH2GN",
-        "title": "林园：英伟达市值太大了，早晚要完蛋？",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VI78VH2GN.html",
-        "duration_sec": 0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 12,
@@ -58,13 +41,14 @@
   },
   "counts": {
     "complete": 99,
-    "failed": 755,
+    "failed": 756,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 5,
-    "interrupted": 2,
-    "excluded": 3
+    "interrupted": 1,
+    "excluded": 3,
+    "running": 2
   },
   "tasks": [
     {
@@ -15681,11 +15665,11 @@
     },
     {
       "slug": "ly-1001-8895a2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "成片存在持续黑色填充边",
       "signature": {
         "ts": 1790876581,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -15750,6 +15734,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36902604326",
       "run_started_at": "2026-10-01T17:52:24Z",
       "run_updated_at": "2026-10-01T17:58:49Z"
+    },
+    {
+      "slug": "ly-1001-64ce9d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790879259,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36906986327,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36906986327",
+      "run_started_at": "2026-10-01T18:27:39Z",
+      "run_updated_at": "2026-10-01T18:27:43Z"
+    },
+    {
+      "slug": "ly-1001-d57c4c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790879354,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36907182119,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36907182119",
+      "run_started_at": "2026-10-01T18:29:13Z",
+      "run_updated_at": "2026-10-01T18:29:19Z"
     }
   ],
   "runs": {
@@ -20999,6 +21019,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36900877309",
       "run_number": 1391,
       "display_title": "中文源出片 · ly-1001-79367b"
+    },
+    "ly-1001-d57c4c": {
+      "id": 36907182119,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-01T18:29:13Z",
+      "updated_at": "2026-10-01T18:29:19Z",
+      "run_started_at": "2026-10-01T18:29:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36907182119",
+      "run_number": 1397,
+      "display_title": "中文源出片 · ly-1001-d57c4c"
+    },
+    "ly-1001-64ce9d": {
+      "id": 36906986327,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-01T18:27:39Z",
+      "updated_at": "2026-10-01T18:27:43Z",
+      "run_started_at": "2026-10-01T18:27:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36906986327",
+      "run_number": 1396,
+      "display_title": "中文源出片 · ly-1001-64ce9d"
     }
   }
 }
