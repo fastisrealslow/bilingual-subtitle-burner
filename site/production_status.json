@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1790876179,
+  "updated_at": 1790876364,
   "inventory_updated_at": 1790876177,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790876179,
+    "updated_at": 1790876364,
     "records": 7441,
     "video_records": 6262,
-    "initial_candidates": 56,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
+    "initial_candidates": 54,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
     "known_duration_candidates": 3,
-    "unknown_duration_candidates": 3,
+    "unknown_duration_candidates": 1,
     "excluded": {
       "no_video": 1179,
-      "already_attempted_or_cooling": 1008,
+      "already_attempted_or_cooling": 1010,
       "clip_title": 1027,
       "speaker_unconfirmed": 3881,
       "noise": 130,
@@ -26,22 +26,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "netease_video:VY74OQ7NC",
-        "title": "司机身价两亿，保姆身价8亿，林园：我就是比马云有钱",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VY74OQ7NC.html",
-        "duration_sec": 0
-      },
-      {
-        "key": "netease_video:VX6CMNO2R",
-        "title": "林园：投资关键是选对企业，否则，任何努力都是白搭！",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VX6CMNO2R.html",
-        "duration_sec": 0
-      },
       {
         "key": "haokan_video:4090708328670509415",
         "title": "林园：人赚到一亿后再赚十亿就很容易了 #财经#经济#价值投资#林园",
@@ -97,7 +81,8 @@
     "ready": 5,
     "interrupted": 1,
     "excluded": 1,
-    "running": 5
+    "running": 5,
+    "awaiting_validation": 1
   },
   "tasks": [
     {
@@ -15606,8 +15591,8 @@
     },
     {
       "slug": "ly-1001-68862c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "awaiting_validation",
+      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
       "signature": {
         "ts": 1790875175,
         "failed": null,
@@ -15620,7 +15605,7 @@
       "run_id": 36898542840,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36898542840",
       "run_started_at": "2026-10-01T17:19:35Z",
-      "run_updated_at": "2026-10-01T17:19:40Z"
+      "run_updated_at": "2026-10-01T17:38:52Z"
     },
     {
       "slug": "ly-1001-dd8872",
@@ -15693,6 +15678,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36900334506",
       "run_started_at": "2026-10-01T17:34:08Z",
       "run_updated_at": "2026-10-01T17:34:13Z"
+    },
+    {
+      "slug": "ly-1001-79367b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1790876314,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 36900877309,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36900877309",
+      "run_started_at": "2026-10-01T17:38:34Z",
+      "run_updated_at": "2026-10-01T17:38:39Z"
     }
   ],
   "runs": {
@@ -20833,6 +20836,17 @@
       "run_number": 1387,
       "display_title": "中文源出片 · ly-1001-dd8872"
     },
+    "ly-1001-79367b": {
+      "id": 36900877309,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-01T17:38:34Z",
+      "updated_at": "2026-10-01T17:38:39Z",
+      "run_started_at": "2026-10-01T17:38:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36900877309",
+      "run_number": 1391,
+      "display_title": "中文源出片 · ly-1001-79367b"
+    },
     "ly-1001-5e2579": {
       "id": 36900334506,
       "status": "in_progress",
@@ -20868,10 +20882,10 @@
     },
     "ly-1001-68862c": {
       "id": 36898542840,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-01T17:19:35Z",
-      "updated_at": "2026-10-01T17:19:40Z",
+      "updated_at": "2026-10-01T17:38:52Z",
       "run_started_at": "2026-10-01T17:19:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36898542840",
       "run_number": 1386,
