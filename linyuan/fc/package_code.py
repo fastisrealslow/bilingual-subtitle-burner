@@ -16,7 +16,7 @@ SOURCES = (
 )
 
 
-def build(destination):
+def build(destination, include_reviewed_videos=False):
     sources = [ROOT / name for name in SOURCES]
     names = {p.stem for p in sources}
     # Check lazy imports too: these used to fail only when FC validated a title.
@@ -35,7 +35,7 @@ def build(destination):
         for path in sources:
             archive.write(path, path.name)
         for path in sorted((ROOT/'fc/reviewed_0910').rglob('*')):
-            if path.is_file():
+            if path.is_file() and (include_reviewed_videos or path.suffix.lower() != '.mp4'):
                 archive.write(path, path.relative_to(ROOT/'fc'))
     with zipfile.ZipFile(destination) as archive:
         if archive.testzip():
@@ -46,4 +46,7 @@ def build(destination):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('destination')
-    print(build(parser.parse_args().destination))
+    parser.add_argument('--include-reviewed-videos', action='store_true',
+                        help='Include original media only for explicit historical archive replacements')
+    args = parser.parse_args()
+    print(build(args.destination, include_reviewed_videos=args.include_reviewed_videos))
