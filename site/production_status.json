@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1790921240,
+  "updated_at": 1790921325,
   "inventory_updated_at": 1790921236,
   "source_admission": {
     "version": 1,
-    "updated_at": 1790921239,
+    "updated_at": 1790921324,
     "records": 7564,
     "video_records": 6379,
     "initial_candidates": 50,
@@ -41,15 +41,15 @@
   },
   "counts": {
     "complete": 102,
-    "failed": 757,
+    "failed": 759,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "ready": 4,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
     "awaiting_validation": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -15792,11 +15792,11 @@
     },
     {
       "slug": "ly-1002-bc9d5b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1790921085,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -15806,15 +15806,15 @@
       "run_id": 36971835672,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36971835672",
       "run_started_at": "2026-10-02T06:04:44Z",
-      "run_updated_at": "2026-10-02T06:04:50Z"
+      "run_updated_at": "2026-10-02T06:07:06Z"
     },
     {
       "slug": "ly-1002-03ad5c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 330 < 480（640x330），画质不达标",
       "signature": {
         "ts": 1790921092,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21110,10 +21110,10 @@
     },
     "ly-1002-bc9d5b": {
       "id": 36971835672,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-02T06:04:44Z",
-      "updated_at": "2026-10-02T06:04:50Z",
+      "updated_at": "2026-10-02T06:07:06Z",
       "run_started_at": "2026-10-02T06:04:44Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/36971835672",
       "run_number": 1399,
