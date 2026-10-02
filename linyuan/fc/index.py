@@ -2426,8 +2426,7 @@ def _dispatch_admitted(event=None, context=None):
         log.warning('原始转写再利用队列暂不可读：%s',type(exc).__name__)
     # A unavailable checker is not evidence of a bad mother. Retry its exact
     # candidate with backoff, bounded by the same six-running-source limit.
-    for entry in sorted(_latest_dispatches(st),key=lambda e:(not bool(e.get('reviewed_parts')),
-                                                           float(e.get('source_check_retry_after') or 0))):
+    for entry in sorted(_latest_dispatches(st),key=lambda e:float(e.get('source_check_retry_after') or 0)):
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
@@ -2439,8 +2438,8 @@ def _dispatch_admitted(event=None, context=None):
                 'occasion':entry.get('title','')[:30],'auto_publish':'false',
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
                 'output_layout':entry.get('output_layout','auto'),
-                **({'reviewed_parts':str(entry['reviewed_parts'])} if entry.get('reviewed_parts') else {}),
-                **({'selected_parts':str(entry['selected_parts'])} if entry.get('selected_parts') else {}),
+                # Scheduled retries must reselect automatically; historical
+                # editorial ranges and part numbers are not source evidence.
                 **({'recovery_run_id':str(entry['source_check_run_id'])} if entry.get('source_check_run_id') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
@@ -3413,13 +3412,9 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
                        "output_layout": e.get("output_layout", "auto"),
                        "delay_hours": "0", "auto_publish": "false",
                        **recovery,
-                       **({'reviewed_parts':str(e['reviewed_parts'])} if e.get('reviewed_parts') else {}),
-                       **({'selected_parts':str(e['selected_parts'])} if e.get('selected_parts') else {}),
-                       # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
-                       # 否则常规模式允许空片段，会出现“运行成功但仅产出 3 条”。
-                       **({"include_full": "true"} if e.get("weekly_full_week") else {}),
-                       **({"target_parts": "13", "include_full": "true"}
-                          if slug == "ly-parity-v3-14-0905" else {})}})
+                       # Keep delivery format and original evidence, never
+                       # replay per-source editorial choices or fixed counts.
+                       **({"include_full": "true"} if e.get("weekly_full_week") else {})}})
     except Exception as exc:
         e["quality_failure"] = f"{reason}；重做触发失败：{exc}"
         save_state(st)

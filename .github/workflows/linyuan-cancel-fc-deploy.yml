@@ -1,0 +1,38 @@
+name: Stop premature FC deployment
+on:
+  push:
+    branches: [codex/automatic-preview]
+    paths: [.github/linyuan-fc-deploy-cancel.json]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: FC production deployment run to cancel
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: write
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cancel only the identified FC deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_RUN: ${{ inputs.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          ident = os.environ.get('REQUESTED_RUN') or str(json.loads(pathlib.Path('.github/linyuan-fc-deploy-cancel.json').read_text())['run_id'])
+          if not ident.isdigit(): raise SystemExit('Invalid run ID')
+          repo = os.environ['GITHUB_REPOSITORY']
+          endpoint = f'repos/{repo}/actions/runs/{ident}'
+          run = json.loads(subprocess.check_output(['gh','api',endpoint],text=True,timeout=30))
+          if run['path'] != '.github/workflows/fc-production-deploy.yml' or run['head_branch'] != 'main':
+              raise SystemExit('Refusing to cancel a non-FC deployment')
+          if run['status'] != 'completed':
+              subprocess.run(['gh','api','-X','POST',endpoint+'/cancel'],check=True,timeout=30)
+          print(json.dumps({'run_id':int(ident),'previous_status':run['status'],'fc_invoked_by_this_job':False}))
+          PY

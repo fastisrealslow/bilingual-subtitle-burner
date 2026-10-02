@@ -53,6 +53,11 @@ Actions使用仓库登录态下载素材，CPU模型不调用付费ASR或文本A
 部署后核对代码SHA256、每日4条规则、触发器和既有修改回执。
 普通部署不额外补源；素材刷新可显式使用workflow_dispatch(refill=true)，或由库存复检触发调度。
 
+普通代码包不携带历史稿件替换用的 MP4，日常发布仍按审核后的 Artifact 取件。
+显式 `workflow_dispatch(apply_archive_edits=true)` 才将原始历史替换视频打包；
+本机手工打包对应 `python linyuan/fc/package_code.py fc-code.zip --include-reviewed-videos`。
+历史视频和指纹仍保留在仓库，未重编码；缺少这些资源时，历史替换在任何远程编辑前停止。
+
 ## 失败处理与验收
 
 | 失败类型 | 处理 |

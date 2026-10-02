@@ -281,3 +281,61 @@ def test_sector_mentions_and_same_sector_followups_do_not_create_chapters():
         ('关税影响产能。','人工智能啊，提高了生产效率。','我们观察技术进步。')]:
         cues=[dict(start=i*10,end=i*10+9,text=t) for i,t in enumerate([first,second,last])]
         assert not declared_investment_sections(sentence_units(cues),cues)
+
+
+def test_automatic_preview_next_topic_tail_is_cut_at_original_cue(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_automatic_topic_tail.json').read_text())
+    cues=data['cues'];before=json.dumps(cues,ensure_ascii=False)
+    assert '换题' in S.boundary_error(cues,dict(start=0,end=len(cues)-1))
+    picks=S.select(cues,limit=None,whole_source=True)
+    assert [(x['start'],x['end']) for x in picks]==[(0,31)]
+    assert cues[31]['end']==280.44
+    assert S.boundary_error(cues,picks[0]) is None
+    assert json.dumps(cues,ensure_ascii=False)==before
+
+
+@pytest.mark.parametrize('subject',['财政政策','企业招聘','孩子教育','日常饮食'])
+def test_next_topic_leadin_is_independent_of_subject(subject):
+    from source_selection import TOPIC_CHANGE
+    assert TOPIC_CHANGE.search('好的，那其实啊，我们还是想啊，接着来聊一下'+subject+'。')
+
+
+@pytest.mark.parametrize('text',[
+    '我们接着聊一下这个话题。','咱们下面谈这一点。',
+    '好的，我们接下来讨论刚才的问题。','我们接着聊同一个问题。'])
+def test_explicit_same_topic_continuation_is_retained(text):
+    from source_selection import TOPIC_CHANGE
+    assert not TOPIC_CHANGE.search(text)
+
+
+@pytest.mark.parametrize('host',[
+    '那呃，聊了这么多，就很多网友肯定学习到了不少。',
+    '今天谈了这么多，相信观众收获很多。',
+    '我们讨论这么多，大家学到了新方法。'])
+def test_host_retrospective_cannot_pad_the_previous_answer(host,monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    cues=dialogue()[:4]+[dict(start=145,end=155,text=host)]
+    assert '结束语' in S.boundary_error(cues,dict(start=0,end=4))
+    assert all(p['end']<4 for p in S.select(cues,limit=None,whole_source=True))
+
+
+def test_guest_actual_learning_experience_is_not_a_host_outro():
+    from source_selection import OUTRO
+    assert not OUTRO.search('我和很多人交流学习，积累了这些经验。')
+
+
+def test_real_9b_preview_host_wrapup_is_removed_without_word_or_time_edits(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    cues=json.loads((Path(__file__).parent/'fixtures/linyuan_automatic_host_wrapup.json').read_text())['cues']
+    before=json.dumps(cues,ensure_ascii=False)
+    assert S.boundary_error(cues,dict(start=0,end=len(cues)-1))
+    picks=S.select(cues,limit=None,whole_source=True)
+    assert len(picks)==1 and cues[picks[0]['end']]['end']==1432.52
+    assert json.dumps(cues,ensure_ascii=False)==before

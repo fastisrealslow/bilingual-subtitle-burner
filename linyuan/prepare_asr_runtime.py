@@ -101,6 +101,9 @@ def main():
     choice=configuration(args.source_report)
     if args.mode=='cache':
         directory=cached_evidence(args.source_report,choice) if choice['backend']=='qwen3' else None
+        if directory is None and choice['backend']=='qwen3' and os.environ.get('GH_TOKEN') and os.environ.get('GITHUB_REPOSITORY'):
+            from recover_mother_asr import restore
+            directory=restore(choice,Path(args.source_report).parent,mother_cache_key(choice))
         emit('ASR_EVIDENCE_READY','true' if directory else 'false')
         if directory:
             emit('QWEN3_EVIDENCE_DIR',directory)
