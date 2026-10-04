@@ -18618,11 +18618,13 @@
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
    "publish_time": "2026-10-01T03:29:00+00:00",
-   "source_check_report_id": 11311114481,
-   "source_check_run_id": 37225749109,
+   "source_check_report_id": 11312838141,
+   "source_check_run_id": 37229784229,
    "last_error": "取源未完成：SourceMediaMismatch: 下载媒体时长 90.12s 与请求页面 594.00s 不匹配（容差 29.70s）",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "bilibili_search:BV1NXHh69EBs",
@@ -18639,7 +18641,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
-   "publish_time": "2026-10-04T18:29:38+00:00"
+   "publish_time": "2026-10-04T18:29:38+00:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "netease_video:VE7GPGQ2P",
@@ -18656,7 +18662,11 @@
    "delay_hours": 0,
    "source": "netease_video",
    "author": "网易视频",
-   "publish_time": "2026-10-05T01:18"
+   "publish_time": "2026-10-05T01:18",
+   "failed": true,
+   "last_error": "原始素材短边 360 < 480（530x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -64559,6 +64569,20 @@
    "video_id": "BV1gCK16AEYS",
    "ts": 1791140350,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1004-400a26",
+   "key": "netease_video:VE7GPGQ2P",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2610/05/60wo83ia7qt/SD/60wo83ia7qt-mobile.mp4",
+   "ts": 1791143644,
+   "error": "原始素材短边 360 < 480（530x360），画质不达标"
+  },
+  {
+   "slug": "ly-1004-7dd6a2",
+   "key": "bilibili_search:BV1NXHh69EBs",
+   "video_id": "BV1NXHh69EBs",
+   "ts": 1791143645,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
