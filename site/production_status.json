@@ -1,22 +1,22 @@
 {
   "version": 1,
-  "updated_at": 1791143380,
+  "updated_at": 1791143568,
   "inventory_updated_at": 1791143378,
   "source_admission": {
     "version": 1,
-    "updated_at": 1791143379,
+    "updated_at": 1791143568,
     "records": 7952,
     "video_records": 6644,
-    "initial_candidates": 53,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 1,
-    "unknown_duration_candidates": 1,
+    "initial_candidates": 51,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
+    "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1308,
+      "already_attempted_or_cooling": 1032,
       "speaker_unconfirmed": 4236,
       "clip_title": 1030,
-      "already_attempted_or_cooling": 1030,
       "unrelated": 58,
       "ai_content": 36,
       "noise": 130,
@@ -25,24 +25,7 @@
       "over_limit": 17,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "netease_video:VE7GPGQ2P",
-        "title": "2008年10月26日林园接受采访，当时全世界金融危机",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VE7GPGQ2P.html",
-        "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1NXHh69EBs",
-        "title": "一口气了解 股神林园对茅台的观点 | 林园：茅台堪称印钞机，重回A股股王只是时间问题 | 你相信吗？ 访谈文字配音版，快",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1NXHh69EBs",
-        "duration_sec": 777.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 9,
@@ -63,10 +46,10 @@
     "validation_failed": 1,
     "reserved": 1,
     "ready": 5,
-    "interrupted": 1,
+    "interrupted": 3,
     "excluded": 2,
     "awaiting_validation": 1,
-    "retry_queued": 1
+    "running": 1
   },
   "tasks": [
     {
@@ -15990,24 +15973,6 @@
       "run_updated_at": "2026-10-04T11:30:53Z"
     },
     {
-      "slug": "ly-1004-d7b51e",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791139615,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791141549,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37225749109,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37225749109",
-      "run_started_at": "2026-10-04T18:46:55Z",
-      "run_updated_at": "2026-10-04T18:48:41Z"
-    },
-    {
       "slug": "ly-1004-33bfbd",
       "status": "failed",
       "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（536x360），画质不达标",
@@ -16060,6 +16025,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37225767166",
       "run_started_at": "2026-10-04T18:47:12Z",
       "run_updated_at": "2026-10-04T18:58:05Z"
+    },
+    {
+      "slug": "ly-1004-d7b51e",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1791143413,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37229784229,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37229784229",
+      "run_started_at": "2026-10-04T19:50:13Z",
+      "run_updated_at": "2026-10-04T19:51:57Z"
+    },
+    {
+      "slug": "ly-1004-7dd6a2",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1791143420,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37229791894,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37229791894",
+      "run_started_at": "2026-10-04T19:50:20Z",
+      "run_updated_at": "2026-10-04T19:52:02Z"
+    },
+    {
+      "slug": "ly-1004-400a26",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791143504,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37229878834,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37229878834",
+      "run_started_at": "2026-10-04T19:51:44Z",
+      "run_updated_at": "2026-10-04T19:51:48Z"
     }
   ],
   "runs": {
@@ -21465,14 +21484,14 @@
       "display_title": "中文源出片 · ly-1004-33bfbd"
     },
     "ly-1004-d7b51e": {
-      "id": 37225749109,
+      "id": 37229784229,
       "status": "completed",
       "conclusion": "failure",
-      "created_at": "2026-10-04T18:46:55Z",
-      "updated_at": "2026-10-04T18:48:41Z",
-      "run_started_at": "2026-10-04T18:46:55Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37225749109",
-      "run_number": 1410,
+      "created_at": "2026-10-04T19:50:13Z",
+      "updated_at": "2026-10-04T19:51:57Z",
+      "run_started_at": "2026-10-04T19:50:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37229784229",
+      "run_number": 1414,
       "display_title": "中文源出片 · ly-1004-d7b51e"
     },
     "ly-1004-029de3": {
@@ -21496,6 +21515,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37225767166",
       "run_number": 1413,
       "display_title": "中文源出片 · ly-1004-3e56a3"
+    },
+    "ly-1004-400a26": {
+      "id": 37229878834,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-04T19:51:44Z",
+      "updated_at": "2026-10-04T19:51:48Z",
+      "run_started_at": "2026-10-04T19:51:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37229878834",
+      "run_number": 1416,
+      "display_title": "中文源出片 · ly-1004-400a26"
+    },
+    "ly-1004-7dd6a2": {
+      "id": 37229791894,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-04T19:50:20Z",
+      "updated_at": "2026-10-04T19:52:02Z",
+      "run_started_at": "2026-10-04T19:50:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37229791894",
+      "run_number": 1415,
+      "display_title": "中文源出片 · ly-1004-7dd6a2"
     }
   }
 }
