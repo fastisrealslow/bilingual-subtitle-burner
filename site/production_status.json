@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1791180500,
+  "updated_at": 1791180583,
   "inventory_updated_at": 1791180497,
   "source_admission": {
     "version": 1,
-    "updated_at": 1791180500,
+    "updated_at": 1791180583,
     "records": 7979,
     "video_records": 6664,
     "initial_candidates": 51,
@@ -41,7 +41,7 @@
   },
   "counts": {
     "complete": 103,
-    "failed": 775,
+    "failed": 776,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
@@ -49,7 +49,7 @@
     "excluded": 2,
     "ready": 5,
     "awaiting_validation": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -16173,11 +16173,11 @@
     },
     {
       "slug": "ly-1005-45cade",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
       "signature": {
         "ts": 1791179765,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16191,8 +16191,8 @@
     },
     {
       "slug": "ly-1005-291df1",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791179771,
         "failed": null,
@@ -16205,7 +16205,7 @@
       "run_id": 37269979092,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37269979092",
       "run_started_at": "2026-10-05T05:56:10Z",
-      "run_updated_at": "2026-10-05T05:56:15Z"
+      "run_updated_at": "2026-10-05T06:08:57Z"
     }
   ],
   "runs": {
@@ -21709,17 +21709,6 @@
       "run_number": 1417,
       "display_title": "中文源出片 · ly-1004-f9d8ca"
     },
-    "ly-1005-291df1": {
-      "id": 37269979092,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-05T05:56:10Z",
-      "updated_at": "2026-10-05T05:56:15Z",
-      "run_started_at": "2026-10-05T05:56:10Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37269979092",
-      "run_number": 1424,
-      "display_title": "中文源出片 · ly-1005-291df1"
-    },
     "ly-1005-45cade": {
       "id": 37269971468,
       "status": "completed",
@@ -21730,6 +21719,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37269971468",
       "run_number": 1423,
       "display_title": "中文源出片 · ly-1005-45cade"
+    },
+    "ly-1005-291df1": {
+      "id": 37269979092,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-05T05:56:10Z",
+      "updated_at": "2026-10-05T06:08:57Z",
+      "run_started_at": "2026-10-05T05:56:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37269979092",
+      "run_number": 1424,
+      "display_title": "中文源出片 · ly-1005-291df1"
     },
     "ly-0919-dadf7b": {
       "id": 37269963760,
