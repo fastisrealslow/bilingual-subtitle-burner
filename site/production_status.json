@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1791186158,
-  "inventory_updated_at": 1791186081,
+  "updated_at": 1791217350,
+  "inventory_updated_at": 1791217350,
   "source_admission": {
     "version": 1,
-    "updated_at": 1791186158,
+    "updated_at": 1791217350,
     "records": 7979,
     "video_records": 6664,
     "initial_candidates": 51,
@@ -28,27 +28,26 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 15,
+    "verified_live": 2,
     "verified_audio_card": 0,
-    "verified_landscape": 12,
-    "verified_portrait": 2,
+    "verified_landscape": 0,
+    "verified_portrait": 1,
     "verified_weekly_full": 1,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 14,
+    "daily_mix_usable": 1,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
     "complete": 103,
-    "failed": 777,
+    "failed": 783,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
     "interrupted": 1,
     "excluded": 2,
-    "ready": 6,
-    "awaiting_validation": 1
+    "ready": 1
   },
   "tasks": [
     {
@@ -15053,11 +15052,11 @@
     },
     {
       "slug": "ly-0919-3f8820",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "原文中未找到满足120秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1790869475,
-        "failed": false,
+        "failed": true,
         "published_parts": 1,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -15413,11 +15412,11 @@
     },
     {
       "slug": "ly-1001-98b82c",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1790872823,
-        "failed": null,
+        "failed": true,
         "published_parts": 1,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -15719,11 +15718,11 @@
     },
     {
       "slug": "ly-1001-64ce9d",
-      "status": "awaiting_validation",
-      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1790879259,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -15863,13 +15862,15 @@
     },
     {
       "slug": "ly-1002-216e95",
-      "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1790980510,
-        "failed": null,
+        "failed": true,
         "published_parts": 1,
-        "processed_part_indices": [],
+        "processed_part_indices": [
+          2
+        ],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -15899,11 +15900,11 @@
     },
     {
       "slug": "ly-1004-060c0f",
-      "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791103340,
-        "failed": null,
+        "failed": true,
         "published_parts": 1,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -16061,11 +16062,11 @@
     },
     {
       "slug": "ly-1004-f9d8ca",
-      "status": "ready",
-      "detail": "6 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791156070,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16152,11 +16153,11 @@
     {
       "slug": "ly-0919-dadf7b",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1791179759,
         "failed": null,
-        "published_parts": 2,
+        "published_parts": 3,
         "processed_part_indices": [
           4,
           5
