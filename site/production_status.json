@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updated_at": 1791311972,
+  "updated_at": 1791312031,
   "inventory_updated_at": 1791311971,
   "source_admission": {
     "version": 1,
-    "updated_at": 1791311972,
+    "updated_at": 1791312031,
     "records": 8172,
     "video_records": 6837,
     "initial_candidates": 52,
@@ -41,11 +41,11 @@
   },
   "counts": {
     "complete": 104,
-    "failed": 790,
+    "failed": 791,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 2,
     "running": 3
   },
@@ -16332,11 +16332,11 @@
     },
     {
       "slug": "ly-1006-f5d463",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1453, 2: 0.2661, 3: 0.0582, 4: 0.1907, 5: 0.2461, 6: 0.2741, 7: 0.1923, 8: 0.1582, 9: 0.103, 10: 0.1119, 11: 0.1509, 12: 0.2456, 13: 0.1415, 14: 0.1922, 15: 0.2232, 16: 0.2007, 17: 0.202, 18: 0.1664}",
       "signature": {
         "ts": 1791311810,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22014,6 +22014,17 @@
       "run_number": 1432,
       "display_title": "中文源出片 · ly-1006-1a9f81"
     },
+    "ly-1006-f5d463": {
+      "id": 37512657755,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-06T18:36:50Z",
+      "updated_at": "2026-10-06T18:38:49Z",
+      "run_started_at": "2026-10-06T18:36:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37512657755",
+      "run_number": 1434,
+      "display_title": "中文源出片 · ly-1006-f5d463"
+    },
     "ly-1006-08e575": {
       "id": 37512699584,
       "status": "in_progress",
@@ -22046,17 +22057,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37512672576",
       "run_number": 1435,
       "display_title": "中文源出片 · ly-1006-4f568c"
-    },
-    "ly-1006-f5d463": {
-      "id": 37512657755,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-06T18:36:50Z",
-      "updated_at": "2026-10-06T18:38:49Z",
-      "run_started_at": "2026-10-06T18:36:50Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37512657755",
-      "run_number": 1434,
-      "display_title": "中文源出片 · ly-1006-f5d463"
     }
   }
 }
