@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1791284349,
+  "updated_at": 1791284424,
   "inventory_updated_at": 1791284348,
   "source_admission": {
     "version": 1,
-    "updated_at": 1791284348,
+    "updated_at": 1791284424,
     "records": 8148,
     "video_records": 6819,
-    "initial_candidates": 54,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 52,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1329,
-      "already_attempted_or_cooling": 1043,
+      "already_attempted_or_cooling": 1045,
       "speaker_unconfirmed": 4393,
       "noise": 132,
       "clip_title": 1031,
@@ -25,24 +25,7 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV11WpF6KEmv",
-        "title": "林园：年纪越大消费越多",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV11WpF6KEmv",
-        "duration_sec": 107.0
-      },
-      {
-        "key": "bilibili_search:BV1sZHd64ESU",
-        "title": "林园：股市涨涨跌跌很正常",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1sZHd64ESU",
-        "duration_sec": 140.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 1,
@@ -58,12 +41,13 @@
   },
   "counts": {
     "complete": 104,
-    "failed": 787,
+    "failed": 788,
     "paused": 5,
     "validation_failed": 1,
     "reserved": 1,
-    "interrupted": 2,
-    "excluded": 2
+    "interrupted": 1,
+    "excluded": 2,
+    "running": 2
   },
   "tasks": [
     {
@@ -16294,11 +16278,11 @@
     },
     {
       "slug": "ly-1006-32e054",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题文案待重试：未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试",
       "signature": {
         "ts": 1791283460,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16309,6 +16293,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37451757433",
       "run_started_at": "2026-10-06T10:44:20Z",
       "run_updated_at": "2026-10-06T10:58:28Z"
+    },
+    {
+      "slug": "ly-1006-1a9f81",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791284380,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37453438128,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37453438128",
+      "run_started_at": "2026-10-06T10:59:40Z",
+      "run_updated_at": "2026-10-06T10:59:44Z"
+    },
+    {
+      "slug": "ly-1006-68c677",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791284386,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37453448265,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37453448265",
+      "run_started_at": "2026-10-06T10:59:46Z",
+      "run_updated_at": "2026-10-06T10:59:50Z"
     }
   ],
   "runs": {
@@ -21899,6 +21919,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37451757433",
       "run_number": 1431,
       "display_title": "中文源出片 · ly-1006-32e054"
+    },
+    "ly-1006-68c677": {
+      "id": 37453448265,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-06T10:59:46Z",
+      "updated_at": "2026-10-06T10:59:50Z",
+      "run_started_at": "2026-10-06T10:59:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37453448265",
+      "run_number": 1433,
+      "display_title": "中文源出片 · ly-1006-68c677"
+    },
+    "ly-1006-1a9f81": {
+      "id": 37453438128,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-06T10:59:40Z",
+      "updated_at": "2026-10-06T10:59:44Z",
+      "run_started_at": "2026-10-06T10:59:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37453438128",
+      "run_number": 1432,
+      "display_title": "中文源出片 · ly-1006-1a9f81"
     }
   }
 }
