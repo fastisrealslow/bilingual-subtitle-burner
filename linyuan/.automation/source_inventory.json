@@ -3,7 +3,7 @@
   "validation_sha256": "ea163996aa4211e4f80b6e3a1448aede94734345d95a9cba467aa2627655e0da",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791250553,
+  "updated_at": 1791251934,
   "materials": {
     "weibo_search": {
       "records": 1901,
@@ -44,7 +44,7 @@
       "duration_unknown": 60
     },
     "shareholder_meeting": {
-      "records": 156
+      "records": 157
     },
     "competitor_reference": {
       "records": 999,
@@ -90,8 +90,8 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791250553,
-    "records": 8072,
+    "updated_at": 1791251934,
+    "records": 8073,
     "video_records": 6752,
     "initial_candidates": 51,
     "duration_eligible_records": 0,
@@ -99,7 +99,7 @@
     "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1320,
+      "no_video": 1321,
       "noise": 131,
       "already_attempted_or_cooling": 1044,
       "speaker_unconfirmed": 4330,
@@ -16814,7 +16814,14 @@
           "ly-1006-e83d78"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1006-e83d78",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "整段取景预检：源 3.77s，来源角标覆盖必须保留的人脸或头顶区域"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -17921,9 +17928,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -18223,9 +18230,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
         "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1
       },
       "BV1PcNh6rErV": {
@@ -20076,7 +20083,8 @@
       "BV1Um4y1x7QN": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1PU4y1S7gU": {
         "attempted_mothers": 1,
@@ -20085,7 +20093,7 @@
       }
     }
   },
-  "in_flight_placeholders": 3,
+  "in_flight_placeholders": 2,
   "artifacts": [
     {
       "slug": "ly-0919-dadf7b",
