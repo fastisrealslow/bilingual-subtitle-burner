@@ -489,7 +489,7 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
     font=ImageFont.truetype(font_path,96,index=font_index)
     lines=cover_headline(title,speaker,max_lines=3,line_capacity=6); boxes=[]
     for i,line in enumerate(lines):
-        xy=(312,330+i*112) if len(lines)==3 else (312,374+i*128)
+        xy=(312,300+i*110) if len(lines)==3 else (312,374+i*128)
         draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
         boxes.append(draw.textbbox(xy,line,font=font))
     draw.text((312,672),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))

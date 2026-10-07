@@ -97,7 +97,7 @@ def render(image, path, face, headline, speaker, font, font_index=None):
     lines = cover_headline(headline, speaker, max_lines=3, line_capacity=6)
     boxes = []
     for i, line in enumerate(lines):
-        xy = (312, 326+i*112) if len(lines)==3 else (312, 374+i*128)
+        xy = (312, 300+i*110) if len(lines)==3 else (312, 374+i*128)
         box = draw.textbbox(xy, line, font=title_font)
         if box[2] > 984:
             raise ValueError('封面文案超出信息流安全区；不能缩成小字或覆盖人脸')

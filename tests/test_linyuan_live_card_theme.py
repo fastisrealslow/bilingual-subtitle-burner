@@ -35,9 +35,12 @@ def test_black_card_caption_contrast_and_geometry(tmp_path, monkeypatch):
         style = next(line for line in ass.read_text(encoding='utf-8-sig').splitlines() if line.startswith('Style:'))
         pixel = Image.open(image).getpixel((100, 950))
         if theme == 'contrast':
-            assert max(pixel) < 20 and '&H00FFFFFF' in style and '&H00000000' in style
+            assert max(pixel) < 20
         else:
-            assert min(pixel) > 240 and '&H00422C18' in style
+            assert min(pixel) > 240
+        # A glyph outline remains readable on either card theme without adding
+        # an opaque white subtitle slab over the moving source window.
+        assert '&H00FFFFFF' in style and '&H00000000' in style and ',1,2.5,0,5,' in style
     with pytest.raises(ValueError):
         V.live_card_layout('unknown')
 
