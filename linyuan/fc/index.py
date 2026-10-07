@@ -2878,8 +2878,9 @@ def artifact_cover_error(meta, directory):
         if (not isinstance(feed_name,str) or Path(feed_name).name!=feed_name
                 or not (Path(directory)/feed_name).is_file()):
             return '信息流方形封面验收件缺失'
-    if proof.get('style') != 'scene':
         return cover_quality_error(proof)
+    if proof.get('style') != 'scene':
+        return None
     import hashlib
     name = meta.get('cover')
     if not isinstance(name,str) or Path(name).name != name:
