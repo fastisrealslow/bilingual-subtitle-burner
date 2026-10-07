@@ -105,12 +105,12 @@ def test_new_style_is_readable_and_fc_parses_text_without_graphics(w,h,card,tmp_
     source=[dict(**entry('股息率不到8%我不会买'),semantic_group=True)]
     V.write_ass(source,target,layout,'Noto Sans CJK SC')
     ass=target.read_text(encoding='utf-8-sig')
-    assert '&H00422C18' in ass and '&H0000D7FF' not in ass
+    assert '&H00FFFFFF' in ass and '&H00000000' in ass and '&H0000D7FF' not in ass
     assert E.ass_dialogue_text(ass)==source[0]['zh']
     if card:
         assert r'\fs64' in ass and r'\pos(360,957)' in ass
     else:
-        assert ',3,10,0,5,' in ass  # Opaque light background behind dark text.
+        assert ',1,2.5,0,5,' in ass  # Glyph outline; never an opaque backing panel.
     assert layout['readability_version']==R.VERSION
 
 
