@@ -2873,6 +2873,14 @@ def cover_quality_error(cover):
 
 def artifact_cover_error(meta, directory):
     proof = meta.get('cover_proof') or {}
+    if proof.get('style') == 'scene':
+        import hashlib
+        name = meta.get('cover')
+        if not isinstance(name,str) or Path(name).name != name:
+            return '现场封面文件名无效'
+        path = Path(directory)/name
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != proof.get('sha256'):
+            return '现场封面原图与质检指纹不一致'
     if proof.get('feed_safe_crop') is not None:
         feed_name=proof.get('feed_square')
         if (not isinstance(feed_name,str) or Path(feed_name).name!=feed_name
@@ -2881,13 +2889,6 @@ def artifact_cover_error(meta, directory):
         return cover_quality_error(proof)
     if proof.get('style') != 'scene':
         return None
-    import hashlib
-    name = meta.get('cover')
-    if not isinstance(name,str) or Path(name).name != name:
-        return '现场封面文件名无效'
-    path = Path(directory)/name
-    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != proof.get('sha256'):
-        return '现场封面原图与质检指纹不一致'
     return cover_quality_error(proof)
 
 
