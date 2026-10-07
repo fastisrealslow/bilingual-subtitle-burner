@@ -37,7 +37,7 @@ BASE = Path(__file__).parent
 if str(BASE) not in sys.path:
     sys.path.insert(0, str(BASE))
 import editorial_policy as editorial
-PRESENTATION_RULES_VERSION = 2
+PRESENTATION_RULES_VERSION = 3
 # 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
 # legacy Whisper 函数保留供历史代码读取，不进入本生产入口。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
@@ -5045,6 +5045,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
 
     display_topic = _audio_card_display_topic(topic, speaker)
 
+    cover_face_box = None
     if vertical:
         # v3 固定坐标：标签 96~142，主标题 165~325，人物 360~830，
         # 字幕留白 874~1040，来源说明 1080~1160。
@@ -5173,7 +5174,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         selected_style = select_cover_style(False, topic,
             cover_style or os.environ.get("COVER_STYLE", "auto"))
         if selected_style == "dark":
-            image, lines, cover_font_px, cover_boxes = dark_cover(
+            image, lines, cover_font_px, cover_boxes, cover_face_box = dark_cover(
                 portrait_path, topic, speaker, font_path, index)
 
     brand = Image.open(brand_watermark_path()).convert("RGBA")
@@ -5194,7 +5195,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         image.save(out_path)
     if not vertical:
         from presentation import cover_proof
-        cover_proof(image, out_path, lines, cover_font_px, cover_boxes, style=selected_style)
+        cover_proof(image, out_path, lines, cover_font_px, cover_boxes,
+                    style=selected_style, face_box=cover_face_box)
     return out_path
 
 

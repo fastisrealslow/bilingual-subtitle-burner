@@ -10,14 +10,15 @@ import re
 
 LEGACY_VERSION = 2026091301
 SEPT23_VERSION = 2026092301
-VERSION = 2026092401
-SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, VERSION)
+PREVIOUS_VERSION = 2026092401
+VERSION = 2026100701
+SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, VERSION)
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
 # An explicit vocabulary, not a generic repeated-character deletion regex:
 # 看看、人人、越来越、不是不是 and repeated amounts must survive.
-STUTTERS = ('我们', '你们', '他们', '这个', '那个', '那么', '就是',
+STUTTERS = ('我们', '你们', '他们', '这个', '那个', '那么', '就是', '然后', '其实', '好的',
             '我', '你', '您', '他', '她', '它', '去', '就', '都',
             '科室', '持有', '它的')
 PUNCTUATION = '，。！？；：、,.!?;:'

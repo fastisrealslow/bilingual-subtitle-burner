@@ -2811,6 +2811,13 @@ def presentation_quality_error(meta):
 
 
 def cover_quality_error(cover):
+    modern_feed_safe = int(cover.get('version') or 0) >= 3
+    def in_feed_safe(box):
+        try:
+            x0,y0,x1,y1 = map(float, box)
+            return 296 <= x0 <= x1 <= 984 and 16 <= y0 <= y1 <= 704
+        except (TypeError, ValueError):
+            return False
     if cover.get('style') == 'scene':
         identity = cover.get('source_identity') or {}
         resolution = cover.get('source_resolution') or {}
@@ -2825,16 +2832,24 @@ def cover_quality_error(cover):
                 and identity.get('engine') == 'opencv_yunet_sface_cpu'
                 and identity.get('cosine_score',0) >= max(.363,identity.get('threshold',1))
                 and identity.get('sharpness',0) >= 60 and cover.get('thumbnail')
-                and re.fullmatch(r'[a-f0-9]{64}',str(cover.get('sha256',''))))
+                and re.fullmatch(r'[a-f0-9]{64}',str(cover.get('sha256','')))
+                and (not modern_feed_safe or (
+                    cover.get('feed_safe_crop') == [280,0,1000,720]
+                    and isinstance(cover.get('feed_square'),str)
+                    and cover.get('feed_safe_face') is True
+                    and cover.get('feed_safe_text') is True
+                    and in_feed_safe(cover.get('face_box')))))
         except (TypeError,ValueError):
             good = False
         return None if good else '现场原画封面缺少身份、清晰度或无字画面证明'
     lines=cover.get('headline_lines') or []
     boxes=cover.get('text_boxes') or []
     try:
+        bounds = ((296,300,984,650) if modern_feed_safe else (48,190,912,600))
         three_line=(len(lines)==3 and cover.get('headline_layout')=='three_line_statement'
             and cover.get('style') in ('dark','editorial') and len(boxes)==3
-            and all(len(b)==4 and 48<=b[0]<b[2]<=912 and 190<=b[1]<b[3]<=600 for b in boxes)
+            and all(len(b)==4 and bounds[0]<=b[0]<b[2]<=bounds[2]
+                    and bounds[1]<=b[1]<b[3]<=bounds[3] for b in boxes)
             and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
     except (TypeError,ValueError):
         three_line=False
@@ -2842,13 +2857,26 @@ def cover_quality_error(cover):
             or not (1<=len(lines)<=2 or three_line)
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
+    if modern_feed_safe and cover.get('style') in ('dark','editorial'):
+        if (cover.get('feed_safe_crop') != [280,0,1000,720]
+                or not isinstance(cover.get('feed_square'),str)
+                or cover.get('feed_safe_text') is not True
+                or cover.get('feed_safe_face') is not True
+                or not all(in_feed_safe(box) for box in boxes)
+                or not in_feed_safe(cover.get('face_box'))):
+            return '封面未通过双列信息流中心安全区门禁'
     return None
 
 
 def artifact_cover_error(meta, directory):
     proof = meta.get('cover_proof') or {}
+    if int(proof.get('version') or 0) >= 3:
+        feed_name=proof.get('feed_square')
+        if (not isinstance(feed_name,str) or Path(feed_name).name!=feed_name
+                or not (Path(directory)/feed_name).is_file()):
+            return '信息流方形封面验收件缺失'
     if proof.get('style') != 'scene':
-        return None
+        return cover_quality_error(proof)
     import hashlib
     name = meta.get('cover')
     if not isinstance(name,str) or Path(name).name != name:
@@ -2946,7 +2974,7 @@ def artifact_quality_error(meta):
         return "预发布质检产物记录不完整"
 
     layout = meta.get("layout_proof") or {}
-    if meta.get("presentation_version") in (1, 2):
+    if meta.get("presentation_version") in (1, 2, 3):
         error = presentation_quality_error(meta)
         if error:
             return error
@@ -3023,6 +3051,17 @@ def artifact_quality_error(meta):
         return "源素材含内嵌字幕或缺少无源字幕证明"
     if meta.get("subtitles_burned") is not True:
         return "成片没有烧录统一字幕"
+    reframe=meta.get('landscape_reframe') or {}
+    if reframe:
+        timing=meta.get('subtitle_timing_proof') or reframe.get('subtitle_timing_proof') or {}
+        try:
+            offset=abs(float(timing.get('av_offset_sec')))
+        except (TypeError,ValueError):
+            offset=float('inf')
+        if (meta.get('subtitle_timing_verified') is not True
+                or reframe.get('audio_timeline_normalized') is not True
+                or timing.get('passed') is not True or offset>.08):
+            return '横版成片缺少音频零时间轴与字幕同步证明'
     if meta.get("clean_strategy") not in {
             "direct", "delogo", "crop", "crop_delogo", "audio_card"}:
         return "成片缺少可复现的干净画面策略"
