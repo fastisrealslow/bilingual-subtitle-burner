@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updated_at": 1791483156,
+  "updated_at": 1791483248,
   "inventory_updated_at": 1791483156,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 11,
+    "active_or_recovering_sources": 10,
     "waiting_candidates": 3,
     "status": "stockout",
     "quality_gates_relaxed": false
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791483156,
+    "updated_at": 1791483248,
     "records": 8522,
     "video_records": 7151,
     "initial_candidates": 57,
@@ -75,13 +75,13 @@
   },
   "counts": {
     "complete": 104,
-    "failed": 791,
+    "failed": 792,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
     "interrupted": 2,
     "excluded": 2,
-    "retry_queued": 5,
+    "retry_queued": 4,
     "running": 5
   },
   "tasks": [
@@ -15736,24 +15736,6 @@
       "run_updated_at": "2026-10-08T15:59:26Z"
     },
     {
-      "slug": "ly-0911-8a684c",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791474956,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791474955,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 34611271423,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34611271423",
-      "run_started_at": "2026-09-11T14:37:52Z",
-      "run_updated_at": "2026-09-11T14:56:33Z"
-    },
-    {
       "slug": "ly-0910-340459-context13",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -16511,8 +16493,8 @@
     },
     {
       "slug": "ly-0912-5dc339-reserve-3-timing",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791481213,
         "failed": false,
@@ -16525,15 +16507,15 @@
       "run_id": 37818351953,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37818351953",
       "run_started_at": "2026-10-08T17:40:13Z",
-      "run_updated_at": "2026-10-08T17:40:18Z"
+      "run_updated_at": "2026-10-08T18:13:48Z"
     },
     {
       "slug": "ly-0913-a52266-boundary16",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"剩下的钱是给套住了，到处上海也收了一大堆这些不上市的股票。\", \"suspect_quote\": \"到处上海也收了一大堆这些不上市的股票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘到处上海’存在明显的语义矛盾或识别错误：‘到处’通常指多个地点，而‘上海’是单一具体城市，两者连用导致空间范围含义不明。在口语中可能是‘当时在上海也收了……’的误识，也可能是‘到处（各地）和上海也收了……’的杂糅，但原文未提供上下文澄清，\"}]",
       "signature": {
         "ts": 1791481848,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16598,6 +16580,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37820250440",
       "run_started_at": "2026-10-08T17:55:04Z",
       "run_updated_at": "2026-10-08T17:55:08Z"
+    },
+    {
+      "slug": "ly-0911-8a684c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791483210,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37822615360,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37822615360",
+      "run_started_at": "2026-10-08T18:13:30Z",
+      "run_updated_at": "2026-10-08T18:13:35Z"
     }
   ],
   "runs": {
@@ -17834,14 +17834,14 @@
       "display_title": "中文源出片 · ly-0911-f99b51"
     },
     "ly-0911-8a684c": {
-      "id": 34611271423,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-09-11T14:37:52Z",
-      "updated_at": "2026-09-11T14:56:33Z",
-      "run_started_at": "2026-09-11T14:37:52Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/34611271423",
-      "run_number": 762,
+      "id": 37822615360,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-08T18:13:30Z",
+      "updated_at": "2026-10-08T18:13:35Z",
+      "run_started_at": "2026-10-08T18:13:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37822615360",
+      "run_number": 1528,
       "display_title": "中文源出片 · ly-0911-8a684c"
     },
     "ly-0911-5f7921": {
@@ -22288,6 +22288,17 @@
       "run_number": 1515,
       "display_title": "中文源出片 · ly-0922-375119"
     },
+    "ly-0913-a52266-boundary16": {
+      "id": 37819700797,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-08T17:50:48Z",
+      "updated_at": "2026-10-08T18:11:30Z",
+      "run_started_at": "2026-10-08T17:50:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37819700797",
+      "run_number": 1524,
+      "display_title": "中文源出片 · ly-0913-a52266-boundary16"
+    },
     "ly-0913-5bb3b9": {
       "id": 37820250440,
       "status": "in_progress",
@@ -22321,23 +22332,12 @@
       "run_number": 1525,
       "display_title": "中文源出片 · ly-0913-be3bb0"
     },
-    "ly-0913-a52266-boundary16": {
-      "id": 37819700797,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-08T17:50:48Z",
-      "updated_at": "2026-10-08T18:11:30Z",
-      "run_started_at": "2026-10-08T17:50:48Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37819700797",
-      "run_number": 1524,
-      "display_title": "中文源出片 · ly-0913-a52266-boundary16"
-    },
     "ly-0912-5dc339-reserve-3-timing": {
       "id": 37818351953,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-08T17:40:13Z",
-      "updated_at": "2026-10-08T17:40:18Z",
+      "updated_at": "2026-10-08T18:13:48Z",
       "run_started_at": "2026-10-08T17:40:13Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37818351953",
       "run_number": 1523,
