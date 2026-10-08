@@ -25,10 +25,10 @@ on:
         default: ''
         type: string
       local_text_model:
-        description: 'CPU离线文本模型；更新版先用于同源实产验收'
+        description: 'CPU离线文本模型；默认使用独立正反例和标题验收通过的版本，可显式回退'
         required: false
         type: choice
-        default: 'qwen3:8b'
+        default: 'qwen3.5:9b'
         options:
           - 'qwen3:8b'
           - 'qwen3.5:9b'
@@ -99,7 +99,7 @@ on:
         type: boolean
 
 env:
-  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
+  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3.5:9b' }}
   RUN_SOURCE: ${{ inputs.source || 'https://www.bilibili.com/video/BV1tuCDBhE6C' }}
   RUN_SLUG: ${{ inputs.slug || 'ly-e2e-local-0908' }}
   RUN_SPEAKER: ${{ inputs.speaker || '林园' }}

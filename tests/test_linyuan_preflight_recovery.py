@@ -65,6 +65,30 @@ def test_medium_opening_fix_reopens_v40_failure_once_after_prior_recovery(monkey
     assert not fc._recover_changed_production_rule(state,entry,run)
 
 
+@pytest.mark.parametrize('reason',[
+    '独立文字识别疑点审核不可用：invalid evidence',
+    '原始ASR存在影响理解的疑点，禁止猜改后发布：normal metaphor'])
+def test_transcript_model_recovery_replays_original_evidence_only_once(monkeypatch,reason):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/transcript_audit.py')
+    entry.update(failed=True,last_error=reason,source_url='https://example.com/mother',
+        source_check_attempts=2,automatic_rule_recoveries={'automatic-source-context-v10':{'run_id':99}})
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert entry['source_check_run_id']==run['id']
+    assert entry['source_check_attempts']==2 and entry['quality_retries']==1
+    assert 'transcript-review-model-v3' in entry['automatic_rule_recoveries']
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
+def test_transcript_model_recovery_cannot_restart_unrelated_low_resolution(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/transcript_audit.py')
+    entry.update(failed=True,last_error='真人动态区短边不足480',source_url='https://example.com/mother')
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert not fc._recover_changed_production_rule(state,entry,run)
+    assert calls==[]
+
+
 def test_code_fix_recovers_stranded_mother_once_without_inventing_asr_evidence(monkeypatch):
     state, entry, run, calls = evidence(monkeypatch)
     assert fc._recover_preflight_failure(state, entry, run, [])

@@ -13,6 +13,19 @@ sys.path.insert(0, str(ROOT/'linyuan'))
 import produce_cn as p
 
 
+def test_production_text_model_keeps_cpu_only_explicit_rollback_and_quality_gates():
+    text=(ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text()
+    doc=yaml.safe_load(text)
+    # PyYAML treats unquoted YAML 1.1 `on` as True.
+    model=doc.get('on',doc.get(True))['workflow_dispatch']['inputs']['local_text_model']
+    assert model['default']=='qwen3.5:9b'
+    assert 'qwen3:8b' in model['options']
+    assert doc['env']['RUN_TEXT_MODEL']=="${{ inputs.local_text_model || 'qwen3.5:9b' }}"
+    assert doc['env']['LINYUAN_AUTOMATIC_ONLY']=="${{ inputs.reviewed_parts == '' && (inputs.target_parts == '' || inputs.target_parts == '0') && 'true' || 'false' }}"
+    assert 'CUDA_VISIBLE_DEVICES' in text
+    assert 'ollama-qwen35-9b-v1' in text
+
+
 def script(name):
     spec=importlib.util.spec_from_file_location(name,ROOT/'scripts'/f'{name}.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)

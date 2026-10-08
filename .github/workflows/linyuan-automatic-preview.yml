@@ -17,7 +17,7 @@ concurrency:
   group: linyuan-automatic-preview
   cancel-in-progress: true
 env:
-  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3:8b' }}
+  RUN_TEXT_MODEL: ${{ inputs.local_text_model || 'qwen3.5:9b' }}
   RUN_SOURCE: ''
   RUN_SLUG: preview-${{ github.run_id }}
   RUN_SPEAKER: 林园
