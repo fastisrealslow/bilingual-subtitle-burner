@@ -28,7 +28,8 @@ def test_footer_subtitles_stay_outside_source_and_ass_uses_same_canvas(tmp_path,
     text=path.read_text(encoding='utf-8-sig')
     assert f'PlayResY: {layout["canvas"]["height"]}' in text
     assert f'pos({w//2},{region["y"]+region["height"]//2})' in text
-    assert ''.join(prepared[0]['lines'])==entries[0]['zh']
+    assert ''.join(''.join(c['lines']) for c in prepared)==entries[0]['zh']
+    assert all(len(c['lines'])==1 for c in prepared)
 
 
 def test_lookup_of_fund_value_does_not_support_reassurance_about_drawdown():

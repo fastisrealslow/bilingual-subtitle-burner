@@ -103,7 +103,8 @@ def test_retired_recognizer_cannot_pass_on_metadata_flags():
 
 def test_raw_evidence_reuse_does_not_import_review_or_another_source(tmp_path):
     from prepare_asr_runtime import restore_raw_qwen_evidence
-    report=dict(source_video_sha256='mother',device='cpu',networking_during_inference=False,
+    from audio_preprocessing import DEFAULT
+    report=dict(source_video_sha256='mother',device='cpu',audio_preprocessing=DEFAULT,networking_during_inference=False,
         model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr',chunks=[dict(core_start=0,core_end=20)],
         alignment=dict(model_id='Qwen/Qwen3-ForcedAligner-0.6B',model_revision='align'))
     archive=tmp_path/'evidence.zip'

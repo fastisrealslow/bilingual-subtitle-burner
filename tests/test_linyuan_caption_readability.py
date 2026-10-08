@@ -63,10 +63,11 @@ def test_run_698_point_timestamp_survives_readability_and_real_screen_planner(mo
     result=P.semantic_caption_entries(source,'',V.layout_for(720,1280,True),tmp_path/'semantic.json')
     normalized=lambda s:P.re.sub(r'[\s，。！？；：、]','',s)
     assert normalized(''.join(x['zh'] for x in result))==normalized(proof['display_text'])
-    assert any(x['zh']=='哦嗯没有问题' for x in result)
-    assert all(.8<=x['end_sec']-x['start_sec']<=6.001 for x in result)
+    assert '哦嗯没有问题' in normalized(''.join(x['zh'] for x in result))
+    assert all(.25<=x['end_sec']-x['start_sec']<=6.001 for x in result)
     assert all(a['end_sec']<=b['start_sec'] for a,b in zip(result,result[1:]))
-    P.make_ass(result,tmp_path/'captions.ass',720,1280,card_style=True)
+    rendered=P.make_ass(result,tmp_path/'captions.ass',720,1280,card_style=True)
+    assert all(len(x['lines'])==1 for x in rendered)
 
 
 @pytest.mark.parametrize('source',[
@@ -88,9 +89,9 @@ def test_accepted_source_uses_default_editor_and_replans_old_cache(monkeypatch,t
     result=P.semantic_caption_entries(source,'',V.layout_for(720,1280,True),cache)
     text=''.join(x['zh'] for x in result)
     assert '行业的行业' not in text and '我我' not in text and '去去' not in text
-    assert any(x['zh']=='我主要从行业去把握' for x in result)
+    assert '我主要从行业去把握' in P.re.sub(r'[\s，。！？；：、]','',''.join(x['zh'] for x in result))
     assert any(x['zh']=='好的企业从哪里来？' for x in result)
-    assert all(.8<=x['end_sec']-x['start_sec']<=6.001 for x in result)
+    assert all(.25<=x['end_sec']-x['start_sec']<=6.001 for x in result)
     assert all(a['end_sec']<=b['start_sec'] for a,b in zip(result,result[1:]))
     proof=json.loads(cache.with_suffix('.editing.json').read_text())
     normalized=lambda s:P.re.sub(r'[\s，。！？；：、]','',s)
@@ -105,12 +106,12 @@ def test_new_style_is_readable_and_fc_parses_text_without_graphics(w,h,card,tmp_
     source=[dict(**entry('股息率不到8%我不会买'),semantic_group=True)]
     V.write_ass(source,target,layout,'Noto Sans CJK SC')
     ass=target.read_text(encoding='utf-8-sig')
-    assert '&H00422C18' in ass and '&H0000D7FF' not in ass
+    assert '&H00FFFFFF' in ass and '&H00000000' in ass and '&H0000D7FF' not in ass
     assert E.ass_dialogue_text(ass)==source[0]['zh']
     if card:
         assert r'\fs64' in ass and r'\pos(360,957)' in ass
     else:
-        assert ',3,10,0,5,' in ass  # Opaque light background behind dark text.
+        assert ',1,2.5,0,5,' in ass  # Glyph outline; never an opaque backing panel.
     assert layout['readability_version']==R.VERSION
 
 
@@ -130,6 +131,7 @@ def test_no_dangling_screen_tails(text):
     ('哈哈哈哈哎袁总您好', '哎袁总您好'),
     ('啊很高兴今天来到这里', '很高兴今天来到这里'),
     ('我们做做买卖，人人口，空空档期，越做越越越越大', '我们做买卖，人口，空档期，越做越大'),
+    ('然后然后，其实其实，好的好的，我们继续看数据', '然后，其实，好的，我们继续看数据'),
     ('涨涨跌跌，实实在在，看看，人人都越来越好，呃逆，哈尔滨，啊？',
      '涨涨跌跌，实实在在，看看，人人都越来越好，呃逆，哈尔滨，啊？'),
 ])

@@ -80,37 +80,39 @@ def render(image, path, face, headline, speaker, font, font_index=None):
     crop = portrait_crop(image.size, face)
     canvas = Image.new('RGB', (1280, 720), '#101c2b')
     draw = ImageDraw.Draw(canvas)
-    # One accent color and one visual hierarchy, consistent across episodes.
-    draw.rectangle((0, 0, 12, 720), fill='#efbd58')
-    panel = (936, 68, 1256, 652)
-    portrait = ImageOps.contain(image.convert('RGB').crop(crop), (320, 584), Image.Resampling.LANCZOS)
-    portrait_xy = (panel[0]+(320-portrait.width)//2, panel[1]+(584-portrait.height)//2)
+    # All actionable content sits inside the centre 720×720 area.  Bilibili's
+    # two-column feed crops a 16:9 image to this region, so the side bands are
+    # decoration only and may safely disappear.
+    draw.rectangle((280, 0, 1000, 720), fill='#132638')
+    draw.rectangle((312, 62, 328, 94), fill='#efbd58')
+    panel = (744, 34, 972, 282)
+    portrait = ImageOps.contain(image.convert('RGB').crop(crop), (228, 248), Image.Resampling.LANCZOS)
+    portrait_xy = (panel[0]+(228-portrait.width)//2, panel[1]+(248-portrait.height)//2)
     canvas.paste(portrait, portrait_xy)
-    draw.line((912, 68, 912, 652), fill='#334557', width=2)
-    label = ImageFont.truetype(font, 44, index=font_index)
-    small = ImageFont.truetype(font, 26, index=font_index)
+    label = ImageFont.truetype(font, 36, index=font_index)
+    small = ImageFont.truetype(font, 24, index=font_index)
     title_font = ImageFont.truetype(font, 96, index=font_index)
-    draw.text((48, 66), speaker, font=label, fill='#efbd58')
-    draw.text((48, 134), '访谈摘录', font=small, fill='#adbac9')
-    lines = cover_headline(headline, speaker, max_lines=3)
+    draw.text((344, 42), speaker, font=label, fill='#efbd58')
+    draw.text((344, 94), '访谈摘录', font=small, fill='#adbac9')
+    lines = cover_headline(headline, speaker, max_lines=3, line_capacity=6)
     boxes = []
     for i, line in enumerate(lines):
-        xy = (48, 204+i*122) if len(lines)==3 else (48, 272+i*132)
+        xy = (312, 300+i*110) if len(lines)==3 else (312, 374+i*128)
         box = draw.textbbox(xy, line, font=title_font)
-        if box[2] > 912:
-            raise ValueError('封面文案超出文字区；不能缩成小字或覆盖人脸')
+        if box[2] > 984:
+            raise ValueError('封面文案超出信息流安全区；不能缩成小字或覆盖人脸')
         draw.text(xy, line, font=title_font, fill='#f5f5f1' if i == 0 else '#efbd58')
         boxes.append(box)
-    draw.line((48, 606, 120, 606), fill='#efbd58', width=4)
-    draw.text((48, 624), '林园访谈 · 原声观点' if speaker == '林园' else speaker+' · 原声观点',
+    draw.line((312, 654, 384, 654), fill='#efbd58', width=4)
+    draw.text((312, 670), '林园访谈 · 原声观点' if speaker == '林园' else speaker+' · 原声观点',
               font=small, fill='#adbac9')
-    canvas.save(path, quality=95)
-    proof = cover_proof(canvas, path, lines, 96, boxes, style='editorial')
     x, y, fw, fh = face
     sx, sy = portrait.width/(crop[2]-crop[0]), portrait.height/(crop[3]-crop[1])
     mapped_face = [portrait_xy[0]+(x-crop[0])*sx, portrait_xy[1]+(y-crop[1])*sy,
                    portrait_xy[0]+(x+fw-crop[0])*sx, portrait_xy[1]+(y+fh-crop[1])*sy]
-    proof.update(design_version=1, portrait_panel=list(panel), source_crop=list(crop),
+    canvas.save(path, quality=95)
+    proof = cover_proof(canvas, path, lines, 96, boxes, style='editorial', face_box=mapped_face)
+    proof.update(design_version=2, portrait_panel=list(panel), source_crop=list(crop),
                  face_box=mapped_face, face_fully_visible=True, text_face_overlap=False,
                  sha256=hashlib.sha256(path.read_bytes()).hexdigest())
     Path(str(path)+'.proof.json').write_text(json.dumps(proof, ensure_ascii=False, indent=2))

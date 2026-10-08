@@ -205,14 +205,13 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
     subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(original),
         '-loop','1','-framerate',rate,'-i',str(bg),'-loop','1','-framerate',rate,'-i',str(brand),'-filter_complex',filters,
         '-map','[outv]','-map','0:a:0','-c:v','libx264','-preset','veryfast','-crf','18',
-        '-pix_fmt','yuv420p','-c:a','copy','-movflags','+faststart',str(target)],
+        # Stream-copying inherited any input packet offset.  Subtitle ASS is
+        # excerpt-relative, so normalize the audio clock with the video clock
+        # before muxing; packet identity is not evidence of A/V sync.
+        '-pix_fmt','yuv420p','-af','asetpts=PTS-STARTPTS,aresample=async=1:first_pts=0',
+        '-c:a','aac','-b:a','192k','-ar','48000','-movflags','+faststart',str(target)],
         check=True,timeout=max(180,int(meta['duration_sec']*5)))
-    def audio_digest(path):
-        return subprocess.check_output(['ffmpeg','-v','error','-i',str(path),
-            '-map','0:a:0','-c','copy','-f','hash','-'],text=True).strip()
-    audio_sha=audio_digest(original)
-    if audio_digest(target)!=audio_sha:
-        raise ValueError('横版音频数据包与原片不一致')
+    timeline=presentation.verify_caption_av_timeline(target,captions,meta['duration_sec'])
     checks=presentation.verify_render(target,spec)
     context=meta.get('interview_context') or {}
     times=context.get('target_sample_times')
@@ -239,6 +238,8 @@ def reframe(meta, directory, work, speaker='林园', api_key=None):
             'video_title':None,'video_title_proof':None,'audio_card_template':spec['template'],
             'brand_watermark':{**meta.get('brand_watermark',{}),'width_ratio':BRAND_WIDTH/CANVAS[0]},
             'preview_30s':preview,'contact_sheet_6':sheet,
-            'landscape_reframe':dict(version=5 if chosen_style=='quiet' else 3,style=chosen_style,input_sha256=original_sha,source_window=window,
-                output_window=region,audio_stream_copied=True,audio_stream_sha256=audio_sha,
-                source_frame_rate=rate,subtitle_timing_preserved=True)}
+            'subtitle_timing_verified':True,'subtitle_timing_proof':timeline,
+            'landscape_reframe':dict(version=6 if chosen_style=='quiet' else 4,style=chosen_style,input_sha256=original_sha,source_window=window,
+                output_window=region,audio_stream_copied=False,audio_timeline_normalized=True,
+                source_frame_rate=rate,subtitle_timing_preserved=True,
+                subtitle_timing_proof=timeline)}

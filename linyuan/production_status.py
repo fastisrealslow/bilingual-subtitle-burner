@@ -148,7 +148,21 @@ def build(state, inventory, runs, now=None):
                           run_id=run.get('id'), run_url=run.get('html_url'),
                           run_started_at=run.get('run_started_at'),
                           run_updated_at=run.get('updated_at')))
+    stock=inventory.get('inventory') or {}
+    admission=inventory.get('source_admission') or {}
+    fresh=(now-float(inventory.get('updated_at') or 0)<3*3600
+           and inventory.get('quality_gate_version')==fc.QUALITY_GATE_VERSION
+           and inventory.get('editorial_policy_version')==fc.editorial.VERSION)
+    usable=int(stock.get('daily_mix_usable') or 0)
+    activity=sum(t['status'] in {'running','queued','retry_queued','awaiting_validation'} for t in tasks)
+    continuity=dict(daily_target=fc.MAX_PUBLISH_PER_DAY,reserve_target=fc.TARGET_READY_RESERVE,
+        verified_daily_stock=usable if fresh else None,active_or_recovering_sources=activity,
+        waiting_candidates=admission.get('candidate_count'),
+        status=('unknown' if not fresh else 'stockout' if usable==0 else
+                'at_risk' if usable<fc.MAX_PUBLISH_PER_DAY else 'covered'),
+        quality_gates_relaxed=False)
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
+                continuity=continuity,
                 source_admission=inventory.get('source_admission'),
                 inventory=inventory.get('inventory'),
                 counts=dict(Counter(t['status'] for t in tasks)), tasks=tasks, runs=runs)

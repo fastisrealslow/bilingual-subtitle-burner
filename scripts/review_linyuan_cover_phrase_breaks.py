@@ -39,7 +39,7 @@ def main():
         if row['id'] not in (66,95):continue
         item=dict(source_id=row['id'],source_sha256=row['source_sha256'],video_sha256=row['sha256'],title=row['cover_title'],images={})
         for label,renderer in [('before',previous),('after',current)]:
-            image,lines,size,boxes=renderer.dark_cover(portrait,row['cover_title'],'林园',str(font))
+            image,lines,size,boxes,_=renderer.dark_cover(portrait,row['cover_title'],'林园',str(font))
             path=out/(str(row['id'])+'-'+label+'.jpg')
             image.save(path,quality=95)
             proof=current.cover_proof(image,path,lines,size,boxes,style='dark')

@@ -56,11 +56,13 @@ def test_lock_prevents_concurrent_audit(tmp_path):
 def test_fetch_failure_is_recorded_not_reported_as_success(tmp_path,monkeypatch):
     def failed(*a,**k):raise subprocess.CalledProcessError(1,['git','fetch'])
     monkeypatch.setattr(audit.subprocess,'run',failed)
+    monkeypatch.setattr(audit.time,'sleep',lambda _:None)
     with pytest.raises(subprocess.CalledProcessError):
         audit.run(tmp_path,tmp_path,Path('/missing'),Path('/missing'),NOW)
     state=json.loads((tmp_path/'state.json').read_text())
     assert state['status']=='failed' and state['attempts']==1 and state['error']
-    assert not (tmp_path/'latest-report.md').exists()
+    assert '巡检未完成' in (tmp_path/'latest-report.md').read_text()
+    assert len(list((tmp_path/'runs'/'2026-09-25-1').glob('fetch-error-*.log')))==3
 
 
 def test_before_schedule_launches_no_agent(tmp_path,monkeypatch):
@@ -107,3 +109,28 @@ def test_absent_report_is_failure_even_if_agent_exit_code_is_zero(tmp_path,monke
     with pytest.raises(RuntimeError,match='no audit report'):
         audit.run(tmp_path,tmp_path,Path('/fake-codex'),prompt,NOW)
     assert json.loads((tmp_path/'state.json').read_text())['status']=='failed'
+
+
+def test_missed_day_catches_up_before_today_seventeen_without_skipping_today():
+    noon=NOW+timedelta(days=2,hours=-5)
+    prior=dict(date='2026-09-25',status='failed',attempts=2,finished_at=NOW.timestamp())
+    assert audit.due(noon,prior)
+    assert audit.scheduled_day(noon)=='2026-09-26'
+    completed=dict(date='2026-09-26',status='completed',attempts=1)
+    assert not audit.due(noon,completed)
+    assert audit.due(noon+timedelta(hours=5),completed)
+
+
+def test_git_transient_failure_retries_with_no_prompt_and_exact_tracking_ref(tmp_path,monkeypatch):
+    calls=[];waits=[]
+    def git(args,**kwargs):
+        calls.append((args,kwargs))
+        assert kwargs['env']['GIT_TERMINAL_PROMPT']=='0'
+        assert kwargs['timeout']==90
+        assert args[-1]=='+refs/heads/main:refs/remotes/origin/main'
+        if len(calls)==1:raise subprocess.CalledProcessError(128,args,stderr=b'temporary network failure')
+    monkeypatch.setattr(audit.subprocess,'run',git)
+    monkeypatch.setattr(audit.time,'sleep',waits.append)
+    audit.fetch_main(tmp_path,tmp_path)
+    assert len(calls)==2 and waits==[2]
+    assert (tmp_path/'fetch-error-1.log').read_text()=='temporary network failure'

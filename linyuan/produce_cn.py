@@ -37,11 +37,11 @@ BASE = Path(__file__).parent
 if str(BASE) not in sys.path:
     sys.path.insert(0, str(BASE))
 import editorial_policy as editorial
-PRESENTATION_RULES_VERSION = 2
+PRESENTATION_RULES_VERSION = 4
 # 中文生产只允许本地 CPU 识别；不自动回退识别 API 或 large-v3。
 # legacy Whisper 函数保留供历史代码读取，不进入本生产入口。
 WHISPER = os.environ.get("WHISPER_MODEL") or "/home/node/.cache/whisper/large-v3"
-ASR_PIPELINE_VERSION = 5
+ASR_PIPELINE_VERSION = 6
 ASR_CHUNK_SEC = 30.0
 ASR_OVERLAP_SEC = 3.0
 ASR_CPU_THREADS = max(1, min(4, int(os.environ.get("ASR_CPU_THREADS", "2"))))
@@ -119,6 +119,16 @@ MODELS = ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen3-8B
 
 TARGET_SEC = int(editorial.TARGET_SECONDS)  # 日常以2～3分钟完整观点为主
 MIN_HIGHLIGHT_SCORE = 7   # 金句评分门槛：低于此分不出片（2026-09-02）
+
+
+def automatic_only():
+    """Exclude historical per-source editorial inputs from automatic acceptance."""
+    value = os.environ.get('LINYUAN_AUTOMATIC_ONLY', 'false').lower()
+    if value not in ('true', 'false'):
+        raise ValueError('LINYUAN_AUTOMATIC_ONLY must be true or false')
+    return value == 'true'
+
+
 TARGET_SEC_MID = 420     # 中视频目标时长（7分钟话题片，2026-08-29 对标竞品中视频）
 MAX_CHARS = 18            # 单条字幕上限（字数）
 MAX_CUE_SEC = 6.0         # 单条字幕上限（秒）：ASR 不吐标点时兜底硬断（2026-09-01）
@@ -799,6 +809,7 @@ def transcribe(src, work, api_key=None):
     work.mkdir(parents=True, exist_ok=True)
     cache, provenance = work / "cues_raw.json", work / "asr_cache.json"
     identity = _asr_cache_identity(src,work)
+    if automatic_only():identity['automatic_only']=True
     selected_audio=audio_policy(identity['source_sha256'])
     if selected_audio!='ffmpeg-mono-v1':identity['audio_preprocessing']=selected_audio
     meta={}
@@ -842,6 +853,7 @@ def transcribe(src, work, api_key=None):
     _asr_quality_gate(cues, _audio_duration(src))
     cache.write_text(json.dumps(cues, ensure_ascii=False, indent=1), encoding="utf-8")
     if ASR_BACKEND=='qwen3':identity=_asr_cache_identity(src,work)
+    if automatic_only():identity['automatic_only']=True
     if selected_audio!='ffmpeg-mono-v1':identity['audio_preprocessing']=selected_audio
     tmp = provenance.with_suffix(".tmp")
     tmp.write_text(json.dumps(dict(identity=identity, cues_sha256=_sha256_file(cache)),
@@ -864,6 +876,10 @@ def _transcribe_qwen_cpu(src,work):
     with wave.open(str(wav)) as stream:
         duration=stream.getnframes()/stream.getframerate()
         pcm_sha=hashlib.sha256(stream.readframes(stream.getnframes())).hexdigest()
+    from audio_preprocessing import clock_proof
+    clock=clock_proof(src,duration,selected_audio)
+    clock.update(source_sha256=video_sha,pcm_sha256=pcm_sha)
+    (work/'audio_clock.json').write_text(json.dumps(clock,ensure_ascii=False,indent=2))
     video_sha=_sha256_file(src)
     evidence=Path(os.environ.get('QWEN3_EVIDENCE_DIR') or work/'qwen_cpu')
     reports=load_reports(evidence)
@@ -894,7 +910,7 @@ def _transcribe_qwen_cpu(src,work):
     (work/'asr_tokens.json').write_text(json.dumps(dict(tokens=tokens,timestamps=times,
         duration=duration,backend='qwen3',alignment='Qwen3-ForcedAligner-0.6B'),ensure_ascii=False))
     timed=punctuated_words(reports,words)
-    corrected,changes=apply_reviewed_corrections(timed,video_sha)
+    corrected,changes=(timed,[]) if automatic_only() else apply_reviewed_corrections(timed,video_sha)
     (work/'asr_reviewed_corrections.json').write_text(json.dumps(changes,ensure_ascii=False,indent=2))
     return _merge_cues(_funasr_tokens_to_cues(
         [w['text'] for w in corrected],[w['start'] for w in corrected],0,duration,
@@ -940,8 +956,14 @@ def _merge_cues(cues):
         if merged and c["start"] - merged[-1]["end"] < MIN_GAP and \
            len(merged[-1]["text"]) + len(c["text"]) + 1 <= MAX_CHARS + 2 and \
            c["end"] - merged[-1]["start"] <= MAX_CUE_SEC:
-            merged[-1]["end"] = c["end"]
             sep = "" if (not merged[-1]["text"] or merged[-1]["text"][-1] in BREAK) else "，"
+            if 'caption_chars' in merged[-1] and 'caption_chars' in c:
+                at=merged[-1]['end']
+                merged[-1]['caption_chars'] += [(sep,at,at)] if sep else []
+                merged[-1]['caption_chars'] += c['caption_chars']
+            else:
+                merged[-1].pop('caption_chars',None)
+            merged[-1]["end"] = c["end"]
             merged[-1]["text"] += sep + c["text"]
         else:
             merged.append(dict(c))
@@ -970,7 +992,7 @@ def _transcribe_funasr(src, work):
     wav_path = work / "audio_16k.wav"
     if not wav_path.exists():
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
-                        "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+                        "-vn", "-ar", "16000", *audio_asr_args(audio_policy(_sha256_file(src))), "-c:a", "pcm_s16le",
                         str(wav_path)], check=True)
     with wave.open(str(wav_path), "rb") as w:
         sr = w.getframerate()
@@ -1066,7 +1088,7 @@ def _transcribe_sensevoice(src, work, api_key=None):
     wav_path = work / "audio_16k.wav"
     if not wav_path.exists():
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
-                        "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+                        "-vn", "-ar", "16000", *audio_asr_args(audio_policy(_sha256_file(src))), "-c:a", "pcm_s16le",
                         str(wav_path)], check=True, timeout=600)
     with wave.open(str(wav_path), "rb") as w:
         sr = w.getframerate()
@@ -1143,15 +1165,15 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur,
     标点不进 buf（避免「吗？」「。」单独成条），end 取末 token 的 end。
     尊重 LLM 的句号边界（语义完整）优先于硬切字数。
     """
-    cues, buf, buf_text = [], [], ""
+    cues, buf, buf_text, buf_chars = [], [], "", []
     def _flush():
-        nonlocal buf, buf_text
+        nonlocal buf, buf_text, buf_chars
         if buf:
             if buf_text:
                 cues.append({"start": round(offset + buf[0][1], 2),
                              "end": round(offset + buf[-1][2], 2),
-                             "text": buf_text})
-        buf, buf_text = [], ""
+                             "text": buf_text, "caption_chars": buf_chars})
+        buf, buf_text, buf_chars = [], "", []
     for i, tok in enumerate(tokens):
         st = timestamps[i]
         if end_timestamps is not None:
@@ -1165,18 +1187,26 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur,
         if tok in "。！？!?":
             if buf:
                 buf_text += tok
+                at=offset+buf[-1][2]
+                buf_chars.append((tok,at,at))
                 _flush()
             elif cues:
                 # A length flush may have just emitted the preceding word.
                 # Keep its sentence boundary instead of discarding punctuation.
                 cues[-1]["text"] += tok
+                at=cues[-1]['end']
+                cues[-1]['caption_chars'].append((tok,at,at))
         elif tok in "，、；：,;:":
             if buf:
                 buf_text += tok
+                at=offset+buf[-1][2]
+                buf_chars.append((tok,at,at))
                 if len(buf_text) >= MAX_CHARS - 4:
                     _flush()
             elif cues:
                 cues[-1]["text"] += tok
+                at=cues[-1]['end']
+                cues[-1]['caption_chars'].append((tok,at,at))
         else:
             # 静音断句：与上一个 token 间隔过大说明中间是静音/没识别出来，
             # 不能把它们塞进同一条字幕（否则字幕横跨十几秒静音，2026-09-01 实测）
@@ -1184,6 +1214,9 @@ def _funasr_tokens_to_cues(tokens, timestamps, offset, chunk_dur,
                 _flush()
             buf.append((tok, st, en))
             buf_text += tok
+            buf_chars.extend((char,offset+st+(en-st)*j/len(tok),
+                              offset+st+(en-st)*(j+1)/len(tok))
+                             for j,char in enumerate(tok))
             # 兜底硬断：ASR 没吐标点时，普通字符也必须受字数/时长上限约束，
             # 否则整个 chunk 会挤成一条 60+ 字、跨 50 多秒的字幕（2026-09-01 实测 bug）
             if len(buf_text) >= MAX_CHARS or (buf and (en - buf[0][1]) >= MAX_CUE_SEC):
@@ -1584,7 +1617,7 @@ def pick_argument_context(cues,seeds,speaker,api_key,work,suffix):
     transcript='\n'.join(f"字幕{u['start']}-{u['end']}|{u['text']}"
                          for u in editorial_sentence_units(cues))
     import context_review as review
-    reviewed=review.reviewed_topics(cues)
+    reviewed=None if automatic_only() else review.reviewed_topics(cues)
     if reviewed and all(not any(t['start']<=c['start']<=c['end']<=t['end']
                                 for t in reviewed) for c in choices):
         (work/f'context_review{suffix}.json').write_text(json.dumps(dict(
@@ -1771,6 +1804,21 @@ def pick_highlights(cues, speaker, api_key, work, suffix="", target_sec=None, al
 
 
 def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
+    manual_fields={'editorial_title','editorial_cover','editorial_review','editorial_subtitles',
+                   'editorial_prefer_exact_quote','editorial_source_sha256','stock_original_mode'}
+    if automatic_only() and any(manual_fields.intersection(p) for p in picks):
+        raise VisualQualityError('Automatic production cannot use per-source editorial overrides')
+    if automatic_only():
+        from source_selection import boundary_error
+        for pick in picks:
+            issue=boundary_error(cues,pick)
+            if issue:raise VisualQualityError(issue)
+        from speaker_attribution import named_handoffs
+        retained=[c['text'] for pick in picks for c in cues[pick['start']:pick['end']+1]]
+        unknown=[r for r in named_handoffs(retained,speaker) if len(r['addressee'])>1 and not r['target']]
+        if unknown:
+            raise EditorialReviewUnavailable('ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：'
+                                             +json.dumps(unknown,ensure_ascii=False))
     omitted_text=None
     if len(picks)==1:
         editorial.range_seconds(cues,picks[0])
@@ -1794,7 +1842,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==6
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==9
+                    and (not automatic_only() or saved.get('automatic_only') is True)
                     and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
                     and (not omitted_text or (saved.get('omitted_text_sha256')==editorial.text_digest(omitted_text)
@@ -1831,7 +1880,8 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         return proof
     prompt=(f'审核{speaker}的一段访谈能否独立成片。任务是判断剪辑是否保留完整表达，'
         '不是审查投资判断的正确性，也不是要求研究报告式的严密论证。\n'
-        '先阅读全部原话，在analysis中逐字摘录观点、至少一个理由或例子、收束语；不存在则填空字符串。'
+        '先阅读全部原话，在analysis中逐字摘录观点、至少一个理由或例子、最后一句完整解释或结论；最后一句可以同时作为理由。'
+        '确实没有相应内容才填空字符串。'
         '然后填写verdict。观点加上片内理由、自然完成回答即可构成完整表达；'
         '结尾可以是最后一条解释，不必再次重述观点。不要求定义常见行业名词或提供数据证明。'
         '主持人已说出话题再提问可以独立开场，提及过去直播日期不等于依赖片外上下文。\n'
@@ -1844,6 +1894,11 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
         '所有quote必须逐字取自原话。opening_quote从第一个字开始，ending_quote覆盖最后一个字，'
         '各不超过100字。audio_issues每项将quote和影响原意的reason配对；没有则为空数组。'
         '每个判定须与摘录的证据一致；缺什么写具体，不要凭空提出片内未问的新问题。\n原话：'+text)
+    prompt+=('\n特别核对：claim_quote必须是嘉宾的实际判断，不能拿主持人的提问作为观点证据。'
+        'conclusion_quote取本题回答最后的完整判断或解释，不要求专门的总结句。'
+        '不需要主持人总结，也不需要宣布进入新话题；这些串场不属于嘉宾的回答证据。'
+        '不要因为句子出现在字幕里，就认为其中的公司名、专有名词或搭配一定识别正确；'
+        '若实体或关键断言明显不自然、存在影响理解的同音疑点，应逐字列入audio_issues，不能猜改成正确答案。')
     # Whole-sentence evidence prevents a display row ending mid-sentence from
     # becoming a spurious "missing object". Evidence and verdict are separate
     # objects because Ollama's grammar orders property names alphabetically.
@@ -1865,6 +1920,21 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 'reason':{'type':'string','maxLength':60}},
             'required':['quote','reason'],'additionalProperties':False}},
     }
+    bound_evidence=None
+    if automatic_only():
+        import editorial_evidence
+        bound_evidence=editorial_evidence.sentences(text)
+        analysis_fields=editorial_evidence.schema(bound_evidence)
+        prompt+=('\n自动证据协议：不复写quote，不改字或标点。claim_range、reasoning_range、conclusion_range各填'
+            '[起始句编号,结束句编号]，两端包含；缺少证据填[-1,-1]。只能选择连续原句，不能拿主持人的问题作观点。'
+            'audio_issues每项填sentence_id和reason。开场和结尾由程序固定为第一句和最后一句，'
+            'standalone_opening及natural_ending必须针对这两句判断。'
+            'conclusion_range可以和reasoning_range相同或重叠，指本题最后的完整判断或解释，不是必须另有总结。'
+            '例如“我暂时不买。需求还不确定。”已经给出判断和理由，最后一句自然结束；不需要主持人总结或新话题过渡。'
+            '反例：“我暂时不买。因为主要原因是”属于切断；“那下一个问题呢？”没有回答；“聊了这么多大家都学到了”是主持人串场。'
+            '不得仅因没有正式收束语、没有主持人总结或没有进入新话题而拒绝。'
+            'claim_range只选嘉宾判断的最小连续原句，理由单独放reasoning_range，不把中间的主持人提问包进claim_range。'
+            '只需输出schema里的字段。完整编号原句：'+json.dumps(dict(enumerate(bound_evidence)),ensure_ascii=False))
     fields={name:{'type':'boolean'} for name in ('standalone_opening',
         'complete_argument','reasoning_present','natural_ending','requires_audio_review')}
     if omitted_text:
@@ -1894,10 +1964,14 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             raw=re.sub(r'```(?:json)?|```','',response).strip()
             match=re.search(r'\{.*\}',raw,re.S)
             proof=json.loads(match.group(0) if match else raw)
+            if bound_evidence is not None and not {'analysis','verdict'}.issubset(proof):
+                raise ValueError('自动观点审核缺少编号证据和独立判定')
             if 'analysis' in proof or 'verdict' in proof:
                 analysis,verdict=proof.get('analysis'),proof.get('verdict')
                 if not isinstance(analysis,dict) or not isinstance(verdict,dict):
                     raise ValueError('缺少证据或判定对象')
+                if bound_evidence is not None:
+                    analysis=editorial_evidence.bind(analysis,bound_evidence)
                 for name in ('claim_quote','reasoning_quote','conclusion_quote'):
                     quote=analysis.get(name)
                     if not isinstance(quote,str) or (quote and quote not in text):
@@ -1912,6 +1986,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 # A positive decision needs actual source support, not just flags.
                 if proof.get('complete_argument') is True and not analysis['claim_quote']:
                     raise ValueError('完整观点通过却没有原文观点证据')
+                from source_selection import question_unit
+                if proof.get('complete_argument') is True and question_unit(analysis['claim_quote']):
+                    raise ValueError('观点证据包含采访者提问；须摘录嘉宾本人的独立陈述')
                 if proof.get('reasoning_present') is True and not analysis['reasoning_quote']:
                     raise ValueError('理由通过却没有原文理由证据')
             for name in ('opening_quote','ending_quote'):
@@ -1930,11 +2007,13 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             (work/f'editorial_service_error{suffix}-{attempt}.txt').write_text(type(exc).__name__+': '+str(exc))
             if attempt:
                 raise EditorialReviewUnavailable('观点审核服务未提供可对照的实际原文证据：'+str(exc)) from exc
-            prompt+='\n上次响应未提供可逐字核对的证据。请重新独立审核，只从实际保留原话摘录引用，不要复制审核规则。'
+            prompt+='\n上次响应的具体错误：'+str(exc)+'。请重新独立审核并修正证据范围，只从实际保留原话取证，不要复制审核规则。'
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=6,review_model=LOCAL_LLM_MODEL)
+                 review_prompt_version=9,review_model=LOCAL_LLM_MODEL)
+    if automatic_only():
+        proof.update(automatic_only=True,evidence_protocol='source_sentence_ranges_v1')
     if omitted_text:
         proof['omitted_text_sha256']=editorial.text_digest(omitted_text)
         cache.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
@@ -2003,6 +2082,14 @@ def dependent_caption_start(text):
         return False
     a,b=spans[0]
     return text[a:b] in {'的','地','得'}
+
+
+def cue_caption_entry(cue, origin=0):
+    entry=dict(start_sec=cue['start']-origin,end_sec=cue['end']-origin,
+               zh=cue['text'],en='')
+    if cue.get('caption_chars') is not None:
+        entry['caption_chars']=[(c,a-origin,b-origin) for c,a,b in cue['caption_chars']]
+    return entry
 
 
 def caption_timeline(entries):
@@ -2192,6 +2279,20 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
             a,b=caption_display_interval(chars[lo][1],chars[hi-1][2])
             if b-a<.25: raise ValueError('意群字幕过短闪屏')
             group = dict(start_sec=a,end_sec=b,zh=piece,en='',semantic_group=True)
+            # Keep the original word/character clock through semantic grouping.
+            # Re-interpolating the whole phrase would move later words across
+            # pauses when the renderer splits it into one-line screens.
+            anchored=[]; cursor=lo
+            for char in piece:
+                if strip(char):
+                    original=chars[cursor]
+                    if original[0] != char:
+                        raise ValueError('字幕分组逐字时间与原文不一致')
+                    anchored.append(original); cursor+=1
+                else:
+                    at=chars[cursor-1][2] if cursor>lo else chars[lo][1]
+                    anchored.append((char,at,at))
+            group['caption_chars']=anchored
             if cue_capacity > capacity:
                 group['line_capacity'] = cue_capacity
                 group['font_px'] = cue_font
@@ -2754,6 +2855,7 @@ def reviewed_native_cleanup(source_report, width, height, start, end):
     preserve native pixels and both participants. This is only a proposal:
     selected_native_clean_plan must render and verify it before use.
     """
+    if automatic_only():return None
     if (source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
             and (width,height)==(1920,1080)
             and abs(start-459.0)<.01 and abs(end-747.24)<.01):
@@ -2921,6 +3023,7 @@ def detect_external_logos_after_render(final, strategy, width, height):
 
 def reviewed_source_live_crop(source_report, width, height):
     """A measured crop is a render hint, bound to exact source bytes, never a gate exemption."""
+    if automatic_only():return None
     path=Path(__file__).with_name('source_crop_profiles.json')
     if not path.exists():
         return None
@@ -3480,7 +3583,7 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
-TITLE_STYLE_PROFILE = 'yuanyuan-v4-source-only-20260922'
+TITLE_STYLE_PROFILE = 'yuanyuan-v5-complete-spoken-copy-20260924'
 # Keep reference titles in the comparison corpus, outside the writer's context.
 # Real source17 discussed solar power, but all three drafting attempts copied
 # wine/AI claims from style examples despite the "not facts" instruction.
@@ -3493,6 +3596,7 @@ def _copy_style_identity(speaker):
     if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=TITLE_STYLE_PROFILE,
+                **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
                 title_draft_profile_sha256=_sha256_file(Path(__file__).with_name('title_draft_profiles.py')),
@@ -3515,7 +3619,7 @@ def _title_style_prompt(prompt, schema, speaker):
 学习参考视频的表达方式：具体对象、本人态度、原话理由、短句推进。
 这里不提供其他视频的公司、数字或观点。事实只取下方本片嘉宾原话。
 写成林园本人对着观众讲话，别写成旁观者总结。态度、对象、理由都要具体。
-第一句先亮出嘉宾确实表达的选择、判断或感受；第二句接他原话里的具体理由或真实反差。
+先亮出嘉宾确实表达的选择、判断或感受；已经完整就停，有必要才接原话里的理由或真实反差。
 允许两三句连着说，允许有力的否定和适度重复强调；不要为了书面工整把语气磨平。
 强调重复必须带来新意思。例如表态后要解释为什么，不能连续三遍“我不卖”却没有对象和理由。
 写“我不投”前必须确认本段确实说了不投；认可前景但说赚钱难，不能硬套成不投。
@@ -3526,6 +3630,8 @@ def _title_style_prompt(prompt, schema, speaker):
 事实只来自下方嘉宾字幕。不能凭空添加立场或收益，保留条件、否定、比较对象和不确定性。
 title以“林园：”开头，正文4~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
 cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋明确判断，与标题同一判断；不截取半句。短于8字须有明确对象和动作，不能仅列名词。
+标题里已有长度合适的完整短句时，封面优先原样沿用，不为求短重新压缩。超长时换一个同观点的完整说法，不能删除正常口语必需的主语、动词、补语或比较对象。
+标题和封面分别读一遍：不看另一行也应知道谁对什么作出什么判断。不要让省略的对象承担“成为、增长、降低”等后续动作；证据不足就另选原文中清楚的判断。
 '''
         prompt = prompt[:start] + style + prompt[end:]
         # Do not give the writer unrelated illustrative facts to imitate.
@@ -3537,6 +3643,7 @@ cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋�
         prompt = prompt.replace(marker, '''风格选择采用园园第二版：口语自然、开头态度明确、对象和理由具体、短句有推进。
 在原文支持的候选中，优先本人直接讲话、态度后接具体理由；避免空泛总结、报告腔和没有新信息的重复。
 不要仅因措辞鲜明或使用有力的否定而降低appeal，也不要以感叹号数量评判。事实检查独立，不因风格加分放过编造。
+readable必须同时覆盖标题和封面：分别作为陌生观众读一遍，任何一行缺主语、对象、比较基准，或为了缩短而省掉必要谓语、补语，都应退回。不能用标题补全封面的语病；文案应是自然说得出口的完整句子。
 ''' + marker)
     return prompt
 
@@ -3550,6 +3657,8 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     each selected segment's title cache tied to its own complete transcript.
     """
     cache = work / f"copywrite{suffix}.json"
+    if automatic_only() and (reviewed_title or reviewed_cover or prefer_reviewed_quote):
+        raise VisualQualityError('Automatic titles cannot use manually supplied copy')
     transcript_text = "".join(cues[i]["text"] for i in sel)
     from headline_policy import attach_copy
     import title_rewrite as title_editor
@@ -3586,7 +3695,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     # for an identical passage, not a claim that today's model generated it.
     from reviewed_title_records import lookup as reviewed_copy
     try:
-        reviewed=reviewed_copy(source_sha256,transcript_text,speaker)
+        reviewed=None if automatic_only() else reviewed_copy(source_sha256,transcript_text,speaker)
         if reviewed:
             cached,proof=reviewed
             error=title_quality_error(cached['title'],speaker,transcript_text,
@@ -3621,7 +3730,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         except ValueError:
             pass
     from title_rewrite import generate
+    title_call_number=0
     def title_model(prompt, schema):
+        nonlocal title_call_number
+        title_call_number+=1
         # Reuse verified copywrite.json and stable independent review verdicts.
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
@@ -3646,9 +3758,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
             print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
-        return llm(messages,api_key,temperature=temperature,
+        (work/f'title_request{suffix}-{title_call_number}.json').write_text(json.dumps(
+            dict(messages=messages,schema=schema),ensure_ascii=False))
+        response=llm(messages,api_key,temperature=temperature,
                    max_tokens=2300,budget_sec=title_inference_budget(prompt,suffix=='_full'),response_schema=schema,
                    read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','c_sentence_roles','b_focus','c_candidates')))
+        (work/f'title_response{suffix}-{title_call_number}.txt').write_text(response)
+        return response
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
@@ -5045,6 +5161,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
 
     display_topic = _audio_card_display_topic(topic, speaker)
 
+    cover_face_box = None
     if vertical:
         # v3 固定坐标：标签 96~142，主标题 165~325，人物 360~830，
         # 字幕留白 874~1040，来源说明 1080~1160。
@@ -5173,7 +5290,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         selected_style = select_cover_style(False, topic,
             cover_style or os.environ.get("COVER_STYLE", "auto"))
         if selected_style == "dark":
-            image, lines, cover_font_px, cover_boxes = dark_cover(
+            image, lines, cover_font_px, cover_boxes, cover_face_box = dark_cover(
                 portrait_path, topic, speaker, font_path, index)
 
     brand = Image.open(brand_watermark_path()).convert("RGBA")
@@ -5194,7 +5311,8 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         image.save(out_path)
     if not vertical:
         from presentation import cover_proof
-        cover_proof(image, out_path, lines, cover_font_px, cover_boxes, style=selected_style)
+        cover_proof(image, out_path, lines, cover_font_px, cover_boxes,
+                    style=selected_style, face_box=cover_face_box)
     return out_path
 
 
@@ -5277,6 +5395,8 @@ def verify_prepared_live_motion(tracked, proof_path):
 
 def argument_record_for_render(cues,picks,speaker,api_key,work,suffix):
     """Record the user's disabled model review; retain source integrity gates."""
+    if automatic_only():
+        return review_complete_argument(cues,picks,speaker,api_key,work,suffix)
     # Omitting words within an argument still needs its existing meaning check.
     # The ordinary production path is one continuous source range.
     if len(picks)!=1:
@@ -5312,6 +5432,20 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         return None
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
+    if automatic_only():
+        from transcript_audit import review as audit_transcript
+        def audit_call(prompt,schema):
+            return llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                       max_tokens=1200,budget_sec=text_budget(180),response_schema=schema)
+        try:
+            audit=audit_transcript(''.join(cues[i]['text'] for i in sel),speaker,LOCAL_LLM_MODEL,
+                                   audit_call,work/f'transcript_audit{suffix}.json')
+        except (ValueError,TypeError) as exc:
+            raise EditorialReviewUnavailable('独立文字识别疑点审核不可用：'+str(exc)) from exc
+        if not audit['passed']:
+            raise VisualQualityError('原始ASR存在影响理解的疑点，禁止猜改后发布：'
+                                     +json.dumps(audit['issues'],ensure_ascii=False))
+        argument_review={**argument_review,'transcript_audit':audit}
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 
@@ -5341,7 +5475,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             exclusions=(source_report or {}).get('detected_corner_logos') or ())
         if stage:
             cw = get_copy()
-            rows=[dict(start_sec=cues[i]['start']-a,end_sec=cues[i]['end']-a,zh=cues[i]['text']) for i in sel]
+            rows=[cue_caption_entry(cues[i],a) for i in sel]
             result=stage_context.render(src,a,b-a,out,work,rows,cw,source_report or {'source_sha256':_sha256_file(src)},stage,suffix,producer=sys.modules[__name__])
             result.update(editorial_review=argument_review,editorial_policy_version=editorial.VERSION,
                           **editorial.duration_metadata(result['duration_sec']))
@@ -5553,9 +5687,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     for n, p in enumerate(picks, 1):
         idx = list(range(p["start"], p["end"] + 1))
         s0, s1 = cues[idx[0]]["start"], cues[idx[-1]]["end"]
-        entries = [{"start_sec": cues[i]["start"] - s0,
-                    "end_sec": cues[i]["end"] - s0,
-                    "zh": cues[i]["text"], "en": en_map.get(i, "")} for i in idx]
+        entries = [cue_caption_entry(cues[i],s0) for i in idx]
         ass = work / f"seg{suffix}{n}.ass"
         entries = semantic_caption_entries(entries, api_key, layout, work / f"semantic{suffix}-{n}.json",
                                            reviewed_groups=p.get('editorial_subtitles'))
@@ -5835,6 +5967,8 @@ def selected_part_numbers(spec, work_items):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--max-outputs', type=int, default=0,
+                    help='Stop after this many fully accepted outputs; 0 means all candidates')
     ap.add_argument('--only-reviewed-parts', default='',
                     help='Recovery only: comma-separated reviewed source part numbers; default all')
     ap.add_argument('--only-selected-parts', default='',
@@ -5860,6 +5994,10 @@ def main():
     ap.add_argument("--split-highlights", action="store_true",
                     help="把每个完整金句独立渲染/隔离，单条失败不淘汰同源其他金句")
     args = ap.parse_args()
+    if args.max_outputs < 0:
+        ap.error('--max-outputs cannot be negative')
+    if automatic_only() and (args.only_reviewed_parts or args.target_parts):
+        ap.error('Automatic mode cannot use reviewed ranges or fixed editorial structures')
 
     publication_state={}
     if not args.source_check_only and os.environ.get('PUBLICATION_STATE_PATH'):
@@ -5943,9 +6081,9 @@ def main():
     # A reviewed edit list fixes continuous topic boundaries only. Every range
     # still goes through independent argument, caption, visual and media gates.
     from curated_editorial import source_ranges
-    curated=source_ranges(cues,source_report.get('source_sha256'))
+    curated=None if automatic_only() else source_ranges(cues,source_report.get('source_sha256'))
     from stock_upgrade_plan import source_ranges as stock_ranges
-    stock=stock_ranges(cues,source_report.get('source_sha256'),args.slug)
+    stock=None if automatic_only() else stock_ranges(cues,source_report.get('source_sha256'),args.slug)
     if stock is not None:curated=stock
     source_picks=[]
     if (curated is None and args.split_highlights and not args.target_parts
@@ -6061,6 +6199,7 @@ def main():
                  "occasion": args.occasion, **m,
                  **({'source_context': source_context} if source_context else {}),
                  "quality_gate_version": QUALITY_GATE_VERSION,
+                 "automatic_only": automatic_only(),
                  "source_sha256": source_report.get('source_sha256'),
                  "source_platform": platform,
                  "watermark_cropped": bool(m.get("watermark_removed")),
@@ -6157,6 +6296,10 @@ def main():
             elapsed_seconds=round(time.monotonic()-part_started, 3)))
         checkpoint()
 
+        if args.max_outputs and len(metas) >= args.max_outputs:
+            print(f'[自动验收] 已完成{len(metas)}条完整验收成片，达到本次输出上限')
+            break
+
     if args.target_parts and len(metas) != args.target_parts:
         print(f"❌ 对标批次要求 {args.target_parts} 条，实际仅 {len(metas)} 条",
               file=sys.stderr)
@@ -6209,4 +6352,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # Direct CLI production follows the same default as scheduled production.
+    # Legacy per-source repairs require an explicit opt-out.
+    os.environ.setdefault("LINYUAN_AUTOMATIC_ONLY", "true")
     sys.exit(main())

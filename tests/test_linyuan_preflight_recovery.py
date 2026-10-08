@@ -10,6 +10,24 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'linyuan/fc'))
 import index as fc
 
 
+def test_backlog_finds_old_source_without_downloading_every_artifact(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/caption_lines.py')
+    entry.update(failed=True,last_error='完整词句无法放入两行',source_url='https://example.com/mother')
+    run.update(display_title='中文源出片 · mother',updated_at='2026-10-01T00:00:00Z')
+    original=fc.gh
+    def api(method,path,*a,**k):
+        if '/workflows/' in path:
+            assert 'status=failure&per_page=100&page=1' in path
+            return dict(workflow_runs=[run])
+        return original(method,path,*a,**k)
+    monkeypatch.setattr(fc,'gh',api)
+    assert fc._recover_rule_backlog(state,{'mother':entry})==1
+    assert not entry['failed'] and entry['source_check_run_id']==run['id']
+    assert entry['quality_retries']==1
+    entry['failed']=True
+    assert fc._recover_rule_backlog(state,{'mother':entry})==0
+
+
 def evidence(monkeypatch, changed='linyuan/produce_cn.py', failed_step=None):
     now = 1789264800
     monkeypatch.setattr(fc.time, 'time', lambda: now)
@@ -137,7 +155,8 @@ def test_running_same_slug_is_never_redispatched_or_deleted(monkeypatch):
     assert len(calls)==2
 
 
-def test_quality_retry_preserves_selected_parts_in_actual_workflow_request(monkeypatch):
+@pytest.mark.parametrize('slug',['reserve','ly-parity-v3-14-0905'])
+def test_automatic_quality_retry_does_not_inherit_manual_choices(monkeypatch,slug):
     sent=[]
     def gh(method,path,*args,**kwargs):
         if method=='GET':return {'workflow_runs':[]}
@@ -146,9 +165,10 @@ def test_quality_retry_preserves_selected_parts_in_actual_workflow_request(monke
     monkeypatch.setattr(fc,'save_state',lambda s:None)
     monkeypatch.setattr(fc,'log_event',lambda *a:None)
     monkeypatch.setattr(fc,'publisher_code_is_current',lambda:True)
-    entry=dict(slug='reserve',source_url='https://www.bilibili.com/video/BV1hj411X7BL',selected_parts='1,3')
-    assert fc._request_quality_reprocess({'dispatched':[entry]},entry,'reserve','字幕运行超时')
-    assert sent[0]['inputs']['selected_parts']=='1,3'
+    entry=dict(slug=slug,source_url='https://example.com/video',selected_parts='1,3',reviewed_parts='7')
+    assert fc._request_quality_reprocess({'dispatched':[entry]},entry,slug,'字幕运行超时')
+    assert not {'selected_parts','reviewed_parts','target_parts','include_full'}.intersection(sent[0]['inputs'])
+    assert entry['selected_parts']=='1,3' and entry['reviewed_parts']=='7'
     assert sent[0]['inputs']['auto_publish']=='false'
 
 

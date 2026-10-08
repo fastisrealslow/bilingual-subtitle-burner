@@ -51,7 +51,7 @@ FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
 
 def test_shared_rules_are_active_in_both_production_consumers():
-    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 2
+    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 4
     assert callable(FC.presentation_quality_error)
 
 
@@ -78,14 +78,16 @@ def test_actual_42_quote_keeps_three_complete_clauses_and_two_line_fallback():
 def test_three_line_cover_requires_real_nonoverlapping_text_area(tmp_path):
     from PIL import Image
     image=Image.new('RGB',(1280,720))
-    boxes=[[48,230,624,326],[48,350,528,446],[48,470,720,566]]
+    boxes=[[312,326,888,422],[312,438,792,534],[312,550,984,646]]
     lines=['大牛股的利润','不是靠投入','而是市场无限大']
-    proof=V.cover_proof(image,tmp_path/'cover.jpg',lines,96,boxes,style='dark')
+    face=[744,34,972,282]
+    proof=V.cover_proof(image,tmp_path/'cover.jpg',lines,96,boxes,style='dark',face_box=face)
     assert FC.cover_quality_error(proof) is None
-    for bad in ([[48,230,950,326],*boxes[1:]], [boxes[0],[48,310,528,446],boxes[2]],
-                [*boxes[:2],[48,510,720,620]]):
-        with pytest.raises(ValueError,match='边界验收'):
-            V.cover_proof(image,tmp_path/'bad.jpg',lines,96,bad,style='dark')
+    assert (tmp_path/proof['feed_square']).is_file()
+    for bad in ([[312,326,990,422],*boxes[1:]], [boxes[0],[312,390,792,534],boxes[2]],
+                [*boxes[:2],[312,560,984,660]]):
+        with pytest.raises(ValueError):
+            V.cover_proof(image,tmp_path/'bad.jpg',lines,96,bad,style='dark',face_box=face)
         assert FC.cover_quality_error({**proof,'text_boxes':bad})
     assert FC.cover_quality_error({**proof,'headline_layout':None})
     with pytest.raises(ValueError):
@@ -140,6 +142,41 @@ def test_source_timing_gaps_preserved():
     cues=V.prepare_captions([{'start_sec':0,'end_sec':2,'zh':'长期投资'},
                             {'start_sec':5,'end_sec':7,'zh':'不要追涨'}],V.layout_for(1280,720))
     assert [(x['start_sec'],x['end_sec']) for x in cues]==[(0,2),(5,7)]
+
+
+def test_default_captions_use_outline_not_a_filled_white_panel(tmp_path):
+    path=tmp_path/'outline.ass'
+    V.write_ass([dict(start_sec=0,end_sec=3,zh='政策力度大，态度明确')],path,
+                V.layout_for(1280,720),'Noto Sans CJK SC')
+    style=next(line for line in path.read_text(encoding='utf-8-sig').splitlines()
+               if line.startswith('Style: ZH,'))
+    fields=style.split(',')
+    # ASS BorderStyle=1 follows the glyph; BorderStyle=3 creates a solid box.
+    assert fields[15]=='1' and fields[16]=='2.5'
+    assert V.layout_for(1280,720)['subtitle_style']=='white-outline'
+
+
+def test_caption_av_timeline_rejects_nonzero_audio_clock(monkeypatch):
+    import json
+    def probe(*_args, **_kwargs):
+        return json.dumps(dict(format=dict(duration='7.0'),streams=[
+            dict(codec_type='video',start_time='0.000000'),
+            dict(codec_type='audio',start_time='0.430000')])).encode()
+    monkeypatch.setattr('subprocess.check_output',probe)
+    with pytest.raises(ValueError,match='时间轴未归零'):
+        V.verify_caption_av_timeline('sample.mp4',[dict(start_sec=0,end_sec=3,zh='测试字幕')],7)
+
+
+def test_caption_av_timeline_records_zero_based_audio_video(monkeypatch):
+    import json
+    def probe(*_args, **_kwargs):
+        return json.dumps(dict(format=dict(duration='7.0'),streams=[
+            dict(codec_type='video',start_time='0.000000'),
+            dict(codec_type='audio',start_time='0.000000')])).encode()
+    monkeypatch.setattr('subprocess.check_output',probe)
+    proof=V.verify_caption_av_timeline('sample.mp4',[
+        dict(start_sec=0,end_sec=3,zh='政策力度大'),dict(start_sec=3.1,end_sec=6.8,zh='股市会被推起来')],7)
+    assert proof['passed'] is True and proof['av_offset_sec']==0
 
 
 @pytest.mark.parametrize('text,expected', [('供需关系，','供需关系'),('长期持有。','长期持有'),

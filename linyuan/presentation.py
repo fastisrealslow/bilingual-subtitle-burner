@@ -5,7 +5,13 @@ No source-specific coordinates, network requests, or publishing side effects.
 import re
 from pathlib import Path
 
-VERSION = 2
+VERSION = 4
+# Bilibili's two-column feed commonly displays a centre square crop of a 16:9
+# cover.  Treat that crop as a delivery surface, not merely a preview: headline
+# and face must survive it in full.  The extra pixels at either side are only
+# background/brand breathing room.
+FEED_SAFE_CROP = (280, 0, 1000, 720)
+FEED_SAFE_INSET = 16
 PROTECTED = ('贵州茅台', '茅台', '五粮液', '片仔癀', '达仁堂', '林园', '林总',
              '价值投资者', '长期投资者', '价值投资', '现金流', '人工智能', '机器人', '不可能', '不会',
              '不能', '没有', '不是', '不应该', '不代表', '基础能源', '新能源', '老能源',
@@ -66,10 +72,14 @@ def layout_for(width, height, card=False):
         font = min(font, int((region['height']-16)/(2*1.448)))
     from caption_readability import VERSION as READABILITY_VERSION
     return {'version':VERSION,'mode':mode,'canvas':{'width':width,'height':height},
-            'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':2,
-            'subtitle_vertical_alignment':'center','subtitle_layout_version':4,
+            'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':1,
+            'subtitle_vertical_alignment':'center','subtitle_layout_version':5,
             'readability_version':READABILITY_VERSION,
-            'subtitle_style':'light-panel-dark-text','subtitle_font_unit':'visible-glyph-px',
+            # A filled ASS box reads as a white slab on interview footage and
+            # can cover the speaker.  Use the familiar high-contrast treatment
+            # used by native short-video captions: white glyphs, dark edge and
+            # a small shadow, with no full-line backing panel.
+            'subtitle_style':'white-outline','subtitle_font_unit':'visible-glyph-px',
             'subtitle_preferred_max_seconds':6.0,'subtitle_max_seconds':8.0,'subtitle_target_seconds':3.5,
             'word_boundary_policy':'semantic-v1',
             'terminal_punctuation_policy':'no-comma-period',
@@ -226,18 +236,21 @@ def prepare_captions(entries, layout):
 
 def write_ass(entries, path, layout, font_name):
     from caption_readability import ass_font_size
-    prepared=prepare_captions(entries,layout)
+    if layout.get('subtitle_max_lines') == 1:
+        from caption_lines import one_line_screens
+        prepared=one_line_screens(entries,layout)
+    else:
+        prepared=prepare_captions(entries,layout)
     region=layout['subtitle_region']; font=layout['subtitle_font_px']
     w,h=layout['canvas']['width'],layout['canvas']['height']
     x,y=region['x']+region['width']//2,region['y']+region['height']//2
     def ts(t):
         ticks=round(t*100)
         return f'{ticks//360000}:{ticks//6000%60:02}:{ticks//100%60:02}.{ticks%100:02}'
-    color='&H00422C18'
-    box_style, box_outline=(1,0) if layout['mode']=='audio_card' else (3,10)
-    outline_color='&H00FFFFFF'
-    if layout.get('subtitle_style')=='white-outline':
-        color,outline_color,box_style,box_outline='&H00FFFFFF','&H00000000',1,2.5
+    # BorderStyle=3 creates a solid rectangular backing behind every subtitle.
+    # It was the source of the conspicuous white panels in live footage.  Keep
+    # captions readable over light and dark frames with a glyph outline instead.
+    color,outline_color,box_style,box_outline='&H00FFFFFF','&H00000000',1,2.5
     lines=['[Script Info]','ScriptType: v4.00+','WrapStyle: 2',f'PlayResX: {w}',f'PlayResY: {h}',
            '', '[V4+ Styles]',
            'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
@@ -256,25 +269,80 @@ def write_ass(entries, path, layout, font_name):
     return prepared
 
 
-def cover_headline(title, speaker='林园', max_lines=2):
+def verify_caption_av_timeline(path, entries, expected_duration, tolerance=.08):
+    """Reject a rendered file whose audio/video clocks no longer share zero.
+
+    Subtitle timestamps are relative to the selected excerpt.  Checking that an
+    ASS file round-trips is insufficient: a stream-copied audio track can retain
+    a non-zero PTS and make every caption appear late.  This check is independent
+    of text layout and applies to every reframe before it can replace a verified
+    delivery.
+    """
+    import json
+    import math
+    import subprocess
+    data=json.loads(subprocess.check_output([
+        'ffprobe','-v','error','-show_entries',
+        'stream=codec_type,start_time,duration:format=duration',
+        '-of','json',str(path)],text=True))
+    streams={row.get('codec_type'):row for row in data.get('streams',[])}
+    if not {'audio','video'} <= set(streams):
+        raise ValueError('成片缺少音频或视频流，无法验收字幕同步')
+    def number(value, name):
+        try:
+            result=float(value)
+        except (TypeError,ValueError):
+            raise ValueError('成片缺少可验证的'+name) from None
+        if not math.isfinite(result):
+            raise ValueError('成片'+name+'不是有限数')
+        return result
+    video_start=number(streams['video'].get('start_time'),'视频起始时间')
+    audio_start=number(streams['audio'].get('start_time'),'音频起始时间')
+    duration=number(data.get('format',{}).get('duration'),'时长')
+    if abs(video_start)>tolerance or abs(audio_start)>tolerance:
+        raise ValueError(f'成片时间轴未归零：video={video_start:.3f}s audio={audio_start:.3f}s')
+    if abs(video_start-audio_start)>tolerance:
+        raise ValueError(f'成片音视频时间轴不同步：差{abs(video_start-audio_start):.3f}s')
+    if abs(duration-float(expected_duration))>.15:
+        raise ValueError('成片时长与字幕母时间轴不一致')
+    cues=sorted(entries,key=lambda row:float(row['start_sec']))
+    if not cues:
+        raise ValueError('没有可验收的字幕时间轴')
+    previous=0.0
+    for cue in cues:
+        start,end=float(cue['start_sec']),float(cue['end_sec'])
+        if not (math.isfinite(start) and math.isfinite(end) and 0<=start<end<=duration+tolerance):
+            raise ValueError('字幕时间轴超出最终成片')
+        if start+1e-6 < previous:
+            raise ValueError('字幕时间轴倒退')
+        previous=end
+    return dict(version=1, checked_cues=len(cues), duration_sec=round(duration,3),
+                video_start_sec=round(video_start,4),audio_start_sec=round(audio_start,4),
+                av_offset_sec=round(audio_start-video_start,4),tolerance_sec=tolerance,
+                passed=True)
+
+
+def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9):
     from headline_policy import cover_copy, body, compact
     # A caller may supply already-reviewed cover copy. Rendering must not
     # reinterpret it as a new title and replace its words with a topic label.
+    if type(line_capacity) is not int or not 4 <= line_capacity <= 12:
+        raise ValueError('封面单行容量无效')
     text=body(title,speaker)
     short=text if len(compact(text))<=18 else cover_copy(title, speaker=speaker)['text']
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
-    if len(clauses)==2 and all(len(part)<=9 for part in clauses):
+    if len(clauses)==2 and all(len(part)<=line_capacity for part in clauses):
         return clauses
-    if max_lines>=3 and len(clauses)==2 and sum(len(part)>9 for part in clauses)==1:
+    if max_lines>=3 and len(clauses)==2 and sum(len(part)>line_capacity for part in clauses)==1:
         # Keep the actual clause boundary in source46's quote. Balancing the
         # entire text put the next clause's "你" at the end of the first line.
         lines=[]
         for part in clauses:
-            if len(part)<=9:
+            if len(part)<=line_capacity:
                 lines.append(part)
                 continue
             cuts=[b for _,b in word_spans(part) if b<len(part)
-                  and max(b,len(part)-b)<=9]
+                  and max(b,len(part)-b)<=line_capacity]
             if not cuts:
                 break
             cut=min(cuts,key=lambda b:(bool(re.search(r'(?:你|我|他|她|要|是|的|把|被)$',part[:b])),
@@ -284,15 +352,15 @@ def cover_headline(title, speaker='林园', max_lines=2):
             return lines
     # Actual source42 quote was balanced into "垄断了好我有 / 定价权我说了算".
     # Preserve its complete clauses before trying character-balanced breaks.
-    if len(clauses)==3 and all(3<=len(part)<=9 for part in clauses):
+    if len(clauses)==3 and all(3<=len(part)<=line_capacity for part in clauses):
         if max_lines>=3:
             return clauses
         clause_pairs=[[''.join(clauses[:i]),''.join(clauses[i:])] for i in (1,2)]
-        clause_pairs=[pair for pair in clause_pairs if max(map(len,pair))<=9]
+        clause_pairs=[pair for pair in clause_pairs if max(map(len,pair))<=line_capacity]
         if clause_pairs:
             return min(clause_pairs,key=lambda pair:abs(len(pair[0])-len(pair[1])))
     text=''.join(clauses)
-    initial=wrap_words(text,9)
+    initial=wrap_words(text,line_capacity)
     if len(initial)==1:return initial
     # A dictionary protects words but still splits "不是靠 / 投入". Prefer a
     # complete predicate. Three lines are opt-in only for layouts with room.
@@ -304,11 +372,11 @@ def cover_headline(title, speaker='林园', max_lines=2):
         # words, shrinking type, or claiming a complete syntactic parser.
         return sum(dangling(x) for x in lines[:-1]) + sum(x.startswith('的') for x in lines[1:])
     points=[b for a,b in word_spans(text) if b<len(text)]
-    pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=9]
+    pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=line_capacity]
     best=min(pairs,key=lambda ls:(broken_phrase(ls),abs(len(ls[0])-len(ls[1]))))
     if not broken_phrase(best) or max_lines<3:return best
     triples=[[text[:a],text[a:b],text[b:]] for a in points for b in points
-             if a<b and max(a,b-a,len(text)-b)<=9 and min(a,b-a,len(text)-b)>=3]
+             if a<b and max(a,b-a,len(text)-b)<=line_capacity and min(a,b-a,len(text)-b)>=3]
     complete=[ls for ls in triples if not broken_phrase(ls)]
     if not complete:return best
     # Keep contrast markers with their clause; otherwise prefer balanced lines.
@@ -327,6 +395,26 @@ def select_cover_style(clean_source, title, requested='auto'):
     # Reference-account inspection: clean expressive scene first. The renderer
     # may fall back to editorial copy if the real frame cannot pass scene QA.
     return 'scene' if clean_source else 'dark'
+
+
+def feed_safe_box(box, inset=FEED_SAFE_INSET):
+    """True when a headline/face survives the centre-square feed crop."""
+    if not isinstance(box, (list, tuple)) or len(box) != 4:
+        return False
+    x0, y0, x1, y1 = map(float, box)
+    left, top, right, bottom = FEED_SAFE_CROP
+    return (left + inset <= x0 <= x1 <= right - inset
+            and top + inset <= y0 <= y1 <= bottom - inset)
+
+
+def write_feed_square(image, path):
+    """Write the exact centre-square crop used by the feed-quality gate."""
+    from PIL import Image
+    if image.size != (1280, 720):
+        raise ValueError('信息流封面验证只接受1280×720画布')
+    target = Path(path).with_name(Path(path).stem + '_feed_square.jpg')
+    image.crop(FEED_SAFE_CROP).resize((360, 360), Image.Resampling.LANCZOS).save(target, quality=95)
+    return target
 
 
 def save_scene_cover(image, path, face, identity):
@@ -363,50 +451,71 @@ def save_scene_cover(image, path, face, identity):
     result.save(path, quality=95)
     thumb = Path(path).with_name(Path(path).stem + '_list_160.jpg')
     result.resize((160, 90), Image.Resampling.LANCZOS).save(thumb, quality=95)
+    # Map the verified source face into the 16:9 result before accepting the
+    # no-text scene cover.  A beautiful source frame is still unusable if the
+    # platform's square crop removes half the face.
+    scale_x, scale_y = 1280 / cw, 720 / ch
+    face_box = [(x-left)*scale_x, (y-top)*scale_y,
+                (x+fw-left)*scale_x, (y+fh-top)*scale_y]
+    if not feed_safe_box(face_box):
+        raise ValueError('现场原画封面的人脸不在信息流中心安全区')
+    feed = write_feed_square(result, path)
     proof = dict(version=VERSION, style='scene', canvas=dict(width=1280, height=720),
         headline_lines=[], font_px=0, thumbnail_font_px=0, text_boxes=[],
         no_overflow=True, thumbnail=thumb.name, no_added_text=True,
         source_kind='verified_source_frame', source_resolution=dict(width=w, height=h),
         source_identity=identity, crop=[left, top, cw, ch],
-        face_fully_visible=True, no_black_bars=True, no_qr=True,
+        face_box=face_box, face_fully_visible=True, no_black_bars=True, no_qr=True,
+        feed_safe_crop=list(FEED_SAFE_CROP), feed_square=feed.name,
+        feed_safe_face=True, feed_safe_text=True,
         sha256=hashlib.sha256(Path(path).read_bytes()).hexdigest())
     Path(str(path) + '.proof.json').write_text(json.dumps(proof, ensure_ascii=False, indent=2))
     return proof
 
 
 def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
-    """An alternative editorial cover: rectangular real portrait, short quote."""
+    """Feed-safe editorial cover: face above, conclusion below in centre square."""
     from PIL import Image, ImageDraw, ImageFont, ImageOps
     if not portrait_path or not Path(portrait_path).is_file():
         raise ValueError('深色封面缺少真人参考图')
     image=Image.new('RGB',(1280,720),(20,27,36))
     draw=ImageDraw.Draw(image)
-    portrait=ImageOps.fit(Image.open(portrait_path).convert('RGB'),(288,448),
+    # Content stays in x=280..1000, which is the two-column feed crop.  The
+    # outer bands are deliberately quiet so neither a face nor a sentence is
+    # cut in half on the list page.
+    portrait=ImageOps.fit(Image.open(portrait_path).convert('RGB'),(228,236),
                           method=Image.Resampling.LANCZOS)
-    image.paste(portrait,(944,170))
-    draw.rectangle((48,172,64,202),fill=(246,186,57))
+    portrait_xy=(744,42)
+    image.paste(portrait,portrait_xy)
+    draw.rectangle((312,68,328,98),fill=(246,186,57))
     tagfont=ImageFont.truetype(font_path,30,index=font_index)
-    draw.text((48,75),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
+    draw.text((344,42),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
     font=ImageFont.truetype(font_path,96,index=font_index)
-    lines=cover_headline(title,speaker,max_lines=3); boxes=[]
+    lines=cover_headline(title,speaker,max_lines=3,line_capacity=6); boxes=[]
     for i,line in enumerate(lines):
-        xy=(48,210+i*120) if len(lines)==3 else (48,228+i*134)
+        xy=(312,300+i*110) if len(lines)==3 else (312,374+i*128)
         draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
         boxes.append(draw.textbbox(xy,line,font=font))
-    draw.text((48,640),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
-    return image,lines,96,boxes
+    draw.text((312,672),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
+    face_box=[portrait_xy[0],portrait_xy[1],portrait_xy[0]+228,portrait_xy[1]+236]
+    return image,lines,96,boxes,face_box
 
 
-def cover_proof(image, path, lines, font_size, boxes, style=None):
+def cover_proof(image, path, lines, font_size, boxes, style=None, face_box=None):
     import json
     from PIL import Image
     three_line=(len(lines)==3 and style in ('dark','editorial') and len(boxes)==3
-        and all(b[0]>=48 and b[1]>=190 and b[2]<=912 and b[3]<=600 for b in boxes)
+        and all(296<=b[0] and 300<=b[1] and b[2]<=984 and b[3]<=650 for b in boxes)
         and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
     if (len(lines)>2 and not three_line) or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
         raise ValueError('封面大字/边界验收失败')
+    feed_required = style in {'dark','editorial'}
+    if feed_required and (not all(feed_safe_box(box) for box in boxes)
+                          or (face_box is not None and not feed_safe_box(face_box))):
+        raise ValueError('封面主体或标题超出信息流中心安全区')
     thumb=Path(path).with_name(Path(path).stem+'_list_160.jpg')
     image.resize((160,90),Image.Resampling.LANCZOS).save(thumb,quality=95)
+    feed=write_feed_square(image,path) if feed_required else None
     proof={'version':VERSION,'canvas':{'width':1280,'height':720},'headline_lines':lines,
            'font_px':font_size,'thumbnail_font_px':font_size/8,'thumbnail':thumb.name,
            'text_boxes':boxes,'no_overflow':True}
@@ -414,6 +523,10 @@ def cover_proof(image, path, lines, font_size, boxes, style=None):
         proof['style']=style
     if three_line:
         proof['headline_layout']='three_line_statement'
+    if feed_required:
+        proof.update(feed_safe_crop=list(FEED_SAFE_CROP),feed_square=feed.name,
+                     feed_safe_text=True,feed_safe_face=face_box is not None,
+                     face_box=list(face_box) if face_box is not None else None)
     Path(str(path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return proof
 

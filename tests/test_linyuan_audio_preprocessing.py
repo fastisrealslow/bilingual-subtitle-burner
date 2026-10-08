@@ -43,8 +43,29 @@ def test_old_policy_cannot_skip_weight_preparation_or_reuse_checkpoint(tmp_path,
     monkeypatch.setattr('qwen_asr_evidence.load_reports',lambda _: [report])
     assert runtime.cached_evidence(tmp_path/'source.json',{'source_sha256':SOURCE79}) is None
     assert not audio.matches([report],audio.LEFT)
-    assert audio.matches([report],audio.DEFAULT)
+    assert not audio.matches([report],audio.DEFAULT)
     corrected={**report,'audio_preprocessing':audio.LEFT}
     assert audio.matches([corrected],audio.LEFT)
     path=tmp_path/'recognition.json';path.write_text(json.dumps(report))
     assert resume_recognition(corrected,path)==0
+
+
+def test_asr_uses_presentation_clock_not_decoded_sample_count(tmp_path):
+    # A real AAC stream with denser samples than its timestamps reproduces the
+    # published mother's 2672s PCM / 2625s media drift without a huge fixture.
+    source=tmp_path/'clock.m4a'
+    subprocess.run(['ffmpeg','-y','-v','error','-f','lavfi','-i',
+        'sine=frequency=440:sample_rate=44100:duration=12',
+        '-af','asetpts=PTS/1.018','-c:a','aac',str(source)],check=True)
+    duration=float(subprocess.check_output(['ffprobe','-v','error','-show_entries',
+        'format=duration','-of','default=nw=1:nk=1',str(source)]))
+    old=subprocess.check_output(['ffmpeg','-v','error','-i',str(source),
+        '-ac','1','-ar','16000','-f','s16le','-'])
+    corrected=subprocess.check_output(['ffmpeg','-v','error','-i',str(source),
+        *audio.asr_args(audio.DEFAULT),'-f','s16le','-'])
+    assert len(old)/32000-duration>.15
+    assert abs(len(corrected)/32000-duration)<.08
+    assert audio.clock_proof(source,len(corrected)/32000,audio.DEFAULT)['passed']
+    import pytest
+    with pytest.raises(ValueError,match='媒体时钟不一致'):
+        audio.clock_proof(source,len(corrected)/32000+1,audio.DEFAULT)
