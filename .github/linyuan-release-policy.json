@@ -1,4 +1,10 @@
 {
-  "deployment_paused": true,
-  "reason": "先准备并验收全自动样片，再恢复 FC 部署。模型自评或单元测试通过不能单独解除暂停。"
+  "deployment_paused": false,
+  "reason": "2026-10-08 用户明确授权：今日上线，确认比线上改善后逐步部署。已核验实际母片的媒体/PCM时钟差异和诊断渲染，先部署通用修复及补片恢复；诊断样片不直接发布，真实自动新片仍须全部质量验收。",
+  "rollout_mode": "phased-production-fix",
+  "user_authorization": "今天改完以后就上线；只要确定当前的效果比线上的效果好，就可以逐步上线",
+  "evidence": "linyuan/operations/phase1-20261008.md",
+  "automatic_preview_run_id": 37792405525,
+  "publish_diagnostic_sample": false,
+  "quality_gates_relaxed": false
 }
