@@ -19728,8 +19728,8 @@
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "failure_stage": "editorial-or-render",
    "source_check_attempts": 3,
-   "failed": false,
-   "source_quality_rejected": false,
+   "failed": true,
+   "source_quality_rejected": true,
    "automatic_rule_recoveries": {
     "source-boundaries-v19": {
      "run_id": 35928371588,
@@ -19935,9 +19935,9 @@
    "source": "bilibili_search",
    "author": "-大道至简返璞归真",
    "publish_time": "2025-09-08T16:38:40+00:00",
-   "failed": false,
-   "last_error": "本轮选段没有返回通过120秒和连续上下文检查的候选",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/职务：'车上导导游'和'日本的导'语义不通，应为'车上导游'及'日本导游'。\"}, {\"sentence_id\": 9, \"quote\": \"这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"贵十到八八到十倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述混乱且无法解释：'八八'在口语中无明确含义，疑似识别错误（可能为'七八'或'六八'等），导致数值范围'十到八八到十倍'逻辑不清。\"}, {\"sentence_id\": 11, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"消费身体\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或术语：'消费身体'含义不明，结合上下文（点心价格），应为'消费水平'或'消费习惯'等。\"}, {\"sentence_id\": 21, \"quote\": \"最后你达到，呃，不要说咱们中国香港那个生活水平，那个万，是吧？\", \"suspect_quote\": \"那个万，是吧？\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述不完整且无法解释：'那个万'缺少量词单位（如'万元'），导致具体数值含义不明，影响理解。\"}, {\"sentence_id\": 26, \"quote\": \"啊，所以糖的故事本身，这些我们说的中药企业，它一个是往新药上发展，第二个他的一些适应症啊，他的，比如说以前是肝病的，哎，他用眼花出一大堆啊，治疗抑郁症，治疗这个这个这个，呃，皮肤是吧，呃，通便都来了。\", \"suspect_quote\": \"他用眼花出一大堆啊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或动词：'眼花出'语义不通，结合上下文（适应症扩展），应为'用眼睛看出'、'用于眼部'或识别错误的其他词组。\"}, {\"sentence_id\": 32, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"这个脸因为是针出血了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或描述：'脸因为是针出血了'语法混乱且语义不明，可能为'脸上因为针扎出血了'或其他误识别。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
