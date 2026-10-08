@@ -41,7 +41,23 @@
         || (['failed', 'validation_failed'].includes(t.status) && now - Number(t.ts || 0) > 7 * 86400)),
       failures: tasks.filter(t => ['failed', 'validation_failed'].includes(t.status))};
   }
-  const api = {latestDispatches, remaining, reconcile};
+  function continuity(snapshot, now = Date.now() / 1000) {
+    const data = snapshot && snapshot.continuity;
+    const fresh = snapshot && [snapshot.updated_at, snapshot.inventory_updated_at].every(
+      ts => Number(ts) > 0 && now - Number(ts) >= -60 && now - Number(ts) < 3 * 3600);
+    const stock = data && data.verified_daily_stock;
+    const target = data && data.daily_target;
+    if (!fresh || !data || !Number.isInteger(stock) || stock < 0
+      || !Number.isInteger(target) || target <= 0 || data.quality_gates_relaxed !== false) {
+      return {status: 'unknown', message: '每日供应尚未取得有效库存核对，不能保证更新频率。'};
+    }
+    if (stock === 0) return {status: 'stockout',
+      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；生产、候选和周日预留片不计入日常储备。`};
+    if (stock < target) return {status: 'at_risk',
+      message: `日常合格成片仅 ${stock} 条，低于每日 ${target} 条目标，需要补库。`};
+    return {status: 'covered', message: `日常合格库存 ${stock} 条，可覆盖至少一天的 ${target} 条目标；不代表已经发布。`};
+  }
+  const api = {latestDispatches, remaining, reconcile, continuity};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ProductionStatus = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
