@@ -3,7 +3,7 @@
   "validation_sha256": "dadac27210502b98971e8b4352234181f312478d616f38017308329543b8df7a",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791475675,
+  "updated_at": 1791475872,
   "materials": {
     "weibo_search": {
       "records": 1959,
@@ -91,7 +91,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791475676,
+    "updated_at": 1791475872,
     "records": 8522,
     "video_records": 7151,
     "initial_candidates": 57,
@@ -15885,50 +15885,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1aFen6YEF8:p1",
-        "source_url": "https://www.bilibili.com/video/BV1aFen6YEF8",
-        "family": "BV1aFen6YEF8",
-        "slugs": [
-          "ly-0929-191fbb"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0929-191fbb",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "https://m.weibo.cn/detail/5347519020406757",
-        "source_url": "https://m.weibo.cn/detail/5347519020406757",
-        "family": "m.weibo.cn",
-        "slugs": [
-          "ly-0927-f24c30"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-0927-f24c30",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1Da4y1n7gQ:p1",
         "source_url": "https://www.bilibili.com/video/BV1Da4y1n7gQ",
         "family": "BV1Da4y1n7gQ",
@@ -17106,7 +17062,7 @@
           {
             "slug": "ly-0929-93098b",
             "stage": "editorial-or-render",
-            "terminal": false,
+            "terminal": true,
             "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
           }
         ],
@@ -17193,6 +17149,50 @@
         "failures": [
           {
             "slug": "ly-1004-3e56a3",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1aFen6YEF8:p1",
+        "source_url": "https://www.bilibili.com/video/BV1aFen6YEF8",
+        "family": "BV1aFen6YEF8",
+        "slugs": [
+          "ly-0929-191fbb"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0929-191fbb",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "https://m.weibo.cn/detail/5347519020406757",
+        "source_url": "https://m.weibo.cn/detail/5347519020406757",
+        "family": "m.weibo.cn",
+        "slugs": [
+          "ly-0927-f24c30"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-0927-f24c30",
             "stage": "editorial-or-render",
             "terminal": false,
             "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
@@ -18289,8 +18289,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -18601,8 +18601,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1
       },
       "BV13m421375i": {
@@ -20215,11 +20215,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1aFen6YEF8": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1Da4y1n7gQ": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -20463,7 +20458,8 @@
       "BV1ANjA6sE1M": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1sQSkBHENq": {
         "attempted_mothers": 1,
@@ -20484,10 +20480,15 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1aFen6YEF8": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 47,
+  "in_flight_placeholders": 46,
   "artifacts": [
     {
       "slug": "ly-1002-dc0c85",
