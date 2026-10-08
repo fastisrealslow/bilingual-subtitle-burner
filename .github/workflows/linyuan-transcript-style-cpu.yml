@@ -7,6 +7,11 @@ on:
       - linyuan/transcript_audit.py
       - scripts/check_linyuan_transcript_style_cpu.py
   workflow_dispatch:
+    inputs:
+      local_text_model:
+        type: choice
+        default: qwen3.5:9b
+        options: ['qwen3:8b','qwen3.5:9b']
 permissions:
   contents: read
 concurrency:
@@ -17,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      LOCAL_LLM_MODEL: qwen3:8b
+      LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3.5:9b' }}
       CUDA_VISIBLE_DEVICES: ''
     steps:
       - uses: actions/checkout@v4
@@ -25,19 +30,19 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -q jieba
-      - name: 缓存实产CPU本地模型
+      - name: 缓存实产或预览CPU本地模型
         uses: actions/cache@v4
         continue-on-error: true
         with:
           path: ~/.ollama/models
-          key: ollama-qwen3-8b-v1
+          key: ${{ env.LOCAL_LLM_MODEL == 'qwen3.5:9b' && 'ollama-qwen35-9b-v1' || 'ollama-qwen3-8b-v1' }}
       - name: 缓存已校验的本地模型运行环境
         uses: actions/cache@v4
         continue-on-error: true
         with:
           path: /tmp/ollama-runtime
           key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
-      - name: 启动与实产一致的CPU模型（无云API）
+      - name: 启动明确记录版本的CPU模型（无云API，不修改实产默认）
         env:
           OLLAMA_VERSION: v0.33.3
           OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
@@ -62,8 +67,8 @@ jobs:
           curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
           ollama pull "$LOCAL_LLM_MODEL"
           python - <<'PY'
-          import json, urllib.request
-          payload=dict(model='qwen3:8b',messages=[dict(role='user',content='Reply ready')],
+          import json, os, urllib.request
+          payload=dict(model=os.environ['LOCAL_LLM_MODEL'],messages=[dict(role='user',content='Reply ready')],
             stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))
           req=urllib.request.Request('http://127.0.0.1:11434/api/chat',data=json.dumps(payload).encode(),
             headers={'Content-Type':'application/json'})

@@ -13,9 +13,9 @@ import transcript_audit as audit
 
 
 def main():
-    model='qwen3:8b'
-    if os.environ.get('LOCAL_LLM_MODEL')!=model:
-        raise ValueError('Audit must use the actual production CPU model')
+    model=os.environ.get('LOCAL_LLM_MODEL','')
+    if model not in {'qwen3:8b','qwen3.5:9b'}:
+        raise ValueError('Only current/preview CPU models are allowed for controls')
     out=Path('transcript-style-cpu-results');out.mkdir(exist_ok=True)
     with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as r:
         tags=json.load(r)
@@ -55,7 +55,8 @@ def main():
         finally:
             rows.append(row)
             report=dict(diagnostic_only=True,publication_approved=False,audio_verified=False,
-                source_cues_changed=False,production_model=model,model_digest=actual['digest'],
+                source_cues_changed=False,production_current_model='qwen3:8b',
+                tested_model=model,production_model_changed=False,model_digest=actual['digest'],
                 audit_version=audit.VERSION,
                 audit_code_sha256=hashlib.sha256(Path(audit.__file__).read_bytes()).hexdigest(),
                 commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
