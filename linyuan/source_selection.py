@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 40
+VERSION = 41
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -127,7 +127,7 @@ TOPIC_ANCHORS = (
     ('茅台',), ('五粮液',), ('片仔癀',), ('房地产',),
 )
 NEW_SUBJECT = re.compile(r'除了|另外|最后|再问一个|换.{0,4}话题|来谈谈|来聊聊|但我们今天采访')
-SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值|波段|短线')
+SPOKEN_SUBJECT = re.compile(r'医药|中药|消费|股票|股市|牛市|熊市|港股|A股|企业|公司|银行|科技|人工智能|投资|股息|分红|股价|估值|波段|短线')
 HOST_PREMISE = re.compile(
     r'^(?:(?:但是|但|那么|那|嗯|呃)[，,、 ]?)*'
     r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
@@ -442,13 +442,13 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     cuts=sorted(set([0]+investment_sections+[i for i,u in enumerate(units) if
         TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
         or KEYNOTE_SECTION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
-    # An already short source may start with an answer dependent on a missing
+    # A short/medium source may start with an answer dependent on a missing
     # question. Propose the first self-contained sentence in its opening,
     # retaining everything afterwards up to the original natural end. Never
     # pick a late punchline or join separate topics to reach a duration floor.
     if (editorial.CONTENT_POLICY=='reference_v1' and whole_source and natural_end
             and units and not questions and len(cuts)==1
-            and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<120
+            and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<=330
             and not speech_opening(units[0]['text'])
             and not contextual_self_answer(units,cues,0)):
         # Several short ASR sentences/fillers can precede the first complete

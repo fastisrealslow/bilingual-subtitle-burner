@@ -51,6 +51,20 @@ def evidence(monkeypatch, changed='linyuan/produce_cn.py', failed_step=None):
     return state, candidate, run, calls
 
 
+def test_medium_opening_fix_reopens_v40_failure_once_after_prior_recovery(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/source_selection.py')
+    entry.update(failed=True,last_error='原文中未找到满足20秒且起止边界明确的连续候选',
+        source_url='https://example.com/mother',source_check_attempts=2,
+        automatic_rule_recoveries={'automatic-source-context-v10':{'run_id':99}})
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert 'medium-source-opening-v41' in entry['automatic_rule_recoveries']
+    assert entry['automatic_rule_recoveries']['automatic-source-context-v10']=={'run_id':99}
+    assert entry['source_check_attempts']==2 and entry['quality_retries']==1
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
 def test_code_fix_recovers_stranded_mother_once_without_inventing_asr_evidence(monkeypatch):
     state, entry, run, calls = evidence(monkeypatch)
     assert fc._recover_preflight_failure(state, entry, run, [])
