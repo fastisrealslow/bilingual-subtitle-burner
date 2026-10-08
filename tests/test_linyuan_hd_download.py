@@ -20,6 +20,33 @@ BILI = _load("ci_fetch_bilibili_hd", ROOT / "linyuan/ci_fetch_bilibili.py")
 FC = _load("fc_hd_download", ROOT / "linyuan/fc/index.py")
 
 
+def test_flat_cookie_dictionary_does_not_silently_become_anonymous(monkeypatch,capsys):
+    import json
+    monkeypatch.setenv('BILIBILI_COOKIES',json.dumps({'SESSDATA':'test-session',
+        'bili_jct':'test-csrf','DedeUserID':'123','non_cookie':7}))
+    rows=BILI._configured_cookie_entries()
+    assert {r['name']:r['value'] for r in rows}=={
+        'SESSDATA':'test-session','bili_jct':'test-csrf','DedeUserID':'123'}
+    assert capsys.readouterr().err==''
+
+
+def test_biliup_cookie_format_is_preserved_and_never_logged(monkeypatch,capsys):
+    import json
+    for data in ({'cookie_info':{'cookies':[{'name':'SESSDATA','value':'test-private'}]}},
+                 {'cookies':[{'name':'SESSDATA','value':'test-private'}]}):
+        monkeypatch.setenv('BILIBILI_COOKIES',json.dumps(data))
+        assert BILI._configured_cookie_entries()==[{'name':'SESSDATA','value':'test-private'}]
+        logs=capsys.readouterr()
+        assert not logs.out and not logs.err
+
+
+def test_malformed_cookie_warning_never_contains_the_value(monkeypatch,capsys):
+    monkeypatch.setenv('BILIBILI_COOKIES','SESSDATA=test-private-secret')
+    assert BILI._configured_cookie_entries()==[]
+    logs=capsys.readouterr()
+    assert 'test-private-secret' not in logs.out+logs.err
+
+
 def test_bilibili_selects_highest_compatible_stream_up_to_1080p():
     info = {"data": {"quality": 80, "dash": {
         "video": [

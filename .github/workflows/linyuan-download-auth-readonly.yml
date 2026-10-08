@@ -1,0 +1,66 @@
+name: 高清取源认证只读核对（不投稿）
+on:
+  push:
+    branches: [codex/download-cookie-fix]
+    paths:
+      - .github/workflows/linyuan-download-auth-readonly.yml
+      - linyuan/ci_fetch_bilibili.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 只读检查有效配置与可用流，不输出凭据或账户资料
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,sys
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          import ci_fetch_bilibili as fetch
+          rows=fetch._configured_cookie_entries()
+          old=[]
+          try:
+            data=json.loads((os.environ.get('BILIBILI_COOKIES') or '').lstrip('\ufeff'))
+            entries=((data.get('cookie_info') or {}).get('cookies') or data.get('cookies') or [])
+            if isinstance(entries,list):
+              old=[x for x in entries if isinstance(x,dict) and x.get('name') and x.get('value')]
+          except (ValueError,TypeError,AttributeError):pass
+          report=dict(read_only=True,publishing_verified=False,
+            parser_changed_effective_configuration=len(old)!=len(rows),
+            before_entry_count=len(old),after_entry_count=len(rows),
+            code_sha256=hashlib.sha256(Path(fetch.__file__).read_bytes()).hexdigest(),
+            source_bvid='BV1v3HD6WEV9')
+          op=fetch.opener()
+          try:
+            with op.open('https://api.bilibili.com/x/web-interface/nav',timeout=30) as r:
+              nav=json.load(r)
+            report['nav_code']=nav.get('code')
+            logged=(nav.get('data') or {}).get('isLogin')
+            report['download_login_confirmed']=logged if type(logged) is bool else None
+          except Exception as exc:report['nav_error_type']=type(exc).__name__
+          try:
+            metadata=fetch.via_view(op,report['source_bvid'],1,True)
+            streams=fetch.playurl_for_page(op,report['source_bvid'],metadata)
+            report['available_stream']=dict(width=streams.get('width'),height=streams.get('height'),
+              quality=streams.get('quality'))
+          except Exception as exc:report['stream_error_type']=type(exc).__name__
+          # Deliberately omit cookies, account fields, complete API responses and signed CDN URLs.
+          Path('download-auth-readonly.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: download-auth-readonly
+          path: download-auth-readonly.json
+          retention-days: 30
+          if-no-files-found: error
