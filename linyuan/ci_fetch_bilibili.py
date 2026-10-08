@@ -26,6 +26,14 @@ from pathlib import Path
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
+def sha256_file(handle):
+    """Hash an open binary file on every supported local/CI Python version."""
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: handle.read(1 << 20), b""):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
 
 def _configured_cookie_entries():
     """读取 biliup cookies.json；只返回条目，任何异常都不打印凭据内容。"""
@@ -333,11 +341,11 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
         # Requesting Range: bytes=<total>- would only produce HTTP 416 forever.
         tmp.replace(out)
         with out.open('rb') as handle:
-            saved['sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
+            saved['sha256'] = sha256_file(handle)
         manifest.write_text(json.dumps(saved))
     if out.exists() and saved.get('sha256'):
         with out.open('rb') as handle:
-            digest = hashlib.file_digest(handle, 'sha256').hexdigest()
+            digest = sha256_file(handle)
         if digest == saved['sha256'] and out.stat().st_size == saved.get('total'):
             print(f'[取源复用] 已完成轨道 {out.name}', flush=True)
             return
@@ -435,7 +443,7 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                     raise RuntimeError(f"下载不完整：{actual}/{expected or '?'} bytes")
                 tmp.replace(out)
                 with out.open('rb') as handle:
-                    saved['sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
+                    saved['sha256'] = sha256_file(handle)
                 saved['total'] = actual
                 manifest.write_text(json.dumps(saved))
                 return
@@ -565,7 +573,7 @@ def download(op, streams, referer, out, deadline=None):
         try:
             saved=json.loads(manifest.read_text())
             with out.open('rb') as handle:
-                digest=hashlib.file_digest(handle,'sha256').hexdigest()
+                digest=sha256_file(handle)
             if (saved.get('identity')==identity and saved.get('sha256')==digest
                     and saved.get('size')==out.stat().st_size):
                 report = validate_media(out)
@@ -578,7 +586,7 @@ def download(op, streams, referer, out, deadline=None):
 
     def remember():
         with out.open('rb') as handle:
-            digest=hashlib.file_digest(handle,'sha256').hexdigest()
+            digest=sha256_file(handle)
         temp=manifest.with_suffix('.tmp')
         temp.write_text(json.dumps(dict(identity=identity,sha256=digest,size=out.stat().st_size)))
         temp.replace(manifest)
