@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791484705,
+  "updated_at": 1791484837,
   "inventory_updated_at": 1791484705,
   "continuity": {
     "daily_target": 4,
@@ -13,7 +13,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791484705,
+    "updated_at": 1791484836,
     "records": 8522,
     "video_records": 7151,
     "initial_candidates": 54,
@@ -50,11 +50,11 @@
   },
   "counts": {
     "complete": 104,
-    "failed": 799,
+    "failed": 800,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 2,
     "retry_queued": 1,
     "running": 4
@@ -16594,11 +16594,11 @@
     },
     {
       "slug": "ly-1008-873273",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"十年前，因为我是从你的长期股，长期股。\", \"suspect_quote\": \"从你的长期股，长期股\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘从你的长期股’在金融语境下无意义，结合上下文‘我是从...长期股’及后文‘我从来不卖’，推测原意应为‘从做长期股’或‘从长期持股’。‘你的’极可能是‘做’或‘持’的误识，且重复的‘长期股’虽为口语强调，但前半句的错词导致语义\"}, {\"sentence_id\": 21, \"quote\": \"因为我不卖我的新股票的分红，红大概那时候的，就是零点五到零点七五之间。\", \"suspect_quote\": \"我的新股票的分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘新股票’在此处逻辑不通。嘉宾林园以长期持有老股著称，结合后文提到的分红率（零点五到零点七五），此处应指‘我持有的股票’或‘我的那些股票’。‘新’字极可能是‘那’、‘些’或特定人名/公司名的误识，导致含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"啊，到今天我算了，我去年的派息率应该是三点五，增加多少倍啊？\", \"suspect_quote\": \"增加多少倍啊\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似识别错误：句子中出现了具体的数字'三点五'（派息率），但紧接着的‘增加多少倍啊’在口语逻辑上存在矛盾或指代不明。如果是询问增长倍数，通常不会紧接一个绝对数值后直接问‘增加多少倍’而不给出基数；若为口误，则属于含义不明的关键数字/数量关系\"}]",
       "signature": {
         "ts": 1791483966,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
