@@ -1,0 +1,83 @@
+name: 独立CPU文字审核风格与真错误对照
+on:
+  push:
+    branches: [codex/transcript-style-audit]
+    paths:
+      - .github/workflows/linyuan-transcript-style-cpu.yml
+      - linyuan/transcript_audit.py
+      - scripts/check_linyuan_transcript_style_cpu.py
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-transcript-style-cpu
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      LOCAL_LLM_MODEL: qwen3:8b
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q jieba
+      - name: 缓存实产CPU本地模型
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen3-8b-v1
+      - name: 缓存已校验的本地模型运行环境
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+      - name: 启动与实产一致的CPU模型（无云API）
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ollama-runtime
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "${OLLAMA_SHA256}  $archive" | sha256sum -c -; then
+            curl -fsSL --retry 8 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 600 \
+              -o /tmp/ollama-download.tar.zst \
+              "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+            echo "${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst" | sha256sum -c -
+            mv /tmp/ollama-download.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+            ollama serve > /tmp/ollama.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$LOCAL_LLM_MODEL"
+          python - <<'PY'
+          import json, urllib.request
+          payload=dict(model='qwen3:8b',messages=[dict(role='user',content='Reply ready')],
+            stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))
+          req=urllib.request.Request('http://127.0.0.1:11434/api/chat',data=json.dumps(payload).encode(),
+            headers={'Content-Type':'application/json'})
+          with urllib.request.urlopen(req,timeout=600) as response:
+            assert json.load(response)['message']['content']
+          PY
+      - name: 正常口语不能误挡，实际错词仍须拒绝
+        run: python -u scripts/check_linyuan_transcript_style_cpu.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transcript-style-cpu-controls
+          path: |
+            transcript-style-cpu-results/
+            /tmp/ollama.log
+          retention-days: 30
+          if-no-files-found: error

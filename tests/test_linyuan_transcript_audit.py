@@ -84,3 +84,27 @@ def test_unbound_suspect_quote_cannot_become_rejection_evidence(tmp_path):
 def test_transcript_issue_is_not_a_duplicate_video_due_to_quoted_word_repeat():
     from production_diagnostics import failure_category
     assert failure_category('原始ASR存在影响理解的疑点：重复两个字')=='asr_transcript'
+
+
+def test_audit_prompt_distinguishes_spoken_choices_and_metaphors_without_waiving_a_real_issue(tmp_path):
+    prompts=[]
+    text='我们拥抱这个行业。原词是道琼市指数。'
+    def call(prompt,schema):
+        prompts.append(prompt)
+        return json.dumps(dict(issues=[dict(sentence_id=1,suspect_quote='道琼市指数',
+            kind='unintelligible_term',reason='专名错写影响理解')],explanation='具体专名需复核'))
+    proof=A.review(text,'嘉宾','model',call,tmp_path/'audit.json')
+    assert '明确的备选比例' in prompts[0] and '泛指少量' in prompts[0]
+    assert '真正不认识的行业词' in prompts[0]
+    assert not proof['passed'] and proof['issues'][0]['suspect_quote']=='道琼市指数'
+
+
+def test_old_style_audit_cache_requires_new_actual_review(tmp_path):
+    path=tmp_path/'audit.json';text='企业现金流充足。';calls=[]
+    path.write_text(json.dumps(dict(version=2,transcript_sha256=A.text_digest(text),
+        speaker='嘉宾',model='model',issues=[],passed=True)))
+    def call(prompt,schema):
+        calls.append(1)
+        return json.dumps(dict(issues=[],explanation='已按当前规范重新核对'))
+    proof=A.review(text,'嘉宾','model',call,path)
+    assert calls==[1] and proof['version']==3 and not proof['audio_verified']
