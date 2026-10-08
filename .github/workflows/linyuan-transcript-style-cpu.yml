@@ -14,6 +14,7 @@ on:
         options: ['qwen3:8b','qwen3.5:9b']
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: linyuan-transcript-style-cpu
   cancel-in-progress: false
@@ -86,3 +87,15 @@ jobs:
             /tmp/ollama.log
           retention-days: 30
           if-no-files-found: error
+  title-portrait:
+    needs: check
+    uses: ./.github/workflows/linyuan-title-claim-check.yml
+    with:
+      local_text_model: qwen3.5:9b
+      fixture: linyuan_0913_title.json
+  title-landscape:
+    needs: check
+    uses: ./.github/workflows/linyuan-title-claim-check.yml
+    with:
+      local_text_model: qwen3.5:9b
+      fixture: linyuan_0913_landscape_title.json
