@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {reconcile, remaining} = require('../site/production-status.js');
+const {reconcile, remaining, continuity} = require('../site/production-status.js');
 const now = 1789531200;
 const keys = ['ts','failed','published_parts','processed_part_indices','source_check_retry_after','weekly_full_week'];
 function snapshot(entry, status) {
@@ -47,4 +47,28 @@ test('noncontiguous processed indices and single published receipts close batche
     {published:{m:{parts_total:3}}}),false);
   assert.equal(remaining({slug:'m',published_parts:1,processed_part_indices:[2]},
     {published:{m:{parts_total:3}}}),true);
+});
+
+function supply(stock, target = 4) {
+  return {updated_at:now, inventory_updated_at:now,
+    continuity:{verified_daily_stock:stock,daily_target:target,quality_gates_relaxed:false}};
+}
+test('zero daily stock warns even when a weekly interview and active jobs exist',()=>{
+  const data=supply(0);
+  data.inventory={verified_weekly_full:1};
+  data.continuity.active_or_recovering_sources=6;
+  assert.equal(continuity(data,now).status,'stockout');
+  assert.match(continuity(data,now).message,/每日 4 条/);
+});
+test('daily supply warns below target and does not claim publication when covered',()=>{
+  assert.equal(continuity(supply(3),now).status,'at_risk');
+  assert.equal(continuity(supply(4),now).status,'covered');
+  assert.match(continuity(supply(4),now).message,/不代表已经发布/);
+});
+test('missing, stale, malformed or relaxed inventory is never treated as covered',()=>{
+  const stale=supply(12);stale.inventory_updated_at=now-4*3600;
+  const relaxed=supply(12);relaxed.continuity.quality_gates_relaxed=true;
+  const future=supply(12);future.updated_at=now+120;
+  for (const data of [null,{},stale,relaxed,future,supply(null),supply('12'),supply(-1),supply(12,0)])
+    assert.equal(continuity(data,now).status,'unknown');
 });

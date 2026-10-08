@@ -431,6 +431,8 @@ async function load() {
       : '<div class="empty">近 7 天无失败</div>';
 
     const alerts = [];
+    const supply = ProductionStatus.continuity(snapshot);
+    if (supply.status !== 'covered') alerts.push(supply.message);
     const now = Date.now() / 1000;
     if (!production.fresh) alerts.push('生产状态快照缺失或超过 3 小时未更新，请查看库存核对工作流。');
     const unresolved = production.tasks.filter(e => ['unknown', 'interrupted'].includes(e.status));
