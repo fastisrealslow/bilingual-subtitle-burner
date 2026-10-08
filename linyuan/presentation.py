@@ -5,7 +5,7 @@ No source-specific coordinates, network requests, or publishing side effects.
 import re
 from pathlib import Path
 
-VERSION = 3
+VERSION = 4
 # Bilibili's two-column feed commonly displays a centre square crop of a 16:9
 # cover.  Treat that crop as a delivery surface, not merely a preview: headline
 # and face must survive it in full.  The extra pixels at either side are only
@@ -72,8 +72,8 @@ def layout_for(width, height, card=False):
         font = min(font, int((region['height']-16)/(2*1.448)))
     from caption_readability import VERSION as READABILITY_VERSION
     return {'version':VERSION,'mode':mode,'canvas':{'width':width,'height':height},
-            'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':2,
-            'subtitle_vertical_alignment':'center','subtitle_layout_version':4,
+            'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':1,
+            'subtitle_vertical_alignment':'center','subtitle_layout_version':5,
             'readability_version':READABILITY_VERSION,
             # A filled ASS box reads as a white slab on interview footage and
             # can cover the speaker.  Use the familiar high-contrast treatment
@@ -236,7 +236,11 @@ def prepare_captions(entries, layout):
 
 def write_ass(entries, path, layout, font_name):
     from caption_readability import ass_font_size
-    prepared=prepare_captions(entries,layout)
+    if layout.get('subtitle_max_lines') == 1:
+        from caption_lines import one_line_screens
+        prepared=one_line_screens(entries,layout)
+    else:
+        prepared=prepare_captions(entries,layout)
     region=layout['subtitle_region']; font=layout['subtitle_font_px']
     w,h=layout['canvas']['width'],layout['canvas']['height']
     x,y=region['x']+region['width']//2,region['y']+region['height']//2
@@ -479,9 +483,9 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
     # Content stays in x=280..1000, which is the two-column feed crop.  The
     # outer bands are deliberately quiet so neither a face nor a sentence is
     # cut in half on the list page.
-    portrait=ImageOps.fit(Image.open(portrait_path).convert('RGB'),(236,236),
+    portrait=ImageOps.fit(Image.open(portrait_path).convert('RGB'),(228,236),
                           method=Image.Resampling.LANCZOS)
-    portrait_xy=(772,42)
+    portrait_xy=(744,42)
     image.paste(portrait,portrait_xy)
     draw.rectangle((312,68,328,98),fill=(246,186,57))
     tagfont=ImageFont.truetype(font_path,30,index=font_index)
@@ -493,7 +497,7 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
         draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
         boxes.append(draw.textbbox(xy,line,font=font))
     draw.text((312,672),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
-    face_box=[portrait_xy[0],portrait_xy[1],portrait_xy[0]+236,portrait_xy[1]+236]
+    face_box=[portrait_xy[0],portrait_xy[1],portrait_xy[0]+228,portrait_xy[1]+236]
     return image,lines,96,boxes,face_box
 
 

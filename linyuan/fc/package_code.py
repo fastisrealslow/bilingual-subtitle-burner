@@ -9,14 +9,14 @@ SOURCES = (
     'fc/index.py', 'stage_context.py', 'title_rewrite.py', 'artifact_range.py',
     'title_quantity_context.py', 'title_market_impression.py',
     'speaker_attribution.py', 'headline_policy.py', 'editorial_policy.py',
-    'caption_readability.py', 'presentation.py', 'live_motion.py',
+    'caption_readability.py', 'caption_lines.py', 'presentation.py', 'live_motion.py',
     'source_geometry.py', 'source_priority.py', 'production_diagnostics.py',
     'fc/media_repair.py', 'fc/stage_revision.py', 'fc/title_revision.py',
     'fc/reviewed_updates.py', 'fc/reviewed_third_video.py',
 )
 
 
-def build(destination):
+def build(destination, include_reviewed_videos=False):
     sources = [ROOT / name for name in SOURCES]
     names = {p.stem for p in sources}
     # Check lazy imports too: these used to fail only when FC validated a title.
@@ -35,7 +35,7 @@ def build(destination):
         for path in sources:
             archive.write(path, path.name)
         for path in sorted((ROOT/'fc/reviewed_0910').rglob('*')):
-            if path.is_file():
+            if path.is_file() and (include_reviewed_videos or path.suffix.lower() != '.mp4'):
                 archive.write(path, path.relative_to(ROOT/'fc'))
     with zipfile.ZipFile(destination) as archive:
         if archive.testzip():
@@ -46,4 +46,7 @@ def build(destination):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('destination')
-    print(build(parser.parse_args().destination))
+    parser.add_argument('--include-reviewed-videos', action='store_true',
+                        help='Include original media only for explicit historical archive replacements')
+    args = parser.parse_args()
+    print(build(args.destination, include_reviewed_videos=args.include_reviewed_videos))

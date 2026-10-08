@@ -80,8 +80,10 @@ def test_reviewed_phrase_keeps_its_explicit_end_time():
     cues=P._funasr_tokens_to_cues(
         ['没有一个人能守住，只是什么时候清算的事。'],[10],0,30,
         end_timestamps=[16.5])
-    assert cues==[{'start':10,'end':16.5,
-                   'text':'没有一个人能守住，只是什么时候清算的事。'}]
+    assert [{k:c[k] for k in ('start','end','text')} for c in cues]==[
+        {'start':10,'end':16.5,'text':'没有一个人能守住，只是什么时候清算的事。'}]
+    assert ''.join(c[0] for c in cues[0]['caption_chars'])==cues[0]['text']
+    assert cues[0]['caption_chars'][-1][2]==16.5
 
 
 def test_cache_binds_audio_model_and_exact_output(tmp_path, monkeypatch):
@@ -138,7 +140,8 @@ def test_qwen_verified_evidence_can_be_reused_without_weight_files(tmp_path, mon
     }))
     evidence = tmp_path/'evidence'/'0'
     evidence.mkdir(parents=True)
-    report = dict(source_video_sha256=source_sha, device='cpu',
+    from audio_preprocessing import DEFAULT
+    report = dict(source_video_sha256=source_sha, device='cpu', audio_preprocessing=DEFAULT,
         networking_during_inference=False, model_id='Qwen/Qwen3-ASR-0.6B',
         model_revision='asr-revision', alignment=dict(device='cpu',
             networking_during_inference=False,
@@ -178,7 +181,8 @@ def test_qwen_evidence_with_unpinned_revision_is_rejected(tmp_path, monkeypatch)
     }))
     evidence = tmp_path/'evidence'
     evidence.mkdir()
-    (evidence/'aligned.json').write_text(json.dumps(dict(
+    from audio_preprocessing import DEFAULT
+    (evidence/'aligned.json').write_text(json.dumps(dict(audio_preprocessing=DEFAULT,
         source_video_sha256=source_sha, device='cpu', networking_during_inference=False,
         model_id='Qwen/Qwen3-ASR-0.6B', model_revision='different',
         alignment=dict(device='cpu', networking_during_inference=False,
@@ -199,7 +203,8 @@ def test_cue_cache_migration_keeps_alignment_and_bound_editing_caches(tmp_path,m
     revisions=dict(asr='asr-rev',aligner='align-rev')
     (base/'asr_production_config.json').write_text(json.dumps(dict(model_revisions=revisions)))
     raw=work/'qwen_cpu';raw.mkdir()
-    report=dict(source_video_sha256=sha,device='cpu',networking_during_inference=False,
+    from audio_preprocessing import DEFAULT
+    report=dict(source_video_sha256=sha,device='cpu',audio_preprocessing=DEFAULT,networking_during_inference=False,
         model_id='Qwen/Qwen3-ASR-0.6B',model_revision='asr-rev',chunks=[],
         alignment=dict(device='cpu',networking_during_inference=False,
             model_id='Qwen/Qwen3-ForcedAligner-0.6B',model_revision='align-rev'))

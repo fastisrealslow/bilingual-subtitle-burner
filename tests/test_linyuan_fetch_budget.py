@@ -1,5 +1,6 @@
 """Download incident #626: large progressing streams must outlive three chunks."""
 import io
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -12,6 +13,14 @@ import ci_fetch_bilibili as b
 class Response(io.BytesIO):
     def __init__(self,data,status,headers):
         super().__init__(data);self.status=status;self.headers=headers
+
+
+def test_sha256_file_works_without_python311_file_digest(tmp_path):
+    path = tmp_path / 'media.bin'
+    payload = b'public-media-check' * 100000
+    path.write_bytes(payload)
+    with path.open('rb') as handle:
+        assert b.sha256_file(handle) == hashlib.sha256(payload).hexdigest()
 
 
 def test_more_than_three_partial_responses_resume_to_exact_complete_file(tmp_path):

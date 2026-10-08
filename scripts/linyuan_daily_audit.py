@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Local 17:00 Beijing Codex audit; launchd schedules, Codex investigates/fixes."""
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import fcntl
 import json
 import os
@@ -31,17 +31,42 @@ def latest_publications(state, count=4):
     return sorted(videos.values(), key=lambda r: (r['submitted_at'], r['bvid']), reverse=True)[:count]
 
 
+def scheduled_day(now):
+    local=now.astimezone(BEIJING)
+    return (local.date() if local.hour>=17 else local.date()-timedelta(days=1)).isoformat()
+
+
 def due(now, state):
     if now.timestamp() < state.get('not_before', 0):
         return False
-    local = now.astimezone(BEIJING)
-    if local.hour < 17:
+    day=scheduled_day(now)
+    if not state.get('date'):
+        return now.astimezone(BEIJING).hour>=17
+    if state['date']>day:
         return False
-    if state.get('date') != local.date().isoformat():
+    if state['date']!=day:
         return True
     if state.get('status') == 'completed' or state.get('attempts', 0) >= 2:
         return False
     return now.timestamp() - state.get('finished_at', state.get('started_at', 0)) >= 1800
+
+
+def fetch_main(repo,folder):
+    """Bound network retries and update the exact remote tracking reference."""
+    env=dict(os.environ,GIT_TERMINAL_PROMPT='0',GCM_INTERACTIVE='Never')
+    command=['git','-C',str(repo),'-c','credential.interactive=false',
+        '-c','http.lowSpeedLimit=1','-c','http.lowSpeedTime=30','fetch','--no-tags',
+        'origin','+refs/heads/main:refs/remotes/origin/main']
+    for attempt in range(3):
+        try:
+            subprocess.run(command,check=True,timeout=90,capture_output=True,env=env)
+            return
+        except (subprocess.CalledProcessError,subprocess.TimeoutExpired) as exc:
+            detail=getattr(exc,'stderr',None) or str(exc)
+            if isinstance(detail,bytes):detail=detail.decode(errors='replace')
+            (folder/f'fetch-error-{attempt+1}.log').write_text(detail)
+            if attempt==2:raise
+            time.sleep((2,5)[attempt])
 
 
 def save(path, data):
@@ -64,7 +89,7 @@ def run(repo, home, codex, prompt_path, now=None):
         state = json.loads(state_path.read_text()) if state_path.exists() else {}
         if not due(now, state):
             return 'not_due'
-        day = now.astimezone(BEIJING).date().isoformat()
+        day = scheduled_day(now)
         attempt = state.get('attempts', 0) + 1 if state.get('date') == day else 1
         folder = home/'runs'/f'{day}-{attempt}'
         folder.mkdir(parents=True, exist_ok=True)
@@ -72,8 +97,7 @@ def run(repo, home, codex, prompt_path, now=None):
                      attempts=attempt, report=str(folder/'report.md'))
         save(state_path, state)
         try:
-            subprocess.run(['git', '-C', str(repo), 'fetch', 'origin', 'main'],
-                           check=True, timeout=180, capture_output=True)
+            fetch_main(repo,folder)
             worktree = folder/'worktree'
             subprocess.run(['git', '-C', str(repo), 'worktree', 'add', '--detach',
                             str(worktree), 'origin/main'], check=True, timeout=180, capture_output=True)
@@ -112,6 +136,9 @@ def run(repo, home, codex, prompt_path, now=None):
         except Exception as exc:
             state.update(status='failed', finished_at=time.time(), error=str(exc))
             save(state_path, state)
+            if not (folder/'report.md').exists():
+                (folder/'report.md').write_text('巡检未完成。启动或执行失败：'+str(exc)+'\n请查看同目录错误日志；不得把这次任务计作视频已检查。\n')
+            (home/'latest-report.md').write_text((folder/'report.md').read_text())
             raise
         save(state_path, state)
         (home/'latest-report.md').write_text((folder/'report.md').read_text())

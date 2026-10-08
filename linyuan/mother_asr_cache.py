@@ -6,7 +6,7 @@ from pathlib import Path
 import shutil
 
 FILES = ('cues_raw.json', 'asr_cache.json', 'asr_raw_chunks.json',
-         'asr_tokens.json', 'asr_reviewed_corrections.json')
+         'asr_tokens.json', 'asr_reviewed_corrections.json', 'audio_clock.json')
 
 
 def transfer(source, target, video_sha):

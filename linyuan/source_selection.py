@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 38
+VERSION = 40
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -40,7 +40,15 @@ QUESTION = re.compile(
     r'|未来(?:中国|我国)?(?:股市|资本市场)[^。！？?]{0,30}吗'
     r'|(?:个股涨跌|股市大势)[^。！？?]{1,40}有没有[^。！？?]{1,20}'
     r'|最近[^。！？?]{0,12}有什么[^。！？?]{0,12}新的(?:认识|看法)吗)[？?]$')
-TOPIC_CHANGE = re.compile(r'(?:我们|咱们).{0,8}(?:下面|下一个|另外一个|换个).{0,5}话题|(?:我们|咱们).{0,5}(?:来聊聊|再来谈)')
+TOPIC_CHANGE = re.compile(
+    r'(?:我们|咱们).{0,8}(?:下面|下一个|另外一个|换个).{0,5}话题|(?:我们|咱们).{0,5}(?:来聊聊|再来谈)'
+    # An interviewer can announce the next topic in a statement before the
+    # next question. Keep its lead-in out of the previous answer, regardless
+    # of the subject matter or source. Explicit same-topic continuation stays.
+    r'|^(?:好(?:的)?|那(?:么)?|其实|[啊呃嗯，,\s])*(?:我们|咱们)'
+    r'(?:还|是|也|想|要|先|再|[啊呃嗯，,\s]){0,16}'
+    r'(?:接下来|下面|接着)(?:来|[啊呃嗯，,\s]){0,4}(?:聊|谈|讨论)'
+    r'(?!(?:一?下)?[，,\s]*(?:同一|这个|这一|刚才的))(?:一?下)?')
 FOLLOWUP = re.compile(r'(?:我|我们).{0,12}(?:有所担心|想追问|想进一步问|顺带.{0,3}问)|(?:这个|这一).{0,20}(?:我|我们).{0,5}(?:完全认同|完全同意)')
 TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)
 # A final bare modal question has no object or predicate (e.g. “它有没有。”).
@@ -93,7 +101,8 @@ OUTRO = re.compile(
     r'|今天的对谈.{0,16}林总其实很克制'
     # #68 ends before the host resumes. Its final 114.72s chapter must not
     # borrow the outro/host narration to reach the unchanged 120s minimum.
-    r'|我今天就讲这么多')
+    r'|我今天就讲这么多'
+    r'|(?:聊|谈|交流|讨论)(?:了)?这么多[^。！？!?]{0,40}(?:网友|观众|大家)[^。！？!?]{0,20}(?:学到|学习|收获)')
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
 HOST_BRIDGE = re.compile(

@@ -148,7 +148,8 @@ def main():
     parser.add_argument('--part',type=int,choices=[0,1,2])
     parser.add_argument('--weights')
     parser.add_argument('--source-video-sha')
-    parser.add_argument('--audio-preprocessing',default='ffmpeg-mono-v1',choices=['ffmpeg-mono-v1','left-channel-v1'])
+    parser.add_argument('--audio-preprocessing',default='ffmpeg-source-clock-v2',
+        choices=['ffmpeg-mono-v1','left-channel-v1','ffmpeg-source-clock-v2','left-source-clock-v2'])
     parser.add_argument('--out',required=True)
     args=parser.parse_args()
     import numpy as np
@@ -202,6 +203,8 @@ def main():
             save(report_path,report)
             print(json.dumps({'core':core,'text':text,'elapsed':report['elapsed_seconds']},ensure_ascii=False),flush=True)
     else:
+        # A resumed attempt must not inherit the previous failure as its own.
+        (output/'alignment_error.json').unlink(missing_ok=True)
         report=json.loads(report_path.read_text())
         resumed=resume_alignment(report,partial/'aligned.json',weights.name)
         print(json.dumps({'resumed_alignment_cores':resumed}),flush=True)

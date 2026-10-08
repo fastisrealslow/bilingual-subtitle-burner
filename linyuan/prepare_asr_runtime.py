@@ -60,10 +60,10 @@ def mother_cache_key(choice, root=None):
     that dictionary invalidated every unrelated mother whenever one source's
     audio channel or incident-evidence location changed.
     """
-    from audio_preprocessing import DEFAULT
+    from audio_preprocessing import DEFAULT, normalized_policy
     root=Path(root) if root is not None else Path(__file__).parent
     identity={key:choice[key] for key in ('source_sha256','backend','model_revisions')}
-    identity['audio_preprocessing']=choice.get('audio_preprocessing',DEFAULT)
+    identity['audio_preprocessing']=normalized_policy(choice.get('audio_preprocessing',DEFAULT))
     digest=hashlib.sha256(json.dumps(identity,sort_keys=True).encode())
     production=(root/'produce_cn.py').read_text()
     version=re.search(r'^ASR_PIPELINE_VERSION\s*=\s*\d+',production,re.M)
@@ -101,6 +101,9 @@ def main():
     choice=configuration(args.source_report)
     if args.mode=='cache':
         directory=cached_evidence(args.source_report,choice) if choice['backend']=='qwen3' else None
+        if directory is None and choice['backend']=='qwen3' and os.environ.get('GH_TOKEN') and os.environ.get('GITHUB_REPOSITORY'):
+            from recover_mother_asr import restore
+            directory=restore(choice,Path(args.source_report).parent,mother_cache_key(choice))
         emit('ASR_EVIDENCE_READY','true' if directory else 'false')
         if directory:
             emit('QWEN3_EVIDENCE_DIR',directory)

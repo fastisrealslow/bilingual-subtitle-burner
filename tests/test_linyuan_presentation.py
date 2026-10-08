@@ -51,7 +51,7 @@ FC = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(FC)
 
 def test_shared_rules_are_active_in_both_production_consumers():
-    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 3
+    assert P.PRESENTATION_RULES_VERSION == V.VERSION == 4
     assert callable(FC.presentation_quality_error)
 
 

@@ -2426,8 +2426,7 @@ def _dispatch_admitted(event=None, context=None):
         log.warning('原始转写再利用队列暂不可读：%s',type(exc).__name__)
     # A unavailable checker is not evidence of a bad mother. Retry its exact
     # candidate with backoff, bounded by the same six-running-source limit.
-    for entry in sorted(_latest_dispatches(st),key=lambda e:(not bool(e.get('reviewed_parts')),
-                                                           float(e.get('source_check_retry_after') or 0))):
+    for entry in sorted(_latest_dispatches(st),key=lambda e:float(e.get('source_check_retry_after') or 0)):
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
@@ -2439,8 +2438,8 @@ def _dispatch_admitted(event=None, context=None):
                 'occasion':entry.get('title','')[:30],'auto_publish':'false',
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
                 'output_layout':entry.get('output_layout','auto'),
-                **({'reviewed_parts':str(entry['reviewed_parts'])} if entry.get('reviewed_parts') else {}),
-                **({'selected_parts':str(entry['selected_parts'])} if entry.get('selected_parts') else {}),
+                # Scheduled retries must reselect automatically; historical
+                # editorial ranges and part numbers are not source evidence.
                 **({'recovery_run_id':str(entry['source_check_run_id'])} if entry.get('source_check_run_id') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
@@ -2797,7 +2796,8 @@ def presentation_quality_error(meta):
         return "方版尺寸不符"
     if mode == "audio_card" and ((w,h)!=(720,1280) or meta.get("render_mode") not in {"audio_card", "live_video_card"}):
         return "人物资料卡模式不符"
-    if (layout.get("subtitle_max_lines")!=2 or layout.get("subtitle_vertical_alignment")!="center"
+    expected_lines = 1 if layout.get('subtitle_layout_version',0)>=5 else 2
+    if (layout.get("subtitle_max_lines")!=expected_lines or layout.get("subtitle_vertical_alignment")!="center"
             or layout.get("subtitle_layout_version",0)<3 or not 28<=font<=min(w,h)*.10
             or rh < 2*font
             or layout.get("word_boundary_policy")!="semantic-v1"
@@ -2979,7 +2979,7 @@ def artifact_quality_error(meta):
         return "预发布质检产物记录不完整"
 
     layout = meta.get("layout_proof") or {}
-    if meta.get("presentation_version") in (1, 2, 3):
+    if meta.get("presentation_version") in (1, 2, 3, 4):
         error = presentation_quality_error(meta)
         if error:
             return error
@@ -3150,6 +3150,12 @@ def _recover_changed_production_rule(st, candidate, run):
             ('linyuan/ci_fetch_bilibili.py',)),
            ('source-boundaries-v19',('原文中未找到满足120秒','NoStructuralCandidate'),
             ('linyuan/source_selection.py',)),
+           ('automatic-source-context-v10',('原文中未找到满足20秒',
+                    '本轮选段没有返回通过', '标题文案待重试'),
+            ('linyuan/source_selection.py','linyuan/produce_cn.py','linyuan/title_rewrite.py')),
+           ('caption-source-clock-v5',('完整词句无法放入两行','意群分组',
+                    '单屏跨越超过8秒','字幕时间重叠到零长度'),
+            ('linyuan/caption_lines.py','linyuan/presentation.py','linyuan/produce_cn.py')),
            ('visual-preflight-v2',('持续黑色填充边','来源角标无法避开','真人动态区仍有原素材字幕',
                                   '原画无法通过真人画面清理门禁'),
             ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
@@ -3172,6 +3178,35 @@ def _recover_changed_production_rule(st, candidate, run):
     return True
 
 
+def _recover_rule_backlog(st, by_slug):
+    """Inspect one bounded historical page; old failures must not fall off 30 runs.
+
+    This only queues code-specific repairs. Normal concurrency, source identity,
+    deduplication and artifact acceptance still govern production/publication.
+    """
+    eligible={s:e for s,e in by_slug.items() if e.get('failed') and e.get('source_url')
+              and s not in st.get('published',{}) and s not in REVIEW_PAUSED_SLUGS
+              and any(t in str(e.get('last_error') or '') for t in (
+                  '原文中未找到满足20秒','本轮选段没有返回通过','标题文案待重试',
+                  '完整词句无法放入两行','意群分组','单屏跨越超过8秒'))}
+    if not eligible:return 0
+    page=int(st.get('rule_recovery_page') or 1)
+    runs=gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status=failure&per_page=100&page={page}').get('workflow_runs',[])
+    restored=0;seen=set()
+    for run in runs:
+        slug=str(run.get('display_title') or '').partition(' · ')[2].strip()
+        if slug in seen:continue
+        seen.add(slug)
+        if slug in eligible and _recover_changed_production_rule(st,eligible[slug],run):
+            restored+=1
+            if restored>=MAX_ACTIVE_SOURCES:break
+    # Revisit the same page if its repair budget was used, otherwise advance.
+    # Ten bounded pages cover 1,000 real jobs without scanning each artifact ZIP.
+    st['rule_recovery_page']=page if restored>=MAX_ACTIVE_SOURCES else (page+1 if len(runs)==100 and page<10 else 1)
+    save_state(st)
+    return restored
+
+
 def _collect_source_rejections(st):
     """读取失败工作流的素材质检报告，立即淘汰，避免无成片干等 6 小时。"""
     prefixes = ("source-reject-", "production-reject-")
@@ -3186,6 +3221,7 @@ def _collect_source_rejections(st):
         current = by_slug.get(slug)
         if current is None or float(entry.get("ts") or 0) >= float(current.get("ts") or 0):
             by_slug[slug] = entry
+    _recover_rule_backlog(st,by_slug)
     seen_preflight_slugs = set()
     for run in runs:
         artifacts = gh("GET", f"/actions/runs/{run['id']}/artifacts").get(
@@ -3457,13 +3493,9 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
                        "output_layout": e.get("output_layout", "auto"),
                        "delay_hours": "0", "auto_publish": "false",
                        **recovery,
-                       **({'reviewed_parts':str(e['reviewed_parts'])} if e.get('reviewed_parts') else {}),
-                       **({'selected_parts':str(e['selected_parts'])} if e.get('selected_parts') else {}),
-                       # 固定 14 条验收批次必须保持 13 条切片 + 1 条完整版；
-                       # 否则常规模式允许空片段，会出现“运行成功但仅产出 3 条”。
-                       **({"include_full": "true"} if e.get("weekly_full_week") else {}),
-                       **({"target_parts": "13", "include_full": "true"}
-                          if slug == "ly-parity-v3-14-0905" else {})}})
+                       # Keep delivery format and original evidence, never
+                       # replay per-source editorial choices or fixed counts.
+                       **({"include_full": "true"} if e.get("weekly_full_week") else {})}})
     except Exception as exc:
         e["quality_failure"] = f"{reason}；重做触发失败：{exc}"
         save_state(st)

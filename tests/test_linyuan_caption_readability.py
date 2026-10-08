@@ -63,10 +63,11 @@ def test_run_698_point_timestamp_survives_readability_and_real_screen_planner(mo
     result=P.semantic_caption_entries(source,'',V.layout_for(720,1280,True),tmp_path/'semantic.json')
     normalized=lambda s:P.re.sub(r'[\s，。！？；：、]','',s)
     assert normalized(''.join(x['zh'] for x in result))==normalized(proof['display_text'])
-    assert any(x['zh']=='哦嗯没有问题' for x in result)
-    assert all(.8<=x['end_sec']-x['start_sec']<=6.001 for x in result)
+    assert '哦嗯没有问题' in normalized(''.join(x['zh'] for x in result))
+    assert all(.25<=x['end_sec']-x['start_sec']<=6.001 for x in result)
     assert all(a['end_sec']<=b['start_sec'] for a,b in zip(result,result[1:]))
-    P.make_ass(result,tmp_path/'captions.ass',720,1280,card_style=True)
+    rendered=P.make_ass(result,tmp_path/'captions.ass',720,1280,card_style=True)
+    assert all(len(x['lines'])==1 for x in rendered)
 
 
 @pytest.mark.parametrize('source',[
@@ -88,9 +89,9 @@ def test_accepted_source_uses_default_editor_and_replans_old_cache(monkeypatch,t
     result=P.semantic_caption_entries(source,'',V.layout_for(720,1280,True),cache)
     text=''.join(x['zh'] for x in result)
     assert '行业的行业' not in text and '我我' not in text and '去去' not in text
-    assert any(x['zh']=='我主要从行业去把握' for x in result)
+    assert '我主要从行业去把握' in P.re.sub(r'[\s，。！？；：、]','',''.join(x['zh'] for x in result))
     assert any(x['zh']=='好的企业从哪里来？' for x in result)
-    assert all(.8<=x['end_sec']-x['start_sec']<=6.001 for x in result)
+    assert all(.25<=x['end_sec']-x['start_sec']<=6.001 for x in result)
     assert all(a['end_sec']<=b['start_sec'] for a,b in zip(result,result[1:]))
     proof=json.loads(cache.with_suffix('.editing.json').read_text())
     normalized=lambda s:P.re.sub(r'[\s，。！？；：、]','',s)

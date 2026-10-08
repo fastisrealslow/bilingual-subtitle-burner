@@ -11,8 +11,9 @@ import re
 LEGACY_VERSION = 2026091301
 SEPT23_VERSION = 2026092301
 PREVIOUS_VERSION = 2026092401
-VERSION = 2026100701
-SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, VERSION)
+OCT7_VERSION = 2026100701
+VERSION = 2026100801
+SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, VERSION)
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -47,8 +48,12 @@ def clean_entries(entries, *, policy_version=VERSION):
             # them verbatim; the existing >=.8s screen planner must join them
             # to surrounding speech. Never invent a duration or drop a word.
             point_anchors.append(dict(entry=i, time=a, text=text))
-        for j, char in enumerate(text):
-            atoms.append((char, a + (b-a)*j/len(text), a + (b-a)*(j+1)/len(text), i))
+        if policy_version >= VERSION and entry.get('caption_chars') is not None:
+            from caption_lines import character_anchors
+            atoms.extend((*atom,i) for atom in character_anchors(entry))
+        else:
+            for j, char in enumerate(text):
+                atoms.append((char, a + (b-a)*j/len(text), a + (b-a)*(j+1)/len(text), i))
     original = ''.join(x[0] for x in atoms)
     if atoms and atoms[-1][2] <= atoms[0][1]:
         raise ValueError('字幕时间轴没有可显示的正时长')
@@ -90,7 +95,7 @@ def clean_entries(entries, *, policy_version=VERSION):
                          ('做做买卖', '做买卖'))
     # Source32 actual output: partial-word restarts, not repeated opinions.
     # Keep the earlier policies reproducible for already rendered subtitles.
-    if policy_version == VERSION:
+    if policy_version >= OCT7_VERSION:
         lexical_restarts += (('垄垄断', '垄断'), ('虽虽然', '虽然'))
     for wrong, right in lexical_restarts:
         for m in re.finditer(re.escape(wrong), original):
@@ -154,7 +159,8 @@ def clean_entries(entries, *, policy_version=VERSION):
     for edit in edits:counts[edit['reason']]=counts.get(edit['reason'],0)+1
     proof=dict(version=policy_version, edit_counts=counts, raw_text=original, display_text=cleaned, edits=edits,
                replay_version=1,
-               raw_entries=[{k:e[k] for k in ('start_sec','end_sec','zh')} for e in entries],
+               raw_entries=[{k:e[k] for k in ('start_sec','end_sec','zh','caption_chars')
+                             if k in e and (k!='caption_chars' or policy_version>=VERSION)} for e in entries],
                point_anchors=point_anchors,
                raw_sha256=hashlib.sha256(original.encode()).hexdigest(),
                display_sha256=hashlib.sha256(cleaned.encode()).hexdigest(),

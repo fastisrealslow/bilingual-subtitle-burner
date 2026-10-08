@@ -99,16 +99,16 @@ def test_audio_card_ass_uses_readable_white_outline_without_filled_panel(tmp_pat
     assert "{\\an5\\pos(360,957)" in dialogue
 
 
-def test_audio_card_subtitles_are_explicitly_limited_to_two_balanced_lines(tmp_path):
+def test_audio_card_long_subtitles_are_split_into_single_line_screens(tmp_path):
     ass = tmp_path / "long-card.ass"
     P.make_ass([{
         "start_sec": 0.0, "end_sec": 2.0,
         "zh": "这是一个用来验证字幕不会再次隐式折成第三行的很长中文句子", "en": "",
     }], ass, 720, 1280, card_style=True)
-    dialogue = next(line for line in ass.read_text(encoding="utf-8-sig").splitlines()
-                    if line.startswith("Dialogue:"))
-    assert dialogue.count("\\N") == 1
-    assert "{\\an5\\pos(360,957)" in dialogue
+    dialogues = [line for line in ass.read_text(encoding="utf-8-sig").splitlines()
+                 if line.startswith("Dialogue:")]
+    assert len(dialogues)>1
+    assert all("\\N" not in line and "{\\an5\\pos(360,957)" in line for line in dialogues)
 
 
 def test_real_video_subtitles_have_outline_without_light_background(tmp_path):
