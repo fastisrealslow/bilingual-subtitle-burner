@@ -43,7 +43,7 @@ def _configured_cookie_entries():
     try:
         data = json.loads(raw.lstrip("\ufeff"))
         entries = ((data.get("cookie_info") or {}).get("cookies")
-                   or data.get("cookies") or [])
+                   or data.get("cookies"))
         if isinstance(entries, list):
             return [x for x in entries
                     if isinstance(x, dict) and x.get("name") and x.get("value")]
