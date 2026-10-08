@@ -258,6 +258,45 @@ def test_self_question_needs_its_answer_and_named_topic_in_opening():
     assert not contextual_self_answer([units[0]],cues,0)
 
 
+def test_actual_oct8_medium_source_recovers_explicit_bull_market_opening(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    data=json.loads((Path(__file__).parent/'fixtures/linyuan_20261008_bull_market_opening.json').read_text())
+    cues=data['cues'];before=json.dumps(cues,ensure_ascii=False)
+    assert 120<cues[-1]['end']-cues[0]['start']<330
+    picks=S.select(cues,limit=None,whole_source=True)
+    assert [(r['start'],r['end']) for r in picks]==[(2,len(cues)-1)]
+    assert '牛市初期' in ''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
+    assert not S.boundary_error(cues,picks[0])
+    assert json.dumps(cues,ensure_ascii=False)==before
+
+
+@pytest.mark.parametrize('start,whole_source,opening',[
+    (21,True,'股市上涨和下跌都很正常。'),
+    (5,False,'股市上涨和下跌都很正常。'),
+    (5,True,'这些都是很正常的。'),
+])
+def test_medium_opening_recovery_cannot_invent_a_topic_or_use_a_late_punchline(monkeypatch,start,whole_source,opening):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    cues=[dict(start=0,end=2,text='这个是这样的。'),
+          dict(start=start,end=40,text=opening),
+          dict(start=40,end=140,text='没有涨过的企业，下跌的幅度就小。')]
+    assert not S.select(cues,limit=None,whole_source=whole_source)
+
+
+def test_medium_opening_recovery_does_not_arbitrarily_slice_a_long_keynote(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    cues=[dict(start=0,end=2,text='这个是这样的。'),
+          dict(start=5,end=40,text='股市上涨和下跌都很正常。'),
+          dict(start=40,end=400,text='没有涨过的企业，下跌的幅度就小。')]
+    assert not S.select(cues,limit=None,whole_source=True)
+
+
 def test_real_library314_tariffs_and_ai_are_independent_complete_candidates(monkeypatch):
     import source_selection as S
     monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')

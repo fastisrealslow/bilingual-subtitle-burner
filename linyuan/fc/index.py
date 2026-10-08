@@ -3153,6 +3153,8 @@ def _recover_changed_production_rule(st, candidate, run):
            ('automatic-source-context-v10',('原文中未找到满足20秒',
                     '本轮选段没有返回通过', '标题文案待重试'),
             ('linyuan/source_selection.py','linyuan/produce_cn.py','linyuan/title_rewrite.py')),
+           ('medium-source-opening-v41',('原文中未找到满足20秒',),
+            ('linyuan/source_selection.py',)),
            ('caption-source-clock-v5',('完整词句无法放入两行','意群分组',
                     '单屏跨越超过8秒','字幕时间重叠到零长度'),
             ('linyuan/caption_lines.py','linyuan/presentation.py','linyuan/produce_cn.py')),
