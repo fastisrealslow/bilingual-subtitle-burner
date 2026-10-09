@@ -21014,7 +21014,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1nx42edErL",
@@ -21535,7 +21536,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，这个就和人口的中中国人口的结构有关系。\", \"suspect_quote\": \"人口的中中国人口的结构\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'中中国'为重复或错写，应为'中国'。\"}, {\"sentence_id\": 13, \"quote\": \"现在比如说我们说的就是三大疾病：糖尿病、心脏病、高。\", \"suspect_quote\": \"糖尿病、心脏病、高\", \"kind\": \"unintelligible_term\", \"reason\": \"句子末尾的'高'字明显截断，结合下一句（句 14）可知完整词组应为'高血压'，此处识别不完整导致含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"当然，风险我们设定假设：，如果说三十年以后，因为我们现在，比如说我，我本人五十，今年已经五十七岁，五十七岁，三十年，我再能活三十年也八十七八多了，是吧？\", \"suspect_quote\": \"设定假设：\", \"kind\": \"unintelligible_term\", \"reason\": \"'设定假设：'后紧跟冒号且无后续直接名词，结合语境可能是'设定假设如下'或口误导致的停顿，但作为专有名词短语出现时含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"当然，风险我们设定假设：，如果说三十年以后，因为我们现在，比如说我，我本人五十，今年已经五十七岁，五十七岁，三十年，我再能活三十年也八十七八多了，是吧？\", \"suspect_quote\": \"我本人五十，今年已经五十七岁\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字逻辑冲突：前句称'五十'，后句称'五十七岁'，虽可能是口语修正，但作为连续文本中的关键数字存在明显矛盾，需确认是否为识别遗漏了中间过程。\"}, {\"sentence_id\": 23, \"quote\": \"当然，风险我们设定假设：，如果说三十年以后，因为我们现在，比如说我，我本人五十，今年已经五十七岁，五十七岁，三十年，我再能活三十年也八十七八多了，是吧？\", \"suspect_quote\": \"八十七八多了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'八十七八多了'为模糊数字表达，虽属口语习惯，但在需要精确数字的语境下（计算三十年后年龄），该表述缺乏明确数值，可能影响对'确定性机会'中时间跨度的理解。\"}, {\"sentence_id\": 25, \"quote\": \"我们相信这这一部分人口，今天的这个平，呃，这个平均寿命啊，不会比将来这个高。\", \"suspect_quote\": \"今天的这个平，呃，这个平均寿命\", \"kind\": \"unintelligible_term\", \"reason\": \"'平'字明显为'平均'的识别截断或口吃残留，导致词语不完整，影响理解。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1764y1K7DH",
@@ -21597,7 +21599,11 @@
    "delay_hours": 0,
    "source": "bilibili_series",
    "author": "投资就是滚雪球",
-   "publish_time": "2026-08-09T04:15:00+00:00"
+   "publish_time": "2026-08-09T04:15:00+00:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们做到买入，你要投重手的话，从投很手的话，一定这个择时非常重要。\", \"suspect_quote\": \"从投很手的话\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将口语或口误“投重手”识别为错别字“投很手”，导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"二零零几年我并没有在这上面投重手，到二零一五年才开始重投老龄化，因为人生病他是越老越生病的，这个老年人口，比如说七十岁以上的，在急剧增加的话，他你才能投，年轻人他他不投的，他他不生病，他对这个没有认识的，是吧？\", \"suspect_quote\": \"二零零几年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，需确认是指\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1G4u56WEkN",
@@ -70753,6 +70759,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/SkGKnxt0lx08A0StgtvG010412040FNq0E020.mp4",
    "ts": 1791546647,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]"
+  },
+  {
+   "slug": "ly-1009-441792",
+   "key": "bilibili_search:BV1ffuj6uEWr",
+   "video_id": "BV1ffuj6uEWr",
+   "ts": 1791546870,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们做到买入，你要投重手的话，从投很手的话，一定这个择时非常重要。\", \"suspect_quote\": \"从投很手的话\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将口语或口误“投重手”识别为错别字“投很手”，导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"二零零几年我并没有在这上面投重手，到二零一五年才开始重投老龄化，因为人生病他是越老越生病的，这个老年人口，比如说七十岁以上的，在急剧增加的话，他你才能投，年轻人他他不投的，他他不生病，他对这个没有认识的，是吧？\", \"suspect_quote\": \"二零零几年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，需确认是指\"}]"
   }
  ],
  "reviewed_third_video_0910": {
