@@ -2814,10 +2814,20 @@ def cover_quality_error(cover):
     # renderers always emit feed_safe_crop, which makes the stronger gate
     # mandatory without invalidating an already immutable historical artifact.
     modern_feed_safe = cover.get('feed_safe_crop') is not None
+    wide = cover.get('cover_layout_version') == 3
+    if cover.get('cover_layout_version') not in (None, 3):
+        return '未知封面布局版本'
+    expected_crop = [160,0,1120,720] if wide else [280,0,1000,720]
+    feed_name = cover.get('feed_preview') if wide else cover.get('feed_square')
+    if wide and (not modern_feed_safe or cover.get('feed_aspect_ratio') != '4:3'
+                 or not re.fullmatch(r'[a-f0-9]{64}',str(cover.get('feed_preview_sha256','')))
+                 or not re.fullmatch(r'[a-f0-9]{64}',str(cover.get('sha256','')))):
+        return '宽版封面缺少实际4:3裁切及文件指纹'
     def in_feed_safe(box):
         try:
             x0,y0,x1,y1 = map(float, box)
-            return 296 <= x0 <= x1 <= 984 and 16 <= y0 <= y1 <= 704
+            lo,hi = (176,1104) if wide else (296,984)
+            return lo <= x0 <= x1 <= hi and 16 <= y0 <= y1 <= 704
         except (TypeError, ValueError):
             return False
     if cover.get('style') == 'scene':
@@ -2836,8 +2846,8 @@ def cover_quality_error(cover):
                 and identity.get('sharpness',0) >= 60 and cover.get('thumbnail')
                 and re.fullmatch(r'[a-f0-9]{64}',str(cover.get('sha256','')))
                 and (not modern_feed_safe or (
-                    cover.get('feed_safe_crop') == [280,0,1000,720]
-                    and isinstance(cover.get('feed_square'),str)
+                    cover.get('feed_safe_crop') == expected_crop
+                    and isinstance(feed_name,str)
                     and cover.get('feed_safe_face') is True
                     and cover.get('feed_safe_text') is True
                     and in_feed_safe(cover.get('face_box')))))
@@ -2847,7 +2857,8 @@ def cover_quality_error(cover):
     lines=cover.get('headline_lines') or []
     boxes=cover.get('text_boxes') or []
     try:
-        bounds = ((296,300,984,650) if modern_feed_safe else (48,190,912,600))
+        bounds = ((176,190,1104,650) if wide else
+                  (296,300,984,650) if modern_feed_safe else (48,190,912,600))
         three_line=(len(lines)==3 and cover.get('headline_layout')=='three_line_statement'
             and cover.get('style') in ('dark','editorial') and len(boxes)==3
             and all(len(b)==4 and bounds[0]<=b[0]<b[2]<=bounds[2]
@@ -2855,24 +2866,29 @@ def cover_quality_error(cover):
             and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
     except (TypeError,ValueError):
         three_line=False
-    if (cover.get("font_px",0)<96 or cover.get("thumbnail_font_px",0)<12
+    if (cover.get("font_px",0)<(112 if wide else 96) or cover.get("thumbnail_font_px",0)<(14 if wide else 12)
             or not (1<=len(lines)<=2 or three_line)
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
     if modern_feed_safe and cover.get('style') in ('dark','editorial'):
-        if (cover.get('feed_safe_crop') != [280,0,1000,720]
-                or not isinstance(cover.get('feed_square'),str)
+        if (cover.get('feed_safe_crop') != expected_crop
+                or not isinstance(feed_name,str)
                 or cover.get('feed_safe_text') is not True
                 or cover.get('feed_safe_face') is not True
                 or not all(in_feed_safe(box) for box in boxes)
                 or not in_feed_safe(cover.get('face_box'))):
             return '封面未通过双列信息流中心安全区门禁'
+        if wide:
+            face=cover['face_box']
+            if any(not (box[2]<=face[0] or box[0]>=face[2]
+                         or box[3]<=face[1] or box[1]>=face[3]) for box in boxes):
+                return '宽版封面标题覆盖人物脸部'
     return None
 
 
 def artifact_cover_error(meta, directory):
     proof = meta.get('cover_proof') or {}
-    if proof.get('style') == 'scene':
+    if proof.get('style') == 'scene' or proof.get('cover_layout_version') == 3:
         import hashlib
         name = meta.get('cover')
         if not isinstance(name,str) or Path(name).name != name:
@@ -2881,10 +2897,14 @@ def artifact_cover_error(meta, directory):
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != proof.get('sha256'):
             return '现场封面原图与质检指纹不一致'
     if proof.get('feed_safe_crop') is not None:
-        feed_name=proof.get('feed_square')
+        feed_name=proof.get('feed_preview') or proof.get('feed_square')
         if (not isinstance(feed_name,str) or Path(feed_name).name!=feed_name
                 or not (Path(directory)/feed_name).is_file()):
-            return '信息流方形封面验收件缺失'
+            return '信息流封面裁切验收件缺失'
+        if proof.get('cover_layout_version') == 3:
+            import hashlib
+            if hashlib.sha256((Path(directory)/feed_name).read_bytes()).hexdigest()!=proof.get('feed_preview_sha256'):
+                return '信息流4:3封面验收件与原始指纹不一致'
         return cover_quality_error(proof)
     if proof.get('style') != 'scene':
         return None

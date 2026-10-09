@@ -5317,9 +5317,10 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
     else:
         image.save(out_path)
     if not vertical:
-        from presentation import cover_proof
+        from presentation import cover_proof, FEED_WIDE_CROP, FEED_SAFE_CROP
         cover_proof(image, out_path, lines, cover_font_px, cover_boxes,
-                    style=selected_style, face_box=cover_face_box)
+                    style=selected_style, face_box=cover_face_box,
+                    feed_crop=FEED_WIDE_CROP if selected_style == 'dark' else FEED_SAFE_CROP)
     return out_path
 
 

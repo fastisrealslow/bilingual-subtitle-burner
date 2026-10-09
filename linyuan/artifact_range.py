@@ -17,7 +17,7 @@ def delivery_files(part, *, optional_cover=False):
         wanted+=list(part.get('subtitle_edit_proofs') or [])
     proof=part.get('cover_proof') or {}
     if proof.get('feed_safe_crop') is not None:
-        wanted.append(proof.get('feed_square'))
+        wanted.append(proof.get('feed_preview') or proof.get('feed_square'))
     if proof.get('thumbnail'):
         wanted.append(proof['thumbnail'])
     if any(not isinstance(n,str) or not n or Path(n).name!=n

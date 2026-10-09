@@ -51,7 +51,7 @@ def archive_accepted(out, slug):
                 names.add(name)
         cover_proof = row.get('cover_proof') or {}
         if cover_proof.get('feed_safe_crop') is not None:
-            feed = cover_proof.get('feed_square')
+            feed = cover_proof.get('feed_preview') or cover_proof.get('feed_square')
             if (not isinstance(feed, str) or Path(feed).name != feed
                     or not feed.endswith('.jpg') or (out / feed).is_symlink()
                     or not (out / feed).is_file()):

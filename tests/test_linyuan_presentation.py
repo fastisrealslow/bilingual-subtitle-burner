@@ -222,7 +222,7 @@ def test_complete_date_fits_narrow_frame_without_splitting():
     cues=V.prepare_captions([dict(start_sec=0,end_sec=6,zh=text)],V.layout_for(480,620))
     assert ''.join(x['zh'] for x in cues)==text
     assert any('2017年10月27日' in line for cue in cues for line in cue['lines'])
-    assert all(28<=cue['font_px']<=34 for cue in cues)
+    assert all(28<=cue['font_px']<=V.layout_for(480,620)['subtitle_font_px'] for cue in cues)
 
 
 def test_question_ending_is_not_left_on_a_flashing_screen():

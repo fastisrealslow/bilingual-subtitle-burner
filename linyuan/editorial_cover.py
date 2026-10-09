@@ -68,7 +68,7 @@ def portrait_crop(size, face, ratio=320/584):
 
 def render(image, path, face, headline, speaker, font, font_index=None):
     from PIL import Image, ImageDraw, ImageFont, ImageOps
-    from presentation import cover_headline, cover_proof
+    from presentation import cover_headline, cover_proof, FEED_WIDE_CROP
     from fontTools.ttLib import TTFont
     if font_index is None:
         font_index = font_face_index(font)
@@ -80,39 +80,41 @@ def render(image, path, face, headline, speaker, font, font_index=None):
     crop = portrait_crop(image.size, face)
     canvas = Image.new('RGB', (1280, 720), '#101c2b')
     draw = ImageDraw.Draw(canvas)
-    # All actionable content sits inside the centre 720×720 area.  Bilibili's
-    # two-column feed crops a 16:9 image to this region, so the side bands are
-    # decoration only and may safely disappear.
-    draw.rectangle((280, 0, 1000, 720), fill='#132638')
-    draw.rectangle((312, 62, 328, 94), fill='#efbd58')
-    panel = (744, 34, 972, 282)
-    portrait = ImageOps.contain(image.convert('RGB').crop(crop), (228, 248), Image.Resampling.LANCZOS)
-    portrait_xy = (panel[0]+(228-portrait.width)//2, panel[1]+(248-portrait.height)//2)
+    # A large side-by-side composition like the Oct 5/6 covers. The face core
+    # stays in the wider feed crop, without turning both sides into empty bars.
+    draw.rectangle((176, 62, 192, 94), fill='#efbd58')
+    panel = (832, 68, 1152, 652)
+    portrait = ImageOps.contain(image.convert('RGB').crop(crop), (320, 584), Image.Resampling.LANCZOS)
+    portrait_xy = (panel[0]+(320-portrait.width)//2, panel[1]+(584-portrait.height)//2)
     canvas.paste(portrait, portrait_xy)
     label = ImageFont.truetype(font, 36, index=font_index)
     small = ImageFont.truetype(font, 24, index=font_index)
-    title_font = ImageFont.truetype(font, 96, index=font_index)
-    draw.text((344, 42), speaker, font=label, fill='#efbd58')
-    draw.text((344, 94), '访谈摘录', font=small, fill='#adbac9')
+    title_font = ImageFont.truetype(font, 112, index=font_index)
+    draw.text((208, 42), speaker, font=label, fill='#efbd58')
+    draw.text((208, 94), '访谈摘录', font=small, fill='#adbac9')
     lines = cover_headline(headline, speaker, max_lines=3, line_capacity=6)
     boxes = []
     for i, line in enumerate(lines):
-        xy = (312, 300+i*110) if len(lines)==3 else (312, 374+i*128)
+        xy = (176, 190+i*140) if len(lines)==3 else (176, 252+i*148)
         box = draw.textbbox(xy, line, font=title_font)
-        if box[2] > 984:
+        if box[2] > 848:
             raise ValueError('封面文案超出信息流安全区；不能缩成小字或覆盖人脸')
         draw.text(xy, line, font=title_font, fill='#f5f5f1' if i == 0 else '#efbd58')
         boxes.append(box)
-    draw.line((312, 654, 384, 654), fill='#efbd58', width=4)
-    draw.text((312, 670), '林园访谈 · 原声观点' if speaker == '林园' else speaker+' · 原声观点',
+    draw.line((176, 640, 248, 640), fill='#efbd58', width=4)
+    draw.text((176, 666), '林园访谈 · 原声观点' if speaker == '林园' else speaker+' · 原声观点',
               font=small, fill='#adbac9')
     x, y, fw, fh = face
     sx, sy = portrait.width/(crop[2]-crop[0]), portrait.height/(crop[3]-crop[1])
     mapped_face = [portrait_xy[0]+(x-crop[0])*sx, portrait_xy[1]+(y-crop[1])*sy,
                    portrait_xy[0]+(x+fw-crop[0])*sx, portrait_xy[1]+(y+fh-crop[1])*sy]
     canvas.save(path, quality=95)
-    proof = cover_proof(canvas, path, lines, 96, boxes, style='editorial', face_box=mapped_face)
-    proof.update(design_version=2, portrait_panel=list(panel), source_crop=list(crop),
+    if any(not (box[2] <= mapped_face[0] or box[0] >= mapped_face[2]
+                    or box[3] <= mapped_face[1] or box[1] >= mapped_face[3]) for box in boxes):
+        raise ValueError('封面标题不得遮挡完整人物脸部')
+    proof = cover_proof(canvas, path, lines, 112, boxes, style='editorial', face_box=mapped_face,
+                        feed_crop=FEED_WIDE_CROP)
+    proof.update(design_version=3, portrait_panel=list(panel), source_crop=list(crop),
                  face_box=mapped_face, face_fully_visible=True, text_face_overlap=False,
                  sha256=hashlib.sha256(path.read_bytes()).hexdigest())
     Path(str(path)+'.proof.json').write_text(json.dumps(proof, ensure_ascii=False, indent=2))
