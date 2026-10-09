@@ -1724,7 +1724,7 @@ class NeteaseVideoSource(Source):
 
         # 1) 从标签页发现视频
         found = {}
-        quarantined = set()
+        quarantined = {}
         # 1a) 种子文件（标签页以外的，由 web_search 发现后补充）
         seeds_file = self.config.get("seeds_file")
         if seeds_file:
@@ -1732,9 +1732,11 @@ class NeteaseVideoSource(Source):
             if sp.exists():
                 try:
                     seed_data=json.loads(sp.read_text(encoding="utf-8"))
-                    quarantined=set(seed_data.get('quarantined',{}))
+                    quarantined=seed_data.get('quarantined',{})
                     for v in seed_data.get("vcodes", []):
                         found.setdefault(str(v).strip(), "")
+                    for v,evidence in quarantined.items():
+                        found.setdefault(v,evidence.get('title','林园素材待溯源'))
                 except Exception as e:
                     print(f"[{self.name}] 种子文件读取失败: {e}", file=sys.stderr)
         for tpl in tags:
@@ -1767,7 +1769,16 @@ class NeteaseVideoSource(Source):
         items = self.partial_items
         for vcode, text in self.seed_batch(list(found.items()),24,key=lambda entry:entry[0]):
             if vcode in quarantined:
-                continue  # Actual low-quality/reference evidence; do not redispatch.
+                # Persist a non-dispatchable row too: merely skipping fetch
+                # leaves an older admissible database row alive indefinitely.
+                evidence=quarantined[vcode]
+                items.append(dict(id='netease_video:'+vcode,source=self.name,
+                    title=evidence.get('title') or text,url=f'https://www.163.com/v/video/{vcode}.html',
+                    publish_time='',author='网易视频',extra=json.dumps(dict(
+                        vcode=vcode,has_video=True,direct_dispatch=False,
+                        source_role='reference' if evidence.get('reference_author') else 'quarantined',
+                        quarantine_evidence=evidence),ensure_ascii=False)))
+                continue
             try:
                 info = self._parse_video(vcode)
                 items.append({

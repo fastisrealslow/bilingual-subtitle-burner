@@ -54,7 +54,11 @@ def test_observed_quarantine_is_not_reintroduced_by_tag_discovery(monkeypatch,tm
     monkeypatch.setattr(M.time,'sleep',lambda *_:None)
     monkeypatch.setattr(source,'_page',lambda *_:'<a href="https://www.163.com/v/video/VBAD12345.html">林园真实访谈</a>')
     monkeypatch.setattr(source,'_parse_video',lambda *_: (_ for _ in ()).throw(AssertionError('must skip quarantined source')))
-    assert source.fetch(None)==[]
+    rows=source.fetch(None)
+    assert len(rows)==1
+    extra=json.loads(rows[0]['extra'])
+    assert extra['direct_dispatch'] is False
+    assert FC.pick(rows,dict(dispatched=[],rejected=[],published={}),10,audit={})==[]
 
 
 def test_netease_seeds_rotate_past_25_and_hls_rows_are_real_candidates(monkeypatch):
