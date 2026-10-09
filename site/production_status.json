@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791572054,
+  "updated_at": 1791572158,
   "inventory_updated_at": 1791572052,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 8,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791572054,
+    "updated_at": 1791572158,
     "records": 9187,
     "video_records": 7810,
-    "initial_candidates": 56,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 55,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1377,
       "speaker_unconfirmed": 5289,
       "clip_title": 1080,
-      "already_attempted_or_cooling": 1200,
+      "already_attempted_or_cooling": 1201,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -54,16 +54,7 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV14eLK6ME5N",
-        "title": "林园 P1 林园：我不碰科技股；炒股的人追求的是确定性，目前的科技企业大概率走不到终点",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV14eLK6ME5N",
-        "duration_sec": 133.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 8,
@@ -79,15 +70,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 896,
+    "failed": 897,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 2,
     "excluded": 3,
     "ready": 5,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18604,11 +18595,11 @@
     },
     {
       "slug": "ly-1009-0a14d1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我首先考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语或比喻，严重影响理解。\"}]",
       "signature": {
         "ts": 1791571223,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18637,6 +18628,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37975321408",
       "run_started_at": "2026-10-09T18:44:02Z",
       "run_updated_at": "2026-10-09T18:44:06Z"
+    },
+    {
+      "slug": "ly-1009-e205dc",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791572118,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37976628114,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37976628114",
+      "run_started_at": "2026-10-09T18:55:18Z",
+      "run_updated_at": "2026-10-09T18:55:23Z"
     }
   ],
   "runs": {
@@ -25570,17 +25579,6 @@
       "run_number": 1708,
       "display_title": "中文源出片 · ly-1009-a5c671"
     },
-    "ly-1009-afc68a": {
-      "id": 37975321408,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-09T18:44:02Z",
-      "updated_at": "2026-10-09T18:44:06Z",
-      "run_started_at": "2026-10-09T18:44:02Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37975321408",
-      "run_number": 1710,
-      "display_title": "中文源出片 · ly-1009-afc68a"
-    },
     "ly-1009-0a14d1": {
       "id": 37974904497,
       "status": "completed",
@@ -25591,6 +25589,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37974904497",
       "run_number": 1709,
       "display_title": "中文源出片 · ly-1009-0a14d1"
+    },
+    "ly-1009-e205dc": {
+      "id": 37976628114,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T18:55:18Z",
+      "updated_at": "2026-10-09T18:55:23Z",
+      "run_started_at": "2026-10-09T18:55:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37976628114",
+      "run_number": 1711,
+      "display_title": "中文源出片 · ly-1009-e205dc"
+    },
+    "ly-1009-afc68a": {
+      "id": 37975321408,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T18:44:02Z",
+      "updated_at": "2026-10-09T18:44:06Z",
+      "run_started_at": "2026-10-09T18:44:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37975321408",
+      "run_number": 1710,
+      "display_title": "中文源出片 · ly-1009-afc68a"
     },
     "ly-1009-589052": {
       "id": 37971236752,
