@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791569262,
+  "updated_at": 1791569367,
   "inventory_updated_at": 1791569259,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 8,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 6,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791569262,
+    "updated_at": 1791569367,
     "records": 9187,
     "video_records": 7810,
-    "initial_candidates": 61,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 60,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1377,
       "speaker_unconfirmed": 5289,
       "clip_title": 1080,
-      "already_attempted_or_cooling": 1195,
+      "already_attempted_or_cooling": 1196,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1RxaKzrE2e",
-        "title": "林园 P1 20250831 股神林园内部演讲：买垄断 买老龄化 买嘴巴 买成长",
-        "source": "bilibili_collection",
-        "author": "股海淘沙",
-        "url": "https://www.bilibili.com/video/BV1RxaKzrE2e",
-        "duration_sec": 2412.0
-      },
       {
         "key": "bilibili_search:BV17QLK6dEei",
         "title": "林园 P1 【林园】投资天才林园：买一揽子股票，等着，全世界大富翁都是等出来的，急什么，抓大放小",
@@ -119,15 +111,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 891,
+    "failed": 892,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 2,
     "excluded": 3,
     "ready": 5,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18464,11 +18456,11 @@
     },
     {
       "slug": "ly-1009-3ca855",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"年谈是请教我啊，我说个假话。\", \"suspect_quote\": \"年谈是请教我啊，我说个假话。\", \"kind\": \"unintelligible_term\", \"reason\": \"“年谈”无法解释，疑似将人名（如“林总”或嘉宾名）误识别为无意义词汇；“假话”在访谈语境中极可能为口误或特定隐喻，但此处缺乏上下文支撑，属于含义不明的关键否定/指代。\"}, {\"sentence_id\": 2, \"quote\": \"就是就是你现在更看好达林通还是信泰王？\", \"suspect_quote\": \"就是就是你现在更看好达林通还是信泰王？\", \"kind\": \"unintelligible_term\", \"reason\": \"“达林通”和“信泰王”疑似错写的专有名词（股票或基金名称），非标准行业术语，且无法通过上下文推断其真实指代对象。\"}, {\"sentence_id\": 10, \"quote\": \"我并不是说是啊，这个这个信泰王好，我都买了。\", \"suspect_quote\": \"我并不是说是啊，这个这个信泰王好，我都买了。\", \"kind\": \"unintelligible_term\", \"reason\": \"“信泰王”再次出现，疑似错写的专有名词；整句逻辑混乱，“并不是说是啊”为口语填充与否定混杂，但核心疑点在于无法解释的专名。\"}, {\"sentence_id\": 12, \"quote\": \"我这个组合，你知道粘上你。\", \"suspect_quote\": \"我这个组合，你知道粘上你。\", \"kind\": \"unintelligible_term\", \"reason\": \"“粘上你”含义不明，疑似将人名（如“张某某”）误识别为动词短语，或为严重错写的专有名词/指代。\"}, {\"sentence_id\": 13, \"quote\": \"我这好了，我为了给你去比干啥？\", \"suspect_quote\": \"我这好了，我为了给你去比干啥？\", \"kind\": \"unintelligible_term\", \"reason\": \"“比干啥”含义不明，疑似将人名（如“毕某某”）误识别为动词短语，或为错写的专有名词/指代。\"}, {\"sentence_id\": 21, \"quote\": \"开会子。\", \"suspect_quote\": \"开会子。\", \"kind\": \"unintelligible_term\", \"reason\": \"“开会子”含义不明，疑似将人名（如“开某某”）误识别为动词短语，或为错写的专有名词/指代。正常口语中无此表达。\"}]",
       "signature": {
         "ts": 1791566583,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18587,6 +18579,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37970150715",
       "run_started_at": "2026-10-09T17:59:36Z",
       "run_updated_at": "2026-10-09T17:59:39Z"
+    },
+    {
+      "slug": "ly-1009-589052",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791569328,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37971236752,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37971236752",
+      "run_started_at": "2026-10-09T18:08:47Z",
+      "run_updated_at": "2026-10-09T18:08:52Z"
     }
   ],
   "runs": {
@@ -25465,6 +25475,28 @@
       "run_number": 1698,
       "display_title": "中文源出片 · ly-1009-bbb2d4"
     },
+    "ly-1009-3ca855": {
+      "id": 37965872114,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T17:23:02Z",
+      "updated_at": "2026-10-09T18:06:39Z",
+      "run_started_at": "2026-10-09T17:23:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37965872114",
+      "run_number": 1699,
+      "display_title": "中文源出片 · ly-1009-3ca855"
+    },
+    "ly-1009-589052": {
+      "id": 37971236752,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T18:08:47Z",
+      "updated_at": "2026-10-09T18:08:52Z",
+      "run_started_at": "2026-10-09T18:08:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37971236752",
+      "run_number": 1706,
+      "display_title": "中文源出片 · ly-1009-589052"
+    },
     "ly-1009-0e13aa": {
       "id": 37970150715,
       "status": "in_progress",
@@ -25519,17 +25551,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37966337771",
       "run_number": 1700,
       "display_title": "中文源出片 · ly-1009-c0a48b"
-    },
-    "ly-1009-3ca855": {
-      "id": 37965872114,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T17:23:02Z",
-      "updated_at": "2026-10-09T18:06:39Z",
-      "run_started_at": "2026-10-09T17:23:02Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37965872114",
-      "run_number": 1699,
-      "display_title": "中文源出片 · ly-1009-3ca855"
     }
   }
 }
