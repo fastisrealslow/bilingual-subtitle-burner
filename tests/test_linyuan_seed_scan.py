@@ -52,6 +52,15 @@ def test_source_deadline_keeps_already_fetched_items(monkeypatch):
     assert monitor._run_source(Partial, {}, {}, None) == [dict(id='actual-video')]
 
 
+def test_collection_rotation_is_eligible_each_hour_but_not_each_minute(monkeypatch):
+    monkeypatch.setattr(monitor.time, 'time', lambda: 10_000)
+    state = {'bilibili_collection': {'last_fetch': 6400}}
+    source = monitor.BilibiliCollectionSource({}, state)
+    assert source.can_fetch()
+    state['bilibili_collection']['last_fetch'] = 9940
+    assert not source.can_fetch()
+
+
 def test_search_challenge_is_not_a_successful_empty_search(monkeypatch):
     monkeypatch.setattr(monitor, 'http_get', lambda *a, **kw: '{"code":0,"data":{"v_voucher":"redacted"}}')
     with pytest.raises(RuntimeError, match='真实结果列表'):

@@ -377,7 +377,9 @@ class BilibiliCollectionSource(Source):
     cross-platform content gates still run on the actual downloaded page.
     """
     name = "bilibili_collection"
-    min_interval = 6 * 3600
+    # Rotate the enlarged seed pool on hourly runs, not once every six hours.
+    # Keep a 30-minute floor against repeated manual invocations.
+    min_interval = 1800
 
     def fetch(self, page):
         items = self.partial_items
