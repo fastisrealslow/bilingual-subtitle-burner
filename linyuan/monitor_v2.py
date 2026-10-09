@@ -1260,12 +1260,24 @@ class HaokanVideoSource(Source):
     UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) "
           "AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari/604.1")
 
-    def _pick_best(self, urls):
-        """优先 hd > cae_h264 > 其他；同时返回一个备选普清"""
-        hd = [u for u in urls if "/hd/" in u]
-        sd = [u for u in urls if "/hd/" not in u]
-        best = (hd or sd or [""])[0]
-        return best, (sd[0] if sd else "")
+    def _pick_best(self, urls, clarity_urls=None):
+        """Use actual page quality ranks; newer HD URLs no longer contain /hd/."""
+        from urllib.parse import urlparse
+        ranked=[]
+        for row in clarity_urls or []:
+            url=row.get('url') if isinstance(row,dict) else None
+            rank=row.get('rank') if isinstance(row,dict) else None
+            if url in urls and type(rank) is int and 0 <= rank <= 10:
+                ranked.append((rank,url))
+        if ranked:
+            ranked.sort(key=lambda pair:pair[0])
+            return ranked[-1][1],ranked[0][1] if len(ranked)>1 else ''
+        def rank(url):
+            path=urlparse(url).path
+            match=re.search(r'/(\d{3,4})p/',path)
+            return int(match[1]) if match else 720 if '/sc/' in path else 576 if '/hd/' in path else 0
+        ordered=sorted(urls,key=rank,reverse=True)
+        return (ordered[0] if ordered else ''), (ordered[-1] if len(ordered)>1 else '')
 
     def _extract(self, vid):
         import urllib.request
@@ -1287,7 +1299,15 @@ class HaokanVideoSource(Source):
         mp4s = list(dict.fromkeys(u.replace("\\/", "/") for u in raw))
         if not mp4s:
             raise RuntimeError("未找到 mp4 直链")
-        best, fallback = self._pick_best(mp4s)
+        clarity=[]
+        cm=re.search(r'"clarityUrl"\s*:\s*(\[)',html)
+        if cm:
+            try:
+                clarity=json.JSONDecoder().raw_decode(html[cm.start(1):])[0]
+                if not isinstance(clarity,list):clarity=[]
+            except (ValueError,TypeError):
+                pass
+        best, fallback = self._pick_best(mp4s,clarity)
 
         cover = ""
         mc = re.search(r'"poster"\s*:\s*"([^"]+)"', html) or \
@@ -1704,14 +1724,19 @@ class NeteaseVideoSource(Source):
 
         # 1) 从标签页发现视频
         found = {}
+        quarantined = {}
         # 1a) 种子文件（标签页以外的，由 web_search 发现后补充）
         seeds_file = self.config.get("seeds_file")
         if seeds_file:
             sp = Path(__file__).with_name(seeds_file)
             if sp.exists():
                 try:
-                    for v in json.loads(sp.read_text(encoding="utf-8")).get("vcodes", []):
+                    seed_data=json.loads(sp.read_text(encoding="utf-8"))
+                    quarantined=seed_data.get('quarantined',{})
+                    for v in seed_data.get("vcodes", []):
                         found.setdefault(str(v).strip(), "")
+                    for v,evidence in quarantined.items():
+                        found.setdefault(v,evidence.get('title','林园素材待溯源'))
                 except Exception as e:
                     print(f"[{self.name}] 种子文件读取失败: {e}", file=sys.stderr)
         for tpl in tags:
@@ -1743,6 +1768,17 @@ class NeteaseVideoSource(Source):
         # 2) 逐个解析拿 MP4
         items = self.partial_items
         for vcode, text in self.seed_batch(list(found.items()),24,key=lambda entry:entry[0]):
+            if vcode in quarantined:
+                # Persist a non-dispatchable row too: merely skipping fetch
+                # leaves an older admissible database row alive indefinitely.
+                evidence=quarantined[vcode]
+                items.append(dict(id='netease_video:'+vcode,source=self.name,
+                    title=evidence.get('title') or text,url=f'https://www.163.com/v/video/{vcode}.html',
+                    publish_time='',author='网易视频',extra=json.dumps(dict(
+                        vcode=vcode,has_video=True,direct_dispatch=False,
+                        source_role='reference' if evidence.get('reference_author') else 'quarantined',
+                        quarantine_evidence=evidence),ensure_ascii=False)))
+                continue
             try:
                 info = self._parse_video(vcode)
                 items.append({
