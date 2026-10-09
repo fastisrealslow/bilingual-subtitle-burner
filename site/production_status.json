@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791568051,
+  "updated_at": 1791568178,
   "inventory_updated_at": 1791568050,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 8,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791568051,
+    "updated_at": 1791568178,
     "records": 9187,
     "video_records": 7810,
-    "initial_candidates": 63,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 62,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1377,
       "speaker_unconfirmed": 5289,
       "clip_title": 1080,
-      "already_attempted_or_cooling": 1193,
+      "already_attempted_or_cooling": 1194,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1wquM6pEt2",
-        "title": "林园 P1 20260807股神林园专访：科技浪潮下，我为何坚守消费和医药",
-        "source": "bilibili_collection",
-        "author": "股海淘沙",
-        "url": "https://www.bilibili.com/video/BV1wquM6pEt2",
-        "duration_sec": 3490.0
-      },
       {
         "key": "bilibili_search:BV1uds5zBEzD",
         "title": "林园 P1 20251023 对话股神林园：投资的变与不变",
@@ -135,15 +127,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 889,
+    "failed": 890,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 2,
     "excluded": 3,
     "ready": 5,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18552,11 +18544,11 @@
     },
     {
       "slug": "ly-1009-0485a9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：standalone_opening；完整性理由：原文全篇为第三方记者对现场情况的客观陈述（如'每日经济新闻记者还在现场注意到...'），没有任何一句是林园或但斌本人的发言。根据门禁规则，缺少嘉宾的实际判断和解释，claim_range、reasoning_range、conclusion_range 均无法填充有效内容，故判定为不可独立成片。；原文问题：[]",
       "signature": {
         "ts": 1791567509,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18567,6 +18559,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37967703476",
       "run_started_at": "2026-10-09T17:38:29Z",
       "run_updated_at": "2026-10-09T17:46:21Z"
+    },
+    {
+      "slug": "ly-1009-6173ea",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791568140,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37968923461,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37968923461",
+      "run_started_at": "2026-10-09T17:48:59Z",
+      "run_updated_at": "2026-10-09T17:49:04Z"
     }
   ],
   "runs": {
@@ -25433,6 +25443,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37967703476",
       "run_number": 1703,
       "display_title": "中文源出片 · ly-1009-0485a9"
+    },
+    "ly-1009-6173ea": {
+      "id": 37968923461,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T17:48:59Z",
+      "updated_at": "2026-10-09T17:49:04Z",
+      "run_started_at": "2026-10-09T17:48:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37968923461",
+      "run_number": 1704,
+      "display_title": "中文源出片 · ly-1009-6173ea"
     },
     "ly-1009-2b18b2": {
       "id": 37966727866,
