@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791546592,
+  "updated_at": 1791546708,
   "inventory_updated_at": 1791546590,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
     "active_or_recovering_sources": 12,
-    "waiting_candidates": 26,
+    "waiting_candidates": 25,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791546591,
+    "updated_at": 1791546708,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 81,
-    "duration_eligible_records": 26,
-    "candidate_count": 26,
-    "known_duration_candidates": 24,
+    "initial_candidates": 80,
+    "duration_eligible_records": 25,
+    "candidate_count": 25,
+    "known_duration_candidates": 23,
     "unknown_duration_candidates": 2,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1153,
+      "already_attempted_or_cooling": 1154,
       "speaker_unconfirmed": 5136,
       "clip_title": 1068,
       "unrelated": 62,
@@ -70,14 +70,6 @@
         "author": "第一财经",
         "url": "https://www.yicai.com/video/102348707.html",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1yFdhYzEkw",
-        "title": "私募大佬林园：市场风险基本释放，二季度看好快消品和新兴产业",
-        "source": "bilibili_search",
-        "author": "理财有我",
-        "url": "https://www.bilibili.com/video/BV1yFdhYzEkw",
-        "duration_sec": 41.0
       },
       {
         "key": "bilibili_search:BV1CSiGBPESZ",
@@ -279,15 +271,15 @@
   },
   "counts": {
     "complete": 107,
-    "failed": 847,
+    "failed": 849,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 3,
-    "retry_queued": 6,
+    "retry_queued": 5,
     "ready": 3,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -17472,11 +17464,11 @@
     },
     {
       "slug": "ly-1009-b32e4f",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]",
       "signature": {
         "ts": 1791538570,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17486,7 +17478,7 @@
       "run_id": 37912325843,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37912325843",
       "run_started_at": "2026-10-09T09:36:10Z",
-      "run_updated_at": "2026-10-09T09:36:15Z"
+      "run_updated_at": "2026-10-09T11:48:35Z"
     },
     {
       "slug": "ly-1009-3e061c",
@@ -17885,30 +17877,12 @@
       "run_updated_at": "2026-10-09T11:25:28Z"
     },
     {
-      "slug": "ly-1009-b19277",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791545128,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791546645,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37923629394,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37923629394",
-      "run_started_at": "2026-10-09T11:25:28Z",
-      "run_updated_at": "2026-10-09T11:27:46Z"
-    },
-    {
       "slug": "ly-1009-36a3d1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，这个就和人口的中中国人口的结构有关系。\", \"suspect_quote\": \"人口的中中国人口的结构\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'中中国'为重复或错写，应为'中国'。\"}, {\"sentence_id\": 13, \"quote\": \"现在比如说我们说的就是三大疾病：糖尿病、心脏病、高。\", \"suspect_quote\": \"糖尿病、心脏病、高\", \"kind\": \"unintelligible_term\", \"reason\": \"句子末尾的'高'字明显截断，结合下一句（句 14）可知完整词组应为'高血压'，此处识别不完整导致含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"当然，风险我们设定假设：，如果说三十年以后，因为我们现在，比如说我，我本人五十，今年已经五十七岁，五十七岁，三十年，我再能活三十年也八十七八多了，是吧？\", \"suspect_quote\": \"设定假设：\", \"kind\": \"unintelligible_term\", \"reason\": \"'设定假设：'后紧跟冒号且无后续直接名词，结合语境可能是'设定假设如下'或口误导致的停顿，但作为专有名词短语出现时含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"当然，风险我们设定假设：，如果说三十年以后，因为我们现在，比如说我，我本人五十，今年已经五十七岁，五十七岁，三十年，我再能活三十年也八十七八多了，是吧？\", \"suspect_quote\": \"我本人五十，今年已经五十七岁\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字逻辑冲突：前句称'五十'，后句称'五十七岁'，虽可能是口语修正，但作为连续文本中的关键数字存在明显矛盾，需确认是否为识别遗漏了中间过程。\"}, {\"sentence_id\": 23, \"quote\": \"当然，风险我们设定假设：，如果说三十年以后，因为我们现在，比如说我，我本人五十，今年已经五十七岁，五十七岁，三十年，我再能活三十年也八十七八多了，是吧？\", \"suspect_quote\": \"八十七八多了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'八十七八多了'为模糊数字表达，虽属口语习惯，但在需要精确数字的语境下（计算三十年后年龄），该表述缺乏明确数值，可能影响对'确定性机会'中时间跨度的理解。\"}, {\"sentence_id\": 25, \"quote\": \"我们相信这这一部分人口，今天的这个平，呃，这个平均寿命啊，不会比将来这个高。\", \"suspect_quote\": \"今天的这个平，呃，这个平均寿命\", \"kind\": \"unintelligible_term\", \"reason\": \"'平'字明显为'平均'的识别截断或口吃残留，导致词语不完整，影响理解。\"}]",
       "signature": {
         "ts": 1791545135,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18009,6 +17983,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925847058",
       "run_started_at": "2026-10-09T11:46:53Z",
       "run_updated_at": "2026-10-09T11:46:57Z"
+    },
+    {
+      "slug": "ly-1009-b19277",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791546663,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37926268087,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926268087",
+      "run_started_at": "2026-10-09T11:51:03Z",
+      "run_updated_at": "2026-10-09T11:51:07Z"
+    },
+    {
+      "slug": "ly-1009-a9ed68",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791546670,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37926279718,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926279718",
+      "run_started_at": "2026-10-09T11:51:09Z",
+      "run_updated_at": "2026-10-09T11:51:14Z"
     }
   ],
   "runs": {
@@ -24382,14 +24392,14 @@
       "display_title": "中文源出片 · ly-1009-f889e4"
     },
     "ly-1009-b19277": {
-      "id": 37923629394,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T11:25:28Z",
-      "updated_at": "2026-10-09T11:27:46Z",
-      "run_started_at": "2026-10-09T11:25:28Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37923629394",
-      "run_number": 1630,
+      "id": 37926268087,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T11:51:03Z",
+      "updated_at": "2026-10-09T11:51:07Z",
+      "run_started_at": "2026-10-09T11:51:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926268087",
+      "run_number": 1637,
       "display_title": "中文源出片 · ly-1009-b19277"
     },
     "ly-1009-2ff355": {
@@ -24447,6 +24457,17 @@
       "run_number": 1631,
       "display_title": "中文源出片 · ly-1009-36a3d1"
     },
+    "ly-1009-a9ed68": {
+      "id": 37926279718,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T11:51:09Z",
+      "updated_at": "2026-10-09T11:51:14Z",
+      "run_started_at": "2026-10-09T11:51:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926279718",
+      "run_number": 1638,
+      "display_title": "中文源出片 · ly-1009-a9ed68"
+    },
     "ly-1009-784304": {
       "id": 37925847058,
       "status": "in_progress",
@@ -24493,10 +24514,10 @@
     },
     "ly-1009-b32e4f": {
       "id": 37912325843,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T09:36:10Z",
-      "updated_at": "2026-10-09T09:36:15Z",
+      "updated_at": "2026-10-09T11:48:35Z",
       "run_started_at": "2026-10-09T09:36:10Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37912325843",
       "run_number": 1606,
