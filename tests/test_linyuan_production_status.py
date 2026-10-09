@@ -156,3 +156,21 @@ def test_failed_partial_batch_can_still_have_real_delivery():
     delivery=dict(name='deliver-mother',id=55,expired=False)
     def api(path):return dict(artifacts=[delivery] if '/runs/' in path else [])
     assert source_supply.find_deliveries({'mother':entry()},api,{'mother':run(result='failure')})['mother']==delivery
+
+
+def test_real_repaired_delivery_with_lower_id_supersedes_older_broken_bundle():
+    import source_supply
+    old=dict(name='deliver-mother',id=11596726870,expired=False,created_at='2026-10-09T05:05:21Z')
+    repaired=dict(old,id=11596294311,created_at='2026-10-09T05:17:21Z')
+    def api(path):return dict(artifacts=[old,repaired])
+    assert source_supply.find_deliveries({'mother':entry()},api,{})['mother']==repaired
+
+
+def test_repaired_delivery_creation_order_wins_even_across_index_pages():
+    import source_supply
+    old=dict(name='deliver-mother',id=200,expired=False,created_at='2026-10-09T05:05:21Z')
+    repaired=dict(old,id=100,created_at='2026-10-09T05:17:21Z')
+    def api(path):
+        return dict(artifacts=[old]+[dict(name='unrelated',id=i) for i in range(99)]
+                    if path.endswith('page=1') else [repaired])
+    assert source_supply.find_deliveries({'mother':entry()},api,{})['mother']==repaired
