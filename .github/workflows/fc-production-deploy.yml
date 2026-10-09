@@ -90,12 +90,14 @@ jobs:
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       fixture: linyuan_0913_title.json
+      local_text_model: qwen3.5:9b
   title-landscape:
     needs: release-policy
     if: needs.release-policy.outputs.allowed == 'true'
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       fixture: linyuan_0913_landscape_title.json
+      local_text_model: qwen3.5:9b
   editorial-check:
     needs: [title-portrait, title-landscape]
     runs-on: ubuntu-latest

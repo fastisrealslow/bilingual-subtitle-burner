@@ -314,7 +314,8 @@ def explicit_host_cues(units):
     markers=re.compile(r'(?:您|你)(?:觉得|认为|怎么看|看好哪个)|你们.*(?:可能|会|如何|怎么)'
         r'|我可以这么理解|(?:林总|林园总|林远总).*(?:理解|请问|如何|怎么看)'
         r'|您的(?:过往|观点|意思)|我(?:也|大概|简单|来|再|先|这么|那我)*(?:听懂|听明白|理解|总结)'
-        r'|这样理解|(?:接着|再).*问|话题.*告一段')
+        r'|这样理解|(?:接着|再).*问|话题.*告一段'
+        r'|^(?:那)?看来(?:林总|林园总|林园|林远总)(?:给了|给大家|的意思|的观点)')
     from speaker_attribution import named_handoffs
     blocked={turn['cue'] for turn in named_handoffs(units)};host=False;recap=False
     for i,text in enumerate(units):
@@ -328,6 +329,22 @@ def explicit_host_cues(units):
             continue
         if markers.search(body):host=True
         elif host:
+            # Real run 37813937032: the completed bull-market question
+            # precedes "尽管...牛市初期...但是我们相信...趋势已经形成了。"
+            # Sticky exclusion hid every substantive guest answer despite the
+            # independent reader explicitly finding its span. Release only
+            # this complete, topic-bound concessive assertion for attribution;
+            # it is NOT automatically certified as guest speech.
+            answer=''.join(units[i:i+3])
+            assertion=compact(answer)
+            if (i and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])
+                    and re.match(r'^(?:尽管|虽然)',body)
+                    and re.search(r'(?:但是|但)(?:我|我们)(?:相信|认为|觉得)',assertion)
+                    and re.search(r'[。][”’」』\"]?\s*$',answer)
+                    and not re.search(r'[？?]|您|请问|是不是|会不会|是否',answer)
+                    and any(topic in compact(units[i-1]) and topic in assertion
+                            for topic in ('牛市','股市','市场','医药','消费','投资','企业'))):
+                host=False
             # A question about a third party can receive a declarative answer
             # about 'he/she/it'. Requiring an 'I/we' opening excluded the whole
             # substantive answer. Release only for independent attribution;

@@ -3155,6 +3155,8 @@ def _recover_changed_production_rule(st, candidate, run):
             ('linyuan/source_selection.py','linyuan/produce_cn.py','linyuan/title_rewrite.py')),
            ('medium-source-opening-v41',('原文中未找到满足20秒',),
             ('linyuan/source_selection.py',)),
+           ('concessive-guest-answer-v1',('标题文案待重试：未确认嘉宾原话归属',),
+            ('linyuan/title_rewrite.py',)),
            ('transcript-review-model-v3',('独立文字识别疑点审核不可用',
                     '原始ASR存在影响理解的疑点，禁止猜改后发布'),
             ('linyuan/transcript_audit.py','.github/workflows/linyuan-produce-cn.yml')),

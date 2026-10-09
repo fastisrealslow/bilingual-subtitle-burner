@@ -19,6 +19,7 @@ on:
     paths:
       - .github/workflows/linyuan-monitor.yml
       - linyuan/monitor_v2.py
+      - linyuan/persist_monitor_metadata.sh
       - linyuan/monitor_v2_config.json
       - linyuan/weibo_seeds.json
       - linyuan/douyin_seeds.json
@@ -69,7 +70,21 @@ jobs:
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py
+
+      - name: 优先抓取可核验的官方与精确视频源
+        timeout-minutes: 5
+        continue-on-error: true
+        run: python -u monitor_v2.py --source-types yicai_video weibo_video
+
+      - name: 即时提交优先渠道结果（不等待慢搜索）
+        run: bash persist_monitor_metadata.sh 'chore(monitor): checkpoint exact video sources for early refill'
+
+      - name: 优先渠道立即触发实际库存核验和补库
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/linyuan-source-inventory.yml/dispatches" -f ref=main
 
       - name: 恢复已核验来源证据
         uses: actions/cache/restore@v4
@@ -133,31 +148,7 @@ jobs:
 
       - name: 提交元数据变更
         if: always()
-        run: |
-          set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # 注意：本步骤 cwd 是 linyuan/（job 级 working-directory），
-          # 路径绝不能带 linyuan/ 前缀 —— 带前缀会因 pathspec 不匹配而静默
-          # 跳过，每次 run 都假报「无变更」，数据永远提交不上来。
-          git add -A -- dashboard/data.json monitor_v2.db up_videos.json *_seeds.json
-          for report in .automation/source_gap_audit.json .automation/source_research_state.json .automation/source_research_report.json; do
-            if [ -f "$report" ]; then git add -f "$report"; fi
-          done
-          if git diff --staged --quiet; then
-            echo "无变更"
-            exit 0
-          fi
-          git commit -m "chore(monitor): update discovery and persistent source research (+${{ steps.fetch.outputs.new }} records)"
-          # 定时任务之间不会撞车，但手动触发可能和定时重叠
-          for i in 1 2 3 4 5; do
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" \
-              && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
-            echo "推送冲突，第 $i 次重试"
-            sleep $(( i * 5 ))
-          done
-          echo "::error::元数据提交失败，抓取结果只在本次 run 的日志里"
-          exit 1
+        run: bash persist_monitor_metadata.sh 'chore(monitor): update discovery and persistent source research'
 
       - name: 报告抓取失败（已保存可恢复的补库进度）
         if: always() && steps.fetch.outcome == 'failure'
