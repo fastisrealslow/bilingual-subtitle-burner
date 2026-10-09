@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791551250,
+  "updated_at": 1791551504,
   "inventory_updated_at": 1791551248,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791551249,
+    "updated_at": 1791551504,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 57,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
+    "initial_candidates": 55,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
     "known_duration_candidates": 0,
-    "unknown_duration_candidates": 2,
+    "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1177,
+      "already_attempted_or_cooling": 1179,
       "speaker_unconfirmed": 5136,
       "clip_title": 1068,
       "unrelated": 62,
@@ -54,24 +54,7 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "yicai_video:102983175",
-        "title": "林园：2026年A股整体向好 市场人气已被带动",
-        "source": "yicai_video",
-        "author": "第一财经",
-        "url": "https://www.yicai.com/video/102983175.html",
-        "duration_sec": 0
-      },
-      {
-        "key": "yicai_video:102348707",
-        "title": "百亿私募林园：停止跟投！“钱都跟投的差不多了，还有其他投资安排”",
-        "source": "yicai_video",
-        "author": "第一财经",
-        "url": "https://www.yicai.com/video/102348707.html",
-        "duration_sec": 0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 2,
@@ -87,14 +70,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 878,
+    "failed": 881,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 2,
     "excluded": 2,
     "ready": 3,
-    "running": 5
+    "running": 3,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -18035,11 +18019,11 @@
     },
     {
       "slug": "ly-1009-1f9656",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有去没有这个。\", \"suspect_quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有\", \"kind\": \"unintelligible_term\", \"reason\": \"句子在‘它没有’处突然截断，缺少宾语或后续内容，导致语义不完整且无法解释具体指代对象。\"}, {\"sentence_id\": 3, \"quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点。\", \"suspect_quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点\", \"kind\": \"unintelligible_term\", \"reason\": \"'找到它的缺点'在投资语境下含义不明，通常应为‘优势’或‘特点’，此处‘缺点’极可能是识别错误导致的关键词污染。\"}, {\"sentence_id\": 4, \"quote\": \"啊，集产这些因素不考虑，还是需求。\", \"suspect_quote\": \"啊，集产这些因素不考虑\", \"kind\": \"unintelligible_term\", \"reason\": \"'集产'并非标准经济术语，结合上下文应为‘集采’（集中采购）的识别错误，属于关键行业词污染。\"}, {\"sentence_id\": 10, \"quote\": \"居民财富，我可以就是大概做一个判断：，所有的行业都不行，就除了老龄化，除了人口老龄化。\", \"suspect_quote\": \"居民财富，我可以就是大概做一个判断：，所有的行业\", \"kind\": \"unintelligible_term\", \"reason\": \"句中冒号后直接接‘所有的行业都不行’，但前半句‘居民财富，我可以就是大概做一个判断：'逻辑断裂，且‘所有的行业都不行’与后文‘就除了老龄化’矛盾，疑似识别时漏掉关键转折词或误将否定范围扩大。\"}, {\"sentence_id\": 14, \"quote\": \"你现在是几百，这几百万人口的下降都是，那不是少一双筷子。\", \"suspect_quote\": \"你现在是几百，这几百万人口的下降都是\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'几百'和‘这几百万’表述模糊且数值范围重叠，结合口语习惯可能指代‘几百万’的下降，但原文数字表达不精确且存在歧义，属于关键数字污染。\"}, {\"sentence_id\": 18, \"quote\": \"现在咱们的股，市，这个这个都，这研究都是要有个增长，增长。\", \"suspect_quote\": \"现在咱们的股，市，这个这个都，这研究都是要有个\", \"kind\": \"unintelligible_term\", \"reason\": \"'股，市'中间插入逗号及重复的‘这个这个’，导致‘股市’一词被割裂，属于明显的识别错误，影响对核心名词的理解。\"}]",
       "signature": {
         "ts": 1791549074,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18049,7 +18033,7 @@
       "run_id": 37930571562,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
       "run_started_at": "2026-10-09T12:31:14Z",
-      "run_updated_at": "2026-10-09T12:31:18Z"
+      "run_updated_at": "2026-10-09T13:07:16Z"
     },
     {
       "slug": "ly-1009-389a34",
@@ -18089,11 +18073,11 @@
     },
     {
       "slug": "ly-1009-ae962a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"本来你这个，它这个公司异囊不异囊，你能不能赚钱呢？\", \"suspect_quote\": \"异囊不异囊\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境下无明确含义，疑似识别错误（可能应为“盈利不盈利”、“异常不异常”或其他发音相近的词），严重影响理解。\"}, {\"sentence_id\": 16, \"quote\": \"没有应收账款，那就是虽然说这酒类的公司就没有应收账款，他基本上都是都是你先还有应收账款多了，他都是别人先把钱打了他账上，然后他再给你发货的。\", \"suspect_quote\": \"他都是别人先把钱打了他账上\", \"kind\": \"unintelligible_term\", \"reason\": \"句中“打了他账上”表述含糊，存在明显的语音识别歧义或错别字嫌疑（可能是“打入他账上”、“打到他账上”），导致语义不通顺且含义不明。\"}]",
       "signature": {
         "ts": 1791549932,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18107,11 +18091,11 @@
     },
     {
       "slug": "ly-1009-9e7da3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 154.67s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1791549940,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18197,8 +18181,8 @@
     },
     {
       "slug": "ly-1009-3e89e2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791550747,
         "failed": null,
@@ -18211,7 +18195,7 @@
       "run_id": 37933659551,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37933659551",
       "run_started_at": "2026-10-09T12:59:07Z",
-      "run_updated_at": "2026-10-09T12:59:11Z"
+      "run_updated_at": "2026-10-09T13:09:53Z"
     },
     {
       "slug": "ly-1009-f27e48",
@@ -18233,21 +18217,39 @@
     },
     {
       "slug": "ly-1009-2f94e6",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791551081,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": 1791535793,
+        "source_check_retry_after": 1791552250,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 37934302145,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37934302145",
       "run_started_at": "2026-10-09T13:04:40Z",
-      "run_updated_at": "2026-10-09T13:04:45Z"
+      "run_updated_at": "2026-10-09T13:08:35Z"
+    },
+    {
+      "slug": "ly-1009-a89f6d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791551439,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37934991098,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37934991098",
+      "run_started_at": "2026-10-09T13:10:39Z",
+      "run_updated_at": "2026-10-09T13:10:43Z"
     }
   ],
   "runs": {
@@ -24092,17 +24094,6 @@
       "run_number": 1565,
       "display_title": "中文源出片 · ly-1009-31ebc0"
     },
-    "ly-1009-2f94e6": {
-      "id": 37934302145,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-09T13:04:40Z",
-      "updated_at": "2026-10-09T13:04:45Z",
-      "run_started_at": "2026-10-09T13:04:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37934302145",
-      "run_number": 1664,
-      "display_title": "中文源出片 · ly-1009-2f94e6"
-    },
     "ly-1009-c31f09": {
       "id": 37890187166,
       "status": "completed",
@@ -24950,6 +24941,39 @@
       "run_number": 1657,
       "display_title": "中文源出片 · ly-1009-9e7da3"
     },
+    "ly-1009-ae962a": {
+      "id": 37932146181,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T12:45:32Z",
+      "updated_at": "2026-10-09T13:05:47Z",
+      "run_started_at": "2026-10-09T12:45:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932146181",
+      "run_number": 1656,
+      "display_title": "中文源出片 · ly-1009-ae962a"
+    },
+    "ly-1009-a89f6d": {
+      "id": 37934991098,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T13:10:39Z",
+      "updated_at": "2026-10-09T13:10:43Z",
+      "run_started_at": "2026-10-09T13:10:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37934991098",
+      "run_number": 1665,
+      "display_title": "中文源出片 · ly-1009-a89f6d"
+    },
+    "ly-1009-2f94e6": {
+      "id": 37934302145,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T13:04:40Z",
+      "updated_at": "2026-10-09T13:08:35Z",
+      "run_started_at": "2026-10-09T13:04:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37934302145",
+      "run_number": 1664,
+      "display_title": "中文源出片 · ly-1009-2f94e6"
+    },
     "ly-1009-f27e48": {
       "id": 37933670622,
       "status": "in_progress",
@@ -24963,10 +24987,10 @@
     },
     "ly-1009-3e89e2": {
       "id": 37933659551,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T12:59:07Z",
-      "updated_at": "2026-10-09T12:59:11Z",
+      "updated_at": "2026-10-09T13:09:53Z",
       "run_started_at": "2026-10-09T12:59:07Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37933659551",
       "run_number": 1662,
@@ -24983,23 +25007,12 @@
       "run_number": 1661,
       "display_title": "中文源出片 · ly-1009-8c8078"
     },
-    "ly-1009-ae962a": {
-      "id": 37932146181,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T12:45:32Z",
-      "updated_at": "2026-10-09T13:05:47Z",
-      "run_started_at": "2026-10-09T12:45:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932146181",
-      "run_number": 1656,
-      "display_title": "中文源出片 · ly-1009-ae962a"
-    },
     "ly-1009-1f9656": {
       "id": 37930571562,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T12:31:14Z",
-      "updated_at": "2026-10-09T12:31:18Z",
+      "updated_at": "2026-10-09T13:07:16Z",
       "run_started_at": "2026-10-09T12:31:14Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
       "run_number": 1653,
