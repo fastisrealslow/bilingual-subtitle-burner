@@ -10,6 +10,27 @@ import zipfile
 import requests
 
 
+def delivery_files(part, *, optional_cover=False):
+    """One file contract for ranged, whole-ZIP and Release transfers."""
+    wanted=[part.get('final')]
+    if part.get('cover') or not optional_cover:
+        wanted.append(part.get('cover'))
+    wanted+=list(part.get('subtitle_files') or [])
+    if part.get('subtitle_edit_proof_version')==1:
+        wanted+=list(part.get('subtitle_edit_proofs') or [])
+    proof=part.get('cover_proof') or {}
+    if proof.get('feed_safe_crop') is not None:
+        wanted.append(proof.get('feed_square'))
+    if proof.get('thumbnail'):
+        wanted.append(proof['thumbnail'])
+    if any(not isinstance(n,str) or not n or Path(n).name!=n
+           or '\\' in n or n in {'meta.json','.','..'} for n in wanted):
+        raise ValueError('Invalid selected delivery path')
+    if len(wanted)!=len(set(wanted)):
+        raise ValueError('Duplicate selected delivery path')
+    return wanted
+
+
 class RangeFile(io.RawIOBase):
     """A bounded, strictly validated HTTP range reader for zipfile."""
 
@@ -108,13 +129,7 @@ def extract_part(url, part_index, destination, **reader_options):
         if type(part_index) is not int or not 0 <= part_index < len(parts):
             raise ValueError('Invalid artifact part index')
         part = parts[part_index]
-        wanted = [part.get('final'), part.get('cover'), *(part.get('subtitle_files') or [])]
-        if part.get('subtitle_edit_proof_version') == 1:
-            wanted += list(part.get('subtitle_edit_proofs') or [])
-        if any(not isinstance(n, str) or not n or Path(n).name != n or n == 'meta.json' for n in wanted):
-            raise ValueError('Invalid selected delivery path')
-        if len(wanted) != len(set(wanted)):
-            raise ValueError('Duplicate selected delivery path')
+        wanted = delivery_files(part)
         for name in wanted:
             entry = archive.getinfo(name)
             if entry.is_dir() or entry.file_size > reader.max_bytes:

@@ -869,6 +869,10 @@ def download_release_part(slug, part_index, dest_dir):
         payload = json.loads(meta_dest.read_text(encoding="utf-8"))
         parts = payload if isinstance(payload, list) else [payload]
         part = parts[part_index] if part_index < len(parts) else {}
+        from artifact_range import delivery_files
+        # Legacy Release metadata may omit a cover; preserve transfer fallback
+        # semantics. Actual modern cover proof is still mandatory at publish.
+        selected_files=delivery_files(part,optional_cover=True)
         final_name = str(part.get("final") or "final.mp4")
         cover_name = str(part.get("cover") or "")
         # 封面体积小，先确认它存在；旧批次缺封面时不要先下载几百 MB 视频。
@@ -878,9 +882,7 @@ def download_release_part(slug, part_index, dest_dir):
             return False
         # v12 checks the actual ASS payload. Fetch it on the normal Release
         # path as well; otherwise every otherwise valid new MP4 is rejected.
-        companion_files=list(part.get('subtitle_files') or [])
-        if part.get('subtitle_edit_proof_version')==1:
-            companion_files+=list(part.get('subtitle_edit_proofs') or [])
+        companion_files=[n for n in selected_files if n not in {final_name,cover_name}]
         for subtitle_name in companion_files:
             if not isinstance(subtitle_name, str) or Path(subtitle_name).name != subtitle_name:
                 return False
@@ -947,11 +949,8 @@ def download_inventory_part(artifact_id, part_index, dest_dir):
             payload=json.loads(archive.read('meta.json'))
             parts=payload if isinstance(payload,list) else [payload]
             part=parts[part_index]
-            names=[part.get('final'),part.get('cover'),*(part.get('subtitle_files') or [])]
-            if part.get('subtitle_edit_proof_version')==1:
-                names+=list(part.get('subtitle_edit_proofs') or [])
-            if any(not isinstance(n,str) or Path(n).name!=n for n in names):
-                raise ValueError('Invalid delivery file path')
+            from artifact_range import delivery_files
+            names=delivery_files(part)
             for name in names:
                 (dest_dir/name).write_bytes(archive.read(name))
             (dest_dir/'meta.json').write_text(json.dumps(parts,ensure_ascii=False))
@@ -3224,7 +3223,9 @@ def _recover_rule_backlog(st, by_slug):
               and s not in st.get('published',{}) and s not in REVIEW_PAUSED_SLUGS
               and any(t in str(e.get('last_error') or '') for t in (
                   '原文中未找到满足20秒','本轮选段没有返回通过','标题文案待重试',
-                  '完整词句无法放入两行','意群分组','单屏跨越超过8秒'))}
+                  '完整词句无法放入两行','意群分组','单屏跨越超过8秒',
+                  '独立文字识别疑点审核不可用',
+                  '观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问'))}
     if not eligible:return 0
     page=int(st.get('rule_recovery_page') or 1)
     runs=gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status=failure&per_page=100&page={page}').get('workflow_runs',[])
