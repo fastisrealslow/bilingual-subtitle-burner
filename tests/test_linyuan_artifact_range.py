@@ -45,7 +45,72 @@ def bundle(**overrides):
         z.writestr('cover_3.jpg',b'cover')
         z.writestr('subtitles_3.ass',b'actual original ASS')
         z.writestr('subtitle_edit_proof_3.json',b'{"original":"original proof"}')
+        if overrides.get('cover_proof'):
+            z.writestr('cover_3_feed_square.jpg',b'actual centre crop')
+            z.writestr('cover_3_list_160.jpg',b'actual list thumbnail')
     return data.getvalue(),meta
+
+
+def modern_bundle():
+    return bundle(cover_proof=dict(feed_safe_crop=[280,0,1000,720],
+        feed_square='cover_3_feed_square.jpg',thumbnail='cover_3_list_160.jpg'))
+
+
+def test_range_transfer_preserves_both_actual_feed_surfaces(tmp_path):
+    data,meta=modern_bundle()
+    result=ar.extract_part('https://storage.test/immutable.zip',0,tmp_path,session=Session(data))
+    assert json.loads((tmp_path/'meta.json').read_bytes())==meta
+    assert (tmp_path/'cover_3_feed_square.jpg').read_bytes()==b'actual centre crop'
+    assert (tmp_path/'cover_3_list_160.jpg').read_bytes()==b'actual list thumbnail'
+    assert result['selected_files']==7
+
+
+@pytest.mark.parametrize('name',[None,'../outside.jpg','..\\outside.jpg','meta.json','cover_3.jpg'])
+def test_invalid_feed_surface_name_fails_before_any_files_are_promoted(tmp_path,name):
+    data,_=bundle(cover_proof=dict(feed_safe_crop=[280,0,1000,720],feed_square=name))
+    with pytest.raises(ValueError):
+        ar.extract_part('https://storage.test/x',0,tmp_path,session=Session(data))
+    assert not list(tmp_path.iterdir())
+
+
+def test_missing_actual_feed_surface_never_promotes_partial_delivery(tmp_path):
+    data,_=bundle(cover_proof=dict(feed_safe_crop=[280,0,1000,720],feed_square='missing.jpg'))
+    with pytest.raises(KeyError):
+        ar.extract_part('https://storage.test/x',0,tmp_path,session=Session(data))
+    assert not list(tmp_path.iterdir())
+
+
+def test_whole_bundle_fallback_preserves_actual_feed_surfaces(tmp_path,monkeypatch):
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan/fc'))
+    import index as fc
+    data,meta=modern_bundle()
+    monkeypatch.setattr(fc,'download_inventory_range_part',lambda *a:False)
+    monkeypatch.setattr(fc.tempfile,'gettempdir',lambda:str(tmp_path))
+    monkeypatch.setattr(fc,'download_reviewed_zip',lambda aid,path,**k:path.write_bytes(data))
+    assert fc.download_inventory_part(123,0,tmp_path)
+    assert json.loads((tmp_path/'meta.json').read_bytes())==meta
+    assert (tmp_path/'cover_3_feed_square.jpg').read_bytes()==b'actual centre crop'
+    assert (tmp_path/'cover_3_list_160.jpg').read_bytes()==b'actual list thumbnail'
+
+
+@pytest.mark.parametrize('missing_feed',[False,True])
+def test_release_transfer_fetches_feed_before_large_video(tmp_path,monkeypatch,missing_feed):
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan/fc'))
+    import index as fc
+    _,meta=modern_bundle();calls=[]
+    monkeypatch.setattr(fc,'delivery_release_asset',lambda name:name)
+    def transfer(asset,path,**kwargs):
+        calls.append(asset)
+        if asset=='slug.meta.json':path.write_text(json.dumps(meta))
+        else:path.write_bytes(b'actual delivery companion')
+        return not (missing_feed and asset=='slug.cover_3_feed_square.jpg')
+    monkeypatch.setattr(fc,'download_release_asset',transfer)
+    assert fc.download_release_part('slug',0,tmp_path) is not missing_feed
+    assert 'slug.cover_3_feed_square.jpg' in calls
+    if missing_feed:assert 'slug.final_3.mp4' not in calls
+    else:
+        assert calls.index('slug.cover_3_feed_square.jpg')<calls.index('slug.final_3.mp4')
+        assert (tmp_path/'cover_3_list_160.jpg').is_file()
 
 
 def test_selected_part_transfers_only_required_members_and_preserves_proof(tmp_path):

@@ -28,6 +28,25 @@ def test_backlog_finds_old_source_without_downloading_every_artifact(monkeypatch
     assert fc._recover_rule_backlog(state,{'mother':entry})==0
 
 
+@pytest.mark.parametrize('reason,changed',[
+    ('独立文字识别疑点审核不可用：invalid evidence','linyuan/transcript_audit.py'),
+    ('观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问','linyuan/editorial_evidence.py'),
+])
+def test_source_bound_service_repairs_reach_older_than_recent_producer_window(monkeypatch,reason,changed):
+    state,entry,run,_=evidence(monkeypatch,changed=changed)
+    entry.update(failed=True,last_error=reason,source_url='https://example.com/mother')
+    run.update(display_title='中文源出片 · mother',updated_at='2026-10-01T00:00:00Z')
+    original=fc.gh
+    def api(method,path,*args,**kwargs):
+        if '/workflows/' in path:return dict(workflow_runs=[run])
+        return original(method,path,*args,**kwargs)
+    monkeypatch.setattr(fc,'gh',api)
+    assert fc._recover_rule_backlog(state,{'mother':entry})==1
+    assert entry['source_check_run_id']==run['id'] and entry['quality_retries']==1
+    entry['failed']=True
+    assert fc._recover_rule_backlog(state,{'mother':entry})==0
+
+
 def evidence(monkeypatch, changed='linyuan/produce_cn.py', failed_step=None):
     now = 1789264800
     monkeypatch.setattr(fc.time, 'time', lambda: now)
