@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791548988,
+  "updated_at": 1791549124,
   "inventory_updated_at": 1791548986,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 10,
-    "waiting_candidates": 14,
+    "active_or_recovering_sources": 11,
+    "waiting_candidates": 11,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791548987,
+    "updated_at": 1791549123,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 69,
-    "duration_eligible_records": 14,
-    "candidate_count": 14,
-    "known_duration_candidates": 12,
+    "initial_candidates": 66,
+    "duration_eligible_records": 11,
+    "candidate_count": 11,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 2,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1165,
+      "already_attempted_or_cooling": 1168,
       "speaker_unconfirmed": 5136,
       "clip_title": 1068,
       "unrelated": 62,
@@ -70,30 +70,6 @@
         "author": "第一财经",
         "url": "https://www.yicai.com/video/102348707.html",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV13piKBbEDa",
-        "title": "林园 P1 林园：牛市的特征就是迅速一两年就涨幅巨大（2025.12.13）",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV13piKBbEDa",
-        "duration_sec": 128.0
-      },
-      {
-        "key": "bilibili_search:BV1QpiKBtEtz",
-        "title": "林园 P1 林园：老龄化没有哪个行业能够幸免（2025.12.13）",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1QpiKBtEtz",
-        "duration_sec": 180.0
-      },
-      {
-        "key": "bilibili_search:BV1dAvtBoEmQ",
-        "title": "林园 P1 林园谈牛市特征就是一两年就涨幅巨大（2025.12.13）",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1dAvtBoEmQ",
-        "duration_sec": 142.0
       },
       {
         "key": "bilibili_search:BV1rXBoBoEg2",
@@ -183,15 +159,15 @@
   },
   "counts": {
     "complete": 107,
-    "failed": 860,
+    "failed": 864,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 5,
+    "interrupted": 3,
     "excluded": 3,
-    "retry_queued": 5,
+    "retry_queued": 4,
     "ready": 3,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -17879,24 +17855,6 @@
       "run_updated_at": "2026-10-09T12:01:15Z"
     },
     {
-      "slug": "ly-1009-b19277",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791546663,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791548665,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37926268087,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926268087",
-      "run_started_at": "2026-10-09T11:51:03Z",
-      "run_updated_at": "2026-10-09T11:52:36Z"
-    },
-    {
       "slug": "ly-1009-a9ed68",
       "status": "failed",
       "detail": "整段取景预检：源 8.30s，原始画面不足以保留完整人脸及头顶余量",
@@ -17970,11 +17928,11 @@
     },
     {
       "slug": "ly-1009-4daf81",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"对对对，啊，我就说葛朗台还还还倒不了币，那些那些最后都不能给投资者带来好的效益。\", \"suspect_quote\": \"葛朗台还还还倒不了币\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘倒不了币’疑似为识别错误，结合上下文语境（讨论企业效益、压价导致无利可图），‘币’字在金融或商业口语中无明确指代，极可能是‘钱’、‘利润’或‘生意’的误识；同时‘还还还’虽属口吃重复，但紧随其后的‘倒不了币’构成含义不明的否定短语，\"}]",
       "signature": {
         "ts": 1791548024,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17984,15 +17942,15 @@
       "run_id": 37928658211,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928658211",
       "run_started_at": "2026-10-09T12:13:43Z",
-      "run_updated_at": "2026-10-09T12:13:48Z"
+      "run_updated_at": "2026-10-09T12:29:11Z"
     },
     {
       "slug": "ly-1009-1f5280",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791548030,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18024,11 +17982,11 @@
     },
     {
       "slug": "ly-1009-6b7872",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"对对对，啊，我就说葛朗台还还还倒不了币，那些那些最后都不能给投资者带来好的效益。\", \"suspect_quote\": \"葛朗台还还还倒不了币\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘倒不了币’疑似为识别错误，结合上下文语境（讨论企业效益、压价导致无利可图），‘币’字在金融或商业口语中无明确指代，极可能是‘钱’、‘利润’或‘生意’的误识；同时‘还还还’虽属口吃重复，但紧随其后的‘倒不了币’构成含义不明的否定短语，\"}]",
       "signature": {
         "ts": 1791548044,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18038,15 +17996,15 @@
       "run_id": 37928694045,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928694045",
       "run_started_at": "2026-10-09T12:14:03Z",
-      "run_updated_at": "2026-10-09T12:14:08Z"
+      "run_updated_at": "2026-10-09T12:28:41Z"
     },
     {
       "slug": "ly-1009-9b1d8d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我主要考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语或比喻，严重影响语义理解。\"}, {\"sentence_id\": 9, \"quote\": \"它有一满之这个东西的话，我就会。\", \"suspect_quote\": \"一满之\", \"kind\": \"unintelligible_term\", \"reason\": \"'一满之'非标准中文词汇，疑似将'一半'、'一部分'或其他词误识别，含义不明且无法通过上下文合理推断。\"}]",
       "signature": {
         "ts": 1791548050,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18129,6 +18087,78 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37929673814",
       "run_started_at": "2026-10-09T12:23:10Z",
       "run_updated_at": "2026-10-09T12:23:14Z"
+    },
+    {
+      "slug": "ly-1009-b19277",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791549058,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37930540573,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930540573",
+      "run_started_at": "2026-10-09T12:30:57Z",
+      "run_updated_at": "2026-10-09T12:31:02Z"
+    },
+    {
+      "slug": "ly-1009-6d26f4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791549066,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37930557093,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930557093",
+      "run_started_at": "2026-10-09T12:31:06Z",
+      "run_updated_at": "2026-10-09T12:31:10Z"
+    },
+    {
+      "slug": "ly-1009-1f9656",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791549074,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37930571562,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
+      "run_started_at": "2026-10-09T12:31:14Z",
+      "run_updated_at": "2026-10-09T12:31:18Z"
+    },
+    {
+      "slug": "ly-1009-389a34",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791549082,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37930585285,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930585285",
+      "run_started_at": "2026-10-09T12:31:21Z",
+      "run_updated_at": "2026-10-09T12:31:29Z"
     }
   ],
   "runs": {
@@ -24557,14 +24587,14 @@
       "display_title": "中文源出片 · ly-1009-b32e4f"
     },
     "ly-1009-b19277": {
-      "id": 37926268087,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T11:51:03Z",
-      "updated_at": "2026-10-09T11:52:36Z",
-      "run_started_at": "2026-10-09T11:51:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926268087",
-      "run_number": 1637,
+      "id": 37930540573,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:30:57Z",
+      "updated_at": "2026-10-09T12:31:02Z",
+      "run_started_at": "2026-10-09T12:30:57Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930540573",
+      "run_number": 1651,
       "display_title": "中文源出片 · ly-1009-b19277"
     },
     "ly-1009-441792": {
@@ -24699,6 +24729,50 @@
       "run_number": 1646,
       "display_title": "中文源出片 · ly-1009-9b1d8d"
     },
+    "ly-1009-1f5280": {
+      "id": 37928669340,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T12:13:50Z",
+      "updated_at": "2026-10-09T12:27:14Z",
+      "run_started_at": "2026-10-09T12:13:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928669340",
+      "run_number": 1643,
+      "display_title": "中文源出片 · ly-1009-1f5280"
+    },
+    "ly-1009-389a34": {
+      "id": 37930585285,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:31:21Z",
+      "updated_at": "2026-10-09T12:31:29Z",
+      "run_started_at": "2026-10-09T12:31:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930585285",
+      "run_number": 1654,
+      "display_title": "中文源出片 · ly-1009-389a34"
+    },
+    "ly-1009-1f9656": {
+      "id": 37930571562,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:31:14Z",
+      "updated_at": "2026-10-09T12:31:18Z",
+      "run_started_at": "2026-10-09T12:31:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
+      "run_number": 1653,
+      "display_title": "中文源出片 · ly-1009-1f9656"
+    },
+    "ly-1009-6d26f4": {
+      "id": 37930557093,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:31:06Z",
+      "updated_at": "2026-10-09T12:31:10Z",
+      "run_started_at": "2026-10-09T12:31:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930557093",
+      "run_number": 1652,
+      "display_title": "中文源出片 · ly-1009-6d26f4"
+    },
     "ly-1009-e92b65": {
       "id": 37929673814,
       "status": "in_progress",
@@ -24723,32 +24797,21 @@
     },
     "ly-1009-6b7872": {
       "id": 37928694045,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T12:14:03Z",
-      "updated_at": "2026-10-09T12:14:08Z",
+      "updated_at": "2026-10-09T12:28:41Z",
       "run_started_at": "2026-10-09T12:14:03Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928694045",
       "run_number": 1645,
       "display_title": "中文源出片 · ly-1009-6b7872"
     },
-    "ly-1009-1f5280": {
-      "id": 37928669340,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T12:13:50Z",
-      "updated_at": "2026-10-09T12:27:14Z",
-      "run_started_at": "2026-10-09T12:13:50Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928669340",
-      "run_number": 1643,
-      "display_title": "中文源出片 · ly-1009-1f5280"
-    },
     "ly-1009-4daf81": {
       "id": 37928658211,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T12:13:43Z",
-      "updated_at": "2026-10-09T12:13:48Z",
+      "updated_at": "2026-10-09T12:29:11Z",
       "run_started_at": "2026-10-09T12:13:43Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928658211",
       "run_number": 1642,
