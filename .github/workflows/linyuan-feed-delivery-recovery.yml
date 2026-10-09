@@ -1,0 +1,55 @@
+name: 补齐漏归档封面并复验真实成片
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-feed-delivery-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: linyuan-feed-delivery-recovery-32e054
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装完整复验依赖与回归
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -q pytest pillow jieba numpy requests 'opencv-python-headless<5'
+          python -m pytest -q tests/test_linyuan_feed_delivery.py tests/test_linyuan_batch_isolation.py tests/test_linyuan_subtitle_edit_delivery.py tests/test_linyuan_source_supply.py
+      - name: 确认精确原始交付来源
+        run: |
+          gh api repos/${{ github.repository }}/actions/artifacts/11589227435 | python -c 'import json,sys; d=json.load(sys.stdin); assert d["name"]=="deliver-ly-1006-32e054" and d["workflow_run"]["id"]==37865193167 and not d["expired"]'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 37865193167
+          artifact-ids: '11589227435'
+          path: /tmp/feed-delivery-32e054
+          merge-multiple: true
+      - name: 仅补确定性裁切图，保留原片字幕和全部原始证据
+        run: python linyuan/repair_feed_delivery.py --directory /tmp/feed-delivery-32e054
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deliver-ly-1006-32e054
+          path: /tmp/feed-delivery-32e054/_accepted/
+          retention-days: 90
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: feed-delivery-recovery-proof
+          path: /tmp/feed-delivery-32e054/recovery-report.json
+          if-no-files-found: ignore
+      - name: 更新实际库存并按既有配额补发布位
+        run: gh workflow run linyuan-source-inventory.yml --ref main
