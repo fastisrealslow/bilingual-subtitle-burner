@@ -6186,7 +6186,7 @@ def main():
     # 默认所有日常片遵循同一个2～3分钟完整观点目标；不按字幕数量强行拉长某条。
     mid_idx = None
 
-    from batch_delivery import quarantine_part, write_json
+    from batch_delivery import quarantine_part, write_json, organize_interview_series
     retry_parts=None
     if args.only_reviewed_parts:
         if curated is None or not re.fullmatch(r'[1-9][0-9]*(,[1-9][0-9]*)*',args.only_reviewed_parts):
@@ -6202,7 +6202,7 @@ def main():
     part_attempts = []
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
-    def checkpoint():
+    def checkpoint(complete=False):
         rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
                  "occasion": args.occasion, **m,
                  **({'source_context': source_context} if source_context else {}),
@@ -6222,6 +6222,12 @@ def main():
                  "text_backend": TEXT_BACKEND,
                  "generated_at": datetime.now().isoformat(timespec="seconds")}
                 for m in metas]
+        rows, series = organize_interview_series(rows,
+            source_duration=float(source_report.get('duration_sec') or cues[-1]['end']),
+            complete=complete,
+            selective_retry=retry_parts is not None)
+        if series:
+            write_json(out / 'interview_series.json', series)
         if rows:
             write_json(out / "meta.json", rows[0] if len(rows) == 1 else rows)
         live = sum(m.get("render_mode") != "audio_card" for m in metas)
@@ -6347,7 +6353,7 @@ def main():
             full_meta["content_type"] = "full_interview"
             metas.append(full_meta)
 
-    checkpoint()
+    checkpoint(complete=True)
     if not metas:
         print("❌ 本素材没有通过全部门禁的成片，换下一个候选", file=sys.stderr)
         return 2 if rejected else 1
