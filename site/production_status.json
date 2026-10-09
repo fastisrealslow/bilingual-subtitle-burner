@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791548170,
+  "updated_at": 1791548257,
   "inventory_updated_at": 1791548168,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791548170,
+    "updated_at": 1791548256,
     "records": 8996,
     "video_records": 7622,
     "initial_candidates": 71,
@@ -199,15 +199,15 @@
   },
   "counts": {
     "complete": 107,
-    "failed": 857,
+    "failed": 858,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 3,
-    "retry_queued": 6,
+    "retry_queued": 5,
     "ready": 3,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -17841,24 +17841,6 @@
       "run_updated_at": "2026-10-09T11:39:44Z"
     },
     {
-      "slug": "ly-1009-da0ea6",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791546146,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791548160,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37925386921,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925386921",
-      "run_started_at": "2026-10-09T11:42:25Z",
-      "run_updated_at": "2026-10-09T11:45:26Z"
-    },
-    {
       "slug": "ly-1009-441792",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们做到买入，你要投重手的话，从投很手的话，一定这个择时非常重要。\", \"suspect_quote\": \"从投很手的话\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将口语或口误“投重手”识别为错别字“投很手”，导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"二零零几年我并没有在这上面投重手，到二零一五年才开始重投老龄化，因为人生病他是越老越生病的，这个老年人口，比如说七十岁以上的，在急剧增加的话，他你才能投，年轻人他他不投的，他他不生病，他对这个没有认识的，是吧？\", \"suspect_quote\": \"二零零几年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，需确认是指\"}]",
@@ -18094,11 +18076,11 @@
     },
     {
       "slug": "ly-1009-373143",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 400 < 480（718x400），画质不达标",
       "signature": {
         "ts": 1791548057,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18109,6 +18091,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37928718997",
       "run_started_at": "2026-10-09T12:14:17Z",
       "run_updated_at": "2026-10-09T12:15:42Z"
+    },
+    {
+      "slug": "ly-1009-da0ea6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791548219,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37929008710,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37929008710",
+      "run_started_at": "2026-10-09T12:16:59Z",
+      "run_updated_at": "2026-10-09T12:17:03Z"
     }
   ],
   "runs": {
@@ -24515,14 +24515,14 @@
       "display_title": "中文源出片 · ly-1009-b60450"
     },
     "ly-1009-da0ea6": {
-      "id": 37925386921,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T11:42:25Z",
-      "updated_at": "2026-10-09T11:45:26Z",
-      "run_started_at": "2026-10-09T11:42:25Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925386921",
-      "run_number": 1633,
+      "id": 37929008710,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:16:59Z",
+      "updated_at": "2026-10-09T12:17:03Z",
+      "run_started_at": "2026-10-09T12:16:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37929008710",
+      "run_number": 1648,
       "display_title": "中文源出片 · ly-1009-da0ea6"
     },
     "ly-1009-36a3d1": {
