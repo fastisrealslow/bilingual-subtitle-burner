@@ -1,0 +1,115 @@
+name: 旧在途成片封面补件与完整复验
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/linyuan-feed-companion-watch.yml']
+  workflow_run:
+    workflows: ['中文源出片']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: '需要核对的原始主线出片运行 ID'
+        default: '37879883325'
+        type: string
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: feed-companion-${{ github.event.workflow_run.id || inputs.run_id || '37879883325' }}
+  cancel-in-progress: false
+jobs:
+  recover:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ORIGIN_RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id || '37879883325' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证主线出片来源及精确交付包
+        id: origin
+        run: |
+          python - <<'PY'
+          import json,os,re,subprocess
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/'+path],text=True))
+          ident=os.environ['ORIGIN_RUN_ID']
+          assert ident.isdigit() and int(ident)>0
+          run=api('actions/runs/'+ident)
+          assert run['head_branch']=='main' and run['status']=='completed'
+          assert run['path']=='.github/workflows/linyuan-produce-cn.yml'
+          assert run['head_repository']['full_name']==os.environ['GITHUB_REPOSITORY']
+          match=re.fullmatch(r'中文源出片 · (ly-[a-zA-Z0-9-]+)',run['display_title'])
+          assert match,'Unknown production run name'
+          slug=match.group(1)
+          old_archive=api('contents/linyuan/batch_delivery.py?ref='+run['head_sha'])
+          current_archive=subprocess.check_output(['git','rev-parse','HEAD:linyuan/batch_delivery.py'],text=True).strip()
+          # New producers already carry the permanent archive fix. Do not
+          # download/revalidate their full bundles in this temporary old-run
+          # recovery path; normal source inventory does that inspection.
+          rows=(api('actions/runs/'+ident+'/artifacts?per_page=100')['artifacts']
+                if old_archive['sha']!=current_archive else [])
+          rows=[a for a in rows if a['name']=='deliver-'+slug and not a['expired'] and 0<a['size_in_bytes']<1024**3]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('available='+str(bool(rows)).lower()+'\n')
+              if rows:
+                  artifact=max(rows,key=lambda a:a['id'])
+                  assert artifact['workflow_run']['id']==int(ident)
+                  output.write('slug='+slug+'\nartifact_id='+str(artifact['id'])+'\n')
+          print('Exact accepted delivery found' if rows else 'No accepted delivery; no recovery or re-upload')
+          PY
+      - name: 安装实际文件复验依赖
+        if: steps.origin.outputs.available == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -q pytest pillow jieba numpy requests 'opencv-python-headless<5'
+          python -m pytest -q tests/test_linyuan_feed_companion_recovery.py tests/test_linyuan_feed_delivery.py tests/test_linyuan_artifact_range.py
+      - uses: actions/download-artifact@v4
+        if: steps.origin.outputs.available == 'true'
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.ORIGIN_RUN_ID }}
+          artifact-ids: ${{ steps.origin.outputs.artifact_id }}
+          path: /tmp/feed-companion-delivery
+          merge-multiple: true
+      - name: 只恢复漏件并完整复验，不改变原片字幕及证明
+        if: steps.origin.outputs.available == 'true'
+        id: repair
+        env:
+          DELIVERY_SLUG: ${{ steps.origin.outputs.slug }}
+          DELIVERY_ARTIFACT_ID: ${{ steps.origin.outputs.artifact_id }}
+        run: |
+          python - <<'PY'
+          import json,os,sys
+          sys.path.insert(0,'linyuan')
+          from recover_feed_companions import repair
+          result=repair('/tmp/feed-companion-delivery',os.environ['DELIVERY_SLUG'],
+              int(os.environ['ORIGIN_RUN_ID']),int(os.environ['DELIVERY_ARTIFACT_ID']))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('changed='+str(result['changed']).lower()+'\n')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.repair.outputs.changed == 'true'
+        with:
+          name: deliver-${{ steps.origin.outputs.slug }}
+          path: /tmp/feed-companion-delivery/_accepted/
+          retention-days: 90
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.origin.outputs.available == 'true'
+        with:
+          name: feed-companion-recovery-proof
+          path: /tmp/feed-companion-delivery/recovery-report.json
+          if-no-files-found: ignore
+      - name: 更新真实库存，仍按现有配额与去重发布
+        if: steps.repair.outputs.changed == 'true'
+        run: gh workflow run linyuan-source-inventory.yml --ref main
