@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791539287,
+  "updated_at": 1791539371,
   "inventory_updated_at": 1791539286,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791539287,
+    "updated_at": 1791539371,
     "records": 8996,
     "video_records": 7622,
     "initial_candidates": 102,
@@ -447,11 +447,11 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 829,
+    "failed": 830,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 2,
     "ready": 2,
     "retry_queued": 7,
@@ -17676,11 +17676,11 @@
     },
     {
       "slug": "ly-1009-c5d503",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那站在目前这个时间点，以目前的这个呃价格位置啊，我们认为整体来说，呃，首先第一个相对来说老登资产，我认为绝对是不输于啊所谓的这个呃，危机上游的这些小登资产啊。\", \"suspect_quote\": \"老登资产\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“小登”及发音习惯，应为“老登（Old Money/传统）”与“小登（New Money/科技）”的对比，但“老登”在中文语境下通常指代不雅词汇，此处极大概率是语音转文字将“老钱”或特定术语误识别为“\"}]",
       "signature": {
         "ts": 1791538273,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
