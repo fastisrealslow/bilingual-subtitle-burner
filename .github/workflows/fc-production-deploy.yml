@@ -119,7 +119,7 @@ jobs:
           import sys
           sys.path.insert(0,'linyuan')
           from reuse_title_verification import merge_reports
-          rows=merge_reports('/tmp/title-cases','/tmp/title-combined')
+          rows=merge_reports('/tmp/title-cases','/tmp/title-combined',model='qwen3.5:9b')
           print('Both real CPU cases passed:',[r['fixture'] for r in rows])
           PY
       - uses: actions/upload-artifact@v4

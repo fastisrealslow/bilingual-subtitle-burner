@@ -128,20 +128,27 @@ def test_model_must_match_actual_cpu_response_evidence(tmp_path):
     with pytest.raises(ValueError,match='model differs'):reuse.model_evidence(tmp_path,'qwen3.5:9b')
 
 
-def test_parallel_cases_require_both_passes_and_consistent_real_responses(tmp_path):
+@pytest.mark.parametrize('model',['qwen3:8b','qwen3.5:9b'])
+def test_parallel_cases_require_both_passes_and_consistent_real_responses(tmp_path,model):
     rows=fixture_rows()
     source=tmp_path/'cases';output=tmp_path/'combined'
     for i,row in enumerate(rows):
         folder=source/str(i);cache=folder/'linyuan/.llm_cache';cache.mkdir(parents=True)
         (folder/'title-claim-verification.json').write_text(json.dumps([row]))
-        (cache/f'response-{i}.json').write_text(json.dumps(dict(backend='local',model='qwen3:8b',content='unit-test raw response')))
-    assert reuse.merge_reports(source,output,ROOT)==rows
+        (cache/f'response-{i}.json').write_text(json.dumps(dict(backend='local',model=model,content='unit-test raw response')))
+    assert reuse.merge_reports(source,output,ROOT,model=model)==rows
     assert len(list((output/'linyuan/.llm_cache').glob('*.json')))==2
     second=source/'1/title-claim-verification.json'
     second.unlink()
-    with pytest.raises(ValueError,match='Both exact'):reuse.merge_reports(source,output,ROOT)
+    with pytest.raises(ValueError,match='Both exact'):reuse.merge_reports(source,output,ROOT,model=model)
     second.write_text(json.dumps([{**rows[1],'passed':False}]))
-    with pytest.raises(ValueError,match='validated title'):reuse.merge_reports(source,output,ROOT)
+    with pytest.raises(ValueError,match='validated title'):reuse.merge_reports(source,output,ROOT,model=model)
+
+
+def test_production_aggregation_requests_the_same_model_as_both_real_cases():
+    workflow=(ROOT/'.github/workflows/fc-production-deploy.yml').read_text()
+    assert workflow.count('local_text_model: qwen3.5:9b')==2
+    assert "merge_reports('/tmp/title-cases','/tmp/title-combined',model='qwen3.5:9b')" in workflow
 
 
 def test_increased_job_wall_clock_preserves_evidence_but_request_budget_does_not():
