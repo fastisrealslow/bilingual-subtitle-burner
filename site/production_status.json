@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791547015,
+  "updated_at": 1791547105,
   "inventory_updated_at": 1791547014,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 12,
-    "waiting_candidates": 23,
+    "active_or_recovering_sources": 13,
+    "waiting_candidates": 22,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791547014,
+    "updated_at": 1791547105,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 78,
-    "duration_eligible_records": 23,
-    "candidate_count": 23,
-    "known_duration_candidates": 21,
+    "initial_candidates": 77,
+    "duration_eligible_records": 22,
+    "candidate_count": 22,
+    "known_duration_candidates": 20,
     "unknown_duration_candidates": 2,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1156,
+      "already_attempted_or_cooling": 1157,
       "speaker_unconfirmed": 5136,
       "clip_title": 1068,
       "unrelated": 62,
@@ -70,14 +70,6 @@
         "author": "第一财经",
         "url": "https://www.yicai.com/video/102348707.html",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1fZv4BcEqP",
-        "title": "林园 P1 酒赚了上百倍的林园谈：当下白酒股究竟能不能投资？ #投資 #股市 #白酒投资 #茅台 #A股 #财经 #财商",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1fZv4BcEqP",
-        "duration_sec": 153.0
       },
       {
         "key": "bilibili_search:BV1cduj6GEHG",
@@ -255,15 +247,15 @@
   },
   "counts": {
     "complete": 107,
-    "failed": 850,
+    "failed": 851,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 3,
     "retry_queued": 6,
     "ready": 3,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18024,11 +18016,11 @@
     },
     {
       "slug": "ly-1009-ecaa96",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标",
       "signature": {
         "ts": 1791546903,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18039,6 +18031,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926686810",
       "run_started_at": "2026-10-09T11:55:03Z",
       "run_updated_at": "2026-10-09T11:56:18Z"
+    },
+    {
+      "slug": "ly-1009-5ca13a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791547067,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37926971524,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926971524",
+      "run_started_at": "2026-10-09T11:57:47Z",
+      "run_updated_at": "2026-10-09T11:57:50Z"
     }
   ],
   "runs": {
@@ -24509,6 +24519,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926686810",
       "run_number": 1640,
       "display_title": "中文源出片 · ly-1009-ecaa96"
+    },
+    "ly-1009-5ca13a": {
+      "id": 37926971524,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T11:57:47Z",
+      "updated_at": "2026-10-09T11:57:50Z",
+      "run_started_at": "2026-10-09T11:57:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37926971524",
+      "run_number": 1641,
+      "display_title": "中文源出片 · ly-1009-5ca13a"
     },
     "ly-1009-2942b8": {
       "id": 37926676236,
