@@ -49,7 +49,15 @@ def archive_accepted(out, slug):
                         or not name.endswith('.json') or not (out/name).is_file()):
                     raise ValueError(f'Invalid/missing subtitle edit proof: {name}')
                 names.add(name)
-        thumb = (row.get('cover_proof') or {}).get('thumbnail')
+        cover_proof = row.get('cover_proof') or {}
+        if cover_proof.get('feed_safe_crop') is not None:
+            feed = cover_proof.get('feed_square')
+            if (not isinstance(feed, str) or Path(feed).name != feed
+                    or not feed.endswith('.jpg') or (out / feed).is_symlink()
+                    or not (out / feed).is_file()):
+                raise ValueError(f'Invalid/missing accepted feed square: {feed}')
+            names.add(feed)
+        thumb = cover_proof.get('thumbnail')
         if thumb and Path(thumb).name == thumb:
             names.add(thumb)
     delivery = out / '_accepted'
