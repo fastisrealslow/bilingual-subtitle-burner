@@ -6,11 +6,16 @@ def sentences(text):
     return re.findall(r'[^。！？!?]+[。！？!?]?',text)
 
 
-def schema(units):
+def schema(units, claim_excluded=()):
     indices=[-1,*range(len(units))]
     span={'type':'array','items':{'type':'integer','enum':indices},'minItems':2,'maxItems':2}
     return {
-        'claim_range':span,'reasoning_range':span,'conclusion_range':span,
+        # Exclusion is not guest attribution or approval. It only prevents a
+        # model from picking an explicit host question as either claim endpoint;
+        # the bound full range still requires the independent review below.
+        'claim_range':{'type':'array','items':{'type':'integer',
+            'enum':[i for i in indices if i not in claim_excluded]},'minItems':2,'maxItems':2},
+        'reasoning_range':span,'conclusion_range':span,
         'summary':{'type':'string','minLength':1,'maxLength':100},
         'completeness_reason':{'type':'string','minLength':1,'maxLength':250},
         'audio_issues':{'type':'array','maxItems':8,'items':{

@@ -6,7 +6,7 @@ from pathlib import Path
 from editorial_evidence import sentences
 from editorial_policy import text_digest
 
-VERSION = 3
+VERSION = 4
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 
@@ -77,7 +77,7 @@ def review(text, speaker, model, call, path):
                 raise ValueError('Missing source issue list')
             if not isinstance(data.get('explanation'),str) or not data['explanation'].strip():
                 raise ValueError('Missing text-review explanation')
-            bound=[];ignored=[]
+            bound=[];ignored=[];invalid=[]
             for item in data['issues']:
                 ident=item.get('sentence_id');reason=item.get('reason');quote=item.get('suspect_quote')
                 if (type(ident) is not int or not 0<=ident<len(units)
@@ -90,10 +90,17 @@ def review(text, speaker, model, call, path):
                     ignored.append({**evidence,'ignored_reason':'ordinary_disfluency_not_asr_error'})
                     continue
                 if item['kind']=='ambiguous_number_or_negation' and not CRITICAL_TOKEN.search(quote):
-                    raise ValueError('数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类')
+                    invalid.append({**evidence,'invalid_reason':
+                        '数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类'})
+                    continue
                 bound.append(evidence)
+            # Retain valid negative evidence even when an extra issue is
+            # misclassified. This NEVER creates a pass: an invalid-only result
+            # must still be retried/fail closed. Valid issues remain blockers.
+            if invalid and not bound:
+                raise ValueError(invalid[0]['invalid_reason'])
             proof={**identity,'issues':bound,'ignored_style_objections':ignored,'passed':not bound,'explanation':data['explanation'],
-                   'audio_verified':False,'method':'independent_cpu_text_plausibility'}
+                   'invalid_issue_evidence':invalid,'audio_verified':False,'method':'independent_cpu_text_plausibility'}
             path.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
             return proof
         except (ValueError,TypeError,AttributeError) as exc:

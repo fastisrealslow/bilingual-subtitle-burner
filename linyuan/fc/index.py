@@ -2892,6 +2892,24 @@ def artifact_cover_error(meta, directory):
     return cover_quality_error(proof)
 
 
+def apply_inspected_delivery_index(arts, art_ids, records):
+    """The fresh inspected index is canonical even for non-producer repairs.
+
+    The caller has verified inventory freshness/version. Every selected ZIP
+    still goes through actual media/subtitle/cover gates before publication.
+    Keeping a producer run's older ZIP shadowed a repaired delivery artifact.
+    Rejected but present records also remain visible to avoid false missing-file
+    retries; this helper never upgrades an inspection verdict.
+    """
+    for record in records:
+        if not inventory_record_current(record):
+            continue
+        slug = record['slug']
+        aid = int(record['artifact_id'])
+        arts[slug] = API + f'/actions/artifacts/{aid}/zip'
+        art_ids[slug] = aid
+
+
 def daily_mix_error(meta, daily):
     """The extra landscape slot preserves the current live-footage-only policy."""
     if meta.get("render_mode") in {"live_video_card", "stage_context", "direct", "delogo", "crop", "crop_delogo"}:
@@ -3160,6 +3178,10 @@ def _recover_changed_production_rule(st, candidate, run):
            ('transcript-review-model-v3',('独立文字识别疑点审核不可用',
                     '原始ASR存在影响理解的疑点，禁止猜改后发布'),
             ('linyuan/transcript_audit.py','.github/workflows/linyuan-produce-cn.yml')),
+           ('transcript-valid-negatives-v4',('独立文字识别疑点审核不可用',),
+            ('linyuan/transcript_audit.py',)),
+           ('editorial-claim-range-v10',('观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问',),
+            ('linyuan/produce_cn.py','linyuan/editorial_evidence.py')),
            ('caption-source-clock-v5',('完整词句无法放入两行','意群分组',
                     '单屏跨越超过8秒','字幕时间重叠到零长度'),
             ('linyuan/caption_lines.py','linyuan/presentation.py','linyuan/produce_cn.py')),
@@ -3703,14 +3725,7 @@ def publish_handler(event=None, context=None):
             reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
             if source_inventory(st,reserve)['inventory_fresh']:
                 reserve_records=reserve.get('artifacts',[])
-                for record in reserve.get('artifacts',[]):
-                    s=record['slug']
-                    # Rejected deliveries still exist. Omitting them made old
-                    # inspected batches hit the false "6h without a file" path.
-                    if s not in arts and inventory_record_current(record):
-                        aid=int(record['artifact_id'])
-                        arts[s]=API+f'/actions/artifacts/{aid}/zip'
-                        art_ids[s]=aid
+                apply_inspected_delivery_index(arts,art_ids,reserve_records)
         except Exception as exc:
             log.warning('Reserve artifact index unavailable: %s',type(exc).__name__)
 
