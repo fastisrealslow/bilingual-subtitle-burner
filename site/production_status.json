@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791513602,
+  "updated_at": 1791513695,
   "inventory_updated_at": 1791513602,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791513602,
+    "updated_at": 1791513695,
     "records": 8857,
     "video_records": 7485,
     "initial_candidates": 97,
@@ -56,6 +56,14 @@
     },
     "candidates": [
       {
+        "key": "weibo_search:5349649029792988",
+        "title": "林园北大演讲：当前股市就是弯腰捡钱的时候！[鲜花][鲜花][祈祷][祈祷]",
+        "source": "weibo_search",
+        "author": "莒人莒味和合发展",
+        "url": "https://m.weibo.cn/detail/5349649029792988",
+        "duration_sec": 2161.0
+      },
+      {
         "key": "weibo_search:5344755190071555",
         "title": "2026.09.16 林园最新采访！#一分钟精选视频扶持计划##圣叹财经# http://t.cn/AXOpkpiG ​",
         "source": "weibo_search",
@@ -70,14 +78,6 @@
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5340407286466586",
         "duration_sec": 619.0
-      },
-      {
-        "key": "weibo_search:5349649029792988",
-        "title": "林园北大演讲：当前股市就是弯腰捡钱的时候！[鲜花][鲜花][祈祷][祈祷]",
-        "source": "weibo_search",
-        "author": "莒人莒味和合发展",
-        "url": "https://m.weibo.cn/detail/5349649029792988",
-        "duration_sec": 2161.0
       },
       {
         "key": "weibo_search:5343533348425733",
@@ -407,14 +407,13 @@
   },
   "counts": {
     "complete": 104,
-    "failed": 808,
+    "failed": 809,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 2,
-    "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -16968,24 +16967,6 @@
       "run_updated_at": "2026-10-09T02:03:32Z"
     },
     {
-      "slug": "ly-1009-39fcf2",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791505892,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791513644,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37865223353,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37865223353",
-      "run_started_at": "2026-10-09T00:31:32Z",
-      "run_updated_at": "2026-10-09T02:23:50Z"
-    },
-    {
       "slug": "ly-1009-c31f09",
       "status": "failed",
       "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
@@ -17113,11 +17094,11 @@
     },
     {
       "slug": "ly-1009-8779fe",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/259，总帧数1294；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1791509596,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17182,6 +17163,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37874556437",
       "run_started_at": "2026-10-09T02:26:06Z",
       "run_updated_at": "2026-10-09T02:26:11Z"
+    },
+    {
+      "slug": "ly-1009-39fcf2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791513653,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37875716838,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37875716838",
+      "run_started_at": "2026-10-09T02:40:52Z",
+      "run_updated_at": "2026-10-09T02:40:57Z"
     }
   ],
   "runs": {
@@ -23016,15 +23015,26 @@
       "display_title": "中文源出片 · ly-1009-215dd7"
     },
     "ly-1009-39fcf2": {
-      "id": 37865223353,
+      "id": 37875716838,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T02:40:52Z",
+      "updated_at": "2026-10-09T02:40:57Z",
+      "run_started_at": "2026-10-09T02:40:52Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37875716838",
+      "run_number": 1558,
+      "display_title": "中文源出片 · ly-1009-39fcf2"
+    },
+    "ly-1009-8779fe": {
+      "id": 37870330898,
       "status": "completed",
       "conclusion": "failure",
-      "created_at": "2026-10-09T00:31:32Z",
-      "updated_at": "2026-10-09T02:23:50Z",
-      "run_started_at": "2026-10-09T00:31:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37865223353",
-      "run_number": 1545,
-      "display_title": "中文源出片 · ly-1009-39fcf2"
+      "created_at": "2026-10-09T01:33:16Z",
+      "updated_at": "2026-10-09T02:38:38Z",
+      "run_started_at": "2026-10-09T01:33:16Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37870330898",
+      "run_number": 1554,
+      "display_title": "中文源出片 · ly-1009-8779fe"
     },
     "ly-1009-0d1824": {
       "id": 37874556437,
@@ -23058,17 +23068,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37870750731",
       "run_number": 1555,
       "display_title": "中文源出片 · ly-1009-0adba2"
-    },
-    "ly-1009-8779fe": {
-      "id": 37870330898,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T01:33:16Z",
-      "updated_at": "2026-10-09T02:38:38Z",
-      "run_started_at": "2026-10-09T01:33:16Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37870330898",
-      "run_number": 1554,
-      "display_title": "中文源出片 · ly-1009-8779fe"
     },
     "ly-1009-70e7b5": {
       "id": 37869767004,
