@@ -21928,7 +21928,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV13piKBbEDa",
@@ -21979,7 +21980,11 @@
    "delay_hours": 0,
    "source": "bilibili_series",
    "author": "投资就是滚雪球",
-   "publish_time": "2025-12-29T20:57:20+00:00"
+   "publish_time": "2025-12-29T20:57:20+00:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"有没有可能我们出现像美股一样的卖空或者场友？\", \"suspect_quote\": \"卖空或者场友\", \"kind\": \"unintelligible_term\", \"reason\": \"“场友”在金融语境下无明确含义，疑似将“场外”或特定术语误识别为同音词“场友”，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 6, \"quote\": \"这是国际市场的规律，几十年不涨，一两年就把几十年的涨。\", \"suspect_quote\": \"几十年不涨，一两年就把几十年的涨\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"后半句“把几十年的涨”存在语法残缺和指代不明，“涨”后缺少宾语（如“涨幅”或“行情”），导致关键数字描述含义不清，属于含义不明的关键数字表达。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1rXBoBoEg2",
@@ -21996,7 +22001,11 @@
    "delay_hours": 0,
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
-   "publish_time": "2025-12-26T01:46:01+00:00"
+   "publish_time": "2025-12-26T01:46:01+00:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -71169,6 +71178,20 @@
    "video_id": "BV1cduj6GEHG",
    "ts": 1791549025,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"对对对，啊，我就说葛朗台还还还倒不了币，那些那些最后都不能给投资者带来好的效益。\", \"suspect_quote\": \"葛朗台还还还倒不了币\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘倒不了币’疑似为识别错误，结合上下文语境（讨论企业效益、压价导致无利可图），‘币’字在金融或商业口语中无明确指代，极可能是‘钱’、‘利润’或‘生意’的误识；同时‘还还还’虽属口吃重复，但紧随其后的‘倒不了币’构成含义不明的否定短语，\"}]"
+  },
+  {
+   "slug": "ly-1009-d70ee7",
+   "key": "bilibili_search:BV1rXBoBoEg2",
+   "video_id": "BV1rXBoBoEg2",
+   "ts": 1791549894,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1009-389a34",
+   "key": "bilibili_search:BV1dAvtBoEmQ",
+   "video_id": "BV1dAvtBoEmQ",
+   "ts": 1791549895,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"有没有可能我们出现像美股一样的卖空或者场友？\", \"suspect_quote\": \"卖空或者场友\", \"kind\": \"unintelligible_term\", \"reason\": \"“场友”在金融语境下无明确含义，疑似将“场外”或特定术语误识别为同音词“场友”，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 6, \"quote\": \"这是国际市场的规律，几十年不涨，一两年就把几十年的涨。\", \"suspect_quote\": \"几十年不涨，一两年就把几十年的涨\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"后半句“把几十年的涨”存在语法残缺和指代不明，“涨”后缺少宾语（如“涨幅”或“行情”），导致关键数字描述含义不清，属于含义不明的关键数字表达。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
