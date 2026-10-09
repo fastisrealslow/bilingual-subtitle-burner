@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1791573118,
-  "inventory_updated_at": 1791572981,
+  "updated_at": 1791573827,
+  "inventory_updated_at": 1791573823,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 8,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 0,
+    "verified_daily_stock": 9,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 8,
-      "minimum_week_shortfall": 6,
-      "preferred_week_shortfall": 13,
-      "reserve_shortfall": 4,
+      "verified_stock_snapshot": 9,
+      "minimum_week_shortfall": 5,
+      "preferred_week_shortfall": 12,
+      "reserve_shortfall": 3,
       "dates": [
         "2026-10-10",
         "2026-10-11",
@@ -33,38 +33,47 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791573117,
-    "records": 9187,
-    "video_records": 7810,
-    "initial_candidates": 55,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1791573827,
+    "records": 9236,
+    "video_records": 7859,
+    "initial_candidates": 57,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1377,
-      "speaker_unconfirmed": 5289,
+      "speaker_unconfirmed": 5336,
       "clip_title": 1080,
       "already_attempted_or_cooling": 1201,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
       "reference_only": 72,
-      "over_limit": 21,
+      "over_limit": 22,
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1MddMBVELr",
+        "title": "林园：中药龙头万亿市值可期",
+        "source": "bilibili_search",
+        "author": "有竞争就有风险",
+        "url": "https://www.bilibili.com/video/BV1MddMBVELr",
+        "duration_sec": 615.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 8,
+    "verified_live": 9,
     "verified_audio_card": 0,
-    "verified_landscape": 8,
+    "verified_landscape": 9,
     "verified_portrait": 0,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 8,
+    "daily_mix_usable": 9,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -76,9 +85,9 @@
     "awaiting_validation": 1,
     "interrupted": 2,
     "excluded": 3,
-    "ready": 5,
+    "ready": 6,
     "retry_queued": 1,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -18541,8 +18550,8 @@
     },
     {
       "slug": "ly-1009-589052",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1791569328,
         "failed": null,
@@ -18555,7 +18564,7 @@
       "run_id": 37971236752,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37971236752",
       "run_started_at": "2026-10-09T18:08:47Z",
-      "run_updated_at": "2026-10-09T18:08:52Z"
+      "run_updated_at": "2026-10-09T19:22:20Z"
     },
     {
       "slug": "ly-1009-0c0721",
@@ -25614,10 +25623,10 @@
     },
     "ly-1009-589052": {
       "id": 37971236752,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-09T18:08:47Z",
-      "updated_at": "2026-10-09T18:08:52Z",
+      "updated_at": "2026-10-09T19:22:20Z",
       "run_started_at": "2026-10-09T18:08:47Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37971236752",
       "run_number": 1706,
