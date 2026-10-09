@@ -138,6 +138,14 @@ class Source(ABC):
     def __init__(self, config, state):
         self.config = config
         self.state = state.setdefault(self.name, {})
+        self.scan_state = state.setdefault('_seed_scan', {})
+        self.partial_items = []
+
+    def seed_batch(self, values, limit, key=lambda value: str(value)):
+        from seed_scan import rotating_batch
+        path = self.config.get('_seed_scan_path')
+        return rotating_batch(self.name, values, path,
+                              self.config.get('seed_batch_size', limit), key, state=self.scan_state)
 
     def can_fetch(self):
         last = self.state.get("last_fetch", 0)
@@ -253,6 +261,9 @@ class BilibiliSearchSource(Source):
                 raise RuntimeError(
                     f"B站 API page={page_no} code={data.get('code')} "
                     f"{data.get('message')}")
+            payload = data.get('data')
+            if not isinstance(payload, dict) or not isinstance(payload.get('result'), list):
+                raise RuntimeError('B站搜索没有真实结果列表（验证响应或接口暂不可用）')
             for v in (data.get("data", {}).get("result") or []):
                 bvid = v.get("bvid")
                 if not bvid or bvid in seen:
@@ -280,7 +291,7 @@ class BilibiliSearchSource(Source):
         keywords = list(dict.fromkeys(str(k).strip() for k in keywords if str(k).strip()))
         raw_items = []
         seen, errors = set(), []
-        for search_keyword in keywords:
+        for search_keyword in self.seed_batch(keywords, 5):
             try:
                 for item in self._fetch_via_api(search_keyword):
                     bvid = item.get("bvid")
@@ -369,8 +380,11 @@ class BilibiliCollectionSource(Source):
     min_interval = 6 * 3600
 
     def fetch(self, page):
-        items = []
-        for seed in self.config.get("seeds", []):
+        items = self.partial_items
+        seeds = list(self.config.get('seeds', []))
+        if self.config.get('seeds_file'):
+            seeds.extend(json.loads(Path(__file__).with_name(self.config['seeds_file']).read_text())['seeds'])
+        for seed in self.seed_batch(seeds, 24, key=lambda seed: seed['bvid']):
             bvid = seed["bvid"]
             try:
                 try:
@@ -416,6 +430,27 @@ class BilibiliCollectionSource(Source):
             except Exception as exc:
                 print(f"[{self.name}] {bvid} 元数据失败，保留已有目录: {exc}", file=sys.stderr)
         return items
+
+
+class BilibiliSeriesSource(Source):
+    """Live uploader series supplement search; never infer authors from the parent."""
+    name = 'bilibili_series'
+    min_interval = 1800
+
+    def fetch(self, page):
+        from bilibili_series import episode_items
+        for seed in self.seed_batch(self.config.get('seeds', []), 4, key=lambda s: s['bvid']):
+            bvid = seed['bvid']
+            try:
+                data = json.loads(http_get('https://api.bilibili.com/x/web-interface/view?bvid=' + bvid,
+                                          referer='https://www.bilibili.com/', timeout=12))
+                parent = data.get('data')
+                if data.get('code') != 0 or not isinstance(parent, dict) or parent.get('bvid') != bvid:
+                    raise ValueError('exact uploader-series identity unavailable')
+                self.partial_items.extend(episode_items(parent, duration_seconds, source_publish_time))
+            except Exception as exc:
+                print(f'[{self.name}] {bvid} 暂不可取：{type(exc).__name__}', file=sys.stderr)
+        return self.partial_items
 
 
 class BilibiliSpaceSource(Source):
@@ -804,7 +839,7 @@ class WeiboVideoSource(WeiboSearchSource):
         if not ids:return []
         rq,xsrf=self._visitor_session()
         statuses=[]
-        for mid in ids[:12]:
+        for mid in self.seed_batch(ids, 12):
             try:
                 payload=json.loads(rq('https://weibo.com/ajax/statuses/show?id='+mid,
                     {'Accept':'application/json','X-XSRF-TOKEN':xsrf,
@@ -818,6 +853,8 @@ class WeiboVideoSource(WeiboSearchSource):
                         r'虎林园|园林|林园酒店|华林园|林园景区|林园小区|林园饭店',text)):
                     continue
                 statuses.append(data)
+                self.partial_items = [row for row in self._items(statuses)
+                                      if json.loads(row['extra'])['has_video']]
             except Exception as exc:
                 print(f'[{self.name}] {mid} 暂不可取：{type(exc).__name__}',file=sys.stderr)
         return [row for row in self._items(statuses) if json.loads(row['extra'])['has_video']]
@@ -1100,8 +1137,8 @@ class DouyinVideoSource(Source):
             except Exception:
                 return False
 
-        items, seen, fresh_skip, fails = [], set(), 0, 0
-        for raw in urls[:60]:
+        items, seen, fresh_skip, fails = self.partial_items, set(), 0, 0
+        for raw in self.seed_batch(urls, 24):
             m = self.VID_RE.search(str(raw))
             if not m:
                 continue
@@ -1287,8 +1324,8 @@ class HaokanVideoSource(Source):
         if not vids:
             return []
 
-        items, seen = [], set()
-        for vid in vids[:40]:
+        items, seen = self.partial_items, set()
+        for vid in self.seed_batch(vids, 24):
             vid = str(vid).strip()
             if not vid or vid in seen:
                 continue
@@ -1362,8 +1399,8 @@ class YicaiVideoSource(Source):
                 except Exception as exc:
                     print(f"[{self.name}] 种子文件读取失败: {exc}", file=sys.stderr)
         keyword = self.config.get("keyword", "林园")
-        items, seen = [], set()
-        for article_id in ids[:50]:
+        items, seen = self.partial_items, set()
+        for article_id in self.seed_batch(ids, 24):
             article_id = str(article_id).strip()
             if not article_id or article_id in seen:
                 continue
@@ -1697,6 +1734,7 @@ SOURCES = {
     "bilibili_api": BilibiliApiSource,
     "bilibili_search": BilibiliSearchSource,
     "bilibili_collection": BilibiliCollectionSource,
+    "bilibili_series": BilibiliSeriesSource,
     "reference_origin_search": ReferenceOriginSource,
     "bilibili_space": BilibiliSpaceSource,
     "competitor_reference": CompetitorReferenceSource,
@@ -1792,6 +1830,9 @@ def _run_source(source_cls, config, state, page):
             src.mark_fetched()
             print(f"[{src.name}] 抓取成功: {len(items)} 条")
             return items
+        except SourceDeadline:
+            print(f'[{src.name}] 本轮超时，保留 {len(src.partial_items)} 条已抓取结果和轮换进度', file=sys.stderr)
+            return src.partial_items
         except Exception as e:
             print(f"[{src.name}] 抓取失败 (attempt {attempt+1}/3): {e}", file=sys.stderr)
             if attempt < 2:
@@ -1860,6 +1901,9 @@ def main(source_types=None):
         sync_playwright = None
 
     state = load_state()
+    scan_path = Path(__file__).resolve().parent / '.automation/seed_scan_state.json'
+    if scan_path.exists():
+        state['_seed_scan'] = json.loads(scan_path.read_text())
 
     config_path = Path(__file__).with_name("monitor_v2_config.json")
     if config_path.exists():
@@ -1892,7 +1936,7 @@ def main(source_types=None):
             if not src_cls:
                 print(f"未知 source type: {src_type}", file=sys.stderr)
                 continue
-            items = run_source(src_cls, cfg, state, page)
+            items = run_source(src_cls, {**cfg, '_seed_scan_path': str(scan_path)}, state, page)
             items = [it for it in items if it.get("author", "") not in BLACKLIST_AUTHORS]
             new_items = upsert_items(items)
             # A later source/job timeout must not hide already recovered videos

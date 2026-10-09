@@ -27,6 +27,7 @@ DOUYIN_SEEDS = BASE / "douyin_seeds.json"
 HAOKAN_SEEDS = BASE / "haokan_seeds.json"
 NETEASE_SEEDS = BASE / "netease_seeds.json"
 YICAI_SEEDS = BASE / "yicai_seeds.json"
+WEIBO_SEEDS = BASE / "weibo_seeds.json"
 
 DOUYIN_ID_RE = re.compile(r"(\d{15,25})")
 HAOKAN_VID_RE = re.compile(r"(\d{15,25})")
@@ -135,9 +136,24 @@ def stats():
     for kind, path, key in (("douyin", DOUYIN_SEEDS, "urls"),
                             ("haokan", HAOKAN_SEEDS, "vids"),
                             ("netease", NETEASE_SEEDS, "vcodes"),
-                            ("yicai", YICAI_SEEDS, "ids")):
+                            ("yicai", YICAI_SEEDS, "ids"),
+                            ("weibo", WEIBO_SEEDS, "urls")):
         d = _load(path, key)
-        out[kind] = {"count": len(d.get(key, [])), "updated_at": d.get("updated_at", "")}
+        values = d.get(key, [])
+        if kind == 'weibo':
+            values = [re.search(r'/(\d{10,25})/?$', value)[1] for value in values]
+        out[kind] = {"count": len(set(values)), "updated_at": d.get("updated_at", "")}
+    roots = set()
+    config_path = BASE / 'monitor_v2_config.json'
+    if config_path.exists():
+        for config in json.loads(config_path.read_text()):
+            if config.get('type') not in {'bilibili_collection', 'bilibili_series'}:
+                continue
+            roots.update(seed['bvid'] for seed in config.get('seeds', []))
+            if config.get('seeds_file'):
+                roots.update(seed['bvid'] for seed in json.loads(
+                    (BASE / config['seeds_file']).read_text())['seeds'])
+    out['bilibili'] = dict(count=len(roots), updated_at='')
     return out
 
 
@@ -149,8 +165,10 @@ def main():
     args = sys.argv[2:]
 
     if cmd == "stats":
-        for k, v in stats().items():
+        counts = stats()
+        for k, v in counts.items():
             print(f"{k:8} {v['count']:3} 个种子   更新于 {v['updated_at']}")
+        print(f"合计 {sum(v['count'] for v in counts.values())} 个独立视频种子（不含竞品参考和合集分P）")
         return 0
 
     if cmd in ("add-douyin", "add-haokan", "add-netease", "add-yicai"):
