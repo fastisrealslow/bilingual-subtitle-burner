@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791553416,
+  "updated_at": 1791553521,
   "inventory_updated_at": 1791553415,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 7,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 6,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791553416,
+    "updated_at": 1791553521,
     "records": 9120,
     "video_records": 7744,
-    "initial_candidates": 62,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 61,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 6,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1078,
       "no_video": 1376,
       "speaker_unconfirmed": 5233,
-      "already_attempted_or_cooling": 1186,
+      "already_attempted_or_cooling": 1187,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1rz1QYTEaV",
-        "title": "林园 P1 20241004股神林园直播 带你把握二十年一次的大机会",
-        "source": "bilibili_collection",
-        "author": "股海淘沙",
-        "url": "https://www.bilibili.com/video/BV1rz1QYTEaV",
-        "duration_sec": 4265.0
-      },
       {
         "key": "bilibili_search:BV1dKdLYJEW9",
         "title": "林园 P1 20250410 股神林园专访：现在是牛市的起点 改变命运就在当下！",
@@ -127,15 +119,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 886,
+    "failed": 887,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 2,
     "ready": 3,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18400,11 +18392,11 @@
     },
     {
       "slug": "ly-1009-964326",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791552271,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18433,6 +18425,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936961454",
       "run_started_at": "2026-10-09T13:27:24Z",
       "run_updated_at": "2026-10-09T13:27:28Z"
+    },
+    {
+      "slug": "ly-1009-7b820a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791553480,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37939029975,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37939029975",
+      "run_started_at": "2026-10-09T13:44:40Z",
+      "run_updated_at": "2026-10-09T13:44:44Z"
     }
   ],
   "runs": {
@@ -25212,17 +25222,6 @@
       "run_number": 1666,
       "display_title": "中文源出片 · ly-1009-f28c74"
     },
-    "ly-1009-68d5e6": {
-      "id": 37936961454,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-09T13:27:24Z",
-      "updated_at": "2026-10-09T13:27:28Z",
-      "run_started_at": "2026-10-09T13:27:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936961454",
-      "run_number": 1672,
-      "display_title": "中文源出片 · ly-1009-68d5e6"
-    },
     "ly-1009-964326": {
       "id": 37936616390,
       "status": "completed",
@@ -25233,6 +25232,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936616390",
       "run_number": 1671,
       "display_title": "中文源出片 · ly-1009-964326"
+    },
+    "ly-1009-7b820a": {
+      "id": 37939029975,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T13:44:40Z",
+      "updated_at": "2026-10-09T13:44:44Z",
+      "run_started_at": "2026-10-09T13:44:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37939029975",
+      "run_number": 1673,
+      "display_title": "中文源出片 · ly-1009-7b820a"
+    },
+    "ly-1009-68d5e6": {
+      "id": 37936961454,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T13:27:24Z",
+      "updated_at": "2026-10-09T13:27:28Z",
+      "run_started_at": "2026-10-09T13:27:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936961454",
+      "run_number": 1672,
+      "display_title": "中文源出片 · ly-1009-68d5e6"
     },
     "ly-1009-0b2da5": {
       "id": 37936603339,
