@@ -21141,7 +21141,8 @@
    "failed": true,
    "last_error": "真人动态区检出来源二维码（含裁切残留定位图案）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5339075227946001",
@@ -21184,7 +21185,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}, {\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"三点几亿、几万亿美金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘几点几’与‘几万亿’连用，数字表述模糊且跨度极大，可能影响对投资规模的具体理解\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5329606795855302",
@@ -21218,7 +21220,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "价值投资和科技股投资",
-   "publish_time": "2026-08-10T10:50:42.394611"
+   "publish_time": "2026-08-10T10:50:42.394611",
+   "failed": true,
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/461，总帧数2300；身份匹配但人脸短边不足96px的帧数461",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5343533348425733",
@@ -69309,6 +69315,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/fv46oZZ0lx08zWqpAe0o01041200ceS90E010.mp4",
    "ts": 1791540122,
    "error": "真人动态区检出来源二维码（含裁切残留定位图案）"
+  },
+  {
+   "slug": "ly-1009-b1d612",
+   "key": "weibo_search:5329612545722806",
+   "video_id": "http://f.video.weibocdn.com/o0/X1432zj2lx08zPVmXE1i01041200bssd0E010.mp4",
+   "ts": 1791540448,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/461，总帧数2300；身份匹配但人脸短边不足96px的帧数461"
   }
  ],
  "reviewed_third_video_0910": {
