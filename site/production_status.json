@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791540849,
+  "updated_at": 1791540944,
   "inventory_updated_at": 1791540847,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 12,
-    "waiting_candidates": 40,
+    "active_or_recovering_sources": 13,
+    "waiting_candidates": 39,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791540848,
+    "updated_at": 1791540944,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 95,
-    "duration_eligible_records": 40,
-    "candidate_count": 40,
+    "initial_candidates": 94,
+    "duration_eligible_records": 39,
+    "candidate_count": 39,
     "known_duration_candidates": 33,
-    "unknown_duration_candidates": 7,
+    "unknown_duration_candidates": 6,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1138,
+      "already_attempted_or_cooling": 1139,
       "speaker_unconfirmed": 5137,
       "clip_title": 1068,
       "unrelated": 62,
@@ -69,22 +69,6 @@
         "source": "yicai_video",
         "author": "第一财经",
         "url": "https://www.yicai.com/video/102348707.html",
-        "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5328002904754049",
-        "title": "林园：靠AI行业赚的钱还要还回去 #财经##经济##价值投资##林园##股票##段永平和林园# http://t.cn/",
-        "source": "weibo_search",
-        "author": "价值投资和科技股投资",
-        "url": "https://m.weibo.cn/detail/5328002904754049",
-        "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5330019641459691",
-        "title": "林园：我比马云有钱#段永平和林园# http://t.cn/AXNGALbO ​​​",
-        "source": "weibo_search",
-        "author": "价值投资和科技股投资",
-        "url": "https://m.weibo.cn/detail/5330019641459691",
         "duration_sec": 0
       },
       {
@@ -118,6 +102,14 @@
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5339060128188400",
         "duration_sec": 53.0
+      },
+      {
+        "key": "weibo_search:5330019641459691",
+        "title": "林园：我比马云有钱#段永平和林园# http://t.cn/AXNGALbO ​​​",
+        "source": "weibo_search",
+        "author": "价值投资和科技股投资",
+        "url": "https://m.weibo.cn/detail/5330019641459691",
+        "duration_sec": 0
       },
       {
         "key": "bilibili_search:BV13tu56XEDa",
@@ -391,15 +383,15 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 837,
+    "failed": 838,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 2,
     "ready": 3,
     "retry_queued": 6,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -17782,11 +17774,11 @@
     },
     {
       "slug": "ly-1009-df419d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，以前我们学过一个什么，一个小时候那篇课文，那是那个手财炉，是吧？\", \"suspect_quote\": \"手财炉\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“守财奴”误识别为无意义的“手财炉”，导致含义不明。\"}, {\"sentence_id\": 3, \"quote\": \"法国那个手财奴。\", \"suspect_quote\": \"手财奴\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“守财奴”误识别为无意义的“手财奴”，导致含义不明。\"}, {\"sentence_id\": 4, \"quote\": \"赵公齐是挣钱的，手财。\", \"suspect_quote\": \"赵公齐是挣钱的，手财\", \"kind\": \"unintelligible_term\", \"reason\": \"前半句人名“赵公齐”疑似错写（应为“赵公元帅”或特定典故人物），后半句“手财”为无意义词汇，整体无法解释。\"}, {\"sentence_id\": 7, \"quote\": \"他就是手财。\", \"suspect_quote\": \"他就是手财\", \"kind\": \"unintelligible_term\", \"reason\": \"“手财”为无意义词汇，疑似“守财奴”的误识别，导致含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"你看那个手财他，别的不说，他是他那个镇上的，还是最有钱的。\", \"suspect_quote\": \"你看那个手财他\", \"kind\": \"unintelligible_term\", \"reason\": \"“手财”为无意义词汇，疑似“守财奴”的误识别，导致含义不明。\"}, {\"sentence_id\": 10, \"quote\": \"啊，这种人很难，就是一下亏没了，因为他手啊。\", \"suspect_quote\": \"因为他手啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“手啊”疑似“守财奴”的误识别或截断，导致含义不明。\"}]",
       "signature": {
         "ts": 1791540146,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17869,6 +17861,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915991979",
       "run_started_at": "2026-10-09T10:10:48Z",
       "run_updated_at": "2026-10-09T10:10:52Z"
+    },
+    {
+      "slug": "ly-1009-cce71b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791540903,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37916430893,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37916430893",
+      "run_started_at": "2026-10-09T10:15:03Z",
+      "run_updated_at": "2026-10-09T10:15:07Z"
     }
   ],
   "runs": {
@@ -24142,6 +24152,28 @@
       "run_number": 1585,
       "display_title": "中文源出片 · ly-1009-1b8549"
     },
+    "ly-1009-df419d": {
+      "id": 37915115480,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T10:02:25Z",
+      "updated_at": "2026-10-09T10:13:02Z",
+      "run_started_at": "2026-10-09T10:02:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915115480",
+      "run_number": 1615,
+      "display_title": "中文源出片 · ly-1009-df419d"
+    },
+    "ly-1009-cce71b": {
+      "id": 37916430893,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T10:15:03Z",
+      "updated_at": "2026-10-09T10:15:07Z",
+      "run_started_at": "2026-10-09T10:15:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37916430893",
+      "run_number": 1620,
+      "display_title": "中文源出片 · ly-1009-cce71b"
+    },
     "ly-1009-4cfa94": {
       "id": 37915991979,
       "status": "in_progress",
@@ -24185,17 +24217,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915693392",
       "run_number": 1616,
       "display_title": "中文源出片 · ly-1009-88b466"
-    },
-    "ly-1009-df419d": {
-      "id": 37915115480,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T10:02:25Z",
-      "updated_at": "2026-10-09T10:13:02Z",
-      "run_started_at": "2026-10-09T10:02:25Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915115480",
-      "run_number": 1615,
-      "display_title": "中文源出片 · ly-1009-df419d"
     },
     "ly-1009-b32e4f": {
       "id": 37912325843,
