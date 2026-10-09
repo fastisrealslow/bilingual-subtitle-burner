@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791508903,
+  "updated_at": 1791508993,
   "inventory_updated_at": 1791508902,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791508902,
+    "updated_at": 1791508993,
     "records": 8857,
     "video_records": 7485,
     "initial_candidates": 102,
@@ -453,8 +453,9 @@
     "awaiting_validation": 1,
     "interrupted": 2,
     "excluded": 2,
+    "running": 4,
     "retry_queued": 1,
-    "running": 5
+    "queued": 1
   },
   "tasks": [
     {
@@ -16972,24 +16973,6 @@
       "run_updated_at": "2026-10-08T22:41:15Z"
     },
     {
-      "slug": "ly-1008-582ff1",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791505101,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791507268,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37864087642,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37864087642",
-      "run_started_at": "2026-10-09T00:18:21Z",
-      "run_updated_at": "2026-10-09T00:22:10Z"
-    },
-    {
       "slug": "ly-1006-32e054",
       "status": "validation_failed",
       "detail": "成片复验未通过：信息流方形封面验收件缺失",
@@ -17027,14 +17010,14 @@
     },
     {
       "slug": "ly-1009-0151a7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791505886,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791509827,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -17117,8 +17100,8 @@
     },
     {
       "slug": "ly-0924-f8d884",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791508364,
         "failed": false,
@@ -17131,7 +17114,7 @@
       "run_id": 37868658805,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37868658805",
       "run_started_at": "2026-10-09T01:12:43Z",
-      "run_updated_at": "2026-10-09T01:12:48Z"
+      "run_updated_at": "2026-10-09T01:22:38Z"
     },
     {
       "slug": "ly-0924-54f58d",
@@ -17150,6 +17133,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37868667263",
       "run_started_at": "2026-10-09T01:12:50Z",
       "run_updated_at": "2026-10-09T01:12:54Z"
+    },
+    {
+      "slug": "ly-1008-582ff1",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1791508954,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37869469899,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37869469899",
+      "run_started_at": "2026-10-09T01:22:34Z",
+      "run_updated_at": "2026-10-09T01:22:34Z"
     }
   ],
   "runs": {
@@ -22907,14 +22908,14 @@
       "display_title": "中文源出片 · ly-1008-d93536"
     },
     "ly-1008-582ff1": {
-      "id": 37864087642,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T00:18:21Z",
-      "updated_at": "2026-10-09T00:22:10Z",
-      "run_started_at": "2026-10-09T00:18:21Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37864087642",
-      "run_number": 1541,
+      "id": 37869469899,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-09T01:22:34Z",
+      "updated_at": "2026-10-09T01:22:34Z",
+      "run_started_at": "2026-10-09T01:22:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37869469899",
+      "run_number": 1551,
       "display_title": "中文源出片 · ly-1008-582ff1"
     },
     "ly-1009-06e831": {
@@ -22950,6 +22951,17 @@
       "run_number": 1542,
       "display_title": "中文源出片 · ly-1006-32e054"
     },
+    "ly-1009-0151a7": {
+      "id": 37865211549,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T00:31:26Z",
+      "updated_at": "2026-10-09T01:19:57Z",
+      "run_started_at": "2026-10-09T00:31:26Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37865211549",
+      "run_number": 1544,
+      "display_title": "中文源出片 · ly-1009-0151a7"
+    },
     "ly-0924-54f58d": {
       "id": 37868667263,
       "status": "in_progress",
@@ -22963,10 +22975,10 @@
     },
     "ly-0924-f8d884": {
       "id": 37868658805,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T01:12:43Z",
-      "updated_at": "2026-10-09T01:12:48Z",
+      "updated_at": "2026-10-09T01:22:38Z",
       "run_started_at": "2026-10-09T01:12:43Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37868658805",
       "run_number": 1549,
@@ -22993,17 +23005,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37865223353",
       "run_number": 1545,
       "display_title": "中文源出片 · ly-1009-39fcf2"
-    },
-    "ly-1009-0151a7": {
-      "id": 37865211549,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T00:31:26Z",
-      "updated_at": "2026-10-09T01:19:57Z",
-      "run_started_at": "2026-10-09T00:31:26Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37865211549",
-      "run_number": 1544,
-      "display_title": "中文源出片 · ly-1009-0151a7"
     },
     "ly-1009-215dd7": {
       "id": 37865204726,
