@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791538721,
+  "updated_at": 1791538807,
   "inventory_updated_at": 1791538720,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791538721,
+    "updated_at": 1791538807,
     "records": 8996,
     "video_records": 7622,
     "initial_candidates": 106,
@@ -479,11 +479,11 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 825,
+    "failed": 826,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 2,
     "ready": 2,
     "retry_queued": 7,
@@ -17654,11 +17654,11 @@
     },
     {
       "slug": "ly-1009-1356fc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"有的人是，就是现实或者也有这种，他是大钱不缺，缺小钱，他手上没现金，生活都一天都困难，是吧？\", \"suspect_quote\": \"一天都困难\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一天都困难'中'一天'可能为口语省略（如'每一天'或'一整天'），但单独出现时含义模糊，是否指具体时长或泛指需进一步确认。\"}]",
       "signature": {
         "ts": 1791537931,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
