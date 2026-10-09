@@ -21203,7 +21203,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "价值投资和科技股投资",
-   "publish_time": "2026-08-10T10:50:42.394638"
+   "publish_time": "2026-08-10T10:50:42.394638",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以对对给我们投资上造成了很大的这个。\", \"suspect_quote\": \"对对给我们投资上造成了很大的这个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键短语‘很大的这个’指代不明，属于典型的口语填充词导致语义截断，未形成完整的名词性宾语（如‘很大的困难’或‘很大的挑战’），在缺乏上下文的情况下，该处存在具体的识别疑点，无法确定其具体含义。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5329612545722806",
@@ -21224,7 +21228,8 @@
    "failed": true,
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/461，总帧数2300；身份匹配但人脸短边不足96px的帧数461",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5343533348425733",
@@ -21248,7 +21253,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5329616207353486",
@@ -69373,6 +69379,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/X1432zj2lx08zPVmXE1i01041200bssd0E010.mp4",
    "ts": 1791540448,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/461，总帧数2300；身份匹配但人脸短边不足96px的帧数461"
+  },
+  {
+   "slug": "ly-1009-a1b0d4",
+   "key": "weibo_search:5329606795855302",
+   "video_id": "http://f.video.weibocdn.com/o0/fKdEIs4tlx08zPTNHcn601041200muv70E010.mp4",
+   "ts": 1791540625,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以对对给我们投资上造成了很大的这个。\", \"suspect_quote\": \"对对给我们投资上造成了很大的这个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键短语‘很大的这个’指代不明，属于典型的口语填充词导致语义截断，未形成完整的名词性宾语（如‘很大的困难’或‘很大的挑战’），在缺乏上下文的情况下，该处存在具体的识别疑点，无法确定其具体含义。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
