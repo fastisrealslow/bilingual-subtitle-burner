@@ -21958,7 +21958,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有去没有这个。\", \"suspect_quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有\", \"kind\": \"unintelligible_term\", \"reason\": \"句子在‘它没有’处突然截断，缺少宾语或后续内容，导致语义不完整且无法解释具体指代对象。\"}, {\"sentence_id\": 3, \"quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点。\", \"suspect_quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点\", \"kind\": \"unintelligible_term\", \"reason\": \"'找到它的缺点'在投资语境下含义不明，通常应为‘优势’或‘特点’，此处‘缺点’极可能是识别错误导致的关键词污染。\"}, {\"sentence_id\": 4, \"quote\": \"啊，集产这些因素不考虑，还是需求。\", \"suspect_quote\": \"啊，集产这些因素不考虑\", \"kind\": \"unintelligible_term\", \"reason\": \"'集产'并非标准经济术语，结合上下文应为‘集采’（集中采购）的识别错误，属于关键行业词污染。\"}, {\"sentence_id\": 10, \"quote\": \"居民财富，我可以就是大概做一个判断：，所有的行业都不行，就除了老龄化，除了人口老龄化。\", \"suspect_quote\": \"居民财富，我可以就是大概做一个判断：，所有的行业\", \"kind\": \"unintelligible_term\", \"reason\": \"句中冒号后直接接‘所有的行业都不行’，但前半句‘居民财富，我可以就是大概做一个判断：'逻辑断裂，且‘所有的行业都不行’与后文‘就除了老龄化’矛盾，疑似识别时漏掉关键转折词或误将否定范围扩大。\"}, {\"sentence_id\": 14, \"quote\": \"你现在是几百，这几百万人口的下降都是，那不是少一双筷子。\", \"suspect_quote\": \"你现在是几百，这几百万人口的下降都是\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'几百'和‘这几百万’表述模糊且数值范围重叠，结合口语习惯可能指代‘几百万’的下降，但原文数字表达不精确且存在歧义，属于关键数字污染。\"}, {\"sentence_id\": 18, \"quote\": \"现在咱们的股，市，这个这个都，这研究都是要有个增长，增长。\", \"suspect_quote\": \"现在咱们的股，市，这个这个都，这研究都是要有个\", \"kind\": \"unintelligible_term\", \"reason\": \"'股，市'中间插入逗号及重复的‘这个这个’，导致‘股市’一词被割裂，属于明显的识别错误，影响对核心名词的理解。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1dAvtBoEmQ",
@@ -22023,7 +22024,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"本来你这个，它这个公司异囊不异囊，你能不能赚钱呢？\", \"suspect_quote\": \"异囊不异囊\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境下无明确含义，疑似识别错误（可能应为“盈利不盈利”、“异常不异常”或其他发音相近的词），严重影响理解。\"}, {\"sentence_id\": 16, \"quote\": \"没有应收账款，那就是虽然说这酒类的公司就没有应收账款，他基本上都是都是你先还有应收账款多了，他都是别人先把钱打了他账上，然后他再给你发货的。\", \"suspect_quote\": \"他都是别人先把钱打了他账上\", \"kind\": \"unintelligible_term\", \"reason\": \"句中“打了他账上”表述含糊，存在明显的语音识别歧义或错别字嫌疑（可能是“打入他账上”、“打到他账上”），导致语义不通顺且含义不明。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1qo3L6zEi1",
@@ -22044,7 +22046,8 @@
    "failed": true,
    "last_error": "整段取景预检：源 154.67s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Fdv4BYES6",
@@ -22191,6 +22194,23 @@
    "reprocessing_quality": true,
    "quality_failure": "运行结束后仍无成片，保留范围恢复",
    "retries": 2
+  },
+  {
+   "key": "yicai_video:102983175",
+   "video_id": "https://ycalvod.yicai.com/vms-new/2025/12/2caa44d2-cd3a-4c9d-98d6-3fb52570b455.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "slug": "ly-1009-a89f6d",
+   "ts": 1791551439,
+   "source_url": "https://www.yicai.com/video/102983175.html",
+   "asset_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1009-a89f6d.mp4",
+   "title": "林园：2026年A股整体向好 市场人气已被带动",
+   "delay_hours": 0,
+   "source": "yicai_video",
+   "author": "第一财经",
+   "publish_time": "2025-12-31T15:18:06"
   }
  ],
  "makeup_receipts": {
