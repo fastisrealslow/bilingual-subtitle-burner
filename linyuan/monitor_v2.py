@@ -1616,12 +1616,13 @@ class NeteaseVideoSource(Source):
     def _page(self, url):
         return http_get(url, referer="https://money.163.com/", ua=self.UA, timeout=30)
 
-    def _resolve_mp4(self, m3u8_url):
+    def _resolve_mp4(self, m3u8_url, content=None):
         """从 m3u8 推导出 MP4 直链。"""
-        try:
-            content = http_get(m3u8_url, ua=self.UA, timeout=25)
-        except Exception:
-            return ""
+        if content is None:
+            try:
+                content = http_get(m3u8_url, ua=self.UA, timeout=12)
+            except Exception:
+                return ""
         seg = re.search(r"(/videolib\d+/[^\s]+?)/([A-Za-z0-9]+)-mobile-\d+\.ts", content)
         if not seg:
             return ""
@@ -1629,6 +1630,22 @@ class NeteaseVideoSource(Source):
         if not host:
             return ""
         return f"{host.group(1)}{seg.group(1)}/{seg.group(2)}-mobile.mp4"
+
+    @staticmethod
+    def playlist_duration(content):
+        """Only a complete finite media playlist proves the video's duration."""
+        import math
+        if not re.match(r'^#EXTM3U\s*(?:\r?\n|$)', content.lstrip()) or not re.search(
+                r'^#EXT-X-ENDLIST\s*$', content, re.M):
+            return 0
+        values=re.findall(r'^#EXTINF:([^,\r\n]+)',content,re.M)
+        try:
+            durations=[float(value) for value in values]
+            if not durations or any(not math.isfinite(v) or v<=0 for v in durations):
+                return 0
+            return round(sum(durations),3)
+        except ValueError:
+            return 0
 
     def _parse_video(self, vcode):
         html = self._page(f"https://www.163.com/v/video/{vcode}.html")
@@ -1655,9 +1672,30 @@ class NeteaseVideoSource(Source):
         if dm:
             dur = int(dm.group(1))
 
+        playlist = ''
+        playlist_url = m3u8
+        try:
+            playlist = http_get(m3u8, ua=self.UA, timeout=12)
+            if '#EXT-X-STREAM-INF' in playlist:
+                from urllib.parse import urljoin
+                lines=playlist.splitlines()
+                variant=next((lines[i+1].strip() for i,line in enumerate(lines[:-1])
+                    if line.startswith('#EXT-X-STREAM-INF') and lines[i+1].strip()
+                    and not lines[i+1].startswith('#')),None)
+                if variant:
+                    playlist_url=urljoin(m3u8,variant)
+                    playlist=http_get(playlist_url,ua=self.UA,timeout=12)
+            measured=self.playlist_duration(playlist)
+            if measured:
+                dur=measured
+        except Exception:
+            pass  # No invented duration; actual media probe remains mandatory.
+
         return {"title": title, "m3u8": m3u8,
-                "mp4": self._resolve_mp4(m3u8), "cover": cover,
-                "published_at": published, "duration": dur}
+                "mp4": self._resolve_mp4(playlist_url,content=playlist), "cover": cover,
+                "published_at": published, "duration": dur,
+                "duration_provenance": 'hls_extinf_endlist' if self.playlist_duration(playlist) else
+                    'page_metadata' if dur else 'needs_probe'}
 
     def fetch(self, page):
         keyword = self.config.get("keyword", "林园")
@@ -1703,8 +1741,8 @@ class NeteaseVideoSource(Source):
             return []
 
         # 2) 逐个解析拿 MP4
-        items = []
-        for vcode, text in list(found.items())[:25]:
+        items = self.partial_items
+        for vcode, text in self.seed_batch(list(found.items()),24,key=lambda entry:entry[0]):
             try:
                 info = self._parse_video(vcode)
                 items.append({
@@ -1721,6 +1759,8 @@ class NeteaseVideoSource(Source):
                         "cover": info["cover"],
                         "published_at": info.get("published_at", ""),
                         "duration": info.get("duration", 0),
+                        "duration_provenance": info.get('duration_provenance','needs_probe'),
+                        "has_video": bool(info.get('mp4') or info.get('m3u8')),
                     }, ensure_ascii=False),
                 })
             except Exception as e:

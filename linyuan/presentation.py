@@ -11,6 +11,9 @@ VERSION = 4
 # and face must survive it in full.  The extra pixels at either side are only
 # background/brand breathing room.
 FEED_SAFE_CROP = (280, 0, 1000, 720)
+# Keep the old square contract for immutable historical deliveries. New
+# covers use the wider 4:3 feed surface without shrinking the whole artwork.
+FEED_WIDE_CROP = (160, 0, 1120, 720)
 FEED_SAFE_INSET = 16
 PROTECTED = ('贵州茅台', '茅台', '五粮液', '片仔癀', '达仁堂', '林园', '林总',
              '价值投资者', '长期投资者', '价值投资', '现金流', '人工智能', '机器人', '不可能', '不会',
@@ -68,8 +71,10 @@ def layout_for(width, height, card=False):
         # short edge so two lines still fit the reserved region.
         font = min(int(min(width,height)*.08),
                    max(28, round(min(width,height)*.055), round(width*.035)))
-        font = min(int(min(width,height)*.10), round(font*1.20))
-        font = min(font, int((region['height']-16)/(2*1.448)))
+        font = min(int(min(width,height)*.10), round(font*1.40))
+        # Captions have one line: the obsolete two-line height limit was
+        # unnecessarily shrinking wide interviews after the single-line fix.
+        font = min(font, int((region['height']-16)/1.448))
     from caption_readability import VERSION as READABILITY_VERSION
     return {'version':VERSION,'mode':mode,'canvas':{'width':width,'height':height},
             'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':1,
@@ -402,12 +407,12 @@ def select_cover_style(clean_source, title, requested='auto'):
     return 'scene' if clean_source else 'dark'
 
 
-def feed_safe_box(box, inset=FEED_SAFE_INSET):
+def feed_safe_box(box, inset=FEED_SAFE_INSET, crop=FEED_SAFE_CROP):
     """True when a headline/face survives the centre-square feed crop."""
     if not isinstance(box, (list, tuple)) or len(box) != 4:
         return False
     x0, y0, x1, y1 = map(float, box)
-    left, top, right, bottom = FEED_SAFE_CROP
+    left, top, right, bottom = crop
     return (left + inset <= x0 <= x1 <= right - inset
             and top + inset <= y0 <= y1 <= bottom - inset)
 
@@ -420,6 +425,19 @@ def write_feed_square(image, path):
     target = Path(path).with_name(Path(path).stem + '_feed_square.jpg')
     image.crop(FEED_SAFE_CROP).resize((360, 360), Image.Resampling.LANCZOS).save(target, quality=95)
     return target
+
+
+def write_feed_wide(image, path):
+    """A real 4:3 crop; never squash the 16:9 artwork into a square."""
+    import hashlib
+    from PIL import Image
+    if image.size != (1280, 720):
+        raise ValueError('信息流封面验证只接受1280×720画布')
+    target = Path(path).with_name(Path(path).stem + '_feed_4_3.jpg')
+    image.crop(FEED_WIDE_CROP).resize((480, 360), Image.Resampling.LANCZOS).save(target, quality=95)
+    return dict(cover_layout_version=3, feed_aspect_ratio='4:3',
+                feed_safe_crop=list(FEED_WIDE_CROP), feed_preview=target.name,
+                feed_preview_sha256=hashlib.sha256(target.read_bytes()).hexdigest())
 
 
 def save_scene_cover(image, path, face, identity):
@@ -462,65 +480,76 @@ def save_scene_cover(image, path, face, identity):
     scale_x, scale_y = 1280 / cw, 720 / ch
     face_box = [(x-left)*scale_x, (y-top)*scale_y,
                 (x+fw-left)*scale_x, (y+fh-top)*scale_y]
-    if not feed_safe_box(face_box):
+    if not feed_safe_box(face_box, crop=FEED_WIDE_CROP):
         raise ValueError('现场原画封面的人脸不在信息流中心安全区')
-    feed = write_feed_square(result, path)
+    feed = write_feed_wide(result, path)
     proof = dict(version=VERSION, style='scene', canvas=dict(width=1280, height=720),
         headline_lines=[], font_px=0, thumbnail_font_px=0, text_boxes=[],
         no_overflow=True, thumbnail=thumb.name, no_added_text=True,
         source_kind='verified_source_frame', source_resolution=dict(width=w, height=h),
         source_identity=identity, crop=[left, top, cw, ch],
         face_box=face_box, face_fully_visible=True, no_black_bars=True, no_qr=True,
-        feed_safe_crop=list(FEED_SAFE_CROP), feed_square=feed.name,
         feed_safe_face=True, feed_safe_text=True,
         sha256=hashlib.sha256(Path(path).read_bytes()).hexdigest())
+    proof.update(feed)
     Path(str(path) + '.proof.json').write_text(json.dumps(proof, ensure_ascii=False, indent=2))
     return proof
 
 
 def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
-    """Feed-safe editorial cover: face above, conclusion below in centre square."""
+    """Large side-by-side editorial cover with modest feed-crop margins."""
     from PIL import Image, ImageDraw, ImageFont, ImageOps
     if not portrait_path or not Path(portrait_path).is_file():
         raise ValueError('深色封面缺少真人参考图')
     image=Image.new('RGB',(1280,720),(20,27,36))
     draw=ImageDraw.Draw(image)
-    # Content stays in x=280..1000, which is the two-column feed crop.  The
-    # outer bands are deliberately quiet so neither a face nor a sentence is
-    # cut in half on the list page.
-    portrait=ImageOps.fit(Image.open(portrait_path).convert('RGB'),(228,236),
-                          method=Image.Resampling.LANCZOS)
-    portrait_xy=(744,42)
+    try:
+        lines=cover_headline(title,speaker,max_lines=3,line_capacity=5)
+        portrait_left, portrait_width = 752, 352
+    except ValueError:
+        # Long reviewed copy keeps all its words; only its panel width adapts.
+        lines=cover_headline(title,speaker,max_lines=3,line_capacity=6)
+        portrait_left, portrait_width = 848, 256
+    # Restore the large right-hand portrait instead of a tiny top-right icon.
+    # Its face remains in the 4:3 crop; shoulders may extend into the side bleed.
+    portrait=ImageOps.contain(Image.open(portrait_path).convert('RGB'),(portrait_width,584),
+                              method=Image.Resampling.LANCZOS)
+    portrait_xy=(portrait_left+(portrait_width-portrait.width)//2,68+(584-portrait.height)//2)
     image.paste(portrait,portrait_xy)
-    draw.rectangle((312,68,328,98),fill=(246,186,57))
+    draw.rectangle((176,172,192,202),fill=(246,186,57))
     tagfont=ImageFont.truetype(font_path,30,index=font_index)
-    draw.text((344,42),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
-    font=ImageFont.truetype(font_path,96,index=font_index)
-    lines=cover_headline(title,speaker,max_lines=3,line_capacity=6); boxes=[]
+    draw.text((176,66),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
+    font=ImageFont.truetype(font_path,112,index=font_index)
+    boxes=[]
     for i,line in enumerate(lines):
-        xy=(312,300+i*110) if len(lines)==3 else (312,374+i*128)
+        xy=(176,190+i*140) if len(lines)==3 else (176,252+i*148)
         draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
         boxes.append(draw.textbbox(xy,line,font=font))
-    draw.text((312,672),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
-    face_box=[portrait_xy[0],portrait_xy[1],portrait_xy[0]+228,portrait_xy[1]+236]
-    return image,lines,96,boxes,face_box
+    draw.text((176,650),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
+    face_box=[portrait_xy[0],portrait_xy[1],portrait_xy[0]+portrait.width,portrait_xy[1]+portrait.height]
+    return image,lines,112,boxes,face_box
 
 
-def cover_proof(image, path, lines, font_size, boxes, style=None, face_box=None):
+def cover_proof(image, path, lines, font_size, boxes, style=None, face_box=None,
+                feed_crop=FEED_SAFE_CROP):
     import json
     from PIL import Image
+    wide = tuple(feed_crop) == FEED_WIDE_CROP
+    if tuple(feed_crop) not in (FEED_SAFE_CROP, FEED_WIDE_CROP):
+        raise ValueError('未知信息流裁切合同')
+    bounds = (176,190,1104,650) if wide else (296,300,984,650)
     three_line=(len(lines)==3 and style in ('dark','editorial') and len(boxes)==3
-        and all(296<=b[0] and 300<=b[1] and b[2]<=984 and b[3]<=650 for b in boxes)
+        and all(bounds[0]<=b[0] and bounds[1]<=b[1] and b[2]<=bounds[2] and b[3]<=bounds[3] for b in boxes)
         and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
     if (len(lines)>2 and not three_line) or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
         raise ValueError('封面大字/边界验收失败')
     feed_required = style in {'dark','editorial'}
-    if feed_required and (not all(feed_safe_box(box) for box in boxes)
-                          or (face_box is not None and not feed_safe_box(face_box))):
+    if feed_required and (not all(feed_safe_box(box, crop=feed_crop) for box in boxes)
+                          or (face_box is not None and not feed_safe_box(face_box, crop=feed_crop))):
         raise ValueError('封面主体或标题超出信息流中心安全区')
     thumb=Path(path).with_name(Path(path).stem+'_list_160.jpg')
     image.resize((160,90),Image.Resampling.LANCZOS).save(thumb,quality=95)
-    feed=write_feed_square(image,path) if feed_required else None
+    feed=(write_feed_wide(image,path) if wide else write_feed_square(image,path)) if feed_required else None
     proof={'version':VERSION,'canvas':{'width':1280,'height':720},'headline_lines':lines,
            'font_px':font_size,'thumbnail_font_px':font_size/8,'thumbnail':thumb.name,
            'text_boxes':boxes,'no_overflow':True}
@@ -529,9 +558,13 @@ def cover_proof(image, path, lines, font_size, boxes, style=None, face_box=None)
     if three_line:
         proof['headline_layout']='three_line_statement'
     if feed_required:
-        proof.update(feed_safe_crop=list(FEED_SAFE_CROP),feed_square=feed.name,
-                     feed_safe_text=True,feed_safe_face=face_box is not None,
+        proof.update(feed_safe_text=True,feed_safe_face=face_box is not None,
                      face_box=list(face_box) if face_box is not None else None)
+        if wide:
+            import hashlib
+            proof.update(feed, sha256=hashlib.sha256(Path(path).read_bytes()).hexdigest())
+        else:
+            proof.update(feed_safe_crop=list(FEED_SAFE_CROP),feed_square=feed.name)
     Path(str(path)+'.proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return proof
 
