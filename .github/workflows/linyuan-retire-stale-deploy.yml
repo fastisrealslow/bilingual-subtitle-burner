@@ -13,14 +13,18 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: 停止封面被长度语法截断的166部署
+      - name: 停止本次已被同模型验收和嘉宾修复替代的旧部署
         run: |
           python - <<'PY'
           import json,os,subprocess
           repo=os.environ['GITHUB_REPOSITORY']
-          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/34769234478']))
-          assert old['head_sha']=='12ae5acda3d8c4da668dc0a0580cbdafd25fd96a' and old['path']=='.github/workflows/fc-production-deploy.yml'
+          old=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/37863584174']))
+          new=json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/actions/runs/37864677989']))
+          assert old['head_sha']=='29fbdad5869eebe89297225799c48d0c7f2eede9' and old['path']=='.github/workflows/fc-production-deploy.yml'
+          assert old['head_branch']=='main'
+          assert new['head_sha']=='91d254d83814f4e739b755c4faec53405e8533e5' and new['path']==old['path']
+          assert new['conclusion'] not in ('failure','cancelled','timed_out')
           if old['status']!='completed':
               subprocess.run(['gh','run','cancel',str(old['id']),'--repo',repo],check=True)
-          print('已停止封面截成残句的部署；保留实际失败证据')
+          print('已核对并停止被新修复替代的本次旧部署；未改变当前在线函数，保留全部证据')
           PY

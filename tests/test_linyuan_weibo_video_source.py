@@ -37,6 +37,40 @@ def test_actual_api_title_author_media_are_used(monkeypatch):
     assert calls==['https://weibo.com/ajax/statuses/show?id='+MID]
 
 
+def test_actual_financial_topic_marker_does_not_make_interview_noise(monkeypatch):
+    raw='2026.08.07林园专访：为何依旧坚守消费和医药？#圣叹财经[超话]#'
+    rows,_=fetch(monkeypatch,status(text=raw))
+    assert rows[0]['title'].endswith('#圣叹财经#')
+    assert json.loads(rows[0]['extra'])['raw_text']==raw
+    from fc import index as fc
+    assert len(fc.pick(rows,dict(dispatched=[],rejected=[],published={}),10))==1
+
+
+def test_topic_names_and_unstructured_noise_remain_blocked(monkeypatch):
+    from fc import index as fc
+    for raw in ['林园访谈 #灯花笑[超话]#','林园专访 超话应援打榜']:
+        rows,_=fetch(monkeypatch,status(text=raw))
+        assert fc.pick(rows,dict(dispatched=[],rejected=[],published={}),10)==[]
+
+
+def test_existing_database_rows_are_reprojected_without_rewriting_original(monkeypatch,tmp_path):
+    monkeypatch.setattr(m,'DB_PATH',tmp_path/'monitor.db')
+    monkeypatch.setattr(m,'__file__',str(tmp_path/'monitor_v2.py'))
+    (tmp_path/'dashboard').mkdir()
+    m.init_db()
+    raw='林园最新访谈 #圣叹财经[超话]#'
+    row=dict(id='weibo_search:'+MID,source='weibo_search',title=raw,
+        url='https://m.weibo.cn/detail/'+MID,author='实际发布者',publish_time='',
+        extra=json.dumps(dict(has_video=True,duration=600)))
+    m.upsert_items([row]);m.export_dashboard_data()
+    saved=json.loads((tmp_path/'dashboard/data.json').read_text())[0]
+    assert saved['title']=='林园最新访谈 #圣叹财经#'
+    assert saved['extra']['discovery_raw_title']==raw
+    conn=m.sqlite3.connect(m.DB_PATH)
+    assert conn.execute('SELECT title FROM items').fetchone()[0]==raw
+    conn.close()
+
+
 def test_no_text_only_unrelated_or_mismatched_status_is_stock(monkeypatch):
     for data in [status(video=False),status(text='虎林园动物园投资'),
                  status(text='其他人谈股市'),status(mid='5331066086756999')]:

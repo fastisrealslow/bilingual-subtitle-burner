@@ -627,6 +627,11 @@ class XueqiuSearchSource(Source):
         return all_items
 
 
+def weibo_discovery_title(text):
+    """Drop only the platform marker; keep every topic/noise name and raw ASR."""
+    return re.sub(r'(#[^#]{1,80})\[超话\](?=#)',r'\1',text)
+
+
 class WeiboSearchSource(Source):
     """微博关键词搜索。
 
@@ -743,12 +748,17 @@ class WeiboSearchSource(Source):
             items.append({
                 "id": f"weibo_search:{mid}",
                 "source": self.name,
-                "title": text[:300],
+                # Strip only the platform's bracketed topic marker, keeping
+                # the topic NAME and all noise/fiction words for admission.
+                # Otherwise FC's legacy "超话" noise filter discards actual
+                # financial interviews carrying #圣叹财经[超话]#.
+                "title": weibo_discovery_title(text)[:300],
                 "url": f"https://m.weibo.cn/detail/{mid}",
                 "publish_time": source_publish_time(s.get("created_at")),
                 "author": (s.get("user") or {}).get("screen_name", ""),
                 "extra": json.dumps({
                     "mid": mid,
+                    "raw_text": text,
                     "has_video": bool(video_url),
                     "video_url": video_url,
                     # 微博 CDN 直链带 Expires，实测仅 1 小时有效。
@@ -1816,10 +1826,16 @@ def export_dashboard_data():
             pass
         if row["author"] in BLACKLIST_AUTHORS:
             continue  # 排除黑名单账号（存量数据在导出时一并滤掉）
+        title=row['title']
+        if row['source'].startswith('weibo'):
+            title=weibo_discovery_title(title)
+            if title!=row['title']:
+                extra['discovery_raw_title']=row['title']
+                extra['title_annotation_cleanup_version']=1
         item = {
             "id": row["id"],
             "source": row["source"],
-            "title": row["title"],
+            "title": title,
             "url": row["url"],
             "video_url": extra.get("video_url", ""),
             "publish_time": row["publish_time"],
