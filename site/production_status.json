@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791552390,
+  "updated_at": 1791552483,
   "inventory_updated_at": 1791552388,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 7,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791552389,
+    "updated_at": 1791552483,
     "records": 9120,
     "video_records": 7744,
-    "initial_candidates": 63,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 62,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1078,
       "no_video": 1376,
       "speaker_unconfirmed": 5233,
-      "already_attempted_or_cooling": 1185,
+      "already_attempted_or_cooling": 1186,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1WgQHYTETj",
-        "title": "林园 P1 20250312 股神林园专访：不忘初心 方得始终",
-        "source": "bilibili_collection",
-        "author": "股海淘沙",
-        "url": "https://www.bilibili.com/video/BV1WgQHYTETj",
-        "duration_sec": 2913.0
-      },
       {
         "key": "bilibili_search:BV1rz1QYTEaV",
         "title": "林园 P1 20241004股神林园直播 带你把握二十年一次的大机会",
@@ -135,15 +127,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 884,
+    "failed": 886,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 1,
     "excluded": 2,
     "ready": 3,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18264,11 +18256,11 @@
     },
     {
       "slug": "ly-1009-f27e48",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 54, \"quote\": \"对你校的上的国际的品牌，我都有。\", \"suspect_quote\": \"对你校的上的国际的品牌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'对你校的上的'在金融或日常语境中无意义，极可能是'对可口可乐的'（Coca-Cola）或类似知名品牌的误识。'校'与'可'、'上'与'乐'发音或字形易混淆，导致专有名词错写，严重影响理解。\"}, {\"sentence_id\": 55, \"quote\": \"九四年我们投从来没有卖，就是凡是现在总结出来，就是和嘴有关系的，是吧？\", \"suspect_quote\": \"和嘴有关系的\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'和嘴有关系'在投资语境下含义不明，结合上下文（林园常提及的白酒/食品行业），极可能是'和酒有关系的'或'和猪有关系的'等特定行业的误识。'嘴'与'酒'、'猪'发音相近，属于典型的语音识别错误导致的专有名词错写。\"}]",
       "signature": {
         "ts": 1791550753,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18318,11 +18310,11 @@
     },
     {
       "slug": "ly-1009-f28c74",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 406 < 480（638x406），画质不达标",
       "signature": {
         "ts": 1791552237,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18423,6 +18415,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936616390",
       "run_started_at": "2026-10-09T13:24:30Z",
       "run_updated_at": "2026-10-09T13:24:35Z"
+    },
+    {
+      "slug": "ly-1009-68d5e6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791552444,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37936961454,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936961454",
+      "run_started_at": "2026-10-09T13:27:24Z",
+      "run_updated_at": "2026-10-09T13:27:28Z"
     }
   ],
   "runs": {
@@ -25191,6 +25201,28 @@
       "run_number": 1663,
       "display_title": "中文源出片 · ly-1009-f27e48"
     },
+    "ly-1009-f28c74": {
+      "id": 37936548749,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T13:23:56Z",
+      "updated_at": "2026-10-09T13:25:16Z",
+      "run_started_at": "2026-10-09T13:23:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936548749",
+      "run_number": 1666,
+      "display_title": "中文源出片 · ly-1009-f28c74"
+    },
+    "ly-1009-68d5e6": {
+      "id": 37936961454,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T13:27:24Z",
+      "updated_at": "2026-10-09T13:27:28Z",
+      "run_started_at": "2026-10-09T13:27:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936961454",
+      "run_number": 1672,
+      "display_title": "中文源出片 · ly-1009-68d5e6"
+    },
     "ly-1009-964326": {
       "id": 37936616390,
       "status": "in_progress",
@@ -25245,17 +25277,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936561516",
       "run_number": 1667,
       "display_title": "中文源出片 · ly-1009-ba19af"
-    },
-    "ly-1009-f28c74": {
-      "id": 37936548749,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T13:23:56Z",
-      "updated_at": "2026-10-09T13:25:16Z",
-      "run_started_at": "2026-10-09T13:23:56Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37936548749",
-      "run_number": 1666,
-      "display_title": "中文源出片 · ly-1009-f28c74"
     }
   }
 }
