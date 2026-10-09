@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791546075,
+  "updated_at": 1791546196,
   "inventory_updated_at": 1791546074,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 1,
-    "active_or_recovering_sources": 11,
-    "waiting_candidates": 29,
+    "active_or_recovering_sources": 12,
+    "waiting_candidates": 28,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791546075,
+    "updated_at": 1791546195,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 84,
-    "duration_eligible_records": 29,
-    "candidate_count": 29,
-    "known_duration_candidates": 27,
+    "initial_candidates": 83,
+    "duration_eligible_records": 28,
+    "candidate_count": 28,
+    "known_duration_candidates": 26,
     "unknown_duration_candidates": 2,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1150,
+      "already_attempted_or_cooling": 1151,
       "speaker_unconfirmed": 5136,
       "clip_title": 1068,
       "unrelated": 62,
@@ -70,14 +70,6 @@
         "author": "第一财经",
         "url": "https://www.yicai.com/video/102348707.html",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1ffuj6uEWr",
-        "title": "林园 P1 必看！8月7日股神林园最新采访：择股还是择时？买入的择时很重要，要研究行业的宏观",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1ffuj6uEWr",
-        "duration_sec": 135.0
       },
       {
         "key": "bilibili_search:BV1G4u56WEkN",
@@ -303,15 +295,15 @@
   },
   "counts": {
     "complete": 107,
-    "failed": 846,
+    "failed": 847,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 3,
-    "retry_queued": 6,
+    "retry_queued": 5,
     "ready": 2,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -17873,24 +17865,6 @@
       "run_updated_at": "2026-10-09T11:02:18Z"
     },
     {
-      "slug": "ly-1009-da0ea6",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791543908,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791545984,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37921554943,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37921554943",
-      "run_started_at": "2026-10-09T11:05:07Z",
-      "run_updated_at": "2026-10-09T11:20:10Z"
-    },
-    {
       "slug": "ly-1009-f889e4",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"我我那个司机现在身价两亿多，我们家的保姆今天也超过八亿。\", \"suspect_quote\": \"身价两亿多\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘两亿多’中的‘多’表示模糊范围，若上下文无明确对比基准或后续澄清，可能构成关键数字含义不明；但结合口语习惯，此处为正常泛指，暂不视为错误。\"}, {\"sentence_id\": 4, \"quote\": \"比如说，这是我的搭档，当时做的账，最有钱的三十个人，五十个人。\", \"suspect_quote\": \"最有钱的三十个人，五十个人\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'三十个人，五十个人'存在数字矛盾：先说三十后说五十，未解释为何人数变化，属于关键数字互相冲突。\"}]",
@@ -17964,11 +17938,11 @@
     },
     {
       "slug": "ly-1009-92948d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791545290,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17979,6 +17953,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37923909610",
       "run_started_at": "2026-10-09T11:28:10Z",
       "run_updated_at": "2026-10-09T11:39:44Z"
+    },
+    {
+      "slug": "ly-1009-da0ea6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791546146,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37925386921,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925386921",
+      "run_started_at": "2026-10-09T11:42:25Z",
+      "run_updated_at": "2026-10-09T11:42:30Z"
+    },
+    {
+      "slug": "ly-1009-441792",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791546153,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37925399603,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925399603",
+      "run_started_at": "2026-10-09T11:42:33Z",
+      "run_updated_at": "2026-10-09T11:42:37Z"
     }
   ],
   "runs": {
@@ -24341,14 +24351,14 @@
       "display_title": "中文源出片 · ly-1009-0151a7"
     },
     "ly-1009-da0ea6": {
-      "id": 37921554943,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T11:05:07Z",
-      "updated_at": "2026-10-09T11:20:10Z",
-      "run_started_at": "2026-10-09T11:05:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37921554943",
-      "run_number": 1627,
+      "id": 37925386921,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T11:42:25Z",
+      "updated_at": "2026-10-09T11:42:30Z",
+      "run_started_at": "2026-10-09T11:42:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925386921",
+      "run_number": 1633,
       "display_title": "中文源出片 · ly-1009-da0ea6"
     },
     "ly-1009-f889e4": {
@@ -24394,6 +24404,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37923909610",
       "run_number": 1632,
       "display_title": "中文源出片 · ly-1009-92948d"
+    },
+    "ly-1009-441792": {
+      "id": 37925399603,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T11:42:33Z",
+      "updated_at": "2026-10-09T11:42:37Z",
+      "run_started_at": "2026-10-09T11:42:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37925399603",
+      "run_number": 1634,
+      "display_title": "中文源出片 · ly-1009-441792"
     },
     "ly-1009-36a3d1": {
       "id": 37923642350,
