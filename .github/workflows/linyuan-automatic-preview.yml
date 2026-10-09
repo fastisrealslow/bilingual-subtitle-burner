@@ -399,12 +399,21 @@ jobs:
         ls -la _accepted/
 
         '
+    - name: 原文件逐项复验并生成无重复视频的发布包
+      run: python compact_delivery.py --directory "deliver/$RUN_SLUG" --slug "$RUN_SLUG"
     - name: 上传成片到 Artifact
       uses: actions/upload-artifact@v4
       with:
         name: preview-deliver-${{ env.RUN_SLUG }}
-        path: linyuan/deliver/${{ env.RUN_SLUG }}/_accepted/
+        path: linyuan/deliver/${{ env.RUN_SLUG }}/_publish_ready/
         retention-days: 90
+        if-no-files-found: error
+    - name: 留存精简包哈希复验证据
+      uses: actions/upload-artifact@v4
+      with:
+        name: preview-publish-bundle-proof-${{ env.RUN_SLUG }}
+        path: linyuan/deliver/${{ env.RUN_SLUG }}/compact-report.json
+        retention-days: 30
         if-no-files-found: error
     - name: 保留部分失败的实际成片与逐帧取景证据
       if: always()
