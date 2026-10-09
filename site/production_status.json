@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791540605,
+  "updated_at": 1791540685,
   "inventory_updated_at": 1791540604,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 12,
-    "waiting_candidates": 41,
+    "active_or_recovering_sources": 13,
+    "waiting_candidates": 40,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791540605,
+    "updated_at": 1791540684,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 96,
-    "duration_eligible_records": 41,
-    "candidate_count": 41,
+    "initial_candidates": 95,
+    "duration_eligible_records": 40,
+    "candidate_count": 40,
     "known_duration_candidates": 33,
-    "unknown_duration_candidates": 8,
+    "unknown_duration_candidates": 7,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1137,
+      "already_attempted_or_cooling": 1138,
       "speaker_unconfirmed": 5137,
       "clip_title": 1068,
       "unrelated": 62,
@@ -72,19 +72,19 @@
         "duration_sec": 0
       },
       {
-        "key": "weibo_search:5327975308595694",
-        "title": "林园：你们投资水平还嫩着呢 #财经##经济##价值投资##林园##股票##段永平和林园# http://t.cn/AXC",
-        "source": "weibo_search",
-        "author": "价值投资和科技股投资",
-        "url": "https://m.weibo.cn/detail/5327975308595694",
-        "duration_sec": 0
-      },
-      {
         "key": "weibo_search:5328002904754049",
         "title": "林园：靠AI行业赚的钱还要还回去 #财经##经济##价值投资##林园##股票##段永平和林园# http://t.cn/",
         "source": "weibo_search",
         "author": "价值投资和科技股投资",
         "url": "https://m.weibo.cn/detail/5328002904754049",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:5330019641459691",
+        "title": "林园：我比马云有钱#段永平和林园# http://t.cn/AXNGALbO ​​​",
+        "source": "weibo_search",
+        "author": "价值投资和科技股投资",
+        "url": "https://m.weibo.cn/detail/5330019641459691",
         "duration_sec": 0
       },
       {
@@ -288,14 +288,6 @@
         "duration_sec": 180.0
       },
       {
-        "key": "weibo_search:5330019641459691",
-        "title": "林园：我比马云有钱#段永平和林园# http://t.cn/AXNGALbO ​​​",
-        "source": "weibo_search",
-        "author": "价值投资和科技股投资",
-        "url": "https://m.weibo.cn/detail/5330019641459691",
-        "duration_sec": 0
-      },
-      {
         "key": "weibo_search:5330818475762554",
         "title": "林园：AI与机器人，仍有成长空间#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##林园",
         "source": "weibo_search",
@@ -399,15 +391,15 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 836,
+    "failed": 837,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 2,
     "ready": 3,
     "retry_queued": 6,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -17736,11 +17728,11 @@
     },
     {
       "slug": "ly-1009-a1b0d4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以对对给我们投资上造成了很大的这个。\", \"suspect_quote\": \"对对给我们投资上造成了很大的这个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键短语‘很大的这个’指代不明，属于典型的口语填充词导致语义截断，未形成完整的名词性宾语（如‘很大的困难’或‘很大的挑战’），在缺乏上下文的情况下，该处存在具体的识别疑点，无法确定其具体含义。\"}]",
       "signature": {
         "ts": 1791539705,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17859,6 +17851,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915715810",
       "run_started_at": "2026-10-09T10:08:10Z",
       "run_updated_at": "2026-10-09T10:08:14Z"
+    },
+    {
+      "slug": "ly-1009-4cfa94",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791540648,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37915991979,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915991979",
+      "run_started_at": "2026-10-09T10:10:48Z",
+      "run_updated_at": "2026-10-09T10:10:52Z"
     }
   ],
   "runs": {
@@ -24131,6 +24141,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37901737910",
       "run_number": 1585,
       "display_title": "中文源出片 · ly-1009-1b8549"
+    },
+    "ly-1009-4cfa94": {
+      "id": 37915991979,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T10:10:48Z",
+      "updated_at": "2026-10-09T10:10:52Z",
+      "run_started_at": "2026-10-09T10:10:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37915991979",
+      "run_number": 1619,
+      "display_title": "中文源出片 · ly-1009-4cfa94"
     },
     "ly-1009-b60450": {
       "id": 37915715810,
