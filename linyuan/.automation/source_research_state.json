@@ -138,11 +138,11 @@
       "role": "mother",
       "family": "hnw_course",
       "priority": 4,
-      "status": "pending",
-      "attempts": 12,
-      "last_error": null,
-      "last_attempt_at": 1790966816.868389,
-      "next_retry_at": 0,
+      "status": "retry_wait",
+      "attempts": 13,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1791556497.5028853,
+      "next_retry_at": 1791642897.5028853,
       "evidence": {
         "sha256": "e9c5856764c67efbf34dc6eb3389dd3817554dff7b5e98d93907ff859c971900",
         "duration_sec": 3394.066625,
@@ -171,11 +171,11 @@
       "role": "mother",
       "family": "hnw_course",
       "priority": 4,
-      "status": "pending",
-      "attempts": 4,
-      "last_error": null,
-      "last_attempt_at": 1790834628.8287606,
-      "next_retry_at": 0,
+      "status": "retry_wait",
+      "attempts": 5,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1791556197.4961424,
+      "next_retry_at": 1791642597.4961424,
       "evidence": {
         "sha256": "9f7bb7670ffccd2eb5a0d10f6f449fb9a8f97b460943ecb7ec03eb58ec37f5c9",
         "duration_sec": 3394.223991,
@@ -204,9 +204,9 @@
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 3,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 2,
-      "last_attempt_at": 1791527675.5923264,
+      "last_attempt_at": 1791555897.4839418,
       "next_retry_at": 0,
       "last_error": null,
       "evidence": {
@@ -230,7 +230,7 @@
         "media_integrity": "passed",
         "production_quality": "not_evaluated"
       },
-      "evidence_run_id": "37894065007"
+      "evidence_run_id": "37943728208"
     },
     "e6df4098d51fccf65990": {
       "url": "https://www.bilibili.com/video/BV1QmbW6bEnm",
@@ -3981,25 +3981,34 @@
       "new_ids": []
     },
     "gelong_conversation|格隆对话林园 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1791505763.7524824,
-      "next_retry_at": 1791548963.7524824,
+      "next_retry_at": 1791577450.575309,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1791555850.575309
     },
     "gelong_conversation|格隆博士会客厅 林园": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1791505763.7524824,
-      "next_retry_at": 1791548963.7524824,
+      "next_retry_at": 1791577450.575309,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1791555850.575309
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1791505763.7524824,
-      "next_retry_at": 1791548963.7524824,
+      "next_retry_at": 1791577450.575309,
       "found": 1,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1791555850.575309
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "searched",
@@ -4024,11 +4033,11 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
-    "new_bvids": []
+    "status": "retry_next_run",
+    "error": "RuntimeError"
   },
-  "search_cursor": 3,
-  "updated_at": 1791551853,
-  "last_run_id": "37935553600",
+  "search_cursor": 6,
+  "updated_at": 1791556497,
+  "last_run_id": "37943728208",
   "audio_match_candidates": []
 }
