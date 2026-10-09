@@ -46,6 +46,17 @@ def test_master_playlist_uses_actual_child_duration_and_host(monkeypatch):
     assert seen==['https://master.example/main.m3u8','https://child.example/media.m3u8']
 
 
+def test_observed_quarantine_is_not_reintroduced_by_tag_discovery(monkeypatch,tmp_path):
+    seeds=tmp_path/'seeds.json'
+    seeds.write_text(json.dumps(dict(vcodes=[],quarantined={'VBAD12345':dict(reason='observed_reference_watermark')})))
+    monkeypatch.setattr(M,'__file__',str(tmp_path/'monitor_v2.py'))
+    source=M.NeteaseVideoSource(dict(seeds_file=seeds.name,tag_urls=['tag'],pages=1),{})
+    monkeypatch.setattr(M.time,'sleep',lambda *_:None)
+    monkeypatch.setattr(source,'_page',lambda *_:'<a href="https://www.163.com/v/video/VBAD12345.html">林园真实访谈</a>')
+    monkeypatch.setattr(source,'_parse_video',lambda *_: (_ for _ in ()).throw(AssertionError('must skip quarantined source')))
+    assert source.fetch(None)==[]
+
+
 def test_netease_seeds_rotate_past_25_and_hls_rows_are_real_candidates(monkeypatch):
     monkeypatch.setattr(M.time,'sleep',lambda *_:None)
     ids=['VTEST'+str(i).zfill(5) for i in range(30)]
