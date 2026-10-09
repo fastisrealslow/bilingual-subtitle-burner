@@ -103,7 +103,8 @@ def test_preview_outage_preserves_all_candidates_and_writes_no_approval(tmp_path
     assert proof['error'] and proof['final_quality_approved'] is False
 
 
-def test_picture_ranking_retains_only_its_bounded_preview_frames(monkeypatch,tmp_path):
+@pytest.mark.parametrize('face_size',[(160,190),(80,70)])
+def test_picture_ranking_retains_only_its_bounded_preview_frames(monkeypatch,tmp_path,face_size):
     frame=np.zeros((360,640,3),np.uint8)
     class Capture:
         def get(self,*a):return 30
@@ -113,7 +114,7 @@ def test_picture_ranking_retains_only_its_bounded_preview_frames(monkeypatch,tmp
     class Detector:
         def setInputSize(self,*a):pass
         def detect(self,image):
-            return None,np.array([[220,70,160,190]+[0]*11],dtype=np.float32)
+            return None,np.array([[220,70,*face_size]+[0]*11],dtype=np.float32)
     class Recognizer:
         def alignCrop(self,image,face):return image
         def feature(self,image):return np.ones((1,4),np.float32)
@@ -127,6 +128,12 @@ def test_picture_ranking_retains_only_its_bounded_preview_frames(monkeypatch,tmp
     rank('source.mp4',cues,[dict(start=0,end=0)],tmp_path,'reference.jpg',
          ('face.onnx','recognition.onnx'),engine,lambda *a:[])
     assert len(list(tmp_path.glob('frame-*.jpg')))==6
+    proof=json.loads((tmp_path/'visual-selection.json').read_text())
+    assert proof['final_quality_approved'] is False
+    samples=proof['candidates'][0]['samples']
+    assert all(row['native_face_short_edge']==min(face_size) for row in samples)
+    assert all(row['status']==('risk' if min(face_size)<96 else 'possible') for row in samples)
+    assert proof['production_order']==[1]  # Risk does not discard the answer.
 
 
 def test_selector_exposes_later_complete_answers_without_borrowing_time():

@@ -3,7 +3,7 @@ import json
 import time
 from pathlib import Path
 
-VERSION = 1
+VERSION = 2
 
 
 def candidate_order(picks, observations):
@@ -82,6 +82,15 @@ def rank(src,cues,picks,work,reference,models,engine,verify_boxes,threshold=.363
                 row['text_rows']=len(covered);row['source_marks']=marks
                 if face is None:continue
                 row['face']=list(map(float,face));row['status']='possible'
+                # Measure the native source face, not the resized OCR preview.
+                # Small-face interviews repeatedly consumed text review only
+                # to fail the unchanged 96px full-frame identity gate later.
+                # This is ordering evidence only: retain every whole answer,
+                # including unknown and risky backups, for actual validation.
+                row['native_face_short_edge']=float(min(face[2:4]))
+                row['minimum_target_short_edge']=96
+                if row['native_face_short_edge']<96:
+                    row.update(status='risk',reason='原片人物脸部短边不足96px；优先尝试清晰完整回答')
                 try:row['proposed_crop']=crop_box(face,w,h,exclusions=marks)
                 except ValueError as exc:row.update(status='risk',reason=str(exc))
             if len(observations[i])<per_pick:observations[i].append(dict(status='unknown',reason='preview_budget'))
