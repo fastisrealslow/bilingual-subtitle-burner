@@ -22134,7 +22134,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"因为当时我们在建昌在买茅台，他当时写的就是茅台是绝对不能买，二十六块钱的茅台就不能买。\", \"suspect_quote\": \"建昌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或人名，结合上下文“在买茅台”及林园过往言论（常提及“张裕”、“张朝阳”等被误识案例，或此处应为某位分析师名字如“张”姓），\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1UriGBzEjq",
@@ -22219,7 +22220,11 @@
    "delay_hours": 0,
    "source": "yicai_video",
    "author": "第一财经",
-   "publish_time": "2025-12-31T15:18:06"
+   "publish_time": "2025-12-31T15:18:06",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -71682,6 +71687,13 @@
    "video_id": "BV1r2BaBREyo",
    "ts": 1791551686,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"因为当时我们在建昌在买茅台，他当时写的就是茅台是绝对不能买，二十六块钱的茅台就不能买。\", \"suspect_quote\": \"建昌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或人名，结合上下文“在买茅台”及林园过往言论（常提及“张裕”、“张朝阳”等被误识案例，或此处应为某位分析师名字如“张”姓），\"}]"
+  },
+  {
+   "slug": "ly-1009-a89f6d",
+   "key": "yicai_video:102983175",
+   "video_id": "https://ycalvod.yicai.com/vms-new/2025/12/2caa44d2-cd3a-4c9d-98d6-3fb52570b455.mp4",
+   "ts": 1791551936,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
