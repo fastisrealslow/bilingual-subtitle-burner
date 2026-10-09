@@ -11,7 +11,7 @@ from ci_fetch_bilibili import validate_media
 
 # Some extractors expose scrubber images as playable formats (#706).
 # Keep the existing resolution preference, excluding image formats in every branch.
-FORMAT = ('(bv*[width<=1920?][height<=1920]+ba/b[width<=1920?][height<=1920]/b)'
+FORMAT = ('(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)'
           '[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]')
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mhtml'}
 
