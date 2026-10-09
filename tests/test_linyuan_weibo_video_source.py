@@ -2,6 +2,9 @@
 import importlib.util
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 
 spec = importlib.util.spec_from_file_location('weibo_exact_test',
     Path(__file__).resolve().parents[1]/'linyuan/monitor_v2.py')
@@ -61,3 +64,27 @@ def test_direct_sources_run_before_expensive_discovery_and_are_registered():
     configs=json.loads((Path(__file__).resolve().parents[1]/'linyuan/monitor_v2_config.json').read_text())
     assert [c['type'] for c in configs[:2]]==['yicai_video','weibo_video']
     assert m.SOURCES['weibo_video'] is m.WeiboVideoSource
+
+
+def test_priority_fetch_filters_channels_and_checkpoints_before_slow_sources(monkeypatch):
+    seen=[];exports=[]
+    monkeypatch.setattr(m,'init_db',lambda:None)
+    monkeypatch.setattr(m,'load_state',lambda:{})
+    monkeypatch.setattr(m,'save_state',lambda _:None)
+    monkeypatch.setattr(m,'cdp_available',lambda:False)
+    monkeypatch.setattr(m,'upsert_items',lambda _:[])
+    monkeypatch.setattr(m,'export_dashboard_data',lambda:exports.append(len(seen)))
+    def source(cls,*args):
+        seen.append(cls.name)
+        return [dict(author='实际发布者')]
+    monkeypatch.setattr(m,'run_source',source)
+    m.main(['yicai_video','weibo_video'])
+    assert seen==['yicai_video','weibo_video']
+    assert exports==[1,2,2]
+
+
+def test_early_checkpoint_dispatches_real_verification_before_slow_research():
+    workflow=(Path(__file__).resolve().parents[1]/'.github/workflows/linyuan-monitor.yml').read_text()
+    assert workflow.index('--source-types yicai_video weibo_video')<workflow.index('source_research.py --max-items')
+    assert workflow.index('linyuan-source-inventory.yml/dispatches')<workflow.index('source_research.py --max-items')
+    assert workflow.count('bash persist_monitor_metadata.sh')==2

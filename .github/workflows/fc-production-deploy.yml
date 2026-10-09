@@ -28,6 +28,7 @@ on:
       - linyuan/live_motion.py
       - linyuan/source_geometry.py
       - linyuan/fc/package_code.py
+      - linyuan/weibo_media.py
       - linyuan/artifact_range.py
       - tests/test_linyuan_artifact_range.py
       - linyuan/speaker_attribution.py
@@ -90,12 +91,14 @@ jobs:
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       fixture: linyuan_0913_title.json
+      local_text_model: qwen3.5:9b
   title-landscape:
     needs: release-policy
     if: needs.release-policy.outputs.allowed == 'true'
     uses: ./.github/workflows/linyuan-title-claim-check.yml
     with:
       fixture: linyuan_0913_landscape_title.json
+      local_text_model: qwen3.5:9b
   editorial-check:
     needs: [title-portrait, title-landscape]
     runs-on: ubuntu-latest

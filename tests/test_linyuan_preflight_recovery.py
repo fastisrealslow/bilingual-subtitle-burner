@@ -89,6 +89,19 @@ def test_transcript_model_recovery_cannot_restart_unrelated_low_resolution(monke
     assert calls==[]
 
 
+def test_concessive_title_repair_reopens_attribution_failure_only_once(monkeypatch):
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/title_rewrite.py')
+    entry.update(failed=True,last_error='标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核',
+        source_url='https://example.com/mother',source_check_attempts=2,
+        automatic_rule_recoveries={'automatic-source-context-v10':{'run_id':99}})
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert 'concessive-guest-answer-v1' in entry['automatic_rule_recoveries']
+    assert entry['source_check_run_id']==run['id'] and entry['source_check_attempts']==2
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
 def test_code_fix_recovers_stranded_mother_once_without_inventing_asr_evidence(monkeypatch):
     state, entry, run, calls = evidence(monkeypatch)
     assert fc._recover_preflight_failure(state, entry, run, [])

@@ -1760,8 +1760,8 @@ def weibo_refresh_url(page_url):
         headers={"Accept": "application/json", "X-XSRF-TOKEN": xsrf,
                  "Referer": f"https://weibo.com/"}), timeout=25).read().decode())
     media = (data.get("page_info") or {}).get("media_info") or {}
-    vurl = (media.get("stream_url_hd") or media.get("stream_url")
-            or media.get("mp4_hd_url") or media.get("mp4_sd_url") or "")
+    from weibo_media import best_mp4
+    vurl = best_mp4(media)
     if not vurl:
         raise RuntimeError("微博无视频或直链提取失败")
     log.info(f"    ✓ 新直链: {vurl[:60]}")
@@ -3155,6 +3155,8 @@ def _recover_changed_production_rule(st, candidate, run):
             ('linyuan/source_selection.py','linyuan/produce_cn.py','linyuan/title_rewrite.py')),
            ('medium-source-opening-v41',('原文中未找到满足20秒',),
             ('linyuan/source_selection.py',)),
+           ('concessive-guest-answer-v1',('标题文案待重试：未确认嘉宾原话归属',),
+            ('linyuan/title_rewrite.py',)),
            ('transcript-review-model-v3',('独立文字识别疑点审核不可用',
                     '原始ASR存在影响理解的疑点，禁止猜改后发布'),
             ('linyuan/transcript_audit.py','.github/workflows/linyuan-produce-cn.yml')),

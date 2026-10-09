@@ -734,8 +734,8 @@ class WeiboSearchSource(Source):
             seen.add(mid)
 
             media = (s.get("page_info") or {}).get("media_info") or {}
-            video_url = (media.get("stream_url_hd") or media.get("stream_url")
-                         or media.get("mp4_hd_url") or media.get("mp4_sd_url") or "")
+            from weibo_media import best_mp4
+            video_url = best_mp4(media)
             cover = (s.get("page_info") or {}).get("page_pic") or ""
             if isinstance(cover, dict):
                 cover = cover.get("url", "")
@@ -1834,7 +1834,7 @@ def export_dashboard_data():
     print(f"[dashboard] 已导出 {len(items)} 条到 {out_path}")
 
 
-def main():
+def main(source_types=None):
     init_db()
     print(f"监控开始: {datetime.now().isoformat()}")
 
@@ -1856,6 +1856,9 @@ def main():
             {"type": "weibo_search", "keyword": "林园"},
             {"type": "tencent_live", "keyword": "林园"},
         ]
+
+    if source_types is not None:
+        configs=[cfg for cfg in configs if cfg['type'] in source_types]
 
     all_new = []
     has_browser = cdp_available()
@@ -1905,4 +1908,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--source-types',nargs='+',choices=sorted(SOURCES),default=None)
+    main(parser.parse_args().source_types)
