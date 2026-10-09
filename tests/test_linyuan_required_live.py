@@ -14,6 +14,10 @@ def test_required_live_rejects_before_static_render_when_cleanup_is_unsafe(monke
     monkeypatch.setattr(p,'selected_native_clean_plan',lambda *a:None)
     monkeypatch.setattr(p,'reviewed_source_live_crop',lambda *a:crop)
     monkeypatch.setattr(p,'audio_card_live_crop',lambda *a:None)
+    # This unit tests refusal of a static fallback, not model downloads. The
+    # mocked crop never reads these assets; arguments must still be offline.
+    monkeypatch.setattr(p,'_download_speaker_reference',lambda *a:tmp_path/'reference.jpg')
+    monkeypatch.setattr(p,'_local_face_models',lambda:('unused-detector','unused-recognizer'))
     monkeypatch.setattr(p,'_render_clean_preview',lambda *a,**k:tmp_path/'preview.mp4')
     monkeypatch.setattr(p,'detect_corner_logos',lambda *a,**k:['external watermark'])
     monkeypatch.setattr(p,'make_audio_card',lambda *a,**k:pytest.fail('Cannot generate a static fallback'))

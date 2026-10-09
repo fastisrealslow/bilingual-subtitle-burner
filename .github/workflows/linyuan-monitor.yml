@@ -7,8 +7,8 @@ name: 林园监控 · 每日抓取
 
 on:
   schedule:
-    # 每两小时提前补源；不能等发布窗口才发现候选耗尽。
-    - cron: '17 */2 * * *'
+    # 每小时轮换补源；414+ 独立视频种子不能一直重复只抓前几个。
+    - cron: '17 * * * *'
   # Editing this workflow is also an explicit, auditable way to perform an
   # immediate refresh when GitHub's scheduled delivery is late.  Other source
   # or state commits do not retrigger the crawler.
@@ -26,6 +26,11 @@ on:
       - linyuan/douyin_seeds.json
       - linyuan/haokan_seeds.json
       - linyuan/yicai_seeds.json
+      - linyuan/netease_seeds.json
+      - linyuan/bilibili_seeds.json
+      - linyuan/seed_scan.py
+      - linyuan/seed_campaign.py
+      - linyuan/bilibili_series.py
       - linyuan/source_gap_backfill.py
       - linyuan/source_research.py
       - linyuan/source_lineage.json
@@ -71,7 +76,7 @@ jobs:
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_bilibili_discovery.py
 
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5

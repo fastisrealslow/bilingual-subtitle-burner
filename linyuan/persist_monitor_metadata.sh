@@ -6,7 +6,7 @@ test -n "${GITHUB_REF_NAME:-}"
 git config user.name 'github-actions[bot]'
 git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 git add -A -- dashboard/data.json monitor_v2.db up_videos.json *_seeds.json
-for report in .automation/source_gap_audit.json .automation/source_research_state.json .automation/source_research_report.json; do
+for report in .automation/source_gap_audit.json .automation/source_research_state.json .automation/source_research_report.json .automation/seed_scan_state.json; do
   if [ -f "$report" ]; then git add -f "$report"; fi
 done
 if git diff --staged --quiet; then
