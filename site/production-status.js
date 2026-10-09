@@ -52,7 +52,7 @@
       return {status: 'unknown', message: '每日供应尚未取得有效库存核对，不能保证更新频率。'};
     }
     if (stock === 0) return {status: 'stockout',
-      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；生产、候选和周日预留片不计入日常储备。`};
+      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
     if (stock < target) return {status: 'at_risk',
       message: `日常合格成片仅 ${stock} 条，低于每日 ${target} 条目标，需要补库。`};
     return {status: 'covered', message: `日常合格库存 ${stock} 条，可覆盖至少一天的 ${target} 条目标；不代表已经发布。`};

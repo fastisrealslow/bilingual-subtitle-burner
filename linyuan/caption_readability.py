@@ -12,8 +12,9 @@ LEGACY_VERSION = 2026091301
 SEPT23_VERSION = 2026092301
 PREVIOUS_VERSION = 2026092401
 OCT7_VERSION = 2026100701
-VERSION = 2026100801
-SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, VERSION)
+OCT8_VERSION = 2026100801
+VERSION = 2026100901
+SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, OCT8_VERSION, VERSION)
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -48,7 +49,7 @@ def clean_entries(entries, *, policy_version=VERSION):
             # them verbatim; the existing >=.8s screen planner must join them
             # to surrounding speech. Never invent a duration or drop a word.
             point_anchors.append(dict(entry=i, time=a, text=text))
-        if policy_version >= VERSION and entry.get('caption_chars') is not None:
+        if policy_version >= OCT8_VERSION and entry.get('caption_chars') is not None:
             from caption_lines import character_anchors
             atoms.extend((*atom,i) for atom in character_anchors(entry))
         else:
@@ -69,6 +70,23 @@ def clean_entries(entries, *, policy_version=VERSION):
         keep[a:b] = [False] * (b-a)
         edits.append(dict(start=atoms[a][1], end=atoms[b-1][2],
                           removed=original[a:b], reason=reason))
+
+    if policy_version >= VERSION:
+        # Display-only: remove repeated hesitation clusters, not affirmative
+        # replies (嗯/嗯嗯), questions (啊？), lexical 呃逆 or words/numbers.
+        # Preserve every surviving character's original anchor and raw ASR.
+        for m in re.finditer(
+                r'(?:^|[，。！？；：、,.!;:])'
+                r'([嗯啊呃](?:[，、, ]*[嗯啊呃])+[，、, ]*)'
+                r'(?=[\u4e00-\u9fffA-Za-z0-9])', original):
+            if original[m.end():m.end()+1] not in {'逆','哼'}:
+                remove(*m.span(1), 'repeated_hesitation')
+        # A single leading filler is removable only before an explicit
+        # continuation; do not erase a standalone yes/no answer.
+        for m in re.finditer(
+                r'(?:^|[，。！？；：、,.!;:])([嗯啊呃][，、, ]+)'
+                r'(?=股|企业|公司|投资|医药|消费|科技|市场|因为|所以|如果|我们|我|这)', original):
+            remove(*m.span(1), 'opening_hesitation')
 
     # Fillers only at a clause opening before a clear continuation. An isolated
     # 嗯 (an affirmative answer), monetary 额 and lexical 那么 are not removed.
@@ -160,7 +178,7 @@ def clean_entries(entries, *, policy_version=VERSION):
     proof=dict(version=policy_version, edit_counts=counts, raw_text=original, display_text=cleaned, edits=edits,
                replay_version=1,
                raw_entries=[{k:e[k] for k in ('start_sec','end_sec','zh','caption_chars')
-                             if k in e and (k!='caption_chars' or policy_version>=VERSION)} for e in entries],
+                             if k in e and (k!='caption_chars' or policy_version>=OCT8_VERSION)} for e in entries],
                point_anchors=point_anchors,
                raw_sha256=hashlib.sha256(original.encode()).hexdigest(),
                display_sha256=hashlib.sha256(cleaned.encode()).hexdigest(),
