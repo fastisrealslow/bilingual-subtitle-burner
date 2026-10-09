@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791542070,
+  "updated_at": 1791542152,
   "inventory_updated_at": 1791542069,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 1,
-    "active_or_recovering_sources": 11,
-    "waiting_candidates": 37,
+    "active_or_recovering_sources": 12,
+    "waiting_candidates": 36,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791542069,
+    "updated_at": 1791542151,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 92,
-    "duration_eligible_records": 37,
-    "candidate_count": 37,
+    "initial_candidates": 91,
+    "duration_eligible_records": 36,
+    "candidate_count": 36,
     "known_duration_candidates": 32,
-    "unknown_duration_candidates": 5,
+    "unknown_duration_candidates": 4,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1141,
+      "already_attempted_or_cooling": 1142,
       "speaker_unconfirmed": 5137,
       "clip_title": 1068,
       "unrelated": 62,
@@ -72,14 +72,6 @@
         "duration_sec": 0
       },
       {
-        "key": "weibo_search:5333359559448874",
-        "title": "林园：九成收益，来自长期陪伴企业发展#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##",
-        "source": "weibo_search",
-        "author": "复利财务自由",
-        "url": "https://m.weibo.cn/detail/5333359559448874",
-        "duration_sec": 0
-      },
-      {
         "key": "weibo_search:5330818475762554",
         "title": "林园：AI与机器人，仍有成长空间#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##林园",
         "source": "weibo_search",
@@ -96,20 +88,20 @@
         "duration_sec": 53.0
       },
       {
-        "key": "weibo_search:5330019641459691",
-        "title": "林园：我比马云有钱#段永平和林园# http://t.cn/AXNGALbO ​​​",
-        "source": "weibo_search",
-        "author": "价值投资和科技股投资",
-        "url": "https://m.weibo.cn/detail/5330019641459691",
-        "duration_sec": 0
-      },
-      {
         "key": "bilibili_search:BV13tu56XEDa",
         "title": "林园 P1 8月7日股神林园最新采访：现在选股难度是不是增加了，寻找10年以上的企业是不是比以前更难？林园分享投资技巧，",
         "source": "bilibili_series",
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV13tu56XEDa",
         "duration_sec": 208.0
+      },
+      {
+        "key": "weibo_search:5330019641459691",
+        "title": "林园：我比马云有钱#段永平和林园# http://t.cn/AXNGALbO ​​​",
+        "source": "weibo_search",
+        "author": "价值投资和科技股投资",
+        "url": "https://m.weibo.cn/detail/5330019641459691",
+        "duration_sec": 0
       },
       {
         "key": "bilibili_search:BV17Aps6oEr6",
@@ -367,15 +359,15 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 841,
+    "failed": 842,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 2,
     "retry_queued": 5,
     "ready": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -17830,11 +17822,11 @@
     },
     {
       "slug": "ly-1009-cce71b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791540903,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17899,6 +17891,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37917811094",
       "run_started_at": "2026-10-09T10:28:27Z",
       "run_updated_at": "2026-10-09T10:28:31Z"
+    },
+    {
+      "slug": "ly-1009-5edb44",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791542115,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37918513595,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37918513595",
+      "run_started_at": "2026-10-09T10:35:14Z",
+      "run_updated_at": "2026-10-09T10:35:19Z"
     }
   ],
   "runs": {
@@ -24205,6 +24215,28 @@
       "run_number": 1617,
       "display_title": "中文源出片 · ly-1009-de5dee"
     },
+    "ly-1009-cce71b": {
+      "id": 37916430893,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T10:15:03Z",
+      "updated_at": "2026-10-09T10:33:23Z",
+      "run_started_at": "2026-10-09T10:15:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37916430893",
+      "run_number": 1620,
+      "display_title": "中文源出片 · ly-1009-cce71b"
+    },
+    "ly-1009-5edb44": {
+      "id": 37918513595,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T10:35:14Z",
+      "updated_at": "2026-10-09T10:35:19Z",
+      "run_started_at": "2026-10-09T10:35:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37918513595",
+      "run_number": 1624,
+      "display_title": "中文源出片 · ly-1009-5edb44"
+    },
     "ly-1009-0151a7": {
       "id": 37917811094,
       "status": "in_progress",
@@ -24237,17 +24269,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37917124778",
       "run_number": 1621,
       "display_title": "中文源出片 · ly-1009-147612"
-    },
-    "ly-1009-cce71b": {
-      "id": 37916430893,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T10:15:03Z",
-      "updated_at": "2026-10-09T10:33:23Z",
-      "run_started_at": "2026-10-09T10:15:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37916430893",
-      "run_number": 1620,
-      "display_title": "中文源出片 · ly-1009-cce71b"
     },
     "ly-1009-b60450": {
       "id": 37915715810,
