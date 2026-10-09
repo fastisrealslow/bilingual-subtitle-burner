@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791550059,
+  "updated_at": 1791550164,
   "inventory_updated_at": 1791550058,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 11,
+    "waiting_candidates": 5,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791550059,
+    "updated_at": 1791550163,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 63,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 6,
+    "initial_candidates": 60,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 2,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1171,
+      "already_attempted_or_cooling": 1174,
       "speaker_unconfirmed": 5136,
       "clip_title": 1068,
       "unrelated": 62,
@@ -70,30 +70,6 @@
         "author": "第一财经",
         "url": "https://www.yicai.com/video/102348707.html",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1Fdv4BYES6",
-        "title": "林园：投资要把牛市和熊市区分开来；我的过人之处是在牛市里；熊市牛市我都是满仓，牛市我更容易发挥；牛市是思维放大，熊市里要",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Fdv4BYES6",
-        "duration_sec": 149.0
-      },
-      {
-        "key": "bilibili_search:BV1dNvtBxEWY",
-        "title": "林园谈未来的投资方向 我不炒概念 今天炒的将来不一定在，投资这些企业很难；能大量生产的都是多的很，很难让你发财；抓住一个",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1dNvtBxEWY",
-        "duration_sec": 180.0
-      },
-      {
-        "key": "bilibili_search:BV1n2BaBREmk",
-        "title": "林园的投资策略 好坏是确定的，有标准的。 抓主要矛盾，会看报表，股价波动要会看；林园：股价高低当然是我们投资的基础，但最",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1n2BaBREmk",
-        "duration_sec": 178.0
       },
       {
         "key": "bilibili_search:BV1r2BaBREyo",
@@ -135,15 +111,15 @@
   },
   "counts": {
     "complete": 107,
-    "failed": 867,
+    "failed": 870,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 6,
+    "interrupted": 3,
     "excluded": 3,
     "retry_queued": 4,
     "ready": 3,
-    "running": 3
+    "running": 6
   },
   "tasks": [
     {
@@ -18030,11 +18006,11 @@
     },
     {
       "slug": "ly-1009-ef1b48",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"‘另另类’在口语中无明确含义，疑似识别错误（可能为‘另类’或‘另立门户’等），影响理解。\"}, {\"sentence_id\": 10, \"quote\": \"前段时间我去香港，就是就是就看到个点，他们都在想。\", \"suspect_quote\": \"就是就是就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"‘就是就是’为重复填充词，但‘看到个点’表意模糊，疑似漏听关键宾语（如‘看到一个点’或‘看到几个点’），属含义不明。\"}, {\"sentence_id\": 12, \"quote\": \"五几年的还能好，还能还能就是值值钱啊。\", \"suspect_quote\": \"五几年的还能好，还能还能就是值值钱啊\", \"kind\": \"unintelligible_term\", \"reason\": \"‘五几年’指代不清（年份范围模糊）；‘还能还能就是值值钱’存在重复与口语冗余，导致核心判断‘值钱’被干扰，属数字/时间指代不明及否定或肯定词污染。\"}, {\"sentence_id\": 22, \"quote\": \"最后大家讲四合院什么，院院院，放在了让你去住。\", \"suspect_quote\": \"最后大家讲四合院什么，院院院\", \"kind\": \"unintelligible_term\", \"reason\": \"‘院院院’为明显口吃或识别重复，但前文‘讲四合院什么’中‘什么’后缺宾语，整体语义断裂，属关键信息缺失。\"}, {\"sentence_id\": 23, \"quote\": \"我刚刚从北京回来，什么四合院去看那个破破烂烂的，给我，我都不要。\", \"suspect_quote\": \"什么四合院去看那个破破烂烂的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘什么四合院’中‘什么’作疑问代词使用不当，疑似漏听动词（如‘看什么四合院’或‘去看了四合院’），导致动作对象不明。\"}, {\"sentence_id\": 26, \"quote\": \"等它不贵的时候，你觉得这一文钱都不值，给你你也不要，就跟那个电视机是一样，汽车一样。\", \"suspect_quote\": \"给你你也不要\", \"kind\": \"unintelligible_term\", \"reason\": \"‘给你你’为重复填充，但结合前文‘一文钱都不值’，此处‘不要’与前文逻辑衔接生硬，疑似漏听转折词或条件状语（如‘就算给你你也不要’），属关键连接成分缺失导致语义不清。\"}]",
       "signature": {
         "ts": 1791548584,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18048,11 +18024,11 @@
     },
     {
       "slug": "ly-1009-e92b65",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导，这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导，这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'车上导导游'和'日本的导'语义不通，结合上下文应为'车上导游'及'日本导游'，中间夹杂的'导'字无意义且破坏专有名词完整性。\"}, {\"sentence_id\": 8, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"这就是我们点心的这个消费身体。\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'消费身体'含义不明，结合上下文讨论点心价格差异，此处极可能为'消费水平'或'消费逻辑'的误识，属于关键概念错写。\"}, {\"sentence_id\": 29, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个脸因为'语义断裂且无法解释，结合后文'针出血了'（可能为'针头出血'或'脸被扎出血'的误听），此处存在严重的语音转写污染，导致关键动作和原因描述混乱。\"}, {\"sentence_id\": 30, \"quote\": \"那个片场黄带着片场黄吃完了没吃？\", \"suspect_quote\": \"那个片场黄带着片场黄吃完了没吃？\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'片场黄'为明显错写的专有名词，结合后文蔬菜市场语境，应为某种食物名称（如'番薯黄'、'南瓜饼'或特定方言食品），当前文本无法解释且非正常行业术语。\"}, {\"sentence_id\": 31, \"quote\": \"我到早上，比如说今天早上，我有觉得这个这个在外面蔬菜市场或者是，我就要吃吃个片场黄，而不吃。\", \"suspect_quote\": \"我就要吃吃个片场黄，而不吃。\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：再次出现'片场黄'，确认为同一错写专有名词，导致句子含义不明，属于无法解释的具体词语污染。\"}]",
       "signature": {
         "ts": 1791548590,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18084,11 +18060,11 @@
     },
     {
       "slug": "ly-1009-6d26f4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/326，总帧数1627；身份匹配但人脸短边不足96px的帧数326",
       "signature": {
         "ts": 1791549066,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18189,6 +18165,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932160215",
       "run_started_at": "2026-10-09T12:45:39Z",
       "run_updated_at": "2026-10-09T12:45:44Z"
+    },
+    {
+      "slug": "ly-1009-aa35ea",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791550113,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37932476136,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932476136",
+      "run_started_at": "2026-10-09T12:48:33Z",
+      "run_updated_at": "2026-10-09T12:48:38Z"
+    },
+    {
+      "slug": "ly-1009-ef7847",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791550120,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37932488657,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932488657",
+      "run_started_at": "2026-10-09T12:48:40Z",
+      "run_updated_at": "2026-10-09T12:48:43Z"
+    },
+    {
+      "slug": "ly-1009-6547be",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791550125,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37932498538,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932498538",
+      "run_started_at": "2026-10-09T12:48:45Z",
+      "run_updated_at": "2026-10-09T12:48:49Z"
     }
   ],
   "runs": {
@@ -24836,6 +24866,50 @@
       "run_number": 1649,
       "display_title": "中文源出片 · ly-1009-ef1b48"
     },
+    "ly-1009-6d26f4": {
+      "id": 37930557093,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-09T12:31:06Z",
+      "updated_at": "2026-10-09T12:46:56Z",
+      "run_started_at": "2026-10-09T12:31:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930557093",
+      "run_number": 1652,
+      "display_title": "中文源出片 · ly-1009-6d26f4"
+    },
+    "ly-1009-6547be": {
+      "id": 37932498538,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:48:45Z",
+      "updated_at": "2026-10-09T12:48:49Z",
+      "run_started_at": "2026-10-09T12:48:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932498538",
+      "run_number": 1660,
+      "display_title": "中文源出片 · ly-1009-6547be"
+    },
+    "ly-1009-ef7847": {
+      "id": 37932488657,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:48:40Z",
+      "updated_at": "2026-10-09T12:48:43Z",
+      "run_started_at": "2026-10-09T12:48:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932488657",
+      "run_number": 1659,
+      "display_title": "中文源出片 · ly-1009-ef7847"
+    },
+    "ly-1009-aa35ea": {
+      "id": 37932476136,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T12:48:33Z",
+      "updated_at": "2026-10-09T12:48:38Z",
+      "run_started_at": "2026-10-09T12:48:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932476136",
+      "run_number": 1658,
+      "display_title": "中文源出片 · ly-1009-aa35ea"
+    },
     "ly-1009-9e7da3": {
       "id": 37932160215,
       "status": "in_progress",
@@ -24868,17 +24942,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
       "run_number": 1653,
       "display_title": "中文源出片 · ly-1009-1f9656"
-    },
-    "ly-1009-6d26f4": {
-      "id": 37930557093,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T12:31:06Z",
-      "updated_at": "2026-10-09T12:46:56Z",
-      "run_started_at": "2026-10-09T12:31:06Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930557093",
-      "run_number": 1652,
-      "display_title": "中文源出片 · ly-1009-6d26f4"
     }
   }
 }
