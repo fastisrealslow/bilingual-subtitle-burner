@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791536017,
+  "updated_at": 1791536099,
   "inventory_updated_at": 1791536016,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 12,
-    "waiting_candidates": 64,
+    "active_or_recovering_sources": 13,
+    "waiting_candidates": 63,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791536017,
+    "updated_at": 1791536098,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 119,
-    "duration_eligible_records": 64,
-    "candidate_count": 64,
+    "initial_candidates": 118,
+    "duration_eligible_records": 63,
+    "candidate_count": 63,
     "known_duration_candidates": 41,
-    "unknown_duration_candidates": 23,
+    "unknown_duration_candidates": 22,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1114,
+      "already_attempted_or_cooling": 1115,
       "speaker_unconfirmed": 5137,
       "clip_title": 1068,
       "unrelated": 62,
@@ -55,22 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5335552804520158",
-        "title": "林园：不看K线 不择时 \n\n#财经##经济##财经##视频黑马扶持计划##财经# http://t.cn/AXp9dVm",
-        "source": "weibo_search",
-        "author": "财神来了88888888",
-        "url": "https://m.weibo.cn/detail/5335552804520158",
-        "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5335552553124328",
-        "title": "林园：大股东减持或质押的公司就不要去搞啦 \n\n#财经##价值投资##视频黑马扶持计划##投资##投资# http://t",
-        "source": "weibo_search",
-        "author": "财神来了88888888",
-        "url": "https://m.weibo.cn/detail/5335552553124328",
-        "duration_sec": 0
-      },
       {
         "key": "weibo_search:5328271195507666",
         "title": "林园：投资不加杠杆，我胆小#林园 #投资有风险理财需谨慎 #林园投资 ##投资理财##价值投资##段永平和林园# htt",
@@ -118,6 +102,14 @@
         "author": "面包树下看投资",
         "url": "https://www.bilibili.com/video/BV1wzYLzmEWJ",
         "duration_sec": 245.0
+      },
+      {
+        "key": "weibo_search:5335552553124328",
+        "title": "林园：大股东减持或质押的公司就不要去搞啦 \n\n#财经##价值投资##视频黑马扶持计划##投资##投资# http://t",
+        "source": "weibo_search",
+        "author": "财神来了88888888",
+        "url": "https://m.weibo.cn/detail/5335552553124328",
+        "duration_sec": 0
       },
       {
         "key": "weibo_search:5334813842344879",
@@ -583,15 +575,15 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 814,
+    "failed": 815,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 3,
     "excluded": 2,
     "ready": 2,
     "retry_queued": 6,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -17578,11 +17570,11 @@
     },
     {
       "slug": "ly-1009-119133",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景连续2.03秒缺少人脸",
       "signature": {
         "ts": 1791534934,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17629,6 +17621,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37907277282",
       "run_started_at": "2026-10-09T08:48:47Z",
       "run_updated_at": "2026-10-09T08:48:52Z"
+    },
+    {
+      "slug": "ly-1009-c04d71",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791536057,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37907852159,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37907852159",
+      "run_started_at": "2026-10-09T08:54:17Z",
+      "run_updated_at": "2026-10-09T08:54:21Z"
     }
   ],
   "runs": {
@@ -23638,17 +23648,6 @@
       "run_number": 1592,
       "display_title": "中文源出片 · ly-1009-1f9055"
     },
-    "ly-1009-4d3689": {
-      "id": 37907277282,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-09T08:48:47Z",
-      "updated_at": "2026-10-09T08:48:52Z",
-      "run_started_at": "2026-10-09T08:48:47Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37907277282",
-      "run_number": 1593,
-      "display_title": "中文源出片 · ly-1009-4d3689"
-    },
     "ly-1009-119133": {
       "id": 37905903983,
       "status": "completed",
@@ -23659,6 +23658,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37905903983",
       "run_number": 1591,
       "display_title": "中文源出片 · ly-1009-119133"
+    },
+    "ly-1009-c04d71": {
+      "id": 37907852159,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T08:54:17Z",
+      "updated_at": "2026-10-09T08:54:21Z",
+      "run_started_at": "2026-10-09T08:54:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37907852159",
+      "run_number": 1594,
+      "display_title": "中文源出片 · ly-1009-c04d71"
+    },
+    "ly-1009-4d3689": {
+      "id": 37907277282,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T08:48:47Z",
+      "updated_at": "2026-10-09T08:48:52Z",
+      "run_started_at": "2026-10-09T08:48:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37907277282",
+      "run_number": 1593,
+      "display_title": "中文源出片 · ly-1009-4d3689"
     },
     "ly-1009-0adba2": {
       "id": 37905892898,
