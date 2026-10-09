@@ -734,8 +734,8 @@ class WeiboSearchSource(Source):
             seen.add(mid)
 
             media = (s.get("page_info") or {}).get("media_info") or {}
-            video_url = (media.get("stream_url_hd") or media.get("stream_url")
-                         or media.get("mp4_hd_url") or media.get("mp4_sd_url") or "")
+            from weibo_media import best_mp4
+            video_url = best_mp4(media)
             cover = (s.get("page_info") or {}).get("page_pic") or ""
             if isinstance(cover, dict):
                 cover = cover.get("url", "")

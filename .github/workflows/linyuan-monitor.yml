@@ -19,6 +19,7 @@ on:
     paths:
       - .github/workflows/linyuan-monitor.yml
       - linyuan/monitor_v2.py
+      - linyuan/weibo_media.py
       - linyuan/persist_monitor_metadata.sh
       - linyuan/monitor_v2_config.json
       - linyuan/weibo_seeds.json
@@ -78,7 +79,8 @@ jobs:
         run: python -u monitor_v2.py --source-types yicai_video weibo_video
 
       - name: 即时提交优先渠道结果（不等待慢搜索）
-        run: bash persist_monitor_metadata.sh 'chore(monitor): checkpoint exact video sources for early refill'
+        run: |
+          bash persist_monitor_metadata.sh 'chore(monitor): checkpoint exact video sources for early refill'
 
       - name: 优先渠道立即触发实际库存核验和补库
         continue-on-error: true
@@ -148,7 +150,8 @@ jobs:
 
       - name: 提交元数据变更
         if: always()
-        run: bash persist_monitor_metadata.sh 'chore(monitor): update discovery and persistent source research'
+        run: |
+          bash persist_monitor_metadata.sh 'chore(monitor): update discovery and persistent source research'
 
       - name: 报告抓取失败（已保存可恢复的补库进度）
         if: always() && steps.fetch.outcome == 'failure'

@@ -10,7 +10,7 @@ SOURCES = (
     'title_quantity_context.py', 'title_market_impression.py',
     'speaker_attribution.py', 'headline_policy.py', 'editorial_policy.py',
     'caption_readability.py', 'caption_lines.py', 'presentation.py', 'live_motion.py',
-    'source_geometry.py', 'source_priority.py', 'production_diagnostics.py',
+    'source_geometry.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
     'fc/media_repair.py', 'fc/stage_revision.py', 'fc/title_revision.py',
     'fc/reviewed_updates.py', 'fc/reviewed_third_video.py',
 )

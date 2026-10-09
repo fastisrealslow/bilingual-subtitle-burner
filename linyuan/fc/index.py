@@ -1760,8 +1760,8 @@ def weibo_refresh_url(page_url):
         headers={"Accept": "application/json", "X-XSRF-TOKEN": xsrf,
                  "Referer": f"https://weibo.com/"}), timeout=25).read().decode())
     media = (data.get("page_info") or {}).get("media_info") or {}
-    vurl = (media.get("stream_url_hd") or media.get("stream_url")
-            or media.get("mp4_hd_url") or media.get("mp4_sd_url") or "")
+    from weibo_media import best_mp4
+    vurl = best_mp4(media)
     if not vurl:
         raise RuntimeError("微博无视频或直链提取失败")
     log.info(f"    ✓ 新直链: {vurl[:60]}")

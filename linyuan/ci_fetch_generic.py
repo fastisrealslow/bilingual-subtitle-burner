@@ -11,7 +11,7 @@ from ci_fetch_bilibili import validate_media
 
 # Some extractors expose scrubber images as playable formats (#706).
 # Keep the existing resolution preference, excluding image formats in every branch.
-FORMAT = ('(bv*[height<=1080]+ba/b[height<=1080]/b)'
+FORMAT = ('(bv*[width<=1920?][height<=1920]+ba/b[width<=1920?][height<=1920]/b)'
           '[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]')
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mhtml'}
 
@@ -74,6 +74,7 @@ def fetch(url, directory, failure_report):
             sys.executable, '-m', 'yt_dlp', '--no-playlist', '--continue',
             '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10',
             '--concurrent-fragments', '4', '-f', FORMAT, '--merge-output-format', 'mp4',
+            '--format-sort', 'res:1080',
             '--print-to-file', 'after_move:filepath', str(manifest),
             '-o', str(directory / 'video.%(ext)s'), url,
         ], check=True)

@@ -2,6 +2,9 @@
 import importlib.util
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 
 spec = importlib.util.spec_from_file_location('weibo_exact_test',
     Path(__file__).resolve().parents[1]/'linyuan/monitor_v2.py')
