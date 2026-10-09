@@ -20390,11 +20390,12 @@
    "source": "weibo_search",
    "author": "鬼谷子鬼哥169",
    "publish_time": "2026-09-27T16:08:58+08:00",
-   "source_check_report_id": 11596120910,
-   "source_check_run_id": 37869759651,
+   "source_check_report_id": 11598886069,
+   "source_check_run_id": 37887174242,
    "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1791528443
   },
   {
    "key": "bilibili_search:BV1564y1M7s6",
@@ -20447,10 +20448,10 @@
    "publish_time": "2024-03-11T23:35:00+00:00",
    "source_check_report_id": 11593628598,
    "source_check_run_id": 37879391147,
-   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
-   "failure_stage": "quality-service",
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"虽然宁远对大事表现的不感兴趣，声称熊市、牛市都能赚钱，毕竟他还是成功逃离了两次大熊市。\", \"suspect_quote\": \"宁远\", \"kind\": \"unintelligible_term\", \"reason\": \"在目标嘉宾为“林园”的访谈语境中，“宁远”极大概率是语音识别错误（ASR error），将“林园”误识为发音相近的“宁远”。这是一个具体的专有名词错写，直接影响对说话人身份的理解。\"}]",
+   "failure_stage": "editorial-or-render",
    "source_check_attempts": 3,
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
    "automatic_rule_recoveries": {
     "transcript-valid-negatives-v4": {
@@ -20464,7 +20465,7 @@
      "ts": 1791522491
     }
    },
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "recovery_origin_run_id": 37879391147
   },
   {
@@ -68210,6 +68211,13 @@
    "video_id": "BV1564y1M7s6",
    "ts": 1791525090,
    "error": "字幕逐字时间倒退或重叠"
+  },
+  {
+   "slug": "ly-1009-39fcf2",
+   "key": "bilibili_search:BV1ww4m1o7JE",
+   "video_id": "BV1ww4m1o7JE",
+   "ts": 1791526639,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"虽然宁远对大事表现的不感兴趣，声称熊市、牛市都能赚钱，毕竟他还是成功逃离了两次大熊市。\", \"suspect_quote\": \"宁远\", \"kind\": \"unintelligible_term\", \"reason\": \"在目标嘉宾为“林园”的访谈语境中，“宁远”极大概率是语音识别错误（ASR error），将“林园”误识为发音相近的“宁远”。这是一个具体的专有名词错写，直接影响对说话人身份的理解。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
