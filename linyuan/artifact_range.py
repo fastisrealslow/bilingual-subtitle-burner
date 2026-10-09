@@ -7,9 +7,6 @@ import shutil
 import time
 import zipfile
 
-import requests
-
-
 def delivery_files(part, *, optional_cover=False):
     """One file contract for ranged, whole-ZIP and Release transfers."""
     wanted=[part.get('final')]
@@ -36,8 +33,13 @@ class RangeFile(io.RawIOBase):
 
     def __init__(self, url, session=None, timeout_sec=180, max_bytes=1024**3):
         self.url = url
-        self.session = session or requests.Session()
-        self._owns_session = session is None
+        if session is None:
+            import requests
+            session=requests.Session()
+            self._owns_session=True
+        else:
+            self._owns_session=False
+        self.session = session
         self.deadline = time.monotonic() + timeout_sec
         self.max_bytes = max_bytes
         self.size = None

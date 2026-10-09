@@ -132,13 +132,19 @@ def cached_artifact(api, artifact_id):
 def find_deliveries(candidates, api, runs, previous=()):
     """Use the recent artifact index plus exact older runs, never a 300-file horizon."""
     found = {}
+    # Artifact IDs are not a clock. The real 31ebc0 recovery created at 05:17
+    # has a LOWER ID than its broken 05:05 producer bundle, and GitHub lists
+    # the older/higher ID first. Explicit creation time decides canonicality.
+    def generation(artifact):
+        return (str(artifact.get('created_at') or ''),int(artifact.get('id') or 0))
     for page in range(1, 4):
         rows = api(f'actions/artifacts?per_page=100&page={page}').get('artifacts', [])
         for artifact in rows:
             slug = artifact['name'].removeprefix('deliver-')
             if (artifact['name'].startswith('deliver-') and slug in candidates
                     and fc.inventory_record_current(artifact)):
-                found.setdefault(slug, artifact)
+                if slug not in found or generation(artifact)>generation(found[slug]):
+                    found[slug]=artifact
         if len(rows) < 100:
             break
     for slug in candidates.keys() - found.keys():
@@ -149,7 +155,7 @@ def find_deliveries(candidates, api, runs, previous=()):
         rows = api(f"actions/runs/{run['id']}/artifacts").get('artifacts', [])
         matches = [a for a in rows if a['name'] == 'deliver-' + slug and fc.inventory_record_current(a)]
         if matches:
-            found[slug] = max(matches, key=lambda a: a['id'])
+            found[slug] = max(matches, key=generation)
     # Cached acceptance is not proof that GitHub still holds the file. Resolve
     # exact IDs beyond the recent pages instead of keeping ghost stock for 80d.
     for record in previous:

@@ -4,12 +4,21 @@ import json
 from pathlib import Path
 import re
 import sys
+import subprocess
 import zipfile
 
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 import artifact_range as ar
+
+
+def test_delivery_manifest_does_not_require_http_dependencies():
+    code=('import sys; sys.modules["requests"]=None; '
+          'sys.path.insert(0,"linyuan"); from artifact_range import delivery_files; '
+          'assert delivery_files({"final":"final.mp4","cover":"cover.jpg"})'
+          '==["final.mp4","cover.jpg"]')
+    subprocess.run([sys.executable,'-c',code],cwd=Path(__file__).resolve().parents[1],check=True)
 
 
 class Response:
