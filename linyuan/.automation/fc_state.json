@@ -22048,9 +22048,11 @@
    "publish_time": "2025-08-10T04:14:29+00:00",
    "source_check_report_id": 11622890126,
    "source_check_run_id": 37936561516,
-   "last_error": "观点审核服务未提供可对照的实际原文证据：本地文本模型未就绪；原文规则路径可继续，需要模型的部分保留转写后重试",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段内容仅为开场寒暄与背景介绍，主持人询问嘉宾是否来过实体店、使用过产品，并铺垫投资话题。嘉宾仅回答‘是哈’及重复确认使用胶囊，未对任何投资观点、判断或逻辑进行阐述。缺少核心观点（claim）及其理由；原文问题：[]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV1764y1K7DH",
@@ -22616,9 +22618,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2025-12-29T21:03:57+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -72128,6 +72130,13 @@
    "video_id": "BV1dKdLYJEW9",
    "ts": 1791559150,
    "error": "整段取景预检：源 449.87s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1009-ba19af",
+   "key": "bilibili_search:BV1nxbAzPEMj",
+   "video_id": "BV1nxbAzPEMj",
+   "ts": 1791563847,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：片段内容仅为开场寒暄与背景介绍，主持人询问嘉宾是否来过实体店、使用过产品，并铺垫投资话题。嘉宾仅回答‘是哈’及重复确认使用胶囊，未对任何投资观点、判断或逻辑进行阐述。缺少核心观点（claim）及其理由；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
