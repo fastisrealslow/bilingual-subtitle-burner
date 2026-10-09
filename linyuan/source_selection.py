@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 41
+VERSION = 42
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -102,6 +102,11 @@ OUTRO = re.compile(
     # #68 ends before the host resumes. Its final 114.72s chapter must not
     # borrow the outro/host narration to reach the unchanged 120s minimum.
     r'|我今天就讲这么多'
+    # A microphone hand-off ends this speaker's answer even if the event
+    # continues. Require a bare 下一位 followed by punctuation, so a guest's
+    # next customer/example and a same-topic next question stay untouched.
+    r'|(?:^|[。！？!?])(?:好(?:的)?|谢谢|感谢|那(?:么)?|嗯|啊|[，,\s])*'
+    r'(?:我们|咱们)?(?:请|有请)?下一位[，,。！!]'
     r'|(?:聊|谈|交流|讨论)(?:了)?这么多[^。！？!?]{0,40}(?:网友|观众|大家)[^。！？!?]{0,20}(?:学到|学习|收获)')
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
@@ -133,6 +138,16 @@ HOST_PREMISE = re.compile(
     r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
     r'(?:在)?我们看到(?:你|您)(?:整个的|的)(?:投资|经历|选择))')
 BACKREF_QUESTION = re.compile(r'^(?:这{1,2}|那{1,2})(?:一)?点(?:是)?(?:怎么|如何)[^。！？?]{0,40}[？?]')
+# A backward reference followed only by a bare number/classifier does not
+# name the thing being discussed. A later answer cannot reconstruct the
+# omitted earlier list. Explicit nouns (e.g. 两个投资原则) do not match.
+BARE_NUMBER_BACKREF = re.compile(
+    r'^(?:啊|嗯|呃|那(?:么)?|[，,\s])*'
+    r'(?:您|你)?(?:刚才|刚刚|前面|之前)(?:您|你)?'
+    r'(?:不是|是|也|还|曾经|[，,\s])*'
+    r'(?:说|提到|讲|列举|给)(?:过|了)?[，,\s]*'
+    r'(?:给|有|是|只有|还有|第)?[一二两三四五六七八九十百\d]+'
+    r'(?:个|点|条|种)(?:吗|呢|呀|啊|吧|对吧|是吧)?[？?。！!\s]*$')
 
 
 def host_premise_start(units, cues, question, lower=0):
@@ -314,6 +329,8 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if units and BARE_NUMBER_BACKREF.fullmatch(units[0]['text']):
+        return '开场回指此前未保留的编号或数量，缺少实际对象；须保留原始提问前提或另选独立完整论述'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
