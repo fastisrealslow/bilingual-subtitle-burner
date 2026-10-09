@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791550895,
-  "inventory_updated_at": 1791550876,
+  "updated_at": 1791551038,
+  "inventory_updated_at": 1791551037,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 11,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 2,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791550895,
+    "updated_at": 1791551038,
     "records": 8996,
     "video_records": 7622,
     "initial_candidates": 57,
@@ -86,16 +86,16 @@
     "publishable_now": 0
   },
   "counts": {
-    "complete": 107,
-    "failed": 873,
+    "complete": 108,
+    "failed": 878,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
-    "excluded": 3,
-    "retry_queued": 4,
+    "interrupted": 2,
+    "excluded": 2,
     "ready": 3,
-    "running": 6
+    "retry_queued": 1,
+    "running": 5
   },
   "tasks": [
     {
@@ -16704,11 +16704,11 @@
     },
     {
       "slug": "ly-1009-6793f8",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791519412,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16722,11 +16722,11 @@
     },
     {
       "slug": "ly-1009-393d1a",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791519621,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -16740,11 +16740,11 @@
     },
     {
       "slug": "ly-1008-582ff1",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问；须摘录嘉宾本人的独立陈述",
       "signature": {
         "ts": 1791522504,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1791522503,
@@ -16758,11 +16758,11 @@
     },
     {
       "slug": "ly-1009-215dd7",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：完整词句无法放入两行；必须先重新分段",
       "signature": {
         "ts": 1791522516,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1791522515,
@@ -16776,11 +16776,11 @@
     },
     {
       "slug": "ly-1008-d93536",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问；须摘录嘉宾本人的独立陈述",
       "signature": {
         "ts": 1791522522,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1791522521,
@@ -17568,13 +17568,13 @@
     },
     {
       "slug": "ly-1009-5c9bcc",
-      "status": "excluded",
-      "detail": "已有成片，但剩余片段受去重或发布规则限制",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1791541312,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -18126,8 +18126,8 @@
     },
     {
       "slug": "ly-1009-9e7da3",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791549940,
         "failed": null,
@@ -18140,7 +18140,7 @@
       "run_id": 37932160215,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932160215",
       "run_started_at": "2026-10-09T12:45:39Z",
-      "run_updated_at": "2026-10-09T12:45:44Z"
+      "run_updated_at": "2026-10-09T13:02:54Z"
     },
     {
       "slug": "ly-1009-aa35ea",
@@ -24975,10 +24975,10 @@
     },
     "ly-1009-9e7da3": {
       "id": 37932160215,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-09T12:45:39Z",
-      "updated_at": "2026-10-09T12:45:44Z",
+      "updated_at": "2026-10-09T13:02:54Z",
       "run_started_at": "2026-10-09T12:45:39Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37932160215",
       "run_number": 1657,
