@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791514164,
+  "updated_at": 1791514244,
   "inventory_updated_at": 1791514164,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 42,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 41,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791514164,
+    "updated_at": 1791514243,
     "records": 8857,
     "video_records": 7485,
-    "initial_candidates": 97,
-    "duration_eligible_records": 42,
-    "candidate_count": 42,
-    "known_duration_candidates": 17,
+    "initial_candidates": 96,
+    "duration_eligible_records": 41,
+    "candidate_count": 41,
+    "known_duration_candidates": 16,
     "unknown_duration_candidates": 25,
     "excluded": {
       "no_video": 1372,
-      "already_attempted_or_cooling": 1074,
-      "speaker_unconfirmed": 5097,
+      "already_attempted_or_cooling": 1076,
+      "speaker_unconfirmed": 5096,
       "clip_title": 1033,
       "unrelated": 62,
       "noise": 15,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5349649029792988",
-        "title": "林园北大演讲：当前股市就是弯腰捡钱的时候！[鲜花][鲜花][祈祷][祈祷]",
-        "source": "weibo_search",
-        "author": "莒人莒味和合发展",
-        "url": "https://m.weibo.cn/detail/5349649029792988",
-        "duration_sec": 2161.0
-      },
       {
         "key": "weibo_search:5344755190071555",
         "title": "2026.09.16 林园最新采访！#一分钟精选视频扶持计划##圣叹财经# http://t.cn/AXOpkpiG ​",
@@ -411,9 +403,10 @@
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 2,
-    "running": 5
+    "running": 6,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -17166,14 +17159,14 @@
     },
     {
       "slug": "ly-1009-39fcf2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791513653,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791515987,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -17181,6 +17174,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37875716838",
       "run_started_at": "2026-10-09T02:40:52Z",
       "run_updated_at": "2026-10-09T02:48:24Z"
+    },
+    {
+      "slug": "ly-1009-3b48fe",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791514206,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37876436391,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37876436391",
+      "run_started_at": "2026-10-09T02:50:06Z",
+      "run_updated_at": "2026-10-09T02:50:11Z"
     }
   ],
   "runs": {
@@ -23035,6 +23046,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37875716838",
       "run_number": 1558,
       "display_title": "中文源出片 · ly-1009-39fcf2"
+    },
+    "ly-1009-3b48fe": {
+      "id": 37876436391,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T02:50:06Z",
+      "updated_at": "2026-10-09T02:50:11Z",
+      "run_started_at": "2026-10-09T02:50:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37876436391",
+      "run_number": 1559,
+      "display_title": "中文源出片 · ly-1009-3b48fe"
     },
     "ly-1009-0d1824": {
       "id": 37874556437,
