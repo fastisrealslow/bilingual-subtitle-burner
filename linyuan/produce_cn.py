@@ -1842,7 +1842,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if cache.exists():
         try:
             saved=json.loads(cache.read_text())
-            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==9
+            if (saved.get('transcript_sha256')==digest and saved.get('review_prompt_version')==10
                     and (not automatic_only() or saved.get('automatic_only') is True)
                     and saved.get('review_model')==LOCAL_LLM_MODEL
                     and saved.get('review_protocol')==(3 if omitted_text else 2)
@@ -1924,7 +1924,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if automatic_only():
         import editorial_evidence
         bound_evidence=editorial_evidence.sentences(text)
-        analysis_fields=editorial_evidence.schema(bound_evidence)
+        from source_selection import question_unit
+        excluded_claim_ids=[i for i,unit in enumerate(bound_evidence) if question_unit(unit)]
+        analysis_fields=editorial_evidence.schema(bound_evidence,claim_excluded=excluded_claim_ids)
         prompt+=('\n自动证据协议：不复写quote，不改字或标点。claim_range、reasoning_range、conclusion_range各填'
             '[起始句编号,结束句编号]，两端包含；缺少证据填[-1,-1]。只能选择连续原句，不能拿主持人的问题作观点。'
             'audio_issues每项填sentence_id和reason。开场和结尾由程序固定为第一句和最后一句，'
@@ -1935,6 +1937,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
             '不得仅因没有正式收束语、没有主持人总结或没有进入新话题而拒绝。'
             'claim_range只选嘉宾判断的最小连续原句，理由单独放reasoning_range，不把中间的主持人提问包进claim_range。'
             '只需输出schema里的字段。完整编号原句：'+json.dumps(dict(enumerate(bound_evidence)),ensure_ascii=False))
+        prompt+=('\n程序已识别的明确提问句编号：'+json.dumps(excluded_claim_ids)+
+            '。claim_range不得包含这些编号，不能把提问和随后回答合成观点证据。'
+            '其他句子仍需你独立判断是否为嘉宾判断，不因未列入提问就自动通过；缺少观点仍填[-1,-1]。')
     fields={name:{'type':'boolean'} for name in ('standalone_opening',
         'complete_argument','reasoning_present','natural_ending','requires_audio_review')}
     if omitted_text:
@@ -1987,7 +1992,9 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
                 if proof.get('complete_argument') is True and not analysis['claim_quote']:
                     raise ValueError('完整观点通过却没有原文观点证据')
                 from source_selection import question_unit
-                if proof.get('complete_argument') is True and question_unit(analysis['claim_quote']):
+                from editorial_evidence import sentences as evidence_sentences
+                if proof.get('complete_argument') is True and any(
+                        question_unit(unit) for unit in evidence_sentences(analysis['claim_quote'])):
                     raise ValueError('观点证据包含采访者提问；须摘录嘉宾本人的独立陈述')
                 if proof.get('reasoning_present') is True and not analysis['reasoning_quote']:
                     raise ValueError('理由通过却没有原文理由证据')
@@ -2011,7 +2018,7 @@ def review_complete_argument(cues, picks, speaker, api_key, work, suffix):
     if proof.get('issues'):
         proof['requires_audio_review']=True
     proof.update(version=editorial.VERSION,transcript_sha256=digest,review_protocol=3 if omitted_text else 2,
-                 review_prompt_version=9,review_model=LOCAL_LLM_MODEL)
+                 review_prompt_version=10,review_model=LOCAL_LLM_MODEL)
     if automatic_only():
         proof.update(automatic_only=True,evidence_protocol='source_sentence_ranges_v1')
     if omitted_text:

@@ -107,4 +107,27 @@ def test_old_style_audit_cache_requires_new_actual_review(tmp_path):
         calls.append(1)
         return json.dumps(dict(issues=[],explanation='已按当前规范重新核对'))
     proof=A.review(text,'嘉宾','model',call,path)
-    assert calls==[1] and proof['version']==3 and not proof['audio_verified']
+    assert calls==[1] and proof['version']==4 and not proof['audio_verified']
+
+
+def test_valid_negative_issue_survives_misclassified_extra_issue(tmp_path):
+    text='林元谈投资。否则叫剁胳膊剁腿。'
+    reply=dict(issues=[
+        dict(sentence_id=0,suspect_quote='林元',kind='unintelligible_term',reason='人名存在识别疑点'),
+        dict(sentence_id=1,suspect_quote='剁胳膊剁腿',kind='ambiguous_number_or_negation',reason='普通比喻')],
+        explanation='人名需核实，比喻不属于数字疑点')
+    calls=[]
+    proof=A.review(text,'林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+    assert len(calls)==1 and not proof['passed']
+    assert proof['issues'][0]['suspect_quote']=='林元'
+    assert proof['invalid_issue_evidence'][0]['suspect_quote']=='剁胳膊剁腿'
+    assert not proof['audio_verified']
+
+
+def test_invalid_only_classification_never_becomes_a_pass(tmp_path):
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='剁胳膊剁腿',kind='ambiguous_number_or_negation',
+        reason='普通比喻')],explanation='没有数字')
+    calls=[]
+    with pytest.raises(ValueError,match='数字或否定'):
+        A.review('否则叫剁胳膊剁腿。','林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+    assert len(calls)==2 and not (tmp_path/'audit.json').exists()

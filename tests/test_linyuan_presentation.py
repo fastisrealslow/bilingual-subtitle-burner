@@ -104,6 +104,23 @@ def test_actual_49_cover_keeps_buy_and_sell_systems_whole():
         assert any('卖出系统' in line for line in lines)
 
 
+def test_actual_215dd7_cover_uses_available_three_lines_without_truncation():
+    text='底部区间分期买入拉低建仓价'
+    lines=V.cover_headline(text,max_lines=3,line_capacity=6)
+    assert len(lines)==3 and max(map(len,lines))<=6
+    assert ''.join(lines)==text
+    assert all(sum(map(len,lines[:i])) in {b for _,b in V.word_spans(text)} for i in (1,2))
+    with pytest.raises(ValueError,match='两行'):
+        V.cover_headline(text,max_lines=2,line_capacity=6)
+
+
+def test_cover_never_splits_protected_long_word_or_overflows_three_lines():
+    with pytest.raises(ValueError):
+        V.cover_headline('长期投资者',max_lines=3,line_capacity=4)
+    with pytest.raises(ValueError):
+        V.cover_headline('市场底部区间分期买入拉低平均建仓价格',max_lines=3,line_capacity=4)
+
+
 @pytest.mark.parametrize('w,h,mode', [(1280,720,'landscape'), (720,1280,'portrait'),
                                     (720,720,'square'), (1640,720,'landscape')])
 def test_native_aspect_and_center(w,h,mode):

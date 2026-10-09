@@ -77,6 +77,33 @@ def test_transcript_model_recovery_replays_original_evidence_only_once(monkeypat
     assert entry['source_check_run_id']==run['id']
     assert entry['source_check_attempts']==2 and entry['quality_retries']==1
     assert 'transcript-review-model-v3' in entry['automatic_rule_recoveries']
+    if reason.startswith('独立文字识别疑点审核不可用'):
+        assert 'transcript-valid-negatives-v4' in entry['automatic_rule_recoveries']
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
+def test_current_transcript_service_repair_reopens_after_legacy_repair_once(monkeypatch):
+    state,entry,run,_=evidence(monkeypatch,changed='linyuan/transcript_audit.py')
+    entry.update(failed=True,last_error='独立文字识别疑点审核不可用：invalid evidence',
+        source_url='https://example.com/mother',source_check_attempts=2,
+        automatic_rule_recoveries={'transcript-review-model-v3':{'run_id':99}})
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert entry['automatic_rule_recoveries']['transcript-review-model-v3']=={'run_id':99}
+    assert 'transcript-valid-negatives-v4' in entry['automatic_rule_recoveries']
+    assert entry['source_check_attempts']==2 and entry['quality_retries']==1
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
+def test_cover_repair_does_not_cascade_into_caption_recovery(monkeypatch):
+    state,entry,run,_=evidence(monkeypatch,changed='linyuan/presentation.py')
+    entry.update(failed=True,last_error='封面生成/人物/角标复检失败：完整词句无法放入两行；必须先重新分段',
+        source_url='https://example.com/mother')
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert 'feed-cover-three-lines-v1' in entry['automatic_rule_recoveries']
     entry['failed']=True
     assert not fc._recover_changed_production_rule(state,entry,run)
 

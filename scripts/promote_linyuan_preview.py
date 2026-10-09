@@ -61,7 +61,8 @@ def verify_directory(directory,request,slug,validator=None):
             or type(review.get('review_prompt_version')) is not int
             or review['review_prompt_version']<9
             or review.get('evidence_protocol')!='source_sentence_ranges_v1'
-            or type(audit.get('version')) is not int or audit['version'] not in {2,3}
+            or type(audit.get('version')) is not int or audit['version'] not in {2,3,4}
+            or (audit.get('version')==4 and audit.get('invalid_issue_evidence'))
             or audit.get('passed') is not True
             or audit.get('issues')!=[]
             or audit.get('transcript_sha256')!=review.get('transcript_sha256')

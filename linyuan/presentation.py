@@ -360,8 +360,7 @@ def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9):
         if clause_pairs:
             return min(clause_pairs,key=lambda pair:abs(len(pair[0])-len(pair[1])))
     text=''.join(clauses)
-    initial=wrap_words(text,line_capacity)
-    if len(initial)==1:return initial
+    if len(text)<=line_capacity:return [text]
     # A dictionary protects words but still splits "不是靠 / 投入". Prefer a
     # complete predicate. Three lines are opt-in only for layouts with room.
     def dangling(line):
@@ -373,12 +372,18 @@ def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9):
         return sum(dangling(x) for x in lines[:-1]) + sum(x.startswith('的') for x in lines[1:])
     points=[b for a,b in word_spans(text) if b<len(text)]
     pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=line_capacity]
-    best=min(pairs,key=lambda ls:(broken_phrase(ls),abs(len(ls[0])-len(ls[1]))))
-    if not broken_phrase(best) or max_lines<3:return best
+    best=min(pairs,key=lambda ls:(broken_phrase(ls),abs(len(ls[0])-len(ls[1])))) if pairs else None
+    if best is not None and (not broken_phrase(best) or max_lines<3):return best
+    if max_lines<3:
+        raise ValueError('完整词句无法放入两行；必须先重新分段')
     triples=[[text[:a],text[a:b],text[b:]] for a in points for b in points
              if a<b and max(a,b-a,len(text)-b)<=line_capacity and min(a,b-a,len(text)-b)>=3]
     complete=[ls for ls in triples if not broken_phrase(ls)]
-    if not complete:return best
+    if not complete:
+        if best is not None:return best
+        if triples:
+            return min(triples,key=lambda ls:(broken_phrase(ls),max(map(len,ls))-min(map(len,ls))))
+        raise ValueError('完整词句无法放入三行；必须重新审核封面文案')
     # Keep contrast markers with their clause; otherwise prefer balanced lines.
     return min(complete,key=lambda ls:(-sum(x.startswith(('不是','而是')) for x in ls[1:]),
                                       max(map(len,ls))-min(map(len,ls))))

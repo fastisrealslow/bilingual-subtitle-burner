@@ -20,6 +20,13 @@ def test_evidence_is_bound_to_original_punctuation_and_contiguous_sentences():
     assert bound['opening_quote']=='您怎么看？' and bound['ending_quote']=='等实际数据。'
 
 
+def test_claim_endpoints_exclude_host_without_restricting_context_evidence():
+    fields=e.schema(['提问？','判断。','追问？','回答。'],claim_excluded=[0,2])
+    assert fields['claim_range']['items']['enum']==[-1,1,3]
+    assert fields['reasoning_range']['items']['enum']==[-1,0,1,2,3]
+    assert fields['conclusion_range']['items']['enum']==[-1,0,1,2,3]
+
+
 @pytest.mark.parametrize('span',[[1,9],[2,1],[-1,1],[True,1],[1],['1',1]])
 def test_invalid_ranges_never_become_source_evidence(span):
     data=analysis();data['claim_range']=span
