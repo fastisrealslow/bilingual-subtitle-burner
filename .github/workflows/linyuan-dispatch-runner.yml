@@ -2,7 +2,9 @@ name: 林园 GitHub 调度与 FC 节费切换
 
 on:
   schedule:
-    - cron: '37 * * * *'
+    # Candidate admission/recovery every half hour. Publication keeps its own
+    # timer, daily cap, lease and quality gates; this is not forced publishing.
+    - cron: '7,37 * * * *'
   push:
     branches: [main]
     paths:
