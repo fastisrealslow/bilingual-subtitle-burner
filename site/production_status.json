@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791571363,
+  "updated_at": 1791571483,
   "inventory_updated_at": 1791571360,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 8,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791571363,
+    "updated_at": 1791571483,
     "records": 9187,
     "video_records": 7810,
-    "initial_candidates": 57,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 56,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1377,
       "speaker_unconfirmed": 5289,
       "clip_title": 1080,
-      "already_attempted_or_cooling": 1199,
+      "already_attempted_or_cooling": 1200,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1LuG46NEuH",
-        "title": "林园 P1 林园：给大家鼓劲， 钱都是熬出来的！ 鼓足勇气面对、 挺起腰杆，不怕，哪一天来我也不知道，多一点耐心，等一等",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1LuG46NEuH",
-        "duration_sec": 121.0
-      },
       {
         "key": "bilibili_search:BV14eLK6ME5N",
         "title": "林园 P1 林园：我不碰科技股；炒股的人追求的是确定性，目前的科技企业大概率走不到终点",
@@ -87,15 +79,15 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 895,
+    "failed": 896,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 2,
     "excluded": 3,
     "ready": 5,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -18594,11 +18586,11 @@
     },
     {
       "slug": "ly-1009-a5c671",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
       "signature": {
         "ts": 1791570580,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18627,6 +18619,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37974904497",
       "run_started_at": "2026-10-09T18:40:23Z",
       "run_updated_at": "2026-10-09T18:40:27Z"
+    },
+    {
+      "slug": "ly-1009-afc68a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791571442,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37975321408,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37975321408",
+      "run_started_at": "2026-10-09T18:44:02Z",
+      "run_updated_at": "2026-10-09T18:44:06Z"
     }
   ],
   "runs": {
@@ -25549,17 +25559,6 @@
       "run_number": 1707,
       "display_title": "中文源出片 · ly-1009-0c0721"
     },
-    "ly-1009-0a14d1": {
-      "id": 37974904497,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-09T18:40:23Z",
-      "updated_at": "2026-10-09T18:40:27Z",
-      "run_started_at": "2026-10-09T18:40:23Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37974904497",
-      "run_number": 1709,
-      "display_title": "中文源出片 · ly-1009-0a14d1"
-    },
     "ly-1009-a5c671": {
       "id": 37973658516,
       "status": "completed",
@@ -25570,6 +25569,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37973658516",
       "run_number": 1708,
       "display_title": "中文源出片 · ly-1009-a5c671"
+    },
+    "ly-1009-afc68a": {
+      "id": 37975321408,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T18:44:02Z",
+      "updated_at": "2026-10-09T18:44:06Z",
+      "run_started_at": "2026-10-09T18:44:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37975321408",
+      "run_number": 1710,
+      "display_title": "中文源出片 · ly-1009-afc68a"
+    },
+    "ly-1009-0a14d1": {
+      "id": 37974904497,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T18:40:23Z",
+      "updated_at": "2026-10-09T18:40:27Z",
+      "run_started_at": "2026-10-09T18:40:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37974904497",
+      "run_number": 1709,
+      "display_title": "中文源出片 · ly-1009-0a14d1"
     },
     "ly-1009-589052": {
       "id": 37971236752,
