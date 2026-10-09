@@ -14,7 +14,7 @@ def test_half_hour_runner_keeps_single_queue_and_existing_capacity_limits():
     assert 'cancel-in-progress: false' in workflow
     assert 'dispatch_on_runner.py' in workflow
     assert FC.MAX_ACTIVE_SOURCES==6
-    assert FC.MAX_PER_DAY==4
+    assert FC.MAX_PUBLISH_PER_DAY==4
 
 
 def test_publish_timer_remains_four_slots_not_half_hour_forced_posting():
