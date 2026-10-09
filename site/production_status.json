@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791538056,
+  "updated_at": 1791538136,
   "inventory_updated_at": 1791538054,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 2,
-    "active_or_recovering_sources": 12,
-    "waiting_candidates": 55,
+    "active_or_recovering_sources": 14,
+    "waiting_candidates": 54,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791538055,
+    "updated_at": 1791538135,
     "records": 8996,
     "video_records": 7622,
-    "initial_candidates": 110,
-    "duration_eligible_records": 55,
-    "candidate_count": 55,
+    "initial_candidates": 109,
+    "duration_eligible_records": 54,
+    "candidate_count": 54,
     "known_duration_candidates": 38,
-    "unknown_duration_candidates": 17,
+    "unknown_duration_candidates": 16,
     "excluded": {
       "no_video": 1374,
-      "already_attempted_or_cooling": 1123,
+      "already_attempted_or_cooling": 1124,
       "speaker_unconfirmed": 5137,
       "clip_title": 1068,
       "unrelated": 62,
@@ -56,19 +56,19 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:5331179240687937",
-        "title": "林园：炒科技看不清企业寿命，消费赛道更好把握#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##",
-        "source": "weibo_search",
-        "author": "复利财务自由",
-        "url": "https://m.weibo.cn/detail/5331179240687937",
-        "duration_sec": 0
-      },
-      {
         "key": "weibo_search:5328277914779959",
         "title": "林园：布局风险可控#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##林园##股票财经#",
         "source": "weibo_search",
         "author": "复利财务自由",
         "url": "https://m.weibo.cn/detail/5328277914779959",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:5334437201969633",
+        "title": "林园谈创新药：保守治疗类药品，暂无真正创新#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财",
+        "source": "weibo_search",
+        "author": "复利财务自由",
+        "url": "https://m.weibo.cn/detail/5334437201969633",
         "duration_sec": 0
       },
       {
@@ -328,19 +328,19 @@
         "duration_sec": 180.0
       },
       {
-        "key": "weibo_search:5334437201969633",
-        "title": "林园谈创新药：保守治疗类药品，暂无真正创新#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财",
-        "source": "weibo_search",
-        "author": "复利财务自由",
-        "url": "https://m.weibo.cn/detail/5334437201969633",
-        "duration_sec": 0
-      },
-      {
         "key": "weibo_search:5333359559448874",
         "title": "林园：九成收益，来自长期陪伴企业发展#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##",
         "source": "weibo_search",
         "author": "复利财务自由",
         "url": "https://m.weibo.cn/detail/5333359559448874",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:5330818475762554",
+        "title": "林园：AI与机器人，仍有成长空间#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##林园",
+        "source": "weibo_search",
+        "author": "复利财务自由",
+        "url": "https://m.weibo.cn/detail/5330818475762554",
         "duration_sec": 0
       },
       {
@@ -390,14 +390,6 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1MriGB6Ejr",
         "duration_sec": 134.0
-      },
-      {
-        "key": "weibo_search:5330818475762554",
-        "title": "林园：AI与机器人，仍有成长空间#股票##股市亘古不变的一条规律是什么##中国股市涨跌有自身规律##炒股##财经##林园",
-        "source": "weibo_search",
-        "author": "复利财务自由",
-        "url": "https://m.weibo.cn/detail/5330818475762554",
-        "duration_sec": 0
       },
       {
         "key": "weibo_search:5328525949143233",
@@ -511,15 +503,15 @@
   },
   "counts": {
     "complete": 105,
-    "failed": 822,
+    "failed": 823,
     "paused": 5,
     "validation_failed": 2,
     "awaiting_validation": 1,
-    "interrupted": 5,
+    "interrupted": 3,
     "excluded": 2,
     "ready": 2,
-    "retry_queued": 6,
-    "running": 5
+    "retry_queued": 7,
+    "running": 6
   },
   "tasks": [
     {
@@ -17578,11 +17570,11 @@
     },
     {
       "slug": "ly-1009-b43d58",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791536420,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -17614,14 +17606,14 @@
     },
     {
       "slug": "ly-1009-44b8af",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791537476,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791539877,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -17719,6 +17711,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37911190748",
       "run_started_at": "2026-10-09T09:25:37Z",
       "run_updated_at": "2026-10-09T09:25:41Z"
+    },
+    {
+      "slug": "ly-1009-558b4c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791538100,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37911481160,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37911481160",
+      "run_started_at": "2026-10-09T09:28:20Z",
+      "run_updated_at": "2026-10-09T09:28:24Z"
     }
   ],
   "runs": {
@@ -23837,6 +23847,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37908482132",
       "run_number": 1596,
       "display_title": "中文源出片 · ly-1009-b43d58"
+    },
+    "ly-1009-558b4c": {
+      "id": 37911481160,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T09:28:20Z",
+      "updated_at": "2026-10-09T09:28:24Z",
+      "run_started_at": "2026-10-09T09:28:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37911481160",
+      "run_number": 1604,
+      "display_title": "中文源出片 · ly-1009-558b4c"
     },
     "ly-1009-3748b4": {
       "id": 37911190748,
