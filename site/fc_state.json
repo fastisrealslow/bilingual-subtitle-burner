@@ -20838,7 +20838,8 @@
    "failed": true,
    "last_error": "成片存在持续黑色填充边",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5328271195507666",
@@ -20894,7 +20895,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "寻找价值的权哥",
-   "publish_time": "2026-08-02T13:25:09.995791"
+   "publish_time": "2026-08-02T13:25:09.995791",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5343533348425733",
@@ -20933,7 +20938,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "无林园",
-   "publish_time": "2026-10-01T21:41:38+08:00"
+   "publish_time": "2026-10-01T21:41:38+08:00",
+   "failed": true,
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1607, 3: 0.0088, 4: -0.0429, 5: 0.1711, 6: 0.1951, 7: 0.2272, 8: 0.0605, 9: 0.1311, 10: 0.2166, 11: 0.1329, 12: 0.1948, 13: -0.0528, 14: 0.1316, 15: 0.0708, 17: 0.1753, 18: -0.0335}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5344828730642565",
@@ -68919,6 +68928,20 @@
    "video_id": "http://f.video.weibocdn.com/o0/CnYa9MDVlx08Ag3sgmsg01041200IECI0E010.mp4",
    "ts": 1791537679,
    "error": "成片存在持续黑色填充边"
+  },
+  {
+   "slug": "ly-1009-aa0637",
+   "key": "weibo_search:5349325712658514",
+   "video_id": "https://f.video.weibocdn.com/o0/u4HNqpfUlx08BeFt6IRW010412049WrC0E020.mp4",
+   "ts": 1791537908,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1607, 3: 0.0088, 4: -0.0429, 5: 0.1711, 6: 0.1951, 7: 0.2272, 8: 0.0605, 9: 0.1311, 10: 0.2166, 11: 0.1329, 12: 0.1948, 13: -0.0528, 14: 0.1316, 15: 0.0708, 17: 0.1753, 18: -0.0335}"
+  },
+  {
+   "slug": "ly-1009-d7f513",
+   "key": "weibo_search:5326720901060499",
+   "video_id": "http://f.video.weibocdn.com/o0/eEeqRkxLlx08zDcda9rW010412009lfE0E010.mp4",
+   "ts": 1791537909,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
