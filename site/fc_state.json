@@ -20739,7 +20739,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5329626789581992",
@@ -20833,7 +20834,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "复利财务自由",
-   "publish_time": "2026-09-27T20:44:48+08:00"
+   "publish_time": "2026-09-27T20:44:48+08:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我何必去染着这个骚呢？\", \"suspect_quote\": \"染着这个骚呢\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/行业术语，'染着这个骚'在金融语境下无明确含义，可能是'染指这个赛道'的误识。\"}, {\"sentence_id\": 13, \"quote\": \"你要一下跌，跌个百分之七八十、九十，你说我当可能跌了百分之九十，按照最终的结果，这个还是个底部，那不不见得是错误。\", \"suspect_quote\": \"跌个百分之七八十、九十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语范围表述（百分之七八十、九十）虽符合口语习惯，但作为关键数字描述存在歧义：是'跌了百分之七八十到九十'还是'跌了百分之七十或八十，或者九十'？需结合上下文确认是否构成矛盾或模糊的关键数据点。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5335552804520158",
@@ -20867,7 +20872,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "价值投资和科技股投资",
-   "publish_time": "2026-08-04T20:27:31.724425"
+   "publish_time": "2026-08-04T20:27:31.724425",
+   "failed": true,
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/292，总帧数1458；身份匹配但人脸短边不足96px的帧数0",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5330647770992965",
@@ -68832,6 +68841,20 @@
    "video_id": "http://f.video.weibocdn.com/o0/oivFvckrlx08zIDso5uU01041200QE4J0E010.mp4",
    "ts": 1791536036,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1009-b001cf",
+   "key": "weibo_search:5328271195507666",
+   "video_id": "http://f.video.weibocdn.com/o0/iWnWCk06lx08zK1koGQ0010412006bJy0E010.mp4",
+   "ts": 1791537453,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/292，总帧数1458；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1009-4d3689",
+   "key": "weibo_search:5347861856261400",
+   "video_id": "https://f.video.weibocdn.com/o0/CO7vsIeZlx08B8fmlv4c01041201shZP0E010.mp4",
+   "ts": 1791537454,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我何必去染着这个骚呢？\", \"suspect_quote\": \"染着这个骚呢\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/行业术语，'染着这个骚'在金融语境下无明确含义，可能是'染指这个赛道'的误识。\"}, {\"sentence_id\": 13, \"quote\": \"你要一下跌，跌个百分之七八十、九十，你说我当可能跌了百分之九十，按照最终的结果，这个还是个底部，那不不见得是错误。\", \"suspect_quote\": \"跌个百分之七八十、九十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语范围表述（百分之七八十、九十）虽符合口语习惯，但作为关键数字描述存在歧义：是'跌了百分之七八十到九十'还是'跌了百分之七十或八十，或者九十'？需结合上下文确认是否构成矛盾或模糊的关键数据点。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
