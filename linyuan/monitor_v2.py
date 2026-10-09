@@ -718,6 +718,10 @@ class WeiboSearchSource(Source):
                 break
             statuses.extend(batch)
 
+        return self._items(statuses)
+
+    def _items(self, statuses):
+        """The same actual API metadata rules apply to search and exact links."""
         items, seen, dropped = [], set(), 0
         for s in statuses:
             mid = s.get("mid")
@@ -763,6 +767,50 @@ class WeiboSearchSource(Source):
         if dropped:
             print(f"[{self.name}] 过滤同名干扰 {dropped} 条", file=sys.stderr)
         return items
+
+
+class WeiboVideoSource(WeiboSearchSource):
+    """Refresh exact publicly discovered video pages, independently of search.
+
+    Metadata is fetched, never copied from a search-engine snippet. Expired
+    media URLs are still refreshed by the normal downloader before production.
+    """
+    name = 'weibo_video'
+
+    def fetch(self, page):
+        from urllib.parse import urlsplit
+        urls=list(self.config.get('urls',[]))
+        seeds=self.config.get('seeds_file')
+        if seeds:
+            urls.extend(json.loads(Path(__file__).with_name(seeds).read_text())['urls'])
+        ids=[]
+        for raw in urls:
+            parsed=urlsplit(str(raw))
+            match=re.search(r'/(?:detail/)?(\d{10,25})/?$',parsed.path)
+            if (parsed.scheme!='https' or parsed.hostname not in
+                    {'weibo.com','www.weibo.com','m.weibo.cn'} or not match):
+                continue
+            if match[1] not in ids:ids.append(match[1])
+        if not ids:return []
+        rq,xsrf=self._visitor_session()
+        statuses=[]
+        for mid in ids[:12]:
+            try:
+                payload=json.loads(rq('https://weibo.com/ajax/statuses/show?id='+mid,
+                    {'Accept':'application/json','X-XSRF-TOKEN':xsrf,
+                     'Referer':'https://weibo.com/'}))
+                data=payload.get('data',payload)
+                if not isinstance(data,dict) or str(data.get('mid') or data.get('id'))!=mid:
+                    raise ValueError('public status identity unavailable')
+                data={**data,'mid':mid}
+                text=re.sub(r'<[^>]+>','',data.get('text_raw') or data.get('text') or '')
+                if ('林园' not in text or re.search(
+                        r'虎林园|园林|林园酒店|华林园|林园景区|林园小区|林园饭店',text)):
+                    continue
+                statuses.append(data)
+            except Exception as exc:
+                print(f'[{self.name}] {mid} 暂不可取：{type(exc).__name__}',file=sys.stderr)
+        return [row for row in self._items(statuses) if json.loads(row['extra'])['has_video']]
 
 
 class TencentLiveSource(Source):
@@ -1644,6 +1692,7 @@ SOURCES = {
     "competitor_reference": CompetitorReferenceSource,
     "xueqiu_search": XueqiuSearchSource,
     "weibo_search": WeiboSearchSource,
+    "weibo_video": WeiboVideoSource,
     "tencent_live": TencentLiveSource,
     "douyin_video": DouyinVideoSource,
     "douyin_search": DouyinSearchSource,
@@ -1827,6 +1876,10 @@ def main():
             items = run_source(src_cls, cfg, state, page)
             items = [it for it in items if it.get("author", "") not in BLACKLIST_AUTHORS]
             new_items = upsert_items(items)
+            # A later source/job timeout must not hide already recovered videos
+            # from the refill dispatcher, which reads this JSON rather than DB.
+            if items:
+                export_dashboard_data()
             print(f"[{src_type}] 新增: {len(new_items)} 条")
             for item in new_items[:5]:
                 print(f"  - {item['publish_time']} | {item['title'][:50]} | {item['url'][:60]}")

@@ -11,6 +11,21 @@ import source_supply
 NOW = 1789531200
 
 
+def test_week_plan_reports_actual_shortfall_without_counting_future_jobs():
+    p=status.supply_plan(0, NOW)
+    assert p['minimum_week_shortfall']==14 and p['preferred_week_shortfall']==21
+    assert p['reserve_shortfall']==status.fc.TARGET_READY_RESERVE
+    assert len(p['dates'])==7 and p['includes_unfinished_production'] is False
+    assert p['requires_publish_time_revalidation'] is True
+    assert status.supply_plan(None,NOW)['minimum_week_shortfall'] is None
+
+
+def test_plan_counts_existing_stock_once_and_keeps_unknown_unknown():
+    assert status.supply_plan(12,NOW)['minimum_week_shortfall']==2
+    result=status.build(dict(dispatched=[],published={}),{}, {},NOW)
+    assert result['continuity']['plan']['verified_stock_snapshot'] is None
+
+
 def run(slug='mother', id=101, result='success', state='completed', ts=NOW-30):
     stamp = datetime.fromtimestamp(ts, timezone.utc).isoformat()
     return dict(id=id, display_title='中文源出片 · '+slug, status=state, conclusion=result,

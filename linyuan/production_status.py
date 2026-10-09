@@ -4,7 +4,7 @@ This is a public status projection, never a new source of publishing permission.
 Historical dispatch rows and publication receipts remain untouched.
 """
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import argparse
 import json
 from pathlib import Path
@@ -18,6 +18,24 @@ STATUS_PATH = Path(__file__).resolve().parents[1] / 'site/production_status.json
 RUN_FIELDS = ('id', 'status', 'conclusion', 'created_at', 'updated_at',
               'run_started_at', 'html_url', 'run_number', 'display_title')
 ACTIVE = {'queued', 'in_progress', 'waiting', 'pending', 'requested'}
+DAILY_MINIMUM = 2
+DAILY_PREFERRED = 3
+
+
+def supply_plan(usable, now):
+    """Conservative planning evidence, not reservations or upload permission.
+
+    Production/candidates never count. Even today's verified stock must be
+    rechecked at publication (expiry, dedup and portrait/landscape constraints).
+    """
+    today = datetime.fromtimestamp(now, timezone(timedelta(hours=8))).date()
+    return dict(daily_minimum=DAILY_MINIMUM, daily_preferred=DAILY_PREFERRED,
+        planning_days=7, verified_stock_snapshot=usable,
+        minimum_week_shortfall=(None if usable is None else max(0, 7*DAILY_MINIMUM-usable)),
+        preferred_week_shortfall=(None if usable is None else max(0, 7*DAILY_PREFERRED-usable)),
+        reserve_shortfall=(None if usable is None else max(0, fc.TARGET_READY_RESERVE-usable)),
+        dates=[str(today+timedelta(days=i)) for i in range(7)],
+        requires_publish_time_revalidation=True, includes_unfinished_production=False)
 
 
 def timestamp(value):
@@ -160,7 +178,8 @@ def build(state, inventory, runs, now=None):
         waiting_candidates=admission.get('candidate_count'),
         status=('unknown' if not fresh else 'stockout' if usable==0 else
                 'at_risk' if usable<fc.MAX_PUBLISH_PER_DAY else 'covered'),
-        quality_gates_relaxed=False)
+        quality_gates_relaxed=False,
+        plan=supply_plan(usable if fresh else None, now))
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
                 continuity=continuity,
                 source_admission=inventory.get('source_admission'),

@@ -65,6 +65,13 @@ test('daily supply warns below target and does not claim publication when covere
   assert.equal(continuity(supply(4),now).status,'covered');
   assert.match(continuity(supply(4),now).message,/不代表已经发布/);
 });
+test('seven-day floor shortfall cannot be hidden by active production',()=>{
+  const data=supply(0);
+  data.continuity.plan={minimum_week_shortfall:14};
+  data.continuity.active_or_recovering_sources=6;
+  assert.match(continuity(data,now).message,/每天至少 2 条、争取 3 条/);
+  assert.match(continuity(data,now).message,/未来七天至少缺 14 条/);
+});
 test('missing, stale, malformed or relaxed inventory is never treated as covered',()=>{
   const stale=supply(12);stale.inventory_updated_at=now-4*3600;
   const relaxed=supply(12);relaxed.continuity.quality_gates_relaxed=true;
