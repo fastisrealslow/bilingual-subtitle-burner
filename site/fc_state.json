@@ -22178,7 +22178,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 54, \"quote\": \"对你校的上的国际的品牌，我都有。\", \"suspect_quote\": \"对你校的上的国际的品牌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'对你校的上的'在金融或日常语境中无意义，极可能是'对可口可乐的'（Coca-Cola）或类似知名品牌的误识。'校'与'可'、'上'与'乐'发音或字形易混淆，导致专有名词错写，严重影响理解。\"}, {\"sentence_id\": 55, \"quote\": \"九四年我们投从来没有卖，就是凡是现在总结出来，就是和嘴有关系的，是吧？\", \"suspect_quote\": \"和嘴有关系的\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'和嘴有关系'在投资语境下含义不明，结合上下文（林园常提及的白酒/食品行业），极可能是'和酒有关系的'或'和猪有关系的'等特定行业的误识。'嘴'与'酒'、'猪'发音相近，属于典型的语音识别错误导致的专有名词错写。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5349451132829915",
@@ -22250,7 +22251,8 @@
    "failed": true,
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 406 < 480（638x406），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1nxbAzPEMj",
@@ -22335,7 +22337,11 @@
    "delay_hours": 0,
    "source": "bilibili_collection",
    "author": "股海淘沙",
-   "publish_time": "2024-05-30T13:27:39+00:00"
+   "publish_time": "2024-05-30T13:27:39+00:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1WgQHYTETj",
@@ -71836,6 +71842,13 @@
    "video_id": "BV1q37E6bEB7",
    "ts": 1791552412,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 54, \"quote\": \"对你校的上的国际的品牌，我都有。\", \"suspect_quote\": \"对你校的上的国际的品牌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'对你校的上的'在金融或日常语境中无意义，极可能是'对可口可乐的'（Coca-Cola）或类似知名品牌的误识。'校'与'可'、'上'与'乐'发音或字形易混淆，导致专有名词错写，严重影响理解。\"}, {\"sentence_id\": 55, \"quote\": \"九四年我们投从来没有卖，就是凡是现在总结出来，就是和嘴有关系的，是吧？\", \"suspect_quote\": \"和嘴有关系的\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'和嘴有关系'在投资语境下含义不明，结合上下文（林园常提及的白酒/食品行业），极可能是'和酒有关系的'或'和猪有关系的'等特定行业的误识。'嘴'与'酒'、'猪'发音相近，属于典型的语音识别错误导致的专有名词错写。\"}]"
+  },
+  {
+   "slug": "ly-1009-964326",
+   "key": "bilibili_search:BV1FM4m1z7pK",
+   "video_id": "BV1FM4m1z7pK",
+   "ts": 1791553437,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
