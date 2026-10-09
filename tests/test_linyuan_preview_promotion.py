@@ -35,7 +35,7 @@ def test_request_cannot_supply_title_or_change_source():
         with pytest.raises(ValueError):p.request_fields({**request,key:'override'})
 
 
-@pytest.mark.parametrize('audit_version',[2,3])
+@pytest.mark.parametrize('audit_version',[2,3,4])
 def test_promotion_requires_real_review_hash_and_final_validator(tmp_path,audit_version):
     request,_,_=records();(tmp_path/'final.mp4').write_bytes(b'actual video')
     review=dict(version=editorial_policy.VERSION,automatic_only=True,review_protocol=2,
@@ -57,7 +57,8 @@ def test_promotion_requires_real_review_hash_and_final_validator(tmp_path,audit_
                     {**row,'editorial_review':{**review,'review_prompt_version':None}},
                     {**row,'editorial_review':{**review,'evidence_protocol':'free_quote'}},
                     {**row,'editorial_review':{**review,'transcript_audit':{}}},
-                    {**row,'editorial_review':{**review,'transcript_audit':{**review['transcript_audit'],'version':4}}},
+                    {**row,'editorial_review':{**review,'transcript_audit':{**review['transcript_audit'],'version':5}}},
+                    {**row,'editorial_review':{**review,'transcript_audit':{**review['transcript_audit'],'version':4,'invalid_issue_evidence':['unresolved']}}},
                     {**row,'editorial_review':{**review,'transcript_audit':{**review['transcript_audit'],'version':3.0}}},
                     {**row,'editorial_review':{**review,'transcript_audit':{**review['transcript_audit'],'issues':['unresolved']}}},
                     {**row,'editorial_review':{**review,'status':'skipped','review_protocol':'model-review-disabled-v1'}}]:
