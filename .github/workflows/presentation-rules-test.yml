@@ -32,6 +32,9 @@ on:
       - tests/test_linyuan_selection_incident.py
       - linyuan/editorial_source_profiles.json
       - linyuan/fc/index.py
+      - linyuan/artifact_range.py
+      - linyuan/source_supply.py
+      - tests/test_linyuan_artifact_range.py
       - tests/test_linyuan_asr_integrity.py
       - tests/test_linyuan_presentation.py
       - tests/test_linyuan_clean_source_plan.py
@@ -68,6 +71,7 @@ jobs:
           tests/test_linyuan_clean_source_plan.py tests/test_linyuan_quality_gates.py
           tests/test_linyuan_batch_isolation.py tests/test_linyuan_asr_integrity.py
           tests/test_linyuan_source_supply.py
+          tests/test_linyuan_artifact_range.py
           tests/test_linyuan_editorial_policy.py tests/test_linyuan_qwen_evidence.py
           tests/test_linyuan_optional_layout.py tests/test_linyuan_landscape.py
           tests/test_linyuan_title_claims.py tests/test_linyuan_title_batch_regressions.py tests/test_linyuan_visual_gate.py
