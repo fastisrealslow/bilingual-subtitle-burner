@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791638891,
+  "updated_at": 1791638974,
   "inventory_updated_at": 1791638888,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 4,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791638890,
+    "updated_at": 1791638974,
     "records": 9541,
     "video_records": 8154,
-    "initial_candidates": 62,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 61,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1387,
-      "already_attempted_or_cooling": 1243,
+      "already_attempted_or_cooling": 1244,
       "speaker_unconfirmed": 5511,
       "clip_title": 1099,
       "unrelated": 62,
@@ -56,12 +56,12 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV1kK411J7NP",
-        "title": "林园：投资要投“国家名片”？ #春瑜会客厅#  #林园#",
+        "key": "bilibili_search:BV1em4y1N7Px",
+        "title": "林园：地产板块我现在看好，要搂一把！",
         "source": "bilibili_search",
-        "author": "私募排排网",
-        "url": "https://www.bilibili.com/video/BV1kK411J7NP",
-        "duration_sec": 87.0
+        "author": "大佬投资思维",
+        "url": "https://www.bilibili.com/video/BV1em4y1N7Px",
+        "duration_sec": 275.0
       },
       {
         "key": "bilibili_search:BV1qa4y1j71i",
@@ -70,14 +70,6 @@
         "author": "私募排排网",
         "url": "https://www.bilibili.com/video/BV1qa4y1j71i",
         "duration_sec": 146.0
-      },
-      {
-        "key": "bilibili_search:BV1em4y1N7Px",
-        "title": "林园：地产板块我现在看好，要搂一把！",
-        "source": "bilibili_search",
-        "author": "大佬投资思维",
-        "url": "https://www.bilibili.com/video/BV1em4y1N7Px",
-        "duration_sec": 275.0
       },
       {
         "key": "bilibili_search:BV1AV411U7tj",
@@ -107,10 +99,11 @@
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 6,
-    "running": 5
+    "running": 6,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -19329,14 +19322,14 @@
     },
     {
       "slug": "ly-1010-504753",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791636849,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791639814,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -19416,6 +19409,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055599437",
       "run_started_at": "2026-10-10T13:24:36Z",
       "run_updated_at": "2026-10-10T13:24:39Z"
+    },
+    {
+      "slug": "ly-1010-f2bc94",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791638939,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38055875810,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055875810",
+      "run_started_at": "2026-10-10T13:28:58Z",
+      "run_updated_at": "2026-10-10T13:29:03Z"
     }
   ],
   "runs": {
@@ -26811,17 +26822,6 @@
       "run_number": 1772,
       "display_title": "中文源出片 · ly-1010-78fdc9"
     },
-    "ly-1010-de03f6": {
-      "id": 38055599437,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-10T13:24:36Z",
-      "updated_at": "2026-10-10T13:24:39Z",
-      "run_started_at": "2026-10-10T13:24:36Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055599437",
-      "run_number": 1773,
-      "display_title": "中文源出片 · ly-1010-de03f6"
-    },
     "ly-1010-504753": {
       "id": 38053669587,
       "status": "completed",
@@ -26832,6 +26832,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38053669587",
       "run_number": 1769,
       "display_title": "中文源出片 · ly-1010-504753"
+    },
+    "ly-1010-f2bc94": {
+      "id": 38055875810,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T13:28:58Z",
+      "updated_at": "2026-10-10T13:29:03Z",
+      "run_started_at": "2026-10-10T13:28:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055875810",
+      "run_number": 1774,
+      "display_title": "中文源出片 · ly-1010-f2bc94"
+    },
+    "ly-1010-de03f6": {
+      "id": 38055599437,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T13:24:36Z",
+      "updated_at": "2026-10-10T13:24:39Z",
+      "run_started_at": "2026-10-10T13:24:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055599437",
+      "run_number": 1773,
+      "display_title": "中文源出片 · ly-1010-de03f6"
     },
     "ly-1010-91e4e0": {
       "id": 38052660644,
