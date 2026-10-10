@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791611044,
+  "updated_at": 1791611148,
   "inventory_updated_at": 1791611041,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791611044,
+    "updated_at": 1791611148,
     "records": 9382,
     "video_records": 8002,
-    "initial_candidates": 58,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 57,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1222,
+      "already_attempted_or_cooling": 1223,
       "speaker_unconfirmed": 5438,
       "no_video": 1380,
       "clip_title": 1099,
@@ -54,16 +54,7 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1jY4y157xb",
-        "title": "林园：牛市初期离不开券商，行业判断远大于个股判断-7月2日直播",
-        "source": "bilibili_search",
-        "author": "临园指路",
-        "url": "https://www.bilibili.com/video/BV1jY4y157xb",
-        "duration_sec": 366.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 10,
@@ -83,10 +74,11 @@
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 3,
+    "interrupted": 2,
     "excluded": 4,
     "ready": 7,
-    "running": 4
+    "running": 4,
+    "retry_queued": 2
   },
   "tasks": [
     {
@@ -18855,8 +18847,8 @@
     },
     {
       "slug": "ly-1010-bffcd2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791607054,
         "failed": null,
@@ -18869,7 +18861,7 @@
       "run_id": 38024720590,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024720590",
       "run_started_at": "2026-10-10T04:37:34Z",
-      "run_updated_at": "2026-10-10T04:37:38Z"
+      "run_updated_at": "2026-10-10T05:44:20Z"
     },
     {
       "slug": "ly-1010-9f8f64",
@@ -18891,14 +18883,14 @@
     },
     {
       "slug": "ly-1010-6a987b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791607066,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791611978,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -18927,14 +18919,14 @@
     },
     {
       "slug": "ly-1010-12d4aa",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791608079,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791611972,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -19014,6 +19006,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028342919",
       "run_started_at": "2026-10-10T05:41:11Z",
       "run_updated_at": "2026-10-10T05:41:15Z"
+    },
+    {
+      "slug": "ly-1010-cc77fa",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791611108,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38028568036,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028568036",
+      "run_started_at": "2026-10-10T05:45:08Z",
+      "run_updated_at": "2026-10-10T05:45:12Z"
     }
   ],
   "runs": {
@@ -26200,6 +26210,17 @@
       "run_number": 1729,
       "display_title": "中文源出片 · ly-1010-6a987b"
     },
+    "ly-1010-cc77fa": {
+      "id": 38028568036,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T05:45:08Z",
+      "updated_at": "2026-10-10T05:45:12Z",
+      "run_started_at": "2026-10-10T05:45:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028568036",
+      "run_number": 1737,
+      "display_title": "中文源出片 · ly-1010-cc77fa"
+    },
     "ly-1010-0e99bf": {
       "id": 38028342919,
       "status": "in_progress",
@@ -26235,10 +26256,10 @@
     },
     "ly-1010-bffcd2": {
       "id": 38024720590,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T04:37:34Z",
-      "updated_at": "2026-10-10T04:37:38Z",
+      "updated_at": "2026-10-10T05:44:20Z",
       "run_started_at": "2026-10-10T04:37:34Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024720590",
       "run_number": 1727,
