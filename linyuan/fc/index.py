@@ -2946,6 +2946,14 @@ def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
         return "meta.json 不是对象"
+    # Some producers may still finish an older in-flight v6 job after the
+    # default drafting prompt is restored. Research output is not permission
+    # to publish it; keep the experiment out of the real reserve as well.
+    experimental_profile = 'yuanyuan-v6-concrete-reader-value-20261010'
+    if any(value == experimental_profile for value in (
+            (meta.get('title_rewrite') or {}).get('style_profile'),
+            (meta.get('copy_identity') or {}).get('title_style_profile'))):
+        return '实验标题草拟尚未通过真实同源对照验收，不能进入发布库存；须按稳定提示重新审核标题'
     # Actual Sep 13 landscape pixels at 36s retain the Weibo icon/text after
     # a wide-shot cut. Metadata or a title-only edit cannot make these clean.
     if (meta.get('fingerprints') or {}).get('sha256')=='165008328d7f0a023e78f3f851638bb30110d62f7c4b2f2b4038ac8c38d7143d':
