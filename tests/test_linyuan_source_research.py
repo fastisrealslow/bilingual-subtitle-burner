@@ -84,3 +84,17 @@ def test_visual_reclassification_overrides_stale_search_family(tmp_path,monkeypa
     assert actual['visual_classification']['production_quality']=='not_approved'
     assert any(j['url']=='https://www.yicai.com/video/103329354.html' and j['priority']==-1 for j in state['jobs'].values())
     assert state['jobs'][research.key_for('https://finance.ifeng.com/c/8wW9TEtieKg')]['priority']==-1
+
+
+def test_new_resume_policy_releases_old_timeout_once_not_every_refresh(tmp_path,monkeypatch):
+    monkeypatch.setattr(research,'BASE',tmp_path)
+    (tmp_path/'up_videos.json').write_text('{}')
+    url='https://www.yicai.com/video/103329354.html'
+    catalog=json.loads((Path(__file__).resolve().parents[1]/'linyuan/source_lineage.json').read_text())
+    job=dict(url=url,role='mother',status='retry_wait',last_error='TimeoutExpired',next_retry_at=999999)
+    state=dict(jobs={research.key_for(url):job})
+    research.seed_jobs(catalog,state,[])
+    assert job['next_retry_at']==0 and job['download_resume_policy_version']==1
+    job['next_retry_at']=999999
+    research.seed_jobs(catalog,state,[])
+    assert job['next_retry_at']==999999
