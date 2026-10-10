@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791615485,
+  "updated_at": 1791615592,
   "inventory_updated_at": 1791615482,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 11,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791615485,
+    "updated_at": 1791615591,
     "records": 9485,
     "video_records": 8105,
-    "initial_candidates": 58,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 57,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1231,
+      "already_attempted_or_cooling": 1232,
       "speaker_unconfirmed": 5478,
       "no_video": 1380,
       "clip_title": 1099,
@@ -54,16 +54,7 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1B24y187QT",
-        "title": "私募大佬林园：房地产的春天来了！",
-        "source": "bilibili_search",
-        "author": "私募排排网",
-        "url": "https://www.bilibili.com/video/BV1B24y187QT",
-        "duration_sec": 53.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 11,
@@ -86,6 +77,7 @@
     "interrupted": 2,
     "excluded": 5,
     "ready": 7,
+    "retry_queued": 1,
     "running": 5
   },
   "tasks": [
@@ -18981,14 +18973,14 @@
     },
     {
       "slug": "ly-1010-01391a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791611703,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791616416,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -19071,8 +19063,8 @@
     },
     {
       "slug": "ly-1010-10b1ea",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791613107,
         "failed": null,
@@ -19085,7 +19077,7 @@
       "run_id": 38030473479,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38030473479",
       "run_started_at": "2026-10-10T06:18:26Z",
-      "run_updated_at": "2026-10-10T06:18:31Z"
+      "run_updated_at": "2026-10-10T06:59:26Z"
     },
     {
       "slug": "ly-1010-f1e3ed",
@@ -19176,6 +19168,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38032519884",
       "run_started_at": "2026-10-10T06:53:50Z",
       "run_updated_at": "2026-10-10T06:53:54Z"
+    },
+    {
+      "slug": "ly-1010-3159ba",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791615552,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38032830260,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38032830260",
+      "run_started_at": "2026-10-10T06:59:12Z",
+      "run_updated_at": "2026-10-10T06:59:16Z"
     }
   ],
   "runs": {
@@ -26439,6 +26449,28 @@
       "run_number": 1746,
       "display_title": "中文源出片 · ly-1010-e28296"
     },
+    "ly-1010-01391a": {
+      "id": 38029127400,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-10T05:55:03Z",
+      "updated_at": "2026-10-10T06:56:32Z",
+      "run_started_at": "2026-10-10T05:55:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029127400",
+      "run_number": 1738,
+      "display_title": "中文源出片 · ly-1010-01391a"
+    },
+    "ly-1010-3159ba": {
+      "id": 38032830260,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T06:59:12Z",
+      "updated_at": "2026-10-10T06:59:16Z",
+      "run_started_at": "2026-10-10T06:59:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38032830260",
+      "run_number": 1750,
+      "display_title": "中文源出片 · ly-1010-3159ba"
+    },
     "ly-1010-0e99bf": {
       "id": 38032519884,
       "status": "in_progress",
@@ -26463,10 +26495,10 @@
     },
     "ly-1010-10b1ea": {
       "id": 38030473479,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T06:18:26Z",
-      "updated_at": "2026-10-10T06:18:31Z",
+      "updated_at": "2026-10-10T06:59:26Z",
       "run_started_at": "2026-10-10T06:18:26Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38030473479",
       "run_number": 1744,
@@ -26493,17 +26525,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029809344",
       "run_number": 1742,
       "display_title": "中文源出片 · ly-1010-12d4aa"
-    },
-    "ly-1010-01391a": {
-      "id": 38029127400,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T05:55:03Z",
-      "updated_at": "2026-10-10T06:56:32Z",
-      "run_started_at": "2026-10-10T05:55:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029127400",
-      "run_number": 1738,
-      "display_title": "中文源出片 · ly-1010-01391a"
     }
   }
 }
