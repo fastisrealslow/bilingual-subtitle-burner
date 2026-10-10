@@ -23810,7 +23810,8 @@
    "failed": true,
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1kK411J7NP",
@@ -23844,7 +23845,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "大佬投资思维",
-   "publish_time": "2023-09-18T08:23:01+00:00"
+   "publish_time": "2023-09-18T08:23:01+00:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"就像刚才你说黄金这个事儿，我虽然不知道。\", \"suspect_quote\": \"我虽然不知道\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不知道’在此处指代不明，未说明具体不知道什么内容（是不知道黄金价格、逻辑还是其他），属于关键信息缺失导致的含义模糊。\"}, {\"sentence_id\": 8, \"quote\": \"但是为什么我说黄金，我看都不看，我不听都不听，别跟我说。\", \"suspect_quote\": \"我看都不看，我不听都不听\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不看’‘不听’为口语重复强调，但结合上下文‘别跟我说’，否定对象（黄金相关言论）指代不够精确，易被误读为完全拒绝沟通而非拒绝特定信息。\"}, {\"sentence_id\": 21, \"quote\": \"他能有几万亿的那么多钱吗？\", \"suspect_quote\": \"他能有几万亿的那么多钱吗\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘几万亿’为模糊数量词，虽口语中常见，但作为对负债规模的质疑，缺乏明确量级参照，可能影响对‘瞎扯’论断的理解基础。\"}, {\"sentence_id\": 26, \"quote\": \"就是我说大部分会超过百分之五十会活。\", \"suspect_quote\": \"大部分会超过百分之五十会活\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之五十’为具体比例，但‘会活’指代存活率还是存活数量未明，且与前句‘爆雷’语境衔接存在歧义，数字含义不清晰。\"}, {\"sentence_id\": 27, \"quote\": \"你现在超过基本上都是一个爆雷一个爆雷，最后都是失败的，是已经是达到基本上是百分之一，百分之一九十以上。\", \"suspect_quote\": \"已经是达到基本上是百分之一，百分之一九十以上\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之一，百分之一九十以上’明显为识别错误或口误，数字组合不合逻辑（1% 与 90%+ 混用），导致关键数据无法理解。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1qa4y1j71i",
@@ -75039,6 +75044,13 @@
    "video_id": "BV1VA411J7Fy",
    "ts": 1791640137,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1010-b7b881",
+   "key": "bilibili_search:BV1em4y1N7Px",
+   "video_id": "BV1em4y1N7Px",
+   "ts": 1791640561,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"就像刚才你说黄金这个事儿，我虽然不知道。\", \"suspect_quote\": \"我虽然不知道\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不知道’在此处指代不明，未说明具体不知道什么内容（是不知道黄金价格、逻辑还是其他），属于关键信息缺失导致的含义模糊。\"}, {\"sentence_id\": 8, \"quote\": \"但是为什么我说黄金，我看都不看，我不听都不听，别跟我说。\", \"suspect_quote\": \"我看都不看，我不听都不听\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不看’‘不听’为口语重复强调，但结合上下文‘别跟我说’，否定对象（黄金相关言论）指代不够精确，易被误读为完全拒绝沟通而非拒绝特定信息。\"}, {\"sentence_id\": 21, \"quote\": \"他能有几万亿的那么多钱吗？\", \"suspect_quote\": \"他能有几万亿的那么多钱吗\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘几万亿’为模糊数量词，虽口语中常见，但作为对负债规模的质疑，缺乏明确量级参照，可能影响对‘瞎扯’论断的理解基础。\"}, {\"sentence_id\": 26, \"quote\": \"就是我说大部分会超过百分之五十会活。\", \"suspect_quote\": \"大部分会超过百分之五十会活\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之五十’为具体比例，但‘会活’指代存活率还是存活数量未明，且与前句‘爆雷’语境衔接存在歧义，数字含义不清晰。\"}, {\"sentence_id\": 27, \"quote\": \"你现在超过基本上都是一个爆雷一个爆雷，最后都是失败的，是已经是达到基本上是百分之一，百分之一九十以上。\", \"suspect_quote\": \"已经是达到基本上是百分之一，百分之一九十以上\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之一，百分之一九十以上’明显为识别错误或口误，数字组合不合逻辑（1% 与 90%+ 混用），导致关键数据无法理解。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
