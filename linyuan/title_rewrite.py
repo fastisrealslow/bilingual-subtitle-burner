@@ -1192,12 +1192,19 @@ def editorial_features(item):
     # Only reward an observable contrast/first-person choice also in evidence.
     contrast = r'但是|但|却|不是|不买|不卖|不能|不要|而是'
     first_person = r'我(?:们)?(?:买|不买|不卖|持有|看|投)'
+    actions = ('买入','不买','不卖','持有','分红','派息','试吃','亲身体验',
+               '现金流','毛利','净值','供不应求','供小于求','经营不好')
+    sourced_details = [word for word in actions if word in title and word in evidence]
     return dict(
         subject_early=bool(subject and 0 <= title.find(subject) < 12),
         sourced_contrast=bool(re.search(contrast, title) and re.search(contrast, evidence)),
         sourced_voice=bool(re.search(first_person, title) and re.search(first_person, evidence)),
         concise=copy_length_ok(title,24),
-        generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)),
+        sourced_detail=bool(sourced_details),
+        sourced_detail_terms=sourced_details,
+        generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)
+                     or (re.search(r'很重要|基本的?判断方式|宏观现象|核心逻辑|配置策略',title)
+                         and not sourced_details)),
     )
 
 
@@ -1205,7 +1212,7 @@ def select_reviewed_candidate(accepted, candidates):
     """Retain the review gate; resolve ubiquitous 4/5 ties by explicit features."""
     def key(row):
         f = editorial_features(candidates[row['index']])
-        return (row['appeal'], not f['generic'], f['sourced_contrast'],
+        return (not f['generic'], row['appeal'], f['sourced_detail'], f['sourced_contrast'],
                 f['subject_early'], f['sourced_voice'], f['concise'])
     # Lexical final tie-break makes candidate order irrelevant.
     return sorted(accepted, key=lambda r: (tuple(-int(x) for x in key(r)),
@@ -1608,12 +1615,12 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                 if bound_subject:
                     result['answer_focus_reading']['subject']=bound_subject
             result['editorial_selection'] = dict(
-                policy='review_then_source_features_v1', attempt=attempt+1,
+                policy='review_then_source_reader_value_v2', attempt=attempt+1,
                 reviewed_count=len(valid), accepted_count=len(accepted),
                 selected_index=winner['index'],
                 candidates=[dict(title=c['title'], features=editorial_features(c),
                     accepted=i in {r['index'] for r in accepted}) for i,c in enumerate(valid)],
-                note='同分排序依据，不代表点击率或新增事实核验')
+                note='仅排序已通过事实复核的候选；具体对象与原文细节优先于目录套话，不代表点击率')
             return result
         except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
             if getattr(exc,'retryable_service',False):

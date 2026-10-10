@@ -232,6 +232,8 @@ def main():
                         fingerprints=m.get('fingerprints') or {},
                         subtitle_sha256=m.get('subtitle_text_sha256'),
                         motion=(m.get('final_live_identity') or {}).get('motion'),
+                        cover_style=(m.get('cover_proof') or {}).get('style'),
+                        cover_layout_version=(m.get('cover_proof') or {}).get('cover_layout_version'),
                         status='rejected' if error else 'verified',reason=error))
             records.append(record)
         except Exception as exc:

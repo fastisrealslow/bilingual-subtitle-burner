@@ -76,6 +76,16 @@ def test_tied_model_scores_do_not_choose_generic_first_by_position():
     assert T.select_reviewed_candidate(verdicts, list(reversed(items)))['index']==0
 
 
+def test_reader_value_prefers_reviewed_specific_copy_over_high_scoring_directory():
+    source='要亲身体验，我会去试吃，去了解产品。'
+    items=[dict(title='林园：这是基本的判断方式',subject='判断方式',evidence=[source]),
+           dict(title='林园：了解产品，我会亲身体验和试吃',subject='产品',evidence=[source])]
+    assert T.select_reviewed_candidate([dict(index=0,appeal=5),dict(index=1,appeal=4)],items)['index']==1
+    assert T.editorial_features(items[1])['sourced_detail_terms']==['试吃','亲身体验']
+    # An action word absent from evidence cannot earn the detail tie-break.
+    assert not T.editorial_features({**items[1],'evidence':['投资要遵守自己的判断。']})['sourced_detail']
+
+
 def test_conflicting_duplicate_reviews_cannot_approve_a_candidate():
     source='医药股经营不好就不能买，买入之前要仔细了解经营情况。'
     item=dict(title='林园：医药股经营不好，再便宜也不能买',
