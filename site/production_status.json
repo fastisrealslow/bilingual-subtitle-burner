@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791616451,
+  "updated_at": 1791616568,
   "inventory_updated_at": 1791616448,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791616451,
+    "updated_at": 1791616568,
     "records": 9485,
     "video_records": 8105,
     "initial_candidates": 57,
@@ -70,15 +70,15 @@
   },
   "counts": {
     "complete": 109,
-    "failed": 924,
+    "failed": 925,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 7,
-    "retry_queued": 2,
-    "running": 3
+    "running": 4,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -18972,24 +18972,6 @@
       "run_updated_at": "2026-10-10T05:59:27Z"
     },
     {
-      "slug": "ly-1010-01391a",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791611703,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791616416,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38029127400,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029127400",
-      "run_started_at": "2026-10-10T05:55:03Z",
-      "run_updated_at": "2026-10-10T06:56:32Z"
-    },
-    {
       "slug": "ly-1010-eb0229",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[3]，scan_same=[]，scan_different=[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.1704, 3: 0.1271, 4: 0.1518, 5: 0.1574, 6: 0.1568, 7: 0.144, 8: 0.2031, 9: 0.1494, 10: 0.2354, 11: 0.2442, 12: 0.1826, 13: 0.0882, 14: 0.216, 15: 0.1198, 16: 0.188, 17: 0.1768, 18: 0.1878}",
@@ -19171,11 +19153,11 @@
     },
     {
       "slug": "ly-1010-3159ba",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1791615552,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19186,6 +19168,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38032830260",
       "run_started_at": "2026-10-10T06:59:12Z",
       "run_updated_at": "2026-10-10T07:11:37Z"
+    },
+    {
+      "slug": "ly-1010-01391a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791616528,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38033801781,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38033801781",
+      "run_started_at": "2026-10-10T07:15:28Z",
+      "run_updated_at": "2026-10-10T07:15:31Z"
     }
   ],
   "runs": {
@@ -26450,14 +26450,14 @@
       "display_title": "中文源出片 · ly-1010-e28296"
     },
     "ly-1010-01391a": {
-      "id": 38029127400,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T05:55:03Z",
-      "updated_at": "2026-10-10T06:56:32Z",
-      "run_started_at": "2026-10-10T05:55:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029127400",
-      "run_number": 1738,
+      "id": 38033801781,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T07:15:28Z",
+      "updated_at": "2026-10-10T07:15:31Z",
+      "run_started_at": "2026-10-10T07:15:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38033801781",
+      "run_number": 1751,
       "display_title": "中文源出片 · ly-1010-01391a"
     },
     "ly-1010-10b1ea": {
