@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791595036,
-  "inventory_updated_at": 1791594947,
+  "updated_at": 1791606513,
+  "inventory_updated_at": 1791606510,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 11,
-    "active_or_recovering_sources": 3,
+    "verified_daily_stock": 10,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,10 +14,10 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 11,
-      "minimum_week_shortfall": 3,
-      "preferred_week_shortfall": 10,
-      "reserve_shortfall": 1,
+      "verified_stock_snapshot": 10,
+      "minimum_week_shortfall": 4,
+      "preferred_week_shortfall": 11,
+      "reserve_shortfall": 2,
       "dates": [
         "2026-10-10",
         "2026-10-11",
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791595036,
+    "updated_at": 1791606512,
     "records": 9311,
     "video_records": 7934,
     "initial_candidates": 56,
@@ -57,27 +57,27 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 11,
+    "verified_live": 10,
     "verified_audio_card": 0,
     "verified_landscape": 9,
-    "verified_portrait": 2,
+    "verified_portrait": 1,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 11,
+    "daily_mix_usable": 10,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
     "complete": 108,
-    "failed": 908,
+    "failed": 912,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 4,
+    "interrupted": 1,
     "excluded": 4,
     "ready": 7,
-    "retry_queued": 2
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -17838,11 +17838,11 @@
     },
     {
       "slug": "ly-1009-2f94e6",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
       "signature": {
         "ts": 1791551081,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1791552250,
@@ -17928,11 +17928,11 @@
     },
     {
       "slug": "ly-1009-68d5e6",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791552444,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18504,11 +18504,11 @@
     },
     {
       "slug": "ly-1009-6173ea",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791568140,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18522,11 +18522,11 @@
     },
     {
       "slug": "ly-1009-0e13aa",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791568776,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18667,12 +18667,12 @@
     {
       "slug": "ly-1009-ee3ccc",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1791577027,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
