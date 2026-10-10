@@ -95,7 +95,7 @@ def discover_account_window(catalog,getter=api):
                 archive=((modules.get('module_dynamic') or {}).get('major') or {}).get('archive') or {}
                 if author.get('mid')!=REFERENCE_MID or not archive.get('bvid'):continue
                 bvid=archive['bvid'];seen.add(bvid);old=catalog.get(bvid,{})
-                ts=author.get('pub_ts') or old.get('pubdate') or 0
+                ts=int(author.get('pub_ts') or old.get('pubdate') or 0)
                 catalog[bvid]={**old,'title':archive.get('title',''),'pubdate':ts,
                     'date':datetime.fromtimestamp(ts,timezone.utc).strftime('%Y-%m-%d'),
                     'metadata_provenance':'bilibili_account_feed'}
@@ -175,7 +175,6 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,
         default=BASE/'.automation/reference_audit.json');ap.add_argument('--refresh',action='store_true')
     args=ap.parse_args();catalog=json.loads((BASE/'up_videos.json').read_text())
-    catalog,discovery=discover_collections(catalog)
     getter=api
     if os.environ.get('BILIBILI_COOKIES'):
         from platform_collections import Client,OWNER_MID
@@ -189,13 +188,14 @@ def main():
                 parsed=urlsplit(path)
                 return client.call('/'+parsed.path,public=True,params=dict(parse_qsl(parsed.query)))
         except Exception:getter=api
+    catalog,discovery=discover_collections(catalog,getter)
     catalog,feed=discover_account_window(catalog,getter)
     discovery.update(feed)
     newest=sorted(catalog.items(),key=lambda p:(p[1].get('pubdate') or 0,p[1].get('date','')),reverse=True)
     # Legacy catalogue rows may lack a timestamp; sort all rows by date first.
     newest=sorted(newest,key=lambda p:(p[1].get('date',''),p[1].get('pubdate') or 0),reverse=True)
     with ThreadPoolExecutor(max_workers=3) as pool:
-        rows=list(pool.map(exact_reference,[b for b,_ in newest[:30]]))
+        rows=list(pool.map(lambda b:exact_reference(b,getter),[b for b,_ in newest[:30]]))
     for r in rows:
         if r.get('verified'):
             catalog[r['bvid']].update(title=r['title'],date=r['date'][:10],pubdate=r['pubdate'],
