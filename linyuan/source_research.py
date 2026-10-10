@@ -69,7 +69,7 @@ def fetch_media(url,path,budget):
     if host in {'www.bilibili.com','bilibili.com'}:
         command=[sys.executable,str(BASE/'ci_fetch_bilibili.py'),'--url',url,'--out',str(path)]
     elif host in {'www.yicai.com','yicai.com'}:
-        command=[sys.executable,str(BASE/'ci_fetch_yicai.py'),'--url',url,'--out',str(path)]
+        command=[sys.executable,str(BASE/'ci_fetch_yicai.py'),'--url',url,'--out',str(path),'--budget',str(budget)]
     elif host in {'m.weibo.cn','weibo.com','www.weibo.com','www.douyin.com'}:
         command=[sys.executable,'-m','yt_dlp','--continue','--socket-timeout','30','--retries','2',
             '-f','bv*[height<=1080]+ba/b[height<=1080]/b','--merge-output-format','mp4','-o',str(path),url]
@@ -258,6 +258,11 @@ def seed_jobs(catalog,state,discovered):
             primary=url in VERIFIED_PRIMARY_PAGES or url in f.get('verified_primary_urls',[])
             add(url,'mother',f['id'],-1 if primary else 2)
             jobs[key_for(url)]['publisher_status']='verified_primary_page' if primary else 'catalog_lead_not_primary_proof'
+            job=jobs[key_for(url)]
+            if primary and 'yicai.com' in url and not job.get('download_resume_policy_version'):
+                job['download_resume_policy_version']=1
+                if job.get('last_error')=='TimeoutExpired' and not job.get('evidence'):
+                    job['next_retry_at']=0  # One bounded retry after this concrete downloader fix.
         for url in f.get('candidate_urls',[]):add(url,'mother',f['id'],2)
         for url in f.get('research_only_urls',[]):add(url,'mother',f['id'],6)
         for url,proof in f.get('visual_reclassifications',{}).items():
@@ -287,6 +292,9 @@ def main():
         evidence_dir=args.cache/key
         if not due(job,now) or processed>=args.max_items:continue
         processed+=1;raw=args.cache/(key+'.mp4')
+        from ci_fetch_yicai import partial_path
+        partial=partial_path(raw)
+        before_bytes=partial.stat().st_size if partial.exists() else 0
         try:
             if not raw.is_file():fetch_media(job['url'],raw,args.download_budget)
             evidence=inspect_media(raw,evidence_dir)
@@ -298,6 +306,10 @@ def main():
             raw.unlink(missing_ok=True)
         except Exception as exc:
             failed(job,exc,time.time());raw.unlink(missing_ok=True)
+            partial_bytes=partial.stat().st_size if partial.exists() else 0
+            job['download_partial_bytes']=partial_bytes
+            if partial_bytes>before_bytes:
+                job['next_retry_at']=time.time()+1800
             print('Media retry queued:',job['url'],type(exc).__name__,flush=True)
         write_json(STATE,state)
     matches=[]
