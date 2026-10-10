@@ -2950,9 +2950,10 @@ def artifact_quality_error(meta):
     # default drafting prompt is restored. Research output is not permission
     # to publish it; keep the experiment out of the real reserve as well.
     experimental_profile = 'yuanyuan-v6-concrete-reader-value-20261010'
-    if any(value == experimental_profile for value in (
-            (meta.get('title_rewrite') or {}).get('style_profile'),
-            (meta.get('copy_identity') or {}).get('title_style_profile'))):
+    if any(isinstance(meta.get(container), dict)
+            and meta[container].get(field) == experimental_profile
+            for container,field in (('title_rewrite','style_profile'),
+                                    ('copy_identity','title_style_profile'))):
         return '实验标题草拟尚未通过真实同源对照验收，不能进入发布库存；须按稳定提示重新审核标题'
     # Actual Sep 13 landscape pixels at 36s retain the Weibo icon/text after
     # a wide-shot cut. Metadata or a title-only edit cannot make these clean.

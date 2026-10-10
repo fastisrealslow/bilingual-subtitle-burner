@@ -20,3 +20,10 @@ def test_stable_and_historical_titles_still_go_through_normal_checks(profile):
     result=fc.artifact_quality_error(meta)
     assert result and '实验标题' not in result
     assert '质量闸门' in result
+
+
+@pytest.mark.parametrize('container',['title_rewrite','copy_identity'])
+@pytest.mark.parametrize('malformed',['broken',['broken'],42])
+def test_malformed_profile_container_does_not_crash_before_normal_validation(container,malformed):
+    result=fc.artifact_quality_error({container:malformed})
+    assert result and '质量闸门' in result
