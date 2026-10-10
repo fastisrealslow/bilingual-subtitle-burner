@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 41
+VERSION = 43
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -114,7 +114,25 @@ HOST_BRIDGE = re.compile(
     r'|^(?:嗯[，,]?|好[，,]?|呃[，,]?|那么)*我们知道(?:现在|呢)'
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
     r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
-    r'|'+HOST_RECAP)
+    r'|'+HOST_RECAP+
+    # An observer addresses/reports the guest's stance after the answer.
+    # Require an explicit inference marker, a person/address and a stance;
+    # a guest's own recap or a conclusion about a company is not a host turn.
+    r'|^(?:那(?:么)?|嗯|啊|好(?:的)?|[，,\s])*'
+    r'(?:看得出来|可以看出|听得出来|听下来)[，,\s]*'
+    r'(?:就是|看来|说明|[，,\s])*'
+    r'(?:[\u4e00-\u9fff]{1,6}(?:老师|先生|女士|教授|董事长|总)|您|你)'
+    r'[^。！？!?]{0,20}(?:看好|认为|觉得|倾向|支持)')
+
+# A passive clause with only a temporal connector/pronoun has no named
+# patient. A following addressed question about 它 cannot restore the omitted
+# antecedent. Classify the raw first sentence; never rewrite it or guess an
+# intra-cue start. Explicit subjects such as 茅台/这家公司 remain allowed.
+UNBOUND_PASSIVE_OPENING = re.compile(
+    r'^(?:嗯|啊|呃|[，,\s])*'
+    r'(?:(?:然后|后来|随后|接着|而且|但是|不过|那(?:么)?)[，,\s]*)*'
+    r'(?:它|他|她)?(?:后面|后来|现在|目前|最近|此前|之前)?'
+    r'(?:也|又|还|曾经|已经|[，,\s])*被(?!动|子|告)')
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
@@ -314,6 +332,10 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if (units and UNBOUND_PASSIVE_OPENING.search(units[0]['text'])
+            and question_unit(units[0]['text'])
+            and re.search(r'(?:您|你)[^。！？!?]{0,100}(?:它|他|她)', units[0]['text'])):
+        return '选段以缺少主体的被动回指开场；须保留原始提问对象或另选完整句界'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
@@ -325,7 +347,7 @@ def boundary_error(cues,pick):
         if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
             question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
-                return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
+                return '片尾带入主持人的铺垫或归纳却没有后续回答，不能借主持人旁白凑时长'
     return None
 
 
