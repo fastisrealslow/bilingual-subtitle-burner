@@ -48,6 +48,7 @@ def test_both_real_portrait_palettes_keep_complete_copy_and_pass_actual_hash_gat
     assert size==112 and all(box[2]<=face[0] for box in boxes)
     assert FC.artifact_cover_error(dict(cover='cover.jpg',cover_proof=proof),tmp_path) is None
     assert FC.cover_quality_error({**proof,'face_box':[500,200,1000,600]})
+    assert FC.cover_quality_error({**proof,'style':'unknown'})
 
 
 def test_upgrade_keeps_video_captions_copy_and_provenance(tmp_path):

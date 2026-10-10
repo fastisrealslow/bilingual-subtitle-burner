@@ -2804,6 +2804,8 @@ def cover_quality_error(cover):
     wide = cover.get('cover_layout_version') == 3
     if cover.get('cover_layout_version') not in (None, 3):
         return '未知封面布局版本'
+    if wide and cover.get('style') not in {'dark','light','editorial','scene'}:
+        return '宽版封面不能用未知风格绕过人物和文字裁切验收'
     expected_crop = [160,0,1120,720] if wide else [280,0,1000,720]
     feed_name = cover.get('feed_preview') if wide else cover.get('feed_square')
     if wide and (not modern_feed_safe or cover.get('feed_aspect_ratio') != '4:3'
