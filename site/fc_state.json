@@ -23222,7 +23222,8 @@
    "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，识别为“林元”构成专有名词错误。\"}, {\"sentence_id\": 28, \"quote\": \"他的人非常细心，就每次啊，他去的时候，他就问多问些，他都要了解清楚，他才会买入。\", \"suspect_quote\": \"多问些\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“每次啊，他去的时候，他就问多问些”，此处应为口语重复或口吃导致的识别冗余（如“问了很多”或“问得多一些”），但“多问些”本身语义尚可；然而若原意是“问得很多”，则“多问些”可能是对“问得多”的误识。但在严格只检查无法解释的具体词\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1vM4m127ff",
@@ -23260,7 +23261,8 @@
    "failed": true,
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1CK4y137E6",
@@ -23283,6 +23285,23 @@
    "last_error": "取源未完成：SourceMediaMismatch: 下载媒体时长 65.00s 与请求页面 103.00s 不匹配（容差 15.00s）",
    "failure_stage": "source-fetch",
    "source_check_attempts": 1
+  },
+  {
+   "key": "bilibili_search:BV1r5HkzbE1h",
+   "video_id": "BV1r5HkzbE1h",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "slug": "ly-1010-2348ad",
+   "ts": 1791610547,
+   "source_url": "https://www.bilibili.com/video/BV1r5HkzbE1h",
+   "asset_url": "https://www.bilibili.com/video/BV1r5HkzbE1h",
+   "title": "林园：投资能否成功是基因决定的",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "-大道至简返璞归真",
+   "publish_time": "2025-09-12T07:48:03+00:00"
   }
  ],
  "makeup_receipts": {
