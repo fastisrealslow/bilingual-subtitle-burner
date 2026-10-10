@@ -121,4 +121,5 @@ def test_early_checkpoint_dispatches_real_verification_before_slow_research():
     workflow=(Path(__file__).resolve().parents[1]/'.github/workflows/linyuan-monitor.yml').read_text()
     assert workflow.index('--source-types yicai_video weibo_video')<workflow.index('source_research.py --max-items')
     assert workflow.index('linyuan-source-inventory.yml/dispatches')<workflow.index('source_research.py --max-items')
-    assert workflow.count('bash persist_monitor_metadata.sh')==2
+    assert workflow.count('bash persist_monitor_metadata.sh')==3
+    assert workflow.index('source_gap_backfill.py')<workflow.index('checkpoint verified long catalogue and original clips')<workflow.index('source_research.py --max-items')
