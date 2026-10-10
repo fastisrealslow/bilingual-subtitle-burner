@@ -57,7 +57,7 @@ def test_similar_title_catalogue_and_downloaded_reference_do_not_count_as_overla
 def test_account_feed_window_is_separate_from_collection_listing():
     def getter(path):
         return dict(has_more=False,items=[dict(modules=dict(
-            module_author=dict(mid=audit.REFERENCE_MID,pub_ts=100),
+            module_author=dict(mid=audit.REFERENCE_MID,pub_ts='100'),
             module_dynamic=dict(major=dict(archive=dict(bvid='BVfeed',title='林园新视频')))))])
     data,result=audit.discover_account_window({},getter)
     assert result['account_feed_window_complete'] and result['account_feed_complete']

@@ -91,3 +91,12 @@ def test_missing_cookie_and_owner_mismatch_safe():
     client=object.__new__(c.Client)
     client.call=lambda *a,**kw:dict(isLogin=True,mid=42)
     with pytest.raises(c.CollectionError,match='login_or_owner_mismatch'):client.identity()
+
+
+def test_real_empty_section_response_is_supported_without_accepting_wrong_type():
+    client=object.__new__(c.Client)
+    for data in ({},{'section':{'id':10},'episodes':None},{'episodes':[]}):
+        client.call=lambda *a,**kw:data
+        assert client.episodes(10)==[]
+    client.call=lambda *a,**kw:{'episodes':{'unexpected':1}}
+    with pytest.raises(c.CollectionError,match='unrecognized_episode_response'):client.episodes(10)

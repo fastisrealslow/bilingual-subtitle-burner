@@ -86,7 +86,10 @@ class Client:
 
     def episodes(self,section):
         d=self.call('/x2/creative/web/season/section',params={'id':section})
+        # Official creator getSection normalizes missing/null episodes to [].
+        # A newly created empty section uses exactly this response shape.
         rows=d.get('episodes')
+        if rows is None:rows=[]
         if not isinstance(rows,list):raise CollectionError('unrecognized_episode_response')
         return rows
 

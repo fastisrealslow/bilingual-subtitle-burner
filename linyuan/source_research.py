@@ -123,10 +123,15 @@ def audio_candidate(reference,mother):
 
 def discover(catalog,state,max_queries):
     now=time.time();records=[]
-    for _ in range(max_queries):
+    for request_index in range(max_queries):
         queries=[(f,q) for f,qs in QUERIES.items() for q in qs]
         index=state.get('search_cursor',0)%len(queries)
-        family,query=queries[index];state['search_cursor']=index+1
+        recent=[(f,q) for f,q in queries if f=='phoenix_2026_09'
+                and state.get('searches',{}).get(f+'|'+q,{}).get('next_retry_at',0)<=now]
+        if request_index==0 and recent:
+            family,query=recent[0]
+        else:
+            family,query=queries[index];state['search_cursor']=index+1
         search_key=family+'|'+query
         old=state.setdefault('searches',{}).get(search_key,{})
         if old.get('next_retry_at',0)>now:continue
@@ -189,6 +194,10 @@ def seed_jobs(catalog,state,discovered):
     def add(url,role,family,priority):
         key=key_for(url)
         jobs.setdefault(key,dict(url=url,role=role,family=family,priority=priority,status='pending',attempts=0))
+        # Existing queue entries should receive a new priority, not stay stale.
+        if jobs[key].get('role')==role:
+            jobs[key]['priority']=min(priority,jobs[key].get('priority',priority))
+            if family!='unresolved':jobs[key]['family']=family
     # First verify the previously timed-out full speech and the untested course.
     for priority,family in enumerate(['fudan_2026_05','hnw_course','gelong_conversation'],1):
         f=next(f for f in catalog['families'] if f['id']==family)
