@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791638088,
+  "updated_at": 1791638196,
   "inventory_updated_at": 1791638084,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 6,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791638088,
+    "updated_at": 1791638196,
     "records": 9541,
     "video_records": 8154,
-    "initial_candidates": 64,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 63,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1387,
-      "already_attempted_or_cooling": 1241,
+      "already_attempted_or_cooling": 1242,
       "speaker_unconfirmed": 5511,
       "clip_title": 1099,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1vF411o7WQ",
-        "title": "林园2023片仔癀股东会发言",
-        "source": "bilibili_search",
-        "author": "老牛实盘",
-        "url": "https://www.bilibili.com/video/BV1vF411o7WQ",
-        "duration_sec": 67.0
-      },
       {
         "key": "bilibili_search:BV1VA411J7Fy",
         "title": "林园：医药板块景气度依然维持高景气度，目前或是底部区间",
@@ -119,14 +111,14 @@
   },
   "counts": {
     "complete": 111,
-    "failed": 931,
+    "failed": 932,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 6,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -19381,11 +19373,11 @@
     },
     {
       "slug": "ly-1010-57b7c8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 27, \"quote\": \"啊，不管怎么说，政府倡导的，还有这个现在这个这个五一币也需要钱。\", \"suspect_quote\": \"五一币\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或商业语境下无明确含义，疑似将“人民币”误识别为“五一币”，属于关键名词错写。\"}]",
       "signature": {
         "ts": 1791637081,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19396,6 +19388,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38053904740",
       "run_started_at": "2026-10-10T12:58:00Z",
       "run_updated_at": "2026-10-10T13:13:14Z"
+    },
+    {
+      "slug": "ly-1010-78fdc9",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791638156,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38055057059,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055057059",
+      "run_started_at": "2026-10-10T13:15:55Z",
+      "run_updated_at": "2026-10-10T13:15:59Z"
     }
   ],
   "runs": {
@@ -26779,6 +26789,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38053904740",
       "run_number": 1771,
       "display_title": "中文源出片 · ly-1010-57b7c8"
+    },
+    "ly-1010-78fdc9": {
+      "id": 38055057059,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T13:15:55Z",
+      "updated_at": "2026-10-10T13:15:59Z",
+      "run_started_at": "2026-10-10T13:15:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055057059",
+      "run_number": 1772,
+      "display_title": "中文源出片 · ly-1010-78fdc9"
     },
     "ly-1010-504753": {
       "id": 38053669587,
