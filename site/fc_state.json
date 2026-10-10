@@ -23282,9 +23282,11 @@
    "publish_time": "2021-06-12T12:23:32+00:00",
    "source_check_report_id": 11660118841,
    "source_check_run_id": 38024743354,
-   "last_error": "取源未完成：SourceMediaMismatch: 下载媒体时长 65.00s 与请求页面 103.00s 不匹配（容差 15.00s）",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"嗯，粮油行业，这是整个我们看它的，还是在，至少是少年阶段，嗯，青少年少年啊，甚至儿童阶段，那跟世质，你国外还是相差巨大的。\", \"suspect_quote\": \"跟世质，你国外还是相差巨大的\", \"kind\": \"unintelligible_term\", \"reason\": \"“世质”无法解释，疑似将“世界”或“西方”误识别为无意义的词组，导致关键比较对象含义不明。\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV1r5HkzbE1h",
@@ -73302,6 +73304,13 @@
    "video_id": "BV1V4pY6VE1M",
    "ts": 1791609720,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，识别为“林元”构成专有名词错误。\"}, {\"sentence_id\": 28, \"quote\": \"他的人非常细心，就每次啊，他去的时候，他就问多问些，他都要了解清楚，他才会买入。\", \"suspect_quote\": \"多问些\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“每次啊，他去的时候，他就问多问些”，此处应为口语重复或口吃导致的识别冗余（如“问了很多”或“问得多一些”），但“多问些”本身语义尚可；然而若原意是“问得很多”，则“多问些”可能是对“问得多”的误识。但在严格只检查无法解释的具体词\"}]"
+  },
+  {
+   "slug": "ly-1010-9d1da0",
+   "key": "bilibili_search:BV1CK4y137E6",
+   "video_id": "BV1CK4y137E6",
+   "ts": 1791610693,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"嗯，粮油行业，这是整个我们看它的，还是在，至少是少年阶段，嗯，青少年少年啊，甚至儿童阶段，那跟世质，你国外还是相差巨大的。\", \"suspect_quote\": \"跟世质，你国外还是相差巨大的\", \"kind\": \"unintelligible_term\", \"reason\": \"“世质”无法解释，疑似将“世界”或“西方”误识别为无意义的词组，导致关键比较对象含义不明。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
