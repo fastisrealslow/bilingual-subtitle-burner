@@ -31,3 +31,16 @@ def test_observed_9b_false_positive_cannot_borrow_most_from_basic_experience():
         cover_title='先吃再判断才是基本体验',subject='嘴巴',
         evidence=['对啊，这是最基本的体验嘛。','嗯，就体验非常重要。','那嘴巴为什么容易搞？'])
     assert '原文没有的比较' in T._candidate_error(candidate,transcript,'林园',(),check_layout=False)
+
+
+def test_real_9b_control_must_keep_visited_company_scope_and_negation():
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/packaging-20261010/recent-title-corpus.json'
+    case=json.loads(path.read_text())[2]
+    source=''.join(c['text'] for c in case['cues'])
+    assert T.research_scope_error('林园：上市企业整体不错，经营压力不大，大家信心很足',
+        '上市企业不错，经营压力不大',source)
+    assert T.research_scope_error('林园：我走访的上市企业经营压力不大',
+        '走访公司经营压力不大',source) is None
+    assert T.research_scope_error('林园：普通消费表现符合预期','普通消费符合预期',source)
+    assert T.research_scope_error('林园：普通消费没有预期好，但也不错',
+        '普通消费没预期好但也不错',source) is None

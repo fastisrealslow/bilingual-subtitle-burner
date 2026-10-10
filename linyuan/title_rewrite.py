@@ -1070,6 +1070,20 @@ def population_scope_error(title,cover,transcript):
 
 
 def research_scope_error(title, cover, transcript):
+    source=compact(transcript)
+    # Oct10 real 9B control: “我跑的/我去的都还不错” was reviewed
+    # as “上市企业整体不错，经营压力不大，大家信心很足”.
+    # Keep this observed company-visit qualifier in each independent surface.
+    if (re.search(r'(?:我|我们)(?:去|跑|走访|考察)(?:过)?的(?:都|公司|企业)',source)
+            and re.search(r'公司|企业',source)):
+        for copy in (title,cover):
+            if (re.search(r'经营压力|信心',copy)
+                    and not re.search(r'走访|调研|考察|跑过|去过|到访|我(?:去|跑)的',copy)):
+                return '经营压力或信心判断须保留走访公司范围；不能把我去的公司推广为全部上市企业'
+    if re.search(r'普通消费.{0,30}(?:没有|没|不如|不及)预期(?:的)?好',source):
+        for copy in (title,cover):
+            if re.search(r'普通消费.{0,20}(?:符合|达到|超出|超过|超)预期',compact(copy)):
+                return '普通消费没有预期好不能反转为符合或超出预期'
     # Actual source95 said 我们研究的公司. Both 8B and 14B reviewers
     # approved a sector-wide rewrite, omitting that short standalone cue.
     if not research_scope(transcript):
