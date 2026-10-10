@@ -23218,7 +23218,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
-   "publish_time": "2026-10-10T03:54:21+00:00"
+   "publish_time": "2026-10-10T03:54:21+00:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，识别为“林元”构成专有名词错误。\"}, {\"sentence_id\": 28, \"quote\": \"他的人非常细心，就每次啊，他去的时候，他就问多问些，他都要了解清楚，他才会买入。\", \"suspect_quote\": \"多问些\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“每次啊，他去的时候，他就问多问些”，此处应为口语重复或口吃导致的识别冗余（如“问了很多”或“问得多一些”），但“多问些”本身语义尚可；然而若原意是“问得很多”，则“多问些”可能是对“问得多”的误识。但在严格只检查无法解释的具体词\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1CK4y137E6",
@@ -23274,7 +23278,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "人人の股神",
-   "publish_time": "2025-07-31T07:03:02+00:00"
+   "publish_time": "2025-07-31T07:03:02+00:00",
+   "failed": true,
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -73261,6 +73269,20 @@
    "video_id": "BV1Uupt6JEvn",
    "ts": 1791593896,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十配置给了与嘴相关的行业\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘与嘴相关的行业’表述过于模糊且非标准金融术语，可能为口语隐喻（如食品、饮料等），但在未明确具体指代的情况下，属于含义不明的关键描述；同时‘百分之七十’作为精确数字出现在此语境中，若实为口误或泛指（如‘大概七成’），则构成数字识别疑点。\"}, {\"sentence_id\": 24, \"quote\": \"最后这些大品牌的这些公司都不会有问题，他们都不不不行了。\", \"suspect_quote\": \"他们都不不不行了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘都不不不行了’包含重复否定词‘不不’，虽可能是口吃或语气强调，但作为文本记录时构成明显的语义矛盾和否定混乱，属于无法解释的具体词语污染。\"}]"
+  },
+  {
+   "slug": "ly-1010-8d6fa3",
+   "key": "bilibili_search:BV15n8yzkEVy",
+   "video_id": "BV15n8yzkEVy",
+   "ts": 1791609719,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1010-aec8fd",
+   "key": "bilibili_search:BV1V4pY6VE1M",
+   "video_id": "BV1V4pY6VE1M",
+   "ts": 1791609720,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，识别为“林元”构成专有名词错误。\"}, {\"sentence_id\": 28, \"quote\": \"他的人非常细心，就每次啊，他去的时候，他就问多问些，他都要了解清楚，他才会买入。\", \"suspect_quote\": \"多问些\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“每次啊，他去的时候，他就问多问些”，此处应为口语重复或口吃导致的识别冗余（如“问了很多”或“问得多一些”），但“多问些”本身语义尚可；然而若原意是“问得很多”，则“多问些”可能是对“问得多”的误识。但在严格只检查无法解释的具体词\"}]"
   }
  ],
  "reviewed_third_video_0910": {
