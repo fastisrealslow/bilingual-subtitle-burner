@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791661487,
+  "updated_at": 1791661647,
   "inventory_updated_at": 1791661478,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 20,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791661486,
+    "updated_at": 1791661646,
     "records": 9608,
     "video_records": 8214,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1394,
-      "already_attempted_or_cooling": 1260,
+      "already_attempted_or_cooling": 1261,
       "speaker_unconfirmed": 5557,
       "clip_title": 1099,
       "unrelated": 62,
@@ -54,16 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1ns7B6HEKZ",
-        "title": "片仔癀股东大会前，林园分享自己吃片仔癀的感受",
-        "source": "bilibili_search",
-        "author": "我真的是大川啊",
-        "url": "https://www.bilibili.com/video/BV1ns7B6HEKZ",
-        "duration_sec": 38.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 20,
@@ -79,14 +70,14 @@
   },
   "counts": {
     "complete": 111,
-    "failed": 946,
+    "failed": 947,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 8,
-    "running": 5,
+    "running": 6,
     "retry_queued": 1
   },
   "tasks": [
@@ -19648,11 +19639,11 @@
     },
     {
       "slug": "ly-1010-bcbe8e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 240 < 480（320x240），画质不达标",
       "signature": {
         "ts": 1791661249,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19681,6 +19672,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080759784",
       "run_started_at": "2026-10-10T19:40:54Z",
       "run_updated_at": "2026-10-10T19:40:58Z"
+    },
+    {
+      "slug": "ly-1010-07470a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791661608,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38081153473,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38081153473",
+      "run_started_at": "2026-10-10T19:46:48Z",
+      "run_updated_at": "2026-10-10T19:46:52Z"
     }
   ],
   "runs": {
@@ -27252,17 +27261,6 @@
       "run_number": 1815,
       "display_title": "中文源出片 · ly-1010-29e3d2"
     },
-    "ly-1010-f1241c": {
-      "id": 38080759784,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-10T19:40:54Z",
-      "updated_at": "2026-10-10T19:40:58Z",
-      "run_started_at": "2026-10-10T19:40:54Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080759784",
-      "run_number": 1817,
-      "display_title": "中文源出片 · ly-1010-f1241c"
-    },
     "ly-1010-bcbe8e": {
       "id": 38080753731,
       "status": "completed",
@@ -27273,6 +27271,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080753731",
       "run_number": 1816,
       "display_title": "中文源出片 · ly-1010-bcbe8e"
+    },
+    "ly-1010-07470a": {
+      "id": 38081153473,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T19:46:48Z",
+      "updated_at": "2026-10-10T19:46:52Z",
+      "run_started_at": "2026-10-10T19:46:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38081153473",
+      "run_number": 1818,
+      "display_title": "中文源出片 · ly-1010-07470a"
+    },
+    "ly-1010-f1241c": {
+      "id": 38080759784,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T19:40:54Z",
+      "updated_at": "2026-10-10T19:40:58Z",
+      "run_started_at": "2026-10-10T19:40:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080759784",
+      "run_number": 1817,
+      "display_title": "中文源出片 · ly-1010-f1241c"
     },
     "ly-1010-cecbf0": {
       "id": 38078989578,
