@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791640533,
+  "updated_at": 1791640643,
   "inventory_updated_at": 1791640529,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791640533,
+    "updated_at": 1791640643,
     "records": 9541,
     "video_records": 8154,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1387,
-      "already_attempted_or_cooling": 1246,
+      "already_attempted_or_cooling": 1247,
       "speaker_unconfirmed": 5511,
       "clip_title": 1099,
       "unrelated": 62,
@@ -54,16 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1AV411U7tj",
-        "title": "林园：大浪淘沙，时间会筛选出中药巨头#林园# #中药# #春瑜会客厅#",
-        "source": "bilibili_search",
-        "author": "私募排排网",
-        "url": "https://www.bilibili.com/video/BV1AV411U7tj",
-        "duration_sec": 58.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 16,
@@ -79,14 +70,14 @@
   },
   "counts": {
     "complete": 111,
-    "failed": 936,
+    "failed": 937,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
     "interrupted": 2,
     "excluded": 5,
-    "ready": 6,
-    "running": 5
+    "ready": 7,
+    "running": 4
   },
   "tasks": [
     {
@@ -19215,8 +19206,8 @@
     },
     {
       "slug": "ly-1010-200974",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "6 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1791629303,
         "failed": null,
@@ -19229,7 +19220,7 @@
       "run_id": 38046183595,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38046183595",
       "run_started_at": "2026-10-10T10:48:23Z",
-      "run_updated_at": "2026-10-10T10:48:27Z"
+      "run_updated_at": "2026-10-10T13:54:25Z"
     },
     {
       "slug": "ly-1010-739b17",
@@ -19377,8 +19368,8 @@
     },
     {
       "slug": "ly-1010-f2bc94",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791638939,
         "failed": null,
@@ -19391,15 +19382,15 @@
       "run_id": 38055875810,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055875810",
       "run_started_at": "2026-10-10T13:28:58Z",
-      "run_updated_at": "2026-10-10T13:29:03Z"
+      "run_updated_at": "2026-10-10T13:56:14Z"
     },
     {
       "slug": "ly-1010-b7b881",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"就像刚才你说黄金这个事儿，我虽然不知道。\", \"suspect_quote\": \"我虽然不知道\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不知道’在此处指代不明，未说明具体不知道什么内容（是不知道黄金价格、逻辑还是其他），属于关键信息缺失导致的含义模糊。\"}, {\"sentence_id\": 8, \"quote\": \"但是为什么我说黄金，我看都不看，我不听都不听，别跟我说。\", \"suspect_quote\": \"我看都不看，我不听都不听\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不看’‘不听’为口语重复强调，但结合上下文‘别跟我说’，否定对象（黄金相关言论）指代不够精确，易被误读为完全拒绝沟通而非拒绝特定信息。\"}, {\"sentence_id\": 21, \"quote\": \"他能有几万亿的那么多钱吗？\", \"suspect_quote\": \"他能有几万亿的那么多钱吗\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘几万亿’为模糊数量词，虽口语中常见，但作为对负债规模的质疑，缺乏明确量级参照，可能影响对‘瞎扯’论断的理解基础。\"}, {\"sentence_id\": 26, \"quote\": \"就是我说大部分会超过百分之五十会活。\", \"suspect_quote\": \"大部分会超过百分之五十会活\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之五十’为具体比例，但‘会活’指代存活率还是存活数量未明，且与前句‘爆雷’语境衔接存在歧义，数字含义不清晰。\"}, {\"sentence_id\": 27, \"quote\": \"你现在超过基本上都是一个爆雷一个爆雷，最后都是失败的，是已经是达到基本上是百分之一，百分之一九十以上。\", \"suspect_quote\": \"已经是达到基本上是百分之一，百分之一九十以上\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之一，百分之一九十以上’明显为识别错误或口误，数字组合不合逻辑（1% 与 90%+ 混用），导致关键数据无法理解。\"}]",
       "signature": {
         "ts": 1791639506,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19446,6 +19437,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38057206824",
       "run_started_at": "2026-10-10T13:49:26Z",
       "run_updated_at": "2026-10-10T13:49:29Z"
+    },
+    {
+      "slug": "ly-1010-10a292",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791640604,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38057672660,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38057672660",
+      "run_started_at": "2026-10-10T13:56:43Z",
+      "run_updated_at": "2026-10-10T13:56:47Z"
     }
   ],
   "runs": {
@@ -26874,6 +26883,28 @@
       "run_number": 1773,
       "display_title": "中文源出片 · ly-1010-de03f6"
     },
+    "ly-1010-b7b881": {
+      "id": 38056493204,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-10T13:38:26Z",
+      "updated_at": "2026-10-10T13:53:37Z",
+      "run_started_at": "2026-10-10T13:38:26Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38056493204",
+      "run_number": 1775,
+      "display_title": "中文源出片 · ly-1010-b7b881"
+    },
+    "ly-1010-10a292": {
+      "id": 38057672660,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T13:56:43Z",
+      "updated_at": "2026-10-10T13:56:47Z",
+      "run_started_at": "2026-10-10T13:56:43Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38057672660",
+      "run_number": 1778,
+      "display_title": "中文源出片 · ly-1010-10a292"
+    },
     "ly-1010-504753": {
       "id": 38057206824,
       "status": "in_progress",
@@ -26896,23 +26927,12 @@
       "run_number": 1776,
       "display_title": "中文源出片 · ly-1010-82a16f"
     },
-    "ly-1010-b7b881": {
-      "id": 38056493204,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T13:38:26Z",
-      "updated_at": "2026-10-10T13:53:37Z",
-      "run_started_at": "2026-10-10T13:38:26Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38056493204",
-      "run_number": 1775,
-      "display_title": "中文源出片 · ly-1010-b7b881"
-    },
     "ly-1010-f2bc94": {
       "id": 38055875810,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T13:28:58Z",
-      "updated_at": "2026-10-10T13:29:03Z",
+      "updated_at": "2026-10-10T13:56:14Z",
       "run_started_at": "2026-10-10T13:28:58Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055875810",
       "run_number": 1774,
@@ -26931,10 +26951,10 @@
     },
     "ly-1010-200974": {
       "id": 38046183595,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-10T10:48:23Z",
-      "updated_at": "2026-10-10T10:48:27Z",
+      "updated_at": "2026-10-10T13:54:25Z",
       "run_started_at": "2026-10-10T10:48:23Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38046183595",
       "run_number": 1762,
