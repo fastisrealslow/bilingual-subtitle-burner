@@ -23026,7 +23026,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "波动与估值慢慢变富",
-   "publish_time": "2026-10-09T06:08:00+00:00"
+   "publish_time": "2026-10-09T06:08:00+00:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十配置给了与嘴相关的行业\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘与嘴相关的行业’表述过于模糊且非标准金融术语，可能为口语隐喻（如食品、饮料等），但在未明确具体指代的情况下，属于含义不明的关键描述；同时‘百分之七十’作为精确数字出现在此语境中，若实为口误或泛指（如‘大概七成’），则构成数字识别疑点。\"}, {\"sentence_id\": 24, \"quote\": \"最后这些大品牌的这些公司都不会有问题，他们都不不不行了。\", \"suspect_quote\": \"他们都不不不行了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘都不不不行了’包含重复否定词‘不不’，虽可能是口吃或语气强调，但作为文本记录时构成明显的语义矛盾和否定混乱，属于无法解释的具体词语污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1GjYfzpERQ",
@@ -23091,7 +23095,8 @@
    "failed": true,
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/163，总帧数814；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1ivu16EEdn",
@@ -72760,6 +72765,13 @@
    "video_id": "BV1G98s6MEaT:p2",
    "ts": 1791593580,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/163，总帧数814；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1010-9298de",
+   "key": "bilibili_search:BV1Uupt6JEvn",
+   "video_id": "BV1Uupt6JEvn",
+   "ts": 1791593896,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十配置给了与嘴相关的行业\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘与嘴相关的行业’表述过于模糊且非标准金融术语，可能为口语隐喻（如食品、饮料等），但在未明确具体指代的情况下，属于含义不明的关键描述；同时‘百分之七十’作为精确数字出现在此语境中，若实为口误或泛指（如‘大概七成’），则构成数字识别疑点。\"}, {\"sentence_id\": 24, \"quote\": \"最后这些大品牌的这些公司都不会有问题，他们都不不不行了。\", \"suspect_quote\": \"他们都不不不行了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘都不不不行了’包含重复否定词‘不不’，虽可能是口吃或语气强调，但作为文本记录时构成明显的语义矛盾和否定混乱，属于无法解释的具体词语污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
