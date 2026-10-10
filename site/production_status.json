@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791638611,
+  "updated_at": 1791638716,
   "inventory_updated_at": 1791638608,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 5,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791638611,
+    "updated_at": 1791638716,
     "records": 9541,
     "video_records": 8154,
-    "initial_candidates": 63,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 62,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1387,
-      "already_attempted_or_cooling": 1242,
+      "already_attempted_or_cooling": 1243,
       "speaker_unconfirmed": 5511,
       "clip_title": 1099,
       "unrelated": 62,
@@ -56,14 +56,6 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV1VA411J7Fy",
-        "title": "林园：医药板块景气度依然维持高景气度，目前或是底部区间",
-        "source": "bilibili_search",
-        "author": "私募排排网",
-        "url": "https://www.bilibili.com/video/BV1VA411J7Fy",
-        "duration_sec": 123.0
-      },
-      {
         "key": "bilibili_search:BV1kK411J7NP",
         "title": "林园：投资要投“国家名片”？ #春瑜会客厅#  #林园#",
         "source": "bilibili_search",
@@ -72,20 +64,20 @@
         "duration_sec": 87.0
       },
       {
-        "key": "bilibili_search:BV1em4y1N7Px",
-        "title": "林园：地产板块我现在看好，要搂一把！",
-        "source": "bilibili_search",
-        "author": "大佬投资思维",
-        "url": "https://www.bilibili.com/video/BV1em4y1N7Px",
-        "duration_sec": 275.0
-      },
-      {
         "key": "bilibili_search:BV1qa4y1j71i",
         "title": "林园：牛市虽来，但不是所有普涨 #林园# #春瑜会客厅#",
         "source": "bilibili_search",
         "author": "私募排排网",
         "url": "https://www.bilibili.com/video/BV1qa4y1j71i",
         "duration_sec": 146.0
+      },
+      {
+        "key": "bilibili_search:BV1em4y1N7Px",
+        "title": "林园：地产板块我现在看好，要搂一把！",
+        "source": "bilibili_search",
+        "author": "大佬投资思维",
+        "url": "https://www.bilibili.com/video/BV1em4y1N7Px",
+        "duration_sec": 275.0
       },
       {
         "key": "bilibili_search:BV1AV411U7tj",
@@ -111,14 +103,14 @@
   },
   "counts": {
     "complete": 111,
-    "failed": 932,
+    "failed": 933,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 6,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -19391,11 +19383,11 @@
     },
     {
       "slug": "ly-1010-78fdc9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.096, 2: 0.197, 3: 0.095, 4: 0.1156, 5: 0.2186, 6: 0.1485, 7: 0.185, 8: 0.176, 9: 0.0815, 10: 0.1834, 11: 0.1896, 12: 0.1104, 13: 0.2152, 14: 0.1476, 15: 0.153, 16: 0.1912, 17: 0.1159, 18: 0.108}",
       "signature": {
         "ts": 1791638156,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19406,6 +19398,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055057059",
       "run_started_at": "2026-10-10T13:15:55Z",
       "run_updated_at": "2026-10-10T13:21:38Z"
+    },
+    {
+      "slug": "ly-1010-de03f6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791638676,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38055599437,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055599437",
+      "run_started_at": "2026-10-10T13:24:36Z",
+      "run_updated_at": "2026-10-10T13:24:39Z"
     }
   ],
   "runs": {
@@ -26800,6 +26810,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055057059",
       "run_number": 1772,
       "display_title": "中文源出片 · ly-1010-78fdc9"
+    },
+    "ly-1010-de03f6": {
+      "id": 38055599437,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T13:24:36Z",
+      "updated_at": "2026-10-10T13:24:39Z",
+      "run_started_at": "2026-10-10T13:24:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055599437",
+      "run_number": 1773,
+      "display_title": "中文源出片 · ly-1010-de03f6"
     },
     "ly-1010-504753": {
       "id": 38053669587,
