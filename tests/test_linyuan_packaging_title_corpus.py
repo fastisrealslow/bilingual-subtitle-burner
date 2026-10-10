@@ -55,3 +55,16 @@ def test_second_real_canary_cannot_turn_buy_or_research_into_definite_buy():
         '亲身试吃再判断公司',source) is None
     assert T.relation_error('林园：吃了感觉好就买公司或者去调研',
         '吃了感觉好就买公司或调研',source) is None
+    assert T.relation_error('林园：基本做法是亲自尝一尝，舒服了就去调研',
+        '基本做法是亲自尝一尝',source)
+    assert T.relation_error('林园：让大家都吃，感觉好才去投资相关公司',
+        '让大家都吃，感觉好才去投资相关公司',source)
+
+
+def test_real_cpu_deploy_case_cannot_reverse_buy_before_leader_emerges():
+    path=Path(__file__).resolve().parent/'fixtures/linyuan_0913_title.json'
+    source=''.join(c['text'] for c in json.loads(path.read_text())['cues'])
+    assert T.relation_error('林园：别急着买没龙头的行业，宏观变化后才能找到真正的龙头，投资要控制比例',
+        '没龙头就等变化，投资要控比例',source)
+    assert T.relation_error('林园：龙头尚未形成，投资整个行业控制比例',
+        '龙头未定，控制投资比例',source) is None

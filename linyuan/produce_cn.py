@@ -3590,7 +3590,16 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
-TITLE_STYLE_PROFILE = 'yuanyuan-v6-concrete-reader-value-20261010'
+def title_packaging_experiment():
+    return os.environ.get('LINYUAN_TITLE_PACKAGING_EXPERIMENT') == '1'
+
+
+def current_title_style_profile():
+    return ('yuanyuan-v6-concrete-reader-value-20261010' if title_packaging_experiment()
+            else 'yuanyuan-v5-complete-spoken-copy-20260924')
+
+
+TITLE_STYLE_PROFILE = current_title_style_profile()
 # Keep reference titles in the comparison corpus, outside the writer's context.
 # Real source17 discussed solar power, but all three drafting attempts copied
 # wine/AI claims from style examples despite the "not facts" instruction.
@@ -3602,7 +3611,7 @@ def _copy_style_identity(speaker):
     profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
     if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
-    return dict(title_style_profile=TITLE_STYLE_PROFILE,
+    return dict(title_style_profile=current_title_style_profile(),
                 **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
@@ -3647,6 +3656,13 @@ cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋�
 标题里已有长度合适的完整短句时，封面优先原样沿用，不为求短重新压缩。超长时换一个同观点的完整说法，不能删除正常口语必需的主语、动词、补语或比较对象。
 标题和封面分别读一遍：不看另一行也应知道谁对什么作出什么判断。不要让省略的对象承担“成为、增长、降低”等后续动作；证据不足就另选原文中清楚的判断。
 '''
+        if not title_packaging_experiment():
+            # Same-source CPU experiments still reversed source choices. Keep
+            # the approved drafting voice live; concrete ranking and independent
+            # source-bound hard checks remain active in title_rewrite.
+            start_extra = style.index('陌生观众只看这一条')
+            end_extra = style.index('这里不提供其他视频的公司')
+            style = style[:start_extra] + style[end_extra:]
         prompt = prompt[:start] + style + prompt[end:]
         # Do not give the writer unrelated illustrative facts to imitate.
         prompt = prompt.replace('例如原文说“利润涨了但货款收不回，暂时不买”，标题可以问“利润在增长，为什么还要先看回款？”\n', '')
