@@ -44,3 +44,14 @@ def test_real_9b_control_must_keep_visited_company_scope_and_negation():
     assert T.research_scope_error('林园：普通消费表现符合预期','普通消费符合预期',source)
     assert T.research_scope_error('林园：普通消费没有预期好，但也不错',
         '普通消费没预期好但也不错',source) is None
+
+
+def test_second_real_canary_cannot_turn_buy_or_research_into_definite_buy():
+    path=Path(__file__).resolve().parents[1]/'linyuan/simulations/packaging-20261010/recent-title-corpus.json'
+    source=''.join(c['text'] for c in json.loads(path.read_text())[1]['cues'])
+    assert T.relation_error('林园：体验是基本方法，吃了感觉好就买公司',
+        '体验是基本方法，吃了感觉好就买公司',source)
+    assert T.relation_error('林园：亲身试吃，再判断公司',
+        '亲身试吃再判断公司',source) is None
+    assert T.relation_error('林园：吃了感觉好就买公司或者去调研',
+        '吃了感觉好就买公司或调研',source) is None

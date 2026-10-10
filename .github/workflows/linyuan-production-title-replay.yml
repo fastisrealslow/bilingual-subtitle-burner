@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        # Branch canary targets the observed case1 comparison-strength error;
+        # Branch canary targets the observed case1 comparison/choice errors;
         # the production/manual acceptance still covers both recent clips and the control.
         case: ${{ fromJSON(inputs.case_ids || (github.ref_name == 'main' && '[0,1,2]' || '[1]')) }}
         repeat:

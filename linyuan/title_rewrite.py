@@ -492,6 +492,10 @@ def relation_error(title, cover, source):
     # with correctly attributed guest evidence. Preserve this explicit phase
     # distinction; an already chosen leader is not an emerging future leader.
     body=compact(source)
+    if re.search(r'买(?:他的)?公司或者去调研',body):
+        for candidate in (title,cover):
+            if re.search(r'(?:就|才)(?:会)?(?:去)?买(?:他的)?公司',compact(candidate)) and '调研' not in candidate:
+                return '原话买公司或者去调研不能缩成感觉好就买公司；保留选择关系或只写亲身体验判断'
     # A decision remaining unchanged does not imply that the underlying
     # activity or its outcomes are unaffected. Preserve the decision object.
     decision_object=r'(?:决策|决定|安排|计划|选择|方案)'
