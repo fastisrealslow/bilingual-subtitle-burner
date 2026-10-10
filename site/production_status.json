@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791660607,
-  "inventory_updated_at": 1791660464,
+  "updated_at": 1791661152,
+  "inventory_updated_at": 1791661143,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 20,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791660607,
-    "records": 9588,
-    "video_records": 8194,
-    "initial_candidates": 58,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1791661152,
+    "records": 9608,
+    "video_records": 8214,
+    "initial_candidates": 61,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1394,
       "already_attempted_or_cooling": 1258,
-      "speaker_unconfirmed": 5540,
+      "speaker_unconfirmed": 5557,
       "clip_title": 1099,
       "unrelated": 62,
       "noise": 14,
@@ -54,7 +54,32 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1Y4411k72m",
+        "title": "2006年林园《走进资本市场》专访",
+        "source": "reference_origin_search",
+        "author": "理想是老师",
+        "url": "https://www.bilibili.com/video/BV1Y4411k72m",
+        "duration_sec": 1866.0
+      },
+      {
+        "key": "bilibili_search:BV1Stz4BxEY2",
+        "title": "林园经典采访-2007.12.09-走进资本市场",
+        "source": "reference_origin_search",
+        "author": "巴菲特思想研究院",
+        "url": "https://www.bilibili.com/video/BV1Stz4BxEY2",
+        "duration_sec": 1580.0
+      },
+      {
+        "key": "bilibili_search:BV1ns7B6HEKZ",
+        "title": "片仔癀股东大会前，林园分享自己吃片仔癀的感受",
+        "source": "bilibili_search",
+        "author": "我真的是大川啊",
+        "url": "https://www.bilibili.com/video/BV1ns7B6HEKZ",
+        "duration_sec": 38.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 20,
@@ -74,10 +99,10 @@
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
-    "interrupted": 1,
+    "interrupted": 2,
     "excluded": 5,
     "ready": 8,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -19620,8 +19645,8 @@
     },
     {
       "slug": "ly-1010-29e3d2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791660568,
         "failed": null,
@@ -19634,7 +19659,7 @@
       "run_id": 38080001777,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080001777",
       "run_started_at": "2026-10-10T19:29:27Z",
-      "run_updated_at": "2026-10-10T19:29:31Z"
+      "run_updated_at": "2026-10-10T19:37:52Z"
     }
   ],
   "runs": {
@@ -27184,17 +27209,6 @@
       "run_number": 1802,
       "display_title": "中文源出片 · ly-1010-b3e44b"
     },
-    "ly-1010-29e3d2": {
-      "id": 38080001777,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-10T19:29:27Z",
-      "updated_at": "2026-10-10T19:29:31Z",
-      "run_started_at": "2026-10-10T19:29:27Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080001777",
-      "run_number": 1815,
-      "display_title": "中文源出片 · ly-1010-29e3d2"
-    },
     "ly-1010-2d2a7f": {
       "id": 38074510250,
       "status": "completed",
@@ -27205,6 +27219,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38074510250",
       "run_number": 1809,
       "display_title": "中文源出片 · ly-1010-2d2a7f"
+    },
+    "ly-1010-29e3d2": {
+      "id": 38080001777,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-10T19:29:27Z",
+      "updated_at": "2026-10-10T19:37:52Z",
+      "run_started_at": "2026-10-10T19:29:27Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38080001777",
+      "run_number": 1815,
+      "display_title": "中文源出片 · ly-1010-29e3d2"
     },
     "ly-1010-cecbf0": {
       "id": 38078989578,
