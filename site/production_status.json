@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791610665,
+  "updated_at": 1791610933,
   "inventory_updated_at": 1791610661,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791610665,
+    "updated_at": 1791610932,
     "records": 9367,
     "video_records": 7987,
-    "initial_candidates": 58,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 57,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 1222,
       "speaker_unconfirmed": 5425,
-      "already_attempted_or_cooling": 1221,
       "no_video": 1380,
       "clip_title": 1098,
       "unrelated": 62,
@@ -54,16 +54,7 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "netease_video:VA7UULO86",
-        "title": "林园震撼演讲：全球或将爆发10倍于互联网泡沫的危机，理财必看",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VA7UULO86.html",
-        "duration_sec": 1599.2
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 10,
@@ -79,14 +70,14 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 915,
+    "failed": 916,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 3,
     "excluded": 4,
     "ready": 7,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -18891,8 +18882,8 @@
     },
     {
       "slug": "ly-1010-6a987b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791607066,
         "failed": null,
@@ -18905,7 +18896,7 @@
       "run_id": 38024731838,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024731838",
       "run_started_at": "2026-10-10T04:37:46Z",
-      "run_updated_at": "2026-10-10T04:37:50Z"
+      "run_updated_at": "2026-10-10T05:39:08Z"
     },
     {
       "slug": "ly-1010-aec8fd",
@@ -18927,8 +18918,8 @@
     },
     {
       "slug": "ly-1010-12d4aa",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791608079,
         "failed": null,
@@ -18941,7 +18932,7 @@
       "run_id": 38025690594,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38025690594",
       "run_started_at": "2026-10-10T04:54:39Z",
-      "run_updated_at": "2026-10-10T04:54:43Z"
+      "run_updated_at": "2026-10-10T05:40:34Z"
     },
     {
       "slug": "ly-1010-8d6fa3",
@@ -18963,11 +18954,11 @@
     },
     {
       "slug": "ly-1010-9d1da0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"嗯，粮油行业，这是整个我们看它的，还是在，至少是少年阶段，嗯，青少年少年啊，甚至儿童阶段，那跟世质，你国外还是相差巨大的。\", \"suspect_quote\": \"跟世质，你国外还是相差巨大的\", \"kind\": \"unintelligible_term\", \"reason\": \"“世质”无法解释，疑似将“世界”或“西方”误识别为无意义的词组，导致关键比较对象含义不明。\"}]",
       "signature": {
         "ts": 1791609752,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18996,6 +18987,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028036857",
       "run_started_at": "2026-10-10T05:35:46Z",
       "run_updated_at": "2026-10-10T05:35:50Z"
+    },
+    {
+      "slug": "ly-1010-0e99bf",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791610871,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38028342919,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028342919",
+      "run_started_at": "2026-10-10T05:41:11Z",
+      "run_updated_at": "2026-10-10T05:41:15Z"
     }
   ],
   "runs": {
@@ -26149,17 +26158,6 @@
       "run_number": 1730,
       "display_title": "中文源出片 · ly-1010-aec8fd"
     },
-    "ly-1010-2348ad": {
-      "id": 38028036857,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-10T05:35:46Z",
-      "updated_at": "2026-10-10T05:35:50Z",
-      "run_started_at": "2026-10-10T05:35:46Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028036857",
-      "run_number": 1735,
-      "display_title": "中文源出片 · ly-1010-2348ad"
-    },
     "ly-1010-9d1da0": {
       "id": 38027290870,
       "status": "completed",
@@ -26171,12 +26169,34 @@
       "run_number": 1734,
       "display_title": "中文源出片 · ly-1010-9d1da0"
     },
-    "ly-1010-12d4aa": {
-      "id": 38025690594,
+    "ly-1010-0e99bf": {
+      "id": 38028342919,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-10T05:41:11Z",
+      "updated_at": "2026-10-10T05:41:15Z",
+      "run_started_at": "2026-10-10T05:41:11Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028342919",
+      "run_number": 1736,
+      "display_title": "中文源出片 · ly-1010-0e99bf"
+    },
+    "ly-1010-2348ad": {
+      "id": 38028036857,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T05:35:46Z",
+      "updated_at": "2026-10-10T05:35:50Z",
+      "run_started_at": "2026-10-10T05:35:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028036857",
+      "run_number": 1735,
+      "display_title": "中文源出片 · ly-1010-2348ad"
+    },
+    "ly-1010-12d4aa": {
+      "id": 38025690594,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T04:54:39Z",
-      "updated_at": "2026-10-10T04:54:43Z",
+      "updated_at": "2026-10-10T05:40:34Z",
       "run_started_at": "2026-10-10T04:54:39Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38025690594",
       "run_number": 1732,
@@ -26184,10 +26204,10 @@
     },
     "ly-1010-6a987b": {
       "id": 38024731838,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T04:37:46Z",
-      "updated_at": "2026-10-10T04:37:50Z",
+      "updated_at": "2026-10-10T05:39:08Z",
       "run_started_at": "2026-10-10T04:37:46Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024731838",
       "run_number": 1729,
