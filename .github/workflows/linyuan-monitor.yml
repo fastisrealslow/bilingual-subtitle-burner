@@ -34,6 +34,7 @@ on:
       - linyuan/source_gap_backfill.py
       - linyuan/source_research.py
       - linyuan/source_lineage.json
+      - linyuan/research_collection_catalog.json
   workflow_dispatch:
     inputs:
       refresh_up_list:
@@ -72,7 +73,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq poppler-utils ffmpeg
-          python -m pip install -q pytest yt-dlp
+          python -m pip install -q pytest yt-dlp requests
 
       - name: 来源自动重试回归
         working-directory: .
@@ -101,7 +102,13 @@ jobs:
           restore-keys: source-research-v1-
 
       - name: 更新参考目录与来源对应关系
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python -u source_gap_backfill.py
+
+      - name: 即时保存原发与长合集目录（不等待媒体下载）
+        run: |
+          bash persist_monitor_metadata.sh 'chore(sources): checkpoint verified long catalogue and original clips'
 
       - name: 自动补源、重试下载并比对实际音频
         timeout-minutes: 20

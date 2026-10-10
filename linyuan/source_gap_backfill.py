@@ -1,20 +1,58 @@
 """Reconcile reference clues and full source directories without approving media."""
 import argparse
 import json
+import os
 from pathlib import Path
 import sqlite3
 import time
+from urllib.parse import parse_qs, urlsplit
 import monitor_v2 as monitor
 
 BASE = Path(__file__).resolve().parent
 
 
 def get_api(path):
+    # Use the normal configured session from the outset, not alternate hosts,
+    # forged fingerprints or anonymous retries around a permission/risk error.
+    if os.environ.get('BILIBILI_COOKIES'):
+        from platform_collections import Client
+        parsed=urlsplit(path)
+        if parsed.scheme or parsed.netloc or not parsed.path.startswith('/'):
+            raise ValueError('Expected a public API path')
+        params={k:v[0] if len(v)==1 else v for k,v in parse_qs(parsed.query).items()}
+        return Client(os.environ['BILIBILI_COOKIES']).call(parsed.path,public=True,params=params)
     data = json.loads(monitor.http_get('https://api.bilibili.com'+path,
         referer='https://www.bilibili.com/', timeout=15))
     if data.get('code') != 0:
         raise ValueError('Bilibili metadata code '+str(data.get('code')))
     return data['data']
+
+
+def research_parent(bvid):
+    try:
+        parent=get_api('/x/web-interface/view?bvid='+bvid)
+        return parent,'live_api',None
+    except Exception as exc:
+        path=BASE/'research_collection_catalog.json'
+        catalog=json.loads(path.read_text()) if path.exists() else {}
+        parent=next((p for p in catalog.get('collections',[]) if p.get('bvid')==bvid),None)
+        if not parent or catalog.get('metadata_provenance')!='bilibili_view_exact_id_owner_pages':raise
+        pages=parent.get('pages') or []
+        if (not (parent.get('owner') or {}).get('mid') or not (parent.get('owner') or {}).get('name')
+                or [p.get('page') for p in pages]!=list(range(1,len(pages)+1))
+                or len({p.get('cid') for p in pages})!=len(pages)
+                or any(not isinstance(p.get('cid'),int) or p['cid']<=0 or not p.get('duration') for p in pages)):
+            raise ValueError('Invalid verified research catalogue') from None
+        return parent,'verified_catalog_snapshot',dict(error=type(exc).__name__,
+            snapshot_observed_at=catalog.get('observed_at'))
+
+
+def preserve_online_audit(report,previous):
+    report['research_collections']=previous.get('research_collections',[])
+    report['last_online_check']=previous.get('last_online_check') or dict(
+        checked_at=previous.get('checked_at'),errors=previous.get('errors',[]))
+    report['errors']=list(report['last_online_check'].get('errors',[]))
+    report['errors_scope']='last_online_probe'
 
 
 
@@ -113,7 +151,12 @@ def main():
     args=parser.parse_args()
     catalog=json.loads((BASE/'source_lineage.json').read_text())
     monitor.init_db()
-    report=dict(version=1,checked_at=int(time.time()),new_reference_ids=[],errors=[],source_families=catalog['families'])
+    report=dict(version=1,checked_at=int(time.time()),new_reference_ids=[],errors=[],source_families=catalog['families'],
+        mode='offline_reconcile' if args.offline else 'online_refresh',errors_scope='current_online_probe')
+    audit_path=BASE/'.automation/source_gap_audit.json'
+    if args.offline and audit_path.exists():
+        previous=json.loads(audit_path.read_text())
+        preserve_online_audit(report,previous)
     seeds_path=BASE/'up_videos.json'
     seeds=json.loads(seeds_path.read_text())
     for ref in catalog['references']:
@@ -155,18 +198,22 @@ def main():
         for research_collection in catalog.get('research_collections',[]):
             research_bvid=research_collection['bvid']
             try:
-                research_parent=get_api('/x/web-interface/view?bvid='+research_bvid)
+                parent,metadata_status,refresh_issue=research_parent(research_bvid)
                 research_rows=[]
-                for page in research_parent['pages']:
-                    row=collection_item(research_bvid,page,research_parent)
+                for page in parent['pages']:
+                    row=collection_item(research_bvid,page,parent)
                     extra=json.loads(row['extra'])
                     extra.update(source_role='catalog_only',direct_dispatch=False,
-                        origin_role='repost_or_lead',rights_no_reprint=(research_parent.get('rights') or {}).get('no_reprint'),
+                        origin_role='repost_or_lead',rights_no_reprint=(parent.get('rights') or {}).get('no_reprint'),
+                        catalogue_metadata_status=metadata_status,live_metadata_refresh_issue=refresh_issue,
                         exclusion_reason='origin_research_only_authorization_unverified')
                     row['extra']=json.dumps(extra,ensure_ascii=False);research_rows.append(row)
                 new_rows=monitor.upsert_items(research_rows)
                 report['research_collections'].append(dict(bvid=research_bvid,pages=len(research_rows),
-                    new_pages=len(new_rows),production_approved=False))
+                    new_pages=len(new_rows),production_approved=False,
+                    metadata_status=metadata_status,live_refresh_issue=refresh_issue))
+                if refresh_issue:report['errors'].append(dict(target=research_bvid,
+                    stage='research_collection_live_refresh',**refresh_issue))
             except Exception as exc:
                 report['errors'].append(dict(target=research_bvid,stage='research_collection_metadata',error=type(exc).__name__))
         for article_id in catalog['official_short_ids']:
@@ -195,6 +242,8 @@ def main():
     report['collection_catalog_only']=[dict(id=i,duration=e.get('duration')) for i,_,raw in rows for e in [json.loads(raw or '{}')]
         if e.get('bvid')==bvid and e.get('source_role')=='catalog_only']
     monitor.export_dashboard_data()
+    if not args.offline:
+        report['last_online_check']=dict(checked_at=report['checked_at'],errors=report['errors'])
     out=BASE/'.automation/source_gap_audit.json'
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')

@@ -90,3 +90,45 @@ def test_real_primary_clip_catalogue_never_implicitly_grants_reuse():
     assert extra['duration']==145.92 and extra['direct_dispatch'] is False
     assert extra['source_role']=='catalog_only'
     assert extra['primary_media_evidence']['media_integrity']=='passed'
+
+
+def test_normal_configured_session_is_used_before_public_metadata_request(monkeypatch):
+    import platform_collections
+    calls=[]
+    class Client:
+        def __init__(self,raw):assert raw=='test session'
+        def call(self,path,**kw):calls.append((path,kw));return dict(bvid='BVtest')
+    monkeypatch.setenv('BILIBILI_COOKIES','test session')
+    monkeypatch.setattr(platform_collections,'Client',Client)
+    monkeypatch.setattr(gaps.monitor,'http_get',lambda *a,**kw: (_ for _ in ()).throw(AssertionError('no anonymous fallback')))
+    assert gaps.get_api('/x/web-interface/view?bvid=BVtest')['bvid']=='BVtest'
+    assert calls==[('/x/web-interface/view',dict(public=True,params=dict(bvid='BVtest')))]
+
+
+def test_known_catalogue_survives_live_api_failure_without_claiming_live_success(monkeypatch):
+    monkeypatch.setattr(gaps,'get_api',lambda *a: (_ for _ in ()).throw(RuntimeError('blocked')))
+    parent,status,issue=gaps.research_parent('BV11H5NzCEWY')
+    assert status=='verified_catalog_snapshot' and issue['error']=='RuntimeError'
+    assert len(parent['pages'])==60 and sum(p['duration'] for p in parent['pages'])==85640
+    assert parent['rights']['no_reprint']==1
+    import pytest
+    with pytest.raises(RuntimeError):gaps.research_parent('BVunknown')
+
+
+def test_offline_reconciliation_cannot_erase_failed_online_probe():
+    previous=dict(checked_at=100,research_collections=[dict(bvid='BVknown',pages=60)],
+        errors=[dict(stage='research_collection_live_refresh',error='HTTPError')])
+    report=dict(checked_at=200,errors=[])
+    gaps.preserve_online_audit(report,previous)
+    assert report['errors']==previous['errors'] and report['errors_scope']=='last_online_probe'
+    assert report['last_online_check']['checked_at']==100
+    assert report['research_collections']==previous['research_collections']
+    later=dict(checked_at=300,errors=[])
+    gaps.preserve_online_audit(later,report)
+    assert later['last_online_check']['checked_at']==100 and later['errors']==previous['errors']
+
+
+def test_verified_catalogue_is_checkpointed_before_long_media_research():
+    text=(Path(__file__).resolve().parents[1]/'.github/workflows/linyuan-monitor.yml').read_text()
+    assert text.index('checkpoint verified long catalogue and original clips') < text.index('python -u source_research.py')
+    assert 'BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}\n        run: python -u source_gap_backfill.py' in text
