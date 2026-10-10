@@ -84,6 +84,10 @@ def test_reader_value_prefers_reviewed_specific_copy_over_high_scoring_directory
     assert T.editorial_features(items[1])['sourced_detail_terms']==['试吃','亲身体验']
     # An action word absent from evidence cannot earn the detail tie-break.
     assert not T.editorial_features({**items[1],'evidence':['投资要遵守自己的判断。']})['sourced_detail']
+    # The actual Oct10 16:07 title has an action but still hides the object.
+    weak=dict(title='林园：去亲身体验，这是最基本的判断方式',subject='亲身体验',
+              evidence=['吃，尝一尝，自己亲身体验一下，是吧？'])
+    assert T.editorial_features(weak)['generic']
 
 
 def test_conflicting_duplicate_reviews_cannot_approve_a_candidate():

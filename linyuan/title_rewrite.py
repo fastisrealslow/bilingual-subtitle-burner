@@ -1192,7 +1192,7 @@ def editorial_features(item):
     # Only reward an observable contrast/first-person choice also in evidence.
     contrast = r'但是|但|却|不是|不买|不卖|不能|不要|而是'
     first_person = r'我(?:们)?(?:买|不买|不卖|持有|看|投)'
-    actions = ('买入','不买','不卖','持有','分红','派息','试吃','亲身体验',
+    actions = ('买入','不买','不卖','持有','分红','派息','试吃','吃一吃','尝一尝','亲身体验',
                '现金流','毛利','净值','供不应求','供小于求','经营不好')
     sourced_details = [word for word in actions if word in title and word in evidence]
     return dict(
@@ -1204,7 +1204,7 @@ def editorial_features(item):
         sourced_detail_terms=sourced_details,
         generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)
                      or (re.search(r'很重要|基本的?判断方式|宏观现象|核心逻辑|配置策略',title)
-                         and not sourced_details)),
+                         and not any(word!='亲身体验' for word in sourced_details))),
     )
 
 
