@@ -83,3 +83,4 @@ def test_visual_reclassification_overrides_stale_search_family(tmp_path,monkeypa
     assert actual['family']=='cruise_2025_09_visual' and actual['priority']==6
     assert actual['visual_classification']['production_quality']=='not_approved'
     assert any(j['url']=='https://www.yicai.com/video/103329354.html' and j['priority']==-1 for j in state['jobs'].values())
+    assert state['jobs'][research.key_for('https://finance.ifeng.com/c/8wW9TEtieKg')]['priority']==-1

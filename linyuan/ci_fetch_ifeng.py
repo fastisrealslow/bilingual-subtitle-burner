@@ -21,6 +21,13 @@ def article_video(page, article_url):
     doc=data.get('docData') or {}
     videos=[row.get('data') or {} for row in (doc.get('contentData') or {}).get('contentList',[])
             if row.get('type')=='video']
+    provenance='docData.contentData.contentList[type=video]'
+    # Phoenix's standalone official video pages use docData.videoPlayUrl,
+    # not an article contentList. Never look through relatedVideos/videoStream.
+    if not doc.get('contentData') and doc.get('videoPlayUrl'):
+        videos=[dict(playUrl=doc['videoPlayUrl'],guid=doc.get('guid'),
+                     duration=doc.get('duration'),title=doc.get('title'))]
+        provenance='docData.videoPlayUrl'
     if len(videos)!=1:
         raise ValueError('正文没有唯一视频附件；不使用推荐区、图片或猜测链接')
     video=videos[0];url=video.get('playUrl','');media=urlsplit(url)
@@ -31,7 +38,7 @@ def article_video(page, article_url):
     return dict(article=article_url,article_title=doc.get('title'),published_at=doc.get('newsTime'),
         publisher=(doc.get('fhhAccountDetail') or {}).get('catename'),
         video_title=video.get('title'),guid=video['guid'],media_url=url,
-        declared_duration=video['duration'],provenance='docData.contentData.contentList[type=video]',
+        declared_duration=video['duration'],provenance=provenance,
         recording_date=None,production_quality='not_evaluated')
 
 

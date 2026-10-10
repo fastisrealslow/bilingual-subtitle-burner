@@ -77,3 +77,16 @@ def test_visual_proof_reclassifies_old_query_tag_and_blocks_unreviewed_material(
     assert extra['source_family']=='cruise_2025_09_visual'
     assert extra['reference_match_status']=='not_phoenix_2026_09'
     assert extra['direct_dispatch'] is False and extra['source_role']=='catalog_only'
+
+
+def test_real_primary_clip_catalogue_never_implicitly_grants_reuse():
+    catalog=json.loads((Path(__file__).resolve().parents[1]/'linyuan/source_lineage.json').read_text())
+    family=next(f for f in catalog['families'] if f['id']=='phoenix_2026_09')
+    clip=family['primary_clip_catalog'][0]
+    row=gaps.primary_clip_item(clip,family['id'])
+    extra=json.loads(row['extra'])
+    assert row['url']=='https://finance.ifeng.com/c/8wW9TEtieKg'
+    assert extra['origin_role']=='official_publisher' and extra['has_video']
+    assert extra['duration']==145.92 and extra['direct_dispatch'] is False
+    assert extra['source_role']=='catalog_only'
+    assert extra['primary_media_evidence']['media_integrity']=='passed'

@@ -38,6 +38,27 @@ def test_article_javascript_is_never_executed():
     with pytest.raises(ValueError):article_video('var allData = evilFunction();',URL)
 
 
+def test_standalone_official_video_uses_only_document_primary_media():
+    doc=dict(title='林园：英伟达市值太大了，早晚得倒霉',newsTime='2026-09-18 12:17:12',
+        videoPlayUrl='https://video19.ifeng.com/official.mp4',duration=146,guid='main-guid')
+    html='var allData = '+json.dumps(dict(docData=doc,
+        relatedVideos=[dict(playUrl='https://video19.ifeng.com/unrelated.mp4')]))+';'
+    result=article_video(html,'https://finance.ifeng.com/c/8wW9TEtieKg')
+    assert result['media_url']==doc['videoPlayUrl'] and result['guid']=='main-guid'
+    assert result['declared_duration']==146 and result['provenance']=='docData.videoPlayUrl'
+    assert result['recording_date'] is None
+    doc.pop('videoPlayUrl')
+    with pytest.raises(ValueError,match='正文没有唯一'):
+        article_video('var allData = '+json.dumps(dict(docData=doc,relatedVideos=[VIDEO]))+';',URL)
+
+
+def test_article_video_attachment_does_not_fall_back_to_conflicting_standalone_field():
+    doc=dict(title=VIDEO['title'],contentData=dict(contentList=[dict(type='video',data=VIDEO)]*2),
+        videoPlayUrl='https://video19.ifeng.com/guess.mp4',guid='guess',duration=146)
+    with pytest.raises(ValueError,match='正文没有唯一'):
+        article_video('var allData = '+json.dumps(dict(docData=doc))+';',URL)
+
+
 def test_generic_fetch_routes_article_and_retains_origin_proof(tmp_path,monkeypatch):
     import ci_fetch_ifeng as official
     import ci_fetch_generic as generic
