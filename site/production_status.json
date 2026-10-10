@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791618833,
+  "updated_at": 1791618925,
   "inventory_updated_at": 1791618827,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791618832,
+    "updated_at": 1791618925,
     "records": 9489,
     "video_records": 8108,
     "initial_candidates": 57,
@@ -70,11 +70,11 @@
   },
   "counts": {
     "complete": 109,
-    "failed": 925,
+    "failed": 926,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 8,
     "running": 3
@@ -19098,11 +19098,11 @@
     },
     {
       "slug": "ly-1010-ed1f62",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"所有的人，但是人性嘛，啊，人性嘛，有的人他可能反映是一些深反应，不是那么能的。\", \"suspect_quote\": \"深反应\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“人性”、“有的人他可能反映”，此处应为口语中的“深反应”（指深层反应或深刻反应）或更可能是“深以为然/深有感触”的误听，但“深反应”本身含义不明且不符合常规表达，属于无法解释的具体词语。\"}, {\"sentence_id\": 10, \"quote\": \"就老师，他跟我探讨的是他是我老师，我都给他。\", \"suspect_quote\": \"他是我老师\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“就老师，他跟我探讨的是”，此处“他是我老师”在语法和逻辑上不通顺，疑似将口语中的指代或称呼识别错乱，导致句子含义不明。\"}, {\"sentence_id\": 18, \"quote\": \"这里本书就是我当时给一个报社，还有杂志社供奉的。\", \"suspect_quote\": \"供奉的\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“给一个报社，还有杂志社”，此处“供奉”一词用词不当且不符合语境，疑似识别错误，应为“赠送”、“提供”或类似词汇，“供奉”在此处含义不明。\"}, {\"sentence_id\": 19, \"quote\": \"然后我们一个叫王宏的，大友，我，他可能总结了一下。\", \"suspect_quote\": \"王宏的，大友\", \"kind\": \"unintelligible_term\", \"reason\": \"人名识别疑点。“王宏的”可能是“王宏”加语气词“的”，但“大友”极疑似识别错误，结合林园访谈常见搭档或提及人物，可能是“大禹”、“大宇”或其他名字，或者“大友”是误听，属于疑似错写的专有名词。\"}, {\"sentence_id\": 21, \"quote\": \"因为我那是很火啊，是哪年是七版，零七年版的这个书。\", \"suspect_quote\": \"七版\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"结合上下文“零七年新版”，此处“七版”与“零七年”连用产生歧义，是“第七版”还是“七年版本”？在口语中可能指“第七版”，但识别为“七版”单独出现时含义不明，且与前文“零七年”衔接不自然，属于关键数字或表述不清。\"}, {\"sentence_id\": 29, \"quote\": \"但是发财，这个是当年就是王府井就卖了三十九万，就几个月卖了三十九万，我过去不断的交易。\", \"suspect_quote\": \"三十九万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"结合上下文“王府井就卖了三十九万”，此处“三十九万”指代不明，是股价、市值还是其他金额？在口语省略中可能指“涨了三十多万”或“卖了三十多万股”，但识别为具体数字“三十九万”且无单位（元/股）时，含义存在歧义，属于关键数字污染。\"}]",
       "signature": {
         "ts": 1791614413,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26481,6 +26481,17 @@
       "run_number": 1749,
       "display_title": "中文源出片 · ly-1010-0e99bf"
     },
+    "ly-1010-ed1f62": {
+      "id": 38031736370,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-10T06:40:12Z",
+      "updated_at": "2026-10-10T07:52:50Z",
+      "run_started_at": "2026-10-10T06:40:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031736370",
+      "run_number": 1748,
+      "display_title": "中文源出片 · ly-1010-ed1f62"
+    },
     "ly-1010-6a987b": {
       "id": 38035620261,
       "status": "in_progress",
@@ -26502,17 +26513,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38033801781",
       "run_number": 1751,
       "display_title": "中文源出片 · ly-1010-01391a"
-    },
-    "ly-1010-ed1f62": {
-      "id": 38031736370,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T06:40:12Z",
-      "updated_at": "2026-10-10T07:52:50Z",
-      "run_started_at": "2026-10-10T06:40:12Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031736370",
-      "run_number": 1748,
-      "display_title": "中文源出片 · ly-1010-ed1f62"
     },
     "ly-1010-12d4aa": {
       "id": 38029809344,
