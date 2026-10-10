@@ -283,7 +283,7 @@ REVIEW_PAUSED_SLUGS = {
                        # unintelligible words despite a positive LLM review.
                        "ly-0907-d04876"}
 REJECT_REFILL_LIMIT = 10                 # 2026-09-05：质量淘汰立即换候选，直到找到合格库存或达到安全上限
-TID, COPYRIGHT = 207, 2                  # 财经商业 / 转载（转载必须带 source）
+TID, COPYRIGHT = 207, 3                  # 财经商业 / 未选择声明；不代表自制或取得授权
 
 # 搜索噪音：标题命中即排除
 # - 「虎林园」「东北虎林园」是老虎公园，不是林园本人
@@ -1556,23 +1556,9 @@ def pick(items, st, n, audit=None):
                      excluded=dict(excluded))
 
     def source_score(c):
-        """来源权威性评分。注意：B站搜索很多是二创，不绝对优先。"""
-        src = c.get("source", "")
-        if src.startswith("xueqiu"):
-            return 30   # 雪球：通常是一手访谈/股东大会
-        if src.startswith("tencent"):
-            return 28   # 腾讯新闻：官方媒体
-        if src.startswith("bilibili_api") or src.startswith("bilibili_space"):
-            return 25   # B站官方 API/空间：较可靠
-        if src.startswith("weibo"):
-            return 20   # 微博：可能一手，也可能片段
-        if src.startswith("bilibili_search"):
-            return 15   # B站搜索：二创可能性高
-        if src.startswith("douyin"):
-            return 12
-        if src.startswith("netease"):
-            return 10
-        return 10
+        """平台/API不是原发者证明；仅已核验的来源登记享有一手优先。"""
+        from source_priority import publisher_priority
+        return publisher_priority(c)
 
     def title_score(t):
         t = t.lower()
@@ -1996,6 +1982,7 @@ def production_config():
     import hashlib
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
+            "copyright_requested": COPYRIGHT, "copyright_mode": "unselected",
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
             "weekly_full_slot_beijing": {"weekday": 6, "hour": 21},
             "cover_styles": ["scene", "editorial", "photo", "light", "dark"],
@@ -4175,6 +4162,7 @@ def publish_handler(event=None, context=None):
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          "copyright_requested": COPYRIGHT,
                           **({'makeup_slot': makeup_slot} if makeup_slot else {}),
                           "part_index": k, "tags": tags.split(","),
                           "resolution": part.get("resolution") or {},
@@ -4193,6 +4181,7 @@ def publish_handler(event=None, context=None):
             "parts_total": parts_total,
             "ts": int(time.time()),
             "title": title,
+            "copyright_requested": COPYRIGHT,
             "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", "")),
             "source_url": e.get("source_url", ""),
             "watermark_cropped": meta_info.get("watermark_cropped", True),
@@ -4313,7 +4302,7 @@ def publish_tv_wine_review_once(event):
         env = os.environ.copy()
         env["PYTHONPATH"] = ":".join(sys.path + ["/opt/python"])
         cmd = [sys.executable, "-m", "biliup", "-u", str(cookies), "upload", str(video),
-               "--title", part["title"], "--tid", str(TID), "--copyright", str(COPYRIGHT),
+               "--title", part["title"], "--tid", str(TID), "--copyright", "2",
                "--source", "央视公开访谈资料", "--desc", clean_publish_desc(part["desc"]),
                "--tag", ",".join(part["tags"]), "--cover", str(tmp / "cover.jpg"), "--limit", "1"]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=1620, env=env)

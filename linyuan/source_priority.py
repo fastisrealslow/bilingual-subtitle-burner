@@ -1,5 +1,6 @@
 """Bounded dispatch preference from observed source outcomes, never a new gate."""
 from collections import defaultdict
+import json
 from urllib.parse import urlsplit
 
 from editorial_policy import source_key
@@ -7,6 +8,28 @@ from production_diagnostics import failure_category
 
 WINDOW_SECONDS = 30 * 86400
 MIN_OBSERVATIONS = 3
+
+# Exact pages with first-party interview bylines, not a platform-wide whitelist.
+# This ranks provenance only: it neither proves a reference match nor grants reuse.
+VERIFIED_PRIMARY_PAGES = frozenset({
+    'https://www.yicai.com/video/103329354.html',
+    'https://www.yicai.com/video/102581577.html',
+})
+
+
+def publisher_priority(candidate):
+    extra = candidate.get('extra') or {}
+    if isinstance(extra, str):
+        try:
+            extra = json.loads(extra)
+        except (ValueError, TypeError):
+            extra = {}
+    if not isinstance(extra, dict):
+        extra = {}
+    url = candidate.get('page_url') or candidate.get('source_url') or candidate.get('url') or ''
+    if url in VERIFIED_PRIMARY_PAGES and extra.get('origin_role') == 'official_publisher':
+        return 30
+    return 10
 
 
 def family(candidate):
