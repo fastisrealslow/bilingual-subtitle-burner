@@ -23008,7 +23008,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Uupt6JEvn",
@@ -23042,7 +23043,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "我真的是大川啊",
-   "publish_time": "2025-08-22T04:33:59+00:00"
+   "publish_time": "2025-08-22T04:33:59+00:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 18, \"quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对白酒有影响。\", \"suspect_quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘不不会’存在明显的口语重复或口吃现象，导致否定含义模糊不清。虽然口语中允许重复，但此处连续两个否定词叠加且无停顿修饰，极易被误读为双重否定（即肯定）或单纯的语病，属于需要标注的识别疑点。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1G98s6MEaT:p3",
@@ -23093,7 +23098,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
-   "publish_time": "2026-08-10T12:52:00+00:00"
+   "publish_time": "2026-08-10T12:52:00+00:00",
+   "failed": true,
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -72689,6 +72698,20 @@
    "video_id": "BV1Ru4y1p7Wg",
    "ts": 1791579144,
    "error": "真人动态区检出持续黑边/错误取景"
+  },
+  {
+   "slug": "ly-1010-62ce09",
+   "key": "bilibili_search:BV1ivu16EEdn",
+   "video_id": "BV1ivu16EEdn",
+   "ts": 1791591544,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1010-9fbcd8",
+   "key": "bilibili_search:BV1GjYfzpERQ",
+   "video_id": "BV1GjYfzpERQ",
+   "ts": 1791591546,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 18, \"quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对白酒有影响。\", \"suspect_quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘不不会’存在明显的口语重复或口吃现象，导致否定含义模糊不清。虽然口语中允许重复，但此处连续两个否定词叠加且无停顿修饰，极易被误读为双重否定（即肯定）或单纯的语病，属于需要标注的识别疑点。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
