@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791593797,
+  "updated_at": 1791593968,
   "inventory_updated_at": 1791593794,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791593797,
+    "updated_at": 1791593968,
     "records": 9311,
     "video_records": 7934,
     "initial_candidates": 56,
@@ -70,15 +70,14 @@
   },
   "counts": {
     "complete": 108,
-    "failed": 907,
+    "failed": 908,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 4,
     "ready": 7,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 2
   },
   "tasks": [
     {
@@ -18739,11 +18738,11 @@
     },
     {
       "slug": "ly-1010-9298de",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十配置给了与嘴相关的行业\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘与嘴相关的行业’表述过于模糊且非标准金融术语，可能为口语隐喻（如食品、饮料等），但在未明确具体指代的情况下，属于含义不明的关键描述；同时‘百分之七十’作为精确数字出现在此语境中，若实为口误或泛指（如‘大概七成’），则构成数字识别疑点。\"}, {\"sentence_id\": 24, \"quote\": \"最后这些大品牌的这些公司都不会有问题，他们都不不不行了。\", \"suspect_quote\": \"他们都不不不行了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘都不不不行了’包含重复否定词‘不不’，虽可能是口吃或语气强调，但作为文本记录时构成明显的语义矛盾和否定混乱，属于无法解释的具体词语污染。\"}]",
       "signature": {
         "ts": 1791590773,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -18753,7 +18752,7 @@
       "run_id": 38007565848,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38007565848",
       "run_started_at": "2026-10-10T00:06:12Z",
-      "run_updated_at": "2026-10-10T00:06:16Z"
+      "run_updated_at": "2026-10-10T00:56:08Z"
     },
     {
       "slug": "ly-1010-9fbcd8",
@@ -18829,14 +18828,14 @@
     },
     {
       "slug": "ly-1010-58350e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791593624,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791595686,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -25966,10 +25965,10 @@
     },
     "ly-1010-9298de": {
       "id": 38007565848,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T00:06:12Z",
-      "updated_at": "2026-10-10T00:06:16Z",
+      "updated_at": "2026-10-10T00:56:08Z",
       "run_started_at": "2026-10-10T00:06:12Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38007565848",
       "run_number": 1719,
