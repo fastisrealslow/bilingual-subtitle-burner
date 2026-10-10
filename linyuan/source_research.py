@@ -108,7 +108,8 @@ def audio_candidate(reference,mother):
     # Remove low-information silence/static fingerprints before matching.
     if len(set(ref))<20:return None
     stride=max(1,len(ref)//80)
-    offsets=range(0,len(mother)-len(reference)+1,3)
+    # All three phases matter: stepping by 3 silently missed offsets 1/2.
+    offsets=range(0,len(mother)-len(reference)+1)
     scored=[]
     for off in offsets:
         distances=[(ref[i]^mother[off+8+i]).bit_count() for i in range(0,len(ref),stride)]
@@ -161,6 +162,9 @@ def discover(catalog,state,max_queries):
 def refresh_recent_references(catalog):
     """Search the exact uploader name; only verified owner-name rows become references."""
     path=BASE/'up_videos.json';seeds=json.loads(path.read_text());added=[]
+    from reference_audit import discover_collections
+    before=set(seeds)
+    seeds,collection_report=discover_collections(seeds)
     try:
         rows=monitor.BilibiliSearchSource(dict(pages=1),{})._fetch_via_api(catalog['reference_account']['name'])
         for row in rows:
@@ -171,8 +175,13 @@ def refresh_recent_references(catalog):
                 dur=row.get('duration',0),play=row.get('view_count',0),metadata_provenance='bilibili_search_exact_id_author')
         write_json(path,seeds)
         monitor.upsert_items(monitor.CompetitorReferenceSource({},{}).fetch(None))
-        return dict(status='searched',new_bvids=added)
-    except Exception as exc:return dict(status='retry_next_run',error=type(exc).__name__)
+        return dict(status='searched',new_bvids=sorted(set(added)|set(seeds)-before),
+                    collections=collection_report)
+    except Exception as exc:
+        # Successfully enumerated public collections survive a failed search.
+        write_json(path,seeds)
+        return dict(status='retry_next_run',error=type(exc).__name__,
+                    new_bvids=sorted(set(seeds)-before),collections=collection_report)
 
 
 def seed_jobs(catalog,state,discovered):
@@ -186,12 +195,18 @@ def seed_jobs(catalog,state,discovered):
         for index,url in enumerate(f.get('mirror_urls',[])):
             add(url,'mother',family,priority if index==0 else 4)
     for ref in catalog['references'][:1]:add('https://www.bilibili.com/video/'+ref['bvid'],'reference','maotai_table_exchange',0)
-    for row in discovered:add(row['url'],'mother',json.loads(row['extra'])['source_family'],5)
+    for row in discovered:
+        family=json.loads(row['extra'])['source_family']
+        add(row['url'],'mother',family,0 if family=='phoenix_2026_09' else 5)
     seeds=json.loads((BASE/'up_videos.json').read_text())
     recent=sorted(seeds.items(),key=lambda p:p[1].get('date',''),reverse=True)[:10]
     for bvid,video in recent:
         if video.get('metadata_provenance','').startswith('bilibili_'):
-            add('https://www.bilibili.com/video/'+bvid,'reference','unresolved',4)
+            # Other speakers remain research references, not LinYuan material.
+            if '林园' not in video.get('title','') or '余军' in video.get('title',''):continue
+            family=('phoenix_2026_09' if '凤凰湾区财经论坛2026' in video.get('description','')
+                    else 'unresolved')
+            add('https://www.bilibili.com/video/'+bvid,'reference',family,1)
     for f in catalog['families']:
         for url in f.get('candidate_urls',[]):add(url,'mother',f['id'],2)
 

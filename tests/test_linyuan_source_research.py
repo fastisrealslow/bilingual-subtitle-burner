@@ -24,6 +24,9 @@ def test_contiguous_audio_match_is_candidate_not_original_proof():
     assert found and found['mother_fingerprint_offset']==99
     assert found['status']=='audio_match_candidate'
     assert found['original_publisher_confirmed'] is False
+    for offset in (100,101):
+        found=research.audio_candidate(source[offset:offset+200],source)
+        assert found and found['mother_fingerprint_offset']==offset
     assert research.audio_candidate([rng.getrandbits(32) for _ in range(200)],source) is None
     assert research.audio_candidate([123]*200,source) is None
 
