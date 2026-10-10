@@ -3590,7 +3590,7 @@ def _fallback_quote_title(cues, sel, speaker):
     raise VisualQualityError('没有可直接引用的完整标题句，不能按字符截断凑标题')
 
 
-TITLE_STYLE_PROFILE = 'yuanyuan-v5-complete-spoken-copy-20260924'
+TITLE_STYLE_PROFILE = 'yuanyuan-v6-concrete-reader-value-20261010'
 # Keep reference titles in the comparison corpus, outside the writer's context.
 # Real source17 discussed solar power, but all three drafting attempts copied
 # wine/AI claims from style examples despite the "not facts" instruction.
@@ -3624,6 +3624,13 @@ def _title_style_prompt(prompt, schema, speaker):
         style = f'''最后在c_candidates为同一个核心判断写3个不同表达的候选：A直给态度＋理由；B原文真实反差；C具体做法＋理由。
 三个候选不能只替换一个词或标点。不要为了满足某种结构凭空制造对立或因果。
 学习参考视频的表达方式：具体对象、本人态度、原话理由、短句推进。
+陌生观众只看这一条，也应该明白：具体谈什么、嘉宾做了什么选择、本段提供了哪一个真实的新信息。
+原文同时给出具体产品或行业和口头代称时，优先直接写产品或行业；不要只写动作或代称，让陌生观众猜对象。具体对象不在嘉宾原话里就不能补写。
+保留“或／或者”的选择关系，不要把两个备选行动改成唯一确定行动；不要把亲身体验的过程写成感觉好就必定买公司。
+“容易”不能加强为“最容易”或“更容易”；另一个句子的“最基本”不能为这个新增比较作证。
+“我去的／我走访的公司”只是已走访样本：涉及经营压力、信心时，标题与封面都保留“走访公司”范围，不能推广到全部上市企业。原文评价某项表现“没有预期好”，不能改成“符合预期”或“超出预期”。
+不要停在“很重要”“基本判断方式”“宏观现象”“谈投资”这种目录句；原文有具体对象、动作或理由时，把它写出来。
+没有原话理由就保留完整判断，不为点击编造矛盾，不用“揭秘”“必看”“稳赚”等词制造看点。
 这里不提供其他视频的公司、数字或观点。事实只取下方本片嘉宾原话。
 写成林园本人对着观众讲话，别写成旁观者总结。态度、对象、理由都要具体。
 先亮出嘉宾确实表达的选择、判断或感受；已经完整就停，有必要才接原话里的理由或真实反差。
@@ -3649,6 +3656,7 @@ cover_title为4~18个汉字的完整短句，不加姓名，用具体对象＋�
         marker = '返回JSON的reviews数组'
         prompt = prompt.replace(marker, '''风格选择采用园园第二版：口语自然、开头态度明确、对象和理由具体、短句有推进。
 在原文支持的候选中，优先本人直接讲话、态度后接具体理由；避免空泛总结、报告腔和没有新信息的重复。
+appeal采用可解释的分档：5分=对象明确且给出原文支持的具体选择、理由或真实反差；4分=具体完整判断；3分=正确但看点普通。只有空泛目录才1分，不能把普通但真实的判断误判成事实错误。
 不要仅因措辞鲜明或使用有力的否定而降低appeal，也不要以感叹号数量评判。事实检查独立，不因风格加分放过编造。
 readable必须同时覆盖标题和封面：分别作为陌生观众读一遍，任何一行缺主语、对象、比较基准，或为了缩短而省掉必要谓语、补语，都应退回。不能用标题补全封面的语病；文案应是自然说得出口的完整句子。
 ''' + marker)
@@ -5296,9 +5304,9 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         from presentation import select_cover_style, dark_cover
         selected_style = select_cover_style(False, topic,
             cover_style or os.environ.get("COVER_STYLE", "auto"))
-        if selected_style == "dark":
+        if selected_style in {"dark", "light"}:
             image, lines, cover_font_px, cover_boxes, cover_face_box = dark_cover(
-                portrait_path, topic, speaker, font_path, index)
+                portrait_path, topic, speaker, font_path, index, palette=selected_style)
 
     brand = Image.open(brand_watermark_path()).convert("RGBA")
     brand_w = int(width * (0.18 if vertical
@@ -5320,7 +5328,7 @@ def make_audio_card(out_path, speaker, topic, width=None, height=None,
         from presentation import cover_proof, FEED_WIDE_CROP, FEED_SAFE_CROP
         cover_proof(image, out_path, lines, cover_font_px, cover_boxes,
                     style=selected_style, face_box=cover_face_box,
-                    feed_crop=FEED_WIDE_CROP if selected_style == 'dark' else FEED_SAFE_CROP)
+                    feed_crop=FEED_WIDE_CROP if selected_style in {'dark','light'} else FEED_SAFE_CROP)
     return out_path
 
 

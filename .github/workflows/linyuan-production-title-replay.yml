@@ -1,8 +1,9 @@
-name: 产品对象保留的真实标题复核（34）
+name: 封面标题优化：9B同源标题验收（不投稿）
 'on':
   push:
     branches:
-    - codex/linyuan-reliability-packaging
+    - main
+    - codex/linyuan-packaging-20261010
     paths:
     - .github/workflows/linyuan-production-title-replay.yml
   workflow_dispatch:
@@ -10,7 +11,7 @@ name: 产品对象保留的真实标题复核（34）
       case_ids:
         description: 语料索引JSON数组，例如 [0,2,3]；只重放标题，不出片或投稿
         required: false
-        default: '[5]'
+        default: '[0,1,2]'
         type: string
 permissions:
   contents: read
@@ -18,8 +19,8 @@ concurrency:
   group: linyuan-production-title-replay
   cancel-in-progress: false
 env:
-  RUN_TEXT_MODEL: qwen3:8b
-  LOCAL_LLM_MODEL: qwen3:8b
+  RUN_TEXT_MODEL: qwen3.5:9b
+  LOCAL_LLM_MODEL: qwen3.5:9b
   TEXT_BACKEND: local
   CUDA_VISIBLE_DEVICES: ''
   LOCAL_LLM_TIMEOUT_SEC: '600'
@@ -31,7 +32,9 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[5]') }}
+        # Branch canary targets the observed case1 comparison/choice errors;
+        # the production/manual acceptance still covers both recent clips and the control.
+        case: ${{ fromJSON(inputs.case_ids || (github.ref_name == 'main' && '[0,1,2]' || '[1]')) }}
         repeat:
         - 1
     steps:
@@ -79,7 +82,7 @@ jobs:
         \ assert (d.get(\"message\") or {}).get(\"content\")'\n"
     - name: 重放实片的同一份完整字幕，不计出片成绩
       run: python -u scripts/title_batch_cpu.py --case "${{ matrix.case }}" --repeat "${{ matrix.repeat }}" --corpus
-        linyuan/simulations/benchmark-20260921/production-title-corpus.json
+        linyuan/simulations/packaging-20261010/recent-title-corpus.json --model qwen3.5:9b
     - uses: actions/upload-artifact@v4
       if: always()
       with:

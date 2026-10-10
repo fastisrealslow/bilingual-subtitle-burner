@@ -30,7 +30,7 @@ def single_candidate_audit(package):
 def fixture_rows():
     rows=[]
     specs=[('linyuan_0913_title.json','龙头','林园：龙头未定，先配置可能成为龙头的公司','龙头未定，如何配置公司'),
-           ('linyuan_0913_landscape_title.json','高端消费','林园：高端消费需求旺盛，企业经营压力不大','高端消费需求是否依旧旺盛')]
+           ('linyuan_0913_landscape_title.json','高端消费','林园：高端消费需求旺盛，走访企业经营压力不大','高端消费需求是否依旧旺盛')]
     for fixture,subject,title,cover in specs:
         cues=json.loads((ROOT/'tests/fixtures'/fixture).read_text())['cues']
         source=''.join(c['text'] for c in cues)
@@ -87,6 +87,13 @@ def test_actual_known_host_hypothesis_is_rejected_even_with_true_cpu_flags():
         **{k:True for k in T.CHECKS}),[item,item,item])
     rows[1]={**row,**single_candidate_audit(package)}
     with pytest.raises(ValueError,match='host hypothesis'):reuse.validate_results(rows,ROOT)
+
+
+def test_visited_scope_cannot_be_dropped_even_with_true_cpu_flags():
+    rows=fixture_rows()
+    rows[1]['title']='林园：高端消费需求旺盛，企业经营压力不大'
+    with pytest.raises(ValueError,match='validated title evidence'):
+        reuse.validate_results(rows,ROOT)
 
 
 def test_real_162_host_stickiness_claim_cannot_pass_as_guest_evidence():

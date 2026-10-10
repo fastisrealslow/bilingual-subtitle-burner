@@ -2804,6 +2804,8 @@ def cover_quality_error(cover):
     wide = cover.get('cover_layout_version') == 3
     if cover.get('cover_layout_version') not in (None, 3):
         return '未知封面布局版本'
+    if wide and cover.get('style') not in {'dark','light','editorial','scene'}:
+        return '宽版封面不能用未知风格绕过人物和文字裁切验收'
     expected_crop = [160,0,1120,720] if wide else [280,0,1000,720]
     feed_name = cover.get('feed_preview') if wide else cover.get('feed_square')
     if wide and (not modern_feed_safe or cover.get('feed_aspect_ratio') != '4:3'
@@ -2847,7 +2849,7 @@ def cover_quality_error(cover):
         bounds = ((176,190,1104,650) if wide else
                   (296,300,984,650) if modern_feed_safe else (48,190,912,600))
         three_line=(len(lines)==3 and cover.get('headline_layout')=='three_line_statement'
-            and cover.get('style') in ('dark','editorial') and len(boxes)==3
+            and (cover.get('style') in ('dark','editorial') or wide and cover.get('style')=='light') and len(boxes)==3
             and all(len(b)==4 and bounds[0]<=b[0]<b[2]<=bounds[2]
                     and bounds[1]<=b[1]<b[3]<=bounds[3] for b in boxes)
             and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
@@ -2857,7 +2859,7 @@ def cover_quality_error(cover):
             or not (1<=len(lines)<=2 or three_line)
             or cover.get("no_overflow") is not True or not cover.get("thumbnail")):
         return "封面未通过列表缩略图大字门禁"
-    if modern_feed_safe and cover.get('style') in ('dark','editorial'):
+    if modern_feed_safe and (cover.get('style') in ('dark','editorial') or wide and cover.get('style')=='light'):
         if (cover.get('feed_safe_crop') != expected_crop
                 or not isinstance(feed_name,str)
                 or cover.get('feed_safe_text') is not True

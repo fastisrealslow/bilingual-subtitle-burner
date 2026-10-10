@@ -1,0 +1,110 @@
+name: 已验收库存封面升级（不重做视频）
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-cover-upgrade.yml
+      - linyuan/upgrade_cover_delivery.py
+  schedule:
+    - cron: '23 */2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: linyuan-cover-upgrade
+  cancel-in-progress: false
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.stock.outputs.matrix }}
+      count: ${{ steps.stock.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: stock
+        name: 仅选现存已验收交付，最多8个批次
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          from upgrade_cover_delivery import select_batches
+          stock=json.loads(Path('linyuan/.automation/source_inventory.json').read_text())
+          rows=select_batches(stock)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('matrix='+json.dumps(dict(include=rows))+'\n')
+              output.write('count='+str(len(rows))+'\n')
+          print('Legacy/unknown-layout verified batches selected:',len(rows))
+          PY
+  upgrade:
+    needs: select
+    if: needs.select.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SLUG: ${{ matrix.slug }}
+      ORIGIN_RUN: ${{ matrix.run_id }}
+      ORIGIN_ARTIFACT: ${{ matrix.artifact_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装完整验收依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          pip install -q pillow jieba numpy requests fonttools 'opencv-python-headless<5'
+      - name: 复核不可变原始交付身份
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ORIGIN_ARTIFACT}" | python -c 'import json,os,sys; d=json.load(sys.stdin); assert d["name"]=="deliver-"+os.environ["SLUG"] and d["workflow_run"]["id"]==int(os.environ["ORIGIN_RUN"]) and not d["expired"]'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ matrix.run_id }}
+          artifact-ids: ${{ matrix.artifact_id }}
+          path: /tmp/cover-upgrade
+          merge-multiple: true
+      - name: 原交付完整验收后，只升级已核验资料图封面
+        id: repair
+        run: |
+          python linyuan/upgrade_cover_delivery.py --directory /tmp/cover-upgrade --slug "$SLUG" --run-id "$ORIGIN_RUN" --artifact-id "$ORIGIN_ARTIFACT"
+          python - <<'PY'
+          import json,os
+          report=json.load(open('/tmp/cover-upgrade/cover-upgrade-report.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('changed='+str(report['changed']).lower()+'\n')
+          PY
+      - name: 复验原视频字幕指纹，生成新交付（不覆盖原交付）
+        if: steps.repair.outputs.changed == 'true'
+        run: python linyuan/compact_delivery.py --directory /tmp/cover-upgrade --slug "$SLUG"
+      - uses: actions/upload-artifact@v4
+        if: steps.repair.outputs.changed == 'true'
+        with:
+          name: deliver-${{ matrix.slug }}
+          path: /tmp/cover-upgrade/_publish_ready/
+          retention-days: 90
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cover-upgrade-proof-${{ matrix.slug }}
+          path: |
+            /tmp/cover-upgrade/cover-upgrade-report.json
+            /tmp/cover-upgrade/compact-report.json
+          if-no-files-found: ignore
+  inventory:
+    needs: [select, upgrade]
+    if: always() && needs.select.result == 'success'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: 独立验收新交付，按既有时段和配额发布
+        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main

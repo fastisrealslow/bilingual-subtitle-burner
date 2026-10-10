@@ -327,12 +327,14 @@ def verify_caption_av_timeline(path, entries, expected_duration, tolerance=.08):
                 passed=True)
 
 
-def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9):
+def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9, min_line_chars=3):
     from headline_policy import cover_copy, body, compact
     # A caller may supply already-reviewed cover copy. Rendering must not
     # reinterpret it as a new title and replace its words with a topic label.
     if type(line_capacity) is not int or not 4 <= line_capacity <= 12:
         raise ValueError('封面单行容量无效')
+    if type(min_line_chars) is not int or min_line_chars not in (2,3):
+        raise ValueError('封面短行容量无效')
     text=body(title,speaker)
     short=text if len(compact(text))<=18 else cover_copy(title, speaker=speaker)['text']
     clauses=[part for part in re.split(r'[，,。；;]',short) if part]
@@ -382,7 +384,7 @@ def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9):
     if max_lines<3:
         raise ValueError('完整词句无法放入两行；必须先重新分段')
     triples=[[text[:a],text[a:b],text[b:]] for a in points for b in points
-             if a<b and max(a,b-a,len(text)-b)<=line_capacity and min(a,b-a,len(text)-b)>=3]
+             if a<b and max(a,b-a,len(text)-b)<=line_capacity and min(a,b-a,len(text)-b)>=min_line_chars]
     complete=[ls for ls in triples if not broken_phrase(ls)]
     if not complete:
         if best is not None:return best
@@ -395,7 +397,7 @@ def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9):
 
 
 def select_cover_style(clean_source, title, requested='auto'):
-    """Consistent readable default; legacy designs remain explicit choices."""
+    """Prefer real scenes; vary verified portrait cards without random rerenders."""
     if requested not in ('auto','editorial','scene','photo','light','dark'):
         raise ValueError('封面风格只支持 auto/editorial/scene/photo/light/dark')
     if requested in ('editorial','scene','photo') and not clean_source:
@@ -404,7 +406,12 @@ def select_cover_style(clean_source, title, requested='auto'):
         return requested
     # Reference-account inspection: clean expressive scene first. The renderer
     # may fall back to editorial copy if the real frame cannot pass scene QA.
-    return 'scene' if clean_source else 'dark'
+    if clean_source:
+        return 'scene'
+    import hashlib
+    # A bounded, deterministic warm-paper alternative. No generated portrait,
+    # no change to the video template or subtitle background.
+    return 'light' if hashlib.sha256(title.encode('utf-8')).digest()[0] % 3 == 0 else 'dark'
 
 
 def feed_safe_box(box, inset=FEED_SAFE_INSET, crop=FEED_SAFE_CROP):
@@ -496,15 +503,25 @@ def save_scene_cover(image, path, face, identity):
     return proof
 
 
-def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
+def dark_cover(portrait_path, title, speaker, font_path, font_index=0, palette='dark'):
     """Large side-by-side editorial cover with modest feed-crop margins."""
     from PIL import Image, ImageDraw, ImageFont, ImageOps
     if not portrait_path or not Path(portrait_path).is_file():
         raise ValueError('深色封面缺少真人参考图')
-    image=Image.new('RGB',(1280,720),(20,27,36))
+    if palette not in ('dark', 'light'):
+        raise ValueError('未知真人卡片配色')
+    light = palette == 'light'
+    background = (244,239,229) if light else (20,27,36)
+    primary = (25,37,49) if light else (248,249,250)
+    accent = (133,45,27) if light else (255,202,70)
+    muted = (73,83,91) if light else (168,178,192)
+    image=Image.new('RGB',(1280,720),background)
     draw=ImageDraw.Draw(image)
     try:
-        lines=cover_headline(title,speaker,max_lines=3,line_capacity=5)
+        # A complete two-character word may occupy the final line. Keeping
+        # “不变” whole restores a large portrait instead of squeezing six
+        # characters against a smaller panel. Negation is never a dangling line.
+        lines=cover_headline(title,speaker,max_lines=3,line_capacity=5,min_line_chars=2)
         portrait_left, portrait_width = 752, 352
     except ValueError:
         # Long reviewed copy keeps all its words; only its panel width adapts.
@@ -516,16 +533,16 @@ def dark_cover(portrait_path, title, speaker, font_path, font_index=0):
                               method=Image.Resampling.LANCZOS)
     portrait_xy=(portrait_left+(portrait_width-portrait.width)//2,68+(584-portrait.height)//2)
     image.paste(portrait,portrait_xy)
-    draw.rectangle((176,172,192,202),fill=(246,186,57))
+    draw.rectangle((176,172,192,202),fill=accent)
     tagfont=ImageFont.truetype(font_path,30,index=font_index)
-    draw.text((176,66),speaker+' / 观点摘录',font=tagfont,fill=(215,220,226))
+    draw.text((176,66),speaker+' / 观点摘录',font=tagfont,fill=muted)
     font=ImageFont.truetype(font_path,112,index=font_index)
     boxes=[]
     for i,line in enumerate(lines):
         xy=(176,190+i*140) if len(lines)==3 else (176,252+i*148)
-        draw.text(xy,line,font=font,fill=(248,249,250) if i==0 else (255,202,70))
+        draw.text(xy,line,font=font,fill=primary if i==0 else accent)
         boxes.append(draw.textbbox(xy,line,font=font))
-    draw.text((176,650),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=(168,178,192))
+    draw.text((176,650),'人物资料图 · 个人观点仅供交流',font=tagfont,fill=muted)
     face_box=[portrait_xy[0],portrait_xy[1],portrait_xy[0]+portrait.width,portrait_xy[1]+portrait.height]
     return image,lines,112,boxes,face_box
 
@@ -538,12 +555,12 @@ def cover_proof(image, path, lines, font_size, boxes, style=None, face_box=None,
     if tuple(feed_crop) not in (FEED_SAFE_CROP, FEED_WIDE_CROP):
         raise ValueError('未知信息流裁切合同')
     bounds = (176,190,1104,650) if wide else (296,300,984,650)
-    three_line=(len(lines)==3 and style in ('dark','editorial') and len(boxes)==3
+    three_line=(len(lines)==3 and (style in ('dark','editorial') or wide and style=='light') and len(boxes)==3
         and all(bounds[0]<=b[0] and bounds[1]<=b[1] and b[2]<=bounds[2] and b[3]<=bounds[3] for b in boxes)
         and all(a[3]<=b[1] for a,b in zip(boxes,boxes[1:])))
     if (len(lines)>2 and not three_line) or font_size<96 or any(b[0]<0 or b[1]<0 or b[2]>1280 or b[3]>720 for b in boxes):
         raise ValueError('封面大字/边界验收失败')
-    feed_required = style in {'dark','editorial'}
+    feed_required = style in {'dark','editorial'} or wide and style=='light'
     if feed_required and (not all(feed_safe_box(box, crop=feed_crop) for box in boxes)
                           or (face_box is not None and not feed_safe_box(face_box, crop=feed_crop))):
         raise ValueError('封面主体或标题超出信息流中心安全区')

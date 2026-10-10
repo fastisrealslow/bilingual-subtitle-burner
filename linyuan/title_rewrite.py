@@ -492,6 +492,10 @@ def relation_error(title, cover, source):
     # with correctly attributed guest evidence. Preserve this explicit phase
     # distinction; an already chosen leader is not an emerging future leader.
     body=compact(source)
+    if re.search(r'买(?:他的)?公司或者去调研',body):
+        for candidate in (title,cover):
+            if re.search(r'(?:就|才)(?:会)?(?:去)?买(?:他的)?公司',compact(candidate)) and '调研' not in candidate:
+                return '原话买公司或者去调研不能缩成感觉好就买公司；保留选择关系或只写亲身体验判断'
     # A decision remaining unchanged does not imply that the underlying
     # activity or its outcomes are unaffected. Preserve the decision object.
     decision_object=r'(?:决策|决定|安排|计划|选择|方案)'
@@ -1070,6 +1074,20 @@ def population_scope_error(title,cover,transcript):
 
 
 def research_scope_error(title, cover, transcript):
+    source=compact(transcript)
+    # Oct10 real 9B control: “我跑的/我去的都还不错” was reviewed
+    # as “上市企业整体不错，经营压力不大，大家信心很足”.
+    # Keep this observed company-visit qualifier in each independent surface.
+    if (re.search(r'(?:我|我们)(?:去|跑|走访|考察)(?:过)?的(?:都|公司|企业)',source)
+            and re.search(r'公司|企业',source)):
+        for copy in (title,cover):
+            if (re.search(r'经营压力|信心',copy)
+                    and not re.search(r'走访|调研|考察|跑过|去过|到访|我(?:去|跑)的',copy)):
+                return '经营压力或信心判断须保留走访公司范围；不能把我去的公司推广为全部上市企业'
+    if re.search(r'普通消费.{0,30}(?:没有|没|不如|不及)预期(?:的)?好',source):
+        for copy in (title,cover):
+            if re.search(r'普通消费.{0,20}(?:符合|达到|超出|超过|超)预期',compact(copy)):
+                return '普通消费没有预期好不能反转为符合或超出预期'
     # Actual source95 said 我们研究的公司. Both 8B and 14B reviewers
     # approved a sector-wide rewrite, omitting that short standalone cue.
     if not research_scope(transcript):
@@ -1160,7 +1178,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
                  '盈利的保障','盈利保障','赚钱的保障','赚钱保障','收益的保障','收益保障',
                  '确保盈利','确保赚钱','保证盈利','保证赚钱',
                  '不用怕','不用担心','不必担心','无需担心','放心买','没风险','让我安心','让人安心',
-                 '粘性强','粘性更强','黏性强','黏性更强','超预期','不值')
+                 '粘性强','粘性更强','黏性强','黏性更强','超预期','不值',
+                 '最容易','更容易')
     stated=compact(''.join(evidence))
     relation_issue=relation_error(title,cover,transcript)
     if relation_issue:return relation_issue
@@ -1192,12 +1211,19 @@ def editorial_features(item):
     # Only reward an observable contrast/first-person choice also in evidence.
     contrast = r'但是|但|却|不是|不买|不卖|不能|不要|而是'
     first_person = r'我(?:们)?(?:买|不买|不卖|持有|看|投)'
+    actions = ('买入','不买','不卖','持有','分红','派息','试吃','吃一吃','尝一尝','亲身体验',
+               '现金流','毛利','净值','供不应求','供小于求','经营不好')
+    sourced_details = [word for word in actions if word in title and word in evidence]
     return dict(
         subject_early=bool(subject and 0 <= title.find(subject) < 12),
         sourced_contrast=bool(re.search(contrast, title) and re.search(contrast, evidence)),
         sourced_voice=bool(re.search(first_person, title) and re.search(first_person, evidence)),
         concise=copy_length_ok(title,24),
-        generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)),
+        sourced_detail=bool(sourced_details),
+        sourced_detail_terms=sourced_details,
+        generic=bool(re.search(r'坚持投资理念|抓住机遇|核心策略|深度解读|投资逻辑解析', title)
+                     or (re.search(r'很重要|基本的?判断方式|宏观现象|核心逻辑|配置策略',title)
+                         and not any(word!='亲身体验' for word in sourced_details))),
     )
 
 
@@ -1205,7 +1231,7 @@ def select_reviewed_candidate(accepted, candidates):
     """Retain the review gate; resolve ubiquitous 4/5 ties by explicit features."""
     def key(row):
         f = editorial_features(candidates[row['index']])
-        return (row['appeal'], not f['generic'], f['sourced_contrast'],
+        return (not f['generic'], row['appeal'], f['sourced_detail'], f['sourced_contrast'],
                 f['subject_early'], f['sourced_voice'], f['concise'])
     # Lexical final tie-break makes candidate order irrelevant.
     return sorted(accepted, key=lambda r: (tuple(-int(x) for x in key(r)),
@@ -1608,12 +1634,12 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                 if bound_subject:
                     result['answer_focus_reading']['subject']=bound_subject
             result['editorial_selection'] = dict(
-                policy='review_then_source_features_v1', attempt=attempt+1,
+                policy='review_then_source_reader_value_v2', attempt=attempt+1,
                 reviewed_count=len(valid), accepted_count=len(accepted),
                 selected_index=winner['index'],
                 candidates=[dict(title=c['title'], features=editorial_features(c),
                     accepted=i in {r['index'] for r in accepted}) for i,c in enumerate(valid)],
-                note='同分排序依据，不代表点击率或新增事实核验')
+                note='仅排序已通过事实复核的候选；具体对象与原文细节优先于目录套话，不代表点击率')
             return result
         except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
             if getattr(exc,'retryable_service',False):
