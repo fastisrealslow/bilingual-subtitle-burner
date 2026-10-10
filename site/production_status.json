@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1791611763,
-  "inventory_updated_at": 1791611636,
+  "updated_at": 1791611881,
+  "inventory_updated_at": 1791611876,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 10,
-    "active_or_recovering_sources": 10,
-    "waiting_candidates": 0,
+    "verified_daily_stock": 11,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 10,
-      "minimum_week_shortfall": 4,
-      "preferred_week_shortfall": 11,
-      "reserve_shortfall": 2,
+      "verified_stock_snapshot": 11,
+      "minimum_week_shortfall": 3,
+      "preferred_week_shortfall": 10,
+      "reserve_shortfall": 1,
       "dates": [
         "2026-10-10",
         "2026-10-11",
@@ -33,38 +33,79 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791611763,
-    "records": 9382,
-    "video_records": 8002,
-    "initial_candidates": 57,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1791611880,
+    "records": 9485,
+    "video_records": 8105,
+    "initial_candidates": 62,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1223,
-      "speaker_unconfirmed": 5438,
+      "already_attempted_or_cooling": 1227,
+      "speaker_unconfirmed": 5478,
       "no_video": 1380,
       "clip_title": 1099,
       "unrelated": 62,
       "noise": 14,
       "ai_content": 36,
-      "reference_only": 73,
+      "reference_only": 127,
       "over_limit": 23,
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1oG41117nR",
+        "title": "20231016对话林园： 第一个100万很难赚，靠投资改变命运需要15年",
+        "source": "bilibili_search",
+        "author": "阿尔法搬运工",
+        "url": "https://www.bilibili.com/video/BV1oG41117nR",
+        "duration_sec": 637.0
+      },
+      {
+        "key": "bilibili_search:BV1dZ421s7GA",
+        "title": "【林园最新】片仔癀股东大会林园发言",
+        "source": "reference_origin_search",
+        "author": "投资大佬说",
+        "url": "https://www.bilibili.com/video/BV1dZ421s7GA",
+        "duration_sec": 554.0
+      },
+      {
+        "key": "bilibili_search:BV1d7411z7bg",
+        "title": "林园：我们重点投资医药、银行、券商行业的可转债",
+        "source": "bilibili_search",
+        "author": "sdinal",
+        "url": "https://www.bilibili.com/video/BV1d7411z7bg",
+        "duration_sec": 169.0
+      },
+      {
+        "key": "bilibili_search:BV1kc41127Tg",
+        "title": "林园：葛兰亏300亿管理费收30亿 其实应该这么看",
+        "source": "bilibili_search",
+        "author": "懂事长策略",
+        "url": "https://www.bilibili.com/video/BV1kc41127Tg",
+        "duration_sec": 62.0
+      },
+      {
+        "key": "bilibili_search:BV1B24y187QT",
+        "title": "私募大佬林园：房地产的春天来了！",
+        "source": "bilibili_search",
+        "author": "私募排排网",
+        "url": "https://www.bilibili.com/video/BV1B24y187QT",
+        "duration_sec": 53.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 10,
+    "verified_live": 11,
     "verified_audio_card": 0,
     "verified_landscape": 9,
-    "verified_portrait": 1,
+    "verified_portrait": 2,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 10,
+    "daily_mix_usable": 11,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -73,10 +114,10 @@
     "failed": 918,
     "paused": 5,
     "validation_failed": 3,
-    "awaiting_validation": 2,
+    "awaiting_validation": 1,
     "interrupted": 1,
     "excluded": 4,
-    "ready": 7,
+    "ready": 8,
     "retry_queued": 2,
     "running": 6
   },
@@ -18865,8 +18906,8 @@
     },
     {
       "slug": "ly-1010-9f8f64",
-      "status": "awaiting_validation",
-      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1791607060,
         "failed": null,
@@ -26304,6 +26345,17 @@
       "run_number": 1735,
       "display_title": "中文源出片 · ly-1010-2348ad"
     },
+    "ly-1010-9f8f64": {
+      "id": 38024726084,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-10T04:37:40Z",
+      "updated_at": "2026-10-10T05:54:25Z",
+      "run_started_at": "2026-10-10T04:37:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024726084",
+      "run_number": 1728,
+      "display_title": "中文源出片 · ly-1010-9f8f64"
+    },
     "ly-1010-ced9bf": {
       "id": 38029147804,
       "status": "in_progress",
@@ -26369,17 +26421,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38028342919",
       "run_number": 1736,
       "display_title": "中文源出片 · ly-1010-0e99bf"
-    },
-    "ly-1010-9f8f64": {
-      "id": 38024726084,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-10-10T04:37:40Z",
-      "updated_at": "2026-10-10T05:54:25Z",
-      "run_started_at": "2026-10-10T04:37:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024726084",
-      "run_number": 1728,
-      "display_title": "中文源出片 · ly-1010-9f8f64"
     }
   }
 }
