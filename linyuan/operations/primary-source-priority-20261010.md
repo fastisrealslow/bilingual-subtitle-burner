@@ -48,3 +48,11 @@ PR78（73ea10fa）Linux完整回归1832passed/1skipped，13:17合并27f531f6；�
 每轮三条、单次300秒研究预算不增加。确有新字节的部分文件30分钟后可继续，其余失败沿用退避；已存在官方Timeout只在新续传策略首次接入时释放一次重试，不每小时清零失败状态。
 
 13:34生产部署38027012618成功。真实FC回读code_sha256=712b4b644ae66d73646704cdb56652fe8fb6da2fd9f01626e37297847d3a3b15，copyright_requested=3/copyright_mode=unselected，verification_complete=true；四个正常发布时段保持启用。证据artifact11660243738。尚无按新配置提交的新稿平台copyright回读；不得将配置验收与平台新稿验收混同。
+
+13:36本机真实续传：第一次8秒预算在122174894字节处限时结束，第二次15秒预算补齐174527298字节；完整SHA与先前已解码的官方原片d909c8e0...完全一致。PR80 Linux1840passed/1skipped后合并782bf9b6，未变更FC运行时或再触发发布。
+
+## 长合集目录未入线上库的修复
+
+13:39回读实际数据库发现BV11H5NzCEWY仍0P，不能宣称已上线60P；日志确认匿名元数据HTTPError，而末尾offline汇总把先前失败报告抹掉。补充正常配置的B站登录会话从首次公开API请求即使用（不是绕风险错误换IP/伪造指纹）；同时保存本机实际view核验的60P、CID、时长、上传者、发布日期、禁止转载标记为research_collection_catalog.json。
+
+直播读取失败时仅使用明确标记verified_catalog_snapshot的已验证目录，保留本轮刷新错误与快照观察时间，不宣称live_api。所有60P仍catalog_only/direct_dispatch=false，授权和实际媒体验收未过就不能算生产库存。offline_reconcile保留last_online_check及其失败记录，不用空错误列表冒充成功刷新。
