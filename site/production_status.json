@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791614347,
+  "updated_at": 1791614452,
   "inventory_updated_at": 1791614342,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791614346,
+    "updated_at": 1791614451,
     "records": 9485,
     "video_records": 8105,
     "initial_candidates": 58,
@@ -79,15 +79,15 @@
   },
   "counts": {
     "complete": 109,
-    "failed": 921,
+    "failed": 922,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 7,
-    "retry_queued": 2,
-    "running": 5
+    "retry_queued": 1,
+    "running": 6
   },
   "tasks": [
     {
@@ -19017,24 +19017,6 @@
       "run_updated_at": "2026-10-10T05:55:07Z"
     },
     {
-      "slug": "ly-1010-ed1f62",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791611710,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791613974,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38029135342,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029135342",
-      "run_started_at": "2026-10-10T05:55:10Z",
-      "run_updated_at": "2026-10-10T06:14:56Z"
-    },
-    {
       "slug": "ly-1010-eb0229",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[3]，scan_same=[]，scan_different=[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.1704, 3: 0.1271, 4: 0.1518, 5: 0.1574, 6: 0.1568, 7: 0.144, 8: 0.2031, 9: 0.1494, 10: 0.2354, 11: 0.2442, 12: 0.1826, 13: 0.0882, 14: 0.216, 15: 0.1198, 16: 0.188, 17: 0.1768, 18: 0.1878}",
@@ -19162,11 +19144,11 @@
     },
     {
       "slug": "ly-1010-ef4f0a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791613863,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19177,6 +19159,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031210242",
       "run_started_at": "2026-10-10T06:31:03Z",
       "run_updated_at": "2026-10-10T06:37:23Z"
+    },
+    {
+      "slug": "ly-1010-ed1f62",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791614413,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38031736370,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031736370",
+      "run_started_at": "2026-10-10T06:40:12Z",
+      "run_updated_at": "2026-10-10T06:40:17Z"
     }
   ],
   "runs": {
@@ -26408,14 +26408,14 @@
       "display_title": "中文源出片 · ly-1010-ced9bf"
     },
     "ly-1010-ed1f62": {
-      "id": 38029135342,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T05:55:10Z",
-      "updated_at": "2026-10-10T06:14:56Z",
-      "run_started_at": "2026-10-10T05:55:10Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38029135342",
-      "run_number": 1739,
+      "id": 38031736370,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T06:40:12Z",
+      "updated_at": "2026-10-10T06:40:17Z",
+      "run_started_at": "2026-10-10T06:40:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031736370",
+      "run_number": 1748,
       "display_title": "中文源出片 · ly-1010-ed1f62"
     },
     "ly-1010-f1e3ed": {
