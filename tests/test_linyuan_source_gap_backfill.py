@@ -64,3 +64,16 @@ def test_reference_fallback_requires_exact_id_and_author(monkeypatch):
     import pytest
     with pytest.raises(ValueError):
         gaps.reference_metadata('BVdifferent',dict(name='园园滚雪球',mid=1700344493))
+
+
+def test_visual_proof_reclassifies_old_query_tag_and_blocks_unreviewed_material():
+    conn=sqlite3.connect(':memory:')
+    conn.execute('CREATE TABLE items(id TEXT,url TEXT,extra TEXT)')
+    url='https://m.weibo.cn/detail/5344215793927135'
+    conn.execute('INSERT INTO items VALUES(?,?,?)',('old',url,'{"source_family":"phoenix_2026_09","direct_dispatch":true}'))
+    catalog=json.loads((Path(__file__).resolve().parents[1]/'linyuan/source_lineage.json').read_text())
+    gaps.apply_lineage(conn,catalog)
+    extra=json.loads(conn.execute('SELECT extra FROM items').fetchone()[0])
+    assert extra['source_family']=='cruise_2025_09_visual'
+    assert extra['reference_match_status']=='not_phoenix_2026_09'
+    assert extra['direct_dispatch'] is False and extra['source_role']=='catalog_only'

@@ -121,6 +121,43 @@ def audio_candidate(reference,mother):
         mother_fingerprint_offset=off,original_publisher_confirmed=False)
 
 
+def prepare_cache_jobs(jobs,cache):
+    """Cache eviction is not media failure. New investigations precede reconstruction."""
+    for key,job in jobs.items():
+        audio=cache/key/'audio.json'
+        evidence=job.get('evidence') or {}
+        historical=evidence.get('media_integrity')=='passed'
+        usable=False
+        if historical and audio.is_file():
+            try:
+                saved=json.loads(audio.read_text())
+                usable=(saved.get('sha256')==evidence.get('sha256')
+                        and len(saved.get('values') or [])==evidence.get('audio_fingerprint_count')
+                        and len(saved.get('values') or [])>=80)
+            except (ValueError,OSError,TypeError):pass
+        job['fingerprint_cache_available']=usable
+        job['cache_recovery_needed']=historical and not usable
+        if usable:
+            job.update(status='inspected',next_retry_at=0)
+        elif job.get('status')=='inspected':
+            job.update(status='pending',next_retry_at=0)
+    return sorted(jobs.items(),key=lambda p:(p[1].get('cache_recovery_needed',False),
+        p[1].get('priority',2),p[1].get('last_attempt_at',0),p[0]))
+
+
+def long_mother_rows(rows):
+    """Research full recordings first; a search query is never event-date evidence."""
+    accepted=[]
+    for row in rows:
+        if row.get('author') in monitor.BLACKLIST_AUTHORS|{'园园滚雪球'}:continue
+        try:duration=float(json.loads(row.get('extra') or '{}').get('duration') or 0)
+        except (ValueError,TypeError):continue
+        if '林园' not in row.get('title','') or not 900<=duration<=5400:continue
+        if any(word in row['title'] for word in ('解说林园','解读林园','混剪','鬼畜')):continue
+        accepted.append((duration,row))
+    return [row for _,row in sorted(accepted,key=lambda p:-p[0])[:4]]
+
+
 def discover(catalog,state,max_queries):
     now=time.time();records=[]
     for request_index in range(max_queries):
@@ -139,12 +176,9 @@ def discover(catalog,state,max_queries):
             source=monitor.BilibiliSearchSource(dict(keyword=query,pages=1),{})
             rows=source.fetch(None)
             accepted=[]
-            for row in rows:
+            for row in long_mother_rows(rows):
                 extra=json.loads(row['extra'])
-                if row.get('author') in monitor.BLACKLIST_AUTHORS|{'园园滚雪球'}:continue
-                duration=extra.get('duration',0)
-                if '林园' not in row['title'] or duration<editorial.MIN_SECONDS or duration>5400:continue
-                extra.update(source_family=family,origin_role='unverified_publisher',
+                extra.update(source_family='unresolved',candidate_families=[family],origin_role='unverified_publisher',
                     source_role='mother_candidate',direct_dispatch=True,reference_match_status='needs_media_match',
                     discovery_query=query)
                 row.update(source='reference_origin_search',extra=json.dumps(extra,ensure_ascii=False))
@@ -205,10 +239,12 @@ def seed_jobs(catalog,state,discovered):
             add(url,'mother',family,priority if index==0 else 4)
     for ref in catalog['references'][:1]:add('https://www.bilibili.com/video/'+ref['bvid'],'reference','maotai_table_exchange',0)
     for row in discovered:
-        family=json.loads(row['extra'])['source_family']
+        extra=json.loads(row['extra'])
+        family=(extra.get('candidate_families') or [extra.get('source_family','unresolved')])[0]
         add(row['url'],'mother',family,0 if family=='phoenix_2026_09' else 5)
+        jobs[key_for(row['url'])]['family_status']='search_clue_not_verified'
     seeds=json.loads((BASE/'up_videos.json').read_text())
-    recent=sorted(seeds.items(),key=lambda p:p[1].get('date',''),reverse=True)[:10]
+    recent=sorted(seeds.items(),key=lambda p:p[1].get('date',''),reverse=True)[:30]
     for bvid,video in recent:
         if video.get('metadata_provenance','').startswith('bilibili_'):
             # Other speakers remain research references, not LinYuan material.
@@ -217,7 +253,17 @@ def seed_jobs(catalog,state,discovered):
                     else 'unresolved')
             add('https://www.bilibili.com/video/'+bvid,'reference',family,1)
     for f in catalog['families']:
+        for url in f.get('official_urls',[]):
+            from source_priority import VERIFIED_PRIMARY_PAGES
+            primary=url in VERIFIED_PRIMARY_PAGES
+            add(url,'mother',f['id'],-1 if primary else 2)
+            jobs[key_for(url)]['publisher_status']='verified_primary_page' if primary else 'catalog_lead_not_primary_proof'
         for url in f.get('candidate_urls',[]):add(url,'mother',f['id'],2)
+        for url in f.get('research_only_urls',[]):add(url,'mother',f['id'],6)
+        for url,proof in f.get('visual_reclassifications',{}).items():
+            add(url,'mother',f['id'],6)
+            jobs[key_for(url)].update(family=f['id'],priority=6,
+                family_status='visual_evidence_not_primary_publisher',visual_classification=proof)
 
 
 def main():
@@ -236,17 +282,16 @@ def main():
     seed_jobs(catalog,state,discovered)
     args.cache.mkdir(parents=True,exist_ok=True);args.evidence.mkdir(parents=True,exist_ok=True)
     processed=0;now=time.time()
-    ordered=sorted(state['jobs'].items(),key=lambda p:(p[1].get('priority',2),p[1].get('last_attempt_at',0),p[0]))
+    ordered=prepare_cache_jobs(state['jobs'],args.cache)
     for key,job in ordered:
         evidence_dir=args.cache/key
-        if job.get('status')=='inspected' and not (evidence_dir/'audio.json').is_file():
-            job.update(status='pending',next_retry_at=0)
         if not due(job,now) or processed>=args.max_items:continue
         processed+=1;raw=args.cache/(key+'.mp4')
         try:
             if not raw.is_file():fetch_media(job['url'],raw,args.download_budget)
             evidence=inspect_media(raw,evidence_dir)
             job.update(status='inspected',last_attempt_at=time.time(),next_retry_at=0,last_error=None,
+                cache_recovery_needed=False,fingerprint_cache_available=True,
                 evidence=evidence,evidence_run_id=os.environ.get('GITHUB_RUN_ID'))
             print('Media inspected:',job['url'],round(evidence['duration_sec'],1),'seconds',flush=True)
             # Validated fingerprint/frame evidence survives subsequent runners; raw mothers need not.
@@ -274,6 +319,8 @@ def main():
     state.update(updated_at=int(time.time()),last_run_id=os.environ.get('GITHUB_RUN_ID'),audio_match_candidates=matches)
     write_json(STATE,state)
     report=dict(run_id=state['last_run_id'],processed=processed,inspected=sum(j.get('status')=='inspected' for j in state['jobs'].values()),
+        historical_media_verified=sum((j.get('evidence') or {}).get('media_integrity')=='passed' for j in state['jobs'].values()),
+        cache_recovery_pending=sum(j.get('cache_recovery_needed',False) for j in state['jobs'].values()),
         pending=sum(j.get('status')!='inspected' for j in state['jobs'].values()),audio_matches=matches,
         reference_refresh=state['reference_refresh'],jobs=state['jobs'],searches=state['searches'])
     write_json(BASE/'.automation/source_research_report.json',report)

@@ -44,3 +44,42 @@ def test_timeout_kills_the_spawned_process_group(monkeypatch):
     import pytest
     with pytest.raises(subprocess.TimeoutExpired):research.bounded_run(['download'],1)
     assert calls==[(42,research.signal.SIGKILL)]
+
+
+def test_cache_eviction_recovery_does_not_starve_new_sources(tmp_path):
+    jobs={'old':dict(status='inspected',priority=0,evidence=dict(media_integrity='passed',
+              sha256='proof',audio_fingerprint_count=80)),
+          'new':dict(status='pending',priority=2)}
+    ordered=research.prepare_cache_jobs(jobs,tmp_path)
+    assert [key for key,_ in ordered]==['new','old']
+    assert jobs['old']['evidence']['sha256']=='proof'
+    assert jobs['old']['cache_recovery_needed'] and research.due(jobs['old'],1)
+    folder=tmp_path/'old';folder.mkdir()
+    (folder/'audio.json').write_text(json.dumps(dict(sha256='proof',values=list(range(80)))))
+    research.prepare_cache_jobs(jobs,tmp_path)
+    assert jobs['old']['status']=='inspected' and not jobs['old']['cache_recovery_needed']
+    assert not research.due(jobs['old'],10**10)
+    (folder/'audio.json').write_text(json.dumps(dict(sha256='wrong',values=list(range(80)))))
+    research.prepare_cache_jobs(jobs,tmp_path)
+    assert jobs['old']['cache_recovery_needed']
+
+
+def test_long_mothers_precede_short_repackaging_and_commentary():
+    def row(title,duration,author='访谈录制者'):
+        return dict(title=title,author=author,extra=json.dumps(dict(duration=duration)))
+    rows=[row('林园片段',52),row('林园访谈',1000),row('林园直播全程',2400),
+          row('解说林园',5000),row('林园现场',2000,'园园滚雪球'),row('林园全文',10000)]
+    assert [r['title'] for r in research.long_mother_rows(rows)]==['林园直播全程','林园访谈']
+
+
+def test_visual_reclassification_overrides_stale_search_family(tmp_path,monkeypatch):
+    monkeypatch.setattr(research,'BASE',tmp_path)
+    (tmp_path/'up_videos.json').write_text('{}')
+    url='https://m.weibo.cn/detail/5344215793927135'
+    catalog=json.loads((Path(__file__).resolve().parents[1]/'linyuan/source_lineage.json').read_text())
+    state=dict(jobs={research.key_for(url):dict(url=url,role='mother',family='phoenix_2026_09',priority=0)})
+    research.seed_jobs(catalog,state,[])
+    actual=state['jobs'][research.key_for(url)]
+    assert actual['family']=='cruise_2025_09_visual' and actual['priority']==6
+    assert actual['visual_classification']['production_quality']=='not_approved'
+    assert any(j['url']=='https://www.yicai.com/video/103329354.html' and j['priority']==-1 for j in state['jobs'].values())

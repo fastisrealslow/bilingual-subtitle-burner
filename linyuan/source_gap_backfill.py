@@ -63,6 +63,12 @@ def apply_lineage(conn, catalog):
                 extra['source_family']=f['id']
                 extra['origin_role']='official_publisher' if url in f.get('official_urls',[]) else 'repost_or_lead'
                 extra['reference_match_status']='needs_media_match'
+            if url in f.get('visual_reclassifications',{}):
+                extra.update(source_family=f['id'],origin_role='repost_or_lead',
+                    reference_match_status=f.get('reference_match_status','needs_media_match'),
+                    visual_classification=f['visual_reclassifications'][url],
+                    source_role='catalog_only',direct_dispatch=False,
+                    exclusion_reason='visual_reclassification_requires_production_review')
         for ref in catalog['references']:
             if url.rstrip('/')==f"https://www.bilibili.com/video/{ref['bvid']}":
                 extra.update(source_role='reference',direct_dispatch=False,
@@ -126,6 +132,26 @@ def main():
             report['collection_api_pages']=len(pages)
         except Exception as exc:
             report['errors'].append(dict(target=bvid,stage='collection_metadata',error=type(exc).__name__))
+        # Explicit research-only collections retain each CID/duration/rights flag.
+        # These are origin leads, not a shortcut into dispatch or usable stock.
+        report['research_collections']=[]
+        for research_collection in catalog.get('research_collections',[]):
+            research_bvid=research_collection['bvid']
+            try:
+                research_parent=get_api('/x/web-interface/view?bvid='+research_bvid)
+                research_rows=[]
+                for page in research_parent['pages']:
+                    row=collection_item(research_bvid,page,research_parent)
+                    extra=json.loads(row['extra'])
+                    extra.update(source_role='catalog_only',direct_dispatch=False,
+                        origin_role='repost_or_lead',rights_no_reprint=(research_parent.get('rights') or {}).get('no_reprint'),
+                        exclusion_reason='origin_research_only_authorization_unverified')
+                    row['extra']=json.dumps(extra,ensure_ascii=False);research_rows.append(row)
+                new_rows=monitor.upsert_items(research_rows)
+                report['research_collections'].append(dict(bvid=research_bvid,pages=len(research_rows),
+                    new_pages=len(new_rows),production_approved=False))
+            except Exception as exc:
+                report['errors'].append(dict(target=research_bvid,stage='research_collection_metadata',error=type(exc).__name__))
         for article_id in catalog['official_short_ids']:
             try:
                 info=monitor.YicaiVideoSource({}, {})._extract(article_id)

@@ -61,6 +61,7 @@ def verify_config_health(health, root=None):
     root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
     expected = hashlib.sha256((root/'linyuan/fc/index.py').read_bytes()).hexdigest()
     if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
+            or health.get('copyright_requested') != 3 or health.get('copyright_mode') != 'unselected'
             or health.get('publish_hours_beijing') != [10, 14, 16, 21]
             or health.get('live_min_per_day') != 4
             or health.get('cover_styles') != ['scene','editorial','photo','light','dark']

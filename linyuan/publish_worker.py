@@ -36,7 +36,7 @@ TOKEN_FILE = Path.home() / ".config" / "linyuan" / "github_token"
 REPO = "fastisrealslow/bilingual-subtitle-burner"
 API = f"https://api.github.com/repos/{REPO}"
 TID = 207          # 财经商业
-COPYRIGHT = 2      # 转载（转载时 --source 必填，B站 code 21021）
+COPYRIGHT = 3      # 未选择声明；保留来源，不宣称自制或获得授权
 
 
 def log(*a):

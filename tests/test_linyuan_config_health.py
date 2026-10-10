@@ -22,6 +22,7 @@ def test_configuration_probe_uses_no_remote_ledgers_or_log_writes(monkeypatch):
     health=fc.handler(json.dumps(dict(triggerName='diagnose-config')),None)
     assert health['daily_limit']==4 and health['publish_hours_beijing']==[10,14,16,21]
     assert health['audio_max_per_day']==0 and health['minimum_final_seconds']==120
+    assert health['copyright_requested']==3 and health['copyright_mode']=='unselected'
     assert len(health['code_sha256'])==64 and len(health['editorial_code_sha256'])==64
 
 

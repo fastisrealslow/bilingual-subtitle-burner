@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'linyuan'))
-from source_priority import family, observed_priorities
+from source_priority import family, observed_priorities, publisher_priority
 
 
 def entry(i, **extra):
@@ -51,3 +51,14 @@ def test_later_retry_cannot_erase_an_earlier_receipt_for_the_same_mother():
                published={e['slug']:dict(bvid='BVdelivered') for e in originals})
     counts=observed_priorities(state,1001)[family(originals[0])]
     assert counts['delivered_mothers']==3 and counts['quality_rejected_mothers']==0
+
+
+def test_platform_and_self_reported_primary_claims_are_not_provenance():
+    for source in ('xueqiu_video','tencent_video','bilibili_api','bilibili_space','weibo_video'):
+        assert publisher_priority(dict(source=source,extra={'origin_role':'official_publisher'},
+            page_url='https://www.bilibili.com/video/BVunverified'))==10
+    assert publisher_priority(dict(page_url='https://www.yicai.com/video/103329354.html',
+        extra='{"origin_role":"official_publisher"}'))==30
+    assert publisher_priority(dict(page_url='https://www.yicai.com/video/99999999.html',
+        extra={'origin_role':'official_publisher'}))==10
+    assert publisher_priority(dict(extra='bad json'))==10

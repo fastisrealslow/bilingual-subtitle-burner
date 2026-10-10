@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 DEFAULT_TID = 207  # 财经商业
-DEFAULT_COPYRIGHT = 2  # 转载（翻译剪辑）
+DEFAULT_COPYRIGHT = 3  # 未选择声明；不代表自制，来源与授权需另外核验
 DEFAULT_LINE = "bda2"
 
 
@@ -31,7 +31,7 @@ def main():
     ap.add_argument("--slug", required=True, help="slug，如 ly-yiyao-0813")
     ap.add_argument("--cookies", default=None, help="cookies.json 路径")
     ap.add_argument("--tid", type=int, default=DEFAULT_TID, help="分区 id")
-    ap.add_argument("--copyright", type=int, default=DEFAULT_COPYRIGHT, choices=[1, 2])
+    ap.add_argument("--copyright", type=int, default=DEFAULT_COPYRIGHT, choices=[1, 2, 3])
     ap.add_argument("--line", default=DEFAULT_LINE)
     ap.add_argument("--title", default=None, help="覆盖自动生成的标题")
     ap.add_argument("--desc", default=None, help="覆盖自动生成的简介")
