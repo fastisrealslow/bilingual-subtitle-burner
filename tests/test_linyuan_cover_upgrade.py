@@ -93,3 +93,14 @@ def test_verified_scene_is_never_relabelled_as_reference(tmp_path):
     row=bundle(tmp_path);row['cover_person_image_source']='verified_source_frame'
     (tmp_path/'meta.json').write_text(json.dumps(row))
     assert not U.upgrade(tmp_path,'ly-test',10,20,validate=lambda *a:None)['changed']
+
+
+def test_measured_validator_supplements_cannot_mutate_original_metadata(tmp_path):
+    original=bundle(tmp_path)
+    def measured(row,directory):
+        row['new_measurement']={'measured':True}
+        return None
+    U.upgrade(tmp_path,'ly-test',10,20,validate=measured,font=font())
+    updated=json.loads((tmp_path/'meta.json').read_text())
+    assert 'new_measurement' not in updated
+    assert updated['title']==original['title']
