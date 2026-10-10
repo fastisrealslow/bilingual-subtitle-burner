@@ -12,6 +12,34 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def upgrade_eligible(meta):
+    proof=meta.get('cover_proof') or {}
+    return (proof.get('cover_layout_version')!=3 and proof.get('style')=='dark'
+            and meta.get('cover_person_image_verified') is True
+            and meta.get('cover_person_image_source')=='authority_reference')
+
+
+def select_batches(stock, limit=8):
+    """Known non-upgradeable layouts must not starve the remaining reserve."""
+    if type(limit) is not int or not 1 <= limit <= 8:
+        raise ValueError('Invalid cover upgrade batch limit')
+    selected=[]
+    for record in stock.get('artifacts',[]):
+        if not any(p.get('status')=='verified' and p.get('cover_layout_version')!=3
+                   and (p.get('cover_upgrade_eligible') is True
+                        or 'cover_upgrade_eligible' not in p and p.get('cover_style') in (None,'dark'))
+                   for p in record.get('parts',[])):
+            continue
+        row={k:record[k] for k in ('slug','run_id','artifact_id')}
+        if (not re.fullmatch(r'ly-[a-zA-Z0-9-]+',row['slug'])
+                or any(type(row[k]) is not int or row[k]<=0 for k in ('run_id','artifact_id'))):
+            raise ValueError('Invalid inventory origin')
+        selected.append(row)
+        if len(selected)==limit:
+            break
+    return selected
+
+
 def upgrade(directory, slug, run_id, artifact_id, validate=None, font=None):
     from PIL import Image
     import editorial_cover as C

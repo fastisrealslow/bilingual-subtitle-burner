@@ -32,7 +32,9 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        case: ${{ fromJSON(inputs.case_ids || '[0,1,2]') }}
+        # Branch canary targets the observed case1 comparison-strength error;
+        # the production/manual acceptance still covers both recent clips and the control.
+        case: ${{ fromJSON(inputs.case_ids || (github.ref_name == 'main' && '[0,1,2]' || '[1]')) }}
         repeat:
         - 1
     steps:

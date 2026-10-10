@@ -26,21 +26,12 @@ jobs:
         name: 仅选现存已验收交付，最多8个批次
         run: |
           python - <<'PY'
-          import json, os, re
+          import json, os, sys
           from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          from upgrade_cover_delivery import select_batches
           stock=json.loads(Path('linyuan/.automation/source_inventory.json').read_text())
-          rows=[]
-          for record in stock.get('artifacts',[]):
-              if not any(p.get('status')=='verified' and p.get('cover_layout_version')!=3
-                         for p in record.get('parts',[])):
-                  continue
-              if not re.fullmatch(r'ly-[a-zA-Z0-9-]+',record.get('slug','')):
-                  raise ValueError('Invalid inventory slug')
-              row={k:record[k] for k in ('slug','run_id','artifact_id')}
-              if any(type(row[k]) is not int or row[k]<=0 for k in ('run_id','artifact_id')):
-                  raise ValueError('Invalid inventory origin')
-              rows.append(row)
-          rows=rows[:8]
+          rows=select_batches(stock)
           with open(os.environ['GITHUB_OUTPUT'],'a') as output:
               output.write('matrix='+json.dumps(dict(include=rows))+'\n')
               output.write('count='+str(len(rows))+'\n')

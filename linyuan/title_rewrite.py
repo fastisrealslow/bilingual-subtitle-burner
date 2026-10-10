@@ -1160,7 +1160,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
                  '盈利的保障','盈利保障','赚钱的保障','赚钱保障','收益的保障','收益保障',
                  '确保盈利','确保赚钱','保证盈利','保证赚钱',
                  '不用怕','不用担心','不必担心','无需担心','放心买','没风险','让我安心','让人安心',
-                 '粘性强','粘性更强','黏性强','黏性更强','超预期','不值')
+                 '粘性强','粘性更强','黏性强','黏性更强','超预期','不值',
+                 '最容易','更容易')
     stated=compact(''.join(evidence))
     relation_issue=relation_error(title,cover,transcript)
     if relation_issue:return relation_issue

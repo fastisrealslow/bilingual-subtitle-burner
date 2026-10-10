@@ -105,3 +105,22 @@ def test_measured_validator_supplements_cannot_mutate_original_metadata(tmp_path
     updated=json.loads((tmp_path/'meta.json').read_text())
     assert 'new_measurement' not in updated
     assert updated['title']==original['title']
+
+
+def test_selector_does_not_repeat_known_unupgradeable_covers_and_starve_tail():
+    def record(index,**part):
+        return dict(slug='ly-'+str(index),run_id=index,artifact_id=index,
+                    parts=[dict(status='verified',**part)])
+    blocked=[record(i,cover_upgrade_eligible=False) for i in range(1,10)]
+    tail=record(10,cover_style='dark',cover_upgrade_eligible=True)
+    assert U.select_batches(dict(artifacts=blocked+[tail]))==[
+        {k:tail[k] for k in ['slug','run_id','artifact_id']}]
+    assert len(U.select_batches(dict(artifacts=[record(i) for i in range(1,20)])))==8
+    assert not U.select_batches(dict(artifacts=[record(1,cover_layout_version=3)]))
+
+
+def test_only_verified_legacy_authority_portraits_are_upgrade_eligible(tmp_path):
+    row=bundle(tmp_path)
+    assert U.upgrade_eligible(row)
+    assert not U.upgrade_eligible({**row,'cover_person_image_source':'verified_source_frame'})
+    assert not U.upgrade_eligible({**row,'cover_proof':{'style':'dark','cover_layout_version':3}})
