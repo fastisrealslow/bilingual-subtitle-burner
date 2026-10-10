@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791607279,
-  "inventory_updated_at": 1791607193,
+  "updated_at": 1791607998,
+  "inventory_updated_at": 1791607993,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791607278,
-    "records": 9345,
-    "video_records": 7965,
-    "initial_candidates": 57,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1791607997,
+    "records": 9363,
+    "video_records": 7983,
+    "initial_candidates": 59,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 5413,
-      "already_attempted_or_cooling": 1217,
+      "speaker_unconfirmed": 5423,
+      "already_attempted_or_cooling": 1218,
       "no_video": 1380,
-      "clip_title": 1093,
+      "clip_title": 1098,
       "unrelated": 62,
       "noise": 15,
       "ai_content": 36,
@@ -54,7 +54,24 @@
       "too_short": 34,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1vM4m127ff",
+        "title": "2024年中林园专访看他怎么说",
+        "source": "bilibili_search",
+        "author": "诸葛梁投资",
+        "url": "https://www.bilibili.com/video/BV1vM4m127ff",
+        "duration_sec": 3490.0
+      },
+      {
+        "key": "bilibili_search:BV15n8yzkEVy",
+        "title": "21财经对话股神林园",
+        "source": "bilibili_search",
+        "author": "人人の股神",
+        "url": "https://www.bilibili.com/video/BV15n8yzkEVy",
+        "duration_sec": 630.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 10,
@@ -74,10 +91,10 @@
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 1,
-    "interrupted": 1,
+    "interrupted": 2,
     "excluded": 4,
     "ready": 7,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -18918,8 +18935,8 @@
     },
     {
       "slug": "ly-1010-9d1da0",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791607078,
         "failed": null,
@@ -18932,7 +18949,7 @@
       "run_id": 38024743354,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024743354",
       "run_started_at": "2026-10-10T04:37:58Z",
-      "run_updated_at": "2026-10-10T04:38:02Z"
+      "run_updated_at": "2026-10-10T04:52:09Z"
     }
   ],
   "runs": {
@@ -26066,10 +26083,10 @@
     },
     "ly-1010-9d1da0": {
       "id": 38024743354,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-10T04:37:58Z",
-      "updated_at": "2026-10-10T04:38:02Z",
+      "updated_at": "2026-10-10T04:52:09Z",
       "run_started_at": "2026-10-10T04:37:58Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024743354",
       "run_number": 1731,
