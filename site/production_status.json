@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791648498,
+  "updated_at": 1791648587,
   "inventory_updated_at": 1791648495,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791648498,
+    "updated_at": 1791648587,
     "records": 9572,
     "video_records": 8179,
-    "initial_candidates": 60,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 59,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1393,
-      "already_attempted_or_cooling": 1251,
+      "already_attempted_or_cooling": 1252,
       "speaker_unconfirmed": 5530,
       "clip_title": 1099,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1L64y1o7GN",
-        "title": "林园_最新采访视频_说了很多有意思的事情_标清",
-        "source": "bilibili_search",
-        "author": "冰与火之好奇",
-        "url": "https://www.bilibili.com/video/BV1L64y1o7GN",
-        "duration_sec": 695.0
-      },
       {
         "key": "bilibili_search:BV17pYZzbEjH",
         "title": "20250821新浪财经专访林园",
@@ -87,14 +79,14 @@
   },
   "counts": {
     "complete": 111,
-    "failed": 938,
+    "failed": 939,
     "paused": 5,
     "validation_failed": 3,
     "awaiting_validation": 2,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 5,
     "ready": 7,
-    "running": 5,
+    "running": 6,
     "retry_queued": 1
   },
   "tasks": [
@@ -19494,11 +19486,11 @@
     },
     {
       "slug": "ly-1010-1543a1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791648168,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19527,6 +19519,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38066064304",
       "run_started_at": "2026-10-10T16:02:53Z",
       "run_updated_at": "2026-10-10T16:02:57Z"
+    },
+    {
+      "slug": "ly-1010-651aaf",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791648552,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38066490898,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38066490898",
+      "run_started_at": "2026-10-10T16:09:12Z",
+      "run_updated_at": "2026-10-10T16:09:16Z"
     }
   ],
   "runs": {
@@ -27009,6 +27019,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38066058816",
       "run_number": 1797,
       "display_title": "中文源出片 · ly-1010-1543a1"
+    },
+    "ly-1010-651aaf": {
+      "id": 38066490898,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-10T16:09:12Z",
+      "updated_at": "2026-10-10T16:09:16Z",
+      "run_started_at": "2026-10-10T16:09:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38066490898",
+      "run_number": 1799,
+      "display_title": "中文源出片 · ly-1010-651aaf"
     },
     "ly-1010-d6e211": {
       "id": 38066064304,
