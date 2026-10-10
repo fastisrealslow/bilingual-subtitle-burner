@@ -106,6 +106,10 @@ jobs:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python -u source_gap_backfill.py
 
+      - name: 即时保存原发与长合集目录（不等待媒体下载）
+        run: |
+          bash persist_monitor_metadata.sh 'chore(sources): checkpoint verified long catalogue and original clips'
+
       - name: 自动补源、重试下载并比对实际音频
         timeout-minutes: 20
         env:

@@ -126,3 +126,9 @@ def test_offline_reconciliation_cannot_erase_failed_online_probe():
     later=dict(checked_at=300,errors=[])
     gaps.preserve_online_audit(later,report)
     assert later['last_online_check']['checked_at']==100 and later['errors']==previous['errors']
+
+
+def test_verified_catalogue_is_checkpointed_before_long_media_research():
+    text=(Path(__file__).resolve().parents[1]/'.github/workflows/linyuan-monitor.yml').read_text()
+    assert text.index('checkpoint verified long catalogue and original clips') < text.index('python -u source_research.py')
+    assert 'BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}\n        run: python -u source_gap_backfill.py' in text
