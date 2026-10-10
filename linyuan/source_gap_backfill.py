@@ -79,6 +79,20 @@ def apply_lineage(conn, catalog):
     conn.commit()
 
 
+def primary_clip_item(clip,family):
+    """Verified original page catalogue; rights/production checks are separate."""
+    import hashlib
+    url=clip['url']
+    return dict(id='primary_clip_catalog:'+hashlib.sha256(url.encode()).hexdigest()[:20],
+        source='primary_clip_catalog',title=clip['title'],url=url,
+        publish_time=clip['published_at'],author=clip['publisher'],
+        extra=json.dumps(dict(source_family=family,origin_role='official_publisher',
+            source_role='catalog_only',direct_dispatch=False,has_video=True,
+            duration=clip['duration_sec'],metadata_status='known_duration',
+            primary_media_evidence=clip,reference_match_status='needs_media_match',
+            exclusion_reason='primary_clip_needs_reuse_authorization_and_production_review'),ensure_ascii=False))
+
+
 def cached_collection_parent(conn,bvid):
     """A known uploader on any exact-BV page identifies that same collection."""
     key='bilibili_search:'+bvid
@@ -118,6 +132,9 @@ def main():
     wanted={r['bvid'] for r in catalog['references']}
     refs=[r for r in refs if json.loads(r['extra'])['bvid'] in wanted]
     report['new_reference_ids']=[r['id'] for r in monitor.upsert_items(refs)]
+    report['new_primary_clip_ids']=[r['id'] for r in monitor.upsert_items([
+        primary_clip_item(clip,family['id']) for family in catalog['families']
+        for clip in family.get('primary_clip_catalog',[])])]
     bvid=catalog['collection']['bvid']
     if not args.offline:
         try:

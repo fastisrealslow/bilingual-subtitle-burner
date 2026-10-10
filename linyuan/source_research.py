@@ -255,7 +255,7 @@ def seed_jobs(catalog,state,discovered):
     for f in catalog['families']:
         for url in f.get('official_urls',[]):
             from source_priority import VERIFIED_PRIMARY_PAGES
-            primary=url in VERIFIED_PRIMARY_PAGES
+            primary=url in VERIFIED_PRIMARY_PAGES or url in f.get('verified_primary_urls',[])
             add(url,'mother',f['id'],-1 if primary else 2)
             jobs[key_for(url)]['publisher_status']='verified_primary_page' if primary else 'catalog_lead_not_primary_proof'
         for url in f.get('candidate_urls',[]):add(url,'mother',f['id'],2)
