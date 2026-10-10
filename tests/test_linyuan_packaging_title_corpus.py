@@ -55,3 +55,7 @@ def test_second_real_canary_cannot_turn_buy_or_research_into_definite_buy():
         '亲身试吃再判断公司',source) is None
     assert T.relation_error('林园：吃了感觉好就买公司或者去调研',
         '吃了感觉好就买公司或调研',source) is None
+    assert T.relation_error('林园：基本做法是亲自尝一尝，舒服了就去调研',
+        '基本做法是亲自尝一尝',source)
+    assert T.relation_error('林园：让大家都吃，感觉好才去投资相关公司',
+        '让大家都吃，感觉好才去投资相关公司',source)

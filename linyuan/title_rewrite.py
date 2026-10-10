@@ -494,8 +494,12 @@ def relation_error(title, cover, source):
     body=compact(source)
     if re.search(r'买(?:他的)?公司或者去调研',body):
         for candidate in (title,cover):
-            if re.search(r'(?:就|才)(?:会)?(?:去)?买(?:他的)?公司',compact(candidate)) and '调研' not in candidate:
-                return '原话买公司或者去调研不能缩成感觉好就买公司；保留选择关系或只写亲身体验判断'
+            copy=compact(candidate)
+            definite_buy=re.search(r'(?:就|才)(?:会)?(?:去)?(?:买(?:他的)?公司|投资(?:相关)?公司)',copy)
+            definite_research=re.search(r'(?:就|才)(?:会)?(?:去)?调研',copy)
+            if ((definite_buy and '调研' not in copy)
+                    or (definite_research and not re.search(r'买|投资',copy))):
+                return '原话买公司或者去调研不能缩成单一确定行动；保留选择关系或只写亲身体验判断'
     # A decision remaining unchanged does not imply that the underlying
     # activity or its outcomes are unaffected. Preserve the decision object.
     decision_object=r'(?:决策|决定|安排|计划|选择|方案)'
