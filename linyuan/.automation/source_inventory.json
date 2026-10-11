@@ -3,7 +3,7 @@
   "validation_sha256": "7d7c358abe728a6c1bbd175b8e692a5ec073166a8d685512ffe8bf4651dfcc89",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791753400,
+  "updated_at": 1791753711,
   "materials": {
     "weibo_search": {
       "records": 2005,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791753403,
+    "updated_at": 1791753716,
     "records": 9727,
     "video_records": 8324,
     "initial_candidates": 66,
@@ -21207,28 +21207,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1Qxjv6FE99:p1",
-        "source_url": "https://www.bilibili.com/video/BV1Qxjv6FE99",
-        "family": "BV1Qxjv6FE99",
-        "slugs": [
-          "ly-1011-fe42ca"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1011-fe42ca",
-            "stage": "source-fetch",
-            "terminal": false,
-            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 180.10s 与请求页面 564.00s 不匹配（容差 28.20s）"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1s3pv6wEgB:p1",
         "source_url": "https://www.bilibili.com/video/BV1s3pv6wEgB",
         "family": "BV1s3pv6wEgB",
@@ -21258,7 +21236,14 @@
           "ly-1011-bfc99c"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1011-bfc99c",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"林总，价投最难的问题就是牛市末期公公司估值已经非常高了，又没有合适的一些标的，那那个再去进行投资，那这个时候到底要不要去卖掉呢？\", \"suspect_quote\": \"公公司估值已经非常高了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，'公公司'应为'公司'，多出的'公'字导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"昨天到我们的这有一批人到到访我们公司，我觉得问过。\", \"suspect_quote\": \"昨天到我们的这有一批人到到访我们公司\", \"kind\": \"unintelligible_term\", \"reason\": \"'到到访'疑似识别错误，口语中通常为'来访问'或'到访'，此处重复且搭配不当，影响理解。\"}, {\"sentence_id\": 7, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"'三三'疑似识别错误，结合后文'三三股份'及语境（宁波企业），极可能为'三星'或具体公司名被误识，且'三三'本身非标准简称，属专有名词识别疑点。\"}, {\"sentence_id\": 11, \"quote\": \"我后来就总结出来，这是庆，就这种故事啊，在我身上是发生过的。\", \"suspect_quote\": \"这是庆，就这种故事啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'这是庆'疑似识别错误，结合上下文'总结出来...在我身上是发生过的'，此处应为人名（如'林园'或他人）或特定指代，'庆'字无明确指代对象，属关键信息缺失或错识。\"}, {\"sentence_id\": 21, \"quote\": \"但是这个这个这个这个就是马是前提啊，只要有一次我就夸夸夸，完全超越。\", \"suspect_quote\": \"但是这个这个这个这个就是马是前提啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'马是前提'疑似识别错误，结合语境'只要有一次我就夸夸夸...'，此处应为人名（如'马化腾'或嘉宾名）或特定术语被误识为'马'，且'这个这个这个这个'虽为口吃填充，但紧随其后的'马'无逻辑主语，属关键名词识别疑点。\"}, {\"sentence_id\": 30, \"quote\": \"他这种思维方式就是想小的，即使他大，这个漏了。\", \"suspect_quote\": \"即使他大，这个漏了\", \"kind\": \"unintelligible_term\", \"reason\": \"'这个漏了'疑似识别错误，结合前文'丢了西瓜去捡芝麻'，此处应为'大的漏了'或'西瓜漏了'，'这个'指代不明且不符合口语习惯，属关键信息错识。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -21274,6 +21259,28 @@
         ],
         "source_sha256": [],
         "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Qxjv6FE99:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Qxjv6FE99",
+        "family": "BV1Qxjv6FE99",
+        "slugs": [
+          "ly-1011-fe42ca"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1011-fe42ca",
+            "stage": "source-fetch",
+            "terminal": false,
+            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 180.10s 与请求页面 564.00s 不匹配（容差 28.20s）"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -21916,9 +21923,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -22195,8 +22202,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -22208,8 +22215,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -22517,8 +22524,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -22682,9 +22689,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_workflow-preflight": 1,
         "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1
       },
       "BV13m421375i": {
@@ -25373,11 +25380,6 @@
         "verified_available": 0,
         "verified_seconds": 0
       },
-      "BV1Qxjv6FE99": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1s3pv6wEgB": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -25387,16 +25389,22 @@
       "BV18x4y1n7uR": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1ZRuy61EJz": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1Qxjv6FE99": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 13,
+  "in_flight_placeholders": 12,
   "artifacts": [
     {
       "slug": "ly-1010-13849c",
