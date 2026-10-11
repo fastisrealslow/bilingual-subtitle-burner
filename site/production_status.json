@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791747050,
+  "updated_at": 1791747159,
   "inventory_updated_at": 1791747044,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
     "active_or_recovering_sources": 4,
-    "waiting_candidates": 15,
+    "waiting_candidates": 14,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791747049,
+    "updated_at": 1791747159,
     "records": 9727,
     "video_records": 8324,
-    "initial_candidates": 73,
-    "duration_eligible_records": 15,
-    "candidate_count": 15,
-    "known_duration_candidates": 15,
+    "initial_candidates": 72,
+    "duration_eligible_records": 14,
+    "candidate_count": 14,
+    "known_duration_candidates": 14,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1403,
-      "already_attempted_or_cooling": 1266,
+      "already_attempted_or_cooling": 1267,
       "speaker_unconfirmed": 5635,
       "clip_title": 1109,
       "unrelated": 62,
@@ -55,22 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1Qxjv6FE99",
-        "title": "林园 P1 林园最新采访：力挺茅台！当下渠道库存已跌至低位！",
-        "source": "bilibili_collection",
-        "author": "投资大佬说",
-        "url": "https://www.bilibili.com/video/BV1Qxjv6FE99",
-        "duration_sec": 564.0
-      },
-      {
-        "key": "bilibili_search:BV1uhp76xECB",
-        "title": "林园：8000元入市到佰亿私募大佬【股市风云人物记001】",
-        "source": "bilibili_search",
-        "author": "四哥聊股市",
-        "url": "https://www.bilibili.com/video/BV1uhp76xECB",
-        "duration_sec": 246.0
-      },
       {
         "key": "bilibili_search:BV1remBB8Efd",
         "title": "林园-2025年《天玉朋友圈》专访",
@@ -86,6 +70,14 @@
         "author": "排排网",
         "url": "https://m.weibo.cn/detail/5352878717797823",
         "duration_sec": 58.0
+      },
+      {
+        "key": "bilibili_search:BV1Qxjv6FE99",
+        "title": "林园 P1 林园最新采访：力挺茅台！当下渠道库存已跌至低位！",
+        "source": "bilibili_collection",
+        "author": "投资大佬说",
+        "url": "https://www.bilibili.com/video/BV1Qxjv6FE99",
+        "duration_sec": 564.0
       },
       {
         "key": "bilibili_search:BV1s3pv6wEgB",
@@ -191,10 +183,9 @@
   },
   "counts": {
     "complete": 114,
-    "failed": 971,
+    "failed": 973,
     "paused": 5,
     "ready": 4,
-    "interrupted": 1,
     "retry_queued": 1,
     "running": 3
   },
@@ -19901,11 +19892,11 @@
     },
     {
       "slug": "ly-1011-67b3ce",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791743650,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19973,11 +19964,11 @@
     },
     {
       "slug": "ly-1011-11dd65",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "取源未完成：SourceMediaMismatch: 下载媒体时长 420.10s 与请求页面 5179.00s 不匹配（容差 258.95s）",
       "signature": {
         "ts": 1791746933,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -19987,7 +19978,25 @@
       "run_id": 38168193273,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168193273",
       "run_started_at": "2026-10-11T19:28:53Z",
-      "run_updated_at": "2026-10-11T19:28:57Z"
+      "run_updated_at": "2026-10-11T19:31:02Z"
+    },
+    {
+      "slug": "ly-1011-a08d09",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791747121,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38168422194,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
+      "run_started_at": "2026-10-11T19:32:01Z",
+      "run_updated_at": "2026-10-11T19:32:05Z"
     }
   ],
   "runs": {
@@ -27713,12 +27722,23 @@
       "run_number": 1828,
       "display_title": "中文源出片 · ly-1011-67b3ce"
     },
-    "ly-1011-11dd65": {
-      "id": 38168193273,
+    "ly-1011-a08d09": {
+      "id": 38168422194,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-11T19:32:01Z",
+      "updated_at": "2026-10-11T19:32:05Z",
+      "run_started_at": "2026-10-11T19:32:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
+      "run_number": 1833,
+      "display_title": "中文源出片 · ly-1011-a08d09"
+    },
+    "ly-1011-11dd65": {
+      "id": 38168193273,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-11T19:28:53Z",
-      "updated_at": "2026-10-11T19:28:57Z",
+      "updated_at": "2026-10-11T19:31:02Z",
       "run_started_at": "2026-10-11T19:28:53Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168193273",
       "run_number": 1832,
