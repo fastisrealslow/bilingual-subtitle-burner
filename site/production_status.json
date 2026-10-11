@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791748439,
+  "updated_at": 1791748544,
   "inventory_updated_at": 1791748433,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 13,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 12,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791748438,
+    "updated_at": 1791748543,
     "records": 9727,
     "video_records": 8324,
-    "initial_candidates": 71,
-    "duration_eligible_records": 13,
-    "candidate_count": 13,
-    "known_duration_candidates": 13,
+    "initial_candidates": 70,
+    "duration_eligible_records": 12,
+    "candidate_count": 12,
+    "known_duration_candidates": 12,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1403,
-      "already_attempted_or_cooling": 1268,
+      "already_attempted_or_cooling": 1269,
       "speaker_unconfirmed": 5635,
       "clip_title": 1109,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5352878717797823",
-        "title": "8000块入市到百亿，林园重磅路演直播来袭！\n林园最新路演直播预约http://t.cn/AXlGvjgo\n#私募排排网",
-        "source": "weibo_search",
-        "author": "排排网",
-        "url": "https://m.weibo.cn/detail/5352878717797823",
-        "duration_sec": 58.0
-      },
       {
         "key": "bilibili_search:BV1Qxjv6FE99",
         "title": "林园 P1 林园最新采访：力挺茅台！当下渠道库存已跌至低位！",
@@ -175,12 +167,11 @@
   },
   "counts": {
     "complete": 114,
-    "failed": 973,
+    "failed": 974,
     "paused": 5,
     "ready": 4,
-    "running": 3,
-    "retry_queued": 1,
-    "interrupted": 1
+    "running": 4,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -19957,11 +19948,11 @@
     },
     {
       "slug": "ly-1011-a08d09",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"中国股市三十余年，风云人物不少，但能把八千元炒成百亿身家的，林元算一个。\", \"suspect_quote\": \"林元算一个\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，识别为“林元”属于同音错写专有名词，影响人物指代准确性。\"}, {\"sentence_id\": 4, \"quote\": \"可林元很快发现，同一只股票在不同营业部价格竟然不一样，于是他低买高卖，反复交易。\", \"suspect_quote\": \"可林元很快发现\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，此处再次被错误识别为“林元”。\"}, {\"sentence_id\": 7, \"quote\": \"一九九零年代初，他盯上了原始股、内部职工股、深发展、穷民园、深华新，这些后来掀起资本巨浪的名字，都成了他财富滚雪球的一部分。\", \"suspect_quote\": \"穷民园\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的股票名称或专有名词。结合上下文（深发展、深华新等），极大概率应为“琼民源”，识别为“穷民园”属于同音字错误，且该词在金融语境下无意义。\"}, {\"sentence_id\": 11, \"quote\": \"二零零三年，A股还在熊市里挣扎，大多数人谈股色变，林源却悄悄进场，重仓贵州茅台、五粮液、云南白药等消费和医药龙头。\", \"suspect_quote\": \"林源却悄悄进场\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，此处被识别为“林源”，属于同音错写专有名词。\"}, {\"sentence_id\": 13, \"quote\": \"但林源看得很清楚，垄断、成瘾、高毛利、现金流强，这样的公司时间站在他这边。\", \"suspect_quote\": \"但林源看得很清楚\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，此处被错误识别为“林源”。\"}, {\"sentence_id\": 14, \"quote\": \"他说：我赚钱的秘籍就是行业加垄断加成瘾。\", \"suspect_quote\": \"我赚钱的秘籍就是行业加垄断加成瘾\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"句子中连续出现三个“加”字（行业**加**垄断**加**成瘾），在口语中可能表示并列或递进，但作为书面转述时，这种重复结构若缺乏标点或停顿标记，易被误读为逻辑混乱。此处虽非严格错误，但属于含义需结合语境推断的模糊表达，符合“含义不明的关键”\"}]",
       "signature": {
         "ts": 1791747121,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20008,6 +19999,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38169454985",
       "run_started_at": "2026-10-11T19:46:50Z",
       "run_updated_at": "2026-10-11T19:46:53Z"
+    },
+    {
+      "slug": "ly-1011-492b34",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791748505,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38170020023,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38170020023",
+      "run_started_at": "2026-10-11T19:55:05Z",
+      "run_updated_at": "2026-10-11T19:55:09Z"
     }
   ],
   "runs": {
@@ -27744,6 +27753,28 @@
       "run_number": 1831,
       "display_title": "中文源出片 · ly-1011-f25582"
     },
+    "ly-1011-a08d09": {
+      "id": 38168422194,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-11T19:32:01Z",
+      "updated_at": "2026-10-11T19:53:12Z",
+      "run_started_at": "2026-10-11T19:32:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
+      "run_number": 1833,
+      "display_title": "中文源出片 · ly-1011-a08d09"
+    },
+    "ly-1011-492b34": {
+      "id": 38170020023,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-11T19:55:05Z",
+      "updated_at": "2026-10-11T19:55:09Z",
+      "run_started_at": "2026-10-11T19:55:05Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38170020023",
+      "run_number": 1836,
+      "display_title": "中文源出片 · ly-1011-492b34"
+    },
     "ly-1011-ad0558": {
       "id": 38169454985,
       "status": "in_progress",
@@ -27765,17 +27796,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168608869",
       "run_number": 1834,
       "display_title": "中文源出片 · ly-1011-72ce5e"
-    },
-    "ly-1011-a08d09": {
-      "id": 38168422194,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-11T19:32:01Z",
-      "updated_at": "2026-10-11T19:53:12Z",
-      "run_started_at": "2026-10-11T19:32:01Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
-      "run_number": 1833,
-      "display_title": "中文源出片 · ly-1011-a08d09"
     },
     "ly-1011-a774e5": {
       "id": 38166354709,
