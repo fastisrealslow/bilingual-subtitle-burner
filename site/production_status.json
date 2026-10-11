@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791751959,
+  "updated_at": 1791752099,
   "inventory_updated_at": 1791751955,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 9,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 8,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791751958,
+    "updated_at": 1791752099,
     "records": 9727,
     "video_records": 8324,
-    "initial_candidates": 67,
-    "duration_eligible_records": 9,
-    "candidate_count": 9,
-    "known_duration_candidates": 9,
+    "initial_candidates": 66,
+    "duration_eligible_records": 8,
+    "candidate_count": 8,
+    "known_duration_candidates": 8,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1403,
-      "already_attempted_or_cooling": 1272,
+      "already_attempted_or_cooling": 1273,
       "speaker_unconfirmed": 5635,
       "clip_title": 1109,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1ZRuy61EJz",
-        "title": "私募大佬林园对话财联社主播李瑶：科技浪潮大背景下，林园为何坚守“消费和医药”，底层逻辑是什么？当前细分赛道如何布局？",
-        "source": "bilibili_search",
-        "author": "自踏雪成长笔记",
-        "url": "https://www.bilibili.com/video/BV1ZRuy61EJz",
-        "duration_sec": 2895.0
-      },
       {
         "key": "bilibili_search:BV1Nm421T7GT",
         "title": "林园2024最新专访：券商是我看好的！具体配置多少是有技巧的",
@@ -146,9 +138,8 @@
     "failed": 976,
     "paused": 5,
     "ready": 4,
-    "running": 4,
-    "interrupted": 1,
-    "retry_queued": 1
+    "running": 5,
+    "retry_queued": 2
   },
   "tasks": [
     {
@@ -19979,14 +19970,14 @@
     },
     {
       "slug": "ly-1011-f25582",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791749027,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791753823,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -20048,6 +20039,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
       "run_started_at": "2026-10-11T20:49:55Z",
       "run_updated_at": "2026-10-11T20:49:59Z"
+    },
+    {
+      "slug": "ly-1011-60a013",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791752059,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38174144625,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38174144625",
+      "run_started_at": "2026-10-11T20:54:19Z",
+      "run_updated_at": "2026-10-11T20:54:23Z"
     }
   ],
   "runs": {
@@ -27817,17 +27826,6 @@
       "run_number": 1839,
       "display_title": "中文源出片 · ly-1011-d7feda"
     },
-    "ly-1011-bfc99c": {
-      "id": 38173847108,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-11T20:49:55Z",
-      "updated_at": "2026-10-11T20:49:59Z",
-      "run_started_at": "2026-10-11T20:49:55Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
-      "run_number": 1840,
-      "display_title": "中文源出片 · ly-1011-bfc99c"
-    },
     "ly-1011-f25582": {
       "id": 38170616491,
       "status": "completed",
@@ -27838,6 +27836,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38170616491",
       "run_number": 1837,
       "display_title": "中文源出片 · ly-1011-f25582"
+    },
+    "ly-1011-60a013": {
+      "id": 38174144625,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-11T20:54:19Z",
+      "updated_at": "2026-10-11T20:54:23Z",
+      "run_started_at": "2026-10-11T20:54:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38174144625",
+      "run_number": 1841,
+      "display_title": "中文源出片 · ly-1011-60a013"
+    },
+    "ly-1011-bfc99c": {
+      "id": 38173847108,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-11T20:49:55Z",
+      "updated_at": "2026-10-11T20:49:59Z",
+      "run_started_at": "2026-10-11T20:49:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
+      "run_number": 1840,
+      "display_title": "中文源出片 · ly-1011-bfc99c"
     },
     "ly-1011-ad0558": {
       "id": 38169454985,
