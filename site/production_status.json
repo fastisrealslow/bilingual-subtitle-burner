@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791751687,
+  "updated_at": 1791751835,
   "inventory_updated_at": 1791751682,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791751687,
+    "updated_at": 1791751835,
     "records": 9727,
     "video_records": 8324,
-    "initial_candidates": 68,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
-    "known_duration_candidates": 10,
+    "initial_candidates": 67,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1403,
-      "already_attempted_or_cooling": 1271,
+      "already_attempted_or_cooling": 1272,
       "speaker_unconfirmed": 5635,
       "clip_title": 1109,
       "unrelated": 62,
@@ -56,12 +56,12 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV18x4y1n7uR",
-        "title": "林园2024最新专访：全世界的富翁都是等出来的，只要抓住一个牛股一辈子就够了",
+        "key": "bilibili_search:BV1ZRuy61EJz",
+        "title": "私募大佬林园对话财联社主播李瑶：科技浪潮大背景下，林园为何坚守“消费和医药”，底层逻辑是什么？当前细分赛道如何布局？",
         "source": "bilibili_search",
-        "author": "大佬投资语录",
-        "url": "https://www.bilibili.com/video/BV18x4y1n7uR",
-        "duration_sec": 245.0
+        "author": "自踏雪成长笔记",
+        "url": "https://www.bilibili.com/video/BV1ZRuy61EJz",
+        "duration_sec": 2895.0
       },
       {
         "key": "bilibili_search:BV1Nm421T7GT",
@@ -70,14 +70,6 @@
         "author": "大佬投资语录",
         "url": "https://www.bilibili.com/video/BV1Nm421T7GT",
         "duration_sec": 104.0
-      },
-      {
-        "key": "bilibili_search:BV1ZRuy61EJz",
-        "title": "私募大佬林园对话财联社主播李瑶：科技浪潮大背景下，林园为何坚守“消费和医药”，底层逻辑是什么？当前细分赛道如何布局？",
-        "source": "bilibili_search",
-        "author": "自踏雪成长笔记",
-        "url": "https://www.bilibili.com/video/BV1ZRuy61EJz",
-        "duration_sec": 2895.0
       },
       {
         "key": "bilibili_search:BV1mPq8BQEV2",
@@ -151,12 +143,11 @@
   },
   "counts": {
     "complete": 114,
-    "failed": 975,
+    "failed": 976,
     "paused": 5,
     "ready": 4,
-    "running": 4,
-    "retry_queued": 1,
-    "interrupted": 1
+    "running": 5,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -20023,11 +20014,11 @@
     },
     {
       "slug": "ly-1011-d7feda",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791751217,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20038,6 +20029,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173180884",
       "run_started_at": "2026-10-11T20:40:17Z",
       "run_updated_at": "2026-10-11T20:47:11Z"
+    },
+    {
+      "slug": "ly-1011-bfc99c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791751796,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38173847108,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
+      "run_started_at": "2026-10-11T20:49:55Z",
+      "run_updated_at": "2026-10-11T20:49:59Z"
     }
   ],
   "runs": {
@@ -27806,6 +27815,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173180884",
       "run_number": 1839,
       "display_title": "中文源出片 · ly-1011-d7feda"
+    },
+    "ly-1011-bfc99c": {
+      "id": 38173847108,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-11T20:49:55Z",
+      "updated_at": "2026-10-11T20:49:59Z",
+      "run_started_at": "2026-10-11T20:49:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
+      "run_number": 1840,
+      "display_title": "中文源出片 · ly-1011-bfc99c"
     },
     "ly-1011-f25582": {
       "id": 38170616491,
