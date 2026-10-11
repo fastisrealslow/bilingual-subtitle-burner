@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791753404,
+  "updated_at": 1791753608,
   "inventory_updated_at": 1791753400,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791753403,
+    "updated_at": 1791753608,
     "records": 9727,
     "video_records": 8324,
     "initial_candidates": 66,
@@ -135,12 +135,11 @@
   },
   "counts": {
     "complete": 114,
-    "failed": 976,
+    "failed": 977,
     "paused": 5,
     "ready": 4,
-    "running": 4,
-    "retry_queued": 2,
-    "interrupted": 1
+    "running": 5,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -19988,24 +19987,6 @@
       "run_updated_at": "2026-10-11T20:51:44Z"
     },
     {
-      "slug": "ly-1011-fe42ca",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791750974,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791752088,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38172904385,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38172904385",
-      "run_started_at": "2026-10-11T20:36:13Z",
-      "run_updated_at": "2026-10-11T20:38:15Z"
-    },
-    {
       "slug": "ly-1011-d7feda",
       "status": "failed",
       "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
@@ -20025,11 +20006,11 @@
     },
     {
       "slug": "ly-1011-bfc99c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"林总，价投最难的问题就是牛市末期公公司估值已经非常高了，又没有合适的一些标的，那那个再去进行投资，那这个时候到底要不要去卖掉呢？\", \"suspect_quote\": \"公公司估值已经非常高了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，'公公司'应为'公司'，多出的'公'字导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"昨天到我们的这有一批人到到访我们公司，我觉得问过。\", \"suspect_quote\": \"昨天到我们的这有一批人到到访我们公司\", \"kind\": \"unintelligible_term\", \"reason\": \"'到到访'疑似识别错误，口语中通常为'来访问'或'到访'，此处重复且搭配不当，影响理解。\"}, {\"sentence_id\": 7, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"'三三'疑似识别错误，结合后文'三三股份'及语境（宁波企业），极可能为'三星'或具体公司名被误识，且'三三'本身非标准简称，属专有名词识别疑点。\"}, {\"sentence_id\": 11, \"quote\": \"我后来就总结出来，这是庆，就这种故事啊，在我身上是发生过的。\", \"suspect_quote\": \"这是庆，就这种故事啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'这是庆'疑似识别错误，结合上下文'总结出来...在我身上是发生过的'，此处应为人名（如'林园'或他人）或特定指代，'庆'字无明确指代对象，属关键信息缺失或错识。\"}, {\"sentence_id\": 21, \"quote\": \"但是这个这个这个这个就是马是前提啊，只要有一次我就夸夸夸，完全超越。\", \"suspect_quote\": \"但是这个这个这个这个就是马是前提啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'马是前提'疑似识别错误，结合语境'只要有一次我就夸夸夸...'，此处应为人名（如'马化腾'或嘉宾名）或特定术语被误识为'马'，且'这个这个这个这个'虽为口吃填充，但紧随其后的'马'无逻辑主语，属关键名词识别疑点。\"}, {\"sentence_id\": 30, \"quote\": \"他这种思维方式就是想小的，即使他大，这个漏了。\", \"suspect_quote\": \"即使他大，这个漏了\", \"kind\": \"unintelligible_term\", \"reason\": \"'这个漏了'疑似识别错误，结合前文'丢了西瓜去捡芝麻'，此处应为'大的漏了'或'西瓜漏了'，'这个'指代不明且不符合口语习惯，属关键信息错识。\"}]",
       "signature": {
         "ts": 1791751796,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20058,6 +20039,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38174144625",
       "run_started_at": "2026-10-11T20:54:19Z",
       "run_updated_at": "2026-10-11T20:54:23Z"
+    },
+    {
+      "slug": "ly-1011-fe42ca",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791753567,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38175883680,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38175883680",
+      "run_started_at": "2026-10-11T21:19:27Z",
+      "run_updated_at": "2026-10-11T21:19:31Z"
     }
   ],
   "runs": {
@@ -27806,14 +27805,14 @@
       "display_title": "中文源出片 · ly-1011-492b34"
     },
     "ly-1011-fe42ca": {
-      "id": 38172904385,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-11T20:36:13Z",
-      "updated_at": "2026-10-11T20:38:15Z",
-      "run_started_at": "2026-10-11T20:36:13Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38172904385",
-      "run_number": 1838,
+      "id": 38175883680,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-11T21:19:27Z",
+      "updated_at": "2026-10-11T21:19:31Z",
+      "run_started_at": "2026-10-11T21:19:27Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38175883680",
+      "run_number": 1842,
       "display_title": "中文源出片 · ly-1011-fe42ca"
     },
     "ly-1011-d7feda": {
@@ -27838,17 +27837,6 @@
       "run_number": 1837,
       "display_title": "中文源出片 · ly-1011-f25582"
     },
-    "ly-1011-60a013": {
-      "id": 38174144625,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-11T20:54:19Z",
-      "updated_at": "2026-10-11T20:54:23Z",
-      "run_started_at": "2026-10-11T20:54:19Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38174144625",
-      "run_number": 1841,
-      "display_title": "中文源出片 · ly-1011-60a013"
-    },
     "ly-1011-bfc99c": {
       "id": 38173847108,
       "status": "completed",
@@ -27859,6 +27847,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
       "run_number": 1840,
       "display_title": "中文源出片 · ly-1011-bfc99c"
+    },
+    "ly-1011-60a013": {
+      "id": 38174144625,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-11T20:54:19Z",
+      "updated_at": "2026-10-11T20:54:23Z",
+      "run_started_at": "2026-10-11T20:54:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38174144625",
+      "run_number": 1841,
+      "display_title": "中文源出片 · ly-1011-60a013"
     },
     "ly-1011-ad0558": {
       "id": 38169454985,
