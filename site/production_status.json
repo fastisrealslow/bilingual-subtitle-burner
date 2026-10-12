@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791844094,
-  "inventory_updated_at": 1791843861,
+  "updated_at": 1791845566,
+  "inventory_updated_at": 1791845564,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,20 +33,20 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791844093,
-    "records": 9889,
-    "video_records": 8467,
-    "initial_candidates": 58,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1791845566,
+    "records": 9902,
+    "video_records": 8479,
+    "initial_candidates": 59,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1422,
-      "clip_title": 1110,
       "already_attempted_or_cooling": 1295,
-      "speaker_unconfirmed": 5759,
-      "noise": 17,
+      "speaker_unconfirmed": 5769,
+      "no_video": 1423,
+      "noise": 18,
+      "clip_title": 1110,
       "unrelated": 62,
       "ai_content": 36,
       "reference_only": 130,
@@ -54,7 +54,16 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5353282128054598",
+        "title": "私募基金经理，热门TOP10揭晓！\n相关基金经理最新业绩查看 http://t.cn/AXcrSt73\n林园最新路演直播",
+        "source": "weibo_search",
+        "author": "排排网",
+        "url": "https://m.weibo.cn/detail/5353282128054598",
+        "duration_sec": 24.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 10,
@@ -73,9 +82,9 @@
     "failed": 1000,
     "paused": 5,
     "ready": 3,
-    "interrupted": 1,
+    "interrupted": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -20374,8 +20383,8 @@
     },
     {
       "slug": "ly-1012-d20333",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791841827,
         "failed": null,
@@ -20388,7 +20397,7 @@
       "run_id": 38313119827,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38313119827",
       "run_started_at": "2026-10-12T21:50:27Z",
-      "run_updated_at": "2026-10-12T21:50:31Z"
+      "run_updated_at": "2026-10-12T22:52:04Z"
     }
   ],
   "runs": {
@@ -28446,10 +28455,10 @@
     },
     "ly-1012-d20333": {
       "id": 38313119827,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-12T21:50:27Z",
-      "updated_at": "2026-10-12T21:50:31Z",
+      "updated_at": "2026-10-12T22:52:04Z",
       "run_started_at": "2026-10-12T21:50:27Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38313119827",
       "run_number": 1875,
