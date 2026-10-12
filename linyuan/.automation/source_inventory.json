@@ -3,7 +3,7 @@
   "validation_sha256": "62112da01ca59b748c302d974b9d2029f1816e9dc0a4ab770d6fea87912b33b5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791841013,
+  "updated_at": 1791841732,
   "materials": {
     "weibo_search": {
       "records": 2037,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791841015,
+    "updated_at": 1791841736,
     "records": 9889,
     "video_records": 8467,
     "initial_candidates": 58,
@@ -21460,28 +21460,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1ZjzbBrE5D:p1",
-        "source_url": "https://www.bilibili.com/video/BV1ZjzbBrE5D",
-        "family": "BV1ZjzbBrE5D",
-        "slugs": [
-          "ly-1012-e08a5c"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1012-e08a5c",
-            "stage": "source-fetch",
-            "terminal": false,
-            "reason": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 504: Gateway Timeout"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1fwzeB4E6Q:p1",
         "source_url": "https://www.bilibili.com/video/BV1fwzeB4E6Q",
         "family": "BV1fwzeB4E6Q",
@@ -21669,7 +21647,7 @@
           {
             "slug": "ly-1012-4987ed",
             "stage": "quality-service",
-            "terminal": false,
+            "terminal": true,
             "reason": "观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问；须摘录嘉宾本人的独立陈述"
           }
         ],
@@ -21693,6 +21671,28 @@
             "stage": "source-fetch",
             "terminal": false,
             "reason": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：CDN前缀核对响应截断，保留断点"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1ZjzbBrE5D:p1",
+        "source_url": "https://www.bilibili.com/video/BV1ZjzbBrE5D",
+        "family": "BV1ZjzbBrE5D",
+        "slugs": [
+          "ly-1012-e08a5c"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1012-e08a5c",
+            "stage": "source-fetch",
+            "terminal": false,
+            "reason": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 504: Gateway Timeout"
           }
         ],
         "verified_available": 0,
@@ -22337,9 +22337,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -22616,8 +22616,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -22629,8 +22629,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -22788,9 +22788,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23103,10 +23103,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -23118,8 +23118,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -25872,11 +25872,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1ZjzbBrE5D": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1fwzeB4E6Q": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -25926,16 +25921,22 @@
       "BV1mxXkY6Eox": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_quality-service": 1
       },
       "BV1rD4y1o7SH": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1ZjzbBrE5D": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 14,
+  "in_flight_placeholders": 13,
   "artifacts": [
     {
       "slug": "ly-1011-0b3cb7",
