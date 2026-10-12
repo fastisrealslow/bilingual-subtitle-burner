@@ -51,12 +51,15 @@ def test_packaged_runtime_passes_new_production_health(packaged_health):
     assert packaged_health['content_policy'] == 'reference_v1'
     assert packaged_health['copyright_requested'] == 3
     assert packaged_health['copyright_mode'] == 'unselected'
+    assert packaged_health['audience_copy_version'] == 2026101201
+    assert packaged_health['audience_copy_sha256'] == hashlib.sha256((ROOT/'linyuan/audience_copy.py').read_bytes()).hexdigest()
 
 
 @pytest.mark.parametrize('field,value', [
     ('minimum_final_seconds', 120), ('content_policy', 'legacy120'),
     ('cover_styles', ['scene', 'photo', 'light', 'dark']),
     ('editorial_code_sha256', '0'*64),
+    ('audience_copy_version', 0), ('audience_copy_sha256', '0'*64),
     ('copyright_requested', 1), ('copyright_requested', 2), ('copyright_mode', 'original'),
 ])
 def test_deploy_rejects_old_or_mismatched_runtime(packaged_health, field, value):

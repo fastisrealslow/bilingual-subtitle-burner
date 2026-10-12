@@ -1968,7 +1968,10 @@ def upload_asset(rel_id, path):
 def production_config():
     """Read local deployed code/config without fetching multi-MB remote ledgers."""
     import hashlib
+    import audience_copy
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "audience_copy_version": audience_copy.VERSION,
+            "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "copyright_requested": COPYRIGHT, "copyright_mode": "unselected",
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
