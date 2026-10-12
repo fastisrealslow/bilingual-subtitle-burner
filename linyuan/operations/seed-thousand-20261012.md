@@ -40,3 +40,13 @@
 ## 验收状态
 
 最终专项84项通过；本地离线回归566通过、1跳过。正式Linux全回归、FC部署及平台同步以本轮实际工作流结果为准，不能将上述本机结果当作已经部署的证明。
+
+## 正式上线证据（14:32 北京时间）
+
+- [PR88](https://github.com/fastisrealslow/bilingual-subtitle-burner/pull/88) 已合并，合入SHA `63576c8b4f6b0051cd405e2c30b8b28c194a0b0b`；最终测试head `54cc113ae1f7e6c62714d5ab641dee75f045fa48`。
+- [Linux回归38212601632](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38212601632)：完整1928 passed、1 skipped，离线482 passed、1 skipped。曾发现早期渠道测试没有隔离新增的种子限制缓存操作；已隔离并分别验证有/无限制变更时的执行顺序，原有优先渠道检查保留。
+- [FC production deploy38212819142](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38212819142) 成功；标题相关文件未改，按既定精确匹配规则复用六小时内真实横/竖CPU证据，再通过联合原始响应核对。未跳过门禁或放宽证据匹配。
+- 14:31:35正式健康回读 `verification_complete=true`、`audience_copy_version=2026101202`；模块SHA256 `f4a7a5f1ffdaa2a2a0d9b1be2be2f4acf359b2c684603f01727bfb4e73623eb5`，FC index SHA256 `ad12b1f7c2b5e03cf6965b1ce22a7570ec3cea1106b751e29ba3dd7faf65b177`，与本地已测试文件一致。每日4条和10/14/16/21定时器验收通过。生产回读artifact `11729517395`。
+- [合集运行38212818689](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38212818689) 成功：本轮created=0、added=0，10个现有管理合集的成员/顺序核验通过，不代表旧公开标题/简介已迁移。合集与参考证据artifact `11729453679`。
+- 同一工作流的正常已登录参考窗口读到23个视频动态，窗口仍不完整；最近可知30个样本29个详情成功。仅来源家族线索20、未溯源10，仍不能声称最新来源全覆盖。
+- [素材刷新38212818696](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38212818696) 已启动，优先渠道与即时库存触发步骤完成，后续溯源仍运行；本次不把“任务启动”说成新增成片或投稿回执。合入后目录按同一去重口径为1000，正式文案配置已启用新版。
