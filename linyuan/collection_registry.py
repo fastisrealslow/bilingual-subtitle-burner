@@ -5,6 +5,7 @@ stays blocked, never creates another collection. CI writes one explicit ledger
 with the exact current GitHub blob lease; local runs use an atomic JSON file.
 """
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -69,7 +70,9 @@ class Store:
     def save(self, value):
         validate(value)
         content = json.dumps(value, ensure_ascii=False, indent=2) + '\n'
-        if self.remote:
+        raw = content.encode()
+        target_sha = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
+        if self.remote and target_sha != self.sha:
             payload = dict(message='chore(collections): persist owned collection identity',
                            branch='main', content=base64.b64encode(content.encode()).decode())
             if self.sha:
@@ -83,6 +86,8 @@ class Store:
                 self.sha = json.loads(result.stdout)['content']['sha']
             except (ValueError, KeyError, TypeError):
                 raise RegistryError('registry_write_unconfirmed') from None
+            if self.sha != target_sha:
+                raise RegistryError('registry_write_blob_mismatch')
         self.path.parent.mkdir(parents=True, exist_ok=True)
         from batch_delivery import write_json
         write_json(self.path, value)

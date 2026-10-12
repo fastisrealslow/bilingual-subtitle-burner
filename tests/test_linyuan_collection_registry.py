@@ -25,7 +25,7 @@ def test_wrong_owner_cannot_become_an_empty_registry(tmp_path,monkeypatch):
 
 
 def test_ci_put_is_fixed_ledger_only_and_uses_exact_file_lease(tmp_path,monkeypatch):
-    import base64
+    import base64, hashlib
     monkeypatch.setenv('GITHUB_ACTIONS','true');monkeypatch.setenv('GITHUB_REPOSITORY',r.REPO)
     calls=[]
     def command(args,**options):
@@ -36,10 +36,14 @@ def test_ci_put_is_fixed_ledger_only_and_uses_exact_file_lease(tmp_path,monkeypa
         payload=json.loads(options['input'])
         assert payload['sha']=='oldblob' and payload['branch']=='main'
         assert args[args.index('PUT')+1]==f'repos/{r.REPO}/contents/{r.KEY}'
-        return SimpleNamespace(returncode=0,stdout=json.dumps({'content':{'sha':'newblob'}}),stderr='')
+        raw=base64.b64decode(payload['content'])
+        sha=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+        return SimpleNamespace(returncode=0,stdout=json.dumps({'content':{'sha':sha}}),stderr='')
     monkeypatch.setattr(r.subprocess,'run',command)
     store=r.Store(tmp_path/'registry.json');value=store.load();store.save(value)
-    assert store.sha=='newblob' and len(calls)==2
+    assert len(store.sha)==40 and len(calls)==2
+    store.save(value)
+    assert len(calls)==2, 'Identical verified ledger must not create repeated commits'
 
 
 @pytest.mark.parametrize('stderr,allowed', [('not authorized (HTTP 401)',False),
