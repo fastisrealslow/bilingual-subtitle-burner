@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791787525,
+  "updated_at": 1791787636,
   "inventory_updated_at": 1791787521,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791787525,
+    "updated_at": 1791787635,
     "records": 9798,
     "video_records": 8381,
-    "initial_candidates": 60,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 59,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1417,
       "speaker_unconfirmed": 5690,
-      "already_attempted_or_cooling": 1278,
+      "already_attempted_or_cooling": 1279,
       "clip_title": 1109,
       "noise": 16,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV11Ket6rE34",
-        "title": "股神林园：炒股就是长期持有，跟着企业增长  2026.9.16 林园访谈",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV11Ket6rE34",
-        "duration_sec": 76.0
-      },
       {
         "key": "bilibili_search:BV1paTU6cEXm",
         "title": "林园：快乐和长寿#未来#林园#投资",
@@ -87,12 +79,12 @@
   },
   "counts": {
     "complete": 115,
-    "failed": 980,
+    "failed": 981,
     "paused": 5,
     "ready": 4,
-    "interrupted": 5,
+    "interrupted": 4,
     "retry_queued": 1,
-    "running": 1
+    "running": 2
   },
   "tasks": [
     {
@@ -20067,11 +20059,11 @@
     },
     {
       "slug": "ly-1012-579275",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791787080,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20100,6 +20092,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213695096",
       "run_started_at": "2026-10-12T06:40:37Z",
       "run_updated_at": "2026-10-12T06:40:42Z"
+    },
+    {
+      "slug": "ly-1012-8bde38",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791787596,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38214199561,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38214199561",
+      "run_started_at": "2026-10-12T06:46:36Z",
+      "run_updated_at": "2026-10-12T06:46:40Z"
     }
   ],
   "runs": {
@@ -27968,17 +27978,6 @@
       "run_number": 1846,
       "display_title": "中文源出片 · ly-1012-818e8d"
     },
-    "ly-1012-fc974f": {
-      "id": 38213695096,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-12T06:40:37Z",
-      "updated_at": "2026-10-12T06:40:42Z",
-      "run_started_at": "2026-10-12T06:40:37Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213695096",
-      "run_number": 1849,
-      "display_title": "中文源出片 · ly-1012-fc974f"
-    },
     "ly-1012-579275": {
       "id": 38213475488,
       "status": "completed",
@@ -27989,6 +27988,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213475488",
       "run_number": 1848,
       "display_title": "中文源出片 · ly-1012-579275"
+    },
+    "ly-1012-8bde38": {
+      "id": 38214199561,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-12T06:46:36Z",
+      "updated_at": "2026-10-12T06:46:40Z",
+      "run_started_at": "2026-10-12T06:46:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38214199561",
+      "run_number": 1850,
+      "display_title": "中文源出片 · ly-1012-8bde38"
+    },
+    "ly-1012-fc974f": {
+      "id": 38213695096,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-12T06:40:37Z",
+      "updated_at": "2026-10-12T06:40:42Z",
+      "run_started_at": "2026-10-12T06:40:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213695096",
+      "run_number": 1849,
+      "display_title": "中文源出片 · ly-1012-fc974f"
     }
   }
 }
