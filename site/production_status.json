@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791792288,
-  "inventory_updated_at": 1791792120,
+  "updated_at": 1791797762,
+  "inventory_updated_at": 1791797757,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 12,
-    "active_or_recovering_sources": 1,
+    "verified_daily_stock": 11,
+    "active_or_recovering_sources": 0,
     "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,10 +14,10 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 12,
-      "minimum_week_shortfall": 2,
-      "preferred_week_shortfall": 9,
-      "reserve_shortfall": 0,
+      "verified_stock_snapshot": 11,
+      "minimum_week_shortfall": 3,
+      "preferred_week_shortfall": 10,
+      "reserve_shortfall": 1,
       "dates": [
         "2026-10-12",
         "2026-10-13",
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791792288,
+    "updated_at": 1791797761,
     "records": 9822,
     "video_records": 8404,
     "initial_candidates": 59,
@@ -66,24 +66,23 @@
     ]
   },
   "inventory": {
-    "verified_live": 12,
+    "verified_live": 11,
     "verified_audio_card": 0,
     "verified_landscape": 1,
-    "verified_portrait": 11,
+    "verified_portrait": 10,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 12,
+    "daily_mix_usable": 11,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
-    "complete": 115,
-    "failed": 987,
+    "complete": 116,
+    "failed": 988,
     "paused": 5,
-    "ready": 4,
-    "interrupted": 2,
-    "retry_queued": 1
+    "ready": 3,
+    "interrupted": 2
   },
   "tasks": [
     {
@@ -18636,12 +18635,12 @@
     },
     {
       "slug": "ly-1009-ee3ccc",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1791577027,
         "failed": null,
-        "published_parts": 1,
+        "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
@@ -20093,24 +20092,6 @@
       "run_updated_at": "2026-10-12T06:50:02Z"
     },
     {
-      "slug": "ly-1012-818e8d",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791788285,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791790595,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38215177128,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38215177128",
-      "run_started_at": "2026-10-12T06:58:04Z",
-      "run_updated_at": "2026-10-12T07:04:28Z"
-    },
-    {
       "slug": "ly-1012-f9cdb6",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 11]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0126, 2: 0.0294, 3: -0.0236, 11: -0.0434}",
@@ -20130,11 +20111,11 @@
     },
     {
       "slug": "ly-1012-ed9419",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"从我们做了个宝葫芦。\", \"suspect_quote\": \"从我们做了个宝葫芦\", \"kind\": \"unintelligible_term\", \"reason\": \"‘做了个宝葫芦’在金融或日常语境中含义不明，疑似将‘做了一个关于宝葫芦的故事’或‘做了一个宝葫芦计划’误识别为动词 + 名词结构，导致语义断裂。\"}, {\"sentence_id\": 6, \"quote\": \"我常常给人说：我说我拿一件宝葫芦的股票，不排除二十五年以后。\", \"suspect_quote\": \"我拿一件宝葫芦的股票\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一件宝葫芦的股票’搭配不当且含义不明，‘宝葫芦’作为股票修饰语无明确指代，疑似专有名词识别错误或口误未纠正。\"}, {\"sentence_id\": 9, \"quote\": \"我前一段时间，我们跟我的搭档八个人，他叫了七八个人。\", \"suspect_quote\": \"他叫了七八个人\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘叫了七八个人’中‘叫了’可能是‘召集了’的口语省略，但结合上下文‘八个人’与‘七八个人’数量不一致（前文说八人，此处又说七八人），存在数字表述矛盾或识别混淆。\"}, {\"sentence_id\": 12, \"quote\": \"如果按这个数字算下来，因为他们都是有钱人，非常富裕，身体不怕瘟疫，天为什么？\", \"suspect_quote\": \"天为什么？\", \"kind\": \"unintelligible_term\", \"reason\": \"‘天为什么’语义不通，疑似‘那为什么’或‘这又为什么’的误识别，导致句子逻辑断裂。\"}, {\"sentence_id\": 14, \"quote\": \"他如果都是像我这个朋友，这个比例，他不得了的像百分之十万。\", \"suspect_quote\": \"他不得了的像百分之十万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十万’明显不符合常规比例表达（百分比最大为 100%），疑似将‘十分之一’或‘百分之十’误识别，属于关键数字污染。\"}, {\"sentence_id\": 27, \"quote\": \"这就是我说的，付各位注意。\", \"suspect_quote\": \"付各位注意\", \"kind\": \"unintelligible_term\", \"reason\": \"‘付各位注意’应为‘请各位注意’的误识别，‘付’与‘请’音近但义异，属于专有动词错误导致语义偏差。\"}]",
       "signature": {
         "ts": 1791790471,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20145,6 +20126,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38218500134",
       "run_started_at": "2026-10-12T07:34:31Z",
       "run_updated_at": "2026-10-12T08:00:53Z"
+    },
+    {
+      "slug": "ly-1012-818e8d",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1791796043,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38227841729,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38227841729",
+      "run_started_at": "2026-10-12T09:07:23Z",
+      "run_updated_at": "2026-10-12T09:35:08Z"
     }
   ],
   "runs": {
@@ -28036,14 +28035,14 @@
       "display_title": "中文源出片 · ly-1012-fc974f"
     },
     "ly-1012-818e8d": {
-      "id": 38215177128,
+      "id": 38227841729,
       "status": "completed",
       "conclusion": "failure",
-      "created_at": "2026-10-12T06:58:04Z",
-      "updated_at": "2026-10-12T07:04:28Z",
-      "run_started_at": "2026-10-12T06:58:04Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38215177128",
-      "run_number": 1852,
+      "created_at": "2026-10-12T09:07:23Z",
+      "updated_at": "2026-10-12T09:35:08Z",
+      "run_started_at": "2026-10-12T09:07:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38227841729",
+      "run_number": 1855,
       "display_title": "中文源出片 · ly-1012-818e8d"
     },
     "ly-1012-f9cdb6": {
