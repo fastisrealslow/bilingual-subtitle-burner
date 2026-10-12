@@ -30,6 +30,7 @@ on:
       - linyuan/bilibili_seeds.json
       - linyuan/seed_scan.py
       - linyuan/seed_campaign.py
+      - linyuan/seed_growth.py
       - linyuan/bilibili_series.py
       - linyuan/source_gap_backfill.py
       - linyuan/source_research.py
@@ -77,7 +78,11 @@ jobs:
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_bilibili_discovery.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_bilibili_discovery.py
+
+      - name: 有界扩充独立母片目录（不将元数据当库存）
+        timeout-minutes: 5
+        run: python -u seed_growth.py --target 1000 --limit 48
 
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5

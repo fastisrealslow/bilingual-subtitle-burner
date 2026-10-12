@@ -1525,7 +1525,8 @@ def pick(items, st, n, audit=None):
         # 竞品目录全部进入素材库作溯源线索，但永不直接调度。除了作者名，
         # 再检查 source_role，避免后续改作者字段时意外把参考条目当成片源。
         if (it.get("author", "") in COMPETITOR_AUTHORS
-                or extra.get("source_role") == "reference"
+                or extra.get("source_role") in {"reference", "catalog_only"}
+                or extra.get("no_reprint") == 1
                 or extra.get("direct_dispatch") is False):
             excluded['reference_only'] += 1
             continue

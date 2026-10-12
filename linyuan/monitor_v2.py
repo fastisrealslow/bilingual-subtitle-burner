@@ -1837,12 +1837,71 @@ SOURCES = {
 }
 
 
+def retain_source_restrictions(extra, prior_extras):
+    """A weaker discovery response cannot erase a known reuse restriction.
+
+    Missing-author catalogues may become candidates after exact verification;
+    explicit no-reprint / deliberate research-only evidence stays fail-closed.
+    Never carry accepted-media approvals across a metadata refresh.
+    """
+    current = json.loads(extra or '{}')
+    for previous in prior_extras:
+        prior = json.loads(previous or '{}')
+        if (prior.get('no_reprint') == 1 or
+                (prior.get('source_role') == 'catalog_only'
+                 and prior.get('direct_dispatch') is False
+                 and prior.get('metadata_status') != 'needs_author_verification')):
+            current.update(source_role='catalog_only', direct_dispatch=False)
+            if prior.get('no_reprint') == 1:
+                current['no_reprint'] = 1
+        if not current.get('content_date_hint') and prior.get('content_date_hint'):
+            for key in ('content_date_hint', 'content_date_hint_provenance'):
+                current[key] = prior.get(key)
+    if current.get('no_reprint') == 1:
+        current.update(source_role='catalog_only', direct_dispatch=False)
+    return json.dumps(current, ensure_ascii=False)
+
+
+def enforce_seed_restrictions(base=None):
+    """Apply verified seed denials to cached P1/Pn before any feed export."""
+    base = Path(base) if base is not None else Path(__file__).resolve().parent
+    path = base / 'bilibili_seeds.json'
+    if not path.exists():
+        return 0
+    seeds = {s['bvid']: s for s in json.loads(path.read_text())['seeds']
+             if s.get('no_reprint') == 1 or s.get('direct_dispatch') is False
+             or s.get('content_date_hint')}
+    changed = 0
+    with sqlite3.connect(DB_PATH) as conn:
+        for identity, encoded in conn.execute('SELECT id, extra FROM items').fetchall():
+            extra = json.loads(encoded or '{}')
+            seed = seeds.get(extra.get('bvid'))
+            if not seed:
+                continue
+            merged = retain_source_restrictions(encoded, [json.dumps(dict(seed,
+                metadata_status='verified_seed_metadata'))])
+            if json.loads(merged) != extra:
+                conn.execute('UPDATE items SET extra = ?, updated_at = ? WHERE id = ?',
+                    (merged, datetime.now().isoformat(), identity))
+                changed += 1
+    return changed
+
+
 def upsert_items(items):
     conn = sqlite3.connect(DB_PATH)
     now = datetime.now().isoformat()
     new_items = []
 
     for item in items:
+        item = dict(item)
+        extra = json.loads(item['extra'] or '{}')
+        bvid = extra.get('bvid')
+        if isinstance(bvid, str) and re.fullmatch(r'BV[0-9A-Za-z]{10}', bvid):
+            # Restrictions bind the parent, not only P1 or one discovery route.
+            root = 'bilibili_search:' + bvid
+            priors = conn.execute('SELECT extra FROM items WHERE id = ? OR id LIKE ?',
+                                  (root, root + ':p%')).fetchall()
+            item['extra'] = retain_source_restrictions(item['extra'], [r[0] for r in priors])
         cur = conn.execute("""
             SELECT title, url, publish_time, author, extra
             FROM items WHERE id = ?
@@ -1979,6 +2038,10 @@ def export_dashboard_data():
 
 def main(source_types=None):
     init_db()
+    restrictions = enforce_seed_restrictions()
+    if restrictions:
+        export_dashboard_data()
+        print(f'[种子限制] 保留 {restrictions} 条已核验的禁止派发标记')
     print(f"监控开始: {datetime.now().isoformat()}")
 
     try:
