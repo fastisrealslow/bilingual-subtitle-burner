@@ -17,6 +17,41 @@ def compact(text):
     return ''.join(c.lower() for c in text if c.isalnum())
 
 
+def match_caption_window(words, recognition, seconds):
+    """A slightly longer distant repeat does not prove a caption delay."""
+    text = compact(words)
+    candidates = []
+    for recognized in recognition:
+        acoustic = compact(recognized['text'])
+        match = SequenceMatcher(None, text, acoustic, autojunk=False).find_longest_match()
+        if match.size < 4:
+            continue
+        distance = max(recognized['start_sec'] - seconds,
+                       seconds - recognized['end_sec'], 0)
+        candidates.append(dict(length=match.size,
+                               matched_fragment=text[match.a:match.a+match.size],
+                               independent_start_sec=recognized['start_sec'],
+                               independent_end_sec=recognized['end_sec'],
+                               outside_spoken_interval_sec=round(distance, 3)))
+    strong = [m for m in candidates if m['length'] >= 6]
+    if not strong:
+        return dict(status='wording_unconfirmed')
+    best = max(strong, key=lambda m: (m['length'], -m['outside_spoken_interval_sec']))
+    # ASR can confuse homophones or split a repeated phrase across a window.
+    # Keep both witnesses when the nearby phrase is almost as long and is
+    # contained in the remote exact match. Do not guess which occurrence was
+    # spoken, normalize words, or silently declare synchronization correct.
+    nearby = [m for m in candidates if m['outside_spoken_interval_sec'] <= 2
+              and m['length'] >= max(4, best['length'] - 1)
+              and m['matched_fragment'] in best['matched_fragment']]
+    if best['outside_spoken_interval_sec'] > 2 and nearby:
+        return dict(status='ambiguous_repeated_fragment', remote_candidate=best,
+                    nearby_candidate=max(nearby, key=lambda m: (m['length'],
+                                          -m['outside_spoken_interval_sec'])))
+    return dict(status='exact_fragment_window_match',
+                **{k: v for k, v in best.items() if k != 'length'})
+
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--video',type=Path,required=True)
@@ -57,21 +92,8 @@ def main():
         region=frame[round(height*.65):round(height*.97),round(width*.03):round(width*.97)]
         found,_=ocr(region)
         words=''.join(r[1] for r in sorted(found or [],key=lambda r:min(p[1] for p in r[0])))
-        text=compact(words)
         row=dict(frame_sec=round(float(seconds),3),caption=words)
-        matches=[]
-        for recognized in recognition:
-            acoustic=compact(recognized['text'])
-            match=SequenceMatcher(None,text,acoustic,autojunk=False).find_longest_match()
-            if match.size>=6:
-                matches.append((match.size,recognized,text[match.a:match.a+match.size]))
-        if matches:
-            _,nearest,fragment=max(matches,key=lambda m:(m[0],-abs(m[1]['start_sec']-seconds)))
-            row.update(independent_start_sec=nearest['start_sec'],
-                independent_end_sec=nearest['end_sec'],matched_fragment=fragment,
-                outside_spoken_interval_sec=round(max(nearest['start_sec']-seconds,
-                    seconds-nearest['end_sec'],0),3),status='exact_fragment_window_match')
-        else:row['status']='wording_unconfirmed'
+        row.update(match_caption_window(words, recognition, float(seconds)))
         rows.append(row)
     cap.release()
     report=dict(version=1,video_sha256=hashlib.sha256(args.video.read_bytes()).hexdigest(),
@@ -79,7 +101,8 @@ def main():
         engine='sherpa-onnx paraformer zh 2024-03-09',recognition=recognition,samples=rows,
         duration_sec=duration,elapsed_sec=round(time.monotonic()-started,2),
         continuous_human_listening=False,production_cues_changed=False,
-        interpretation='Exact fragments locate only a 3-second acoustic window, not word timestamps; OCR/ASR can err.')
+        caption_match_version=2,
+        interpretation='Exact fragments locate only a 3-second acoustic window, not word timestamps; OCR/ASR can err. Nearby repeated wording makes a distant match ambiguous, not proof of a delay.')
     (args.out/'sync-audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(dict(sampled=len(rows),exact_matches=sum(r['status']=='exact_fragment_window_match' for r in rows),
         large_disagreements=[r for r in rows if r.get('outside_spoken_interval_sec',0)>2]),ensure_ascii=False))
