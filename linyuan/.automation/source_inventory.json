@@ -3,7 +3,7 @@
   "validation_sha256": "62112da01ca59b748c302d974b9d2029f1816e9dc0a4ab770d6fea87912b33b5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791798573,
+  "updated_at": 1791798792,
   "materials": {
     "weibo_search": {
       "records": 2032,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791798577,
+    "updated_at": 1791798796,
     "records": 9822,
     "video_records": 8404,
     "initial_candidates": 58,
@@ -21401,7 +21401,14 @@
           "ly-1012-8e1698"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1012-8e1698",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"红号是说在特朗普的任期之内会翻倍，五千到六千美元每盎。\", \"suspect_quote\": \"五千到六千美元每盎\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“每盎”疑似错写或截断的专有名词/单位（应为“每盎司”），导致关键价格数值含义不明；且“五千到六千”作为具体数字在口语中虽可接受，但结合错误的单位后缀构成识别疑点。\"}, {\"sentence_id\": 7, \"quote\": \"然后德隆说能上一万点。\", \"suspect_quote\": \"德隆说能上一万点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“德隆”疑似错写的专有名词（可能指代特定人物、机构或指数名称，如“道琼斯”或其他），导致关键主体识别不清；“一万点”作为具体数字依赖前文语境，若“德隆”错误则整个数值预测失去参照。\"}, {\"sentence_id\": 10, \"quote\": \"趋势的是，我们不言定。\", \"suspect_quote\": \"趋势的是，我们不言定\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不言定”疑似错写或口误（应为“难言定”、“未言定”或类似表达），导致否定含义不明；该词组在金融语境下非常规用法，属于识别疑点。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -21454,7 +21461,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
-        "terminal_editorial-or-render": 68,
+        "terminal_editorial-or-render": 69,
         "terminal_quality-service": 7,
         "terminal_workflow-preflight": 3,
         "terminal_source-quality": 18
@@ -22044,9 +22051,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -22323,8 +22330,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -22336,8 +22343,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -22495,8 +22502,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_render-layout": 1,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
@@ -22645,8 +22652,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -22810,10 +22817,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1
+        "terminal_duplicate-selection": 1,
+        "terminal_visual-review": 1,
+        "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -22825,8 +22832,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -25569,7 +25576,7 @@
       }
     }
   },
-  "in_flight_placeholders": 11,
+  "in_flight_placeholders": 10,
   "artifacts": [
     {
       "slug": "ly-1011-0b3cb7",
