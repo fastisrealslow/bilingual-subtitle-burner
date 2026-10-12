@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 41
+VERSION = 45
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -133,6 +133,13 @@ HOST_PREMISE = re.compile(
     r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
     r'(?:在)?我们看到(?:你|您)(?:整个的|的)(?:投资|经历|选择))')
 BACKREF_QUESTION = re.compile(r'^(?:这{1,2}|那{1,2})(?:一)?点(?:是)?(?:怎么|如何)[^。！？?]{0,40}[？?]')
+# A bare demonstrative asks about omitted context. A named object inside the
+# question (or a retained preceding premise) must remain eligible. Match only
+# the whole opening sentence, never an occurrence within a guest's example.
+BARE_TOPIC_QUESTION = re.compile(
+    r'^(?:啊|嗯|呃|那(?:么)?|[，,\s])*'
+    r'(?:您|你)(?:是)?(?:怎么|如何)(?:看待|看|评价)'
+    r'(?:这|那)(?:个|件)(?:事情|事|问题)(?:的)?(?:呢|吗|啊)?[？?]\s*$')
 
 
 def host_premise_start(units, cues, question, lower=0):
@@ -314,6 +321,8 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if units and BARE_TOPIC_QUESTION.fullmatch(units[0]['text']):
+        return '开场提问仅回指这个事情或问题，缺少实际对象；须保留原始背景或另选独立完整论述'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
