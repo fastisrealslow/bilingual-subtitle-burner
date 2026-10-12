@@ -3,6 +3,7 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 
@@ -100,9 +101,16 @@ def test_direct_sources_run_before_expensive_discovery_and_are_registered():
     assert m.SOURCES['weibo_video'] is m.WeiboVideoSource
 
 
-def test_priority_fetch_filters_channels_and_checkpoints_before_slow_sources(monkeypatch):
+@pytest.mark.parametrize('restrictions', [0, 1])
+def test_priority_fetch_filters_channels_and_checkpoints_before_slow_sources(monkeypatch, restrictions):
     seen=[];exports=[]
+    policy_calls=[]
+    def enforce():
+        assert not seen, 'Source restrictions must be reconciled before discovery'
+        policy_calls.append(True)
+        return restrictions
     monkeypatch.setattr(m,'init_db',lambda:None)
+    monkeypatch.setattr(m,'enforce_seed_restrictions',enforce)
     monkeypatch.setattr(m,'load_state',lambda:{})
     monkeypatch.setattr(m,'save_state',lambda _:None)
     monkeypatch.setattr(m,'cdp_available',lambda:False)
@@ -114,12 +122,14 @@ def test_priority_fetch_filters_channels_and_checkpoints_before_slow_sources(mon
     monkeypatch.setattr(m,'run_source',source)
     m.main(['yicai_video','weibo_video'])
     assert seen==['yicai_video','weibo_video']
-    assert exports==[1,2,2]
+    assert policy_calls==[True]
+    assert exports==([0] if restrictions else [])+[1,2,2]
 
 
 def test_early_checkpoint_dispatches_real_verification_before_slow_research():
     workflow=(Path(__file__).resolve().parents[1]/'.github/workflows/linyuan-monitor.yml').read_text()
     assert workflow.index('--source-types yicai_video weibo_video')<workflow.index('source_research.py --max-items')
     assert workflow.index('linyuan-source-inventory.yml/dispatches')<workflow.index('source_research.py --max-items')
+    assert workflow.index('linyuan-source-inventory.yml/dispatches')<workflow.index('seed_growth.py --target')
     assert workflow.count('bash persist_monitor_metadata.sh')==3
     assert workflow.index('source_gap_backfill.py')<workflow.index('checkpoint verified long catalogue and original clips')<workflow.index('source_research.py --max-items')
