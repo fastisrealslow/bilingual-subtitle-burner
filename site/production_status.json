@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791839382,
+  "updated_at": 1791839488,
   "inventory_updated_at": 1791839379,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 4,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791839382,
+    "updated_at": 1791839488,
     "records": 9889,
     "video_records": 8467,
     "initial_candidates": 58,
@@ -73,8 +73,8 @@
     "failed": 997,
     "paused": 5,
     "ready": 3,
-    "interrupted": 3,
-    "retry_queued": 2,
+    "interrupted": 1,
+    "retry_queued": 4,
     "running": 2
   },
   "tasks": [
@@ -20212,14 +20212,14 @@
     },
     {
       "slug": "ly-1012-e08a5c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791836447,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791840323,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -20338,14 +20338,14 @@
     },
     {
       "slug": "ly-1012-cfd984",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791838569,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791840313,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -28422,17 +28422,6 @@
       "run_number": 1869,
       "display_title": "中文源出片 · ly-1012-1d7d39"
     },
-    "ly-1012-077cfc": {
-      "id": 38308016949,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-12T21:01:39Z",
-      "updated_at": "2026-10-12T21:01:43Z",
-      "run_started_at": "2026-10-12T21:01:39Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38308016949",
-      "run_number": 1870,
-      "display_title": "中文源出片 · ly-1012-077cfc"
-    },
     "ly-1012-cfd984": {
       "id": 38307418615,
       "status": "completed",
@@ -28444,17 +28433,6 @@
       "run_number": 1868,
       "display_title": "中文源出片 · ly-1012-cfd984"
     },
-    "ly-1012-d20333": {
-      "id": 38305202869,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-12T20:35:24Z",
-      "updated_at": "2026-10-12T20:35:28Z",
-      "run_started_at": "2026-10-12T20:35:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38305202869",
-      "run_number": 1863,
-      "display_title": "中文源出片 · ly-1012-d20333"
-    },
     "ly-1012-e08a5c": {
       "id": 38303608218,
       "status": "completed",
@@ -28465,6 +28443,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38303608218",
       "run_number": 1861,
       "display_title": "中文源出片 · ly-1012-e08a5c"
+    },
+    "ly-1012-077cfc": {
+      "id": 38308016949,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-12T21:01:39Z",
+      "updated_at": "2026-10-12T21:01:43Z",
+      "run_started_at": "2026-10-12T21:01:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38308016949",
+      "run_number": 1870,
+      "display_title": "中文源出片 · ly-1012-077cfc"
+    },
+    "ly-1012-d20333": {
+      "id": 38305202869,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-12T20:35:24Z",
+      "updated_at": "2026-10-12T20:35:28Z",
+      "run_started_at": "2026-10-12T20:35:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38305202869",
+      "run_number": 1863,
+      "display_title": "中文源出片 · ly-1012-d20333"
     }
   }
 }
