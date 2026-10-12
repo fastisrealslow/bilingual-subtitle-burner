@@ -31,3 +31,12 @@
 ## 验收
 
 自然文案、旧库存发布边界、系列顺序、平台合集重启去重、未知创建结果、台账持久化失败、来源权利及新鲜度专项回归 84 通过；使用项目提供的本地媒体工具完成离线回归 558 通过、1 跳过。Linux 完整回归、正式 FC 部署及平台新稿/新合集回读仍以实际工作流证据为准，不能将本机测试说成上线验收。
+
+## 正式上线回读（13:32 北京时间）
+
+- [PR87](https://github.com/fastisrealslow/bilingual-subtitle-burner/pull/87) 已合并，功能合入 SHA `eb4bae59ca8ef8fd34a884a0c8c692158fba6683`。
+- 最终 head `f0ed74fc37d2fae80bedff466feb38255c837e83` 的 Linux 回归 [38206779327](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38206779327)：1902 passed、1 skipped；同任务离线回归482 passed、1 skipped。
+- [FC production deploy 38207015193](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38207015193) 的真实横/竖 CPU 案例、联合原始响应检查、部署与健康回读全部成功。13:31:35 回读 `verification_complete=true`；`audience_copy_version=2026101201`，文案模块 SHA256 `b61a9741a5c909f4f59e437cc2db562874c339fab23a2817c4fb02713fe959f1`，FC index SHA256 `2a20d07b24501a0fd10f82315d16ae12f88083ac012a144d6ecf29b78219d1af`，与已测试文件相同。
+- 每日4条、10/14/16/21、未选择声明3的配置与定时器校验保持通过。普通部署没有额外调用补发或原位替换历史视频；不能把部署当新视频已经投稿的证据。生产验收 artifact `11727659946`。
+- [平台合集运行38207014924](https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38207014924) 成功。新合集9306928在正常匿名公开接口中回读：作者 MID275211725，2个成员BV1mpYF6AEdM／BV16Aar6PEki，简介“把这几段放在一起，方便接着看。每段也可以单独观看。”，无自动整理标识。后台台账记录10个经核验管理合集；旧合集公开文案未改。
+- 后续新投稿（包括已验收旧库存的新投稿）使用自然化简介；本次未改写 BV1QApD6DEjB 的既有公开简介，未宣称已重看或重做其完整视频。
