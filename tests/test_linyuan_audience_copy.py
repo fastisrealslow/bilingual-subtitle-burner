@@ -4,7 +4,7 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
-from audience_copy import description, collection_copy
+from audience_copy import description, collection_copy, series_navigation
 from batch_delivery import organize_interview_series
 
 
@@ -63,3 +63,40 @@ def test_actual_fc_publish_boundary_cleans_old_artifact_without_editing_title():
     spec=importlib.util.spec_from_file_location('audience_fc',path)
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     assert module.clean_publish_desc('本段讨论：我没有买中石油')=='林园：我没有买中石油'
+
+
+def test_long_series_navigation_only_shows_adjacent_exact_approved_titles():
+    episodes = [dict(episode_number=n, title=f'林园：原话第 {n} 段，不一定上涨') for n in range(1, 7)]
+    middle = series_navigation(3, episodes)
+    assert '第 3/6 集' in middle
+    assert '上一段：' + episodes[1]['title'] in middle
+    assert '下一段：' + episodes[3]['title'] in middle
+    assert episodes[0]['title'] not in middle and episodes[5]['title'] not in middle
+    assert '已更新的片段' in middle and '全部已发布' not in middle
+    assert '上一段：' not in series_navigation(1, episodes)
+    assert '下一段：' not in series_navigation(6, episodes)
+
+
+def test_collection_topic_requires_all_actual_published_titles_not_first_episode_only():
+    first = '林园：我没有买这家公司'
+    title, desc = collection_copy(first, episode_titles=[first, '林园：研究企业生意'])
+    assert title == '林园｜公司与生意'
+    assert '2 段' in desc and '完整版' not in desc
+    assert collection_copy(first, episode_titles=[first, '林园：人工智能是未来的赛道'])[0] != title
+    assert collection_copy('林园：茅台', episode_titles=['林园：茅台', '林园：白酒'])[0] == '林园｜白酒生意'
+    assert 'AI生成' in description('AI生成插画，来源：第一财经')
+
+
+def test_cached_long_directory_migration_preserves_provenance_and_is_idempotent():
+    old = ('本段讨论：我没买中石油\n'
+           '同场访谈分集：第 3/6 集（各集独立成篇，发布以主页为准）\n分集目录：\n'
+           + '\n'.join(f'{n}. 林园：原判断 {n}，不一定上涨' for n in range(1, 7))
+           + '\n来源：第一财经，2020-04-12\nAI生成插画\n版权提示')
+    cleaned = description(old)
+    assert '上一段：林园：原判断 2，不一定上涨' in cleaned
+    assert '下一段：林园：原判断 4，不一定上涨' in cleaned
+    assert cleaned.endswith('来源：第一财经，2020-04-12\nAI生成插画\n版权提示')
+    assert description(cleaned) == cleaned
+    # An irregular directory may contain unrelated notes. Never reinterpret it.
+    malformed = old.replace('2. 林园', '7. 林园')
+    assert '这一组还有：' in description(malformed)

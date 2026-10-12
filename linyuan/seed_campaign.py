@@ -11,7 +11,9 @@ import monitor_v2 as monitor
 
 BASE = Path(__file__).resolve().parent
 BVID = re.compile(r'^BV[0-9A-Za-z]{10}$')
-NO_MEDIA = re.compile(r'纯音频|纯录音|会议录音|音频版|录音版|文字版|图文|张海辉|解读林园|点评林园')
+NO_MEDIA = re.compile(r'纯音频|纯录音|会议录音|音频版|录音版|文字版|图文|张海辉|'
+    r'解读|解说|点评|人物记|林园群|林园长|红枫林园|林园酒店|虎林园|园林|'
+    r'林园(?:好友|朋友|徒弟|粉丝)|林园与散户乙')
 
 
 def census(base=BASE):
@@ -73,6 +75,7 @@ def catalog_candidates(db=BASE / 'monitor_v2.db'):
 
 
 def verify_seed(candidate, fetch=monitor.http_get):
+    from fc import index as fc
     bvid = candidate['bvid']
     try:
         payload = json.loads(fetch('https://api.bilibili.com/x/web-interface/view?bvid=' + bvid,
@@ -82,9 +85,11 @@ def verify_seed(candidate, fetch=monitor.http_get):
             raise ValueError('exact video metadata unavailable')
         title = data.get('title') or ''
         author = (data.get('owner') or {}).get('name') or ''
-        if '林园' not in title or monitor.YicaiVideoSource.NOISE.search(title) or NO_MEDIA.search(title):
+        if ('林园' not in title or fc.NOISE.search(title) or fc.AI_NOISE.search(title)
+                or monitor.YicaiVideoSource.NOISE.search(title) or NO_MEDIA.search(title)):
             raise ValueError('unrelated or non-live title')
-        if author in {'', '园园滚雪球', '园来滚雪球'}:
+        if (author in {'', '园园滚雪球', '园来滚雪球', '账号已注销', '已注销'}
+                or (data.get('owner') or {}).get('mid') in {1700344493, 275211725}):
             raise ValueError('unknown, reference-only or self publisher')
         pages = [dict(page=int(p['page']), cid=int(p['cid']),
                       duration=monitor.duration_seconds(p.get('duration')), title=p.get('part', ''))
@@ -94,6 +99,8 @@ def verify_seed(candidate, fetch=monitor.http_get):
         if not pages or any(p['page'] < 1 or p['cid'] < 1 for p in pages):
             raise ValueError('no eligible real video pages')
         no_reprint = (data.get('rights') or {}).get('no_reprint')
+        target_evidence = fc.title_has_target_speaker(title)
+        dispatch = no_reprint != 1 and target_evidence
         return dict(candidate, status='verified_metadata', title=title, observed_author=author,
             owner_mid=(data.get('owner') or {}).get('mid'),
             url='https://www.bilibili.com/video/' + bvid,
@@ -102,8 +109,9 @@ def verify_seed(candidate, fetch=monitor.http_get):
             checked_at=datetime.now(timezone.utc).isoformat(), pages=pages,
             media_verified=False, editorial_approved=False, rights_status='not_determined',
             origin_role='repost_or_lead', no_reprint=no_reprint,
-            source_role='catalog_only' if no_reprint == 1 else 'mother_candidate',
-            direct_dispatch=no_reprint != 1)
+            target_speaker_title_evidence=target_evidence,
+            source_role='mother_candidate' if dispatch else 'catalog_only',
+            direct_dispatch=dispatch)
     except Exception as exc:
         return dict(**candidate, status='not_verified', error=type(exc).__name__)
 

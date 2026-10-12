@@ -55,3 +55,20 @@ def test_live_no_reprint_flag_remains_research_only_not_production_authorization
     assert row['status']=='verified_metadata' and row['no_reprint']==1
     assert row['source_role']=='catalog_only' and row['direct_dispatch'] is False
     assert row['rights_status']=='not_determined'
+
+
+@pytest.mark.parametrize('title', ['林园群讲风水', '红枫林园新视频', '林园长堵国道',
+    '林园好友谈林园', 'AI解读林园投资', '解说林园2007访谈'])
+def test_other_people_fiction_or_narration_not_used_to_pad_seed_count(title):
+    assert verify_seed(dict(bvid=BVID), lambda *a, **kw: metadata(title=title))['status'] == 'not_verified'
+
+
+def test_reference_mid_cannot_enter_pool_after_account_rename():
+    assert verify_seed(dict(bvid=BVID), lambda *a, **kw: metadata(
+        owner=dict(name='新的昵称', mid=1700344493)))['status'] == 'not_verified'
+
+
+def test_archive_title_without_speaker_evidence_remains_research_only():
+    row = verify_seed(dict(bvid=BVID), lambda *a, **kw: metadata(title='林园经典-2018.05.05-奥马哈之行'))
+    assert row['status'] == 'verified_metadata'
+    assert row['direct_dispatch'] is False and not row['target_speaker_title_evidence']

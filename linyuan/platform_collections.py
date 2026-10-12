@@ -110,7 +110,8 @@ def plans(state):
         parts.sort(key=lambda p:(p['part_index'],p.get('ts',0)))
         if len({p['part_index'] for p in parts})!=len(parts):continue
         key=hashlib.sha256((slug+'\n'+source).encode()).hexdigest()[:20]
-        title, description = collection_copy(parts[0].get('title'))
+        title, description = collection_copy(parts[0].get('title'),
+            episode_titles=[str(p.get('title') or '') for p in parts])
         result.append(dict(key=key,slug=slug,source_url=source,
             title=title, description=description,
             bvids=[p['bvid'] for p in parts]))

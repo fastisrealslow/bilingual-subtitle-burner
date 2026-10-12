@@ -44,3 +44,14 @@ def test_exact_series_parent_identity_must_be_verified(monkeypatch):
         data=dict(bvid='BV1wrong0000', **data(episode())))))
     source = monitor.BilibiliSeriesSource(dict(seeds=[dict(bvid='BV1NpBFYkEKx')]), {})
     assert source.fetch(None) == []
+
+
+def test_episode_no_reprint_is_research_only_even_with_a_valid_parent():
+    row = episode()
+    row['arc']['rights'] = {'no_reprint': 1}
+    actual = episode_items(data(row), monitor.duration_seconds, monitor.source_publish_time)
+    assert len(actual) == 2
+    for item in actual:
+        extra = json.loads(item['extra'])
+        assert extra['source_role'] == 'catalog_only' and extra['direct_dispatch'] is False
+        assert extra['no_reprint'] == 1
