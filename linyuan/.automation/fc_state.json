@@ -24938,9 +24938,11 @@
    "publish_time": "2026-07-05T23:58:04+00:00",
    "source_check_report_id": 11731882892,
    "source_check_run_id": 38214661174,
-   "last_error": "取源未完成：RuntimeError: 合流文件头尾解码失败：[NULL @ 0x55c98e5bde00] Invalid NAL unit size (1844215125 > 2866).\n[NULL @ 0x55c98e5bde00] missing picture in access unit with size 2870\n[NULL @ 0x55c98e5bde00]",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"从我们做了个宝葫芦。\", \"suspect_quote\": \"从我们做了个宝葫芦\", \"kind\": \"unintelligible_term\", \"reason\": \"‘做了个宝葫芦’在金融或日常语境中含义不明，疑似将‘做了一个关于宝葫芦的故事’或‘做了一个宝葫芦计划’误识别为动词 + 名词结构，导致语义断裂。\"}, {\"sentence_id\": 6, \"quote\": \"我常常给人说：我说我拿一件宝葫芦的股票，不排除二十五年以后。\", \"suspect_quote\": \"我拿一件宝葫芦的股票\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一件宝葫芦的股票’搭配不当且含义不明，‘宝葫芦’作为股票修饰语无明确指代，疑似专有名词识别错误或口误未纠正。\"}, {\"sentence_id\": 9, \"quote\": \"我前一段时间，我们跟我的搭档八个人，他叫了七八个人。\", \"suspect_quote\": \"他叫了七八个人\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘叫了七八个人’中‘叫了’可能是‘召集了’的口语省略，但结合上下文‘八个人’与‘七八个人’数量不一致（前文说八人，此处又说七八人），存在数字表述矛盾或识别混淆。\"}, {\"sentence_id\": 12, \"quote\": \"如果按这个数字算下来，因为他们都是有钱人，非常富裕，身体不怕瘟疫，天为什么？\", \"suspect_quote\": \"天为什么？\", \"kind\": \"unintelligible_term\", \"reason\": \"‘天为什么’语义不通，疑似‘那为什么’或‘这又为什么’的误识别，导致句子逻辑断裂。\"}, {\"sentence_id\": 14, \"quote\": \"他如果都是像我这个朋友，这个比例，他不得了的像百分之十万。\", \"suspect_quote\": \"他不得了的像百分之十万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十万’明显不符合常规比例表达（百分比最大为 100%），疑似将‘十分之一’或‘百分之十’误识别，属于关键数字污染。\"}, {\"sentence_id\": 27, \"quote\": \"这就是我说的，付各位注意。\", \"suspect_quote\": \"付各位注意\", \"kind\": \"unintelligible_term\", \"reason\": \"‘付各位注意’应为‘请各位注意’的误识别，‘付’与‘请’音近但义异，属于专有动词错误导致语义偏差。\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -78467,6 +78469,13 @@
    "video_id": "BV15U4y157Qz",
    "ts": 1791790435,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 11]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0126, 2: 0.0294, 3: -0.0236, 11: -0.0434}"
+  },
+  {
+   "slug": "ly-1012-ed9419",
+   "key": "bilibili_search:BV1paTU6cEXm",
+   "video_id": "BV1paTU6cEXm",
+   "ts": 1791796014,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"从我们做了个宝葫芦。\", \"suspect_quote\": \"从我们做了个宝葫芦\", \"kind\": \"unintelligible_term\", \"reason\": \"‘做了个宝葫芦’在金融或日常语境中含义不明，疑似将‘做了一个关于宝葫芦的故事’或‘做了一个宝葫芦计划’误识别为动词 + 名词结构，导致语义断裂。\"}, {\"sentence_id\": 6, \"quote\": \"我常常给人说：我说我拿一件宝葫芦的股票，不排除二十五年以后。\", \"suspect_quote\": \"我拿一件宝葫芦的股票\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一件宝葫芦的股票’搭配不当且含义不明，‘宝葫芦’作为股票修饰语无明确指代，疑似专有名词识别错误或口误未纠正。\"}, {\"sentence_id\": 9, \"quote\": \"我前一段时间，我们跟我的搭档八个人，他叫了七八个人。\", \"suspect_quote\": \"他叫了七八个人\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘叫了七八个人’中‘叫了’可能是‘召集了’的口语省略，但结合上下文‘八个人’与‘七八个人’数量不一致（前文说八人，此处又说七八人），存在数字表述矛盾或识别混淆。\"}, {\"sentence_id\": 12, \"quote\": \"如果按这个数字算下来，因为他们都是有钱人，非常富裕，身体不怕瘟疫，天为什么？\", \"suspect_quote\": \"天为什么？\", \"kind\": \"unintelligible_term\", \"reason\": \"‘天为什么’语义不通，疑似‘那为什么’或‘这又为什么’的误识别，导致句子逻辑断裂。\"}, {\"sentence_id\": 14, \"quote\": \"他如果都是像我这个朋友，这个比例，他不得了的像百分之十万。\", \"suspect_quote\": \"他不得了的像百分之十万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十万’明显不符合常规比例表达（百分比最大为 100%），疑似将‘十分之一’或‘百分之十’误识别，属于关键数字污染。\"}, {\"sentence_id\": 27, \"quote\": \"这就是我说的，付各位注意。\", \"suspect_quote\": \"付各位注意\", \"kind\": \"unintelligible_term\", \"reason\": \"‘付各位注意’应为‘请各位注意’的误识别，‘付’与‘请’音近但义异，属于专有动词错误导致语义偏差。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
