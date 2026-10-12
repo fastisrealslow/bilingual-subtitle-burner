@@ -3,7 +3,7 @@
   "validation_sha256": "62112da01ca59b748c302d974b9d2029f1816e9dc0a4ab770d6fea87912b33b5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791837248,
+  "updated_at": 1791837427,
   "materials": {
     "weibo_search": {
       "records": 2037,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791837252,
+    "updated_at": 1791837429,
     "records": 9889,
     "video_records": 8467,
-    "initial_candidates": 66,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 64,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 6,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1422,
       "clip_title": 1110,
-      "already_attempted_or_cooling": 1287,
+      "already_attempted_or_cooling": 1289,
       "speaker_unconfirmed": 5759,
       "noise": 17,
       "unrelated": 62,
@@ -134,22 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1fwzeB4E6Q",
-        "title": "林园经典-2023.06.10-红周刊直播",
-        "source": "bilibili_search",
-        "author": "巴菲特思想研究院",
-        "url": "https://www.bilibili.com/video/BV1fwzeB4E6Q",
-        "duration_sec": 4682.0
-      },
-      {
-        "key": "bilibili_search:BV1T9zxBSETQ",
-        "title": "林园经典采访-2008.11.15-凤凰财经神州穿梭",
-        "source": "bilibili_search",
-        "author": "巴菲特思想研究院",
-        "url": "https://www.bilibili.com/video/BV1T9zxBSETQ",
-        "duration_sec": 234.0
-      },
       {
         "key": "bilibili_search:BV1ZiuBzyESe",
         "title": "林园：87岁母亲的医药选择",
@@ -21513,9 +21497,9 @@
         "failures": [
           {
             "slug": "ly-1012-4987ed",
-            "stage": "source-fetch",
+            "stage": "quality-service",
             "terminal": false,
-            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 659.99s 与请求页面 1487.00s 不匹配（容差 74.35s）"
+            "reason": "观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问；须摘录嘉宾本人的独立陈述"
           }
         ],
         "verified_available": 0,
@@ -21567,6 +21551,36 @@
         "family": "BV131421U7XK",
         "slugs": [
           "ly-1012-51c8e1"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1fwzeB4E6Q:p1",
+        "source_url": "https://www.bilibili.com/video/BV1fwzeB4E6Q",
+        "family": "BV1fwzeB4E6Q",
+        "slugs": [
+          "ly-1012-d20333"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1T9zxBSETQ:p1",
+        "source_url": "https://www.bilibili.com/video/BV1T9zxBSETQ",
+        "family": "BV1T9zxBSETQ",
+        "slugs": [
+          "ly-1012-171c7f"
         ],
         "source_sha256": [],
         "failures": [],
@@ -22212,9 +22226,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -22504,8 +22518,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -22663,9 +22677,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -22813,8 +22827,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -22978,10 +22992,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_workflow-preflight": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_visual-review": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -22993,8 +23007,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -25761,10 +25775,20 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1fwzeB4E6Q": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1T9zxBSETQ": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 12,
+  "in_flight_placeholders": 14,
   "artifacts": [
     {
       "slug": "ly-1011-0b3cb7",
