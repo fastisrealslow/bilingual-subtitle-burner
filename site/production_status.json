@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791786919,
+  "updated_at": 1791787123,
   "inventory_updated_at": 1791786914,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 4,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791786918,
+    "updated_at": 1791787122,
     "records": 9798,
     "video_records": 8381,
-    "initial_candidates": 62,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 61,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1417,
       "speaker_unconfirmed": 5690,
-      "already_attempted_or_cooling": 1276,
+      "already_attempted_or_cooling": 1277,
       "clip_title": 1109,
       "noise": 16,
       "unrelated": 62,
@@ -62,14 +62,6 @@
         "author": "林林投资滚雪球",
         "url": "https://www.bilibili.com/video/BV13J23BAE84",
         "duration_sec": 452.0
-      },
-      {
-        "key": "weibo_search:5352856821437653",
-        "title": "面对重大危机，你会选择择机避开吗？林园直言：避不开的！股市的上涨时间只有5%，下跌和盘整占95%，你必须满仓待在里面，等",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5352856821437653",
-        "duration_sec": 72.0
       },
       {
         "key": "bilibili_search:BV11Ket6rE34",
@@ -103,7 +95,7 @@
   },
   "counts": {
     "complete": 115,
-    "failed": 979,
+    "failed": 980,
     "paused": 5,
     "ready": 4,
     "interrupted": 5,
@@ -20046,8 +20038,8 @@
     },
     {
       "slug": "ly-1012-818e8d",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791786036,
         "failed": null,
@@ -20060,15 +20052,15 @@
       "run_id": 38212058067,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38212058067",
       "run_started_at": "2026-10-12T06:20:36Z",
-      "run_updated_at": "2026-10-12T06:20:40Z"
+      "run_updated_at": "2026-10-12T06:38:09Z"
     },
     {
       "slug": "ly-1012-499bcc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标",
       "signature": {
         "ts": 1791786823,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20079,6 +20071,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213121903",
       "run_started_at": "2026-10-12T06:33:43Z",
       "run_updated_at": "2026-10-12T06:35:06Z"
+    },
+    {
+      "slug": "ly-1012-579275",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791787080,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38213475488,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213475488",
+      "run_started_at": "2026-10-12T06:37:59Z",
+      "run_updated_at": "2026-10-12T06:38:03Z"
     }
   ],
   "runs": {
@@ -27936,12 +27946,23 @@
       "run_number": 1847,
       "display_title": "中文源出片 · ly-1012-499bcc"
     },
-    "ly-1012-818e8d": {
-      "id": 38212058067,
+    "ly-1012-579275": {
+      "id": 38213475488,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-12T06:37:59Z",
+      "updated_at": "2026-10-12T06:38:03Z",
+      "run_started_at": "2026-10-12T06:37:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38213475488",
+      "run_number": 1848,
+      "display_title": "中文源出片 · ly-1012-579275"
+    },
+    "ly-1012-818e8d": {
+      "id": 38212058067,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-12T06:20:36Z",
-      "updated_at": "2026-10-12T06:20:40Z",
+      "updated_at": "2026-10-12T06:38:09Z",
       "run_started_at": "2026-10-12T06:20:36Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38212058067",
       "run_number": 1846,
