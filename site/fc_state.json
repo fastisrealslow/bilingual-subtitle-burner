@@ -24944,7 +24944,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5353207506928465",
@@ -24961,7 +24962,11 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "夏正阳1990",
-   "publish_time": "2026-10-12T14:46:30+08:00"
+   "publish_time": "2026-10-12T14:46:30+08:00",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"红号是说在特朗普的任期之内会翻倍，五千到六千美元每盎。\", \"suspect_quote\": \"五千到六千美元每盎\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“每盎”疑似错写或截断的专有名词/单位（应为“每盎司”），导致关键价格数值含义不明；且“五千到六千”作为具体数字在口语中虽可接受，但结合错误的单位后缀构成识别疑点。\"}, {\"sentence_id\": 7, \"quote\": \"然后德隆说能上一万点。\", \"suspect_quote\": \"德隆说能上一万点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“德隆”疑似错写的专有名词（可能指代特定人物、机构或指数名称，如“道琼斯”或其他），导致关键主体识别不清；“一万点”作为具体数字依赖前文语境，若“德隆”错误则整个数值预测失去参照。\"}, {\"sentence_id\": 10, \"quote\": \"趋势的是，我们不言定。\", \"suspect_quote\": \"趋势的是，我们不言定\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不言定”疑似错写或口误（应为“难言定”、“未言定”或类似表达），导致否定含义不明；该词组在金融语境下非常规用法，属于识别疑点。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -78495,6 +78500,13 @@
    "video_id": "BV1paTU6cEXm",
    "ts": 1791796014,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"从我们做了个宝葫芦。\", \"suspect_quote\": \"从我们做了个宝葫芦\", \"kind\": \"unintelligible_term\", \"reason\": \"‘做了个宝葫芦’在金融或日常语境中含义不明，疑似将‘做了一个关于宝葫芦的故事’或‘做了一个宝葫芦计划’误识别为动词 + 名词结构，导致语义断裂。\"}, {\"sentence_id\": 6, \"quote\": \"我常常给人说：我说我拿一件宝葫芦的股票，不排除二十五年以后。\", \"suspect_quote\": \"我拿一件宝葫芦的股票\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一件宝葫芦的股票’搭配不当且含义不明，‘宝葫芦’作为股票修饰语无明确指代，疑似专有名词识别错误或口误未纠正。\"}, {\"sentence_id\": 9, \"quote\": \"我前一段时间，我们跟我的搭档八个人，他叫了七八个人。\", \"suspect_quote\": \"他叫了七八个人\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘叫了七八个人’中‘叫了’可能是‘召集了’的口语省略，但结合上下文‘八个人’与‘七八个人’数量不一致（前文说八人，此处又说七八人），存在数字表述矛盾或识别混淆。\"}, {\"sentence_id\": 12, \"quote\": \"如果按这个数字算下来，因为他们都是有钱人，非常富裕，身体不怕瘟疫，天为什么？\", \"suspect_quote\": \"天为什么？\", \"kind\": \"unintelligible_term\", \"reason\": \"‘天为什么’语义不通，疑似‘那为什么’或‘这又为什么’的误识别，导致句子逻辑断裂。\"}, {\"sentence_id\": 14, \"quote\": \"他如果都是像我这个朋友，这个比例，他不得了的像百分之十万。\", \"suspect_quote\": \"他不得了的像百分之十万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十万’明显不符合常规比例表达（百分比最大为 100%），疑似将‘十分之一’或‘百分之十’误识别，属于关键数字污染。\"}, {\"sentence_id\": 27, \"quote\": \"这就是我说的，付各位注意。\", \"suspect_quote\": \"付各位注意\", \"kind\": \"unintelligible_term\", \"reason\": \"‘付各位注意’应为‘请各位注意’的误识别，‘付’与‘请’音近但义异，属于专有动词错误导致语义偏差。\"}]"
+  },
+  {
+   "slug": "ly-1012-8e1698",
+   "key": "weibo_search:5353207506928465",
+   "video_id": "https://f.video.weibocdn.com/o0/2sJ72T21lx08BvM6tfW001041200fw9W0E010.mp4",
+   "ts": 1791798607,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"红号是说在特朗普的任期之内会翻倍，五千到六千美元每盎。\", \"suspect_quote\": \"五千到六千美元每盎\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“每盎”疑似错写或截断的专有名词/单位（应为“每盎司”），导致关键价格数值含义不明；且“五千到六千”作为具体数字在口语中虽可接受，但结合错误的单位后缀构成识别疑点。\"}, {\"sentence_id\": 7, \"quote\": \"然后德隆说能上一万点。\", \"suspect_quote\": \"德隆说能上一万点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“德隆”疑似错写的专有名词（可能指代特定人物、机构或指数名称，如“道琼斯”或其他），导致关键主体识别不清；“一万点”作为具体数字依赖前文语境，若“德隆”错误则整个数值预测失去参照。\"}, {\"sentence_id\": 10, \"quote\": \"趋势的是，我们不言定。\", \"suspect_quote\": \"趋势的是，我们不言定\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不言定”疑似错写或口误（应为“难言定”、“未言定”或类似表达），导致否定含义不明；该词组在金融语境下非常规用法，属于识别疑点。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
