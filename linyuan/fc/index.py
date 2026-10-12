@@ -506,9 +506,10 @@ def platform_of(source):
 
 def clean_publish_desc(value):
     """投稿前最后一道简介清洗，兼容修复前生成的缓存和旧 Artifact。"""
+    from audience_copy import description
     text = re.sub(r"https?://\S+|www\.\S+|t\.cn/\S+", "", value or "",
                   flags=re.I)
-    return re.sub(r"[ \t]+\n", "\n", text).strip()
+    return description(re.sub(r"[ \t]+\n", "\n", text).strip())
 
 
 def publication_source_label(item):
@@ -1587,22 +1588,9 @@ def pick(items, st, n, audit=None):
         return score
 
     def freshness_score(c):
-        """发布时间越新越好，但同一场内容不重复。"""
-        try:
-            from datetime import datetime
-            pt = datetime.fromisoformat(c.get("publish_time", ""))
-            age_hours = (__import__('time').time() - pt.timestamp()) / 3600
-            if age_hours < 0:
-                return 20
-            if age_hours <= 24:
-                return 15
-            if age_hours <= 72:
-                return 10
-            if age_hours <= 168:
-                return 5
-            return 0
-        except Exception:
-            return 5
+        from source_priority import freshness_evidence
+        c['freshness_evidence'] = freshness_evidence(c, now)
+        return c['freshness_evidence']['score']
 
     def duration_score(c):
         """已知时长且合适的加分。"""
@@ -1980,7 +1968,10 @@ def upload_asset(rel_id, path):
 def production_config():
     """Read local deployed code/config without fetching multi-MB remote ledgers."""
     import hashlib
+    import audience_copy
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "audience_copy_version": audience_copy.VERSION,
+            "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "copyright_requested": COPYRIGHT, "copyright_mode": "unselected",
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,

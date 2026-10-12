@@ -4,6 +4,7 @@ import hashlib
 import math
 import shutil
 from pathlib import Path
+from audience_copy import description, series_navigation
 
 
 def organize_interview_series(rows, *, source_duration, complete=False,
@@ -59,8 +60,6 @@ def organize_interview_series(rows, *, source_duration, complete=False,
         episodes=[dict(episode_number=i, episode_key=key, title=r['title'],
                        final=r.get('final'), source_start=start, source_end=end)
                   for i, ((start, end, r), key) in enumerate(zip(spans, keys), 1)])
-    directory = '\n'.join(f"{e['episode_number']}. {e['title']}"
-                          for e in manifest['episodes'])
     enriched = []
     lookup = {id(r): i for i, (_, _, r) in enumerate(spans, 1)}
     for row in rows:
@@ -68,9 +67,8 @@ def organize_interview_series(rows, *, source_duration, complete=False,
         if number is None:
             enriched.append(row)
             continue
-        nav = (f'同场访谈分集：第 {number}/{len(spans)} 集'
-               '（各集独立成篇，发布以主页为准）\n分集目录：\n' + directory)
-        desc = row.get('desc') or ''
+        nav = series_navigation(number, manifest['episodes'])
+        desc = description(row.get('desc'))
         # Do not truncate approved copy or exceed the upload description limit.
         if len(desc) + len(nav) + 2 > 2000:
             return rows, None
