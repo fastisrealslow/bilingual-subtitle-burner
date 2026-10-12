@@ -25212,7 +25212,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1rD4y1o7SH",
@@ -25232,9 +25233,11 @@
    "publish_time": "2020-09-28T06:12:52+00:00",
    "source_check_report_id": 11774185394,
    "source_check_run_id": 38307418615,
-   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：CDN前缀核对响应截断，保留断点",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV1ZjzbBrE5D",
@@ -79026,6 +79029,13 @@
    "video_id": "BV1PVoeYHEFL",
    "ts": 1791839902,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为具体销量数据在口语中表述不清，可能影响对市场规模的准确理解。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后就能建分行\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字与行业术语冲突：'建分行'通常指银行分支机构建设，但上下文讨论的是医药公司或投资布局，此处'分行'极可能是'工厂'、'产能'或特定项目（如研发中心）的误识别，属于含义不明的关键数字/名词组合。\"}, {\"sentence_id\": 15, \"quote\": \"我买的时候都都是抗生素全全球第一了，是吧？\", \"suspect_quote\": \"我买的时候都都是抗生素全全球第一了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"重复用词与模糊指代：'都都是'为口语冗余，但更严重的是'全全球第一'中'全'字多余且'全球第一'缺乏具体比较维度（如销售额、产量或市场份额），在投资语境下构成含义不明的关键数字/状态描述。\"}]"
+  },
+  {
+   "slug": "ly-1012-cfd984",
+   "key": "bilibili_search:BV1rD4y1o7SH",
+   "video_id": "BV1rD4y1o7SH",
+   "ts": 1791841798,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
