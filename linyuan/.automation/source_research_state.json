@@ -3223,12 +3223,13 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1791034317.5786278,
-      "next_retry_at": 1791055917.5786278,
+      "last_attempt_at": 1791802951.1156945,
+      "next_retry_at": 1791846151.1156945,
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "download_partial_bytes": 0
     },
     "9907aec10decef5d6602": {
       "url": "https://www.bilibili.com/video/BV11Net6GExx",
@@ -3398,12 +3399,13 @@
       "family": "phoenix_2026_09",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1791034894.412074,
-      "next_retry_at": 1791056494.412074,
+      "last_attempt_at": 1791802953.6933224,
+      "next_retry_at": 1791846153.6933224,
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "download_partial_bytes": 0
     },
     "41e391e1e16564921ab9": {
       "url": "https://www.bilibili.com/video/BV1ybEr6uELq",
@@ -3967,13 +3969,35 @@
       "role": "mother",
       "family": "investor_call",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 1,
-      "last_error": "CalledProcessError",
-      "last_attempt_at": 1791034017.5706894,
-      "next_retry_at": 1791055617.5706894,
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "last_error": null,
+      "last_attempt_at": 1791802651.1055934,
+      "next_retry_at": 0,
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "evidence": {
+        "sha256": "e8fdca56f5a152724e18de49b4bb69238b66458cf8c679c9fa7bae6a27468d51",
+        "duration_sec": 408.2,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 204.1
+          }
+        ],
+        "audio_fingerprint_count": 3275,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "38238933885"
     },
     "68f5eab0a5c112737cf2": {
       "url": "https://www.bilibili.com/video/BV15D4y1S7Ee",
@@ -5233,7 +5257,8 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -5242,8 +5267,8 @@
       "errors": []
     }
   },
-  "search_cursor": 5,
-  "updated_at": 1791799532,
-  "last_run_id": "38232502723",
+  "search_cursor": 8,
+  "updated_at": 1791802953,
+  "last_run_id": "38238933885",
   "audio_match_candidates": []
 }
