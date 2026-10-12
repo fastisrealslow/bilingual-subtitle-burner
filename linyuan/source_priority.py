@@ -2,12 +2,43 @@
 from collections import defaultdict
 import json
 from urllib.parse import urlsplit
+from datetime import datetime, timezone
 
 from editorial_policy import source_key
 from production_diagnostics import failure_category
 
 WINDOW_SECONDS = 30 * 86400
 MIN_OBSERVATIONS = 3
+
+
+def freshness_evidence(candidate, now):
+    """An upload timestamp is not a filming date; old context earns no news bonus.
+
+    A title-date hint is conservative ordering evidence only, not verified
+    recording metadata. Missing/future clocks stay neutral, never highest rank.
+    """
+    extra = candidate.get('extra') or {}
+    if isinstance(extra, str):
+        try:extra = json.loads(extra)
+        except (TypeError, ValueError):extra = {}
+    if not isinstance(extra, dict):extra = {}
+    hint = extra.get('content_date_hint')
+    if hint:
+        try:
+            date = datetime.fromisoformat(hint).replace(tzinfo=timezone.utc)
+            if date.timestamp() < now - 168 * 3600:
+                return dict(score=0, basis='historical_context_hint_not_new_recording',
+                            content_date_verified=False, content_date_hint=hint)
+        except (ValueError, TypeError):pass
+    try:
+        timestamp = datetime.fromisoformat(candidate.get('publish_time', '').replace('Z', '+00:00'))
+        if timestamp.tzinfo is None:timestamp = timestamp.replace(tzinfo=timezone.utc)
+        age = now - timestamp.timestamp()
+        score = (15 if age <= 86400 else 10 if age <= 3 * 86400 else 5 if age <= 7 * 86400 else 0) if age >= 0 else 0
+        return dict(score=score, basis='upload_time_only_recording_date_unknown',
+                    content_date_verified=False)
+    except (ValueError, TypeError, AttributeError):
+        return dict(score=0, basis='date_unavailable', content_date_verified=False)
 
 # Exact pages with first-party interview bylines, not a platform-wide whitelist.
 # This ranks provenance only: it neither proves a reference match nor grants reuse.

@@ -48,3 +48,10 @@ def test_census_excludes_reference_directory_and_duplicate_collection_roots(tmp_
     result = census(tmp_path)
     assert result['total'] == 6 and result['counts']['bilibili'] == 2
     assert result['reference_only'] == 2
+
+
+def test_live_no_reprint_flag_remains_research_only_not_production_authorization():
+    row=verify_seed(dict(bvid=BVID),lambda *a,**kw:metadata(rights={'no_reprint':1}))
+    assert row['status']=='verified_metadata' and row['no_reprint']==1
+    assert row['source_role']=='catalog_only' and row['direct_dispatch'] is False
+    assert row['rights_status']=='not_determined'

@@ -31,7 +31,8 @@ def test_original_time_order_and_unmodified_title_and_media_proofs():
     assert [r['interview_series']['episode_number'] for r in enriched] == [2,1]
     assert enriched[0]['title'] == original[0]['title']
     assert enriched[0]['segments'] == original[0]['segments']
-    assert '发布以主页为准' in enriched[0]['desc']
+    assert '已更新的片段见主页' in enriched[0]['desc']
+    assert '同场访谈分集' not in enriched[0]['desc']
     assert enriched[0]['interview_series']['previous_title'] == data[1]['title']
     assert not manifest['platform_collection_created']
     assert manifest['publication_status'] == 'not_verified'

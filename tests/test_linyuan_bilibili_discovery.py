@@ -72,6 +72,16 @@ def test_page_lookup_never_silently_downloads_first_episode():
         fetcher.requested_page('https://www.bilibili.com/video/BVseries?p=0')
 
 
+def test_explicit_no_reprint_or_research_seed_is_never_directly_dispatched(monkeypatch):
+    for rights,seed in [({'no_reprint':1},{}),({}, {'no_reprint':1}),({}, {'direct_dispatch':False})]:
+        monkeypatch.setattr(monitor_v2,'http_get',lambda *a,**kw:json.dumps(dict(code=0,data=dict(
+            owner=dict(name='真实作者'),rights=rights,title='林园完整访谈',
+            pages=[dict(page=1,cid=100,duration=1800,part='完整访谈')]))))
+        row=monitor_v2.BilibiliCollectionSource(dict(seeds=[dict(bvid='BVfixture',**seed)]),{}).fetch(None)[0]
+        extra=json.loads(row['extra'])
+        assert extra['direct_dispatch'] is False and extra['source_role']=='catalog_only'
+
+
 def test_page_metadata_binds_cid_to_declared_duration():
     pages = [dict(page=5, cid=555, duration=1347)]
     assert fetcher.page_metadata(pages, 5) == {

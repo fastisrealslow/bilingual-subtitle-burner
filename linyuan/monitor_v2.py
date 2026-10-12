@@ -411,6 +411,11 @@ class BilibiliCollectionSource(Source):
                 author = (data.get("owner") or {}).get("name", "")
                 if author in BLACKLIST_AUTHORS or author == "园园滚雪球":
                     continue
+                no_reprint = (data.get('rights') or {}).get('no_reprint')
+                # A failed live refresh must not erase a known denial from the
+                # verified seed snapshot, nor turn a research-only seed live.
+                denied = no_reprint == 1 or seed.get('no_reprint') == 1
+                dispatch = bool(author) and not denied and seed.get('direct_dispatch') is not False
                 for part in data.get("pages") or []:
                     number = int(part["page"])
                     duration = duration_seconds(part.get("duration"))
@@ -426,7 +431,10 @@ class BilibiliCollectionSource(Source):
                         "publish_time": source_publish_time(data.get("pubdate")),
                         "extra": json.dumps({"bvid": bvid, "page": number, "cid": part["cid"],
                             "duration": duration, "collection_title": data.get("title", ""),
-                            "source_role": "mother_candidate", "direct_dispatch": bool(author),
+                            "source_role": "mother_candidate" if dispatch else "catalog_only",
+                            "direct_dispatch": dispatch, "no_reprint": no_reprint if no_reprint is not None else seed.get('no_reprint'),
+                            "content_date_hint": seed.get('content_date_hint'),
+                            "content_date_hint_provenance": seed.get('content_date_hint_provenance'),
                             "metadata_status": "known_duration" if author else "needs_author_verification"}, ensure_ascii=False),
                     })
             except Exception as exc:

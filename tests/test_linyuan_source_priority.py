@@ -3,6 +3,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'linyuan'))
 from source_priority import family, observed_priorities, publisher_priority
+from source_priority import freshness_evidence
 
 
 def entry(i, **extra):
@@ -62,3 +63,22 @@ def test_platform_and_self_reported_primary_claims_are_not_provenance():
     assert publisher_priority(dict(page_url='https://www.yicai.com/video/99999999.html',
         extra={'origin_role':'official_publisher'}))==10
     assert publisher_priority(dict(extra='bad json'))==10
+
+
+def test_yesterday_upload_of_old_interview_does_not_get_latest_recording_bonus():
+    from datetime import datetime, timezone
+    now=datetime(2026,10,12,4,tzinfo=timezone.utc).timestamp()
+    row=dict(publish_time='2026-10-11T09:20:09+00:00',
+             extra={'content_date_hint':'2025-10-23','content_date_hint_provenance':'uploader_title_unverified'})
+    proof=freshness_evidence(row,now)
+    assert proof['score']==0 and proof['content_date_verified'] is False
+    assert proof['basis']=='historical_context_hint_not_new_recording'
+    assert freshness_evidence({**row,'extra':{}},now)['score']==15
+
+
+def test_future_missing_and_invalid_clocks_cannot_get_highest_recency_rank():
+    from datetime import datetime, timezone
+    now=datetime(2026,10,12,tzinfo=timezone.utc).timestamp()
+    for timestamp in ('2027-01-01T00:00:00Z','',None,'invalid'):
+        assert freshness_evidence(dict(publish_time=timestamp),now)['score']==0
+    assert freshness_evidence(dict(publish_time='2026-10-11T23:00:00Z',extra='broken'),now)['score']==15

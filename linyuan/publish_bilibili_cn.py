@@ -67,6 +67,8 @@ def main():
         title = args.title
     if args.desc:
         desc = args.desc
+    from audience_copy import description
+    desc = description(desc)
 
     # cookies：BILI_COOKIES_FILE 装的是路径（secret 原文由准备步骤落盘）
     raw_cookies = (args.cookies or os.environ.get("BILI_COOKIES_FILE") or "").strip()

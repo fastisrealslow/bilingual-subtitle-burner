@@ -10,6 +10,8 @@ import json
 import os
 from pathlib import Path
 import time
+from audience_copy import collection_copy
+from collection_registry import Store, RegistryError, validate as validate_registry
 
 OWNER_MID=275211725
 CREATOR='https://member.bilibili.com'
@@ -108,10 +110,9 @@ def plans(state):
         parts.sort(key=lambda p:(p['part_index'],p.get('ts',0)))
         if len({p['part_index'] for p in parts})!=len(parts):continue
         key=hashlib.sha256((slug+'\n'+source).encode()).hexdigest()[:20]
-        first=str(parts[0].get('title') or '同场访谈').replace('\n',' ').strip()
-        result.append(dict(key=key,slug=slug,
-            title=('林园观点摘录｜'+first.removeprefix('林园：').removeprefix('林园:'))[:50],
-            description='同场素材的已发布观点摘录，按制作分集顺序整理；各条独立成篇。\n'+MARKER+key,
+        title, description = collection_copy(parts[0].get('title'))
+        result.append(dict(key=key,slug=slug,source_url=source,
+            title=title, description=description,
             bvids=[p['bvid'] for p in parts]))
     return result
 
@@ -130,20 +131,48 @@ def section_id(row):
     return sections[0]['id']
 
 
-def sync(client,state,*,apply=False,max_new=1):
+def sync(client,state,*,apply=False,max_new=1,registry=None,persist_registry=None):
     identity=client.identity()
     result=dict(version=1,checked_at=int(time.time()),apply=apply,identity=identity,
         created=0,added=0,verified_collections=[],errors=[],plans=[])
     if not identity['season_enabled']:
         result['errors'].append({'error':'account_season_permission_disabled'})
         return result
+    if apply:
+        if not callable(persist_registry):
+            raise CollectionError('durable_registry_required')
+        try:validate_registry(registry)
+        except RegistryError as exc:raise CollectionError(str(exc)) from None
+    def persist():
+        try:persist_registry(registry)
+        except Exception:raise CollectionError('registry_persistence_failed') from None
     seasons=client.seasons()
     for plan in plans(state):
         detail=dict(key=plan['key'],slug=plan['slug'],episode_count=len(plan['bvids']))
         result['plans'].append(detail)
         if not apply:continue
         try:
-            collection=managed(seasons,plan['key'])
+            binding = registry['collections'].get(plan['key'])
+            if binding:
+                if (binding.get('slug') != plan['slug']
+                        or binding.get('source_url') != plan['source_url']
+                        or not set(binding.get('bvids', [])).issubset(plan['bvids'])):
+                    raise CollectionError('registry_source_binding_mismatch')
+                season_id = binding.get('season_id')
+                if not season_id:
+                    raise CollectionError('prior_creation_outcome_unknown')
+                hits = [row for row in seasons if (row.get('season') or {}).get('id') == season_id]
+                if len(hits) != 1:raise CollectionError('registered_collection_not_visible')
+                collection = hits[0]
+            else:
+                # Migrate old positively marked collections to the ledger,
+                # but never touch manually managed collections by title match.
+                collection=managed(seasons,plan['key'])
+                if collection:
+                    binding=dict(slug=plan['slug'],source_url=plan['source_url'],
+                        bvids=plan['bvids'],season_id=collection['season']['id'],status='legacy_bound')
+                    registry['collections'][plan['key']]=binding
+                    persist()
             if collection is None and result['created']>=max_new:
                 detail['status']='new_collection_budget_deferred';continue
             videos=[client.video(b) for b in plan['bvids']]
@@ -162,15 +191,22 @@ def sync(client,state,*,apply=False,max_new=1):
                 host=urlsplit(cover).hostname or ''
                 if not host.endswith('.hdslb.com') or not cover.startswith('https://'):
                     raise CollectionError('invalid_platform_cover')
+                binding=dict(slug=plan['slug'],source_url=plan['source_url'],
+                    bvids=plan['bvids'],status='create_requested',requested_at=int(time.time()))
+                registry['collections'][plan['key']]=binding
+                persist()  # Fail closed before the non-idempotent platform call.
                 created=client.call('/x2/creative/web/season/add',payload={
                     'cover':cover,'title':plan['title'],'desc':plan['description'],'captcha_token':''})
                 if not isinstance(created,int) or isinstance(created,bool) or created<=0:
                     raise CollectionError('unrecognized_create_response')
                 result['created']+=1
+                binding.update(season_id=created,status='created')
+                persist()
                 seasons=client.seasons()
-                collection=managed(seasons,plan['key'])
-                if not collection or collection['season']['id']!=created:
+                hits=[row for row in seasons if (row.get('season') or {}).get('id')==created]
+                if len(hits)!=1:
                     raise CollectionError('created_collection_not_visible')
+                collection=hits[0]
                 season_id=created
             section=section_id(collection)
             existing=client.episodes(section)
@@ -199,6 +235,8 @@ def sync(client,state,*,apply=False,max_new=1):
                 if [e.get('aid') for e in episodes]!=[v['aid'] for v in videos]:
                     raise CollectionError('sort_readback_mismatch')
             detail.update(status='verified',season_id=season_id)
+            binding.update(status='verified',bvids=plan['bvids'])
+            persist()
             result['verified_collections'].append(dict(season_id=season_id,key=plan['key'],
                 bvids=plan['bvids'],episode_count=len(episodes)))
         except CollectionError as exc:
@@ -213,11 +251,14 @@ def main():
     base=Path(__file__).resolve().parent
     ap.add_argument('--state',type=Path,default=base/'.automation/fc_state.json')
     ap.add_argument('--output',type=Path,default=base/'.automation/collection_sync_report.json')
+    ap.add_argument('--registry',type=Path,default=base/'.automation/managed_collections.json')
     args=ap.parse_args()
     try:
+        store=Store(args.registry)
         result=sync(Client(os.environ.get('BILIBILI_COOKIES','')),
-                    json.loads(args.state.read_text()),apply=args.apply)
-    except CollectionError as exc:
+                    json.loads(args.state.read_text()),apply=args.apply,
+                    registry=store.load(),persist_registry=store.save)
+    except (CollectionError,RegistryError) as exc:
         result=dict(checked_at=int(time.time()),apply=args.apply,errors=[{'error':str(exc)}])
     args.output.parent.mkdir(parents=True,exist_ok=True)
     from batch_delivery import write_json

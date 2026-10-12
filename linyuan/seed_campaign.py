@@ -93,6 +93,7 @@ def verify_seed(candidate, fetch=monitor.http_get):
                  and not NO_MEDIA.search(p.get('part') or '')]
         if not pages or any(p['page'] < 1 or p['cid'] < 1 for p in pages):
             raise ValueError('no eligible real video pages')
+        no_reprint = (data.get('rights') or {}).get('no_reprint')
         return dict(candidate, status='verified_metadata', title=title, observed_author=author,
             owner_mid=(data.get('owner') or {}).get('mid'),
             url='https://www.bilibili.com/video/' + bvid,
@@ -100,7 +101,9 @@ def verify_seed(candidate, fetch=monitor.http_get):
             metadata_provenance='bilibili_view_exact_id_author_pages',
             checked_at=datetime.now(timezone.utc).isoformat(), pages=pages,
             media_verified=False, editorial_approved=False, rights_status='not_determined',
-            origin_role='repost_or_lead')
+            origin_role='repost_or_lead', no_reprint=no_reprint,
+            source_role='catalog_only' if no_reprint == 1 else 'mother_candidate',
+            direct_dispatch=no_reprint != 1)
     except Exception as exc:
         return dict(**candidate, status='not_verified', error=type(exc).__name__)
 
