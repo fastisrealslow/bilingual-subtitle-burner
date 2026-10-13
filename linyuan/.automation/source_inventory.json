@@ -3,7 +3,7 @@
   "validation_sha256": "847e35aecd2250a4f5b3aab5e19799ce32aa7eb8051732bb653f962889e345af",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791923702,
+  "updated_at": 1791923900,
   "materials": {
     "weibo_search": {
       "records": 2053,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791923707,
+    "updated_at": 1791923905,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 80,
@@ -21086,50 +21086,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1CDiGBYEoT:p1",
-        "source_url": "https://www.bilibili.com/video/BV1CDiGBYEoT",
-        "family": "BV1CDiGBYEoT",
-        "slugs": [
-          "ly-1009-ae962a"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1009-ae962a",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"本来你这个，它这个公司异囊不异囊，你能不能赚钱呢？\", \"suspect_quote\": \"异囊不异囊\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境下无明确含义，疑似识别错误（可能应为“盈利不盈利”、“异常不异常”或其他发音相近的词），严重影响理解。\"}, {\"sentence_id\": 16, \"quote\": \"没有应收账款，那就是虽然说这酒类的公司就没有应收账款，他基本上都是都是你先还有应收账款多了，他都是别人先把钱打了他账上，然后他再给你发货的。\", \"suspect_quote\": \"他都是别人先把钱打了他账上\", \"kind\": \"unintelligible_term\", \"reason\": \"句中“打了他账上”表述含糊，存在明显的语音识别歧义或错别字嫌疑（可能是“打入他账上”、“打到他账上”），导致语义不通顺且含义不明。\"}]"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1dAvtBoEmQ:p1",
-        "source_url": "https://www.bilibili.com/video/BV1dAvtBoEmQ",
-        "family": "BV1dAvtBoEmQ",
-        "slugs": [
-          "ly-1009-389a34"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1009-389a34",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"有没有可能我们出现像美股一样的卖空或者场友？\", \"suspect_quote\": \"卖空或者场友\", \"kind\": \"unintelligible_term\", \"reason\": \"“场友”在金融语境下无明确含义，疑似将“场外”或特定术语误识别为同音词“场友”，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 6, \"quote\": \"这是国际市场的规律，几十年不涨，一两年就把几十年的涨。\", \"suspect_quote\": \"几十年不涨，一两年就把几十年的涨\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"后半句“把几十年的涨”存在语法残缺和指代不明，“涨”后缺少宾语（如“涨幅”或“行情”），导致关键数字描述含义不清，属于含义不明的关键数字表达。\"}]"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1QpiKBtEtz:p1",
         "source_url": "https://www.bilibili.com/video/BV1QpiKBtEtz",
         "family": "BV1QpiKBtEtz",
@@ -21911,7 +21867,7 @@
           {
             "slug": "ly-1010-aec8fd",
             "stage": "editorial-or-render",
-            "terminal": false,
+            "terminal": true,
             "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，识别为“林元”构成专有名词错误。\"}, {\"sentence_id\": 28, \"quote\": \"他的人非常细心，就每次啊，他去的时候，他就问多问些，他都要了解清楚，他才会买入。\", \"suspect_quote\": \"多问些\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“每次啊，他去的时候，他就问多问些”，此处应为口语重复或口吃导致的识别冗余（如“问了很多”或“问得多一些”），但“多问些”本身语义尚可；然而若原意是“问得很多”，则“多问些”可能是对“问得多”的误识。但在严格只检查无法解释的具体词\"}]"
           }
         ],
@@ -22155,6 +22111,50 @@
             "stage": "editorial-or-render",
             "terminal": false,
             "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"因为当时我们在建昌在买茅台，他当时写的就是茅台是绝对不能买，二十六块钱的茅台就不能买。\", \"suspect_quote\": \"建昌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或人名，结合上下文“在买茅台”及林园过往言论（常提及“张裕”、“张朝阳”等被误识案例，或此处应为某位分析师名字如“张”姓），\"}]"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1CDiGBYEoT:p1",
+        "source_url": "https://www.bilibili.com/video/BV1CDiGBYEoT",
+        "family": "BV1CDiGBYEoT",
+        "slugs": [
+          "ly-1009-ae962a"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1009-ae962a",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"本来你这个，它这个公司异囊不异囊，你能不能赚钱呢？\", \"suspect_quote\": \"异囊不异囊\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境下无明确含义，疑似识别错误（可能应为“盈利不盈利”、“异常不异常”或其他发音相近的词），严重影响理解。\"}, {\"sentence_id\": 16, \"quote\": \"没有应收账款，那就是虽然说这酒类的公司就没有应收账款，他基本上都是都是你先还有应收账款多了，他都是别人先把钱打了他账上，然后他再给你发货的。\", \"suspect_quote\": \"他都是别人先把钱打了他账上\", \"kind\": \"unintelligible_term\", \"reason\": \"句中“打了他账上”表述含糊，存在明显的语音识别歧义或错别字嫌疑（可能是“打入他账上”、“打到他账上”），导致语义不通顺且含义不明。\"}]"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1dAvtBoEmQ:p1",
+        "source_url": "https://www.bilibili.com/video/BV1dAvtBoEmQ",
+        "family": "BV1dAvtBoEmQ",
+        "slugs": [
+          "ly-1009-389a34"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1009-389a34",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"有没有可能我们出现像美股一样的卖空或者场友？\", \"suspect_quote\": \"卖空或者场友\", \"kind\": \"unintelligible_term\", \"reason\": \"“场友”在金融语境下无明确含义，疑似将“场外”或特定术语误识别为同音词“场友”，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 6, \"quote\": \"这是国际市场的规律，几十年不涨，一两年就把几十年的涨。\", \"suspect_quote\": \"几十年不涨，一两年就把几十年的涨\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"后半句“把几十年的涨”存在语法残缺和指代不明，“涨”后缺少宾语（如“涨幅”或“行情”），导致关键数字描述含义不清，属于含义不明的关键数字表达。\"}]"
           }
         ],
         "verified_available": 0,
@@ -23077,8 +23077,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -23090,8 +23090,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -23399,8 +23399,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23564,9 +23564,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
@@ -26252,16 +26252,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1CDiGBYEoT": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1dAvtBoEmQ": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1QpiKBtEtz": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -26384,7 +26374,8 @@
       "BV1V4pY6VE1M": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1GjYfzpERQ": {
         "attempted_mothers": 1,
@@ -26441,11 +26432,229 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1CDiGBYEoT": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1dAvtBoEmQ": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 54,
+  "in_flight_placeholders": 53,
   "artifacts": [
+    {
+      "slug": "ly-1013-036a51",
+      "artifact_id": 11808801995,
+      "run_id": 38386735246,
+      "expires_at": "2027-01-11T10:56:06Z",
+      "checked_at": 1791922921,
+      "source_url": "https://www.bilibili.com/video/BV1tY4y1t7p2",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final_2.mp4",
+          "title": "林园：抓住年轻优势等牛市，但没迹象时别乱加杠杆",
+          "duration_sec": 82.741,
+          "render_mode": "direct",
+          "content_type": null,
+          "resolution": {
+            "width": 1278,
+            "height": 720,
+            "short_edge": 720
+          },
+          "source_sha256": "27d2136fb70a39f39ab5042517d1f774817a9bc53a6edfba002707158b0be78c",
+          "segments": [
+            {
+              "start": 170.92,
+              "end": 253.64,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "f17d15e88305ccd403ac85e756320c56fe32f305990172e75080793001c3c46f",
+          "fingerprints": {
+            "version": 1,
+            "sha256": "f17d15e88305ccd403ac85e756320c56fe32f305990172e75080793001c3c46f",
+            "video_dhash": [
+              "fac3a797d7322363",
+              "fac3a797d7722363",
+              "fac3a797d6722367",
+              "fac3a797d7722367",
+              "fac3a797d7722367",
+              "fac3a797d7322367",
+              "fac3a797d6722367",
+              "fac3a797d6722363",
+              "fae3a7b797722363",
+              "fac3a797d7722367",
+              "fac3a79757722363",
+              "fac3a7d756626367"
+            ],
+            "audio_chromaprint": [
+              "0020a322",
+              "00502db3",
+              "00722596",
+              "00722d96",
+              "00e46200",
+              "00e68343",
+              "00e69e93",
+              "00e6b303",
+              "00e6e201",
+              "00e787d3",
+              "0110c5a1",
+              "01ac2e4a",
+              "01e40200",
+              "02205c75",
+              "0224382c",
+              "0225392c",
+              "0263f056",
+              "02660a2c",
+              "02662a2c",
+              "02a08002",
+              "02a26066",
+              "02a3c012",
+              "02e50614",
+              "02ec8397",
+              "02f49394",
+              "02fc83b4",
+              "031081e1",
+              "03e0a132",
+              "046d858e",
+              "046feaa6",
+              "0477e3e1",
+              "04ad5d86",
+              "04aeb5af",
+              "04e29e92",
+              "04ed4486",
+              "04ed44d6",
+              "04ed85af",
+              "04ee33e3",
+              "04efdaa6",
+              "04efdb96",
+              "04f72361",
+              "04f763e1",
+              "056e978e",
+              "05ee03f7",
+              "05eeeeca",
+              "062cffc4",
+              "06648c32",
+              "0669012e",
+              "06728ac3",
+              "0672bac3",
+              "06a96625",
+              "06aab204",
+              "06abe234",
+              "06e48c72",
+              "06f78b43",
+              "073aab8a",
+              "076d47c5",
+              "07e38fd2",
+              "0a542110",
+              "0a542c20",
+              "0c24eaa7",
+              "0ea9b200",
+              "0f24ef97",
+              "1020a622",
+              "1076018e",
+              "108429a6",
+              "1096118c",
+              "10970385",
+              "109c19a7",
+              "109c1da7",
+              "10bd1a1a",
+              "10c4d986",
+              "10fe0e1a",
+              "10fe25a7",
+              "1152ec17",
+              "1168ee86",
+              "1172ec57",
+              "1172f4c7",
+              "117e23b7",
+              "11bc2a1a",
+              "123802a6",
+              "123852a6",
+              "12509021",
+              "12a29086",
+              "12a2a0c6",
+              "12a623a6",
+              "12a625a6",
+              "12e2a046",
+              "12f28486",
+              "1339f296",
+              "133f12b7",
+              "13b50287",
+              "13d08d86",
+              "141192e9",
+              "1413b269",
+              "14a87ac6"
+            ],
+            "transcript_simhash": [
+              "e044f6b196a686b4",
+              "b3142b81c0be1ea2",
+              "51c4b9cd0a867ee3",
+              "0dd4d88fbcc64f66",
+              "0d7459d9bcd04fb6",
+              "1757f3ddacedcf88",
+              "9e97f3ddf8bdaf6a"
+            ],
+            "transcript_ngrams": [
+              "01b379ac7a952b0b",
+              "08b33deefb55151e",
+              "13a9b60d8a6d481a",
+              "16ab8146b82fdd1f",
+              "1fa0dd83a12ef315",
+              "26563f2d9c29eb10",
+              "52f8a0434e021404",
+              "538a2e9d473a1c05",
+              "586f7a7607466c1f",
+              "5888609ef3660d07",
+              "5e0843da50d35912",
+              "5f91d1108e8edc17",
+              "603f398a5586ed01",
+              "605197443ee93a18",
+              "6259a7389c52251d",
+              "63b7ca3365b52802",
+              "6dbb0e4e00fc5606",
+              "7409ed602c670109",
+              "7e1250b1987e8a06",
+              "8360b8ba8c5e3d19",
+              "84230a139db1831a",
+              "8bf7fabfaa3dd105",
+              "a5a2f1cdf277ec19",
+              "a6592b8fb9b6cb1c",
+              "a9c2952e94119119",
+              "aac14e188136e210",
+              "c1234652538a3a1a",
+              "c4b8d36abb14ae17",
+              "d24cb20269f4a314",
+              "d2aed55a81f4dd1d",
+              "d419e44a9578a909",
+              "d61e999e4d99f40d",
+              "d777b1952970f000",
+              "d8f1b6034885b314",
+              "dacc2f3c4834d900",
+              "df0689de0c052f14",
+              "e47d57b97405ec03",
+              "f0c6354000450508",
+              "f1741a9632fc201f",
+              "fbc654680493ad10",
+              "ffd064c0d40b0d18"
+            ],
+            "transcript_chars": 366
+          },
+          "subtitle_sha256": "ff8213c9490915b798fc5d0801a67d15644df85f124cd4349e14767231460af1",
+          "motion": null,
+          "cover_style": "editorial",
+          "cover_upgrade_eligible": false,
+          "cover_layout_version": 3,
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    },
     {
       "slug": "ly-1010-200974",
       "artifact_id": 11671778712,
@@ -27545,214 +27754,6 @@
             "limitation": "Temporal motion evidence; identity is checked separately"
           },
           "cover_style": "dark",
-          "cover_upgrade_eligible": false,
-          "cover_layout_version": 3,
-          "status": "verified",
-          "reason": null
-        }
-      ]
-    },
-    {
-      "slug": "ly-1013-036a51",
-      "artifact_id": 11808801995,
-      "run_id": 38386735246,
-      "expires_at": "2027-01-11T10:56:06Z",
-      "checked_at": 1791922921,
-      "source_url": "https://www.bilibili.com/video/BV1tY4y1t7p2",
-      "parts": [
-        {
-          "index": 0,
-          "final": "final_2.mp4",
-          "title": "林园：抓住年轻优势等牛市，但没迹象时别乱加杠杆",
-          "duration_sec": 82.741,
-          "render_mode": "direct",
-          "content_type": null,
-          "resolution": {
-            "width": 1278,
-            "height": 720,
-            "short_edge": 720
-          },
-          "source_sha256": "27d2136fb70a39f39ab5042517d1f774817a9bc53a6edfba002707158b0be78c",
-          "segments": [
-            {
-              "start": 170.92,
-              "end": 253.64,
-              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
-            }
-          ],
-          "sha256": "f17d15e88305ccd403ac85e756320c56fe32f305990172e75080793001c3c46f",
-          "fingerprints": {
-            "version": 1,
-            "sha256": "f17d15e88305ccd403ac85e756320c56fe32f305990172e75080793001c3c46f",
-            "video_dhash": [
-              "fac3a797d7322363",
-              "fac3a797d7722363",
-              "fac3a797d6722367",
-              "fac3a797d7722367",
-              "fac3a797d7722367",
-              "fac3a797d7322367",
-              "fac3a797d6722367",
-              "fac3a797d6722363",
-              "fae3a7b797722363",
-              "fac3a797d7722367",
-              "fac3a79757722363",
-              "fac3a7d756626367"
-            ],
-            "audio_chromaprint": [
-              "0020a322",
-              "00502db3",
-              "00722596",
-              "00722d96",
-              "00e46200",
-              "00e68343",
-              "00e69e93",
-              "00e6b303",
-              "00e6e201",
-              "00e787d3",
-              "0110c5a1",
-              "01ac2e4a",
-              "01e40200",
-              "02205c75",
-              "0224382c",
-              "0225392c",
-              "0263f056",
-              "02660a2c",
-              "02662a2c",
-              "02a08002",
-              "02a26066",
-              "02a3c012",
-              "02e50614",
-              "02ec8397",
-              "02f49394",
-              "02fc83b4",
-              "031081e1",
-              "03e0a132",
-              "046d858e",
-              "046feaa6",
-              "0477e3e1",
-              "04ad5d86",
-              "04aeb5af",
-              "04e29e92",
-              "04ed4486",
-              "04ed44d6",
-              "04ed85af",
-              "04ee33e3",
-              "04efdaa6",
-              "04efdb96",
-              "04f72361",
-              "04f763e1",
-              "056e978e",
-              "05ee03f7",
-              "05eeeeca",
-              "062cffc4",
-              "06648c32",
-              "0669012e",
-              "06728ac3",
-              "0672bac3",
-              "06a96625",
-              "06aab204",
-              "06abe234",
-              "06e48c72",
-              "06f78b43",
-              "073aab8a",
-              "076d47c5",
-              "07e38fd2",
-              "0a542110",
-              "0a542c20",
-              "0c24eaa7",
-              "0ea9b200",
-              "0f24ef97",
-              "1020a622",
-              "1076018e",
-              "108429a6",
-              "1096118c",
-              "10970385",
-              "109c19a7",
-              "109c1da7",
-              "10bd1a1a",
-              "10c4d986",
-              "10fe0e1a",
-              "10fe25a7",
-              "1152ec17",
-              "1168ee86",
-              "1172ec57",
-              "1172f4c7",
-              "117e23b7",
-              "11bc2a1a",
-              "123802a6",
-              "123852a6",
-              "12509021",
-              "12a29086",
-              "12a2a0c6",
-              "12a623a6",
-              "12a625a6",
-              "12e2a046",
-              "12f28486",
-              "1339f296",
-              "133f12b7",
-              "13b50287",
-              "13d08d86",
-              "141192e9",
-              "1413b269",
-              "14a87ac6"
-            ],
-            "transcript_simhash": [
-              "e044f6b196a686b4",
-              "b3142b81c0be1ea2",
-              "51c4b9cd0a867ee3",
-              "0dd4d88fbcc64f66",
-              "0d7459d9bcd04fb6",
-              "1757f3ddacedcf88",
-              "9e97f3ddf8bdaf6a"
-            ],
-            "transcript_ngrams": [
-              "01b379ac7a952b0b",
-              "08b33deefb55151e",
-              "13a9b60d8a6d481a",
-              "16ab8146b82fdd1f",
-              "1fa0dd83a12ef315",
-              "26563f2d9c29eb10",
-              "52f8a0434e021404",
-              "538a2e9d473a1c05",
-              "586f7a7607466c1f",
-              "5888609ef3660d07",
-              "5e0843da50d35912",
-              "5f91d1108e8edc17",
-              "603f398a5586ed01",
-              "605197443ee93a18",
-              "6259a7389c52251d",
-              "63b7ca3365b52802",
-              "6dbb0e4e00fc5606",
-              "7409ed602c670109",
-              "7e1250b1987e8a06",
-              "8360b8ba8c5e3d19",
-              "84230a139db1831a",
-              "8bf7fabfaa3dd105",
-              "a5a2f1cdf277ec19",
-              "a6592b8fb9b6cb1c",
-              "a9c2952e94119119",
-              "aac14e188136e210",
-              "c1234652538a3a1a",
-              "c4b8d36abb14ae17",
-              "d24cb20269f4a314",
-              "d2aed55a81f4dd1d",
-              "d419e44a9578a909",
-              "d61e999e4d99f40d",
-              "d777b1952970f000",
-              "d8f1b6034885b314",
-              "dacc2f3c4834d900",
-              "df0689de0c052f14",
-              "e47d57b97405ec03",
-              "f0c6354000450508",
-              "f1741a9632fc201f",
-              "fbc654680493ad10",
-              "ffd064c0d40b0d18"
-            ],
-            "transcript_chars": 366
-          },
-          "subtitle_sha256": "ff8213c9490915b798fc5d0801a67d15644df85f124cd4349e14767231460af1",
-          "motion": null,
-          "cover_style": "editorial",
           "cover_upgrade_eligible": false,
           "cover_layout_version": 3,
           "status": "verified",
