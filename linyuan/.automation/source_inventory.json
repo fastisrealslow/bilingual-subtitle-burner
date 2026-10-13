@@ -3,7 +3,7 @@
   "validation_sha256": "62112da01ca59b748c302d974b9d2029f1816e9dc0a4ab770d6fea87912b33b5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791873790,
+  "updated_at": 1791873974,
   "materials": {
     "weibo_search": {
       "records": 2047,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791873794,
+    "updated_at": 1791873980,
     "records": 9916,
     "video_records": 8487,
     "initial_candidates": 58,
@@ -20120,50 +20120,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1n2BaBREmk:p1",
-        "source_url": "https://www.bilibili.com/video/BV1n2BaBREmk",
-        "family": "BV1n2BaBREmk",
-        "slugs": [
-          "ly-1009-6547be"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1009-6547be",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1UriGBzEjq:p1",
-        "source_url": "https://www.bilibili.com/video/BV1UriGBzEjq",
-        "family": "BV1UriGBzEjq",
-        "slugs": [
-          "ly-1009-3e89e2"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1009-3e89e2",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "https://m.weibo.cn/detail/5344828730642565",
         "source_url": "https://m.weibo.cn/detail/5344828730642565",
         "family": "m.weibo.cn",
@@ -21583,7 +21539,7 @@
           {
             "slug": "ly-1009-d60313",
             "stage": "editorial-or-render",
-            "terminal": false,
+            "terminal": true,
             "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
           }
         ],
@@ -21736,6 +21692,50 @@
         "failures": [
           {
             "slug": "ly-1009-ef7847",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1n2BaBREmk:p1",
+        "source_url": "https://www.bilibili.com/video/BV1n2BaBREmk",
+        "family": "BV1n2BaBREmk",
+        "slugs": [
+          "ly-1009-6547be"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1009-6547be",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1UriGBzEjq:p1",
+        "source_url": "https://www.bilibili.com/video/BV1UriGBzEjq",
+        "family": "BV1UriGBzEjq",
+        "slugs": [
+          "ly-1009-3e89e2"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1009-3e89e2",
             "stage": "editorial-or-render",
             "terminal": false,
             "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
@@ -22833,9 +22833,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
         "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_stock-upgrade-title": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23149,9 +23149,9 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_workflow-preflight": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -23163,8 +23163,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -25640,16 +25640,6 @@
         "verified_seconds": 0,
         "terminal_source-quality": 1
       },
-      "BV1n2BaBREmk": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1UriGBzEjq": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1FM4m1z7pK": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -25905,7 +25895,8 @@
       "BV16RBoBxEaB": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1rXBoBoEg2": {
         "attempted_mothers": 1,
@@ -25937,10 +25928,20 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1n2BaBREmk": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1UriGBzEjq": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 74,
+  "in_flight_placeholders": 73,
   "artifacts": [
     {
       "slug": "ly-1012-e08a5c",
