@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791878433,
+  "updated_at": 1791878584,
   "inventory_updated_at": 1791878426,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 43,
+    "active_or_recovering_sources": 39,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791878432,
+    "updated_at": 1791878584,
     "records": 9916,
     "video_records": 8487,
     "initial_candidates": 58,
@@ -70,12 +70,12 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 959,
+    "failed": 960,
     "paused": 5,
     "ready": 3,
-    "interrupted": 3,
+    "interrupted": 6,
     "retry_queued": 38,
-    "running": 5
+    "running": 1
   },
   "tasks": [
     {
@@ -18089,11 +18089,11 @@
     {
       "slug": "ly-1010-620f92",
       "status": "ready",
-      "detail": "5 条成片已验收，等待发布时段及配额",
+      "detail": "4 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1791658355,
         "failed": null,
-        "published_parts": 1,
+        "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
@@ -20320,8 +20320,8 @@
     },
     {
       "slug": "ly-0929-bc9c43",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791877948,
         "failed": false,
@@ -20334,7 +20334,7 @@
       "run_id": 38365476927,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38365476927",
       "run_started_at": "2026-10-13T07:52:28Z",
-      "run_updated_at": "2026-10-13T07:52:33Z"
+      "run_updated_at": "2026-10-13T08:01:01Z"
     },
     {
       "slug": "ly-0929-4ebdd8",
@@ -20356,11 +20356,11 @@
     },
     {
       "slug": "ly-0929-93098b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791878131,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20374,8 +20374,8 @@
     },
     {
       "slug": "ly-0929-2f1c72",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791878138,
         "failed": false,
@@ -20388,12 +20388,12 @@
       "run_id": 38365821039,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38365821039",
       "run_started_at": "2026-10-13T07:55:38Z",
-      "run_updated_at": "2026-10-13T07:55:42Z"
+      "run_updated_at": "2026-10-13T08:00:53Z"
     },
     {
       "slug": "ly-0929-a468ff",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791878322,
         "failed": false,
@@ -20406,12 +20406,12 @@
       "run_id": 38366155698,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38366155698",
       "run_started_at": "2026-10-13T07:58:42Z",
-      "run_updated_at": "2026-10-13T07:58:46Z"
+      "run_updated_at": "2026-10-13T08:01:51Z"
     },
     {
       "slug": "ly-0929-29a36e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791878328,
         "failed": false,
@@ -20424,7 +20424,7 @@
       "run_id": 38366166322,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38366166322",
       "run_started_at": "2026-10-13T07:58:48Z",
-      "run_updated_at": "2026-10-13T07:58:52Z"
+      "run_updated_at": "2026-10-13T08:02:39Z"
     }
   ],
   "runs": {
@@ -28471,10 +28471,10 @@
     },
     "ly-0929-29a36e": {
       "id": 38366166322,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-13T07:58:48Z",
-      "updated_at": "2026-10-13T07:58:52Z",
+      "updated_at": "2026-10-13T08:02:39Z",
       "run_started_at": "2026-10-13T07:58:48Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38366166322",
       "run_number": 1938,
@@ -28482,10 +28482,10 @@
     },
     "ly-0929-a468ff": {
       "id": 38366155698,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-13T07:58:42Z",
-      "updated_at": "2026-10-13T07:58:46Z",
+      "updated_at": "2026-10-13T08:01:51Z",
       "run_started_at": "2026-10-13T07:58:42Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38366155698",
       "run_number": 1937,
@@ -28493,10 +28493,10 @@
     },
     "ly-0929-2f1c72": {
       "id": 38365821039,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-13T07:55:38Z",
-      "updated_at": "2026-10-13T07:55:42Z",
+      "updated_at": "2026-10-13T08:00:53Z",
       "run_started_at": "2026-10-13T07:55:38Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38365821039",
       "run_number": 1936,
@@ -28504,10 +28504,10 @@
     },
     "ly-0929-bc9c43": {
       "id": 38365476927,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-13T07:52:28Z",
-      "updated_at": "2026-10-13T07:52:33Z",
+      "updated_at": "2026-10-13T08:01:01Z",
       "run_started_at": "2026-10-13T07:52:28Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38365476927",
       "run_number": 1933,
