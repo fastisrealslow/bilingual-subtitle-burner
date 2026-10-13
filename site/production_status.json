@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791852391,
+  "updated_at": 1791852512,
   "inventory_updated_at": 1791852384,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791852390,
+    "updated_at": 1791852512,
     "records": 9910,
     "video_records": 8485,
     "initial_candidates": 59,
@@ -79,11 +79,11 @@
   },
   "counts": {
     "complete": 116,
-    "failed": 1001,
+    "failed": 1002,
     "paused": 5,
     "ready": 4,
-    "interrupted": 2,
-    "retry_queued": 1
+    "interrupted": 1,
+    "running": 1
   },
   "tasks": [
     {
@@ -20364,11 +20364,11 @@
     },
     {
       "slug": "ly-1012-51c8e1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"在目前你你观察到了这么多的人当中，呃，大家普遍上来看的话，像像林元这么乐观和鲜明的是不是很少？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，结合上下文及常见人名应为“林园”，但原文识别为“林元”。\"}, {\"sentence_id\": 3, \"quote\": \"我觉得呃，跟巴菲特一个道德都会在这种时候会比较。\", \"suspect_quote\": \"跟巴菲特一个道德都会在这种时候会比较\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱且含义不明，“一个道德”疑似误识，结合语境可能想表达“一个道理”或“一个道德标准”，但当前表述无法解释其具体指代。\"}]",
       "signature": {
         "ts": 1791845618,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20379,24 +20379,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38319208630",
       "run_started_at": "2026-10-12T22:53:38Z",
       "run_updated_at": "2026-10-13T00:45:39Z"
-    },
-    {
-      "slug": "ly-1012-1bacf9",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791849539,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791851663,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38324937499,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38324937499",
-      "run_started_at": "2026-10-12T23:58:58Z",
-      "run_updated_at": "2026-10-13T00:02:57Z"
     },
     {
       "slug": "ly-1012-d20333",
@@ -20415,6 +20397,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38325464574",
       "run_started_at": "2026-10-13T00:05:04Z",
       "run_updated_at": "2026-10-13T00:26:15Z"
+    },
+    {
+      "slug": "ly-1012-1bacf9",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791852474,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38329010312,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38329010312",
+      "run_started_at": "2026-10-13T00:47:53Z",
+      "run_updated_at": "2026-10-13T00:47:59Z"
     }
   ],
   "runs": {
@@ -28471,14 +28471,14 @@
       "display_title": "中文源出片 · ly-1012-e08a5c"
     },
     "ly-1012-1bacf9": {
-      "id": 38324937499,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-12T23:58:58Z",
-      "updated_at": "2026-10-13T00:02:57Z",
-      "run_started_at": "2026-10-12T23:58:58Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38324937499",
-      "run_number": 1878,
+      "id": 38329010312,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-13T00:47:53Z",
+      "updated_at": "2026-10-13T00:47:59Z",
+      "run_started_at": "2026-10-13T00:47:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38329010312",
+      "run_number": 1880,
       "display_title": "中文源出片 · ly-1012-1bacf9"
     },
     "ly-1012-d20333": {
