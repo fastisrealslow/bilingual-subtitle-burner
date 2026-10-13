@@ -25236,9 +25236,11 @@
    "publish_time": "2024-03-28T12:41:56+00:00",
    "source_check_report_id": 11775854991,
    "source_check_run_id": 38309843579,
-   "last_error": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"在目前你你观察到了这么多的人当中，呃，大家普遍上来看的话，像像林元这么乐观和鲜明的是不是很少？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，结合上下文及常见人名应为“林园”，但原文识别为“林元”。\"}, {\"sentence_id\": 3, \"quote\": \"我觉得呃，跟巴菲特一个道德都会在这种时候会比较。\", \"suspect_quote\": \"跟巴菲特一个道德都会在这种时候会比较\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱且含义不明，“一个道德”疑似误识，结合语境可能想表达“一个道理”或“一个道德标准”，但当前表述无法解释其具体指代。\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:5353282128054598",
@@ -25285,7 +25287,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -79062,6 +79065,13 @@
    "video_id": "BV1rD4y1o7SH",
    "ts": 1791841798,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1012-51c8e1",
+   "key": "bilibili_search:BV131421U7XK",
+   "video_id": "BV131421U7XK",
+   "ts": 1791852432,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"在目前你你观察到了这么多的人当中，呃，大家普遍上来看的话，像像林元这么乐观和鲜明的是不是很少？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，结合上下文及常见人名应为“林园”，但原文识别为“林元”。\"}, {\"sentence_id\": 3, \"quote\": \"我觉得呃，跟巴菲特一个道德都会在这种时候会比较。\", \"suspect_quote\": \"跟巴菲特一个道德都会在这种时候会比较\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱且含义不明，“一个道德”疑似误识，结合语境可能想表达“一个道理”或“一个道德标准”，但当前表述无法解释其具体指代。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
