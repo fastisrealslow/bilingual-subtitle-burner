@@ -40,3 +40,17 @@ def test_other_source_or_unknown_flag_never_authorizes_cancellation():
     assert not stop.eligible(run,state,request,policies)
     policies[0]['no_reprint']=1;state['dispatched'][0]['source_url']='https://www.bilibili.com/video/BV18Zj9zcE4V'
     assert not stop.eligible(run,state,request,policies)
+
+
+def test_large_state_uses_raw_json_media_type_not_empty_inline_metadata(monkeypatch):
+    import json
+    commands=[];state={'dispatched':[],'published':{},'long_error':'x'*1_100_000}
+    def execute(command,**kwargs):
+        commands.append(command)
+        assert 'Accept: application/vnd.github.raw+json' in command
+        return json.dumps(state)
+    monkeypatch.setattr(stop.subprocess,'check_output',execute)
+    assert stop.api('GET','contents/site/fc_state.json?ref=main',raw=True)==state
+    assert len(commands)==1
+    with pytest.raises(ValueError,match='read-only'):
+        stop.api('POST','anything',raw=True)

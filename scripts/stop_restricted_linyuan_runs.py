@@ -3,7 +3,6 @@
 Never delete jobs, artifacts, dispatch samples or failure history. This does not
 cancel research previews and never restarts a stopped run.
 """
-import base64
 import json
 import os
 from pathlib import Path
@@ -41,17 +40,22 @@ def eligible(run,state,request,policies):
             and bool(restriction(entry['source_url'],[],policies)))
 
 
-def api(method,path):
-    output=subprocess.check_output(['gh','api','--method',method,
-        'repos/'+REPO+'/'+path],text=True,timeout=30)
+def api(method,path,raw=False):
+    command=['gh','api','--method',method]
+    if raw:
+        if method!='GET':raise ValueError('Raw observation must be read-only')
+        command+=['-H','Accept: application/vnd.github.raw+json']
+    command+=['repos/'+REPO+'/'+path]
+    output=subprocess.check_output(command,text=True,timeout=30)
     return json.loads(output) if output.strip() else {}
 
 
 def main():
     if os.environ.get('GITHUB_REPOSITORY')!=REPO:raise SystemExit('Wrong repository')
     policies=json.loads((ROOT/'linyuan/source_restrictions.json').read_text())['pages']
-    raw=api('GET','contents/site/fc_state.json?ref=main')
-    state=json.loads(base64.b64decode(raw['content']))
+    # The real state file exceeds the contents API's inline-base64 ceiling.
+    # Read actual JSON bytes with the raw media type, not empty metadata.content.
+    state=api('GET','contents/site/fc_state.json?ref=main',raw=True)
     results=[]
     for request in REQUESTS:
         run_id,slug,bvid=request
