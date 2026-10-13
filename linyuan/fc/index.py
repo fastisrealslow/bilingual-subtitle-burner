@@ -3492,6 +3492,8 @@ def _collect_source_rejections(st):
                 log_event('quality',f'{slug} 质检服务未完成，保留原素材',reason[:150])
                 continue
             candidate["failed"] = True
+            candidate['failure_evidence']=dict(run_id=run['id'],artifact_id=artifact['id'],
+                name=artifact['name'],retained=True)
             candidate["last_error"] = reason
             candidate["source_quality_rejected"] = True
             candidate['failure_stage']='editorial-or-render' if prefix=='production-reject-' else 'source-quality'
@@ -3523,10 +3525,10 @@ def _collect_source_rejections(st):
             log_event("fail", f"素材淘汰 {slug}", reason[:150])
             log.info(f"✗ 素材门禁淘汰 {slug}: {reason}")
             rejected += 1
-            try:
-                gh("DELETE", f"/actions/artifacts/{artifact['id']}")
-            except Exception as exc:
-                log.warning(f"删除素材拒绝 artifact 失败: {exc}")
+            # Keep the exact negative proof for later code-specific recovery
+            # and the fixed mother-yield audit. Recording a reason is not a
+            # substitute for the original report; normal artifact expiry
+            # remains unchanged, but consuming it must not delete it.
     return rejected
 
 
