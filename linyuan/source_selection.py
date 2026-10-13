@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 46
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -143,6 +143,18 @@ HOST_PREMISE = re.compile(
     r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
     r'(?:在)?我们看到(?:你|您)(?:整个的|的)(?:投资|经历|选择))')
 BACKREF_QUESTION = re.compile(r'^(?:这{1,2}|那{1,2})(?:一)?点(?:是)?(?:怎么|如何)[^。！？?]{0,40}[？?]')
+
+# A change in a bare stance does not name what that stance was about. Match
+# only the complete first sentence, so a named subject or retained premise
+# remains valid. This is classification; never rewrite the original cues.
+BARE_STANCE_CHANGE = re.compile(
+    r'^(?:(?:嗯|啊|呃|那么|那)[，,、 ]?)*'
+    r'(?:(?:现在|目前|如今)[，, ]?)*(?:你|您)(?:们)?'
+    r'(?:(?:现在|目前|如今)[，, ]?)*(?:的)?'
+    r'(?:想法|看法|观点|判断|态度)'
+    r'(?:(?:现在|目前|如今)[，, ]?)*'
+    r'(?:是否|是不是|有没有|有无|已经|还)?(?:发生)?'
+    r'(?:变|变化|改变|调整)(?:化|过)?(?:了|吗|呢|没有)*[？?]$')
 
 
 def host_premise_start(units, cues, question, lower=0):
@@ -326,6 +338,8 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if units and BARE_STANCE_CHANGE.fullmatch(units[0]['text'].strip()):
+        return '选段以缺少对象的想法变化提问开场；须保留原始观点背景或另选独立完整论述'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
