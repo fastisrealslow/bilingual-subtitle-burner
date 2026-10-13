@@ -26419,11 +26419,11 @@
    "publish_time": "2024-03-28T12:41:56+00:00",
    "source_check_report_id": 11775854991,
    "source_check_run_id": 38319208630,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"在目前你你观察到了这么多的人当中，呃，大家普遍上来看的话，像像林元这么乐观和鲜明的是不是很少？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，结合上下文及常见人名应为“林园”，但原文识别为“林元”。\"}, {\"sentence_id\": 3, \"quote\": \"我觉得呃，跟巴菲特一个道德都会在这种时候会比较。\", \"suspect_quote\": \"跟巴菲特一个道德都会在这种时候会比较\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱且含义不明，“一个道德”疑似误识，结合语境可能想表达“一个道理”或“一个道德标准”，但当前表述无法解释其具体指代。\"}]",
-   "failure_stage": "editorial-or-render",
+   "last_error": "已复查官方源元数据：BV131421U7XK 当前明确禁止转载；旧目录未知、旧任务或暂存链接不能绕过已核对限制",
+   "failure_stage": "source-quality",
    "source_check_attempts": 3,
-   "failed": false,
-   "source_quality_rejected": false,
+   "failed": true,
+   "source_quality_rejected": true,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 38319208630,
@@ -26432,7 +26432,13 @@
     }
    },
    "source_check_exhausted": false,
-   "recovery_origin_run_id": 38319208630
+   "recovery_origin_run_id": 38319208630,
+   "failure_evidence": {
+    "run_id": 38457208922,
+    "artifact_id": 11843761981,
+    "name": "source-reject-ly-1012-51c8e1",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1o3MV6DEG4",
