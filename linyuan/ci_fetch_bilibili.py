@@ -26,6 +26,14 @@ from pathlib import Path
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
+def sha256_file(handle):
+    """Hash an open binary file on every supported local/CI Python version."""
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: handle.read(1 << 20), b""):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
 
 def sha256_file(handle):
     """Hash an open binary file on every supported local/CI Python version."""
