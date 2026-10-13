@@ -739,10 +739,12 @@ def _sha256_file(path):
 
 
 from audio_preprocessing import policy as audio_policy, matches as audio_matches, asr_args as audio_asr_args, render_prefix as audio_render_prefix
+from asr_context import specification as asr_context_spec, matches as asr_context_matches
 
 
 def _asr_cache_identity(src, work=None):
     if ASR_BACKEND == 'qwen3':
+        context=asr_context_spec()['identity']
         source_sha = _sha256_file(src)
         explicit=os.environ.get('QWEN3_EVIDENCE_DIR')
         evidence = Path(explicit) if explicit else (Path(work)/'qwen_cpu' if work else None)
@@ -750,7 +752,7 @@ def _asr_cache_identity(src, work=None):
         if evidence is not None and evidence.is_dir():
             from qwen_asr_evidence import load_reports
             reports = load_reports(evidence)
-        if not audio_matches(reports,audio_policy(source_sha)):
+        if not audio_matches(reports,audio_policy(source_sha)) or not asr_context_matches(reports):
             reports = []
         if reports:
             config = json.loads((BASE / 'asr_production_config.json').read_text())
@@ -773,7 +775,8 @@ def _asr_cache_identity(src, work=None):
                 backend='qwen3', chunk_sec=30, overlap_sec=3, threads=2,
                 reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
                 evidence_sha256=sorted(_sha256_file(path) for path in files),
-                model_revisions=revisions)
+                model_revisions=revisions,
+                **({'recognition_context':context} if context else {}))
         paths=[Path(os.environ.get(name,'')) for name in ('QWEN3_ASR_DIR','QWEN3_ALIGNER_DIR')]
         if any(not p.is_dir() or not list(p.glob('*.safetensors')) for p in paths):
             raise ValueError('缺少已验证的CPU离线证据，且未下载Qwen识别或对齐权重')
@@ -781,7 +784,8 @@ def _asr_cache_identity(src, work=None):
         return dict(version=ASR_PIPELINE_VERSION,source_sha256=source_sha,
             backend='qwen3',chunk_sec=30,overlap_sec=3,threads=2,
             reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
-            models={str(p.resolve()):_sha256_file(p) for p in files})
+            models={str(p.resolve()):_sha256_file(p) for p in files},
+            **({'recognition_context':context} if context else {}))
     model_dir = Path(SENSEVOICE_DIR if ASR_BACKEND == "sensevoice" else FUNASR_DIR)
     model_files = sorted(model_dir.rglob("*.onnx")) + sorted(model_dir.rglob("tokens.txt"))
     return dict(version=ASR_PIPELINE_VERSION, source_sha256=_sha256_file(src),
@@ -883,7 +887,7 @@ def _transcribe_qwen_cpu(src,work):
     video_sha=_sha256_file(src)
     evidence=Path(os.environ.get('QWEN3_EVIDENCE_DIR') or work/'qwen_cpu')
     reports=load_reports(evidence)
-    if not audio_matches(reports,selected_audio):
+    if not audio_matches(reports,selected_audio) or not asr_context_matches(reports):
         reports=[]
         evidence=work/'qwen_cpu'
         if evidence.exists():

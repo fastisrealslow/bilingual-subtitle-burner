@@ -247,3 +247,17 @@ def test_crop_recovery_has_separate_no_publish_workflow_and_no_selection_answers
     import pytest
     with pytest.raises(ValueError):build(topic=True,crop=True)
 
+def test_context_experiment_requires_fresh_bound_recognition_and_never_publishes():
+    import yaml
+    from scripts.build_linyuan_automatic_preview import build,ROOT
+    workflow=build(context=True)
+    assert workflow==yaml.safe_load((ROOT/'.github/workflows/linyuan-context-preview.yml').read_text())
+    assert workflow['env']['QWEN_ASR_CONTEXT_PROFILE']=='finance-v1'
+    assert workflow['concurrency']=={'group':'linyuan-context-preview','cancel-in-progress':False}
+    assert workflow['permissions']=={'contents':'read','actions':'read'}
+    for mode in ({},{'topic':True},{'crop':True}):
+        assert 'QWEN_ASR_CONTEXT_PROFILE' not in build(**mode)['env']
+    production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
+    assert 'QWEN_ASR_CONTEXT_PROFILE' not in production['env']
+    assert not any(s.get('name') in {'B 站投稿','上传成片到 Release','准备 B站登录态','明确触发库存核验与自动补位'}
+                   for s in workflow['jobs']['preview']['steps'])

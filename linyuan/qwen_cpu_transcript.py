@@ -29,7 +29,7 @@ def save(path, data):
 
 IDENTITY_FIELDS=('version','source_pcm_sha256','source_video_sha256','model_id',
                  'model_revision','device','threads','networking_during_inference',
-                 'core_range','duration','audio_preprocessing')
+                 'core_range','duration','audio_preprocessing','recognition_context')
 CHUNK_FIELDS=('offset','duration','core_start','core_end','text')
 CONTENT_RE=re.compile(r'[\s，。！？；：、,.!?;:]+')
 
@@ -52,7 +52,7 @@ def excessive_repetition(text, duration):
     return False
 
 
-def retry_repetitive_transcript(model, audio, sample_rate, text):
+def retry_repetitive_transcript(model, audio, sample_rate, text, context=''):
     """Re-decode a suspicious full window as two bounded CPU windows."""
     duration=len(audio)/sample_rate
     if not excessive_repetition(text,duration):
@@ -60,7 +60,7 @@ def retry_repetitive_transcript(model, audio, sample_rate, text):
     middle=len(audio)//2
     parts=[]
     for samples in (audio[:middle],audio[middle:]):
-        parts.append(model.transcribe(audio=(samples,sample_rate),language='Chinese')[0].text)
+        parts.append(model.transcribe(audio=(samples,sample_rate),language='Chinese',context=context)[0].text)
     candidate=''.join(parts)
     original_content=transcript_content(text);candidate_content=transcript_content(candidate)
     similarity=SequenceMatcher(None,original_content,candidate_content,autojunk=False).ratio()
@@ -152,6 +152,8 @@ def main():
         choices=['ffmpeg-mono-v1','left-channel-v1','ffmpeg-source-clock-v2','left-source-clock-v2'])
     parser.add_argument('--out',required=True)
     args=parser.parse_args()
+    from asr_context import specification
+    context=specification()
     import numpy as np
     import torch
     from huggingface_hub import snapshot_download
@@ -180,6 +182,7 @@ def main():
                 'source_video_sha256':args.source_video_sha or (SOURCE_VIDEO_SHA if args.part is not None else None),
                 'model_id':model_id,'model_revision':weights.name,'device':'cpu','threads':2,
                 'networking_during_inference':False,'core_range':[first,last],'duration':duration,'chunks':[]}
+        if context['identity']:report['recognition_context']=context['identity']
         resumed=resume_recognition(report,partial/'recognition.json')
         print(json.dumps({'resumed_recognition_cores':resumed}),flush=True)
         save(report_path,report)
@@ -190,9 +193,9 @@ def main():
         for core in range(first+resumed*CORE_SECONDS,int(last)+1,CORE_SECONDS):
             if core>=last:break
             a=max(0,core-OVERLAP_SECONDS);b=min(duration,core+CORE_SECONDS+OVERLAP_SECONDS)
-            text=model.transcribe(audio=(audio[int(a*sr):int(b*sr)],sr),language='Chinese')[0].text
+            text=model.transcribe(audio=(audio[int(a*sr):int(b*sr)],sr),language='Chinese',context=context['text'])[0].text
             text,retry=retry_repetitive_transcript(
-                model,audio[int(a*sr):int(b*sr)],sr,text)
+                model,audio[int(a*sr):int(b*sr)],sr,text,context=context['text'])
             if retry:
                 report.setdefault('decode_repairs',[]).append({
                     'core_start':core,**retry})
@@ -206,6 +209,8 @@ def main():
         # A resumed attempt must not inherit the previous failure as its own.
         (output/'alignment_error.json').unlink(missing_ok=True)
         report=json.loads(report_path.read_text())
+        if report.get('recognition_context',{})!=context['identity']:
+            raise ValueError('Alignment cannot reuse a different recognition context')
         resumed=resume_alignment(report,partial/'aligned.json',weights.name)
         print(json.dumps({'resumed_alignment_cores':resumed}),flush=True)
         if resumed:save(output/'aligned.json',report)
