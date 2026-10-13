@@ -15,6 +15,10 @@ on:
       - linyuan/headline_policy.py
       - linyuan/source_outcomes.py
       - linyuan/source_rejection_evidence/*.json
+      - linyuan/mother_yield.py
+      - linyuan/mother_yield_target.json
+      - linyuan/source_selection.py
+      - linyuan/ci_fetch_bilibili.py
   workflow_run:
     workflows: ['林园监控 · 每日抓取', 'FC production deploy', '中文源出片']
     types: [completed]
@@ -87,6 +91,27 @@ jobs:
             sleep 3
           done
           exit 1
+      - name: 复测长母片出片率与固定45%目标（不影响补源和发布）
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          python linyuan/mother_yield.py \
+            --duration-evidence linyuan/operations/long-yield-duration-evidence-20261013.json \
+            --source-duration-evidence linyuan/operations/long-yield-source-duration-evidence-20261013.json \
+            > mother-yield-observation.json
+          python - <<'PY'
+          import json, os
+          r=json.load(open('mother-yield-observation.json'))
+          c=r['cohort']; bounds=r['possible_all_completed_rate_bounds']
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('\n## 长母片出片率\n\n')
+              out.write(f"固定目标：{r['target_rate']:.0%}；已完成且时长已知的长母片：{c['successful_known_long']}/{c['completed_known_long']}。\n\n")
+              out.write(f"时长未分类：{c['completed_duration_unknown']}；运行中/未决：{c['active_or_unresolved']}。\n\n")
+              if bounds['lower'] is not None:
+                  out.write(f"保守下限：{bounds['lower']:.2%}；达标：{r['target_achieved']}。\n")
+              out.write('只计算已有真实成片核验/发布凭据；不降低门禁，不把新增候选当成出片。\n')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -95,5 +120,6 @@ jobs:
             linyuan/.automation/source_inventory.json
             catchup-receipt.json
             github-dispatch-receipt.json
+            mother-yield-observation.json
           include-hidden-files: true
           if-no-files-found: warn

@@ -374,7 +374,7 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                 # requests to 8 MiB on the SAME representation and keep the
                 # fastest mirror after every complete range.
                 requested_end=None
-                if len(urls)>1 and (saved.get('total') or 0)>8*(1<<20):
+                if (saved.get('total') or 0)>8*(1<<20):
                     requested_end=min(existing+8*(1<<20),saved['total'])-1
                     headers["Range"]=f"bytes={existing}-{requested_end}"
                 elif existing:

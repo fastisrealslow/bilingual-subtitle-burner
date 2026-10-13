@@ -198,14 +198,30 @@ def apply_frozen_goal(report, goal):
     numerator, denominator = baseline['numerator'], baseline['denominator']
     if type(numerator) is not int or type(denominator) is not int or not 0 <= numerator <= denominator or denominator <= 0:
         raise ValueError('Invalid frozen baseline')
-    if goal['multiplier'] != 2:
-        raise ValueError('This user target is twice the frozen baseline')
-    target = Fraction(numerator * 2, denominator)
+    mode = goal.get('target_mode', 'baseline_multiplier')
+    if mode == 'absolute_rate':
+        requested = goal['target_fraction']
+        n, d = requested['numerator'], requested['denominator']
+        if type(n) is not int or type(d) is not int or not 0 < n <= d or d <= 0:
+            raise ValueError('Invalid absolute target fraction')
+        target = Fraction(n, d)
+        multiplier = None
+    elif mode == 'baseline_multiplier':
+        if goal['multiplier'] != 2:
+            raise ValueError('Legacy target must be twice the frozen baseline')
+        target = Fraction(numerator * 2, denominator)
+        multiplier = 2
+    else:
+        raise ValueError('Unknown frozen target mode')
     bounds = report['possible_all_completed_rate_bounds']
     feasible = 0 < target <= 1
-    return dict(report, target_rate=float(target), target_is_feasible=feasible,
+    cohort_size = report['cohort']['completed_known_long'] + report['cohort']['completed_duration_unknown']
+    required = math.ceil(target * cohort_size) if cohort_size and feasible else None
+    return dict(report, target_rate=float(target), target_multiplier=multiplier, target_is_feasible=feasible,
         frozen_goal=dict(baseline_as_of=goal['baseline_as_of'], baseline_fraction=baseline,
-            multiplier=2, target_fraction=dict(numerator=numerator*2, denominator=denominator)),
+            target_mode=mode, multiplier=multiplier,
+            target_fraction=dict(numerator=target.numerator, denominator=target.denominator)),
+        required_successful_mothers_at_current_cohort_size=required,
         target_achieved=bool(feasible and bounds['lower'] is not None
                              and bounds['lower'] >= float(target)),
         goal_comparison_basis='Conservative lower bound; unknown durations cannot flatter the rate.')

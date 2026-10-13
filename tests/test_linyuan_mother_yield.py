@@ -153,3 +153,32 @@ def test_target_is_frozen_not_redoubled_from_latest_rate():
     changed = dict(goal,window_days=14)
     with pytest.raises(ValueError,match='different cohort'):
         apply_frozen_goal(result,changed)
+
+
+def test_user_45_percent_target_keeps_baseline_and_rounds_required_mothers_up():
+    import json
+    goal = json.loads((Path(__file__).resolve().parents[1]/'linyuan/mother_yield_target.json').read_text())
+    report = summarize(*fixture())
+    report['cohort'].update(completed_known_long=89,successful_known_long=10)
+    report['observed_success_rate'] = 10/89
+    report['possible_all_completed_rate_bounds'] = dict(lower=10/89,upper=10/89)
+    actual = apply_frozen_goal(report,goal)
+    assert actual['target_rate'] == .45
+    assert actual['target_multiplier'] is None
+    assert actual['frozen_goal']['baseline_fraction'] == dict(numerator=10,denominator=89)
+    assert actual['required_successful_mothers_at_current_cohort_size'] == 41
+    assert not actual['target_achieved']
+    report['possible_all_completed_rate_bounds']['lower'] = 40/89
+    assert not apply_frozen_goal(report,goal)['target_achieved']
+    report['possible_all_completed_rate_bounds']['lower'] = 41/89
+    assert apply_frozen_goal(report,goal)['target_achieved']
+
+
+@pytest.mark.parametrize('n,d', [(0,100),(101,100),(45,0),(True,100),(45.0,100)])
+def test_absolute_target_must_be_an_exact_valid_positive_fraction(n,d):
+    report=summarize(*fixture())
+    goal=dict(metric=report['metric'],window_days=7,long_threshold_seconds=900,
+        baseline_fraction=dict(numerator=10,denominator=89),baseline_as_of='2026-10-13',
+        target_mode='absolute_rate',target_fraction=dict(numerator=n,denominator=d))
+    with pytest.raises(ValueError,match='absolute target'):
+        apply_frozen_goal(report,goal)

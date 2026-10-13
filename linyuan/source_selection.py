@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 41
+VERSION = 42
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -78,6 +78,16 @@ SPEECH_CHANGE = re.compile(
     r'|我再讲一下为什么我说重要'
     r'|那我们怎么想呢[？?]所以未来的投资方向'
     r'|那剩下的就是你[，,]你就炒股')
+
+# A keynote may announce its next subject by asking and answering its own
+# explicit topic question. These are complete source sentence/cue boundaries,
+# not a licence to split on every rhetorical 为什么/是吧 or on a keyword in an
+# example. Real BV1RJ411Q7Ki has these headings, but v41 treated the remaining
+# 17 minutes as one oversized interviewer answer and offered no candidates.
+SELF_TOPIC_SECTION = re.compile(
+    r'^我(?:们)?投资的(?:核心|原则|方法)是什么[？?]$'
+    r'|^我(?:们)?(?:是)?(?:怎么|如何)研究(?:医药|中药|企业|公司|行业)的[？?]$'
+    r'|^股市是怎么赚钱的[？?](?:就是[^。！？!?]{2,30}[。！!])?$')
 
 # Long keynotes also announce numbered chapters without phrasing them as a
 # question.  These are observable source boundaries, not semantic guesses or
@@ -178,6 +188,8 @@ def contextual_self_answer(units,cues,index):
 def question_unit(text):
     # Quoted examples and a speaker's rhetorical self-questions are not a host
     # turn. Explicit 您/请问 remains a real question even in a long sentence.
+    if SELF_TOPIC_SECTION.fullmatch(text):
+        return False
     if not re.search(r'您|请问|请教', text) and re.search(
             r'比如|就像|我说[：:]|很多人问我|所以很多人问我|我的意思', text):
         return False
@@ -317,6 +329,8 @@ def boundary_error(cues,pick):
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
+        if i and SELF_TOPIC_SECTION.fullmatch(u['text']):
+            return '选段跨入讲者明确自问自答的新章节；须在原始句界分开，不能拼接不同主题'
         if i and SUMMARY_SECTION.search(u['text']):
             return '选段跨入明确的总结章节；在原声边界分开，不能把总结开头接在上一段结论后'
         if promotional_cta(u['text']):return '选段包含原片带货收尾，须在原始句界结束，不能保留小黄车广告'
@@ -439,7 +453,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     # Only the actual source end or an explicit topic change closes a speech;
     # a 3-minute chunk edge or a row crossing 120s never does. Question-bearing
     # sections stay on the Q&A path above, so they cannot borrow another answer.
-    cuts=sorted(set([0]+investment_sections+[i for i,u in enumerate(units) if
+    self_sections=[i for i,u in enumerate(units) if SELF_TOPIC_SECTION.fullmatch(u['text'])]
+    cuts=sorted(set([0]+investment_sections+self_sections+[i for i,u in enumerate(units) if
         TOPIC_CHANGE.search(u['text']) or SPEECH_CHANGE.search(u['text'])
         or KEYNOTE_SECTION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     # A short/medium source may start with an answer dependent on a missing
@@ -473,6 +488,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if not (whole_source or i>0):continue
         if not (SPEECH_CHANGE.search(units[i]['text']) or
                 KEYNOTE_SECTION.search(units[i]['text']) or
+                i in self_sections or
                 speech_opening(units[i]['text']) or i in investment_sections or
                 (whole_source and editorial.CONTENT_POLICY=='reference_v1' and contextual_self_answer(units,cues,i))):continue
         if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
