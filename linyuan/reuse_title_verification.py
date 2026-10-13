@@ -145,6 +145,26 @@ def gh(*args):
     return subprocess.check_output(['gh',*args],text=True,timeout=60)
 
 
+def copy_response_checkpoints(directory,destination,model):
+    """Restore keyed computation only, never report approvals or title answers."""
+    evidence=model_evidence(directory,model)
+    if len(evidence)>5000:raise ValueError('Too many raw response checkpoints')
+    destination=Path(destination)
+    payloads=[];total=0
+    for path in evidence:
+        if not re.fullmatch('[a-f0-9]{64}\\.json',path.name):
+            raise ValueError('Raw response must retain its exact request cache key')
+        data=path.read_bytes();total+=len(data)
+        if len(data)>2_000_000 or total>20_000_000:raise ValueError('Raw response checkpoint exceeds budget')
+        target=destination/path.name
+        if target.exists() and target.read_bytes()!=data:
+            raise ValueError('Conflicting raw response for an exact request key')
+        payloads.append((path,target))
+    destination.mkdir(parents=True,exist_ok=True)
+    for path,target in payloads:shutil.copy2(path,target)
+    return len(payloads)
+
+
 def main():
     import base64
     repo=os.environ['GITHUB_REPOSITORY'];current=os.environ['GITHUB_RUN_ID']
@@ -160,11 +180,12 @@ def main():
         checked.add(head)
         try:
             prior={r['path']:r['sha'] for r in api(f'git/trees/{head}?recursive=1')['tree'] if r['type']=='blob'}
-            if any(not local.get(p) or local[p]!=prior.get(p) for p in TITLE_FILES):continue
+            identical=not any(not local.get(p) or local[p]!=prior.get(p) for p in TITLE_FILES)
             if local[WORKFLOW]!=prior.get(WORKFLOW):
                 blob=api('git/blobs/'+prior[WORKFLOW])
                 old=base64.b64decode(blob['content']).decode()
-                if canonical_workflow(old)!=canonical_workflow(Path(WORKFLOW).read_text()):continue
+                if canonical_workflow(old)!=canonical_workflow(Path(WORKFLOW).read_text()):
+                    identical=False
             run=api(f'actions/runs/{run_id}')
             if (run.get('head_branch')!='main' or run.get('head_sha')!=head
                     or (run.get('head_repository') or {}).get('full_name')!=repo
@@ -182,13 +203,17 @@ def main():
                 if passed:validate_results(rows)
                 evidence=model_evidence(directory,os.environ.get('RUN_TEXT_MODEL','qwen3:8b'))
                 destination=Path('linyuan/.llm_cache');destination.mkdir(parents=True,exist_ok=True)
-                for path in evidence:shutil.copy2(path,destination/path.name)
-            if resume:
+                if not identical:
+                    copy_response_checkpoints(directory,destination,os.environ.get('RUN_TEXT_MODEL','qwen3:8b'))
+                else:
+                    for path in evidence:shutil.copy2(path,destination/path.name)
+            if resume or not identical:
                 # Raw responses are exact-input computation checkpoints, not
                 # approvals. Both cases still execute all current validations;
                 # any unfinished request must run on the actual CPU model.
                 provenance=dict(resumed_from_run=run_id,tested_head=head,approved=False,
-                    model=os.environ.get('RUN_TEXT_MODEL','qwen3:8b'),responses=len(evidence))
+                    model=os.environ.get('RUN_TEXT_MODEL','qwen3:8b'),responses=len(evidence),
+                    current_checks_required=True,code_identical=identical)
                 Path('title-proof-reuse.json').write_text(json.dumps(provenance,indent=2))
                 with open(os.environ['GITHUB_OUTPUT'],'a') as output:output.write('resumed=true\n')
                 with open(os.environ['GITHUB_ENV'],'a') as output:output.write('TITLE_VERIFICATION_RESUMED=true\n')

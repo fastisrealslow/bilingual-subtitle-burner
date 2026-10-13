@@ -1,8 +1,10 @@
 name: 标题归属另一CPU模型对照
 on:
   push:
-    branches: [main]
-    paths: [.github/workflows/linyuan-title-model-check.yml]
+    branches: [main, codex/yield45-title-checkpoints-20261014]
+    paths:
+      - .github/workflows/linyuan-title-model-check.yml
+      - linyuan/reuse_title_verification.py
   workflow_dispatch:
 permissions:
   contents: read
