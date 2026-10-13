@@ -26628,9 +26628,9 @@
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
    "publish_time": "2026-10-10T03:54:21+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，识别为“林元”构成专有名词错误。\"}, {\"sentence_id\": 28, \"quote\": \"他的人非常细心，就每次啊，他去的时候，他就问多问些，他都要了解清楚，他才会买入。\", \"suspect_quote\": \"多问些\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“每次啊，他去的时候，他就问多问些”，此处应为口语重复或口吃导致的识别冗余（如“问了很多”或“问得多一些”），但“多问些”本身语义尚可；然而若原意是“问得很多”，则“多问些”可能是对“问得多”的误识。但在严格只检查无法解释的具体词\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -26642,7 +26642,33 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38024737738,
    "source_check_run_id": 38024737738,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1010-aec8fd",
+    "run_id": 38460977188,
+    "artifact_id": 11848580519,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"时间证明了林元的前瞻性，但是他看书不多，也不看走势，怎么能长期跑赢大盘呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为讨论嘉宾“林园”，此处识别为“林元”属于明显的同音错别字，且人名是专有名词，不能按口语风格忽略。\"}, {\"sentence_id\": 27, \"quote\": \"林元的方法到底胜在哪里呢？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"rea"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"二零一四年一月八号，贵州茅台的最低价跌至一百一十八元，林元的赚钱机器也在那时成为人们茶余饭后的谈资。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写人名：上下文及第 15 句均指向“股神林园”，此处“林元”极可能是自动识别将“林园”误识为同音词“林元”。\"}, {\"sentence_id\": 15, \"quote\": \"曾经一十五两的股神林元，那时似乎被茅台股价拉下了神坛。\", \"suspect_quote\": \"一十五两\", \"k"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我们也在总结，因为它必需品，沉隐币。\", \"suspect_quote\": \"沉隐币\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将口语中的“沉淀”误识别为无意义的“沉隐币”，且“沉隐币”并非金融或行业通用术语，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 13, \"quote\": \"这一天，林云和他周围所有的朋友们都因重仓持有茅台而感到欣喜。\", \"suspect_quote\": \"林云\", \"kind\": \"unintelligible_term\", \"r"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38460977188,
+    "artifact_id": 11848580519,
+    "name": "production-reject-ly-1010-aec8fd",
+    "retained": true
+   }
   },
   {
    "key": "haokan_video:4090708328670509415",
