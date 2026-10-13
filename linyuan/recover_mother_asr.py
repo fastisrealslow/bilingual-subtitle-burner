@@ -23,7 +23,7 @@ def candidates(cache_key):
     workflows=['linyuan-automatic-preview.yml','linyuan-produce-cn.yml']
     from asr_context import specification
     if specification(source_sha=cache_key.rsplit('-',1)[0])['identity']:
-        workflows.insert(0,'linyuan-yield45-context-preview.yml')
+        workflows.insert(0,'linyuan-context-preview.yml')
     current=os.environ.get('GITHUB_WORKFLOW_REF','').split('/')[-1].split('@')[0]
     workflows.sort(key=lambda x:x!=current)
     for workflow in workflows:
