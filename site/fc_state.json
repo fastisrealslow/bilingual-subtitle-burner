@@ -27433,9 +27433,9 @@
    "source": "weibo_search",
    "author": "今日灼见",
    "publish_time": "2026-08-18T02:10:53.021873",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27447,7 +27447,85 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37912325843,
    "source_check_run_id": 37912325843,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-b32e4f",
+    "run_id": 38470540432,
+    "artifact_id": 11851654152,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中嘉宾未对任何具体投资标的或市场观点做出明确判断，内容多为‘亏了’、‘活该’等情绪化表达及位置合适与否的模糊对比，缺乏支撑观点的理由或结论性陈述，无法构成独立完整的表达单元。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"对，红号是说，在特朗普的任期之内会翻倍，五千到六千美元每盎。\", \"suspect_quote\": \"五千到六千美元每盎\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字单位‘每盎’疑似识别错误，结合上下文‘红号’（通常指彩票或股票代号）及金额语境，完整单位应为‘每股’。‘盎’字无法解释为行业黑话或正常口语省略，属于含义不明的关键数字污染，影响对资产计价标准的理解。”}]}**注：其他句子中的重复（\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"对，大约现在是我们看，就是白酒的龙头，拍戏率有百分之四，嗯，十二年也都拍了百分之五六十了，这是不增长的情况下。\", \"suspect_quote\": \"拍戏率有百分之四\", \"kind\": \"unintelligible_term\", \"reason\": \"“拍戏率”在白酒行业语境下无意义，疑似将“市占率”或“利润率”误识别为同音词“拍戏率”，属于无法解释的错写专有名词。\"}, {\"sentence_id\": 3, \"quote\": \"对，大约现在是我们看，就是白酒的龙头，拍戏率有百分之四，嗯，十二年也都拍了百分之五六十了，这是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1880.68s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/120，总帧数598；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 24, \"quote\": \"啊，当时是因为科创板的一个呃制度规则好像是。\", \"suspect_quote\": \"科创板的一个呃制度规则好像是\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定不明：'好像'表示不确定，导致对'六百万市值'这一具体门槛的确定性存疑；且'呃'为填充词，但结合后文需确认是否指代明确的制度条款。\"}, {\"sentence_id\": 25, \"quote\": \"对他要求六百万市值。\", \"suspect_quote\": \"对他要求六百万市值\", \"kind\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 37, \"quote\": \"那林中烟吗？\", \"suspect_quote\": \"那林中烟吗？\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文“叫这种事戒不掉的，烟能戒掉吗？”及下一句“我还真没看见”，此处应为反问或提及某种特定香烟（如“那种中烟”、“那种林中的烟”或口误），但“林中烟”并非通用烟草品牌或行业术语，极可能是将“那种”识别为“林中”，或是嘉宾\"}, {\"sentence_id\": 39, \"quote\": \"我不抽烟，所以我对这个酒啊烟呢，我都不理不理解。\", \"suspec"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1425.56s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 410.44s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个书一百六十八，你买去你看看。\", \"suspect_quote\": \"这个书一百六十八\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'一百六十八'后缺少货币单位（如元），在口语中虽可省略，但作为关键交易信息存在歧义，需确认是否为价格。\"}, {\"sentence_id\": 6, \"quote\": \"他说：哎呀，这本书就是卖一百六十八万，我都要去买。\", \"suspect_quote\": \"这本书就是卖一百六十八万\", \"kind\": \"ambiguous_nu"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"但是也有宏观首席统计，他说他是不输标普五百的。\", \"suspect_quote\": \"宏观首席统计\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/职务名称。‘宏观首席统计’并非标准金融职位（通常为‘宏观首席经济学家’或‘首席统计师’），且‘统计’在此处作为人名或头衔指代不明，属于含义不明的关键实体词。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看小灯股这一块？\", \"suspect_quote\": \"小灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“行业”、“房地产”、“高铁”等语境，应为“小盘股”（小盘股票）或特定术语，但“小灯股”无此金融概念，属于明显的文字识别错误。\"}, {\"sentence_id\": 9, \"quote\": \"啊，而且十五，我看把这个科技放在了一个更重要的一个位置，写在了前面嘛。\", \"suspect_quote\": \"十五\", \"kind\": \""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 55.44s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38470540432,
+    "artifact_id": 11851654152,
+    "name": "production-reject-ly-1009-b32e4f",
+    "retained": true
+   }
   },
   {
    "key": "weibo_search:5328277914779959",
