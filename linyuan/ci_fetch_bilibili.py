@@ -13,6 +13,7 @@ view 被封不代表全死：pagelist 拿 cid、embed 页直接带 __playinfo__�
 """
 import argparse
 import hashlib
+from http.client import IncompleteRead
 import json
 import os
 import re
@@ -289,30 +290,50 @@ def identical_prefix(op, url, referer, partial, total, etag, deadline):
     ETags are opaque validators of a response, not portable content hashes.
     Compare ALL retained bytes, in bounded ranges, before joining mirrors.
     A timeout leaves the checkpoint intact and is not a content mismatch.
+    Within this invocation, resume comparison at the last byte actually
+    matched. Restarting the whole prefix after a truncated response prevented
+    ly-1009-c31f09 from ever reaching its recovered source chapters.
     """
     size = partial.stat().st_size
     with partial.open('rb') as local:
-        for start in range(0, size, 8 * (1 << 20)):
-            end = min(size, start + 8 * (1 << 20)) - 1
+        cursor, stalled, last = 0, 0, None
+        while cursor < size and stalled < 3:
+            before = cursor
+            remaining_seconds(deadline)
+            end = min(size, cursor + 8 * (1 << 20)) - 1
             req = urllib.request.Request(url, headers={'User-Agent': UA,
-                'Referer': referer, 'Range': f'bytes={start}-{end}'})
-            with op.open(req, timeout=min(60, remaining_seconds(deadline))) as response:
-                status = getattr(response, 'status', None) or response.getcode()
-                expected_range = f'bytes {start}-{end}/{total}'
-                if status != 206 or response.headers.get('Content-Range') != expected_range:
-                    raise RuntimeError('CDN前缀核对未返回所请求区间，保留断点')
-                tag = response.headers.get('ETag')
-                if etag and tag and etag != tag:
-                    raise RuntimeError('CDN前缀核对期间版本不稳定，保留断点')
-                left = end - start + 1
-                while left:
-                    remaining_seconds(deadline)
-                    chunk = response.read(min(1 << 20, left))
-                    if not chunk:
-                        raise RuntimeError('CDN前缀核对响应截断，保留断点')
-                    if chunk != local.read(len(chunk)):
-                        return False
-                    left -= len(chunk)
+                'Referer': referer, 'Range': f'bytes={cursor}-{end}'})
+            try:
+                with op.open(req, timeout=min(60, remaining_seconds(deadline))) as response:
+                    status = getattr(response, 'status', None) or response.getcode()
+                    expected_range = f'bytes {cursor}-{end}/{total}'
+                    if status != 206 or response.headers.get('Content-Range') != expected_range:
+                        raise RuntimeError('CDN前缀核对未返回所请求区间，保留断点')
+                    tag = response.headers.get('ETag')
+                    if etag and tag and etag != tag:
+                        raise RuntimeError('CDN前缀核对期间版本不稳定，保留断点')
+                    local.seek(cursor)
+                    left = end - cursor + 1
+                    while left:
+                        remaining_seconds(deadline)
+                        chunk = response.read(min(1 << 20, left))
+                        if not chunk:
+                            raise RuntimeError('CDN前缀核对响应截断，保留断点')
+                        if chunk != local.read(len(chunk)):
+                            return False
+                        cursor += len(chunk)
+                        left -= len(chunk)
+            except FetchBudgetExceeded:
+                raise
+            except (OSError, RuntimeError, IncompleteRead) as exc:
+                last = exc
+            stalled = 0 if cursor > before else stalled + 1
+            if cursor == 0 and stalled:
+                # The outer transfer already retries mirrors three times.
+                # Do not multiply a cold, zero-progress probe's attempts.
+                raise RuntimeError(f'CDN前缀核对尚无进度，保留断点：{last}')
+        if cursor != size:
+            raise RuntimeError(f'CDN前缀核对连续无进度，保留断点：{last}')
     return True
 
 

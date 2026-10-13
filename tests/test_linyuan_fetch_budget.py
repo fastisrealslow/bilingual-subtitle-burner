@@ -15,6 +15,74 @@ class Response(io.BytesIO):
         super().__init__(data);self.status=status;self.headers=headers
 
 
+def test_truncated_prefix_comparison_resumes_only_bytes_already_matched(tmp_path):
+    payload=bytes(range(256))*600
+    partial=tmp_path/'track.part';partial.write_bytes(payload)
+    requests=[]
+    class Opener:
+        def open(self,request,timeout):
+            start,end=map(int,request.headers['Range'].split('=')[1].split('-'))
+            requests.append((start,end))
+            return Response(payload[start:min(end+1,start+25000)],206,
+                {'Content-Range':f'bytes {start}-{end}/{len(payload)+50000}','ETag':'new'})
+    assert b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,len(payload)+50000,'new',b.time.monotonic()+30)
+    assert [r[0] for r in requests]==list(range(0,len(payload),25000))
+    assert partial.read_bytes()==payload
+
+
+@pytest.mark.parametrize('fault',['different_bytes','wrong_range','wrong_total','changed_etag'])
+def test_resumed_prefix_never_accepts_content_or_version_mismatch(tmp_path,fault):
+    payload=b'a'*50000;partial=tmp_path/'track.part';partial.write_bytes(payload)
+    class Opener:
+        def open(self,request,timeout):
+            start,end=map(int,request.headers['Range'].split('=')[1].split('-'))
+            if start==0:
+                return Response(payload[:25000],206,{'Content-Range':f'bytes {start}-{end}/90000','ETag':'new'})
+            data=payload[start:] if fault!='different_bytes' else b'b'*25000
+            lo=start if fault!='wrong_range' else 0
+            total=90000 if fault!='wrong_total' else 90001
+            return Response(data,206,{'Content-Range':f'bytes {lo}-{end}/{total}',
+                'ETag':'changed' if fault=='changed_etag' else 'new'})
+    if fault=='different_bytes':
+        assert not b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()+30)
+    else:
+        with pytest.raises(RuntimeError):
+            b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()+30)
+    assert partial.read_bytes()==payload
+
+
+def test_nonprogressing_prefix_is_bounded_and_total_deadline_remains(tmp_path,monkeypatch):
+    partial=tmp_path/'track.part';partial.write_bytes(b'a'*50000);calls=[]
+    class Opener:
+        def open(self,*a,**kw):
+            calls.append(1);raise TimeoutError('stalled')
+    with pytest.raises(RuntimeError):
+        b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()+30)
+    assert len(calls)==1
+    with pytest.raises(b.FetchBudgetExceeded):
+        b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()-1)
+    assert len(calls)==1
+
+
+def test_incomplete_http_read_resumes_after_only_successfully_compared_bytes(tmp_path):
+    from http.client import IncompleteRead
+    payload=b'a'*50000;partial=tmp_path/'track.part';partial.write_bytes(payload);starts=[]
+    class Interrupted(Response):
+        def read(self,size=-1):
+            if self.tell():raise IncompleteRead(b'unchecked bytes',10000)
+            return super().read(min(size,10000))
+    class Opener:
+        def open(self,request,timeout):
+            start,end=map(int,request.headers['Range'].split('=')[1].split('-'))
+            starts.append(start)
+            return Interrupted(payload[start:end+1],206,{'Content-Range':f'bytes {start}-{end}/90000','ETag':'new'})
+    assert b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()+30)
+    assert starts==[0,10000,20000,30000,40000]
+    with pytest.raises(b.FetchBudgetExceeded):
+        b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()-1)
+    assert starts==[0,10000,20000,30000,40000]
+
+
 def test_sha256_file_works_without_python311_file_digest(tmp_path):
     path = tmp_path / 'media.bin'
     payload = b'public-media-check' * 100000

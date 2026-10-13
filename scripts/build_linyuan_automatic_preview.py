@@ -8,6 +8,9 @@ TARGET = ROOT / '.github/workflows/linyuan-automatic-preview.yml'
 REMOVED = {
     '上传成片到 Release', '准备 B站登录态', 'B 站投稿',
     '明确触发库存核验与自动补位', '复用同源失败任务的已完成证据',
+    # A restricted source can be inspected in a publication-free diagnostic,
+    # but this never opens its production or promotion admission.
+    '核对新源及旧任务重试的已知准入限制',
 }
 
 
@@ -19,6 +22,7 @@ def build():
         if step.get('name') in REMOVED:
             continue
         if step.get('id') == 'render':
+            step['env']['SOURCE_VISUAL_CHAPTERS']='true'
             step['run'] = step['run'].replace('--split-highlights \\', '--max-outputs "$RUN_MAX_OUTPUTS" \\\n            --split-highlights \\')
         if 'run' in step:
             for name in ('RUN_SOURCE', 'RUN_SLUG', 'RUN_SPEAKER', 'RUN_OCCASION', 'RUN_SOURCE_PLATFORM'):
@@ -36,7 +40,7 @@ def build():
         LINYUAN_AUTOMATIC_ONLY='true', RUN_MAX_OUTPUTS='1')
     return dict(name='林园全自动预览（不发布）', **{
         'run-name': '全自动预览 · ${{ github.run_id }}',
-        'on': {'push': {'branches': ['codex/automatic-preview', 'codex/caption-sync-feed-cover'],
+        'on': {'push': {'branches': ['codex/automatic-preview', 'codex/caption-sync-feed-cover', 'codex/yield45-recovery-20261013'],
                        'paths': ['.github/linyuan-preview-request.json', '.github/workflows/linyuan-automatic-preview.yml']},
                'workflow_dispatch': {}},
         'permissions': {'contents': 'read', 'actions': 'read'},

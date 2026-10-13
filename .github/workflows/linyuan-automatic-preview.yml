@@ -6,6 +6,7 @@ run-name: 全自动预览 · ${{ github.run_id }}
     branches:
     - codex/automatic-preview
     - codex/caption-sync-feed-cover
+    - codex/yield45-recovery-20261013
     paths:
     - .github/linyuan-preview-request.json
     - .github/workflows/linyuan-automatic-preview.yml
@@ -282,6 +283,7 @@ jobs:
         REPAIR_BVID: ${{ inputs.repair_bvid }}
         RENDER_SLUG: ${{ env.RUN_SLUG }}
         OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
+        SOURCE_VISUAL_CHAPTERS: 'true'
       run: "set -euo pipefail\n# The history snapshot was validated before downloads or inference.\npython -c 'from\
         \ publication_history import read; read(\"_publication_state.json\")'\nif [ -n \"$REPAIR_BVID\" ]; then\n\
         \  test '${{ inputs.auto_publish }}' != 'true'\n  python media_revision.py --bvid \"$REPAIR_BVID\" --slug\
@@ -329,6 +331,8 @@ jobs:
           linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
 
           linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
+
+          linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/visual-question-cards/
 
           linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/selection_diagnostics*.json
 
@@ -465,7 +469,8 @@ jobs:
         retention-days: 14
         if-no-files-found: ignore
     - name: 上传素材拒绝结果
-      if: failure() && (steps.source_gate.outcome == 'failure' || steps.src.outcome == 'failure')
+      if: failure() && (steps.source_admission.outcome == 'failure' || steps.source_gate.outcome == 'failure' ||
+        steps.src.outcome == 'failure')
       uses: actions/upload-artifact@v4
       with:
         name: preview-source-reject-${{ env.RUN_SLUG }}

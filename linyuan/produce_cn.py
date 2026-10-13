@@ -6125,9 +6125,17 @@ def main():
         source_picks=select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
         if (not source_picks and editorial.CONTENT_POLICY=='reference_v1'
                 and os.environ.get('SOURCE_VISUAL_CHAPTERS')=='true'):
-            from source_question_cards import propose
+            from source_question_cards import propose, discover_topics
             source_picks=propose(src,cues,work/'visual-question-cards',_ocr(),
                 source_report.get('source_sha256'),min_seconds=editorial.MIN_SECONDS)
+            if not source_picks:
+                card_proof=json.loads((work/'visual-question-cards'/'question-cards.json').read_text())
+                def topic_call(prompt,schema):
+                    return llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                        max_tokens=1400,budget_sec=text_budget(240),response_schema=schema)
+                source_picks=discover_topics(cues,card_proof['cards'],topic_call,
+                    work/'visual-question-cards',source_report.get('source_sha256'),
+                    min_seconds=editorial.MIN_SECONDS)
             diagnostics['visual_question_card_candidates']=len(source_picks)
         if source_picks and args.require_live_video and not args.dry_run:
             from visual_selection import rank

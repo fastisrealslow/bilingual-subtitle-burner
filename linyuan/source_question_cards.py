@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import time
 
-VERSION=1
+VERSION=2
 QUESTION=re.compile(r'什么|哪些|怎么|如何|怎样|是否|能否|有没有|[？?]')
 
 
@@ -21,12 +21,13 @@ def normalized(text):
 
 def agreed_question(samples):
     eligible=[s for s in samples if QUESTION.search(s.get('text',''))
-              and 10<=len(normalized(s['text']))<=100]
+              and 10<=len(normalized(s['text']))<=400]
     counts=Counter(normalized(s['text']) for s in eligible)
     for key,count in counts.most_common():
         hits=[s for s in eligible if normalized(s['text'])==key]
         if count>=2 and max(s['time'] for s in hits)-min(s['time'] for s in hits)>=.5:
-            return dict(text=hits[0]['text'],samples=hits)
+            labels=re.findall(r'(?:^|[^A-Za-z])Q\s*\d+\s*[:：]',hits[0]['text'],re.I)
+            return dict(text=hits[0]['text'],samples=hits,question_count=max(1,len(labels)))
     return None
 
 
@@ -42,6 +43,10 @@ def chapter_ranges(cues,cards,min_seconds=20):
     # across an unread card to recover duration or pretend a topic was read.
     boundaries=sorted({c['next_cue'] for c in cards})
     for card in accepted:
+        # A card containing Q14–Q17 is a group, not one complete answer.
+        # It can guide bounded topic discovery below, never approve its whole
+        # interval as a single structural Q&A.
+        if card['question'].get('question_count',1)>1:continue
         a=card['next_cue'];b=next((x-1 for x in boundaries if x>a),len(cues)-1)
         if b not in ends or b<a:continue
         seconds=cues[b]['end']-cues[a]['start']
@@ -61,6 +66,69 @@ def chapter_ranges(cues,cards,min_seconds=20):
         if ss.boundary_error(cues,pick) or ep.transcript_integrity_error(''.join(c['text'] for c in cues[a:b+1])):continue
         result.append(pick)
     return result
+
+
+def discover_topics(cues,cards,call,work,source_sha256,min_seconds=20,max_blocks=3):
+    """Discover source sentence ranges inside verified visual card blocks.
+
+    The model partitions original ASR; OCR is context, never spoken evidence.
+    No positive editorial/audio/identity approval is produced. Normal separate
+    argument, transcript, title and media checks are still mandatory.
+    """
+    import context_review as cr
+    import source_selection as ss
+    import editorial_policy as ep
+    work=Path(work);work.mkdir(parents=True,exist_ok=True)
+    proof=dict(version=VERSION,source_sha256=source_sha256,
+        cues_sha256=hashlib.sha256(json.dumps(cues,ensure_ascii=False,sort_keys=True).encode()).hexdigest(),
+        method='visual_card_source_topic_proposals_v1',editorial_approved=False,blocks=[],picks=[])
+    units=ss.sentence_units(cues);starts={u['start'] for u in units};ends={u['end'] for u in units}
+    boundaries=sorted({c['next_cue'] for c in cards if type(c.get('next_cue')) is int})
+    target=work/'topic-discovery.json'
+    try:
+        for card in sorted(cards,key=lambda c:c['next_cue']):
+            if not card.get('question') or len(proof['blocks'])>=max_blocks:continue
+            # Recheck the actual two-frame agreement, not a producer flag.
+            question=agreed_question(card.get('samples') or [])
+            if not question or question['text']!=card['question']['text']:continue
+            a=card['next_cue'];b=next((i-1 for i in boundaries if i>a),len(cues)-1)
+            if a not in starts or b not in ends or b<a:continue
+            window=cues[a:b+1]
+            transcript='\n'.join(f"字幕{u['start']}-{u['end']}|{u['text']}" for u in ss.sentence_units(window))
+            if len(transcript)>12000 or window[-1]['end']-window[0]['start']>900:continue
+            block=dict(start=a,end=b,question=question['text'],topics=[])
+            proof['blocks'].append(block)
+            prompt=cr.topic_prompt(transcript,window,'林园')+(
+                '\n此区间前的源画面提问卡：'+question['text']+
+                '。画面文字只用于理解源章节，不是嘉宾说过的话，不能补写进字幕或观点证据。'
+                '一张卡可能列多个问题，按其后实际原声的独立问答分别划分，不能把整张卡的不同回答合为一个主题。')
+            try:
+                raw=call(prompt,cr.topic_schema(window))
+                (work/f'topic-response-{a}.txt').write_text(raw)
+                parsed=json.loads(raw,object_pairs_hook=cr.unique_object)
+                topics=cr.parse_topics(json.dumps(parsed,ensure_ascii=False),window)
+            except Exception as exc:
+                block['service_error']=f'{type(exc).__name__}: {exc}'
+                continue  # A later bad block must not erase valid proposals.
+            block['topics']=topics
+            for topic in topics:
+                lo,hi=a+topic['start'],a+topic['end']
+                if lo not in starts or hi not in ends:continue
+                seconds=cues[hi]['end']-cues[lo]['start']
+                if not min_seconds<=seconds<=330:continue
+                pick=dict(start=lo,end=hi,score=7,editorial_approved=False,
+                    selection_method='source_visual_topic_proposal_v1',
+                    reason='源提问卡内的完整原句话题候选，仍须独立观点、识别、归属及成片验收')
+                if ss.boundary_error(cues,pick) or ep.transcript_integrity_error(''.join(c['text'] for c in cues[lo:hi+1])):continue
+                proof['picks'].append(pick)
+    except Exception as exc:
+        proof['error']=f'{type(exc).__name__}: {exc}'
+        raise  # A service/malformed response is not evidence of bad footage.
+    finally:
+        target.write_text(json.dumps(proof,ensure_ascii=False,indent=2)+'\n')
+    if not proof['picks'] and any(b.get('service_error') for b in proof['blocks']):
+        raise RuntimeError('源画面章节话题识别服务未完成；保留原始转写与响应，不判素材不合格')
+    return proof['picks']
 
 
 def propose(src,cues,work,ocr,source_sha256,min_seconds=20,budget_seconds=120):
@@ -87,7 +155,10 @@ def propose(src,cues,work,ocr,source_sha256,min_seconds=20,budget_seconds=120):
             a,b=card['gap']
             i=card['next_cue']
             if b-a>30 or i not in starts or (i and i-1 not in ends):continue
-            for frac in (.2,.35,.5,.65,.8):
+            # Two well-separated interior frames are the same required proof.
+            # Five per card exhausted the CPU scan budget on real source
+            # BV1Bo4y1W7Ts before its final investment answers were inspected.
+            for frac in (.35,.65):
                 if time.monotonic()-start>budget_seconds:raise TimeoutError('question-card scan budget reached')
                 t=a+(b-a)*frac;cap.set(cv2.CAP_PROP_POS_MSEC,t*1000);ok,frame=cap.read()
                 if not ok:continue
