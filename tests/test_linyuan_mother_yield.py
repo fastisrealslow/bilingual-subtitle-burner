@@ -1,4 +1,5 @@
 import copy
+import json
 from pathlib import Path
 import sys
 import pytest
@@ -159,7 +160,8 @@ def test_user_45_percent_target_keeps_baseline_and_rounds_required_mothers_up():
     import json
     goal = json.loads((Path(__file__).resolve().parents[1]/'linyuan/mother_yield_target.json').read_text())
     report = summarize(*fixture())
-    report['cohort'].update(completed_known_long=89,successful_known_long=10)
+    report['cohort'].update(completed_known_long=89,successful_known_long=10,
+                           attempted_known_long=89,successful_attempted_known_long=10)
     report['observed_success_rate'] = 10/89
     report['possible_all_completed_rate_bounds'] = dict(lower=10/89,upper=10/89)
     actual = apply_frozen_goal(report,goal)
@@ -169,9 +171,66 @@ def test_user_45_percent_target_keeps_baseline_and_rounds_required_mothers_up():
     assert actual['required_successful_mothers_at_current_cohort_size'] == 41
     assert not actual['target_achieved']
     report['possible_all_completed_rate_bounds']['lower'] = 40/89
+    report['cohort']['successful_attempted_known_long']=40
     assert not apply_frozen_goal(report,goal)['target_achieved']
     report['possible_all_completed_rate_bounds']['lower'] = 41/89
+    report['cohort']['successful_attempted_known_long']=41
     assert apply_frozen_goal(report,goal)['target_achieved']
+
+
+def test_running_long_retries_cannot_inflate_target_verdict():
+    state,inventory,snapshot,durations=fixture();inspected(inventory)
+    for i,bvid in enumerate(('BV1a84y1c7B7','BV15ByfBqEoQ'),2):
+        slug='ly-pending-'+str(i)
+        state['dispatched'].append(dict(slug=slug,ts=END-100,
+            source_url='https://www.bilibili.com/video/'+bvid,failed=False))
+        snapshot['tasks'].append(dict(slug=slug,status='running',run_id=i,
+                                     signature=dict(ts=END-100)))
+        durations[bvid+':p1']=dict(seconds=[1800])
+    report=summarize(state,inventory,snapshot,durations)
+    assert report['observed_success_rate']==1
+    assert report['cohort']['pending_known_long']==2
+    assert report['conservative_attempted_fraction']==dict(numerator=1,denominator=3)
+    goal=json.loads((Path(__file__).resolve().parents[1]/'linyuan/mother_yield_target.json').read_text())
+    actual=apply_frozen_goal(report,goal)
+    assert not actual['target_achieved']
+    assert actual['required_successful_mothers_at_current_cohort_size']==2
+    assert actual['goal_comparison_fraction']==dict(numerator=1,denominator=3)
+
+
+def test_pending_unknowns_reserved_but_known_shorts_do_not_dilute_long_yield():
+    state,inventory,snapshot,durations=fixture('running')
+    durations['BV1NpBFYkEKx:p1']['seconds']=[898]
+    report=summarize(state,inventory,snapshot,durations)
+    assert report['cohort']['pending_known_long']==0
+    assert report['conservative_attempted_fraction']['denominator']==0
+    durations.clear()
+    report=summarize(state,inventory,snapshot,durations)
+    assert report['cohort']['pending_duration_unknown']==1
+    assert report['conservative_attempted_fraction']==dict(numerator=0,denominator=1)
+
+
+def test_verified_pending_clip_counts_once_without_waiting_for_whole_batch():
+    state,inventory,snapshot,durations=fixture('running');inspected(inventory)
+    report=summarize(state,inventory,snapshot,durations)
+    assert report['observed_success_rate'] is None
+    assert report['conservative_attempted_fraction']==dict(numerator=1,denominator=1)
+    goal=json.loads((Path(__file__).resolve().parents[1]/'linyuan/mother_yield_target.json').read_text())
+    assert apply_frozen_goal(report,goal)['target_achieved']
+    inventory['artifacts'][0]['parts'][0]['status']='candidate'
+    assert summarize(state,inventory,snapshot,durations)['conservative_attempted_fraction']['numerator']==0
+
+
+def test_legacy_report_reserves_all_unclassified_pending_sources():
+    report=summarize(*fixture());report['cohort'].update(
+        completed_known_long=20,successful_known_long=10,active_or_unresolved=10)
+    for key in ('attempted_known_long','attempted_duration_unknown','successful_attempted_known_long'):
+        del report['cohort'][key]
+    goal=json.loads((Path(__file__).resolve().parents[1]/'linyuan/mother_yield_target.json').read_text())
+    actual=apply_frozen_goal(report,goal)
+    assert not actual['target_achieved']
+    assert actual['goal_comparison_fraction']==dict(numerator=10,denominator=30)
+    assert not actual['pending_classifications_known']
 
 
 @pytest.mark.parametrize('n,d', [(0,100),(101,100),(45,0),(True,100),(45.0,100)])

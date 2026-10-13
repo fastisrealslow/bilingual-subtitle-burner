@@ -156,6 +156,12 @@ def summarize(state, inventory, snapshot, durations, *, days=7, long_seconds=900
     eligible = [r for r in rows if r['finished'] and r['length_class'] == 'long']
     unknown = [r for r in rows if r['finished'] and r['length_class'] in {'unknown', 'conflicting'}]
     successes = [r for r in eligible if r['accepted_clip_count']]
+    all_long = [r for r in rows if r['length_class'] == 'long']
+    all_unknown = [r for r in rows if r['length_class'] in {'unknown', 'conflicting'}]
+    all_successes = [r for r in all_long if r['accepted_clip_count']]
+    attempted_denominator = len(all_long) + len(all_unknown)
+    attempted_fraction = (Fraction(len(all_successes), attempted_denominator)
+                          if attempted_denominator else None)
     accepted = {p['sha256'] for r in eligible for p in r['accepted_files']}
     numerator, denominator = len(successes), len(eligible)
     fraction = Fraction(numerator, denominator) if denominator else None
@@ -173,6 +179,10 @@ def summarize(state, inventory, snapshot, durations, *, days=7, long_seconds=900
         unit='canonical_source_page_not_task_or_search_result',
         cohort=dict(unique_attempted_sources=len(rows), completed_known_long=denominator,
             successful_known_long=numerator, completed_duration_unknown=len(unknown),
+            attempted_known_long=len(all_long), successful_attempted_known_long=len(all_successes),
+            attempted_duration_unknown=len(all_unknown),
+            pending_known_long=len(all_long)-len(eligible),
+            pending_duration_unknown=len(all_unknown)-len(unknown),
             active_or_unresolved=sum(not r['finished'] for r in rows),
             classifications=dict(Counter(r['length_class'] for r in rows))),
         observed_success_rate=float(fraction) if fraction is not None else None,
@@ -181,6 +191,8 @@ def summarize(state, inventory, snapshot, durations, *, days=7, long_seconds=900
         double_current_fraction=dict(numerator=2*numerator, denominator=denominator),
         target_is_feasible=bool(fraction is not None and 0 < fraction * 2 <= 1),
         possible_all_completed_rate_bounds=dict(lower=lower, upper=upper),
+        conservative_attempted_fraction=dict(numerator=len(all_successes), denominator=attempted_denominator),
+        conservative_attempted_success_rate=float(attempted_fraction) if attempted_fraction is not None else None,
         accepted_unique_clip_count=len(accepted),
         clips_per_successful_mother=len(accepted)/numerator if numerator else None,
         clips_per_completed_long_mother=len(accepted)/denominator if denominator else None,
@@ -213,18 +225,35 @@ def apply_frozen_goal(report, goal):
         multiplier = 2
     else:
         raise ValueError('Unknown frozen target mode')
-    bounds = report['possible_all_completed_rate_bounds']
     feasible = 0 < target <= 1
-    cohort_size = report['cohort']['completed_known_long'] + report['cohort']['completed_duration_unknown']
+    cohort=report['cohort']
+    if all(key in cohort for key in ('attempted_known_long','attempted_duration_unknown',
+                                     'successful_attempted_known_long')):
+        cohort_size=cohort['attempted_known_long']+cohort['attempted_duration_unknown']
+        verified_successes=cohort['successful_attempted_known_long']
+        pending_classifications_known=True
+    else:
+        # Legacy reports cannot prove that active sources are short. Reserve
+        # them all rather than make a target pass by reopening failed mothers.
+        cohort_size=(cohort['completed_known_long']+cohort['completed_duration_unknown']
+                     +cohort.get('active_or_unresolved',0))
+        verified_successes=cohort['successful_known_long']
+        pending_classifications_known=False
+    if (type(cohort_size) is not int or type(verified_successes) is not int
+            or not 0<=verified_successes<=cohort_size):
+        raise ValueError('Invalid conservative attempted cohort')
+    comparison=Fraction(verified_successes,cohort_size) if cohort_size else None
     required = math.ceil(target * cohort_size) if cohort_size and feasible else None
     return dict(report, target_rate=float(target), target_multiplier=multiplier, target_is_feasible=feasible,
         frozen_goal=dict(baseline_as_of=goal['baseline_as_of'], baseline_fraction=baseline,
             target_mode=mode, multiplier=multiplier,
             target_fraction=dict(numerator=target.numerator, denominator=target.denominator)),
         required_successful_mothers_at_current_cohort_size=required,
-        target_achieved=bool(feasible and bounds['lower'] is not None
-                             and bounds['lower'] >= float(target)),
-        goal_comparison_basis='Conservative lower bound; unknown durations cannot flatter the rate.')
+        goal_comparison_fraction=dict(numerator=verified_successes,denominator=cohort_size),
+        goal_comparison_rate=float(comparison) if comparison is not None else None,
+        pending_classifications_known=pending_classifications_known,
+        target_achieved=bool(feasible and comparison is not None and comparison>=target),
+        goal_comparison_basis='All attempted known-long and possibly-long sources remain in the denominator, including running retries; only independent verified clips count. Completed-only rate is descriptive, not target proof.')
 
 
 def main():

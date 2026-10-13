@@ -56,7 +56,7 @@ def test_explicit_policy_fixture_does_not_grant_other_sources_rights():
         dict(slug='old',ts=3,source_url='https://www.yicai.com/video/102581577.html')])) is None
 
 
-@pytest.mark.parametrize('bvid',['BV131421U7XK','BV15ByfBqEoQ'])
+@pytest.mark.parametrize('bvid',['BV131421U7XK','BV15ByfBqEoQ','BV1s6yABZEYV'])
 def test_live_verified_parent_ban_supersedes_absent_or_outdated_seed(bvid):
     source='https://www.bilibili.com/video/'+bvid+'?p=2&from=share'
     for seeds in ([],[dict(bvid=bvid,no_reprint=0,direct_dispatch=True)]):
