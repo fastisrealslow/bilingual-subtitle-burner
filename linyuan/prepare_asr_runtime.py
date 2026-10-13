@@ -9,6 +9,7 @@ import re
 import tempfile
 import zipfile
 from audio_preprocessing import policy, matches
+from asr_context import specification, matches as context_matches
 
 
 def restore_raw_qwen_evidence(archive, directory, source_sha, revisions):
@@ -18,7 +19,7 @@ def restore_raw_qwen_evidence(archive, directory, source_sha, revisions):
         if len(names)!=1 or z.getinfo(names[0]).file_size>20*1024*1024:return False
         reports=json.loads(z.read(names[0]))
     if not isinstance(reports,list) or not reports:return False
-    if not matches(reports,policy(source_sha)):return False
+    if not matches(reports,policy(source_sha)) or not context_matches(reports,source_sha=source_sha):return False
     for report in reports:
         alignment=report.get('alignment') or {}
         if (report.get('source_video_sha256')!=source_sha or report.get('device')!='cpu'
@@ -41,6 +42,8 @@ def configuration(report_path):
     source=json.loads(Path(report_path).read_text())['source_sha256']
     override=config.get('source_overrides',{}).get(source,{})
     choice={**config,**override,'source_sha256':source}
+    context=specification(source_sha=source)['identity']
+    if context:choice['recognition_context']=context
     if choice['backend'] not in ('sensevoice','qwen3'):
         raise ValueError('Daily configuration must explicitly select a supported CPU offline model')
     return choice
@@ -64,6 +67,8 @@ def mother_cache_key(choice, root=None):
     root=Path(root) if root is not None else Path(__file__).parent
     identity={key:choice[key] for key in ('source_sha256','backend','model_revisions')}
     identity['audio_preprocessing']=normalized_policy(choice.get('audio_preprocessing',DEFAULT))
+    context=specification(root=root,source_sha=choice['source_sha256'])['identity']
+    if context:identity['recognition_context']=context
     digest=hashlib.sha256(json.dumps(identity,sort_keys=True).encode())
     production=(root/'produce_cn.py').read_text()
     version=re.search(r'^ASR_PIPELINE_VERSION\s*=\s*\d+',production,re.M)
@@ -79,7 +84,8 @@ def cached_evidence(report_path,choice):
     directory=Path(report_path).parent/'qwen_cpu'
     reports=load_reports(directory)
     revisions=choice.get('model_revisions') or {}
-    if not reports or not matches(reports,policy(choice['source_sha256'])):return None
+    if (not reports or not matches(reports,policy(choice['source_sha256']))
+            or not context_matches(reports,source_sha=choice['source_sha256'])):return None
     for report in reports:
         alignment=report.get('alignment') or {}
         if (report.get('source_video_sha256')!=choice['source_sha256']
