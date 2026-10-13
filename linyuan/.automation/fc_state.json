@@ -18730,7 +18730,71 @@
     }
    },
    "source_quality_rejected": true,
-   "recovery_origin_run_id": 37879391147
+   "recovery_origin_run_id": 37879391147,
+   "production_failure_summary": {
+    "slug": "ly-1009-39fcf2",
+    "run_id": 37887928632,
+    "artifact_id": 11597844250,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"虽然宁远对大事表现的不感兴趣，声称熊市、牛市都能赚钱，毕竟他还是成功逃离了两次大熊市。\", \"suspect_quote\": \"宁远\", \"kind\": \"unintelligible_term\", \"reason\": \"在目标嘉宾为“林园”的访谈语境中，“宁远”极大概率是语音识别错误（ASR error），将“林园”误识为发音相近的“宁远”。这是一个具体的专有名词错写，直接影响对说话人身份的理解。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 22, \"quote\": \"林源说：要看看财富对这一百个人的改变。\", \"suspect_quote\": \"林源说：要看看财富对这一百个人的改变。\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾姓名为“林园”，识别为“林源”属于明显的专有名词错写，且该词在上下文中无其他含义可解释。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"林元策划了一个复制林元的计划，要在全国找一百人，每人拿出八千元炒股。\", \"suspect_quote\": \"林元策划了一个复制林元的计划\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中出现的“林元”疑似识别错误，属于错写的专有名词。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"反当时就是用我，我不喜欢用我的账，不喜欢用我的。\", \"suspect_quote\": \"反当时就是用我，我不喜欢用我的账，不喜欢用我的。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘反当时’疑似识别错误，结合上下文应为‘反正当时’或‘反正那时候’；‘用我’在口语中虽可指代自己，但此处与后文‘我的账’衔接生硬，极可能是‘反正当时就是不用我的（账户）’的误识，导致语义不通。\"}, {\"sentence_id\": 5, \"quote\": \"不喜欢我要跟哪个女孩看上我结婚的分我财产怎么办？"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"从一九九零年上海证券交易所开业，掀起中国股市第一轮牛市以来，十七年来，股市已经经历了几次大起大落，而所谓股神林元，就神在十九年炒股经历中，每次遭遇熊市都得以安全脱身，号称所有股票只赚不赔。\", \"suspect_quote\": \"股神林元\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为“林元”属于明显的专有名词错别字，且“股神林元”并非通用金融术语或比喻，而是对具体人物的错误指代，严重影响理解。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"林元称自己没有系统学习过相关的金融知识，对于大盘的走势也不感兴趣。\", \"suspect_quote\": \"林元称自己没有系统学习过相关的金融知识\", \"kind\": \"unintelligible_term\", \"reason\": \"“林元”疑似为识别错误，目标嘉宾应为知名投资者“林园”。在口语转写中，“园”与“元”发音相近，但此处作为人名专有名词出现错别字，直接影响指代准确性。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"选定个股之后，林元还宣讲了他的另一个秘诀，叫乌龟政策，也就是买了股票等着它上涨。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，原文语境为讨论“股神”形象及选股策略，前文多次出现“林园”，此处突然变为“林元”，属于明显的识别错误导致的人名混淆。\"}, {\"sentence_id\": 14, \"quote\": \"二零零五年四月，他曾以百分之九的利息借钱一亿六买入招商银行的可转债，仅仅一年的时间，价格都没有太大波动，他也一直没"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"无论林园的财富神话是真是。\", \"suspect_quote\": \"无论林园的财富神话是真是\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"句子末尾‘是真是’存在明显的截断或识别错误，导致语义不完整且含义不明。根据上下文逻辑，此处应为‘是真还是假’或类似表达，但原文缺失了关键的否定词‘假’及连接词‘还是’，使得‘是真是’无法构成完整的判断结构，属于关键信息缺失导致的识别疑点。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"林源显得十分清闲，他号称只研究中国最好的二十多只股票，偶尔看看财务报表，对于数据分析的要求也不会超出一个职业高中生的能力范围。\", \"suspect_quote\": \"林源显得十分清闲\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为采访嘉宾“林园”，识别结果将人名“林园”错写为同音词“林源”。虽不影响整体理解，但属于专有名词识别错误。\"}, {\"sentence_id\": 7, \"quote\": \"林源让工作人员打开几个账户，向我们展示他所持有的股票情况。\", \"suspect"
+     }
+    ]
+   }
   },
   {
    "key": "weibo_search:5347466289610839",
@@ -24807,21 +24871,25 @@
    "source_check_report_id": 11795093016,
    "production_failure_summary": {
     "slug": "ly-1009-c31f09",
-    "run_id": 38411607326,
-    "artifact_id": 11824900872,
+    "run_id": 37890187166,
+    "artifact_id": 11598287234,
     "accepted": 0,
     "failures": [
      {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个茅台。\", \"suspect_quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文存在明显的语音转写错误或口误：‘全不加起来’语义不通（疑似应为‘全部加起来’或‘就算加起来’），且‘比比’重复用字导致含义不明。关键数字/比较对象缺失，‘一个什么嘛’指代模糊，属于无法解释的具体词语污染，影响对军工行业与茅台对比逻辑的核\"}]"
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      },
      {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1907/2975，总帧数5337；身份匹配但人脸短边不足96px的帧数1068"
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      },
      {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/670，总帧数3347；身份匹配但人脸短边不足96px的帧数670"
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      }
     ]
    }
@@ -83285,5 +83353,5 @@
  },
  "source_refresh_requested_at": 1791915785,
  "inventory_refresh_requested_at": 1791451406,
- "rule_recovery_page": 4
+ "rule_recovery_page": 5
 }
