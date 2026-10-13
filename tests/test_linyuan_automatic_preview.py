@@ -232,3 +232,18 @@ def test_real_question_plus_answer_cannot_be_claim_range_endpoint(monkeypatch,tm
     cues=[dict(start=i*30,end=(i+1)*30,text=t) for i,t in enumerate(texts)]
     proof=p.review_complete_argument(cues,[dict(start=0,end=4)],'林园','',tmp_path,'')
     assert len(calls)==1 and proof['claim_quote']==''.join(texts[2:4])
+def test_crop_recovery_has_separate_no_publish_workflow_and_no_selection_answers():
+    import yaml
+    from scripts.build_linyuan_automatic_preview import build,ROOT
+    workflow=build(crop=True)
+    assert workflow==yaml.safe_load((ROOT/'.github/workflows/linyuan-crop-preview.yml').read_text())
+    assert workflow['permissions']=={'contents':'read','actions':'read'}
+    assert workflow['concurrency']=={'group':'linyuan-crop-preview','cancel-in-progress':False}
+    step=next(s for s in workflow['jobs']['preview']['steps'] if s.get('id')=='render')
+    assert step['env']['SOURCE_VISUAL_CHAPTERS']=='false'
+    assert 'SOURCE_TOPIC_DISCOVERY' not in step['env']
+    assert not any(s.get('name') in {'B 站投稿','上传成片到 Release','准备 B站登录态','明确触发库存核验与自动补位'}
+                   for s in workflow['jobs']['preview']['steps'])
+    import pytest
+    with pytest.raises(ValueError):build(topic=True,crop=True)
+
