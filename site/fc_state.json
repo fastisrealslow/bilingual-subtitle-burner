@@ -26944,9 +26944,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2026-05-19T02:03:00+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"他把我我都二十几岁，我都是摩托罗拉的芯片的代理，你知道吗？\", \"suspect_quote\": \"他把我我都二十几岁\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或指代不清：“他把我我都”语义混乱，可能是“他说我”或“那时候我”的误识，导致年龄描述主体不明。\"}, {\"sentence_id\": 13, \"quote\": \"啊，五G概念，我就告诉你很简单：，全世界没有一个，没有一个合资。\", \"suspect_quote\": \"全世界没有一个，没有一个合资\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字/否定重复：“没有一个，没有一个”在口语中可能是强调，但若原意是“没有一个国家有合资企业”，则当前表述含义模糊，存在识别冗余或截断风险。\"}, {\"sentence_id\": 14, \"quote\": \"不要说你你你依附在他上做寄生虫，想挣钱是吧？\", \"suspect_quote\": \"不要说你你你依附在他上做寄生虫\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写：“说”字重复三次（“说”、“你你你”），虽属口吃，但“依附在他上”中“他”指代不明（指三星？摩托罗拉？），且“做寄生虫”比喻是否被准确识别存疑。\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，五G概念，我就告诉你很简单：，全世界没有一个，没有一个合资。\", \"suspect_quote\": \"全世界没有一个，没有一个合资\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字/否定词重复且语义模糊，“没有一个，没有一个”在口语中虽可表示强调，但此处缺乏明确指代对象（是“没有一家合资企业”还是“没有任何国家有合资”），结合后文“不要说你依附”，前一个“没有一个”可能漏听或误识，导致关键信息不完整。\"}, {\"sentence_id\": 14, \"quote\": \"不要说你你你依附在他上做寄生虫，想挣钱是吧？\", \"suspect_quote\": \"不要说你你你依附在他上做寄生虫\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"连续三个“你”字（“说**你你你**依附”）明显为口吃或重复，但作为识别疑点需指出：若原意是“不要说你依附”，则多出的“你”属于无效重复；若为强调语气，则不符合常规表达，存在识别冗余风险。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -26958,7 +26958,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37976628114,
    "source_check_run_id": 37976628114,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-e205dc",
+    "run_id": 38461847064,
+    "artifact_id": 11847096745,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，五G概念，我就告诉你很简单：，全世界没有一个，没有一个合资。\", \"suspect_quote\": \"全世界没有一个，没有一个合资\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字/否定词重复且语义模糊，“没有一个，没有一个”在口语中虽可表示强调，但此处缺乏明确指代对象（是“没有一家合资企业”还是“没有任何国家有合资”），结合后文“不要说你依附”，前一个“没有一个”可能漏听或误识，导致关键信息不完整。\"}, {\"sentence_id\": 14, \"quote\""
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38461847064,
+    "artifact_id": 11847096745,
+    "name": "production-reject-ly-1009-e205dc",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1uPB6B4Efu",
@@ -26976,9 +26994,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2025-12-27T06:37:49+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我首先考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语或比喻，严重影响理解。\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我首先考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语重复或口吃，严重影响语义理解。\"}, {\"sentence_id\": 13, \"quote\": \"它有一揽子这个东西的话，我就会。\", \"suspect_quote\": \"一揽子这个东西的话\", \"kind\": \"unintelligible_term\", \"reason\": \"'一揽子这个东西'含义不明，既非标准金融术语也非清晰口语指代，疑似将具体名词或专有概念误识别为模糊填充词。\"}, {\"sentence_id\": 15, \"quote\": \"就是，就他存在一种吃饭为什么要拿筷子？\", \"suspect_quote\": \"吃饭为什么要拿筷子\", \"kind\": \"unintelligible_term\", \"reason\": \"该句在上下文中突然出现，缺乏必要的语境铺垫或指代对象，疑似将某个特定行业术语、比喻或专有名词错误识别为日常俗语，导致含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"他是到了一步了，我我就知道。\", \"suspect_quote\": \"他是到了一步了\", \"kind\": \"unintelligible_term\", \"reason\": \"'到了一步'表述不完整且含义模糊，疑似将某个专业阶段、特定动作或状态误识别为普通口语，无法解释其具体所指。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -26990,7 +27008,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37974904497,
    "source_check_run_id": 37974904497,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-0a14d1",
+    "run_id": 38462477809,
+    "artifact_id": 11847666277,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我首先考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语重复或口吃，严重影响语义理解。\"}, {\"sentence_id\": 13, \"quote\": \"它有一揽子这个东西的话，我就会。\", \"suspect_quote\": \"一揽子这个东西的话\", \"kind\": \"unintelligible_term\", \"reason\": "
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38462477809,
+    "artifact_id": 11847666277,
+    "name": "production-reject-ly-1009-0a14d1",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV15ByfBqEoQ",
@@ -27046,9 +27082,9 @@
    "source": "bilibili_collection",
    "author": "投资大佬说",
    "publish_time": "2026-07-08T13:15:22+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"年谈是请教我啊，我说个假话。\", \"suspect_quote\": \"年谈是请教我啊，我说个假话。\", \"kind\": \"unintelligible_term\", \"reason\": \"“年谈”无法解释，疑似将人名（如“林总”或嘉宾名）误识别为无意义词汇；“假话”在访谈语境中极可能为口误或特定隐喻，但此处缺乏上下文支撑，属于含义不明的关键否定/指代。\"}, {\"sentence_id\": 2, \"quote\": \"就是就是你现在更看好达林通还是信泰王？\", \"suspect_quote\": \"就是就是你现在更看好达林通还是信泰王？\", \"kind\": \"unintelligible_term\", \"reason\": \"“达林通”和“信泰王”疑似错写的专有名词（股票或基金名称），非标准行业术语，且无法通过上下文推断其真实指代对象。\"}, {\"sentence_id\": 10, \"quote\": \"我并不是说是啊，这个这个信泰王好，我都买了。\", \"suspect_quote\": \"我并不是说是啊，这个这个信泰王好，我都买了。\", \"kind\": \"unintelligible_term\", \"reason\": \"“信泰王”再次出现，疑似错写的专有名词；整句逻辑混乱，“并不是说是啊”为口语填充与否定混杂，但核心疑点在于无法解释的专名。\"}, {\"sentence_id\": 12, \"quote\": \"我这个组合，你知道粘上你。\", \"suspect_quote\": \"我这个组合，你知道粘上你。\", \"kind\": \"unintelligible_term\", \"reason\": \"“粘上你”含义不明，疑似将人名（如“张某某”）误识别为动词短语，或为严重错写的专有名词/指代。\"}, {\"sentence_id\": 13, \"quote\": \"我这好了，我为了给你去比干啥？\", \"suspect_quote\": \"我这好了，我为了给你去比干啥？\", \"kind\": \"unintelligible_term\", \"reason\": \"“比干啥”含义不明，疑似将人名（如“毕某某”）误识别为动词短语，或为错写的专有名词/指代。\"}, {\"sentence_id\": 21, \"quote\": \"开会子。\", \"suspect_quote\": \"开会子。\", \"kind\": \"unintelligible_term\", \"reason\": \"“开会子”含义不明，疑似将人名（如“开某某”）误识别为动词短语，或为错写的专有名词/指代。正常口语中无此表达。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27060,7 +27096,33 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37965872114,
    "source_check_run_id": 37965872114,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-3ca855",
+    "run_id": 38462898024,
+    "artifact_id": 11847840071,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"年谈是请教我啊，我说个假话。\", \"suspect_quote\": \"年谈是请教我啊，我说个假话。\", \"kind\": \"unintelligible_term\", \"reason\": \"“年谈”无法解释，疑似将人名（如“林总”或嘉宾名）误识别为无意义词汇；“假话”在访谈语境中极可能为口误或特定隐喻，但此处缺乏上下文支撑，属于含义不明的关键否定/指代。\"}, {\"sentence_id\": 2, \"quote\": \"就是就是你现在更看好达林通还是信泰王？\", \"suspect_quote\": \"就是就是你现在更看好达林通还是信泰"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段以反问和举例开场，中间有口语重复（如‘也也也也可能’），结尾处‘谁说谁说假话？你说这个有难，没有没有问题。’语义断裂且未形成完整判断，属于必要论述被切断或指代不明，无法独立成片表达核心观点。；原文问题：[[\"我也没，也不，不，也也也也可能说假话。\", \"口语重复‘也也也也可能’及断句混乱（‘我也没，也不，不’），虽属口吃但影响关键判断的清晰度，需听音确认是否漏录否定词或转折。\"], [\"说假话的人多了，人有多大胆，就有多大产量，谁吃？\", \"'人有多大胆，就有多大产量，谁吃？'中‘谁吃’指代不明，结合前文‘说假话的人多了’，此处逻辑跳跃，可能为误听或故意留白，妨"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我是有便秘，所以就是隔一段吃隔一段吃这个吃啊，我又不敢吃那些流黄。\", \"suspect_quote\": \"我又不敢吃那些流黄\", \"kind\": \"unintelligible_term\", \"reason\": \"“流黄”在上下文中无法解释，疑似为专有名词识别错误或严重错别字（可能指代某种药物或成分），导致含义不明。\"}, {\"sentence_id\": 10, \"quote\": \"不是，一我想起来，哎，一粒吃五斤。\", \"suspect_quote\": \"一粒吃五斤\", \"kind\": \"ambiguous_number_o"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38462898024,
+    "artifact_id": 11847840071,
+    "name": "production-reject-ly-1009-3ca855",
+    "retained": true
+   }
   }
  ],
  "makeup_receipts": {
