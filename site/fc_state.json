@@ -25882,9 +25882,9 @@
    "source": "bilibili_search",
    "author": "人人の股神",
    "publish_time": "2025-03-26T08:13:08+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为具体销量数据在口语中表述不清，可能影响对市场规模的准确理解。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后就能建分行\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字与行业术语冲突：'建分行'通常指银行分支机构建设，但上下文讨论的是医药公司或投资布局，此处'分行'极可能是'工厂'、'产能'或特定项目（如研发中心）的误识别，属于含义不明的关键数字/名词组合。\"}, {\"sentence_id\": 15, \"quote\": \"我买的时候都都是抗生素全全球第一了，是吧？\", \"suspect_quote\": \"我买的时候都都是抗生素全全球第一了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"重复用词与模糊指代：'都都是'为口语冗余，但更严重的是'全全球第一'中'全'字多余且'全球第一'缺乏具体比较维度（如销售额、产量或市场份额），在投资语境下构成含义不明的关键数字/状态描述。\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为未来预测的具体数值，在口语中若未加单位（如'人'）或语境支撑，易产生歧义。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后就能建分行\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字与行业术语矛盾：'建分行'通常指银行分支机构，但上下文讨论的是医药公司或投资标的，此处'分行'极可能是'产能'、'工厂'或'品牌'的识别错误，属于含义不明的关键数字/名词组合。\"}, {\"sentence_id\": 15, \"quote\": \"我买的时候都都是抗生素全全球第一了，是吧？\", \"suspect_quote\": \"我买的时候都都是抗生素全全球第一了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"重复用词与范围表述不清：'都都是'为口语冗余，但'全全球第一'中'全'与'全球'语义重叠且搭配生硬，疑似将'完全'或'已经'误识别为'全'，导致否定/程度副词含义模糊。\"}, {\"sentence_id\": 17, \"quote\": \"就包括中国人不擅长喝奶的情况下，中国人喝奶，那个人均喝奶跟跟那个西方比，跟跟日本这是比比比日韩那都少的多的多。\", \"suspect_quote\": \"中国人不擅长喝奶的情况下，中国人喝奶\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"逻辑连接词缺失导致数字比较对象不明：前半句假设'不擅长喝奶'，后半句直接接'中国人喝奶'，中间缺少转折或数据对比（如'人均摄入量'），使得'跟跟那个西方比，跟跟日本这是比比比日韩那都少的多的多'中的比较基准和数值范围无法准确理解。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -25896,7 +25896,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38308016949,
    "source_check_run_id": 38308016949,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1012-077cfc",
+    "run_id": 38457651789,
+    "artifact_id": 11844941865,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为未来预测的具体数值，在口语中若未加单位（如'人'）或语境支撑，易产生歧义。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38457651789,
+    "artifact_id": 11844941865,
+    "name": "production-reject-ly-1012-077cfc",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1q37E6bEB7",
@@ -26460,10 +26478,10 @@
    "source": "bilibili_search",
    "author": "大佬投资语录",
    "publish_time": "2024-05-30T11:17:00+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"林总，价投最难的问题就是牛市末期公公司估值已经非常高了，又没有合适的一些标的，那那个再去进行投资，那这个时候到底要不要去卖掉呢？\", \"suspect_quote\": \"公公司估值已经非常高了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，'公公司'应为'公司'，多出的'公'字导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"昨天到我们的这有一批人到到访我们公司，我觉得问过。\", \"suspect_quote\": \"昨天到我们的这有一批人到到访我们公司\", \"kind\": \"unintelligible_term\", \"reason\": \"'到到访'疑似识别错误，口语中通常为'来访问'或'到访'，此处重复且搭配不当，影响理解。\"}, {\"sentence_id\": 7, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"'三三'疑似识别错误，结合后文'三三股份'及语境（宁波企业），极可能为'三星'或具体公司名被误识，且'三三'本身非标准简称，属专有名词识别疑点。\"}, {\"sentence_id\": 11, \"quote\": \"我后来就总结出来，这是庆，就这种故事啊，在我身上是发生过的。\", \"suspect_quote\": \"这是庆，就这种故事啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'这是庆'疑似识别错误，结合上下文'总结出来...在我身上是发生过的'，此处应为人名（如'林园'或他人）或特定指代，'庆'字无明确指代对象，属关键信息缺失或错识。\"}, {\"sentence_id\": 21, \"quote\": \"但是这个这个这个这个就是马是前提啊，只要有一次我就夸夸夸，完全超越。\", \"suspect_quote\": \"但是这个这个这个这个就是马是前提啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'马是前提'疑似识别错误，结合语境'只要有一次我就夸夸夸...'，此处应为人名（如'马化腾'或嘉宾名）或特定术语被误识为'马'，且'这个这个这个这个'虽为口吃填充，但紧随其后的'马'无逻辑主语，属关键名词识别疑点。\"}, {\"sentence_id\": 30, \"quote\": \"他这种思维方式就是想小的，即使他大，这个漏了。\", \"suspect_quote\": \"即使他大，这个漏了\", \"kind\": \"unintelligible_term\", \"reason\": \"'这个漏了'疑似识别错误，结合前文'丢了西瓜去捡芝麻'，此处应为'大的漏了'或'西瓜漏了'，'这个'指代不明且不符合口语习惯，属关键信息错识。\"}]",
-   "source_quality_rejected": false,
-   "failure_stage": "editorial-or-render",
+   "failed": true,
+   "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 38173847108,
@@ -26474,7 +26492,13 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38173847108,
    "source_check_run_id": 38173847108,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "failure_evidence": {
+    "run_id": 38458845125,
+    "artifact_id": 11844169069,
+    "name": "source-reject-ly-1011-bfc99c",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1ffuj6uEWr",
