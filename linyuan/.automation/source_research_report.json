@@ -1,13 +1,14 @@
 {
-  "run_id": "38408792874",
+  "run_id": "38428727076",
   "processed": 3,
-  "inspected": 1,
+  "inspected": 0,
   "historical_media_verified": 129,
-  "cache_recovery_pending": 128,
-  "pending": 179,
+  "cache_recovery_pending": 129,
+  "pending": 180,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -4948,13 +4949,13 @@
       "family": "fudan_2026_05",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1791821276.2891285,
-      "next_retry_at": 1791907676.2891285,
+      "last_attempt_at": 1791908117.4578016,
+      "next_retry_at": 1791994517.4578016,
       "download_partial_bytes": 0
     },
     "08bebbc2cff244fd0174": {
@@ -5044,13 +5045,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1791669962.6311998,
-      "next_retry_at": 1791691562.6311998,
+      "last_attempt_at": 1791908417.4667504,
+      "next_retry_at": 1791951617.4667504,
       "download_partial_bytes": 0
     },
     "e522a0a215ccc0236b32": {
@@ -5059,13 +5060,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1791702883.3679912,
-      "next_retry_at": 1791724483.3679912,
+      "last_attempt_at": 1791908419.8945763,
+      "next_retry_at": 1791951619.8945763,
       "download_partial_bytes": 0
     },
     "a1eacc7f2743e2f4fd82": {
@@ -5109,11 +5110,11 @@
       "role": "mother",
       "family": "fudan_2026_05",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_error": null,
       "last_attempt_at": 1791900265.629055,
       "next_retry_at": 0,
@@ -5285,18 +5286,24 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1791836366.9103787,
-      "next_retry_at": 1791879566.9103787,
+      "next_retry_at": 1791929714.0268102,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1791908114.0268102
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1791836366.9103787,
-      "next_retry_at": 1791879566.9103787,
+      "next_retry_at": 1791929714.0268102,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1791908114.0268102
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
       "status": "searched",
@@ -5369,11 +5376,14 @@
       "new_ids": []
     },
     "historical_long_leads_20261010|林园 2006 走进资本市场 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1791832514.372441,
-      "next_retry_at": 1791875714.372441,
+      "next_retry_at": 1791929714.0268102,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1791908114.0268102
     }
   }
 }
