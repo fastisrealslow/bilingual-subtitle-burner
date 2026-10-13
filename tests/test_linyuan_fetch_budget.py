@@ -209,9 +209,10 @@ def test_faster_mirror_resumes_the_existing_partial_without_erasing_it(monkeypat
     assert json.loads(manifest.read_text())['identity']==dict(source='same-source',paths=['/video'])
 
 
-def test_large_checkpoint_uses_complete_bounded_ranges_on_fastest_same_mirror(monkeypatch,tmp_path):
+@pytest.mark.parametrize('mirror_count', [1,2])
+def test_large_checkpoint_uses_complete_bounded_ranges_on_fastest_same_mirror(monkeypatch,tmp_path,mirror_count):
     payload=(bytes(range(256))*100000)
-    urls=['https://fast.test/track','https://slow.test/track']
+    urls=['https://fast.test/track','https://slow.test/track'][:mirror_count]
     out=tmp_path/'video.m4s';offset=1024*1024
     out.with_suffix('.m4s.part').write_bytes(payload[:offset])
     out.with_suffix('.m4s.download.json').write_text(json.dumps(dict(

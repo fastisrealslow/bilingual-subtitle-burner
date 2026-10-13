@@ -10,6 +10,32 @@ from source_selection import select
 from live_tracking import frame_interval
 
 
+def test_real_long_keynote_topic_questions_recover_exact_complete_source_chapters(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    case=json.loads((Path(__file__).parent/'fixtures/linyuan_keynote_topic_questions.json').read_text())
+    cues=case['cues'];before=json.dumps(cues,ensure_ascii=False)
+    diagnostics={}
+    picks=S.select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
+    assert [[x['start'],x['end']] for x in picks]==case['expected_ranges']
+    assert diagnostics['accepted']==3
+    assert [round(cues[x['end']]['end']-cues[x['start']]['start'],2) for x in picks]==[178.08,111.68,138.24]
+    assert all(S.boundary_error(cues,p) is None for p in picks)
+    assert S.boundary_error(cues,dict(start=275,end=420)), 'Do not merge the new chapters again'
+    assert json.dumps(cues,ensure_ascii=False)==before
+    # No transcript edit, guessed timestamps, semantic pass, or quality proof.
+    assert all('passed' not in p and p['selection_method']=='source_continuous_speech_v1' for p in picks)
+
+
+@pytest.mark.parametrize('text', ['为什么呢？','是吧？','我们为什么到今天结果是一致的？',
+    '比如，我们投资的核心是什么？','他说：我是怎么研究医药的？',
+    '您投资的核心是什么？','您是怎么研究医药的？'])
+def test_examples_bare_rhetorical_questions_and_host_questions_are_not_keynote_chapters(text):
+    from source_selection import SELF_TOPIC_SECTION
+    assert not SELF_TOPIC_SECTION.fullmatch(text)
+
+
 def dialogue():
     return [dict(start=0,end=10,text='您对医药股有什么判断？'),
         dict(start=10,end=55,text='医药行业需求随着老龄化增长，我们长期持有这些企业。'),
