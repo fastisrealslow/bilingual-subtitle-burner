@@ -44,7 +44,7 @@ def report_missing(path, steps, slug):
     path=Path(path)
     if path.exists():return False
     failed=[name for name, row in steps.items() if row.get('outcome')=='failure']
-    if not failed or any(name in {'src','source_gate'} for name in failed):return False
+    if not failed or any(name in {'src','source_gate','source_admission'} for name in failed):return False
     rejection=dict(stage='workflow-runtime',error_type='WorkflowRuntimeFailure',retryable=True,
         reason='工作流步骤失败，未形成素材不合格结论：'+','.join(failed))
     diagnostic=alignment_failure(path.parent/'_tmp') if failed==['render'] else None

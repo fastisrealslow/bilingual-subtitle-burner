@@ -168,6 +168,10 @@ jobs:
           # （2026-09-01 实测：装到 5.0.0 后人脸检测全失败，封面退化成取第一帧）
           pip install yt-dlp pillow 'opencv-python<5' rapidocr-onnxruntime
 
+      - name: 核对新源及旧任务重试的已知准入限制
+        id: source_admission
+        run: python source_admission_guard.py
+
       - name: 缓存 CPU 本地人物模型
         uses: actions/cache@v4
         with:
@@ -499,6 +503,7 @@ jobs:
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/transcript_audit*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/visual-question-cards/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/selection_diagnostics*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/native-rejection*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/border*.json
@@ -631,7 +636,7 @@ jobs:
       # 素材门禁失败要与普通出片异常分开：FC 每小时读取这个小 artifact，
       # 立即淘汰该素材并补调一个新候选，不再傻等 12 小时无成片超时。
       - name: 上传素材拒绝结果
-        if: failure() && (steps.source_gate.outcome == 'failure' || steps.src.outcome == 'failure')
+        if: failure() && (steps.source_admission.outcome == 'failure' || steps.source_gate.outcome == 'failure' || steps.src.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
           name: source-reject-${{ env.RUN_SLUG }}
