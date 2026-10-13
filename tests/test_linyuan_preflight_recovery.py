@@ -84,6 +84,27 @@ def test_medium_opening_fix_reopens_v40_failure_once_after_prior_recovery(monkey
     assert not fc._recover_changed_production_rule(state,entry,run)
 
 
+def test_actual_progressing_prefix_failure_reopens_once_and_preserves_lifetime_counters(monkeypatch):
+    state,entry,run,_=evidence(monkeypatch,changed='linyuan/ci_fetch_bilibili.py')
+    entry.update(failed=True,last_error='取源未完成：RuntimeError: 所有 CDN 镜像下载失败：CDN前缀核对响应截断，保留断点',
+        source_url='https://www.bilibili.com/video/BV1RJ411Q7Ki',source_check_attempts=2,
+        automatic_rule_recoveries={'medium-source-opening-v41':{'run_id':99}})
+    run.update(display_title='中文源出片 · mother',updated_at='2026-10-01T00:00:00Z')
+    original=fc.gh
+    def api(method,path,*args,**kwargs):
+        if '/workflows/' in path:return dict(workflow_runs=[run])
+        return original(method,path,*args,**kwargs)
+    monkeypatch.setattr(fc,'gh',api)
+    assert fc._recover_rule_backlog(state,{'mother':entry})==1
+    assert not entry['failed'] and entry['source_check_attempts']==2
+    assert entry['automatic_rule_recoveries']['medium-source-opening-v41']=={'run_id':99}
+    assert 'download-prefix-progress-v3' in entry['automatic_rule_recoveries']
+    assert 'source_check_run_id' not in entry, 'No ASR exists for a download-only failure'
+    assert entry['quality_retries']==1
+    entry['failed']=True
+    assert fc._recover_rule_backlog(state,{'mother':entry})==0
+
+
 @pytest.mark.parametrize('reason',[
     '独立文字识别疑点审核不可用：invalid evidence',
     '原始ASR存在影响理解的疑点，禁止猜改后发布：normal metaphor'])

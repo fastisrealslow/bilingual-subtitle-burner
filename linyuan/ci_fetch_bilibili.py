@@ -328,6 +328,10 @@ def identical_prefix(op, url, referer, partial, total, etag, deadline):
             except (OSError, RuntimeError, IncompleteRead) as exc:
                 last = exc
             stalled = 0 if cursor > before else stalled + 1
+            if cursor == 0 and stalled:
+                # The outer transfer already retries mirrors three times.
+                # Do not multiply a cold, zero-progress probe's attempts.
+                raise RuntimeError(f'CDN前缀核对尚无进度，保留断点：{last}')
         if cursor != size:
             raise RuntimeError(f'CDN前缀核对连续无进度，保留断点：{last}')
     return True

@@ -3175,6 +3175,9 @@ def _recover_changed_production_rule(st, candidate, run):
            ('download-prefix-v2',('CDN内容版本改变','取源达到总时间预算',
                                 '取源未完成：RuntimeError: embed 页没有 __playinfo__'),
             ('linyuan/ci_fetch_bilibili.py',)),
+           ('download-prefix-progress-v3',('CDN前缀核对响应截断','CDN前缀核对连续无进度',
+                                         'CDN前缀核对尚无进度'),
+            ('linyuan/ci_fetch_bilibili.py',)),
            ('source-boundaries-v19',('原文中未找到满足120秒','NoStructuralCandidate'),
             ('linyuan/source_selection.py',)),
            ('automatic-source-context-v10',('原文中未找到满足20秒',
@@ -3235,6 +3238,7 @@ def _recover_rule_backlog(st, by_slug):
                   '原文中未找到满足20秒','本轮选段没有返回通过','标题文案待重试',
                   '完整词句无法放入两行','意群分组','单屏跨越超过8秒',
                   '独立文字识别疑点审核不可用',
+                  'CDN前缀核对响应截断','CDN前缀核对连续无进度','CDN前缀核对尚无进度',
                   '观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问'))}
     if not eligible:return 0
     page=int(st.get('rule_recovery_page') or 1)

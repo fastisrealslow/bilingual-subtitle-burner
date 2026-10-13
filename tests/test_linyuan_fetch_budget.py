@@ -58,10 +58,10 @@ def test_nonprogressing_prefix_is_bounded_and_total_deadline_remains(tmp_path,mo
             calls.append(1);raise TimeoutError('stalled')
     with pytest.raises(RuntimeError):
         b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()+30)
-    assert len(calls)==3
+    assert len(calls)==1
     with pytest.raises(b.FetchBudgetExceeded):
         b.identical_prefix(Opener(),'https://cdn.test/track','source',partial,90000,'new',b.time.monotonic()-1)
-    assert len(calls)==3
+    assert len(calls)==1
 
 
 def test_incomplete_http_read_resumes_after_only_successfully_compared_bytes(tmp_path):
