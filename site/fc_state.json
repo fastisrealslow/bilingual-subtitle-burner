@@ -27225,9 +27225,9 @@
    "source": "bilibili_series",
    "author": "投资就是滚雪球",
    "publish_time": "2026-08-09T01:15:00+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"以前我们学过一个什么一个，小时候学那篇课文，那是那个手财炉，是吧？\", \"suspect_quote\": \"手财炉\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“法国”、“课文”，应为《欧也妮·葛朗台》中的角色“葛朗台”（守财奴），原文“手财炉”无此词汇且含义不明。\"}, {\"sentence_id\": 3, \"quote\": \"法国那个手财炉，样的公司是挣钱极了。\", \"suspect_quote\": \"法国那个手财炉\", \"kind\": \"unintelligible_term\", \"reason\": \"延续上一句的错误识别，“手财炉”并非真实存在的公司或人物，属于明显的语音转文字错误，导致关键指代对象无法理解。\"}, {\"sentence_id\": 20, \"quote\": \"啊，这个要每一步角度去踩踩对，那才是。\", \"suspect_quote\": \"每一步角度去踩踩对\", \"kind\": \"unintelligible_term\", \"reason\": \"“踩踩对”表述极其拗口且不符合常规汉语表达习惯，疑似将“踩对”重复或误识别为“踩踩”，导致语义模糊，无法准确传达原意。\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"以前我们学过一个什么一个，小时候学那篇课文，那是那个手财炉，是吧？\", \"suspect_quote\": \"手财炉\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“法国”、“课文”，应为《欧也妮·葛朗台》中的“守财奴”，原文“手财炉”无法解释且含义不明。\"}, {\"sentence_id\": 3, \"quote\": \"法国那个手财炉，样的公司是挣钱极了。\", \"suspect_quote\": \"法国那个手财炉\", \"kind\": \"unintelligible_term\", \"reason\": \"延续上一句的错误识别，“手财炉”仍为无法解释的疑似错写专有名词，导致句子指代不清。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27239,7 +27239,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37925832366,
    "source_check_run_id": 37925832366,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-a92c01",
+    "run_id": 38467721822,
+    "artifact_id": 11851101049,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"以前我们学过一个什么一个，小时候学那篇课文，那是那个手财炉，是吧？\", \"suspect_quote\": \"手财炉\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“法国”、“课文”，应为《欧也妮·葛朗台》中的“守财奴”，原文“手财炉”无法解释且含义不明。\"}, {\"sentence_id\": 3, \"quote\": \"法国那个手财炉，样的公司是挣钱极了。\", \"suspect_quote\": \"法国那个手财炉\", \"kind\": \"unintell"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38467721822,
+    "artifact_id": 11851101049,
+    "name": "production-reject-ly-1009-a92c01",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1ffuj6uEWr",
