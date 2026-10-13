@@ -25814,10 +25814,10 @@
    "source": "bilibili_search",
    "author": "雪球官方账号",
    "publish_time": "2019-11-30T12:45:29+00:00",
-   "failed": false,
-   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：CDN前缀核对响应截断，保留断点",
-   "source_quality_rejected": false,
-   "failure_stage": "source-fetch",
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个茅台。\", \"suspect_quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文存在明显的语音转写错误或口误：‘全不加起来’语义不通（疑似应为‘全部加起来’或‘就算加起来’），且‘比比’重复用字导致含义不明。关键数字/比较对象缺失，‘一个什么嘛’指代模糊，属于无法解释的具体词语污染，影响对军工行业与茅台对比逻辑的核\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
      "run_id": 37865232815,
