@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791920280,
+  "updated_at": 1791920422,
   "inventory_updated_at": 1791920273,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 14,
+    "active_or_recovering_sources": 20,
     "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791920279,
+    "updated_at": 1791920422,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 65,
@@ -127,13 +127,13 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 1001,
+    "failed": 995,
     "paused": 5,
     "ready": 3,
     "interrupted": 2,
     "excluded": 1,
     "running": 6,
-    "retry_queued": 8
+    "retry_queued": 14
   },
   "tasks": [
     {
@@ -17569,24 +17569,6 @@
       "run_updated_at": "2026-10-10T05:20:26Z"
     },
     {
-      "slug": "ly-1010-9d1da0",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"嗯，粮油行业，这是整个我们看它的，还是在，至少是少年阶段，嗯，青少年少年啊，甚至儿童阶段，那跟世质，你国外还是相差巨大的。\", \"suspect_quote\": \"跟世质，你国外还是相差巨大的\", \"kind\": \"unintelligible_term\", \"reason\": \"“世质”无法解释，疑似将“世界”或“西方”误识别为无意义的词组，导致关键比较对象含义不明。\"}]",
-      "signature": {
-        "ts": 1791609752,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38027290870,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38027290870",
-      "run_started_at": "2026-10-10T05:22:32Z",
-      "run_updated_at": "2026-10-10T05:36:47Z"
-    },
-    {
       "slug": "ly-1010-2348ad",
       "status": "failed",
       "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
@@ -17641,24 +17623,6 @@
       "run_updated_at": "2026-10-10T06:15:17Z"
     },
     {
-      "slug": "ly-1010-10b1ea",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"早期也有人说，如说在国际市场投资，为什么说外国人这个这个，他们总结出来的，语言叫不见数字不发音，啊，就是你一切这个这个猜想的或者判断的，他们多数是不认，啊，都是要见得实实在在的东西，那就是企业的盈利，企业的发展，这样就逐步形成了一个把确定性放在第一位。\", \"suspect_quote\": \"不见数字不发音\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误。在金融投资语境下，林园常引用的经典观点是“不见数字不发言”（No numbers, no opinion）。原文中的“发音”与“发言”拼音相近但含义完全不同，“发音”在此处无法解释为行业术语或合理比喻，属于典型的同音错别字，会\"}]",
-      "signature": {
-        "ts": 1791613107,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38030473479,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38030473479",
-      "run_started_at": "2026-10-10T06:18:26Z",
-      "run_updated_at": "2026-10-10T06:59:26Z"
-    },
-    {
       "slug": "ly-1010-f1e3ed",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1526, 2: 0.1732, 3: 0.1537, 4: 0.0392, 5: 0.1341, 6: 0.1586, 7: 0.1331, 8: 0.1102, 9: 0.2983, 10: 0.158, 11: 0.1314, 12: 0.1993, 13: 0.2108, 14: 0.166, 15: 0.1687, 16: 0.2051, 17: 0.1375, 18: 0.2311}",
@@ -17675,42 +17639,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38030477422",
       "run_started_at": "2026-10-10T06:18:31Z",
       "run_updated_at": "2026-10-10T06:28:16Z"
-    },
-    {
-      "slug": "ly-1010-e28296",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"我以前，我自看好两个，就是确定高的券商，也是一个和国际，没有接轨的。\", \"suspect_quote\": \"一个和国际\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘一个和国际’疑似错写专有名词或指代不明，无法解释具体对象（是‘一家国际’还是某特定机构名），属于疑似错写的专有名词。\"}, {\"sentence_id\": 21, \"quote\": \"啊，那么我们比如说我们到一百四、一百五的时候，我们就把它卖了，是吧？\", \"suspect_quote\": \"到一百四、一百五\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字‘一百四、一百五’在可转债强赎语境下缺乏单位（元/张）及明确指代对象，属于含义不明的关键数字。\"}, {\"sentence_id\": 22, \"quote\": \"一百零几，券商，还有这个这个这个什么，呃，银行，我就买入医药，一百零几嘛。\", \"suspect_quote\": \"一百零几\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘一百零几’作为买入价格描述过于模糊，未指明具体标的或单位，属于含义不明的关键数字。\"}]",
-      "signature": {
-        "ts": 1791613857,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38031203456,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031203456",
-      "run_started_at": "2026-10-10T06:30:57Z",
-      "run_updated_at": "2026-10-10T06:51:07Z"
-    },
-    {
-      "slug": "ly-1010-ed1f62",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"所有的人，但是人性嘛，啊，人性嘛，有的人他可能反映是一些深反应，不是那么能的。\", \"suspect_quote\": \"深反应\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“人性”、“有的人他可能反映”，此处应为口语中的“深反应”（指深层反应或深刻反应）或更可能是“深以为然/深有感触”的误听，但“深反应”本身含义不明且不符合常规表达，属于无法解释的具体词语。\"}, {\"sentence_id\": 10, \"quote\": \"就老师，他跟我探讨的是他是我老师，我都给他。\", \"suspect_quote\": \"他是我老师\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“就老师，他跟我探讨的是”，此处“他是我老师”在语法和逻辑上不通顺，疑似将口语中的指代或称呼识别错乱，导致句子含义不明。\"}, {\"sentence_id\": 18, \"quote\": \"这里本书就是我当时给一个报社，还有杂志社供奉的。\", \"suspect_quote\": \"供奉的\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“给一个报社，还有杂志社”，此处“供奉”一词用词不当且不符合语境，疑似识别错误，应为“赠送”、“提供”或类似词汇，“供奉”在此处含义不明。\"}, {\"sentence_id\": 19, \"quote\": \"然后我们一个叫王宏的，大友，我，他可能总结了一下。\", \"suspect_quote\": \"王宏的，大友\", \"kind\": \"unintelligible_term\", \"reason\": \"人名识别疑点。“王宏的”可能是“王宏”加语气词“的”，但“大友”极疑似识别错误，结合林园访谈常见搭档或提及人物，可能是“大禹”、“大宇”或其他名字，或者“大友”是误听，属于疑似错写的专有名词。\"}, {\"sentence_id\": 21, \"quote\": \"因为我那是很火啊，是哪年是七版，零七年版的这个书。\", \"suspect_quote\": \"七版\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"结合上下文“零七年新版”，此处“七版”与“零七年”连用产生歧义，是“第七版”还是“七年版本”？在口语中可能指“第七版”，但识别为“七版”单独出现时含义不明，且与前文“零七年”衔接不自然，属于关键数字或表述不清。\"}, {\"sentence_id\": 29, \"quote\": \"但是发财，这个是当年就是王府井就卖了三十九万，就几个月卖了三十九万，我过去不断的交易。\", \"suspect_quote\": \"三十九万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"结合上下文“王府井就卖了三十九万”，此处“三十九万”指代不明，是股价、市值还是其他金额？在口语省略中可能指“涨了三十多万”或“卖了三十多万股”，但识别为具体数字“三十九万”且无单位（元/股）时，含义存在歧义，属于关键数字污染。\"}]",
-      "signature": {
-        "ts": 1791614413,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38031736370,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031736370",
-      "run_started_at": "2026-10-10T06:40:12Z",
-      "run_updated_at": "2026-10-10T07:52:50Z"
     },
     {
       "slug": "ly-1010-0e99bf",
@@ -17839,24 +17767,6 @@
       "run_updated_at": "2026-10-10T12:55:38Z"
     },
     {
-      "slug": "ly-1010-57b7c8",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 27, \"quote\": \"啊，不管怎么说，政府倡导的，还有这个现在这个这个五一币也需要钱。\", \"suspect_quote\": \"五一币\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或商业语境下无明确含义，疑似将“人民币”误识别为“五一币”，属于关键名词错写。\"}]",
-      "signature": {
-        "ts": 1791637081,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38053904740,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38053904740",
-      "run_started_at": "2026-10-10T12:58:00Z",
-      "run_updated_at": "2026-10-10T13:13:14Z"
-    },
-    {
       "slug": "ly-1010-78fdc9",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.096, 2: 0.197, 3: 0.095, 4: 0.1156, 5: 0.2186, 6: 0.1485, 7: 0.185, 8: 0.176, 9: 0.0815, 10: 0.1834, 11: 0.1896, 12: 0.1104, 13: 0.2152, 14: 0.1476, 15: 0.153, 16: 0.1912, 17: 0.1159, 18: 0.108}",
@@ -17891,24 +17801,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38055875810",
       "run_started_at": "2026-10-10T13:28:58Z",
       "run_updated_at": "2026-10-10T13:56:14Z"
-    },
-    {
-      "slug": "ly-1010-b7b881",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"就像刚才你说黄金这个事儿，我虽然不知道。\", \"suspect_quote\": \"我虽然不知道\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不知道’在此处指代不明，未说明具体不知道什么内容（是不知道黄金价格、逻辑还是其他），属于关键信息缺失导致的含义模糊。\"}, {\"sentence_id\": 8, \"quote\": \"但是为什么我说黄金，我看都不看，我不听都不听，别跟我说。\", \"suspect_quote\": \"我看都不看，我不听都不听\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不看’‘不听’为口语重复强调，但结合上下文‘别跟我说’，否定对象（黄金相关言论）指代不够精确，易被误读为完全拒绝沟通而非拒绝特定信息。\"}, {\"sentence_id\": 21, \"quote\": \"他能有几万亿的那么多钱吗？\", \"suspect_quote\": \"他能有几万亿的那么多钱吗\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘几万亿’为模糊数量词，虽口语中常见，但作为对负债规模的质疑，缺乏明确量级参照，可能影响对‘瞎扯’论断的理解基础。\"}, {\"sentence_id\": 26, \"quote\": \"就是我说大部分会超过百分之五十会活。\", \"suspect_quote\": \"大部分会超过百分之五十会活\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之五十’为具体比例，但‘会活’指代存活率还是存活数量未明，且与前句‘爆雷’语境衔接存在歧义，数字含义不清晰。\"}, {\"sentence_id\": 27, \"quote\": \"你现在超过基本上都是一个爆雷一个爆雷，最后都是失败的，是已经是达到基本上是百分之一，百分之一九十以上。\", \"suspect_quote\": \"已经是达到基本上是百分之一，百分之一九十以上\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之一，百分之一九十以上’明显为识别错误或口误，数字组合不合逻辑（1% 与 90%+ 混用），导致关键数据无法理解。\"}]",
-      "signature": {
-        "ts": 1791639506,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38056493204,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38056493204",
-      "run_started_at": "2026-10-10T13:38:26Z",
-      "run_updated_at": "2026-10-10T13:53:37Z"
     },
     {
       "slug": "ly-1010-504753",
@@ -20521,24 +20413,6 @@
       "run_updated_at": "2026-10-13T18:40:21Z"
     },
     {
-      "slug": "ly-1013-4db09e",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791916824,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791917928,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38448643607,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38448643607",
-      "run_started_at": "2026-10-13T18:40:24Z",
-      "run_updated_at": "2026-10-13T18:42:20Z"
-    },
-    {
       "slug": "ly-1013-5a1382",
       "status": "running",
       "detail": "正在出片",
@@ -20558,21 +20432,21 @@
     },
     {
       "slug": "ly-1013-776f97",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791917074,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791921253,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 38449213557,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38449213557",
       "run_started_at": "2026-10-13T18:44:33Z",
-      "run_updated_at": "2026-10-13T18:44:38Z"
+      "run_updated_at": "2026-10-13T19:37:24Z"
     },
     {
       "slug": "ly-1013-cf8b8e",
@@ -20717,6 +20591,132 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
       "run_started_at": "2026-10-11T19:32:01Z",
       "run_updated_at": "2026-10-11T19:53:12Z"
+    },
+    {
+      "slug": "ly-1010-b7b881",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791920309,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791920308,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38056493204,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38056493204",
+      "run_started_at": "2026-10-10T13:38:26Z",
+      "run_updated_at": "2026-10-10T13:53:37Z"
+    },
+    {
+      "slug": "ly-1010-57b7c8",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791920316,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791920315,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38053904740,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38053904740",
+      "run_started_at": "2026-10-10T12:58:00Z",
+      "run_updated_at": "2026-10-10T13:13:14Z"
+    },
+    {
+      "slug": "ly-1010-ed1f62",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791920324,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791920323,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38031736370,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031736370",
+      "run_started_at": "2026-10-10T06:40:12Z",
+      "run_updated_at": "2026-10-10T07:52:50Z"
+    },
+    {
+      "slug": "ly-1010-e28296",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791920331,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791920330,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38031203456,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38031203456",
+      "run_started_at": "2026-10-10T06:30:57Z",
+      "run_updated_at": "2026-10-10T06:51:07Z"
+    },
+    {
+      "slug": "ly-1010-10b1ea",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791920337,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791920336,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38030473479,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38030473479",
+      "run_started_at": "2026-10-10T06:18:26Z",
+      "run_updated_at": "2026-10-10T06:59:26Z"
+    },
+    {
+      "slug": "ly-1010-9d1da0",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791920344,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791920343,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38027290870,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38027290870",
+      "run_started_at": "2026-10-10T05:22:32Z",
+      "run_updated_at": "2026-10-10T05:36:47Z"
+    },
+    {
+      "slug": "ly-1013-4db09e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791920381,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38456599919,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38456599919",
+      "run_started_at": "2026-10-13T19:39:41Z",
+      "run_updated_at": "2026-10-13T19:39:45Z"
     }
   ],
   "runs": {
@@ -28883,14 +28883,14 @@
       "display_title": "中文源出片 · ly-1013-2627ca"
     },
     "ly-1013-4db09e": {
-      "id": 38448643607,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-13T18:40:24Z",
-      "updated_at": "2026-10-13T18:42:20Z",
-      "run_started_at": "2026-10-13T18:40:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38448643607",
-      "run_number": 1998,
+      "id": 38456599919,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-13T19:39:41Z",
+      "updated_at": "2026-10-13T19:39:45Z",
+      "run_started_at": "2026-10-13T19:39:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38456599919",
+      "run_number": 2002,
       "display_title": "中文源出片 · ly-1013-4db09e"
     },
     "ly-1013-cf8b8e": {
@@ -28906,10 +28906,10 @@
     },
     "ly-1013-776f97": {
       "id": 38449213557,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-13T18:44:33Z",
-      "updated_at": "2026-10-13T18:44:38Z",
+      "updated_at": "2026-10-13T19:37:24Z",
       "run_started_at": "2026-10-13T18:44:33Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38449213557",
       "run_number": 2000,
