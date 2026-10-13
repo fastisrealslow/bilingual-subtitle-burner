@@ -166,7 +166,7 @@ def preflight_geometry(cap, first_frame, count, fps, matching_face, exclusions, 
     Always rewind the decoder to the original exact start frame.
     """
     import cv2
-    samples=[];obstruction=None
+    samples=[];obstruction=None;decoded_samples=[]
     indices=sorted({first_frame+min(count-1,int(count*(i+.5)/12)) for i in range(12)})
     try:
         for index in indices:
@@ -174,6 +174,7 @@ def preflight_geometry(cap, first_frame, count, fps, matching_face, exclusions, 
             if not ok:
                 samples.append(dict(frame=index,status='unreadable'))
                 continue
+            decoded_samples.append(frame)
             face=matching_face(frame)
             if face is None:
                 samples.append(dict(frame=index,status='identity_inconclusive'))
@@ -194,6 +195,48 @@ def preflight_geometry(cap, first_frame, count, fps, matching_face, exclusions, 
         source_start=first_frame/fps,duration=count/fps,samples=samples,
         outcome='impossible' if obstruction else 'requires_full_verification',
         final_quality_approved=False)
+    # A valid face crop can still straddle an encoded source bar. Measure only
+    # uniform strips present in EVERY selected-interval sample, then route the
+    # unchanged crop planner around them like other source exclusions. Never
+    # waive the final black-edge gate or remove a large/dynamic dark region.
+    proof['source_border_exclusions']=[]
+    if not obstruction and len(decoded_samples)==len(indices) and len(indices)>=6:
+        from source_geometry import black_border_crop
+        height,width=decoded_samples[0].shape[:2]
+        try:
+            w,h,x,y=black_border_crop(decoded_samples)
+            marks=[]
+            if x:marks.append([0,0,x/width,1])
+            if x+w<width:marks.append([(x+w)/width,0,1,1])
+            if y:marks.append([0,0,1,y/height])
+            if y+h<height:marks.append([0,(y+h)/height,1,1])
+            proof['source_border_exclusions']=marks
+            proof['source_border_geometry']=dict(samples=len(decoded_samples),
+                input=[width,height],crop=[w,h,x,y],final_quality_approved=False)
+            if all('face' in row for row in samples):
+                # A question/logo at the far left can interrupt a real top bar.
+                # Inspect the corridor containing EVERY matched face plus its
+                # unchanged side margins. Exclude only the measured black ROI,
+                # not an imagined full-width bar or a region containing people.
+                left=max(0,math.floor(min(row['face'][0]-8 for row in samples)/2)*2)
+                right=min(width,math.ceil(max(row['face'][0]+row['face'][2]+8
+                                             for row in samples)/2)*2)
+                if right>left:
+                    cw,ch,cx,cy=black_border_crop([frame[:,left:right] for frame in decoded_samples])
+                    corridor_marks=[]
+                    if cy:corridor_marks.append([left/width,0,right/width,cy/height])
+                    if cy+ch<height:corridor_marks.append([left/width,(cy+ch)/height,right/width,1])
+                    marks.extend(mark for mark in corridor_marks if not any(
+                        other[0]<=mark[0] and other[1]<=mark[1]
+                        and other[2]>=mark[2] and other[3]>=mark[3] for other in marks))
+                    proof['source_border_geometry']['subject_corridor']=dict(
+                        bounds=[left,0,right,height],crop=[cw,ch,cx,cy],
+                        source_frames=[row['frame'] for row in samples],
+                        exclusions=corridor_marks,final_quality_approved=False)
+        except ValueError as exc:
+            proof['source_border_exclusions']=[]
+            proof['source_border_geometry']=dict(samples=len(decoded_samples),
+                applied=False,reason=str(exc),final_quality_approved=False)
     Path(output).with_suffix('.preflight.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     if obstruction:
         proof.update(passed=False,error=obstruction['reason'],
@@ -277,6 +320,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
     first_frame,count=frame_interval(start,duration,fps,round(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
     cap.set(cv2.CAP_PROP_POS_FRAMES,first_frame)
     output=Path(output); log=output.with_suffix('.ffmpeg.log')
+    geometry={}
     if context_crop is None:
         def matching_face(frame):
             matches=[]
@@ -291,7 +335,8 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
                 if score>=threshold:matches.append((score,face))
             return max(matches,key=lambda row:row[0])[1] if matches else None
         try:
-            preflight_geometry(cap,first_frame,count,fps,matching_face,exclusions,output)
+            geometry=preflight_geometry(cap,first_frame,count,fps,matching_face,exclusions,output) or {}
+            exclusions=tuple(exclusions)+tuple(geometry.get('source_border_exclusions') or [])
         except BaseException:
             cap.release()
             raise
@@ -318,6 +363,7 @@ def render_tracked(src,start,duration,output,reference,model_paths,threshold=.36
             passed=error is None and (context_frames/count>=.7 and len(target_times)>=6
                 if context_crop is not None else matched/count>=.8),matched_ratio=matched/count)
         proof['framing'] = framing.proof()
+        proof['source_border_geometry']=geometry.get('source_border_geometry')
         proof['reference_gallery']=dict(primary_sha256=hashlib.sha256(Path(reference).read_bytes()).hexdigest(),
             feature_count=len(identities),samples=gallery_evidence,
             admission='Every sample face independently matches the original reference; no online expansion')

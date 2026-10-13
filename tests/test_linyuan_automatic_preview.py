@@ -59,6 +59,21 @@ def test_preview_matches_production_steps_and_has_no_publication_capability():
             assert step['with']['name'].startswith('preview-')
 
 
+def test_speech_topic_preview_is_isolated_and_still_has_no_publication_capability():
+    builder=script('build_linyuan_automatic_preview')
+    doc=yaml.safe_load((ROOT/'.github/workflows/linyuan-topic-preview.yml').read_text())
+    assert doc==builder.build(topic=True)
+    assert doc['permissions']=={'contents':'read','actions':'read'}
+    assert doc['concurrency']['group']=='linyuan-topic-preview'
+    render=next(s for s in doc['jobs']['preview']['steps'] if s.get('id')=='render')
+    assert render['env']['SOURCE_TOPIC_DISCOVERY']=='true'
+    assert render['env']['SOURCE_VISUAL_CHAPTERS']=='false'
+    assert '--max-outputs "$RUN_MAX_OUTPUTS"' in render['run']
+    assert 'SOURCE_TOPIC_DISCOVERY' not in next(s for s in yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())['jobs']['produce']['steps'] if s.get('id')=='render')['env']
+    for s in doc['jobs']['preview']['steps']:
+        assert not any(x in s.get('run','') for x in ('publish_bilibili','fc/','workflow run'))
+
+
 @pytest.mark.parametrize('key,value',[
     ('title','预填的标题'),('selected_parts','1'),('auto_publish',True),
     ('max_outputs',True),('max_outputs',4),('source','http://example.com/video'),
@@ -217,3 +232,41 @@ def test_real_question_plus_answer_cannot_be_claim_range_endpoint(monkeypatch,tm
     cues=[dict(start=i*30,end=(i+1)*30,text=t) for i,t in enumerate(texts)]
     proof=p.review_complete_argument(cues,[dict(start=0,end=4)],'林园','',tmp_path,'')
     assert len(calls)==1 and proof['claim_quote']==''.join(texts[2:4])
+def test_crop_recovery_has_separate_no_publish_workflow_and_no_selection_answers():
+    import yaml
+    from scripts.build_linyuan_automatic_preview import build,ROOT
+    workflow=build(crop=True)
+    assert workflow==yaml.safe_load((ROOT/'.github/workflows/linyuan-crop-preview.yml').read_text())
+    assert workflow['permissions']=={'contents':'read','actions':'read'}
+    assert workflow['concurrency']=={'group':'linyuan-crop-preview','cancel-in-progress':False}
+    import re
+    assert re.fullmatch(r'ly-[a-zA-Z0-9-]+',workflow['env']['RUN_SLUG'].replace('${{ github.run_id }}','123456'))
+    step=next(s for s in workflow['jobs']['preview']['steps'] if s.get('id')=='render')
+    assert step['env']['SOURCE_VISUAL_CHAPTERS']=='false'
+    assert 'SOURCE_TOPIC_DISCOVERY' not in step['env']
+    assert not any(s.get('name') in {'B 站投稿','上传成片到 Release','准备 B站登录态','明确触发库存核验与自动补位'}
+                   for s in workflow['jobs']['preview']['steps'])
+    import pytest
+    with pytest.raises(ValueError):build(topic=True,crop=True)
+
+def test_context_experiment_requires_fresh_bound_recognition_and_never_publishes():
+    import yaml
+    from scripts.build_linyuan_automatic_preview import build,ROOT
+    workflow=build(context=True)
+    assert workflow==yaml.safe_load((ROOT/'.github/workflows/linyuan-context-preview.yml').read_text())
+    assert workflow['env']['QWEN_ASR_CONTEXT_PROFILE']=='finance-v1'
+    assert workflow['env']['RUN_SLUG']=='ly-preview-${{ github.run_id }}'
+    assert workflow['concurrency']=={'group':'linyuan-context-preview','cancel-in-progress':False}
+    assert workflow['permissions']=={'contents':'read','actions':'read'}
+    regression=next(s for s in workflow['jobs']['preview']['steps']
+                    if s.get('name')=='CPU离线ASR与完整观点规则回归（失败不进入实产）')
+    assert regression['env']['QWEN_ASR_CONTEXT_PROFILE']=='none'
+    assert 'tests/test_linyuan_asr_context.py' in regression['run']
+    assert not any(s.get('env',{}).get('QWEN_ASR_CONTEXT_PROFILE')=='none'
+                   for s in workflow['jobs']['preview']['steps'] if s is not regression)
+    for mode in ({},{'topic':True},{'crop':True}):
+        assert 'QWEN_ASR_CONTEXT_PROFILE' not in build(**mode)['env']
+    production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
+    assert 'QWEN_ASR_CONTEXT_PROFILE' not in production['env']
+    assert not any(s.get('name') in {'B 站投稿','上传成片到 Release','准备 B站登录态','明确触发库存核验与自动补位'}
+                   for s in workflow['jobs']['preview']['steps'])
