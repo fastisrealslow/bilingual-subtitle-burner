@@ -3,7 +3,7 @@
   "validation_sha256": "847e35aecd2250a4f5b3aab5e19799ce32aa7eb8051732bb653f962889e345af",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791926679,
+  "updated_at": 1791926891,
   "materials": {
     "weibo_search": {
       "records": 2053,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791926685,
+    "updated_at": 1791926897,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 80,
@@ -21196,50 +21196,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "https://m.weibo.cn/detail/5346263155607314",
-        "source_url": "https://m.weibo.cn/detail/5346263155607314",
-        "family": "m.weibo.cn",
-        "slugs": [
-          "ly-1009-abc80a"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1009-abc80a",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}, {\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"三点几亿、几万亿美金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘几点几’与‘几万亿’连用，数字表述模糊且跨度极大，可能影响对投资规模的具体理解\"}]"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "https://m.weibo.cn/detail/5332100736883206",
-        "source_url": "https://m.weibo.cn/detail/5332100736883206",
-        "family": "m.weibo.cn",
-        "slugs": [
-          "ly-1009-b32e4f"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1009-b32e4f",
-            "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "https://m.weibo.cn/detail/5328277914779959",
         "source_url": "https://m.weibo.cn/detail/5328277914779959",
         "family": "m.weibo.cn",
@@ -22109,8 +22065,8 @@
           {
             "slug": "ly-1009-88b466",
             "stage": "editorial-or-render",
-            "terminal": false,
-            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"一个业来讲。\", \"suspect_quote\": \"一个业来讲\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文应为‘一个行业来讲’，‘业’前缺失‘行’字导致语义不完整。\"}, {\"sentence_id\": 17, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发，开始慢慢要要要要行的时候。\", \"suspect_quote\": \"要爆发，开始慢慢要要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"末尾连续四个‘要’字疑似识别冗余或口吃未处理，且‘行的时候’语义不明，结合上下文推测原意可能为‘要行动的时候’或类似表达，但原文无法解释具体含义。\"}]"
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"一个业来讲。\", \"suspect_quote\": \"一个业来讲\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文应为‘一个行业来讲’，‘业’字前缺失‘行’字导致语义不通。\"}, {\"sentence_id\": 17, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发，开始慢慢要要要要行的时候。\", \"suspect_quote\": \"要爆发，开始慢慢要要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"末尾连续四个‘要’字疑似识别错误，结合语境应为‘要行了’或类似表达，当前文本含义不明。\"}]"
           }
         ],
         "verified_available": 0,
@@ -22155,6 +22111,50 @@
             "stage": "editorial-or-render",
             "terminal": false,
             "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以对对给我们投资上造成了很大的这个。\", \"suspect_quote\": \"对对给我们投资上造成了很大的这个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键短语‘很大的这个’指代不明，属于典型的口语填充词导致语义截断，未形成完整的名词性宾语（如‘很大的困难’或‘很大的挑战’），在缺乏上下文的情况下，该处存在具体的识别疑点，无法确定其具体含义。\"}]"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "https://m.weibo.cn/detail/5346263155607314",
+        "source_url": "https://m.weibo.cn/detail/5346263155607314",
+        "family": "m.weibo.cn",
+        "slugs": [
+          "ly-1009-abc80a"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1009-abc80a",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}, {\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"三点几亿、几万亿美金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘几点几’与‘几万亿’连用，数字表述模糊且跨度极大，可能影响对投资规模的具体理解\"}]"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "https://m.weibo.cn/detail/5332100736883206",
+        "source_url": "https://m.weibo.cn/detail/5332100736883206",
+        "family": "m.weibo.cn",
+        "slugs": [
+          "ly-1009-b32e4f"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1009-b32e4f",
+            "stage": "editorial-or-render",
+            "terminal": false,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"牛市一定是加速的，啊，因为就像一个大病的病人一样，他开始是期稳，然后啊慢慢好，慢慢好，慢慢不好，最后完全恢复，啊，所以这个是泡沫形成的一个过过程。\", \"suspect_quote\": \"期稳\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，结合上下文“大病病人”、“慢慢好”的比喻逻辑，此处应为口语“起稳”或“企稳”，表示病情稳定。‘期’与‘起’音近易混，但‘期稳’无此金融或医学常用搭配，属于具体词语污染。”}, {\"}]"
           }
         ],
         "verified_available": 0,
@@ -22209,7 +22209,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
-        "terminal_editorial-or-render": 58,
+        "terminal_editorial-or-render": 59,
         "terminal_quality-service": 8,
         "terminal_workflow-preflight": 3,
         "terminal_source-quality": 19
@@ -22799,8 +22799,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23077,8 +23077,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -23090,8 +23090,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -23250,8 +23250,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_render-review": 1,
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23399,8 +23399,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23564,10 +23564,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_visual-review": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -23579,8 +23579,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -26460,7 +26460,7 @@
       }
     }
   },
-  "in_flight_placeholders": 37,
+  "in_flight_placeholders": 36,
   "artifacts": [
     {
       "slug": "ly-1010-620f92",
