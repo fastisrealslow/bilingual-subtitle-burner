@@ -3286,6 +3286,47 @@ def _observe_zero_batch_failures(candidate,run):
     return True
 
 
+def _verified_recovery_runs(st,eligible):
+    """Prioritize bounded actual-output pilots, not source IDs or title answers."""
+    if not eligible:return []
+    import base64
+    try:
+        response=gh('GET','/contents/linyuan/asr_production_config.json?ref=main')
+        raw=response.get('content')
+        if (response.get('encoding')!='base64' or not isinstance(raw,str)
+                or len(raw)>90_000):return []
+        config=json.loads(base64.b64decode(raw))
+        pilots=[];lookups=0
+        for source_sha,choice in (config.get('source_overrides') or {}).items():
+            if (not re.fullmatch('[a-f0-9]{64}',source_sha)
+                    or choice.get('recognition_context_profile')!='finance-v1'
+                    or type(choice.get('recognition_validation_run_id')) is not int
+                    or choice['recognition_validation_run_id']<=0
+                    or not re.fullmatch('[a-f0-9]{64}',str(choice.get('recognition_validated_mp4_sha256') or ''))
+                    or type(choice.get('production_recovery_run_id')) is not int
+                    or choice['production_recovery_run_id']<=0):continue
+            key=editorial.source_key(choice.get('source_origin_url') or '')
+            if not key.startswith('BV'):continue
+            matches=[e for e in eligible.values() if editorial.source_key(e['source_url'])==key
+                     and e['slug'] not in st.get('published',{})
+                     and 'tracked-source-strips-v1' not in (e.get('automatic_rule_recoveries') or {})]
+            if not matches:continue
+            if lookups>=2:break
+            lookups+=1
+            run=gh('GET',f"/actions/runs/{choice['production_recovery_run_id']}")
+            slug=str(run.get('display_title') or '').partition(' · ')[2].strip()
+            if (run.get('id')==choice['production_recovery_run_id']
+                    and run.get('status')=='completed' and run.get('conclusion')=='failure'
+                    and run.get('path')=='.github/workflows/'+WF_PRODUCE
+                    and run.get('head_sha') and any(e['slug']==slug for e in matches)):
+                pilots.append(run)
+            if len(pilots)>=2:break
+        return pilots
+    except Exception as exc:
+        log.warning('已验证母片恢复优先级暂不可用: %s',type(exc).__name__)
+        return []
+
+
 def _recover_rule_backlog(st, by_slug):
     """Inspect one bounded historical page; old failures must not fall off 30 runs.
 
@@ -3304,6 +3345,9 @@ def _recover_rule_backlog(st, by_slug):
     if not eligible:return 0
     page=int(st.get('rule_recovery_page') or 1)
     runs=gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status=failure&per_page=100&page={page}').get('workflow_runs',[])
+    page_size=len(runs)
+    prioritized=_verified_recovery_runs(st,eligible)
+    runs=prioritized+[r for r in runs if r.get('id') not in {p['id'] for p in prioritized}]
     restored=0;seen=set();batch_lookups=0
     for run in runs:
         slug=str(run.get('display_title') or '').partition(' · ')[2].strip()
@@ -3330,7 +3374,7 @@ def _recover_rule_backlog(st, by_slug):
             if restored>=MAX_ACTIVE_SOURCES:break
     # Revisit the same page if its repair budget was used, otherwise advance.
     # Ten bounded pages cover 1,000 real jobs without scanning each artifact ZIP.
-    st['rule_recovery_page']=page if restored>=MAX_ACTIVE_SOURCES else (page+1 if len(runs)==100 and page<10 else 1)
+    st['rule_recovery_page']=page if restored>=MAX_ACTIVE_SOURCES else (page+1 if page_size==100 and page<10 else 1)
     save_state(st)
     return restored
 
