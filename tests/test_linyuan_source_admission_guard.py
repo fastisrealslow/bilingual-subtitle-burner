@@ -28,3 +28,29 @@ def test_known_source_admission_rejection_is_not_relabelled_as_retryable_service
     target=tmp_path/'batch_report.json'
     assert not report_missing(target,dict(source_admission=dict(outcome='failure')),'old')
     assert not target.exists()
+
+
+@pytest.mark.parametrize('url',[
+    'https://www.yicai.com/video/102581577.html',
+    'https://yicai.com/video/102581577.html?from=share',
+])
+def test_verified_official_page_restriction_blocks_normal_and_staged_retry(url):
+    assert '书面授权' in restriction(url,[])
+    state=dict(dispatched=[dict(slug='old',ts=2,source_url=url)])
+    assert check('https://github.com/org/repo/releases/download/staging/old.mp4',
+                 'old',[],state)
+
+
+@pytest.mark.parametrize('url',[
+    'https://example.com/?url=https://www.yicai.com/video/102581577.html',
+    'https://www.yicai.com.evil.test/video/102581577.html',
+    'https://www.yicai.com/video/103329354.html',
+])
+def test_exact_page_not_platform_wide_policy(url):
+    assert restriction(url,[]) is None
+
+
+def test_explicit_policy_fixture_does_not_grant_other_sources_rights():
+    assert restriction('https://www.yicai.com/video/102581577.html',[],[]) is None
+    assert check('https://example.com/media.mp4','other',[],dict(dispatched=[
+        dict(slug='old',ts=3,source_url='https://www.yicai.com/video/102581577.html')])) is None

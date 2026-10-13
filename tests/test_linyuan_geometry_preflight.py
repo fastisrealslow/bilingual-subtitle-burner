@@ -82,6 +82,60 @@ def test_repaired_geometry_recovers_once_with_original_raw_evidence(monkeypatch)
     assert not fc._recover_changed_production_rule(state,entry,run)
 
 
+def test_uniform_source_top_bar_is_avoided_without_cutting_face(tmp_path):
+    class BarCapture(Capture):
+        def read(self):
+            frame=np.full((484,856,3),120,np.uint8)
+            frame[:34]=0
+            return True,frame
+    cap=BarCapture();face=(400,98,128,160)
+    result=preflight_geometry(cap,17200,1200,30,lambda _:face,[],tmp_path/'tracked.mp4')
+    assert result['source_border_exclusions']==[[0,0,1,34/484]]
+    assert result['source_border_geometry']['crop']==[856,450,0,34]
+    x,y,w,h=crop_box(face,856,484,exclusions=result['source_border_exclusions'])
+    assert y>=34 and y+max(8,face[3]*.22)<=face[1]
+    assert min(w,h)>=235 and x+8<=face[0] and face[0]+face[2]<=x+w-8
+    assert cap.position==17200 and not result['final_quality_approved']
+
+
+def test_intermittent_dark_region_is_not_measured_as_constant_padding(tmp_path):
+    class ChangingCapture(Capture):
+        calls=0
+        def read(self):
+            self.calls+=1
+            frame=np.full((484,856,3),120,np.uint8)
+            if self.calls<12:frame[:34]=0
+            return True,frame
+    result=preflight_geometry(ChangingCapture(),0,600,30,lambda _:None,[],tmp_path/'tracked.mp4')
+    assert result['source_border_exclusions']==[]
+    assert not result['final_quality_approved']
+
+
+def test_large_dark_region_does_not_authorize_aggressive_crop(tmp_path):
+    class DarkCapture(Capture):
+        def read(self):return True,np.zeros((484,856,3),np.uint8)
+    result=preflight_geometry(DarkCapture(),0,600,30,lambda _:None,[],tmp_path/'tracked.mp4')
+    assert result['source_border_exclusions']==[]
+    assert result['source_border_geometry']['applied'] is False
+    assert not result['final_quality_approved']
+
+
+def test_corner_text_does_not_hide_verified_black_strip_near_subject(tmp_path):
+    class CornerTextCapture(Capture):
+        def read(self):
+            frame=np.full((484,856,3),120,np.uint8)
+            frame[:34]=0
+            frame[16:34,:100]=150
+            return True,frame
+    face=(400,98,128,160)
+    result=preflight_geometry(CornerTextCapture(),0,1200,30,lambda _:face,[],tmp_path/'tracked.mp4')
+    corridor=result['source_border_geometry']['subject_corridor']
+    assert corridor['crop'][3]==34 and len(corridor['source_frames'])==12
+    assert corridor['exclusions'][0][0]>0 and corridor['exclusions'][0][2]<1
+    x,y,w,h=crop_box(face,856,484,exclusions=result['source_border_exclusions'])
+    assert y>=34 and y+max(8,face[3]*.22)<=face[1]
+
+
 @pytest.mark.parametrize('reason,published,changed',[
     ('人物身份不匹配',False,True),('原画无法通过真人画面清理门禁',True,True),
     ('原画无法通过真人画面清理门禁',False,False)])
