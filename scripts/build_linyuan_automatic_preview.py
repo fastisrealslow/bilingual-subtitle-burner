@@ -46,7 +46,10 @@ def build(topic=False,crop=False,context=False):
                 **{'working-directory': '.', 'run': 'python3 scripts/linyuan_preview_request.py '+request}))
     job['steps'] = steps
     env = copy.deepcopy(production['env'])
-    env.update(RUN_SOURCE='', RUN_SLUG='preview-${{ github.run_id }}', RUN_SPEAKER='林园',
+    # Use the existing strict delivery identity, not a compact-validator bypass.
+    # Legacy live previews retain their identity until their current jobs finish.
+    slug='ly-preview-${{ github.run_id }}' if crop or context else 'preview-${{ github.run_id }}'
+    env.update(RUN_SOURCE='', RUN_SLUG=slug, RUN_SPEAKER='林园',
         RUN_OCCASION='访谈', RUN_SOURCE_PLATFORM='', RUN_REVIEWED_PARTS='',
         LINYUAN_AUTOMATIC_ONLY='true', RUN_MAX_OUTPUTS='1')
     if context:env['QWEN_ASR_CONTEXT_PROFILE']='finance-v1'

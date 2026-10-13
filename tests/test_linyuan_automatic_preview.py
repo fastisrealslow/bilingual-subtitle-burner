@@ -239,6 +239,8 @@ def test_crop_recovery_has_separate_no_publish_workflow_and_no_selection_answers
     assert workflow==yaml.safe_load((ROOT/'.github/workflows/linyuan-crop-preview.yml').read_text())
     assert workflow['permissions']=={'contents':'read','actions':'read'}
     assert workflow['concurrency']=={'group':'linyuan-crop-preview','cancel-in-progress':False}
+    import re
+    assert re.fullmatch(r'ly-[a-zA-Z0-9-]+',workflow['env']['RUN_SLUG'].replace('${{ github.run_id }}','123456'))
     step=next(s for s in workflow['jobs']['preview']['steps'] if s.get('id')=='render')
     assert step['env']['SOURCE_VISUAL_CHAPTERS']=='false'
     assert 'SOURCE_TOPIC_DISCOVERY' not in step['env']
@@ -253,6 +255,7 @@ def test_context_experiment_requires_fresh_bound_recognition_and_never_publishes
     workflow=build(context=True)
     assert workflow==yaml.safe_load((ROOT/'.github/workflows/linyuan-context-preview.yml').read_text())
     assert workflow['env']['QWEN_ASR_CONTEXT_PROFILE']=='finance-v1'
+    assert workflow['env']['RUN_SLUG']=='ly-preview-${{ github.run_id }}'
     assert workflow['concurrency']=={'group':'linyuan-context-preview','cancel-in-progress':False}
     assert workflow['permissions']=={'contents':'read','actions':'read'}
     regression=next(s for s in workflow['jobs']['preview']['steps']
