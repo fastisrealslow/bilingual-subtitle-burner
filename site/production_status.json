@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791922223,
+  "updated_at": 1791922394,
   "inventory_updated_at": 1791922217,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 39,
+    "active_or_recovering_sources": 43,
     "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791922223,
+    "updated_at": 1791922393,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 62,
@@ -103,13 +103,13 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 970,
+    "failed": 968,
     "paused": 5,
     "ready": 3,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 1,
-    "running": 3,
-    "retry_queued": 36
+    "running": 5,
+    "retry_queued": 38
   },
   "tasks": [
     {
@@ -15457,42 +15457,6 @@
       "run_updated_at": "2026-10-08T17:12:23Z"
     },
     {
-      "slug": "ly-0913-4d8084",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"呃，我大概有百分之十啊，是配比，只要中国，它是品品牌公司，只要是它有一个强大的品牌，婴儿的股本，这是符合我选股条件的。\", \"suspect_quote\": \"婴儿的股本\", \"kind\": \"unintelligible_term\", \"reason\": \"该短语在金融或商业语境下无明确含义，疑似为识别错误（可能应为“婴儿期的股本”、“稳定的股本”或其他术语），属于无法解释的具体词语。\"}]",
-      "signature": {
-        "ts": 1791480439,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37816686891,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37816686891",
-      "run_started_at": "2026-10-08T17:27:19Z",
-      "run_updated_at": "2026-10-08T17:47:44Z"
-    },
-    {
-      "slug": "ly-0913-3a3572",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/职务：'车上导导游'和'日本的导'语义不通，应为'车上导游'及'日本导游'。\"}, {\"sentence_id\": 9, \"quote\": \"这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"贵十到八八到十倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述混乱且无法解释：'八八'在口语中无明确含义，疑似识别错误（可能为'七八'或'六八'等），导致数值范围'十到八八到十倍'逻辑不清。\"}, {\"sentence_id\": 11, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"消费身体\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或术语：'消费身体'含义不明，结合上下文（点心价格），应为'消费水平'或'消费习惯'等。\"}, {\"sentence_id\": 21, \"quote\": \"最后你达到，呃，不要说咱们中国香港那个生活水平，那个万，是吧？\", \"suspect_quote\": \"那个万，是吧？\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述不完整且无法解释：'那个万'缺少量词单位（如'万元'），导致具体数值含义不明，影响理解。\"}, {\"sentence_id\": 26, \"quote\": \"啊，所以糖的故事本身，这些我们说的中药企业，它一个是往新药上发展，第二个他的一些适应症啊，他的，比如说以前是肝病的，哎，他用眼花出一大堆啊，治疗抑郁症，治疗这个这个这个，呃，皮肤是吧，呃，通便都来了。\", \"suspect_quote\": \"他用眼花出一大堆啊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或动词：'眼花出'语义不通，结合上下文（适应症扩展），应为'用眼睛看出'、'用于眼部'或识别错误的其他词组。\"}, {\"sentence_id\": 32, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"这个脸因为是针出血了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或描述：'脸因为是针出血了'语法混乱且语义不明，可能为'脸上因为针扎出血了'或其他误识别。\"}]",
-      "signature": {
-        "ts": 1791480641,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37817126078,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37817126078",
-      "run_started_at": "2026-10-08T17:30:41Z",
-      "run_updated_at": "2026-10-08T17:49:41Z"
-    },
-    {
       "slug": "ly-0912-5dc339-reserve-3-timing",
       "status": "failed",
       "detail": "与已经发布的母片时间段重叠，保留其他完整观点",
@@ -15509,24 +15473,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37818351953",
       "run_started_at": "2026-10-08T17:40:13Z",
       "run_updated_at": "2026-10-08T18:13:48Z"
-    },
-    {
-      "slug": "ly-0913-a52266-boundary16",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"剩下的钱是给套住了，到处上海也收了一大堆这些不上市的股票。\", \"suspect_quote\": \"到处上海也收了一大堆这些不上市的股票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘到处上海’存在明显的语义矛盾或识别错误：‘到处’通常指多个地点，而‘上海’是单一具体城市，两者连用导致空间范围含义不明。在口语中可能是‘当时在上海也收了……’的误识，也可能是‘到处（各地）和上海也收了……’的杂糅，但原文未提供上下文澄清，\"}]",
-      "signature": {
-        "ts": 1791481848,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 37819700797,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37819700797",
-      "run_started_at": "2026-10-08T17:50:48Z",
-      "run_updated_at": "2026-10-08T18:11:30Z"
     },
     {
       "slug": "ly-0912-5dc339-stable-four-portrait",
@@ -15599,24 +15545,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37823423188",
       "run_started_at": "2026-10-08T18:19:46Z",
       "run_updated_at": "2026-10-08T18:58:41Z"
-    },
-    {
-      "slug": "ly-1008-873273",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"十年前，因为我是从你的长期股，长期股。\", \"suspect_quote\": \"从你的长期股，长期股\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘从你的长期股’在金融语境下无意义，结合上下文‘我是从...长期股’及后文‘我从来不卖’，推测原意应为‘从做长期股’或‘从长期持股’。‘你的’极可能是‘做’或‘持’的误识，且重复的‘长期股’虽为口语强调，但前半句的错词导致语义\"}, {\"sentence_id\": 21, \"quote\": \"因为我不卖我的新股票的分红，红大概那时候的，就是零点五到零点七五之间。\", \"suspect_quote\": \"我的新股票的分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘新股票’在此处逻辑不通。嘉宾林园以长期持有老股著称，结合后文提到的分红率（零点五到零点七五），此处应指‘我持有的股票’或‘我的那些股票’。‘新’字极可能是‘那’、‘些’或特定人名/公司名的误识，导致含义不明。\"}, {\"sentence_id\": 23, \"quote\": \"啊，到今天我算了，我去年的派息率应该是三点五，增加多少倍啊？\", \"suspect_quote\": \"增加多少倍啊\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似识别错误：句子中出现了具体的数字'三点五'（派息率），但紧接着的‘增加多少倍啊’在口语逻辑上存在矛盾或指代不明。如果是询问增长倍数，通常不会紧接一个绝对数值后直接问‘增加多少倍’而不给出基数；若为口误，则属于含义不明的关键数字/数量关系\"}]",
-      "signature": {
-        "ts": 1791483966,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37824241775,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37824241775",
-      "run_started_at": "2026-10-08T18:26:06Z",
-      "run_updated_at": "2026-10-08T18:36:18Z"
     },
     {
       "slug": "ly-1008-cda344",
@@ -19849,24 +19777,6 @@
       "run_updated_at": "2026-10-13T19:48:57Z"
     },
     {
-      "slug": "ly-1010-9d1da0",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791920344,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791920343,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38027290870,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38027290870",
-      "run_started_at": "2026-10-10T05:22:32Z",
-      "run_updated_at": "2026-10-10T05:36:47Z"
-    },
-    {
       "slug": "ly-1013-4db09e",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -19883,24 +19793,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38456599919",
       "run_started_at": "2026-10-13T19:39:41Z",
       "run_updated_at": "2026-10-13T19:41:14Z"
-    },
-    {
-      "slug": "ly-1010-aec8fd",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791920557,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791920556,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38024737738,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024737738",
-      "run_started_at": "2026-10-10T04:37:52Z",
-      "run_updated_at": "2026-10-10T05:20:26Z"
     },
     {
       "slug": "ly-1010-9fbcd8",
@@ -20660,11 +20552,11 @@
     },
     {
       "slug": "ly-1010-e28296",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
       "signature": {
         "ts": 1791922080,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20678,11 +20570,11 @@
     },
     {
       "slug": "ly-1010-10b1ea",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
       "signature": {
         "ts": 1791922086,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20693,6 +20585,114 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38460393817",
       "run_started_at": "2026-10-13T20:08:06Z",
       "run_updated_at": "2026-10-13T20:09:22Z"
+    },
+    {
+      "slug": "ly-1008-873273",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791922259,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791922258,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37824241775,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37824241775",
+      "run_started_at": "2026-10-08T18:26:06Z",
+      "run_updated_at": "2026-10-08T18:36:18Z"
+    },
+    {
+      "slug": "ly-0913-a52266-boundary16",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791922269,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791922268,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 37819700797,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37819700797",
+      "run_started_at": "2026-10-08T17:50:48Z",
+      "run_updated_at": "2026-10-08T18:11:30Z"
+    },
+    {
+      "slug": "ly-0913-3a3572",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791922279,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791922278,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37817126078,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37817126078",
+      "run_started_at": "2026-10-08T17:30:41Z",
+      "run_updated_at": "2026-10-08T17:49:41Z"
+    },
+    {
+      "slug": "ly-0913-4d8084",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791922291,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791922290,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 37816686891,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37816686891",
+      "run_started_at": "2026-10-08T17:27:19Z",
+      "run_updated_at": "2026-10-08T17:47:44Z"
+    },
+    {
+      "slug": "ly-1010-9d1da0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791922341,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38460959347,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38460959347",
+      "run_started_at": "2026-10-13T20:12:21Z",
+      "run_updated_at": "2026-10-13T20:12:24Z"
+    },
+    {
+      "slug": "ly-1010-aec8fd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791922349,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38460977188,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38460977188",
+      "run_started_at": "2026-10-13T20:12:29Z",
+      "run_updated_at": "2026-10-13T20:12:33Z"
     }
   ],
   "runs": {
@@ -26978,25 +26978,25 @@
       "display_title": "中文源出片 · ly-1010-58350e"
     },
     "ly-1010-aec8fd": {
-      "id": 38024737738,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T04:37:52Z",
-      "updated_at": "2026-10-10T05:20:26Z",
-      "run_started_at": "2026-10-10T04:37:52Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38024737738",
-      "run_number": 1730,
+      "id": 38460977188,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-13T20:12:29Z",
+      "updated_at": "2026-10-13T20:12:33Z",
+      "run_started_at": "2026-10-13T20:12:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38460977188",
+      "run_number": 2016,
       "display_title": "中文源出片 · ly-1010-aec8fd"
     },
     "ly-1010-9d1da0": {
-      "id": 38027290870,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-10T05:22:32Z",
-      "updated_at": "2026-10-10T05:36:47Z",
-      "run_started_at": "2026-10-10T05:22:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38027290870",
-      "run_number": 1734,
+      "id": 38460959347,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-13T20:12:21Z",
+      "updated_at": "2026-10-13T20:12:24Z",
+      "run_started_at": "2026-10-13T20:12:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38460959347",
+      "run_number": 2015,
       "display_title": "中文源出片 · ly-1010-9d1da0"
     },
     "ly-1010-bffcd2": {
