@@ -27060,9 +27060,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2025-12-26T05:21:16+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"因为当时我们在建昌在买茅台，他当时写的就是茅台是绝对不能买，二十六块钱的茅台就不能买。\", \"suspect_quote\": \"建昌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或人名，结合上下文“在买茅台”及林园过往言论（常提及“张裕”、“张朝阳”等被误识案例，或此处应为某位分析师名字如“张”姓），\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"因为当时我们在建昌在买茅台，他当时写的就是茅台是绝对不能买，二十六块钱的茅台就不能买。\", \"suspect_quote\": \"建昌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或人名，结合上下文“在上海家里”、“他当时写的书”，此处极可能为人名（如“张朝阳”或其他财经评论员名字）的识别错误，“建昌”作为地名在此语境下逻辑不通，且无法解释为何在讨论某位特定评论员时突然插入此词。\"}, {\"sentence_id\": 7, \"quote\": \"我不知道他今天怎么到今天前，去年他写的文章还要说这个人买了。\", \"suspect_quote\": \"到今天前\", \"kind\": \"unintelligible_term\", \"reason\": \"含义不明的时间表述，疑似“到现在为止”或“到今年之前”的识别错误，“到今天前”在口语中无明确指代，属于无法解释的具体词语。\"}, {\"sentence_id\": 13, \"quote\": \"所以我们这个是非常严谨的东西，十一就是一，十二就是二。\", \"suspect_quote\": \"十一就是一，十二就是二\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字含义不明，结合上下文“非常严谨的东西”，此处“十一”、“十二”若指代具体数值或代码则缺乏前文铺垫，若为口误（如想说“一就是一，二就是二”），则属于关键数字/指代的污染，无法确认其确切所指。\"}, {\"sentence_id\": 17, \"quote\": \"那数字到到这一天，我要比如说我我要增一百倍，我要这个一百倍，我是最坏的结果，我只说最坏的结果。\", \"suspect_quote\": \"到到这一天\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别或错写，“到到”不符合正常口语习惯，可能是“到了”的误识，属于具体词语无法解释的情况。\"}, {\"sentence_id\": 26, \"quote\": \"我为什么也也今天就开始，我就要强调你听我我这个人是自律性非常高的，没有几个，还有比我的这个自律性还高。\", \"suspect_quote\": \"我我这个人是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似口吃或重复识别导致的冗余，“我这个人”中间插入多余的“这个”，虽口语中可能出现，但作为最小疑点单元，该处重复破坏了句子流畅性且非正常语气词，需指出。\"}, {\"sentence_id\": 28, \"quote\": \"别人说什么我都不听，这个耳朵进那个，我都要让别人听我的。\", \"suspect_quote\": \"耳朵进那个\", \"kind\": \"unintelligible_term\", \"reason\": \"含义不明的短语，“耳朵进那个”表述不完整，疑似“耳朵听进去那个”或类似结构的截断/错写，属于无法解释的具体词语。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27074,7 +27074,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37933647090,
    "source_check_run_id": 37933647090,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-8c8078",
+    "run_id": 38463736816,
+    "artifact_id": 11848481754,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"因为当时我们在建昌在买茅台，他当时写的就是茅台是绝对不能买，二十六块钱的茅台就不能买。\", \"suspect_quote\": \"建昌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或人名，结合上下文“在上海家里”、“他当时写的书”，此处极可能为人名（如“张朝阳”或其他财经评论员名字）的识别错误，“建昌”作为地名在此语境下逻辑不通，且无法解释为何在讨论某位特定评论员时突然插入此词。\"}, {\"sentence_id\": 7, \"quote\": \"我不知道他今天怎么到今天前"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38463736816,
+    "artifact_id": 11848481754,
+    "name": "production-reject-ly-1009-8c8078",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1CDiGBYEoT",
