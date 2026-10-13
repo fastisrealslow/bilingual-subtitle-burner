@@ -3,7 +3,7 @@
   "validation_sha256": "c56cca3f635a0235913cab99ac79677ac96161eded6d2c95a21de6fe0e9fea58",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791902615,
+  "updated_at": 1791905726,
   "materials": {
     "weibo_search": {
       "records": 2053,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791902621,
+    "updated_at": 1791905731,
     "records": 9986,
     "video_records": 8554,
     "initial_candidates": 58,
@@ -21709,9 +21709,9 @@
         "failures": [
           {
             "slug": "ly-1009-c31f09",
-            "stage": "source-fetch",
-            "terminal": false,
-            "reason": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：CDN前缀核对响应截断，保留断点"
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个茅台。\", \"suspect_quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文存在明显的语音转写错误或口误：‘全不加起来’语义不通（疑似应为‘全部加起来’或‘就算加起来’），且‘比比’重复用字导致含义不明。关键数字/比较对象缺失，‘一个什么嘛’指代模糊，属于无法解释的具体词语污染，影响对军工行业与茅台对比逻辑的核\"}]"
           }
         ],
         "verified_available": 0,
@@ -22503,9 +22503,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -22782,8 +22782,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -22795,8 +22795,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -23104,8 +23104,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23269,10 +23269,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_visual-review": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1
+        "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -23284,8 +23284,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -26105,7 +26105,8 @@
       "BV1RJ411Q7Ki": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1XhiGBjEB6": {
         "attempted_mothers": 1,
@@ -26138,7 +26139,7 @@
       }
     }
   },
-  "in_flight_placeholders": 17,
+  "in_flight_placeholders": 16,
   "artifacts": [
     {
       "slug": "ly-1013-036a51",
