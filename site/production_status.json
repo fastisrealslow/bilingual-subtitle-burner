@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1791919769,
+  "updated_at": 1791919902,
   "inventory_updated_at": 1791919764,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 8,
+    "active_or_recovering_sources": 14,
     "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791919768,
+    "updated_at": 1791919902,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 65,
@@ -127,13 +127,13 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 1007,
+    "failed": 1001,
     "paused": 5,
     "ready": 3,
     "interrupted": 2,
     "excluded": 1,
     "running": 6,
-    "retry_queued": 2
+    "retry_queued": 8
   },
   "tasks": [
     {
@@ -18271,24 +18271,6 @@
       "run_updated_at": "2026-10-11T19:31:02Z"
     },
     {
-      "slug": "ly-1011-a08d09",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"中国股市三十余年，风云人物不少，但能把八千元炒成百亿身家的，林元算一个。\", \"suspect_quote\": \"林元算一个\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，识别为“林元”属于同音错写专有名词，影响人物指代准确性。\"}, {\"sentence_id\": 4, \"quote\": \"可林元很快发现，同一只股票在不同营业部价格竟然不一样，于是他低买高卖，反复交易。\", \"suspect_quote\": \"可林元很快发现\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，此处再次被错误识别为“林元”。\"}, {\"sentence_id\": 7, \"quote\": \"一九九零年代初，他盯上了原始股、内部职工股、深发展、穷民园、深华新，这些后来掀起资本巨浪的名字，都成了他财富滚雪球的一部分。\", \"suspect_quote\": \"穷民园\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的股票名称或专有名词。结合上下文（深发展、深华新等），极大概率应为“琼民源”，识别为“穷民园”属于同音字错误，且该词在金融语境下无意义。\"}, {\"sentence_id\": 11, \"quote\": \"二零零三年，A股还在熊市里挣扎，大多数人谈股色变，林源却悄悄进场，重仓贵州茅台、五粮液、云南白药等消费和医药龙头。\", \"suspect_quote\": \"林源却悄悄进场\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，此处被识别为“林源”，属于同音错写专有名词。\"}, {\"sentence_id\": 13, \"quote\": \"但林源看得很清楚，垄断、成瘾、高毛利、现金流强，这样的公司时间站在他这边。\", \"suspect_quote\": \"但林源看得很清楚\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾名为“林园”，此处被错误识别为“林源”。\"}, {\"sentence_id\": 14, \"quote\": \"他说：我赚钱的秘籍就是行业加垄断加成瘾。\", \"suspect_quote\": \"我赚钱的秘籍就是行业加垄断加成瘾\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"句子中连续出现三个“加”字（行业**加**垄断**加**成瘾），在口语中可能表示并列或递进，但作为书面转述时，这种重复结构若缺乏标点或停顿标记，易被误读为逻辑混乱。此处虽非严格错误，但属于含义需结合语境推断的模糊表达，符合“含义不明的关键”\"}]",
-      "signature": {
-        "ts": 1791747121,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38168422194,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
-      "run_started_at": "2026-10-11T19:32:01Z",
-      "run_updated_at": "2026-10-11T19:53:12Z"
-    },
-    {
       "slug": "ly-1011-72ce5e",
       "status": "failed",
       "detail": "素材验收未通过",
@@ -18323,24 +18305,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38169454985",
       "run_started_at": "2026-10-11T19:46:50Z",
       "run_updated_at": "2026-10-11T23:47:15Z"
-    },
-    {
-      "slug": "ly-1011-bfc99c",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"林总，价投最难的问题就是牛市末期公公司估值已经非常高了，又没有合适的一些标的，那那个再去进行投资，那这个时候到底要不要去卖掉呢？\", \"suspect_quote\": \"公公司估值已经非常高了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，'公公司'应为'公司'，多出的'公'字导致语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"昨天到我们的这有一批人到到访我们公司，我觉得问过。\", \"suspect_quote\": \"昨天到我们的这有一批人到到访我们公司\", \"kind\": \"unintelligible_term\", \"reason\": \"'到到访'疑似识别错误，口语中通常为'来访问'或'到访'，此处重复且搭配不当，影响理解。\"}, {\"sentence_id\": 7, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"'三三'疑似识别错误，结合后文'三三股份'及语境（宁波企业），极可能为'三星'或具体公司名被误识，且'三三'本身非标准简称，属专有名词识别疑点。\"}, {\"sentence_id\": 11, \"quote\": \"我后来就总结出来，这是庆，就这种故事啊，在我身上是发生过的。\", \"suspect_quote\": \"这是庆，就这种故事啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'这是庆'疑似识别错误，结合上下文'总结出来...在我身上是发生过的'，此处应为人名（如'林园'或他人）或特定指代，'庆'字无明确指代对象，属关键信息缺失或错识。\"}, {\"sentence_id\": 21, \"quote\": \"但是这个这个这个这个就是马是前提啊，只要有一次我就夸夸夸，完全超越。\", \"suspect_quote\": \"但是这个这个这个这个就是马是前提啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'马是前提'疑似识别错误，结合语境'只要有一次我就夸夸夸...'，此处应为人名（如'马化腾'或嘉宾名）或特定术语被误识为'马'，且'这个这个这个这个'虽为口吃填充，但紧随其后的'马'无逻辑主语，属关键名词识别疑点。\"}, {\"sentence_id\": 30, \"quote\": \"他这种思维方式就是想小的，即使他大，这个漏了。\", \"suspect_quote\": \"即使他大，这个漏了\", \"kind\": \"unintelligible_term\", \"reason\": \"'这个漏了'疑似识别错误，结合前文'丢了西瓜去捡芝麻'，此处应为'大的漏了'或'西瓜漏了'，'这个'指代不明且不符合口语习惯，属关键信息错识。\"}]",
-      "signature": {
-        "ts": 1791751796,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38173847108,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
-      "run_started_at": "2026-10-11T20:49:55Z",
-      "run_updated_at": "2026-10-11T21:15:30Z"
     },
     {
       "slug": "ly-1011-60a013",
@@ -18469,24 +18433,6 @@
       "run_updated_at": "2026-10-12T07:23:11Z"
     },
     {
-      "slug": "ly-1012-ed9419",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"从我们做了个宝葫芦。\", \"suspect_quote\": \"从我们做了个宝葫芦\", \"kind\": \"unintelligible_term\", \"reason\": \"‘做了个宝葫芦’在金融或日常语境中含义不明，疑似将‘做了一个关于宝葫芦的故事’或‘做了一个宝葫芦计划’误识别为动词 + 名词结构，导致语义断裂。\"}, {\"sentence_id\": 6, \"quote\": \"我常常给人说：我说我拿一件宝葫芦的股票，不排除二十五年以后。\", \"suspect_quote\": \"我拿一件宝葫芦的股票\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一件宝葫芦的股票’搭配不当且含义不明，‘宝葫芦’作为股票修饰语无明确指代，疑似专有名词识别错误或口误未纠正。\"}, {\"sentence_id\": 9, \"quote\": \"我前一段时间，我们跟我的搭档八个人，他叫了七八个人。\", \"suspect_quote\": \"他叫了七八个人\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘叫了七八个人’中‘叫了’可能是‘召集了’的口语省略，但结合上下文‘八个人’与‘七八个人’数量不一致（前文说八人，此处又说七八人），存在数字表述矛盾或识别混淆。\"}, {\"sentence_id\": 12, \"quote\": \"如果按这个数字算下来，因为他们都是有钱人，非常富裕，身体不怕瘟疫，天为什么？\", \"suspect_quote\": \"天为什么？\", \"kind\": \"unintelligible_term\", \"reason\": \"‘天为什么’语义不通，疑似‘那为什么’或‘这又为什么’的误识别，导致句子逻辑断裂。\"}, {\"sentence_id\": 14, \"quote\": \"他如果都是像我这个朋友，这个比例，他不得了的像百分之十万。\", \"suspect_quote\": \"他不得了的像百分之十万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十万’明显不符合常规比例表达（百分比最大为 100%），疑似将‘十分之一’或‘百分之十’误识别，属于关键数字污染。\"}, {\"sentence_id\": 27, \"quote\": \"这就是我说的，付各位注意。\", \"suspect_quote\": \"付各位注意\", \"kind\": \"unintelligible_term\", \"reason\": \"‘付各位注意’应为‘请各位注意’的误识别，‘付’与‘请’音近但义异，属于专有动词错误导致语义偏差。\"}]",
-      "signature": {
-        "ts": 1791790471,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38218500134,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38218500134",
-      "run_started_at": "2026-10-12T07:34:31Z",
-      "run_updated_at": "2026-10-12T08:00:53Z"
-    },
-    {
       "slug": "ly-1012-818e8d",
       "status": "failed",
       "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 530: ",
@@ -18503,24 +18449,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38227841729",
       "run_started_at": "2026-10-12T09:07:23Z",
       "run_updated_at": "2026-10-12T09:35:08Z"
-    },
-    {
-      "slug": "ly-1012-8e1698",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"红号是说在特朗普的任期之内会翻倍，五千到六千美元每盎。\", \"suspect_quote\": \"五千到六千美元每盎\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“每盎”疑似错写或截断的专有名词/单位（应为“每盎司”），导致关键价格数值含义不明；且“五千到六千”作为具体数字在口语中虽可接受，但结合错误的单位后缀构成识别疑点。\"}, {\"sentence_id\": 7, \"quote\": \"然后德隆说能上一万点。\", \"suspect_quote\": \"德隆说能上一万点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“德隆”疑似错写的专有名词（可能指代特定人物、机构或指数名称，如“道琼斯”或其他），导致关键主体识别不清；“一万点”作为具体数字依赖前文语境，若“德隆”错误则整个数值预测失去参照。\"}, {\"sentence_id\": 10, \"quote\": \"趋势的是，我们不言定。\", \"suspect_quote\": \"趋势的是，我们不言定\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不言定”疑似错写或口误（应为“难言定”、“未言定”或类似表达），导致否定含义不明；该词组在金融语境下非常规用法，属于识别疑点。\"}]",
-      "signature": {
-        "ts": 1791797821,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38231035984,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38231035984",
-      "run_started_at": "2026-10-12T09:37:01Z",
-      "run_updated_at": "2026-10-12T09:48:36Z"
     },
     {
       "slug": "ly-1012-372200",
@@ -18577,24 +18505,6 @@
       "run_updated_at": "2026-10-12T20:40:40Z"
     },
     {
-      "slug": "ly-1012-077cfc",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为具体销量数据在口语中表述不清，可能影响对市场规模的准确理解。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后就能建分行\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字与行业术语冲突：'建分行'通常指银行分支机构建设，但上下文讨论的是医药公司或投资布局，此处'分行'极可能是'工厂'、'产能'或特定项目（如研发中心）的误识别，属于含义不明的关键数字/名词组合。\"}, {\"sentence_id\": 15, \"quote\": \"我买的时候都都是抗生素全全球第一了，是吧？\", \"suspect_quote\": \"我买的时候都都是抗生素全全球第一了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"重复用词与模糊指代：'都都是'为口语冗余，但更严重的是'全全球第一'中'全'字多余且'全球第一'缺乏具体比较维度（如销售额、产量或市场份额），在投资语境下构成含义不明的关键数字/状态描述。\"}]",
-      "signature": {
-        "ts": 1791838899,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38308016949,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38308016949",
-      "run_started_at": "2026-10-12T21:01:39Z",
-      "run_updated_at": "2026-10-12T21:17:12Z"
-    },
-    {
       "slug": "ly-1012-e08a5c",
       "status": "ready",
       "detail": "4 条成片已验收，等待发布时段及配额",
@@ -18611,24 +18521,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38311877910",
       "run_started_at": "2026-10-12T21:38:21Z",
       "run_updated_at": "2026-10-12T23:56:37Z"
-    },
-    {
-      "slug": "ly-1012-51c8e1",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"在目前你你观察到了这么多的人当中，呃，大家普遍上来看的话，像像林元这么乐观和鲜明的是不是很少？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，结合上下文及常见人名应为“林园”，但原文识别为“林元”。\"}, {\"sentence_id\": 3, \"quote\": \"我觉得呃，跟巴菲特一个道德都会在这种时候会比较。\", \"suspect_quote\": \"跟巴菲特一个道德都会在这种时候会比较\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱且含义不明，“一个道德”疑似误识，结合语境可能想表达“一个道理”或“一个道德标准”，但当前表述无法解释其具体指代。\"}]",
-      "signature": {
-        "ts": 1791845618,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38319208630,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38319208630",
-      "run_started_at": "2026-10-12T22:53:38Z",
-      "run_updated_at": "2026-10-13T00:45:39Z"
     },
     {
       "slug": "ly-1012-d20333",
@@ -20717,6 +20609,114 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38407973488",
       "run_started_at": "2026-10-13T13:48:19Z",
       "run_updated_at": "2026-10-13T14:34:52Z"
+    },
+    {
+      "slug": "ly-1012-51c8e1",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791919805,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791919804,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38319208630,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38319208630",
+      "run_started_at": "2026-10-12T22:53:38Z",
+      "run_updated_at": "2026-10-13T00:45:39Z"
+    },
+    {
+      "slug": "ly-1012-077cfc",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791919812,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791919811,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38308016949,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38308016949",
+      "run_started_at": "2026-10-12T21:01:39Z",
+      "run_updated_at": "2026-10-12T21:17:12Z"
+    },
+    {
+      "slug": "ly-1012-8e1698",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791919819,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791919818,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38231035984,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38231035984",
+      "run_started_at": "2026-10-12T09:37:01Z",
+      "run_updated_at": "2026-10-12T09:48:36Z"
+    },
+    {
+      "slug": "ly-1012-ed9419",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791919826,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791919825,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38218500134,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38218500134",
+      "run_started_at": "2026-10-12T07:34:31Z",
+      "run_updated_at": "2026-10-12T08:00:53Z"
+    },
+    {
+      "slug": "ly-1011-bfc99c",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791919833,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791919832,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38173847108,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38173847108",
+      "run_started_at": "2026-10-11T20:49:55Z",
+      "run_updated_at": "2026-10-11T21:15:30Z"
+    },
+    {
+      "slug": "ly-1011-a08d09",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791919840,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791919839,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38168422194,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38168422194",
+      "run_started_at": "2026-10-11T19:32:01Z",
+      "run_updated_at": "2026-10-11T19:53:12Z"
     }
   ],
   "runs": {
