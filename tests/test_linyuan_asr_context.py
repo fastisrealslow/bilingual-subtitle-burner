@@ -74,7 +74,7 @@ def test_context_candidate_search_preserves_bounded_recovery(monkeypatch):
     source='654a0744864b4606d6e4b340d1ac32ee30695b157050ecf2fb4883fbf0f7e084'
     assert list(recovery.candidates(source+'-key'))==[]
     workflows=[p for p in calls if '/workflows/' in p]
-    assert 'linyuan-yield45-context-preview.yml' in workflows[0]
+    assert 'linyuan-context-preview.yml' in workflows[0]
     assert len(workflows)==3
     calls.clear()
     assert list(recovery.candidates('other-key'))==[]
