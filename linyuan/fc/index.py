@@ -1530,6 +1530,10 @@ def pick(items, st, n, audit=None):
                 or extra.get("direct_dispatch") is False):
             excluded['reference_only'] += 1
             continue
+        from source_admission_guard import restriction as source_restriction
+        if source_restriction(page,[]):
+            excluded['reference_only'] += 1
+            continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
                       "video_url": url, "page_url": page,
@@ -1970,7 +1974,10 @@ def production_config():
     """Read local deployed code/config without fetching multi-MB remote ledgers."""
     import hashlib
     import audience_copy
+    import source_admission_guard
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "source_admission_guard_sha256": hashlib.sha256(Path(source_admission_guard.__file__).read_bytes()).hexdigest(),
+            "source_restrictions_sha256": hashlib.sha256((source_admission_guard.BASE/'source_restrictions.json').read_bytes()).hexdigest(),
             "audience_copy_version": audience_copy.VERSION,
             "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,

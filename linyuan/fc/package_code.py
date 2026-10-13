@@ -11,6 +11,7 @@ SOURCES = (
     'speaker_attribution.py', 'headline_policy.py', 'editorial_policy.py',
     'caption_readability.py', 'caption_lines.py', 'presentation.py', 'live_motion.py',
     'source_geometry.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
+    'source_admission_guard.py',
     'fc/media_repair.py', 'fc/stage_revision.py', 'fc/title_revision.py',
     'fc/reviewed_updates.py', 'fc/reviewed_third_video.py',
 )
@@ -34,6 +35,7 @@ def build(destination, include_reviewed_videos=False):
     with zipfile.ZipFile(destination, 'w', zipfile.ZIP_DEFLATED) as archive:
         for path in sources:
             archive.write(path, path.name)
+        archive.write(ROOT/'source_restrictions.json','source_restrictions.json')
         for path in sorted((ROOT/'fc/reviewed_0910').rglob('*')):
             if path.is_file() and (include_reviewed_videos or path.suffix.lower() != '.mp4'):
                 archive.write(path, path.relative_to(ROOT/'fc'))
