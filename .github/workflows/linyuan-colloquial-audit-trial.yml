@@ -1,0 +1,83 @@
+name: 口语识别疑点 CPU 对照（不发布）
+on:
+  push:
+    branches: [codex/yield45-colloquial-audit-20261014]
+    paths:
+      - .github/workflows/linyuan-colloquial-audit-trial.yml
+      - scripts/linyuan_colloquial_audit_trial.py
+      - linyuan/transcript_audit.py
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: colloquial-audit-${{ github.run_id }}
+  cancel-in-progress: false
+env:
+  TEXT_BACKEND: local
+  LOCAL_LLM_MODEL: qwen3.5:9b
+  CUDA_VISIBLE_DEVICES: ''
+  LINYUAN_AUTOMATIC_ONLY: 'false'
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 校验默认门禁不变与实验缓存隔离
+        run: |
+          python -m pip install -q pytest jieba numpy pillow
+          python -m pytest -q tests/test_linyuan_transcript_audit.py tests/test_linyuan_colloquial_audit_trial.py
+      - name: 缓存CPU本地文本模型
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen35-9b-v1
+      - name: 缓存已校验Ollama安装包
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+      - name: 启动CPU模型（只允许本机回环）
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ollama-runtime
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "${OLLAMA_SHA256}  $archive" | sha256sum -c -; then
+            curl -fsSL --retry 8 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 600 \
+              -o /tmp/ollama-download.tar.zst \
+              "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+            echo "${OLLAMA_SHA256}  /tmp/ollama-download.tar.zst" | sha256sum -c -
+            mv /tmp/ollama-download.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+            ollama serve > /tmp/ollama.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$LOCAL_LLM_MODEL"
+          ollama show "$LOCAL_LLM_MODEL" >/dev/null
+          python -c 'import json,os; print(json.dumps(dict(model=os.environ["LOCAL_LLM_MODEL"],messages=[dict(role="user",content="Reply ready")],stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))))' > /tmp/ollama-warmup.json
+          curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
+            -H 'Content-Type: application/json' --data-binary @/tmp/ollama-warmup.json \
+            | python -c 'import json,sys; d=json.load(sys.stdin); assert (d.get("message") or {}).get("content")'
+      - name: 对照原始口语与错误数字人名（不导入答案、不出片）
+        run: python -u scripts/linyuan_colloquial_audit_trial.py --out colloquial-audit-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: colloquial-audit-${{ github.run_id }}
+          path: |
+            colloquial-audit-results/
+            /tmp/ollama.log
+          if-no-files-found: warn
