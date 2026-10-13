@@ -26394,9 +26394,9 @@
    "source": "bilibili_search",
    "author": "知识投资家",
    "publish_time": "2023-05-30T01:08:01+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 27, \"quote\": \"啊，不管怎么说，政府倡导的，还有这个现在这个这个五一币也需要钱。\", \"suspect_quote\": \"五一币\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或商业语境下无明确含义，疑似将“人民币”误识别为“五一币”，属于关键名词错写。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -26408,7 +26408,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38053904740,
    "source_check_run_id": 38053904740,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1010-57b7c8",
+    "run_id": 38459936081,
+    "artifact_id": 11844419787,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 27, \"quote\": \"啊，不管怎么说，政府倡导的，还有这个现在这个这个五一币也需要钱。\", \"suspect_quote\": \"五一币\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或商业语境下无明确含义，疑似将“人民币”误识别为“五一币”，属于关键名词错写。\"}]"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38459936081,
+    "artifact_id": 11844419787,
+    "name": "production-reject-ly-1010-57b7c8",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1Pw411u7qX",
@@ -26756,8 +26774,8 @@
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"嗯，粮油行业，这是整个我们看它的，还是在，至少是少年阶段，嗯，青少年少年啊，甚至儿童阶段，那跟世质，你国外还是相差巨大的。\", \"suspect_quote\": \"跟世质，你国外还是相差巨大的\", \"kind\": \"unintelligible_term\", \"reason\": \"“世质”无法解释，疑似将“世界”或“西方”误识别为无意义的词组，导致关键比较对象含义不明。\"}]",
    "failure_stage": "editorial-or-render",
    "source_check_attempts": 2,
-   "failed": false,
-   "source_quality_rejected": false,
+   "failed": true,
+   "source_quality_rejected": true,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 38027290870,
@@ -26766,7 +26784,25 @@
     }
    },
    "source_check_exhausted": false,
-   "recovery_origin_run_id": 38027290870
+   "recovery_origin_run_id": 38027290870,
+   "production_failure_summary": {
+    "slug": "ly-1010-9d1da0",
+    "run_id": 38460959347,
+    "artifact_id": 11846355243,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"嗯，粮油行业，这是整个我们看它的，还是在，至少是少年阶段，嗯，青少年少年啊，甚至儿童阶段，那跟世质，你国外还是相差巨大的。\", \"suspect_quote\": \"跟世质，你国外还是相差巨大的\", \"kind\": \"unintelligible_term\", \"reason\": \"“世质”无法解释，疑似将“世界”或“西方”误识别为无意义的词组，导致关键比较对象含义不明。\"}]"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38460959347,
+    "artifact_id": 11846355243,
+    "name": "production-reject-ly-1010-9d1da0",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1V4pY6VE1M",
