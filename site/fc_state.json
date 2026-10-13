@@ -27048,9 +27048,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2026-01-01T00:08:57+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"本来你这个，它这个公司异囊不异囊，你能不能赚钱呢？\", \"suspect_quote\": \"异囊不异囊\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境下无明确含义，疑似识别错误（可能应为“盈利不盈利”、“异常不异常”或其他发音相近的词），严重影响理解。\"}, {\"sentence_id\": 16, \"quote\": \"没有应收账款，那就是虽然说这酒类的公司就没有应收账款，他基本上都是都是你先还有应收账款多了，他都是别人先把钱打了他账上，然后他再给你发货的。\", \"suspect_quote\": \"他都是别人先把钱打了他账上\", \"kind\": \"unintelligible_term\", \"reason\": \"句中“打了他账上”表述含糊，存在明显的语音识别歧义或错别字嫌疑（可能是“打入他账上”、“打到他账上”），导致语义不通顺且含义不明。\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：原话在句 17 处戛然而止（'这个公司。'），未对应收账款的具体处理方式或结论进行完整阐述，导致关于‘应收账款’这一关键财务指标的论述被切断，属于必要论述被切断的情况。；原文问题：[]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27062,7 +27062,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37932146181,
    "source_check_run_id": 37932146181,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-ae962a",
+    "run_id": 38464159115,
+    "artifact_id": 11847673795,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话在句 17 处戛然而止（'这个公司。'），未对应收账款的具体处理方式或结论进行完整阐述，导致关于‘应收账款’这一关键财务指标的论述被切断，属于必要论述被切断的情况。；原文问题：[]"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38464159115,
+    "artifact_id": 11847673795,
+    "name": "production-reject-ly-1009-ae962a",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1dAvtBoEmQ",
@@ -27080,9 +27098,9 @@
    "source": "bilibili_series",
    "author": "投资就是滚雪球",
    "publish_time": "2025-12-29T20:57:20+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"有没有可能我们出现像美股一样的卖空或者场友？\", \"suspect_quote\": \"卖空或者场友\", \"kind\": \"unintelligible_term\", \"reason\": \"“场友”在金融语境下无明确含义，疑似将“场外”或特定术语误识别为同音词“场友”，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 6, \"quote\": \"这是国际市场的规律，几十年不涨，一两年就把几十年的涨。\", \"suspect_quote\": \"几十年不涨，一两年就把几十年的涨\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"后半句“把几十年的涨”存在语法残缺和指代不明，“涨”后缺少宾语（如“涨幅”或“行情”），导致关键数字描述含义不清，属于含义不明的关键数字表达。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27094,7 +27112,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37930585285,
    "source_check_run_id": 37930585285,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-389a34",
+    "run_id": 38464176004,
+    "artifact_id": 11847588762,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"有没有可能我们出现像美股一样的卖空或者场友？\", \"suspect_quote\": \"卖空或者场友\", \"kind\": \"unintelligible_term\", \"reason\": \"“场友”在金融语境下无明确含义，疑似将“场外”或特定术语误识别为同音词“场友”，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 6, \"quote\": \"这是国际市场的规律，几十年不涨，一两年就把几十年的涨。\", \"suspect_quote\": \"几十年不涨，一两年就把几十年的涨\", \"kind\": \"ambiguous_"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38464176004,
+    "artifact_id": 11847588762,
+    "name": "production-reject-ly-1009-389a34",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1QpiKBtEtz",
@@ -27190,9 +27226,17 @@
    },
    "source_check_report_id": 11844000255,
    "source_check_run_id": 38449213557,
-   "last_error": "ASR强制对齐时序无效：core 180，2/142 个词；未形成素材不合格结论",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "已复查官方源元数据：BV1qos3zgEu1 当前明确禁止转载；旧任务与缓存成片不得发布或计为可用库存",
+   "failure_stage": "source-quality",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38465401380,
+    "artifact_id": 11847704437,
+    "name": "source-reject-ly-1013-776f97",
+    "retained": true
+   },
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -82287,6 +82331,13 @@
    "video_id": "BV1xCfJYHE6q",
    "ts": 1791901710,
    "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
+  },
+  {
+   "slug": "ly-1013-776f97",
+   "key": "bilibili_search:BV1qos3zgEu1",
+   "video_id": "BV1qos3zgEu1",
+   "ts": 1791924523,
+   "error": "已复查官方源元数据：BV1qos3zgEu1 当前明确禁止转载；旧任务与缓存成片不得发布或计为可用库存"
   }
  ],
  "reviewed_third_video_0910": {
