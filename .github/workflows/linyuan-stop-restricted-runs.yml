@@ -1,0 +1,37 @@
+name: 停止精确已禁止转载的正常任务（保留失败证据）
+on:
+  push:
+    branches: [codex/yield45-live-rights-20261014]
+    paths:
+      - .github/workflows/linyuan-stop-restricted-runs.yml
+      - scripts/stop_restricted_linyuan_runs.py
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: stop-restricted-normal-runs
+  cancel-in-progress: false
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 校验精确源与正常任务边界
+        run: |
+          python -m pip install -q pytest
+          python -m pytest -q tests/test_linyuan_restricted_run_stop.py
+      - name: 只取消仍在运行的精确受限正常任务
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/stop_restricted_linyuan_runs.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: restricted-normal-run-stop-${{ github.run_id }}
+          path: restricted-run-stop-receipt.json
+          if-no-files-found: warn

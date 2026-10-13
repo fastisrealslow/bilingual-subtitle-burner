@@ -53,12 +53,15 @@ def test_packaged_runtime_passes_new_production_health(packaged_health):
     assert packaged_health['copyright_mode'] == 'unselected'
     assert packaged_health['audience_copy_version'] == 2026101202
     assert packaged_health['audience_copy_sha256'] == hashlib.sha256((ROOT/'linyuan/audience_copy.py').read_bytes()).hexdigest()
+    assert packaged_health['source_restrictions_sha256'] == hashlib.sha256((ROOT/'linyuan/source_restrictions.json').read_bytes()).hexdigest()
+    assert packaged_health['source_admission_guard_sha256'] == hashlib.sha256((ROOT/'linyuan/source_admission_guard.py').read_bytes()).hexdigest()
 
 
 @pytest.mark.parametrize('field,value', [
     ('minimum_final_seconds', 120), ('content_policy', 'legacy120'),
     ('cover_styles', ['scene', 'photo', 'light', 'dark']),
     ('editorial_code_sha256', '0'*64),
+    ('source_restrictions_sha256','0'*64),('source_admission_guard_sha256','0'*64),
     ('audience_copy_version', 0), ('audience_copy_sha256', '0'*64),
     ('copyright_requested', 1), ('copyright_requested', 2), ('copyright_mode', 'original'),
 ])

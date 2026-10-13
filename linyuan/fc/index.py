@@ -1530,6 +1530,10 @@ def pick(items, st, n, audit=None):
                 or extra.get("direct_dispatch") is False):
             excluded['reference_only'] += 1
             continue
+        from source_admission_guard import restriction as source_restriction
+        if source_restriction(page,[]):
+            excluded['reference_only'] += 1
+            continue
         cands.append({"key": key, "video_id": vid,
                       "title": title[:60],
                       "video_url": url, "page_url": page,
@@ -1970,7 +1974,10 @@ def production_config():
     """Read local deployed code/config without fetching multi-MB remote ledgers."""
     import hashlib
     import audience_copy
+    import source_admission_guard
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "source_admission_guard_sha256": hashlib.sha256(Path(source_admission_guard.__file__).read_bytes()).hexdigest(),
+            "source_restrictions_sha256": hashlib.sha256((source_admission_guard.BASE/'source_restrictions.json').read_bytes()).hexdigest(),
             "audience_copy_version": audience_copy.VERSION,
             "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
@@ -2207,6 +2214,9 @@ def publish_catchup(event, context=None):
 
 
 def inventory_publication_error(part,entry,state):
+    from source_admission_guard import restriction
+    rights_error=restriction(entry.get('source_url') or part.get('source_origin_url') or '',[])
+    if rights_error:return rights_error
     error=editorial.source_reuse_error(part,entry.get('source_url'),state)
     if error:return error
     fingerprints=part.get('fingerprints') or {'sha256':part.get('sha256')}
@@ -3896,6 +3906,11 @@ def publish_handler(event=None, context=None):
     selected_part_index = None
     for candidate in pending:
         s = candidate["slug"]
+        from source_admission_guard import restriction
+        rights_error=restriction(candidate.get('source_url') or '',[])
+        if rights_error:
+            log_event('quality',f'{s} 已知源页限制，保留成片证据但禁止发布',rights_error)
+            continue
         # 上轮上传中断的（uploading 标记仍在）：绝不能盲目重传——先查 B站
         if candidate.get("uploading"):
             lease_age = now - float(candidate.get("uploading_ts") or 0)
