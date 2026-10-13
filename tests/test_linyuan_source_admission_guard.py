@@ -54,3 +54,19 @@ def test_explicit_policy_fixture_does_not_grant_other_sources_rights():
     assert restriction('https://www.yicai.com/video/102581577.html',[],[]) is None
     assert check('https://example.com/media.mp4','other',[],dict(dispatched=[
         dict(slug='old',ts=3,source_url='https://www.yicai.com/video/102581577.html')])) is None
+
+
+@pytest.mark.parametrize('bvid',['BV131421U7XK','BV15ByfBqEoQ'])
+def test_live_verified_parent_ban_supersedes_absent_or_outdated_seed(bvid):
+    source='https://www.bilibili.com/video/'+bvid+'?p=2&from=share'
+    for seeds in ([],[dict(bvid=bvid,no_reprint=0,direct_dispatch=True)]):
+        assert '明确禁止转载' in restriction(source,seeds)
+        state=dict(dispatched=[dict(slug='old',ts=4,source_url=source)])
+        assert check('https://github.com/org/repo/releases/download/staging/old.mp4',
+                     'old',seeds,state)
+
+
+def test_verified_bans_do_not_block_other_parent_or_nested_urls():
+    assert restriction('https://www.bilibili.com/video/BV1a84y1c7B7',[]) is None
+    assert restriction('https://example.com/?url=https://www.bilibili.com/video/BV15ByfBqEoQ',[]) is None
+    assert restriction('https://www.bilibili.com.evil.test/video/BV15ByfBqEoQ',[]) is None

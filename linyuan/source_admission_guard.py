@@ -14,6 +14,9 @@ BASE=Path(__file__).resolve().parent
 
 def official_page_key(url):
     parsed=urlsplit(str(url or ''))
+    if parsed.hostname in {'bilibili.com','www.bilibili.com','m.bilibili.com'}:
+        match=re.fullmatch(r'/video/(BV[0-9A-Za-z]{10})/?',parsed.path)
+        return ('bilibili',match[1]) if match else None
     if parsed.hostname not in {'www.yicai.com','yicai.com'}:return None
     match=re.fullmatch(r'/video/(\d+)\.html/?',parsed.path)
     return ('yicai',match[1]) if match else None
