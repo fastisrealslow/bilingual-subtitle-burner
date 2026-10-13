@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791923154,
+  "updated_at": 1791923262,
   "inventory_updated_at": 1791923148,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791923154,
+    "updated_at": 1791923261,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 80,
@@ -247,13 +247,13 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 969,
+    "failed": 970,
     "paused": 5,
     "ready": 3,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 1,
-    "running": 5,
-    "retry_queued": 36
+    "running": 6,
+    "retry_queued": 35
   },
   "tasks": [
     {
@@ -19903,24 +19903,6 @@
       "run_updated_at": "2026-10-13T19:45:41Z"
     },
     {
-      "slug": "ly-1009-3ca855",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791920809,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791920808,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37965872114,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37965872114",
-      "run_started_at": "2026-10-09T17:23:02Z",
-      "run_updated_at": "2026-10-09T18:06:39Z"
-    },
-    {
       "slug": "ly-1012-077cfc",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为未来预测的具体数值，在口语中若未加单位（如'人'）或语境支撑，易产生歧义。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后就能建分行\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字与行业术语矛盾：'建分行'通常指银行分支机构，但上下文讨论的是医药公司或投资标的，此处'分行'极可能是'产能'、'工厂'或'品牌'的识别错误，属于含义不明的关键数字/名词组合。\"}, {\"sentence_id\": 15, \"quote\": \"我买的时候都都是抗生素全全球第一了，是吧？\", \"suspect_quote\": \"我买的时候都都是抗生素全全球第一了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"重复用词与范围表述不清：'都都是'为口语冗余，但'全全球第一'中'全'与'全球'语义重叠且搭配生硬，疑似将'完全'或'已经'误识别为'全'，导致否定/程度副词含义模糊。\"}, {\"sentence_id\": 17, \"quote\": \"就包括中国人不擅长喝奶的情况下，中国人喝奶，那个人均喝奶跟跟那个西方比，跟跟日本这是比比比日韩那都少的多的多。\", \"suspect_quote\": \"中国人不擅长喝奶的情况下，中国人喝奶\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"逻辑连接词缺失导致数字比较对象不明：前半句假设'不擅长喝奶'，后半句直接接'中国人喝奶'，中间缺少转折或数据对比（如'人均摄入量'），使得'跟跟那个西方比，跟跟日本这是比比比日韩那都少的多的多'中的比较基准和数值范围无法准确理解。\"}]",
@@ -20822,11 +20804,11 @@
     },
     {
       "slug": "ly-1009-2b18b2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "已复查官方源元数据：BV15ByfBqEoQ 当前明确禁止转载；旧目录 no_reprint=0、旧任务或暂存链接不能绕过已核对限制",
       "signature": {
         "ts": 1791923037,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20837,6 +20819,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38462491600",
       "run_started_at": "2026-10-13T20:23:57Z",
       "run_updated_at": "2026-10-13T20:25:07Z"
+    },
+    {
+      "slug": "ly-1009-3ca855",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791923221,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38462898024,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38462898024",
+      "run_started_at": "2026-10-13T20:27:01Z",
+      "run_updated_at": "2026-10-13T20:27:06Z"
     }
   ],
   "runs": {
@@ -26902,14 +26902,14 @@
       "display_title": "中文源出片 · ly-1009-0485a9"
     },
     "ly-1009-3ca855": {
-      "id": 37965872114,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T17:23:02Z",
-      "updated_at": "2026-10-09T18:06:39Z",
-      "run_started_at": "2026-10-09T17:23:02Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37965872114",
-      "run_number": 1699,
+      "id": 38462898024,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-13T20:27:01Z",
+      "updated_at": "2026-10-13T20:27:06Z",
+      "run_started_at": "2026-10-13T20:27:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38462898024",
+      "run_number": 2022,
       "display_title": "中文源出片 · ly-1009-3ca855"
     },
     "ly-1009-0c0721": {
