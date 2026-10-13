@@ -83,3 +83,10 @@ def test_fc_archive_includes_exact_registry_and_guard(tmp_path):
     with zipfile.ZipFile(package.build(tmp_path/'fc.zip')) as archive:
         assert archive.read('source_restrictions.json')==(ROOT/'linyuan/source_restrictions.json').read_bytes()
         assert archive.read('source_admission_guard.py')==(ROOT/'linyuan/source_admission_guard.py').read_bytes()
+
+
+def test_old_encoded_inventory_cannot_bypass_a_known_source_ban():
+    sys.path.insert(0,str(ROOT/'linyuan/fc'))
+    import index as fc
+    entry={'slug':'old','source_url':'https://www.bilibili.com/video/BV1tTi5BrEES'}
+    assert '禁止转载' in fc.inventory_publication_error({'status':'verified'},entry,{'published':{}})

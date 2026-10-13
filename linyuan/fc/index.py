@@ -2214,6 +2214,9 @@ def publish_catchup(event, context=None):
 
 
 def inventory_publication_error(part,entry,state):
+    from source_admission_guard import restriction
+    rights_error=restriction(entry.get('source_url') or part.get('source_origin_url') or '',[])
+    if rights_error:return rights_error
     error=editorial.source_reuse_error(part,entry.get('source_url'),state)
     if error:return error
     fingerprints=part.get('fingerprints') or {'sha256':part.get('sha256')}
@@ -3901,6 +3904,11 @@ def publish_handler(event=None, context=None):
     selected_part_index = None
     for candidate in pending:
         s = candidate["slug"]
+        from source_admission_guard import restriction
+        rights_error=restriction(candidate.get('source_url') or '',[])
+        if rights_error:
+            log_event('quality',f'{s} 已知源页限制，保留成片证据但禁止发布',rights_error)
+            continue
         # 上轮上传中断的（uploading 标记仍在）：绝不能盲目重传——先查 B站
         if candidate.get("uploading"):
             lease_age = now - float(candidate.get("uploading_ts") or 0)

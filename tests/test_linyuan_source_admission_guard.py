@@ -58,7 +58,8 @@ def test_explicit_policy_fixture_does_not_grant_other_sources_rights():
 
 @pytest.mark.parametrize('bvid',['BV131421U7XK','BV15ByfBqEoQ','BV1s6yABZEYV',
     'BV1EUycByEdT','BV1cYyKBcEL6','BV1REFpzBE8r','BV1nKxjeNE3u',
-    'BV11WL3z8EqR','BV1K9VizFETj','BV13Ej9zZEM9'])
+    'BV11WL3z8EqR','BV1K9VizFETj','BV13Ej9zZEM9',
+    'BV1tTi5BrEES','BV1eXtZzgE7C','BV1HXejzDEhn','BV1qos3zgEu1','BV1VimhYiEXr'])
 def test_live_verified_parent_ban_supersedes_absent_or_outdated_seed(bvid):
     source='https://www.bilibili.com/video/'+bvid+'?p=2&from=share'
     for seeds in ([],[dict(bvid=bvid,no_reprint=0,direct_dispatch=True)]):
