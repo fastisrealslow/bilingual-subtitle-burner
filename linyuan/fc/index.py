@@ -332,12 +332,28 @@ def item_has_target_speaker(item,extra):
     # Archive episode titles often contain only the TV programme/date. Their
     # API-backed parent identifies the subject; pixel/audio gates still apply.
     parent=extra.get('collection_title') or ''
-    return (item.get('source')=='bilibili_collection'
+    collection=item.get('source')=='bilibili_collection'
+    imported=False
+    if item.get('source') in {'bilibili_search','bilibili_series','reference_origin_search'}:
+        from source_admission_guard import official_page_key
+        bvid=extra.get('bvid');page=extra.get('page')
+        imported=(isinstance(bvid,str) and bool(re.fullmatch(r'BV[0-9A-Za-z]{10}',bvid))
+            and type(page) is int and page>0
+            and type(extra.get('cid')) is int and extra['cid']>0
+            and item.get('id')=='bilibili_search:'+bvid+(f':p{page}' if page>1 else '')
+            and official_page_key(item.get('url') or '')==('bilibili',bvid)
+            and editorial.source_key(item.get('url') or '')==bvid+':p'+str(page)
+            and bool(re.match(r'^林园 P'+str(page)+r'\s',item.get('title') or '')))
+    parent_evidence=(title_has_target_speaker(parent) or bool(re.match(
+        r'^[【\[]?林园[】\]]?(?:[（(]\d{4}.*\d{4}[）)]|.*(?:合集|访谈|演讲|直播|实录|课程|讲座))',parent)))
+    return ((collection or imported)
             and extra.get('direct_dispatch') is True
             and extra.get('source_role')=='mother_candidate'
             and extra.get('metadata_status')=='known_duration'
             and bool(extra.get('cid')) and bool(item.get('author'))
-            and bool(re.match(r'^[【\[]?林园[】\]]?(?:[（(]\d{4}.*\d{4}[）)]|.*(?:合集|访谈|演讲|直播|实录|课程|讲座))',parent))
+            and parent_evidence and not THIRD_PARTY_TITLE_PAT.search(parent)
+            and not AI_NOISE.search(parent) and not NOISE.search(parent)
+            and not re.search(r'(?:AI|人工智能)(?:访谈|模拟|拟声|合成)',parent,re.I)
             and not THIRD_PARTY_TITLE_PAT.search(item.get('title') or ''))
 
 # 普通投稿好时段（北京时间）。FC 的兼容触发器仍可每小时唤醒，但只有这些
