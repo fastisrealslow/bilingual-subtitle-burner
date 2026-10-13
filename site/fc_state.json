@@ -27084,9 +27084,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2025-12-31T04:32:58+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有去没有这个。\", \"suspect_quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有\", \"kind\": \"unintelligible_term\", \"reason\": \"句子在‘它没有’处突然截断，缺少宾语或后续内容，导致语义不完整且无法解释具体指代对象。\"}, {\"sentence_id\": 3, \"quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点。\", \"suspect_quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点\", \"kind\": \"unintelligible_term\", \"reason\": \"'找到它的缺点'在投资语境下含义不明，通常应为‘优势’或‘特点’，此处‘缺点’极可能是识别错误导致的关键词污染。\"}, {\"sentence_id\": 4, \"quote\": \"啊，集产这些因素不考虑，还是需求。\", \"suspect_quote\": \"啊，集产这些因素不考虑\", \"kind\": \"unintelligible_term\", \"reason\": \"'集产'并非标准经济术语，结合上下文应为‘集采’（集中采购）的识别错误，属于关键行业词污染。\"}, {\"sentence_id\": 10, \"quote\": \"居民财富，我可以就是大概做一个判断：，所有的行业都不行，就除了老龄化，除了人口老龄化。\", \"suspect_quote\": \"居民财富，我可以就是大概做一个判断：，所有的行业\", \"kind\": \"unintelligible_term\", \"reason\": \"句中冒号后直接接‘所有的行业都不行’，但前半句‘居民财富，我可以就是大概做一个判断：'逻辑断裂，且‘所有的行业都不行’与后文‘就除了老龄化’矛盾，疑似识别时漏掉关键转折词或误将否定范围扩大。\"}, {\"sentence_id\": 14, \"quote\": \"你现在是几百，这几百万人口的下降都是，那不是少一双筷子。\", \"suspect_quote\": \"你现在是几百，这几百万人口的下降都是\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'几百'和‘这几百万’表述模糊且数值范围重叠，结合口语习惯可能指代‘几百万’的下降，但原文数字表达不精确且存在歧义，属于关键数字污染。\"}, {\"sentence_id\": 18, \"quote\": \"现在咱们的股，市，这个这个都，这研究都是要有个增长，增长。\", \"suspect_quote\": \"现在咱们的股，市，这个这个都，这研究都是要有个\", \"kind\": \"unintelligible_term\", \"reason\": \"'股，市'中间插入逗号及重复的‘这个这个’，导致‘股市’一词被割裂，属于明显的识别错误，影响对核心名词的理解。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27098,7 +27098,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37930571562,
    "source_check_run_id": 37930571562,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-1f9656",
+    "run_id": 38464555500,
+    "artifact_id": 11848554156,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有去没有这个。\", \"suspect_quote\": \"大多数企业跟这个，我们的工业生产也是一样，它没有\", \"kind\": \"unintelligible_term\", \"reason\": \"句子在‘它没有’处突然截断，缺少宾语或后续内容，导致语义不完整且无法解释具体指代对象。\"}, {\"sentence_id\": 3, \"quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点。\", \"suspect_quote\": \"但是我们选的就是一些特殊的公司里面，找到它的缺点\""
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38464555500,
+    "artifact_id": 11848554156,
+    "name": "production-reject-ly-1009-1f9656",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1AFiKB5EMb",
@@ -27116,9 +27134,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2025-12-31T05:37:34+00:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导，这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导，这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'车上导导游'和'日本的导'语义不通，结合上下文应为'车上导游'及'日本导游'，中间夹杂的'导'字无意义且破坏专有名词完整性。\"}, {\"sentence_id\": 8, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"这就是我们点心的这个消费身体。\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'消费身体'含义不明，结合上下文讨论点心价格差异，此处极可能为'消费水平'或'消费逻辑'的误识，属于关键概念错写。\"}, {\"sentence_id\": 29, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个脸因为'语义断裂且无法解释，结合后文'针出血了'（可能为'针头出血'或'脸被扎出血'的误听），此处存在严重的语音转写污染，导致关键动作和原因描述混乱。\"}, {\"sentence_id\": 30, \"quote\": \"那个片场黄带着片场黄吃完了没吃？\", \"suspect_quote\": \"那个片场黄带着片场黄吃完了没吃？\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'片场黄'为明显错写的专有名词，结合后文蔬菜市场语境，应为某种食物名称（如'番薯黄'、'南瓜饼'或特定方言食品），当前文本无法解释且非正常行业术语。\"}, {\"sentence_id\": 31, \"quote\": \"我到早上，比如说今天早上，我有觉得这个这个在外面蔬菜市场或者是，我就要吃吃个片场黄，而不吃。\", \"suspect_quote\": \"我就要吃吃个片场黄，而不吃。\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：再次出现'片场黄'，确认为同一错写专有名词，导致句子含义不明，属于无法解释的具体词语污染。\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导，这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导，这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'车上导导游'和'日本的导'语义不通，结合上下文应为'车上导游'及'日本导游'，中间夹杂的'导'字无意义且破坏专有名词完整性。\"}, {\"sentence_id\": 8, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"这就是我们点心的这个消费身体。\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'消费身体'含义不明，结合上下文讨论点心价格差异，此处极可能为'消费水平'或'消费逻辑'的误识，属于关键名词错写导致理解障碍。\"}, {\"sentence_id\": 29, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个脸因为'语义断裂且不合逻辑，结合后文'针出血了'（可能为'痔疮出血'的误听或误识），此处应为描述身体部位或症状的错写，导致关键信息无法理解。\"}, {\"sentence_id\": 30, \"quote\": \"那个片场黄带着片场黄吃完了没吃？\", \"suspect_quote\": \"那个片场黄带着片场黄吃完了没吃？\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'片场黄'非正常食品名称，结合上下文讨论通便食物，极可能为'番泻叶'或某种特定药食同源产品的误识，属于无法解释的错写专有名词。\"}, {\"sentence_id\": 31, \"quote\": \"我到早上，比如说今天早上，我有觉得这个这个在外面蔬菜市场或者是，我就要吃吃个片场黄，而不吃。\", \"suspect_quote\": \"我就要吃吃个片场黄，而不吃。\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：再次出现'片场黄'，结合前句判断为同一误识词，导致关键饮食对象含义不明，影响对说话人习惯的理解。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27130,7 +27148,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37929673814,
    "source_check_run_id": 37929673814,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-e92b65",
+    "run_id": 38465382972,
+    "artifact_id": 11848828322,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导，这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导，这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'车上导导游'和'日本的导'语义不通，结合上下文应为'车上导游'及'日本导游'，中间夹杂的'导'字无意义且破坏专有名词完整性。\"}, {\"sentence_id\": 8, \"quote\": \"这就是我们点心的这个消费"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38465382972,
+    "artifact_id": 11848828322,
+    "name": "production-reject-ly-1009-e92b65",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1qos3zgEu1",
@@ -27172,7 +27208,8 @@
     "name": "source-reject-ly-1013-776f97",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1CDiGBYE2L",
@@ -27222,9 +27259,9 @@
    "source": "bilibili_collection",
    "author": "投资就是滚雪球",
    "publish_time": "2026-01-02T20:04:26+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我主要考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语或比喻，严重影响语义理解。\"}, {\"sentence_id\": 9, \"quote\": \"它有一满之这个东西的话，我就会。\", \"suspect_quote\": \"一满之\", \"kind\": \"unintelligible_term\", \"reason\": \"'一满之'非标准中文词汇，疑似将'一半'、'一部分'或其他词误识别，含义不明且无法通过上下文合理推断。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27236,7 +27273,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37928705790,
    "source_check_run_id": 37928705790,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-9b1d8d",
+    "run_id": 38465843988,
+    "artifact_id": 11849455462,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我主要考虑，就是你资产的这个认认识认识很重要。\", \"suspect_quote\": \"认认识认识\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似重复识别错误，'认识'一词出现三次且语序混乱，无法解释为正常口语或比喻，严重影响语义理解。\"}, {\"sentence_id\": 9, \"quote\": \"它有一满之这个东西的话，我就会。\", \"suspect_quote\": \"一满之\", \"kind\": \"unintelligible_term\", \"reason\": \"'一满之'非标准"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38465843988,
+    "artifact_id": 11849455462,
+    "name": "production-reject-ly-1009-9b1d8d",
+    "retained": true
+   }
   }
  ],
  "makeup_receipts": {
