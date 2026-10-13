@@ -24,6 +24,12 @@ def build(topic=False,crop=False,context=False):
     for step in job['steps']:
         if step.get('name') in REMOVED:
             continue
+        if context and step.get('name')=='CPU离线ASR与完整观点规则回归（失败不进入实产）':
+            # Baseline fixtures intentionally contain no-context evidence.
+            # Test default production plus explicit context/cache regression;
+            # the actual inference steps still inherit finance-v1 globally.
+            step['env']={**step.get('env',{}),'QWEN_ASR_CONTEXT_PROFILE':'none'}
+            step['run']+='\npython -m pytest -q tests/test_linyuan_asr_context.py tests/test_linyuan_mother_cache_identity.py\n'
         if step.get('id') == 'render':
             step['env']['SOURCE_VISUAL_CHAPTERS']='false' if custom else 'true'
             if topic:step['env']['SOURCE_TOPIC_DISCOVERY']='true'

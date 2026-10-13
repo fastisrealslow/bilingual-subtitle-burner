@@ -255,6 +255,12 @@ def test_context_experiment_requires_fresh_bound_recognition_and_never_publishes
     assert workflow['env']['QWEN_ASR_CONTEXT_PROFILE']=='finance-v1'
     assert workflow['concurrency']=={'group':'linyuan-context-preview','cancel-in-progress':False}
     assert workflow['permissions']=={'contents':'read','actions':'read'}
+    regression=next(s for s in workflow['jobs']['preview']['steps']
+                    if s.get('name')=='CPU离线ASR与完整观点规则回归（失败不进入实产）')
+    assert regression['env']['QWEN_ASR_CONTEXT_PROFILE']=='none'
+    assert 'tests/test_linyuan_asr_context.py' in regression['run']
+    assert not any(s.get('env',{}).get('QWEN_ASR_CONTEXT_PROFILE')=='none'
+                   for s in workflow['jobs']['preview']['steps'] if s is not regression)
     for mode in ({},{'topic':True},{'crop':True}):
         assert 'QWEN_ASR_CONTEXT_PROFILE' not in build(**mode)['env']
     production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
