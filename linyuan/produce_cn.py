@@ -6137,6 +6137,15 @@ def main():
                     work/'visual-question-cards',source_report.get('source_sha256'),
                     min_seconds=editorial.MIN_SECONDS)
             diagnostics['visual_question_card_candidates']=len(source_picks)
+        if (not source_picks and editorial.CONTENT_POLICY=='reference_v1'
+                and os.environ.get('SOURCE_TOPIC_DISCOVERY')=='true'):
+            from source_topic_discovery import discover
+            def speech_topic_call(prompt,schema):
+                return llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                    max_tokens=1400,budget_sec=text_budget(240),response_schema=schema)
+            source_picks=discover(cues,speech_topic_call,work/'speech-topic-discovery',
+                source_report.get('source_sha256'),args.speaker,min_seconds=editorial.MIN_SECONDS)
+            diagnostics['speech_topic_candidates']=len(source_picks)
         if source_picks and args.require_live_video and not args.dry_run:
             from visual_selection import rank
             source_picks=rank(src,cues,source_picks,work/'visual-selection',

@@ -59,6 +59,21 @@ def test_preview_matches_production_steps_and_has_no_publication_capability():
             assert step['with']['name'].startswith('preview-')
 
 
+def test_speech_topic_preview_is_isolated_and_still_has_no_publication_capability():
+    builder=script('build_linyuan_automatic_preview')
+    doc=yaml.safe_load((ROOT/'.github/workflows/linyuan-topic-preview.yml').read_text())
+    assert doc==builder.build(topic=True)
+    assert doc['permissions']=={'contents':'read','actions':'read'}
+    assert doc['concurrency']['group']=='linyuan-topic-preview'
+    render=next(s for s in doc['jobs']['preview']['steps'] if s.get('id')=='render')
+    assert render['env']['SOURCE_TOPIC_DISCOVERY']=='true'
+    assert render['env']['SOURCE_VISUAL_CHAPTERS']=='false'
+    assert '--max-outputs "$RUN_MAX_OUTPUTS"' in render['run']
+    assert 'SOURCE_TOPIC_DISCOVERY' not in next(s for s in yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())['jobs']['produce']['steps'] if s.get('id')=='render')['env']
+    for s in doc['jobs']['preview']['steps']:
+        assert not any(x in s.get('run','') for x in ('publish_bilibili','fc/','workflow run'))
+
+
 @pytest.mark.parametrize('key,value',[
     ('title','预填的标题'),('selected_parts','1'),('auto_publish',True),
     ('max_outputs',True),('max_outputs',4),('source','http://example.com/video'),
