@@ -12,7 +12,21 @@ from urllib.parse import urlsplit
 BASE=Path(__file__).resolve().parent
 
 
-def restriction(url,seeds):
+def official_page_key(url):
+    parsed=urlsplit(str(url or ''))
+    if parsed.hostname not in {'www.yicai.com','yicai.com'}:return None
+    match=re.fullmatch(r'/video/(\d+)\.html/?',parsed.path)
+    return ('yicai',match[1]) if match else None
+
+
+def restriction(url,seeds,policies=None):
+    if policies is None:
+        policies=json.loads((BASE/'source_restrictions.json').read_text())['pages']
+    key=official_page_key(url)
+    if key:
+        for row in policies:
+            if official_page_key(row.get('source_url'))==key:
+                return row['reason']
     parsed=urlsplit(str(url or ''))
     if parsed.hostname not in {'bilibili.com','www.bilibili.com','m.bilibili.com'}:return None
     match=re.fullmatch(r'/video/(BV[0-9A-Za-z]{10})/?',parsed.path)
@@ -26,14 +40,14 @@ def restriction(url,seeds):
     return None
 
 
-def check(source,slug,seeds,state):
+def check(source,slug,seeds,state,policies=None):
     sources=[source]
     entries=[e for e in state.get('dispatched') or [] if e.get('slug')==slug]
     if entries:
         entry=max(entries,key=lambda e:float(e.get('ts') or 0))
         # A staging URL does not erase the exact original page's restriction.
         sources.append(entry.get('source_url'))
-    return next((reason for url in sources if (reason:=restriction(url,seeds))),None)
+    return next((reason for url in sources if (reason:=restriction(url,seeds,policies))),None)
 
 
 def main():
