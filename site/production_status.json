@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791923905,
+  "updated_at": 1791924007,
   "inventory_updated_at": 1791923900,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791923905,
+    "updated_at": 1791924006,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 80,
@@ -247,13 +247,13 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 974,
+    "failed": 975,
     "paused": 5,
     "ready": 3,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 1,
-    "running": 5,
-    "retry_queued": 31
+    "running": 6,
+    "retry_queued": 30
   },
   "tasks": [
     {
@@ -19921,24 +19921,6 @@
       "run_updated_at": "2026-10-13T19:57:14Z"
     },
     {
-      "slug": "ly-1009-1f9656",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1791921027,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1791921026,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37930571562,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
-      "run_started_at": "2026-10-09T12:31:14Z",
-      "run_updated_at": "2026-10-09T13:07:16Z"
-    },
-    {
       "slug": "ly-1009-e92b65",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -20768,11 +20750,11 @@
     },
     {
       "slug": "ly-1009-f27e48",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 54, \"quote\": \"对你校的上的国际的品牌，我都有。\", \"suspect_quote\": \"对你校的上的国际的品牌\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'对你校的上的'在金融或日常语境中无意义，极可能是'对可口可乐的'（Coca-Cola）或类似知名品牌的误识。'校'与'可'、'上'与'乐'发音或字形易混淆，导致专有名词错写，严重影响理解。\"}, {\"sentence_id\": 55, \"quote\": \"九四年我们投从来没有卖，就是凡是现在总结出来，就是和嘴有关系的，是吧？\", \"suspect_quote\": \"和嘴有关系的\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'和嘴有关系'在投资语境下含义不明，结合上下文（林园常提及的白酒/食品行业），极可能是'和酒有关系的'或'和猪有关系的'等特定行业的误识。'嘴'与'酒'、'猪'发音相近，属于典型的语音识别错误导致的专有名词错写。\"}]",
       "signature": {
         "ts": 1791923592,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20837,6 +20819,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38464176004",
       "run_started_at": "2026-10-13T20:36:34Z",
       "run_updated_at": "2026-10-13T20:36:38Z"
+    },
+    {
+      "slug": "ly-1009-1f9656",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791923967,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38464555500,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38464555500",
+      "run_started_at": "2026-10-13T20:39:26Z",
+      "run_updated_at": "2026-10-13T20:39:31Z"
     }
   ],
   "runs": {
@@ -26726,14 +26726,14 @@
       "display_title": "中文源出片 · ly-1009-9e7da3"
     },
     "ly-1009-1f9656": {
-      "id": 37930571562,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T12:31:14Z",
-      "updated_at": "2026-10-09T13:07:16Z",
-      "run_started_at": "2026-10-09T12:31:14Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37930571562",
-      "run_number": 1653,
+      "id": 38464555500,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-13T20:39:26Z",
+      "updated_at": "2026-10-13T20:39:31Z",
+      "run_started_at": "2026-10-13T20:39:26Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38464555500",
+      "run_number": 2027,
       "display_title": "中文源出片 · ly-1009-1f9656"
     },
     "ly-1009-f28c74": {
