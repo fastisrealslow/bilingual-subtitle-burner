@@ -24704,6 +24704,10 @@
       "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/670，总帧数3347；身份匹配但人脸短边不足96px的帧数670"
      }
     ]
+   },
+   "batch_failure_lookup": {
+    "run_id": 38359021452,
+    "result": "no_matching_zero_batch"
    }
   },
   {
@@ -25151,13 +25155,13 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1012-077cfc",
-    "run_id": 38457651789,
-    "artifact_id": 11844941865,
+    "run_id": 38308016949,
+    "artifact_id": 11773758360,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为未来预测的具体数值，在口语中若未加单位（如'人'）或语境支撑，易产生歧义。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"人口三千多万，你二十年以后消消费我的产品是三亿八千万。\", \"suspect_quote\": \"消消费我的产品是三亿八千万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错别字导致数字含义不明：'消消费'应为'消费'，且'三亿八千万'作为具体销量数据在口语中表述不清，可能影响对市场规模的准确理解。\"}, {\"sentence_id\": 13, \"quote\": \"这个时间不会长，十五年以后就能建分行。\", \"suspect_quote\": \"十五年以后就能建分行\","
      }
     ]
    },
@@ -25408,8 +25412,8 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1012-8e1698",
-    "run_id": 38458142582,
-    "artifact_id": 11844078324,
+    "run_id": 38231035984,
+    "artifact_id": 11738903014,
     "accepted": 0,
     "failures": [
      {
@@ -83610,5 +83614,5 @@
  },
  "source_refresh_requested_at": 1791915785,
  "inventory_refresh_requested_at": 1791451406,
- "rule_recovery_page": 2
+ "rule_recovery_page": 3
 }
