@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "metric": "long_mother_to_at_least_one_accepted_live_clip",
+  "window_days": 7,
+  "long_threshold_seconds": 900,
+  "baseline_as_of": "2026-10-13T03:55:23+00:00",
+  "baseline_status": "all_attempted_source_durations_classified",
+  "baseline_fraction": {"numerator": 10, "denominator": 89},
+  "baseline_success_rate": 0.11235955056179775,
+  "multiplier": 2,
+  "target_success_rate": 0.2247191011235955,
+  "source_duration_coverage": 1.0,
+  "same_source_retries_count_once": true,
+  "baseline_accepted_unique_clips": 25,
+  "baseline_clips_per_successful_mother": 2.5,
+  "goal_does_not_relax_quality_gates": true,
+  "note": "Target is twice the frozen baseline, not twice each new rolling observation. At 89 completed long mothers, at least 20 must produce accepted live clips. Source metadata describes intended long mothers; jobs/links/approval flags are not accepted files."
+}
