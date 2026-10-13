@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1791902140,
+  "updated_at": 1791902239,
   "inventory_updated_at": 1791902134,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791902140,
+    "updated_at": 1791902239,
     "records": 9986,
     "video_records": 8554,
     "initial_candidates": 58,
@@ -70,10 +70,10 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 1004,
+    "failed": 1005,
     "paused": 5,
     "ready": 3,
-    "interrupted": 2,
+    "interrupted": 1,
     "excluded": 1,
     "running": 4
   },
@@ -20374,11 +20374,11 @@
     },
     {
       "slug": "ly-1013-8a7cb7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我们因为我们投资，我们凌源投资是在全球范围内，我从九十年代初我就，在全球范围的投资。\", \"suspect_quote\": \"我们凌源投资\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将嘉宾姓名“林园”误识别为同音词“凌源”，属于专有名词错写，影响对说话主体身份的准确理解。\"}, {\"sentence_id\": 30, \"quote\": \"而且要重点通，种下种手。\", \"suspect_quote\": \"而且要重点通，种下种手\", \"kind\": \"unintelligible_term\", \"reason\": \"后半句“种下种手”语义不明，疑似将口语中的“重下重手”或类似表达误识别为无意义的重复词汇，导致关键动作描述含义不清。\"}, {\"sentence_id\": 34, \"quote\": \"所以我们刚才首先我刚才讲的都是赛道，赛道，嘴巴刚需。\", \"suspect_quote\": \"赛道，嘴巴刚需\", \"kind\": \"unintelligible_term\", \"reason\": \"“嘴巴刚需”疑似将行业术语“消费刚需”或“日常刚需”误识别为包含身体部位“嘴巴”的词语，属于专有名词/行业词错写，含义不明。\"}]",
       "signature": {
         "ts": 1791899299,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28643,6 +28643,17 @@
       "run_number": 1988,
       "display_title": "中文源出片 · ly-1012-4987ed"
     },
+    "ly-1013-8a7cb7": {
+      "id": 38407973488,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-13T13:48:19Z",
+      "updated_at": "2026-10-13T14:34:52Z",
+      "run_started_at": "2026-10-13T13:48:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38407973488",
+      "run_number": 1985,
+      "display_title": "中文源出片 · ly-1013-8a7cb7"
+    },
     "ly-1009-6fdc57": {
       "id": 38413762002,
       "status": "in_progress",
@@ -28686,17 +28697,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38411607326",
       "run_number": 1986,
       "display_title": "中文源出片 · ly-1009-c31f09"
-    },
-    "ly-1013-8a7cb7": {
-      "id": 38407973488,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-13T13:48:19Z",
-      "updated_at": "2026-10-13T14:34:52Z",
-      "run_started_at": "2026-10-13T13:48:19Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38407973488",
-      "run_number": 1985,
-      "display_title": "中文源出片 · ly-1013-8a7cb7"
     }
   }
 }
