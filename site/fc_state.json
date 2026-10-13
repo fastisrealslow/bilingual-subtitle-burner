@@ -25958,10 +25958,10 @@
    "publish_time": "2026-01-26T04:44:03+00:00",
    "source_check_report_id": 11683981015,
    "source_check_run_id": 38088376623,
-   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
-   "failure_stage": "quality-service",
+   "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
+   "failure_stage": "source-quality",
    "source_check_attempts": 2,
-   "failed": false,
+   "failed": true,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 38088376623,
@@ -25969,7 +25969,7 @@
      "ts": 1791901248
     }
    },
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38088376623
   },
@@ -81126,6 +81126,13 @@
    "video_id": "BV1a84y1c7B7",
    "ts": 1791895859,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我们因为我们投资，我们凌源投资是在全球范围内，我从九十年代初我就，在全球范围的投资。\", \"suspect_quote\": \"我们凌源投资\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将嘉宾姓名“林园”误识别为同音词“凌源”，属于专有名词错写，影响对说话主体身份的准确理解。\"}, {\"sentence_id\": 30, \"quote\": \"而且要重点通，种下种手。\", \"suspect_quote\": \"而且要重点通，种下种手\", \"kind\": \"unintelligible_term\", \"reason\": \"后半句“种下种手”语义不明，疑似将口语中的“重下重手”或类似表达误识别为无意义的重复词汇，导致关键动作描述含义不清。\"}, {\"sentence_id\": 34, \"quote\": \"所以我们刚才首先我刚才讲的都是赛道，赛道，嘴巴刚需。\", \"suspect_quote\": \"赛道，嘴巴刚需\", \"kind\": \"unintelligible_term\", \"reason\": \"“嘴巴刚需”疑似将行业术语“消费刚需”或“日常刚需”误识别为包含身体部位“嘴巴”的词语，属于专有名词/行业词错写，含义不明。\"}]"
+  },
+  {
+   "slug": "ly-1010-2831e2",
+   "key": "bilibili_search:BV1MFzhBwEuF",
+   "video_id": "BV1MFzhBwEuF",
+   "ts": 1791901502,
+   "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
   }
  ],
  "reviewed_third_video_0910": {
