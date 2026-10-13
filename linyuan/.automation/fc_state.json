@@ -25290,7 +25290,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1dAvtBoExQ",
@@ -25307,7 +25308,11 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
-   "publish_time": "2025-12-29T21:00:02+00:00"
+   "publish_time": "2025-12-29T21:00:02+00:00",
+   "failed": true,
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -79091,6 +79096,13 @@
    "video_id": "BV131421U7XK",
    "ts": 1791852432,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"在目前你你观察到了这么多的人当中，呃，大家普遍上来看的话，像像林元这么乐观和鲜明的是不是很少？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名，结合上下文及常见人名应为“林园”，但原文识别为“林元”。\"}, {\"sentence_id\": 3, \"quote\": \"我觉得呃，跟巴菲特一个道德都会在这种时候会比较。\", \"suspect_quote\": \"跟巴菲特一个道德都会在这种时候会比较\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱且含义不明，“一个道德”疑似误识，结合语境可能想表达“一个道理”或“一个道德标准”，但当前表述无法解释其具体指代。\"}]"
+  },
+  {
+   "slug": "ly-1013-33472a",
+   "key": "bilibili_search:BV1dAvtBoExQ",
+   "video_id": "BV1dAvtBoExQ",
+   "ts": 1791853127,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
