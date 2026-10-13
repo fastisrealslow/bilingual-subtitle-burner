@@ -3241,6 +3241,51 @@ def _recover_changed_production_rule(st, candidate, run):
     return True
 
 
+def _observe_zero_batch_failures(candidate,run):
+    """Read only a same-slug terminal zero-output report, never approvals."""
+    import io
+    import tempfile
+    from pathlib import Path
+    import zipfile
+    if run.get('conclusion')!='failure':return False
+    observed=candidate.get('production_failure_summary') or {}
+    if isinstance(observed,dict) and observed.get('run_id')==run.get('id'):return False
+    if (candidate.get('batch_failure_lookup') or {}).get('run_id')==run.get('id'):return False
+    slug=candidate['slug']
+    try:
+        artifacts=gh('GET',f"/actions/runs/{run['id']}/artifacts").get('artifacts',[])
+    except Exception as exc:
+        log.warning('零合格批次工件列表暂不可用 %s: %s',slug,type(exc).__name__)
+        return False
+    for artifact in artifacts:
+        if (artifact.get('name') not in ('editorial-'+slug,'production-reject-'+slug)
+                or artifact.get('expired') or not 0<artifact.get('size_in_bytes',0)<=2_000_000):continue
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                target=Path(directory)/'batch.zip'
+                download_reviewed_zip(artifact['id'],target,attempts=1,timeout_sec=20,max_bytes=2_000_000)
+                payload=target.read_bytes()
+            with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                names=[n for n in archive.namelist() if n=='batch_report.json' or n.endswith('/batch_report.json')]
+                if len(names)!=1 or archive.getinfo(names[0]).file_size>1_000_000:continue
+                report=json.loads(archive.read(names[0]))
+            if (report.get('slug')!=slug or type(report.get('accepted')) is not int
+                    or report['accepted']!=0):continue
+            rows=report.get('rejected')
+            if not isinstance(rows,list):continue
+            candidate['production_failure_summary']=dict(slug=slug,run_id=run['id'],
+                artifact_id=artifact['id'],accepted=0,
+                failures=[dict(stage=f.get('stage'),reason=f['reason'][:320]) for f in rows[:40]
+                    if isinstance(f,dict) and isinstance(f.get('reason'),str)])
+            return True
+        except Exception as exc:
+            # A transient download is not an immutable missing-evidence result.
+            log.warning('零合格批次证据暂不可用 %s: %s',slug,type(exc).__name__)
+            return False
+    candidate['batch_failure_lookup']=dict(run_id=run['id'],result='no_matching_zero_batch')
+    return True
+
+
 def _recover_rule_backlog(st, by_slug):
     """Inspect one bounded historical page; old failures must not fall off 30 runs.
 
@@ -3253,16 +3298,33 @@ def _recover_rule_backlog(st, by_slug):
                   '原文中未找到满足20秒','本轮选段没有返回通过','标题文案待重试',
                   '完整词句无法放入两行','意群分组','单屏跨越超过8秒',
                   '独立文字识别疑点审核不可用',
+                  '原始ASR存在影响理解的疑点','持续黑色填充边',
                   'CDN前缀核对响应截断','CDN前缀核对连续无进度','CDN前缀核对尚无进度',
                   '观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问'))}
     if not eligible:return 0
     page=int(st.get('rule_recovery_page') or 1)
     runs=gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status=failure&per_page=100&page={page}').get('workflow_runs',[])
-    restored=0;seen=set()
+    restored=0;seen=set();batch_lookups=0
     for run in runs:
         slug=str(run.get('display_title') or '').partition(' · ')[2].strip()
         if slug in seen:continue
         seen.add(slug)
+        if slug not in eligible:continue
+        entry=eligible[slug]
+        if _recover_changed_production_rule(st,entry,run):
+            restored+=1
+            if restored>=MAX_ACTIVE_SOURCES:break
+            continue
+        if batch_lookups<3 and any(t in str(entry.get('last_error') or '')
+                for t in ('原始ASR存在影响理解的疑点','持续黑色填充边')):
+            # Existing workflows may retain batch_report only in editorial
+            # evidence, not production-reject. Inspect at most three archived
+            # failed sources per invocation; never scan the entire library.
+            summary=entry.get('production_failure_summary') or {}
+            missing=(not isinstance(summary,dict) or summary.get('run_id')!=run.get('id'))
+            if missing and (entry.get('batch_failure_lookup') or {}).get('run_id')!=run.get('id'):
+                batch_lookups+=1
+                _observe_zero_batch_failures(entry,run)
         if slug in eligible and _recover_changed_production_rule(st,eligible[slug],run):
             restored+=1
             if restored>=MAX_ACTIVE_SOURCES:break

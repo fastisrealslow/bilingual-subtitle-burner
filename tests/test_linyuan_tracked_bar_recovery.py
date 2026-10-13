@@ -56,3 +56,52 @@ def test_no_recovery_for_unrelated_code_or_existing_publication(monkeypatch):
     state['published'][entry['slug']]={'bvid':'existing'}
     monkeypatch.setattr(fc,'gh',lambda *a,**k:{'files':[{'filename':'linyuan/live_tracking.py'}]})
     assert not fc._recover_changed_production_rule(state,entry,run)
+
+
+@pytest.mark.parametrize('accepted,report_slug,expected',[(0,'ly-test',True),(1,'ly-test',False),(False,'ly-test',False),(0,'other',False)])
+def test_editorial_only_batch_evidence_is_bound_and_never_imports_approval(monkeypatch,accepted,report_slug,expected):
+    import json,zipfile
+    state,entry,run=case();entry.pop('production_failure_summary')
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:{'artifacts':[{
+        'id':9,'name':'editorial-ly-test','size_in_bytes':1000,'expired':False}]})
+    def download(artifact_id,target,**kwargs):
+        assert kwargs['attempts']==1 and kwargs['max_bytes']==2_000_000
+        with zipfile.ZipFile(target,'w') as z:
+            z.writestr('batch_report.json',json.dumps(dict(slug=report_slug,accepted=accepted,
+                rejected=[{'stage':'part-quality','reason':'成片存在持续黑色填充边'}])))
+            z.writestr('meta.json',json.dumps({'editorial_approved':True}))
+    monkeypatch.setattr(fc,'download_reviewed_zip',download)
+    assert fc._observe_zero_batch_failures(entry,run)
+    assert ('production_failure_summary' in entry)==expected
+    assert entry['failed'] and entry['source_check_attempts']==2
+    assert not fc._observe_zero_batch_failures(entry,run)
+
+
+def test_transient_batch_download_is_retryable_evidence_gap(monkeypatch):
+    state,entry,run=case();entry.pop('production_failure_summary')
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:{'artifacts':[{
+        'id':9,'name':'editorial-ly-test','size_in_bytes':1000,'expired':False}]})
+    def unavailable(*a,**k):raise TimeoutError('temporary observation failure')
+    monkeypatch.setattr(fc,'download_reviewed_zip',unavailable)
+    assert not fc._observe_zero_batch_failures(entry,run)
+    assert 'batch_failure_lookup' not in entry and 'production_failure_summary' not in entry
+
+
+def test_archived_batch_lookup_is_bounded_and_cached_across_backlog_sweeps(monkeypatch):
+    state={'dispatched':[],'published':{}};entries={};runs=[];seen=[]
+    for i in range(5):
+        slug='ly-archived-'+str(i)
+        entry={'slug':slug,'failed':True,'source_url':'https://example.com/'+str(i),
+               'last_error':'原始ASR存在影响理解的疑点'}
+        entries[slug]=entry;state['dispatched'].append(entry)
+        runs.append({'id':i+1,'conclusion':'failure','display_title':'林园 · '+slug})
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:{'workflow_runs':runs})
+    monkeypatch.setattr(fc,'_recover_changed_production_rule',lambda *a:False)
+    monkeypatch.setattr(fc,'save_state',lambda *a:None)
+    def observe(entry,run):
+        seen.append(run['id']);entry['batch_failure_lookup']={'run_id':run['id']};return True
+    monkeypatch.setattr(fc,'_observe_zero_batch_failures',observe)
+    assert fc._recover_rule_backlog(state,entries)==0
+    assert seen==[1,2,3]
+    assert fc._recover_rule_backlog(state,entries)==0
+    assert seen==[1,2,3,4,5]
