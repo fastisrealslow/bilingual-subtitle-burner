@@ -8,8 +8,9 @@ import time
 import wave
 
 SOURCE_SHA = '8f626ee870b69646e39c3ed3cd91ae56e286903a2704485dedd4571b37a698ce'
+SOURCE_PCM_SHA = '5adffff175cb862d519dbb6f43c269a52b126e3d11ffbd9e777cb70adafcaa4c'
 SAMPLES = [(828, 30, 'topic-control'), (1150, 30, 'medical-control'),
-           (1176, 33, 'military-asr-suspect')]
+           (1167, 36, 'production-original-core'), (1176, 33, 'military-asr-suspect')]
 PROFILES = {
     'current': ('Qwen/Qwen3-ASR-0.6B', '5eb144179a02acc5e5ba31e748d22b0cf3e303b0', False),
     'finance-context': ('Qwen/Qwen3-ASR-0.6B', '5eb144179a02acc5e5ba31e748d22b0cf3e303b0', True),
@@ -39,6 +40,7 @@ def validate_samples(root):
     for item, (start, duration, ident) in zip(rows, SAMPLES):
         if (item.get('id') != ident or item.get('file') != ident + '.wav'
                 or item.get('source_sha256') != SOURCE_SHA
+                or item.get('source_pcm_sha256') != SOURCE_PCM_SHA
                 or item.get('offset') != start or item.get('duration') != duration
                 or sha(root / item['file']) != item.get('sha256')):
             raise ValueError('Paired audio identity changed')
@@ -54,14 +56,25 @@ def prepare(source, output):
     if sha(source) != SOURCE_SHA:
         raise ValueError('Mother hash differs from the actual failed production source')
     output.mkdir(parents=True, exist_ok=True)
+    full = output / 'source-clock.wav'
+    from audio_preprocessing import DEFAULT, asr_args
+    # First reproduce the production PCM exactly. Segment-local resampling
+    # could otherwise confound a comparison with the original ASR failure.
+    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(source), '-vn', '-ar', '16000',
+                    *asr_args(DEFAULT), '-c:a', 'pcm_s16le', str(full)], check=True, timeout=600)
+    with wave.open(str(full)) as audio:
+        pcm = audio.readframes(audio.getnframes())
+    if hashlib.sha256(pcm).hexdigest() != SOURCE_PCM_SHA:
+        raise ValueError('Full production PCM changed; do not attribute a difference to the ASR model')
     rows = []
     for start, duration, ident in SAMPLES:
         wav = output / (ident + '.wav')
-        # Preserve the actual audio clock; no denoising, speed changes or text prompts.
-        subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(source),
-                        '-ss', str(start), '-t', str(duration), '-vn', '-ar', '16000',
-                        '-ac', '1', '-c:a', 'pcm_s16le', str(wav)], check=True, timeout=90)
+        # Slice the exact samples fed to production; no resampling or filtering here.
+        with wave.open(str(wav), 'wb') as audio:
+            audio.setnchannels(1); audio.setsampwidth(2); audio.setframerate(16000)
+            audio.writeframes(pcm[start * 32000:(start + duration) * 32000])
         rows.append(dict(id=ident, file=wav.name, source_sha256=SOURCE_SHA,
+                         source_pcm_sha256=SOURCE_PCM_SHA,
                          offset=start, duration=duration, sha256=sha(wav)))
     save(output / 'manifest.json', rows)
     validate_samples(output)
@@ -87,6 +100,7 @@ def infer(root, output, profile):
     model = Qwen3ASRModel.from_pretrained(weights, dtype=torch.float32,
         device_map='cpu', max_inference_batch_size=1, max_new_tokens=512)
     report = dict(version=1, profile=profile, source_sha256=SOURCE_SHA,
+                  source_pcm_sha256=SOURCE_PCM_SHA,
                   model_id=model_id, model_revision=revision, context=context,
                   device='cpu', threads=2, networking_during_inference=False,
                   model_load_seconds=time.monotonic() - started,

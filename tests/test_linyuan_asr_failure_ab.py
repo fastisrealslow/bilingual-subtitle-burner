@@ -19,6 +19,7 @@ def samples(tmp_path):
             w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000)
             w.writeframes(b'\0' * duration * 32000)
         rows.append(dict(id=ident, file=wav.name, source_sha256=ab.SOURCE_SHA,
+                         source_pcm_sha256=ab.SOURCE_PCM_SHA,
                          offset=start, duration=duration, sha256=ab.sha(wav)))
     ab.save(tmp_path / 'manifest.json', rows)
     return rows
@@ -33,12 +34,13 @@ def test_same_audio_hash_and_clock_required(tmp_path):
         ab.validate_samples(tmp_path)
 
 
-@pytest.mark.parametrize('change', ['hash', 'path', 'source', 'count'])
+@pytest.mark.parametrize('change', ['hash', 'path', 'source', 'pcm', 'count'])
 def test_changed_samples_fail_closed(tmp_path, change):
     rows = samples(tmp_path)
     if change == 'hash': rows[0]['sha256'] = 'a' * 64
     elif change == 'path': rows[0]['file'] = '../other.wav'
     elif change == 'source': rows[0]['source_sha256'] = 'b' * 64
+    elif change == 'pcm': rows[0]['source_pcm_sha256'] = 'b' * 64
     else: rows.pop()
     ab.save(tmp_path / 'manifest.json', rows)
     with pytest.raises(ValueError): ab.validate_samples(tmp_path)
