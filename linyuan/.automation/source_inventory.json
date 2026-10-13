@@ -3,10 +3,10 @@
   "validation_sha256": "62112da01ca59b748c302d974b9d2029f1816e9dc0a4ab770d6fea87912b33b5",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791888268,
+  "updated_at": 1791888674,
   "materials": {
     "weibo_search": {
-      "records": 2050,
+      "records": 2051,
       "video_candidates": 777,
       "duration_eligible": 374,
       "long_mother_candidates": 116,
@@ -27,21 +27,21 @@
       "duration_unknown": 14
     },
     "bilibili_search": {
-      "records": 5439,
-      "video_candidates": 5433,
-      "duration_eligible": 4691,
-      "long_mother_candidates": 2274,
+      "records": 5457,
+      "video_candidates": 5451,
+      "duration_eligible": 4704,
+      "long_mother_candidates": 2282,
+      "over_limit": 632,
       "too_short": 35,
-      "over_limit": 627,
       "duration_unknown": 80,
       "reference_only": 6
     },
     "reference_origin_search": {
-      "records": 725,
-      "video_candidates": 725,
+      "records": 727,
+      "video_candidates": 727,
       "over_limit": 202,
-      "duration_eligible": 520,
-      "long_mother_candidates": 278,
+      "duration_eligible": 522,
+      "long_mother_candidates": 279,
       "too_short": 3
     },
     "netease_video": {
@@ -75,8 +75,7 @@
     "yicai_video": {
       "records": 9,
       "video_candidates": 9,
-      "duration_unknown": 7,
-      "duration_eligible": 2
+      "duration_unknown": 9
     },
     "bilibili_series": {
       "records": 122,
@@ -113,28 +112,53 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791888273,
-    "records": 9930,
-    "video_records": 8499,
-    "initial_candidates": 58,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1791888679,
+    "records": 9951,
+    "video_records": 8519,
+    "initial_candidates": 61,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1431,
+      "no_video": 1432,
       "already_attempted_or_cooling": 1298,
-      "speaker_unconfirmed": 5787,
+      "speaker_unconfirmed": 5804,
       "noise": 18,
-      "clip_title": 1110,
+      "clip_title": 1109,
       "unrelated": 62,
       "ai_content": 36,
-      "reference_only": 130,
+      "reference_only": 131,
       "too_short": 35,
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1a84y1c7B7",
+        "title": "林园在中国私募基金高峰论坛上的演讲2023-3-16",
+        "source": "bilibili_search",
+        "author": "老牛实盘",
+        "url": "https://www.bilibili.com/video/BV1a84y1c7B7",
+        "duration_sec": 1845.0
+      },
+      {
+        "key": "bilibili_search:BV1Fz4y1H7Pk",
+        "title": "2023年3月16日林园在中国私募基金高峰论坛上的演讲",
+        "source": "bilibili_search",
+        "author": "价值投资88",
+        "url": "https://www.bilibili.com/video/BV1Fz4y1H7Pk",
+        "duration_sec": 1899.0
+      },
+      {
+        "key": "bilibili_search:BV1tY4y1t7p2",
+        "title": "林园：命运要掌握在自己手上，别等着老板给你发工资",
+        "source": "bilibili_search",
+        "author": "临园指路",
+        "url": "https://www.bilibili.com/video/BV1tY4y1t7p2",
+        "duration_sec": 270.0
+      }
+    ]
   },
   "source_outcomes": {
     "mothers": [
@@ -21756,7 +21780,14 @@
           "ly-1013-32ab7e"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1013-32ab7e",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "人物不一致或无法确认：林园；initial_same=[2]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2371, 2: 0.2818, 3: 0.2747, 4: 0.1941, 5: 0.2092, 6: 0.1113, 7: 0.1692, 8: 0.1268, 9: 0.2485, 10: 0.1615, 11: 0.1801, 12: 0.1282, 13: 0.1946, 14: 0.1451, 15: 0.3135, 16: 0.1597, 17: 0.1063, 18: 0.2077}"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -21812,7 +21843,7 @@
         "terminal_editorial-or-render": 68,
         "terminal_quality-service": 8,
         "terminal_workflow-preflight": 3,
-        "terminal_source-quality": 18
+        "terminal_source-quality": 19
       },
       "BV1H4Na6kEFd": {
         "attempted_mothers": 1,
@@ -22399,9 +22430,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -22678,8 +22709,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -22691,8 +22722,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -23000,8 +23031,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23165,10 +23196,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_visual-review": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -26006,7 +26037,7 @@
       }
     }
   },
-  "in_flight_placeholders": 16,
+  "in_flight_placeholders": 15,
   "artifacts": [
     {
       "slug": "ly-1012-e08a5c",
