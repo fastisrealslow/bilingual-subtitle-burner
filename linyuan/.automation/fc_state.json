@@ -26852,9 +26852,9 @@
    "source": "bilibili_search",
    "author": "我真的是大川啊",
    "publish_time": "2025-08-22T04:33:59+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 18, \"quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对白酒有影响。\", \"suspect_quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘不不会’存在明显的口语重复或口吃现象，导致否定含义模糊不清。虽然口语中允许重复，但此处连续两个否定词叠加且无停顿修饰，极易被误读为双重否定（即肯定）或单纯的语病，属于需要标注的识别疑点。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -26866,7 +26866,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38007572400,
    "source_check_run_id": 38007572400,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1010-9fbcd8",
+    "run_id": 38461397655,
+    "artifact_id": 11845608244,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 18, \"quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对白酒有影响。\", \"suspect_quote\": \"啊，不不会，这个白酒的销量，那就是人口的下降会对\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘不不会’存在明显的口语重复或口吃现象，导致否定含义模糊不清。虽然口语中允许重复，但此处连续两个否定词叠加且无停顿修饰，极易被误读为双重否定（即肯定）或单纯的语病，属于需要标注的识别疑点。\"}]"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38461397655,
+    "artifact_id": 11845608244,
+    "name": "production-reject-ly-1010-9fbcd8",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1Uupt6JEvn",
@@ -26884,9 +26902,9 @@
    "source": "bilibili_search",
    "author": "波动与估值慢慢变富",
    "publish_time": "2026-10-09T06:08:00+00:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十配置给了与嘴相关的行业\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘与嘴相关的行业’表述过于模糊且非标准金融术语，可能为口语隐喻（如食品、饮料等），但在未明确具体指代的情况下，属于含义不明的关键描述；同时‘百分之七十’作为精确数字出现在此语境中，若实为口误或泛指（如‘大概七成’），则构成数字识别疑点。\"}, {\"sentence_id\": 24, \"quote\": \"最后这些大品牌的这些公司都不会有问题，他们都不不不行了。\", \"suspect_quote\": \"他们都不不不行了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘都不不不行了’包含重复否定词‘不不’，虽可能是口吃或语气强调，但作为文本记录时构成明显的语义矛盾和否定混乱，属于无法解释的具体词语污染。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -26898,7 +26916,53 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38007565848,
    "source_check_run_id": 38007565848,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1010-9298de",
+    "run_id": 38461414272,
+    "artifact_id": 11847135331,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十配置给了与嘴相关的行业\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘与嘴相关的行业’表述过于模糊且非标准金融术语，可能为口语隐喻（如食品、饮料等），但在未明确具体指代的情况下，属于含义不明的关键描述；同时‘百分之七十’作为精确数字出现在此语境中，若实为口误或泛指（如‘大概七成’），则构成数字识别疑点。\"}, {\"sentence_id\": 24, \"quote\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1027.07s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那首先它具备垄断，它是一个垄断经营，呃，它的定价权是是垄断的。\", \"suspect_quote\": \"定价权是是垄断的\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的'是'字（'是是'）在口语中虽可能为口吃，但此处极大概率是识别错误导致的冗余字符，破坏了句子语法结构，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 8, \"quote\": \"第三个就是它不受一这种产品生活，我们说的消费品，它不受这个经济的这个影响，或者影响很小。\", \"suspect_quo"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 121.47s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"在过去二十年中，林园一直是这个市场上最高调的投资者之一。\", \"suspect_quote\": \"林园一直是这个市场上最高调的投资者之一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘最高调’为模糊形容词，非具体数字或否定词污染；但需确认是否应指代特定排名或数据支撑。此处无明确数字冲突，仅属主观评价，不构成识别疑点。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 231.10s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"只要中国，它是品品牌公司，只要是它有一个强大的品牌，婴儿的股本，这是符合我选股条件的。\", \"suspect_quote\": \"婴儿的股本\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文“只要中国，它是品品牌公司”及后文解释“只有符合增长才，雪球才能滚大”，此处应为“婴儿期的股本”或更可能是口误/识别错误的“婴几的股本”（指代小市值、可扩张的股本），但“婴儿的股本”在金融语境下含义不明且不符合常规用\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 588.83s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38461414272,
+    "artifact_id": 11847135331,
+    "name": "production-reject-ly-1010-9298de",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1Uiev6NEAm",
