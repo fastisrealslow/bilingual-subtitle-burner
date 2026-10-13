@@ -10,6 +10,9 @@ def content(text):
 
 
 def validated_words(reports, pcm_sha, video_sha, duration):
+    from asr_context import matches
+    if not matches(reports,source_sha=video_sha):
+        raise ValueError('Offline transcript evidence has different recognition context')
     chunks=[]
     for report in reports:
         align=report.get('alignment') or {}
