@@ -3167,6 +3167,15 @@ def _recover_changed_production_rule(st, candidate, run):
     since=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime(candidate.get('ts',0)))
     if finished and finished<=since:return False
     reason=str(candidate.get('last_error') or '')
+    summary=candidate.get('production_failure_summary') or {}
+    secondary=[]
+    if (isinstance(summary,dict) and summary.get('run_id')==run.get('id')
+            and summary.get('slug')==candidate['slug']
+            and type(summary.get('accepted')) is int and summary['accepted']==0
+            and type(summary.get('artifact_id')) is int and summary['artifact_id']>0):
+        secondary=[row['reason'] for row in summary.get('failures') or []
+                   if isinstance(row,dict) and row.get('stage')=='part-quality'
+                   and isinstance(row.get('reason'),str)]
     cases=[('scene-aware-selection-v1',('来源角标无法避开','原画无法通过真人画面清理门禁',
                                       '真人动态区仍有原素材字幕','整段取景预检'),
             ('linyuan/scene_text.py','linyuan/visual_selection.py')),
@@ -3202,8 +3211,11 @@ def _recover_changed_production_rule(st, candidate, run):
            ('visual-preflight-v2',('持续黑色填充边','来源角标无法避开','真人动态区仍有原素材字幕',
                                   '原画无法通过真人画面清理门禁'),
             ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
+    cases.append(('tracked-source-strips-v1',('持续黑色填充边',),('linyuan/live_tracking.py',)))
     history=candidate.setdefault('automatic_rule_recoveries',{})
-    matches=[x for x in cases if x[0] not in history and any(s in reason for s in x[1])
+    matches=[x for x in cases if x[0] not in history and any(
+             s in value for s in x[1] for value in ([reason]+secondary
+             if x[0]=='tracked-source-strips-v1' else [reason]))
              and not (x[0]=='caption-source-clock-v5' and reason.startswith('封面生成/'))]
     if not matches:return False
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
@@ -3211,6 +3223,9 @@ def _recover_changed_production_rule(st, candidate, run):
     if not case:return False
     version,_,paths=case
     history[version]=dict(run_id=run['id'],reason=reason,ts=int(time.time()))
+    if version=='tracked-source-strips-v1':
+        history[version]['failure_artifact_id']=summary.get('artifact_id')
+        history[version]['matched_failure']='持续黑色填充边'
     if version=='transcript-valid-negatives-v4':
         # This current-code replay also includes the older model repair. Do not
         # queue another replay of the same failure through the legacy case.
@@ -3331,6 +3346,19 @@ def _collect_source_rejections(st):
                 failures=sorted(failures,key=lambda f:(f.get('retryable') is True,
                     f.get('stage')=='part-quality'),reverse=True)
                 reason = report.get("reason") or (failures[0].get("reason") if failures else None) or reason
+                if (prefix=='production-reject-' and report.get('slug')==slug
+                        and type(report.get('accepted')) is int and report['accepted']==0):
+                    # A mother can fail ASR in part1 but only a repairable bar
+                    # in part8. Keep exact report provenance for bounded,
+                    # code-specific recovery rather than discard all parts
+                    # after the first error. Never import an approval here.
+                    candidate['production_failure_summary']=dict(
+                        slug=slug,run_id=run['id'],artifact_id=artifact['id'],accepted=0,
+                        failures=[dict(stage=f.get('stage'),reason=f['reason'][:320])
+                            for f in failures[:40] if isinstance(f,dict)
+                            and isinstance(f.get('reason'),str)])
+                    if _recover_changed_production_rule(st,candidate,run):
+                        continue
             except Exception as exc:
                 log.warning(f"{slug} 素材拒绝报告读取失败: {exc}")
                 # Do not fabricate a source verdict from an unavailable ZIP.
