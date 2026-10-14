@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791994543,
+  "updated_at": 1791994691,
   "inventory_updated_at": 1791994542,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 1,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 3,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 2,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791994543,
+    "updated_at": 1791994690,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 61,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 60,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1344,
+      "already_attempted_or_cooling": 1345,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV18UBkBPE7C",
-        "title": "股神林园的熬字诀！股票市场上人和人的差距就是认知不同；我不说假话，你觉得错那就是错好了；过去的发言时间可以验证；乌龟方法",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV18UBkBPE7C",
-        "duration_sec": 180.0
-      },
       {
         "key": "bilibili_search:BV1Bo4y1P7XV",
         "title": "2012年1月6日经济半小时采访林园",
@@ -95,10 +87,10 @@
   },
   "counts": {
     "complete": 119,
-    "failed": 1040,
+    "failed": 1041,
     "paused": 5,
-    "interrupted": 6,
-    "running": 5,
+    "interrupted": 5,
+    "running": 6,
     "ready": 1,
     "retry_queued": 1
   },
@@ -21101,11 +21093,11 @@
     },
     {
       "slug": "ly-1014-278e50",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"我不能说是，我提高我互联网了，给你吃的东西，他造不出个东西的。\", \"suspect_quote\": \"我提高我互联网了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，将口语中的否定或转折词（如“没”、“不”）误识为动词“提高”，导致语义完全不通。原文语境应为“我没提高对互联网的认知”或类似表达，此处“提高我互联网了”无法解释且非行业术语。\"}, {\"sentence_id\": 17, \"quote\": \"你制造业，我一定要抓住它人的必须。\", \"suspect_quote\": \"抓住它人的必须\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，“它人的必须”含义不明，极可能是“它的护城河”或“它的壁垒”等词的误识，属于无法解释的具体词语。\"}]",
       "signature": {
         "ts": 1791992596,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21296,6 +21288,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38596197773",
       "run_started_at": "2026-10-14T16:13:14Z",
       "run_updated_at": "2026-10-14T16:13:20Z"
+    },
+    {
+      "slug": "ly-1014-4a8d80",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791994647,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38596807139,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38596807139",
+      "run_started_at": "2026-10-14T16:17:27Z",
+      "run_updated_at": "2026-10-14T16:17:32Z"
     }
   ],
   "runs": {
@@ -29846,6 +29856,28 @@
       "run_number": 2080,
       "display_title": "中文源出片 · ly-1014-94eaea"
     },
+    "ly-1014-278e50": {
+      "id": 38591795250,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-14T15:43:16Z",
+      "updated_at": "2026-10-14T16:14:59Z",
+      "run_started_at": "2026-10-14T15:43:16Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38591795250",
+      "run_number": 2072,
+      "display_title": "中文源出片 · ly-1014-278e50"
+    },
+    "ly-1014-4a8d80": {
+      "id": 38596807139,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-14T16:17:27Z",
+      "updated_at": "2026-10-14T16:17:32Z",
+      "run_started_at": "2026-10-14T16:17:27Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38596807139",
+      "run_number": 2083,
+      "display_title": "中文源出片 · ly-1014-4a8d80"
+    },
     "ly-1014-3afac3": {
       "id": 38596197773,
       "status": "in_progress",
@@ -29878,17 +29910,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38593868641",
       "run_number": 2078,
       "display_title": "中文源出片 · ly-1014-e34587"
-    },
-    "ly-1014-278e50": {
-      "id": 38591795250,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-14T15:43:16Z",
-      "updated_at": "2026-10-14T16:14:59Z",
-      "run_started_at": "2026-10-14T15:43:16Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38591795250",
-      "run_number": 2072,
-      "display_title": "中文源出片 · ly-1014-278e50"
     },
     "ly-1014-212044": {
       "id": 38582084338,
