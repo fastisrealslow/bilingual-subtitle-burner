@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791992863,
+  "updated_at": 1791993027,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791992863,
+    "updated_at": 1791993027,
     "records": 10090,
     "video_records": 8649,
     "initial_candidates": 68,
@@ -22498,27 +22498,12 @@
           "ly-1014-a04f78"
         ],
         "source_sha256": [],
-        "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
-        "source_key": "BV1uq1oBWE4d:p1",
-        "source_url": "https://www.bilibili.com/video/BV1uq1oBWE4d",
-        "family": "BV1uq1oBWE4d",
-        "slugs": [
-          "ly-1014-b76908"
-        ],
-        "source_sha256": [],
         "failures": [
           {
-            "slug": "ly-1014-b76908",
-            "stage": "source-fetch",
-            "terminal": false,
-            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 120.10s 与请求页面 583.00s 不匹配（容差 29.15s）"
+            "slug": "ly-1014-a04f78",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文'房子'与'电视机'的类比，此处'搬'字极可能为误识，原意应为'买'（即'你就没人去买'），因发音相近导致关键动词错写。\"}, {\"sentence_id\": 5, \"quote\": \"当房子到这一步的时候，真的这个这个多出来没没用的时候，你会觉得它一文钱都不值。\", \"suspect_quote\": \"这个这个多出来没没用的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个这个'为口语重复，但'没没用'中第二个'没'字多余，应为'没用的时候'，属于含义不明的关键否定词污染（多出的'没'改变了原意）。\"}, {\"sentence_id\": 6, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'另另类'无法解释，应为'另类'或'另做处理'等，属于错写的专有名词/行业表述（'另类'在金融语境中可指特殊策略，但此处语法断裂）。\"}, {\"sentence_id\": 10, \"quote\": \"人到一定程度，他可能换的概率就是，因为当时个觉不不值钱的时候，他也不想折腾。\", \"suspect_quote\": \"因为当时个觉不不值钱的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'个觉'无法解释，应为'觉得'（口语省略'得'为'的'常见，但'觉'单独成词属错写），属于具体词语污染。\"}, {\"sentence_id\": 11, \"quote\": \"前段时间我去香港，就就就看到个点，他们都想，那五几年的房子都算是，还是很好的。\", \"suspect_quote\": \"就就就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'就就'为口语重复可接受，但'看到个点'中'点'指代不明（应为'看点'或'特点'），属于含义不明的关键名词污染。\"}]"
           }
         ],
         "verified_available": 0,
@@ -22603,6 +22588,28 @@
         ],
         "source_sha256": [],
         "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1uq1oBWE4d:p1",
+        "source_url": "https://www.bilibili.com/video/BV1uq1oBWE4d",
+        "family": "BV1uq1oBWE4d",
+        "slugs": [
+          "ly-1014-b76908"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1014-b76908",
+            "stage": "source-fetch",
+            "terminal": false,
+            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 120.10s 与请求页面 583.00s 不匹配（容差 29.15s）"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23245,9 +23252,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23524,8 +23531,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -23537,8 +23544,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24011,10 +24018,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_workflow-preflight": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -24026,8 +24033,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27021,12 +27028,8 @@
       "BV1fykrBQEbq": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
-      },
-      "BV1uq1oBWE4d": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1Uepk6bEWR": {
         "attempted_mothers": 1,
@@ -27048,9 +27051,14 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1uq1oBWE4d": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 7,
   "artifacts": []
 }
