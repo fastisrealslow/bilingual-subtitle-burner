@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1791965003,
-  "inventory_updated_at": 1791964910,
+  "updated_at": 1791985591,
+  "inventory_updated_at": 1791985590,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 17,
+    "verified_daily_stock": 0,
     "active_or_recovering_sources": 0,
     "waiting_candidates": 31,
-    "status": "covered",
+    "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 17,
-      "minimum_week_shortfall": 0,
-      "preferred_week_shortfall": 4,
-      "reserve_shortfall": 0,
+      "verified_stock_snapshot": 0,
+      "minimum_week_shortfall": 14,
+      "preferred_week_shortfall": 21,
+      "reserve_shortfall": 12,
       "dates": [
         "2026-10-14",
         "2026-10-15",
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791965003,
+    "updated_at": 1791985590,
     "records": 10061,
     "video_records": 8623,
     "initial_candidates": 89,
@@ -306,22 +306,21 @@
     ]
   },
   "inventory": {
-    "verified_live": 17,
+    "verified_live": 0,
     "verified_audio_card": 0,
-    "verified_landscape": 2,
-    "verified_portrait": 15,
+    "verified_landscape": 0,
+    "verified_portrait": 0,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 17,
+    "daily_mix_usable": 0,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
     "complete": 118,
-    "failed": 1010,
+    "failed": 1015,
     "paused": 5,
-    "ready": 5,
     "interrupted": 5
   },
   "tasks": [
@@ -17165,11 +17164,11 @@
     },
     {
       "slug": "ly-1010-200974",
-      "status": "ready",
-      "detail": "4 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：Remote end closed connection without response",
       "signature": {
         "ts": 1791629303,
-        "failed": null,
+        "failed": true,
         "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -17453,11 +17452,11 @@
     },
     {
       "slug": "ly-1010-620f92",
-      "status": "ready",
-      "detail": "4 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 合流文件头尾解码失败：[NULL @ 0x55bf2dd83e00] Invalid NAL unit size (-1460057432 > 4519).\n[NULL @ 0x55bf2dd83e00] missing picture in access unit with size 4523\n[h264 @ 0x55bf2dfa8840",
       "signature": {
         "ts": 1791658355,
-        "failed": null,
+        "failed": true,
         "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -17867,11 +17866,11 @@
     },
     {
       "slug": "ly-1012-e08a5c",
-      "status": "ready",
-      "detail": "4 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 504: Gateway Timeout",
       "signature": {
         "ts": 1791841101,
-        "failed": null,
+        "failed": true,
         "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -19883,11 +19882,11 @@
     },
     {
       "slug": "ly-1013-5a1382",
-      "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791917066,
-        "failed": null,
+        "failed": true,
         "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
@@ -19973,11 +19972,11 @@
     },
     {
       "slug": "ly-1013-8a7cb7",
-      "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我们因为我们投资，我们凌源投资是在全球范围内，我从九十年代初我就，在全球范围的投资。\", \"suspect_quote\": \"我们凌源投资\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将嘉宾姓名“林园”误识别为同音词“凌源”，属于专有名词错写，影响对说话主体身份的准确理解。\"}, {\"sentence_id\": 30, \"quote\": \"而且要重点通，种下种手。\", \"suspect_quote\": \"而且要重点通，种下种手\", \"kind\": \"unintelligible_term\", \"reason\": \"后半句“种下种手”语义不明，疑似将口语中的“重下重手”或类似表达误识别为无意义的重复词汇，导致关键动作描述含义不清。\"}, {\"sentence_id\": 34, \"quote\": \"所以我们刚才首先我刚才讲的都是赛道，赛道，嘴巴刚需。\", \"suspect_quote\": \"赛道，嘴巴刚需\", \"kind\": \"unintelligible_term\", \"reason\": \"“嘴巴刚需”疑似将行业术语“消费刚需”或“日常刚需”误识别为包含身体部位“嘴巴”的词语，属于专有名词/行业词错写，含义不明。\"}]",
       "signature": {
         "ts": 1791921067,
-        "failed": false,
+        "failed": true,
         "published_parts": 1,
         "processed_part_indices": [],
         "source_check_retry_after": null,
