@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791996391,
+  "updated_at": 1791996550,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -113,7 +113,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791996391,
+    "updated_at": 1791996550,
     "records": 10090,
     "video_records": 8649,
     "initial_candidates": 58,
@@ -22758,7 +22758,14 @@
           "ly-1014-651a86"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-651a86",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"到二零五七年的话，这个人口数量增加到十四亿九。\", \"suspect_quote\": \"到二零五七年的话，这个人口数量增加到十四亿九。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'十四亿九'表述模糊且不符合常规统计逻辑（通常指'十四亿九千万'或具体数值），在缺乏上下文单位的情况下，该数字含义不明，可能影响对人口规模预测的理解。\"}, {\"sentence_id\": 16, \"quote\": \"大概我，我五十七岁的时候，我的支出方面的开支是零。\", \"suspect_quote\": \"大概我，我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在此处作为具体金额描述存在疑点：结合后文提到的每月两千五元及药物费用，此处'零'若指实际支出为零则与常理矛盾（除非特指某类未发生支出的项目），但原文未明确限定范围，导致数字含义不清。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23401,8 +23408,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
@@ -23852,8 +23859,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
         "terminal_render-review": 1,
+        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
@@ -24167,10 +24174,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_duplicate-selection": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_visual-review": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -27247,11 +27254,12 @@
       "BV15ctQ6rEgH": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       }
     }
   },
-  "in_flight_placeholders": 5,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-1014-e2b7da",
