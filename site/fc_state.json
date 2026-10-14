@@ -28899,7 +28899,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-19T05:51:07+00:00"
+   "publish_time": "2026-06-19T05:51:07+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-00c4f0",
+    "run_id": 38593881224,
+    "artifact_id": 11908534369,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38593881224,
+    "artifact_id": 11908534369,
+    "name": "production-reject-ly-1014-00c4f0",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1NXHh69EBs:p7",
@@ -85899,6 +85921,13 @@
    "video_id": "BV1CipB6rE1M",
    "ts": 1791993411,
    "error": "动态取景连续2.04秒缺少人脸"
+  },
+  {
+   "slug": "ly-1014-00c4f0",
+   "key": "bilibili_search:BV19sjq6BEHM",
+   "video_id": "BV19sjq6BEHM",
+   "ts": 1791994206,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
