@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791995377,
+  "updated_at": 1791995598,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791995377,
+    "updated_at": 1791995598,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1346,
+      "already_attempted_or_cooling": 1347,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -133,16 +133,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV15ctQ6rEgH",
-        "title": "林园 P1 03_老龄化才刚到零年，未来三十年从零到无限大",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV15ctQ6rEgH",
-        "duration_sec": 222.0
-      }
-    ]
+    "candidates": []
   },
   "source_outcomes": {
     "mothers": [
@@ -22656,7 +22647,14 @@
           "ly-1014-e476c4"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-e476c4",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/240，总帧数1195；身份匹配但人脸短边不足96px的帧数240"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22671,7 +22669,14 @@
           "ly-1014-3afac3"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-3afac3",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。根据上下文（宁波、股票），该名称极可能为“三星股份”或其他真实存在的公司名，但“三三”在金融语境下无明确指代，属于无法解释的具体词语污染。”}, {\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22712,7 +22717,7 @@
           {
             "slug": "ly-1014-b76908",
             "stage": "source-fetch",
-            "terminal": false,
+            "terminal": true,
             "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 120.10s 与请求页面 583.00s 不匹配（容差 29.15s）"
           }
         ],
@@ -22728,6 +22733,21 @@
         "family": "BV1Bo4y1P7XV",
         "slugs": [
           "ly-1014-e112b5"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV15ctQ6rEgH:p1",
+        "source_url": "https://www.bilibili.com/video/BV15ctQ6rEgH",
+        "family": "BV15ctQ6rEgH",
+        "slugs": [
+          "ly-1014-651a86"
         ],
         "source_sha256": [],
         "failures": [],
@@ -23373,8 +23393,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
@@ -24139,10 +24159,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_visual-review": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -24154,8 +24174,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27189,12 +27209,14 @@
       "BV1DwB6BoEwM": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV112iGBKE1G": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV18UBkBPE7C": {
         "attempted_mothers": 1,
@@ -27205,16 +27227,22 @@
       "BV1uq1oBWE4d": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-fetch": 1
       },
       "BV1Bo4y1P7XV": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV15ctQ6rEgH": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 8,
+  "in_flight_placeholders": 6,
   "artifacts": [
     {
       "slug": "ly-1014-e2b7da",
