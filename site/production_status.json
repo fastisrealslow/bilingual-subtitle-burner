@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791991954,
+  "updated_at": 1791992048,
   "inventory_updated_at": 1791991954,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 15,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 14,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791991954,
+    "updated_at": 1791992048,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 73,
-    "duration_eligible_records": 15,
-    "candidate_count": 15,
-    "known_duration_candidates": 15,
+    "initial_candidates": 72,
+    "duration_eligible_records": 14,
+    "candidate_count": 14,
+    "known_duration_candidates": 14,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1332,
+      "already_attempted_or_cooling": 1333,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -56,20 +56,20 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV1Uepk6bEWR",
-        "title": "林园：我过去说的都被验证了，2007年我就把组合，和股票全写出来了",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Uepk6bEWR",
-        "duration_sec": 105.0
-      },
-      {
         "key": "bilibili_search:BV1mqpk64Esh",
         "title": "林园：靠投入赚钱的，最后一定过剩；复合增长；林园的投资逻辑与策略",
         "source": "bilibili_search",
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1mqpk64Esh",
         "duration_sec": 144.0
+      },
+      {
+        "key": "bilibili_search:BV1CipB6rE1M",
+        "title": "林园：只投跟嘴巴有关的，有替代品就不投",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1CipB6rE1M",
+        "duration_sec": 54.0
       },
       {
         "key": "bilibili_search:BV17VL76HEg4",
@@ -136,20 +136,20 @@
         "duration_sec": 222.0
       },
       {
-        "key": "bilibili_search:BV1CipB6rE1M",
-        "title": "林园：只投跟嘴巴有关的，有替代品就不投",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1CipB6rE1M",
-        "duration_sec": 54.0
-      },
-      {
         "key": "bilibili_search:BV112iGBKE1G",
         "title": "【林园】好公司好价格 价值投资 拿住最重要 发财靠等，林园：就买两个企业25年后依然是最富的人 （2013-2016建仓",
         "source": "bilibili_series",
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV112iGBKE1G",
         "duration_sec": 245.0
+      },
+      {
+        "key": "bilibili_search:BV18UBkBPE7C",
+        "title": "股神林园的熬字诀！股票市场上人和人的差距就是认知不同；我不说假话，你觉得错那就是错好了；过去的发言时间可以验证；乌龟方法",
+        "source": "bilibili_series",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV18UBkBPE7C",
+        "duration_sec": 180.0
       },
       {
         "key": "bilibili_search:BV1NXHh69EBs:p2",
@@ -166,14 +166,6 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1NXHh69EBs?p=7",
         "duration_sec": 196.0
-      },
-      {
-        "key": "bilibili_search:BV18UBkBPE7C",
-        "title": "股神林园的熬字诀！股票市场上人和人的差距就是认知不同；我不说假话，你觉得错那就是错好了；过去的发言时间可以验证；乌龟方法",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV18UBkBPE7C",
-        "duration_sec": 180.0
       }
     ]
   },
@@ -193,8 +185,9 @@
     "complete": 119,
     "failed": 1030,
     "paused": 5,
-    "interrupted": 6,
-    "running": 5
+    "interrupted": 5,
+    "running": 6,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -21159,14 +21152,14 @@
     },
     {
       "slug": "ly-1014-b76908",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1791991568,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1791992876,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -21174,6 +21167,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38589277494",
       "run_started_at": "2026-10-14T15:26:07Z",
       "run_updated_at": "2026-10-14T15:31:47Z"
+    },
+    {
+      "slug": "ly-1014-ea50b0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791992006,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38590366770,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38590366770",
+      "run_started_at": "2026-10-14T15:33:26Z",
+      "run_updated_at": "2026-10-14T15:33:31Z"
     }
   ],
   "runs": {
@@ -29602,6 +29613,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38589277494",
       "run_number": 2069,
       "display_title": "中文源出片 · ly-1014-b76908"
+    },
+    "ly-1014-ea50b0": {
+      "id": 38590366770,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-14T15:33:26Z",
+      "updated_at": "2026-10-14T15:33:31Z",
+      "run_started_at": "2026-10-14T15:33:26Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38590366770",
+      "run_number": 2070,
+      "display_title": "中文源出片 · ly-1014-ea50b0"
     },
     "ly-1014-a04f78": {
       "id": 38588907309,
