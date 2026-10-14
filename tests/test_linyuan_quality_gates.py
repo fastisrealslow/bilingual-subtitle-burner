@@ -669,6 +669,9 @@ def test_dispatch_consumes_terminal_rejections_before_picking(monkeypatch):
     # lease transport is covered separately; this check exercises ordering.
     monkeypatch.setattr(FC, "source_inventory", lambda current: {"daily_mix_usable": FC.TARGET_READY_RESERVE,
                                                                "verified_landscape": FC.TARGET_LANDSCAPE_RESERVE})
+    # With a full reserve, the new bounded recent-source probe is independent
+    # of rejection ordering. Exhaust its daily budget to keep this test local.
+    state['recent_context_probe_date'] = time.strftime('%Y-%m-%d', time.gmtime(time.time()+8*3600))
 
     assert FC._dispatch_admitted()["reserve_full"] == 1
     assert saved

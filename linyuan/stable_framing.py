@@ -1,7 +1,7 @@
 """Suppress detector jitter without inventing source camera movement."""
 import math
 
-VERSION = 2026092101
+VERSION = 2026101401
 
 
 class StableFraming:
@@ -21,6 +21,7 @@ class StableFraming:
         self.held_frames = 0
         self.max_pan_output_px = 0.
         self.samples = []
+        self.constraint_held_frames = 0
 
     def observe(self, frame, n):
         import cv2
@@ -43,6 +44,19 @@ class StableFraming:
         else:
             x, y, w, h = self.box
             fx, fy, fw, fh = map(float, face[:4])
+            # The aesthetic pan zone can fight the mandatory face margins and
+            # a measured source overlay, moving down then projecting back up
+            # on every frame. In a constrained shot hold a genuinely safe
+            # window; head motion is not a request to move the entire picture.
+            if exclusions:
+                from live_tracking import avoid_overlays
+                pixel_box = tuple(round(v) for v in self.box)
+                if avoid_overlays(pixel_box, face, width, height, exclusions) == pixel_box:
+                    self.held_frames += 1
+                    self.constraint_held_frames += 1
+                    if n % max(1, round(self.fps)) == 0:
+                        self.samples.append(dict(frame=n, crop=list(pixel_box), reset=False))
+                    return pixel_box
             # Only follow a face approaching the reserved head/side margins.
             # Do not continuously chase its centre or change the zoom factor.
             dx = min(0., fx - (x + .12*w)) + max(0., fx+fw - (x + .88*w))
@@ -59,6 +73,11 @@ class StableFraming:
         if exclusions:
             from live_tracking import avoid_overlays
             self.box=avoid_overlays(self.box,face,width,height,exclusions)
+            # Include the actual constraint correction, not just the proposed
+            # aesthetic pan, in the evidence seen by the quality gate.
+            if not reset:
+                self.max_pan_output_px = max(self.max_pan_output_px,
+                    math.hypot((self.box[0]-x)*632/w, (self.box[1]-y)*470/h))
         box = tuple(round(v) for v in self.box)
         if reset or n % max(1, round(self.fps)) == 0:
             self.samples.append(dict(frame=n, crop=list(box), reset=reset))
@@ -68,5 +87,6 @@ class StableFraming:
         return dict(version=VERSION, policy='shot_scale_lock_deadzone_pan',
                     cut_frames=self.cut_frames, pan_frames=self.pan_frames,
                     geometry_reframes=self.geometry_reframes,
+                    constraint_held_frames=self.constraint_held_frames,
                     held_frames=self.held_frames, max_pan_output_px=self.max_pan_output_px,
                     crop_samples=self.samples)

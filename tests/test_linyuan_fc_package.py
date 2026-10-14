@@ -51,7 +51,7 @@ def test_packaged_runtime_passes_new_production_health(packaged_health):
     assert packaged_health['content_policy'] == 'reference_v1'
     assert packaged_health['copyright_requested'] == 3
     assert packaged_health['copyright_mode'] == 'unselected'
-    assert packaged_health['audience_copy_version'] == 2026101202
+    assert packaged_health['audience_copy_version'] == 2026101401
     assert packaged_health['audience_copy_sha256'] == hashlib.sha256((ROOT/'linyuan/audience_copy.py').read_bytes()).hexdigest()
     assert packaged_health['source_restrictions_sha256'] == hashlib.sha256((ROOT/'linyuan/source_restrictions.json').read_bytes()).hexdigest()
     assert packaged_health['source_admission_guard_sha256'] == hashlib.sha256((ROOT/'linyuan/source_admission_guard.py').read_bytes()).hexdigest()

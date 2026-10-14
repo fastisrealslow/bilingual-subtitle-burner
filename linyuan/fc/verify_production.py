@@ -63,7 +63,7 @@ def verify_config_health(health, root=None):
     if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
             or health.get('source_admission_guard_sha256') != hashlib.sha256((root/'linyuan/source_admission_guard.py').read_bytes()).hexdigest()
             or health.get('source_restrictions_sha256') != hashlib.sha256((root/'linyuan/source_restrictions.json').read_bytes()).hexdigest()
-            or health.get('audience_copy_version') != 2026101202
+            or health.get('audience_copy_version') != 2026101401
             or health.get('audience_copy_sha256') != hashlib.sha256((root/'linyuan/audience_copy.py').read_bytes()).hexdigest()
             or health.get('copyright_requested') != 3 or health.get('copyright_mode') != 'unselected'
             or health.get('publish_hours_beijing') != [10, 14, 16, 21]

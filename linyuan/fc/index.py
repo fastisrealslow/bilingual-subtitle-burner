@@ -1658,7 +1658,8 @@ def pick(items, st, n, audit=None):
                 (c.get('source_priority_evidence') or {}).get('adjustment', 0))
 
     # 按综合质量分降序
-    cands.sort(key=lambda c: quality_score(c), reverse=True)
+    from source_priority import recording_recency_rank
+    cands.sort(key=lambda c: (recording_recency_rank(c, now), -quality_score(c)))
     return diversify_source_candidates(cands,n)
 
 
@@ -2391,21 +2392,27 @@ def _dispatch_admitted(event=None, context=None):
         return {'dispatched':0,'inventory_unavailable':1,**inventory}
     deficits=reserve_deficits(inventory)
     landscape_needed=deficits['landscape']
-    if not any(deficits.values()):
-        return {'dispatched':0,'reserve_full':1,**inventory}
+    recent_probe = not any(deficits.values())
+    if recent_probe and st.get('recent_context_probe_date') == today:
+        return {'dispatched':0,'reserve_full':1,'recent_context_probe_done':1,**inventory}
     active_runs=[run for status in ('in_progress','queued') for run in
         gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
     active=len(active_runs)
     landscape_admissions=landscape_admission_deficit(inventory,st,active_runs)
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
-    target=min(target,MAX_ACTIVE_SOURCES-active,sum(deficits.values()))
+    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else sum(deficits.values()))
     # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
     admission = {}
     cands = pick(items, st, MAX_ATTEMPTS, audit=admission)
+    if recent_probe:
+        from source_priority import recording_recency_rank
+        cands = [c for c in cands if recording_recency_rank(c, time.time()) == 0]
+        if not cands:
+            return {'dispatched':0,'reserve_full':1,'recent_context_candidates':0,**inventory}
     log_event('source_admission',
               f"采集 {admission['records']} 条 → 待验证原片候选 {admission['candidate_count']} 条",
               json.dumps(admission, ensure_ascii=False))
@@ -2420,6 +2427,7 @@ def _dispatch_admitted(event=None, context=None):
         reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
         if source_inventory(st,reserve)['inventory_fresh']:
             for entry,record in obsolete_review_candidates(st,reserve):
+                if recent_probe: break  # This one slot is for a recent source, not an old retry.
                 if success>=target:break
                 if entry.get('output_layout')=='landscape' and landscape_admissions<=0:continue
                 reason='当前母片需重新执行逐字原文审核，复用实际CPU原始转写'
@@ -2431,6 +2439,7 @@ def _dispatch_admitted(event=None, context=None):
     # A unavailable checker is not evidence of a bad mother. Retry its exact
     # candidate with backoff, bounded by the same six-running-source limit.
     for entry in sorted(_latest_dispatches(st),key=lambda e:float(e.get('source_check_retry_after') or 0)):
+        if recent_probe: break
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
@@ -2527,9 +2536,13 @@ def _dispatch_admitted(event=None, context=None):
                                      "title": c["title"], "delay_hours": 0,
                                      "source": c.get("source", ""),
                                      "author": c.get("author", ""),
+                                     "speech_date_context": __import__('audience_copy').speech_date_evidence(c),
                                      "publish_time": c.get("publish_time", "")})
             save_state(st)
             success += 1
+            if recent_probe:
+                st['recent_context_probe_date'] = today
+                save_state(st)
             if output_layout=='landscape':landscape_admissions=max(0,landscape_admissions-1)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
@@ -2964,6 +2977,17 @@ def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
         return "meta.json 不是对象"
+    # Exact reported mother: old tracking chased a seated guest in 3042/3057
+    # frames without a camera cut. Do not keep releasing its visibly unstable
+    # siblings from cached inventory; retain the evidence for bounded repair.
+    if meta.get('source_sha256') == 'ced49dbeb34439f98149da57e9d361a18f8d62c852dea4a49b6b54729d2b73ea':
+        for framing in meta.get('framing_proofs') or []:
+            moving = int(framing.get('pan_frames') or 0)
+            held = int(framing.get('held_frames') or 0)
+            if (int(framing.get('version') or 0) < 2026101401
+                    and not framing.get('cut_frames') and moving+held >= 300
+                    and moving / (moving+held) > .8):
+                return '已确认同源成片存在持续追脸裁切，须用防抖取景重做'
     # Some producers may still finish an older in-flight v6 job after the
     # default drafting prompt is restored. Research output is not permission
     # to publish it; keep the experiment out of the real reserve as well.
@@ -3855,7 +3879,9 @@ def publish_handler(event=None, context=None):
                and (not batch_slug or e.get("slug") == batch_slug)
                and _has_unpublished_part(e, st)]
     # 轮转：已投条数最少的素材优先（防长视频霸占额度、新素材饿死 2026-08-27）
+    from source_priority import recording_recency_rank
     pending.sort(key=lambda e: (e.get("production_rules_version") != PRODUCTION_RULES_VERSION,
+                                recording_recency_rank(e, now),
                                 e.get("published_parts", 0)))
     if not batch_slug:
         local = time.gmtime(now + 8 * 3600)
@@ -4127,7 +4153,8 @@ def publish_handler(event=None, context=None):
     # 优先用当前 part 的 meta 文案 + 封面
     meta_info = part
     title = (part.get("title") or e.get("title") or slug)
-    desc = clean_publish_desc(part.get("desc", ""))
+    from audience_copy import dated_description
+    desc = dated_description(clean_publish_desc(part.get("desc", "")), part, e)
 
     cover = None
     if part.get("cover") and (tmp / slug / part["cover"]).exists():

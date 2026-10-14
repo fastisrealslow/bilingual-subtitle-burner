@@ -8,6 +8,7 @@ on:
       - linyuan/collection_registry.py
       - linyuan/audience_copy.py
       - tests/test_linyuan_audience_copy.py
+      - tests/test_linyuan_daily_collections.py
       - linyuan/reference_audit.py
   schedule:
     - cron: '35 */3 * * *'
@@ -30,7 +31,7 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install pytest requests
       - name: 合集与声明分类离线安全回归
-        run: python -m pytest -q tests/test_linyuan_platform_collections.py tests/test_linyuan_reference_audit.py tests/test_linyuan_audience_copy.py tests/test_linyuan_collection_registry.py
+        run: python -m pytest -q tests/test_linyuan_platform_collections.py tests/test_linyuan_reference_audit.py tests/test_linyuan_audience_copy.py tests/test_linyuan_collection_registry.py tests/test_linyuan_daily_collections.py tests/test_linyuan_speech_dates.py
       - name: 最新三十条与来源覆盖审计（不把参考片当库存）
         continue-on-error: true
         env:

@@ -52,6 +52,7 @@ def main():
 
     # meta.json 现在带 LLM 文案（title/desc/tags）+ cover 字段，优先用
     title, desc, tags = args.slug, "", ["林园", "价值投资"]
+    m = {}
     if meta.is_file():
         try:
             m = json.loads(meta.read_text(encoding="utf-8"))
@@ -67,8 +68,8 @@ def main():
         title = args.title
     if args.desc:
         desc = args.desc
-    from audience_copy import description
-    desc = description(desc)
+    from audience_copy import dated_description
+    desc = dated_description(desc, m if isinstance(m, dict) else {})
 
     # cookies：BILI_COOKIES_FILE 装的是路径（secret 原文由准备步骤落盘）
     raw_cookies = (args.cookies or os.environ.get("BILI_COOKIES_FILE") or "").strip()
