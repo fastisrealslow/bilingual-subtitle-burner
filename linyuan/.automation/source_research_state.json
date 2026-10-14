@@ -3532,14 +3532,36 @@
       "role": "mother",
       "family": "maotai_table_exchange",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 2,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1791821876.3060246,
-      "next_retry_at": 1791865076.3060246,
-      "fingerprint_cache_available": false,
+      "last_error": null,
+      "last_attempt_at": 1792016803.9704645,
+      "next_retry_at": 0,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "download_partial_bytes": 0
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "9b2a7eedfb40d42b7df7194e7fb42fea716f89909b58420875a409882004b06b",
+        "duration_sec": 432.92,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 216.46
+          }
+        ],
+        "audio_fingerprint_count": 3475,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "38646734548"
     },
     "24fbd4b85ae2bf9b7441": {
       "url": "https://www.bilibili.com/video/BV1TW4y147YB",
@@ -3617,10 +3639,10 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 2,
+      "attempts": 3,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1791821576.297552,
-      "next_retry_at": 1791864776.297552,
+      "last_attempt_at": 1792016709.9545035,
+      "next_retry_at": 1792103109.9545035,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -5405,13 +5427,13 @@
       "family": "phoenix_2026_09",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1791985553.1807818,
-      "next_retry_at": 1792007153.1807818,
+      "last_attempt_at": 1792016409.9461582,
+      "next_retry_at": 1792059609.9461582,
       "download_partial_bytes": 0
     },
     "c202455717e6ee4cee8a": {
@@ -5494,14 +5516,11 @@
       "new_ids": []
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
-      "status": "retry_wait",
-      "checked_at": 1791933523.7149014,
-      "next_retry_at": 1792008586.0613317,
-      "found": 1,
-      "new_ids": [],
-      "attempts": 1,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1791986986.0613317
+      "status": "searched",
+      "checked_at": 1792016407.267345,
+      "next_retry_at": 1792059607.267345,
+      "found": 0,
+      "new_ids": []
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
       "status": "searched",
@@ -5537,38 +5556,13 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": false,
+      "collection_listing_complete": true,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": [
-        {
-          "stage": "collection_page",
-          "season_id": 6285434,
-          "page": 5,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 6790738,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 5016608,
-          "page": 2,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 6836119,
-          "page": 1,
-          "error": "ValueError"
-        }
-      ]
+      "errors": []
     }
   },
-  "search_cursor": 3,
-  "updated_at": 1792004951,
-  "last_run_id": "38617942843",
+  "search_cursor": 5,
+  "updated_at": 1792016803,
+  "last_run_id": "38646734548",
   "audio_match_candidates": []
 }
