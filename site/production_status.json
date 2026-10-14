@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791986698,
+  "updated_at": 1791986787,
   "inventory_updated_at": 1791986697,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 29,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 28,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791986697,
+    "updated_at": 1791986787,
     "records": 10087,
     "video_records": 8646,
-    "initial_candidates": 87,
-    "duration_eligible_records": 29,
-    "candidate_count": 29,
-    "known_duration_candidates": 29,
+    "initial_candidates": 86,
+    "duration_eligible_records": 28,
+    "candidate_count": 28,
+    "known_duration_candidates": 28,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5881,
-      "already_attempted_or_cooling": 1318,
+      "already_attempted_or_cooling": 1319,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1nZCvBkEZC",
-        "title": "林园 P1 1763362817959",
-        "source": "bilibili_series",
-        "author": "林林投资滚雪球",
-        "url": "https://www.bilibili.com/video/BV1nZCvBkEZC",
-        "duration_sec": 428.0
-      },
       {
         "key": "bilibili_search:BV1btCSB8EJM",
         "title": "林园 P1 1763260633883",
@@ -303,10 +295,10 @@
   },
   "counts": {
     "complete": 118,
-    "failed": 1017,
+    "failed": 1018,
     "paused": 5,
-    "interrupted": 6,
-    "running": 5
+    "interrupted": 5,
+    "running": 6
   },
   "tasks": [
     {
@@ -20965,11 +20957,11 @@
     },
     {
       "slug": "ly-1014-83cc2f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
       "signature": {
         "ts": 1791985671,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21034,6 +21026,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38576700138",
       "run_started_at": "2026-10-14T14:00:39Z",
       "run_updated_at": "2026-10-14T14:00:44Z"
+    },
+    {
+      "slug": "ly-1014-498d03",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791986744,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38577456922,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38577456922",
+      "run_started_at": "2026-10-14T14:05:44Z",
+      "run_updated_at": "2026-10-14T14:05:49Z"
     }
   ],
   "runs": {
@@ -29298,6 +29308,28 @@
       "run_number": 2053,
       "display_title": "中文源出片 · ly-1014-9be2af"
     },
+    "ly-1014-83cc2f": {
+      "id": 38574833422,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-14T13:47:51Z",
+      "updated_at": "2026-10-14T14:04:12Z",
+      "run_started_at": "2026-10-14T13:47:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38574833422",
+      "run_number": 2052,
+      "display_title": "中文源出片 · ly-1014-83cc2f"
+    },
+    "ly-1014-498d03": {
+      "id": 38577456922,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-14T14:05:44Z",
+      "updated_at": "2026-10-14T14:05:49Z",
+      "run_started_at": "2026-10-14T14:05:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38577456922",
+      "run_number": 2056,
+      "display_title": "中文源出片 · ly-1014-498d03"
+    },
     "ly-1014-53f4af": {
       "id": 38576700138,
       "status": "in_progress",
@@ -29319,17 +29351,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38575857369",
       "run_number": 2054,
       "display_title": "中文源出片 · ly-1014-ffc958"
-    },
-    "ly-1014-83cc2f": {
-      "id": 38574833422,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-14T13:47:51Z",
-      "updated_at": "2026-10-14T14:04:12Z",
-      "run_started_at": "2026-10-14T13:47:51Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38574833422",
-      "run_number": 2052,
-      "display_title": "中文源出片 · ly-1014-83cc2f"
     },
     "ly-1014-3c3df0": {
       "id": 38574816532,
