@@ -18,6 +18,49 @@ def entry(text,a=0,b=5):
     return dict(zh=text,start_sec=a,end_sec=b)
 
 
+def test_published_question_tag_keeps_words_and_original_character_anchors():
+    case=json.loads((ROOT/'tests/fixtures/linyuan_question_tag_display.json').read_text())
+    source=case['raw_entries'];snapshot=copy.deepcopy(source)
+    legacy,legacy_proof=R.clean_entries(source,policy_version=case['legacy_version'])
+    assert legacy_proof['display_text']==case['legacy_display_text']
+    assert '品牌垄断，？' in legacy_proof['display_text']
+    out,proof=R.clean_entries(source)
+    assert '品牌垄断，是吧？' in proof['display_text']
+    assert '品牌垄断？' not in R.display_payload_text(proof['display_text'])
+    raw_atoms=[tuple(atom) for row in source for atom in row['caption_chars']]
+    assert all(tuple(atom) in raw_atoms for row in out for atom in row['caption_chars'])
+    assert source==snapshot
+    assert R.replay_edit_proof(legacy_proof)==(legacy_proof['raw_text'],legacy_proof['display_text'])
+    assert R.replay_edit_proof(proof)==(proof['raw_text'],proof['display_text'])
+
+
+@pytest.mark.parametrize('text',[
+    '美股它还是延续它的牛市是吧？',
+    '你要是市场不热闹，我可以等待，是吧？',
+    '我不买这家公司，是吧？',
+    '比例不到8%，是吧？',
+    '我怕什么？是吧？',
+    '这个判断是吧？还是另一个判断？',
+    '持有，是吧?下一句。',
+])
+def test_question_tags_are_not_deleted_as_verbal_padding(text):
+    out,proof=R.clean_entries([entry(text)])
+    assert proof['display_text']==text
+    assert not proof['edits']
+    assert ''.join(row['zh'] for row in out)==text
+
+
+@pytest.mark.parametrize('text,expected',[
+    ('我们继续，是吧，看看数据。','我们继续，，看看数据。'),
+    ('嗯，公司有品牌，是吧。','公司有品牌，。'),
+    ('如果价格不降，那么我主要还是持有。','如果价格不降，那么我主要还是持有。'),
+    ('我问他是否投资？他回答不投资。','我问他是否投资？他回答不投资。'),
+])
+def test_nonquestion_padding_and_normal_counterexamples_are_unchanged(text,expected):
+    out,proof=R.clean_entries([entry(text)])
+    assert proof['display_text']==expected
+
+
 def test_edit_removes_padding_but_keeps_raw_evidence_and_character_times():
     original=[entry('啊，那么我我对这个价值投资的理解，'),
               entry('我主要是从这个行业的行业去去把握。',5,10)]
@@ -90,7 +133,7 @@ def test_accepted_source_uses_default_editor_and_replans_old_cache(monkeypatch,t
     text=''.join(x['zh'] for x in result)
     assert '行业的行业' not in text and '我我' not in text and '去去' not in text
     assert '我主要从行业去把握' in P.re.sub(r'[\s，。！？；：、]','',''.join(x['zh'] for x in result))
-    assert any(x['zh']=='好的企业从哪里来？' for x in result)
+    assert any(x['zh']=='好的企业从哪里来是吧？' for x in result)
     assert all(.25<=x['end_sec']-x['start_sec']<=6.001 for x in result)
     assert all(a['end_sec']<=b['start_sec'] for a,b in zip(result,result[1:]))
     proof=json.loads(cache.with_suffix('.editing.json').read_text())
