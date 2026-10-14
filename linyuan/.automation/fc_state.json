@@ -28523,7 +28523,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-11T13:03:33+00:00"
+   "publish_time": "2025-11-11T13:03:33+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-a04f78",
+    "run_id": 38588907309,
+    "artifact_id": 11907773517,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_te"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"李贝总是调研了很多地产企业\", \"kind\": \"unintelligible_term\", \"reason\": \"“李贝”疑似为人名识别错误，结合上下文语境（林园访谈），极大概率应为“李录”（Value Investors Club 创始人、巴菲特合伙人）。\"}, {\"sentence_id\": 14, \"quote\": \"现在大家可能还把房子作为一个资产，再过几年，大"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38588907309,
+    "artifact_id": 11907773517,
+    "name": "production-reject-ly-1014-a04f78",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文'房子'与'电视机'的类比，此处'搬'字极可能为误识，原意应为'买'（即'你就没人去买'），因发音相近导致关键动词错写。\"}, {\"sentence_id\": 5, \"quote\": \"当房子到这一步的时候，真的这个这个多出来没没用的时候，你会觉得它一文钱都不值。\", \"suspect_quote\": \"这个这个多出来没没用的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个这个'为口语重复，但'没没用'中第二个'没'字多余，应为'没用的时候'，属于含义不明的关键否定词污染（多出的'没'改变了原意）。\"}, {\"sentence_id\": 6, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'另另类'无法解释，应为'另类'或'另做处理'等，属于错写的专有名词/行业表述（'另类'在金融语境中可指特殊策略，但此处语法断裂）。\"}, {\"sentence_id\": 10, \"quote\": \"人到一定程度，他可能换的概率就是，因为当时个觉不不值钱的时候，他也不想折腾。\", \"suspect_quote\": \"因为当时个觉不不值钱的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'个觉'无法解释，应为'觉得'（口语省略'得'为'的'常见，但'觉'单独成词属错写），属于具体词语污染。\"}, {\"sentence_id\": 11, \"quote\": \"前段时间我去香港，就就就看到个点，他们都想，那五几年的房子都算是，还是很好的。\", \"suspect_quote\": \"就就就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'就就'为口语重复可接受，但'看到个点'中'点'指代不明（应为'看点'或'特点'），属于含义不明的关键名词污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1uq1oBWE4d",
@@ -85626,6 +85652,13 @@
    "video_id": "BV143CjBwEQ6",
    "ts": 1791992571,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"糖的故事是在道义。\", \"suspect_quote\": \"糖的故事是在道义\", \"kind\": \"unintelligible_term\", \"reason\": \"“在道义”语义不通，疑似将“在道理上”或“在于道义”误识别，导致关键含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是\", \"kind\": \"unintelligible_term\", \"reason\": \"“车上导导游”存在明显错别字和语义混乱，疑似应为“车上的导游”，当前写法无法解释。\"}, {\"sentence_id\": 9, \"quote\": \"这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"就哪怕一个点心都比正常的点心要贵十到八八到十倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述“十到八八到十倍”内部逻辑矛盾且含义不明，属于关键数字污染。\"}, {\"sentence_id\": 11, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"这就是我们点心的这个消费身体\", \"kind\": \"unintelligible_term\", \"reason\": \"“消费身体”搭配不当且含义不明，疑似错写或识别错误，无法解释其具体指代。\"}, {\"sentence_id\": 25, \"quote\": \"啊，所以糖的故事本身，这些我们说的中药企业，它一个是往新药上发展，第二个他的一些适应症啊，他的，比如说以前是肝病的，哎，他用眼花出一大堆啊，治疗抑郁症，治疗这个这个这个，呃，皮肤是吧，呃，通便都来了。\", \"suspect_quote\": \"哎，他用眼花出一大堆啊，治疗抑郁症\", \"kind\": \"unintelligible_term\", \"reason\": \"“用眼花出”语义完全不通，疑似将“用花眼出”或“用某种方式推出”等误识别，导致关键动作含义不明。\"}, {\"sentence_id\": 31, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是\", \"kind\": \"unintelligible_term\", \"reason\": \"“这个脸因为是”语义断裂且无法解释，疑似截断或严重误识别，导致句子关键信息缺失。\"}]"
+  },
+  {
+   "slug": "ly-1014-a04f78",
+   "key": "bilibili_search:BV1fykrBQEbq",
+   "video_id": "BV1fykrBQEbq",
+   "ts": 1791992888,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文'房子'与'电视机'的类比，此处'搬'字极可能为误识，原意应为'买'（即'你就没人去买'），因发音相近导致关键动词错写。\"}, {\"sentence_id\": 5, \"quote\": \"当房子到这一步的时候，真的这个这个多出来没没用的时候，你会觉得它一文钱都不值。\", \"suspect_quote\": \"这个这个多出来没没用的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个这个'为口语重复，但'没没用'中第二个'没'字多余，应为'没用的时候'，属于含义不明的关键否定词污染（多出的'没'改变了原意）。\"}, {\"sentence_id\": 6, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'另另类'无法解释，应为'另类'或'另做处理'等，属于错写的专有名词/行业表述（'另类'在金融语境中可指特殊策略，但此处语法断裂）。\"}, {\"sentence_id\": 10, \"quote\": \"人到一定程度，他可能换的概率就是，因为当时个觉不不值钱的时候，他也不想折腾。\", \"suspect_quote\": \"因为当时个觉不不值钱的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'个觉'无法解释，应为'觉得'（口语省略'得'为'的'常见，但'觉'单独成词属错写），属于具体词语污染。\"}, {\"sentence_id\": 11, \"quote\": \"前段时间我去香港，就就就看到个点，他们都想，那五几年的房子都算是，还是很好的。\", \"suspect_quote\": \"就就就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'就就'为口语重复可接受，但'看到个点'中'点'指代不明（应为'看点'或'特点'），属于含义不明的关键名词污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
