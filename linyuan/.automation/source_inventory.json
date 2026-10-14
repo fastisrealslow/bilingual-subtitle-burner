@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791991514,
+  "updated_at": 1791991669,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791991514,
+    "updated_at": 1791991669,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 74,
-    "duration_eligible_records": 16,
-    "candidate_count": 16,
-    "known_duration_candidates": 16,
+    "initial_candidates": 73,
+    "duration_eligible_records": 15,
+    "candidate_count": 15,
+    "known_duration_candidates": 15,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1331,
+      "already_attempted_or_cooling": 1332,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -134,14 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1uq1oBWE4d",
-        "title": "【完整版】对话股神林园：对未来趋势的判断！",
-        "source": "bilibili_collection",
-        "author": "投资大佬说",
-        "url": "https://www.bilibili.com/video/BV1uq1oBWE4d",
-        "duration_sec": 583.0
-      },
       {
         "key": "bilibili_search:BV1Uepk6bEWR",
         "title": "林园：我过去说的都被验证了，2007年我就把组合，和股票全写出来了",
@@ -22510,7 +22502,14 @@
           "ly-1014-0398d6"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-0398d6",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22523,6 +22522,21 @@
         "family": "BV1fykrBQEbq",
         "slugs": [
           "ly-1014-a04f78"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1uq1oBWE4d:p1",
+        "source_url": "https://www.bilibili.com/video/BV1uq1oBWE4d",
+        "family": "BV1uq1oBWE4d",
+        "slugs": [
+          "ly-1014-b76908"
         ],
         "source_sha256": [],
         "failures": [],
@@ -23168,9 +23182,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23447,8 +23461,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -23460,8 +23474,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -23619,8 +23633,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
@@ -23769,8 +23783,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23935,8 +23949,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_visual-review": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
@@ -26936,9 +26950,15 @@
       "BV18jLF6xE75": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1fykrBQEbq": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1uq1oBWE4d": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
