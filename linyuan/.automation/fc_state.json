@@ -28549,7 +28549,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文'房子'与'电视机'的类比，此处'搬'字极可能为误识，原意应为'买'（即'你就没人去买'），因发音相近导致关键动词错写。\"}, {\"sentence_id\": 5, \"quote\": \"当房子到这一步的时候，真的这个这个多出来没没用的时候，你会觉得它一文钱都不值。\", \"suspect_quote\": \"这个这个多出来没没用的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个这个'为口语重复，但'没没用'中第二个'没'字多余，应为'没用的时候'，属于含义不明的关键否定词污染（多出的'没'改变了原意）。\"}, {\"sentence_id\": 6, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'另另类'无法解释，应为'另类'或'另做处理'等，属于错写的专有名词/行业表述（'另类'在金融语境中可指特殊策略，但此处语法断裂）。\"}, {\"sentence_id\": 10, \"quote\": \"人到一定程度，他可能换的概率就是，因为当时个觉不不值钱的时候，他也不想折腾。\", \"suspect_quote\": \"因为当时个觉不不值钱的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'个觉'无法解释，应为'觉得'（口语省略'得'为'的'常见，但'觉'单独成词属错写），属于具体词语污染。\"}, {\"sentence_id\": 11, \"quote\": \"前段时间我去香港，就就就看到个点，他们都想，那五几年的房子都算是，还是很好的。\", \"suspect_quote\": \"就就就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'就就'为口语重复可接受，但'看到个点'中'点'指代不明（应为'看点'或'特点'），属于含义不明的关键名词污染。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Uepk6bEWR",
@@ -28682,7 +28683,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-04T18:29:38+00:00"
+   "publish_time": "2026-10-04T18:29:38+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38592222052,
+    "artifact_id": 11908256551,
+    "name": "source-reject-ly-1014-1ccb6b",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1uq1oBWE4d",
@@ -85660,6 +85671,13 @@
    "video_id": "BV1fykrBQEbq",
    "ts": 1791992888,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文'房子'与'电视机'的类比，此处'搬'字极可能为误识，原意应为'买'（即'你就没人去买'），因发音相近导致关键动词错写。\"}, {\"sentence_id\": 5, \"quote\": \"当房子到这一步的时候，真的这个这个多出来没没用的时候，你会觉得它一文钱都不值。\", \"suspect_quote\": \"这个这个多出来没没用的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'这个这个'为口语重复，但'没没用'中第二个'没'字多余，应为'没用的时候'，属于含义不明的关键否定词污染（多出的'没'改变了原意）。\"}, {\"sentence_id\": 6, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'另另类'无法解释，应为'另类'或'另做处理'等，属于错写的专有名词/行业表述（'另类'在金融语境中可指特殊策略，但此处语法断裂）。\"}, {\"sentence_id\": 10, \"quote\": \"人到一定程度，他可能换的概率就是，因为当时个觉不不值钱的时候，他也不想折腾。\", \"suspect_quote\": \"因为当时个觉不不值钱的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'个觉'无法解释，应为'觉得'（口语省略'得'为'的'常见，但'觉'单独成词属错写），属于具体词语污染。\"}, {\"sentence_id\": 11, \"quote\": \"前段时间我去香港，就就就看到个点，他们都想，那五几年的房子都算是，还是很好的。\", \"suspect_quote\": \"就就就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'就就'为口语重复可接受，但'看到个点'中'点'指代不明（应为'看点'或'特点'），属于含义不明的关键名词污染。\"}]"
+  },
+  {
+   "slug": "ly-1014-1ccb6b",
+   "key": "bilibili_search:BV1NXHh69EBs:p5",
+   "video_id": "BV1NXHh69EBs:p5",
+   "ts": 1791993064,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
