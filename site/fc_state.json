@@ -27822,7 +27822,53 @@
    "delay_hours": 0,
    "source": "weibo_search",
    "author": "圣叹财经",
-   "publish_time": "2026-10-14T14:01:00+08:00"
+   "publish_time": "2026-10-14T14:01:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-3c3df0",
+    "run_id": 38574816532,
+    "artifact_id": 11903989192,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 155.67s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"在他的投资组合中，有百分之七十配置给了与嘴相关的行业。\", \"suspect_quote\": \"百分之七十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之七十'在口语中可能指代模糊（如“大约”或“主要部分”），但在金融语境下若未加限定词（如‘约’、‘左右’），可能被误读为精确数据；此处需确认是否为确切比例还是概数，存在识别歧义风险。\"}, {\"sentence_id\": 36, \"quote\": \"因为老字号本身它是经过，几比如说上百年甚至几百年的历史，它这"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那首先它具备垄断，它是一个垄断经营，呃，它的定价权是是垄断的。\", \"suspect_quote\": \"定价权是是垄断的\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的'是'字（'是是'）在口语中虽可能为口吃，但此处极大概率是识别错误导致的冗余字符，破坏了句子语法结构，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 4, \"quote\": \"当然最好再是再是一个，它的产品是，这种这种公司啊，我们发现它全世界都是，它产品不多，就一几个，比如说可口可乐这样的公司"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"这个我可能，六岁都开始做功课了，六岁还没上起公司呢。\", \"suspect_quote\": \"六岁还没上起公司呢\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'六岁'作为年龄数字与后文'做功课'、'上起公司'搭配产生严重语义矛盾，疑似将人名（如'六小龄童'或特定昵称）误识别为年龄数字，或'上起公司'为无法解释的错别字/断词。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"呃，我大概有百分之十啊，是配比，只要中国它是品品牌公司，只要是它有一个强大的品牌，婴儿的股本，这是符合我选股条件的。\", \"suspect_quote\": \"婴儿的股本\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文“强大的品牌”及林园投资理念，此处应为“品牌的股本”或“品牌的利润”，\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38574816532,
+    "artifact_id": 11903989192,
+    "name": "production-reject-ly-1014-3c3df0",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 155.67s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Wnpr6JEdH",
@@ -84875,6 +84921,13 @@
    "video_id": "BV1iaUmB2ETf",
    "ts": 1791988596,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"这就是林源，被一些人捧为股神，也被更多的人骂为骗子。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为同音词“林源”（常见人名），属于专有名词错写。\"}, {\"sentence_id\": 3, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和，一上来就给我们展示他保存了多年的股票转让记录。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 13, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林元”。\"}, {\"sentence_id\": 24, \"quote\": \"我们投资是价值不价值，实际上就是一定要投资垄断的企。\", \"suspect_quote\": \"垄断的企\", \"kind\": \"unintelligible_term\", \"reason\": \"句末“企”字语义不完整，疑似应为“企业”或“公司”，属于关键名词截断导致含义不明。\"}, {\"sentence_id\": 30, \"quote\": \"一说起自己的这套价值投资方法，林源就会特别自信。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 48, \"quote\": \"我存的茅台酒，十五年的。\", \"suspect_quote\": \"十五年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中省略了产品名（茅台酒），仅保留“十五年的”指代十五年陈酿，虽非错误但属高度依赖上下文的省略表达；若严格检查数字完整性，此处缺少核心名词。不过根据指令“短句、口语省略主语...不能算识别错误”，此项暂不列入疑点，除非要求极度精确的实体补\"}]"
+  },
+  {
+   "slug": "ly-1014-3c3df0",
+   "key": "weibo_search:5353920834830539",
+   "video_id": "https://f.video.weibocdn.com/o0/oKJJpBeqlx08ByEmcNqU01041207cdVd0E030.mp4",
+   "ts": 1791989604,
+   "error": "整段取景预检：源 155.67s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
