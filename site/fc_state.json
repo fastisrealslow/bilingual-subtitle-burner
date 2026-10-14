@@ -28028,7 +28028,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/689，总帧数3442；身份匹配但人脸短边不足96px的帧数689",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1nZCvBkEZC",
@@ -28092,7 +28093,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该错误出现在介绍人物身份的关键位置，严重影响指代准确性。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，人物姓名再次被错误识别为“林元”。\"}, {\"sentence_id\": 12, \"quote\": \"二零零六年，在股市赚得盆满钵满之后，林源开通了博客，接连发布自己的炒股战绩和心得，一时间引来众多粉丝的关注。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾姓名为“林园”，此处识别为“林源”属于同音错别字，影响专有名词准确性。\"}, {\"sentence_id\": 13, \"quote\": \"这些粉丝认为林元是一位股神。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"人物姓名再次被错误识别为“林元”。\"}, {\"sentence_id\": 14, \"quote\": \"然而，上证综指在二零零七年十月创出历史新高后，却掉头直向。\", \"suspect_quote\": \"掉头直向\", \"kind\": \"unintelligible_term\", \"reason\": \"金融语境下描述指数下跌，常用表述为“掉头直下”或“一路下行”，“直向”语义不明，疑似识别错误或漏字（如漏了“下”字），导致含义模糊。\"}, {\"sentence_id\": 17, \"quote\": \"大盘跌了这么多，我也跌了这么多，这我我我估计跟指数同步。\", \"suspect_quote\": \"我我我\", \"kind\": \"unintelligible_term\", \"reason\": \"此处连续三个“我”字在口语中虽可表示口吃或犹豫，但结合上下文“估计跟指数同步”，若原意是表达不确定，通常不会重复三次；若为口吃则属正常风格。但考虑到后文多次出现类似人名错误，需警惕此处是否为“我我我”被误听为其他词（如“一一一”或其他），但\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV12N411175D",
@@ -28136,7 +28138,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-16T01:51:12+00:00"
+   "publish_time": "2025-11-16T01:51:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-b39b36",
+    "run_id": 38584576793,
+    "artifact_id": 11904963449,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38584576793,
+    "artifact_id": 11904963449,
+    "name": "production-reject-ly-1014-b39b36",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1bzCyB2EPv",
@@ -85115,6 +85139,13 @@
    "video_id": "BV1bL4y1J76P",
    "ts": 1791990166,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/689，总帧数3442；身份匹配但人脸短边不足96px的帧数689"
+  },
+  {
+   "slug": "ly-1014-b39b36",
+   "key": "bilibili_search:BV1ZDCSBCEbP",
+   "video_id": "BV1ZDCSBCEbP",
+   "ts": 1791990494,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
