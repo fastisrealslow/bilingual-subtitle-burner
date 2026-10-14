@@ -27803,7 +27803,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"就是就是，你现在更看好达林通还是并彩王？\", \"suspect_quote\": \"达林通还是并彩王\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'达林通'和'并彩王'在金融/医药领域无对应知名实体，极可能是语音识别将人名或股票名（如'达仁堂'、'片仔癀'等）错误转录为谐音词。\"}, {\"sentence_id\": 8, \"quote\": \"我并不是说是啊，这个这个片的方，我都买。\", \"suspect_quote\": \"这个这个片的方\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'片的方'语义不明，结合上下文（林园常提及中药），极可能是'片仔癀'的严重误识。\"}, {\"sentence_id\": 10, \"quote\": \"我这个组合，你知道粘上你。\", \"suspect_quote\": \"粘上你\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'粘上你'在口语中无明确含义，可能是'赚上你'、'占上你'或某特定术语的误识，导致句意断裂。\"}, {\"sentence_id\": 12, \"quote\": \"我这个跟你去比干啥？\", \"suspect_quote\": \"跟你去比干啥\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'跟你去比'语义不通，可能是'跟它去比'（指股票）的误识，'去'字多余或为口误但影响理解。\"}, {\"sentence_id\": 23, \"quote\": \"你花不说你解决生活问题了。\", \"suspect_quote\": \"你花不说\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'你花不说'语义不明，可能是'你花多少'、'你说说'或'这花不少'的误识，导致逻辑断裂。\"}, {\"sentence_id\": 48, \"quote\": \"因为你才几十块钱，孩子孩子是很低白人，我是有组合的。\", \"suspect_quote\": \"孩子是很低白人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'低白人'完全不符合中文表达，极可能是'低位'、'低价'或某人名/术语的严重误识（如'低倍率'？），属明显识别错误。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5353920834830539",
@@ -27917,7 +27918,29 @@
    "delay_hours": 0,
    "source": "bilibili_series",
    "author": "林林投资滚雪球",
-   "publish_time": "2025-11-25T03:51:04+00:00"
+   "publish_time": "2025-11-25T03:51:04+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-ffc958",
+    "run_id": 38575857369,
+    "artifact_id": 11903816048,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"这就是林源，被一些人捧为股神，也被更多的人骂为骗子。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为同音词“林源”（常见人名），属于专有名词错写。\"}, {\"sentence_id\": 3, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和，一上来就给我们展示他保存了多年的股票转让记录。\", \"suspect_quote\": \"林源\", \"ki"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38575857369,
+    "artifact_id": 11903816048,
+    "name": "production-reject-ly-1014-ffc958",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"这就是林源，被一些人捧为股神，也被更多的人骂为骗子。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为同音词“林源”（常见人名），属于专有名词错写。\"}, {\"sentence_id\": 3, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和，一上来就给我们展示他保存了多年的股票转让记录。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 13, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林元”。\"}, {\"sentence_id\": 24, \"quote\": \"我们投资是价值不价值，实际上就是一定要投资垄断的企。\", \"suspect_quote\": \"垄断的企\", \"kind\": \"unintelligible_term\", \"reason\": \"句末“企”字语义不完整，疑似应为“企业”或“公司”，属于关键名词截断导致含义不明。\"}, {\"sentence_id\": 30, \"quote\": \"一说起自己的这套价值投资方法，林源就会特别自信。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 48, \"quote\": \"我存的茅台酒，十五年的。\", \"suspect_quote\": \"十五年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中省略了产品名（茅台酒），仅保留“十五年的”指代十五年陈酿，虽非错误但属高度依赖上下文的省略表达；若严格检查数字完整性，此处缺少核心名词。不过根据指令“短句、口语省略主语...不能算识别错误”，此项暂不列入疑点，除非要求极度精确的实体补\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1bL4y1J76P",
@@ -84440,6 +84463,13 @@
    "video_id": "BV1BoKD6ZELp",
    "ts": 1791988206,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"就是就是，你现在更看好达林通还是并彩王？\", \"suspect_quote\": \"达林通还是并彩王\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'达林通'和'并彩王'在金融/医药领域无对应知名实体，极可能是语音识别将人名或股票名（如'达仁堂'、'片仔癀'等）错误转录为谐音词。\"}, {\"sentence_id\": 8, \"quote\": \"我并不是说是啊，这个这个片的方，我都买。\", \"suspect_quote\": \"这个这个片的方\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'片的方'语义不明，结合上下文（林园常提及中药），极可能是'片仔癀'的严重误识。\"}, {\"sentence_id\": 10, \"quote\": \"我这个组合，你知道粘上你。\", \"suspect_quote\": \"粘上你\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'粘上你'在口语中无明确含义，可能是'赚上你'、'占上你'或某特定术语的误识，导致句意断裂。\"}, {\"sentence_id\": 12, \"quote\": \"我这个跟你去比干啥？\", \"suspect_quote\": \"跟你去比干啥\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'跟你去比'语义不通，可能是'跟它去比'（指股票）的误识，'去'字多余或为口误但影响理解。\"}, {\"sentence_id\": 23, \"quote\": \"你花不说你解决生活问题了。\", \"suspect_quote\": \"你花不说\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'你花不说'语义不明，可能是'你花多少'、'你说说'或'这花不少'的误识，导致逻辑断裂。\"}, {\"sentence_id\": 48, \"quote\": \"因为你才几十块钱，孩子孩子是很低白人，我是有组合的。\", \"suspect_quote\": \"孩子是很低白人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'低白人'完全不符合中文表达，极可能是'低位'、'低价'或某人名/术语的严重误识（如'低倍率'？），属明显识别错误。\"}]"
+  },
+  {
+   "slug": "ly-1014-ffc958",
+   "key": "bilibili_search:BV1iaUmB2ETf",
+   "video_id": "BV1iaUmB2ETf",
+   "ts": 1791988596,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"这就是林源，被一些人捧为股神，也被更多的人骂为骗子。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为同音词“林源”（常见人名），属于专有名词错写。\"}, {\"sentence_id\": 3, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和，一上来就给我们展示他保存了多年的股票转让记录。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 13, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林元”。\"}, {\"sentence_id\": 24, \"quote\": \"我们投资是价值不价值，实际上就是一定要投资垄断的企。\", \"suspect_quote\": \"垄断的企\", \"kind\": \"unintelligible_term\", \"reason\": \"句末“企”字语义不完整，疑似应为“企业”或“公司”，属于关键名词截断导致含义不明。\"}, {\"sentence_id\": 30, \"quote\": \"一说起自己的这套价值投资方法，林源就会特别自信。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 48, \"quote\": \"我存的茅台酒，十五年的。\", \"suspect_quote\": \"十五年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中省略了产品名（茅台酒），仅保留“十五年的”指代十五年陈酿，虽非错误但属高度依赖上下文的省略表达；若严格检查数字完整性，此处缺少核心名词。不过根据指令“短句、口语省略主语...不能算识别错误”，此项暂不列入疑点，除非要求极度精确的实体补\"}]"
   }
  ],
  "reviewed_third_video_0910": {
