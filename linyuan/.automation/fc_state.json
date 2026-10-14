@@ -28713,7 +28713,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"我不能说是，我提高我互联网了，给你吃的东西，他造不出个东西的。\", \"suspect_quote\": \"我提高我互联网了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，将口语中的否定或转折词（如“没”、“不”）误识为动词“提高”，导致语义完全不通。原文语境应为“我没提高对互联网的认知”或类似表达，此处“提高我互联网了”无法解释且非行业术语。\"}, {\"sentence_id\": 17, \"quote\": \"你制造业，我一定要抓住它人的必须。\", \"suspect_quote\": \"抓住它人的必须\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，“它人的必须”含义不明，极可能是“它的护城河”或“它的壁垒”等词的误识，属于无法解释的具体词语。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1CipB6rE1M",
@@ -29051,7 +29052,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-27T07:00:54+00:00"
+   "publish_time": "2025-12-27T07:00:54+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-4a8d80",
+    "run_id": 38596807139,
+    "artifact_id": 11910972051,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38596807139,
+    "artifact_id": 11910972051,
+    "name": "production-reject-ly-1014-4a8d80",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -86050,6 +86073,13 @@
    "video_id": "BV17VL76HEg4",
    "ts": 1791994610,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"我不能说是，我提高我互联网了，给你吃的东西，他造不出个东西的。\", \"suspect_quote\": \"我提高我互联网了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，将口语中的否定或转折词（如“没”、“不”）误识为动词“提高”，导致语义完全不通。原文语境应为“我没提高对互联网的认知”或类似表达，此处“提高我互联网了”无法解释且非行业术语。\"}, {\"sentence_id\": 17, \"quote\": \"你制造业，我一定要抓住它人的必须。\", \"suspect_quote\": \"抓住它人的必须\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，“它人的必须”含义不明，极可能是“它的护城河”或“它的壁垒”等词的误识，属于无法解释的具体词语。\"}]"
+  },
+  {
+   "slug": "ly-1014-4a8d80",
+   "key": "bilibili_search:BV18UBkBPE7C",
+   "video_id": "BV18UBkBPE7C",
+   "ts": 1791995221,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
