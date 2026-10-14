@@ -3,7 +3,7 @@
   "validation_sha256": "847e35aecd2250a4f5b3aab5e19799ce32aa7eb8051732bb653f962889e345af",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791986043,
+  "updated_at": 1791986345,
   "materials": {
     "weibo_search": {
       "records": 2065,
@@ -113,18 +113,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791986043,
+    "updated_at": 1791986345,
     "records": 10061,
     "video_records": 8623,
-    "initial_candidates": 83,
-    "duration_eligible_records": 25,
-    "candidate_count": 25,
-    "known_duration_candidates": 25,
+    "initial_candidates": 82,
+    "duration_eligible_records": 24,
+    "candidate_count": 24,
+    "known_duration_candidates": 24,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1438,
       "speaker_unconfirmed": 5861,
-      "already_attempted_or_cooling": 1316,
+      "already_attempted_or_cooling": 1317,
       "clip_title": 1107,
       "noise": 18,
       "unrelated": 62,
@@ -135,14 +135,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1iaUmB2ETf",
-        "title": "林园 P1 1764042287883",
-        "source": "bilibili_series",
-        "author": "林林投资滚雪球",
-        "url": "https://www.bilibili.com/video/BV1iaUmB2ETf",
-        "duration_sec": 590.0
-      },
       {
         "key": "bilibili_search:BV1nZCvBkEZC",
         "title": "林园 P1 1763362817959",
@@ -22198,7 +22190,14 @@
           "ly-1014-3e72d7"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-3e72d7",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "原始素材短边 368 < 480（368x640），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22281,6 +22280,21 @@
         "historical_receipts": 0
       },
       {
+        "source_key": "BV1iaUmB2ETf:p1",
+        "source_url": "https://www.bilibili.com/video/BV1iaUmB2ETf",
+        "family": "BV1iaUmB2ETf",
+        "slugs": [
+          "ly-1014-ffc958"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
         "source_key": "https://m.weibo.cn/detail/5333685484129451",
         "source_url": "https://m.weibo.cn/detail/5333685484129451",
         "family": "m.weibo.cn",
@@ -22329,7 +22343,7 @@
         "terminal_editorial-or-render": 69,
         "terminal_quality-service": 8,
         "terminal_workflow-preflight": 3,
-        "terminal_source-quality": 19
+        "terminal_source-quality": 20
       },
       "BV1H4Na6kEFd": {
         "attempted_mothers": 1,
@@ -22916,9 +22930,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23195,8 +23209,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -23208,8 +23222,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -23517,8 +23531,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23682,8 +23696,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1
       },
@@ -23697,8 +23711,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -26600,6 +26614,11 @@
         "verified_seconds": 0
       },
       "BV1SYpk6FEQK": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1iaUmB2ETf": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
