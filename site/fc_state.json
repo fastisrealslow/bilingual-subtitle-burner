@@ -28705,7 +28705,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-14T10:15:00+00:00"
+   "publish_time": "2026-10-14T10:15:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-081dc0",
+    "run_id": 38591812606,
+    "artifact_id": 11908507071,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38591812606,
+    "artifact_id": 11908507071,
+    "name": "production-reject-ly-1014-081dc0",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.04秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1NXHh69EBs:p5",
@@ -28788,7 +28810,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-04T18:29:38+00:00"
+   "publish_time": "2026-10-04T18:29:38+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38593043909,
+    "artifact_id": 11908257627,
+    "name": "source-reject-ly-1014-0192bc",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[12, 13]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{12: 0.0767, 13: 0.057}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1NXHh69EBs:p2",
@@ -28810,7 +28842,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-04T18:29:38+00:00"
+   "publish_time": "2026-10-04T18:29:38+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38593451913,
+    "artifact_id": 11908632029,
+    "name": "source-reject-ly-1014-205711",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -85767,6 +85809,27 @@
    "video_id": "BV1NXHh69EBs:p5",
    "ts": 1791993064,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1014-205711",
+   "key": "bilibili_search:BV1NXHh69EBs:p2",
+   "video_id": "BV1NXHh69EBs:p2",
+   "ts": 1791993410,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1014-0192bc",
+   "key": "bilibili_search:BV1NXHh69EBs:p3",
+   "video_id": "BV1NXHh69EBs:p3",
+   "ts": 1791993411,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[12, 13]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{12: 0.0767, 13: 0.057}"
+  },
+  {
+   "slug": "ly-1014-081dc0",
+   "key": "bilibili_search:BV1CipB6rE1M",
+   "video_id": "BV1CipB6rE1M",
+   "ts": 1791993411,
+   "error": "动态取景连续2.04秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
