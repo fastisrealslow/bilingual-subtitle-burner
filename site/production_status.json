@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791993028,
+  "updated_at": 1791993143,
   "inventory_updated_at": 1791993027,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 9,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791993027,
+    "updated_at": 1791993143,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 68,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
-    "known_duration_candidates": 10,
+    "initial_candidates": 67,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1337,
+      "already_attempted_or_cooling": 1338,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -56,20 +56,20 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV1NXHh69EBs:p3",
-        "title": "林园 P3 02-希望茅台做更多的回购",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1NXHh69EBs?p=3",
-        "duration_sec": 132.0
-      },
-      {
         "key": "bilibili_search:BV1NXHh69EBs:p2",
         "title": "林园 P2 01-茅台酒供远远小于需",
         "source": "bilibili_collection",
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1NXHh69EBs?p=2",
         "duration_sec": 169.0
+      },
+      {
+        "key": "bilibili_search:BV1NXHh69EBs:p7",
+        "title": "林园 P7 05-坚守与嘴巴相关的公司",
+        "source": "bilibili_collection",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1NXHh69EBs?p=7",
+        "duration_sec": 196.0
       },
       {
         "key": "bilibili_search:BV1Ds7E6SE1y",
@@ -126,14 +126,6 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV15ctQ6rEgH",
         "duration_sec": 222.0
-      },
-      {
-        "key": "bilibili_search:BV1NXHh69EBs:p7",
-        "title": "林园 P7 05-坚守与嘴巴相关的公司",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1NXHh69EBs?p=7",
-        "duration_sec": 196.0
       }
     ]
   },
@@ -151,10 +143,11 @@
   },
   "counts": {
     "complete": 119,
-    "failed": 1034,
+    "failed": 1035,
     "paused": 5,
-    "interrupted": 6,
-    "running": 6
+    "interrupted": 5,
+    "running": 6,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -21191,11 +21184,11 @@
     },
     {
       "slug": "ly-1014-1ccb6b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1791992766,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21209,10 +21202,28 @@
     },
     {
       "slug": "ly-1014-b76908",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1791992921,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1791994857,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38592604300,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38592604300",
+      "run_started_at": "2026-10-14T15:48:40Z",
+      "run_updated_at": "2026-10-14T15:50:20Z"
+    },
+    {
+      "slug": "ly-1014-0192bc",
       "status": "running",
       "detail": "正在出片",
       "signature": {
-        "ts": 1791992921,
+        "ts": 1791993101,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
@@ -21220,10 +21231,10 @@
         "weekly_full_week": ""
       },
       "history_count": 1,
-      "run_id": 38592604300,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38592604300",
-      "run_started_at": "2026-10-14T15:48:40Z",
-      "run_updated_at": "2026-10-14T15:48:45Z"
+      "run_id": 38593043909,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38593043909",
+      "run_started_at": "2026-10-14T15:51:41Z",
+      "run_updated_at": "2026-10-14T15:51:49Z"
     }
   ],
   "runs": {
@@ -29697,12 +29708,23 @@
       "run_number": 2074,
       "display_title": "中文源出片 · ly-1014-1ccb6b"
     },
-    "ly-1014-b76908": {
-      "id": 38592604300,
+    "ly-1014-0192bc": {
+      "id": 38593043909,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-14T15:51:41Z",
+      "updated_at": "2026-10-14T15:51:49Z",
+      "run_started_at": "2026-10-14T15:51:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38593043909",
+      "run_number": 2076,
+      "display_title": "中文源出片 · ly-1014-0192bc"
+    },
+    "ly-1014-b76908": {
+      "id": 38592604300,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-14T15:48:40Z",
-      "updated_at": "2026-10-14T15:48:45Z",
+      "updated_at": "2026-10-14T15:50:20Z",
       "run_started_at": "2026-10-14T15:48:40Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38592604300",
       "run_number": 2075,
