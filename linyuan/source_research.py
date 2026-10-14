@@ -21,6 +21,8 @@ from source_gap_backfill import reference_metadata
 BASE=Path(__file__).resolve().parent
 STATE=BASE/'.automation/source_research_state.json'
 QUERIES={
+ 'simuwang_2026_10_15':['林园 私募排排网 2026 10月15日 完整版',
+                       '林园 看好AI大时代 但我不会投个股 完整版'],
  'maotai_table_exchange':['林园 茅台 股东 聚餐','林园 茅台 晚宴 红衬衫'],
  'fudan_2026_05':['林园 复旦 2026 5月23 完整版'],
  'gelong_conversation':['格隆对话林园 完整版','格隆博士会客厅 林园'],
@@ -31,6 +33,16 @@ QUERIES={
  'zhejiang_2026_01':['林园 浙江大学 2026 1月9日 完整版'],
  'historical_long_leads_20261010':['林园 2025 5 采访 完整版','林园 2006 走进资本市场 完整版'],
 }
+QUERY_NOT_BEFORE = {
+    # Official announcement is for 16:00 Beijing. Look for public replays
+    # afterwards; the announcement itself is not a mother or a filming proof.
+    'simuwang_2026_10_15': datetime(2026, 10, 15, 10, tzinfo=timezone.utc).timestamp(),
+}
+
+
+def available_search_queries(now):
+    return [(family, query) for family, queries in QUERIES.items()
+            if now >= QUERY_NOT_BEFORE.get(family, 0) for query in queries]
 
 
 def write_json(path,data):
@@ -164,9 +176,10 @@ def long_mother_rows(rows):
 def discover(catalog,state,max_queries):
     now=time.time();records=[]
     for request_index in range(max_queries):
-        queries=[(f,q) for f,qs in QUERIES.items() for q in qs]
+        queries=available_search_queries(now)
+        if not queries: break
         index=state.get('search_cursor',0)%len(queries)
-        recent=[(f,q) for f,q in queries if f=='phoenix_2026_09'
+        recent=[(f,q) for f,q in queries if f in {'simuwang_2026_10_15','phoenix_2026_09'}
                 and state.get('searches',{}).get(f+'|'+q,{}).get('next_retry_at',0)<=now]
         if request_index==0 and recent:
             family,query=recent[0]
