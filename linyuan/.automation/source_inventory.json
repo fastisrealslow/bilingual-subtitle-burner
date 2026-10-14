@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791989760,
+  "updated_at": 1791990103,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791989760,
+    "updated_at": 1791990103,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 82,
-    "duration_eligible_records": 24,
-    "candidate_count": 24,
-    "known_duration_candidates": 24,
+    "initial_candidates": 81,
+    "duration_eligible_records": 23,
+    "candidate_count": 23,
+    "known_duration_candidates": 23,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1323,
+      "already_attempted_or_cooling": 1324,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -134,14 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1jjCMBdEZu",
-        "title": "林园 P1 1763106005045",
-        "source": "bilibili_collection",
-        "author": "林林投资滚雪球",
-        "url": "https://www.bilibili.com/video/BV1jjCMBdEZu",
-        "duration_sec": 253.0
-      },
       {
         "key": "bilibili_search:BV1FpCxB1Eu3",
         "title": "林园 P1 1763028750037",
@@ -22413,6 +22405,28 @@
           "ly-1014-b83881"
         ],
         "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1014-b83881",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 426 < 480（854x426），画质不达标"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1jjCMBdEZu:p1",
+        "source_url": "https://www.bilibili.com/video/BV1jjCMBdEZu",
+        "family": "BV1jjCMBdEZu",
+        "slugs": [
+          "ly-1014-83ee23"
+        ],
+        "source_sha256": [],
         "failures": [],
         "verified_available": 0,
         "verified_live": 0,
@@ -23056,9 +23070,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23507,9 +23521,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1
+        "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23657,8 +23671,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -23823,9 +23837,9 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_workflow-preflight": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -26779,6 +26793,12 @@
         "verified_seconds": 0
       },
       "BV1bzCyB2EPv": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1jjCMBdEZu": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
