@@ -27369,9 +27369,9 @@
    "source": "weibo_search",
    "author": "资本大事纪",
    "publish_time": "2026-09-23T10:52:08+08:00",
-   "failed": false,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}, {\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"三点几亿、几万亿美金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘几点几’与‘几万亿’连用，数字表述模糊且跨度极大，可能影响对投资规模的具体理解\"}]",
-   "source_quality_rejected": false,
+   "failed": true,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27383,7 +27383,29 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37913348641,
    "source_check_run_id": 37913348641,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-abc80a",
+    "run_id": 38470528142,
+    "artifact_id": 11852161545,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 15, \"quote\": \"我我说十二年能回本，现在感觉哎，十二年回本。\", \"suspect_quote\": \"十二年能回本\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘十二年’为具体时间数值，但在口语语境中可能存在口误或听错（如实际想表达‘十年’或其他年限），且前后句存在从‘十二年’到‘七八年’的数值跳跃，需确认该数字是否为识别错误或说话人真实意图的模糊表达。\"}]"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38470528142,
+    "artifact_id": 11852161545,
+    "name": "production-reject-ly-1009-abc80a",
+    "retained": true
+   }
   },
   {
    "key": "weibo_search:5332100736883206",
@@ -27511,9 +27533,9 @@
    "source": "weibo_search",
    "author": "复利财务自由",
    "publish_time": "2026-08-04T20:27:31.724239",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那站在目前这个时间点，以目前的这个呃价格位置啊，我们认为整体来说，呃，首先第一个相对来说老登资产，我认为绝对是不输于啊所谓的这个呃，危机上游的这些小登资产啊。\", \"suspect_quote\": \"老登资产\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“小登”及发音习惯，应为“老登（Old Money/传统）”与“小登（New Money/科技）”的对比，但“老登”在中文语境下通常指代不雅词汇，此处极大概率是语音转文字将“老钱”或特定术语误识别为“\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27525,7 +27547,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37911798030,
    "source_check_run_id": 37911798030,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-c5d503",
+    "run_id": 38470962394,
+    "artifact_id": 11851409763,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那站在目前这个时间点，以目前的这个呃价格位置啊，我们认为整体来说，呃，首先第一个相对来说老登资产，我认为绝对是不输于啊所谓的这个呃，危机上游的这些小登资产啊。\", \"suspect_quote\": \"老登资产\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“小登”及发音习惯，应为“老登（Old Money/传统）”与“小登（New Money/科技）”的对比，但“老登”在中文语境下通常指代不雅词汇，此处极大概率是语音转文字将“老钱”或特定术语误识别"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38470962394,
+    "artifact_id": 11851409763,
+    "name": "production-reject-ly-1009-c5d503",
+    "retained": true
+   }
   },
   {
    "key": "weibo_search:5335552553124328",
@@ -27543,9 +27583,9 @@
    "source": "weibo_search",
    "author": "财神来了88888888",
    "publish_time": "2026-08-25T02:13:10.990800",
-   "failed": false,
+   "failed": true,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"有的人是，就是现实或者也有这种，他是大钱不缺，缺小钱，他手上没现金，生活都一天都困难，是吧？\", \"suspect_quote\": \"一天都困难\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一天都困难'中'一天'可能为口语省略（如'每一天'或'一整天'），但单独出现时含义模糊，是否指具体时长或泛指需进一步确认。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -27557,7 +27597,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37911179937,
    "source_check_run_id": 37911179937,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-1356fc",
+    "run_id": 38471295396,
+    "artifact_id": 11852141563,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"有的人是，就是现实或者也有这种，他是大钱不缺，缺小钱，他手上没现金，生活都一天都困难，是吧？\", \"suspect_quote\": \"一天都困难\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一天都困难'中'一天'可能为口语省略（如'每一天'或'一整天'），但单独出现时含义模糊，是否指具体时长或泛指需进一步确认。\"}]"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38471295396,
+    "artifact_id": 11852141563,
+    "name": "production-reject-ly-1009-1356fc",
+    "retained": true
+   }
   },
   {
    "key": "weibo_search:5335552804520158",
@@ -27575,9 +27633,9 @@
    "source": "weibo_search",
    "author": "财神来了88888888",
    "publish_time": "2026-08-25T02:13:10.990784",
-   "failed": false,
+   "failed": true,
    "last_error": "成片存在持续黑色填充边",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "visual-preflight-v2": {
@@ -27589,7 +27647,25 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 37907852159,
    "source_check_run_id": 37907852159,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1009-c04d71",
+    "run_id": 38471683589,
+    "artifact_id": 11853087506,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "成片存在持续黑色填充边"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 38471683589,
+    "artifact_id": 11853087506,
+    "name": "production-reject-ly-1009-c04d71",
+    "retained": true
+   }
   }
  ],
  "makeup_receipts": {
