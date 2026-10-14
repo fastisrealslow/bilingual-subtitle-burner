@@ -28400,7 +28400,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-12T06:28:17+00:00"
+   "publish_time": "2025-11-12T06:28:17+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-4dfa13",
+    "run_id": 38586744797,
+    "artifact_id": 11907687649,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"糖的故事是在道义。\", \"suspect_quote\": \"糖的故事是在道义\", \"kind\": \"unintelligible_term\", \"reason\": \"“在道义”语义不通，疑似将“在道理上”或“在于道义”误识别，导致关键含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是\", \"kind\": \"unintelligible_term\", \"rea"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38586744797,
+    "artifact_id": 11907687649,
+    "name": "production-reject-ly-1014-4dfa13",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"糖的故事是在道义。\", \"suspect_quote\": \"糖的故事是在道义\", \"kind\": \"unintelligible_term\", \"reason\": \"“在道义”语义不通，疑似将“在道理上”或“在于道义”误识别，导致关键含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是\", \"kind\": \"unintelligible_term\", \"reason\": \"“车上导导游”存在明显错别字和语义混乱，疑似应为“车上的导游”，当前写法无法解释。\"}, {\"sentence_id\": 9, \"quote\": \"这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"就哪怕一个点心都比正常的点心要贵十到八八到十倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述“十到八八到十倍”内部逻辑矛盾且含义不明，属于关键数字污染。\"}, {\"sentence_id\": 11, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"这就是我们点心的这个消费身体\", \"kind\": \"unintelligible_term\", \"reason\": \"“消费身体”搭配不当且含义不明，疑似错写或识别错误，无法解释其具体指代。\"}, {\"sentence_id\": 25, \"quote\": \"啊，所以糖的故事本身，这些我们说的中药企业，它一个是往新药上发展，第二个他的一些适应症啊，他的，比如说以前是肝病的，哎，他用眼花出一大堆啊，治疗抑郁症，治疗这个这个这个，呃，皮肤是吧，呃，通便都来了。\", \"suspect_quote\": \"哎，他用眼花出一大堆啊，治疗抑郁症\", \"kind\": \"unintelligible_term\", \"reason\": \"“用眼花出”语义完全不通，疑似将“用花眼出”或“用某种方式推出”等误识别，导致关键动作含义不明。\"}, {\"sentence_id\": 31, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是\", \"kind\": \"unintelligible_term\", \"reason\": \"“这个脸因为是”语义断裂且无法解释，疑似截断或严重误识别，导致句子关键信息缺失。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1FN411Q7MM",
@@ -28549,7 +28571,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-14T00:46:17+00:00"
+   "publish_time": "2026-10-14T00:46:17+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-ea50b0",
+    "run_id": 38590366770,
+    "artifact_id": 11907972663,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38590366770,
+    "artifact_id": 11907972663,
+    "name": "production-reject-ly-1014-ea50b0",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1mqpk64Esh",
@@ -85500,6 +85544,20 @@
    "video_id": "BV1FN411Q7MM",
    "ts": 1791992138,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1014-ea50b0",
+   "key": "bilibili_search:BV1Uepk6bEWR",
+   "video_id": "BV1Uepk6bEWR",
+   "ts": 1791992569,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1014-4dfa13",
+   "key": "bilibili_search:BV143CjBwEQ6",
+   "video_id": "BV143CjBwEQ6",
+   "ts": 1791992571,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"糖的故事是在道义。\", \"suspect_quote\": \"糖的故事是在道义\", \"kind\": \"unintelligible_term\", \"reason\": \"“在道义”语义不通，疑似将“在道理上”或“在于道义”误识别，导致关键含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是\", \"kind\": \"unintelligible_term\", \"reason\": \"“车上导导游”存在明显错别字和语义混乱，疑似应为“车上的导游”，当前写法无法解释。\"}, {\"sentence_id\": 9, \"quote\": \"这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"就哪怕一个点心都比正常的点心要贵十到八八到十倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述“十到八八到十倍”内部逻辑矛盾且含义不明，属于关键数字污染。\"}, {\"sentence_id\": 11, \"quote\": \"这就是我们点心的这个消费身体。\", \"suspect_quote\": \"这就是我们点心的这个消费身体\", \"kind\": \"unintelligible_term\", \"reason\": \"“消费身体”搭配不当且含义不明，疑似错写或识别错误，无法解释其具体指代。\"}, {\"sentence_id\": 25, \"quote\": \"啊，所以糖的故事本身，这些我们说的中药企业，它一个是往新药上发展，第二个他的一些适应症啊，他的，比如说以前是肝病的，哎，他用眼花出一大堆啊，治疗抑郁症，治疗这个这个这个，呃，皮肤是吧，呃，通便都来了。\", \"suspect_quote\": \"哎，他用眼花出一大堆啊，治疗抑郁症\", \"kind\": \"unintelligible_term\", \"reason\": \"“用眼花出”语义完全不通，疑似将“用花眼出”或“用某种方式推出”等误识别，导致关键动作含义不明。\"}, {\"sentence_id\": 31, \"quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是针出血了，怎么？\", \"suspect_quote\": \"深圳，前一段时间我在深圳，蹲了一下，这个脸因为是\", \"kind\": \"unintelligible_term\", \"reason\": \"“这个脸因为是”语义断裂且无法解释，疑似截断或严重误识别，导致句子关键信息缺失。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
