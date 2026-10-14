@@ -25764,7 +25764,23 @@
    "recovery_origin_run_id": 37819700797,
    "source_check_run_id": 37819700797,
    "source_check_attempts": 1,
-   "source_check_retry_after": 1791922268
+   "source_check_retry_after": 1791922268,
+   "production_failure_summary": {
+    "slug": "ly-0913-a52266-boundary16",
+    "run_id": 37819700797,
+    "artifact_id": 11570300756,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"剩下的钱是给套住了，到处上海也收了一大堆这些不上市的股票。\", \"suspect_quote\": \"到处上海也收了一大堆这些不上市的股票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘到处上海’存在明显的语义矛盾或识别错误：‘到处’通常指多个地点，而‘上海’是单一具体城市，两者连用导致空间范围含义不明。在口语中可能是‘当时在上海也收了……’的误识，也可能是‘到处（各地）和上海也收了……’的杂糅，但原文未提供上下文澄清，\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   }
   },
   {
    "key": "bilibili_search:BV1EYaZzZEAJ",
@@ -25802,7 +25818,19 @@
    "recovery_origin_run_id": 37817126078,
    "source_check_run_id": 37817126078,
    "source_check_attempts": 1,
-   "source_check_retry_after": 1791922278
+   "source_check_retry_after": 1791922278,
+   "production_failure_summary": {
+    "slug": "ly-0913-3a3572",
+    "run_id": 37817126078,
+    "artifact_id": 11569305350,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"昨天我们去日本，上我们那个车上导导游给我讲，他是日本的导。\", \"suspect_quote\": \"上我们那个车上导导游给我讲，他是日本的导\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/职务：'车上导导游'和'日本的导'语义不通，应为'车上导游'及'日本导游'。\"}, {\"sentence_id\": 9, \"quote\": \"这个老字号的东西啊，就哪怕一个点心都比正常的点心要贵十到八八到十倍。\", \"suspect_quote\": \"贵十到八八到十倍\", "
+     }
+    ]
+   }
   },
   {
    "key": "bilibili_search:BV18a411a7To",
@@ -25840,7 +25868,23 @@
    "recovery_origin_run_id": 37816686891,
    "source_check_run_id": 37816686891,
    "source_check_attempts": 1,
-   "source_check_retry_after": 1791922290
+   "source_check_retry_after": 1791922290,
+   "production_failure_summary": {
+    "slug": "ly-0913-4d8084",
+    "run_id": 37816686891,
+    "artifact_id": 11568577194,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"呃，我大概有百分之十啊，是配比，只要中国，它是品品牌公司，只要是它有一个强大的品牌，婴儿的股本，这是符合我选股条件的。\", \"suspect_quote\": \"婴儿的股本\", \"kind\": \"unintelligible_term\", \"reason\": \"该短语在金融或商业语境下无明确含义，疑似为识别错误（可能应为“婴儿期的股本”、“稳定的股本”或其他术语），属于无法解释的具体词语。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 56.67s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   }
   },
   {
    "key": "bilibili_search:BV1CK4y137E6",
@@ -87116,5 +87160,5 @@
  },
  "source_refresh_requested_at": 1791915785,
  "inventory_refresh_requested_at": 1791955525,
- "rule_recovery_page": 6
+ "rule_recovery_page": 7
 }
