@@ -27811,7 +27811,29 @@
    "delay_hours": 0,
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
-   "publish_time": "2026-10-13T19:02:03+00:00"
+   "publish_time": "2026-10-13T19:02:03+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-83cc2f",
+    "run_id": 38574833422,
+    "artifact_id": 11901975496,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38574833422,
+    "artifact_id": 11901975496,
+    "name": "production-reject-ly-1014-83cc2f",
+    "retained": true
+   },
+   "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1SYpk6FEQK",
@@ -27850,7 +27872,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1iaUmB2ETf",
@@ -84337,6 +84360,13 @@
    "video_id": "BV1SYpk6FEQK",
    "ts": 1791986414,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1014-83cc2f",
+   "key": "bilibili_search:BV1Wnpr6JEdH",
+   "video_id": "BV1Wnpr6JEdH",
+   "ts": 1791986723,
+   "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
   }
  ],
  "reviewed_third_video_0910": {
