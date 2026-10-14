@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791994182,
+  "updated_at": 1791994282,
   "inventory_updated_at": 1791994181,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 1,
     "active_or_recovering_sources": 6,
-    "waiting_candidates": 5,
+    "waiting_candidates": 4,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791994182,
+    "updated_at": 1791994282,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 63,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 62,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1342,
+      "already_attempted_or_cooling": 1343,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1DwB6BoEwM",
-        "title": "林园 P1 按照我的方法又是20倍",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1DwB6BoEwM",
-        "duration_sec": 130.0
-      },
       {
         "key": "bilibili_search:BV112iGBKE1G",
         "title": "【林园】好公司好价格 价值投资 拿住最重要 发财靠等，林园：就买两个企业25年后依然是最富的人 （2013-2016建仓",
@@ -111,7 +103,7 @@
   },
   "counts": {
     "complete": 119,
-    "failed": 1038,
+    "failed": 1039,
     "paused": 5,
     "interrupted": 6,
     "running": 5,
@@ -21243,11 +21235,11 @@
     },
     {
       "slug": "ly-1014-00c4f0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1791993441,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21261,8 +21253,8 @@
     },
     {
       "slug": "ly-1014-94eaea",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1791994089,
         "failed": null,
@@ -21275,7 +21267,25 @@
       "run_id": 38595459761,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38595459761",
       "run_started_at": "2026-10-14T16:08:09Z",
-      "run_updated_at": "2026-10-14T16:08:14Z"
+      "run_updated_at": "2026-10-14T16:10:38Z"
+    },
+    {
+      "slug": "ly-1014-e476c4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791994242,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38595828007,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38595828007",
+      "run_started_at": "2026-10-14T16:10:41Z",
+      "run_updated_at": "2026-10-14T16:10:46Z"
     }
   ],
   "runs": {
@@ -29815,12 +29825,23 @@
       "run_number": 2079,
       "display_title": "中文源出片 · ly-1014-00c4f0"
     },
-    "ly-1014-94eaea": {
-      "id": 38595459761,
+    "ly-1014-e476c4": {
+      "id": 38595828007,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-14T16:10:41Z",
+      "updated_at": "2026-10-14T16:10:46Z",
+      "run_started_at": "2026-10-14T16:10:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38595828007",
+      "run_number": 2081,
+      "display_title": "中文源出片 · ly-1014-e476c4"
+    },
+    "ly-1014-94eaea": {
+      "id": 38595459761,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-14T16:08:09Z",
-      "updated_at": "2026-10-14T16:08:14Z",
+      "updated_at": "2026-10-14T16:10:38Z",
       "run_started_at": "2026-10-14T16:08:09Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38595459761",
       "run_number": 2080,
