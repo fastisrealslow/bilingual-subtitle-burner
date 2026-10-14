@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791995164,
+  "updated_at": 1791995377,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791995164,
+    "updated_at": 1791995377,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 60,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 59,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1345,
+      "already_attempted_or_cooling": 1346,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -134,14 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1Bo4y1P7XV",
-        "title": "2012年1月6日经济半小时采访林园",
-        "source": "bilibili_search",
-        "author": "价值投资88",
-        "url": "https://www.bilibili.com/video/BV1Bo4y1P7XV",
-        "duration_sec": 483.0
-      },
       {
         "key": "bilibili_search:BV15ctQ6rEgH",
         "title": "林园 P1 03_老龄化才刚到零年，未来三十年从零到无限大",
@@ -22554,28 +22546,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1uq1oBWE4d:p1",
-        "source_url": "https://www.bilibili.com/video/BV1uq1oBWE4d",
-        "family": "BV1uq1oBWE4d",
-        "slugs": [
-          "ly-1014-b76908"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1014-b76908",
-            "stage": "source-fetch",
-            "terminal": false,
-            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 120.10s 与请求页面 583.00s 不匹配（容差 29.15s）"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1NXHh69EBs:p3",
         "source_url": "https://www.bilibili.com/video/BV1NXHh69EBs?p=3",
         "family": "BV1NXHh69EBs",
@@ -22714,6 +22684,50 @@
         "family": "BV18UBkBPE7C",
         "slugs": [
           "ly-1014-4a8d80"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1014-4a8d80",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1uq1oBWE4d:p1",
+        "source_url": "https://www.bilibili.com/video/BV1uq1oBWE4d",
+        "family": "BV1uq1oBWE4d",
+        "slugs": [
+          "ly-1014-b76908"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1014-b76908",
+            "stage": "source-fetch",
+            "terminal": false,
+            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 120.10s 与请求页面 583.00s 不匹配（容差 29.15s）"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1Bo4y1P7XV:p1",
+        "source_url": "https://www.bilibili.com/video/BV1Bo4y1P7XV",
+        "family": "BV1Bo4y1P7XV",
+        "slugs": [
+          "ly-1014-e112b5"
         ],
         "source_sha256": [],
         "failures": [],
@@ -23359,8 +23373,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
@@ -23810,9 +23824,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23960,8 +23974,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -24125,10 +24139,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -27161,11 +27175,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1uq1oBWE4d": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1Ds7E6SE1y": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -27188,6 +27197,17 @@
         "verified_seconds": 0
       },
       "BV18UBkBPE7C": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
+      },
+      "BV1uq1oBWE4d": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1Bo4y1P7XV": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
