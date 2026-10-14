@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791991345,
+  "updated_at": 1791991514,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791991345,
+    "updated_at": 1791991514,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 76,
-    "duration_eligible_records": 18,
-    "candidate_count": 18,
-    "known_duration_candidates": 18,
+    "initial_candidates": 74,
+    "duration_eligible_records": 16,
+    "candidate_count": 16,
+    "known_duration_candidates": 16,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1329,
+      "already_attempted_or_cooling": 1331,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -134,22 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1fykrBQEbq",
-        "title": "林园 P1 1762865963831",
-        "source": "bilibili_collection",
-        "author": "林林投资滚雪球",
-        "url": "https://www.bilibili.com/video/BV1fykrBQEbq",
-        "duration_sec": 245.0
-      },
-      {
-        "key": "bilibili_search:BV18jLF6xE75",
-        "title": "《林园》2026年股东大会现场语录！",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV18jLF6xE75",
-        "duration_sec": 72.0
-      },
       {
         "key": "bilibili_search:BV1uq1oBWE4d",
         "title": "【完整版】对话股神林园：对未来趋势的判断！",
@@ -22452,7 +22436,14 @@
           "ly-1014-59c455"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-59c455",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"他又不能创创造什么，最多是个金箔搞一搞那个。\", \"suspect_quote\": \"他又不能创创造什么\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'创创造'为重复字，结合上下文语境（讨论黄金属性），原意应为动词'创造'或名词'创新'，此处多出的'创'字导致语义不通。\"}, {\"sentence_id\": 10, \"quote\": \"但是也有宏观首席统计，他说他是不输标普五百的，其实。\", \"suspect_quote\": \"宏观首席统计\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'宏观首席统计'不符合常见职位称谓（通常为'宏观首席经济学家'或'首席统计师'），且后文提到'他说'，此处极可能是将人名（如'马克·莫迪利安尼'等音译）误识别为通用名词短语。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22467,7 +22458,14 @@
           "ly-1014-6e307c"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-6e307c",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22495,6 +22493,36 @@
         "family": "BV1FN411Q7MM",
         "slugs": [
           "ly-1014-efda02"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV18jLF6xE75:p1",
+        "source_url": "https://www.bilibili.com/video/BV18jLF6xE75",
+        "family": "BV18jLF6xE75",
+        "slugs": [
+          "ly-1014-0398d6"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1fykrBQEbq:p1",
+        "source_url": "https://www.bilibili.com/video/BV1fykrBQEbq",
+        "family": "BV1fykrBQEbq",
+        "slugs": [
+          "ly-1014-a04f78"
         ],
         "source_sha256": [],
         "failures": [],
@@ -23591,9 +23619,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23906,9 +23934,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_visual-review": 1,
         "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
@@ -23921,8 +23949,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -26886,12 +26914,14 @@
       "BV1zAC4B7Eop": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV159CsBvEMi": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV143CjBwEQ6": {
         "attempted_mothers": 1,
@@ -26899,6 +26929,16 @@
         "verified_seconds": 0
       },
       "BV1FN411Q7MM": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV18jLF6xE75": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1fykrBQEbq": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
