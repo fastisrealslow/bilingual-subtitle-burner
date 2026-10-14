@@ -29317,7 +29317,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-14T14:26:00+00:00"
+   "publish_time": "2026-10-14T14:26:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1014-3bf504",
+    "run_id": 38601944432,
+    "artifact_id": 11913783518,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38601944432,
+    "artifact_id": 11913783518,
+    "name": "production-reject-ly-1014-3bf504",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -86351,6 +86373,13 @@
    "video_id": "BV15ctQ6rEgH",
    "ts": 1791996414,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"到二零五七年的话，这个人口数量增加到十四亿九。\", \"suspect_quote\": \"到二零五七年的话，这个人口数量增加到十四亿九。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'十四亿九'表述模糊且不符合常规统计逻辑（通常指'十四亿九千万'或具体数值），在缺乏上下文单位的情况下，该数字含义不明，可能影响对人口规模预测的理解。\"}, {\"sentence_id\": 16, \"quote\": \"大概我，我五十七岁的时候，我的支出方面的开支是零。\", \"suspect_quote\": \"大概我，我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在此处作为具体金额描述存在疑点：结合后文提到的每月两千五元及药物费用，此处'零'若指实际支出为零则与常理矛盾（除非特指某类未发生支出的项目），但原文未明确限定范围，导致数字含义不清。\"}]"
+  },
+  {
+   "slug": "ly-1014-3bf504",
+   "key": "bilibili_search:BV1u2pN6dEvq",
+   "video_id": "BV1u2pN6dEvq",
+   "ts": 1791997413,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
