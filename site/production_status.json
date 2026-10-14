@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1791988575,
+  "updated_at": 1791988653,
   "inventory_updated_at": 1791988574,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 27,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 26,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791988574,
+    "updated_at": 1791988652,
     "records": 10090,
     "video_records": 8649,
-    "initial_candidates": 85,
-    "duration_eligible_records": 27,
-    "candidate_count": 27,
-    "known_duration_candidates": 27,
+    "initial_candidates": 84,
+    "duration_eligible_records": 26,
+    "candidate_count": 26,
+    "known_duration_candidates": 26,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
       "speaker_unconfirmed": 5884,
-      "already_attempted_or_cooling": 1320,
+      "already_attempted_or_cooling": 1321,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV12N411175D",
-        "title": "【林园专辑】之湖北卫视微观世界栏目组采访",
-        "source": "bilibili_search",
-        "author": "金融投资说",
-        "url": "https://www.bilibili.com/video/BV12N411175D",
-        "duration_sec": 1453.0
-      },
       {
         "key": "bilibili_search:BV1ZDCSBCEbP",
         "title": "林园 P1 1763257594544",
@@ -287,10 +279,10 @@
   },
   "counts": {
     "complete": 118,
-    "failed": 1019,
+    "failed": 1020,
     "paused": 5,
-    "interrupted": 6,
-    "running": 5
+    "interrupted": 5,
+    "running": 6
   },
   "tasks": [
     {
@@ -20985,11 +20977,11 @@
     },
     {
       "slug": "ly-1014-ffc958",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"这就是林源，被一些人捧为股神，也被更多的人骂为骗子。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为同音词“林源”（常见人名），属于专有名词错写。\"}, {\"sentence_id\": 3, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和，一上来就给我们展示他保存了多年的股票转让记录。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 13, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林元”。\"}, {\"sentence_id\": 24, \"quote\": \"我们投资是价值不价值，实际上就是一定要投资垄断的企。\", \"suspect_quote\": \"垄断的企\", \"kind\": \"unintelligible_term\", \"reason\": \"句末“企”字语义不完整，疑似应为“企业”或“公司”，属于关键名词截断导致含义不明。\"}, {\"sentence_id\": 30, \"quote\": \"一说起自己的这套价值投资方法，林源就会特别自信。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 48, \"quote\": \"我存的茅台酒，十五年的。\", \"suspect_quote\": \"十五年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中省略了产品名（茅台酒），仅保留“十五年的”指代十五年陈酿，虽非错误但属高度依赖上下文的省略表达；若严格检查数字完整性，此处缺少核心名词。不过根据指令“短句、口语省略主语...不能算识别错误”，此项暂不列入疑点，除非要求极度精确的实体补\"}]",
       "signature": {
         "ts": 1791986092,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21054,6 +21046,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38581119430",
       "run_started_at": "2026-10-14T14:30:27Z",
       "run_updated_at": "2026-10-14T14:30:31Z"
+    },
+    {
+      "slug": "ly-1014-212044",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1791988612,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38582084338,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38582084338",
+      "run_started_at": "2026-10-14T14:36:52Z",
+      "run_updated_at": "2026-10-14T14:36:56Z"
     }
   ],
   "runs": {
@@ -29350,6 +29360,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38575857369",
       "run_number": 2054,
       "display_title": "中文源出片 · ly-1014-ffc958"
+    },
+    "ly-1014-212044": {
+      "id": 38582084338,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-14T14:36:52Z",
+      "updated_at": "2026-10-14T14:36:56Z",
+      "run_started_at": "2026-10-14T14:36:52Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38582084338",
+      "run_number": 2058,
+      "display_title": "中文源出片 · ly-1014-212044"
     },
     "ly-1014-1739cd": {
       "id": 38581119430,
