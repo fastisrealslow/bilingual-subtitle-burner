@@ -446,8 +446,9 @@ def test_publisher_cas_race_waits_but_never_steals_lease(monkeypatch):
     assert events[-1][0]=='publish_noop'
 
 
-def test_stock_target_stops_source_expansion(monkeypatch):
-    monkeypatch.setattr(fc,'load_state',lambda:dict(dispatched=[],published={}))
+def test_stock_target_stops_source_expansion_after_daily_recent_probe(monkeypatch):
+    monkeypatch.setattr(fc,'load_state',lambda:dict(dispatched=[],published={},
+        recent_context_probe_date=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))))
     monkeypatch.setattr(fc,'_collect_source_rejections',lambda st:0)
     monkeypatch.setattr(fc,'source_inventory',lambda st:dict(daily_mix_usable=12,verified_landscape=2))
     monkeypatch.setattr(fc,'gh',lambda *a,**kw: (_ for _ in ()).throw(AssertionError('unnecessary new job')))
