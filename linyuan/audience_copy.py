@@ -4,12 +4,71 @@ No model rewrite, invented firsthand experience, changed financial judgment,
 removed provenance or suppressed synthetic-media/rights disclosure.
 """
 import re
+from datetime import date, datetime, timezone
 
-VERSION = 2026101202
+VERSION = 2026101401
 _LEAD = re.compile(r'^本段讨论\s*[：:]\s*')
 _SERIES = re.compile(
     r'^同场访谈分集：第 (\d+)/(\d+) 集'
     r'（各集独立成篇，发布以主页为准）\s*$')
+
+
+def speech_date_evidence(item, now=None):
+    """Source title dates are clues, never upload clocks or verified dates."""
+    item = item or {}
+    extra = item.get('extra') or {}
+    if isinstance(extra, str):
+        try: extra = __import__('json').loads(extra)
+        except (ValueError, TypeError): extra = {}
+    if not isinstance(extra, dict): extra = {}
+    context = item.get('speech_date_context') or {}
+    if not isinstance(context, dict): context = {}
+    texts = [context.get('date'), extra.get('content_date_hint'),
+             extra.get('collection_title'), item.get('title'), item.get('occasion')]
+    today = datetime.fromtimestamp(now, timezone.utc).date() if now is not None else datetime.now(timezone.utc).date()
+    dates = set()
+    for text in texts:
+        for match in re.finditer(r'(?<!\d)((?:19|20)\d{2})[年./-](\d{1,2})[月./-](\d{1,2})(?:日)?(?!\d)', str(text or '')):
+            try: value = date(*map(int, match.groups()))
+            except ValueError: continue
+            if value <= today: dates.add(value.isoformat())
+    if len(dates) != 1:
+        return dict(date=None, verified=False, basis='conflicting_dates' if dates else 'unknown')
+    value = dates.pop()
+    # A repost timestamp is not the speech date, but speech after the known
+    # original upload is impossible (allow one day for timezone uncertainty).
+    try:
+        uploaded = datetime.fromisoformat(item.get('publish_time', '').replace('Z', '+00:00')).date()
+        if (date.fromisoformat(value)-uploaded).days > 1:
+            return dict(date=None, verified=False, basis='date_after_source_upload')
+    except (ValueError, TypeError, AttributeError): pass
+    return dict(date=value, verified=False, basis='source_metadata_unverified')
+
+
+def dated_description(value, part, entry=None):
+    """Add source-time context at publication, including existing inventory."""
+    text = description(value)
+    # Our own suffix is idempotent; preserve all original audience copy.
+    marker = '\n\n【原始讲话信息】\n'
+    text = text.split(marker, 1)[0].rstrip()
+    evidence = speech_date_evidence(entry or part)
+    when = (evidence['date'] + '（原片标注，尚未独立核实）'
+            if evidence['date'] else '暂未核实')
+    lines = [f'讲话时间：{when}；不是本次上传时间。']
+    segments = part.get('segments') or part.get('source_segments') or []
+    def clock(value):
+        seconds = int(float(value))
+        return f'{seconds//3600:02d}:{seconds//60%60:02d}:{seconds%60:02d}'
+    intervals = []
+    for segment in segments[:10]:
+        try:
+            start, end = float(segment['start']), float(segment['end'])
+            if not __import__('math').isfinite(start+end) or not 0 <= start < end: continue
+            intervals.append(clock(start) + '–' + clock(end))
+        except (KeyError, TypeError, ValueError, OverflowError): continue
+    if intervals: lines.append('原视频位置：' + '、'.join(intervals))
+    lines.append('请结合当时背景理解，不代表对当前行情的判断。')
+    return text + marker + '\n'.join(lines)
 
 
 def description(value, speaker='林园'):

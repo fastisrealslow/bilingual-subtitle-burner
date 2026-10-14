@@ -10,13 +10,25 @@ import json
 import os
 from pathlib import Path
 import time
-from audience_copy import collection_copy
+from datetime import datetime, timezone, timedelta
+from audience_copy import collection_copy, speech_date_evidence
 from collection_registry import Store, RegistryError, validate as validate_registry
 
 OWNER_MID=275211725
 CREATOR='https://member.bilibili.com'
 PUBLIC='https://api.bilibili.com'
 MARKER='自动整理标识：ly-series:'
+# Keep existing same-source collections in place. New daily collections use
+# actual publication receipts, not filming dates or unpublished inventory.
+DAILY_COLLECTION_START = '2026-10-15'
+
+
+def published_day(part):
+    stamp = part.get('ts')
+    if isinstance(stamp, bool) or not isinstance(stamp, (float, int)) or stamp <= 0:
+        return None
+    try: return datetime.fromtimestamp(stamp, timezone(timedelta(hours=8))).date().isoformat()
+    except (ValueError, OSError, OverflowError): return None
 
 
 class CollectionError(Exception):
@@ -99,10 +111,20 @@ class Client:
 def plans(state):
     """Same-source published batches only; not assumed full interviews/series."""
     result=[]
+    daily={}
+    entries={e.get('slug'):e for e in sorted(state.get('dispatched') or [],
+                                            key=lambda e:e.get('ts') or 0)}
     for slug,receipt in sorted((state.get('published') or {}).items()):
         source=receipt.get('source_url')
         parts=[p for p in receipt.get('parts') or [] if p.get('bvid')
                and p.get('status','published')=='published']
+        legacy=[]
+        for part in parts:
+            day=published_day(part)
+            if source and day and day>=DAILY_COLLECTION_START:
+                daily.setdefault(day,[]).append((slug,part,entries.get(slug) or {}))
+            else: legacy.append(part)
+        parts=legacy
         if not source or not 2<=len(parts)<=50:continue
         if len({p['bvid'] for p in parts})!=len(parts):continue
         if not all(isinstance(p.get('part_index'),int) and p['part_index']>=0 for p in parts):
@@ -115,6 +137,21 @@ def plans(state):
         result.append(dict(key=key,slug=slug,source_url=source,
             title=title, description=description,
             bvids=[p['bvid'] for p in parts]))
+    for day,rows in sorted(daily.items(), reverse=True):
+        rows.sort(key=lambda row:(row[1]['ts'],row[1]['bvid']))
+        if not 2<=len(rows)<=50 or len({row[1]['bvid'] for row in rows})!=len(rows):continue
+        key=hashlib.sha256(('daily-published-v1\n'+day).encode()).hexdigest()[:20]
+        dates=set()
+        for _,part,entry in rows:
+            hint=speech_date_evidence(entry)['date']
+            if hint: dates.add(hint)
+        context=('原片标注日期：'+ '、'.join(sorted(dates)[:3])+'（待核实）。'
+                 if dates else '')
+        result.insert(0,dict(key=key,slug='daily-'+day,source_url='daily-published:'+day,
+            title='林园｜'+day+' 更新',description=(
+                f'共 {len(rows)} 条，按当天发布顺序整理，包含长短视频；标题日期是更新日期，不是讲话日期。'
+                +context+'每条讲话时间和原片位置见视频简介；未知日期会标明未核实。'),
+            bvids=[part['bvid'] for _,part,_ in rows]))
     return result
 
 

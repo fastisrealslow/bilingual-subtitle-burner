@@ -23,6 +23,8 @@ def freshness_evidence(candidate, now):
         except (TypeError, ValueError):extra = {}
     if not isinstance(extra, dict):extra = {}
     hint = extra.get('content_date_hint')
+    from audience_copy import speech_date_evidence
+    hint = speech_date_evidence(candidate, now)['date'] or hint
     if hint:
         try:
             date = datetime.fromisoformat(hint).replace(tzinfo=timezone.utc)
@@ -39,6 +41,15 @@ def freshness_evidence(candidate, now):
                     content_date_verified=False)
     except (ValueError, TypeError, AttributeError):
         return dict(score=0, basis='date_unavailable', content_date_verified=False)
+
+
+def recording_recency_rank(candidate, now):
+    """Recent *source date clues* before unknown/old; never claim verification."""
+    from audience_copy import speech_date_evidence
+    hint = speech_date_evidence(candidate, now)['date']
+    if not hint: return 1
+    age = now - datetime.fromisoformat(hint).replace(tzinfo=timezone.utc).timestamp()
+    return 0 if 0 <= age <= 30 * 86400 else 2
 
 # Exact pages with first-party interview bylines, not a platform-wide whitelist.
 # This ranks provenance only: it neither proves a reference match nor grants reuse.
