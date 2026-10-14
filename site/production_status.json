@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1791934408,
-  "inventory_updated_at": 1791934370,
+  "updated_at": 1791940662,
+  "inventory_updated_at": 1791940656,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791934408,
+    "updated_at": 1791940662,
     "records": 10035,
     "video_records": 8603,
     "initial_candidates": 80,
@@ -247,10 +247,10 @@
   },
   "counts": {
     "complete": 117,
-    "failed": 995,
+    "failed": 999,
     "paused": 5,
     "ready": 5,
-    "interrupted": 10,
+    "interrupted": 6,
     "excluded": 1,
     "retry_queued": 10
   },
@@ -20749,11 +20749,11 @@
     },
     {
       "slug": "ly-1009-abc80a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"可全球的科技股，比如说美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖，啊，他们对未来好像三年的投资是达到三点几亿、几万亿美金，但是这些投资的未来的回报大概就是三千多亿美金。\", \"suspect_quote\": \"美国的奇小龙啊，奇小龙还是奇奇数投的，奇数卖\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将专有名词“奇虎 360\"}]",
       "signature": {
         "ts": 1791926746,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20785,11 +20785,11 @@
     },
     {
       "slug": "ly-1009-c5d503",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那站在目前这个时间点，以目前的这个呃价格位置啊，我们认为整体来说，呃，首先第一个相对来说老登资产，我认为绝对是不输于啊所谓的这个呃，危机上游的这些小登资产啊。\", \"suspect_quote\": \"老登资产\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词，结合上下文“小登”及发音习惯，应为“老登（Old Money/传统）”与“小登（New Money/科技）”的对比，但“老登”在中文语境下通常指代不雅词汇，此处极大概率是语音转文字将“老钱”或特定术语误识别为“\"}]",
       "signature": {
         "ts": 1791926953,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20803,11 +20803,11 @@
     },
     {
       "slug": "ly-1009-1356fc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"有的人是，就是现实或者也有这种，他是大钱不缺，缺小钱，他手上没现金，生活都一天都困难，是吧？\", \"suspect_quote\": \"一天都困难\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一天都困难'中'一天'可能为口语省略（如'每一天'或'一整天'），但单独出现时含义模糊，是否指具体时长或泛指需进一步确认。\"}]",
       "signature": {
         "ts": 1791927107,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -20821,11 +20821,11 @@
     },
     {
       "slug": "ly-1009-c04d71",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "成片存在持续黑色填充边",
       "signature": {
         "ts": 1791927296,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
