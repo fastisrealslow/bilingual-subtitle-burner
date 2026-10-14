@@ -28921,7 +28921,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1NXHh69EBs:p7",
@@ -28943,7 +28944,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-04T18:29:38+00:00"
+   "publish_time": "2026-10-04T18:29:38+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38595459761,
+    "artifact_id": 11909637820,
+    "name": "source-reject-ly-1014-94eaea",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1DwB6BoEwM",
@@ -85950,6 +85961,13 @@
    "video_id": "BV19sjq6BEHM",
    "ts": 1791994206,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1014-94eaea",
+   "key": "bilibili_search:BV1NXHh69EBs:p7",
+   "video_id": "BV1NXHh69EBs:p7",
+   "ts": 1791994362,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
