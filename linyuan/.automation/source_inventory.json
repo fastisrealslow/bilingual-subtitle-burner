@@ -3,7 +3,7 @@
   "validation_sha256": "4aa218ba81b06dfe08c1f591b1711c6957530f7885b4185f5e133101ca62cfbc",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1791988170,
+  "updated_at": 1791988435,
   "materials": {
     "weibo_search": {
       "records": 2069,
@@ -27,10 +27,10 @@
       "duration_unknown": 15
     },
     "bilibili_search": {
-      "records": 5553,
-      "video_candidates": 5547,
-      "duration_eligible": 4790,
-      "long_mother_candidates": 2317,
+      "records": 5556,
+      "video_candidates": 5550,
+      "duration_eligible": 4793,
+      "long_mother_candidates": 2320,
       "over_limit": 643,
       "too_short": 36,
       "duration_unknown": 78,
@@ -49,8 +49,8 @@
       "video_candidates": 61,
       "duration_eligible": 13,
       "long_mother_candidates": 4,
-      "duration_unknown": 41,
-      "too_short": 7,
+      "duration_unknown": 42,
+      "too_short": 6,
       "reference_only": 1
     },
     "bilibili_collection": {
@@ -75,8 +75,7 @@
     "yicai_video": {
       "records": 9,
       "video_candidates": 9,
-      "duration_unknown": 7,
-      "duration_eligible": 2
+      "duration_unknown": 9
     },
     "bilibili_series": {
       "records": 132,
@@ -113,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1791988170,
-    "records": 10087,
-    "video_records": 8646,
-    "initial_candidates": 86,
-    "duration_eligible_records": 28,
-    "candidate_count": 28,
-    "known_duration_candidates": 28,
+    "updated_at": 1791988435,
+    "records": 10090,
+    "video_records": 8649,
+    "initial_candidates": 85,
+    "duration_eligible_records": 27,
+    "candidate_count": 27,
+    "known_duration_candidates": 27,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1441,
-      "speaker_unconfirmed": 5881,
-      "already_attempted_or_cooling": 1319,
+      "speaker_unconfirmed": 5884,
+      "already_attempted_or_cooling": 1320,
       "clip_title": 1104,
       "noise": 18,
       "unrelated": 62,
@@ -135,14 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1btCSB8EJM",
-        "title": "林园 P1 1763260633883",
-        "source": "bilibili_series",
-        "author": "林林投资滚雪球",
-        "url": "https://www.bilibili.com/video/BV1btCSB8EJM",
-        "duration_sec": 475.0
-      },
       {
         "key": "bilibili_search:BV12N411175D",
         "title": "【林园专辑】之湖北卫视微观世界栏目组采访",
@@ -22259,7 +22250,14 @@
           "ly-1014-6bb758"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1014-6bb758",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"就是就是，你现在更看好达林通还是并彩王？\", \"suspect_quote\": \"达林通还是并彩王\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'达林通'和'并彩王'在金融/医药领域无对应知名实体，极可能是语音识别将人名或股票名（如'达仁堂'、'片仔癀'等）错误转录为谐音词。\"}, {\"sentence_id\": 8, \"quote\": \"我并不是说是啊，这个这个片的方，我都买。\", \"suspect_quote\": \"这个这个片的方\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'片的方'语义不明，结合上下文（林园常提及中药），极可能是'片仔癀'的严重误识。\"}, {\"sentence_id\": 10, \"quote\": \"我这个组合，你知道粘上你。\", \"suspect_quote\": \"粘上你\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'粘上你'在口语中无明确含义，可能是'赚上你'、'占上你'或某特定术语的误识，导致句意断裂。\"}, {\"sentence_id\": 12, \"quote\": \"我这个跟你去比干啥？\", \"suspect_quote\": \"跟你去比干啥\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'跟你去比'语义不通，可能是'跟它去比'（指股票）的误识，'去'字多余或为口误但影响理解。\"}, {\"sentence_id\": 23, \"quote\": \"你花不说你解决生活问题了。\", \"suspect_quote\": \"你花不说\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'你花不说'语义不明，可能是'你花多少'、'你说说'或'这花不少'的误识，导致逻辑断裂。\"}, {\"sentence_id\": 48, \"quote\": \"因为你才几十块钱，孩子孩子是很低白人，我是有组合的。\", \"suspect_quote\": \"孩子是很低白人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'低白人'完全不符合中文表达，极可能是'低位'、'低价'或某人名/术语的严重误识（如'低倍率'？），属明显识别错误。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -22361,6 +22359,21 @@
         "family": "BV1nZCvBkEZC",
         "slugs": [
           "ly-1014-498d03"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1btCSB8EJM:p1",
+        "source_url": "https://www.bilibili.com/video/BV1btCSB8EJM",
+        "family": "BV1btCSB8EJM",
+        "slugs": [
+          "ly-1014-1739cd"
         ],
         "source_sha256": [],
         "failures": [],
@@ -23006,9 +23019,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23457,9 +23470,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -23772,10 +23785,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_editorial-or-render": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -26682,7 +26695,8 @@
       "BV1BoKD6ZELp": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1Wnpr6JEdH": {
         "attempted_mothers": 1,
@@ -26707,6 +26721,11 @@
         "verified_seconds": 0
       },
       "BV1nZCvBkEZC": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1btCSB8EJM": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
