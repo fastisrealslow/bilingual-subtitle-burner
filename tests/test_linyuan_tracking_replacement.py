@@ -132,3 +132,17 @@ def test_async_failure_has_safe_receipt_without_automatic_upload_replay(monkeypa
     assert result['status']=='repair_failed' and result['new_posts']==0
     assert result['error_type']=='RuntimeError' and result['frames']
     assert 'secret' not in json.dumps(result) and 'secret' not in json.dumps(events)
+
+
+def test_cookie_shape_uses_installed_interface_without_authentication_retry():
+    class Mainland:
+        def login(self,cookie):return cookie['cookie_info']['cookies']
+    class CI:
+        def login(self,cookie):return cookie['DedeUserID']
+    values=dict(DedeUserID='275211725',bili_jct='test-only')
+    exported=dict(cookie_info=dict(cookies=[]),token_info=dict(access_token='test-only'))
+    nested=r.cookie_login_payload(Mainland().login,exported,values)
+    assert Mainland().login(nested)==[dict(name=k,value=v) for k,v in values.items()]
+    assert nested['token_info']==exported['token_info']
+    assert CI().login(r.cookie_login_payload(CI().login,exported,values))=='275211725'
+    assert exported['cookie_info']['cookies']==[]

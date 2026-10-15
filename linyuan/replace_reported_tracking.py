@@ -134,6 +134,19 @@ def apply(fc, directory, client, csrf, validator):
         old_cid=OLD_CID,archive_state=archive.get('state'),new_posts=0)
 
 
+def cookie_login_payload(login, cookie, values):
+    # Mainland's retained layer reads the complete biliup cookie export;
+    # CI's pinned wheel reads a flat requests cookie mapping. Determine the
+    # local Python implementation before login, never retry authentication.
+    code=getattr(login,'__code__',None)
+    if code is None:raise ValueError('Unknown uploader cookie interface')
+    if 'cookie_info' in code.co_consts:
+        result=copy.deepcopy(cookie)
+        result['cookie_info']=dict(cookies=[dict(name=k,value=v) for k,v in values.items()])
+        return result
+    return values
+
+
 def client_from_cookies(owner_mid):
     from biliup.plugins.bili_webup import BiliBili, Data
     from requests.adapters import HTTPAdapter
@@ -143,6 +156,7 @@ def client_from_cookies(owner_mid):
     if values.get('DedeUserID')!=str(owner_mid) or not values.get('bili_jct'):
         raise ValueError('Repair account mismatch')
     logging.getLogger('biliup').setLevel(logging.WARNING)
-    client=BiliBili(Data());client.login_by_cookies(values)
+    client=BiliBili(Data())
+    client.login_by_cookies(cookie_login_payload(client.login_by_cookies,cookie,values))
     client._BiliBili__session.mount('https://',HTTPAdapter(max_retries=0))
     return client,values['bili_jct']
