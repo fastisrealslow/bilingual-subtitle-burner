@@ -3,13 +3,13 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792071604,
+  "updated_at": 1792071895,
   "materials": {
     "weibo_search": {
-      "records": 2113,
-      "video_candidates": 793,
-      "duration_eligible": 390,
-      "long_mother_candidates": 120,
+      "records": 2120,
+      "video_candidates": 798,
+      "duration_eligible": 395,
+      "long_mother_candidates": 121,
       "too_short": 48,
       "over_limit": 1,
       "duration_unknown": 354
@@ -30,22 +30,26 @@
       "duration_unknown": 15
     },
     "reference_origin_search": {
-      "records": 754,
-      "video_candidates": 754,
-      "duration_eligible": 542,
-      "long_mother_candidates": 289,
+      "records": 755,
+      "video_candidates": 755,
+      "duration_eligible": 543,
+      "long_mother_candidates": 290,
       "over_limit": 209,
       "too_short": 3
     },
     "bilibili_search": {
-      "records": 5706,
-      "video_candidates": 5700,
-      "duration_eligible": 4922,
-      "long_mother_candidates": 2384,
+      "records": 5716,
+      "video_candidates": 5710,
+      "duration_eligible": 4932,
+      "long_mother_candidates": 2390,
       "too_short": 38,
       "over_limit": 662,
       "duration_unknown": 78,
       "reference_only": 6
+    },
+    "competitor_reference": {
+      "records": 1007,
+      "reference_only": 1007
     },
     "netease_video": {
       "records": 63,
@@ -63,10 +67,6 @@
       "long_mother_candidates": 202,
       "over_limit": 3
     },
-    "competitor_reference": {
-      "records": 1005,
-      "reference_only": 1005
-    },
     "primary_clip_catalog": {
       "records": 2,
       "video_candidates": 2,
@@ -75,8 +75,7 @@
     "yicai_video": {
       "records": 9,
       "video_candidates": 9,
-      "duration_unknown": 7,
-      "duration_eligible": 2
+      "duration_unknown": 9
     },
     "bilibili_series": {
       "records": 132,
@@ -113,19 +112,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792071604,
-    "records": 10311,
-    "video_records": 8832,
-    "initial_candidates": 58,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792071895,
+    "records": 10331,
+    "video_records": 8850,
+    "initial_candidates": 62,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1479,
-      "speaker_unconfirmed": 6055,
+      "speaker_unconfirmed": 6066,
+      "clip_title": 1101,
+      "no_video": 1481,
       "already_attempted_or_cooling": 1363,
-      "clip_title": 1098,
       "noise": 19,
       "unrelated": 62,
       "ai_content": 36,
@@ -134,7 +133,40 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1zRJ26DEok",
+        "title": "10月15日林园：看好AI大时代，但我不会投个股！",
+        "source": "reference_origin_search",
+        "author": "价值财说",
+        "url": "https://www.bilibili.com/video/BV1zRJ26DEok",
+        "duration_sec": 3601.0
+      },
+      {
+        "key": "weibo_search:5354384407659772",
+        "title": "投资大佬林园谈为何不投AI个股：你无法判断今天的领先企业，在若干年后是否还能继续领先，就像人一样“富不过三”。新技术的竞",
+        "source": "weibo_search",
+        "author": "大川成长价值投资",
+        "url": "https://m.weibo.cn/detail/5354384407659772",
+        "duration_sec": 46.0
+      },
+      {
+        "key": "weibo_search:5354385484813460",
+        "title": "预测未来需求有多难？林园分享了一个真实案例：一家军工企业手握五年订单，却因无人机的出现而迅速没落。技术变革带来的需求变化",
+        "source": "weibo_search",
+        "author": "大川成长价值投资",
+        "url": "https://m.weibo.cn/detail/5354385484813460",
+        "duration_sec": 57.0
+      },
+      {
+        "key": "bilibili_search:BV1P5Jr6CEfU",
+        "title": "关注+收藏 林园：行业长期持有，但是头部企业会从A换到B | 常识是最稀缺的认知!",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1P5Jr6CEfU",
+        "duration_sec": 57.0
+      }
+    ]
   },
   "source_outcomes": {
     "mothers": [
@@ -23073,7 +23105,14 @@
           "ly-1015-c39c94"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-c39c94",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23760,9 +23799,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24039,8 +24078,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24052,8 +24091,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24211,9 +24250,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -24361,8 +24400,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -24526,10 +24565,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
         "terminal_visual-review": 1,
-        "terminal_editorial-or-render": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_editorial-or-render": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -24541,8 +24580,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27685,7 +27724,8 @@
       "BV1Tc41137tB": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV18CpU6mE5L": {
         "attempted_mothers": 1,
@@ -27701,6 +27741,6 @@
       }
     }
   },
-  "in_flight_placeholders": 2,
+  "in_flight_placeholders": 1,
   "artifacts": []
 }
