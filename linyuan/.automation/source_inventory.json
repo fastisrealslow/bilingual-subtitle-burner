@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792070194,
+  "updated_at": 1792070952,
   "materials": {
     "weibo_search": {
       "records": 2113,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792070194,
+    "updated_at": 1792070952,
     "records": 10311,
     "video_records": 8832,
     "initial_candidates": 58,
@@ -23021,7 +23021,14 @@
           "ly-1015-8f39b4"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-8f39b4",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们的消费起不来，消费股起不来，实际上都是那些传导过嗯，嗯，好的。\", \"suspect_quote\": \"传导过嗯，嗯，好的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘传导过嗯，嗯，好的’中‘嗯，嗯’为填充词，但‘传导过’后直接接无实义的语气词堆叠，导致‘传导过’的对象缺失，属于无法解释的具体词语污染，影响对‘传导机制’的理解。\"}, {\"sentence_id\": 4, \"quote\": \"哎，我我还不如把钱放在美，去存存银行去存存，美美债相关的一些东西，肯定有。\", \"suspect_quote\": \"去存存银行去存存\", \"kind\": \"unintelligible_term\", \"reason\": \"'去存存'重复且无明确动词宾语（‘存’后缺对象），属于口语中因口吃或断句导致的无法解释的具体词语污染，影响对储蓄行为的准确理解。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23745,8 +23752,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
@@ -24024,8 +24031,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24037,8 +24044,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24196,8 +24203,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_render-layout": 1,
+        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
@@ -24346,8 +24353,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -24511,10 +24518,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_workflow-preflight": 1,
         "terminal_visual-review": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -24526,8 +24533,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27657,7 +27664,8 @@
       "BV1ACJy6nEXR": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1t9JC69EDw": {
         "attempted_mothers": 1,
@@ -27684,6 +27692,6 @@
       }
     }
   },
-  "in_flight_placeholders": 4,
+  "in_flight_placeholders": 3,
   "artifacts": []
 }
