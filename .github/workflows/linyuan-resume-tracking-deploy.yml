@@ -10,7 +10,7 @@ permissions:
 jobs:
   resume:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,13 +20,14 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi aliyun-log-python-sdk
-      - name: 只读查询唯一替换任务错误
+      - name: 核对登录配置并获取一次受互斥保护的替换回执
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
           ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           python - <<'PY'
-          import json, os, re
+          import json, os, re, io, subprocess
           from alibabacloud_fc20230330.client import Client
           from alibabacloud_fc20230330 import models as m
           from alibabacloud_tea_openapi import models as api
@@ -39,6 +40,16 @@ jobs:
           text=re.sub(r'https?://[^\s"\\]+','[url]',text)
           text=re.sub(r'(?i)(SESSDATA|bili_jct|access.?key|token)[=:][^\s,;]+',r'\1=[redacted]',text)
           print(text[:12000])
+          config=c.get_function('fc-develop',m.GetFunctionRequest(qualifier='LATEST')).body
+          print('Configured login key:',bool((config.environment_variables or {}).get('BILIBILI_COOKIES')))
+          run=json.loads(subprocess.check_output(['gh','api','repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/38687719987'],text=True))
+          assert run['head_sha']=='553934a8c5874a011b99713647a7f75f5228cd3f'
+          if run['status']!='completed':
+              subprocess.run(['gh','api','--method','POST','repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/38687719987/cancel'],check=True)
+          response=c.invoke_function_with_options('fc-develop',m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(json.dumps(dict(triggerName='repair-reported-tracking-20261015')).encode())),m.InvokeFunctionHeaders(x_fc_invocation_type='Sync',x_fc_log_type='Tail'),util.RuntimeOptions(connect_timeout=20000,read_timeout=240000,autoretry=False))
+          body=response.body.read() if hasattr(response.body,'read') else response.body
+          if isinstance(body,bytes):body=body.decode()
+          print('Exact replacement result:',body)
           cfg=c.get_function('fc-develop',m.GetFunctionRequest(qualifier='LATEST')).body.log_config
           print('Function log configured:',bool(cfg and cfg.project and cfg.logstore))
           if cfg and cfg.project and cfg.logstore:
