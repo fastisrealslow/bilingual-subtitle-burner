@@ -16,23 +16,27 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: 仅接续已验收的当前修复主线
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 只读查询唯一替换任务错误
         env:
-          GH_TOKEN: ${{ github.token }}
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
         run: |
-          git merge-base --is-ancestor 889be4d387cb3ccfcb03ec260000acbc321d8953 HEAD
           python - <<'PY'
-          import json, subprocess
-          def get(path):
-              return json.loads(subprocess.check_output(['gh','api',path],text=True))
-          base='repos/fastisrealslow/bilingual-subtitle-burner/'
-          deployed=get(base+'actions/runs/38686586178')
-          assert deployed['head_sha']=='889be4d387cb3ccfcb03ec260000acbc321d8953'
-          assert deployed['path']=='.github/workflows/fc-production-deploy.yml'
-          assert deployed['status']=='completed' and deployed['conclusion']=='success'
-          jobs=get(base+'actions/runs/38686586178/jobs?per_page=100')['jobs']
-          assert all(any(j['name']==name and j['conclusion']=='success' for j in jobs)
-                     for name in ('editorial-check','deploy'))
-          subprocess.run(['gh','workflow','run','linyuan-apply-reported-tracking.yml','--ref','main'],check=True)
-          print('已确认正式部署成功，接续有持久回执和互斥锁保护的唯一原稿替换。')
+          import json, os, re
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          c=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.cn-hangzhou.aliyuncs.com'))
+          t=c.get_async_task_with_options('fc-develop','tracking-20261015-e26f63ee30ff3283-0',m.GetAsyncTaskRequest(qualifier='LATEST'),{},util.RuntimeOptions(autoretry=False)).body.to_map()
+          print('Task fields:',sorted(t))
+          selected={k:v for k,v in t.items() if any(s in k.lower() for s in ('error','failure','status','returnpayload'))}
+          text=json.dumps(selected,ensure_ascii=False)
+          text=re.sub(r'https?://[^\s"\\]+','[url]',text)
+          text=re.sub(r'(?i)(SESSDATA|bili_jct|access.?key|token)[=:][^\s,;]+',r'\1=[redacted]',text)
+          print(text[:12000])
           PY
