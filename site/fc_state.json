@@ -29807,7 +29807,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"疾病也是这样的，它随着年龄的增长，它突然一下，比如说现在的这个这个这个高血压，它不需要再有药物去干预它。\", \"suspect_quote\": \"它不需要再有药物去干预它\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘不需要’在此处是口语省略，结合上下文（年龄增长、疾病爆发）可能意指‘不再需要常规药物即可控制’或‘完全不需要药物’，存在歧义；且‘它’指代前文‘高血压’还是‘干预方式’不明确，影响对医疗需求逻辑的理解。\"}, {\"sentence_id\": 7, \"quote\": \"所以这个如果说我们想象七八十岁人增加的多的话，这个成那个堰塞湖的话，它就可成倍的增加。\", \"suspect_quote\": \"七八十岁人增加的多的话\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘七八十岁’是口语范围表述，但‘增加的多的话’中‘多’指代人口数量增加还是疾病发生率增加不明确；且‘堰塞湖’为比喻，若未明确指代‘老年人口积压导致医疗需求激增’，则关键因果逻辑含混。\"}, {\"sentence_id\": 11, \"quote\": \"所以这个人员的这个结构，它不是我们现在想象的，比如说，你看啊，这几个月或者过去一年，你总结出来那个数据不准的。\", \"suspect_quote\": \"你总结出来那个数据不准的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"含义不明的否定：‘不准的’否定对象不明确（是数据来源不准、统计方法不准还是结论不准？）；且‘那个数据’指代模糊，可能指近期发布的某份报告或内部测算，关键信息缺失。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1ACJy6nEXR",
@@ -29915,7 +29916,57 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-04T14:12:35+00:00"
+   "publish_time": "2023-06-04T14:12:35+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-c39c94",
+    "run_id": 38737987753,
+    "artifact_id": 11977257388,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 573.77s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"那首先它具备垄断，它是一个垄断经营，呃，它的定价权是是垄断的。\", \"suspect_quote\": \"定价权是是垄断的\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的'是'字（'是是'）在口语中虽可能为口吃，但此处极大概率是识别错误导致的冗余字符，破坏了句子语法结构，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 9, \"quote\": \"第三个就是它不受一这种产品生活，我们说的消费品，它不受这个经济的这个影响，或者影响很小，是吧？\", \"suspect_"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 30, \"quote\": \"因为我是呃选择的面宰啊，我没有发现他说的这些问题。\", \"suspect_quote\": \"面宰\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或商业语境下无明确含义，疑似识别错误（可能应为“基本面”、“面子”或其他词汇），属于无法解释的具体词语。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"这个我可能六岁都开始做功课了，六岁还没上市公司呢。\", \"suspect_quote\": \"六岁还没上市公司呢\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'六岁'与上下文逻辑冲突（嘉宾林园出生于 1950 年代，不可能在六岁时面对上市公司），此处极可能是识别错误将‘六十岁’误识为‘六岁’，属于关键年龄数字的污染。”}, {\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"林元现在还重仓持有的一只白酒股票是二零零三年买入的，这只股票十一年间上涨了四十倍。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写嘉宾姓名。前文及后文均指代“林园”，此处“林元”极大概率为语音识别错误，属于无法解释的具体词语/专有名词问题。\"}, {\"sentence_id\": 7, \"quote\": \"林元现在还重仓持有的一只白酒股票是二零零三年买入的，这只股票十一年间上涨了四十倍。\", \"suspect_quote\": \"二零零三"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38737987753,
+    "artifact_id": 11977257388,
+    "name": "production-reject-ly-1015-c39c94",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV18CpU6mE5L",
@@ -87688,6 +87739,13 @@
    "video_id": "BV1FDJy61EiR",
    "ts": 1792070982,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"疾病也是这样的，它随着年龄的增长，它突然一下，比如说现在的这个这个这个高血压，它不需要再有药物去干预它。\", \"suspect_quote\": \"它不需要再有药物去干预它\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘不需要’在此处是口语省略，结合上下文（年龄增长、疾病爆发）可能意指‘不再需要常规药物即可控制’或‘完全不需要药物’，存在歧义；且‘它’指代前文‘高血压’还是‘干预方式’不明确，影响对医疗需求逻辑的理解。\"}, {\"sentence_id\": 7, \"quote\": \"所以这个如果说我们想象七八十岁人增加的多的话，这个成那个堰塞湖的话，它就可成倍的增加。\", \"suspect_quote\": \"七八十岁人增加的多的话\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘七八十岁’是口语范围表述，但‘增加的多的话’中‘多’指代人口数量增加还是疾病发生率增加不明确；且‘堰塞湖’为比喻，若未明确指代‘老年人口积压导致医疗需求激增’，则关键因果逻辑含混。\"}, {\"sentence_id\": 11, \"quote\": \"所以这个人员的这个结构，它不是我们现在想象的，比如说，你看啊，这几个月或者过去一年，你总结出来那个数据不准的。\", \"suspect_quote\": \"你总结出来那个数据不准的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"含义不明的否定：‘不准的’否定对象不明确（是数据来源不准、统计方法不准还是结论不准？）；且‘那个数据’指代模糊，可能指近期发布的某份报告或内部测算，关键信息缺失。\"}]"
+  },
+  {
+   "slug": "ly-1015-c39c94",
+   "key": "bilibili_search:BV1Tc41137tB",
+   "video_id": "BV1Tc41137tB",
+   "ts": 1792071631,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
