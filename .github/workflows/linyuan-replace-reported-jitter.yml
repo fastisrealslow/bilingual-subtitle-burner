@@ -1,0 +1,84 @@
+name: 原位修复用户报告的可转债视频抖动
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write  # Cancel only the earlier, still pre-edit attempt of this repair.
+concurrency:
+  group: linyuan-repair-BV1UEpC6bEQB-v3
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      TEXT_BACKEND: local
+    steps:
+      - uses: actions/checkout@v4
+      - name: 仅停止尚未触及原稿的前次环境准备任务
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          repo='fastisrealslow/bilingual-subtitle-burner';run=38683152817
+          def api(path):return json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/'+path]))
+          original=api(f'actions/runs/{run}')
+          assert original['head_sha']=='201d76057c67a4bdaa3e86f0dd821819a581bf9d'
+          assert original['path']=='.github/workflows/linyuan-replace-reported-jitter.yml'
+          if original['status']!='completed':
+              jobs=api(f'actions/runs/{run}/jobs')['jobs']
+              edits=[s for j in jobs for s in j['steps'] if s['name'].startswith('只编辑原稿')]
+              assert len(edits)==1 and edits[0]['status']=='pending','Do not interrupt an edit'
+              subprocess.run(['gh','run','cancel',str(run),'--repo',repo],check=True)
+          PY
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 有界安装音视频复验工具
+        timeout-minutes: 5
+        run: |
+          sudo timeout 90 apt-get update -qq || true
+          sudo timeout 180 apt-get install -y -qq --no-install-recommends ffmpeg fonts-noto-cjk
+          ffmpeg -version
+          ffprobe -version
+      - name: 安装明确兼容的复验与上传依赖
+        timeout-minutes: 5
+        run: |
+          pip install --only-binary=biliup,stream-gears -r requirements-dev.txt rapidocr-onnxruntime biliup==0.4.91
+          python -c 'from biliup.plugins.bili_webup import BiliBili,Data; import importlib.metadata; print("Uploader SDK",importlib.metadata.version("biliup"))'
+      - name: 单目标替换安全回归
+        run: |
+          python -m pytest -q tests/test_linyuan_tracking_replacement.py tests/test_linyuan_constrained_framing.py tests/test_linyuan_stable_framing.py tests/test_linyuan_reviewed_updates.py tests/test_linyuan_state_merge.py
+          pip install yt-dlp==2026.8.19
+          python -m pytest -q tests/test_linyuan_*.py tests/test_fc_deploy_code.py --tb=short
+      - name: 恢复同一次完整复验通过的不可变成片
+        run: |
+          gh run download 38683339566 --repo "$GITHUB_REPOSITORY" --name tracking-revision-BV1UEpC6bEQB --dir /tmp/reported-fixed
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('/tmp/reported-fixed');meta=json.loads((root/'meta.json').read_text())
+          digest=hashlib.sha256((root/'final.mp4').read_bytes()).hexdigest()
+          assert digest=='60e8dc90eb7e04386812344d4cf126b04b646cfb425f4f9e3203ed94499d2506'
+          assert meta['fingerprints']['sha256']==digest
+          assert meta['tracking_revision']['independent_media_validation_passes']==2
+          assert meta['tracking_revision']['old_sha256']=='8cdaf95155cefe57d0aad3858368a0eb44420d17d831ae1a9bcd0ba4ee88d342'
+          PY
+      - name: 上传本次修复的完整成片与核验证据
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-revision-BV1UEpC6bEQB
+          path: /tmp/reported-fixed
+          include-hidden-files: true
+          retention-days: 30
+      - name: 只编辑原稿，持久化上传和编辑回执，禁止新增投稿
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python -u linyuan/run_tracking_replacement.py --directory /tmp/reported-fixed
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: tracking-revision-failure-BV1UEpC6bEQB
+          path: /tmp/reported-fixed
+          retention-days: 14

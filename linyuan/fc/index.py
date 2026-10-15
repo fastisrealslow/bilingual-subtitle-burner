@@ -2052,6 +2052,10 @@ def handler(event, context):
             import media_repair
             import sys
             return run_with_lease('publish',lambda:media_repair.repair_known_media(evt,sys.modules[__name__]))
+        if name == 'repair-reported-tracking-20261015':
+            import tracking_revision
+            import sys
+            return run_with_lease('publish',lambda:tracking_revision.apply(sys.modules[__name__]))
         if name == 'apply-stage-revision-0912':
             import stage_revision
             import sys
