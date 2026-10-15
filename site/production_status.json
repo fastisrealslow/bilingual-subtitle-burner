@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792104841,
+  "updated_at": 1792104981,
   "inventory_updated_at": 1792104838,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 7,
-    "active_or_recovering_sources": 4,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792104840,
+    "updated_at": 1792104981,
     "records": 10381,
     "video_records": 8897,
     "initial_candidates": 58,
@@ -70,11 +70,11 @@
   },
   "counts": {
     "complete": 121,
-    "failed": 1072,
+    "failed": 1073,
     "paused": 5,
     "interrupted": 8,
     "ready": 2,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -21831,11 +21831,11 @@
     },
     {
       "slug": "ly-1015-a7acac",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我认为现在是投资消费的这个对类公司的好值机便宜。\", \"suspect_quote\": \"对类公司的好值机便宜\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘对类’应为‘这类’或‘此类’，‘好值机’语义不通（可能为‘好值’、‘高值’或口误），‘便宜’前缀修饰不明。整段‘好值机便宜’无法解释具体含义，属于关键信息污染。”}]}**说明：**其他句子虽含口语重复、省略或比喻（如“新新\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"中国的新新的有钱人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘新新的’不符合常规表达，可能是‘新富’、‘新兴’或口吃重复导致的误识，需确认原意是否为‘中国的新兴富裕人群’。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"就所所谓的这个新经济上\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘所所谓的’应为‘所谓的’，多出的‘所’字属冗余或误识；‘这个’为口语填充词，非错误，但结合前文‘新新的有钱人’，整句存在多处疑似错写。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"都是都是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：连续重复‘都是’可能为口吃或误识，但单独看‘都是都是’无明确指代对象，需结合上下文判断是否为‘都是这样的’或‘都是这些’的误录。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"主要中主要国家国家的这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘主要中主要’和‘国家国家的’明显重复，不符合正常表达，可能是‘主要发达国家’或‘主要国家’的误识，属关键信息污染。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"就是那几家企\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘几家企’应为‘几家企业’，‘企’字单独使用不完整，属专有名词或普通名词截断。”}, {\"}]",
       "signature": {
         "ts": 1792103672,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21867,8 +21867,8 @@
     },
     {
       "slug": "ly-1015-e5f00c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792103684,
         "failed": null,
@@ -21881,7 +21881,7 @@
       "run_id": 38818062543,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38818062543",
       "run_started_at": "2026-10-15T22:34:44Z",
-      "run_updated_at": "2026-10-15T22:34:48Z"
+      "run_updated_at": "2026-10-15T22:54:25Z"
     },
     {
       "slug": "ly-1015-9c2eb1",
@@ -30846,6 +30846,17 @@
       "run_number": 2119,
       "display_title": "中文源出片 · ly-1015-0a0322"
     },
+    "ly-1015-a7acac": {
+      "id": 38818040607,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-15T22:34:32Z",
+      "updated_at": "2026-10-15T22:53:07Z",
+      "run_started_at": "2026-10-15T22:34:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38818040607",
+      "run_number": 2123,
+      "display_title": "中文源出片 · ly-1015-a7acac"
+    },
     "ly-1015-9c2eb1": {
       "id": 38818074176,
       "status": "in_progress",
@@ -30859,10 +30870,10 @@
     },
     "ly-1015-e5f00c": {
       "id": 38818062543,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-15T22:34:44Z",
-      "updated_at": "2026-10-15T22:34:48Z",
+      "updated_at": "2026-10-15T22:54:25Z",
       "run_started_at": "2026-10-15T22:34:44Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38818062543",
       "run_number": 2125,
@@ -30878,17 +30889,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38818052233",
       "run_number": 2124,
       "display_title": "中文源出片 · ly-1015-71058f"
-    },
-    "ly-1015-a7acac": {
-      "id": 38818040607,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-15T22:34:32Z",
-      "updated_at": "2026-10-15T22:53:07Z",
-      "run_started_at": "2026-10-15T22:34:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38818040607",
-      "run_number": 2123,
-      "display_title": "中文源出片 · ly-1015-a7acac"
     },
     "ly-1015-84ec99": {
       "id": 38809029790,
