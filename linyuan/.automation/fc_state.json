@@ -29440,7 +29440,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1bwGq6SE7s",
@@ -29462,7 +29463,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-23T08:04:40+00:00"
+   "publish_time": "2026-05-23T08:04:40+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38666232551,
+    "artifact_id": 11942265454,
+    "name": "source-reject-ly-1015-4356c2",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2156, 2: 0.149, 3: 0.042, 5: 0.1672, 6: 0.1767, 7: 0.1725, 8: 0.1821, 9: 0.187, 10: 0.3501, 11: 0.2543, 12: 0.1816, 13: 0.2774, 14: 0.2863, 15: 0.1263, 16: 0.188, 17: 0.1971, 18: 0.2299}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -86517,6 +86528,13 @@
    "video_id": "BV1mY2PBuE6u",
    "ts": 1792028112,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标"
+  },
+  {
+   "slug": "ly-1015-4356c2",
+   "key": "bilibili_search:BV1bwGq6SE7s",
+   "video_id": "BV1bwGq6SE7s",
+   "ts": 1792028323,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2156, 2: 0.149, 3: 0.042, 5: 0.1672, 6: 0.1767, 7: 0.1725, 8: 0.1821, 9: 0.187, 10: 0.3501, 11: 0.2543, 12: 0.1816, 13: 0.2774, 14: 0.2863, 15: 0.1263, 16: 0.188, 17: 0.1971, 18: 0.2299}"
   }
  ],
  "reviewed_third_video_0910": {
