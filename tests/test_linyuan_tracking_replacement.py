@@ -119,3 +119,16 @@ def test_deployed_route_takes_shared_lease_and_only_exact_target(monkeypatch):
     monkeypatch.setattr(module,'run_with_lease',lease)
     result=module.handler(json.dumps(dict(triggerName='repair-reported-tracking-20261015')),None)
     assert result==dict(status='verified',bvid=r.BVID,new_posts=0)
+
+
+def test_async_failure_has_safe_receipt_without_automatic_upload_replay(monkeypatch):
+    path=Path(__file__).resolve().parents[1]/'linyuan/fc/tracking_revision.py'
+    spec=importlib.util.spec_from_file_location('tracking_error_receipt',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    def fail(fc):raise RuntimeError('Transfer failed https://example.test/private?signature=secret')
+    monkeypatch.setattr(module,'_apply',fail)
+    events=[]
+    result=module.apply(NS(log_event=lambda *v:events.append(v)))
+    assert result['status']=='repair_failed' and result['new_posts']==0
+    assert result['error_type']=='RuntimeError' and result['frames']
+    assert 'secret' not in json.dumps(result) and 'secret' not in json.dumps(events)
