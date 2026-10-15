@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792086338,
+  "updated_at": 1792086413,
   "materials": {
     "weibo_search": {
       "records": 2127,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792086340,
+    "updated_at": 1792086416,
     "records": 10353,
     "video_records": 8870,
     "initial_candidates": 58,
@@ -23233,7 +23233,14 @@
           "ly-1015-5db879"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-5db879",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23270,7 +23277,14 @@
           "ly-1015-7bbf42"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-7bbf42",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"证券公司热闹的时候都排队了，看都能看到供求关系，一清一不了然。\", \"suspect_quote\": \"一清一不了然\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：成语应为“一目了然”，原文“一清一不了然”语义不通，属于明显的错别字或识别污染。\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23928,9 +23942,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24207,8 +24221,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24220,8 +24234,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24379,9 +24393,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
         "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -24694,10 +24708,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -24709,8 +24723,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27886,7 +27900,8 @@
       "BV1FeJ16jEU9": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1JTJk6TESM": {
         "attempted_mothers": 1,
@@ -27897,7 +27912,8 @@
       "BV1PVpU6MEUP": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1GhJ26TEVM": {
         "attempted_mothers": 1,
@@ -27906,7 +27922,7 @@
       }
     }
   },
-  "in_flight_placeholders": 6,
+  "in_flight_placeholders": 4,
   "artifacts": [
     {
       "slug": "ly-1015-5e4dd0",

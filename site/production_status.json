@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1792086361,
-  "inventory_updated_at": 1792086338,
+  "updated_at": 1792086417,
+  "inventory_updated_at": 1792086413,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792086360,
+    "updated_at": 1792086416,
     "records": 10353,
     "video_records": 8870,
     "initial_candidates": 58,
@@ -70,9 +70,9 @@
   },
   "counts": {
     "complete": 121,
-    "failed": 1067,
+    "failed": 1069,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "ready": 2,
     "running": 2
   },
@@ -21705,11 +21705,11 @@
     },
     {
       "slug": "ly-1015-5db879",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1792085701,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21741,11 +21741,11 @@
     },
     {
       "slug": "ly-1015-7bbf42",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"证券公司热闹的时候都排队了，看都能看到供求关系，一清一不了然。\", \"suspect_quote\": \"一清一不了然\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：成语应为“一目了然”，原文“一清一不了然”语义不通，属于明显的错别字或识别污染。\"}]",
       "signature": {
         "ts": 1792085716,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
