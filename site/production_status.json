@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792050123,
+  "updated_at": 1792050205,
   "inventory_updated_at": 1792050122,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 0,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 1,
+    "waiting_candidates": 0,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792050122,
+    "updated_at": 1792050205,
     "records": 10245,
     "video_records": 8797,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1448,
+      "already_attempted_or_cooling": 1355,
       "speaker_unconfirmed": 6028,
-      "already_attempted_or_cooling": 1354,
       "clip_title": 1098,
       "noise": 19,
       "unrelated": 62,
@@ -54,16 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5354299659914805",
-        "title": "林园：股市有个规律，它涨的时间只有5%，95%的时间不是跌就是不涨。#微博视频号续航计划# http://t.cn/AX",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5354299659914805",
-        "duration_sec": 74.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 0,
@@ -81,7 +72,8 @@
     "complete": 120,
     "failed": 1057,
     "paused": 5,
-    "interrupted": 5
+    "interrupted": 5,
+    "running": 1
   },
   "tasks": [
     {
@@ -21457,6 +21449,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38692576326",
       "run_started_at": "2026-10-15T06:28:05Z",
       "run_updated_at": "2026-10-15T06:33:56Z"
+    },
+    {
+      "slug": "ly-1015-812071",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792050166,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38700596042,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38700596042",
+      "run_started_at": "2026-10-15T07:42:46Z",
+      "run_updated_at": "2026-10-15T07:42:51Z"
     }
   ],
   "runs": {
@@ -30182,6 +30192,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38692576326",
       "run_number": 2100,
       "display_title": "中文源出片 · ly-1015-1b9782"
+    },
+    "ly-1015-812071": {
+      "id": 38700596042,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-15T07:42:46Z",
+      "updated_at": "2026-10-15T07:42:51Z",
+      "run_started_at": "2026-10-15T07:42:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38700596042",
+      "run_number": 2101,
+      "display_title": "中文源出片 · ly-1015-812071"
     }
   }
 }
