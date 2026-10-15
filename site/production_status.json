@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792068873,
+  "updated_at": 1792068972,
   "inventory_updated_at": 1792068873,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 0,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792068873,
+    "updated_at": 1792068972,
     "records": 10311,
     "video_records": 8832,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1479,
       "speaker_unconfirmed": 6055,
-      "already_attempted_or_cooling": 1362,
+      "already_attempted_or_cooling": 1363,
       "clip_title": 1098,
       "noise": 19,
       "unrelated": 62,
@@ -54,16 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1YkJC6wE8u",
-        "title": "林园 地产跌成这样他怎么看？林园：股价已经跌得十分之一都是好的了，你别看那么多房子，中国人都能消化掉，特别是一些改善式地",
-        "source": "reference_origin_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1YkJC6wE8u",
-        "duration_sec": 121.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 0,
@@ -79,10 +70,10 @@
   },
   "counts": {
     "complete": 120,
-    "failed": 1059,
+    "failed": 1060,
     "paused": 5,
-    "interrupted": 6,
-    "running": 5
+    "interrupted": 5,
+    "running": 6
   },
   "tasks": [
     {
@@ -21551,11 +21542,11 @@
     },
     {
       "slug": "ly-1015-134205",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 474 < 480（854x474），画质不达标",
       "signature": {
         "ts": 1792068735,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21602,6 +21593,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38738000335",
       "run_started_at": "2026-10-15T12:52:26Z",
       "run_updated_at": "2026-10-15T12:52:31Z"
+    },
+    {
+      "slug": "ly-1015-e4868b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792068929,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38738410369,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38738410369",
+      "run_started_at": "2026-10-15T12:55:29Z",
+      "run_updated_at": "2026-10-15T12:55:34Z"
     }
   ],
   "runs": {
@@ -30350,6 +30359,28 @@
       "run_number": 2103,
       "display_title": "中文源出片 · ly-1015-731991"
     },
+    "ly-1015-134205": {
+      "id": 38737975521,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-15T12:52:15Z",
+      "updated_at": "2026-10-15T12:53:40Z",
+      "run_started_at": "2026-10-15T12:52:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737975521",
+      "run_number": 2106,
+      "display_title": "中文源出片 · ly-1015-134205"
+    },
+    "ly-1015-e4868b": {
+      "id": 38738410369,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-15T12:55:29Z",
+      "updated_at": "2026-10-15T12:55:34Z",
+      "run_started_at": "2026-10-15T12:55:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38738410369",
+      "run_number": 2109,
+      "display_title": "中文源出片 · ly-1015-e4868b"
+    },
     "ly-1015-cfc4f6": {
       "id": 38738000335,
       "status": "in_progress",
@@ -30371,17 +30402,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737987753",
       "run_number": 2107,
       "display_title": "中文源出片 · ly-1015-c39c94"
-    },
-    "ly-1015-134205": {
-      "id": 38737975521,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-15T12:52:15Z",
-      "updated_at": "2026-10-15T12:53:40Z",
-      "run_started_at": "2026-10-15T12:52:15Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737975521",
-      "run_number": 2106,
-      "display_title": "中文源出片 · ly-1015-134205"
     },
     "ly-1015-8f39b4": {
       "id": 38737960477,
