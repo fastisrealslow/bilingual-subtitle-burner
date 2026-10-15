@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792045638,
+  "updated_at": 1792045721,
   "inventory_updated_at": 1792045637,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 0,
     "status": "stockout",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792045637,
+    "updated_at": 1792045721,
     "records": 10233,
     "video_records": 8789,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 6021,
       "no_video": 1444,
-      "already_attempted_or_cooling": 1353,
+      "already_attempted_or_cooling": 1354,
       "clip_title": 1098,
       "noise": 19,
       "unrelated": 62,
@@ -54,16 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1Y5pm6mEH2",
-        "title": "AI这么热，林园为什么一点都不碰？林园：我不会，一个革命性的东西它需要疯子，马斯克也不算，这样的人现在还没有出现，所以什",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Y5pm6mEH2",
-        "duration_sec": 45.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 0,
@@ -82,7 +73,7 @@
     "failed": 1055,
     "paused": 5,
     "interrupted": 5,
-    "retry_queued": 1
+    "running": 2
   },
   "tasks": [
     {
@@ -21425,21 +21416,39 @@
     },
     {
       "slug": "ly-1015-481fee",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "running",
+      "detail": "正在出片",
       "signature": {
-        "ts": 1792042749,
+        "ts": 1792045680,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": 1792044754,
+        "source_check_retry_after": null,
         "weekly_full_week": ""
       },
       "history_count": 1,
-      "run_id": 38687932967,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38687932967",
-      "run_started_at": "2026-10-15T05:39:09Z",
-      "run_updated_at": "2026-10-15T05:40:53Z"
+      "run_id": 38692568018,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38692568018",
+      "run_started_at": "2026-10-15T06:28:00Z",
+      "run_updated_at": "2026-10-15T06:28:04Z"
+    },
+    {
+      "slug": "ly-1015-1b9782",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792045686,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38692576326,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38692576326",
+      "run_started_at": "2026-10-15T06:28:05Z",
+      "run_updated_at": "2026-10-15T06:28:09Z"
     }
   ],
   "runs": {
@@ -30145,15 +30154,26 @@
       "display_title": "中文源出片 · ly-1015-2935e5"
     },
     "ly-1015-481fee": {
-      "id": 38687932967,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-15T05:39:09Z",
-      "updated_at": "2026-10-15T05:40:53Z",
-      "run_started_at": "2026-10-15T05:39:09Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38687932967",
-      "run_number": 2098,
+      "id": 38692568018,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-15T06:28:00Z",
+      "updated_at": "2026-10-15T06:28:04Z",
+      "run_started_at": "2026-10-15T06:28:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38692568018",
+      "run_number": 2099,
       "display_title": "中文源出片 · ly-1015-481fee"
+    },
+    "ly-1015-1b9782": {
+      "id": 38692576326,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-15T06:28:05Z",
+      "updated_at": "2026-10-15T06:28:09Z",
+      "run_started_at": "2026-10-15T06:28:05Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38692576326",
+      "run_number": 2100,
+      "display_title": "中文源出片 · ly-1015-1b9782"
     }
   }
 }
