@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1792085205,
-  "inventory_updated_at": 1792085118,
+  "updated_at": 1792085459,
+  "inventory_updated_at": 1792085457,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 0,
-    "active_or_recovering_sources": 2,
+    "verified_daily_stock": 6,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
-    "status": "stockout",
+    "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 0,
-      "minimum_week_shortfall": 14,
-      "preferred_week_shortfall": 21,
-      "reserve_shortfall": 12,
+      "verified_stock_snapshot": 6,
+      "minimum_week_shortfall": 8,
+      "preferred_week_shortfall": 15,
+      "reserve_shortfall": 6,
       "dates": [
         "2026-10-16",
         "2026-10-17",
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792085204,
+    "updated_at": 1792085458,
     "records": 10335,
     "video_records": 8853,
     "initial_candidates": 58,
@@ -57,14 +57,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 0,
+    "verified_live": 6,
     "verified_audio_card": 0,
-    "verified_landscape": 0,
+    "verified_landscape": 6,
     "verified_portrait": 0,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 0,
+    "daily_mix_usable": 6,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -73,7 +73,8 @@
     "failed": 1066,
     "paused": 5,
     "interrupted": 6,
-    "running": 2
+    "ready": 1,
+    "running": 1
   },
   "tasks": [
     {
@@ -21614,8 +21615,8 @@
     },
     {
       "slug": "ly-1015-5e4dd0",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "6 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792071947,
         "failed": null,
@@ -21628,7 +21629,7 @@
       "run_id": 38745470639,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38745470639",
       "run_started_at": "2026-10-15T13:45:47Z",
-      "run_updated_at": "2026-10-15T13:45:52Z"
+      "run_updated_at": "2026-10-15T17:30:19Z"
     },
     {
       "slug": "ly-1015-87d91c",
@@ -30543,10 +30544,10 @@
     },
     "ly-1015-5e4dd0": {
       "id": 38745470639,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-15T13:45:47Z",
-      "updated_at": "2026-10-15T13:45:52Z",
+      "updated_at": "2026-10-15T17:30:19Z",
       "run_started_at": "2026-10-15T13:45:47Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38745470639",
       "run_number": 2110,
