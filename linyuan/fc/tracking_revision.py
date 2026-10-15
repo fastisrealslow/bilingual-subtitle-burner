@@ -10,6 +10,25 @@ from replace_reported_tracking import apply as edit,client_from_cookies
 
 
 def apply(fc):
+    try:
+        return _apply(fc)
+    except Exception as exc:
+        # Async FC failures otherwise discard the Python exception entirely.
+        # Persist safe diagnostics without cookies, upload names or signed URLs.
+        import re
+        import traceback
+        message=re.sub(r'https?://[^\s\"\']+','[url]',str(exc))[:600]
+        if any(token in message.lower() for token in ('sessdata','bili_jct','cookie','accesskey')):
+            message='Sensitive error detail withheld'
+        frames=[dict(file=Path(f.filename).name,line=f.lineno,function=f.name)
+                for f in traceback.extract_tb(exc.__traceback__)[-8:]]
+        result=dict(status='repair_failed',error_type=type(exc).__name__,message=message,
+                    frames=frames,bvid=BVID,new_posts=0)
+        fc.log_event('tracking_repair_error','原稿修复执行失败',json.dumps(result,ensure_ascii=False))
+        return result
+
+
+def _apply(fc):
     with tempfile.TemporaryDirectory(prefix='tracking-revision-') as folder:
         root=Path(folder);archive=root/'delivery.zip'
         fc.download_reviewed_zip(ARTIFACT_ID,archive,attempts=2)

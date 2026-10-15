@@ -77,6 +77,8 @@ def main(trigger='apply-reviewed-updates-0910', state_key='reviewed_updates_0910
                               for b,v in receipts.items()}
         Path(report).write_text(json.dumps(record,ensure_ascii=False,indent=2))
         print(json.dumps(record,ensure_ascii=False),flush=True)
+        if result.get('status')=='repair_failed':
+            raise SystemExit('Repair failed with safe persisted diagnostics; no automatic replay')
         if all(v.get('status')=='verified' for v in receipts.values()):
             return
         if any(v.get('status')=='edit_rejected' and v.get('payload_schema_version',1)>=3
