@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792104838,
+  "updated_at": 1792105053,
   "materials": {
     "weibo_search": {
       "records": 2128,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792104840,
+    "updated_at": 1792105056,
     "records": 10381,
     "video_records": 8897,
     "initial_candidates": 58,
@@ -23380,7 +23380,14 @@
           "ly-1015-a7acac"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-a7acac",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我认为现在是投资消费的这个对类公司的好值机便宜。\", \"suspect_quote\": \"对类公司的好值机便宜\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘对类’应为‘这类’或‘此类’，‘好值机’语义不通（可能为‘好值’、‘高值’或口误），‘便宜’前缀修饰不明。整段‘好值机便宜’无法解释具体含义，属于关键信息污染。”}]}**说明：**其他句子虽含口语重复、省略或比喻（如“新新\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"中国的新新的有钱人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘新新的’不符合常规表达，可能是‘新富’、‘新兴’或口吃重复导致的误识，需确认原意是否为‘中国的新兴富裕人群’。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"就所所谓的这个新经济上\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘所所谓的’应为‘所谓的’，多出的‘所’字属冗余或误识；‘这个’为口语填充词，非错误，但结合前文‘新新的有钱人’，整句存在多处疑似错写。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"都是都是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：连续重复‘都是’可能为口吃或误识，但单独看‘都是都是’无明确指代对象，需结合上下文判断是否为‘都是这样的’或‘都是这些’的误录。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"主要中主要国家国家的这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘主要中主要’和‘国家国家的’明显重复，不符合正常表达，可能是‘主要发达国家’或‘主要国家’的误识，属关键信息污染。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"就是那几家企\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘几家企’应为‘几家企业’，‘企’字单独使用不完整，属专有名词或普通名词截断。”}, {\"}]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -24068,9 +24075,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_editorial-or-render": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24347,8 +24354,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24360,8 +24367,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24519,8 +24526,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
@@ -24669,8 +24676,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -24834,9 +24841,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
         "terminal_workflow-preflight": 1,
+        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
@@ -28067,7 +28074,8 @@
       "BV15aJU65Exx": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1id4y1y7St": {
         "attempted_mothers": 1,
@@ -28086,7 +28094,7 @@
       }
     }
   },
-  "in_flight_placeholders": 7,
+  "in_flight_placeholders": 6,
   "artifacts": [
     {
       "slug": "ly-1015-5e4dd0",
