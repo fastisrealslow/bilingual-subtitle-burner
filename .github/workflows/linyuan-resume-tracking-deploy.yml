@@ -1,0 +1,41 @@
+name: 接续已通过 CPU 验收的原稿修复部署
+on:
+  push:
+    branches: [codex/linyuan-replace-jitter-20261015]
+    paths: [.github/workflows/linyuan-resume-tracking-deploy.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  resume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: 仅接续已验收的当前修复主线
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git merge-base --is-ancestor 889be4d387cb3ccfcb03ec260000acbc321d8953 HEAD
+          python - <<'PY'
+          import json, subprocess
+          def get(path):
+              return json.loads(subprocess.check_output(['gh','api',path],text=True))
+          base='repos/fastisrealslow/bilingual-subtitle-burner/'
+          proof=get(base+'actions/runs/38685546885/jobs?per_page=100')['jobs']
+          assert any(j['name']=='editorial-check' and j['conclusion']=='success' for j in proof)
+          # This dispatch runs unchanged full deployment policy. The existing
+          # verifier independently checks exact code, model, evidence and TTL.
+          subprocess.run(['gh','workflow','run','fc-production-deploy.yml','--ref','main'],check=True)
+          old=get(base+'actions/runs/38686345961')
+          assert old['head_sha']=='889be4d387cb3ccfcb03ec260000acbc321d8953'
+          assert old['path']=='.github/workflows/fc-production-deploy.yml'
+          jobs=get(base+'actions/runs/38686345961/jobs?per_page=100')['jobs']
+          if old['status']!='completed' and not any(j['name']=='deploy' for j in jobs):
+              subprocess.run(['gh','api','--method','POST',base+'actions/runs/38686345961/cancel'],check=True)
+          print('已接续标准部署；验收逻辑、阈值和生产定时器均未改变。')
+          PY
