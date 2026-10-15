@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792073820,
-  "inventory_updated_at": 1792073679,
+  "updated_at": 1792084106,
+  "inventory_updated_at": 1792084105,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 0,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "stockout",
     "quality_gates_relaxed": false,
@@ -19,13 +19,13 @@
       "preferred_week_shortfall": 21,
       "reserve_shortfall": 12,
       "dates": [
-        "2026-10-15",
         "2026-10-16",
         "2026-10-17",
         "2026-10-18",
         "2026-10-19",
         "2026-10-20",
-        "2026-10-21"
+        "2026-10-21",
+        "2026-10-22"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false
@@ -33,19 +33,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792073820,
-    "records": 10331,
-    "video_records": 8850,
+    "updated_at": 1792084105,
+    "records": 10335,
+    "video_records": 8853,
     "initial_candidates": 58,
     "duration_eligible_records": 0,
     "candidate_count": 0,
     "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "clip_title": 1104,
+      "no_video": 1482,
       "speaker_unconfirmed": 6066,
       "already_attempted_or_cooling": 1367,
-      "clip_title": 1101,
-      "no_video": 1481,
       "noise": 19,
       "unrelated": 62,
       "ai_content": 36,
@@ -72,8 +72,8 @@
     "complete": 121,
     "failed": 1066,
     "paused": 5,
-    "interrupted": 5,
-    "running": 2,
+    "interrupted": 6,
+    "running": 1,
     "retry_queued": 1
   },
   "tasks": [
@@ -21471,8 +21471,8 @@
     },
     {
       "slug": "ly-1015-83706c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：cancelled",
       "signature": {
         "ts": 1792064415,
         "failed": null,
@@ -21485,7 +21485,7 @@
       "run_id": 38728976561,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38728976561",
       "run_started_at": "2026-10-15T11:40:15Z",
-      "run_updated_at": "2026-10-15T11:40:20Z"
+      "run_updated_at": "2026-10-15T15:41:46Z"
     },
     {
       "slug": "ly-1015-731991",
@@ -30544,10 +30544,10 @@
     },
     "ly-1015-83706c": {
       "id": 38728976561,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "cancelled",
       "created_at": "2026-10-15T11:40:15Z",
-      "updated_at": "2026-10-15T11:40:20Z",
+      "updated_at": "2026-10-15T15:41:46Z",
       "run_started_at": "2026-10-15T11:40:15Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38728976561",
       "run_number": 2102,
