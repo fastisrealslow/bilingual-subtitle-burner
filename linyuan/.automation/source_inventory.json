@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792072470,
+  "updated_at": 1792073266,
   "materials": {
     "weibo_search": {
       "records": 2120,
@@ -99,20 +99,20 @@
     }
   },
   "inventory": {
-    "verified_live": 0,
+    "verified_live": 1,
     "verified_audio_card": 0,
     "verified_landscape": 0,
-    "verified_portrait": 0,
+    "verified_portrait": 1,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 0,
+    "daily_mix_usable": 1,
     "target_reserve": 12,
-    "publishable_now": 0
+    "publishable_now": 1
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792072470,
+    "updated_at": 1792073266,
     "records": 10331,
     "video_records": 8850,
     "initial_candidates": 58,
@@ -23168,7 +23168,14 @@
           "ly-1015-87d91c"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-87d91c",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23182,11 +23189,13 @@
         "slugs": [
           "ly-1015-affab1"
         ],
-        "source_sha256": [],
+        "source_sha256": [
+          "7fd07f4073c86133112b5626ede8a4bf4575b99ea53a68b3d042699b329b0056"
+        ],
         "failures": [],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
+        "verified_available": 1,
+        "verified_live": 1,
+        "verified_seconds": 46.941,
         "used_source_seconds": 0,
         "historical_receipts": 0
       },
@@ -23236,7 +23245,7 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_unclassified": 29,
-        "terminal_editorial-or-render": 71,
+        "terminal_editorial-or-render": 72,
         "terminal_quality-service": 8,
         "terminal_workflow-preflight": 3,
         "terminal_source-quality": 20
@@ -23826,9 +23835,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_unclassified": 1,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24105,8 +24114,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24118,8 +24127,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24277,8 +24286,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1
       },
       "BV1PCDHBwEUn": {
@@ -24427,8 +24436,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -24592,10 +24601,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_editorial-or-render": 1,
         "terminal_workflow-preflight": 1,
-        "terminal_visual-review": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_visual-review": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -24607,8 +24616,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27773,11 +27782,297 @@
       },
       "BV1P5Jr6CEfU": {
         "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
+        "verified_available": 1,
+        "verified_seconds": 46.941
       }
     }
   },
-  "in_flight_placeholders": 5,
-  "artifacts": []
+  "in_flight_placeholders": 4,
+  "artifacts": [
+    {
+      "slug": "ly-1015-affab1",
+      "artifact_id": 11979857621,
+      "run_id": 38745516440,
+      "expires_at": "2027-01-13T13:46:08Z",
+      "checked_at": 1792073262,
+      "source_url": "https://www.bilibili.com/video/BV1P5Jr6CEfU",
+      "parts": [
+        {
+          "index": 0,
+          "final": "final.mp4",
+          "title": "林园：行业要长期持有，选阶段最优企业",
+          "duration_sec": 46.941,
+          "render_mode": "live_video_card",
+          "content_type": null,
+          "resolution": {
+            "width": 720,
+            "height": 1280,
+            "short_edge": 720
+          },
+          "source_sha256": "7fd07f4073c86133112b5626ede8a4bf4575b99ea53a68b3d042699b329b0056",
+          "segments": [
+            {
+              "start": 9.04,
+              "end": 55.96,
+              "reason": "保留原始提问和其后连续回答；未声称模型语义审核通过"
+            }
+          ],
+          "sha256": "7c76802a7956d060fbcce4261afdb296d3bcea38fd15f326841b88336eefe765",
+          "fingerprints": {
+            "version": 1,
+            "sha256": "7c76802a7956d060fbcce4261afdb296d3bcea38fd15f326841b88336eefe765",
+            "video_dhash": [
+              "80c0daf2d6a2a8a0",
+              "80c0d2f2d6a2b0a0",
+              "80c0daf2d6a2c0a0",
+              "80c0cae6c68300a0",
+              "80c0dae2d6a2f4a0",
+              "80c0dae2d6a2d8a0",
+              "80c0cae2d6a2a8a0",
+              "80c0eae686acd0a0",
+              "80c0dae2d6a2f6a0",
+              "80c0dae296a2b2a0",
+              "80c0dae296a298a0",
+              "80c0dae296a2e6a0"
+            ],
+            "audio_chromaprint": [
+              "002ee809",
+              "006ed908",
+              "00ee2380",
+              "01a63380",
+              "02a117e0",
+              "02aa49c0",
+              "02ad19d1",
+              "02b05fa0",
+              "02b0cf80",
+              "0361eac1",
+              "03a317c0",
+              "0422aac2",
+              "0422bac2",
+              "0423ca42",
+              "042a5d90",
+              "042ac602",
+              "042bc540",
+              "042fce02",
+              "043a79c0",
+              "046be001",
+              "04a8b003",
+              "04a8e022",
+              "04fa79c0",
+              "066c4d52",
+              "06ac3dc3",
+              "07ba79c0",
+              "082201c3",
+              "08c7b618",
+              "08ccaa28",
+              "09203052",
+              "0e202066",
+              "0e242066",
+              "0e2bc532",
+              "0e2d7422",
+              "10ea2294",
+              "11123b86",
+              "1410aa27",
+              "1410fa66",
+              "14133a96",
+              "146bc722",
+              "14e8d022",
+              "1530a22f",
+              "1531832f",
+              "1858aaa8",
+              "187202c1",
+              "18c062e1",
+              "18c0a32d",
+              "18c0e225",
+              "18c2b209",
+              "18c6b208",
+              "18c8e278",
+              "18d242e1",
+              "18d8227d",
+              "18d823f7",
+              "18d8a6e8",
+              "197861a7",
+              "1a1ac609",
+              "1a2a7197",
+              "1a6a7187",
+              "1ab8d7ae",
+              "1ae8d7ae",
+              "1aead38e",
+              "1af8c7ce",
+              "1b3acd0e",
+              "1b7a61a7",
+              "1e33810a",
+              "1f32830a",
+              "385889a8",
+              "3859a9a8",
+              "391888b8",
+              "3a59b988",
+              "3a5a9ac8",
+              "402c6c3a",
+              "40522a02",
+              "40a60a02",
+              "40a8e2a2",
+              "40ac66d2",
+              "40ad2a52",
+              "40f61a02",
+              "41122f13",
+              "41ba4888",
+              "422ce22a",
+              "422ce2aa",
+              "422ce32a",
+              "42ace2aa",
+              "42aecc9a",
+              "42aef19a",
+              "42aef3aa",
+              "43072171",
+              "432c612a",
+              "43ae4c89",
+              "44098dbd",
+              "440a898d",
+              "4468825c",
+              "446a990c",
+              "44e8860c"
+            ],
+            "transcript_simhash": [
+              "8d0f338db66e57d7",
+              "e727b34922e94eb6",
+              "b6e66b5101690736",
+              "b6266bd005091b36"
+            ],
+            "transcript_ngrams": [
+              "004501b883312710",
+              "1c09a5ac8599e60b",
+              "1f2f21a61b1fae07",
+              "2152d4fa52017901",
+              "227b45906da13c07",
+              "3ac13c267ff25703",
+              "3b4f2bcaa5206717",
+              "3e6312c47724870d",
+              "4bbe9c384af1d505",
+              "538105a209b74704",
+              "57c081ae19c02400",
+              "7e665abd3ede5805",
+              "adb905650ae9d90b",
+              "c934c459b86f0403",
+              "cc9bac74d2dcfa14",
+              "d72411e2e941b51e",
+              "d7c0e946e1ca5910",
+              "e5167eb0ba5cdd1a",
+              "e8e86d5d16f5021d",
+              "f2b35a71d4379e06"
+            ],
+            "transcript_chars": 222
+          },
+          "subtitle_sha256": "688915817932a7ac46ff48bdd859ca3f1163faf8c16b42834feb94e4d0130432",
+          "motion": {
+            "version": 2026091201,
+            "passed": true,
+            "samples": [
+              {
+                "time": 1.0,
+                "moving": false,
+                "changed_fraction": 0.012307692307692308,
+                "mean_residual": 1.4764335664335664,
+                "correlation": 0.9995670868976403
+              },
+              {
+                "time": 4.99090909090909,
+                "moving": true,
+                "changed_fraction": 0.18503496503496503,
+                "mean_residual": 8.230139860139861,
+                "correlation": 0.9862332245808707
+              },
+              {
+                "time": 8.98181818181818,
+                "moving": true,
+                "changed_fraction": 0.15426573426573426,
+                "mean_residual": 6.69062937062937,
+                "correlation": 0.9925562277670493
+              },
+              {
+                "time": 12.972727272727273,
+                "moving": false,
+                "reason": "cut_or_unregistered",
+                "correlation": 0.8985800221685096
+              },
+              {
+                "time": 16.96363636363636,
+                "moving": true,
+                "changed_fraction": 0.19251748251748252,
+                "mean_residual": 8.669790209790209,
+                "correlation": 0.9853186397233521
+              },
+              {
+                "time": 20.954545454545453,
+                "moving": true,
+                "changed_fraction": 0.2355944055944056,
+                "mean_residual": 9.981048951048951,
+                "correlation": 0.9812816700545645
+              },
+              {
+                "time": 24.945454545454545,
+                "moving": true,
+                "changed_fraction": 0.43202797202797205,
+                "mean_residual": 20.946363636363635,
+                "correlation": 0.9322571347397182
+              },
+              {
+                "time": 28.936363636363634,
+                "moving": true,
+                "changed_fraction": 0.3409090909090909,
+                "mean_residual": 12.001328671328672,
+                "correlation": 0.9523654392302504
+              },
+              {
+                "time": 32.92727272727272,
+                "moving": true,
+                "changed_fraction": 0.41706293706293707,
+                "mean_residual": 15.877062937062938,
+                "correlation": 0.9572258095788325
+              },
+              {
+                "time": 36.918181818181814,
+                "moving": false,
+                "changed_fraction": 0.007062937062937063,
+                "mean_residual": 1.4247552447552447,
+                "correlation": 0.9995046558089845
+              },
+              {
+                "time": 40.90909090909091,
+                "moving": false,
+                "changed_fraction": 0.007902097902097902,
+                "mean_residual": 1.0122377622377623,
+                "correlation": 0.9994634119452724
+              },
+              {
+                "time": 44.9,
+                "moving": true,
+                "changed_fraction": 0.06335664335664336,
+                "mean_residual": 3.709090909090909,
+                "correlation": 0.997612362079203
+              }
+            ],
+            "moving_by_third": [
+              2,
+              4,
+              2
+            ],
+            "window": {
+              "x": 44,
+              "y": 360,
+              "width": 632,
+              "height": 470
+            },
+            "policy": "affine_compensated_local_motion",
+            "limitation": "Temporal motion evidence; identity is checked separately"
+          },
+          "cover_style": "editorial",
+          "cover_upgrade_eligible": false,
+          "cover_layout_version": 3,
+          "status": "verified",
+          "reason": null
+        }
+      ]
+    }
+  ]
 }
