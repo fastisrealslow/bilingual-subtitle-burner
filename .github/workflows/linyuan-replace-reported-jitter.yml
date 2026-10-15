@@ -55,16 +55,19 @@ jobs:
           python -m pytest -q tests/test_linyuan_tracking_replacement.py tests/test_linyuan_constrained_framing.py tests/test_linyuan_stable_framing.py tests/test_linyuan_reviewed_updates.py tests/test_linyuan_state_merge.py
           pip install yt-dlp==2026.8.19
           python -m pytest -q tests/test_linyuan_*.py tests/test_fc_deploy_code.py --tb=short
-      - name: 取得原投稿文件与相同哈希母片（不重新识别、不改原话）
+      - name: 恢复同一次完整复验通过的不可变成片
         run: |
-          gh run download 38449197154 --repo "$GITHUB_REPOSITORY" --name deliver-ly-1013-5a1382 --dir /tmp/reported-original
-          gh run download 38449197154 --repo "$GITHUB_REPOSITORY" --name editorial-ly-1013-5a1382 --dir /tmp/reported-editorial
-          gh run download 38449197154 --repo "$GITHUB_REPOSITORY" --name mother-media-f6039845aad95adf33c6b3b86e520fa91298dbce5b1951fca33147026f6085dd --dir /tmp/reported-mother
-      - name: 同区间重新取景并独立两次复验实际成片
-        run: >-
-          python -u linyuan/build_tracking_revision.py
-          --original /tmp/reported-original --source /tmp/reported-mother/video.mp4
-          --editorial /tmp/reported-editorial --output /tmp/reported-fixed
+          gh run download 38683339566 --repo "$GITHUB_REPOSITORY" --name tracking-revision-BV1UEpC6bEQB --dir /tmp/reported-fixed
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('/tmp/reported-fixed');meta=json.loads((root/'meta.json').read_text())
+          digest=hashlib.sha256((root/'final.mp4').read_bytes()).hexdigest()
+          assert digest=='60e8dc90eb7e04386812344d4cf126b04b646cfb425f4f9e3203ed94499d2506'
+          assert meta['fingerprints']['sha256']==digest
+          assert meta['tracking_revision']['independent_media_validation_passes']==2
+          assert meta['tracking_revision']['old_sha256']=='8cdaf95155cefe57d0aad3858368a0eb44420d17d831ae1a9bcd0ba4ee88d342'
+          PY
       - name: 上传本次修复的完整成片与核验证据
         uses: actions/upload-artifact@v4
         with:

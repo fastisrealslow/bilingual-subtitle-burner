@@ -122,7 +122,7 @@ def main(directory):
     if values.get('DedeUserID')!=str(fc.OWNER_MID) or not values.get('bili_jct'):
         raise ValueError('Repair account mismatch')
     logging.getLogger('biliup').setLevel(logging.WARNING)
-    client=BiliBili(Data());client.login_by_cookies(dict(cookie_info=dict(cookies=entries)))
+    client=BiliBili(Data());client.login_by_cookies(values)
     client._BiliBili__session.mount('https://',HTTPAdapter(max_retries=0))
     result=fc.run_with_lease('publish',lambda:apply(fc,directory,client,values['bili_jct']),wait_seconds=120)
     print(json.dumps(result,ensure_ascii=False),flush=True)
