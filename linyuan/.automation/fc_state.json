@@ -30543,7 +30543,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我认为现在是投资消费的这个对类公司的好值机便宜。\", \"suspect_quote\": \"对类公司的好值机便宜\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘对类’应为‘这类’或‘此类’，‘好值机’语义不通（可能为‘好值’、‘高值’或口误），‘便宜’前缀修饰不明。整段‘好值机便宜’无法解释具体含义，属于关键信息污染。”}]}**说明：**其他句子虽含口语重复、省略或比喻（如“新新\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"中国的新新的有钱人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘新新的’不符合常规表达，可能是‘新富’、‘新兴’或口吃重复导致的误识，需确认原意是否为‘中国的新兴富裕人群’。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"就所所谓的这个新经济上\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘所所谓的’应为‘所谓的’，多出的‘所’字属冗余或误识；‘这个’为口语填充词，非错误，但结合前文‘新新的有钱人’，整句存在多处疑似错写。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"都是都是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：连续重复‘都是’可能为口吃或误识，但单独看‘都是都是’无明确指代对象，需结合上下文判断是否为‘都是这样的’或‘都是这些’的误录。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"主要中主要国家国家的这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘主要中主要’和‘国家国家的’明显重复，不符合正常表达，可能是‘主要发达国家’或‘主要国家’的误识，属关键信息污染。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"就是那几家企\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘几家企’应为‘几家企业’，‘企’字单独使用不完整，属专有名词或普通名词截断。”}, {\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1id4y1y7St",
@@ -30565,7 +30566,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-10-25T04:17:43+00:00"
+   "publish_time": "2022-10-25T04:17:43+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-71058f",
+    "run_id": 38818052233,
+    "artifact_id": 12012518541,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕逐字时间倒退或重叠"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少核心观点：嘉宾未明确回答‘什么情况下会卖股票’的具体条件或案例，仅提及‘行业发生变化’但未展开；句 6-9 列举银行、家电、钢铁等名词，但属于碎片化回应，未形成完整逻辑链条（如未说明为何因这些行业变化而卖出）；句 11 提到‘毛利利率下降’但未关联到卖出决策。整体内容被主持人提问打断，且结尾无总结性判断，不符合独立成片所需的完整表达。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38818052233,
+    "artifact_id": 12012518541,
+    "name": "production-reject-ly-1015-71058f",
+    "retained": true
+   },
+   "last_error": "字幕逐字时间倒退或重叠",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1um766LEXo",
@@ -30587,7 +30614,33 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-06-05T08:30:00+00:00"
+   "publish_time": "2026-06-05T08:30:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-e5f00c",
+    "run_id": 38818062543,
+    "artifact_id": 12012278397,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/198，总帧数986；身份匹配但人脸短边不足96px的帧数198"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答缺乏实质性判断内容，仅为情绪性附和与重复，无法构成独立成片的完整观点表达。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38818062543,
+    "artifact_id": 12012278397,
+    "name": "production-reject-ly-1015-e5f00c",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/198，总帧数986；身份匹配但人脸短边不足96px的帧数198",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV17ju26nEFt",
@@ -88715,6 +88768,20 @@
    "video_id": "BV15aJU65Exx",
    "ts": 1792104916,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我认为现在是投资消费的这个对类公司的好值机便宜。\", \"suspect_quote\": \"对类公司的好值机便宜\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘对类’应为‘这类’或‘此类’，‘好值机’语义不通（可能为‘好值’、‘高值’或口误），‘便宜’前缀修饰不明。整段‘好值机便宜’无法解释具体含义，属于关键信息污染。”}]}**说明：**其他句子虽含口语重复、省略或比喻（如“新新\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"中国的新新的有钱人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘新新的’不符合常规表达，可能是‘新富’、‘新兴’或口吃重复导致的误识，需确认原意是否为‘中国的新兴富裕人群’。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"就所所谓的这个新经济上\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘所所谓的’应为‘所谓的’，多出的‘所’字属冗余或误识；‘这个’为口语填充词，非错误，但结合前文‘新新的有钱人’，整句存在多处疑似错写。”}, {\"}, {\"sentence_id\": 5, \"quote\": \"我要强调的是，中国的新新的有钱人，又在这个，就所所谓的这个新经济上，都是都是。\", \"suspect_quote\": \"都是都是\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：连续重复‘都是’可能为口吃或误识，但单独看‘都是都是’无明确指代对象，需结合上下文判断是否为‘都是这样的’或‘都是这些’的误录。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"主要中主要国家国家的这个\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘主要中主要’和‘国家国家的’明显重复，不符合正常表达，可能是‘主要发达国家’或‘主要国家’的误识，属关键信息污染。”}, {\"}, {\"sentence_id\": 8, \"quote\": \"主要中主要国家国家的这个，就是那几家企，这也是不合常理。\", \"suspect_quote\": \"就是那几家企\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘几家企’应为‘几家企业’，‘企’字单独使用不完整，属专有名词或普通名词截断。”}, {\"}]"
+  },
+  {
+   "slug": "ly-1015-e5f00c",
+   "key": "bilibili_search:BV1um766LEXo",
+   "video_id": "BV1um766LEXo",
+   "ts": 1792105113,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/198，总帧数986；身份匹配但人脸短边不足96px的帧数198"
+  },
+  {
+   "slug": "ly-1015-71058f",
+   "key": "bilibili_search:BV1id4y1y7St",
+   "video_id": "BV1id4y1y7St",
+   "ts": 1792105114,
+   "error": "字幕逐字时间倒退或重叠"
   }
  ],
  "reviewed_third_video_0910": {
