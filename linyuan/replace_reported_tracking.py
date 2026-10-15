@@ -16,6 +16,8 @@ except ModuleNotFoundError:
 
 AID = 117438213591310
 OLD_CID = 42732880203
+SEASON_ID = 9324935
+OWNER_MID = 275211725
 STATE_KEY = 'tracking_revision_20261015'
 
 
@@ -90,8 +92,16 @@ def apply(fc, directory, client, csrf, validator):
         item=dict(bvid=BVID,title=TITLE,old_title=TITLE)
         payload=payload_for(current,item,archive['cover'],txn['filename'])
         payload['desc']=meta['desc'];payload.pop('desc_v2',None)
-        # The creator detail's season is navigation state, never move/remove it.
-        if archive.get('season_id'):payload['season_id']=archive['season_id']
+        # Creator detail omits season_id even when in_season is true. Resolve
+        # the existing public membership rather than accidentally detaching it.
+        public=session.get('https://api.bilibili.com/x/web-interface/view',
+            params=dict(bvid=BVID),timeout=30).json()
+        view=public.get('data') or {}
+        if (public.get('code')!=0 or view.get('aid')!=AID
+                or view.get('bvid')!=BVID or (view.get('owner') or {}).get('mid')!=OWNER_MID
+                or (view.get('ugc_season') or {}).get('id')!=SEASON_ID):
+            raise ValueError('Original collection membership changed or unavailable')
+        payload['season_id']=SEASON_ID
         if archive.get('section_id'):payload['section_id']=archive['section_id']
         txn['status']='edit_requested';persist()
         try:

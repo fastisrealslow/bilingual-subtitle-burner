@@ -26,8 +26,12 @@ def environment(tmp_path,monkeypatch,lost_reply=False):
         copyright=3,creation_statement=dict(id=0),season_id=9324935),
         videos=[dict(cid=r.OLD_CID,filename='old-file',title=r.TITLE)])
     calls=dict(uploads=0,edits=0)
+    public=dict(aid=r.AID,bvid=r.BVID,owner=dict(mid=r.OWNER_MID),ugc_season=dict(id=r.SEASON_ID))
     class Session:
-        def get(self,*a,**kw):return NS(status_code=200,headers={},json=lambda:dict(code=0,data=copy.deepcopy(current)))
+        public_view=public
+        def get(self,url,*a,**kw):
+            value=self.public_view if '/web-interface/view' in url else current
+            return NS(status_code=200,headers={},json=lambda:dict(code=0,data=copy.deepcopy(value)))
         def post(self,url,**kw):
             assert url.endswith('/edit');calls['edits']+=1
             payload=kw['json']
@@ -63,6 +67,21 @@ def test_changed_original_is_rejected_before_upload(tmp_path,monkeypatch):
     current['videos'][0]['cid']=123
     with pytest.raises(ValueError,match='already changed'):r.apply(fc,tmp_path,client,'test',lambda *a:None)
     assert calls==dict(uploads=0,edits=0)
+
+
+def test_real_creator_response_without_season_keeps_existing_collection(tmp_path,monkeypatch):
+    fc,state,current,calls,client=environment(tmp_path,monkeypatch)
+    current['archive'].pop('season_id');current['in_season']=True
+    assert r.apply(fc,tmp_path,client,'test',lambda *a:None)['status']=='verified'
+    assert current['archive']['season_id']==r.SEASON_ID
+
+
+def test_collection_changed_during_upload_never_edits(tmp_path,monkeypatch):
+    fc,state,current,calls,client=environment(tmp_path,monkeypatch)
+    client._BiliBili__session.public_view['ugc_season']['id']=123
+    with pytest.raises(ValueError,match='collection membership'):
+        r.apply(fc,tmp_path,client,'test',lambda *a:None)
+    assert calls==dict(uploads=1,edits=0)
 
 
 def test_unverified_video_never_reaches_login_edit_or_upload(tmp_path,monkeypatch):
