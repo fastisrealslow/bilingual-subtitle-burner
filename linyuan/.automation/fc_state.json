@@ -29589,7 +29589,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Y5pm6mEH2",
@@ -29611,7 +29612,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-15T04:15:00+00:00"
+   "publish_time": "2026-10-15T04:15:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-1b9782",
+    "run_id": 38692576326,
+    "artifact_id": 11952938234,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38692576326,
+    "artifact_id": 11952938234,
+    "name": "production-reject-ly-1015-1b9782",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -87238,6 +87261,13 @@
    "video_id": "BV11111BEEGJ",
    "ts": 1792040023,
    "error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
+  },
+  {
+   "slug": "ly-1015-1b9782",
+   "key": "bilibili_search:BV1Y5pm6mEH2",
+   "video_id": "BV1Y5pm6mEH2",
+   "ts": 1792046099,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
