@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792070952,
+  "updated_at": 1792071050,
   "inventory_updated_at": 1792070952,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792070952,
+    "updated_at": 1792071049,
     "records": 10311,
     "video_records": 8832,
     "initial_candidates": 58,
@@ -70,9 +70,9 @@
   },
   "counts": {
     "complete": 120,
-    "failed": 1063,
+    "failed": 1064,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "running": 2
   },
   "tasks": [
@@ -21506,11 +21506,11 @@
     },
     {
       "slug": "ly-1015-2fccb7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"疾病也是这样的，它随着年龄的增长，它突然一下，比如说现在的这个这个这个高血压，它不需要再有药物去干预它。\", \"suspect_quote\": \"它不需要再有药物去干预它\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘不需要’在此处是口语省略，结合上下文（年龄增长、疾病爆发）可能意指‘不再需要常规药物即可控制’或‘完全不需要药物’，存在歧义；且‘它’指代前文‘高血压’还是‘干预方式’不明确，影响对医疗需求逻辑的理解。\"}, {\"sentence_id\": 7, \"quote\": \"所以这个如果说我们想象七八十岁人增加的多的话，这个成那个堰塞湖的话，它就可成倍的增加。\", \"suspect_quote\": \"七八十岁人增加的多的话\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘七八十岁’是口语范围表述，但‘增加的多的话’中‘多’指代人口数量增加还是疾病发生率增加不明确；且‘堰塞湖’为比喻，若未明确指代‘老年人口积压导致医疗需求激增’，则关键因果逻辑含混。\"}, {\"sentence_id\": 11, \"quote\": \"所以这个人员的这个结构，它不是我们现在想象的，比如说，你看啊，这几个月或者过去一年，你总结出来那个数据不准的。\", \"suspect_quote\": \"你总结出来那个数据不准的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"含义不明的否定：‘不准的’否定对象不明确（是数据来源不准、统计方法不准还是结论不准？）；且‘那个数据’指代模糊，可能指近期发布的某份报告或内部测算，关键信息缺失。\"}]",
       "signature": {
         "ts": 1792068723,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30403,17 +30403,6 @@
       "run_number": 2105,
       "display_title": "中文源出片 · ly-1015-8f39b4"
     },
-    "ly-1015-c39c94": {
-      "id": 38737987753,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-15T12:52:20Z",
-      "updated_at": "2026-10-15T12:52:25Z",
-      "run_started_at": "2026-10-15T12:52:20Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737987753",
-      "run_number": 2107,
-      "display_title": "中文源出片 · ly-1015-c39c94"
-    },
     "ly-1015-2fccb7": {
       "id": 38737946627,
       "status": "completed",
@@ -30424,6 +30413,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737946627",
       "run_number": 2104,
       "display_title": "中文源出片 · ly-1015-2fccb7"
+    },
+    "ly-1015-c39c94": {
+      "id": 38737987753,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-15T12:52:20Z",
+      "updated_at": "2026-10-15T12:52:25Z",
+      "run_started_at": "2026-10-15T12:52:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737987753",
+      "run_number": 2107,
+      "display_title": "中文源出片 · ly-1015-c39c94"
     },
     "ly-1015-83706c": {
       "id": 38728976561,
