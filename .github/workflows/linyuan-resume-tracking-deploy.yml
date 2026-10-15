@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi aliyun-log-python-sdk
       - name: 只读查询唯一替换任务错误
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
@@ -39,4 +39,20 @@ jobs:
           text=re.sub(r'https?://[^\s"\\]+','[url]',text)
           text=re.sub(r'(?i)(SESSDATA|bili_jct|access.?key|token)[=:][^\s,;]+',r'\1=[redacted]',text)
           print(text[:12000])
+          cfg=c.get_function('fc-develop',m.GetFunctionRequest(qualifier='LATEST')).body.log_config
+          print('Function log configured:',bool(cfg and cfg.project and cfg.logstore))
+          if cfg and cfg.project and cfg.logstore:
+              from aliyun.log import LogClient
+              from datetime import datetime
+              parse=lambda v:int(datetime.fromisoformat(v.replace('Z','+00:00')).timestamp())
+              logs=LogClient('cn-hangzhou.log.aliyuncs.com',os.environ['ALIYUN_AK'],os.environ['ALIYUN_SK'])
+              out=logs.get_log(cfg.project,cfg.logstore,parse(t['startedTime'])-5,parse(t['endTime'])+10,query='"'+t['requestId']+'"',size=100)
+              for row in out.get_logs():
+                  fields=dict(row.contents)
+                  message=str(fields.get('message') or fields.get('content') or fields)
+                  if not any(x in message for x in ('Error','Exception','Traceback','File "','raise ','ValueError','RuntimeError')):continue
+                  message=re.sub(r'https?://[^\s"\\]+','[url]',message)
+                  if any(x.lower() in message.lower() for x in ('sessdata','bili_jct','cookie','accesskey')):
+                      message='[sensitive diagnostic line omitted]'
+                  print(message[:6000])
           PY
