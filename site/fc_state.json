@@ -30233,7 +30233,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-15T15:53:44+00:00"
+   "publish_time": "2026-10-15T15:53:44+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-5db879",
+    "run_id": 38778543274,
+    "artifact_id": 11994054930,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38778543274,
+    "artifact_id": 11994054930,
+    "name": "production-reject-ly-1015-5db879",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1JTJk6TESM",
@@ -30265,7 +30287,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1PVpU6MEUP",
@@ -30287,7 +30310,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-15T13:44:00+00:00"
+   "publish_time": "2026-10-15T13:44:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-7bbf42",
+    "run_id": 38778580976,
+    "artifact_id": 11994599658,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"证券公司热闹的时候都排队了，看都能看到供求关系，一清一不了然。\", \"suspect_quote\": \"一清一不了然\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：成语应为“一目了然”，原文“一清一不了然”语义不通，属于明显的错别字或识别污染。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38778580976,
+    "artifact_id": 11994599658,
+    "name": "production-reject-ly-1015-7bbf42",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"证券公司热闹的时候都排队了，看都能看到供求关系，一清一不了然。\", \"suspect_quote\": \"一清一不了然\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：成语应为“一目了然”，原文“一清一不了然”语义不通，属于明显的错别字或识别污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1GhJ26TEVM",
@@ -88373,6 +88418,20 @@
    "video_id": "BV1JTJk6TESM",
    "ts": 1792085874,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1015-7bbf42",
+   "key": "bilibili_search:BV1PVpU6MEUP",
+   "video_id": "BV1PVpU6MEUP",
+   "ts": 1792086335,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"证券公司热闹的时候都排队了，看都能看到供求关系，一清一不了然。\", \"suspect_quote\": \"一清一不了然\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：成语应为“一目了然”，原文“一清一不了然”语义不通，属于明显的错别字或识别污染。\"}]"
+  },
+  {
+   "slug": "ly-1015-5db879",
+   "key": "bilibili_search:BV1FeJ16jEU9",
+   "video_id": "BV1FeJ16jEU9",
+   "ts": 1792086336,
+   "error": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
