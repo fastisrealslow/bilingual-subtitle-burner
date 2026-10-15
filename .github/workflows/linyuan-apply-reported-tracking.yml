@@ -5,7 +5,8 @@ on:
     types: [completed]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write  # Only exact stopped-worker lease cleanup; media state is written by FC.
+  actions: write  # Cancel only the positively identified pre-edit overseas attempt.
 jobs:
   apply:
     if: >-
@@ -21,6 +22,10 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 国内接管前停止唯一仍未编辑原稿的旧上传
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u linyuan/stop_prior_tracking_upload.py
       - name: 国内执行并回读唯一原稿，不增加发布数量
         env:
           ALIYUN_AK: ${{ secrets.ALIYUN_AK }}

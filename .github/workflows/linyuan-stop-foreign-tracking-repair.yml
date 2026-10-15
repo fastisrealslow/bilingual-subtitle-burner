@@ -1,0 +1,19 @@
+name: 释放已定位的境外修复上传占用
+on:
+  push:
+    branches: [codex/linyuan-replace-jitter-20261015]
+    paths: [.github/workflows/linyuan-stop-foreign-tracking-repair.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 仅取消精确绑定且尚未提交原稿编辑的旧上传
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u linyuan/stop_prior_tracking_upload.py
