@@ -30211,7 +30211,33 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-10-15T13:09:08+00:00"
+   "publish_time": "2026-10-15T13:09:08+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1015-05c712",
+    "run_id": 38778526240,
+    "artifact_id": 11995009287,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答未直接回应主持人关于'AI 题材是否交给同行’的核心提问。句 1 将 AI 公司类比为‘正常企业’并推测估值低，属于对假设情境的推演而非明确表态；句 2 引用九月论坛共识建议买 ETF，虽含判断但与前文逻辑断裂，且引用他人观点（刘锡红教授）而非嘉宾自身对原问题的直接回应。整体构成‘未回答的新问题结尾’，缺少对初始提问的明确结论。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 299.35s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38778526240,
+    "artifact_id": 11995009287,
+    "name": "production-reject-ly-1015-05c712",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答未直接回应主持人关于'AI 题材是否交给同行’的核心提问。句 1 将 AI 公司类比为‘正常企业’并推测估值低，属于对假设情境的推演而非明确表态；句 2 引用九月论坛共识建议买 ETF，虽含判断但与前文逻辑断裂，且引用他人观点（刘锡红教授）而非嘉宾自身对原问题的直接回应。整体构成‘未回答的新问题结尾’，缺少对初始提问的明确结论。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1FeJ16jEU9",
@@ -30255,7 +30281,8 @@
    },
    "last_error": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1JTJk6TESM",
@@ -30332,7 +30359,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"证券公司热闹的时候都排队了，看都能看到供求关系，一清一不了然。\", \"suspect_quote\": \"一清一不了然\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：成语应为“一目了然”，原文“一清一不了然”语义不通，属于明显的错别字或识别污染。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1GhJ26TEVM",
@@ -88432,6 +88460,13 @@
    "video_id": "BV1FeJ16jEU9",
    "ts": 1792086336,
    "error": "整段取景预检：源 40.63s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1015-05c712",
+   "key": "bilibili_search:BV1LxJ266Ew6",
+   "video_id": "BV1LxJ266Ew6",
+   "ts": 1792086830,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答未直接回应主持人关于'AI 题材是否交给同行’的核心提问。句 1 将 AI 公司类比为‘正常企业’并推测估值低，属于对假设情境的推演而非明确表态；句 2 引用九月论坛共识建议买 ETF，虽含判断但与前文逻辑断裂，且引用他人观点（刘锡红教授）而非嘉宾自身对原问题的直接回应。整体构成‘未回答的新问题结尾’，缺少对初始提问的明确结论。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
