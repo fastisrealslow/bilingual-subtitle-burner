@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792068873,
+  "updated_at": 1792069394,
   "materials": {
     "weibo_search": {
       "records": 2113,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792068873,
+    "updated_at": 1792069394,
     "records": 10311,
     "video_records": 8832,
-    "initial_candidates": 59,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 58,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1479,
       "speaker_unconfirmed": 6055,
-      "already_attempted_or_cooling": 1362,
+      "already_attempted_or_cooling": 1363,
       "clip_title": 1098,
       "noise": 19,
       "unrelated": 62,
@@ -133,16 +133,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1YkJC6wE8u",
-        "title": "林园 地产跌成这样他怎么看？林园：股价已经跌得十分之一都是好的了，你别看那么多房子，中国人都能消化掉，特别是一些改善式地",
-        "source": "reference_origin_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1YkJC6wE8u",
-        "duration_sec": 121.0
-      }
-    ]
+    "candidates": []
   },
   "source_outcomes": {
     "mothers": [
@@ -23045,7 +23036,14 @@
           "ly-1015-134205"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1015-134205",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 474 < 480（854x474），画质不达标"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23073,6 +23071,21 @@
         "family": "BV18CpU6mE5L",
         "slugs": [
           "ly-1015-cfc4f6"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1YkJC6wE8u:p1",
+        "source_url": "https://www.bilibili.com/video/BV1YkJC6wE8u",
+        "family": "BV1YkJC6wE8u",
+        "slugs": [
+          "ly-1015-e4868b"
         ],
         "source_sha256": [],
         "failures": [],
@@ -23718,9 +23731,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1,
-        "terminal_quality-service": 1
+        "terminal_unclassified": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -23997,8 +24010,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24319,8 +24332,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -24499,8 +24512,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -27635,7 +27648,8 @@
       "BV1t9JC69EDw": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
       },
       "BV1Tc41137tB": {
         "attempted_mothers": 1,
@@ -27643,6 +27657,11 @@
         "verified_seconds": 0
       },
       "BV18CpU6mE5L": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV1YkJC6wE8u": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
