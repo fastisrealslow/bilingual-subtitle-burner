@@ -8,9 +8,11 @@ from pathlib import Path
 import sys
 import time
 
-from build_tracking_revision import BVID, SLUG, OLD_SHA, SOURCE_SHA, TITLE, sha
-from source_supply import validate_part
-from fc.reviewed_updates import creator_detail, payload_for
+from tracking_revision_contract import BVID, SLUG, OLD_SHA, SOURCE_SHA, TITLE, sha
+try:
+    from reviewed_updates import creator_detail, payload_for
+except ModuleNotFoundError:
+    from fc.reviewed_updates import creator_detail, payload_for
 
 AID = 117438213591310
 OLD_CID = 42732880203
@@ -28,12 +30,12 @@ def checked_archive(data, filename=None):
     return archive, videos[0]
 
 
-def apply(fc, directory, client, csrf):
+def apply(fc, directory, client, csrf, validator):
     directory=Path(directory);meta=json.loads((directory/'meta.json').read_text())
     if (meta.get('title') != TITLE or meta.get('source_sha256') != SOURCE_SHA
             or (meta.get('tracking_revision') or {}).get('old_sha256') != OLD_SHA):
         raise ValueError('Unexpected repair bundle')
-    error=validate_part(meta,directory)
+    error=validator(meta,directory)
     if error: raise ValueError(error)
     video=directory/meta['final'];new_sha=sha(video)
     state=fc.load_state();receipt=state.get('published',{}).get(SLUG) or {}
@@ -64,7 +66,17 @@ def apply(fc, directory, client, csrf):
         transactions[BVID]=txn;persist()
     if not txn.get('filename'):
         if txn['status']=='upload_requested':
-            raise RuntimeError('Previous upload outcome unknown; original archive untouched')
+            prior=txn.get('workflow_run_id')
+            run=fc.gh('GET',f'/actions/runs/{int(prior)}',timeout=20) if str(prior).isdigit() else {}
+            if run.get('status')!='completed':
+                return dict(status='awaiting_prior_upload',bvid=BVID,new_posts=0)
+            # A finished pre-edit worker cannot submit later. No filename was
+            # saved and the exact original CID is still present: another media
+            # upload may leave unused bytes, but can never duplicate a post.
+            checked_archive(current)
+            txn.setdefault('abandoned_upload_attempts',[]).append(dict(
+                workflow_run_id=prior,conclusion=run.get('conclusion'),no_edit_requested=True))
+            txn['status']='prepared';persist()
         txn['status']='upload_requested';persist()
         uploaded=client.upload_file(str(video), lines='bda2', tasks=1)
         if not uploaded.get('filename'):raise ValueError('Upload did not return a filename')
@@ -112,23 +124,15 @@ def apply(fc, directory, client, csrf):
         old_cid=OLD_CID,archive_state=archive.get('state'),new_posts=0)
 
 
-def main(directory):
+def client_from_cookies(owner_mid):
     from biliup.plugins.bili_webup import BiliBili, Data
     from requests.adapters import HTTPAdapter
-    sys.path.insert(0,str(Path(__file__).parent/'fc'));import index as fc
     cookie=json.loads(os.environ['BILIBILI_COOKIES'])
     entries=(cookie.get('cookie_info') or {}).get('cookies') or cookie.get('cookies') or []
     values={row['name']:str(row['value']) for row in entries}
-    if values.get('DedeUserID')!=str(fc.OWNER_MID) or not values.get('bili_jct'):
+    if values.get('DedeUserID')!=str(owner_mid) or not values.get('bili_jct'):
         raise ValueError('Repair account mismatch')
     logging.getLogger('biliup').setLevel(logging.WARNING)
     client=BiliBili(Data());client.login_by_cookies(values)
     client._BiliBili__session.mount('https://',HTTPAdapter(max_retries=0))
-    result=fc.run_with_lease('publish',lambda:apply(fc,directory,client,values['bili_jct']),wait_seconds=120)
-    print(json.dumps(result,ensure_ascii=False),flush=True)
-    if result.get('status') not in {'verified','already_verified'}:raise SystemExit(1)
-
-
-if __name__=='__main__':
-    ap=argparse.ArgumentParser();ap.add_argument('--directory',required=True)
-    main(ap.parse_args().directory)
+    return client,values['bili_jct']

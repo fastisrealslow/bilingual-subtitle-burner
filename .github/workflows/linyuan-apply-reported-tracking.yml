@@ -1,0 +1,36 @@
+name: 国内原位替换已验收的抖动修复版
+on:
+  workflow_run:
+    workflows: [FC production deploy]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apply:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 国内执行并回读唯一原稿，不增加发布数量
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: python -u linyuan/fc/invoke_tracking_revision.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tracking-revision-mainland-receipt
+          path: tracking-revision-verification.json
+          retention-days: 30

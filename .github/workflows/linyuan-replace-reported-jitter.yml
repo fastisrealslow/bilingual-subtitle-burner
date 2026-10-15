@@ -1,8 +1,5 @@
 name: 原位修复用户报告的可转债视频抖动
 on:
-  push:
-    branches: [codex/linyuan-replace-jitter-20261015]
-    paths: [.github/workflows/linyuan-replace-reported-jitter.yml]
   workflow_dispatch:
 permissions:
   contents: write
@@ -78,7 +75,7 @@ jobs:
       - name: 只编辑原稿，持久化上传和编辑回执，禁止新增投稿
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: python -u linyuan/replace_reported_tracking.py --directory /tmp/reported-fixed
+        run: python -u linyuan/run_tracking_replacement.py --directory /tmp/reported-fixed
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
