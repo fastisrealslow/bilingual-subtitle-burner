@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792190732,
+  "updated_at": 1792190880,
   "inventory_updated_at": 1792190723,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792190731,
+    "updated_at": 1792190880,
     "records": 10620,
     "video_records": 9114,
     "initial_candidates": 60,
@@ -70,14 +70,14 @@
   },
   "counts": {
     "complete": 123,
-    "failed": 1096,
+    "failed": 1098,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "ready": 8,
     "unknown": 1,
     "excluded": 3,
-    "retry_queued": 6,
-    "running": 2
+    "retry_queued": 5,
+    "running": 3
   },
   "tasks": [
     {
@@ -22554,11 +22554,11 @@
     },
     {
       "slug": "ly-1016-35b744",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配378/1372，总帧数4968；身份匹配但人脸短边不足96px的帧数972",
       "signature": {
         "ts": 1792188264,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22569,24 +22569,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38973500530",
       "run_started_at": "2026-10-16T22:04:24Z",
       "run_updated_at": "2026-10-16T22:42:32Z"
-    },
-    {
-      "slug": "ly-1016-dd5cd8",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792188269,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792190643,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38973510238,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38973510238",
-      "run_started_at": "2026-10-16T22:04:29Z",
-      "run_updated_at": "2026-10-16T22:27:17Z"
     },
     {
       "slug": "ly-1016-7efe28",
@@ -22608,11 +22590,11 @@
     },
     {
       "slug": "ly-1016-97508c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取决于这个是电脑，手机还是够啊，第一波应该是，电脑跟相关的，以以以电脑，PC机，跟现在都不在。\", \"suspect_quote\": \"电脑，手机还是够啊，第一波应该是，电脑跟相关的，\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定污染：‘还是够啊’疑似为‘还是不够啊’的识别错误（‘够’与‘不’在口语中易混淆），若按原文‘够’则语义不通；此外‘电脑跟相关的’后文截断，缺少宾语或完整表述，导致‘第一波应该是’的判断对象不明。\"}]",
       "signature": {
         "ts": 1792189804,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22623,6 +22605,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38976111686",
       "run_started_at": "2026-10-16T22:30:03Z",
       "run_updated_at": "2026-10-16T22:42:57Z"
+    },
+    {
+      "slug": "ly-1016-dd5cd8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792190839,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38977807664,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38977807664",
+      "run_started_at": "2026-10-16T22:47:19Z",
+      "run_updated_at": "2026-10-16T22:47:23Z"
     }
   ],
   "runs": {
@@ -31999,14 +31999,14 @@
       "display_title": "中文源出片 · ly-1016-89e34e"
     },
     "ly-1016-dd5cd8": {
-      "id": 38973510238,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-16T22:04:29Z",
-      "updated_at": "2026-10-16T22:27:17Z",
-      "run_started_at": "2026-10-16T22:04:29Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38973510238",
-      "run_number": 2191,
+      "id": 38977807664,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-16T22:47:19Z",
+      "updated_at": "2026-10-16T22:47:23Z",
+      "run_started_at": "2026-10-16T22:47:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38977807664",
+      "run_number": 2194,
       "display_title": "中文源出片 · ly-1016-dd5cd8"
     },
     "ly-1016-97508c": {
