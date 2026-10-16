@@ -25616,7 +25616,19 @@
    "source_check_exhausted": false,
    "source_check_retry_after": 1791922044,
    "recovery_origin_run_id": 37901750167,
-   "source_check_run_id": 37901750167
+   "source_check_run_id": 37901750167,
+   "production_failure_summary": {
+    "slug": "ly-1009-88710f",
+    "run_id": 37901750167,
+    "artifact_id": 11604865170,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"从我们说了个宝葫芦。\", \"suspect_quote\": \"从我们说了个宝葫芦\", \"kind\": \"unintelligible_term\", \"reason\": \"‘说了个’在语境中无法解释，疑似将‘说了一个’或特定比喻词误识别为无意义的口语填充，导致‘宝葫芦’这一核心隐喻的引入逻辑断裂。\"}, {\"sentence_id\": 11, \"quote\": \"兜里大说：你看我们这这个宝葫芦是天天携带的。\", \"suspect_quote\": \"兜里大说\", \"kind\": \"unintelligible_term\", \"rea"
+     }
+    ]
+   }
   },
   {
    "key": "bilibili_search:BV1d7411z7bg",
@@ -91216,7 +91228,7 @@
  },
  "source_refresh_requested_at": 1792133224,
  "inventory_refresh_requested_at": 1791955525,
- "rule_recovery_page": 6,
+ "rule_recovery_page": 7,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
