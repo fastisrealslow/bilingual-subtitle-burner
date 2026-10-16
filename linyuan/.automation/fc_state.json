@@ -25585,7 +25585,23 @@
    "source_check_exhausted": false,
    "source_check_retry_after": 1791922029,
    "recovery_origin_run_id": 37907277282,
-   "source_check_run_id": 37907277282
+   "source_check_run_id": 37907277282,
+   "production_failure_summary": {
+    "slug": "ly-1009-4d3689",
+    "run_id": 37907277282,
+    "artifact_id": 11605608742,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我何必去染着这个骚呢？\", \"suspect_quote\": \"染着这个骚呢\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词/行业术语，'染着这个骚'在金融语境下无明确含义，可能是'染指这个赛道'的误识。\"}, {\"sentence_id\": 13, \"quote\": \"你要一下跌，跌个百分之七八十、九十，你说我当可能跌了百分之九十，按照最终的结果，这个还是个底部，那不不见得是错误。\", \"suspect_quote\": \"跌个百分之七八十、九十\", \"kin"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"旁边坐的那个老太太是当时拿了百分之三十六的平安银行，当时要申发展，今年九十一岁了。\", \"suspect_quote\": \"百分之三十六\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之三十六'在口语中可能指代持股比例（36%）或具体金额，结合上下文“拿了”及后文“两千几百亿”，此处若为比例则需确认是否特指某次交易占比，若为金额则单位缺失；但更明显的疑点在于后文逻辑矛盾：前句说老太太拿了这个比例，后句又说“现在\"}]"
+     }
+    ]
+   }
   },
   {
    "key": "weibo_search:5340829826941807",
@@ -27768,8 +27784,8 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-c04d71",
-    "run_id": 38471683589,
-    "artifact_id": 11853087506,
+    "run_id": 37907852159,
+    "artifact_id": 11605904661,
     "accepted": 0,
     "failures": [
      {
@@ -92080,7 +92096,7 @@
  },
  "source_refresh_requested_at": 1792151768,
  "inventory_refresh_requested_at": 1791955525,
- "rule_recovery_page": 6,
+ "rule_recovery_page": 7,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
