@@ -30723,7 +30723,133 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T00:58:05+00:00"
+   "publish_time": "2026-10-16T00:58:05+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-953251",
+    "run_id": 38914068391,
+    "artifact_id": 12063697764,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2712.68s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"你只能说，比如说现在，呃，英伟达，英伟达的现在的地位，我告诉你啊，八八年、八九年、九零年那个时候，英伟达这个位置是，你知道是谁吗？\", \"suspect_quote\": \"八八年、八九年、九零年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份表述存在口语化歧义：‘九零年’在中文语境中通常指 1990 年，但结合上下文（对比英伟达与摩托罗拉的时代背景），此处极可能为口误或识别错误，实际应为‘八十年代’或具体某一年份（如 1986-1987 年），因缺乏明确指代且影响历"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"‘另另类’在口语中无明确含义，疑似识别错误（可能为‘另类’或‘另起炉灶’等），影响对主语行为性质的理解。\"}, {\"sentence_id\": 12, \"quote\": \"我们看香港，我去看最前段时间我去香港，就是就是去看了个，他们都在讲，那五几年的房子都算是，还是很好的。\", \"suspect_quote\": \"最前段时间\", \"kind\": \"unin"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中未出现嘉宾针对某一具体投资判断、市场观点或核心主张的明确结论性表述。所有句子均为叙述他人言论、描述生活细节或进行一般性能力评价，缺乏可独立成片的‘观点 + 理由 + 结论’完整逻辑闭环。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 35, \"quote\": \"通讯企业那么多，当初很多通信，为什么华为跑出？\", \"suspect_quote\": \"当初很多通信，为什么华为跑出？\", \"kind\": \"unintelligible_term\", \"reason\": \"“跑出”在此处语义不明，疑似为“跑出来”或“脱颖而出”的口语省略/识别错误，导致句子逻辑不通。\"}, {\"sentence_id\": 36, \"quote\": \"我们在深圳待的，那最早是个瑞讯，华是叫个什么瑞讯，那厉害的很。\", \"suspect_quote\": \"那最早是个瑞讯，华是叫个什么瑞讯\", \"kind\": \"u"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"您是说这个闭眼睡觉十二年分红，这个您已经计算过了。\", \"suspect_quote\": \"闭眼睡觉十二年分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误：‘闭眼睡觉’在金融语境下无明确含义，结合上下文‘十二年分红’，极可能是‘闭眼持有’、‘躺平’或特定术语（如‘闭眼买’）的误识，导致关键投资行为描述无法理解。\"}, {\"sentence_id\": 8, \"quote\": \"也是一个，就是我换算是一个合理的。\", \"suspect_quote\": \"换算是一个合理的"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 11, \"quote\": \"我只是不愿意把那个子给捅透。\", \"suspect_quote\": \"我只是不愿意把那个子给捅透\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘那个子’为口语省略，指代不明（可能指‘盖子’、‘底牌’或‘窗户纸’），属于含义不明的关键名词，非正常口语省略主语或填充词。\"}, {\"sentence_id\": 24, \"quote\": \"他今天也是满头白发，一会儿跟你说个这，一会儿老练啊，长发是吧？\", \"suspect_quote\": \"一会儿跟你说个这，一会儿老练啊，"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 342.91s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 22, \"quote\": \"不会，它就因为这个疾病啊，它是和年龄活活的常关联。\", \"suspect_quote\": \"它是和年龄活活的常关联\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：‘活活的常’在金融或医学语境下无意义，应为‘活着的’或‘长期’的误识，导致语义不通。\"}, {\"sentence_id\": 27, \"quote\": \"七十八岁以上的人，每次每活半年，都是用的药，比前一几十年都用得多。\", \"suspect_quote\": \"七十八岁以上的人\", \"kind\": \"ambiguo"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"说黄金，我们就是实际上是无效资产。\", \"suspect_quote\": \"说黄金，我们就是实际上是无效资产\", \"kind\": \"unintelligible_term\", \"reason\": \"句中‘就是’疑似为识别错误，结合上下文语境（引用巴菲特观点），此处应指代‘无息资产’或类似金融术语，而‘就是’在语义上无法解释且不符合专业表述；同时‘实际上’与口语习惯不符，可能应为‘实则是’或其他连接词，但当前组合导致含义模糊。\"}, {\"sentence_id\": 4, \"quote\": \"我跟他的，他又不能创创造什么，最多是金箔"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 15, \"quote\": \"现在大家可能还把房子作为一个资产，再过几年，大多数房产是无任何价值。\", \"suspect_quote\": \"大多数房产是无任何价值\", \"kind\": \"unintelligible_term\", \"reason\": \"“无”字疑似识别错误，结合上下文语境应为“毫无”，属于关键否定词/程度副词的误识，影响语义准确性。\"}, {\"sentence_id\": 23, \"quote\": \"那个时候我在我去深圳工作，所有的加完我的工资是不到一百七十块钱。\", \"suspect_quote\": \"所有的加完我的工资是不到一百七十块钱\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 536.52s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为很多人就担心会不会出现像二零一五年上半年，包括二零二一年上半年的那波牛市中后期的加速行情。\", \"suspect_quote\": \"二零一五年上半年，包括二零二一年上半年的那波牛\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：口语中‘二零一五’、‘二零二一’为年份的中文读法，但字幕将其与‘年’连用后形成‘二零一五年’、‘二零二一年’。在金融语境下，若原音强调‘上半年’，则‘二零一五年上半年’表述清晰；但若原音存在口误（如将‘零几年’误听为具体年份）\"}"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 85.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我不抽烟，所以我对这个酒啊烟呢，我都不理不理解。\", \"suspect_quote\": \"我都不理不理解\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口误导致语义不通顺：'理不理解'不符合常规表达，可能是'理解'的重复或'理'字的误识。若原意为'我不抽烟，所以我对这个酒啊烟呢，我都不理解'，则'理'为多余字符；若原意为'我不抽烟，所以我对这个酒啊烟呢，我都理不理解（无法理解）'\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 369.67s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2098.53s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少对核心问题的实质性回答：嘉宾未表达是否认同‘十年一遇’的判断，也未提供支撑该判断的理由或数据。现有内容仅为个人履历陈述和宏观趋势（人口减少）的泛泛而谈，无法构成完整观点表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我我不这些我没关注，但是但是我说新消费这些东西啊，我大概你说我我在想这个事，那肯定是不，就是我认为大概率时间热闹不了几天，热闹不了几天，就热闹一年。\", \"suspect_quote\": \"我我不这些我没关注\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语重复导致语义模糊，'我我不'和'这些'指代不明，无法确定具体否定对象或关注范围。\"}, {\"sentence_id\": 2, \"quote\": \"我我不这些我没关注，但是但是我说新消费这些东西啊，我大概你说我我在想"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38914068391,
+    "artifact_id": 12063697764,
+    "name": "production-reject-ly-1016-953251",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 2712.68s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5354756214359311",
@@ -32068,7 +32194,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -91729,6 +91856,13 @@
    "video_id": "BV1ND42177hV",
    "ts": 1792164560,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1016-953251",
+   "key": "bilibili_search:BV1NDJU6wEm9",
+   "video_id": "BV1NDJU6wEm9",
+   "ts": 1792174185,
+   "error": "整段取景预检：源 2712.68s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
