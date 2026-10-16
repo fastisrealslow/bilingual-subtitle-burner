@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792155039,
+  "updated_at": 1792155245,
   "materials": {
     "weibo_search": {
       "records": 2167,
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792155051,
+    "updated_at": 1792155257,
     "records": 10537,
     "video_records": 9032,
-    "initial_candidates": 62,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 1,
+    "initial_candidates": 61,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 2,
     "excluded": {
       "no_video": 1505,
       "speaker_unconfirmed": 6195,
-      "already_attempted_or_cooling": 1406,
+      "already_attempted_or_cooling": 1407,
       "clip_title": 1112,
       "noise": 18,
       "unrelated": 62,
@@ -149,14 +149,6 @@
         "author": "腾讯新闻",
         "url": "https://news.qq.com/rain/a/20261016V0C39L00",
         "duration_sec": 0
-      },
-      {
-        "key": "bilibili_search:BV1pK4y1q7ag",
-        "title": "【2024.1.13 林园说】看好医药和养老产业！“二十年后，世界十大医药公司中国占五位！”",
-        "source": "bilibili_search",
-        "author": "投资思维室",
-        "url": "https://www.bilibili.com/video/BV1pK4y1q7ag",
-        "duration_sec": 435.0
       }
     ]
   },
@@ -23825,7 +23817,14 @@
           "ly-1016-6f65c5"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-6f65c5",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23898,6 +23897,28 @@
         "family": "BV1iu4m1g7pg",
         "slugs": [
           "ly-1016-ba419c"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1016-ba419c",
+            "stage": "source-quality",
+            "terminal": true,
+            "reason": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1pK4y1q7ag:p1",
+        "source_url": "https://www.bilibili.com/video/BV1pK4y1q7ag",
+        "family": "BV1pK4y1q7ag",
+        "slugs": [
+          "ly-1016-e0cb33"
         ],
         "source_sha256": [],
         "failures": [],
@@ -24543,9 +24564,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24822,8 +24843,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24835,8 +24856,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -25309,9 +25330,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1
       },
       "BV13m421375i": {
@@ -25324,8 +25345,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -28625,7 +28646,8 @@
       "BV1z6JS6oErR": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV196JX6sEJv": {
         "attempted_mothers": 1,
@@ -28650,11 +28672,17 @@
       "BV1iu4m1g7pg": {
         "attempted_mothers": 1,
         "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_source-quality": 1
+      },
+      "BV1pK4y1q7ag": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 20,
+  "in_flight_placeholders": 19,
   "artifacts": [
     {
       "slug": "ly-1016-8b5bb2",
