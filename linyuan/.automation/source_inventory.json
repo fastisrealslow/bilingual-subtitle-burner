@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792136528,
+  "updated_at": 1792137299,
   "materials": {
     "weibo_search": {
       "records": 2149,
@@ -112,16 +112,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792136530,
+    "updated_at": 1792137300,
     "records": 10482,
     "video_records": 8991,
-    "initial_candidates": 60,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 59,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1391,
+      "already_attempted_or_cooling": 1392,
       "no_video": 1491,
       "speaker_unconfirmed": 6171,
       "clip_title": 1112,
@@ -134,14 +134,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1zkJS6xEJg",
-        "title": "林园最新访谈：如果回到年轻时候只有几万块，还能再造一次投资上辉煌吗？&quot;股神&quot;林园：我自己觉得是没问题",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1zkJS6xEJg",
-        "duration_sec": 137.0
-      },
       {
         "key": "bilibili_search:BV1pjJD6AEuA",
         "title": "股神林园最新访谈：能让资产上大台阶的机会，其实有一次都不得了，一次肯定是改变命运；回头看共同点就一条：对行业的判断比什么",
@@ -23561,7 +23553,14 @@
           "ly-1016-5dcedc"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-5dcedc",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "素材质检不可用：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /opt/hostedtoolcache/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23619,6 +23618,21 @@
         "family": "BV1gHJQ6UEZL",
         "slugs": [
           "ly-1016-bba176"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1zkJS6xEJg:p1",
+        "source_url": "https://www.bilibili.com/video/BV1zkJS6xEJg",
+        "family": "BV1zkJS6xEJg",
+        "slugs": [
+          "ly-1016-4eb7b3"
         ],
         "source_sha256": [],
         "failures": [],
@@ -24264,8 +24278,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_unclassified": 1,
         "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
@@ -24715,8 +24729,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1,
+        "terminal_render-layout": 1,
         "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
@@ -24865,8 +24879,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -25030,9 +25044,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_visual-review": 1,
+        "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
@@ -28313,10 +28327,15 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1zkJS6xEJg": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 13,
+  "in_flight_placeholders": 14,
   "artifacts": [
     {
       "slug": "ly-1015-5e4dd0",
