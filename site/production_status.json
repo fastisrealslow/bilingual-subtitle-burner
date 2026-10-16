@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792193923,
+  "updated_at": 1792194071,
   "inventory_updated_at": 1792193909,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792193923,
+    "updated_at": 1792194070,
     "records": 10620,
     "video_records": 9114,
     "initial_candidates": 60,
@@ -70,13 +70,13 @@
   },
   "counts": {
     "complete": 123,
-    "failed": 1098,
+    "failed": 1099,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "ready": 8,
     "unknown": 1,
     "excluded": 3,
-    "retry_queued": 5
+    "retry_queued": 7
   },
   "tasks": [
     {
@@ -22517,14 +22517,14 @@
     },
     {
       "slug": "ly-1016-4a5e46",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792185245,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792194875,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -22571,11 +22571,11 @@
     },
     {
       "slug": "ly-1016-7efe28",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 53.60s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1792189797,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22607,14 +22607,14 @@
     },
     {
       "slug": "ly-1016-dd5cd8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792190839,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792195769,
         "weekly_full_week": ""
       },
       "history_count": 1,
