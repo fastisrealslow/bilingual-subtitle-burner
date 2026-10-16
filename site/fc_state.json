@@ -30739,7 +30739,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T10:34:35+08:00"
+   "publish_time": "2026-10-16T10:34:35+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-f7c08e",
+    "run_id": 38860919896,
+    "artifact_id": 12030192032,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2452/3094，总帧数3206；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38860919896,
+    "artifact_id": 12030192032,
+    "name": "production-reject-ly-1016-f7c08e",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -89591,6 +89617,13 @@
    "video_id": "BV1id4y1y7St",
    "ts": 1792105114,
    "error": "字幕逐字时间倒退或重叠"
+  },
+  {
+   "slug": "ly-1016-f7c08e",
+   "key": "weibo_search:5354593659653583",
+   "video_id": "https://f.video.weibocdn.com/o0/uFo2rt9Rlx08BBNlzqpi01041200FS5l0E010.mp4",
+   "ts": 1792133188,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0"
   }
  ],
  "reviewed_third_video_0910": {
