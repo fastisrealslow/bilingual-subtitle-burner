@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792156079,
+  "updated_at": 1792156329,
   "materials": {
     "weibo_search": {
       "records": 2167,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792156090,
+    "updated_at": 1792156340,
     "records": 10537,
     "video_records": 9032,
     "initial_candidates": 59,
@@ -23756,28 +23756,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV1j5J96wETx:p1",
-        "source_url": "https://www.bilibili.com/video/BV1j5J96wETx",
-        "family": "BV1j5J96wETx",
-        "slugs": [
-          "ly-1016-b02a64"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1016-b02a64",
-            "stage": "source-fetch",
-            "terminal": false,
-            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 600.10s 与请求页面 3597.00s 不匹配（容差 179.85s）"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV16E421P7A4:p1",
         "source_url": "https://www.bilibili.com/video/BV16E421P7A4",
         "family": "BV16E421P7A4",
@@ -23822,7 +23800,14 @@
           "ly-1016-d4224c"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-d4224c",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "封面生成/人物/角标复检失败：封面大字/边界验收失败"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23927,6 +23912,28 @@
         ],
         "source_sha256": [],
         "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV1j5J96wETx:p1",
+        "source_url": "https://www.bilibili.com/video/BV1j5J96wETx",
+        "family": "BV1j5J96wETx",
+        "slugs": [
+          "ly-1016-b02a64"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1016-b02a64",
+            "stage": "source-fetch",
+            "terminal": false,
+            "reason": "取源未完成：SourceMediaMismatch: 下载媒体时长 600.10s 与请求页面 3597.00s 不匹配（容差 179.85s）"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -24570,8 +24577,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -25170,8 +25177,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_source-fetch": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_source-fetch": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -25336,8 +25343,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1,
         "terminal_editorial-or-render": 1,
+        "terminal_duplicate-selection": 1,
         "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
@@ -28638,11 +28645,6 @@
         "verified_seconds": 0,
         "terminal_editorial-or-render": 1
       },
-      "BV1j5J96wETx": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV16E421P7A4": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -28657,7 +28659,8 @@
       "BV196JX6sEJv": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV156JX6sELD": {
         "attempted_mothers": 1,
@@ -28685,10 +28688,15 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
+      },
+      "BV1j5J96wETx": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 24,
+  "in_flight_placeholders": 23,
   "artifacts": [
     {
       "slug": "ly-1016-8b5bb2",
