@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792155470,
+  "updated_at": 1792156079,
   "materials": {
     "weibo_search": {
       "records": 2167,
@@ -99,31 +99,31 @@
     }
   },
   "inventory": {
-    "verified_live": 13,
+    "verified_live": 12,
     "verified_audio_card": 0,
-    "verified_landscape": 6,
+    "verified_landscape": 5,
     "verified_portrait": 7,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 13,
+    "daily_mix_usable": 12,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792155482,
+    "updated_at": 1792156090,
     "records": 10537,
     "video_records": 9032,
-    "initial_candidates": 61,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
+    "initial_candidates": 59,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
     "known_duration_candidates": 0,
-    "unknown_duration_candidates": 2,
+    "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1505,
       "speaker_unconfirmed": 6195,
-      "already_attempted_or_cooling": 1407,
+      "already_attempted_or_cooling": 1409,
       "clip_title": 1112,
       "noise": 18,
       "unrelated": 62,
@@ -133,24 +133,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "tencent_live:20261016A0BLLO00",
-        "title": "林园直言投资标准更加苛刻！要有希望！",
-        "source": "tencent_live",
-        "author": "腾讯新闻",
-        "url": "https://news.qq.com/rain/a/20261016A0BLLO00",
-        "duration_sec": 0
-      },
-      {
-        "key": "tencent_live:20261016V0C39L00",
-        "title": "林园：我的成功来源于认知与判断！",
-        "source": "tencent_live",
-        "author": "腾讯新闻",
-        "url": "https://news.qq.com/rain/a/20261016V0C39L00",
-        "duration_sec": 0
-      }
-    ]
+    "candidates": []
   },
   "source_outcomes": {
     "mothers": [
@@ -23490,11 +23473,11 @@
           "8e4e03c56bdc680e2e3b012562d9901815023a3367cfb9d9ee3b3591d2a593d2"
         ],
         "failures": [],
-        "verified_available": 6,
-        "verified_live": 6,
-        "verified_seconds": 343.706,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
+        "verified_available": 5,
+        "verified_live": 5,
+        "verified_seconds": 228.325,
+        "used_source_seconds": 115.36,
+        "historical_receipts": 1
       },
       {
         "source_key": "https://m.weibo.cn/detail/5354593659653583",
@@ -23854,7 +23837,14 @@
           "ly-1016-556056"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-556056",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23929,6 +23919,21 @@
         "historical_receipts": 0
       },
       {
+        "source_key": "https://news.qq.com/rain/a/20261016V0C39L00",
+        "source_url": "https://news.qq.com/rain/a/20261016V0C39L00",
+        "family": "news.qq.com",
+        "slugs": [
+          "ly-1016-0031cf"
+        ],
+        "source_sha256": [],
+        "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
         "source_key": "https://m.weibo.cn/detail/5333685484129451",
         "source_url": "https://m.weibo.cn/detail/5333685484129451",
         "family": "m.weibo.cn",
@@ -23971,8 +23976,8 @@
     "families": {
       "m.weibo.cn": {
         "attempted_mothers": 197,
-        "verified_available": 7,
-        "verified_seconds": 387.72700000000003,
+        "verified_available": 6,
+        "verified_seconds": 272.346,
         "terminal_unclassified": 29,
         "terminal_editorial-or-render": 75,
         "terminal_quality-service": 8,
@@ -25015,9 +25020,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -25165,8 +25170,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -25330,10 +25335,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_visual-review": 1,
-        "terminal_duplicate-selection": 1
+        "terminal_duplicate-selection": 1,
+        "terminal_editorial-or-render": 1,
+        "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -25345,8 +25350,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_layout-rebalance": 1,
-        "terminal_editorial-or-render": 4
+        "terminal_editorial-or-render": 4,
+        "terminal_layout-rebalance": 1
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -26744,7 +26749,7 @@
         "verified_seconds": 0
       },
       "news.qq.com": {
-        "attempted_mothers": 2,
+        "attempted_mothers": 3,
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_editorial-or-render": 2
@@ -28657,7 +28662,8 @@
       "BV156JX6sELD": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1ND42177hV": {
         "attempted_mothers": 1,
@@ -28682,7 +28688,7 @@
       }
     }
   },
-  "in_flight_placeholders": 19,
+  "in_flight_placeholders": 24,
   "artifacts": [
     {
       "slug": "ly-1016-8b5bb2",

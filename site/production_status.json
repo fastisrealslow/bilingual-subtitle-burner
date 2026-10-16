@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792155752,
-  "inventory_updated_at": 1792155470,
+  "updated_at": 1792156091,
+  "inventory_updated_at": 1792156079,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 13,
-    "active_or_recovering_sources": 7,
+    "verified_daily_stock": 12,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,9 +14,9 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 13,
-      "minimum_week_shortfall": 1,
-      "preferred_week_shortfall": 8,
+      "verified_stock_snapshot": 12,
+      "minimum_week_shortfall": 2,
+      "preferred_week_shortfall": 9,
       "reserve_shortfall": 0,
       "dates": [
         "2026-10-16",
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792155752,
+    "updated_at": 1792156090,
     "records": 10537,
     "video_records": 9032,
     "initial_candidates": 59,
@@ -57,27 +57,27 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 13,
+    "verified_live": 12,
     "verified_audio_card": 0,
-    "verified_landscape": 6,
+    "verified_landscape": 5,
     "verified_portrait": 7,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 13,
+    "daily_mix_usable": 12,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
     "complete": 123,
-    "failed": 1087,
+    "failed": 1088,
     "paused": 5,
     "interrupted": 7,
     "ready": 5,
     "unknown": 1,
     "excluded": 2,
     "retry_queued": 1,
-    "running": 6
+    "running": 5
   },
   "tasks": [
     {
@@ -21762,11 +21762,11 @@
     },
     {
       "slug": "ly-1015-0a0322",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792085723,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21907,12 +21907,12 @@
     {
       "slug": "ly-1016-b570f4",
       "status": "ready",
-      "detail": "6 条成片已验收，等待发布时段及配额",
+      "detail": "5 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792131795,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -21997,7 +21997,7 @@
     {
       "slug": "ly-1016-a7ba4e",
       "status": "ready",
-      "detail": "6 条成片已验收，等待发布时段及配额",
+      "detail": "5 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792135168,
         "failed": null,
@@ -22230,8 +22230,8 @@
     },
     {
       "slug": "ly-1016-d4224c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792154670,
         "failed": null,
@@ -22244,7 +22244,7 @@
       "run_id": 38902663175,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38902663175",
       "run_started_at": "2026-10-16T12:44:30Z",
-      "run_updated_at": "2026-10-16T12:44:34Z"
+      "run_updated_at": "2026-10-16T13:06:56Z"
     },
     {
       "slug": "ly-1016-556056",
@@ -31598,10 +31598,10 @@
     },
     "ly-1016-d4224c": {
       "id": 38902663175,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-16T12:44:30Z",
-      "updated_at": "2026-10-16T12:44:34Z",
+      "updated_at": "2026-10-16T13:06:56Z",
       "run_started_at": "2026-10-16T12:44:30Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38902663175",
       "run_number": 2150,
