@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792138771,
+  "updated_at": 1792138861,
   "inventory_updated_at": 1792138770,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792138771,
+    "updated_at": 1792138861,
     "records": 10482,
     "video_records": 8991,
     "initial_candidates": 58,
@@ -70,9 +70,9 @@
   },
   "counts": {
     "complete": 123,
-    "failed": 1079,
+    "failed": 1080,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 2,
     "running": 5,
     "unknown": 1,
@@ -22085,11 +22085,11 @@
     },
     {
       "slug": "ly-1016-c41e02",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"那看走远的之前，经常会看走远这个，这个不是说能力，还有这个，特别是对对一些行业，好像我的印象好像还没有什么大的看看走远，主要是一些个别公司，对公司的判断还是有很多的啊。\", \"suspect_quote\": \"看走远\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘看走眼’（投资术语，指判断失误）误识别为‘看走远’，导致语义不通。\"}, {\"sentence_id\": 2, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在逻辑矛盾或口语省略不清：‘几块钱’与‘五六块钱’连用且无连接词，易被误认为冲突数据；结合上下文‘很便宜’，此处应为‘就是五六块钱’的口语化表达，但原文结构模糊，可能影响对具体价格的准确理解。\"}]",
       "signature": {
         "ts": 1792138198,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
