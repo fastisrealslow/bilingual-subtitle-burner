@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792135973,
+  "updated_at": 1792136528,
   "materials": {
     "weibo_search": {
       "records": 2149,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792135975,
+    "updated_at": 1792136530,
     "records": 10482,
     "video_records": 8991,
     "initial_candidates": 60,
@@ -23539,7 +23539,14 @@
           "ly-1016-7e4ac4"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-7e4ac4",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -24257,9 +24264,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_unclassified": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1,
-        "terminal_unclassified": 1
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24708,9 +24715,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
+        "terminal_render-layout": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-review": 1,
-        "terminal_render-layout": 1
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -24858,8 +24865,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -25023,10 +25030,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_workflow-preflight": 1,
-        "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_visual-review": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_visual-review": 1,
+        "terminal_workflow-preflight": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
