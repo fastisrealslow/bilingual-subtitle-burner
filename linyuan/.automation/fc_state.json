@@ -31129,7 +31129,8 @@
    },
    "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5354718696313238",
@@ -31173,7 +31174,8 @@
    },
    "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV191ZoBcERP",
@@ -31289,7 +31291,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T07:21:00+00:00"
+   "publish_time": "2026-10-16T07:21:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-6f65c5",
+    "run_id": 38902170555,
+    "artifact_id": 12047246644,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38902170555,
+    "artifact_id": 12047246644,
+    "name": "production-reject-ly-1016-6f65c5",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV196JX6sEJv",
@@ -31399,7 +31423,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-03-18T12:22:23+00:00"
+   "publish_time": "2024-03-18T12:22:23+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38903173007,
+    "artifact_id": 12046793149,
+    "name": "source-reject-ly-1016-ba419c",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -90617,6 +90651,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/z9pTWlijgx08BCpaXKQM01041200ocia0E010.mp4",
    "ts": 1792154878,
    "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+  },
+  {
+   "slug": "ly-1016-ba419c",
+   "key": "bilibili_search:BV1iu4m1g7pg",
+   "video_id": "BV1iu4m1g7pg",
+   "ts": 1792155097,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1016-6f65c5",
+   "key": "bilibili_search:BV1z6JS6oErR",
+   "video_id": "BV1z6JS6oErR",
+   "ts": 1792155098,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
