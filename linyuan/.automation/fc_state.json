@@ -32333,7 +32333,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰\", \"kind\": \"unintelligible_term\", \"reason\": \"前文已明确嘉宾为林园，此处突然出现“于军”作为主语进行感悟描述，虽可能是转述他人观点，但在无上下文引用的情况下，极易被误读为林园本人发言，存在指代不清的疑点。\"}, {\"sentence_id\": 24, \"quote\": \"昨天的投资者说，我们看了于军的投资故事，他用十年的时间在迷茫中摸索，后来几经周折找到了林园，也找到了价值投资的方法。\", \"suspect_quote\": \"我们看了于军的投资故事，他用十年的时间在迷茫中\", \"kind\": \"unintelligible_term\", \"reason\": \"同句后文提到“找到了林园”，前文此处将主角写作“于军”，虽可能是第三人称叙述，但结合上下文人物关系，此处主语指代存在混淆风险。\"}, {\"sentence_id\": 25, \"quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔，也经历了熊市的漫漫寒冬。\", \"suspect_quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，将核心人物林园误写为“于军”，且“良师益友”作为主语搭配“伴随于军”在语法上略显生硬，疑似漏字或识别错误（如应为“十五年的良师益友林园伴随...\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1FV411h7Wg",
@@ -32387,7 +32388,8 @@
    },
    "last_error": "清理后预计短边 478 < 480",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1L8VPzxEXk",
@@ -32409,7 +32411,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-05-04T13:27:42+00:00"
+   "publish_time": "2025-05-04T13:27:42+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-35b744",
+    "run_id": 38973500530,
+    "artifact_id": 12078614762,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配378/1372，总帧数4968；身份匹配但人脸短边不足96px的帧数972"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38973500530,
+    "artifact_id": 12078614762,
+    "name": "production-reject-ly-1016-35b744",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配378/1372，总帧数4968；身份匹配但人脸短边不足96px的帧数972",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1TiLgzYEGk",
@@ -32496,7 +32520,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T13:05:00+00:00"
+   "publish_time": "2026-10-16T13:05:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-97508c",
+    "run_id": 38976111686,
+    "artifact_id": 12078968806,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38976111686,
+    "artifact_id": 12078968806,
+    "name": "production-reject-ly-1016-97508c",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取决于这个是电脑，手机还是够啊，第一波应该是，电脑跟相关的，以以以电脑，PC机，跟现在都不在。\", \"suspect_quote\": \"电脑，手机还是够啊，第一波应该是，电脑跟相关的，\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定污染：‘还是够啊’疑似为‘还是不够啊’的识别错误（‘够’与‘不’在口语中易混淆），若按原文‘够’则语义不通；此外‘电脑跟相关的’后文截断，缺少宾语或完整表述，导致‘第一波应该是’的判断对象不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -92185,6 +92231,20 @@
    "video_id": "BV1Kw411f7cj",
    "ts": 1792189749,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰\", \"kind\": \"unintelligible_term\", \"reason\": \"前文已明确嘉宾为林园，此处突然出现“于军”作为主语进行感悟描述，虽可能是转述他人观点，但在无上下文引用的情况下，极易被误读为林园本人发言，存在指代不清的疑点。\"}, {\"sentence_id\": 24, \"quote\": \"昨天的投资者说，我们看了于军的投资故事，他用十年的时间在迷茫中摸索，后来几经周折找到了林园，也找到了价值投资的方法。\", \"suspect_quote\": \"我们看了于军的投资故事，他用十年的时间在迷茫中\", \"kind\": \"unintelligible_term\", \"reason\": \"同句后文提到“找到了林园”，前文此处将主角写作“于军”，虽可能是第三人称叙述，但结合上下文人物关系，此处主语指代存在混淆风险。\"}, {\"sentence_id\": 25, \"quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔，也经历了熊市的漫漫寒冬。\", \"suspect_quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，将核心人物林园误写为“于军”，且“良师益友”作为主语搭配“伴随于军”在语法上略显生硬，疑似漏字或识别错误（如应为“十五年的良师益友林园伴随...\"}]"
+  },
+  {
+   "slug": "ly-1016-97508c",
+   "key": "bilibili_search:BV1BCJS6RE17",
+   "video_id": "BV1BCJS6RE17",
+   "ts": 1792190778,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取决于这个是电脑，手机还是够啊，第一波应该是，电脑跟相关的，以以以电脑，PC机，跟现在都不在。\", \"suspect_quote\": \"电脑，手机还是够啊，第一波应该是，电脑跟相关的，\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定污染：‘还是够啊’疑似为‘还是不够啊’的识别错误（‘够’与‘不’在口语中易混淆），若按原文‘够’则语义不通；此外‘电脑跟相关的’后文截断，缺少宾语或完整表述，导致‘第一波应该是’的判断对象不明。\"}]"
+  },
+  {
+   "slug": "ly-1016-35b744",
+   "key": "bilibili_search:BV1L8VPzxEXk",
+   "video_id": "BV1L8VPzxEXk",
+   "ts": 1792190779,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配378/1372，总帧数4968；身份匹配但人脸短边不足96px的帧数972"
   }
  ],
  "reviewed_third_video_0910": {
