@@ -32311,7 +32311,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-10T13:26:52+00:00"
+   "publish_time": "2021-06-10T13:26:52+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-8f75fb",
+    "run_id": 38967914661,
+    "artifact_id": 12079056338,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38967914661,
+    "artifact_id": 12079056338,
+    "name": "production-reject-ly-1016-8f75fb",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰\", \"kind\": \"unintelligible_term\", \"reason\": \"前文已明确嘉宾为林园，此处突然出现“于军”作为主语进行感悟描述，虽可能是转述他人观点，但在无上下文引用的情况下，极易被误读为林园本人发言，存在指代不清的疑点。\"}, {\"sentence_id\": 24, \"quote\": \"昨天的投资者说，我们看了于军的投资故事，他用十年的时间在迷茫中摸索，后来几经周折找到了林园，也找到了价值投资的方法。\", \"suspect_quote\": \"我们看了于军的投资故事，他用十年的时间在迷茫中\", \"kind\": \"unintelligible_term\", \"reason\": \"同句后文提到“找到了林园”，前文此处将主角写作“于军”，虽可能是第三人称叙述，但结合上下文人物关系，此处主语指代存在混淆风险。\"}, {\"sentence_id\": 25, \"quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔，也经历了熊市的漫漫寒冬。\", \"suspect_quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，将核心人物林园误写为“于军”，且“良师益友”作为主语搭配“伴随于军”在语法上略显生硬，疑似漏字或识别错误（如应为“十五年的良师益友林园伴随...\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1FV411h7Wg",
@@ -32355,7 +32377,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-12-19T12:57:31+00:00"
+   "publish_time": "2021-12-19T12:57:31+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38973491693,
+    "artifact_id": 12078228049,
+    "name": "source-reject-ly-1016-89e34e",
+    "retained": true
+   },
+   "last_error": "清理后预计短边 478 < 480",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1L8VPzxEXk",
@@ -92095,6 +92127,20 @@
    "video_id": "BV1REz4BaEYV",
    "ts": 1792181207,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1016-89e34e",
+   "key": "bilibili_search:BV1cZ4y1X7cn",
+   "video_id": "BV1cZ4y1X7cn",
+   "ts": 1792189749,
+   "error": "清理后预计短边 478 < 480"
+  },
+  {
+   "slug": "ly-1016-8f75fb",
+   "key": "bilibili_search:BV1Kw411f7cj",
+   "video_id": "BV1Kw411f7cj",
+   "ts": 1792189749,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰\", \"kind\": \"unintelligible_term\", \"reason\": \"前文已明确嘉宾为林园，此处突然出现“于军”作为主语进行感悟描述，虽可能是转述他人观点，但在无上下文引用的情况下，极易被误读为林园本人发言，存在指代不清的疑点。\"}, {\"sentence_id\": 24, \"quote\": \"昨天的投资者说，我们看了于军的投资故事，他用十年的时间在迷茫中摸索，后来几经周折找到了林园，也找到了价值投资的方法。\", \"suspect_quote\": \"我们看了于军的投资故事，他用十年的时间在迷茫中\", \"kind\": \"unintelligible_term\", \"reason\": \"同句后文提到“找到了林园”，前文此处将主角写作“于军”，虽可能是第三人称叙述，但结合上下文人物关系，此处主语指代存在混淆风险。\"}, {\"sentence_id\": 25, \"quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔，也经历了熊市的漫漫寒冬。\", \"suspect_quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，将核心人物林园误写为“于军”，且“良师益友”作为主语搭配“伴随于军”在语法上略显生硬，疑似漏字或识别错误（如应为“十五年的良师益友林园伴随...\"}]"
   }
  ],
  "reviewed_third_video_0910": {
