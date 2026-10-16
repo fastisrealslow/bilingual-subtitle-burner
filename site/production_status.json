@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792174130,
+  "updated_at": 1792174251,
   "inventory_updated_at": 1792174124,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 3,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792174130,
+    "updated_at": 1792174250,
     "records": 10599,
     "video_records": 9093,
-    "initial_candidates": 63,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 62,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 6236,
-      "already_attempted_or_cooling": 1414,
+      "already_attempted_or_cooling": 1423,
       "no_video": 1506,
+      "speaker_unconfirmed": 6228,
       "clip_title": 1123,
       "noise": 18,
       "unrelated": 62,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5354804458032157",
-        "title": "林园:看好牛市也在等牛市，现在是乌龟爬着等哪天爆发。现在是投资消费这类公司的好时机，估值非常合理。白酒将来股价涨得特别多",
-        "source": "weibo_search",
-        "author": "吕安广",
-        "url": "https://m.weibo.cn/detail/5354804458032157",
-        "duration_sec": 3596.0
-      },
       {
         "key": "bilibili_search:BV13x4y1o73Y",
         "title": "2020年5月13日林园谈国家名片",
@@ -95,13 +87,14 @@
   },
   "counts": {
     "complete": 123,
-    "failed": 1092,
+    "failed": 1093,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 7,
     "unknown": 1,
     "excluded": 2,
-    "retry_queued": 5
+    "retry_queued": 5,
+    "running": 1
   },
   "tasks": [
     {
@@ -22002,11 +21995,11 @@
     },
     {
       "slug": "ly-1016-953251",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 2712.68s，原始画面不足以保留完整人脸及头顶余量",
       "signature": {
         "ts": 1792160026,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22467,6 +22460,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38935116744",
       "run_started_at": "2026-10-16T16:50:52Z",
       "run_updated_at": "2026-10-16T16:56:32Z"
+    },
+    {
+      "slug": "ly-1016-9fdb95",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792174210,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38945252539,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38945252539",
+      "run_started_at": "2026-10-16T18:10:09Z",
+      "run_updated_at": "2026-10-16T18:10:15Z"
     }
   ],
   "runs": {
@@ -31786,6 +31797,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38914068391",
       "run_number": 2159,
       "display_title": "中文源出片 · ly-1016-953251"
+    },
+    "ly-1016-9fdb95": {
+      "id": 38945252539,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-16T18:10:09Z",
+      "updated_at": "2026-10-16T18:10:15Z",
+      "run_started_at": "2026-10-16T18:10:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38945252539",
+      "run_number": 2184,
+      "display_title": "中文源出片 · ly-1016-9fdb95"
     }
   }
 }
