@@ -3,16 +3,19 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792151889,
+  "updated_at": 1792153687,
   "materials": {
     "weibo_search": {
-      "records": 2157,
-      "video_candidates": 820,
-      "duration_eligible": 417,
-      "long_mother_candidates": 129,
+      "records": 2165,
+      "video_candidates": 824,
+      "duration_eligible": 421,
+      "long_mother_candidates": 130,
       "too_short": 48,
       "over_limit": 1,
       "duration_unknown": 354
+    },
+    "shareholder_meeting": {
+      "records": 162
     },
     "haokan_video": {
       "records": 25,
@@ -22,22 +25,19 @@
       "too_short": 1
     },
     "tencent_live": {
-      "records": 15,
-      "video_candidates": 15,
-      "duration_unknown": 15
+      "records": 17,
+      "video_candidates": 17,
+      "duration_unknown": 17
     },
     "bilibili_search": {
-      "records": 5837,
-      "video_candidates": 5831,
-      "duration_eligible": 5022,
+      "records": 5839,
+      "video_candidates": 5833,
+      "duration_eligible": 5024,
       "long_mother_candidates": 2427,
       "over_limit": 692,
       "too_short": 39,
       "duration_unknown": 78,
       "reference_only": 6
-    },
-    "shareholder_meeting": {
-      "records": 158
     },
     "reference_origin_search": {
       "records": 762,
@@ -54,10 +54,10 @@
     "netease_video": {
       "records": 63,
       "video_candidates": 61,
+      "duration_eligible": 12,
+      "long_mother_candidates": 4,
       "duration_unknown": 43,
-      "duration_eligible": 11,
-      "long_mother_candidates": 3,
-      "too_short": 7,
+      "too_short": 6,
       "reference_only": 1
     },
     "bilibili_collection": {
@@ -112,18 +112,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792151901,
-    "records": 10498,
-    "video_records": 9002,
-    "initial_candidates": 59,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
-    "unknown_duration_candidates": 0,
+    "updated_at": 1792153697,
+    "records": 10514,
+    "video_records": 9010,
+    "initial_candidates": 64,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 3,
+    "unknown_duration_candidates": 2,
     "excluded": {
-      "no_video": 1496,
+      "speaker_unconfirmed": 6182,
+      "no_video": 1504,
       "already_attempted_or_cooling": 1395,
-      "speaker_unconfirmed": 6179,
       "clip_title": 1112,
       "noise": 18,
       "unrelated": 62,
@@ -133,7 +133,48 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5354713690408542",
+        "title": "林园：我的成功来源于认知与判断！\n林园最新路演直播回放http://t.cn/AXlT4VvJ\n林园投资最新业绩http",
+        "source": "weibo_search",
+        "author": "排排网",
+        "url": "https://m.weibo.cn/detail/5354713690408542",
+        "duration_sec": 70.0
+      },
+      {
+        "key": "tencent_live:20261016A0BLLO00",
+        "title": "林园直言投资标准更加苛刻！要有希望！",
+        "source": "tencent_live",
+        "author": "腾讯新闻",
+        "url": "https://news.qq.com/rain/a/20261016A0BLLO00",
+        "duration_sec": 0
+      },
+      {
+        "key": "tencent_live:20261016V0C39L00",
+        "title": "林园：我的成功来源于认知与判断！",
+        "source": "tencent_live",
+        "author": "腾讯新闻",
+        "url": "https://news.qq.com/rain/a/20261016V0C39L00",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:5354718696313238",
+        "title": "林园：我的成功来源于认知与判断！ 张一鸣同语！",
+        "source": "weibo_search",
+        "author": "高纯氯化钠",
+        "url": "https://m.weibo.cn/detail/5354718696313238",
+        "duration_sec": 70.0
+      },
+      {
+        "key": "bilibili_search:BV191ZoBcERP",
+        "title": "【林园】林园谈炒股感悟 林园持仓 贵州茅台 【林园】笑谈茅台的持仓 总股本得到2% 就当是吹牛，反正一股没卖 （20年的",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV191ZoBcERP",
+        "duration_sec": 63.0
+      }
+    ]
   },
   "source_outcomes": {
     "mothers": [
@@ -24325,9 +24366,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_unclassified": 1
+        "terminal_unclassified": 1,
+        "terminal_quality-service": 1
       },
       "BV1R5411G7ew": {
         "attempted_mothers": 1,
@@ -24604,8 +24645,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1bz4y1q76u": {
         "attempted_mothers": 1,
@@ -24617,8 +24658,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_quality-service": 1,
-        "terminal_editorial-or-render": 1
+        "terminal_editorial-or-render": 1,
+        "terminal_quality-service": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24776,9 +24817,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_render-review": 1,
         "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_render-review": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -25091,10 +25132,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_visual-review": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_visual-review": 1,
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -28390,7 +28431,7 @@
       }
     }
   },
-  "in_flight_placeholders": 13,
+  "in_flight_placeholders": 12,
   "artifacts": [
     {
       "slug": "ly-1016-8b5bb2",
