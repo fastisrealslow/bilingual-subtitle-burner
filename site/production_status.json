@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1792124911,
-  "inventory_updated_at": 1792124828,
+  "updated_at": 1792131737,
+  "inventory_updated_at": 1792131734,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 7,
+    "verified_daily_stock": 6,
     "active_or_recovering_sources": 0,
-    "waiting_candidates": 0,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 7,
-      "minimum_week_shortfall": 7,
-      "preferred_week_shortfall": 14,
-      "reserve_shortfall": 5,
+      "verified_stock_snapshot": 6,
+      "minimum_week_shortfall": 8,
+      "preferred_week_shortfall": 15,
+      "reserve_shortfall": 6,
       "dates": [
         "2026-10-16",
         "2026-10-17",
@@ -33,18 +33,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792124910,
-    "records": 10444,
-    "video_records": 8958,
-    "initial_candidates": 58,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792131737,
+    "records": 10453,
+    "video_records": 8965,
+    "initial_candidates": 60,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 6154,
-      "clip_title": 1110,
-      "no_video": 1486,
+      "no_video": 1488,
+      "speaker_unconfirmed": 6158,
+      "clip_title": 1111,
       "already_attempted_or_cooling": 1379,
       "noise": 18,
       "unrelated": 62,
@@ -54,25 +54,42 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5354585214421567",
+        "title": "10.15林园最新视频完整版（1.5倍速）看好AI大时代！#热点聚焦##微博视频精选大赏##圣叹财经# http://t",
+        "source": "weibo_search",
+        "author": "圣叹财经",
+        "url": "https://m.weibo.cn/detail/5354585214421567",
+        "duration_sec": 3596.0
+      },
+      {
+        "key": "weibo_search:5354593659653583",
+        "title": "林园说自己不会失败，原因居然是从不买贵的东西，这段话值得深思！ http://t.cn/AXlY23uu ​​​",
+        "source": "weibo_search",
+        "author": "阿甘说茶",
+        "url": "https://m.weibo.cn/detail/5354593659653583",
+        "duration_sec": 195.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 7,
+    "verified_live": 6,
     "verified_audio_card": 0,
-    "verified_landscape": 6,
+    "verified_landscape": 5,
     "verified_portrait": 1,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 7,
+    "daily_mix_usable": 6,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
     "complete": 122,
-    "failed": 1076,
+    "failed": 1077,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 2
   },
   "tasks": [
@@ -21470,11 +21487,11 @@
     },
     {
       "slug": "ly-1015-83706c",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792064415,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21615,12 +21632,12 @@
     {
       "slug": "ly-1015-5e4dd0",
       "status": "ready",
-      "detail": "6 条成片已验收，等待发布时段及配额",
+      "detail": "5 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792071947,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
