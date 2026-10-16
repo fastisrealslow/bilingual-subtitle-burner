@@ -32262,7 +32262,33 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-01-25T11:36:37+00:00"
+   "publish_time": "2026-01-25T11:36:37+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-e667e8",
+    "run_id": 38956552688,
+    "artifact_id": 12071289398,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"累积深度大，已呃涨幅已经超过百分之三百了。\", \"suspect_quote\": \"涨幅已经超过百分之三百了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"在股市语境下，“涨幅超过百分之三百”通常指累计涨幅（从低位到高位），而非单一年度或短期波动。若按字面理解为“一年内涨 300%\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38956552688,
+    "artifact_id": 12071289398,
+    "name": "production-reject-ly-1016-e667e8",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -91930,6 +91956,13 @@
    "video_id": "BV1NDJU6wEm9",
    "ts": 1792174185,
    "error": "整段取景预检：源 2712.68s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1016-e667e8",
+   "key": "bilibili_search:BV1REz4BaEYV",
+   "video_id": "BV1REz4BaEYV",
+   "ts": 1792181207,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
