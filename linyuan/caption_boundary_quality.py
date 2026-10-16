@@ -27,6 +27,7 @@ def metrics(rows,entries,layout):
         if char in '。！？':stops.add(cursor)
         elif char in '，；：':clauses.add(cursor)
         elif compact(char):cursor+=1
+    clauses-=stops  # ASR can emit “？。，”; this is one sentence stop, not two boundaries.
     crossed=0;clause_mixes=0;cursor=0
     for row in rows:
         end=cursor+len(compact(row['zh']))
