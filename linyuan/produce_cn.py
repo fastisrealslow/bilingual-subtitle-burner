@@ -2157,8 +2157,11 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
     # and exclamation marks at EVERY offset, including inside a merged screen
     # and after a local split. #888 lost the question in “是不是？是…” when
     # only screen-final marks were restored, invalidating its edit proof.
-    terminal_marks={}; cursor=0
+    terminal_marks={}; source_boundaries={}; cursor=0
     for char in ''.join(e.get('zh','') for e in entries):
+        if char in '，。！？；：、':
+            if char in '。！？' or source_boundaries.get(cursor) not in ('。','！','？'):
+                source_boundaries[cursor]=char
         if char in '！？':terminal_marks[cursor]=terminal_marks.get(cursor,'')+char
         elif strip(char):cursor+=1
 
@@ -2304,6 +2307,15 @@ def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38
                     at=chars[cursor-1][2] if cursor>lo else chars[lo][1]
                     anchored.append((char,at,at))
             group['caption_chars']=anchored
+            # Commas/periods are display-suppressed, not semantic erasers.
+            # Keep their exact offsets through the final single-line planner.
+            boundaries=[]; spoken_cursor=lo
+            for j,(char,_,_) in enumerate(anchored):
+                if strip(char):spoken_cursor+=1
+                if (spoken_cursor in source_boundaries
+                        and (j+1==len(anchored) or strip(anchored[j+1][0]))):
+                    boundaries.append((j+1,source_boundaries[spoken_cursor]))
+            group['caption_boundaries']=boundaries
             if cue_capacity > capacity:
                 group['line_capacity'] = cue_capacity
                 group['font_px'] = cue_font
