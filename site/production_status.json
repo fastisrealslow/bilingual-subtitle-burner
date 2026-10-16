@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792136531,
+  "updated_at": 1792136633,
   "inventory_updated_at": 1792136528,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 6,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792136530,
+    "updated_at": 1792136632,
     "records": 10482,
     "video_records": 8991,
-    "initial_candidates": 60,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 59,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1391,
+      "already_attempted_or_cooling": 1392,
       "no_video": 1491,
       "speaker_unconfirmed": 6171,
       "clip_title": 1112,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1zkJS6xEJg",
-        "title": "林园最新访谈：如果回到年轻时候只有几万块，还能再造一次投资上辉煌吗？&quot;股神&quot;林园：我自己觉得是没问题",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1zkJS6xEJg",
-        "duration_sec": 137.0
-      },
       {
         "key": "bilibili_search:BV1pjJD6AEuA",
         "title": "股神林园最新访谈：能让资产上大台阶的机会，其实有一次都不得了，一次肯定是改变命运；回头看共同点就一条：对行业的判断比什么",
@@ -89,10 +81,10 @@
     "complete": 122,
     "failed": 1078,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 2,
-    "running": 5,
-    "retry_queued": 1,
+    "running": 6,
+    "retry_queued": 2,
     "unknown": 1
   },
   "tasks": [
@@ -21994,14 +21986,14 @@
     },
     {
       "slug": "ly-1016-5dcedc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792134906,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792137464,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -22081,6 +22073,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38867722369",
       "run_started_at": "2026-10-16T07:31:07Z",
       "run_updated_at": "2026-10-16T07:31:11Z"
+    },
+    {
+      "slug": "ly-1016-4eb7b3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792136594,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38869005540,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38869005540",
+      "run_started_at": "2026-10-16T07:43:14Z",
+      "run_updated_at": "2026-10-16T07:43:18Z"
     }
   ],
   "runs": {
@@ -31104,6 +31114,28 @@
       "run_number": 2132,
       "display_title": "中文源出片 · ly-1016-7e4ac4"
     },
+    "ly-1016-5dcedc": {
+      "id": 38866020611,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-16T07:15:06Z",
+      "updated_at": "2026-10-16T07:41:20Z",
+      "run_started_at": "2026-10-16T07:15:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38866020611",
+      "run_number": 2133,
+      "display_title": "中文源出片 · ly-1016-5dcedc"
+    },
+    "ly-1016-4eb7b3": {
+      "id": 38869005540,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-16T07:43:14Z",
+      "updated_at": "2026-10-16T07:43:18Z",
+      "run_started_at": "2026-10-16T07:43:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38869005540",
+      "run_number": 2138,
+      "display_title": "中文源出片 · ly-1016-4eb7b3"
+    },
     "ly-1016-bba176": {
       "id": 38867722369,
       "status": "in_progress",
@@ -31136,17 +31168,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38866041586",
       "run_number": 2135,
       "display_title": "中文源出片 · ly-1016-9841c2"
-    },
-    "ly-1016-5dcedc": {
-      "id": 38866020611,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-16T07:15:06Z",
-      "updated_at": "2026-10-16T07:41:20Z",
-      "run_started_at": "2026-10-16T07:15:06Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38866020611",
-      "run_number": 2133,
-      "display_title": "中文源出片 · ly-1016-5dcedc"
     },
     "ly-1016-669d7c": {
       "id": 38866002554,
