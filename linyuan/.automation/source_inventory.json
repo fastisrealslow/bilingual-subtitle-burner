@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792138770,
+  "updated_at": 1792142457,
   "materials": {
     "weibo_search": {
       "records": 2149,
@@ -112,7 +112,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792138771,
+    "updated_at": 1792142459,
     "records": 10482,
     "video_records": 8991,
     "initial_candidates": 58,
@@ -23599,28 +23599,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV13eJ26NE4j:p1",
-        "source_url": "https://www.bilibili.com/video/BV13eJ26NE4j",
-        "family": "BV13eJ26NE4j",
-        "slugs": [
-          "ly-1016-7e4ac4"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1016-7e4ac4",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1kbJ16UE15:p1",
         "source_url": "https://www.bilibili.com/video/BV1kbJ16UE15",
         "family": "BV1kbJ16UE15",
@@ -23650,7 +23628,36 @@
           "ly-1016-c41e02"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-c41e02",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"那看走远的之前，经常会看走远这个，这个不是说能力，还有这个，特别是对对一些行业，好像我的印象好像还没有什么大的看看走远，主要是一些个别公司，对公司的判断还是有很多的啊。\", \"suspect_quote\": \"看走远\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘看走眼’（投资术语，指判断失误）误识别为‘看走远’，导致语义不通。\"}, {\"sentence_id\": 2, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在逻辑矛盾或口语省略不清：‘几块钱’与‘五六块钱’连用且无连接词，易被误认为冲突数据；结合上下文‘很便宜’，此处应为‘就是五六块钱’的口语化表达，但原文结构模糊，可能影响对具体价格的准确理解。\"}]"
+          }
+        ],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV13eJ26NE4j:p1",
+        "source_url": "https://www.bilibili.com/video/BV13eJ26NE4j",
+        "family": "BV13eJ26NE4j",
+        "slugs": [
+          "ly-1016-7e4ac4"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1016-7e4ac4",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -24585,8 +24592,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_quality-service": 1
+        "terminal_quality-service": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1F14y1a7NF": {
         "attempted_mothers": 1,
@@ -24745,8 +24752,8 @@
         "verified_available": 0,
         "verified_seconds": 0,
         "terminal_render-review": 1,
-        "terminal_stock-upgrade-title": 1,
-        "terminal_render-layout": 1
+        "terminal_render-layout": 1,
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -24894,8 +24901,8 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 1,
-        "terminal_source-fetch": 1
+        "terminal_source-fetch": 1,
+        "terminal_editorial-or-render": 1
       },
       "BV1kdzYBhEB6": {
         "attempted_mothers": 1,
@@ -25059,10 +25066,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_duplicate-selection": 1,
         "terminal_visual-review": 1,
+        "terminal_workflow-preflight": 1,
         "terminal_editorial-or-render": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_duplicate-selection": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -25074,8 +25081,8 @@
         "attempted_mothers": 5,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_editorial-or-render": 4,
-        "terminal_layout-rebalance": 1
+        "terminal_layout-rebalance": 1,
+        "terminal_editorial-or-render": 4
       },
       "BV1sK4y1K7oR": {
         "attempted_mothers": 1,
@@ -28339,11 +28346,6 @@
         "verified_available": 1,
         "verified_seconds": 51.854
       },
-      "BV13eJ26NE4j": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1kbJ16UE15": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -28352,11 +28354,17 @@
       "BV1pjJD6AEuA": {
         "attempted_mothers": 1,
         "verified_available": 0,
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
+      },
+      "BV13eJ26NE4j": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 14,
+  "in_flight_placeholders": 13,
   "artifacts": [
     {
       "slug": "ly-1016-4eb7b3",
