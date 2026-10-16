@@ -3,7 +3,7 @@
   "validation_sha256": "13137f623ae5b6aa1f313594d0d4d162bd5ff9d9bd9c83f0dd3520e0505db046",
   "quality_gate_version": 12,
   "editorial_policy_version": 2026090604,
-  "updated_at": 1792137299,
+  "updated_at": 1792137600,
   "materials": {
     "weibo_search": {
       "records": 2149,
@@ -108,11 +108,11 @@
     "landscape_target": 2,
     "daily_mix_usable": 6,
     "target_reserve": 12,
-    "publishable_now": 0
+    "publishable_now": 1
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792137300,
+    "updated_at": 1792137601,
     "records": 10482,
     "video_records": 8991,
     "initial_candidates": 59,
@@ -23524,28 +23524,6 @@
         "historical_receipts": 0
       },
       {
-        "source_key": "BV13eJ26NE4j:p1",
-        "source_url": "https://www.bilibili.com/video/BV13eJ26NE4j",
-        "family": "BV13eJ26NE4j",
-        "slugs": [
-          "ly-1016-7e4ac4"
-        ],
-        "source_sha256": [],
-        "failures": [
-          {
-            "slug": "ly-1016-7e4ac4",
-            "stage": "quality-service",
-            "terminal": false,
-            "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
-          }
-        ],
-        "verified_available": 0,
-        "verified_live": 0,
-        "verified_seconds": 0,
-        "used_source_seconds": 0,
-        "historical_receipts": 0
-      },
-      {
         "source_key": "BV1kbJ16UE15:p1",
         "source_url": "https://www.bilibili.com/video/BV1kbJ16UE15",
         "family": "BV1kbJ16UE15",
@@ -23620,7 +23598,14 @@
           "ly-1016-bba176"
         ],
         "source_sha256": [],
-        "failures": [],
+        "failures": [
+          {
+            "slug": "ly-1016-bba176",
+            "stage": "editorial-or-render",
+            "terminal": true,
+            "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未回答主持人提出的具体问题（九十年代长虹投资思路与现在科技股看法是否不同），仅泛泛而谈‘总结经验’和‘共同东西’，属于未回答的新问题结尾。；原文问题：[]"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -23636,6 +23621,28 @@
         ],
         "source_sha256": [],
         "failures": [],
+        "verified_available": 0,
+        "verified_live": 0,
+        "verified_seconds": 0,
+        "used_source_seconds": 0,
+        "historical_receipts": 0
+      },
+      {
+        "source_key": "BV13eJ26NE4j:p1",
+        "source_url": "https://www.bilibili.com/video/BV13eJ26NE4j",
+        "family": "BV13eJ26NE4j",
+        "slugs": [
+          "ly-1016-7e4ac4"
+        ],
+        "source_sha256": [],
+        "failures": [
+          {
+            "slug": "ly-1016-7e4ac4",
+            "stage": "quality-service",
+            "terminal": false,
+            "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+          }
+        ],
         "verified_available": 0,
         "verified_live": 0,
         "verified_seconds": 0,
@@ -24729,9 +24736,9 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_stock-upgrade-title": 1,
+        "terminal_render-review": 1,
         "terminal_render-layout": 1,
-        "terminal_render-review": 1
+        "terminal_stock-upgrade-title": 1
       },
       "BV1PCDHBwEUn": {
         "attempted_mothers": 1,
@@ -25044,10 +25051,10 @@
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0,
-        "terminal_visual-review": 1,
         "terminal_editorial-or-render": 1,
         "terminal_duplicate-selection": 1,
-        "terminal_workflow-preflight": 1
+        "terminal_workflow-preflight": 1,
+        "terminal_visual-review": 1
       },
       "BV13m421375i": {
         "attempted_mothers": 1,
@@ -28303,11 +28310,6 @@
         "verified_available": 0,
         "verified_seconds": 0
       },
-      "BV13eJ26NE4j": {
-        "attempted_mothers": 1,
-        "verified_available": 0,
-        "verified_seconds": 0
-      },
       "BV1kbJ16UE15": {
         "attempted_mothers": 1,
         "verified_available": 0,
@@ -28326,16 +28328,22 @@
       "BV1gHJQ6UEZL": {
         "attempted_mothers": 1,
         "verified_available": 0,
-        "verified_seconds": 0
+        "verified_seconds": 0,
+        "terminal_editorial-or-render": 1
       },
       "BV1zkJS6xEJg": {
+        "attempted_mothers": 1,
+        "verified_available": 0,
+        "verified_seconds": 0
+      },
+      "BV13eJ26NE4j": {
         "attempted_mothers": 1,
         "verified_available": 0,
         "verified_seconds": 0
       }
     }
   },
-  "in_flight_placeholders": 14,
+  "in_flight_placeholders": 13,
   "artifacts": [
     {
       "slug": "ly-1015-5e4dd0",
