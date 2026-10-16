@@ -9,6 +9,10 @@ on:
       - tests/test_linyuan_title_batch_regressions.py
       - tests/test_linyuan_visual_gate.py
       - linyuan/caption_readability.py
+      - linyuan/caption_lines.py
+      - linyuan/caption_lines_legacy.py
+      - linyuan/caption_boundary_quality.py
+      - tests/test_linyuan_caption_lines.py
       - linyuan/headline_policy.py
       - tests/test_linyuan_caption_readability.py
       - tests/test_linyuan_headline_policy.py
@@ -68,7 +72,7 @@ jobs:
           tests/test_linyuan_context_review.py
           tests/test_linyuan_fetch_budget.py
           tests/test_linyuan_source_borders.py
-          tests/test_linyuan_caption_readability.py tests/test_linyuan_caption_timeout.py
+          tests/test_linyuan_caption_readability.py tests/test_linyuan_caption_lines.py tests/test_linyuan_caption_timeout.py
           tests/test_linyuan_headline_policy.py tests/test_linyuan_short_reaction.py
           tests/test_linyuan_cover_conditions.py
           tests/test_linyuan_clean_source_plan.py tests/test_linyuan_quality_gates.py

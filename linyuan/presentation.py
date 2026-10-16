@@ -78,7 +78,7 @@ def layout_for(width, height, card=False):
     from caption_readability import VERSION as READABILITY_VERSION
     return {'version':VERSION,'mode':mode,'canvas':{'width':width,'height':height},
             'subtitle_region':region,'subtitle_font_px':font,'subtitle_max_lines':1,
-            'subtitle_vertical_alignment':'center','subtitle_layout_version':5,
+            'subtitle_vertical_alignment':'center','subtitle_layout_version':6,
             'readability_version':READABILITY_VERSION,
             # A filled ASS box reads as a white slab on interview footage and
             # can cover the speaker.  Use the familiar high-contrast treatment
@@ -86,7 +86,7 @@ def layout_for(width, height, card=False):
             # a small shadow, with no full-line backing panel.
             'subtitle_style':'white-outline','subtitle_font_unit':'visible-glyph-px',
             'subtitle_preferred_max_seconds':6.0,'subtitle_max_seconds':8.0,'subtitle_target_seconds':3.5,
-            'word_boundary_policy':'semantic-v1',
+            'word_boundary_policy':'semantic-v1','caption_boundary_policy':'source-sentence-v2',
             'terminal_punctuation_policy':'no-comma-period',
             'line_capacity':max(8, int((region['width']-32)/(font*1.05)))}
 
