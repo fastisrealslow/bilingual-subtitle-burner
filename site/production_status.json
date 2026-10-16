@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792189708,
+  "updated_at": 1792189843,
   "inventory_updated_at": 1792189700,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 10,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792189708,
+    "updated_at": 1792189843,
     "records": 10620,
     "video_records": 9114,
-    "initial_candidates": 62,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 60,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1430,
+      "already_attempted_or_cooling": 1432,
       "speaker_unconfirmed": 6242,
       "no_video": 1506,
       "clip_title": 1123,
@@ -54,24 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1C7Jt6PEJD",
-        "title": "林园：乳业行业渗透率还会提升，估值非常合理。所谓的同质化竞争激烈，利润实际上还是在朝着头部那几家在集中。企业利润会持续向",
-        "source": "bilibili_search",
-        "author": "我真的是大川啊",
-        "url": "https://www.bilibili.com/video/BV1C7Jt6PEJD",
-        "duration_sec": 120.0
-      },
-      {
-        "key": "bilibili_search:BV1BCJS6RE17",
-        "title": "林园2026采访精华：人工智能AI走到哪一步了？股神林园：现在也是刚刚开始，连一半都还没到；它和互联网一样都是革命性的东",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1BCJS6RE17",
-        "duration_sec": 132.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 15,
@@ -87,14 +70,14 @@
   },
   "counts": {
     "complete": 123,
-    "failed": 1094,
+    "failed": 1096,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "ready": 8,
     "unknown": 1,
     "excluded": 3,
-    "retry_queued": 5,
-    "running": 2
+    "retry_queued": 6,
+    "running": 4
   },
   "tasks": [
     {
@@ -22517,11 +22500,11 @@
     },
     {
       "slug": "ly-1016-8f75fb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰\", \"kind\": \"unintelligible_term\", \"reason\": \"前文已明确嘉宾为林园，此处突然出现“于军”作为主语进行感悟描述，虽可能是转述他人观点，但在无上下文引用的情况下，极易被误读为林园本人发言，存在指代不清的疑点。\"}, {\"sentence_id\": 24, \"quote\": \"昨天的投资者说，我们看了于军的投资故事，他用十年的时间在迷茫中摸索，后来几经周折找到了林园，也找到了价值投资的方法。\", \"suspect_quote\": \"我们看了于军的投资故事，他用十年的时间在迷茫中\", \"kind\": \"unintelligible_term\", \"reason\": \"同句后文提到“找到了林园”，前文此处将主角写作“于军”，虽可能是第三人称叙述，但结合上下文人物关系，此处主语指代存在混淆风险。\"}, {\"sentence_id\": 25, \"quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔，也经历了熊市的漫漫寒冬。\", \"suspect_quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，将核心人物林园误写为“于军”，且“良师益友”作为主语搭配“伴随于军”在语法上略显生硬，疑似漏字或识别错误（如应为“十五年的良师益友林园伴随...\"}]",
       "signature": {
         "ts": 1792185238,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22553,11 +22536,11 @@
     },
     {
       "slug": "ly-1016-89e34e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "清理后预计短边 478 < 480",
       "signature": {
         "ts": 1792188259,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22589,14 +22572,14 @@
     },
     {
       "slug": "ly-1016-dd5cd8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792188269,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792190643,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -22604,6 +22587,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38973510238",
       "run_started_at": "2026-10-16T22:04:29Z",
       "run_updated_at": "2026-10-16T22:27:17Z"
+    },
+    {
+      "slug": "ly-1016-7efe28",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792189797,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38976100848,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38976100848",
+      "run_started_at": "2026-10-16T22:29:57Z",
+      "run_updated_at": "2026-10-16T22:30:02Z"
+    },
+    {
+      "slug": "ly-1016-97508c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792189804,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38976111686,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38976111686",
+      "run_started_at": "2026-10-16T22:30:03Z",
+      "run_updated_at": "2026-10-16T22:30:10Z"
     }
   ],
   "runs": {
@@ -31989,6 +32008,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38973510238",
       "run_number": 2191,
       "display_title": "中文源出片 · ly-1016-dd5cd8"
+    },
+    "ly-1016-97508c": {
+      "id": 38976111686,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-16T22:30:03Z",
+      "updated_at": "2026-10-16T22:30:10Z",
+      "run_started_at": "2026-10-16T22:30:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38976111686",
+      "run_number": 2193,
+      "display_title": "中文源出片 · ly-1016-97508c"
+    },
+    "ly-1016-7efe28": {
+      "id": 38976100848,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-16T22:29:57Z",
+      "updated_at": "2026-10-16T22:30:02Z",
+      "run_started_at": "2026-10-16T22:29:57Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38976100848",
+      "run_number": 2192,
+      "display_title": "中文源出片 · ly-1016-7efe28"
     },
     "ly-1016-35b744": {
       "id": 38973500530,
