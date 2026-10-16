@@ -32399,7 +32399,28 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-04-24T13:36:15+00:00"
+   "publish_time": "2025-04-24T13:36:15+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-dd5cd8",
+    "run_id": 38973510238,
+    "artifact_id": 12078053433,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 2, \"addressee\": \"林林\", \"target\": false}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/440，总帧数2198；身份匹配但人脸短边不足96px的帧数440"
+     }
+    ]
+   },
+   "source_check_report_id": 12078053433,
+   "source_check_run_id": 38973510238,
+   "last_error": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 2, \"addressee\": \"林林\", \"target\": false}]",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792190643
   }
  ],
  "makeup_receipts": {
