@@ -30954,7 +30954,41 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T03:03:00+00:00"
+   "publish_time": "2026-10-16T03:03:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1016-bba176",
+    "run_id": 38867722369,
+    "artifact_id": 12033121029,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未回答主持人提出的具体问题（九十年代长虹投资思路与现在科技股看法是否不同），仅泛泛而谈‘总结经验’和‘共同东西’，属于未回答的新问题结尾。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配139/1234，总帧数5474；身份匹配但人脸短边不足96px的帧数1095"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/247，总帧数1226；身份匹配但人脸短边不足96px的帧数246"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那假设三五年之后有几家AI公司真的跑出了稳定的盈利，清晰的不成和，你会重新再把它们纳入研究范围呢，还是说，呃，AI这一类题材，你从一开始就打算交给其他更擅长科技投资的同行呢？\", \"suspect_quote\": \"清晰的不成和\", \"kind\": \"unintelligible_term\", \"reason\": \"该短语在金融或商业语境下无明确含义，疑似为“清晰的分成”、“清晰的合同”或“清晰的承诺”等词的识别错误，导致句子逻辑不通（“不成和”无法解释）。”}, {\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38867722369,
+    "artifact_id": 12033121029,
+    "name": "production-reject-ly-1016-bba176",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未回答主持人提出的具体问题（九十年代长虹投资思路与现在科技股看法是否不同），仅泛泛而谈‘总结经验’和‘共同东西’，属于未回答的新问题结尾。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1zkJS6xEJg",
@@ -89835,6 +89869,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/uFo2rt9Rlx08BBNlzqpi01041200FS5l0E010.mp4",
    "ts": 1792133188,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1016-bba176",
+   "key": "bilibili_search:BV1gHJQ6UEZL",
+   "video_id": "BV1gHJQ6UEZL",
+   "ts": 1792137330,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未回答主持人提出的具体问题（九十年代长虹投资思路与现在科技股看法是否不同），仅泛泛而谈‘总结经验’和‘共同东西’，属于未回答的新问题结尾。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
