@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792135802,
+  "updated_at": 1792135906,
   "inventory_updated_at": 1792135799,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 6,
     "active_or_recovering_sources": 6,
-    "waiting_candidates": 3,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792135801,
+    "updated_at": 1792135906,
     "records": 10482,
     "video_records": 8991,
-    "initial_candidates": 61,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 60,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1390,
+      "already_attempted_or_cooling": 1391,
       "no_video": 1491,
       "speaker_unconfirmed": 6171,
       "clip_title": 1112,
@@ -55,14 +55,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1gHJQ6UEZL",
-        "title": "林园：我看好AI但是我不投！投了睡不着觉！",
-        "source": "bilibili_search",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1gHJQ6UEZL",
-        "duration_sec": 669.0
-      },
       {
         "key": "bilibili_search:BV1zkJS6xEJg",
         "title": "林园最新访谈：如果回到年轻时候只有几万块，还能再造一次投资上辉煌吗？&quot;股神&quot;林园：我自己觉得是没问题",
@@ -97,10 +89,10 @@
     "complete": 122,
     "failed": 1078,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "ready": 2,
     "running": 6,
-    "awaiting_run": 1
+    "unknown": 1
   },
   "tasks": [
     {
@@ -21983,8 +21975,8 @@
     },
     {
       "slug": "ly-1016-7e4ac4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792134901,
         "failed": null,
@@ -21997,7 +21989,7 @@
       "run_id": 38866010671,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38866010671",
       "run_started_at": "2026-10-16T07:15:01Z",
-      "run_updated_at": "2026-10-16T07:15:04Z"
+      "run_updated_at": "2026-10-16T07:30:53Z"
     },
     {
       "slug": "ly-1016-5dcedc",
@@ -22019,8 +22011,8 @@
     },
     {
       "slug": "ly-1016-111638",
-      "status": "awaiting_run",
-      "detail": "已提交调度，等待 Actions 运行记录",
+      "status": "unknown",
+      "detail": "未找到本次调度的运行或合格成片证据，需核对；不计为生产中",
       "signature": {
         "ts": 1792134911,
         "failed": null,
@@ -22070,6 +22062,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38866481077",
       "run_started_at": "2026-10-16T07:19:28Z",
       "run_updated_at": "2026-10-16T07:19:33Z"
+    },
+    {
+      "slug": "ly-1016-bba176",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792135867,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38867722369,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38867722369",
+      "run_started_at": "2026-10-16T07:31:07Z",
+      "run_updated_at": "2026-10-16T07:31:11Z"
     }
   ],
   "runs": {
@@ -31082,6 +31092,17 @@
       "run_number": 2130,
       "display_title": "中文源出片 · ly-1016-f7c08e"
     },
+    "ly-1016-bba176": {
+      "id": 38867722369,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-16T07:31:07Z",
+      "updated_at": "2026-10-16T07:31:11Z",
+      "run_started_at": "2026-10-16T07:31:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38867722369",
+      "run_number": 2137,
+      "display_title": "中文源出片 · ly-1016-bba176"
+    },
     "ly-1016-a7ba4e": {
       "id": 38866481077,
       "status": "in_progress",
@@ -31117,10 +31138,10 @@
     },
     "ly-1016-7e4ac4": {
       "id": 38866010671,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-16T07:15:01Z",
-      "updated_at": "2026-10-16T07:15:04Z",
+      "updated_at": "2026-10-16T07:30:53Z",
       "run_started_at": "2026-10-16T07:15:01Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38866010671",
       "run_number": 2132,
