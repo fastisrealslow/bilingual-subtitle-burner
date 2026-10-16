@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792137602,
+  "updated_at": 1792137760,
   "inventory_updated_at": 1792137600,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 6,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792137601,
+    "updated_at": 1792137759,
     "records": 10482,
     "video_records": 8991,
     "initial_candidates": 59,
@@ -78,13 +78,13 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 122,
+    "complete": 123,
     "failed": 1079,
     "paused": 5,
-    "interrupted": 7,
-    "ready": 2,
+    "interrupted": 6,
+    "ready": 1,
     "running": 5,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 1
   },
   "tasks": [
@@ -21680,13 +21680,13 @@
     },
     {
       "slug": "ly-1015-50b13e",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1792084190,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -22076,14 +22076,14 @@
     },
     {
       "slug": "ly-1016-7e4ac4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792137368,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792139428,
         "weekly_full_week": ""
       },
       "history_count": 1,
