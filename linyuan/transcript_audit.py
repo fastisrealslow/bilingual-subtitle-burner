@@ -26,13 +26,18 @@ def ordinary_disfluency(quote):
     return bool(jieba.get_FREQ(match[1]))
 
 
-def review(text, speaker, model, call, path):
+def review(text, speaker, model, call, path, *, prompt_profile='production'):
+    if prompt_profile not in ('production','colloquial-v1'):
+        raise ValueError('Unknown publication-free text audit experiment')
     path = Path(path)
     identity = dict(version=VERSION, transcript_sha256=text_digest(text), speaker=speaker, model=model)
+    if prompt_profile!='production':identity['prompt_profile']=prompt_profile
     if path.exists():
         try:
             saved = json.loads(path.read_text())
-            if all(saved.get(k)==v for k,v in identity.items()) and isinstance(saved.get('issues'),list):
+            if (all(saved.get(k)==v for k,v in identity.items())
+                    and saved.get('prompt_profile','production')==prompt_profile
+                    and isinstance(saved.get('issues'),list)):
                 return {**saved,'passed':not saved['issues']}
         except (ValueError,TypeError):
             pass
@@ -68,6 +73,13 @@ def review(text, speaker, model, call, path):
         '有疑点时返回原句编号和具体理由，无疑点时issues为空数组。'
         '目标嘉宾：'+speaker+'。编号原句：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
     last = None
+    if prompt_profile=='colloquial-v1':
+        prompt+='\n额外核对原则：文字合理性审核不是把口语改成书面术语。'
+        prompt+='不常见但能从上下文理解的生活化表达、身体部位比喻、行业简称，不因措辞不专业而成为识别错误。'
+        prompt+='必须指出现有文字本身无法解释的污染；“可能应该换成一个更专业的词”不是证据。'
+        prompt+='不能仅因为省略主语、没有精确数字、口头指代或口吃，就推测漏了数字或否定。'
+        prompt+='这不是词语白名单：同音错写的人名、数字缺失、无法确定含义的否定，仍须列出真实最小摘录。'
+        prompt+='不要引用外部报道、补充背景或猜测替换文字；你仍没有听到原音。'
     for attempt in range(2):
         raw = call(prompt,schema)
         path.with_name(path.stem+f'-response-{attempt}.txt').write_text(raw)
