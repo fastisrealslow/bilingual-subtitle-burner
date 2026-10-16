@@ -7,7 +7,7 @@ def caption_word_spans(text):
     """Caption-only compounds: do not change the title/selection dictionary."""
     from presentation import word_spans
     bounds={0,len(text)}|{b for _,b in word_spans(text)}
-    protected=[m.span() for m in re.finditer('大概率事件|大概率|金融危机|可转债市场|港股市场|美股市场',text)]
+    protected=[m.span() for m in re.finditer('大概率事件|大概率|金融危机|可转债市场|港股市场|美股市场|[A-Za-zＡ-Ｚａ-ｚ](?:企业|公司|股)',text)]
     bounds=sorted(b for b in bounds if not any(a<b<z for a,z in protected))
     return list(zip(bounds,bounds[1:]))
 
@@ -33,7 +33,7 @@ def character_anchors(entry):
 def one_line_screens(entries, layout):
     """Adopt a new segmentation only when observable quality does not regress."""
     from caption_lines_legacy import one_line_screens as legacy
-    from caption_boundary_quality import metrics
+    from caption_boundary_quality import metrics, no_new_bad_boundaries
     for entry in entries:
         for end,mark in entry.get('caption_boundaries',[]):
             if type(end) is not int or not 0<end<=len(entry.get('zh') or '') or mark not in ('，','。','！','？','；','：','、'):
@@ -46,7 +46,7 @@ def one_line_screens(entries, layout):
         return previous
     if previous is None:return proposed
     before=metrics(previous,entries,layout);after=metrics(proposed,entries,layout)
-    if all(after[k]<=before[k] for k in before) and any(after[k]<before[k] for k in before):
+    if no_new_bad_boundaries(previous,proposed,entries) and any(after[k]<before[k] for k in before):
         return proposed
     # Shared cuts make independent replacement windows. Keep an improved
     # sentence even if a different sentence in the same clip needs fallback.
@@ -66,9 +66,9 @@ def one_line_screens(entries, layout):
         left=[old[p] for p in old if lo<=p<hi];right=[new[p] for p in new if lo<=p<hi]
         context=[caption_screen(atoms[lo:hi],{p-lo:m for p,m in hints.items() if lo<p<=hi},layout)]
         a=metrics(left,context,layout);b=metrics(right,context,layout)
-        result.extend(right if all(b[k]<=a[k] for k in a) and any(b[k]<a[k] for k in a) else left)
+        result.extend(right if no_new_bad_boundaries(left,right,context) and any(b[k]<a[k] for k in a) else left)
     final=metrics(result,entries,layout)
-    return result if all(final[k]<=before[k] for k in before) else previous
+    return result if no_new_bad_boundaries(previous,result,entries) else previous
 
 
 def _natural_screens(entries, layout):

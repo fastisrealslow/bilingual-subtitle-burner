@@ -141,3 +141,28 @@ def test_new_flash_fragments_fall_back_without_changing_words_or_clock(monkeypat
     assert metrics(proposed,raw,layout)['flashes']>metrics(previous,raw,layout)['flashes']
     monkeypatch.setattr(C,'_natural_screens',lambda *a:proposed)
     assert C.one_line_screens(raw,layout)==previous
+
+
+def test_equal_counts_cannot_hide_a_new_dependent_boundary():
+    from caption_boundary_quality import metrics,no_new_bad_boundaries
+    layout=V.live_card_layout()
+    raw=[dict(zh='甲乙的丙丁的戊己',start_sec=0,end_sec=4)]
+    atoms=C.character_anchors(raw[0])
+    previous=[C.caption_screen(atoms[:2],{},layout),C.caption_screen(atoms[2:],{},layout)]
+    proposed=[C.caption_screen(atoms[:5],{},layout),C.caption_screen(atoms[5:],{},layout)]
+    assert metrics(previous,raw)['dependent_starts']==metrics(proposed,raw)['dependent_starts']==1
+    assert not no_new_bad_boundaries(previous,proposed,raw)
+
+
+def test_subject_predicate_and_company_shorthand_are_kept_together():
+    from caption_boundary_quality import metrics,no_new_bad_boundaries
+    layout=V.live_card_layout();text='各种复杂的东西我们会逐步认识企业'
+    raw=[dict(zh=text,start_sec=0,end_sec=4)];atoms=C.character_anchors(raw[0])
+    def at(n):return [C.caption_screen(atoms[:n],{},layout),C.caption_screen(atoms[n:],{},layout)]
+    previous=at(text.index('我们'));proposed=at(text.index('会'))
+    assert metrics(proposed,raw)['subject_predicate_splits']==1
+    assert not no_new_bad_boundaries(previous,proposed,raw)
+    phrase='那我们就可以把A企业卖掉买B企业'
+    spans=C.caption_word_spans(phrase)
+    assert any(phrase[a:b]=='A企业' for a,b in spans)
+    assert any(phrase[a:b]=='B企业' for a,b in spans)
