@@ -216,6 +216,26 @@ def test_scene_cover_uses_original_selected_pixels_not_small_tracked_window():
         'crop=1280:720')==('tracked-632x470.mp4',0,90,'')
 
 
+@pytest.mark.parametrize('profile',[E.BASELINE,E.TREATMENT])
+def test_story_cannot_escape_into_static_portrait_stage_renderer(monkeypatch,tmp_path,profile):
+    import stage_context
+    class StageReached(Exception):pass
+    class SceneReached(Exception):pass
+    monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',profile)
+    monkeypatch.setattr(P,'automatic_only',lambda:False)
+    monkeypatch.setattr(P,'argument_record_for_render',lambda *a:{})
+    monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:None)
+    monkeypatch.setattr(P,'_local_face_models',lambda:None)
+    def stage(*a,**kw):raise StageReached()
+    def scene(*a,**kw):raise SceneReached()
+    monkeypatch.setattr(stage_context,'plan',stage)
+    monkeypatch.setattr(P,'reviewed_native_cleanup',scene)
+    with pytest.raises(SceneReached if profile==E.TREATMENT else StageReached):
+        P._produce_one('source',tmp_path,tmp_path,[dict(start=0,end=40,text='原文')],
+            '林园','访谈','',False,1920,1080,'',prefer_live_video=True,
+            preselected_picks=[dict(start=0,end=0,story_selection=dict(kind='company_case'))])
+
+
 def test_weekly_long_mother_can_supply_verified_stories_without_consuming_its_full_interview():
     meta,_,_=treatment();meta['resolution']=dict(width=1080,height=1920)
     entry=dict(weekly_full_week='2026-W42',editorial_profile=E.TREATMENT)

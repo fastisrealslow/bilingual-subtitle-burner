@@ -5547,6 +5547,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if not picks:
         print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
         return None
+    from publishing_experiment import profile, TREATMENT
+    story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     if automatic_only():
@@ -5586,7 +5588,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
 
     # A static screen portrait may match identity better than the tiny live
     # presenter. Preserve the real stage instead of forcing a close-up.
-    if prefer_live_video and len(picks)==1 and W>H:
+    # The legacy stage renderer supplies a static-portrait cover. A requested
+    # story must follow the scene-cover path, not silently enter the controls
+    # with experimental copy and an unqualified old cover.
+    if prefer_live_video and len(picks)==1 and W>H and not story_treatment:
         import stage_context
         a=cues[picks[0]['start']]['start'];b=cues[picks[0]['end']]['end']
         stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker,
@@ -5919,8 +5924,6 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         from presentation import select_cover_style
-        from publishing_experiment import profile, TREATMENT
-        story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
         requested_cover='scene' if story_treatment else os.environ.get("COVER_STYLE", "auto")
         selected_cover_style = select_cover_style(strategy != "audio_card" or use_live_video, cw["title"],
                                                   requested_cover)
