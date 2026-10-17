@@ -1339,7 +1339,9 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
                                      bool(re.search(r'[，,；;]',body(row[0]['title'],speaker)))))
         # A literal match proves provenance, not natural Chinese. Review up
         # to three alternatives in ONE bounded call, without rewriting them.
-        options=[dict(index=i,title=item['title'],cover_title=item['cover_title'])
+        # Compare the actual wording, not the attribution prefix. A small
+        # model otherwise calls a cover incomplete solely for omitting 林园：.
+        options=[dict(index=i,title=body(item['title'],speaker),cover_title=item['cover_title'])
                  for i,(item,_) in enumerate(eligible[:3])]
         schema=dict(type='object',additionalProperties=False,required=['reviews'],properties={
             'reviews':dict(type='array',minItems=len(options),maxItems=len(options),items=dict(
@@ -1348,7 +1350,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
                     'index':dict(type='integer',minimum=0,maximum=len(options)-1),
                     'title_readable':dict(type='boolean'), 'cover_readable':dict(type='boolean'),
                     'same_claim':dict(type='boolean'),'reason':dict(type='string',minLength=12,maxLength=200)}))})
-        prompt='''独立检查原话备用标题，不改写，不猜错字，不添加新标题。
+        prompt=f'''独立检查原话备用标题，不改写，不猜错字，不添加新标题。主讲人是{speaker}。
+下方title已经去掉页面显示的人名标签；只比较观点正文，封面不需要再写主讲人姓名。
 每个title和cover_title都要分别让陌生观众独立读懂具体对象与完整判断。
 逐字摘录不等于可读：转写错词、口吃、口头重起、指代不明、语义拼接应判不可读。
 保留有意义的口语和强调；不要仅因句子普通而退回。same_claim检查封面是否与标题同一判断且未丢条件。
