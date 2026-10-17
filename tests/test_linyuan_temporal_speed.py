@@ -30,6 +30,9 @@ def test_explicit_comparison_cannot_reverse(source, title, cover):
     ('企业成长比以前快。', '以前企业成长慢了', '以前企业成长慢了'),
     ('企业成长比以前快。', '企业赚钱更慢', '企业赚钱更慢'),
     ('企业成长比以前快。', '企业成长比以前慢？', '企业成长比以前慢？'),
+    ('企业以前成长比过去快。', '企业成长慢了', '企业成长慢了'),
+    ('企业未来成长比以前快。', '企业成长慢了', '企业成长慢了'),
+    ('企业成长比以前快。', '企业未来成长比以前慢', '企业未来成长比以前慢'),
 ])
 def test_other_relations_are_left_for_semantic_review(source, title, cover):
     assert T.temporal_speed_error(title, cover, source) is None

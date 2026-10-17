@@ -1123,7 +1123,7 @@ def temporal_speed_error(title, cover, transcript):
     def claims(text, copy=False):
         found = {}
         for sentence in re.findall(r'[^。！？!?；;\n]+[。！？!?；;\n]?', text):
-            if sentence.endswith(('？', '?')) or re.search(r'如果|假如|假设|未必|不一定|不是|是否|会不会|吗', sentence):
+            if sentence.endswith(('？', '?')) or re.search(r'如果|假如|假设|未必|不一定|不是|是否|会不会|吗|未来|将来|明年|曾经|当时|那个时候', sentence):
                 continue
             # Keep question punctuation visible before sentence splitting.
             sentence = compact(sentence)
@@ -1133,6 +1133,9 @@ def temporal_speed_error(title, cover, transcript):
                 if not subjects:
                     continue
                 noun = subjects[-1]
+                temporal_scope = left[noun.end():]
+                if re.search(past, temporal_scope) and not re.search(r'比'+past+r'$', temporal_scope):
+                    continue
                 # Named entities are deliberately outside this small grammar;
                 # do not compare A企业 with B企业 using only the suffix 企业.
                 prefix = left[:noun.start()]
