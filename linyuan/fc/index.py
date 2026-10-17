@@ -2817,10 +2817,11 @@ def experiment_reuse_candidates(state, inventory, items):
                 or not inventory_record_current(record)):continue
         url=entry.get('source_url')
         mother_sha=entry.get('source_sha256')
-        if not url or url in used_sources or mother_sha and mother_sha in used_hashes or restriction(url,[]):continue
+        if not url or url in used_sources or (mother_sha and mother_sha in used_hashes) or restriction(url,[]):continue
         matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
-        if not any(experiment.long_candidate(i) and not (
+        if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS and not (
                 (i.get('extra') or {}).get('no_reprint')==1
+                or (i.get('extra') or {}).get('source_role') in {'reference','catalog_only'}
                 or (i.get('extra') or {}).get('direct_dispatch') is False)
                 for i in matches if isinstance(i.get('extra'),dict)):continue
         remaining=[p for p in record.get('parts',[]) if p.get('status')=='verified'

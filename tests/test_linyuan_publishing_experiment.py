@@ -94,6 +94,7 @@ def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(m
     assert state==old
     assert not list(F.experiment_reuse_candidates(state,stock,[{**item,'extra':dict(duration=1199)}]))
     assert not list(F.experiment_reuse_candidates(state,stock,[{**item,'extra':dict(duration=1800,no_reprint=1)}]))
+    assert not list(F.experiment_reuse_candidates(state,stock,[{**item,'extra':dict(duration=1800,source_role='reference')}]))
     state['dispatched'].append(dict(slug='new',experiment_parent_slug='old',source_url=entry['source_url']))
     assert not list(F.experiment_reuse_candidates(state,stock,[item]))
     state['dispatched'].pop();record['parts'][0]['status']='rejected'
