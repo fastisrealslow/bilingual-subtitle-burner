@@ -286,6 +286,9 @@ def test_explicit_full_and_story_pair_is_symmetric_not_a_blanket_dedup_bypass():
     assert not E.full_clip_pair(clip,{**full,'fingerprints':clip['fingerprints']})
     assert not E.full_clip_pair(clip,{**full,'source_sha256':'e'*64})
     assert not E.full_clip_pair(clip,{**full,'long_story_family':None})
+    assert not E.full_clip_pair(clip,{**full,'fingerprints':{}})
+    assert not E.full_clip_pair({**clip,'fingerprints':{}},full)
+    assert E.full_clip_pair({**clip,'fingerprints':{}},full,preflight=True)
     assert not E.full_clip_pair({**clip,'segments':[dict(start=1700,end=1900)]},full)
     assert not E.full_clip_pair({**clip,'editorial_profile':E.BASELINE},full)
 
@@ -321,3 +324,18 @@ def test_inventory_counts_paired_full_and_story_but_not_duplicate_story(monkeypa
     assert stock['verified_weekly_full']==1 and stock['verified_portrait']==1
     assert stock['experiment_ready']['portrait']==1
     assert E.comparison_state(clip,dict(published={}))==dict(published={})
+
+
+def test_slow_upload_keeps_original_slot_without_creating_a_second_due_post():
+    actual=stamp('2026-10-19T15:10:00');receipt=dict(bvid='BVslow',status='published',ts=actual)
+    state=dict(published={})
+    F.record_publication_slot(state,receipt,actual,planned_slot='2026-10-19 14')
+    assert state['daily_publish']['published_hours']==[14]
+    assert F.slot_published(state,stamp('2026-10-19T14:00:00'))
+    assert not F.slot_published(state,stamp('2026-10-19T16:00:00'))
+    assert not state.get('makeup_receipts')
+    # The immutable receipt still owns the original slot if a daily summary
+    # has to be reconstructed later. It never occupies another upload hour.
+    state=dict(published=dict(mother=dict(parts=[receipt])))
+    assert F.slot_published(state,stamp('2026-10-19T14:00:00'))
+    assert not F.slot_published(state,stamp('2026-10-19T15:00:00'))

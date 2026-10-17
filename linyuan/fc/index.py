@@ -382,6 +382,9 @@ def slot_published(st, now=None):
     for info in st.get('published', {}).values():
         for part in info.get('parts') or [info]:
             if part.get('bvid') and part.get('status') != 'skipped':
+                if part.get('scheduled_slot'):
+                    if part['scheduled_slot']==slot:return True
+                    continue
                 if part.get('makeup_slot'):
                     if part['makeup_slot'] == slot:
                         return True
@@ -437,7 +440,7 @@ def makeup_request_error(event, st, now=None):
     return None
 
 
-def record_publication_slot(st, part_receipt, now, makeup_slot=None):
+def record_publication_slot(st, part_receipt, now, makeup_slot=None, planned_slot=None):
     """Charge the actual day; the original slot owns an authorized make-up."""
     local = time.gmtime(now + 8 * 3600)
     today = time.strftime('%Y-%m-%d', local)
@@ -449,8 +452,10 @@ def record_publication_slot(st, part_receipt, now, makeup_slot=None):
     if makeup_slot:
         part_receipt['makeup_slot'] = makeup_slot
         st.setdefault('makeup_receipts', {})[makeup_slot] = dict(part_receipt)
-    if not makeup_slot or makeup_slot[:10] == today:
-        hour = int(makeup_slot[-2:]) if makeup_slot else local.tm_hour
+    if planned_slot:part_receipt['scheduled_slot']=planned_slot
+    charged_slot=makeup_slot or planned_slot
+    if not charged_slot or charged_slot[:10] == today:
+        hour = int(charged_slot[-2:]) if charged_slot else local.tm_hour
         daily.setdefault('published_hours', []).append(hour)
 
 
@@ -4418,7 +4423,8 @@ def publish_handler(event=None, context=None):
         slot_receipt = dict(status='published', bvid=bvid, title=title, slug=slug,
                             ts=receipt_time, expected_sha256=expected_sha256,
                             artifact_id=art_ids.get(slug))
-        record_publication_slot(st, slot_receipt, receipt_time, makeup_slot)
+        record_publication_slot(st, slot_receipt, receipt_time, makeup_slot,
+                                planned_slot=publication_plan['slot'] if publication_plan else None)
         e.pop('upload_makeup_slot', None)
         e.pop('upload_expected_sha256', None)
         mode_counter = "audio_card_count" if part.get("render_mode") == "audio_card" else "live_video_count"
@@ -4433,6 +4439,7 @@ def publish_handler(event=None, context=None):
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
                           "click_packaging_policy": (part.get('copy_identity') or meta_info.get('copy_identity') or {}).get('click_packaging_policy'),
                           "publishing_experiment": experiment_receipt,
+                          **({'scheduled_slot':publication_plan['slot']} if publication_plan else {}),
                           "editorial_profile": part.get('editorial_profile','baseline'),
                           "long_story_family": part.get('long_story_family'),
                           "duration_sec": part.get('duration_sec'),

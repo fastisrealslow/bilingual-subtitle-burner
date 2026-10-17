@@ -6403,7 +6403,7 @@ def main():
                     from publishing_experiment import family_metadata, comparison_state
                     candidate_meta.update(editorial_profile=TREATMENT,long_story_family=family_metadata(
                         source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0)))
-                    history=comparison_state(candidate_meta,history)
+                    history=comparison_state(candidate_meta,history,preflight=True)
                 reuse_error=editorial.source_reuse_error(
                     candidate_meta,os.environ.get('SOURCE_ORIGIN_URL',''),history)
                 if reuse_error:

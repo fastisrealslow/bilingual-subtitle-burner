@@ -199,7 +199,7 @@ def family_metadata(source_sha256,seconds):
     return dict(version=VERSION,mother_sha256=source_sha256,duration_sec=seconds)
 
 
-def full_clip_pair(current,previous):
+def full_clip_pair(current,previous,preflight=False):
     """Only the explicit long version and a contained story excerpt may pair.
 
     Never exempt two clips, two fulls, equal files, unknown historical ranges,
@@ -210,8 +210,11 @@ def full_clip_pair(current,previous):
     source=a.get('mother_sha256')
     if (not re.fullmatch('[a-f0-9]{64}',str(source or ''))
             or current.get('source_sha256')!=source or previous.get('source_sha256')!=source):return False
-    if (current.get('fingerprints') or {}).get('sha256') and (
-            (current.get('fingerprints') or {}).get('sha256')==(previous.get('fingerprints') or {}).get('sha256')):return False
+    current_hash=(current.get('fingerprints') or {}).get('sha256')
+    previous_hash=(previous.get('fingerprints') or {}).get('sha256')
+    if not re.fullmatch('[a-f0-9]{64}',str(previous_hash or '')):return False
+    if not (preflight and not current_hash) and not re.fullmatch('[a-f0-9]{64}',str(current_hash or '')):return False
+    if current_hash==previous_hash:return False
     fulls=[p for p in (current,previous) if p.get('content_type')=='full_interview']
     if len(fulls)!=1:return False
     full=fulls[0];clip=previous if full is current else current
@@ -230,12 +233,12 @@ def full_clip_pair(current,previous):
     except (KeyError,TypeError,ValueError):return False
 
 
-def comparison_state(meta,state):
+def comparison_state(meta,state,preflight=False):
     """Keep all history except the exact authorized cross-format partner."""
     published={};changed=False
     for slug,info in (state.get('published') or {}).items():
         rows=info.get('parts') or ([info] if info.get('bvid') else [])
-        kept=[p for p in rows if not full_clip_pair(meta,p)]
+        kept=[p for p in rows if not full_clip_pair(meta,p,preflight=preflight)]
         if len(kept)==len(rows):published[slug]=info
         else:
             changed=True
