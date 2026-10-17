@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792195863,
-  "inventory_updated_at": 1792195681,
+  "updated_at": 1792196295,
+  "inventory_updated_at": 1792196289,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 11,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 10,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,17 +33,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792195862,
-    "records": 10627,
-    "video_records": 9120,
-    "initial_candidates": 60,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792196295,
+    "records": 10630,
+    "video_records": 9123,
+    "initial_candidates": 62,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 1437,
       "no_video": 1507,
-      "already_attempted_or_cooling": 1436,
       "speaker_unconfirmed": 6242,
       "clip_title": 1123,
       "noise": 18,
@@ -54,7 +54,24 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5354917151641024",
+        "title": "私募大佬林园最新路演，十大金句摘要出炉：\n林园投资最新业绩http://t.cn/AXlT4Vvi\n林园最新路演直播回放",
+        "source": "weibo_search",
+        "author": "排排网",
+        "url": "https://m.weibo.cn/detail/5354917151641024",
+        "duration_sec": 95.0
+      },
+      {
+        "key": "weibo_search:5354917764009284",
+        "title": "林园：券商行业是好行业，只是资金都流向了科技领域。短期受情绪影响，这就是人性决定的。粮油龙头（金龙鱼）组合投资（配置低）",
+        "source": "weibo_search",
+        "author": "杜英杰箴言",
+        "url": "https://m.weibo.cn/detail/5354917764009284",
+        "duration_sec": 145.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 15,
@@ -72,12 +89,12 @@
     "complete": 123,
     "failed": 1099,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "ready": 8,
     "unknown": 1,
     "excluded": 3,
     "retry_queued": 6,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -22608,8 +22625,8 @@
     },
     {
       "slug": "ly-1017-09d7ff",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792195279,
         "failed": null,
@@ -22622,7 +22639,7 @@
       "run_id": 38984388026,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38984388026",
       "run_started_at": "2026-10-17T00:01:19Z",
-      "run_updated_at": "2026-10-17T00:01:23Z"
+      "run_updated_at": "2026-10-17T00:17:24Z"
     },
     {
       "slug": "ly-1017-9f5130",
@@ -32103,17 +32120,6 @@
       "run_number": 2192,
       "display_title": "中文源出片 · ly-1016-7efe28"
     },
-    "ly-1016-dd5cd8": {
-      "id": 38985107683,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-17T00:10:14Z",
-      "updated_at": "2026-10-17T00:10:20Z",
-      "run_started_at": "2026-10-17T00:10:14Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38985107683",
-      "run_number": 2199,
-      "display_title": "中文源出片 · ly-1016-dd5cd8"
-    },
     "ly-1016-4a5e46": {
       "id": 38984379125,
       "status": "completed",
@@ -32135,6 +32141,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38985117531",
       "run_number": 2200,
       "display_title": "中文源出片 · ly-1017-7ac107"
+    },
+    "ly-1016-dd5cd8": {
+      "id": 38985107683,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T00:10:14Z",
+      "updated_at": "2026-10-17T00:10:20Z",
+      "run_started_at": "2026-10-17T00:10:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38985107683",
+      "run_number": 2199,
+      "display_title": "中文源出片 · ly-1016-dd5cd8"
     },
     "ly-1017-54b46a": {
       "id": 38984717669,
@@ -32160,10 +32177,10 @@
     },
     "ly-1017-09d7ff": {
       "id": 38984388026,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-17T00:01:19Z",
-      "updated_at": "2026-10-17T00:01:23Z",
+      "updated_at": "2026-10-17T00:17:24Z",
       "run_started_at": "2026-10-17T00:01:19Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38984388026",
       "run_number": 2196,
