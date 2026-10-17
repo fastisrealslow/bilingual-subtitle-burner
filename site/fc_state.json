@@ -33776,25 +33776,25 @@
    "publish_time": "2026-10-16T13:05:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1016-97508c",
-    "run_id": 38976111686,
-    "artifact_id": 12078968806,
+    "run_id": 39034353008,
+    "artifact_id": 12101693128,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘没有一个’与‘我们没看到’连用导致逻辑指代混乱，且‘是他们的一个市场’中‘一个’作为数量词在口语语境下缺乏明确参照对象（是指一家公司、一类公司还是市场份额比例？），属于无法解释的具体词语污染。\"}]"
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 38976111686,
-    "artifact_id": 12078968806,
+    "run_id": 39034353008,
+    "artifact_id": 12101693128,
     "name": "production-reject-ly-1016-97508c",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取决于这个是电脑，手机还是够啊，第一波应该是，电脑跟相关的，以以以电脑，PC机，跟现在都不在。\", \"suspect_quote\": \"电脑，手机还是够啊，第一波应该是，电脑跟相关的，\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定污染：‘还是够啊’疑似为‘还是不够啊’的识别错误（‘够’与‘不’在口语中易混淆），若按原文‘够’则语义不通；此外‘电脑跟相关的’后文截断，缺少宾语或完整表述，导致‘第一波应该是’的判断对象不明。\"}]",
-   "source_quality_rejected": false,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘没有一个’与‘我们没看到’连用导致逻辑指代混乱，且‘是他们的一个市场’中‘一个’作为数量词在口语语境下缺乏明确参照对象（是指一家公司、一类公司还是市场份额比例？），属于无法解释的具体词语污染。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
