@@ -33349,7 +33349,8 @@
    },
    "last_error": "与已经发布的母片时间段重叠，保留其他完整观点",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1JsJD6oEKr",
@@ -33733,7 +33734,17 @@
    "output_layout": "portrait",
    "experiment_mother_sha256": null,
    "experiment_parent_slug": "ly-1016-15606f",
-   "recovery_origin_run_id": 38946692284
+   "recovery_origin_run_id": 38946692284,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39032489451,
+    "artifact_id": 12101240422,
+    "name": "source-reject-ly-story-5161739dfa",
+    "retained": true
+   },
+   "last_error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1FMbPzvErf",
@@ -94814,6 +94825,13 @@
    "video_id": "BV1LGJQ6REPV",
    "ts": 1792239879,
    "error": "与已经发布的母片时间段重叠，保留其他完整观点"
+  },
+  {
+   "slug": "ly-story-5161739dfa",
+   "key": "ly-story-5161739dfa",
+   "video_id": "BV13x4y1o73Y",
+   "ts": 1792240187,
+   "error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
   }
  ],
  "reviewed_third_video_0910": {
