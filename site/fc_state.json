@@ -34111,8 +34111,8 @@
    "recovery_origin_run_id": 38866481077,
    "production_failure_summary": {
     "slug": "ly-story-7884c0eb85",
-    "run_id": 39031325296,
-    "artifact_id": 12101611132,
+    "run_id": 39041101899,
+    "artifact_id": 12103989875,
     "accepted": 0,
     "failures": [
      {
@@ -34129,6 +34129,10 @@
      },
      {
       "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不不没投这个东西。\", \"suspect_quote\": \"我也我虽然不不没投这个东西。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不不没’存在多重否定叠加且无明确逻辑指向，属于含义不明的关键否定结构，需指出原文实际否定字‘不、没’的混乱组合。\"}]"
      },
      {
@@ -34137,11 +34141,12 @@
      }
     ]
    },
-   "source_check_report_id": 12101611132,
-   "source_check_run_id": 39031325296,
+   "source_check_report_id": 12103989875,
+   "source_check_run_id": 39041101899,
    "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1792251629
   },
   {
    "key": "bilibili_search:BV1PwJY6SE8C",
