@@ -32644,7 +32644,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T09:15:32+00:00"
+   "publish_time": "2026-10-16T09:15:32+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-09d7ff",
+    "run_id": 38984388026,
+    "artifact_id": 12082796712,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不没投这个东西。\", \"suspect_quote\": \"我也我虽然不没投这个东西\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不没’构成双重否定结构，在口语中虽可表示肯定，但作为识别文本存在歧义风险：若原意为‘没有投’则应为‘没投’，若为‘不是没投’则逻辑复杂。此处‘不没’极可能是‘没’或‘不是没’的识别混淆，属于含义不明的否定问题。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38984388026,
+    "artifact_id": 12082796712,
+    "name": "production-reject-ly-1017-09d7ff",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1tv3L69Es9",
@@ -92463,6 +92489,13 @@
    "video_id": "BV1C7Jt6PEJD",
    "ts": 1792193975,
    "error": "整段取景预检：源 53.60s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1017-09d7ff",
+   "key": "bilibili_search:BV1uSJX6EERh",
+   "video_id": "BV1uSJX6EERh",
+   "ts": 1792196375,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
