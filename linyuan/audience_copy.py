@@ -6,7 +6,7 @@ removed provenance or suppressed synthetic-media/rights disclosure.
 import re
 from datetime import date, datetime, timezone
 
-VERSION = 2026101401
+VERSION = 2026101701
 _LEAD = re.compile(r'^本段讨论\s*[：:]\s*')
 _SERIES = re.compile(
     r'^同场访谈分集：第 (\d+)/(\d+) 集'
@@ -23,8 +23,12 @@ def speech_date_evidence(item, now=None):
     if not isinstance(extra, dict): extra = {}
     context = item.get('speech_date_context') or {}
     if not isinstance(context, dict): context = {}
-    texts = [context.get('date'), extra.get('content_date_hint'),
-             extra.get('collection_title'), item.get('title'), item.get('occasion')]
+    verified_context=(context.get('verified') is True
+        and context.get('basis')=='primary_source_verified'
+        and bool(re.fullmatch(r'https://[^\s/@]+(?:/[^\s]*)?',str(context.get('evidence_url') or ''))))
+    texts = ([context.get('date')] if verified_context else
+             [context.get('date'), extra.get('content_date_hint'),
+              extra.get('collection_title'), item.get('title'), item.get('occasion')])
     today = datetime.fromtimestamp(now, timezone.utc).date() if now is not None else datetime.now(timezone.utc).date()
     dates = set()
     for text in texts:
@@ -42,33 +46,24 @@ def speech_date_evidence(item, now=None):
         if (date.fromisoformat(value)-uploaded).days > 1:
             return dict(date=None, verified=False, basis='date_after_source_upload')
     except (ValueError, TypeError, AttributeError): pass
+    if verified_context:
+        return dict(date=value,verified=True,basis='primary_source_verified',
+                    evidence_url=context['evidence_url'])
     return dict(date=value, verified=False, basis='source_metadata_unverified')
 
 
 def dated_description(value, part, entry=None):
-    """Add source-time context at publication, including existing inventory."""
+    """Only verified speech dates belong in audience copy; no work-log footer."""
     text = description(value)
-    # Our own suffix is idempotent; preserve all original audience copy.
+    # Remove only our old generated suffix, not source credits or disclosures.
     marker = '\n\n【原始讲话信息】\n'
     text = text.split(marker, 1)[0].rstrip()
+    text=re.sub(r'\n\n发言时间：\d{4}年\d{1,2}月\d{1,2}日。$', '',text).rstrip()
     evidence = speech_date_evidence(entry or part)
-    when = (evidence['date'] + '（原片标注，尚未独立核实）'
-            if evidence['date'] else '暂未核实')
-    lines = [f'讲话时间：{when}；不是本次上传时间。']
-    segments = part.get('segments') or part.get('source_segments') or []
-    def clock(value):
-        seconds = int(float(value))
-        return f'{seconds//3600:02d}:{seconds//60%60:02d}:{seconds%60:02d}'
-    intervals = []
-    for segment in segments[:10]:
-        try:
-            start, end = float(segment['start']), float(segment['end'])
-            if not __import__('math').isfinite(start+end) or not 0 <= start < end: continue
-            intervals.append(clock(start) + '–' + clock(end))
-        except (KeyError, TypeError, ValueError, OverflowError): continue
-    if intervals: lines.append('原视频位置：' + '、'.join(intervals))
-    lines.append('请结合当时背景理解，不代表对当前行情的判断。')
-    return text + marker + '\n'.join(lines)
+    if not evidence.get('verified') or not evidence.get('date'):
+        return text
+    value=date.fromisoformat(evidence['date'])
+    return text+f'\n\n发言时间：{value.year}年{value.month}月{value.day}日。'
 
 
 def description(value, speaker='林园'):

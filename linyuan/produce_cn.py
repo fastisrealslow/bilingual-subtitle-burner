@@ -4007,9 +4007,15 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     if not frames:
         raise VisualQualityError("封面无法抽帧")
-    remaining = detect_corner_logos_in_images(frames)
-    if remaining:
-        raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
+    # One dirty sample must not discard other clean, living expressions from
+    # this same clip and force the permanent stock portrait.
+    clean_frames=[]
+    for frame in frames:
+        if detect_corner_logos_in_images([frame]):
+            frame.unlink(missing_ok=True)
+        else:
+            clean_frames.append(frame)
+    frames=clean_frames
 
     initial_identity_error=None
     try:
@@ -4056,20 +4062,35 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     scene_fallback_reason = None
     if style == 'scene':
         from presentation import save_scene_cover
-        try:
-            save_scene_cover(img, out_path, best_face, identity_proof)
-        except ValueError as exc:
-            if not allow_editorial_fallback:
-                for fp in frames:
-                    fp.unlink(missing_ok=True)
-                raise VisualQualityError(str(exc)) from exc
-            scene_fallback_reason = str(exc)
-            style = 'editorial'
-        else:
-            for fp in frames:
-                fp.unlink(missing_ok=True)
-            print(f'[封面] {out_path.name} 现场原画，无叠加标题')
-            return
+        # The highest identity score can be a badly framed instant. Try a
+        # bounded set of independently matched clean frames before a card.
+        remaining_frames=list(frames)
+        current_frame,current_face,current_identity=best_frame,best_face,identity_proof
+        scene_attempts=[]
+        for _ in range(3):
+            try:
+                save_scene_cover(Image.open(current_frame).convert('RGB'),out_path,current_face,
+                    {**current_identity,'scene_candidates_tried':len(scene_attempts)+1})
+            except ValueError as exc:
+                scene_attempts.append(dict(frame=current_frame.name,error=str(exc)))
+                remaining_frames=[frame for frame in remaining_frames if frame!=current_frame]
+                if not remaining_frames:break
+                try:
+                    current_frame,current_face,current_identity=select_verified_cover_face(remaining_frames,reference_path)
+                except VisualQualityError:break
+                if current_identity.get('sharpness',0)<60:break
+            else:
+                Path(str(out_path)+'.identity.json').write_text(json.dumps(
+                    {**current_identity,'scene_candidates_tried':len(scene_attempts)+1},ensure_ascii=False,indent=2))
+                for frame in frames:frame.unlink(missing_ok=True)
+                print(f'[封面] {out_path.name} 使用本段核验现场画面')
+                return
+        scene_fallback_reason=(scene_attempts[0]['error'] if scene_attempts
+                               else '现场画面未通过封面构图检查')
+        if not allow_editorial_fallback:
+            for frame in frames:frame.unlink(missing_ok=True)
+            raise VisualQualityError(scene_fallback_reason)
+        style='editorial'
     if style == 'editorial':
         from editorial_cover import render, font_path
         try:

@@ -13,8 +13,8 @@ def test_upload_date_is_never_the_date_of_the_speech():
     assert speech_date_evidence({'publish_time': '2026-10-13'}, NOW)['date'] is None
     desc = dated_description('林园：我不加杠杆', {'segments': [{'start': 70.52, 'end': 172.44}]},
                             {'title': '林园新浪财经采访2020.12.14', 'publish_time': '2026-10-13'})
-    assert '2020-12-14（原片标注，尚未独立核实）' in desc
-    assert '00:01:10–00:02:52' in desc and '2026-10-13' not in desc
+    assert desc=='林园：我不加杠杆'
+    assert '原视频位置' not in desc and '暂未核实' not in desc
     assert dated_description(desc, {'segments': [{'start': 70.52, 'end': 172.44}]},
                              {'title': '林园新浪财经采访2020.12.14'}) == desc
 
@@ -44,3 +44,25 @@ def test_recent_speech_claim_after_the_original_upload_is_not_recent_evidence():
     c = {'title': '2026年10月14日林园最新访谈', 'publish_time': '2024-10-14T12:00:00Z'}
     assert speech_date_evidence(c, NOW)['basis'] == 'date_after_source_upload'
     assert recording_recency_rank(c, NOW) == 1
+
+
+def test_only_explicit_primary_source_verification_can_display_a_date():
+    context=dict(date='2020-12-14',verified=True,basis='primary_source_verified',
+                 evidence_url='https://www.yicai.com/news/example.html')
+    entry=dict(speech_date_context=context,publish_time='2026-10-13')
+    assert speech_date_evidence(entry,NOW)['verified'] is True
+    value=dated_description('林园：我不加杠杆',{},entry)
+    assert value=='林园：我不加杠杆\n\n发言时间：2020年12月14日。'
+    assert dated_description(value,{},entry)==value
+    for update in [dict(verified=False),dict(verified='true'),dict(evidence_url=''),
+                   dict(basis='source_metadata_unverified')]:
+        assert dated_description('林园：我不加杠杆',{},dict(speech_date_context={**context,**update}))=='林园：我不加杠杆'
+
+
+def test_old_work_log_footer_is_removed_but_source_credit_and_disclosure_survive():
+    original=('林园：我不加杠杆\n来源：第一财经\nAI辅助字幕\n版权说明'
+              '\n\n【原始讲话信息】\n讲话时间：暂未核实；不是本次上传时间。'
+              '\n原视频位置：00:01:10–00:02:52\n请结合当时背景理解，不代表对当前行情的判断。')
+    result=dated_description(original,{})
+    assert result=='林园：我不加杠杆\n来源：第一财经\nAI辅助字幕\n版权说明'
+    assert dated_description(result,{})==result
