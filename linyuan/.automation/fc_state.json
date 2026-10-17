@@ -33024,8 +33024,8 @@
    "publish_time": "2026-10-17T14:30:32+08:00",
    "production_failure_summary": {
     "slug": "ly-1017-7cda64",
-    "run_id": 39027864511,
-    "artifact_id": 12099660767,
+    "run_id": 39030487028,
+    "artifact_id": 12099889674,
     "accepted": 0,
     "failures": [
      {
@@ -33042,13 +33042,13 @@
      }
     ]
    },
-   "source_check_report_id": 12099660767,
-   "source_check_run_id": 39027864511,
+   "source_check_report_id": 12099889674,
+   "source_check_run_id": 39030487028,
    "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
    "failure_stage": "quality-service",
    "source_check_attempts": 3,
-   "failed": false,
-   "source_check_exhausted": false,
+   "failed": true,
+   "source_check_exhausted": true,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 39027864511,
@@ -33247,8 +33247,8 @@
    "publish_time": "2026-10-17T00:00:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1017-c2adb8",
-    "run_id": 39009147499,
-    "artifact_id": 12091914658,
+    "run_id": 39030775156,
+    "artifact_id": 12099944280,
     "accepted": 0,
     "failures": [
      {
@@ -33257,15 +33257,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39009147499,
-    "artifact_id": 12091914658,
+    "run_id": 39030775156,
+    "artifact_id": 12099944280,
     "name": "production-reject-ly-1017-c2adb8",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，影响人物指代准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\", \"suspect_quote\": \"像猜一样突然爆发\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“老龄化、七八十岁人增多”，此处逻辑应为等待人口结构变化带来的行业爆发，识别为“像猜一样”语义不通且无法解释，疑似将口语中的比喻词（如“像猜谜一样”或特定语气词）误识为无意义的词汇，导致关键含义不明。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -33302,8 +33302,8 @@
    "publish_time": "2026-10-17 08:56:11",
    "production_failure_summary": {
     "slug": "ly-1017-71aca0",
-    "run_id": 39003048891,
-    "artifact_id": 12090625059,
+    "run_id": 39030781422,
+    "artifact_id": 12099494370,
     "accepted": 0,
     "failures": [
      {
@@ -33312,15 +33312,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39003048891,
-    "artifact_id": 12090625059,
+    "run_id": 39030781422,
+    "artifact_id": 12099494370,
     "name": "production-reject-ly-1017-71aca0",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，影响人物指代准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\", \"suspect_quote\": \"像猜一样突然爆发\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文语境（等待老龄化带来的机会），此处应为比喻性的“像猜谜一样”或“像赌博一样”，识别为“像猜一样”导致语义不通，属于关键修饰词识别错误。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
