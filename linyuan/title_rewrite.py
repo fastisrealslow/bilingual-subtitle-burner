@@ -1450,6 +1450,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 程序会在已确认的嘉宾原句中逐字定位这个名称，可以出现在同一问答的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
     reading_repair_note=''
     def fallback(only_preferred=False):
+        if editorial_focus:
+            raise ValueError('故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句')
         if answer_focus:
             raise ValueError('主要回答标题尚未通过，保留重试；不回退到旁枝摘句')
         if not structured_model:
@@ -1559,7 +1561,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                     'readable':'用自然完整的中文短句，保留对象、动作和宾语，不能拼术语或截半句。',
                 }
                 corrections=[k+'：'+repairs[k] for k in CHECKS if k in repair_checks]
-                if answer_focus:
+                if answer_focus or editorial_focus:
                     corrections += ['structural：'+issue for issue in structural_repairs]
                 if corrections:
                     draft_retry+='上轮退回的检查项及本轮必须执行的修正（不是事实来源）：\n'+'\n'.join(corrections)+'\n'
@@ -1601,7 +1603,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if not valid:
                 # Real source13 retried the same missing-object draft three
                 # times. Feed back the program's checks, not its failed copy.
-                if answer_focus:
+                if answer_focus or editorial_focus:
                     structural_repairs=list(dict.fromkeys(issue for issue in errors if issue))[:3]
                 # Real replay 35613314961: reading omitted the guest's earlier
                 # 牛市 / 不好预测 cues, so three writers could not name the
