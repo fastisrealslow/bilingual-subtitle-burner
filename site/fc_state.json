@@ -34258,7 +34258,33 @@
    "output_layout": "landscape",
    "experiment_mother_sha256": "8f626ee870b69646e39c3ed3cd91ae56e286903a2704485dedd4571b37a698ce",
    "experiment_parent_slug": "ly-1009-c31f09",
-   "recovery_origin_run_id": 39040342596
+   "recovery_origin_run_id": 39040342596,
+   "production_failure_summary": {
+    "slug": "ly-story-b8a94f3045",
+    "run_id": 39042490184,
+    "artifact_id": 12104448745,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1907/2975，总帧数5337；身份匹配但人脸短边不足96px的帧数1068"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39042490184,
+    "artifact_id": 12104448745,
+    "name": "production-reject-ly-story-b8a94f3045",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1mhp66XE2C",
@@ -34281,7 +34307,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T12:45:00+00:00"
+   "publish_time": "2026-10-17T12:45:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39043266228,
+    "artifact_id": 12105261290,
+    "name": "source-reject-ly-1017-c205dd",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -95937,6 +95973,20 @@
    "video_id": "BV1PwJY6SE8C",
    "ts": 1792248610,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1017-c205dd",
+   "key": "bilibili_search:BV1mhp66XE2C",
+   "video_id": "BV1mhp66XE2C",
+   "ts": 1792250078,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-story-b8a94f3045",
+   "key": "ly-story-b8a94f3045",
+   "video_id": "BV1RJ411Q7Ki",
+   "ts": 1792250078,
+   "error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
   }
  ],
  "reviewed_third_video_0910": {
