@@ -135,6 +135,33 @@ def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(m
     assert not list(F.experiment_reuse_candidates(state,stock,[item]))
 
 
+@pytest.mark.parametrize('ready,has_story,first',[(15,True,'story'),(1,True,'repair'),(15,False,'repair')])
+def test_healthy_stock_reserves_capacity_for_real_story_jobs_not_endless_old_repairs(monkeypatch,ready,has_story,first):
+    monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T20:00:00'))
+    parent=dict(slug='mother',source_url='https://www.bilibili.com/video/BVtest',title='林园访谈',ts=1)
+    state=dict(dispatched=[parent],published={},pending_retry=[],rejected=[])
+    stock=dict(inventory_fresh=True,daily_mix_usable=ready,verified_portrait=ready,verified_landscape=0,
+               experiment_ready=dict(portrait=0,landscape=0))
+    events=[]
+    def gh(method,path,data=None,**kw):
+        if method=='POST':events.append('story');assert data['inputs']['editorial_profile']==E.TREATMENT;return {}
+        if F.DATA_JSON in path:return b'[]'
+        if F.SOURCE_INVENTORY_KEY in path:return b'{}'
+        return dict(workflow_runs=[])
+    def pick(items,st,limit,audit):audit.update(records=0,candidate_count=0);return []
+    def repair(*a):events.append('repair');return True
+    replacements=dict(load_state=lambda:state,save_state=lambda _:None,log_event=lambda *a:None,
+        _collect_source_rejections=lambda _:0,source_inventory=lambda *a:stock,
+        staging_release_id=lambda:1,pick=pick,gh=gh,_process_retries=lambda _:None,
+        obsolete_review_candidates=lambda *a:[(dict(slug='old'),dict(artifact_id=1))],
+        _request_quality_reprocess=repair,
+        experiment_reuse_candidates=lambda *a:[(parent,dict(run_id=123))] if has_story else [])
+    for name,value in replacements.items():monkeypatch.setattr(F,name,value)
+    result=F._dispatch_admitted({'execution_backend':'github'})
+    assert events[0]==first and result['dispatched']==len(events)
+    assert state['dispatched'][0]==parent
+
+
 @pytest.mark.parametrize('change',[dict(source_sha256='d'*64),dict(title='林园：另一个标题'),
     dict(fingerprints=dict(sha256='d'*64)),dict(cover_person_image_source='authority_reference'),
     dict(cover_proof=dict(style='editorial',sha256='c'*64,no_added_text=True,feed_safe_face=True))])
