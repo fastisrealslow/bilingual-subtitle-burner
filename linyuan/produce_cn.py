@@ -3710,7 +3710,7 @@ readable必须同时覆盖标题和封面：分别作为陌生观众读一遍，
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
               existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None,
-              source_sha256=None, prefer_reviewed_quote=False):
+              source_sha256=None, prefer_reviewed_quote=False, story_evidence=None):
     """Generate three source-backed angles, review title/cover, and cache evidence.
 
     Slices and full interviews use the same editorial policy. The suffix keeps
@@ -3720,6 +3720,15 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     if automatic_only() and (reviewed_title or reviewed_cover or prefer_reviewed_quote):
         raise VisualQualityError('Automatic titles cannot use manually supplied copy')
     transcript_text = "".join(cues[i]["text"] for i in sel)
+    if story_evidence is not None:
+        from publishing_experiment import digest, VERSION, profile, TREATMENT
+        if (profile()!=TREATMENT or not isinstance(story_evidence,dict)
+                or story_evidence.get('version')!=VERSION
+                or story_evidence.get('transcript_sha256')!=digest(transcript_text)
+                or any(not isinstance(story_evidence.get(k),str) or not story_evidence[k]
+                       or story_evidence[k] not in transcript_text
+                       for k in ('subject_quote','event_quote','detail_quote'))):
+            raise ValueError('故事选题必须绑定本段原文，不能作为手填标题或事实批准')
     from headline_policy import attach_copy
     import title_rewrite as title_editor
     # A previous fluent-but-wrong claim can still satisfy structural checks.
@@ -3730,6 +3739,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **_copy_style_identity(speaker),
+                   **({'story_evidence':story_evidence} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     handoff=os.environ.get('LINYUAN_TITLE_HANDOFF')
@@ -3798,6 +3808,12 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
+        if story_evidence and any(k in schema.get('properties',{}) for k in ('a_reading','c_candidates','reviews')):
+            prompt += ('\n这条片段的选题是具体公司事例或亲身经历，不是抽象自我评价。'
+                       '内容理解、标题和核对都以该具体事例为中心；抽象自评仅是背景。'
+                       '以下是从本段原句编号提取的看点线索，不是已批准的事实或标题。'
+                       '仍须独立核对说话人、否定、条件和原文事实。原因保留细节原句中的关键名词，'
+                       '不能改成另一个对象的增长或爆发。\n'+json.dumps(story_evidence,ensure_ascii=False))
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
@@ -5564,6 +5580,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 reviewed_title=picks[0].get('editorial_title'),
                 reviewed_cover=picks[0].get('editorial_cover'),
                 prefer_reviewed_quote=picks[0].get('editorial_prefer_exact_quote',False),
+                story_evidence=picks[0].get('story_selection') if len(picks)==1 else None,
                 source_sha256=(source_report or {}).get('source_sha256'))
         return cw
 

@@ -44,6 +44,7 @@ def main():
     source=cues[selected['start']:selected['end']+1]
     (out/'title').mkdir(exist_ok=True)
     result=P.copywrite(source,list(range(len(source))),'林园','访谈','',out/'title',
+                       story_evidence=selected['story_selection'],
                        source_sha256=fixture['source_sha256'])
     report['copy']=result;save()
     assert result['title_rewrite']['review']['method']=='cpu_text_review'

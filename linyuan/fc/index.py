@@ -2464,6 +2464,7 @@ def _dispatch_admitted(event=None, context=None):
     success = 0
     # A new editorial rule must not leave already transcribed mothers stranded
     # until the next publication hour. Reuse their raw offline evidence first.
+    reserve={}
     try:
         reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
         if source_inventory(st,reserve)['inventory_fresh']:
@@ -2505,6 +2506,32 @@ def _dispatch_admitted(event=None, context=None):
         if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
+    # The ledger may have no NEW admitted long mothers. Reuse verified raw
+    # evidence under a new slug; keep the original baseline stock untouched.
+    if not recent_probe and success<target and any(exp_needs.values()):
+        for parent,record in experiment_reuse_candidates(st,reserve,items):
+            if success>=target or not any(exp_needs.values()):break
+            layout='landscape' if exp_needs['landscape'] else 'portrait'
+            slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
+                parent.get('source_sha256') or parent['source_url']])[:10]
+            gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{'ref':'main','inputs':{
+                'source':parent['source_url'],'slug':slug,'speaker':'林园',
+                'occasion':parent.get('title','')[:30],'auto_publish':'false',
+                'include_full':'false','output_layout':layout,
+                'editorial_profile':experiment.TREATMENT,
+                'source_platform':platform_of(parent.get('source','')),
+                'recovery_run_id':str(record['run_id'])}})
+            st['dispatched'].append({k:parent[k] for k in (
+                'video_id','source_url','title','source','author','speech_date_context','publish_time')
+                if k in parent}|dict(key=slug,slug=slug,ts=int(time.time()),
+                    asset_url=parent['source_url'],delay_hours=0,
+                    required_presentation_version=2,production_rules_version=PRODUCTION_RULES_VERSION,
+                    editorial_profile=experiment.TREATMENT,output_layout=layout,
+                    experiment_mother_sha256=parent.get('source_sha256'),
+                    experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id']))
+            save_state(st)
+            success+=1;exp_needs[layout]=max(0,exp_needs[layout]-1)
+            log_event('dispatch_ok',f'已调度故事实验 {slug}',f'复用已核验母片 {parent["slug"]}，原库存保留')
     mainland_deferred = 0
     for i, c in enumerate(cands):
         if success >= target:
@@ -2772,6 +2799,37 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
         # Falling back to index zero redownloaded rejected stock at 21:00.
         return None
     return int(entry.get('published_parts') or 0)
+
+
+def experiment_reuse_candidates(state, inventory, items):
+    """One bounded automatic attempt per verified long mother, never relabel stock."""
+    if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
+    from source_admission_guard import restriction
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    used={e.get('experiment_parent_slug') for e in latest.values()}
+    used_sources={e.get('source_url') for e in latest.values() if e.get('experiment_parent_slug')}
+    used_hashes={e.get('experiment_mother_sha256') for e in latest.values() if e.get('experiment_mother_sha256')}
+    for record in inventory.get('artifacts',[]):
+        entry=latest.get(record.get('slug'))
+        if (not entry or entry.get('failed') or entry['slug'] in used
+                or entry['slug'] in REVIEW_PAUSED_SLUGS or entry.get('weekly_full_week')
+                or entry.get('experiment_parent_slug') or not record.get('run_id')
+                or not inventory_record_current(record)):continue
+        url=entry.get('source_url')
+        mother_sha=entry.get('source_sha256')
+        if not url or url in used_sources or mother_sha and mother_sha in used_hashes or restriction(url,[]):continue
+        matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if not any(experiment.long_candidate(i) and not (
+                (i.get('extra') or {}).get('no_reprint')==1
+                or (i.get('extra') or {}).get('direct_dispatch') is False)
+                for i in matches if isinstance(i.get('extra'),dict)):continue
+        remaining=[p for p in record.get('parts',[]) if p.get('status')=='verified'
+                   and int(p.get('index',-1)) not in processed_part_indices(entry)
+                   and not inventory_publication_error(p,entry,state)]
+        if not remaining:continue
+        used_sources.add(url)
+        if mother_sha:used_hashes.add(mother_sha)
+        yield entry,record
 
 
 def obsolete_review_candidates(state, inventory):

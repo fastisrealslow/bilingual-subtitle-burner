@@ -69,6 +69,37 @@ def test_profile_is_explicit_and_changes_copy_cache_identity(monkeypatch):
     with pytest.raises(ValueError):E.profile()
 
 
+def test_story_copy_evidence_cannot_override_source_or_baseline(monkeypatch,tmp_path):
+    meta,cues,_=treatment();evidence=meta['experiment_proof']['selection']
+    monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',E.BASELINE)
+    with pytest.raises(ValueError,match='绑定本段原文'):
+        P.copywrite(cues,[0],'林园','访谈','',tmp_path,story_evidence=evidence)
+    monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',E.TREATMENT)
+    with pytest.raises(ValueError,match='绑定本段原文'):
+        P.copywrite(cues,[0],'林园','访谈','',tmp_path,
+                    story_evidence={**evidence,'detail_quote':'原文没有这个事实'})
+
+
+def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(monkeypatch):
+    monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T18:00:00'))
+    monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))
+    monkeypatch.setattr(F,'inventory_record_current',lambda _:True)
+    monkeypatch.setattr(F,'inventory_publication_error',lambda *a:None)
+    entry=dict(slug='old',source_url='https://www.bilibili.com/video/BVtest',ts=1)
+    state=dict(dispatched=[entry]);old=deepcopy(state)
+    record=dict(slug='old',run_id=123,parts=[dict(index=0,status='verified')])
+    stock=dict(artifacts=[record])
+    item=dict(page_url=entry['source_url'],extra=dict(duration=1800))
+    assert list(F.experiment_reuse_candidates(state,stock,[item]))==[(entry,record)]
+    assert state==old
+    assert not list(F.experiment_reuse_candidates(state,stock,[{**item,'extra':dict(duration=1199)}]))
+    assert not list(F.experiment_reuse_candidates(state,stock,[{**item,'extra':dict(duration=1800,no_reprint=1)}]))
+    state['dispatched'].append(dict(slug='new',experiment_parent_slug='old',source_url=entry['source_url']))
+    assert not list(F.experiment_reuse_candidates(state,stock,[item]))
+    state['dispatched'].pop();record['parts'][0]['status']='rejected'
+    assert not list(F.experiment_reuse_candidates(state,stock,[item]))
+
+
 @pytest.mark.parametrize('change',[dict(source_sha256='d'*64),dict(title='林园：另一个标题'),
     dict(fingerprints=dict(sha256='d'*64)),dict(cover_person_image_source='authority_reference'),
     dict(cover_proof=dict(style='editorial',sha256='c'*64,no_added_text=True,feed_safe_face=True))])
