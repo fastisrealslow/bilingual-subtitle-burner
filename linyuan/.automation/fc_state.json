@@ -33195,7 +33195,8 @@
    },
    "last_error": "整段取景预检：源 44.53s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5355000697196750",
@@ -33239,7 +33240,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1xH6ZYLEmd",
@@ -33261,7 +33263,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-01-03T09:45:42+00:00"
+   "publish_time": "2025-01-03T09:45:42+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39021299924,
+    "artifact_id": 12096668674,
+    "name": "source-reject-ly-1017-6644c4",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5354985097265390",
@@ -94289,6 +94301,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/nr4jIXszlx08BCqZudjq01041200eGBr0E010.mp4",
    "ts": 1792229299,
    "error": "整段取景预检：源 44.53s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1017-6644c4",
+   "key": "bilibili_search:BV1xH6ZYLEmd",
+   "video_id": "BV1xH6ZYLEmd",
+   "ts": 1792229701,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
