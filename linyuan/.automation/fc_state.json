@@ -33433,7 +33433,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/538，总帧数1505；身份匹配但人脸短边不足96px的帧数34",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VX8H47CPH",
@@ -33455,7 +33456,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T14:41"
+   "publish_time": "2026-10-17T14:41",
+   "production_failure_summary": {
+    "slug": "ly-1017-0fda84",
+    "run_id": 39022838219,
+    "artifact_id": 12097518358,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39022838219,
+    "artifact_id": 12097518358,
+    "name": "production-reject-ly-1017-0fda84",
+    "retained": true
+   },
+   "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -94467,6 +94490,13 @@
    "video_id": "BV1jfJY66E3T",
    "ts": 1792230999,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/538，总帧数1505；身份匹配但人脸短边不足96px的帧数34"
+  },
+  {
+   "slug": "ly-1017-0fda84",
+   "key": "netease_video:VX8H47CPH",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2610/17/2rie2knnin4/SD/2rie2knnin4-mobile.mp4",
+   "ts": 1792231772,
+   "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
   }
  ],
  "reviewed_third_video_0910": {
