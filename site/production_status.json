@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792230583,
+  "updated_at": 1792230877,
   "inventory_updated_at": 1792230574,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792230582,
+    "updated_at": 1792230877,
     "records": 10686,
     "video_records": 9174,
-    "initial_candidates": 61,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 60,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1458,
+      "already_attempted_or_cooling": 1459,
       "clip_title": 1124,
       "speaker_unconfirmed": 6271,
       "no_video": 1512,
@@ -54,16 +54,7 @@
       "over_limit": 23,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "netease_video:VX8H47CPH",
-        "title": "林园：我的成功来源于认知与判断！",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VX8H47CPH.html",
-        "duration_sec": 70.4
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 13,
@@ -79,12 +70,13 @@
   },
   "counts": {
     "complete": 124,
-    "failed": 1118,
+    "failed": 1119,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 8,
     "excluded": 5,
-    "running": 3
+    "running": 3,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -22813,14 +22805,14 @@
     },
     {
       "slug": "ly-1017-7cda64",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792228696,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792231534,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -22903,11 +22895,11 @@
     },
     {
       "slug": "ly-1017-0e9ca4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792229360,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22939,8 +22931,8 @@
     },
     {
       "slug": "ly-1017-716a14",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792230103,
         "failed": null,
@@ -22953,7 +22945,25 @@
       "run_id": 39022098181,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022098181",
       "run_started_at": "2026-10-17T09:41:42Z",
-      "run_updated_at": "2026-10-17T09:41:46Z"
+      "run_updated_at": "2026-10-17T09:53:26Z"
+    },
+    {
+      "slug": "ly-1017-0fda84",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792230819,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39022838219,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022838219",
+      "run_started_at": "2026-10-17T09:53:39Z",
+      "run_updated_at": "2026-10-17T09:53:43Z"
     }
   ],
   "runs": {
@@ -32538,17 +32548,6 @@
       "run_number": 2221,
       "display_title": "中文源出片 · ly-1017-0e9ca4"
     },
-    "ly-1017-716a14": {
-      "id": 39022098181,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-17T09:41:42Z",
-      "updated_at": "2026-10-17T09:41:46Z",
-      "run_started_at": "2026-10-17T09:41:42Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022098181",
-      "run_number": 2223,
-      "display_title": "中文源出片 · ly-1017-716a14"
-    },
     "ly-1017-7cda64": {
       "id": 39020609995,
       "status": "completed",
@@ -32559,6 +32558,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39020609995",
       "run_number": 2216,
       "display_title": "中文源出片 · ly-1017-7cda64"
+    },
+    "ly-1017-0fda84": {
+      "id": 39022838219,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T09:53:39Z",
+      "updated_at": "2026-10-17T09:53:43Z",
+      "run_started_at": "2026-10-17T09:53:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022838219",
+      "run_number": 2224,
+      "display_title": "中文源出片 · ly-1017-0fda84"
+    },
+    "ly-1017-716a14": {
+      "id": 39022098181,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-17T09:41:42Z",
+      "updated_at": "2026-10-17T09:53:26Z",
+      "run_started_at": "2026-10-17T09:41:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022098181",
+      "run_number": 2223,
+      "display_title": "中文源出片 · ly-1017-716a14"
     },
     "ly-1017-bfe847": {
       "id": 39014448009,
