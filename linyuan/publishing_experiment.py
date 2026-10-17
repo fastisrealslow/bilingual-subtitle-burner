@@ -239,7 +239,11 @@ def receipt(meta, now=None, makeup_slot=None):
 def observations(items, previous, state, now=None):
     """Actual receipt-defined groups; missing views never become zero plays."""
     now=time.time() if now is None else now
-    receipts={}
+    old=previous.get('publishing_experiment') or {}
+    # Publication receipts are immutable observations. A temporary state-read
+    # failure must not erase the month already collected by earlier runs.
+    receipts={r['bvid']:dict(r) for r in old.get('receipts') or []
+              if isinstance(r,dict) and r.get('bvid') and r.get('experiment_id')==EXPERIMENT_ID}
     for info in (state.get('published') or {}).values():
         for p in info.get('parts') or []:
             r=p.get('publishing_experiment')
@@ -248,7 +252,7 @@ def observations(items, previous, state, now=None):
                     'published_at':p.get('ts'),'duration_sec':p.get('duration_sec'),
                     'source_url':info.get('source_url'),'source_sha256':p.get('source_sha256'),
                     'render_mode':p.get('render_mode'),'resolution':p.get('resolution')}
-    old=previous.get('publishing_experiment') or {};samples={}
+    samples={}
     for r in old.get('samples') or []:
         if r.get('bvid') in receipts and r.get('window') in (24,72,168):
             samples[(r['bvid'],r['window'])]=dict(r)

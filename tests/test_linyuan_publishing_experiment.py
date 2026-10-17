@@ -252,3 +252,10 @@ def test_unresolved_upload_intent_is_visible_but_never_counted_as_published():
     report=E.observations([],{},state,pub+25*3600)
     assert len(report['pending_uploads'])==1 and not report['receipts'] and not report['samples']
     assert all(d['published']==0 for d in report['daily'])
+
+
+def test_transient_state_read_failure_cannot_erase_months_observations():
+    meta,_,_=treatment();pub=stamp('2026-10-19T14:00:00')
+    first=E.observations([dict(bvid='BVsample',pubdate=pub,play=100)],{},state_for(meta,pub),pub+25*3600)
+    missing=E.observations([],dict(publishing_experiment=first),{},pub+30*3600)
+    assert missing['receipts']==first['receipts'] and missing['samples']==first['samples']
