@@ -58,9 +58,10 @@ def test_fallback_reviews_alternatives_once_and_binds_the_accepted_copy(monkeypa
     def reviewer(prompt,schema):
         calls.append(prompt)
         assert schema['properties']['reviews']['minItems']==2
-        return json.dumps(dict(reviews=[dict(index=i,title_readable=i==1,
+        rows=json.loads(prompt.split('待检查文案：')[1].split('\n完整原文：')[0])
+        return json.dumps(dict(reviews=[dict(index=r['index'],title_readable=r['title']==titles[1],
             cover_readable=True,same_claim=True,reason='测试审核：第二句明确交代买入股票之前要看经营情况')
-            for i in range(2)]),ensure_ascii=False)
+            for r in rows]),ensure_ascii=False)
     result=T._extractive(source,'林园',(),reviewer=reviewer)
     assert len(calls)==1 and result['title']==titles[1]
     proof=result['title_rewrite']
