@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792232520,
+  "updated_at": 1792232722,
   "inventory_updated_at": 1792232511,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792232519,
+    "updated_at": 1792232722,
     "records": 10698,
     "video_records": 9186,
     "initial_candidates": 60,
@@ -72,10 +72,11 @@
     "complete": 124,
     "failed": 1121,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "ready": 8,
     "excluded": 5,
-    "running": 2
+    "running": 2,
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -22948,14 +22949,14 @@
     },
     {
       "slug": "ly-1017-7cda64",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792231831,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792234434,
         "weekly_full_week": ""
       },
       "history_count": 1,
