@@ -32670,7 +32670,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1tv3L69Es9",
@@ -32692,7 +32693,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-28T04:15:00+00:00"
+   "publish_time": "2026-07-28T04:15:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-9f5130",
+    "run_id": 38984706202,
+    "artifact_id": 12082034900,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人第 0 句为提问，嘉宾后续两句（1、2）中第 1 句为模糊泛化（'所有行业都是这样'），第 2 句为类比经济规律但未明确回应'是否一定会走上老路'这一核心判断，导致观点缺失。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38984706202,
+    "artifact_id": 12082034900,
+    "name": "production-reject-ly-1017-9f5130",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人第 0 句为提问，嘉宾后续两句（1、2）中第 1 句为模糊泛化（'所有行业都是这样'），第 2 句为类比经济规律但未明确回应'是否一定会走上老路'这一核心判断，导致观点缺失。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Db3L6ZEoz",
@@ -92542,6 +92565,13 @@
    "video_id": "BV1uSJX6EERh",
    "ts": 1792196375,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1017-9f5130",
+   "key": "bilibili_search:BV1tv3L69Es9",
+   "video_id": "BV1tv3L69Es9",
+   "ts": 1792196613,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人第 0 句为提问，嘉宾后续两句（1、2）中第 1 句为模糊泛化（'所有行业都是这样'），第 2 句为类比经济规律但未明确回应'是否一定会走上老路'这一核心判断，导致观点缺失。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
