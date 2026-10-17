@@ -33951,25 +33951,25 @@
    "publish_time": "2026-01-01T00:02:26+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-3afac3",
-    "run_id": 38596197773,
-    "artifact_id": 11913120804,
+    "run_id": 39037923925,
+    "artifact_id": 12103172569,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。根据上下文（宁波、股票），该名称极可能为“三星股份”或其他真实存在的公司名，但“三三”在金融语境下无明确指代，属于无法解释的具体词语污染。”}, {\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。根据上下文（宁波、股票），该名称极可能指代“三星股份”或其他真实存在的公司，但“三三股份”在公开市场中无对应知名实体，且发音上“三三”与“三星”极易混淆，属于典型的语音转文字错误导致的专有名词失真。”}, {\"}]"
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 38596197773,
-    "artifact_id": 11913120804,
+    "run_id": 39037923925,
+    "artifact_id": 12103172569,
     "name": "production-reject-ly-1014-3afac3",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。根据上下文（宁波、股票），该名称极可能为“三星股份”或其他真实存在的公司名，但“三三”在金融语境下无明确指代，属于无法解释的具体词语污染。”}, {\"}]",
-   "source_quality_rejected": false,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。根据上下文（宁波、股票），该名称极可能指代“三星股份”或其他真实存在的公司，但“三三股份”在公开市场中无对应知名实体，且发音上“三三”与“三星”极易混淆，属于典型的语音转文字错误导致的专有名词失真。”}, {\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
