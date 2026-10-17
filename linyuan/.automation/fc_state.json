@@ -32715,7 +32715,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人第 0 句为提问，嘉宾后续两句（1、2）中第 1 句为模糊泛化（'所有行业都是这样'），第 2 句为类比经济规律但未明确回应'是否一定会走上老路'这一核心判断，导致观点缺失。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Db3L6ZEoz",
@@ -32782,7 +32783,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV18a3L6dENC",
@@ -32826,7 +32828,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T08:00:01+08:00"
+   "publish_time": "2026-10-17T08:00:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-3b9b4d",
+    "run_id": 38985905740,
+    "artifact_id": 12083148897,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，且该错误直接影响人物指代的准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\","
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38985905740,
+    "artifact_id": 12083148897,
+    "name": "production-reject-ly-1017-3b9b4d",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，且该错误直接影响人物指代的准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\", \"suspect_quote\": \"像猜一样突然爆发\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“老龄化、七八十岁人增多”，此处描述的是人口结构变化带来的确定性趋势或市场机会，识别为“像猜一样”语义不通且逻辑矛盾（将确定的长期趋势比作猜测），疑似将口语中的比喻词（如“像盖一样”、“像改一样”或特定行业术语）误识为无意义的词汇\"}, {\"sentence_id\": 12, \"quote\": \"第十，我永远坚定看好后市，现在是乌龟爬着，就等着哪天爆发。\", \"suspect_quote\": \"乌龟爬着\", \"kind\": \"unintelligible_term\", \"reason\": \"在金融投资语境下，形容市场缓慢上涨通常使用“牛熊转换”、“慢牛”或具体比喻如“蜗牛爬”，但“乌龟爬着”极大概率是语音识别错误。结合后文“就等着哪天爆发”，此处应指代某种特定的、缓慢但稳健的市场形态（可能是“温吞水”、“温水煮青蛙”的误听，或\"}, {\"sentence_id\": 12, \"quote\": \"第十，我永远坚定看好后市，现在是乌龟爬着，就等着哪天爆发。\", \"suspect_quote\": \"乌龟爬着\", \"kind\": \"unintelligible_term\", \"reason\": \"在金融投资语境下，形容市场缓慢上涨通常使用“牛熊转换”、“慢牛”或具体比喻如“蜗牛爬”，但“乌龟爬着”极大概率是语音识别错误。结合后文“就等着哪天爆发”，此处应指代某种特定的、缓慢但稳健的市场形态（可能是“温吞水”、“温水煮青蛙”的误听，或\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5354917764009284",
@@ -32848,7 +32872,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T08:02:27+08:00"
+   "publish_time": "2026-10-17T08:02:27+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-7bb4d4",
+    "run_id": 38985915826,
+    "artifact_id": 12083422633,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们作为一个组合的话，我觉得没有什么大的问个需求量也是非常大。\", \"suspect_quote\": \"问个需求量也是非常大\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“问个”在语境中无法解释，疑似为识别错误（可能原意为“问题”或“空间”），导致句子含义不明。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不没投这个东西。\", \"suspect_quote\": \"我也我虽然不没投这个东西\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不没’构成双重否定结构，在口语中虽可表示肯定，但属于极易产生歧义的否定表达，需明确其实际逻辑含义（是‘没有投’还是‘有投’），此处存在识别或表述不清的疑点。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 38985915826,
+    "artifact_id": 12083422633,
+    "name": "production-reject-ly-1017-7bb4d4",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们作为一个组合的话，我觉得没有什么大的问个需求量也是非常大。\", \"suspect_quote\": \"问个需求量也是非常大\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“问个”在语境中无法解释，疑似为识别错误（可能原意为“问题”或“空间”），导致句子含义不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -92572,6 +92622,20 @@
    "video_id": "BV1tv3L69Es9",
    "ts": 1792196613,
    "error": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人第 0 句为提问，嘉宾后续两句（1、2）中第 1 句为模糊泛化（'所有行业都是这样'），第 2 句为类比经济规律但未明确回应'是否一定会走上老路'这一核心判断，导致观点缺失。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1017-7bb4d4",
+   "key": "weibo_search:5354917764009284",
+   "video_id": "https://f.video.weibocdn.com/o0/LQpC77UZlx08BBM4OIak01041200IU0t0E010.mp4",
+   "ts": 1792197398,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们作为一个组合的话，我觉得没有什么大的问个需求量也是非常大。\", \"suspect_quote\": \"问个需求量也是非常大\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“问个”在语境中无法解释，疑似为识别错误（可能原意为“问题”或“空间”），导致句子含义不明。\"}]"
+  },
+  {
+   "slug": "ly-1017-3b9b4d",
+   "key": "weibo_search:5354917151641024",
+   "video_id": "https://f.video.weibocdn.com/u0/6mTEnW7xgx08BCpzv27S01041200LQbw0E010.mp4",
+   "ts": 1792197399,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，且该错误直接影响人物指代的准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\", \"suspect_quote\": \"像猜一样突然爆发\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文“老龄化、七八十岁人增多”，此处描述的是人口结构变化带来的确定性趋势或市场机会，识别为“像猜一样”语义不通且逻辑矛盾（将确定的长期趋势比作猜测），疑似将口语中的比喻词（如“像盖一样”、“像改一样”或特定行业术语）误识为无意义的词汇\"}, {\"sentence_id\": 12, \"quote\": \"第十，我永远坚定看好后市，现在是乌龟爬着，就等着哪天爆发。\", \"suspect_quote\": \"乌龟爬着\", \"kind\": \"unintelligible_term\", \"reason\": \"在金融投资语境下，形容市场缓慢上涨通常使用“牛熊转换”、“慢牛”或具体比喻如“蜗牛爬”，但“乌龟爬着”极大概率是语音识别错误。结合后文“就等着哪天爆发”，此处应指代某种特定的、缓慢但稳健的市场形态（可能是“温吞水”、“温水煮青蛙”的误听，或\"}, {\"sentence_id\": 12, \"quote\": \"第十，我永远坚定看好后市，现在是乌龟爬着，就等着哪天爆发。\", \"suspect_quote\": \"乌龟爬着\", \"kind\": \"unintelligible_term\", \"reason\": \"在金融投资语境下，形容市场缓慢上涨通常使用“牛熊转换”、“慢牛”或具体比喻如“蜗牛爬”，但“乌龟爬着”极大概率是语音识别错误。结合后文“就等着哪天爆发”，此处应指代某种特定的、缓慢但稳健的市场形态（可能是“温吞水”、“温水煮青蛙”的误听，或\"}]"
   }
  ],
  "reviewed_third_video_0910": {
