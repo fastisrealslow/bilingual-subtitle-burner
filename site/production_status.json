@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792240099,
+  "updated_at": 1792240296,
   "inventory_updated_at": 1792240082,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 9,
+    "active_or_recovering_sources": 11,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792240098,
+    "updated_at": 1792240295,
     "records": 10698,
     "video_records": 9186,
     "initial_candidates": 60,
@@ -72,11 +72,11 @@
     "complete": 124,
     "failed": 1117,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 9,
     "excluded": 5,
-    "running": 3,
-    "retry_queued": 6
+    "running": 4,
+    "retry_queued": 7
   },
   "tasks": [
     {
@@ -21490,24 +21490,6 @@
       "run_updated_at": "2026-10-15T21:36:15Z"
     },
     {
-      "slug": "ly-1015-5525a0",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"啊，人都说迷迷糊糊要到医院去给他吸高压氧抢救，啊，爱吸，因为我们去八十九了，我也不敢给他乱吃这些东西，是吧？\", \"suspect_quote\": \"吸高压氧\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将口语中的‘吸氧’或‘高压氧舱治疗’误识别为不存在的医学术语‘吸高压氧’，且前后文‘迷迷糊糊要到医院去给他...抢救’与‘吸高压氧’搭配生硬，不符合常规医疗表述；同时‘爱吸’一词在句中位置突兀，疑似漏字或断句错误导致语义不明。\"}, {\"sentence_id\": 5, \"quote\": \"啊，人都说迷迷糊糊要到医院去给他吸高压氧抢救，啊，爱吸，因为我们去八十九了，我也不敢给他乱吃这些东西，是吧？\", \"suspect_quote\": \"因为我们去八十九了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'去八十九了'含义不明：若指年龄（89 岁），则与‘我也不敢给他乱吃’逻辑衔接不清；若为其他数字表达，则缺乏上下文支撑，属于无法解释的关键数字污染。\"}, {\"sentence_id\": 6, \"quote\": \"这毕竟是这这个降火的。\", \"suspect_quote\": \"这毕竟是这这个降火的\", \"kind\": \"unintelligible_term\", \"reason\": \"'降火的'作为药理解释过于口语化且指代模糊，未明确是‘清热降火’还是其他功效，结合前文对片仔癀的讨论，此处可能遗漏关键动词或名词（如‘清热解毒’），导致药物核心属性表达不完整。\"}, {\"sentence_id\": 8, \"quote\": \"那么我们就试着给他吃，嗯嗯，开始给他吃，我是按照他的标准量，比如说一粒吃五次，这样吃，哎，觉得他血压稳定了。\", \"suspect_quote\": \"比如说一粒吃五次\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一粒吃五次'在常规用药逻辑中极不寻常（通常为一日三次或四次），虽可能是患者特殊用法，但作为关键数字描述缺乏单位时间限定（如‘每天’），易引发误解，属于含义不明的关键数字组合。\"}, {\"sentence_id\": 9, \"quote\": \"元月份开始吃，到现在也半年了，半年呢一直吃，就正常量吃，他血压一般稳稳定都都在，最高也就一百四十多，啊，不平时都稳稳定在一百三左右，啊，从那时候就没有没有再去住过院了，体重也涨了二十斤，啊，很就是所以就是我们发现他有这个，稳定这个血压的功效，所以我相信这个这个药，它不是一般的清热解毒。\", \"suspect_quote\": \"最高也就一百四十多\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一百四十多'指血压数值，但缺少单位（mmHg）和测量条件说明，虽口语中可省略，但在涉及健康数据的语境下，该数字表述不够严谨，可能影响对病情稳定程度的准确理解。\"}]",
-      "signature": {
-        "ts": 1792089782,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38787925236,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38787925236",
-      "run_started_at": "2026-10-15T18:43:01Z",
-      "run_updated_at": "2026-10-15T18:56:04Z"
-    },
-    {
       "slug": "ly-1015-84ec99",
       "status": "complete",
       "detail": "本批次已处理完毕",
@@ -23039,11 +23021,11 @@
     },
     {
       "slug": "ly-story-5161739dfa",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过",
       "signature": {
         "ts": 1792239953,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23054,6 +23036,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39032489451",
       "run_started_at": "2026-10-17T12:25:53Z",
       "run_updated_at": "2026-10-17T12:27:17Z"
+    },
+    {
+      "slug": "ly-1015-5525a0",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792240178,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792240177,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38787925236,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38787925236",
+      "run_started_at": "2026-10-15T18:43:01Z",
+      "run_updated_at": "2026-10-15T18:56:04Z"
+    },
+    {
+      "slug": "ly-story-29974ac69b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792240259,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39032831125,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39032831125",
+      "run_started_at": "2026-10-17T12:30:59Z",
+      "run_updated_at": "2026-10-17T12:31:02Z"
     }
   ],
   "runs": {
@@ -32714,6 +32732,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39032489451",
       "run_number": 2240,
       "display_title": "中文源出片 · ly-story-5161739dfa"
+    },
+    "ly-story-29974ac69b": {
+      "id": 39032831125,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T12:30:59Z",
+      "updated_at": "2026-10-17T12:31:02Z",
+      "run_started_at": "2026-10-17T12:30:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39032831125",
+      "run_number": 2241,
+      "display_title": "中文源出片 · ly-story-29974ac69b"
     },
     "ly-story-7884c0eb85": {
       "id": 39031325296,
