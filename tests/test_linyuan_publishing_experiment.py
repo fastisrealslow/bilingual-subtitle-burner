@@ -135,6 +135,58 @@ def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(m
     assert not list(F.experiment_reuse_candidates(state,stock,[item]))
 
 
+def test_verified_artifact_mother_hash_prevents_mirrored_source_dispatches(monkeypatch):
+    monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T18:00:00'))
+    monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))
+    monkeypatch.setattr(F,'inventory_record_current',lambda _:True)
+    monkeypatch.setattr(F,'inventory_publication_error',lambda *a:None)
+    entries=[dict(slug=slug,source_url='https://www.bilibili.com/video/'+slug,ts=1)
+             for slug in ('original','mirror')]
+    records=[dict(slug=e['slug'],run_id=123,parts=[dict(index=0,status='verified',source_sha256='a'*64)])
+             for e in entries]
+    items=[dict(page_url=e['source_url'],extra=dict(duration=1800)) for e in entries]
+    state=dict(dispatched=deepcopy(entries));stock=dict(artifacts=records);old=deepcopy(state)
+    candidates=list(F.experiment_reuse_candidates(state,stock,items))
+    assert len(candidates)==1 and candidates[0][0]['source_sha256']=='a'*64
+    assert state==old  # Hash is not fabricated into old production receipts.
+    state['dispatched'].append(dict(slug='old-story',experiment_parent_slug='original',
+        source_url=entries[0]['source_url']))  # Real older row has no mother hash.
+    assert not list(F.experiment_reuse_candidates(state,stock,items))
+    state['dispatched'].pop();records[0]['parts'].append(dict(status='verified',source_sha256='b'*64))
+    assert [e['slug'] for e,r in F.experiment_reuse_candidates(state,stock,items)]==['mirror']
+
+
+def test_published_ranges_cannot_exhaust_bounded_story_reader_context():
+    cues=[dict(start=i*50,end=i*50+40,text=f'这是第{i}个完整公司事例，包含实际选择和原因。') for i in range(14)]
+    picks=[dict(start=i,end=i,reason='完整原句') for i in range(14)]
+    report=dict(source_sha256='a'*64,duration_sec=1800)
+    state=dict(published={'old':dict(source_url='https://source',parts=[
+        dict(bvid='BVold',source_sha256='a'*64,source_segments=[dict(start=0,end=590)])])})
+    old=deepcopy(state)
+    eligible,excluded=P.story_selection_inputs(cues,picks,report,'https://source',state)
+    assert [p['start'] for p in eligible]==[12,13] and len(excluded)==12
+    prompt,schema=E.selection_request(cues,eligible)
+    assert len(schema['properties'])==2 and '第12个' in prompt and '第0个' not in prompt
+    assert state==old and len(picks)==14
+    # Exact source identity cannot be inferred across changed media or missing ranges.
+    state['published']['old']['parts'][0].pop('source_segments')
+    assert not P.story_selection_inputs(cues,picks,report,'https://source',state)[0]
+    state['published']['old']['parts'][0]['source_segments']=[dict(start=0,end=590)]
+    assert not P.story_selection_inputs(cues,picks,{**report,'source_sha256':'b'*64},'https://source',state)[0]
+
+
+def test_story_reader_preflight_keeps_only_exact_full_short_family_exception():
+    report=dict(source_sha256='a'*64,duration_sec=1800)
+    family=E.family_metadata('a'*64,1800)
+    cues=[dict(start=100,end=160,text='具体公司事例原文')];picks=[dict(start=0,end=0)]
+    previous=dict(bvid='BVfull',source_sha256='a'*64,content_type='full_interview',
+        source_segments=[dict(start=0,end=1800)],fingerprints=dict(sha256='b'*64),long_story_family=family)
+    state=dict(published={'full':dict(source_url='https://source',parts=[previous])})
+    assert P.story_selection_inputs(cues,picks,report,'https://source',state)==(picks,[])
+    previous['content_type']='short_argument'
+    assert not P.story_selection_inputs(cues,picks,report,'https://source',state)[0]
+
+
 @pytest.mark.parametrize('ready,has_story,first',[(15,True,'story'),(1,True,'repair'),(15,False,'repair')])
 def test_healthy_stock_reserves_capacity_for_real_story_jobs_not_endless_old_repairs(monkeypatch,ready,has_story,first):
     monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T20:00:00'))
