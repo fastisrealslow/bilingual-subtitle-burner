@@ -92,6 +92,21 @@ def test_classifier_cannot_invent_or_cross_borrow_evidence(change):
     with pytest.raises(ValueError):E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[{**choice,**change}]))
 
 
+def test_real_model_selects_sentence_ids_and_program_extracts_exact_quotes():
+    cues=[dict(text='我当年买了这家公司。后来我去看过它的产品。我就一直拿着。')]
+    picks=[dict(start=0,end=0)]
+    prompt,schema=E.selection_request(cues,picks)
+    assert set(schema['properties'])=={'candidate_0'} and '不输出摘录文本' in prompt
+    verdict=dict(candidate_0=dict(kind='personal_story',subject_sentence=0,event_sentence=0,detail_sentence=1))
+    choice=E.validate_choices(cues,picks,verdict)[0]['story_selection']
+    assert choice['event_quote']=='我当年买了这家公司。'
+    assert choice['detail_quote']=='后来我去看过它的产品。'
+    verdict['candidate_0']['detail_sentence']=99
+    with pytest.raises(ValueError,match='sentence ID'):E.validate_choices(cues,picks,verdict)
+    verdict['candidate_0']['kind']='skip'
+    assert E.validate_choices(cues,picks,verdict)==[]
+
+
 def test_empty_story_selection_is_not_a_quality_rejection_or_fake_treatment():
     assert E.validate_choices([dict(text='长期投资很重要')],[dict(start=0,end=0)],dict(choices=[]))==[]
     baseline=dict(title='林园：长期持有',fingerprints=dict(sha256='a'*64))

@@ -64,32 +64,56 @@ def _selection_rows(cues,candidates):
         # Never truncate an answer's context to fit the classifier.
         if len(text) > 2400 or sum(len(r['text']) for r in rows)+len(text)>12000:
             continue
-        rows.append(dict(index=index, text=text))
+        units=[m.group(0) for m in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S)]
+        sentences=[dict(id=i,text=value) for i,value in enumerate(units)]
+        if not any(4<=len(s['text'])<=140 for s in sentences):continue
+        rows.append(dict(index=index,text=text,sentences=sentences))
     return rows
 
 
 def selection_request(cues, candidates):
     rows=_selection_rows(cues,candidates)
-    schema=dict(type='object',additionalProperties=False,required=['choices'],properties={
-        'choices':dict(type='array',maxItems=6,items=dict(type='object',additionalProperties=False,
-            required=['index','kind','subject_quote','event_quote','detail_quote'],properties={
-                'index':dict(type='integer',minimum=0,maximum=max(0,len(candidates)-1)),
-                'kind':dict(type='string',enum=['personal_story','company_case']),
-                **{k:dict(type='string') for k in ('subject_quote','event_quote','detail_quote')}}))})
-    prompt=('从下面已经有自然起止的完整访谈段落中，挑最多6条有具体看点的片段。'
+    properties={}
+    for row in rows:
+        ids=[s['id'] for s in row['sentences'] if 4<=len(s['text'])<=140]
+        properties['candidate_'+str(row['index'])]=dict(type='object',additionalProperties=False,
+            required=['kind','subject_sentence','event_sentence','detail_sentence'],properties={
+                'kind':dict(type='string',enum=['skip','personal_story','company_case']),
+                **{k:dict(type='integer',enum=ids) for k in ('subject_sentence','event_sentence','detail_sentence')}})
+    schema=dict(type='object',additionalProperties=False,required=list(properties),properties=properties)
+    prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
         '泛泛谈认知、长期投资、行业趋势不能仅靠出现“我”或公司名入选。'
         '保留主持人有信息的问题，不改写、不拼接、不制造冲突。'
-        '逐字摘录讨论对象subject_quote、具体发生的事或选择event_quote、'
-        '片内不同的一条原因/经过/细节detail_quote，三者都必须在该段原文中。'
+        '每个candidate_N只返回一次：kind为personal_story、company_case或skip。'
+        '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
+        '说的具体事情或选择；detail_sentence是另一条原话原因/经过/细节，不能与event_sentence相同。'
         '不能从别的片段借事实，不能把主持人的假设当嘉宾结论。'
-        '按陌生观众愿意看下去的顺序排列；没有就choices=[]。\n'
-        +json.dumps(rows,ensure_ascii=False))
+        '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
+        +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
     return prompt, schema
 
 
 def validate_choices(cues, candidates, response):
     response=json.loads(response) if isinstance(response,str) else response
+    source_rows=_selection_rows(cues,candidates)
+    if isinstance(response,dict) and 'choices' not in response:
+        expected={'candidate_'+str(r['index']) for r in source_rows}
+        if set(response)!=expected:raise ValueError('Story classifier omitted or invented a candidate')
+        choices=[]
+        for row in source_rows:
+            verdict=response['candidate_'+str(row['index'])]
+            if not isinstance(verdict,dict):raise ValueError('Invalid per-candidate story verdict')
+            if verdict.get('kind')=='skip':continue
+            units={s['id']:s['text'] for s in row['sentences'] if 4<=len(s['text'])<=140}
+            choice=dict(index=row['index'],kind=verdict.get('kind'))
+            for role in ('subject','event','detail'):
+                index=verdict.get(role+'_sentence')
+                if type(index) is not int or index not in units:
+                    raise ValueError('Story sentence ID outside this candidate')
+                choice[role+'_quote']=units[index]
+            choices.append(choice)
+        response=dict(choices=choices[:6])
     rows=response.get('choices') if isinstance(response,dict) else None
     if not isinstance(rows,list) or len(rows)>6:
         raise ValueError('Invalid story selection response')
