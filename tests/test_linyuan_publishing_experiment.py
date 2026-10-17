@@ -57,6 +57,48 @@ def test_sunday_full_interview_moves_to_control_third_slot_only_during_trial():
     assert F.content_fits_slot(full,{},stamp('2026-11-22T21:00:00'))
 
 
+@pytest.mark.parametrize('day,hour,done',[
+    ('2026-10-18',16,[10,14]),('2026-10-18',21,[10,14,16]),
+    ('2026-11-22',21,[10,14,16])])
+def test_actual_weekly_makeup_can_select_its_verified_fallback(monkeypatch,day,hour,done):
+    now=stamp(f'{day}T{hour:02d}:05:00');monkeypatch.setattr(F.time,'time',lambda:now)
+    entry=dict(slug='ready',source_url='https://source')
+    part=dict(index=0,status='verified',sha256='a'*64,title='林园：具体经历',
+        render_mode='live_video_card',resolution=dict(width=720,height=1280))
+    record=dict(slug='ready',artifact_id=123,parts=[part])
+    state=dict(dispatched=[entry],published={},daily_publish=dict(date=day,count=len(done),published_hours=done))
+    payload=dict(quality_gate_version=F.QUALITY_GATE_VERSION,editorial_policy_version=F.editorial.VERSION,
+        updated_at=now,artifacts=[record])
+    request=F.inventory_catchup_request(state,payload,now)
+    assert request['makeup_slot']==f'{day} {hour:02d}'
+    assert F.inventory_part_index(entry,123,[record],state['daily_publish'],
+        F.publication_slot_time(request['makeup_slot']),weekly_fallback=bool(request.get('weekly_full_fallback')))==0
+    if hour==16 or day=='2026-11-22':
+        assert request['weekly_full_fallback']
+        assert F.inventory_part_index(entry,123,[record],{},now) is None
+    # Exercise the actual publisher wiring, stopping before any media/upload.
+    import json
+    def gh(method,path,*args,**kwargs):
+        if method=='GET' and path.startswith('/contents/'+F.SOURCE_INVENTORY_KEY):
+            return json.dumps(payload).encode()
+        if method=='GET' and path=='/actions/artifacts/123':
+            return dict(name='deliver-ready',expired=False,archive_download_url='https://example.test')
+        raise AssertionError((method,path))
+    downloads=[]
+    monkeypatch.setattr(F,'gh',gh)
+    monkeypatch.setattr(F,'load_state',lambda:state)
+    monkeypatch.setattr(F,'save_state',lambda _:None)
+    monkeypatch.setattr(F,'_collect_source_rejections',lambda _:0)
+    monkeypatch.setattr(F,'download_inventory_part',lambda aid,index,dest:downloads.append((aid,index)) or False)
+    assert F.publish_handler({**request,'force_publish':True})==dict(published=0,artifact_download_retryable=1)
+    assert downloads==[(123,0)] and state['daily_publish']['count']==len(done)
+    # Permission to fill a weekly long-form gap never admits audio cards or landscape clips.
+    part['render_mode']='audio_card'
+    assert F.inventory_part_index(entry,123,[record],{},now,weekly_fallback=True) is None
+    part.update(render_mode='live_video_card',resolution=dict(width=1280,height=720))
+    assert F.inventory_part_index(entry,123,[record],{},now,weekly_fallback=True) is None
+
+
 def test_profile_is_explicit_and_changes_copy_cache_identity(monkeypatch):
     monkeypatch.delenv('LINYUAN_EDITORIAL_PROFILE',raising=False)
     old=P._copy_style_identity('林园')
@@ -133,6 +175,58 @@ def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(m
     assert not list(F.experiment_reuse_candidates(state,stock,[item]))
     state['dispatched'].pop();record['parts'][0]['status']='rejected'
     assert not list(F.experiment_reuse_candidates(state,stock,[item]))
+
+
+def test_verified_artifact_mother_hash_prevents_mirrored_source_dispatches(monkeypatch):
+    monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T18:00:00'))
+    monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))
+    monkeypatch.setattr(F,'inventory_record_current',lambda _:True)
+    monkeypatch.setattr(F,'inventory_publication_error',lambda *a:None)
+    entries=[dict(slug=slug,source_url='https://www.bilibili.com/video/'+slug,ts=1)
+             for slug in ('original','mirror')]
+    records=[dict(slug=e['slug'],run_id=123,parts=[dict(index=0,status='verified',source_sha256='a'*64)])
+             for e in entries]
+    items=[dict(page_url=e['source_url'],extra=dict(duration=1800)) for e in entries]
+    state=dict(dispatched=deepcopy(entries));stock=dict(artifacts=records);old=deepcopy(state)
+    candidates=list(F.experiment_reuse_candidates(state,stock,items))
+    assert len(candidates)==1 and candidates[0][0]['source_sha256']=='a'*64
+    assert state==old  # Hash is not fabricated into old production receipts.
+    state['dispatched'].append(dict(slug='old-story',experiment_parent_slug='original',
+        source_url=entries[0]['source_url']))  # Real older row has no mother hash.
+    assert not list(F.experiment_reuse_candidates(state,stock,items))
+    state['dispatched'].pop();records[0]['parts'].append(dict(status='verified',source_sha256='b'*64))
+    assert [e['slug'] for e,r in F.experiment_reuse_candidates(state,stock,items)]==['mirror']
+
+
+def test_published_ranges_cannot_exhaust_bounded_story_reader_context():
+    cues=[dict(start=i*50,end=i*50+40,text=f'这是第{i}个完整公司事例，包含实际选择和原因。') for i in range(14)]
+    picks=[dict(start=i,end=i,reason='完整原句') for i in range(14)]
+    report=dict(source_sha256='a'*64,duration_sec=1800)
+    state=dict(published={'old':dict(source_url='https://source',parts=[
+        dict(bvid='BVold',source_sha256='a'*64,source_segments=[dict(start=0,end=590)])])})
+    old=deepcopy(state)
+    eligible,excluded=P.story_selection_inputs(cues,picks,report,'https://source',state)
+    assert [p['start'] for p in eligible]==[12,13] and len(excluded)==12
+    prompt,schema=E.selection_request(cues,eligible)
+    assert len(schema['properties'])==2 and '第12个' in prompt and '第0个' not in prompt
+    assert state==old and len(picks)==14
+    # Exact source identity cannot be inferred across changed media or missing ranges.
+    state['published']['old']['parts'][0].pop('source_segments')
+    assert not P.story_selection_inputs(cues,picks,report,'https://source',state)[0]
+    state['published']['old']['parts'][0]['source_segments']=[dict(start=0,end=590)]
+    assert not P.story_selection_inputs(cues,picks,{**report,'source_sha256':'b'*64},'https://source',state)[0]
+
+
+def test_story_reader_preflight_keeps_only_exact_full_short_family_exception():
+    report=dict(source_sha256='a'*64,duration_sec=1800)
+    family=E.family_metadata('a'*64,1800)
+    cues=[dict(start=100,end=160,text='具体公司事例原文')];picks=[dict(start=0,end=0)]
+    previous=dict(bvid='BVfull',source_sha256='a'*64,content_type='full_interview',
+        source_segments=[dict(start=0,end=1800)],fingerprints=dict(sha256='b'*64),long_story_family=family)
+    state=dict(published={'full':dict(source_url='https://source',parts=[previous])})
+    assert P.story_selection_inputs(cues,picks,report,'https://source',state)==(picks,[])
+    previous['content_type']='short_argument'
+    assert not P.story_selection_inputs(cues,picks,report,'https://source',state)[0]
 
 
 @pytest.mark.parametrize('ready,has_story,first',[(15,True,'story'),(1,True,'repair'),(15,False,'repair')])

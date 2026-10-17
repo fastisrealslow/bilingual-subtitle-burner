@@ -6108,6 +6108,27 @@ def selected_part_numbers(spec, work_items):
     return numbers
 
 
+def story_selection_inputs(cues, candidates, source_report, source_url, publication_state):
+    """Spend the bounded story-reader context only on unpublished ranges.
+
+    This is a preflight, not publication approval: final source, content and
+    media deduplication still run against the actual retained clip.
+    """
+    from publishing_experiment import TREATMENT, family_metadata, comparison_state
+    family=family_metadata(source_report.get('source_sha256'),
+                           float(source_report.get('duration_sec') or 0))
+    eligible=[]; excluded=[]
+    for index,pick in enumerate(candidates):
+        meta=dict(source_sha256=source_report.get('source_sha256'),editorial_profile=TREATMENT,
+            long_story_family=family,segments=[dict(start=cues[pick['start']]['start'],
+                                                  end=cues[pick['end']]['end'])])
+        history=comparison_state(meta,publication_state,preflight=True)
+        reason=editorial.source_reuse_error(meta,source_url,history)
+        if reason:excluded.append(dict(candidate_index=index,start=pick['start'],end=pick['end'],reason=reason))
+        else:eligible.append(pick)
+    return eligible,excluded
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--max-outputs', type=int, default=0,
@@ -6259,14 +6280,19 @@ def main():
     if profile()==TREATMENT and source_picks:
         mother_seconds=float(source_report.get('duration_sec') or 0)
         if mother_seconds>=MIN_MOTHER_SECONDS:
-            prompt,schema=selection_request(cues,source_picks)
             try:
-                response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                             max_tokens=1600,budget_sec=text_budget(240),response_schema=schema)
-                selected_stories=validate_choices(cues,source_picks,response)
+                story_candidates,excluded=story_selection_inputs(cues,source_picks,source_report,
+                    os.environ.get('SOURCE_ORIGIN_URL',''),publication_state or {})
+                if story_candidates:
+                    prompt,schema=selection_request(cues,story_candidates)
+                    response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                                 max_tokens=1600,budget_sec=text_budget(240),response_schema=schema)
+                    selected_stories=validate_choices(cues,story_candidates,response)
+                else:response=None;selected_stories=[]
                 (work/'story_selection.json').write_text(json.dumps(dict(
                     requested_profile=TREATMENT,source_duration_sec=mother_seconds,
-                    candidates=source_picks,response=response,selected=selected_stories),ensure_ascii=False,indent=2))
+                    candidates=story_candidates,excluded_published=excluded,
+                    response=response,selected=selected_stories),ensure_ascii=False,indent=2))
                 if selected_stories:source_picks=selected_stories
                 else:print('[实验选题] 没有有证据的故事/公司案例，保留正常生产，不标成实验片',flush=True)
             except (ValueError,LocalTextUnavailable) as exc:

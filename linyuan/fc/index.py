@@ -2781,7 +2781,7 @@ def mark_part_processed(entry, index):
     entry['processed_part_indices']=sorted(i for i in done if i>=prefix)
 
 
-def inventory_part_index(entry, artifact_id, records, daily, now=None):
+def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fallback=False):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
     None means this inspected artifact has no remaining eligible part;
@@ -2799,7 +2799,7 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
                                    int(p['index'])))
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
-                         and (now is None or content_fits_slot(p,entry,now))),None)
+                         and (now is None or content_fits_slot(p,entry,now,weekly_fallback))),None)
         # An inspected rejection/consumed part is not a missing inspection.
         # Falling back to index zero redownloaded rejected stock at 21:00.
         return None
@@ -2814,6 +2814,13 @@ def experiment_reuse_candidates(state, inventory, items):
     used={e.get('experiment_parent_slug') for e in latest.values()}
     used_sources={e.get('source_url') for e in latest.values() if e.get('experiment_parent_slug')}
     used_hashes={e.get('experiment_mother_sha256') for e in latest.values() if e.get('experiment_mother_sha256')}
+    # Older experiment dispatches omitted the hash, although their parent
+    # artifact retained it. Reconstruct it read-only before admitting mirrors.
+    for record in inventory.get('artifacts',[]):
+        if record.get('slug') not in used:continue
+        hashes={p.get('source_sha256') for p in record.get('parts',[])
+                if p.get('status')=='verified' and re.fullmatch('[a-f0-9]{64}',str(p.get('source_sha256') or ''))}
+        if len(hashes)==1:used_hashes.update(hashes)
     for record in inventory.get('artifacts',[]):
         entry=latest.get(record.get('slug'))
         if (not entry or entry.get('failed') or entry['slug'] in used
@@ -2821,7 +2828,13 @@ def experiment_reuse_candidates(state, inventory, items):
                 or entry.get('experiment_parent_slug') or not record.get('run_id')
                 or not inventory_record_current(record)):continue
         url=entry.get('source_url')
-        mother_sha=entry.get('source_sha256')
+        # Dispatch rows often predate rendering and have no source hash. Use
+        # the actual verified artifact evidence, not a URL/slug or MP4 hash.
+        hashes={p.get('source_sha256') for p in record.get('parts',[])
+                if p.get('status')=='verified' and p.get('source_sha256')}
+        if len(hashes)>1 or any(not re.fullmatch('[a-f0-9]{64}',str(h)) for h in hashes):continue
+        mother_sha=next(iter(hashes),entry.get('source_sha256'))
+        if entry.get('source_sha256') and mother_sha!=entry['source_sha256']:continue
         if not url or url in used_sources or (mother_sha and mother_sha in used_hashes) or restriction(url,[]):continue
         matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
         if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS and not (
@@ -2835,7 +2848,7 @@ def experiment_reuse_candidates(state, inventory, items):
         if not remaining:continue
         used_sources.add(url)
         if mother_sha:used_hashes.add(mother_sha)
-        yield entry,record
+        yield ({**entry,'source_sha256':mother_sha} if mother_sha else entry),record
 
 
 def obsolete_review_candidates(state, inventory):
@@ -4110,7 +4123,8 @@ def publish_handler(event=None, context=None):
             continue
         if s in arts:
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
-                                                    now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now))
+                now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now),
+                weekly_fallback=bool(makeup_slot and event.get('weekly_full_fallback')))
             if selected_part_index is None:
                 reasons=[p.get('reason') for r in reserve_records if r.get('slug')==s
                          for p in r.get('parts',[]) if p.get('reason')]
