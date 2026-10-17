@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792246734,
+  "updated_at": 1792246881,
   "inventory_updated_at": 1792246718,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792246733,
+    "updated_at": 1792246880,
     "records": 10722,
     "video_records": 9209,
     "initial_candidates": 62,
@@ -87,13 +87,13 @@
   },
   "counts": {
     "complete": 126,
-    "failed": 1120,
+    "failed": 1121,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 8,
     "excluded": 4,
-    "running": 5,
-    "retry_queued": 4
+    "running": 6,
+    "retry_queued": 3
   },
   "tasks": [
     {
@@ -22821,24 +22821,6 @@
       "run_updated_at": "2026-10-17T13:12:53Z"
     },
     {
-      "slug": "ly-1009-c31f09",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792242037,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792242036,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38411607326,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38411607326",
-      "run_started_at": "2026-10-13T14:14:09Z",
-      "run_updated_at": "2026-10-13T14:42:47Z"
-    },
-    {
       "slug": "ly-1016-7e4ac4",
       "status": "failed",
       "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
@@ -23020,11 +23002,11 @@
     },
     {
       "slug": "ly-1014-278e50",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"我不能说是，我提高我互联网了，给你吃的东西，他造不出个东西的。\", \"suspect_quote\": \"我提高我互联网了\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，将口语中的否定或转折词（如“没”、“不”）误识为动词“提高”，导致语义完全不通。原文语境应为“我没提高对互联网的认知”或类似表达，此处“提高我互联网了”无法解释且非行业术语。\"}, {\"sentence_id\": 17, \"quote\": \"你制造业，我一定要抓住它人的必须。\", \"suspect_quote\": \"抓住它人的必须\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，“它人的必须”含义不明，极可能是“它的护城河”或“它的壁垒”等词的误识，属于无法解释的具体词语。\"}]",
       "signature": {
         "ts": 1792245321,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23125,6 +23107,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39040071318",
       "run_started_at": "2026-10-17T14:16:52Z",
       "run_updated_at": "2026-10-17T14:16:56Z"
+    },
+    {
+      "slug": "ly-1009-c31f09",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792246842,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39040342596,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39040342596",
+      "run_started_at": "2026-10-17T14:20:42Z",
+      "run_updated_at": "2026-10-17T14:20:46Z"
     }
   ],
   "runs": {
@@ -30752,14 +30752,14 @@
       "display_title": "中文源出片 · ly-1012-4987ed"
     },
     "ly-1009-c31f09": {
-      "id": 38411607326,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-13T14:14:09Z",
-      "updated_at": "2026-10-13T14:42:47Z",
-      "run_started_at": "2026-10-13T14:14:09Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38411607326",
-      "run_number": 1986,
+      "id": 39040342596,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T14:20:42Z",
+      "updated_at": "2026-10-17T14:20:46Z",
+      "run_started_at": "2026-10-17T14:20:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39040342596",
+      "run_number": 2263,
       "display_title": "中文源出片 · ly-1009-c31f09"
     },
     "ly-1009-2f94e6": {
