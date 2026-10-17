@@ -33411,7 +33411,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T07:45:00+00:00"
+   "publish_time": "2026-10-17T07:45:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-716a14",
+    "run_id": 39022098181,
+    "artifact_id": 12096894414,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/538，总帧数1505；身份匹配但人脸短边不足96px的帧数34"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39022098181,
+    "artifact_id": 12096894414,
+    "name": "production-reject-ly-1017-716a14",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/538，总帧数1505；身份匹配但人脸短边不足96px的帧数34",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VX8H47CPH",
@@ -94438,6 +94460,13 @@
    "video_id": "BV16fnszrEvH",
    "ts": 1792230629,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1017-716a14",
+   "key": "bilibili_search:BV1jfJY66E3T",
+   "video_id": "BV1jfJY66E3T",
+   "ts": 1792230999,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/538，总帧数1505；身份匹配但人脸短边不足96px的帧数34"
   }
  ],
  "reviewed_third_video_0910": {
