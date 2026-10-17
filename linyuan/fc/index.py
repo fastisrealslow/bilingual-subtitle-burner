@@ -2781,7 +2781,7 @@ def mark_part_processed(entry, index):
     entry['processed_part_indices']=sorted(i for i in done if i>=prefix)
 
 
-def inventory_part_index(entry, artifact_id, records, daily, now=None):
+def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fallback=False):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
     None means this inspected artifact has no remaining eligible part;
@@ -2799,7 +2799,7 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
                                    int(p['index'])))
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
-                         and (now is None or content_fits_slot(p,entry,now))),None)
+                         and (now is None or content_fits_slot(p,entry,now,weekly_fallback))),None)
         # An inspected rejection/consumed part is not a missing inspection.
         # Falling back to index zero redownloaded rejected stock at 21:00.
         return None
@@ -4123,7 +4123,8 @@ def publish_handler(event=None, context=None):
             continue
         if s in arts:
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
-                                                    now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now))
+                now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now),
+                weekly_fallback=bool(makeup_slot and event.get('weekly_full_fallback')))
             if selected_part_index is None:
                 reasons=[p.get('reason') for r in reserve_records if r.get('slug')==s
                          for p in r.get('parts',[]) if p.get('reason')]

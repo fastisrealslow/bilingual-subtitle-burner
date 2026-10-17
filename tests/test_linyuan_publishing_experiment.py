@@ -57,6 +57,48 @@ def test_sunday_full_interview_moves_to_control_third_slot_only_during_trial():
     assert F.content_fits_slot(full,{},stamp('2026-11-22T21:00:00'))
 
 
+@pytest.mark.parametrize('day,hour,done',[
+    ('2026-10-18',16,[10,14]),('2026-10-18',21,[10,14,16]),
+    ('2026-11-22',21,[10,14,16])])
+def test_actual_weekly_makeup_can_select_its_verified_fallback(monkeypatch,day,hour,done):
+    now=stamp(f'{day}T{hour:02d}:05:00');monkeypatch.setattr(F.time,'time',lambda:now)
+    entry=dict(slug='ready',source_url='https://source')
+    part=dict(index=0,status='verified',sha256='a'*64,title='林园：具体经历',
+        render_mode='live_video_card',resolution=dict(width=720,height=1280))
+    record=dict(slug='ready',artifact_id=123,parts=[part])
+    state=dict(dispatched=[entry],published={},daily_publish=dict(date=day,count=len(done),published_hours=done))
+    payload=dict(quality_gate_version=F.QUALITY_GATE_VERSION,editorial_policy_version=F.editorial.VERSION,
+        updated_at=now,artifacts=[record])
+    request=F.inventory_catchup_request(state,payload,now)
+    assert request['makeup_slot']==f'{day} {hour:02d}'
+    assert F.inventory_part_index(entry,123,[record],state['daily_publish'],
+        F.publication_slot_time(request['makeup_slot']),weekly_fallback=bool(request.get('weekly_full_fallback')))==0
+    if hour==16 or day=='2026-11-22':
+        assert request['weekly_full_fallback']
+        assert F.inventory_part_index(entry,123,[record],{},now) is None
+    # Exercise the actual publisher wiring, stopping before any media/upload.
+    import json
+    def gh(method,path,*args,**kwargs):
+        if method=='GET' and path.startswith('/contents/'+F.SOURCE_INVENTORY_KEY):
+            return json.dumps(payload).encode()
+        if method=='GET' and path=='/actions/artifacts/123':
+            return dict(name='deliver-ready',expired=False,archive_download_url='https://example.test')
+        raise AssertionError((method,path))
+    downloads=[]
+    monkeypatch.setattr(F,'gh',gh)
+    monkeypatch.setattr(F,'load_state',lambda:state)
+    monkeypatch.setattr(F,'save_state',lambda _:None)
+    monkeypatch.setattr(F,'_collect_source_rejections',lambda _:0)
+    monkeypatch.setattr(F,'download_inventory_part',lambda aid,index,dest:downloads.append((aid,index)) or False)
+    assert F.publish_handler({**request,'force_publish':True})==dict(published=0,artifact_download_retryable=1)
+    assert downloads==[(123,0)] and state['daily_publish']['count']==len(done)
+    # Permission to fill a weekly long-form gap never admits audio cards or landscape clips.
+    part['render_mode']='audio_card'
+    assert F.inventory_part_index(entry,123,[record],{},now,weekly_fallback=True) is None
+    part.update(render_mode='live_video_card',resolution=dict(width=1280,height=720))
+    assert F.inventory_part_index(entry,123,[record],{},now,weekly_fallback=True) is None
+
+
 def test_profile_is_explicit_and_changes_copy_cache_identity(monkeypatch):
     monkeypatch.delenv('LINYUAN_EDITORIAL_PROFILE',raising=False)
     old=P._copy_style_identity('林园')
