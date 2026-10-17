@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792202616,
+  "updated_at": 1792202751,
   "inventory_updated_at": 1792202603,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792202616,
+    "updated_at": 1792202750,
     "records": 10630,
     "video_records": 9123,
     "initial_candidates": 60,
@@ -72,11 +72,11 @@
     "complete": 123,
     "failed": 1105,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "ready": 9,
-    "unknown": 1,
     "excluded": 4,
-    "retry_queued": 5
+    "retry_queued": 5,
+    "running": 2
   },
   "tasks": [
     {
@@ -21653,11 +21653,11 @@
     },
     {
       "slug": "ly-1016-669d7c",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792134896,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21671,11 +21671,11 @@
     },
     {
       "slug": "ly-1016-111638",
-      "status": "unknown",
-      "detail": "未找到本次调度的运行或合格成片证据，需核对；不计为生产中",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792134911,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -21690,12 +21690,12 @@
     {
       "slug": "ly-1016-9841c2",
       "status": "ready",
-      "detail": "6 条成片已验收，等待发布时段及配额",
+      "detail": "5 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792134917,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -22480,24 +22480,6 @@
       "run_updated_at": "2026-10-16T19:37:10Z"
     },
     {
-      "slug": "ly-1016-e667e8",
-      "status": "failed",
-      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
-      "signature": {
-        "ts": 1792179585,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38956552688,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38956552688",
-      "run_started_at": "2026-10-16T19:39:45Z",
-      "run_updated_at": "2026-10-16T20:04:35Z"
-    },
-    {
       "slug": "ly-1016-8f75fb",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"虽然质疑声不断，但是于军和林远始终固执的坚守着自己认准的企业。\", \"suspect_quote\": \"于军和林远始终固执的坚守着自己认准的企业\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为林园与于军的合作，此处将“林园”识别为“林远”，属于明显的专有名词错写。\"}, {\"sentence_id\": 15, \"quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰，不能动摇。\", \"suspect_quote\": \"十五年的坚持，让于军深刻体会到价值投资是一种信仰\", \"kind\": \"unintelligible_term\", \"reason\": \"前文已明确嘉宾为林园，此处突然出现“于军”作为主语进行感悟描述，虽可能是转述他人观点，但在无上下文引用的情况下，极易被误读为林园本人发言，存在指代不清的疑点。\"}, {\"sentence_id\": 24, \"quote\": \"昨天的投资者说，我们看了于军的投资故事，他用十年的时间在迷茫中摸索，后来几经周折找到了林园，也找到了价值投资的方法。\", \"suspect_quote\": \"我们看了于军的投资故事，他用十年的时间在迷茫中\", \"kind\": \"unintelligible_term\", \"reason\": \"同句后文提到“找到了林园”，前文此处将主角写作“于军”，虽可能是第三人称叙述，但结合上下文人物关系，此处主语指代存在混淆风险。\"}, {\"sentence_id\": 25, \"quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔，也经历了熊市的漫漫寒冬。\", \"suspect_quote\": \"十五年的良师益友伴随于军一路走过了牛市的波澜壮阔\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，将核心人物林园误写为“于军”，且“良师益友”作为主语搭配“伴随于军”在语法上略显生硬，疑似漏字或识别错误（如应为“十五年的良师益友林园伴随...\"}]",
@@ -22586,24 +22568,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38976111686",
       "run_started_at": "2026-10-16T22:30:03Z",
       "run_updated_at": "2026-10-16T22:42:57Z"
-    },
-    {
-      "slug": "ly-1017-09d7ff",
-      "status": "failed",
-      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
-      "signature": {
-        "ts": 1792195279,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38984388026,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38984388026",
-      "run_started_at": "2026-10-17T00:01:19Z",
-      "run_updated_at": "2026-10-17T00:17:24Z"
     },
     {
       "slug": "ly-1017-9f5130",
@@ -22730,6 +22694,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38990728810",
       "run_started_at": "2026-10-17T01:24:38Z",
       "run_updated_at": "2026-10-17T01:31:09Z"
+    },
+    {
+      "slug": "ly-1017-09d7ff",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792202708,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38993516861,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38993516861",
+      "run_started_at": "2026-10-17T02:05:07Z",
+      "run_updated_at": "2026-10-17T02:05:11Z"
+    },
+    {
+      "slug": "ly-1016-e667e8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792202713,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 38993523138,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38993523138",
+      "run_started_at": "2026-10-17T02:05:12Z",
+      "run_updated_at": "2026-10-17T02:05:16Z"
     }
   ],
   "runs": {
@@ -32062,14 +32062,14 @@
       "display_title": "中文源出片 · ly-1016-15606f"
     },
     "ly-1016-e667e8": {
-      "id": 38956552688,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-16T19:39:45Z",
-      "updated_at": "2026-10-16T20:04:35Z",
-      "run_started_at": "2026-10-16T19:39:45Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38956552688",
-      "run_number": 2186,
+      "id": 38993523138,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T02:05:12Z",
+      "updated_at": "2026-10-17T02:05:16Z",
+      "run_started_at": "2026-10-17T02:05:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38993523138",
+      "run_number": 2205,
       "display_title": "中文源出片 · ly-1016-e667e8"
     },
     "ly-1016-9fdb95": {
@@ -32139,14 +32139,14 @@
       "display_title": "中文源出片 · ly-1016-7efe28"
     },
     "ly-1017-09d7ff": {
-      "id": 38984388026,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-17T00:01:19Z",
-      "updated_at": "2026-10-17T00:17:24Z",
-      "run_started_at": "2026-10-17T00:01:19Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38984388026",
-      "run_number": 2196,
+      "id": 38993516861,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T02:05:07Z",
+      "updated_at": "2026-10-17T02:05:11Z",
+      "run_started_at": "2026-10-17T02:05:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38993516861",
+      "run_number": 2204,
       "display_title": "中文源出片 · ly-1017-09d7ff"
     },
     "ly-1016-dd5cd8": {
