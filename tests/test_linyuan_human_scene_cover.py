@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import sys
+import pytest
 
 from PIL import Image
 
@@ -53,4 +54,15 @@ def test_bad_first_composition_tries_another_verified_clip_frame(monkeypatch,tmp
     assert len(selected)==2 and selected[0]['selected_frame']!=selected[1]['selected_frame']
     proof=json.loads(Path(str(out)+'.identity.json').read_text())
     assert proof['scene_candidates_tried']==2 and proof['sharpness']==100
+    assert not list(tmp_path.glob('*.png'))
+
+
+def test_single_frame_absence_cannot_erase_a_positive_persistent_group_logo(monkeypatch,tmp_path):
+    setup_frames(monkeypatch)
+    monkeypatch.setattr(P,'detect_corner_logos_in_images',
+                        lambda frames:['persistent background logo'] if len(frames)>1 else [])
+    monkeypatch.setattr(V,'save_scene_cover',lambda *a:pytest.fail('Positive group logo must remain blocked'))
+    with pytest.raises(P.VisualQualityError,match='持久角标'):
+        P.make_cover('source.mp4',0,120,'医药股经营不好，我不买','林园',tmp_path/'cover.jpg',
+                     style='scene',reference_path='reference.jpg')
     assert not list(tmp_path.glob('*.png'))

@@ -4009,13 +4009,23 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         raise VisualQualityError("封面无法抽帧")
     # One dirty sample must not discard other clean, living expressions from
     # this same clip and force the permanent stock portrait.
-    clean_frames=[]
-    for frame in frames:
-        if detect_corner_logos_in_images([frame]):
-            frame.unlink(missing_ok=True)
-        else:
-            clean_frames.append(frame)
-    frames=clean_frames
+    remaining=detect_corner_logos_in_images(frames)
+    if remaining:
+        clean_frames=[];localized_marks=[]
+        for frame in frames:
+            marks=detect_corner_logos_in_images([frame])
+            if marks:
+                localized_marks.extend(marks)
+                frame.unlink(missing_ok=True)
+            else:
+                clean_frames.append(frame)
+        # Arbitrary corner text still requires multi-frame persistence. A
+        # singleton cannot disprove a logo already found by that group gate.
+        # Only positively localized marks may be removed frame by frame.
+        if any(mark not in localized_marks for mark in remaining):
+            for frame in clean_frames:frame.unlink(missing_ok=True)
+            raise VisualQualityError('封面组帧仍有无法安全逐帧排除的持久角标')
+        frames=clean_frames
 
     initial_identity_error=None
     try:
