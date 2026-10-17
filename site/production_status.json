@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792239150,
+  "updated_at": 1792239284,
   "inventory_updated_at": 1792239138,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792239149,
+    "updated_at": 1792239284,
     "records": 10698,
     "video_records": 9186,
     "initial_candidates": 60,
@@ -70,12 +70,12 @@
   },
   "counts": {
     "complete": 124,
-    "failed": 1120,
+    "failed": 1122,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 9,
     "excluded": 5,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -22930,11 +22930,11 @@
     },
     {
       "slug": "ly-1017-7bb4d4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们作为一个组合的话，我觉得没有什么大的问个需求量也是非常大。\", \"suspect_quote\": \"问个需求量也是非常大\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“问个”在语境中无法解释，疑似为识别错误（可能原意为“问题”或“空间”），导致句子含义不明。\"}]",
       "signature": {
         "ts": 1792238394,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22948,11 +22948,11 @@
     },
     {
       "slug": "ly-1017-3b9b4d",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，影响人物指代准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\", \"suspect_quote\": \"像猜一样突然爆发\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文语境（等待老龄化带来的机会），此处应为比喻性的“像猜彩票中奖一样”或类似表达，“猜”字单独出现且无宾语，导致语义不明，疑似识别漏字或错别字。\"}]",
       "signature": {
         "ts": 1792238631,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22962,7 +22962,7 @@
       "run_id": 39031057725,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39031057725",
       "run_started_at": "2026-10-17T12:03:50Z",
-      "run_updated_at": "2026-10-17T12:03:55Z"
+      "run_updated_at": "2026-10-17T12:12:33Z"
     },
     {
       "slug": "ly-story-ace7c25504",
@@ -32709,10 +32709,10 @@
     },
     "ly-1017-3b9b4d": {
       "id": 39031057725,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-17T12:03:50Z",
-      "updated_at": "2026-10-17T12:03:55Z",
+      "updated_at": "2026-10-17T12:12:33Z",
       "run_started_at": "2026-10-17T12:03:50Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39031057725",
       "run_number": 2235,
