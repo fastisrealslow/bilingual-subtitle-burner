@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792229987,
+  "updated_at": 1792230143,
   "inventory_updated_at": 1792229973,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 2,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -33,16 +33,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792229986,
+    "updated_at": 1792230142,
     "records": 10686,
     "video_records": 9174,
-    "initial_candidates": 62,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 61,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1457,
+      "already_attempted_or_cooling": 1458,
       "clip_title": 1124,
       "speaker_unconfirmed": 6271,
       "no_video": 1512,
@@ -62,14 +62,6 @@
         "author": "网易视频",
         "url": "https://www.163.com/v/video/VX8H47CPH.html",
         "duration_sec": 70.4
-      },
-      {
-        "key": "bilibili_search:BV1jfJY66E3T",
-        "title": "为什么林园的投资组合里几乎没有高科技？林园：那就是我能力不够，我没有能力去做这个判断",
-        "source": "reference_origin_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1jfJY66E3T",
-        "duration_sec": 90.0
       }
     ]
   },
@@ -87,9 +79,9 @@
   },
   "counts": {
     "complete": 124,
-    "failed": 1116,
+    "failed": 1118,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "ready": 8,
     "excluded": 5,
     "running": 5
@@ -22893,11 +22885,11 @@
     },
     {
       "slug": "ly-1017-3e4eec",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以说林远老师，你也是让我们这个尊重常识的判断，而不是尊重一些剧情或者一厢情愿的判断，对吧？\", \"suspect_quote\": \"林远老师\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林远”属于明显的专有名词错写，且该错误直接影响对话对象的指代准确性。\"}]",
       "signature": {
         "ts": 1792229355,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22929,11 +22921,11 @@
     },
     {
       "slug": "ly-1014-3bf504",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792229755,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22943,7 +22935,25 @@
       "run_id": 39021740586,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39021740586",
       "run_started_at": "2026-10-17T09:35:54Z",
-      "run_updated_at": "2026-10-17T09:35:59Z"
+      "run_updated_at": "2026-10-17T09:39:33Z"
+    },
+    {
+      "slug": "ly-1017-716a14",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792230103,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39022098181,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022098181",
+      "run_started_at": "2026-10-17T09:41:42Z",
+      "run_updated_at": "2026-10-17T09:41:46Z"
     }
   ],
   "runs": {
@@ -32495,12 +32505,34 @@
       "run_number": 2219,
       "display_title": "中文源出片 · ly-1017-6644c4"
     },
-    "ly-1014-3bf504": {
-      "id": 39021740586,
+    "ly-1017-3e4eec": {
+      "id": 39021306233,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-17T09:29:14Z",
+      "updated_at": "2026-10-17T09:38:44Z",
+      "run_started_at": "2026-10-17T09:29:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39021306233",
+      "run_number": 2220,
+      "display_title": "中文源出片 · ly-1017-3e4eec"
+    },
+    "ly-1017-716a14": {
+      "id": 39022098181,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-17T09:41:42Z",
+      "updated_at": "2026-10-17T09:41:46Z",
+      "run_started_at": "2026-10-17T09:41:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39022098181",
+      "run_number": 2223,
+      "display_title": "中文源出片 · ly-1017-716a14"
+    },
+    "ly-1014-3bf504": {
+      "id": 39021740586,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-17T09:35:54Z",
-      "updated_at": "2026-10-17T09:35:59Z",
+      "updated_at": "2026-10-17T09:39:33Z",
       "run_started_at": "2026-10-17T09:35:54Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39021740586",
       "run_number": 2222,
@@ -32516,17 +32548,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39021311829",
       "run_number": 2221,
       "display_title": "中文源出片 · ly-1017-0e9ca4"
-    },
-    "ly-1017-3e4eec": {
-      "id": 39021306233,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-17T09:29:14Z",
-      "updated_at": "2026-10-17T09:38:44Z",
-      "run_started_at": "2026-10-17T09:29:14Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39021306233",
-      "run_number": 2220,
-      "display_title": "中文源出片 · ly-1017-3e4eec"
     },
     "ly-1017-7cda64": {
       "id": 39020609995,
