@@ -34482,7 +34482,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 394 < 480（854x394），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1g2JX6nEXy",
@@ -34505,7 +34506,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-16T09:08:26+00:00"
+   "publish_time": "2026-10-16T09:08:26+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-a94b3e",
+    "run_id": 39058652952,
+    "artifact_id": 12111061601,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"它实际上这个医药行业啊，也跟现在的这个我们举子，跟这个AI差不多的，突然AI在各个方面都要去用AI的时候，它都要爆发一下芯片啊，这些硬件的软件的，它都都要爆发一下。\", \"suspect_quote\": \"跟现在的这个我们举子\", \"kind\": \"unintelligible_term\", \"reason\": \"“举子”在医药或 AI 行业语境下无明确含义，疑似识别错误（可能为“例子”、“局子”或其他词），且无法通过上下文推断其具体指代。\"}, {\"sentence_id\": 6, \"quote\": \"所以这个如果是说我们想象"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39058652952,
+    "artifact_id": 12111061601,
+    "name": "production-reject-ly-1017-a94b3e",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"它实际上这个医药行业啊，也跟现在的这个我们举子，跟这个AI差不多的，突然AI在各个方面都要去用AI的时候，它都要爆发一下芯片啊，这些硬件的软件的，它都都要爆发一下。\", \"suspect_quote\": \"跟现在的这个我们举子\", \"kind\": \"unintelligible_term\", \"reason\": \"“举子”在医药或 AI 行业语境下无明确含义，疑似识别错误（可能为“例子”、“局子”或其他词），且无法通过上下文推断其具体指代。\"}, {\"sentence_id\": 6, \"quote\": \"所以这个如果是说我们想象七八十岁人增加的多的话，这个从那个颜色图的话，它就可成倍的增加。\", \"suspect_quote\": \"从那个颜色图的话\", \"kind\": \"unintelligible_term\", \"reason\": \"“颜色图”在描述人口结构或疾病爆发趋势时含义不明，疑似识别错误（可能为“年龄图”、“曲线图”等），属于关键图表指代不清。\"}, {\"sentence_id\": 15, \"quote\": \"特别是独门生意，更是的增加。\", \"suspect_quote\": \"更是的增加\", \"kind\": \"unintelligible_term\", \"reason\": \"“更是的增加”语法不通且含义不明，疑似识别错误（可能为“更是增加”、“更是显著增加”等），属于关键动词短语错写。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -96196,6 +96219,13 @@
    "video_id": "BV1XZWseCEcC",
    "ts": 1792262235,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 394 < 480（854x394），画质不达标"
+  },
+  {
+   "slug": "ly-1017-a94b3e",
+   "key": "bilibili_search:BV1g2JX6nEXy",
+   "video_id": "BV1g2JX6nEXy",
+   "ts": 1792263013,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"它实际上这个医药行业啊，也跟现在的这个我们举子，跟这个AI差不多的，突然AI在各个方面都要去用AI的时候，它都要爆发一下芯片啊，这些硬件的软件的，它都都要爆发一下。\", \"suspect_quote\": \"跟现在的这个我们举子\", \"kind\": \"unintelligible_term\", \"reason\": \"“举子”在医药或 AI 行业语境下无明确含义，疑似识别错误（可能为“例子”、“局子”或其他词），且无法通过上下文推断其具体指代。\"}, {\"sentence_id\": 6, \"quote\": \"所以这个如果是说我们想象七八十岁人增加的多的话，这个从那个颜色图的话，它就可成倍的增加。\", \"suspect_quote\": \"从那个颜色图的话\", \"kind\": \"unintelligible_term\", \"reason\": \"“颜色图”在描述人口结构或疾病爆发趋势时含义不明，疑似识别错误（可能为“年龄图”、“曲线图”等），属于关键图表指代不清。\"}, {\"sentence_id\": 15, \"quote\": \"特别是独门生意，更是的增加。\", \"suspect_quote\": \"更是的增加\", \"kind\": \"unintelligible_term\", \"reason\": \"“更是的增加”语法不通且含义不明，疑似识别错误（可能为“更是增加”、“更是显著增加”等），属于关键动词短语错写。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
