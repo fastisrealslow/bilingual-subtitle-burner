@@ -4367,6 +4367,7 @@ def publish_handler(event=None, context=None):
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          "click_packaging_policy": (part.get('copy_identity') or meta_info.get('copy_identity') or {}).get('click_packaging_policy'),
                           "copyright_requested": COPYRIGHT,
                           **({'makeup_slot': makeup_slot} if makeup_slot else {}),
                           "part_index": k, "tags": tags.split(","),

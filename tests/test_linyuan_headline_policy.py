@@ -9,6 +9,11 @@ import produce_cn as P
 
 
 def guest_reading_then_invalid_draft(*args, **kwargs):
+    schema=kwargs.get('response_schema') or {}
+    if 'title_readable' in schema.get('properties',{}).get('reviews',{}).get('items',{}).get('properties',{}):
+        return P.json.dumps(dict(reviews=[dict(index=i,title_readable=True,cover_readable=True,
+            same_claim=True,reason='测试原话审核：实际标题封面各自表达完整判断，没有额外结论')
+            for i in range(schema['properties']['reviews']['minItems'])]))
     if 'c_guest_spans' in (kwargs.get('response_schema') or {}).get('properties', {}):
         return P.json.dumps(dict(a_guest_answer='嘉宾明确表达了自己的投资判断和持有方式。',
             b_question_premise='无主持人提问',c_guest_spans=[dict(a_start=0,b_end=0)]))

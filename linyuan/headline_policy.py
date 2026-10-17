@@ -26,6 +26,8 @@ def verbal_fragment(text):
     Ordinary emphatic repetition (不卖，一股都不卖) remains allowed.
     """
     text=body(text).strip('。！？!?')
+    if readability_error(text):
+        return True
     # Source315's verbatim fallback used “再能活个三十多岁”. Remaining
     # lifetime is a duration; 岁 denotes age. Reject the proposed headline,
     # never guess 年 or alter the ASR. “活到九十岁” remains valid.
@@ -34,6 +36,29 @@ def verbal_fragment(text):
     return bool(re.search(
         r'^(?:是)?应该是(?:也|还)|^都是|^一个是|'
         r'(买|卖)\1(?:的|入|出)|对人人体|没有没有', text))
+
+
+def readability_error(text):
+    """Reject observable copy defects, never guess a correction to the ASR.
+
+    Shared by model drafts, cached proofs and literal-quote fallbacks. These
+    are screening rules, not a prediction of CTR or a semantic certificate.
+    """
+    text=body(text).strip('。！？!?')
+    if re.search(r'嗯|呃|额[，,]|(?:^|[，,])啊(?:[，,]|$)',text):
+        return '标题文案含无信息的犹豫语气词'
+    if re.search(r'(?:我|我们|这个|那个|那么|就是|还是|所以|因为){2}',text):
+        # Only identical repairs are noise: 因为所以 isn't covered by this
+        # rule, nor are meaningful emphases such as 不卖，一股都不卖.
+        if re.search(r'(我|我们|这个|那个|那么|就是|还是|所以|因为)\1',text):
+            return '标题文案保留了转写中的重复修正'
+    if re.search(r'步步过山|有限时间里没有当年领先|股市不适合我赚赚',text):
+        return '标题含已核实不通顺的转写片段；换选清楚原句，不猜字'
+    if re.search(r'(?:因为|但是|但|而且|所以)[^，,。！？!?]{0,5}(?:我|我们)对[^，,。！？!?]{1,12}(?:我|我们)(?:不|没)',text):
+        return '标题含口头重起句，须重新表达完整对象与判断'
+    if re.search(r'(?:^|[，,])(?:人家告诉你|你说市值最低的时候|就这几年最低的时候)$',text):
+        return '标题停在依赖上下文的口头引子'
+    return None
 
 
 def dangling_tail(text):

@@ -3628,6 +3628,7 @@ def _copy_style_identity(speaker):
     if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=current_title_style_profile(),
+                click_packaging_policy='readable-copy-20261017',
                 **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
@@ -3665,6 +3666,8 @@ def _title_style_prompt(prompt, schema, speaker):
 少用“因为……所以……”的报告句式，直接用日常口吻把原因接上；不必每条有感叹号。
 避免“我坚持长期”“坚持投资理念”“核心逻辑”“配置策略”“林园给出理由”等空泛标签；从原文找一个具体做法代替。
 保留有辨识度的原话，但删掉“我不会说去卖”“这个那个”这种没有信息的绕口填充。
+先独立朗读标题和封面：字都来自字幕也不代表句子通顺。疑似识别错词、口头重起或半句不作为金句；另选同段清楚判断，不凭常识猜原词。
+把原话中已经明确的具体对象和判断放在前半句；不堆三个话题，不用“它、这个、方向、方式”代替尚未交代的对象。封面沿用同一判断中最清楚的一句，不另造更强结论。
 仅在嘉宾确实说了自己选择时用“我”；不要每条都写为什么，不要研究报告腔或泛泛总结。
 事实只来自下方嘉宾字幕。不能凭空添加立场或收益，保留条件、否定、比较对象和不确定性。
 title以“林园：”开头，正文4~52字，最多两三个短句。单个判断已说完整时不要补第二句凑长度；有原话理由才接理由。
@@ -4004,9 +4007,15 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     if not frames:
         raise VisualQualityError("封面无法抽帧")
-    remaining = detect_corner_logos_in_images(frames)
-    if remaining:
-        raise VisualQualityError(f"封面清理后仍检出外部角标：{remaining}")
+    # One dirty sample must not discard other clean, living expressions from
+    # this same clip and force the permanent stock portrait.
+    clean_frames=[]
+    for frame in frames:
+        if detect_corner_logos_in_images([frame]):
+            frame.unlink(missing_ok=True)
+        else:
+            clean_frames.append(frame)
+    frames=clean_frames
 
     initial_identity_error=None
     try:
@@ -4053,20 +4062,35 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     scene_fallback_reason = None
     if style == 'scene':
         from presentation import save_scene_cover
-        try:
-            save_scene_cover(img, out_path, best_face, identity_proof)
-        except ValueError as exc:
-            if not allow_editorial_fallback:
-                for fp in frames:
-                    fp.unlink(missing_ok=True)
-                raise VisualQualityError(str(exc)) from exc
-            scene_fallback_reason = str(exc)
-            style = 'editorial'
-        else:
-            for fp in frames:
-                fp.unlink(missing_ok=True)
-            print(f'[封面] {out_path.name} 现场原画，无叠加标题')
-            return
+        # The highest identity score can be a badly framed instant. Try a
+        # bounded set of independently matched clean frames before a card.
+        remaining_frames=list(frames)
+        current_frame,current_face,current_identity=best_frame,best_face,identity_proof
+        scene_attempts=[]
+        for _ in range(3):
+            try:
+                save_scene_cover(Image.open(current_frame).convert('RGB'),out_path,current_face,
+                    {**current_identity,'scene_candidates_tried':len(scene_attempts)+1})
+            except ValueError as exc:
+                scene_attempts.append(dict(frame=current_frame.name,error=str(exc)))
+                remaining_frames=[frame for frame in remaining_frames if frame!=current_frame]
+                if not remaining_frames:break
+                try:
+                    current_frame,current_face,current_identity=select_verified_cover_face(remaining_frames,reference_path)
+                except VisualQualityError:break
+                if current_identity.get('sharpness',0)<60:break
+            else:
+                Path(str(out_path)+'.identity.json').write_text(json.dumps(
+                    {**current_identity,'scene_candidates_tried':len(scene_attempts)+1},ensure_ascii=False,indent=2))
+                for frame in frames:frame.unlink(missing_ok=True)
+                print(f'[封面] {out_path.name} 使用本段核验现场画面')
+                return
+        scene_fallback_reason=(scene_attempts[0]['error'] if scene_attempts
+                               else '现场画面未通过封面构图检查')
+        if not allow_editorial_fallback:
+            for frame in frames:frame.unlink(missing_ok=True)
+            raise VisualQualityError(scene_fallback_reason)
+        style='editorial'
     if style == 'editorial':
         from editorial_cover import render, font_path
         try:

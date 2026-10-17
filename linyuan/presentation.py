@@ -327,6 +327,13 @@ def verify_caption_av_timeline(path, entries, expected_duration, tolerance=.08):
                 passed=True)
 
 
+def cover_break_penalty(lines):
+    """Observable phrase breaks only; never edits the reviewed cover words."""
+    tails=('不是','而是','因为','所以','取决于','来自','不靠','靠','把','被','的','才','是','唯一')
+    return (sum(line.endswith(tails) for line in lines[:-1])
+            +sum(line.startswith('的') for line in lines[1:]))
+
+
 def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9, min_line_chars=3):
     from headline_policy import cover_copy, body, compact
     # A caller may supply already-reviewed cover copy. Rendering must not
@@ -352,7 +359,8 @@ def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9, min_li
                   and max(b,len(part)-b)<=line_capacity]
             if not cuts:
                 break
-            cut=min(cuts,key=lambda b:(bool(re.search(r'(?:你|我|他|她|要|是|的|把|被)$',part[:b])),
+            cut=min(cuts,key=lambda b:(cover_break_penalty([part[:b],part[b:]]),
+                                       bool(re.search(r'(?:你|我|他|她|要|是|的|把|被)$',part[:b])),
                                        abs(b-len(part)/2)))
             lines.extend([part[:cut],part[cut:]])
         if len(lines)==3:
@@ -370,13 +378,11 @@ def cover_headline(title, speaker='林园', max_lines=2, line_capacity=9, min_li
     if len(text)<=line_capacity:return [text]
     # A dictionary protects words but still splits "不是靠 / 投入". Prefer a
     # complete predicate. Three lines are opt-in only for layouts with room.
-    def dangling(line):
-        return bool(re.search(r'(?:不是|而是|因为|所以|取决于|来自|靠|把|被|的|才)$',line))
     def broken_phrase(lines):
         # Actual covers split “才 / 是最好模式” and “最核心 / 的东西”.
         # These penalties choose another dictionary boundary without deleting
         # words, shrinking type, or claiming a complete syntactic parser.
-        return sum(dangling(x) for x in lines[:-1]) + sum(x.startswith('的') for x in lines[1:])
+        return cover_break_penalty(lines)
     points=[b for a,b in word_spans(text) if b<len(text)]
     pairs=[[text[:cut],text[cut:]] for cut in points if max(cut,len(text)-cut)<=line_capacity]
     best=min(pairs,key=lambda ls:(broken_phrase(ls),abs(len(ls[0])-len(ls[1])))) if pairs else None

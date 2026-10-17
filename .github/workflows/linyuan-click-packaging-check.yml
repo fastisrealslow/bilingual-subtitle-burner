@@ -1,0 +1,85 @@
+name: 标题封面点击质量上线前批测
+on:
+  push:
+    branches: [codex/linyuan-click-packaging-20261017]
+    paths: ['linyuan/**', 'scripts/*linyuan_click*', 'tests/test_linyuan_click_packaging.py', '.github/workflows/linyuan-click-packaging-check.yml']
+permissions:
+  contents: read
+env:
+  BASELINE_REF: b929d78ee7a5799ce836ec288848b9260af13bdd
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-noto-cjk libchromaprint-tools
+      - run: pip install -q pytest numpy pillow requests jieba fonttools 'opencv-python-headless<5'
+      - name: 真实26段、78组封面断行新旧对比
+        run: python scripts/check_linyuan_click_packaging.py --baseline-ref "$BASELINE_REF"
+      - name: 标题封面字幕发布包回归，不投稿
+        run: >-
+          python -m pytest -q tests/test_linyuan_title* tests/test_linyuan_cover*
+          tests/test_linyuan_click_packaging.py tests/test_cover_wrap_title.py
+          tests/test_linyuan_packaging_observations.py tests/test_linyuan_headline_policy.py
+          tests/test_linyuan_editorial_policy.py tests/test_linyuan_editorial_iteration.py
+          tests/test_linyuan_presentation.py tests/test_linyuan_fc_package.py
+          tests/test_linyuan_caption_lines.py tests/test_linyuan_quality_gates.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: click-packaging-regression
+          path: output/click-packaging
+  cpu-readability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        case: [3, 6, 11]
+    env:
+      TEXT_BACKEND: local
+      LOCAL_LLM_MODEL: qwen3.5:9b
+      CUDA_VISIBLE_DEVICES: ''
+      LOCAL_LLM_TIMEOUT_SEC: '600'
+      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_KEEP_ALIVE: 24h
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q numpy pillow requests jieba
+      - uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen35-9b-v1
+      - name: 启动固定版本CPU模型，不调用云端API
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 5 --max-time 600 -o /tmp/ollama.tar.zst https://github.com/ollama/ollama/releases/download/v0.33.3/ollama-linux-amd64.tar.zst
+          echo 'c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f  /tmp/ollama.tar.zst' | sha256sum -c -
+          sudo tar --zstd -xf /tmp/ollama.tar.zst -C /usr
+          ollama serve > /tmp/ollama.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 1
+          done
+          ollama pull qwen3.5:9b
+          ollama show qwen3.5:9b >/dev/null
+      - name: 同源原话备用标题真实模型复核，坏例必须拒绝好例保持可用
+        run: python -u scripts/review_linyuan_click_copy.py --case "${{ matrix.case }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: click-copy-cpu-${{ matrix.case }}
+          path: |
+            output/click-packaging
+            /tmp/ollama.log
