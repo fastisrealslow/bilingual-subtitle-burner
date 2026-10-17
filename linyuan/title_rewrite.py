@@ -1261,7 +1261,7 @@ def _package(item, transcript, review, candidates):
 
 
 def _extractive(transcript, speaker, existing_titles, preferred=None, guest_passages=None,
-                only_preferred=False):
+                only_preferred=False, reviewer=None):
     from headline_policy import title_candidates, body, cover_copy, complete
     # Never stitch across a host turn or pick a host's more fluent question.
     from speaker_attribution import other_guest_indices
@@ -1274,6 +1274,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         titles.append(preferred)
     if only_preferred:
         titles = [preferred] if preferred else []
+    eligible=[]
     for title in titles:
         if only_preferred and any(difflib.SequenceMatcher(None, compact(title), compact(old)).ratio() >= .84
                                   for old in existing_titles):
@@ -1312,7 +1313,41 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         review = dict(method='source_quote', quote=quote)
         if guest_passages is not None:
             review['attribution'] = 'reader_guest_passage'
-        return _package(item, transcript, review, [item])
+        eligible.append((item,review))
+    if reviewer and eligible:
+        # A literal match proves provenance, not natural Chinese. Review up
+        # to three alternatives in ONE bounded call, without rewriting them.
+        options=[dict(index=i,title=item['title'],cover_title=item['cover_title'])
+                 for i,(item,_) in enumerate(eligible[:3])]
+        schema=dict(type='object',additionalProperties=False,required=['reviews'],properties={
+            'reviews':dict(type='array',minItems=len(options),maxItems=len(options),items=dict(
+                type='object',additionalProperties=False,
+                required=['index','title_readable','cover_readable','same_claim','reason'],properties={
+                    'index':dict(type='integer',minimum=0,maximum=len(options)-1),
+                    'title_readable':dict(type='boolean'), 'cover_readable':dict(type='boolean'),
+                    'same_claim':dict(type='boolean'),'reason':dict(type='string',minLength=12,maxLength=200)}))})
+        prompt='''独立检查原话备用标题，不改写，不猜错字，不添加新标题。
+每个title和cover_title都要分别让陌生观众独立读懂具体对象与完整判断。
+逐字摘录不等于可读：转写错词、口吃、口头重起、指代不明、语义拼接应判不可读。
+保留有意义的口语和强调；不要仅因句子普通而退回。same_claim检查封面是否与标题同一判断且未丢条件。
+每个编号必须且只能返回一次。reason说明实际文案的具体问题或完整表达，不臆造原文引号。
+待检查文案：'''+json.dumps(options,ensure_ascii=False)+'\n完整原文：'+transcript
+        rows=_json(reviewer(prompt,schema)).get('reviews')
+        if (not isinstance(rows,list) or len(rows)!=len(options)
+                or any(not isinstance(r,dict) or type(r.get('index')) is not int for r in rows)
+                or sorted(r['index'] for r in rows)!=list(range(len(options)))):
+            raise ValueError('备用标题可读性审核编号缺失或重复；保留原文重试')
+        for row in sorted(rows,key=lambda r:r['index']):
+            if (all(row.get(k) is True for k in ('title_readable','cover_readable','same_claim'))
+                    and isinstance(row.get('reason'),str) and len(compact(row['reason']))>=12):
+                item,review=eligible[row['index']]
+                review['readability_review']={**row,'policy':'literal-copy-readability-v1',
+                    'copy_sha256':_binding(item['title'],item['cover_title'],item['subject'],item['evidence'])}
+                return _package(item,transcript,review,[entry[0] for entry in eligible[:3]])
+        raise ValueError('备用标题没有通过独立可读性审核；保留素材换选完整观点')
+    if eligible:
+        item,review=eligible[0]
+        return _package(item,transcript,review,[item])
     raise ValueError('未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试')
 
 
@@ -1401,7 +1436,8 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
         if current:
             passages.append(''.join(current))
         return _extractive(transcript, speaker, existing_titles, preferred,
-                           guest_passages=passages, only_preferred=only_preferred)
+                           guest_passages=passages, only_preferred=only_preferred,
+                           reviewer=None if only_preferred else call)
     prompt = f'''你是B站视频编辑，要写自然、有看点、忠于访谈的中文标题。
 先分清主持人的提问、猜测与嘉宾已经回答的内容。中心观点按嘉宾回答的信息量选择，不能按主持人的发言长度或关键词频率选择。
 嘉宾没有确认的新品表现、未来变化和问题前提，不能写成嘉宾的观点。优先写嘉宾明确表达的观察和判断，保留转折后的限定条件。
@@ -1655,6 +1691,10 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                 # three full-transcript requests behind the still-busy server.
                 # Preserve the existing complete-source-quote fallback; it must
                 # pass its own evidence/readability checks before use.
+                if structured_model:
+                    # Do not queue another full-source review behind a timed
+                    # out model, or publish unchecked ASR as a replacement.
+                    raise
                 try:
                     return fallback(only_preferred=prefer_reviewed_quote)
                 except ValueError:
@@ -1710,6 +1750,15 @@ def error(title, proof, transcript=None, speaker='林园'):
         quote = review.get('quote') or ''
         if (body(title, speaker) != quote or evidence != [quote] or not complete(quote)):
             return '原话标题的观点或限定条件已变化'
+        readability=review.get('readability_review')
+        if readability is not None and (
+                not isinstance(readability,dict)
+                or readability.get('policy')!='literal-copy-readability-v1'
+                or readability.get('copy_sha256')!=review['copy_sha256']
+                or any(readability.get(k) is not True for k in ('title_readable','cover_readable','same_claim'))
+                or not isinstance(readability.get('reason'),str)
+                or len(compact(readability['reason']))<12):
+            return '原话备用标题的独立可读性证明不完整或已变化'
     elif review.get('method') == 'cpu_text_review':
         if not all(review.get(k) is True for k in CHECKS) or type(review.get('appeal')) is not int or not 3 <= review['appeal'] <= 5:
             return '标题尚未通过独立原文核验'
