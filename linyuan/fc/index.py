@@ -2465,11 +2465,15 @@ def _dispatch_admitted(event=None, context=None):
     # A new editorial rule must not leave already transcribed mothers stranded
     # until the next publication hour. Reuse their raw offline evidence first.
     reserve={}
+    story_reuse=[]
     try:
         reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
         if source_inventory(st,reserve)['inventory_fresh']:
+            if not recent_probe and any(exp_needs.values()):
+                story_reuse=list(experiment_reuse_candidates(st,reserve,items))
             for entry,record in obsolete_review_candidates(st,reserve):
                 if recent_probe: break  # This one slot is for a recent source, not an old retry.
+                if story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY:break
                 if success>=target:break
                 if entry.get('output_layout')=='landscape' and landscape_admissions<=0:continue
                 reason='当前母片需重新执行逐字原文审核，复用实际CPU原始转写'
@@ -2482,6 +2486,7 @@ def _dispatch_admitted(event=None, context=None):
     # candidate with backoff, bounded by the same six-running-source limit.
     for entry in sorted(_latest_dispatches(st),key=lambda e:float(e.get('source_check_retry_after') or 0)):
         if recent_probe: break
+        if story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY:break
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
@@ -2509,7 +2514,7 @@ def _dispatch_admitted(event=None, context=None):
     # The ledger may have no NEW admitted long mothers. Reuse verified raw
     # evidence under a new slug; keep the original baseline stock untouched.
     if not recent_probe and success<target and any(exp_needs.values()):
-        for parent,record in experiment_reuse_candidates(st,reserve,items):
+        for parent,record in story_reuse:
             if success>=target or not any(exp_needs.values()):break
             layout='landscape' if exp_needs['landscape'] else 'portrait'
             slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
