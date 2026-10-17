@@ -470,7 +470,8 @@ def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     full_hour=16 if experiment.assignment(time.time() if now is None else now) else WEEKLY_FULL_SLOT[1]
     full_slot = (local.tm_wday, local.tm_hour) == (WEEKLY_FULL_SLOT[0],full_hour)
     full = meta.get('content_type') == 'full_interview'
-    if (entry or {}).get('weekly_full_week') and not full:
+    if ((entry or {}).get('weekly_full_week') and not full
+            and experiment.actual_profile(meta)!=experiment.TREATMENT):
         return False  # Keep this mother's full interview unused for Sunday.
     if full_slot and weekly_fallback and not full:
         return not is_landscape(meta) and meta.get('render_mode') != 'audio_card'
@@ -2309,7 +2310,8 @@ def source_inventory(st, payload=None):
             done=processed_part_indices(e)
             for part in record.get('parts',[]):
                 if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
-                if e.get('weekly_full_week') and part.get('content_type') != 'full_interview':continue
+                if (e.get('weekly_full_week') and part.get('content_type') != 'full_interview'
+                        and experiment.actual_profile(part)!=experiment.TREATMENT):continue
                 if inventory_publication_error(part,e,st):continue
                 digest=part.get('sha256')
                 source=part.get('source_sha256') or editorial.source_key(e.get('source_url'))
@@ -2550,9 +2552,10 @@ def _dispatch_admitted(event=None, context=None):
             full_week = weekly_full_request(c, st)
             output_layout = "landscape" if not full_week and landscape_admissions>0 else "portrait"
             editorial_profile=experiment.BASELINE
-            if not full_week and experiment.long_candidate(c) and any(exp_needs.values()):
+            if (experiment.long_candidate(c) and any(exp_needs.values())
+                    and (not full_week or exp_needs['portrait'])):
                 editorial_profile=experiment.TREATMENT
-                output_layout='landscape' if exp_needs['landscape'] else 'portrait'
+                output_layout='portrait' if full_week else 'landscape' if exp_needs['landscape'] else 'portrait'
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
@@ -3933,7 +3936,8 @@ def publish_handler(event=None, context=None):
         if (local.tm_wday, local.tm_hour) == (WEEKLY_FULL_SLOT[0],full_hour):
             pending.sort(key=lambda e: not bool(e.get('weekly_full_week')))
         else:
-            pending = [e for e in pending if not e.get('weekly_full_week')]
+            pending = [e for e in pending if not e.get('weekly_full_week')
+                       or e.get('editorial_profile')==experiment.TREATMENT]
     if not pending:
         log.info("无待投稿件")
         return {"published": 0}

@@ -184,6 +184,15 @@ def test_scene_cover_uses_original_selected_pixels_not_small_tracked_window():
         'crop=1280:720')==('tracked-632x470.mp4',0,90,'')
 
 
+def test_weekly_long_mother_can_supply_verified_stories_without_consuming_its_full_interview():
+    meta,_,_=treatment();meta['resolution']=dict(width=1080,height=1920)
+    entry=dict(weekly_full_week='2026-W42',editorial_profile=E.TREATMENT)
+    assert F.content_fits_slot(meta,entry,stamp('2026-10-18T21:00:00'))
+    assert not F.content_fits_slot(meta,entry,stamp('2026-10-18T16:00:00'))
+    assert not F.content_fits_slot({**meta,'editorial_profile':E.BASELINE},entry,
+                                 stamp('2026-10-18T21:00:00'))
+
+
 def test_recovery_and_runtime_packaging_keep_profile_module():
     from package_code import SOURCES
     assert 'publishing_experiment.py' in SOURCES
