@@ -33923,25 +33923,25 @@
    "publish_time": "2025-11-16T02:40:48+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-1739cd",
-    "run_id": 38581119430,
-    "artifact_id": 11905615775,
+    "run_id": 39040063409,
+    "artifact_id": 12103654154,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该错误出现在介绍人物身份的关键位置，严重影响指代准确性。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。\", \"suspect_quote\": \"林元\", \"kind\":"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该词在后续句子中多次出现（如句 12、13、35、37、41、48），若统一修正为“林园”会导致人名不一致的严重逻辑矛盾。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。"
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 38581119430,
-    "artifact_id": 11905615775,
+    "run_id": 39040063409,
+    "artifact_id": 12103654154,
     "name": "production-reject-ly-1014-1739cd",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该错误出现在介绍人物身份的关键位置，严重影响指代准确性。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，人物姓名再次被错误识别为“林元”。\"}, {\"sentence_id\": 12, \"quote\": \"二零零六年，在股市赚得盆满钵满之后，林源开通了博客，接连发布自己的炒股战绩和心得，一时间引来众多粉丝的关注。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾姓名为“林园”，此处识别为“林源”属于同音错别字，影响专有名词准确性。\"}, {\"sentence_id\": 13, \"quote\": \"这些粉丝认为林元是一位股神。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"人物姓名再次被错误识别为“林元”。\"}, {\"sentence_id\": 14, \"quote\": \"然而，上证综指在二零零七年十月创出历史新高后，却掉头直向。\", \"suspect_quote\": \"掉头直向\", \"kind\": \"unintelligible_term\", \"reason\": \"金融语境下描述指数下跌，常用表述为“掉头直下”或“一路下行”，“直向”语义不明，疑似识别错误或漏字（如漏了“下”字），导致含义模糊。\"}, {\"sentence_id\": 17, \"quote\": \"大盘跌了这么多，我也跌了这么多，这我我我估计跟指数同步。\", \"suspect_quote\": \"我我我\", \"kind\": \"unintelligible_term\", \"reason\": \"此处连续三个“我”字在口语中虽可表示口吃或犹豫，但结合上下文“估计跟指数同步”，若原意是表达不确定，通常不会重复三次；若为口吃则属正常风格。但考虑到后文多次出现类似人名错误，需警惕此处是否为“我我我”被误听为其他词（如“一一一”或其他），但\"}]",
-   "source_quality_rejected": false,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该词在后续句子中多次出现（如句 12、13、35、37、41、48），若统一修正为“林园”会导致人名不一致的严重逻辑矛盾。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。\", \"suspect_quote\": \"二零零六年\", \"kind\": \"unintelligible_term\", \"reason\": \"数字识别错误，标准写法应为“二零零六年”，此处虽字形相近但结合上下文语境（后文提到 2007、2008），需确认是否为口语连读导致的误识，但作为专有名词年份，存在被错误转录为其他相似发音词的风险。\"}, {\"sentence_id\": 4, \"quote\": \"你看这个户是当时是两千万，到今年的三月二十一号是四千六百一十一万。\", \"suspect_quote\": \"户\", \"kind\": \"unintelligible_term\", \"reason\": \"关键金融术语缺失，“户”应为“账户”，单独使用“户”在口语中虽可省略主语，但在描述资产增长时缺少量词或名词核心，导致语义不完整。\"}, {\"sentence_id\": 5, \"quote\": \"我让他传了个单，是九千零七十六万。\", \"suspect_quote\": \"传了个单\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语误识，“传了个单”应为“发了个单”或“出了个单”，原意是发布交易记录，此处表达模糊，不符合金融语境下的常规说法。\"}, {\"sentence_id\": 12, \"quote\": \"二零零六年，在股市赚得盆满钵满之后，林源开通了博客，接连发布自己的炒股战绩和心得，一时间引来众多粉丝的关注。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"人名识别错误，应为“林园”，此处写成“林源”属于典型的同音错别字，影响人物指代准确性。\"}, {\"sentence_id\": 13, \"quote\": \"这些粉丝认为林元是一位股神。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"人名识别错误，应为“林园”，再次出现同音错别字，与前文及后文不一致。}, {\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -33973,8 +33973,8 @@
    "publish_time": "2026-06-29T12:49:41+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-6bb758",
-    "run_id": 38574796380,
-    "artifact_id": 11903101338,
+    "run_id": 39040071318,
+    "artifact_id": 12104187671,
     "accepted": 0,
     "failures": [
      {
@@ -33987,15 +33987,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 38574796380,
-    "artifact_id": 11903101338,
+    "run_id": 39040071318,
+    "artifact_id": 12104187671,
     "name": "production-reject-ly-1014-6bb758",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"就是就是，你现在更看好达林通还是并彩王？\", \"suspect_quote\": \"达林通还是并彩王\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'达林通'和'并彩王'在金融/医药领域无对应知名实体，极可能是语音识别将人名或股票名（如'达仁堂'、'片仔癀'等）错误转录为谐音词。\"}, {\"sentence_id\": 8, \"quote\": \"我并不是说是啊，这个这个片的方，我都买。\", \"suspect_quote\": \"这个这个片的方\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'片的方'语义不明，结合上下文（林园常提及中药），极可能是'片仔癀'的严重误识。\"}, {\"sentence_id\": 10, \"quote\": \"我这个组合，你知道粘上你。\", \"suspect_quote\": \"粘上你\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'粘上你'在口语中无明确含义，可能是'赚上你'、'占上你'或某特定术语的误识，导致句意断裂。\"}, {\"sentence_id\": 12, \"quote\": \"我这个跟你去比干啥？\", \"suspect_quote\": \"跟你去比干啥\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'跟你去比'语义不通，可能是'跟它去比'（指股票）的误识，'去'字多余或为口误但影响理解。\"}, {\"sentence_id\": 23, \"quote\": \"你花不说你解决生活问题了。\", \"suspect_quote\": \"你花不说\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词或关键指代：'你花不说'语义不明，可能是'你花多少'、'你说说'或'这花不少'的误识，导致逻辑断裂。\"}, {\"sentence_id\": 48, \"quote\": \"因为你才几十块钱，孩子孩子是很低白人，我是有组合的。\", \"suspect_quote\": \"孩子是很低白人\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写的专有名词：'低白人'完全不符合中文表达，极可能是'低位'、'低价'或某人名/术语的严重误识（如'低倍率'？），属明显识别错误。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
