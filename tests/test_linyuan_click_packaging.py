@@ -104,6 +104,14 @@ def test_short_intact_quote_is_available_without_deleting_a_contrast(monkeypatch
     assert result['cover_title']=='我是一个不吃亏的人'
 
 
+def test_short_quote_expansion_cannot_bypass_already_published_title_dedup(monkeypatch):
+    monkeypatch.setattr(H,'title_candidates',lambda *a,**k:[])
+    def no_candidates(*a):
+        pytest.fail('A duplicate short title must never be sent for approval')
+    with pytest.raises(ValueError,match='未提炼出'):
+        T._extractive('我是一个不吃亏的人。','林园',['林园：我是一个不吃亏的人'],reviewer=no_candidates)
+
+
 @pytest.mark.parametrize('cover',[
     '小钱产大钱，利润不靠追加投资','云南白药是唯一关注点',
     '能做长久的生意才是好买卖','当前市场还没进入牛市',

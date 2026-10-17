@@ -1282,7 +1282,9 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         added=0
         for quote in extras:
             title=f'{speaker}：{quote}'
-            if title not in titles:
+            if title not in titles and not any(
+                    difflib.SequenceMatcher(None,compact(title),compact(old)).ratio()>=.84
+                    for old in existing_titles):
                 titles.append(title);added+=1
                 if added==3:break
     if preferred and preferred not in titles:
