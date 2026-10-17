@@ -32794,7 +32794,40 @@
    "output_layout": "portrait",
    "experiment_mother_sha256": null,
    "experiment_parent_slug": "ly-1016-a7ba4e",
-   "recovery_origin_run_id": 38866481077
+   "recovery_origin_run_id": 38866481077,
+   "production_failure_summary": {
+    "slug": "ly-story-7884c0eb85",
+    "run_id": 39031325296,
+    "artifact_id": 12101611132,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，'是五六块钱'中的'是'字在此处作为口语连接词使用，但'五六块钱'指代模糊（是约数还是具体区间？），且与前文'几块钱'的对比逻辑在字幕中不够清晰，可能影响对价格判断的理解。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似口吃或识别冗余，但结合上下文“把您放回到”语义通顺，此处“放放”极可能是口语重复而非错别字；若严格按“无法解释的具体词语”标准，此处在口语中可接受，暂不列为疑点。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不不没投这个东西。\", \"suspect_quote\": \"我也我虽然不不没投这个东西。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不不没’存在多重否定叠加且无明确逻辑指向，属于含义不明的关键否定结构，需指出原文实际否定字‘不、没’的混乱组合。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "source_check_report_id": 12101611132,
+   "source_check_run_id": 39031325296,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792242455
   },
   {
    "key": "bilibili_search:BV1BCJS6RE17",
@@ -33278,7 +33311,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织的亲热' 无法解释，疑似将‘组织’与‘清热解毒’等词混淆识别，导致专有名词/术语错写，含义不明。\"}, {\"sentence_id\": 14, \"quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来很多这个。\", \"suspect_quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织'在此处作为主语或修饰语完全不通顺，疑似‘药方’‘药物’或特定中药名被误识别为‘组织’，属于错写的专有名词/术语。\"}, {\"sentence_id\": 20, \"quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊，他人的心情会变得。\", \"suspect_quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'疏肝理气'是中医术语，但前文‘这个，这个这个’重复填充虽属口语风格，结合上下文看‘保肝药’与‘疏肝理气’可能存在概念混淆（保肝 vs 疏肝），且‘他人的心情会变得’后接内容断裂，导致关键信息指向不明。\"}, {\"sentence_id\": 21, \"quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会都会有一定的，就是人有昏昏沉沉的，会抑郁，类似抑郁吧。\", \"suspect_quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会\", \"kind\": \"unintelligible_term\", \"reason\": \"'在在'为口吃重复可接受，但‘他会’后直接接‘有昏昏沉沉的’，缺少主语或谓语衔接，导致句子结构断裂、含义不明；且将高血压/心脏病/糖尿病并列作为‘保肝药’作用对象，逻辑上存在关键数字（疾病类别）与否定（隐含治疗范围）的模糊。\"}, {\"sentence_id\": 23, \"quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"suspect_quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"kind\": \"unintelligible_term\", \"reason\": \"'这不是这是' 为典型识别污染：‘这不是’后无宾语或解释，‘这是’单独成词且无指代对象，导致否定词与后续内容断裂，含义不明。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1PVpU6MEUP",
@@ -33676,7 +33710,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-03-31T04:42:39+00:00"
+   "publish_time": "2024-03-31T04:42:39+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39033999560,
+    "artifact_id": 12101606986,
+    "name": "source-reject-ly-1017-f83ea1",
+    "retained": true
+   },
+   "last_error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1Ds7E6SE1y",
@@ -95066,6 +95110,13 @@
    "video_id": "BV16E421P7A4",
    "ts": 1792241240,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织的亲热' 无法解释，疑似将‘组织’与‘清热解毒’等词混淆识别，导致专有名词/术语错写，含义不明。\"}, {\"sentence_id\": 14, \"quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来很多这个。\", \"suspect_quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织'在此处作为主语或修饰语完全不通顺，疑似‘药方’‘药物’或特定中药名被误识别为‘组织’，属于错写的专有名词/术语。\"}, {\"sentence_id\": 20, \"quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊，他人的心情会变得。\", \"suspect_quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'疏肝理气'是中医术语，但前文‘这个，这个这个’重复填充虽属口语风格，结合上下文看‘保肝药’与‘疏肝理气’可能存在概念混淆（保肝 vs 疏肝），且‘他人的心情会变得’后接内容断裂，导致关键信息指向不明。\"}, {\"sentence_id\": 21, \"quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会都会有一定的，就是人有昏昏沉沉的，会抑郁，类似抑郁吧。\", \"suspect_quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会\", \"kind\": \"unintelligible_term\", \"reason\": \"'在在'为口吃重复可接受，但‘他会’后直接接‘有昏昏沉沉的’，缺少主语或谓语衔接，导致句子结构断裂、含义不明；且将高血压/心脏病/糖尿病并列作为‘保肝药’作用对象，逻辑上存在关键数字（疾病类别）与否定（隐含治疗范围）的模糊。\"}, {\"sentence_id\": 23, \"quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"suspect_quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"kind\": \"unintelligible_term\", \"reason\": \"'这不是这是' 为典型识别污染：‘这不是’后无宾语或解释，‘这是’单独成词且无指代对象，导致否定词与后续内容断裂，含义不明。\"}]"
+  },
+  {
+   "slug": "ly-1017-f83ea1",
+   "key": "bilibili_search:BV1pZ421q7sn",
+   "video_id": "BV1pZ421q7sn",
+   "ts": 1792241553,
+   "error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
   }
  ],
  "reviewed_third_video_0910": {
