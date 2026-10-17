@@ -180,7 +180,7 @@ def main():
         raise SystemExit('Production state unavailable; do not replace inventory with empty state')
     previous=json.loads(INVENTORY.read_text()) if INVENTORY.exists() else {}
     validation_sha=hashlib.sha256(Path(__file__).read_bytes()+Path(source_outcomes.__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
-                                 +Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()+Path(live_motion.__file__).read_bytes()+Path(title_rewrite.__file__).read_bytes()+Path(stage_context.__file__).read_bytes()+Path(caption_readability.__file__).read_bytes()+Path(upgrade_cover_delivery.__file__).read_bytes()).hexdigest()
+                                 +Path(fc.experiment.__file__).read_bytes()+Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()+Path(live_motion.__file__).read_bytes()+Path(title_rewrite.__file__).read_bytes()+Path(stage_context.__file__).read_bytes()+Path(caption_readability.__file__).read_bytes()+Path(upgrade_cover_delivery.__file__).read_bytes()).hexdigest()
     old={r['artifact_id']:r for r in previous.get('artifacts',[])} if (
         previous.get('version')==VERSION and previous.get('validation_sha256')==validation_sha
         and previous.get('quality_gate_version')==fc.QUALITY_GATE_VERSION) else {}
@@ -231,6 +231,12 @@ def main():
                         source_sha256=m.get('source_sha256'),segments=m.get('segments'),
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
                         fingerprints=m.get('fingerprints') or {},
+                        editorial_profile=m.get('editorial_profile','baseline'),
+                        experiment_proof=m.get('experiment_proof'),
+                        long_story_family=m.get('long_story_family'),
+                        cover_proof=m.get('cover_proof'),
+                        cover_person_image_source=m.get('cover_person_image_source'),
+                        cover_person_image_verified=m.get('cover_person_image_verified'),
                         subtitle_sha256=m.get('subtitle_text_sha256'),
                         motion=(m.get('final_live_identity') or {}).get('motion'),
                         cover_style=(m.get('cover_proof') or {}).get('style'),

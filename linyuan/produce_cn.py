@@ -3627,8 +3627,13 @@ def _copy_style_identity(speaker):
     profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
     if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
+    import publishing_experiment as experiment
+    editorial_profile=experiment.profile()
     return dict(title_style_profile=current_title_style_profile(),
                 click_packaging_policy='readable-copy-20261017',
+                editorial_profile=editorial_profile,
+                **({'experiment_policy_sha256':_sha256_file(Path(experiment.__file__))}
+                   if editorial_profile==experiment.TREATMENT else {}),
                 **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
@@ -3642,6 +3647,15 @@ def _title_style_prompt(prompt, schema, speaker):
     if speaker != '林园':
         return prompt
     properties = schema.get('properties', {})
+    from publishing_experiment import profile, TREATMENT
+    if profile()==TREATMENT and 'c_candidates' in properties:
+        prompt += ('\n本片属于现场故事实验：优先把本段已经说清的具体公司、'
+                   '亲身经历、实际选择或承认看走眼的事实放在标题前半句。'
+                   '标题第一句先交代具体公司或实际发生的事，再写本人判断或理由；'
+                   '不要用抽象的自我评价开头。理由沿用本段原话中的关键名词，'
+                   '不把一个对象的变化改写成另一个对象的变化。'
+                   '像本人讲话，不概括成认知/投资逻辑/核心方法，不新造冲突。'
+                   '具体名字仅能来自嘉宾原话；主持人的提问不是嘉宾的结论。')
     if 'c_candidates' in properties:
         start = prompt.index('最后在c_candidates')
         # Only the voice/length block is replaceable. Factual invariants live
@@ -3700,7 +3714,7 @@ readable必须同时覆盖标题和封面：分别作为陌生观众读一遍，
 
 def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
               existing_titles=None, require_quote=True, reviewed_title=None, reviewed_cover=None,
-              source_sha256=None, prefer_reviewed_quote=False):
+              source_sha256=None, prefer_reviewed_quote=False, story_evidence=None):
     """Generate three source-backed angles, review title/cover, and cache evidence.
 
     Slices and full interviews use the same editorial policy. The suffix keeps
@@ -3710,6 +3724,15 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     if automatic_only() and (reviewed_title or reviewed_cover or prefer_reviewed_quote):
         raise VisualQualityError('Automatic titles cannot use manually supplied copy')
     transcript_text = "".join(cues[i]["text"] for i in sel)
+    if story_evidence is not None:
+        from publishing_experiment import digest, VERSION, profile, TREATMENT
+        if (profile()!=TREATMENT or not isinstance(story_evidence,dict)
+                or story_evidence.get('version')!=VERSION
+                or story_evidence.get('transcript_sha256')!=digest(transcript_text)
+                or any(not isinstance(story_evidence.get(k),str) or not story_evidence[k]
+                       or story_evidence[k] not in transcript_text
+                       for k in ('subject_quote','event_quote','detail_quote'))):
+            raise ValueError('故事选题必须绑定本段原文，不能作为手填标题或事实批准')
     from headline_policy import attach_copy
     import title_rewrite as title_editor
     # A previous fluent-but-wrong claim can still satisfy structural checks.
@@ -3720,6 +3743,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
                    **_copy_style_identity(speaker),
+                   **({'story_evidence':story_evidence} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
     handoff=os.environ.get('LINYUAN_TITLE_HANDOFF')
@@ -3788,6 +3812,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
+        if story_evidence:
+            from publishing_experiment import story_title_prompt, title_focus
+            prompt=story_title_prompt(prompt,schema,story_evidence)
+            prompt+=('\n这条故事的标题必须在前半句写明具体对象，并保留实际理由/细节原词；'
+                     '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。'
+                     '以下仅是原文定位词，不批准任何事实或提问前提：'
+                     +json.dumps(title_focus(story_evidence),ensure_ascii=False))
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
@@ -3818,6 +3849,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
+                   **({'editorial_focus':__import__('publishing_experiment').title_focus(story_evidence)} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'answer_focus':True,'answer_subject':os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_subject'} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE') in ('answer_focus','answer_subject') else {}))
         if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
@@ -3825,6 +3857,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
                                     rewrite_proof=d['title_rewrite'])
         if problem:raise ValueError(problem)
+        if story_evidence:
+            from publishing_experiment import title_focus, title_focus_error
+            problem=title_focus_error(d['title'],title_focus(story_evidence),speaker,d.get('cover_title'))
+            if problem:raise ValueError(problem)
     except ValueError as exc:
         raise EditorialReviewUnavailable('标题文案待重试：'+str(exc)) from exc
     d.setdefault('tags',[speaker])
@@ -3960,6 +3996,15 @@ def select_verified_cover_face(frames, reference_path):
                      'selection_changed':path!=previous[3] or box!=previous[4],
                      'selected_frame':path.name,
                      'selection_policy':'identity_then_sharpness_gate_v2'}
+
+
+def cover_sample_context(src, tracked, start, end, clean_filter='', natural_scene=False):
+    # The tracked composition window is only 632x470. A natural 16:9 cover
+    # must sample original pixels in the SAME selected source interval, then
+    # independently pass the existing logo, identity, sharpness and crop gates.
+    if tracked is not None and not natural_scene:
+        return tracked,0,end-start,''
+    return src,start,end,clean_filter
 
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
@@ -5512,6 +5557,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     if not picks:
         print(f"[段{suffix or '1'}] 无够格金句，跳过不出片")
         return None
+    from publishing_experiment import profile, TREATMENT
+    story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     if automatic_only():
@@ -5545,12 +5592,16 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 reviewed_title=picks[0].get('editorial_title'),
                 reviewed_cover=picks[0].get('editorial_cover'),
                 prefer_reviewed_quote=picks[0].get('editorial_prefer_exact_quote',False),
+                story_evidence=picks[0].get('story_selection') if len(picks)==1 else None,
                 source_sha256=(source_report or {}).get('source_sha256'))
         return cw
 
     # A static screen portrait may match identity better than the tiny live
     # presenter. Preserve the real stage instead of forcing a close-up.
-    if prefer_live_video and len(picks)==1 and W>H:
+    # The legacy stage renderer supplies a static-portrait cover. A requested
+    # story must follow the scene-cover path, not silently enter the controls
+    # with experimental copy and an unqualified old cover.
+    if prefer_live_video and len(picks)==1 and W>H and not story_treatment:
         import stage_context
         a=cues[picks[0]['start']]['start'];b=cues[picks[0]['end']]['end']
         stage=stage_context.plan(src,a,b-a,_download_speaker_reference(speaker,work),_local_face_models(),speaker,
@@ -5883,8 +5934,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         from presentation import select_cover_style
+        requested_cover='scene' if story_treatment else os.environ.get("COVER_STYLE", "auto")
         selected_cover_style = select_cover_style(strategy != "audio_card" or use_live_video, cw["title"],
-                                                  os.environ.get("COVER_STYLE", "auto"))
+                                                  requested_cover)
         if selected_cover_style not in {"photo", "scene", "editorial"}:
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
@@ -5898,18 +5950,18 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             try:
                 # A tracked window already passed source identity/overlay QA.
                 # Sample its relative timeline, not original mother timestamps.
-                cover_src = prepared_live[1][0] if use_live_video else src
-                cover_start = 0 if use_live_video else cues[p0['start']]['start']
-                cover_end = (cues[p0['end']]['end'] - cues[p0['start']]['start']
-                             if use_live_video else cues[p0['end']]['end'])
+                cover_src,cover_start,cover_end,cover_filter=cover_sample_context(
+                    src,prepared_live[1][0] if use_live_video else None,
+                    cues[p0['start']]['start'],cues[p0['end']]['end'],clean_vf,
+                    natural_scene=story_treatment)
                 make_cover(cover_src, cover_start, cover_end,
-                           cw["cover_title"], speaker, cover, video_filter='' if use_live_video else clean_vf,
-                           preferred_time=None if use_live_video else (visual_report or {}).get("best_cover_time"),
+                           cw["cover_title"], speaker, cover, video_filter=cover_filter,
+                           preferred_time=None if use_live_video and not story_treatment else (visual_report or {}).get("best_cover_time"),
                            reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
-                           allow_editorial_fallback=os.environ.get('COVER_STYLE','auto')=='auto')
+                           allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
-                if os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
+                if story_treatment or os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
                 cover_fallback_reason=str(exc)
                 selected_cover_style=select_cover_style(False,cw['title'])
                 if audio_card_portrait is None:
@@ -5955,6 +6007,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "video_title_proof":(json.loads(Path(str(audio_card)+'.title-proof.json').read_text())
                              if audio_card else None),
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
+        "copy_identity":cw.get('copy_identity') or {},
+        "editorial_profile":'baseline',
         "editorial_selection":cw.get('editorial_selection'),
         **({'title_handoff':cw['title_handoff']} if cw.get('title_handoff') else {}),
         **({'reviewed_title_record':cw['reviewed_title_record']} if cw.get('reviewed_title_record') else {}),
@@ -6010,6 +6064,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         print('[横版] 保留已核验真人窗口与完整音频，重新排字幕并复检实际成片',flush=True)
         meta=optional_reframe(meta,out,work/f'landscape{suffix}',speaker,api_key,
                               requested=requested)
+    if story_treatment:
+        from publishing_experiment import attach_proof
+        try:
+            meta=attach_proof(meta,[cues[i] for i in sel],picks[0]['story_selection'],
+                              float(source_report.get('duration_sec') or 0))
+        except ValueError as exc:
+            raise VisualQualityError('现场故事实验未通过：'+str(exc)) from exc
     return meta
 
 
@@ -6194,6 +6255,27 @@ def main():
                 _ocr(),verified_ocr_text_boxes,LOCAL_FACE_COSINE_THRESHOLD)
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
+    from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, selection_request, validate_choices
+    if profile()==TREATMENT and source_picks:
+        mother_seconds=float(source_report.get('duration_sec') or 0)
+        if mother_seconds>=MIN_MOTHER_SECONDS:
+            prompt,schema=selection_request(cues,source_picks)
+            try:
+                response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                             max_tokens=1600,budget_sec=text_budget(240),response_schema=schema)
+                selected_stories=validate_choices(cues,source_picks,response)
+                (work/'story_selection.json').write_text(json.dumps(dict(
+                    requested_profile=TREATMENT,source_duration_sec=mother_seconds,
+                    candidates=source_picks,response=response,selected=selected_stories),ensure_ascii=False,indent=2))
+                if selected_stories:source_picks=selected_stories
+                else:print('[实验选题] 没有有证据的故事/公司案例，保留正常生产，不标成实验片',flush=True)
+            except (ValueError,LocalTextUnavailable) as exc:
+                print('[实验选题] 未形成有效故事证据，保留正常质量路径：'+str(exc),flush=True)
+        else:print('[实验选题] 母片不足20分钟，只能作为常规片，不计入长篇精选实验',flush=True)
+    if profile()==TREATMENT and not any(p.get('story_selection') for p in source_picks):
+        # A requested experiment that found no eligible example must use the
+        # baseline writer too, not leak experimental copy into the controls.
+        os.environ['LINYUAN_EDITORIAL_PROFILE']='baseline'
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]
         print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')
@@ -6285,8 +6367,12 @@ def main():
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint(complete=False):
+        story_family=(__import__('publishing_experiment').family_metadata(
+            source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0))
+            if profile()==TREATMENT and any(m.get('editorial_profile')==TREATMENT for m in metas) else None)
         rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
                  "occasion": args.occasion, **m,
+                 **({'long_story_family':story_family} if story_family else {}),
                  **({'source_context': source_context} if source_context else {}),
                  "quality_gate_version": QUALITY_GATE_VERSION,
                  "automatic_only": automatic_only(),
@@ -6344,9 +6430,15 @@ def main():
             if preselected_picks and publication_state:
                 segments=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end'])
                           for p in preselected_picks]
+                candidate_meta=dict(source_sha256=source_report.get('source_sha256'),segments=segments)
+                history=publication_state
+                if profile()==TREATMENT and all(p.get('story_selection') for p in preselected_picks):
+                    from publishing_experiment import family_metadata, comparison_state
+                    candidate_meta.update(editorial_profile=TREATMENT,long_story_family=family_metadata(
+                        source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0)))
+                    history=comparison_state(candidate_meta,history,preflight=True)
                 reuse_error=editorial.source_reuse_error(
-                    dict(source_sha256=source_report.get('source_sha256'),segments=segments),
-                    os.environ.get('SOURCE_ORIGIN_URL',''),publication_state)
+                    candidate_meta,os.environ.get('SOURCE_ORIGIN_URL',''),history)
                 if reuse_error:
                     raise VisualQualityError(reuse_error)
             # Context expansion can propose overlapping candidates; retain the

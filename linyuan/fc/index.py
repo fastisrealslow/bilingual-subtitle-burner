@@ -38,6 +38,7 @@ from pathlib import Path
 if str(Path(__file__).resolve().parent.parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import editorial_policy as editorial
+import publishing_experiment as experiment
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -381,6 +382,9 @@ def slot_published(st, now=None):
     for info in st.get('published', {}).values():
         for part in info.get('parts') or [info]:
             if part.get('bvid') and part.get('status') != 'skipped':
+                if part.get('scheduled_slot'):
+                    if part['scheduled_slot']==slot:return True
+                    continue
                 if part.get('makeup_slot'):
                     if part['makeup_slot'] == slot:
                         return True
@@ -436,7 +440,7 @@ def makeup_request_error(event, st, now=None):
     return None
 
 
-def record_publication_slot(st, part_receipt, now, makeup_slot=None):
+def record_publication_slot(st, part_receipt, now, makeup_slot=None, planned_slot=None):
     """Charge the actual day; the original slot owns an authorized make-up."""
     local = time.gmtime(now + 8 * 3600)
     today = time.strftime('%Y-%m-%d', local)
@@ -448,8 +452,10 @@ def record_publication_slot(st, part_receipt, now, makeup_slot=None):
     if makeup_slot:
         part_receipt['makeup_slot'] = makeup_slot
         st.setdefault('makeup_receipts', {})[makeup_slot] = dict(part_receipt)
-    if not makeup_slot or makeup_slot[:10] == today:
-        hour = int(makeup_slot[-2:]) if makeup_slot else local.tm_hour
+    if planned_slot:part_receipt['scheduled_slot']=planned_slot
+    charged_slot=makeup_slot or planned_slot
+    if not charged_slot or charged_slot[:10] == today:
+        hour = int(charged_slot[-2:]) if charged_slot else local.tm_hour
         daily.setdefault('published_hours', []).append(hour)
 
 
@@ -464,9 +470,13 @@ def is_landscape(meta):
 
 def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
-    full_slot = (local.tm_wday, local.tm_hour) == WEEKLY_FULL_SLOT
+    # Keep the weekly full interview in a control slot during this experiment;
+    # otherwise Sunday's 21:00 full interview permanently occupies treatment #4.
+    full_hour=16 if experiment.assignment(time.time() if now is None else now) else WEEKLY_FULL_SLOT[1]
+    full_slot = (local.tm_wday, local.tm_hour) == (WEEKLY_FULL_SLOT[0],full_hour)
     full = meta.get('content_type') == 'full_interview'
-    if (entry or {}).get('weekly_full_week') and not full:
+    if ((entry or {}).get('weekly_full_week') and not full
+            and experiment.actual_profile(meta)!=experiment.TREATMENT):
         return False  # Keep this mother's full interview unused for Sunday.
     if full_slot and weekly_fallback and not full:
         return not is_landscape(meta) and meta.get('render_mode') != 'audio_card'
@@ -1997,6 +2007,11 @@ def production_config():
             "source_restrictions_sha256": hashlib.sha256((source_admission_guard.BASE/'source_restrictions.json').read_bytes()).hexdigest(),
             "audience_copy_version": audience_copy.VERSION,
             "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
+            "publishing_experiment_version": experiment.VERSION,
+            "publishing_experiment_sha256": hashlib.sha256(Path(experiment.__file__).read_bytes()).hexdigest(),
+            "publishing_experiment": dict(id=experiment.EXPERIMENT_ID,start=experiment.START,
+                end_exclusive=experiment.END_EXCLUSIVE,control_slots=[1,3],treatment_slots=[2,4],
+                weekly_full_control_hour_beijing=16),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "copyright_requested": COPYRIGHT, "copyright_mode": "unselected",
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
@@ -2198,12 +2213,17 @@ def inventory_catchup_request(st, payload, now=None):
         # Prefer Sunday's full interview. Missing optional long-form stock must
         # not make the fourth daily slot impossible when a good portrait exists.
         for fallback in (False, True):
-            for record in payload.get('artifacts', []):
+            plan=experiment.assignment(now,slot)
+            def record_rank(record):
+                eligible=[p for p in record.get('parts',[]) if p.get('status')=='verified'
+                          and content_fits_slot(p,latest.get(record.get('slug')),publication_slot_time(slot),fallback)]
+                return min((experiment.rank(p,plan) for p in eligible),default=2)
+            for record in sorted(payload.get('artifacts', []),key=record_rank):
                 if not inventory_record_current(record, now):continue
                 entry = latest.get(record.get('slug'))
                 if not entry or entry.get('failed') or record['slug'] in REVIEW_PAUSED_SLUGS:
                     continue
-                for part in record.get('parts', []):
+                for part in sorted(record.get('parts', []),key=lambda p:experiment.rank(p,plan)):
                     if (part.get('status') != 'verified'
                             or int(part.get('index', -1)) in processed_part_indices(entry)
                             or inventory_publication_error(part,entry,st)
@@ -2238,6 +2258,7 @@ def inventory_publication_error(part,entry,state):
     from source_admission_guard import restriction
     rights_error=restriction(entry.get('source_url') or part.get('source_origin_url') or '',[])
     if rights_error:return rights_error
+    state=experiment.comparison_state(part,state)
     error=editorial.source_reuse_error(part,entry.get('source_url'),state)
     if error:return error
     fingerprints=part.get('fingerprints') or {'sha256':part.get('sha256')}
@@ -2284,6 +2305,7 @@ def source_inventory(st, payload=None):
     latest={e['slug']:e for e in _latest_dispatches(st)}
     due_times=[publication_slot_time(slot) for slot in due_publication_slots(st)]
     live=audio=landscape=portrait=weekly=0
+    experiment_ready=dict(portrait=0,landscape=0)
     slot_choices=[]
     seen_files=set();seen_sources={};seen_fingerprints=[]
     if valid:
@@ -2294,25 +2316,31 @@ def source_inventory(st, payload=None):
             done=processed_part_indices(e)
             for part in record.get('parts',[]):
                 if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
-                if e.get('weekly_full_week') and part.get('content_type') != 'full_interview':continue
+                if (e.get('weekly_full_week') and part.get('content_type') != 'full_interview'
+                        and experiment.actual_profile(part)!=experiment.TREATMENT):continue
                 if inventory_publication_error(part,e,st):continue
                 digest=part.get('sha256')
                 source=part.get('source_sha256') or editorial.source_key(e.get('source_url'))
                 spans=editorial.intervals(part.get('segments')) or []
                 if digest and digest in seen_files:continue
                 previous=seen_sources.get(source,[]) if source else []
-                if any(min(b,d)-max(a,c)>.3 for a,b in spans for c,d in previous):continue
+                if any(not experiment.full_clip_pair(part,old)
+                       and any(min(b,d)-max(a,c)>.3 for a,b in spans for c,d in old_spans)
+                       for old_spans,old in previous):continue
                 fingerprints=part.get('fingerprints') or {'sha256':digest}
-                if any(fingerprint_duplicate(fingerprints,old) for old in seen_fingerprints):continue
+                if any(not experiment.full_clip_pair(part,old_meta) and fingerprint_duplicate(fingerprints,old)
+                       for old,old_meta in seen_fingerprints):continue
                 if digest:seen_files.add(digest)
-                if source:seen_sources.setdefault(source,[]).extend(spans)
-                seen_fingerprints.append(fingerprints)
+                if source:seen_sources.setdefault(source,[]).append((spans,part))
+                seen_fingerprints.append((fingerprints,part))
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:
                     live+=1
                     if part.get('content_type')=='full_interview':weekly+=1
                     elif is_landscape(part):landscape+=1
                     else:portrait+=1
+                    if part.get('content_type')!='full_interview' and experiment.actual_profile(part)==experiment.TREATMENT:
+                        experiment_ready['landscape' if is_landscape(part) else 'portrait']+=1
                 if part.get('render_mode')!='audio_card':
                     slot_choices.append([i for i,stamp in enumerate(due_times)
                                          if content_fits_slot(part,e,stamp,weekly_fallback=True)])
@@ -2338,7 +2366,7 @@ def source_inventory(st, payload=None):
                 portrait_target=TARGET_PORTRAIT_RESERVE,
                 landscape_target=TARGET_LANDSCAPE_RESERVE,publishable_now=publishable,
                 daily_mix_usable=portrait+landscape,target_reserve=TARGET_READY_RESERVE,
-                inventory_fresh=valid)
+                inventory_fresh=valid,experiment_ready=experiment_ready)
 
 
 def landscape_admission_deficit(inventory, state, active_runs):
@@ -2395,6 +2423,8 @@ def _dispatch_admitted(event=None, context=None):
                 log.warning('库存复核请求暂不可用：%s',type(exc).__name__)
         return {'dispatched':0,'inventory_unavailable':1,**inventory}
     deficits=reserve_deficits(inventory)
+    exp_needs=experiment.production_deficits(inventory,st,[],time.time())
+    deficits={layout:max(deficits[layout],exp_needs[layout]) for layout in deficits}
     landscape_needed=deficits['landscape']
     recent_probe = not any(deficits.values())
     if recent_probe and st.get('recent_context_probe_date') == today:
@@ -2402,16 +2432,23 @@ def _dispatch_admitted(event=None, context=None):
     active_runs=[run for status in ('in_progress','queued') for run in
         gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
     active=len(active_runs)
+    exp_needs=experiment.production_deficits(inventory,st,active_runs,time.time())
+    normal_deficits=reserve_deficits(inventory)
+    effective_deficits={layout:max(normal_deficits[layout],exp_needs[layout]) for layout in deficits}
+    if not recent_probe and not any(effective_deficits.values()):
+        return {'dispatched':0,'experiment_waiting_for_active_sources':1,**inventory}
     landscape_admissions=landscape_admission_deficit(inventory,st,active_runs)
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
-    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else sum(deficits.values()))
+    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else sum(effective_deficits.values()))
     # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
     admission = {}
     cands = pick(items, st, MAX_ATTEMPTS, audit=admission)
+    if any(exp_needs.values()):
+        cands.sort(key=lambda c:not experiment.long_candidate(c))
     if recent_probe:
         from source_priority import recording_recency_rank
         cands = [c for c in cands if recording_recency_rank(c, time.time()) == 0]
@@ -2427,6 +2464,7 @@ def _dispatch_admitted(event=None, context=None):
     success = 0
     # A new editorial rule must not leave already transcribed mothers stranded
     # until the next publication hour. Reuse their raw offline evidence first.
+    reserve={}
     try:
         reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
         if source_inventory(st,reserve)['inventory_fresh']:
@@ -2455,6 +2493,7 @@ def _dispatch_admitted(event=None, context=None):
                 'occasion':entry.get('title','')[:30],'auto_publish':'false',
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
                 'output_layout':entry.get('output_layout','auto'),
+                **experiment.workflow_input(entry),
                 # Scheduled retries must reselect automatically; historical
                 # editorial ranges and part numbers are not source evidence.
                 **({'recovery_run_id':str(entry['source_check_run_id'])} if entry.get('source_check_run_id') else {}),
@@ -2467,6 +2506,32 @@ def _dispatch_admitted(event=None, context=None):
         if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
+    # The ledger may have no NEW admitted long mothers. Reuse verified raw
+    # evidence under a new slug; keep the original baseline stock untouched.
+    if not recent_probe and success<target and any(exp_needs.values()):
+        for parent,record in experiment_reuse_candidates(st,reserve,items):
+            if success>=target or not any(exp_needs.values()):break
+            layout='landscape' if exp_needs['landscape'] else 'portrait'
+            slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
+                parent.get('source_sha256') or parent['source_url']])[:10]
+            gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{'ref':'main','inputs':{
+                'source':parent['source_url'],'slug':slug,'speaker':'林园',
+                'occasion':parent.get('title','')[:30],'auto_publish':'false',
+                'include_full':'false','output_layout':layout,
+                'editorial_profile':experiment.TREATMENT,
+                'source_platform':platform_of(parent.get('source','')),
+                'recovery_run_id':str(record['run_id'])}})
+            st['dispatched'].append({k:parent[k] for k in (
+                'video_id','source_url','title','source','author','speech_date_context','publish_time')
+                if k in parent}|dict(key=slug,slug=slug,ts=int(time.time()),
+                    asset_url=parent['source_url'],delay_hours=0,
+                    required_presentation_version=2,production_rules_version=PRODUCTION_RULES_VERSION,
+                    editorial_profile=experiment.TREATMENT,output_layout=layout,
+                    experiment_mother_sha256=parent.get('source_sha256'),
+                    experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id']))
+            save_state(st)
+            success+=1;exp_needs[layout]=max(0,exp_needs[layout]-1)
+            log_event('dispatch_ok',f'已调度故事实验 {slug}',f'复用已核验母片 {parent["slug"]}，原库存保留')
     mainland_deferred = 0
     for i, c in enumerate(cands):
         if success >= target:
@@ -2522,11 +2587,17 @@ def _dispatch_admitted(event=None, context=None):
                 raise RuntimeError("无可用 URL")
             full_week = weekly_full_request(c, st)
             output_layout = "landscape" if not full_week and landscape_admissions>0 else "portrait"
+            editorial_profile=experiment.BASELINE
+            if (experiment.long_candidate(c) and any(exp_needs.values())
+                    and (not full_week or exp_needs['portrait'])):
+                editorial_profile=experiment.TREATMENT
+                output_layout='portrait' if full_week else 'landscape' if exp_needs['landscape'] else 'portrait'
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
                            "include_full": "true" if full_week else "false",
                            "output_layout": output_layout,
+                           **experiment.workflow_input({'editorial_profile':editorial_profile}),
                            "speaker": "林园", "occasion": c["title"][:30],
                            "delay_hours": "0", "auto_publish": "false",
                            "source_platform": platform_of(c.get("source", ""))}})
@@ -2534,6 +2605,7 @@ def _dispatch_admitted(event=None, context=None):
                                      "required_presentation_version": 2,
                                      "production_rules_version": PRODUCTION_RULES_VERSION,
                                      "weekly_full_week": full_week, "output_layout": output_layout,
+                                     "editorial_profile": editorial_profile,
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
@@ -2548,6 +2620,8 @@ def _dispatch_admitted(event=None, context=None):
                 st['recent_context_probe_date'] = today
                 save_state(st)
             if output_layout=='landscape':landscape_admissions=max(0,landscape_admissions-1)
+            if editorial_profile==experiment.TREATMENT:
+                exp_needs[output_layout]=max(0,exp_needs[output_layout]-1)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
         except Exception as e:
@@ -2716,7 +2790,8 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
         ready=sorted((p for p in record.get('parts',[])
                       if p.get('status')=='verified'
                       and int(p['index']) not in processed_part_indices(entry)),
-                     key=lambda p:int(p['index']))
+                     key=lambda p:(experiment.rank(p,experiment.assignment(now)) if now is not None else 0,
+                                   int(p['index'])))
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
                          and (now is None or content_fits_slot(p,entry,now))),None)
@@ -2724,6 +2799,38 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None):
         # Falling back to index zero redownloaded rejected stock at 21:00.
         return None
     return int(entry.get('published_parts') or 0)
+
+
+def experiment_reuse_candidates(state, inventory, items):
+    """One bounded automatic attempt per verified long mother, never relabel stock."""
+    if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
+    from source_admission_guard import restriction
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    used={e.get('experiment_parent_slug') for e in latest.values()}
+    used_sources={e.get('source_url') for e in latest.values() if e.get('experiment_parent_slug')}
+    used_hashes={e.get('experiment_mother_sha256') for e in latest.values() if e.get('experiment_mother_sha256')}
+    for record in inventory.get('artifacts',[]):
+        entry=latest.get(record.get('slug'))
+        if (not entry or entry.get('failed') or entry['slug'] in used
+                or entry['slug'] in REVIEW_PAUSED_SLUGS or entry.get('weekly_full_week')
+                or entry.get('experiment_parent_slug') or not record.get('run_id')
+                or not inventory_record_current(record)):continue
+        url=entry.get('source_url')
+        mother_sha=entry.get('source_sha256')
+        if not url or url in used_sources or (mother_sha and mother_sha in used_hashes) or restriction(url,[]):continue
+        matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS and not (
+                (i.get('extra') or {}).get('no_reprint')==1
+                or (i.get('extra') or {}).get('source_role') in {'reference','catalog_only'}
+                or (i.get('extra') or {}).get('direct_dispatch') is False)
+                for i in matches if isinstance(i.get('extra'),dict)):continue
+        remaining=[p for p in record.get('parts',[]) if p.get('status')=='verified'
+                   and int(p.get('index',-1)) not in processed_part_indices(entry)
+                   and not inventory_publication_error(p,entry,state)]
+        if not remaining:continue
+        used_sources.add(url)
+        if mother_sha:used_hashes.add(mother_sha)
+        yield entry,record
 
 
 def obsolete_review_candidates(state, inventory):
@@ -2981,6 +3088,9 @@ def artifact_quality_error(meta):
     """校验成片携带的新质量证明；旧 artifact 默认不可信，必须重做。"""
     if not isinstance(meta, dict):
         return "meta.json 不是对象"
+    if meta.get('editorial_profile')==experiment.TREATMENT:
+        issue=experiment.proof_error(meta)
+        if issue:return '现场故事实验缺少完整证据：'+issue
     # Exact reported mother: old tracking chased a seated guest in 3042/3057
     # frames without a camera cut. Do not keep releasing its visibly unstable
     # siblings from cached inventory; retain the evidence for bounded repair.
@@ -3732,6 +3842,7 @@ def _request_quality_reprocess(st, e, slug, reason, artifact_id=None):
             "inputs": {"source": source, "slug": slug,
                        "speaker": "林园", "occasion": e.get("title", "")[:30],
                        "output_layout": e.get("output_layout", "auto"),
+                       **experiment.workflow_input(e),
                        "delay_hours": "0", "auto_publish": "false",
                        **recovery,
                        # Keep delivery format and original evidence, never
@@ -3889,10 +4000,12 @@ def publish_handler(event=None, context=None):
                                 e.get("published_parts", 0)))
     if not batch_slug:
         local = time.gmtime(now + 8 * 3600)
-        if (local.tm_wday, local.tm_hour) == WEEKLY_FULL_SLOT:
+        full_hour=16 if experiment.assignment(now) else WEEKLY_FULL_SLOT[1]
+        if (local.tm_wday, local.tm_hour) == (WEEKLY_FULL_SLOT[0],full_hour):
             pending.sort(key=lambda e: not bool(e.get('weekly_full_week')))
         else:
-            pending = [e for e in pending if not e.get('weekly_full_week')]
+            pending = [e for e in pending if not e.get('weekly_full_week')
+                       or e.get('editorial_profile')==experiment.TREATMENT]
     if not pending:
         log.info("无待投稿件")
         return {"published": 0}
@@ -3943,6 +4056,16 @@ def publish_handler(event=None, context=None):
         except Exception as exc:
             log.warning('Reserve artifact index unavailable: %s',type(exc).__name__)
 
+    publication_plan=experiment.assignment(now,makeup_slot) if not batch_slug or makeup_slot else None
+    if publication_plan:
+        def pending_rank(entry):
+            usable=[p for r in reserve_records if r.get('slug')==entry['slug']
+                    and r.get('artifact_id')==art_ids.get(entry['slug']) and inventory_record_current(r)
+                    for p in r.get('parts',[]) if p.get('status')=='verified'
+                    and int(p['index']) not in processed_part_indices(entry)
+                    and content_fits_slot(p,entry,publication_slot_time(makeup_slot) if makeup_slot else now)]
+            return min((experiment.rank(p,publication_plan) for p in usable),default=2)
+        pending.sort(key=pending_rank)
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
     # 超过 6 小时无 artifact → 标记为 failed，避免永远 pending
@@ -4126,7 +4249,8 @@ def publish_handler(event=None, context=None):
         if not usable:
             return _continue_after_rejection(event, context, slug,
                 {'published': 0, 'no_content_for_slot': 1}, tmp)
-        k = k if k in usable else usable[0]
+        usable.sort(key=lambda i:experiment.rank(parts[i],publication_plan))
+        k = usable[0] if publication_plan else k if k in usable else usable[0]
     part = parts[k]
     if makeup_slot and (not content_fits_slot(part, e, publication_slot_time(makeup_slot),
                                              weekly_fallback=bool(event.get('weekly_full_fallback')))
@@ -4258,14 +4382,15 @@ def publish_handler(event=None, context=None):
     # Their exact MP4 hashes are allowlisted above; content/topic/title checks
     # below still reject old excerpts, including copies under different URLs.
     if src_url and not explicit_v4_batch and fresh_budget is None:
-        reuse_error=editorial.source_reuse_error(part,src_url,st)
+        reuse_error=editorial.source_reuse_error(part,src_url,experiment.comparison_state(part,st))
         if reuse_error:
             _record_skipped_part(st,e,slug,part,parts_total,k,title,reuse_error)
             log_event('dedup',f'同源选段拦截 {slug}',reuse_error)
             return _continue_after_rejection(event,context,slug,
                 {'published':0,'skipped':1,'source_overlap':1},tmp)
     # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
-    comparison_state = replacement_comparison_state(st, part, slug)
+    replacement_state = replacement_comparison_state(st, part, slug)
+    comparison_state = experiment.comparison_state(part,replacement_state)
     content_dup = (None if explicit_v4_batch else
                    find_content_duplicate(part.get("fingerprints") or {}, comparison_state))
     if content_dup:
@@ -4303,7 +4428,7 @@ def publish_handler(event=None, context=None):
 
     # 3) 普通批次查同标题；本次授权批次由上传租约和进度防重。
     dup = None if explicit_v4_batch else bili_find_duplicate(title)
-    if comparison_state is not st and dup in HIDDEN_SHORT_SIX_BVIDS:
+    if replacement_state is not st and dup in HIDDEN_SHORT_SIX_BVIDS:
         dup = None  # Explicitly superseded hidden short; all other titles remain protected.
     if dup:
         st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
@@ -4317,6 +4442,9 @@ def publish_handler(event=None, context=None):
     e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
     e['upload_part_index'] = k
+    experiment_receipt=experiment.receipt(part,now,makeup_slot) if publication_plan else None
+    if experiment_receipt:e['upload_experiment']=experiment_receipt
+    else:e.pop('upload_experiment',None)
     if makeup_slot:
         e['upload_makeup_slot'] = makeup_slot
         e['upload_expected_sha256'] = expected_sha256
@@ -4354,7 +4482,8 @@ def publish_handler(event=None, context=None):
         slot_receipt = dict(status='published', bvid=bvid, title=title, slug=slug,
                             ts=receipt_time, expected_sha256=expected_sha256,
                             artifact_id=art_ids.get(slug))
-        record_publication_slot(st, slot_receipt, receipt_time, makeup_slot)
+        record_publication_slot(st, slot_receipt, receipt_time, makeup_slot,
+                                planned_slot=publication_plan['slot'] if publication_plan else None)
         e.pop('upload_makeup_slot', None)
         e.pop('upload_expected_sha256', None)
         mode_counter = "audio_card_count" if part.get("render_mode") == "audio_card" else "live_video_count"
@@ -4368,6 +4497,11 @@ def publish_handler(event=None, context=None):
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
                           "click_packaging_policy": (part.get('copy_identity') or meta_info.get('copy_identity') or {}).get('click_packaging_policy'),
+                          "publishing_experiment": experiment_receipt,
+                          **({'scheduled_slot':publication_plan['slot']} if publication_plan else {}),
+                          "editorial_profile": part.get('editorial_profile','baseline'),
+                          "long_story_family": part.get('long_story_family'),
+                          "duration_sec": part.get('duration_sec'),
                           "copyright_requested": COPYRIGHT,
                           **({'makeup_slot': makeup_slot} if makeup_slot else {}),
                           "part_index": k, "tags": tags.split(","),
@@ -4380,6 +4514,7 @@ def publish_handler(event=None, context=None):
                           "source_sha256": part.get("source_sha256"),
                           "ts": int(time.time()),
                           "fingerprints": meta_info.get("fingerprints") or {}})
+        e.pop('upload_experiment',None)
         st["published"][slug] = {
             "bvid": bvid,  # 最新一条的 bvid
             "bvids": prev_bvids,
@@ -4411,6 +4546,9 @@ def publish_handler(event=None, context=None):
             except Exception as ae:
                 log.warning(f"删除 artifact 失败: {ae}")
         save_state(st)
+        if experiment_receipt and not experiment_receipt['compliant']:
+            log_event('experiment_fallback','实验分组使用合格库存补位，单独统计',
+                      json.dumps(experiment_receipt,ensure_ascii=False))
         log_event("publish_ok", f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}", title[:50])
         log.info(f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}")
         done += 1
