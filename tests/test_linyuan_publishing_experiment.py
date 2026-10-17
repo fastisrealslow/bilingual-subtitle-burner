@@ -93,6 +93,25 @@ def test_story_angle_applies_to_reader_writer_and_reviewer_without_fact_approval
         assert E.story_title_prompt(original,dict(properties={field:{}}),None)==original
 
 
+def test_story_title_requires_actual_company_and_named_reason_not_approved_generic_copy():
+    selection=dict(kind='company_case',subject_quote='您当年投资茅台也是特别成功。',
+        event_quote='因为中国人那时候的收入它达到了一定的水平，就是要爆发的前期。',
+        detail_quote='我们当时提出了一个理论是消费升级啊，就投消费升级。')
+    focus=E.title_focus(selection)
+    assert focus['subjects']==['茅台'] and focus['details']==['消费升级']
+    assert E.title_focus_error('林园：投资是艺术，我投消费升级',focus)
+    assert E.title_focus_error('林园：当年投茅台，看准收入爆发前的消费升级',focus)
+    assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus) is None
+    explicit={**focus,'source':['收入将爆发，消费升级。']}
+    assert E.title_focus_error('林园：投茅台看消费升级和收入将爆发',explicit) is None
+
+
+def test_title_engine_rejects_out_of_source_story_anchors():
+    import title_rewrite as T
+    with pytest.raises(ValueError,match='本段原文字词'):
+        T.generate('只有医药话题',editorial_focus=dict(subjects=['另一个公司'],details=[]))
+
+
 def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(monkeypatch):
     monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T18:00:00'))
     monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))

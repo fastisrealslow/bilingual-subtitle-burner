@@ -3813,8 +3813,12 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
         if story_evidence:
-            from publishing_experiment import story_title_prompt
+            from publishing_experiment import story_title_prompt, title_focus
             prompt=story_title_prompt(prompt,schema,story_evidence)
+            prompt+=('\n这条故事的标题必须在前半句写明具体对象，并保留实际理由/细节原词；'
+                     '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。'
+                     '以下仅是原文定位词，不批准任何事实或提问前提：'
+                     +json.dumps(title_focus(story_evidence),ensure_ascii=False))
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
@@ -3845,6 +3849,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
+                   **({'editorial_focus':__import__('publishing_experiment').title_focus(story_evidence)} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'answer_focus':True,'answer_subject':os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_subject'} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE') in ('answer_focus','answer_subject') else {}))
         if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
@@ -3852,6 +3857,10 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,
                                     rewrite_proof=d['title_rewrite'])
         if problem:raise ValueError(problem)
+        if story_evidence:
+            from publishing_experiment import title_focus, title_focus_error
+            problem=title_focus_error(d['title'],title_focus(story_evidence),speaker)
+            if problem:raise ValueError(problem)
     except ValueError as exc:
         raise EditorialReviewUnavailable('标题文案待重试：'+str(exc)) from exc
     d.setdefault('tags',[speaker])

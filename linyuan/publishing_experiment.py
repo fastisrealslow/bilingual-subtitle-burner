@@ -185,6 +185,46 @@ def story_title_prompt(prompt,schema,evidence):
         +json.dumps(evidence,ensure_ascii=False))
 
 
+def title_focus(selection):
+    """Literal source-word coverage, not an entailment or speaker approval."""
+    import jieba.posseg
+    generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
+    def terms(text,proper=False):
+        words=list(jieba.posseg.cut(text))
+        tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
+                and (w.flag.startswith('n') or not proper and w.flag=='vn')]
+        if proper:
+            names=[w.word for w in words if w.flag in {'nt','nz','nr'} and w.word in tokens]
+            return list(dict.fromkeys(names or tokens))[:6]
+        # Prefer a named adjacent concept (e.g. two contiguous content words)
+        # over a generic component. Never concatenate across source characters.
+        compound=[a.word+b.word for a,b in zip(words,words[1:])
+                  if a.word in tokens and b.word in tokens and len(a.word+b.word)<=10]
+        return list(dict.fromkeys(compound or tokens))[:6]
+    return dict(subjects=terms(selection.get('subject_quote',''),True)
+                if selection.get('kind')=='company_case' else [],
+                details=terms(selection.get('detail_quote','')),
+                source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
+
+
+def title_focus_error(title,focus,speaker='林园'):
+    if not isinstance(title,str):return '故事标题不是文本'
+    body=title.removeprefix(speaker+'：')
+    if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
+    if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
+        return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
+    if focus.get('details') and not any(t in body for t in focus['details']):
+        return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
+    # Real CPU drafts repeatedly collapsed an income-level background clause
+    # into a new income-boom claim. Independent model reviews approved it.
+    # Require an explicit original phrase for this stronger claim, not a word
+    # from one clause concatenated with a growth metaphor from another.
+    boom=r'收入(?:水平)?(?:将|会|要|已|即将|到了?|达到|正处于)?爆发'
+    if re.search(boom,body) and not re.search(boom,''.join(focus.get('source') or [])):
+        return '不能把收入达到某个水平的背景压成收入爆发；用本段明确说出的实际理由'
+    return None
+
+
 def proof_error(meta):
     if not isinstance(meta,dict):return 'Invalid treatment metadata'
     if meta.get('editorial_profile')!=TREATMENT:
@@ -203,6 +243,8 @@ def proof_error(meta):
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
+    focus_issue=title_focus_error(meta.get('title'),title_focus(s))
+    if focus_issue:return focus_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),
                        ('video_sha256',(meta.get('fingerprints') or {}).get('sha256')),
                        ('cover_sha256',cover.get('sha256'))):
