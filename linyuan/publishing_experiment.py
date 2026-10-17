@@ -158,6 +158,29 @@ def attach_proof(meta, cues, selection, mother_seconds):
     return meta
 
 
+def story_title_prompt(prompt,schema,evidence):
+    """Change the editorial angle, never speaker labels or factual approval.
+
+    Normal title policy prefers a general central claim over an example. This
+    experiment deliberately titles the actual example; merely appending style
+    advice left the original central-point instruction in conflict.
+    """
+    fields=schema.get('properties',{})
+    if not evidence or not any(k in fields for k in ('a_guest_answer','a_reading','c_candidates','reviews')):
+        return prompt
+    prompt=prompt.replace('不要把主持人的猜测或一处举例当成中心观点。',
+        '不能把主持人的猜测当成嘉宾结论。本片选题就是下列具体事例，中心是嘉宾在这件事上的实际选择或判断及其原因。')
+    prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
+        'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
+    return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
+        '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
+        '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
+        '再表达本人理由；理由优先保留细节原句里的关键名词，不换成别的对象的增长或爆发。'
+        '核对时事实支持、说话人归属和限定条件标准完全不变。'
+        '下列线索是本段逐字原句，不是已批准的事实或预填标题；提问只提供上下文，不能当嘉宾断言。\n'
+        +json.dumps(evidence,ensure_ascii=False))
+
+
 def proof_error(meta):
     if not isinstance(meta,dict):return 'Invalid treatment metadata'
     if meta.get('editorial_profile')!=TREATMENT:

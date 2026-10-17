@@ -80,6 +80,17 @@ def test_story_copy_evidence_cannot_override_source_or_baseline(monkeypatch,tmp_
                     story_evidence={**evidence,'detail_quote':'原文没有这个事实'})
 
 
+def test_story_angle_applies_to_reader_writer_and_reviewer_without_fact_approval():
+    evidence=treatment()[0]['experiment_proof']['selection']
+    for field in ('a_guest_answer','c_candidates','reviews'):
+        original='不要把主持人的猜测或一处举例当成中心观点。central_point抓住中心而不是举例或旁枝'
+        result=E.story_title_prompt(original,dict(properties={field:{}}),evidence)
+        assert evidence['detail_quote'] in result and '不是已批准的事实' in result
+        assert '不能把主持人的猜测当成嘉宾结论' in result
+        assert 'central_point抓住下列具体事例' in result
+        assert E.story_title_prompt(original,dict(properties={field:{}}),None)==original
+
+
 def test_existing_verified_long_mothers_can_supply_once_without_mutating_stock(monkeypatch):
     monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T18:00:00'))
     monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))

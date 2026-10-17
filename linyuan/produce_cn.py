@@ -3808,12 +3808,9 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
-        if story_evidence and any(k in schema.get('properties',{}) for k in ('a_reading','c_candidates','reviews')):
-            prompt += ('\n这条片段的选题是具体公司事例或亲身经历，不是抽象自我评价。'
-                       '内容理解、标题和核对都以该具体事例为中心；抽象自评仅是背景。'
-                       '以下是从本段原句编号提取的看点线索，不是已批准的事实或标题。'
-                       '仍须独立核对说话人、否定、条件和原文事实。原因保留细节原句中的关键名词，'
-                       '不能改成另一个对象的增长或爆发。\n'+json.dumps(story_evidence,ensure_ascii=False))
+        if story_evidence:
+            from publishing_experiment import story_title_prompt
+            prompt=story_title_prompt(prompt,schema,story_evidence)
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
