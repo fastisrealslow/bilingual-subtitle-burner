@@ -162,6 +162,13 @@ def test_requested_profile_without_proof_is_rejected_by_publication_gate():
     assert '实验' in F.artifact_quality_error(dict(editorial_profile=E.TREATMENT))
 
 
+def test_scene_cover_uses_original_selected_pixels_not_small_tracked_window():
+    assert P.cover_sample_context('mother.mp4','tracked-632x470.mp4',150,240,'crop=1280:720',
+        natural_scene=True)==('mother.mp4',150,240,'crop=1280:720')
+    assert P.cover_sample_context('mother.mp4','tracked-632x470.mp4',150,240,
+        'crop=1280:720')==('tracked-632x470.mp4',0,90,'')
+
+
 def test_recovery_and_runtime_packaging_keep_profile_module():
     from package_code import SOURCES
     assert 'publishing_experiment.py' in SOURCES

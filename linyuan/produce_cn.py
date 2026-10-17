@@ -3969,6 +3969,15 @@ def select_verified_cover_face(frames, reference_path):
                      'selection_policy':'identity_then_sharpness_gate_v2'}
 
 
+def cover_sample_context(src, tracked, start, end, clean_filter='', natural_scene=False):
+    # The tracked composition window is only 632x470. A natural 16:9 cover
+    # must sample original pixels in the SAME selected source interval, then
+    # independently pass the existing logo, identity, sharpness and crop gates.
+    if tracked is not None and not natural_scene:
+        return tracked,0,end-start,''
+    return src,start,end,clean_filter
+
+
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                video_filter="", preferred_time=None, reference_path=None, style="photo",
                allow_editorial_fallback=False):
@@ -5908,13 +5917,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             try:
                 # A tracked window already passed source identity/overlay QA.
                 # Sample its relative timeline, not original mother timestamps.
-                cover_src = prepared_live[1][0] if use_live_video else src
-                cover_start = 0 if use_live_video else cues[p0['start']]['start']
-                cover_end = (cues[p0['end']]['end'] - cues[p0['start']]['start']
-                             if use_live_video else cues[p0['end']]['end'])
+                cover_src,cover_start,cover_end,cover_filter=cover_sample_context(
+                    src,prepared_live[1][0] if use_live_video else None,
+                    cues[p0['start']]['start'],cues[p0['end']]['end'],clean_vf,
+                    natural_scene=story_treatment)
                 make_cover(cover_src, cover_start, cover_end,
-                           cw["cover_title"], speaker, cover, video_filter='' if use_live_video else clean_vf,
-                           preferred_time=None if use_live_video else (visual_report or {}).get("best_cover_time"),
+                           cw["cover_title"], speaker, cover, video_filter=cover_filter,
+                           preferred_time=None if use_live_video and not story_treatment else (visual_report or {}).get("best_cover_time"),
                            reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
                            allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"

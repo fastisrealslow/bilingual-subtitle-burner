@@ -259,16 +259,16 @@ def observations(items, previous, state, now=None):
                 median=statistics.median(plays) if plays else None))
     local=datetime.fromtimestamp(now,CST).date().isoformat()
     days=max(0,min(30,(date.fromisoformat(local)-date.fromisoformat(START)).days))
-    by_slot={r['slot']:r for r in receipts.values()}
+    receipts_by_slot={r['slot']:r for r in receipts.values()}
     daily=[]
     for day in range(30):
         value=date.fromisoformat(START)+timedelta(days=day)
         due=[f'{value.isoformat()} {h:02d}' for h in HOURS
              if datetime(value.year,value.month,value.day,h,tzinfo=CST).timestamp()<=now]
         if not due:continue
-        present=[by_slot[s] for s in due if s in by_slot]
+        present=[receipts_by_slot[s] for s in due if s in receipts_by_slot]
         daily.append(dict(date=value.isoformat(),slots_due=len(due),published=len(present),
-                          missing_slots=[s for s in due if s not in by_slot],
+                          missing_slots=[s for s in due if s not in receipts_by_slot],
                           compliant_treatment=sum(r['planned']==TREATMENT and r['compliant'] for r in present),
                           fallback=sum(not r['compliant'] for r in present)))
     return dict(experiment_id=EXPERIMENT_ID,version=VERSION,start=START,end_exclusive=END_EXCLUSIVE,
