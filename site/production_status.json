@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792246259,
+  "updated_at": 1792246400,
   "inventory_updated_at": 1792246249,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792246259,
+    "updated_at": 1792246400,
     "records": 10722,
     "video_records": 9209,
     "initial_candidates": 62,
@@ -87,13 +87,13 @@
   },
   "counts": {
     "complete": 126,
-    "failed": 1117,
+    "failed": 1118,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 8,
     "excluded": 4,
-    "running": 5,
-    "retry_queued": 7
+    "running": 6,
+    "retry_queued": 6
   },
   "tasks": [
     {
@@ -22749,24 +22749,6 @@
       "run_updated_at": "2026-10-17T12:49:41Z"
     },
     {
-      "slug": "ly-1014-59c455",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792241531,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792241530,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38585961350,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38585961350",
-      "run_started_at": "2026-10-14T15:03:23Z",
-      "run_updated_at": "2026-10-14T15:22:14Z"
-    },
-    {
       "slug": "ly-1014-1739cd",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -23092,11 +23074,11 @@
     },
     {
       "slug": "ly-1014-a04f78",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'在口语中无意义，结合上下文应为'给你一个'或'给你'，但自动识别将连读或口误误作重复名词。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'搬'在此处指代不明（前文是房子/电视机），结合语境应为'搬走'或特定动词，但单独一个'搬'字在口语中若指代动作完成可能漏字，不过更可能是'搬'字本身无误，此处存疑在于是否漏了宾语或助词导致语义不全。但根据指令不审核完整性，仅\"}]",
       "signature": {
         "ts": 1792245565,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23125,6 +23107,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39039066791",
       "run_started_at": "2026-10-17T14:02:37Z",
       "run_updated_at": "2026-10-17T14:02:41Z"
+    },
+    {
+      "slug": "ly-1014-59c455",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792246358,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39039766655,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39039766655",
+      "run_started_at": "2026-10-17T14:12:38Z",
+      "run_updated_at": "2026-10-17T14:12:42Z"
     }
   ],
   "runs": {
@@ -31467,14 +31467,14 @@
       "display_title": "中文源出片 · ly-1014-53f4af"
     },
     "ly-1014-59c455": {
-      "id": 38585961350,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-14T15:03:23Z",
-      "updated_at": "2026-10-14T15:22:14Z",
-      "run_started_at": "2026-10-14T15:03:23Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38585961350",
-      "run_number": 2063,
+      "id": 39039766655,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T14:12:38Z",
+      "updated_at": "2026-10-17T14:12:42Z",
+      "run_started_at": "2026-10-17T14:12:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39039766655",
+      "run_number": 2260,
       "display_title": "中文源出片 · ly-1014-59c455"
     },
     "ly-1014-0398d6": {
@@ -32786,17 +32786,6 @@
       "run_number": 2242,
       "display_title": "中文源出片 · ly-story-cbaf21d67f"
     },
-    "ly-1014-4dfa13": {
-      "id": 39039066791,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-17T14:02:37Z",
-      "updated_at": "2026-10-17T14:02:41Z",
-      "run_started_at": "2026-10-17T14:02:37Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39039066791",
-      "run_number": 2259,
-      "display_title": "中文源出片 · ly-1014-4dfa13"
-    },
     "ly-1014-a04f78": {
       "id": 39038824999,
       "status": "completed",
@@ -32807,6 +32796,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39038824999",
       "run_number": 2258,
       "display_title": "中文源出片 · ly-1014-a04f78"
+    },
+    "ly-1014-4dfa13": {
+      "id": 39039066791,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T14:02:37Z",
+      "updated_at": "2026-10-17T14:02:41Z",
+      "run_started_at": "2026-10-17T14:02:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39039066791",
+      "run_number": 2259,
+      "display_title": "中文源出片 · ly-1014-4dfa13"
     },
     "ly-1014-278e50": {
       "id": 39038552717,
