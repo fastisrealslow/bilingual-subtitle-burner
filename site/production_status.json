@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792243246,
+  "updated_at": 1792243361,
   "inventory_updated_at": 1792243239,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 22,
+    "active_or_recovering_sources": 21,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792243245,
+    "updated_at": 1792243361,
     "records": 10711,
     "video_records": 9198,
     "initial_candidates": 60,
@@ -70,13 +70,13 @@
   },
   "counts": {
     "complete": 126,
-    "failed": 1107,
+    "failed": 1108,
     "paused": 5,
     "interrupted": 7,
     "ready": 8,
     "excluded": 4,
     "running": 5,
-    "retry_queued": 17
+    "retry_queued": 16
   },
   "tasks": [
     {
@@ -22660,24 +22660,6 @@
       "run_updated_at": "2026-10-17T12:27:17Z"
     },
     {
-      "slug": "ly-1015-5525a0",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792240178,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792240177,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38787925236,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38787925236",
-      "run_started_at": "2026-10-15T18:43:01Z",
-      "run_updated_at": "2026-10-15T18:56:04Z"
-    },
-    {
       "slug": "ly-story-29974ac69b",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织的亲热' 无法解释，疑似将‘组织’与‘清热解毒’等词混淆识别，导致专有名词/术语错写，含义不明。\"}, {\"sentence_id\": 14, \"quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来很多这个。\", \"suspect_quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织'在此处作为主语或修饰语完全不通顺，疑似‘药方’‘药物’或特定中药名被误识别为‘组织’，属于错写的专有名词/术语。\"}, {\"sentence_id\": 20, \"quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊，他人的心情会变得。\", \"suspect_quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'疏肝理气'是中医术语，但前文‘这个，这个这个’重复填充虽属口语风格，结合上下文看‘保肝药’与‘疏肝理气’可能存在概念混淆（保肝 vs 疏肝），且‘他人的心情会变得’后接内容断裂，导致关键信息指向不明。\"}, {\"sentence_id\": 21, \"quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会都会有一定的，就是人有昏昏沉沉的，会抑郁，类似抑郁吧。\", \"suspect_quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会\", \"kind\": \"unintelligible_term\", \"reason\": \"'在在'为口吃重复可接受，但‘他会’后直接接‘有昏昏沉沉的’，缺少主语或谓语衔接，导致句子结构断裂、含义不明；且将高血压/心脏病/糖尿病并列作为‘保肝药’作用对象，逻辑上存在关键数字（疾病类别）与否定（隐含治疗范围）的模糊。\"}, {\"sentence_id\": 23, \"quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"suspect_quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"kind\": \"unintelligible_term\", \"reason\": \"'这不是这是' 为典型识别污染：‘这不是’后无宾语或解释，‘这是’单独成词且无指代对象，导致否定词与后续内容断裂，含义不明。\"}]",
@@ -23057,8 +23039,8 @@
     },
     {
       "slug": "ly-1016-7e4ac4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792242713,
         "failed": false,
@@ -23071,15 +23053,15 @@
       "run_id": 39035568303,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39035568303",
       "run_started_at": "2026-10-17T13:11:53Z",
-      "run_updated_at": "2026-10-17T13:11:57Z"
+      "run_updated_at": "2026-10-17T13:22:28Z"
     },
     {
       "slug": "ly-1016-c41e02",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"那看走远的之前，经常会看走远这个，这个不是说能力，还有这个，特别是对对一些行业，好像我的印象好像还没有什么大的看看走远，主要是一些个别公司，对公司的判断还是有很多的啊。\", \"suspect_quote\": \"看走远\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误，结合上下文“看走眼”及后文“看走远”，此处应为“看走眼”。‘看走远’在金融投资语境下无明确含义，属于关键术语识别疑点。\"}, {\"sentence_id\": 1, \"quote\": \"那看走远的之前，经常会看走远这个，这个不是说能力，还有这个，特别是对对一些行业，好像我的印象好像还没有什么大的看看走远，主要是一些个别公司，对公司的判断还是有很多的啊。\", \"suspect_quote\": \"对对一些行业\", \"kind\": \"unintelligible_term\", \"reason\": \"重复字‘对对’为口语冗余或识别错误，虽属口语风格，但‘对对’非标准表达，且结合后文‘好像还没有什么大的看看走远’，整体语句逻辑因重复而断裂，存在识别疑点。\"}, {\"sentence_id\": 1, \"quote\": \"那看走远的之前，经常会看走远这个，这个不是说能力，还有这个，特别是对对一些行业，好像我的印象好像还没有什么大的看看走远，主要是一些个别公司，对公司的判断还是有很多的啊。\", \"suspect_quote\": \"看看走远\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误，应为‘看走眼’。‘看看走远’不符合行业术语及上下文逻辑，属于关键短语识别疑点。\"}, {\"sentence_id\": 2, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"有很多看啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'看'在此处无明确指代，结合上下文应为‘看走眼’的简称或误识，但单独出现‘有很多看啊’导致语义不明，属于关键数字或否定类之外的含义不明词语。\"}, {\"sentence_id\": 4, \"quote\": \"还有就是美国的苹果，苹果公司。\", \"suspect_quote\": \"美国的苹果\", \"kind\": \"unintelligible_term\", \"reason\": \"虽为常见表达，但在中文口语中通常说‘美国苹果公司’或‘苹果’，此处‘美国的苹果’略显冗余，但非识别错误；然而结合上下文‘苹果公司’后文重复提及，可能存在识别冗余或非标准表述，但暂不视为疑点。\"}, {\"sentence_id\": 5, \"quote\": \"这不是说就是听别人说，有人专门给我晚上不睡觉的说。\", \"suspect_quote\": \"有人专门给我晚上不睡觉的说\", \"kind\": \"unintelligible_term\", \"reason\": \"'晚上不睡觉的说'为口语化表达，但‘说’后无具体内容，且‘晚上不睡觉’可能为口误或识别错误（如应为‘晚上睡不着’或‘特意’），存在含义不明风险。\"}]",
       "signature": {
         "ts": 1792242719,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23108,6 +23090,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39035868072",
       "run_started_at": "2026-10-17T13:16:13Z",
       "run_updated_at": "2026-10-17T13:16:17Z"
+    },
+    {
+      "slug": "ly-1015-5525a0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792243320,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39036256860,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39036256860",
+      "run_started_at": "2026-10-17T13:22:00Z",
+      "run_updated_at": "2026-10-17T13:22:04Z"
     }
   ],
   "runs": {
@@ -31846,14 +31846,14 @@
       "display_title": "中文源出片 · ly-1015-05c712"
     },
     "ly-1015-5525a0": {
-      "id": 38787925236,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-15T18:43:01Z",
-      "updated_at": "2026-10-15T18:56:04Z",
-      "run_started_at": "2026-10-15T18:43:01Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38787925236",
-      "run_number": 2120,
+      "id": 39036256860,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T13:22:00Z",
+      "updated_at": "2026-10-17T13:22:04Z",
+      "run_started_at": "2026-10-17T13:22:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39036256860",
+      "run_number": 2250,
       "display_title": "中文源出片 · ly-1015-5525a0"
     },
     "ly-1015-0a0322": {
@@ -32769,17 +32769,6 @@
       "run_number": 2246,
       "display_title": "中文源出片 · ly-1016-e0cb33"
     },
-    "ly-1015-a7acac": {
-      "id": 39035868072,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-17T13:16:13Z",
-      "updated_at": "2026-10-17T13:16:17Z",
-      "run_started_at": "2026-10-17T13:16:13Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39035868072",
-      "run_number": 2249,
-      "display_title": "中文源出片 · ly-1015-a7acac"
-    },
     "ly-1016-c41e02": {
       "id": 39035574727,
       "status": "completed",
@@ -32791,12 +32780,23 @@
       "run_number": 2248,
       "display_title": "中文源出片 · ly-1016-c41e02"
     },
-    "ly-1016-7e4ac4": {
-      "id": 39035568303,
+    "ly-1015-a7acac": {
+      "id": 39035868072,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-17T13:16:13Z",
+      "updated_at": "2026-10-17T13:16:17Z",
+      "run_started_at": "2026-10-17T13:16:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39035868072",
+      "run_number": 2249,
+      "display_title": "中文源出片 · ly-1015-a7acac"
+    },
+    "ly-1016-7e4ac4": {
+      "id": 39035568303,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-17T13:11:53Z",
-      "updated_at": "2026-10-17T13:11:57Z",
+      "updated_at": "2026-10-17T13:22:28Z",
       "run_started_at": "2026-10-17T13:11:53Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39035568303",
       "run_number": 2247,
