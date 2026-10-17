@@ -56,6 +56,8 @@ def main():
         body=result['title'].removeprefix('林园：')
         assert '茅台' in body[:12],'Put the actual company before abstract self-evaluation'
         assert '消费升级' in body,'Retain the source reason, not an invented income-boom shorthand'
+        assert not any(t in body for t in ('收入爆发','收入将爆发')),'Do not turn the background into an income-boom claim'
+        assert len(body)<=28,'State the concrete choice and reason naturally, not a compressed research summary'
     report['passed']=True;save()
     print(json.dumps(dict(passed=True,story_count=len(stories),title=result['title'],
                          cover=result['cover_title']),ensure_ascii=False))

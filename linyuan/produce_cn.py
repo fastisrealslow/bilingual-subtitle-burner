@@ -3627,9 +3627,13 @@ def _copy_style_identity(speaker):
     profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
     if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
+    import publishing_experiment as experiment
+    editorial_profile=experiment.profile()
     return dict(title_style_profile=current_title_style_profile(),
                 click_packaging_policy='readable-copy-20261017',
-                editorial_profile=__import__('publishing_experiment').profile(),
+                editorial_profile=editorial_profile,
+                **({'experiment_policy_sha256':_sha256_file(Path(experiment.__file__))}
+                   if editorial_profile==experiment.TREATMENT else {}),
                 **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,

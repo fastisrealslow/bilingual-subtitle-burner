@@ -63,6 +63,8 @@ def test_profile_is_explicit_and_changes_copy_cache_identity(monkeypatch):
     monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',E.TREATMENT)
     new=P._copy_style_identity('林园')
     assert old!=new and new['editorial_profile']==E.TREATMENT
+    assert 'experiment_policy_sha256' not in old
+    assert new['experiment_policy_sha256']==P._sha256_file(Path(E.__file__))
     assert E.workflow_input(dict(editorial_profile=E.TREATMENT))==dict(editorial_profile=E.TREATMENT)
     assert E.workflow_input({})=={}
     monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE','typo')
