@@ -3629,6 +3629,7 @@ def _copy_style_identity(speaker):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=current_title_style_profile(),
                 click_packaging_policy='readable-copy-20261017',
+                editorial_profile=__import__('publishing_experiment').profile(),
                 **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,
@@ -3642,6 +3643,12 @@ def _title_style_prompt(prompt, schema, speaker):
     if speaker != '林园':
         return prompt
     properties = schema.get('properties', {})
+    from publishing_experiment import profile, TREATMENT
+    if profile()==TREATMENT and 'c_candidates' in properties:
+        prompt += ('\n本片属于现场故事实验：优先把本段已经说清的具体公司、'
+                   '亲身经历、实际选择或承认看走眼的事实放在标题前半句。'
+                   '像本人讲话，不概括成认知/投资逻辑/核心方法，不新造冲突。'
+                   '具体名字仅能来自嘉宾原话；主持人的提问不是嘉宾的结论。')
     if 'c_candidates' in properties:
         start = prompt.index('最后在c_candidates')
         # Only the voice/length block is replaceable. Factual invariants live
@@ -5883,8 +5890,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     try:
         p0 = picks[0]
         from presentation import select_cover_style
+        from publishing_experiment import profile, TREATMENT
+        story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
+        requested_cover='scene' if story_treatment else os.environ.get("COVER_STYLE", "auto")
         selected_cover_style = select_cover_style(strategy != "audio_card" or use_live_video, cw["title"],
-                                                  os.environ.get("COVER_STYLE", "auto"))
+                                                  requested_cover)
         if selected_cover_style not in {"photo", "scene", "editorial"}:
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
@@ -5906,10 +5916,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                            cw["cover_title"], speaker, cover, video_filter='' if use_live_video else clean_vf,
                            preferred_time=None if use_live_video else (visual_report or {}).get("best_cover_time"),
                            reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
-                           allow_editorial_fallback=os.environ.get('COVER_STYLE','auto')=='auto')
+                           allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
-                if os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
+                if story_treatment or os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
                 cover_fallback_reason=str(exc)
                 selected_cover_style=select_cover_style(False,cw['title'])
                 if audio_card_portrait is None:
@@ -5955,6 +5965,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         "video_title_proof":(json.loads(Path(str(audio_card)+'.title-proof.json').read_text())
                              if audio_card else None),
         "title_candidates":cw['title_candidates'],"packaging_version":cw['packaging_version'],
+        "copy_identity":cw.get('copy_identity') or {},
+        "editorial_profile":'baseline',
         "editorial_selection":cw.get('editorial_selection'),
         **({'title_handoff':cw['title_handoff']} if cw.get('title_handoff') else {}),
         **({'reviewed_title_record':cw['reviewed_title_record']} if cw.get('reviewed_title_record') else {}),
@@ -6010,6 +6022,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         print('[横版] 保留已核验真人窗口与完整音频，重新排字幕并复检实际成片',flush=True)
         meta=optional_reframe(meta,out,work/f'landscape{suffix}',speaker,api_key,
                               requested=requested)
+    if story_treatment:
+        from publishing_experiment import attach_proof
+        try:
+            meta=attach_proof(meta,[cues[i] for i in sel],picks[0]['story_selection'],
+                              float(source_report.get('duration_sec') or 0))
+        except ValueError as exc:
+            raise VisualQualityError('现场故事实验未通过：'+str(exc)) from exc
     return meta
 
 
@@ -6194,6 +6213,23 @@ def main():
                 _ocr(),verified_ocr_text_boxes,LOCAL_FACE_COSINE_THRESHOLD)
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
+    from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, selection_request, validate_choices
+    if profile()==TREATMENT and source_picks:
+        mother_seconds=float(source_report.get('duration_sec') or 0)
+        if mother_seconds>=MIN_MOTHER_SECONDS:
+            prompt,schema=selection_request(cues,source_picks)
+            try:
+                response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                             max_tokens=1600,budget_sec=text_budget(240),response_schema=schema)
+                selected_stories=validate_choices(cues,source_picks,response)
+                (work/'story_selection.json').write_text(json.dumps(dict(
+                    requested_profile=TREATMENT,source_duration_sec=mother_seconds,
+                    candidates=source_picks,response=response,selected=selected_stories),ensure_ascii=False,indent=2))
+                if selected_stories:source_picks=selected_stories
+                else:print('[实验选题] 没有有证据的故事/公司案例，保留正常生产，不标成实验片',flush=True)
+            except (ValueError,LocalTextUnavailable) as exc:
+                print('[实验选题] 未形成有效故事证据，保留正常质量路径：'+str(exc),flush=True)
+        else:print('[实验选题] 母片不足20分钟，只能作为常规片，不计入长篇精选实验',flush=True)
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]
         print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')

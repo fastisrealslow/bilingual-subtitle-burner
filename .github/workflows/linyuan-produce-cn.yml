@@ -13,6 +13,12 @@ on:
     paths: ['.github/linyuan-e2e.trigger']
   workflow_dispatch:
     inputs:
+      editorial_profile:
+        description: '常规对照或有原文证据的现场故事实验；不改变发布配额'
+        required: false
+        type: choice
+        default: baseline
+        options: [baseline, field-story-v1]
       output_layout:
         description: 'auto：真人窗口约三分之一用横版；原画保留原比例'
         required: false
@@ -450,6 +456,7 @@ jobs:
           REPAIR_BVID: ${{ inputs.repair_bvid }}
           RENDER_SLUG: ${{ env.RUN_SLUG }}
           OUTPUT_LAYOUT: ${{ inputs.output_layout || 'auto' }}
+          LINYUAN_EDITORIAL_PROFILE: ${{ inputs.editorial_profile || 'baseline' }}
         run: |
           set -euo pipefail
           # The history snapshot was validated before downloads or inference.
@@ -503,6 +510,7 @@ jobs:
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/transcript_audit*.txt
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/highlight*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/source_question_answers.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/story_selection.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/visual-question-cards/
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/selection_diagnostics*.json
             linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/native-rejection*.json
