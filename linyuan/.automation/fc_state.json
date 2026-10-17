@@ -33453,7 +33453,8 @@
    },
    "last_error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1FMbPzvErf",
@@ -33533,7 +33534,41 @@
    "output_layout": "portrait",
    "experiment_mother_sha256": null,
    "experiment_parent_slug": "ly-1016-63f3e9",
-   "recovery_origin_run_id": 38902158370
+   "recovery_origin_run_id": 38902158370,
+   "production_failure_summary": {
+    "slug": "ly-story-29974ac69b",
+    "run_id": 39032831125,
+    "artifact_id": 12101770800,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 15, \"quote\": \"如果你把握不住，嫩头青，即使将来好了，他中途的磨难也要把你磨烂死。\", \"suspect_quote\": \"嫩头青\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，口语中应为“嫩头熊”或特定比喻词，但“嫩头青”在金融语境下含义不明且不符合常见表达习惯，属于无法解释的具体词语。\"}, {\"sentence_id\": 20, \"quote\": \"啊，就我记得南方是基金，南方是南方证券还是什么，当时是给招商证券收购的，一个我记得。\", \"suspect_quote\": \"南方是基"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/494，总帧数2466；身份匹配但人脸短边不足96px的帧数494"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"啊，你到那个日本人开的那个叫七十一还是什么？\", \"suspect_quote\": \"七十一还是什么\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'七十一'与模糊指代'还是什么'连用，导致具体对象无法确认，属于含义不明的关键数字/指代污染。\"}, {\"sentence_id\": 8, \"quote\": \"人工的增加对预制菜是一个出生。\", \"suspect_quote\": \"人工的增加对预制菜是一个出生\", \"kind\": \"ambiguous_number_or"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39032831125,
+    "artifact_id": 12101770800,
+    "name": "production-reject-ly-story-29974ac69b",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织的亲热' 无法解释，疑似将‘组织’与‘清热解毒’等词混淆识别，导致专有名词/术语错写，含义不明。\"}, {\"sentence_id\": 14, \"quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来很多这个。\", \"suspect_quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织'在此处作为主语或修饰语完全不通顺，疑似‘药方’‘药物’或特定中药名被误识别为‘组织’，属于错写的专有名词/术语。\"}, {\"sentence_id\": 20, \"quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊，他人的心情会变得。\", \"suspect_quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'疏肝理气'是中医术语，但前文‘这个，这个这个’重复填充虽属口语风格，结合上下文看‘保肝药’与‘疏肝理气’可能存在概念混淆（保肝 vs 疏肝），且‘他人的心情会变得’后接内容断裂，导致关键信息指向不明。\"}, {\"sentence_id\": 21, \"quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会都会有一定的，就是人有昏昏沉沉的，会抑郁，类似抑郁吧。\", \"suspect_quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会\", \"kind\": \"unintelligible_term\", \"reason\": \"'在在'为口吃重复可接受，但‘他会’后直接接‘有昏昏沉沉的’，缺少主语或谓语衔接，导致句子结构断裂、含义不明；且将高血压/心脏病/糖尿病并列作为‘保肝药’作用对象，逻辑上存在关键数字（疾病类别）与否定（隐含治疗范围）的模糊。\"}, {\"sentence_id\": 23, \"quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"suspect_quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"kind\": \"unintelligible_term\", \"reason\": \"'这不是这是' 为典型识别污染：‘这不是’后无宾语或解释，‘这是’单独成词且无指代对象，导致否定词与后续内容断裂，含义不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1PVpU6MEUP",
@@ -94916,6 +94951,13 @@
    "video_id": "BV13x4y1o73Y",
    "ts": 1792240187,
    "error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
+  },
+  {
+   "slug": "ly-story-29974ac69b",
+   "key": "ly-story-29974ac69b",
+   "video_id": "BV16E421P7A4",
+   "ts": 1792241240,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织的亲热' 无法解释，疑似将‘组织’与‘清热解毒’等词混淆识别，导致专有名词/术语错写，含义不明。\"}, {\"sentence_id\": 14, \"quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来很多这个。\", \"suspect_quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织'在此处作为主语或修饰语完全不通顺，疑似‘药方’‘药物’或特定中药名被误识别为‘组织’，属于错写的专有名词/术语。\"}, {\"sentence_id\": 20, \"quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊，他人的心情会变得。\", \"suspect_quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'疏肝理气'是中医术语，但前文‘这个，这个这个’重复填充虽属口语风格，结合上下文看‘保肝药’与‘疏肝理气’可能存在概念混淆（保肝 vs 疏肝），且‘他人的心情会变得’后接内容断裂，导致关键信息指向不明。\"}, {\"sentence_id\": 21, \"quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会都会有一定的，就是人有昏昏沉沉的，会抑郁，类似抑郁吧。\", \"suspect_quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会\", \"kind\": \"unintelligible_term\", \"reason\": \"'在在'为口吃重复可接受，但‘他会’后直接接‘有昏昏沉沉的’，缺少主语或谓语衔接，导致句子结构断裂、含义不明；且将高血压/心脏病/糖尿病并列作为‘保肝药’作用对象，逻辑上存在关键数字（疾病类别）与否定（隐含治疗范围）的模糊。\"}, {\"sentence_id\": 23, \"quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"suspect_quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"kind\": \"unintelligible_term\", \"reason\": \"'这不是这是' 为典型识别污染：‘这不是’后无宾语或解释，‘这是’单独成词且无指代对象，导致否定词与后续内容断裂，含义不明。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
