@@ -6334,8 +6334,12 @@ def main():
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint(complete=False):
+        story_family=(__import__('publishing_experiment').family_metadata(
+            source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0))
+            if profile()==TREATMENT and any(m.get('editorial_profile')==TREATMENT for m in metas) else None)
         rows = [{"slug": args.slug, "source": str(src), "speaker": args.speaker,
                  "occasion": args.occasion, **m,
+                 **({'long_story_family':story_family} if story_family else {}),
                  **({'source_context': source_context} if source_context else {}),
                  "quality_gate_version": QUALITY_GATE_VERSION,
                  "automatic_only": automatic_only(),
@@ -6393,9 +6397,15 @@ def main():
             if preselected_picks and publication_state:
                 segments=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end'])
                           for p in preselected_picks]
+                candidate_meta=dict(source_sha256=source_report.get('source_sha256'),segments=segments)
+                history=publication_state
+                if profile()==TREATMENT and all(p.get('story_selection') for p in preselected_picks):
+                    from publishing_experiment import family_metadata, comparison_state
+                    candidate_meta.update(editorial_profile=TREATMENT,long_story_family=family_metadata(
+                        source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0)))
+                    history=comparison_state(candidate_meta,history)
                 reuse_error=editorial.source_reuse_error(
-                    dict(source_sha256=source_report.get('source_sha256'),segments=segments),
-                    os.environ.get('SOURCE_ORIGIN_URL',''),publication_state)
+                    candidate_meta,os.environ.get('SOURCE_ORIGIN_URL',''),history)
                 if reuse_error:
                     raise VisualQualityError(reuse_error)
             # Context expansion can propose overlapping candidates; retain the

@@ -2253,6 +2253,7 @@ def inventory_publication_error(part,entry,state):
     from source_admission_guard import restriction
     rights_error=restriction(entry.get('source_url') or part.get('source_origin_url') or '',[])
     if rights_error:return rights_error
+    state=experiment.comparison_state(part,state)
     error=editorial.source_reuse_error(part,entry.get('source_url'),state)
     if error:return error
     fingerprints=part.get('fingerprints') or {'sha256':part.get('sha256')}
@@ -2318,12 +2319,15 @@ def source_inventory(st, payload=None):
                 spans=editorial.intervals(part.get('segments')) or []
                 if digest and digest in seen_files:continue
                 previous=seen_sources.get(source,[]) if source else []
-                if any(min(b,d)-max(a,c)>.3 for a,b in spans for c,d in previous):continue
+                if any(not experiment.full_clip_pair(part,old)
+                       and any(min(b,d)-max(a,c)>.3 for a,b in spans for c,d in old_spans)
+                       for old_spans,old in previous):continue
                 fingerprints=part.get('fingerprints') or {'sha256':digest}
-                if any(fingerprint_duplicate(fingerprints,old) for old in seen_fingerprints):continue
+                if any(not experiment.full_clip_pair(part,old_meta) and fingerprint_duplicate(fingerprints,old)
+                       for old,old_meta in seen_fingerprints):continue
                 if digest:seen_files.add(digest)
-                if source:seen_sources.setdefault(source,[]).extend(spans)
-                seen_fingerprints.append(fingerprints)
+                if source:seen_sources.setdefault(source,[]).append((spans,part))
+                seen_fingerprints.append((fingerprints,part))
                 if part.get('render_mode')=='audio_card':audio+=1
                 else:
                     live+=1
@@ -4314,14 +4318,15 @@ def publish_handler(event=None, context=None):
     # Their exact MP4 hashes are allowlisted above; content/topic/title checks
     # below still reject old excerpts, including copies under different URLs.
     if src_url and not explicit_v4_batch and fresh_budget is None:
-        reuse_error=editorial.source_reuse_error(part,src_url,st)
+        reuse_error=editorial.source_reuse_error(part,src_url,experiment.comparison_state(part,st))
         if reuse_error:
             _record_skipped_part(st,e,slug,part,parts_total,k,title,reuse_error)
             log_event('dedup',f'同源选段拦截 {slug}',reuse_error)
             return _continue_after_rejection(event,context,slug,
                 {'published':0,'skipped':1,'source_overlap':1},tmp)
     # 1) 内容指纹：不同 URL、不同平台、重新压缩/裁切、换标题都要能拦。
-    comparison_state = replacement_comparison_state(st, part, slug)
+    replacement_state = replacement_comparison_state(st, part, slug)
+    comparison_state = experiment.comparison_state(part,replacement_state)
     content_dup = (None if explicit_v4_batch else
                    find_content_duplicate(part.get("fingerprints") or {}, comparison_state))
     if content_dup:
@@ -4359,7 +4364,7 @@ def publish_handler(event=None, context=None):
 
     # 3) 普通批次查同标题；本次授权批次由上传租约和进度防重。
     dup = None if explicit_v4_batch else bili_find_duplicate(title)
-    if comparison_state is not st and dup in HIDDEN_SHORT_SIX_BVIDS:
+    if replacement_state is not st and dup in HIDDEN_SHORT_SIX_BVIDS:
         dup = None  # Explicitly superseded hidden short; all other titles remain protected.
     if dup:
         st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
@@ -4428,6 +4433,8 @@ def publish_handler(event=None, context=None):
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
                           "click_packaging_policy": (part.get('copy_identity') or meta_info.get('copy_identity') or {}).get('click_packaging_policy'),
                           "publishing_experiment": experiment_receipt,
+                          "editorial_profile": part.get('editorial_profile','baseline'),
+                          "long_story_family": part.get('long_story_family'),
                           "duration_sec": part.get('duration_sec'),
                           "copyright_requested": COPYRIGHT,
                           **({'makeup_slot': makeup_slot} if makeup_slot else {}),

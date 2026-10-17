@@ -268,3 +268,56 @@ def test_transient_state_read_failure_cannot_erase_months_observations():
     first=E.observations([dict(bvid='BVsample',pubdate=pub,play=100)],{},state_for(meta,pub),pub+25*3600)
     missing=E.observations([],dict(publishing_experiment=first),{},pub+30*3600)
     assert missing['receipts']==first['receipts'] and missing['samples']==first['samples']
+
+
+def paired_versions():
+    clip,_,_=treatment()
+    family=E.family_metadata(clip['source_sha256'],1800)
+    clip.update(long_story_family=family,segments=[dict(start=100,end=140)])
+    full=dict(long_story_family=family,source_sha256=clip['source_sha256'],content_type='full_interview',
+              fingerprints=dict(sha256='d'*64),segments=[dict(start=0,end=1800)])
+    return clip,full
+
+
+def test_explicit_full_and_story_pair_is_symmetric_not_a_blanket_dedup_bypass():
+    clip,full=paired_versions()
+    assert E.full_clip_pair(clip,full) and E.full_clip_pair(full,clip)
+    assert not E.full_clip_pair(clip,clip) and not E.full_clip_pair(full,full)
+    assert not E.full_clip_pair(clip,{**full,'fingerprints':clip['fingerprints']})
+    assert not E.full_clip_pair(clip,{**full,'source_sha256':'e'*64})
+    assert not E.full_clip_pair(clip,{**full,'long_story_family':None})
+    assert not E.full_clip_pair({**clip,'segments':[dict(start=1700,end=1900)]},full)
+    assert not E.full_clip_pair({**clip,'editorial_profile':E.BASELINE},full)
+
+
+def test_full_partner_is_filtered_but_repeated_story_and_unknown_history_still_block():
+    clip,full=paired_versions()
+    old_full={**full,'bvid':'BVfull','source_segments':full['segments']}
+    state=dict(published=dict(mother=dict(source_url='same-source',parts=[old_full])))
+    filtered=E.comparison_state(clip,state)
+    assert not filtered['published'] and state['published']
+    assert F.editorial.source_reuse_error(clip,'same-source',filtered) is None
+    old_clip={**clip,'bvid':'BVstory','source_segments':clip['segments']}
+    state['published']['mother']['parts'].append(old_clip)
+    filtered=E.comparison_state(clip,state)
+    assert filtered['published']['mother']['parts']==[old_clip]
+    assert F.editorial.source_reuse_error(clip,'same-source',filtered)
+    old_full.pop('segments');old_full.pop('source_segments')
+    assert not E.full_clip_pair(clip,old_full)
+
+
+def test_inventory_counts_paired_full_and_story_but_not_duplicate_story(monkeypatch):
+    clip,full=paired_versions();now=stamp('2026-10-19T10:00:00')
+    monkeypatch.setattr(F.time,'time',lambda:now)
+    clip['resolution']=dict(width=1080,height=1920)
+    full.update(title='完整访谈',render_mode='direct',resolution=dict(width=1920,height=1080))
+    for p in (clip,full):p['fingerprints']['transcript_ngrams']=[str(i) for i in range(10)]
+    state=dict(dispatched=[dict(slug='mother',weekly_full_week='2026-W43',
+                               editorial_profile=E.TREATMENT,source_url='same-source')],published={})
+    payload=dict(quality_gate_version=F.QUALITY_GATE_VERSION,editorial_policy_version=F.editorial.VERSION,
+        updated_at=now,artifacts=[dict(slug='mother',artifact_id=1,parts=[dict(index=i,status='verified',
+            sha256=p['fingerprints']['sha256'],**p) for i,p in enumerate([clip,full,clip])])])
+    stock=F.source_inventory(state,payload)
+    assert stock['verified_weekly_full']==1 and stock['verified_portrait']==1
+    assert stock['experiment_ready']['portrait']==1
+    assert E.comparison_state(clip,dict(published={}))==dict(published={})

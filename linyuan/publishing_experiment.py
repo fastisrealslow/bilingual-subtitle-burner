@@ -5,6 +5,7 @@ that a job requested the profile. Normal quality/rights/dedup gates still apply.
 """
 import hashlib
 import json
+import math
 import os
 import re
 import statistics
@@ -190,6 +191,56 @@ def proof_error(meta):
 
 def actual_profile(meta):
     return TREATMENT if not proof_error(meta) else BASELINE
+
+
+def family_metadata(source_sha256,seconds):
+    if not re.fullmatch('[a-f0-9]{64}',str(source_sha256 or '')) or not MIN_MOTHER_SECONDS<=seconds<=5400:
+        raise ValueError('Invalid long-mother family evidence')
+    return dict(version=VERSION,mother_sha256=source_sha256,duration_sec=seconds)
+
+
+def full_clip_pair(current,previous):
+    """Only the explicit long version and a contained story excerpt may pair.
+
+    Never exempt two clips, two fulls, equal files, unknown historical ranges,
+    changed mothers or merely similar titles. All media gates still run.
+    """
+    a=current.get('long_story_family');b=previous.get('long_story_family')
+    if not isinstance(a,dict) or a!=b or a.get('version')!=VERSION:return False
+    source=a.get('mother_sha256')
+    if (not re.fullmatch('[a-f0-9]{64}',str(source or ''))
+            or current.get('source_sha256')!=source or previous.get('source_sha256')!=source):return False
+    if (current.get('fingerprints') or {}).get('sha256') and (
+            (current.get('fingerprints') or {}).get('sha256')==(previous.get('fingerprints') or {}).get('sha256')):return False
+    fulls=[p for p in (current,previous) if p.get('content_type')=='full_interview']
+    if len(fulls)!=1:return False
+    full=fulls[0];clip=previous if full is current else current
+    if clip.get('editorial_profile')!=TREATMENT:return False
+    def span(p):
+        rows=p.get('segments') or p.get('source_segments') or []
+        if len(rows)!=1:raise ValueError()
+        lo,hi=float(rows[0]['start']),float(rows[0]['end'])
+        if not math.isfinite(lo+hi) or not 0<=lo<hi:raise ValueError()
+        return lo,hi
+    try:
+        fa,fb=span(full);ca,cb=span(clip);duration=float(a['duration_sec'])
+        return (MIN_MOTHER_SECONDS<=duration<=5400 and fb<=duration+1
+                and MIN_MOTHER_SECONDS<=fb-fa and 20<=cb-ca<=330
+                and fa<=ca and cb<=fb and fb-fa>=3*(cb-ca))
+    except (KeyError,TypeError,ValueError):return False
+
+
+def comparison_state(meta,state):
+    """Keep all history except the exact authorized cross-format partner."""
+    published={};changed=False
+    for slug,info in (state.get('published') or {}).items():
+        rows=info.get('parts') or ([info] if info.get('bvid') else [])
+        kept=[p for p in rows if not full_clip_pair(meta,p)]
+        if len(kept)==len(rows):published[slug]=info
+        else:
+            changed=True
+            if kept:published[slug]={**info,'parts':kept}
+    return {**state,'published':published} if changed else state
 
 
 def rank(meta, plan):

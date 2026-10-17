@@ -233,6 +233,7 @@ def main():
                         fingerprints=m.get('fingerprints') or {},
                         editorial_profile=m.get('editorial_profile','baseline'),
                         experiment_proof=m.get('experiment_proof'),
+                        long_story_family=m.get('long_story_family'),
                         cover_proof=m.get('cover_proof'),
                         cover_person_image_source=m.get('cover_person_image_source'),
                         cover_person_image_verified=m.get('cover_person_image_verified'),
