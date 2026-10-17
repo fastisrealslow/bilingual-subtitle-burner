@@ -34367,7 +34367,29 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-03-23T09:36:23+00:00"
+   "publish_time": "2024-03-23T09:36:23+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-e3ba57",
+    "run_id": 39053886838,
+    "artifact_id": 12108623994,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/151，总帧数754；身份匹配但人脸短边不足96px的帧数151"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39053886838,
+    "artifact_id": 12108623994,
+    "name": "production-reject-ly-1017-e3ba57",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/151，总帧数754；身份匹配但人脸短边不足96px的帧数151",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -96037,6 +96059,13 @@
    "video_id": "BV1RJ411Q7Ki",
    "ts": 1792250078,
    "error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
+  },
+  {
+   "slug": "ly-1017-e3ba57",
+   "key": "bilibili_search:BV1ur421h7Ax",
+   "video_id": "BV1ur421h7Ax",
+   "ts": 1792258777,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/151，总帧数754；身份匹配但人脸短边不足96px的帧数151"
   }
  ],
  "reviewed_third_video_0910": {
