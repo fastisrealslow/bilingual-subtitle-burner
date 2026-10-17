@@ -33218,7 +33218,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5354985097265390",
@@ -33240,7 +33241,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T12:30:00+08:00"
+   "publish_time": "2026-10-17T12:30:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1017-3e4eec",
+    "run_id": 39021306233,
+    "artifact_id": 12096682574,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以说林远老师，你也是让我们这个尊重常识的判断，而不是尊重一些剧情或者一厢情愿的判断，对吧？\", \"suspect_quote\": \"林远老师\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林远”属于明显的专有名词错写，且该错误直接影响对话对象的指代准确性。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39021306233,
+    "artifact_id": 12096682574,
+    "name": "production-reject-ly-1017-3e4eec",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以说林远老师，你也是让我们这个尊重常识的判断，而不是尊重一些剧情或者一厢情愿的判断，对吧？\", \"suspect_quote\": \"林远老师\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林远”属于明显的专有名词错写，且该错误直接影响对话对象的指代准确性。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV16fnszrEvH",
@@ -33287,8 +33310,8 @@
    "publish_time": "2026-10-14T14:26:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-3bf504",
-    "run_id": 38601944432,
-    "artifact_id": 11913783518,
+    "run_id": 39021740586,
+    "artifact_id": 12097031564,
     "accepted": 0,
     "failures": [
      {
@@ -33297,15 +33320,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 38601944432,
-    "artifact_id": 11913783518,
+    "run_id": 39021740586,
+    "artifact_id": 12097031564,
     "name": "production-reject-ly-1014-3bf504",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -94308,6 +94331,13 @@
    "video_id": "BV1xH6ZYLEmd",
    "ts": 1792229701,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1017-3e4eec",
+   "key": "weibo_search:5354985097265390",
+   "video_id": "https://f.video.weibocdn.com/o0/guFtExtclx08BCqY6h8k01041200gQVd0E010.mp4",
+   "ts": 1792230038,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以说林远老师，你也是让我们这个尊重常识的判断，而不是尊重一些剧情或者一厢情愿的判断，对吧？\", \"suspect_quote\": \"林远老师\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林远”属于明显的专有名词错写，且该错误直接影响对话对象的指代准确性。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
