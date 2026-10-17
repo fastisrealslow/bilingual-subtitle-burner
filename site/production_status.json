@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792242370,
-  "inventory_updated_at": 1792242169,
+  "updated_at": 1792242476,
+  "inventory_updated_at": 1792242460,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 25,
+    "active_or_recovering_sources": 24,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792242369,
+    "updated_at": 1792242475,
     "records": 10711,
     "video_records": 9198,
     "initial_candidates": 60,
@@ -59,8 +59,8 @@
   "inventory": {
     "verified_live": 15,
     "verified_audio_card": 0,
-    "verified_landscape": 4,
-    "verified_portrait": 11,
+    "verified_landscape": 1,
+    "verified_portrait": 14,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -70,12 +70,12 @@
   },
   "counts": {
     "complete": 125,
-    "failed": 1104,
+    "failed": 1105,
     "paused": 5,
     "interrupted": 7,
     "ready": 9,
     "excluded": 4,
-    "running": 5,
+    "running": 4,
     "retry_queued": 20
   },
   "tasks": [
@@ -23003,11 +23003,11 @@
     },
     {
       "slug": "ly-1016-97508c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘没有一个’与‘我们没看到’连用导致逻辑指代混乱，且‘是他们的一个市场’中‘一个’作为数量词在口语语境下缺乏明确参照对象（是指一家公司、一类公司还是市场份额比例？），属于无法解释的具体词语污染。\"}]",
       "signature": {
         "ts": 1792241633,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23021,8 +23021,8 @@
     },
     {
       "slug": "ly-1016-8f75fb",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792241640,
         "failed": false,
@@ -23035,7 +23035,7 @@
       "run_id": 39034360317,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39034360317",
       "run_started_at": "2026-10-17T12:54:00Z",
-      "run_updated_at": "2026-10-17T12:54:03Z"
+      "run_updated_at": "2026-10-17T13:06:25Z"
     },
     {
       "slug": "ly-1014-ffc958",
@@ -32793,10 +32793,10 @@
     },
     "ly-1016-8f75fb": {
       "id": 39034360317,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-17T12:54:00Z",
-      "updated_at": "2026-10-17T12:54:03Z",
+      "updated_at": "2026-10-17T13:06:25Z",
       "run_started_at": "2026-10-17T12:54:00Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39034360317",
       "run_number": 2245,
