@@ -13,8 +13,10 @@ SEPT23_VERSION = 2026092301
 PREVIOUS_VERSION = 2026092401
 OCT7_VERSION = 2026100701
 OCT8_VERSION = 2026100801
-VERSION = 2026100901
-SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, OCT8_VERSION, VERSION)
+OCT9_VERSION = 2026100901
+QUESTION_TAG_VERSION = 2026101401
+VERSION = QUESTION_TAG_VERSION
+SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, OCT8_VERSION, OCT9_VERSION, VERSION)
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -71,7 +73,7 @@ def clean_entries(entries, *, policy_version=VERSION):
         edits.append(dict(start=atoms[a][1], end=atoms[b-1][2],
                           removed=original[a:b], reason=reason))
 
-    if policy_version >= VERSION:
+    if policy_version >= OCT9_VERSION:
         # Display-only: remove repeated hesitation clusters, not affirmative
         # replies (嗯/嗯嗯), questions (啊？), lexical 呃逆 or words/numbers.
         # Preserve every surviving character's original anchor and raw ASR.
@@ -150,6 +152,14 @@ def clean_entries(entries, *, policy_version=VERSION):
         r'(啊|呃)(?=[，。；])',
     ):
         for m in re.finditer(pattern, original):
+            # A question tag is spoken content, not padding. Removing 是吧
+            # before ？ turned statements into bare questions and left an
+            # orphan question after the planner omitted a preceding comma.
+            # Preserve the original words and anchors; old proofs must replay.
+            if (policy_version >= QUESTION_TAG_VERSION
+                    and original[m.start(1):m.end(1)] == '是吧'
+                    and original[m.end(1):m.end(1)+1] == '？'):
+                continue
             # A preceding condition makes 那么 semantically significant.
             if original[m.start(1):m.end(1)] == '那么' and re.search(
                     r'如果|假如|只要|只有|既然|除非', original[max(0,m.start()-60):m.start()]):
