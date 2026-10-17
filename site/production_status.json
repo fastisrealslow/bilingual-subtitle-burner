@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792245456,
+  "updated_at": 1792245604,
   "inventory_updated_at": 1792245440,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792245455,
+    "updated_at": 1792245603,
     "records": 10711,
     "video_records": 9198,
     "initial_candidates": 60,
@@ -70,13 +70,13 @@
   },
   "counts": {
     "complete": 126,
-    "failed": 1115,
+    "failed": 1116,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 8,
     "excluded": 4,
-    "running": 5,
-    "retry_queued": 9
+    "running": 6,
+    "retry_queued": 8
   },
   "tasks": [
     {
@@ -22732,24 +22732,6 @@
       "run_updated_at": "2026-10-17T12:49:41Z"
     },
     {
-      "slug": "ly-1014-a04f78",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792241514,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792241513,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38588907309,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38588907309",
-      "run_started_at": "2026-10-14T15:23:38Z",
-      "run_updated_at": "2026-10-14T15:45:51Z"
-    },
-    {
       "slug": "ly-1014-4dfa13",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -23057,11 +23039,11 @@
     },
     {
       "slug": "ly-1014-3afac3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"就大概是个宁波的一个三三，现在叫应该叫三三股份。\", \"suspect_quote\": \"三三股份\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。根据上下文（宁波、股票），该名称极可能指代“三星股份”或其他真实存在的公司，但“三三股份”在公开市场中无对应知名实体，且发音上“三三”与“三星”极易混淆，属于典型的语音转文字错误导致的专有名词失真。”}, {\"}]",
       "signature": {
         "ts": 1792244772,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23108,6 +23090,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39038552717",
       "run_started_at": "2026-10-17T13:55:21Z",
       "run_updated_at": "2026-10-17T13:55:25Z"
+    },
+    {
+      "slug": "ly-1014-a04f78",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792245565,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39038824999,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39038824999",
+      "run_started_at": "2026-10-17T13:59:25Z",
+      "run_updated_at": "2026-10-17T13:59:29Z"
     }
   ],
   "runs": {
@@ -31483,14 +31483,14 @@
       "display_title": "中文源出片 · ly-1014-4dfa13"
     },
     "ly-1014-a04f78": {
-      "id": 38588907309,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-14T15:23:38Z",
-      "updated_at": "2026-10-14T15:45:51Z",
-      "run_started_at": "2026-10-14T15:23:38Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38588907309",
-      "run_number": 2068,
+      "id": 39038824999,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T13:59:25Z",
+      "updated_at": "2026-10-17T13:59:29Z",
+      "run_started_at": "2026-10-17T13:59:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39038824999",
+      "run_number": 2258,
       "display_title": "中文源出片 · ly-1014-a04f78"
     },
     "ly-1014-1ccb6b": {
