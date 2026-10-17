@@ -52,6 +52,7 @@ def test_fallback_reviews_alternatives_once_and_binds_the_accepted_copy(monkeypa
     source='医药股经营不好，我就不买。买入股票之前先看经营情况。'
     titles=['林园：医药股经营不好，我就不买','林园：买入股票之前先看经营情况']
     monkeypatch.setattr(H,'title_candidates',lambda *a,**k:titles)
+    monkeypatch.setattr(H,'quote_candidates',lambda *a,**k:[])
     monkeypatch.setattr(H,'cover_copy',lambda title,*a,**k:dict(text=H.body(title),kind='quote'))
     calls=[]
     def reviewer(prompt,schema):
@@ -91,6 +92,18 @@ def test_structured_service_timeout_does_not_publish_unreviewed_quotes():
     assert len(calls)==1
 
 
+def test_short_intact_quote_is_available_without_deleting_a_contrast(monkeypatch):
+    source='我首先不愿意占别人便宜，但是我也绝对不吃亏，我是一个不吃亏的人。'
+    def review(prompt,schema):
+        options=json.loads(prompt.split('待检查文案：')[1].split('\n完整原文：')[0])
+        return json.dumps(dict(reviews=[dict(index=r['index'],
+            title_readable=r['title']=='林园：我是一个不吃亏的人',cover_readable=True,same_claim=True,
+            reason='测试审核：短原句完整表达自己不吃亏，没有删除转折后半句') for r in options]))
+    result=T._extractive(source,'林园',(),reviewer=review)
+    assert result['title']=='林园：我是一个不吃亏的人'
+    assert result['cover_title']=='我是一个不吃亏的人'
+
+
 @pytest.mark.parametrize('cover',[
     '小钱产大钱，利润不靠追加投资','云南白药是唯一关注点',
     '能做长久的生意才是好买卖','当前市场还没进入牛市',
@@ -100,3 +113,8 @@ def test_cover_breaks_keep_the_words_and_large_type_capacity(cover):
     assert ''.join(lines)==H.compact(cover)
     assert len(lines)<=3 and max(map(len,lines))<=6
     assert not any(line.endswith(('不靠','是','的')) for line in lines[:-1])
+
+
+def test_short_cover_does_not_trade_two_readable_lines_for_a_three_line_modifier_fragment():
+    assert P.cover_headline('云南白药是唯一关注点',max_lines=3,line_capacity=5,min_line_chars=2)==[
+        '云南白药是','唯一关注点']

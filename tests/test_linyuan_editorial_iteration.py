@@ -44,6 +44,10 @@ def test_quote_fallback_keeps_guest_attribution_and_full_source_fingerprint():
     guest='医药股经营不好，我不会买入。'
     units=[host,guest]
     def model(prompt,schema):
+        if 'title_readable' in schema.get('properties',{}).get('reviews',{}).get('items',{}).get('properties',{}):
+            return json.dumps(dict(reviews=[dict(index=i,title_readable=True,cover_readable=True,
+                same_claim=True,reason='测试原话审核：医药股经营不好就不买入，标题封面完整一致')
+                for i in range(schema['properties']['reviews']['minItems'])]))
         if 'c_guest_spans' in schema.get('properties',{}):
             return json.dumps(dict(a_guest_answer='嘉宾明确说经营不好的医药股不会买入。',
                 b_question_premise='主持人建议买入消费医药，未获嘉宾确认。',
@@ -53,6 +57,7 @@ def test_quote_fallback_keeps_guest_attribution_and_full_source_fingerprint():
                       preferred='林园：'+host.rstrip('。'))
     assert result['title_rewrite']['review']['method']=='source_quote'
     assert result['title_rewrite']['review']['attribution']=='reader_guest_passage'
+    assert result['title_rewrite']['review']['readability_review']['title_readable'] is True
     assert T.compact(result['title'].split('：')[1]) in T.compact(guest)
     assert not T.error(result['title'],result['title_rewrite'],''.join(units))
 

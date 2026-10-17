@@ -30,7 +30,7 @@ def main():
         start=time.monotonic();call=dict(prompt=prompt,schema=schema);report['calls'].append(call);save()
         try:
             response=producer.llm([dict(role='user',content=prompt)],'',response_schema=schema,read_cache=False,
-                max_tokens=1400,budget_sec=600)
+                max_tokens=2300,budget_sec=600)
             call['response']=response
             return response
         finally:call['elapsed_sec']=round(time.monotonic()-start,2);save()
@@ -42,7 +42,8 @@ def main():
     save()
     assert len(report['calls'])==1,'Must exercise one real, bounded model request'
     if args.case==3:
-        assert report['status']=='rejected','Known incoherent ASR copy must not be approved'
+        if report['status']=='accepted':
+            assert report['result']['title']!=report['baseline']['title'],'Known incoherent baseline must not be approved'
     else:
         assert report['status']=='accepted','Clean source copy must remain available'
     print(json.dumps({k:v for k,v in report.items() if k not in ('calls','baseline','result')},ensure_ascii=False))

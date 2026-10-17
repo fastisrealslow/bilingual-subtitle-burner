@@ -205,6 +205,52 @@ def build(videos):
     }
 
 
+def packaging_observations(items, previous, state, now=None):
+    """Same-age public-view observations, not impressions, CTR or an A/B test.
+
+    Cohorts come from actual per-video publication receipts, never a rollout
+    date that could mislabel already-rendered inventory as the new policy.
+    Keep the earliest observed point in each bounded age window; never backfill
+    a 72-hour value from a video's present lifetime view count.
+    """
+    now=time.time() if now is None else now
+    policy='readable-copy-20261017'
+    cohorts={}
+    for receipt in (state.get('published') or {}).values():
+        if not isinstance(receipt,dict):continue
+        for part in receipt.get('parts') or []:
+            if isinstance(part,dict) and part.get('bvid'):
+                cohorts[part['bvid']]=part.get('click_packaging_policy') or 'legacy_or_unlabelled'
+    old=previous.get('packaging_observations') or {}
+    samples={}
+    for row in old.get('samples') or []:
+        if isinstance(row,dict) and row.get('bvid') and row.get('window') in (24,72):
+            samples[(row['bvid'],row['window'])]=dict(row)
+    for item in items:
+        pubdate=item.get('pubdate');play=item.get('play')
+        if (not isinstance(pubdate,(int,float)) or not pubdate
+                or type(play) is not int or play<0):continue
+        age=(now-pubdate)/3600
+        for window in (24,72):
+            key=(item.get('bvid'),window)
+            if key[0] and key not in samples and window<=age<window+12:
+                samples[key]=dict(bvid=key[0],window=window,age_hours=round(age,3),
+                    observed_at=int(now),pubdate=pubdate,play=play,title=item.get('title'),
+                    cohort=cohorts.get(key[0],'legacy_or_unlabelled'))
+    rows=[r for r in samples.values() if isinstance(r.get('pubdate'),(int,float))
+          and now-45*86400<=r['pubdate']<=now]
+    groups=[]
+    for cohort in ('legacy_or_unlabelled',policy):
+        for window in (24,72):
+            plays=[r['play'] for r in rows if r.get('cohort')==cohort and r['window']==window]
+            groups.append(dict(cohort=cohort,window=window,count=len(plays),
+                               median=statistics.median(plays) if plays else None))
+    return dict(version=1,samples=sorted(rows,key=lambda r:(r['pubdate'],r['window'])),groups=groups,
+        scope='Search-index sample; cumulative views observed at ages 24–36h / 72–84h. '
+              'Not exact 24h/72h counts, exposure, CTR, randomized A/B or causal uplift. '
+              'No baseline value means not observed, never zero.')
+
+
 def main():
     print("[stats] 抓取本号稿件...")
     videos = fetch_ours()
@@ -237,6 +283,12 @@ def main():
                      "top_title": data["top"][0]["title"][:44] if data["top"] else "",
                      "top_play": max((x["play"] for x in data["top"]), default=0), "is_self": True})
     data["peers"] = sorted(peers, key=lambda x: -x["play_per_fan"])
+    try:previous=json.loads(OUT.read_text()) if OUT.exists() else {}
+    except (OSError,ValueError):previous={}
+    state_path=Path(__file__).parent/'.automation/fc_state.json'
+    try:state=json.loads(state_path.read_text())
+    except (OSError,ValueError):state={}
+    data['packaging_observations']=packaging_observations(data['top'],previous,state)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     o, n, ol = data["overall"], data["new_rule"], data["old_rule"]

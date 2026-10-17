@@ -1270,6 +1270,21 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
     passages = [transcript] if guest_passages is None else guest_passages
     titles = [title for passage in passages
               for title in title_candidates(passage, speaker, existing_titles)]
+    if reviewer and not only_preferred:
+        # The old ten-character extractor discarded complete short speech
+        # such as “我是一个不吃亏的人”, leaving three longer ASR repairs.
+        # Add at most three intact short alternatives, with the SAME review;
+        # do not shorten the long claim or drop its contrast to fit a cover.
+        from headline_policy import quote_candidates, score
+        extras=sorted({quote for passage in passages
+                       for quote in quote_candidates(passage,min_chars=4,max_chars=18)
+                       if copy_length_ok(quote,18)},key=lambda q:(-score(q),q))
+        added=0
+        for quote in extras:
+            title=f'{speaker}：{quote}'
+            if title not in titles:
+                titles.append(title);added+=1
+                if added==3:break
     if preferred and preferred not in titles:
         titles.append(preferred)
     if only_preferred:
@@ -1316,9 +1331,9 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         eligible.append((item,review))
     if reviewer and eligible:
         # A literal match proves provenance, not natural Chinese. Review up
-        # to three alternatives in ONE bounded call, without rewriting them.
+        # to six alternatives in ONE bounded call, without rewriting them.
         options=[dict(index=i,title=item['title'],cover_title=item['cover_title'])
-                 for i,(item,_) in enumerate(eligible[:3])]
+                 for i,(item,_) in enumerate(eligible[:6])]
         schema=dict(type='object',additionalProperties=False,required=['reviews'],properties={
             'reviews':dict(type='array',minItems=len(options),maxItems=len(options),items=dict(
                 type='object',additionalProperties=False,
@@ -1343,7 +1358,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
                 item,review=eligible[row['index']]
                 review['readability_review']={**row,'policy':'literal-copy-readability-v1',
                     'copy_sha256':_binding(item['title'],item['cover_title'],item['subject'],item['evidence'])}
-                return _package(item,transcript,review,[entry[0] for entry in eligible[:3]])
+                return _package(item,transcript,review,[entry[0] for entry in eligible[:6]])
         raise ValueError('备用标题没有通过独立可读性审核；保留素材换选完整观点')
     if eligible:
         item,review=eligible[0]

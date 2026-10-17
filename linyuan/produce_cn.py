@@ -3628,6 +3628,7 @@ def _copy_style_identity(speaker):
     if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
     return dict(title_style_profile=current_title_style_profile(),
+                click_packaging_policy='readable-copy-20261017',
                 **({'automatic_only':True} if automatic_only() else {}),
                 title_style_sha256=_sha256_file(Path(__file__)),
                 title_draft_profile=profile,

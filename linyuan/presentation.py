@@ -329,7 +329,7 @@ def verify_caption_av_timeline(path, entries, expected_duration, tolerance=.08):
 
 def cover_break_penalty(lines):
     """Observable phrase breaks only; never edits the reviewed cover words."""
-    tails=('不是','而是','因为','所以','取决于','来自','不靠','靠','把','被','的','才','是')
+    tails=('不是','而是','因为','所以','取决于','来自','不靠','靠','把','被','的','才','是','唯一')
     return (sum(line.endswith(tails) for line in lines[:-1])
             +sum(line.startswith('的') for line in lines[1:]))
 

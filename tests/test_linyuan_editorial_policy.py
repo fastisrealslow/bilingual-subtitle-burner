@@ -150,6 +150,11 @@ def test_title_generation_reads_the_entire_long_argument():
     cues[-1]['text']='长期持有才是我们一贯坚持的方法。'
     response='{"title":"林园：长期持有才是我们一贯坚持的方法","desc":"公开发言","tags":["林园"]}'
     def reply(*args, **kwargs):
+        schema=kwargs['response_schema']
+        if 'title_readable' in schema.get('properties',{}).get('reviews',{}).get('items',{}).get('properties',{}):
+            return json.dumps(dict(reviews=[dict(index=i,title_readable=True,cover_readable=True,
+                same_claim=True,reason='测试原话审核：标题封面完整保留嘉宾坚持长期持有的方法')
+                for i in range(schema['properties']['reviews']['minItems'])]))
         if 'c_guest_spans' in kwargs['response_schema'].get('properties',{}):
             return json.dumps(dict(a_guest_answer='嘉宾说明长期持有才是一贯坚持的方法。',
                 b_question_premise='无主持人提问',c_guest_spans=[dict(a_start=0,b_end=24)]))
