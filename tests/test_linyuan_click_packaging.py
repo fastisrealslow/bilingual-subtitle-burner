@@ -59,7 +59,7 @@ def test_fallback_reviews_alternatives_once_and_binds_the_accepted_copy(monkeypa
         calls.append(prompt)
         assert schema['properties']['reviews']['minItems']==2
         rows=json.loads(prompt.split('待检查文案：')[1].split('\n完整原文：')[0])
-        return json.dumps(dict(reviews=[dict(index=r['index'],title_readable=r['title']==titles[1],
+        return json.dumps(dict(reviews=[dict(index=r['index'],title_readable=r['title']==H.body(titles[1]),
             cover_readable=True,same_claim=True,reason='测试审核：第二句明确交代买入股票之前要看经营情况')
             for r in rows]),ensure_ascii=False)
     result=T._extractive(source,'林园',(),reviewer=reviewer)
@@ -98,7 +98,7 @@ def test_short_intact_quote_is_available_without_deleting_a_contrast(monkeypatch
     def review(prompt,schema):
         options=json.loads(prompt.split('待检查文案：')[1].split('\n完整原文：')[0])
         return json.dumps(dict(reviews=[dict(index=r['index'],
-            title_readable=r['title']=='林园：我是一个不吃亏的人',cover_readable=True,same_claim=True,
+            title_readable=r['title']=='我是一个不吃亏的人',cover_readable=True,same_claim=True,
             reason='测试审核：短原句完整表达自己不吃亏，没有删除转折后半句') for r in options]))
     result=T._extractive(source,'林园',(),reviewer=review)
     assert result['title']=='林园：我是一个不吃亏的人'
@@ -119,9 +119,9 @@ def test_actual_source39_whole_short_sentence_reaches_bounded_review():
     def review(prompt,schema):
         rows=json.loads(prompt.split('待检查文案：')[1].split('\n完整原文：')[0])
         assert len(rows)<=3
-        assert any(r['title']=='林园：我是一个不吃亏的人' for r in rows)
+        assert any(r['title']=='我是一个不吃亏的人' for r in rows)
         return json.dumps(dict(reviews=[dict(index=r['index'],
-            title_readable=r['title']=='林园：我是一个不吃亏的人',cover_readable=True,same_claim=True,
+            title_readable=r['title']=='我是一个不吃亏的人',cover_readable=True,same_claim=True,
             reason='测试真实原文：完整短句表达个人不吃亏的态度，没有拼接或删去条件') for r in rows]))
     assert T._extractive(source,'林园',(),reviewer=review)['title']=='林园：我是一个不吃亏的人'
 
