@@ -24659,25 +24659,21 @@
    "source_check_report_id": 11795093016,
    "production_failure_summary": {
     "slug": "ly-1009-c31f09",
-    "run_id": 37865232815,
-    "artifact_id": 11589336745,
+    "run_id": 38411607326,
+    "artifact_id": 11824900872,
     "accepted": 0,
     "failures": [
      {
-      "stage": "editorial-selection",
-      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个茅台。\", \"suspect_quote\": \"军工全不加起来，那个比比一个什么嘛，还比不上一个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文存在明显的语音转写错误或口误：‘全不加起来’语义不通（疑似应为‘全部加起来’或‘就算加起来’），且‘比比’重复用字导致含义不明。关键数字/比较对象缺失，‘一个什么嘛’指代模糊，属于无法解释的具体词语污染，影响对军工行业与茅台对比逻辑的核\"}]"
      },
      {
-      "stage": "editorial-selection",
-      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1907/2975，总帧数5337；身份匹配但人脸短边不足96px的帧数1068"
      },
      {
-      "stage": "editorial-selection",
-      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
-     },
-     {
-      "stage": "editorial-selection",
-      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/670，总帧数3347；身份匹配但人脸短边不足96px的帧数670"
      }
     ]
    },
@@ -95891,7 +95887,7 @@
  },
  "source_refresh_requested_at": 1792231061,
  "inventory_refresh_requested_at": 1791955525,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 4,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
