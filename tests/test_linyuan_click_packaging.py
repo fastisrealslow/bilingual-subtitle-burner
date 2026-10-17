@@ -112,6 +112,19 @@ def test_short_quote_expansion_cannot_bypass_already_published_title_dedup(monke
         T._extractive('我是一个不吃亏的人。','林园',['林园：我是一个不吃亏的人'],reviewer=no_candidates)
 
 
+def test_actual_source39_whole_short_sentence_reaches_bounded_review():
+    corpus=Path(__file__).resolve().parents[1]/'linyuan/simulations/benchmark-20260921/all-current-title-corpus.json'
+    source=''.join(c['text'] for c in json.loads(corpus.read_text())[6]['cues'])
+    def review(prompt,schema):
+        rows=json.loads(prompt.split('待检查文案：')[1].split('\n完整原文：')[0])
+        assert len(rows)<=3
+        assert any(r['title']=='林园：我是一个不吃亏的人' for r in rows)
+        return json.dumps(dict(reviews=[dict(index=r['index'],
+            title_readable=r['title']=='林园：我是一个不吃亏的人',cover_readable=True,same_claim=True,
+            reason='测试真实原文：完整短句表达个人不吃亏的态度，没有拼接或删去条件') for r in rows]))
+    assert T._extractive(source,'林园',(),reviewer=review)['title']=='林园：我是一个不吃亏的人'
+
+
 @pytest.mark.parametrize('cover',[
     '小钱产大钱，利润不靠追加投资','云南白药是唯一关注点',
     '能做长久的生意才是好买卖','当前市场还没进入牛市',

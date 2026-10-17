@@ -1278,7 +1278,8 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         from headline_policy import quote_candidates, score
         extras=sorted({quote for passage in passages
                        for quote in quote_candidates(passage,min_chars=4,max_chars=18)
-                       if copy_length_ok(quote,18)},key=lambda q:(-score(q),q))
+                       if copy_length_ok(quote,18)},
+                      key=lambda q:(bool(re.search(r'[，,；;]',q)),-score(q),q))
         added=0
         for quote in extras:
             title=f'{speaker}：{quote}'
@@ -1332,10 +1333,14 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
             review['attribution'] = 'reader_guest_passage'
         eligible.append((item,review))
     if reviewer and eligible:
+        # Prefer intact, standalone copy that is identical on the cover.
+        # This is only review ordering, never automatic semantic approval.
+        eligible.sort(key=lambda row:(body(row[0]['title'],speaker)!=row[0]['cover_title'],
+                                     bool(re.search(r'[，,；;]',body(row[0]['title'],speaker)))))
         # A literal match proves provenance, not natural Chinese. Review up
-        # to six alternatives in ONE bounded call, without rewriting them.
+        # to three alternatives in ONE bounded call, without rewriting them.
         options=[dict(index=i,title=item['title'],cover_title=item['cover_title'])
-                 for i,(item,_) in enumerate(eligible[:6])]
+                 for i,(item,_) in enumerate(eligible[:3])]
         schema=dict(type='object',additionalProperties=False,required=['reviews'],properties={
             'reviews':dict(type='array',minItems=len(options),maxItems=len(options),items=dict(
                 type='object',additionalProperties=False,
@@ -1347,6 +1352,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
 每个title和cover_title都要分别让陌生观众独立读懂具体对象与完整判断。
 逐字摘录不等于可读：转写错词、口吃、口头重起、指代不明、语义拼接应判不可读。
 保留有意义的口语和强调；不要仅因句子普通而退回。same_claim检查封面是否与标题同一判断且未丢条件。
+标题正文和封面完全相同时，二者没有删改差异，same_claim应为true；仍须核对原文与可读性，不得臆造封面少了标题中的半句话。
 每个编号必须且只能返回一次。reason说明实际文案的具体问题或完整表达，不臆造原文引号。
 待检查文案：'''+json.dumps(options,ensure_ascii=False)+'\n完整原文：'+transcript
         rows=_json(reviewer(prompt,schema)).get('reviews')
@@ -1360,7 +1366,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
                 item,review=eligible[row['index']]
                 review['readability_review']={**row,'policy':'literal-copy-readability-v1',
                     'copy_sha256':_binding(item['title'],item['cover_title'],item['subject'],item['evidence'])}
-                return _package(item,transcript,review,[entry[0] for entry in eligible[:6]])
+                return _package(item,transcript,review,[entry[0] for entry in eligible[:3]])
         raise ValueError('备用标题没有通过独立可读性审核；保留素材换选完整观点')
     if eligible:
         item,review=eligible[0]
