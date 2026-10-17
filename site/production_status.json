@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792196547,
+  "updated_at": 1792196689,
   "inventory_updated_at": 1792196538,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792196546,
+    "updated_at": 1792196689,
     "records": 10630,
     "video_records": 9123,
     "initial_candidates": 60,
@@ -70,9 +70,9 @@
   },
   "counts": {
     "complete": 123,
-    "failed": 1100,
+    "failed": 1102,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "ready": 8,
     "unknown": 1,
     "excluded": 3,
@@ -22626,11 +22626,11 @@
     },
     {
       "slug": "ly-1017-9f5130",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人第 0 句为提问，嘉宾后续两句（1、2）中第 1 句为模糊泛化（'所有行业都是这样'），第 2 句为类比经济规律但未明确回应'是否一定会走上老路'这一核心判断，导致观点缺失。；原文问题：[]",
       "signature": {
         "ts": 1792195513,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22662,11 +22662,11 @@
     },
     {
       "slug": "ly-1016-dd5cd8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 2, \"addressee\": \"林林\", \"target\": false}]",
       "signature": {
         "ts": 1792195815,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
