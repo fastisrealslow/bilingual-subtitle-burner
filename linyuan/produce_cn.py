@@ -6230,6 +6230,10 @@ def main():
             except (ValueError,LocalTextUnavailable) as exc:
                 print('[实验选题] 未形成有效故事证据，保留正常质量路径：'+str(exc),flush=True)
         else:print('[实验选题] 母片不足20分钟，只能作为常规片，不计入长篇精选实验',flush=True)
+    if profile()==TREATMENT and not any(p.get('story_selection') for p in source_picks):
+        # A requested experiment that found no eligible example must use the
+        # baseline writer too, not leak experimental copy into the controls.
+        os.environ['LINYUAN_EDITORIAL_PROFILE']='baseline'
     if curated is not None:
         chunks=[(a,b) for a,b,_ in curated]
         print(f'[编辑选段] 已核对来源的连续完整观点：{len(chunks)}条；逐条重新质检')

@@ -2419,10 +2419,14 @@ def _dispatch_admitted(event=None, context=None):
         gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
     active=len(active_runs)
     exp_needs=experiment.production_deficits(inventory,st,active_runs,time.time())
+    normal_deficits=reserve_deficits(inventory)
+    effective_deficits={layout:max(normal_deficits[layout],exp_needs[layout]) for layout in deficits}
+    if not recent_probe and not any(effective_deficits.values()):
+        return {'dispatched':0,'experiment_waiting_for_active_sources':1,**inventory}
     landscape_admissions=landscape_admission_deficit(inventory,st,active_runs)
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
-    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else sum(deficits.values()))
+    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else sum(effective_deficits.values()))
     # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
