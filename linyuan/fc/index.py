@@ -2003,6 +2003,9 @@ def production_config():
             "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
             "publishing_experiment_version": experiment.VERSION,
             "publishing_experiment_sha256": hashlib.sha256(Path(experiment.__file__).read_bytes()).hexdigest(),
+            "publishing_experiment": dict(id=experiment.EXPERIMENT_ID,start=experiment.START,
+                end_exclusive=experiment.END_EXCLUSIVE,control_slots=[1,3],treatment_slots=[2,4],
+                weekly_full_control_hour_beijing=16),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "copyright_requested": COPYRIGHT, "copyright_mode": "unselected",
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
@@ -4368,6 +4371,7 @@ def publish_handler(event=None, context=None):
     e['upload_part_index'] = k
     experiment_receipt=experiment.receipt(part,now,makeup_slot) if publication_plan else None
     if experiment_receipt:e['upload_experiment']=experiment_receipt
+    else:e.pop('upload_experiment',None)
     if makeup_slot:
         e['upload_makeup_slot'] = makeup_slot
         e['upload_expected_sha256'] = expected_sha256
@@ -4465,6 +4469,9 @@ def publish_handler(event=None, context=None):
             except Exception as ae:
                 log.warning(f"删除 artifact 失败: {ae}")
         save_state(st)
+        if experiment_receipt and not experiment_receipt['compliant']:
+            log_event('experiment_fallback','实验分组使用合格库存补位，单独统计',
+                      json.dumps(experiment_receipt,ensure_ascii=False))
         log_event("publish_ok", f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}", title[:50])
         log.info(f"✅ 已投[{k+1}/{parts_total}] https://www.bilibili.com/video/{bvid}")
         done += 1

@@ -14,7 +14,8 @@ def inventory_action(initial, stock):
         return None
     if fc.catchup_deficit(initial) and stock.get('publishable_now',stock['daily_mix_usable'])>0:
         return 'publish-catchup'
-    if any(fc.reserve_deficits(stock).values()):
+    if (any(fc.reserve_deficits(stock).values())
+            or any(fc.experiment.production_deficits(stock,initial,[]).values())):
         return 'dispatch-source-inventory'
     return None
 

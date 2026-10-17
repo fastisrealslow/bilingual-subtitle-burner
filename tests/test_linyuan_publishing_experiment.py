@@ -168,3 +168,65 @@ def test_recovery_and_runtime_packaging_keep_profile_module():
     config=F.production_config()
     assert config['publishing_experiment_version']==E.VERSION
     assert len(config['publishing_experiment_sha256'])==64
+    assert config['publishing_experiment']['treatment_slots']==[2,4]
+
+
+def test_general_stock_full_does_not_hide_missing_treatment_supply(monkeypatch):
+    import catchup_from_inventory as C
+    monkeypatch.setattr(F.time,'time',lambda:stamp('2026-10-17T18:00:00'))
+    monkeypatch.setattr(F,'catchup_deficit',lambda _:0)
+    stock=dict(inventory_fresh=True,daily_mix_usable=12,verified_landscape=2,
+               verified_portrait=10,experiment_ready=dict(portrait=0,landscape=0))
+    assert C.inventory_action({},stock)=='dispatch-source-inventory'
+    stock['experiment_ready']=dict(portrait=2,landscape=2)
+    assert C.inventory_action({},stock) is None
+
+
+def test_quality_recovery_preserves_requested_treatment(monkeypatch):
+    calls=[]
+    def github(method,path,data=None,**kwargs):
+        if method=='GET':return dict(workflow_runs=[])
+        calls.append(data);return {}
+    monkeypatch.setattr(F,'gh',github)
+    monkeypatch.setattr(F,'save_state',lambda _:None)
+    monkeypatch.setattr(F,'log_event',lambda *a:None)
+    monkeypatch.setattr(F,'publisher_code_is_current',lambda:True)
+    entry=dict(slug='story',source_url='https://example.com/video',editorial_profile=E.TREATMENT,
+               output_layout='landscape')
+    assert F._request_quality_reprocess({},entry,'story','retry')
+    assert calls[0]['inputs']['editorial_profile']==E.TREATMENT
+    assert calls[0]['inputs']['output_layout']=='landscape'
+
+
+def test_makeup_prefers_actual_treatment_over_earlier_baseline_inventory(monkeypatch):
+    now=stamp('2026-10-19T18:00:00')
+    monkeypatch.setattr(F.time,'time',lambda:now)
+    meta,_,_=treatment()
+    baseline={**meta,'editorial_profile':E.BASELINE}
+    st=dict(dispatched=[dict(slug=s,source_url='https://example.com/'+s)
+                        for s in ('baseline','story')],published={},
+            daily_publish=dict(date='2026-10-19',count=2,published_hours=[10,16]))
+    payload=dict(quality_gate_version=F.QUALITY_GATE_VERSION,
+        editorial_policy_version=F.editorial.VERSION,updated_at=now,artifacts=[
+            dict(slug=s,artifact_id=i+1,parts=[dict(index=0,status='verified',sha256='b'*64,**m)])
+            for i,(s,m) in enumerate([('baseline',baseline),('story',meta)])])
+    request=F.inventory_catchup_request(st,payload,now)
+    assert request['batch_slug']=='story' and request['makeup_slot']=='2026-10-19 14'
+
+
+def test_daily_ledger_uses_receipts_not_search_index_for_publication_count():
+    meta,_,_=treatment();pub=stamp('2026-10-19T14:00:00')
+    report=E.observations([],{},state_for(meta,pub),pub+60)
+    today=next(d for d in report['daily'] if d['date']=='2026-10-19')
+    assert today['published']==1 and today['slots_due']==2
+    assert report['samples']==[] and all(g['median'] is None for g in report['groups'])
+    assert all(g['median'] is None for g in report['by_slot'])
+
+
+def test_unresolved_upload_intent_is_visible_but_never_counted_as_published():
+    pub=stamp('2026-10-19T14:00:00')
+    state=dict(dispatched=[dict(slug='ambiguous',uploading=True,uploading_ts=pub,
+                               upload_experiment=E.assignment(pub))])
+    report=E.observations([],{},state,pub+25*3600)
+    assert len(report['pending_uploads'])==1 and not report['receipts'] and not report['samples']
+    assert all(d['published']==0 for d in report['daily'])

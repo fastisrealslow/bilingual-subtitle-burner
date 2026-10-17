@@ -249,6 +249,14 @@ def observations(items, previous, state, now=None):
             groups.append(dict(planned=planned,window=window,count=len(rows),
                 mean=round(statistics.mean(plays),2) if plays else None,
                 median=statistics.median(plays) if plays else None))
+    by_slot=[]
+    for slot in (1,2,3,4):
+        for window in (24,72,168):
+            plays=[r['play'] for r in samples.values() if r['slot_number']==slot and r['window']==window
+                   and r['compliant'] and r.get('content_type')!='full_interview']
+            by_slot.append(dict(slot_number=slot,window=window,count=len(plays),
+                mean=round(statistics.mean(plays),2) if plays else None,
+                median=statistics.median(plays) if plays else None))
     local=datetime.fromtimestamp(now,CST).date().isoformat()
     days=max(0,min(30,(date.fromisoformat(local)-date.fromisoformat(START)).days))
     by_slot={r['slot']:r for r in receipts.values()}
@@ -267,9 +275,13 @@ def observations(items, previous, state, now=None):
         status='scheduled' if local<START else 'collecting' if local<END_EXCLUSIVE else 'followup',
         completed_calendar_days=days,review_due=local>=END_EXCLUSIVE,
         daily=daily,
+        pending_uploads=[dict(slug=e.get('slug'),upload_intent_ts=e.get('uploading_ts'),
+                             assignment=e['upload_experiment'])
+                         for e in state.get('dispatched') or []
+                         if e.get('uploading') and e.get('upload_experiment')],
         receipts=sorted(receipts.values(),key=lambda r:r['slot']),
         fallback_count=sum(not r['compliant'] for r in receipts.values()),
-        samples=sorted(samples.values(),key=lambda r:(r['bvid'],r['window'])),groups=groups,
+        samples=sorted(samples.values(),key=lambda r:(r['bvid'],r['window'])),groups=groups,by_slot=by_slot,
         scope='Fixed Beijing slots 1/3 baseline, 2/4 treatment; not randomized. '
               'Search-index cumulative views at ages 24–36h / 72–84h / 168–180h; '
               'not CTR, impressions, retention or causal uplift. Missing is null. '
