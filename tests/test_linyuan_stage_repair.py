@@ -10,6 +10,11 @@ import stage_context as S
 def test_bad_quote_becomes_source_grounded_new_title_and_matching_cover(tmp_path,monkeypatch):
     text='我们做实业要注意人口变化。人口减少会影响消费，消费需求也要考虑。'
     def reader_then_bad_draft(*a, **kwargs):
+        schema=kwargs.get('response_schema') or {}
+        if 'title_readable' in schema.get('properties',{}).get('reviews',{}).get('items',{}).get('properties',{}):
+            return json.dumps(dict(reviews=[dict(index=i,title_readable=True,cover_readable=True,
+                same_claim=True,reason='测试原话审核：人口变化会影响消费需求，标题封面各自完整')
+                for i in range(schema['properties']['reviews']['minItems'])]))
         if 'c_guest_spans' in kwargs.get('response_schema',{}).get('properties',{}):
             return json.dumps(dict(a_guest_answer='人口变化会影响消费需求，做实业要考虑人口变化。',
                 b_question_premise='无主持人提问。',c_guest_spans=[dict(a_start=0,b_end=0)]))

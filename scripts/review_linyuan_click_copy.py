@@ -30,7 +30,7 @@ def main():
         start=time.monotonic();call=dict(prompt=prompt,schema=schema);report['calls'].append(call);save()
         try:
             response=producer.llm([dict(role='user',content=prompt)],'',response_schema=schema,read_cache=False,
-                max_tokens=2300,budget_sec=600)
+                temperature=0,max_tokens=2300,budget_sec=600)
             call['response']=response
             return response
         finally:call['elapsed_sec']=round(time.monotonic()-start,2);save()
@@ -40,6 +40,9 @@ def main():
         report.update(status='accepted',result=result)
     except ValueError as error:report.update(status='rejected',error=str(error))
     save()
+    print(json.dumps(dict(case=case['id'],status=report['status'],
+        title=report.get('result',{}).get('title'),cover=report.get('result',{}).get('cover_title'),
+        error=report.get('error')),ensure_ascii=False),flush=True)
     assert len(report['calls'])==1,'Must exercise one real, bounded model request'
     if args.case==3:
         if report['status']=='accepted':
