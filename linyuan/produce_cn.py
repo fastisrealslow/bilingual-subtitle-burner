@@ -3859,7 +3859,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         if problem:raise ValueError(problem)
         if story_evidence:
             from publishing_experiment import title_focus, title_focus_error
-            problem=title_focus_error(d['title'],title_focus(story_evidence),speaker)
+            problem=title_focus_error(d['title'],title_focus(story_evidence),speaker,d.get('cover_title'))
             if problem:raise ValueError(problem)
     except ValueError as exc:
         raise EditorialReviewUnavailable('标题文案待重试：'+str(exc)) from exc

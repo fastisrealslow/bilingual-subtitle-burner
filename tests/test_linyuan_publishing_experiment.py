@@ -102,6 +102,7 @@ def test_story_title_requires_actual_company_and_named_reason_not_approved_gener
     assert E.title_focus_error('林园：投资是艺术，我投消费升级',focus)
     assert E.title_focus_error('林园：当年投茅台，看准收入爆发前的消费升级',focus)
     assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus) is None
+    assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus,cover='收入爆发前投茅台')
     explicit={**focus,'source':['收入将爆发，消费升级。']}
     assert E.title_focus_error('林园：投茅台看消费升级和收入将爆发',explicit) is None
 

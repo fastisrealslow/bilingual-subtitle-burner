@@ -207,7 +207,7 @@ def title_focus(selection):
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
-def title_focus_error(title,focus,speaker='林园'):
+def title_focus_error(title,focus,speaker='林园',cover=None):
     if not isinstance(title,str):return '故事标题不是文本'
     body=title.removeprefix(speaker+'：')
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
@@ -220,7 +220,7 @@ def title_focus_error(title,focus,speaker='林园'):
     # Require an explicit original phrase for this stronger claim, not a word
     # from one clause concatenated with a growth metaphor from another.
     boom=r'收入(?:水平)?(?:将|会|要|已|即将|到了?|达到|正处于)?爆发'
-    if re.search(boom,body) and not re.search(boom,''.join(focus.get('source') or [])):
+    if re.search(boom,body+'\n'+str(cover or '')) and not re.search(boom,''.join(focus.get('source') or [])):
         return '不能把收入达到某个水平的背景压成收入爆发；用本段明确说出的实际理由'
     return None
 
@@ -243,7 +243,7 @@ def proof_error(meta):
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
-    focus_issue=title_focus_error(meta.get('title'),title_focus(s))
+    focus_issue=title_focus_error(meta.get('title'),title_focus(s),cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),
                        ('video_sha256',(meta.get('fingerprints') or {}).get('sha256')),

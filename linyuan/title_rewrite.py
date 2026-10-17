@@ -1589,7 +1589,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                         bound.append({})
                 candidates = bound
             from publishing_experiment import title_focus_error
-            errors = [((title_focus_error(c.get('title'),editorial_focus,speaker) if editorial_focus else None)
+            errors = [((title_focus_error(c.get('title'),editorial_focus,speaker,c.get('cover_title')) if editorial_focus else None)
                        or _candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             # Review every distinct, structurally valid draft in this attempt.
