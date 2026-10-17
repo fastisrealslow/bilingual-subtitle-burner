@@ -48,6 +48,13 @@ def main():
     report['copy']=result;save()
     assert result['title_rewrite']['review']['method']=='cpu_text_review'
     assert result['copy_identity']['editorial_profile']==E.TREATMENT
+    # This fixed real source explains the investment with 消费升级. It does
+    # not establish a new claim that personal incomes suddenly exploded.
+    # These are evaluation expectations, never production-provided titles.
+    if selected['story_selection']['kind']=='company_case':
+        body=result['title'].removeprefix('林园：')
+        assert '茅台' in body[:12],'Put the actual company before abstract self-evaluation'
+        assert '消费升级' in body,'Retain the source reason, not an invented income-boom shorthand'
     report['passed']=True;save()
     print(json.dumps(dict(passed=True,story_count=len(stories),title=result['title'],
                          cover=result['cover_title']),ensure_ascii=False))

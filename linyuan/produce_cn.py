@@ -3647,6 +3647,9 @@ def _title_style_prompt(prompt, schema, speaker):
     if profile()==TREATMENT and 'c_candidates' in properties:
         prompt += ('\n本片属于现场故事实验：优先把本段已经说清的具体公司、'
                    '亲身经历、实际选择或承认看走眼的事实放在标题前半句。'
+                   '标题第一句先交代具体公司或实际发生的事，再写本人判断或理由；'
+                   '不要用抽象的自我评价开头。理由沿用本段原话中的关键名词，'
+                   '不把一个对象的变化改写成另一个对象的变化。'
                    '像本人讲话，不概括成认知/投资逻辑/核心方法，不新造冲突。'
                    '具体名字仅能来自嘉宾原话；主持人的提问不是嘉宾的结论。')
     if 'c_candidates' in properties:
