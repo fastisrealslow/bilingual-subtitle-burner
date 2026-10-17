@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792244649,
+  "updated_at": 1792244811,
   "inventory_updated_at": 1792244633,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792244648,
+    "updated_at": 1792244811,
     "records": 10711,
     "video_records": 9198,
     "initial_candidates": 60,
@@ -70,13 +70,13 @@
   },
   "counts": {
     "complete": 126,
-    "failed": 1112,
+    "failed": 1113,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "ready": 8,
     "excluded": 4,
-    "running": 5,
-    "retry_queued": 12
+    "running": 6,
+    "retry_queued": 11
   },
   "tasks": [
     {
@@ -22696,24 +22696,6 @@
       "run_updated_at": "2026-10-15T13:28:48Z"
     },
     {
-      "slug": "ly-1014-3afac3",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792241227,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792241226,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 38596197773,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38596197773",
-      "run_started_at": "2026-10-14T16:13:14Z",
-      "run_updated_at": "2026-10-14T16:29:03Z"
-    },
-    {
       "slug": "ly-story-cbaf21d67f",
       "status": "running",
       "detail": "正在出片",
@@ -23057,11 +23039,11 @@
     },
     {
       "slug": "ly-1015-8f39b4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们的消费起不来，消费股起不来，实际上都是那些传导过嗯，嗯，好的。\", \"suspect_quote\": \"传导过嗯，嗯，好的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘传导过’语义不明，疑似‘传导过来’或‘传导过去’的误识；‘嗯，嗯，好的’为填充词堆叠，非正常口语结构，且‘好的’在此处无明确指代对象，导致整段话逻辑断裂。\"}, {\"sentence_id\": 4, \"quote\": \"哎，我我还不如把钱放在美，去存存银行去存存，美美债相关的一些东西，肯定有。\", \"suspect_quote\": \"哎，我我还不如把钱放在美\", \"kind\": \"unintelligible_term\", \"reason\": \"‘放在美’明显截断，应为‘放在美国’或‘放在美股/美债’，当前表述无法确定资产类别，构成关键数字或实体识别疑点。\"}, {\"sentence_id\": 5, \"quote\": \"这个和中国的这个资产结构有关系，就是少数的这个人掌握了银行储蓄的大户，就是活钱啊，都掌握在。\", \"suspect_quote\": \"少数的这个人掌握了银行储蓄的大户\", \"kind\": \"unintelligible_term\", \"reason\": \"‘少数的这个人’语法混乱，疑似‘少数人’与‘这个人’的混合误识；‘大户’在此处指代不清（是账户大户还是人群大户？），导致主体和对象均不明确。\"}]",
       "signature": {
         "ts": 1792243801,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23108,6 +23090,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39037310682",
       "run_started_at": "2026-10-17T13:37:15Z",
       "run_updated_at": "2026-10-17T13:37:19Z"
+    },
+    {
+      "slug": "ly-1014-3afac3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792244772,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39037923925,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39037923925",
+      "run_started_at": "2026-10-17T13:46:12Z",
+      "run_updated_at": "2026-10-17T13:46:16Z"
     }
   ],
   "runs": {
@@ -31593,14 +31593,14 @@
       "display_title": "中文源出片 · ly-1014-b76908"
     },
     "ly-1014-3afac3": {
-      "id": 38596197773,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-14T16:13:14Z",
-      "updated_at": "2026-10-14T16:29:03Z",
-      "run_started_at": "2026-10-14T16:13:14Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38596197773",
-      "run_number": 2082,
+      "id": 39037923925,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-17T13:46:12Z",
+      "updated_at": "2026-10-17T13:46:16Z",
+      "run_started_at": "2026-10-17T13:46:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39037923925",
+      "run_number": 2255,
       "display_title": "中文源出片 · ly-1014-3afac3"
     },
     "ly-1014-e34587": {
@@ -32769,6 +32769,17 @@
       "run_number": 2251,
       "display_title": "中文源出片 · ly-1015-7bbf42"
     },
+    "ly-1015-8f39b4": {
+      "id": 39036803925,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-17T13:30:01Z",
+      "updated_at": "2026-10-17T13:42:54Z",
+      "run_started_at": "2026-10-17T13:30:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39036803925",
+      "run_number": 2252,
+      "display_title": "中文源出片 · ly-1015-8f39b4"
+    },
     "ly-1014-651a86": {
       "id": 39037310682,
       "status": "in_progress",
@@ -32790,17 +32801,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39037043247",
       "run_number": 2253,
       "display_title": "中文源出片 · ly-1014-e112b5"
-    },
-    "ly-1015-8f39b4": {
-      "id": 39036803925,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-17T13:30:01Z",
-      "updated_at": "2026-10-17T13:42:54Z",
-      "run_started_at": "2026-10-17T13:30:01Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39036803925",
-      "run_number": 2252,
-      "display_title": "中文源出片 · ly-1015-8f39b4"
     },
     "ly-story-cbaf21d67f": {
       "id": 39033992413,
