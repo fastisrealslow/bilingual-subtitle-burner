@@ -32872,7 +32872,45 @@
    "output_layout": "portrait",
    "experiment_mother_sha256": null,
    "experiment_parent_slug": "ly-1016-b570f4",
-   "recovery_origin_run_id": 38860911237
+   "recovery_origin_run_id": 38860911237,
+   "production_failure_summary": {
+    "slug": "ly-story-cbaf21d67f",
+    "run_id": 39033992413,
+    "artifact_id": 12103585807,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也不知道为什么吃，这是我们这个年龄的人可能都有这个现象。\", \"suspect_quote\": \"我也不知道为什么吃\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键动词‘吃’前缺少宾语或上下文支撑，导致语义不明（是‘吃东西’的动作、‘吃亏’的状态还是其他含义），属于无法解释的具体词语污染。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那李总明去年说过，白酒的股息会回到百分之一，您现在的看法会有所改变吗？\", \"suspect_quote\": \"百分之一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"结合上下文（后文提到股息率可能七到百、以前不到百分之一），此处“百分之一”极大概率是语音识别错误，原意应为“百分之十”。在金融语境下，白酒股息率回到 1% 不符合逻辑（通常指 10% 左右才具备吸引力），而 10% 与后文提到的“七到百”（\"}, {\"sentence_id\": 1, \"quote\": \""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"我相信现在泡沫已挤的，不是干净呢，也是差。\", \"suspect_quote\": \"我相信现在泡沫已挤的，不是干净呢，也是差。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘不是干净呢’中‘干净’作为程度副词修饰‘挤’在口语中虽可理解，但结合后半句‘也是差’，导致‘泡沫已挤的程度’这一核心量化概念表述混乱（是‘没挤干净’还是‘挤得差不多’？），且‘差’指代模糊（业绩差还是市场差？），该\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39033992413,
+    "artifact_id": 12103585807,
+    "name": "production-reject-ly-story-cbaf21d67f",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也不知道为什么吃，这是我们这个年龄的人可能都有这个现象。\", \"suspect_quote\": \"我也不知道为什么吃\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键动词‘吃’前缺少宾语或上下文支撑，导致语义不明（是‘吃东西’的动作、‘吃亏’的状态还是其他含义），属于无法解释的具体词语污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1pZ421q7sn",
@@ -95738,6 +95776,13 @@
    "video_id": "BV1pZ421q7sn",
    "ts": 1792241553,
    "error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
+  },
+  {
+   "slug": "ly-story-cbaf21d67f",
+   "key": "ly-story-cbaf21d67f",
+   "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
+   "ts": 1792245995,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也不知道为什么吃，这是我们这个年龄的人可能都有这个现象。\", \"suspect_quote\": \"我也不知道为什么吃\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键动词‘吃’前缺少宾语或上下文支撑，导致语义不明（是‘吃东西’的动作、‘吃亏’的状态还是其他含义），属于无法解释的具体词语污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
