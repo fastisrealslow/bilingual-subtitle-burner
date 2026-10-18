@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792305818,
-  "inventory_updated_at": 1792305626,
+  "updated_at": 1792314533,
+  "inventory_updated_at": 1792314514,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 0,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,9 +33,9 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792305817,
-    "records": 10779,
-    "video_records": 9259,
+    "updated_at": 1792314533,
+    "records": 10780,
+    "video_records": 9260,
     "initial_candidates": 60,
     "duration_eligible_records": 0,
     "candidate_count": 0,
@@ -44,7 +44,7 @@
     "excluded": {
       "no_video": 1520,
       "already_attempted_or_cooling": 1469,
-      "speaker_unconfirmed": 6345,
+      "speaker_unconfirmed": 6346,
       "unrelated": 64,
       "clip_title": 1123,
       "noise": 18,
@@ -59,23 +59,22 @@
   "inventory": {
     "verified_live": 14,
     "verified_audio_card": 0,
-    "verified_landscape": 9,
-    "verified_portrait": 5,
+    "verified_landscape": 10,
+    "verified_portrait": 4,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
     "daily_mix_usable": 14,
     "target_reserve": 12,
-    "publishable_now": 0
+    "publishable_now": 1
   },
   "counts": {
     "complete": 128,
-    "failed": 1134,
+    "failed": 1138,
     "paused": 5,
     "interrupted": 6,
     "ready": 10,
-    "excluded": 3,
-    "retry_queued": 2
+    "excluded": 3
   },
   "tasks": [
     {
@@ -17350,11 +17349,11 @@
     },
     {
       "slug": "ly-1011-a774e5",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1791745368,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22300,11 +22299,11 @@
     },
     {
       "slug": "ly-1017-bfe847",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792222769,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -22660,11 +22659,11 @@
     },
     {
       "slug": "ly-1015-2fccb7",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"疾病也是这样的，它随着年龄的增长，它突然一下，比如说现在的这个这个这个高血压，它不需要再有药物去干预它。\", \"suspect_quote\": \"它不需要再有药物去干预它\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘不需要’在此处是口语省略，结合上下文（年龄增长、疾病爆发）可能意指‘不再需要常规药物即可控制’或‘完全不需要药物’，存在歧义；且‘它’指代前文‘高血压’还是‘干预方式’不明确，影响对医疗需求逻辑的理解。\"}, {\"sentence_id\": 7, \"quote\": \"所以这个如果说我们想象七八十岁人增加的多的话，这个成那个堰塞湖的话，它就可成倍的增加。\", \"suspect_quote\": \"七八十岁人增加的多的话\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘七八十岁’是口语范围表述，但‘增加的多的话’中‘多’指代人口数量增加还是疾病发生率增加不明确；且‘堰塞湖’为比喻，若未明确指代‘老年人口积压导致医疗需求激增’，则关键因果逻辑含混。\"}, {\"sentence_id\": 11, \"quote\": \"所以这个人员的这个结构，它不是我们现在想象的，比如说，你看啊，这几个月或者过去一年，你总结出来那个数据不准的。\", \"suspect_quote\": \"你总结出来那个数据不准的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"含义不明的否定：‘不准的’否定对象不明确（是数据来源不准、统计方法不准还是结论不准？）；且‘那个数据’指代模糊，可能指近期发布的某份报告或内部测算，关键信息缺失。\"}]",
       "signature": {
         "ts": 1792241202,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792241201,
@@ -22750,11 +22749,11 @@
     },
     {
       "slug": "ly-1014-ffc958",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"这就是林源，被一些人捧为股神，也被更多的人骂为骗子。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"原文语境为介绍嘉宾“林园”，此处识别为同音词“林源”（常见人名），属于专有名词错写。\"}, {\"sentence_id\": 3, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和，一上来就给我们展示他保存了多年的股票转让记录。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 13, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林元”。\"}, {\"sentence_id\": 24, \"quote\": \"我们投资是价值不价值，实际上就是一定要投资垄断的企。\", \"suspect_quote\": \"垄断的企\", \"kind\": \"unintelligible_term\", \"reason\": \"句末“企”字语义不完整，疑似应为“企业”或“公司”，属于关键名词截断导致含义不明。\"}, {\"sentence_id\": 30, \"quote\": \"一说起自己的这套价值投资方法，林源就会特别自信。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾名为“林园”，此处误识为“林源”。\"}, {\"sentence_id\": 48, \"quote\": \"我存的茅台酒，十五年的。\", \"suspect_quote\": \"十五年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中省略了产品名（茅台酒），仅保留“十五年的”指代十五年陈酿，虽非错误但属高度依赖上下文的省略表达；若严格检查数字完整性，此处缺少核心名词。不过根据指令“短句、口语省略主语...不能算识别错误”，此项暂不列入疑点，除非要求极度精确的实体补\"}]",
       "signature": {
         "ts": 1792241806,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792241805,
@@ -23269,6 +23268,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39064329945",
       "run_started_at": "2026-10-17T19:52:33Z",
       "run_updated_at": "2026-10-17T20:04:41Z"
+    },
+    {
+      "slug": "ly-1018-26d2c8",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1792314351,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39113994990,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39113994990",
+      "run_started_at": "2026-10-18T09:05:51Z",
+      "run_updated_at": "2026-10-18T09:07:49Z"
+    },
+    {
+      "slug": "ly-1018-76e08b",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1792314357,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39114001186,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39114001186",
+      "run_started_at": "2026-10-18T09:05:57Z",
+      "run_updated_at": "2026-10-18T09:07:48Z"
     }
   ],
   "runs": {
@@ -33094,6 +33129,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39064329945",
       "run_number": 2274,
       "display_title": "中文源出片 · ly-1017-49600e"
+    },
+    "ly-1018-76e08b": {
+      "id": 39114001186,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-18T09:05:57Z",
+      "updated_at": "2026-10-18T09:07:48Z",
+      "run_started_at": "2026-10-18T09:05:57Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39114001186",
+      "run_number": 2276,
+      "display_title": "中文源出片 · ly-1018-76e08b"
+    },
+    "ly-1018-26d2c8": {
+      "id": 39113994990,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-18T09:05:51Z",
+      "updated_at": "2026-10-18T09:07:49Z",
+      "run_started_at": "2026-10-18T09:05:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39113994990",
+      "run_number": 2275,
+      "display_title": "中文源出片 · ly-1018-26d2c8"
     }
   }
 }
