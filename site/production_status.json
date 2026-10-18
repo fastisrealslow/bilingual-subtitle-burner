@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792357732,
+  "updated_at": 1792357910,
   "inventory_updated_at": 1792357714,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792357731,
+    "updated_at": 1792357910,
     "records": 10886,
     "video_records": 9354,
     "initial_candidates": 60,
@@ -70,9 +70,9 @@
   },
   "counts": {
     "complete": 130,
-    "failed": 1150,
+    "failed": 1151,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "ready": 14,
     "excluded": 2,
     "running": 1
@@ -23578,11 +23578,11 @@
     },
     {
       "slug": "ly-1018-090b2c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"林远称：不要碰股东减持的公司，还有减持的、质押的，就咱们就别去弄了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林远”属于明显的专有名词错写，且无法通过上下文或口语风格解释。\"}, {\"sentence_id\": 10, \"quote\": \"所以这个东西，我们投资尽量投资国有、国有控股的，永远不会减持。\", \"suspect_quote\": \"国有、国有控股的\", \"kind\": \"unintelligible_term\", \"reason\": \"在口语语境中，“国有”与“国有控股的”并列表述存在逻辑矛盾（前者是类别，后者是修饰语），疑似将“国有独资”或“央企”等词误识别为“国有”，导致含义不明。\"}]",
       "signature": {
         "ts": 1792356614,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
