@@ -34888,7 +34888,49 @@
    "output_layout": "landscape",
    "experiment_mother_sha256": "55da49469a1f83a20024b8859033adf5278515e3d96c86b5511ca1b400548ede",
    "experiment_parent_slug": "ly-1018-665b49",
-   "recovery_origin_run_id": 39122227514
+   "recovery_origin_run_id": 39122227514,
+   "production_failure_summary": {
+    "slug": "ly-story-bda3139c08",
+    "run_id": 39133302986,
+    "artifact_id": 12139416713,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：嘉宾从回答“是否调整仓位”开始，完整阐述了卖出标准（极少卖出）、持有逻辑（白酒终身持有、医药撇账）、风险定义（控制本金 + 抓机遇）、人口数据支撑（3000 万到 3.8 亿）、行业判断（中国医药进全球前十、蒙牛伊利崛起）等核心观点，直至主持人介入新话题前结束，表达连贯完整。；原文问题：[[\"我这辈子啊，基本上卖出在我印象当中很少，好像没有太大的卖出，就早期的电器、电视机那些，因为毛利率确实下降很厉害，是吧？\", \"口语填充词“呃”、“啊”及重复表述（如“基本上卖出在我印象当中很少”）不影响核心观点理解，属正常口语特征，无需修正。\"], [\"我有卖出型。\", \"句子“我有卖出"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我前一段时间就是偶尔的去了一个重庆一家企业，因为我在重庆，哎，他就给我推荐了一个六味安神胶囊。\", \"suspect_quote\": \"六味安神胶囊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词：中药名称通常为‘六味地黄丸’，‘六味安神胶囊’在常见药典中无此标准名，极可能是将‘六味地黄丸’与‘安神’功效混淆后的错误识别，属于含义不明的关键专名。\"}, {\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我觉得白白酒还是个好的买卖，是吧？\", \"suspect_quote\": \"白白酒\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'白白酒'不符合中文语义逻辑，结合上下文语境（讨论喝酒、买卖），极大概率应为'白酒'。多出的'白'字导致词语含义不明，属于无法解释的具体错写或重复识别。\"}, {\"sentence_id\": 6, \"quote\": \"我问了很多酒疯子啊，酒酒酒，喝酒。\", \"suspect_quote\": \"酒酒酒\", \"kind\": \"unintelligib"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 11, \"quote\": \"包括我们这办公楼啊，我到哪里办公，便宜贵我反正先买一个，我不跟你打交道。\", \"suspect_quote\": \"我不跟你打交道\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"该短语在上下文中语义不明，结合前文“便宜贵我反正先买一个”，此处极可能是口语中的口误或听写错误。根据后文“我都是买的”及林园一贯的直率风格，原意应为“我不跟**钱**打交道”（意指不纠结价格高低），而非“不跟你（人）打交道”。将‘钱’识别为\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有原字幕或免责声明"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39133302986,
+    "artifact_id": 12139416713,
+    "name": "production-reject-ly-story-bda3139c08",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -98373,6 +98415,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/SASwxWcBgx08BCq66yM001041200eVZK0E010.mp4",
    "ts": 1792322484,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-story-bda3139c08",
+   "key": "ly-story-bda3139c08",
+   "video_id": "BV1sUQHY3EiA",
+   "ts": 1792332795,
+   "error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
   }
  ],
  "reviewed_third_video_0910": {
