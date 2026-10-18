@@ -34859,11 +34859,24 @@
     "basis": "source_metadata_unverified"
    },
    "publish_time": "2024-04-01T11:26:31+00:00",
-   "source_check_report_id": 12136464050,
-   "source_check_run_id": 39124505676,
-   "last_error": "取源未完成：FetchBudgetExceeded: 取源达到总时间预算，保留为可重试下载故障",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "source_check_report_id": 12139796174,
+   "source_check_run_id": 39130768348,
+   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
+   "failure_stage": "quality-service",
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1018-d01061",
+    "run_id": 39130768348,
+    "artifact_id": 12139796174,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason"
+     }
+    ]
+   },
+   "source_check_retry_after": 1792335296
   },
   {
    "video_id": "BV1sUQHY3EiA",
@@ -34930,7 +34943,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
