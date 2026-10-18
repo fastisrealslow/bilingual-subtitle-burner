@@ -35091,7 +35091,49 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-17T10:42:07+08:00"
+   "publish_time": "2026-10-17T10:42:07+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1018-2cf086",
+    "run_id": 39153013972,
+    "artifact_id": 12146278145,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"那个时候它的风头是很强，一大堆，长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 12, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟个叫郑州百文，不知道现在这公司还在不在？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/244，总帧数1217；身份匹配但人脸短边不足96px的帧数244"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是没有。\", \"suspect_quote\": \"那个年代的快快乐\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“快快乐”在中文语境下无法构成有意义的表达，疑似将“快乐”误识别为“快快乐”，属于明显的错写或语音转写错误，影响理解。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/693，总帧数3461；身份匹配但人脸短边不足96px的帧数693"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那李总明去年说过，白酒的股息会回到百分之一，您现在的看法会有所改变吗？\", \"suspect_quote\": \"百分之一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"结合上下文（后文提到股息率可能七到百、以前不到百分之零点八），此处“百分之一”极大概率是识别错误，应为“百分之十”。在金融语境下，白酒股息率回到 1% 不符合逻辑，而回到 10% 符合高股息策略的讨论背景。此数字存在明显污染风险。\"}, {\"sentence_id\": 1, \"quote\": \"我说过这个"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39153013972,
+    "artifact_id": 12146278145,
+    "name": "production-reject-ly-1018-2cf086",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1fnZSYRET1",
@@ -35124,7 +35166,8 @@
    },
    "last_error": "清理后预计短边 422 < 480",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -98630,6 +98673,13 @@
    "video_id": "BV1fnZSYRET1",
    "ts": 1792347815,
    "error": "清理后预计短边 422 < 480"
+  },
+  {
+   "slug": "ly-1018-2cf086",
+   "key": "weibo_search:5354957945440950",
+   "video_id": "https://f.video.weibocdn.com/o0/4GMyd2oKlx08BAKku6Jy01041205TQq60E030.mp4",
+   "ts": 1792349207,
+   "error": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标"
   }
  ],
  "reviewed_third_video_0910": {
