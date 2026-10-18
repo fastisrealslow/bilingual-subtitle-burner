@@ -27368,13 +27368,13 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-a1b0d4",
-    "run_id": 38469715424,
-    "artifact_id": 11851876839,
+    "run_id": 37914333342,
+    "artifact_id": 11609342531,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以对对给我们投资上造成了很大的这个。\", \"suspect_quote\": \"对对给我们投资上造成了很大的这个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字或否定：句中‘很大的’后接‘这个’，导致具体程度缺失且指代不明；‘对对’为口吃重复，但‘很大的这个’组合使数量/程度无法解释，属于含义不明的关键描述。\"}, {\"sentence_id\": 13, \"quote\": \"但是有可能我的认知吧哈，我就觉得那个我看不到，就是我看不到他们的将来这些企业的发展啊。\""
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"所以对对给我们投资上造成了很大的这个。\", \"suspect_quote\": \"对对给我们投资上造成了很大的这个\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键短语‘很大的这个’指代不明，属于典型的口语填充词导致语义截断，未形成完整的名词性宾语（如‘很大的困难’或‘很大的挑战’），在缺乏上下文的情况下，该处存在具体的识别疑点，无法确定其具体含义。\"}]"
      }
     ]
    },
@@ -98953,7 +98953,7 @@
  },
  "source_refresh_requested_at": 1792315146,
  "inventory_refresh_requested_at": 1791955525,
- "rule_recovery_page": 6,
+ "rule_recovery_page": 7,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
