@@ -1823,10 +1823,10 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 8,
+      "attempts": 9,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792220753.5922873,
-      "next_retry_at": 1792307153.5922873,
+      "last_attempt_at": 1792322671.0717335,
+      "next_retry_at": 1792409071.0717335,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -4921,10 +4921,14 @@
       "role": "mother",
       "family": "bilibili_long_research_20261010",
       "priority": 6,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1792323225.3569767,
+      "next_retry_at": 1792344825.3569767,
+      "download_partial_bytes": 0
     },
     "a3a5b93a2b095486d126": {
       "url": "https://www.yicai.com/video/103329354.html",
@@ -6217,15 +6221,37 @@
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792239653.3842826,
-      "next_retry_at": 1792261253.3842826,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1792322925.3449373,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "66498ab8ddc3b68bbf960fa746096a3ab019b6d0bd6942b18e09c8a5c243a37c",
+        "duration_sec": 2195.708625,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1097.85
+          }
+        ],
+        "audio_fingerprint_count": 17713,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39122955362"
     },
     "eae5d9cb1a9bd2990ec4": {
       "url": "https://www.bilibili.com/video/BV1h6QWYsEz5",
@@ -6317,11 +6343,14 @@
       "new_ids": []
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792273624.7676613,
-      "next_retry_at": 1792316824.7676613,
+      "next_retry_at": 1792344268.3099954,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792322668.3099954
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
@@ -6376,7 +6405,8 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -6385,8 +6415,8 @@
       "errors": []
     }
   },
-  "search_cursor": 2,
-  "updated_at": 1792321764,
-  "last_run_id": "39121942555",
+  "search_cursor": 4,
+  "updated_at": 1792323225,
+  "last_run_id": "39122955362",
   "audio_match_candidates": []
 }
