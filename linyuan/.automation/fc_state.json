@@ -34951,7 +34951,28 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-18T14:16:38+00:00"
+   "publish_time": "2026-10-18T14:16:38+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1018-efeb96",
+    "run_id": 39138374040,
+    "artifact_id": 12141182325,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+     }
+    ]
+   },
+   "source_check_report_id": 12141182325,
+   "source_check_run_id": 39138374040,
+   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792337761
   },
   {
    "key": "bilibili_search:BV1jfJY66EAK",
@@ -35000,7 +35021,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/200，总帧数995；身份匹配但人脸短边不足96px的帧数77",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1WK421Y7od",
