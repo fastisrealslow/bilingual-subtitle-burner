@@ -3249,10 +3249,10 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792185089.782311,
-      "next_retry_at": 1792271489.782311,
+      "last_attempt_at": 1792281811.9583108,
+      "next_retry_at": 1792368211.9583108,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -4522,14 +4522,36 @@
       "role": "mother",
       "family": "investor_call",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 4,
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792185389.7888432,
-      "next_retry_at": 1792271789.7888432,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1792282036.812317,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "55b175a27efe5a2a7550c80ef9c76116a271192c19995db808d413e534bf9ae3",
+        "duration_sec": 3417.633313,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1708.82
+          }
+        ],
+        "audio_fingerprint_count": 27582,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39081234993"
     },
     "b3b89687881be5b1ef00": {
       "url": "https://www.bilibili.com/video/BV1564y1M7s6",
@@ -4642,12 +4664,12 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792185402.6919696,
-      "next_retry_at": 1792271802.6919696,
+      "last_attempt_at": 1792282047.2194893,
+      "next_retry_at": 1792368447.2194893,
       "download_partial_bytes": 0
     },
     "3b89002d051fbefd126f": {
@@ -6325,8 +6347,8 @@
       "errors": []
     }
   },
-  "search_cursor": 14,
-  "updated_at": 1792276023,
-  "last_run_id": "39074653546",
+  "search_cursor": 2,
+  "updated_at": 1792282047,
+  "last_run_id": "39081234993",
   "audio_match_candidates": []
 }
