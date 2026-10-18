@@ -1131,10 +1131,10 @@
       "family": "investor_call",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 8,
+      "attempts": 9,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792195483.2275925,
-      "next_retry_at": 1792281883.2275925,
+      "last_attempt_at": 1792297989.4635122,
+      "next_retry_at": 1792384389.4635122,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -2781,10 +2781,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 19,
+      "attempts": 20,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792203325.0457752,
-      "next_retry_at": 1792289725.0457752,
+      "last_attempt_at": 1792297676.0947208,
+      "next_retry_at": 1792384076.0947208,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -4075,10 +4075,10 @@
       "family": "unresolved",
       "priority": 4,
       "status": "retry_wait",
-      "attempts": 16,
+      "attempts": 17,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792203335.6948133,
-      "next_retry_at": 1792289735.6948133,
+      "last_attempt_at": 1792297689.4541585,
+      "next_retry_at": 1792384089.4541585,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6251,20 +6251,26 @@
       "new_ids": []
     },
     "gelong_conversation|格隆对话林园 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792231152.5066762,
-      "next_retry_at": 1792274352.5066762,
+      "next_retry_at": 1792319247.7526538,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792297647.7526538
     },
     "gelong_conversation|格隆博士会客厅 林园": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792239339.6983798,
-      "next_retry_at": 1792282539.6983798,
+      "next_retry_at": 1792319247.7526538,
       "found": 4,
       "new_ids": [
         "bilibili_search:BV1pZ421q7sn"
-      ]
+      ],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792297647.7526538
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
       "status": "searched",
@@ -6323,11 +6329,14 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792248523.868706,
-      "next_retry_at": 1792291723.868706,
+      "next_retry_at": 1792319247.7526538,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792297647.7526538
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
@@ -6338,19 +6347,14 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
       "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
       "errors": [
-        {
-          "stage": "collection_page",
-          "season_id": 5016608,
-          "page": 3,
-          "error": "ValueError"
-        },
         {
           "stage": "collection_page",
           "season_id": 6836119,
@@ -6360,8 +6364,8 @@
       ]
     }
   },
-  "search_cursor": 5,
-  "updated_at": 1792286140,
-  "last_run_id": "39085085019",
+  "search_cursor": 7,
+  "updated_at": 1792297989,
+  "last_run_id": "39097045543",
   "audio_match_candidates": []
 }
