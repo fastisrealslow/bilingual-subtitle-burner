@@ -34974,7 +34974,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-18T14:00:00+00:00"
+   "publish_time": "2026-10-18T14:00:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1018-2bb5e5",
+    "run_id": 39138380892,
+    "artifact_id": 12139954886,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/200，总帧数995；身份匹配但人脸短边不足96px的帧数77"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/131，总帧数650；身份匹配但人脸短边不足96px的帧数29"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39138380892,
+    "artifact_id": 12139954886,
+    "name": "production-reject-ly-1018-2bb5e5",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/200，总帧数995；身份匹配但人脸短边不足96px的帧数77",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1WK421Y7od",
@@ -35016,7 +35042,8 @@
     ]
    },
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -98508,6 +98535,13 @@
    "video_id": "BV1sUQHY3EiA",
    "ts": 1792332795,
    "error": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
+  },
+  {
+   "slug": "ly-1018-2bb5e5",
+   "key": "bilibili_search:BV1jfJY66EAK",
+   "video_id": "BV1jfJY66EAK",
+   "ts": 1792336531,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/200，总帧数995；身份匹配但人脸短边不足96px的帧数77"
   }
  ],
  "reviewed_third_video_0910": {
