@@ -816,10 +816,10 @@
       "family": "maotai_table_exchange",
       "priority": 2,
       "status": "retry_wait",
-      "attempts": 38,
+      "attempts": 39,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792351672.8769972,
-      "next_retry_at": 1792438072.8769972,
+      "last_attempt_at": 1792443942.0067625,
+      "next_retry_at": 1792530342.0067625,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -2011,7 +2011,7 @@
     "b782ac0c362a9fb7da95": {
       "url": "https://www.bilibili.com/video/BV1UB5s6WE2B",
       "role": "mother",
-      "family": "investor_call",
+      "family": "fudan_2026_05",
       "priority": 0,
       "status": "retry_wait",
       "attempts": 1,
@@ -6332,15 +6332,37 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792315868.8784251,
-      "next_retry_at": 1792337468.8784251,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1792444065.3060155,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "4c711fb59cdec677f1eacc7f6603f27d5b4231f6ab841fc4d421a0079b5d2846",
+        "duration_sec": 3422.8475,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1711.42
+          }
+        ],
+        "audio_fingerprint_count": 27625,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39324501411"
     },
     "c2f3eb597a030ceb007c": {
       "url": "https://www.bilibili.com/video/BV1sUQHY3EiA",
@@ -6464,12 +6486,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792418785.7740526,
-      "next_retry_at": 1792440385.7740526,
+      "last_attempt_at": 1792443940.883084,
+      "next_retry_at": 1792487140.883084,
       "download_partial_bytes": 0
     }
   },
@@ -6490,15 +6512,15 @@
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
       "status": "searched",
-      "checked_at": 1792385765.6822443,
-      "next_retry_at": 1792428965.6822443,
-      "found": 1,
+      "checked_at": 1792443927.6951234,
+      "next_retry_at": 1792487127.6951234,
+      "found": 3,
       "new_ids": []
     },
     "gelong_conversation|格隆对话林园 完整版": {
       "status": "searched",
-      "checked_at": 1792396176.1564248,
-      "next_retry_at": 1792439376.1564248,
+      "checked_at": 1792443927.6951234,
+      "next_retry_at": 1792487127.6951234,
       "found": 4,
       "new_ids": []
     },
@@ -6532,9 +6554,9 @@
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
-      "checked_at": 1792385765.6822443,
-      "next_retry_at": 1792428965.6822443,
-      "found": 1,
+      "checked_at": 1792443927.6951234,
+      "next_retry_at": 1792487127.6951234,
+      "found": 2,
       "new_ids": []
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
@@ -6585,17 +6607,13 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": false,
-      "errors": [
-        {
-          "stage": "collections",
-          "error": "ValueError"
-        }
-      ]
+      "collection_listing_complete": true,
+      "discovery": "public_collections_plus_existing_reference_catalog",
+      "errors": []
     }
   },
-  "search_cursor": 4,
-  "updated_at": 1792442516,
-  "last_run_id": "39320541428",
+  "search_cursor": 6,
+  "updated_at": 1792444065,
+  "last_run_id": "39324501411",
   "audio_match_candidates": []
 }
