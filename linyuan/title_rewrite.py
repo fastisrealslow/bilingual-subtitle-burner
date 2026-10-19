@@ -847,9 +847,9 @@ def comparison_modality_error(title, cover, transcript):
                     after = sentence[match.end():]
                     uncertain = bool(
                         re.search(modal, match['bridge'])
+                        or re.search(modal, match['object'])
                         or re.search(rf'(?:{modal}){filler}*$', before)
-                        or re.match(rf'(?:了|啊|呢|嘛|完全|都|也|有)*(?:{modal})', after)
-                        or sentence.endswith(('能否', '是否')))
+                        or re.match(rf'(?:了|啊|呢|嘛|完全|都|也|有)*(?:{modal})', after))
                     rows.append((match['metric'], match['direction'], target, uncertain))
         return rows
 
