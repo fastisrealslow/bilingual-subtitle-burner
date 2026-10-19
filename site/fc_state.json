@@ -35596,7 +35596,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-19T13:38:00+00:00"
+   "publish_time": "2026-10-19T13:38:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1019-fff0e2",
+    "run_id": 39274246549,
+    "artifact_id": 12196348646,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39274246549,
+    "artifact_id": 12196348646,
+    "name": "production-reject-ly-1019-fff0e2",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1oEzbBgEzG",
@@ -100976,6 +100998,13 @@
    "video_id": "BV1qm4y1p7xN",
    "ts": 1792388147,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"你别看我那些话药，我自己有感觉，中国都是要领先的。\", \"suspect_quote\": \"你别看我那些话药\", \"kind\": \"unintelligible_term\", \"reason\": \"“话药”在金融或医药行业无此专有名词，疑似将“药物”、“话语”或其他词误识别为“话药”，导致语义不通且无法解释。\"}, {\"sentence_id\": 8, \"quote\": \"中国现在具备这个资本市场的支持，市场的支持都都都这个支持他，这个一定是中国。\", \"suspect_quote\": \"市场的支持都都都这个支持他\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的“都都都”属于明显的语音转文字错误（口吃或识别冗余），破坏了句子逻辑结构，且“这个支持他”指代不明，构成含义不明的关键片段。\"}]"
+  },
+  {
+   "slug": "ly-1019-fff0e2",
+   "key": "bilibili_search:BV1tUpN6sEvg",
+   "video_id": "BV1tUpN6sEvg",
+   "ts": 1792422686,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
