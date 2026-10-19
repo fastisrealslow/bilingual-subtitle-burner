@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792388084,
+  "updated_at": 1792388259,
   "inventory_updated_at": 1792388064,
   "continuity": {
     "daily_target": 4,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792388084,
+    "updated_at": 1792388259,
     "records": 10920,
     "video_records": 9382,
     "initial_candidates": 60,
@@ -70,9 +70,9 @@
   },
   "counts": {
     "complete": 131,
-    "failed": 1153,
+    "failed": 1154,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "ready": 14,
     "excluded": 2,
     "running": 1
@@ -23650,11 +23650,11 @@
     },
     {
       "slug": "ly-1019-1b1cd0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"你别看我那些话药，我自己有感觉，中国都是要领先的。\", \"suspect_quote\": \"你别看我那些话药\", \"kind\": \"unintelligible_term\", \"reason\": \"“话药”在金融或医药行业无此专有名词，疑似将“药物”、“话语”或其他词误识别为“话药”，导致语义不通且无法解释。\"}, {\"sentence_id\": 8, \"quote\": \"中国现在具备这个资本市场的支持，市场的支持都都都这个支持他，这个一定是中国。\", \"suspect_quote\": \"市场的支持都都都这个支持他\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的“都都都”属于明显的语音转文字错误（口吃或识别冗余），破坏了句子逻辑结构，且“这个支持他”指代不明，构成含义不明的关键片段。\"}]",
       "signature": {
         "ts": 1792387098,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -33740,17 +33740,6 @@
       "run_number": 2298,
       "display_title": "中文源出片 · ly-1018-b51da6"
     },
-    "ly-1019-1dc074": {
-      "id": 39203853873,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-19T05:18:24Z",
-      "updated_at": "2026-10-19T05:18:28Z",
-      "run_started_at": "2026-10-19T05:18:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39203853873",
-      "run_number": 2301,
-      "display_title": "中文源出片 · ly-1019-1dc074"
-    },
     "ly-1019-1b1cd0": {
       "id": 39203844275,
       "status": "completed",
@@ -33761,6 +33750,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39203844275",
       "run_number": 2300,
       "display_title": "中文源出片 · ly-1019-1b1cd0"
+    },
+    "ly-1019-1dc074": {
+      "id": 39203853873,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-19T05:18:24Z",
+      "updated_at": "2026-10-19T05:18:28Z",
+      "run_started_at": "2026-10-19T05:18:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39203853873",
+      "run_number": 2301,
+      "display_title": "中文源出片 · ly-1019-1dc074"
     }
   }
 }
