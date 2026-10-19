@@ -35670,7 +35670,41 @@
    "output_layout": "landscape",
    "experiment_mother_sha256": "b3ba56b740f0cfa08f9ff03077fe6a4943990a8e6f4544f59d2d5a6f7dd29a30",
    "experiment_parent_slug": "ly-1019-6a26f5",
-   "recovery_origin_run_id": 39274228254
+   "recovery_origin_run_id": 39274228254,
+   "production_failure_summary": {
+    "slug": "ly-story-d870d406c3",
+    "run_id": 39316185581,
+    "artifact_id": 12217874564,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有原字幕或免责声明"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 23, \"quote\": \"手财。\", \"suspect_quote\": \"手财\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或日常语境中无明确含义，疑似识别错误（可能应为“手头”、“财富”或其他词汇），属于无法解释的具体词语。\"}, {\"sentence_id\": 24, \"quote\": \"手财。\", \"suspect_quote\": \"手财\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，连续出现同一不明词汇，极大概率为识别错误，需指出原文中具体的疑"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"你分拆了以后，它那个产品到那个股里边去了，嗯，它那个净值的话就会有，嗯，如果下跌的话，它有很大就是回撤，嗯啊，所以这个就是有一些这么现象，嗯，那个我可以负责任的说，实际上是不真实，那个也，不是我们公开发行的，嗯，不是被公众发行的。\", \"suspect_quote\": \"那个我可以负责任的说，实际上是不真实，那个也，\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定词“不真实”指代不明，结合上下文语境（讨论产品分拆导致的净值回撤现象），此处极可能是口语中的口误或逻"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面需要足够清晰的横向画面，不能大幅裁竖图"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39316185581,
+    "artifact_id": 12217874564,
+    "name": "production-reject-ly-story-d870d406c3",
+    "retained": true
+   },
+   "last_error": "选段原画仍有原字幕或免责声明",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -101034,6 +101068,13 @@
    "video_id": "BV1tUpN6sEvg",
    "ts": 1792422686,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-story-d870d406c3",
+   "key": "ly-story-d870d406c3",
+   "video_id": "BV1ZNzeBsEr2",
+   "ts": 1792442038,
+   "error": "选段原画仍有原字幕或免责声明"
   }
  ],
  "reviewed_third_video_0910": {
