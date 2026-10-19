@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792374327,
+  "updated_at": 1792374551,
   "inventory_updated_at": 1792374306,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 1,
+    "active_or_recovering_sources": 0,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -33,7 +33,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792374326,
+    "updated_at": 1792374551,
     "records": 10904,
     "video_records": 9370,
     "initial_candidates": 60,
@@ -70,12 +70,11 @@
   },
   "counts": {
     "complete": 130,
-    "failed": 1152,
+    "failed": 1153,
     "paused": 5,
     "interrupted": 4,
     "ready": 15,
-    "excluded": 2,
-    "running": 1
+    "excluded": 2
   },
   "tasks": [
     {
@@ -23614,11 +23613,11 @@
     },
     {
       "slug": "ly-1018-b51da6",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配794/1336，总帧数2707；身份匹配但人脸短边不足96px的帧数542",
       "signature": {
         "ts": 1792366324,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -23628,7 +23627,7 @@
       "run_id": 39176918091,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39176918091",
       "run_started_at": "2026-10-18T23:32:03Z",
-      "run_updated_at": "2026-10-18T23:32:08Z"
+      "run_updated_at": "2026-10-19T01:45:15Z"
     },
     {
       "slug": "ly-1018-d41668",
@@ -33695,10 +33694,10 @@
     },
     "ly-1018-b51da6": {
       "id": 39176918091,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-18T23:32:03Z",
-      "updated_at": "2026-10-18T23:32:08Z",
+      "updated_at": "2026-10-19T01:45:15Z",
       "run_started_at": "2026-10-18T23:32:03Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39176918091",
       "run_number": 2298,
