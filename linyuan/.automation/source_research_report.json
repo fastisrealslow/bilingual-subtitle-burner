@@ -1,19 +1,23 @@
 {
-  "run_id": "39218287565",
+  "run_id": "39218773476",
   "processed": 3,
-  "inspected": 2,
-  "historical_media_verified": 159,
+  "inspected": 3,
+  "historical_media_verified": 160,
   "cache_recovery_pending": 157,
-  "pending": 207,
+  "pending": 206,
   "audio_matches": [],
   "reference_refresh": {
     "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
-      "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "collection_listing_complete": false,
+      "errors": [
+        {
+          "stage": "collections",
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -5826,15 +5830,37 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 3,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792306209.205817,
-      "next_retry_at": 1792392609.205817,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1792397247.1936953,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "01f37878d1d4a19cd35600727532a68be0c30687279367e4384e687a5602c706",
+        "duration_sec": 3295.259864,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1647.63
+          }
+        ],
+        "audio_fingerprint_count": 26594,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39218773476"
     },
     "8970322383ecf5e72a65": {
       "url": "https://www.bilibili.com/video/BV1mizbBZEnZ",
@@ -5842,13 +5868,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 3,
+      "attempts": 4,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792306509.2135513,
-      "next_retry_at": 1792392909.2135513,
+      "last_attempt_at": 1792397547.2138627,
+      "next_retry_at": 1792483947.2138627,
       "download_partial_bytes": 0
     },
     "053a3a8dba0097d3d7d1": {
@@ -6371,11 +6397,15 @@
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1792396993.0915313,
+      "next_retry_at": 1792418593.0915313,
+      "download_partial_bytes": 0
     }
   },
   "searches": {
