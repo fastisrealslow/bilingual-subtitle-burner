@@ -35356,7 +35356,37 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-01-26T04:38:47+00:00"
+   "publish_time": "2026-01-26T04:38:47+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1018-b51da6",
+    "run_id": 39176918091,
+    "artifact_id": 12158487669,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配794/1336，总帧数2707；身份匹配但人脸短边不足96px的帧数542"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"也没什么，你要去研究的东西，那你一下多复杂，还要去考虑这个事情该不该买，那就不该买。\", \"suspect_quote\": \"那就不该买\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定词“不”与上下文逻辑衔接生硬，疑似漏识别连接词或语气助词，导致条件判断关系不明。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"就还有网友问，就是未来三年，即就是两千年到二零二零年、二零二二年底，茅台，它的那个产能和产能预测，您是怎么看的？\", \"suspect_quote\": \"两千年到二零二零年、二零二二年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘两千年’在口语语境中极易被误听为年份'2000 年’，但结合后文‘二零二零年、二零二二年底’的时间跨度（2020-2022），‘两千年’极可能是识别错误，实际应为‘两年’或‘三年’等表示时长的词。此处数字含义不明且与上下文逻辑冲突，属于需"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39176918091,
+    "artifact_id": 12158487669,
+    "name": "production-reject-ly-1018-b51da6",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配794/1336，总帧数2707；身份匹配但人脸短边不足96px的帧数542",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV19UzrBMEXs",
@@ -98931,6 +98961,13 @@
    "video_id": "BV19UzrBMEXs",
    "ts": 1792366587,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[5, 9]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{5: -0.1136, 9: 0.0217}"
+  },
+  {
+   "slug": "ly-1018-b51da6",
+   "key": "bilibili_search:BV1XbzhB3EZp",
+   "video_id": "BV1XbzhB3EZp",
+   "ts": 1792374432,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配794/1336，总帧数2707；身份匹配但人脸短边不足96px的帧数542"
   }
  ],
  "reviewed_third_video_0910": {
