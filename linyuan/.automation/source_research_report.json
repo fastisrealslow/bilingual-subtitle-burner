@@ -1,19 +1,50 @@
 {
-  "run_id": "39184791479",
+  "run_id": "39186635309",
   "processed": 3,
-  "inspected": 1,
-  "historical_media_verified": 158,
+  "inspected": 2,
+  "historical_media_verified": 159,
   "cache_recovery_pending": 157,
-  "pending": 207,
+  "pending": 206,
   "audio_matches": [],
   "reference_refresh": {
     "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6334328,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6790738,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -917,15 +948,37 @@
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 9,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792285828.1232092,
-      "next_retry_at": 1792372228.1232092,
-      "fingerprint_cache_available": false,
+      "last_error": null,
+      "last_attempt_at": 1792374390.5616271,
+      "next_retry_at": 0,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
-      "family_status": "search_clue_not_verified"
+      "family_status": "search_clue_not_verified",
+      "evidence": {
+        "sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
+        "duration_sec": 1460.566313,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 730.28
+          }
+        ],
+        "audio_fingerprint_count": 11775,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39186635309"
     },
     "2ae355dfbfd55c88332d": {
       "url": "https://www.bilibili.com/video/BV1xLXeYLExZ",
@@ -1720,10 +1773,10 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 9,
+      "attempts": 10,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792286128.1325314,
-      "next_retry_at": 1792372528.1325314,
+      "last_attempt_at": 1792374690.6017296,
+      "next_retry_at": 1792461090.6017296,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -5598,13 +5651,13 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792286140.981448,
-      "next_retry_at": 1792372540.981448,
+      "last_attempt_at": 1792374705.8191078,
+      "next_retry_at": 1792461105.8191078,
       "download_partial_bytes": 0
     },
     "a95be35ed9c89b3c08f8": {
