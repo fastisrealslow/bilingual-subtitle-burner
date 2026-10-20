@@ -98,6 +98,10 @@ a:hover { text-decoration: underline; }
     <div id="playstats"></div>
   </div>
   <div class="section">
+    <h2>每日四条 · 实验执行对比</h2>
+    <div id="experiment-execution">等待实际发布回执核对</div>
+  </div>
+  <div class="section">
     <h2>✅ 已发布（最近 7 天）</h2>
     <div id="published"></div>
   </div>
@@ -433,6 +437,12 @@ async function load() {
     const alerts = [];
     const supply = ProductionStatus.continuity(snapshot);
     if (supply.status !== 'covered') alerts.push(supply.message);
+    const exp = snapshot && snapshot.publishing_experiment;
+    document.getElementById('experiment-execution').innerHTML = exp && production.fresh
+      ? `<p>第 1、3 条常规；第 2、4 条实验。实际实验投稿 ${Number(exp.actual_treatment_published)||0} 条；有效对比 ${Number(exp.valid_comparison_days)||0} 天。普通片补位不算实验样本。</p>` +
+        '<table class="ps-table"><tr><th>日期</th><th>已发</th><th>常规对照</th><th>实验达标</th><th>补位</th><th>对比状态</th></tr>' +
+        (exp.daily || []).slice(-30).reverse().map(d => `<tr><td>${escapeHtml(d.date)}</td><td>${Number(d.published)||0}/4</td><td>${Number(d.controls)||0}/2</td><td>${Number(d.treatment)||0}/2</td><td>${Number(d.fallback)||0}</td><td>${d.valid_comparison ? '样本已齐，等待同龄播放观察' : '样本不足，不能下效果结论'}</td></tr>`).join('') + '</table>'
+      : '实验执行状态尚未取得新鲜回执，不能认定已完成实验。';
     const now = Date.now() / 1000;
     if (!production.fresh) alerts.push('生产状态快照缺失或超过 3 小时未更新，请查看库存核对工作流。');
     const unresolved = production.tasks.filter(e => ['unknown', 'interrupted'].includes(e.status));

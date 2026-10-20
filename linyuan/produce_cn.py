@@ -6276,7 +6276,9 @@ def main():
                 _ocr(),verified_ocr_text_boxes,LOCAL_FACE_COSINE_THRESHOLD)
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
-    from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, selection_request, validate_choices
+    from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, choose_stories
+    requested_editorial_profile=profile()
+    story_review={}
     if profile()==TREATMENT and source_picks:
         mother_seconds=float(source_report.get('duration_sec') or 0)
         if mother_seconds>=MIN_MOTHER_SECONDS:
@@ -6284,18 +6286,19 @@ def main():
                 story_candidates,excluded=story_selection_inputs(cues,source_picks,source_report,
                     os.environ.get('SOURCE_ORIGIN_URL',''),publication_state or {})
                 if story_candidates:
-                    prompt,schema=selection_request(cues,story_candidates)
-                    response=llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                                 max_tokens=1600,budget_sec=text_budget(240),response_schema=schema)
-                    selected_stories=validate_choices(cues,story_candidates,response)
-                else:response=None;selected_stories=[]
-                (work/'story_selection.json').write_text(json.dumps(dict(
-                    requested_profile=TREATMENT,source_duration_sec=mother_seconds,
-                    candidates=story_candidates,excluded_published=excluded,
-                    response=response,selected=selected_stories),ensure_ascii=False,indent=2))
+                    def story_call(prompt,schema):
+                        return llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                            max_tokens=1600,budget_sec=text_budget(240),response_schema=schema,read_cache=False)
+                    story_review=choose_stories(cues,story_candidates,story_call,work/'story_selection.json')
+                selected_stories=story_review.get('selected',[])
+                story_review.update(requested_profile=TREATMENT,source_duration_sec=mother_seconds,
+                    candidates=story_candidates,excluded_published=excluded)
+                (work/'story_selection.json').write_text(json.dumps(story_review,ensure_ascii=False,indent=2))
                 if selected_stories:source_picks=selected_stories
                 else:print('[实验选题] 没有有证据的故事/公司案例，保留正常生产，不标成实验片',flush=True)
             except (ValueError,LocalTextUnavailable) as exc:
+                story_review['unresolved']=[dict(error=str(exc))]
+                (work/'story_selection.json').write_text(json.dumps(story_review,ensure_ascii=False,indent=2))
                 print('[实验选题] 未形成有效故事证据，保留正常质量路径：'+str(exc),flush=True)
         else:print('[实验选题] 母片不足20分钟，只能作为常规片，不计入长篇精选实验',flush=True)
     if profile()==TREATMENT and not any(p.get('story_selection') for p in source_picks):
@@ -6393,6 +6396,9 @@ def main():
     # Persist complete metadata as soon as a part passes all checks. A later bad
     # part cannot erase earlier successes; diagnostics stay outside delivery.
     def checkpoint(complete=False):
+        from publishing_experiment import production_result, SELECTION_REVISION
+        experiment_result=production_result(requested_editorial_profile,metas,story_review)
+        write_json(out/'experiment_production.json',experiment_result)
         story_family=(__import__('publishing_experiment').family_metadata(
             source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0))
             if profile()==TREATMENT and any(m.get('editorial_profile')==TREATMENT for m in metas) else None)
@@ -6402,6 +6408,8 @@ def main():
                  **({'source_context': source_context} if source_context else {}),
                  "quality_gate_version": QUALITY_GATE_VERSION,
                  "automatic_only": automatic_only(),
+                 **(dict(requested_editorial_profile=TREATMENT,experiment_selection_revision=SELECTION_REVISION)
+                    if requested_editorial_profile==TREATMENT else {}),
                  "source_sha256": source_report.get('source_sha256'),
                  "source_platform": platform,
                  "watermark_cropped": bool(m.get("watermark_removed")),
@@ -6435,6 +6443,7 @@ def main():
             "live_ratio": live / len(metas) if metas else 0,
             "retryable": not metas and any(r.get('retryable') for r in rejected),
             "selection_completed": not any(r.get('retryable') for r in selection_failures),
+            "experiment_production":experiment_result,
             "quality_gate_version": QUALITY_GATE_VERSION})
 
     for ci, (a, b, preselected_picks) in enumerate(work_items):

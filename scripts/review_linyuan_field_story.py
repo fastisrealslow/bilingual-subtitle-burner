@@ -32,13 +32,13 @@ def main():
             row['response']=result
             return result
         finally:row['elapsed_sec']=round(time.monotonic()-start,2);save()
-    prompt,schema=E.selection_request(cues,candidates)
-    stories=E.validate_choices(cues,candidates,call(prompt,schema))
+    selection=E.choose_stories(cues,candidates,call,out/'selection.json')
+    stories=selection['selected']
+    report['selection']=selection
     report['selected']=stories;save()
     assert stories,'Real personal/company examples must not all be discarded'
     negative=[dict(start=0,end=40,text='投资要有认知。长期持有很重要。应该看好公司的基本面。')]
-    prompt,schema=E.selection_request(negative,[dict(start=0,end=0)])
-    rejected=E.validate_choices(negative,[dict(start=0,end=0)],call(prompt,schema))
+    rejected=E.choose_stories(negative,[dict(start=0,end=0)],call,out/'negative-selection.json')['selected']
     assert not rejected,'Generic principles alone are not a concrete personal/company story'
     selected=next((p for p in stories if p['story_selection']['kind']=='company_case'),stories[0])
     source=cues[selected['start']:selected['end']+1]

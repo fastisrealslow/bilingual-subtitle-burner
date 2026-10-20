@@ -134,6 +134,9 @@ def classify(entry, state, inventory, run, now):
                   and not fc.daily_mix_error(p, state.get('daily_publish') or {})
                   and (not entry.get('weekly_full_week') or p.get('content_type') == 'full_interview')]
         if usable:
+            if (entry.get('editorial_profile')==fc.experiment.TREATMENT
+                    and not any(fc.experiment.actual_profile(p)==fc.experiment.TREATMENT for p in usable)):
+                return 'experiment_fallback', f'实验未达标；{len(usable)} 条常规成片可补位，不计入实验库存'
             if entry.get('weekly_full_week'):
                 return 'reserved', '成片已验收，保留在周日 21:00 完整访谈发布位'
             return 'ready', f'{len(usable)} 条成片已验收，等待发布时段及配额'
@@ -180,8 +183,23 @@ def build(state, inventory, runs, now=None):
                 'at_risk' if usable<fc.MAX_PUBLISH_PER_DAY else 'covered'),
         quality_gates_relaxed=False,
         plan=supply_plan(usable if fresh else None, now))
+    experiment_stock=dict(portrait=0,landscape=0) if fresh else None
+    if fresh:
+        latest={e['slug']:e for e in fc._latest_dispatches(state)}
+        seen=set()
+        for record in inventory.get('artifacts',[]):
+            entry=latest.get(record.get('slug'))
+            if not entry or entry.get('failed') or not fc.inventory_record_current(record,now):continue
+            for part in record.get('parts',[]):
+                if (part.get('status')!='verified' or int(part['index']) in fc.processed_part_indices(entry)
+                        or fc.experiment.actual_profile(part)!=fc.experiment.TREATMENT
+                        or fc.inventory_publication_error(part,entry,state)):continue
+                sha=part.get('sha256') or (part.get('fingerprints') or {}).get('sha256')
+                if sha in seen:continue
+                seen.add(sha);experiment_stock['landscape' if fc.is_landscape(part) else 'portrait']+=1
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
                 continuity=continuity,
+                publishing_experiment=fc.experiment.operational_status(state,experiment_stock,now),
                 source_admission=inventory.get('source_admission'),
                 inventory=inventory.get('inventory'),
                 counts=dict(Counter(t['status'] for t in tasks)), tasks=tasks, runs=runs)

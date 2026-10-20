@@ -2309,7 +2309,11 @@ def source_inventory(st, payload=None):
     slot_choices=[]
     seen_files=set();seen_sources={};seen_fingerprints=[]
     if valid:
-        for record in payload.get('artifacts',[]):
+        records=payload.get('artifacts',[])
+        if experiment.preparing():
+            records=sorted(records,key=lambda r:not any(experiment.actual_profile(p)==experiment.TREATMENT
+                for p in r.get('parts',[]) if p.get('status')=='verified'))
+        for record in records:
             slug=record.get('slug'); e=latest.get(slug)
             if not e or e.get('failed') or e.get('uploading') or slug in REVIEW_PAUSED_SLUGS:continue
             if not inventory_record_current(record) or not _has_unpublished_part(e,st):continue
@@ -2518,7 +2522,7 @@ def _dispatch_admitted(event=None, context=None):
             if success>=target or not any(exp_needs.values()):break
             layout='landscape' if exp_needs['landscape'] else 'portrait'
             slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
-                parent.get('source_sha256') or parent['source_url']])[:10]
+                parent.get('source_sha256') or parent['source_url'],experiment.SELECTION_REVISION])[:10]
             gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{'ref':'main','inputs':{
                 'source':parent['source_url'],'slug':slug,'speaker':'林园',
                 'occasion':parent.get('title','')[:30],'auto_publish':'false',
@@ -2532,6 +2536,7 @@ def _dispatch_admitted(event=None, context=None):
                     asset_url=parent['source_url'],delay_hours=0,
                     required_presentation_version=2,production_rules_version=PRODUCTION_RULES_VERSION,
                     editorial_profile=experiment.TREATMENT,output_layout=layout,
+                    experiment_selection_revision=experiment.SELECTION_REVISION,
                     experiment_mother_sha256=parent.get('source_sha256'),
                     experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id']))
             save_state(st)
@@ -2811,9 +2816,20 @@ def experiment_reuse_candidates(state, inventory, items):
     if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
     from source_admission_guard import restriction
     latest={e['slug']:e for e in _latest_dispatches(state)}
-    used={e.get('experiment_parent_slug') for e in latest.values()}
-    used_sources={e.get('source_url') for e in latest.values() if e.get('experiment_parent_slug')}
-    used_hashes={e.get('experiment_mother_sha256') for e in latest.values() if e.get('experiment_mother_sha256')}
+    # One fresh attempt per mother for the fixed selector. Old fallback jobs
+    # are not evidence this revision ran. Never cancel them or relabel output.
+    active_or_current={e['slug']:e for e in latest.values() if
+        e.get('experiment_selection_revision')==experiment.SELECTION_REVISION}
+    current_records={r.get('slug'):r for r in inventory.get('artifacts',[])}
+    for slug,e in latest.items():
+        record=current_records.get(slug,{})
+        if any(experiment.actual_profile(p)==experiment.TREATMENT for p in record.get('parts',[])):
+            active_or_current[slug]=e
+        elif e.get('experiment_parent_slug') and not e.get('failed') and not record:
+            active_or_current[slug]=e  # Unknown/in-flight old outcome: do not duplicate it.
+    used={e.get('experiment_parent_slug') for e in active_or_current.values()}
+    used_sources={e.get('source_url') for e in active_or_current.values() if e.get('experiment_parent_slug')}
+    used_hashes={e.get('experiment_mother_sha256') for e in active_or_current.values() if e.get('experiment_mother_sha256')}
     # Older experiment dispatches omitted the hash, although their parent
     # artifact retained it. Reconstruct it read-only before admitting mirrors.
     for record in inventory.get('artifacts',[]):
