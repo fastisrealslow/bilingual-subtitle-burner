@@ -37203,7 +37203,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-20T11:51:00+00:00"
+   "publish_time": "2026-10-20T11:51:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1020-dcd390",
+    "run_id": 39464451002,
+    "artifact_id": 12284392295,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39464451002,
+    "artifact_id": 12284392295,
+    "name": "production-reject-ly-1020-dcd390",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -104069,6 +104091,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/pBSvK9RTgx08BILk0Rh601041200aLxn0E010.mp4",
    "ts": 1792497777,
    "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+  },
+  {
+   "slug": "ly-1020-dcd390",
+   "key": "bilibili_search:BV1C3pc6PEPJ",
+   "video_id": "BV1C3pc6PEPJ",
+   "ts": 1792517070,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
