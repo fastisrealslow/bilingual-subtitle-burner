@@ -10,7 +10,7 @@ import title_rewrite as T
 
 
 def model_wire(data):
-    return json.dumps(dict(assessment='needs_audio_review' if data['issues'] else 'clear',**data))
+    return json.dumps({'assessment':'needs_audio_review' if data['issues'] else 'clear',**data})
 
 
 def test_real_automatic_answer_is_available_for_independent_title_review():
@@ -153,6 +153,7 @@ def test_invalid_only_classification_never_becomes_a_pass(tmp_path):
     calls=[]
     with pytest.raises(ValueError,match='数字或否定'):
         A.review('否则叫剁胳膊剁腿。','林园','model',lambda *a:calls.append(a) or model_wire(reply),tmp_path/'audit.json')
+    assert len(calls)==2 and not (tmp_path/'audit.json').exists()
 
 
 def test_native_assessment_branches_do_not_waive_contradictory_critical_evidence(tmp_path):
@@ -166,4 +167,3 @@ def test_native_assessment_branches_do_not_waive_contradictory_critical_evidence
     assert list(clear['properties'])==['assessment','explanation','issues']
     assert clear['properties']['issues']['maxItems']==0
     assert issue['properties']['issues']['minItems']==1
-    assert len(calls)==2 and not (tmp_path/'audit.json').exists()
