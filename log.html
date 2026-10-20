@@ -473,12 +473,24 @@ async function load() {
         const freshness = stale
           ? '<div class="alert">播放数据已超过预期更新时间，以下为上次采集结果。<a href="https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/workflows/linyuan-stats.yml" target="_blank">查看采集状态</a></div>'
           : '';
+        const experiment = st.publishing_experiment;
+        const showMetric = v => typeof v === 'number' && Number.isFinite(v) ? v.toLocaleString() : '—';
+        const trialGroups = experiment && Array.isArray(experiment.groups) ? experiment.groups : [];
+        const trialPerformance = experiment
+          ? '<h3>四条交替实验 · 同龄播放观察</h3><p class="ps-note">只比较实际达标的两组，常规补位和完整访谈不混入。这里是累计播放，不是点击率；固定时段、题材和时长仍会影响结果，不能直接归因为方案。</p>' +
+            '<div style="overflow-x:auto"><table class="ps-table"><tr><th>视频年龄</th><th>常规样本</th><th>常规中位／均值</th><th>实验样本</th><th>实验中位／均值</th></tr>' +
+            [24,72,168].map(w => {
+              const normal=trialGroups.find(g=>g.planned==='baseline' && g.window===w)||{};
+              const trial=trialGroups.find(g=>g.planned==='field-story-v1' && g.window===w)||{};
+              return `<tr><td>${w} 小时</td><td>${Number(normal.count)||0}</td><td>${showMetric(normal.median)}／${showMetric(normal.mean)}</td><td>${Number(trial.count)||0}</td><td>${showMetric(trial.median)}／${showMetric(trial.mean)}</td></tr>`;
+            }).join('') + '</table></div><p class="ps-note">“—”表示还没有对应观察值，不是播放量为零。</p>'
+          : '';
         const card = (v, l, cls) => `<div class="ps-card ${cls||''}"><div class="n">${v}</div><div class="l">${l}</div></div>`;
         const nr = st.new_rule || {}, orl = st.old_rule || {}, ov = st.overall || {};
         const lift = (nr.median && orl.median) ? (nr.median / orl.median) : 0;
         const daily = (st.daily || []).slice(0, 10);
         const maxTotal = Math.max(1, ...daily.map(d => d.total));
-        document.getElementById('playstats').innerHTML = freshness +
+        document.getElementById('playstats').innerHTML = freshness + trialPerformance +
           `<div class="ps-grid">
              ${card(ov.count || 0, '总条数')}
              ${card((ov.total || 0).toLocaleString(), '总播放')}
