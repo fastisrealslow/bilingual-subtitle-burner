@@ -35728,7 +35728,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-04-13T10:45:00+00:00"
+   "publish_time": "2026-04-13T10:45:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1019-fc4b6b",
+    "run_id": 39344859949,
+    "artifact_id": 12231335402,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39344859949,
+    "artifact_id": 12231335402,
+    "name": "production-reject-ly-1019-fc4b6b",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "tencent_live:20261020V030C900",
@@ -101122,6 +101144,13 @@
    "video_id": "BV1ZNzeBsEr2",
    "ts": 1792442038,
    "error": "选段原画仍有原字幕或免责声明"
+  },
+  {
+   "slug": "ly-1019-fc4b6b",
+   "key": "bilibili_search:BV1uNQsBmE1u",
+   "video_id": "BV1uNQsBmE1u",
+   "ts": 1792454862,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
