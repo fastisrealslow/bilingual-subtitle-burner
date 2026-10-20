@@ -15,8 +15,6 @@ test('latest terminal row removes eight ghost pending rows',()=>{
   assert.equal(result.tasks.length,1);
   assert.equal(result.failures.length,1);
   assert.equal(result.pending.length,0);
-  data.publishing_experiment.verified_treatment={landscape:4,portrait:0};
-  assert.match(continuity(data,now).message,/横屏 4 条、竖屏 0 条/);
 });
 test('paused history and reserved whole interview are distinct',()=>{
   const e={slug:'mother',ts:1};
@@ -77,6 +75,8 @@ test('normal reserve cannot hide an experiment that is entirely falling back',()
   const result=reconcile({dispatched:[e]},snapshot(e,'experiment_fallback'),now);
   assert.equal(result.failures.length,1);
   assert.equal(result.pending.length,0);
+  data.publishing_experiment.verified_treatment={landscape:4,portrait:0};
+  assert.match(continuity(data,now).message,/横屏 4 条、竖屏 0 条/);
 });
 test('seven-day floor shortfall cannot be hidden by active production',()=>{
   const data=supply(0);
