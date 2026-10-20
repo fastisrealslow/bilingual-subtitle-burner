@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792509168,
-  "inventory_updated_at": 1792506086,
+  "updated_at": 1792509457,
+  "inventory_updated_at": 1792509439,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -73,7 +73,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792509167,
+    "updated_at": 1792509457,
     "records": 11046,
     "video_records": 9495,
     "initial_candidates": 60,
@@ -99,8 +99,8 @@
   "inventory": {
     "verified_live": 16,
     "verified_audio_card": 0,
-    "verified_landscape": 9,
-    "verified_portrait": 7,
+    "verified_landscape": 12,
+    "verified_portrait": 4,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -112,13 +112,12 @@
     "complete": 134,
     "failed": 1173,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "ready": 8,
-    "excluded": 4,
-    "experiment_fallback": 11,
+    "excluded": 5,
+    "experiment_fallback": 12,
     "retry_queued": 3,
-    "awaiting_validation": 1,
-    "running": 1
+    "awaiting_validation": 1
   },
   "tasks": [
     {
@@ -24251,8 +24250,8 @@
     },
     {
       "slug": "ly-story-645b2651be",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792495934,
         "failed": null,
@@ -24265,7 +24264,7 @@
       "run_id": 39415651850,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39415651850",
       "run_started_at": "2026-10-20T11:32:14Z",
-      "run_updated_at": "2026-10-20T11:32:18Z"
+      "run_updated_at": "2026-10-20T15:15:40Z"
     },
     {
       "slug": "ly-1020-4b98ba",
@@ -24323,8 +24322,8 @@
     },
     {
       "slug": "ly-story-8d58b73ad7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792506301,
         "failed": null,
@@ -34782,10 +34781,10 @@
     },
     "ly-story-645b2651be": {
       "id": 39415651850,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-20T11:32:14Z",
-      "updated_at": "2026-10-20T11:32:18Z",
+      "updated_at": "2026-10-20T15:15:40Z",
       "run_started_at": "2026-10-20T11:32:14Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39415651850",
       "run_number": 2356,
