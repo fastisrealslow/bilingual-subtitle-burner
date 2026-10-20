@@ -204,3 +204,15 @@ def test_host_question_is_not_an_actual_experimental_event_proof():
     meta,_,_=fixtures.treatment()
     meta['experiment_proof']['selection']['event_quote']='您当时为什么投资这家公司？'
     assert E.proof_error(meta) and E.actual_profile(meta)==E.BASELINE
+
+
+def test_generic_etf_rules_are_not_a_named_company_case():
+    cues=[dict(text='一般的ETF是跟踪指数。企业不行了，它就给你剔除。成份股会随时调整。')]
+    row=dict(index=0,kind='company_case',subject_quote='一般的ETF是跟踪指数。',
+        event_quote='企业不行了，它就给你剔除。',detail_quote='成份股会随时调整。')
+    with pytest.raises(ValueError,match='Named company'):
+        E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[row]))
+    import test_linyuan_publishing_experiment as fixtures
+    meta,_,_=fixtures.treatment()
+    meta['experiment_proof']['selection'].update(row)
+    assert E.proof_error(meta) and E.actual_profile(meta)==E.BASELINE

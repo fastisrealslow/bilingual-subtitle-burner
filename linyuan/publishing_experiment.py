@@ -13,7 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
-SELECTION_REVISION = 2026102003
+SELECTION_REVISION = 2026102004
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -102,6 +102,7 @@ def selection_request(cues, candidates):
     prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
         '泛泛谈认知、长期投资、行业趋势不能仅靠出现“我”或公司名入选。'
+        'ETF、指数或基金的一般调仓机制不是具体公司案例，必须skip；公司案例的对象原句必须点名具体公司。'
         '保留主持人有信息的问题，不改写、不拼接、不制造冲突。'
         '每个candidate_N只返回一次：kind为personal_story、company_case或skip。'
         '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
@@ -158,6 +159,8 @@ def validate_choices(cues, candidates, response):
                 raise ValueError('A question is context, not guest event/detail evidence')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
+        if row['kind']=='company_case' and not title_focus(row)['subjects']:
+            raise ValueError('Named company subject required; generic assets/rules are not a company case')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
         selected.append({**pick,'story_selection':dict(version=VERSION,**evidence,
             transcript_sha256=digest(text))})
@@ -322,9 +325,10 @@ def title_focus(selection):
     """Literal source-word coverage, not an entailment or speaker approval."""
     import jieba.posseg
     generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
+    categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股'}
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
-        tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
+        tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in (generic|categories if proper else generic)
                 and (w.flag.startswith('n') or not proper and w.flag=='vn')]
         if proper:
             names=[w.word for w in words if w.flag in {'nt','nz','nr'} and w.word in tokens]
@@ -377,7 +381,10 @@ def proof_error(meta):
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
-    focus_issue=title_focus_error(meta.get('title'),title_focus(s),cover=meta.get('cover_title'))
+    focus=title_focus(s)
+    if s['kind']=='company_case' and not focus['subjects']:
+        return 'A generic asset/rule is not a named company case'
+    focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),
                        ('video_sha256',(meta.get('fingerprints') or {}).get('sha256')),

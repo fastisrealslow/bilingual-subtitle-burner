@@ -37,8 +37,9 @@ def main():
     report['selection']=selection
     report['selected']=stories;save()
     assert stories,'Real personal/company examples must not all be discarded'
-    negative=[dict(start=0,end=40,text='投资要有认知。长期持有很重要。应该看好公司的基本面。')]
-    rejected=E.choose_stories(negative,[dict(start=0,end=0)],call,out/'negative-selection.json')['selected']
+    negative=[dict(start=0,end=40,text='投资要有认知。长期持有很重要。应该看好公司的基本面。'),
+        dict(start=40,end=90,text='一般的ETF是跟踪指数。过段时间企业不行了，它就给你剔除。成份股会随时调整，不能把ETF当静态的。')]
+    rejected=E.choose_stories(negative,[dict(start=i,end=i) for i in range(len(negative))],call,out/'negative-selection.json')['selected']
     assert not rejected,'Generic principles alone are not a concrete personal/company story'
     selected=next((p for p in stories if p['story_selection']['kind']=='company_case'),stories[0])
     source=cues[selected['start']:selected['end']+1]
