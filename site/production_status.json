@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792499651,
-  "inventory_updated_at": 1792499326,
+  "updated_at": 1792506113,
+  "inventory_updated_at": 1792506086,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 17,
-    "active_or_recovering_sources": 6,
+    "verified_daily_stock": 16,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,9 +14,9 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 17,
+      "verified_stock_snapshot": 16,
       "minimum_week_shortfall": 0,
-      "preferred_week_shortfall": 4,
+      "preferred_week_shortfall": 5,
       "reserve_shortfall": 0,
       "dates": [
         "2026-10-20",
@@ -39,7 +39,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 5,
+    "consecutive_fallbacks": 6,
     "actual_treatment_published": 0,
     "valid_comparison_days": 0,
     "daily": [
@@ -61,10 +61,10 @@
       },
       {
         "date": "2026-10-20",
-        "published": 3,
+        "published": 4,
         "treatment": 0,
         "controls": 2,
-        "fallback": 1,
+        "fallback": 2,
         "valid_comparison": false
       }
     ],
@@ -73,7 +73,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792499650,
+    "updated_at": 1792506112,
     "records": 11046,
     "video_records": 9495,
     "initial_candidates": 60,
@@ -97,14 +97,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 17,
+    "verified_live": 16,
     "verified_audio_card": 0,
-    "verified_landscape": 12,
-    "verified_portrait": 5,
+    "verified_landscape": 9,
+    "verified_portrait": 7,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 17,
+    "daily_mix_usable": 16,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -113,12 +113,12 @@
     "failed": 1173,
     "paused": 5,
     "interrupted": 4,
-    "ready": 9,
-    "excluded": 1,
-    "experiment_fallback": 12,
+    "ready": 8,
+    "excluded": 4,
+    "experiment_fallback": 11,
     "retry_queued": 3,
     "awaiting_validation": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -21102,7 +21102,7 @@
     {
       "slug": "ly-1015-5e4dd0",
       "status": "ready",
-      "detail": "3 条成片已验收，等待发布时段及配额",
+      "detail": "2 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792071947,
         "failed": null,
@@ -21372,7 +21372,7 @@
     {
       "slug": "ly-1016-9841c2",
       "status": "ready",
-      "detail": "3 条成片已验收，等待发布时段及配额",
+      "detail": "2 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792134917,
         "failed": null,
@@ -22289,8 +22289,8 @@
     },
     {
       "slug": "ly-1017-d6a6b6",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792222762,
         "failed": null,
@@ -22577,8 +22577,8 @@
     },
     {
       "slug": "ly-story-ace7c25504",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792238654,
         "failed": null,
@@ -22596,7 +22596,7 @@
     {
       "slug": "ly-story-1cde6f36c0",
       "status": "experiment_fallback",
-      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792238663,
         "failed": null,
@@ -23747,13 +23747,13 @@
     },
     {
       "slug": "ly-story-91583611c8",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792486368,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
@@ -23856,7 +23856,7 @@
     {
       "slug": "ly-story-c551c25a26",
       "status": "experiment_fallback",
-      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792487449,
         "failed": null,
@@ -24215,8 +24215,8 @@
     },
     {
       "slug": "ly-story-cbaf21d67f",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792494252,
         "failed": false,
@@ -24229,7 +24229,7 @@
       "run_id": 39412336956,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39412336956",
       "run_started_at": "2026-10-20T11:04:12Z",
-      "run_updated_at": "2026-10-20T11:04:17Z"
+      "run_updated_at": "2026-10-20T14:19:50Z"
     },
     {
       "slug": "ly-story-29974ac69b",
@@ -34753,10 +34753,10 @@
     },
     "ly-story-cbaf21d67f": {
       "id": 39412336956,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-20T11:04:12Z",
-      "updated_at": "2026-10-20T11:04:17Z",
+      "updated_at": "2026-10-20T14:19:50Z",
       "run_started_at": "2026-10-20T11:04:12Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39412336956",
       "run_number": 2354,
