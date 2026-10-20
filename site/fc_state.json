@@ -36151,7 +36151,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5335552804520158",
@@ -36487,8 +36488,8 @@
    "publish_time": "2026-10-20T08:00:02+08:00",
    "production_failure_summary": {
     "slug": "ly-1020-8096f7",
-    "run_id": 39349579924,
-    "artifact_id": 12233275762,
+    "run_id": 39396048274,
+    "artifact_id": 12251863031,
     "accepted": 0,
     "failures": [
      {
@@ -36497,15 +36498,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39349579924,
-    "artifact_id": 12233275762,
+    "run_id": 39396048274,
+    "artifact_id": 12251863031,
     "name": "production-reject-ly-1020-8096f7",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
