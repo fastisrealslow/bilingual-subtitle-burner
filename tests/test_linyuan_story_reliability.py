@@ -178,3 +178,29 @@ def test_old_filler_proof_cannot_become_an_actual_experiment_again():
     meta,_,_=fixtures.treatment()
     meta['experiment_proof']['selection']['detail_quote']='嗯，好呀。'
     assert E.proof_error(meta) and E.actual_profile(meta)==E.BASELINE
+
+
+def test_real_asr_display_boundaries_do_not_truncate_story_reasons_or_approve_questions():
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_888_source_selection.json').read_text())
+    cues=fixture['cues'];picks=[dict(start=76,end=87)]
+    row=E._selection_rows(cues,picks)[0]
+    quotes={s['id']:s['text'] for s in row['sentences']}
+    assert '因为中国人那时候的收入它达到了一定的水平，就是要爆发的前期。' in quotes.values()
+    assert '我们当时提出了一个理论是消费升级啊，就投消费升级。' in quotes.values()
+    assert '因为中国人那时候的收入它达到了一定的' not in quotes.values()
+    _,schema=E.selection_request(cues,picks)
+    allowed=schema['properties']['candidate_0']['properties']
+    for role in ('event_sentence','detail_sentence'):
+        assert all('？' not in quotes[i] for i in allowed[role]['enum'])
+    host=next(i for i,q in quotes.items() if '为什么会选择投资茅台？' in q)
+    answer=next(i for i,q in quotes.items() if '就投消费升级。' in q)
+    with pytest.raises(ValueError,match='question'):
+        E.validate_choices(cues,picks,dict(candidate_0=dict(kind='company_case',
+            subject_sentence=host,event_sentence=host,detail_sentence=answer)))
+
+
+def test_host_question_is_not_an_actual_experimental_event_proof():
+    import test_linyuan_publishing_experiment as fixtures
+    meta,_,_=fixtures.treatment()
+    meta['experiment_proof']['selection']['event_quote']='您当时为什么投资这家公司？'
+    assert E.proof_error(meta) and E.actual_profile(meta)==E.BASELINE

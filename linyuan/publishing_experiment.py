@@ -13,7 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
-SELECTION_REVISION = 2026102002
+SELECTION_REVISION = 2026102003
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -72,17 +72,17 @@ def _selection_rows(cues,candidates):
         # Never truncate an answer's context to fit the classifier.
         if len(text) > 2400 or sum(len(r['text']) for r in rows)+len(text)>12000:
             continue
-        # Long oral answers often contain commas but only one final period.
-        # Keep the COMPLETE answer as context; offer intact ASR cue/phrase
-        # boundaries for evidence instead of making the whole answer >140
-        # chars and therefore unselectable (real Tencent/Apple answer: 178).
+        # ASR display cues can split a word ("一定的" / "水平"). They are
+        # NOT grammatical evidence boundaries. Rejoin the complete answer,
+        # keep natural sentences, and only split >140-character sentences at
+        # their real comma/semicolon boundaries. No words/context are dropped.
         units=[]
-        for cue in cues[pick['start']:pick['end']+1]:
-            for match in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',cue['text'],re.S):
-                value=match.group(0)
-                units.extend(re.findall(r'.+?(?:[，,；;]+|$)',value,re.S) if len(value)>140 else [value])
+        for match in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S):
+            value=match.group(0)
+            units.extend(re.findall(r'.+?(?:[，,；;]+|$)',value,re.S) if len(value)>140 else [value])
         sentences=[dict(id=i,text=value) for i,value in enumerate(units)]
-        if not any(len(s['text'])<=140 and _substantive_quote(s['text'],4) for s in sentences):continue
+        if not any(len(s['text'])<=140 and _substantive_quote(s['text'],4)
+                   and not re.search(r'[？?]',s['text']) for s in sentences):continue
         rows.append(dict(index=index,text=text,sentences=sentences))
     return rows
 
@@ -95,7 +95,8 @@ def selection_request(cues, candidates):
             required=['kind','subject_sentence','event_sentence','detail_sentence'],properties={
                 'kind':dict(type='string',enum=['skip','personal_story','company_case']),
                 **{k:dict(type='integer',enum=[s['id'] for s in row['sentences'] if len(s['text'])<=140
-                    and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)])
+                    and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)
+                    and (k=='subject_sentence' or not re.search(r'[？?]',s['text']))])
                    for k in ('subject_sentence','event_sentence','detail_sentence')}})
     schema=dict(type='object',additionalProperties=False,required=list(properties),properties=properties)
     prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
@@ -153,6 +154,8 @@ def validate_choices(cues, candidates, response):
                 raise ValueError('Story evidence is not an intact quote in this candidate: '+key)
             if not _substantive_quote(quote,minimum):
                 raise ValueError('Story evidence must contain a substantive source detail, not a filler')
+            if key!='subject_quote' and re.search(r'[？?]',quote):
+                raise ValueError('A question is context, not guest event/detail evidence')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
@@ -368,6 +371,7 @@ def proof_error(meta):
                 or not MIN_MOTHER_SECONDS<=float(p['source_duration_sec'])<=5400
                 or s.get('version')!=VERSION or s.get('kind') not in ('personal_story','company_case')
                 or not all(isinstance(s.get(k),str) and minimum<=len(s[k])<=140 and _substantive_quote(s[k],minimum)
+                           and (k=='subject_quote' or not re.search(r'[？?]',s[k]))
                            for k,minimum in (('subject_quote',2),('event_quote',4),('detail_quote',4)))
                 or not re.fullmatch('[a-f0-9]{64}',str(s.get('transcript_sha256') or ''))
                 or s['event_quote']==s['detail_quote']):
