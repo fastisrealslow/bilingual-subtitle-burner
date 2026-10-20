@@ -435,7 +435,7 @@ jobs:
 
         '
     - name: 原文件逐项复验并生成无重复视频的发布包
-      run: python compact_delivery.py --directory "deliver/$RUN_SLUG" --slug "$RUN_SLUG"
+      run: python compact_delivery.py --directory "deliver/$RUN_SLUG" --slug "$RUN_SLUG" --preview-only
     - name: 上传成片到 Artifact
       uses: actions/upload-artifact@v4
       with:

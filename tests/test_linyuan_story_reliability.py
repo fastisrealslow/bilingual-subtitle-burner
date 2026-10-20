@@ -140,3 +140,33 @@ def test_scene_cover_finds_real_pixels_between_measured_source_banners():
     for width,height in [(800,450),(1080,1920)]:
         with pytest.raises(ValueError):scene_cover_crop(face,width,height,[])
     with pytest.raises(ValueError):scene_cover_crop(face,1920,1080,[(0,.3,1,.8)])
+
+
+def test_long_guest_answer_is_selectable_without_truncating_its_context():
+    # Production had one 178-character answer, excluded by a 140-char quote
+    # ceiling, leaving only the host question and 嗯好呀 selectable.
+    first='我当时听人讲过腾讯，后来没有买。'
+    rest='后来又有人跟我介绍产品，我听过以后仍然没有买，'
+    long=first+rest*9+'所以这些机会都是存在。'
+    cues=[dict(text='有没有哪次看走眼？'),dict(text=long),dict(text='嗯，好呀。')]
+    rows=E._selection_rows(cues,[dict(start=0,end=2)])
+    assert rows[0]['text']==''.join(c['text'] for c in cues)
+    assert ''.join(s['text'] for s in rows[0]['sentences'])==rows[0]['text']
+    assert any('腾讯' in s['text'] and len(s['text'])<=140 for s in rows[0]['sentences'])
+    assert any('仍然没有买' in s['text'] and len(s['text'])<=140 for s in rows[0]['sentences'])
+    response=dict(choices=[dict(index=0,kind='personal_story',subject_quote='腾讯',
+        event_quote=first,detail_quote='嗯，好呀。')])
+    with pytest.raises(ValueError,match='filler'):E.validate_choices(cues,[dict(start=0,end=2)],response)
+
+
+def test_preview_identity_requires_explicit_readonly_bundle_mode(tmp_path):
+    from compact_delivery import compact
+    with pytest.raises(ValueError,match='slug'):compact(tmp_path,'preview-123',validate=lambda *a:None)
+    with pytest.raises(ValueError,match='slug'):compact(tmp_path,'ly-production',validate=lambda *a:None,preview_only=True)
+
+
+def test_old_filler_proof_cannot_become_an_actual_experiment_again():
+    import test_linyuan_publishing_experiment as fixtures
+    meta,_,_=fixtures.treatment()
+    meta['experiment_proof']['selection']['detail_quote']='嗯，好呀。'
+    assert E.proof_error(meta) and E.actual_profile(meta)==E.BASELINE

@@ -13,7 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
-SELECTION_REVISION = 2026102001
+SELECTION_REVISION = 2026102002
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -59,6 +59,12 @@ def digest(value):
                                     separators=(',', ':')).encode()).hexdigest()
 
 
+def _substantive_quote(quote, minimum):
+    plain=re.sub(r'[^\w\u4e00-\u9fff]','',quote)
+    return (len(quote)>=minimum and len(plain)>=max(2,minimum-1)
+        and not re.fullmatch(r'(?:嗯|啊|呃|哦|噢|好呀|好啊|好吧|好的|是吧|是的|对|对吧|对的|没错|谢谢您|谢谢|好|呀)+',plain))
+
+
 def _selection_rows(cues,candidates):
     rows=[]
     for index, pick in enumerate(candidates[:12]):
@@ -66,9 +72,17 @@ def _selection_rows(cues,candidates):
         # Never truncate an answer's context to fit the classifier.
         if len(text) > 2400 or sum(len(r['text']) for r in rows)+len(text)>12000:
             continue
-        units=[m.group(0) for m in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S)]
+        # Long oral answers often contain commas but only one final period.
+        # Keep the COMPLETE answer as context; offer intact ASR cue/phrase
+        # boundaries for evidence instead of making the whole answer >140
+        # chars and therefore unselectable (real Tencent/Apple answer: 178).
+        units=[]
+        for cue in cues[pick['start']:pick['end']+1]:
+            for match in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',cue['text'],re.S):
+                value=match.group(0)
+                units.extend(re.findall(r'.+?(?:[，,；;]+|$)',value,re.S) if len(value)>140 else [value])
         sentences=[dict(id=i,text=value) for i,value in enumerate(units)]
-        if not any(4<=len(s['text'])<=140 for s in sentences):continue
+        if not any(len(s['text'])<=140 and _substantive_quote(s['text'],4) for s in sentences):continue
         rows.append(dict(index=index,text=text,sentences=sentences))
     return rows
 
@@ -77,11 +91,12 @@ def selection_request(cues, candidates):
     rows=_selection_rows(cues,candidates)
     properties={}
     for row in rows:
-        ids=[s['id'] for s in row['sentences'] if 4<=len(s['text'])<=140]
         properties['candidate_'+str(row['index'])]=dict(type='object',additionalProperties=False,
             required=['kind','subject_sentence','event_sentence','detail_sentence'],properties={
                 'kind':dict(type='string',enum=['skip','personal_story','company_case']),
-                **{k:dict(type='integer',enum=ids) for k in ('subject_sentence','event_sentence','detail_sentence')}})
+                **{k:dict(type='integer',enum=[s['id'] for s in row['sentences'] if len(s['text'])<=140
+                    and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)])
+                   for k in ('subject_sentence','event_sentence','detail_sentence')}})
     schema=dict(type='object',additionalProperties=False,required=list(properties),properties=properties)
     prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
@@ -91,6 +106,8 @@ def selection_request(cues, candidates):
         '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
         '说的具体事情或选择；detail_sentence是另一条原话原因/经过/细节，不能与event_sentence相同。'
         '不能从别的片段借事实，不能把主持人的假设当嘉宾结论。'
+        '事件必须是嘉宾讲出的具体行为、经历或公司发生的事；“机会存在”等抽象总结不是事件。'
+        '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
     return prompt, schema
@@ -107,7 +124,7 @@ def validate_choices(cues, candidates, response):
             verdict=response['candidate_'+str(row['index'])]
             if not isinstance(verdict,dict):raise ValueError('Invalid per-candidate story verdict')
             if verdict.get('kind')=='skip':continue
-            units={s['id']:s['text'] for s in row['sentences'] if 4<=len(s['text'])<=140}
+            units={s['id']:s['text'] for s in row['sentences'] if 2<=len(s['text'])<=140}
             choice=dict(index=row['index'],kind=verdict.get('kind'))
             for role in ('subject','event','detail'):
                 index=verdict.get(role+'_sentence')
@@ -134,6 +151,8 @@ def validate_choices(cues, candidates, response):
             quote=row.get(key)
             if not isinstance(quote,str) or not minimum<=len(quote)<=140 or quote not in text:
                 raise ValueError('Story evidence is not an intact quote in this candidate: '+key)
+            if not _substantive_quote(quote,minimum):
+                raise ValueError('Story evidence must contain a substantive source detail, not a filler')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
@@ -346,7 +365,7 @@ def proof_error(meta):
         if (p.get('version')!=VERSION or p.get('profile')!=TREATMENT
                 or not MIN_MOTHER_SECONDS<=float(p['source_duration_sec'])<=5400
                 or s.get('version')!=VERSION or s.get('kind') not in ('personal_story','company_case')
-                or not all(isinstance(s.get(k),str) and minimum<=len(s[k])<=140
+                or not all(isinstance(s.get(k),str) and minimum<=len(s[k])<=140 and _substantive_quote(s[k],minimum)
                            for k,minimum in (('subject_quote',2),('event_quote',4),('detail_quote',4)))
                 or not re.fullmatch('[a-f0-9]{64}',str(s.get('transcript_sha256') or ''))
                 or s['event_quote']==s['detail_quote']):

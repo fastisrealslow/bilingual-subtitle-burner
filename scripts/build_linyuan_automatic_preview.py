@@ -32,6 +32,8 @@ def build():
             step['env']['RECOVERY_RUN_ID']='${{ env.RUN_RECOVERY_RUN_ID }}'
         if step.get('name','').startswith('留存独立实验交付结果'):
             step['if']="always() && env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'"
+        if step.get('name')=='原文件逐项复验并生成无重复视频的发布包':
+            step['run']+=' --preview-only'
         if 'run' in step:
             for name in ('RUN_SOURCE', 'RUN_SLUG', 'RUN_SPEAKER', 'RUN_OCCASION', 'RUN_SOURCE_PLATFORM'):
                 step['run'] = step['run'].replace('${{ env.' + name + ' }}', '$' + name)
