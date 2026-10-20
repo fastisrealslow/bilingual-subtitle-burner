@@ -110,6 +110,25 @@ def test_old_style_audit_cache_requires_new_actual_review(tmp_path):
     assert calls==[1] and proof['version']==4 and not proof['audio_verified']
 
 
+def test_changed_prompt_requires_fresh_review_without_waiving_numbers(tmp_path):
+    text='几块钱，的是五六块钱。';path=tmp_path/'audit.json';calls=[]
+    path.write_text(json.dumps(dict(version=A.VERSION,transcript_sha256=A.text_digest(text),
+        speaker='嘉宾',model='model',issues=[],passed=True)))
+    def call(prompt,schema):
+        calls.append(prompt)
+        assert '先泛指、后补充' in prompt and '不得把“五六”改成“五十六”' in prompt
+        return json.dumps(dict(issues=[],explanation='近似数补充，不是数字冲突'))
+    proof=A.review(text,'嘉宾','model',call,path)
+    assert len(calls)==1 and proof['prompt_version']==A.PROMPT_VERSION
+    assert proof['audio_verified'] is False and not A.ordinary_disfluency('五六块钱')
+    # Even this normally clear wording is NOT auto-whitelisted. A model's
+    # actual bound critical issue still blocks; text/number values stay intact.
+    issue=dict(issues=[dict(sentence_id=0,suspect_quote='五六',kind='ambiguous_number_or_negation',
+        reason='关键数字本身仍需原音确认')],explanation='保留原文并复核')
+    blocked=A.review(text,'嘉宾','model',lambda *a:json.dumps(issue),tmp_path/'new.json')
+    assert not blocked['passed'] and blocked['issues'][0]['suspect_quote']=='五六'
+
+
 def test_valid_negative_issue_survives_misclassified_extra_issue(tmp_path):
     text='林元谈投资。否则叫剁胳膊剁腿。'
     reply=dict(issues=[
