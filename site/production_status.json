@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792493072,
-  "inventory_updated_at": 1792492888,
+  "updated_at": 1792493301,
+  "inventory_updated_at": 1792493276,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 16,
-    "active_or_recovering_sources": 11,
+    "verified_daily_stock": 17,
+    "active_or_recovering_sources": 9,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,9 +14,9 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 16,
+      "verified_stock_snapshot": 17,
       "minimum_week_shortfall": 0,
-      "preferred_week_shortfall": 5,
+      "preferred_week_shortfall": 4,
       "reserve_shortfall": 0,
       "dates": [
         "2026-10-20",
@@ -73,7 +73,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792493071,
+    "updated_at": 1792493300,
     "records": 11020,
     "video_records": 9475,
     "initial_candidates": 60,
@@ -97,14 +97,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 16,
+    "verified_live": 17,
     "verified_audio_card": 0,
-    "verified_landscape": 12,
+    "verified_landscape": 13,
     "verified_portrait": 4,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 16,
+    "daily_mix_usable": 17,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -112,11 +112,11 @@
     "complete": 134,
     "failed": 1165,
     "paused": 5,
-    "interrupted": 4,
+    "interrupted": 5,
     "ready": 9,
     "excluded": 1,
-    "experiment_fallback": 9,
-    "running": 6,
+    "experiment_fallback": 10,
+    "running": 4,
     "retry_queued": 5
   },
   "tasks": [
@@ -23854,8 +23854,8 @@
     },
     {
       "slug": "ly-story-c551c25a26",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792487449,
         "failed": null,
@@ -23868,7 +23868,7 @@
       "run_id": 39398787270,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39398787270",
       "run_started_at": "2026-10-20T09:10:49Z",
-      "run_updated_at": "2026-10-20T09:10:53Z"
+      "run_updated_at": "2026-10-20T10:46:50Z"
     },
     {
       "slug": "ly-1017-e989b4",
@@ -24178,8 +24178,8 @@
     },
     {
       "slug": "ly-1017-49600e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792492764,
         "failed": false,
@@ -24192,7 +24192,7 @@
       "run_id": 39409468463,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39409468463",
       "run_started_at": "2026-10-20T10:39:24Z",
-      "run_updated_at": "2026-10-20T10:39:28Z"
+      "run_updated_at": "2026-10-20T10:46:40Z"
     },
     {
       "slug": "ly-1017-a94b3e",
@@ -34534,10 +34534,10 @@
     },
     "ly-1017-49600e": {
       "id": 39409468463,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-20T10:39:24Z",
-      "updated_at": "2026-10-20T10:39:28Z",
+      "updated_at": "2026-10-20T10:46:40Z",
       "run_started_at": "2026-10-20T10:39:24Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39409468463",
       "run_number": 2348,
@@ -34567,10 +34567,10 @@
     },
     "ly-story-c551c25a26": {
       "id": 39398787270,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-20T09:10:49Z",
-      "updated_at": "2026-10-20T09:10:53Z",
+      "updated_at": "2026-10-20T10:46:50Z",
       "run_started_at": "2026-10-20T09:10:49Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39398787270",
       "run_number": 2335,
