@@ -328,7 +328,8 @@ def title_focus(selection):
     categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股'}
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
-        tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in (generic|categories if proper else generic)
+        tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
+                and (not proper or w.word.upper() not in categories)
                 and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
                      or not proper and w.flag=='vn')]
         if proper:
