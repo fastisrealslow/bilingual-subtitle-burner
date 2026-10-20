@@ -7,7 +7,7 @@ from editorial_evidence import sentences
 from editorial_policy import text_digest
 
 VERSION = 4
-PROMPT_VERSION = 2026102001
+PROMPT_VERSION = 2026102002
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 
@@ -47,11 +47,22 @@ def review(text, speaker, model, call, path):
         kind=dict(type='string',enum=['unintelligible_term','ambiguous_number_or_negation']),
         reason=dict(type='string',minLength=1,maxLength=120)))
     issue['required']=list(issue['properties'])
-    schema=dict(type='object',additionalProperties=False,properties=dict(
-        issues=dict(type='array',maxItems=6,items=issue),
-        explanation=dict(type='string',minLength=1,maxLength=180)))
-    schema['required']=list(schema['properties'])
-    prompt=('只检查以下自动识别文字是否有明显影响理解的识别疑点，不审核观点完整性、吸引力或投资判断对错。'
+    # Decide BEFORE opening an issue array. With issues first, the constrained
+    # decoder committed to an item, then explained that it was NOT an issue.
+    # Mutually exclusive native branches prevent that structural false reject;
+    # clear never overrides an actual issue, and malformed output fails closed.
+    branches=[]
+    for assessment,minimum,maximum in [('clear',0,0),('needs_audio_review',1,6)]:
+        branch=dict(type='object',additionalProperties=False,properties=dict(
+            assessment=dict(type='string',enum=[assessment]),
+            explanation=dict(type='string',minLength=1,maxLength=180),
+            issues=dict(type='array',minItems=minimum,maxItems=maximum,items=issue)))
+        branch['required']=list(branch['properties']);branches.append(branch)
+    schema=dict(type='object',oneOf=branches)
+    prompt=('先判断assessment：clear表示没有具体识别疑点，needs_audio_review表示存在需原音复核的具体疑点。'
+        '先说明explanation，再给issues；clear分支只能返回空数组，needs_audio_review必须给出具体疑点。'
+        '若理由认为没有错写、不是识别错误或不应列为疑点，就选择clear，不能先填一个问题再解释它不是问题。'
+        '只检查以下自动识别文字是否有明显影响理解的识别疑点，不审核观点完整性、吸引力或投资判断对错。'
         '你没有听到原音，不能声称核实了发音，更不能修改原文。'
         '逐句只检查无法解释的具体词语、疑似错写的专有名词，以及含义不明的关键数字或否定。'
         '不要因为文字出现在字幕里就默认识别正确，也不要把不自然的金融或行业词自动解释成行话。'
@@ -83,6 +94,10 @@ def review(text, speaker, model, call, path):
             data=json.loads(raw)
             if not isinstance(data,dict) or not isinstance(data.get('issues'),list):
                 raise ValueError('Missing source issue list')
+            assessment=data.get('assessment')
+            if (assessment not in {'clear','needs_audio_review'}
+                    or (assessment=='clear') != (not data['issues'])):
+                raise ValueError('Assessment and issues must agree; never silently drop an issue to create a pass')
             if not isinstance(data.get('explanation'),str) or not data['explanation'].strip():
                 raise ValueError('Missing text-review explanation')
             bound=[];ignored=[];invalid=[]
@@ -107,7 +122,7 @@ def review(text, speaker, model, call, path):
             # must still be retried/fail closed. Valid issues remain blockers.
             if invalid and not bound:
                 raise ValueError(invalid[0]['invalid_reason'])
-            proof={**identity,'issues':bound,'ignored_style_objections':ignored,'passed':not bound,'explanation':data['explanation'],
+            proof={**identity,'model_assessment':assessment,'issues':bound,'ignored_style_objections':ignored,'passed':not bound,'explanation':data['explanation'],
                    'invalid_issue_evidence':invalid,'audio_verified':False,'method':'independent_cpu_text_plausibility'}
             path.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
             return proof
