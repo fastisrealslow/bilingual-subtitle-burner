@@ -32410,13 +32410,13 @@
    "publish_time": "2026-10-17T08:00:01+08:00",
    "production_failure_summary": {
     "slug": "ly-1017-3b9b4d",
-    "run_id": 38985905740,
-    "artifact_id": 12083223498,
+    "run_id": 39031057725,
+    "artifact_id": 12100950111,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，且该错误直接影响人物指代的准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\","
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"百亿私募掌舵人林元，十月十五号在私募排排网最新路演，十大核心观点出炉，分享其从八千块入市，做到百亿的投资秘诀，未来看好的方向，信息量非常大，一定要点赞收藏好。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林元”属于明显的专有名词错写，影响人物指代准确性。\"}, {\"sentence_id\": 8, \"quote\": \"第七，我们布局医药，就是等着老龄化，七八十岁人增多，像猜一样突然爆发。\", \"suspe"
      }
     ]
    },
@@ -32714,13 +32714,13 @@
    "publish_time": "2026-10-16T13:05:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1016-97508c",
-    "run_id": 38976111686,
-    "artifact_id": 12078998580,
+    "run_id": 39034353008,
+    "artifact_id": 12101693128,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键否定与指代不明：‘没有一个’后接‘我们没看到’，导致逻辑断裂；‘是他们的一个市场’中‘他们’指代不清（是指早期公司、当前领头羊还是其他主体？），且‘一个市场’数量词模糊，无法确定具体含义。\"}, {\"sentence_id\": 8, \"quote\": \"互联网早期取取"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"现在的一些领头羊，基本上不是他，没有一个，我们没看到，是他们的一个市场。\", \"suspect_quote\": \"没有一个，我们没看到，是他们的一个市场。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘没有一个’与‘我们没看到’连用导致逻辑指代混乱，且‘是他们的一个市场’中‘一个’作为数量词在口语语境下缺乏明确参照对象（是指一家公司、一类公司还是市场份额比例？），属于无法解释的具体词语污染。\"}]"
      }
     ]
    },
@@ -36727,17 +36727,29 @@
    "recovery_origin_run_id": 39046394552,
    "production_failure_summary": {
     "slug": "ly-story-7884c0eb85",
-    "run_id": 39411448572,
-    "artifact_id": 12261296346,
+    "run_id": 39031325296,
+    "artifact_id": 12101611132,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，'是五六块钱'中的'是'字在此处作为口语连接词使用，但'五六块钱'指代模糊（是约数还是具体区间？），且与前文'几块钱'的对比逻辑在字幕中不够清晰，可能影响对价格判断的理解。\"}]"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'放放回到'不符合中文语法逻辑，应为'放回'或'放回到'，多出的'放'字导致语义不通。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是是没"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似口吃或识别冗余，但结合上下文“把您放回到”语义通顺，此处“放放”极可能是口语重复而非错别字；若严格按“无法解释的具体词语”标准，此处在口语中可接受，暂不列为疑点。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不不没投这个东西。\", \"suspect_quote\": \"我也我虽然不不没投这个东西。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不不没’存在多重否定叠加且无明确逻辑指向，属于含义不明的关键否定结构，需指出原文实际否定字‘不、没’的混乱组合。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
      }
     ]
    },
@@ -104966,7 +104978,7 @@
  },
  "source_refresh_requested_at": 1792496169,
  "inventory_refresh_requested_at": 1792408478,
- "rule_recovery_page": 2,
+ "rule_recovery_page": 3,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
