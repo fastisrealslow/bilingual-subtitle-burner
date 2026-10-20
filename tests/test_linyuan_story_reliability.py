@@ -127,3 +127,16 @@ def test_independent_delivery_gate_rejects_baseline_and_changed_actual_bytes(tmp
     with pytest.raises(ValueError,match='bytes'):module.verify(tmp_path)
     meta['editorial_profile']=E.BASELINE;(tmp_path/'meta.json').write_text(json.dumps(meta))
     with pytest.raises(ValueError,match='NOT experiment success'):module.verify(tmp_path)
+
+
+def test_scene_cover_finds_real_pixels_between_measured_source_banners():
+    from source_geometry import scene_cover_crop
+    face=(818,401,273,403);marks=[(0,0,1,.25),(0,.89,1,1)]
+    x,y,w,h=scene_cover_crop(face,1920,1080,marks)
+    assert w>=960 and h>=540 and 1.6<=w/h<=1.95
+    assert y>=1080*.25 and y+h<=1080*.89
+    assert x<=818 and x+w>=818+273 and y<=401 and y+h>=804
+    # Do not turn a low-resolution / portrait source into a fake clean scene.
+    for width,height in [(800,450),(1080,1920)]:
+        with pytest.raises(ValueError):scene_cover_crop(face,width,height,[])
+    with pytest.raises(ValueError):scene_cover_crop(face,1920,1080,[(0,.3,1,.8)])

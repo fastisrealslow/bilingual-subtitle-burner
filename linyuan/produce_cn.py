@@ -4009,7 +4009,7 @@ def cover_sample_context(src, tracked, start, end, clean_filter='', natural_scen
 
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                video_filter="", preferred_time=None, reference_path=None, style="photo",
-               allow_editorial_fallback=False):
+               allow_editorial_fallback=False, clean_scene_crop=False):
     """封面:抽帧 → 人脸检测裁切 → 16:9 → 底部渐变 → 标题大字。
 
     竖屏视频也输出 16:9 横屏封面(2026-08-23 修复):B站封面信息流是横屏显示,
@@ -4034,6 +4034,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     offsets=(-.6,0,.6) if preferred_time is not None else tuple(
         p*(seg_end-seg_start) for p in (-.3,-.2,-.1,0,.1,.2,.3))
     sample_times=sorted({min(hi,max(lo,center+d)) for d in offsets})
+    if clean_scene_crop and style=='scene':
+        sample_times=sorted(set(sample_times)|{lo+(hi-lo)*p for p in (.10,.25,.40,.55,.70,.85,.95)})
     def extract_frame(t, idx):
         fp = tmp.with_suffix(f".{idx}.png")
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.1f}",
@@ -4052,6 +4054,47 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     if not frames:
         raise VisualQualityError("封面无法抽帧")
+    scene_crops={}
+    if clean_scene_crop and style=='scene':
+        import cv2
+        from source_geometry import scene_cover_crop
+        from presentation import qr_is_plausible,qr_candidate_has_finders
+        # Use recognized source edge text to propose a crop, never as a pass.
+        # The unchanged multi-frame OCR gate runs again on the actual crops.
+        marks=detect_corner_logos_in_images(frames)
+        evidence=json.loads((frames[0].parent/'corner_ocr.json').read_text())['evidence']
+        marks+=source_edge_text_exclusions(evidence)
+        for row in evidence:
+            x0,y0,x1,y1=row['rect']
+            if float(row['confidence'])>=.75 and (y1<.30 or y0>.80 or x1<.20 or x0>.80):
+                rect=(max(0,x0-.004),max(0,y0-.004),min(1,x1+.004),min(1,y1+.004))
+                if rect not in marks:marks.append(rect)
+        cleaned=[];errors=[]
+        for original in frames:
+            target=None
+            try:
+                _,face,_=select_verified_cover_face([original],reference_path)
+                image=Image.open(original).convert('RGB');w,h=image.size
+                local=list(marks);frame=cv2.imread(str(original))
+                found,points=cv2.QRCodeDetector().detect(frame)
+                if found and points is not None and qr_is_plausible(points,w,h) and qr_candidate_has_finders(frame,points):
+                    pts=points.reshape(-1,2)
+                    local.append((max(0,float(pts[:,0].min())/w-.01),max(0,float(pts[:,1].min())/h-.01),
+                        min(1,float(pts[:,0].max())/w+.01),min(1,float(pts[:,1].max())/h+.01)))
+                x,y,cw,ch=scene_cover_crop(face,w,h,local)
+                target=original.with_name(original.stem+'.scene.png')
+                image.crop((x,y,x+cw,y+ch)).save(target)
+                # Re-run identity in the cropped pixels; no inherited approval.
+                select_verified_cover_face([target],reference_path)
+                scene_crops[str(target)]=dict(input=[w,h],crop=[x,y,cw,ch],
+                    source_frame_sha256=_file_sha256(original),method='measured_overlay_avoidance_real_pixels')
+                cleaned.append(target)
+            except (ValueError,VisualQualityError) as exc:
+                errors.append(str(exc))
+                if target is not None:target.unlink(missing_ok=True)
+            finally:original.unlink(missing_ok=True)
+        if not cleaned:raise VisualQualityError('现场封面原像素取景未通过：'+'；'.join(dict.fromkeys(errors)))
+        frames=cleaned
     # One dirty sample must not discard other clean, living expressions from
     # this same clip and force the permanent stock portrait.
     remaining=detect_corner_logos_in_images(frames)
@@ -4084,7 +4127,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     # frames are all blurred, search a bounded set across this same selected
     # clip before falling back to a generic reference portrait. Every extra
     # frame still passes the original source-text and face-identity gates.
-    if identity_proof.get('sharpness', 0) < 60:
+    if identity_proof.get('sharpness', 0) < 60 and not clean_scene_crop:
         extra_times=[lo+(hi-lo)*fraction for fraction in (.10,.25,.40,.55,.70,.85,.95)
                      if all(abs(lo+(hi-lo)*fraction-t)>.75 for t in sample_times)]
         clean_extra=[]
@@ -4125,7 +4168,8 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         for _ in range(3):
             try:
                 save_scene_cover(Image.open(current_frame).convert('RGB'),out_path,current_face,
-                    {**current_identity,'scene_candidates_tried':len(scene_attempts)+1})
+                    {**current_identity,'scene_candidates_tried':len(scene_attempts)+1,
+                     **(dict(source_frame_crop=scene_crops[str(current_frame)]) if str(current_frame) in scene_crops else {})})
             except ValueError as exc:
                 scene_attempts.append(dict(frame=current_frame.name,error=str(exc)))
                 remaining_frames=[frame for frame in remaining_frames if frame!=current_frame]
@@ -5955,10 +5999,11 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                     cues[p0['start']]['start'],cues[p0['end']]['end'],clean_vf,
                     natural_scene=story_treatment)
                 make_cover(cover_src, cover_start, cover_end,
-                           cw["cover_title"], speaker, cover, video_filter=cover_filter,
+                           cw["cover_title"], speaker, cover, video_filter='' if story_treatment else cover_filter,
                            preferred_time=None if use_live_video and not story_treatment else (visual_report or {}).get("best_cover_time"),
                            reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
-                           allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto')
+                           allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto',
+                           clean_scene_crop=story_treatment)
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
                 if story_treatment or os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
@@ -6288,7 +6333,7 @@ def main():
                 if story_candidates:
                     def story_call(prompt,schema):
                         return llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                            max_tokens=1600,budget_sec=text_budget(240),response_schema=schema,read_cache=False)
+                            max_tokens=1600,budget_sec=text_budget(240),response_schema=schema,read_cache=True)
                     story_review=choose_stories(cues,story_candidates,story_call,work/'story_selection.json')
                 selected_stories=story_review.get('selected',[])
                 story_review.update(requested_profile=TREATMENT,source_duration_sec=mother_seconds,
