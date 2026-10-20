@@ -278,3 +278,14 @@ def test_rejected_experiment_metadata_does_not_count_as_a_verified_delivery(monk
     assert len(list(F.experiment_reuse_candidates(state,inv,items)))==1
     meta['status']='verified'
     assert not list(F.experiment_reuse_candidates(state,inv,items))
+
+
+def test_single_natural_sentence_can_contain_a_real_event_and_a_distinct_reason():
+    cues=[dict(text='你当年为什么买茅台？我买了茅台，因为消费升级。嗯，好呀。')]
+    candidates=[dict(start=0,end=0)]
+    row=E._selection_rows(cues,candidates)[0];units={s['text']:s['id'] for s in row['sentences']}
+    assert ''.join(s['text'] for s in row['sentences'])==cues[0]['text']
+    choice=dict(kind='company_case',subject_sentence=units['我买了茅台，'],
+        event_sentence=units['我买了茅台，'],detail_sentence=units['因为消费升级。'])
+    selected=E.validate_choices(cues,candidates,dict(candidate_0=choice))
+    assert selected[0]['story_selection']['detail_quote']=='因为消费升级。'

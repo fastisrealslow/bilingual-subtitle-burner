@@ -80,6 +80,16 @@ def _selection_rows(cues,candidates):
         for match in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S):
             value=match.group(0)
             units.extend(re.findall(r'.+?(?:[，,；;]+|$)',value,re.S) if len(value)>140 else [value])
+        substantive=[i for i,value in enumerate(units) if len(value)<=140
+                     and _substantive_quote(value,4) and not re.search(r'[？?]',value)]
+        if len(substantive)==1:
+            # "我买了茅台，因为消费升级。" contains an event AND its reason.
+            # Expose its actual punctuation clauses only when a single
+            # assertion would otherwise force identical event/detail IDs.
+            # These are evidence anchors, NOT subtitle display boundaries.
+            at=substantive[0];clauses=re.findall(r'.+?(?:[，,；;]+|$)',units[at],re.S)
+            if sum(_substantive_quote(v,4) for v in clauses)>=2:
+                units[at:at+1]=clauses
         sentences=[dict(id=i,text=value) for i,value in enumerate(units)]
         if not any(len(s['text'])<=140 and _substantive_quote(s['text'],4)
                    and not re.search(r'[？?]',s['text']) for s in sentences):continue
