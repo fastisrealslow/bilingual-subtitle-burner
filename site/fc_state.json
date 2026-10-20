@@ -36055,7 +36055,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
@@ -36496,8 +36497,8 @@
    "publish_time": "2023-08-13T02:21:53+00:00",
    "production_failure_summary": {
     "slug": "ly-1019-1b1cd0",
-    "run_id": 39203844275,
-    "artifact_id": 12165626166,
+    "run_id": 39401596526,
+    "artifact_id": 12256315842,
     "accepted": 0,
     "failures": [
      {
@@ -36506,15 +36507,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39203844275,
-    "artifact_id": 12165626166,
+    "run_id": 39401596526,
+    "artifact_id": 12256315842,
     "name": "production-reject-ly-1019-1b1cd0",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"你别看我那些话药，我自己有感觉，中国都是要领先的。\", \"suspect_quote\": \"你别看我那些话药\", \"kind\": \"unintelligible_term\", \"reason\": \"“话药”在金融或医药行业无此专有名词，疑似将“药物”、“话语”或其他词误识别为“话药”，导致语义不通且无法解释。\"}, {\"sentence_id\": 8, \"quote\": \"中国现在具备这个资本市场的支持，市场的支持都都都这个支持他，这个一定是中国。\", \"suspect_quote\": \"市场的支持都都都这个支持他\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的“都都都”属于明显的语音转文字错误（口吃或识别冗余），破坏了句子逻辑结构，且“这个支持他”指代不明，构成含义不明的关键片段。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -36552,8 +36553,8 @@
    "publish_time": "2023-02-20T07:23:46+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-090b2c",
-    "run_id": 39165124416,
-    "artifact_id": 12151145624,
+    "run_id": 39401611972,
+    "artifact_id": 12255411344,
     "accepted": 0,
     "failures": [
      {
@@ -36562,15 +36563,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39165124416,
-    "artifact_id": 12151145624,
+    "run_id": 39401611972,
+    "artifact_id": 12255411344,
     "name": "production-reject-ly-1018-090b2c",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"林远称：不要碰股东减持的公司，还有减持的、质押的，就咱们就别去弄了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林远”属于明显的专有名词错写，且无法通过上下文或口语风格解释。\"}, {\"sentence_id\": 10, \"quote\": \"所以这个东西，我们投资尽量投资国有、国有控股的，永远不会减持。\", \"suspect_quote\": \"国有、国有控股的\", \"kind\": \"unintelligible_term\", \"reason\": \"在口语语境中，“国有”与“国有控股的”并列表述存在逻辑矛盾（前者是类别，后者是修饰语），疑似将“国有独资”或“央企”等词误识别为“国有”，导致含义不明。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
