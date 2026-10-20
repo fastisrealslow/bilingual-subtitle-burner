@@ -4057,7 +4057,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     scene_crops={}
     if clean_scene_crop and style=='scene':
         import cv2
-        from source_geometry import scene_cover_crop
+        from live_tracking import scene_cover_crop
         from presentation import qr_is_plausible,qr_candidate_has_finders
         # Use recognized source edge text to propose a crop, never as a pass.
         # The unchanged multi-frame OCR gate runs again on the actual crops.

@@ -87,6 +87,31 @@ def avoid_overlays(box, face, width, height, exclusions):
     return min(valid,key=lambda row:(row[0]-x)**2+(row[1]-y)**2)
 
 
+def scene_cover_crop(face, width, height, exclusions):
+    """Largest real-pixel 16:9 scene avoiding measured overlays.
+
+    Geometry is a proposal only. Identity, OCR, QR, black edges, sharpness
+    and feed cropping still require independent checks on the cropped image.
+    Never enlarge a small source or make a landscape from a narrow portrait.
+    """
+    if width<960 or height<540 or width/height<1.35:
+        raise ValueError('原始画面不足以提供清晰横向现场封面')
+    fx,fy,fw,fh=map(float,face[:4])
+    if not all(math.isfinite(v) for v in (fx,fy,fw,fh)) or min(fw,fh)<=0:
+        raise ValueError('现场封面缺少可核对的完整人脸')
+    maximum=int(min(width,height*16/9,fw*10))//2*2
+    sizes=sorted(set([960]+list(range(maximum,959,-32))),reverse=True)
+    for cw in sizes:
+        ch=int(cw*9/16)//2*2
+        if cw>width or ch>height or ch<540:continue
+        left=max(0,min(width-cw,fx+fw/2-cw/2))
+        top=max(0,min(height-ch,fy+fh/2-ch/2))
+        box=(int(left)//2*2,int(top)//2*2,cw,ch)
+        try:return avoid_overlays(box,face,width,height,exclusions)
+        except ValueError:continue
+    raise ValueError('原始像素中没有避开来源文字且保留完整人物的清晰现场封面')
+
+
 def crop_box(face, width, height, ratio=632/470, exclusions=()):
     x,y,w,h=map(float,face[:4])
     candidates=[]

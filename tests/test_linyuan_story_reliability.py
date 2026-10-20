@@ -130,7 +130,7 @@ def test_independent_delivery_gate_rejects_baseline_and_changed_actual_bytes(tmp
 
 
 def test_scene_cover_finds_real_pixels_between_measured_source_banners():
-    from source_geometry import scene_cover_crop
+    from live_tracking import scene_cover_crop
     face=(818,401,273,403);marks=[(0,0,1,.25),(0,.89,1,1)]
     x,y,w,h=scene_cover_crop(face,1920,1080,marks)
     assert w>=960 and h>=540 and 1.6<=w/h<=1.95
