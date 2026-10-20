@@ -2823,7 +2823,8 @@ def experiment_reuse_candidates(state, inventory, items):
     current_records={r.get('slug'):r for r in inventory.get('artifacts',[])}
     for slug,e in latest.items():
         record=current_records.get(slug,{})
-        if any(experiment.actual_profile(p)==experiment.TREATMENT for p in record.get('parts',[])):
+        if any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
+               for p in record.get('parts',[])):
             active_or_current[slug]=e
         elif e.get('experiment_parent_slug') and not e.get('failed') and not record:
             active_or_current[slug]=e  # Unknown/in-flight old outcome: do not duplicate it.

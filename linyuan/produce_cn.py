@@ -6486,8 +6486,10 @@ def main():
             "accepted_finals": [m["final"] for m in metas],
             "live_video": live, "audio_card": len(metas) - live,
             "live_ratio": live / len(metas) if metas else 0,
-            "retryable": not metas and any(r.get('retryable') for r in rejected),
-            "selection_completed": not any(r.get('retryable') for r in selection_failures),
+            "retryable": not metas and (any(r.get('retryable') for r in rejected)
+                                        or experiment_result['retryable_selection']),
+            "selection_completed": (not any(r.get('retryable') for r in selection_failures)
+                                    and not experiment_result['retryable_selection']),
             "experiment_production":experiment_result,
             "quality_gate_version": QUALITY_GATE_VERSION})
 

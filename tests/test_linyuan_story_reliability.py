@@ -226,3 +226,66 @@ def test_literal_company_names_are_not_rejected_for_non_noun_dictionary_tags(nam
     cues=[dict(text=selection['event_quote']+selection['detail_quote'])]
     result=E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[selection]))
     assert name in E.title_focus(result[0]['story_selection'])['subjects']
+
+
+def test_all_complete_candidates_are_examined_not_just_the_first_twelve(tmp_path):
+    cues=[dict(text='我当年买了这家公司。后来我去看过它的产品。我就一直拿着。') for _ in range(23)]
+    candidates=[dict(start=i,end=i) for i in range(len(cues))];calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        assert len(schema['properties'])<=2
+        return {k:verdict() for k in schema['properties']}
+    report=E.choose_stories(cues,candidates,call,tmp_path/'all.json')
+    assert len(calls)==12 and report['candidate_count']==report['eligible_candidates']==23
+    assert report['selection_completed'] and not report['unresolved']
+    assert [r['start'] for r in report['selected']]==list(range(23))
+    assert report['calls'][-1]['indices']==[22]
+
+
+def test_budget_exhaustion_retains_every_unexamined_candidate(monkeypatch,tmp_path):
+    cues=[dict(text='我当年买了这家公司。后来我去看过它的产品。我就一直拿着。') for _ in range(23)]
+    candidates=[dict(start=i,end=i) for i in range(23)];elapsed=[0]
+    monkeypatch.setattr(E.time,'monotonic',lambda:elapsed[0])
+    def call(prompt,schema):
+        elapsed[0]+=1
+        return {k:verdict() for k in schema['properties']}
+    report=E.choose_stories(cues,candidates,call,tmp_path/'budget.json',budget_sec=1)
+    assert len(report['selected'])==2 and len(report['unresolved'])==21
+    assert {r['index'] for r in report['unresolved']}==set(range(2,23))
+    assert not report['selection_completed'] and report['retryable']
+
+
+def test_oversized_answer_is_unreviewed_not_a_negative_verdict(tmp_path):
+    cues=[dict(text='这是完整原话，不应截断。'*240)]
+    report=E.choose_stories(cues,[dict(start=0,end=0)],lambda *a:pytest.fail('oversized answer sent'),tmp_path/'long.json')
+    assert report['unresolved'][0]['error']=='complete_answer_exceeds_context_limit'
+    assert not report['selection_completed'] and not report['rejected']
+
+
+def test_rejected_experiment_metadata_does_not_count_as_a_verified_delivery(monkeypatch):
+    import test_linyuan_publishing_experiment as fixtures
+    F=S.fc;now=1792418400
+    monkeypatch.setattr(F.time,'time',lambda:now)
+    monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))
+    monkeypatch.setattr(F,'inventory_record_current',lambda *a:True)
+    monkeypatch.setattr(F,'inventory_publication_error',lambda *a:None)
+    mother=dict(slug='mother',source_url='https://www.bilibili.com/video/BVtest')
+    old=dict(slug='old',source_url=mother['source_url'],experiment_parent_slug='mother',failed=True)
+    meta,_,_=fixtures.treatment();meta.update(index=0,status='rejected')
+    parent=dict(index=0,status='verified',source_sha256=meta['source_sha256'],editorial_profile=E.BASELINE)
+    inv=dict(artifacts=[dict(slug='mother',run_id=123,parts=[parent]),dict(slug='old',run_id=456,parts=[meta])])
+    state=dict(dispatched=[mother,old]);items=[dict(page_url=mother['source_url'],extra=dict(duration=1800))]
+    assert len(list(F.experiment_reuse_candidates(state,inv,items)))==1
+    meta['status']='verified'
+    assert not list(F.experiment_reuse_candidates(state,inv,items))
+
+
+def test_single_natural_sentence_can_contain_a_real_event_and_a_distinct_reason():
+    cues=[dict(text='你当年为什么买茅台？我买了茅台，因为消费升级。嗯，好呀。')]
+    candidates=[dict(start=0,end=0)]
+    row=E._selection_rows(cues,candidates)[0];units={s['text']:s['id'] for s in row['sentences']}
+    assert ''.join(s['text'] for s in row['sentences'])==cues[0]['text']
+    choice=dict(kind='company_case',subject_sentence=units['我买了茅台，'],
+        event_sentence=units['我买了茅台，'],detail_sentence=units['因为消费升级。'])
+    selected=E.validate_choices(cues,candidates,dict(candidate_0=choice))
+    assert selected[0]['story_selection']['detail_quote']=='因为消费升级。'
