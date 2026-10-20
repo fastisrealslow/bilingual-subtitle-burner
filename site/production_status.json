@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792489112,
+  "updated_at": 1792489296,
   "inventory_updated_at": 1792489103,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 16,
+    "active_or_recovering_sources": 19,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -73,7 +73,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792489112,
+    "updated_at": 1792489296,
     "records": 11020,
     "video_records": 9475,
     "initial_candidates": 60,
@@ -110,14 +110,14 @@
   },
   "counts": {
     "complete": 134,
-    "failed": 1157,
+    "failed": 1156,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "ready": 9,
     "excluded": 1,
     "experiment_fallback": 7,
-    "retry_queued": 11,
-    "running": 5
+    "retry_queued": 13,
+    "running": 6
   },
   "tasks": [
     {
@@ -22647,24 +22647,6 @@
       "run_updated_at": "2026-10-17T12:27:17Z"
     },
     {
-      "slug": "ly-story-29974ac69b",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"suspect_quote\": \"丸剂，以前是玩具啊，什么的，需要去。\", \"kind\": \"unintelligible_term\", \"reason\": \"‘玩具’在中药语境下极可能是识别错误（应为‘药丸’或类似发音词），且句尾‘需要去’语义截断、无法解释；‘什么的’为口语填充但结合前文错词导致整句含义不明。\"}, {\"sentence_id\": 8, \"quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"suspect_quote\": \"它以前比如说组织的亲热解毒的，是吧？\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织的亲热' 无法解释，疑似将‘组织’与‘清热解毒’等词混淆识别，导致专有名词/术语错写，含义不明。\"}, {\"sentence_id\": 14, \"quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来很多这个。\", \"suspect_quote\": \"他本身组织不是治疗这个的，但是他又好，像衍生出来\", \"kind\": \"unintelligible_term\", \"reason\": \"'组织'在此处作为主语或修饰语完全不通顺，疑似‘药方’‘药物’或特定中药名被误识别为‘组织’，属于错写的专有名词/术语。\"}, {\"sentence_id\": 20, \"quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊，他人的心情会变得。\", \"suspect_quote\": \"但是比如说吃一些这个，这个这个疏肝理气的这些药啊\", \"kind\": \"unintelligible_term\", \"reason\": \"'疏肝理气'是中医术语，但前文‘这个，这个这个’重复填充虽属口语风格，结合上下文看‘保肝药’与‘疏肝理气’可能存在概念混淆（保肝 vs 疏肝），且‘他人的心情会变得’后接内容断裂，导致关键信息指向不明。\"}, {\"sentence_id\": 21, \"quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会都会有一定的，就是人有昏昏沉沉的，会抑郁，类似抑郁吧。\", \"suspect_quote\": \"在在，就是高血压、心脏病、这个糖尿病这些病，他会\", \"kind\": \"unintelligible_term\", \"reason\": \"'在在'为口吃重复可接受，但‘他会’后直接接‘有昏昏沉沉的’，缺少主语或谓语衔接，导致句子结构断裂、含义不明；且将高血压/心脏病/糖尿病并列作为‘保肝药’作用对象，逻辑上存在关键数字（疾病类别）与否定（隐含治疗范围）的模糊。\"}, {\"sentence_id\": 23, \"quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"suspect_quote\": \"因为好像这个血压高了人会烦躁，这不是这是。\", \"kind\": \"unintelligible_term\", \"reason\": \"'这不是这是' 为典型识别污染：‘这不是’后无宾语或解释，‘这是’单独成词且无指代对象，导致否定词与后续内容断裂，含义不明。\"}]",
-      "signature": {
-        "ts": 1792240259,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39032831125,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39032831125",
-      "run_started_at": "2026-10-17T12:30:59Z",
-      "run_updated_at": "2026-10-17T12:44:19Z"
-    },
-    {
       "slug": "ly-1015-2fccb7",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"疾病也是这样的，它随着年龄的增长，它突然一下，比如说现在的这个这个这个高血压，它不需要再有药物去干预它。\", \"suspect_quote\": \"它不需要再有药物去干预它\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘不需要’在此处是口语省略，结合上下文（年龄增长、疾病爆发）可能意指‘不再需要常规药物即可控制’或‘完全不需要药物’，存在歧义；且‘它’指代前文‘高血压’还是‘干预方式’不明确，影响对医疗需求逻辑的理解。\"}, {\"sentence_id\": 7, \"quote\": \"所以这个如果说我们想象七八十岁人增加的多的话，这个成那个堰塞湖的话，它就可成倍的增加。\", \"suspect_quote\": \"七八十岁人增加的多的话\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字/否定含义不明：‘七八十岁’是口语范围表述，但‘增加的多的话’中‘多’指代人口数量增加还是疾病发生率增加不明确；且‘堰塞湖’为比喻，若未明确指代‘老年人口积压导致医疗需求激增’，则关键因果逻辑含混。\"}, {\"sentence_id\": 11, \"quote\": \"所以这个人员的这个结构，它不是我们现在想象的，比如说，你看啊，这几个月或者过去一年，你总结出来那个数据不准的。\", \"suspect_quote\": \"你总结出来那个数据不准的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"含义不明的否定：‘不准的’否定对象不明确（是数据来源不准、统计方法不准还是结论不准？）；且‘那个数据’指代模糊，可能指近期发布的某份报告或内部测算，关键信息缺失。\"}]",
@@ -22681,24 +22663,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/38737946627",
       "run_started_at": "2026-10-15T12:52:02Z",
       "run_updated_at": "2026-10-15T13:28:48Z"
-    },
-    {
-      "slug": "ly-story-cbaf21d67f",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也不知道为什么吃，这是我们这个年龄的人可能都有这个现象。\", \"suspect_quote\": \"我也不知道为什么吃\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键动词‘吃’前缺少宾语或上下文支撑，导致语义不明（是‘吃东西’的动作、‘吃亏’的状态还是其他含义），属于无法解释的具体词语污染。\"}]",
-      "signature": {
-        "ts": 1792241308,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39033992413,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39033992413",
-      "run_started_at": "2026-10-17T12:48:28Z",
-      "run_updated_at": "2026-10-17T14:02:12Z"
     },
     {
       "slug": "ly-1017-f83ea1",
@@ -23962,11 +23926,11 @@
     },
     {
       "slug": "ly-story-2c3be27e79",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
       "signature": {
         "ts": 1792487163,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24139,6 +24103,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39401611972",
       "run_started_at": "2026-10-20T09:34:02Z",
       "run_updated_at": "2026-10-20T09:34:06Z"
+    },
+    {
+      "slug": "ly-story-cbaf21d67f",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792489168,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792489167,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39033992413,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39033992413",
+      "run_started_at": "2026-10-17T12:48:28Z",
+      "run_updated_at": "2026-10-17T14:02:12Z"
+    },
+    {
+      "slug": "ly-story-29974ac69b",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792489175,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792489174,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39032831125,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39032831125",
+      "run_started_at": "2026-10-17T12:30:59Z",
+      "run_updated_at": "2026-10-17T12:44:19Z"
+    },
+    {
+      "slug": "ly-story-950cffe2c1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792489256,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39402457994,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39402457994",
+      "run_started_at": "2026-10-20T09:40:55Z",
+      "run_updated_at": "2026-10-20T09:41:00Z"
     }
   ],
   "runs": {
@@ -34405,6 +34423,28 @@
       "run_number": 2332,
       "display_title": "中文源出片 · ly-1019-c5b84b"
     },
+    "ly-story-2c3be27e79": {
+      "id": 39398201935,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T09:06:02Z",
+      "updated_at": "2026-10-20T09:35:36Z",
+      "run_started_at": "2026-10-20T09:06:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39398201935",
+      "run_number": 2334,
+      "display_title": "中文源出片 · ly-story-2c3be27e79"
+    },
+    "ly-story-950cffe2c1": {
+      "id": 39402457994,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-20T09:40:55Z",
+      "updated_at": "2026-10-20T09:41:00Z",
+      "run_started_at": "2026-10-20T09:40:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39402457994",
+      "run_number": 2338,
+      "display_title": "中文源出片 · ly-story-950cffe2c1"
+    },
     "ly-1018-090b2c": {
       "id": 39401611972,
       "status": "in_progress",
@@ -34437,17 +34477,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39398787270",
       "run_number": 2335,
       "display_title": "中文源出片 · ly-story-c551c25a26"
-    },
-    "ly-story-2c3be27e79": {
-      "id": 39398201935,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-20T09:06:02Z",
-      "updated_at": "2026-10-20T09:35:36Z",
-      "run_started_at": "2026-10-20T09:06:02Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39398201935",
-      "run_number": 2334,
-      "display_title": "中文源出片 · ly-story-2c3be27e79"
     },
     "ly-story-91583611c8": {
       "id": 39396587028,
