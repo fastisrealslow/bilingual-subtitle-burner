@@ -13,7 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
-SELECTION_REVISION = 2026102004
+SELECTION_REVISION = 2026102005
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -175,7 +175,8 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
     Raw requests/responses and unresolved rows survive partial success.
     """
     from pathlib import Path
-    report=dict(revision=SELECTION_REVISION,requested_profile=TREATMENT,
+    candidates=list(candidates)
+    report=dict(revision=SELECTION_REVISION,requested_profile=TREATMENT,candidate_count=len(candidates),
         transcript_sha256=digest(cues),selected=[],rejected=[],unresolved=[],calls=[])
     def save():
         if path is not None:
@@ -183,7 +184,19 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
             target.write_text(json.dumps(report,ensure_ascii=False,indent=2))
     # Two full answers per call keep CPU context bounded. Do not truncate any
     # answer or supply manually approved ranges/titles to repair model output.
-    rows=_selection_rows(cues,candidates)
+    # The old whole-request cap (12 answers / 12k chars) is still appropriate
+    # for selection_request, but NOT across separate two-answer calls. It
+    # silently hid 11 of 23 real candidates while reporting completion.
+    rows=[]
+    for index,pick in enumerate(candidates):
+        single=_selection_rows(cues,[pick])
+        if single:
+            rows.append({**single[0],'index':index})
+        elif len(''.join(c['text'] for c in cues[pick['start']:pick['end']+1]))>2400:
+            report['unresolved'].append(dict(index=index,error='complete_answer_exceeds_context_limit'))
+        else:
+            report['rejected'].append(dict(index=index,reason='no_substantive_answer_evidence'))
+    report['eligible_candidates']=len(rows)
     deadline=time.monotonic()+budget_sec
     for start in range(0,len(rows),2):
         if time.monotonic()>=deadline:
@@ -225,9 +238,9 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
         report['unresolved'].extend(pending);save()
     report['selection_completed']=not report['unresolved']
     report['retryable']=bool(report['unresolved'])
-    # The existing final production limit is six accepted videos. Keep the
-    # source reader bounded too, while preserving diagnostics for every row.
-    report['selected']=report['selected'][:6]
+    # Keep positive backups: the renderer already stops at six ACCEPTED
+    # videos, not six proposed stories. Bad ASR/pictures must not consume the
+    # acceptance slots and hide later source-bound, independently gated picks.
     save()
     return report
 
