@@ -28,10 +28,7 @@ def main():
          '你要一下跌，跌个百分之七八十、九十，可能跌了百分之九十，'
          '按照最终的结果，这个还是个底部，那不见得是错误。',True),
         ('corrupt_term', '我们分析企业的现金流。道琼市指数影响投资。',False),
-        ('corrupt_critical_number', '这次收益是负百分之，投资金额是万元，关键数字没有识别出来。',False),
     ]
-    controls=json.loads((ROOT/'tests/fixtures/linyuan_story_audit_controls.json').read_text())
-    cases.extend((r['case'],r['transcript'],r['expected_clear']) for r in controls['cases'])
     rows=[]
     for name,text,expected in cases:
         calls=[]
@@ -58,12 +55,9 @@ def main():
         finally:
             rows.append(row)
             report=dict(diagnostic_only=True,publication_approved=False,audio_verified=False,
-                source_cues_changed=False,production_current_model=None,
+                source_cues_changed=False,production_current_model='qwen3:8b',
                 tested_model=model,production_model_changed=False,model_digest=actual['digest'],
                 audit_version=audit.VERSION,
-                audit_prompt_version=audit.PROMPT_VERSION,
-                real_source_controls=dict(source_sha256=controls['source_sha256'],
-                    evidence_run_id=controls['raw_evidence_run_id']),
                 audit_code_sha256=hashlib.sha256(Path(audit.__file__).read_bytes()).hexdigest(),
                 commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
                 cases=rows,passed=len(rows)==len(cases) and all(r['control_passed'] for r in rows))

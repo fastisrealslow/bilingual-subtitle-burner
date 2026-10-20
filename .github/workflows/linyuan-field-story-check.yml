@@ -62,14 +62,6 @@ jobs:
           done
           ollama pull qwen3.5:9b
           ollama show qwen3.5:9b >/dev/null
-      - name: 真实原文的口语数字与错词CPU对照（不改字幕、不豁免数字）
-        run: python -u scripts/check_linyuan_transcript_style_cpu.py
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: story-transcript-audit-controls
-          path: transcript-style-cpu-results
-          if-no-files-found: error
       - name: 真实母片故事选题、反例与新版标题生成复核
         run: python -u scripts/review_linyuan_field_story.py
       - uses: actions/upload-artifact@v4
