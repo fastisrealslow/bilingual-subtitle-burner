@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792496054,
+  "updated_at": 1792496207,
   "inventory_updated_at": 1792496040,
   "continuity": {
     "daily_target": 4,
@@ -73,7 +73,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792496054,
+    "updated_at": 1792496207,
     "records": 11020,
     "video_records": 9475,
     "initial_candidates": 60,
@@ -110,9 +110,9 @@
   },
   "counts": {
     "complete": 134,
-    "failed": 1169,
+    "failed": 1170,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "ready": 9,
     "excluded": 1,
     "experiment_fallback": 11,
@@ -24179,11 +24179,11 @@
     },
     {
       "slug": "ly-story-7884c0eb85",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]",
       "signature": {
         "ts": 1792493790,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
