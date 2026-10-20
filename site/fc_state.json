@@ -36184,7 +36184,33 @@
    "experiment_selection_revision": 2026102004,
    "experiment_mother_sha256": "0507ac0d8f28e08e437e3111e429643ac2a1cd35c346d5eae095c7c30970d725",
    "experiment_parent_slug": "ly-1018-c49110",
-   "recovery_origin_run_id": 39122221076
+   "recovery_origin_run_id": 39122221076,
+   "production_failure_summary": {
+    "slug": "ly-story-3fa68cb6f9",
+    "run_id": 39393321032,
+    "artifact_id": 12250754429,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及嘉宾回答“基本上没卖过”，此处“把”字极大概率是“有”字的误识（拼音输入法或语音识别混淆），导致语义不通。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39393321032,
+    "artifact_id": 12250754429,
+    "name": "production-reject-ly-story-3fa68cb6f9",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的宏观。\", \"suspect_quote\": \"那就是实践是行业的宏观\", \"kind\": \"unintelligible_term\", \"reason\": \"'实践是'疑似错写或漏录，结合上下文应为‘把握’、‘判断’或‘就是’等词，‘实践是’在金融语境下含义不明，属于具体识别疑点。\"}, {\"sentence_id\": 15, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发了，开始慢慢要要要行的时候。\", \"suspect_quote\": \"要爆发了，要爆发了，开始慢慢要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"'要要要'虽为口吃重复，但‘行的时候’中‘行’字单独使用指代不明（是‘行业’还是‘可行’？），结合前文‘爆发’语境，此处极可能漏录‘行业’二字，导致关键名词缺失，属于具体识别疑点。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1JsJD6oEKr",
@@ -36352,8 +36378,8 @@
    "publish_time": "2026-10-20T01:55:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1020-2bc269",
-    "run_id": 39374387103,
-    "artifact_id": 12243136477,
+    "run_id": 39394852853,
+    "artifact_id": 12251077614,
     "accepted": 0,
     "failures": [
      {
@@ -36362,15 +36388,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39374387103,
-    "artifact_id": 12243136477,
+    "run_id": 39394852853,
+    "artifact_id": 12251077614,
     "name": "production-reject-ly-1020-2bc269",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -36408,8 +36434,8 @@
    "publish_time": "2025-10-15T05:49:45+00:00",
    "production_failure_summary": {
     "slug": "ly-1020-8f9c09",
-    "run_id": 39374378391,
-    "artifact_id": 12242996316,
+    "run_id": 39394863410,
+    "artifact_id": 12250609048,
     "accepted": 0,
     "failures": [
      {
@@ -36418,15 +36444,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39374378391,
-    "artifact_id": 12242996316,
+    "run_id": 39394863410,
+    "artifact_id": 12250609048,
     "name": "production-reject-ly-1020-8f9c09",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -102879,6 +102905,13 @@
    "video_id": "BV1ryBEBUE8D",
    "ts": 1792479630,
    "error": "整段取景预检：源 1940.30s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-story-3fa68cb6f9",
+   "key": "ly-story-3fa68cb6f9",
+   "video_id": "https://f.video.weibocdn.com/o0/OKaBttEzlx08BFuYRDC801041208nSXV0E030.mp4",
+   "ts": 1792485819,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的宏观。\", \"suspect_quote\": \"那就是实践是行业的宏观\", \"kind\": \"unintelligible_term\", \"reason\": \"'实践是'疑似错写或漏录，结合上下文应为‘把握’、‘判断’或‘就是’等词，‘实践是’在金融语境下含义不明，属于具体识别疑点。\"}, {\"sentence_id\": 15, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发了，开始慢慢要要要行的时候。\", \"suspect_quote\": \"要爆发了，要爆发了，开始慢慢要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"'要要要'虽为口吃重复，但‘行的时候’中‘行’字单独使用指代不明（是‘行业’还是‘可行’？），结合前文‘爆发’语境，此处极可能漏录‘行业’二字，导致关键名词缺失，属于具体识别疑点。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
