@@ -329,9 +329,13 @@ def title_focus(selection):
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
         tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in (generic|categories if proper else generic)
-                and (w.flag.startswith('n') or not proper and w.flag=='vn')]
+                and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
+                     or not proper and w.flag=='vn')]
         if proper:
-            names=[w.word for w in words if w.flag in {'nt','nz','nr'} and w.word in tokens]
+            # Brand spellings can be idioms/English in the dictionary
+            # (e.g. 可口可乐/NVIDIA). This is literal coverage, not NER or
+            # factual approval; category exclusions and source review remain.
+            names=[w.word for w in words if w.flag in {'nt','nz','nr','i','eng'} and w.word in tokens]
             return list(dict.fromkeys(names or tokens))[:6]
         # Prefer a named adjacent concept (e.g. two contiguous content words)
         # over a generic component. Never concatenate across source characters.

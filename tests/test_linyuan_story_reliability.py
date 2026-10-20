@@ -216,3 +216,12 @@ def test_generic_etf_rules_are_not_a_named_company_case():
     meta,_,_=fixtures.treatment()
     meta['experiment_proof']['selection'].update(row)
     assert E.proof_error(meta) and E.actual_profile(meta)==E.BASELINE
+
+
+@pytest.mark.parametrize('name',['可口可乐','NVIDIA'])
+def test_literal_company_names_are_not_rejected_for_non_noun_dictionary_tags(name):
+    selection=dict(index=0,kind='company_case',subject_quote='我当时买了'+name+'。',
+        event_quote='我当时买了'+name+'。',detail_quote='后来我去看过它的产品。')
+    cues=[dict(text=selection['event_quote']+selection['detail_quote'])]
+    result=E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[selection]))
+    assert name in E.title_focus(result[0]['story_selection'])['subjects']
