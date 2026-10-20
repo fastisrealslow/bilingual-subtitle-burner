@@ -36025,7 +36025,37 @@
    "experiment_selection_revision": 2026102004,
    "experiment_mother_sha256": "55da49469a1f83a20024b8859033adf5278515e3d96c86b5511ca1b400548ede",
    "experiment_parent_slug": "ly-1018-665b49",
-   "recovery_origin_run_id": 39122227514
+   "recovery_origin_run_id": 39122227514,
+   "production_failure_summary": {
+    "slug": "ly-story-2c3be27e79",
+    "run_id": 39398201935,
+    "artifact_id": 12254434667,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我前一段时间就是偶尔的去了一个重庆一家企业，因为我在重庆，哎，他就给我推荐了一个六味安神胶囊。\", \"suspect_quote\": \"六味安神胶囊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词：中药‘六味地黄丸’是常见药名，而‘六味安神胶囊’在常规医药常识中不存在，极可能是将‘地黄’误识为‘安神’，或品牌名与通用名混淆导致的严重语义污染，直接影响对药物名称的理解。\"}, {\"sentence_id\": 10, \"quote\": \"我吃了大概现在有一一个多疗"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有原字幕或免责声明"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39398201935,
+    "artifact_id": 12254434667,
+    "name": "production-reject-ly-story-2c3be27e79",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
@@ -103156,6 +103186,13 @@
    "video_id": "BV1LGJQ6REPV",
    "ts": 1792487097,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]"
+  },
+  {
+   "slug": "ly-story-2c3be27e79",
+   "key": "ly-story-2c3be27e79",
+   "video_id": "BV1sUQHY3EiA",
+   "ts": 1792489199,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
