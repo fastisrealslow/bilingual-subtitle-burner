@@ -65,6 +65,19 @@ test('daily supply warns below target and does not claim publication when covere
   assert.equal(continuity(supply(4),now).status,'covered');
   assert.match(continuity(supply(4),now).message,/不代表已经发布/);
 });
+test('normal reserve cannot hide an experiment that is entirely falling back',()=>{
+  const data=supply(18);
+  data.publishing_experiment={active:true,status:'needs_attention',actual_treatment_published:0,
+    valid_comparison_days:0,consecutive_fallbacks:4};
+  assert.equal(continuity(data,now).status,'at_risk');
+  assert.match(continuity(data,now).message,/实验尚未达标/);
+  const e={slug:'experiment',ts:1};
+  const result=reconcile({dispatched:[e]},snapshot(e,'experiment_fallback'),now);
+  assert.equal(result.failures.length,1);
+  assert.equal(result.pending.length,0);
+  data.publishing_experiment.verified_treatment={landscape:4,portrait:0};
+  assert.match(continuity(data,now).message,/横屏 4 条、竖屏 0 条/);
+});
 test('seven-day floor shortfall cannot be hidden by active production',()=>{
   const data=supply(0);
   data.continuity.plan={minimum_week_shortfall:14};

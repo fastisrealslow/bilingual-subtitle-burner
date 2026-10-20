@@ -9,11 +9,12 @@ import shutil
 from artifact_range import delivery_files
 
 
-def compact(directory, slug, validate=None):
+def compact(directory, slug, validate=None, preview_only=False):
     if validate is None:
         from source_supply import validate_part
         validate = validate_part
-    if not re.fullmatch(r'ly-[a-zA-Z0-9-]+', slug):
+    pattern=r'preview-[0-9]+' if preview_only else r'ly-[a-zA-Z0-9-]+'
+    if not re.fullmatch(pattern, slug):
         raise ValueError('Invalid delivery slug')
     directory = Path(directory)
     metadata = directory / 'meta.json'
@@ -53,6 +54,7 @@ def compact(directory, slug, validate=None):
         if error:
             raise ValueError('Compact delivery fails full validation: ' + str(error))
     report = dict(slug=slug, parts=len(rows), files=hashes,
+        preview_only=preview_only,
         metadata_unchanged=(destination / 'meta.json').read_bytes() == raw,
         media_unchanged=True, full_validation_passed=True,
         publishing_bytes=sum((destination / name).stat().st_size for name in names),
@@ -65,8 +67,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--directory', required=True)
     parser.add_argument('--slug', required=True)
+    parser.add_argument('--preview-only',action='store_true',help='Read-only preview namespace; never production identity')
     args = parser.parse_args()
-    print(json.dumps(compact(args.directory, args.slug), ensure_ascii=False, indent=2))
+    print(json.dumps(compact(args.directory, args.slug,preview_only=args.preview_only), ensure_ascii=False, indent=2))
 
 
 if __name__ == '__main__':

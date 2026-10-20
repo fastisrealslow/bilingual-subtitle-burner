@@ -13,6 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
+SELECTION_REVISION = 2026102004
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -58,6 +59,12 @@ def digest(value):
                                     separators=(',', ':')).encode()).hexdigest()
 
 
+def _substantive_quote(quote, minimum):
+    plain=re.sub(r'[^\w\u4e00-\u9fff]','',quote)
+    return (len(quote)>=minimum and len(plain)>=max(2,minimum-1)
+        and not re.fullmatch(r'(?:嗯|啊|呃|哦|噢|好呀|好啊|好吧|好的|是吧|是的|对|对吧|对的|没错|谢谢您|谢谢|好|呀)+',plain))
+
+
 def _selection_rows(cues,candidates):
     rows=[]
     for index, pick in enumerate(candidates[:12]):
@@ -65,9 +72,17 @@ def _selection_rows(cues,candidates):
         # Never truncate an answer's context to fit the classifier.
         if len(text) > 2400 or sum(len(r['text']) for r in rows)+len(text)>12000:
             continue
-        units=[m.group(0) for m in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S)]
+        # ASR display cues can split a word ("一定的" / "水平"). They are
+        # NOT grammatical evidence boundaries. Rejoin the complete answer,
+        # keep natural sentences, and only split >140-character sentences at
+        # their real comma/semicolon boundaries. No words/context are dropped.
+        units=[]
+        for match in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S):
+            value=match.group(0)
+            units.extend(re.findall(r'.+?(?:[，,；;]+|$)',value,re.S) if len(value)>140 else [value])
         sentences=[dict(id=i,text=value) for i,value in enumerate(units)]
-        if not any(4<=len(s['text'])<=140 for s in sentences):continue
+        if not any(len(s['text'])<=140 and _substantive_quote(s['text'],4)
+                   and not re.search(r'[？?]',s['text']) for s in sentences):continue
         rows.append(dict(index=index,text=text,sentences=sentences))
     return rows
 
@@ -76,20 +91,25 @@ def selection_request(cues, candidates):
     rows=_selection_rows(cues,candidates)
     properties={}
     for row in rows:
-        ids=[s['id'] for s in row['sentences'] if 4<=len(s['text'])<=140]
         properties['candidate_'+str(row['index'])]=dict(type='object',additionalProperties=False,
             required=['kind','subject_sentence','event_sentence','detail_sentence'],properties={
                 'kind':dict(type='string',enum=['skip','personal_story','company_case']),
-                **{k:dict(type='integer',enum=ids) for k in ('subject_sentence','event_sentence','detail_sentence')}})
+                **{k:dict(type='integer',enum=[s['id'] for s in row['sentences'] if len(s['text'])<=140
+                    and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)
+                    and (k=='subject_sentence' or not re.search(r'[？?]',s['text']))])
+                   for k in ('subject_sentence','event_sentence','detail_sentence')}})
     schema=dict(type='object',additionalProperties=False,required=list(properties),properties=properties)
     prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
         '泛泛谈认知、长期投资、行业趋势不能仅靠出现“我”或公司名入选。'
+        'ETF、指数或基金的一般调仓机制不是具体公司案例，必须skip；公司案例的对象原句必须点名具体公司。'
         '保留主持人有信息的问题，不改写、不拼接、不制造冲突。'
         '每个candidate_N只返回一次：kind为personal_story、company_case或skip。'
         '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
         '说的具体事情或选择；detail_sentence是另一条原话原因/经过/细节，不能与event_sentence相同。'
         '不能从别的片段借事实，不能把主持人的假设当嘉宾结论。'
+        '事件必须是嘉宾讲出的具体行为、经历或公司发生的事；“机会存在”等抽象总结不是事件。'
+        '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
     return prompt, schema
@@ -106,7 +126,7 @@ def validate_choices(cues, candidates, response):
             verdict=response['candidate_'+str(row['index'])]
             if not isinstance(verdict,dict):raise ValueError('Invalid per-candidate story verdict')
             if verdict.get('kind')=='skip':continue
-            units={s['id']:s['text'] for s in row['sentences'] if 4<=len(s['text'])<=140}
+            units={s['id']:s['text'] for s in row['sentences'] if 2<=len(s['text'])<=140}
             choice=dict(index=row['index'],kind=verdict.get('kind'))
             for role in ('subject','event','detail'):
                 index=verdict.get(role+'_sentence')
@@ -133,12 +153,128 @@ def validate_choices(cues, candidates, response):
             quote=row.get(key)
             if not isinstance(quote,str) or not minimum<=len(quote)<=140 or quote not in text:
                 raise ValueError('Story evidence is not an intact quote in this candidate: '+key)
+            if not _substantive_quote(quote,minimum):
+                raise ValueError('Story evidence must contain a substantive source detail, not a filler')
+            if key!='subject_quote' and re.search(r'[？?]',quote):
+                raise ValueError('A question is context, not guest event/detail evidence')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
+        if row['kind']=='company_case' and not title_focus(row)['subjects']:
+            raise ValueError('Named company subject required; generic assets/rules are not a company case')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
         selected.append({**pick,'story_selection':dict(version=VERSION,**evidence,
             transcript_sha256=digest(text))})
     return selected
+
+
+def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200):
+    """Isolate candidate errors and retry only unreviewed/invalid decisions.
+
+    Every accepted row still uses the strict source-bound validator. A bad
+    neighbour, omitted row or service timeout cannot erase a valid decision.
+    Raw requests/responses and unresolved rows survive partial success.
+    """
+    from pathlib import Path
+    report=dict(revision=SELECTION_REVISION,requested_profile=TREATMENT,
+        transcript_sha256=digest(cues),selected=[],rejected=[],unresolved=[],calls=[])
+    def save():
+        if path is not None:
+            target=Path(path);target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_text(json.dumps(report,ensure_ascii=False,indent=2))
+    # Two full answers per call keep CPU context bounded. Do not truncate any
+    # answer or supply manually approved ranges/titles to repair model output.
+    rows=_selection_rows(cues,candidates)
+    deadline=time.monotonic()+budget_sec
+    for start in range(0,len(rows),2):
+        if time.monotonic()>=deadline:
+            report['unresolved'].extend(dict(index=r['index'],error='selection_budget_exhausted') for r in rows[start:])
+            break
+        pending=[dict(index=r['index'],error=None) for r in rows[start:start+2]]
+        for attempt in range(attempts):
+            if time.monotonic()>=deadline:
+                pending=[dict(index=r['index'],error='selection_budget_exhausted') for r in pending]
+                break
+            picks=[candidates[r['index']] for r in pending]
+            prompt,schema=selection_request(cues,picks)
+            errors=[dict(candidate=i,error=r['error']) for i,r in enumerate(pending) if r['error']]
+            if errors:prompt+='\n仅重试以下未通过的候选；事件与细节必须选不同原句，否则skip。错误：'+json.dumps(errors,ensure_ascii=False)
+            record=dict(indices=[r['index'] for r in pending],attempt=attempt+1,
+                        prompt=prompt,schema=schema)
+            report['calls'].append(record);save()
+            try:
+                raw=call(prompt,schema);record['response']=raw
+                data=json.loads(raw) if isinstance(raw,str) else raw
+                if not isinstance(data,dict) or set(data)-set(schema['properties']):
+                    raise ValueError('Story classifier invented candidate keys')
+            except (RuntimeError,ValueError,TypeError) as exc:
+                record['error']=str(exc)
+                pending=[dict(index=r['index'],error=str(exc)) for r in pending]
+                save();continue
+            again=[]
+            for local,row in enumerate(pending):
+                verdict=data.get('candidate_'+str(local))
+                try:
+                    # Remap one actual source candidate, not the whole batch.
+                    selected=validate_choices(cues,[picks[local]],{'candidate_0':verdict})
+                    if selected:report['selected'].extend(selected)
+                    else:report['rejected'].append(dict(index=row['index'],reason='no_grounded_story'))
+                except (ValueError,TypeError,KeyError,AttributeError) as exc:
+                    again.append(dict(index=row['index'],error=str(exc)))
+            pending=again;save()
+            if not pending:break
+        report['unresolved'].extend(pending);save()
+    report['selection_completed']=not report['unresolved']
+    report['retryable']=bool(report['unresolved'])
+    # The existing final production limit is six accepted videos. Keep the
+    # source reader bounded too, while preserving diagnostics for every row.
+    report['selected']=report['selected'][:6]
+    save()
+    return report
+
+
+def production_result(requested, metas, selection=None):
+    actual=sum(actual_profile(m)==TREATMENT for m in metas)
+    return dict(requested=requested,selection_revision=SELECTION_REVISION,
+        experiment_accepted=actual,baseline_accepted=len(metas)-actual,
+        experiment_complete=requested==TREATMENT and actual>0,
+        fallback=requested==TREATMENT and bool(metas) and actual==0,
+        retryable_selection=bool((selection or {}).get('unresolved')))
+
+
+def operational_status(state, ready, now=None):
+    """Receipt-defined execution health, not a playback-performance claim."""
+    now=time.time() if now is None else now
+    receipts={}
+    for info in (state.get('published') or {}).values():
+        for part in info.get('parts') or []:
+            row=part.get('publishing_experiment')
+            if (part.get('status')=='published' and part.get('bvid') and isinstance(row,dict)
+                    and row.get('experiment_id')==EXPERIMENT_ID):
+                receipts[row['slot']]=row
+    planned=sorted((r for r in receipts.values() if r.get('planned')==TREATMENT),key=lambda r:r['slot'])
+    streak=0
+    for row in reversed(planned):
+        if row.get('actual')==TREATMENT and row.get('compliant'):break
+        streak+=1
+    daily=[]
+    for day in sorted({r['slot'][:10] for r in receipts.values()}):
+        rows=[r for r in receipts.values() if r['slot'].startswith(day)]
+        treatment=sum(r.get('planned')==TREATMENT and r.get('actual')==TREATMENT and r.get('compliant') for r in rows)
+        controls=sum(r.get('planned')==BASELINE and r.get('actual')==BASELINE and r.get('compliant')
+                     and r.get('content_type')!='full_interview' for r in rows)
+        daily.append(dict(date=day,published=len(rows),treatment=treatment,controls=controls,
+            fallback=sum(not r.get('compliant') for r in rows),valid_comparison=len(rows)==4 and treatment==2 and controls==2))
+    fresh=ready is not None
+    total=sum(ready.values()) if fresh else None
+    alert=('unknown_stock' if not fresh else 'consecutive_fallbacks' if streak>=2 else
+           'no_verified_treatment' if total==0 else
+           'insufficient_treatment_by_layout' if any(int(ready.get(layout) or 0)<2
+               for layout in ('portrait','landscape')) else None)
+    return dict(experiment_id=EXPERIMENT_ID,selection_revision=SELECTION_REVISION,
+        active=preparing(now),verified_treatment=ready,consecutive_fallbacks=streak,
+        actual_treatment_published=sum(r.get('compliant') and r.get('actual')==TREATMENT for r in planned),
+        valid_comparison_days=sum(d['valid_comparison'] for d in daily),daily=daily,
+        status='inactive' if not preparing(now) else 'needs_attention' if alert else 'ready',alert=alert)
 
 
 def attach_proof(meta, cues, selection, mother_seconds):
@@ -189,12 +325,18 @@ def title_focus(selection):
     """Literal source-word coverage, not an entailment or speaker approval."""
     import jieba.posseg
     generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
+    categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股'}
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
         tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
-                and (w.flag.startswith('n') or not proper and w.flag=='vn')]
+                and (not proper or w.word.upper() not in categories)
+                and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
+                     or not proper and w.flag=='vn')]
         if proper:
-            names=[w.word for w in words if w.flag in {'nt','nz','nr'} and w.word in tokens]
+            # Brand spellings can be idioms/English in the dictionary
+            # (e.g. 可口可乐/NVIDIA). This is literal coverage, not NER or
+            # factual approval; category exclusions and source review remain.
+            names=[w.word for w in words if w.flag in {'nt','nz','nr','i','eng'} and w.word in tokens]
             return list(dict.fromkeys(names or tokens))[:6]
         # Prefer a named adjacent concept (e.g. two contiguous content words)
         # over a generic component. Never concatenate across source characters.
@@ -237,13 +379,17 @@ def proof_error(meta):
         if (p.get('version')!=VERSION or p.get('profile')!=TREATMENT
                 or not MIN_MOTHER_SECONDS<=float(p['source_duration_sec'])<=5400
                 or s.get('version')!=VERSION or s.get('kind') not in ('personal_story','company_case')
-                or not all(isinstance(s.get(k),str) and minimum<=len(s[k])<=140
+                or not all(isinstance(s.get(k),str) and minimum<=len(s[k])<=140 and _substantive_quote(s[k],minimum)
+                           and (k=='subject_quote' or not re.search(r'[？?]',s[k]))
                            for k,minimum in (('subject_quote',2),('event_quote',4),('detail_quote',4)))
                 or not re.fullmatch('[a-f0-9]{64}',str(s.get('transcript_sha256') or ''))
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
-    focus_issue=title_focus_error(meta.get('title'),title_focus(s),cover=meta.get('cover_title'))
+    focus=title_focus(s)
+    if s['kind']=='company_case' and not focus['subjects']:
+        return 'A generic asset/rule is not a named company case'
+    focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),
                        ('video_sha256',(meta.get('fingerprints') or {}).get('sha256')),

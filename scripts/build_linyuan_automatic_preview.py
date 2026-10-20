@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / '.github/workflows/linyuan-automatic-preview.yml'
 REMOVED = {
     '上传成片到 Release', '准备 B站登录态', 'B 站投稿',
-    '明确触发库存核验与自动补位', '复用同源失败任务的已完成证据',
+    '明确触发库存核验与自动补位',
+    '验收实验目标（仅实际实验成片算成功）',
     # A restricted source can be inspected in a publication-free diagnostic,
     # but this never opens its production or promotion admission.
     '核对新源及旧任务重试的已知准入限制',
@@ -22,14 +23,27 @@ def build():
         if step.get('name') in REMOVED:
             continue
         if step.get('id') == 'render':
+            step['env']['LINYUAN_EDITORIAL_PROFILE']="${{ env.LINYUAN_EDITORIAL_PROFILE || 'baseline' }}"
+            step['env']['OUTPUT_LAYOUT']="${{ env.OUTPUT_LAYOUT || 'auto' }}"
             step['env']['SOURCE_VISUAL_CHAPTERS']='true'
             step['run'] = step['run'].replace('--split-highlights \\', '--max-outputs "$RUN_MAX_OUTPUTS" \\\n            --split-highlights \\')
+        if step.get('name')=='复用同源失败任务的已完成证据':
+            step['if']="env.RUN_RECOVERY_RUN_ID != ''"
+            step['env']['RECOVERY_RUN_ID']='${{ env.RUN_RECOVERY_RUN_ID }}'
+        if step.get('name','').startswith('留存独立实验交付结果'):
+            step['if']="always() && env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'"
+        if step.get('name')=='原文件逐项复验并生成无重复视频的发布包':
+            step['run']+=' --preview-only'
         if 'run' in step:
             for name in ('RUN_SOURCE', 'RUN_SLUG', 'RUN_SPEAKER', 'RUN_OCCASION', 'RUN_SOURCE_PLATFORM'):
                 step['run'] = step['run'].replace('${{ env.' + name + ' }}', '$' + name)
         if step.get('uses', '').startswith('actions/upload-artifact@'):
             step['with']['name'] = 'preview-' + step['with']['name']
         steps.append(step)
+        if step.get('id')=='render':
+            steps.append(dict(name='验收真实实验交付（缺实验成片即失败）',
+                **{'if':"env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'",'working-directory':'.',
+                   'run':'python scripts/verify_linyuan_story_delivery.py "linyuan/deliver/$RUN_SLUG"'}))
         if step.get('uses', '').startswith('actions/checkout@'):
             steps.append(dict(name='读取全自动预览请求（不接受标题或选段答案）',
                 **{'working-directory': '.', 'run': 'python3 scripts/linyuan_preview_request.py .github/linyuan-preview-request.json'}))
@@ -37,10 +51,11 @@ def build():
     env = copy.deepcopy(production['env'])
     env.update(RUN_SOURCE='', RUN_SLUG='preview-${{ github.run_id }}', RUN_SPEAKER='林园',
         RUN_OCCASION='访谈', RUN_SOURCE_PLATFORM='', RUN_REVIEWED_PARTS='',
-        LINYUAN_AUTOMATIC_ONLY='true', RUN_MAX_OUTPUTS='1')
+        LINYUAN_AUTOMATIC_ONLY='true', RUN_MAX_OUTPUTS='1',RUN_RECOVERY_RUN_ID='',
+        LINYUAN_EDITORIAL_PROFILE='baseline',OUTPUT_LAYOUT='auto')
     return dict(name='林园全自动预览（不发布）', **{
         'run-name': '全自动预览 · ${{ github.run_id }}',
-        'on': {'push': {'branches': ['codex/automatic-preview', 'codex/caption-sync-feed-cover', 'codex/yield45-recovery-20261013'],
+        'on': {'push': {'branches': ['codex/automatic-preview', 'codex/caption-sync-feed-cover', 'codex/yield45-recovery-20261013', 'codex/linyuan-story-reliable-20261020'],
                        'paths': ['.github/linyuan-preview-request.json', '.github/workflows/linyuan-automatic-preview.yml']},
                'workflow_dispatch': {}},
         'permissions': {'contents': 'read', 'actions': 'read'},

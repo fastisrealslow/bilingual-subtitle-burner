@@ -1,7 +1,7 @@
 name: 交替发布实验上线前验收
 on:
   push:
-    branches: [codex/linyuan-alternate-experiment-20261017]
+    branches: [codex/linyuan-alternate-experiment-20261017, codex/linyuan-story-reliable-20261020]
 permissions:
   contents: read
 jobs:
@@ -17,6 +17,8 @@ jobs:
       - run: pip install -q pytest numpy pillow requests jieba fonttools pyyaml 'yt-dlp==2026.8.19' 'opencv-python-headless<5'
       - name: 全部林园生产发布回归，禁止投稿
         run: python -m pytest -q tests/test_linyuan* tests/test_fc_deploy_code.py tests/test_cover_wrap_title.py
+      - name: 实验补位告警前端回归
+        run: node --test tests/test_production_status_page.cjs
   cpu-story:
     runs-on: ubuntu-latest
     timeout-minutes: 90

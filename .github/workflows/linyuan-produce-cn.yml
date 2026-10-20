@@ -480,6 +480,17 @@ jobs:
             ${{ inputs.include_full && '--include-full' || '' }} \
             ${{ (github.event_name == 'push' || inputs.prefer_live_video) && '--prefer-live-video' || '' }}
 
+      - name: 留存独立实验交付结果（普通出片成功不代表实验成功）
+        if: always() && inputs.editorial_profile == 'field-story-v1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-result-${{ env.RUN_SLUG }}
+          path: |
+            linyuan/deliver/${{ env.RUN_SLUG }}/experiment_production.json
+            linyuan/deliver/${{ env.RUN_SLUG }}/_tmp/story_selection.json
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: 为未捕获的运行错误保存恢复报告
         if: failure()
         env:
@@ -715,3 +726,8 @@ jobs:
             sleep $((attempt * 3))
           done
           exit 1
+
+      - name: 验收实验目标（仅实际实验成片算成功）
+        if: always() && inputs.editorial_profile == 'field-story-v1' && steps.render.outcome == 'success'
+        working-directory: .
+        run: python scripts/verify_linyuan_story_delivery.py "linyuan/deliver/$RUN_SLUG"
