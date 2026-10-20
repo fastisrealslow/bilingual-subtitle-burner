@@ -35913,7 +35913,45 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-21T14:42:30+00:00"
+   "publish_time": "2025-12-21T14:42:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1020-b3774d",
+    "run_id": 39374363342,
+    "artifact_id": 12246651996,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1940.30s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"呃，我个人因为在这上面我我打交道了啊，你们不要相信，不要迷迷信西药就是西西方的。\", \"suspect_quote\": \"不要迷迷信西药就是西西方的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或识别错误：'迷迷信'应为'迷信'，'西西方'应为'西方'。原文中重复的'信'字和'西西方'导致含义不明，属于关键数字/否定类中的文字污染问题。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"他和嘴巴不一样，嘴巴吃的东西，那个吃惯了、喝惯了，他不会一下。\", \"suspect_quote\": \"他和嘴巴不一样\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'他'在此处指代不明（前文未明确提及具体对象），结合后文‘嘴巴吃的东西’，疑似将‘他们’误识别为单数‘他’，导致主语与谓语逻辑断裂。此为典型的语音转文字中的人称代词错写，影响语义连贯性。”}, {\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2046.97s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39374363342,
+    "artifact_id": 12246651996,
+    "name": "production-reject-ly-1020-b3774d",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 1940.30s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV12GosYcE7u",
@@ -36116,7 +36154,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5356095992498949",
@@ -102303,6 +102342,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/moZEuzCllx08BIsssWbC01041200XH7L0E010.mp4",
    "ts": 1792478041,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/616，总帧数1728；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1020-b3774d",
+   "key": "bilibili_search:BV1ryBEBUE8D",
+   "video_id": "BV1ryBEBUE8D",
+   "ts": 1792479630,
+   "error": "整段取景预检：源 1940.30s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
