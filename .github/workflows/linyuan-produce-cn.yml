@@ -726,3 +726,8 @@ jobs:
             sleep $((attempt * 3))
           done
           exit 1
+
+      - name: 验收实验目标（仅实际实验成片算成功）
+        if: always() && inputs.editorial_profile == 'field-story-v1' && steps.render.outcome == 'success'
+        working-directory: .
+        run: python scripts/verify_linyuan_story_delivery.py "linyuan/deliver/$RUN_SLUG"

@@ -8,6 +8,7 @@ TARGET = ROOT / '.github/workflows/linyuan-automatic-preview.yml'
 REMOVED = {
     '上传成片到 Release', '准备 B站登录态', 'B 站投稿',
     '明确触发库存核验与自动补位',
+    '验收实验目标（仅实际实验成片算成功）',
     # A restricted source can be inspected in a publication-free diagnostic,
     # but this never opens its production or promotion admission.
     '核对新源及旧任务重试的已知准入限制',
