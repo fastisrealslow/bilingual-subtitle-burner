@@ -57,7 +57,7 @@
       message: `日常合格成片仅 ${stock} 条，低于每日 ${target} 条目标，需要补库。`};
     const experiment = snapshot.publishing_experiment;
     const warning = experiment && experiment.active && experiment.status === 'needs_attention'
-      ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。` : '';
+      ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。` : '';
     return {status: warning ? 'at_risk' : 'covered', message: `日常合格库存 ${stock} 条，可覆盖至少一天的 ${target} 条目标；不代表已经发布。${warning}`};
   }
   const api = {latestDispatches, remaining, reconcile, continuity};

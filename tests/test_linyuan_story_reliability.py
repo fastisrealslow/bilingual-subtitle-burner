@@ -91,6 +91,14 @@ def test_status_never_calls_baseline_stock_a_successful_experiment(monkeypatch):
     assert status=='experiment_fallback' and '不计入实验库存' in detail
 
 
+@pytest.mark.parametrize('ready',[dict(portrait=0,landscape=4),dict(portrait=3,landscape=1)])
+def test_experiment_health_requires_stock_for_both_experimental_layouts(ready):
+    result=E.operational_status({},ready,1792418400)
+    assert result['status']=='needs_attention'
+    assert result['alert']=='insufficient_treatment_by_layout'
+    assert E.operational_status({},dict(portrait=2,landscape=2),1792418400)['status']=='ready'
+
+
 def test_repaired_selector_can_retry_a_completed_old_fallback_once(monkeypatch):
     F=S.fc;now=1792418400
     monkeypatch.setattr(F.time,'time',lambda:now)

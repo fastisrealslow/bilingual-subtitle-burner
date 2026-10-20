@@ -261,7 +261,9 @@ def operational_status(state, ready, now=None):
     fresh=ready is not None
     total=sum(ready.values()) if fresh else None
     alert=('unknown_stock' if not fresh else 'consecutive_fallbacks' if streak>=2 else
-           'no_verified_treatment' if total==0 else None)
+           'no_verified_treatment' if total==0 else
+           'insufficient_treatment_by_layout' if any(int(ready.get(layout) or 0)<2
+               for layout in ('portrait','landscape')) else None)
     return dict(experiment_id=EXPERIMENT_ID,selection_revision=SELECTION_REVISION,
         active=preparing(now),verified_treatment=ready,consecutive_fallbacks=streak,
         actual_treatment_published=sum(r.get('compliant') and r.get('actual')==TREATMENT for r in planned),
