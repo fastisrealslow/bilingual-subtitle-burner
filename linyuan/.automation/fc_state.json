@@ -37772,7 +37772,8 @@
     "name": "production-reject-ly-1021-f05f82",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5356529205380092",
@@ -37948,7 +37949,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21T22:43"
+   "publish_time": "2026-10-21T22:43",
+   "production_failure_summary": {
+    "slug": "ly-1021-78cefc",
+    "run_id": 39628663959,
+    "artifact_id": 12358812566,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39628663959,
+    "artifact_id": 12358812566,
+    "name": "production-reject-ly-1021-78cefc",
+    "retained": true
+   },
+   "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -107754,6 +107777,13 @@
    "video_id": "BV1gV411X7Fn",
    "ts": 1792597866,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1021-78cefc",
+   "key": "netease_video:VO8S9D2FN",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2610/21/6mu1scdwv34/SD/6mu1scdwv34-mobile.mp4",
+   "ts": 1792598630,
+   "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
   }
  ],
  "reviewed_third_video_0910": {
