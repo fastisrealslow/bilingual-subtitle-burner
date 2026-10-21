@@ -37357,7 +37357,45 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-04-01T11:37:46+00:00"
+   "publish_time": "2024-04-01T11:37:46+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1021-76e19f",
+    "run_id": 39583387530,
+    "artifact_id": 12341203691,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未形成针对投资可行性的明确结论。句 3 以‘我的意思是...雪山慢慢...有一个过程’开头，句 4 接‘可能还是要延长一段时间’，整体是对市场变化节奏的模糊描述，缺乏‘能投/不能投’或‘建议/不建议’等实质性判断，属于论述被切断或未回答新问题（即未给出最终结论）的情况。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配83/224，总帧数703；身份匹配但人脸短边不足96px的帧数141"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/176，总帧数877；身份匹配但人脸短边不足96px的帧数176"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"所以我对这个设计，我是把美国那个十类设计，还有建筑设计，整个都不了解。\", \"suspect_quote\": \"把美国那个十类设计\", \"kind\": \"unintelligible_term\", \"reason\": \"“十类设计”在建筑或设计领域无明确定义，疑似将“十大设计”、“室内设计”或特定人名/术语误识别为数字加名词的组合，属于无法解释的具体词语疑点。\"}, {\"sentence_id\": 9, \"quote\": \"啊，因为我们设计大楼的老外，他老婆就是，就十类设计师。\", \"suspect_quote\": \"就十类设计"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对问题的回应，仅由主持人完成话题引入与提问，未形成完整表达闭环；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39583387530,
+    "artifact_id": 12341203691,
+    "name": "production-reject-ly-1021-76e19f",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未形成针对投资可行性的明确结论。句 3 以‘我的意思是...雪山慢慢...有一个过程’开头，句 4 接‘可能还是要延长一段时间’，整体是对市场变化节奏的模糊描述，缺乏‘能投/不能投’或‘建议/不建议’等实质性判断，属于论述被切断或未回答新问题（即未给出最终结论）的情况。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5356509261202033",
@@ -106592,6 +106630,13 @@
    "video_id": "BV14Bnz6GEVx",
    "ts": 1792579630,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1021-76e19f",
+   "key": "bilibili_search:BV1UM4m1R7ur",
+   "video_id": "BV1UM4m1R7ur",
+   "ts": 1792582466,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未形成针对投资可行性的明确结论。句 3 以‘我的意思是...雪山慢慢...有一个过程’开头，句 4 接‘可能还是要延长一段时间’，整体是对市场变化节奏的模糊描述，缺乏‘能投/不能投’或‘建议/不建议’等实质性判断，属于论述被切断或未回答新问题（即未给出最终结论）的情况。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
