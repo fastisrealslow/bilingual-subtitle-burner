@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792582312,
+  "updated_at": 1792582618,
   "inventory_updated_at": 1792582279,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -81,7 +81,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792582311,
+    "updated_at": 1792582618,
     "records": 11239,
     "video_records": 9680,
     "initial_candidates": 61,
@@ -118,13 +118,13 @@
   },
   "counts": {
     "complete": 134,
-    "failed": 1180,
+    "failed": 1181,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 4,
     "excluded": 9,
     "ready": 5,
     "experiment_fallback": 11,
-    "retry_queued": 4,
+    "retry_queued": 5,
     "awaiting_validation": 1,
     "running": 1
   },
@@ -24421,11 +24421,11 @@
     },
     {
       "slug": "ly-1021-76e19f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未形成针对投资可行性的明确结论。句 3 以‘我的意思是...雪山慢慢...有一个过程’开头，句 4 接‘可能还是要延长一段时间’，整体是对市场变化节奏的模糊描述，缺乏‘能投/不能投’或‘建议/不建议’等实质性判断，属于论述被切断或未回答新问题（即未给出最终结论）的情况。；原文问题：[]",
       "signature": {
         "ts": 1792577795,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24493,14 +24493,14 @@
     },
     {
       "slug": "ly-1021-f05f82",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792578078,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792583361,
         "weekly_full_week": ""
       },
       "history_count": 1,
