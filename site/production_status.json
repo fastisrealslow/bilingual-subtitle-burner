@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792578274,
+  "updated_at": 1792578522,
   "inventory_updated_at": 1792578245,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 10,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 11,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -81,16 +81,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792578273,
+    "updated_at": 1792578521,
     "records": 11239,
     "video_records": 9680,
-    "initial_candidates": 63,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 62,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1510,
+      "already_attempted_or_cooling": 1511,
       "speaker_unconfirmed": 6700,
       "no_video": 1559,
       "clip_title": 1145,
@@ -103,14 +103,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5356519485083303",
-        "title": "私募大佬林园：随着人口老龄化，医药会像AI一样爆发！\n#股票##私募排排网##私募##A股# http://t.cn/A",
-        "source": "weibo_search",
-        "author": "排排网",
-        "url": "https://m.weibo.cn/detail/5356519485083303",
-        "duration_sec": 79.0
-      },
       {
         "key": "bilibili_search:BV14Bnz6GEVx",
         "title": "私募大佬林园：随着人口老龄化，医药会像AI一样爆发！",
@@ -135,15 +127,15 @@
   },
   "counts": {
     "complete": 134,
-    "failed": 1175,
+    "failed": 1176,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 9,
     "ready": 5,
     "experiment_fallback": 11,
     "retry_queued": 4,
     "awaiting_validation": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -24492,11 +24484,11 @@
     },
     {
       "slug": "ly-1021-409b77",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 394 < 480（854x394），画质不达标",
       "signature": {
         "ts": 1792578072,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24525,6 +24517,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39583973417",
       "run_started_at": "2026-10-21T10:21:18Z",
       "run_updated_at": "2026-10-21T10:21:22Z"
+    },
+    {
+      "slug": "ly-1021-ffc27b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792578478,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39584775811,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39584775811",
+      "run_started_at": "2026-10-21T10:27:58Z",
+      "run_updated_at": "2026-10-21T10:28:01Z"
     }
   ],
   "runs": {
@@ -35011,17 +35021,6 @@
       "run_number": 2363,
       "display_title": "中文源出片 · ly-1021-dd5639"
     },
-    "ly-1021-f05f82": {
-      "id": 39583973417,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-21T10:21:18Z",
-      "updated_at": "2026-10-21T10:21:22Z",
-      "run_started_at": "2026-10-21T10:21:18Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39583973417",
-      "run_number": 2369,
-      "display_title": "中文源出片 · ly-1021-f05f82"
-    },
     "ly-1021-409b77": {
       "id": 39583960306,
       "status": "completed",
@@ -35032,6 +35031,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39583960306",
       "run_number": 2368,
       "display_title": "中文源出片 · ly-1021-409b77"
+    },
+    "ly-1021-ffc27b": {
+      "id": 39584775811,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-21T10:27:58Z",
+      "updated_at": "2026-10-21T10:28:01Z",
+      "run_started_at": "2026-10-21T10:27:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39584775811",
+      "run_number": 2370,
+      "display_title": "中文源出片 · ly-1021-ffc27b"
+    },
+    "ly-1021-f05f82": {
+      "id": 39583973417,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-21T10:21:18Z",
+      "updated_at": "2026-10-21T10:21:22Z",
+      "run_started_at": "2026-10-21T10:21:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39583973417",
+      "run_number": 2369,
+      "display_title": "中文源出片 · ly-1021-f05f82"
     },
     "ly-1021-745751": {
       "id": 39583411677,
