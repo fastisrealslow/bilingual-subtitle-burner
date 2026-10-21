@@ -3754,15 +3754,37 @@
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 6,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792367367.9609463,
-      "next_retry_at": 1792453767.9609463,
-      "fingerprint_cache_available": false,
+      "last_error": null,
+      "last_attempt_at": 1792576206.9526315,
+      "next_retry_at": 0,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
-      "family_status": "search_clue_not_verified"
+      "family_status": "search_clue_not_verified",
+      "evidence": {
+        "sha256": "32a2fd67d5bb99990de430210bd5972f78783e72488c4971d606a3161be390e5",
+        "duration_sec": 3887.461587,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1943.73
+          }
+        ],
+        "audio_fingerprint_count": 31377,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39579540356"
     },
     "40fb01726d60a41ed136": {
       "url": "https://www.bilibili.com/video/BV1UjaY6pEwv",
@@ -3805,10 +3827,10 @@
       "family": "hnw_course",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 6,
+      "attempts": 7,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792367370.4881892,
-      "next_retry_at": 1792453770.4881892,
+      "last_attempt_at": 1792576209.2461596,
+      "next_retry_at": 1792662609.2461596,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6326,13 +6348,13 @@
       "family": "simuwang_2026_10_15",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 3,
+      "attempts": 4,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792367670.4980688,
-      "next_retry_at": 1792454070.4980688,
+      "last_attempt_at": 1792576509.2566204,
+      "next_retry_at": 1792662909.2566204,
       "download_partial_bytes": 0
     },
     "fac958ca9c23202307e1": {
@@ -6811,11 +6833,14 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792496250.8910685,
-      "next_retry_at": 1792539450.8910685,
+      "next_retry_at": 1792597703.8462374,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792576103.8462374
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "searched",
@@ -6902,69 +6927,39 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792516214.9948533,
-      "next_retry_at": 1792559414.9948533,
+      "next_retry_at": 1792597703.8462374,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792576103.8462374
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792528652.934928,
-      "next_retry_at": 1792571852.934928,
+      "next_retry_at": 1792597703.8462374,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792576103.8462374
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": false,
+      "collection_listing_complete": true,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": [
-        {
-          "stage": "collection_page",
-          "season_id": 6285434,
-          "page": 4,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 6334328,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 8098861,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 6790738,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 5016608,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 6836119,
-          "page": 1,
-          "error": "ValueError"
-        }
-      ]
+      "errors": []
     }
   },
-  "search_cursor": 1,
-  "updated_at": 1792559438,
-  "last_run_id": "39546718074",
+  "search_cursor": 3,
+  "updated_at": 1792576517,
+  "last_run_id": "39579540356",
   "audio_match_candidates": []
 }
