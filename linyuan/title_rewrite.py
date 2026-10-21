@@ -23,7 +23,8 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 时间概率必须说明什么事件可能发生，不能仅删除不明点位，留下“十二个月可能性大”。
 “不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。
-讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。"""
+讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。
+“首先、主要、优先看某项”表达优先次序，不支持“只看、仅关注某项”；标题和封面分别保留范围，不能替嘉宾排除其他判断依据。"""
 
 
 def compact(text):
@@ -1107,6 +1108,51 @@ def research_scope_error(title, cover, transcript):
     return None
 
 
+def priority_scope_error(title, cover, transcript):
+    """Keep a stated priority from becoming an exclusive investment rule.
+
+    Bind the action to its investment object within the same clause. A 只看
+    about price cannot prove exclusivity about industry, and a host question
+    or a negated 不只看 is not a positive exclusive assertion. This guard only
+    covers observable priority-to-exclusivity changes; it is not semantic
+    approval of other copy.
+    """
+    action = r'(?:看(?:的)?|盯(?:着)?|关注|考虑|重视|研究|考察)'
+    objects = re.compile(r'行业|估值|市盈率|现金流|利润|营收|竞争力|业绩|需求|风险|成长|价格|成本|分红|销量')
+    priority = re.compile(r'(?:首先|主要|优先)(?:是|我们|我|会|要|的|啊|呃|就){0,8}' + action + r'([^。！？!?；;]{1,40})')
+    exclusive = re.compile(r'(?:只|仅仅|仅)(?:是|会|要|去){0,3}' + action + r'([^。！？!?；;，,]{1,40})')
+
+    def clauses(text):
+        return re.findall(r'[^。！？!?；;]+[。！？!?；;]?', text or '')
+
+    def exclusive_objects(text, source=False):
+        found = set()
+        for clause in clauses(text):
+            if source and clause.endswith(('？', '?')):
+                continue
+            for match in exclusive.finditer(clause):
+                prefix = clause[max(0, match.start()-5):match.start()]
+                if re.search(r'不|并非|不是|不能|别|不要|有人说', prefix):
+                    continue
+                if re.search(r'(?:是|并)?(?:不够|不足|不对|错误|片面|不行)', match[1]):
+                    continue
+                found.update(objects.findall(match[1]))
+        return found
+
+    prioritized = set()
+    for clause in clauses(transcript):
+        if not clause.endswith(('？', '?')):
+            for match in priority.finditer(clause):
+                prioritized.update(objects.findall(match[1]))
+    if not prioritized:
+        return None
+    supported = exclusive_objects(transcript, source=True)
+    for copy in (title, cover):
+        if (exclusive_objects(copy) & prioritized) - supported:
+            return '原话首先或主要关注的对象不等于只看该对象；标题和封面须分别保留优先范围，不能改成排他规则'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     from speaker_attribution import other_guest_indices
     if other_guest_indices([transcript],speaker):
@@ -1156,6 +1202,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     if loss_issue:return loss_issue
     phase_issue=participation_phase_error(title,cover,transcript)
     if phase_issue:return phase_issue
+    priority_issue=priority_scope_error(title,cover,transcript)
+    if priority_issue:return priority_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -1320,6 +1368,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
                 or population_scope_error(title, cover['text'], transcript)
                 or loss_claim_error(title, cover['text'], transcript)
                 or participation_phase_error(title, cover['text'], transcript)
+                or priority_scope_error(title, cover['text'], transcript)
                 or incremental_cost_error(title, cover['text'], [transcript])
                 or product_contrast_error(title, cover['text'], transcript)
                 or unsupported_hedge_error(title, cover['text'], [quote])):
@@ -1771,6 +1820,7 @@ def error(title, proof, transcript=None, speaker='林园'):
                   population_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   loss_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   participation_phase_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  priority_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   incremental_cost_error(title, proof['cover'], [transcript or ''.join(evidence)]),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
