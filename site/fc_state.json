@@ -37926,7 +37926,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21T12:52:52+00:00"
+   "publish_time": "2026-10-21T12:52:52+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1021-cd9d6f",
+    "run_id": 39627867342,
+    "artifact_id": 12359386967,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1482，总帧数2412；身份匹配但人脸短边不足96px的帧数56"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1086/1755，总帧数3341；身份匹配但人脸短边不足96px的帧数203"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39627867342,
+    "artifact_id": 12359386967,
+    "name": "production-reject-ly-1021-cd9d6f",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1482，总帧数2412；身份匹配但人脸短边不足96px的帧数56",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VO8S9D2FN",
@@ -37971,7 +37997,8 @@
    },
    "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -107784,6 +107811,13 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2610/21/6mu1scdwv34/SD/6mu1scdwv34-mobile.mp4",
    "ts": 1792598630,
    "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+  },
+  {
+   "slug": "ly-1021-cd9d6f",
+   "key": "bilibili_search:BV1TVnB66EAQ",
+   "video_id": "BV1TVnB66EAQ",
+   "ts": 1792598972,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1482，总帧数2412；身份匹配但人脸短边不足96px的帧数56"
   }
  ],
  "reviewed_third_video_0910": {
