@@ -38022,7 +38022,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21T22:00:00+00:00"
+   "publish_time": "2026-10-21T22:00:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1021-f73d1c",
+    "run_id": 39693972006,
+    "artifact_id": 12391230769,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1176/1813，总帧数3182；身份匹配但人脸短边不足96px的帧数193"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"可是今年一度也突破了四千二、四千三百点的时候，但这波动，短暂的。\", \"suspect_quote\": \"四千二、四千三百点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘四千二’与‘四千三百点’之间用顿号连接，未明确是并列区间还是递进关系，且‘四千二’缺少‘百’字单位（应为 4200 还是 4200 点？），在金融语境下可能指代不清。\"}, {\"sentence_id\": 19, \"quote\": \"嗯，那现在跌破这个三千七了。\", \"suspec"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39693972006,
+    "artifact_id": 12391230769,
+    "name": "production-reject-ly-1021-f73d1c",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1176/1813，总帧数3182；身份匹配但人脸短边不足96px的帧数193",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -107842,6 +107868,13 @@
    "video_id": "BV1TVnB66EAQ",
    "ts": 1792598972,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1482，总帧数2412；身份匹配但人脸短边不足96px的帧数56"
+  },
+  {
+   "slug": "ly-1021-f73d1c",
+   "key": "bilibili_search:BV1Atnk62EHC",
+   "video_id": "BV1Atnk62EHC",
+   "ts": 1792626823,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1176/1813，总帧数3182；身份匹配但人脸短边不足96px的帧数193"
   }
  ],
  "reviewed_third_video_0910": {
