@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792598490,
+  "updated_at": 1792598746,
   "inventory_updated_at": 1792598475,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -81,7 +81,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792598490,
+    "updated_at": 1792598746,
     "records": 11295,
     "video_records": 9735,
     "initial_candidates": 61,
@@ -118,15 +118,14 @@
   },
   "counts": {
     "complete": 134,
-    "failed": 1185,
+    "failed": 1186,
     "paused": 5,
     "interrupted": 5,
     "excluded": 10,
     "ready": 4,
     "experiment_fallback": 11,
     "retry_queued": 5,
-    "awaiting_validation": 1,
-    "running": 1
+    "awaiting_validation": 1
   },
   "tasks": [
     {
@@ -24601,8 +24600,8 @@
     },
     {
       "slug": "ly-1021-cd9d6f",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792597252,
         "failed": null,
@@ -24615,15 +24614,15 @@
       "run_id": 39627867342,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39627867342",
       "run_started_at": "2026-10-21T15:40:52Z",
-      "run_updated_at": "2026-10-21T15:40:57Z"
+      "run_updated_at": "2026-10-21T16:04:08Z"
     },
     {
       "slug": "ly-1021-78cefc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
       "signature": {
         "ts": 1792597565,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35254,10 +35253,10 @@
     },
     "ly-1021-cd9d6f": {
       "id": 39627867342,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-21T15:40:52Z",
-      "updated_at": "2026-10-21T15:40:57Z",
+      "updated_at": "2026-10-21T16:04:08Z",
       "run_started_at": "2026-10-21T15:40:52Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39627867342",
       "run_number": 2376,
