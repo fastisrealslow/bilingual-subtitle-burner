@@ -37261,7 +37261,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-29T02:33:18+00:00"
+   "publish_time": "2025-12-29T02:33:18+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1021-47bba9",
+    "run_id": 39545475252,
+    "artifact_id": 12321374810,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 25.04s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39545475252,
+    "artifact_id": 12321374810,
+    "name": "production-reject-ly-1021-47bba9",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 25.04s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -104480,6 +104502,13 @@
    "video_id": "BV1C3pc6PEPJ",
    "ts": 1792517070,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1021-47bba9",
+   "key": "bilibili_search:BV126vmBPE5X",
+   "video_id": "BV126vmBPE5X",
+   "ts": 1792558818,
+   "error": "整段取景预检：源 25.04s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
