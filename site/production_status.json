@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": 1792568795,
-  "inventory_updated_at": 1792564511,
+  "updated_at": 1792575727,
+  "inventory_updated_at": 1792575694,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 14,
+    "verified_daily_stock": 13,
     "active_or_recovering_sources": 5,
     "waiting_candidates": 0,
     "status": "covered",
@@ -14,9 +14,9 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 14,
-      "minimum_week_shortfall": 0,
-      "preferred_week_shortfall": 7,
+      "verified_stock_snapshot": 13,
+      "minimum_week_shortfall": 1,
+      "preferred_week_shortfall": 8,
       "reserve_shortfall": 0,
       "dates": [
         "2026-10-21",
@@ -69,9 +69,9 @@
       },
       {
         "date": "2026-10-21",
-        "published": 2,
+        "published": 3,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 1,
         "valid_comparison": false
       }
@@ -81,7 +81,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792568795,
+    "updated_at": 1792575726,
     "records": 11219,
     "video_records": 9662,
     "initial_candidates": 61,
@@ -105,14 +105,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 14,
+    "verified_live": 13,
     "verified_audio_card": 0,
-    "verified_landscape": 11,
-    "verified_portrait": 3,
+    "verified_landscape": 9,
+    "verified_portrait": 4,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 14,
+    "daily_mix_usable": 13,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -121,9 +121,9 @@
     "failed": 1175,
     "paused": 5,
     "interrupted": 4,
-    "ready": 8,
-    "excluded": 5,
-    "experiment_fallback": 12,
+    "excluded": 9,
+    "ready": 5,
+    "experiment_fallback": 11,
     "retry_queued": 4,
     "awaiting_validation": 1
   },
@@ -21108,8 +21108,8 @@
     },
     {
       "slug": "ly-1015-5e4dd0",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792071947,
         "failed": null,
@@ -21306,12 +21306,12 @@
     },
     {
       "slug": "ly-1016-b570f4",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792131795,
         "failed": null,
-        "published_parts": 3,
+        "published_parts": 4,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
@@ -21379,11 +21379,11 @@
     {
       "slug": "ly-1016-9841c2",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792134917,
         "failed": null,
-        "published_parts": 3,
+        "published_parts": 4,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
@@ -21396,8 +21396,8 @@
     },
     {
       "slug": "ly-1016-a7ba4e",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792135168,
         "failed": null,
@@ -22602,8 +22602,8 @@
     },
     {
       "slug": "ly-story-1cde6f36c0",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792238663,
         "failed": null,
@@ -23759,7 +23759,7 @@
       "signature": {
         "ts": 1792486368,
         "failed": null,
-        "published_parts": 1,
+        "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
@@ -23863,7 +23863,7 @@
     {
       "slug": "ly-story-c551c25a26",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792487449,
         "failed": null,
@@ -24223,11 +24223,11 @@
     {
       "slug": "ly-story-cbaf21d67f",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792494252,
         "failed": false,
-        "published_parts": 1,
+        "published_parts": 2,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
@@ -24331,7 +24331,7 @@
     {
       "slug": "ly-story-8d58b73ad7",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792506301,
         "failed": null,
