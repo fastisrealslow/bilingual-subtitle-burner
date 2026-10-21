@@ -26675,8 +26675,8 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-e92b65",
-    "run_id": 37929673814,
-    "artifact_id": 11616996500,
+    "run_id": 38465382972,
+    "artifact_id": 11848828322,
     "accepted": 0,
     "failures": [
      {
@@ -26768,17 +26768,17 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-ef1b48",
-    "run_id": 37929663309,
-    "artifact_id": 11617226028,
+    "run_id": 38465829631,
+    "artifact_id": 11848759416,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"‘另另类’在口语中无明确含义，疑似识别错误（可能为‘另类’或‘另立门户’等），影响理解。\"}, {\"sentence_id\": 10, \"quote\": \"前段时间我去香港，就是就是就看到个点，他们都在想。\", \"suspect_quote\": \"就是就是就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"‘"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"当然，房地产企业会另另类。\", \"suspect_quote\": \"房地产企业会另另类\", \"kind\": \"unintelligible_term\", \"reason\": \"‘另另类’无法解释，疑似识别错误导致语义不明，需指出具体污染词。\"}, {\"sentence_id\": 10, \"quote\": \"前段时间我去香港，就是就是就看到个点，他们都在想。\", \"suspect_quote\": \"就是就是就看到个点\", \"kind\": \"unintelligible_term\", \"reason\": \"‘就是就是’为口语重复非疑"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"李贝总是调研很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"李贝总是调研很多地产企业\", \"kind\": \"unintelligible_term\", \"reason\": \"“李贝”疑似为人名识别错误，结合上下文语境（嘉宾林园谈论地产行业），此处极可能应为知名地产专家或人物“李斌”或其他名字，但原文无法确证；且“总是调研很多”语序略显生硬，虽口语可接受，但专有名词存疑。\"}, {\"sentence_id\": 6, \"quote\": "
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 仅包含嘉宾对‘是否不看好’的直接回答（句 2），未包含后续支撑该判断的理由和例子（如句 4-20 关于产业被遗忘、利润改善可能性低、房子作为资产价值归零等论述）。根据任务要求，完整表达需包含观点及至少一个理由或例子，因此当前 claim_range 不足以构成独立成片的完整证据链。；原文问题：[]"
      }
     ]
    },
@@ -26822,8 +26822,8 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-9b1d8d",
-    "run_id": 37928705790,
-    "artifact_id": 11614904022,
+    "run_id": 38465843988,
+    "artifact_id": 11849455462,
     "accepted": 0,
     "failures": [
      {
@@ -108048,7 +108048,7 @@
  },
  "source_refresh_requested_at": 1792575983,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 4,
+ "rule_recovery_page": 5,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
