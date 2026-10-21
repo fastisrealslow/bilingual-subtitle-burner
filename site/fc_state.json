@@ -33430,8 +33430,8 @@
    "publish_time": "2026-06-27T03:16:29+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-e34587",
-    "run_id": 38593868641,
-    "artifact_id": 11912736534,
+    "run_id": 39038274066,
+    "artifact_id": 12103597092,
     "accepted": 0,
     "failures": [
      {
@@ -33489,8 +33489,8 @@
    "publish_time": "2026-05-17T04:35:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-278e50",
-    "run_id": 38591795250,
-    "artifact_id": 11910730010,
+    "run_id": 39038552717,
+    "artifact_id": 12103687093,
     "accepted": 0,
     "failures": [
      {
@@ -33552,17 +33552,17 @@
    "publish_time": "2025-11-11T13:03:33+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-a04f78",
-    "run_id": 38588907309,
-    "artifact_id": 11907848387,
+    "run_id": 39038824999,
+    "artifact_id": 12103551912,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_te"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'在口语中无意义，结合上下文应为'给你一个'或'给你'，但自动识别将连读或口误误作重复名词。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\":"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"李贝总是调研了很多地产企业\", \"kind\": \"unintelligible_term\", \"reason\": \"“李贝”疑似为人名识别错误，结合上下文语境（林园访谈），极大概率应为“李录”（Value Investors Club 创始人、巴菲特合伙人）。\"}, {\"sentence_id\": 14, \"quote\": \"现在大家可能还把房子作为一个资产，再过几年，大"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"如果这个公司结过两年结算的是今年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘结过两年’与‘结算的是今年的’在时间逻辑上存在明显矛盾或表述不清，属于含义不明的关键数字/时间描述，可能影响理解。\"}, {\"sentence_id\": 14, \"quote\": \"现在大家可能还把房子作为一个资产，再过几年，大多"
      }
     ]
    },
@@ -107979,7 +107979,7 @@
  },
  "source_refresh_requested_at": 1792575983,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 2,
+ "rule_recovery_page": 3,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
