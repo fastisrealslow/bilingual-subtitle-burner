@@ -37380,7 +37380,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21T17:26:30+08:00"
+   "publish_time": "2026-10-21T17:26:30+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1021-daa120",
+    "run_id": 39583400000,
+    "artifact_id": 12338528945,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1176/1813，总帧数3182；身份匹配但人脸短边不足96px的帧数203"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39583400000,
+    "artifact_id": 12338528945,
+    "name": "production-reject-ly-1021-daa120",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1h8nz6mE8C",
@@ -37403,7 +37429,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21T09:37:53+00:00"
+   "publish_time": "2026-10-21T09:37:53+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1021-745751",
+    "run_id": 39583411677,
+    "artifact_id": 12338109471,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1086/1757，总帧数3350；身份匹配但人脸短边不足96px的帧数203"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39583411677,
+    "artifact_id": 12338109471,
+    "name": "production-reject-ly-1021-745751",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1086/1757，总帧数3350；身份匹配但人脸短边不足96px的帧数203",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1RG411q7WR",
@@ -37436,7 +37484,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 394 < 480（854x394），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1gV411X7Fn",
@@ -106439,6 +106488,20 @@
    "video_id": "BV1RG411q7WR",
    "ts": 1792578357,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 394 < 480（854x394），画质不达标"
+  },
+  {
+   "slug": "ly-1021-745751",
+   "key": "bilibili_search:BV1h8nz6mE8C",
+   "video_id": "BV1h8nz6mE8C",
+   "ts": 1792578880,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1086/1757，总帧数3350；身份匹配但人脸短边不足96px的帧数203"
+  },
+  {
+   "slug": "ly-1021-daa120",
+   "key": "weibo_search:5356509261202033",
+   "video_id": "https://f.video.weibocdn.com/u0/kA7zv2y1gx08BKj7aIq401041200UvqX0E010.mp4",
+   "ts": 1792578880,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56"
   }
  ],
  "reviewed_third_video_0910": {
