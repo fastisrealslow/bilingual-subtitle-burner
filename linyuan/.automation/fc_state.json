@@ -37720,7 +37720,8 @@
    },
    "last_error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "tencent_live:20261021V0BY5B00",
@@ -37743,7 +37744,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21 18:26:04"
+   "publish_time": "2026-10-21 18:26:04",
+   "production_failure_summary": {
+    "slug": "ly-1021-5d9990",
+    "run_id": 39613718405,
+    "artifact_id": 12352386069,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39613718405,
+    "artifact_id": 12352386069,
+    "name": "production-reject-ly-1021-5d9990",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -107528,6 +107551,13 @@
    "video_id": "BV1U9nB6GEE4",
    "ts": 1792591795,
    "error": "实时官方源元数据明确禁止转载；不得通过旧种子、暂存链接或缓存母片绕过"
+  },
+  {
+   "slug": "ly-1021-5d9990",
+   "key": "tencent_live:20261021V0BY5B00",
+   "video_id": "http://43.159.77.29/video.dispatch.tc.qq.com/AnGl_3BRWXAxw1Xy4i7lbcY2M2QbuDMysoVBp6mtS5nA/B_A_YRAqlJgvVaYHglAxaQJXEJqtoUCxVkMnph0p6npE5Xco_1Gk31K5tUG_Bq-YQ2h_lh4DBsvDlvlHpwT_yp7jmC0l3iILnI6IkOidn7b33AM9jEKa6hmBcmhiwcsAnclH7V5BXQrwbhXaPvOHn72w/svp_50001/szg_2451_50001_0b53lebviaaddeampfw3wnvfewodkrmqgvca.f632.mp4",
+   "ts": 1792592199,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
