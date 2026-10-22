@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792672771,
+  "updated_at": 1792673208,
   "inventory_updated_at": 1792672755,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,16 +89,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792672771,
+    "updated_at": 1792673207,
     "records": 11393,
     "video_records": 9826,
-    "initial_candidates": 62,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 61,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1539,
+      "already_attempted_or_cooling": 1540,
       "speaker_unconfirmed": 6808,
       "no_video": 1567,
       "clip_title": 1155,
@@ -110,16 +110,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "netease_video:VB8TS99H5",
-        "title": "林园：老字号中药企业现在的估值我就等着爆发，一来又是几倍",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VB8TS99H5.html",
-        "duration_sec": 208.32
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 13,
@@ -135,14 +126,14 @@
   },
   "counts": {
     "complete": 138,
-    "failed": 1202,
+    "failed": 1204,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 15,
     "ready": 5,
     "experiment_fallback": 6,
     "retry_queued": 4,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -24526,24 +24517,6 @@
       "run_updated_at": "2026-10-22T08:11:53Z"
     },
     {
-      "slug": "ly-story-02733d5be4",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792657008,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792661714,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39746562743,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39746562743",
-      "run_started_at": "2026-10-22T08:16:48Z",
-      "run_updated_at": "2026-10-22T09:01:13Z"
-    },
-    {
       "slug": "ly-story-3b04cd0934",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑。\"}, {\"sentence_id\": 12, \"quote\": \"因为就是现在才是我们这个老龄化的零年，你如果相比二二十年以后，今天的消费是个零，这些药品啊都要在五六十岁才开始用。\", \"suspect_quote\": \"今天的消费是个零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述错误且含义不明。将'今天的消费'描述为'个零'（即零）在逻辑上完全不通，因为老龄化相关药品不可能当前消费量为零。这极可能是识别错误，将'从零开始'或'基数为零'误识为'消费是个零'，导致关键数据点含义混乱。\"}, {\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述矛盾且含义不明。前句刚提到每月开支两千五，此句却说'开支是零'，前后数值直接冲突。结合上下文（糖尿病、高血压需长期服药），此处'零'极可能是识别错误，本意应为'从零开始'或指代某种特定状态，但原文呈现为绝对数值零，造成事实层面的\"}]",
@@ -24725,8 +24698,8 @@
     },
     {
       "slug": "ly-1021-dd5639",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792660790,
         "failed": null,
@@ -24739,7 +24712,7 @@
       "run_id": 39754569008,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39754569008",
       "run_started_at": "2026-10-22T09:19:50Z",
-      "run_updated_at": "2026-10-22T09:19:55Z"
+      "run_updated_at": "2026-10-22T12:45:28Z"
     },
     {
       "slug": "ly-story-71d80ec9f5",
@@ -24851,14 +24824,14 @@
     },
     {
       "slug": "ly-1022-2c930e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792665145,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792673743,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -25031,11 +25004,11 @@
     },
     {
       "slug": "ly-story-5ebb9ab58f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
       "signature": {
         "ts": 1792670732,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25067,11 +25040,11 @@
     },
     {
       "slug": "ly-1022-015ade",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792671850,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25082,6 +25055,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39778038512",
       "run_started_at": "2026-10-22T12:24:10Z",
       "run_updated_at": "2026-10-22T12:33:45Z"
+    },
+    {
+      "slug": "ly-story-02733d5be4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792672921,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39780499866,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39780499866",
+      "run_started_at": "2026-10-22T12:42:01Z",
+      "run_updated_at": "2026-10-22T12:42:05Z"
+    },
+    {
+      "slug": "ly-1022-e3ae52",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792673155,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39781048073,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39781048073",
+      "run_started_at": "2026-10-22T12:45:54Z",
+      "run_updated_at": "2026-10-22T12:45:58Z"
     }
   ],
   "runs": {
@@ -35679,14 +35688,14 @@
       "display_title": "中文源出片 · ly-story-423df312c3"
     },
     "ly-story-02733d5be4": {
-      "id": 39746562743,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T08:16:48Z",
-      "updated_at": "2026-10-22T09:01:13Z",
-      "run_started_at": "2026-10-22T08:16:48Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39746562743",
-      "run_number": 2398,
+      "id": 39780499866,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T12:42:01Z",
+      "updated_at": "2026-10-22T12:42:05Z",
+      "run_started_at": "2026-10-22T12:42:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39780499866",
+      "run_number": 2432,
       "display_title": "中文源出片 · ly-story-02733d5be4"
     },
     "ly-story-63bd95723a": {
@@ -35931,6 +35940,28 @@
       "run_number": 2431,
       "display_title": "中文源出片 · ly-1022-015ade"
     },
+    "ly-1022-2c930e": {
+      "id": 39763859663,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-22T10:32:24Z",
+      "updated_at": "2026-10-22T12:29:35Z",
+      "run_started_at": "2026-10-22T10:32:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39763859663",
+      "run_number": 2419,
+      "display_title": "中文源出片 · ly-1022-2c930e"
+    },
+    "ly-1022-e3ae52": {
+      "id": 39781048073,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T12:45:54Z",
+      "updated_at": "2026-10-22T12:45:58Z",
+      "run_started_at": "2026-10-22T12:45:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39781048073",
+      "run_number": 2433,
+      "display_title": "中文源出片 · ly-1022-e3ae52"
+    },
     "ly-story-7524eb9e46": {
       "id": 39771146000,
       "status": "in_progress",
@@ -35953,23 +35984,12 @@
       "run_number": 2425,
       "display_title": "中文源出片 · ly-1022-ea7b5c"
     },
-    "ly-1022-2c930e": {
-      "id": 39763859663,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T10:32:24Z",
-      "updated_at": "2026-10-22T12:29:35Z",
-      "run_started_at": "2026-10-22T10:32:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39763859663",
-      "run_number": 2419,
-      "display_title": "中文源出片 · ly-1022-2c930e"
-    },
     "ly-1021-dd5639": {
       "id": 39754569008,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T09:19:50Z",
-      "updated_at": "2026-10-22T09:19:55Z",
+      "updated_at": "2026-10-22T12:45:28Z",
       "run_started_at": "2026-10-22T09:19:50Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39754569008",
       "run_number": 2410,
