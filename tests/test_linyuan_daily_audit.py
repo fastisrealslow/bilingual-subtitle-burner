@@ -6,6 +6,46 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from daily_publication_audit import BEIJING,daily_receipts,opening_stock_check
 
 
+def trial_state(actuals):
+    import publishing_experiment as E
+    rows=[]
+    for i,(hour,actual) in enumerate(zip((10,14,16,21),actuals)):
+        p=part('BV'+str(i),str(i)*64,f'2026-10-21T{hour:02d}:00:00')
+        planned=E.TREATMENT if hour in (14,21) else E.BASELINE
+        p['publishing_experiment']=dict(experiment_id=E.EXPERIMENT_ID,slot=f'2026-10-21 {hour:02d}',
+            planned=planned,actual=actual,compliant=planned==actual,reason='qualified_stock_fallback' if planned!=actual else None)
+        rows.append(p)
+    return dict(published=dict(batch=dict(parts=rows)))
+
+
+def test_four_ordinary_posts_cannot_turn_a_failed_experiment_green():
+    from daily_publication_audit import experiment_receipts
+    state=trial_state(['baseline']*4);now=datetime(2026,10,21,23,50,tzinfo=BEIJING)
+    assert daily_receipts(state,now)['receipt_check_passed']
+    result=experiment_receipts(state,now)
+    assert not result['passed'] and result['treatment_published']==0
+    assert len(result['noncompliant_slots'])==2
+
+
+def test_actual_alternating_groups_pass_and_contaminated_controls_fail():
+    from daily_publication_audit import experiment_receipts
+    import publishing_experiment as E
+    now=datetime(2026,10,21,23,50,tzinfo=BEIJING)
+    state=trial_state([E.BASELINE,E.TREATMENT,E.BASELINE,E.TREATMENT])
+    result=experiment_receipts(state,now)
+    assert result['passed'] and result['treatment_published']==2
+    state['published']['batch']['parts'][0]['publishing_experiment'].update(actual=E.TREATMENT,compliant=False)
+    assert not experiment_receipts(state,now)['passed']
+
+
+def test_not_yet_due_trial_slots_and_dates_outside_trial_are_not_false_failures():
+    from daily_publication_audit import experiment_receipts
+    state=trial_state(['baseline']*4)
+    assert experiment_receipts(state,datetime(2026,10,21,10,20,tzinfo=BEIJING))['passed']
+    assert experiment_receipts({},datetime(2026,11,20,23,50,tzinfo=BEIJING))['passed']
+    assert not experiment_receipts({},datetime(2026,10,21,14,20,tzinfo=BEIJING))['passed']
+
+
 def part(bvid,sha,when):
     return dict(status='published',bvid=bvid,ts=datetime.fromisoformat(when).replace(tzinfo=BEIJING).timestamp(),
                 fingerprints=dict(sha256=sha))

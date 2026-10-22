@@ -133,6 +133,13 @@ def fetch_ours(max_pages=6):
     return list(seen.values())
 
 
+def top_video_fields(rows):
+    """Keep the best title and its views bound to the SAME observed video."""
+    best=max(rows,key=lambda row:row.get('play',0) or 0,default=None)
+    return dict(top_title=best['title'][:44] if best else '',
+                top_play=best.get('play',0) if best else 0)
+
+
 # FC 部署新代码的时间点（2026-09-02 11:00 CST），之后投稿的算新规则片
 NEW_RULE_SINCE = int(datetime(2026, 9, 2, 11, 0, tzinfo=CST).timestamp())
 # 这个号早期发过与林园无关的内容（银行卡开箱/手环/学车/猫），统计时要排除
@@ -195,7 +202,7 @@ def build(videos):
     return {
         "generated_at": datetime.now(CST).isoformat(timespec="seconds"),
         "up_name": UP_NAME,
-        "note": "数据来自 B站搜索 API，只覆盖被索引到的稿件（实测约 8 成），总量偏低但趋势可比",
+        "note": "数据来自B站搜索索引样本，会漏稿；总量及趋势仅作参考。同龄观测不等于点击率、完播率或因果提升。",
         "overall": group(lambda x: True),
         # 新旧规则对比：这是判断 2026-09-02 改造是否有效的核心指标
         "new_rule": group(lambda x: x["new_rule"]),
@@ -280,8 +287,7 @@ def main():
                      "recent30_count": len(mine), "recent30_total": sum(mine),
                      "recent30_median": round(mymed, 1),
                      "play_per_fan": round(mymed / sf, 3),
-                     "top_title": data["top"][0]["title"][:44] if data["top"] else "",
-                     "top_play": max((x["play"] for x in data["top"]), default=0), "is_self": True})
+                     **top_video_fields(data['top']), "is_self": True})
     data["peers"] = sorted(peers, key=lambda x: -x["play_per_fan"])
     try:previous=json.loads(OUT.read_text()) if OUT.exists() else {}
     except (OSError,ValueError):previous={}

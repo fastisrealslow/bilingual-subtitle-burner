@@ -8,6 +8,39 @@ BEIJING=timezone(timedelta(hours=8))
 HOURS=(10,14,16,21)
 
 
+def experiment_receipts(state,now):
+    """Validate executed groups, not the requested job profile or view counts."""
+    import publishing_experiment as E
+    now=now.astimezone(BEIJING);day=now.date().isoformat()
+    expected=[E.assignment(now.timestamp(),f'{day} {hour:02d}')
+              for hour in HOURS if hour<=now.hour]
+    expected=[p for p in expected if p]
+    actual={}
+    for info in (state.get('published') or {}).values():
+        for part in info.get('parts') or []:
+            row=part.get('publishing_experiment') or {}
+            if (part.get('status')=='published' and part.get('bvid')
+                    and row.get('experiment_id')==E.EXPERIMENT_ID):
+                actual[row.get('slot')]=dict(row,bvid=part['bvid'],
+                    file_sha256=(part.get('fingerprints') or {}).get('sha256'))
+    missing=[];bad=[];treatments=0;seen=set()
+    for plan in expected:
+        row=actual.get(plan['slot'])
+        if not row:missing.append(plan['slot']);continue
+        identity=(row['bvid'],row.get('file_sha256'))
+        if (row.get('planned')!=plan['planned'] or row.get('actual')!=plan['planned']
+                or row.get('compliant') is not True or not identity[1]
+                or any(identity[0]==old[0] or identity[1]==old[1] for old in seen)):
+            bad.append(dict(slot=plan['slot'],actual=row.get('actual'),
+                            reason=row.get('reason') or 'group_or_file_mismatch'))
+        else:
+            seen.add(identity)
+            treatments+=plan['planned']==E.TREATMENT
+    return dict(active=bool(E.START<=day<E.END_EXCLUSIVE),expected_slots=[p['slot'] for p in expected],
+        missing_slots=missing,noncompliant_slots=bad,treatment_published=treatments,
+        passed=not missing and not bad)
+
+
 def daily_receipts(state, now):
     now=now.astimezone(BEIJING);day=now.date().isoformat()
     receipts={};duplicates=[];hashes={};missing_hash=[]
@@ -70,7 +103,9 @@ def main():
     visible={r['bvid'] for r in creator.get('videos',[]) if r.get('public')}
     report['not_public_or_unconfirmed']=sorted(set(bvids)-visible)
     report['public_check_passed']=len(visible)>=report['expected_by_now']
-    report['passed']=report['receipt_check_passed'] and report['public_check_passed']
+    report['experiment']=experiment_receipts(state,now)
+    report['passed']=(report['receipt_check_passed'] and report['public_check_passed']
+                      and report['experiment']['passed'])
     if now.hour<HOURS[0]:
         report['opening_stock']=opening_stock_check(report,source_inventory(state),now)
         report['passed']=report['passed'] and report['opening_stock']['passed']
@@ -78,6 +113,11 @@ def main():
     summary=(f"{report['date']}：到当前应有 {report['expected_by_now']} 条；"
              f"实际独立文件 {report['unique_verified_file_count']} 条，确认公开 {len(visible)} 条。")
     print(summary,flush=True)
+    if report['experiment']['active']:
+        trial=report['experiment']
+        summary+=(f" 实验片实际发布 {trial['treatment_published']} 条；"
+                  f"缺失时段 {trial['missing_slots']}；分组未达标 {trial['noncompliant_slots']}。")
+        print(json.dumps(trial,ensure_ascii=False),flush=True)
     if report.get('opening_stock'):
         opening=report['opening_stock']
         summary+=(f" 开播前库存需 {opening['required_live']} 条，已验收 {opening['verified_live']} 条；"
@@ -90,7 +130,7 @@ def main():
             for row in report['receipts']:
                 f.write(f"- [{row['bvid']}](https://www.bilibili.com/video/{row['bvid']})：{row['title']}\n")
     if not report['passed']:
-        raise RuntimeError('每日4条验收未通过：见开播前库存、实际回执、重复文件和公开状态；本检查不会重复投稿')
+        raise RuntimeError('每日发布/实验验收未通过：见库存、实际回执、重复文件、公开状态及实验分组；本检查不会重复投稿')
 
 
 if __name__=='__main__':main()
