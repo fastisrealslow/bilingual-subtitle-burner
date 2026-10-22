@@ -1,0 +1,29 @@
+name: 真实字幕重叠时钟与单行规划重放（不入库不投稿）
+on:
+  push:
+    branches: [codex/linyuan-caption-shared-end-clock-20261023]
+    paths: [linyuan/caption_lines.py, linyuan/caption_readability.py, linyuan/fc/index.py, linyuan/check_caption_shared_end_clock.py, .github/workflows/linyuan-caption-shared-end-clock-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install jieba pillow
+      - name: 对照实际失败时间戳和未受影响片段，重放原始证明与单行规划
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CAPTION_EDITORIAL_ARTIFACT: '12453554379'
+        run: python linyuan/check_caption_shared_end_clock.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: caption-shared-end-clock-verification
+          path: caption-shared-end-clock-verification/
+          if-no-files-found: error

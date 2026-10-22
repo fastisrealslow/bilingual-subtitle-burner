@@ -3605,6 +3605,8 @@ def _recover_changed_production_rule(st, candidate, run):
            ('caption-source-clock-v5',('完整词句无法放入两行','意群分组',
                     '单屏跨越超过8秒','字幕时间重叠到零长度'),
             ('linyuan/caption_lines.py','linyuan/presentation.py','linyuan/produce_cn.py')),
+           ('caption-shared-end-clock-v1',('字幕逐字时间倒退或重叠',),
+            ('linyuan/caption_lines.py','linyuan/caption_readability.py')),
            ('visual-preflight-v2',('持续黑色填充边','来源角标无法避开','真人动态区仍有原素材字幕',
                                   '原画无法通过真人画面清理门禁'),
             ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
