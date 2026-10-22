@@ -40018,7 +40018,24 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "c7a533ce67ed9d7dabb2805a6c8396370ad98de4574de748a218ac52154ce362",
    "experiment_parent_slug": "ly-1009-70e7b5",
-   "recovery_origin_run_id": 37886234069
+   "recovery_origin_run_id": 37886234069,
+   "production_failure_summary": {
+    "slug": "ly-story-99ddef2e4b",
+    "run_id": 39813108156,
+    "artifact_id": 12441539213,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
+     }
+    ]
+   },
+   "source_check_report_id": 12441539213,
+   "source_check_run_id": 39813108156,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792688854
   },
   {
    "video_id": "http://f.video.weibocdn.com/o0/vQq8yb9Ylx08BcDierUA0104120cOhBS0E050.mp4",
@@ -40039,7 +40056,29 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "62f9244784d8e20af3148f6ccdc866239ffa0c84c2828a2793838ba5f6deb2f4",
    "experiment_parent_slug": "ly-1009-31ebc0",
-   "recovery_origin_run_id": 37879883325
+   "recovery_origin_run_id": 37879883325,
+   "production_failure_summary": {
+    "slug": "ly-story-cd0cc1dffe",
+    "run_id": 39813128512,
+    "artifact_id": 12441378062,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39813128512,
+    "artifact_id": 12441378062,
+    "name": "production-reject-ly-story-cd0cc1dffe",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上句，再次出现将嘉宾“林园”错识为“林岩”的情况。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就\", \"kind\": \"unintelligible_term\", \"reason\": \"句子逻辑混乱，疑似识别错误导致语义不通。“所以你就”后文缺失或连接不当，结合上下文推测原意可能是“所以你们就把跟我讲的...”，但当前文本中“他有个体会不一样”与前后文衔接生硬，且“干巴巴的讲啊”后的转折关系不明，存在明显的断句或词汇识别疑\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技，AR 这个股票基金”表述极其不通顺。结合林园的投资风格（通常关注消费、医药等），此处极可能是将“人工智能”、“农业”或其他具体行业名称误识别为\"}, {\"sentence_id\": 19, \"quote\": \"现在我们上面一直提心智生产力，那么我也在挖掘，因为我是退役军人，那么我也在挖掘如何让我们大多数的退役军人让他们创造，给他们创造更多的岗位。\", \"suspect_quote\": \"那么我也在挖掘，因为我是退役军人，那么我也在挖掘\", \"kind\": \"unintelligible_term\", \"reason\": \"句子中“那么我也在挖掘”重复出现，且第一次出现时缺乏宾语（挖掘什么？），第二次出现时同样语意不明。这极可能是语音识别将“我在想”、“我在做”或具体项目名称误识为“挖掘”，或者漏掉了关键动词/名词，导致语义残缺。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"明显的重复字错误。“大大家”应为“大家”。这是典型的语音识别中因语速快或发音含糊导致的同音/近音字重复错误。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1TC4y1C7Zk",
@@ -40060,7 +40099,29 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "ca6bffe9947c3ab362eb8f77fb5341ab1b37070b6fa3c8a1b3d2547fb5c9bfcd",
    "experiment_parent_slug": "ly-0916-e00fcb",
-   "recovery_origin_run_id": 35064270775
+   "recovery_origin_run_id": 35064270775,
+   "production_failure_summary": {
+    "slug": "ly-story-646c23d1a9",
+    "run_id": 39813152238,
+    "artifact_id": 12441283160,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39813152238,
+    "artifact_id": 12441283160,
+    "name": "production-reject-ly-story-646c23d1a9",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑。\"}, {\"sentence_id\": 12, \"quote\": \"因为就是现在才是我们这个老龄化的零年，你如果相比二二十年以后，今天的消费是个零，这些药品啊都要在五六十岁才开始用。\", \"suspect_quote\": \"今天的消费是个零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述错误且含义不明。将'今天的消费'描述为'个零'（即零）在逻辑上完全不通，因为老龄化相关药品不可能当前消费量为零。这极可能是识别错误，将'从零开始'或'基数为零'误识为'消费是个零'，导致关键数据点含义混乱。\"}, {\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述矛盾且含义不明。前句刚提到每月开支两千五，此句却说'开支是零'，前后数值直接冲突。结合上下文（糖尿病、高血压需长期服药），此处'零'极可能是识别错误，本意应为'从零开始'或指代某种特定状态，但原文呈现为绝对数值零，造成事实层面的\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1JsJD6oEKr",
@@ -40164,7 +40225,33 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "d4db5114a538405825f82ca9b0abc38b24a6b271a24dff884c69634f6cac682d",
    "experiment_parent_slug": "ly-0910-27365e",
-   "recovery_origin_run_id": null
+   "recovery_origin_run_id": null,
+   "production_failure_summary": {
+    "slug": "ly-story-5162cfe28f",
+    "run_id": 39814451609,
+    "artifact_id": 12443625820,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"梅艳老师好啊，我是二零二零年的时候听了你那个嘴巴经济，就是视频我就看说为什么嘴巴精，是你嘴巴长得大吗？\", \"suspect_quote\": \"嘴巴经济\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境中无明确定义，疑似将“消费”、“经济”等词汇误识别为专有名词，且与后文“为什么嘴巴精”的追问逻辑不通，属于典型的语音转文字错误（可能原意为“消费经济”或特定比喻被截断）。”}, {\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4192.00s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39814451609,
+    "artifact_id": 12443625820,
+    "name": "production-reject-ly-story-5162cfe28f",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"梅艳老师好啊，我是二零二零年的时候听了你那个嘴巴经济，就是视频我就看说为什么嘴巴精，是你嘴巴长得大吗？\", \"suspect_quote\": \"嘴巴经济\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境中无明确定义，疑似将“消费”、“经济”等词汇误识别为专有名词，且与后文“为什么嘴巴精”的追问逻辑不通，属于典型的语音转文字错误（可能原意为“消费经济”或特定比喻被截断）。”}, {\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -113783,6 +113870,27 @@
    "video_id": "BV1k8QnYeEsE",
    "ts": 1792684432,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（480x360），画质不达标"
+  },
+  {
+   "slug": "ly-story-5162cfe28f",
+   "key": "ly-story-5162cfe28f",
+   "video_id": "http://f.video.weibocdn.com/o0/t3mAPfvVlx08AFpEafjq0104120fj5rN0E060.mp4",
+   "ts": 1792687953,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"梅艳老师好啊，我是二零二零年的时候听了你那个嘴巴经济，就是视频我就看说为什么嘴巴精，是你嘴巴长得大吗？\", \"suspect_quote\": \"嘴巴经济\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境中无明确定义，疑似将“消费”、“经济”等词汇误识别为专有名词，且与后文“为什么嘴巴精”的追问逻辑不通，属于典型的语音转文字错误（可能原意为“消费经济”或特定比喻被截断）。”}, {\"}]"
+  },
+  {
+   "slug": "ly-story-646c23d1a9",
+   "key": "ly-story-646c23d1a9",
+   "video_id": "BV1TC4y1C7Zk",
+   "ts": 1792687953,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑。\"}, {\"sentence_id\": 12, \"quote\": \"因为就是现在才是我们这个老龄化的零年，你如果相比二二十年以后，今天的消费是个零，这些药品啊都要在五六十岁才开始用。\", \"suspect_quote\": \"今天的消费是个零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述错误且含义不明。将'今天的消费'描述为'个零'（即零）在逻辑上完全不通，因为老龄化相关药品不可能当前消费量为零。这极可能是识别错误，将'从零开始'或'基数为零'误识为'消费是个零'，导致关键数据点含义混乱。\"}, {\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述矛盾且含义不明。前句刚提到每月开支两千五，此句却说'开支是零'，前后数值直接冲突。结合上下文（糖尿病、高血压需长期服药），此处'零'极可能是识别错误，本意应为'从零开始'或指代某种特定状态，但原文呈现为绝对数值零，造成事实层面的\"}]"
+  },
+  {
+   "slug": "ly-story-cd0cc1dffe",
+   "key": "ly-story-cd0cc1dffe",
+   "video_id": "http://f.video.weibocdn.com/o0/vQq8yb9Ylx08BcDierUA0104120cOhBS0E050.mp4",
+   "ts": 1792687954,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上句，再次出现将嘉宾“林园”错识为“林岩”的情况。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就\", \"kind\": \"unintelligible_term\", \"reason\": \"句子逻辑混乱，疑似识别错误导致语义不通。“所以你就”后文缺失或连接不当，结合上下文推测原意可能是“所以你们就把跟我讲的...”，但当前文本中“他有个体会不一样”与前后文衔接生硬，且“干巴巴的讲啊”后的转折关系不明，存在明显的断句或词汇识别疑\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技，AR 这个股票基金”表述极其不通顺。结合林园的投资风格（通常关注消费、医药等），此处极可能是将“人工智能”、“农业”或其他具体行业名称误识别为\"}, {\"sentence_id\": 19, \"quote\": \"现在我们上面一直提心智生产力，那么我也在挖掘，因为我是退役军人，那么我也在挖掘如何让我们大多数的退役军人让他们创造，给他们创造更多的岗位。\", \"suspect_quote\": \"那么我也在挖掘，因为我是退役军人，那么我也在挖掘\", \"kind\": \"unintelligible_term\", \"reason\": \"句子中“那么我也在挖掘”重复出现，且第一次出现时缺乏宾语（挖掘什么？），第二次出现时同样语意不明。这极可能是语音识别将“我在想”、“我在做”或具体项目名称误识为“挖掘”，或者漏掉了关键动词/名词，导致语义残缺。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"明显的重复字错误。“大大家”应为“大家”。这是典型的语音识别中因语速快或发音含糊导致的同音/近音字重复错误。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
