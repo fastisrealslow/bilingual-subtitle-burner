@@ -3,12 +3,13 @@ import argparse
 import http.cookiejar
 import json
 import os
+import time
 from pathlib import Path
 import urllib.error
 import urllib.request
 
 
-def archive_status(bvids, owner_mid, cookies_json, expected_titles=None):
+def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include_statistics=False):
     target=set(bvids)
     titles=set(expected_titles or [])
     result={'owner_mid':str(owner_mid),'requested_bvids':sorted(target),'videos':[],
@@ -44,6 +45,7 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None):
             break
         body=payload.get('data') or {}
         rows=body.get('arc_audits') or []
+        observed_at=time.time()
         result['response_keys']=sorted(body)
         for row in rows:
             archive=row.get('Archive') or row.get('archive') or {}
@@ -54,6 +56,13 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None):
             safe['public']=(str(archive.get('mid'))==str(owner_mid)
                 and archive.get('state')==0 and archive.get('is_only_self')==0
                 and archive.get('no_public')==0)
+            if include_statistics:
+                counters=row.get('stat') or row.get('Stat') or archive.get('stat') or {}
+                if not isinstance(counters,dict):counters={}
+                safe.update(observed_at=observed_at,statistics_origin='authenticated-creator-read',
+                    statistics={k:counters.get(k) for k in ('view','like','danmaku')},
+                    available_stat_fields=sorted(counters),available_archive_fields=sorted(archive),
+                    publication_clock_candidates={k:archive[k] for k in ('pubdate','ptime','online_time','ctime') if k in archive})
             result['videos'].append(safe)
         if not rows or (target <= {r['bvid'] for r in result['videos']}
                         and titles <= {r.get('title') for r in result['videos']}):
