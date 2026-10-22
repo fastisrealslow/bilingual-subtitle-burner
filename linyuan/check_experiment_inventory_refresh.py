@@ -23,11 +23,21 @@ def main():
     inventory_path=ROOT/F.SOURCE_INVENTORY_KEY
     state=json.loads(state_path.read_text())
     inventory=json.loads(inventory_path.read_text())
-    actual=[dict(slug=r['slug'],artifact_id=r['artifact_id'],index=p['index'],
-        sha256=p['sha256'],resolution=p['resolution'])
-        for r in inventory['artifacts'] for p in r.get('parts',[])
-        if p.get('status')=='verified' and E.actual_profile(p)==E.TREATMENT]
-    assert actual,'The real captured inventory must already contain accepted treatment'
+    latest={e['slug']:e for e in F._latest_dispatches(state)}
+    actual=[]
+    for record in inventory['artifacts']:
+        entry=latest.get(record['slug'])
+        for part in record.get('parts',[]):
+            if part.get('status')!='verified' or E.actual_profile(part)!=E.TREATMENT:continue
+            error=(F.inventory_publication_error(part,entry,state) if entry else 'missing_dispatch')
+            usable=bool(entry and not entry.get('failed') and not entry.get('uploading')
+                and F.inventory_record_current(record,float(inventory['updated_at']))
+                and int(part['index']) not in F.processed_part_indices(entry) and not error)
+            actual.append(dict(slug=record['slug'],artifact_id=record['artifact_id'],
+                index=part['index'],sha256=part['sha256'],resolution=part['resolution'],
+                publication_error=error,usable_at_original_inspection=usable))
+    eligible=[row for row in actual if row['usable_at_original_inspection']]
+    assert eligible,'The real captured inventory must contain publishable treatment'
     # A future 14:00 AFTER the real snapshot's three-hour freshness window.
     # This is a counterfactual clock, not an observation or renewed inspection.
     expired=datetime.fromtimestamp(float(inventory['updated_at'])+3*3600+1,E.CST)
@@ -59,7 +69,8 @@ def main():
         code_head=os.environ.get('GITHUB_SHA'),
         state_file_sha256=hashlib.sha256(state_path.read_bytes()).hexdigest(),
         inventory_file_sha256=hashlib.sha256(inventory_path.read_bytes()).hexdigest(),
-        actual_inspected_treatment=actual,original_inventory_updated_at=inventory['updated_at'],
+        actual_inspected_treatment=actual,actual_publishable_treatment=eligible,
+        original_inventory_updated_at=inventory['updated_at'],
         simulated_clock=local.isoformat(),result=result,intercepted_requests=requests,
         original_source_rows_and_receipts_unchanged=True,
         inspection_timestamps_renewed=False,media_approved=False,
