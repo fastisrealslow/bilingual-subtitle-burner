@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": 1792654898,
-  "inventory_updated_at": 1792653902,
+  "updated_at": 1792656304,
+  "inventory_updated_at": 1792656293,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 10,
+    "verified_daily_stock": 12,
     "active_or_recovering_sources": 16,
     "waiting_candidates": 0,
     "status": "covered",
@@ -14,10 +14,10 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 10,
-      "minimum_week_shortfall": 4,
-      "preferred_week_shortfall": 11,
-      "reserve_shortfall": 2,
+      "verified_stock_snapshot": 12,
+      "minimum_week_shortfall": 2,
+      "preferred_week_shortfall": 9,
+      "reserve_shortfall": 0,
       "dates": [
         "2026-10-22",
         "2026-10-23",
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792654897,
+    "updated_at": 1792656304,
     "records": 11361,
     "video_records": 9795,
     "initial_candidates": 61,
@@ -113,27 +113,27 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 10,
+    "verified_live": 12,
     "verified_audio_card": 0,
-    "verified_landscape": 8,
+    "verified_landscape": 10,
     "verified_portrait": 2,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 10,
+    "daily_mix_usable": 12,
     "target_reserve": 12,
-    "publishable_now": 0
+    "publishable_now": 1
   },
   "counts": {
     "complete": 138,
     "failed": 1190,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 12,
     "ready": 3,
-    "experiment_fallback": 7,
-    "retry_queued": 11,
-    "running": 5
+    "experiment_fallback": 8,
+    "retry_queued": 12,
+    "running": 4
   },
   "tasks": [
     {
@@ -24662,8 +24662,8 @@
     },
     {
       "slug": "ly-story-3442267c34",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792643968,
         "failed": null,
@@ -24676,7 +24676,7 @@
       "run_id": 39723586541,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39723586541",
       "run_started_at": "2026-10-22T04:39:27Z",
-      "run_updated_at": "2026-10-22T04:39:31Z"
+      "run_updated_at": "2026-10-22T07:53:43Z"
     },
     {
       "slug": "ly-story-d83bdfcc6f",
@@ -24749,24 +24749,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39727961165",
       "run_started_at": "2026-10-22T05:25:41Z",
       "run_updated_at": "2026-10-22T05:25:46Z"
-    },
-    {
-      "slug": "ly-story-423df312c3",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是指'人均零'、'总量零'还是'特定人群零'。这种绝对化的否定表述导致数据逻辑断裂，属于需澄清的关键数字疑点。\"}]",
-      "signature": {
-        "ts": 1792650969,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39734965914,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39734965914",
-      "run_started_at": "2026-10-22T06:36:08Z",
-      "run_updated_at": "2026-10-22T07:23:52Z"
     },
     {
       "slug": "ly-story-2a8f12b578",
@@ -24896,11 +24878,11 @@
     },
     {
       "slug": "ly-story-a4a99c14cd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
       "signature": {
         "ts": 1792654034,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24911,6 +24893,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39740586335",
       "run_started_at": "2026-10-22T07:27:14Z",
       "run_updated_at": "2026-10-22T07:38:33Z"
+    },
+    {
+      "slug": "ly-story-423df312c3",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792656036,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792656035,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39734965914,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39734965914",
+      "run_started_at": "2026-10-22T06:36:08Z",
+      "run_updated_at": "2026-10-22T07:23:52Z"
     }
   ],
   "runs": {
@@ -35696,10 +35696,10 @@
     },
     "ly-story-3442267c34": {
       "id": 39723586541,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T04:39:27Z",
-      "updated_at": "2026-10-22T04:39:31Z",
+      "updated_at": "2026-10-22T07:53:43Z",
       "run_started_at": "2026-10-22T04:39:27Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39723586541",
       "run_number": 2379,
