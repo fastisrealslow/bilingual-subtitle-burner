@@ -52,6 +52,8 @@ def main():
     error=producer.title_quality_error(generated['title'],'林园',text,
         rewrite_proof=generated['title_rewrite'])
     if error:raise ValueError(error)
+    actor_error=title.human_condition_actor_error(generated['title'],generated['cover_title'],text)
+    if actor_error:raise ValueError(actor_error)
     proof.update(passed=True,title=generated['title'],cover_title=generated['cover_title'],
         title_editor_sha256=hashlib.sha256(Path(title.__file__).read_bytes()).hexdigest())
     (output/'boundary.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))

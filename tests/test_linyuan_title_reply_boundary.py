@@ -43,3 +43,16 @@ def test_requires_prior_completed_question_and_preserves_later_new_questions():
     units=['您怎么看？',reply,'您觉得消费还会好吗？','他们都会，但是您怎么看？']
     blocked=title.explicit_host_cues(units)
     assert 1 not in blocked and {0,2,3}<=blocked
+
+
+def test_actual_cpu_draft_cannot_change_people_condition_to_investor_condition():
+    source='我只投我看好的，除非这个人不吃不喝了，真是变成机器人了，那我也不行。'
+    bad='除非变机器人，我少不了投消费'
+    assert title.human_condition_actor_error('林园：'+bad,bad,source)
+    assert title.forecast_copy_error('林园：'+bad,bad,source)
+    assert title.human_condition_actor_error('林园：除非人变机器人，我只投消费',
+        '除非大家变机器人，我只投消费',source) is None
+    assert title.human_condition_actor_error('林园：人总得吃喝，我就只投消费',
+        '人总得吃喝，我就只投消费',source) is None
+    assert title.human_condition_actor_error('林园：除非变机器人，我不再做饭',
+        '除非变机器人，我不再做饭','除非我变成机器人，否则我每天都要做饭。') is None

@@ -743,6 +743,25 @@ def negative_actor_error(title, cover, transcript):
     return None
 
 
+def human_condition_actor_error(title, cover, transcript):
+    """An explicit human-demand condition cannot silently become the investor.
+
+    Actual d83 replay: the source says "除非这个人不吃不喝了", but both
+    copies became "除非变机器人，我少不了投消费". Omitting that subject
+    changes who undergoes the condition and produces an unnatural claim.
+    This is a narrow literal condition guard, not general coreference proof.
+    """
+    if not re.search(r'除非(?:这|那)?个人[^。！？!?]{0,40}(?:吃|喝|机器人)',transcript or ''):
+        return None
+    for copy in (title, cover):
+        value=re.sub(r'^[^：:]+[：:]', '',copy or '')
+        for condition in re.findall(r'除非[^，,。！？!?；;]{1,32}',value):
+            if (re.search(r'吃|喝|机器人',condition)
+                    and not re.match(r'除非(?:(?:这|那|每)个|所有|全体)?(?:人(?:们|类)?|大家|消费者)',condition)):
+                return '原话的条件主体是人是否仍需吃喝；标题和封面写除非时须明确保留这个主体，不能变成投资者本人变机器人'
+    return None
+
+
 def hypothetical_clause_error(title, cover, transcript):
     """Keep an explicit hypothesis attached to a literally reused premise.
 
@@ -834,6 +853,9 @@ def forecast_copy_error(title, cover, transcript):
     actor_issue = negative_actor_error(title, cover, transcript)
     if actor_issue:
         return actor_issue
+    human_condition_issue = human_condition_actor_error(title, cover, transcript)
+    if human_condition_issue:
+        return human_condition_issue
     clause_issue = hypothetical_clause_error(title, cover, transcript)
     if clause_issue:
         return clause_issue
