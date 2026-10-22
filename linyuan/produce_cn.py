@@ -3832,7 +3832,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
             from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
                 spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
             if profile in ('source_choices','answer_focus','answer_subject'):
-                schema=source_choices_schema(schema)
+                schema=source_choices_schema(schema,same_answer=profile=='answer_subject')
                 messages=source_choices_messages(messages,schema,same_answer=profile in ('answer_focus','answer_subject'))
             elif profile=='spoken_focus':
                 schema=spoken_focus_schema(schema)

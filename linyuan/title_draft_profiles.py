@@ -13,10 +13,15 @@ def retry_prefix(prompt):
     return (attempt.group(0) if attempt else '')+(checks.group(0) if checks else '')
 
 
-def source_choices_schema(schema):
+def source_choices_schema(schema, same_answer=False):
     """Each alternative chooses and binds its own source claim before wording."""
     limited=source_limits_schema(schema)
     if limited is schema:return schema
+    # The reader has already selected ONE answer. A separate a_focus inside
+    # every alternative made real d83 drafts choose three unrelated claims,
+    # omitting the answer/object/reason in turn. Bind one shared source claim
+    # before wording alternatives; evidence and independent checks stay intact.
+    if same_answer:return limited
     focus=limited['properties']['b_focus']
     copies=copy.deepcopy(limited['properties']['c_candidates'])
     fields={'a_focus':focus,**copies['items']['properties']}
@@ -52,6 +57,12 @@ title以“林园：”开头，正文4至52字；cover_title为4至18字的完�
 不把“都有某种特性”倒写成“该特性保障结果”；不把“等某事发生时”写成“已经发生”。原句中的我相信、我觉得、我判断，是说话人的声音，写在限定里后也须保留在实际文案中。
 封面优先沿用标题中最有看点的完整一句，允许与标题相同。不为了显得专业换成“保障、关键、核心、逻辑”等总结词，不把原话大胆程度再推高。
 '''+rest
+        if 'b_focus' in schema.get('properties',{}):
+            instruction=instruction.replace(
+                '每个候选只说清一件事。先在自己的a_focus中逐字摘出该观点必须保留的限定a_0_source_limits，再用a_claim写清完整判断，用b_evidence_ids指出依据及必要上下文，最后才写title和cover_title。',
+                '三个候选共用一个b_focus，不分别选择三个话题。先在b_focus.a_0_source_limits逐字摘出共同判断必须保留的原话限定，'
+                '再用a_claim说清同一对象的实际选择与理由，用b_evidence_ids同时定位主要回答、对象原句和理由原句；'
+                '最后三个候选只换自然说法，都表达这个共同判断。')
     result[0]['content']=retry_prefix(content)+instruction+source
     return result
 

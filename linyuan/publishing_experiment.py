@@ -327,6 +327,7 @@ def story_title_prompt(prompt,schema,evidence):
     fields=schema.get('properties',{})
     if not evidence or not any(k in fields for k in ('a_guest_answer','a_reading','c_candidates','reviews')):
         return prompt
+    focus_field='b_focus' if 'b_focus' in fields else 'a_focus'
     prompt=prompt.replace('不要把主持人的猜测或一处举例当成中心观点。',
         '不能把主持人的猜测当成嘉宾结论。本片选题就是下列具体事例，中心是嘉宾在这件事上的实际选择或判断及其原因。')
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
@@ -341,7 +342,7 @@ def story_title_prompt(prompt,schema,evidence):
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
-        '再表达本人理由；每个候选的a_focus.a_claim先说全选择与理由，'
+        f'再表达本人理由；拟稿的{focus_field}.a_claim先说全选择与理由，'
         'b_evidence_ids同时引用选择、具体对象和该理由对应的嘉宾编号；'
         '不能只在证据里写理由，实际title也须呈现。封面可以简短，但对象和判断不能变。'
         '理由优先保留细节原句里的实际动作或关键名词，不换成别的对象的增长或爆发。'

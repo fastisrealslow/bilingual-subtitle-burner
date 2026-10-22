@@ -159,6 +159,9 @@ def test_story_prompt_replaces_action_only_advice_not_baseline():
     assert 'a_focus.a_claim先说全选择与理由' in result
     assert 'b_evidence_ids同时引用选择、具体对象和该理由' in result
     assert E.story_title_prompt(original,schema,None)==original
+    shared=E.story_title_prompt(original,dict(properties={'b_focus':{},'c_candidates':{}}),evidence)
+    assert 'b_focus.a_claim先说全选择与理由' in shared
+    assert 'a_focus.a_claim' not in shared
 
 
 def test_title_engine_rejects_out_of_source_story_anchors():

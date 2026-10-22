@@ -92,6 +92,19 @@ def test_runtime_profile_is_bound_to_copy_cache_identity(monkeypatch):
         p._copy_style_identity('林园')
 
 
+def test_bound_answer_subject_uses_one_shared_source_focus_not_three_topics():
+    import title_draft_profiles as P
+    import title_rewrite as T
+    schema=P.source_choices_schema(T.proposal_schema(10,guest_ids=[1,2,7,8]),same_answer=True)
+    assert set(schema['properties'])=={'b_focus','c_candidates'}
+    assert 'a_focus' not in schema['properties']['c_candidates']['items']['properties']
+    assert schema['properties']['b_focus']['properties']['b_evidence_ids']['items']['enum']==[1,2,7,8]
+    source='以下是可用于标题事实的嘉宾原话：真实原文'
+    content=P.source_choices_messages([dict(role='user',content=source)],schema,same_answer=True)[0]['content']
+    assert '三个候选共用一个b_focus' in content
+    assert '自己的a_focus' not in content and content.endswith(source)
+
+
 def test_spoken_focus_keeps_exact_guest_ids_and_isolated_reader_reviewer(monkeypatch):
     import copy
     import title_rewrite as t
