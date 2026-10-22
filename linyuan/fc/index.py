@@ -3646,6 +3646,27 @@ def _recover_changed_production_rule(st, candidate, run):
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
+        if file.get('filename')=='linyuan/produce_cn.py':
+            # Moving the unchanged transcript audit after picture preflight
+            # repairs CPU ordering, NOT old geometry/caption/title verdicts.
+            # Require an observed operation delta for these producer-wide
+            # cases; file-touch alone must not occupy production workers.
+            operations={
+                'visual-preflight-v2':r'\b(?:reviewed_native_cleanup|selected_native_clean_plan|'
+                    r'refine_native_crop|landscape_crop_plan|verify_live_region_after_render|'
+                    r'render_tracked|source_exclusions|audio_card_live_crop|candidate_crop|'
+                    r'live_crop|prepared_live|clean_vf|crop_w|crop_h|native_plan)\b',
+                'caption-source-clock-v5':r'\b(?:caption_[A-Za-z_]+|subtitle_[A-Za-z_]+|'
+                    r'make_ass|semantic_paragraphs|semantic_groups)\b',
+                'automatic-source-context-v10':r'\b(?:pick_highlights|copywrite|title_[A-Za-z_]+|'
+                    r'story_[A-Za-z_]+|source_picks|source_selection|chunks|work_items|editorial_rank)\b',
+            }
+            pattern=operations.get(case[0])
+            if pattern:
+                code=[line[1:].strip() for line in str(file.get('patch') or '').splitlines()
+                      if line[:1] in ('+','-') and not line.startswith(('+++','---'))]
+                return any(line and not line.startswith('#') and re.search(pattern,line)
+                           for line in code)
         if (case[0]=='transcript-review-model-v3'
                 and file.get('filename')=='.github/workflows/linyuan-produce-cn.yml'):
             # Actual Oct22: adding asr_prepare's step ID / failure reporting
