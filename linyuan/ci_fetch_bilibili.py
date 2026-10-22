@@ -337,6 +337,25 @@ def identical_prefix(op, url, referer, partial, total, etag, deadline):
     return True
 
 
+def mirror_prefix_proof(op, url, referer, partial, total, etag, deadline,
+                        *, alternatives, budget_seconds=45):
+    """Do not spend the whole transfer budget proving one slow mirror.
+
+    A real 466 MB mother spent 23 minutes comparing its 147 MB checkpoint
+    against a slow alternate, then four seconds comparing it on the other
+    CDN. Every retained byte still needs proof; a local timeout just yields
+    to another mirror without changing the checkpoint or its saved ETag.
+    With only one mirror, retain the original total-budget behavior.
+    """
+    proof_deadline = min(deadline, time.monotonic()+budget_seconds) if alternatives else deadline
+    try:
+        return identical_prefix(op, url, referer, partial, total, etag, proof_deadline)
+    except FetchBudgetExceeded as exc:
+        if time.monotonic() >= deadline:
+            raise
+        raise RuntimeError('当前镜像前缀核对达到独立预算；保留原断点，尝试其他镜像') from exc
+
+
 def download_one(op, urls, referer, out, attempts=3, deadline=None):
     """镜像轮换 + 断点续传 + Content-Length 校验，避免长母片反复从零下载。"""
     out = Path(out)
@@ -424,8 +443,9 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                         print('[CDN版本核对] '+json.dumps(dict(host=urlparse(url).hostname,
                             retained=existing,old_total=saved.get('total'),new_total=expected,
                             etag_changed=tag_changed),ensure_ascii=False),flush=True)
-                        if not length_changed and identical_prefix(
-                                op,url,referer,tmp,expected,etag,deadline):
+                        if not length_changed and mirror_prefix_proof(
+                                op,url,referer,tmp,expected,etag,deadline,
+                                alternatives=len(urls)>1):
                             print(f'[断点核对通过] {existing}字节完全一致，保留下载进度',flush=True)
                         else:
                             # Confirmed different bytes/length: restart exactly
