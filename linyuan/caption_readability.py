@@ -183,6 +183,9 @@ def clean_entries(entries, *, policy_version=VERSION):
                raw_sha256=hashlib.sha256(original.encode()).hexdigest(),
                display_sha256=hashlib.sha256(cleaned.encode()).hexdigest(),
                policy='conservative_deletions_only', asr_corrections='source_verified_only')
+    from caption_lines import source_clock_proof
+    clock_proof=source_clock_proof(proof['raw_entries'])
+    if clock_proof:proof['source_clock_proof']=clock_proof
     return result, proof
 
 
@@ -200,7 +203,7 @@ def replay_edit_proof(proof):
         raise ValueError('字幕编辑证明缺少可重放的原始条目')
     _, expected=clean_entries(proof['raw_entries'], policy_version=proof['version'])
     for key in ('raw_text','display_text','edits','raw_sha256','display_sha256',
-                'policy','asr_corrections','point_anchors'):
+                'policy','asr_corrections','point_anchors','source_clock_proof'):
         if proof.get(key)!=expected.get(key):
             raise ValueError('字幕编辑不能按保守规则重放：'+key)
     return expected['raw_text'],expected['display_text']

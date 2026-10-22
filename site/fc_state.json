@@ -27537,8 +27537,8 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-c5d503",
-    "run_id": 38470962394,
-    "artifact_id": 11852455503,
+    "run_id": 37911798030,
+    "artifact_id": 11607706182,
     "accepted": 0,
     "failures": [
      {
@@ -27587,8 +27587,8 @@
    "source_check_attempts": 1,
    "production_failure_summary": {
     "slug": "ly-1009-1356fc",
-    "run_id": 37911179937,
-    "artifact_id": 11606348447,
+    "run_id": 38471295396,
+    "artifact_id": 11852141563,
     "accepted": 0,
     "failures": [
      {
@@ -36163,8 +36163,8 @@
    "source_check_attempts": 2,
    "production_failure_summary": {
     "slug": "ly-1009-de5dee",
-    "run_id": 39407196383,
-    "artifact_id": 12258431260,
+    "run_id": 37915704951,
+    "artifact_id": 11610901082,
     "accepted": 0,
     "failures": [
      {
@@ -36316,8 +36316,8 @@
    "publish_time": "2026-10-16T09:08:26+00:00",
    "production_failure_summary": {
     "slug": "ly-1017-a94b3e",
-    "run_id": 39409481427,
-    "artifact_id": 12258878064,
+    "run_id": 39058652952,
+    "artifact_id": 12111061601,
     "accepted": 0,
     "failures": [
      {
@@ -37732,8 +37732,8 @@
    "recovery_origin_run_id": 39724261288,
    "production_failure_summary": {
     "slug": "ly-story-c11da5a132",
-    "run_id": 39749452105,
-    "artifact_id": 12412339743,
+    "run_id": 39724261288,
+    "artifact_id": 12402948813,
     "accepted": 0,
     "failures": [
      {
@@ -38923,17 +38923,21 @@
    "recovery_origin_run_id": 39122221076,
    "production_failure_summary": {
     "slug": "ly-story-02733d5be4",
-    "run_id": 39410933442,
-    "artifact_id": 12261860666,
+    "run_id": 39780499866,
+    "artifact_id": 12427772833,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且‘这个’指代不明，属于无法解释的口语填充或识别错误。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及第 2、6 句的口语重复特征（如“我基本上没卖过”），该处应为“我没有卖过”。‘把’字在此处无语法或语义支撑，属于典型的同音错别字，导致句子含义不明。”}]}**注：** 其他句子中的口吃（如第 2 句“我不我不”\"}, {\"sentence_id\": 6, \"quote\": \"到现在零零年以后，啊，基本上没没有没有卖过。\", \"suspect_"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及嘉宾回答“基本上没卖过”，此处“把”字极大概率是“有”字的误识（拼音输入法或语音识别混淆），导致语义不通。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之二一'在口语中极可能是'百分之二十'的误听或口误，且与后文'下重手去试了'及常规投资比例语境不符，属于含义不明的关键数字污染。\"}]"
      }
     ]
    },
@@ -40692,27 +40696,23 @@
    "recovery_origin_run_id": 35064255035,
    "production_failure_summary": {
     "slug": "ly-story-608bf63cec",
-    "run_id": 39826448076,
-    "artifact_id": 12448693572,
+    "run_id": 39838012662,
+    "artifact_id": 12454073777,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
-     {
-      "stage": "part-quality",
       "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "字幕逐字时间倒退或重叠"
      }
     ]
    },
-   "source_check_report_id": 12448693572,
-   "source_check_run_id": 39826448076,
-   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "source_check_report_id": 12454073777,
+   "source_check_run_id": 39838012662,
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
    "failure_stage": "quality-service",
    "experiment_layout_recovery": {
     "previous": "landscape",
@@ -40721,7 +40721,10 @@
     "reason": "same_mother_published_portrait_and_empty_failed_batch",
     "ts": 1792691542
    },
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/P5ftb4y3gx08BDIhXWSk01041209OVM50E040.mp4",
@@ -40783,7 +40786,8 @@
     "name": "production-reject-ly-story-fb8a34b6b5",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1sUQHY3EiA",
@@ -40844,7 +40848,444 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
+  },
+  {
+   "video_id": "BV1zRJ26DEok",
+   "source_url": "https://www.bilibili.com/video/BV1zRJ26DEok",
+   "title": "10月15日林园：看好AI大时代，但我不会投个股！",
+   "source": "reference_origin_search",
+   "author": "价值财说",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-10-15T13:03:54+00:00",
+   "key": "ly-story-25aa8c6a50",
+   "slug": "ly-story-25aa8c6a50",
+   "ts": 1792701678,
+   "asset_url": "https://www.bilibili.com/video/BV1zRJ26DEok",
+   "delay_hours": 0,
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "editorial_profile": "field-story-v1",
+   "output_layout": "portrait",
+   "experiment_selection_revision": 2026102201,
+   "experiment_mother_sha256": "8f379d9cecd36dc6b22d8022beed3a3a698aa217e8e0e48fdf4e2a575294b210",
+   "experiment_parent_slug": "ly-1015-5e4dd0",
+   "recovery_origin_run_id": 39404352452,
+   "production_failure_summary": {
+    "slug": "ly-story-25aa8c6a50",
+    "run_id": 39851000559,
+    "artifact_id": 12458996080,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"uni"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"还是年轻，这什么事他。\", \"suspect_quote\": \"这什么事他\", \"kind\": \"unintelligible_term\", \"reason\": \"该短语在上下文中无法解释为正常口语、口吃或比喻，极可能是识别错误（如将“这有什么”、“这事啊”等误识），导致语义不明。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39851000559,
+    "artifact_id": 12458996080,
+    "name": "production-reject-ly-story-25aa8c6a50",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
+  },
+  {
+   "key": "bilibili_search:BV1esJv6rEgQ",
+   "video_id": "BV1esJv6rEgQ",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "landscape",
+   "editorial_profile": "field-story-v1",
+   "slug": "ly-1022-13a2c9",
+   "ts": 1792705241,
+   "source_url": "https://www.bilibili.com/video/BV1esJv6rEgQ",
+   "asset_url": "https://www.bilibili.com/video/BV1esJv6rEgQ",
+   "title": "林园总聊最新投资机会20261016",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "昕礽果复利增长",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-10-17T05:21:02+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-13a2c9",
+    "run_id": 39859179392,
+    "artifact_id": 12462265031,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12462265031,
+   "source_check_run_id": 39859179392,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792707233
+  },
+  {
+   "key": "bilibili_search:BV1Y4Jv6gEYq",
+   "video_id": "BV1Y4Jv6gEYq",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "field-story-v1",
+   "slug": "ly-1022-abeb50",
+   "ts": 1792705250,
+   "source_url": "https://www.bilibili.com/video/BV1Y4Jv6gEYq",
+   "asset_url": "https://www.bilibili.com/video/BV1Y4Jv6gEYq",
+   "title": "林园总聊最新投资机会20261016",
+   "delay_hours": 0,
+   "source": "reference_origin_search",
+   "author": "昕礽果复利增长",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-10-17T05:14:20+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-abeb50",
+    "run_id": 39859196983,
+    "artifact_id": 12460464279,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12460464279,
+   "source_check_run_id": 39859196983,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792707227
+  },
+  {
+   "key": "weibo_search:5348773345626951",
+   "video_id": "http://f.video.weibocdn.com/u0/3FkYi32hgx08B4CAAE5O01041201sbL20E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-1016a1",
+   "ts": 1792705257,
+   "source_url": "https://m.weibo.cn/detail/5348773345626951",
+   "asset_url": "https://m.weibo.cn/detail/5348773345626951",
+   "title": "2018林园总聊投资医药行业的底层逻辑 \n人口结构＋行业空间＋国际规模＋垄断成瘾\n\n所有行业中与嘴巴有关的占工业利润70",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "用户7917311026",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-09-30T09:06:44+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-1016a1",
+    "run_id": 39859212207,
+    "artifact_id": 12462130782,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12462130782,
+   "source_check_run_id": 39859212207,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792707221
+  },
+  {
+   "key": "weibo_search:5329737574519752",
+   "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-0b5f8d",
+   "ts": 1792705264,
+   "source_url": "https://m.weibo.cn/detail/5329737574519752",
+   "asset_url": "https://m.weibo.cn/detail/5329737574519752",
+   "title": "林园聊科技与消费：市场主线还是科技，科技牛行情大概率还没走完。但是不太好把握，你不知道哪个企业哪个长久生存。（2026-",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "大川成长价值投资",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-08-10T10:50:42.394478",
+   "production_failure_summary": {
+    "slug": "ly-1022-0b5f8d",
+    "run_id": 39859228356,
+    "artifact_id": 12460943760,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12460943760,
+   "source_check_run_id": 39859228356,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792707215
+  },
+  {
+   "key": "weibo_search:5329977608241634",
+   "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-4faffe",
+   "ts": 1792705272,
+   "source_url": "https://m.weibo.cn/detail/5329977608241634",
+   "asset_url": "https://m.weibo.cn/detail/5329977608241634",
+   "title": "林园聊科技与消费：市场主线还是科技，科技牛行情大概率还没走完。但是不太好把握，你不知道哪个企业哪个长久生存。（2026-",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "会计员小波",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-08-10T10:50:42.394375",
+   "production_failure_summary": {
+    "slug": "ly-1022-4faffe",
+    "run_id": 39859245930,
+    "artifact_id": 12461966204,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12461966204,
+   "source_check_run_id": 39859245930,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792707208
+  },
+  {
+   "key": "weibo_search:5330013676899598",
+   "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-e3b8e2",
+   "ts": 1792705280,
+   "source_url": "https://m.weibo.cn/detail/5330013676899598",
+   "asset_url": "https://m.weibo.cn/detail/5330013676899598",
+   "title": "林园聊科技与消费：市场主线还是科技，科技牛行情大概率还没走完。但是不太好把握，你不知道哪个企业哪个长久生存。（2026-",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "老吴TZ",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-08-10T10:50:42.394307",
+   "production_failure_summary": {
+    "slug": "ly-1022-e3b8e2",
+    "run_id": 39859262167,
+    "artifact_id": 12461119159,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39859262167,
+    "artifact_id": 12461119159,
+    "name": "production-reject-ly-1022-e3b8e2",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
+  },
+  {
+   "key": "weibo_search:5347037747087772",
+   "video_id": "http://f.video.weibocdn.com/u0/1dgimHUvgx08B4Csv6Y001041201sbMi0E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-5e8bdf",
+   "ts": 1792706419,
+   "source_url": "https://m.weibo.cn/detail/5347037747087772",
+   "asset_url": "https://m.weibo.cn/detail/5347037747087772",
+   "title": "#昕礽果复利增长价值亿亿金##昕礽果复利增长价值亿亿金  2018林园总聊投资医药行业的底层逻辑 \n人口结构＋行业空间＋",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "昕礽果复利增长",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-09-25T14:10:05+08:00"
+  },
+  {
+   "key": "weibo_search:5355312758130981",
+   "video_id": "https://f.video.weibocdn.com/u0/7AhroDffgx08BF2BLRGM01041201z5Qq0E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-da9302",
+   "ts": 1792706427,
+   "source_url": "https://m.weibo.cn/detail/5355312758130981",
+   "asset_url": "https://m.weibo.cn/detail/5355312758130981",
+   "title": "#昕礽果复利增长价值亿亿金##昕礽果复利增长价值亿亿金  林园总聊投资医药的底层逻辑，行业+垄断+成瘾性需求，现在几十年",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "昕礽果复利增长",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-10-18T10:12:01+08:00"
+  },
+  {
+   "key": "bilibili_search:BV152f9BoEbB",
+   "video_id": "BV152f9BoEbB",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-0f0a74",
+   "ts": 1792706434,
+   "source_url": "https://www.bilibili.com/video/BV152f9BoEbB",
+   "asset_url": "https://www.bilibili.com/video/BV152f9BoEbB",
+   "title": "林园聊达仁堂 分红已回本；自己会成未来首富",
+   "delay_hours": 0,
+   "source": "reference_origin_search",
+   "author": "账号已注销",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-02-04T01:12:16+00:00"
+  },
+  {
+   "key": "bilibili_search:BV1Ku4y127yg",
+   "video_id": "BV1Ku4y127yg",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-2032c5",
+   "ts": 1792706441,
+   "source_url": "https://www.bilibili.com/video/BV1Ku4y127yg",
+   "asset_url": "https://www.bilibili.com/video/BV1Ku4y127yg",
+   "title": "2023-06林园聊白酒：年轻人喝白酒的越来越少，是否会凉，听听林总怎么说。",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "林园门下走狗",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2023-07-26T09:53:11+00:00"
+  },
+  {
+   "key": "weibo_search:5327151022737977",
+   "video_id": "http://f.video.weibocdn.com/u0/XM69koJfgx08zF5E9Z8c010412007IeU0E010.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-cd08da",
+   "ts": 1792706447,
+   "source_url": "https://m.weibo.cn/detail/5327151022737977",
+   "asset_url": "https://m.weibo.cn/detail/5327151022737977",
+   "title": "林园总：靠不断投入增加利润，必定过剩，一定过剩！[并不简单][并不简单][并不简单]桂哥评：过剩了就是竞争！所有行业，最",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "桂哥猎手VIP777",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-08-02T13:25:09.995502"
+  },
+  {
+   "key": "bilibili_search:BV15Ba1e4E8k",
+   "video_id": "BV15Ba1e4E8k",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-a4414c",
+   "ts": 1792706454,
+   "source_url": "https://www.bilibili.com/video/BV15Ba1e4E8k",
+   "asset_url": "https://www.bilibili.com/video/BV15Ba1e4E8k",
+   "title": "林园讲述小钱变大钱，复利的秘密",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "财运布道师",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2024-08-06T23:00:41+00:00"
   }
  ],
  "makeup_receipts": {
@@ -114582,6 +115023,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/P5ftb4y3gx08BDIhXWSk01041209OVM50E040.mp4",
    "ts": 1792698433,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]"
+  },
+  {
+   "slug": "ly-story-25aa8c6a50",
+   "key": "ly-story-25aa8c6a50",
+   "video_id": "BV1zRJ26DEok",
+   "ts": 1792702874,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]"
+  },
+  {
+   "slug": "ly-1022-e3b8e2",
+   "key": "weibo_search:5330013676899598",
+   "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
+   "ts": 1792706307,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
@@ -115973,9 +116428,9 @@
    "verified_at": 1789274153
   }
  },
- "source_refresh_requested_at": 1792694854,
+ "source_refresh_requested_at": 1792702271,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 7,
+ "rule_recovery_page": 8,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",

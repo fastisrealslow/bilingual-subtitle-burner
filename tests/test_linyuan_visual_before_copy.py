@@ -6,13 +6,22 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'linyuan'))
 import produce_cn as p
 import live_tracking
+import transcript_audit
 
 
 @pytest.mark.parametrize('failure', ['no_crop', 'source_overlay', 'face_or_crop', 'final_window', 'static_window',
                                    'repaired_corner', 'unclean_repair', 'moving_corner', None])
-def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path, failure):
+@pytest.mark.parametrize('automatic',[False,True])
+def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path, failure, automatic):
     monkeypatch.setenv('LINYUAN_STATIC_CORNER_REPAIR','1')
+    monkeypatch.setattr(p,'automatic_only',lambda:automatic)
     calls = []
+    def audit(text,speaker,model,call,path):
+        assert text=='完整来源原话' and speaker=='林园'
+        assert path==tmp_path/'transcript_audit.json'
+        calls.append('independent ASR audit')
+        return dict(passed=True,issues=[],audio_verified=False)
+    monkeypatch.setattr(transcript_audit,'review',audit)
     monkeypatch.setattr(p, 'argument_record_for_render', lambda *a: {})
     monkeypatch.setattr(p, 'selected_native_clean_plan', lambda *a: None)
     monkeypatch.setattr(p, 'reviewed_source_live_crop',
@@ -76,9 +85,49 @@ def test_actual_window_is_checked_before_any_title_request(monkeypatch, tmp_path
             preselected_picks=[dict(start=0, end=0)], require_live_video=True)
     if failure and failure!='repaired_corner':
         assert 'CPU title request' not in calls
+        assert 'independent ASR audit' not in calls
     else:
         prefix=['actual moving window', 'prepared window checked']
-        assert calls == prefix*(2 if failure=='repaired_corner' else 1)+['prepared motion checked', 'CPU title request']
+        assert calls == prefix*(2 if failure=='repaired_corner' else 1)+['prepared motion checked']+(
+            ['independent ASR audit'] if automatic else [])+['CPU title request']
+
+
+@pytest.mark.parametrize('verdict',['passed','negative','unavailable'])
+def test_stage_route_cannot_write_or_render_without_the_same_source_audit(monkeypatch,tmp_path,verdict):
+    import stage_context
+    from editorial_policy import text_digest
+    calls=[]
+    monkeypatch.setattr(p,'automatic_only',lambda:True)
+    monkeypatch.setattr(p,'argument_record_for_render',lambda *a:dict(unchanged='argument_proof'))
+    monkeypatch.setattr(p,'_download_speaker_reference',lambda *a:tmp_path/'reference.jpg')
+    monkeypatch.setattr(p,'_local_face_models',lambda:('detector','recognizer'))
+    monkeypatch.setattr(stage_context,'plan',lambda *a,**k:calls.append('picture') or dict(actual='stage'))
+    text='完整而未经改写的原始讲话。'
+    def audit(actual,speaker,model,call,path):
+        assert actual==text and path==tmp_path/'transcript_audit_3.json'
+        calls.append('audit')
+        if verdict=='unavailable':raise ValueError('bad evidence')
+        return dict(passed=verdict=='passed',issues=[] if verdict=='passed' else ['real issue'],
+                    transcript_sha256=text_digest(text),audio_verified=False)
+    monkeypatch.setattr(transcript_audit,'review',audit)
+    monkeypatch.setattr(p,'copywrite',lambda *a,**k:calls.append('copy') or dict(title='原话标题'))
+    monkeypatch.setattr(p,'cue_caption_entry',lambda *a:{})
+    monkeypatch.setattr(stage_context,'render',lambda *a,**k:calls.append('render') or dict(duration_sec=50))
+    def produce():
+        return p._produce_one(tmp_path/'source.mp4',tmp_path,tmp_path,
+            [dict(start=120,end=170,text=text)],'林园','','',False,1920,1080,'_3',
+            source_report=dict(source_sha256='a'*64),preselected_picks=[dict(start=0,end=0)],
+            require_live_video=True)
+    if verdict=='passed':
+        result=produce()
+        assert calls==['picture','audit','copy','render']
+        assert result['editorial_review']['unchanged']=='argument_proof'
+        proof=result['editorial_review']['transcript_audit']
+        assert proof['passed'] and proof['transcript_sha256']==text_digest(text)
+    else:
+        error=p.VisualQualityError if verdict=='negative' else p.EditorialReviewUnavailable
+        with pytest.raises(error):produce()
+        assert calls==['picture','audit']
 
 
 def test_prepared_motion_failure_keeps_byte_bound_rejection_evidence(tmp_path,monkeypatch):

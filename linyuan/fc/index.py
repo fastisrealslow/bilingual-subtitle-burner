@@ -293,7 +293,9 @@ TID, COPYRIGHT = 207, 3                  # 财经商业 / 未选择声明；不�
 # - 「二埋汰」是东北虎网红名
 NOISE = re.compile(r"虎林园|东北虎|横道河子|二埋汰|林园群|周瑜|雕像|泼漆|通报")
 # AI 问答噪音：不是林园本人视频，是「网友问 AI 得到的回答」（2026-08-31 元宝问答混入）
-AI_NOISE = re.compile(r"问了下|问一下|元宝|豆包|DeepSeek|deepseek|文心一言|通义千问|ChatGPT|Kimi|kimi|AI回答|AI问答|AI解读")
+AI_NOISE = re.compile(r"问了下|问一下|元宝|豆包|DeepSeek|deepseek|文心一言|通义千问|ChatGPT|Kimi|kimi|AI回答|AI问答|AI解读|"
+    r"(?i:AI|人工智能)\s*(?:模拟|拟声|合成|克隆|生成)(?:的|[:：])?\s*林园|"
+    r"[\[【（(]\s*(?i:AI|人工智能)\s*(?:模拟|拟声|合成|克隆|生成)\s*[\]】）)]")
 
 # B站源「机构白名单」（与 monitor_v2.py/stage_and_dispatch.py 保持一致）：
 # 只保留明确的一手机构/官方号，其余二创个人号全排除。
@@ -316,7 +318,8 @@ THIRD_PARTY_TITLE_PAT = re.compile(
     r"被(?:点名|处罚|调查)|基金|私募)|#远离#.*#林园#|"
     r"(?:怎么看|如何看)林园|林园(?:和|与)(?:但斌|段永平)")
 DIRECT_SPEECH_PAT = re.compile(
-    r"林园\s*[：:]|林园(?:说|表示|认为|指出|直言|强调|回应|分享|谈|称)|"
+    r"林园(?:总|老师|先生)?\s*[：:]|"
+    r"林园(?:总|老师|先生)?\s*(?:说|表示|认为|指出|直言|强调|回应|分享|谈|称|聊|讲述)|"
     r"(?:采访|专访|对话|演讲|股东会|路演|直播|实录|发言).*林园")
 
 
@@ -2871,7 +2874,8 @@ def experiment_reuse_layouts(parent, record, state):
     """Observed same-mother geometry is a planning hint, never media approval."""
     mother=parent.get('source_sha256')
     if not re.fullmatch('[a-f0-9]{64}',str(mother or '')):return set()
-    parts=[p for p in record.get('parts',[]) if p.get('status')=='verified']
+    parts=[p for p in record.get('parts',[])+record.get('source_geometry_hints',[])
+           if p.get('status')=='verified']
     parts += [p for p in ((state.get('published') or {}).get(parent.get('slug')) or {}).get('parts',[])
               if p.get('status')=='published' and p.get('bvid') and p.get('source_segments')]
     layouts=set()
@@ -2929,6 +2933,42 @@ def experiment_reuse_plan(candidates, state, needs):
     return plan
 
 
+def old_treatment_blocks_reselection(entry, record, state):
+    """An old, unposted overlap is not proof the fixed selector already ran."""
+    if (entry.get('failed') or entry.get('uploading') or not inventory_record_current(record)
+            or any(p.get('status')=='published' and p.get('bvid') for p in
+                   (state.get('published',{}).get(entry['slug']) or {}).get('parts',[]))):
+        return True
+    parts=[p for p in record.get('parts',[]) if p.get('status')=='verified'
+           and experiment.actual_profile(p)==experiment.TREATMENT]
+    if not parts:return True
+    for part in parts:
+        if (not re.fullmatch('[a-f0-9]{64}',str(part.get('source_sha256') or ''))
+                or part.get('source_sha256')!=entry.get('experiment_mother_sha256')
+                or type(part.get('index')) is not int
+                or part['index'] in processed_part_indices(entry)):
+            return True
+        error=inventory_publication_error(part,entry,state)
+        if not error or '与已经发布的母片时间段重叠' not in error:
+            return True
+    return False
+
+
+def same_mother_scene_geometry(inventory, mother_sha):
+    """Verified old pixels can guide format, never authorize another excerpt."""
+    if not re.fullmatch('[a-f0-9]{64}',str(mother_sha or '')):return []
+    hints=[]
+    for record in inventory.get('artifacts',[]):
+        if not inventory_record_current(record):continue
+        for part in record.get('parts',[]):
+            if (part.get('status')!='verified' or part.get('source_sha256')!=mother_sha
+                    or experiment.actual_profile(part)!=experiment.TREATMENT):continue
+            hints.append({k:part[k] for k in ('source_sha256','resolution','render_mode','status','sha256') if k in part}
+                | dict(geometry_source_slug=record['slug'],geometry_artifact_id=record.get('artifact_id'),
+                       geometry_run_id=record.get('run_id')))
+    return hints
+
+
 def experiment_reuse_candidates(state, inventory, items):
     """One bounded automatic attempt per verified long mother, never relabel stock."""
     if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
@@ -2941,8 +2981,10 @@ def experiment_reuse_candidates(state, inventory, items):
     current_records={r.get('slug'):r for r in inventory.get('artifacts',[])}
     for slug,e in latest.items():
         record=current_records.get(slug,{})
-        if any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
-               for p in record.get('parts',[])):
+        if (any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
+                for p in record.get('parts',[]))
+                and (e.get('experiment_selection_revision')==experiment.SELECTION_REVISION
+                     or old_treatment_blocks_reselection(e,record,state))):
             active_or_current[slug]=e
         elif e.get('experiment_parent_slug') and not e.get('failed') and not record:
             active_or_current[slug]=e  # Unknown/in-flight old outcome: do not duplicate it.
@@ -2983,7 +3025,9 @@ def experiment_reuse_candidates(state, inventory, items):
         if not remaining:continue
         used_sources.add(url)
         if mother_sha:used_hashes.add(mother_sha)
-        yield ({**entry,'source_sha256':mother_sha} if mother_sha else entry),record
+        hints=same_mother_scene_geometry(inventory,mother_sha)
+        yield ({**entry,'source_sha256':mother_sha} if mother_sha else entry),(
+            {**record,'source_geometry_hints':hints} if hints else record)
 
     # A consumed delivery is not an exhausted raw mother. The old loop only
     # revisited mothers that still had ordinary stock, hiding older verified
@@ -3014,8 +3058,13 @@ def experiment_reuse_candidates(state, inventory, items):
         if entry.get('source_sha256') and entry['source_sha256']!=mother_sha:continue
         used_sources.add(url);used_hashes.add(mother_sha)
         recovery=entry.get('recovery_origin_run_id') or entry.get('source_check_run_id')
+        hints=same_mother_scene_geometry(inventory,mother_sha)
+        if not recovery:
+            recovery=next((h['geometry_run_id'] for h in hints if type(h.get('geometry_run_id')) is int
+                           and h['geometry_run_id']>0),None)
         yield {**entry,'source_sha256':mother_sha},dict(run_id=recovery,
-            provenance='published_source_sha256',historical_mother=True)
+            provenance='published_source_sha256',historical_mother=True,
+            **(dict(source_geometry_hints=hints) if hints else {}))
 
 
 def obsolete_review_candidates(state, inventory):
@@ -3559,6 +3608,8 @@ def _recover_changed_production_rule(st, candidate, run):
            ('caption-source-clock-v5',('完整词句无法放入两行','意群分组',
                     '单屏跨越超过8秒','字幕时间重叠到零长度'),
             ('linyuan/caption_lines.py','linyuan/presentation.py','linyuan/produce_cn.py')),
+           ('caption-shared-end-clock-v1',('字幕逐字时间倒退或重叠',),
+            ('linyuan/caption_lines.py','linyuan/caption_readability.py')),
            ('visual-preflight-v2',('持续黑色填充边','来源角标无法避开','真人动态区仍有原素材字幕',
                                   '原画无法通过真人画面清理门禁'),
             ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
@@ -3598,6 +3649,27 @@ def _recover_changed_production_rule(st, candidate, run):
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
+        if file.get('filename')=='linyuan/produce_cn.py':
+            # Moving the unchanged transcript audit after picture preflight
+            # repairs CPU ordering, NOT old geometry/caption/title verdicts.
+            # Require an observed operation delta for these producer-wide
+            # cases; file-touch alone must not occupy production workers.
+            operations={
+                'visual-preflight-v2':r'\b(?:reviewed_native_cleanup|selected_native_clean_plan|'
+                    r'refine_native_crop|landscape_crop_plan|verify_live_region_after_render|'
+                    r'render_tracked|source_exclusions|audio_card_live_crop|candidate_crop|'
+                    r'live_crop|prepared_live|clean_vf|crop_w|crop_h|native_plan)\b',
+                'caption-source-clock-v5':r'\b(?:caption_[A-Za-z_]+|subtitle_[A-Za-z_]+|'
+                    r'make_ass|semantic_paragraphs|semantic_groups)\b',
+                'automatic-source-context-v10':r'\b(?:pick_highlights|copywrite|title_[A-Za-z_]+|'
+                    r'story_[A-Za-z_]+|source_picks|source_selection|chunks|work_items|editorial_rank)\b',
+            }
+            pattern=operations.get(case[0])
+            if pattern:
+                code=[line[1:].strip() for line in str(file.get('patch') or '').splitlines()
+                      if line[:1] in ('+','-') and not line.startswith(('+++','---'))]
+                return any(line and not line.startswith('#') and re.search(pattern,line)
+                           for line in code)
         if (case[0]=='transcript-review-model-v3'
                 and file.get('filename')=='.github/workflows/linyuan-produce-cn.yml'):
             # Actual Oct22: adding asr_prepare's step ID / failure reporting
@@ -3860,7 +3932,13 @@ def _collect_source_rejections(st):
                 continue
             if report.get('retryable') is True or reason.startswith(('人物 VLM 校验不可用','素材质检不可用')):
                 candidate['source_check_report_id']=artifact['id']
-                candidate['source_check_run_id']=run['id']
+                if report.get('failure_stage')=='media-tools-runtime' and report.get('source_downloaded') is False:
+                    # A preparation-only report has no raw mother or ASR.
+                    # Never ask the next job to restore its empty evidence.
+                    if candidate.get('source_check_run_id')==run['id']:candidate.pop('source_check_run_id',None)
+                    if candidate.get('recovery_origin_run_id')==run['id']:candidate.pop('recovery_origin_run_id',None)
+                else:
+                    candidate['source_check_run_id']=run['id']
                 candidate['last_error']=reason
                 candidate['failure_stage']=report.get('failure_stage') or 'quality-service'
                 attempts=int(candidate.get('source_check_attempts') or 0)
@@ -3921,8 +3999,54 @@ def _collect_source_rejections(st):
     return rejected
 
 
+def _recover_media_tools_preparation(st,candidate,run,artifacts):
+    """One proven installer-only repair; no source/ASR/media verdict changes."""
+    version='media-tools-preparation-2026102301'
+    if (not candidate or candidate.get('failed') or candidate.get('uploading')
+            or candidate.get('source_quality_rejected') or candidate.get('repair_bvid')
+            or candidate.get('slug') in st.get('published',{})
+            or candidate.get('slug') in REVIEW_PAUSED_SLUGS or not candidate.get('source_url')
+            or int(candidate.get('source_check_attempts') or 0)>=2
+            or run.get('conclusion')!='failure' or not run.get('head_sha')
+            or run.get('path')!='.github/workflows/'+WF_PRODUCE
+            or str(run.get('display_title') or '').partition(' · ')[2]!=candidate['slug']
+            or version in (candidate.get('automatic_rule_recoveries') or {})):
+        return False
+    created=str(run.get('created_at') or '')
+    earliest=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime(
+        max(float(candidate.get('ts') or 0),float(candidate.get('last_retry') or 0))-90))
+    if not created or created<earliest:return False
+    from source_admission_guard import restriction
+    if restriction(candidate['source_url'],[]):return False
+    if any(not a.get('expired') and a.get('name','').startswith((
+            'deliver-','source-reject-','mother-media-','raw-asr-','editorial-','render-evidence-'))
+           for a in artifacts):return False
+    jobs=gh('GET',f"/actions/runs/{run['id']}/jobs").get('jobs',[])
+    steps=[s for job in jobs for s in job.get('steps',[])]
+    failed=[s for s in steps if s.get('conclusion')=='failure']
+    if (not failed or any(s.get('name')!='安装 ffmpeg 与中文字体' for s in failed)
+            or any(s.get('name') in {'素材质量门禁','出片','准备CPU离线Qwen识别及逐字对齐'}
+                   and s.get('conclusion')=='success' for s in steps)):
+        return False
+    changes=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
+    if not any(f.get('filename')=='linyuan/ci_install_media_tools.sh' and re.search(
+            r'^\+MEDIA_TOOLS_POLICY_VERSION=2026102301$',str(f.get('patch') or ''),re.M)
+            for f in changes):return False
+    now=int(time.time())
+    candidate.setdefault('automatic_rule_recoveries',{})[version]=dict(
+        run_id=run['id'],ts=now,stage='media-tools-runtime',source_approved=False,asr_imported=False)
+    if candidate.get('source_check_run_id')==run['id']:candidate.pop('source_check_run_id',None)
+    if candidate.get('recovery_origin_run_id')==run['id']:candidate.pop('recovery_origin_run_id',None)
+    candidate.update(ts=now,source_check_retry_after=now-1,failure_stage='media-tools-runtime',
+        last_error='媒体工具准备失败；已核对安装代码修复，按原素材有界重试，不导入空转写证据')
+    save_state(st)
+    log_event('quality',candidate['slug']+' 工具准备修复后恢复一次',version)
+    return True
+
+
 def _recover_preflight_failure(st, candidate, run, artifacts):
     """Resume preflight failures, plus the two inspected obsolete-title failures."""
+    if _recover_media_tools_preparation(st,candidate,run,artifacts):return True
     # Historical fresh-source ASR preparation had no step ID, so the failure
     # reporter saw no failed step and uploaded no production-reject artifact.
     # Only exact job metadata and a matching preparation-code fix can reopen

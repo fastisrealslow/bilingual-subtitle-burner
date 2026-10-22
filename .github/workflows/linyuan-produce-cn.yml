@@ -144,6 +144,7 @@ jobs:
 
       # fonts-noto-cjk 必装：缺了中文字体，字幕会烧成一排豆腐块
       - name: 安装 ffmpeg 与中文字体
+        id: media_setup
         timeout-minutes: 15
         run: bash ci_install_media_tools.sh
 

@@ -60,8 +60,11 @@ def report_missing(path, steps, slug, *, job_failed=False):
                     f"{len(diagnostic['invalid_words'])}/{diagnostic['word_count']} 个词；"
                     '未形成素材不合格结论'),alignment_diagnostic=diagnostic)
     path.parent.mkdir(parents=True,exist_ok=True)
+    media_setup=(failed==['media_setup'] and not any(
+        steps.get(name,{}).get('outcome')=='success' for name in ('src','source_gate','render','asr_prepare')))
     path.write_text(json.dumps(dict(slug=slug,accepted=0,accepted_finals=[],
-        selection_completed=False,retryable=True,rejected=[rejection]),ensure_ascii=False))
+        selection_completed=False,retryable=True,rejected=[rejection],
+        **(dict(failure_stage='media-tools-runtime',source_downloaded=False) if media_setup else {})),ensure_ascii=False))
     return True
 
 
