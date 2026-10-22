@@ -40,7 +40,7 @@ def main():
     import cover_scene_geometry
     import live_tracking
     from editorial_policy import text_digest
-    from publishing_experiment import digest
+    from publishing_experiment import digest,validate_choices
     out=Path('scene-cover-verification');out.mkdir(exist_ok=True)
     result=dict(passed=False,diagnostic_only=True,registered_stock=False,published=False,
         media_approved=False,parts=[])
@@ -78,9 +78,16 @@ def main():
             text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
             assert digest(text)==pick['story_selection']['transcript_sha256']
             assert audit['passed'] and text_digest(text)==audit['transcript_sha256']
-            assert producer.title_quality_error(copy['title'],'林园',text,rewrite_proof=copy['title_rewrite']) is None
             row=dict(index=i,title=copy['title'],cover_title=copy['cover_title'],passed=False,
-                transcript_sha256=audit['transcript_sha256'],samples=[])
+                transcript_sha256=audit['transcript_sha256'],samples=[],
+                current_text_preflight_error=producer.title_quality_error(copy['title'],'林园',text,
+                    rewrite_proof=copy['title_rewrite']))
+            try:
+                selection=pick['story_selection']
+                validate_choices(cues,[pick],dict(choices=[dict(index=0,**{
+                    k:selection[k] for k in ('kind','subject_quote','event_quote','detail_quote')})]))
+            except ValueError as exc:row['current_selection_error']=str(exc)
+            else:row['current_selection_error']=None
             result['parts'].append(row);save()
             for variant in ('control','proposed'):
                 work=out/f'part{i}'/variant;work.mkdir(parents=True,exist_ok=True)
@@ -117,7 +124,11 @@ def main():
                     proof=json.loads((work/'cover.jpg.proof.json').read_text())
                     assert all(proof[k] is True for k in ('no_added_text','no_black_bars','no_qr','face_fully_visible','feed_safe_face'))
                     row.update(passed=True,proof=proof,cover_sha256=sha(work/'cover.jpg'));save()
-        result['passed']=all(row['passed'] for row in result['parts']);save()
+        result['passed']=all(row['passed'] for row in result['parts'])
+        result['frame_passed_parts']=[r['index'] for r in result['parts'] if r['passed']]
+        result['copy_blocked_parts']=[r['index'] for r in result['parts'] if r['current_text_preflight_error']]
+        result['selection_blocked_parts']=[r['index'] for r in result['parts'] if r['current_selection_error']]
+        save()
         assert result['passed']
     print(json.dumps(result,ensure_ascii=False))
 

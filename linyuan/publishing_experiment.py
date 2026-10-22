@@ -119,6 +119,8 @@ def selection_request(cues, candidates):
         '说的具体事情或选择；detail_sentence是另一条原话原因/经过/细节，不能与event_sentence相同。'
         '不能从别的片段借事实，不能把主持人的假设当嘉宾结论。'
         '事件必须是嘉宾讲出的具体行为、经历或公司发生的事；“机会存在”等抽象总结不是事件。'
+        '理论、原则、方法总结和应该怎么做的建议本身不是已经发生的个人经历；'
+        'personal_story必须另有本人实际做过、没做过或明确采取某项选择的原句，不能只因为提到我们或过去经历就入选。'
         '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
@@ -169,6 +171,12 @@ def validate_choices(cues, candidates, response):
                 raise ValueError('A question is context, not guest event/detail evidence')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
+        if row['kind']=='personal_story':
+            event=row['event_quote']
+            normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
+            actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
+            if normative_recap and not actual_action:
+                raise ValueError('A normative method/theory recap is not a concrete personal event or actual choice')
         if row['kind']=='company_case' and not title_focus(row)['subjects']:
             raise ValueError('Named company subject required; generic assets/rules are not a company case')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}

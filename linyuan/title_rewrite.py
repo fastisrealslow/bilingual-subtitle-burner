@@ -840,6 +840,18 @@ def example_duration_error(title, cover, transcript):
     return None
 
 
+def allocation_condition_error(title,cover,transcript):
+    """A small-per-position hypothesis is not a blanket useless-winner claim."""
+    if not re.search(r'(?:如果|要是)[^。！？!?]{0,20}每(?:个|只|家)[^。！？!?]{0,8}投[^。！？!?]{0,4}(?:一点|一些|少)',transcript):
+        return None
+    for value in (title,cover):
+        if (re.search(r'[零〇一二三四五六七八九十百千万亿0-9]+倍',value or '')
+                and re.search(r'(?:没|无)[^。！？!?，,]{0,6}(?:用|意义|价值)',value or '')
+                and not re.search(r'分散|仓位|投[一得的很]*点|投[得的]?少|少投|每(?:个|只|家)[^，,。！？!?]{0,8}投',value or '')):
+            return '原文的收益作用判断以每个只投一点为前提；标题和封面不能删掉仓位或分散持仓条件，泛化成万倍股没有用'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -853,6 +865,8 @@ def forecast_copy_error(title, cover, transcript):
     human_condition_issue = human_condition_actor_error(title, cover, transcript)
     if human_condition_issue:
         return human_condition_issue
+    allocation_issue=allocation_condition_error(title,cover,transcript)
+    if allocation_issue:return allocation_issue
     clause_issue = hypothetical_clause_error(title, cover, transcript)
     if clause_issue:
         return clause_issue
