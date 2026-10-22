@@ -5625,20 +5625,6 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
-    if automatic_only():
-        from transcript_audit import review as audit_transcript
-        def audit_call(prompt,schema):
-            return llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                       max_tokens=1200,budget_sec=text_budget(180),response_schema=schema)
-        try:
-            audit=audit_transcript(''.join(cues[i]['text'] for i in sel),speaker,LOCAL_LLM_MODEL,
-                                   audit_call,work/f'transcript_audit{suffix}.json')
-        except (ValueError,TypeError) as exc:
-            raise EditorialReviewUnavailable('独立文字识别疑点审核不可用：'+str(exc)) from exc
-        if not audit['passed']:
-            raise VisualQualityError('原始ASR存在影响理解的疑点，禁止猜改后发布：'
-                                     +json.dumps(audit['issues'],ensure_ascii=False))
-        argument_review={**argument_review,'transcript_audit':audit}
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
     print(f"[段{suffix or '1'}] 选 {len(sel)} 条字幕,约 {int(total_sel)//60}:{int(total_sel)%60:02d}")
 
@@ -5647,8 +5633,25 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     # face or source-overlay checks could reject them.
     cw = None
     def get_copy():
-        nonlocal cw
+        nonlocal cw, argument_review
         if cw is None:
+            # Bad geometry must not spend the independent ASR-review budget.
+            # Every rendering route calls this after its picture preflight;
+            # the same source-bound audit still blocks copy AND composition.
+            if automatic_only():
+                from transcript_audit import review as audit_transcript
+                def audit_call(prompt,schema):
+                    return llm([{'role':'user','content':prompt}],api_key,temperature=0,
+                               max_tokens=1200,budget_sec=text_budget(180),response_schema=schema)
+                try:
+                    audit=audit_transcript(''.join(cues[i]['text'] for i in sel),speaker,LOCAL_LLM_MODEL,
+                                           audit_call,work/f'transcript_audit{suffix}.json')
+                except (ValueError,TypeError) as exc:
+                    raise EditorialReviewUnavailable('独立文字识别疑点审核不可用：'+str(exc)) from exc
+                if not audit['passed']:
+                    raise VisualQualityError('原始ASR存在影响理解的疑点，禁止猜改后发布：'
+                                             +json.dumps(audit['issues'],ensure_ascii=False))
+                argument_review={**argument_review,'transcript_audit':audit}
             cw = copywrite(
                 cues, sel, speaker, occasion, api_key, work, pick_cache_suffix,
                 existing_titles=existing_titles,
