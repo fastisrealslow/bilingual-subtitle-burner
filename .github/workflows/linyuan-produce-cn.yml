@@ -144,12 +144,8 @@ jobs:
 
       # fonts-noto-cjk 必装：缺了中文字体，字幕会烧成一排豆腐块
       - name: 安装 ffmpeg 与中文字体
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            ffmpeg fonts-noto-cjk poppler-utils libgl1 libglib2.0-0 zstd
-          fc-cache -f
-          ffprobe -version | head -1
+        timeout-minutes: 15
+        run: bash ci_install_media_tools.sh
 
       - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
         working-directory: .

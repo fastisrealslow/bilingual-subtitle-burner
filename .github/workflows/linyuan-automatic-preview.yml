@@ -48,8 +48,8 @@ jobs:
         python-version: '3.11'
         cache: pip
     - name: 安装 ffmpeg 与中文字体
-      run: "sudo apt-get update -qq\nsudo apt-get install -y -qq --no-install-recommends \\\n  ffmpeg fonts-noto-cjk\
-        \ poppler-utils libgl1 libglib2.0-0 zstd\nfc-cache -f\nffprobe -version | head -1\n"
+      timeout-minutes: 15
+      run: bash ci_install_media_tools.sh
     - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
       working-directory: .
       env:

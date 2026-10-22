@@ -1,0 +1,15 @@
+name: 正式出片工具安装有界实测（不生产不投稿）
+on:
+  push:
+    branches: [codex/linyuan-production-setup-budget-20261022]
+    paths: [linyuan/ci_install_media_tools.sh, .github/workflows/linyuan-produce-cn.yml, .github/workflows/linyuan-production-setup-check.yml]
+permissions:
+  contents: read
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: 执行与正式生产完全相同的工具安装和字体核验
+        run: bash linyuan/ci_install_media_tools.sh
