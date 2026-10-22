@@ -39,6 +39,7 @@ def reconcile(items, previous, state, now=None):
     for item in items:
         bvid=item.get('bvid');pub=item.get('pubdate');observed=item.get('observed_at');play=item.get('play')
         if (bvid not in receipts or item.get('observation_source')!='bilibili_creator_archive'
+                or item.get('publication_clock_basis') not in ('creator_pubdate','creator_ptime')
                 or not number(pub) or pub<=0 or not number(observed) or not 0<observed<=now
                 or now-observed>600 or type(play) is not int or play<0):continue
         age=(observed-pub)/3600
@@ -48,6 +49,7 @@ def reconcile(items, previous, state, now=None):
             receipt=receipts[bvid]
             samples[key]=dict(experiment_id=experiment.EXPERIMENT_ID,bvid=bvid,window=window,observed_at=observed,
                 pubdate=pub,age_hours=age,play=play,like=item.get('like'),danmaku=item.get('danmaku'),
+                publication_clock_basis=item['publication_clock_basis'],
                 planned=receipt['planned'],actual=receipt['actual'],compliant=receipt['compliant'],
                 slot_number=receipt['slot_number'],content_type=receipt.get('content_type'),
                 observation_source='bilibili_creator_archive')
@@ -57,6 +59,7 @@ def reconcile(items, previous, state, now=None):
         row['comparable']=(timing and type(row.get('play')) is int and row['play']>=0
             and row.get('experiment_id')==experiment.EXPERIMENT_ID
             and row.get('observation_source')=='bilibili_creator_archive'
+            and row.get('publication_clock_basis') in ('creator_pubdate','creator_ptime')
             and row.get('compliant') is True and row.get('actual')==row.get('planned')
             and row.get('planned') in (experiment.BASELINE,experiment.TREATMENT)
             and row.get('content_type')!='full_interview')
@@ -107,10 +110,19 @@ def parse_creator(data,bvid):
             or data.get('public') is not True or type(data.get('state')) is not int or data['state']!=0):
         raise ValueError('Authenticated own-public-video identity unavailable or mismatched')
     play=counters.get('view');pub=data.get('pubdate');observed=data.get('observed_at')
+    ptime=(data.get('publication_clock_candidates') or {}).get('ptime')
+    if number(pub) and pub>0 and number(ptime) and ptime>0 and pub!=ptime:
+        raise ValueError('Creator publication clocks conflict; no inferred clock allowed')
+    basis='creator_pubdate'
+    if not number(pub) or pub<=0:
+        # Actual authenticated Archive.ptime equals public view.pubdate.
+        # Archive.ctime was 62 seconds earlier in the real probe; never use it.
+        pub=ptime;basis='creator_ptime'
     if (type(play) is not int or play<0 or not number(pub) or pub<=0
             or not number(observed) or observed<=0):
         raise ValueError('Creator play count or publication/observation clock is unknown')
     return dict(bvid=bvid,play=play,pubdate=pub,title=data.get('title'),observed_at=observed,
+        publication_clock_basis=basis,
         observation_source='bilibili_creator_archive',like=counters.get('like'),danmaku=counters.get('danmaku'))
 
 
@@ -135,12 +147,12 @@ def fetch_views(bvids):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--probe-bvid')
+    parser=argparse.ArgumentParser();parser.add_argument('--probe-bvid',action='append')
     args=parser.parse_args()
     if args.probe_bvid:
-        items,errors=fetch_views([args.probe_bvid])
+        items,errors=fetch_views(args.probe_bvid)
         if errors:raise ValueError(json.dumps(errors))
-        print(json.dumps(dict(passed=True,diagnostic_only=True,sample_registered=False,video=items[0])))
+        print(json.dumps(dict(passed=True,diagnostic_only=True,sample_registered=False,videos=items)))
         return
     out=ROOT/'site/stats.json';state_path=ROOT/'linyuan/.automation/fc_state.json'
     previous=json.loads(out.read_text());state=json.loads(state_path.read_text());now=time.time()

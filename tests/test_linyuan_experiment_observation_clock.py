@@ -23,7 +23,7 @@ def state(actual=E.TREATMENT,content_type='short_view'):
 
 
 def item(play=100,observed=NOW):
-    return dict(bvid=BVID,pubdate=PUB,play=play,observed_at=observed,observation_source='bilibili_creator_archive')
+    return dict(bvid=BVID,pubdate=PUB,play=play,observed_at=observed,observation_source='bilibili_creator_archive',publication_clock_basis='creator_pubdate')
 
 
 def treatment(result,window=24):
@@ -65,6 +65,7 @@ def test_other_experiment_clock_rows_stay_archived_not_compared():
 @pytest.mark.parametrize('changes',[
     dict(play=None),dict(play=True),dict(play=-1),dict(play='100'),dict(pubdate=None),
     dict(observed_at=NOW+1),dict(observation_source='search_index'),dict(bvid='BVunknown'),
+    dict(publication_clock_basis='upload_receipt'),
 ])
 def test_unknown_unbound_future_or_index_counts_are_not_measurements(changes):
     value=item();value.update(changes)
@@ -114,6 +115,17 @@ def test_public_counter_requires_exact_owner_video_and_public_state():
 @pytest.mark.parametrize('body',[[],dict(code=0,data=['bad']),dict(code=0,data={})])
 def test_malformed_public_response_is_unknown_not_zero(body):
     with pytest.raises(ValueError):C.parse_creator(body,BVID)
+
+
+def test_verified_creator_ptime_not_creation_or_zero_online_time():
+    body=payload();del body['pubdate']
+    body['publication_clock_candidates']=dict(ptime=PUB,ctime=PUB-62,online_time=0)
+    result=C.parse_creator(body,BVID)
+    assert result['pubdate']==PUB and result['publication_clock_basis']=='creator_ptime'
+    body['publication_clock_candidates']=dict(ctime=PUB-62)
+    with pytest.raises(ValueError):C.parse_creator(body,BVID)
+    body['pubdate']=PUB;body['publication_clock_candidates']=dict(ptime=PUB-62)
+    with pytest.raises(ValueError,match='conflict'):C.parse_creator(body,BVID)
 
 
 def test_unavailable_counter_retains_data_and_fails_loudly(tmp_path,monkeypatch):
