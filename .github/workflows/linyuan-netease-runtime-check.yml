@@ -1,0 +1,65 @@
+name: 网易正文视频真实取源回归（不入库不投稿）
+on:
+  push:
+    paths:
+      - linyuan/ci_fetch_netease.py
+      - linyuan/ci_fetch_generic.py
+      - .github/workflows/linyuan-netease-runtime-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: netease-runtime-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装取源及实际音视频核验依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg
+          pip install yt-dlp
+      - name: 使用实际失败过的正文地址取源并解码核验
+        env:
+          PYTHONPATH: linyuan
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          from ci_fetch_generic import fetch
+          from ci_fetch_bilibili import validate_media, sha256_file
+          from source_admission_guard import restriction
+          url='https://www.163.com/v/video/VA7UULO86.html'
+          assert not restriction(url, []), 'Source restriction must not be bypassed by diagnostics'
+          root=Path('/tmp/netease-player-check')
+          media=fetch(url,root,root/'source_quality.json')
+          valid=validate_media(media)
+          origin=json.loads((root/'source_origin.json').read_text())
+          with media.open('rb') as handle:
+              actual=sha256_file(handle)
+          assert origin['sha256']==actual
+          assert abs(valid['duration']-origin['declared_duration'])<=3
+          # Technical fetch proof ONLY. No identity/ASR/rights approval, no
+          # registered production task, stock, video artifact or publication.
+          origin.pop('media_url',None)
+          result=dict(fetch_passed=True,origin=origin,media=valid,
+                      registered_stock=False,published=False,
+                      production_gates_evaluated=False)
+          Path('netease-fetch-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: netease-fetch-verification
+          path: |
+            netease-fetch-verification.json
+            /tmp/netease-player-check/source_quality.json
+          if-no-files-found: error
+          retention-days: 7
