@@ -40802,8 +40802,8 @@
    "recovery_origin_run_id": 37886234069,
    "production_failure_summary": {
     "slug": "ly-story-99ddef2e4b",
-    "run_id": 39823519451,
-    "artifact_id": 12446549111,
+    "run_id": 39835364910,
+    "artifact_id": 12451555391,
     "accepted": 0,
     "failures": [
      {
@@ -40815,8 +40815,16 @@
    "source_check_report_id": 12446549111,
    "source_check_run_id": 39823519451,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39835364910,
+    "artifact_id": 12451555391,
+    "name": "production-reject-ly-story-99ddef2e4b",
+    "retained": true
+   },
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -114540,6 +114548,13 @@
    "video_id": "BV1LGJQ6REPV",
    "ts": 1792694741,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]"
+  },
+  {
+   "slug": "ly-story-99ddef2e4b",
+   "key": "ly-story-99ddef2e4b",
+   "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
+   "ts": 1792695772,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
   }
  ],
  "reviewed_third_video_0910": {
