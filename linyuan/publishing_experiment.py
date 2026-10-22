@@ -13,7 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
-SELECTION_REVISION = 2026102005
+SELECTION_REVISION = 2026102201
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -127,10 +127,21 @@ def selection_request(cues, candidates):
         '不能把本次选择的直接回答误当成泛泛建议。“机会存在”等抽象总结不是事件。'
         '理论、原则、方法总结和应该怎么做的建议本身不是已经发生的个人经历；'
         'personal_story必须另有本人实际做过、没做过或明确采取某项选择的原句，不能只因为提到我们或过去经历就入选。'
+        'personal_story的事件不要选比喻式劝告或“这样就行了”的建议结语；要选本人实际经历或选择的叙述原句，否则skip。'
         '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
     return prompt, schema
+
+
+def personal_event_error(event):
+    """Selection and delivery must agree on an actual event, not advice."""
+    normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
+    advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
+    actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
+    if (normative_recap or advice_conclusion) and not actual_action:
+        return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
+    return None
 
 
 def validate_choices(cues, candidates, response):
@@ -178,11 +189,8 @@ def validate_choices(cues, candidates, response):
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
         if row['kind']=='personal_story':
-            event=row['event_quote']
-            normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
-            actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
-            if normative_recap and not actual_action:
-                raise ValueError('A normative method/theory recap is not a concrete personal event or actual choice')
+            issue=personal_event_error(row['event_quote'])
+            if issue:raise ValueError(issue)
         if row['kind']=='company_case' and not title_focus(row)['subjects']:
             raise ValueError('Named company subject required; generic assets/rules are not a company case')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
@@ -421,6 +429,9 @@ def proof_error(meta):
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
+    if s['kind']=='personal_story':
+        issue=personal_event_error(s['event_quote'])
+        if issue:return issue
     focus=title_focus(s)
     if s['kind']=='company_case' and not focus['subjects']:
         return 'A generic asset/rule is not a named company case'

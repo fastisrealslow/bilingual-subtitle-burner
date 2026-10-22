@@ -304,6 +304,22 @@ def test_company_qa_rule_keeps_direct_guest_answers_and_hypothesis_boundaries():
     assert choice[0]['story_selection']['event_quote']=='因为当时收入到了一个水平。'
 
 
+def test_actual_metaphorical_advice_is_not_a_personal_event():
+    subject='那是怎么做到这点？'
+    event='再爬起来就行了。'
+    detail='可能我的骨子里就多一点阿Q精神。'
+    actual='也没有避免，当然，但这个有些东西啊，我们知道那个结果是避免不了的。'
+    cues=[dict(text=subject+actual+event+detail)]
+    row=dict(index=0,kind='personal_story',subject_quote=subject,event_quote=event,detail_quote=detail)
+    with pytest.raises(ValueError,match='advice conclusion'):
+        E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[row]))
+    assert E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[{**row,'event_quote':actual}]))
+    meta=treatment()[0]
+    meta['experiment_proof']['selection']['event_quote']=event
+    assert 'advice conclusion' in E.proof_error(meta)
+    assert E.actual_profile(meta)==E.BASELINE
+
+
 def test_empty_story_selection_is_not_a_quality_rejection_or_fake_treatment():
     assert E.validate_choices([dict(text='长期投资很重要')],[dict(start=0,end=0)],dict(choices=[]))==[]
     baseline=dict(title='林园：长期持有',fingerprints=dict(sha256='a'*64))
