@@ -23,17 +23,57 @@ def test_actual_install_keeps_packages_signatures_and_bounded_network():
     subprocess.run(['bash', '-n', str(script)], check=True)
     text = script.read_text()
     assert 'set -euo pipefail' in text
-    assert '/etc/apt/apt-mirrors.txt /etc/apt/sources.list.d/ubuntu.sources' in text
+    assert 'cp /etc/apt/sources.list.d/ubuntu.sources "$task_apt_sources/ubuntu.sources"' in text
     assert 'https://archive.ubuntu.com/ubuntu' in text
     assert 'Acquire::Retries=2' in text
     assert 'Acquire::http::Timeout=30' in text
     assert 'Acquire::https::Timeout=30' in text
-    assert text.count('timeout --signal=TERM --kill-after=15s 600s apt-get') == 2
+    assert text.count('timeout --signal=TERM --kill-after=15s 180s apt-get') == 2
+    assert text.count('timeout --signal=TERM --kill-after=15s 420s apt-get') == 1
+    assert 'Dir::Etc::sourcelist=/dev/null' in text
+    assert 'Dir::Etc::sourceparts=$task_apt_sources' in text
+    assert 'Acquire::ForceIPv4=true' in text
+    assert 'APT::Update::Error-Mode=any' in text
+    assert 'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg' in text
     assert 'ffmpeg fonts-noto-cjk poppler-utils libgl1 libglib2.0-0 zstd' in text
     assert "fc-match -f '%{file}' 'Noto Sans CJK SC:lang=zh-cn'" in text
     assert 'test -f "$font_path"' in text
     assert 'allow-unauthenticated' not in text
     assert 'trusted=yes' not in text
+
+
+def test_complete_existing_tools_do_not_require_apt_or_waive_font_checks(tmp_path):
+    import os
+    directory=tmp_path/'bin';directory.mkdir()
+    font=tmp_path/'NotoSansCJK.ttf';font.write_bytes(b'protocol fixture, not a font-quality certificate')
+    marker=tmp_path/'unexpected-apt'
+    scripts={
+        'ffmpeg':"printf ' ... subtitles V->V\n'",
+        'ffprobe':"printf 'ffprobe version test\n'",
+        'pdftoppm':':','zstd':':','fc-cache':':',
+        'ldconfig':"printf 'libGL.so.1 lib\nlibglib-2.0.so.0 lib\n'",
+        'fc-match':f"printf '%s' '{font}'",
+        'sudo':f"printf 'called' > '{marker}'; exit 90",
+    }
+    for name,body in scripts.items():
+        path=directory/name;path.write_text('#!/usr/bin/env bash\n'+body+'\n');path.chmod(0o755)
+    env={**os.environ,'PATH':str(directory)+os.pathsep+os.environ['PATH']}
+    run=subprocess.run(['bash',str(ROOT/'linyuan/ci_install_media_tools.sh')],env=env,
+                       text=True,capture_output=True,timeout=15)
+    assert run.returncode==0 and 'Verified existing media tools' in run.stdout
+    assert not marker.exists()
+    (directory/'fc-match').write_text("#!/usr/bin/env bash\nprintf '%s' '/tmp/not-a-noto-font.ttf'\n")
+    run=subprocess.run(['bash',str(ROOT/'linyuan/ci_install_media_tools.sh')],env=env,
+                       text=True,capture_output=True,timeout=15)
+    assert run.returncode!=0 and 'Verified existing media tools' not in run.stdout
+
+
+def test_full_linux_regression_uses_the_same_verified_media_setup():
+    doc=yaml.safe_load((ROOT/'.github/workflows/linyuan-local-regression.yml').read_text())
+    body=next(s['run'] for s in doc['jobs']['offline']['steps'] if s.get('name')=='安装开发依赖与中文字体')
+    assert 'bash linyuan/ci_install_media_tools.sh' in body and 'apt-get' not in body
+    setup=yaml.safe_load((ROOT/'.github/workflows/linyuan-production-setup-check.yml').read_text())
+    assert setup['jobs']['setup']['strategy']['matrix']['replica']==[1,2]
 
 
 def test_every_actual_runner_regression_caller_installs_yaml_before_tests():

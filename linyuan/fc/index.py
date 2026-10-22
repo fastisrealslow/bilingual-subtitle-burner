@@ -3932,7 +3932,13 @@ def _collect_source_rejections(st):
                 continue
             if report.get('retryable') is True or reason.startswith(('人物 VLM 校验不可用','素材质检不可用')):
                 candidate['source_check_report_id']=artifact['id']
-                candidate['source_check_run_id']=run['id']
+                if report.get('failure_stage')=='media-tools-runtime' and report.get('source_downloaded') is False:
+                    # A preparation-only report has no raw mother or ASR.
+                    # Never ask the next job to restore its empty evidence.
+                    if candidate.get('source_check_run_id')==run['id']:candidate.pop('source_check_run_id',None)
+                    if candidate.get('recovery_origin_run_id')==run['id']:candidate.pop('recovery_origin_run_id',None)
+                else:
+                    candidate['source_check_run_id']=run['id']
                 candidate['last_error']=reason
                 candidate['failure_stage']=report.get('failure_stage') or 'quality-service'
                 attempts=int(candidate.get('source_check_attempts') or 0)
@@ -3993,8 +3999,54 @@ def _collect_source_rejections(st):
     return rejected
 
 
+def _recover_media_tools_preparation(st,candidate,run,artifacts):
+    """One proven installer-only repair; no source/ASR/media verdict changes."""
+    version='media-tools-preparation-2026102301'
+    if (not candidate or candidate.get('failed') or candidate.get('uploading')
+            or candidate.get('source_quality_rejected') or candidate.get('repair_bvid')
+            or candidate.get('slug') in st.get('published',{})
+            or candidate.get('slug') in REVIEW_PAUSED_SLUGS or not candidate.get('source_url')
+            or int(candidate.get('source_check_attempts') or 0)>=2
+            or run.get('conclusion')!='failure' or not run.get('head_sha')
+            or run.get('path')!='.github/workflows/'+WF_PRODUCE
+            or str(run.get('display_title') or '').partition(' · ')[2]!=candidate['slug']
+            or version in (candidate.get('automatic_rule_recoveries') or {})):
+        return False
+    created=str(run.get('created_at') or '')
+    earliest=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime(
+        max(float(candidate.get('ts') or 0),float(candidate.get('last_retry') or 0))-90))
+    if not created or created<earliest:return False
+    from source_admission_guard import restriction
+    if restriction(candidate['source_url'],[]):return False
+    if any(not a.get('expired') and a.get('name','').startswith((
+            'deliver-','source-reject-','mother-media-','raw-asr-','editorial-','render-evidence-'))
+           for a in artifacts):return False
+    jobs=gh('GET',f"/actions/runs/{run['id']}/jobs").get('jobs',[])
+    steps=[s for job in jobs for s in job.get('steps',[])]
+    failed=[s for s in steps if s.get('conclusion')=='failure']
+    if (not failed or any(s.get('name')!='安装 ffmpeg 与中文字体' for s in failed)
+            or any(s.get('name') in {'素材质量门禁','出片','准备CPU离线Qwen识别及逐字对齐'}
+                   and s.get('conclusion')=='success' for s in steps)):
+        return False
+    changes=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
+    if not any(f.get('filename')=='linyuan/ci_install_media_tools.sh' and re.search(
+            r'^\+MEDIA_TOOLS_POLICY_VERSION=2026102301$',str(f.get('patch') or ''),re.M)
+            for f in changes):return False
+    now=int(time.time())
+    candidate.setdefault('automatic_rule_recoveries',{})[version]=dict(
+        run_id=run['id'],ts=now,stage='media-tools-runtime',source_approved=False,asr_imported=False)
+    if candidate.get('source_check_run_id')==run['id']:candidate.pop('source_check_run_id',None)
+    if candidate.get('recovery_origin_run_id')==run['id']:candidate.pop('recovery_origin_run_id',None)
+    candidate.update(ts=now,source_check_retry_after=now-1,failure_stage='media-tools-runtime',
+        last_error='媒体工具准备失败；已核对安装代码修复，按原素材有界重试，不导入空转写证据')
+    save_state(st)
+    log_event('quality',candidate['slug']+' 工具准备修复后恢复一次',version)
+    return True
+
+
 def _recover_preflight_failure(st, candidate, run, artifacts):
     """Resume preflight failures, plus the two inspected obsolete-title failures."""
+    if _recover_media_tools_preparation(st,candidate,run,artifacts):return True
     # Historical fresh-source ASR preparation had no step ID, so the failure
     # reporter saw no failed step and uploaded no production-reject artifact.
     # Only exact job metadata and a matching preparation-code fix can reopen
