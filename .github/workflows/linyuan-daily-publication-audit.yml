@@ -30,7 +30,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: 核对实际日期、独立文件、稿件回执与公开状态
-        run: python linyuan/daily_publication_audit.py
+        run: |
+          pip install -q -r linyuan/fc/runtime-requirements.txt
+          python linyuan/daily_publication_audit.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
