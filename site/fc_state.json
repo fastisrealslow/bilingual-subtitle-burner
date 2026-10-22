@@ -40706,7 +40706,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-22T02:07:57+00:00"
+   "publish_time": "2025-10-22T02:07:57+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-87336c",
+    "run_id": 39823539787,
+    "artifact_id": 12445474090,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": "
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39823539787,
+    "artifact_id": 12445474090,
+    "name": "production-reject-ly-1022-87336c",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": \"unintelligible_term\", \"reason\": \"单独出现“这句话”且无前文指代对象，在对话流中含义不明，疑似截断或识别错误。\"}, {\"sentence_id\": 34, \"quote\": \"实际上按照比如说十年前，它还是每年的复合增长都一些重要的公司都快超过百分之七，甚至百双位数增长。\", \"suspect_quote\": \"甚至百双位数增长\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“百双位数”表述矛盾且无法解释：若指“百分之十到百分之九十九”，应表述为“两位数”；若指“百分之百以上”，则“百”与“双位”冲突。此处数字含义不明，疑似识别污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/P5ftb4y3gx08BDIhXWSk01041209OVM50E040.mp4",
@@ -114470,6 +114492,13 @@
    "video_id": "BV1W5np69ENP",
    "ts": 1792690416,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]"
+  },
+  {
+   "slug": "ly-1022-87336c",
+   "key": "bilibili_search:BV1gGsxzqELh",
+   "video_id": "BV1gGsxzqELh",
+   "ts": 1792691425,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": \"unintelligible_term\", \"reason\": \"单独出现“这句话”且无前文指代对象，在对话流中含义不明，疑似截断或识别错误。\"}, {\"sentence_id\": 34, \"quote\": \"实际上按照比如说十年前，它还是每年的复合增长都一些重要的公司都快超过百分之七，甚至百双位数增长。\", \"suspect_quote\": \"甚至百双位数增长\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“百双位数”表述矛盾且无法解释：若指“百分之十到百分之九十九”，应表述为“两位数”；若指“百分之百以上”，则“百”与“双位”冲突。此处数字含义不明，疑似识别污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
