@@ -60,6 +60,7 @@ TARGET_LANDSCAPE_RESERVE = 2
 TARGET_PORTRAIT_RESERVE = TARGET_READY_RESERVE - TARGET_LANDSCAPE_RESERVE
 QUALITY_REPROCESS_REVISION = 2026091304
 MAX_ACTIVE_SOURCES = 6
+MAX_EXPERIMENT_DURATION_PROBES_PER_DAY = 2
 SOURCE_INVENTORY_KEY = 'linyuan/.automation/source_inventory.json'
 DISPATCH_LEASE_KEY = 'linyuan/.automation/pipeline_lease.json'
 # User's 2026-09-06 request excludes the old batch from today's new six.
@@ -2596,6 +2597,10 @@ def _dispatch_admitted(event=None, context=None):
             save_state(st)
             success+=1;exp_needs[layout]=max(0,exp_needs[layout]-1)
             log_event('dispatch_ok',f'已调度故事实验 {slug}',f'复用已核验母片 {parent["slug"]}，原库存保留')
+    # Only truly unmeasured, normally admitted sources may explore the story
+    # route when the ledger has no known long mothers. This is a request, not
+    # proof: the worker still measures 20 minutes and verifies every story.
+    known_long_available = any(experiment.long_candidate(c) for c in cands)
     mainland_deferred = 0
     for i, c in enumerate(cands):
         if success >= target:
@@ -2652,10 +2657,16 @@ def _dispatch_admitted(event=None, context=None):
             full_week = weekly_full_request(c, st)
             output_layout = "landscape" if not full_week and landscape_admissions>0 else "portrait"
             editorial_profile=experiment.BASELINE
-            if (experiment.long_candidate(c) and any(exp_needs.values())
+            long_source=(experiment.MIN_MOTHER_SECONDS<=dur<=MAX_DUR) if dur else experiment.long_candidate(c)
+            duration_probe=(not recent_probe and not full_week and experiment_duration_probe_allowed(
+                c,st,active_runs,exp_needs,known_long_available=known_long_available,
+                measured_duration=dur))
+            if ((long_source or duration_probe) and any(exp_needs.values())
                     and (not full_week or exp_needs['portrait'])):
                 editorial_profile=experiment.TREATMENT
-                output_layout='portrait' if full_week else 'landscape' if exp_needs['landscape'] else 'portrait'
+                output_layout=('portrait' if full_week or duration_probe else
+                               'landscape' if exp_needs['landscape'] else 'portrait')
+            probe_requested_at=int(time.time())
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
                 "inputs": {"source": asset_url, "slug": c["slug"],
@@ -2670,6 +2681,8 @@ def _dispatch_admitted(event=None, context=None):
                                      "production_rules_version": PRODUCTION_RULES_VERSION,
                                      "weekly_full_week": full_week, "output_layout": output_layout,
                                      "editorial_profile": editorial_profile,
+                                     **({'experiment_duration_probe':dict(requested_at=probe_requested_at,
+                                          reason='missing_ledger_duration')} if duration_probe else {}),
                                      "slug": c["slug"], "ts": int(time.time()),
                                      "source_url": c["page_url"] or c["video_url"],
                                      "asset_url": asset_url,
@@ -2708,6 +2721,53 @@ def _dispatch_admitted(event=None, context=None):
                   f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"
                   f"库存新鲜={inventory['inventory_fresh']}")
     return {"dispatched": success, "attempted": len(cands)}
+
+
+def experiment_duration_probe_allowed(candidate, state, active_runs, needs, *,
+                                      known_long_available, measured_duration=0, now=None):
+    """Bound exploration of missing metadata, never approval of a long mother.
+
+    Called only AFTER ordinary source admission. No retries, rights exclusions,
+    history or stock are changed. A just-saved row also blocks the next candidate
+    before Actions has exposed its new run; real active runs block across days.
+    """
+    if known_long_available or needs.get('portrait',0)<=0:
+        return False
+    if type(measured_duration) not in (int,float) or measured_duration!=0:
+        return False
+    extra=candidate.get('extra')
+    if isinstance(extra,str):
+        try:extra=json.loads(extra)
+        except (ValueError,TypeError):return False
+        if not isinstance(extra,dict):return False
+    if extra is None:extra={}
+    if not isinstance(extra,dict):return False
+    duration=extra.get('duration')
+    missing=(duration is None or (type(duration) is str and duration=='')
+             or (type(duration) in (int,float) and duration==0))
+    if not missing:return False
+    now=time.time() if now is None else now
+    day=int((now+8*3600)//86400)
+    active={str(run.get('display_title') or '').split(' · ')[-1]
+            for run in active_runs if run.get('status') in ('queued','in_progress')}
+    probes={}
+    for entry in state.get('dispatched') or []:
+        marker=entry.get('experiment_duration_probe')
+        if marker is None:continue
+        requested_at=marker.get('requested_at') if isinstance(marker,dict) else None
+        slug=entry.get('slug')
+        if (not slug or type(requested_at) not in (int,float)
+                or not math.isfinite(requested_at) or requested_at<=0 or requested_at>now):
+            return False  # An unreadable budget is not an unused budget.
+        probes[slug]=min(probes.get(slug,requested_at),requested_at)
+    if sum(int((ts+8*3600)//86400)==day for ts in probes.values())>=MAX_EXPERIMENT_DURATION_PROBES_PER_DAY:
+        return False
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    for slug,ts in probes.items():
+        entry=latest[slug]
+        if slug in active or (not entry.get('failed') and 0<=now-ts<3600):
+            return False
+    return True
 
 
 def _record_failure(st, c, e):
