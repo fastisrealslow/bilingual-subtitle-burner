@@ -4,6 +4,7 @@ from collections import Counter
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -28,7 +29,23 @@ INVENTORY = Path(__file__).parent/'.automation/source_inventory.json'
 
 
 def api(path):
-    return json.loads(subprocess.check_output(['gh','api',f'repos/{fc.REPO}/{path}']))
+    # Read-only requests may fail transiently while enumerating many pages.
+    # Never turn a failed read into an empty result or a fresh stock timestamp.
+    for attempt in range(3):
+        try:
+            raw = subprocess.check_output(['gh','api',f'repos/{fc.REPO}/{path}'],
+                                          stderr=subprocess.PIPE, timeout=60)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+            transient = isinstance(exc, subprocess.TimeoutExpired)
+            if isinstance(exc, subprocess.CalledProcessError):
+                error = exc.stderr or b''
+                if isinstance(error, bytes):error = error.decode('utf-8', errors='replace')
+                transient = bool(re.search(r'\bHTTP (?:408|429|500|502|503|504)\b', error))
+            if not transient or attempt == 2:raise
+            print(f'Inventory API temporary read failure; retry {attempt+1}/2', file=sys.stderr)
+            time.sleep(2 ** (attempt+1))
+            continue
+        return json.loads(raw)
 
 
 def validate_part(meta, directory):
