@@ -48,7 +48,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          pip install -q requests numpy 'opencv-python-headless<5' pytest
+          pip install -q requests numpy 'opencv-python-headless<5' pytest pyyaml
           pip install -q -r linyuan/fc/runtime-requirements.txt
           python -c "import sys; sys.path.insert(0,'linyuan'); from experiment_runtime import health; assert health()['passed']"
           python -m pytest -q tests/test_linyuan_production_status.py tests/test_linyuan_source_admission.py

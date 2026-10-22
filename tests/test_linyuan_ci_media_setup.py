@@ -34,3 +34,22 @@ def test_actual_install_keeps_packages_signatures_and_bounded_network():
     assert 'test -f "$font_path"' in text
     assert 'allow-unauthenticated' not in text
     assert 'trusted=yes' not in text
+
+
+def test_every_actual_runner_regression_caller_installs_yaml_before_tests():
+    # Full developer CI already has PyYAML; that does not prove the smaller
+    # production inventory/dispatch environments can import shared tests.
+    for name in ('linyuan-source-inventory.yml', 'linyuan-dispatch-runner.yml'):
+        doc = yaml.safe_load((ROOT / '.github/workflows' / name).read_text())
+        callers = 0
+        for job in doc['jobs'].values():
+            previous = ''
+            for step in job['steps']:
+                body = step.get('run', '')
+                if 'tests/test_linyuan_runner_dispatch.py' in body:
+                    before_test = previous + body.split('tests/test_linyuan_runner_dispatch.py')[0]
+                    assert any('pip install' in line and 'pyyaml' in line.lower()
+                               for line in before_test.splitlines()), name
+                    callers += 1
+                previous += body + '\n'
+        assert callers, name
