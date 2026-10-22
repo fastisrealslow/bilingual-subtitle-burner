@@ -5611,7 +5611,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
                  prefer_live_video=False, existing_titles=None,
-                 preselected_picks=None, require_live_video=False):
+                 preselected_picks=None, require_live_video=False,
+                 _portrait_attempt=False, _picture_phase=None):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
     prefer_live_video = prefer_live_video or require_live_video
@@ -5623,6 +5624,15 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         return None
     from publishing_experiment import profile, TREATMENT
     story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
+    portrait_story=bool(_portrait_attempt and story_treatment and W>H
+                        and os.environ.get('OUTPUT_LAYOUT','auto')=='portrait')
+    if _portrait_attempt and not portrait_story:
+        raise ValueError('竖版试取景仅适用于明确要求竖版的完整实验选段')
+    if portrait_story:
+        prefer_live_video=require_live_video=True
+        # Preserve rejected portrait tracking/geometry alongside the untouched
+        # native route. Neither diagnostics nor failed windows enter delivery.
+        suffix=f'{suffix}_portrait'
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
@@ -5635,6 +5645,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     def get_copy():
         nonlocal cw, argument_review
         if cw is None:
+            if _picture_phase is not None:_picture_phase['copy_started']=True
             # Bad geometry must not spend the independent ASR-review budget.
             # Every rendering route calls this after its picture preflight;
             # the same source-bound audit still blocks copy AND composition.
@@ -5663,6 +5674,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 source_sha256=(source_report or {}).get('source_sha256'))
         return cw
 
+    if _picture_phase is not None:_picture_phase['picture_started']=True
     # A static screen portrait may match identity better than the tiny live
     # presenter. Preserve the real stage instead of forcing a close-up.
     # The legacy stage renderer supplies a static-portrait cover. A requested
@@ -5687,8 +5699,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     strategy = source_report.get("clean_strategy", "direct")
     native_plan=None;interview_plan=None;participant_reference=None
     proposed_native=(reviewed_native_cleanup(source_report,W,H,
-        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 else None)
-    if proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1:
+        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 and not portrait_story else None)
+    if not portrait_story and (proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1):
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
             **({'proposed_crop':proposed_native,
@@ -5708,6 +5720,9 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     clean_resolution = source_report.get("clean_output_resolution") or {}
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
     crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
+    if portrait_story:
+        strategy='audio_card'
+        crop_w,crop_h=AUDIO_CARD_WIDTH,AUDIO_CARD_HEIGHT
     border_proof = None
     landscape_proof = None
     if strategy != 'audio_card':
@@ -6146,18 +6161,51 @@ class PartDeadlineExceeded(BaseException):
     """A wall-clock deadline must escape lower-level broad Exception retries."""
 
 
+def _produce_with_layout_preference(*args,**kwargs):
+    """Try a real portrait window once, preserving the original native route.
+
+    Only a picture rejection BEFORE independent ASR/copy may select the native
+    route. No retry of title/ASR/cover failures, source changes or relabelling.
+    The caller's one existing wall-clock budget covers both attempts.
+    """
+    from publishing_experiment import profile,TREATMENT
+    picks=kwargs.get('preselected_picks') or []
+    width=kwargs.get('W',args[8] if len(args)>8 else 0)
+    height=kwargs.get('H',args[9] if len(args)>9 else 0)
+    requested=(profile()==TREATMENT and os.environ.get('OUTPUT_LAYOUT','auto')=='portrait'
+               and width>height and len(picks)==1 and bool(picks[0].get('story_selection')))
+    if not requested:return _produce_one(*args,**kwargs)
+    phase={}
+    try:
+        result=_produce_one(*args,**kwargs,_portrait_attempt=True,_picture_phase=phase)
+    except (ValueError,VisualQualityError) as exc:
+        from production_diagnostics import failure_category
+        picture=(failure_category(exc) in {'framing','resolution','identity','motion'}
+                 or str(exc).startswith('真人动态区仍有原素材字幕'))
+        if (not phase.get('picture_started') or phase.get('copy_started')
+                or isinstance(exc,EditorialReviewUnavailable) or not picture):
+            raise
+        print('[实验竖版预检] 原始像素无法安全取竖版；保留原生画面重新完整核验，不计作竖版：'+str(exc),flush=True)
+        return _produce_one(*args,**kwargs)
+    if result is not None:
+        resolution=result.get('resolution') or {}
+        if not resolution.get('height',0)>resolution.get('width',0)>0:
+            raise VisualQualityError('竖版试取景未交付真实竖版尺寸，不得改标签计入竖版')
+    return result
+
+
 def produce_part_with_budget(*args, budget_sec=None, **kwargs):
     import signal
     seconds=float(budget_sec if budget_sec is not None else
                   os.environ.get('PART_RENDER_BUDGET_SEC','1800'))
     if not hasattr(signal,'setitimer'):
-        return _produce_one(*args,**kwargs)
+        return _produce_with_layout_preference(*args,**kwargs)
     def expired(signum,frame):
         raise PartDeadlineExceeded()
     previous=signal.signal(signal.SIGALRM,expired)
     timer=signal.setitimer(signal.ITIMER_REAL,seconds)
     try:
-        return _produce_one(*args,**kwargs)
+        return _produce_with_layout_preference(*args,**kwargs)
     except PartDeadlineExceeded:
         raise PartProductionUnavailable(f'单片超过{seconds:g}秒生产预算，保留原始证据并隔离后继续后续片段') from None
     finally:
