@@ -34,6 +34,9 @@ on:
       - linyuan/live_motion.py
       - linyuan/source_geometry.py
       - linyuan/fc/package_code.py
+      - linyuan/experiment_runtime.py
+      - linyuan/fc/runtime-requirements.txt
+      - linyuan/fc/jieba-LICENSE.txt
       - linyuan/weibo_media.py
       - linyuan/artifact_range.py
       - tests/test_linyuan_artifact_range.py
@@ -177,7 +180,7 @@ jobs:
           cache: pip
 
       - name: 安装阿里云 FC SDK
-        run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+        run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi -r linyuan/fc/runtime-requirements.txt
 
       - name: 打包并校验 FC 代码
         shell: bash

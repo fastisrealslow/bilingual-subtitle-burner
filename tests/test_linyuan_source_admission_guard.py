@@ -18,9 +18,14 @@ def test_known_parent_restriction_also_blocks_exact_page_and_old_retry(fields):
 
 def test_unknown_or_different_source_is_not_given_false_clearance_or_wrong_rejection():
     seeds=[dict(bvid='BV1Bo4y1W7Ts',no_reprint=1)]
-    assert restriction('https://www.bilibili.com/video/BV1RJ411Q7Ki',seeds) is None
+    assert restriction('https://www.bilibili.com/video/BV1TEST00001',seeds) is None
     assert restriction('https://example.com/?url='+URL,seeds) is None
     assert check('https://example.com/source.mp4','new',seeds,{}) is None
+
+
+def test_freshly_banned_historical_mother_is_not_given_false_clearance():
+    assert restriction('https://www.bilibili.com/video/BV1RJ411Q7Ki',[])
+    assert restriction('https://www.bilibili.com/video/BV1Yu2uBcEDh',[])
 
 
 def test_known_source_admission_rejection_is_not_relabelled_as_retryable_service_failure(tmp_path):

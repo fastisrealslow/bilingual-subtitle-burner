@@ -5,6 +5,8 @@ from package_code import SOURCES
 
 ROOT=Path(__file__).resolve().parents[2]
 PATHS=tuple('linyuan/'+name for name in SOURCES)+(
+    'linyuan/fc/runtime-requirements.txt',
+    'linyuan/fc/jieba-LICENSE.txt',
     'linyuan/fc/check_deploy_current.py',
     '.github/linyuan-release-policy.json',
     '.github/workflows/fc-production-deploy.yml',

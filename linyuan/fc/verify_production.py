@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -59,7 +60,13 @@ def configure_timers(client, function, m, read_runtime):
 
 def verify_config_health(health, root=None):
     root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
+    if str(root/'linyuan') not in sys.path:
+        sys.path.insert(0,str(root/'linyuan'))
     expected = hashlib.sha256((root/'linyuan/fc/index.py').read_bytes()).hexdigest()
+    from experiment_runtime import health as experiment_runtime_health
+    expected_runtime=experiment_runtime_health()
+    if not expected_runtime['passed'] or health.get('experiment_runtime')!=expected_runtime:
+        raise SystemExit('Deployed story-proof tokenizer runtime is missing or mismatched')
     experiment_path=root/'linyuan/publishing_experiment.py'
     if experiment_path.exists() and (
             health.get('publishing_experiment_version')!=2026101801

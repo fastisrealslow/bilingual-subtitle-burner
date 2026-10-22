@@ -175,6 +175,9 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--max-new',type=int,default=4)
     args=parser.parse_args()
+    from experiment_runtime import health as runtime_health
+    if not runtime_health()['passed']:
+        raise SystemExit('Story proof runtime preflight failed; no inventory refresh performed')
     state=fc.load_state()
     if not state.get('dispatched'):
         raise SystemExit('Production state unavailable; do not replace inventory with empty state')
@@ -198,7 +201,7 @@ def main():
     # partially rechecked stock count (four new batches used to hide older
     # reserves and trigger unnecessary refills). Finish the full recheck first.
     validation_budget=len(found) if rules_changed else args.max_new
-    records=[];checked=0
+    records=[];checked=0;validation_errors=[]
     for slug,a in found.items():
         if a['id'] in old:
             records.append({**old[a['id']], 'expires_at':a.get('expires_at')});continue
@@ -247,6 +250,8 @@ def main():
         except Exception as exc:
             # A network failure is retryable. Do not cache it as a media verdict.
             print('Inventory transfer/validation unavailable',slug,type(exc).__name__)
+            if isinstance(exc,ModuleNotFoundError):
+                validation_errors.append(dict(slug=slug,kind='runtime_dependency_missing',module=exc.name))
     # Only records whose exact artifact is still present can refresh inventory.
     payload=json.loads((Path(__file__).parent/'dashboard/data.json').read_text())
     items=payload if isinstance(payload,list) else payload.get('items',[])
@@ -256,12 +261,15 @@ def main():
         source_admission=fc.source_admission_audit(items,state),
         source_outcomes=source_outcomes.audit(state,records,fc._latest_dispatches(state),
             fc.processed_part_indices,fc.REVIEW_PAUSED_SLUGS),
-        in_flight_placeholders=fc._pending_final_count(state),artifacts=records)
+        in_flight_placeholders=fc._pending_final_count(state),artifacts=records,
+        validation_errors=validation_errors)
     INVENTORY.parent.mkdir(parents=True,exist_ok=True)
     INVENTORY.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     status_path.parent.mkdir(parents=True,exist_ok=True)
     status_path.write_text(json.dumps(production_status.build(state,result,runs),ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ['updated_at','inventory','materials','source_admission']},ensure_ascii=False))
+    if validation_errors:
+        raise SystemExit('Inventory runtime dependency failures: '+json.dumps(validation_errors))
 
 
 if __name__=='__main__':main()

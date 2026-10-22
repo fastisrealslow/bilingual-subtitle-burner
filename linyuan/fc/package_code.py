@@ -1,6 +1,7 @@
 """Build the same complete runtime archive for production and staging."""
 import argparse
 import ast
+from importlib.metadata import distribution
 from pathlib import Path
 import zipfile
 
@@ -12,7 +13,7 @@ SOURCES = (
     'caption_readability.py', 'caption_lines.py', 'caption_lines_legacy.py',
     'caption_boundary_quality.py', 'presentation.py', 'live_motion.py',
     'source_geometry.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
-    'source_admission_guard.py', 'publishing_experiment.py',
+    'source_admission_guard.py', 'publishing_experiment.py', 'experiment_runtime.py',
     'fc/media_repair.py', 'fc/stage_revision.py', 'fc/title_revision.py',
     'fc/tracking_revision.py','tracking_revision_contract.py','replace_reported_tracking.py',
     'fc/reviewed_updates.py', 'fc/reviewed_third_video.py',
@@ -20,6 +21,18 @@ SOURCES = (
 
 
 def build(destination, include_reviewed_videos=False):
+    # Story proof checks import posseg lazily. The FC layer only guarantees
+    # biliup/requests; ship the pinned pure-Python tokenizer and actual models,
+    # not the builder's site-packages or optional Paddle/TF-IDF models.
+    dependency=distribution('jieba')
+    if dependency.version!='0.42.1':
+        raise ValueError('FC requires exactly jieba==0.42.1')
+    tokenizer=Path(dependency.locate_file('jieba'))
+    tokenizer_files=[tokenizer/name for name in ('__init__.py','_compat.py','dict.txt')]
+    tokenizer_files+=sorted((tokenizer/'finalseg').glob('*.py'))
+    tokenizer_files+=sorted((tokenizer/'posseg').glob('*.py'))
+    if not all(p.is_file() for p in tokenizer_files):
+        raise ValueError('FC tokenizer files are incomplete')
     sources = [ROOT / name for name in SOURCES]
     names = {p.stem for p in sources}
     # Check lazy imports too: these used to fail only when FC validated a title.
@@ -37,6 +50,9 @@ def build(destination, include_reviewed_videos=False):
     with zipfile.ZipFile(destination, 'w', zipfile.ZIP_DEFLATED) as archive:
         for path in sources:
             archive.write(path, path.name)
+        for path in tokenizer_files:
+            archive.write(path,'jieba/'+str(path.relative_to(tokenizer)))
+        archive.write(ROOT/'fc/jieba-LICENSE.txt','jieba/LICENSE')
         archive.write(ROOT/'source_restrictions.json','source_restrictions.json')
         for path in sorted((ROOT/'fc/reviewed_0910').rglob('*')):
             if path.is_file() and (include_reviewed_videos or path.suffix.lower() != '.mp4'):
