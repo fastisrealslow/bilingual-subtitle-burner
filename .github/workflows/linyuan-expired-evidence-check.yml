@@ -1,0 +1,42 @@
+name: 真实过期识别缓存回放（不出片不投稿）
+on:
+  push:
+    branches: [codex/linyuan-expired-evidence-20261022, main]
+    paths:
+      - linyuan/prepare_asr_runtime.py
+      - .github/workflows/linyuan-expired-evidence-check.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  expired-cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 实际读取失败任务引用的已过期缓存，不绕过任何成片门禁
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,sys,tempfile
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          import prepare_asr_runtime as runtime
+          root=Path.cwd()
+          source='9dc2b7c6f82570984a52ccdff5c4a41a7595c0a129b1919df81d7539a266a345'
+          config=json.loads((root/'linyuan/asr_production_config.json').read_text())
+          choice={**config,**config['source_overrides'][source],'source_sha256':source}
+          assert choice['backend']=='qwen3' and choice['evidence_run_id']==34035892469
+          with tempfile.TemporaryDirectory() as work:
+              os.chdir(work)
+              result=runtime.immutable_run_evidence(choice)
+          assert result is None, 'Historical failure no longer reproduces; inspect evidence before accepting this check'
+          proof=dict(source_sha256=source,run_id=choice['evidence_run_id'],cache_miss=True,
+              fresh_recognition_required=True,evidence_path_exposed=False,
+              production_approved=False,media_downloaded=False,published=False,passed=True)
+          print(json.dumps(proof))
+          PY
