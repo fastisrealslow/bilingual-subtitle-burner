@@ -2477,6 +2477,22 @@ def _dispatch_admitted(event=None, context=None):
         if source_inventory(st,reserve)['inventory_fresh']:
             if not recent_probe and any(exp_needs.values()):
                 story_reuse=list(experiment_reuse_candidates(st,reserve,items))
+                if any(r.get('historical_mother') and not r.get('run_id') for _,r in story_reuse):
+                    # One read-only lookup recovers exact source-run IDs. The
+                    # producer still accepts raw evidence only after source-
+                    # hash validation; never import historical approvals.
+                    try:
+                        snapshot=json.loads(gh('GET','/contents/site/production_status.json?ref=main',raw=True,timeout=20))
+                        for parent,record in story_reuse:
+                            run=(snapshot.get('runs') or {}).get(parent['slug']) or {}
+                            if (not record.get('run_id') and run.get('status')=='completed'
+                                    and type(run.get('id')) is int
+                                    and str(run.get('display_title','')).endswith(' · '+parent['slug'])):
+                                record['run_id']=run['id']
+                    except Exception as exc:
+                        log.warning('历史原始转写索引暂不可读：%s',type(exc).__name__)
+                story_reuse.sort(key=lambda pair:(bool(pair[1].get('historical_mother')),
+                    not bool(pair[1].get('run_id')),-float(pair[0].get('ts') or 0)))
             for entry,record in obsolete_review_candidates(st,reserve):
                 if recent_probe: break  # This one slot is for a recent source, not an old retry.
                 if story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY:break
