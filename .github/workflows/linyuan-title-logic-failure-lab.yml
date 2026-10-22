@@ -1,0 +1,62 @@
+name: 真实错批标题的CPU语义对照（不生产不投稿）
+on:
+  push:
+    branches: [codex/linyuan-title-logic-diagnostic-20261022]
+    paths: [scripts/title_logic_failure_lab.py, .github/workflows/linyuan-title-logic-failure-lab.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [qwen35-9b-direct, qwen35-9b-thinking]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q jieba pillow numpy
+      - uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen35-9b-v1
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+      - name: 启动相同的本地CPU模型，不使用云API
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "$OLLAMA_SHA256  $archive" | sha256sum -c -; then
+            mkdir -p /tmp/ollama-runtime
+            curl -fsSL --retry 3 --max-time 600 -o /tmp/ollama-logic-download.tar.zst "https://github.com/ollama/ollama/releases/download/$OLLAMA_VERSION/ollama-linux-amd64.tar.zst"
+            echo "$OLLAMA_SHA256  /tmp/ollama-logic-download.tar.zst" | sha256sum -c -
+            mv /tmp/ollama-logic-download.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 ollama serve > /tmp/ollama-logic.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          ollama pull qwen3.5:9b
+      - name: 相同原文和错批样本，分别实跑直接与思考模式
+        run: python -u scripts/title_logic_failure_lab.py --profile "${{ matrix.profile }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: title-logic-${{ matrix.profile }}
+          path: title-logic-failure-results/
+          retention-days: 30
+          if-no-files-found: error
