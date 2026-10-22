@@ -40565,23 +40565,27 @@
    "recovery_origin_run_id": 39014441603,
    "production_failure_summary": {
     "slug": "ly-story-fb8a34b6b5",
-    "run_id": 39810793747,
-    "artifact_id": 12443785749,
+    "run_id": 39825521967,
+    "artifact_id": 12450565195,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是没有。\", \"suspect_quote\": \"那个年代的快快乐\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“快快乐”在语境中含义不明，疑似将专有名词或特定词汇误识别为普通形容词，且无法通过上下文解释其具体指代。\"}, {\"sentence_id\": 12, \"quote\": \"嗯，那现在可能也有很很多年轻人会去抱怨说，当下这个市场也不存，就是您当年的那些改变命运的机会就比较少了。\", \"suspect_"
      },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
      }
     ]
    },
-   "source_check_report_id": 12443785749,
-   "source_check_run_id": 39810793747,
-   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "source_check_report_id": 12450565195,
+   "source_check_run_id": 39825521967,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是没有。\", \"suspect_quote\": \"那个年代的快快乐\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“快快乐”在语境中含义不明，疑似将专有名词或特定词汇误识别为普通形容词，且无法通过上下文解释其具体指代。\"}, {\"sentence_id\": 12, \"quote\": \"嗯，那现在可能也有很很多年轻人会去抱怨说，当下这个市场也不存，就是您当年的那些改变命运的机会就比较少了。\", \"suspect_quote\": \"当下这个市场也不存\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“不存”在金融或日常语境中含义不明，疑似将否定词与名词组合时的误识别（如可能应为“不存在”、“不存钱”等），导致关键信息无法理解。\"}]",
    "failure_stage": "quality-service",
    "experiment_layout_recovery": {
     "previous": "landscape",
@@ -40590,7 +40594,8 @@
     "reason": "same_mother_published_portrait_and_empty_failed_batch",
     "ts": 1792691150
    },
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1792696543
   },
   {
    "video_id": "BV1J6mTY1EJX",
@@ -40784,14 +40789,10 @@
    "recovery_origin_run_id": 38866041586,
    "production_failure_summary": {
     "slug": "ly-story-9ccd46299a",
-    "run_id": 39820221707,
-    "artifact_id": 12445504297,
+    "run_id": 39832181727,
+    "artifact_id": 12449617822,
     "accepted": 0,
     "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"uni"
@@ -40800,9 +40801,17 @@
    },
    "source_check_report_id": 12445504297,
    "source_check_run_id": 39820221707,
-   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39832181727,
+    "artifact_id": 12449617822,
+    "name": "production-reject-ly-story-9ccd46299a",
+    "retained": true
+   },
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -114519,6 +114528,13 @@
    "video_id": "BV1gGsxzqELh",
    "ts": 1792691425,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": \"unintelligible_term\", \"reason\": \"单独出现“这句话”且无前文指代对象，在对话流中含义不明，疑似截断或识别错误。\"}, {\"sentence_id\": 34, \"quote\": \"实际上按照比如说十年前，它还是每年的复合增长都一些重要的公司都快超过百分之七，甚至百双位数增长。\", \"suspect_quote\": \"甚至百双位数增长\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“百双位数”表述矛盾且无法解释：若指“百分之十到百分之九十九”，应表述为“两位数”；若指“百分之百以上”，则“百”与“双位”冲突。此处数字含义不明，疑似识别污染。\"}]"
+  },
+  {
+   "slug": "ly-story-9ccd46299a",
+   "key": "ly-story-9ccd46299a",
+   "video_id": "BV1LGJQ6REPV",
+   "ts": 1792694741,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]"
   }
  ],
  "reviewed_third_video_0910": {
