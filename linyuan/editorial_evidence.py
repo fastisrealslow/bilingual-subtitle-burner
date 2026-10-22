@@ -9,12 +9,24 @@ def sentences(text):
 def schema(units, claim_excluded=()):
     indices=[-1,*range(len(units))]
     span={'type':'array','items':{'type':'integer','enum':indices},'minItems':2,'maxItems':2}
+    allowed=[i for i in range(len(units)) if i not in claim_excluded]
+    blocks=[]
+    for i in allowed:
+        if not blocks or i!=blocks[-1][-1]+1:blocks.append([])
+        blocks[-1].append(i)
+    claim={'type':'array','items':{'type':'integer','enum':[-1,*allowed]},'minItems':2,'maxItems':2}
+    if claim_excluded:
+        # Endpoints alone allowed [0,3] across excluded question 1 in actual
+        # source752. Both endpoints must now come from ONE uninterrupted
+        # nonexcluded block (or the explicit missing-evidence pair). Linear
+        # schema size; do not enumerate every O(n^2) possible source span.
+        claim['anyOf']=[dict(type='array',items=dict(type='integer',enum=block),
+            minItems=2,maxItems=2) for block in [[-1],*blocks]]
     return {
         # Exclusion is not guest attribution or approval. It only prevents a
-        # model from picking an explicit host question as either claim endpoint;
+        # model from putting an explicit host question anywhere in the claim;
         # the bound full range still requires the independent review below.
-        'claim_range':{'type':'array','items':{'type':'integer',
-            'enum':[i for i in indices if i not in claim_excluded]},'minItems':2,'maxItems':2},
+        'claim_range':claim,
         'reasoning_range':span,'conclusion_range':span,
         'summary':{'type':'string','minLength':1,'maxLength':100},
         'completeness_reason':{'type':'string','minLength':1,'maxLength':250},

@@ -27,6 +27,26 @@ def test_claim_endpoints_exclude_host_without_restricting_context_evidence():
     assert fields['conclusion_range']['items']['enum']==[-1,0,1,2,3]
 
 
+def test_claim_schema_blocks_interior_host_question_and_mixed_missing_pair():
+    fields=e.schema(['判断。','您是认为投资是艺术，是吧？','回答。','解释。','结束。'],claim_excluded=[1])
+    claim=fields['claim_range']
+    def allowed(span):
+        return len(span)==2 and any(all(i in branch['items']['enum'] for i in span)
+                                  for branch in claim['anyOf'])
+    assert not allowed([0,3]) and not allowed([0,1])
+    assert not allowed([-1,0]) and not allowed([1,1])
+    assert allowed([-1,-1]) and allowed([0,0]) and allowed([2,4])
+    # Range ordering and attribution still require runtime source review.
+    assert fields['reasoning_range']['items']['enum']==[-1,0,1,2,3,4]
+
+
+def test_claim_schema_size_is_linear_and_all_excluded_remains_missing():
+    units=['原话。']*1000
+    claim=e.schema(units,claim_excluded=range(1,1000,2))['claim_range']
+    assert sum(len(b['items']['enum']) for b in claim['anyOf'])==501
+    assert e.schema(['提问？'],claim_excluded=[0])['claim_range']['anyOf'][0]['items']['enum']==[-1]
+
+
 @pytest.mark.parametrize('span',[[1,9],[2,1],[-1,1],[True,1],[1],['1',1]])
 def test_invalid_ranges_never_become_source_evidence(span):
     data=analysis();data['claim_range']=span
