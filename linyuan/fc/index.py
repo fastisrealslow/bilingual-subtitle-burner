@@ -2002,6 +2002,7 @@ def production_config():
     import hashlib
     import audience_copy
     import source_admission_guard
+    from experiment_runtime import health as experiment_runtime_health
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "source_admission_guard_sha256": hashlib.sha256(Path(source_admission_guard.__file__).read_bytes()).hexdigest(),
             "source_restrictions_sha256": hashlib.sha256((source_admission_guard.BASE/'source_restrictions.json').read_bytes()).hexdigest(),
@@ -2009,6 +2010,7 @@ def production_config():
             "audience_copy_sha256": hashlib.sha256(Path(audience_copy.__file__).read_bytes()).hexdigest(),
             "publishing_experiment_version": experiment.VERSION,
             "publishing_experiment_sha256": hashlib.sha256(Path(experiment.__file__).read_bytes()).hexdigest(),
+            "experiment_runtime": experiment_runtime_health(),
             "publishing_experiment": dict(id=experiment.EXPERIMENT_ID,start=experiment.START,
                 end_exclusive=experiment.END_EXCLUSIVE,control_slots=[1,3],treatment_slots=[2,4],
                 weekly_full_control_hour_beijing=16),
@@ -2529,7 +2531,7 @@ def _dispatch_admitted(event=None, context=None):
                 'include_full':'false','output_layout':layout,
                 'editorial_profile':experiment.TREATMENT,
                 'source_platform':platform_of(parent.get('source','')),
-                'recovery_run_id':str(record['run_id'])}})
+                **({'recovery_run_id':str(record['run_id'])} if record.get('run_id') else {})}})
             st['dispatched'].append({k:parent[k] for k in (
                 'video_id','source_url','title','source','author','speech_date_context','publish_time')
                 if k in parent}|dict(key=slug,slug=slug,ts=int(time.time()),
@@ -2866,6 +2868,38 @@ def experiment_reuse_candidates(state, inventory, items):
         used_sources.add(url)
         if mother_sha:used_hashes.add(mother_sha)
         yield ({**entry,'source_sha256':mother_sha} if mother_sha else entry),record
+
+    # A consumed delivery is not an exhausted raw mother. The old loop only
+    # revisited mothers that still had ordinary stock, hiding older verified
+    # interviews with unpublished answers. Use immutable publication receipts
+    # as provenance; do NOT mark any old output as a story or reuse approvals.
+    # Normal live source restrictions, full raw production, original-range /
+    # audio / text dedup and the six-worker cap still run after admission.
+    paused_urls={e.get('source_url') for e in latest.values() if e['slug'] in REVIEW_PAUSED_SLUGS}
+    receipts=state.get('published') or {}
+    for slug,entry in latest.items():
+        url=entry.get('source_url')
+        if (entry.get('failed') or entry.get('experiment_parent_slug') or slug in used
+                or slug in REVIEW_PAUSED_SLUGS or not url or url in paused_urls
+                or url in used_sources or restriction(url,[])):continue
+        published=(receipts.get(slug) or {}).get('parts') or []
+        hashes={p.get('source_sha256') for p in published if p.get('status')=='published'
+                and p.get('bvid') and p.get('source_segments')
+                and re.fullmatch('[a-f0-9]{64}',str(p.get('source_sha256') or ''))}
+        if len(hashes)!=1:continue
+        mother_sha=next(iter(hashes))
+        if mother_sha in used_hashes:continue
+        matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS
+                and not ((i.get('extra') or {}).get('no_reprint')==1
+                    or (i.get('extra') or {}).get('source_role') in {'reference','catalog_only'}
+                    or (i.get('extra') or {}).get('direct_dispatch') is False)
+                for i in matches if isinstance(i.get('extra'),dict)):continue
+        if entry.get('source_sha256') and entry['source_sha256']!=mother_sha:continue
+        used_sources.add(url);used_hashes.add(mother_sha)
+        recovery=entry.get('recovery_origin_run_id') or entry.get('source_check_run_id')
+        yield {**entry,'source_sha256':mother_sha},dict(run_id=recovery,
+            provenance='published_source_sha256',historical_mother=True)
 
 
 def obsolete_review_candidates(state, inventory):

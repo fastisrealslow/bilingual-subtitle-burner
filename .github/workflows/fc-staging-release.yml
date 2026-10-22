@@ -22,6 +22,9 @@ on:
       - linyuan/live_motion.py
       - linyuan/source_geometry.py
       - linyuan/fc/package_code.py
+      - linyuan/experiment_runtime.py
+      - linyuan/fc/runtime-requirements.txt
+      - linyuan/fc/jieba-LICENSE.txt
       - linyuan/artifact_range.py
       - linyuan/speaker_attribution.py
       - linyuan/source_priority.py
@@ -49,6 +52,7 @@ jobs:
       - name: 打包 FC 代码
         run: |
           set -euo pipefail
+          python -m pip install -q -r linyuan/fc/runtime-requirements.txt
           python linyuan/fc/package_code.py "$RUNNER_TEMP/fc-code.zip"
           unzip -l "$RUNNER_TEMP/fc-code.zip"
 

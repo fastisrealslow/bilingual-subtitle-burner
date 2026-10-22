@@ -289,3 +289,41 @@ def test_single_natural_sentence_can_contain_a_real_event_and_a_distinct_reason(
         event_sentence=units['我买了茅台，'],detail_sentence=units['因为消费升级。'])
     selected=E.validate_choices(cues,candidates,dict(candidate_0=choice))
     assert selected[0]['story_selection']['detail_quote']=='因为消费升级。'
+
+
+def test_consumed_delivery_does_not_hide_unpublished_answers_in_verified_long_mother(monkeypatch):
+    F=S.fc
+    monkeypatch.setattr(F.time,'time',lambda:1792418400)
+    monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))
+    entry=dict(slug='consumed',source_url='https://www.bilibili.com/video/BVtest',published_parts=1)
+    receipt=dict(status='published',bvid='BVreceipt',source_sha256='a'*64,
+                 source_segments=[dict(start=200,end=240)])
+    state=dict(dispatched=[entry],published=dict(consumed=dict(parts=[receipt])))
+    item=dict(url=entry['source_url'],extra=dict(duration=1800))
+    rows=list(F.experiment_reuse_candidates(state,dict(artifacts=[]),[item]))
+    assert len(rows)==1 and rows[0][0]['source_sha256']=='a'*64
+    assert rows[0][1]==dict(run_id=None,provenance='published_source_sha256',historical_mother=True)
+    # New attempts stay bounded by both source URL and exact actual mother hash.
+    state['dispatched'].append(dict(slug='attempt',source_url=entry['source_url'],
+        experiment_parent_slug='consumed',experiment_mother_sha256='a'*64,
+        experiment_selection_revision=E.SELECTION_REVISION,failed=True))
+    assert not list(F.experiment_reuse_candidates(state,dict(artifacts=[]),[item]))
+
+
+@pytest.mark.parametrize('bad',['no_receipt','unknown_hash','short','restricted','competitor','reference','paused'])
+def test_historical_mother_reuse_keeps_provenance_and_source_guards(monkeypatch,bad):
+    F=S.fc
+    monkeypatch.setattr(F.time,'time',lambda:1792418400)
+    monkeypatch.setattr(F,'source_inventory',lambda *a:dict(inventory_fresh=True))
+    entry=dict(slug='consumed',source_url='https://www.bilibili.com/video/BVtest',published_parts=1)
+    receipt=dict(status='published',bvid='BVreceipt',source_sha256='a'*64,source_segments=[dict(start=0,end=40)])
+    state=dict(dispatched=[entry],published=dict(consumed=dict(parts=[receipt])))
+    item=dict(url=entry['source_url'],extra=dict(duration=1800))
+    if bad=='no_receipt':receipt['status']='uploading'
+    if bad=='unknown_hash':receipt.pop('source_sha256')
+    if bad=='short':item['extra']['duration']=1199
+    if bad=='restricted':item['extra']['no_reprint']=1
+    if bad=='competitor':item['author']='园园滚雪球'
+    if bad=='reference':item['extra']['source_role']='reference'
+    if bad=='paused':monkeypatch.setattr(F,'REVIEW_PAUSED_SLUGS',{'consumed'})
+    assert not list(F.experiment_reuse_candidates(state,dict(artifacts=[]),[item]))

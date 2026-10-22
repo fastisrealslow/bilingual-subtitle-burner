@@ -1,0 +1,37 @@
+name: 实验片真实入库链路只读复验
+on:
+  push:
+    branches: [codex/linyuan-experiment-runtime-20261022]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  real-delivery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      LINYUAN_CONTENT_POLICY: reference_v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 按真实库存环境安装依赖和解码器
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -q requests numpy 'opencv-python-headless<5' pytest pillow
+          pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 解包FC后关闭site-packages复验真实故事分支
+        run: python -m pytest -q tests/test_linyuan_fc_package.py
+      - name: 只读下载原交付与当前发布历史，不允许投稿
+        run: |
+          gh api repos/fastisrealslow/bilingual-subtitle-burner/actions/artifacts/12260021686/zip > "$RUNNER_TEMP/story.zip"
+          gh api -H 'Accept: application/vnd.github.raw+json' 'repos/fastisrealslow/bilingual-subtitle-burner/contents/site/fc_state.json?ref=main' > "$RUNNER_TEMP/state.json"
+          python scripts/check_linyuan_experiment_runtime_delivery.py --artifact "$RUNNER_TEMP/story.zip" --state "$RUNNER_TEMP/state.json" --out output/runtime-delivery
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment-runtime-delivery-proof
+          path: output/runtime-delivery/runtime-delivery-check.json

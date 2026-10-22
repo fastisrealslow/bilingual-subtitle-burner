@@ -39,7 +39,7 @@ assert '不能为制造反差' in title_rewrite.error(case['title'],case['proof'
 headline_policy.cover_fits('买入系统和卖出系统')
 print(json.dumps(index.handler(json.dumps({'triggerName':'diagnose-config'}),None)))
 '''
-    output = subprocess.check_output([sys.executable, '-I', '-c', script,
+    output = subprocess.check_output([sys.executable, '-I', '-S', '-c', script,
         str(folder/'runtime'), str(ROOT/'tests/fixtures/linyuan_crisis_title_regression.json')],
         cwd=folder, env=env, text=True)
     return json.loads(output)
@@ -55,6 +55,37 @@ def test_packaged_runtime_passes_new_production_health(packaged_health):
     assert packaged_health['audience_copy_sha256'] == hashlib.sha256((ROOT/'linyuan/audience_copy.py').read_bytes()).hexdigest()
     assert packaged_health['source_restrictions_sha256'] == hashlib.sha256((ROOT/'linyuan/source_restrictions.json').read_bytes()).hexdigest()
     assert packaged_health['source_admission_guard_sha256'] == hashlib.sha256((ROOT/'linyuan/source_admission_guard.py').read_bytes()).hexdigest()
+
+
+def test_real_story_proof_runs_without_site_packages(tmp_path):
+    """The previous import-only health test never exercised the lazy tokenizer."""
+    import test_linyuan_publishing_experiment as fixtures
+    meta,_,_=fixtures.treatment()
+    (tmp_path/'meta.json').write_text(json.dumps(meta,ensure_ascii=False))
+    archive=module('package_code').build(tmp_path/'fc.zip')
+    with zipfile.ZipFile(archive) as z:z.extractall(tmp_path/'runtime')
+    script='''import sys,json
+sys.path.insert(0,sys.argv[1])
+import publishing_experiment as E
+m=json.load(open(sys.argv[2]))
+assert E.actual_profile(m)==E.TREATMENT
+m['title']='林园：收入将爆发，应该马上投资'
+assert E.actual_profile(m)==E.BASELINE
+print('isolated-story-proof-passed')
+'''
+    output=subprocess.check_output([sys.executable,'-I','-S','-c',script,
+        str(tmp_path/'runtime'),str(tmp_path/'meta.json')],cwd=tmp_path,text=True)
+    assert 'isolated-story-proof-passed' in output
+
+
+@pytest.mark.parametrize('change',[None,{'passed':False},{'installed_version':'wrong'},
+                                 {'dictionary_sha256':'0'*64}])
+def test_deployed_health_rejects_missing_or_wrong_story_runtime(packaged_health,change):
+    bad=json.loads(json.dumps(packaged_health))
+    if change is None:bad.pop('experiment_runtime')
+    else:bad['experiment_runtime'].update(change)
+    with pytest.raises(SystemExit,match='tokenizer runtime'):
+        module('verify_production').verify_config_health(bad)
 
 
 @pytest.mark.parametrize('field,value', [
@@ -88,7 +119,12 @@ def test_default_package_excludes_only_historical_mp4_and_explicit_mode_keeps_ex
         for name in normal.namelist():assert normal.read(name)==historical.read(name)
         for name in omitted:
             assert hashlib.sha256(historical.read(name)).digest()==hashlib.sha256((ROOT/'linyuan/fc'/name).read_bytes()).digest()
-    assert small.stat().st_size<1024**2
+    # Includes the actual dictionary/HMM models; still excludes optional
+    # Paddle/TF-IDF assets and all historical video files.
+    assert small.stat().st_size<5*1024**2
+    with zipfile.ZipFile(small) as z:
+        assert 'jieba/dict.txt' in z.namelist() and 'jieba/LICENSE' in z.namelist()
+        assert not any('/lac_small/' in n or '/analyse/' in n for n in z.namelist())
 
 
 def test_missing_historical_media_fails_before_any_external_edit(tmp_path,monkeypatch):
