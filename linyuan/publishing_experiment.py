@@ -489,9 +489,10 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     # into a new income-boom claim. Independent model reviews approved it.
     # Require an explicit original phrase for this stronger claim, not a word
     # from one clause concatenated with a growth metaphor from another.
-    from title_rewrite import income_boom_error,named_choice_boom_error
+    from title_rewrite import income_boom_error,named_choice_boom_error,lifetime_holding_hedge_error
     source=''.join(focus.get('source') or [])
-    return income_boom_error(title,cover,source) or named_choice_boom_error(title,cover,source)
+    return (income_boom_error(title,cover,source) or named_choice_boom_error(title,cover,source)
+            or lifetime_holding_hedge_error(title,cover,source))
 
 
 def proof_error(meta):

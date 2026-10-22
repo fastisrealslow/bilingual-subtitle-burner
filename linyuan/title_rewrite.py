@@ -939,6 +939,29 @@ def named_choice_boom_error(title, cover, transcript):
     return None
 
 
+def lifetime_holding_hedge_error(title, cover, transcript):
+    """A possible lifetime holding is not an unconditional permanent pledge."""
+    pattern=re.compile(r'(?:终身|永久|永远|一辈子)[^。！？!?；;，,]{0,4}'
+        r'(?:持有|持股|拿着|拿住|不卖|不会卖)|'
+        r'(?:持有|持股|拿着|拿住|拿)[^。！？!?；;，,]{0,3}(?:终身|永久|永远|一辈子)')
+    copies=[str(title or ''),str(cover or '')]
+    if not any(pattern.search(copy) for copy in copies):return None
+    source=str(transcript or '')
+    occurrences=list(pattern.finditer(source))
+    if not occurrences:
+        return '原话没有终身或永久持有的表述，不能把长期、很少卖出改成永远不卖'
+    def tentative(text,match):
+        return bool(re.search(r'(?:(?<!不)可能|也许|或许)[^。！？!?；;，,]{0,12}$',
+                              text[max(0,match.start()-16):match.start()]))
+    # Different unqualified lifetime statements need ordinary full-context
+    # review; do not borrow another object's hedge or force invented caution.
+    if not all(tentative(source,match) for match in occurrences):return None
+    for copy in copies:
+        if any(not tentative(copy,match) for match in pattern.finditer(copy)):
+            return '原话只说可能终身持有；标题和封面各自保留可能等限定，不能写成确定终身持有不卖'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -946,6 +969,8 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    holding_issue=lifetime_holding_hedge_error(title,cover,transcript)
+    if holding_issue:return holding_issue
     actor_issue = negative_actor_error(title, cover, transcript)
     if actor_issue:
         return actor_issue
