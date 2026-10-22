@@ -1,0 +1,31 @@
+name: 真实错批标题条件与主体核验（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-condition-guard-20261022]
+    paths: [linyuan/title_rewrite.py, linyuan/check_condition_guard.py, .github/workflows/linyuan-condition-guard-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 真实原文与三个实际错批标题，逐条拒绝并保留正常选择反例
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/check_condition_guard.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: condition-guard-verification
+          path: condition-guard-verification.json
+          if-no-files-found: error
+
+

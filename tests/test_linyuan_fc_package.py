@@ -91,7 +91,7 @@ def test_deployed_health_rejects_missing_or_wrong_story_runtime(packaged_health,
 @pytest.mark.parametrize('field,value', [
     ('minimum_final_seconds', 120), ('content_policy', 'legacy120'),
     ('cover_styles', ['scene', 'photo', 'light', 'dark']),
-    ('editorial_code_sha256', '0'*64),
+    ('editorial_code_sha256', '0'*64), ('title_policy_sha256', '0'*64),
     ('source_restrictions_sha256','0'*64),('source_admission_guard_sha256','0'*64),
     ('audience_copy_version', 0), ('audience_copy_sha256', '0'*64),
     ('copyright_requested', 1), ('copyright_requested', 2), ('copyright_mode', 'original'),
