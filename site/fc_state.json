@@ -33104,8 +33104,8 @@
    "publish_time": "2025-08-10T10:11:46+00:00",
    "production_failure_summary": {
     "slug": "ly-1015-5525a0",
-    "run_id": 39036256860,
-    "artifact_id": 12102805434,
+    "run_id": 38787925236,
+    "artifact_id": 11998872249,
     "accepted": 0,
     "failures": [
      {
@@ -33159,8 +33159,8 @@
    "publish_time": "2026-10-15T13:44:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1015-7bbf42",
-    "run_id": 39036523292,
-    "artifact_id": 12101589485,
+    "run_id": 38778580976,
+    "artifact_id": 11994704665,
     "accepted": 0,
     "failures": [
      {
@@ -33214,21 +33214,21 @@
    "publish_time": "2026-10-15T09:08:56+00:00",
    "production_failure_summary": {
     "slug": "ly-1015-8f39b4",
-    "run_id": 39036803925,
-    "artifact_id": 12103215799,
+    "run_id": 38737960477,
+    "artifact_id": 11975277877,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们的消费起不来，消费股起不来，实际上都是那些传导过嗯，嗯，好的。\", \"suspect_quote\": \"传导过嗯，嗯，好的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘传导过’语义不明，疑似‘传导过来’或‘传导过去’的误识；‘嗯，嗯，好的’为填充词堆叠，非正常口语结构，且‘好的’在此处无明确指代对象，导致整段话逻辑断裂。\"}, {\"sentence_id\": 4, \"quote\": \"哎，我我还不如把钱放在美，去存存银行去存存，美美债相关的一些东西，肯定有。\", \"suspect"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们的消费起不来，消费股起不来，实际上都是那些传导过嗯，嗯，好的。\", \"suspect_quote\": \"传导过嗯，嗯，好的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘传导过嗯，嗯，好的’中‘嗯，嗯’为填充词，但‘传导过’后直接接无实义的语气词堆叠，导致‘传导过’的对象缺失，属于无法解释的具体词语污染，影响对‘传导机制’的理解。\"}, {\"sentence_id\": 4, \"quote\": \"哎，我我还不如把钱放在美，去存存银行去存存，美美债相关的一些东西，肯定有。\", \"sus"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"乙肝有治疗率，因为这个肝啊，它是个开始，比如说肝乙肝属于肝炎，病毒性肝炎，是吧？\", \"suspect_quote\": \"乙肝有治疗率，因为这个肝啊，它是个开始，比如说肝\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'治疗率'在语境中无意义，结合后文'它是个开始'及发音推测，原意应为'治愈率'或'有治疗方法'；'因为这个肝啊'存在明显的语音转写混乱，'这个肝'与上下文逻辑不通，可能是'这个病'、'这个病毒'或'这个阶段'的误识。\"}, {\"sentence_id\": 12"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"现在治愈的病只有一个肺炎，那是抗生素发的，还有都是对症。\", \"suspect_quote\": \"现在治愈的病只有一个肺炎，那是抗生素发的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘只有一个肺炎’中的数字‘一个’与医学常识严重冲突（肺炎种类极多），且‘抗生素发的’表述模糊，疑似将‘抗生素引发的’误听为‘发的’，属于互相矛盾的关键数字及含义不明的否定/修饰。\"}, {\"sentence_id\": 16, \"quote\": \"啊，你说血管高血啊，你给我治愈治不能，一"
      },
      {
       "stage": "part-quality",
-      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 缺失：主持人提问（句 0-1）后，嘉宾回答从‘他对诊断学啊’开始，但缺乏明确的观点陈述或结论性判断；句 4‘我相信他会对医药的’为未完成语句，无法构成完整表达。；原文问题：[[\"他对诊断学啊，嗯，人更加便捷。\", \"‘他对诊断学啊，嗯，人更加便捷’存在指代不明（‘他’指代不清）、口语填充词（‘啊’‘嗯’）及语义断裂，影响理解。\"], [\"我相信他会对医药的。\", \"‘我相信他会对医药的’为明显未完成的句子，关键宾语缺失，无法构成有效判断。\"]]"
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 缺失：主持人提问（句 0-1）后，嘉宾回答（句 2-4）中句 2 为模糊指代‘他对诊断学’，句 3 为举例而非判断，句 4 为未完成的结论‘我相信他会对医药的’，缺乏完整观点陈述。；原文问题：[[\"他对诊断学啊，嗯，人更加便捷。\", \"‘他对诊断学啊’指代不明，前文无对应主语，影响理解嘉宾具体所指对象。\"], [\"我相信他会对医药的。\", \"‘我相信他会对医药的’语句未完，关键断言被切断，无法构成完整判断。\"]]"
      }
     ]
    },
@@ -39752,7 +39752,32 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "1df744406655d5b19d20e13ccb0c8138955953aaa6d49978ee6fbb0053b320be",
    "experiment_parent_slug": "ly-0916-5cc2b6",
-   "recovery_origin_run_id": 35064255035
+   "recovery_origin_run_id": 35064255035,
+   "production_failure_summary": {
+    "slug": "ly-story-608bf63cec",
+    "run_id": 39808255729,
+    "artifact_id": 12444748806,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     }
+    ]
+   },
+   "source_check_report_id": 12444748806,
+   "source_check_run_id": 39808255729,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792691331
   },
   {
    "video_id": "BV1se411H7tj",
@@ -40086,44 +40111,6 @@
    "automatic_rule_recoveries": {}
   },
   {
-   "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
-   "source_url": "https://m.weibo.cn/detail/5347466289610839",
-   "title": "股神林园最新访谈：虽然小五跌破70了，可是那又怎样呢，炒股谁还没赔过钱呢，总有一天我会赚的，大家也会一起赚到的！#圣叹财",
-   "source": "weibo_search",
-   "author": "全球独一",
-   "publish_time": "2026-09-26T18:32:56+08:00",
-   "key": "ly-story-99ddef2e4b",
-   "slug": "ly-story-99ddef2e4b",
-   "ts": 1792685994,
-   "asset_url": "https://m.weibo.cn/detail/5347466289610839",
-   "delay_hours": 0,
-   "required_presentation_version": 2,
-   "production_rules_version": 2026090604,
-   "editorial_profile": "field-story-v1",
-   "output_layout": "landscape",
-   "experiment_selection_revision": 2026102201,
-   "experiment_mother_sha256": "c7a533ce67ed9d7dabb2805a6c8396370ad98de4574de748a218ac52154ce362",
-   "experiment_parent_slug": "ly-1009-70e7b5",
-   "recovery_origin_run_id": 37886234069,
-   "production_failure_summary": {
-    "slug": "ly-story-99ddef2e4b",
-    "run_id": 39813108156,
-    "artifact_id": 12441539213,
-    "accepted": 0,
-    "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
-     }
-    ]
-   },
-   "source_check_report_id": 12441539213,
-   "source_check_run_id": 39813108156,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
-   "failure_stage": "quality-service",
-   "source_check_retry_after": 1792688854
-  },
-  {
    "video_id": "http://f.video.weibocdn.com/o0/vQq8yb9Ylx08BcDierUA0104120cOhBS0E050.mp4",
    "source_url": "https://m.weibo.cn/detail/5348893709828529",
    "title": "2026.01.26林园演讲：投资看真实现金流，企业要有实实在在落袋的利润，不炒作题材、概念故事。垄断是盈利核心，企业必",
@@ -40320,52 +40307,6 @@
    "automatic_rule_recoveries": {}
   },
   {
-   "video_id": "BV1xcu26hEx1",
-   "source_url": "https://www.bilibili.com/video/BV1xcu26hEx1",
-   "title": "【2026.8.7】林园访谈：科技浪潮下的冷思考，林园为何坚守消费与医药",
-   "source": "bilibili_search",
-   "author": "半度16",
-   "publish_time": "2026-08-09T04:51:30+00:00",
-   "key": "ly-story-2409301830",
-   "slug": "ly-story-2409301830",
-   "ts": 1792686303,
-   "asset_url": "https://www.bilibili.com/video/BV1xcu26hEx1",
-   "delay_hours": 0,
-   "required_presentation_version": 2,
-   "production_rules_version": 2026090604,
-   "editorial_profile": "field-story-v1",
-   "output_layout": "portrait",
-   "experiment_selection_revision": 2026102201,
-   "experiment_mother_sha256": "fc15a5926f081759af1bfbf91c412d42bef9e37c5ba7e74d240723065310121d",
-   "experiment_parent_slug": "ly-0910-2c4484",
-   "recovery_origin_run_id": null,
-   "production_failure_summary": {
-    "slug": "ly-story-2409301830",
-    "run_id": 39813873888,
-    "artifact_id": 12443732539,
-    "accepted": 0,
-    "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"因为我本人学医的，我认为啊，你别听他们嘛，呃，这人让瞎催，以后呃人能永久的活，给你植入器官，他没有医学常识。\", \"suspect_quote\": \"这人让瞎催\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误。'瞎催'在医学或日常语境中含义不明，极可能是'瞎吹'（胡说八道）的误识，或者是方言/口吃导致的严重听错，严重影响理解。\"}, {\"sentence_id\": 13, \"quote\": \"中中药它就是，能够我们相当于西药是一个，主要的控制病情的。\", \"suspect_q"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配37/887，总帧数4248；身份匹配但人脸短边不足96px的帧数850"
-     }
-    ]
-   },
-   "source_check_report_id": 12443732539,
-   "source_check_run_id": 39813873888,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]",
-   "failure_stage": "quality-service",
-   "source_check_retry_after": 1792689725
-  },
-  {
    "video_id": "http://f.video.weibocdn.com/o0/t3mAPfvVlx08AFpEafjq0104120fj5rN0E060.mp4",
    "source_url": "https://m.weibo.cn/detail/5341700069265742",
    "title": "2026林园演讲",
@@ -40435,21 +40376,54 @@
    "recovery_origin_run_id": 38028342919,
    "production_failure_summary": {
     "slug": "ly-story-2408e7fe45",
-    "run_id": 39810846146,
-    "artifact_id": 12440606615,
+    "run_id": 39820192497,
+    "artifact_id": 12444432196,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
      }
     ]
    },
    "source_check_report_id": 12440606615,
    "source_check_run_id": 39810846146,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39820192497,
+    "artifact_id": 12444432196,
+    "name": "production-reject-ly-story-2408e7fe45",
+    "retained": true
+   },
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1LGJQ6REPV",
@@ -40542,7 +40516,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-22T12:33:35+00:00"
+   "publish_time": "2026-10-22T12:33:35+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-c4b3b6",
+    "run_id": 39820258419,
+    "artifact_id": 12446240134,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39820258419,
+    "artifact_id": 12446240134,
+    "name": "production-reject-ly-1022-c4b3b6",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1qrPTzGExu",
@@ -40565,7 +40561,30 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-03-01T11:30:45+00:00"
+   "publish_time": "2026-03-01T11:30:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-878460",
+    "run_id": 39820278533,
+    "artifact_id": 12444897719,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39820278533,
+    "artifact_id": 12444897719,
+    "name": "production-reject-ly-1022-878460",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
@@ -40594,8 +40613,8 @@
    "recovery_origin_run_id": 38860911237,
    "production_failure_summary": {
     "slug": "ly-story-aa35da617a",
-    "run_id": 39810827206,
-    "artifact_id": 12442293463,
+    "run_id": 39821459333,
+    "artifact_id": 12445541043,
     "accepted": 0,
     "failures": [
      {
@@ -40607,8 +40626,132 @@
    "source_check_report_id": 12442293463,
    "source_check_run_id": 39810827206,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"主要是一些个别公司，对公司的判断还是有很多的啊，有很多抗啊。\", \"suspect_quote\": \"有很多抗啊\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“抗”在语境中含义不明，疑似识别错误（可能为“坑”、“坑害”或特定术语的误识），导致句子语义不完整。\"}, {\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱，而且给我不止一次的说。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在逻辑矛盾或识别污染：“几块钱”与“五六块钱”并列，且中间夹杂“是”，疑似将口语中的停顿、重复或否定词（如“不是”）误识为肯定判断，导致关键数字含义模糊。\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39821459333,
+    "artifact_id": 12445541043,
+    "name": "production-reject-ly-story-aa35da617a",
+    "retained": true
+   },
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
+  },
+  {
+   "video_id": "BV1xcu26hEx1",
+   "source_url": "https://www.bilibili.com/video/BV1xcu26hEx1",
+   "title": "【2026.8.7】林园访谈：科技浪潮下的冷思考，林园为何坚守消费与医药",
+   "source": "bilibili_search",
+   "author": "半度16",
+   "publish_time": "2026-08-09T04:51:30+00:00",
+   "key": "ly-story-2409301830",
+   "slug": "ly-story-2409301830",
+   "ts": 1792689902,
+   "asset_url": "https://www.bilibili.com/video/BV1xcu26hEx1",
+   "delay_hours": 0,
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "editorial_profile": "field-story-v1",
+   "output_layout": "portrait",
+   "experiment_selection_revision": 2026102201,
+   "experiment_mother_sha256": "fc15a5926f081759af1bfbf91c412d42bef9e37c5ba7e74d240723065310121d",
+   "experiment_parent_slug": "ly-0910-2c4484",
+   "recovery_origin_run_id": null,
+   "production_failure_summary": {
+    "slug": "ly-story-2409301830",
+    "run_id": 39822483174,
+    "artifact_id": 12446011462,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"因为我本人学医的，我认为啊，你别听他们嘛，呃，这人让瞎催，以后呃人能永久的活，给你植入器官，他没有医学常识。\", \"suspect_quote\": \"这人让瞎催\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误。'瞎催'在医学或日常语境中含义不明，极可能是'瞎吹'（胡说八道）的误识，或者是方言/口吃导致的严重听错，严重影响理解。\"}, {\"sentence_id\": 13, \"quote\": \"中中药它就是，能够我们相当于西药是一个，主要的控制病情的。\", \"suspect_q"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配37/887，总帧数4248；身份匹配但人脸短边不足96px的帧数850"
+     }
+    ]
+   },
+   "source_check_report_id": 12443732539,
+   "source_check_run_id": 39813873888,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39822483174,
+    "artifact_id": 12446011462,
+    "name": "production-reject-ly-story-2409301830",
+    "retained": true
+   },
+   "source_quality_rejected": true
+  },
+  {
+   "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
+   "source_url": "https://m.weibo.cn/detail/5347466289610839",
+   "title": "股神林园最新访谈：虽然小五跌破70了，可是那又怎样呢，炒股谁还没赔过钱呢，总有一天我会赚的，大家也会一起赚到的！#圣叹财",
+   "source": "weibo_search",
+   "author": "全球独一",
+   "publish_time": "2026-09-26T18:32:56+08:00",
+   "key": "ly-story-99ddef2e4b",
+   "slug": "ly-story-99ddef2e4b",
+   "ts": 1792690315,
+   "asset_url": "https://m.weibo.cn/detail/5347466289610839",
+   "delay_hours": 0,
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "editorial_profile": "field-story-v1",
+   "output_layout": "landscape",
+   "experiment_selection_revision": 2026102201,
+   "experiment_mother_sha256": "c7a533ce67ed9d7dabb2805a6c8396370ad98de4574de748a218ac52154ce362",
+   "experiment_parent_slug": "ly-1009-70e7b5",
+   "recovery_origin_run_id": 37886234069,
+   "production_failure_summary": {
+    "slug": "ly-story-99ddef2e4b",
+    "run_id": 39813108156,
+    "artifact_id": 12441539213,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
+     }
+    ]
+   },
+   "source_check_report_id": 12441539213,
+   "source_check_run_id": 39813108156,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
    "failure_stage": "quality-service",
    "source_check_attempts": 1
+  },
+  {
+   "key": "bilibili_search:BV1gGsxzqELh",
+   "video_id": "BV1gGsxzqELh",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1022-87336c",
+   "ts": 1792690323,
+   "source_url": "https://www.bilibili.com/video/BV1gGsxzqELh",
+   "asset_url": "https://www.bilibili.com/video/BV1gGsxzqELh",
+   "title": "林园：创新药和中药都看好，创新药有工程师红利，可以在世界上创出头部，中国医药公司市值和世界头部比还很小，中药也在创新，古",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "亮亮滚雪球",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2025-10-22T02:07:57+00:00"
   }
  ],
  "makeup_receipts": {
@@ -114283,6 +114426,41 @@
    "video_id": "BV1nt4y1o74A",
    "ts": 1792688836,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是否指代特定人群或特定药物类别的基数为零。该表述存在逻辑矛盾且缺乏必要限定词，属于含义不明的关键数字/否定，而非口语省略\"}]"
+  },
+  {
+   "slug": "ly-story-2408e7fe45",
+   "key": "ly-story-2408e7fe45",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2610/10/11qyi401ghg/SD/11qyi401ghg-mobile.mp4",
+   "ts": 1792689804,
+   "error": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+  },
+  {
+   "slug": "ly-story-aa35da617a",
+   "key": "ly-story-aa35da617a",
+   "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
+   "ts": 1792690226,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"主要是一些个别公司，对公司的判断还是有很多的啊，有很多抗啊。\", \"suspect_quote\": \"有很多抗啊\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“抗”在语境中含义不明，疑似识别错误（可能为“坑”、“坑害”或特定术语的误识），导致句子语义不完整。\"}, {\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱，而且给我不止一次的说。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在逻辑矛盾或识别污染：“几块钱”与“五六块钱”并列，且中间夹杂“是”，疑似将口语中的停顿、重复或否定词（如“不是”）误识为肯定判断，导致关键数字含义模糊。\"}]"
+  },
+  {
+   "slug": "ly-1022-878460",
+   "key": "bilibili_search:BV1qrPTzGExu",
+   "video_id": "BV1qrPTzGExu",
+   "ts": 1792690227,
+   "error": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-story-2409301830",
+   "key": "ly-story-2409301830",
+   "video_id": "BV1xcu26hEx1",
+   "ts": 1792690414,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]"
+  },
+  {
+   "slug": "ly-1022-c4b3b6",
+   "key": "bilibili_search:BV1W5np69ENP",
+   "video_id": "BV1W5np69ENP",
+   "ts": 1792690416,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
@@ -115676,7 +115854,7 @@
  },
  "source_refresh_requested_at": 1792687589,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 4,
+ "rule_recovery_page": 9,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",

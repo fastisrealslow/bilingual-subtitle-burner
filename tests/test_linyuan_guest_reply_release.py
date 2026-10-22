@@ -57,3 +57,28 @@ def test_actor_condition_guard_remains_in_shared_path():
     for copy in ('除非变机器人，我少不了投消费','除非人变机器人，不然少不了投吃喝',
                  '人总要吃喝，我必须投消费'):
         assert title.forecast_copy_error('林园：'+copy,copy,source)
+
+
+def test_literal_action_reason_is_not_forced_into_metaphor_noun():
+    import publishing_experiment as experiment
+    evidence=dict(kind='personal_story',subject_quote='我这个人还比较专心。',
+        event_quote='我只投我看好的。',detail_quote='除非这个人不吃不喝了，真是变成机器人了，那我也不行。')
+    focus=experiment.title_focus(evidence)
+    assert focus['detail_action_pairs']==[['吃','喝']]
+    assert '不吃不喝' in focus['details'] and '机器人' in focus['details']
+    assert experiment.title_focus_error('林园：人总得吃喝，我就只投消费',focus) is None
+    assert experiment.title_focus_error('林园：我只投消费，除非人不吃不喝',focus) is None
+    assert experiment.title_focus_error('林园：我只投消费，因为人得吃饭',focus)
+    assert experiment.title_focus_error('林园：除非人变机器人不吃不喝，否则少不了要吃喝，我专攻消费',focus)
+    prompt=experiment.story_title_prompt('原文仍须独立核对',dict(properties=dict(c_candidates={})),evidence)
+    assert '正反重复' in prompt and '不改变原句条件、否定或动作主体' in prompt
+    # Lexical coverage is not factual approval; the shared actor guard remains.
+    assert title.forecast_copy_error('林园：人总得吃喝，所以我必须投消费',
+        '人总得吃喝，所以我必须投消费',evidence['detail_quote']+'我只投消费。嗯，如果他还真是个人，他少不了。')
+
+
+@pytest.mark.parametrize('detail',['不三不四的东西我不碰。','不明不白的投资我不做。'])
+def test_nonverb_parallel_negation_cannot_create_action_group(detail):
+    import publishing_experiment as experiment
+    focus=experiment.title_focus(dict(kind='personal_story',detail_quote=detail))
+    assert focus['detail_action_pairs']==[]
