@@ -74,6 +74,11 @@ def test_class_variants_need_a_following_question_and_answer(preamble):
     '您的基金净值受到市场关注吗？',
     '如果您的产品净值受到关注，也不能因此承诺收益。',
     '比如您的产品业绩受到关注，投资仍然有风险。',
+    '那如果市场转暖，您的基金净值也受到投资者关注。',
+    '那么假设这两年，您的基金回撤也引起投资者讨论。',
+    '那比如在直播中，您的产品业绩也受到大家关注。',
+    '那么有人说，您的产品净值也备受投资者关注。',
+    '最近有网友说，您的账户收益引起市场热议。',
 ])
 def test_guest_accounts_quotes_negation_questions_and_conditions_are_not_preambles(text):
     assert not S.host_attention_preamble(text)

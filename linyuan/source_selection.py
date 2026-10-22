@@ -142,6 +142,11 @@ HOST_ATTENTION_PREAMBLE = re.compile(
 
 
 def host_attention_preamble(text):
+    # A temporal/discourse prefix can contain a hypothetical or an indirect
+    # quotation. Neither is evidence of a new interviewer turn.
+    if re.search(r'如果|假如|假设|要是|倘若|只要|即使|比如|例如|'
+                 r'有人(?:问|说)|(?:投资者|网友|观众)(?:问|说)', text):
+        return False
     return bool(HOST_ATTENTION_PREAMBLE.fullmatch(text))
 
 
