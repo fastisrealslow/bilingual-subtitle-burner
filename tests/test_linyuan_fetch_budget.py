@@ -91,6 +91,109 @@ def test_sha256_file_works_without_python311_file_digest(tmp_path):
         assert b.sha256_file(handle) == hashlib.sha256(payload).hexdigest()
 
 
+@pytest.mark.parametrize('alternatives, expected_deadline', [(True, 45), (False, 120)])
+def test_mirror_proof_local_budget_never_changes_the_byte_comparison(monkeypatch, tmp_path, alternatives, expected_deadline):
+    partial=tmp_path/'track.part';partial.write_bytes(b'a'*15000)
+    tick=[0]
+    monkeypatch.setattr(b.time,'monotonic',lambda:tick[0])
+    def proof(op,url,ref,path,total,etag,deadline):
+        assert deadline==expected_deadline
+        assert path.read_bytes()==b'a'*15000 and etag=='new'
+        return False  # Actual different bytes must still return false.
+    monkeypatch.setattr(b,'identical_prefix',proof)
+    assert not b.mirror_prefix_proof(None,'https://cdn.test/track','source',partial,
+                                     30000,'new',120,alternatives=alternatives)
+    assert partial.read_bytes()==b'a'*15000
+
+
+@pytest.mark.parametrize('expired', [False, True])
+def test_mirror_proof_timeout_only_yields_when_global_budget_remains(monkeypatch, tmp_path, expired):
+    partial=tmp_path/'track.part';partial.write_bytes(b'a'*15000)
+    tick=[0];monkeypatch.setattr(b.time,'monotonic',lambda:tick[0])
+    def proof(*args):
+        tick[0]=120 if expired else 46
+        raise b.FetchBudgetExceeded('proof timed out')
+    monkeypatch.setattr(b,'identical_prefix',proof)
+    with pytest.raises(b.FetchBudgetExceeded if expired else RuntimeError) as error:
+        b.mirror_prefix_proof(None,'https://cdn.test/track','source',partial,
+                              30000,'new',120,alternatives=True)
+    if not expired:
+        assert not isinstance(error.value,b.FetchBudgetExceeded)
+    assert partial.read_bytes()==b'a'*15000
+
+
+def test_slow_changed_etag_proof_yields_to_fast_fully_verified_mirror(monkeypatch, tmp_path):
+    # Real 752 failure spent 23 minutes checking 147MB on one CDN, then
+    # four seconds checking the SAME bytes on another. Simulate elapsed time
+    # while executing the actual byte comparator and download/resume code.
+    payload=bytes(range(256))*20000;offset=2*(1<<20)
+    out=tmp_path/'track';partial=out.with_suffix('.part')
+    partial.write_bytes(payload[:offset])
+    manifest=out.with_suffix('.download.json')
+    manifest.write_text(json.dumps(dict(identity=dict(source='source',paths=['/track']),
+                                        total=len(payload),etag='old')))
+    tick=[0];requests=[];verified=[]
+    monkeypatch.setattr(b.time,'monotonic',lambda:tick[0])
+    monkeypatch.setattr(b,'rank_mirrors',lambda op,urls,ref,**kw:urls)
+    class ProofResponse(Response):
+        def __init__(self,data,headers,slow):
+            super().__init__(data,206,headers);self.slow=slow
+        def read(self,size=-1):
+            if self.slow:tick[0]+=46
+            data=super().read(size)
+            if not self.slow:verified.append(data)
+            return data
+    class Opener:
+        def open(self,req,timeout):
+            start,end=req.headers['Range'].split('=')[1].split('-')
+            start=int(start);end=int(end) if end else len(payload)-1
+            slow='slow.test' in req.full_url
+            requests.append((slow,start,end))
+            headers={'Content-Range':f'bytes {start}-{end}/{len(payload)}',
+                     'ETag':'slow' if slow else 'fast'}
+            if start==0:
+                assert partial.read_bytes()==payload[:offset]
+                return ProofResponse(payload[start:end+1],headers,slow)
+            return Response(payload[start:end+1],206,headers)
+    b.download_one(Opener(),['https://slow.test/track','https://fast.test/track'],
+                   'source',out,deadline=120)
+    assert out.read_bytes()==payload
+    assert b''.join(verified)==payload[:offset]  # ALL bytes, never sampling.
+    assert (True,0,offset-1) in requests and (False,0,offset-1) in requests
+    assert json.loads(manifest.read_text())['etag']=='fast'
+    assert tick[0]==46  # A local timeout did not spend the whole 120s budget.
+
+
+def test_all_slow_mirrors_eventually_allow_full_proof_without_discarding_checkpoint(monkeypatch, tmp_path):
+    payload=bytes(range(256))*20000;offset=2*(1<<20)
+    out=tmp_path/'track';partial=out.with_suffix('.part');partial.write_bytes(payload[:offset])
+    out.with_suffix('.download.json').write_text(json.dumps(dict(
+        identity=dict(source='source',paths=['/track']),total=len(payload),etag='old')))
+    tick=[0];proof_requests=[]
+    monkeypatch.setattr(b.time,'monotonic',lambda:tick[0])
+    monkeypatch.setattr(b.time,'sleep',lambda _:None)
+    monkeypatch.setattr(b,'rank_mirrors',lambda op,urls,ref,**kw:urls)
+    class SlowProof(Response):
+        def read(self,size=-1):
+            tick[0]+=46
+            return super().read(size)
+    class Opener:
+        def open(self,req,timeout):
+            start,end=req.headers['Range'].split('=')[1].split('-')
+            start=int(start);end=int(end) if end else len(payload)-1
+            headers={'Content-Range':f'bytes {start}-{end}/{len(payload)}','ETag':'new'}
+            if start==0:
+                proof_requests.append(req.full_url)
+                assert partial.read_bytes()==payload[:offset]
+                return SlowProof(payload[:offset],206,headers)
+            return Response(payload[start:end+1],206,headers)
+    b.download_one(Opener(),['https://slow1.test/track','https://slow2.test/track'],
+                   'source',out,deadline=1000)
+    assert out.read_bytes()==payload
+    # Two bounded rounds, then ONE full proof under the original global cap.
+    assert len(proof_requests)==5 and tick[0]==276
+
+
 def test_more_than_three_partial_responses_resume_to_exact_complete_file(tmp_path):
     payload=b'x'*150000
     starts=[]
