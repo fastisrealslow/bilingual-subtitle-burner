@@ -8,7 +8,7 @@ from headline_policy import copy_length_ok
 VERSION = 2026091303
 CHECKS = ('source_supported', 'central_point', 'attribution_correct',
           'preserves_qualifiers', 'cover_consistent', 'readable')
-ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', '时候', '方面', '东西'})
+ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', '时候', '方面', '东西', '基本上'})
 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
@@ -65,7 +65,16 @@ def source_units(transcript):
     return units
 
 
-def subject_catalog(units):
+def subject_cue_spans(word, units):
+    """Exact literal occurrences, including a word split by display cues."""
+    from bisect import bisect_right
+    bounds=[0]
+    for unit in units:bounds.append(bounds[-1]+len(unit))
+    return [list(range(bisect_right(bounds,m.start())-1,bisect_right(bounds,m.end()-1)))
+            for m in re.finditer(re.escape(word),''.join(units))]
+
+
+def subject_catalog(units, allowed_ids=None):
     """Offer exact source nouns, never model-invented compound evidence anchors."""
     from collections import Counter
     import jieba.posseg
@@ -81,8 +90,12 @@ def subject_catalog(units):
     counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
                      if (tag.startswith(('n', 'vn')) or tag in ('l', 'j') or word in business_nouns)
                      and 2 <= len(compact(word)) <= 8 and word not in ABSTRACT_ANCHORS)
-    return {word:[i for i, unit in enumerate(units) if word in unit]
-            for word, _ in counts.most_common(48)}
+    result={}
+    for word,_ in counts.most_common(48):
+        spans=[span for span in subject_cue_spans(word,units)
+               if allowed_ids is None or all(i in allowed_ids for i in span)]
+        if spans:result[word]=sorted({i for span in spans for i in span})
+    return result
 
 
 def proposal_schema(unit_count, subjects=None, guest_ids=None):
@@ -405,7 +418,7 @@ def review_schema(candidate_count):
                 'b_verdict':dict(type='object',additionalProperties=False,required=list(fields),properties=fields)}))})
 
 
-def bind_evidence(item, units):
+def bind_evidence(item, units, join_spans=()):
     if not isinstance(item, dict):
         raise ValueError('候选不是JSON对象')
     ids = item.get('evidence_ids')
@@ -414,7 +427,17 @@ def bind_evidence(item, units):
         raise ValueError('原文证据编号无效')
     if 'evidence' in item:
         raise ValueError('证据必须从编号取回，不能由模型另写原文')
-    return {**item, 'evidence':[units[i] for i in sorted(ids)]}
+    gaps=set()
+    for span in join_spans:
+        if len(span)!=2 or span[1]!=span[0]+1 or not set(span)<=set(ids):
+            raise ValueError('完整词证据只能连接已选择的相邻原句')
+        gaps.add(tuple(span))
+    groups=[];previous=None
+    for i in sorted(ids):
+        if groups and (previous,i) in gaps:groups[-1]+=units[i]
+        else:groups.append(units[i])
+        previous=i
+    return {**item, 'evidence':groups}
 
 
 def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
@@ -431,12 +454,38 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
     # duplicate IDs add no evidence: deduplicate only after guest attribution
     # and type/range checks, then retrieve the original bytes as before.
     unique=list(dict.fromkeys(ids))
-    result=bind_candidate(item,dict(claim=claim,evidence_ids=unique),units,subjects)
+    def split_spans(ids):
+        return [span for word in subjects if word in str(item.get('title') or '')
+                for span in subject_cue_spans(word,units) if len(span)==2
+                and all(i in guest_ids for i in span) and set(span)<=set(ids)]
+    result=bind_candidate(item,dict(claim=claim,evidence_ids=unique),units,subjects,
+                          join_spans=split_spans(unique))
+    if not result['subject']:
+        # A real draft selected cue13 "酒…" but not cue12 "…白". Complete
+        # only that exact two-cue noun, never another fact/turn. No title text,
+        # speaker label, semantic approval or four-ID budget is fabricated.
+        options=[]
+        for word in subjects:
+            at=str(item.get('title') or '').find(word)
+            if at<0:continue
+            for span in subject_cue_spans(word,units):
+                completed=sorted(set(unique)|set(span))
+                if (len(span)==2 and all(i in guest_ids for i in span)
+                        and set(span)&set(unique) and not set(span)<=set(unique) and len(completed)<=4):
+                    options.append((at,-len(word),word,span,completed))
+        if options:
+            _,_,word,span,completed=min(options)
+            recovered=bind_candidate(item,dict(claim=claim,evidence_ids=completed),units,subjects,
+                                    join_spans=split_spans(completed))
+            if recovered['subject']:
+                result=recovered
+                result['source_word_boundary_completion']=dict(word=word,source_ids=span,
+                    raw_evidence_ids=unique,completed_evidence_ids=completed)
     if unique!=ids:result['evidence_id_normalization']=dict(raw=ids,unique=unique)
     return result
 
 
-def bind_candidate(item, focus, units, subjects):
+def bind_candidate(item, focus, units, subjects, join_spans=()):
     title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
     cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
     speaker=title.split('：',1)[0] if '：' in title else ''
@@ -447,7 +496,8 @@ def bind_candidate(item, focus, units, subjects):
         # only this attributed reporting prefix, before length/meaning review;
         # never strip names inside entities such as 林园投资公司.
         cover=cover[len(speaker):].strip()
-    bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units)
+    bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units,
+                        join_spans=join_spans)
     # Derive the exact shared anchor instead of asking the model to perform
     # literal string matching. The full claim still needs independent review.
     anchors=[word for word in subjects if word in title and any(word in q for q in bound['evidence'])]
@@ -889,6 +939,54 @@ def named_choice_boom_error(title, cover, transcript):
     return None
 
 
+def rare_sale_scope_error(title, cover, transcript):
+    """Few historical sales do not establish a rule for every other holding."""
+    source=str(transcript or '')
+    rare=re.search(r'基本[^。！？!?]{0,24}(?:卖出|卖)[^。！？!?]{0,16}(?:很少|不多)',source)
+    rare=rare or re.search(r'基本(?:上)?[^。！？!?]{0,5}没有[^。！？!?]{0,10}卖出',source)
+    blanket=r'(?:其他|其它|其余|剩下)[^。！？!?；;，,]{0,16}(?:都|一律|全部)(?:不卖|不会卖)'
+    if not rare:return None
+    years=re.findall(r'([0-9零〇一二三四五六七八九]{4})年(?:以后|之后|后)'
+        r'[^。！？!?]{0,16}基本(?:上)?[^。！？!?]{0,12}(?:没|不)[^。！？!?]{0,8}卖',source)
+    digits=str.maketrans('零〇一二三四五六七八九','00123456789')
+    years={variant for year in years for variant in (year,year.translate(digits))}
+    for copy in (str(title or ''),str(cover or '')):
+        if any(word in copy and word not in source for word in ('特例','例外')):
+            return '原话没有这种特例或例外的判断，不能把举例持仓改成另一种例外关系'
+        for clause in re.split(r'[。！？!?；;，,]',copy):
+            qualified=re.search(r'基本|几乎|大体上|很少',clause)
+            if re.search(blanket,clause) and not re.search(blanket,source) and not qualified:
+                return '原话是基本很少卖出，不能扩大成其他持仓都不卖；标题和封面各自保留频率、范围限定'
+            if not qualified and any(re.search(re.escape(year)+r'年(?:以后|之后|后)'
+                    r'[^。！？!?；;，,]{0,10}(?:没|不)[^。！？!?；;，,]{0,6}卖',clause)
+                    for year in years):
+                return '原话只说这一时期基本没有卖出，标题和封面不能删去基本或很少，改成确定没有卖出'
+    return None
+
+
+def lifetime_holding_hedge_error(title, cover, transcript):
+    """A possible lifetime holding is not an unconditional permanent pledge."""
+    pattern=re.compile(r'(?:终身|永久|永远|一辈子)[^。！？!?；;，,]{0,4}'
+        r'(?:持有|持股|拿着|拿住|不卖|不会卖)|'
+        r'(?:持有|持股|拿着|拿住|拿)[^。！？!?；;，,]{0,3}(?:终身|永久|永远|一辈子)')
+    copies=[str(title or ''),str(cover or '')]
+    if not any(pattern.search(copy) for copy in copies):return None
+    source=str(transcript or '')
+    occurrences=list(pattern.finditer(source))
+    if not occurrences:
+        return '原话没有终身或永久持有的表述，不能把长期、很少卖出改成永远不卖'
+    def tentative(text,match):
+        return bool(re.search(r'(?:(?<!不)可能|也许|或许)[^。！？!?；;，,]{0,12}$',
+                              text[max(0,match.start()-16):match.start()]))
+    # Different unqualified lifetime statements need ordinary full-context
+    # review; do not borrow another object's hedge or force invented caution.
+    if not all(tentative(source,match) for match in occurrences):return None
+    for copy in copies:
+        if any(not tentative(copy,match) for match in pattern.finditer(copy)):
+            return '原话只说可能终身持有；标题和封面各自保留可能等限定，不能写成确定终身持有不卖'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -896,6 +994,10 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    sale_issue=rare_sale_scope_error(title,cover,transcript)
+    if sale_issue:return sale_issue
+    holding_issue=lifetime_holding_hedge_error(title,cover,transcript)
+    if holding_issue:return holding_issue
     actor_issue = negative_actor_error(title, cover, transcript)
     if actor_issue:
         return actor_issue
@@ -1478,6 +1580,70 @@ def bind_turns(turns, units):
     return roles
 
 
+def story_literal_candidates(focus, transcript, guest_passages, speaker='林园'):
+    """Compile intact tails of this selected story, never another topic.
+
+    Only a discourse/example opener may be skipped. Conditions, reported
+    speech and contrasts keep the whole sentence; no word is rewritten and
+    no internal qualifier/negation is removed to fit the length budget.
+    """
+    from headline_policy import complete,cover_copy
+    from publishing_experiment import title_focus_error
+    result=[]
+    protected=re.compile(r'如果|假如|除非|虽然|只要|只有|但|不过|然而|可是|却|否则|而是|听说|据说|以为|别人说|有人说')
+    for original in focus.get('source') or []:
+        if original not in transcript or not any(original in passage for passage in guest_passages):continue
+        starts=[0]
+        if not protected.search(original):
+            starts += [m.end() for m in re.finditer(r'[，,]',original)]
+        for start in starts:
+            tail=original[start:].strip(' ，,。！？!?；;')
+            tail=re.sub(r'^(?:比如说|例如|譬如说)\s*','',tail)
+            if not tail or tail not in original or not 4<=len(tail)<=28 or not complete(tail):continue
+            title=speaker+'：'+tail
+            cover=cover_copy(title,tail,speaker)
+            if cover.get('reason')=='needs_editorial_copy':continue
+            if title_focus_error(title,focus,speaker,cover.get('text')):continue
+            if title not in result:result.append(title)
+    # Prefer a whole, independently readable clause that fits unchanged on
+    # both surfaces. This is proposal ordering, not approval or a CTR claim.
+    return sorted(result,key=lambda t:(cover_copy(t,t.split('：',1)[-1],speaker).get('text')!=t.split('：',1)[-1],
+                                      len(t),t))[:3]
+
+
+def bound_story_literal_candidates(focus,units,subjects,guest_ids,speaker,attempted):
+    """Propose source copy for observed qualifier-sensitive holding stories.
+
+    Reuse the SAME evidence-ID binder and later complete independent review.
+    This is not the looser quote fallback, an approval, or a new model profile.
+    """
+    if not focus:return []
+    source=''.join(focus.get('source') or [])
+    sensitive=(rare_sale_scope_error('其他都不卖','',source) or re.search(
+        r'(?:可能|也许|或许)[^。！？!?]{0,16}(?:终身|永久|永远|一辈子)(?:持有|不卖)',source))
+    if not sensitive:return []
+    passages=[];current=[]
+    for i,unit in enumerate(units):
+        if i in guest_ids:current.append(unit)
+        elif current:passages.append(''.join(current));current=[]
+    if current:passages.append(''.join(current))
+    transcript=''.join(units);result=[]
+    from headline_policy import cover_copy
+    for title in story_literal_candidates(focus,transcript,passages,speaker):
+        if title in attempted:continue
+        quote=title.split('：',1)[-1]
+        spans=[span for span in subject_cue_spans(quote,units)
+               if 1<=len(span)<=4 and all(i in guest_ids for i in span)]
+        if not spans:continue
+        try:
+            item=bind_guest_candidate(dict(title=title,cover_title=cover_copy(title,quote,speaker)['text']),
+                dict(a_claim=quote,b_evidence_ids=spans[0]),units,subjects,guest_ids)
+        except ValueError:continue
+        if not item.get('subject') or item['title']!=title:continue
+        result.append({**item,'proposal_method':'same_story_intact_quote_v1'})
+    return result
+
+
 def generate(transcript, speaker='林园', existing_titles=(), model=None, preferred=None,
              structured_model=None, source_cues=None, answer_focus=False, answer_subject=False,
              prefer_reviewed_quote=False, editorial_focus=None):
@@ -1534,6 +1700,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             reader_prompt+='''\n在e_subject_name写明这项主要回答实际讨论的具体对象（产品、公司、行业或市场的名称），不能用它、原因、标准等泛词。须逐字摘取原文中的名称，不自行扩成整个行业。
 程序会在已确认的嘉宾原句中逐字定位这个名称，可以出现在同一问答的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
     reading_repair_note=''
+    literal_attempted=set()
     def fallback(only_preferred=False):
         if editorial_focus:
             raise ValueError('故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句')
@@ -1609,8 +1776,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if prefer_reviewed_quote:
                 return fallback(only_preferred=True)
             if structured_model:
-                subjects={word:[i for i in ids if i in guest_ids] for word,ids in subject_catalog(units).items()}
-                subjects={word:ids for word,ids in subjects.items() if ids}
+                subjects=subject_catalog(units,allowed_ids=guest_ids)
             draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
             draft_retry=retry_note
             if structured_model:
@@ -1629,6 +1795,12 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                         source_heading+='阅读阶段确认的本回答对象及嘉宾原句：'+json.dumps(bound_subject,ensure_ascii=False)+'。每个候选的标题和封面都写明此对象，并引用主要回答和对象原句；不能只留下没买、这个位置等片段。\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
+                guest_text=''.join(draft_source.values())
+                if rare_sale_scope_error('其他都不卖','',guest_text):
+                    source_heading+='原文对卖出的回顾含有基本、很少等频率范围，不能改成除某项外其他都不卖。标题与封面各自保留同一判断的原有限定，也可以只写原文明确的具体选择，不得扩大到全部持仓。\n'
+                if lifetime_holding_hedge_error('终身持有','',guest_text):
+                    if re.search(r'(?:可能|也许|或许)[^。！？!?]{0,16}终身持有',guest_text):
+                        source_heading+='原话对终身持有使用了可能等限定。若写到这种持有期限，标题与封面都分别保留该限定；不得把可能的计划写成确定永远不卖的承诺。\n'
                 if unresearched_reports(''.join(draft_source.values())):
                     source_heading+='原话明确未研究，并只转述别人说法。涉及这条转述的判断时，标题与封面各自保留“听说”；仅写“未研究”不等于保留转述。也可以只写本人明确的做法，不把转述写成已证实的结论。“没参与”是没有参加，不是先参加再“退出”，不可新增持仓经历。\n'
                 if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):
@@ -1654,25 +1826,30 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 draft_source=dict(enumerate(units))
                 source_heading='下面是按原顺序编号的完整字幕，未删改：\n'
             draft_prompt=draft_prompt.replace('__TITLE_SOURCE__',source_heading+json.dumps(draft_source,ensure_ascii=False))
-            proposal = _json(call(draft_retry + draft_prompt,
-                                  proposal_schema(len(units), subjects,guest_ids if structured_model else None)))
-            candidates = proposal.get('c_candidates' if structured_model else 'candidates')
-            if not isinstance(candidates, list) or len(candidates) != 3:
-                raise ValueError('必须提供三个不同角度的候选标题')
-            # A structured production call never accepts model-authored evidence.
-            if structured_model:
-                raw_focus=proposal.get('b_focus') or {}
-                # One malformed sibling must not discard source-bound drafts.
-                bound = []
-                for candidate in candidates:
-                    try:
-                        item=bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids)
-                        if bound_subject:
-                            item=require_answer_subject(item,bound_subject)
-                        bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
-                    except (ValueError, TypeError, KeyError, AttributeError):
-                        bound.append({})
-                candidates = bound
+            candidates=(bound_story_literal_candidates(editorial_focus,units,subjects,guest_ids,
+                speaker,literal_attempted) if structured_model and not answer_focus else [])
+            if candidates:
+                literal_attempted.update(c['title'] for c in candidates)
+            else:
+                proposal = _json(call(draft_retry + draft_prompt,
+                                      proposal_schema(len(units), subjects,guest_ids if structured_model else None)))
+                candidates = proposal.get('c_candidates' if structured_model else 'candidates')
+                if not isinstance(candidates, list) or len(candidates) != 3:
+                    raise ValueError('必须提供三个不同角度的候选标题')
+                # A structured production call never accepts model-authored evidence.
+                if structured_model:
+                    raw_focus=proposal.get('b_focus') or {}
+                    # One malformed sibling must not discard source-bound drafts.
+                    bound = []
+                    for candidate in candidates:
+                        try:
+                            item=bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids)
+                            if bound_subject:
+                                item=require_answer_subject(item,bound_subject)
+                            bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
+                        except (ValueError, TypeError, KeyError, AttributeError):
+                            bound.append({})
+                    candidates = bound
             from publishing_experiment import title_focus_error
             errors = [((title_focus_error(c.get('title'),editorial_focus,speaker,c.get('cover_title')) if editorial_focus else None)
                        or _candidate_error(c, transcript, speaker, existing_titles)
@@ -1799,6 +1976,7 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                     result['answer_focus_reading']['subject']=bound_subject
             result['editorial_selection'] = dict(
                 policy='review_then_source_reader_value_v2', attempt=attempt+1,
+                proposal_method=item.get('proposal_method','model_draft'),
                 reviewed_count=len(valid), accepted_count=len(accepted),
                 selected_index=winner['index'],
                 candidates=[dict(title=c['title'], features=editorial_features(c),
