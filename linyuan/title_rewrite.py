@@ -813,12 +813,64 @@ def example_duration_error(title, cover, transcript):
     return None
 
 
+def comparison_modality_error(title, cover, transcript):
+    """Keep a metric comparison's own possibility qualifier on each surface.
+
+    Match the metric, direction and named comparator together. An unrelated
+    可能 in the same interview is neither a source qualifier nor permission
+    to omit one. This rejects a draft, never repairs the original transcript.
+    """
+    metric = r'估值|市盈率|市净率|价格|成本|利润率|毛利率|收益率'
+    modal = r'可能|或许|也许|未必|不一定|有望|应该|应当|预计|估计'
+    filler = r'(?:啊|呢|嘛|那|它|他|的|这个|那个|还|也|就|是|会|更)'
+    bridge = rf'(?:{filler}|{modal})*'
+    patterns = [
+        re.compile(rf'(?P<metric>{metric})(?P<bridge>{bridge})比'
+                   r'(?P<object>[\u4e00-\u9fffA-Za-z]{1,20}?)(?P<direction>高|低)'),
+        re.compile(rf'(?P<metric>{metric})(?P<bridge>{bridge})'
+                   r'(?P<direction>高|低)于(?P<object>[\u4e00-\u9fffA-Za-z]{1,20})'),
+    ]
+
+    def relations(text):
+        rows = []
+        # A comma can split a word in raw ASR (行，业). Preserve sentence
+        # and contrast boundaries before removing display punctuation.
+        for sentence in re.split(r'[。！？!?；;]|但是|不过|可是', text):
+            sentence = compact(sentence)
+            for pattern in patterns:
+                for match in pattern.finditer(sentence):
+                    target = re.split(modal, match['object'])[0]
+                    target = re.sub(r'的|(?:还|更|啊|呢|了|嘛|完全|有)+$', '', target)
+                    if len(target) < 2:
+                        continue
+                    before = sentence[:match.start()]
+                    after = sentence[match.end():]
+                    uncertain = bool(
+                        re.search(modal, match['bridge'])
+                        or re.search(modal, match['object'])
+                        or re.search(rf'(?:{modal}){filler}*$', before)
+                        or re.match(rf'(?:了|啊|呢|嘛|完全|都|也|有)*(?:{modal})', after))
+                    rows.append((match['metric'], match['direction'], target, uncertain))
+        return rows
+
+    source = relations(transcript)
+    for copy in (title, cover):
+        for kind, direction, target, qualified in relations(copy):
+            evidence = [q for q in source if q[:3] == (kind, direction, target)]
+            if evidence and all(q[3] for q in evidence) and not qualified:
+                return '比较判断丢失原文可能或估计的语气；标题和封面须分别保留同一指标及比较对象的限定'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
     This narrow rule catches the actual source58 failure. It neither invents a
     missing index level/date nor claims to solve general semantic entailment.
     """
+    comparison_issue = comparison_modality_error(title, cover, transcript)
+    if comparison_issue:
+        return comparison_issue
     from title_market_impression import impression_error
     actor_issue = negative_actor_error(title, cover, transcript)
     if actor_issue:
