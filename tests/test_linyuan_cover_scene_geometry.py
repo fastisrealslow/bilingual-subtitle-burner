@@ -37,3 +37,15 @@ def test_large_black_regions_and_insufficient_samples_keep_existing_hard_rejecti
     frames=pictures()
     for frame in frames:frame[:200]=0
     with pytest.raises(ValueError,match='安全裁边范围'):border_exclusions(frames)
+
+
+def test_bounded_tighter_proposal_preserves_face_and_minimum_source_pixels():
+    face=(900,250,140,170)
+    first=scene_cover_crop(face,1920,1080,[])
+    second=scene_cover_crop(face,1920,1080,[],maximum_width=first[2]-64)
+    assert 960<=second[2]<first[2] and second[3]>=540
+    x,y,w,h=second
+    assert x+8<=face[0] and face[0]+face[2]<=x+w-8
+    assert y+max(8,face[3]*.22)<=face[1]
+    with pytest.raises(ValueError,match='人物占比'):
+        scene_cover_crop((900,250,90,110),1920,1080,[])

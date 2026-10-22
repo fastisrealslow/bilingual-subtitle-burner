@@ -1,4 +1,5 @@
 """Replay actual native-cover failures on original pixels, no models or posts."""
+import ast
 import hashlib
 import json
 import os
@@ -23,9 +24,21 @@ def sha(path):
     return result.hexdigest()
 
 
+def original_function(path,ref,name,namespace):
+    raw=subprocess.check_output(['gh','api',
+        f'repos/{os.environ["GITHUB_REPOSITORY"]}/contents/{path}?ref={ref}',
+        '-H','Accept: application/vnd.github.raw+json'],timeout=120)
+    tree=ast.parse(raw)
+    node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name)
+    scope=dict(namespace)
+    exec(compile(ast.Module(body=[node],type_ignores=[]),f'{ref}:{path}','exec'),scope)
+    return scope[name],scope,hashlib.sha256(raw).hexdigest()
+
+
 def main():
     import produce_cn as producer
     import cover_scene_geometry
+    import live_tracking
     from editorial_policy import text_digest
     from publishing_experiment import digest
     out=Path('scene-cover-verification');out.mkdir(exist_ok=True)
@@ -54,6 +67,13 @@ def main():
         reference=producer._download_speaker_reference('林园',out)
         result.update(source_sha256=source['source_sha256'],reference_sha256=sha(reference),
             original_run_id=39753799731,editorial_artifact=12417458565,mother_artifact=12414668738)
+        run=json.loads(subprocess.check_output(['gh','api',
+            f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/39753799731'],timeout=120))
+        assert run['conclusion']=='failure' and run['head_sha']=='dfbd94035c550e3fdcfca552172b76a33a2a2314'
+        old_make,old_scope,old_producer_sha=original_function('linyuan/produce_cn.py',run['head_sha'],'make_cover',producer.__dict__)
+        old_crop,_,old_tracking_sha=original_function('linyuan/live_tracking.py',run['head_sha'],'scene_cover_crop',live_tracking.__dict__)
+        result.update(control_producer_sha256=old_producer_sha,control_tracking_sha256=old_tracking_sha,
+            proposed_producer_sha256=sha(Path(producer.__file__)),proposed_tracking_sha256=sha(Path(live_tracking.__file__)))
         for i,(pick,copy,audit) in enumerate(zip(picks,copies,audits),1):
             text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
             assert digest(text)==pick['story_selection']['transcript_sha256']
@@ -73,12 +93,12 @@ def main():
                             row['samples'].append(str(dest.relative_to(out)))
                         row['captured_'+variant]=True;save()
                     return original_ocr(frames,*args,**kwargs)
-                def no_fix(frames):return [],dict(control_original_crop_logic=True,final_quality_approved=False)
                 try:
                     with patch.object(producer,'detect_corner_logos_in_images',record_frames):
                         if variant=='control':
-                            with patch.object(cover_scene_geometry,'border_exclusions',no_fix):
-                                producer.make_cover(video,cues[pick['start']]['start'],cues[pick['end']]['end'],
+                            old_scope['detect_corner_logos_in_images']=record_frames
+                            with patch.object(live_tracking,'scene_cover_crop',old_crop):
+                                old_make(video,cues[pick['start']]['start'],cues[pick['end']]['end'],
                                     copy['cover_title'],'林园',work/'cover.jpg',video_filter='',
                                     preferred_time=(source.get('visual_identity') or {}).get('best_cover_time'),
                                     reference_path=reference,style='scene',allow_editorial_fallback=False,clean_scene_crop=True)
