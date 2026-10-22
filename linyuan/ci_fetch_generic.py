@@ -62,6 +62,8 @@ def fetch(url, directory, failure_report):
     manifest = directory / 'downloaded-path.txt'
     manifest.unlink(missing_ok=True)
     try:
+        origin = None
+        download_url, extra_args = url, []
         from ci_fetch_ifeng import ARTICLE_HOSTS
         if urlsplit(url).hostname in ARTICLE_HOSTS:
             from ci_fetch_ifeng import fetch as fetch_ifeng
@@ -70,13 +72,19 @@ def fetch(url, directory, failure_report):
             origin.parent.mkdir(parents=True,exist_ok=True)
             origin.write_text(media.with_suffix('.origin.json').read_text())
             return media
+        from ci_fetch_netease import PAGE_HOSTS
+        if urlsplit(url).hostname in PAGE_HOSTS:
+            from ci_fetch_netease import resolve
+            origin = resolve(url)
+            download_url = origin['media_url']
+            extra_args = ['--referer', url]
         subprocess.run([
             sys.executable, '-m', 'yt_dlp', '--no-playlist', '--continue',
             '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10',
             '--concurrent-fragments', '4', '-f', FORMAT, '--merge-output-format', 'mp4',
             '--format-sort', 'res:1080',
             '--print-to-file', 'after_move:filepath', str(manifest),
-            '-o', str(directory / 'video.%(ext)s'), url,
+            '-o', str(directory / 'video.%(ext)s'), *extra_args, download_url,
         ], check=True, stderr=subprocess.PIPE, text=True)
         paths = manifest.read_text().splitlines()
         if len(paths) != 1:
@@ -85,12 +93,22 @@ def fetch(url, directory, failure_report):
         if media.parent != directory or media.suffix.lower() in IMAGE_EXTENSIONS:
             raise ValueError('下载结果不是本次目录中的音视频文件，拒绝预览图')
         try:
-            validate_media(media)
+            valid = validate_media(media)
         except RuntimeError as exc:
             if not re.search(r'合流后音视频时长漂移 [0-9.]+s',str(exc)):
                 raise
             proof=normalize_small_unpaired_tail(media)
             print('[取源修复] 已裁去无配对尾部：'+json.dumps(proof,ensure_ascii=False),flush=True)
+            valid = validate_media(media)
+        if origin:
+            if abs(valid['duration'] - origin['declared_duration']) > 3:
+                raise ValueError('网易实际媒体时长与正文完整清单不符')
+            from ci_fetch_bilibili import sha256_file
+            with media.open('rb') as handle:
+                origin['sha256'] = sha256_file(handle)
+            report = Path(failure_report).parent/'source_origin.json'
+            report.parent.mkdir(parents=True, exist_ok=True)
+            report.write_text(json.dumps(origin, ensure_ascii=False, indent=2)+'\n')
         return media
     except Exception as exc:
         report = Path(failure_report)
