@@ -5,6 +5,7 @@ import sys
 from types import SimpleNamespace as NS
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'linyuan/fc'), str(ROOT / 'linyuan')]
@@ -12,6 +13,24 @@ import index as fc
 import dispatch_on_runner as runner
 import catchup_from_inventory as catchup
 import verify_production as verify
+
+
+def test_successful_main_deploy_rechecks_normal_admission_without_waiting_for_full_inventory_scan():
+    doc = yaml.safe_load((ROOT / '.github/workflows/linyuan-dispatch-runner.yml').read_text())
+    events = doc.get('on', doc.get(True))
+    assert events['workflow_run'] == {'workflows': ['FC production deploy'], 'types': ['completed']}
+    assert events['schedule'] == [{'cron': '7,37 * * * *'}]
+    job = doc['jobs']['dispatch']
+    guard = job['if']
+    assert "github.event_name != 'workflow_run' ||" in guard
+    assert "github.event.workflow_run.conclusion == 'success'" in guard
+    assert "github.event.workflow_run.head_branch == 'main'" in guard
+    assert 'github.event.workflow_run.head_repository.full_name == github.repository' in guard
+    assert doc['concurrency'] == {'group': 'linyuan-dispatch-runner', 'cancel-in-progress': False}
+    checkout = next(s for s in job['steps'] if s.get('uses', '').startswith('actions/checkout@'))
+    assert checkout['with']['ref'] == 'main'
+    assert job['timeout-minutes'] == 35
+    assert next(s for s in job['steps'] if s.get('run', '').endswith('dispatch_on_runner.py'))['run'] == 'python -u linyuan/fc/dispatch_on_runner.py'
 
 
 @pytest.mark.parametrize('page,video,domestic', [
