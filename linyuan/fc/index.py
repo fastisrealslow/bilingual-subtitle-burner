@@ -3676,8 +3676,18 @@ def _recover_changed_production_rule(st, candidate, run):
             if pattern:
                 code=[line[1:].strip() for line in str(file.get('patch') or '').splitlines()
                       if line[:1] in ('+','-') and not line.startswith(('+++','---'))]
-                return any(line and not line.startswith('#') and re.search(pattern,line)
-                           for line in code)
+                hits=[line for line in code if line and not line.startswith('#') and re.search(pattern,line)]
+                portrait_only=(case[0]=='visual-preflight-v2' and hits
+                    and any(line.startswith('def _produce_with_layout_preference(') for line in code)
+                    and 'if portrait_story:' in code
+                    and all(line=='crop_w,crop_h=AUDIO_CARD_WIDTH,AUDIO_CARD_HEIGHT' for line in hits))
+                if portrait_only:
+                    # This branch changes only explicitly requested portrait T
+                    # pictures. It cannot repair an ordinary/native crop reject.
+                    from publishing_experiment import TREATMENT
+                    return (candidate.get('editorial_profile')==TREATMENT
+                            and candidate.get('output_layout')=='portrait')
+                return bool(hits)
         if (case[0]=='transcript-review-model-v3'
                 and file.get('filename')=='.github/workflows/linyuan-produce-cn.yml'):
             # Actual Oct22: adding asr_prepare's step ID / failure reporting
