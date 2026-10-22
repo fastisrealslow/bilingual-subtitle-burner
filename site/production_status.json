@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792698379,
+  "updated_at": 1792698546,
   "inventory_updated_at": 1792698365,
   "continuity": {
     "daily_target": 4,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792698378,
+    "updated_at": 1792698546,
     "records": 11429,
     "video_records": 9861,
     "initial_candidates": 61,
@@ -126,9 +126,9 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1232,
+    "failed": 1233,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 15,
     "experiment_fallback": 9,
     "ready": 6,
@@ -25579,11 +25579,11 @@
     },
     {
       "slug": "ly-story-fb8a34b6b5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]",
       "signature": {
         "ts": 1792697222,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -36791,17 +36791,6 @@
       "run_number": 2486,
       "display_title": "中文源出片 · ly-story-99ddef2e4b"
     },
-    "ly-story-9c88bea169": {
-      "id": 39840174666,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-22T19:27:10Z",
-      "updated_at": "2026-10-22T19:27:15Z",
-      "run_started_at": "2026-10-22T19:27:10Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39840174666",
-      "run_number": 2489,
-      "display_title": "中文源出片 · ly-story-9c88bea169"
-    },
     "ly-story-fb8a34b6b5": {
       "id": 39840153216,
       "status": "completed",
@@ -36812,6 +36801,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39840153216",
       "run_number": 2488,
       "display_title": "中文源出片 · ly-story-fb8a34b6b5"
+    },
+    "ly-story-9c88bea169": {
+      "id": 39840174666,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T19:27:10Z",
+      "updated_at": "2026-10-22T19:27:15Z",
+      "run_started_at": "2026-10-22T19:27:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39840174666",
+      "run_number": 2489,
+      "display_title": "中文源出片 · ly-story-9c88bea169"
     },
     "ly-story-608bf63cec": {
       "id": 39838012662,
