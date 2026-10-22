@@ -3451,6 +3451,8 @@ def _recover_changed_production_rule(st, candidate, run):
     cases=[('scene-aware-selection-v1',('来源角标无法避开','原画无法通过真人画面清理门禁',
                                       '真人动态区仍有原素材字幕','整段取景预检'),
             ('linyuan/scene_text.py','linyuan/visual_selection.py')),
+           ('native-cover-borders-v1',('封面生成/人物/角标复检失败：现场原画封面存在黑色填充边',),
+            ('linyuan/cover_scene_geometry.py',)),
            ('live-geometry-v1',('来源角标无法避开','原画无法通过真人画面清理门禁'),
             ('linyuan/live_tracking.py',)),
            ('download-prefix-v2',('CDN内容版本改变','取源达到总时间预算',

@@ -4064,6 +4064,16 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         marks=detect_corner_logos_in_images(frames)
         evidence=json.loads((frames[0].parent/'corner_ocr.json').read_text())['evidence']
         marks+=source_edge_text_exclusions(evidence)
+        # The video crop already handles encoded borders, but native covers
+        # intentionally sample the ORIGINAL mother. Propose the same measured
+        # blank strips as exclusions before searching a real-pixel 16:9 crop.
+        # Existing size/headroom/identity/OCR/QR/black-edge/feed gates remain.
+        from cover_scene_geometry import border_exclusions
+        pixels=[cv2.imread(str(frame)) for frame in frames]
+        if any(frame is None for frame in pixels):
+            raise VisualQualityError('现场封面黑边预检抽帧读取失败')
+        border_marks,border_proof=border_exclusions(pixels)
+        marks+=border_marks
         for row in evidence:
             x0,y0,x1,y1=row['rect']
             if float(row['confidence'])>=.75 and (y1<.30 or y0>.80 or x1<.20 or x0>.80):
@@ -4088,6 +4098,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                 select_verified_cover_face([target],reference_path)
                 scene_crops[str(target)]=dict(input=[w,h],crop=[x,y,cw,ch],
                     source_frame_sha256=_file_sha256(original),method='measured_overlay_avoidance_real_pixels')
+                scene_crops[str(target)]['black_border_measurement']=border_proof
                 cleaned.append(target)
             except (ValueError,VisualQualityError) as exc:
                 errors.append(str(exc))
