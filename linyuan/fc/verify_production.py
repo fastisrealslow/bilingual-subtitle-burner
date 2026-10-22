@@ -73,6 +73,7 @@ def verify_config_health(health, root=None):
             or health.get('publishing_experiment_sha256')!=hashlib.sha256(experiment_path.read_bytes()).hexdigest()):
         raise SystemExit('Deployed editorial experiment does not match verified checkout')
     if (health.get('code_sha256') != expected or health.get('daily_limit') != 4
+            or health.get('title_policy_sha256') != hashlib.sha256((root/'linyuan/title_rewrite.py').read_bytes()).hexdigest()
             or health.get('source_admission_guard_sha256') != hashlib.sha256((root/'linyuan/source_admission_guard.py').read_bytes()).hexdigest()
             or health.get('source_restrictions_sha256') != hashlib.sha256((root/'linyuan/source_restrictions.json').read_bytes()).hexdigest()
             or health.get('audience_copy_version') != 2026101701

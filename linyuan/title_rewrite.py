@@ -732,6 +732,33 @@ def negative_actor_error(title, cover, transcript):
     return None
 
 
+def human_condition_actor_error(title, cover, transcript):
+    """Do not turn a human-demand hypothesis into investor identity/obligation.
+
+    This rejects observed false approvals; it never certifies source meaning.
+    The complete source and independent attribution/qualifier review remain.
+    """
+    if not re.search(r'除非(?:这|那)?个人[^。！？!?]{0,40}(?:吃|喝|机器人)',transcript or ''):
+        return None
+    for copy in (title, cover):
+        value=re.sub(r'^[^：:]+[：:]', '',copy or '')
+        necessity=r'(?:少不了|必须|不得不)(?:投|买|持有)|(?:我|人|大家|人人)[^，,。！？!?]{0,4}就得(?:投|买|持有)'
+        if (re.search(r'(?:他|她|人|大家)[^。！？!?，,]{0,6}少不了',transcript)
+                and re.search(necessity,value) and not re.search(necessity,transcript)):
+            return '原话少不了的是人对吃喝的需求，不是我不得不投资；不能拼接不同主体的动作'
+        for condition in re.findall(r'除非[^，,。！？!?；;]{1,32}',value):
+            if (re.search(r'吃|喝|机器人',condition)
+                    and not re.match(r'除非(?:(?:这|那|每)个|所有|全体)?(?:人(?:们|类)?|大家|消费者)',condition)):
+                return '原话条件的主体是人是否仍需吃喝；不能变成投资者本人变机器人'
+        if (re.search(r'机器人(?:之)?前[^。！？!?]{0,12}(?:绝不|不(?:会)?(?:投|买|动手))',value)
+                and not re.search(r'机器人(?:之)?前',transcript)):
+            return '不能把人的需求假设改成机器人出现之前一概不投资；原文没有这项时间承诺'
+        avoidance=r'(?:避开|远离|躲开)[^。！？!?]{0,20}(?:不吃不喝|机器人|怪人)'
+        if re.search(avoidance,value) and not re.search(avoidance,transcript):
+            return '人的需求假设不是避开某类人的投资策略；不能新增回避行为'
+    return None
+
+
 def hypothetical_clause_error(title, cover, transcript):
     """Keep an explicit hypothesis attached to a literally reused premise.
 
@@ -823,6 +850,9 @@ def forecast_copy_error(title, cover, transcript):
     actor_issue = negative_actor_error(title, cover, transcript)
     if actor_issue:
         return actor_issue
+    human_condition_issue = human_condition_actor_error(title, cover, transcript)
+    if human_condition_issue:
+        return human_condition_issue
     clause_issue = hypothetical_clause_error(title, cover, transcript)
     if clause_issue:
         return clause_issue
