@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parent/'fc'))
@@ -33,10 +34,23 @@ def main():
         assert not fc._recover_preflight_failure(state,entry,run,artifacts)
     assert len(writes)==1 and state['published']==before['published']
     assert state['daily_publish']==before['daily_publish']
+    old_workflow=subprocess.check_output(['gh','api',
+        f'repos/{os.environ["GITHUB_REPOSITORY"]}/contents/.github/workflows/linyuan-produce-cn.yml?ref={run["head_sha"]}',
+        '-H','Accept: application/vnd.github.raw+json'],timeout=120).decode()
+    old_step=old_workflow.split('- name: 准备CPU离线Qwen识别及逐字对齐',1)[1].split('      - name:',1)[0]
+    assert 'id: asr_prepare' not in old_step
+    from production_failure_report import report_missing
+    with tempfile.TemporaryDirectory(prefix='missing-step-report-') as tmp:
+        path=Path(tmp)/'batch_report.json'
+        assert report_missing(path,dict(source_gate=dict(outcome='success')),entry['slug'],
+                              job_failed=run['conclusion']=='failure')
+        report=json.loads(path.read_text())
+        assert report['accepted']==0 and report['retryable'] is True
     print(json.dumps(dict(snapshot=snapshot,slug=entry['slug'],old_run_id=run['id'],
         old_head_sha=run['head_sha'],failure_stage=entry['failure_stage'],passed=True,
         read_only=True,remote_state_written=False,dispatches=0,media_downloads=0,
-        old_asr_imported=False,registered_stock=False,published=False),ensure_ascii=False))
+        old_asr_imported=False,registered_stock=False,published=False,
+        missing_step_runtime_report_preserved=True),ensure_ascii=False))
 
 
 if __name__=='__main__':main()

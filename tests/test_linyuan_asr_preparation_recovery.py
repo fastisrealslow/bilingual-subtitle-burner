@@ -89,3 +89,24 @@ def test_future_preparation_failure_has_step_id_and_retryable_runtime_report(tmp
     assert report['accepted']==0 and report['retryable'] is True
     assert report['rejected'][0]['stage']=='workflow-runtime'
     assert 'asr_prepare' in report['rejected'][0]['reason']
+
+
+def test_actual_job_failure_without_step_id_is_not_silently_lost(tmp_path):
+    path=tmp_path/'batch_report.json'
+    steps=dict(source_gate=dict(outcome='success'))
+    assert not report_missing(path,steps,'fresh')
+    assert report_missing(path,steps,'fresh',job_failed=True)
+    report=json.loads(path.read_text())
+    assert report['retryable'] is True and report['accepted']==0
+    assert report['rejected'][0]['stage']=='workflow-runtime'
+    assert 'unreported_workflow_step' in report['rejected'][0]['reason']
+    before=path.read_bytes()
+    assert not report_missing(path,steps,'fresh',job_failed=True)
+    assert path.read_bytes()==before
+
+
+@pytest.mark.parametrize('step',['source_admission','src','source_gate'])
+def test_job_failed_fallback_never_overrides_explicit_source_rejections(tmp_path,step):
+    path=tmp_path/'batch_report.json'
+    assert not report_missing(path,{step:dict(outcome='failure')},'fresh',job_failed=True)
+    assert not path.exists()

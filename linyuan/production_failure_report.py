@@ -40,10 +40,16 @@ def alignment_failure(work):
         return None
 
 
-def report_missing(path, steps, slug):
+def report_missing(path, steps, slug, *, job_failed=False):
     path=Path(path)
     if path.exists():return False
     failed=[name for name, row in steps.items() if row.get('outcome')=='failure']
+    if not failed and job_failed is True:
+        # GitHub's steps context omits steps without IDs (dependency setup,
+        # weight preparation, etc.). The actual failed job remains a runtime
+        # failure, never a source-quality verdict. Preserve a retryable report
+        # rather than leaving a silently interrupted source in the ledger.
+        failed=['unreported_workflow_step']
     if not failed or any(name in {'src','source_gate','source_admission'} for name in failed):return False
     rejection=dict(stage='workflow-runtime',error_type='WorkflowRuntimeFailure',retryable=True,
         reason='工作流步骤失败，未形成素材不合格结论：'+','.join(failed))
@@ -62,4 +68,5 @@ def report_missing(path, steps, slug):
 if __name__=='__main__':
     slug=os.environ['RUN_SLUG']
     report_missing(Path('deliver')/slug/'batch_report.json',
-                   json.loads(os.environ['PRODUCTION_STEPS']),slug)
+                   json.loads(os.environ['PRODUCTION_STEPS']),slug,
+                   job_failed=os.environ.get('PRODUCTION_JOB_STATUS')=='failure')

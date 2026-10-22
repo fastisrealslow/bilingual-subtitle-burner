@@ -496,6 +496,7 @@ jobs:
         if: failure()
         env:
           PRODUCTION_STEPS: ${{ toJSON(steps) }}
+          PRODUCTION_JOB_STATUS: ${{ job.status }}
         run: python production_failure_report.py
 
       - name: 保存已经完成的文本推理（后续失败仍保留）
