@@ -5607,6 +5607,18 @@ def argument_record_for_render(cues,picks,speaker,api_key,work,suffix):
     return proof
 
 
+def story_portrait_window_required(treatment, width, height, requested=None):
+    """Explicit portrait treatment needs real portrait pixels, not a label.
+
+    Native landscape remains preferred in auto/landscape mode. This only
+    selects the existing fully gated moving-window renderer, not approval.
+    """
+    requested=os.environ.get('OUTPUT_LAYOUT','auto') if requested is None else requested
+    if requested not in {'auto','portrait','landscape'}:
+        raise ValueError('未知横竖屏选择')
+    return bool(treatment and requested=='portrait' and width>height)
+
+
 def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  existing_subtitles, W, H, suffix, pick_cache_suffix="", target_sec=None,
                  allow_empty=False, visual_report=None, source_report=None,
@@ -5623,6 +5635,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         return None
     from publishing_experiment import profile, TREATMENT
     story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
+    portrait_story=story_portrait_window_required(story_treatment,W,H)
+    if portrait_story:
+        prefer_live_video=True
+        require_live_video=True
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     if automatic_only():
@@ -5684,8 +5700,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     strategy = source_report.get("clean_strategy", "direct")
     native_plan=None;interview_plan=None;participant_reference=None
     proposed_native=(reviewed_native_cleanup(source_report,W,H,
-        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 else None)
-    if proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1:
+        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 and not portrait_story else None)
+    if not portrait_story and (proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1):
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
             **({'proposed_crop':proposed_native,
@@ -5705,6 +5721,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     clean_resolution = source_report.get("clean_output_resolution") or {}
     crop_w = int(clean_resolution.get("width") or (W // 2 * 2))
     crop_h = int(clean_resolution.get("height") or (H // 2 * 2))
+    if portrait_story:
+        strategy='audio_card'
+        crop_w,crop_h=AUDIO_CARD_WIDTH,AUDIO_CARD_HEIGHT
+        print('[实验竖屏] 使用逐帧核验的真人动态窗口；不把原生横屏标成竖屏',flush=True)
     border_proof = None
     landscape_proof = None
     if strategy != 'audio_card':
