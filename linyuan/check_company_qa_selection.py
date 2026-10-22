@@ -70,9 +70,33 @@ def main():
         and not negatives['selected'] and len(negatives['rejected'])==len(negative_texts))
     result['passed']=all(result[k] for k in ('actual_company_qa_selected','generic_theory_rejected',
         'future_company_comparison_rejected','selection_completed','hypothetical_denied_unanswered_future_rejected'))
+    result['selector_passed']=result['passed']
+    (target/'verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+    assert result['selector_passed'],'Actual complete company Q&A or negative controls failed; not a production approval'
+    # The actual selector swapped valid event/detail roles. Check the full
+    # production writer against that CURRENT evidence, not a manually supplied
+    # title, focus or old copy. This still does not approve source/media.
+    item=selected[expected];work=target/'actual-title';work.mkdir(exist_ok=True)
+    result['passed']=False
+    (target/'verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+    try:
+        copy=production.copywrite(cues,list(range(item['start'],item['end']+1)),
+            '林园','访谈','',work,'_actual',story_evidence=item['story_selection'],
+            source_sha256=quality['source_sha256'])
+        text=''.join(c['text'] for c in cues[item['start']:item['end']+1])
+        from title_rewrite import error
+        issue=error(copy['title'],copy['title_rewrite'],text)
+        focus_issue=experiment.title_focus_error(copy['title'],experiment.title_focus(item['story_selection']),
+            cover=copy['cover_title'])
+        assert issue is None and focus_issue is None,(issue,focus_issue)
+        assert copy['title_rewrite']['review']['method']=='cpu_text_review'
+        result.update(actual_title=copy['title'],actual_cover_title=copy['cover_title'],
+            actual_title_full_generation_review_passed=True,passed=True)
+    except Exception as exc:
+        result['actual_title_error']=str(exc)
     (target/'verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
     print(json.dumps(result,ensure_ascii=False,indent=2),flush=True)
-    assert result['passed'],'Actual complete company Q&A or negative controls failed; not a production approval'
+    assert result['passed'],'Actual source-bound company title generation/review failed; not a production approval'
 
 
 if __name__=='__main__':main()

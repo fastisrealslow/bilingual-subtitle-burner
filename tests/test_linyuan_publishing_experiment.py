@@ -145,6 +145,10 @@ def test_story_title_requires_actual_company_and_named_reason_not_approved_gener
     assert E.title_focus_error('林园：当年投茅台，看准收入爆发前的消费升级',focus)
     assert E.title_focus_error('林园：投茅台因收入达爆发期，认准消费升级理论',focus)
     assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus) is None
+    swapped={**selection,'event_quote':selection['detail_quote'],'detail_quote':selection['event_quote']}
+    assert E.title_focus(swapped)['details']==focus['details']==['消费升级']
+    assert E.title_focus_error('林园：当年投茅台是消费升级理论的选择',E.title_focus(swapped)) is None
+    assert E.title_focus_error('林园：投茅台因收入爆发期',E.title_focus(swapped))
     assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus,cover='收入爆发前投茅台')
     explicit={**focus,'source':['收入将爆发，消费升级。']}
     assert E.title_focus_error('林园：投茅台看消费升级和收入将爆发',explicit) is None

@@ -356,9 +356,9 @@ def story_title_prompt(prompt,schema,evidence):
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
-        '再表达本人理由；理由优先保留细节原句里的关键名词，不换成别的对象的增长或爆发。'
+        '再表达本人理由；理由优先保留原话明确命名的理论或选择标准，不换成别的对象的增长或爆发。'
         '拟稿像本人随口讲清一件事：具体选择加一条最直接理由，正文优先16至26字，'
-        '不为了字数截断、不省略必要条件。若细节原句已明确命名理论或选择标准，'
+        '不为了字数截断、不省略必要条件。若事件或细节原句已明确命名理论或选择标准，'
         '直接沿用这个原词，不必把背景时点、程度描述和整条推理链都串进标题。'
         '三个候选换自然说法，不往同一句堆更多背景；避免连续“基于、前的、所导致”等书面连接。'
         '核对时事实支持、说话人归属和限定条件标准完全不变。'
@@ -388,9 +388,21 @@ def title_focus(selection):
         compound=[a.word+b.word for a,b in zip(words,words[1:])
                   if a.word in tokens and b.word in tokens and len(a.word+b.word)<=10]
         return list(dict.fromkeys(compound or tokens))[:6]
+    reason=selection.get('detail_quote','')
+    if selection.get('kind')=='company_case':
+        # A direct past-choice answer may supply either event or detail.
+        # Prefer its explicitly named decision standard in either position;
+        # do not force a background noun merely because the model swapped
+        # two otherwise valid source quotes. Independent fact review remains.
+        named_standard=r'(?:提出|采用|采取|按照|根据|遵循)[^。！？!?]{0,30}(?:理论|标准|策略|思路)|(?:理论|标准|策略|思路)[^。！？!?]{0,20}(?:是|叫|为)'
+        for key in ('event_quote','detail_quote'):
+            quote=selection.get(key,'')
+            if re.search(named_standard,quote) and terms(quote):
+                reason=quote
+                break
     return dict(subjects=terms(selection.get('subject_quote',''),True)
                 if selection.get('kind')=='company_case' else [],
-                details=terms(selection.get('detail_quote','')),
+                details=terms(reason),
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
