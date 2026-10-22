@@ -1,0 +1,28 @@
+name: 真实个人事件证据只读核验（不出片不投稿）
+on:
+  push:
+    branches: [codex/linyuan-personal-event-proof-20261023]
+    paths: [linyuan/publishing_experiment.py, linyuan/check_personal_event_proof.py, .github/workflows/linyuan-personal-event-proof-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q jieba
+      - name: 校验真实假设问答不冒充亲历，真实公司选择不被误杀
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python linyuan/check_personal_event_proof.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: personal-event-proof-verification
+          path: personal-event-proof-verification/
+          if-no-files-found: error
