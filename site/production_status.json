@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792687878,
+  "updated_at": 1792688066,
   "inventory_updated_at": 1792687850,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 10,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792687877,
+    "updated_at": 1792688065,
     "records": 11419,
     "video_records": 9852,
     "initial_candidates": 61,
@@ -126,13 +126,14 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1215,
+    "failed": 1222,
     "paused": 5,
-    "interrupted": 16,
+    "interrupted": 6,
     "excluded": 15,
     "experiment_fallback": 8,
     "ready": 6,
-    "running": 7
+    "retry_queued": 4,
+    "running": 6
   },
   "tasks": [
     {
@@ -25129,8 +25130,8 @@
     },
     {
       "slug": "ly-story-cc7384a98b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792681925,
         "failed": null,
@@ -25143,18 +25144,18 @@
       "run_id": 39802560065,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39802560065",
       "run_started_at": "2026-10-22T15:12:05Z",
-      "run_updated_at": "2026-10-22T15:12:15Z"
+      "run_updated_at": "2026-10-22T16:53:00Z"
     },
     {
       "slug": "ly-story-9c88bea169",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792682253,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792688879,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -25165,14 +25166,14 @@
     },
     {
       "slug": "ly-story-9ccd46299a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792682266,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792688871,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -25255,11 +25256,11 @@
     },
     {
       "slug": "ly-story-e09b850697",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的宏观。\", \"suspect_quote\": \"那就是实践是行业的宏观\", \"kind\": \"unintelligible_term\", \"reason\": \"'实践是'疑似错写或漏录，结合上下文应为‘把握’、‘判断’或‘就是’等词，‘实践是’在金融语境下含义不明，属于具体识别疑点。\"}, {\"sentence_id\": 15, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发了，开始慢慢要要要行的时候。\", \"suspect_quote\": \"要爆发了，要爆发了，开始慢慢要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"'要要要'虽为口吃重复，但‘行的时候’中‘行’字单独使用指代不明（是‘行业’还是‘可行’？），结合前文‘爆发’语境，此处极可能漏录‘行业’二字，导致关键名词缺失，属于具体识别疑点。\"}]",
       "signature": {
         "ts": 1792684118,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25327,11 +25328,11 @@
     },
     {
       "slug": "ly-story-76a421d637",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"suspect_quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：'百分之六十'作为概率描述在口语中虽常见，但结合上下文'大概率事件'，需确认此处是否为精确数值还是模糊指代；若为精确数据则无问题，但若原意是'六成左右'而识别成固定'百分之六十'，则构成数字污染。\"}]",
       "signature": {
         "ts": 1792685082,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25363,14 +25364,14 @@
     },
     {
       "slug": "ly-story-2408e7fe45",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792685096,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792688860,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -25381,11 +25382,11 @@
     },
     {
       "slug": "ly-1022-70da69",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792685103,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25399,11 +25400,11 @@
     },
     {
       "slug": "ly-story-ca2b411807",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"当时它是政策的需求，比如说科创板，我我我，它会有那个，对个有个科创板有个市值的要求，必须是六百万以上基金，你才能参与那个往下新股申购。\", \"suspect_quote\": \"六百万以上基金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘六百万以上’是指基金资产规模需大于 600 万，还是指其他含义？结合上下文‘科创板有个市值的要求’，此处极可能是将‘基金资产规模’误识别或简写导致的关键条件模糊。若原意为‘基金资产规模六百万以上’，则缺少主语；若为‘发行\"}]",
       "signature": {
         "ts": 1792685983,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25417,14 +25418,14 @@
     },
     {
       "slug": "ly-story-99ddef2e4b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792685994,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792688854,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -25435,11 +25436,11 @@
     },
     {
       "slug": "ly-story-cd0cc1dffe",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上句，再次出现将嘉宾“林园”错识为“林岩”的情况。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就\", \"kind\": \"unintelligible_term\", \"reason\": \"句子逻辑混乱，疑似识别错误导致语义不通。“所以你就”后文缺失或连接不当，结合上下文推测原意可能是“所以你们就把跟我讲的...”，但当前文本中“他有个体会不一样”与前后文衔接生硬，且“干巴巴的讲啊”后的转折关系不明，存在明显的断句或词汇识别疑\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技，AR 这个股票基金”表述极其不通顺。结合林园的投资风格（通常关注消费、医药等），此处极可能是将“人工智能”、“农业”或其他具体行业名称误识别为\"}, {\"sentence_id\": 19, \"quote\": \"现在我们上面一直提心智生产力，那么我也在挖掘，因为我是退役军人，那么我也在挖掘如何让我们大多数的退役军人让他们创造，给他们创造更多的岗位。\", \"suspect_quote\": \"那么我也在挖掘，因为我是退役军人，那么我也在挖掘\", \"kind\": \"unintelligible_term\", \"reason\": \"句子中“那么我也在挖掘”重复出现，且第一次出现时缺乏宾语（挖掘什么？），第二次出现时同样语意不明。这极可能是语音识别将“我在想”、“我在做”或具体项目名称误识为“挖掘”，或者漏掉了关键动词/名词，导致语义残缺。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"明显的重复字错误。“大大家”应为“大家”。这是典型的语音识别中因语速快或发音含糊导致的同音/近音字重复错误。\"}]",
       "signature": {
         "ts": 1792686002,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25453,11 +25454,11 @@
     },
     {
       "slug": "ly-story-646c23d1a9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑。\"}, {\"sentence_id\": 12, \"quote\": \"因为就是现在才是我们这个老龄化的零年，你如果相比二二十年以后，今天的消费是个零，这些药品啊都要在五六十岁才开始用。\", \"suspect_quote\": \"今天的消费是个零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述错误且含义不明。将'今天的消费'描述为'个零'（即零）在逻辑上完全不通，因为老龄化相关药品不可能当前消费量为零。这极可能是识别错误，将'从零开始'或'基数为零'误识为'消费是个零'，导致关键数据点含义混乱。\"}, {\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述矛盾且含义不明。前句刚提到每月开支两千五，此句却说'开支是零'，前后数值直接冲突。结合上下文（糖尿病、高血压需长期服药），此处'零'极可能是识别错误，本意应为'从零开始'或指代某种特定状态，但原文呈现为绝对数值零，造成事实层面的\"}]",
       "signature": {
         "ts": 1792686011,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25525,11 +25526,11 @@
     },
     {
       "slug": "ly-story-5162cfe28f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"梅艳老师好啊，我是二零二零年的时候听了你那个嘴巴经济，就是视频我就看说为什么嘴巴精，是你嘴巴长得大吗？\", \"suspect_quote\": \"嘴巴经济\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境中无明确定义，疑似将“消费”、“经济”等词汇误识别为专有名词，且与后文“为什么嘴巴精”的追问逻辑不通，属于典型的语音转文字错误（可能原意为“消费经济”或特定比喻被截断）。”}, {\"}]",
       "signature": {
         "ts": 1792686548,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -36631,6 +36632,17 @@
       "run_number": 2471,
       "display_title": "中文源出片 · ly-story-5162cfe28f"
     },
+    "ly-story-99ddef2e4b": {
+      "id": 39813108156,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-22T16:19:53Z",
+      "updated_at": "2026-10-22T16:49:13Z",
+      "run_started_at": "2026-10-22T16:19:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39813108156",
+      "run_number": 2465,
+      "display_title": "中文源出片 · ly-story-99ddef2e4b"
+    },
     "ly-story-2409301830": {
       "id": 39813873888,
       "status": "in_progress",
@@ -36663,17 +36675,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39813834448",
       "run_number": 2468,
       "display_title": "中文源出片 · ly-story-13c07fb2f2"
-    },
-    "ly-story-99ddef2e4b": {
-      "id": 39813108156,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T16:19:53Z",
-      "updated_at": "2026-10-22T16:49:13Z",
-      "run_started_at": "2026-10-22T16:19:53Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39813108156",
-      "run_number": 2465,
-      "display_title": "中文源出片 · ly-story-99ddef2e4b"
     },
     "ly-story-aa35da617a": {
       "id": 39810827206,
@@ -36710,10 +36711,10 @@
     },
     "ly-story-cc7384a98b": {
       "id": 39802560065,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T15:12:05Z",
-      "updated_at": "2026-10-22T15:12:15Z",
+      "updated_at": "2026-10-22T16:53:00Z",
       "run_started_at": "2026-10-22T15:12:05Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39802560065",
       "run_number": 2447,
