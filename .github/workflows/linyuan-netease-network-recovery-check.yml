@@ -1,0 +1,29 @@
+name: 网易真实超时与历史次数恢复回放（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-netease-network-recovery-20261022]
+    paths: [linyuan/fc/index.py, linyuan/check_netease_network_recovery.py, .github/workflows/linyuan-netease-network-recovery-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 精确失败原文、对应代码变更及一次恢复资格
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/check_netease_network_recovery.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: netease-network-recovery-verification
+          path: netease-network-recovery-verification.json
+          if-no-files-found: error
