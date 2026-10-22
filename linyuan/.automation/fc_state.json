@@ -40875,7 +40875,33 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "8f379d9cecd36dc6b22d8022beed3a3a698aa217e8e0e48fdf4e2a575294b210",
    "experiment_parent_slug": "ly-1015-5e4dd0",
-   "recovery_origin_run_id": 39404352452
+   "recovery_origin_run_id": 39404352452,
+   "production_failure_summary": {
+    "slug": "ly-story-25aa8c6a50",
+    "run_id": 39851000559,
+    "artifact_id": 12458996080,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"uni"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"还是年轻，这什么事他。\", \"suspect_quote\": \"这什么事他\", \"kind\": \"unintelligible_term\", \"reason\": \"该短语在上下文中无法解释为正常口语、口吃或比喻，极可能是识别错误（如将“这有什么”、“这事啊”等误识），导致语义不明。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39851000559,
+    "artifact_id": 12458996080,
+    "name": "production-reject-ly-story-25aa8c6a50",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -114613,6 +114639,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/P5ftb4y3gx08BDIhXWSk01041209OVM50E040.mp4",
    "ts": 1792698433,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]"
+  },
+  {
+   "slug": "ly-story-25aa8c6a50",
+   "key": "ly-story-25aa8c6a50",
+   "video_id": "BV1zRJ26DEok",
+   "ts": 1792702874,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]"
   }
  ],
  "reviewed_third_video_0910": {
