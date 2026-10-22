@@ -50,6 +50,9 @@ def test_actual_cpu_draft_cannot_change_people_condition_to_investor_condition()
     bad='除非变机器人，我少不了投消费'
     assert title.human_condition_actor_error('林园：'+bad,bad,source)
     assert title.forecast_copy_error('林园：'+bad,bad,source)
+    source+='如果他还真是个人，他少不了。'
+    also_bad='除非人变机器人，我少不了投消费'
+    assert title.forecast_copy_error('林园：'+also_bad,also_bad,source)
     assert title.human_condition_actor_error('林园：除非人变机器人，我只投消费',
         '除非大家变机器人，我只投消费',source) is None
     assert title.human_condition_actor_error('林园：人总得吃喝，我就只投消费',

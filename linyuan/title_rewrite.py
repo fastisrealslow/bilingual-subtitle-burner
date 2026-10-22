@@ -755,6 +755,13 @@ def human_condition_actor_error(title, cover, transcript):
         return None
     for copy in (title, cover):
         value=re.sub(r'^[^：:]+[：:]', '',copy or '')
+        # The same actual critic borrowed "他少不了" (human needs) to
+        # justify "我少不了投消费" (an invented personal necessity). Naming
+        # 人 in the first clause alone cannot repair that actor/predicate swap.
+        if (re.search(r'(?:他|她|人|大家)[^。！？!?，,]{0,6}少不了',transcript)
+                and re.search(r'我(?:们)?(?:就|也)?少不了(?:投|买|持有)',value)
+                and not re.search(r'我(?:们)?(?:就|也)?少不了(?:投|买|持有)',transcript)):
+            return '原话少不了的是人对吃喝的需求，不是我不得不投资；保留人的需求与本人的实际选择，不能拼接不同主体的动作'
         for condition in re.findall(r'除非[^，,。！？!?；;]{1,32}',value):
             if (re.search(r'吃|喝|机器人',condition)
                     and not re.match(r'除非(?:(?:这|那|每)个|所有|全体)?(?:人(?:们|类)?|大家|消费者)',condition)):
