@@ -39953,7 +39953,24 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "c0ba6e7f3a89c0a8ac787e7fb3253ea4e8d264447dbea06ba336d239b83303a3",
    "experiment_parent_slug": "ly-1010-0e99bf",
-   "recovery_origin_run_id": 38028342919
+   "recovery_origin_run_id": 38028342919,
+   "production_failure_summary": {
+    "slug": "ly-story-2408e7fe45",
+    "run_id": 39810846146,
+    "artifact_id": 12440606615,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12440606615,
+   "source_check_run_id": 39810846146,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792688860
   },
   {
    "key": "bilibili_search:BV1ASetzpEuk",
@@ -39976,7 +39993,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-08-22T05:34:14+00:00"
+   "publish_time": "2025-08-22T05:34:14+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-70da69",
+    "run_id": 39810864279,
+    "artifact_id": 12441452895,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39810864279,
+    "artifact_id": 12441452895,
+    "name": "production-reject-ly-1022-70da69",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/pT2LOAezlx08AU6VKuBy0104120a92zR0E040.mp4",
@@ -39997,7 +40036,29 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "e70b4632acd562154e0601cc29e48e6864bca4b7d0e56fa542b54ca37a2b4884",
    "experiment_parent_slug": "ly-1009-b60450",
-   "recovery_origin_run_id": 37915715810
+   "recovery_origin_run_id": 37915715810,
+   "production_failure_summary": {
+    "slug": "ly-story-ca2b411807",
+    "run_id": 39813083038,
+    "artifact_id": 12442406510,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"当时它是政策的需求，比如说科创板，我我我，它会有那个，对个有个科创板有个市值的要求，必须是六百万以上基金，你才能参与那个往下新股申购。\", \"suspect_quote\": \"六百万以上基金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘六百万以上’是指基金资产规模需大于 600 万，还是指其他含义？结合上下文‘科创板有个市值的要求’，此处极可能是将‘基金资产规模’误识别或简写导致的关键条件模糊。若原意为‘基金资产规模六百万以上’，则缺少主语；若为‘"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39813083038,
+    "artifact_id": 12442406510,
+    "name": "production-reject-ly-story-ca2b411807",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"当时它是政策的需求，比如说科创板，我我我，它会有那个，对个有个科创板有个市值的要求，必须是六百万以上基金，你才能参与那个往下新股申购。\", \"suspect_quote\": \"六百万以上基金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘六百万以上’是指基金资产规模需大于 600 万，还是指其他含义？结合上下文‘科创板有个市值的要求’，此处极可能是将‘基金资产规模’误识别或简写导致的关键条件模糊。若原意为‘基金资产规模六百万以上’，则缺少主语；若为‘发行\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
@@ -113891,6 +113952,20 @@
    "video_id": "http://f.video.weibocdn.com/o0/vQq8yb9Ylx08BcDierUA0104120cOhBS0E050.mp4",
    "ts": 1792687954,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上句，再次出现将嘉宾“林园”错识为“林岩”的情况。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就\", \"kind\": \"unintelligible_term\", \"reason\": \"句子逻辑混乱，疑似识别错误导致语义不通。“所以你就”后文缺失或连接不当，结合上下文推测原意可能是“所以你们就把跟我讲的...”，但当前文本中“他有个体会不一样”与前后文衔接生硬，且“干巴巴的讲啊”后的转折关系不明，存在明显的断句或词汇识别疑\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技，AR 这个股票基金”表述极其不通顺。结合林园的投资风格（通常关注消费、医药等），此处极可能是将“人工智能”、“农业”或其他具体行业名称误识别为\"}, {\"sentence_id\": 19, \"quote\": \"现在我们上面一直提心智生产力，那么我也在挖掘，因为我是退役军人，那么我也在挖掘如何让我们大多数的退役军人让他们创造，给他们创造更多的岗位。\", \"suspect_quote\": \"那么我也在挖掘，因为我是退役军人，那么我也在挖掘\", \"kind\": \"unintelligible_term\", \"reason\": \"句子中“那么我也在挖掘”重复出现，且第一次出现时缺乏宾语（挖掘什么？），第二次出现时同样语意不明。这极可能是语音识别将“我在想”、“我在做”或具体项目名称误识为“挖掘”，或者漏掉了关键动词/名词，导致语义残缺。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"明显的重复字错误。“大大家”应为“大家”。这是典型的语音识别中因语速快或发音含糊导致的同音/近音字重复错误。\"}]"
+  },
+  {
+   "slug": "ly-story-ca2b411807",
+   "key": "ly-story-ca2b411807",
+   "video_id": "https://f.video.weibocdn.com/o0/pT2LOAezlx08AU6VKuBy0104120a92zR0E040.mp4",
+   "ts": 1792687959,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"当时它是政策的需求，比如说科创板，我我我，它会有那个，对个有个科创板有个市值的要求，必须是六百万以上基金，你才能参与那个往下新股申购。\", \"suspect_quote\": \"六百万以上基金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘六百万以上’是指基金资产规模需大于 600 万，还是指其他含义？结合上下文‘科创板有个市值的要求’，此处极可能是将‘基金资产规模’误识别或简写导致的关键条件模糊。若原意为‘基金资产规模六百万以上’，则缺少主语；若为‘发行\"}]"
+  },
+  {
+   "slug": "ly-1022-70da69",
+   "key": "bilibili_search:BV1ASetzpEuk",
+   "video_id": "BV1ASetzpEuk",
+   "ts": 1792687960,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
