@@ -3649,6 +3649,13 @@ def _recover_changed_production_rule(st, candidate, run):
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
+        structural_failure=(case[0]=='automatic-source-context-v10'
+                            and reason.startswith('原文中未找到满足20秒'))
+        # A title/qualifier repair cannot create a missing continuous source
+        # candidate. Actual e3b8e2 was restarted after the title-only PR168,
+        # although its structural selector and original transcript were unchanged.
+        if structural_failure and file.get('filename')=='linyuan/title_rewrite.py':
+            return False
         if file.get('filename')=='linyuan/produce_cn.py':
             # Moving the unchanged transcript audit after picture preflight
             # repairs CPU ordering, NOT old geometry/caption/title verdicts.
@@ -3664,7 +3671,8 @@ def _recover_changed_production_rule(st, candidate, run):
                 'automatic-source-context-v10':r'\b(?:pick_highlights|copywrite|title_[A-Za-z_]+|'
                     r'story_[A-Za-z_]+|source_picks|source_selection|chunks|work_items|editorial_rank)\b',
             }
-            pattern=operations.get(case[0])
+            pattern=(r'\b(?:pick_highlights|source_picks|source_selection|chunks|work_items|editorial_rank)\b'
+                     if structural_failure else operations.get(case[0]))
             if pattern:
                 code=[line[1:].strip() for line in str(file.get('patch') or '').splitlines()
                       if line[:1] in ('+','-') and not line.startswith(('+++','---'))]
