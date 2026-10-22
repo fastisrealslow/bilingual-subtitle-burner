@@ -46,7 +46,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: 安装调度与验证依赖
-        run: pip install -q pytest requests jieba 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
+        run: pip install -q pytest pyyaml requests jieba 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
       - name: 核对供片、锁、恢复与投稿保护
         run: >-
           python -m pytest -q tests/test_linyuan_runner_dispatch.py
