@@ -16,6 +16,9 @@ CASES = {
     'percentage': dict(url='https://m.weibo.cn/detail/5347466289610839',
         sha='c7a533ce67ed9d7dabb2805a6c8396370ad98de4574de748a218ac52154ce362',
         artifact=12404611301),
+    'lexical': dict(url='https://www.bilibili.com/video/BV1zRJ26DEok',
+        sha='8f379d9cecd36dc6b22d8022beed3a3a698aa217e8e0e48fdf4e2a575294b210',
+        artifact=12458840653),
 }
 MODELS = {
     '0.6b': ('Qwen/Qwen3-ASR-0.6B', '5eb144179a02acc5e5ba31e748d22b0cf3e303b0'),
@@ -40,7 +43,7 @@ def failure_windows(cues, issues, recognition):
         start,end=touched[0]['start'],touched[-1]['end']
         for chunk in recognition['chunks']:
             if chunk['core_start']<end and chunk['core_end']>start:
-                selected[chunk['core_start']]={**chunk,'sample_kind':'actual_rejected_number',
+                selected[chunk['core_start']]={**chunk,'sample_kind':'actual_rejected_text',
                     'issue_start_sec':start,'issue_end_sec':end}
     if not selected or len(selected)>4:
         raise ValueError('失败音频没有有界且明确的原始识别窗口')
@@ -48,6 +51,37 @@ def failure_windows(cues, issues, recognition):
     control=next((c for c in recognition['chunks'] if c['core_start'] not in selected),None)
     if control:selected[control['core_start']]={**control,'sample_kind':'same_source_control'}
     return [selected[key] for key in sorted(selected)]
+
+
+def original_issues(archive, cues):
+    """Load actual negative audits, including all automatically selected parts.
+
+    No suspected term or timestamp is manually supplied. Multi-part audits
+    must retain the exact selected original text identity before window lookup.
+    """
+    from editorial_policy import text_digest
+    if '_tmp/transcript_audit.json' in archive.namelist():
+        return json.loads(archive.read('_tmp/transcript_audit.json'))['issues']
+    selected=json.loads(archive.read('_tmp/story_selection.json'))['selected']
+    issues=[]
+    for number,pick in enumerate(selected,1):
+        text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+        audit=json.loads(archive.read(f'_tmp/transcript_audit_{number}.json'))
+        if audit.get('transcript_sha256')!=text_digest(text):
+            raise ValueError('分段疑点记录与原始连续选段身份不一致')
+        if not isinstance(audit.get('issues'),list):
+            raise ValueError('缺少真实疑点列表')
+        issues.extend(audit['issues'])
+    return issues
+
+
+def diagnostic_manifests(audio, cases):
+    if not cases or len(set(cases))!=len(cases) or set(cases)-set(CASES):
+        raise ValueError('诊断样本集合必须明确且不重复')
+    manifests=sorted(audio.glob('*/manifest.json'))
+    if {p.parent.name for p in manifests}!=set(cases):
+        raise ValueError('实际PCM样本集合与本轮诊断不一致')
+    return manifests
 
 
 def prepare(case, root):
@@ -65,7 +99,7 @@ def prepare(case, root):
     with zipfile.ZipFile(archive) as z:
         recognition=json.loads(z.read('_tmp/qwen_cpu/recognition.json'))
         cues=json.loads(z.read('_tmp/cues_raw.json'))
-        issues=json.loads(z.read('_tmp/transcript_audit.json'))['issues']
+        issues=original_issues(z,cues)
     if recognition.get('source_video_sha256')!=spec['sha']:
         raise ValueError('失败记录与待诊断母片身份不符')
     media=Path('linyuan/_src/video.mp4').resolve()
@@ -98,7 +132,7 @@ def prepare(case, root):
         name=f'{case}-{chunk["core_start"]}.wav'
         with wave.open(str(root/name),'wb') as output:
             output.setnchannels(1);output.setsampwidth(2);output.setframerate(16000);output.writeframes(clip)
-        if chunk['sample_kind']=='actual_rejected_number':
+        if chunk['sample_kind']=='actual_rejected_text':
             midpoint=(chunk['issue_start_sec']+chunk['issue_end_sec'])/2
             subprocess.run(['ffmpeg','-y','-v','error','-ss',str(midpoint),'-i',str(media),
                             '-frames:v','1',str(root/(name[:-4]+'-original-frame.png'))],
@@ -113,7 +147,8 @@ def prepare(case, root):
     wav.unlink();archive.unlink()
 
 
-def infer(model_key, audio, output):
+def infer(model_key, audio, output, cases=None):
+    manifests=diagnostic_manifests(audio,list(CASES) if cases is None else cases)
     from importlib.metadata import version
     import numpy as np
     from asr_cpu_benchmark import offline_only,download_weights
@@ -150,8 +185,6 @@ def infer(model_key, audio, output):
         **versions,
         networking_during_inference=False,model_load_seconds=time.monotonic()-started,
         reference_kind='paired hypotheses; no human gold transcript or CER',results=[])
-    manifests=sorted(audio.glob('*/manifest.json'))
-    if len(manifests)!=len(CASES):raise ValueError('需要两个真实失败母片的相同音频样本')
     for manifest in manifests:
         for item in json.loads(manifest.read_text()):
             with wave.open(str(manifest.parent/item['file'])) as stream:
@@ -176,6 +209,7 @@ if __name__=='__main__':
     parser.add_argument('mode',choices=['prepare','infer'])
     parser.add_argument('--case',choices=list(CASES))
     parser.add_argument('--model',choices=list(MODELS))
+    parser.add_argument('--cases',nargs='+',choices=list(CASES),default=None)
     parser.add_argument('--audio',type=Path,default=Path('asr-failure-audio'))
     parser.add_argument('--output',type=Path,default=Path('asr-failure-result'))
     args=parser.parse_args()
@@ -184,4 +218,4 @@ if __name__=='__main__':
         prepare(args.case,args.audio/args.case)
     else:
         if not args.model:parser.error('infer requires --model')
-        infer(args.model,args.audio,args.output)
+        infer(args.model,args.audio,args.output,args.cases)
