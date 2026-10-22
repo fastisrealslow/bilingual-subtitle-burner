@@ -38555,25 +38555,25 @@
    "recovery_origin_run_id": 39730313232,
    "production_failure_summary": {
     "slug": "ly-story-3b04cd0934",
-    "run_id": 39730313232,
-    "artifact_id": 12406552957,
+    "run_id": 39746574446,
+    "artifact_id": 12412034420,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"大概我我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘开支是零’与后文‘每个月的开支是两千五’存在明显的逻辑矛盾。在口语语境下，‘零’极大概率是识别错误（可能应为‘很低’或具体数值），或者说话人表述混乱导致含义不明。根据指令要求，必须指出数字或否定本身的具体污染，"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑"
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39730313232,
-    "artifact_id": 12406552957,
+    "run_id": 39746574446,
+    "artifact_id": 12412034420,
     "name": "production-reject-ly-story-3b04cd0934",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"大概我我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘开支是零’与后文‘每个月的开支是两千五’存在明显的逻辑矛盾。在口语语境下，‘零’极大概率是识别错误（可能应为‘很低’或具体数值），或者说话人表述混乱导致含义不明。根据指令要求，必须指出数字或否定本身的具体污染，此处‘零’作为关键数字\"}, {\"sentence_id\": 25, \"quote\": \"啊，那这个很重要，就相对于几十年以后今天的是市盈的。\", \"suspect_quote\": \"相对于几十年以后今天的是市盈的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"句子末尾的‘是市盈的’语义完全不通顺，疑似识别错误。正常金融术语应为‘市盈率’（PE ratio），且‘几十年的市盈率’搭配也不符合常规表达逻辑。此处‘市盈’作为关键数字/术语片段含义不明，属于无法解释的具体词语或错写专有名词。\"}]",
-   "source_quality_rejected": false,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑。\"}, {\"sentence_id\": 12, \"quote\": \"因为就是现在才是我们这个老龄化的零年，你如果相比二二十年以后，今天的消费是个零，这些药品啊都要在五六十岁才开始用。\", \"suspect_quote\": \"今天的消费是个零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述错误且含义不明。将'今天的消费'描述为'个零'（即零）在逻辑上完全不通，因为老龄化相关药品不可能当前消费量为零。这极可能是识别错误，将'从零开始'或'基数为零'误识为'消费是个零'，导致关键数据点含义混乱。\"}, {\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述矛盾且含义不明。前句刚提到每月开支两千五，此句却说'开支是零'，前后数值直接冲突。结合上下文（糖尿病、高血压需长期服药），此处'零'极可能是识别错误，本意应为'从零开始'或指代某种特定状态，但原文呈现为绝对数值零，造成事实层面的\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -38608,8 +38608,8 @@
    "recovery_origin_run_id": 39729890763,
    "production_failure_summary": {
     "slug": "ly-story-0a239e2b67",
-    "run_id": 39729890763,
-    "artifact_id": 12404899416,
+    "run_id": 39746586897,
+    "artifact_id": 12412826707,
     "accepted": 0,
     "failures": [
      {
@@ -38618,15 +38618,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39729890763,
-    "artifact_id": 12404899416,
+    "run_id": 39746586897,
+    "artifact_id": 12412826707,
     "name": "production-reject-ly-story-0a239e2b67",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林岩”属于明显的同音错别字，且“林岩”并非该语境下合理的称呼。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，此处连续出现“林岩”为识别错误。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中常见的口误或重复，“大大家”应为“大家”，属于明显的词语错写/多字，影响阅读流畅性。\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
