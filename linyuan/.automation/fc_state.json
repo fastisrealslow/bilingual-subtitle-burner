@@ -41690,21 +41690,33 @@
    "publish_time": "2026-09-30T09:06:44+08:00",
    "production_failure_summary": {
     "slug": "ly-1022-1016a1",
-    "run_id": 39863507019,
-    "artifact_id": 12462567909,
+    "run_id": 39868249134,
+    "artifact_id": 12465308401,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
      }
     ]
    },
    "source_check_report_id": 12462567909,
    "source_check_run_id": 39863507019,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39868249134,
+    "artifact_id": 12465308401,
+    "name": "production-reject-ly-1022-1016a1",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:5329737574519752",
@@ -115691,6 +115703,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
    "ts": 1792710851,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1022-1016a1",
+   "key": "weibo_search:5348773345626951",
+   "video_id": "http://f.video.weibocdn.com/u0/3FkYi32hgx08B4CAAE5O01041201sbL20E010.mp4",
+   "ts": 1792711368,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98"
   }
  ],
  "reviewed_third_video_0910": {
