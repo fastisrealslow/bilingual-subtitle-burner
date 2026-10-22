@@ -2523,23 +2523,30 @@ def _dispatch_admitted(event=None, context=None):
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
+        retry_layout=experiment_retry_layout(entry,st,exp_needs,active_runs)
+        planned_entry={**entry,'output_layout':retry_layout}
         if (story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY
                 and not (entry.get('editorial_profile')==experiment.TREATMENT
-                         and exp_needs.get(entry.get('output_layout'),0)>0)):
+                         and exp_needs.get(retry_layout,0)>0)):
             continue
-        if not retry_supply_needed(entry,landscape_admissions,exp_needs):continue
+        if not retry_supply_needed(planned_entry,landscape_admissions,exp_needs):continue
         source=entry.get('asset_url') or entry.get('source_url')
         if not source:continue
         gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{
             'ref':'main','inputs':{'source':source,'slug':entry['slug'],'speaker':'林园',
                 'occasion':entry.get('title','')[:30],'auto_publish':'false',
                 'include_full':'true' if entry.get('weekly_full_week') else 'false',
-                'output_layout':entry.get('output_layout','auto'),
+                'output_layout':retry_layout,
                 **experiment.workflow_input(entry),
                 # Scheduled retries must reselect automatically; historical
                 # editorial ranges and part numbers are not source evidence.
                 **({'recovery_run_id':str(entry['source_check_run_id'])} if entry.get('source_check_run_id') else {}),
                 'source_platform':platform_of(entry.get('source',''))}})
+        if retry_layout!=entry.get('output_layout','auto'):
+            entry['experiment_layout_recovery']=dict(previous=entry.get('output_layout'),
+                requested=retry_layout,source_run_id=entry['source_check_run_id'],
+                reason='same_mother_published_portrait_and_empty_failed_batch',ts=int(time.time()))
+            entry['output_layout']=retry_layout
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
         entry.pop('source_check_retry_after',None)
         entry['ts']=int(time.time())
@@ -2866,6 +2873,29 @@ def experiment_reuse_layouts(parent, record, state):
         if type(w) is not int or type(h) is not int or min(w,h)<=0 or w==h:continue
         layouts.add('portrait' if h>w else 'landscape')
     return layouts
+
+
+def experiment_retry_layout(entry, state, needs, active_runs):
+    """Reroute only a completed zero-output experiment retry, never live stock."""
+    original=entry.get('output_layout','auto')
+    summary=entry.get('production_failure_summary') or {}
+    run_id=entry.get('source_check_run_id')
+    if (original!='landscape' or entry.get('editorial_profile')!=experiment.TREATMENT
+            or needs.get('portrait',0)<=0 or type(run_id) is not int or run_id<=0
+            or not isinstance(summary,dict) or summary.get('run_id')!=run_id
+            or summary.get('slug')!=entry.get('slug') or type(summary.get('accepted')) is not int
+            or summary['accepted']!=0 or type(summary.get('artifact_id')) is not int
+            or summary['artifact_id']<=0):return original
+    if any(r.get('status') in ('queued','in_progress') and
+           str(r.get('display_title') or '').split(' · ')[-1]==entry.get('slug')
+           for r in active_runs):return original
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    parent=latest.get(entry.get('experiment_parent_slug'))
+    mother=entry.get('experiment_mother_sha256')
+    if (not parent or not re.fullmatch('[a-f0-9]{64}',str(mother or ''))
+            or parent.get('source_sha256') not in (None,mother)):return original
+    observed=experiment_reuse_layouts({**parent,'source_sha256':mother},{},state)
+    return 'portrait' if observed=={'portrait'} else original
 
 
 def experiment_reuse_plan(candidates, state, needs):
