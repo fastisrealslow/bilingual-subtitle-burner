@@ -101,11 +101,12 @@ def test_deploy_rejects_old_or_mismatched_runtime(packaged_health, field, value)
         module('verify_production').verify_config_health({**packaged_health, field: value})
 
 
-def test_packaging_rejects_missing_lazy_dependency(tmp_path, monkeypatch):
+@pytest.mark.parametrize('dependency', ['title_market_impression', 'title_advice_support'])
+def test_packaging_rejects_missing_lazy_dependency(tmp_path, monkeypatch, dependency):
     package = module('package_code')
     monkeypatch.setattr(package, 'SOURCES', tuple(p for p in package.SOURCES
-                                               if p != 'title_market_impression.py'))
-    with pytest.raises(ValueError, match='missing runtime module title_market_impression'):
+                                               if p != dependency + '.py'))
+    with pytest.raises(ValueError, match='missing runtime module ' + dependency):
         package.build(tmp_path/'broken.zip')
 
 

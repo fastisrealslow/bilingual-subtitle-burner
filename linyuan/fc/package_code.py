@@ -8,7 +8,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = (
     'fc/index.py', 'stage_context.py', 'title_rewrite.py', 'artifact_range.py', 'audience_copy.py',
-    'title_quantity_context.py', 'title_market_impression.py',
+    'title_quantity_context.py', 'title_market_impression.py', 'title_advice_support.py',
     'speaker_attribution.py', 'headline_policy.py', 'editorial_policy.py',
     'caption_readability.py', 'caption_lines.py', 'caption_lines_legacy.py',
     'caption_boundary_quality.py', 'presentation.py', 'live_motion.py',

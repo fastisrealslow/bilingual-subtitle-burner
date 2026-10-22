@@ -1170,6 +1170,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     source = compact(transcript)
     if any(not evidence_usable(q) or compact(q) not in source for q in evidence):
         return '观点证据不是这段真实原文'
+    from title_advice_support import error as advice_support_error
+    advice_issue = advice_support_error(title, cover, evidence)
+    if advice_issue:
+        return advice_issue
     hedge_issue = unsupported_hedge_error(title, cover, evidence)
     if hedge_issue:
         return hedge_issue
@@ -1308,6 +1312,9 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
         if (copy_fragment(cover['text']) or subject_attribute_error(title, cover['text'], transcript)
                 or research_scope_error(title, cover['text'], transcript)
                 or reported_claim_error(title,cover['text'],transcript)):
+            continue
+        from title_advice_support import error as advice_support_error
+        if advice_support_error(title, cover['text'], [quote]):
             continue
         if cover_qualifier_error(title, cover['text']):
             continue
@@ -1759,6 +1766,10 @@ def error(title, proof, transcript=None, speaker='林园'):
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'
+    from title_advice_support import error as advice_support_error
+    advice_issue = advice_support_error(title, proof['cover'], evidence)
+    if advice_issue:
+        return advice_issue
     range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
     if range_issue:
         return range_issue
