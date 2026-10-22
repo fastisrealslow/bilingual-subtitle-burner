@@ -87,6 +87,9 @@ def test_treatment_uses_existing_strict_sentence_and_object_reader(monkeypatch):
     monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE','field-story-v1')
     assert producer.title_draft_profile('林园')=='answer_subject'
     assert producer._copy_style_identity('林园')['title_draft_profile']=='answer_subject'
+    company=dict(kind='company_case')
+    assert producer.title_draft_profile('林园',company)=='production'
+    assert producer._copy_style_identity('林园',company)['title_draft_profile']=='production'
     assert producer.title_draft_profile('其他嘉宾')=='production'
     monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE','baseline')
     assert producer.title_draft_profile('林园')=='production'

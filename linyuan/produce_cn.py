@@ -3621,21 +3621,25 @@ TITLE_STYLE_PROFILE = current_title_style_profile()
 # wine/AI claims from style examples despite the "not facts" instruction.
 
 
-def title_draft_profile(speaker):
+def title_draft_profile(speaker, story_evidence=None):
     if speaker != '林园':return 'production'
     import publishing_experiment as experiment
     selected=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')
     if selected is None:
-        selected=('answer_subject' if experiment.profile()==experiment.TREATMENT else 'production')
+        # Company Q&A can name the company in the host's question while the
+        # guest explicitly answers its reason. Keep its existing reviewed
+        # path; do not require an untested literal guest-name repetition.
+        personal=not isinstance(story_evidence,dict) or story_evidence.get('kind')=='personal_story'
+        selected=('answer_subject' if experiment.profile()==experiment.TREATMENT and personal else 'production')
     if selected not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
         raise ValueError('未知标题草拟配置')
     return selected
 
 
-def _copy_style_identity(speaker):
+def _copy_style_identity(speaker, story_evidence=None):
     if speaker != '林园':
         return {}
-    profile=title_draft_profile(speaker)
+    profile=title_draft_profile(speaker,story_evidence)
     import publishing_experiment as experiment
     editorial_profile=experiment.profile()
     return dict(title_style_profile=current_title_style_profile(),
@@ -3751,7 +3755,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_backend':TEXT_BACKEND,
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
-                   **_copy_style_identity(speaker),
+                   **_copy_style_identity(speaker,story_evidence),
                    **({'story_evidence':story_evidence} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
@@ -3823,7 +3827,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         prompt = _title_style_prompt(prompt, schema, speaker)
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
-        profile=title_draft_profile(speaker)
+        profile=title_draft_profile(speaker,story_evidence)
         if drafting and profile!='production':
             from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
                 spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
@@ -3858,7 +3862,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','c_sentence_roles','b_focus','c_candidates')))
         (work/f'title_response{suffix}-{title_call_number}.txt').write_text(response)
         return response
-    draft_profile=title_draft_profile(speaker)
+    draft_profile=title_draft_profile(speaker,story_evidence)
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
