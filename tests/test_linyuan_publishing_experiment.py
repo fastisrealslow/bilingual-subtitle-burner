@@ -294,6 +294,16 @@ def test_real_model_selects_sentence_ids_and_program_extracts_exact_quotes():
     assert E.validate_choices(cues,picks,verdict)==[]
 
 
+def test_company_qa_rule_keeps_direct_guest_answers_and_hypothesis_boundaries():
+    cues=[dict(text='您当年为何选择茅台？因为当时收入到了一个水平。我们当时就选择消费升级。')]
+    prompt,_=E.selection_request(cues,[dict(start=0,end=0)])
+    assert '不要求嘉宾再重复公司名' in prompt
+    assert '嘉宾否认或未回答' in prompt and 'personal_story必须另有本人实际做过' in prompt
+    choice=E.validate_choices(cues,[dict(start=0,end=0)],dict(candidate_0=dict(
+        kind='company_case',subject_sentence=0,event_sentence=1,detail_sentence=2)))
+    assert choice[0]['story_selection']['event_quote']=='因为当时收入到了一个水平。'
+
+
 def test_empty_story_selection_is_not_a_quality_rejection_or_fake_treatment():
     assert E.validate_choices([dict(text='长期投资很重要')],[dict(start=0,end=0)],dict(choices=[]))==[]
     baseline=dict(title='林园：长期持有',fingerprints=dict(sha256='a'*64))
