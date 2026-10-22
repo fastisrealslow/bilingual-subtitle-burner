@@ -107,6 +107,30 @@ def test_real_jpg_rejected_by_media_gate_with_report(monkeypatch, tmp_path):
     assert 'audio=0' in result['reason']
 
 
+@pytest.mark.parametrize('stderr, retryable', [
+    ('ERROR: Unsupported URL: https://www.163.com/v/video/VA7UULO86.html', False),
+    ('WARNING: retrying\nERROR: Unsupported URL: https://example.test/?token=secret', False),
+    ('ERROR: HTTP Error 403: Forbidden', True),
+    ('ERROR: Requested format is not available', True),
+    ('ERROR: timed out', True),
+    ('WARNING: Unsupported URL: diagnostic only', True),
+])
+def test_extractor_support_failure_is_not_a_network_retry(monkeypatch, tmp_path, stderr, retryable):
+    def fail(*args, **kwargs):
+        assert kwargs['stderr'] is subprocess.PIPE and kwargs['text'] is True
+        raise subprocess.CalledProcessError(1, ['yt-dlp'], stderr=stderr)
+    monkeypatch.setattr(g.subprocess, 'run', fail)
+    report = tmp_path/'report.json'
+    with pytest.raises(subprocess.CalledProcessError):
+        g.fetch('https://example.test/source', tmp_path, report)
+    result = json.loads(report.read_text())
+    assert result['retryable'] is retryable
+    assert result['failure_stage'] == 'source-fetch' and not result['passed']
+    assert 'secret' not in result['reason']
+    if not retryable:
+        assert '不支持此素材地址' in result['reason']
+
+
 def test_complete_cache_follows_validation_in_production():
     workflow=(Path(__file__).resolve().parents[1]/'.github/workflows/linyuan-produce-cn.yml').read_text()
     assert workflow.index('name: 素材质量门禁') < workflow.index('name: 保存完整母片')

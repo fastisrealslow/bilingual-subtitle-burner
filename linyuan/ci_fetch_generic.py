@@ -77,7 +77,7 @@ def fetch(url, directory, failure_report):
             '--format-sort', 'res:1080',
             '--print-to-file', 'after_move:filepath', str(manifest),
             '-o', str(directory / 'video.%(ext)s'), url,
-        ], check=True)
+        ], check=True, stderr=subprocess.PIPE, text=True)
         paths = manifest.read_text().splitlines()
         if len(paths) != 1:
             raise ValueError('下载器没有返回唯一的实际媒体路径')
@@ -95,9 +95,18 @@ def fetch(url, directory, failure_report):
     except Exception as exc:
         report = Path(failure_report)
         report.parent.mkdir(parents=True, exist_ok=True)
-        report.write_text(json.dumps(dict(passed=False, retryable=True,
+        # Unsupported extractors cannot recover by retrying the identical URL.
+        # Keep unknown/HTTP failures retryable; never infer a permanent ban from
+        # a timeout or missing format. Persist a fixed reason, not signed URLs
+        # or potentially credential-bearing downloader stderr.
+        unsupported = (isinstance(exc, subprocess.CalledProcessError)
+                       and re.search(r'(?im)^ERROR:\s*Unsupported URL:',
+                                     exc.stderr or '') is not None)
+        reason = ('下载器不支持此素材地址，需更换来源或接通专用下载器'
+                  if unsupported else f'取源未完成：{type(exc).__name__}: {exc}')
+        report.write_text(json.dumps(dict(passed=False, retryable=not unsupported,
             failure_stage='source-fetch', source_url=url,
-            reason=f'取源未完成：{type(exc).__name__}: {exc}'), ensure_ascii=False, indent=2))
+            reason=reason), ensure_ascii=False, indent=2))
         raise
 
 
