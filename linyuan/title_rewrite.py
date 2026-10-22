@@ -8,7 +8,7 @@ from headline_policy import copy_length_ok
 VERSION = 2026091303
 CHECKS = ('source_supported', 'central_point', 'attribution_correct',
           'preserves_qualifiers', 'cover_consistent', 'readable')
-ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', '时候', '方面', '东西'})
+ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', '时候', '方面', '东西', '基本上'})
 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
@@ -65,7 +65,16 @@ def source_units(transcript):
     return units
 
 
-def subject_catalog(units):
+def subject_cue_spans(word, units):
+    """Exact literal occurrences, including a word split by display cues."""
+    from bisect import bisect_right
+    bounds=[0]
+    for unit in units:bounds.append(bounds[-1]+len(unit))
+    return [list(range(bisect_right(bounds,m.start())-1,bisect_right(bounds,m.end()-1)))
+            for m in re.finditer(re.escape(word),''.join(units))]
+
+
+def subject_catalog(units, allowed_ids=None):
     """Offer exact source nouns, never model-invented compound evidence anchors."""
     from collections import Counter
     import jieba.posseg
@@ -81,8 +90,12 @@ def subject_catalog(units):
     counts = Counter(word for word, tag in jieba.posseg.cut(''.join(units))
                      if (tag.startswith(('n', 'vn')) or tag in ('l', 'j') or word in business_nouns)
                      and 2 <= len(compact(word)) <= 8 and word not in ABSTRACT_ANCHORS)
-    return {word:[i for i, unit in enumerate(units) if word in unit]
-            for word, _ in counts.most_common(48)}
+    result={}
+    for word,_ in counts.most_common(48):
+        spans=[span for span in subject_cue_spans(word,units)
+               if allowed_ids is None or all(i in allowed_ids for i in span)]
+        if spans:result[word]=sorted({i for span in spans for i in span})
+    return result
 
 
 def proposal_schema(unit_count, subjects=None, guest_ids=None):
@@ -405,7 +418,7 @@ def review_schema(candidate_count):
                 'b_verdict':dict(type='object',additionalProperties=False,required=list(fields),properties=fields)}))})
 
 
-def bind_evidence(item, units):
+def bind_evidence(item, units, join_spans=()):
     if not isinstance(item, dict):
         raise ValueError('候选不是JSON对象')
     ids = item.get('evidence_ids')
@@ -414,7 +427,17 @@ def bind_evidence(item, units):
         raise ValueError('原文证据编号无效')
     if 'evidence' in item:
         raise ValueError('证据必须从编号取回，不能由模型另写原文')
-    return {**item, 'evidence':[units[i] for i in sorted(ids)]}
+    gaps=set()
+    for span in join_spans:
+        if len(span)!=2 or span[1]!=span[0]+1 or not set(span)<=set(ids):
+            raise ValueError('完整词证据只能连接已选择的相邻原句')
+        gaps.add(tuple(span))
+    groups=[];previous=None
+    for i in sorted(ids):
+        if groups and (previous,i) in gaps:groups[-1]+=units[i]
+        else:groups.append(units[i])
+        previous=i
+    return {**item, 'evidence':groups}
 
 
 def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
@@ -431,12 +454,38 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
     # duplicate IDs add no evidence: deduplicate only after guest attribution
     # and type/range checks, then retrieve the original bytes as before.
     unique=list(dict.fromkeys(ids))
-    result=bind_candidate(item,dict(claim=claim,evidence_ids=unique),units,subjects)
+    def split_spans(ids):
+        return [span for word in subjects if word in str(item.get('title') or '')
+                for span in subject_cue_spans(word,units) if len(span)==2
+                and all(i in guest_ids for i in span) and set(span)<=set(ids)]
+    result=bind_candidate(item,dict(claim=claim,evidence_ids=unique),units,subjects,
+                          join_spans=split_spans(unique))
+    if not result['subject']:
+        # A real draft selected cue13 "酒…" but not cue12 "…白". Complete
+        # only that exact two-cue noun, never another fact/turn. No title text,
+        # speaker label, semantic approval or four-ID budget is fabricated.
+        options=[]
+        for word in subjects:
+            at=str(item.get('title') or '').find(word)
+            if at<0:continue
+            for span in subject_cue_spans(word,units):
+                completed=sorted(set(unique)|set(span))
+                if (len(span)==2 and all(i in guest_ids for i in span)
+                        and set(span)&set(unique) and not set(span)<=set(unique) and len(completed)<=4):
+                    options.append((at,-len(word),word,span,completed))
+        if options:
+            _,_,word,span,completed=min(options)
+            recovered=bind_candidate(item,dict(claim=claim,evidence_ids=completed),units,subjects,
+                                    join_spans=split_spans(completed))
+            if recovered['subject']:
+                result=recovered
+                result['source_word_boundary_completion']=dict(word=word,source_ids=span,
+                    raw_evidence_ids=unique,completed_evidence_ids=completed)
     if unique!=ids:result['evidence_id_normalization']=dict(raw=ids,unique=unique)
     return result
 
 
-def bind_candidate(item, focus, units, subjects):
+def bind_candidate(item, focus, units, subjects, join_spans=()):
     title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
     cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
     speaker=title.split('：',1)[0] if '：' in title else ''
@@ -447,7 +496,8 @@ def bind_candidate(item, focus, units, subjects):
         # only this attributed reporting prefix, before length/meaning review;
         # never strip names inside entities such as 林园投资公司.
         cover=cover[len(speaker):].strip()
-    bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units)
+    bound=bind_evidence(dict(title=title,cover_title=cover,evidence_ids=focus.get('evidence_ids')),units,
+                        join_spans=join_spans)
     # Derive the exact shared anchor instead of asking the model to perform
     # literal string matching. The full claim still needs independent review.
     anchors=[word for word in subjects if word in title and any(word in q for q in bound['evidence'])]
@@ -1609,8 +1659,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
             if prefer_reviewed_quote:
                 return fallback(only_preferred=True)
             if structured_model:
-                subjects={word:[i for i in ids if i in guest_ids] for word,ids in subject_catalog(units).items()}
-                subjects={word:ids for word,ids in subjects.items() if ids}
+                subjects=subject_catalog(units,allowed_ids=guest_ids)
             draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
             draft_retry=retry_note
             if structured_model:
