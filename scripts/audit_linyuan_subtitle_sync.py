@@ -9,8 +9,22 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 import wave
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'linyuan'))
+import audio_preprocessing as audio_clock
+
+
+def extract_published_audio(video, output):
+    """Keep recognition windows on the same presentation clock as frames."""
+    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(video), '-map', '0:a:0',
+        *audio_clock.asr_args(audio_clock.DEFAULT), '-c:a', 'pcm_s16le', str(output)],
+        check=True)
+    with wave.open(str(output)) as wav:
+        duration = wav.getnframes() / wav.getframerate()
+    return audio_clock.clock_proof(video, duration, audio_clock.DEFAULT)
 
 
 def compact(text):
@@ -29,8 +43,7 @@ def main():
     from sherpa_onnx import OfflineRecognizer
     from rapidocr_onnxruntime import RapidOCR
     audio=args.out/'published-audio.wav'
-    subprocess.run(['ffmpeg','-y','-v','error','-i',str(args.video),'-map','0:a:0',
-        '-ac','1','-ar','16000','-c:a','pcm_s16le',str(audio)],check=True)
+    clock = extract_published_audio(args.video, audio)
     with wave.open(str(audio)) as wav:
         samples=np.frombuffer(wav.readframes(wav.getnframes()),dtype=np.int16).astype(np.float32)/32768
     model=args.weights/'model.int8.onnx'
@@ -74,7 +87,8 @@ def main():
         else:row['status']='wording_unconfirmed'
         rows.append(row)
     cap.release()
-    report=dict(version=1,video_sha256=hashlib.sha256(args.video.read_bytes()).hexdigest(),
+    report=dict(version=2,video_sha256=hashlib.sha256(args.video.read_bytes()).hexdigest(),
+        audio_clock=clock,
         model_sha256=hashlib.sha256(model.read_bytes()).hexdigest(),device='cpu',
         engine='sherpa-onnx paraformer zh 2024-03-09',recognition=recognition,samples=rows,
         duration_sec=duration,elapsed_sec=round(time.monotonic()-started,2),
