@@ -92,9 +92,14 @@ def quarantine_part(out, suffix):
     out = Path(out)
     dest = out / '_tmp' / 'rejected' / (suffix.strip('_') or '1')
     dest.mkdir(parents=True, exist_ok=True)
-    names = [f'final{suffix}.mp4', f'preview_30s{suffix}.mp4',
-             f'contact_sheet_6{suffix}.jpg',
-             f'cover{suffix}.jpg' if suffix else 'cover_16x9.jpg']
+    # The portrait preference uses a separate suffix so a rejected picture
+    # probe cannot overwrite the original native path. A later portrait
+    # render failure must still leave no MP4 in the deliverable root.
+    suffixes=(suffix,) if suffix.endswith('_portrait') else (suffix,suffix+'_portrait')
+    names = [name for current in suffixes for name in (
+        f'final{current}.mp4', f'preview_30s{current}.mp4',
+        f'contact_sheet_6{current}.jpg',
+        f'cover{current}.jpg' if current else 'cover_16x9.jpg')]
     for name in names:
         for path in (out / name, out / (name + '.proof.json')):
             if path.is_file():
