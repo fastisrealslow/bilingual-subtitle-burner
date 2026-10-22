@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792653457,
+  "updated_at": 1792653638,
   "inventory_updated_at": 1792653433,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 10,
-    "active_or_recovering_sources": 14,
+    "active_or_recovering_sources": 18,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792653456,
+    "updated_at": 1792653637,
     "records": 11361,
     "video_records": 9795,
     "initial_candidates": 61,
@@ -126,13 +126,13 @@
   },
   "counts": {
     "complete": 138,
-    "failed": 1192,
+    "failed": 1189,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 12,
     "ready": 3,
     "experiment_fallback": 7,
-    "retry_queued": 8,
+    "retry_queued": 12,
     "running": 6
   },
   "tasks": [
@@ -24697,24 +24697,6 @@
       "run_updated_at": "2026-10-22T06:45:55Z"
     },
     {
-      "slug": "ly-story-c11da5a132",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"当时它是政策的需求，比如说科创板，我我我，它会有那个，对个有个科创板有个市值的要求，必须是六百万以上基金，你才能参与那个往下新股申购。\", \"suspect_quote\": \"六百万以上基金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘六百万以上’是指基金资产规模需大于 600 万，还是指其他含义？结合上下文‘科创板有个市值的要求’，此处极可能是将‘基金资产规模’误识别或简写导致的关键条件模糊。若原意为‘基金资产规模六百万以上’，则缺少主语；若为‘发行\"}]",
-      "signature": {
-        "ts": 1792644399,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39724261288,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39724261288",
-      "run_started_at": "2026-10-22T04:46:39Z",
-      "run_updated_at": "2026-10-22T05:06:18Z"
-    },
-    {
       "slug": "ly-story-a4a99c14cd",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -24752,14 +24734,14 @@
     },
     {
       "slug": "ly-1022-3c9631",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792646736,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792653548,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -24785,42 +24767,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39727961165",
       "run_started_at": "2026-10-22T05:25:41Z",
       "run_updated_at": "2026-10-22T05:25:46Z"
-    },
-    {
-      "slug": "ly-story-0a239e2b67",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林岩”属于明显的同音错别字，且“林岩”并非该语境下合理的称呼。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，此处连续出现“林岩”为识别错误。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中常见的口误或重复，“大大家”应为“大家”，属于明显的词语错写/多字，影响阅读流畅性。\"}]",
-      "signature": {
-        "ts": 1792647956,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39729890763,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39729890763",
-      "run_started_at": "2026-10-22T05:45:56Z",
-      "run_updated_at": "2026-10-22T06:13:51Z"
-    },
-    {
-      "slug": "ly-story-3b04cd0934",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"大概我我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘开支是零’与后文‘每个月的开支是两千五’存在明显的逻辑矛盾。在口语语境下，‘零’极大概率是识别错误（可能应为‘很低’或具体数值），或者说话人表述混乱导致含义不明。根据指令要求，必须指出数字或否定本身的具体污染，此处‘零’作为关键数字\"}, {\"sentence_id\": 25, \"quote\": \"啊，那这个很重要，就相对于几十年以后今天的是市盈的。\", \"suspect_quote\": \"相对于几十年以后今天的是市盈的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"句子末尾的‘是市盈的’语义完全不通顺，疑似识别错误。正常金融术语应为‘市盈率’（PE ratio），且‘几十年的市盈率’搭配也不符合常规表达逻辑。此处‘市盈’作为关键数字/术语片段含义不明，属于无法解释的具体词语或错写专有名词。\"}]",
-      "signature": {
-        "ts": 1792648222,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39730313232,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39730313232",
-      "run_started_at": "2026-10-22T05:50:22Z",
-      "run_updated_at": "2026-10-22T06:39:37Z"
     },
     {
       "slug": "ly-story-423df312c3",
@@ -24911,6 +24857,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39736770669",
       "run_started_at": "2026-10-22T06:53:12Z",
       "run_updated_at": "2026-10-22T06:53:17Z"
+    },
+    {
+      "slug": "ly-story-3b04cd0934",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792653535,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792653534,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39730313232,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39730313232",
+      "run_started_at": "2026-10-22T05:50:22Z",
+      "run_updated_at": "2026-10-22T06:39:37Z"
+    },
+    {
+      "slug": "ly-story-0a239e2b67",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792653541,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792653540,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39729890763,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39729890763",
+      "run_started_at": "2026-10-22T05:45:56Z",
+      "run_updated_at": "2026-10-22T06:13:51Z"
+    },
+    {
+      "slug": "ly-story-c11da5a132",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792653559,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792653558,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39724261288,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39724261288",
+      "run_started_at": "2026-10-22T04:46:39Z",
+      "run_updated_at": "2026-10-22T05:06:18Z"
     }
   ],
   "runs": {
