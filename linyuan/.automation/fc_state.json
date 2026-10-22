@@ -38667,7 +38667,28 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-22T03:11:29+00:00"
+   "publish_time": "2025-11-22T03:11:29+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-2c930e",
+    "run_id": 39763859663,
+    "artifact_id": 12425393620,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"但是你整整整整个这个这个，人们会慢慢的不，地产这一块都忘掉。\", \"suspect_quote\": \"整整整整个这个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的‘整’字及‘这个这个’属于严重口吃或识别冗余，导致语义断裂，无法解释具体含义。\"}, {\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"结过两年结"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     }
+    ]
+   },
+   "source_check_report_id": 12425393620,
+   "source_check_run_id": 39763859663,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"但是你整整整整个这个这个，人们会慢慢的不，地产这一块都忘掉。\", \"suspect_quote\": \"整整整整个这个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的‘整’字及‘这个这个’属于严重口吃或识别冗余，导致语义断裂，无法解释具体含义。\"}, {\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"结过两年结算的是今年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'结过两年'与'今年的'在时间逻辑上存在明显矛盾或表述不清，关键时间节点指代不明，影响对利润表改善时点的理解。\"}, {\"sentence_id\": 9, \"quote\": \"我们我们我们总总总供需平衡的话，呃，房子要买好卖才行。\", \"suspect_quote\": \"我们我们我们总总总供需平衡的话\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的'我们'和'总'字属于严重口吃或识别冗余，导致句子结构混乱，无法准确提取主语和条件状语。\"}, {\"sentence_id\": 15, \"quote\": \"再过几年，大多数房产是无任何价值。\", \"suspect_quote\": \"大多数房产是无任何价值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'无任何价值'中的否定词'无'与数量词'大多数'搭配后，语义指向模糊（是部分房产完全无价值，还是整体趋势），且缺乏具体范围界定，属于含义不明的关键否定表述。\"}, {\"sentence_id\": 16, \"quote\": \"给你一个，嗯，都不要太多了。\", \"suspect_quote\": \"给你一个，嗯，都不要太多了\", \"kind\": \"unintelligible_term\", \"reason\": \"'给你一个'后接'嗯'及'都不要太多了'，主语缺失且动作对象不明（给什么？），结合上下文无法确定具体建议内容，属于含义不明的关键短语。\"}, {\"sentence_id\": 17, \"quote\": \"我们这一代人的去世，或者我们的父母去世，腾出来都是空房。\", \"suspect_quote\": \"我们这一代人的去世，或者我们的父母去世\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'去世'作为事件描述，在此处与'腾出来都是空房'的因果逻辑关联不明，且'这一代人'与'父母'的时间跨度表述模糊，属于含义不明的关键指代。\"}]",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792673743
   },
   {
    "key": "tencent_live:20261021V0BY5B00",
@@ -39158,8 +39179,8 @@
    "recovery_origin_run_id": 39408183768,
    "production_failure_summary": {
     "slug": "ly-story-5ebb9ab58f",
-    "run_id": 39408183768,
-    "artifact_id": 12259092870,
+    "run_id": 39775549010,
+    "artifact_id": 12425197854,
     "accepted": 0,
     "failures": [
      {
@@ -39168,15 +39189,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39408183768,
-    "artifact_id": 12259092870,
+    "run_id": 39775549010,
+    "artifact_id": 12425197854,
     "name": "production-reject-ly-story-5ebb9ab58f",
     "retained": true
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -39232,7 +39253,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1SE421u7Ny",
@@ -39255,7 +39277,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-04-14T00:00:05+00:00"
+   "publish_time": "2024-04-14T00:00:05+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-015ade",
+    "run_id": 39778038512,
+    "artifact_id": 12426355944,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39778038512,
+    "artifact_id": 12426355944,
+    "name": "production-reject-ly-1022-015ade",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -112265,6 +112309,13 @@
    "key": "bilibili_search:BV1MQpz6nEmJ",
    "video_id": "BV1MQpz6nEmJ",
    "ts": 1792671780,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1022-015ade",
+   "key": "bilibili_search:BV1SE421u7Ny",
+   "video_id": "BV1SE421u7Ny",
+   "ts": 1792672831,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
