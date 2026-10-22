@@ -53,9 +53,24 @@ def test_actual_cpu_draft_cannot_change_people_condition_to_investor_condition()
     source+='如果他还真是个人，他少不了。'
     also_bad='除非人变机器人，我少不了投消费'
     assert title.forecast_copy_error('林园：'+also_bad,also_bad,source)
+    subject_omitted='除非人变机器人，不然少不了投吃喝'
+    assert title.forecast_copy_error('林园：'+subject_omitted,subject_omitted,source)
     assert title.human_condition_actor_error('林园：除非人变机器人，我只投消费',
         '除非大家变机器人，我只投消费',source) is None
     assert title.human_condition_actor_error('林园：人总得吃喝，我就只投消费',
         '人总得吃喝，我就只投消费',source) is None
     assert title.human_condition_actor_error('林园：除非变机器人，我不再做饭',
         '除非变机器人，我不再做饭','除非我变成机器人，否则我每天都要做饭。') is None
+
+
+def test_literal_complete_reason_is_an_alternative_to_forced_metaphor_noun():
+    import publishing_experiment as experiment
+    selection=dict(kind='personal_story',subject_quote='我这个人还比较专心。',
+        event_quote='我只投我看好的。',detail_quote='除非这个人不吃不喝了，真是变成机器人了，那我也不行。')
+    focus=experiment.title_focus(selection)
+    assert '不吃不喝' in focus['details'] and '机器人' in focus['details']
+    assert all(term in selection['detail_quote'] for term in focus['details'])
+    assert experiment.title_focus_error('林园：我只投消费，除非人不吃不喝',focus) is None
+    assert experiment.title_focus_error('林园：只要人变机器人，我就买半导体',focus) is None  # lexical coverage is NOT factual approval
+    assert title.forecast_copy_error('林园：除非变机器人，我少不了投消费',
+        '除非变机器人，我少不了投消费','我只投消费。除非这个人不吃不喝了，变成机器人，那我也不行。如果他还是个人，他少不了。')

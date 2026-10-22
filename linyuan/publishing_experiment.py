@@ -366,9 +366,17 @@ def title_focus(selection):
         compound=[a.word+b.word for a,b in zip(words,words[1:])
                   if a.word in tokens and b.word in tokens and len(a.word+b.word)<=10]
         return list(dict.fromkeys(compound or tokens))[:6]
+    detail=selection.get('detail_quote','')
+    # A concrete reason can be a complete verb phrase, not just a noun.
+    # Actual d83: selecting only "机器人" forced otherwise faithful drafts
+    # to manufacture awkward necessity claims. "不吃不喝" is an intact
+    # four-character source phrase, including BOTH original negations. It is
+    # only a literal alternative anchor; attribution/conditions and independent
+    # factual/readability review still apply. No paraphrase or transcript edit.
+    parallel_negation=re.findall(r'不[\u4e00-\u9fff]不[\u4e00-\u9fff]',detail)
     return dict(subjects=terms(selection.get('subject_quote',''),True)
                 if selection.get('kind')=='company_case' else [],
-                details=terms(selection.get('detail_quote','')),
+                details=list(dict.fromkeys(parallel_negation+terms(detail)))[:6],
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
