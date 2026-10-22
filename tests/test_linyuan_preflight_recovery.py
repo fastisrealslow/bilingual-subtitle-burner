@@ -64,11 +64,54 @@ def evidence(monkeypatch, changed='linyuan/produce_cn.py', failed_step=None):
             return dict(jobs=[dict(steps=[dict(conclusion='failure', name=failed_step or
                 'CPU离线ASR与完整观点规则回归（失败不进入实产）')])])
         assert path == '/compare/old...main'
-        return dict(files=[dict(filename=changed)])
+        return dict(files=[dict(filename=changed,patch=(
+            '+ native_plan=selected_native_clean_plan(source)\n+ cw=copywrite(source)\n+ make_ass(cues)'
+            if changed=='linyuan/produce_cn.py' else None))])
     monkeypatch.setattr(fc, 'gh', gh)
     monkeypatch.setattr(fc, 'save_state', lambda st: None)
     monkeypatch.setattr(fc, 'log_event', lambda *args: None)
     return state, candidate, run, calls
+
+
+@pytest.mark.parametrize('reason',[
+    '来源角标无法避开且保留完整人脸',
+    '字幕时间重叠到零长度',
+    '标题文案待重试：保留重试',
+])
+@pytest.mark.parametrize('patch_text',[
+    # Actual PR171 operations: same audit moved into the existing copy gate.
+    '-    if automatic_only():\n-        from transcript_audit import review as audit_transcript\n'
+    '+            if automatic_only():\n+                from transcript_audit import review as audit_transcript\n'
+    '+                audit=audit_transcript(text,speaker,model,call,path)\n'
+    '+                argument_review={**argument_review,"transcript_audit":audit}',
+    '+    # improve live_crop / title_policy / subtitle_proof later',
+    '',None,
+])
+def test_audit_reordering_cannot_reopen_unchanged_producer_gates(monkeypatch,reason,patch_text):
+    state,entry,run,_=evidence(monkeypatch)
+    entry.update(failed=True,last_error=reason,source_url='https://example.com/mother',source_check_attempts=2)
+    run['updated_at']='2026-10-08T14:45:00Z'
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:dict(files=[dict(filename='linyuan/produce_cn.py',patch=patch_text)]))
+    assert not fc._recover_changed_production_rule(state,entry,run)
+    assert entry['failed'] and entry['source_check_attempts']==2 and entry['quality_retries']==1
+    assert not entry['automatic_rule_recoveries']
+
+
+@pytest.mark.parametrize('reason,patch_text,expected',[
+    ('来源角标无法避开且保留完整人脸','+ clean_vf=refine_native_crop(source)','visual-preflight-v2'),
+    ('字幕时间重叠到零长度','+ subtitle_source=caption_entries(cues)','caption-source-clock-v5'),
+    ('标题文案待重试：保留重试','+ cw=copywrite(cues)','automatic-source-context-v10'),
+])
+def test_actual_relevant_operation_delta_still_allows_one_recovery(monkeypatch,reason,patch_text,expected):
+    state,entry,run,_=evidence(monkeypatch)
+    entry.update(failed=True,last_error=reason,source_url='https://example.com/mother',source_check_attempts=2)
+    run['updated_at']='2026-10-08T14:45:00Z'
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:dict(files=[dict(filename='linyuan/produce_cn.py',patch=patch_text)]))
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert expected in entry['automatic_rule_recoveries']
+    assert entry['source_check_attempts']==2 and entry['quality_retries']==1
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
 
 
 def test_medium_opening_fix_reopens_v40_failure_once_after_prior_recovery(monkeypatch):
