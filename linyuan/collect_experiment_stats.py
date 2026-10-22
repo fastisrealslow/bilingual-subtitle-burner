@@ -34,7 +34,7 @@ def reconcile(items, previous, state, now=None):
     result['legacy_groups']=result['groups'];result['legacy_by_slot']=result['by_slot']
     result['legacy_scope']=result['scope']
     receipts={r['bvid']:r for r in result['receipts']}
-    samples={(r['bvid'],r['window']):dict(r) for r in old.get('clock_samples',[])
+    samples={(r.get('experiment_id'),r['bvid'],r['window']):dict(r) for r in old.get('clock_samples',[])
              if isinstance(r,dict) and r.get('bvid') and r.get('window') in WINDOWS}
     for item in items:
         bvid=item.get('bvid');pub=item.get('pubdate');observed=item.get('observed_at');play=item.get('play')
@@ -43,9 +43,10 @@ def reconcile(items, previous, state, now=None):
                 or now-observed>600 or type(play) is not int or play<0):continue
         age=(observed-pub)/3600
         for window in WINDOWS:
-            if (bvid,window) in samples or not age_fits(age,window):continue
+            key=(experiment.EXPERIMENT_ID,bvid,window)
+            if key in samples or not age_fits(age,window):continue
             receipt=receipts[bvid]
-            samples[bvid,window]=dict(bvid=bvid,window=window,observed_at=observed,
+            samples[key]=dict(experiment_id=experiment.EXPERIMENT_ID,bvid=bvid,window=window,observed_at=observed,
                 pubdate=pub,age_hours=age,play=play,like=item.get('like'),danmaku=item.get('danmaku'),
                 planned=receipt['planned'],actual=receipt['actual'],compliant=receipt['compliant'],
                 slot_number=receipt['slot_number'],content_type=receipt.get('content_type'),
@@ -54,6 +55,7 @@ def reconcile(items, previous, state, now=None):
         timing=(row.get('window') in WINDOWS and age_fits(row.get('age_hours'),row['window'])
                 and number(row.get('observed_at')) and 0<row['observed_at']<=now)
         row['comparable']=(timing and type(row.get('play')) is int and row['play']>=0
+            and row.get('experiment_id')==experiment.EXPERIMENT_ID
             and row.get('observation_source')=='bilibili_public_view'
             and row.get('compliant') is True and row.get('actual')==row.get('planned')
             and row.get('planned') in (experiment.BASELINE,experiment.TREATMENT)
@@ -83,7 +85,8 @@ def reconcile(items, previous, state, now=None):
 
 def due_receipts(previous,state,now):
     base=experiment.observations([],previous,state,now)
-    seen={(r['bvid'],r['window']) for r in (previous.get('publishing_experiment') or {}).get('clock_samples',[])}
+    seen={(r['bvid'],r['window']) for r in (previous.get('publishing_experiment') or {}).get('clock_samples',[])
+          if r.get('experiment_id')==experiment.EXPERIMENT_ID}
     due=[]
     for receipt in base['receipts']:
         published=receipt.get('published_at')

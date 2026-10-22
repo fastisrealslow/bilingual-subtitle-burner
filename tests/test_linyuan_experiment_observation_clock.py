@@ -52,6 +52,15 @@ def test_legacy_samples_and_old_groups_are_not_erased_or_relabelled():
     assert C.due_receipts(dict(publishing_experiment=result),state(),NOW)==[]
 
 
+def test_other_experiment_clock_rows_stay_archived_not_compared():
+    first=C.reconcile([item()],{},state(),NOW)
+    first['clock_samples'][0]['experiment_id']='other-experiment'
+    result=C.reconcile([],dict(publishing_experiment=first),state(),NOW)
+    assert len(result['clock_samples'])==1 and treatment(result)['count']==0
+    measured=C.reconcile([item()],dict(publishing_experiment=first),state(),NOW)
+    assert len(measured['clock_samples'])==2 and treatment(measured)['mean']==100
+
+
 @pytest.mark.parametrize('changes',[
     dict(play=None),dict(play=True),dict(play=-1),dict(play='100'),dict(pubdate=None),
     dict(observed_at=NOW+1),dict(observation_source='search_index'),dict(bvid='BVunknown'),
