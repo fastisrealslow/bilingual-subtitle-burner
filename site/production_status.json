@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792662365,
-  "inventory_updated_at": 1792662130,
+  "updated_at": 1792663134,
+  "inventory_updated_at": 1792663110,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
-    "active_or_recovering_sources": 10,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,19 +89,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792662364,
-    "records": 11361,
-    "video_records": 9795,
-    "initial_candidates": 61,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792663134,
+    "records": 11376,
+    "video_records": 9809,
+    "initial_candidates": 63,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1566,
+      "already_attempted_or_cooling": 1534,
+      "speaker_unconfirmed": 6795,
+      "no_video": 1567,
       "clip_title": 1155,
-      "speaker_unconfirmed": 6786,
-      "already_attempted_or_cooling": 1531,
       "noise": 19,
       "unrelated": 64,
       "ai_content": 36,
@@ -110,7 +110,24 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5356835542402775",
+        "title": "10月21日林园采访极速版：今年以来不算牛市，大多数人赚钱才叫牛市！#热点聚焦##微博视频精选大赏##圣叹财经# htt",
+        "source": "weibo_search",
+        "author": "圣叹财经",
+        "url": "https://m.weibo.cn/detail/5356835542402775",
+        "duration_sec": 253.0
+      },
+      {
+        "key": "netease_video:VB8TS99H5",
+        "title": "林园：老字号中药企业现在的估值我就等着爆发，一来又是几倍",
+        "source": "netease_video",
+        "author": "网易视频",
+        "url": "https://www.163.com/v/video/VB8TS99H5.html",
+        "duration_sec": 208.32
+      }
+    ]
   },
   "inventory": {
     "verified_live": 13,
@@ -128,12 +145,12 @@
     "complete": 138,
     "failed": 1196,
     "paused": 5,
-    "interrupted": 4,
+    "interrupted": 5,
     "excluded": 15,
     "ready": 5,
     "experiment_fallback": 5,
     "retry_queued": 4,
-    "running": 6
+    "running": 5
   },
   "tasks": [
     {
@@ -24896,8 +24913,8 @@
     },
     {
       "slug": "ly-story-71d80ec9f5",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792660797,
         "failed": false,
@@ -24910,7 +24927,7 @@
       "run_id": 39754584426,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39754584426",
       "run_started_at": "2026-10-22T09:19:57Z",
-      "run_updated_at": "2026-10-22T09:20:01Z"
+      "run_updated_at": "2026-10-22T09:57:18Z"
     },
     {
       "slug": "ly-1022-033f3f",
@@ -35721,10 +35738,10 @@
     },
     "ly-story-71d80ec9f5": {
       "id": 39754584426,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T09:19:57Z",
-      "updated_at": "2026-10-22T09:20:01Z",
+      "updated_at": "2026-10-22T09:57:18Z",
       "run_started_at": "2026-10-22T09:19:57Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39754584426",
       "run_number": 2411,
