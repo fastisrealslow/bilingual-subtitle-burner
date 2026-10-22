@@ -2,9 +2,50 @@
 import argparse
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
+
+
+def preparation_only_cache_miss(directory, work, run_id, artifacts, repo):
+    """A verified pre-source installer failure contains no reusable evidence.
+
+    A missing report alone is not permission to ignore a broken cache. Require
+    the original job's exact failure and skipped source steps; keep ambiguous,
+    mixed or source-bearing artifacts fail-closed. Nothing is imported here.
+    """
+    directory,work=Path(directory),Path(work)
+    if list(directory.rglob('source_quality.json')):
+        return False
+    evidence_prefixes=('deliver-','source-reject-','mother-media-','raw-asr-',
+                       'editorial-','render-evidence-')
+    if any(not a.get('expired') and a.get('name','').startswith(evidence_prefixes)
+           for a in artifacts):
+        return False
+    for pattern in ('asr*.json','cues*.json','copywrite*.json','highlights*.json',
+                    'semantic*.json','recognition.json','aligned.json','meta.json','*.mp4'):
+        if next(directory.rglob(pattern),None) is not None:
+            return False
+    current=json.loads((work/'source_quality.json').read_text())
+    if (current.get('passed') is not True or not isinstance(current.get('source_sha256'),str)
+            or not re.fullmatch(r'[0-9a-f]{64}',current['source_sha256'])):
+        raise ValueError('本次母片尚未通过素材检查，不能忽略旧缓存')
+    jobs=json.loads(subprocess.check_output(['gh','api',
+        f'repos/{repo}/actions/runs/{run_id}/jobs']))['jobs']
+    if len(jobs)!=1 or jobs[0].get('conclusion')!='failure':
+        return False
+    steps=jobs[0].get('steps',[])
+    failed=[s for s in steps if s.get('conclusion')=='failure']
+    if len(failed)!=1 or failed[0].get('name')!='安装 ffmpeg 与中文字体':
+        return False
+    # Explicit skipped steps distinguish a real pre-source failure from an
+    # incomplete jobs response. Unknown/download/ASR successes cannot approve it.
+    for name in ('取源','素材质量门禁','出片'):
+        matching=[s for s in steps if s.get('name')==name]
+        if len(matching)!=1 or matching[0].get('conclusion')!='skipped':
+            return False
+    return True
 
 
 def restore(evidence, work, *, titles_only=False):
@@ -79,7 +120,12 @@ def main():
         subprocess.run(['gh','run','download',str(args.run_id),'--repo',repo,
                         '--name',names[0],'--dir',directory],check=True)
         reports=list(Path(directory).rglob('source_quality.json'))
-        if len(reports)!=1:raise ValueError('需要唯一的失败母片证据')
+        if len(reports)!=1:
+            if (not args.artifact_name and preparation_only_cache_miss(
+                    directory,args.work,args.run_id,artifacts,repo)):
+                print('旧任务已核实仅工具安装失败，无素材或转写可恢复；不导入空证据，继续本次完整离线识别')
+                return
+            raise ValueError('需要唯一的失败母片证据')
         if restore(reports[0].parent,args.work) is False:return
         # Run 801's preferred editorial artifact retained ASR but omitted every
         # validated copywrite file. The full debug artifact still has them.
