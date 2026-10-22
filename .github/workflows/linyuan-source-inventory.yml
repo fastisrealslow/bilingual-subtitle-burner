@@ -44,14 +44,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 安装并核验库存检查工具与中文字体
-        timeout-minutes: 15
-        run: bash linyuan/ci_install_media_tools.sh
-      - name: 校验实际 MP4、字幕证据和剩余库存
+      - name: 先初始化库存和失败状态回读的 Python 依赖
+        id: python_runtime
+        timeout-minutes: 5
         run: |
           pip install -q requests numpy 'opencv-python-headless<5' pytest pyyaml
           pip install -q -r linyuan/fc/runtime-requirements.txt
           python -c "import sys; sys.path.insert(0,'linyuan'); from experiment_runtime import health; assert health()['passed']"
+      - name: 安装并核验库存检查工具与中文字体
+        id: media_setup
+        timeout-minutes: 15
+        run: bash linyuan/ci_install_media_tools.sh
+      - name: 校验实际 MP4、字幕证据和剩余库存
+        run: |
           python -m pytest -q tests/test_linyuan_production_status.py tests/test_linyuan_source_admission.py
           python -m pytest -q tests/test_linyuan_reserve_integrity.py
           python -m pytest -q tests/test_linyuan_runner_dispatch.py
@@ -82,7 +87,7 @@ jobs:
           python -m pytest -q tests/test_linyuan_dispatch_retry.py
           python linyuan/fc/catchup_from_inventory.py
       - name: 回读真实运行状态并更新日志页
-        if: always()
+        if: always() && steps.python_runtime.outcome == 'success'
         run: |
           python linyuan/production_status.py
           git config user.name 'github-actions[bot]'
@@ -95,6 +100,12 @@ jobs:
             sleep 3
           done
           exit 1
+      - name: 独立记录工具准备失败，不判定素材失败或刷新库存
+        if: always() && (steps.python_runtime.outcome != 'success' || steps.media_setup.outcome != 'success')
+        env:
+          INVENTORY_PYTHON_OUTCOME: ${{ steps.python_runtime.outcome }}
+          INVENTORY_MEDIA_OUTCOME: ${{ steps.media_setup.outcome }}
+        run: python linyuan/inventory_preparation_failure.py
       - name: 复测长母片出片率与固定45%目标（不影响补源和发布）
         if: always()
         continue-on-error: true
@@ -124,6 +135,7 @@ jobs:
             linyuan/.automation/source_inventory.json
             catchup-receipt.json
             github-dispatch-receipt.json
+            inventory-preparation-failure.json
             mother-yield-observation.json
           include-hidden-files: true
           if-no-files-found: warn
