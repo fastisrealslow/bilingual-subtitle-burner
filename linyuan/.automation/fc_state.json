@@ -40847,7 +40847,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-25T14:10:05+08:00"
+   "publish_time": "2026-09-25T14:10:05+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-5e8bdf",
+    "run_id": 39861668256,
+    "artifact_id": 12463137373,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39861668256,
+    "artifact_id": 12463137373,
+    "name": "production-reject-ly-1022-5e8bdf",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5355312758130981",
@@ -40904,7 +40930,8 @@
    },
    "last_error": "整段取景预检：源 359.77s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Ku4y127yg",
@@ -40949,7 +40976,8 @@
    },
    "last_error": "整段取景预检：源 21.23s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5327151022737977",
@@ -115199,6 +115227,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/7AhroDffgx08BF2BLRGM01041201z5Qq0E010.mp4",
    "ts": 1792707572,
    "error": "整段取景预检：源 359.77s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1022-5e8bdf",
+   "key": "weibo_search:5347037747087772",
+   "video_id": "http://f.video.weibocdn.com/u0/1dgimHUvgx08B4Csv6Y001041201sbMi0E010.mp4",
+   "ts": 1792707937,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98"
   }
  ],
  "reviewed_third_video_0910": {
