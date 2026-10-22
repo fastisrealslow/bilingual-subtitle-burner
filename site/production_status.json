@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792653919,
+  "updated_at": 1792654074,
   "inventory_updated_at": 1792653902,
   "continuity": {
     "daily_target": 4,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792653918,
+    "updated_at": 1792654074,
     "records": 11361,
     "video_records": 9795,
     "initial_candidates": 61,
@@ -126,14 +126,14 @@
   },
   "counts": {
     "complete": 138,
-    "failed": 1189,
+    "failed": 1190,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 12,
     "ready": 3,
     "experiment_fallback": 7,
-    "retry_queued": 12,
-    "running": 5
+    "retry_queued": 11,
+    "running": 6
   },
   "tasks": [
     {
@@ -24697,24 +24697,6 @@
       "run_updated_at": "2026-10-22T06:45:55Z"
     },
     {
-      "slug": "ly-story-a4a99c14cd",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792645711,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792649055,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39726318469,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726318469",
-      "run_started_at": "2026-10-22T05:08:31Z",
-      "run_updated_at": "2026-10-22T05:47:02Z"
-    },
-    {
       "slug": "ly-1022-dcd5a1",
       "status": "failed",
       "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
@@ -24770,11 +24752,11 @@
     },
     {
       "slug": "ly-story-423df312c3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是指'人均零'、'总量零'还是'特定人群零'。这种绝对化的否定表述导致数据逻辑断裂，属于需澄清的关键数字疑点。\"}]",
       "signature": {
         "ts": 1792650969,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24911,6 +24893,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39724261288",
       "run_started_at": "2026-10-22T04:46:39Z",
       "run_updated_at": "2026-10-22T05:06:18Z"
+    },
+    {
+      "slug": "ly-story-a4a99c14cd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792654034,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39740586335,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39740586335",
+      "run_started_at": "2026-10-22T07:27:14Z",
+      "run_updated_at": "2026-10-22T07:27:18Z"
     }
   ],
   "runs": {
@@ -35585,14 +35585,14 @@
       "display_title": "中文源出片 · ly-1022-dcd5a1"
     },
     "ly-story-a4a99c14cd": {
-      "id": 39726318469,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T05:08:31Z",
-      "updated_at": "2026-10-22T05:47:02Z",
-      "run_started_at": "2026-10-22T05:08:31Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726318469",
-      "run_number": 2385,
+      "id": 39740586335,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T07:27:14Z",
+      "updated_at": "2026-10-22T07:27:18Z",
+      "run_started_at": "2026-10-22T07:27:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39740586335",
+      "run_number": 2395,
       "display_title": "中文源出片 · ly-story-a4a99c14cd"
     },
     "ly-1022-3c9631": {
@@ -35639,6 +35639,17 @@
       "run_number": 2380,
       "display_title": "中文源出片 · ly-story-d83bdfcc6f"
     },
+    "ly-story-423df312c3": {
+      "id": 39734965914,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-22T06:36:08Z",
+      "updated_at": "2026-10-22T07:23:52Z",
+      "run_started_at": "2026-10-22T06:36:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39734965914",
+      "run_number": 2391,
+      "display_title": "中文源出片 · ly-story-423df312c3"
+    },
     "ly-story-7524eb9e46": {
       "id": 39736770669,
       "status": "in_progress",
@@ -35671,17 +35682,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39736168964",
       "run_number": 2392,
       "display_title": "中文源出片 · ly-story-2a8f12b578"
-    },
-    "ly-story-423df312c3": {
-      "id": 39734965914,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T06:36:08Z",
-      "updated_at": "2026-10-22T07:23:52Z",
-      "run_started_at": "2026-10-22T06:36:08Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39734965914",
-      "run_number": 2391,
-      "display_title": "中文源出片 · ly-story-423df312c3"
     },
     "ly-1022-b9a4c5": {
       "id": 39727961165,
