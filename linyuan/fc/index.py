@@ -3472,7 +3472,7 @@ def _recover_changed_production_rule(st, candidate, run):
                     '原始ASR存在影响理解的疑点，禁止猜改后发布'),
             ('linyuan/transcript_audit.py','.github/workflows/linyuan-produce-cn.yml')),
            ('editorial-claim-range-v10',('观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问',),
-            ('linyuan/produce_cn.py','linyuan/editorial_evidence.py')),
+            ('linyuan/editorial_evidence.py',)),
            ('feed-cover-three-lines-v1',('封面生成/人物/角标复检失败：完整词句无法放入两行',),
             ('linyuan/presentation.py',)),
            ('caption-source-clock-v5',('完整词句无法放入两行','意群分组',
@@ -3515,7 +3515,18 @@ def _recover_changed_production_rule(st, candidate, run):
              and not (x[0]=='caption-source-clock-v5' and reason.startswith('封面生成/'))]
     if not matches:return False
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
-    case=next((x for x in matches if any(f.get('filename') in x[2] for f in changed)),None)
+    def affected(case,file):
+        if file.get('filename') not in case[2]:return False
+        if (case[0]=='transcript-review-model-v3'
+                and file.get('filename')=='.github/workflows/linyuan-produce-cn.yml'):
+            # Actual Oct22: adding asr_prepare's step ID / failure reporting
+            # reopened unchanged ASR rejects and occupied production slots.
+            # A workflow edit must actually change the text-review runtime.
+            return any(re.match(r'^[+-]\s*(?:RUN_TEXT_MODEL|LOCAL_LLM_MODEL|'
+                r'LOCAL_LLM_TIMEOUT_SEC|TEXT_BACKEND)\s*:',line)
+                for line in str(file.get('patch') or '').splitlines())
+        return True
+    case=next((x for x in matches if any(affected(x,f) for f in changed)),None)
     if not case:return False
     version,_,paths=case
     history[version]=dict(run_id=run['id'],reason=reason,ts=int(time.time()))

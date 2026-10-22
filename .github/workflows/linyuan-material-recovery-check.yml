@@ -1,0 +1,30 @@
+name: 真实无关代码变更误触发恢复回放（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-material-recovery-20261022]
+    paths: [linyuan/fc/index.py, linyuan/check_material_recovery.py, .github/workflows/linyuan-material-recovery-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 真实历史失败与实际无关工作流差异，确认不消耗重试或改写历史
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/check_material_recovery.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-recovery-verification
+          path: material-recovery-verification.json
+          if-no-files-found: error
+

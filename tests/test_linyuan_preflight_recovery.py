@@ -156,6 +156,44 @@ def test_transcript_model_recovery_cannot_restart_unrelated_low_resolution(monke
     assert calls==[]
 
 
+@pytest.mark.parametrize('patch_text',[
+    '@@ -324 +324 @@\n+        id: asr_prepare',
+    '@@ -495 +496 @@\n+          PRODUCTION_JOB_STATUS: ${{ job.status }}',
+    '',None])
+def test_unrelated_or_unproven_workflow_change_cannot_spend_asr_retry(monkeypatch,patch_text):
+    state,entry,run,_=evidence(monkeypatch)
+    entry.update(failed=True,last_error='原始ASR存在影响理解的疑点，禁止猜改后发布：实体错字',
+        source_url='https://example.com/mother',source_check_attempts=2)
+    run['updated_at']='2026-10-08T14:45:00Z'
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:dict(files=[dict(
+        filename='.github/workflows/linyuan-produce-cn.yml',patch=patch_text)]))
+    assert not fc._recover_changed_production_rule(state,entry,run)
+    assert entry['failed'] and entry['source_check_attempts']==2
+    assert not entry['automatic_rule_recoveries']
+
+
+def test_actual_text_model_change_still_allows_one_bounded_recovery(monkeypatch):
+    state,entry,run,_=evidence(monkeypatch)
+    entry.update(failed=True,last_error='原始ASR存在影响理解的疑点，禁止猜改后发布：实体错字',
+        source_url='https://example.com/mother',source_check_attempts=2)
+    run['updated_at']='2026-10-08T14:45:00Z'
+    monkeypatch.setattr(fc,'gh',lambda *a,**k:dict(files=[dict(
+        filename='.github/workflows/linyuan-produce-cn.yml',
+        patch="-  RUN_TEXT_MODEL: old\n+  RUN_TEXT_MODEL: new")]))
+    assert fc._recover_changed_production_rule(state,entry,run)
+    assert entry['source_check_attempts']==2
+    entry['failed']=True
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
+def test_copywriter_change_alone_does_not_repair_host_claim_ranges(monkeypatch):
+    state,entry,run,_=evidence(monkeypatch,changed='linyuan/produce_cn.py')
+    entry.update(failed=True,last_error='观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问',
+        source_url='https://example.com/mother')
+    run['updated_at']='2026-10-08T14:45:00Z'
+    assert not fc._recover_changed_production_rule(state,entry,run)
+
+
 def test_concessive_title_repair_reopens_attribution_failure_only_once(monkeypatch):
     state,entry,run,calls=evidence(monkeypatch,changed='linyuan/title_rewrite.py')
     entry.update(failed=True,last_error='标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核',
