@@ -136,6 +136,8 @@ def selection_request(cues, candidates):
 
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
+    if re.search(r'(?:没有|不如|不像)您(?:这么|那么|这样|那样)',event):
+        return 'An interviewer comparison addressed to the guest is not the guest personal event'
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
     advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
@@ -358,6 +360,16 @@ def story_title_prompt(prompt,schema,evidence):
         object_terms=focus['subjects'],named_reason_terms=focus['details'],
         body_only_background_terms=focus['background_terms']),ensure_ascii=False)+
         '。仅正文背景词不放入标题或封面；所有事实、主体和条件仍按完整原文核对。') if focus['background_terms'] else ''
+    if evidence.get('kind')=='personal_story' and not focus['details']:
+        scope+='\n细节中的泛指词不是标题关键词，不要为了出现这些词硬造一句话。仍须通读完整原文，说清本人实际选择及原话理由，不能借用提问前提。'
+    action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
+    if action_pairs:
+        scope+=('\n细节原话也包含完整的动作理由，不能只盯着其中的比喻名词：'
+            +json.dumps(action_pairs,ensure_ascii=False)+
+            '。可以用这组原词把理由说直白，不必硬塞比喻名词。先说本人实际选择，再接一条理由；'
+            '同一个理由说一次就够，不要把“不做这两件事”和“否则要做这两件事”正反重复一遍。'
+            '条件中的比喻也不是必然发生的时间节点，不要把假设写成将来的进程。'
+            '只改善表达，不改变原句条件、否定或动作主体；不能把人的生活需要改成投资者必须投资。')
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
@@ -382,6 +394,7 @@ def title_focus(selection):
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
         tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
+                and not (selection.get('kind')=='personal_story' and w.word=='个人')
                 and (not proper or w.word.upper() not in categories)
                 and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
                      or not proper and w.flag=='vn')]
@@ -411,6 +424,17 @@ def title_focus(selection):
                 break
     subjects=terms(selection.get('subject_quote',''),True) if selection.get('kind')=='company_case' else []
     details=terms(reason)
+    action_pairs=[]
+    if selection.get('kind')=='personal_story':
+        # A literal complete action phrase can be the reason; forcing only a
+        # metaphor noun made real drafts repeat a counterfactual in three
+        # clauses. Keep BOTH source actions. This is coverage, never entailment
+        # or permission to drop negation/conditions in independent review.
+        for phrase in re.findall(r'不[\u4e00-\u9fff]不[\u4e00-\u9fff]',reason):
+            pair=[phrase[1],phrase[3]]
+            if (pair[0]!=pair[1] and all(list(jieba.posseg.cut(word))[0].flag.startswith('v') for word in pair)):
+                if pair not in action_pairs:action_pairs.append(pair)
+                details=list(dict.fromkeys([phrase]+details))
     def background_terms(quote):
         # POS dictionaries tag some nominal variables as verbs (e.g. 的收入).
         # Recover only the local nominal construction, not opinion/qualifier
@@ -423,17 +447,24 @@ def title_focus(selection):
         if selection.get(key,'')!=reason for t in background_terms(selection.get(key,''))
         if t not in subjects and t not in details)) if named_reason else []
     return dict(subjects=subjects,details=details,background_terms=background,
+                **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
 def title_focus_error(title,focus,speaker='林园',cover=None):
     if not isinstance(title,str):return '故事标题不是文本'
     body=title.removeprefix(speaker+'：')
+    action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
-    if focus.get('details') and not any(t in body for t in focus['details']):
+    if (focus.get('details') and not any(t in body for t in focus['details'])
+            and not any(all(term in body for term in pair) for pair in action_pairs)):
         return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
+    for a,b in action_pairs:
+        if re.search(r'除非[^。！？!?]*不'+re.escape(a)+'不'+re.escape(b)+
+                     r'[^。！？!?]*否则[^。！？!?]*'+re.escape(a)+r'[^。！？!?]*'+re.escape(b),body):
+            return '同一个动作理由不能正反重复：先说实际选择，再用一句完整理由；不删必要条件或改变主体'
     if any(t in body+'\n'+str(cover or '') for t in focus.get('background_terms',[])):
         return '本次已有明确命名的选择理由；标题和封面只保留具体选择及该理由，背景变量请留在正文：'+','.join(focus['background_terms'])
     # Real CPU drafts repeatedly collapsed an income-level background clause

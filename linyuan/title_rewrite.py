@@ -329,6 +329,17 @@ def explicit_host_cues(units):
             continue
         if markers.search(body):host=True
         elif host:
+            # Actual d83: a completed question is answered with a third-person
+            # acknowledgement and an explicit first-person contrast. The old
+            # sticky host flag excluded the entire reply even when the reader
+            # identified it. Only release the deterministic exclusion; every
+            # cue still needs independent speaker and full-source review.
+            if (i and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])
+                    and re.fullmatch(r'(?:他|她|它)(?:们)?(?:都)?(?:会|可以|是)'
+                        r'[^，,。！？!?]{0,8}[，,](?:但是|但|不过|而)(?:我|我们)'
+                        r'[^。！？!?]{2,36}。[”’」』\"]?',text)
+                    and not re.search(r'你|您|请教|请问|想问|想知道|我来总结|听懂|意思是',text)):
+                host=False
             # Real run 37813937032: the completed bull-market question
             # precedes "尽管...牛市初期...但是我们相信...趋势已经形成了。"
             # Sticky exclusion hid every substantive guest answer despite the
