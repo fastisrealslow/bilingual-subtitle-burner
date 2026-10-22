@@ -329,6 +329,17 @@ def explicit_host_cues(units):
             continue
         if markers.search(body):host=True
         elif host:
+            # Actual Oct22 story d83: "他们都会，但是我这个人还比较专心。"
+            # answers a finished addressed question. The old sticky flag hid
+            # this AND every subsequent answer, even after three independent
+            # readings identified the reply. End only the deterministic ban;
+            # the reader/reviewer must still attribute every original cue.
+            if (i and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])
+                    and re.fullmatch(r'(?:他|她|它)(?:们)?(?:都)?(?:会|可以|是)'
+                        r'[^，,。！？!?]{0,8}[，,](?:但是|但|不过|而)(?:我|我们)'
+                        r'[^。！？!?]{2,36}。[”’」』\"]?',text)
+                    and not re.search(r'你|您|请教|请问|想问|想知道|我来总结|听懂|意思是',text)):
+                host=False
             # Real run 37813937032: the completed bull-market question
             # precedes "尽管...牛市初期...但是我们相信...趋势已经形成了。"
             # Sticky exclusion hid every substantive guest answer despite the
