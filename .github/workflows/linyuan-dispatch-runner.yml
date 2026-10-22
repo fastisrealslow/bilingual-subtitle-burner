@@ -5,6 +5,9 @@ on:
     # Candidate admission/recovery every half hour. Publication keeps its own
     # timer, daily cap, lease and quality gates; this is not forced publishing.
     - cron: '7,37 * * * *'
+  workflow_run:
+    workflows: ['FC production deploy']
+    types: [completed]
   push:
     branches: [main]
     paths:
@@ -23,6 +26,9 @@ concurrency:
 
 jobs:
   dispatch:
+    # Recover with current main only after its publisher deployment succeeded.
+    # Reuse normal admission, inventory TTL and lease, never force production.
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
