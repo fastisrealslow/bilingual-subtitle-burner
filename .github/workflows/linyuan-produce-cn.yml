@@ -324,6 +324,7 @@ jobs:
         run: python prepare_asr_runtime.py cache --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json"
 
       - name: 准备CPU离线Qwen识别及逐字对齐
+        id: asr_prepare
         if: env.ASR_BACKEND == 'qwen3' && env.ASR_EVIDENCE_READY != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
