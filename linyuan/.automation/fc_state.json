@@ -39553,7 +39553,8 @@
    },
    "last_error": "整段取景预检：源 2094.10s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1ZNzeBsEr2",
@@ -39695,7 +39696,29 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "422157cc80a4fc0ba6b8773ff46bcb105c9ec765e70e41d2865cc8e5b6a15fe0",
    "experiment_parent_slug": "ly-0916-258fea",
-   "recovery_origin_run_id": 35064301640
+   "recovery_origin_run_id": 35064301640,
+   "production_failure_summary": {
+    "slug": "ly-story-18b29fe207",
+    "run_id": 39803498243,
+    "artifact_id": 12438895245,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那像这种像此前的一种小票行情的时候，那林元总啊，您是耐怎么会能耐得住这个寂寞呢？\", \"suspect_quote\": \"那林元总啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“林元”疑似为人名识别错误，结合上下文嘉宾名为“林园”，此处应为“林园”。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39803498243,
+    "artifact_id": 12438895245,
+    "name": "production-reject-ly-story-18b29fe207",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那像这种像此前的一种小票行情的时候，那林元总啊，您是耐怎么会能耐得住这个寂寞呢？\", \"suspect_quote\": \"那林元总啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“林元”疑似为人名识别错误，结合上下文嘉宾名为“林园”，此处应为“林园”。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1P24y1b73e",
@@ -39721,8 +39744,8 @@
    "publish_time": "2023-03-07T03:43:07+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-427a50",
-    "run_id": 39790187250,
-    "artifact_id": 12431398699,
+    "run_id": 39807093009,
+    "artifact_id": 12438517334,
     "accepted": 0,
     "failures": [
      {
@@ -39731,15 +39754,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39790187250,
-    "artifact_id": 12431398699,
+    "run_id": 39807093009,
+    "artifact_id": 12438517334,
     "name": "production-reject-ly-1022-427a50",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -113356,6 +113379,13 @@
    "video_id": "BV1iPQuYXEaT",
    "ts": 1792683561,
    "error": "整段取景预检：源 2094.10s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-story-18b29fe207",
+   "key": "ly-story-18b29fe207",
+   "video_id": "BV19P4y1m77K:p40",
+   "ts": 1792683971,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那像这种像此前的一种小票行情的时候，那林元总啊，您是耐怎么会能耐得住这个寂寞呢？\", \"suspect_quote\": \"那林元总啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“林元”疑似为人名识别错误，结合上下文嘉宾名为“林园”，此处应为“林园”。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
