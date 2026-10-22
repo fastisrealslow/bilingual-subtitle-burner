@@ -81,6 +81,36 @@ def test_wide_pixels_cannot_be_claimed_as_portrait(portrait_case,monkeypatch):
         P._produce_with_layout_preference(**portrait_case)
 
 
+def test_both_picture_attempts_share_one_deadline(portrait_case,monkeypatch):
+    import signal,time
+    if not hasattr(signal,'setitimer'):pytest.skip('POSIX production deadline')
+    calls=[]
+    def render(**kw):
+        calls.append(kw)
+        if kw.get('_portrait_attempt'):
+            kw['_picture_phase']['picture_started']=True
+            time.sleep(.01)
+            raise ValueError('原始画面不足以保留完整人脸及头顶余量')
+        time.sleep(.2)
+        pytest.fail('Native fallback must not receive a fresh part budget')
+    monkeypatch.setattr(P,'_produce_one',render)
+    with pytest.raises(P.PartProductionUnavailable,match='生产预算'):
+        P.produce_part_with_budget(**portrait_case,budget_sec=.05)
+    assert len(calls)==2 and '_portrait_attempt' not in calls[1]
+
+
+def test_native_rejection_does_not_start_another_framing_attempt(portrait_case,monkeypatch):
+    calls=[]
+    def render(**kw):
+        calls.append(kw)
+        if kw.get('_portrait_attempt'):kw['_picture_phase']['picture_started']=True
+        raise ValueError('来源角标无法避开且保留完整人脸，须换取景或素材')
+    monkeypatch.setattr(P,'_produce_one',render)
+    with pytest.raises(ValueError,match='来源角标'):
+        P._produce_with_layout_preference(**portrait_case)
+    assert len(calls)==2
+
+
 def test_same_complete_picture_and_final_gates_are_still_required():
     body=inspect.getsource(P._produce_one)
     assert "if not portrait_story and (proposed_native" in body
