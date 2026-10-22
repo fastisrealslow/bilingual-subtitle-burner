@@ -69,7 +69,13 @@ def main():
                    if args.artifact_name and a['name']==args.artifact_name and not a.get('expired')]
         names=requested or [a['name'] for prefix in ('editorial-','debug-') for a in artifacts
                             if a['name'].startswith(prefix) and not a.get('expired')]
-        if not names:raise ValueError('原任务没有可用的转写证据')
+        if not names:
+            # Recovery is an optimization, not source/ASR approval. Old raw
+            # artifacts expire independently of the published receipt. With
+            # no evidence to restore, run the normal fresh offline ASR path;
+            # do not fail a valid new mother before recognition even starts.
+            print('原任务没有仍可用的转写缓存；不导入任何证据，继续本次完整离线识别')
+            return
         subprocess.run(['gh','run','download',str(args.run_id),'--repo',repo,
                         '--name',names[0],'--dir',directory],check=True)
         reports=list(Path(directory).rglob('source_quality.json'))
