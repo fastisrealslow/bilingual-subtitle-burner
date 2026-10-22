@@ -39632,7 +39632,28 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "3b0c6a7b4d44f0f79d47e89c3dd061021540d98375d19decc8c7b55622ed4ded",
    "experiment_parent_slug": "ly-1016-9841c2",
-   "recovery_origin_run_id": 38866041586
+   "recovery_origin_run_id": 38866041586,
+   "production_failure_summary": {
+    "slug": "ly-story-9ccd46299a",
+    "run_id": 39803476094,
+    "artifact_id": 12438628647,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"uni"
+     }
+    ]
+   },
+   "source_check_report_id": 12438628647,
+   "source_check_run_id": 39803476094,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792688871
   },
   {
    "video_id": "BV19P4y1m77K:p40",
@@ -39798,7 +39819,37 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "0507ac0d8f28e08e437e3111e429643ac2a1cd35c346d5eae095c7c30970d725",
    "experiment_parent_slug": "ly-1018-c49110",
-   "recovery_origin_run_id": 39122221076
+   "recovery_origin_run_id": 39122221076,
+   "production_failure_summary": {
+    "slug": "ly-story-e09b850697",
+    "run_id": 39808299518,
+    "artifact_id": 12439782896,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及嘉宾回答“基本上没卖过”，此处“把”字极大概率是“有”字的误识（拼音输入法或语音识别混淆），导致语义不通。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之二一'在口语中极可能是'百分之二十'的误听或口误，且与后文'下重手去试了'及常规投资比例语境不符，属于含义不明的关键数字污染。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39808299518,
+    "artifact_id": 12439782896,
+    "name": "production-reject-ly-story-e09b850697",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的宏观。\", \"suspect_quote\": \"那就是实践是行业的宏观\", \"kind\": \"unintelligible_term\", \"reason\": \"'实践是'疑似错写或漏录，结合上下文应为‘把握’、‘判断’或‘就是’等词，‘实践是’在金融语境下含义不明，属于具体识别疑点。\"}, {\"sentence_id\": 15, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发了，开始慢慢要要要行的时候。\", \"suspect_quote\": \"要爆发了，要爆发了，开始慢慢要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"'要要要'虽为口吃重复，但‘行的时候’中‘行’字单独使用指代不明（是‘行业’还是‘可行’？），结合前文‘爆发’语境，此处极可能漏录‘行业’二字，导致关键名词缺失，属于具体识别疑点。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1k8QnYeEsE",
@@ -39831,7 +39882,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（480x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1XRnH6qEQ7",
@@ -39906,7 +39958,41 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "c343acd9eb45535bff8a9fc21b6ee29f603819a58f8fd38d288a0b10a9acd540",
    "experiment_parent_slug": "ly-1016-15606f",
-   "recovery_origin_run_id": 38946692284
+   "recovery_origin_run_id": 38946692284,
+   "production_failure_summary": {
+    "slug": "ly-story-76a421d637",
+    "run_id": 39810810349,
+    "artifact_id": 12440747468,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"suspect_quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：'百分之六十'作为概率描述在口语中虽常见，但结合上下文'大概率事件'，需确认此处是否为精确数值还是模糊指代；若为精确数据则无问题，但若原意是'六成左右'而识别成固定'百分之六十'，则构成数字污染。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那么也想问您一下，呃，林元总，以后就是核心资产，甚至是一些我们所说的一些代表性的一些企业，它们估值是否会越来越贵呢？\", \"suspect_quote\": \"林元总\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾姓名为“林园”，识别为“林元”属于专有名词错写，影响指代准确性。\"}, {\"sentence_id\": 10, \"quote\": \"好的，非常感谢林源总的一个分享。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那么也想问您一下，呃，林元总，以后就是核心资产，甚至是一些我们所说的一些代表性的一些企业，它们估值是否会越来越贵呢？\", \"suspect_quote\": \"林元总\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，句中识别为“林元”属于明显的专有名词错写，影响指代准确性。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39810810349,
+    "artifact_id": 12440747468,
+    "name": "production-reject-ly-story-76a421d637",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"suspect_quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：'百分之六十'作为概率描述在口语中虽常见，但结合上下文'大概率事件'，需确认此处是否为精确数值还是模糊指代；若为精确数据则无问题，但若原意是'六成左右'而识别成固定'百分之六十'，则构成数字污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
@@ -113966,6 +114052,20 @@
    "video_id": "BV1ASetzpEuk",
    "ts": 1792687960,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-story-76a421d637",
+   "key": "ly-story-76a421d637",
+   "video_id": "BV13x4y1o73Y",
+   "ts": 1792687967,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"suspect_quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：'百分之六十'作为概率描述在口语中虽常见，但结合上下文'大概率事件'，需确认此处是否为精确数值还是模糊指代；若为精确数据则无问题，但若原意是'六成左右'而识别成固定'百分之六十'，则构成数字污染。\"}]"
+  },
+  {
+   "slug": "ly-story-e09b850697",
+   "key": "ly-story-e09b850697",
+   "video_id": "https://f.video.weibocdn.com/o0/OKaBttEzlx08BFuYRDC801041208nSXV0E030.mp4",
+   "ts": 1792687968,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的宏观。\", \"suspect_quote\": \"那就是实践是行业的宏观\", \"kind\": \"unintelligible_term\", \"reason\": \"'实践是'疑似错写或漏录，结合上下文应为‘把握’、‘判断’或‘就是’等词，‘实践是’在金融语境下含义不明，属于具体识别疑点。\"}, {\"sentence_id\": 15, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发了，开始慢慢要要要行的时候。\", \"suspect_quote\": \"要爆发了，要爆发了，开始慢慢要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"'要要要'虽为口吃重复，但‘行的时候’中‘行’字单独使用指代不明（是‘行业’还是‘可行’？），结合前文‘爆发’语境，此处极可能漏录‘行业’二字，导致关键名词缺失，属于具体识别疑点。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
