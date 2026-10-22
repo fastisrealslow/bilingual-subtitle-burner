@@ -445,7 +445,12 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
                             etag_changed=tag_changed),ensure_ascii=False),flush=True)
                         if not length_changed and mirror_prefix_proof(
                                 op,url,referer,tmp,expected,etag,deadline,
-                                alternatives=len(urls)>1):
+                                # Exhaust bounded alternatives first. If ALL
+                                # mirrors are slow and no new bytes arrived,
+                                # the last retry may use the remaining total
+                                # budget; otherwise a large valid checkpoint
+                                # could never finish on uniformly slow CDNs.
+                                alternatives=len(urls)>1 and stalled_rounds<attempts-1):
                             print(f'[断点核对通过] {existing}字节完全一致，保留下载进度',flush=True)
                         else:
                             # Confirmed different bytes/length: restart exactly

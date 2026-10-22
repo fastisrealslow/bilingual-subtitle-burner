@@ -164,6 +164,36 @@ def test_slow_changed_etag_proof_yields_to_fast_fully_verified_mirror(monkeypatc
     assert tick[0]==46  # A local timeout did not spend the whole 120s budget.
 
 
+def test_all_slow_mirrors_eventually_allow_full_proof_without_discarding_checkpoint(monkeypatch, tmp_path):
+    payload=bytes(range(256))*20000;offset=2*(1<<20)
+    out=tmp_path/'track';partial=out.with_suffix('.part');partial.write_bytes(payload[:offset])
+    out.with_suffix('.download.json').write_text(json.dumps(dict(
+        identity=dict(source='source',paths=['/track']),total=len(payload),etag='old')))
+    tick=[0];proof_requests=[]
+    monkeypatch.setattr(b.time,'monotonic',lambda:tick[0])
+    monkeypatch.setattr(b.time,'sleep',lambda _:None)
+    monkeypatch.setattr(b,'rank_mirrors',lambda op,urls,ref,**kw:urls)
+    class SlowProof(Response):
+        def read(self,size=-1):
+            tick[0]+=46
+            return super().read(size)
+    class Opener:
+        def open(self,req,timeout):
+            start,end=req.headers['Range'].split('=')[1].split('-')
+            start=int(start);end=int(end) if end else len(payload)-1
+            headers={'Content-Range':f'bytes {start}-{end}/{len(payload)}','ETag':'new'}
+            if start==0:
+                proof_requests.append(req.full_url)
+                assert partial.read_bytes()==payload[:offset]
+                return SlowProof(payload[:offset],206,headers)
+            return Response(payload[start:end+1],206,headers)
+    b.download_one(Opener(),['https://slow1.test/track','https://slow2.test/track'],
+                   'source',out,deadline=1000)
+    assert out.read_bytes()==payload
+    # Two bounded rounds, then ONE full proof under the original global cap.
+    assert len(proof_requests)==5 and tick[0]==276
+
+
 def test_more_than_three_partial_responses_resume_to_exact_complete_file(tmp_path):
     payload=b'x'*150000
     starts=[]
