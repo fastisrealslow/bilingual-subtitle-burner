@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792649935,
+  "updated_at": 1792651088,
   "inventory_updated_at": 1792649706,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 11,
-    "active_or_recovering_sources": 11,
+    "active_or_recovering_sources": 12,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -39,7 +39,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 8,
+    "consecutive_fallbacks": 9,
     "actual_treatment_published": 0,
     "valid_comparison_days": 0,
     "daily": [
@@ -77,10 +77,10 @@
       },
       {
         "date": "2026-10-22",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792649935,
+    "updated_at": 1792651088,
     "records": 11361,
     "video_records": 9795,
     "initial_candidates": 61,
@@ -125,15 +125,15 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 137,
-    "failed": 1191,
+    "complete": 138,
+    "failed": 1192,
     "paused": 5,
-    "interrupted": 6,
-    "excluded": 11,
+    "interrupted": 5,
+    "excluded": 12,
     "ready": 3,
-    "experiment_fallback": 9,
+    "experiment_fallback": 7,
     "retry_queued": 7,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -22597,7 +22597,7 @@
       "signature": {
         "ts": 1792238654,
         "failed": null,
-        "published_parts": 2,
+        "published_parts": 3,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
@@ -22615,7 +22615,7 @@
       "signature": {
         "ts": 1792238663,
         "failed": null,
-        "published_parts": 2,
+        "published_parts": 3,
         "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
@@ -23204,13 +23204,13 @@
     },
     {
       "slug": "ly-1018-c49110",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1792321876,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -23312,8 +23312,8 @@
     },
     {
       "slug": "ly-story-83a297d253",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1792335509,
         "failed": null,
@@ -24824,11 +24824,11 @@
     },
     {
       "slug": "ly-story-0a239e2b67",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾明确为“林园”，此处识别为“林岩”属于明显的同音错别字，且“林岩”并非该语境下合理的称呼。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上，嘉宾姓名为“林园”，此处连续出现“林岩”为识别错误。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中常见的口误或重复，“大大家”应为“大家”，属于明显的词语错写/多字，影响阅读流畅性。\"}]",
       "signature": {
         "ts": 1792647956,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24857,6 +24857,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39730313232",
       "run_started_at": "2026-10-22T05:50:22Z",
       "run_updated_at": "2026-10-22T05:50:27Z"
+    },
+    {
+      "slug": "ly-story-423df312c3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792650969,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39734965914,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39734965914",
+      "run_started_at": "2026-10-22T06:36:08Z",
+      "run_updated_at": "2026-10-22T06:36:13Z"
     }
   ],
   "runs": {
@@ -35573,6 +35591,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39729890763",
       "run_number": 2389,
       "display_title": "中文源出片 · ly-story-0a239e2b67"
+    },
+    "ly-story-423df312c3": {
+      "id": 39734965914,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T06:36:08Z",
+      "updated_at": "2026-10-22T06:36:13Z",
+      "run_started_at": "2026-10-22T06:36:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39734965914",
+      "run_number": 2391,
+      "display_title": "中文源出片 · ly-story-423df312c3"
     },
     "ly-story-3b04cd0934": {
       "id": 39730313232,
