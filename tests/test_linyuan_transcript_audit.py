@@ -179,3 +179,41 @@ def test_invalid_only_classification_never_becomes_a_pass(tmp_path):
     with pytest.raises(ValueError,match='数字或否定'):
         A.review('否则叫剁胳膊剁腿。','林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
     assert len(calls)==2 and not (tmp_path/'audit.json').exists()
+
+
+def test_actual_relative_zero_fact_objection_requires_new_real_review(tmp_path):
+    text='到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢开始消费。'
+    issue=dict(sentence_id=0,suspect_quote='我认为今天是零',kind='ambiguous_number_or_negation',
+               reason='不符合常理，当前已有消费，绝对化表述不成立')
+    calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        return json.dumps(dict(issues=[issue],explanation='常识判断') if len(calls)==1 else
+                          dict(issues=[],explanation='跨时点的相对比较，不据观点真伪推断数词识别；未听到原音'))
+    proof=A.review(text,'林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==2 and proof['passed'] and not proof['audio_verified']
+    assert proof['transcript_sha256']==A.text_digest(text)
+    assert proof['rejected_review_evidence'][0]['invalid_issue_evidence'][0]['suspect_quote']=='我认为今天是零'
+
+
+def test_repeated_fact_scope_objection_remains_fail_closed(tmp_path):
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='今天是零',kind='ambiguous_number_or_negation',
+        reason='不符合常理，当前已有消费')],explanation='常识')
+    with pytest.raises(ValueError,match='相对比较'):
+        A.review('到二零五七年，相对于今天，今天是零。','林园','model',
+                 lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    assert not (tmp_path/'audit.json').exists()
+
+
+@pytest.mark.parametrize('quote',['今天不是零','今天是零点二','百分之二一','今天是零零','零'])
+def test_relative_comparison_evidence_check_does_not_waive_other_critical_tokens(quote):
+    assert not A.unsupported_relative_zero_objection(dict(suspect_quote=quote,
+        kind='ambiguous_number_or_negation',reason='不符合常理，当前已有消费'),
+        '到二零五七年，相对于今天，今天是零。')
+
+
+def test_same_period_actual_conflict_and_nonrelative_zero_remain_blockers():
+    issue=dict(suspect_quote='今天是零',kind='ambiguous_number_or_negation',
+               reason='同一时点的两个数字矛盾，不符合常理')
+    assert not A.unsupported_relative_zero_objection(issue,'到二零五七年，相对于今天，今天是零。')
+    assert not A.unsupported_relative_zero_objection({**issue,'reason':'不符合常理'},'今天是零，明天为一。')
