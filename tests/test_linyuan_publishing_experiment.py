@@ -150,6 +150,17 @@ def test_story_title_requires_actual_company_and_named_reason_not_approved_gener
     assert E.title_focus_error('林园：投茅台看消费升级和收入将爆发',explicit) is None
 
 
+def test_story_prompt_replaces_action_only_advice_not_baseline():
+    evidence=treatment()[0]['experiment_proof']['selection']
+    original='标题谈具体做法时，只写对象和实际动作也可以，不必把全段的理由、背景、数据都塞进去。'
+    schema=dict(properties={'c_candidates':{}})
+    result=E.story_title_prompt(original,schema,evidence)
+    assert original not in result
+    assert 'a_focus.a_claim先说全选择与理由' in result
+    assert 'b_evidence_ids同时引用选择、具体对象和该理由' in result
+    assert E.story_title_prompt(original,schema,None)==original
+
+
 def test_title_engine_rejects_out_of_source_story_anchors():
     import title_rewrite as T
     with pytest.raises(ValueError,match='本段原文字词'):

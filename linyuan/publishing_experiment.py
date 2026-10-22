@@ -331,10 +331,20 @@ def story_title_prompt(prompt,schema,evidence):
         '不能把主持人的猜测当成嘉宾结论。本片选题就是下列具体事例，中心是嘉宾在这件事上的实际选择或判断及其原因。')
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
         'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
+    # The answer drafting profile permits an action-only title. Appending a
+    # contradictory story instruction left all three real d83 drafts without
+    # their reason. Override only this experiment, never baseline review.
+    prompt=prompt.replace(
+        '标题谈具体做法时，只写对象和实际动作也可以，不必把全段的理由、背景、数据都塞进去。',
+        '本片标题必须同时交代具体对象、本人实际选择和下方detail_quote中的一条理由；'
+        '只写对象与动作、只写自我评价不够。不要堆全段背景或数据。')
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
-        '再表达本人理由；理由优先保留细节原句里的关键名词，不换成别的对象的增长或爆发。'
+        '再表达本人理由；每个候选的a_focus.a_claim先说全选择与理由，'
+        'b_evidence_ids同时引用选择、具体对象和该理由对应的嘉宾编号；'
+        '不能只在证据里写理由，实际title也须呈现。封面可以简短，但对象和判断不能变。'
+        '理由优先保留细节原句里的实际动作或关键名词，不换成别的对象的增长或爆发。'
         '拟稿像本人随口讲清一件事：具体选择加一条最直接理由，正文优先16至26字，'
         '不为了字数截断、不省略必要条件。若细节原句已明确命名理论或选择标准，'
         '直接沿用这个原词，不必把背景时点、程度描述和整条推理链都串进标题。'
