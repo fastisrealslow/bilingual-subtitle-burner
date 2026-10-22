@@ -2554,9 +2554,8 @@ def _dispatch_admitted(event=None, context=None):
     # The ledger may have no NEW admitted long mothers. Reuse verified raw
     # evidence under a new slug; keep the original baseline stock untouched.
     if not recent_probe and success<target and any(exp_needs.values()):
-        for parent,record in story_reuse:
+        for parent,record,layout in experiment_reuse_plan(story_reuse,st,exp_needs):
             if success>=target or not any(exp_needs.values()):break
-            layout='landscape' if exp_needs['landscape'] else 'portrait'
             slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
                 parent.get('source_sha256') or parent['source_url'],experiment.SELECTION_REVISION])[:10]
             gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{'ref':'main','inputs':{
@@ -2850,6 +2849,45 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fa
         # Falling back to index zero redownloaded rejected stock at 21:00.
         return None
     return int(entry.get('published_parts') or 0)
+
+
+def experiment_reuse_layouts(parent, record, state):
+    """Observed same-mother geometry is a planning hint, never media approval."""
+    mother=parent.get('source_sha256')
+    if not re.fullmatch('[a-f0-9]{64}',str(mother or '')):return set()
+    parts=[p for p in record.get('parts',[]) if p.get('status')=='verified']
+    parts += [p for p in ((state.get('published') or {}).get(parent.get('slug')) or {}).get('parts',[])
+              if p.get('status')=='published' and p.get('bvid') and p.get('source_segments')]
+    layouts=set()
+    for part in parts:
+        if (part.get('source_sha256')!=mother or part.get('content_type')=='full_interview'
+                or part.get('render_mode') not in {'live_video_card','crop','crop_delogo','direct'}):continue
+        size=part.get('resolution') or {};w=size.get('width');h=size.get('height')
+        if type(w) is not int or type(h) is not int or min(w,h)<=0 or w==h:continue
+        layouts.add('portrait' if h>w else 'landscape')
+    return layouts
+
+
+def experiment_reuse_plan(candidates, state, needs):
+    """Route already-admissible mothers to observed formats before guessing.
+
+    Keep one attempt per mother and the caller's existing gap/worker limits.
+    Old geometry cannot approve a new excerpt; all production gates still run.
+    """
+    pending=list(candidates);remaining=dict(needs);plan=[]
+    while pending and any(remaining.values()):
+        options=[]
+        for i,(parent,record) in enumerate(pending):
+            observed=experiment_reuse_layouts(parent,record,state)
+            for order,layout in enumerate(('landscape','portrait')):
+                if remaining.get(layout,0)>0:
+                    confidence=0 if layout in observed else 1 if not observed else 2
+                    options.append(((confidence,-remaining[layout],i,order),i,layout))
+        if not options:break
+        _,index,layout=min(options)
+        parent,record=pending.pop(index)
+        plan.append((parent,record,layout));remaining[layout]-=1
+    return plan
 
 
 def experiment_reuse_candidates(state, inventory, items):
