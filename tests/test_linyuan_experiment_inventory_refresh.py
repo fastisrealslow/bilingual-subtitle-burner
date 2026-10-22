@@ -32,7 +32,7 @@ def setup(monkeypatch,hour=14,day='2026-10-23',count=0):
     return state,calls,now
 
 
-@pytest.mark.parametrize('hour',[14,21])
+@pytest.mark.parametrize('hour',[10,14,16,21])
 def test_stale_experiment_slot_requests_once_without_scanning_or_mutating_stock(monkeypatch,hour):
     state,calls,now=setup(monkeypatch,hour)
     original=deepcopy(state)
@@ -65,7 +65,6 @@ def test_existing_refresh_backoff_is_shared_with_admission(monkeypatch):
 
 
 @pytest.mark.parametrize('hour,day,forced,batch',[
-    (10,'2026-10-23',False,None),(16,'2026-10-23',False,None),
     (14,'2026-11-17',False,None),(14,'2026-10-23',True,None),
     (14,'2026-10-23',True,'older-real-treatment')])
 def test_other_publication_paths_do_not_add_an_inventory_gate(monkeypatch,hour,day,forced,batch):
@@ -89,8 +88,9 @@ def test_daily_cap_does_not_request_refresh(monkeypatch):
     assert not calls
 
 
-def test_fresh_inventory_keeps_the_existing_publication_path(monkeypatch):
-    state,calls,_=setup(monkeypatch)
+@pytest.mark.parametrize('hour',[10,14,16,21])
+def test_fresh_inventory_keeps_the_existing_publication_path(monkeypatch,hour):
+    state,calls,_=setup(monkeypatch,hour)
     state['dispatched']=[]
     monkeypatch.setattr(F,'source_inventory',lambda _:dict(inventory_fresh=True))
     assert F.publish_handler()==dict(published=0)

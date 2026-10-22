@@ -4230,10 +4230,10 @@ def publish_handler(event=None, context=None):
         return {"published": 0}
     plan=experiment.assignment(now)
     if (not batch_slug and not force_publish and plan
-            and plan['planned']==experiment.TREATMENT
             and not source_inventory(st)['inventory_fresh']):
         # With no fresh index, the latest-30-run scan can omit an older accepted
-        # treatment and silently publish a control instead. Do not infer that
+        # treatment and silently publish a control instead. A control slot can
+        # also consume treatment stock without the inspected ranking. Do not infer that
         # treatment is absent, relabel a control, or mark old stock missing.
         # Release the publisher lease now. The existing verifier then uses the
         # exact original-slot catch-up path, normal daily cap and full gates.

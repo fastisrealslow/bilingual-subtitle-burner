@@ -14,6 +14,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: 安装真实库存证明读取依赖
+        run: python -m pip install jieba
       - name: 用真实库存回执验证过期恢复，不更新检查时间和库存
         run: python linyuan/check_experiment_inventory_refresh.py
       - uses: actions/upload-artifact@v4
