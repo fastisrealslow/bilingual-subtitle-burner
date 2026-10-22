@@ -2403,6 +2403,22 @@ def retry_supply_needed(entry, landscape_admissions, experiment_needs):
             and experiment_needs.get('landscape',0)>0)
 
 
+def request_inventory_refresh(st):
+    """Request the existing verifier once; a missing index is not empty stock."""
+    if time.time()-float(st.get('inventory_refresh_requested_at') or 0)<=15*60:
+        return False
+    try:
+        gh('POST','/actions/workflows/linyuan-source-inventory.yml/dispatches',{'ref':'main'})
+        st['inventory_refresh_requested_at']=int(time.time())
+        save_state(st)
+        log_event('inventory_refresh','成片库存证据不可用，已请求自动复核',
+                  '不按零库存扩产；实验投稿等待复核后由原档位补发布')
+        return True
+    except Exception as exc:
+        log.warning('库存复核请求暂不可用：%s',type(exc).__name__)
+        return False
+
+
 def _dispatch_admitted(event=None, context=None):
     st = load_state()
     # Production/source gate failures happen in Actions after dispatch returns.
@@ -2429,14 +2445,7 @@ def _dispatch_admitted(event=None, context=None):
     if inventory.get('inventory_fresh') is False:
         # Unknown stock is not empty stock. Refresh evidence first; repeated
         # hourly dispatches must not create batches during an inventory outage.
-        if time.time()-float(st.get('inventory_refresh_requested_at') or 0)>15*60:
-            try:
-                gh('POST','/actions/workflows/linyuan-source-inventory.yml/dispatches',{'ref':'main'})
-                st['inventory_refresh_requested_at']=int(time.time())
-                save_state(st)
-                log_event('inventory_refresh','成片库存证据不可用，已请求自动复核','复核完成前不按零库存扩产')
-            except Exception as exc:
-                log.warning('库存复核请求暂不可用：%s',type(exc).__name__)
+        request_inventory_refresh(st)
         return {'dispatched':0,'inventory_unavailable':1,**inventory}
     deficits=reserve_deficits(inventory)
     exp_needs=experiment.production_deficits(inventory,st,[],time.time())
@@ -4219,6 +4228,18 @@ def publish_handler(event=None, context=None):
         log.info(f"本配额已投 {budget['count']} 条，达上限 {MAX_PUBLISH_PER_DAY}")
         save_state(st)
         return {"published": 0}
+    plan=experiment.assignment(now)
+    if (not batch_slug and not force_publish and plan
+            and not source_inventory(st)['inventory_fresh']):
+        # With no fresh index, the latest-30-run scan can omit an older accepted
+        # treatment and silently publish a control instead. A control slot can
+        # also consume treatment stock without the inspected ranking. Do not infer that
+        # treatment is absent, relabel a control, or mark old stock missing.
+        # Release the publisher lease now. The existing verifier then uses the
+        # exact original-slot catch-up path, normal daily cap and full gates.
+        requested=request_inventory_refresh(st)
+        return dict(published=0,inventory_unavailable=1,
+                    inventory_refresh_requested=int(requested))
     attempted = set((event or {}).get("_attempted_slugs") or []) \
         if isinstance(event, dict) else set()
     pending = [e for e in _latest_dispatches(st)
