@@ -2,7 +2,7 @@ name: 真实错批标题的CPU语义对照（不生产不投稿）
 on:
   push:
     branches: [codex/linyuan-title-logic-diagnostic-20261022]
-    paths: [scripts/title_logic_failure_lab.py, .github/workflows/linyuan-title-logic-failure-lab.yml]
+    paths: [scripts/title_model_lab.py, scripts/title_logic_failure_lab.py, .github/workflows/linyuan-title-logic-failure-lab.yml]
 permissions:
   contents: read
   actions: read
@@ -13,10 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [qwen35-9b-direct, qwen35-9b-thinking]
+        profile: [qwen3-4b-direct, qwen3-4b-thinking]
     env:
       GH_TOKEN: ${{ github.token }}
       CUDA_VISIBLE_DEVICES: ''
+      RUN_MODEL: qwen3:4b
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,7 +27,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.ollama/models
-          key: ollama-qwen35-9b-v1
+          key: ollama-qwen3-4b-v1
       - uses: actions/cache@v4
         with:
           path: /tmp/ollama-runtime
@@ -50,7 +51,7 @@ jobs:
             curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
             sleep 1
           done
-          ollama pull qwen3.5:9b
+          ollama pull "$RUN_MODEL"
       - name: 相同原文和错批样本，分别实跑直接与思考模式
         run: python -u scripts/title_logic_failure_lab.py --profile "${{ matrix.profile }}"
       - uses: actions/upload-artifact@v4

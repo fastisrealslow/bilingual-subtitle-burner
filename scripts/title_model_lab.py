@@ -18,6 +18,8 @@ sys.path.insert(0, str(ROOT/'scripts'))
 from title_batch_cpu import cases
 
 PROFILES = {
+    'qwen3-4b-direct': {'model':'qwen3:4b','think':False},
+    'qwen3-4b-thinking': {'model':'qwen3:4b','think':True},
     'qwen3-8b-direct': {'model':'qwen3:8b','think':False},
     'qwen35-9b-direct': {'model':'qwen3.5:9b','think':False},
     'qwen35-9b-thinking': {'model':'qwen3.5:9b','think':True},

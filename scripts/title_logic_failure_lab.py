@@ -46,7 +46,7 @@ def examples(archives):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--profile',required=True,
-        choices=['qwen35-9b-direct','qwen35-9b-thinking'])
+        choices=['qwen35-9b-direct','qwen35-9b-thinking','qwen3-4b-direct','qwen3-4b-thinking'])
     args=ap.parse_args();out=Path('title-logic-failure-results');out.mkdir(exist_ok=True)
     row=dict(profile=args.profile,model=lab.PROFILES[args.profile]['model'],focused=True,
              diagnostic_only=True,publication_authorized=False,media_approved=False,
