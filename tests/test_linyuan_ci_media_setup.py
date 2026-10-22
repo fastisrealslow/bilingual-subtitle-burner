@@ -53,3 +53,17 @@ def test_every_actual_runner_regression_caller_installs_yaml_before_tests():
                     callers += 1
                 previous += body + '\n'
         assert callers, name
+
+
+def test_inventory_uses_same_real_bounded_setup_before_validation():
+    doc = yaml.safe_load((ROOT / '.github/workflows/linyuan-source-inventory.yml').read_text())
+    steps = doc['jobs']['inventory']['steps']
+    setup_index = next(i for i, step in enumerate(steps)
+                       if step.get('run') == 'bash linyuan/ci_install_media_tools.sh')
+    validation_index = next(i for i, step in enumerate(steps)
+                            if step.get('name') == '校验实际 MP4、字幕证据和剩余库存')
+    assert setup_index < validation_index
+    assert steps[setup_index]['timeout-minutes'] == 15
+    assert 'apt-get' not in steps[validation_index]['run']
+    assert doc['jobs']['inventory']['timeout-minutes'] == 35
+    assert doc['concurrency'] == {'group': 'linyuan-source-inventory', 'cancel-in-progress': False}
