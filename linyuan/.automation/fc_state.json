@@ -41147,7 +41147,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5347037747087772",
@@ -41216,7 +41217,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-02-04T01:12:16+00:00"
+   "publish_time": "2026-02-04T01:12:16+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-0f0a74",
+    "run_id": 39861701773,
+    "artifact_id": 12461764643,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39861701773,
+    "artifact_id": 12461764643,
+    "name": "production-reject-ly-1022-0f0a74",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Ku4y127yg",
@@ -41262,7 +41285,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-02T13:25:09.995502"
+   "publish_time": "2026-08-02T13:25:09.995502",
+   "production_failure_summary": {
+    "slug": "ly-1022-cd08da",
+    "run_id": 39861733199,
+    "artifact_id": 12462148696,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人提问（句 0）后，嘉宾未形成针对该问题的独立判断句。句 1 为泛化断言而非对 AI 的具体结论，句 2 为类比解释且无明确结论指向 AI 行业走向，整体缺乏‘一定会/不会’等核心判断，属于观点缺失而非表达切断。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39861733199,
+    "artifact_id": 12462148696,
+    "name": "production-reject-ly-1022-cd08da",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人提问（句 0）后，嘉宾未形成针对该问题的独立判断句。句 1 为泛化断言而非对 AI 的具体结论，句 2 为类比解释且无明确结论指向 AI 行业走向，整体缺乏‘一定会/不会’等核心判断，属于观点缺失而非表达切断。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV15Ba1e4E8k",
@@ -115036,6 +115081,20 @@
    "key": "weibo_search:5330013676899598",
    "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
    "ts": 1792706307,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1022-cd08da",
+   "key": "weibo_search:5327151022737977",
+   "video_id": "http://f.video.weibocdn.com/u0/XM69koJfgx08zF5E9Z8c010412007IeU0E010.mp4",
+   "ts": 1792707157,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人提问（句 0）后，嘉宾未形成针对该问题的独立判断句。句 1 为泛化断言而非对 AI 的具体结论，句 2 为类比解释且无明确结论指向 AI 行业走向，整体缺乏‘一定会/不会’等核心判断，属于观点缺失而非表达切断。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1022-0f0a74",
+   "key": "bilibili_search:BV152f9BoEbB",
+   "video_id": "BV152f9BoEbB",
+   "ts": 1792707158,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
