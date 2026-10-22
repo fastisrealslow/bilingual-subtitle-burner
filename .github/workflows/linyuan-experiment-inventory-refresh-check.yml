@@ -1,0 +1,24 @@
+name: 真实实验库存过期恢复只读核验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-publish-inventory-recovery-20261023]
+    paths: [linyuan/fc/index.py, linyuan/check_experiment_inventory_refresh.py, .github/workflows/linyuan-experiment-inventory-refresh-check.yml]
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 用真实库存回执验证过期恢复，不更新检查时间和库存
+        run: python linyuan/check_experiment_inventory_refresh.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment-inventory-refresh-verification
+          path: experiment-inventory-refresh-verification.json
+          if-no-files-found: error
