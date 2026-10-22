@@ -39760,8 +39760,8 @@
    "recovery_origin_run_id": 38866481077,
    "production_failure_summary": {
     "slug": "ly-story-13c07fb2f2",
-    "run_id": 39803460214,
-    "artifact_id": 12437717126,
+    "run_id": 39808235125,
+    "artifact_id": 12437994243,
     "accepted": 0,
     "failures": [
      {
@@ -39770,11 +39770,12 @@
      }
     ]
    },
-   "source_check_report_id": 12437717126,
-   "source_check_run_id": 39803460214,
+   "source_check_report_id": 12437994243,
+   "source_check_run_id": 39808235125,
    "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1792686233
   },
   {
    "video_id": "BV1J6mTY1EJX",
@@ -39863,7 +39864,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-03-12T11:58:15+00:00"
+   "publish_time": "2025-03-12T11:58:15+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39808319922,
+    "artifact_id": 12438153988,
+    "name": "source-reject-ly-1022-7d051c",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（480x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1XRnH6qEQ7",
@@ -113498,6 +113509,13 @@
    "video_id": "BV19P4y1m77K:p40",
    "ts": 1792683971,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那像这种像此前的一种小票行情的时候，那林元总啊，您是耐怎么会能耐得住这个寂寞呢？\", \"suspect_quote\": \"那林元总啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“林元”疑似为人名识别错误，结合上下文嘉宾名为“林园”，此处应为“林园”。\"}]"
+  },
+  {
+   "slug": "ly-1022-7d051c",
+   "key": "bilibili_search:BV1k8QnYeEsE",
+   "video_id": "BV1k8QnYeEsE",
+   "ts": 1792684432,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（480x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
