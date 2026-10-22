@@ -74,3 +74,36 @@ def test_literal_complete_reason_is_an_alternative_to_forced_metaphor_noun():
     assert experiment.title_focus_error('林园：只要人变机器人，我就买半导体',focus) is None  # lexical coverage is NOT factual approval
     assert title.forecast_copy_error('林园：除非变机器人，我少不了投消费',
         '除非变机器人，我少不了投消费','我只投消费。除非这个人不吃不喝了，变成机器人，那我也不行。如果他还是个人，他少不了。')
+
+
+def test_treatment_uses_existing_strict_sentence_and_object_reader(monkeypatch):
+    import produce_cn as producer
+    monkeypatch.delenv('LINYUAN_TITLE_DRAFT_PROFILE',raising=False)
+    monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE','field-story-v1')
+    assert producer.title_draft_profile('林园')=='answer_subject'
+    assert producer._copy_style_identity('林园')['title_draft_profile']=='answer_subject'
+    assert producer.title_draft_profile('其他嘉宾')=='production'
+    monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE','baseline')
+    assert producer.title_draft_profile('林园')=='production'
+    monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','answer_focus')
+    assert producer.title_draft_profile('林园')=='answer_focus'
+    monkeypatch.setenv('LINYUAN_TITLE_DRAFT_PROFILE','unknown')
+    with pytest.raises(ValueError):producer.title_draft_profile('林园')
+
+
+def test_display_wraps_cannot_split_people_condition_or_question_context():
+    raw=['那如果看好半导体行业周期复','苏这些，您怎么看？','他们都会，但是我这个人还比较专心。',
+         '我只投消费。','除非这','个人不吃不喝了，变成机器人了，','那我也不行。']
+    units=title.answer_reading_units(raw,'林园')
+    assert ''.join(units)==''.join(raw)
+    assert any('这个人不吃不喝' in unit for unit in units)
+    assert any('周期复苏这些，您怎么看？' in unit for unit in units)
+    blocked=title.explicit_host_cues(units)
+    assert 0 in blocked
+    assert next(i for i,u in enumerate(units) if '他们都会' in u) not in blocked
+
+
+@pytest.mark.parametrize('prefix',['我只投消费，','对于消费我比较专心，'])
+def test_sentence_reader_never_glues_first_person_guest_into_next_question(prefix):
+    units=title.answer_reading_units([prefix,'您怎么看半导体？','我还要研究。'],'林园')
+    assert units[0]==prefix and units[1]=='您怎么看半导体？'

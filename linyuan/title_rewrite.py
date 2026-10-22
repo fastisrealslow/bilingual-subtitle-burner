@@ -145,10 +145,20 @@ def answer_reading_units(cues, speaker='林园'):
     units=[];current='';previous=None
     for i,cue in enumerate(cues):
         boundary=(i in host,i in other)
+        # The leading host preface can span several display cues, with the
+        # explicit question only in the final cue (actual "周期复"/"苏").
+        # Keep that unfinished, question-framed preface with its question.
+        # Never cross a prior complete sentence, named handoff, later turn,
+        # other guest, or an explicit first-person guest declaration.
+        leading_question=(not units and current and previous==(False,False)
+            and boundary==(True,False) and i not in handoffs and re.search(r'[？?]',cue)
+            and re.match(r'^(?:[嗯啊呃哦，,\s]|那么|那)*(?:对于|我们(?:想|可能|可)|我想问|请问|想请教|如果|假如|假设)',current)
+            and not re.search(r'我(?!们|想问|想请教)',current))
         # Do not glue an excluded question/other speaker to an eligible reply.
         # If punctuation is absent, keep the original cue boundary at 200
         # characters rather than cutting an arbitrary word or inventing a stop.
-        if current and (boundary!=previous or i in handoffs or len(current)+len(cue)>200):
+        if current and ((boundary!=previous and not leading_question)
+                        or i in handoffs or len(current)+len(cue)>200):
             units.append(current);current=''
         previous=boundary
         start=0

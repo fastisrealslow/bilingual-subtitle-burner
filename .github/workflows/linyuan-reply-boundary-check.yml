@@ -19,6 +19,9 @@ jobs:
       LOCAL_LLM_URL: http://127.0.0.1:11434/api/chat
       LOCAL_LLM_TIMEOUT_SEC: '600'
       LINYUAN_EDITORIAL_PROFILE: field-story-v1
+      # Reuse the existing strict full-sentence reader/object handoff. This
+      # diagnostic differs from the earlier failed display-cue profile.
+      LINYUAN_TITLE_DRAFT_PROFILE: answer_subject
       LINYUAN_AUTOMATIC_ONLY: 'true'
       SOURCE_EDITORIAL_FIRST: 'true'
       CUDA_VISIBLE_DEVICES: ''
