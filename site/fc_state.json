@@ -37848,8 +37848,8 @@
    "recovery_origin_run_id": 39411448572,
    "production_failure_summary": {
     "slug": "ly-story-7884c0eb85",
-    "run_id": 39411448572,
-    "artifact_id": 12261341268,
+    "run_id": 39750537949,
+    "artifact_id": 12413916434,
     "accepted": 0,
     "failures": [
      {
@@ -38036,8 +38036,8 @@
    "recovery_origin_run_id": 38866481077,
    "production_failure_summary": {
     "slug": "ly-story-6dc5b85679",
-    "run_id": 39418246570,
-    "artifact_id": 12265115623,
+    "run_id": 39752814670,
+    "artifact_id": 12415191213,
     "accepted": 0,
     "failures": [
      {
@@ -38907,17 +38907,21 @@
    "recovery_origin_run_id": 39122221076,
    "production_failure_summary": {
     "slug": "ly-story-02733d5be4",
-    "run_id": 39410933442,
-    "artifact_id": 12261860666,
+    "run_id": 39780499866,
+    "artifact_id": 12427772833,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且‘这个’指代不明，属于无法解释的口语填充或识别错误。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及第 2、6 句的口语重复特征（如“我基本上没卖过”），该处应为“我没有卖过”。‘把’字在此处无语法或语义支撑，属于典型的同音错别字，导致句子含义不明。”}]}**注：** 其他句子中的口吃（如第 2 句“我不我不”\"}, {\"sentence_id\": 6, \"quote\": \"到现在零零年以后，啊，基本上没没有没有卖过。\", \"suspect_"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及嘉宾回答“基本上没卖过”，此处“把”字极大概率是“有”字的误识（拼音输入法或语音识别混淆），导致语义不通。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之二一'在口语中极可能是'百分之二十'的误听或口误，且与后文'下重手去试了'及常规投资比例语境不符，属于含义不明的关键数字污染。\"}]"
      }
     ]
    },
@@ -40682,7 +40686,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": \"unintelligible_term\", \"reason\": \"单独出现“这句话”且无前文指代对象，在对话流中含义不明，疑似截断或识别错误。\"}, {\"sentence_id\": 34, \"quote\": \"实际上按照比如说十年前，它还是每年的复合增长都一些重要的公司都快超过百分之七，甚至百双位数增长。\", \"suspect_quote\": \"甚至百双位数增长\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“百双位数”表述矛盾且无法解释：若指“百分之十到百分之九十九”，应表述为“两位数”；若指“百分之百以上”，则“百”与“双位”冲突。此处数字含义不明，疑似识别污染。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/P5ftb4y3gx08BDIhXWSk01041209OVM50E040.mp4",
@@ -115899,7 +115904,7 @@
  },
  "source_refresh_requested_at": 1792687589,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 1,
+ "rule_recovery_page": 2,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
