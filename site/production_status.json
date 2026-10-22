@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792711194,
+  "updated_at": 1792711529,
   "inventory_updated_at": 1792711164,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 11,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 10,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,17 +89,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792711193,
+    "updated_at": 1792711529,
     "records": 11447,
     "video_records": 9879,
-    "initial_candidates": 72,
-    "duration_eligible_records": 11,
-    "candidate_count": 11,
+    "initial_candidates": 71,
+    "duration_eligible_records": 10,
+    "candidate_count": 10,
     "known_duration_candidates": 3,
-    "unknown_duration_candidates": 8,
+    "unknown_duration_candidates": 7,
     "excluded": {
       "no_video": 1568,
-      "already_attempted_or_cooling": 1571,
+      "already_attempted_or_cooling": 1572,
       "clip_title": 1159,
       "speaker_unconfirmed": 6808,
       "noise": 21,
@@ -118,14 +118,6 @@
         "author": "网易视频",
         "url": "https://www.163.com/v/video/VL8JTA8UC.html",
         "duration_sec": 35.44
-      },
-      {
-        "key": "weibo_search:5329460572457016",
-        "title": "#昕礽果复利增长价值亿亿金# 林园总聊投资医药逻辑稳赚不赔投资策略20260808\n#得中药龙头者得天下##品牌中药天时",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5329460572457016",
-        "duration_sec": 0
       },
       {
         "key": "weibo_search:5327198606070910",
@@ -215,14 +207,14 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1249,
+    "failed": 1250,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 15,
     "experiment_fallback": 9,
     "ready": 7,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -26011,11 +26003,11 @@
     },
     {
       "slug": "ly-1022-1016a1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98",
       "signature": {
         "ts": 1792709666,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26098,6 +26090,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39870682612",
       "run_started_at": "2026-10-22T23:16:23Z",
       "run_updated_at": "2026-10-22T23:16:27Z"
+    },
+    {
+      "slug": "ly-1022-4867b6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792711488,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39871599034,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39871599034",
+      "run_started_at": "2026-10-22T23:24:48Z",
+      "run_updated_at": "2026-10-22T23:24:52Z"
     }
   ],
   "runs": {
@@ -37507,6 +37517,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39868249134",
       "run_number": 2517,
       "display_title": "中文源出片 · ly-1022-1016a1"
+    },
+    "ly-1022-4867b6": {
+      "id": 39871599034,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T23:24:48Z",
+      "updated_at": "2026-10-22T23:24:52Z",
+      "run_started_at": "2026-10-22T23:24:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39871599034",
+      "run_number": 2522,
+      "display_title": "中文源出片 · ly-1022-4867b6"
     },
     "ly-1022-a4bea9": {
       "id": 39870682612,
