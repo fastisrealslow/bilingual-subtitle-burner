@@ -107,7 +107,55 @@ def test_old_style_audit_cache_requires_new_actual_review(tmp_path):
         calls.append(1)
         return json.dumps(dict(issues=[],explanation='已按当前规范重新核对'))
     proof=A.review(text,'嘉宾','model',call,path)
-    assert calls==[1] and proof['version']==4 and not proof['audio_verified']
+    assert calls==[1] and proof['version']==A.VERSION and not proof['audio_verified']
+
+
+@pytest.mark.parametrize('quote',['六百万以上基金','三千万以上基金','300万元以下资金'])
+def test_missing_subject_in_one_well_formed_amount_requires_new_review_never_an_automatic_pass(tmp_path,quote):
+    text='这个要求'+quote+'。'
+    bad=dict(issues=[dict(sentence_id=0,suspect_quote=quote,kind='ambiguous_number_or_negation',
+        reason='如果指基金资产规模则缺少主语，语义不够书面')],explanation='主语省略')
+    calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        return json.dumps(bad if len(calls)==1 else dict(issues=[],explanation='重新核对数词本身没有实际异常'))
+    proof=A.review(text,'林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==2 and proof['passed'] and not proof['audio_verified']
+    assert proof['transcript_sha256']==A.text_digest(text)
+    assert proof['rejected_review_evidence'][0]['invalid_issue_evidence'][0]['suspect_quote']==quote
+
+
+def test_repeated_unsupported_subject_objection_still_fails_closed(tmp_path):
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='六百万以上基金',
+        kind='ambiguous_number_or_negation',reason='若指基金规模则缺少主语')],explanation='主语省略')
+    calls=[];path=tmp_path/'audit.json'
+    with pytest.raises(ValueError,match='口语省略主语'):
+        A.review('要求六百万以上基金。','林园','model',lambda *a:calls.append(a) or json.dumps(reply),path)
+    assert len(calls)==2 and not path.exists()
+
+
+@pytest.mark.parametrize('quote',['百分之二一','不到六百万','六百万六百万','二一百万以上基金'])
+def test_actual_critical_or_malformed_quote_cannot_use_subject_objection_retry(quote):
+    assert not A.unsupported_subject_objection(dict(suspect_quote=quote,
+        kind='ambiguous_number_or_negation',reason='缺少主语且数字不清'))
+
+
+def test_actual_conflicting_amounts_remain_blockers_even_if_subject_is_also_missing():
+    assert not A.unsupported_subject_objection(dict(suspect_quote='六百万',
+        kind='ambiguous_number_or_negation',reason='缺少主语，而且与后文两千万冲突'))
+
+
+def test_real_negative_survives_an_extra_unsupported_subject_objection(tmp_path):
+    text='这个要求六百万以上基金。能有百分之二一。'
+    reply=dict(issues=[
+        dict(sentence_id=0,suspect_quote='六百万以上基金',kind='ambiguous_number_or_negation',reason='缺少主语'),
+        dict(sentence_id=1,suspect_quote='百分之二一',kind='ambiguous_number_or_negation',reason='二一数词不完整')],
+        explanation='保留真正的数字疑点')
+    calls=[]
+    proof=A.review(text,'林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+    assert len(calls)==1 and not proof['passed']
+    assert proof['issues'][0]['suspect_quote']=='百分之二一'
+    assert proof['invalid_issue_evidence'][0]['suspect_quote']=='六百万以上基金'
 
 
 def test_valid_negative_issue_survives_misclassified_extra_issue(tmp_path):

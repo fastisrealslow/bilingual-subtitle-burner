@@ -6,9 +6,32 @@ from pathlib import Path
 from editorial_evidence import sentences
 from editorial_policy import text_digest
 
-VERSION = 4
+VERSION = 5
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
+
+# Narrowly identify a single ordinary amount, not arbitrary numeric speech.
+# Percentages, negations, ranges, repeated numbers and malformed Chinese
+# numerals are intentionally NOT eligible for this evidence-format check.
+SINGLE_AMOUNT = re.compile(
+    r'^(?:[一二两三四五六七八九](?:十|百|千|万|亿|十万|百万|千万|十亿|百亿|千亿|万亿)?'
+    r'|[0-9]+(?:\.[0-9]+)?(?:万|亿|兆)?)'
+    r'(?:元|块钱|美元|港元)?(?:以上|以下|左右)?的?(?:基金|资金|资产|市值|规模)?$')
+
+
+def unsupported_subject_objection(item):
+    """Invalid reviewer evidence, NEVER an exemption for a critical number.
+
+    The real fund interview was blocked because the reviewer explicitly
+    complained of a missing subject in a well-formed amount. That violates
+    this text-only review's existing scope. Require another actual review;
+    never turn this objection into a pass or change the spoken amount.
+    """
+    if item.get('kind')!='ambiguous_number_or_negation':return False
+    quote=item.get('suspect_quote','');reason=item.get('reason','')
+    if not SINGLE_AMOUNT.fullmatch(quote):return False
+    if re.search(r'矛盾|冲突|截断|残缺|断裂|否定|数词.{0,6}(?:错|异常|不完整)',reason):return False
+    return bool(re.search(r'(?:缺少|缺失|省略|缺乏)(?:了)?主语|主语(?:缺失|不明|不清)',reason))
 
 
 def ordinary_disfluency(quote):
@@ -65,9 +88,12 @@ def review(text, speaker, model, call, path):
         '但真正不认识的行业词、错写的专名、截断或互相矛盾的关键数字、含义不明的否定，仍必须列出。'
         '每项必须用suspect_quote摘录真正有疑点的最小词语（1到24字），不得用整句代替具体问题。'
         '数字或否定类必须指明原文中实际的数字或否定字。不要推测替换词，不要审核事实真伪。'
+        '特别注意：合法数词后接“以上资金、以上基金”等口语省略，不能只因缺少主语或未补写“规模”就归为数字误识。'
+        '必须指出原文数字本身的异常或原文内部的实际冲突，不能把书面语完整性变成数字识别结论。'
         '有疑点时返回原句编号和具体理由，无疑点时issues为空数组。'
         '目标嘉宾：'+speaker+'。编号原句：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
     last = None
+    rejected_reviews=[]
     for attempt in range(2):
         raw = call(prompt,schema)
         path.with_name(path.stem+f'-response-{attempt}.txt').write_text(raw)
@@ -93,14 +119,20 @@ def review(text, speaker, model, call, path):
                     invalid.append({**evidence,'invalid_reason':
                         '数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类'})
                     continue
+                if unsupported_subject_objection(item):
+                    invalid.append({**evidence,'invalid_reason':
+                        '口语省略主语不是数字识别证据；需重新检查真实数词异常，不得猜改或直接放行'})
+                    continue
                 bound.append(evidence)
             # Retain valid negative evidence even when an extra issue is
             # misclassified. This NEVER creates a pass: an invalid-only result
             # must still be retried/fail closed. Valid issues remain blockers.
             if invalid and not bound:
+                rejected_reviews.append(dict(attempt=attempt,invalid_issue_evidence=invalid))
                 raise ValueError(invalid[0]['invalid_reason'])
             proof={**identity,'issues':bound,'ignored_style_objections':ignored,'passed':not bound,'explanation':data['explanation'],
                    'invalid_issue_evidence':invalid,'audio_verified':False,'method':'independent_cpu_text_plausibility'}
+            proof['rejected_review_evidence']=rejected_reviews
             path.write_text(json.dumps(proof,ensure_ascii=False,indent=2))
             return proof
         except (ValueError,TypeError,AttributeError) as exc:
