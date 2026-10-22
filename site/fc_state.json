@@ -41686,7 +41686,8 @@
    },
    "last_error": "整段取景预检：源 359.67s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1t6uN6XEJ6",
@@ -41754,7 +41755,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配5539/7421，总帧数9409；身份匹配但人脸短边不足96px的帧数1882",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5348773345626951",
@@ -41820,21 +41822,29 @@
    "publish_time": "2026-08-10T10:50:42.394478",
    "production_failure_summary": {
     "slug": "ly-1022-0b5f8d",
-    "run_id": 39863495901,
-    "artifact_id": 12462348476,
+    "run_id": 39869626523,
+    "artifact_id": 12465014642,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      }
     ]
    },
    "source_check_report_id": 12462348476,
    "source_check_run_id": 39863495901,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39869626523,
+    "artifact_id": 12465014642,
+    "name": "production-reject-ly-1022-0b5f8d",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:5329977608241634",
@@ -41860,21 +41870,29 @@
    "publish_time": "2026-08-10T10:50:42.394375",
    "production_failure_summary": {
     "slug": "ly-1022-4faffe",
-    "run_id": 39863485479,
-    "artifact_id": 12462039935,
+    "run_id": 39869640167,
+    "artifact_id": 12465583640,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      }
     ]
    },
    "source_check_report_id": 12462039935,
    "source_check_run_id": 39863485479,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39869640167,
+    "artifact_id": 12465583640,
+    "name": "production-reject-ly-1022-4faffe",
+    "retained": true
+   },
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -115703,6 +115721,20 @@
    "video_id": "BV1p1nT67Ezx",
    "ts": 1792710327,
    "error": "整段取景预检：源 359.67s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1022-4faffe",
+   "key": "weibo_search:5329977608241634",
+   "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
+   "ts": 1792710850,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1022-0b5f8d",
+   "key": "weibo_search:5329737574519752",
+   "video_id": "http://f.video.weibocdn.com/o0/8nBw6nhDlx08zQtbSdXW01041200nHBC0E010.mp4",
+   "ts": 1792710851,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
