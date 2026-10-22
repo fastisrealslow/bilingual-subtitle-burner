@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792675421,
+  "updated_at": 1792675660,
   "inventory_updated_at": 1792675395,
   "continuity": {
     "daily_target": 4,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792675420,
+    "updated_at": 1792675659,
     "records": 11393,
     "video_records": 9826,
     "initial_candidates": 61,
@@ -126,9 +126,9 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1205,
+    "failed": 1206,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 15,
     "experiment_fallback": 7,
     "ready": 4,
@@ -25022,11 +25022,11 @@
     },
     {
       "slug": "ly-story-2a8f12b578",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]",
       "signature": {
         "ts": 1792673559,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
