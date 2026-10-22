@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792660113,
+  "updated_at": 1792660248,
   "inventory_updated_at": 1792660102,
   "continuity": {
     "daily_target": 4,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792660113,
+    "updated_at": 1792660248,
     "records": 11361,
     "video_records": 9795,
     "initial_candidates": 61,
@@ -126,14 +126,14 @@
   },
   "counts": {
     "complete": 138,
-    "failed": 1192,
+    "failed": 1193,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 15,
     "ready": 4,
     "experiment_fallback": 5,
-    "retry_queued": 8,
-    "running": 4
+    "retry_queued": 7,
+    "running": 5
   },
   "tasks": [
     {
@@ -24679,24 +24679,6 @@
       "run_updated_at": "2026-10-20T10:48:42Z"
     },
     {
-      "slug": "ly-story-3fa68cb6f9",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792656430,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792656429,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39393321032,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39393321032",
-      "run_started_at": "2026-10-20T08:25:41Z",
-      "run_updated_at": "2026-10-20T08:41:13Z"
-    },
-    {
       "slug": "ly-1017-e989b4",
       "status": "failed",
       "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
@@ -24860,11 +24842,11 @@
     },
     {
       "slug": "ly-story-63bd95723a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
       "signature": {
         "ts": 1792659531,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24911,6 +24893,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39752814670",
       "run_started_at": "2026-10-22T09:06:13Z",
       "run_updated_at": "2026-10-22T09:06:17Z"
+    },
+    {
+      "slug": "ly-story-3fa68cb6f9",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792660210,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39753322520,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39753322520",
+      "run_started_at": "2026-10-22T09:10:10Z",
+      "run_updated_at": "2026-10-22T09:10:14Z"
     }
   ],
   "runs": {
@@ -34914,14 +34914,14 @@
       "display_title": "中文源出片 · ly-1020-2bc269"
     },
     "ly-story-3fa68cb6f9": {
-      "id": 39393321032,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-20T08:25:41Z",
-      "updated_at": "2026-10-20T08:41:13Z",
-      "run_started_at": "2026-10-20T08:25:41Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39393321032",
-      "run_number": 2322,
+      "id": 39753322520,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T09:10:10Z",
+      "updated_at": "2026-10-22T09:10:14Z",
+      "run_started_at": "2026-10-22T09:10:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39753322520",
+      "run_number": 2408,
       "display_title": "中文源出片 · ly-story-3fa68cb6f9"
     },
     "ly-1020-8f9c09": {
@@ -35650,6 +35650,17 @@
       "run_number": 2398,
       "display_title": "中文源出片 · ly-story-02733d5be4"
     },
+    "ly-story-63bd95723a": {
+      "id": 39751850797,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-22T08:58:51Z",
+      "updated_at": "2026-10-22T09:07:33Z",
+      "run_started_at": "2026-10-22T08:58:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39751850797",
+      "run_number": 2405,
+      "display_title": "中文源出片 · ly-story-63bd95723a"
+    },
     "ly-story-6dc5b85679": {
       "id": 39752814670,
       "status": "in_progress",
@@ -35671,17 +35682,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39751868090",
       "run_number": 2406,
       "display_title": "中文源出片 · ly-story-d1b46d7d9a"
-    },
-    "ly-story-63bd95723a": {
-      "id": 39751850797,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T08:58:51Z",
-      "updated_at": "2026-10-22T09:07:33Z",
-      "run_started_at": "2026-10-22T08:58:51Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39751850797",
-      "run_number": 2405,
-      "display_title": "中文源出片 · ly-story-63bd95723a"
     },
     "ly-1022-3c9631": {
       "id": 39747933227,
