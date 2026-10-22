@@ -151,6 +151,19 @@ def personal_event_error(event):
     return None
 
 
+def personal_detail_error(detail):
+    """An outcome's future timing alone is not a past story's reason/detail."""
+    plain=re.sub(r'[\s，,。！？!?；;]','',detail)
+    if re.fullmatch(r'(?:嗯|啊|这个|那个|那|其实|所以|反正)*'
+            r'(?:(?:这个|那个)?时间(?:不|不会|也不|也不会|并不)?(?:太|很|算)?长)?'
+            r'(?:大概|大约|可能|差不多|再过)?'
+            r'[\d〇零一二三四五六七八九十百千万两]+(?:个)?(?:年|月|天)'
+            r'(?:以后|之后|后)(?:就|才)?(?:能|会|可以)?'
+            r'(?:见分晓|见结果|看到结果|见成效)(?:了|的|啊|吧|嘛)*',plain):
+        return '未来多久见分晓的预测本身不是个人故事的真实原因或经历细节；请从原文重选实际理由/经历，否则skip'
+    return None
+
+
 def validate_choices(cues, candidates, response):
     response=json.loads(response) if isinstance(response,str) else response
     source_rows=_selection_rows(cues,candidates)
@@ -196,7 +209,7 @@ def validate_choices(cues, candidates, response):
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
         if row['kind']=='personal_story':
-            issue=personal_event_error(row['event_quote'])
+            issue=personal_event_error(row['event_quote']) or personal_detail_error(row['detail_quote'])
             if issue:raise ValueError(issue)
         if row['kind']=='company_case' and not title_focus(row)['subjects']:
             raise ValueError('Named company subject required; generic assets/rules are not a company case')
@@ -399,7 +412,7 @@ def title_focus(selection):
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
         tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
-                and not (selection.get('kind')=='personal_story' and w.word=='个人')
+                and not (selection.get('kind')=='personal_story' and w.word in {'个人','时间'})
                 and (not proper or w.word.upper() not in categories)
                 and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
                      or not proper and w.flag=='vn')]
@@ -501,7 +514,7 @@ def proof_error(meta):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
     if s['kind']=='personal_story':
-        issue=personal_event_error(s['event_quote'])
+        issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
         if issue:return issue
     focus=title_focus(s)
     if s['kind']=='company_case' and not focus['subjects']:
