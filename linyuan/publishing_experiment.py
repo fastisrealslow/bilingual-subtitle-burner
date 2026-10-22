@@ -136,6 +136,11 @@ def selection_request(cues, candidates):
 
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
+    plain=re.sub(r'[\s，,。！？!?；;]','',event)
+    if re.fullmatch(r'(?:嗯|啊|呃|所以|那么)*(?:我|我们)(?:自己|个人)?'
+                    r'(?:觉得|认为|感觉|估计)(?:是|应该|肯定)?'
+                    r'(?:(?:没|没有|不会有)(?:什么)?问题|可以|行)(?:啊|吧|嗯)*',plain):
+        return 'A bare self-assessment is not a concrete personal event or actual choice'
     if re.search(r'(?:没有|不如|不像)您(?:这么|那么|这样|那样)',event):
         return 'An interviewer comparison addressed to the guest is not the guest personal event'
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
