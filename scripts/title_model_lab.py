@@ -65,6 +65,8 @@ def call(prompt, schema, profile, stage, row, save):
     # Independent cache-free requests. Reasoning is never substituted for final JSON.
     options=dict(temperature=.7,top_p=.8,top_k=20,seed=20260921,
                  num_ctx=16384,num_predict=(4096 if row.get('focused') else 8192) if profile['think'] else 4096)
+    if row.get('diagnostic_output_tokens')==8192:
+        options['num_predict']=8192
     if profile['model']=='qwen3.5:9b':options['presence_penalty']=1.5
     payload=dict(model=profile['model'],think=profile['think'],stream=False,
                  messages=[dict(role='user',content=prompt)],format=schema,

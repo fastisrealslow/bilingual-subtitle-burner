@@ -51,6 +51,7 @@ def main():
     row=dict(profile=args.profile,model=lab.PROFILES[args.profile]['model'],focused=True,
              diagnostic_only=True,publication_authorized=False,media_approved=False,
              registered_stock=False,audio_verified=False,calls=[],passed=False)
+    if args.profile=='qwen3-4b-thinking':row['diagnostic_output_tokens']=8192
     target=out/(args.profile+'.json')
     def save():target.write_text(json.dumps(row,ensure_ascii=False,indent=2))
     save()
