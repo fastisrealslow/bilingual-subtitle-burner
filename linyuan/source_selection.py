@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 48
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -45,9 +45,9 @@ TOPIC_CHANGE = re.compile(
     # An interviewer can announce the next topic in a statement before the
     # next question. Keep its lead-in out of the previous answer, regardless
     # of the subject matter or source. Explicit same-topic continuation stays.
-    r'|^(?:好(?:的)?|那(?:么)?|其实|[啊呃嗯，,\s])*(?:我们|咱们)'
+    r'|^(?:好(?:的)?|那(?:么)?|其实|[啊呃嗯，,\s])*(?:我们|咱们)?'
     r'(?:还|是|也|想|要|先|再|[啊呃嗯，,\s]){0,16}'
-    r'(?:接下来|下面|接着)(?:来|[啊呃嗯，,\s]){0,4}(?:聊|谈|讨论)'
+    r'(?:接下来|下面|接着)(?:来|[啊呃嗯，,\s]){0,4}(?:聊聊?|谈谈?|讨论)(?![聊谈])'
     r'(?!(?:一?下)?[，,\s]*(?:同一|这个|这一|刚才的))(?:一?下)?')
 FOLLOWUP = re.compile(r'(?:我|我们).{0,12}(?:有所担心|想追问|想进一步问|顺带.{0,3}问)|(?:这个|这一).{0,20}(?:我|我们).{0,5}(?:完全认同|完全同意)')
 TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)

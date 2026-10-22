@@ -23,7 +23,8 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 时间概率必须说明什么事件可能发生，不能仅删除不明点位，留下“十二个月可能性大”。
 “不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。
-讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。"""
+讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。
+比较必须同时核对时间对象和方向：“我们那个时候没这么快”否定的是过去，不能写成现在变慢。先按完整上下文读清现在与过去谁快谁慢，标题和封面各自保留相同关系，不能把末句的否定移到现在。"""
 
 
 def compact(text):
@@ -1107,6 +1108,63 @@ def research_scope_error(title, cover, transcript):
     return None
 
 
+def temporal_speed_error(title, cover, transcript):
+    """Reject an observable reversal of an explicit past/current comparison.
+
+    Only compare the same literal subject and speed metric. Questions,
+    conditional/negated comparisons, historical copy and competing directions
+    remain for semantic review. A past 'not this fast' is never evidence that
+    the present is slower. This is a contradiction gate, not a support proof.
+    """
+    past = r'(?:以前|过去|从前|当年)'
+    metric = r'(?:成长|增长|发展|赚钱|挣钱)'
+    subject = r'(?:企业|公司|行业|经济|业务|收入|利润)'
+
+    def claims(text, copy=False):
+        found = {}
+        for sentence in re.findall(r'[^。！？!?；;\n]+[。！？!?；;\n]?', text):
+            if sentence.endswith(('？', '?')) or re.search(r'如果|假如|假设|未必|不一定|不是|是否|会不会|吗|未来|将来|明年|曾经|当时|那个时候', sentence):
+                continue
+            # Keep question punctuation visible before sentence splitting.
+            sentence = compact(sentence)
+            for m in re.finditer(metric, sentence):
+                left, right = sentence[:m.start()], sentence[m.end():]
+                subjects = list(re.finditer(subject, left))
+                if not subjects:
+                    continue
+                noun = subjects[-1]
+                temporal_scope = left[noun.end():]
+                if re.search(past, temporal_scope) and not re.search(r'比'+past+r'$', temporal_scope):
+                    continue
+                # Named entities are deliberately outside this small grammar;
+                # do not compare A企业 with B企业 using only the suffix 企业.
+                prefix = left[:noun.start()]
+                if prefix and not re.fullmatch(r'(?:林园|现在|如今|目前|这个|这些|那|的|也是这样|比'+past+r')*', prefix):
+                    continue
+                key = (noun.group(), m.group())
+                direction = None
+                if (re.match(r'(?:的|得|速度)*(?:比'+past+r')(?:还|更)?快', right)
+                        or re.search(r'比'+past+r'$', left) and re.match(r'(?:的|得|速度)*(?:还|更)?快', right)):
+                    direction = 1
+                if (re.match(r'(?:的|得|速度)*(?:比'+past+r')(?:还|更)?慢', right)
+                        or re.search(r'比'+past+r'$', left) and re.match(r'(?:的|得|速度)*(?:还|更)?慢', right)):
+                    direction = -1
+                if copy and (re.match(r'(?:速度)?(?:没|没有|不如)'+past+r'快', right)
+                             or re.match(r'(?:速度)?(?:变慢|慢了|更慢)', right)):
+                    direction = -1
+                if direction:
+                    found.setdefault(key, set()).add(direction)
+        return found
+
+    source_claims = claims(transcript)
+    for text in (title.split('：', 1)[-1], cover):
+        for key, directions in claims(text, copy=True).items():
+            original = source_claims.get(key, set())
+            if len(original) == 1 and directions == {-next(iter(original))}:
+                return '标题或封面反转了原文的时间比较方向；过去没这么快不能写成现在变慢'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     from speaker_attribution import other_guest_indices
     if other_guest_indices([transcript],speaker):
@@ -1156,6 +1214,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     if loss_issue:return loss_issue
     phase_issue=participation_phase_error(title,cover,transcript)
     if phase_issue:return phase_issue
+    time_issue=temporal_speed_error(title,cover,transcript)
+    if time_issue:return time_issue
     if check_layout:
         from headline_policy import cover_fits
         if not cover_fits(cover):
@@ -1771,6 +1831,7 @@ def error(title, proof, transcript=None, speaker='林园'):
                   population_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   loss_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   participation_phase_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  temporal_speed_error(title, proof['cover'], transcript or ''.join(evidence)),
                   incremental_cost_error(title, proof['cover'], [transcript or ''.join(evidence)]),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
