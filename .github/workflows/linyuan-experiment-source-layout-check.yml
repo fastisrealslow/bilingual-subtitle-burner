@@ -1,10 +1,11 @@
 name: 真实母片画幅排产只读核验（不出片不调度）
 on:
   push:
-    branches: [codex/linyuan-experiment-source-layout-20261023]
+    branches: [codex/linyuan-experiment-source-layout-20261023, codex/linyuan-experiment-retry-format-20261023]
     paths: [linyuan/fc/index.py, linyuan/check_experiment_source_layout.py, .github/workflows/linyuan-experiment-source-layout-check.yml]
 permissions:
   contents: read
+  actions: read
 jobs:
   replay:
     runs-on: ubuntu-latest
