@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792645531,
+  "updated_at": 1792645754,
   "inventory_updated_at": 1792645504,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 11,
-    "active_or_recovering_sources": 9,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 10,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,19 +89,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792645531,
+    "updated_at": 1792645753,
     "records": 11349,
     "video_records": 9783,
-    "initial_candidates": 62,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 61,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1566,
       "clip_title": 1154,
-      "speaker_unconfirmed": 6781,
-      "already_attempted_or_cooling": 1524,
+      "speaker_unconfirmed": 6776,
+      "already_attempted_or_cooling": 1530,
       "noise": 19,
       "unrelated": 64,
       "ai_content": 36,
@@ -110,16 +110,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1Wupc6vEF2",
-        "title": "股神林园复旦演讲：未来唯一的方向，是老龄化，未来20年唯一的方向林园谈老龄化赛道 | 林园：78岁以上的老人还要再增加8",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Wupc6vEF2",
-        "duration_sec": 87.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 11,
@@ -135,14 +126,14 @@
   },
   "counts": {
     "complete": 137,
-    "failed": 1188,
+    "failed": 1190,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 11,
     "ready": 3,
     "experiment_fallback": 9,
     "retry_queued": 5,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -24725,11 +24716,11 @@
     },
     {
       "slug": "ly-story-c11da5a132",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"当时它是政策的需求，比如说科创板，我我我，它会有那个，对个有个科创板有个市值的要求，必须是六百万以上基金，你才能参与那个往下新股申购。\", \"suspect_quote\": \"六百万以上基金\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：‘六百万以上’是指基金资产规模需大于 600 万，还是指其他含义？结合上下文‘科创板有个市值的要求’，此处极可能是将‘基金资产规模’误识别或简写导致的关键条件模糊。若原意为‘基金资产规模六百万以上’，则缺少主语；若为‘发行\"}]",
       "signature": {
         "ts": 1792644399,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24739,15 +24730,15 @@
       "run_id": 39724261288,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39724261288",
       "run_started_at": "2026-10-22T04:46:39Z",
-      "run_updated_at": "2026-10-22T04:46:43Z"
+      "run_updated_at": "2026-10-22T05:06:18Z"
     },
     {
       "slug": "ly-story-71d80ec9f5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "下载器不支持此素材地址，需更换来源或接通专用下载器",
       "signature": {
         "ts": 1792645380,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24758,6 +24749,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39725792419",
       "run_started_at": "2026-10-22T05:03:00Z",
       "run_updated_at": "2026-10-22T05:04:28Z"
+    },
+    {
+      "slug": "ly-story-a4a99c14cd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792645711,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39726318469,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726318469",
+      "run_started_at": "2026-10-22T05:08:31Z",
+      "run_updated_at": "2026-10-22T05:08:34Z"
+    },
+    {
+      "slug": "ly-1022-dcd5a1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792645717,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39726328043,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726328043",
+      "run_started_at": "2026-10-22T05:08:36Z",
+      "run_updated_at": "2026-10-22T05:08:41Z"
     }
   ],
   "runs": {
@@ -35409,12 +35436,34 @@
       "run_number": 2384,
       "display_title": "中文源出片 · ly-story-71d80ec9f5"
     },
-    "ly-story-c11da5a132": {
-      "id": 39724261288,
+    "ly-1022-dcd5a1": {
+      "id": 39726328043,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-22T05:08:36Z",
+      "updated_at": "2026-10-22T05:08:41Z",
+      "run_started_at": "2026-10-22T05:08:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726328043",
+      "run_number": 2386,
+      "display_title": "中文源出片 · ly-1022-dcd5a1"
+    },
+    "ly-story-a4a99c14cd": {
+      "id": 39726318469,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T05:08:31Z",
+      "updated_at": "2026-10-22T05:08:34Z",
+      "run_started_at": "2026-10-22T05:08:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726318469",
+      "run_number": 2385,
+      "display_title": "中文源出片 · ly-story-a4a99c14cd"
+    },
+    "ly-story-c11da5a132": {
+      "id": 39724261288,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T04:46:39Z",
-      "updated_at": "2026-10-22T04:46:43Z",
+      "updated_at": "2026-10-22T05:06:18Z",
       "run_started_at": "2026-10-22T04:46:39Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39724261288",
       "run_number": 2383,
