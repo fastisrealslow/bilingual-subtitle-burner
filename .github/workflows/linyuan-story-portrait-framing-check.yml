@@ -1,0 +1,40 @@
+name: 实际故事竖屏动态取景核验（仅画面不入库不投稿）
+on:
+  push:
+    branches: [codex/linyuan-portrait-story-framing-20261022]
+    paths: [linyuan/produce_cn.py, linyuan/check_story_portrait_framing.py, .github/workflows/linyuan-story-portrait-framing-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      LINYUAN_AUTOMATIC_ONLY: 'true'
+      LINYUAN_EDITORIAL_PROFILE: field-story-v1
+      CONTENT_POLICY: reference_v1
+      OUTPUT_LAYOUT: portrait
+      LIVE_CARD_THEME: contrast
+      TEXT_BACKEND: local
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 同生产有界媒体安装器
+        timeout-minutes: 15
+        run: bash linyuan/ci_install_media_tools.sh
+      - name: 只安装真实画面检查依赖，不加载语音或文本模型
+        run: pip install pillow numpy jieba 'opencv-python<5' rapidocr-onnxruntime
+      - name: 同一母片同一已记录选段，仅测实际竖屏画面及完整动态区
+        run: python -u linyuan/check_story_portrait_framing.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: story-portrait-framing-verification
+          path: story-portrait-framing-verification/
+          retention-days: 7
+          if-no-files-found: error
