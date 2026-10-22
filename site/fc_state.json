@@ -38265,7 +38265,37 @@
    "experiment_selection_revision": 2026102005,
    "experiment_mother_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
    "experiment_parent_slug": "ly-0910-interview-clean-v4-wide0911v2",
-   "recovery_origin_run_id": 34743799382
+   "recovery_origin_run_id": 34743799382,
+   "production_failure_summary": {
+    "slug": "ly-story-423df312c3",
+    "run_id": 39734965914,
+    "artifact_id": 12408309033,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是指'人均零'、'总量零'还是'特定人群零'。这种绝对化的否定表述导致数据逻辑断裂，属于需澄清的关键数字疑点。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39734965914,
+    "artifact_id": 12408309033,
+    "name": "production-reject-ly-story-423df312c3",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是指'人均零'、'总量零'还是'特定人群零'。这种绝对化的否定表述导致数据逻辑断裂，属于需澄清的关键数字疑点。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1xcu26hEx1",
@@ -111276,6 +111306,13 @@
    "video_id": "BV1TC4y1C7Zk",
    "ts": 1792651581,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"大概我我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘开支是零’与后文‘每个月的开支是两千五’存在明显的逻辑矛盾。在口语语境下，‘零’极大概率是识别错误（可能应为‘很低’或具体数值），或者说话人表述混乱导致含义不明。根据指令要求，必须指出数字或否定本身的具体污染，此处‘零’作为关键数字\"}, {\"sentence_id\": 25, \"quote\": \"啊，那这个很重要，就相对于几十年以后今天的是市盈的。\", \"suspect_quote\": \"相对于几十年以后今天的是市盈的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"句子末尾的‘是市盈的’语义完全不通顺，疑似识别错误。正常金融术语应为‘市盈率’（PE ratio），且‘几十年的市盈率’搭配也不符合常规表达逻辑。此处‘市盈’作为关键数字/术语片段含义不明，属于无法解释的具体词语或错写专有名词。\"}]"
+  },
+  {
+   "slug": "ly-story-423df312c3",
+   "key": "ly-story-423df312c3",
+   "video_id": "BV1nt4y1o74A",
+   "ts": 1792653975,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是指'人均零'、'总量零'还是'特定人群零'。这种绝对化的否定表述导致数据逻辑断裂，属于需澄清的关键数字疑点。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
