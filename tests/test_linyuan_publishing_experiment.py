@@ -150,8 +150,11 @@ def test_story_title_requires_actual_company_and_named_reason_not_approved_gener
     assert E.title_focus_error('林园：当年投茅台是消费升级理论的选择',E.title_focus(swapped)) is None
     assert E.title_focus_error('林园：投茅台因收入爆发期',E.title_focus(swapped))
     assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus,cover='收入爆发前投茅台')
-    explicit={**focus,'source':['收入将爆发，消费升级。']}
+    explicit={**focus,'background_terms':[],'source':['收入将爆发，消费升级。']}
     assert E.title_focus_error('林园：投茅台看消费升级和收入将爆发',explicit) is None
+    actual_bad='林园：当时选茅台是因收入达标，处于消费升级爆发前期'
+    assert E.title_focus_error(actual_bad,E.title_focus(swapped),cover='收入达标是消费升级爆发前期')
+    assert '收入' in E.title_focus(swapped)['background_terms']
 
 
 def test_title_engine_rejects_out_of_source_story_anchors():

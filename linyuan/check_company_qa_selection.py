@@ -8,6 +8,23 @@ import tempfile
 import zipfile
 
 
+class RecordedCalls:
+    """Exact immutable model-response cache, never cached approval flags."""
+    def __init__(self,report):
+        self.calls=report['calls'];self.index=0
+
+    def __call__(self,prompt,schema):
+        if self.index>=len(self.calls):raise AssertionError('Actual classifier replay exhausted')
+        row=self.calls[self.index]
+        assert row['prompt']==prompt and row['schema']==schema,'Classifier prompt/schema changed; fresh model trial required'
+        assert 'response' in row and not row.get('error'),'Cannot reuse incomplete model evidence'
+        self.index+=1
+        return row['response']
+
+    def finish(self):
+        assert self.index==len(self.calls),'Current selector did not consume the exact actual evidence'
+
+
 def load_original(archive):
     import publishing_experiment as experiment
     with zipfile.ZipFile(archive) as z:
@@ -39,10 +56,32 @@ def main():
             subprocess.run(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/12428005891/zip'],
                 stdout=handle,check=True,timeout=180)
         cues,candidates,quality=load_original(archive)
+        replay={}
+        artifact=os.environ.get('STORY_CLASSIFIER_REPLAY_ARTIFACT','')
+        if artifact:
+            assert artifact=='12433790083','Only the inspected actual classifier evidence may be reused'
+            metadata=json.loads(subprocess.check_output(['gh','api',
+                f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{artifact}'],timeout=90))
+            assert metadata['workflow_run']['id']==39792050300
+            assert metadata['workflow_run']['head_sha']=='0272ae96b18394731a0a85f2547571e3012afe7b'
+            cached=Path(tmp)/'classifier.zip'
+            with cached.open('wb') as handle:
+                subprocess.run(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{artifact}/zip'],
+                    stdout=handle,check=True,timeout=180)
+            with zipfile.ZipFile(cached) as z:
+                for name in ('story_selection.json','controlled-negative-selection.json'):
+                    paths=[p for p in z.namelist() if p.endswith('/'+name)]
+                    assert len(paths)==1
+                    replay[name]=json.loads(z.read(paths[0]))
+            assert replay['story_selection.json']['transcript_sha256']==experiment.digest(cues)
     def call(prompt,schema):
         return production.llm([dict(role='user',content=prompt)],'',temperature=0,
             max_tokens=1600,budget_sec=production.text_budget(240),response_schema=schema,read_cache=False)
-    report=experiment.choose_stories(cues,candidates,call,target/'story_selection.json')
+    cached_call=RecordedCalls(replay['story_selection.json']) if replay else None
+    report=experiment.choose_stories(cues,candidates,cached_call or call,target/'story_selection.json')
+    if cached_call:
+        cached_call.finish()
+        assert report['selected']==replay['story_selection.json']['selected']
     selected={(p['start'],p['end']):p for p in report['selected']}
     expected=(76,87)
     result=dict(source_sha256=quality['source_sha256'],transcript_sha256=experiment.digest(cues),
@@ -51,7 +90,9 @@ def main():
         generic_theory_rejected=(333,360) not in selected,
         future_company_comparison_rejected=(106,123) not in selected,
         selection_completed=report['selection_completed'],diagnostic_only=True,
-        media_approved=False,registered_stock=False,published=False)
+        media_approved=False,registered_stock=False,published=False,
+        selector_evidence_mode='immutable_actual_response_replay' if replay else 'fresh_local_cpu',
+        selector_replay_artifact=int(artifact) if artifact else None)
     if expected in selected:
         result['actual_company_selection']=selected[expected]['story_selection']
     # Controlled negative cases, separate from the nine real source clips.
@@ -63,8 +104,12 @@ def main():
         '未来十年，茅台和可口可乐哪家会更好？未来的事需要继续观察，现在很难下结论。我们只是比较可能性，并没有回顾某次实际投资。',
     ]
     negative_cues=[dict(text=text) for text in negative_texts]
+    negative_call=RecordedCalls(replay['controlled-negative-selection.json']) if replay else None
     negatives=experiment.choose_stories(negative_cues,[dict(start=i,end=i) for i in range(4)],
-        call,target/'controlled-negative-selection.json')
+        negative_call or call,target/'controlled-negative-selection.json')
+    if negative_call:
+        negative_call.finish()
+        assert negatives['selected']==replay['controlled-negative-selection.json']['selected']
     result['controlled_negative_cases']=len(negative_texts)
     result['hypothetical_denied_unanswered_future_rejected']=(negatives['selection_completed']
         and not negatives['selected'] and len(negatives['rejected'])==len(negative_texts))

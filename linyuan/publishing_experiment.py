@@ -353,6 +353,11 @@ def story_title_prompt(prompt,schema,evidence):
         '不能把主持人的猜测当成嘉宾结论。本片选题就是下列具体事例，中心是嘉宾在这件事上的实际选择或判断及其原因。')
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
         'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
+    focus=title_focus(evidence)
+    scope=('\n标题范围（仅为原文字词范围，不是事实批准）：'+json.dumps(dict(
+        object_terms=focus['subjects'],named_reason_terms=focus['details'],
+        body_only_background_terms=focus['background_terms']),ensure_ascii=False)+
+        '。仅正文背景词不放入标题或封面；所有事实、主体和条件仍按完整原文核对。') if focus['background_terms'] else ''
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
@@ -360,10 +365,13 @@ def story_title_prompt(prompt,schema,evidence):
         '拟稿像本人随口讲清一件事：具体选择加一条最直接理由，正文优先16至26字，'
         '不为了字数截断、不省略必要条件。若事件或细节原句已明确命名理论或选择标准，'
         '直接沿用这个原词，不必把背景时点、程度描述和整条推理链都串进标题。'
+        '已有明确命名的选择理论或标准时，标题只说具体选择和这一条命名理由；'
+        '其他背景变量、时点和程度留在视频正文，不再压进标题。'
+        '不要把未明确主语的“爆发”接到另一个名词上，制造原话没有明说的增长断言。'
         '三个候选换自然说法，不往同一句堆更多背景；避免连续“基于、前的、所导致”等书面连接。'
         '核对时事实支持、说话人归属和限定条件标准完全不变。'
         '下列线索是本段逐字原句，不是已批准的事实或预填标题；提问只提供上下文，不能当嘉宾断言。\n'
-        +json.dumps(evidence,ensure_ascii=False))
+        +json.dumps(evidence,ensure_ascii=False)+scope)
 
 
 def title_focus(selection):
@@ -388,7 +396,7 @@ def title_focus(selection):
         compound=[a.word+b.word for a,b in zip(words,words[1:])
                   if a.word in tokens and b.word in tokens and len(a.word+b.word)<=10]
         return list(dict.fromkeys(compound or tokens))[:6]
-    reason=selection.get('detail_quote','')
+    reason=selection.get('detail_quote','');named_reason=False
     if selection.get('kind')=='company_case':
         # A direct past-choice answer may supply either event or detail.
         # Prefer its explicitly named decision standard in either position;
@@ -399,10 +407,22 @@ def title_focus(selection):
             quote=selection.get(key,'')
             if re.search(named_standard,quote) and terms(quote):
                 reason=quote
+                named_reason=True
                 break
-    return dict(subjects=terms(selection.get('subject_quote',''),True)
-                if selection.get('kind')=='company_case' else [],
-                details=terms(reason),
+    subjects=terms(selection.get('subject_quote',''),True) if selection.get('kind')=='company_case' else []
+    details=terms(reason)
+    def background_terms(quote):
+        # POS dictionaries tag some nominal variables as verbs (e.g. 的收入).
+        # Recover only the local nominal construction, not opinion/qualifier
+        # verbs whose removal could change uncertainty or speaker attribution.
+        words=list(jieba.posseg.cut(quote))
+        nominal=[w.word for i,w in enumerate(words) if i and words[i-1].word=='的'
+            and w.flag in {'v','vn'} and 2<=len(w.word)<=10 and w.word not in generic]
+        return list(dict.fromkeys(terms(quote)+nominal))
+    background=list(dict.fromkeys(t for key in ('event_quote','detail_quote')
+        if selection.get(key,'')!=reason for t in background_terms(selection.get(key,''))
+        if t not in subjects and t not in details)) if named_reason else []
+    return dict(subjects=subjects,details=details,background_terms=background,
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
@@ -414,12 +434,15 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
     if focus.get('details') and not any(t in body for t in focus['details']):
         return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
+    if any(t in body+'\n'+str(cover or '') for t in focus.get('background_terms',[])):
+        return '本次已有明确命名的选择理由；标题和封面只保留具体选择及该理由，背景变量请留在正文：'+','.join(focus['background_terms'])
     # Real CPU drafts repeatedly collapsed an income-level background clause
     # into a new income-boom claim. Independent model reviews approved it.
     # Require an explicit original phrase for this stronger claim, not a word
     # from one clause concatenated with a growth metaphor from another.
-    from title_rewrite import income_boom_error
-    return income_boom_error(title,cover,''.join(focus.get('source') or []))
+    from title_rewrite import income_boom_error,named_choice_boom_error
+    source=''.join(focus.get('source') or [])
+    return income_boom_error(title,cover,source) or named_choice_boom_error(title,cover,source)
 
 
 def proof_error(meta):

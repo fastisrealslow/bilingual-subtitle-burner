@@ -2,7 +2,7 @@ name: 真实九段公司问答选题核验（不出片不入库不投稿）
 on:
   push:
     branches: [codex/linyuan-company-qa-selector-20261022]
-    paths: [linyuan/publishing_experiment.py, linyuan/check_company_qa_selection.py, .github/workflows/linyuan-company-qa-selection-check.yml]
+    paths: [linyuan/publishing_experiment.py, linyuan/title_rewrite.py, linyuan/check_company_qa_selection.py, .github/workflows/linyuan-company-qa-selection-check.yml]
 permissions:
   contents: read
   actions: read
@@ -14,6 +14,7 @@ env:
   LINYUAN_AUTOMATIC_ONLY: 'true'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   CONTENT_POLICY: reference_v1
+  STORY_CLASSIFIER_REPLAY_ARTIFACT: '12433790083'
 jobs:
   replay:
     runs-on: ubuntu-latest
@@ -63,7 +64,7 @@ jobs:
           curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
             -H 'Content-Type: application/json' --data-binary @/tmp/ollama-warmup.json \
             | python -c 'import json,sys; assert (json.load(sys.stdin).get("message") or {}).get("content")'
-      - name: 全部九个实际候选，完整证据与普通方法反例一起核验
+      - name: 精确回放已实测选题原始响应，再真实生成与复核当前标题
         env:
           GH_TOKEN: ${{ github.token }}
         run: python -u linyuan/check_company_qa_selection.py

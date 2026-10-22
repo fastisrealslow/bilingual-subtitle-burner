@@ -27,6 +27,19 @@ def test_income_level_cannot_become_income_boom_in_baseline_or_cover():
     assert T.income_boom_error('收入达到一定水平','收入水平提高',source) is None
 
 
+def test_actual_unnamed_boom_cannot_attach_to_named_choice_standard():
+    source=('因为中国人那时候的收入它达到了一定的水平，就是要爆发的前期。'
+            '我们当时提出了一个理论是消费升级啊，就投消费升级。')
+    bad='林园：当时选茅台是因收入达标，处于消费升级爆发前期'
+    assert T.forecast_copy_error(bad,'收入达标是消费升级爆发前期',source)
+    assert T.named_choice_boom_error('当年投茅台，消费升级要爆发','消费升级爆发前期',source)
+    assert T.named_choice_boom_error('当年投茅台，看的是消费升级','投消费升级',source) is None
+    explicit='这个理论是品牌消费。品牌消费将爆发，这是我当时的判断。'
+    assert T.named_choice_boom_error('我当时判断品牌消费将爆发','品牌消费将爆发',explicit) is None
+    assert T.named_choice_boom_error('品牌消费爆发前的选择','品牌消费爆发',
+        '我提出的理论是品牌消费。那时候有一个要爆发的背景。')
+
+
 def proposals():
     return [dict(title=t,cover_title=c,subject='龙头',evidence=[TEXT.split('。')[0],TEXT.split('。')[1],TEXT.split('。')[2]]) for t,c in [
         (TITLE,'龙头未定，如何布局'),
