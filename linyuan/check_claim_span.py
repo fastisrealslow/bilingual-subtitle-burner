@@ -13,6 +13,7 @@ def main():
     import editorial_evidence as evidence
     from source_selection import question_unit
     from editorial_policy import text_digest
+    from publishing_experiment import digest as story_digest
     assert producer.TEXT_BACKEND=='local' and producer.LOCAL_LLM_MODEL=='qwen3.5:9b'
     assert producer.automatic_only()
     output=Path('claim-span-verification');output.mkdir(exist_ok=True)
@@ -29,7 +30,7 @@ def main():
     assert source['source_sha256']=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
     assert source['passed'] is True and len(selected)==1
     text=''.join(c['text'] for p in selected for c in cues[p['start']:p['end']+1])
-    assert text_digest(text)==selected[0]['story_selection']['transcript_sha256']
+    assert story_digest(text)==selected[0]['story_selection']['transcript_sha256']
     units=evidence.sentences(text)
     excluded=[i for i,u in enumerate(units) if question_unit(u)]
     old_range=old['analysis']['claim_range']
