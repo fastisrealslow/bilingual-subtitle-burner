@@ -40435,7 +40435,8 @@
     "name": "production-reject-ly-story-2408e7fe45",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1LGJQ6REPV",
@@ -40551,7 +40552,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-03-01T11:30:45+00:00"
+   "publish_time": "2026-03-01T11:30:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-878460",
+    "run_id": 39820278533,
+    "artifact_id": 12444897719,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39820278533,
+    "artifact_id": 12444897719,
+    "name": "production-reject-ly-1022-878460",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
@@ -40580,8 +40603,8 @@
    "recovery_origin_run_id": 38860911237,
    "production_failure_summary": {
     "slug": "ly-story-aa35da617a",
-    "run_id": 39810827206,
-    "artifact_id": 12442293463,
+    "run_id": 39821459333,
+    "artifact_id": 12445541043,
     "accepted": 0,
     "failures": [
      {
@@ -40593,8 +40616,16 @@
    "source_check_report_id": 12442293463,
    "source_check_run_id": 39810827206,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"主要是一些个别公司，对公司的判断还是有很多的啊，有很多抗啊。\", \"suspect_quote\": \"有很多抗啊\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“抗”在语境中含义不明，疑似识别错误（可能为“坑”、“坑害”或特定术语的误识），导致句子语义不完整。\"}, {\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱，而且给我不止一次的说。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在逻辑矛盾或识别污染：“几块钱”与“五六块钱”并列，且中间夹杂“是”，疑似将口语中的停顿、重复或否定词（如“不是”）误识为肯定判断，导致关键数字含义模糊。\"}]",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39821459333,
+    "artifact_id": 12445541043,
+    "name": "production-reject-ly-story-aa35da617a",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "video_id": "BV1xcu26hEx1",
@@ -114322,6 +114353,20 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2610/10/11qyi401ghg/SD/11qyi401ghg-mobile.mp4",
    "ts": 1792689804,
    "error": "同一来源URL的母片内容哈希已改变，须核对旧段对应关系"
+  },
+  {
+   "slug": "ly-story-aa35da617a",
+   "key": "ly-story-aa35da617a",
+   "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
+   "ts": 1792690226,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"主要是一些个别公司，对公司的判断还是有很多的啊，有很多抗啊。\", \"suspect_quote\": \"有很多抗啊\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“抗”在语境中含义不明，疑似识别错误（可能为“坑”、“坑害”或特定术语的误识），导致句子语义不完整。\"}, {\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱，而且给我不止一次的说。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在逻辑矛盾或识别污染：“几块钱”与“五六块钱”并列，且中间夹杂“是”，疑似将口语中的停顿、重复或否定词（如“不是”）误识为肯定判断，导致关键数字含义模糊。\"}]"
+  },
+  {
+   "slug": "ly-1022-878460",
+   "key": "bilibili_search:BV1qrPTzGExu",
+   "video_id": "BV1qrPTzGExu",
+   "ts": 1792690227,
+   "error": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
