@@ -3468,6 +3468,17 @@ def _recover_changed_production_rule(st, candidate, run):
                                   '原画无法通过真人画面清理门禁'),
             ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
     cases.append(('tracked-source-strips-v1',('持续黑色填充边',),('linyuan/live_tracking.py',)))
+    # The new public-player adapter repairs an extractor failure, not a media
+    # verdict. Reopen only its exact supported page shape, once, after proving
+    # this adapter changed since that failed run. Never retry other unsupported
+    # platforms, signed URLs, protected pages or present source-quality rejects.
+    if (reason=='下载器不支持此素材地址，需更换来源或接通专用下载器'
+            and re.fullmatch(r'https://(?:www|m)\.163\.com/v/video/V[A-Z0-9]+\.html',
+                             candidate.get('source_url',''))):
+        from source_admission_guard import restriction
+        if not restriction(candidate['source_url'],[]):
+            cases.append(('download-netease-player-v1',(reason,),
+                          ('linyuan/ci_fetch_netease.py',)))
     history=candidate.setdefault('automatic_rule_recoveries',{})
     matches=[x for x in cases if x[0] not in history and any(
              s in value for s in x[1] for value in ([reason]+secondary
