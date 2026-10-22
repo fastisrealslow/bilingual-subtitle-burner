@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792683028,
+  "updated_at": 1792683259,
   "inventory_updated_at": 1792683009,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 8,
     "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792683027,
+    "updated_at": 1792683259,
     "records": 11419,
     "video_records": 9852,
     "initial_candidates": 64,
@@ -151,14 +151,14 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1209,
+    "failed": 1211,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 5,
     "excluded": 15,
     "experiment_fallback": 7,
     "ready": 4,
     "running": 6,
-    "retry_queued": 1
+    "retry_queued": 2
   },
   "tasks": [
     {
@@ -25029,11 +25029,11 @@
     },
     {
       "slug": "ly-1021-dd5639",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
       "signature": {
         "ts": 1792676153,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25101,11 +25101,11 @@
     },
     {
       "slug": "ly-1022-e3ae52",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
       "signature": {
         "ts": 1792679511,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25191,14 +25191,14 @@
     },
     {
       "slug": "ly-story-13c07fb2f2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792682260,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792684059,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -36175,6 +36175,17 @@
       "run_number": 2438,
       "display_title": "中文源出片 · ly-1021-dd5639"
     },
+    "ly-story-13c07fb2f2": {
+      "id": 39803460214,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-22T15:17:40Z",
+      "updated_at": "2026-10-22T15:28:19Z",
+      "run_started_at": "2026-10-22T15:17:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803460214",
+      "run_number": 2449,
+      "display_title": "中文源出片 · ly-story-13c07fb2f2"
+    },
     "ly-story-18b29fe207": {
       "id": 39803498243,
       "status": "in_progress",
@@ -36196,17 +36207,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803476094",
       "run_number": 2450,
       "display_title": "中文源出片 · ly-story-9ccd46299a"
-    },
-    "ly-story-13c07fb2f2": {
-      "id": 39803460214,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T15:17:40Z",
-      "updated_at": "2026-10-22T15:28:19Z",
-      "run_started_at": "2026-10-22T15:17:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803460214",
-      "run_number": 2449,
-      "display_title": "中文源出片 · ly-story-13c07fb2f2"
     },
     "ly-story-9c88bea169": {
       "id": 39803440656,
