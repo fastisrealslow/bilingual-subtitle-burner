@@ -852,6 +852,19 @@ def allocation_condition_error(title,cover,transcript):
     return None
 
 
+def income_boom_error(title, cover, transcript):
+    """Income reaching a level does not establish an income-boom claim.
+
+    The real company Q&A was misapproved in both treatment and baseline.
+    Keep this source-bound check common to drafting, inventory and publishing.
+    """
+    boom=r'收入(?:水平)?(?:将|会|要|已|即将|到了?|达(?:到)?|正处于)?爆发'
+    if (re.search(boom,str(title or '')+'\n'+str(cover or ''))
+            and not re.search(boom,transcript or '')):
+        return '不能把收入达到某个水平的背景压成收入爆发；用本段明确说出的实际理由'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -867,6 +880,8 @@ def forecast_copy_error(title, cover, transcript):
         return human_condition_issue
     allocation_issue=allocation_condition_error(title,cover,transcript)
     if allocation_issue:return allocation_issue
+    income_issue=income_boom_error(title,cover,transcript)
+    if income_issue:return income_issue
     clause_issue = hypothetical_clause_error(title, cover, transcript)
     if clause_issue:
         return clause_issue
