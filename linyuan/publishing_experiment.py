@@ -136,6 +136,8 @@ def selection_request(cues, candidates):
 
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
+    if re.search(r'(?:没有|不如|不像)您(?:这么|那么|这样|那样)',event):
+        return 'An interviewer comparison addressed to the guest is not the guest personal event'
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
     advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
@@ -358,6 +360,8 @@ def story_title_prompt(prompt,schema,evidence):
         object_terms=focus['subjects'],named_reason_terms=focus['details'],
         body_only_background_terms=focus['background_terms']),ensure_ascii=False)+
         '。仅正文背景词不放入标题或封面；所有事实、主体和条件仍按完整原文核对。') if focus['background_terms'] else ''
+    if evidence.get('kind')=='personal_story' and not focus['details']:
+        scope+='\n细节中的泛指词不是标题关键词，不要为了出现这些词硬造一句话。仍须通读完整原文，说清本人实际选择及原话理由，不能借用提问前提。'
     if focus.get('detail_action_pairs'):
         scope+=('\n细节原话也包含完整的动作理由，不能只盯着其中的比喻名词：'
             +json.dumps(focus['detail_action_pairs'],ensure_ascii=False)+
@@ -389,6 +393,7 @@ def title_focus(selection):
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
         tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
+                and not (selection.get('kind')=='personal_story' and w.word=='个人')
                 and (not proper or w.word.upper() not in categories)
                 and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
                      or not proper and w.flag=='vn')]

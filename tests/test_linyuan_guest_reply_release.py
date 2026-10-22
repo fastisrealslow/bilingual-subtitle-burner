@@ -82,3 +82,21 @@ def test_nonverb_parallel_negation_cannot_create_action_group(detail):
     import publishing_experiment as experiment
     focus=experiment.title_focus(dict(kind='personal_story',detail_quote=detail))
     assert focus['detail_action_pairs']==[]
+
+
+def test_actual_host_comparison_is_not_a_personal_event():
+    import publishing_experiment as experiment
+    text='就是在这个过山车行情中，可能大部分人真的没有您这么坚定，就真的会很痛苦，然后一下子就吓跑了。'
+    assert experiment.personal_event_error(text)
+    assert experiment.personal_event_error('他们都会，但是我这个人还比较专心。') is None
+    assert experiment.personal_event_error('我只投我看好的，我是在自己这一亩三分地里去耕耘。') is None
+
+
+def test_actual_latest_deictic_detail_does_not_force_generic_person_noun():
+    import publishing_experiment as experiment
+    evidence=dict(kind='personal_story',subject_quote='消费与半导体复苏您怎么看？',
+        event_quote='我只投我看好的。',detail_quote='嗯，如果他还真是个人，他少不了。')
+    focus=experiment.title_focus(evidence)
+    assert focus['details']==[]
+    prompt=experiment.story_title_prompt('全部原文',dict(properties=dict(c_candidates={})),evidence)
+    assert '泛指词不是标题关键词' in prompt and '仍须通读完整原文' in prompt
