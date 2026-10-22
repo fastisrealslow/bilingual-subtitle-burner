@@ -64,7 +64,7 @@ def test_literal_action_reason_is_not_forced_into_metaphor_noun():
     evidence=dict(kind='personal_story',subject_quote='我这个人还比较专心。',
         event_quote='我只投我看好的。',detail_quote='除非这个人不吃不喝了，真是变成机器人了，那我也不行。')
     focus=experiment.title_focus(evidence)
-    assert focus['detail_action_pairs']==[['吃','喝']]
+    assert focus['detail_actions_0']==['吃','喝']
     assert '不吃不喝' in focus['details'] and '机器人' in focus['details']
     assert experiment.title_focus_error('林园：人总得吃喝，我就只投消费',focus) is None
     assert experiment.title_focus_error('林园：我只投消费，除非人不吃不喝',focus) is None
@@ -81,7 +81,7 @@ def test_literal_action_reason_is_not_forced_into_metaphor_noun():
 def test_nonverb_parallel_negation_cannot_create_action_group(detail):
     import publishing_experiment as experiment
     focus=experiment.title_focus(dict(kind='personal_story',detail_quote=detail))
-    assert focus['detail_action_pairs']==[]
+    assert not any(k.startswith('detail_actions_') for k in focus)
 
 
 def test_actual_host_comparison_is_not_a_personal_event():
@@ -100,3 +100,17 @@ def test_actual_latest_deictic_detail_does_not_force_generic_person_noun():
     assert focus['details']==[]
     prompt=experiment.story_title_prompt('全部原文',dict(properties=dict(c_candidates={})),evidence)
     assert '泛指词不是标题关键词' in prompt and '仍须通读完整原文' in prompt
+
+
+def test_action_reason_scope_reaches_real_generator_contract_before_model_call():
+    import publishing_experiment as experiment
+    evidence=dict(kind='personal_story',subject_quote='我只投消费。',event_quote='我只投消费。',
+        detail_quote='除非这个人不吃不喝了，变成机器人了，那我也不行。')
+    text=evidence['subject_quote']+evidence['detail_quote']
+    focus=experiment.title_focus(evidence)
+    class ModelReached(BaseException):pass
+    def model(*args):raise ModelReached()
+    with pytest.raises(ModelReached):
+        title.generate(text,structured_model=model,editorial_focus=focus)
+    with pytest.raises(ValueError,match='本段原文字词'):
+        title.generate(text,structured_model=model,editorial_focus={**focus,'details':['源外理由']})

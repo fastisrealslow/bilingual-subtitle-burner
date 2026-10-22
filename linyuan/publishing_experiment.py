@@ -362,9 +362,10 @@ def story_title_prompt(prompt,schema,evidence):
         '。仅正文背景词不放入标题或封面；所有事实、主体和条件仍按完整原文核对。') if focus['background_terms'] else ''
     if evidence.get('kind')=='personal_story' and not focus['details']:
         scope+='\n细节中的泛指词不是标题关键词，不要为了出现这些词硬造一句话。仍须通读完整原文，说清本人实际选择及原话理由，不能借用提问前提。'
-    if focus.get('detail_action_pairs'):
+    action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
+    if action_pairs:
         scope+=('\n细节原话也包含完整的动作理由，不能只盯着其中的比喻名词：'
-            +json.dumps(focus['detail_action_pairs'],ensure_ascii=False)+
+            +json.dumps(action_pairs,ensure_ascii=False)+
             '。可以用这组原词把理由说直白，不必硬塞比喻名词。先说本人实际选择，再接一条理由；'
             '同一个理由说一次就够，不要把“不做这两件事”和“否则要做这两件事”正反重复一遍。'
             '条件中的比喻也不是必然发生的时间节点，不要把假设写成将来的进程。'
@@ -446,20 +447,21 @@ def title_focus(selection):
         if selection.get(key,'')!=reason for t in background_terms(selection.get(key,''))
         if t not in subjects and t not in details)) if named_reason else []
     return dict(subjects=subjects,details=details,background_terms=background,
-                detail_action_pairs=action_pairs[:3],
+                **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
 def title_focus_error(title,focus,speaker='林园',cover=None):
     if not isinstance(title,str):return '故事标题不是文本'
     body=title.removeprefix(speaker+'：')
+    action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
     if (focus.get('details') and not any(t in body for t in focus['details'])
-            and not any(all(term in body for term in pair) for pair in focus.get('detail_action_pairs',[]))):
+            and not any(all(term in body for term in pair) for pair in action_pairs)):
         return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
-    for a,b in focus.get('detail_action_pairs',[]):
+    for a,b in action_pairs:
         if re.search(r'除非[^。！？!?]*不'+re.escape(a)+'不'+re.escape(b)+
                      r'[^。！？!?]*否则[^。！？!?]*'+re.escape(a)+r'[^。！？!?]*'+re.escape(b),body):
             return '同一个动作理由不能正反重复：先说实际选择，再用一句完整理由；不删必要条件或改变主体'
