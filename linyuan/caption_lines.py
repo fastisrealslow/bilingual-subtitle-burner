@@ -2,6 +2,8 @@
 import math
 import re
 
+SHARED_END_CLOCK_VERSION = 2026102301
+
 
 def caption_word_spans(text):
     """Caption-only compounds: do not change the title/selection dictionary."""
@@ -13,6 +15,10 @@ def caption_word_spans(text):
 
 
 def character_anchors(entry):
+    return _character_anchor_result(entry)[0]
+
+
+def _character_anchor_result(entry):
     text = entry.get('zh') or ''
     supplied = entry.get('caption_chars')
     if supplied is not None:
@@ -25,9 +31,33 @@ def character_anchors(entry):
                   start + (end-start)*(i+1)/len(text)) for i, c in enumerate(text)]
     if any(not math.isfinite(a+b) or a > b for _, a, b in atoms):
         raise ValueError('字幕逐字时间无效')
+    adjustments=[]
+    for i,(a,b) in enumerate(zip(atoms,atoms[1:])):
+        if a[2]<=b[1]+.001:continue
+        # Actual Qwen source: 个[1799.96,1800.12] 个[1800.04,1800.12].
+        # Preserve BOTH letters and every start. Only trim the earlier end
+        # to the next observed start; never interpolate, move a start, erase a
+        # repetition, or hide a larger/ordinary/quantity/negation overlap.
+        if (a[0]==b[0] and re.fullmatch(r'[\u4e00-\u9fff]',a[0])
+                and a[0] not in '〇零一二三四五六七八九十百千万亿两不没无非'
+                and a[1]+.02<=b[1] and b[1]<a[2]
+                and a[2]-b[1]<=.100000001 and abs(a[2]-b[2])<=.001):
+            normalized=(a[0],a[1],b[1]);atoms[i]=normalized
+            adjustments.append(dict(character_index=i,original=list(a),normalized=list(normalized)))
     if any(a[1] > b[1] or a[2] > b[1]+.001 for a, b in zip(atoms, atoms[1:])):
         raise ValueError('字幕逐字时间倒退或重叠')
-    return atoms
+    return atoms,adjustments
+
+
+def source_clock_proof(entries):
+    adjustments=[]
+    for i,entry in enumerate(entries):
+        _,changes=_character_anchor_result(entry)
+        adjustments.extend(dict(entry=i,**change) for change in changes)
+    if not adjustments:return None
+    return dict(version=SHARED_END_CLOCK_VERSION,
+        method='trim_shared_end_repeated_character_to_next_observed_start',
+        maximum_overlap_seconds=.1,adjustments=adjustments)
 
 
 def one_line_screens(entries, layout):
