@@ -1,17 +1,14 @@
 name: 国内原位替换已验收的抖动修复版
 on:
-  workflow_run:
-    workflows: [FC production deploy]
-    types: [completed]
+  # Historical one-shot repair, not a recurring deployment hook. Repeating
+  # its immutable async task produces 409; do not evade that guard with a new ID.
   workflow_dispatch:
 permissions:
   contents: write  # Only exact stopped-worker lease cleanup; media state is written by FC.
   actions: write  # Cancel only the positively identified pre-edit overseas attempt.
 jobs:
   apply:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
