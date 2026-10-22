@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 47
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -56,6 +56,15 @@ TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)
 # trailing sentence; never shorten an interior sentence or a complete phrase
 # such as “有没有价值”。
 INCOMPLETE_TAIL = re.compile(r'(?:有没有|能不能|会不会|是不是|要不要|可不可以)[。！!]*\s*$')
+# A standalone degree modifier after a clause boundary still needs its
+# complement, even when ASR adds a full stop. Reject the whole candidate:
+# dropping this sentence could also drop an unfinished condition/qualification.
+# Require an entire bare clause so completed comparisons, names and quoted
+# discussions of words such as “最” are unaffected.
+DANGLING_DEGREE_CLAUSE = re.compile(
+    r'(?:^|[，,；;。！？!?])\s*'
+    r'(?:最|更|更加|最为|更为|较为|比较|非常|十分|格外|相当|特别|越来越)'
+    r'\s*[。！？!?]?\s*$')
 SPEECH_CHANGE = re.compile(
     r'(?:我|我们)(?:接下来|下面|现在).{0,12}(?:谈谈|讲讲|说说|介绍一下)'
     r'|(?:我|我们).{0,4}对(?:今天|当前|现在)的?[^。！？]{0,15}(?:市场|经济)'
@@ -325,6 +334,8 @@ def boundary_error(cues,pick):
             return '选段省略了主持人明确的提问前提；须从原始背景句开始，不以指代问题开场'
         break
     selected=cues[pick['start']:pick['end']+1]
+    if DANGLING_DEGREE_CLAUSE.search(''.join(c['text'] for c in selected)):
+        return '片尾程度词缺少后续内容；保留完整原声句界，不删除未完成条件或猜补谓语'
     units=sentence_units(selected)
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
