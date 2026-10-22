@@ -39088,7 +39088,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Vv4y1b7v6",
@@ -39440,7 +39441,29 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-03-07T03:43:07+00:00"
+   "publish_time": "2023-03-07T03:43:07+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-427a50",
+    "run_id": 39790187250,
+    "artifact_id": 12431398699,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39790187250,
+    "artifact_id": 12431398699,
+    "name": "production-reject-ly-1022-427a50",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1J6mTY1EJX",
@@ -113079,6 +113102,13 @@
    "video_id": "BV1TBUnBZEo5",
    "ts": 1792676853,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"但是你整整整整个这个这个，人们会慢慢的不，地产这一块都忘掉。\", \"suspect_quote\": \"整整整整个这个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的‘整’字及‘这个这个’属于严重口吃或识别冗余，导致语义断裂，无法解释具体含义。\"}, {\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"结过两年结算的是今年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'结过两年'与'今年的'在时间逻辑上存在明显矛盾或表述不清，关键时间节点指代不明，影响对利润表改善时点的理解。\"}, {\"sentence_id\": 9, \"quote\": \"我们我们我们总总总供需平衡的话，呃，房子要买好卖才行。\", \"suspect_quote\": \"我们我们我们总总总供需平衡的话\", \"kind\": \"unintelligible_term\", \"reason\": \"连续重复的'我们'和'总'字属于严重口吃或识别冗余，导致句子结构混乱，无法准确提取主语和条件状语。\"}, {\"sentence_id\": 15, \"quote\": \"再过几年，大多数房产是无任何价值。\", \"suspect_quote\": \"大多数房产是无任何价值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'无任何价值'中的否定词'无'与数量词'大多数'搭配后，语义指向模糊（是部分房产完全无价值，还是整体趋势），且缺乏具体范围界定，属于含义不明的关键否定表述。\"}, {\"sentence_id\": 16, \"quote\": \"给你一个，嗯，都不要太多了。\", \"suspect_quote\": \"给你一个，嗯，都不要太多了\", \"kind\": \"unintelligible_term\", \"reason\": \"'给你一个'后接'嗯'及'都不要太多了'，主语缺失且动作对象不明（给什么？），结合上下文无法确定具体建议内容，属于含义不明的关键短语。\"}, {\"sentence_id\": 17, \"quote\": \"我们这一代人的去世，或者我们的父母去世，腾出来都是空房。\", \"suspect_quote\": \"我们这一代人的去世，或者我们的父母去世\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'去世'作为事件描述，在此处与'腾出来都是空房'的因果逻辑关联不明，且'这一代人'与'父母'的时间跨度表述模糊，属于含义不明的关键指代。\"}]"
+  },
+  {
+   "slug": "ly-1022-427a50",
+   "key": "bilibili_search:BV1P24y1b73e",
+   "video_id": "BV1P24y1b73e",
+   "ts": 1792679394,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
