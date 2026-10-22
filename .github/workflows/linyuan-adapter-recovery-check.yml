@@ -1,0 +1,25 @@
+name: 网易下载器修复后旧失败任务真实回放（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-adapter-recovery-20261022, main]
+    paths:
+      - .github/workflows/linyuan-adapter-recovery-check.yml
+      - linyuan/check_adapter_recovery.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 核对实际失败任务、对应代码修复和一次性恢复资格
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/check_adapter_recovery.py
