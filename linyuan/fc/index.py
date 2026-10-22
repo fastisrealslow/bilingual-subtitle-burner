@@ -3801,6 +3801,17 @@ def _collect_source_rejections(st):
 
 def _recover_preflight_failure(st, candidate, run, artifacts):
     """Resume preflight failures, plus the two inspected obsolete-title failures."""
+    # Historical fresh-source ASR preparation had no step ID, so the failure
+    # reporter saw no failed step and uploaded no production-reject artifact.
+    # Only exact job metadata and a matching preparation-code fix can reopen
+    # this path; no generic rendering or content rejection is recoverable here.
+    asr_prepare_eligible=bool(candidate and candidate.get('source_url')
+        and not candidate.get('failed') and not candidate.get('repair_bvid')
+        and candidate.get('slug') not in st.get('published',{})
+        and candidate.get('slug') not in REVIEW_PAUSED_SLUGS)
+    if asr_prepare_eligible:
+        from source_admission_guard import restriction
+        asr_prepare_eligible=not restriction(candidate['source_url'],[])
     # Exact inspected failure: native 1838x864 cleaning passed, but the old
     # question branch forced a 272x202 face crop. One repair after routing to
     # verified native video; preserve the historical retry counters.
@@ -3811,7 +3822,7 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
         and candidate.get('source_quality_rejected')
         and candidate.get('failure_stage')=='editorial-or-render'
         and candidate.get('last_error')==native_crop_error)
-    if (not candidate or not (candidate.get('reprocessing_quality') or
+    if (not candidate or not (asr_prepare_eligible or candidate.get('reprocessing_quality') or
             candidate.get('source_check_run_id') and int(candidate.get('source_check_attempts') or 0)>0)
             or (candidate.get('failed') and not inspected_native_rejection)
             or not _has_unpublished_part(candidate, st)
@@ -3842,8 +3853,13 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
         and all(s.get('name')==restore_step for s in failed)
         and any(s.get('name')=='素材质量门禁' and s.get('conclusion')=='success'
                 for j in jobs for s in j.get('steps',[])))
-    if not candidate.get('reprocessing_quality') and not restore_failure:return False
-    expected_step=restore_step if restore_failure else '出片' if stock_title or native_interview else gate
+    asr_prepare_failure=bool(asr_prepare_eligible and failed
+        and all(s.get('name')=='准备CPU离线Qwen识别及逐字对齐' for s in failed)
+        and any(s.get('name')=='素材质量门禁' and s.get('conclusion')=='success'
+                for j in jobs for s in j.get('steps',[])))
+    if not candidate.get('reprocessing_quality') and not restore_failure and not asr_prepare_failure:return False
+    expected_step=('准备CPU离线Qwen识别及逐字对齐' if asr_prepare_failure else restore_step
+                   if restore_failure else '出片' if stock_title or native_interview else gate)
     if not failed or any(s.get('name') != expected_step for s in failed):
         return False
     # State/log-only commits do not fix a test failure. Require a changed
@@ -3855,6 +3871,8 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
     if native_interview and 'linyuan/produce_cn.py' not in changed:
         return False
     if restore_failure and 'linyuan/restore_production_evidence.py' not in changed:
+        return False
+    if asr_prepare_failure and 'linyuan/prepare_asr_runtime.py' not in changed:
         return False
     if not any((p.startswith('linyuan/') and '/fc/' not in p and p.endswith('.py'))
                or (p.startswith('tests/') and p.endswith('.py'))
@@ -3869,8 +3887,8 @@ def _recover_preflight_failure(st, candidate, run, artifacts):
         candidate['recovered_render_failure']={
             'run_id':run['id'],'reason':native_crop_error,'ts':int(time.time())}
     candidate['preflight_failure_run_id'] = run['id']
-    candidate['failure_stage'] = 'cache-recovery' if restore_failure else 'native-interview' if native_interview else 'stock-title' if stock_title else 'workflow-preflight'
-    candidate['last_error'] = ('旧取源失败记录不含ASR，缓存恢复已修复，复用本次已通过质检的完整母片' if restore_failure else '横屏原画已验收，旧代码强制放大远景人脸失败；保留原区间以原画恢复'
+    candidate['failure_stage'] = 'asr-preparation-runtime' if asr_prepare_failure else 'cache-recovery' if restore_failure else 'native-interview' if native_interview else 'stock-title' if stock_title else 'workflow-preflight'
+    candidate['last_error'] = ('旧识别准备步骤失败未生成报告；对应准备代码已修复，恢复当前完整CPU识别，不导入空任务证据' if asr_prepare_failure else '旧取源失败记录不含ASR，缓存恢复已修复，复用本次已通过质检的完整母片' if restore_failure else '横屏原画已验收，旧代码强制放大远景人脸失败；保留原区间以原画恢复'
                                if native_interview else '旧库存标题在渲染前被拦；自动文案规则已修复，保持原区间重做'
                                if stock_title else '旧代码回归失败，未进入取源/出片；代码已更新，使用当前版本恢复')
     candidate['source_check_retry_after'] = int(time.time()) - 1

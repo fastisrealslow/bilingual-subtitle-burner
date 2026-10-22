@@ -191,6 +191,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: python prepare_asr_runtime.py cache --source-report "deliver/$RUN_SLUG/_tmp/source_quality.json"
     - name: 准备CPU离线Qwen识别及逐字对齐
+      id: asr_prepare
       if: env.ASR_BACKEND == 'qwen3' && env.ASR_EVIDENCE_READY != 'true'
       env:
         GH_TOKEN: ${{ github.token }}
@@ -328,6 +329,7 @@ jobs:
       if: failure()
       env:
         PRODUCTION_STEPS: ${{ toJSON(steps) }}
+        PRODUCTION_JOB_STATUS: ${{ job.status }}
       run: python production_failure_report.py
     - name: 保存已经完成的文本推理（后续失败仍保留）
       if: always() && steps.llm-cache.outcome == 'success' && steps.render.outcome != 'skipped'
