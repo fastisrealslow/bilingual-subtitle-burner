@@ -1,0 +1,25 @@
+name: 实验供片与普通横屏库存隔离回放（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-experiment-retry-layout-20261022]
+    paths:
+      - .github/workflows/linyuan-experiment-retry-layout-check.yml
+      - linyuan/check_experiment_retry_layout.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 用真实库存核对普通库存不能替代实验库存，明确这是调度场景回放
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/check_experiment_retry_layout.py

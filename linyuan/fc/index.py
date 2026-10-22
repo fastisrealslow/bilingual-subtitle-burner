@@ -2393,6 +2393,14 @@ def landscape_admission_deficit(inventory, state, active_runs):
     return max(0,TARGET_LANDSCAPE_RESERVE-int(inventory.get('verified_landscape',0))-len(planned))
 
 
+def retry_supply_needed(entry, landscape_admissions, experiment_needs):
+    """Ordinary landscape stock cannot stand in for missing treatment stock."""
+    if entry.get('output_layout')!='landscape' or landscape_admissions>0:
+        return True
+    return (entry.get('editorial_profile')==experiment.TREATMENT
+            and experiment_needs.get('landscape',0)>0)
+
+
 def _dispatch_admitted(event=None, context=None):
     st = load_state()
     # Production/source gate failures happen in Actions after dispatch returns.
@@ -2510,11 +2518,14 @@ def _dispatch_admitted(event=None, context=None):
     # candidate with backoff, bounded by the same six-running-source limit.
     for entry in sorted(_latest_dispatches(st),key=lambda e:float(e.get('source_check_retry_after') or 0)):
         if recent_probe: break
-        if story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY:break
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
-        if entry.get('output_layout')=='landscape' and landscape_admissions<=0:continue
+        if (story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY
+                and not (entry.get('editorial_profile')==experiment.TREATMENT
+                         and exp_needs.get(entry.get('output_layout'),0)>0)):
+            continue
+        if not retry_supply_needed(entry,landscape_admissions,exp_needs):continue
         source=entry.get('asset_url') or entry.get('source_url')
         if not source:continue
         gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{
@@ -2533,6 +2544,9 @@ def _dispatch_admitted(event=None, context=None):
         save_state(st)
         success+=1
         if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
+        if entry.get('editorial_profile')==experiment.TREATMENT:
+            layout=entry.get('output_layout')
+            if layout in exp_needs:exp_needs[layout]=max(0,exp_needs[layout]-1)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
     # The ledger may have no NEW admitted long mothers. Reuse verified raw
