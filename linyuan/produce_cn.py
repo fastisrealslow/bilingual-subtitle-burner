@@ -3621,12 +3621,25 @@ TITLE_STYLE_PROFILE = current_title_style_profile()
 # wine/AI claims from style examples despite the "not facts" instruction.
 
 
-def _copy_style_identity(speaker):
+def title_draft_profile(speaker, story_evidence=None):
+    if speaker != '林园':return 'production'
+    import publishing_experiment as experiment
+    selected=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')
+    if selected is None:
+        # Company Q&A can name the company in the host's question while the
+        # guest explicitly answers its reason. Keep its existing reviewed
+        # path; do not require an untested literal guest-name repetition.
+        personal=not isinstance(story_evidence,dict) or story_evidence.get('kind')=='personal_story'
+        selected=('answer_subject' if experiment.profile()==experiment.TREATMENT and personal else 'production')
+    if selected not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
+        raise ValueError('未知标题草拟配置')
+    return selected
+
+
+def _copy_style_identity(speaker, story_evidence=None):
     if speaker != '林园':
         return {}
-    profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production')
-    if profile not in ('production','concise','source_limits','spoken_focus','source_choices','answer_focus','answer_subject'):
-        raise ValueError('未知标题草拟配置')
+    profile=title_draft_profile(speaker,story_evidence)
     import publishing_experiment as experiment
     editorial_profile=experiment.profile()
     return dict(title_style_profile=current_title_style_profile(),
@@ -3742,7 +3755,7 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    'text_backend':TEXT_BACKEND,
                    'text_model':LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else list(MODELS),
                    'speaker':speaker,'occasion':occasion,'reviewed_title':reviewed_title,
-                   **_copy_style_identity(speaker),
+                   **_copy_style_identity(speaker,story_evidence),
                    **({'story_evidence':story_evidence} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
                    **({'reviewed_cover':reviewed_cover} if reviewed_cover else {})}
@@ -3812,21 +3825,14 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
-        if story_evidence:
-            from publishing_experiment import story_title_prompt, title_focus
-            prompt=story_title_prompt(prompt,schema,story_evidence)
-            prompt+=('\n这条故事的标题必须在前半句写明具体对象，并保留实际理由/细节原词；'
-                     '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。'
-                     '以下仅是原文定位词，不批准任何事实或提问前提：'
-                     +json.dumps(title_focus(story_evidence),ensure_ascii=False))
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
-        profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'
+        profile=title_draft_profile(speaker,story_evidence)
         if drafting and profile!='production':
             from title_draft_profiles import (concise_messages,source_limits_messages,source_limits_schema,
                 spoken_focus_messages,spoken_focus_schema,source_choices_messages,source_choices_schema)
             if profile in ('source_choices','answer_focus','answer_subject'):
-                schema=source_choices_schema(schema)
+                schema=source_choices_schema(schema,same_answer=profile=='answer_subject')
                 messages=source_choices_messages(messages,schema,same_answer=profile in ('answer_focus','answer_subject'))
             elif profile=='spoken_focus':
                 schema=spoken_focus_schema(schema)
@@ -3836,6 +3842,16 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                 messages=source_limits_messages(messages,schema)
             else:
                 messages=concise_messages(messages,schema)
+        if story_evidence:
+            from publishing_experiment import story_title_prompt, title_focus
+            # Apply the experiment instructions AFTER a drafting profile has
+            # rebuilt its prompt. Otherwise its natural-copy transformation
+            # can discard the choice/reason requirement from the instruction.
+            messages[0]['content']=story_title_prompt(messages[0]['content'],schema,story_evidence)
+            messages[0]['content']+=('\n这条故事的标题必须写明具体对象，并保留实际理由/细节原词；'
+                '并列动作理由须同时保留两个动作，不能只取其中一个；这只是字词覆盖，不批准否定、条件、主体或投资义务。'
+                '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。原文定位词：'
+                +json.dumps(title_focus(story_evidence),ensure_ascii=False))
         if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
             print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
@@ -3846,12 +3862,13 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                    read_cache=not any(k in schema.get('properties',{}) for k in ('a_reading','c_guest_spans','c_sentence_roles','b_focus','c_candidates')))
         (work/f'title_response{suffix}-{title_call_number}.txt').write_text(response)
         return response
+    draft_profile=title_draft_profile(speaker,story_evidence)
     try:
         d=generate(transcript_text,speaker,existing_titles or [],structured_model=title_model,
                    preferred=reviewed_title,source_cues=[cues[i]['text'] for i in sel],
                    **({'editorial_focus':__import__('publishing_experiment').title_focus(story_evidence)} if story_evidence else {}),
                    **({'prefer_reviewed_quote':True} if prefer_reviewed_quote else {}),
-                   **({'answer_focus':True,'answer_subject':os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE')=='answer_subject'} if speaker=='林园' and os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE') in ('answer_focus','answer_subject') else {}))
+                   **({'answer_focus':True,'answer_subject':draft_profile=='answer_subject'} if draft_profile in ('answer_focus','answer_subject') else {}))
         if speaker == '林园' and d['title_rewrite'].get('review', {}).get('method') == 'cpu_text_review':
             d['title_rewrite']['style_profile'] = TITLE_STYLE_PROFILE
         problem=title_quality_error(d['title'],speaker,transcript_text,existing_titles,

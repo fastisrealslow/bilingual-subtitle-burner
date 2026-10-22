@@ -145,10 +145,20 @@ def answer_reading_units(cues, speaker='林园'):
     units=[];current='';previous=None
     for i,cue in enumerate(cues):
         boundary=(i in host,i in other)
+        # The leading host preface can span several display cues, with the
+        # explicit question only in the final cue (actual "周期复"/"苏").
+        # Keep that unfinished, question-framed preface with its question.
+        # Never cross a prior complete sentence, named handoff, later turn,
+        # other guest, or an explicit first-person guest declaration.
+        leading_question=(not units and current and previous==(False,False)
+            and boundary==(True,False) and i not in handoffs and re.search(r'[？?]',cue)
+            and re.match(r'^(?:[嗯啊呃哦，,\s]|那么|那)*(?:对于|我们(?:想|可能|可)|我想问|请问|想请教|如果|假如|假设)',current)
+            and not re.search(r'我(?!们|想问|想请教)',current))
         # Do not glue an excluded question/other speaker to an eligible reply.
         # If punctuation is absent, keep the original cue boundary at 200
         # characters rather than cutting an arbitrary word or inventing a stop.
-        if current and (boundary!=previous or i in handoffs or len(current)+len(cue)>200):
+        if current and ((boundary!=previous and not leading_question)
+                        or i in handoffs or len(current)+len(cue)>200):
             units.append(current);current=''
         previous=boundary
         start=0
@@ -329,6 +339,17 @@ def explicit_host_cues(units):
             continue
         if markers.search(body):host=True
         elif host:
+            # Actual Oct22 story d83: "他们都会，但是我这个人还比较专心。"
+            # answers a finished addressed question. The old sticky flag hid
+            # this AND every subsequent answer, even after three independent
+            # readings identified the reply. End only the deterministic ban;
+            # the reader/reviewer must still attribute every original cue.
+            if (i and re.search(r'[？?][”’」』\"]?\s*$',units[i-1])
+                    and re.fullmatch(r'(?:他|她|它)(?:们)?(?:都)?(?:会|可以|是)'
+                        r'[^，,。！？!?]{0,8}[，,](?:但是|但|不过|而)(?:我|我们)'
+                        r'[^。！？!?]{2,36}。[”’」』\"]?',text)
+                    and not re.search(r'你|您|请教|请问|想问|想知道|我来总结|听懂|意思是',text)):
+                host=False
             # Real run 37813937032: the completed bull-market question
             # precedes "尽管...牛市初期...但是我们相信...趋势已经形成了。"
             # Sticky exclusion hid every substantive guest answer despite the
@@ -732,6 +753,32 @@ def negative_actor_error(title, cover, transcript):
     return None
 
 
+def human_condition_actor_error(title, cover, transcript):
+    """An explicit human-demand condition cannot silently become the investor.
+
+    Actual d83 replay: the source says "除非这个人不吃不喝了", but both
+    copies became "除非变机器人，我少不了投消费". Omitting that subject
+    changes who undergoes the condition and produces an unnatural claim.
+    This is a narrow literal condition guard, not general coreference proof.
+    """
+    if not re.search(r'除非(?:这|那)?个人[^。！？!?]{0,40}(?:吃|喝|机器人)',transcript or ''):
+        return None
+    for copy in (title, cover):
+        value=re.sub(r'^[^：:]+[：:]', '',copy or '')
+        # The same actual critic borrowed "他少不了" (human needs) to
+        # justify "我少不了投消费" (an invented personal necessity). Naming
+        # 人 in the first clause alone cannot repair that actor/predicate swap.
+        if (re.search(r'(?:他|她|人|大家)[^。！？!?，,]{0,6}少不了',transcript)
+                and re.search(r'(?:少不了|必须|不得不)(?:投|买|持有)|(?:我|人|大家|人人)[^，,。！？!?]{0,4}就得(?:投|买|持有)',value)
+                and not re.search(r'(?:少不了|必须|不得不)(?:投|买|持有)|(?:我|人|大家|人人)[^，,。！？!?]{0,4}就得(?:投|买|持有)',transcript)):
+            return '原话少不了的是人对吃喝的需求，不是我不得不投资；保留人的需求与本人的实际选择，不能拼接不同主体的动作'
+        for condition in re.findall(r'除非[^，,。！？!?；;]{1,32}',value):
+            if (re.search(r'吃|喝|机器人',condition)
+                    and not re.match(r'除非(?:(?:这|那|每)个|所有|全体)?(?:人(?:们|类)?|大家|消费者)',condition)):
+                return '原话的条件主体是人是否仍需吃喝；标题和封面写除非时须明确保留这个主体，不能变成投资者本人变机器人'
+    return None
+
+
 def hypothetical_clause_error(title, cover, transcript):
     """Keep an explicit hypothesis attached to a literally reused premise.
 
@@ -823,6 +870,9 @@ def forecast_copy_error(title, cover, transcript):
     actor_issue = negative_actor_error(title, cover, transcript)
     if actor_issue:
         return actor_issue
+    human_condition_issue = human_condition_actor_error(title, cover, transcript)
+    if human_condition_issue:
+        return human_condition_issue
     clause_issue = hypothetical_clause_error(title, cover, transcript)
     if clause_issue:
         return clause_issue
@@ -1585,11 +1635,15 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                         if bound_subject:
                             item=require_answer_subject(item,bound_subject)
                         bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
-                    except (ValueError, TypeError, KeyError, AttributeError):
-                        bound.append({})
+                    except (ValueError, TypeError, KeyError, AttributeError) as exc:
+                        # Keep the failed check, not an empty sibling. Actual
+                        # answer_subject drafts omitted the object/main-answer
+                        # evidence, but feedback only said "title is not text".
+                        # This records a rejection; it never repairs a draft.
+                        bound.append({'_binding_error':str(exc)})
                 candidates = bound
             from publishing_experiment import title_focus_error
-            errors = [((title_focus_error(c.get('title'),editorial_focus,speaker,c.get('cover_title')) if editorial_focus else None)
+            errors = [(c.get('_binding_error') or (title_focus_error(c.get('title'),editorial_focus,speaker,c.get('cover_title')) if editorial_focus else None)
                        or _candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             # Review every distinct, structurally valid draft in this attempt.

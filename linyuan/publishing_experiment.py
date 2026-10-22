@@ -327,14 +327,25 @@ def story_title_prompt(prompt,schema,evidence):
     fields=schema.get('properties',{})
     if not evidence or not any(k in fields for k in ('a_guest_answer','a_reading','c_candidates','reviews')):
         return prompt
+    focus_field='b_focus' if 'b_focus' in fields else 'a_focus'
     prompt=prompt.replace('不要把主持人的猜测或一处举例当成中心观点。',
         '不能把主持人的猜测当成嘉宾结论。本片选题就是下列具体事例，中心是嘉宾在这件事上的实际选择或判断及其原因。')
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
         'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
+    # The answer drafting profile permits an action-only title. Appending a
+    # contradictory story instruction left all three real d83 drafts without
+    # their reason. Override only this experiment, never baseline review.
+    prompt=prompt.replace(
+        '标题谈具体做法时，只写对象和实际动作也可以，不必把全段的理由、背景、数据都塞进去。',
+        '本片标题必须同时交代具体对象、本人实际选择和下方detail_quote中的一条理由；'
+        '只写对象与动作、只写自我评价不够。不要堆全段背景或数据。')
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
-        '再表达本人理由；理由优先保留细节原句里的关键名词，不换成别的对象的增长或爆发。'
+        f'再表达本人理由；拟稿的{focus_field}.a_claim先说全选择与理由，'
+        'b_evidence_ids同时引用选择、具体对象和该理由对应的嘉宾编号；'
+        '不能只在证据里写理由，实际title也须呈现。封面可以简短，但对象和判断不能变。'
+        '理由优先保留细节原句里的实际动作或关键名词，不换成别的对象的增长或爆发。'
         '拟稿像本人随口讲清一件事：具体选择加一条最直接理由，正文优先16至26字，'
         '不为了字数截断、不省略必要条件。若细节原句已明确命名理论或选择标准，'
         '直接沿用这个原词，不必把背景时点、程度描述和整条推理链都串进标题。'
@@ -366,9 +377,25 @@ def title_focus(selection):
         compound=[a.word+b.word for a,b in zip(words,words[1:])
                   if a.word in tokens and b.word in tokens and len(a.word+b.word)<=10]
         return list(dict.fromkeys(compound or tokens))[:6]
+    detail=selection.get('detail_quote','')
+    # A concrete reason can be a complete verb phrase, not just a noun.
+    # Actual d83: selecting only "机器人" forced otherwise faithful drafts
+    # to manufacture awkward necessity claims. "不吃不喝" is an intact
+    # four-character source phrase, including BOTH original negations. It is
+    # only a literal alternative anchor; attribution/conditions and independent
+    # factual/readability review still apply. No paraphrase or transcript edit.
+    parallel_negation=re.findall(r'不[\u4e00-\u9fff]不[\u4e00-\u9fff]',detail)
+    verb_pairs=[]
+    for phrase in parallel_negation:
+        pair=[phrase[1],phrase[3]]
+        # Both actual actions must occur, not just one convenient character.
+        # Numeric/adjectival patterns such as 不三不四 cannot form this group.
+        if pair[0]!=pair[1] and all(list(jieba.posseg.cut(word))[0].flag.startswith('v') for word in pair):
+            if pair not in verb_pairs:verb_pairs.append(pair)
     return dict(subjects=terms(selection.get('subject_quote',''),True)
                 if selection.get('kind')=='company_case' else [],
-                details=terms(selection.get('detail_quote','')),
+                details=list(dict.fromkeys(parallel_negation+terms(detail)))[:6],
+                **{'detail_verbs_'+str(i):pair for i,pair in enumerate(verb_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
@@ -378,8 +405,10 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
-    if focus.get('details') and not any(t in body for t in focus['details']):
-        return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
+    groups=[v for k,v in focus.items() if k.startswith('detail_verbs_')]
+    if (focus.get('details') and not any(t in body for t in focus['details'])
+            and not any(all(term in body for term in group) for group in groups)):
+        return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])+('；动作理由须同时保留：'+str(groups) if groups else '')
     # Real CPU drafts repeatedly collapsed an income-level background clause
     # into a new income-boom claim. Independent model reviews approved it.
     # Require an explicit original phrase for this stronger claim, not a word
