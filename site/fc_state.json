@@ -38631,21 +38631,22 @@
    "publish_time": "2026-10-20T08:10:13+00:00",
    "production_failure_summary": {
     "slug": "ly-1021-cb558f",
-    "run_id": 39583374717,
-    "artifact_id": 12344410495,
+    "run_id": 39763171061,
+    "artifact_id": 12423141252,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
      }
     ]
    },
-   "source_check_report_id": 12344410495,
-   "source_check_run_id": 39583374717,
-   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_check_report_id": 12423141252,
+   "source_check_run_id": 39763171061,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1792672433
   },
   {
    "key": "bilibili_search:BV1Wupc6vEF2",
@@ -39060,14 +39061,10 @@
    "recovery_origin_run_id": 39727961165,
    "production_failure_summary": {
     "slug": "ly-story-247381035b",
-    "run_id": 39761175996,
-    "artifact_id": 12420735699,
+    "run_id": 39771129440,
+    "artifact_id": 12424245970,
     "accepted": 0,
     "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
      {
       "stage": "part-quality",
       "reason": "整段取景预检：源 2094.10s，来源角标覆盖必须保留的人脸或头顶区域"
@@ -39084,9 +39081,17 @@
    },
    "source_check_report_id": 12420735699,
    "source_check_run_id": 39761175996,
-   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "整段取景预检：源 2094.10s，来源角标覆盖必须保留的人脸或头顶区域",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39771129440,
+    "artifact_id": 12424245970,
+    "name": "production-reject-ly-story-247381035b",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "video_id": "BV1se411H7tj",
@@ -112178,6 +112183,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/fxzNhXCMlx08BLdXwyQg01041201mrSq0E010.mp4",
    "ts": 1792666482,
    "error": "整段取景预检：源 147.00s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-story-247381035b",
+   "key": "ly-story-247381035b",
+   "video_id": "BV1iPQuYXEaT",
+   "ts": 1792670624,
+   "error": "整段取景预检：源 2094.10s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
