@@ -1,0 +1,89 @@
+name: 观点证据跨越主持人提问CPU回放（不入库不投稿）
+on:
+  push:
+    branches: [codex/linyuan-claim-span-20261022]
+    paths:
+      - linyuan/editorial_evidence.py
+      - linyuan/produce_cn.py
+      - linyuan/publishing_experiment.py
+      - linyuan/check_claim_span.py
+      - .github/workflows/linyuan-claim-span-check.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      TEXT_BACKEND: local
+      LOCAL_LLM_MODEL: qwen3.5:9b
+      LOCAL_LLM_URL: http://127.0.0.1:11434/api/chat
+      LOCAL_LLM_TIMEOUT_SEC: '600'
+      LINYUAN_EDITORIAL_PROFILE: field-story-v1
+      LINYUAN_AUTOMATIC_ONLY: 'true'
+      SOURCE_EDITORIAL_FIRST: 'true'
+      CUDA_VISIBLE_DEVICES: ''
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装与当前标题实产相同的CPU运行依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends zstd
+          pip install -q jieba pillow numpy
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen35-9b-v1
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+      - name: 启动固定版本本地模型，不使用云API
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ollama-runtime
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "$OLLAMA_SHA256  $archive" | sha256sum -c -; then
+            curl -fsSL --retry 3 --max-time 600 -o /tmp/ollama-reply-download.tar.zst \
+              "https://github.com/ollama/ollama/releases/download/$OLLAMA_VERSION/ollama-linux-amd64.tar.zst"
+            echo "$OLLAMA_SHA256  /tmp/ollama-reply-download.tar.zst" | sha256sum -c -
+            mv /tmp/ollama-reply-download.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+            ollama serve > /tmp/ollama-claim-span.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull qwen3.5:9b
+          python - <<'PY'
+          import json,urllib.request
+          payload=dict(model='qwen3.5:9b',messages=[dict(role='user',content='Reply ready')],
+              stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))
+          request=urllib.request.Request('http://127.0.0.1:11434/api/chat',
+              data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'})
+          with urllib.request.urlopen(request,timeout=600) as response:
+              assert json.load(response).get('message',{}).get('content')
+          PY
+      - name: 完整保留真实失败选段，重新独立核对观点、理由和主持人边界
+        run: python -u linyuan/check_claim_span.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: claim-span-verification
+          path: claim-span-verification/
+          retention-days: 30
+          if-no-files-found: error
+
