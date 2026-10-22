@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 51
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -125,6 +125,28 @@ HOST_BRIDGE = re.compile(
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
     r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
     r'|'+HOST_RECAP)
+
+# An interviewer can introduce the guest's fund performance with a statement,
+# before asking any question. Sentence punctuation alone does not make that
+# introduction a completed answer. Keep the rule directed and concrete: a
+# guest's own account, quoted speech and ordinary market observations remain.
+HOST_ATTENTION_PREAMBLE = re.compile(
+    r'^(?:(?:那(?:么)?|近|最近|这|过去|今年|目前|现在)'
+    r'[^。！？!?“”"「」：:我您你他她]{0,32}[，,]\s*)?'
+    r'(?:[呃啊嗯][，,\s]*)*'
+    r'(?:您|你)(?:的|所管理的|管理的)'
+    r'(?:产品|基金|投资组合|账户)(?:净值|业绩|表现|收益|回撤)'
+    r'(?:也|一直|最近|目前|现在|都|已经|[，,\s])*'
+    r'(?:备受|受到|引起|引发)[^。！？!?“”"「」：:]{0,18}'
+    r'(?:关注|关心|讨论|热议)[。！!]*\s*$')
+
+
+def host_attention_preamble(text):
+    return bool(HOST_ATTENTION_PREAMBLE.fullmatch(text))
+
+
+def host_bridge(text):
+    return bool(HOST_BRIDGE.search(text) or host_attention_preamble(text))
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
@@ -336,7 +358,8 @@ def boundary_error(cues,pick):
         if promotional_cta(u['text']):return '选段包含原片带货收尾，须在原始句界结束，不能保留小黄车广告'
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
-        if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
+        if (FOLLOWUP.search(u['text']) or host_attention_preamble(u['text'])
+                or (i and HOST_BRIDGE.search(u['text']))):
             question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
                 return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
@@ -370,7 +393,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         premise=host_premise_start(units,cues,q,lower)
         if premise is not None:starts[k]=premise
         for t in range(max(lower,q-3),q):
-            if leadin.search(units[t]['text']) and not question_unit(units[t]['text']):
+            if (leadin.search(units[t]['text']) or host_attention_preamble(units[t]['text'])) and not question_unit(units[t]['text']):
                 starts[k]=t;break
         # Keep the named hand-off's premise with its actual question. Real
         # source8 says 林总之前...四千五百点 before asking 您的这个观点...;
@@ -397,8 +420,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if j is None:
             turn_ends.append(None);continue
         j=min([j]+[t-1 for t in transitions if i<t<=j])
-        j=min([j]+[t-1 for t in range(i+1,j+1) if HOST_BRIDGE.search(units[t]['text'])])
-        while j>i and (HOST_BRIDGE.search(units[j]['text'])
+        j=min([j]+[t-1 for t in range(i+1,j+1) if host_bridge(units[t]['text'])])
+        while j>i and (host_bridge(units[j]['text'])
                 or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])
                 or INCOMPLETE_TAIL.search(units[j]['text'])):j-=1
         turn_ends.append(j)
