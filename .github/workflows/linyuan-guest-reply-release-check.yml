@@ -1,0 +1,75 @@
+name: 真实回答排除边界与默认标题实测（不入库不投稿）
+on:
+  push:
+    branches: [codex/linyuan-guest-reply-release-20261023]
+    paths: [linyuan/title_rewrite.py, linyuan/check_guest_reply_release.py, .github/workflows/linyuan-guest-reply-release-check.yml]
+permissions:
+  contents: read
+  actions: read
+env:
+  TEXT_BACKEND: local
+  LOCAL_LLM_MODEL: qwen3.5:9b
+  LOCAL_LLM_TIMEOUT_SEC: '600'
+  CUDA_VISIBLE_DEVICES: ''
+  LINYUAN_AUTOMATIC_ONLY: 'true'
+  LINYUAN_EDITORIAL_PROFILE: field-story-v1
+  CONTENT_POLICY: reference_v1
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q jieba pillow numpy
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen35-9b-v1
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+      - name: 同生产固定 CPU 模型，禁止云 API
+        env:
+          OLLAMA_VERSION: v0.33.3
+          OLLAMA_SHA256: c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ollama-runtime
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "${OLLAMA_SHA256}  $archive" | sha256sum -c -; then
+            curl -fsSL --retry 3 --max-time 600 -o /tmp/guest-reply-ollama.tar.zst \
+              "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+            echo "${OLLAMA_SHA256}  /tmp/guest-reply-ollama.tar.zst" | sha256sum -c -
+            mv /tmp/guest-reply-ollama.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 \
+            ollama serve > /tmp/guest-reply-ollama.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$LOCAL_LLM_MODEL"
+          python -c 'import json,os; print(json.dumps(dict(model=os.environ["LOCAL_LLM_MODEL"],messages=[dict(role="user",content="Reply ready")],stream=False,think=False,options=dict(temperature=0,num_predict=8,num_ctx=16384))))' > /tmp/guest-reply-warmup.json
+          curl -fsS --max-time 600 http://127.0.0.1:11434/api/chat \
+            -H 'Content-Type: application/json' --data-binary @/tmp/guest-reply-warmup.json \
+            | python -c 'import json,sys; assert (json.load(sys.stdin).get("message") or {}).get("content")'
+      - name: 当前默认写稿器完整真实阅读、生成、独立复核
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u linyuan/check_guest_reply_release.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: guest-reply-release-verification
+          path: |
+            guest-reply-release-verification/
+            /tmp/guest-reply-ollama.log
+          if-no-files-found: error
