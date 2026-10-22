@@ -7162,20 +7162,45 @@
       "role": "reference",
       "family": "unresolved",
       "priority": 1,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 0,
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "last_attempt_at": 1792682486.0102806,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "8e75f5f4f9b000269c8156ddc255cf9de996de4ee094fd89f0e99dab70f9b725",
+        "duration_sec": 187.366625,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 93.68
+          }
+        ],
+        "audio_fingerprint_count": 1492,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39803510675"
     },
     "6d3372e284288eabbfdb": {
       "url": "https://www.bilibili.com/video/BV1bPnp6hE37",
       "role": "reference",
       "family": "unresolved",
       "priority": 1,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 0,
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_attempt_at": 1792675906.1724627,
       "next_retry_at": 0,
       "last_error": null,
@@ -7207,10 +7232,14 @@
       "role": "reference",
       "family": "unresolved",
       "priority": 1,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "CalledProcessError",
+      "last_attempt_at": 1792682408.2751513,
+      "next_retry_at": 1792704008.2751513,
+      "download_partial_bytes": 0
     },
     "439244b17afcffc66936": {
       "url": "https://www.bilibili.com/video/BV1xgnp64EHs",
@@ -7231,20 +7260,45 @@
       "role": "reference",
       "family": "unresolved",
       "priority": 1,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 0,
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "last_attempt_at": 1792682506.3385773,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "360ffe66670fd5066c5adb3460fc4dceafd5f504c67d5765bc047615ebb9ea61",
+        "duration_sec": 42.166625,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 21.08
+          }
+        ],
+        "audio_fingerprint_count": 319,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39803510675"
     },
     "3304160dd4ebe2dca774": {
       "url": "https://www.bilibili.com/video/BV1F1n26DEjF",
       "role": "reference",
       "family": "unresolved",
       "priority": 1,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 0,
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_attempt_at": 1792675839.933391,
       "next_retry_at": 0,
       "last_error": null,
@@ -7315,18 +7369,24 @@
       "last_attempt_at": 1792675787.9282248
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792595716.3949153,
-      "next_retry_at": 1792638916.3949153,
+      "next_retry_at": 1792703973.1472378,
       "found": 3,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792682373.1472378
     },
     "investor_call|林园 投资者连线 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792595716.3949153,
-      "next_retry_at": 1792638916.3949153,
+      "next_retry_at": 1792703973.1472378,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792682373.1472378
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
       "status": "searched",
@@ -7391,14 +7451,7 @@
   "reference_refresh": {
     "status": "retry_next_run",
     "error": "RuntimeError",
-    "new_bvids": [
-      "BV1EWnp6mEY8",
-      "BV1F1n26DEjF",
-      "BV1Pin26oEBZ",
-      "BV1WVnp6xE9T",
-      "BV1bPnp6hE37",
-      "BV1xgnp64EHs"
-    ],
+    "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
       "collection_listing_complete": true,
@@ -7406,8 +7459,8 @@
       "errors": []
     }
   },
-  "search_cursor": 7,
-  "updated_at": 1792675906,
-  "last_run_id": "39786925996",
+  "search_cursor": 10,
+  "updated_at": 1792682506,
+  "last_run_id": "39803510675",
   "audio_match_candidates": []
 }
