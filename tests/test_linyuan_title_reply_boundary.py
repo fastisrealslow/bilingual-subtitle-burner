@@ -55,6 +55,8 @@ def test_actual_cpu_draft_cannot_change_people_condition_to_investor_condition()
     assert title.forecast_copy_error('林园：'+also_bad,also_bad,source)
     subject_omitted='除非人变机器人，不然少不了投吃喝'
     assert title.forecast_copy_error('林园：'+subject_omitted,subject_omitted,source)
+    for copy in ('人总要吃喝，我必须投消费','人得吃喝，我不得不投消费','人人就得投消费'):
+        assert title.forecast_copy_error('林园：'+copy,copy,source)
     assert title.human_condition_actor_error('林园：除非人变机器人，我只投消费',
         '除非大家变机器人，我只投消费',source) is None
     assert title.human_condition_actor_error('林园：人总得吃喝，我就只投消费',
@@ -69,8 +71,11 @@ def test_literal_complete_reason_is_an_alternative_to_forced_metaphor_noun():
         event_quote='我只投我看好的。',detail_quote='除非这个人不吃不喝了，真是变成机器人了，那我也不行。')
     focus=experiment.title_focus(selection)
     assert '不吃不喝' in focus['details'] and '机器人' in focus['details']
+    assert focus['detail_verbs_0']==['吃','喝']
     assert all(term in selection['detail_quote'] for term in focus['details'])
     assert experiment.title_focus_error('林园：我只投消费，除非人不吃不喝',focus) is None
+    assert experiment.title_focus_error('林园：人总得吃喝，我就专心投消费',focus) is None
+    assert experiment.title_focus_error('林园：我只投消费，人还得吃饭',focus)
     assert experiment.title_focus_error('林园：只要人变机器人，我就买半导体',focus) is None  # lexical coverage is NOT factual approval
     assert title.forecast_copy_error('林园：除非变机器人，我少不了投消费',
         '除非变机器人，我少不了投消费','我只投消费。除非这个人不吃不喝了，变成机器人，那我也不行。如果他还是个人，他少不了。')
@@ -107,3 +112,10 @@ def test_display_wraps_cannot_split_people_condition_or_question_context():
 def test_sentence_reader_never_glues_first_person_guest_into_next_question(prefix):
     units=title.answer_reading_units([prefix,'您怎么看半导体？','我还要研究。'],'林园')
     assert units[0]==prefix and units[1]=='您怎么看半导体？'
+
+
+def test_parallel_nonverbs_cannot_create_reason_coverage():
+    import publishing_experiment as experiment
+    focus=experiment.title_focus(dict(kind='personal_story',subject_quote='我只做我懂的。',
+        event_quote='我先做研究。',detail_quote='不三不四的东西我不碰。'))
+    assert not any(key.startswith('detail_verbs_') for key in focus)

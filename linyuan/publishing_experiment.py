@@ -374,9 +374,17 @@ def title_focus(selection):
     # only a literal alternative anchor; attribution/conditions and independent
     # factual/readability review still apply. No paraphrase or transcript edit.
     parallel_negation=re.findall(r'不[\u4e00-\u9fff]不[\u4e00-\u9fff]',detail)
+    verb_pairs=[]
+    for phrase in parallel_negation:
+        pair=[phrase[1],phrase[3]]
+        # Both actual actions must occur, not just one convenient character.
+        # Numeric/adjectival patterns such as 不三不四 cannot form this group.
+        if pair[0]!=pair[1] and all(list(jieba.posseg.cut(word))[0].flag.startswith('v') for word in pair):
+            if pair not in verb_pairs:verb_pairs.append(pair)
     return dict(subjects=terms(selection.get('subject_quote',''),True)
                 if selection.get('kind')=='company_case' else [],
                 details=list(dict.fromkeys(parallel_negation+terms(detail)))[:6],
+                **{'detail_verbs_'+str(i):pair for i,pair in enumerate(verb_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
@@ -386,8 +394,10 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
-    if focus.get('details') and not any(t in body for t in focus['details']):
-        return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
+    groups=[v for k,v in focus.items() if k.startswith('detail_verbs_')]
+    if (focus.get('details') and not any(t in body for t in focus['details'])
+            and not any(all(term in body for term in group) for group in groups)):
+        return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])+('；动作理由须同时保留：'+str(groups) if groups else '')
     # Real CPU drafts repeatedly collapsed an income-level background clause
     # into a new income-boom claim. Independent model reviews approved it.
     # Require an explicit original phrase for this stronger claim, not a word

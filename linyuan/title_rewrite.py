@@ -769,8 +769,8 @@ def human_condition_actor_error(title, cover, transcript):
         # justify "我少不了投消费" (an invented personal necessity). Naming
         # 人 in the first clause alone cannot repair that actor/predicate swap.
         if (re.search(r'(?:他|她|人|大家)[^。！？!?，,]{0,6}少不了',transcript)
-                and re.search(r'少不了(?:投|买|持有)',value)
-                and not re.search(r'少不了(?:投|买|持有)',transcript)):
+                and re.search(r'(?:少不了|必须|不得不)(?:投|买|持有)|(?:我|人|大家|人人)[^，,。！？!?]{0,4}就得(?:投|买|持有)',value)
+                and not re.search(r'(?:少不了|必须|不得不)(?:投|买|持有)|(?:我|人|大家|人人)[^，,。！？!?]{0,4}就得(?:投|买|持有)',transcript)):
             return '原话少不了的是人对吃喝的需求，不是我不得不投资；保留人的需求与本人的实际选择，不能拼接不同主体的动作'
         for condition in re.findall(r'除非[^，,。！？!?；;]{1,32}',value):
             if (re.search(r'吃|喝|机器人',condition)
@@ -1635,11 +1635,15 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                         if bound_subject:
                             item=require_answer_subject(item,bound_subject)
                         bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
-                    except (ValueError, TypeError, KeyError, AttributeError):
-                        bound.append({})
+                    except (ValueError, TypeError, KeyError, AttributeError) as exc:
+                        # Keep the failed check, not an empty sibling. Actual
+                        # answer_subject drafts omitted the object/main-answer
+                        # evidence, but feedback only said "title is not text".
+                        # This records a rejection; it never repairs a draft.
+                        bound.append({'_binding_error':str(exc)})
                 candidates = bound
             from publishing_experiment import title_focus_error
-            errors = [((title_focus_error(c.get('title'),editorial_focus,speaker,c.get('cover_title')) if editorial_focus else None)
+            errors = [(c.get('_binding_error') or (title_focus_error(c.get('title'),editorial_focus,speaker,c.get('cover_title')) if editorial_focus else None)
                        or _candidate_error(c, transcript, speaker, existing_titles)
                        if isinstance(c, dict) else '候选不是JSON对象') for c in candidates]
             # Review every distinct, structurally valid draft in this attempt.

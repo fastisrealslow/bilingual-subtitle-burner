@@ -3821,13 +3821,6 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         # A draft has not passed review: replaying it across recovery jobs can
         # trap every future attempt in the same three rejected candidates.
         prompt = _title_style_prompt(prompt, schema, speaker)
-        if story_evidence:
-            from publishing_experiment import story_title_prompt, title_focus
-            prompt=story_title_prompt(prompt,schema,story_evidence)
-            prompt+=('\n这条故事的标题必须在前半句写明具体对象，并保留实际理由/细节原词；'
-                     '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。'
-                     '以下仅是原文定位词，不批准任何事实或提问前提：'
-                     +json.dumps(title_focus(story_evidence),ensure_ascii=False))
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
         profile=title_draft_profile(speaker)
@@ -3845,6 +3838,16 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
                 messages=source_limits_messages(messages,schema)
             else:
                 messages=concise_messages(messages,schema)
+        if story_evidence:
+            from publishing_experiment import story_title_prompt, title_focus
+            # Apply the experiment instructions AFTER a drafting profile has
+            # rebuilt its prompt. Otherwise its natural-copy transformation
+            # can discard the choice/reason requirement from the instruction.
+            messages[0]['content']=story_title_prompt(messages[0]['content'],schema,story_evidence)
+            messages[0]['content']+=('\n这条故事的标题必须写明具体对象，并保留实际理由/细节原词；'
+                '并列动作理由须同时保留两个动作，不能只取其中一个；这只是字词覆盖，不批准否定、条件、主体或投资义务。'
+                '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。原文定位词：'
+                +json.dumps(title_focus(story_evidence),ensure_ascii=False))
         if speaker == '林园' and (drafting or 'reviews' in schema.get('properties', {})):
             print(f'[标题风格] {TITLE_STYLE_PROFILE} stage={"draft" if drafting else "review"}', flush=True)
         temperature = (.35 if drafting else 0) if speaker == '林园' else .35
