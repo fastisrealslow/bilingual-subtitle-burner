@@ -1,4 +1,5 @@
 import copy
+import io
 import json
 from datetime import datetime
 from pathlib import Path
@@ -22,7 +23,7 @@ def state(actual=E.TREATMENT,content_type='short_view'):
 
 
 def item(play=100,observed=NOW):
-    return dict(bvid=BVID,pubdate=PUB,play=play,observed_at=observed,observation_source='bilibili_public_view')
+    return dict(bvid=BVID,pubdate=PUB,play=play,observed_at=observed,observation_source='bilibili_creator_archive')
 
 
 def treatment(result,window=24):
@@ -94,24 +95,25 @@ def test_fallbacks_full_interviews_and_legacy_zero_do_not_enter_primary_groups()
 
 
 def payload(play=100):
-    return dict(code=0,data=dict(bvid=BVID,state=0,owner=dict(mid=C.OWNER_MID),pubdate=PUB,stat=dict(view=play)))
+    return dict(bvid=BVID,state=0,mid=C.OWNER_MID,pubdate=PUB,statistics=dict(view=play),
+        public=True,observed_at=NOW,statistics_origin='authenticated-creator-read')
 
 
 @pytest.mark.parametrize('play',[None,True,-1,'100'])
 def test_public_counter_parser_does_not_invent_zero(play):
-    with pytest.raises(ValueError):C.parse_view(payload(play),BVID)
+    with pytest.raises(ValueError):C.parse_creator(payload(play),BVID)
 
 
 def test_public_counter_requires_exact_owner_video_and_public_state():
-    assert C.parse_view(payload(0),BVID)['play']==0
-    for field,value in [('bvid','BVother'),('state',1),('owner',dict(mid=1))]:
-        body=payload();body['data'][field]=value
-        with pytest.raises(ValueError):C.parse_view(body,BVID)
+    assert C.parse_creator(payload(0),BVID)['play']==0
+    for field,value in [('bvid','BVother'),('state',1),('mid',1),('public',False)]:
+        body=payload();body[field]=value
+        with pytest.raises(ValueError):C.parse_creator(body,BVID)
 
 
 @pytest.mark.parametrize('body',[[],dict(code=0,data=['bad']),dict(code=0,data={})])
 def test_malformed_public_response_is_unknown_not_zero(body):
-    with pytest.raises(ValueError):C.parse_view(body,BVID)
+    with pytest.raises(ValueError):C.parse_creator(body,BVID)
 
 
 def test_unavailable_counter_retains_data_and_fails_loudly(tmp_path,monkeypatch):
@@ -120,11 +122,46 @@ def test_unavailable_counter_retains_data_and_fails_loudly(tmp_path,monkeypatch)
     (tmp_path/'linyuan/.automation/fc_state.json').write_text(json.dumps(state()))
     monkeypatch.setattr(C,'ROOT',tmp_path);monkeypatch.setattr(C.time,'time',lambda:NOW)
     monkeypatch.setattr(sys,'argv',['collector'])
-    def unavailable(bvid):raise ValueError('not a public counter')
-    monkeypatch.setattr(C,'fetch_view',unavailable)
+    def unavailable(bvids):raise ValueError('not an authenticated own-video counter')
+    monkeypatch.setattr(C,'fetch_views',unavailable)
     with pytest.raises(RuntimeError,match='prior observations retained'):C.main()
     report=json.loads(out.read_text())
     assert report['peers']==['keep existing metrics']
     assert report['publishing_experiment']['clock_samples']==[]
     assert report['publishing_experiment']['sampling_health']['fetched']==0
     assert report['publishing_experiment']['sampling_health']['missing_is_zero'] is False
+
+
+def test_batch_reader_uses_existing_authorized_owner_and_keeps_unknown_unknown(monkeypatch):
+    monkeypatch.setenv('BILIBILI_COOKIES','unit-test-placeholder')
+    def read(ids,owner,cookies,include_statistics=False):
+        assert ids==[BVID] and owner==C.OWNER_MID and cookies=='unit-test-placeholder' and include_statistics
+        return dict(videos=[payload(0)])
+    monkeypatch.setattr(C,'archive_status',read)
+    items,errors=C.fetch_views([BVID])
+    assert not errors and items[0]['play']==0 and items[0]['observation_source']=='bilibili_creator_archive'
+    monkeypatch.setattr(C,'archive_status',lambda *a,**kw:dict(videos=[],api_code=-101))
+    items,errors=C.fetch_views([BVID])
+    assert not items and errors[0]['api_code']==-101
+
+
+def test_optional_creator_statistics_keep_existing_visibility_contract(monkeypatch):
+    import bili_archive_status as A
+    archive=dict(bvid=BVID,mid=C.OWNER_MID,state=0,is_only_self=0,no_public=0,pubdate=PUB,ctime=PUB-100)
+    response=dict(code=0,data=dict(arc_audits=[dict(Archive=archive,stat=dict(view=0,like=1,danmaku=0))]))
+    class Reply(io.StringIO):pass
+    class Opener:
+        def open(self,url,timeout):
+            assert url.startswith('https://member.bilibili.com/x/web/archives?')
+            return Reply(json.dumps(response))
+    monkeypatch.setattr(A.urllib.request,'build_opener',lambda *a:Opener())
+    monkeypatch.setattr(A.time,'time',lambda:NOW)
+    cookies=json.dumps(dict(cookie_info=dict(cookies=[dict(name='DedeUserID',value=str(C.OWNER_MID)),
+        dict(name='SESSDATA',value='unit-test-placeholder')])))
+    original=A.archive_status([BVID],C.OWNER_MID,cookies)
+    assert original['public_count']==1 and 'statistics' not in original['videos'][0]
+    enriched=A.archive_status([BVID],C.OWNER_MID,cookies,include_statistics=True)
+    assert enriched['public_count']==1 and C.parse_creator(enriched['videos'][0],BVID)['play']==0
+    del archive['pubdate']
+    missing=A.archive_status([BVID],C.OWNER_MID,cookies,include_statistics=True)
+    with pytest.raises(ValueError):C.parse_creator(missing['videos'][0],BVID)

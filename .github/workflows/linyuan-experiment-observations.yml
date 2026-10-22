@@ -20,7 +20,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 只查真实回执中临近采样窗口的公开视频
+      - name: 通过现有登录态只查真实回执对应的自家稿件
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python linyuan/collect_experiment_stats.py
       - name: 保存实际观测，未采到不补零
         if: always()

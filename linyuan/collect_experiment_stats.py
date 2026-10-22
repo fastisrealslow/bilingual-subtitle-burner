@@ -1,13 +1,13 @@
-"""Bounded receipt-based public observations; never upload or infer missing plays."""
+"""Bounded own-creator observations; never upload or infer missing plays."""
 import argparse
 import json
 import math
+import os
 from pathlib import Path
 import re
 import statistics
 import time
-import urllib.error
-import urllib.request
+from bili_archive_status import archive_status
 
 import publishing_experiment as experiment
 
@@ -38,7 +38,7 @@ def reconcile(items, previous, state, now=None):
              if isinstance(r,dict) and r.get('bvid') and r.get('window') in WINDOWS}
     for item in items:
         bvid=item.get('bvid');pub=item.get('pubdate');observed=item.get('observed_at');play=item.get('play')
-        if (bvid not in receipts or item.get('observation_source')!='bilibili_public_view'
+        if (bvid not in receipts or item.get('observation_source')!='bilibili_creator_archive'
                 or not number(pub) or pub<=0 or not number(observed) or not 0<observed<=now
                 or now-observed>600 or type(play) is not int or play<0):continue
         age=(observed-pub)/3600
@@ -50,13 +50,13 @@ def reconcile(items, previous, state, now=None):
                 pubdate=pub,age_hours=age,play=play,like=item.get('like'),danmaku=item.get('danmaku'),
                 planned=receipt['planned'],actual=receipt['actual'],compliant=receipt['compliant'],
                 slot_number=receipt['slot_number'],content_type=receipt.get('content_type'),
-                observation_source='bilibili_public_view')
+                observation_source='bilibili_creator_archive')
     for row in samples.values():
         timing=(row.get('window') in WINDOWS and age_fits(row.get('age_hours'),row['window'])
                 and number(row.get('observed_at')) and 0<row['observed_at']<=now)
         row['comparable']=(timing and type(row.get('play')) is int and row['play']>=0
             and row.get('experiment_id')==experiment.EXPERIMENT_ID
-            and row.get('observation_source')=='bilibili_public_view'
+            and row.get('observation_source')=='bilibili_creator_archive'
             and row.get('compliant') is True and row.get('actual')==row.get('planned')
             and row.get('planned') in (experiment.BASELINE,experiment.TREATMENT)
             and row.get('content_type')!='full_interview')
@@ -75,7 +75,7 @@ def reconcile(items, previous, state, now=None):
     result.update(observation_protocol=2,sampling_age_tolerance_hours=TOLERANCE_HOURS,
         scope='Fixed Beijing slots, not randomized. Primary groups use actual cumulative views '
               'observed at ages 24–26h / 72–74h / 168–170h, not exact target-hour counts. '
-              'Only receipt-bound public-view counters enter primary groups. '
+              'Only receipt-bound authenticated own-creator counters enter primary groups. '
               'Legacy search samples/groups remain visible separately, excluded from primary groups. '
               'Missing stays unknown; no retrospective backfill. Not CTR, retention or causal uplift. '
               'Slot/time, layout, topic, source and duration remain confounders.')
@@ -99,56 +99,57 @@ def due_receipts(previous,state,now):
     return list(dict.fromkeys(due))[:12]
 
 
-def parse_view(payload,bvid):
-    if not isinstance(payload,dict):raise ValueError('Public API response is not an object')
-    data=payload.get('data') or {}
-    if (not isinstance(data,dict) or not isinstance(data.get('owner'),dict)
-            or not isinstance(data.get('stat'),dict)):
-        raise ValueError('Public API video/owner/counter shape is unavailable')
-    if (type(payload.get('code')) is not int or payload['code']!=0 or data.get('bvid')!=bvid
-            or type(data.get('state')) is not int or data['state']!=0
-            or data['owner'].get('mid')!=OWNER_MID):
-        raise ValueError('Public video/owner identity unavailable or mismatched')
-    play=(data.get('stat') or {}).get('view');pub=data.get('pubdate')
-    if type(play) is not int or play<0 or not number(pub) or pub<=0:
-        raise ValueError('Public play count or publication clock is unknown')
-    return dict(bvid=bvid,play=play,pubdate=pub,title=data.get('title'),
-        like=(data.get('stat') or {}).get('like'),danmaku=(data.get('stat') or {}).get('danmaku'))
+def parse_creator(data,bvid):
+    if not isinstance(data,dict):raise ValueError('Creator video response is not an object')
+    counters=data.get('statistics')
+    if (not isinstance(counters,dict) or data.get('statistics_origin')!='authenticated-creator-read'
+            or data.get('bvid')!=bvid or str(data.get('mid'))!=str(OWNER_MID)
+            or data.get('public') is not True or type(data.get('state')) is not int or data['state']!=0):
+        raise ValueError('Authenticated own-public-video identity unavailable or mismatched')
+    play=counters.get('view');pub=data.get('pubdate');observed=data.get('observed_at')
+    if (type(play) is not int or play<0 or not number(pub) or pub<=0
+            or not number(observed) or observed<=0):
+        raise ValueError('Creator play count or publication/observation clock is unknown')
+    return dict(bvid=bvid,play=play,pubdate=pub,title=data.get('title'),observed_at=observed,
+        observation_source='bilibili_creator_archive',like=counters.get('like'),danmaku=counters.get('danmaku'))
 
 
-def fetch_view(bvid):
-    if not re.fullmatch(r'BV[A-Za-z0-9]{10}',bvid):raise ValueError('Invalid receipt video ID')
-    url='https://api.bilibili.com/x/web-interface/view?bvid='+bvid
-    for attempt in range(2):
-        try:
-            request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
-            with urllib.request.urlopen(request,timeout=12) as response:
-                item=parse_view(json.load(response),bvid)
-                return dict(item,observed_at=time.time(),observation_source='bilibili_public_view')
-        except urllib.error.HTTPError as exc:
-            if exc.code<500 or attempt:raise
-        except (TimeoutError,urllib.error.URLError):
-            if attempt:raise
-        time.sleep(1)
+def fetch_views(bvids):
+    if len(bvids)>12 or any(not re.fullmatch(r'BV[A-Za-z0-9]{10}',b) for b in bvids):
+        raise ValueError('Invalid or unbounded receipt video IDs')
+    cookies=os.environ.get('BILIBILI_COOKIES')
+    if not cookies:raise ValueError('Existing own-creator credentials unavailable')
+    result=archive_status(bvids,OWNER_MID,cookies,include_statistics=True)
+    rows={r['bvid']:r for r in result.get('videos',[]) if r.get('bvid') in bvids}
+    items=[];errors=[]
+    for bvid in bvids:
+        row=rows.get(bvid,{})
+        try:items.append(parse_creator(row,bvid))
+        except ValueError as exc:
+            errors.append(dict(bvid=bvid,error_type=type(exc).__name__,
+                api_code=result.get('api_code'),http_status=result.get('http_status'),
+                available_stat_fields=row.get('available_stat_fields',[]),
+                available_archive_fields=row.get('available_archive_fields',[]),
+                publication_clock_candidates=row.get('publication_clock_candidates',{})))
+    return items,errors
 
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--probe-bvid')
     args=parser.parse_args()
     if args.probe_bvid:
-        item=fetch_view(args.probe_bvid)
-        print(json.dumps(dict(passed=True,diagnostic_only=True,sample_registered=False,video=item)))
+        items,errors=fetch_views([args.probe_bvid])
+        if errors:raise ValueError(json.dumps(errors))
+        print(json.dumps(dict(passed=True,diagnostic_only=True,sample_registered=False,video=items[0])))
         return
     out=ROOT/'site/stats.json';state_path=ROOT/'linyuan/.automation/fc_state.json'
     previous=json.loads(out.read_text());state=json.loads(state_path.read_text());now=time.time()
     due=due_receipts(previous,state,now)
     if not due:
         print(json.dumps(dict(due=0,changed=False)));return
-    items=[];errors=[]
-    for bvid in due:
-        try:items.append(fetch_view(bvid))
-        except (OSError,ValueError,TypeError) as exc:
-            errors.append(dict(bvid=bvid,error_type=type(exc).__name__))
+    try:items,errors=fetch_views(due)
+    except (OSError,ValueError,TypeError) as exc:
+        items=[];errors=[dict(bvid=b,error_type=type(exc).__name__) for b in due]
     completed=time.time()
     result=reconcile(items,previous,state,completed)
     result['sampling_health']=dict(observed_at=int(completed),attempted=len(due),fetched=len(items),
@@ -158,7 +159,7 @@ def main():
     print(json.dumps(dict(due=len(due),fetched=len(items),errors=errors,
         sample_count=len(result['clock_samples']),comparable=sum(r['comparable'] for r in result['clock_samples']))))
     if errors:
-        raise RuntimeError('Public counters unavailable for some receipts; prior observations retained, no zero/backfill')
+        raise RuntimeError('Creator counters unavailable for some receipts; prior observations retained, no zero/backfill')
 
 
 if __name__=='__main__':main()

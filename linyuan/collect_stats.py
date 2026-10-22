@@ -297,7 +297,7 @@ def main():
     data['packaging_observations']=packaging_observations(data['top'],previous,state)
     from collect_experiment_stats import reconcile
     # Search-index display counts are not interchangeable with the new
-    # receipt-bound public-view clock protocol. Keep both histories separate.
+    # receipt-bound creator-counter clock protocol. Keep both histories separate.
     data['publishing_experiment']=reconcile([],previous,state)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
