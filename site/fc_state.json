@@ -39752,7 +39752,32 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "1df744406655d5b19d20e13ccb0c8138955953aaa6d49978ee6fbb0053b320be",
    "experiment_parent_slug": "ly-0916-5cc2b6",
-   "recovery_origin_run_id": 35064255035
+   "recovery_origin_run_id": 35064255035,
+   "production_failure_summary": {
+    "slug": "ly-story-608bf63cec",
+    "run_id": 39808255729,
+    "artifact_id": 12444748806,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     }
+    ]
+   },
+   "source_check_report_id": 12444748806,
+   "source_check_run_id": 39808255729,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792691331
   },
   {
    "video_id": "BV1se411H7tj",
@@ -40491,7 +40516,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-22T12:33:35+00:00"
+   "publish_time": "2026-10-22T12:33:35+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-c4b3b6",
+    "run_id": 39820258419,
+    "artifact_id": 12446240134,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39820258419,
+    "artifact_id": 12446240134,
+    "name": "production-reject-ly-1022-c4b3b6",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1qrPTzGExu",
@@ -40536,7 +40583,8 @@
    },
    "last_error": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/aNeOHSXWlx08BB7cOdD20104120mPl4P0E090.mp4",
@@ -40587,7 +40635,8 @@
     "name": "production-reject-ly-story-aa35da617a",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1xcu26hEx1",
@@ -40611,8 +40660,8 @@
    "recovery_origin_run_id": null,
    "production_failure_summary": {
     "slug": "ly-story-2409301830",
-    "run_id": 39813873888,
-    "artifact_id": 12443732539,
+    "run_id": 39822483174,
+    "artifact_id": 12446011462,
     "accepted": 0,
     "failures": [
      {
@@ -40632,8 +40681,16 @@
    "source_check_report_id": 12443732539,
    "source_check_run_id": 39813873888,
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39822483174,
+    "artifact_id": 12446011462,
+    "name": "production-reject-ly-story-2409301830",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
@@ -114390,6 +114447,20 @@
    "video_id": "BV1qrPTzGExu",
    "ts": 1792690227,
    "error": "整段取景预检：源 53.07s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-story-2409301830",
+   "key": "ly-story-2409301830",
+   "video_id": "BV1xcu26hEx1",
+   "ts": 1792690414,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]"
+  },
+  {
+   "slug": "ly-1022-c4b3b6",
+   "key": "bilibili_search:BV1W5np69ENP",
+   "video_id": "BV1W5np69ENP",
+   "ts": 1792690416,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
