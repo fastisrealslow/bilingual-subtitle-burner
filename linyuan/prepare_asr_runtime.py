@@ -99,6 +99,49 @@ def cached_evidence(report_path,choice):
     return directory.resolve()
 
 
+def immutable_run_evidence(choice):
+    """An expired download is a cache miss, not a failed fresh recognition.
+
+    Never expose a partially downloaded directory. A successful download still
+    goes through the normal source/PCM/model/coverage checks in production.
+    """
+    run=choice.get('evidence_run_id')
+    if type(run) is not int or run<=0:
+        raise ValueError('Invalid immutable ASR evidence run')
+    directory=(Path('_asr_evidence')/choice['source_sha256']/f'run-{run}').resolve()
+    try:
+        subprocess.run(['gh','run','download',str(run),'--repo',os.environ['GITHUB_REPOSITORY'],
+            '--pattern','long-cpu-transcript-*','--dir',str(directory)],
+            check=True,capture_output=True,text=True,timeout=300)
+    except (subprocess.SubprocessError,OSError) as exc:
+        # Do not print stderr: it may include authenticated URLs. No explicit
+        # evidence path is emitted; qwen3 must decode and align the actual audio
+        # using the already prepared pinned weights instead.
+        print('先前固定任务的转写缓存不可用，按当前离线模型实际识别：',type(exc).__name__)
+        return None
+    from qwen_asr_evidence import load_reports
+    reports=load_reports(directory)
+    if not reports:
+        print('先前固定任务未提供完整转写，按当前离线模型实际识别')
+        return None
+    # Present evidence is never silently ignored merely because its immutable
+    # source/model binding is wrong. Full PCM and core ownership follow later.
+    revisions=choice.get('model_revisions') or {}
+    if (not matches(reports,policy(choice['source_sha256']))
+            or not context_matches(reports,source_sha=choice['source_sha256'])
+            or any(r.get('source_video_sha256')!=choice['source_sha256']
+                or r.get('device')!='cpu' or r.get('networking_during_inference') is not False
+                or r.get('model_id')!='Qwen/Qwen3-ASR-0.6B'
+                or r.get('model_revision')!=revisions.get('asr')
+                or (r.get('alignment') or {}).get('device')!='cpu'
+                or (r.get('alignment') or {}).get('networking_during_inference') is not False
+                or (r.get('alignment') or {}).get('model_id')!='Qwen/Qwen3-ForcedAligner-0.6B'
+                or (r.get('alignment') or {}).get('model_revision')!=revisions.get('aligner')
+                or not r.get('chunks') for r in reports)):
+        raise ValueError('Immutable ASR evidence has incompatible source/model provenance')
+    return directory
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('mode',choices=['select','prepare','cache'])
@@ -135,11 +178,8 @@ def main():
         emit(env,path)
     run=choice.get('evidence_run_id')
     if run is not None:
-        if type(run) is not int or run<=0:raise ValueError('Invalid immutable ASR evidence run')
-        directory=(Path('_asr_evidence')/choice['source_sha256']).resolve()
-        subprocess.run(['gh','run','download',str(run),'--repo',os.environ['GITHUB_REPOSITORY'],
-            '--pattern','long-cpu-transcript-*','--dir',str(directory)],check=True,timeout=300)
-        emit('QWEN3_EVIDENCE_DIR',directory)
+        directory=immutable_run_evidence(choice)
+        if directory:emit('QWEN3_EVIDENCE_DIR',directory)
     else:
         # Evidence belongs to the immutable mother video, not to a delivery
         # directory.  A reviewed source can therefore reuse its prior raw CPU
