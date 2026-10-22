@@ -40345,21 +40345,27 @@
    "recovery_origin_run_id": 38866481077,
    "production_failure_summary": {
     "slug": "ly-story-13c07fb2f2",
-    "run_id": 39808235125,
-    "artifact_id": 12437994243,
+    "run_id": 39813834448,
+    "artifact_id": 12442753314,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'放放回到'不符合中文语法逻辑，应为'放回'或'放回到'，多出的'放'字导致语义不通。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是是没"
      }
     ]
    },
-   "source_check_report_id": 12437994243,
-   "source_check_run_id": 39808235125,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
+   "source_check_report_id": 12442753314,
+   "source_check_run_id": 39813834448,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "video_id": "BV1nt4y1o74A",
@@ -40378,7 +40384,45 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "67ed2a6894ef419b44607632623c02153fc724907c233a20e33629e7125cd42e",
    "experiment_parent_slug": "ly-0910-interview-clean-v4-wide0911v2",
-   "recovery_origin_run_id": 34743799382
+   "recovery_origin_run_id": 34743799382,
+   "production_failure_summary": {
+    "slug": "ly-story-78c8168f44",
+    "run_id": 39813854489,
+    "artifact_id": 12444340833,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是否指代特定人群或特定药物类别的基数为零。该表述存在逻辑矛盾且缺乏必要限定词，属于含义不明的关键数字/否定，而非口语省略"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：reasoning_present；完整性理由：claim_range 仅包含第 8 句，因为前文（1-7 句）均为对买菜爱好的解释、观察窗口的阐述或主持人过渡语，不构成投资判断的连续论述；第 8 句独立承载完整观点与结论，无需额外理由支撑。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39813854489,
+    "artifact_id": 12444340833,
+    "name": "production-reject-ly-story-78c8168f44",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是否指代特定人群或特定药物类别的基数为零。该表述存在逻辑矛盾且缺乏必要限定词，属于含义不明的关键数字/否定，而非口语省略\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1xcu26hEx1",
@@ -114140,6 +114184,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/OKaBttEzlx08BFuYRDC801041208nSXV0E030.mp4",
    "ts": 1792687968,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的宏观。\", \"suspect_quote\": \"那就是实践是行业的宏观\", \"kind\": \"unintelligible_term\", \"reason\": \"'实践是'疑似错写或漏录，结合上下文应为‘把握’、‘判断’或‘就是’等词，‘实践是’在金融语境下含义不明，属于具体识别疑点。\"}, {\"sentence_id\": 15, \"quote\": \"我们比如说一五年，我们投，我们也觉得这个行业宏观，就这个时候就是要爆发了，要爆发了，开始慢慢要要要行的时候。\", \"suspect_quote\": \"要爆发了，要爆发了，开始慢慢要要要行的时候\", \"kind\": \"unintelligible_term\", \"reason\": \"'要要要'虽为口吃重复，但‘行的时候’中‘行’字单独使用指代不明（是‘行业’还是‘可行’？），结合前文‘爆发’语境，此处极可能漏录‘行业’二字，导致关键名词缺失，属于具体识别疑点。\"}]"
+  },
+  {
+   "slug": "ly-story-78c8168f44",
+   "key": "ly-story-78c8168f44",
+   "video_id": "BV1nt4y1o74A",
+   "ts": 1792688836,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"到二零五七年，这个老人的消费量，相对于今天，我认为今天是零，因为五十五岁以上才慢慢的开始消费，我刚才说的老龄化并发症的这些药物啊。\", \"suspect_quote\": \"我认为今天是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字'零'在语境中含义不明：前文讨论的是'消费量'，此处突然断言'今天是零'，既不符合常理（当前已有消费），也未明确是否指代特定人群或特定药物类别的基数为零。该表述存在逻辑矛盾且缺乏必要限定词，属于含义不明的关键数字/否定，而非口语省略\"}]"
   }
  ],
  "reviewed_third_video_0910": {
