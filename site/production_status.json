@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792691342,
+  "updated_at": 1792691584,
   "inventory_updated_at": 1792691311,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792691341,
+    "updated_at": 1792691583,
     "records": 11427,
     "video_records": 9859,
     "initial_candidates": 61,
@@ -126,13 +126,13 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1229,
+    "failed": 1230,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 6,
     "excluded": 15,
     "experiment_fallback": 9,
     "ready": 6,
-    "retry_queued": 3,
+    "retry_queued": 1,
     "running": 4
   },
   "tasks": [
@@ -25201,24 +25201,6 @@
       "run_updated_at": "2026-10-22T15:45:37Z"
     },
     {
-      "slug": "ly-story-608bf63cec",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792684101,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792691331,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39808255729,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39808255729",
-      "run_started_at": "2026-10-22T15:48:21Z",
-      "run_updated_at": "2026-10-22T17:30:10Z"
-    },
-    {
       "slug": "ly-story-d97101ba6e",
       "status": "ready",
       "detail": "1 条成片已验收，等待发布时段及配额",
@@ -25289,24 +25271,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39808343012",
       "run_started_at": "2026-10-22T15:48:54Z",
       "run_updated_at": "2026-10-22T16:21:47Z"
-    },
-    {
-      "slug": "ly-story-fb8a34b6b5",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792685076,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792689752,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39810793747,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39810793747",
-      "run_started_at": "2026-10-22T16:04:35Z",
-      "run_updated_at": "2026-10-22T16:59:14Z"
     },
     {
       "slug": "ly-story-76a421d637",
@@ -25472,8 +25436,8 @@
     },
     {
       "slug": "ly-story-9ccd46299a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792688985,
         "failed": null,
@@ -25486,7 +25450,7 @@
       "run_id": 39820221707,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39820221707",
       "run_started_at": "2026-10-22T17:09:44Z",
-      "run_updated_at": "2026-10-22T17:09:50Z"
+      "run_updated_at": "2026-10-22T17:50:20Z"
     },
     {
       "slug": "ly-1022-7fa358",
@@ -25598,11 +25562,11 @@
     },
     {
       "slug": "ly-1022-87336c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": \"unintelligible_term\", \"reason\": \"单独出现“这句话”且无前文指代对象，在对话流中含义不明，疑似截断或识别错误。\"}, {\"sentence_id\": 34, \"quote\": \"实际上按照比如说十年前，它还是每年的复合增长都一些重要的公司都快超过百分之七，甚至百双位数增长。\", \"suspect_quote\": \"甚至百双位数增长\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“百双位数”表述矛盾且无法解释：若指“百分之十到百分之九十九”，应表述为“两位数”；若指“百分之百以上”，则“百”与“双位”冲突。此处数字含义不明，疑似识别污染。\"}]",
       "signature": {
         "ts": 1792690323,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25612,7 +25576,43 @@
       "run_id": 39823539787,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39823539787",
       "run_started_at": "2026-10-22T17:32:02Z",
-      "run_updated_at": "2026-10-22T17:32:07Z"
+      "run_updated_at": "2026-10-22T17:47:26Z"
+    },
+    {
+      "slug": "ly-story-fb8a34b6b5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792691150,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39825521967,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39825521967",
+      "run_started_at": "2026-10-22T17:45:49Z",
+      "run_updated_at": "2026-10-22T17:45:54Z"
+    },
+    {
+      "slug": "ly-story-608bf63cec",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792691542,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39826448076,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39826448076",
+      "run_started_at": "2026-10-22T17:52:22Z",
+      "run_updated_at": "2026-10-22T17:52:26Z"
     }
   ],
   "runs": {
@@ -36705,14 +36705,14 @@
       "display_title": "中文源出片 · ly-story-13c07fb2f2"
     },
     "ly-story-fb8a34b6b5": {
-      "id": 39810793747,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T16:04:35Z",
-      "updated_at": "2026-10-22T16:59:14Z",
-      "run_started_at": "2026-10-22T16:04:35Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39810793747",
-      "run_number": 2459,
+      "id": 39825521967,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T17:45:49Z",
+      "updated_at": "2026-10-22T17:45:54Z",
+      "run_started_at": "2026-10-22T17:45:49Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39825521967",
+      "run_number": 2481,
       "display_title": "中文源出片 · ly-story-fb8a34b6b5"
     },
     "ly-story-78c8168f44": {
@@ -36782,22 +36782,22 @@
       "display_title": "中文源出片 · ly-1022-c4b3b6"
     },
     "ly-story-608bf63cec": {
-      "id": 39808255729,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T15:48:21Z",
-      "updated_at": "2026-10-22T17:30:10Z",
-      "run_started_at": "2026-10-22T15:48:21Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39808255729",
-      "run_number": 2454,
+      "id": 39826448076,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T17:52:22Z",
+      "updated_at": "2026-10-22T17:52:26Z",
+      "run_started_at": "2026-10-22T17:52:22Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39826448076",
+      "run_number": 2482,
       "display_title": "中文源出片 · ly-story-608bf63cec"
     },
     "ly-1022-87336c": {
       "id": 39823539787,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T17:32:02Z",
-      "updated_at": "2026-10-22T17:32:07Z",
+      "updated_at": "2026-10-22T17:47:26Z",
       "run_started_at": "2026-10-22T17:32:02Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39823539787",
       "run_number": 2480,
@@ -36827,10 +36827,10 @@
     },
     "ly-story-9ccd46299a": {
       "id": 39820221707,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T17:09:44Z",
-      "updated_at": "2026-10-22T17:09:50Z",
+      "updated_at": "2026-10-22T17:50:20Z",
       "run_started_at": "2026-10-22T17:09:44Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39820221707",
       "run_number": 2473,
