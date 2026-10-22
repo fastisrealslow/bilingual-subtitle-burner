@@ -3451,6 +3451,8 @@ def _recover_changed_production_rule(st, candidate, run):
     cases=[('scene-aware-selection-v1',('来源角标无法避开','原画无法通过真人画面清理门禁',
                                       '真人动态区仍有原素材字幕','整段取景预检'),
             ('linyuan/scene_text.py','linyuan/visual_selection.py')),
+           ('native-cover-borders-v1',('封面生成/人物/角标复检失败：现场原画封面存在黑色填充边',),
+            ('linyuan/cover_scene_geometry.py',)),
            ('live-geometry-v1',('来源角标无法避开','原画无法通过真人画面清理门禁'),
             ('linyuan/live_tracking.py',)),
            ('download-prefix-v2',('CDN内容版本改变','取源达到总时间预算',
@@ -3649,6 +3651,7 @@ def _recover_rule_backlog(st, by_slug):
                   '完整词句无法放入两行','意群分组','单屏跨越超过8秒',
                   '独立文字识别疑点审核不可用',
                   '原始ASR存在影响理解的疑点','持续黑色填充边',
+                  '封面生成/人物/角标复检失败：现场原画封面存在黑色填充边',
                   'CDN前缀核对响应截断','CDN前缀核对连续无进度','CDN前缀核对尚无进度',
                   '观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问'))}
     if not eligible:return 0

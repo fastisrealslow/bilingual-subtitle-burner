@@ -87,7 +87,7 @@ def avoid_overlays(box, face, width, height, exclusions):
     return min(valid,key=lambda row:(row[0]-x)**2+(row[1]-y)**2)
 
 
-def scene_cover_crop(face, width, height, exclusions):
+def scene_cover_crop(face, width, height, exclusions, maximum_width=None):
     """Largest real-pixel 16:9 scene avoiding measured overlays.
 
     Geometry is a proposal only. Identity, OCR, QR, black edges, sharpness
@@ -100,6 +100,9 @@ def scene_cover_crop(face, width, height, exclusions):
     if not all(math.isfinite(v) for v in (fx,fy,fw,fh)) or min(fw,fh)<=0:
         raise ValueError('现场封面缺少可核对的完整人脸')
     maximum=int(min(width,height*16/9,fw*10))//2*2
+    if maximum_width is not None:maximum=min(maximum,int(maximum_width)//2*2)
+    if maximum<960:
+        raise ValueError('原始像素中没有保留足够人物占比的清晰现场封面')
     sizes=sorted(set([960]+list(range(maximum,959,-32))),reverse=True)
     for cw in sizes:
         ch=int(cw*9/16)//2*2

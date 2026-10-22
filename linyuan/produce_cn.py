@@ -4064,6 +4064,16 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         marks=detect_corner_logos_in_images(frames)
         evidence=json.loads((frames[0].parent/'corner_ocr.json').read_text())['evidence']
         marks+=source_edge_text_exclusions(evidence)
+        # The video crop already handles encoded borders, but native covers
+        # intentionally sample the ORIGINAL mother. Propose the same measured
+        # blank strips as exclusions before searching a real-pixel 16:9 crop.
+        # Existing size/headroom/identity/OCR/QR/black-edge/feed gates remain.
+        from cover_scene_geometry import border_exclusions
+        pixels=[cv2.imread(str(frame)) for frame in frames]
+        if any(frame is None for frame in pixels):
+            raise VisualQualityError('现场封面黑边预检抽帧读取失败')
+        border_marks,border_proof=border_exclusions(pixels)
+        marks+=border_marks
         for row in evidence:
             x0,y0,x1,y1=row['rect']
             if float(row['confidence'])>=.75 and (y1<.30 or y0>.80 or x1<.20 or x0>.80):
@@ -4081,13 +4091,23 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                     pts=points.reshape(-1,2)
                     local.append((max(0,float(pts[:,0].min())/w-.01),max(0,float(pts[:,1].min())/h-.01),
                         min(1,float(pts[:,0].max())/w+.01),min(1,float(pts[:,1].max())/h+.01)))
-                x,y,cw,ch=scene_cover_crop(face,w,h,local)
                 target=original.with_name(original.stem+'.scene.png')
-                image.crop((x,y,x+cw,y+ch)).save(target)
-                # Re-run identity in the cropped pixels; no inherited approval.
-                select_verified_cover_face([target],reference_path)
+                maximum_width=None
+                for proposal_attempt in range(3):
+                    x,y,cw,ch=scene_cover_crop(face,w,h,local,maximum_width=maximum_width)
+                    image.crop((x,y,x+cw,y+ch)).save(target)
+                    # Re-detection may move the face box by a few pixels. A
+                    # proposal exactly at the 10% limit can then fail. Try a
+                    # bounded tighter REAL crop, not a lower quality limit.
+                    _,cropped_face,_=select_verified_cover_face([target],reference_path)
+                    if cropped_face[2]/cw>=.10:break
+                    maximum_width=cw-64
+                else:
+                    raise VisualQualityError('现场封面复检人物占比不足，不进入候选池')
                 scene_crops[str(target)]=dict(input=[w,h],crop=[x,y,cw,ch],
                     source_frame_sha256=_file_sha256(original),method='measured_overlay_avoidance_real_pixels')
+                scene_crops[str(target)]['black_border_measurement']=border_proof
+                scene_crops[str(target)]['proposal_attempts']=proposal_attempt+1
                 cleaned.append(target)
             except (ValueError,VisualQualityError) as exc:
                 errors.append(str(exc))

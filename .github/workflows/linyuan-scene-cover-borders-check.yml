@@ -1,0 +1,46 @@
+name: 真实现场封面黑边原画对照（不入库不投稿）
+on:
+  push:
+    branches: [codex/linyuan-scene-cover-borders-20261022]
+    paths: [linyuan/cover_scene_geometry.py, linyuan/live_tracking.py, linyuan/produce_cn.py, linyuan/check_scene_cover_borders.py, .github/workflows/linyuan-scene-cover-borders-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  covers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TEXT_BACKEND: local
+      CUDA_VISIBLE_DEVICES: ''
+      LINYUAN_AUTOMATIC_ONLY: 'true'
+      MIN_FINAL_DURATION_SEC: '20'
+      CONTENT_POLICY: reference_v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装实际封面检查依赖，不加载语音或文本模型
+        run: |
+          pip install pillow numpy jieba 'opencv-python<5' rapidocr-onnxruntime
+          if ! command -v ffmpeg >/dev/null; then
+            for source_config in /etc/apt/apt-mirrors.txt /etc/apt/sources.list.d/ubuntu.sources; do
+              if [ -f "$source_config" ]; then
+                sudo sed -i 's|https\?://azure\.archive\.ubuntu\.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$source_config"
+              fi
+            done
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+      - name: 同一真实母片、同一自动选段与文案，原逻辑及候选修复各跑一次
+        run: python -u linyuan/check_scene_cover_borders.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scene-cover-verification
+          path: scene-cover-verification/
+          retention-days: 7
+          if-no-files-found: error

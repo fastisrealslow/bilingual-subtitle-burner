@@ -31,6 +31,7 @@ def test_backlog_finds_old_source_without_downloading_every_artifact(monkeypatch
 @pytest.mark.parametrize('reason,changed',[
     ('独立文字识别疑点审核不可用：invalid evidence','linyuan/transcript_audit.py'),
     ('观点审核服务未提供可对照的实际原文证据：观点证据包含采访者提问','linyuan/editorial_evidence.py'),
+    ('封面生成/人物/角标复检失败：现场原画封面存在黑色填充边','linyuan/cover_scene_geometry.py'),
 ])
 def test_source_bound_service_repairs_reach_older_than_recent_producer_window(monkeypatch,reason,changed):
     state,entry,run,_=evidence(monkeypatch,changed=changed)
