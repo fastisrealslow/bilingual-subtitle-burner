@@ -1,0 +1,17 @@
+name: 实验公开播放读取实测（不采样不投稿）
+on:
+  push:
+    branches: [codex/linyuan-experiment-observation-clock-20261023]
+    paths: [linyuan/collect_experiment_stats.py, .github/workflows/linyuan-experiment-observation-check.yml]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python linyuan/collect_experiment_stats.py --probe-bvid BV1rLnC6CEyx

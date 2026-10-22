@@ -1,0 +1,38 @@
+name: 实验视频同龄播放采样（不投稿）
+on:
+  schedule:
+    - cron: '17 * * * *'
+  push:
+    branches: [main]
+    paths: [linyuan/collect_experiment_stats.py, .github/workflows/linyuan-experiment-observations.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: linyuan-stats
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 只查真实回执中临近采样窗口的公开视频
+        run: python linyuan/collect_experiment_stats.py
+      - name: 保存实际观测，未采到不补零
+        if: always()
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- site/stats.json; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add site/stats.json
+          git commit -m 'chore(stats): record receipt-bound same-age experiment observations'
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1

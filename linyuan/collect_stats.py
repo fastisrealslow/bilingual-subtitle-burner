@@ -295,8 +295,10 @@ def main():
     try:state=json.loads(state_path.read_text())
     except (OSError,ValueError):state={}
     data['packaging_observations']=packaging_observations(data['top'],previous,state)
-    from publishing_experiment import observations
-    data['publishing_experiment']=observations(data['top'],previous,state)
+    from collect_experiment_stats import reconcile
+    # Search-index display counts are not interchangeable with the new
+    # receipt-bound public-view clock protocol. Keep both histories separate.
+    data['publishing_experiment']=reconcile([],previous,state)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     o, n, ol = data["overall"], data["new_rule"], data["old_rule"]
