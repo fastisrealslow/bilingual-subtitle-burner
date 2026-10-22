@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import urllib.error
 
 import pytest
 
@@ -14,6 +15,55 @@ PAGE = 'https://www.163.com/v/video/VA7UULO86.html'
 MEDIA = 'https://flv3.bn.netease.com/real.m3u8'
 HTML = f'<link rel="canonical" href="{PAGE}"><div id="dplayer" data-url="{MEDIA}"></div>'
 PLAYLIST = '#EXTM3U\n#EXT-X-VERSION:3\n#EXTINF:6.5,\n/real-0.ts\n#EXTINF:3.5,\nreal-1.ts\n#EXT-X-ENDLIST\n'
+
+
+class Response:
+    def __init__(self, url=MEDIA, content=PLAYLIST.encode()):self.url=url;self.content=content
+    def __enter__(self):return self
+    def __exit__(self,*args):pass
+    def geturl(self):return self.url
+    def read(self,limit):return self.content[:limit]
+
+
+@pytest.mark.parametrize('error',[TimeoutError('timed out'),urllib.error.URLError(TimeoutError()),
+    urllib.error.HTTPError(MEDIA,502,'temporary',{},None)])
+def test_temporary_read_retries_same_request_and_keeps_exact_body(monkeypatch,error):
+    calls=[];sleeps=[]
+    def open_(request,timeout):
+        calls.append((request,timeout))
+        if len(calls)==1:raise error
+        return Response()
+    monkeypatch.setattr(n.urllib.request,'urlopen',open_)
+    monkeypatch.setattr(n.time,'sleep',sleeps.append)
+    assert n._read(MEDIA,PAGE)==PLAYLIST
+    assert calls[0]==calls[1] and calls[0][1]==10 and sleeps==[2]
+
+
+@pytest.mark.parametrize('status',[401,403,404,410])
+def test_permission_or_removed_content_is_not_retried(monkeypatch,status):
+    error=urllib.error.HTTPError(MEDIA,status,'permanent',{},None)
+    def open_(*a,**kw):raise error
+    monkeypatch.setattr(n.urllib.request,'urlopen',open_)
+    monkeypatch.setattr(n.time,'sleep',lambda _:pytest.fail('must not retry'))
+    with pytest.raises(urllib.error.HTTPError) as caught:n._read(MEDIA,PAGE)
+    assert caught.value is error
+
+
+def test_exhausted_reads_raise_without_empty_playlist(monkeypatch):
+    calls=[];sleeps=[];error=TimeoutError('timed out')
+    def open_(*a,**kw):calls.append(1);raise error
+    monkeypatch.setattr(n.urllib.request,'urlopen',open_)
+    monkeypatch.setattr(n.time,'sleep',sleeps.append)
+    with pytest.raises(TimeoutError):n._read(MEDIA,PAGE)
+    assert len(calls)==3 and sleeps==[2,4]
+
+
+@pytest.mark.parametrize('response,match',[(Response(url='https://evil.test/a'),'非官方'),
+    (Response(content=b'x'*(4*1024*1024+1)),'安全大小')])
+def test_retry_never_waives_redirect_or_size_guard(monkeypatch,response,match):
+    monkeypatch.setattr(n.urllib.request,'urlopen',lambda *a,**kw:response)
+    monkeypatch.setattr(n.time,'sleep',lambda _:pytest.fail('must not retry invalid source'))
+    with pytest.raises(ValueError,match=match):n._read(MEDIA,PAGE)
 
 
 def test_exact_page_and_unique_body_player_ignore_sidebar():

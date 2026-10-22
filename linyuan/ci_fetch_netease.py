@@ -3,6 +3,8 @@ import hashlib
 from html.parser import HTMLParser
 import math
 import re
+import time
+import urllib.error
 import urllib.request
 from urllib.parse import urljoin, urlsplit
 
@@ -85,9 +87,20 @@ def playlist_seconds(content, url):
 def _read(url, referer, is_page=False):
     request = urllib.request.Request(url, headers={
         'User-Agent': 'Mozilla/5.0', 'Referer': referer})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        (page_key if is_page else media_url)(response.geturl())
-        raw = response.read(4 * 1024 * 1024 + 1)
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                (page_key if is_page else media_url)(response.geturl())
+                raw = response.read(4 * 1024 * 1024 + 1)
+            break
+        except urllib.error.HTTPError as exc:
+            if exc.code not in {408,429,500,502,503,504} or attempt==2:raise
+        except (urllib.error.URLError,TimeoutError,ConnectionError):
+            if attempt==2:raise
+        # No URL/token or raw response in logs. A temporary read is never
+        # interpreted as missing content, public permission or a media pass.
+        print(f'[网易取源] 正文/清单临时读取失败，有限重试 {attempt+1}/2',flush=True)
+        time.sleep(2 ** (attempt+1))
     if len(raw) > 4 * 1024 * 1024:
         raise ValueError('网易正文或视频清单超过安全大小限制')
     return raw.decode('utf-8-sig')
