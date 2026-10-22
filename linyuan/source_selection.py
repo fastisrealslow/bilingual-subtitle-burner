@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 49
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -143,6 +143,16 @@ HOST_PREMISE = re.compile(
     r'(?:我记得(?:你|您)说过|我们知道(?:你|您)之前|'
     r'(?:在)?我们看到(?:你|您)(?:整个的|的)(?:投资|经历|选择))')
 BACKREF_QUESTION = re.compile(r'^(?:这{1,2}|那{1,2})(?:一)?点(?:是)?(?:怎么|如何)[^。！？?]{0,40}[？?]')
+# A relation name alone does not identify its participants. Starting with
+# “您是怎么看待这个错配的现象的呢？” loses what is mismatched, even
+# when an answer later names an industry. Match the entire opening sentence;
+# named participants, retained premises and quoted questions stay eligible.
+BARE_PHENOMENON_QUESTION = re.compile(
+    r'^(?:啊|嗯|呃|那(?:么)?|[，,\s])*'
+    r'(?:您|你)(?:是)?(?:怎么|如何)(?:看待|看|评价)'
+    r'(?:这|那)(?:个|种|一)?(?:样的)?'
+    r'(?:(?:错配|倒挂|背离|分化|变化|集中)(?:的)?){0,2}'
+    r'(?:现象|情况)(?:的)?(?:呢|吗|啊)?[？?]\s*$')
 
 
 def host_premise_start(units, cues, question, lower=0):
@@ -326,6 +336,8 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if units and BARE_PHENOMENON_QUESTION.fullmatch(units[0]['text']):
+        return '开场只提及回指现象或关系，缺少具体对象；须保留原始前提或另选完整论述'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
