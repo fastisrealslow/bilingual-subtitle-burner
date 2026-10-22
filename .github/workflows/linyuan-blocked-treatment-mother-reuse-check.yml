@@ -1,0 +1,25 @@
+name: 真实重复片阻塞母片的排产只读核验（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-blocked-treatment-mother-reuse-20261023]
+    paths: [linyuan/fc/index.py, linyuan/check_blocked_treatment_mother_reuse.py, .github/workflows/linyuan-blocked-treatment-mother-reuse-check.yml]
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install jieba
+      - name: 只读比较同一母片台账，保留全部已发布历史去重
+        run: python linyuan/check_blocked_treatment_mother_reuse.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blocked-treatment-mother-reuse-verification
+          path: blocked-treatment-mother-reuse-verification.json
+          if-no-files-found: error

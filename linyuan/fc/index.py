@@ -2871,7 +2871,8 @@ def experiment_reuse_layouts(parent, record, state):
     """Observed same-mother geometry is a planning hint, never media approval."""
     mother=parent.get('source_sha256')
     if not re.fullmatch('[a-f0-9]{64}',str(mother or '')):return set()
-    parts=[p for p in record.get('parts',[]) if p.get('status')=='verified']
+    parts=[p for p in record.get('parts',[])+record.get('source_geometry_hints',[])
+           if p.get('status')=='verified']
     parts += [p for p in ((state.get('published') or {}).get(parent.get('slug')) or {}).get('parts',[])
               if p.get('status')=='published' and p.get('bvid') and p.get('source_segments')]
     layouts=set()
@@ -2929,6 +2930,42 @@ def experiment_reuse_plan(candidates, state, needs):
     return plan
 
 
+def old_treatment_blocks_reselection(entry, record, state):
+    """An old, unposted overlap is not proof the fixed selector already ran."""
+    if (entry.get('failed') or entry.get('uploading') or not inventory_record_current(record)
+            or any(p.get('status')=='published' and p.get('bvid') for p in
+                   (state.get('published',{}).get(entry['slug']) or {}).get('parts',[]))):
+        return True
+    parts=[p for p in record.get('parts',[]) if p.get('status')=='verified'
+           and experiment.actual_profile(p)==experiment.TREATMENT]
+    if not parts:return True
+    for part in parts:
+        if (not re.fullmatch('[a-f0-9]{64}',str(part.get('source_sha256') or ''))
+                or part.get('source_sha256')!=entry.get('experiment_mother_sha256')
+                or type(part.get('index')) is not int
+                or part['index'] in processed_part_indices(entry)):
+            return True
+        error=inventory_publication_error(part,entry,state)
+        if not error or '与已经发布的母片时间段重叠' not in error:
+            return True
+    return False
+
+
+def same_mother_scene_geometry(inventory, mother_sha):
+    """Verified old pixels can guide format, never authorize another excerpt."""
+    if not re.fullmatch('[a-f0-9]{64}',str(mother_sha or '')):return []
+    hints=[]
+    for record in inventory.get('artifacts',[]):
+        if not inventory_record_current(record):continue
+        for part in record.get('parts',[]):
+            if (part.get('status')!='verified' or part.get('source_sha256')!=mother_sha
+                    or experiment.actual_profile(part)!=experiment.TREATMENT):continue
+            hints.append({k:part[k] for k in ('source_sha256','resolution','render_mode','status','sha256') if k in part}
+                | dict(geometry_source_slug=record['slug'],geometry_artifact_id=record.get('artifact_id'),
+                       geometry_run_id=record.get('run_id')))
+    return hints
+
+
 def experiment_reuse_candidates(state, inventory, items):
     """One bounded automatic attempt per verified long mother, never relabel stock."""
     if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
@@ -2941,8 +2978,10 @@ def experiment_reuse_candidates(state, inventory, items):
     current_records={r.get('slug'):r for r in inventory.get('artifacts',[])}
     for slug,e in latest.items():
         record=current_records.get(slug,{})
-        if any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
-               for p in record.get('parts',[])):
+        if (any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
+                for p in record.get('parts',[]))
+                and (e.get('experiment_selection_revision')==experiment.SELECTION_REVISION
+                     or old_treatment_blocks_reselection(e,record,state))):
             active_or_current[slug]=e
         elif e.get('experiment_parent_slug') and not e.get('failed') and not record:
             active_or_current[slug]=e  # Unknown/in-flight old outcome: do not duplicate it.
@@ -2983,7 +3022,9 @@ def experiment_reuse_candidates(state, inventory, items):
         if not remaining:continue
         used_sources.add(url)
         if mother_sha:used_hashes.add(mother_sha)
-        yield ({**entry,'source_sha256':mother_sha} if mother_sha else entry),record
+        hints=same_mother_scene_geometry(inventory,mother_sha)
+        yield ({**entry,'source_sha256':mother_sha} if mother_sha else entry),(
+            {**record,'source_geometry_hints':hints} if hints else record)
 
     # A consumed delivery is not an exhausted raw mother. The old loop only
     # revisited mothers that still had ordinary stock, hiding older verified
@@ -3014,8 +3055,13 @@ def experiment_reuse_candidates(state, inventory, items):
         if entry.get('source_sha256') and entry['source_sha256']!=mother_sha:continue
         used_sources.add(url);used_hashes.add(mother_sha)
         recovery=entry.get('recovery_origin_run_id') or entry.get('source_check_run_id')
+        hints=same_mother_scene_geometry(inventory,mother_sha)
+        if not recovery:
+            recovery=next((h['geometry_run_id'] for h in hints if type(h.get('geometry_run_id')) is int
+                           and h['geometry_run_id']>0),None)
         yield {**entry,'source_sha256':mother_sha},dict(run_id=recovery,
-            provenance='published_source_sha256',historical_mother=True)
+            provenance='published_source_sha256',historical_mother=True,
+            **(dict(source_geometry_hints=hints) if hints else {}))
 
 
 def obsolete_review_candidates(state, inventory):
