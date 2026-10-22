@@ -42,7 +42,9 @@ def main():
     assert 6 in old and 6 not in new and 5 in new
     proof=dict(artifact=12407526223,source_sha256=source['source_sha256'],
         transcript_sha256=audit['transcript_sha256'],old_excluded=old,new_excluded=new,
-        title_draft_profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production'),
+        title_draft_profile=producer.title_draft_profile('林园',pick['story_selection']),
+        producer_sha256=hashlib.sha256(Path(producer.__file__).read_bytes()).hexdigest(),
+        experiment_sha256=hashlib.sha256(Path(title.__file__).with_name('publishing_experiment.py').read_bytes()).hexdigest(),
         diagnostic_only=True,registered_stock=False,published=False,passed=False)
     (output/'boundary.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     # All actual source/title evidence, qualifiers, independent full-dialogue
