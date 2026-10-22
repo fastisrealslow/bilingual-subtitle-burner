@@ -41579,7 +41579,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-01T12:09:45+00:00"
+   "publish_time": "2026-08-01T12:09:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-d642f7",
+    "run_id": 39865052066,
+    "artifact_id": 12465180907,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配5539/7421，总帧数9409；身份匹配但人脸短边不足96px的帧数1882"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39865052066,
+    "artifact_id": 12465180907,
+    "name": "production-reject-ly-1022-d642f7",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配5539/7421，总帧数9409；身份匹配但人脸短边不足96px的帧数1882",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5355312596910828",
@@ -41636,7 +41658,8 @@
    },
    "last_error": "整段取景预检：源 359.77s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1VQ4y1g7Ei",
@@ -41681,7 +41704,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配579/895，总帧数1576；身份匹配但人脸短边不足96px的帧数59",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1YC4y177dn",
@@ -41726,7 +41750,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1p1nT67Ezx",
@@ -115603,6 +115628,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/Yht8cUU9gx08BF2zIgJG01041201z5Ss0E010.mp4",
    "ts": 1792709171,
    "error": "整段取景预检：源 359.77s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1022-d642f7",
+   "key": "bilibili_search:BV1DeGG6DEcf",
+   "video_id": "BV1DeGG6DEcf",
+   "ts": 1792709575,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配5539/7421，总帧数9409；身份匹配但人脸短边不足96px的帧数1882"
   }
  ],
  "reviewed_third_video_0910": {
