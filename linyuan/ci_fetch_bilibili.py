@@ -353,6 +353,8 @@ def mirror_prefix_proof(op, url, referer, partial, total, etag, deadline,
     except FetchBudgetExceeded as exc:
         if time.monotonic() >= deadline:
             raise
+        print('[CDN核对超时切换] '+json.dumps(dict(host=urlparse(url).hostname,
+            retained=Path(partial).stat().st_size,proof_budget_seconds=budget_seconds)),flush=True)
         raise RuntimeError('当前镜像前缀核对达到独立预算；保留原断点，尝试其他镜像') from exc
 
 
