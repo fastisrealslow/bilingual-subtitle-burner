@@ -2806,11 +2806,14 @@ def mark_part_processed(entry, index):
     entry['processed_part_indices']=sorted(i for i in done if i>=prefix)
 
 
-def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fallback=False):
+def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fallback=False,
+                         publication_state=None):
     """Pick an inspected usable part without letting an early audio card block live ones.
 
     None means this inspected artifact has no remaining eligible part;
     absent inspection falls back to the normal full checks at the current index.
+    Automatic publication uses the same current-history/rights/topic eligibility
+    as stock counts and catch-up BEFORE downloading a known inspected file.
     """
     for record in records:
         if record.get('slug')!=entry['slug'] or record.get('artifact_id')!=artifact_id:
@@ -2819,7 +2822,9 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fa
             return None
         ready=sorted((p for p in record.get('parts',[])
                       if p.get('status')=='verified'
-                      and int(p['index']) not in processed_part_indices(entry)),
+                      and int(p['index']) not in processed_part_indices(entry)
+                      and (publication_state is None
+                           or not inventory_publication_error(p,entry,publication_state))),
                      key=lambda p:(experiment.rank(p,experiment.assignment(now)) if now is not None else 0,
                                    int(p['index'])))
         if ready:
@@ -4150,6 +4155,7 @@ def publish_handler(event=None, context=None):
                     and r.get('artifact_id')==art_ids.get(entry['slug']) and inventory_record_current(r)
                     for p in r.get('parts',[]) if p.get('status')=='verified'
                     and int(p['index']) not in processed_part_indices(entry)
+                    and not inventory_publication_error(p,entry,st)
                     and content_fits_slot(p,entry,publication_slot_time(makeup_slot) if makeup_slot else now)]
             return min((experiment.rank(p,publication_plan) for p in usable),default=2)
         pending.sort(key=pending_rank)
@@ -4193,7 +4199,8 @@ def publish_handler(event=None, context=None):
         if s in arts:
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
                 now=publication_slot_time(makeup_slot) if makeup_slot else (None if batch_slug else now),
-                weekly_fallback=bool(makeup_slot and event.get('weekly_full_fallback')))
+                weekly_fallback=bool(makeup_slot and event.get('weekly_full_fallback')),
+                publication_state=st if not batch_slug or makeup_slot else None)
             if selected_part_index is None:
                 reasons=[p.get('reason') for r in reserve_records if r.get('slug')==s
                          for p in r.get('parts',[]) if p.get('reason')]
