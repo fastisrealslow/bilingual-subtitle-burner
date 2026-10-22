@@ -40750,14 +40750,10 @@
    "recovery_origin_run_id": 39014441603,
    "production_failure_summary": {
     "slug": "ly-story-fb8a34b6b5",
-    "run_id": 39825521967,
-    "artifact_id": 12450565195,
+    "run_id": 39840153216,
+    "artifact_id": 12454635385,
     "accepted": 0,
     "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是没有。\", \"suspect_quote\": \"那个年代的快快乐\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“快快乐”在语境中含义不明，疑似将专有名词或特定词汇误识别为普通形容词，且无法通过上下文解释其具体指代。\"}, {\"sentence_id\": 12, \"quote\": \"嗯，那现在可能也有很很多年轻人会去抱怨说，当下这个市场也不存，就是您当年的那些改变命运的机会就比较少了。\", \"suspect_"
-     },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]"
@@ -40770,8 +40766,8 @@
    },
    "source_check_report_id": 12450565195,
    "source_check_run_id": 39825521967,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是没有。\", \"suspect_quote\": \"那个年代的快快乐\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“快快乐”在语境中含义不明，疑似将专有名词或特定词汇误识别为普通形容词，且无法通过上下文解释其具体指代。\"}, {\"sentence_id\": 12, \"quote\": \"嗯，那现在可能也有很很多年轻人会去抱怨说，当下这个市场也不存，就是您当年的那些改变命运的机会就比较少了。\", \"suspect_quote\": \"当下这个市场也不存\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“不存”在金融或日常语境中含义不明，疑似将否定词与名词组合时的误识别（如可能应为“不存在”、“不存钱”等），导致关键信息无法理解。\"}]",
-   "failure_stage": "quality-service",
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]",
+   "failure_stage": "editorial-or-render",
    "experiment_layout_recovery": {
     "previous": "landscape",
     "requested": "portrait",
@@ -40779,7 +40775,15 @@
     "reason": "same_mother_published_portrait_and_empty_failed_batch",
     "ts": 1792691150
    },
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39840153216,
+    "artifact_id": 12454635385,
+    "name": "production-reject-ly-story-fb8a34b6b5",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "video_id": "BV1sUQHY3EiA",
@@ -114569,6 +114573,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
    "ts": 1792695772,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
+  },
+  {
+   "slug": "ly-story-fb8a34b6b5",
+   "key": "ly-story-fb8a34b6b5",
+   "video_id": "https://f.video.weibocdn.com/u0/P5ftb4y3gx08BDIhXWSk01041209OVM50E040.mp4",
+   "ts": 1792698433,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
