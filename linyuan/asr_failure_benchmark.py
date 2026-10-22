@@ -20,6 +20,7 @@ CASES = {
 MODELS = {
     '0.6b': ('Qwen/Qwen3-ASR-0.6B', '5eb144179a02acc5e5ba31e748d22b0cf3e303b0'),
     '1.7b': ('Qwen/Qwen3-ASR-1.7B', '7278e1e70fe206f11671096ffdd38061171dd6e5'),
+    'sensevoice-int8': ('sherpa-onnx/SenseVoiceSmall-int8-2024-07-17', 'actual-model-sha256'),
 }
 
 
@@ -39,7 +40,8 @@ def failure_windows(cues, issues, recognition):
         start,end=touched[0]['start'],touched[-1]['end']
         for chunk in recognition['chunks']:
             if chunk['core_start']<end and chunk['core_end']>start:
-                selected[chunk['core_start']]={**chunk,'sample_kind':'actual_rejected_number'}
+                selected[chunk['core_start']]={**chunk,'sample_kind':'actual_rejected_number',
+                    'issue_start_sec':start,'issue_end_sec':end}
     if not selected or len(selected)>4:
         raise ValueError('失败音频没有有界且明确的原始识别窗口')
     # One untouched control, not just cherry-picked suspicious words.
@@ -96,6 +98,11 @@ def prepare(case, root):
         name=f'{case}-{chunk["core_start"]}.wav'
         with wave.open(str(root/name),'wb') as output:
             output.setnchannels(1);output.setsampwidth(2);output.setframerate(16000);output.writeframes(clip)
+        if chunk['sample_kind']=='actual_rejected_number':
+            midpoint=(chunk['issue_start_sec']+chunk['issue_end_sec'])/2
+            subprocess.run(['ffmpeg','-y','-v','error','-ss',str(midpoint),'-i',str(media),
+                            '-frames:v','1',str(root/(name[:-4]+'-original-frame.png'))],
+                           check=True,timeout=90)
         samples.append(dict(id=name[:-4],file=name,source_url=spec['url'],
             source_sha256=actual,source_pcm_sha256=pcm_sha,pcm_sha256=hashlib.sha256(clip).hexdigest(),
             offset=chunk['offset'],duration=len(clip)/32000,sample_kind=chunk['sample_kind'],
@@ -109,24 +116,40 @@ def prepare(case, root):
 def infer(model_key, audio, output):
     from importlib.metadata import version
     import numpy as np
-    import torch
-    from huggingface_hub import snapshot_download
-    from qwen_asr import Qwen3ASRModel
-    from asr_cpu_benchmark import offline_only
-    from qwen_cpu_transcript import retry_repetitive_transcript
+    from asr_cpu_benchmark import offline_only,download_weights
     model_id,revision=MODELS[model_key]
-    weights=snapshot_download(model_id,revision=revision)
-    torch.set_num_threads(2);torch.set_num_interop_threads(1)
-    offline_only()
-    started=time.monotonic()
-    model=Qwen3ASRModel.from_pretrained(weights,dtype=torch.float32,device_map='cpu',
-                                      max_inference_batch_size=1,max_new_tokens=512)
+    output.mkdir(parents=True,exist_ok=True)
+    if model_key=='sensevoice-int8':
+        import sherpa_onnx
+        weights=download_weights(model_key,output/'weights')
+        revision=hashlib.sha256((weights/'model.int8.onnx').read_bytes()).hexdigest()
+        offline_only();started=time.monotonic()
+        model=sherpa_onnx.OfflineRecognizer.from_sense_voice(model=str(weights/'model.int8.onnx'),
+            tokens=str(weights/'tokens.txt'),num_threads=2,provider='cpu',language='zh',use_itn=True)
+        def decode(samples,context):
+            if context:raise ValueError('独立识别器不支持相同上下文，不宣称有词表的公平对照')
+            stream=model.create_stream();stream.accept_waveform(16000,samples);model.decode_stream(stream)
+            return stream.result.text,None
+        versions=dict(sherpa_onnx_version=version('sherpa-onnx'),context_supported=False)
+    else:
+        import torch
+        from huggingface_hub import snapshot_download
+        from qwen_asr import Qwen3ASRModel
+        from qwen_cpu_transcript import retry_repetitive_transcript
+        weights=snapshot_download(model_id,revision=revision)
+        torch.set_num_threads(2);torch.set_num_interop_threads(1)
+        offline_only();started=time.monotonic()
+        model=Qwen3ASRModel.from_pretrained(weights,dtype=torch.float32,device_map='cpu',
+                                          max_inference_batch_size=1,max_new_tokens=512)
+        def decode(samples,context):
+            text=model.transcribe(audio=(samples,16000),language='Chinese',context=context)[0].text
+            return retry_repetitive_transcript(model,samples,16000,text,context=context)
+        versions=dict(qwen_asr_version=version('qwen-asr'),torch_version=torch.__version__)
     report=dict(diagnostic_only=True,production_approved=False,registered_stock=False,published=False,
         model_id=model_id,model_revision=revision,device='cpu',threads=2,
-        qwen_asr_version=version('qwen-asr'),torch_version=torch.__version__,
+        **versions,
         networking_during_inference=False,model_load_seconds=time.monotonic()-started,
         reference_kind='paired hypotheses; no human gold transcript or CER',results=[])
-    output.mkdir(parents=True,exist_ok=True)
     manifests=sorted(audio.glob('*/manifest.json'))
     if len(manifests)!=len(CASES):raise ValueError('需要两个真实失败母片的相同音频样本')
     for manifest in manifests:
@@ -139,8 +162,7 @@ def infer(model_key, audio, output):
                 raise ValueError('对照样本PCM哈希不匹配')
             samples=np.frombuffer(pcm,np.int16).astype(np.float32)/32768
             start=time.monotonic()
-            text=model.transcribe(audio=(samples,16000),language='Chinese',context=item['context']['text'])[0].text
-            text,repair=retry_repetitive_transcript(model,samples,16000,text,context=item['context']['text'])
+            text,repair=decode(samples,item['context']['text'])
             row={**item,'hypothesis':text,'decode_repair':repair,'elapsed_seconds':time.monotonic()-start}
             row['rtf']=row['elapsed_seconds']/item['duration']
             report['results'].append(row)

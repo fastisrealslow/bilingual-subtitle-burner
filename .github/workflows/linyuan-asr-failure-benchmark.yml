@@ -57,6 +57,9 @@ jobs:
           retention-days: 30
           if-no-files-found: error
   compare:
+    # Original pinned Qwen pair already completed in run39730698361. Later
+    # pushes add independent checks without rerunning a rejected 1.7B model.
+    if: github.event_name == 'workflow_dispatch'
     needs: audio
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -83,9 +86,15 @@ jobs:
           name: asr-failure-audio-percentage
           path: asr-failure-audio/percentage
       - name: 安装CPU识别依赖（不启动文本模型）
+        env:
+          MODEL: ${{ matrix.model }}
         run: |
-          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          pip install qwen-asr==0.0.6
+          if [ "$MODEL" = sensevoice-int8 ]; then
+            pip install sherpa-onnx numpy huggingface_hub
+          else
+            pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+            pip install qwen-asr==0.0.6
+          fi
       - name: 相同PCM、相同上下文、相同CPU配置的独立假设对照
         env:
           MODEL: ${{ matrix.model }}
@@ -94,6 +103,39 @@ jobs:
         if: always()
         with:
           name: asr-failure-hypotheses-${{ matrix.model }}
+          path: asr-failure-result/hypotheses.json
+          retention-days: 30
+          if-no-files-found: warn
+  independent:
+    needs: audio
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: asr-failure-audio-fund
+          path: asr-failure-audio/fund
+      - uses: actions/download-artifact@v4
+        with:
+          name: asr-failure-audio-percentage
+          path: asr-failure-audio/percentage
+      - name: 安装独立CPU识别器
+        run: pip install sherpa-onnx numpy huggingface_hub
+      - name: 独立模型读取同一PCM（仍不是人工金标或生产批准）
+        run: python -u linyuan/asr_failure_benchmark.py infer --model sensevoice-int8
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asr-failure-hypotheses-sensevoice-int8
           path: asr-failure-result/hypotheses.json
           retention-days: 30
           if-no-files-found: warn
