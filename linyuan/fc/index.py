@@ -2492,7 +2492,9 @@ def _dispatch_admitted(event=None, context=None):
                     except Exception as exc:
                         log.warning('历史原始转写索引暂不可读：%s',type(exc).__name__)
                 story_reuse.sort(key=lambda pair:(bool(pair[1].get('historical_mother')),
-                    not bool(pair[1].get('run_id')),-float(pair[0].get('ts') or 0)))
+                    not bool(pair[1].get('run_id')),
+                    platform_of(pair[0].get('source',''))!='bilibili',
+                    -float(pair[0].get('ts') or 0)))
             for entry,record in obsolete_review_candidates(st,reserve):
                 if recent_probe: break  # This one slot is for a recent source, not an old retry.
                 if story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY:break

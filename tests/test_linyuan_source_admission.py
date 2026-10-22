@@ -24,11 +24,14 @@ def test_real_archives_survive_overlong_compilations_in_both_input_orders():
     rows = json.loads((ROOT / 'tests/fixtures/linyuan_0916_source_admission.json').read_text())
     expected = {r['id'] for r in rows if 120 <= r['extra']['duration'] <= 5400}
     assert len(expected) == 30
+    # The duration fixture remains unchanged. This exact archived source was
+    # freshly observed as no_reprint=1 on Oct22 and must now stay research-only.
+    expected.remove('bilibili_search:BV1Yu2uBcEDh')
     for items in (rows, rows[::-1]):
         audit = fc.source_admission_audit(items, state())
         assert {r['key'] for r in audit['candidates']} == expected
         assert audit['excluded']['over_limit'] == 9
-        assert audit['known_duration_candidates'] == 30
+        assert audit['known_duration_candidates'] == 29
         assert sum(audit['excluded'].values()) + audit['candidate_count'] == len(rows)
 
 
