@@ -13,7 +13,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 VERSION = 2026101801
-SELECTION_REVISION = 2026102005
+SELECTION_REVISION = 2026102201
 EXPERIMENT_ID = 'field-story-30d-20261018'
 BASELINE = 'baseline'
 TREATMENT = 'field-story-v1'
@@ -118,13 +118,30 @@ def selection_request(cues, candidates):
         '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
         '说的具体事情或选择；detail_sentence是另一条原话原因/经过/细节，不能与event_sentence相同。'
         '不能从别的片段借事实，不能把主持人的假设当嘉宾结论。'
-        '事件必须是嘉宾讲出的具体行为、经历或公司发生的事；“机会存在”等抽象总结不是事件。'
+        'company_case也包括已经发生的具体公司投资选择及其理由：主持人明确询问过去为何选择某家已点名公司，'
+        '嘉宾紧接着直接解释当时的理由、经过或所采取的标准，且没有否认该选择时，'
+        '对象可取该问题原句，事件与细节分别取嘉宾两条不同的完整回答。'
+        '这类回答不要求嘉宾再重复公司名或逐字说“我买了”；理由中的当时采取的标准可以交代这次选择。'
+        '只问未来可能如何、提出假设、嘉宾否认或未回答，不能据此认定已发生的公司案例。'
+        'personal_story的事件必须是嘉宾讲出的具体行为或经历；company_case也可取对这次已发生公司选择的直接原因，'
+        '不能把本次选择的直接回答误当成泛泛建议。“机会存在”等抽象总结不是事件。'
         '理论、原则、方法总结和应该怎么做的建议本身不是已经发生的个人经历；'
         'personal_story必须另有本人实际做过、没做过或明确采取某项选择的原句，不能只因为提到我们或过去经历就入选。'
+        'personal_story的事件不要选比喻式劝告或“这样就行了”的建议结语；要选本人实际经历或选择的叙述原句，否则skip。'
         '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
     return prompt, schema
+
+
+def personal_event_error(event):
+    """Selection and delivery must agree on an actual event, not advice."""
+    normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
+    advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
+    actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
+    if (normative_recap or advice_conclusion) and not actual_action:
+        return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
+    return None
 
 
 def validate_choices(cues, candidates, response):
@@ -172,11 +189,8 @@ def validate_choices(cues, candidates, response):
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
         if row['kind']=='personal_story':
-            event=row['event_quote']
-            normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
-            actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
-            if normative_recap and not actual_action:
-                raise ValueError('A normative method/theory recap is not a concrete personal event or actual choice')
+            issue=personal_event_error(row['event_quote'])
+            if issue:raise ValueError(issue)
         if row['kind']=='company_case' and not title_focus(row)['subjects']:
             raise ValueError('Named company subject required; generic assets/rules are not a company case')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
@@ -339,17 +353,25 @@ def story_title_prompt(prompt,schema,evidence):
         '不能把主持人的猜测当成嘉宾结论。本片选题就是下列具体事例，中心是嘉宾在这件事上的实际选择或判断及其原因。')
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
         'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
+    focus=title_focus(evidence)
+    scope=('\n标题范围（仅为原文字词范围，不是事实批准）：'+json.dumps(dict(
+        object_terms=focus['subjects'],named_reason_terms=focus['details'],
+        body_only_background_terms=focus['background_terms']),ensure_ascii=False)+
+        '。仅正文背景词不放入标题或封面；所有事实、主体和条件仍按完整原文核对。') if focus['background_terms'] else ''
     return prompt+('\n本片只为下面的具体公司事例或亲身经历拟标题，不为此前的抽象自评拟标题。'
         '通读全部上下文，所有说话人和否定条件仍须独立核对，不删掉其他嘉宾回答。'
         '阅读概括先说清这件具体事情；拟稿时三个候选都从该事情的实际对象和选择开头，'
-        '再表达本人理由；理由优先保留细节原句里的关键名词，不换成别的对象的增长或爆发。'
+        '再表达本人理由；理由优先保留原话明确命名的理论或选择标准，不换成别的对象的增长或爆发。'
         '拟稿像本人随口讲清一件事：具体选择加一条最直接理由，正文优先16至26字，'
-        '不为了字数截断、不省略必要条件。若细节原句已明确命名理论或选择标准，'
+        '不为了字数截断、不省略必要条件。若事件或细节原句已明确命名理论或选择标准，'
         '直接沿用这个原词，不必把背景时点、程度描述和整条推理链都串进标题。'
+        '已有明确命名的选择理论或标准时，标题只说具体选择和这一条命名理由；'
+        '其他背景变量、时点和程度留在视频正文，不再压进标题。'
+        '不要把未明确主语的“爆发”接到另一个名词上，制造原话没有明说的增长断言。'
         '三个候选换自然说法，不往同一句堆更多背景；避免连续“基于、前的、所导致”等书面连接。'
         '核对时事实支持、说话人归属和限定条件标准完全不变。'
         '下列线索是本段逐字原句，不是已批准的事实或预填标题；提问只提供上下文，不能当嘉宾断言。\n'
-        +json.dumps(evidence,ensure_ascii=False))
+        +json.dumps(evidence,ensure_ascii=False)+scope)
 
 
 def title_focus(selection):
@@ -374,9 +396,33 @@ def title_focus(selection):
         compound=[a.word+b.word for a,b in zip(words,words[1:])
                   if a.word in tokens and b.word in tokens and len(a.word+b.word)<=10]
         return list(dict.fromkeys(compound or tokens))[:6]
-    return dict(subjects=terms(selection.get('subject_quote',''),True)
-                if selection.get('kind')=='company_case' else [],
-                details=terms(selection.get('detail_quote','')),
+    reason=selection.get('detail_quote','');named_reason=False
+    if selection.get('kind')=='company_case':
+        # A direct past-choice answer may supply either event or detail.
+        # Prefer its explicitly named decision standard in either position;
+        # do not force a background noun merely because the model swapped
+        # two otherwise valid source quotes. Independent fact review remains.
+        named_standard=r'(?:提出|采用|采取|按照|根据|遵循)[^。！？!?]{0,30}(?:理论|标准|策略|思路)|(?:理论|标准|策略|思路)[^。！？!?]{0,20}(?:是|叫|为)'
+        for key in ('event_quote','detail_quote'):
+            quote=selection.get(key,'')
+            if re.search(named_standard,quote) and terms(quote):
+                reason=quote
+                named_reason=True
+                break
+    subjects=terms(selection.get('subject_quote',''),True) if selection.get('kind')=='company_case' else []
+    details=terms(reason)
+    def background_terms(quote):
+        # POS dictionaries tag some nominal variables as verbs (e.g. 的收入).
+        # Recover only the local nominal construction, not opinion/qualifier
+        # verbs whose removal could change uncertainty or speaker attribution.
+        words=list(jieba.posseg.cut(quote))
+        nominal=[w.word for i,w in enumerate(words) if i and words[i-1].word=='的'
+            and w.flag in {'v','vn'} and 2<=len(w.word)<=10 and w.word not in generic]
+        return list(dict.fromkeys(terms(quote)+nominal))
+    background=list(dict.fromkeys(t for key in ('event_quote','detail_quote')
+        if selection.get(key,'')!=reason for t in background_terms(selection.get(key,''))
+        if t not in subjects and t not in details)) if named_reason else []
+    return dict(subjects=subjects,details=details,background_terms=background,
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
 
 
@@ -388,12 +434,15 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
     if focus.get('details') and not any(t in body for t in focus['details']):
         return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])
+    if any(t in body+'\n'+str(cover or '') for t in focus.get('background_terms',[])):
+        return '本次已有明确命名的选择理由；标题和封面只保留具体选择及该理由，背景变量请留在正文：'+','.join(focus['background_terms'])
     # Real CPU drafts repeatedly collapsed an income-level background clause
     # into a new income-boom claim. Independent model reviews approved it.
     # Require an explicit original phrase for this stronger claim, not a word
     # from one clause concatenated with a growth metaphor from another.
-    from title_rewrite import income_boom_error
-    return income_boom_error(title,cover,''.join(focus.get('source') or []))
+    from title_rewrite import income_boom_error,named_choice_boom_error
+    source=''.join(focus.get('source') or [])
+    return income_boom_error(title,cover,source) or named_choice_boom_error(title,cover,source)
 
 
 def proof_error(meta):
@@ -415,6 +464,9 @@ def proof_error(meta):
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
+    if s['kind']=='personal_story':
+        issue=personal_event_error(s['event_quote'])
+        if issue:return issue
     focus=title_focus(s)
     if s['kind']=='company_case' and not focus['subjects']:
         return 'A generic asset/rule is not a named company case'

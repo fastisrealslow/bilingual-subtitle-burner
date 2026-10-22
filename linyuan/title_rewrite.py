@@ -865,6 +865,19 @@ def income_boom_error(title, cover, transcript):
     return None
 
 
+def named_choice_boom_error(title, cover, transcript):
+    """Do not assign an unnamed boom to a separately named decision standard."""
+    standards=re.findall(r'(?:理论|标准|策略|思路)(?:就)?(?:是|叫|为)[，,\s]*[“「]?([\u4e00-\u9fff]{2,12})',transcript or '')
+    for phrase in standards:
+        phrase=phrase.rstrip('啊呢呀')
+        if len(phrase)<2:continue
+        boom=re.escape(phrase)+r'(?:的)?(?:将|会|要|已|即将|到了?|达(?:到)?|正处于)?爆发'
+        if (re.search(boom,str(title or '')+'\n'+str(cover or ''))
+                and not re.search(boom,transcript or '')):
+            return '不能把已命名的理论或标准与另一句未明确主体的爆发拼成新断言；保留原话明确命名的选择理由'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -882,6 +895,8 @@ def forecast_copy_error(title, cover, transcript):
     if allocation_issue:return allocation_issue
     income_issue=income_boom_error(title,cover,transcript)
     if income_issue:return income_issue
+    named_boom_issue=named_choice_boom_error(title,cover,transcript)
+    if named_boom_issue:return named_boom_issue
     clause_issue = hypothetical_clause_error(title, cover, transcript)
     if clause_issue:
         return clause_issue

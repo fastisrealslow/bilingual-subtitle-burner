@@ -145,9 +145,16 @@ def test_story_title_requires_actual_company_and_named_reason_not_approved_gener
     assert E.title_focus_error('林园：当年投茅台，看准收入爆发前的消费升级',focus)
     assert E.title_focus_error('林园：投茅台因收入达爆发期，认准消费升级理论',focus)
     assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus) is None
+    swapped={**selection,'event_quote':selection['detail_quote'],'detail_quote':selection['event_quote']}
+    assert E.title_focus(swapped)['details']==focus['details']==['消费升级']
+    assert E.title_focus_error('林园：当年投茅台是消费升级理论的选择',E.title_focus(swapped)) is None
+    assert E.title_focus_error('林园：投茅台因收入爆发期',E.title_focus(swapped))
     assert E.title_focus_error('林园：当年投茅台，看的是消费升级',focus,cover='收入爆发前投茅台')
-    explicit={**focus,'source':['收入将爆发，消费升级。']}
+    explicit={**focus,'background_terms':[],'source':['收入将爆发，消费升级。']}
     assert E.title_focus_error('林园：投茅台看消费升级和收入将爆发',explicit) is None
+    actual_bad='林园：当时选茅台是因收入达标，处于消费升级爆发前期'
+    assert E.title_focus_error(actual_bad,E.title_focus(swapped),cover='收入达标是消费升级爆发前期')
+    assert '收入' in E.title_focus(swapped)['background_terms']
 
 
 def test_title_engine_rejects_out_of_source_story_anchors():
@@ -292,6 +299,32 @@ def test_real_model_selects_sentence_ids_and_program_extracts_exact_quotes():
     with pytest.raises(ValueError,match='sentence ID'):E.validate_choices(cues,picks,verdict)
     verdict['candidate_0']['kind']='skip'
     assert E.validate_choices(cues,picks,verdict)==[]
+
+
+def test_company_qa_rule_keeps_direct_guest_answers_and_hypothesis_boundaries():
+    cues=[dict(text='您当年为何选择茅台？因为当时收入到了一个水平。我们当时就选择消费升级。')]
+    prompt,_=E.selection_request(cues,[dict(start=0,end=0)])
+    assert '不要求嘉宾再重复公司名' in prompt
+    assert '嘉宾否认或未回答' in prompt and 'personal_story必须另有本人实际做过' in prompt
+    choice=E.validate_choices(cues,[dict(start=0,end=0)],dict(candidate_0=dict(
+        kind='company_case',subject_sentence=0,event_sentence=1,detail_sentence=2)))
+    assert choice[0]['story_selection']['event_quote']=='因为当时收入到了一个水平。'
+
+
+def test_actual_metaphorical_advice_is_not_a_personal_event():
+    subject='那是怎么做到这点？'
+    event='再爬起来就行了。'
+    detail='可能我的骨子里就多一点阿Q精神。'
+    actual='也没有避免，当然，但这个有些东西啊，我们知道那个结果是避免不了的。'
+    cues=[dict(text=subject+actual+event+detail)]
+    row=dict(index=0,kind='personal_story',subject_quote=subject,event_quote=event,detail_quote=detail)
+    with pytest.raises(ValueError,match='advice conclusion'):
+        E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[row]))
+    assert E.validate_choices(cues,[dict(start=0,end=0)],dict(choices=[{**row,'event_quote':actual}]))
+    meta=treatment()[0]
+    meta['experiment_proof']['selection']['event_quote']=event
+    assert 'advice conclusion' in E.proof_error(meta)
+    assert E.actual_profile(meta)==E.BASELINE
 
 
 def test_empty_story_selection_is_not_a_quality_rejection_or_fake_treatment():
