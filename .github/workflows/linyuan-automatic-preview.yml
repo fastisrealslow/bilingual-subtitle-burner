@@ -48,6 +48,7 @@ jobs:
         python-version: '3.11'
         cache: pip
     - name: 安装 ffmpeg 与中文字体
+      id: media_setup
       timeout-minutes: 15
       run: bash ci_install_media_tools.sh
     - name: CPU离线ASR与完整观点规则回归（失败不进入实产）
