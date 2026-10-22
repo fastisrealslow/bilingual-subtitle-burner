@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792711688,
+  "updated_at": 1792711998,
   "inventory_updated_at": 1792711657,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,17 +89,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792711688,
+    "updated_at": 1792711997,
     "records": 11447,
     "video_records": 9879,
-    "initial_candidates": 71,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
+    "initial_candidates": 70,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
     "known_duration_candidates": 3,
-    "unknown_duration_candidates": 7,
+    "unknown_duration_candidates": 6,
     "excluded": {
       "no_video": 1568,
-      "already_attempted_or_cooling": 1572,
+      "already_attempted_or_cooling": 1573,
       "clip_title": 1159,
       "speaker_unconfirmed": 6808,
       "noise": 21,
@@ -118,14 +118,6 @@
         "author": "网易视频",
         "url": "https://www.163.com/v/video/VL8JTA8UC.html",
         "duration_sec": 35.44
-      },
-      {
-        "key": "weibo_search:5327198606070910",
-        "title": "#昕礽果复利增长价值亿亿金# 林园总聊投资医药逻辑20201030 http://t.cn/AXCiPHic ​​​",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5327198606070910",
-        "duration_sec": 0
       },
       {
         "key": "weibo_search:5327198667933585",
@@ -207,14 +199,14 @@
   },
   "counts": {
     "complete": 139,
-    "failed": 1250,
+    "failed": 1252,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 15,
     "experiment_fallback": 9,
     "ready": 7,
     "retry_queued": 1,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -26057,11 +26049,11 @@
     },
     {
       "slug": "ly-1022-027c52",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792710975,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26075,11 +26067,11 @@
     },
     {
       "slug": "ly-1022-a4bea9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"只有一只股票啊，深发展，我们就关关注深发展。\", \"suspect_quote\": \"关关注\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“关注”或“关心”，多出的“关”字导致语义不通。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\", \"kind\": \"unintelligible_term\", \"reason\": \"金融领域无“四会交易”这一标准术语，疑似将“场外交易”或“柜台交易”误识，属于无法解释的具体词语。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"把这个辞了\", \"kind\": \"unintelligible_term\", \"reason\": \"在股票买卖语境下，“辞了”含义不明，疑似将“吃了”（吃掉）或“买了”误识，属于无法解释的具体词语。\"}, {\"sentence_id\": 4, \"quote\": \"他那个量挂的特别大，我记得当时把这个两万的买掉啊，那整整组织了很多人，很多人才把那个两百万硬是给买了。\", \"suspect_quote\": \"两万的买掉\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文前文提及总量为“两百万”，此处突然出现“两万”，数字量级差异巨大且无明确指代（是单价？还是笔误？），属于互相矛盾或含义不明的关键数字。\"}]",
       "signature": {
         "ts": 1792710983,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26108,6 +26100,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39871599034",
       "run_started_at": "2026-10-22T23:24:48Z",
       "run_updated_at": "2026-10-22T23:24:52Z"
+    },
+    {
+      "slug": "ly-1022-179861",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792711949,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39872463536,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39872463536",
+      "run_started_at": "2026-10-22T23:32:29Z",
+      "run_updated_at": "2026-10-22T23:32:33Z"
+    },
+    {
+      "slug": "ly-1022-f5ee61",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792711957,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39872477766,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39872477766",
+      "run_started_at": "2026-10-22T23:32:37Z",
+      "run_updated_at": "2026-10-22T23:32:41Z"
     }
   ],
   "runs": {
@@ -37518,17 +37546,6 @@
       "run_number": 2517,
       "display_title": "中文源出片 · ly-1022-1016a1"
     },
-    "ly-1022-4867b6": {
-      "id": 39871599034,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-22T23:24:48Z",
-      "updated_at": "2026-10-22T23:24:52Z",
-      "run_started_at": "2026-10-22T23:24:48Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39871599034",
-      "run_number": 2522,
-      "display_title": "中文源出片 · ly-1022-4867b6"
-    },
     "ly-1022-a4bea9": {
       "id": 39870682612,
       "status": "completed",
@@ -37550,6 +37567,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39870668568",
       "run_number": 2520,
       "display_title": "中文源出片 · ly-1022-027c52"
+    },
+    "ly-1022-f5ee61": {
+      "id": 39872477766,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T23:32:37Z",
+      "updated_at": "2026-10-22T23:32:41Z",
+      "run_started_at": "2026-10-22T23:32:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39872477766",
+      "run_number": 2524,
+      "display_title": "中文源出片 · ly-1022-f5ee61"
+    },
+    "ly-1022-179861": {
+      "id": 39872463536,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T23:32:29Z",
+      "updated_at": "2026-10-22T23:32:33Z",
+      "run_started_at": "2026-10-22T23:32:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39872463536",
+      "run_number": 2523,
+      "display_title": "中文源出片 · ly-1022-179861"
+    },
+    "ly-1022-4867b6": {
+      "id": 39871599034,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T23:24:48Z",
+      "updated_at": "2026-10-22T23:24:52Z",
+      "run_started_at": "2026-10-22T23:24:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39871599034",
+      "run_number": 2522,
+      "display_title": "中文源出片 · ly-1022-4867b6"
     },
     "ly-1022-6b4c23": {
       "id": 39867532137,
