@@ -37883,7 +37883,29 @@
    "experiment_selection_revision": 2026102005,
    "experiment_mother_sha256": "d4db5114a538405825f82ca9b0abc38b24a6b271a24dff884c69634f6cac682d",
    "experiment_parent_slug": "ly-0910-27365e",
-   "recovery_origin_run_id": null
+   "recovery_origin_run_id": null,
+   "production_failure_summary": {
+    "slug": "ly-story-cf6fe8c77b",
+    "run_id": 39736180010,
+    "artifact_id": 12411566907,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4192.00s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39736180010,
+    "artifact_id": 12411566907,
+    "name": "production-reject-ly-story-cf6fe8c77b",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 4192.00s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1se411H7tj",
@@ -38520,8 +38542,8 @@
    "publish_time": "2025-12-15T12:09:37+00:00",
    "production_failure_summary": {
     "slug": "ly-1017-e989b4",
-    "run_id": 39053879155,
-    "artifact_id": 12110481007,
+    "run_id": 39745527795,
+    "artifact_id": 12411262646,
     "accepted": 0,
     "failures": [
      {
@@ -38566,15 +38588,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39053879155,
-    "artifact_id": 12110481007,
+    "run_id": 39745527795,
+    "artifact_id": 12411262646,
     "name": "production-reject-ly-1017-e989b4",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -111576,6 +111598,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/htMXfJi5lx08B6gNlZJu010412056amm0E020.mp4",
    "ts": 1792656033,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
+  },
+  {
+   "slug": "ly-story-cf6fe8c77b",
+   "key": "ly-story-cf6fe8c77b",
+   "video_id": "http://f.video.weibocdn.com/o0/t3mAPfvVlx08AFpEafjq0104120fj5rN0E060.mp4",
+   "ts": 1792656942,
+   "error": "整段取景预检：源 4192.00s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
