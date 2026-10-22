@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792648104,
+  "updated_at": 1792648261,
   "inventory_updated_at": 1792648091,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 11,
-    "active_or_recovering_sources": 11,
+    "active_or_recovering_sources": 13,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -89,7 +89,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792648104,
+    "updated_at": 1792648261,
     "records": 11361,
     "video_records": 9795,
     "initial_candidates": 61,
@@ -128,12 +128,12 @@
     "complete": 137,
     "failed": 1191,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 4,
     "excluded": 11,
     "ready": 3,
     "experiment_fallback": 9,
-    "retry_queued": 6,
-    "running": 5
+    "retry_queued": 7,
+    "running": 6
   },
   "tasks": [
     {
@@ -24752,14 +24752,14 @@
     },
     {
       "slug": "ly-story-a4a99c14cd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792645711,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792649055,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -24839,6 +24839,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39729890763",
       "run_started_at": "2026-10-22T05:45:56Z",
       "run_updated_at": "2026-10-22T05:46:00Z"
+    },
+    {
+      "slug": "ly-story-3b04cd0934",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792648222,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39730313232,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39730313232",
+      "run_started_at": "2026-10-22T05:50:22Z",
+      "run_updated_at": "2026-10-22T05:50:27Z"
     }
   ],
   "runs": {
@@ -35523,6 +35541,28 @@
       "run_number": 2381,
       "display_title": "中文源出片 · ly-story-7524eb9e46"
     },
+    "ly-story-a4a99c14cd": {
+      "id": 39726318469,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-22T05:08:31Z",
+      "updated_at": "2026-10-22T05:47:02Z",
+      "run_started_at": "2026-10-22T05:08:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726318469",
+      "run_number": 2385,
+      "display_title": "中文源出片 · ly-story-a4a99c14cd"
+    },
+    "ly-story-3b04cd0934": {
+      "id": 39730313232,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-22T05:50:22Z",
+      "updated_at": "2026-10-22T05:50:27Z",
+      "run_started_at": "2026-10-22T05:50:22Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39730313232",
+      "run_number": 2390,
+      "display_title": "中文源出片 · ly-story-3b04cd0934"
+    },
     "ly-story-0a239e2b67": {
       "id": 39729890763,
       "status": "in_progress",
@@ -35555,17 +35595,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39727953226",
       "run_number": 2387,
       "display_title": "中文源出片 · ly-1022-3c9631"
-    },
-    "ly-story-a4a99c14cd": {
-      "id": 39726318469,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T05:08:31Z",
-      "updated_at": "2026-10-22T05:47:02Z",
-      "run_started_at": "2026-10-22T05:08:31Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39726318469",
-      "run_number": 2385,
-      "display_title": "中文源出片 · ly-story-a4a99c14cd"
     },
     "ly-story-d83bdfcc6f": {
       "id": 39723597737,
