@@ -392,10 +392,8 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     # into a new income-boom claim. Independent model reviews approved it.
     # Require an explicit original phrase for this stronger claim, not a word
     # from one clause concatenated with a growth metaphor from another.
-    boom=r'收入(?:水平)?(?:将|会|要|已|即将|到了?|达(?:到)?|正处于)?爆发'
-    if re.search(boom,body+'\n'+str(cover or '')) and not re.search(boom,''.join(focus.get('source') or [])):
-        return '不能把收入达到某个水平的背景压成收入爆发；用本段明确说出的实际理由'
-    return None
+    from title_rewrite import income_boom_error
+    return income_boom_error(title,cover,''.join(focus.get('source') or []))
 
 
 def proof_error(meta):

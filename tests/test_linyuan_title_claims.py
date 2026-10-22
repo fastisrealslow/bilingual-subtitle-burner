@@ -14,6 +14,19 @@ TEXT='龙头还没有走出来，大家看不清楚。我们就整个行业进�
 TITLE='林园：龙头还没跑出来，为什么先买整个行业？'
 
 
+def test_income_level_cannot_become_income_boom_in_baseline_or_cover():
+    source=('您当年投资茅台也是特别成功。当时为什么会选择投资茅台？'
+            '因为中国人那时候的收入它达到了一定的水平，就是要爆发的前期。'
+            '我们当时提出了一个理论是消费升级啊，就投消费升级。')
+    actual_bad='林园：投资是艺术，选茅台因收入爆发期'
+    assert T.forecast_copy_error(actual_bad,'投资是艺术，选茅台因收入爆发期',source)
+    positive='林园：当年投茅台是消费升级理论的选择'
+    assert T.forecast_copy_error(positive,'提消费升级理论就投消费升级',source) is None
+    assert T.forecast_copy_error(positive,'收入爆发前投茅台',source)
+    assert T.income_boom_error('收入将爆发','收入将爆发','收入将爆发，消费升级。') is None
+    assert T.income_boom_error('收入达到一定水平','收入水平提高',source) is None
+
+
 def proposals():
     return [dict(title=t,cover_title=c,subject='龙头',evidence=[TEXT.split('。')[0],TEXT.split('。')[1],TEXT.split('。')[2]]) for t,c in [
         (TITLE,'龙头未定，如何布局'),

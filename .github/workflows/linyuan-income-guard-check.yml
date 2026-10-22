@@ -1,0 +1,29 @@
+name: 真实普通回退标题失真核验（不调度不投稿）
+on:
+  push:
+    branches: [codex/linyuan-income-guard-20261022]
+    paths: [linyuan/title_rewrite.py, linyuan/publishing_experiment.py, linyuan/check_income_guard.py, .github/workflows/linyuan-income-guard-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q -r linyuan/fc/runtime-requirements.txt
+      - name: 实际错批普通标题拒绝，原实际公司标题不误拦
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python linyuan/check_income_guard.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: income-guard-verification
+          path: income-guard-verification.json
+          if-no-files-found: error
