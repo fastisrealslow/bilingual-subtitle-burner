@@ -30,9 +30,13 @@ jobs:
           # The Azure Ubuntu mirror stalled on the 61 MB CJK package until
           # the entire real Linux verification timed out (run 39742251970).
           # Keep Ubuntu's signed package validation, using its main archive.
-          if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
-            sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources
-          fi
+          # Hosted runners use mirror+file, so rewriting ubuntu.sources
+          # alone leaves Azure selected. Handle the actual mirror list too.
+          for source_config in /etc/apt/apt-mirrors.txt /etc/apt/sources.list.d/ubuntu.sources; do
+            if [ -f "$source_config" ]; then
+              sudo sed -i 's|https\?://azure\.archive\.ubuntu\.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$source_config"
+            fi
+          done
           sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
           sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends fonts-noto-cjk ffmpeg
       - name: 离线回归（不生产、不投稿）
