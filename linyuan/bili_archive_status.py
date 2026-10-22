@@ -62,7 +62,7 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
                 safe.update(observed_at=observed_at,statistics_origin='authenticated-creator-read',
                     statistics={k:counters.get(k) for k in ('view','like','danmaku')},
                     available_stat_fields=sorted(counters),available_archive_fields=sorted(archive),
-                    publication_clock_candidates={k:archive[k] for k in ('pubdate','pubtime','ctime') if k in archive})
+                    publication_clock_candidates={k:archive[k] for k in ('pubdate','ptime','online_time','ctime') if k in archive})
             result['videos'].append(safe)
         if not rows or (target <= {r['bvid'] for r in result['videos']}
                         and titles <= {r.get('title') for r in result['videos']}):
