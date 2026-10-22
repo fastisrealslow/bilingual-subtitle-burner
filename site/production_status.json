@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792682884,
-  "inventory_updated_at": 1792682674,
+  "updated_at": 1792683028,
+  "inventory_updated_at": 1792683009,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 12,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,18 +89,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792682884,
-    "records": 11411,
-    "video_records": 9844,
-    "initial_candidates": 61,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792683027,
+    "records": 11419,
+    "video_records": 9852,
+    "initial_candidates": 64,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "already_attempted_or_cooling": 1542,
       "clip_title": 1162,
-      "speaker_unconfirmed": 6815,
+      "speaker_unconfirmed": 6820,
       "no_video": 1567,
       "unrelated": 65,
       "noise": 20,
@@ -110,7 +110,32 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1XRnH6qEQ7",
+        "title": "林园采访极速版：今年以来不算牛市！",
+        "source": "bilibili_search",
+        "author": "半度16",
+        "url": "https://www.bilibili.com/video/BV1XRnH6qEQ7",
+        "duration_sec": 250.0
+      },
+      {
+        "key": "bilibili_search:BV1k8QnYeEsE",
+        "title": "20070608-网易专访林园-感觉好",
+        "source": "bilibili_search",
+        "author": "人人の股神",
+        "url": "https://www.bilibili.com/video/BV1k8QnYeEsE",
+        "duration_sec": 3863.0
+      },
+      {
+        "key": "bilibili_search:BV1ASetzpEuk",
+        "title": "林园：老龄化催生医药新机遇！",
+        "source": "bilibili_search",
+        "author": "有竞争就有风险",
+        "url": "https://www.bilibili.com/video/BV1ASetzpEuk",
+        "duration_sec": 490.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 12,
@@ -128,11 +153,11 @@
     "complete": 139,
     "failed": 1209,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 8,
     "excluded": 15,
     "experiment_fallback": 7,
     "ready": 4,
-    "running": 7,
+    "running": 6,
     "retry_queued": 1
   },
   "tasks": [
@@ -25166,8 +25191,8 @@
     },
     {
       "slug": "ly-story-13c07fb2f2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792682260,
         "failed": null,
@@ -25180,7 +25205,7 @@
       "run_id": 39803460214,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803460214",
       "run_started_at": "2026-10-22T15:17:40Z",
-      "run_updated_at": "2026-10-22T15:17:45Z"
+      "run_updated_at": "2026-10-22T15:28:19Z"
     },
     {
       "slug": "ly-story-9ccd46299a",
@@ -36174,10 +36199,10 @@
     },
     "ly-story-13c07fb2f2": {
       "id": 39803460214,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T15:17:40Z",
-      "updated_at": "2026-10-22T15:17:45Z",
+      "updated_at": "2026-10-22T15:28:19Z",
       "run_started_at": "2026-10-22T15:17:40Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803460214",
       "run_number": 2449,
