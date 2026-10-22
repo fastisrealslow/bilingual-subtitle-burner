@@ -71,3 +71,14 @@ def test_qualified_historical_stance_or_actual_explicit_blanket_remains_availabl
 def test_shared_story_gate_also_rejects_the_second_actual_machine_green():
     selection=dict(kind='personal_story',subject_quote=RARE,event_quote='我以前卖过电器。',detail_quote=SOURCE)
     assert '基本很少卖出' in E.title_focus_error('林园：其他如白酒都不卖',E.title_focus(selection))
+
+
+@pytest.mark.parametrize('title,cover',[
+    ('林园：除早期电器外二零零零年后不卖，白酒特例','二零零零年后不卖'),
+    ('林园：二零零零年后基本没卖出','二零零零年后不卖'),
+    ('林园：2000年后不再卖出','基本没卖出'),
+])
+def test_third_actual_machine_green_cannot_drop_historical_frequency_or_add_an_exception(title,cover):
+    source=RARE+'从二零零零年以后，我基本上没有卖特别卖出的这个行为。'
+    assert T.forecast_copy_error(title,cover,source)
+    assert T.forecast_copy_error('林园：二零零零年后基本没卖出','基本没卖出',source) is None
