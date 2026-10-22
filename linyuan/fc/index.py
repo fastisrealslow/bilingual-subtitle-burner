@@ -3493,6 +3493,21 @@ def _recover_changed_production_rule(st, candidate, run):
         if not restriction(candidate['source_url'],[]):
             cases.append(('download-netease-player-v1',(reason,),
                           ('linyuan/ci_fetch_netease.py',)))
+    # The adapter now resolves the real player, but its first production
+    # request exhausted legacy attempts on a connect timeout. The separately
+    # tested bounded network-read repair may reopen THIS failure once. It
+    # never reuses old MP4/ASR identity or treats a timeout as media approval.
+    if (candidate.get('failure_stage')=='source-fetch'
+            and candidate.get('source_quality_rejected') is not True
+            and candidate.get('source_check_run_id')==run.get('id')
+            and reason in ('取源未完成：URLError: <urlopen error timed out>',
+                           '取源未完成：TimeoutError: timed out')
+            and re.fullmatch(r'https://(?:www|m)\.163\.com/v/video/V[A-Z0-9]+\.html',
+                             candidate.get('source_url',''))):
+        from source_admission_guard import restriction
+        if not restriction(candidate['source_url'],[]):
+            cases.append(('download-netease-network-v2',(reason,),
+                          ('linyuan/ci_fetch_netease.py',)))
     history=candidate.setdefault('automatic_rule_recoveries',{})
     matches=[x for x in cases if x[0] not in history and any(
              s in value for s in x[1] for value in ([reason]+secondary
