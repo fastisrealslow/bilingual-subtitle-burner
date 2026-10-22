@@ -939,6 +939,20 @@ def named_choice_boom_error(title, cover, transcript):
     return None
 
 
+def rare_sale_scope_error(title, cover, transcript):
+    """Few historical sales do not establish a rule for every other holding."""
+    source=str(transcript or '')
+    rare=re.search(r'基本[^。！？!?]{0,24}(?:卖出|卖)[^。！？!?]{0,16}(?:很少|不多)',source)
+    rare=rare or re.search(r'基本(?:上)?[^。！？!?]{0,5}没有[^。！？!?]{0,10}卖出',source)
+    blanket=r'(?:其他|其它|其余|剩下)[^。！？!?；;，,]{0,16}(?:都|一律|全部)(?:不卖|不会卖)'
+    if not rare or re.search(blanket,source):return None
+    for copy in (str(title or ''),str(cover or '')):
+        for clause in re.split(r'[。！？!?；;，,]',copy):
+            if re.search(blanket,clause) and not re.search(r'基本|几乎|大体上|很少',clause):
+                return '原话是基本很少卖出，不能扩大成其他持仓都不卖；标题和封面各自保留频率、范围限定'
+    return None
+
+
 def lifetime_holding_hedge_error(title, cover, transcript):
     """A possible lifetime holding is not an unconditional permanent pledge."""
     pattern=re.compile(r'(?:终身|永久|永远|一辈子)[^。！？!?；;，,]{0,4}'
@@ -969,6 +983,8 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    sale_issue=rare_sale_scope_error(title,cover,transcript)
+    if sale_issue:return sale_issue
     holding_issue=lifetime_holding_hedge_error(title,cover,transcript)
     if holding_issue:return holding_issue
     actor_issue = negative_actor_error(title, cover, transcript)
@@ -1703,6 +1719,12 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                         source_heading+='阅读阶段确认的本回答对象及嘉宾原句：'+json.dumps(bound_subject,ensure_ascii=False)+'。每个候选的标题和封面都写明此对象，并引用主要回答和对象原句；不能只留下没买、这个位置等片段。\n'
                 if research_scope(''.join(draft_source.values())):
                     source_heading+='原话限定的是自己研究、调研的公司。若写业绩或股价，标题和封面各自保留研究公司范围，不能说成整个行业。短字幕里的范围也是事实，不能因字数短省掉。\n'
+                guest_text=''.join(draft_source.values())
+                if rare_sale_scope_error('其他都不卖','',guest_text):
+                    source_heading+='原文对卖出的回顾含有基本、很少等频率范围，不能改成除某项外其他都不卖。标题与封面各自保留同一判断的原有限定，也可以只写原文明确的具体选择，不得扩大到全部持仓。\n'
+                if lifetime_holding_hedge_error('终身持有','',guest_text):
+                    if re.search(r'(?:可能|也许|或许)[^。！？!?]{0,16}终身持有',guest_text):
+                        source_heading+='原话对终身持有使用了可能等限定。若写到这种持有期限，标题与封面都分别保留该限定；不得把可能的计划写成确定永远不卖的承诺。\n'
                 if unresearched_reports(''.join(draft_source.values())):
                     source_heading+='原话明确未研究，并只转述别人说法。涉及这条转述的判断时，标题与封面各自保留“听说”；仅写“未研究”不等于保留转述。也可以只写本人明确的做法，不把转述写成已证实的结论。“没参与”是没有参加，不是先参加再“退出”，不可新增持仓经历。\n'
                 if relation_error('选择龙头','选择龙头',''.join(draft_source.values())):

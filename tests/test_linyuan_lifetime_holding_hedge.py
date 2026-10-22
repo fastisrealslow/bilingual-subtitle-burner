@@ -45,3 +45,29 @@ def test_the_shared_story_title_and_delivery_gate_rejects_the_actual_strengtheni
     meta=dict(editorial_profile=E.TREATMENT,title=title,experiment_proof=dict(
         version=E.VERSION,profile=E.TREATMENT,source_duration_sec=1800,selection=selection))
     assert '可能' in E.proof_error(meta)
+
+
+RARE='我这辈子基本上卖出在我印象当中很少，就早期的电器，因为毛利率确实下降很厉害。'+SOURCE
+
+
+@pytest.mark.parametrize('title,cover',[
+    ('林园：除了早期毛利率下降的电器，其他如白酒都不卖','除了早期电器，其他如白酒都不卖'),
+    ('林园：其他如白酒基本都不卖','其他都不卖'),
+    ('林园：其他持仓一律不会卖','其他基本都不卖'),
+    ('林园：基本很少卖出。其他持仓都不卖','其他基本都不卖'),
+])
+def test_real_second_machine_green_cannot_expand_rare_sales_to_all_other_holdings(title,cover):
+    assert T.rare_sale_scope_error(title,cover,RARE)
+    assert T.forecast_copy_error(title,cover,RARE)
+
+
+def test_qualified_historical_stance_or_actual_explicit_blanket_remains_available():
+    assert T.rare_sale_scope_error('林园：其他如白酒基本都不卖','其他基本都不卖',RARE) is None
+    assert T.rare_sale_scope_error('林园：二零零零年后基本不再卖出','基本不再卖出',RARE) is None
+    explicit=RARE+'我现在其他持仓都不卖。'
+    assert T.rare_sale_scope_error('林园：其他持仓都不卖','其他持仓都不卖',explicit) is None
+
+
+def test_shared_story_gate_also_rejects_the_second_actual_machine_green():
+    selection=dict(kind='personal_story',subject_quote=RARE,event_quote='我以前卖过电器。',detail_quote=SOURCE)
+    assert '基本很少卖出' in E.title_focus_error('林园：其他如白酒都不卖',E.title_focus(selection))
