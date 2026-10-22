@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792671707,
+  "updated_at": 1792671889,
   "inventory_updated_at": 1792671682,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 13,
     "active_or_recovering_sources": 9,
-    "waiting_candidates": 2,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -89,16 +89,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792671706,
+    "updated_at": 1792671888,
     "records": 11393,
     "video_records": 9826,
-    "initial_candidates": 63,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 62,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1538,
+      "already_attempted_or_cooling": 1539,
       "speaker_unconfirmed": 6808,
       "no_video": 1567,
       "clip_title": 1155,
@@ -118,14 +118,6 @@
         "author": "网易视频",
         "url": "https://www.163.com/v/video/VB8TS99H5.html",
         "duration_sec": 208.32
-      },
-      {
-        "key": "bilibili_search:BV1SE421u7Ny",
-        "title": "林园：我买深圳百仕达是不吃亏的！",
-        "source": "bilibili_search",
-        "author": "账号已注销",
-        "url": "https://www.bilibili.com/video/BV1SE421u7Ny",
-        "duration_sec": 48.0
       }
     ]
   },
@@ -143,7 +135,7 @@
   },
   "counts": {
     "complete": 138,
-    "failed": 1201,
+    "failed": 1202,
     "paused": 5,
     "interrupted": 5,
     "excluded": 15,
@@ -25039,8 +25031,8 @@
     },
     {
       "slug": "ly-story-5ebb9ab58f",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792670732,
         "failed": false,
@@ -25053,15 +25045,15 @@
       "run_id": 39775549010,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39775549010",
       "run_started_at": "2026-10-22T12:05:32Z",
-      "run_updated_at": "2026-10-22T12:05:37Z"
+      "run_updated_at": "2026-10-22T12:23:49Z"
     },
     {
       "slug": "ly-1022-679798",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792670740,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25072,6 +25064,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39775565831",
       "run_started_at": "2026-10-22T12:05:40Z",
       "run_updated_at": "2026-10-22T12:18:01Z"
+    },
+    {
+      "slug": "ly-1022-015ade",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792671850,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39778038512,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39778038512",
+      "run_started_at": "2026-10-22T12:24:10Z",
+      "run_updated_at": "2026-10-22T12:24:14Z"
     }
   ],
   "runs": {
@@ -35899,12 +35909,23 @@
       "run_number": 2430,
       "display_title": "中文源出片 · ly-1022-679798"
     },
-    "ly-story-5ebb9ab58f": {
-      "id": 39775549010,
+    "ly-1022-015ade": {
+      "id": 39778038512,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-22T12:24:10Z",
+      "updated_at": "2026-10-22T12:24:14Z",
+      "run_started_at": "2026-10-22T12:24:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39778038512",
+      "run_number": 2431,
+      "display_title": "中文源出片 · ly-1022-015ade"
+    },
+    "ly-story-5ebb9ab58f": {
+      "id": 39775549010,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-22T12:05:32Z",
-      "updated_at": "2026-10-22T12:05:37Z",
+      "updated_at": "2026-10-22T12:23:49Z",
       "run_started_at": "2026-10-22T12:05:32Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39775549010",
       "run_number": 2429,
