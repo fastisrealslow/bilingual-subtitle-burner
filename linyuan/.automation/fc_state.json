@@ -38717,7 +38717,36 @@
    "experiment_selection_revision": 2026102005,
    "experiment_mother_sha256": "b002221800a8aa8723502dbd80e2e6a2f82782b54d778fb78477d85768f94897",
    "experiment_parent_slug": "ly-1022-b9a4c5",
-   "recovery_origin_run_id": 39727961165
+   "recovery_origin_run_id": 39727961165,
+   "production_failure_summary": {
+    "slug": "ly-story-247381035b",
+    "run_id": 39761175996,
+    "artifact_id": 12420735699,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2094.10s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"因为我失眠是个老毛病呢，我从小就失眠，我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次，大便也好了，休息当然好很多，以前感觉老是整天要上火上火，吃了这个还真是有用，我吃了大概现在有一一个多疗程呢，就是中药熬制啊，它关键的治疗失眠就怕有成瘾性。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"在描述服用频率时，“一天吃三次”与后文提到的“中药熬制”及常规用药逻辑存在明显冲突。普通胶囊类药物极少需要每日三次服用，此"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"就刚才我举的那个例子，比如说我们的白酒，我可能是终身持有，不会买；我的医药，我都撇账，是吧？\", \"suspect_quote\": \"不会买；我的医药，我都撇账，是吧？\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'撇账'非标准金融或会计术语，疑似错写或误识别（可能意为‘撇开’、‘忽略’或特定行业黑话但未解释），且句末‘是吧？’作为反问/寻求确认，在转述观点时若未明确语境，易造成含义不明。\"}, {\"sentence_id\": 12, \"quote\": \"现在消费我的"
+     }
+    ]
+   },
+   "source_check_report_id": 12420735699,
+   "source_check_run_id": 39761175996,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792667383
   },
   {
    "key": "weibo_search:5356835542402775",
@@ -38740,7 +38769,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-22T15:03:01+08:00"
+   "publish_time": "2026-10-22T15:03:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-43b4c8",
+    "run_id": 39761189588,
+    "artifact_id": 12419876411,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 147.00s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"四千三。\", \"suspect_quote\": \"四千三\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'四千三'在口语中通常指代指数点位（如 4300），但作为独立短句缺乏上下文参照，若前文未明确语境，该数字指代不明，存在识别截断或省略关键量词/单位导致含义模糊的风险。\"}, {\"sentence_id\": 11, \"quote\": \"啊，这个不亮，他那个有有，东边不？\", \"suspect_quote\": \"啊，这个不亮，他那个有有，东边不？\", \"kind\":"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39761189588,
+    "artifact_id": 12419876411,
+    "name": "production-reject-ly-1022-43b4c8",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 147.00s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1zync69ENu",
@@ -38806,8 +38861,8 @@
    "publish_time": "2026-10-22T03:56:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-dcd5a1",
-    "run_id": 39726328043,
-    "artifact_id": 12403328016,
+    "run_id": 39763183151,
+    "artifact_id": 12419981109,
     "accepted": 0,
     "failures": [
      {
@@ -38816,15 +38871,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39726328043,
-    "artifact_id": 12403328016,
+    "run_id": 39763183151,
+    "artifact_id": 12419981109,
     "name": "production-reject-ly-1022-dcd5a1",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -112073,6 +112128,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/lf0HANNXlx08BLRje5GU01041201i4qb0E010.mp4",
    "ts": 1792665055,
    "error": "整段取景预检：源 146.67s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1022-43b4c8",
+   "key": "weibo_search:5356835542402775",
+   "video_id": "https://f.video.weibocdn.com/o0/fxzNhXCMlx08BLdXwyQg01041201mrSq0E010.mp4",
+   "ts": 1792666482,
+   "error": "整段取景预检：源 147.00s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
