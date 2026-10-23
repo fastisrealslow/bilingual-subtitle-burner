@@ -41493,7 +41493,8 @@
    },
    "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1ueGG6QES1",
@@ -42433,22 +42434,22 @@
    "publish_time": "2026-10-17T05:21:02+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-13a2c9",
-    "run_id": 39879868146,
-    "artifact_id": 12471120699,
+    "run_id": 39885958339,
+    "artifact_id": 12474210619,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", "
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是对‘TCL'的误听/误识（多音字或发音相似导致），属于无法解释的具体词语疑点。\"}]"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中'五六块钱'为口语化的模糊数字范围，非精确数值冲突或否定错误，但作为关键价格描述存在识别歧义（是五块六还是五到六？），需指出具体数字表述不清。\"}]"
+      "reason": "封面生成/人物/角标复检失败：现场原画封面存在黑色填充边"
      }
     ]
    },
    "source_check_report_id": 12467807098,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", \"suspect_quote\": \"两个公司都不在\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字/否定类疑点：‘两个公司’指代不明，前文仅明确提及‘长虹’和‘郑州百文’（后句才确认），此处‘两个’若指代这两家则逻辑成立，但若指代其他未明示对象则构成含义不明的关键数字指代；且‘都不在’作为否定表述，需确认是否确指上述两家公司均已退市\"}]",
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是对‘TCL'的误听/误识（多音字或发音相似导致），属于无法解释的具体词语疑点。\"}]",
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "media-tools-preparation-2026102301": {
@@ -42466,14 +42467,14 @@
    },
    "source_check_attempts": 3,
    "source_check_run_id": 39879868146,
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39879868146,
-    "artifact_id": 12471120699,
+    "run_id": 39885958339,
+    "artifact_id": 12474210619,
     "name": "production-reject-ly-1022-13a2c9",
     "retained": true
    },
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "source_check_exhausted": false,
    "recovery_origin_run_id": 39879868146
   },
@@ -42501,25 +42502,25 @@
    "publish_time": "2021-08-31T15:25:11+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-a4bea9",
-    "run_id": 39870682612,
-    "artifact_id": 12467210636,
+    "run_id": 39888617974,
+    "artifact_id": 12473453635,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"只有一只股票啊，深发展，我们就关关注深发展。\", \"suspect_quote\": \"关关注\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“关注”或“关心”，多出的“关”字导致语义不通。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\", \"kind\": \"unintelligible_term\", \"reason\": \"金融领域无“四会"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"他就挂了两百万，我记得是几兄弟，是潮州人啊，当时是开商场的，传说就挂在那里，谁都不敢去买。\", \"suspect_quote\": \"几兄弟\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或日常语境中无明确含义，疑似识别错误（可能为“几亿”、“几十亿”或其他数字/量词的误识），属于无法解释的具体词语。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\""
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39870682612,
-    "artifact_id": 12467210636,
+    "run_id": 39888617974,
+    "artifact_id": 12473453635,
     "name": "production-reject-ly-1022-a4bea9",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"只有一只股票啊，深发展，我们就关关注深发展。\", \"suspect_quote\": \"关关注\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“关注”或“关心”，多出的“关”字导致语义不通。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\", \"kind\": \"unintelligible_term\", \"reason\": \"金融领域无“四会交易”这一标准术语，疑似将“场外交易”或“柜台交易”误识，属于无法解释的具体词语。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"把这个辞了\", \"kind\": \"unintelligible_term\", \"reason\": \"在股票买卖语境下，“辞了”含义不明，疑似将“吃了”（吃掉）或“买了”误识，属于无法解释的具体词语。\"}, {\"sentence_id\": 4, \"quote\": \"他那个量挂的特别大，我记得当时把这个两万的买掉啊，那整整组织了很多人，很多人才把那个两百万硬是给买了。\", \"suspect_quote\": \"两万的买掉\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文前文提及总量为“两百万”，此处突然出现“两万”，数字量级差异巨大且无明确指代（是单价？还是笔误？），属于互相矛盾或含义不明的关键数字。\"}]",
-   "source_quality_rejected": false,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"他就挂了两百万，我记得是几兄弟，是潮州人啊，当时是开商场的，传说就挂在那里，谁都不敢去买。\", \"suspect_quote\": \"几兄弟\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或日常语境中无明确含义，疑似识别错误（可能为“几亿”、“几十亿”或其他数字/量词的误识），属于无法解释的具体词语。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\", \"kind\": \"unintelligible_term\", \"reason\": \"该词不符合金融或历史事实常识（应为“柜台交易”或类似表述），“四会”疑似错写的专有名词或识别错误，导致含义不明。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"把这个辞了\", \"kind\": \"unintelligible_term\", \"reason\": \"在股票交易语境下，“辞了”含义不明，疑似将“吃了”、“清了”或其他动词误识为“辞了”，属于无法解释的具体词语。\"}, {\"sentence_id\": 4, \"quote\": \"他那个量挂的特别大，我记得当时把这个两万的买掉啊，那整整组织了很多人，很多人才把那个两百万硬是给买了。\", \"suspect_quote\": \"两万的买掉\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中“两万”与上下文提到的“两百万”存在数量级上的巨大差异，且缺少单位（是金额还是股数？），属于截断数值或单位不明导致的数字疑点。\"}, {\"sentence_id\": 5, \"quote\": \"就把那个两百万深发展一给接了以后，当时深发展就几个月，加上除权填权，涨了三十二倍。\", \"suspect_quote\": \"涨了三十二倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"在 A 股历史语境下，深发展从上市到 1990 年短时间内“涨三十二倍”极不符合事实（通常涨幅为百分之几十或几倍），此处数字可能为识别错误（如“涨了三点二倍”、“涨了三十点二倍”等）或口误导致的含义不明关键数字。\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
