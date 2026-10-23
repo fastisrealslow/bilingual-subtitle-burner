@@ -501,6 +501,11 @@ def company_subject_context_error(context, transcript, subject, evidence):
             or company_holding_detail_error(detail) or company_holding_context_error(transcript)
             or event in detail or detail in event):
         return '公司名只能来自明确问题，实际持仓和后续选择必须另有嘉宾原话'
+    import jieba.posseg
+    other_names=[w.word for w in jieba.posseg.cut(event+detail)
+                 if w.flag in {'nr','ns','nt','nz','eng'} and len(w.word)>=2 and w.word not in subject]
+    if other_names:
+        return '嘉宾持仓回答另有具名对象，不能只靠提问自动补足公司：'+','.join(other_names)
     if (not isinstance(evidence,list) or not evidence
             or any(not isinstance(v,str) or not (v in event or v in detail) for v in evidence)
             or company_past_event_error(''.join(evidence))

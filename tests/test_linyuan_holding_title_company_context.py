@@ -90,3 +90,10 @@ def test_factual_drafting_intersects_reader_with_actual_case_without_dropping_di
     assert ids==[1,2,3,4] and (units,reader_guest_ids)==before
     assert T.holding_title_guest_ids(E.title_focus(f['selection']),units,[1,2,3])==[1,2,3]
     assert T.holding_title_guest_ids(None,units,reader_guest_ids)==reader_guest_ids
+
+
+def test_question_cannot_rename_a_different_company_in_the_guest_past_trade():
+    f,_,item=bound_actual();ctx=deepcopy(item['subject_context'])
+    ctx.update(event_quote='我们当年买了腾讯。',detail_quote='我们现在继续持有。')
+    raw=ctx['question_quote']+ctx['event_quote']+ctx['detail_quote']
+    assert '具名对象' in T.company_subject_context_error(ctx,raw,'茅台',[ctx['event_quote'],ctx['detail_quote']])
