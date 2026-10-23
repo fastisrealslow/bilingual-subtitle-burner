@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792754963,
+  "updated_at": 1792755064,
   "inventory_updated_at": 1792754961,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 18,
     "active_or_recovering_sources": 7,
-    "waiting_candidates": 6,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -97,17 +97,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792754962,
+    "updated_at": 1792755063,
     "records": 11575,
     "video_records": 9962,
-    "initial_candidates": 64,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 63,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1613,
-      "already_attempted_or_cooling": 1617,
+      "already_attempted_or_cooling": 1618,
       "clip_title": 1159,
       "speaker_unconfirmed": 6852,
       "noise": 21,
@@ -152,14 +152,6 @@
         "duration_sec": 1162.0
       },
       {
-        "key": "bilibili_search:BV12b421E7vz:p3",
-        "title": "林园 P3 第三集",
-        "source": "bilibili_collection",
-        "author": "基金经理说",
-        "url": "https://www.bilibili.com/video/BV12b421E7vz?p=3",
-        "duration_sec": 1777.0
-      },
-      {
         "key": "bilibili_search:BV12b421E7vz:p2",
         "title": "林园 P2 第二集",
         "source": "bilibili_collection",
@@ -187,7 +179,7 @@
     "paused": 5,
     "interrupted": 6,
     "excluded": 16,
-    "experiment_fallback": 9,
+    "experiment_fallback": 10,
     "ready": 7,
     "retry_queued": 1,
     "running": 6
@@ -26771,8 +26763,8 @@
     },
     {
       "slug": "ly-1023-961624",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792751974,
         "failed": false,
@@ -26785,7 +26777,7 @@
       "run_id": 39940655881,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39940655881",
       "run_started_at": "2026-10-23T10:39:34Z",
-      "run_updated_at": "2026-10-23T10:39:38Z"
+      "run_updated_at": "2026-10-23T11:28:59Z"
     },
     {
       "slug": "ly-1023-4ce502",
@@ -26912,6 +26904,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39946150255",
       "run_started_at": "2026-10-23T11:27:02Z",
       "run_updated_at": "2026-10-23T11:27:06Z"
+    },
+    {
+      "slug": "ly-1023-56d188",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792755025,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39946545342,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39946545342",
+      "run_started_at": "2026-10-23T11:30:24Z",
+      "run_updated_at": "2026-10-23T11:30:28Z"
     }
   ],
   "runs": {
@@ -38828,6 +38838,17 @@
       "run_number": 2590,
       "display_title": "中文源出片 · ly-1023-935c70"
     },
+    "ly-1023-56d188": {
+      "id": 39946545342,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T11:30:24Z",
+      "updated_at": "2026-10-23T11:30:28Z",
+      "run_started_at": "2026-10-23T11:30:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39946545342",
+      "run_number": 2600,
+      "display_title": "中文源出片 · ly-1023-56d188"
+    },
     "ly-1023-bf62b5": {
       "id": 39946150255,
       "status": "in_progress",
@@ -38885,10 +38906,10 @@
     },
     "ly-1023-961624": {
       "id": 39940655881,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-23T10:39:34Z",
-      "updated_at": "2026-10-23T10:39:38Z",
+      "updated_at": "2026-10-23T11:28:59Z",
       "run_started_at": "2026-10-23T10:39:34Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39940655881",
       "run_number": 2592,
