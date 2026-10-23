@@ -1,5 +1,4 @@
 """Real large faces, true blur controls, rejected bank and accepted-cover replay."""
-import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -17,15 +16,28 @@ def main():
     full_replay()
     out=Path('scene-cover-preflight-verification')
     known=json.loads((out/'result.json').read_text())
-    assert known['known_good_cover_sha256']=='8519b1531d6944d0c4dcdd146791571dcee6eb35e22e3af9ebffd1a537b5bb45'
+    # The calibration exposes a native 338px close-up that the old size-biased
+    # metric rejected. The actual candidate cover/feed/thumb were inspected;
+    # pin those real bytes rather than requiring the old distant composition.
+    assert known['known_good_source_sha256']=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
+    assert known['known_good_cover_sha256']=='209a6d2f1a94feb06af638b561ceea17777a9d3e231a25117106326e384a6f64'
     result=dict(passed=False,diagnostic_only=True,production_changed=False,
         registered_stock=False,published=False,square_cover_approved=False,
-        known_good_cover_byte_identical=True,rows=[])
+        known_good_cover_reselected=True,
+        known_good_cover_sha256=known['known_good_cover_sha256'],
+        control_artifact_id=12485435209,
+        control_cover_sha256='8519b1531d6944d0c4dcdd146791571dcee6eb35e22e3af9ebffd1a537b5bb45',rows=[])
     target=out/'calibration-result.json'
     def save():target.write_text(json.dumps(result,ensure_ascii=False,indent=2))
     save()
     with tempfile.TemporaryDirectory(prefix='scene-face-calibration-') as tmp:
         root=Path(tmp)
+        control=root/'control.zip';fetch(result['control_artifact_id'],control)
+        folder=out/'control';folder.mkdir(exist_ok=True)
+        with zipfile.ZipFile(control) as z:
+            for name in ('cover.jpg','cover_feed_4_3.jpg','cover_list_160.jpg'):
+                (folder/name).write_bytes(z.read(name))
+        assert sha(folder/'cover.jpg')==result['control_cover_sha256']
         for group,artifact,pattern,source_sha in (
             ('large',12483437959,'/source-corners_11/source-',
              'f0ec81b1d824db72842edaa6d214a445614055d00a69a01f77757b180b07a7d7'),
