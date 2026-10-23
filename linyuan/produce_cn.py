@@ -6414,6 +6414,12 @@ def main():
     existing_subtitles = False
     visual_report = source_report["visual_identity"]
 
+    # Route impossible native scene covers before choosing source candidates.
+    # Otherwise a requested T skips keynote extraction, then becomes C too late
+    # and loses that same control extraction path despite reusable raw ASR.
+    from source_profile_feasibility import profile_for_source
+    requested_editorial_profile=profile_for_source(source_report,work)
+
     cues = transcribe(src, work, api_key)
     # 元数据描述实际成片画布；音频卡统一为 16:9，不能沿用原素材方向。
     vertical = output_h > output_w
@@ -6488,8 +6494,6 @@ def main():
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, choose_stories
-    from source_profile_feasibility import profile_for_source
-    requested_editorial_profile=profile_for_source(source_report,work)
     story_review={}
     baseline_backup_start=None
     if profile()==TREATMENT and source_picks:
