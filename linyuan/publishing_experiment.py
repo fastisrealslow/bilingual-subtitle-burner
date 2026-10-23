@@ -402,12 +402,18 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
     # The small production model repeatedly skipped an explicit past holding
     # solely because the host asked about the future. A second company-only
     # evidence review has stricter event requirements than the first review.
-    for rejected in list(report['rejected']):
-        if rejected['reason']!='no_grounded_story':continue
+    reviews=[(row,'rejected') for row in report['rejected']
+             if row['reason']=='no_grounded_story']
+    # A primary response that borrowed the host's future inference is invalid,
+    # not an editorial rejection. Give this exact role-proof failure the same
+    # single, stricter review; transport/schema failures remain unresolved.
+    reviews.extend((row,'unresolved') for row in report['unresolved'] if row['error']==
+        'Company holding recall needs another explicit first-person holding/action statement')
+    for rejected,bucket in reviews:
         index=rejected['index'];request=company_holding_request(cues,candidates[index])
         if request is None:continue
         if time.monotonic()>=deadline:
-            report['rejected'].remove(rejected)
+            report[bucket].remove(rejected)
             report['unresolved'].append(dict(index=index,error='company_holding_review_budget_exhausted'))
             continue
         prompt,schema=request
@@ -425,10 +431,11 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
                 issue=issue or company_holding_detail_error(item['story_selection']['detail_quote'])
                 if issue:raise ValueError(issue)
                 item['story_selection']['company_holding_recall_version']=1
-            if chosen:
-                report['rejected'].remove(rejected);report['selected'].extend(chosen)
+            report[bucket].remove(rejected)
+            if chosen:report['selected'].extend(chosen)
+            else:report['rejected'].append(dict(index=index,reason='no_grounded_story'))
         except (RuntimeError,ValueError,TypeError,KeyError,AttributeError) as exc:
-            record['error']=str(exc);report['rejected'].remove(rejected)
+            record['error']=str(exc);report[bucket].remove(rejected)
             report['unresolved'].append(dict(index=index,error=str(exc)))
         save()
     report['selection_completed']=not report['unresolved']

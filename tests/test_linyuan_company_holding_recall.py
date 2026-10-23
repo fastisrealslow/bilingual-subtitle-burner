@@ -150,3 +150,32 @@ def test_actual_17b_primary_selection_cannot_borrow_host_future_or_duplicate_its
     assert E.title_focus_error('林园：至少未来几年继续持有茅台',E.title_focus(evidence))
     assert E.title_focus_error('林园：持有茅台接近二十年，我们也不会动',E.title_focus(evidence)) is None
     assert cues==before
+
+
+@pytest.mark.parametrize('outcome',['accept','skip','unavailable'])
+def test_invalid_host_detail_gets_one_bounded_guest_only_review(tmp_path,outcome):
+    cues=[dict(text='那未来会继续看好腾讯吗？我们当年买入后一直持有。我们现在仍然持有。那就是说至少未来五年还会继续持有腾讯。')]
+    before=deepcopy(cues);calls=[]
+    def call(prompt,schema):
+        calls.append(schema)
+        if 'candidate_0' in schema['properties']:
+            return dict(candidate_0=dict(kind='company_case',subject_sentence=0,event_sentence=1,detail_sentence=3))
+        assert schema['properties']['detail_sentence']['enum']==[1,2]
+        if outcome=='unavailable':raise RuntimeError('Unavailable')
+        return dict(kind='company_case' if outcome=='accept' else 'skip',subject_sentence=0,event_sentence=1,detail_sentence=2)
+    result=E.choose_stories(cues,[dict(start=0,end=0)],call,tmp_path/'report.json')
+    assert len(calls)==3 and cues==before
+    assert result['calls'][0]['response']['candidate_0']['detail_sentence']==3
+    assert bool(result['selected'])==(outcome=='accept')
+    assert result['selection_completed']==(outcome!='unavailable')
+    if outcome=='accept':assert result['selected'][0]['story_selection']['detail_quote']=='我们现在仍然持有。'
+    if outcome=='skip':assert result['rejected']==[dict(index=0,reason='no_grounded_story')]
+    if outcome=='unavailable':assert len(result['unresolved'])==1
+
+
+def test_transport_failure_cannot_trigger_editorial_recall(tmp_path):
+    calls=[]
+    def call(prompt,schema):
+        calls.append(schema);raise RuntimeError('transport unavailable')
+    result=E.choose_stories(holding(),[dict(start=0,end=0)],call,tmp_path/'report.json')
+    assert len(calls)==2 and not result['selection_completed'] and not result['selected']
