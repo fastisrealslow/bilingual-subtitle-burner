@@ -45457,9 +45457,40 @@
    "publish_time": "2024-01-12 16:08:45",
    "source_check_report_id": 12501482150,
    "source_check_run_id": 39951439716,
-   "last_error": "取源未完成：CalledProcessError: Command '['curl', '-fLsS', '--retry', '2', '--connect-timeout', '20', '--max-time', '240', '--user-agent', 'Mozilla/5.0', '--referer', 'https://v.ifeng.com/c/8WHpW9qUT1g', '--output', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.download.mp4', 'https://video19.ifeng.com/video09/2024/01/14/p7151849695025832213-102-092642.mp4']' returned non-zero exit status 22.",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配289/550，总帧数1300；身份匹配但人脸短边不足96px的帧数204",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1023-44002f",
+    "run_id": 39958739735,
+    "artifact_id": 12508125216,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e65ff04bef0055c03c9b83fff8efe436c39a9e3a7cc4f65476ad89499484473a",
+     "duration_sec": 1641.45,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://v.ifeng.com/c/8WHpW9qUT1g"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配289/550，总帧数1300；身份匹配但人脸短边不足96px的帧数204"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39958739735,
+    "artifact_id": 12508125216,
+    "name": "production-reject-ly-1023-44002f",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "bilibili_search:BV12b421E7vz:p5",
@@ -121255,6 +121286,13 @@
    "video_id": "BV16PWPeFEq7:p4",
    "ts": 1792760529,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1023-44002f",
+   "key": "ifeng_video:f9b1bab4-287b-4888-a40c-d792d4e90db5",
+   "video_id": "https://v.ifeng.com/c/8WHpW9qUT1g",
+   "ts": 1792765072,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配289/550，总帧数1300；身份匹配但人脸短边不足96px的帧数204"
   }
  ],
  "reviewed_third_video_0910": {
