@@ -87,7 +87,7 @@ def restore(evidence, work, *, titles_only=False):
     # revalidates every character, timestamp and layout, and regenerates the
     # edit proof. Never copy old semantic approvals or editing proofs.
     patterns=(('copywrite*.json',) if titles_only else
-              ('highlights*.json','copywrite*.json','semantic*.readable-*.json'))
+              ('highlights*.json','copywrite*.json','semantic*.readable-*.json','keynote_proposals.json'))
     for pattern in patterns:
         for path in evidence.glob(pattern):
             shutil.copy2(path,work/path.name);copied.append(path.name)

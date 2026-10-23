@@ -6421,11 +6421,25 @@ def main():
     stock=None if automatic_only() else stock_ranges(cues,source_report.get('source_sha256'),args.slug)
     if stock is not None:curated=stock
     source_picks=[]
+    keynote_review={}
     if (curated is None and args.split_highlights and not args.target_parts
             and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
         from source_selection import select
         diagnostics={}
         source_picks=select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
+        if (not source_picks and automatic_only() and editorial.CONTENT_POLICY=='reference_v1'
+                and 900<=float(source_report.get('duration_sec') or 0)<=5400):
+            from publishing_experiment import profile as requested_profile, TREATMENT as treatment_profile
+            from source_profile_feasibility import native_scene_unavailable
+            if requested_profile()!=treatment_profile or native_scene_unavailable(W,H) is None:
+                from keynote_proposals import propose
+                def propose_call(prompt,schema,budget):
+                    return llm([dict(role='user',content=prompt)],api_key,temperature=0,
+                        max_tokens=256,budget_sec=budget,response_schema=schema,read_cache=False)
+                keynote_review=propose(cues,source_report,propose_call,work/'keynote_proposals.json')
+                source_picks=keynote_review['picks']
+                diagnostics['keynote_proposal_count']=len(source_picks)
+                diagnostics['keynote_proposals_completed']=keynote_review['selection_completed']
         if (not source_picks and editorial.CONTENT_POLICY=='reference_v1'
                 and os.environ.get('SOURCE_VISUAL_CHAPTERS')=='true'):
             from source_question_cards import propose, discover_topics
@@ -6516,7 +6530,9 @@ def main():
 
     # 一个时间块可能含多个独立金句。逐条生产时先保留模型选出的完整范围，
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
-    selection_failures = []
+    selection_failures = ([dict(stage='editorial-service',part=0,error_type='KeynoteProposalIncomplete',
+        reason='长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段',retryable=True)]
+        if keynote_review.get('unresolved') else [])
     work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
     if source_picks:
         work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
@@ -6570,6 +6586,7 @@ def main():
     def checkpoint(complete=False):
         from publishing_experiment import production_result, SELECTION_REVISION
         experiment_result=production_result(requested_editorial_profile,metas,story_review)
+        experiment_result['retryable_selection']|=bool(keynote_review.get('unresolved'))
         write_json(out/'experiment_production.json',experiment_result)
         story_family=(__import__('publishing_experiment').family_metadata(
             source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0))
