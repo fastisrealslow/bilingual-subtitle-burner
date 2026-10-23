@@ -62,6 +62,12 @@ def test_context_is_bound_in_copy_proof_and_replayed_against_original_dialogue()
     changed=deepcopy(proof);changed.pop('subject_context')
     assert T.error(item['title'],changed,raw)
     assert T.error(item['title'],proof,None)
+    assert T.metadata_error(item['title'],proof) is None
+    assert T.error(item['title'],proof,'我们当年买了腾讯。我们现在继续持有。')
+    changed=deepcopy(proof);changed['subject_context']['question_quote']='那未来会继续看好腾讯？'
+    assert T.metadata_error(item['title'],changed)
+    changed=deepcopy(proof);changed['subject_context']=None
+    assert T.metadata_error(item['title'],changed)
     assert T._binding('t','c','s',['e'])==T._binding('t','c','s',['e'],None)
 
 

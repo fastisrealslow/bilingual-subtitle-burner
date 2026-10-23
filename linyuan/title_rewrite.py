@@ -2130,6 +2130,23 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
     return fallback(only_preferred=prefer_reviewed_quote)
 
 
+def metadata_error(title, proof, speaker='林园'):
+    """Check the copy envelope; actual delivery must still replay raw subtitles.
+
+    A question may supply a company name missing from the guest's evidence.
+    Metadata has those bound excerpts but cannot authenticate them. Keep the
+    full-source error() strict and replay it in artifact_subtitle_error before
+    stock admission or publication.
+    """
+    context=proof.get('subject_context') if isinstance(proof,dict) else None
+    if context is None:return error(title,proof,speaker=speaker)
+    if not isinstance(context,dict):return '公司对象上下文格式不合法'
+    quotes=[context.get(k) for k in ('question_quote','event_quote','detail_quote')]
+    if any(not isinstance(q,str) or not q for q in quotes):
+        return '公司对象上下文缺少原始问答摘录'
+    return error(title,proof,''.join(quotes),speaker)
+
+
 def error(title, proof, transcript=None, speaker='林园'):
     from speaker_attribution import other_guest_indices
     if transcript and other_guest_indices([transcript],speaker):

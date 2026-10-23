@@ -3435,7 +3435,7 @@ def artifact_quality_error(meta):
             "authority_reference", "verified_source_frame"}:
         return "封面人物图来源不可验证"
     from headline_policy import complete, body
-    from title_rewrite import error as rewrite_error, summary_heading
+    from title_rewrite import metadata_error as rewrite_error, summary_heading
     if summary_heading(meta.get('title')):
         return '标题是关键词目录，需重新提炼中心观点'
     rewritten=meta.get('title_rewrite')
