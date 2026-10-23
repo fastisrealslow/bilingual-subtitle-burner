@@ -3568,8 +3568,9 @@ def artifact_subtitle_error(meta, delivery_dir):
         return "真实ASS字幕为空"
     if editorial.text_digest(text) != meta.get("subtitle_text_sha256"):
         return "真实ASS字幕与meta文本指纹不一致"
+    episode=((meta.get('experiment_proof') or {}).get('selection') or {}).get('past_episode_context')
     recall=((meta.get('experiment_proof') or {}).get('selection') or {}).get('company_holding_recall_version')
-    if recall==1 and (not meta.get('title_rewrite') or meta.get('subtitle_edit_proof_version')!=1):
+    if (recall==1 or episode is not None) and (not meta.get('title_rewrite') or meta.get('subtitle_edit_proof_version')!=1):
         return '公司持仓复核缺少完整原始字幕编辑证明，不能凭摘录通过'
     if meta.get('title_rewrite'):
         from title_rewrite import error as rewrite_error, compact
@@ -3590,6 +3591,10 @@ def artifact_subtitle_error(meta, delivery_dir):
                 if display_payload_text(''.join(displays))!=display_payload_text(text):
                     raise ValueError('编辑证明与真实ASS字幕不一致')
                 source_text=''.join(originals)
+                if episode is not None:
+                    from story_episodes import context_error
+                    problem=context_error(episode,source_text)
+                    if problem:return problem
                 if recall==1:
                     problem=experiment.company_holding_context_error(source_text)
                     if problem:return problem
