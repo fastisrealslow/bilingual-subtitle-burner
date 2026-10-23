@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792726004,
-  "inventory_updated_at": 1792725904,
+  "updated_at": 1792726859,
+  "inventory_updated_at": 1792726857,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 1,
+    "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -97,28 +97,61 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792726004,
-    "records": 11453,
-    "video_records": 9884,
-    "initial_candidates": 61,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792726858,
+    "records": 11470,
+    "video_records": 9897,
+    "initial_candidates": 66,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1569,
+      "no_video": 1573,
+      "clip_title": 1160,
       "already_attempted_or_cooling": 1584,
-      "clip_title": 1159,
-      "speaker_unconfirmed": 6811,
+      "speaker_unconfirmed": 6818,
       "noise": 21,
       "unrelated": 65,
       "ai_content": 36,
       "reference_only": 147,
-      "over_limit": 24,
+      "over_limit": 25,
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1X5FkeYEpG",
+        "title": "林园2025最新采访视频全集：我能抓住未来15年最确定性的赚钱机会！",
+        "source": "bilibili_search",
+        "author": "理财有我",
+        "url": "https://www.bilibili.com/video/BV1X5FkeYEpG",
+        "duration_sec": 2264.0
+      },
+      {
+        "key": "bilibili_search:BV1Tb421z7AG",
+        "title": "林园2024最新专访：新能源是未来的方向",
+        "source": "bilibili_search",
+        "author": "大佬投资语录",
+        "url": "https://www.bilibili.com/video/BV1Tb421z7AG",
+        "duration_sec": 138.0
+      },
+      {
+        "key": "bilibili_search:BV1nB42167x9",
+        "title": "林园：2024.1.13深圳演讲",
+        "source": "bilibili_search",
+        "author": "米饼看财经",
+        "url": "https://www.bilibili.com/video/BV1nB42167x9",
+        "duration_sec": 2190.0
+      },
+      {
+        "key": "bilibili_search:BV1Ju4y1j7xC",
+        "title": "2023年11月17日林园分享：未来30年消费布局只投健康赛道",
+        "source": "reference_origin_search",
+        "author": "价值投资88",
+        "url": "https://www.bilibili.com/video/BV1Ju4y1j7xC",
+        "duration_sec": 866.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 16,
@@ -136,12 +169,11 @@
     "complete": 140,
     "failed": 1264,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 7,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -26164,8 +26196,8 @@
     },
     {
       "slug": "ly-1022-abeb50",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792721761,
         "failed": false,
@@ -26178,7 +26210,7 @@
       "run_id": 39888629731,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39888629731",
       "run_started_at": "2026-10-23T02:16:01Z",
-      "run_updated_at": "2026-10-23T02:17:13Z"
+      "run_updated_at": "2026-10-23T03:34:57Z"
     },
     {
       "slug": "ly-story-9c88bea169",
@@ -37821,10 +37853,10 @@
     },
     "ly-1022-abeb50": {
       "id": 39888629731,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-23T02:16:01Z",
-      "updated_at": "2026-10-23T02:17:13Z",
+      "updated_at": "2026-10-23T03:34:57Z",
       "run_started_at": "2026-10-23T02:16:01Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39888629731",
       "run_number": 2539,
