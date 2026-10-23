@@ -1863,6 +1863,36 @@ class NeteaseVideoSource(Source):
         return items
 
 
+class IfengVideoSource(Source):
+    """Inspect exact first-party video documents through the existing resolver."""
+    name = 'ifeng_video'
+    min_interval = 3600
+
+    def fetch(self, page):
+        from ci_fetch_ifeng import article_video
+        for url in self.seed_batch(self.config.get('urls', []), 3):
+            # Parse only the main document's unique public media attachment;
+            # no recommendation feeds, player guesses or signed-in requests.
+            try:
+                info = article_video(http_get(url, timeout=25), url)
+                title = info.get('article_title') or ''
+                if '林园' not in title or not BilibiliSearchSource.FULL_TITLE_PAT.search(title):
+                    continue
+                self.partial_items.append(dict(
+                    id=f"{self.name}:{info['guid']}", source=self.name,
+                    title=title, url=url, author='凤凰网财经',
+                    publish_time=info.get('published_at') or '',
+                    extra=json.dumps(dict(has_video=True,
+                        duration=info['declared_duration'], guid=info['guid'],
+                        origin_role='official_publisher', source_role='mother_candidate',
+                        metadata_provenance=info['provenance'],
+                        recording_date_verified=False, media_quality_approved=False,
+                        rights_clearance=False), ensure_ascii=False)))
+            except Exception as exc:
+                print(f'[{self.name}] 正文视频不可核验: {type(exc).__name__}', file=sys.stderr)
+        return self.partial_items
+
+
 class PublicRoadshowCatalogSource(Source):
     """One public catalogue request per hour; metadata is reference only."""
     name = 'public_roadshow_catalog'
@@ -1874,6 +1904,7 @@ class PublicRoadshowCatalogSource(Source):
 
 
 SOURCES = {
+    "ifeng_video": IfengVideoSource,
     "public_roadshow_catalog": PublicRoadshowCatalogSource,
     "bilibili_api": BilibiliApiSource,
     "bilibili_search": BilibiliSearchSource,
