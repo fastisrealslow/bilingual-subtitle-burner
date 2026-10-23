@@ -102,12 +102,12 @@ def selection_request(cues, candidates):
     properties={}
     for row in rows:
         properties['candidate_'+str(row['index'])]=dict(type='object',additionalProperties=False,
-            required=['kind','subject_sentence','event_sentence','detail_sentence'],properties={
-                'kind':dict(type='string',enum=['skip','personal_story','company_case']),
+            required=['subject_sentence','event_sentence','detail_sentence','kind'],properties={
                 **{k:dict(type='integer',enum=[s['id'] for s in row['sentences'] if len(s['text'])<=140
                     and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)
                     and (k=='subject_sentence' or not re.search(r'[？?]',s['text']))])
-                   for k in ('subject_sentence','event_sentence','detail_sentence')}})
+                   for k in ('subject_sentence','event_sentence','detail_sentence')},
+                'kind':dict(type='string',enum=['skip','personal_story','company_case'])})
     schema=dict(type='object',additionalProperties=False,required=list(properties),properties=properties)
     prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
@@ -117,10 +117,13 @@ def selection_request(cues, candidates):
         '嘉宾本人实际买入或退出某个行业，可按personal_story判断，但仍须有本人实际行为和另一条完整的原话理由；'
         '不能把行业硬标成company_case，也不能把未来建议改成已发生的个人经历。'
         '保留主持人有信息的问题，不改写、不拼接、不制造冲突。'
-        '每个candidate_N只返回一次：kind为personal_story、company_case或skip。'
+        '每个candidate_N只返回一次。先通读原文，核对对象、事件和另一条实际细节的原句编号，最后再填kind；不要先决定skip再任意填证据。'
+        'kind为personal_story、company_case或skip。'
         '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
         '说的具体事情或选择；detail_sentence是另一条原话原因/经过/细节，不能与event_sentence相同。'
         '不能从别的片段借事实，不能把主持人的假设当嘉宾结论。'
+        '本人实际参与的生活经历也可能是personal_story，不限于买卖交易；必须有亲历行为或承担的实际后果及另一条具体细节。'
+        '仅转述他人经历、泛谈人生道理或假设自己将来会怎样仍应skip；不能仅凭第一人称入选。'
         'company_case也包括已经发生的具体公司投资选择及其理由：主持人明确询问过去为何选择某家已点名公司，'
         '嘉宾紧接着直接解释当时的理由、经过或所采取的标准，且没有否认该选择时，'
         '对象可取该问题原句，事件与细节分别取嘉宾两条不同的完整回答。'
