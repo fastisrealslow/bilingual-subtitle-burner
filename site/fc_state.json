@@ -41986,7 +41986,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配5651/7526，总帧数9373；身份匹配但人脸短边不足96px的帧数1875",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1sUQHY3EiA",
@@ -42078,7 +42079,37 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-26T11:03:59+08:00"
+   "publish_time": "2026-09-26T11:03:59+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-669ab9",
+    "run_id": 39876043782,
+    "artifact_id": 12469621625,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1456/1871，总帧数2074；身份匹配但人脸短边不足96px的帧数414"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/862，总帧数4306；身份匹配但人脸短边不足96px的帧数862"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答缺乏明确的判断主体和结论性语句，仅描述现象（医药上涨）和一般性原则（抓公司健康），未形成可独立成片的完整观点表达。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39876043782,
+    "artifact_id": 12469621625,
+    "name": "production-reject-ly-1023-669ab9",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1456/1871，总帧数2074；身份匹配但人脸短边不足96px的帧数414",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5347352644944793",
@@ -115979,6 +116010,13 @@
    "video_id": "http://f.video.weibocdn.com/u0/m9quCzeHgx08zFiEkhOU01041200AGLw0E010.mp4",
    "ts": 1792715028,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配5651/7526，总帧数9373；身份匹配但人脸短边不足96px的帧数1875"
+  },
+  {
+   "slug": "ly-1023-669ab9",
+   "key": "weibo_search:5347353303190769",
+   "video_id": "http://f.video.weibocdn.com/u0/KP5NlK6Xgx08B60zrJpm01041200W0wo0E010.mp4",
+   "ts": 1792715732,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1456/1871，总帧数2074；身份匹配但人脸短边不足96px的帧数414"
   }
  ],
  "reviewed_third_video_0910": {
