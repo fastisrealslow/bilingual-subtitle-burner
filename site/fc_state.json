@@ -43509,7 +43509,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1hS421X7Xd",
@@ -43679,7 +43680,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-22T13:06:24+00:00"
+   "publish_time": "2024-08-22T13:06:24+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39924241317,
+    "artifact_id": 12487409817,
+    "name": "source-reject-ly-1023-8d9b04",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 294 < 480（640x294），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -118885,6 +118896,13 @@
    "video_id": "BV1hS421X7Xd:p2",
    "ts": 1792743754,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1023-8d9b04",
+   "key": "bilibili_search:BV1dDWVeUExM:p5",
+   "video_id": "BV1dDWVeUExM:p5",
+   "ts": 1792744006,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 294 < 480（640x294），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
