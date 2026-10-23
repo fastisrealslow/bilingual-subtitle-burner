@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792728679,
+  "updated_at": 1792728819,
   "inventory_updated_at": 1792728677,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -97,7 +97,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792728678,
+    "updated_at": 1792728818,
     "records": 11470,
     "video_records": 9897,
     "initial_candidates": 62,
@@ -134,14 +134,14 @@
   },
   "counts": {
     "complete": 140,
-    "failed": 1264,
+    "failed": 1266,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 7,
     "retry_queued": 2,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -26272,11 +26272,11 @@
     },
     {
       "slug": "ly-1023-2e23cc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "清理后预计短边 384 < 480",
       "signature": {
         "ts": 1792726670,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26290,11 +26290,11 @@
     },
     {
       "slug": "ly-1022-abeb50",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我说以前啊，过去比如说十年前，白酒的股息率也就不到百分之一，大概百分之零点八、百分之零点七几的百分。\", \"suspect_quote\": \"百分之零点八、百分之零点七几的百分\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表达存在明显识别疑点：‘百分之零点七几’中‘几’字在口语中通常指代不确定范围，但此处紧接‘的百分’，导致数值单位不完整（缺少‘之一’或‘之十’等后缀），且‘零点七几’与后文‘不到百分之一’的逻辑衔接因单位缺失而模糊。此外，‘百分之零点八\"}]",
       "signature": {
         "ts": 1792727003,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26304,7 +26304,7 @@
       "run_id": 39896517167,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39896517167",
       "run_started_at": "2026-10-23T03:43:22Z",
-      "run_updated_at": "2026-10-23T03:43:26Z"
+      "run_updated_at": "2026-10-23T04:11:24Z"
     }
   ],
   "runs": {
@@ -37902,17 +37902,6 @@
       "run_number": 2545,
       "display_title": "中文源出片 · ly-1023-3e5e0f"
     },
-    "ly-1022-abeb50": {
-      "id": 39896517167,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-23T03:43:22Z",
-      "updated_at": "2026-10-23T03:43:26Z",
-      "run_started_at": "2026-10-23T03:43:22Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39896517167",
-      "run_number": 2547,
-      "display_title": "中文源出片 · ly-1022-abeb50"
-    },
     "ly-1023-2e23cc": {
       "id": 39896031502,
       "status": "completed",
@@ -37923,6 +37912,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39896031502",
       "run_number": 2546,
       "display_title": "中文源出片 · ly-1023-2e23cc"
+    },
+    "ly-1022-abeb50": {
+      "id": 39896517167,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-23T03:43:22Z",
+      "updated_at": "2026-10-23T04:11:24Z",
+      "run_started_at": "2026-10-23T03:43:22Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39896517167",
+      "run_number": 2547,
+      "display_title": "中文源出片 · ly-1022-abeb50"
     },
     "ly-1023-59b5a4": {
       "id": 39896012049,
