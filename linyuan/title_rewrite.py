@@ -988,6 +988,17 @@ def lifetime_holding_hedge_error(title, cover, transcript):
     return None
 
 
+def personal_cause_qualifier_error(title, cover, transcript):
+    """The observed qualified personal explanation is not a sole cause."""
+    source=str(transcript or '')
+    if not re.search(r'(?:也)?不全是基因',source) or '乐观' not in source:return None
+    for copy in (str(title or ''),str(cover or '')):
+        if (re.search(r'基因[^。！？!?，,]{0,8}(?:决定|导致|造成)',copy)
+                and not re.search(r'可能|也许|或许|不全|不完全|之一',copy)):
+            return '原话对本人乐观心态只说可能与基因有关、也不全是基因；不能压成基因决定的确定因果，也不能移成市场风险的原因'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -995,6 +1006,8 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    cause_issue=personal_cause_qualifier_error(title,cover,transcript)
+    if cause_issue:return cause_issue
     sale_issue=rare_sale_scope_error(title,cover,transcript)
     if sale_issue:return sale_issue
     holding_issue=lifetime_holding_hedge_error(title,cover,transcript)
