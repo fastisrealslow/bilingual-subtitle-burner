@@ -45136,8 +45136,8 @@
    "publish_time": "2026-07-01T16:27:47+00:00",
    "production_failure_summary": {
     "slug": "ly-1023-6287b5",
-    "run_id": 39939111164,
-    "artifact_id": 12496585921,
+    "run_id": 39952622472,
+    "artifact_id": 12507084097,
     "accepted": 0,
     "failures": [
      {
@@ -45269,15 +45269,25 @@
       "reason": "整段取景预检：源 2591.23s，来源角标覆盖必须保留的人脸或头顶区域"
      }
     ],
-    "source_context": null
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ef133644173879f2db19cc2a4ae677460287a765c53459a39e78d7d50b1928a4",
+     "duration_sec": 2638.98,
+     "resolution": {
+      "width": 1920,
+      "height": 930,
+      "short_edge": 930
+     },
+     "source_url": "https://www.bilibili.com/video/BV1T6Ti6TEpk"
+    }
    },
-   "source_check_report_id": 12496585921,
-   "source_check_run_id": 39939111164,
+   "source_check_report_id": 12507084097,
+   "source_check_run_id": 39952622472,
    "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
    "failure_stage": "quality-service",
    "source_check_attempts": 3,
-   "failed": false,
-   "source_check_exhausted": false,
+   "failed": true,
+   "source_check_exhausted": true,
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
      "run_id": 39939111164,
@@ -45494,7 +45504,8 @@
     "name": "production-reject-ly-1023-44002f",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV12b421E7vz:p5",
