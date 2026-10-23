@@ -46281,9 +46281,9 @@
    "source": "weibo_search",
    "author": "圣叹财经",
    "publish_time": "2026-10-11T15:33:00+08:00",
-   "failed": false,
+   "failed": true,
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -46300,7 +46300,36 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 38370544250,
    "source_check_run_id": 38370544250,
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "production_failure_summary": {
+    "slug": "ly-1012-579275",
+    "run_id": 40037873510,
+    "artifact_id": 12537339510,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f67bc933e28af61fde2339d1bf886a4392d99ab477b1d136a17ee5fa1ea5c5cd",
+     "duration_sec": 72.05,
+     "resolution": {
+      "width": 1920,
+      "height": 1006,
+      "short_edge": 1006
+     },
+     "source_url": "https://m.weibo.cn/detail/5352856821437653"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 40037873510,
+    "artifact_id": 12537339510,
+    "name": "production-reject-ly-1012-579275",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1q8pN6qEL5",
