@@ -4092,18 +4092,20 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
             raise VisualQualityError('现场封面黑边预检抽帧读取失败')
         border_marks,border_proof=border_exclusions(pixels)
         marks+=border_marks
-        for row in evidence:
-            x0,y0,x1,y1=row['rect']
-            if float(row['confidence'])>=.75 and (y1<.30 or y0>.80 or x1<.20 or x0>.80):
-                rect=(max(0,x0-.004),max(0,y0-.004),min(1,x1+.004),min(1,y1+.004))
-                if rect not in marks:marks.append(rect)
         cleaned=[];errors=[]
-        for original in frames:
+        for frame_index,original in enumerate(frames):
             target=None
             try:
                 _,face,_=identify_cover([original])
                 image=Image.open(original).convert('RGB');w,h=image.size
                 local=list(marks);frame=cv2.imread(str(original))
+                # Incidental side text belongs to this decoded frame. A
+                # projector/poster in a wide shot is not an overlay on the
+                # following close-up. Persistent logos, caption bands and
+                # measured borders and top/bottom writing remain shared;
+                # final OCR still runs.
+                for rect in source_frame_edge_text_exclusions(evidence,frame_index):
+                    if rect not in local:local.append(rect)
                 found,points=cv2.QRCodeDetector().detect(frame)
                 if found and points is not None and qr_is_plausible(points,w,h) and qr_candidate_has_finders(frame,points):
                     pts=points.reshape(-1,2)
@@ -4613,6 +4615,19 @@ def detect_overlay_bands(src, k=1.8, margin=0.05, frames=12):
         print(f"[裁切] 贴片检测失败，退回不裁: {e}", file=sys.stderr)
     _OVERLAY_CACHE[key] = res
     return res
+
+
+def source_frame_edge_text_exclusions(evidence,frame_index):
+    """Keep shared edge overlays, localizing only incidental side writing."""
+    marks=[]
+    for row in evidence:
+        x0,y0,x1,y1=row['rect']
+        shared=y1<.30 or y0>.80
+        if float(row['confidence'])>=.75 and (shared or (
+                row.get('frame')==frame_index and (x1<.20 or x0>.80))):
+            rect=(max(0,x0-.004),max(0,y0-.004),min(1,x1+.004),min(1,y1+.004))
+            if rect not in marks:marks.append(rect)
+    return marks
 
 
 def detect_corner_logos_in_images(frame_paths, stable_ratio=0.5, max_area=0.02):
