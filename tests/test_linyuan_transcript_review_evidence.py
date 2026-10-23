@@ -10,7 +10,7 @@ sys.path.insert(0,str(ROOT/'linyuan'))
 sys.path.insert(0,str(ROOT/'linyuan/fc'))
 import transcript_audit as A
 import index as F
-from test_linyuan_spoken_range_recovery import setup_case
+from test_linyuan_spoken_range_recovery import setup_case, RANGE
 
 
 @pytest.mark.parametrize('reason',[
@@ -86,6 +86,14 @@ def test_audio_claim_recovery_is_once_only_and_preserves_lifetime_counters(monke
     entry['failed']=True;before=copy.deepcopy(entry)
     assert not F._recover_changed_production_rule(state,entry,run)
     assert entry==before and len(writes)==1
+
+
+def test_modality_followup_keeps_prior_bounded_range_recovery(monkeypatch):
+    state,entry,run,writes=modality_case(monkeypatch,RANGE)
+    assert F._recover_changed_production_rule(state,entry,run)
+    assert 'transcript-spoken-ranges-v1' in entry['automatic_rule_recoveries']
+    assert 'transcript-text-only-evidence-v1' not in entry['automatic_rule_recoveries']
+    assert entry['source_check_attempts']==2 and entry['quality_retries']==1
 
 
 @pytest.mark.parametrize('reason',[
