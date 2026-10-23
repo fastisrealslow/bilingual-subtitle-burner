@@ -45528,7 +45528,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-16T22:55:00+00:00"
+   "publish_time": "2024-08-16T22:55:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-e50181",
+    "run_id": 39961001599,
+    "artifact_id": 12509304447,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "47e4eddf8b0f30560531b05e9ce57c14ce797f0bf0fc3929ca7c705155d8dca6",
+     "duration_sec": 1134.93,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV12b421E7vz?p=5"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾在整段对话中始终处于‘未听清’状态，反复要求澄清（如‘我不知道是不是我没听清啊’‘哦，毛毛定，哦，我没听清’），并未对任何话题给出实质性回应或判断；主持人虽提出问题，但嘉宾未提供可被剪辑为独立观点的内容，属于必要论述被切断且无有效回答。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对主持人提出的两个核心问题（高估股票是否卖出、如何应对政策风险）给出完整判断或解释。虽然最后一句‘我能想到的就是多买一些行业分散’看似是对第二个问题的回应，但缺乏具体理由支撑，且第一个问题完全未被回答，导致表达不完整。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39961001599,
+    "artifact_id": 12509304447,
+    "name": "production-reject-ly-1023-e50181",
+    "retained": true
+   },
+   "last_error": "选段原画仍有来源角标",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV12b421E7vz:p2",
@@ -45610,7 +45659,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -121348,6 +121398,13 @@
    "video_id": "BV12b421E7vz:p4",
    "ts": 1792766671,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1023-e50181",
+   "key": "bilibili_search:BV12b421E7vz:p5",
+   "video_id": "BV12b421E7vz:p5",
+   "ts": 1792767294,
+   "error": "选段原画仍有来源角标"
   }
  ],
  "reviewed_third_video_0910": {
