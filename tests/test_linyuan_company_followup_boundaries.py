@@ -81,3 +81,25 @@ def test_actual_trial_uses_full_source_and_production_gates_without_editorial_an
     assert not {s.get('name') for s in steps}.intersection({'上传成片到 Release','B 站投稿','明确触发库存核验与自动补位'})
     assert any('verify_linyuan_story_delivery.py' in s.get('run','') for s in steps)
     assert any('--preview-only' in s.get('run','') for s in steps)
+
+
+def test_actual_larger_model_mixed_next_cue_keeps_complete_guest_sentence(monkeypatch):
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    f=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_17b_company_followup.json').read_text())
+    cues=f['cues'];before=json.dumps(cues,ensure_ascii=False)
+    picks=S.select(cues,limit=None,whole_source=True)
+    pick=next(p for p in picks if cues[p['start']]['start']==255.24)
+    assert cues[pick['end']]['end']==281.0
+    text=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    assert '地球' in text and text.endswith('平常心了，是吧？')
+    assert '无所谓的。涨到' not in text and S.boundary_error(cues,pick) is None
+    assert json.dumps(cues,ensure_ascii=False)==before
+    units=S.sentence_units(cues)
+    j=next(i for i,u in enumerate(units) if u['end']==pick['end'])
+    assert S.unresolved_question_tail(units[j]['text'])
+    assert S.closed_guest_tag_before_next_question(units,j)
+    units[j+1]['text']='嗯，好的。您会去做一些减仓吗？'
+    assert not S.closed_guest_tag_before_next_question(units,j)
+    units[j+1]['text']='无所谓的。'
+    assert not S.closed_guest_tag_before_next_question(units,j)

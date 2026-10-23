@@ -1,1 +1,1 @@
-2026-10-24 固定源 1.7B + 既有有限词表：完整母片识别、逐字对齐、自动选题和完整交付门禁；不入库不投稿。
+2026-10-24 full-source cached 1.7B followup boundary; require actual recalled holding case media.

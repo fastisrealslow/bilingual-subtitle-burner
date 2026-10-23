@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 43
+VERSION = 44
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -221,6 +221,20 @@ def unresolved_question_tail(text):
             and STOP.search(after)):
         return False
     return len(plain)<8 or not STOP.search(after)
+
+
+def closed_guest_tag_before_next_question(units, index):
+    """A source-confirmed closing assertion may share the next host cue.
+
+    Keep the preceding complete timed guest sentence. Never include half of
+    the next cue or invent an intra-cue timestamp to capture its short assent.
+    A bare tag alone is still insufficient without this adjacent source text.
+    """
+    if index+1>=len(units):return False
+    text=units[index]['text'];following=units[index+1]['text']
+    if question_unit(text) or not question_unit(following):return False
+    if not re.search(r'我(?:们)?[^。！？?]{0,20}(?:当[着成]|看[作成]|认为|觉得)[^。！？?]{1,24}了[，,](?:是吧|对吧)[？?]$',text):return False
+    return bool(re.match(r'^(?:无所谓的|很正常的|没有变化|不会改变|并不影响|就是这样)[。！!]',following))
 
 
 def speech_opening(text):
@@ -445,7 +459,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             spans.append((i,j))
     for i,j in spans:
         if j is None:continue
-        if j<=i or question_unit(units[j]['text']) or unresolved_question_tail(units[j]['text']):continue
+        if (j<=i or question_unit(units[j]['text']) or (unresolved_question_tail(units[j]['text'])
+                and not closed_guest_tag_before_next_question(units,j))):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:
