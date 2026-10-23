@@ -90,3 +90,15 @@ def test_old_encoded_inventory_cannot_bypass_a_known_source_ban():
     import index as fc
     entry={'slug':'old','source_url':'https://www.bilibili.com/video/BV1tTi5BrEES'}
     assert '禁止转载' in fc.inventory_publication_error({'status':'verified'},entry,{'published':{}})
+
+
+@pytest.mark.parametrize('bvid',[
+    'BV1BCVAzoE8z','BV1ufL3zqEPj','BV1zRJ26DEok','BV1FeJw64ECU','BV1ADetzQEuE','BV13x4y1o73Y',
+])
+def test_fresh_exact_source_bans_block_cached_inventory_and_mobile_aliases(bvid):
+    from source_admission_guard import restriction
+    assert restriction('https://m.bilibili.com/video/'+bvid+'/?p=2',[])
+    sys.path.insert(0,str(ROOT/'linyuan/fc'))
+    import index as fc
+    entry=dict(slug='old-restricted',source_url='https://www.bilibili.com/video/'+bvid)
+    assert '禁止转载' in fc.inventory_publication_error(dict(status='verified'),entry,dict(published={}))

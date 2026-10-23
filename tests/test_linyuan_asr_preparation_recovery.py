@@ -16,7 +16,7 @@ from production_failure_report import report_missing
 def case(monkeypatch):
     now=1792652250
     monkeypatch.setattr(fc.time,'time',lambda:now)
-    entry=dict(slug='fresh',source_url='https://www.bilibili.com/video/BV1ADetzQEuE',
+    entry=dict(slug='fresh',source_url='https://www.bilibili.com/video/BV0000000000',
                ts=1792646736,quality_retries=1)
     state=dict(dispatched=[entry],published={},daily_publish=dict(count=2))
     run=dict(id=39727953226,conclusion='failure',head_sha='old',created_at='2026-10-22T05:25:36Z')
@@ -110,3 +110,11 @@ def test_job_failed_fallback_never_overrides_explicit_source_rejections(tmp_path
     path=tmp_path/'batch_report.json'
     assert not report_missing(path,{step:dict(outcome='failure')},'fresh',job_failed=True)
     assert not path.exists()
+
+
+def test_actual_historical_runtime_source_now_restricted_is_not_reopened(case):
+    state,entry,run,steps,changed,calls=case
+    entry['source_url']='https://www.bilibili.com/video/BV1ADetzQEuE'
+    before=copy.deepcopy(state)
+    assert not fc._recover_preflight_failure(state,entry,run,[])
+    assert state==before and not calls
