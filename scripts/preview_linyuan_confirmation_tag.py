@@ -76,6 +76,16 @@ def main():
         return subprocess.check_output(command + ['-f', 'hash', '-'], text=True, timeout=300).strip()
     for audio in (False, True):
         assert stream_hash(source, audio) == stream_hash(target, audio), 'Original picture/audio changed'
+    def clocks(path):
+        raw = subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries',
+            'stream=codec_type,start_time,duration,nb_frames', '-of', 'json', str(path)], text=True, timeout=30)
+        return {s['codec_type']: s for s in json.loads(raw)['streams'] if s['codec_type'] in {'video', 'audio'}}
+    before, after = clocks(source), clocks(target)
+    assert set(before) == set(after) == {'video', 'audio'}
+    for kind in before:
+        for field in ('start_time', 'duration'):
+            assert abs(float(before[kind][field]) - float(after[kind][field])) < .001, 'Audio/video clock changed'
+        assert before[kind].get('nb_frames') == after[kind].get('nb_frames'), 'Frame/packet count changed'
     subprocess.run(['ffmpeg', '-v', 'error', '-xerror', '-i', str(target),
         '-map', '0:v:0', '-map', '0:a:0', '-f', 'null', '-'], check=True, timeout=300)
     assert (root / 'meta.json').read_bytes() == raw_meta
@@ -83,6 +93,7 @@ def main():
     report = dict(passed=True, diagnostic_only=True, registered_stock=False, published=False,
         source_video_sha256=digest(source), preview_sha256=digest(target),
         original_picture_pixels_unchanged=True, audio_packets_unchanged=True, full_av_decode=True,
+        audio_video_clocks_unchanged=True, original_streams=before, preview_streams=after,
         font_px=75, max_lines=1, changed_screens=1, old_policy=old['version'], new_policy=new['version'],
         old_tail='平常心了，？', new_tail='平常心了，是吧？',
         source_anchor_end=25.76, metadata_unchanged=True, production_gate_approved=False)
