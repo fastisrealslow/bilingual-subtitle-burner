@@ -1,0 +1,68 @@
+name: 未评段落续评实际CPU核验（不入库不投稿）
+on:
+  push:
+    branches: [codex/linyuan-story-review-continuation-20261023]
+    paths:
+      - linyuan/story_review_progress.py
+      - linyuan/publishing_experiment.py
+      - linyuan/restore_production_evidence.py
+      - scripts/check_linyuan_story_review_continuation_cpu.py
+      - .github/workflows/linyuan-story-review-continuation-check.yml
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-story-review-continuation-check
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      LOCAL_LLM_MODEL: qwen3.5:9b
+      CUDA_VISIBLE_DEVICES: ''
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q jieba
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen35-9b-v1
+      - uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: /tmp/ollama-runtime
+          key: ollama-linux-amd64-v0.33.3-c13cea8f3389db41
+      - name: 固定版本CPU模型，不使用云API
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ollama-runtime
+          archive=/tmp/ollama-runtime/ollama-linux-amd64.tar.zst
+          if ! echo "c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f  $archive" | sha256sum -c -; then
+            curl -fsSL --retry 5 --max-time 600 -o /tmp/ollama-download.tar.zst https://github.com/ollama/ollama/releases/download/v0.33.3/ollama-linux-amd64.tar.zst
+            echo "c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f  /tmp/ollama-download.tar.zst" | sha256sum -c -
+            mv /tmp/ollama-download.tar.zst "$archive"
+          fi
+          sudo tar --zstd -xf "$archive" -C /usr
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_KEEP_ALIVE=24h OLLAMA_NUM_PARALLEL=1 ollama serve > /tmp/ollama.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 1
+          done
+          ollama pull "$LOCAL_LLM_MODEL"
+      - name: 原37段及20分钟预算不变，先独立评完上轮未评13段
+        run: python -u scripts/check_linyuan_story_review_continuation_cpu.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: story-review-continuation-cpu-verification
+          path: |
+            story-review-continuation-cpu-results/
+            /tmp/ollama.log
+          retention-days: 30
+          if-no-files-found: error
