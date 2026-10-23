@@ -4,9 +4,10 @@
 部署
 ----
 1. 函数计算控制台 → 创建函数（Python 3.10+，运行时选「自定义」或标准 Python）
-2. 本文件为入口 index.py，配两个定时触发器：
-     dispatch_handler   每天 10:00（cron: 0 0 10 * * *）
-     publish_handler    每小时（cron: 0 30 * * * *）
+2. 本文件为入口 index.py，触发器由 verify_production.py 核对：
+     publish            北京时间 10/14/16/21 点
+     dispatch           保留现有迁移状态，GitHub 接管后不重新启用
+     experiment-observations  每小时 47 分，仅唤醒固定实验期的自家统计
 3. 依赖层（Layer）：pip install biliup requests -t python/
 4. 环境变量：
      GITHUB_TOKEN        GitHub PAT（repo + actions 权限）
@@ -39,6 +40,7 @@ if str(Path(__file__).resolve().parent.parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import editorial_policy as editorial
 import publishing_experiment as experiment
+import experiment_observation_dispatch as observation_clock
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -2007,6 +2009,8 @@ def production_config():
             "content_policy": editorial.CONTENT_POLICY,
             "duration_policy_version": editorial.DURATION_POLICY_VERSION,
             "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
+            "experiment_observation_clock": observation_clock.policy(),
+            "experiment_observation_clock_sha256": hashlib.sha256(Path(observation_clock.__file__).read_bytes()).hexdigest(),
             "dispatch_workflow_ref": "main", "publish_hours_beijing": sorted(PUBLISH_HOURS)}
 
 
@@ -2026,6 +2030,10 @@ def handler(event, context):
         # hit a synchronous 503. Code/timer validation must not wait for source
         # discovery or write progress logs before responding.
         return production_config()
+    if name == observation_clock.TRIGGER:
+        # Analytics must never fall through to the default publisher, acquire
+        # production leases, or write the shared publication/source ledgers.
+        return observation_clock.request(gh)
     log.info(f"触发器: {name or '（手动测试）'}")
     log_event("run", f"触发器 {name or '手动'} 开始运行")
     # 入口事件立即落盘，长下载/上传即使超时也能证明请求实际进入函数。
