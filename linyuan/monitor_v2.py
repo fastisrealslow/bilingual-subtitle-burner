@@ -382,7 +382,7 @@ class BilibiliCollectionSource(Source):
     min_interval = 1800
 
     def collection_seed_batch(self,seeds):
-        """Refresh explicitly verified additions once without resetting rotation.
+        """Inspect new exact parents once without resetting rotation.
 
         A tail addition otherwise waits almost two days in the 1,000-parent
         pool. Priority replaces existing requests, never adds to the budget;
@@ -423,6 +423,16 @@ class BilibiliCollectionSource(Source):
         seeds = list(self.config.get('seeds', []))
         if self.config.get('seeds_file'):
             seeds.extend(json.loads(Path(__file__).with_name(self.config['seeds_file']).read_text())['seeds'])
+        if self.config.get('expand_overlimit_parents') is True:
+            # Parent totals above 90 minutes can contain ordinary 20–30 minute
+            # native pages. Inspect their live view metadata inside the SAME
+            # request budget; never cut, alias or approve a mother here.
+            from native_parent_catalog import parent_seeds
+            try:
+                seeds.extend(parent_seeds(DB_PATH,{s['bvid'] for s in seeds},
+                    self.scan_state.get(self.name+'_priority',{})))
+            except (OSError,sqlite3.Error,ValueError,TypeError) as exc:
+                print(f'[bilibili_collection] 合集线索不可用，保留原种子轮换: {type(exc).__name__}',file=sys.stderr)
         for seed in self.collection_seed_batch(seeds):
             bvid = seed["bvid"]
             try:

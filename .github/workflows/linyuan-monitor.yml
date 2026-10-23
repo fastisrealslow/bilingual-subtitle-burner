@@ -28,6 +28,7 @@ on:
       - linyuan/yicai_seeds.json
       - linyuan/netease_seeds.json
       - linyuan/bilibili_seeds.json
+      - linyuan/native_parent_catalog.py
       - linyuan/seed_scan.py
       - linyuan/seed_campaign.py
       - linyuan/seed_growth.py
@@ -78,7 +79,7 @@ jobs:
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_bilibili_discovery.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py
 
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5
