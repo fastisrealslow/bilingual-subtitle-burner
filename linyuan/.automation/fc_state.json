@@ -44465,7 +44465,46 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-08-30T14:56:17+00:00"
+   "publish_time": "2019-08-30T14:56:17+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-935c70",
+    "run_id": 39939127669,
+    "artifact_id": 12497967228,
+    "accepted": 0,
+    "source_context": null,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/825，总帧数4120；身份匹配但人脸短边不足96px的帧数825"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/251，总帧数1250；身份匹配但人脸短边不足96px的帧数251"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1208，总帧数6036；身份匹配但人脸短边不足96px的帧数1208"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/1258，总帧数6284；身份匹配但人脸短边不足96px的帧数1256"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/1048，总帧数5234；身份匹配但人脸短边不足96px的帧数1047"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39939127669,
+    "artifact_id": 12497967228,
+    "name": "production-reject-ly-1023-935c70",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/825，总帧数4120；身份匹配但人脸短边不足96px的帧数825",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1GGJm6uEgL:p2",
@@ -44721,26 +44760,36 @@
    "publish_time": "2024-08-17T15:26:06+00:00",
    "production_failure_summary": {
     "slug": "ly-1023-1b329f",
-    "run_id": 39938160707,
-    "artifact_id": 12496127243,
+    "run_id": 39944885125,
+    "artifact_id": 12497498770,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+      "reason": "选段原画仍有原字幕或免责声明"
      }
     ],
-    "source_context": null
+    "source_context": {
+     "passed": true,
+     "source_sha256": "fc8b5dc5ebf11a64b701bc871c60bc8af8eaf57599968aa6c5478d9c93cfb7f2",
+     "duration_sec": 1262.9,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1hS421X7Xd"
+    }
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39938160707,
-    "artifact_id": 12496127243,
+    "run_id": 39944885125,
+    "artifact_id": 12497498770,
     "name": "production-reject-ly-1023-1b329f",
     "retained": true
    },
-   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
-   "source_quality_rejected": false,
+   "last_error": "选段原画仍有原字幕或免责声明",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -120075,6 +120124,13 @@
    "video_id": "BV16PWPeFEq7:p2",
    "ts": 1792753278,
    "error": "清理后预计短边 370 < 480"
+  },
+  {
+   "slug": "ly-1023-935c70",
+   "key": "bilibili_search:BV1e441127E6:p2",
+   "video_id": "BV1e441127E6:p2",
+   "ts": 1792754781,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/825，总帧数4120；身份匹配但人脸短边不足96px的帧数825"
   }
  ],
  "reviewed_third_video_0910": {
