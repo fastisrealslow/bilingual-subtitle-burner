@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792736202,
+  "updated_at": 1792736305,
   "inventory_updated_at": 1792736200,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 5,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -97,18 +97,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792736202,
+    "updated_at": 1792736304,
     "records": 11485,
     "video_records": 9911,
-    "initial_candidates": 67,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 62,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1574,
       "clip_title": 1159,
-      "already_attempted_or_cooling": 1589,
+      "already_attempted_or_cooling": 1594,
       "speaker_unconfirmed": 6826,
       "noise": 21,
       "unrelated": 65,
@@ -118,48 +118,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1wWytYTEdv",
-        "title": "85. 林园：危机，危中有机，我们就投危机！ # @股票交流 #价值投资 #股市",
-        "source": "bilibili_search",
-        "author": "临园指路",
-        "url": "https://www.bilibili.com/video/BV1wWytYTEdv",
-        "duration_sec": 97.0
-      },
-      {
-        "key": "bilibili_search:BV11N411f7cE",
-        "title": "林园谈互联网",
-        "source": "bilibili_search",
-        "author": "韭菜非专业户",
-        "url": "https://www.bilibili.com/video/BV11N411f7cE",
-        "duration_sec": 48.0
-      },
-      {
-        "key": "bilibili_search:BV1pSraBeEUe",
-        "title": "林园浙大MBA论坛对话部分（下）（2026.01.09）",
-        "source": "reference_origin_search",
-        "author": "与林园大师同行",
-        "url": "https://www.bilibili.com/video/BV1pSraBeEUe",
-        "duration_sec": 2131.0
-      },
-      {
-        "key": "bilibili_search:BV1esckzFEQ4",
-        "title": "林园炒股秘籍《新浪财经直播》2020.7.23",
-        "source": "bilibili_search",
-        "author": "复利财务自由",
-        "url": "https://www.bilibili.com/video/BV1esckzFEQ4",
-        "duration_sec": 1941.0
-      },
-      {
-        "key": "bilibili_search:BV1T6Ti6TEpk",
-        "title": "林园经典﹣2020.12.14﹣新浪财经访谈",
-        "source": "bilibili_search",
-        "author": "昕礽果复利增长",
-        "url": "https://www.bilibili.com/video/BV1T6Ti6TEpk",
-        "duration_sec": 2640.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 15,
@@ -175,14 +134,14 @@
   },
   "counts": {
     "complete": 141,
-    "failed": 1268,
+    "failed": 1267,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 6,
     "retry_queued": 2,
-    "running": 1
+    "running": 6
   },
   "tasks": [
     {
@@ -26222,24 +26181,6 @@
       "run_updated_at": "2026-10-23T03:04:50Z"
     },
     {
-      "slug": "ly-1023-c339ed",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}, {\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}]",
-      "signature": {
-        "ts": 1792722607,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 39889904692,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39889904692",
-      "run_started_at": "2026-10-23T02:30:07Z",
-      "run_updated_at": "2026-10-23T02:45:49Z"
-    },
-    {
       "slug": "ly-1023-f9fcfe",
       "status": "failed",
       "detail": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么'语义模糊，结合上下文应为'地产是什么'或类似表达，此处同音疑点影响对‘不懂地产’这一理由的理解，需列入 audio_issues。\"]]",
@@ -26364,6 +26305,114 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39906333491",
       "run_started_at": "2026-10-23T05:32:34Z",
       "run_updated_at": "2026-10-23T05:32:38Z"
+    },
+    {
+      "slug": "ly-1023-c339ed",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792735965,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39910123732,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910123732",
+      "run_started_at": "2026-10-23T06:12:45Z",
+      "run_updated_at": "2026-10-23T06:12:49Z"
+    },
+    {
+      "slug": "ly-1023-320e8d",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1792735972,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39910133873,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910133873",
+      "run_started_at": "2026-10-23T06:12:51Z",
+      "run_updated_at": "2026-10-23T06:17:08Z"
+    },
+    {
+      "slug": "ly-1023-88e308",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792735978,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39910143954,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910143954",
+      "run_started_at": "2026-10-23T06:12:58Z",
+      "run_updated_at": "2026-10-23T06:13:02Z"
+    },
+    {
+      "slug": "ly-1023-6287b5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792735985,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39910155034,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910155034",
+      "run_started_at": "2026-10-23T06:13:04Z",
+      "run_updated_at": "2026-10-23T06:13:09Z"
+    },
+    {
+      "slug": "ly-1023-ae5964",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792735991,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39910165422,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910165422",
+      "run_started_at": "2026-10-23T06:13:11Z",
+      "run_updated_at": "2026-10-23T06:13:15Z"
+    },
+    {
+      "slug": "ly-1023-a7ec00",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792736266,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39910621405,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910621405",
+      "run_started_at": "2026-10-23T06:17:46Z",
+      "run_updated_at": "2026-10-23T06:17:50Z"
     }
   ],
   "runs": {
@@ -37896,14 +37945,14 @@
       "display_title": "中文源出片 · ly-1022-4867b6"
     },
     "ly-1023-c339ed": {
-      "id": 39889904692,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-23T02:30:07Z",
-      "updated_at": "2026-10-23T02:45:49Z",
-      "run_started_at": "2026-10-23T02:30:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39889904692",
-      "run_number": 2541,
+      "id": 39910123732,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T06:12:45Z",
+      "updated_at": "2026-10-23T06:12:49Z",
+      "run_started_at": "2026-10-23T06:12:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910123732",
+      "run_number": 2552,
       "display_title": "中文源出片 · ly-1023-c339ed"
     },
     "ly-1023-f9fcfe": {
@@ -38004,6 +38053,61 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39901671195",
       "run_number": 2549,
       "display_title": "中文源出片 · ly-1023-4b6916"
+    },
+    "ly-1023-a7ec00": {
+      "id": 39910621405,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T06:17:46Z",
+      "updated_at": "2026-10-23T06:17:50Z",
+      "run_started_at": "2026-10-23T06:17:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910621405",
+      "run_number": 2557,
+      "display_title": "中文源出片 · ly-1023-a7ec00"
+    },
+    "ly-1023-ae5964": {
+      "id": 39910165422,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T06:13:11Z",
+      "updated_at": "2026-10-23T06:13:15Z",
+      "run_started_at": "2026-10-23T06:13:11Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910165422",
+      "run_number": 2556,
+      "display_title": "中文源出片 · ly-1023-ae5964"
+    },
+    "ly-1023-6287b5": {
+      "id": 39910155034,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T06:13:04Z",
+      "updated_at": "2026-10-23T06:13:09Z",
+      "run_started_at": "2026-10-23T06:13:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910155034",
+      "run_number": 2555,
+      "display_title": "中文源出片 · ly-1023-6287b5"
+    },
+    "ly-1023-88e308": {
+      "id": 39910143954,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T06:12:58Z",
+      "updated_at": "2026-10-23T06:13:02Z",
+      "run_started_at": "2026-10-23T06:12:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910143954",
+      "run_number": 2554,
+      "display_title": "中文源出片 · ly-1023-88e308"
+    },
+    "ly-1023-320e8d": {
+      "id": 39910133873,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-23T06:12:51Z",
+      "updated_at": "2026-10-23T06:17:08Z",
+      "run_started_at": "2026-10-23T06:12:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910133873",
+      "run_number": 2553,
+      "display_title": "中文源出片 · ly-1023-320e8d"
     },
     "ly-1023-635a62": {
       "id": 39906333491,
