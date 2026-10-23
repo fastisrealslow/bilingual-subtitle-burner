@@ -130,8 +130,8 @@ def test_only_a_fresh_checked_long_mother_can_use_proposals(tmp_path,change):
 
 @pytest.mark.parametrize('profile,width,height,expected',[
     ('baseline',1920,1080,True),('field-story-v1',1920,1080,True),
-    ('field-story-v1',852,480,False)])
-def test_actual_cli_offers_only_new_long_source_ranges_and_keeps_impossible_t_fast(tmp_path,monkeypatch,profile,width,height,expected):
+    ('field-story-v1',852,480,True)])
+def test_actual_cli_offers_control_ranges_when_native_t_is_impossible(tmp_path,monkeypatch,profile,width,height,expected):
     import produce_cn as P
     import publishing_experiment as E
     import source_selection as S
@@ -192,7 +192,7 @@ def test_incomplete_proposal_is_a_retryable_source_nonverdict_in_actual_batch(tm
 
 
 @pytest.mark.parametrize('proposed,explicit_limit,expected_attempts,expected_accepted',[
-    (True,0,3,2),(True,1,2,1),(False,0,5,4)])
+    (True,0,3,2),(True,1,2,1),(False,0,5,4),(False,2,3,2)])
 def test_delivery_limit_counts_real_acceptances_and_retains_failed_candidate_backups(
         tmp_path,monkeypatch,proposed,explicit_limit,expected_attempts,expected_accepted):
     import produce_cn as P

@@ -2246,7 +2246,20 @@ def publish_catchup(event, context=None):
     return publish_handler({**event,**request,'force_publish':True},context)
 
 
+def proven_recall_source_error(part,entry):
+    repair=entry.get('experiment_proven_recall')
+    if not repair:return None
+    expected=repair.get('source_sha256')
+    if (not re.fullmatch('[a-f0-9]{64}',str(expected or ''))
+            or entry.get('experiment_mother_sha256')!=expected
+            or part.get('source_sha256')!=expected):
+        return '已验证源修复的实际母片哈希不一致，禁止使用试产证据批准其他素材'
+    return None
+
+
 def inventory_publication_error(part,entry,state):
+    error=proven_recall_source_error(part,entry)
+    if error:return error
     from source_admission_guard import restriction
     rights_error=restriction(entry.get('source_url') or part.get('source_origin_url') or '',[])
     if rights_error:return rights_error
@@ -3045,12 +3058,29 @@ def proven_company_recall_candidates(state, inventory, items, active_runs=()):
                 or any((e.get('experiment_proven_recall') or {}).get('id')==scope['id']
                        for e in state.get('dispatched',[]))):continue
         entry=latest.get(scope['parent_slug']);record=records.get(scope['parent_slug'])
-        if (not entry or entry.get('failed') or entry.get('uploading') or not record
+        if (not entry or entry.get('uploading')
                 or entry['slug'] in REVIEW_PAUSED_SLUGS or entry.get('weekly_full_week')
                 or entry.get('source_url')!=scope['source_url']
+                or restriction(scope['source_url'],[])):continue
+        failed_parent=scope.get('failed_parent_sha256')
+        if failed_parent:
+            # One immutable, explicitly proven source repair may create a NEW
+            # job. The failed parent and its counters are never reset. A trial
+            # can guide geometry, but is not a verified inventory record.
+            if (not re.fullmatch('[a-f0-9]{64}',str(failed_parent))
+                    or entry.get('failed') is not True or record
+                    or experiment.digest(entry)!=failed_parent
+                    or (state.get('published',{}).get(entry['slug']) or {}).get('parts')
+                    or type(scope.get('diagnostic_run_id')) is not int or scope['diagnostic_run_id']<=0
+                    or type(scope.get('diagnostic_artifact_id')) is not int or scope['diagnostic_artifact_id']<=0
+                    or not re.fullmatch('[a-f0-9]{64}',str(scope.get('diagnostic_video_sha256') or ''))
+                    or not re.fullmatch('[a-f0-9]{64}',str(scope.get('source_sha256') or ''))
+                    or not experiment.long_candidate(dict(extra=dict(duration=scope.get('diagnostic_source_duration_sec'))))):continue
+            record=dict(run_id=None,parts=[])
+        elif (entry.get('failed') or not record
                 or record.get('artifact_id')!=scope['parent_artifact_id']
                 or record.get('run_id')!=scope['parent_run_id']
-                or not inventory_record_current(record) or restriction(scope['source_url'],[])):continue
+                or not inventory_record_current(record)):continue
         related=[e for e in latest.values() if e.get('source_url')==scope['source_url']
                  or e.get('experiment_mother_sha256')==scope['source_sha256']]
         if any(e['slug'] in running or e.get('uploading') or e.get('source_check_retry_after')
@@ -3061,19 +3091,39 @@ def proven_company_recall_candidates(state, inventory, items, active_runs=()):
                for e in related):continue
         matches=[i for i in items if scope['source_url'] in
                  (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if failed_parent:
+            # Collection metadata may describe all parts. The actual passed
+            # trial measures this exact requested page, not the collection.
+            matches=[{**i,'extra':{**i['extra'],'duration':scope['diagnostic_source_duration_sec']}}
+                     for i in matches if isinstance(i.get('extra'),dict)]
         if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS
                 and not (i['extra'].get('no_reprint')==1
                          or i['extra'].get('source_role') in {'reference','catalog_only'}
                          or i['extra'].get('direct_dispatch') is False)
                 for i in matches if isinstance(i.get('extra'),dict)):continue
         parts=[p for p in record.get('parts',[]) if p.get('status')=='verified']
-        if (not parts or any(p.get('source_sha256')!=scope['source_sha256'] for p in parts)
+        if not failed_parent and (not parts or any(p.get('source_sha256')!=scope['source_sha256'] for p in parts)
                 or not any(int(p.get('index',-1)) not in processed_part_indices(entry)
                            and not inventory_publication_error(p,entry,state) for p in parts)):continue
         provenance={k:scope[k] for k in ('id','source_sha256','selection_policy_sha256',
             'diagnostic_run_id','diagnostic_artifact_id','diagnostic_video_sha256')}
+        planning=record
+        size=scope.get('diagnostic_resolution') or {}
+        if (type(size.get('width')) is int and type(size.get('height')) is int
+                and min(size['width'],size['height'])>0 and size['width']!=size['height']
+                and scope.get('diagnostic_render_mode') in {'crop','crop_delogo','direct','live_video_card'}):
+            # The passed trial's actual T format is more informative than an
+            # old C layout. This copy guides planning only; never put diagnostic
+            # clips into stock or mutate the parent's verified parts.
+            hint=dict(source_sha256=scope['source_sha256'],resolution=size,
+                render_mode=scope['diagnostic_render_mode'],status='verified',
+                sha256=scope['diagnostic_video_sha256'],diagnostic_only=True,
+                geometry_run_id=scope['diagnostic_run_id'],
+                geometry_artifact_id=scope['diagnostic_artifact_id'])
+            planning={**record,'parts':[],'source_geometry_hints':[hint]}
+        elif failed_parent:continue  # A new format needs actual passed media geometry.
         yield {**entry,'source_sha256':scope['source_sha256'],
-               'experiment_proven_recall':provenance},record
+               'experiment_proven_recall':provenance},planning
 
 
 def experiment_reuse_candidates(state, inventory, items, active_runs=()):

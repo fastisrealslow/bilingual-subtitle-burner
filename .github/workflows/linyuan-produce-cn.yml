@@ -471,6 +471,7 @@ jobs:
             --source-platform "${{ env.RUN_SOURCE_PLATFORM }}" \
             --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
             --split-highlights \
+            ${{ inputs.repair_bvid == '' && inputs.reviewed_parts == '' && inputs.selected_parts == '' && !inputs.include_full && (inputs.target_parts == '' || inputs.target_parts == '0') && '--max-outputs 2' || '' }} \
             --require-live-video \
             --only-reviewed-parts "$REVIEWED_PARTS" \
             --only-selected-parts "$SELECTED_PARTS" \

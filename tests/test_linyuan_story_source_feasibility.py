@@ -132,3 +132,50 @@ def test_profile_routing_never_reopens_unrelated_old_rejections(monkeypatch,reas
     assert not F._recover_changed_production_rule(dict(published={}),e,
         dict(id=12345,head_sha='old',conclusion='failure'))
     assert e['failed'] is True and e['source_quality_rejected'] is True and e['source_check_attempts']==2
+
+
+def test_impossible_scene_cover_runs_normal_keynote_selection_before_delivery(tmp_path,monkeypatch):
+    import source_selection as S
+    import keynote_proposals as K
+    monkeypatch.setattr(P.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(P.editorial,'MIN_SECONDS',20)
+    monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',E.TREATMENT)
+    monkeypatch.setenv('LINYUAN_AUTOMATIC_ONLY','true')
+    monkeypatch.setenv('SOURCE_EDITORIAL_FIRST','true')
+    monkeypatch.delenv('PUBLICATION_STATE_PATH',raising=False)
+    monkeypatch.delenv('SOURCE_VISUAL_CHAPTERS',raising=False)
+    monkeypatch.setattr(P,'BASE',tmp_path);monkeypatch.setattr(P,'TEXT_BACKEND','local')
+    monkeypatch.setattr(P,'load_key',lambda:None)
+    report={**actual_source(),'visual_identity':{}}
+    monkeypatch.setattr(P,'run_source_quality_gate',lambda *a:report)
+    cues=[dict(start=0,end=40,text='这是保留原词和原始计时的连续观点，仅供控制流程测试。')]
+    before=deepcopy(cues);phases=[]
+    def transcribe(*a):
+        assert E.profile()==E.BASELINE
+        phases.append('recognition');return cues
+    monkeypatch.setattr(P,'transcribe',transcribe)
+    monkeypatch.setattr(S,'select',lambda *a,**k:[])
+    def propose(*a,**k):
+        assert E.profile()==E.BASELINE
+        phases.append('ordinary_keynote');return dict(picks=[dict(start=0,end=0,score=7)],unresolved=[],selection_completed=True)
+    monkeypatch.setattr(K,'propose',propose)
+    monkeypatch.setattr(E,'choose_stories',lambda *a,**k:pytest.fail('Native-impossible T cannot consume classifier budget'))
+    monkeypatch.setattr(__import__('visual_selection'),'rank',lambda src,cues,picks,*a,**k:picks)
+    monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:tmp_path/'reference.jpg')
+    monkeypatch.setattr(P,'_local_face_models',lambda *a:{})
+    monkeypatch.setattr(P,'_ocr',lambda *a:None)
+    def render(*a,**k):
+        assert E.profile()==E.BASELINE
+        phases.append('unchanged_control_quality_gates')
+        return dict(final='test-only.mp4',title='仅供控制流程测试',duration_sec=40,
+            editorial_profile=E.BASELINE,render_mode='live_video_card',resolution=dict(width=720,height=1280))
+    monkeypatch.setattr(P,'produce_part_with_budget',render)
+    source=tmp_path/'source.mp4';source.write_bytes(b'CLI fixture, not approved media')
+    monkeypatch.setattr(P.sys,'argv',['produce','--source',str(source),'--slug','early-fallback',
+        '--split-highlights','--require-live-video','--max-outputs','1'])
+    assert P.main()==0 and cues==before
+    result=json.loads((tmp_path/'deliver/early-fallback/experiment_production.json').read_text())
+    assert phases==['recognition','ordinary_keynote','unchanged_control_quality_gates']
+    assert result['requested']==E.TREATMENT and result['experiment_accepted']==0
+    assert result['baseline_accepted']==1 and result['fallback']
+    assert not list(tmp_path.rglob('final*.mp4'))

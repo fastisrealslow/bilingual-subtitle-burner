@@ -83,3 +83,67 @@ def test_regular_reuse_slug_remains_unchanged(monkeypatch):
     _,state,*_=fixture(monkeypatch);parent=state['dispatched'][0]
     assert F.experiment_reuse_slug(parent)=='ly-story-'+E.digest([
         E.EXPERIMENT_ID,parent['source_url'],E.SELECTION_REVISION])[:10]
+
+
+def test_actual_diagnostic_format_guides_planning_without_becoming_stock(monkeypatch):
+    scope,state,inventory,items=fixture(monkeypatch)
+    scope.update(diagnostic_resolution=dict(width=720,height=1280),diagnostic_render_mode='live_video_card')
+    inventory['artifacts'][0]['parts'][0].update(resolution=dict(width=1280,height=720),render_mode='direct')
+    before=deepcopy((state,inventory,items))
+    choices=list(F.proven_company_recall_candidates(state,inventory,items))
+    assert choices[0][1]['parts']==[]
+    assert choices[0][1]['source_geometry_hints'][0]['diagnostic_only'] is True
+    plan=F.experiment_reuse_plan(choices,state,dict(portrait=1,landscape=2))
+    assert len(plan)==1 and plan[0][2]=='portrait'
+    assert (state,inventory,items)==before
+
+
+def failed_fixture(monkeypatch):
+    scope,state,inventory,items=fixture(monkeypatch)
+    parent=state['dispatched'][0];parent.update(failed=True,last_error='Old source quality failure')
+    inventory['artifacts']=[]
+    scope.update(failed_parent_sha256=E.digest(parent),diagnostic_source_duration_sec=1501,
+        diagnostic_resolution=dict(width=720,height=1280),diagnostic_render_mode='live_video_card')
+    items[0]['extra']['duration']=7212
+    return scope,state,inventory,items
+
+
+def test_exact_failed_parent_can_create_one_fresh_job_without_changing_history(monkeypatch):
+    scope,state,inventory,items=failed_fixture(monkeypatch);before=deepcopy((state,inventory,items))
+    choices=list(F.proven_company_recall_candidates(state,inventory,items))
+    assert len(choices)==1 and choices[0][1]['run_id'] is None
+    assert choices[0][1]['parts']==[] and choices[0][1]['source_geometry_hints'][0]['diagnostic_only']
+    assert (state,inventory,items)==before and state['dispatched'][0]['failed'] is True
+    state['dispatched'].append(dict(slug='new-child',ts=3,failed=True,
+        experiment_proven_recall=choices[0][0]['experiment_proven_recall']))
+    assert not list(F.proven_company_recall_candidates(state,inventory,items))
+
+
+@pytest.mark.parametrize('change',['fingerprint','parent_changed','not_failed','old_stock','receipt',
+    'short_actual','long_actual','no_geometry','no_run','no_artifact','bad_video','active','restricted'])
+def test_failed_source_repair_requires_exact_history_and_actual_trial_evidence(monkeypatch,change):
+    scope,state,inventory,items=failed_fixture(monkeypatch);parent=state['dispatched'][0];active=[]
+    if change=='fingerprint':scope['failed_parent_sha256']='c'*64
+    elif change=='parent_changed':parent['last_error']='New failure'
+    elif change=='not_failed':parent['failed']=False
+    elif change=='old_stock':inventory['artifacts']=[dict(slug=parent['slug'])]
+    elif change=='receipt':state['published'][parent['slug']]=dict(parts=[dict(status='published',bvid='old')])
+    elif change=='short_actual':scope['diagnostic_source_duration_sec']=1199
+    elif change=='long_actual':scope['diagnostic_source_duration_sec']=5401
+    elif change=='no_geometry':scope.pop('diagnostic_resolution')
+    elif change=='no_run':scope['diagnostic_run_id']=None
+    elif change=='no_artifact':scope['diagnostic_artifact_id']=None
+    elif change=='bad_video':scope['diagnostic_video_sha256']='bad'
+    elif change=='active':active=[dict(status='in_progress',display_title='中文源出片 · '+parent['slug'])]
+    else:items[0]['extra']['no_reprint']=1
+    assert not list(F.proven_company_recall_candidates(state,inventory,items,active))
+
+
+def test_source_repair_output_is_bound_to_the_actual_proven_mother():
+    entry=dict(experiment_mother_sha256='a'*64,experiment_proven_recall=dict(source_sha256='a'*64))
+    assert F.proven_recall_source_error(dict(source_sha256='a'*64),entry) is None
+    assert F.proven_recall_source_error(dict(source_sha256='b'*64),entry)
+    entry['experiment_mother_sha256']='b'*64
+    assert F.proven_recall_source_error(dict(source_sha256='a'*64),entry)
+    assert F.proven_recall_source_error({},dict(experiment_proven_recall=dict(source_sha256='bad')))
+    assert F.proven_recall_source_error({},dict()) is None
