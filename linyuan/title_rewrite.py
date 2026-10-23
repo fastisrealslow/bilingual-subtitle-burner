@@ -1733,6 +1733,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
         if answer_subject:
             reader_prompt+='''\n在e_subject_name写明这项主要回答实际讨论的具体对象（产品、公司、行业或市场的名称），不能用它、原因、标准等泛词。须逐字摘取原文中的名称，不自行扩成整个行业。
 程序会在已确认的嘉宾原句中逐字定位这个名称，可以出现在同一问答的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
+    if len(transcript)<=1200:
+        # Display cues can split a sentence/word. Offer the SAME complete
+        # source once for reading, keeping original numbered cues for binding.
+        # Do not truncate long interviews or invent a contextual summary.
+        reader_prompt+='\n以下连续原文仅按原顺序连接上述字幕，没有改写；先连贯阅读，再回到编号核对说话人：\n'+transcript
     reading_repair_note=''
     literal_attempted=set()
     def fallback(only_preferred=False):
