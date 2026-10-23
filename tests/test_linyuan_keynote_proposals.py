@@ -130,8 +130,8 @@ def test_only_a_fresh_checked_long_mother_can_use_proposals(tmp_path,change):
 
 @pytest.mark.parametrize('profile,width,height,expected',[
     ('baseline',1920,1080,True),('field-story-v1',1920,1080,True),
-    ('field-story-v1',852,480,False)])
-def test_actual_cli_offers_only_new_long_source_ranges_and_keeps_impossible_t_fast(tmp_path,monkeypatch,profile,width,height,expected):
+    ('field-story-v1',852,480,True)])
+def test_actual_cli_offers_control_ranges_when_native_t_is_impossible(tmp_path,monkeypatch,profile,width,height,expected):
     import produce_cn as P
     import publishing_experiment as E
     import source_selection as S
