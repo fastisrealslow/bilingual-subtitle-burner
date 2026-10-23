@@ -28,6 +28,7 @@ jobs:
       matrix:
         replica: [1, 2]
     env:
+      TEXT_BACKEND: local
       LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3.5:9b' }}
       CUDA_VISIBLE_DEVICES: ''
     steps:
@@ -35,7 +36,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install -q jieba
+      - run: python -m pip install -q jieba pillow numpy
       - name: 缓存实产或预览CPU本地模型
         uses: actions/cache@v4
         continue-on-error: true

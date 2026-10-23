@@ -9,10 +9,32 @@ import sys
 import time
 import urllib.request
 import zipfile
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'linyuan'))
 import transcript_audit as audit
+
+
+def production_audit_request(producer,prompt,schema):
+    """Use the REAL fresh production transport, including seed/length guards."""
+    actual_urlopen=producer.urllib.request.urlopen
+    observed=[]
+    def observe(request,*args,**kwargs):
+        assert request.full_url==producer.LOCAL_LLM_URL
+        observed.append(json.loads(request.data))
+        return actual_urlopen(request,*args,**kwargs)
+    started=time.monotonic()
+    with patch.object(producer.urllib.request,'urlopen',side_effect=observe):
+        raw=producer.llm([dict(role='user',content=prompt)],'',temperature=0,
+            max_tokens=1200,budget_sec=producer.text_budget(180),
+            response_schema=schema,read_cache=False)
+    assert len(observed)==1
+    payload=observed[0]
+    assert payload['think'] is False and payload['keep_alive']=='24h'
+    assert payload['options']['num_predict']==1200 and payload['options']['num_ctx']==16384
+    assert type(payload['options']['seed']) is int
+    return raw,payload,round(time.monotonic()-started,3)
 
 
 def actual_range_cases():
@@ -68,9 +90,11 @@ def actual_text_only_case():
 
 
 def main():
+    import produce_cn as producer
     model=os.environ.get('LOCAL_LLM_MODEL','')
     if model not in {'qwen3:8b','qwen3.5:9b'}:
         raise ValueError('Only current/preview CPU models are allowed for controls')
+    assert producer.TEXT_BACKEND=='local' and producer.LOCAL_LLM_MODEL==model
     out=Path('transcript-style-cpu-results');out.mkdir(exist_ok=True)
     with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as r:
         tags=json.load(r)
@@ -112,17 +136,10 @@ def main():
                 calls.append(dict(prompt=prompt,schema=schema,response=raw,seconds=0,
                     model=None,injected_protocol_fault=True))
                 return raw
-            started=time.monotonic()
-            payload=dict(model=model,messages=[dict(role='user',content=prompt)],
-                format=schema,stream=False,think=False,
-                options=dict(temperature=0,num_predict=1200,num_ctx=16384))
-            req=urllib.request.Request('http://127.0.0.1:11434/api/chat',
-                data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'})
-            with urllib.request.urlopen(req,timeout=600) as response:
-                result=json.load(response)
-            content=result['message']['content']
+            content,payload,seconds=production_audit_request(producer,prompt,schema)
             calls.append(dict(prompt=prompt,schema=schema,response=content,
-                seconds=round(time.monotonic()-started,3),model=result.get('model')))
+                seconds=seconds,model=payload['model'],production_payload=payload,
+                production_transport=True,read_response_cache=False))
             return content
         row=dict(case=name,transcript=text,expected_clear=expected,
             transcript_sha256=hashlib.sha256(text.encode()).hexdigest(),calls=calls)
@@ -136,6 +153,7 @@ def main():
             report=dict(diagnostic_only=True,publication_approved=False,audio_verified=False,
                 source_cues_changed=False,production_current_model='qwen3.5:9b',
                 tested_model=model,production_model_changed=False,model_digest=actual['digest'],
+                production_transport=True,fresh_response_cache_disabled=True,
                 audit_version=audit.VERSION,
                 spoken_range_policy_version=audit.SPOKEN_RANGE_POLICY_VERSION,
                 actual_provenance=actual_provenance,
