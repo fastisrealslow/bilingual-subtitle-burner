@@ -44640,7 +44640,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-08-30T14:56:17+00:00"
+   "publish_time": "2019-08-30T14:56:17+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-4ce502",
+    "run_id": 39941354051,
+    "artifact_id": 12499876843,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b05189512cc51b21dd03a92e1ed692854394e0dfebd74bfb0ef018566a0a9ec4",
+     "duration_sec": 2996.0,
+     "resolution": {
+      "width": 856,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1e441127E6"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1130，总帧数5648；身份匹配但人脸短边不足96px的帧数1130"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1198，总帧数5986；身份匹配但人脸短边不足96px的帧数1198"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾对核心问题的实质性回答，仅有主持人提问及零散口语表达，无法构成完整观点链条。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/188，总帧数938；身份匹配但人脸短边不足96px的帧数188"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39941354051,
+    "artifact_id": 12499876843,
+    "name": "production-reject-ly-1023-4ce502",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1130，总帧数5648；身份匹配但人脸短边不足96px的帧数1130",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV16PWPeFEq7:p3",
@@ -120204,6 +120249,13 @@
    "video_id": "BV1e441127E6:p2",
    "ts": 1792754781,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/825，总帧数4120；身份匹配但人脸短边不足96px的帧数825"
+  },
+  {
+   "slug": "ly-1023-4ce502",
+   "key": "bilibili_search:BV1e441127E6",
+   "video_id": "BV1e441127E6",
+   "ts": 1792757026,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1130，总帧数5648；身份匹配但人脸短边不足96px的帧数1130"
   }
  ],
  "reviewed_third_video_0910": {
