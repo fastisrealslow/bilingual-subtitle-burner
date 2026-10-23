@@ -8,7 +8,7 @@ from editorial_policy import text_digest
 from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102308
+SPOKEN_RANGE_POLICY_VERSION = 2026102309
 
 CRITICAL_REVIEW_SCOPE=(
     '先通读整段，再按“是否会误解是谁、哪家公司、多少钱、何时、实际做了什么或是否做过”的标准检查。'
@@ -16,12 +16,14 @@ CRITICAL_REVIEW_SCOPE=(
     '但普通通用词不必是金融术语；口语省略虚词、临时改口、句法不整齐、指代泛化、'
     '标点把连续意思分开，不能单独变成识别错误。连读上下文能理解且不改变具体身份、事实或动作的'
     '口语瑕疵不报告。不要为润色补字，不根据观点是否符合金融常识判断识别，不猜原音还有其他词。')
+CRITICAL_REVIEW_SCOPE+='口语年份省略、相对时间和约数保持原样，不推算或补齐世纪、绝对日期或精确金额；缺少绝对值不等于识别错误。'
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
-    r'(?:并非|非|不是|不属于|不构成)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)'
+    r'(?:并非|非|不是|不属于|不构成|未构成)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)'
     r'|(?:无|没有|未发现|不存在)(?:(?:具体|实际|明确|明显|任何|真正|相关|的))*'
-    r'(?:识别错误|识别污染|识别疑点)')
+    r'(?:识别错误|识别污染|识别疑点)'
+    r'|(?:此项|该项|本项)(?:暂不|不|无需|不应)(?:再)?(?:列为|作为|认定为)(?:识别)?错误')
 
 
 def ordinary_disfluency(quote):
@@ -107,6 +109,13 @@ def review(text, speaker, model, call, path):
             if not isinstance(data.get('explanation'),str) or not data['explanation'].strip():
                 raise ValueError('Missing text-review explanation')
             bound=[];ignored=[];invalid=[]
+            # Conflicting copies of ONE reported issue are not independent
+            # negative evidence. A truncated copy cannot outvote another copy
+            # explicitly saying that exact sentence/quote/kind is not an error.
+            disavowed_keys={
+                (item.get('sentence_id'),item.get('suspect_quote'),item.get('kind'))
+                for item in data['issues'] if isinstance(item,dict)
+                and isinstance(item.get('reason'),str) and NO_CONTAMINATION.search(item['reason'])}
             if AUDIO_ACCESS_CLAIM.search(data['explanation']):
                 explanation_first_retry=True
                 independent_evidence_retry=True
@@ -128,7 +137,7 @@ def review(text, speaker, model, call, path):
                         '文字审核未收到原音，不能用听感或声称核实发音作为证据。'
                         '请独立判断实际文字中的具体污染，不猜替换词，不改原话。'})
                     continue
-                if NO_CONTAMINATION.search(reason):
+                if (ident,quote,item['kind']) in disavowed_keys:
                     explanation_first_retry=True
                     independent_evidence_retry=True
                     invalid.append({**evidence,'invalid_reason':

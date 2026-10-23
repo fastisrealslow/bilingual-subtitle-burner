@@ -59,7 +59,32 @@ def test_prior_text_only_policy_cache_requires_actual_fresh_decision(tmp_path):
     proof=A.review(text,'林园','model',lambda *a:calls.append(1) or json.dumps(
         dict(issues=[],explanation='仅按文字重新判断，无具体污染')),path)
     assert calls==[1] and proof['passed'] and not proof['audio_verified']
-    assert proof['spoken_range_policy_version']==2026102308
+    assert proof['spoken_range_policy_version']==2026102309
+
+
+def test_same_issue_contradictory_copies_require_independent_decision(tmp_path):
+    calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        if len(calls)==1:
+            base=dict(sentence_id=0,suspect_quote='五六块钱',kind='ambiguous_number_or_negation')
+            return json.dumps(dict(issues=[{**base,'reason':'范围表述，理由被截断。'},
+                {**base,'reason':'该句未构成识别污染，无需报错。'}],explanation='正常口语范围'))
+        return json.dumps(dict(issues=[],explanation='独立核对完整原文，无具体污染'))
+    proof=A.review('大概五六块钱。','林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==2 and proof['passed'] and not proof['audio_verified']
+
+
+def test_same_issue_conflict_is_not_automatic_clearance_of_real_corruption(tmp_path):
+    calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        base=dict(sentence_id=0,suspect_quote='TCATCA',kind='unintelligible_term')
+        issues=[{**base,'reason':'具体公司名乱码'}]
+        if len(calls)==1:issues.append({**base,'reason':'未构成识别污染'})
+        return json.dumps(dict(issues=issues,explanation='需核实具体公司名'))
+    proof=A.review('TCATCA是后来的。','林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==2 and not proof['passed'] and proof['issues'][0]['suspect_quote']=='TCATCA'
 
 
 def test_audio_retry_is_source_only_not_anchored_to_previous_hallucination(tmp_path):

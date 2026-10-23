@@ -125,10 +125,20 @@ def main():
         ('audio_retry_corrupt_term','我们分析企业的现金流。道琼市指数影响投资。',False),
         ('audio_retry_corrupt_numeric_unit','我们说的是股价，股价是百分之元，收益率是点点。',False),
     ])
+    cases.append(('contradictory_duplicate_company',next(
+        text for name,text,_ in actual_cases if name=='actual_corrupt_company_name'),False))
     rows=[]
     for name,text,expected in cases:
         calls=[]
         def call(prompt,schema):
+            if name=='contradictory_duplicate_company' and not calls:
+                ident=next(i for i,t in enumerate(audit.sentences(text)) if 'TCATCA' in t)
+                base=dict(sentence_id=ident,suspect_quote='TCATCA',kind='unintelligible_term')
+                raw=json.dumps(dict(issues=[{**base,'reason':'具体公司名乱码'},
+                    {**base,'reason':'未构成识别污染'}],explanation='相同词项矛盾响应注入，非模型判断'),ensure_ascii=False)
+                calls.append(dict(prompt=prompt,schema=schema,response=raw,seconds=0,
+                    model=None,injected_protocol_fault=True))
+                return raw
             if name in injected and not calls:
                 ident,quote,kind=injected[name]
                 raw=json.dumps(dict(issues=[dict(sentence_id=ident,suspect_quote=quote,
