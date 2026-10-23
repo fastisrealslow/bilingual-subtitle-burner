@@ -383,6 +383,10 @@ def story_title_prompt(prompt,schema,evidence):
         '。仅正文背景词不放入标题或封面；所有事实、主体和条件仍按完整原文核对。') if focus['background_terms'] else ''
     if evidence.get('kind')=='personal_story' and not focus['details']:
         scope+='\n细节中的泛指词不是标题关键词，不要为了出现这些词硬造一句话。仍须通读完整原文，说清本人实际选择及原话理由，不能借用提问前提。'
+    if evidence.get('kind')=='personal_story' and focus['subjects']:
+        scope+=('\n本人这次买卖/退出的原话对象：'+json.dumps(focus['subjects'],ensure_ascii=False)+
+            '。标题前半句必须点明实际对象，不能只写“退出了、买了、持有了”让观众猜。'
+            '保留原话的不确定性和理由；不要为了补对象删除“感觉、隐约、可能”等限定。')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if action_pairs:
         scope+=('\n细节原话也包含完整的动作理由，不能只盯着其中的比喻名词：'
@@ -411,6 +415,7 @@ def title_focus(selection):
     """Literal source-word coverage, not an entailment or speaker approval."""
     import jieba.posseg
     generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
+    sectors={'银行','金融','医药','消费','科技','白酒','地产','证券'}
     categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股',
                 '银行','金融','医药','消费','科技','白酒','地产','证券','机构','集团',
                 '中国','美国','全球','国内','国外','国有','民营',
@@ -456,6 +461,13 @@ def title_focus(selection):
                 named_reason=True
                 break
     subjects=terms(selection.get('subject_quote',''),True) if selection.get('kind')=='company_case' else []
+    if (selection.get('kind')=='personal_story'
+            and re.search(r'退出|买入|卖出|持有|建仓|清仓|增持|减持|买了|卖了',selection.get('event_quote',''))):
+        # A sector is NOT a named company, but it may be the literal object
+        # of a genuine personal investment choice. Take exact event tokens,
+        # never a company-name substring or the host's hypothetical premise.
+        subjects=list(dict.fromkeys(w.word for w in jieba.posseg.cut(selection['event_quote'])
+                                    if w.word in sectors))
     details=terms(reason)
     action_pairs=[]
     if selection.get('kind')=='personal_story':
