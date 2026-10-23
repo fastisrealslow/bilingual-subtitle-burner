@@ -80,6 +80,17 @@ def _selection_rows(cues,candidates):
         for match in re.finditer(r'.+?(?:[。！？!?]+[”’」』\"]*|$)',text,re.S):
             value=match.group(0)
             units.extend(re.findall(r'.+?(?:[，,；;]+|$)',value,re.S) if len(value)>140 else [value])
+        # ASR may join the actual past holding and a separate present choice
+        # with a comma. Expose those intact punctuation clauses as evidence;
+        # keep every original word, question and full candidate unchanged.
+        if any(future_holding_subject(value) for value in units):
+            expanded=[]
+            for value in units:
+                parts=(re.split(r'(?<=[，,；;])(?=我(?:们)?(?:也|还是|仍然|还|继续|一直|就|并)?'
+                    r'(?:不会动|不动|一直拿|继续拿|继续持有))',value)
+                    if company_past_event_error(value) is None else [value])
+                expanded.extend(parts)
+            units=expanded
         substantive=[i for i,value in enumerate(units) if len(value)<=140
                      and _substantive_quote(value,4) and not re.search(r'[？?]',value)]
         if len(substantive)==1:
@@ -215,12 +226,22 @@ def validate_choices(cues, candidates, response):
                 raise ValueError('A question is context, not guest event/detail evidence')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
+        holding=future_holding_subject(row['subject_quote']) and not company_subject_error(
+            dict(kind='company_case',subject_quote=row['subject_quote']))
+        if holding:
+            issue=('Named future holding questions need an actual company case' if row['kind']!='company_case' else None)
+            issue=issue or company_holding_context_error(text) or company_past_event_error(row['event_quote'])
+            issue=issue or company_holding_detail_error(row['detail_quote'])
+            if (row['event_quote'] in row['detail_quote'] or row['detail_quote'] in row['event_quote']):
+                issue=issue or 'Past holding event and later actual choice must be different nonoverlapping source clauses'
+            if issue:raise ValueError(issue)
         if row['kind']=='personal_story':
             issue=personal_event_error(row['event_quote']) or personal_detail_error(row['detail_quote'])
             if issue:raise ValueError(issue)
         company_issue=company_subject_error(row)
         if company_issue:raise ValueError(company_issue)
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
+        if holding:evidence['company_holding_evidence_version']=1
         selected.append({**pick,'story_selection':dict(version=VERSION,**evidence,
             transcript_sha256=digest(text))})
     return selected
@@ -252,6 +273,15 @@ def company_holding_question(text):
     return bool(isinstance(text,str) and re.fullmatch(
         r'(?:(?:请问|请教)?您|那(?:么)?[，,\s]*(?:这)?(?:未来|以后|今后)(?:还)?会继续'
         r'(?:看好|持有|投资))[^。！？?]{0,100}[？?]',text))
+
+
+def future_holding_subject(text):
+    return bool(company_holding_question(text) and re.search(r'未来|以后|今后',text))
+
+
+def holding_evidence(selection):
+    return any(type(selection.get(k)) is int and selection[k]==1 for k in
+        ('company_holding_recall_version','company_holding_evidence_version'))
 
 
 def company_holding_context_error(text):
@@ -494,7 +524,7 @@ def story_title_prompt(prompt,schema,evidence):
             '。标题前半句必须点明实际对象，不能只写“退出了、买了、持有了”让观众猜。'
             '保留原话的不确定性和理由；不要为了补对象删除“感觉、隐约、可能”等限定。')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
-    if evidence.get('company_holding_recall_version')==1:
+    if holding_evidence(evidence):
         scope+=('\n本次标题以嘉宾已经发生的买卖/持仓事实为中心，保留事件原句的时间或时长与近、约等范围：'
             +json.dumps(focus.get('past_holding_times',[]),ensure_ascii=False)+
             '。先讲已经持有多久，再讲本人当前选择；不要用主持人复述的最低未来年限代替过去经历。'
@@ -617,7 +647,7 @@ def title_focus(selection):
     result=dict(subjects=subjects,details=details,background_terms=background,
                 **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
-    if selection.get('company_holding_recall_version')==1:
+    if holding_evidence(selection):
         result['past_holding_times']=[a['raw'] for a in holding_time_anchors(selection.get('event_quote',''))]
         result['holding_recall_source']=[selection['event_quote']]
     return result
@@ -694,12 +724,17 @@ def proof_error(meta):
     focus=title_focus(s)
     company_issue=company_subject_error(s)
     if company_issue:return company_issue
-    if 'company_holding_recall_version' in s:
-        if (type(s['company_holding_recall_version']) is not int or s['company_holding_recall_version']!=1
+    holding=future_holding_subject(s['subject_quote']) and s['kind']=='company_case'
+    if holding and not holding_evidence(s):return 'Missing strict past-holding source evidence'
+    if holding or 'company_holding_recall_version' in s or 'company_holding_evidence_version' in s:
+        if (not holding_evidence(s) or any(type(s[k]) is not int or s[k]!=1 for k in
+                ('company_holding_recall_version','company_holding_evidence_version') if k in s)
                 or s['kind']!='company_case' or not company_holding_question(s['subject_quote'])):
             return 'Invalid company holding recall proof'
         issue=company_past_event_error(s['event_quote'])
         issue=issue or company_holding_detail_error(s['detail_quote'])
+        if s['event_quote'] in s['detail_quote'] or s['detail_quote'] in s['event_quote']:
+            issue=issue or 'Past holding evidence repeats the same source clause'
         if issue:return issue
     focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue

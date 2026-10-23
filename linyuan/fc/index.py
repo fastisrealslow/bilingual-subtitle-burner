@@ -3568,8 +3568,10 @@ def artifact_subtitle_error(meta, delivery_dir):
         return "真实ASS字幕为空"
     if editorial.text_digest(text) != meta.get("subtitle_text_sha256"):
         return "真实ASS字幕与meta文本指纹不一致"
-    recall=((meta.get('experiment_proof') or {}).get('selection') or {}).get('company_holding_recall_version')
-    if recall==1 and (not meta.get('title_rewrite') or meta.get('subtitle_edit_proof_version')!=1):
+    holding_selection=((meta.get('experiment_proof') or {}).get('selection') or {})
+    recall=experiment.holding_evidence(holding_selection)
+    holding_scope=recall or (holding_selection.get('kind')=='company_case' and experiment.future_holding_subject(holding_selection.get('subject_quote')))
+    if holding_scope and (not meta.get('title_rewrite') or meta.get('subtitle_edit_proof_version')!=1):
         return '公司持仓复核缺少完整原始字幕编辑证明，不能凭摘录通过'
     if meta.get('title_rewrite'):
         from title_rewrite import error as rewrite_error, compact
@@ -3590,7 +3592,7 @@ def artifact_subtitle_error(meta, delivery_dir):
                 if display_payload_text(''.join(displays))!=display_payload_text(text):
                     raise ValueError('编辑证明与真实ASS字幕不一致')
                 source_text=''.join(originals)
-                if recall==1:
+                if holding_scope:
                     problem=experiment.company_holding_context_error(source_text)
                     if problem:return problem
                 import hashlib
@@ -3598,6 +3600,8 @@ def artifact_subtitle_error(meta, delivery_dir):
                     raise ValueError('编辑前原文与标题核对的母片原话不一致')
             except (OSError,ValueError,KeyError,TypeError) as exc:
                 return '标题/字幕编辑证明无法重放：'+str(exc)
+        if holding_scope and experiment.proof_error(meta):
+            return '公司持仓事例证明未通过，不能降为常规片绕过：'+experiment.proof_error(meta)
         problem=rewrite_error(meta.get('title'),meta['title_rewrite'],source_text)
         if problem:return problem
     return editorial.transcript_integrity_error(text)

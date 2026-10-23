@@ -21,8 +21,8 @@ env:
   RUN_SOURCE_PLATFORM: bilibili
   RUN_REVIEWED_PARTS: ''
   LINYUAN_AUTOMATIC_ONLY: 'true'
-  RUN_MAX_OUTPUTS: '2'
-  RUN_RECOVERY_RUN_ID: '40001601907'
+  RUN_MAX_OUTPUTS: '1'
+  RUN_RECOVERY_RUN_ID: '40010461801'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   OUTPUT_LAYOUT: portrait
 jobs:
@@ -128,7 +128,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         RECOVERY_RUN_ID: ${{ env.RUN_RECOVERY_RUN_ID }}
       run: 'python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
-        --artifact-name preview-editorial-preview-40001601907
+        --artifact-name preview-editorial-preview-40010461801
 
         '
     - name: 检查原始识别证据，避免重复下载和推理
@@ -263,11 +263,11 @@ jobs:
       run: python scripts/verify_linyuan_story_delivery.py "linyuan/deliver/$RUN_SLUG"
     - name: 独立复验本次实验原始成片、字幕及封面
       run: "python - <<'VERIFY'\nimport hashlib,json,os\nfrom pathlib import Path\nfrom artifact_range\
-        \ import delivery_files\nfrom publishing_experiment import actual_profile,TREATMENT\nfrom source_supply\
-        \ import validate_part\nroot=Path('deliver')/os.environ['RUN_SLUG']\nraw=(root/'meta.json').read_bytes();data=json.loads(raw)\n\
+        \ import delivery_files\nfrom publishing_experiment import actual_profile,TREATMENT,holding_evidence\n\
+        from source_supply import validate_part\nroot=Path('deliver')/os.environ['RUN_SLUG']\nraw=(root/'meta.json').read_bytes();data=json.loads(raw)\n\
         rows=data if isinstance(data,list) else [data]\naccepted=[]\nfor row in rows:\n    if actual_profile(row)!=TREATMENT:continue\n\
-        \    if (row['experiment_proof']['selection']).get('company_holding_recall_version')!=1:continue\n\
-        \    files=delivery_files(row)\n    assert all((root/name).is_file() for name in files)\n    before={name:hashlib.sha256((root/name).read_bytes()).hexdigest()\
+        \    if not holding_evidence(row['experiment_proof']['selection']):continue\n    files=delivery_files(row)\n\
+        \    assert all((root/name).is_file() for name in files)\n    before={name:hashlib.sha256((root/name).read_bytes()).hexdigest()\
         \ for name in files}\n    issue=validate_part(row,root)\n    assert issue is None,issue\n    assert\
         \ all(hashlib.sha256((root/name).read_bytes()).hexdigest()==sha for name,sha in before.items())\n\
         \    accepted.append(dict(title=row['title'],resolution=row['resolution'],files=before))\nassert\

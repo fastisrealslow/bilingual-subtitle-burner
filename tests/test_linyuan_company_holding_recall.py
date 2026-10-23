@@ -123,3 +123,28 @@ def test_holding_title_focus_reaches_real_title_generator_without_breaking_sourc
     def call(*args):raise ModelReached()
     with pytest.raises(ModelReached):
         T.generate(source,structured_model=call,editorial_focus=focus)
+
+
+def test_actual_17b_primary_selection_cannot_borrow_host_future_or_duplicate_its_event(monkeypatch):
+    import source_selection as S
+    monkeypatch.setattr(S.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    f=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_17b_company_followup.json').read_text())
+    cues=f['cues'];before=deepcopy(cues)
+    picks=S.select(cues,whole_source=True,limit=None)
+    pick=next(p for p in picks if cues[p['start']]['start']==255.24)
+    rows=E._selection_rows(cues,[pick])[0]['sentences']
+    assert ''.join(r['text'] for r in rows)==''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    subject=next(r['id'] for r in rows if E.future_holding_subject(r['text']))
+    event=next(r['id'] for r in rows if E.company_past_event_error(r['text']) is None)
+    detail=next(r['id'] for r in rows if r['text']=='我们也不会动。')
+    host=next(r['id'] for r in rows if r['text'].startswith('那就说至少未来'))
+    result=E.validate_choices(cues,[pick],dict(candidate_0=dict(kind='company_case',subject_sentence=subject,event_sentence=event,detail_sentence=detail)))
+    evidence=result[0]['story_selection']
+    assert evidence['company_holding_evidence_version']==1 and 'company_holding_recall_version' not in evidence
+    assert '接近二十年' in evidence['event_quote'] and evidence['detail_quote']=='我们也不会动。'
+    with pytest.raises(ValueError,match='first-person'):
+        E.validate_choices(cues,[pick],dict(candidate_0=dict(kind='company_case',subject_sentence=subject,event_sentence=event,detail_sentence=host)))
+    assert E.title_focus_error('林园：至少未来几年继续持有茅台',E.title_focus(evidence))
+    assert E.title_focus_error('林园：持有茅台接近二十年，我们也不会动',E.title_focus(evidence)) is None
+    assert cues==before
