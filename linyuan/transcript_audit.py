@@ -10,6 +10,15 @@ from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 VERSION = 4
 SPOKEN_RANGE_POLICY_VERSION = 2026102312
 
+# Primary disclosure establishes spelling/existence only, never this audio.
+ENTITY_REFERENCES=(dict(term='郑州百文',official_name='郑州百文股份有限公司（集团）',
+    evidence_url='https://static.cninfo.com.cn/finalpage/2006-12-25/19778260.PDF'),)
+
+
+def entity_references(text):
+    return [r for r in ENTITY_REFERENCES if r['term'] in text]
+
+
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
     r'(?:并非|非|不是|不属于|不构成|未构成|不算)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)'
@@ -58,6 +67,8 @@ def review(text, speaker, model, call, path):
     path = Path(path)
     identity = dict(version=VERSION, transcript_sha256=text_digest(text), speaker=speaker, model=model,
                     spoken_range_policy_version=SPOKEN_RANGE_POLICY_VERSION)
+    references=entity_references(text)
+    if references:identity['entity_reference_sha256']=text_digest(json.dumps(references,ensure_ascii=False,sort_keys=True))
     if path.exists():
         try:
             saved = json.loads(path.read_text())
@@ -92,6 +103,12 @@ def review(text, speaker, model, call, path):
         'issues不是检查过程或逐句点评，不要列正常句、反例、已经否定的疑点或说明“不是错误”的条目。'
         '每项摘录原句编号和1到24字的最小疑词，理由只写具体污染；数字或否定类须摘录实际的数字或否定字。'
         '不猜替换词，不修改原文；explanation简短总结文字判断，不能代替原音核验。')
+    if references:
+        instructions+=('下列独立的上市公司原始披露仅证明这些机构名称的存在和合法字形：'
+            +json.dumps(references,ensure_ascii=False)+
+            '。这不是原音核验，不能证明本处确实说了这些词，也不批准相关投资事实。'
+            '不能仅凭你不知道该公司或认为其不知名，就把该名称认定为识别污染；'
+            '仍须报告上下文中确有的乱码、字母粘连、数字、否定及其他识别疑点，不猜改原文。')
     prompt=(instructions+
         '目标嘉宾：'+speaker+'。编号原句：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
     last = None
