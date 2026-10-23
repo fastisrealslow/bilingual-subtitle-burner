@@ -45,3 +45,28 @@ def test_actual_false_personal_selections_rejected_without_erasing_real_life_eve
     assert not E.personal_detail_error('去年有个人问我为什么退出房地产，我跟他讲过原因。')
     assert not E.personal_event_error('我去了以后，他就不舒服了，啊，就心衰，送到那个国际医学去看病。')
     assert not E.personal_detail_error('就这，人家国际医学还给我妈，他，在那住了十天的院，都还给免费了。')
+
+
+def test_schema_excludes_proven_generic_method_event_ids_without_hiding_source_text():
+    f = json.loads((ROOT / 'tests/fixtures/linyuan_actual_skipped_life_story.json').read_text())
+    for index in (0, 4):
+        picks = [f['candidates'][index]]
+        rows = E._selection_rows(f['cues'], picks)
+        prompt, schema = E.selection_request(f['cues'], picks)
+        allowed = schema['properties']['candidate_0']['properties']['event_sentence']['enum']
+        bad = [s for s in rows[0]['sentences'] if E.generic_method_event_error(s['text'])]
+        assert bad and all(s['id'] not in allowed for s in bad)
+        assert all(s['text'] in prompt for s in bad)
+        assert rows[0]['text'] == ''.join(c['text'] for c in f['cues'][picks[0]['start']:picks[0]['end']+1])
+    # Past company-choice explanations are not excluded merely for describing
+    # the actual standard used for that company.
+    assert not E.generic_method_event_error('我们当时提出了一个理论是消费升级啊，就投消费升级。')
+    assert not E.generic_method_event_error('我们当时的方法是必须先研究现金流。')
+
+
+def test_schema_with_only_generic_method_event_must_skip_instead_of_empty_enum():
+    cues = [dict(text='我的方法有钱就投股票。')]
+    _, schema = E.selection_request(cues, [dict(start=0, end=0)])
+    prop = schema['properties']['candidate_0']['properties']
+    assert prop['kind']['enum'] == ['skip']
+    assert prop['event_sentence']['enum']

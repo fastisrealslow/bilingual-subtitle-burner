@@ -101,13 +101,22 @@ def selection_request(cues, candidates):
     rows=_selection_rows(cues,candidates)
     properties={}
     for row in rows:
+        allowed={k:[s['id'] for s in row['sentences'] if len(s['text'])<=140
+            and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)
+            and (k=='subject_sentence' or not re.search(r'[？?]',s['text']))]
+            for k in ('subject_sentence','event_sentence','detail_sentence')}
+        # The complete source remains visible. Only event IDs already proven
+        # to be generic method recaps are ineligible evidence for ANY story.
+        # This makes the same validator constraint enforceable during decoding,
+        # instead of asking the CPU model to repeatedly choose a forbidden ID.
+        eligible_events=[s['id'] for s in row['sentences']
+            if s['id'] in allowed['event_sentence'] and not generic_method_event_error(s['text'])]
+        kinds=['skip','personal_story','company_case'] if eligible_events else ['skip']
+        allowed['event_sentence']=eligible_events or allowed['event_sentence']
         properties['candidate_'+str(row['index'])]=dict(type='object',additionalProperties=False,
             required=['subject_sentence','event_sentence','detail_sentence','kind'],properties={
-                **{k:dict(type='integer',enum=[s['id'] for s in row['sentences'] if len(s['text'])<=140
-                    and _substantive_quote(s['text'],2 if k=='subject_sentence' else 4)
-                    and (k=='subject_sentence' or not re.search(r'[？?]',s['text']))])
-                   for k in ('subject_sentence','event_sentence','detail_sentence')},
-                'kind':dict(type='string',enum=['skip','personal_story','company_case'])})
+                **{k:dict(type='integer',enum=values) for k,values in allowed.items()},
+                'kind':dict(type='string',enum=kinds)})
     schema=dict(type='object',additionalProperties=False,required=list(properties),properties=properties)
     prompt=('逐个判断下面已经有自然起止的完整访谈段落，是否有具体看点。'
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
@@ -142,6 +151,19 @@ def selection_request(cues, candidates):
     return prompt, schema
 
 
+def generic_method_event_error(event):
+    # A timeless description of one's method is not a particular episode.
+    # Actual choices concerning a named industry/company are still eligible;
+    # this guard targets generic good-assets/profit recaps and conditional cash
+    # allocation. Invalid evidence is retried from the SAME complete candidate.
+    method_allocation=re.search(r'(?:我的|我们(?:的)?)方法[^。！？!?]{0,50}(?:有钱|没钱)[^。！？!?]{0,20}就(?:买|投)',event)
+    generic_profit=re.search(r'(?:我|我们)[^。！？!?]{0,12}(?:抓|买|投|挑|选)[^。！？!?]{0,6}'
+        r'(?:好(?:的)?公司|好(?:的)?资产|好(?:的)?企业)[^。！？!?]{0,90}'
+        r'(?:使|让|帮|通过)[^。！？!?]{0,20}(?:赚钱|盈利)',event)
+    if method_allocation or generic_profit:
+        return '个人经历必须交代具体事件；有钱就投的方法或好公司使我们赚钱的泛泛总结不是实际事件，请从同段重选真实经历，否则skip'
+    return None
+
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
     plain=re.sub(r'[\s，,。！？!?；;]','',event)
@@ -156,17 +178,7 @@ def personal_event_error(event):
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
     if (normative_recap or advice_conclusion) and not actual_action:
         return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
-    # A timeless description of one's method is not a particular episode.
-    # Actual choices concerning a named industry/company are still eligible;
-    # this guard targets generic good-assets/profit recaps and conditional cash
-    # allocation. Invalid evidence is retried from the SAME complete candidate.
-    method_allocation=re.search(r'(?:我的|我们(?:的)?)方法[^。！？!?]{0,50}(?:有钱|没钱)[^。！？!?]{0,20}就(?:买|投)',event)
-    generic_profit=re.search(r'(?:我|我们)[^。！？!?]{0,12}(?:抓|买|投|挑|选)[^。！？!?]{0,6}'
-        r'(?:好(?:的)?公司|好(?:的)?资产|好(?:的)?企业)[^。！？!?]{0,90}'
-        r'(?:使|让|帮|通过)[^。！？!?]{0,20}(?:赚钱|盈利)',event)
-    if method_allocation or generic_profit:
-        return '个人经历必须交代具体事件；有钱就投的方法或好公司使我们赚钱的泛泛总结不是实际事件，请从同段重选真实经历，否则skip'
-    return None
+    return generic_method_event_error(event)
 
 
 def personal_detail_error(detail):
@@ -234,6 +246,8 @@ def validate_choices(cues, candidates, response):
                 raise ValueError('A question is context, not guest event/detail evidence')
         if row['event_quote']==row['detail_quote']:
             raise ValueError('A repeated claim is not a story detail')
+        issue=generic_method_event_error(row['event_quote'])
+        if issue:raise ValueError(issue)
         if row['kind']=='personal_story':
             issue=personal_event_error(row['event_quote']) or personal_detail_error(row['detail_quote'])
             if issue:raise ValueError(issue)
@@ -574,6 +588,8 @@ def proof_error(meta):
                 or s['event_quote']==s['detail_quote']):
             return 'Missing long-mother or grounded story evidence'
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
+    issue=generic_method_event_error(s['event_quote'])
+    if issue:return issue
     if s['kind']=='personal_story':
         issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
         if issue:return issue
