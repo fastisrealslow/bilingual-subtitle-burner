@@ -1,0 +1,68 @@
+from copy import deepcopy
+import json
+from pathlib import Path
+import sys
+
+import pytest
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
+import publishing_experiment as E
+
+
+def holding():
+    return [dict(text='那未来会继续看好腾讯吗？我们当年买入后一直持有。后来我们持有的时间超过了十年。')]
+
+
+def test_skip_can_only_trigger_one_stricter_company_review_with_original_evidence(tmp_path):
+    cues=holding();before=deepcopy(cues);calls=[]
+    def call(prompt,schema):
+        calls.append((prompt,schema))
+        if 'candidate_0' in schema['properties']:
+            return dict(candidate_0=dict(kind='skip',subject_sentence=0,event_sentence=1,detail_sentence=2))
+        assert list(schema['properties'])==['subject_sentence','event_sentence','detail_sentence','kind']
+        assert schema['properties']['kind']['enum']==['skip','company_case']
+        return dict(subject_sentence=0,event_sentence=1,detail_sentence=2,kind='company_case')
+    result=E.choose_stories(cues,[dict(start=0,end=0)],call,tmp_path/'report.json')
+    assert len(calls)==2 and result['selection_completed'] and cues==before
+    row=result['selected'][0]['story_selection']
+    assert row['kind']=='company_case' and row['company_holding_recall_version']==1
+    assert row['event_quote']=='我们当年买入后一直持有。'
+    assert result['calls'][-1]['stage']=='company_holding_recall_v1'
+    assert json.loads((tmp_path/'report.json').read_text())['calls'][-1]['response']['kind']=='company_case'
+
+
+@pytest.mark.parametrize('text',[
+    '我将来会买入腾讯。','如果我当年买入腾讯就能赚钱。',
+    '您当年买入腾讯后持有。','我当年考虑买入腾讯。','我当年并未买入腾讯。',
+    '我过去没有持有腾讯。','只要我们当年买了腾讯就行了。','我们应该已经持有腾讯。',
+])
+def test_future_hypothetical_denied_host_premise_and_advice_cannot_be_recalled(text):
+    assert E.company_past_event_error(text)
+    assert E.company_holding_request([dict(text='您买过腾讯吗？'+text+'后来一直关注公司发展。')],dict(start=0,end=0)) is None
+
+
+def test_no_named_company_and_no_real_past_action_do_not_add_model_calls():
+    assert E.company_holding_request([dict(text='您怎么看医药行业？我们当年买入后持有。后来持有超过十年。')],dict(start=0,end=0)) is None
+    assert E.company_holding_request([dict(text='您怎么看腾讯？未来也许会买入。现在还需要观察。')],dict(start=0,end=0)) is None
+
+
+def test_recall_cannot_return_a_personal_story_or_unexecuted_action(tmp_path):
+    for verdict in [dict(kind='personal_story',subject_sentence=0,event_sentence=1,detail_sentence=2),
+                    dict(kind='company_case',subject_sentence=0,event_sentence=2,detail_sentence=1)]:
+        cues=[dict(text='那未来会继续看好腾讯吗？我们当年买了腾讯。我们现在继续持有。未来我们应该会持有更长时间。')]
+        def call(prompt,schema):
+            if 'candidate_0' in schema['properties']:
+                return dict(candidate_0=dict(kind='skip',subject_sentence=0,event_sentence=1,detail_sentence=2))
+            return verdict
+        result=E.choose_stories(cues,[dict(start=0,end=0)],call,tmp_path/'report.json')
+        assert not result['selected'] and result['unresolved'] and not result['selection_completed']
+
+
+def test_recall_service_failure_stays_unresolved_and_does_not_erase_other_successes(tmp_path):
+    def call(prompt,schema):
+        if 'candidate_0' in schema['properties']:
+            return dict(candidate_0=dict(kind='skip',subject_sentence=0,event_sentence=1,detail_sentence=2))
+        raise RuntimeError('Temporary classifier failure')
+    result=E.choose_stories(holding(),[dict(start=0,end=0)],call,tmp_path/'report.json')
+    assert result['retryable'] and not result['selection_completed'] and len(result['calls'])==2
+

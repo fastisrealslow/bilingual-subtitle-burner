@@ -226,6 +226,59 @@ def validate_choices(cues, candidates, response):
     return selected
 
 
+def company_past_event_error(text):
+    """Only explicit first-person past actions can enter holding recall."""
+    if (not isinstance(text,str) or re.search(r'[？?]|如果|假如|假设|只要|将来|未来|以后|可能|打算|准备|计划|'
+            r'没有|从没|从未|没买|没持有|没卖|不买|不持有|不卖|不是|未曾|未买|未持有|不曾|'
+            r'考虑|想买|想过|希望|应该|也许|或许|会买|会持有|会投资|您|你们|林总|老师|听说|据说',text)
+            or not re.search(r'我|我们|从买入|买入后|买入以来',text)
+            or not re.search(r'已经|曾经|当时|当年|之前|过去|从买入|买入后|买入以来',text)
+            or not re.search(r'买入|买了|持有|卖出|卖了|退出|投资',text)):
+        return 'Company recall needs an explicit actual past action, not a question, intention, denial or hypothetical'
+    return None
+
+
+def company_holding_detail_error(text):
+    if (not isinstance(text,str) or re.search(r'[？?]|如果|假如|假设|只要|未来|以后|将来|可能|应该|您|你们|听说|据说',text)
+            or not re.search(r'我|我们',text)
+            or not re.search(r'买入|买了|持有|卖出|卖了|退出|投资|不会动|不动|一直拿|继续拿',text)):
+        return 'Company holding recall needs another explicit first-person holding/action statement'
+    return None
+
+
+def company_holding_request(cues,pick):
+    """A narrow second review; never offers the personal-story category.
+
+    The original classifier is unchanged. Retry only a named-company question
+    with an intact, explicit past holding/action sentence in its own answer.
+    """
+    from source_selection import question_unit
+    rows=_selection_rows(cues,[pick])
+    if not rows:return None
+    units=rows[0]['sentences']
+    subjects=[s['id'] for s in units if len(s['text'])<=140 and question_unit(s['text'])
+        and not company_subject_error(dict(kind='company_case',subject_quote=s['text']))]
+    events=[s['id'] for s in units if 4<=len(s['text'])<=140 and not company_past_event_error(s['text'])]
+    details=[s['id'] for s in units if 4<=len(s['text'])<=140
+        and _substantive_quote(s['text'],4) and not company_holding_detail_error(s['text'])]
+    if not subjects or not events or len(details)<2:return None
+    # Evidence first ONLY for actual company holdings; personal-story advice
+    # cannot be promoted by this schema. Skip remains an explicit option.
+    props={**{k:dict(type='integer',enum=v) for k,v in (
+        ('subject_sentence',subjects),('event_sentence',events),('detail_sentence',details))},
+        'kind':dict(type='string',enum=['skip','company_case'])}
+    schema=dict(type='object',additionalProperties=False,required=list(props),properties=props)
+    prompt=('核对这一整段公司访谈。先从原句编号找：明确点名公司的问句、嘉宾本人实际发生过的买卖或持仓行为、'
+        '另一条嘉宾本人明确叙述的持仓/买卖行为作为经过或后续选择。事件与细节必须是不同的完整回答，且事件确实针对该公司；'
+        '嘉宾讲另一家公司的经历不能支持问句中的公司。不能用主持人的推断或一般投资原则。'
+        '主持人可能在问以后怎么办；须看嘉宾是否明确回顾自己已经做过的事，不能把问句时态当回答时态。'
+        '只有三项都成立才返回company_case；假设、未来打算、否认、没有回答、缺少另一条实质细节一律skip。'
+        '本次不判断个人故事，不补词、不纠正识别、不借其他片段事实。'
+        '先返回原句编号，最后返回kind；skip的编号可填任意允许值。\n'
+        +json.dumps(units,ensure_ascii=False))
+    return prompt,schema
+
+
 def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200):
     """Isolate candidate errors and retry only unreviewed/invalid decisions.
 
@@ -295,6 +348,38 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
             pending=again;save()
             if not pending:break
         report['unresolved'].extend(pending);save()
+    # The small production model repeatedly skipped an explicit past holding
+    # solely because the host asked about the future. A second company-only
+    # evidence review has stricter event requirements than the first review.
+    for rejected in list(report['rejected']):
+        if rejected['reason']!='no_grounded_story':continue
+        index=rejected['index'];request=company_holding_request(cues,candidates[index])
+        if request is None:continue
+        if time.monotonic()>=deadline:
+            report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error='company_holding_review_budget_exhausted'))
+            continue
+        prompt,schema=request
+        record=dict(indices=[index],stage='company_holding_recall_v1',prompt=prompt,schema=schema)
+        report['calls'].append(record);save()
+        try:
+            raw=call(prompt,schema);record['response']=raw
+            verdict=json.loads(raw) if isinstance(raw,str) else raw
+            if (not isinstance(verdict,dict) or set(verdict)!=set(schema['properties'])
+                    or verdict.get('kind') not in ('skip','company_case')):
+                raise ValueError('Invalid company holding verdict')
+            chosen=validate_choices(cues,[candidates[index]],{'candidate_0':verdict})
+            for item in chosen:
+                issue=company_past_event_error(item['story_selection']['event_quote'])
+                issue=issue or company_holding_detail_error(item['story_selection']['detail_quote'])
+                if issue:raise ValueError(issue)
+                item['story_selection']['company_holding_recall_version']=1
+            if chosen:
+                report['rejected'].remove(rejected);report['selected'].extend(chosen)
+        except (RuntimeError,ValueError,TypeError,KeyError,AttributeError) as exc:
+            record['error']=str(exc);report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error=str(exc)))
+        save()
     report['selection_completed']=not report['unresolved']
     report['retryable']=bool(report['unresolved'])
     # Keep positive backups: the renderer already stops at six ACCEPTED
@@ -561,6 +646,13 @@ def proof_error(meta):
     focus=title_focus(s)
     company_issue=company_subject_error(s)
     if company_issue:return company_issue
+    if 'company_holding_recall_version' in s:
+        if (type(s['company_holding_recall_version']) is not int or s['company_holding_recall_version']!=1
+                or s['kind']!='company_case'):
+            return 'Invalid company holding recall proof'
+        issue=company_past_event_error(s['event_quote'])
+        issue=issue or company_holding_detail_error(s['detail_quote'])
+        if issue:return issue
     focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),

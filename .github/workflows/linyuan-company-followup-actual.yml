@@ -255,6 +255,24 @@ jobs:
       if: env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'
       working-directory: .
       run: python scripts/verify_linyuan_story_delivery.py "linyuan/deliver/$RUN_SLUG"
+    - name: 独立复验本次实验原始成片、字幕及封面
+      run: "python - <<'VERIFY'\nimport hashlib,json,os\nfrom pathlib import Path\nfrom artifact_range import delivery_files\n\
+        from publishing_experiment import actual_profile,TREATMENT\nfrom source_supply import validate_part\nroot=Path('deliver')/os.environ['RUN_SLUG']\n\
+        raw=(root/'meta.json').read_bytes();data=json.loads(raw)\nrows=data if isinstance(data,list) else [data]\n\
+        accepted=[]\nfor row in rows:\n    if actual_profile(row)!=TREATMENT:continue\n    files=delivery_files(row)\n\
+        \    assert all((root/name).is_file() for name in files)\n    before={name:hashlib.sha256((root/name).read_bytes()).hexdigest()\
+        \ for name in files}\n    issue=validate_part(row,root)\n    assert issue is None,issue\n    assert all(hashlib.sha256((root/name).read_bytes()).hexdigest()==sha\
+        \ for name,sha in before.items())\n    accepted.append(dict(title=row['title'],resolution=row['resolution'],files=before))\n\
+        assert accepted and (root/'meta.json').read_bytes()==raw\n(root/'original_media_validation.json').write_text(json.dumps(dict(passed=True,\n\
+        \    accepted=accepted,metadata_unchanged=True,files_unchanged=True,\n    diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))\n\
+        VERIFY\n"
+    - name: 留存独立原始成片复验结果
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: company-followup-original-media-validation
+        path: linyuan/deliver/${{ env.RUN_SLUG }}/original_media_validation.json
+        if-no-files-found: warn
     - name: 留存独立实验交付结果（普通出片成功不代表实验成功）
       if: always() && env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'
       uses: actions/upload-artifact@v4

@@ -44,6 +44,36 @@ echo 'path=_src/video.mp4' >> "$GITHUB_OUTPUT"
 '''
         if s.get('id')=='render':s['env'].pop('SOURCE_VISUAL_CHAPTERS',None)
         steps.append(s)
+        if s.get('name')=='验收真实实验交付（缺实验成片即失败）':
+            steps.append(dict(name='独立复验本次实验原始成片、字幕及封面',run='''python - <<'VERIFY'
+import hashlib,json,os
+from pathlib import Path
+from artifact_range import delivery_files
+from publishing_experiment import actual_profile,TREATMENT
+from source_supply import validate_part
+root=Path('deliver')/os.environ['RUN_SLUG']
+raw=(root/'meta.json').read_bytes();data=json.loads(raw)
+rows=data if isinstance(data,list) else [data]
+accepted=[]
+for row in rows:
+    if actual_profile(row)!=TREATMENT:continue
+    files=delivery_files(row)
+    assert all((root/name).is_file() for name in files)
+    before={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files}
+    issue=validate_part(row,root)
+    assert issue is None,issue
+    assert all(hashlib.sha256((root/name).read_bytes()).hexdigest()==sha for name,sha in before.items())
+    accepted.append(dict(title=row['title'],resolution=row['resolution'],files=before))
+assert accepted and (root/'meta.json').read_bytes()==raw
+(root/'original_media_validation.json').write_text(json.dumps(dict(passed=True,
+    accepted=accepted,metadata_unchanged=True,files_unchanged=True,
+    diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))
+VERIFY
+'''))
+            steps.append(dict(name='留存独立原始成片复验结果',uses='actions/upload-artifact@v4',
+                **{'if':'always()','with':dict(name='company-followup-original-media-validation',
+                path='linyuan/deliver/${{ env.RUN_SLUG }}/original_media_validation.json',
+                **{'if-no-files-found':'warn'})}))
     result['jobs']['preview']['timeout-minutes']=120
     result['jobs']['preview']['steps']=steps
     return result
