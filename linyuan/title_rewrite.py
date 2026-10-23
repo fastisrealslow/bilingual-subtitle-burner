@@ -23,7 +23,8 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 标题和封面必须写完对象、动作和宾语，不能以“真正的”“可能成为龙头的”等半句结束。封面写完整短句，不截取长标题的前18个字。
 时间概率必须说明什么事件可能发生，不能仅删除不明点位，留下“十二个月可能性大”。
 “不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。
-讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。"""
+讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。
+描述风险、供需或资产保存周期，不能推导成给观众的买卖指令。“建多了会出问题”不等于“别投资”；本人“我不买”不等于建议观众“别买”。标题和封面若写别买、不要投、赶紧买、必须卖等指令，原话须确实作出同方向、同操作的明确建议；不能用“推导出的建议”通过独立审核。"""
 
 
 def compact(text):
@@ -1294,6 +1295,36 @@ def research_scope_error(title, cover, transcript):
     return None
 
 
+def unsupported_trade_directive_error(title,cover,transcript):
+    """A descriptive comparison or personal choice is not a trading command."""
+    actions=(r'买卖|买入|卖出|投资|加仓|减仓|清仓|抄底|追涨|接盘|做多|做空|持有|'
+             r'投(?![机票诉稿保靠影])|买|卖|碰')
+    negative=r'(?:千万)?别|(?:千万)?不要|切勿|不建议|不应该|不应|不该|不能|不宜|禁止|避免'
+    positive=r'必须(?:要)?|务必(?:要)?|一定要|赶紧|马上|快|建议|应该|应当'
+    pattern=re.compile(r'(?P<prefix>'+negative+'|'+positive+r')'
+        r'(?:(?:轻易|再|去|继续|随便|盲目)){0,3}(?P<action>'+actions+r')')
+    aliases={'投资':'投','买入':'买','卖出':'卖'}
+    def commands(text):
+        result={}
+        for match in pattern.finditer(str(text or '')):
+            # Preserve the speaker's own stated choice/obligation as such.
+            # It cannot supply evidence for an instruction to the viewer.
+            before=str(text)[:match.start()]
+            if (re.search(r'(?:我|我们)(?:自己)?$',before)
+                    and match['prefix'] not in ('建议','不建议')):continue
+            prefix=match['prefix'];negative_action=bool(re.fullmatch(negative,prefix))
+            strength=(1 if prefix in ('建议','应该','应当','不建议','不宜') else
+                      3 if prefix.startswith('千万') or prefix in ('赶紧','马上','快') else 2)
+            key=(negative_action,aliases.get(match['action'],match['action']))
+            result[key]=max(result.get(key,0),strength)
+        return result
+    supported=commands(transcript)
+    for text in (title,cover):
+        if any(strength>supported.get(key,0) for key,strength in commands(text).items()):
+            return '不能把风险比较或本人选择推导成原话未作出的买卖指令；保留原条件和语气'
+    return None
+
+
 def _candidate_error(item, transcript, speaker, existing_titles, check_layout=True):
     from speaker_attribution import other_guest_indices
     if other_guest_indices([transcript],speaker):
@@ -1320,6 +1351,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     source_condition_issue = source_payback_condition_error(title, cover, transcript)
     if source_condition_issue:
         return source_condition_issue
+    directive_issue=unsupported_trade_directive_error(title,cover,transcript)
+    if directive_issue:return directive_issue
     range_issue = quantity_range_error(title, cover, transcript)
     if range_issue:
         return range_issue
@@ -2022,6 +2055,8 @@ def error(title, proof, transcript=None, speaker='林园'):
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'
+    directive_issue=unsupported_trade_directive_error(title,proof['cover'],transcript or ''.join(evidence))
+    if directive_issue:return directive_issue
     range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
     if range_issue:
         return range_issue
