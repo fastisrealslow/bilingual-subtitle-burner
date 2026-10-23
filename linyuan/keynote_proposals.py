@@ -28,7 +28,7 @@ def opening_allowed(text):
     plain=re.sub(r'^(?:[啊嗯呃哦][，,、\s]*|对[，,、\s]+)+','',text)
     return bool(len(re.sub(r'\W','',plain))>=8 and not re.match(
         r'^(?:因为|所以|但是|因此|不过|而且|然后|实际上|除此|其中|'
-        r'它|他|她|他们|这个|这些|这种|这就是|那个|那些|那是|那就|那么)',plain))
+        r'它|他|她|他们|这个|这些|这种|这就是|那个|那些|那是|那就|那么|那时候|那个时候|那次|那一天)',plain))
 
 
 def opening_error(text):
@@ -41,9 +41,26 @@ def opening_error(text):
 
 def windows(cues):
     units=selection.sentence_units(cues)
+    expanded=[]
+    for unit in units:
+        expanded.append(unit)
+        for start in range(unit['start']+1,unit['end']+1):
+            # A real timed cue may begin a self-contained recollection after
+            # a comma/temporal transition. Expose that original clause as an
+            # alternative, retaining the complete original unit alongside it.
+            prefix=''.join(c['text'] for c in cues[unit['start']:start])
+            text=''.join(c['text'] for c in cues[start:unit['end']+1])
+            if (not re.match(r'^我记得[^。！？!?]{0,24}(?:年前|那年|当年|曾经)',text)
+                    or not re.search(r'会议|采访|演讲|讲座|活动|饭局',text)
+                    or not re.search(r'(?:前)?[0-9一二三四五六七八九十两]+年(?:前)?[，,]\s*$',prefix)
+                    or re.search(r'假设|假如|虚构|编个|编一个',prefix+text)
+                    or re.search(r'如果(?:我|我们)?(?:当年|那年|曾经|过去)',prefix)
+                    or re.search(r'如果|假设|假如',text)):
+                continue
+            expanded.append(dict(start=start,end=unit['end'],text=text,memory_context=True))
     rows=[dict(unit,description=f"{unit['start']}-{unit['end']}|"
         f"{cues[unit['start']]['start']:.2f}-{cues[unit['end']]['end']:.2f}|{unit['text']}")
-        for unit in units]
+        for unit in expanded]
     result=[];start=0
     while start<len(rows):
         end=start;size=0
@@ -62,8 +79,8 @@ def windows(cues):
 def request(rows):
     if sum(len(row['description'])+1 for row in rows)>MAX_WINDOW_CHARS:
         return None  # Never truncate or split an oversized source sentence.
-    starts=[row['start'] for row in rows if opening_allowed(row['text'])]
-    ends=[row['end'] for row in rows if not selection.unresolved_question_tail(row['text'])]
+    starts=list(dict.fromkeys(row['start'] for row in rows if opening_allowed(row['text'])))
+    ends=list(dict.fromkeys(row['end'] for row in rows if not selection.unresolved_question_tail(row['text'])))
     if not starts or not ends:return None
     item=dict(type='object',additionalProperties=False,required=['start','end'],properties={
         'start':dict(type='integer',enum=starts),'end':dict(type='integer',enum=ends)})
@@ -79,6 +96,11 @@ def request(rows):
         'start/end只选允许的原始字幕编号，不是秒数、行号或句子序号。'
         '每行格式是字幕起止编号|原声起止秒|完整原句。仅返回规定JSON。\n'
         +'\n'.join(row['description'] for row in rows))
+    if any(row.get('memory_context') for row in rows):
+        prompt+=('\n本窗口同时保留完整原句和原文独立回忆起句作为备选，没有删除条件或改字幕。'
+            '会议、采访等真实经历要保留背景、本人当时发言和后续回应；不能从“那时候问我”省掉事件背景。'
+            '在转入另一话题或一般原理之前自然结束。回忆若属于假设、虚构或否认，不当成实际经历；'
+            '仍须通读原句上下文，不能只看新增备选。没有完整经历也可不选，不为凑数量补结论。')
     return prompt,schema
 
 
