@@ -6635,6 +6635,9 @@ def main():
         live = sum(m.get("render_mode") != "audio_card" for m in metas)
         write_json(out / "batch_report.json", {
             "slug": args.slug, "accepted": len(metas), "rejected": rejected,
+            "source_context": {**{k:source_report.get(k) for k in (
+                'passed','source_sha256','duration_sec','resolution')},
+                'source_url':os.environ.get('SOURCE_ORIGIN_URL','')},
             "part_attempts": part_attempts,
             "retryable_parts": [r['part'] for r in rejected if r.get('retryable')
                                 and r.get('stage') == 'part-quality'],

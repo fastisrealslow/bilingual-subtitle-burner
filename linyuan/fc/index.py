@@ -3610,6 +3610,33 @@ def _text_only_audit_audio_claim(reason):
             and bool(AUDIO_ACCESS_CLAIM.search(str(reason))))
 
 
+def _keynote_recovery_source_eligible(candidate, run):
+    """A long-only proposer cannot repair an unknown or short failed source."""
+    summary=candidate.get('production_failure_summary') or {}
+    if (not isinstance(summary,dict) or summary.get('slug')!=candidate.get('slug') or summary.get('run_id')!=run.get('id')
+            or type(summary.get('accepted')) is not int or summary['accepted']!=0
+            or type(summary.get('artifact_id')) is not int or summary['artifact_id']<=0):
+        return False
+    source=summary.get('source_context')
+    if not isinstance(source,dict):return False
+    duration=source.get('duration_sec')
+    if (source.get('passed') is not True
+            or type(duration) not in (int,float) or not math.isfinite(duration)
+            or not 900<=duration<=5400
+            or not re.fullmatch(r'[a-f0-9]{64}',str(source.get('source_sha256')))
+            or editorial.source_key(source.get('source_url'))!=editorial.source_key(candidate.get('source_url'))):
+        return False
+    from publishing_experiment import TREATMENT
+    if candidate.get('editorial_profile')==TREATMENT:
+        from source_profile_feasibility import native_scene_unavailable
+        size=source.get('resolution') or {}
+        if not isinstance(size,dict):return False
+        w,h=size.get('width'),size.get('height')
+        if (type(w) is not int or type(h) is not int or min(w,h)<=0
+                or native_scene_unavailable(w,h) is not None):return False
+    return True
+
+
 def _recover_changed_production_rule(st, candidate, run):
     """Reopen affected old failures once per repair, never quality in general.
 
@@ -3768,6 +3795,11 @@ def _recover_changed_production_rule(st, candidate, run):
                 code=[line[1:].strip() for line in str(file.get('patch') or '').splitlines()
                       if line[:1] in ('+','-') and not line.startswith(('+++','---'))]
                 hits=[line for line in code if line and not line.startswith('#') and re.search(pattern,line)]
+                keynote_only=(structural_failure and any('keynote_review' in line for line in hits)
+                    and all('keynote_' in line or line.startswith(
+                        'if (not source_picks and automatic_only()') for line in hits))
+                if keynote_only:
+                    return _keynote_recovery_source_eligible(candidate,run)
                 portrait_only=(case[0]=='visual-preflight-v2' and hits
                     and any(line.startswith('def _produce_with_layout_preference(') for line in code)
                     and 'if portrait_story:' in code
@@ -4036,6 +4068,7 @@ def _collect_source_rejections(st):
                     # after the first error. Never import an approval here.
                     candidate['production_failure_summary']=dict(
                         slug=slug,run_id=run['id'],artifact_id=artifact['id'],accepted=0,
+                        source_context=report.get('source_context'),
                         failures=[dict(stage=f.get('stage'),reason=f['reason'][:320])
                             for f in failures[:40] if isinstance(f,dict)
                             and isinstance(f.get('reason'),str)])
