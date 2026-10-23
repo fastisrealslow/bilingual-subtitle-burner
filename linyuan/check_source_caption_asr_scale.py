@@ -129,13 +129,16 @@ def infer(root, size):
     from asr_cpu_benchmark import offline_only
     from qwen_cpu_transcript import retry_repetitive_transcript
     model_id, revision = MODELS[size]
+    from asr_context import specification
+    context=specification(os.environ.get('ASR_DIAGNOSTIC_CONTEXT_PROFILE','none'))
     torch.set_num_threads(2); torch.set_num_interop_threads(1)
     weights = snapshot_download(model_id, revision=revision)
     manifest = json.loads((root / 'manifest.json').read_text())
     offline_only()
     started = time.monotonic()
     result = dict(model_id=model_id, model_revision=revision, device='cpu', dtype='float32',
-        threads=2, source_sha256=manifest['source_sha256'], context='',
+        threads=2, source_sha256=manifest['source_sha256'], context=context['text'],
+        recognition_context=context['identity'],
         networking_during_inference=False, diagnostic_only=True, human_audio_gold=False,
         registered_stock=False, published=False, samples=[])
     path = root / f'result-{size}.json'; save(path, result)
@@ -152,8 +155,8 @@ def infer(root, size):
             raise ValueError('Diagnostic PCM mutated')
         audio = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768
         started = time.monotonic()
-        text = model.transcribe(audio=(audio, 16000), language='Chinese', context='')[0].text
-        text, repair = retry_repetitive_transcript(model, audio, 16000, text, context='')
+        text = model.transcribe(audio=(audio, 16000), language='Chinese', context=context['text'])[0].text
+        text, repair = retry_repetitive_transcript(model, audio, 16000, text, context=context['text'])
         seconds = time.monotonic() - started
         result['samples'].append(dict(**sample, text=text, repetition_repair=repair,
             seconds=seconds, real_time_factor=seconds / sample['duration'],
