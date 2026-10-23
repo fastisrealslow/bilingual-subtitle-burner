@@ -1863,7 +1863,18 @@ class NeteaseVideoSource(Source):
         return items
 
 
+class PublicRoadshowCatalogSource(Source):
+    """One public catalogue request per hour; metadata is reference only."""
+    name = 'public_roadshow_catalog'
+    min_interval = 3600
+
+    def fetch(self, page):
+        from public_roadshow_catalog import CATALOGUE_URL, parse_catalogue
+        return parse_catalogue(http_get(CATALOGUE_URL, timeout=25))
+
+
 SOURCES = {
+    "public_roadshow_catalog": PublicRoadshowCatalogSource,
     "bilibili_api": BilibiliApiSource,
     "bilibili_search": BilibiliSearchSource,
     "bilibili_collection": BilibiliCollectionSource,
