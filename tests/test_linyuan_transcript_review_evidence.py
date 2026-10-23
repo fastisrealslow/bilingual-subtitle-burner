@@ -59,7 +59,30 @@ def test_prior_text_only_policy_cache_requires_actual_fresh_decision(tmp_path):
     proof=A.review(text,'林园','model',lambda *a:calls.append(1) or json.dumps(
         dict(issues=[],explanation='仅按文字重新判断，无具体污染')),path)
     assert calls==[1] and proof['passed'] and not proof['audio_verified']
-    assert proof['spoken_range_policy_version']==2026102309
+    assert proof['spoken_range_policy_version']==2026102310
+
+
+def test_layout_spaces_retain_real_negative_not_approve_or_rewrite_source(tmp_path):
+    text='一大堆长虹、康佳、TCATCA是后来的，是吧？'
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='一大堆长虹、康佳、TCATCA 是后来的',
+        kind='unintelligible_term',reason='具体公司名乱码')],explanation='保留真实专名疑点')
+    proof=A.review(text,'林园','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    assert not proof['passed'] and proof['transcript_sha256']==A.text_digest(text)
+    item=proof['issues'][0]
+    assert item['suspect_quote']=='一大堆长虹、康佳、TCATCA是后来的'
+    assert item['quote']==text and item['reported_suspect_quote']==reply['issues'][0]['suspect_quote']
+    assert item['quote_binding']=='unique_contiguous_cjk_latin_layout_space'
+
+
+@pytest.mark.parametrize('quote,source',[
+    ('TCATCA是','TCA TCA是另一个名字。'),
+    ('10元','10 元是这个报价。'),
+    ('不 买','不买是原话。'),
+    ('TCL买','TCL不买是原话。'),
+    ('TCL 是','TCL是甲，TCL是乙。'),
+])
+def test_layout_binding_cannot_join_identifiers_numbers_negations_or_ambiguous_spans(quote,source):
+    assert A.bind_layout_quote(quote,source) is None
 
 
 def test_same_issue_contradictory_copies_require_independent_decision(tmp_path):

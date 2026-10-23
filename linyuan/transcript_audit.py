@@ -8,7 +8,7 @@ from editorial_policy import text_digest
 from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102309
+SPOKEN_RANGE_POLICY_VERSION = 2026102310
 
 CRITICAL_REVIEW_SCOPE=(
     '先通读整段，再按“是否会误解是谁、哪家公司、多少钱、何时、实际做了什么或是否做过”的标准检查。'
@@ -20,10 +20,29 @@ CRITICAL_REVIEW_SCOPE+='口语年份省略、相对时间和约数保持原样�
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
-    r'(?:并非|非|不是|不属于|不构成|未构成)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)'
+    r'(?:并非|非|不是|不属于|不构成|未构成|不算)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)'
     r'|(?:无|没有|未发现|不存在)(?:(?:具体|实际|明确|明显|任何|真正|相关|的))*'
     r'(?:识别错误|识别污染|识别疑点)'
     r'|(?:此项|该项|本项)(?:暂不|不|无需|不应)(?:再)?(?:列为|作为|认定为)(?:识别)?错误')
+
+
+def bind_layout_quote(quote,unit):
+    """Bind a NEGATIVE quote with Latin/CJK layout spaces, never edit source.
+
+    Digits, CJK/CJK and Latin/Latin spaces remain significant. There must be
+    exactly one contiguous source match, with every source character intact.
+    """
+    latin=lambda c:bool(re.fullmatch('[A-Za-z]',c))
+    cjk=lambda c:bool(re.fullmatch('[\u4e00-\u9fff]',c))
+    plain=re.sub(r'(?<=[A-Za-z])\s+(?=[\u4e00-\u9fff])|(?<=[\u4e00-\u9fff])\s+(?=[A-Za-z])','',quote)
+    pattern=''
+    for i,char in enumerate(plain):
+        pattern+=re.escape(char)
+        if i+1<len(plain) and ((latin(char) and cjk(plain[i+1])) or (cjk(char) and latin(plain[i+1]))):
+            pattern+=r'\s*'
+    matches=list(re.finditer(pattern,unit))
+    if len(matches)==1 and 1<=len(matches[0].group())<=24:return matches[0].group()
+    return None
 
 
 def ordinary_disfluency(quote):
@@ -127,9 +146,16 @@ def review(text, speaker, model, call, path):
                 if (type(ident) is not int or not 0<=ident<len(units)
                         or item.get('kind') not in issue['properties']['kind']['enum']
                         or not isinstance(reason,str) or not reason.strip()
-                        or not isinstance(quote,str) or not 1<=len(quote)<=24 or quote not in units[ident]):
+                        or not isinstance(quote,str) or not 1<=len(quote)<=24):
                     raise ValueError('Issue must identify an actual source sentence and reason')
+                reported_quote=quote
+                if quote not in units[ident]:
+                    quote=bind_layout_quote(quote,units[ident])
+                    if not quote:raise ValueError('Issue must identify an actual source sentence and reason')
                 evidence=dict(sentence_id=ident,quote=units[ident],suspect_quote=quote,kind=item['kind'],reason=reason)
+                if quote!=reported_quote:
+                    evidence.update(reported_suspect_quote=reported_quote,
+                        quote_binding='unique_contiguous_cjk_latin_layout_space')
                 if AUDIO_ACCESS_CLAIM.search(reason):
                     explanation_first_retry=True
                     independent_evidence_retry=True
@@ -137,7 +163,7 @@ def review(text, speaker, model, call, path):
                         '文字审核未收到原音，不能用听感或声称核实发音作为证据。'
                         '请独立判断实际文字中的具体污染，不猜替换词，不改原话。'})
                     continue
-                if (ident,quote,item['kind']) in disavowed_keys:
+                if (ident,reported_quote,item['kind']) in disavowed_keys:
                     explanation_first_retry=True
                     independent_evidence_retry=True
                     invalid.append({**evidence,'invalid_reason':

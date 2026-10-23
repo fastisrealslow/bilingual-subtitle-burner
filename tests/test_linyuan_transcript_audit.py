@@ -161,7 +161,7 @@ def test_range_prompt_never_waives_a_returned_numeric_or_name_issue(tmp_path):
 
 @pytest.mark.parametrize('disavowal',['并非识别错误','非识别错误','不是识别污染','不构成识别疑点',
     '此处无具体识别污染，无需修正','未发现实际识别错误','没有明确的识别疑点','不存在任何识别污染',
-    '未构成识别污染','故此项暂不列为错误'])
+    '未构成识别污染','故此项暂不列为错误','此处不算识别错误'])
 def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path,disavowal):
     text='几块钱的是五六块钱。';calls=[]
     def call(prompt,schema):
