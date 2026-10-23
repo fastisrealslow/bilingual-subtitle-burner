@@ -8,6 +8,9 @@ from pathlib import Path
 import sys
 import time
 import urllib.request
+import subprocess
+import tempfile
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'linyuan'))
@@ -33,12 +36,30 @@ def screen(cues,pick):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--case',type=int,required=True)
+    source=ap.add_mutually_exclusive_group(required=True)
+    source.add_argument('--case',type=int)
+    source.add_argument('--artifact-id',type=int,choices=(12488688653,12488766515))
     args=ap.parse_args()
     assert os.environ.get('TEXT_BACKEND')=='local'
     import produce_cn as p
-    cases=json.loads((ROOT/'linyuan/simulations/benchmark-20260921/selection-model-corpus.json').read_text())
-    case=cases[args.case];cues=case['cues']
+    if args.artifact_id:
+        expected={
+            12488688653: ('BV1dDWVeUExM:p1','eecae74ac60a5ccb1e52bff1e079c99de25a41f9c24df75f0ef416af2f7c19f9'),
+            12488766515: ('BV1hS421X7Xd:p2','b03934fb5cc4a1a87f68e3c146d5679d6952df05108d44501306af58a293bcf4'),
+        }
+        source_id,source_sha=expected[args.artifact_id]
+        with tempfile.TemporaryFile() as archive:
+            subprocess.run(['gh','api',f'repos/fastisrealslow/bilingual-subtitle-burner/actions/artifacts/{args.artifact_id}/zip'],
+                           stdout=archive,check=True,timeout=120)
+            archive.seek(0)
+            with zipfile.ZipFile(archive) as z:
+                cues=json.loads(z.read('_tmp/cues_raw.json'))
+                quality=json.loads(z.read('_tmp/source_quality.json'))
+                assert quality['source_sha256']==source_sha and quality['passed'] is True
+        case=dict(source_id=source_id,source_sha256=source_sha,raw_cues_sha256=digest(cues),cues=cues)
+    else:
+        cases=json.loads((ROOT/'linyuan/simulations/benchmark-20260921/selection-model-corpus.json').read_text())
+        case=cases[args.case];cues=case['cues']
     assert digest(cues)==case['raw_cues_sha256']
     out=Path('selection-model-results');out.mkdir(exist_ok=True)
     row=dict(source_id=case['source_id'],source_sha256=case['source_sha256'],
@@ -47,6 +68,11 @@ def main():
         status='unresolved',editorial_approved=False,production_changed=False,
         scope='Text-only proposals, not completeness approval, produced videos or yield')
     target=out/'result.json'
+    (out/'original-cues.json').write_text(json.dumps(cues,ensure_ascii=False,indent=2))
+    baseline={}
+    ss.select(cues,whole_source=True,limit=None,diagnostics=baseline)
+    row['existing_selector']=baseline
+    row['original_artifact_id']=args.artifact_id
     def save():target.write_text(json.dumps(row,ensure_ascii=False,indent=2)+'\n')
     save();start=time.monotonic()
     units=ss.sentence_units(cues)
