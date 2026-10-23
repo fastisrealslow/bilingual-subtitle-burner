@@ -55,7 +55,7 @@ concurrency:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: linyuan
@@ -72,10 +72,19 @@ jobs:
       # pdftotext 用来解析股东大会公告 PDF，提取会议时间地点 ——
       # 这是「比二创早 3 周」那个提前量的来源，缺了整块能力就没了
       - name: 安装系统依赖
+        timeout-minutes: 15
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq poppler-utils ffmpeg
-          python -m pip install -q pytest yt-dlp requests
+          set -euo pipefail
+          verify_monitor_tools() {
+            ffmpeg -version >/dev/null 2>&1 &&
+            ffprobe -version >/dev/null 2>&1 &&
+            pdftotext -v >/dev/null 2>&1
+          }
+          if ! verify_monitor_tools; then
+            bash ci_install_media_tools.sh
+          fi
+          verify_monitor_tools
+          python -m pip install --disable-pip-version-check --retries 2 --timeout 30 -q pytest yt-dlp requests pyyaml
 
       - name: 来源自动重试回归
         working-directory: .

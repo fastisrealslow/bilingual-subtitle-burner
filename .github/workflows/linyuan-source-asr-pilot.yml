@@ -22,7 +22,7 @@ env:
   RUN_REVIEWED_PARTS: ''
   LINYUAN_AUTOMATIC_ONLY: 'true'
   RUN_MAX_OUTPUTS: '1'
-  RUN_RECOVERY_RUN_ID: '40010461801'
+  RUN_RECOVERY_RUN_ID: '40026097903'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   OUTPUT_LAYOUT: portrait
 jobs:
@@ -261,6 +261,22 @@ jobs:
       if: env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'
       working-directory: .
       run: python scripts/verify_linyuan_story_delivery.py "linyuan/deliver/$RUN_SLUG"
+    - name: 独立保留本次全部原始交付文件（验收失败仍可复查）
+      if: always() && steps.render.outcome == 'success'
+      uses: actions/upload-artifact@v4
+      with:
+        name: source-pilot-original-delivery-${{ github.run_id }}
+        path: |
+          linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+          linyuan/deliver/${{ env.RUN_SLUG }}/final*.mp4
+          linyuan/deliver/${{ env.RUN_SLUG }}/cover*.jpg
+          linyuan/deliver/${{ env.RUN_SLUG }}/cover*.json
+          linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
+          linyuan/deliver/${{ env.RUN_SLUG }}/subtitle_edit_proof*.json
+          linyuan/deliver/${{ env.RUN_SLUG }}/preview*.mp4
+          linyuan/deliver/${{ env.RUN_SLUG }}/contact*.jpg
+        if-no-files-found: error
+        retention-days: 30
     - name: 独立复验本次实验原始成片、字幕及封面
       run: "python - <<'VERIFY'\nimport hashlib,json,os\nfrom pathlib import Path\nfrom artifact_range\
         \ import delivery_files\nfrom publishing_experiment import actual_profile,TREATMENT,holding_evidence\n\
