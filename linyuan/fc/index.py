@@ -3704,10 +3704,10 @@ def _recover_changed_production_rule(st, candidate, run):
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
         range_policy_patch=(file.get('filename')=='linyuan/transcript_audit.py'
-            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*202610230[567]\s*$',
+            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*202610230[5678]\s*$',
                           str(file.get('patch') or ''),re.M))
         text_only_patch=(file.get('filename')=='linyuan/transcript_audit.py'
-            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*202610230[67]\s*$',
+            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*202610230[678]\s*$',
                           str(file.get('patch') or ''),re.M))
         if case[0]=='transcript-text-only-evidence-v1':
             return bool(text_only_patch and any(_text_only_audit_audio_claim(r)

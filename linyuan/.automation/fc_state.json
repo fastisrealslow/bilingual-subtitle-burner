@@ -42245,10 +42245,10 @@
    "publish_time": "2026-09-27T16:08:58+08:00",
    "source_check_report_id": 11831391108,
    "source_check_run_id": 38413762002,
-   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
-   "failure_stage": "quality-service",
+   "last_error": "选段原画仍有来源角标",
+   "failure_stage": "editorial-or-render",
    "source_check_attempts": 4,
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -42262,8 +42262,126 @@
      "ts": 1792719691
     }
    },
-   "source_quality_rejected": false,
-   "recovery_origin_run_id": 38413762002
+   "source_quality_rejected": true,
+   "recovery_origin_run_id": 38413762002,
+   "production_failure_summary": {
+    "slug": "ly-1009-6fdc57",
+    "run_id": 39885939292,
+    "artifact_id": 12476745314,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在句子 0 被提问后，未在后续连续语句中提供新的选股判断或具体观点；句子 1 和 2 是对已知信息的重复确认而非新结论，句子 3 明确终止当前话题并转向消费领域，导致关于‘其他医药股’的观点表达不完整且无实质内容；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺失嘉宾的核心投资判断或具体观点；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：reasoning_present；完整性理由：无；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有来源角标"
+     }
+    ]
+   },
+   "failure_evidence": {
+    "run_id": 39885939292,
+    "artifact_id": 12476745314,
+    "name": "production-reject-ly-1009-6fdc57",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1esJv6rEgQ",
@@ -42492,21 +42610,13 @@
    "recovery_origin_run_id": 39876029370,
    "production_failure_summary": {
     "slug": "ly-story-9c88bea169",
-    "run_id": 39876029370,
-    "artifact_id": 12469862084,
+    "run_id": 39889888595,
+    "artifact_id": 12475134228,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我前一段时间就是偶尔的去了一个重庆一家企业，因为我在重庆，哎，他就给我推荐了一个六味安神胶囊。\", \"suspect_quote\": \"六味安神胶囊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词：中药‘六味地黄丸’常被误记为‘六味安神胶囊’，且‘六味安神胶囊’并非常见标准药品名，存在名称混淆风险。\"}, {\"sentence_id\": 10, \"quote\": \"我吃了大概现在有一一个多疗程呢。\", \"suspect_quote\": \"一一个多疗程\", \"k"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "选段原画仍有原字幕或免责声明"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]"
      },
      {
       "stage": "part-quality",
@@ -42520,10 +42630,10 @@
    },
    "source_check_report_id": 12453328771,
    "source_check_run_id": 39876029370,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我前一段时间就是偶尔的去了一个重庆一家企业，因为我在重庆，哎，他就给我推荐了一个六味安神胶囊。\", \"suspect_quote\": \"六味安神胶囊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词：中药‘六味地黄丸’常被误记为‘六味安神胶囊’，且‘六味安神胶囊’并非常见标准药品名，存在名称混淆风险。\"}, {\"sentence_id\": 10, \"quote\": \"我吃了大概现在有一一个多疗程呢。\", \"suspect_quote\": \"一一个多疗程\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述含口语重复‘一一个’，虽属正常口吃，但‘一一个’作为具体数量词出现时易被误判为识别错误；此处需确认是否为‘一个’的误读或填充词干扰。\"}]",
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]",
    "failure_stage": "editorial-or-render",
    "source_check_attempts": 4,
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -42537,10 +42647,10 @@
      "ts": 1792719767
     }
    },
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_evidence": {
-    "run_id": 39876029370,
-    "artifact_id": 12469862084,
+    "run_id": 39889888595,
+    "artifact_id": 12475134228,
     "name": "production-reject-ly-story-9c88bea169",
     "retained": true
    }
@@ -42641,7 +42751,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么'语义模糊，结合上下文应为'地产是什么'或类似表达，此处同音疑点影响对‘不懂地产’这一理由的理解，需列入 audio_issues。\"]]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -116959,6 +117070,13 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2610/18/0ki7wkqea1r/SD/0ki7wkqea1r-mobile.mp4",
    "ts": 1792724237,
    "error": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么'语义模糊，结合上下文应为'地产是什么'或类似表达，此处同音疑点影响对‘不懂地产’这一理由的理解，需列入 audio_issues。\"]]"
+  },
+  {
+   "slug": "ly-1009-6fdc57",
+   "key": "weibo_search:5347792440790638",
+   "video_id": "http://f.video.weibocdn.com/u0/VQRc69I2gx08B7WoSvOw01041204VKmn0E020.mp4",
+   "ts": 1792725942,
+   "error": "选段原画仍有来源角标"
   }
  ],
  "reviewed_third_video_0910": {
@@ -118352,7 +118470,7 @@
  },
  "source_refresh_requested_at": 1792723790,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 5,
+ "rule_recovery_page": 10,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",

@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792724887,
-  "inventory_updated_at": 1792724886,
+  "updated_at": 1792726004,
+  "inventory_updated_at": 1792725904,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 16,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -97,7 +97,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792724887,
+    "updated_at": 1792726004,
     "records": 11453,
     "video_records": 9884,
     "initial_candidates": 61,
@@ -123,8 +123,8 @@
   "inventory": {
     "verified_live": 16,
     "verified_audio_card": 0,
-    "verified_landscape": 11,
-    "verified_portrait": 5,
+    "verified_landscape": 12,
+    "verified_portrait": 4,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -134,14 +134,14 @@
   },
   "counts": {
     "complete": 140,
-    "failed": 1262,
+    "failed": 1264,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 7,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -26110,11 +26110,11 @@
     },
     {
       "slug": "ly-1009-6fdc57",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "选段原画仍有来源角标",
       "signature": {
         "ts": 1792720021,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26124,7 +26124,7 @@
       "run_id": 39885939292,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885939292",
       "run_started_at": "2026-10-23T01:47:01Z",
-      "run_updated_at": "2026-10-23T01:49:32Z"
+      "run_updated_at": "2026-10-23T03:22:51Z"
     },
     {
       "slug": "ly-1022-13a2c9",
@@ -26182,11 +26182,11 @@
     },
     {
       "slug": "ly-story-9c88bea169",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]",
       "signature": {
         "ts": 1792722598,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37808,6 +37808,17 @@
       "run_number": 2540,
       "display_title": "中文源出片 · ly-story-9c88bea169"
     },
+    "ly-1009-6fdc57": {
+      "id": 39885939292,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-23T01:47:01Z",
+      "updated_at": "2026-10-23T03:22:51Z",
+      "run_started_at": "2026-10-23T01:47:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885939292",
+      "run_number": 2536,
+      "display_title": "中文源出片 · ly-1009-6fdc57"
+    },
     "ly-1022-abeb50": {
       "id": 39888629731,
       "status": "in_progress",
@@ -37818,17 +37829,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39888629731",
       "run_number": 2539,
       "display_title": "中文源出片 · ly-1022-abeb50"
-    },
-    "ly-1009-6fdc57": {
-      "id": 39885939292,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-23T01:47:01Z",
-      "updated_at": "2026-10-23T01:49:32Z",
-      "run_started_at": "2026-10-23T01:47:01Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885939292",
-      "run_number": 2536,
-      "display_title": "中文源出片 · ly-1009-6fdc57"
     }
   }
 }

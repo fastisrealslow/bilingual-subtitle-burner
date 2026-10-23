@@ -8,7 +8,14 @@ from editorial_policy import text_digest
 from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102307
+SPOKEN_RANGE_POLICY_VERSION = 2026102308
+
+CRITICAL_REVIEW_SCOPE=(
+    '先通读整段，再按“是否会误解是谁、哪家公司、多少钱、何时、实际做了什么或是否做过”的标准检查。'
+    '具体专名错写、关键金额/时间/否定或直接决定实际动作的词有污染，即使整体能猜懂也必须报告。'
+    '但普通通用词不必是金融术语；口语省略虚词、临时改口、句法不整齐、指代泛化、'
+    '标点把连续意思分开，不能单独变成识别错误。连读上下文能理解且不改变具体身份、事实或动作的'
+    '口语瑕疵不报告。不要为润色补字，不根据观点是否符合金融常识判断识别，不猜原音还有其他词。')
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
@@ -56,10 +63,10 @@ def review(text, speaker, model, call, path):
         issues=dict(type='array',maxItems=6,items=issue),
         explanation=dict(type='string',minLength=1,maxLength=180)))
     schema['required']=list(schema['properties'])
-    prompt=('只检查以下自动识别文字是否有明显影响理解的识别疑点，不审核观点完整性、吸引力或投资判断对错。'
+    prompt=(CRITICAL_REVIEW_SCOPE+'只检查以下自动识别文字是否有明显影响理解的识别疑点，不审核观点完整性、吸引力或投资判断对错。'
         '你没有听到原音，不能声称核实了发音，更不能修改原文。'
         '逐句只检查无法解释的具体词语、疑似错写的专有名词，以及含义不明的关键数字或否定。'
-        '不要因为文字出现在字幕里就默认识别正确，也不要把不自然的金融或行业词自动解释成行话。'
+        '不要因为文字出现在字幕里就默认识别正确；专名乱码不能用行话掩盖。普通通用词不要求是行业术语。'
         '正常口语、语气词、重复、口吃、反问、隐喻，以及鲜明的个人观点本身不是问题。'
         '这不是润色任务：短句、口语省略主语、缺少连接词、填充词多、不够顺畅，都不能作为识别错误。'
         '例如“我们看看看看情况”中的口吃不改变原意；“随时可以调整”是正常短句。'
@@ -81,7 +88,7 @@ def review(text, speaker, model, call, path):
         '目标嘉宾：'+speaker+'。编号原句：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
     last = None
     explanation_first_retry = False
-    audio_access_retry = False
+    independent_evidence_retry = False
     for attempt in range(2):
         request_schema=schema
         if explanation_first_retry:
@@ -102,7 +109,7 @@ def review(text, speaker, model, call, path):
             bound=[];ignored=[];invalid=[]
             if AUDIO_ACCESS_CLAIM.search(data['explanation']):
                 explanation_first_retry=True
-                audio_access_retry=True
+                independent_evidence_retry=True
                 invalid.append(dict(scope='explanation',invalid_reason=
                     '文字审核未收到原音，不能声称听感、听过或核实发音。'
                     '请独立重审实际文字是否有具体识别污染，不猜替换词，不改原话。'))
@@ -116,13 +123,14 @@ def review(text, speaker, model, call, path):
                 evidence=dict(sentence_id=ident,quote=units[ident],suspect_quote=quote,kind=item['kind'],reason=reason)
                 if AUDIO_ACCESS_CLAIM.search(reason):
                     explanation_first_retry=True
-                    audio_access_retry=True
+                    independent_evidence_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '文字审核未收到原音，不能用听感或声称核实发音作为证据。'
                         '请独立判断实际文字中的具体污染，不猜替换词，不改原话。'})
                     continue
                 if NO_CONTAMINATION.search(reason):
                     explanation_first_retry=True
+                    independent_evidence_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '此项理由明确否认识别错误，不能同时列为负面识别证据。仅保留实际认为有污染的最小词语；'
                         '正常口语范围必须保持原样，不能凭空另造精确读法。'})
@@ -131,6 +139,8 @@ def review(text, speaker, model, call, path):
                     ignored.append({**evidence,'ignored_reason':'ordinary_disfluency_not_asr_error'})
                     continue
                 if item['kind']=='ambiguous_number_or_negation' and not CRITICAL_TOKEN.search(quote):
+                    explanation_first_retry=True
+                    independent_evidence_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类'})
                     continue
@@ -146,11 +156,11 @@ def review(text, speaker, model, call, path):
             return proof
         except (ValueError,TypeError,AttributeError) as exc:
             last=exc
-            if audio_access_retry:
+            if independent_evidence_retry:
                 # A fresh, source-only decision, not an instruction to find
                 # more faults or to justify a hallucinated previous verdict.
                 # Do not include that verdict or any guessed replacement word.
-                prompt=('独立审核下面的自动转写文字。你未收到原音，不能声称听过、听感或核实发音，不能猜替换词。'
+                prompt=(CRITICAL_REVIEW_SCOPE+'独立审核下面的自动转写文字。你未收到原音，不能声称听过、听感或核实发音，不能猜替换词。'
                     '只报告从完整上下文可具体指出、影响理解的识别污染：无法理解的实际词语、错写专名、'
                     '被截断或互相矛盾的关键数字、含义不明的否定。'
                     '这是文字可理解性检查，不是润色或事实核查。口语省略、重复、语气词、松散句法、'
@@ -158,6 +168,7 @@ def review(text, speaker, model, call, path):
                     '正常泛指数词、程度和排名观点不因不精确或可能不符合事实就成为识别错误。'
                     '不能假设原音还有不同的字词或限定，再据此报错。'
                     '解释中独立判断实际是否有污染；issues只保留有具体文字依据的最小疑词。'
+                    '不要把明确否认识别错误的项目列为错误。'
                     '无法指出实际污染时issues为空，保持原话；确有错词、数字或否定疑点仍必须列出。'
                     '目标嘉宾：'+speaker+'。编号完整原文：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
                 continue

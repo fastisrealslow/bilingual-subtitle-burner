@@ -23,6 +23,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [1, 2]
     env:
       LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3.5:9b' }}
       CUDA_VISIBLE_DEVICES: ''
@@ -80,11 +84,12 @@ jobs:
       - name: 正常口语不能误挡，实际错词仍须拒绝
         env:
           GH_TOKEN: ${{ github.token }}
+          AUDIT_REPLICA: ${{ matrix.replica }}
         run: python -u scripts/check_linyuan_transcript_style_cpu.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: transcript-style-cpu-controls
+          name: transcript-style-cpu-controls-${{ matrix.replica }}
           path: |
             transcript-style-cpu-results/
             /tmp/ollama.log

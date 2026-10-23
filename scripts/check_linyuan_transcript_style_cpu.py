@@ -109,7 +109,7 @@ def main():
                 ident,quote,kind=injected[name]
                 raw=json.dumps(dict(issues=[dict(sentence_id=ident,suspect_quote=quote,
                     kind=kind,reason='原文听感上更像别的字词')],explanation='协议故障注入，非模型判断'),ensure_ascii=False)
-                calls.append(dict(prompt=prompt,response=raw,seconds=0,
+                calls.append(dict(prompt=prompt,schema=schema,response=raw,seconds=0,
                     model=None,injected_protocol_fault=True))
                 return raw
             started=time.monotonic()
@@ -121,7 +121,7 @@ def main():
             with urllib.request.urlopen(req,timeout=600) as response:
                 result=json.load(response)
             content=result['message']['content']
-            calls.append(dict(prompt=prompt,response=content,
+            calls.append(dict(prompt=prompt,schema=schema,response=content,
                 seconds=round(time.monotonic()-started,3),model=result.get('model')))
             return content
         row=dict(case=name,transcript=text,expected_clear=expected,
@@ -142,6 +142,7 @@ def main():
                 text_only_provenance=text_only_provenance,
                 audit_code_sha256=hashlib.sha256(Path(audit.__file__).read_bytes()).hexdigest(),
                 commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
+                independent_runner_replica=os.environ.get('AUDIT_REPLICA'),
                 cases=rows,passed=len(rows)==len(cases) and all(r['control_passed'] for r in rows))
             (out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
             print(json.dumps(dict(case=name,control_passed=row['control_passed']),ensure_ascii=False),flush=True)
