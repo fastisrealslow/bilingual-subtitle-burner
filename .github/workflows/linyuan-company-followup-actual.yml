@@ -23,7 +23,7 @@ env:
   RUN_REVIEWED_PARTS: ''
   LINYUAN_AUTOMATIC_ONLY: 'true'
   RUN_MAX_OUTPUTS: '1'
-  RUN_RECOVERY_RUN_ID: '39985269866'
+  RUN_RECOVERY_RUN_ID: '39989833395'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   OUTPUT_LAYOUT: portrait
 jobs:
@@ -127,7 +127,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         RECOVERY_RUN_ID: ${{ env.RUN_RECOVERY_RUN_ID }}
       run: 'python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp" --artifact-name
-        preview-editorial-preview-39985269866
+        preview-editorial-preview-39989833395
 
         '
     - name: 检查原始识别证据，避免重复下载和推理

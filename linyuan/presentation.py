@@ -102,7 +102,7 @@ def live_card_layout(theme='contrast'):
     return layout
 
 
-def footer_layout_for(width, height):
+def footer_layout_for(width, height, *, single_line=False):
     """Opt-in caption band outside the original image; never cover a mouth.
 
     Source pixels keep their original size and aspect. This changes the output
@@ -110,7 +110,7 @@ def footer_layout_for(width, height):
     """
     layout = layout_for(width, height)
     width, height = int(width), int(height)
-    band = (int(layout['subtitle_font_px'] * 2 * 1.448) + 33) // 2 * 2
+    band = (int(layout['subtitle_font_px'] * (1 if single_line else 2) * 1.448) + 33) // 2 * 2
     canvas_h = height + band
     layout.update(canvas=dict(width=width,height=canvas_h),
         mode='landscape' if width>canvas_h*1.15 else ('portrait' if canvas_h>width*1.15 else 'square'),

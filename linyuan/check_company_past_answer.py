@@ -106,6 +106,19 @@ def main():
         'negative_controls_rejected'))
     save();print(json.dumps(result,ensure_ascii=False),flush=True)
     assert result['passed'],'Actual complete source or negative controls failed; no production approval'
+    result['passed']=False;save()
+    item=selected[(95,105)]
+    work=out/'actual-copy';work.mkdir(exist_ok=True)
+    os.environ['LINYUAN_EDITORIAL_PROFILE']=E.TREATMENT
+    copy=P.copywrite(cues,list(range(item['start'],item['end']+1)),'林园','访谈','',work,
+        '_actual',story_evidence=item['story_selection'],source_sha256=source['source_sha256'])
+    issue=E.title_focus_error(copy['title'],E.title_focus(item['story_selection']),cover=copy['cover_title'])
+    assert issue is None,issue
+    from title_rewrite import error
+    assert error(copy['title'],copy['title_rewrite'],''.join(c['text'] for c in cues[item['start']:item['end']+1])) is None
+    result.update(passed=True,actual_title=copy['title'],actual_cover_title=copy['cover_title'],
+        fresh_production_copy_verified=True,copy_diagnostic_only=True)
+    save();print(json.dumps(result,ensure_ascii=False),flush=True)
 
 
 if __name__=='__main__':main()

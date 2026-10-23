@@ -2941,7 +2941,7 @@ def measured_emblem_intervals(src, start, end, rect):
 
 
 def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None,
-                               proposed_logos=()):
+                               proposed_logos=(), caption_footer=False):
     """Reassess the selected interview before forcing a face-only window.
 
     A mother-level card decision can come from an unrelated introduction or a
@@ -2987,7 +2987,7 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
                 filters.insert(0,delogo_filter(proposed_logos,width,height)+f":enable='{active}'")
             proof['measured_emblem_intervals']=intervals
         output_h=ch
-        if proposed_crop:
+        if proposed_crop and not caption_footer:
             # Give our captions their own strip below the measured source
             # crop. Moving the normal lower captions up with a shorter canvas
             # would cover the chin in the source's close-ups. Every video frame
@@ -3015,11 +3015,12 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
                      sampled_frames=12,raw_row_coverage=before,
                      clean_row_coverage=ocr_row_coverage(cleaned,frames=12,strict=True),
                      old_subtitles_removed=True,external_logos_removed=True)
-        if proposed_crop:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
+        if proposed_crop and not caption_footer:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
+        if caption_footer:proof['caption_layout']='dedicated_footer_single_line_v1'
         print(f'[原画适配] {start:.2f}–{end:.2f}秒可裁净旧字幕，保留横屏切镜和原始插图：{cw}x{ch}',flush=True)
         return dict(clean_strategy='crop_delogo' if logos or proposed_logos else 'crop',
             clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=output_h),
-            native_context_proof=proof,geometry_source=str(sample))
+            native_context_proof=proof,geometry_source=str(sample),use_caption_footer=bool(caption_footer))
     except (VisualQualityError,subprocess.SubprocessError,OSError,ValueError) as exc:
         proof['reason']=str(exc)
         print('[原画适配] 未通过，继续按既有版式检查：'+str(exc),flush=True)
@@ -5692,9 +5693,16 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         if _picture_phase is not None:_picture_phase['cover_started']=True
         prepared_scene_cover=out/(f'cover{suffix}.jpg' if suffix else 'cover_16x9.jpg')
         p0=picks[0]
+        cover_filter=''
+        if _native_cleanup_retry:
+            measured=reviewed_native_cleanup(source_report or {},W,H,cues[p0['start']]['start'],
+                cues[p0['end']]['end'],automatic_proposal=True)
+            if measured:
+                cw_,ch_,cx_,cy_=measured
+                cover_filter=f'crop={cw_}:{ch_}:{cx_}:{cy_}'
         try:
             make_cover(src,cues[p0['start']]['start'],cues[p0['end']]['end'],
-                '',speaker,prepared_scene_cover,video_filter='',
+                '',speaker,prepared_scene_cover,video_filter=cover_filter,
                 preferred_time=(visual_report or {}).get('best_cover_time'),
                 reference_path=_download_speaker_reference(speaker,work),
                 style='scene',allow_editorial_fallback=False,clean_scene_crop=True)
@@ -5776,7 +5784,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
             **({'proposed_crop':proposed_native,
                 # Measured non-text station emblem, missed by text OCR.
-                'proposed_logos':[(1728/W,52/H,1824/W,148/H)]}
+                'proposed_logos':[(1728/W,52/H,1824/W,148/H)],
+                'caption_footer':_native_cleanup_retry}
                if proposed_native else {}))
         if proposed_native and not native_plan:
             raise VisualQualityError('已确认原新闻字幕条残留；重新取景未通过，禁止复用旧原画方案')
@@ -5978,9 +5987,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         from presentation import live_card_layout
         layout = live_card_layout(os.environ.get('LIVE_CARD_THEME', 'contrast'))
     # Rehearsal-only until the actual native video has been visually reviewed.
-    if strategy != 'audio_card' and os.environ.get('SUBTITLE_LAYOUT') == 'footer':
+    if strategy != 'audio_card' and (os.environ.get('SUBTITLE_LAYOUT') == 'footer'
+                                   or source_report.get('use_caption_footer')):
         from presentation import footer_layout_for
-        layout = footer_layout_for(crop_w, crop_h)
+        layout = footer_layout_for(crop_w, crop_h,single_line=bool(source_report.get('use_caption_footer')))
     en_map = {}
     parts = []
     render_audio=audio_render_prefix(audio_policy(_sha256_file(src)))

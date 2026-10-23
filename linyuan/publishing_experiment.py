@@ -494,6 +494,12 @@ def story_title_prompt(prompt,schema,evidence):
             '。标题前半句必须点明实际对象，不能只写“退出了、买了、持有了”让观众猜。'
             '保留原话的不确定性和理由；不要为了补对象删除“感觉、隐约、可能”等限定。')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
+    if evidence.get('company_holding_recall_version')==1:
+        scope+=('\n本次标题以嘉宾已经发生的买卖/持仓事实为中心，保留事件原句的时间或时长与近、约等范围：'
+            +json.dumps(focus.get('past_holding_times',[]),ensure_ascii=False)+
+            '。先讲已经持有多久，再讲本人当前选择；不要用主持人复述的最低未来年限代替过去经历。'
+            '没有讲直接原因就不编原因；淡然看待行业消失不是卖出触发条件，不添加原话没有的除非/只要。'
+            '涉及终身等远期说法必须保留可能、或许等限定。用完整自然口语，不把持有缩成单字持。')
     if action_pairs:
         scope+=('\n细节原话也包含完整的动作理由，不能只盯着其中的比喻名词：'
             +json.dumps(action_pairs,ensure_ascii=False)+
@@ -515,6 +521,17 @@ def story_title_prompt(prompt,schema,evidence):
         '核对时事实支持、说话人归属和限定条件标准完全不变。'
         '下列线索是本段逐字原句，不是已批准的事实或预填标题；提问只提供上下文，不能当嘉宾断言。\n'
         +json.dumps(evidence,ensure_ascii=False)+scope)
+
+
+def holding_time_anchors(text):
+    from title_quantity_context import NUMBER,number
+    rows=[]
+    for m in re.finditer(rf'(接近|将近|近|大约|约)?({NUMBER})(年|个月|月)',str(text or '')):
+        value=number(m[2])
+        if value is None or value<=0:continue
+        row=dict(value=value,unit=m[3].removeprefix('个'),approximate=bool(m[1]),raw=m[0])
+        if row not in rows:rows.append(row)
+    return rows
 
 
 def title_focus(selection):
@@ -597,9 +614,13 @@ def title_focus(selection):
     background=list(dict.fromkeys(t for key in ('event_quote','detail_quote')
         if selection.get(key,'')!=reason for t in background_terms(selection.get(key,''))
         if t not in subjects and t not in details)) if named_reason else []
-    return dict(subjects=subjects,details=details,background_terms=background,
+    result=dict(subjects=subjects,details=details,background_terms=background,
                 **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
+    if selection.get('company_holding_recall_version')==1:
+        result['past_holding_times']=holding_time_anchors(selection.get('event_quote',''))
+        result['holding_recall']=True
+    return result
 
 
 def title_focus_error(title,focus,speaker='林园',cover=None):
@@ -609,6 +630,16 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
+    anchors=focus.get('past_holding_times') or []
+    presented=holding_time_anchors(body) if anchors else []
+    if anchors and not any(a['value']==b['value'] and a['unit']==b['unit']
+            and (not a['approximate'] or b['approximate']) for a in anchors for b in presented):
+        return '本次标题须保留本人已发生持仓的原话时间/时长及近或约等限定，不能改成未来承诺：'+','.join(a['raw'] for a in anchors)
+    if focus.get('holding_recall'):
+        for copy in (body,str(cover or '')):
+            for clause in re.split(r'[。！？!?；;，,]',copy):
+                if re.search(r'终身|永久|永远|一辈子',clause) and not re.search(r'(?<!不)可能|或许|也许',clause):
+                    return '这次是可能的远期持仓表态，标题和封面各自保留可能等限定，不能借主持人复述变成确定承诺'
     if (focus.get('details') and not any(t in body for t in focus['details'])
             and not any(all(term in body for term in pair) for pair in action_pairs)):
         return '故事标题须保留本次事例的实际细节或理由原词：'+','.join(focus['details'])

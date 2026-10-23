@@ -39,6 +39,7 @@ def test_real_runtime_quality_exception_reaches_one_measured_retry_and_cannot_by
     def verify_proposal(*args,**kwargs):
         retries.append((args,kwargs))
         assert kwargs['proposed_crop']==(1920,756,0,0)
+        assert kwargs['caption_footer'] is True
         assert kwargs['proposed_logos']==[(.9,52/1080,.95,148/1080)]
         return None  # A source-bound proposal is never approval.
     monkeypatch.setattr(P,'selected_native_clean_plan',verify_proposal)
@@ -52,3 +53,22 @@ def test_real_runtime_quality_exception_reaches_one_measured_retry_and_cannot_by
                 clean_output_resolution=dict(width=1920,height=972)),require_live_video=True)
     assert len(retries)==1
     assert not list(tmp_path.glob('final*.mp4'))
+
+
+def test_single_line_footer_preserves_native_picture_without_large_white_canvas(tmp_path):
+    import presentation as V
+    from produce_cn import make_ass
+    layout=V.footer_layout_for(1744,756,single_line=True)
+    legacy=V.footer_layout_for(1744,756)
+    assert layout['canvas']['height']<legacy['canvas']['height']
+    assert layout['source_region']==dict(x=0,y=0,width=1744,height=756)
+    assert layout['source_region']['height']/layout['canvas']['height']>.82
+    assert layout['subtitle_region']['y']>=756
+    assert layout['subtitle_region']['height']>=layout['subtitle_font_px']*1.448
+    assert layout['subtitle_font_px']>=70
+    assert 'color=0x101c2b' in V.footer_filter(layout)
+    p=tmp_path/'single-line.ass'
+    entries=[dict(start_sec=0,end_sec=4,zh='我们还是继续持有茅台',en='')]
+    screens=make_ass(entries,p,1744,756,layout_override=layout)
+    assert all(len(s['lines'])==1 for s in screens)
+    assert f"PlayResY: {layout['canvas']['height']}" in p.read_text(encoding='utf-8-sig')

@@ -96,3 +96,16 @@ def test_independent_publisher_replays_full_original_context_before_accepting_re
     meta.pop('title_rewrite')
     assert '完整原始字幕' in F.artifact_subtitle_error(meta,tmp_path)
 
+
+
+def test_actual_holding_title_keeps_past_duration_and_cannot_borrow_host_future_pledge():
+    selection=dict(kind='company_case',subject_quote='那这未来会继续看好茅台？',
+        event_quote='从买入的这个持有到现在已经接近二十年，接近二十年啊。',
+        detail_quote='我们也不会动。',company_holding_recall_version=1)
+    focus=E.title_focus(selection)
+    assert E.title_focus_error('林园：继续持有茅台至少未来几年甚至终身',focus)
+    assert E.title_focus_error('林园：茅台持有二十年，我们也不会动',focus)
+    assert E.title_focus_error('林园：茅台持有近20年，甚至终身都不动',focus)
+    assert E.title_focus_error('林园：茅台持有近20年，我们也不会动',focus) is None
+    assert E.title_focus_error('林园：茅台持有近二十年，可能终身也不动',focus) is None
+    assert E.title_focus_error('林园：茅台持有近20年，我们也不会动',focus,cover='茅台永远不卖')
