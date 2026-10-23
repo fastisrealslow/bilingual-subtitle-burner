@@ -411,7 +411,14 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
         'Company holding recall needs another explicit first-person holding/action statement')
     for rejected,bucket in reviews:
         index=rejected['index'];request=company_holding_request(cues,candidates[index])
-        if request is None:continue
+        if request is None:
+            if bucket=='unresolved':
+                # This exact proof failure already has a valid named-company
+                # past event. Without a second eligible guest statement the
+                # stricter schema cannot exist: reject, never retry or accept.
+                report[bucket].remove(rejected)
+                report['rejected'].append(dict(index=index,reason='missing_guest_holding_detail'))
+            continue
         if time.monotonic()>=deadline:
             report[bucket].remove(rejected)
             report['unresolved'].append(dict(index=index,error='company_holding_review_budget_exhausted'))

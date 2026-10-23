@@ -179,3 +179,16 @@ def test_transport_failure_cannot_trigger_editorial_recall(tmp_path):
         calls.append(schema);raise RuntimeError('transport unavailable')
     result=E.choose_stories(holding(),[dict(start=0,end=0)],call,tmp_path/'report.json')
     assert len(calls)==2 and not result['selection_completed'] and not result['selected']
+
+
+def test_host_only_future_detail_is_a_final_rejection_not_retryable_stock(tmp_path):
+    cues=[dict(text='那未来会继续看好腾讯吗？我们当年买入后一直持有。那就是说至少未来五年还会继续持有腾讯。')]
+    calls=[]
+    def call(prompt,schema):
+        calls.append(schema)
+        return dict(candidate_0=dict(kind='company_case',subject_sentence=0,event_sentence=1,detail_sentence=2))
+    result=E.choose_stories(cues,[dict(start=0,end=0)],call,tmp_path/'report.json')
+    assert len(calls)==2 and result['selection_completed'] and not result['retryable']
+    assert not result['selected'] and not result['unresolved']
+    assert result['rejected']==[dict(index=0,reason='missing_guest_holding_detail')]
+    assert all(c['response']['candidate_0']['detail_sentence']==2 for c in result['calls'])
