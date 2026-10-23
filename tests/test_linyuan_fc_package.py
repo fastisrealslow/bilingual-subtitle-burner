@@ -109,6 +109,15 @@ def test_packaging_rejects_missing_lazy_dependency(tmp_path, monkeypatch):
         package.build(tmp_path/'broken.zip')
 
 
+def test_packaging_includes_continuation_dependency_with_exact_bytes(tmp_path,monkeypatch):
+    package=module('package_code')
+    with zipfile.ZipFile(package.build(tmp_path/'complete.zip')) as archive:
+        assert archive.read('story_review_progress.py')==(ROOT/'linyuan/story_review_progress.py').read_bytes()
+    monkeypatch.setattr(package,'SOURCES',tuple(p for p in package.SOURCES if p!='story_review_progress.py'))
+    with pytest.raises(ValueError,match='missing runtime module story_review_progress'):
+        package.build(tmp_path/'missing-progress.zip')
+
+
 def test_default_package_excludes_only_historical_mp4_and_explicit_mode_keeps_exact_bytes(tmp_path):
     package=module('package_code')
     small=package.build(tmp_path/'runtime.zip')
