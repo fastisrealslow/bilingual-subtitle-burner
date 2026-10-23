@@ -8,6 +8,13 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 import transcript_audit as A
 import title_rewrite as T
 
+def review_json(value):
+    """Explicit verdicts for review fixtures; raw JSON remains available for malformed-contract tests."""
+    if isinstance(value,dict) and isinstance(value.get('issues'),list) and 'explanation' in value:
+        value={'verdict':'needs_audio' if value['issues'] else 'clear',**value}
+    return json.dumps(value)
+
+
 
 def test_real_automatic_answer_is_available_for_independent_title_review():
     case=json.loads((Path(__file__).parent/'fixtures/linyuan_automatic_third_party_answer.json').read_text())
@@ -35,7 +42,7 @@ def test_real_host_followup_questions_still_blocked(followup):
 def test_issue_is_bound_to_untouched_source_and_cannot_be_overridden_by_passed_flag(tmp_path):
     text='我们暂时观察。这个词语无法理解。'
     response=dict(passed=True,issues=[dict(sentence_id=1,suspect_quote='词语',kind='unintelligible_term',reason='原词影响理解')],explanation='需复核原音')
-    proof=A.review(text,'嘉宾','cpu-model',lambda *a:json.dumps(response),tmp_path/'audit.json')
+    proof=A.review(text,'嘉宾','cpu-model',lambda *a:review_json(response),tmp_path/'audit.json')
     assert proof['passed'] is False and proof['audio_verified'] is False
     assert proof['issues'][0]['quote']=='这个词语无法理解。'
     assert not A.review(text,'嘉宾','cpu-model',lambda *a:pytest.fail('valid negative cache ignored'),tmp_path/'audit.json')['passed']
@@ -45,7 +52,7 @@ def test_changed_source_requires_new_review_and_cannot_reuse_previous_clear_resu
     calls=[]
     def call(prompt,schema):
         calls.append(prompt)
-        return json.dumps(dict(issues=[],explanation='未发现影响理解的文字疑点'))
+        return review_json(dict(issues=[],explanation='未发现影响理解的文字疑点'))
     path=tmp_path/'audit.json'
     A.review('企业现金流充足。','嘉宾','model',call,path)
     result=A.review('企业现金流不足。','嘉宾','model',call,path)
@@ -56,7 +63,7 @@ def test_invalid_sentence_id_is_retried_but_never_guessed_or_clamped(tmp_path):
     calls=[]
     def call(prompt,schema):
         calls.append(prompt)
-        return json.dumps(dict(issues=[dict(sentence_id=9,suspect_quote='原句',kind='unintelligible_term',reason='句意不明')],explanation='有疑点'))
+        return review_json(dict(issues=[dict(sentence_id=9,suspect_quote='原句',kind='unintelligible_term',reason='句意不明')],explanation='有疑点'))
     with pytest.raises(ValueError):A.review('一条真实原句。','嘉宾','model',call,tmp_path/'audit.json')
     assert len(calls)==2 and not (tmp_path/'audit.json').exists()
 
@@ -65,7 +72,7 @@ def test_invalid_sentence_id_is_retried_but_never_guessed_or_clamped(tmp_path):
 def test_normal_disfluency_is_recorded_but_does_not_reject_untouched_speech(tmp_path,quote):
     text='原话：'+quote+'。'
     reply=dict(issues=[dict(sentence_id=0,suspect_quote=quote,kind='unintelligible_term',reason='不够流畅')],explanation='口吃')
-    proof=A.review(text,'嘉宾','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    proof=A.review(text,'嘉宾','model',lambda *a:review_json(reply),tmp_path/'audit.json')
     assert proof['passed'] and proof['issues']==[]
     assert proof['ignored_style_objections'][0]['suspect_quote']==quote
     assert proof['transcript_sha256']==A.text_digest(text)
@@ -78,7 +85,7 @@ def test_repetition_cannot_waive_negation_number_or_unrecognized_term(quote):
 
 def test_unbound_suspect_quote_cannot_become_rejection_evidence(tmp_path):
     reply=dict(issues=[dict(sentence_id=0,suspect_quote='原文没有',kind='unintelligible_term',reason='坏词')],explanation='疑点')
-    with pytest.raises(ValueError):A.review('这里有原话。','嘉宾','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    with pytest.raises(ValueError):A.review('这里有原话。','嘉宾','model',lambda *a:review_json(reply),tmp_path/'audit.json')
 
 
 def test_transcript_issue_is_not_a_duplicate_video_due_to_quoted_word_repeat():
@@ -91,7 +98,7 @@ def test_audit_prompt_distinguishes_spoken_choices_and_metaphors_without_waiving
     text='我们拥抱这个行业。原词是道琼市指数。'
     def call(prompt,schema):
         prompts.append(prompt)
-        return json.dumps(dict(issues=[dict(sentence_id=1,suspect_quote='道琼市指数',
+        return review_json(dict(issues=[dict(sentence_id=1,suspect_quote='道琼市指数',
             kind='unintelligible_term',reason='专名错写影响理解')],explanation='具体专名需复核'))
     proof=A.review(text,'嘉宾','model',call,tmp_path/'audit.json')
     assert '明确的备选比例' in prompts[0] and '泛指少量' in prompts[0]
@@ -101,11 +108,11 @@ def test_audit_prompt_distinguishes_spoken_choices_and_metaphors_without_waiving
 
 def test_old_style_audit_cache_requires_new_actual_review(tmp_path):
     path=tmp_path/'audit.json';text='企业现金流充足。';calls=[]
-    path.write_text(json.dumps(dict(version=2,transcript_sha256=A.text_digest(text),
+    path.write_text(review_json(dict(version=2,transcript_sha256=A.text_digest(text),
         speaker='嘉宾',model='model',issues=[],passed=True)))
     def call(prompt,schema):
         calls.append(1)
-        return json.dumps(dict(issues=[],explanation='已按当前规范重新核对'))
+        return review_json(dict(issues=[],explanation='已按当前规范重新核对'))
     proof=A.review(text,'嘉宾','model',call,path)
     assert calls==[1] and proof['version']==4 and not proof['audio_verified']
 
@@ -117,7 +124,7 @@ def test_valid_negative_issue_survives_misclassified_extra_issue(tmp_path):
         dict(sentence_id=1,suspect_quote='剁胳膊剁腿',kind='ambiguous_number_or_negation',reason='普通比喻')],
         explanation='人名需核实，比喻不属于数字疑点')
     calls=[]
-    proof=A.review(text,'林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+    proof=A.review(text,'林园','model',lambda *a:calls.append(a) or review_json(reply),tmp_path/'audit.json')
     assert len(calls)==1 and not proof['passed']
     assert proof['issues'][0]['suspect_quote']=='林元'
     assert proof['invalid_issue_evidence'][0]['suspect_quote']=='剁胳膊剁腿'
@@ -129,18 +136,18 @@ def test_invalid_only_classification_never_becomes_a_pass(tmp_path):
         reason='普通比喻')],explanation='没有数字')
     calls=[]
     with pytest.raises(ValueError,match='数字或否定'):
-        A.review('否则叫剁胳膊剁腿。','林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+        A.review('否则叫剁胳膊剁腿。','林园','model',lambda *a:calls.append(a) or review_json(reply),tmp_path/'audit.json')
     assert len(calls)==2 and not (tmp_path/'audit.json').exists()
 
 
 def test_old_policy_negative_cache_is_not_reused_and_source_is_untouched(tmp_path):
     path=tmp_path/'audit.json';text='几块钱的是五六块钱。';calls=[]
-    path.write_text(json.dumps(dict(version=4,transcript_sha256=A.text_digest(text),
+    path.write_text(review_json(dict(version=4,transcript_sha256=A.text_digest(text),
         speaker='林园',model='model',issues=[dict(suspect_quote='五六块钱')],passed=False)))
     def call(prompt,schema):
         calls.append(prompt)
         assert '不得凭空另造' in prompt and '截断数值' in prompt
-        return json.dumps(dict(issues=[],explanation='原样保留口语范围，不声称核实音频'))
+        return review_json(dict(issues=[],explanation='原样保留口语范围，不声称核实音频'))
     proof=A.review(text,'林园','model',call,path)
     assert len(calls)==1 and proof['passed'] and proof['audio_verified'] is False
     assert proof['transcript_sha256']==A.text_digest(text)
@@ -154,7 +161,7 @@ def test_range_prompt_never_waives_a_returned_numeric_or_name_issue(tmp_path):
         kind='ambiguous_number_or_negation',reason='待核对数字'),
         dict(sentence_id=1,suspect_quote='TCATCA',kind='unintelligible_term',reason='乱码词')],
         explanation='保留实际负面证据，不能以范围规则免审数字')
-    proof=A.review(text,'林园','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    proof=A.review(text,'林园','model',lambda *a:review_json(reply),tmp_path/'audit.json')
     assert not proof['passed'] and len(proof['issues'])==2
     assert not proof['ignored_style_objections']
 
@@ -166,12 +173,12 @@ def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path
     text='几块钱的是五六块钱。';calls=[]
     def call(prompt,schema):
         calls.append(prompt)
-        assert list(schema['properties'])==(['issues','explanation'] if len(calls)==1 else ['explanation','issues'])
+        assert list(schema['properties'])==['verdict','issues','explanation']
         if len(calls)==1:
-            return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
+            return review_json(dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
                 kind='ambiguous_number_or_negation',reason='正常口语范围，'+disavowal)],explanation='无污染'))
         assert '明确否认识别错误' in prompt
-        return json.dumps(dict(issues=[],explanation='重审后未发现实际文字识别疑点'))
+        return review_json(dict(issues=[],explanation='重审后未发现实际文字识别疑点'))
     proof=A.review(text,'林园','model',call,tmp_path/'audit.json')
     assert len(calls)==2 and proof['passed'] and not proof['audio_verified']
     assert proof['transcript_sha256']==A.text_digest(text)
@@ -183,7 +190,7 @@ def test_repeated_self_disavowal_fails_closed_not_auto_pass(tmp_path):
     calls=[]
     with pytest.raises(ValueError,match='明确否认识别错误'):
         A.review('几块钱的是五六块钱。','林园','model',
-                 lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+                 lambda *a:calls.append(a) or review_json(reply),tmp_path/'audit.json')
     assert len(calls)==2 and not (tmp_path/'audit.json').exists()
 
 
@@ -193,7 +200,7 @@ def test_real_corrupt_term_survives_an_extra_self_disavowed_issue(tmp_path):
         dict(sentence_id=1,suspect_quote='五六块钱',kind='ambiguous_number_or_negation',
              reason='正常范围，并非识别错误')],explanation='保留真实公司名疑点')
     proof=A.review('TCATCA是后来的。几块钱的是五六块钱。','林园','model',
-                   lambda *a:json.dumps(reply),tmp_path/'audit.json')
+                   lambda *a:review_json(reply),tmp_path/'audit.json')
     assert not proof['passed'] and [i['suspect_quote'] for i in proof['issues']]==['TCATCA']
     assert proof['invalid_issue_evidence'][0]['suspect_quote']=='五六块钱'
 
@@ -202,8 +209,8 @@ def test_real_corrupt_term_keeps_initial_protocol_without_retry(tmp_path):
     calls=[]
     def call(prompt,schema):
         calls.append(prompt)
-        assert list(schema['properties'])==['issues','explanation']
-        return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='道琼市指数',
+        assert list(schema['properties'])==['verdict','issues','explanation']
+        return review_json(dict(issues=[dict(sentence_id=0,suspect_quote='道琼市指数',
             kind='unintelligible_term',reason='专名错写需核实')],explanation='真实具体错词'))
     proof=A.review('道琼市指数影响投资。','林园','model',call,tmp_path/'audit.json')
     assert len(calls)==1 and not proof['passed']

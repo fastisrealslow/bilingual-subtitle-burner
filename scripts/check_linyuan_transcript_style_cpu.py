@@ -134,14 +134,14 @@ def main():
             if name=='contradictory_duplicate_company' and not calls:
                 ident=next(i for i,t in enumerate(audit.sentences(text)) if 'TCATCA' in t)
                 base=dict(sentence_id=ident,suspect_quote='TCATCA',kind='unintelligible_term')
-                raw=json.dumps(dict(issues=[{**base,'reason':'具体公司名乱码'},
+                raw=json.dumps(dict(verdict='needs_audio',issues=[{**base,'reason':'具体公司名乱码'},
                     {**base,'reason':'未构成识别污染'}],explanation='相同词项矛盾响应注入，非模型判断'),ensure_ascii=False)
                 calls.append(dict(prompt=prompt,schema=schema,response=raw,seconds=0,
                     model=None,injected_protocol_fault=True))
                 return raw
             if name in injected and not calls:
                 ident,quote,kind=injected[name]
-                raw=json.dumps(dict(issues=[dict(sentence_id=ident,suspect_quote=quote,
+                raw=json.dumps(dict(verdict='needs_audio',issues=[dict(sentence_id=ident,suspect_quote=quote,
                     kind=kind,reason='原文听感上更像别的字词')],explanation='协议故障注入，非模型判断'),ensure_ascii=False)
                 calls.append(dict(prompt=prompt,schema=schema,response=raw,seconds=0,
                     model=None,injected_protocol_fault=True))
