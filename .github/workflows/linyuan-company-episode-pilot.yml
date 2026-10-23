@@ -1,3 +1,5 @@
+# Read-only diagnostic only: a replacement source may retire its previous diagnostic run.
+# Its concurrency group is separate from every normal production/publication workflow.
 name: 完整公司故事竖版试产（不入库不投稿）
 run-name: 完整原问答自然拆集与竖版交付验收 · ${{ github.run_id }}
 'on':
@@ -11,7 +13,7 @@ permissions:
   actions: read
 concurrency:
   group: complete-company-episode-pilot-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 env:
   RUN_TEXT_MODEL: qwen3.5:9b
   RUN_SOURCE: https://www.bilibili.com/video/BV16PWPeFEq7
