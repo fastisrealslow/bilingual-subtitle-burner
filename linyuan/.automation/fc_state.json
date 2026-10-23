@@ -44023,7 +44023,50 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-28T13:02:58+00:00"
+   "publish_time": "2023-12-28T13:02:58+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-cdeba7",
+    "run_id": 39936082822,
+    "artifact_id": 12496506379,
+    "accepted": 0,
+    "source_context": null,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/369，总帧数1841；身份匹配但人脸短边不足96px的帧数369"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少明确的观点陈述与论证闭环，结尾停留在对疫情后市场态度的模糊描述，未构成可独立传播的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/854，总帧数4267；身份匹配但人脸短边不足96px的帧数851"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾的独立判断陈述，无法构成可独立成片的完整表达；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39936082822,
+    "artifact_id": 12496506379,
+    "name": "production-reject-ly-1023-cdeba7",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/369，总帧数1841；身份匹配但人脸短边不足96px的帧数369",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1hS421X7Xd",
@@ -119872,6 +119915,13 @@
    "video_id": "BV1oYHd6CE2S:p4",
    "ts": 1792751437,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1023-cdeba7",
+   "key": "bilibili_search:BV11j411n7ZQ",
+   "video_id": "BV11j411n7ZQ",
+   "ts": 1792752536,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/369，总帧数1841；身份匹配但人脸短边不足96px的帧数369"
   }
  ],
  "reviewed_third_video_0910": {
