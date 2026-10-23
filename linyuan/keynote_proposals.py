@@ -31,6 +31,14 @@ def opening_allowed(text):
         r'它|他|她|他们|这个|这些|这种|这就是|那个|那些|那是|那就|那么)',plain))
 
 
+def opening_error(text):
+    plain=re.sub(r'^(?:[啊嗯呃哦][，,、\s]*|对[，,、\s]+)+','',text)
+    if re.match(r'^(?:这|那)(?:就|也|也就)?是(?:我|我们)(?:个人)?的?'
+                r'(?:看法|观点|想法|判断|意思|结论)(?:[，,。]|$)',plain):
+        return 'opening_only_refers_to_a_previous_view'
+    return None
+
+
 def windows(cues):
     units=selection.sentence_units(cues)
     rows=[dict(unit,description=f"{unit['start']}-{unit['end']}|"
@@ -88,7 +96,9 @@ def validate(cues,rows,data):
                 or row['start']>row['end']):
             raise ValueError('Proposal cuts inside a sentence or uses a forbidden opening/ending')
         a,b=row['start'],row['end'];seconds=cues[b]['end']-cues[a]['start']
-        if not editorial.MIN_SECONDS<=seconds<=330:reason='duration_outside_source_policy'
+        first=next(unit['text'] for unit in rows if unit['start']==a)
+        reason=opening_error(first)
+        if not editorial.MIN_SECONDS<=seconds<=330:reason=reason or 'duration_outside_source_policy'
         reason=reason or selection.boundary_error(cues,row)
         text=''.join(c['text'] for c in cues[a:b+1])
         reason=reason or editorial.transcript_integrity_error(text)

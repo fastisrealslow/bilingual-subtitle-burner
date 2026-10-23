@@ -3,7 +3,9 @@ import argparse
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
+import urllib.request
 import zipfile
 
 from check_scene_cover_borders import fetch
@@ -26,6 +28,11 @@ def main():
         registered_stock=False,published=False,media_approved=False,argument_reviews=[])
     def save():(out/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
     save()
+    with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as response:
+        tags=json.load(response)
+    model_digest=next(m['digest'] for m in tags['models'] if m['name']==P.LOCAL_LLM_MODEL)
+    assert model_digest=='56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90'
+    result['model_digest']=model_digest
     with tempfile.TemporaryDirectory(prefix='keynote-actual-') as tmp:
         archive=Path(tmp)/'source.zip';fetch(args.artifact_id,archive)
         with zipfile.ZipFile(archive) as z:
@@ -37,6 +44,22 @@ def main():
     (out/'original-cues.json').write_text(json.dumps(cues,ensure_ascii=False,indent=2))
     old={};assert S.select(cues,whole_source=True,limit=None,diagnostics=old)==[]
     result['control']=old
+    replay={12488688653:12491749702,12488766515:12493695297}[args.artifact_id]
+    metadata=json.loads(subprocess.check_output(['gh','api',
+        f'repos/fastisrealslow/bilingual-subtitle-burner/actions/artifacts/{replay}'],timeout=60))
+    assert metadata['workflow_run']['id']==39932155457
+    assert metadata['workflow_run']['head_sha']=='5b84258099a77d3f45c1c67abfbd13345e97761c'
+    with tempfile.TemporaryDirectory(prefix='keynote-raw-response-') as tmp:
+        archive=Path(tmp)/'raw.zip';fetch(replay,archive)
+        with zipfile.ZipFile(archive) as z:
+            name=next(n for n in z.namelist() if n.endswith('/keynote_proposals.json'))
+            previous=json.loads(z.read(name))
+        assert previous['identity']==dict(version=K.VERSION,source_sha256=source_sha,transcript_sha256=original)
+        # Only exact request/schema/raw-response triples are cache inputs.
+        # No prior picks, quality decisions or argument approvals are copied.
+        cached=dict(identity=previous['identity'],calls=previous['calls'])
+        (out/'keynote_proposals.json').write_text(json.dumps(cached,ensure_ascii=False,indent=2))
+    result['raw_response_replay_artifact_id']=replay
     def call(prompt,schema,budget):
         return P.llm([dict(role='user',content=prompt)],'',temperature=0,max_tokens=256,
             budget_sec=budget,response_schema=schema,read_cache=False)

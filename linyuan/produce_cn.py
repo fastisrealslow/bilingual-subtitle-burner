@@ -3946,7 +3946,7 @@ def wrap_cover_title(title, chars_per_line, max_lines=3):
     return lines
 
 
-def select_verified_cover_face(frames, reference_path):
+def select_verified_cover_face(frames, reference_path, *, scene_quality=False):
     """Select the actual matching face, never the most frequent/largest other face."""
     import cv2
     if not reference_path or not Path(reference_path).is_file():
@@ -3980,7 +3980,12 @@ def select_verified_cover_face(frames, reference_path):
             crop=frame[max(0,y):min(h,y+fh),max(0,x):min(w,x+fw)]
             if crop.size==0:continue
             sharp=float(cv2.Laplacian(cv2.cvtColor(crop,cv2.COLOR_BGR2GRAY),cv2.CV_64F).var())
-            matched.append((score,sharp,fw*fh,path,(x,y,fw,fh)))
+            measurement=None
+            if scene_quality and min(crop.shape[:2])>=96:
+                from cover_face_quality import measure
+                measurement=measure(crop)
+                sharp=measurement['value']
+            matched.append((score,sharp,fw*fh,path,(x,y,fw,fh),measurement))
     if not matched:raise VisualQualityError('现场封面未找到与林园参考照匹配的人脸')
     # Identity is a gate, not a reason to prefer a blurred frame. The old
     # identity-first maximum could discard every usable scene even when a
@@ -3993,7 +3998,7 @@ def select_verified_cover_face(frames, reference_path):
         raise VisualQualityError('现场封面匹配人脸原始像素不足96，禁止用小头像放大替代')
     sharp_matches=[row for row in native_matches if row[1]>=60]
     previous=max(matched,key=lambda r:(r[0],r[1],r[2]))
-    score,sharp,area,path,box=max(sharp_matches or native_matches,key=lambda r:(r[0],r[1],r[2]))
+    score,sharp,area,path,box,measurement=max(sharp_matches or native_matches,key=lambda r:(r[0],r[1],r[2]))
     return path,box,{'engine':'opencv_yunet_sface_cpu','cosine_score':round(score,4),
                      'threshold':LOCAL_FACE_COSINE_THRESHOLD,'face_box':list(box),
                      'matched_faces':len(matched),'sharpness':round(sharp,2),
@@ -4002,7 +4007,9 @@ def select_verified_cover_face(frames, reference_path):
                      'identity_first_sharpness':round(previous[1],2),
                      'selection_changed':path!=previous[3] or box!=previous[4],
                      'selected_frame':path.name,
-                     'selection_policy':'identity_native_pixels_then_sharpness_v3'}
+                     'selection_policy':('identity_native_pixels_then_display_sharpness_v4' if scene_quality
+                                         else 'identity_native_pixels_then_sharpness_v3'),
+                     **({'sharpness_measurement':measurement} if measurement else {})}
 
 
 def cover_sample_context(src, tracked, start, end, clean_filter='', natural_scene=False):
@@ -4027,6 +4034,10 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
     抽帧位置:取段落偏前位置,避开字幕最密集的说话中段。
     """
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
+    def identify_cover(frames):
+        if style=='scene':
+            return select_verified_cover_face(frames,reference_path,scene_quality=True)
+        return select_verified_cover_face(frames,reference_path)
     tmp = out_path.with_suffix(".frame.png")
     mid = seg_start + (seg_end - seg_start) / 2
     # 人物闸门给出的 preferred_time 已经与参考照核验为本人；围绕该时间取三帧。
@@ -4090,7 +4101,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
         for original in frames:
             target=None
             try:
-                _,face,_=select_verified_cover_face([original],reference_path)
+                _,face,_=identify_cover([original])
                 image=Image.open(original).convert('RGB');w,h=image.size
                 local=list(marks);frame=cv2.imread(str(original))
                 found,points=cv2.QRCodeDetector().detect(frame)
@@ -4106,7 +4117,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                     # Re-detection may move the face box by a few pixels. A
                     # proposal exactly at the 10% limit can then fail. Try a
                     # bounded tighter REAL crop, not a lower quality limit.
-                    _,cropped_face,_=select_verified_cover_face([target],reference_path)
+                    _,cropped_face,_=identify_cover([target])
                     if cropped_face[2]/cw>=.10:break
                     maximum_width=cw-64
                 else:
@@ -4144,7 +4155,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
 
     initial_identity_error=None
     try:
-        best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+        best_frame,best_face,identity_proof=identify_cover(frames)
     except VisualQualityError as exc:
         if '未找到与林园参考照匹配的人脸' not in str(exc):
             raise
@@ -4170,7 +4181,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
             clean_extra.append(fp)
         if clean_extra:
             frames.extend(clean_extra)
-            best_frame,best_face,identity_proof=select_verified_cover_face(frames,reference_path)
+            best_frame,best_face,identity_proof=identify_cover(frames)
             initial_identity_error=None
         if initial_identity_error is not None:
             raise initial_identity_error
@@ -4202,7 +4213,7 @@ def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                 remaining_frames=[frame for frame in remaining_frames if frame!=current_frame]
                 if not remaining_frames:break
                 try:
-                    current_frame,current_face,current_identity=select_verified_cover_face(remaining_frames,reference_path)
+                    current_frame,current_face,current_identity=identify_cover(remaining_frames)
                 except VisualQualityError:break
                 if current_identity.get('sharpness',0)<60:break
             else:
@@ -6303,7 +6314,7 @@ def published_transcript_error(cues,picks,state):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--max-outputs', type=int, default=0,
-                    help='Stop after this many fully accepted outputs; 0 means all candidates')
+                    help='Stop after this many fully accepted outputs; 0 uses the source plan (new keynote proposals default to two)')
     ap.add_argument('--only-reviewed-parts', default='',
                     help='Recovery only: comma-separated reviewed source part numbers; default all')
     ap.add_argument('--only-selected-parts', default='',
@@ -6637,6 +6648,11 @@ def main():
             "experiment_production":experiment_result,
             "quality_gate_version": QUALITY_GATE_VERSION})
 
+    # New model-proposed keynote ranges previously yielded no candidates.
+    # Stop after two actual accepted deliveries so another mother can fill the
+    # other daily slots; failed proposals never consume this acceptance limit.
+    # Explicit preview/recovery limits and all ordinary source plans remain.
+    output_limit=args.max_outputs or (2 if keynote_review.get('picks') else 0)
     for ci, (a, b, preselected_picks) in enumerate(work_items):
         # Keep backup complete answers after a picture failure. The old six
         # text picks could exhaust a mother despite later usable answers.
@@ -6716,7 +6732,7 @@ def main():
             elapsed_seconds=round(time.monotonic()-part_started, 3)))
         checkpoint()
 
-        if args.max_outputs and len(metas) >= args.max_outputs:
+        if output_limit and len(metas) >= output_limit:
             print(f'[自动验收] 已完成{len(metas)}条完整验收成片，达到本次输出上限')
             break
 
