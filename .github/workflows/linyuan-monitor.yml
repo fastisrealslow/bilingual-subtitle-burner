@@ -85,6 +85,11 @@ jobs:
         continue-on-error: true
         run: python -u monitor_v2.py --source-types yicai_video weibo_video
 
+      - name: 提前展开长合集的原生分集（有界轮换，不新增生产并发）
+        timeout-minutes: 5
+        continue-on-error: true
+        run: python -u monitor_v2.py --source-types bilibili_collection
+
       - name: 即时提交优先渠道结果（不等待慢搜索）
         run: |
           bash persist_monitor_metadata.sh 'chore(monitor): checkpoint exact video sources for early refill'
