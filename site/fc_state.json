@@ -44575,7 +44575,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV16PWPeFEq7:p2",
@@ -44933,7 +44934,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-16T22:55:00+00:00"
+   "publish_time": "2024-08-16T22:55:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-56d188",
+    "run_id": 39946545342,
+    "artifact_id": 12501032222,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "39993c13e88c1ffbcc423f98cb3b4dfecf81ec22acf0488201893fc90e208208",
+     "duration_sec": 1775.94,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV12b421E7vz?p=3"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39946545342,
+    "artifact_id": 12501032222,
+    "name": "production-reject-ly-1023-56d188",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV12b421E7vz:p2",
@@ -120610,6 +120644,13 @@
    "video_id": "BV16PWPeFEq7:p3",
    "ts": 1792758007,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1023-56d188",
+   "key": "bilibili_search:BV12b421E7vz:p3",
+   "video_id": "BV12b421E7vz:p3",
+   "ts": 1792759976,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
   }
  ],
  "reviewed_third_video_0910": {
