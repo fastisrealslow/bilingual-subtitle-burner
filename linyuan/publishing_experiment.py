@@ -137,6 +137,9 @@ def selection_request(cues, candidates):
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
     plain=re.sub(r'[\s，,。！？!?；;]','',event)
+    if re.match(r'^(?:(?:嗯|那|比如说|比如))*'
+                r'(?:如果|假如|假设|要是)(?:当时|当年|那时候)?(?:我|我们)',plain):
+        return 'A first-person counterfactual is not an actual personal event or choice'
     if re.fullmatch(r'(?:嗯|啊|呃|所以|那么)*(?:我|我们)(?:自己|个人)?'
                     r'(?:觉得|认为|感觉|估计)(?:是|应该|肯定)?'
                     r'(?:(?:没|没有|不会有)(?:什么)?问题|可以|行)(?:啊|吧|嗯)*',plain):
