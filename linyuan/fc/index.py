@@ -3740,7 +3740,7 @@ def _recover_changed_production_rule(st, candidate, run):
             return bool(range_policy_patch and any(_spoken_range_audit_false_positive(r)
                                                     for r in [reason]+secondary))
         structural_failure=(case[0]=='automatic-source-context-v10'
-                            and reason.startswith('原文中未找到满足20秒'))
+                            and reason.startswith(('原文中未找到满足20秒','本轮选段没有返回通过')))
         # A title/qualifier repair cannot create a missing continuous source
         # candidate. Actual e3b8e2 was restarted after the title-only PR168,
         # although its structural selector and original transcript were unchanged.
@@ -3758,8 +3758,9 @@ def _recover_changed_production_rule(st, candidate, run):
                     r'live_crop|prepared_live|clean_vf|crop_w|crop_h|native_plan)\b',
                 'caption-source-clock-v5':r'\b(?:caption_[A-Za-z_]+|subtitle_[A-Za-z_]+|'
                     r'make_ass|semantic_paragraphs|semantic_groups)\b',
-                'automatic-source-context-v10':r'\b(?:pick_highlights|copywrite|title_[A-Za-z_]+|'
-                    r'story_[A-Za-z_]+|source_picks|source_selection|chunks|work_items|editorial_rank)\b',
+                # A source-only proposal repair runs only when there were no
+                # candidates. It cannot repair a title that already failed.
+                'automatic-source-context-v10':r'\b(?:copywrite|title_[A-Za-z_]+|story_[A-Za-z_]+)\b',
             }
             pattern=(r'\b(?:pick_highlights|source_picks|source_selection|chunks|work_items|editorial_rank)\b'
                      if structural_failure else operations.get(case[0]))

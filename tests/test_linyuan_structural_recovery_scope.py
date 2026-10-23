@@ -72,3 +72,13 @@ def test_real_title_failure_remains_recoverable_after_title_repair(case):
     changes.append(dict(filename='linyuan/title_rewrite.py',patch='+ def lifetime_holding_hedge_error(title):'))
     assert F._recover_changed_production_rule(state,candidate,run)
     assert candidate['source_check_attempts']==2 and len(writes)==1
+
+
+def test_keynote_proposal_cannot_reopen_an_existing_title_failure(case):
+    state,candidate,run,changes,writes=case
+    candidate['last_error']='标题文案待重试：未确认嘉宾原话归属'
+    changes.extend([
+        dict(filename='linyuan/produce_cn.py',patch='+ source_picks=keynote_review["picks"]'),
+        dict(filename='linyuan/keynote_proposals.py',patch='+def propose(cues,source_report,call,path):')])
+    assert not F._recover_changed_production_rule(state,candidate,run)
+    assert candidate['failed'] and candidate['source_check_attempts']==2 and not writes

@@ -6314,7 +6314,7 @@ def published_transcript_error(cues,picks,state):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--max-outputs', type=int, default=0,
-                    help='Stop after this many fully accepted outputs; 0 means all candidates')
+                    help='Stop after this many fully accepted outputs; 0 uses the source plan (new keynote proposals default to two)')
     ap.add_argument('--only-reviewed-parts', default='',
                     help='Recovery only: comma-separated reviewed source part numbers; default all')
     ap.add_argument('--only-selected-parts', default='',
@@ -6432,11 +6432,25 @@ def main():
     stock=None if automatic_only() else stock_ranges(cues,source_report.get('source_sha256'),args.slug)
     if stock is not None:curated=stock
     source_picks=[]
+    keynote_review={}
     if (curated is None and args.split_highlights and not args.target_parts
             and not args.only_selected_parts and os.environ.get('SOURCE_EDITORIAL_FIRST')=='true'):
         from source_selection import select
         diagnostics={}
         source_picks=select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
+        if (not source_picks and automatic_only() and editorial.CONTENT_POLICY=='reference_v1'
+                and 900<=float(source_report.get('duration_sec') or 0)<=5400):
+            from publishing_experiment import profile as requested_profile, TREATMENT as treatment_profile
+            from source_profile_feasibility import native_scene_unavailable
+            if requested_profile()!=treatment_profile or native_scene_unavailable(W,H) is None:
+                from keynote_proposals import propose
+                def propose_call(prompt,schema,budget):
+                    return llm([dict(role='user',content=prompt)],api_key,temperature=0,
+                        max_tokens=256,budget_sec=budget,response_schema=schema,read_cache=False)
+                keynote_review=propose(cues,source_report,propose_call,work/'keynote_proposals.json')
+                source_picks=keynote_review['picks']
+                diagnostics['keynote_proposal_count']=len(source_picks)
+                diagnostics['keynote_proposals_completed']=keynote_review['selection_completed']
         if (not source_picks and editorial.CONTENT_POLICY=='reference_v1'
                 and os.environ.get('SOURCE_VISUAL_CHAPTERS')=='true'):
             from source_question_cards import propose, discover_topics
@@ -6527,7 +6541,9 @@ def main():
 
     # 一个时间块可能含多个独立金句。逐条生产时先保留模型选出的完整范围，
     # 后续每个范围单独进入画面/字幕门禁和隔离目录；坏片不会拖死同块好片。
-    selection_failures = []
+    selection_failures = ([dict(stage='editorial-service',part=0,error_type='KeynoteProposalIncomplete',
+        reason='长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段',retryable=True)]
+        if keynote_review.get('unresolved') else [])
     work_items = curated if curated is not None else [(a, b, None) for a, b in chunks]
     if source_picks:
         work_items=[(p['start'],p['end'],[{**p,'start':0,'end':p['end']-p['start']}]) for p in source_picks]
@@ -6581,6 +6597,7 @@ def main():
     def checkpoint(complete=False):
         from publishing_experiment import production_result, SELECTION_REVISION
         experiment_result=production_result(requested_editorial_profile,metas,story_review)
+        experiment_result['retryable_selection']|=bool(keynote_review.get('unresolved'))
         write_json(out/'experiment_production.json',experiment_result)
         story_family=(__import__('publishing_experiment').family_metadata(
             source_report.get('source_sha256'),float(source_report.get('duration_sec') or 0))
@@ -6631,6 +6648,11 @@ def main():
             "experiment_production":experiment_result,
             "quality_gate_version": QUALITY_GATE_VERSION})
 
+    # New model-proposed keynote ranges previously yielded no candidates.
+    # Stop after two actual accepted deliveries so another mother can fill the
+    # other daily slots; failed proposals never consume this acceptance limit.
+    # Explicit preview/recovery limits and all ordinary source plans remain.
+    output_limit=args.max_outputs or (2 if keynote_review.get('picks') else 0)
     for ci, (a, b, preselected_picks) in enumerate(work_items):
         # Keep backup complete answers after a picture failure. The old six
         # text picks could exhaust a mother despite later usable answers.
@@ -6710,7 +6732,7 @@ def main():
             elapsed_seconds=round(time.monotonic()-part_started, 3)))
         checkpoint()
 
-        if args.max_outputs and len(metas) >= args.max_outputs:
+        if output_limit and len(metas) >= output_limit:
             print(f'[自动验收] 已完成{len(metas)}条完整验收成片，达到本次输出上限')
             break
 
