@@ -134,6 +134,8 @@ def test_actual_17b_primary_selection_cannot_borrow_host_future_or_duplicate_its
     picks=S.select(cues,whole_source=True,limit=None)
     pick=next(p for p in picks if cues[p['start']]['start']==255.24)
     rows=E._selection_rows(cues,[pick])[0]['sentences']
+    assert any(r['text'].startswith('我们是这个是持有啊，我们还是继续持有') for r in rows)
+    assert not any(r['text']=='我们是这个是持有啊，' for r in rows)
     assert ''.join(r['text'] for r in rows)==''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
     subject=next(r['id'] for r in rows if E.future_holding_subject(r['text']))
     event=next(r['id'] for r in rows if E.company_past_event_error(r['text']) is None)

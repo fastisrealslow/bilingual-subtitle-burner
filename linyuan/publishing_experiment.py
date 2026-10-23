@@ -87,7 +87,7 @@ def _selection_rows(cues,candidates):
             expanded=[]
             for value in units:
                 parts=(re.split(r'(?<=[，,；;])(?=我(?:们)?(?:也|还是|仍然|还|继续|一直|就|并)?'
-                    r'(?:不会动|不动|一直拿|继续拿|继续持有))',value)
+                    r'(?:不会动|不动|一直拿|继续拿|继续持有)(?:[啊呀呢的了吧])?[。！!][”’」』\"]*$)',value)
                     if company_past_event_error(value) is None else [value])
                 expanded.extend(parts)
             units=expanded
@@ -316,7 +316,11 @@ def company_holding_request(cues,pick):
         'kind':dict(type='string',enum=['skip','company_case'])}
     schema=dict(type='object',additionalProperties=False,required=list(props),properties=props)
     prompt=('核对这一整段公司访谈。先从原句编号找：明确点名公司的问句、嘉宾本人实际发生过的买卖或持仓行为、'
-        '另一条嘉宾本人明确叙述的持仓/买卖行为作为经过或后续选择。事件与细节必须是不同的完整回答，且事件确实针对该公司；'
+        '另一条嘉宾本人明确叙述的持仓/买卖行为作为经过或后续选择。事件与细节必须是不同的完整陈述或原话分句，且事件确实针对该公司；'
+        '编号分句保留原始标点，逗号结尾本身不表示事实残缺；须连读完整原段。'
+        '已经实际持有了多久是已发生的经历，嘉宾明确说现在不动、不调整则是当前的后续选择；'
+        '这两项交代过去持续时间与当前行为，不因同谈持有就当成同一项信息。'
+        '但没有已发生的买卖或持仓，只有以后想持有多久，不能入选。'
         '嘉宾讲另一家公司的经历不能支持问句中的公司。不能用主持人的推断或一般投资原则。'
         '主持人可能在问以后怎么办；须看嘉宾是否明确回顾自己已经做过的事，不能把问句时态当回答时态。'
         '只有三项都成立才返回company_case；假设、未来打算、否认、没有回答、缺少另一条实质细节一律skip。'
