@@ -64,6 +64,11 @@ def verify_config_health(health, root=None):
         sys.path.insert(0,str(root/'linyuan'))
     expected = hashlib.sha256((root/'linyuan/fc/index.py').read_bytes()).hexdigest()
     from experiment_runtime import health as experiment_runtime_health
+    from experiment_observation_dispatch import policy as observation_policy
+    if (health.get('experiment_observation_clock')!=observation_policy()
+            or health.get('experiment_observation_clock_sha256')!=hashlib.sha256(
+                (root/'linyuan/experiment_observation_dispatch.py').read_bytes()).hexdigest()):
+        raise SystemExit('Deployed independent analytics clock does not match verified checkout')
     expected_runtime=experiment_runtime_health()
     if not expected_runtime['passed'] or health.get('experiment_runtime')!=expected_runtime:
         raise SystemExit('Deployed story-proof tokenizer runtime is missing or mismatched')
@@ -93,6 +98,36 @@ def verify_config_health(health, root=None):
         raise SystemExit('Deployed FC code/limit does not match verified checkout: '+json.dumps(health))
 
 
+def configure_observation_timer(client,function,m,read_runtime):
+    """Create only the named analytics timer; never repurpose another trigger."""
+    from experiment_observation_dispatch import policy
+    config=policy();name=config['name']
+    response=client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
+    triggers={t.trigger_name:t for t in response.body.triggers}
+    ownership=dict(triggerName=name,purpose='read_only_experiment_statistics')
+    desired=dict(cronExpression=config['cron'],
+        enable=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))<config['end_exclusive'],
+        payload=json.dumps(ownership))
+    if name in triggers:
+        if triggers[name].trigger_type!='timer':
+            raise SystemExit('Analytics trigger name belongs to another trigger type; not overwritten')
+        try:owned=json.loads(json.loads(triggers[name].trigger_config).get('payload','null'))==ownership
+        except (ValueError,TypeError):owned=False
+        if not owned:raise SystemExit('Analytics timer ownership is unverified; not overwritten')
+        client.update_trigger_with_options(function,name,m.UpdateTriggerRequest(body=m.UpdateTriggerInput(
+            qualifier='LATEST',trigger_config=json.dumps(desired))),{},read_runtime)
+    else:
+        if len(triggers)>=10:raise SystemExit('No spare FC trigger slot for independent analytics')
+        client.create_trigger(function,m.CreateTriggerRequest(body=m.CreateTriggerInput(
+            trigger_name=name,trigger_type='timer',qualifier='LATEST',trigger_config=json.dumps(desired))))
+    actual=client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
+    trigger=next((t for t in actual.body.triggers if t.trigger_name==name),None)
+    if (not trigger or trigger.trigger_type!='timer' or trigger.qualifier!='LATEST'
+            or json.loads(trigger.trigger_config)!=desired):
+        raise SystemExit('Independent analytics timer read-back mismatch')
+    return dict(name=name,qualifier=trigger.qualifier,config=desired,publication=False,source_jobs=False)
+
+
 def main():
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
@@ -120,6 +155,7 @@ def main():
     read_runtime = util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,
                                        autoretry=True,max_attempts=3)
     timer_proof = configure_timers(client, function, m, read_runtime)
+    timer_proof.append(configure_observation_timer(client,function,m,read_runtime))
     dispatch = invoke({'triggerName':'dispatch'}, asynchronous=True) if refill_requested() else {
         'skipped': True, 'reason': 'deploy_without_refill'}
     result={'verification_complete':True,'health':health,'timers':timer_proof,'dispatch':dispatch}
