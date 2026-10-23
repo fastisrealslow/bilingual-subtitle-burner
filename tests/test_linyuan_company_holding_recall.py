@@ -109,3 +109,17 @@ def test_actual_holding_title_keeps_past_duration_and_cannot_borrow_host_future_
     assert E.title_focus_error('林园：茅台持有近20年，我们也不会动',focus) is None
     assert E.title_focus_error('林园：茅台持有近二十年，可能终身也不动',focus) is None
     assert E.title_focus_error('林园：茅台持有近20年，我们也不会动',focus,cover='茅台永远不卖')
+
+
+def test_holding_title_focus_reaches_real_title_generator_without_breaking_source_word_contract(monkeypatch):
+    import title_rewrite as T
+    evidence=dict(kind='company_case',company_holding_recall_version=1,
+        subject_quote='那这未来会继续看好茅台？',
+        event_quote='从买入的这个持有到现在已经接近二十年，接近二十年啊。',
+        detail_quote='我们也不会动。')
+    source=''.join(evidence[k] for k in ('subject_quote','event_quote','detail_quote'))
+    focus=E.title_focus(evidence)
+    class ModelReached(Exception):pass
+    def call(*args):raise ModelReached()
+    with pytest.raises(ModelReached):
+        T.generate(source,structured_model=call,editorial_focus=focus)

@@ -618,8 +618,8 @@ def title_focus(selection):
                 **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
     if selection.get('company_holding_recall_version')==1:
-        result['past_holding_times']=holding_time_anchors(selection.get('event_quote',''))
-        result['holding_recall']=True
+        result['past_holding_times']=[a['raw'] for a in holding_time_anchors(selection.get('event_quote',''))]
+        result['holding_recall_source']=[selection['event_quote']]
     return result
 
 
@@ -630,12 +630,12 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
-    anchors=focus.get('past_holding_times') or []
+    anchors=[a for quote in focus.get('past_holding_times',[]) for a in holding_time_anchors(quote)]
     presented=holding_time_anchors(body) if anchors else []
     if anchors and not any(a['value']==b['value'] and a['unit']==b['unit']
             and (not a['approximate'] or b['approximate']) for a in anchors for b in presented):
         return '本次标题须保留本人已发生持仓的原话时间/时长及近或约等限定，不能改成未来承诺：'+','.join(a['raw'] for a in anchors)
-    if focus.get('holding_recall'):
+    if focus.get('holding_recall_source'):
         for copy in (body,str(cover or '')):
             for clause in re.split(r'[。！？!?；;，,]',copy):
                 if re.search(r'终身|永久|永远|一辈子',clause) and not re.search(r'(?<!不)可能|或许|也许',clause):
