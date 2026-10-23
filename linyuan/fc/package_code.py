@@ -12,7 +12,7 @@ SOURCES = (
     'speaker_attribution.py', 'headline_policy.py', 'editorial_policy.py',
     'caption_readability.py', 'caption_lines.py', 'caption_lines_legacy.py',
     'caption_boundary_quality.py', 'presentation.py', 'live_motion.py',
-    'source_geometry.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
+    'source_geometry.py', 'source_profile_feasibility.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
     'source_admission_guard.py', 'publishing_experiment.py', 'experiment_runtime.py',
     'publication_fingerprints.py',
     'transcript_review_evidence.py',

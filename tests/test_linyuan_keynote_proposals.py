@@ -185,6 +185,9 @@ def test_incomplete_proposal_is_a_retryable_source_nonverdict_in_actual_batch(tm
     batch=json.loads((tmp_path/'deliver/incomplete/batch_report.json').read_text())
     assert batch['accepted']==0 and batch['retryable'] is True and batch['selection_completed'] is False
     assert batch['experiment_production']['retryable_selection'] is True
+    assert batch['source_context']=={**{k:report[k] for k in (
+        'passed','source_sha256','duration_sec','resolution')},
+        'source_url':__import__('os').environ.get('SOURCE_ORIGIN_URL','')}
     assert any(r['error_type']=='KeynoteProposalIncomplete' and r['retryable'] for r in batch['rejected'])
 
 

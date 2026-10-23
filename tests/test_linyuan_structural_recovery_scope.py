@@ -82,3 +82,69 @@ def test_keynote_proposal_cannot_reopen_an_existing_title_failure(case):
         dict(filename='linyuan/keynote_proposals.py',patch='+def propose(cues,source_report,call,path):')])
     assert not F._recover_changed_production_rule(state,candidate,run)
     assert candidate['failed'] and candidate['source_check_attempts']==2 and not writes
+
+
+def keynote_delta(changes):
+    changes.append(dict(filename='linyuan/produce_cn.py',patch='\n'.join([
+        "+        if (not source_picks and automatic_only() and editorial.CONTENT_POLICY=='reference_v1'",
+        "+                source_picks=keynote_review['picks']",
+        "+                diagnostics['keynote_proposal_count']=len(source_picks)"])))
+
+
+def source_evidence(candidate,run,duration):
+    candidate['production_failure_summary']=dict(slug=candidate['slug'],run_id=run['id'],
+        artifact_id=456,accepted=0,source_context=dict(passed=True,
+            source_url=candidate['source_url'],source_sha256='a'*64,
+            duration_sec=duration,resolution=dict(width=1920,height=1080)))
+
+
+@pytest.mark.parametrize('duration',[46.66,96.27,899.99,5400.01,None,True,float('nan')])
+def test_actual_long_only_delta_cannot_reopen_short_or_unknown_source(case,duration):
+    state,candidate,run,changes,writes=case
+    keynote_delta(changes);source_evidence(candidate,run,duration)
+    assert not F._recover_changed_production_rule(state,candidate,run)
+    assert candidate['failed'] and candidate['source_check_attempts']==2 and not writes
+    assert not candidate['automatic_rule_recoveries']
+
+
+@pytest.mark.parametrize('duration',[900,1253.63,1635.6,5400])
+def test_real_long_only_delta_needs_matching_measured_source_and_keeps_history(case,duration):
+    state,candidate,run,changes,writes=case
+    keynote_delta(changes);source_evidence(candidate,run,duration)
+    assert F._recover_changed_production_rule(state,candidate,run)
+    assert candidate['source_check_attempts']==2 and candidate['quality_retries']==1
+    candidate['failed']=True
+    assert not F._recover_changed_production_rule(state,candidate,run)
+    assert len(writes)==1
+
+
+@pytest.mark.parametrize('change',[
+    lambda s:s.update(run_id=999),lambda s:s.update(slug='other'),
+    lambda s:s.update(accepted=False),lambda s:s.update(artifact_id=0),
+    lambda s:s.update(source_context=None),
+    lambda s:s['source_context'].update(passed=False),
+    lambda s:s['source_context'].update(source_sha256='invalid'),
+    lambda s:s['source_context'].update(source_url='https://www.bilibili.com/video/BVdifferent'),
+])
+def test_keynote_recovery_rejects_unbound_source_context(case,change):
+    state,candidate,run,changes,writes=case
+    keynote_delta(changes);source_evidence(candidate,run,1253.63)
+    change(candidate['production_failure_summary'])
+    assert not F._recover_changed_production_rule(state,candidate,run)
+    assert candidate['failed'] and not writes
+
+
+def test_old_zero_candidate_report_without_measured_context_is_not_a_long_source(case):
+    state,candidate,run,changes,writes=case
+    keynote_delta(changes)
+    assert not F._recover_changed_production_rule(state,candidate,run)
+    assert candidate['failed'] and not writes
+
+
+def test_impossible_t_scene_is_not_recovered_by_proposer_it_will_skip(case):
+    state,candidate,run,changes,writes=case
+    keynote_delta(changes);source_evidence(candidate,run,1635.6)
+    candidate['editorial_profile']='field-story-v1'
+    candidate['production_failure_summary']['source_context']['resolution']=dict(width=854,height=480)
+    assert not F._recover_changed_production_rule(state,candidate,run)
+    assert candidate['failed'] and not writes
