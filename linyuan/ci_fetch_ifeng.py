@@ -11,7 +11,7 @@ from urllib.parse import urlsplit
 ARTICLE_HOSTS={'original.ifeng.com','finance.ifeng.com','v.ifeng.com'}
 
 
-def article_video(page, article_url):
+def article_video(page, article_url, *, metadata_only=False):
     parsed=urlsplit(article_url)
     if parsed.scheme!='https' or parsed.hostname not in ARTICLE_HOSTS or not re.fullmatch(r'/c/[A-Za-z0-9]+',parsed.path):
         raise ValueError('需要凤凰网公开文章地址')
@@ -19,6 +19,10 @@ def article_video(page, article_url):
     if not match:raise ValueError('官方文章缺少可解析的正文数据')
     data,_=json.JSONDecoder().raw_decode(page[match.end():])
     doc=data.get('docData') or {}
+    guide=doc.get('guideAppSetting') or {}
+    restricted=isinstance(guide,dict) and guide.get('enable') in (True,1,'1','true')
+    if restricted and not metadata_only:
+        raise ValueError('原站网页仅可试看，完整内容需正常客户端访问；不能将正文媒体直链当公开完整母片')
     videos=[row.get('data') or {} for row in (doc.get('contentData') or {}).get('contentList',[])
             if row.get('type')=='video']
     provenance='docData.contentData.contentList[type=video]'
@@ -35,15 +39,22 @@ def article_video(page, article_url):
         raise ValueError('正文视频不是公开的凤凰视频MP4')
     if not video.get('guid') or not isinstance(video.get('duration'),(int,float)) or video['duration']<=0:
         raise ValueError('正文视频缺少身份或时长')
-    return dict(article=article_url,article_title=doc.get('title'),published_at=doc.get('newsTime'),
+    result=dict(article=article_url,article_title=doc.get('title'),published_at=doc.get('newsTime'),
         publisher=(doc.get('fhhAccountDetail') or {}).get('catename'),
         video_title=video.get('title'),guid=video['guid'],media_url=url,
         declared_duration=video['duration'],provenance=provenance,
         recording_date=None,production_quality='not_evaluated')
+    if metadata_only:
+        result.pop('media_url',None)
+        result.update(media_access_restricted=restricted,preview_seconds=guide.get('duration') if isinstance(guide,dict) else None)
+    return result
 
 
 def fetch(url,output):
     from ci_fetch_bilibili import download_one, validate_media, sha256_file
+    from source_admission_guard import restriction
+    reason=restriction(url,[])
+    if reason:raise ValueError(reason)
     request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://finance.ifeng.com/'})
     with urllib.request.urlopen(request,timeout=45) as response:
         page=response.read(12*1024*1024).decode('utf-8')
