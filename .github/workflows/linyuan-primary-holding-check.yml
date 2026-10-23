@@ -50,6 +50,7 @@ jobs:
         \ 'Content-Type: application/json' --data-binary @/tmp/ollama-warmup.json \\\n  | python -c 'import\
         \ json,sys; assert (json.load(sys.stdin).get(\"message\") or {}).get(\"content\")'\n"
     - name: 自动派生真实新转写候选，核对角色、否认假设和实际标题
+      timeout-minutes: 40
       env:
         GH_TOKEN: ${{ github.token }}
       run: python -u linyuan/check_primary_company_holding.py

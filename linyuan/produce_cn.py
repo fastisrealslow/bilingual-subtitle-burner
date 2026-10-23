@@ -6464,6 +6464,12 @@ def main():
     existing_subtitles = False
     visual_report = source_report["visual_identity"]
 
+    # Route impossible native scene covers before choosing source candidates.
+    # Otherwise a requested T skips keynote extraction, then becomes C too late
+    # and loses that same control extraction path despite reusable raw ASR.
+    from source_profile_feasibility import profile_for_source
+    requested_editorial_profile=profile_for_source(source_report,work)
+
     cues = transcribe(src, work, api_key)
     # 元数据描述实际成片画布；音频卡统一为 16:9，不能沿用原素材方向。
     vertical = output_h > output_w
@@ -6538,9 +6544,8 @@ def main():
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, choose_stories
-    from source_profile_feasibility import profile_for_source
-    requested_editorial_profile=profile_for_source(source_report,work)
     story_review={}
+    baseline_backup_start=None
     if profile()==TREATMENT and source_picks:
         mother_seconds=float(source_report.get('duration_sec') or 0)
         if mother_seconds>=MIN_MOTHER_SECONDS:
@@ -6556,7 +6561,11 @@ def main():
                 story_review.update(requested_profile=TREATMENT,source_duration_sec=mother_seconds,
                     candidates=story_candidates,excluded_published=excluded)
                 (work/'story_selection.json').write_text(json.dumps(story_review,ensure_ascii=False,indent=2))
-                if selected_stories:source_picks=selected_stories
+                if selected_stories:
+                    if not args.only_selected_parts and not args.only_reviewed_parts:
+                        from story_production_backups import plan
+                        source_picks,baseline_backup_start=plan(source_picks,selected_stories)
+                    else:source_picks=selected_stories
                 else:print('[实验选题] 没有有证据的故事/公司案例，保留正常生产，不标成实验片',flush=True)
             except (ValueError,LocalTextUnavailable) as exc:
                 story_review['unresolved']=[dict(error=str(exc))]
@@ -6722,6 +6731,12 @@ def main():
     # Explicit preview/recovery limits and all ordinary source plans remain.
     output_limit=args.max_outputs or (2 if keynote_review.get('picks') else 0)
     for ci, (a, b, preselected_picks) in enumerate(work_items):
+        baseline_backup=(baseline_backup_start is not None and ci>=baseline_backup_start)
+        # Story candidates keep priority. Only a mother with ZERO accepted
+        # outputs tries its original normal candidates, stopping after one
+        # baseline acceptance. Requested T and actual C remain separate.
+        if baseline_backup and metas:
+            break
         # Keep backup complete answers after a picture failure. The old six
         # text picks could exhaust a mother despite later usable answers.
         if source_picks and len(metas)>=6:
@@ -6764,17 +6779,19 @@ def main():
                 if any(min(hi,s['end'])-max(lo,s['start'])>.3
                        for lo,hi in ranges for old in metas for s in old.get('segments',[])):
                     raise VisualQualityError('与本批已通过的完整观点时间段重叠，跳过重复选段')
-            m = produce_part_with_budget(src, work, out, seg_cues, args.speaker, args.occasion,
-                             api_key, existing_subtitles, W, H, suffix,
-                             pick_cache_suffix=suffix, target_sec=target_sec,
-                             allow_empty=(len(chunks) > 1 and not args.target_parts),
-                             visual_report=visual_report,
-                             source_report=source_report,
-                             require_live_video=args.require_live_video,
-                             prefer_live_video=args.prefer_live_video and not (preselected_picks
-                                 and all(p.get('stock_original_mode')=='audio_card' for p in preselected_picks)),
-                             existing_titles=[x["title"] for x in metas],
-                             preselected_picks=preselected_picks)
+            from story_production_backups import writer_profile
+            with writer_profile(baseline_backup):
+                m = produce_part_with_budget(src, work, out, seg_cues, args.speaker, args.occasion,
+                                 api_key, existing_subtitles, W, H, suffix,
+                                 pick_cache_suffix=suffix, target_sec=target_sec,
+                                 allow_empty=(len(chunks) > 1 and not args.target_parts),
+                                 visual_report=visual_report,
+                                 source_report=source_report,
+                                 require_live_video=args.require_live_video,
+                                 prefer_live_video=args.prefer_live_video and not (preselected_picks
+                                     and all(p.get('stock_original_mode')=='audio_card' for p in preselected_picks)),
+                                 existing_titles=[x["title"] for x in metas],
+                                 preselected_picks=preselected_picks)
         except (VisualQualityError, ValueError, RuntimeError, subprocess.SubprocessError) as e:
             # LLM/part time budgets are local to one candidate.  They must not
             # abort the remaining candidates from the same mother video.

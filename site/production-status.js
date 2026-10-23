@@ -52,12 +52,27 @@
       return {status: 'unknown', message: '每日供应尚未取得有效库存核对，不能保证更新频率。'};
     }
     if (stock === 0) return {status: 'stockout',
-      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
-    if (stock < target) return {status: 'at_risk',
-      message: `日常合格成片仅 ${stock} 条，低于每日 ${target} 条目标，需要补库。`};
+      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${data.plan?.version === 2 ? `未来七天目标共 ${7 * target} 条。` : data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
     const experiment = snapshot.publishing_experiment;
     const warning = experiment && experiment.active && experiment.status === 'needs_attention'
       ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。` : '';
+    const plan = data.plan;
+    if (plan?.version === 2) {
+      const counts = plan.verified_by_layout, needs = plan.daily_by_layout, reserves = plan.reserve_targets_by_layout;
+      const layouts = ['portrait', 'landscape'];
+      if (![counts, needs, reserves].every(row => row && layouts.every(k => Number.isInteger(row[k]) && row[k] >= 0))
+        || layouts.reduce((n, k) => n + counts[k], 0) !== stock
+        || layouts.reduce((n, k) => n + needs[k], 0) !== target) {
+        return {status: 'unknown', message: '每日供应缺少有效的横竖屏库存核对，不能按总数保证更新频率。'};
+      }
+      const days = Math.min(...layouts.filter(k => needs[k]).map(k => Math.floor(counts[k] / needs[k])));
+      const short = layouts.map(k => Math.max(0, 7 * needs[k] - counts[k]));
+      const reserveShort = layouts.reduce((n, k) => n + Math.max(0, reserves[k] - counts[k]), 0);
+      return {status: warning || days < 1 || reserveShort ? 'at_risk' : 'covered',
+        message: `日常合格库存 ${stock} 条（竖屏 ${counts.portrait}、横屏 ${counts.landscape}）。按每日竖屏 ${needs.portrait}、横屏 ${needs.landscape} 折算 ${days} 天；未来七天还缺竖屏 ${short[0]}、横屏 ${short[1]} 条。${reserveShort ? `当前储备目标还缺 ${reserveShort} 条。` : ''}发布前仍需复验，不代表已经发布。${warning}`};
+    }
+    if (stock < target) return {status: 'at_risk',
+      message: `日常合格成片仅 ${stock} 条，低于每日 ${target} 条目标，需要补库。`};
     return {status: warning ? 'at_risk' : 'covered', message: `日常合格库存 ${stock} 条，可覆盖至少一天的 ${target} 条目标；不代表已经发布。${warning}`};
   }
   const api = {latestDispatches, remaining, reconcile, continuity};

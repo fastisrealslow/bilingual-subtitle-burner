@@ -11,7 +11,7 @@ from source_priority import publisher_priority
 URL = 'https://v.ifeng.com/c/8WHpW9qUT1g'
 
 
-def test_actual_official_document_enters_as_unapproved_full_source(monkeypatch):
+def test_actual_preview_limited_document_stays_reference_without_media_access(monkeypatch):
     data = json.loads((ROOT / 'tests/fixtures/linyuan_ifeng_official_long_document.json').read_text())
     calls = []
     def get(url, **kwargs):
@@ -26,14 +26,20 @@ def test_actual_official_document_enters_as_unapproved_full_source(monkeypatch):
     assert extra['duration'] == 1641
     assert extra['guid'] == 'f9b1bab4-287b-4888-a40c-d792d4e90db5'
     assert row['publish_time'] == '2024-01-12 16:08:45'
-    assert extra['has_video'] and extra['source_role'] == 'mother_candidate'
+    assert extra['has_video'] and extra['source_role'] == 'reference'
+    assert extra['direct_dispatch'] is False and extra['media_access_restricted'] is True
+    assert extra['preview_seconds'] == 120
     assert extra['origin_role'] == 'official_publisher'
     assert not extra['recording_date_verified']
     assert not extra['media_quality_approved'] and not extra['rights_clearance']
     assert not any(k in extra for k in ('speech_date', 'mp4_url', 'video_url'))
     assert publisher_priority(dict(page_url=URL, extra=extra)) == 30
-    # The ordinary generic production downloader already uses this resolver.
-    assert article_video(get(URL), URL)['declared_duration'] == 1641
+    # Metadata access never exposes the gated complete representation.
+    import pytest
+    with pytest.raises(ValueError, match='仅可试看'):
+        article_video(get(URL), URL)
+    info=article_video(get(URL), URL,metadata_only=True)
+    assert info['declared_duration']==1641 and 'media_url' not in info
 
 
 def test_sidebars_and_non_interview_pages_do_not_become_materials(monkeypatch):
@@ -51,4 +57,5 @@ def test_sidebars_and_non_interview_pages_do_not_become_materials(monkeypatch):
 def test_config_preserves_existing_first_two_sources_and_adds_exact_original():
     config = json.loads((ROOT / 'linyuan/monitor_v2_config.json').read_text())
     assert [x['type'] for x in config[:2]] == ['yicai_video', 'weibo_video']
-    assert next(x for x in config if x['type'] == 'ifeng_video')['urls'] == [URL]
+    row=next(x for x in config if x['type']=='ifeng_video')
+    assert row['urls']==[] and row['reference_urls']==[URL]

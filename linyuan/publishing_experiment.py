@@ -546,6 +546,8 @@ def story_title_prompt(prompt,schema,evidence):
         scope+=('\n本次标题以嘉宾已经发生的买卖/持仓事实为中心，保留事件原句的时间或时长与近、约等范围：'
             +json.dumps(focus.get('past_holding_times',[]),ensure_ascii=False)+
             '。先讲已经持有多久，再讲本人当前选择；不要用主持人复述的最低未来年限代替过去经历。'
+            '公司名可能只出现在紧接回答的明确问题中；问题可补足嘉宾“我们持有”的对象，'
+            '但问题中的预测、未来最低年限和推测不能成为嘉宾事实。标题事实仍只引用嘉宾过去持仓和当前选择。'
             '没有讲直接原因就不编原因；淡然看待行业消失不是卖出触发条件，不添加原话没有的除非/只要。'
             '涉及终身等远期说法必须保留可能、或许等限定。用完整自然口语，不把持有缩成单字持。')
     if action_pairs:
@@ -668,6 +670,8 @@ def title_focus(selection):
     if holding_evidence(selection):
         result['past_holding_times']=[a['raw'] for a in holding_time_anchors(selection.get('event_quote',''))]
         result['holding_recall_source']=[selection['event_quote']]
+        if future_holding_subject(selection.get('subject_quote')):
+            result['holding_subject_context']=[selection['subject_quote']]
     return result
 
 
@@ -685,6 +689,13 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
         return '本次标题须保留本人已发生持仓的原话时间/时长及近或约等限定，不能改成未来承诺：'+','.join(a['raw'] for a in anchors)
     if focus.get('holding_recall_source'):
         for copy in (body,str(cover or '')):
+            if any(not any(a['value']==b['value'] and a['unit']==b['unit'] for a in anchors)
+                   for b in holding_time_anchors(copy)):
+                return '标题和封面不能在已发生持仓时长之外添加新的持有年限'
+            if re.search(r'(?:至少|最少)[^。！？!?，,]{0,8}(?:年|个月|月)|(?:未来|以后|今后)[^。！？!?，,]{0,16}(?:年|个月|月)',copy):
+                return '不能把主持人的未来最低持有年限当成嘉宾承诺；本次只写已发生持仓和当前选择'
+            if re.search(r'除非|只要',copy) and not re.search(r'除非|只要',''.join(focus.get('source',[])[1:])):
+                return '原话没有给出这个卖出触发条件，不能从平常心改写为除非或只要'
             for clause in re.split(r'[。！？!?；;，,]',copy):
                 if re.search(r'终身|永久|永远|一辈子',clause) and not re.search(r'(?<!不)可能|或许|也许',clause):
                     return '这次是可能的远期持仓表态，标题和封面各自保留可能等限定，不能借主持人复述变成确定承诺'

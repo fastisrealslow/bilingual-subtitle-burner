@@ -33,11 +33,12 @@ def main():
                 and any(E.company_past_event_error(r['text']) is None for r in units)):
             candidates.append(p)
     result.update(all_natural_source_candidates=len(parents),literal_holding_candidates=len(candidates),raw_source_unchanged=before==E.digest(cues))
-    save();assert candidates
+    save();print('stage=actual_selection',flush=True);assert candidates
     def call(prompt,schema):return P.llm([dict(role='user',content=prompt)],'',temperature=0,max_tokens=1600,
         budget_sec=P.text_budget(240),response_schema=schema,read_cache=False)
     chosen=E.choose_stories(cues,candidates,call,root/'actual-primary-selection.json')
     assert chosen['selection_completed'] and chosen['selected']
+    result['stage']='negative_controls';save();print('stage=negative_controls',flush=True)
     texts=[
       '那未来会继续投资腾讯吗？未来有可能会买，但现在还没买入。我们还需要看看业务，暂时没有实际决定。',
       '那未来会继续持有茅台吗？如果我当年买了并持有二十年，今天就会有这样的收益。但这只是一个假设例子，我没有这笔持仓。',
@@ -52,10 +53,12 @@ def main():
         evidence=pick['story_selection'];assert evidence['kind']=='company_case' and E.holding_evidence(evidence)
         assert E.company_holding_detail_error(evidence['detail_quote']) is None
         transcript=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+        result['stage']='transcript_audit';save();print('stage=transcript_audit',flush=True)
         audit=review(transcript,'林园',P.LOCAL_LLM_MODEL,call,root/f'actual-{n}-audit.json')
         assert audit['passed'],audit['issues']
         os.environ['LINYUAN_EDITORIAL_PROFILE']=E.TREATMENT
         work=root/f'copy-{n}';work.mkdir(exist_ok=True)
+        result['stage']='actual_title';save();print('stage=actual_title',flush=True)
         copy=P.copywrite(cues,list(range(pick['start'],pick['end']+1)),'林园','访谈','',work,
             '_actual',story_evidence=evidence,source_sha256=source['source_sha256'])
         assert E.title_focus_error(copy['title'],E.title_focus(evidence),cover=copy['cover_title']) is None

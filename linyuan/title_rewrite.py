@@ -486,6 +486,44 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
     return result
 
 
+def company_subject_context_error(context, transcript, subject, evidence):
+    """A named question can identify one company; its premise is not evidence."""
+    from publishing_experiment import (future_holding_subject, company_subject_error,
+        company_past_event_error, company_holding_detail_error, company_holding_context_error)
+    if (not isinstance(context,dict) or type(context.get('version')) is not int or context['version']!=1
+            or context.get('subject')!=subject or not isinstance(transcript,str) or not transcript):
+        return '公司对象上下文必须绑定完整原始问答'
+    q,event,detail=(context.get(k) for k in ('question_quote','event_quote','detail_quote'))
+    if (any(not isinstance(v,str) or not v or v not in transcript for v in (q,event,detail))
+            or not future_holding_subject(q)
+            or company_subject_error(dict(kind='company_case',subject_quote=q))
+            or subject not in q or company_past_event_error(event)
+            or company_holding_detail_error(detail) or company_holding_context_error(transcript)
+            or event in detail or detail in event):
+        return '公司名只能来自明确问题，实际持仓和后续选择必须另有嘉宾原话'
+    if (not isinstance(evidence,list) or not evidence
+            or any(not isinstance(v,str) or not (v in event or v in detail) for v in evidence)
+            or company_past_event_error(''.join(evidence))
+            or compact(detail) not in compact(''.join(evidence))):
+        return '公司问题只补足对象；标题事实证据仍须是嘉宾真实过去持仓与当前选择，不能使用主持人推断'
+    return None
+
+
+def bind_story_company_context(item, focus, units):
+    if not focus or not focus.get('holding_subject_context'):return item
+    sources=focus.get('source') or [];names=focus.get('subjects') or []
+    if len(sources)!=3 or len(names)!=1 or focus['holding_subject_context']!=[sources[0]]:
+        raise ValueError('公司问题上下文不是唯一绑定的原句对象')
+    subject=names[0]
+    if subject not in str(item.get('title') or ''):
+        return item  # Ordinary subject/early-object checks will reject it.
+    context=dict(version=1,subject=subject,question_quote=sources[0],
+                 event_quote=sources[1],detail_quote=sources[2])
+    error=company_subject_context_error(context,''.join(units),subject,item.get('evidence'))
+    if error:raise ValueError(error)
+    return {**item,'subject':subject,'subject_context':context}
+
+
 def bind_candidate(item, focus, units, subjects, join_spans=()):
     title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
     cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
@@ -988,6 +1026,32 @@ def lifetime_holding_hedge_error(title, cover, transcript):
     return None
 
 
+def personal_cause_qualifier_error(title, cover, transcript):
+    """The observed qualified personal explanation is not a sole cause."""
+    source=str(transcript or '')
+    if not re.search(r'(?:也)?不全是基因',source) or '乐观' not in source:return None
+    for copy in (str(title or ''),str(cover or '')):
+        if (re.search(r'基因[^。！？!?，,]{0,8}(?:决定|导致|造成)',copy)
+                and not re.search(r'可能|也许|或许|不全|不完全|之一',copy)):
+            return '原话对本人乐观心态只说可能与基因有关、也不全是基因；不能压成基因决定的确定因果，也不能移成市场风险的原因'
+    return None
+
+
+def market_order_scope_error(title, cover, transcript):
+    """The observed first/second market example must keep its negated object."""
+    source=str(transcript or '')
+    if not (re.search(r'一级市场(?:就)?(?:该|应该|应当)比二级市场贵[。！!，,\s]*我说(?:那)?是瞎扯',source)
+            and re.search(r'二级市场是有定价权',source)):
+        return None
+    for copy in (str(title or ''),str(cover or '')):
+        reversed_price=re.search(r'二级(?:市场)?(?:的价格)?比一级(?:市场)?(?:更)?(?:贵|高)',copy)
+        if reversed_price and re.search(r'别信|不是|瞎扯|错误|扯淡|不对',copy):
+            return '原话反对把一级市场应该比二级贵当成常识，不能交换一级与二级后再否定'
+        if re.search(r'二级市场(?:的)?定价权[^。！？!?，,]{0,8}(?:瞎扯|错误|不对|不存在)',copy):
+            return '原话明确说二级市场有定价权，不能把对一级更贵说法的否定移给二级市场定价权'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -995,6 +1059,10 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    market_issue=market_order_scope_error(title,cover,transcript)
+    if market_issue:return market_issue
+    cause_issue=personal_cause_qualifier_error(title,cover,transcript)
+    if cause_issue:return cause_issue
     sale_issue=rare_sale_scope_error(title,cover,transcript)
     if sale_issue:return sale_issue
     holding_issue=lifetime_holding_hedge_error(title,cover,transcript)
@@ -1416,7 +1484,11 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     subject = item.get('subject')
     if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12 or subject in ABSTRACT_ANCHORS:
         return '缺少具体讨论对象'
-    if compact(subject) not in compact(title) or not any(compact(subject) in compact(q) for q in evidence):
+    context=item.get('subject_context')
+    if context is not None:
+        context_issue=company_subject_context_error(context,transcript,subject,evidence)
+        if context_issue:return context_issue
+    if compact(subject) not in compact(title) or (context is None and not any(compact(subject) in compact(q) for q in evidence)):
         return '标题对象与原文证据不对应'
     if any(compact(subject)*2 in compact(copy) for copy in (title,cover)):
         return '标题或封面重复写了同一对象，不能把转写口吃当标题'
@@ -1427,8 +1499,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     return None
 
 
-def _binding(title, cover, subject, evidence):
-    return hashlib.sha256(json.dumps([title, cover, subject, evidence], ensure_ascii=False).encode()).hexdigest()
+def _binding(title, cover, subject, evidence, subject_context=None):
+    data=[title,cover,subject,evidence]
+    if subject_context is not None:data.append(subject_context)
+    return hashlib.sha256(json.dumps(data,ensure_ascii=False).encode()).hexdigest()
 
 
 def editorial_features(item):
@@ -1468,13 +1542,14 @@ def select_reviewed_candidate(accepted, candidates):
 
 def _package(item, transcript, review, candidates):
     title, cover = item['title'], item['cover_title']
-    review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'])}
+    review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'],item.get('subject_context'))}
     proof = dict(version=VERSION, kind='editorial_claim', title=title, cover=cover,
                  subject=item['subject'], evidence=item['evidence'], review=review,
                  cover_qualifier_policy=2026092101,
                  quantity_range_policy=2026092101,
                  source_hedge_policy=2026092101,
                  source_sha256=hashlib.sha256(compact(transcript).encode()).hexdigest())
+    if item.get('subject_context') is not None:proof['subject_context']=item['subject_context']
     return dict(title=title, cover_title=cover, title_rewrite=proof,
                 title_candidates=[c['title'] for c in candidates], title_quality_verified=True,
                 packaging_method='source_claim_editor', desc='本段讨论：' + title.split('：', 1)[1])
@@ -1810,6 +1885,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 return fallback(only_preferred=True)
             if structured_model:
                 subjects=subject_catalog(units,allowed_ids=guest_ids)
+                if editorial_focus and editorial_focus.get('holding_subject_context'):
+                    # These IDs name question CONTEXT only. Proposal factual
+                    # evidence IDs remain constrained to guest_ids below.
+                    for name in editorial_focus.get('subjects',[]):
+                        subjects.setdefault(name,sorted({i for span in subject_cue_spans(name,units) for i in span}))
             draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
             draft_retry=retry_note
             if structured_model:
@@ -1877,6 +1957,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                     for candidate in candidates:
                         try:
                             item=bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids)
+                            item=bind_story_company_context(item,editorial_focus,units)
                             if bound_subject:
                                 item=require_answer_subject(item,bound_subject)
                             bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
@@ -2076,7 +2157,7 @@ def error(title, proof, transcript=None, speaker='林园'):
     if transcript is not None and any(compact(q) not in compact(transcript) for q in evidence):
         return '标题观点不能回溯真实字幕'
     review = proof.get('review') or {}
-    if review.get('copy_sha256') != _binding(title, proof['cover'], proof.get('subject'), evidence):
+    if review.get('copy_sha256') != _binding(title, proof['cover'], proof.get('subject'), evidence,proof.get('subject_context')):
         return '核验后标题、封面或证据发生变化'
     if review.get('method') == 'source_quote':
         from headline_policy import body, complete
@@ -2102,7 +2183,8 @@ def error(title, proof, transcript=None, speaker='林园'):
         quote_issue=review_source_quote_error(review['reason'], transcript)
         if quote_issue:
             return quote_issue
-        item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence)
+        item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence,
+                    **({'subject_context':proof['subject_context']} if 'subject_context' in proof else {}))
         issue = _candidate_error(item, transcript or ''.join(evidence), speaker, (), check_layout=False)
         if issue:
             return issue
