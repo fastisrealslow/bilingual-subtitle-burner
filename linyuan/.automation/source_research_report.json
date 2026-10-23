@@ -1,19 +1,45 @@
 {
-  "run_id": "39938410304",
+  "run_id": "39951199132",
   "processed": 3,
-  "inspected": 1,
+  "inspected": 0,
   "historical_media_verified": 188,
-  "cache_recovery_pending": 187,
-  "pending": 243,
+  "cache_recovery_pending": 188,
+  "pending": 244,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6334328,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 2,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -3552,10 +3578,10 @@
       "family": "maotai_table_exchange",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792558574.0424826,
-      "next_retry_at": 1792644974.0424826,
+      "last_attempt_at": 1792757790.0650609,
+      "next_retry_at": 1792844190.0650609,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -3566,10 +3592,10 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792558571.5162609,
-      "next_retry_at": 1792644971.5162609,
+      "last_attempt_at": 1792757787.5361662,
+      "next_retry_at": 1792844187.5361662,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -4186,10 +4212,10 @@
       "family": "phoenix_2026_09",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792558874.051678,
-      "next_retry_at": 1792645274.051678,
+      "last_attempt_at": 1792758090.073995,
+      "next_retry_at": 1792844490.073995,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -5518,11 +5544,11 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 6,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_error": null,
       "last_attempt_at": 1792751788.406195,
       "next_retry_at": 0,
@@ -7593,11 +7619,14 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792711483.3350914,
-      "next_retry_at": 1792754683.3350914,
+      "next_retry_at": 1792779087.128884,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792757487.128884
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
