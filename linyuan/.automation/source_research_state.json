@@ -3272,10 +3272,10 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792577507.0680993,
-      "next_retry_at": 1792663907.0680993,
+      "last_attempt_at": 1792768038.2641335,
+      "next_retry_at": 1792854438.2641335,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -4710,12 +4710,12 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792577516.0586925,
-      "next_retry_at": 1792663916.0586925,
+      "last_attempt_at": 1792768053.2177043,
+      "next_retry_at": 1792854453.2177043,
       "download_partial_bytes": 0
     },
     "3b89002d051fbefd126f": {
@@ -6518,13 +6518,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 2,
+      "attempts": 3,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792577504.3926015,
-      "next_retry_at": 1792620704.3926015,
+      "last_attempt_at": 1792768035.6385055,
+      "next_retry_at": 1792854435.6385055,
       "download_partial_bytes": 0
     },
     "cad2c09c8e1344fddcb5": {
@@ -7527,11 +7527,14 @@
       "new_ids": []
     },
     "gelong_conversation|格隆对话林园 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792711483.3350914,
-      "next_retry_at": 1792754683.3350914,
+      "next_retry_at": 1792789632.903075,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792768032.903075
     },
     "gelong_conversation|格隆博士会客厅 林园": {
       "status": "searched",
@@ -7617,13 +7620,38 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
       "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
       "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6334328,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6790738,
+          "page": 1,
+          "error": "ValueError"
+        },
         {
           "stage": "collection_page",
           "season_id": 5016608,
@@ -7639,8 +7667,8 @@
       ]
     }
   },
-  "search_cursor": 3,
-  "updated_at": 1792766843,
-  "last_run_id": "39965703420",
+  "search_cursor": 6,
+  "updated_at": 1792768053,
+  "last_run_id": "39975186246",
   "audio_match_candidates": []
 }
