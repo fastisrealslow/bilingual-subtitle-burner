@@ -1,10 +1,11 @@
 name: 独立CPU文字审核风格与真错误对照
 on:
   push:
-    branches: [codex/transcript-style-audit, codex/linyuan-spoken-range-audit-20261023]
+    branches: [codex/transcript-style-audit, codex/linyuan-spoken-range-audit-20261023, codex/linyuan-text-audit-modality-20261023]
     paths:
       - .github/workflows/linyuan-transcript-style-cpu.yml
       - linyuan/transcript_audit.py
+      - linyuan/transcript_review_evidence.py
       - scripts/check_linyuan_transcript_style_cpu.py
   workflow_dispatch:
     inputs:
@@ -22,7 +23,12 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [1, 2]
     env:
+      TEXT_BACKEND: local
       LOCAL_LLM_MODEL: ${{ inputs.local_text_model || 'qwen3.5:9b' }}
       CUDA_VISIBLE_DEVICES: ''
     steps:
@@ -30,7 +36,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install -q jieba
+      - run: python -m pip install -q jieba pillow numpy
       - name: 缓存实产或预览CPU本地模型
         uses: actions/cache@v4
         continue-on-error: true
@@ -79,11 +85,12 @@ jobs:
       - name: 正常口语不能误挡，实际错词仍须拒绝
         env:
           GH_TOKEN: ${{ github.token }}
+          AUDIT_REPLICA: ${{ matrix.replica }}
         run: python -u scripts/check_linyuan_transcript_style_cpu.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: transcript-style-cpu-controls
+          name: transcript-style-cpu-controls-${{ matrix.replica }}
           path: |
             transcript-style-cpu-results/
             /tmp/ollama.log
