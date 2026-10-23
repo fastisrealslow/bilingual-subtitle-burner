@@ -43923,7 +43923,8 @@
    },
    "last_error": "整段取景预检：源 1521.10s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1oYHd6CE2S:p6",
@@ -43946,7 +43947,45 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-06T02:45:04+00:00"
+   "publish_time": "2026-10-06T02:45:04+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-f12cef",
+    "run_id": 39932976956,
+    "artifact_id": 12494835596,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：内容缺失：全段仅为主持人提问，嘉宾未作答；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未形成完整表达：主持人提问后，嘉宾连续表示未听清（'哦毛毛定', '哦毛定'）、承认自己没听清（'我不知道是不是我没听清啊'），并建议去查财务术语，全程未给出关于‘底部逆转趋势’的观点、理由或结论。结尾停留在‘没听清，没听清’的重复状态，属于必要论述被切断且未回答新问题；原文问题：[[\"您刚才演讲的时候最后，哦毛毛定，哦我没听清，可能我对我我主要就是想了解一下。\", \"嘉宾明确表述'哦毛毛定，哦我没听清'及'我不知道是不是我没听清啊'，显示关键信息（如'保利资产'或具体术语）未被识别，导致无法提取有效观点。\"], [\"哦毛定，我没听清，没听清。\", \"结尾连续重"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 557.57s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 69.93s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 400.77s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39932976956,
+    "artifact_id": 12494835596,
+    "name": "production-reject-ly-1023-f12cef",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：内容缺失：全段仅为主持人提问，嘉宾未作答；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1GGJm6uEgL:p2",
@@ -44032,7 +44071,8 @@
    },
    "last_error": "整段取景预检：源 98.50s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1vN411c7Ej",
@@ -44077,7 +44117,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV11j411n7ZQ",
@@ -44334,8 +44375,8 @@
    "publish_time": "2021-05-04T05:24:56+00:00",
    "production_failure_summary": {
     "slug": "ly-1023-a7ec00",
-    "run_id": 39910621405,
-    "artifact_id": 12482573851,
+    "run_id": 39938188290,
+    "artifact_id": 12494038925,
     "accepted": 0,
     "failures": [
      {
@@ -44344,15 +44385,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39910621405,
-    "artifact_id": 12482573851,
+    "run_id": 39938188290,
+    "artifact_id": 12494038925,
     "name": "production-reject-ly-1023-a7ec00",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -44390,8 +44431,8 @@
    "publish_time": "2024-10-25T05:17:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1023-ae5964",
-    "run_id": 39910165422,
-    "artifact_id": 12483185365,
+    "run_id": 39938215452,
+    "artifact_id": 12495440545,
     "accepted": 0,
     "failures": [
      {
@@ -44400,15 +44441,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39910165422,
-    "artifact_id": 12483185365,
+    "run_id": 39938215452,
+    "artifact_id": 12495440545,
     "name": "production-reject-ly-1023-ae5964",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -119689,6 +119730,13 @@
    "video_id": "BV1oYHd6CE2S:p2",
    "ts": 1792750645,
    "error": "整段取景预检：源 1521.10s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1023-f12cef",
+   "key": "bilibili_search:BV1oYHd6CE2S:p6",
+   "video_id": "BV1oYHd6CE2S:p6",
+   "ts": 1792751161,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：内容缺失：全段仅为主持人提问，嘉宾未作答；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
