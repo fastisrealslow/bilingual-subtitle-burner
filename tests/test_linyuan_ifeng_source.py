@@ -73,3 +73,24 @@ def test_generic_fetch_routes_article_and_retains_origin_proof(tmp_path,monkeypa
     video=generic.fetch(URL,tmp_path/'source',report)
     assert video.read_bytes()==b'validated media'
     assert json.loads((report.parent/'source_origin.json').read_text())['article']==URL
+
+
+def test_actual_preview_limited_source_cannot_be_fetched_or_reused_from_cache(tmp_path,monkeypatch):
+    import ci_fetch_ifeng as F
+    fixture=Path(__file__).parent/'fixtures/linyuan_ifeng_official_long_document.json'
+    document='var allData = '+fixture.read_text()+';'
+    with pytest.raises(ValueError,match='仅可试看'):
+        article_video(document,'https://v.ifeng.com/c/8WHpW9qUT1g')
+    metadata=article_video(document,'https://v.ifeng.com/c/8WHpW9qUT1g',metadata_only=True)
+    assert metadata['media_access_restricted'] and metadata['preview_seconds']==120
+    assert metadata['declared_duration']==1641 and 'media_url' not in metadata
+    class Response:
+        def __enter__(self):return self
+        def __exit__(self,*a):pass
+        def read(self,*a):return document.encode()
+    monkeypatch.setattr(F.urllib.request,'urlopen',lambda *a,**k:Response())
+    out=tmp_path/'video.mp4';out.write_bytes(b'existing unapproved cache')
+    out.with_suffix('.origin.json').write_text('{}')
+    with pytest.raises(ValueError,match='仅可试看'):
+        F.fetch('https://v.ifeng.com/c/8WHpW9qUT1g',out)
+    assert out.read_bytes()==b'existing unapproved cache'

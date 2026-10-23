@@ -78,3 +78,13 @@ def test_verified_bans_do_not_block_other_parent_or_nested_urls():
     assert restriction('https://www.bilibili.com/video/BV1a84y1c7B7',[]) is None
     assert restriction('https://example.com/?url=https://www.bilibili.com/video/BV15ByfBqEoQ',[]) is None
     assert restriction('https://www.bilibili.com.evil.test/video/BV15ByfBqEoQ',[]) is None
+
+
+@pytest.mark.parametrize('host',['v.ifeng.com','finance.ifeng.com','original.ifeng.com','news.ifeng.com'])
+def test_known_preview_only_document_blocks_canonical_aliases_and_staged_retries(host):
+    url='https://'+host+'/c/8WHpW9qUT1g?from=share'
+    assert '试看120秒' in restriction(url,[])
+    state=dict(dispatched=[dict(slug='old',ts=2,source_url=url)])
+    assert check('https://github.com/org/repo/releases/download/staging/old.mp4','old',[],state)
+    assert restriction('https://'+host+'/c/8wW9TEtieKg',[]) is None
+    assert restriction('https://example.com/?url='+url,[]) is None

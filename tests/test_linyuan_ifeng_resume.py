@@ -58,7 +58,7 @@ def test_actual_transfer_preserves_prefix_and_stops_upstream_refusal(tmp_path,de
 
 def test_official_wrapper_keeps_exact_source_checkpoint_and_revalidates_complete_media(tmp_path,monkeypatch):
     from contextlib import contextmanager
-    source=dict(article='https://v.ifeng.com/c/8WHpW9qUT1g',guid='actual-guid',
+    source=dict(article='https://v.ifeng.com/c/8PublicControl',guid='actual-guid',
         media_url='https://video19.ifeng.com/original.mp4',declared_duration=1641)
     @contextmanager
     def page(*a,**k):
