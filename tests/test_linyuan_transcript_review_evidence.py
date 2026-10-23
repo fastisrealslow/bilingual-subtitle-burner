@@ -33,7 +33,7 @@ def test_unavailable_audio_claim_requires_new_independent_decision(tmp_path,reas
             return review_json(dict(issues=[dict(sentence_id=0,suspect_quote='原话',
                 kind='unintelligible_term',reason=reason)],explanation='需复核'))
         assert '未收到原音' in prompt
-        assert list(schema['properties'])==['verdict','issues','explanation']
+        assert list(schema['properties'])==['issues','explanation','verdict']
         return review_json(dict(issues=[],explanation='仅按文字重新判断，未发现具体污染'))
     proof=A.review('这是真实原话。','林园','model',call,tmp_path/'audit.json')
     assert len(calls)==2 and proof['passed'] and not proof['audio_verified']

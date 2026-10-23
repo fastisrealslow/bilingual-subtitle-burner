@@ -8,7 +8,7 @@ from editorial_policy import text_digest
 from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102312
+SPOKEN_RANGE_POLICY_VERSION = 2026102313
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
@@ -77,9 +77,9 @@ def review(text, speaker, model, call, path):
         reason=dict(type='string',minLength=1,maxLength=120)))
     issue['required']=list(issue['properties'])
     schema=dict(type='object',additionalProperties=False,properties=dict(
-        verdict=dict(type='string',enum=['clear','needs_audio']),
         issues=dict(type='array',maxItems=6,items=issue),
-        explanation=dict(type='string',minLength=1,maxLength=180)))
+        explanation=dict(type='string',minLength=1,maxLength=180),
+        verdict=dict(type='string',enum=['clear','needs_audio'])))
     schema['required']=list(schema['properties'])
     instructions=(
         '审核自动转写的文字可理解性，不润色、不审核投资判断或观点完整性。你未收到原音，不能声称听感、听过或核实发音。'
@@ -88,7 +88,8 @@ def review(text, speaker, model, call, path):
         '普通通用词不要求是行业术语。正常口语、重复、填充词、反问、比喻、松散句法及标点断句，不单独构成识别错误。'
         '泛指少量、明确的备选比例、口语约数和省略世纪的年份保持原样；不得凭空另造精确金额、不同读法或绝对日期。'
         '真正不认识的行业词、错写专名、截断数值、单位不明、实际矛盾数字或含义不明的否定仍需报告。'
-        '先选verdict：无具体识别污染选clear且issues必须为空；确有疑点选needs_audio且只列实际污染。'
+        '先核对是否存在具体文字污染，列issues并解释，最后按实际问题选择verdict：无具体识别污染选clear且issues必须为空；确有疑点选needs_audio且只列实际污染。'
+        '事实信息重要、年龄较大、健康事件敏感或尚未做外部事实核实，本身都不是识别污染。数字只有在文字中实际矛盾、截断、单位不明或否定含义不清时才列为疑点；不能仅为排除所有可能听写偏差而列正常数字。'
         'issues不是检查过程或逐句点评，不要列正常句、反例、已经否定的疑点或说明“不是错误”的条目。'
         '每项摘录原句编号和1到24字的最小疑词，理由只写具体污染；数字或否定类须摘录实际的数字或否定字。'
         '不猜替换词，不修改原文；explanation简短总结文字判断，不能代替原音核验。')

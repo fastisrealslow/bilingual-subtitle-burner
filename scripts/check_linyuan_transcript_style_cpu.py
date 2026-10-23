@@ -90,6 +90,12 @@ def actual_text_only_case():
 
 
 def control_evidence_passed(name,proof,expected):
+    if name=='actual_life_medical_age' and expected is None:
+        # A different concrete source error must remain a blocker. This case
+        # only rejects the observed unsupported age/fact-verification concern;
+        # it does not require approving the rest of the source or its audio.
+        return (proof.get('audio_verified') is False and
+            all('八十七岁' not in str(x.get('suspect_quote') or '') for x in proof.get('issues') or []))
     if proof.get('passed') is not expected:return False
     if expected:return not proof.get('issues')
     required={
@@ -145,6 +151,11 @@ def main():
     ])
     cases.append(('contradictory_duplicate_company',next(
         text for name,text,_ in actual_cases if name=='actual_corrupt_company_name'),False))
+    life=json.loads((ROOT/'tests/fixtures/linyuan_actual_age_fact_check_audit.json').read_text())
+    life_text=''.join(c['text'] for c in life['cues'])
+    assert audit.text_digest(life_text)==life['actual_old_audit']['transcript_sha256']
+    assert life['actual_old_audit']['issues'][0]['suspect_quote']=='八十七岁'
+    cases.append(('actual_life_medical_age',life_text,None))
     rows=[]
     for name,text,expected in cases:
         calls=[]
@@ -186,6 +197,7 @@ def main():
                 spoken_range_policy_version=audit.SPOKEN_RANGE_POLICY_VERSION,
                 actual_provenance=actual_provenance,
                 text_only_provenance=text_only_provenance,
+                life_case_provenance={k:life[k] for k in ('source_run_id','editorial_artifact_id','source_sha256','automatic_candidate_index')},
                 audit_code_sha256=hashlib.sha256(Path(audit.__file__).read_bytes()).hexdigest(),
                 commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
                 independent_runner_replica=os.environ.get('AUDIT_REPLICA'),
