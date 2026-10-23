@@ -3610,6 +3610,46 @@ def _text_only_audit_audio_claim(reason):
             and bool(AUDIO_ACCESS_CLAIM.search(str(reason))))
 
 
+def _scene_cover_recovery_context(st,candidate,run):
+    """Recover only a measured clean native scene, never a tiny-face card."""
+    context=candidate.get('scene_cover_recovery_context') or {}
+    if not isinstance(context,dict) or context.get('run_id')!=run['id']:
+        try:
+            import tempfile,zipfile
+            artifacts=gh('GET',f"/actions/runs/{run['id']}/artifacts").get('artifacts',[])
+            artifact=next(a for a in artifacts if a.get('name')=='editorial-'+candidate['slug']
+                and not a.get('expired') and 0<a.get('size_in_bytes',0)<=2_000_000
+                and (a.get('workflow_run') or {}).get('id')==run['id'])
+            with tempfile.TemporaryDirectory() as folder:
+                archive=Path(folder)/'source.zip'
+                download_reviewed_zip(artifact['id'],archive,attempts=1,timeout_sec=30,max_bytes=2_000_000)
+                with zipfile.ZipFile(archive) as z:
+                    names=[i for i in z.infolist() if i.filename.endswith('/source_quality.json')]
+                    if len(names)!=1 or names[0].file_size>1_000_000:return False
+                    source=json.loads(z.read(names[0]))
+            context=dict(run_id=run['id'],artifact_id=artifact['id'],
+                source_url=candidate['source_url'],**{k:source.get(k) for k in (
+                    'passed','source_sha256','duration_sec','resolution',
+                    'clean_strategy','clean_filter_verified','clean_output_resolution')})
+            candidate['scene_cover_recovery_context']=context
+            save_state(st)  # Measured metadata only; no retry/approval is imported.
+        except Exception as exc:
+            log.warning('现场封面恢复上下文暂不可读：%s',type(exc).__name__)
+            return False
+    duration=context.get('duration_sec');size=context.get('clean_output_resolution') or {}
+    if (context.get('source_url')!=candidate.get('source_url') or context.get('passed') is not True
+            or type(context.get('artifact_id')) is not int or context['artifact_id']<=0
+            or not re.fullmatch(r'[a-f0-9]{64}',str(context.get('source_sha256')))
+            or type(duration) not in (int,float) or not math.isfinite(duration) or not 1200<=duration<=5400
+            or context.get('clean_filter_verified') is not True
+            or context.get('clean_strategy') not in ('crop','crop_delogo') or not isinstance(size,dict)):
+        return False
+    from source_profile_feasibility import native_scene_unavailable
+    w,h=size.get('width'),size.get('height')
+    return (type(w) is int and type(h) is int and min(w,h)>0
+            and native_scene_unavailable(w,h) is None)
+
+
 def _keynote_recovery_source_eligible(candidate, run):
     """A long-only proposer cannot repair an unknown or short failed source."""
     summary=candidate.get('production_failure_summary') or {}
@@ -3665,6 +3705,8 @@ def _recover_changed_production_rule(st, candidate, run):
     cases=[('scene-aware-selection-v1',('来源角标无法避开','原画无法通过真人画面清理门禁',
                                       '真人动态区仍有原素材字幕','整段取景预检'),
             ('linyuan/scene_text.py','linyuan/visual_selection.py')),
+           ('scene-cover-frame-text-v1',('封面生成/人物/角标复检失败：现场封面原像素取景未通过',),
+            ('linyuan/produce_cn.py',)),
            ('native-cover-borders-v1',('封面生成/人物/角标复检失败：现场原画封面存在黑色填充边',),
             ('linyuan/cover_scene_geometry.py',)),
            ('live-geometry-v1',('来源角标无法避开','原画无法通过真人画面清理门禁'),
@@ -3742,6 +3784,16 @@ def _recover_changed_production_rule(st, candidate, run):
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
+        if case[0]=='scene-cover-frame-text-v1':
+            from publishing_experiment import TREATMENT
+            summary_bound=(isinstance(summary,dict) and summary.get('slug')==candidate['slug']
+                and summary.get('run_id')==run['id'] and type(summary.get('accepted')) is int
+                and summary['accepted']==0 and type(summary.get('artifact_id')) is int
+                and summary['artifact_id']>0)
+            return bool(candidate.get('editorial_profile')==TREATMENT and summary_bound
+                and '原始像素中没有避开来源文字且保留完整人物的清晰现场封面' in reason
+                and re.search(r'^\+def source_frame_edge_text_exclusions\(',str(file.get('patch') or ''),re.M)
+                and _scene_cover_recovery_context(st,candidate,run))
         range_policy_patch=(file.get('filename')=='linyuan/transcript_audit.py'
             and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*20261023(?:0[5-9]|1[0-2])\s*$',
                           str(file.get('patch') or ''),re.M))
@@ -3824,6 +3876,8 @@ def _recover_changed_production_rule(st, candidate, run):
     if not case:return False
     version,_,paths=case
     history[version]=dict(run_id=run['id'],reason=reason,ts=int(time.time()))
+    if version=='scene-cover-frame-text-v1':
+        history[version]['source_context_artifact_id']=candidate['scene_cover_recovery_context']['artifact_id']
     if version=='tracked-source-strips-v1':
         history[version]['failure_artifact_id']=summary.get('artifact_id')
         history[version]['matched_failure']='持续黑色填充边'
