@@ -113,6 +113,9 @@ def selection_request(cues, candidates):
         '只能选嘉宾自己的真实经历/选择/判断失误，或点名公司的具体事例；'
         '泛泛谈认知、长期投资、行业趋势不能仅靠出现“我”或公司名入选。'
         'ETF、指数或基金的一般调仓机制不是具体公司案例，必须skip；公司案例的对象原句必须点名具体公司。'
+        '“谢谢、林总、老师、网友”等致谢称呼不是公司名；“银行板块、医药行业”等也不是某家企业。'
+        '嘉宾本人实际买入或退出某个行业，可按personal_story判断，但仍须有本人实际行为和另一条完整的原话理由；'
+        '不能把行业硬标成company_case，也不能把未来建议改成已发生的个人经历。'
         '保留主持人有信息的问题，不改写、不拼接、不制造冲突。'
         '每个candidate_N只返回一次：kind为personal_story、company_case或skip。'
         '选择本段中的原句编号：subject_sentence交代具体对象；event_sentence是嘉宾'
@@ -211,8 +214,8 @@ def validate_choices(cues, candidates, response):
         if row['kind']=='personal_story':
             issue=personal_event_error(row['event_quote']) or personal_detail_error(row['detail_quote'])
             if issue:raise ValueError(issue)
-        if row['kind']=='company_case' and not title_focus(row)['subjects']:
-            raise ValueError('Named company subject required; generic assets/rules are not a company case')
+        company_issue=company_subject_error(row)
+        if company_issue:raise ValueError(company_issue)
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
         selected.append({**pick,'story_selection':dict(version=VERSION,**evidence,
             transcript_sha256=digest(text))})
@@ -408,12 +411,24 @@ def title_focus(selection):
     """Literal source-word coverage, not an entailment or speaker approval."""
     import jieba.posseg
     generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
-    categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股'}
+    categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股',
+                '银行','金融','医药','消费','科技','白酒','地产','证券','机构','集团',
+                '中国','美国','全球','国内','国外','国有','民营',
+                '估值','股价','市值','利润','业绩','回报','走势','行情','风险','机会','盈利','财务','规模',
+                '抄底','追涨','杀跌','加仓','减仓','建仓','清仓','买入','卖出','退出','持有',
+                '谢谢','感谢','您好','你好','老师','先生','女士','博士','董事长','经理',
+                '主持人','网友','观众','朋友','朋友们','大家','嘉宾','记者','股东'}
     def terms(text,proper=False):
         words=list(jieba.posseg.cut(text))
         tokens=[w.word for w in words if 2<=len(w.word)<=10 and w.word not in generic
                 and not (selection.get('kind')=='personal_story' and w.word in {'个人','时间'})
                 and (not proper or w.word.upper() not in categories)
+                # Jieba can tag "谢谢" and "林总" as proper nouns. Literal
+                # coverage must not turn a greeting/address into a company,
+                # then force the title to say it. Never rewrite the source.
+                and (not proper or not re.fullmatch(r'[\u4e00-\u9fff]{1,6}(?:总|老师|先生|女士|博士)',w.word))
+                and (not proper or not re.fullmatch(r'(?:银行|金融|医药|消费|科技|白酒|地产|证券)'
+                    r'(?:行业|板块|领域|产业)',w.word))
                 and (w.flag.startswith('n') or (proper and w.flag in {'i','eng'})
                      or not proper and w.flag=='vn')]
         if proper:
@@ -496,6 +511,15 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
             or lifetime_holding_hedge_error(title,cover,source) or rare_sale_scope_error(title,cover,source))
 
 
+def company_subject_error(selection):
+    """Addresses, sector labels and greetings cannot identify a company."""
+    if not isinstance(selection,dict) or selection.get('kind') not in ('personal_story','company_case'):
+        return 'Invalid grounded story kind'
+    if selection['kind']=='company_case' and not title_focus(selection)['subjects']:
+        return 'Named company subject required; greetings, people addresses and generic assets/rules are not a company case'
+    return None
+
+
 def proof_error(meta):
     if not isinstance(meta,dict):return 'Invalid treatment metadata'
     if meta.get('editorial_profile')!=TREATMENT:
@@ -519,8 +543,8 @@ def proof_error(meta):
         issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
         if issue:return issue
     focus=title_focus(s)
-    if s['kind']=='company_case' and not focus['subjects']:
-        return 'A generic asset/rule is not a named company case'
+    company_issue=company_subject_error(s)
+    if company_issue:return company_issue
     focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),

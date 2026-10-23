@@ -5624,6 +5624,14 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         return None
     from publishing_experiment import profile, TREATMENT
     story_treatment=(profile()==TREATMENT and len(picks)==1 and bool(picks[0].get('story_selection')))
+    if story_treatment:
+        from publishing_experiment import company_subject_error
+        story_issue=company_subject_error(picks[0]['story_selection'])
+        if story_issue:
+            # Cache/manual-selection entrypoints must not spend title/picture
+            # budget forcing a greeting or a sector into a named-company story.
+            # Fresh automatic choices are already checked by the same validator.
+            raise VisualQualityError('故事选题证据无效：'+story_issue)
     portrait_story=bool(_portrait_attempt and story_treatment and W>H
                         and os.environ.get('OUTPUT_LAYOUT','auto')=='portrait')
     if _portrait_attempt and not portrait_story:
