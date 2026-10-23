@@ -7,9 +7,13 @@ from editorial_evidence import sentences
 from editorial_policy import text_digest
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102304
+SPOKEN_RANGE_POLICY_VERSION = 2026102305
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
+NO_CONTAMINATION = re.compile(
+    r'(?:并非|非|不是|不属于|不构成)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)'
+    r'|(?:无|没有|未发现|不存在)(?:(?:具体|实际|明确|明显|任何|真正|相关|的))*'
+    r'(?:识别错误|识别污染|识别疑点)')
 
 
 def ordinary_disfluency(quote):
@@ -102,7 +106,7 @@ def review(text, speaker, model, call, path):
                         or not isinstance(quote,str) or not 1<=len(quote)<=24 or quote not in units[ident]):
                     raise ValueError('Issue must identify an actual source sentence and reason')
                 evidence=dict(sentence_id=ident,quote=units[ident],suspect_quote=quote,kind=item['kind'],reason=reason)
-                if re.search(r'(?:并非|非|不是|不属于|不构成)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)',reason):
+                if NO_CONTAMINATION.search(reason):
                     explanation_first_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '此项理由明确否认识别错误，不能同时列为负面识别证据。仅保留实际认为有污染的最小词语；'

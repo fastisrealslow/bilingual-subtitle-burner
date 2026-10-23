@@ -159,7 +159,8 @@ def test_range_prompt_never_waives_a_returned_numeric_or_name_issue(tmp_path):
     assert not proof['ignored_style_objections']
 
 
-@pytest.mark.parametrize('disavowal',['并非识别错误','非识别错误','不是识别污染','不构成识别疑点'])
+@pytest.mark.parametrize('disavowal',['并非识别错误','非识别错误','不是识别污染','不构成识别疑点',
+    '此处无具体识别污染，无需修正','未发现实际识别错误','没有明确的识别疑点','不存在任何识别污染'])
 def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path,disavowal):
     text='几块钱的是五六块钱。';calls=[]
     def call(prompt,schema):
@@ -205,3 +206,13 @@ def test_real_corrupt_term_keeps_initial_protocol_without_retry(tmp_path):
             kind='unintelligible_term',reason='专名错写需核实')],explanation='真实具体错词'))
     proof=A.review('道琼市指数影响投资。','林园','model',call,tmp_path/'audit.json')
     assert len(calls)==1 and not proof['passed']
+
+
+@pytest.mark.parametrize('reason',[
+    '并非已知企业名称，疑似识别错误',
+    '不存在此专有名词，具体识别污染需核实',
+    '不是普通口语范围，而是数字相互矛盾',
+    '无明确单位，数字含义不明',
+])
+def test_true_contamination_reason_is_not_mistaken_for_a_no_error_statement(reason):
+    assert not A.NO_CONTAMINATION.search(reason)
