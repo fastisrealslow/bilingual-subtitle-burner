@@ -1,0 +1,48 @@
+name: 真实成片确认问句字幕对比（不入库不投稿）
+on:
+  push:
+    branches: [fix/caption-question-tag-20261024]
+    paths:
+      - linyuan/caption_readability.py
+      - scripts/preview_linyuan_confirmation_tag.py
+      - .github/workflows/linyuan-confirmation-tag-check.yml
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: caption-question-tag-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 同生产的解码器与中文字体
+        timeout-minutes: 15
+        run: |
+          bash linyuan/ci_install_media_tools.sh
+          python -m pip install -q pytest numpy pillow jieba 'opencv-python-headless<5'
+      - name: 原始证据、历史版本与单行时间轴回归
+        run: >-
+          python -m pytest -q tests/test_linyuan_caption_policy_versions.py
+          tests/test_linyuan_caption_readability.py tests/test_linyuan_caption_lines.py
+          tests/test_linyuan_subtitle_edit_delivery.py
+      - name: 回读原正常生产交付（不修改源文件）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/fastisrealslow/bilingual-subtitle-burner/actions/artifacts/12537150814/zip > "$RUNNER_TEMP/original-delivery.zip"
+          unzip -q "$RUNNER_TEMP/original-delivery.zip" -d "$RUNNER_TEMP/original-delivery"
+          python scripts/preview_linyuan_confirmation_tag.py --delivery "$RUNNER_TEMP/original-delivery" --out output/confirmation-tag
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: confirmation-tag-real-media-proof
+          path: output/confirmation-tag/
+          retention-days: 14
+          if-no-files-found: warn
