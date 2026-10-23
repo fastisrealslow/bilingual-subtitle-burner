@@ -2483,7 +2483,7 @@ def _dispatch_admitted(event=None, context=None):
         reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
         if source_inventory(st,reserve)['inventory_fresh']:
             if not recent_probe and any(exp_needs.values()):
-                story_reuse=list(experiment_reuse_candidates(st,reserve,items))
+                story_reuse=list(experiment_reuse_candidates(st,reserve,items,active_runs))
                 if any(r.get('historical_mother') and not r.get('run_id') for _,r in story_reuse):
                     # One read-only lookup recovers exact source-run IDs. The
                     # producer still accepts raw evidence only after source-
@@ -2560,8 +2560,7 @@ def _dispatch_admitted(event=None, context=None):
     if not recent_probe and success<target and any(exp_needs.values()):
         for parent,record,layout in experiment_reuse_plan(story_reuse,st,exp_needs):
             if success>=target or not any(exp_needs.values()):break
-            slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
-                parent.get('source_sha256') or parent['source_url'],experiment.SELECTION_REVISION])[:10]
+            slug=experiment_reuse_slug(parent)
             gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{'ref':'main','inputs':{
                 'source':parent['source_url'],'slug':slug,'speaker':'林园',
                 'occasion':parent.get('title','')[:30],'auto_publish':'false',
@@ -2577,7 +2576,9 @@ def _dispatch_admitted(event=None, context=None):
                     editorial_profile=experiment.TREATMENT,output_layout=layout,
                     experiment_selection_revision=experiment.SELECTION_REVISION,
                     experiment_mother_sha256=parent.get('source_sha256'),
-                    experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id']))
+                    experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id'],
+                    **({'experiment_proven_recall':parent['experiment_proven_recall']}
+                       if parent.get('experiment_proven_recall') else {})))
             save_state(st)
             success+=1;exp_needs[layout]=max(0,exp_needs[layout]-1)
             log_event('dispatch_ok',f'已调度故事实验 {slug}',f'复用已核验母片 {parent["slug"]}，原库存保留')
@@ -3017,10 +3018,70 @@ def same_mother_scene_geometry(inventory, mother_sha):
     return hints
 
 
-def experiment_reuse_candidates(state, inventory, items):
+# Empty until an immutable full-source/negative-control and actual-media trial
+# passes. These rows permit one NEW normal job, never approve its output.
+PROVEN_COMPANY_RECALLS = ()
+
+
+def experiment_reuse_slug(parent):
+    key=[experiment.EXPERIMENT_ID,parent.get('source_sha256') or parent['source_url'],
+         experiment.SELECTION_REVISION]
+    repair=parent.get('experiment_proven_recall')
+    if repair:key.append(repair['id'])
+    return 'ly-story-'+experiment.digest(key)[:10]
+
+
+def proven_company_recall_candidates(state, inventory, items, active_runs=()):
+    """One source/code-bound child; preserve all old stock, receipts and budgets."""
+    import hashlib
+    from source_admission_guard import restriction
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    records={r.get('slug'):r for r in inventory.get('artifacts',[])}
+    running={str(r.get('display_title') or '').split(' · ')[-1] for r in active_runs
+             if r.get('status') in {'queued','in_progress'}}
+    policy=hashlib.sha256(Path(experiment.__file__).read_bytes()).hexdigest()
+    for scope in PROVEN_COMPANY_RECALLS:
+        if (time.time()>=scope['expires_at'] or policy!=scope['selection_policy_sha256']
+                or any((e.get('experiment_proven_recall') or {}).get('id')==scope['id']
+                       for e in state.get('dispatched',[]))):continue
+        entry=latest.get(scope['parent_slug']);record=records.get(scope['parent_slug'])
+        if (not entry or entry.get('failed') or entry.get('uploading') or not record
+                or entry['slug'] in REVIEW_PAUSED_SLUGS or entry.get('weekly_full_week')
+                or entry.get('source_url')!=scope['source_url']
+                or record.get('artifact_id')!=scope['parent_artifact_id']
+                or record.get('run_id')!=scope['parent_run_id']
+                or not inventory_record_current(record) or restriction(scope['source_url'],[])):continue
+        related=[e for e in latest.values() if e.get('source_url')==scope['source_url']
+                 or e.get('experiment_mother_sha256')==scope['source_sha256']]
+        if any(e['slug'] in running or e.get('uploading') or e.get('source_check_retry_after')
+               or (e.get('experiment_parent_slug') and not e.get('failed')
+                   and e['slug'] not in records
+                   and not any(p.get('status')=='published' and p.get('bvid') for p in
+                       (state.get('published',{}).get(e['slug']) or {}).get('parts',[])))
+               for e in related):continue
+        matches=[i for i in items if scope['source_url'] in
+                 (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS
+                and not (i['extra'].get('no_reprint')==1
+                         or i['extra'].get('source_role') in {'reference','catalog_only'}
+                         or i['extra'].get('direct_dispatch') is False)
+                for i in matches if isinstance(i.get('extra'),dict)):continue
+        parts=[p for p in record.get('parts',[]) if p.get('status')=='verified']
+        if (not parts or any(p.get('source_sha256')!=scope['source_sha256'] for p in parts)
+                or not any(int(p.get('index',-1)) not in processed_part_indices(entry)
+                           and not inventory_publication_error(p,entry,state) for p in parts)):continue
+        provenance={k:scope[k] for k in ('id','source_sha256','selection_policy_sha256',
+            'diagnostic_run_id','diagnostic_artifact_id','diagnostic_video_sha256')}
+        yield {**entry,'source_sha256':scope['source_sha256'],
+               'experiment_proven_recall':provenance},record
+
+
+def experiment_reuse_candidates(state, inventory, items, active_runs=()):
     """One bounded automatic attempt per verified long mother, never relabel stock."""
     if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
     from source_admission_guard import restriction
+    proven=list(proven_company_recall_candidates(state,inventory,items,active_runs))
+    yield from proven
     latest={e['slug']:e for e in _latest_dispatches(state)}
     # One fresh attempt per mother for the fixed selector. Old fallback jobs
     # are not evidence this revision ran. Never cancel them or relabel output.
@@ -3039,6 +3100,8 @@ def experiment_reuse_candidates(state, inventory, items):
     used={e.get('experiment_parent_slug') for e in active_or_current.values()}
     used_sources={e.get('source_url') for e in active_or_current.values() if e.get('experiment_parent_slug')}
     used_hashes={e.get('experiment_mother_sha256') for e in active_or_current.values() if e.get('experiment_mother_sha256')}
+    used_sources.update(e['source_url'] for e,_ in proven)
+    used_hashes.update(e['source_sha256'] for e,_ in proven)
     # Older experiment dispatches omitted the hash, although their parent
     # artifact retained it. Reconstruct it read-only before admitting mirrors.
     for record in inventory.get('artifacts',[]):
