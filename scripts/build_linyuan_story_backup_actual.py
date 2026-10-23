@@ -14,7 +14,7 @@ def build_trial():
         'paths':['.github/linyuan-story-backup-actual.trigger']}}
     result['concurrency']={'group':'story-backup-actual-${{ github.ref }}','cancel-in-progress':False}
     result['env'].update(RUN_SOURCE='https://www.bilibili.com/video/BV1hS421X7Xd',
-        RUN_SLUG='preview-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39944885125',
+        RUN_SLUG='preview-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39965419893',
         RUN_SOURCE_PLATFORM='bilibili',RUN_TEXT_MODEL='qwen3.5:9b',
         LINYUAN_EDITORIAL_PROFILE='field-story-v1',OUTPUT_LAYOUT='portrait')
     production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
@@ -44,6 +44,8 @@ assert hashlib.sha256(Path('_src/video.mp4').read_bytes()).hexdigest()=='fc8b5dc
 CHECK
 echo 'path=_src/video.mp4' >> "$GITHUB_OUTPUT"
 '''
+        if s.get('name')=='复用同源失败任务的已完成证据':
+            s['run']=s['run'].rstrip()+' --artifact-name preview-editorial-preview-story-backups-39965419893\n'
         if s.get('id')=='render':
             s['env'].pop('SOURCE_VISUAL_CHAPTERS',None)
         steps.append(s)
@@ -52,6 +54,8 @@ echo 'path=_src/video.mp4' >> "$GITHUB_OUTPUT"
 import hashlib,json,os
 from pathlib import Path
 from publishing_experiment import actual_profile,BASELINE
+from source_supply import validate_part
+from artifact_range import delivery_files
 root=Path('deliver')/os.environ['RUN_SLUG']
 result=json.loads((root/'experiment_production.json').read_text())
 assert result['requested']=='field-story-v1' and result['fallback']
@@ -61,9 +65,17 @@ assert len(rows)==1 and actual_profile(rows[0])==BASELINE
 row=rows[0]; final=root/row['final']
 assert final.name==row['final'] and final.is_file()
 assert hashlib.sha256(final.read_bytes()).hexdigest()==row['fingerprints']['sha256']
+raw_meta=(root/'meta.json').read_bytes()
+files=delivery_files(row)
+assert all((root/name).is_file() for name in files)
+issue=validate_part(row,root)
+assert issue is None,issue
+assert (root/'meta.json').read_bytes()==raw_meta
+assert hashlib.sha256(final.read_bytes()).hexdigest()==row['fingerprints']['sha256']
 (root/'baseline_backup_actual.json').write_text(json.dumps(dict(passed=True,source_run_id=39944885125,
     old_accepted=0,new_accepted=1,actual_profile=BASELINE,final_sha256=row['fingerprints']['sha256'],
-    resolution=row['resolution'],diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))
+    resolution=row['resolution'],title=row['title'],full_media_validation_passed=True,
+    original_files_validated=files,metadata_unchanged=True,media_unchanged=True,diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))
 CHECK
 '''))
     steps.append(dict(name='保存真实回退验收与批次报告',uses='actions/upload-artifact@v4',

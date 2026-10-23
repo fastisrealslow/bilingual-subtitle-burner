@@ -23,7 +23,7 @@ env:
   RUN_REVIEWED_PARTS: ''
   LINYUAN_AUTOMATIC_ONLY: 'true'
   RUN_MAX_OUTPUTS: '1'
-  RUN_RECOVERY_RUN_ID: '39944885125'
+  RUN_RECOVERY_RUN_ID: '39965419893'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   OUTPUT_LAYOUT: portrait
 jobs:
@@ -126,7 +126,8 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
         RECOVERY_RUN_ID: ${{ env.RUN_RECOVERY_RUN_ID }}
-      run: 'python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
+      run: 'python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp" --artifact-name
+        preview-editorial-preview-story-backups-39965419893
 
         '
     - name: 检查原始识别证据，避免重复下载和推理
@@ -253,14 +254,17 @@ jobs:
         \ || inputs.prefer_live_video) && '--prefer-live-video' || '' }}\n"
     - name: 核对普通回退与真实文件哈希，不能算成实验成功
       run: "python - <<'CHECK'\nimport hashlib,json,os\nfrom pathlib import Path\nfrom publishing_experiment import\
-        \ actual_profile,BASELINE\nroot=Path('deliver')/os.environ['RUN_SLUG']\nresult=json.loads((root/'experiment_production.json').read_text())\n\
+        \ actual_profile,BASELINE\nfrom source_supply import validate_part\nfrom artifact_range import delivery_files\n\
+        root=Path('deliver')/os.environ['RUN_SLUG']\nresult=json.loads((root/'experiment_production.json').read_text())\n\
         assert result['requested']=='field-story-v1' and result['fallback']\nassert result['experiment_accepted']==0\
         \ and result['baseline_accepted']==1\nmeta=json.loads((root/'meta.json').read_text()); rows=meta if isinstance(meta,list)\
         \ else [meta]\nassert len(rows)==1 and actual_profile(rows[0])==BASELINE\nrow=rows[0]; final=root/row['final']\n\
         assert final.name==row['final'] and final.is_file()\nassert hashlib.sha256(final.read_bytes()).hexdigest()==row['fingerprints']['sha256']\n\
-        (root/'baseline_backup_actual.json').write_text(json.dumps(dict(passed=True,source_run_id=39944885125,\n\
+        raw_meta=(root/'meta.json').read_bytes()\nfiles=delivery_files(row)\nassert all((root/name).is_file() for\
+        \ name in files)\nissue=validate_part(row,root)\nassert issue is None,issue\nassert (root/'meta.json').read_bytes()==raw_meta\n\
+        assert hashlib.sha256(final.read_bytes()).hexdigest()==row['fingerprints']['sha256']\n(root/'baseline_backup_actual.json').write_text(json.dumps(dict(passed=True,source_run_id=39944885125,\n\
         \    old_accepted=0,new_accepted=1,actual_profile=BASELINE,final_sha256=row['fingerprints']['sha256'],\n\
-        \    resolution=row['resolution'],diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))\n\
+        \    resolution=row['resolution'],title=row['title'],full_media_validation_passed=True,\n    original_files_validated=files,metadata_unchanged=True,media_unchanged=True,diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))\n\
         CHECK\n"
     - name: 留存独立实验交付结果（普通出片成功不代表实验成功）
       if: always() && env.LINYUAN_EDITORIAL_PROFILE == 'field-story-v1'
