@@ -6,12 +6,13 @@ printf 'Media preparation policy: %s\n' "$MEDIA_TOOLS_POLICY_VERSION"
 
 verify_media_tools() {
   local tool font_path
-  for tool in ffmpeg ffprobe pdftoppm zstd fc-match fc-cache ldconfig; do
+  for tool in ffmpeg ffprobe pdftoppm pdftotext zstd fc-match fc-cache ldconfig; do
     command -v "$tool" >/dev/null || return 1
   done
   ffmpeg -hide_banner -filters 2>/dev/null | awk '$2 == "subtitles" {found=1} END {exit !found}' || return 1
   ffprobe -version >/dev/null || return 1
   pdftoppm -v >/dev/null 2>&1 || return 1
+  pdftotext -v >/dev/null 2>&1 || return 1
   zstd --version >/dev/null || return 1
   ldconfig -p 2>/dev/null | awk '
     $1 == "libGL.so.1" {gl=1}
