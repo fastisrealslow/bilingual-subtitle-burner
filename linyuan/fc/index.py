@@ -3592,6 +3592,12 @@ def _spoken_range_audit_false_positive(reason):
                 'ambiguous_number_or_negation','口语','范围','非精确数值冲突')))
 
 
+def _text_only_audit_audio_claim(reason):
+    from transcript_review_evidence import AUDIO_ACCESS_CLAIM
+    return (str(reason).startswith('原始ASR存在影响理解的疑点，禁止猜改后发布：')
+            and bool(AUDIO_ACCESS_CLAIM.search(str(reason))))
+
+
 def _recover_changed_production_rule(st, candidate, run):
     """Reopen affected old failures once per repair, never quality in general.
 
@@ -3641,6 +3647,8 @@ def _recover_changed_production_rule(st, candidate, run):
             ('linyuan/title_rewrite.py',)),
            ('transcript-spoken-ranges-v1',('原始ASR存在影响理解的疑点，禁止猜改后发布',),
             ('linyuan/transcript_audit.py',)),
+           ('transcript-text-only-evidence-v1',('原始ASR存在影响理解的疑点，禁止猜改后发布',),
+            ('linyuan/transcript_audit.py',)),
            ('transcript-valid-negatives-v4',('独立文字识别疑点审核不可用',),
             ('linyuan/transcript_audit.py',)),
            ('transcript-review-model-v3',('独立文字识别疑点审核不可用',
@@ -3688,7 +3696,8 @@ def _recover_changed_production_rule(st, candidate, run):
     history=candidate.setdefault('automatic_rule_recoveries',{})
     matches=[x for x in cases if x[0] not in history and any(
              s in value for s in x[1] for value in ([reason]+secondary
-             if x[0] in ('tracked-source-strips-v1','transcript-spoken-ranges-v1') else [reason]))
+             if x[0] in ('tracked-source-strips-v1','transcript-spoken-ranges-v1',
+                         'transcript-text-only-evidence-v1') else [reason]))
              and not (x[0]=='caption-source-clock-v5' and reason.startswith('封面生成/'))]
     if not matches:return False
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
@@ -3697,6 +3706,16 @@ def _recover_changed_production_rule(st, candidate, run):
         range_policy_patch=(file.get('filename')=='linyuan/transcript_audit.py'
             and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*2026102305\s*$',
                           str(file.get('patch') or ''),re.M))
+        text_only_patch=(file.get('filename')=='linyuan/transcript_audit.py'
+            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*2026102306\s*$',
+                          str(file.get('patch') or ''),re.M))
+        if case[0]=='transcript-text-only-evidence-v1':
+            return bool(text_only_patch and any(_text_only_audit_audio_claim(r)
+                                               for r in [reason]+secondary))
+        if text_only_patch and case[0] in ('transcript-valid-negatives-v4','transcript-review-model-v3'):
+            # Do not use an unchanged legacy catch-all to replay real corrupt
+            # words/numbers merely because the review protocol changed.
+            return False
         if case[0]=='transcript-spoken-ranges-v1' or (range_policy_patch and case[0] in (
                 'transcript-valid-negatives-v4','transcript-review-model-v3')):
             # This prompt-only repair cannot fix corrupt names/numbers, ASR
@@ -3764,6 +3783,9 @@ def _recover_changed_production_rule(st, candidate, run):
         # queue another replay of the same failure through the legacy case.
         history.setdefault('transcript-review-model-v3',dict(history[version]))
     if version=='transcript-spoken-ranges-v1':
+        history.setdefault('transcript-review-model-v3',dict(history[version]))
+        history.setdefault('transcript-valid-negatives-v4',dict(history[version]))
+    if version=='transcript-text-only-evidence-v1':
         history.setdefault('transcript-review-model-v3',dict(history[version]))
         history.setdefault('transcript-valid-negatives-v4',dict(history[version]))
     candidate.update(failed=False,source_quality_rejected=False,source_check_exhausted=False,

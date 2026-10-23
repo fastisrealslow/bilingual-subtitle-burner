@@ -45,6 +45,28 @@ def actual_range_cases():
         usage='text_plausibility_diagnostic_only_not_stock_or_audio_approval')
 
 
+def actual_text_only_case():
+    artifact=12474817544
+    raw=subprocess.check_output(['gh','api',
+        f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{artifact}/zip'],timeout=120)
+    if hashlib.sha256(raw).hexdigest()!='e0760cbcc31d6fc3d33bad09be87f233f3a5b02e6ea08bd2cb07dcf662ffefa4':
+        raise ValueError('Immutable actual text-only evidence changed')
+    with zipfile.ZipFile(io.BytesIO(raw)) as z:
+        source=json.loads(z.read('_tmp/source_quality.json'))
+        cues=json.loads(z.read('_tmp/cues_raw.json'))
+        picks=json.loads(z.read('_tmp/story_selection.json'))['selected']
+        old=json.loads(z.read('_tmp/transcript_audit_portrait.json'))
+    assert source['source_sha256']=='37bdc1449e1ce46a3df375f012cce6f3c1213b51da7f1afe7a6bb0c7da69f7a9'
+    assert len(picks)==1 and not old['passed'] and not old['audio_verified']
+    assert any(audit.AUDIO_ACCESS_CLAIM.search(x['reason']) for x in old['issues'])
+    text=''.join(cues[i]['text'] for p in picks for i in range(p['start'],p['end']+1))
+    assert audit.text_digest(text)==old['transcript_sha256']
+    return ('actual_text_only_bank_choice',text,True),dict(run_id=39889904692,
+        artifact_id=artifact,source_sha256=source['source_sha256'],
+        old_review_policy=old['spoken_range_policy_version'],
+        usage='text_plausibility_only_not_audio_or_media_approval')
+
+
 def main():
     model=os.environ.get('LOCAL_LLM_MODEL','')
     if model not in {'qwen3:8b','qwen3.5:9b'}:
@@ -66,6 +88,8 @@ def main():
     ]
     actual_cases,actual_provenance=actual_range_cases()
     cases+=actual_cases
+    text_only_case,text_only_provenance=actual_text_only_case()
+    cases.append(text_only_case)
     rows=[]
     for name,text,expected in cases:
         calls=[]
@@ -97,6 +121,7 @@ def main():
                 audit_version=audit.VERSION,
                 spoken_range_policy_version=audit.SPOKEN_RANGE_POLICY_VERSION,
                 actual_provenance=actual_provenance,
+                text_only_provenance=text_only_provenance,
                 audit_code_sha256=hashlib.sha256(Path(audit.__file__).read_bytes()).hexdigest(),
                 commit=os.environ.get('GITHUB_SHA'),run_id=os.environ.get('GITHUB_RUN_ID'),
                 cases=rows,passed=len(rows)==len(cases) and all(r['control_passed'] for r in rows))

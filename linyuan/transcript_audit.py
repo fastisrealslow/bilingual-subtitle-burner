@@ -5,9 +5,10 @@ from pathlib import Path
 
 from editorial_evidence import sentences
 from editorial_policy import text_digest
+from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102305
+SPOKEN_RANGE_POLICY_VERSION = 2026102306
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
@@ -98,6 +99,11 @@ def review(text, speaker, model, call, path):
             if not isinstance(data.get('explanation'),str) or not data['explanation'].strip():
                 raise ValueError('Missing text-review explanation')
             bound=[];ignored=[];invalid=[]
+            if AUDIO_ACCESS_CLAIM.search(data['explanation']):
+                explanation_first_retry=True
+                invalid.append(dict(scope='explanation',invalid_reason=
+                    '文字审核未收到原音，不能声称听感、听过或核实发音。'
+                    '请独立重审实际文字是否有具体识别污染，不猜替换词，不改原话。'))
             for item in data['issues']:
                 ident=item.get('sentence_id');reason=item.get('reason');quote=item.get('suspect_quote')
                 if (type(ident) is not int or not 0<=ident<len(units)
@@ -106,6 +112,12 @@ def review(text, speaker, model, call, path):
                         or not isinstance(quote,str) or not 1<=len(quote)<=24 or quote not in units[ident]):
                     raise ValueError('Issue must identify an actual source sentence and reason')
                 evidence=dict(sentence_id=ident,quote=units[ident],suspect_quote=quote,kind=item['kind'],reason=reason)
+                if AUDIO_ACCESS_CLAIM.search(reason):
+                    explanation_first_retry=True
+                    invalid.append({**evidence,'invalid_reason':
+                        '文字审核未收到原音，不能用听感或声称核实发音作为证据。'
+                        '请独立判断实际文字中的具体污染，不猜替换词，不改原话。'})
+                    continue
                 if NO_CONTAMINATION.search(reason):
                     explanation_first_retry=True
                     invalid.append({**evidence,'invalid_reason':
