@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "updated_at": 1792770570,
-  "inventory_updated_at": 1792770331,
+  "updated_at": 1792771141,
+  "inventory_updated_at": 1792771139,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 21,
     "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
-    "status": "covered",
+    "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
@@ -17,7 +17,7 @@
       "verified_stock_snapshot": 21,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
-      "reserve_shortfall": 0,
+      "reserve_shortfall": 5,
       "dates": [
         "2026-10-23",
         "2026-10-24",
@@ -28,7 +28,31 @@
         "2026-10-29"
       ],
       "requires_publish_time_revalidation": true,
-      "includes_unfinished_production": false
+      "includes_unfinished_production": false,
+      "version": 2,
+      "daily_target": 4,
+      "daily_by_layout": {
+        "portrait": 3,
+        "landscape": 1
+      },
+      "verified_by_layout": {
+        "portrait": 5,
+        "landscape": 16
+      },
+      "full_schedule_days": 1,
+      "required_week_shortfall": 16,
+      "required_week_shortfall_by_layout": {
+        "portrait": 16,
+        "landscape": 0
+      },
+      "reserve_targets_by_layout": {
+        "portrait": 10,
+        "landscape": 2
+      },
+      "reserve_shortfall_by_layout": {
+        "portrait": 5,
+        "landscape": 0
+      }
     }
   },
   "publishing_experiment": {
@@ -97,7 +121,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792770569,
+    "updated_at": 1792771140,
     "records": 11606,
     "video_records": 9985,
     "initial_candidates": 58,
