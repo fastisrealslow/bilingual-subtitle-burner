@@ -220,9 +220,17 @@ def validate_choices(cues, candidates, response):
             if issue:raise ValueError(issue)
         company_issue=company_subject_error(row)
         if company_issue:raise ValueError(company_issue)
+        context=pick.get('past_episode_context')
+        if context is not None or pick.get('selection_method')=='source_past_episode_v1':
+            from story_episodes import context_error,actual_event
+            problem=context_error(context,text)
+            if problem:raise ValueError(problem)
+            actual_parent=''.join(c['text'] for c in cues[context['parent_start_cue']:context['parent_end_cue']+1])
+            if problem or actual_parent!=context['parent_text'] or row['kind']!='company_case' or not actual_event(row['event_quote']):
+                raise ValueError(problem or 'Past episode needs an actual first-person past company action and its full parent source')
         evidence={k:row[k] for k in ('kind','subject_quote','event_quote','detail_quote')}
         selected.append({**pick,'story_selection':dict(version=VERSION,**evidence,
-            transcript_sha256=digest(text))})
+            transcript_sha256=digest(text),**({'past_episode_context':context} if context else {}))})
     return selected
 
 
@@ -691,6 +699,12 @@ def proof_error(meta):
     if s['kind']=='personal_story':
         issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
         if issue:return issue
+    if 'past_episode_context' in s:
+        from story_episodes import binding_error,actual_event
+        problem=binding_error(s['past_episode_context'],meta,s['transcript_sha256'])
+        if problem:return problem
+        if s['kind']!='company_case' or not actual_event(s['event_quote']):
+            return 'Past episode lacks an actual first-person past company action'
     focus=title_focus(s)
     company_issue=company_subject_error(s)
     if company_issue:return company_issue

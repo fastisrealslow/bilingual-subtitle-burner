@@ -6545,7 +6545,10 @@ def main():
         mother_seconds=float(source_report.get('duration_sec') or 0)
         if mother_seconds>=MIN_MOTHER_SECONDS:
             try:
-                story_candidates,excluded=story_selection_inputs(cues,source_picks,source_report,
+                from story_episodes import propose as propose_episodes
+                from source_selection import sentence_units
+                episode_picks=propose_episodes(cues,source_picks,sentence_units(cues))
+                story_candidates,excluded=story_selection_inputs(cues,episode_picks+source_picks,source_report,
                     os.environ.get('SOURCE_ORIGIN_URL',''),publication_state or {})
                 if story_candidates:
                     def story_call(prompt,schema):
@@ -6737,6 +6740,13 @@ def main():
             print(f"[中视频] 第{ci+1}段做成 {TARGET_SEC_MID//60} 分钟话题片")
         part_started = time.monotonic()
         try:
+            if preselected_picks:
+                from story_episodes import overlaps_episode
+                candidate_spans=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end']) for p in preselected_picks]
+                selection=preselected_picks[0].get('story_selection') or {}
+                if overlaps_episode(candidate_spans,selection,metas):
+                    print('[故事防重] 与本批已通过的同源叙事重叠，保留先通过的完整片段',flush=True)
+                    continue
             if preselected_picks and publication_state:
                 segments=[dict(start=seg_cues[p['start']]['start'],end=seg_cues[p['end']]['end'])
                           for p in preselected_picks]
