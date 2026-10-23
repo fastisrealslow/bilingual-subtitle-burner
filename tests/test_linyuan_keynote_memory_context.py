@@ -40,3 +40,21 @@ def test_no_midword_timestamp_or_generic_self_assessment_can_be_added():
     assert not any(r.get('memory_context') for rows in K.windows(cues) for r in rows)
     assert not K.opening_allowed('那时候问我，我说要注意投资风险。')
     assert K.opening_allowed('我当年买了这家公司，后来一直持有。')
+
+
+def test_complete_recollection_is_proposed_even_when_model_only_selects_host_intro(monkeypatch):
+    monkeypatch.setattr(K.editorial,'CONTENT_POLICY','reference_v1');monkeypatch.setattr(K.editorial,'MIN_SECONDS',20)
+    f=actual();before=deepcopy(f['cues']);picks=K.memory_episode_proposals(f['cues'])
+    assert [(p['start'],p['end']) for p in picks]==[(f['memory_start'],f['story_end'])]
+    assert f['cues']==before
+    assert not any(k in picks[0] for k in ('passed','story_selection','title','media_approved'))
+
+
+@pytest.mark.parametrize('change',['no_reaction','no_reply','fiction'])
+def test_incomplete_or_fictional_recollection_cannot_supply_a_proposal(change):
+    f=actual();cues=deepcopy(f['cues'])
+    for c in cues:
+        if change=='no_reaction':c['text']=c['text'].replace('结果是媒体就报道','大家后来又聊到')
+        elif change=='no_reply':c['text']=c['text'].replace('我说：那是提起风险。','投资需要注意风险。')
+        elif c['text'].startswith('我记得'):c['text']='假设'+c['text']
+    assert not K.memory_episode_proposals(cues)

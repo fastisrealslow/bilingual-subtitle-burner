@@ -104,6 +104,36 @@ def request(rows):
     return prompt,schema
 
 
+def memory_episode_proposals(cues):
+    """Propose a literal recollection through its reported reaction and reply.
+
+    The model missed an entire recollection and proposed the host's opening
+    instead. These are timed source boundaries, never a story verdict. The
+    independent story reader, argument reader and media gates still decide.
+    """
+    units=selection.sentence_units(cues)
+    proposals=[];seen=set()
+    for rows in windows(cues):
+        for opening in rows:
+            start=opening['start']
+            if not opening.get('memory_context') or start in seen:continue
+            reaction=False
+            for unit in units:
+                if unit['start']<=opening['end']:continue
+                if cues[unit['end']]['end']-cues[start]['start']>330:break
+                text=unit['text']
+                if re.search(r'假设|假如|虚构|编个|编一个',text):break
+                if re.search(r'(?:结果|后来|随后).*(?:媒体|报道|误解|回应|反应)',text):
+                    reaction=True;continue
+                if reaction and re.match(r'^我(?:当时)?(?:说|解释|澄清|回应|回答)',text):
+                    picks,rejected=validate(cues,rows,dict(picks=[dict(start=start,end=unit['end'])]))
+                    if not rejected and picks:
+                        seen.add(start)
+                        proposals.extend({**p,'selection_method':'literal_memory_reaction_proposal_v1'} for p in picks)
+                    break
+    return proposals
+
+
 def validate(cues,rows,data):
     if not isinstance(data,dict) or set(data)!={'picks'} or not isinstance(data['picks'],list) or len(data['picks'])>3:
         raise ValueError('Invalid keynote proposal response')
@@ -151,7 +181,7 @@ def propose(cues,source_report,call,path,*,budget_sec=1200):
                     and not row.get('error') and isinstance(row.get('response'),str)
                     and 'prompt' in row and 'schema' in row}
         except (ValueError,TypeError,KeyError):pass
-    report=dict(identity=identity,picks=[],rejected=[],unresolved=[],calls=[],
+    report=dict(identity=identity,picks=memory_episode_proposals(cues),rejected=[],unresolved=[],calls=[],
                 media_approved=False,selection_completed=False)
     from batch_delivery import write_json
     deadline=time.monotonic()+budget_sec

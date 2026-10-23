@@ -1,1 +1,1 @@
-Recheck full native e3ad P1 with original timed memory clauses and meeting context, all story/media gates intact; no stock or publication.
+Read-only full HD source-bound 1.7B ASR trial plus automatic complete recollection proposals. Original visible caption differs from prior 0.6B raw; no text replacement or audio gold claim. Every final gate remains.
