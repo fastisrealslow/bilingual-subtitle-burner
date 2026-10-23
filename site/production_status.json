@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792753237,
+  "updated_at": 1792753355,
   "inventory_updated_at": 1792753235,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -97,7 +97,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792753237,
+    "updated_at": 1792753355,
     "records": 11575,
     "video_records": 9962,
     "initial_candidates": 65,
@@ -193,12 +193,12 @@
     "complete": 142,
     "failed": 1291,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 6,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -15996,24 +15996,6 @@
       "run_updated_at": "2026-10-09T10:08:28Z"
     },
     {
-      "slug": "ly-1009-0adba2",
-      "status": "failed",
-      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
-      "signature": {
-        "ts": 1791534928,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 37905892898,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37905892898",
-      "run_started_at": "2026-10-09T08:35:27Z",
-      "run_updated_at": "2026-10-09T08:57:52Z"
-    },
-    {
       "slug": "ly-1009-119133",
       "status": "failed",
       "detail": "动态取景连续2.03秒缺少人脸",
@@ -26869,11 +26851,11 @@
     },
     {
       "slug": "ly-1023-6273d6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "清理后预计短边 370 < 480",
       "signature": {
         "ts": 1792752574,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26884,6 +26866,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39941810153",
       "run_started_at": "2026-10-23T10:49:34Z",
       "run_updated_at": "2026-10-23T10:58:54Z"
+    },
+    {
+      "slug": "ly-1009-0adba2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792753315,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39943223893,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39943223893",
+      "run_started_at": "2026-10-23T11:01:55Z",
+      "run_updated_at": "2026-10-23T11:01:59Z"
     }
   ],
   "runs": {
@@ -32300,14 +32300,14 @@
       "display_title": "中文源出片 · ly-1009-119133"
     },
     "ly-1009-0adba2": {
-      "id": 37905892898,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-09T08:35:27Z",
-      "updated_at": "2026-10-09T08:57:52Z",
-      "run_started_at": "2026-10-09T08:35:27Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/37905892898",
-      "run_number": 1590,
+      "id": 39943223893,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T11:01:55Z",
+      "updated_at": "2026-10-23T11:01:59Z",
+      "run_started_at": "2026-10-23T11:01:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39943223893",
+      "run_number": 2596,
       "display_title": "中文源出片 · ly-1009-0adba2"
     },
     "ly-1009-b001cf": {
