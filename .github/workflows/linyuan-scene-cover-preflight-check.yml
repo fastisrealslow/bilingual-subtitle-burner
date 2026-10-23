@@ -1,0 +1,35 @@
+name: 现场封面原生人物与提前门禁实测
+on:
+  push:
+    branches: [fix/scene-cover-verified-candidates-20261023]
+    paths: [linyuan/produce_cn.py, linyuan/check_scene_cover_preflight.py, tests/test_linyuan_scene_cover_preflight.py, .github/workflows/linyuan-scene-cover-preflight-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  covers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TEXT_BACKEND: local
+      LINYUAN_AUTOMATIC_ONLY: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          bash linyuan/ci_install_media_tools.sh
+          pip install pytest pillow numpy jieba 'opencv-python-headless<5' rapidocr-onnxruntime
+      - name: 提前失败、原生像素、布局回退和既有实验回归
+        run: python -m pytest -q tests/test_linyuan_scene_cover_preflight.py tests/test_linyuan_headline_policy.py tests/test_linyuan_human_scene_cover.py tests/test_linyuan_safe_portrait_preference.py tests/test_linyuan_publishing_experiment.py --tb=short
+      - name: 十帧真实书封误选对照及合格母片全封面重放，无文本模型、不入库不投稿
+        run: python -u linyuan/check_scene_cover_preflight.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scene-cover-preflight-verification
+          path: scene-cover-preflight-verification/
+          retention-days: 14
+          if-no-files-found: error

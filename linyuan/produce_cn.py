@@ -3985,17 +3985,24 @@ def select_verified_cover_face(frames, reference_path):
     # Identity is a gate, not a reason to prefer a blurred frame. The old
     # identity-first maximum could discard every usable scene even when a
     # different, verified frame already met the renderer's sharpness floor.
-    sharp_matches=[row for row in matched if row[1]>=60]
+    # A sharp miniature on a book/poster must not replace the actual speaker.
+    # Apply the existing native face-pixel floor BEFORE sharpness ranking;
+    # neither enlargement nor a sharper inset can rescue a blurred live face.
+    native_matches=[row for row in matched if min(row[4][2:])>=96]
+    if not native_matches:
+        raise VisualQualityError('现场封面匹配人脸原始像素不足96，禁止用小头像放大替代')
+    sharp_matches=[row for row in native_matches if row[1]>=60]
     previous=max(matched,key=lambda r:(r[0],r[1],r[2]))
-    score,sharp,area,path,box=max(sharp_matches or matched,key=lambda r:(r[0],r[1],r[2]))
+    score,sharp,area,path,box=max(sharp_matches or native_matches,key=lambda r:(r[0],r[1],r[2]))
     return path,box,{'engine':'opencv_yunet_sface_cpu','cosine_score':round(score,4),
                      'threshold':LOCAL_FACE_COSINE_THRESHOLD,'face_box':list(box),
                      'matched_faces':len(matched),'sharpness':round(sharp,2),
+                     'native_matching_faces':len(native_matches),'native_face_minimum':96,
                      'sharp_matching_faces':len(sharp_matches),
                      'identity_first_sharpness':round(previous[1],2),
                      'selection_changed':path!=previous[3] or box!=previous[4],
                      'selected_frame':path.name,
-                     'selection_policy':'identity_then_sharpness_gate_v2'}
+                     'selection_policy':'identity_native_pixels_then_sharpness_v3'}
 
 
 def cover_sample_context(src, tracked, start, end, clean_filter='', natural_scene=False):
@@ -5641,6 +5648,27 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         # Preserve rejected portrait tracking/geometry alongside the untouched
         # native route. Neither diagnostics nor failed windows enter delivery.
         suffix=f'{suffix}_portrait'
+    # Scene covers contain no generated copy. Validate the exact cover first,
+    # before argument/audit/title/caption inference and full-body encoding.
+    # Its native scene is independent of the preferred body layout; a cover
+    # failure must not trigger a second native-body attempt.
+    prepared_scene_cover=None
+    prepared_scene_cover_sha=None
+    if story_treatment:
+        if _picture_phase is not None:_picture_phase['cover_started']=True
+        prepared_scene_cover=out/(f'cover{suffix}.jpg' if suffix else 'cover_16x9.jpg')
+        p0=picks[0]
+        try:
+            make_cover(src,cues[p0['start']]['start'],cues[p0['end']]['end'],
+                '',speaker,prepared_scene_cover,video_filter='',
+                preferred_time=(visual_report or {}).get('best_cover_time'),
+                reference_path=_download_speaker_reference(speaker,work),
+                style='scene',allow_editorial_fallback=False,clean_scene_crop=True)
+        except Exception as exc:
+            if _picture_phase is not None:_picture_phase['cover_failed']=True
+            raise VisualQualityError(f'封面生成/人物/角标复检失败：{exc}') from exc
+        prepared_scene_cover_sha=_file_sha256(prepared_scene_cover)
+        print('[现场封面预检] 已通过原像素、身份、来源文字及信息流裁切检查；成片门禁仍须通过',flush=True)
     argument_review = argument_record_for_render(cues,picks,speaker,api_key,work,suffix)
     sel = sorted({i for p in picks for i in range(p["start"], p["end"] + 1)})
     total_sel = sum(cues[i]["end"] - cues[i]["start"] for i in sel)
@@ -6027,7 +6055,12 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         requested_cover='scene' if story_treatment else os.environ.get("COVER_STYLE", "auto")
         selected_cover_style = select_cover_style(strategy != "audio_card" or use_live_video, cw["title"],
                                                   requested_cover)
-        if selected_cover_style not in {"photo", "scene", "editorial"}:
+        if prepared_scene_cover is not None:
+            if (cover!=prepared_scene_cover or selected_cover_style!='scene'
+                    or _file_sha256(cover)!=prepared_scene_cover_sha):
+                raise VisualQualityError('现场封面预检文件或指纹发生变化，禁止复用')
+            cover_person_image_source='verified_source_frame'
+        elif selected_cover_style not in {"photo", "scene", "editorial"}:
             if audio_card_portrait is None:
                 audio_card_portrait = extract_audio_card_portrait(
                     work / "speaker_reference.jpg", work / f"cover_portrait{suffix}.png")
@@ -6190,7 +6223,7 @@ def _produce_with_layout_preference(*args,**kwargs):
         from production_diagnostics import failure_category
         picture=(failure_category(exc) in {'framing','resolution','identity','motion'}
                  or str(exc).startswith('真人动态区仍有原素材字幕'))
-        if (not phase.get('picture_started') or phase.get('copy_started')
+        if (not phase.get('picture_started') or phase.get('copy_started') or phase.get('cover_failed')
                 or isinstance(exc,EditorialReviewUnavailable) or not picture):
             raise
         print('[实验竖版预检] 原始像素无法安全取竖版；保留原生画面重新完整核验，不计作竖版：'+str(exc),flush=True)

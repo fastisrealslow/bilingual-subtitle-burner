@@ -414,6 +414,8 @@ def test_story_cannot_escape_into_static_portrait_stage_renderer(monkeypatch,tmp
     monkeypatch.setattr(P,'argument_record_for_render',lambda *a:{})
     monkeypatch.setattr(P,'_download_speaker_reference',lambda *a:None)
     monkeypatch.setattr(P,'_local_face_models',lambda:None)
+    # This test follows body routing after the independent scene-cover gate.
+    monkeypatch.setattr(P,'make_cover',lambda *a,**kw:a[5].write_bytes(b'verified scene'))
     def stage(*a,**kw):raise StageReached()
     def scene(*a,**kw):raise SceneReached()
     monkeypatch.setattr(stage_context,'plan',stage)
