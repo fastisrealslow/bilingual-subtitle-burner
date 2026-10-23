@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792743975,
+  "updated_at": 1792744082,
   "inventory_updated_at": 1792743973,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 14,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 7,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 6,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -97,18 +97,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792743974,
+    "updated_at": 1792744081,
     "records": 11513,
     "video_records": 9934,
-    "initial_candidates": 67,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 66,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 6,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1579,
       "clip_title": 1159,
-      "already_attempted_or_cooling": 1604,
+      "already_attempted_or_cooling": 1605,
       "speaker_unconfirmed": 6834,
       "noise": 21,
       "unrelated": 65,
@@ -119,14 +119,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1hS421X7Xd:p5",
-        "title": "林园 P5 第五集",
-        "source": "bilibili_collection",
-        "author": "懂事长策略",
-        "url": "https://www.bilibili.com/video/BV1hS421X7Xd?p=5",
-        "duration_sec": 1136.0
-      },
       {
         "key": "bilibili_search:BV1hS421X7Xd:p4",
         "title": "林园 P4 第四集",
@@ -191,14 +183,14 @@
   },
   "counts": {
     "complete": 142,
-    "failed": 1279,
+    "failed": 1280,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 5,
     "retry_queued": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -26653,11 +26645,11 @@
     },
     {
       "slug": "ly-1023-8d9b04",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 294 < 480（640x294），画质不达标",
       "signature": {
         "ts": 1792743781,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26668,6 +26660,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39924241317",
       "run_started_at": "2026-10-23T08:23:01Z",
       "run_updated_at": "2026-10-23T08:24:55Z"
+    },
+    {
+      "slug": "ly-1023-259492",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792744042,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39924753100,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39924753100",
+      "run_started_at": "2026-10-23T08:27:21Z",
+      "run_updated_at": "2026-10-23T08:27:26Z"
     }
   ],
   "runs": {
@@ -38440,6 +38450,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39924241317",
       "run_number": 2573,
       "display_title": "中文源出片 · ly-1023-8d9b04"
+    },
+    "ly-1023-259492": {
+      "id": 39924753100,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T08:27:21Z",
+      "updated_at": "2026-10-23T08:27:26Z",
+      "run_started_at": "2026-10-23T08:27:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39924753100",
+      "run_number": 2574,
+      "display_title": "中文源出片 · ly-1023-259492"
     },
     "ly-1023-69e854": {
       "id": 39923635326,
