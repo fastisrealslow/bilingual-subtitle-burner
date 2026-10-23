@@ -381,12 +381,49 @@ class BilibiliCollectionSource(Source):
     # Keep a 30-minute floor against repeated manual invocations.
     min_interval = 1800
 
+    def collection_seed_batch(self,seeds):
+        """Refresh explicitly verified additions once without resetting rotation.
+
+        A tail addition otherwise waits almost two days in the 1,000-parent
+        pool. Priority replaces existing requests, never adds to the budget;
+        all returned pages still require the normal media/publication gates.
+        """
+        limit=max(1,int(self.config.get('seed_batch_size',24)))
+        attempted=self.scan_state.setdefault(self.name+'_priority',{})
+        if not isinstance(attempted,dict):raise ValueError('Invalid priority seed refresh state')
+        priority=[];seen=set()
+        for seed in seeds:
+            bvid=seed.get('bvid')
+            if (seed.get('metadata_refresh_priority') is True and bvid
+                    and bvid not in attempted and bvid not in seen):
+                priority.append(seed);seen.add(bvid)
+                if len(priority)>=min(4,limit):break
+        for seed in priority:
+            # Checkpoint before the request, including unavailable parents.
+            # A failed lookup does not obtain an endless priority retry loop.
+            attempted[seed['bvid']]=int(time.time())
+            scan_path=self.config.get('_seed_scan_path')
+            if scan_path:
+                path=Path(scan_path);path.parent.mkdir(parents=True,exist_ok=True)
+                temporary=path.with_suffix('.tmp')
+                temporary.write_text(json.dumps(self.scan_state,ensure_ascii=False,indent=2)+'\n')
+                temporary.replace(path)
+            yield seed
+        remaining=limit-len(priority)
+        if remaining:
+            count=0
+            for seed in self.seed_batch(seeds,24,key=lambda seed:seed['bvid']):
+                if seed['bvid'] in seen:continue
+                yield seed
+                count+=1
+                if count>=remaining:break
+
     def fetch(self, page):
         items = self.partial_items
         seeds = list(self.config.get('seeds', []))
         if self.config.get('seeds_file'):
             seeds.extend(json.loads(Path(__file__).with_name(self.config['seeds_file']).read_text())['seeds'])
-        for seed in self.seed_batch(seeds, 24, key=lambda seed: seed['bvid']):
+        for seed in self.collection_seed_batch(seeds):
             bvid = seed["bvid"]
             try:
                 try:
