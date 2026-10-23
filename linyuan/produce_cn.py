@@ -615,14 +615,19 @@ def verify_source_identity(src, work, speaker, api_key):
 
 
 def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
-        response_schema=None, read_cache=True):
+        response_schema=None, read_cache=True, thinking=False):
     """Use a loopback Ollama model by default; cloud requires explicit opt-in."""
     cache_dir = BASE / ".llm_cache"
     cache_dir.mkdir(exist_ok=True)
-    ckey = hashlib.sha256(json.dumps(
-        {"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
-         "runtime_version":4,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema},
-        ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    if type(thinking) is not bool:raise ValueError('Thinking must be a boolean')
+    if thinking and (TEXT_BACKEND!='local' or LOCAL_LLM_MODEL!='qwen3.5:9b'):
+        raise ValueError('Audit thinking preview only supports the current local qwen3.5:9b')
+    identity={"backend":TEXT_BACKEND,"model":LOCAL_LLM_MODEL if TEXT_BACKEND=='local' else MODELS,
+        "runtime_version":4,"m":messages,"t":temperature,"mt":max_tokens,"schema":response_schema}
+    # Preserve EVERY existing ordinary writer/classifier request/cache key.
+    # An opt-in thinking result can never overwrite a nonthinking response.
+    if thinking:identity['thinking']=True
+    ckey=hashlib.sha256(json.dumps(identity,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
     cf = cache_dir / f"{ckey}.json"
     if read_cache and cf.exists():
         try:
@@ -642,7 +647,7 @@ def llm(messages, api_key, temperature=0.3, max_tokens=2000, budget_sec=None,
             raise RuntimeError('LOCAL_LLM_URL 只允许本机回环地址，防止误用收费接口')
         remaining=max(1,deadline-time.monotonic())
         payload=json.dumps({'model':LOCAL_LLM_MODEL,'messages':messages,'stream':False,
-                            'think':False,'format':response_schema or 'json','keep_alive':'24h',
+                            'think':thinking,'format':response_schema or 'json','keep_alive':'24h',
                             # Respect each caller's bounded output budget.
                             # A shared 640-token cap truncated real editorial
                             # reports long before their wall-clock deadline.
@@ -5660,8 +5665,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             if automatic_only():
                 from transcript_audit import review as audit_transcript
                 def audit_call(prompt,schema):
-                    return llm([{'role':'user','content':prompt}],api_key,temperature=0,
-                               max_tokens=1200,budget_sec=text_budget(180),response_schema=schema)
+                    from transcript_review_call import model_call
+                    return model_call(llm,text_budget,prompt,schema,api_key)
                 try:
                     audit=audit_transcript(''.join(cues[i]['text'] for i in sel),speaker,LOCAL_LLM_MODEL,
                                            audit_call,work/f'transcript_audit{suffix}.json')

@@ -16,6 +16,7 @@ C=importlib.util.module_from_spec(s);s.loader.exec_module(C)
 
 
 def setup(monkeypatch,tmp_path,done='stop'):
+    monkeypatch.delenv('LINYUAN_TRANSCRIPT_AUDIT_THINKING',raising=False)
     monkeypatch.setattr(P,'BASE',tmp_path)
     monkeypatch.setattr(P,'TEXT_BACKEND','local')
     monkeypatch.setattr(P,'LOCAL_LLM_MODEL','qwen3.5:9b')
@@ -47,3 +48,24 @@ def test_control_retains_actual_production_output_truncation_rejection(monkeypat
     with pytest.raises(P.LocalTextUnavailable,match='长度上限'):
         C.production_audit_request(P,'original source',dict(type='object'))
     assert len(requests)==1 and not list((tmp_path/'.llm_cache').glob('*.json'))
+
+
+def test_thinking_preview_is_explicit_and_keeps_caches_separate(monkeypatch,tmp_path):
+    requests=setup(monkeypatch,tmp_path)
+    schema=dict(type='object')
+    _,ordinary,_=C.production_audit_request(P,'same source',schema)
+    monkeypatch.setenv('LINYUAN_TRANSCRIPT_AUDIT_THINKING','true')
+    _,thinking,_=C.production_audit_request(P,'same source',schema)
+    assert ordinary['think'] is False and ordinary['options']['num_predict']==1200
+    assert thinking['think'] is True and thinking['options']['num_predict']==4096
+    assert ordinary['options']['seed']!=thinking['options']['seed']
+    assert len(requests)==2 and len(list((tmp_path/'.llm_cache').glob('*.json')))==2
+
+
+def test_thinking_preview_cannot_silently_enable_paid_or_other_model(monkeypatch,tmp_path):
+    requests=setup(monkeypatch,tmp_path)
+    monkeypatch.setenv('LINYUAN_TRANSCRIPT_AUDIT_THINKING','true')
+    monkeypatch.setattr(P,'TEXT_BACKEND','siliconflow')
+    with pytest.raises(ValueError,match='current local'):
+        C.production_audit_request(P,'source',dict(type='object'))
+    assert not requests

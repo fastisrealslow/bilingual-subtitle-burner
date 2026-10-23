@@ -14,6 +14,7 @@ from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'linyuan'))
 import transcript_audit as audit
+from transcript_review_call import model_call,settings as audit_settings
 
 
 def production_audit_request(producer,prompt,schema):
@@ -26,13 +27,12 @@ def production_audit_request(producer,prompt,schema):
         return actual_urlopen(request,*args,**kwargs)
     started=time.monotonic()
     with patch.object(producer.urllib.request,'urlopen',side_effect=observe):
-        raw=producer.llm([dict(role='user',content=prompt)],'',temperature=0,
-            max_tokens=1200,budget_sec=producer.text_budget(180),
-            response_schema=schema,read_cache=False)
+        raw=model_call(producer.llm,producer.text_budget,prompt,schema,read_cache=False)
     assert len(observed)==1
     payload=observed[0]
-    assert payload['think'] is False and payload['keep_alive']=='24h'
-    assert payload['options']['num_predict']==1200 and payload['options']['num_ctx']==16384
+    config=audit_settings()
+    assert payload['think'] is config['thinking'] and payload['keep_alive']=='24h'
+    assert payload['options']['num_predict']==config['max_tokens'] and payload['options']['num_ctx']==16384
     assert type(payload['options']['seed']) is int
     return raw,payload,round(time.monotonic()-started,3)
 
@@ -99,6 +99,17 @@ def main():
     with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=15) as r:
         tags=json.load(r)
     actual=next(m for m in tags['models'] if m.get('name')==model)
+    thinking_capability=None
+    if audit_settings()['thinking']:
+        req=urllib.request.Request('http://127.0.0.1:11434/api/show',
+            data=json.dumps(dict(model=model)).encode(),headers={'Content-Type':'application/json'})
+        with urllib.request.urlopen(req,timeout=30) as r:shown=json.load(r)
+        thinking_capability=dict(thinking=shown.get('thinking'),capabilities=shown.get('capabilities'))
+        control=shown.get('thinking') or {}
+        if isinstance(control,dict) and control.get('values'):
+            assert True in control['values'],'Exact model does not support thinking=true'
+        else:
+            assert 'thinking' in (shown.get('capabilities') or []),'Exact model lacks a thinking capability'
     cases=[
         ('spoken_style', '我们谈的是科技行业投资。'
          '我投百分之十去拥抱它，或者百分之五去拥抱它。'
@@ -154,6 +165,8 @@ def main():
                 source_cues_changed=False,production_current_model='qwen3.5:9b',
                 tested_model=model,production_model_changed=False,model_digest=actual['digest'],
                 production_transport=True,fresh_response_cache_disabled=True,
+                audit_thinking_settings=audit_settings(),
+                preview_only=audit_settings()['thinking'],thinking_capability=thinking_capability,
                 audit_version=audit.VERSION,
                 spoken_range_policy_version=audit.SPOKEN_RANGE_POLICY_VERSION,
                 actual_provenance=actual_provenance,
