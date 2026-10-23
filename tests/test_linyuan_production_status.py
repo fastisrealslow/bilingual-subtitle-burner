@@ -174,3 +174,34 @@ def test_repaired_delivery_creation_order_wins_even_across_index_pages():
         return dict(artifacts=[old]+[dict(name='unrelated',id=i) for i in range(99)]
                     if path.endswith('page=1') else [repaired])
     assert source_supply.find_deliveries({'mother':entry()},api,{})['mother']==repaired
+
+
+@pytest.mark.parametrize('portrait,landscape,days,weekly,reserve', [
+    (4,17,1,17,6), (0,21,0,21,10), (21,7,7,0,0), (12,0,0,16,2),
+])
+def test_real_daily_slot_mix_cannot_be_covered_by_wrong_format_stock(portrait,landscape,days,weekly,reserve):
+    stock=dict(daily_mix_usable=portrait+landscape,verified_portrait=portrait,verified_landscape=landscape)
+    inv=inventory([]);inv['inventory']=stock
+    result=status.build(dict(dispatched=[],published={}),inv,{},NOW)['continuity']
+    p=result['plan']
+    assert p['daily_by_layout']==dict(portrait=3,landscape=1)
+    assert p['full_schedule_days']==days and p['required_week_shortfall']==weekly
+    assert p['reserve_shortfall']==reserve
+    assert result['status']==('at_risk' if days<1 or reserve else 'covered')
+    assert p['includes_unfinished_production'] is False
+
+
+@pytest.mark.parametrize('stock',[dict(daily_mix_usable=21),
+    dict(daily_mix_usable=21,verified_portrait=4,verified_landscape=20),
+    dict(daily_mix_usable=21,verified_portrait='4',verified_landscape=17)])
+def test_missing_or_inconsistent_layout_counts_never_prove_daily_coverage(stock):
+    inv=inventory([]);inv['inventory']=stock
+    result=status.build(dict(dispatched=[],published={}),inv,{},NOW)['continuity']
+    assert result['status']=='unknown' and result['plan']['full_schedule_days'] is None
+
+
+def test_stale_layout_snapshot_is_unknown_even_with_large_stock():
+    inv=inventory([]);inv['updated_at']=NOW-4*3600
+    inv['inventory']=dict(daily_mix_usable=28,verified_portrait=21,verified_landscape=7)
+    result=status.build(dict(dispatched=[],published={}),inv,{},NOW)['continuity']
+    assert result['status']=='unknown' and result['plan']['full_schedule_days'] is None
