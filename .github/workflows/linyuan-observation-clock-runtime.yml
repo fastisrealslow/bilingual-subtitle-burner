@@ -1,0 +1,32 @@
+name: 已上线统计路由隔离核验（不投稿）
+on:
+  push:
+    branches: [codex/linyuan-observation-clock-runtime-20261023]
+    paths: [.github/workflows/linyuan-observation-clock-runtime.yml, linyuan/fc/probe_observation_clock.py, tests/test_linyuan_observation_clock_probe.py]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q pytest alibabacloud-fc20230330 alibabacloud-tea-openapi -r linyuan/fc/runtime-requirements.txt
+      - name: 核验旧运行时阻断与固定统计路由
+        run: python -m pytest -q tests/test_linyuan_observation_clock_probe.py
+      - name: 先核对已上线完整代码，再仅调用统计路由一次
+        env:
+          ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+          ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+          FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+          FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+        run: python linyuan/fc/probe_observation_clock.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: observation-clock-runtime-verification
+          path: observation-clock-runtime-verification.json
+          if-no-files-found: error
+          retention-days: 30
